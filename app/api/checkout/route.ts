@@ -73,8 +73,10 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       const errBody = await response.text();
+      const correlationId = crypto.randomUUID();
+      console.error(`[checkout:${correlationId}]`, errBody);
       return NextResponse.json(
-        { error: "Stripe checkout session creation failed.", details: errBody },
+        { error: "Stripe checkout session creation failed.", correlationId },
         { status: 502 },
       );
     }

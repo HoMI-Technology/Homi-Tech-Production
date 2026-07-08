@@ -68,7 +68,12 @@ export async function POST(request: Request) {
     .eq("user_id", user.id);
 
   if (updateError) {
-    return NextResponse.json({ error: updateError.message }, { status: 500 });
+    const correlationId = crypto.randomUUID();
+    console.error(`[assessments/override:update:${correlationId}]`, updateError);
+    return NextResponse.json(
+      { error: "Could not save your decision right now.", correlationId },
+      { status: 500 },
+    );
   }
 
   // Guard against duplicate pending surveys if this assessment is overridden more than once.
@@ -94,7 +99,12 @@ export async function POST(request: Request) {
   const { error: insertError } = await supabase.from("outcome_surveys").insert(surveys);
 
   if (insertError) {
-    return NextResponse.json({ error: insertError.message }, { status: 500 });
+    const correlationId = crypto.randomUUID();
+    console.error(`[assessments/override:insert:${correlationId}]`, insertError);
+    return NextResponse.json(
+      { error: "Could not schedule follow-up surveys right now.", correlationId },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ saved: true, at });

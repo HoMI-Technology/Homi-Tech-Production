@@ -1,27 +1,9 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
 import { computeScore, generateKeyInsight, generateNextSteps, type AssessmentInputs } from "@/lib/scoring";
+import { assessmentInputsSchema as inputsSchema } from "@/lib/validation/assessment";
 
 export const runtime = "nodejs";
-
-const inputsSchema = z.object({
-  debtToIncomeRatio: z.number().min(0).max(1),
-  downPaymentPercent: z.number().min(0).max(1),
-  emergencyFundMonths: z.number().min(0).max(120),
-  creditScore: z.number().min(300).max(850),
-
-  lifeStability: z.number().min(1).max(10),
-  confidenceLevel: z.number().min(1).max(10),
-  partnerAlignment: z.number().min(1).max(10).nullable(),
-  fomoLevel: z.number().min(1).max(10),
-
-  timeHorizonMonths: z.number().min(0).max(600),
-  savingsRate: z.number().min(0).max(1),
-  downPaymentProgress: z.number().min(0).max(1),
-
-  monthlyHousingRatio: z.number().min(0).max(2).optional(),
-});
 
 export async function POST(request: Request) {
   const ip = getClientIp(request);
