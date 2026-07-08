@@ -90,10 +90,17 @@ export async function POST(request: Request) {
     });
     if (!res.ok) {
       const text = await res.text().catch(() => "");
-      return NextResponse.json({ error: "Email provider rejected the request.", detail: text }, { status: 502 });
+      const correlationId = crypto.randomUUID();
+      console.error(`[email:${correlationId}]`, text);
+      return NextResponse.json(
+        { error: "Email provider rejected the request.", correlationId },
+        { status: 502 },
+      );
     }
     return NextResponse.json({ configured: true, ok: true });
-  } catch {
-    return NextResponse.json({ error: "Failed to send email." }, { status: 502 });
+  } catch (err) {
+    const correlationId = crypto.randomUUID();
+    console.error(`[email:${correlationId}]`, err);
+    return NextResponse.json({ error: "Failed to send email.", correlationId }, { status: 502 });
   }
 }
