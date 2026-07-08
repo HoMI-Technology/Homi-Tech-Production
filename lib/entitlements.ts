@@ -53,8 +53,12 @@ export type BooleanCapability = {
 const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
   free: {
     tier: "free",
-    advisorAccess: false,
-    advisorMessagesPerDay: 0,
+    // The Companion is the engagement hook that drives assessment completion and
+    // retention — so free tier gets a genuine daily taste, not a locked door.
+    // The ceiling is a graceful upgrade nudge (enforced server-side via the daily
+    // usage counter), never a hard paywall on the funnel's core surface.
+    advisorAccess: true,
+    advisorMessagesPerDay: 5,
     fullReport: false,
     unlimitedRescoring: false,
     couplesMode: false,

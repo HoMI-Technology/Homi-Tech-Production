@@ -115,7 +115,20 @@ export function Chat() {
         }),
       });
 
-      const data = await res.json();
+      const data = (await res.json().catch(() => ({}))) as { reply?: unknown; error?: unknown };
+
+      if (!res.ok) {
+        // Surface the gate's truthful copy (e.g. daily-quota upgrade nudge) rather
+        // than a generic "interrupted" line. /advisor is auth-gated, so 401 is
+        // unexpected here; 402 (over quota) is the real case.
+        const msg =
+          typeof data.error === "string"
+            ? data.error
+            : "Something interrupted that thought. Try asking again in a moment.";
+        setMessages((prev) => [...prev, { id: makeId(), role: "assistant", content: msg }]);
+        return;
+      }
+
       const replyContent: string =
         typeof data.reply === "string"
           ? data.reply

@@ -60,6 +60,7 @@ export function CompanionWidget() {
   const [messages, setMessages] = useState<CompanionMessage[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [gateCta, setGateCta] = useState<{ href: string; label: string } | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -156,7 +157,25 @@ export function CompanionWidget() {
         }),
       });
 
-      const data = await res.json();
+      const data = (await res.json().catch(() => ({}))) as { reply?: unknown; error?: unknown };
+
+      if (!res.ok) {
+        // The gate returns truthful, on-brand copy (sign-in / upgrade / retry) —
+        // never let a 401/402 fall through to the generic "interrupted" line.
+        const msg =
+          typeof data.error === "string"
+            ? data.error
+            : "Something interrupted that thought. Try asking again in a moment.";
+        setMessages((prev) => [...prev, { id: makeId(), role: "assistant", content: msg }]);
+        if (res.status === 401) {
+          setGateCta({ href: `/auth/sign-in?next=${encodeURIComponent(pathname)}`, label: "Sign in" });
+        } else if (res.status === 402) {
+          setGateCta({ href: "/pricing", label: "See plans" });
+        }
+        return;
+      }
+
+      setGateCta(null);
       const replyContent: string =
         typeof data.reply === "string"
           ? data.reply
@@ -279,6 +298,18 @@ export function CompanionWidget() {
               </div>
             )}
           </div>
+
+          {gateCta && (
+            <div className="px-3 pt-1">
+              <a
+                href={gateCta.href}
+                onClick={() => setOpen(false)}
+                className="btn btn-primary block w-full !py-2 text-center text-sm"
+              >
+                {gateCta.label}
+              </a>
+            </div>
+          )}
 
           <div className="hairline" />
           <div className="flex items-end gap-2 p-3">
