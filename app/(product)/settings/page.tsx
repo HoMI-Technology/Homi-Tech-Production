@@ -6,6 +6,7 @@ import { ProfileSection } from "@/components/settings/ProfileSection";
 import { SubscriptionSection } from "@/components/settings/SubscriptionSection";
 import { NotificationsSection } from "@/components/settings/NotificationsSection";
 import { SecuritySection } from "@/components/settings/SecuritySection";
+import { ShareLinksSection } from "@/components/settings/ShareLinksSection";
 import { PrivacySection } from "@/components/settings/PrivacySection";
 import type { Profile } from "@/types/database";
 
@@ -63,6 +64,8 @@ export default function SettingsPage() {
           <SubscriptionSection tier={profile?.subscription_tier ?? "free"} />
 
           {userId && <SecuritySection />}
+
+          {userId && <ShareLinksSection />}
 
           <NotificationsSection />
 
