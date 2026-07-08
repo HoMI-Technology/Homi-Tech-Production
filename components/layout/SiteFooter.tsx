@@ -12,7 +12,6 @@ const COLUMNS = [
       { href: "/tools", label: "Finance Tools" },
       { href: "/advisor", label: "Decision Companion" },
       { href: "/pricing", label: "Pricing" },
-      { href: "/artifact", label: "Companion Playground" },
     ],
   },
   {
