@@ -49,10 +49,6 @@ const TEMP_BG: Record<Temperature, string> = {
   crimson: "bg-verdict-notyet",
 };
 
-let nextExpenseId = 1;
-let nextAssetId = 1;
-let nextLiabilityId = 1;
-let nextDebtId = 1;
 
 export default function FinancePage() {
   const [state, setState] = useState<FinanceState>(DEFAULT_FINANCE_STATE);
@@ -273,7 +269,7 @@ function CashFlowTab({
     patch({
       expenseCategories: [
         ...state.expenseCategories,
-        { id: `cat-${nextExpenseId++}`, name: "", amount: 0 },
+        { id: `cat-${crypto.randomUUID()}`, name: "", amount: 0 },
       ],
     });
   }
@@ -429,8 +425,8 @@ function ProjectionChart({ points }: { points: { month: number; cumulative: numb
 
 function DebtTab() {
   const [debts, setDebts] = useState<Debt[]>([
-    { id: `debt-${nextDebtId++}`, name: "Credit card", balance: 4500, apr: 22.9, minPayment: 120 },
-    { id: `debt-${nextDebtId++}`, name: "Car loan", balance: 12000, apr: 6.5, minPayment: 280 },
+    { id: `debt-${crypto.randomUUID()}`, name: "Credit card", balance: 4500, apr: 22.9, minPayment: 120 },
+    { id: `debt-${crypto.randomUUID()}`, name: "Car loan", balance: 12000, apr: 6.5, minPayment: 280 },
   ]);
   const [extra, setExtra] = useState(300);
 
@@ -444,7 +440,7 @@ function DebtTab() {
     setDebts((prev) => prev.map((d) => (d.id === id ? { ...d, ...patchD } : d)));
   }
   function addDebt() {
-    setDebts((prev) => [...prev, { id: `debt-${nextDebtId++}`, name: "", balance: 0, apr: 0, minPayment: 0 }]);
+    setDebts((prev) => [...prev, { id: `debt-${crypto.randomUUID()}`, name: "", balance: 0, apr: 0, minPayment: 0 }]);
   }
   function removeDebt(id: string) {
     setDebts((prev) => prev.filter((d) => d.id !== id));
@@ -777,7 +773,7 @@ function NetWorthTab({
     patch({ assets: state.assets.map((a) => (a.id === id ? { ...a, ...patchA } : a)) });
   }
   function addAsset() {
-    patch({ assets: [...state.assets, { id: `asset-${nextAssetId++}`, name: "", amount: 0 }] });
+    patch({ assets: [...state.assets, { id: `asset-${crypto.randomUUID()}`, name: "", amount: 0 }] });
   }
   function removeAsset(id: string) {
     patch({ assets: state.assets.filter((a) => a.id !== id) });
@@ -787,7 +783,7 @@ function NetWorthTab({
     patch({ liabilities: state.liabilities.map((l) => (l.id === id ? { ...l, ...patchL } : l)) });
   }
   function addLiability() {
-    patch({ liabilities: [...state.liabilities, { id: `liability-${nextLiabilityId++}`, name: "", amount: 0 }] });
+    patch({ liabilities: [...state.liabilities, { id: `liability-${crypto.randomUUID()}`, name: "", amount: 0 }] });
   }
   function removeLiability(id: string) {
     patch({ liabilities: state.liabilities.filter((l) => l.id !== id) });
