@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { CookieConsent } from "@/components/consent/CookieConsent";
+import { SITE_URL } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://homitechnology.com"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "HōMI · Know When You're Ready",
     template: "%s · HōMI",
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
   description:
     "HōMI is Decision Readiness Intelligence™ — the first platform that measures your true readiness for life's biggest decisions. Not 'can you afford it?' — 'are you ready for it?'",
   applicationName: "HōMI",
+  alternates: { canonical: "/" },
   keywords: [
     "decision readiness",
     "home buying readiness",
