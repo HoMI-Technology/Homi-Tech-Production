@@ -1,0 +1,9 @@
+node_modules
+.next
+shots
+ogwork
+*.log
+shot*.mjs
+shotref*.mjs
+e2e.mjs
+deploy.log

@@ -1,0 +1,28 @@
+import type { Metadata } from "next";
+import { ArtifactPlayground } from "@/components/marketing/ArtifactPlayground";
+
+export const metadata: Metadata = {
+  title: "Connected companion — test environment",
+  description: "An internal test environment for the HōMI Decision Companion, wired to a fixed mock context.",
+  robots: { index: false, follow: false },
+};
+
+/**
+ * Public but noindex test environment for exercising the Decision Companion
+ * against a fixed mock context, without needing a real assessment or
+ * signed-in session. Not linked from primary nav; reachable via the footer
+ * "Companion Playground" link and direct URL.
+ */
+export default function ArtifactPage() {
+  return (
+    <div className="mx-auto max-w-6xl px-6 py-12">
+      <h1 className="font-display text-3xl text-light">Connected companion — test environment</h1>
+      <p className="mt-2 max-w-2xl text-dim">
+        A fixed mock context on the left, the live Decision Companion on the right. Nothing here is saved.
+      </p>
+      <div className="mt-8">
+        <ArtifactPlayground />
+      </div>
+    </div>
+  );
+}

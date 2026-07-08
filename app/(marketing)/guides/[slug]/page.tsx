@@ -1,0 +1,121 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Reveal } from "@/components/ui/Reveal";
+import { GUIDES, getAllGuideSlugs, getGuide } from "@/components/marketing/guides-data";
+
+export function generateStaticParams() {
+  return getAllGuideSlugs().map((slug) => ({ slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const guide = getGuide(slug);
+
+  if (!guide) {
+    return { title: "Guide not found" };
+  }
+
+  return {
+    title: guide.title,
+    description: guide.description,
+  };
+}
+
+export default async function GuidePage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const guide = getGuide(slug);
+
+  if (!guide) {
+    notFound();
+  }
+
+  const otherGuides = GUIDES.filter((g) => g.slug !== guide.slug).slice(0, 3);
+
+  return (
+    <>
+      <section className="px-6 pb-12 pt-16 md:pt-24">
+        <div className="mx-auto max-w-3xl">
+          <Link href="/guides" className="text-sm text-dim transition-colors hover:text-cyan">
+            &larr; All guides
+          </Link>
+          <h1 className="mt-5 text-4xl font-black leading-tight text-light md:text-5xl">
+            {guide.title}
+          </h1>
+          <p className="mt-5 text-lg leading-relaxed text-dim">{guide.description}</p>
+        </div>
+      </section>
+
+      <Reveal>
+        <section className="px-6 py-8">
+          <div className="mx-auto max-w-3xl space-y-12">
+            {guide.sections.map((section) => (
+              <div key={section.heading}>
+                <h2 className="font-display text-2xl font-bold text-light">
+                  {section.heading}
+                </h2>
+                <div className="mt-4 space-y-4">
+                  {section.paragraphs.map((p, idx) => (
+                    <p key={idx} className="text-lg leading-relaxed text-dim">
+                      {p}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </Reveal>
+
+      <Reveal>
+        <section className="px-6 py-16">
+          <div className="mx-auto max-w-3xl">
+            <div className="hairline" />
+            <div className="mt-10 flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:text-left">
+              <div>
+                <h2 className="text-xl font-bold text-light">See where you stand.</h2>
+                <p className="mt-2 text-sm text-dim">
+                  Ninety seconds tells you the truth about your readiness today.
+                </p>
+              </div>
+              <Link href="/shadow-score" className="btn btn-primary shrink-0">
+                Get your score
+              </Link>
+            </div>
+          </div>
+        </section>
+      </Reveal>
+
+      {otherGuides.length > 0 && (
+        <Reveal>
+          <section className="px-6 py-16">
+            <div className="mx-auto max-w-6xl">
+              <h2 className="text-2xl font-bold text-light">More guides</h2>
+              <div className="mt-8 grid gap-6 md:grid-cols-3">
+                {otherGuides.map((g) => (
+                  <Link
+                    key={g.slug}
+                    href={`/guides/${g.slug}`}
+                    className="glass glass-hover flex flex-col p-6"
+                  >
+                    <h3 className="font-semibold text-light">{g.title}</h3>
+                    <p className="mt-2 flex-1 text-sm text-dim">{g.description}</p>
+                    <span className="mt-4 text-sm font-semibold text-cyan">Read &rarr;</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        </Reveal>
+      )}
+    </>
+  );
+}

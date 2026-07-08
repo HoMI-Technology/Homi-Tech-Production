@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- HōMI icon mark: ō in emerald on navy, 20% corner radius. Monochromatic. -->
+  <rect width="64" height="64" rx="12.8" fill="#0a1628"/>
+  <text x="32" y="44" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-weight="900" font-size="36" fill="#34d399">ō</text>
+</svg>

@@ -1,0 +1,169 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { CinematicCompass } from "./CinematicCompass";
+
+/**
+ * The alignment scene — pinned cinema. The compass locks to the screen
+ * while the reader scrolls; each movement of scroll lights one ring:
+ * Financial Reality, then Emotional Truth, then Perfect Timing — and
+ * when all three burn together, the keyhole turns emerald. The reader
+ * doesn't watch alignment happen. They scroll it into existence.
+ *
+ * Reduced motion: renders as four stacked, fully-visible panels.
+ */
+
+const STEPS = [
+  {
+    kicker: "The first ring",
+    color: "#22d3ee",
+    title: "Financial Reality",
+    line: "Can you absorb this decision without destabilizing your foundation?",
+  },
+  {
+    kicker: "The second ring",
+    color: "#34d399",
+    title: "Emotional Truth",
+    line: "Are you choosing from clarity, or from pressure?",
+  },
+  {
+    kicker: "The third ring",
+    color: "#facc15",
+    title: "Perfect Timing",
+    line: "Does this moment support the decision?",
+  },
+  {
+    kicker: "Alignment",
+    color: "#34d399",
+    title: "The compass becomes a key",
+    line: "When all three align — truly align — that's when you're ready.",
+  },
+];
+
+export function AlignmentScene() {
+  const sceneRef = useRef<HTMLDivElement>(null);
+  const [step, setStep] = useState(0);
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setReduced(true);
+      return;
+    }
+    const el = sceneRef.current;
+    if (!el) return;
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const r = el.getBoundingClientRect();
+        const total = r.height - window.innerHeight;
+        const progress = Math.max(0, Math.min(1, -r.top / total));
+        setStep(Math.min(3, Math.floor(progress * 4)));
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  const active = STEPS[step];
+  const glow = {
+    outer: step >= 0 ? (step === 0 ? 1.7 : step === 3 ? 1.5 : 0.9) : 0.4,
+    middle: step >= 1 ? (step === 1 ? 1.6 : step === 3 ? 1.5 : 0.9) : 0.35,
+    inner: step >= 2 ? (step === 2 ? 1.5 : step === 3 ? 1.5 : 0.9) : 0.35,
+  };
+
+  if (reduced) {
+    return (
+      <div className="flex flex-col gap-12 px-6 py-24">
+        {STEPS.map((s) => (
+          <div key={s.title} className="mx-auto max-w-2xl text-center">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color: s.color }}>
+              {s.kicker}
+            </p>
+            <h3 className="mt-3 font-display text-4xl font-semibold text-light">{s.title}</h3>
+            <p className="mt-3 text-lg text-dim">{s.line}</p>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div ref={sceneRef} className="pin-scene">
+      <div className="pin-stage hero-deep">
+        {/* Horizon light behind the pinned instrument */}
+        <div
+          aria-hidden
+          className="horizon"
+          style={{
+            width: "56vmin",
+            height: "56vmin",
+            left: "50%",
+            top: "50%",
+            transform: "translate(-50%, -50%)",
+            opacity: step === 3 ? 1 : 0.55,
+            background:
+              step === 3
+                ? "radial-gradient(ellipse at center, rgba(52,211,153,0.5), rgba(52,211,153,0.1) 40%, transparent 70%)"
+                : undefined,
+            transition: "all 800ms ease",
+          }}
+        />
+
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-6 lg:grid-cols-2">
+          <div className="flex justify-center">
+            <div className="w-[280px] sm:w-[380px] lg:w-[440px]">
+              <CinematicCompass
+                responsive
+                glow={glow}
+                verdict={step === 3 ? "READY" : undefined}
+                keyholePulse={step === 3}
+              />
+            </div>
+          </div>
+
+          <div className="relative min-h-[220px] text-center lg:text-left">
+            {STEPS.map((s, i) => (
+              <div
+                key={s.title}
+                className="pin-step absolute inset-0 flex flex-col justify-center"
+                style={{
+                  opacity: i === step ? 1 : 0,
+                  transform: i === step ? "translateY(0)" : i < step ? "translateY(-16px)" : "translateY(16px)",
+                  pointerEvents: i === step ? "auto" : "none",
+                }}
+                aria-hidden={i !== step}
+              >
+                <p className="text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color: s.color }}>
+                  {s.kicker}
+                </p>
+                <h3 className="mt-4 font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
+                  {s.title}
+                </h3>
+                <p className="mt-5 max-w-md text-lg leading-relaxed text-dim lg:pr-6 mx-auto lg:mx-0">
+                  {s.line}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Progress ticks */}
+        <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 gap-2" aria-hidden>
+          {STEPS.map((s, i) => (
+            <span
+              key={i}
+              className="h-1 w-8 rounded-full transition-all duration-500"
+              style={{ background: i <= step ? active.color : "rgba(51,65,85,0.7)" }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
