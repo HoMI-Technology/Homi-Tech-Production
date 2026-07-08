@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { validateNewPassword } from "@/lib/auth/password";
 
 interface TotpFactor {
   id: string;
@@ -22,6 +23,40 @@ export function SecuritySection() {
   const [verifying, setVerifying] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // --- Change password ---
+  const [pw, setPw] = useState("");
+  const [pwConfirm, setPwConfirm] = useState("");
+  const [pwSaving, setPwSaving] = useState(false);
+  const [pwError, setPwError] = useState<string | null>(null);
+  const [pwDone, setPwDone] = useState(false);
+
+  async function handleChangePassword(e: React.FormEvent) {
+    e.preventDefault();
+    setPwDone(false);
+    const validationError = validateNewPassword(pw, pwConfirm);
+    if (validationError) {
+      setPwError(validationError);
+      return;
+    }
+    setPwError(null);
+    setPwSaving(true);
+    try {
+      const supabase = createClient();
+      const { error: updateError } = await supabase.auth.updateUser({ password: pw });
+      if (updateError) {
+        setPwError(updateError.message);
+        return;
+      }
+      setPw("");
+      setPwConfirm("");
+      setPwDone(true);
+    } catch {
+      setPwError("Couldn't update your password. Try again in a moment.");
+    } finally {
+      setPwSaving(false);
+    }
+  }
 
   async function loadFactors() {
     setLoading(true);
@@ -196,6 +231,51 @@ export function SecuritySection() {
           </button>
         </div>
       )}
+
+      <div className="hairline my-8" />
+
+      <h3 className="font-display text-lg font-semibold text-light">Change password</h3>
+      <p className="mt-1 text-sm text-dim">Update the password you use to sign in.</p>
+
+      <form onSubmit={handleChangePassword} className="mt-4 space-y-4">
+        <div>
+          <label htmlFor="new-password" className="mb-1.5 block text-sm text-dim">
+            New password
+          </label>
+          <input
+            id="new-password"
+            type="password"
+            autoComplete="new-password"
+            value={pw}
+            onChange={(e) => setPw(e.target.value)}
+            className="input"
+            placeholder="••••••••"
+          />
+        </div>
+        <div>
+          <label htmlFor="confirm-password" className="mb-1.5 block text-sm text-dim">
+            Confirm new password
+          </label>
+          <input
+            id="confirm-password"
+            type="password"
+            autoComplete="new-password"
+            value={pwConfirm}
+            onChange={(e) => setPwConfirm(e.target.value)}
+            className="input"
+            placeholder="••••••••"
+          />
+        </div>
+        {pwError && <p className="text-sm text-crimson">{pwError}</p>}
+        {pwDone && <p className="text-sm text-emerald">Password updated.</p>}
+        <button
+          type="submit"
+          disabled={pwSaving || pw.length === 0}
+          className="btn btn-primary !px-4 !py-2 text-sm disabled:opacity-50"
+        >
+          {pwSaving ? "Updating…" : "Update password"}
+        </button>
+      </form>
     </section>
   );
 }
