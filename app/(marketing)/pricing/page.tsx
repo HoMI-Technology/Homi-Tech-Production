@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Pricing",
   description:
     "HōMI pricing: a free Shadow Score, and paid tiers for unlimited assessments, the Decision Companion, and household plans. We profit when you're ready — not when you transact.",
+  alternates: { canonical: "/pricing" },
 };
 
 interface PricingTier {

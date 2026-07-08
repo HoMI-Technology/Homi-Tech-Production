@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Blog",
   description:
     "Notes on why HōMI exists, the conflict of interest built into most home-buying advice, and what a readiness score actually measures.",
+  alternates: { canonical: "/blog" },
 };
 
 function formatDate(date: string): string {
