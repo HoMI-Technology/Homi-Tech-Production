@@ -98,3 +98,75 @@ Bar: it should feel like one continuous cinematic product from landing → signe
 Security: cross-tenant share test fails; all mutating routes Redis-limited; CSP enforced; no raw error passthrough; HIBP on. Money: Stripe SDK + idempotency; `subscription.updated`/`payment_failed` handled; anonymous checkout impossible; lookup_keys on all prices; entitlements enforced with tests. Product: auth-aware shell with zero orphaned routes; assessment survives refresh; results DB-backed; landing verdict canon-tested; password reset round-trips; welcome/verdict/reminder emails deliver via verified domain; every dashboard + tool on the premium system. Process: CI gate green; Sentry + analytics live; healthcheck 503s honestly; migration history repaired; Vercel Pro.
 
 Work tier by tier. After each tier: run the full verify gate, push the branch, report what's done and what's blocked on a human prerequisite, and wait for preview approval before merging to `main`.
+
+---
+
+## 6. OPERATING MODEL — split by blast radius, not by topic
+
+Do NOT treat all work as equivalent. Three lanes, three gates:
+
+- **Foundation (serial — blocks everything):** Step 0 below, then design tokens + shared UI primitives, the auth-aware shell, and the `lib/entitlements.ts` skeleton. One branch at a time; each merges before the next starts.
+- **Volume / low-risk (parallel OK):** premium redesign of pages & tools, SEO/JSON-LD, component de-duplication, Tier 3 hygiene. Gate = CI green + §11 budgets + a visual diff.
+- **Critical / low-volume (never merge on your own say-so):** shares IDOR, Stripe state machine, entitlement *enforcement*, LLM auth/quota, rate-limit→Redis, CSP, ALL migrations. Gate = CI green + the independent acceptance tests in §9 pass + human review + (for billing) a Stripe **test-mode** proof. If those acceptance tests are not yet present in the repo, STOP and request them before implementing — do not write your own substitute and mark the item done.
+
+## 7. STEP 0 — do this before any feature work (own branch `chore/foundation`)
+
+1. **Lockfile:** run `npm install` once and **commit `package-lock.json`**. Builds are currently non-reproducible (no lockfile). After this, CI uses `npm ci`.
+2. **CI:** the workflow at `.github/workflows/ci.yml` must be the required status check on `main` (Settings → Branches → protect `main` → require the `verify` check + require PR review). A red CI must make merge impossible.
+3. **Preview secrets:** confirm with the owner that server-only env vars (STRIPE_*, SUPABASE_SERVICE_ROLE_KEY, ANTHROPIC_API_KEY, RESEND_API_KEY, UPSTASH_*, SENTRY_*) are added to Vercel's **Preview** scope, not only Production — otherwise Tier 1 branches can't be tested on their preview URLs.
+Merge Step 0 before anything else.
+
+## 8. FILE-OWNERSHIP & MERGE ORDER (prevents parallel-branch collisions)
+
+These files are **hot** — only one branch may edit each at a time, in this order:
+`package-lock.json` → `.github/workflows/ci.yml` → `app/globals.css` → `components/ui/*` (new shared primitives) → `app/(product)/layout.tsx` → `middleware.ts` → `lib/entitlements.ts` → `lib/ratelimit.ts` → `app/api/webhooks/stripe/route.ts`.
+Rule: land the foundation branches that touch these first; rebase every feature branch on `main` before opening its PR; a feature branch may consume shared primitives but must not modify them. Per-page redesign branches (`premium/dashboard`, `premium/tools-mortgage`, …) touch only their own route dir + read-only shared primitives, so they parallelize safely.
+
+## 9. INDEPENDENT ACCEPTANCE TESTS (implementation-agnostic — you must make these pass; do not edit them to fit your code)
+
+- **Shares IDOR:** User A creates assessment α; User B (valid session) calls `POST /api/shares {assessmentId: α}` → **404/403**, and **no** `score_shares` row is created. User A sharing α → 200 + token. A revoked token → `get_shared_assessment` returns empty.
+- **Stripe idempotency:** the same `checkout.session.completed` event delivered twice → profile upgraded exactly once; a `webhook_events` row exists for the event id.
+- **Stripe failure retry:** if the profile UPDATE throws during a webhook, the endpoint returns **≥500** (so Stripe retries) — never 200.
+- **Stripe lifecycle (test clock):** `customer.subscription.updated` to a lower price → `subscription_tier` downgrades; `past_due` status → `subscription_status="past_due"`; `deleted` → `free`/`cancelled`.
+- **Anonymous checkout:** `POST /api/checkout` without a session → **401**; no Stripe session created.
+- **Entitlements:** a `free`-tier session calling a gated capability (e.g. advisor beyond the free daily quota, or full-report export) → **402/403**; a `pro` session → 200.
+- **Verdict canon guard:** a unit test iterates every hardcoded marketing score/verdict pair and asserts it equals `scoreToVerdict(score)`; 82 must map to READY, not ALMOST_THERE.
+- **RLS:** with User B's JWT, selecting User A's `assessments`/`profiles` rows returns zero rows.
+
+## 10. AGENT GUARDRAILS (anti-patterns — treat as hard rules)
+
+- **Minimal diffs.** Change the fewest lines that solve the item. No wholesale file rewrites, no reformatting, no renaming unrelated symbols. A reviewer must be able to read the diff.
+- **No scope creep.** Do only the item on the branch. Found something else? Note it, don't fix it here.
+- **No new dependencies without listing and justifying them** in the PR (name, why, weight, maintenance/security). Never add a dependency to do what the platform already does.
+- **Never touch `lib/scoring/*`** (frozen canon) or delete/relax an RLS policy or a `search_path` pin.
+- **Verify external APIs against live docs, not memory:** Stripe API version + event shapes, Supabase `@supabase/ssr` patterns, and the Anthropic model string (`app/api/advisor/route.ts` hardcodes `claude-sonnet-4-5` — confirm the current supported model before shipping). Do not invent SDK methods.
+- **Preserve behavior:** if unsure whether code is load-bearing, keep it and ask.
+
+## 11. PREMIUM REDESIGN — objective acceptance (not "looks nice")
+
+Per redesigned route, the preview must hold: Lighthouse **Performance ≥ 90 (mobile)**, **Accessibility ≥ 95**, **CLS < 0.1**, **LCP < 2.5s**; added client JS **≤ ~30KB gzipped** per route; full parity under `prefers-reduced-motion` (no motion, no loss of information); interactive gauges/sliders have `aria` + visible focus; decorative SVG is `aria-hidden`/`role="img"` with a label. Effects must be CSS/GPU-friendly and must not block LCP. Include before/after screenshots (light + reduced-motion) in the PR.
+
+## 12. PR / COMMIT TEMPLATE (so output is reviewable at volume)
+
+Conventional commits (`fix(api): enforce share ownership`). Every PR body:
+```
+## Item        <BUILD-BRIEF/AUDIT reference>
+## Summary     <what changed, 2–3 lines>
+## Files       <hot files touched? which>
+## Migrations  <none | reversible up/down; ran on branch DB not prod>
+## New env      <names only, added to Vercel Preview+Prod?>
+## Verified     <tsc/vitest/next build results; acceptance tests; Stripe test-mode notes>
+## Screenshots  <for any UI change: default + reduced-motion>
+## Blocked-on   <human prerequisites, if any>
+## Risk         <blast radius + rollback note>
+```
+
+## 13. PRODUCTION & DATABASE SAFETY (there is no staging DB — treat prod as fragile)
+
+- **Migrations run against the live Supabase project.** Before any migration: take a backup/`db dump`. Prefer a **Supabase branch** or a throwaway staging project to dry-run; if unavailable, review the SQL with a human before it runs.
+- **Expand/contract only.** Add columns nullable → backfill → constrain in a *later* migration. Never drop/rename a column in the same step that code starts depending on it. Every migration ships with a tested rollback.
+- **Migration-history repair** uses `supabase migration repair --status reverted` for the phantom versions — do **not** hand-`DELETE` from `supabase_migrations.schema_migrations`.
+- **Stripe:** build and prove the entire webhook/checkout flow in **test mode** (test keys + test clocks) first. Switch to live keys only after §9 passes.
+- **Rollback:** each merge to `main` = one Vercel production deploy. If prod breaks, use Vercel **Instant Rollback** to the previous good deployment immediately, then diagnose on a branch. Keep the last-known-good deployment id noted in the PR.
+- **Preflight:** before starting, confirm the environment: `node -v` (22), `npm -v`, `npx supabase --version`, and network reach to registry/Supabase/Stripe. Report any missing capability instead of working around it.
+
