@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { hasAnthropic, env } from "@/lib/env";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
+import { createClient } from "@/lib/supabase/server";
+import { getUserEntitlements, requireCapability } from "@/lib/entitlements";
 import { buildPersonaFallbackReply, type AdvisorAssessmentContext } from "@/lib/advisor/fallback";
 import { getPersona, type AdvisorPersona } from "@/lib/advisor/personas";
 import { VERDICT_META } from "@/lib/brand";
@@ -108,6 +110,20 @@ export async function POST(request: Request) {
   }
 
   const { messages, persona, demoContext } = parsed.data;
+
+  // Entitlement gate. The public /artifact playground (demoContext) stays open
+  // on the anonymous IP budget above; the real Decision Companion is a paid
+  // capability ("Decision Companion chat access" begins at Plus, per
+  // lib/stripe/tiers.ts). Enforced server-side — the client never decides this.
+  if (!demoContext) {
+    const supabase = await createClient();
+    const { userId, entitlements } = await getUserEntitlements(supabase);
+    const gate = requireCapability(userId, entitlements, "advisorAccess");
+    if (!gate.ok) {
+      return NextResponse.json({ error: gate.error }, { status: gate.status });
+    }
+  }
+
   const assessment = demoContext ? DEMO_ASSESSMENT_CONTEXT : parsed.data.assessment;
   const lastUserMessage = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
   const activePersona: AdvisorPersona = persona ?? "homie";

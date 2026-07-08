@@ -8,9 +8,11 @@ export const runtime = "nodejs";
  *
  * `ok` reflects process liveness; `database` reflects a real round-trip
  * to Supabase (a HEAD count against the public question_bank, which the
- * anon role can read). A degraded database returns HTTP 200 with
- * database:"error" so uptime monitors can distinguish app-down from
- * db-down instead of conflating them.
+ * anon role can read). A degraded database returns HTTP 503 (not 200) so
+ * status-code monitors page on a real outage instead of sleeping through it,
+ * while the database:"error" body still distinguishes db-down from app-down
+ * (no response at all). `version` carries the deploying commit SHA so you can
+ * tell exactly which build is live.
  */
 export async function GET() {
   let database: "ok" | "error" = "error";
@@ -26,11 +28,19 @@ export async function GET() {
     database = "error";
   }
 
-  return NextResponse.json({
-    ok: true,
-    database,
-    latencyMs: Date.now() - startedAt,
-    time: new Date().toISOString(),
-    version: "1.0.0",
-  });
+  const healthy = database === "ok";
+
+  return NextResponse.json(
+    {
+      ok: healthy,
+      database,
+      latencyMs: Date.now() - startedAt,
+      time: new Date().toISOString(),
+      version:
+        process.env.VERCEL_GIT_COMMIT_SHA ??
+        process.env.NEXT_PUBLIC_COMMIT_SHA ??
+        "dev",
+    },
+    { status: healthy ? 200 : 503 },
+  );
 }
