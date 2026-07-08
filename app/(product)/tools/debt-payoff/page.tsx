@@ -4,10 +4,9 @@ import { useMemo, useState } from "react";
 import { compareStrategies, type Debt, type PayoffResult } from "@/lib/tools/debt";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
 
-let nextId = 1;
 function makeDebt(partial: Partial<Debt> = {}): Debt {
   return {
-    id: `debt-${nextId++}`,
+    id: `debt-${crypto.randomUUID()}`,
     name: partial.name ?? "",
     balance: partial.balance ?? 0,
     apr: partial.apr ?? 0,
