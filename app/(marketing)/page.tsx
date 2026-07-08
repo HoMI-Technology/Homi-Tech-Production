@@ -349,7 +349,7 @@ export default function MarketingHomePage() {
               <div className="flex items-end justify-between">
                 <div>
                   <p className="text-xs text-dim">HōMI-Score</p>
-                  <p className="score-numeral text-5xl font-bold text-light">82</p>
+                  <p className="score-numeral text-5xl font-bold text-light">76</p>
                 </div>
                 <span className="inline-flex items-center gap-2 rounded-full border border-yellow/40 bg-yellow/10 px-4 py-1.5 text-sm font-bold text-yellow">
                   ALMOST THERE <span className="font-normal opacity-70">· Warm</span>
