@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "How It Works",
   description:
     "How HōMI measures readiness: assess across three pillars, receive an honest verdict, and get the map for what to build first.",
+  alternates: { canonical: "/how-it-works" },
 };
 
 const SUB_FACTORS: Record<string, { name: string; description: string }[]> = {
