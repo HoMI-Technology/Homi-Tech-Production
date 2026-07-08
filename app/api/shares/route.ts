@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { env } from "@/lib/env";
+
+export const runtime = "nodejs";
+
+const bodySchema = z.object({
+  assessmentId: z.string().uuid(),
+});
 
 /** POST /api/shares — creates a 30-day score-share link for one of the current user's assessments. */
 export async function POST(request: Request) {
@@ -13,16 +20,35 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
-  let assessmentId: string | undefined;
+  let json: unknown;
   try {
-    const body = (await request.json()) as { assessmentId?: string };
-    assessmentId = body.assessmentId;
+    json = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  if (!assessmentId) {
+  const parsed = bodySchema.safeParse(json);
+  if (!parsed.success) {
     return NextResponse.json({ error: "assessmentId is required." }, { status: 400 });
+  }
+
+  const { assessmentId } = parsed.data;
+
+  // Ownership check — the fix for the cross-tenant share IDOR (AUDIT T1.1).
+  // Without this, any authenticated user could mint a public share link for
+  // *any* assessment UUID and leak another user's scores. Mirrors the proven
+  // pattern in app/api/assessments/override/route.ts (the ownership select
+  // before any mutation). RLS (00011) enforces the same rule in the database
+  // as defense-in-depth, but the API is the first and clearest line.
+  const { data: owned, error: ownershipError } = await supabase
+    .from("assessments")
+    .select("id")
+    .eq("id", assessmentId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (ownershipError || !owned) {
+    return NextResponse.json({ error: "Assessment not found." }, { status: 404 });
   }
 
   const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
