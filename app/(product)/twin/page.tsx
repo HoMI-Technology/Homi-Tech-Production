@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { PILLARS, VERDICT_META } from "@/lib/brand";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring";
 import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
@@ -35,6 +36,7 @@ function weakestPillar(result: StoredAssessment["result"]): { name: string; pct:
 }
 
 export default function TwinPage() {
+  const pathname = usePathname();
   const [stored, setStored] = useState<StoredAssessment | null | undefined>(undefined);
   const [horizon, setHorizon] = useState<Horizon>("10");
   const [fear, setFear] = useState("");
@@ -42,6 +44,7 @@ export default function TwinPage() {
   const [source, setSource] = useState<"model" | "fallback" | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gateCta, setGateCta] = useState<{ href: string; label: string } | null>(null);
   const [letterKey, setLetterKey] = useState(0);
 
   useEffect(() => {
@@ -54,6 +57,7 @@ export default function TwinPage() {
     if (!stored || !weak) return;
     setLoading(true);
     setError(null);
+    setGateCta(null);
     try {
       const res = await fetch("/api/twin", {
         method: "POST",
@@ -70,7 +74,19 @@ export default function TwinPage() {
         }),
       });
       if (!res.ok) {
-        setError("Something went wrong generating your letter. Please try again.");
+        // The companion gate returns truthful, on-brand copy (sign-in / upgrade /
+        // retry) — never let a 401/402 fall through to the generic error.
+        const data = (await res.json().catch(() => ({}))) as { error?: unknown };
+        const message =
+          typeof data.error === "string"
+            ? data.error
+            : "Something went wrong generating your letter. Please try again.";
+        setError(message);
+        if (res.status === 401) {
+          setGateCta({ href: `/auth/sign-in?next=${encodeURIComponent(pathname)}`, label: "Sign in" });
+        } else if (res.status === 402) {
+          setGateCta({ href: "/pricing", label: "See plans" });
+        }
         setLoading(false);
         return;
       }
@@ -187,6 +203,11 @@ export default function TwinPage() {
           </button>
 
           {error && <p className="text-sm text-crimson">{error}</p>}
+          {gateCta && (
+            <Link href={gateCta.href} className="btn btn-primary w-full text-center">
+              {gateCta.label}
+            </Link>
+          )}
         </div>
 
         {/* Letter panel */}

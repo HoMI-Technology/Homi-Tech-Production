@@ -13,6 +13,7 @@
  *   - "Unlimited re-scoring"            → Plus+   (unlimitedRescoring)
  *   - detailed pillar breakdown / export → Plus+  (fullReport)
  *   - "Couples mode"                     → Pro+    (couplesMode)
+ *   - "Advanced finance tools"           → Pro+    (advancedTools)
  *   - "Up to 5 linked household members" → Family  (familySeats)
  *
  * Consumer-authorized share links are the product's growth wedge (the landing
@@ -43,6 +44,12 @@ export interface Entitlements {
   familySeats: number;
   /** Maximum number of simultaneously active share links. */
   maxActiveShares: number;
+  /**
+   * Advanced finance tools (mortgage, debt payoff modeling) — the published
+   * Pro feature. Capability flag only: it must NOT be used to gate the
+   * public funnel tool pages, only Pro-exclusive advanced tooling surfaces.
+   */
+  advancedTools: boolean;
 }
 
 /** Boolean capability keys — the ones a route can gate on directly. */
@@ -64,6 +71,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     couplesMode: false,
     familySeats: 1,
     maxActiveShares: 3,
+    advancedTools: false,
   },
   plus: {
     tier: "plus",
@@ -74,6 +82,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     couplesMode: false,
     familySeats: 1,
     maxActiveShares: 25,
+    advancedTools: false,
   },
   pro: {
     tier: "pro",
@@ -84,6 +93,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     couplesMode: true,
     familySeats: 1,
     maxActiveShares: 100,
+    advancedTools: true,
   },
   family: {
     tier: "family",
@@ -94,6 +104,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     couplesMode: true,
     familySeats: 5,
     maxActiveShares: 100,
+    advancedTools: true,
   },
 };
 

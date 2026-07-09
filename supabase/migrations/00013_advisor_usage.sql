@@ -65,3 +65,7 @@ $$;
 
 revoke all on function try_consume_advisor_message(integer) from public;
 grant execute on function try_consume_advisor_message(integer) to authenticated;
+
+-- ROLLBACK:
+-- drop function if exists try_consume_advisor_message(integer);
+-- drop table if exists advisor_usage;
