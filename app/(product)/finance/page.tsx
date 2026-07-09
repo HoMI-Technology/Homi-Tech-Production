@@ -24,6 +24,7 @@ import { compareStrategies, type Debt } from "@/lib/tools/debt";
 import { runMonteCarlo, type MonteCarloResult } from "@/lib/tools/montecarlo";
 import { formatCurrency, formatCompactCurrency, formatMonths, formatPercent } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
+import { NumberField } from "@/components/ui/NumberField";
 
 type TabKey = "overview" | "cashflow" | "debt" | "montecarlo" | "networth";
 
@@ -139,11 +140,11 @@ function OverviewTab({
   return (
     <div className="space-y-8">
       <div className="glass grid gap-5 p-6 sm:grid-cols-2 lg:grid-cols-5">
-        <NumberField label="Monthly income" value={state.monthlyIncome} onChange={(v) => patch({ monthlyIncome: v })} />
-        <NumberField label="Monthly expenses" value={state.monthlyExpenses} onChange={(v) => patch({ monthlyExpenses: v })} />
-        <NumberField label="Liquid savings" value={state.liquidSavings} onChange={(v) => patch({ liquidSavings: v })} />
-        <NumberField label="Total debt" value={state.totalDebt} onChange={(v) => patch({ totalDebt: v })} />
-        <NumberField label="Monthly debt payments" value={state.monthlyDebtPayments} onChange={(v) => patch({ monthlyDebtPayments: v })} />
+        <NumberField label="Monthly income" value={state.monthlyIncome} onChange={(v) => patch({ monthlyIncome: v ?? 0 })} />
+        <NumberField label="Monthly expenses" value={state.monthlyExpenses} onChange={(v) => patch({ monthlyExpenses: v ?? 0 })} />
+        <NumberField label="Liquid savings" value={state.liquidSavings} onChange={(v) => patch({ liquidSavings: v ?? 0 })} />
+        <NumberField label="Total debt" value={state.totalDebt} onChange={(v) => patch({ totalDebt: v ?? 0 })} />
+        <NumberField label="Monthly debt payments" value={state.monthlyDebtPayments} onChange={(v) => patch({ monthlyDebtPayments: v ?? 0 })} />
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -222,28 +223,6 @@ function StatCard({
       <p className="text-xs uppercase tracking-wide text-dim">{label}</p>
       <p className={`score-numeral mt-2 text-2xl font-bold ${TEMP_TEXT[temperature]}`}>{value}</p>
       <p className="mt-3 text-xs leading-relaxed text-dim">{read}</p>
-    </div>
-  );
-}
-
-function NumberField({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-}) {
-  return (
-    <div>
-      <label className="text-sm text-light">{label}</label>
-      <input
-        className="input mt-2"
-        type="number"
-        value={value || ""}
-        onChange={(e) => onChange(Number(e.target.value))}
-      />
     </div>
   );
 }
