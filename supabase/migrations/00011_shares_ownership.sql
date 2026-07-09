@@ -23,3 +23,12 @@ create policy "score_shares_owner_all"
         and a.user_id = (select auth.uid())
     )
   );
+
+-- ROLLBACK:
+-- drop policy if exists "score_shares_owner_all" on score_shares;
+--
+-- create policy "score_shares_owner_all"
+--   on score_shares for all
+--   to authenticated
+--   using (created_by = (select auth.uid()))
+--   with check (created_by = (select auth.uid()));
