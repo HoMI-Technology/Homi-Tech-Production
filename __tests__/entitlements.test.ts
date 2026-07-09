@@ -32,6 +32,7 @@ describe("getEntitlements", () => {
     expect(free.fullReport).toBe(false);
     expect(free.unlimitedRescoring).toBe(false);
     expect(free.couplesMode).toBe(false);
+    expect(free.advancedTools).toBe(false);
     expect(free.familySeats).toBe(1);
   });
 
@@ -47,6 +48,12 @@ describe("getEntitlements", () => {
 
   it("unlocks couples mode at Pro", () => {
     expect(getEntitlements("pro").couplesMode).toBe(true);
+  });
+
+  it("unlocks advanced finance tools at Pro (matches published Pro feature)", () => {
+    expect(getEntitlements("plus").advancedTools).toBe(false);
+    expect(getEntitlements("pro").advancedTools).toBe(true);
+    expect(getEntitlements("family").advancedTools).toBe(true);
   });
 
   it("grants 5 household seats only on Family", () => {
@@ -66,6 +73,7 @@ describe("getEntitlements", () => {
       "fullReport",
       "unlimitedRescoring",
       "couplesMode",
+      "advancedTools",
     ];
     for (const key of bools) {
       for (let i = 1; i < ladder.length; i++) {
