@@ -6,8 +6,9 @@ import {
   simulateAllScenarios,
   type SimulationInputs,
 } from "@/lib/decisions/simulate";
-import { formatNumber, parseNumber, sliderFillPercent } from "@/lib/assessment/format";
 import { NetPositionChart } from "@/components/decisions/NetPositionChart";
+import { MoneyField } from "@/components/ui/MoneyField";
+import { PercentSlider } from "@/components/ui/PercentSlider";
 
 const SCENARIO_META: Record<string, { color: string; borderClass: string; description: string }> = {
   "buy-now": {
@@ -26,61 +27,6 @@ const SCENARIO_META: Record<string, { color: string; borderClass: string; descri
     description: "Rent 24 more months while saving toward a larger down payment, then buy at the future price.",
   },
 };
-
-interface MoneyFieldProps {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-  prefix?: string;
-}
-
-function MoneyField({ label, value, onChange, prefix = "$" }: MoneyFieldProps) {
-  return (
-    <label className="flex flex-col gap-1.5">
-      <span className="text-sm font-medium text-light">{label}</span>
-      <div className="relative">
-        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-dim">{prefix}</span>
-        <input
-          type="text"
-          inputMode="decimal"
-          className="input w-full pl-7"
-          value={formatNumber(value)}
-          onChange={(e) => onChange(parseNumber(e.target.value))}
-        />
-      </div>
-    </label>
-  );
-}
-
-interface PercentSliderProps {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-  min?: number;
-  max?: number;
-  step?: number;
-}
-
-function PercentSlider({ label, value, onChange, min = 0, max = 12, step = 0.1 }: PercentSliderProps) {
-  return (
-    <label className="flex flex-col gap-1.5">
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-light">{label}</span>
-        <span className="score-numeral text-sm text-cyan">{value.toFixed(1)}%</span>
-      </div>
-      <input
-        type="range"
-        className="homi-slider"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        style={{ ["--fill" as string]: `${sliderFillPercent(value, min, max)}%` }}
-      />
-    </label>
-  );
-}
 
 export default function DecisionsPage() {
   const [inputs, setInputs] = useState<SimulationInputs>(DEFAULT_SIMULATION_INPUTS);
@@ -107,18 +53,18 @@ export default function DecisionsPage() {
         {/* Inputs */}
         <div className="glass flex flex-col gap-5 p-6">
           <p className="text-sm font-semibold uppercase tracking-wide text-dim">Your numbers</p>
-          <MoneyField label="Home price" value={inputs.homePrice} onChange={(v) => update("homePrice", v)} />
+          <MoneyField label="Home price" value={inputs.homePrice} onChange={(v) => update("homePrice", v ?? 0)} />
           <MoneyField
             label="Down payment saved"
             value={inputs.downPaymentSaved}
-            onChange={(v) => update("downPaymentSaved", v)}
+            onChange={(v) => update("downPaymentSaved", v ?? 0)}
           />
           <MoneyField
             label="Monthly savings capacity"
             value={inputs.monthlySavings}
-            onChange={(v) => update("monthlySavings", v)}
+            onChange={(v) => update("monthlySavings", v ?? 0)}
           />
-          <MoneyField label="Current monthly rent" value={inputs.rent} onChange={(v) => update("rent", v)} />
+          <MoneyField label="Current monthly rent" value={inputs.rent} onChange={(v) => update("rent", v ?? 0)} />
 
           <div className="hairline" />
 
