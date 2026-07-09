@@ -38,6 +38,7 @@ const COLUMNS = [
       { href: "/legal/terms", label: "Terms" },
       { href: "/legal/disclaimer", label: "Disclaimer" },
       { href: "/legal/cookies", label: "Cookie policy" },
+      { href: "mailto:support@homitechnology.com", label: "Support" },
     ],
   },
 ];

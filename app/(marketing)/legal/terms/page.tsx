@@ -123,8 +123,11 @@ export default function TermsPage() {
           <div>
             <h2 className="text-xl font-bold text-light">10. Contact</h2>
             <p className="mt-3 leading-relaxed">
-              Questions about these terms can be directed to {BRAND.legalEntity} through our
-              support channels. See also our{" "}
+              Questions about these terms can be directed to {BRAND.legalEntity} at{" "}
+              <a href="mailto:support@homitechnology.com" className="text-cyan hover:underline">
+                support@homitechnology.com
+              </a>
+              . See also our{" "}
               <Link href="/legal/privacy" className="text-cyan hover:underline">
                 Privacy Policy
               </Link>{" "}

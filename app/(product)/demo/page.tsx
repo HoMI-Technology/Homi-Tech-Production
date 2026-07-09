@@ -8,6 +8,7 @@ import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { ScoreHistory } from "@/components/dashboard/ScoreHistory";
 import { DailyPulseStrip } from "@/components/dashboard/DailyPulseStrip";
 import { DemoProvider, useDemo } from "@/lib/demo/context";
+import { track } from "@/lib/analytics";
 
 const QUICK_ACTIONS = [
   { href: "/assessment", label: "Full Assessment", desc: "The real, precise 3-pillar read." },
@@ -40,6 +41,7 @@ function DemoPageContent() {
     } catch {
       // Not fatal — purely a future analytics/EmptyState hint.
     }
+    track("demo_viewed");
   }, []);
 
   return (

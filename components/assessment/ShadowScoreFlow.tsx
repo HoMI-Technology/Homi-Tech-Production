@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { computeShadowScore, type ShadowInputs } from "@/lib/scoring";
 import { saveLocalResult, loadLocalResult, attachServerId } from "@/lib/assessment/storage";
+import { track } from "@/lib/analytics";
 import {
   EMERGENCY_FUND_LABELS,
   EMERGENCY_FUND_MONTHS,
@@ -231,6 +232,7 @@ export function ShadowScoreFlow() {
         // Anonymous 401 — fine.
       });
 
+    track("assessment_completed", { kind: "shadow" });
     router.push("/results");
   }
 

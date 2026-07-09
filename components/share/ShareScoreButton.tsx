@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { track } from "@/lib/analytics";
 
 /**
  * Share button for a saved (server-side) assessment.
@@ -61,6 +62,7 @@ export function ShareScoreButton({ assessmentId }: { assessmentId?: string | nul
         return;
       }
       setUrl(data.url);
+      track("share_created");
     } catch {
       setError("Something went wrong. Try again.");
     } finally {

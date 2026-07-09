@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { buildAssessmentContext } from "@/lib/advisor/context";
 import { PERSONAS, type AdvisorPersona } from "@/lib/advisor/personas";
+import { track } from "@/lib/analytics";
 
 type Role = "user" | "assistant";
 
@@ -209,7 +210,13 @@ export function CompanionWidget() {
       <button
         ref={toggleRef}
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() =>
+          setOpen((o) => {
+            const next = !o;
+            if (next) track("companion_opened");
+            return next;
+          })
+        }
         aria-expanded={open}
         aria-controls="homi-companion-panel"
         aria-label={open ? "Close HōMI Companion" : "Open HōMI Companion"}
