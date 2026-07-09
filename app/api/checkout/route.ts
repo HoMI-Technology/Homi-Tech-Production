@@ -40,16 +40,14 @@ export async function POST(request: Request) {
     );
   }
 
-  let clientReferenceId: string | undefined;
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) clientReferenceId = user.id;
-  } catch {
-    // Anonymous checkout is allowed — client_reference_id just stays unset.
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   }
+  const clientReferenceId = user.id;
 
   const siteUrl = env.NEXT_PUBLIC_SITE_URL;
 
