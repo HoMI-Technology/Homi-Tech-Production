@@ -6,7 +6,7 @@ import { env } from "@/lib/env";
 export const runtime = "nodejs";
 
 const bodySchema = z.object({
-  assessmentId: z.string().uuid(),
+  assessmentId: z.string().min(1),
 });
 
 /** POST /api/shares — creates a 30-day score-share link for one of the current user's assessments. */
