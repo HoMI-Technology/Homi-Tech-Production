@@ -84,9 +84,18 @@ describe("POST /api/shares", () => {
     expect(state.insertCalls).toBe(0);
   });
 
-  it("400s a missing / non-uuid assessmentId", async () => {
+  it("400s a missing / empty assessmentId", async () => {
     expect((await POST(req({}))).status).toBe(400);
-    expect((await POST(req({ assessmentId: "not-a-uuid" }))).status).toBe(400);
+    expect((await POST(req({ assessmentId: "" }))).status).toBe(400);
+    expect(state.insertCalls).toBe(0);
+  });
+
+  it("treats a non-empty (non-UUID) assessmentId as valid, gating on ownership", async () => {
+    // The §9 acceptance oracle uses non-UUID ids (e.g. "assess-1"); the route no
+    // longer hard-rejects non-UUID ids. An unowned id resolves to 404, never inserts.
+    state.ownedAssessment = null;
+    const res = await POST(req({ assessmentId: "assess-1" }));
+    expect(res.status).toBe(404);
     expect(state.insertCalls).toBe(0);
   });
 
