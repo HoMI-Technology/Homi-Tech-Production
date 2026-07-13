@@ -15,9 +15,14 @@ export interface AnalyticsEvent {
   ts: number;
 }
 
+interface PostHogLike {
+  capture: (event: string, props?: Record<string, unknown>) => void;
+}
+
 declare global {
   interface Window {
     __homiEvents?: AnalyticsEvent[];
+    posthog?: PostHogLike;
   }
 }
 
@@ -25,4 +30,11 @@ export function track(event: string, props?: Record<string, string | number>): v
   if (typeof window === "undefined") return;
   if (!window.__homiEvents) window.__homiEvents = [];
   window.__homiEvents.push({ event, props, ts: Date.now() });
+  // Forward to PostHog when its snippet is loaded (activated by
+  // NEXT_PUBLIC_POSTHOG_KEY via <AnalyticsScripts/>). No-op otherwise.
+  try {
+    window.posthog?.capture(event, props);
+  } catch {
+    /* analytics must never break the app */
+  }
 }

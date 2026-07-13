@@ -177,3 +177,132 @@ export function waitlistConfirmation(): { subject: string; html: string } {
   `;
   return { subject: "You're on the HōMI waitlist", html: layout(body) };
 }
+
+// ── Lifecycle templates (ported from the recovered Email OS, on-brand) ───────
+// Typed params rather than {{merge_tags}} to match the existing convention.
+
+function cta(href: string, label: string): string {
+  return `<p style="margin:24px 0 0 0;">
+      <a href="${href}" style="display:inline-block;background:#22d3ee;color:#04121c;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:10px;">${label}</a>
+    </p>`;
+}
+
+const PILLAR_LABEL = {
+  financial: "Financial Reality",
+  emotional: "Emotional Truth",
+  timing: "Perfect Timing",
+} as const;
+type PillarKey = keyof typeof PILLAR_LABEL;
+
+/** Onboarding: profile incomplete after signup. */
+export function completeProfileEmail(name: string): { subject: string; html: string } {
+  const body = `
+    <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">Hi ${name},</p>
+    <p style="margin:0 0 16px 0;">
+      One quick step before your assessment. A few details about the decision you're weighing
+      lets HōMI give you a read that's actually about <em>your</em> situation — not a generic score.
+    </p>
+    <p style="margin:0;">It takes under a minute.</p>
+    ${cta(`${SITE}/onboarding`, "Complete your profile")}
+  `;
+  return { subject: `${name}, one quick step before your assessment`, html: layout(body) };
+}
+
+/** Onboarding: profile complete, assessment not started. */
+export function startAssessmentEmail(name: string): { subject: string; html: string } {
+  const body = `
+    <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">Hi ${name},</p>
+    <p style="margin:0 0 16px 0;">
+      Your assessment is ready. Ninety seconds of honesty across all three pillars, and you'll
+      know whether now is the moment — or whether there's something worth closing first.
+    </p>
+    <p style="margin:0;">No card. No pressure. Just the truth about where you stand today.</p>
+    ${cta(`${SITE}/assessment`, "Start your assessment")}
+  `;
+  return { subject: `Your decision assessment is ready, ${name}`, html: layout(body) };
+}
+
+/** Results follow-up: highlight the weakest pillar. */
+export function dimensionFocusEmail(name: string, dimension: PillarKey): { subject: string; html: string } {
+  const label = PILLAR_LABEL[dimension];
+  const color = VERDICT_COLOR.NOT_YET;
+  const body = `
+    <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">Hi ${name},</p>
+    <p style="margin:0 0 16px 0;">
+      One dimension is doing the most to hold your readiness back right now:
+      <span style="color:${color};font-weight:700;">${label}</span>. That's not bad news —
+      it's the single clearest place to make progress.
+    </p>
+    <p style="margin:0;">Here's what moving it looks like, step by step.</p>
+    ${cta(`${SITE}/plan`, `Work on ${label}`)}
+  `;
+  return { subject: `Your biggest opportunity: ${label}`, html: layout(body) };
+}
+
+/** Transformation: coaching upsell a few weeks post-verdict. */
+export function coachingInvitationEmail(name: string): { subject: string; html: string } {
+  const body = `
+    <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">Hi ${name},</p>
+    <p style="margin:0 0 16px 0;">
+      You've been working on your transformation for a few weeks now. If you'd like a human in
+      your corner, a HōMI decision coach can help you close the gap to READY faster — with the
+      same zero-conflict honesty the product runs on.
+    </p>
+    ${cta(`${SITE}/advisor`, "Explore guidance")}
+  `;
+  return { subject: `${name}, get personalized guidance on your journey`, html: layout(body) };
+}
+
+/** Transformation: check-in ~2 weeks after results. */
+export function progressCheckinEmail(name: string): { subject: string; html: string } {
+  const body = `
+    <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">Hi ${name},</p>
+    <p style="margin:0 0 16px 0;">
+      It's been about two weeks since your assessment. Life moves — and so does readiness.
+      A quick re-check shows whether the work you've been doing is moving the needle.
+    </p>
+    ${cta(`${SITE}/assessment`, "Check in")}
+  `;
+  return { subject: `How's your transformation going, ${name}?`, html: layout(body) };
+}
+
+/** Transformation: a pillar crossed the READY threshold. */
+export function milestoneEmail(name: string, dimension: PillarKey): { subject: string; html: string } {
+  const label = PILLAR_LABEL[dimension];
+  const body = `
+    <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">🏆 ${name}, that's a milestone.</p>
+    <p style="margin:0 0 16px 0;">
+      Your <span style="color:#34d399;font-weight:700;">${label}</span> score just crossed into
+      READY territory. That's real progress — the kind that compounds.
+    </p>
+    <p style="margin:0;">See where you stand now, and what's next.</p>
+    ${cta(`${SITE}/dashboard`, "View your dashboard")}
+  `;
+  return { subject: `${name}, you just hit a major milestone`, html: layout(body) };
+}
+
+/** Engagement: recurring weekly review. */
+export function weeklyDigestEmail(name: string): { subject: string; html: string } {
+  const body = `
+    <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">Hi ${name},</p>
+    <p style="margin:0 0 16px 0;">
+      Your week in review: where your three pillars moved, what you closed out, and the one thing
+      worth focusing on next. Small, honest steps — that's how readiness is built.
+    </p>
+    ${cta(`${SITE}/dashboard`, "See your week")}
+  `;
+  return { subject: `Your week in review, ${name}`, html: layout(body) };
+}
+
+/** Engagement: referral ask for engaged users. */
+export function referralRequestEmail(name: string): { subject: string; html: string } {
+  const body = `
+    <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">Hi ${name},</p>
+    <p style="margin:0 0 16px 0;">
+      Know someone facing a big decision? Share the clarity. HōMI gives them the same honest,
+      no-conflict read you got — and there's no better gift before a leap than the truth.
+    </p>
+    ${cta(`${SITE}/`, "Share HōMI")}
+  `;
+  return { subject: `Know someone facing a big decision, ${name}?`, html: layout(body) };
+}
