@@ -30,37 +30,58 @@ export default async function AdminWaitlistPage() {
     entries = [];
   }
 
+  // Interest → count over the fetched window, sorted by demand.
+  const interestCounts = entries
+    .flatMap((e) => e.interested_in ?? [])
+    .reduce<Record<string, number>>((acc, i) => {
+      acc[i] = (acc[i] ?? 0) + 1;
+      return acc;
+    }, {});
+  const topInterests = Object.entries(interestCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
   return (
     <div>
-      <h1 className="font-display text-2xl text-light md:text-3xl">Waitlist</h1>
+      <p className="eyebrow">Demand</p>
+      <h1 className="mt-1 font-display text-2xl text-light md:text-3xl">Waitlist</h1>
       <p className="mt-1 text-sm text-dim">{entries.length.toLocaleString()} entries shown.</p>
+
+      {topInterests.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {topInterests.map(([interest, count]) => (
+            <span key={interest} className="chip">
+              {interest}
+              <span className="score-numeral text-dim">{count}</span>
+            </span>
+          ))}
+        </div>
+      )}
 
       <div className="glass mt-6 overflow-x-auto">
         {entries.length === 0 ? (
           <p className="p-10 text-center text-sm text-dim">No waitlist signups yet.</p>
         ) : (
-          <table className="w-full min-w-[680px] text-left text-sm">
+          <table className="table-premium min-w-[680px]">
             <thead>
-              <tr className="border-b border-slate-surface/60 text-xs uppercase tracking-wide text-dim">
-                <th className="px-6 py-3 font-medium">Email</th>
-                <th className="px-6 py-3 font-medium">Interests</th>
-                <th className="px-6 py-3 font-medium">Status</th>
-                <th className="px-6 py-3 font-medium">Date</th>
+              <tr>
+                <th>Email</th>
+                <th>Interests</th>
+                <th>Status</th>
+                <th>Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-surface/40">
+            <tbody>
               {entries.map((e) => (
                 <tr key={e.id}>
-                  <td className="px-6 py-3 text-light">{e.email}</td>
-                  <td className="px-6 py-3 text-dim">
+                  <td>{e.email}</td>
+                  <td className="text-dim">
                     {e.interested_in && e.interested_in.length > 0 ? e.interested_in.join(", ") : "—"}
                   </td>
-                  <td className="px-6 py-3">
-                    <span className="inline-flex items-center rounded-full border border-slate-high/60 bg-slate-surface px-2.5 py-0.5 text-xs font-semibold capitalize text-light">
-                      {e.status}
-                    </span>
+                  <td>
+                    <span className="chip !text-xs capitalize">{e.status}</span>
                   </td>
-                  <td className="px-6 py-3 text-dim">{formatDate(e.created_at)}</td>
+                  <td className="text-dim">{formatDate(e.created_at)}</td>
                 </tr>
               ))}
             </tbody>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { StatCard } from "@/components/admin/StatCard";
+import { StatTile } from "@/components/ui/StatTile";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 import type { Organization } from "@/types/database";
 
 export const metadata: Metadata = {
@@ -55,42 +56,41 @@ export default async function AdminOrganizationsPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl text-light md:text-3xl">Organizations</h1>
+      <p className="eyebrow">B2B</p>
+      <h1 className="mt-1 font-display text-2xl text-light md:text-3xl">Organizations</h1>
       <p className="mt-1 text-sm text-dim">Employer and partner accounts, membership, and family households.</p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
-        <StatCard label="Organizations" value={organizations.length.toLocaleString()} accent="#22d3ee" />
-        <StatCard label="Organization members" value={totalMembers.toLocaleString()} accent="#34d399" />
-        <StatCard label="Family accounts" value={familyAccountsCount.toLocaleString()} accent="#facc15" />
+        <StatTile label="Organizations" value={organizations.length.toLocaleString()} accent="#22d3ee" footer="Employer + partner" />
+        <StatTile label="Organization members" value={totalMembers.toLocaleString()} accent="#34d399" footer="Across all orgs" />
+        <StatTile label="Family accounts" value={familyAccountsCount.toLocaleString()} accent="#facc15" footer="Households" />
       </div>
 
-      <div className="mt-8 glass overflow-hidden p-0">
-        <div className="p-6 pb-0">
-          <h2 className="text-lg font-semibold text-light">All organizations</h2>
-        </div>
+      <div className="glass mt-8 p-6">
+        <SectionHeader eyebrow="Accounts" title="All organizations" />
         {organizations.length === 0 ? (
-          <p className="px-6 py-12 text-center text-sm text-dim">
+          <p className="py-12 text-center text-sm text-dim">
             No organizations yet. Employer and partner accounts will appear here once created.
           </p>
         ) : (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full text-left text-sm">
+          <div className="mt-3 overflow-x-auto">
+            <table className="table-premium min-w-[720px]">
               <thead>
-                <tr className="border-t border-slate-surface/60 text-xs uppercase tracking-wide text-dim">
-                  <th className="px-6 py-3 font-medium">Name</th>
-                  <th className="px-6 py-3 font-medium">Slug</th>
-                  <th className="px-6 py-3 font-medium">Kind</th>
-                  <th className="px-6 py-3 font-medium">Plan</th>
-                  <th className="px-6 py-3 font-medium">Members</th>
-                  <th className="px-6 py-3 font-medium">Created</th>
+                <tr>
+                  <th>Name</th>
+                  <th>Slug</th>
+                  <th>Kind</th>
+                  <th>Plan</th>
+                  <th>Members</th>
+                  <th>Created</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-surface/60">
+              <tbody>
                 {organizations.map((o) => (
                   <tr key={o.id}>
-                    <td className="px-6 py-3 font-medium text-light">{o.name}</td>
-                    <td className="px-6 py-3 text-dim">{o.slug}</td>
-                    <td className="px-6 py-3">
+                    <td className="font-medium">{o.name}</td>
+                    <td className="text-dim">{o.slug}</td>
+                    <td>
                       <span
                         className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize"
                         style={{
@@ -102,9 +102,9 @@ export default async function AdminOrganizationsPage() {
                         {o.kind}
                       </span>
                     </td>
-                    <td className="px-6 py-3 text-dim capitalize">{o.plan}</td>
-                    <td className="px-6 py-3 score-numeral text-light">{o.member_count.toLocaleString()}</td>
-                    <td className="px-6 py-3 text-dim">
+                    <td className="text-dim capitalize">{o.plan}</td>
+                    <td className="score-numeral">{o.member_count.toLocaleString()}</td>
+                    <td className="text-dim">
                       {new Date(o.created_at).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
