@@ -44,6 +44,16 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Growth",
     items: [
       {
+        href: "/admin/marketing",
+        label: "Marketing",
+        icon: (
+          <>
+            <path d="M3 8.5v3l4 .8 6 3.7V4L7 7.7 3 8.5z" />
+            <path d="M15.5 8a3.2 3.2 0 010 4" />
+          </>
+        ),
+      },
+      {
         href: "/admin/waitlist",
         label: "Waitlist",
         icon: (
