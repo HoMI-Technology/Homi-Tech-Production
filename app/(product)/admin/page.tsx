@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { StatCard } from "@/components/admin/StatCard";
-import { AssessmentsBarChart } from "@/components/admin/AssessmentsBarChart";
+import { StatTile } from "@/components/ui/StatTile";
+import { Sparkline } from "@/components/ui/Sparkline";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+import { BarSeries } from "@/components/admin/BarSeries";
 import { VERDICT_META, type VerdictKey } from "@/lib/brand";
 import type { Profile } from "@/types/database";
 
@@ -126,34 +128,46 @@ export default async function AdminOverviewPage() {
   }
 
   const totalVerdicts = VERDICT_KEYS.reduce((acc, k) => acc + verdictCounts[k], 0);
+  const last7 = dailyCounts.slice(-7).reduce((acc, d) => acc + d.count, 0);
 
   return (
     <div>
-      <h1 className="font-display text-2xl text-light md:text-3xl">Overview</h1>
+      <p className="eyebrow">Mission control</p>
+      <h1 className="mt-1 font-display text-2xl text-light md:text-3xl">Overview</h1>
       <p className="mt-1 text-sm text-dim">Platform-wide activity and readiness signal.</p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total users" value={totalUsers.toLocaleString()} accent="#22d3ee" />
-        <StatCard label="Assessments completed" value={assessmentsCompleted.toLocaleString()} accent="#34d399" />
-        <StatCard label="Average score" value={avgScore !== null ? String(avgScore) : "—"} accent="#facc15" />
-        <StatCard label="Waitlist" value={waitlistCount.toLocaleString()} accent="#fab633" />
+        <StatTile label="Total users" value={totalUsers.toLocaleString()} accent="#22d3ee" footer="All accounts" />
+        <StatTile
+          label="Assessments completed"
+          value={assessmentsCompleted.toLocaleString()}
+          accent="#34d399"
+          footer={`${last7.toLocaleString()} in the last 7 days`}
+          spark={
+            dailyCounts.length >= 2 ? (
+              <Sparkline id="admin-assessments" values={dailyCounts.map((d) => d.count)} color="#34d399" />
+            ) : undefined
+          }
+        />
+        <StatTile label="Average score" value={avgScore !== null ? String(avgScore) : "—"} accent="#facc15" footer="Across completed assessments" />
+        <StatTile label="Waitlist" value={waitlistCount.toLocaleString()} accent="#fab633" footer="Signups captured" />
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         <div className="glass p-6">
-          <h2 className="text-lg font-semibold text-light">Assessments — last 30 days</h2>
+          <SectionHeader eyebrow="Volume" title="Assessments — last 30 days" />
           <div className="mt-4">
             {dailyCounts.length === 0 ? (
               <p className="py-10 text-center text-sm text-dim">No assessment activity yet.</p>
             ) : (
-              <AssessmentsBarChart counts={dailyCounts} />
+              <BarSeries id="assessments-30d" counts={dailyCounts} color="#22d3ee" ariaLabel="Assessments completed over the last 30 days" />
             )}
           </div>
         </div>
 
         <div className="glass p-6">
-          <h2 className="text-lg font-semibold text-light">Verdict distribution</h2>
-          <div className="mt-4 space-y-4">
+          <SectionHeader eyebrow="Outcomes" title="Verdict distribution" />
+          <div className="mt-5 space-y-4">
             {totalVerdicts === 0 ? (
               <p className="py-6 text-center text-sm text-dim">No completed assessments yet.</p>
             ) : (
@@ -164,17 +178,18 @@ export default async function AdminOverviewPage() {
                 return (
                   <div key={k}>
                     <div className="flex items-center justify-between text-sm">
-                      <span style={{ color: meta.color }} className="font-semibold">
+                      <span className="flex items-center gap-2 font-semibold text-light">
+                        <span aria-hidden className="inline-block h-2 w-2 rounded-full" style={{ background: meta.color, boxShadow: `0 0 8px ${meta.color}` }} />
                         {meta.label}
                       </span>
-                      <span className="text-dim">
+                      <span className="score-numeral text-dim">
                         {count.toLocaleString()} · {pct}%
                       </span>
                     </div>
                     <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-surface">
                       <div
                         className="h-full rounded-full"
-                        style={{ width: `${pct}%`, background: meta.color }}
+                        style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${meta.color}99, ${meta.color})` }}
                       />
                     </div>
                   </div>
@@ -185,27 +200,37 @@ export default async function AdminOverviewPage() {
         </div>
       </div>
 
-      <div className="mt-8 glass p-6">
-        <h2 className="text-lg font-semibold text-light">Recent signups</h2>
+      <div className="glass mt-8 p-6">
+        <SectionHeader eyebrow="Momentum" title="Recent signups" />
         {recentSignups.length === 0 ? (
           <p className="mt-4 py-6 text-center text-sm text-dim">No signups yet.</p>
         ) : (
-          <div className="mt-4 divide-y divide-slate-surface/60">
-            {recentSignups.map((p) => (
-              <div key={p.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
-                <div>
-                  <p className="text-sm font-medium text-light">{p.full_name || "Unnamed"}</p>
-                  <p className="text-xs text-dim">{p.email}</p>
-                </div>
-                <span className="text-xs text-dim">
-                  {new Date(p.created_at).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </span>
-              </div>
-            ))}
+          <div className="mt-3 overflow-x-auto">
+            <table className="table-premium min-w-[480px]">
+              <thead>
+                <tr>
+                  <th>Account</th>
+                  <th>Joined</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentSignups.map((p) => (
+                  <tr key={p.id}>
+                    <td>
+                      <p className="text-sm font-medium text-light">{p.full_name || "Unnamed"}</p>
+                      <p className="text-xs text-dim">{p.email}</p>
+                    </td>
+                    <td className="text-dim">
+                      {new Date(p.created_at).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

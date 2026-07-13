@@ -31,37 +31,43 @@ export default async function AdminUsersPage() {
     users = [];
   }
 
+  const paid = users.filter((u) => u.subscription_tier && u.subscription_tier !== "free").length;
+
   return (
     <div>
-      <h1 className="font-display text-2xl text-light md:text-3xl">Users</h1>
-      <p className="mt-1 text-sm text-dim">Read-only directory. {users.length.toLocaleString()} shown.</p>
+      <p className="eyebrow">Directory</p>
+      <h1 className="mt-1 font-display text-2xl text-light md:text-3xl">Users</h1>
+      <p className="mt-1 text-sm text-dim">
+        Read-only directory. {users.length.toLocaleString()} shown
+        {paid > 0 ? ` · ${paid.toLocaleString()} on paid tiers` : ""}.
+      </p>
 
       <div className="glass mt-6 overflow-x-auto">
         {users.length === 0 ? (
           <p className="p-10 text-center text-sm text-dim">No users yet.</p>
         ) : (
-          <table className="w-full min-w-[720px] text-left text-sm">
+          <table className="table-premium min-w-[720px]">
             <thead>
-              <tr className="border-b border-slate-surface/60 text-xs uppercase tracking-wide text-dim">
-                <th className="px-6 py-3 font-medium">Email</th>
-                <th className="px-6 py-3 font-medium">Name</th>
-                <th className="px-6 py-3 font-medium">Role</th>
-                <th className="px-6 py-3 font-medium">Tier</th>
-                <th className="px-6 py-3 font-medium">Created</th>
+              <tr>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Tier</th>
+                <th>Created</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-surface/40">
+            <tbody>
               {users.map((u) => (
                 <tr key={u.id}>
-                  <td className="px-6 py-3 text-light">{u.email}</td>
-                  <td className="px-6 py-3 text-dim">{u.full_name || "—"}</td>
-                  <td className="px-6 py-3">
+                  <td>{u.email}</td>
+                  <td className="text-dim">{u.full_name || "—"}</td>
+                  <td>
                     <RoleBadge role={u.role} />
                   </td>
-                  <td className="px-6 py-3">
+                  <td>
                     <TierBadge tier={u.subscription_tier} />
                   </td>
-                  <td className="px-6 py-3 text-dim">{formatDate(u.created_at)}</td>
+                  <td className="text-dim">{formatDate(u.created_at)}</td>
                 </tr>
               ))}
             </tbody>
