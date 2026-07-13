@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { CookieConsent } from "@/components/consent/CookieConsent";
+import { AnalyticsScripts } from "@/components/analytics/AnalyticsScripts";
 import { SITE_URL } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
@@ -62,6 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         {children}
         <CookieConsent />
+        <AnalyticsScripts />
       </body>
     </html>
   );

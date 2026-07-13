@@ -39,6 +39,9 @@ jobs:
       - name: Install (reproducible)
         run: npm ci
 
+      - name: Brand canon check
+        run: npm run brand-check
+
       - name: Typecheck
         run: npx tsc --noEmit
 

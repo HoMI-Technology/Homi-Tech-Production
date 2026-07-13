@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
 import { welcomeEmail, verdictEmail, reassessmentReminder, waitlistConfirmation } from "@/lib/email/templates";
+import { isUnsubscribed, listUnsubscribeHeaders } from "@/lib/email/unsubscribe";
 import type { VerdictKey } from "@/lib/brand";
+
+// Marketing/lifecycle templates honor the opt-out list. Transactional account
+// mail (verdict delivery, password reset) always sends.
+const MARKETING_TEMPLATES = new Set(["welcome", "reassessment", "waitlist"]);
 
 export const runtime = "nodejs";
 
@@ -45,6 +50,11 @@ export async function POST(request: Request) {
 
   const { template, to, params } = parsed.data;
 
+  // Suppress marketing/lifecycle mail to opted-out recipients.
+  if (MARKETING_TEMPLATES.has(template) && (await isUnsubscribed(to))) {
+    return NextResponse.json({ ok: true, skipped: "unsubscribed" });
+  }
+
   let rendered: { subject: string; html: string };
   try {
     switch (template) {
@@ -86,6 +96,10 @@ export async function POST(request: Request) {
         to,
         subject: rendered.subject,
         html: rendered.html,
+        // RFC 8058 one-click unsubscribe on marketing/lifecycle mail.
+        ...(MARKETING_TEMPLATES.has(template)
+          ? { headers: listUnsubscribeHeaders(to) }
+          : {}),
       }),
     });
     if (!res.ok) {
