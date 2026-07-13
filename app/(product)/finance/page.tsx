@@ -24,6 +24,7 @@ import { compareStrategies, type Debt } from "@/lib/tools/debt";
 import { runMonteCarlo, type MonteCarloResult } from "@/lib/tools/montecarlo";
 import { formatCurrency, formatCompactCurrency, formatMonths, formatPercent } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
+import { NumberField } from "@/components/ui/NumberField";
 
 type TabKey = "overview" | "cashflow" | "debt" | "montecarlo" | "networth";
 
@@ -49,10 +50,6 @@ const TEMP_BG: Record<Temperature, string> = {
   crimson: "bg-verdict-notyet",
 };
 
-let nextExpenseId = 1;
-let nextAssetId = 1;
-let nextLiabilityId = 1;
-let nextDebtId = 1;
 
 export default function FinancePage() {
   const [state, setState] = useState<FinanceState>(DEFAULT_FINANCE_STATE);
@@ -143,11 +140,11 @@ function OverviewTab({
   return (
     <div className="space-y-8">
       <div className="glass grid gap-5 p-6 sm:grid-cols-2 lg:grid-cols-5">
-        <NumberField label="Monthly income" value={state.monthlyIncome} onChange={(v) => patch({ monthlyIncome: v })} />
-        <NumberField label="Monthly expenses" value={state.monthlyExpenses} onChange={(v) => patch({ monthlyExpenses: v })} />
-        <NumberField label="Liquid savings" value={state.liquidSavings} onChange={(v) => patch({ liquidSavings: v })} />
-        <NumberField label="Total debt" value={state.totalDebt} onChange={(v) => patch({ totalDebt: v })} />
-        <NumberField label="Monthly debt payments" value={state.monthlyDebtPayments} onChange={(v) => patch({ monthlyDebtPayments: v })} />
+        <NumberField label="Monthly income" value={state.monthlyIncome} onChange={(v) => patch({ monthlyIncome: v ?? 0 })} />
+        <NumberField label="Monthly expenses" value={state.monthlyExpenses} onChange={(v) => patch({ monthlyExpenses: v ?? 0 })} />
+        <NumberField label="Liquid savings" value={state.liquidSavings} onChange={(v) => patch({ liquidSavings: v ?? 0 })} />
+        <NumberField label="Total debt" value={state.totalDebt} onChange={(v) => patch({ totalDebt: v ?? 0 })} />
+        <NumberField label="Monthly debt payments" value={state.monthlyDebtPayments} onChange={(v) => patch({ monthlyDebtPayments: v ?? 0 })} />
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -230,28 +227,6 @@ function StatCard({
   );
 }
 
-function NumberField({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-}) {
-  return (
-    <div>
-      <label className="text-sm text-light">{label}</label>
-      <input
-        className="input mt-2"
-        type="number"
-        value={value || ""}
-        onChange={(e) => onChange(Number(e.target.value))}
-      />
-    </div>
-  );
-}
-
 /* ═══════════════════════════════════════════ Cash Flow ══════════════════ */
 
 function CashFlowTab({
@@ -273,7 +248,7 @@ function CashFlowTab({
     patch({
       expenseCategories: [
         ...state.expenseCategories,
-        { id: `cat-${nextExpenseId++}`, name: "", amount: 0 },
+        { id: `cat-${crypto.randomUUID()}`, name: "", amount: 0 },
       ],
     });
   }
@@ -429,8 +404,8 @@ function ProjectionChart({ points }: { points: { month: number; cumulative: numb
 
 function DebtTab() {
   const [debts, setDebts] = useState<Debt[]>([
-    { id: `debt-${nextDebtId++}`, name: "Credit card", balance: 4500, apr: 22.9, minPayment: 120 },
-    { id: `debt-${nextDebtId++}`, name: "Car loan", balance: 12000, apr: 6.5, minPayment: 280 },
+    { id: `debt-${crypto.randomUUID()}`, name: "Credit card", balance: 4500, apr: 22.9, minPayment: 120 },
+    { id: `debt-${crypto.randomUUID()}`, name: "Car loan", balance: 12000, apr: 6.5, minPayment: 280 },
   ]);
   const [extra, setExtra] = useState(300);
 
@@ -444,7 +419,7 @@ function DebtTab() {
     setDebts((prev) => prev.map((d) => (d.id === id ? { ...d, ...patchD } : d)));
   }
   function addDebt() {
-    setDebts((prev) => [...prev, { id: `debt-${nextDebtId++}`, name: "", balance: 0, apr: 0, minPayment: 0 }]);
+    setDebts((prev) => [...prev, { id: `debt-${crypto.randomUUID()}`, name: "", balance: 0, apr: 0, minPayment: 0 }]);
   }
   function removeDebt(id: string) {
     setDebts((prev) => prev.filter((d) => d.id !== id));
@@ -777,7 +752,7 @@ function NetWorthTab({
     patch({ assets: state.assets.map((a) => (a.id === id ? { ...a, ...patchA } : a)) });
   }
   function addAsset() {
-    patch({ assets: [...state.assets, { id: `asset-${nextAssetId++}`, name: "", amount: 0 }] });
+    patch({ assets: [...state.assets, { id: `asset-${crypto.randomUUID()}`, name: "", amount: 0 }] });
   }
   function removeAsset(id: string) {
     patch({ assets: state.assets.filter((a) => a.id !== id) });
@@ -787,7 +762,7 @@ function NetWorthTab({
     patch({ liabilities: state.liabilities.map((l) => (l.id === id ? { ...l, ...patchL } : l)) });
   }
   function addLiability() {
-    patch({ liabilities: [...state.liabilities, { id: `liability-${nextLiabilityId++}`, name: "", amount: 0 }] });
+    patch({ liabilities: [...state.liabilities, { id: `liability-${crypto.randomUUID()}`, name: "", amount: 0 }] });
   }
   function removeLiability(id: string) {
     patch({ liabilities: state.liabilities.filter((l) => l.id !== id) });

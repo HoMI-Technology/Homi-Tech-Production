@@ -1,11 +1,16 @@
 "use client";
 
+import { track } from "@/lib/analytics";
+
 /** Prints the current page (the credential itself) rather than navigating away to the full report's print route. */
 export function CredentialPrintButton() {
   return (
     <button
       type="button"
-      onClick={() => window.print()}
+      onClick={() => {
+        track("report_pdf", { kind: "credential" });
+        window.print();
+      }}
       className="btn btn-primary print:hidden"
     >
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">

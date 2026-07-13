@@ -1,0 +1,28 @@
+/**
+ * Minimal, dependency-free analytics sink. Client-only; appends occurrence
+ * events to `window.__homiEvents` for later pickup by a real collector.
+ *
+ * Occurrence-only — NEVER pass scores, verdicts, answer values, or any PII
+ * in props.
+ *
+ * @vercel/analytics wiring is an owner step (needs the dep + Vercel Web
+ * Analytics toggle).
+ */
+
+export interface AnalyticsEvent {
+  event: string;
+  props?: Record<string, string | number>;
+  ts: number;
+}
+
+declare global {
+  interface Window {
+    __homiEvents?: AnalyticsEvent[];
+  }
+}
+
+export function track(event: string, props?: Record<string, string | number>): void {
+  if (typeof window === "undefined") return;
+  if (!window.__homiEvents) window.__homiEvents = [];
+  window.__homiEvents.push({ event, props, ts: Date.now() });
+}

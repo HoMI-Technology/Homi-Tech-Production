@@ -54,6 +54,12 @@ export function PricingCheckoutButton({
         body: JSON.stringify({ tier }),
       });
 
+      if (res.status === 401) {
+        // Checkout requires a signed-in account — send them to sign-in and back.
+        window.location.href = "/auth/sign-in?next=/pricing";
+        return;
+      }
+
       if (!res.ok) {
         setStatus("unavailable");
         return;

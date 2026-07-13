@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { VERDICT_META } from "@/lib/brand";
 import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
@@ -27,10 +28,12 @@ const COLUMNS: Array<{
 ];
 
 export default function TrinityPage() {
+  const pathname = usePathname();
   const [stored, setStored] = useState<StoredAssessment | null | undefined>(undefined);
   const [trinity, setTrinity] = useState<TrinityResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gateCta, setGateCta] = useState<{ href: string; label: string } | null>(null);
 
   useEffect(() => {
     setStored(loadLocalResult());
@@ -40,6 +43,7 @@ export default function TrinityPage() {
     if (!stored) return;
     setLoading(true);
     setError(null);
+    setGateCta(null);
     try {
       const res = await fetch("/api/trinity", {
         method: "POST",
@@ -58,7 +62,19 @@ export default function TrinityPage() {
         }),
       });
       if (!res.ok) {
-        setError("Something went wrong running the Trinity. Please try again.");
+        // The companion gate returns truthful, on-brand copy (sign-in / upgrade /
+        // retry) — never let a 401/402 fall through to the generic error.
+        const data = (await res.json().catch(() => ({}))) as { error?: unknown };
+        const message =
+          typeof data.error === "string"
+            ? data.error
+            : "Something went wrong running the Trinity. Please try again.";
+        setError(message);
+        if (res.status === 401) {
+          setGateCta({ href: `/auth/sign-in?next=${encodeURIComponent(pathname)}`, label: "Sign in" });
+        } else if (res.status === 402) {
+          setGateCta({ href: "/pricing", label: "See plans" });
+        }
         setLoading(false);
         return;
       }
@@ -135,6 +151,11 @@ export default function TrinityPage() {
             {loading ? "Convening the Trinity…" : "Run the Trinity"}
           </button>
           {error && <p className="text-sm text-crimson">{error}</p>}
+          {gateCta && (
+            <Link href={gateCta.href} className="btn btn-primary">
+              {gateCta.label}
+            </Link>
+          )}
         </div>
       )}
 
@@ -163,6 +184,13 @@ export default function TrinityPage() {
             </button>
           </div>
           {error && <p className="mt-3 text-center text-sm text-crimson">{error}</p>}
+          {gateCta && (
+            <div className="mt-3 flex justify-center">
+              <Link href={gateCta.href} className="btn btn-primary">
+                {gateCta.label}
+              </Link>
+            </div>
+          )}
         </>
       )}
     </div>

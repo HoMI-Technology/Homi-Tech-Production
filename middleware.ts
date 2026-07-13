@@ -6,16 +6,18 @@ type CookieToSet = { name: string; value: string; options?: CookieOptions };
 /** Routes that require an authenticated session. */
 const PROTECTED_PREFIXES = [
   "/dashboard",
-  "/plan",
   "/advisor",
   "/journal",
-  "/couples",
   "/daily",
-  "/genome",
   "/admin",
+  "/settings",
+  "/family",
+  "/calendar",
+  "/outcomes",
+  "/connections",
+  "/report",
   "/partner/portal",
   "/employee/portal",
-  "/settings",
 ];
 
 export async function middleware(request: NextRequest) {

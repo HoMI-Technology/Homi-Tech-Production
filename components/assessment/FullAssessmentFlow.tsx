@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PILLARS } from "@/lib/brand";
 import { computeScore } from "@/lib/scoring";
 import { saveLocalResult, loadLocalResult, attachServerId } from "@/lib/assessment/storage";
 import { deriveAssessmentInputs } from "@/lib/assessment/derive";
+import { saveDraft, loadDraft, clearDraft, type AssessmentDraft } from "@/lib/assessment/draft";
 import {
   INITIAL_FULL_FORM,
   creditScoreBandHint,
@@ -75,6 +76,44 @@ export function FullAssessmentFlow() {
   const [form, setForm] = useState<FullAssessmentForm>(INITIAL_FULL_FORM);
   const [submitting, setSubmitting] = useState(false);
 
+  // Draft resume: on mount, check for a saved draft before touching anything
+  // else. `draftReady` gates the autosave effect so we never overwrite a
+  // pending draft with the blank INITIAL_FULL_FORM before the user has had
+  // a chance to choose Resume or Start over.
+  const [resumeDraft, setResumeDraft] = useState<AssessmentDraft | null>(null);
+  const [draftReady, setDraftReady] = useState(false);
+
+  useEffect(() => {
+    const draft = loadDraft();
+    if (draft) {
+      setResumeDraft(draft);
+    } else {
+      setDraftReady(true);
+    }
+    // Only ever run once, on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!draftReady) return;
+    saveDraft(form, index);
+  }, [form, index, draftReady]);
+
+  function handleResumeDraft() {
+    if (resumeDraft) {
+      setForm(resumeDraft.form);
+      setIndex(resumeDraft.index);
+    }
+    setResumeDraft(null);
+    setDraftReady(true);
+  }
+
+  function handleStartOver() {
+    clearDraft();
+    setResumeDraft(null);
+    setDraftReady(true);
+  }
+
   const step = STEPS[index];
   const progressSteps = useMemo(() => stepMeta(STEPS), []);
 
@@ -104,6 +143,7 @@ export function FullAssessmentFlow() {
       : undefined;
 
     saveLocalResult({ inputs, result, completedAt: new Date().toISOString(), kind: "full", previous });
+    clearDraft();
 
     fetch("/api/assessments", {
       method: "POST",
@@ -154,6 +194,23 @@ export function FullAssessmentFlow() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16" onKeyDown={handleEnterKey}>
+      {resumeDraft && (
+        <div className="glass mb-6 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-light">
+            <span className="font-semibold text-cyan">Resume where you left off?</span>{" "}
+            <span className="text-dim">You have an in-progress assessment saved on this device.</span>
+          </p>
+          <div className="flex shrink-0 items-center gap-3">
+            <button type="button" onClick={handleStartOver} className="btn btn-ghost text-sm">
+              Start over
+            </button>
+            <button type="button" onClick={handleResumeDraft} className="btn btn-primary text-sm">
+              Resume
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="mb-8">
         <ProgressBar steps={progressSteps} currentIndex={index} />
         <p className="mt-3 text-center text-xs text-dim">

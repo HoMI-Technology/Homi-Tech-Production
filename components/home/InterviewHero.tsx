@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { CinematicCompass, Particles } from "./CinematicCompass";
+import { track } from "@/lib/analytics";
 
 /**
  * InterviewHero — the hero is a 3-question cinematic interview held in a
@@ -67,15 +68,6 @@ function computeTemperature(s: { financial: Signal; emotional: Signal; timing: S
   else if (hasOne && rank[temp] > rank.WARM) temp = "WARM";
 
   return temp;
-}
-
-function track(event: string) {
-  if (typeof window !== "undefined") {
-    (window as unknown as { __homiEvents?: string[] }).__homiEvents = [
-      ...(((window as unknown as { __homiEvents?: string[] }).__homiEvents) || []),
-      event,
-    ];
-  }
 }
 
 const SESSION_SIGNALS_KEY = "homi:hero-signals";

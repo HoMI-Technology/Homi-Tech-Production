@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Guides",
   description:
     "In-depth, honest guides on affordability, runway, credit, timing, and emotional readiness — written to be genuinely useful, not to sell you anything.",
+  alternates: { canonical: "/guides" },
 };
 
 export default function GuidesHubPage() {
