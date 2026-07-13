@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// The route's Supabase lookup is optional (anonymous checkout is allowed),
-// so keep it inert in tests.
+// Checkout requires an authenticated session (T1.2 billing hardening).
+// Default mock: a signed-in user; individual tests can override to anonymous.
+const getUser = vi.fn().mockResolvedValue({ data: { user: { id: "user_test_1" } } });
 vi.mock("@/lib/supabase/server", () => ({
-  createClient: vi.fn().mockRejectedValue(new Error("no request scope")),
+  createClient: vi.fn().mockResolvedValue({ auth: { getUser: () => getUser() } }),
 }));
 
 import { POST } from "@/app/api/checkout/route";
@@ -32,6 +33,14 @@ describe("POST /api/checkout", () => {
     const res = await POST(request({ tier: "plus" }));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ configured: false });
+  });
+
+  it("returns 401 for anonymous users when Stripe is configured", async () => {
+    vi.stubEnv("STRIPE_SECRET_KEY", "sk_test_x");
+    vi.stubEnv("STRIPE_PRICE_PLUS", "price_plus_123");
+    getUser.mockResolvedValueOnce({ data: { user: null } });
+    const res = await POST(request({ tier: "plus" }));
+    expect(res.status).toBe(401);
   });
 
   it("rejects unknown tiers", async () => {

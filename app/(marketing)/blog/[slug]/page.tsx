@@ -3,6 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Reveal } from "@/components/ui/Reveal";
 import { BLOG_POSTS, getAllPostSlugs, getPost } from "@/components/marketing/blog-data";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { articleJsonLd } from "@/lib/seo/schema";
+import { SITE_URL } from "@/lib/seo/site";
 
 export function generateStaticParams() {
   return getAllPostSlugs().map((slug) => ({ slug }));
@@ -23,6 +26,7 @@ export async function generateMetadata({
   return {
     title: post.title,
     description: post.description,
+    alternates: { canonical: `/blog/${post.slug}` },
   };
 }
 
@@ -50,6 +54,17 @@ export default async function BlogPostPage({
 
   return (
     <>
+      <JsonLd
+        data={articleJsonLd(
+          {
+            title: post.title,
+            description: post.description,
+            datePublished: post.date,
+            path: `/blog/${post.slug}`,
+          },
+          SITE_URL,
+        )}
+      />
       <section className="px-6 pb-12 pt-16 md:pt-24">
         <div className="mx-auto max-w-3xl">
           <Link href="/blog" className="text-sm text-dim transition-colors hover:text-cyan">

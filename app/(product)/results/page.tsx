@@ -5,6 +5,8 @@ import Link from "next/link";
 import { PILLARS, VERDICT_META } from "@/lib/brand";
 import { PILLAR_MAX_POINTS, generateKeyInsight, generateNextSteps } from "@/lib/scoring";
 import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
+import { mapAssessmentRowToStored } from "@/lib/assessment/remote";
+import { pickResult } from "@/lib/assessment/resolveResult";
 import { createClient } from "@/lib/supabase/client";
 import { deriveConflictSignals } from "@/lib/conflict/engine";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
@@ -24,6 +26,8 @@ const TIMING = PILLARS.find((p) => p.key === "timing")!;
 export default function ResultsPage() {
   const [stored, setStored] = useState<StoredAssessment | null | undefined>(undefined);
   const [isAnonymous, setIsAnonymous] = useState(false);
+  const [remote, setRemote] = useState<StoredAssessment | null>(null);
+  const [remoteChecked, setRemoteChecked] = useState(false);
 
   useEffect(() => {
     setStored(loadLocalResult());
@@ -31,16 +35,33 @@ export default function ResultsPage() {
 
   useEffect(() => {
     let active = true;
-    async function checkAuth() {
+    async function checkAuthAndRemote() {
       try {
         const supabase = createClient();
         const { data } = await supabase.auth.getUser();
-        if (active) setIsAnonymous(!data?.user);
+        const signedIn = !!data?.user;
+        if (active) setIsAnonymous(!signedIn);
+
+        if (!signedIn) {
+          if (active) setRemoteChecked(true);
+          return;
+        }
+
+        const res = await fetch("/api/assessments/latest");
+        const json = await res.json().catch(() => ({ assessment: null }));
+        const mapped = json?.assessment ? mapAssessmentRowToStored(json.assessment) : null;
+        if (active) {
+          setRemote(mapped);
+          setRemoteChecked(true);
+        }
       } catch {
-        if (active) setIsAnonymous(true);
+        if (active) {
+          setIsAnonymous(true);
+          setRemoteChecked(true);
+        }
       }
     }
-    checkAuth();
+    checkAuthAndRemote();
     return () => {
       active = false;
     };
@@ -54,7 +75,21 @@ export default function ResultsPage() {
     );
   }
 
-  if (stored === null) {
+  // Local result wins when it is newer or remote isn't signed in / doesn't
+  // exist; anonymous users always fall straight through to `stored` here
+  // since `remote` stays null for them.
+  const effective = pickResult(stored, remote);
+
+  if (effective === null) {
+    // Signed-in users on a new device: don't flash "No results yet" before
+    // we've had a chance to check the DB for a prior result.
+    if (!remoteChecked) {
+      return (
+        <div className="mx-auto max-w-2xl px-4 py-24 text-center">
+          <p className="text-dim">Loading your results…</p>
+        </div>
+      );
+    }
     return (
       <div className="mx-auto max-w-xl px-4 py-24 text-center">
         <div className="glass p-10">
@@ -76,15 +111,15 @@ export default function ResultsPage() {
     );
   }
 
-  const { result, kind } = stored;
+  const { result, kind } = effective;
   const meta = VERDICT_META[result.verdict];
   const keyInsight = generateKeyInsight(result);
   const nextSteps = generateNextSteps(result);
   const conflictSignals = deriveConflictSignals({
-    fomoLevel: stored.inputs.fomoLevel,
-    timeHorizonMonths: stored.inputs.timeHorizonMonths,
-    referralSource: stored.inputs.referralSource,
-    deadlineOrigin: stored.inputs.deadlineOrigin,
+    fomoLevel: effective.inputs.fomoLevel,
+    timeHorizonMonths: effective.inputs.timeHorizonMonths,
+    referralSource: effective.inputs.referralSource,
+    deadlineOrigin: effective.inputs.deadlineOrigin,
   });
 
   return (
@@ -113,11 +148,11 @@ export default function ResultsPage() {
           <p className="mt-1 text-sm uppercase tracking-widest text-dim">HōMI-Score out of 100</p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-3 md:justify-start">
             <VerdictBadge verdict={result.verdict} size="lg" />
-            {stored.previous && (
+            {effective.previous && (
               <ScoreDeltaBadge
                 current={result.score}
-                previous={stored.previous.score}
-                previousDate={stored.previous.completedAt}
+                previous={effective.previous.score}
+                previousDate={effective.previous.completedAt}
               />
             )}
           </div>
@@ -273,8 +308,8 @@ export default function ResultsPage() {
         <Link href={kind === "shadow" ? "/assessment" : "/shadow-score"} className="btn btn-ghost">
           {kind === "shadow" ? "Take the full assessment" : "Retake the assessment"}
         </Link>
-        {stored.serverId && (
-          <Link href={`/report/${stored.serverId}/credential`} className="btn btn-ghost">
+        {effective.serverId && (
+          <Link href={`/report/${effective.serverId}/credential`} className="btn btn-ghost">
             Get credential
           </Link>
         )}
@@ -284,7 +319,7 @@ export default function ResultsPage() {
       </div>
 
       <div className="mt-6 flex justify-center">
-        <VerdictOverride hardStops={result.hardStops} assessmentId={stored.serverId ?? null} />
+        <VerdictOverride hardStops={result.hardStops} assessmentId={effective.serverId ?? null} />
       </div>
     </div>
   );

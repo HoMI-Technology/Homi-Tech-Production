@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { hasAnthropic, env } from "@/lib/env";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
+import { createClient } from "@/lib/supabase/server";
+import { gateCompanion } from "@/lib/advisor/quota";
 import { buildFallbackTrinity, type TrinityAssessmentContext } from "@/lib/trinity/fallback";
 import { VERDICT_META } from "@/lib/brand";
 
@@ -87,6 +89,12 @@ export async function POST(request: Request) {
       { status: 429 },
     );
   }
+
+  // Companion gate: this is an LLM endpoint (AUDIT T1.3). Require a session and
+  // consume from the tier's daily quota — no anonymous LLM spend.
+  const supabase = await createClient();
+  const gate = await gateCompanion(supabase);
+  if (!gate.ok) return gate.response;
 
   let json: unknown;
   try {

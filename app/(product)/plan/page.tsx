@@ -5,6 +5,9 @@ import Link from "next/link";
 import { PILLARS } from "@/lib/brand";
 import { PILLAR_MAX_POINTS, generateNextSteps } from "@/lib/scoring";
 import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
+import { mapAssessmentRowToStored } from "@/lib/assessment/remote";
+import { pickResult } from "@/lib/assessment/resolveResult";
+import { createClient } from "@/lib/supabase/client";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 
 const PLAN_PROGRESS_KEY = "homi:plan-progress";
@@ -36,6 +39,8 @@ function pillarPct(key: "financial" | "emotional" | "timing", stored: StoredAsse
 
 export default function PlanPage() {
   const [stored, setStored] = useState<StoredAssessment | null | undefined>(undefined);
+  const [remote, setRemote] = useState<StoredAssessment | null>(null);
+  const [remoteChecked, setRemoteChecked] = useState(false);
   const [progress, setProgress] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -43,20 +48,53 @@ export default function PlanPage() {
     setProgress(loadProgress());
   }, []);
 
-  const weakestPillar = useMemo(() => {
-    if (!stored) return null;
-    const pillars = PILLARS.map((p) => ({ ...p, pct: pillarPct(p.key, stored) }));
-    return pillars.sort((a, b) => a.pct - b.pct)[0];
-  }, [stored]);
+  useEffect(() => {
+    let active = true;
+    async function checkAuthAndRemote() {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase.auth.getUser();
+        if (!data?.user) {
+          if (active) setRemoteChecked(true);
+          return;
+        }
 
-  const steps = useMemo(() => (stored ? generateNextSteps(stored.result) : []), [stored]);
+        const res = await fetch("/api/assessments/latest");
+        const json = await res.json().catch(() => ({ assessment: null }));
+        const mapped = json?.assessment ? mapAssessmentRowToStored(json.assessment) : null;
+        if (active) {
+          setRemote(mapped);
+          setRemoteChecked(true);
+        }
+      } catch {
+        if (active) setRemoteChecked(true);
+      }
+    }
+    checkAuthAndRemote();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Local result wins when it is newer or there is no signed-in remote
+  // result; anonymous users always fall straight through to `stored` here
+  // since `remote` stays null for them.
+  const effective = stored === undefined ? undefined : pickResult(stored, remote);
+
+  const weakestPillar = useMemo(() => {
+    if (!effective) return null;
+    const pillars = PILLARS.map((p) => ({ ...p, pct: pillarPct(p.key, effective) }));
+    return pillars.sort((a, b) => a.pct - b.pct)[0];
+  }, [effective]);
+
+  const steps = useMemo(() => (effective ? generateNextSteps(effective.result) : []), [effective]);
 
   const retestDate = useMemo(() => {
-    if (!stored) return null;
-    const base = new Date(stored.completedAt);
+    if (!effective) return null;
+    const base = new Date(effective.completedAt);
     base.setDate(base.getDate() + 30);
     return base;
-  }, [stored]);
+  }, [effective]);
 
   function toggleStep(id: string) {
     setProgress((prev) => {
@@ -74,7 +112,16 @@ export default function PlanPage() {
     );
   }
 
-  if (stored === null) {
+  if (!effective) {
+    // Signed-in users on a new device: don't flash "No plan yet" before
+    // we've had a chance to check the DB for a prior result.
+    if (!remoteChecked) {
+      return (
+        <div className="mx-auto max-w-2xl px-4 py-24 text-center">
+          <p className="text-dim">Loading your plan…</p>
+        </div>
+      );
+    }
     return (
       <div className="mx-auto max-w-xl px-4 py-24 text-center">
         <div className="glass p-10">
@@ -162,7 +209,7 @@ export default function PlanPage() {
       </div>
 
       <div className="mt-12 flex flex-col items-center gap-4 border-t border-slate-surface/60 pt-10 sm:flex-row sm:justify-center">
-        <Link href={stored.kind === "shadow" ? "/assessment" : "/shadow-score"} className="btn btn-primary">
+        <Link href={effective.kind === "shadow" ? "/assessment" : "/shadow-score"} className="btn btn-primary">
           Re-take the assessment
         </Link>
         <Link href="/results" className="btn btn-ghost">

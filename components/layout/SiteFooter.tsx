@@ -12,7 +12,6 @@ const COLUMNS = [
       { href: "/tools", label: "Finance Tools" },
       { href: "/advisor", label: "Decision Companion" },
       { href: "/pricing", label: "Pricing" },
-      { href: "/artifact", label: "Companion Playground" },
     ],
   },
   {
@@ -39,6 +38,7 @@ const COLUMNS = [
       { href: "/legal/terms", label: "Terms" },
       { href: "/legal/disclaimer", label: "Disclaimer" },
       { href: "/legal/cookies", label: "Cookie policy" },
+      { href: "mailto:support@homitechnology.com", label: "Support" },
     ],
   },
 ];

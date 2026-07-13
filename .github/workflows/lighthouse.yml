@@ -1,0 +1,43 @@
+name: Lighthouse
+
+# Enforces the premium-redesign budget (BUILD-BRIEF §11) on the built app.
+# Runs mobile-emulated Lighthouse (LHCI default) against public/representative
+# routes. Authenticated dashboards need a login step (see note at bottom).
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "app/**"
+      - "components/**"
+      - "lighthouserc.json"
+      - "lighthouse-budget.json"
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://giyycykxkzfbowiapxpd.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_SITE_URL: https://homitechnology.com
+      NEXT_TELEMETRY_DISABLED: "1"
+      NODE_OPTIONS: --max-old-space-size=4096
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Build
+        run: npx next build
+      - name: Lighthouse CI (asserts §11 budget)
+        run: npx lhci autorun
+
+# NOTE — authenticated routes (dashboard, results, journal, etc.):
+# LHCI here tests only public routes; authed pages redirect to sign-in.
+# To budget those too, add a puppeteer login script and point
+# collect.puppeteerScript at it, or run LHCI against a Vercel preview URL
+# with a seeded session cookie. Tracked as a follow-up in BUILD-BRIEF §11.

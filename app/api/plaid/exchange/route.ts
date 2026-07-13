@@ -55,8 +55,10 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       const details = await response.text();
+      const correlationId = crypto.randomUUID();
+      console.error(`[plaid/exchange:${correlationId}]`, details);
       return NextResponse.json(
-        { error: "Plaid token exchange failed.", details },
+        { error: "Plaid token exchange failed.", correlationId },
         { status: 502 },
       );
     }

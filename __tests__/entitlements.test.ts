@@ -22,13 +22,17 @@ describe("normalizeTier", () => {
 });
 
 describe("getEntitlements", () => {
-  it("gives the free tier no premium capabilities", () => {
+  it("gives the free tier a small Companion taste but no premium capabilities", () => {
     const free = getEntitlements("free");
-    expect(free.advisorAccess).toBe(false);
-    expect(free.advisorMessagesPerDay).toBe(0);
+    // Companion is the funnel hook: free gets a genuine daily quota, not zero.
+    expect(free.advisorAccess).toBe(true);
+    expect(free.advisorMessagesPerDay).toBeGreaterThan(0);
+    expect(free.advisorMessagesPerDay).toBeLessThan(getEntitlements("plus").advisorMessagesPerDay);
+    // But the actual premium capabilities stay locked.
     expect(free.fullReport).toBe(false);
     expect(free.unlimitedRescoring).toBe(false);
     expect(free.couplesMode).toBe(false);
+    expect(free.advancedTools).toBe(false);
     expect(free.familySeats).toBe(1);
   });
 
@@ -44,6 +48,12 @@ describe("getEntitlements", () => {
 
   it("unlocks couples mode at Pro", () => {
     expect(getEntitlements("pro").couplesMode).toBe(true);
+  });
+
+  it("unlocks advanced finance tools at Pro (matches published Pro feature)", () => {
+    expect(getEntitlements("plus").advancedTools).toBe(false);
+    expect(getEntitlements("pro").advancedTools).toBe(true);
+    expect(getEntitlements("family").advancedTools).toBe(true);
   });
 
   it("grants 5 household seats only on Family", () => {
@@ -63,6 +73,7 @@ describe("getEntitlements", () => {
       "fullReport",
       "unlimitedRescoring",
       "couplesMode",
+      "advancedTools",
     ];
     for (const key of bools) {
       for (let i = 1; i < ladder.length; i++) {
@@ -87,18 +98,18 @@ describe("requireCapability (server-side gate)", () => {
   const plus = getEntitlements("plus");
 
   it("returns 401 for an anonymous request (no user id)", () => {
-    const gate = requireCapability(null, free, "advisorAccess");
+    const gate = requireCapability(null, free, "fullReport");
     expect(gate.ok).toBe(false);
     if (!gate.ok) expect(gate.status).toBe(401);
   });
 
   it("returns 402 (payment required) for an authenticated free-tier user", () => {
-    const gate = requireCapability("user-123", free, "advisorAccess");
+    const gate = requireCapability("user-123", free, "fullReport");
     expect(gate.ok).toBe(false);
     if (!gate.ok) expect(gate.status).toBe(402);
   });
 
   it("allows an authenticated paid user", () => {
-    expect(requireCapability("user-123", plus, "advisorAccess").ok).toBe(true);
+    expect(requireCapability("user-123", plus, "fullReport").ok).toBe(true);
   });
 });

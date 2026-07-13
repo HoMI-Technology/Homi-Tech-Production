@@ -2,21 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { computeScore, generateKeyInsight, generateNextSteps } from "@/lib/scoring";
 import { createClient } from "@/lib/supabase/server";
-
-const assessmentInputsSchema = z.object({
-  debtToIncomeRatio: z.number().min(0).max(5),
-  downPaymentPercent: z.number().min(0).max(2),
-  emergencyFundMonths: z.number().min(0).max(600),
-  creditScore: z.number().min(0).max(900),
-  lifeStability: z.number().min(1).max(10),
-  confidenceLevel: z.number().min(1).max(10),
-  partnerAlignment: z.number().min(1).max(10).nullable(),
-  fomoLevel: z.number().min(1).max(10),
-  timeHorizonMonths: z.number().min(0).max(1200),
-  savingsRate: z.number().min(0).max(2),
-  downPaymentProgress: z.number().min(0).max(2),
-  monthlyHousingRatio: z.number().min(0).max(5).optional(),
-});
+import { assessmentInputsSchema } from "@/lib/validation/assessment";
 
 const bodySchema = z.object({
   inputs: assessmentInputsSchema,
@@ -73,12 +59,22 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      const correlationId = crypto.randomUUID();
+      console.error(`[assessments:POST:${correlationId}]`, error);
+      return NextResponse.json(
+        { error: "Could not save the assessment right now.", correlationId },
+        { status: 500 },
+      );
     }
 
     return NextResponse.json({ saved: true, id: data.id });
   } catch (err) {
-    return NextResponse.json({ error: err instanceof Error ? err.message : "Unknown error" }, { status: 500 });
+    const correlationId = crypto.randomUUID();
+    console.error(`[assessments:POST:${correlationId}]`, err);
+    return NextResponse.json(
+      { error: "Something went wrong saving the assessment.", correlationId },
+      { status: 500 },
+    );
   }
 }
 
@@ -101,11 +97,21 @@ export async function GET() {
       .limit(20);
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      const correlationId = crypto.randomUUID();
+      console.error(`[assessments:GET:${correlationId}]`, error);
+      return NextResponse.json(
+        { error: "Could not load assessments right now.", correlationId },
+        { status: 500 },
+      );
     }
 
     return NextResponse.json({ assessments: data });
   } catch (err) {
-    return NextResponse.json({ error: err instanceof Error ? err.message : "Unknown error" }, { status: 500 });
+    const correlationId = crypto.randomUUID();
+    console.error(`[assessments:GET:${correlationId}]`, err);
+    return NextResponse.json(
+      { error: "Something went wrong loading assessments.", correlationId },
+      { status: 500 },
+    );
   }
 }

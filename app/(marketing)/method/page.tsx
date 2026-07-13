@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "The Method",
   description:
     "The philosophy behind HōMI: readiness before action, the temperature metaphor, and why emotional truth counts as much as financial reality.",
+  alternates: { canonical: "/method" },
 };
 
 export default function MethodPage() {

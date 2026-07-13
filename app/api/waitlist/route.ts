@@ -40,12 +40,13 @@ export async function POST(request: Request) {
     .from("waitlist")
     .insert({ email, interested_in: interestedIn, source: "site" });
 
-  if (error) {
-    // Postgres unique violation code.
-    if (error.code === "23505") {
-      return NextResponse.json({ ok: true, already: true });
-    }
-    return NextResponse.json({ error: "Could not join the waitlist right now." }, { status: 500 });
+  // Uniform response regardless of outcome (T1.8a) — do not let the response
+  // reveal whether this email already exists on the waitlist (Postgres unique
+  // violation, code 23505) or leak any other insert error. The insert itself
+  // still happens as normal; only enumeration via the response is prevented.
+  if (error && error.code !== "23505") {
+    const correlationId = crypto.randomUUID();
+    console.error(`[waitlist:${correlationId}]`, error);
   }
 
   return NextResponse.json({ ok: true });

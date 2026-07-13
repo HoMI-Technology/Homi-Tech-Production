@@ -14,11 +14,15 @@ import { Flashlight } from "@/components/home/Flashlight";
 import { AlignmentScene } from "@/components/home/AlignmentScene";
 import { StatementReveal } from "@/components/home/StatementReveal";
 import { heroVariant } from "@/lib/flags";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
+import { SITE_URL } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
   title: "Know When You're Ready. Move When It Matters.",
   description:
     "Credit scores look backward. HōMI looks at readiness now. Decision Readiness Intelligence™ across Financial Reality, Emotional Truth, and Perfect Timing — before life's biggest decisions.",
+  alternates: { canonical: "/" },
 };
 
 /**
@@ -29,6 +33,8 @@ export const metadata: Metadata = {
 export default function MarketingHomePage() {
   return (
     <div id="main">
+      <JsonLd data={organizationJsonLd(SITE_URL, "/icon-512.png")} />
+      <JsonLd data={websiteJsonLd(SITE_URL)} />
       <CinemaFX />
 
       {/* ── 1 · Opening scene — the first 8 seconds ─────────────── */}
@@ -349,7 +355,7 @@ export default function MarketingHomePage() {
               <div className="flex items-end justify-between">
                 <div>
                   <p className="text-xs text-dim">HōMI-Score</p>
-                  <p className="score-numeral text-5xl font-bold text-light">82</p>
+                  <p className="score-numeral text-5xl font-bold text-light">76</p>
                 </div>
                 <span className="inline-flex items-center gap-2 rounded-full border border-yellow/40 bg-yellow/10 px-4 py-1.5 text-sm font-bold text-yellow">
                   ALMOST THERE <span className="font-normal opacity-70">· Warm</span>
