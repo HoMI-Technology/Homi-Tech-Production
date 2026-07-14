@@ -139,9 +139,14 @@ export default function OutcomesPage() {
             Journal.
           </p>
         </div>
-        <Link href="/journal" className="btn btn-ghost">
-          Go to Journal
-        </Link>
+        <div className="flex gap-3">
+          <Link href="/calibration" className="btn btn-ghost">
+            Network calibration
+          </Link>
+          <Link href="/journal" className="btn btn-ghost">
+            Go to Journal
+          </Link>
+        </div>
       </div>
 
       {/* Stats strip */}
