@@ -63,6 +63,26 @@ const TOOLS = [
     name: "Blind Budget",
     desc: "Plan without knowing your exact numbers. Precision isn't required for honesty.",
   },
+  {
+    href: "/tools/heloc",
+    name: "Home Equity Line",
+    desc: "How much you can actually borrow against your home — after the lender's combined loan-to-value cap, not just paper equity.",
+  },
+  {
+    href: "/tools/refinance",
+    name: "Refinance Break-Even",
+    desc: "The month your payment savings finally repay the closing costs — and whether you'll still be in the home by then.",
+  },
+  {
+    href: "/tools/apr-compare",
+    name: "APR Comparison",
+    desc: "Three loan offers ranked by true, cost-inclusive APR — because the lowest rate isn't always the cheapest loan.",
+  },
+  {
+    href: "/tools/loan-programs",
+    name: "Loan Programs",
+    desc: "Conventional vs. FHA vs. VA, side by side — real monthly cost after down payment, mortgage insurance, and upfront fees.",
+  },
 ];
 
 export default function ToolsHubPage() {
