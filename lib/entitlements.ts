@@ -15,6 +15,7 @@
  *   - "Couples mode"                     → Pro+    (couplesMode)
  *   - "Advanced finance tools"           → Pro+    (advancedTools)
  *   - "Up to 5 linked household members" → Family  (familySeats)
+ *   - Bank account sync via Plaid        → Plus+   (bankSync)
  *
  * Consumer-authorized share links are the product's growth wedge (the landing
  * page sells them), so basic sharing is intentionally available on every tier;
@@ -50,6 +51,11 @@ export interface Entitlements {
    * public funnel tool pages, only Pro-exclusive advanced tooling surfaces.
    */
   advancedTools: boolean;
+  /**
+   * Bank account sync via Plaid (link, exchange, stored accounts). Plaid
+   * connections carry a real per-item cost, so this stays a paid capability.
+   */
+  bankSync: boolean;
 }
 
 /** Boolean capability keys — the ones a route can gate on directly. */
@@ -72,6 +78,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     familySeats: 1,
     maxActiveShares: 3,
     advancedTools: false,
+    bankSync: false,
   },
   plus: {
     tier: "plus",
@@ -83,6 +90,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     familySeats: 1,
     maxActiveShares: 25,
     advancedTools: false,
+    bankSync: true,
   },
   pro: {
     tier: "pro",
@@ -94,6 +102,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     familySeats: 1,
     maxActiveShares: 100,
     advancedTools: true,
+    bankSync: true,
   },
   family: {
     tier: "family",
@@ -105,6 +114,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     familySeats: 5,
     maxActiveShares: 100,
     advancedTools: true,
+    bankSync: true,
   },
 };
 
