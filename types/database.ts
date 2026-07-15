@@ -134,3 +134,75 @@ export interface CalendarEvent {
   completed: boolean;
   created_at: string;
 }
+
+export interface FinancialSnapshot {
+  id: string;
+  user_id: string;
+  state: Record<string, unknown>;
+  net_worth: number;
+  net_cash_flow: number;
+  savings_rate: number;
+  completed_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreditSnapshot {
+  id: string;
+  user_id: string;
+  score: number;
+  utilization: number;
+  on_time_streak_months: number;
+  band: string | null;
+  completed_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BehavioralGenome {
+  id: string;
+  user_id: string;
+  answers: Record<string, unknown>;
+  scores: Record<string, unknown>;
+  completed_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type PlaidItemStatus =
+  | "healthy"
+  | "login_required"
+  | "pending_disconnect"
+  | "pending_expiration"
+  | "revoked";
+
+export interface PlaidItem {
+  id: string;
+  user_id: string;
+  item_id: string;
+  /** AES-256-GCM ciphertext of the Plaid access token (lib/plaid/crypto.ts). Service-role only. */
+  access_token_ct: string;
+  key_version: number;
+  institution_id: string | null;
+  institution_name: string | null;
+  status: PlaidItemStatus;
+  transactions_cursor: string | null;
+  cursor_updated_at: string | null;
+  last_successful_sync: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PlaidAccount {
+  id: string;
+  item_id: string;
+  account_id: string;
+  name: string;
+  mask: string | null;
+  type: string;
+  subtype: string | null;
+  current_balance: number | null;
+  available_balance: number | null;
+  iso_currency: string | null;
+  updated_at: string;
+}
