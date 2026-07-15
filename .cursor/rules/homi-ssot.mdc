@@ -1,0 +1,13 @@
+---
+description: HōMI product SSOT — only this repo is product truth
+alwaysApply: true
+---
+
+# HōMI SSOT
+
+- Product source of truth is GitHub `HoMI-Technology/Homi-Tech-Production-` and **this workspace only**.
+- Local path: `C:\Users\cody\code\Homi-Tech-Production-` (`HOMI_SSOT`).
+- Never invent a second product root under Desktop `HoMI Tech` archives.
+- Prefer small PRs; after merge keep `main` 1:1 with `origin/main`.
+- Agy must not write here; use EVO playground for experiments.
+- Ship multi-agent via `pwsh -File C:\Users\cody\ai-server\scripts\homi-ssot.ps1 pipeline -Task "..."`.
