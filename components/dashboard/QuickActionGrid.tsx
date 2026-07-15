@@ -9,6 +9,7 @@ const ICONS: Record<string, React.ReactNode> = {
   advisor: <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />,
   journal: <path d="M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />,
   tools: <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.4-3.4a4 4 0 01-5.6 5.6L6 21l-3-3 9.5-9.5a4 4 0 015.6-5.6z" />,
+  simulator: <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6" />,
   couples: <path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.5l-1-.9a5.5 5.5 0 10-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 000-7.8z" />,
   genome: <path d="M12 2a5 5 0 015 5c0 2-1 3-2 4s-1 2 0 3 2 2 2 4a5 5 0 01-10 0c0-2 1-3 2-4s1-2 0-3-2-2-2-4a5 5 0 015-5z" />,
 };
@@ -20,6 +21,7 @@ const ACTIONS = [
   { href: "/advisor", label: "Companion", desc: "Talk it through", icon: "advisor" },
   { href: "/journal", label: "Journal", desc: "Log the decisions you're making", icon: "journal" },
   { href: "/tools", label: "Tools", desc: "Calculators for the math", icon: "tools" },
+  { href: "/simulator", label: "Simulate your score", desc: "Test a move before you make it", icon: "simulator" },
   { href: "/couples", label: "Couples", desc: "Check alignment with a partner", icon: "couples" },
   { href: "/genome", label: "Genome", desc: "Your decision psychology", icon: "genome" },
 ];

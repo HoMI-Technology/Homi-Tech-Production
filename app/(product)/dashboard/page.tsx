@@ -15,7 +15,19 @@ import { ScoreDeltaBadge } from "@/components/dashboard/ScoreDeltaBadge";
 import { DailyPulseStrip } from "@/components/dashboard/DailyPulseStrip";
 import { QuickActionGrid } from "@/components/dashboard/QuickActionGrid";
 import { OutcomeSurveyPrompt } from "@/components/dashboard/OutcomeSurveyPrompt";
-import type { AssessmentRow, DailyCheckin, OutcomeSurvey, Profile } from "@/types/database";
+import { ConnectionsTile } from "@/components/dashboard/ConnectionsTile";
+import { BankConnectCard } from "@/components/dashboard/BankConnectCard";
+import { GoalCard, type GoalData } from "@/components/dashboard/GoalCard";
+import { getEntitlements } from "@/lib/entitlements";
+import { formatCurrency } from "@/lib/tools/format";
+import {
+  netWorthDelta,
+  netWorthTrend,
+  snapshotLiquidSavings,
+  type ItemReading,
+  type SnapshotReading,
+} from "@/lib/dashboard/financial-position";
+import type { AssessmentRow, DailyCheckin, Goal, OutcomeSurvey, Profile } from "@/types/database";
 
 export const metadata: Metadata = {
   title: "Dashboard | HōMI",
@@ -70,8 +82,17 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [{ data: profile }, { data: assessments }, { data: checkins }, { count: journalCount }, { data: dueSurveys }] =
-    await Promise.all([
+  const [
+    { data: profile },
+    { data: assessments },
+    { data: checkins },
+    { count: journalCount },
+    { data: dueSurveys },
+    { data: snapshotRows },
+    { data: plaidItemRows },
+    { count: plaidAccountCount },
+    { data: goalRow },
+  ] = await Promise.all([
       user
         ? supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
         : Promise.resolve({ data: null as Profile | null }),
@@ -108,6 +129,33 @@ export default async function DashboardPage() {
             .order("due_at", { ascending: true })
             .limit(1)
         : Promise.resolve({ data: [] as OutcomeSurvey[] }),
+      user
+        ? supabase
+            .from("financial_snapshots")
+            .select("net_worth, net_cash_flow, savings_rate, completed_at, state")
+            .eq("user_id", user.id)
+            .order("completed_at", { ascending: false })
+            .limit(12)
+        : Promise.resolve({ data: [] as SnapshotReading[] }),
+      user
+        ? supabase
+            .from("plaid_items")
+            .select("id, institution_name, status, last_successful_sync")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: true })
+        : Promise.resolve({ data: [] as ItemReading[] }),
+      // RLS scopes plaid_accounts to the caller's items — a bare count is safe.
+      user
+        ? supabase.from("plaid_accounts").select("id", { count: "exact", head: true })
+        : Promise.resolve({ count: 0 }),
+      user
+        ? supabase
+            .from("goals")
+            .select("label, target_amount, target_date")
+            .eq("user_id", user.id)
+            .eq("kind", "down_payment")
+            .maybeSingle()
+        : Promise.resolve({ data: null as Pick<Goal, "label" | "target_amount" | "target_date"> | null }),
     ]);
 
   const assessmentRows: AssessmentRow[] = assessments ?? [];
@@ -161,6 +209,25 @@ export default async function DashboardPage() {
 
   const deltaTone =
     scoreDelta === null ? "flat" : scoreDelta.current > scoreDelta.previous ? "up" : scoreDelta.current < scoreDelta.previous ? "down" : "flat";
+
+  // ── Financial position (bank sync + goal) ─────────────────────────────
+  const snapshots: SnapshotReading[] = snapshotRows ?? [];
+  const bankItems: ItemReading[] = plaidItemRows ?? [];
+  const latestSnapshot = snapshots[0] ?? null;
+  const netWorthSeries = netWorthTrend(snapshots);
+  const nwDelta = netWorthDelta(snapshots);
+  const bankSyncEntitled = getEntitlements(profile?.subscription_tier ?? null).bankSync;
+  const goal: GoalData | null = goalRow
+    ? {
+        label: goalRow.label,
+        target_amount: Number(goalRow.target_amount),
+        target_date: goalRow.target_date,
+      }
+    : null;
+  const goalSavings = latestSnapshot ? snapshotLiquidSavings(latestSnapshot.state) : null;
+  const netWorth = latestSnapshot ? Number(latestSnapshot.net_worth) : 0;
+  const cashFlow = latestSnapshot ? Number(latestSnapshot.net_cash_flow) : 0;
+  const savingsRatePct = latestSnapshot ? Math.round(Number(latestSnapshot.savings_rate) * 100) : 0;
 
   return (
     <div className="field">
@@ -378,6 +445,77 @@ export default async function DashboardPage() {
                 </div>
               );
             })}
+          </div>
+        </Reveal>
+
+        {/* ── Financial position ──────────────────────────────── */}
+        <Reveal delay={80}>
+          <div className="mt-10">
+            <SectionHeader
+              eyebrow="Money"
+              title="Financial position"
+              subtitle="Net worth, cash flow, and savings from your connected banks."
+              action={
+                <Link href="/simulator" className="btn btn-ghost !px-4 !py-2 text-sm">
+                  Simulate your score
+                </Link>
+              }
+            />
+            <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {bankItems.length === 0 ? (
+                <BankConnectCard plusRequired={!bankSyncEntitled} />
+              ) : latestSnapshot ? (
+                <>
+                  <StatTile
+                    label="Net worth"
+                    value={formatCurrency(netWorth)}
+                    accent="#22d3ee"
+                    delta={
+                      nwDelta
+                        ? `${nwDelta.delta >= 0 ? "+" : "−"}${formatCurrency(Math.abs(nwDelta.delta))}`
+                        : undefined
+                    }
+                    deltaTone={nwDelta?.tone}
+                    footer={nwDelta ? "vs. previous snapshot" : "From your synced balances"}
+                    spark={
+                      netWorthSeries.length >= 2 ? (
+                        <Sparkline id="networth" values={netWorthSeries} color="#22d3ee" />
+                      ) : undefined
+                    }
+                  />
+                  <StatTile
+                    label="Cash flow · 30d"
+                    value={formatCurrency(cashFlow)}
+                    accent={cashFlow >= 0 ? "#34d399" : "#f24822"}
+                    footer="Based on recently synced activity"
+                  />
+                  <StatTile
+                    label="Savings rate"
+                    value={String(savingsRatePct)}
+                    unit="%"
+                    accent="#facc15"
+                    footer="Of synced income, last 30 days"
+                  />
+                  <ConnectionsTile items={bankItems} accountCount={plaidAccountCount ?? 0} />
+                </>
+              ) : (
+                <div className="glass p-6 md:col-span-2 lg:col-span-2">
+                  <h3 className="font-semibold text-light">First sync pending</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-dim">
+                    Your bank is connected — net worth, cash flow, and savings appear here once the first
+                    sync completes.
+                  </p>
+                  <Link href="/connections" className="btn btn-ghost mt-4 !px-4 !py-2 text-sm">
+                    Check sync status
+                  </Link>
+                </div>
+              )}
+              <GoalCard
+                goal={goal}
+                liquidSavings={goalSavings}
+                monthlyNetCashFlow={latestSnapshot ? cashFlow : null}
+              />
+            </div>
           </div>
         </Reveal>
 

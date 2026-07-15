@@ -33,6 +33,7 @@ describe("getEntitlements", () => {
     expect(free.unlimitedRescoring).toBe(false);
     expect(free.couplesMode).toBe(false);
     expect(free.advancedTools).toBe(false);
+    expect(free.bankSync).toBe(false);
     expect(free.familySeats).toBe(1);
   });
 
@@ -56,6 +57,13 @@ describe("getEntitlements", () => {
     expect(getEntitlements("family").advancedTools).toBe(true);
   });
 
+  it("unlocks bank sync at Plus and keeps it through Family", () => {
+    expect(getEntitlements("free").bankSync).toBe(false);
+    expect(getEntitlements("plus").bankSync).toBe(true);
+    expect(getEntitlements("pro").bankSync).toBe(true);
+    expect(getEntitlements("family").bankSync).toBe(true);
+  });
+
   it("grants 5 household seats only on Family", () => {
     expect(getEntitlements("family").familySeats).toBe(5);
     expect(getEntitlements("pro").familySeats).toBe(1);
@@ -74,6 +82,7 @@ describe("getEntitlements", () => {
       "unlimitedRescoring",
       "couplesMode",
       "advancedTools",
+      "bankSync",
     ];
     for (const key of bools) {
       for (let i = 1; i < ladder.length; i++) {
