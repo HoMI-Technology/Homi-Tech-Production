@@ -50,6 +50,16 @@ interface LinkTokenResponse {
 
 type PageState = "loading" | "unconfigured" | "signed-out" | "ready" | "error";
 
+/** TEMP hydration-debug beacon (DOM-based; console capture is unreliable). Remove after diagnosis. */
+function beacon(key: string, value: string) {
+  try {
+    if (typeof document !== "undefined") document.documentElement.dataset[key] = value;
+  } catch {
+    /* never let debug telemetry break the page */
+  }
+}
+beacon("connModule", "1");
+
 function timeAgo(iso: string | null): string {
   if (!iso) return "not yet synced";
   const then = new Date(iso).getTime();
@@ -89,9 +99,13 @@ export default function ConnectionsPage() {
   const [note, setNote] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null); // "connect" | "sync:*" | "disconnect:*" | "reconnect:*"
 
+  beacon("connRender", pageState);
+
   const loadItems = useCallback(async () => {
+    beacon("connFetch", "start");
     try {
       const res = await fetch("/api/plaid/accounts");
+      beacon("connFetch", String(res.status));
       if (res.status === 401) {
         setPageState("signed-out");
         return;
@@ -108,11 +122,13 @@ export default function ConnectionsPage() {
       setItems(data.items ?? []);
       setPageState("ready");
     } catch {
+      beacon("connFetch", "threw");
       setPageState("error");
     }
   }, []);
 
   useEffect(() => {
+    beacon("connEffect", "1");
     loadItems();
   }, [loadItems]);
 
