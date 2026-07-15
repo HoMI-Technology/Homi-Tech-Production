@@ -8,6 +8,11 @@ export const metadata: Metadata = {
 
 const TOOLS = [
   {
+    href: "/simulator",
+    name: "Score Simulator",
+    desc: "Move your income, savings, and debt levers and watch your readiness score respond — same engine as the real assessment.",
+  },
+  {
     href: "/tools/affordability",
     name: "Affordability",
     desc: "What you can actually afford, at three levels of comfort — not just what a lender will approve.",
