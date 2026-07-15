@@ -169,6 +169,19 @@ export interface BehavioralGenome {
   updated_at: string;
 }
 
+export type GoalKind = "down_payment";
+
+export interface Goal {
+  id: string;
+  user_id: string;
+  kind: GoalKind;
+  label: string | null;
+  target_amount: number;
+  target_date: string | null; // ISO date, YYYY-MM-DD
+  created_at: string;
+  updated_at: string;
+}
+
 export type PlaidItemStatus =
   | "healthy"
   | "login_required"
