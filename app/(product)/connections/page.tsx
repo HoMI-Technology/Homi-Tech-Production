@@ -1,13 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { usePlaidLink } from "react-plaid-link";
+import dynamic from "next/dynamic";
+import type { LinkFlow } from "@/components/connections/PlaidLinkLauncher";
 
 /**
  * Bank Connections — list, connect, reconnect (Plaid Link update mode),
  * manual sync, and disconnect. Link is driven by react-plaid-link's
- * usePlaidLink hook (no hand-rolled CDN script loading).
+ * usePlaidLink hook, loaded lazily (ssr: false) so the Plaid SDK is not in
+ * this page's initial bundle — its chunk loads when a Link flow starts.
  */
+
+const PlaidLinkLauncher = dynamic(() => import("@/components/connections/PlaidLinkLauncher"), {
+  ssr: false,
+});
 
 interface ConnectionAccount {
   id: string;
@@ -40,13 +46,6 @@ interface LinkTokenResponse {
   link_token?: string;
   update_mode?: boolean;
   error?: string;
-}
-
-/** Active Link session: connect creates a new item; update repairs one. */
-interface LinkFlow {
-  token: string;
-  mode: "connect" | "update";
-  itemId?: string;
 }
 
 type PageState = "loading" | "unconfigured" | "signed-out" | "ready" | "error";
@@ -354,32 +353,6 @@ export default function ConnectionsPage() {
       </div>
     </div>
   );
-}
-
-/**
- * Mounted only while a Link session is active — usePlaidLink requires the
- * token at hook time, so the hook lives in its own short-lived component.
- */
-function PlaidLinkLauncher({
-  flow,
-  onSuccess,
-  onExit,
-}: {
-  flow: LinkFlow;
-  onSuccess: (publicToken: string, flow: LinkFlow) => void;
-  onExit: () => void;
-}) {
-  const { open, ready } = usePlaidLink({
-    token: flow.token,
-    onSuccess: (publicToken: string) => onSuccess(publicToken, flow),
-    onExit: () => onExit(),
-  });
-
-  useEffect(() => {
-    if (ready) open();
-  }, [ready, open]);
-
-  return null;
 }
 
 function ConnectionCard({
