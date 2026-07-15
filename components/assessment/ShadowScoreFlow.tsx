@@ -5,6 +5,15 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { computeShadowScore, type ShadowInputs } from "@/lib/scoring";
 import { saveLocalResult, loadLocalResult, attachServerId } from "@/lib/assessment/storage";
+import {
+  saveShadowDraft,
+  loadShadowDraft,
+  clearShadowDraft,
+  INITIAL_SHADOW_FORM,
+  type ShadowDraft,
+  type ShadowDraftForm,
+  type ShadowCreditBand,
+} from "@/lib/assessment/shadow-draft";
 import { track } from "@/lib/analytics";
 import {
   EMERGENCY_FUND_LABELS,
@@ -55,7 +64,7 @@ function readHeroSignals(): HeroSignals | null {
   }
 }
 
-type CreditBand = "excellent" | "good" | "fair" | "poor";
+type CreditBand = ShadowCreditBand;
 
 const CREDIT_BAND_MIDPOINT: Record<CreditBand, number> = {
   excellent: 760,
@@ -71,25 +80,9 @@ const CREDIT_BAND_LABELS: Record<CreditBand, string> = {
   poor: "Below 660",
 };
 
-interface ShadowForm {
-  monthlyGrossIncome: number | null;
-  monthlyDebtPayments: number | null;
-  emergencyFundChoice: EmergencyFundChoice | null;
-  creditBand: CreditBand | null;
-  confidenceLevel: number;
-  fomoLevel: number;
-  timeHorizonChoice: TimeHorizonChoice | null;
-}
+type ShadowForm = ShadowDraftForm;
 
-const INITIAL: ShadowForm = {
-  monthlyGrossIncome: null,
-  monthlyDebtPayments: null,
-  emergencyFundChoice: null,
-  creditBand: null,
-  confidenceLevel: 5,
-  fomoLevel: 5,
-  timeHorizonChoice: null,
-};
+const INITIAL: ShadowForm = { ...INITIAL_SHADOW_FORM };
 
 const STEP_IDS = [
   "income-debt",
@@ -130,21 +123,66 @@ export function ShadowScoreFlow() {
   const [form, setForm] = useState<ShadowForm>(INITIAL);
   const [submitting, setSubmitting] = useState(false);
   const [prefillNoteVisible, setPrefillNoteVisible] = useState(false);
+  const [resumeDraft, setResumeDraft] = useState<ShadowDraft | null>(null);
+  const [draftReady, setDraftReady] = useState(false);
 
   const stepId = STEP_IDS[index];
   const meta = useMemo(progressSteps, []);
 
   useEffect(() => {
+    const draft = loadShadowDraft(STEP_IDS.length - 1);
+    if (draft) {
+      setResumeDraft(draft);
+      return;
+    }
+    // No saved draft — apply hero prefill if present, then enable autosave.
     const signals = readHeroSignals();
-    if (!signals) return;
-    setForm((f) => ({
-      ...f,
-      emergencyFundChoice: FINANCIAL_TO_EMERGENCY_FUND_CHOICE[signals.financial] ?? f.emergencyFundChoice,
-      fomoLevel: EMOTIONAL_TO_FOMO_LEVEL[signals.emotional] ?? f.fomoLevel,
-      timeHorizonChoice: TIMING_TO_TIME_HORIZON_CHOICE[signals.timing] ?? f.timeHorizonChoice,
-    }));
-    setPrefillNoteVisible(true);
+    if (signals) {
+      setForm((f) => ({
+        ...f,
+        emergencyFundChoice:
+          FINANCIAL_TO_EMERGENCY_FUND_CHOICE[signals.financial] ?? f.emergencyFundChoice,
+        fomoLevel: EMOTIONAL_TO_FOMO_LEVEL[signals.emotional] ?? f.fomoLevel,
+        timeHorizonChoice: TIMING_TO_TIME_HORIZON_CHOICE[signals.timing] ?? f.timeHorizonChoice,
+      }));
+      setPrefillNoteVisible(true);
+    }
+    setDraftReady(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!draftReady) return;
+    saveShadowDraft(form, index);
+  }, [form, index, draftReady]);
+
+  function handleResumeDraft() {
+    if (resumeDraft) {
+      setForm(resumeDraft.form);
+      setIndex(Math.min(resumeDraft.index, STEP_IDS.length - 1));
+    }
+    setResumeDraft(null);
+    setDraftReady(true);
+  }
+
+  function handleStartOver() {
+    clearShadowDraft();
+    setForm({ ...INITIAL });
+    setIndex(0);
+    setResumeDraft(null);
+    const signals = readHeroSignals();
+    if (signals) {
+      setForm({
+        ...INITIAL,
+        emergencyFundChoice:
+          FINANCIAL_TO_EMERGENCY_FUND_CHOICE[signals.financial] ?? null,
+        fomoLevel: EMOTIONAL_TO_FOMO_LEVEL[signals.emotional] ?? 5,
+        timeHorizonChoice: TIMING_TO_TIME_HORIZON_CHOICE[signals.timing] ?? null,
+      });
+      setPrefillNoteVisible(true);
+    }
+    setDraftReady(true);
+  }
 
   function update<K extends keyof ShadowForm>(key: K, value: ShadowForm[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -160,6 +198,7 @@ export function ShadowScoreFlow() {
 
   async function handleSubmit() {
     setSubmitting(true);
+    clearShadowDraft();
     const income = form.monthlyGrossIncome ?? 0;
     const debt = form.monthlyDebtPayments ?? 0;
     const debtToIncomeRatio = income > 0 ? debt / income : 0;
@@ -265,7 +304,24 @@ export function ShadowScoreFlow() {
         </p>
       </div>
 
-      {prefillNoteVisible && (
+      {resumeDraft && (
+        <div className="glass mb-6 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-light">
+            <span className="font-semibold text-cyan">Resume where you left off?</span>{" "}
+            <span className="text-dim">You have an in-progress Shadow Score saved on this device.</span>
+          </p>
+          <div className="flex shrink-0 items-center gap-3">
+            <button type="button" onClick={handleStartOver} className="btn btn-ghost text-sm">
+              Start over
+            </button>
+            <button type="button" onClick={handleResumeDraft} className="btn btn-primary text-sm">
+              Resume
+            </button>
+          </div>
+        </div>
+      )}
+
+      {prefillNoteVisible && !resumeDraft && (
         <div className="glass mb-8 flex items-start justify-between gap-4 !rounded-xl px-5 py-4">
           <p className="text-sm leading-relaxed text-dim">
             <span className="font-semibold text-cyan">We kept your three answers.</span> Adjust anything.

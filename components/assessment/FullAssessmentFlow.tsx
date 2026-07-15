@@ -84,7 +84,7 @@ export function FullAssessmentFlow() {
   const [draftReady, setDraftReady] = useState(false);
 
   useEffect(() => {
-    const draft = loadDraft();
+    const draft = loadDraft(STEPS.length - 1);
     if (draft) {
       setResumeDraft(draft);
     } else {
@@ -102,7 +102,7 @@ export function FullAssessmentFlow() {
   function handleResumeDraft() {
     if (resumeDraft) {
       setForm(resumeDraft.form);
-      setIndex(resumeDraft.index);
+      setIndex(Math.min(resumeDraft.index, STEPS.length - 1));
     }
     setResumeDraft(null);
     setDraftReady(true);

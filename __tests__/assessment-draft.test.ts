@@ -1,8 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { DRAFT_KEY, DRAFT_VERSION, clearDraft, loadDraft, saveDraft } from "@/lib/assessment/draft";
+import {
+  DRAFT_KEY,
+  DRAFT_VERSION,
+  clearDraft,
+  clampDraftIndex,
+  draftLooksStarted,
+  loadDraft,
+  normalizeDraftForm,
+  saveDraft,
+} from "@/lib/assessment/draft";
 import { INITIAL_FULL_FORM, type FullAssessmentForm } from "@/lib/assessment/types";
 
-/** Minimal in-memory Storage stand-in — vitest runs this suite under the "node" environment, so there is no real window/localStorage. */
+/** Minimal in-memory Storage stand-in — vitest runs this suite under the "node" environment. */
 function createMockStorage(): Storage {
   const store = new Map<string, string>();
   return {
@@ -33,11 +42,18 @@ describe("assessment draft persistence", () => {
   });
 
   it("round-trips a saved draft", () => {
-    const form: FullAssessmentForm = { ...INITIAL_FULL_FORM, monthlyGrossIncome: 6500, creditScore: 720 };
+    const form: FullAssessmentForm = {
+      ...INITIAL_FULL_FORM,
+      monthlyGrossIncome: 6500,
+      creditScore: 720,
+    };
     saveDraft(form, 4);
 
-    const loaded = loadDraft();
-    expect(loaded).toEqual({ form, index: 4 });
+    const loaded = loadDraft(16);
+    expect(loaded?.form.monthlyGrossIncome).toBe(6500);
+    expect(loaded?.form.creditScore).toBe(720);
+    expect(loaded?.index).toBe(4);
+    expect(loaded?.updatedAt).toBeTruthy();
   });
 
   it("returns null when nothing has been saved", () => {
@@ -57,7 +73,7 @@ describe("assessment draft persistence", () => {
   });
 
   it("clears a saved draft", () => {
-    saveDraft(INITIAL_FULL_FORM, 1);
+    saveDraft({ ...INITIAL_FULL_FORM, monthlyGrossIncome: 1 }, 1);
     expect(loadDraft()).not.toBeNull();
 
     clearDraft();
@@ -80,5 +96,30 @@ describe("assessment draft persistence", () => {
     expect(loadDraft()).toBeNull();
     expect(() => saveDraft(INITIAL_FULL_FORM, 0)).not.toThrow();
     expect(() => clearDraft()).not.toThrow();
+  });
+
+  it("clamps out-of-range step indexes", () => {
+    expect(clampDraftIndex(-3, 10)).toBe(0);
+    expect(clampDraftIndex(99, 5)).toBe(5);
+    expect(clampDraftIndex(2.9, 10)).toBe(2);
+  });
+
+  it("merges partial form onto INITIAL_FULL_FORM", () => {
+    const merged = normalizeDraftForm({ monthlyGrossIncome: 4000 } as Partial<FullAssessmentForm>);
+    expect(merged.monthlyGrossIncome).toBe(4000);
+    expect(merged.creditScore).toBe(INITIAL_FULL_FORM.creditScore);
+  });
+
+  it("ignores blank drafts that look like a fresh start", () => {
+    saveDraft(INITIAL_FULL_FORM, 0);
+    expect(draftLooksStarted(INITIAL_FULL_FORM, 0)).toBe(false);
+    expect(loadDraft()).toBeNull();
+  });
+
+  it("clamps loaded index to max step", () => {
+    const form: FullAssessmentForm = { ...INITIAL_FULL_FORM, monthlyGrossIncome: 5000 };
+    saveDraft(form, 40);
+    const loaded = loadDraft(5);
+    expect(loaded?.index).toBe(5);
   });
 });
