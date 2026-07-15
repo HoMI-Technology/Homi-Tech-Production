@@ -147,6 +147,25 @@ export async function POST(request: Request) {
       );
     }
 
+    // Ownership guard: an item_id already claimed by a DIFFERENT user must
+    // never be silently transferred by the upsert — that would hand user A's
+    // bank connection (and future syncs) to user B. Conflict is a hard 409.
+    const { data: existingItem } = await admin
+      .from("plaid_items")
+      .select("user_id")
+      .eq("item_id", data.item_id)
+      .maybeSingle();
+    if (existingItem && existingItem.user_id !== userId) {
+      const correlationId = crypto.randomUUID();
+      console.error(
+        `[plaid/exchange:${correlationId}] item_id already linked to another user — refusing ownership transfer`,
+      );
+      return NextResponse.json(
+        { error: "This bank connection is already linked to another account.", correlationId },
+        { status: 409 },
+      );
+    }
+
     const { data: itemRow, error: itemError } = await admin
       .from("plaid_items")
       .upsert(

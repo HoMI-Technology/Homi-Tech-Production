@@ -19,6 +19,8 @@ const state = vi.hoisted(() => ({
   accountUpserts: [] as Record<string, unknown>[][],
   auditInserts: [] as Record<string, unknown>[],
   adminAvailable: true,
+  /** user_id already holding the incoming item_id, if any (409 guard). */
+  existingItemOwner: null as string | null,
 }));
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -58,6 +60,11 @@ vi.mock("@/lib/supabase/admin", () => ({
               return builder;
             },
             select: () => builder,
+            eq: () => builder,
+            maybeSingle: async () => ({
+              data: state.existingItemOwner ? { user_id: state.existingItemOwner } : null,
+              error: null,
+            }),
             single: async () => ({ data: { id: "item-row-uuid-1" }, error: null }),
           };
           return builder;
@@ -134,6 +141,7 @@ beforeEach(() => {
   state.accountUpserts = [];
   state.auditInserts = [];
   state.adminAvailable = true;
+  state.existingItemOwner = null;
   vi.stubEnv("PLAID_CLIENT_ID", "client_test");
   vi.stubEnv("PLAID_SECRET", "secret_test");
   vi.stubEnv("PLAID_TOKEN_KEY", KEY);
@@ -219,6 +227,28 @@ describe("POST /api/plaid/exchange", () => {
     // Audit trail recorded (metadata only — no token).
     expect(state.auditInserts).toHaveLength(1);
     expect(JSON.stringify(state.auditInserts[0])).not.toContain(RAW_TOKEN);
+  });
+
+  it("409s (with correlation id) when the item_id already belongs to a different user — no silent ownership transfer", async () => {
+    state.existingItemOwner = "user-somebody-else";
+    vi.stubGlobal("fetch", plaidResponses());
+
+    const res = await POST(req({ public_token: "public-sandbox-1" }));
+    expect(res.status).toBe(409);
+    const body = (await res.json()) as { correlationId?: string };
+    expect(body.correlationId).toBeTruthy();
+    expect(JSON.stringify(body)).not.toContain(RAW_TOKEN);
+    expect(state.itemUpserts).toHaveLength(0);
+    expect(state.accountUpserts).toHaveLength(0);
+  });
+
+  it("still upserts when the item_id already belongs to the SAME user (relink)", async () => {
+    state.existingItemOwner = "user-plus-1";
+    vi.stubGlobal("fetch", plaidResponses());
+
+    const res = await POST(req({ public_token: "public-sandbox-1" }));
+    expect(res.status).toBe(200);
+    expect(state.itemUpserts).toHaveLength(1);
   });
 
   it("503s (with correlation id) when the service-role client is unavailable, without leaking the token", async () => {
