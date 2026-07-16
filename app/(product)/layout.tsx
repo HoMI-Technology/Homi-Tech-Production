@@ -2,7 +2,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { CompanionWidget } from "@/components/companion/CompanionWidget";
-import { createClient } from "@/lib/supabase/server";
+import { getCachedUser } from "@/lib/supabase/server";
 
 /**
  * Auth-aware product shell (AUDIT T2.1). Reads the session server-side and
@@ -14,10 +14,9 @@ import { createClient } from "@/lib/supabase/server";
  * static caching of these interactive pages.
  */
 export default async function ProductLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Request-cached: pages under this layout share the same getUser() result
+  // instead of paying the Auth-server round-trip twice per request.
+  const user = await getCachedUser();
 
   return (
     <>

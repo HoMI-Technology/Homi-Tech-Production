@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { NotificationBell } from "@/components/layout/NotificationBell";
+import { CommandPalette } from "@/components/layout/CommandPalette";
 
 /**
  * Signed-in application header. Replaces the marketing SiteHeader for
@@ -48,8 +49,23 @@ export function AppHeader({ email }: { email: string | null }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [shortcutLabel, setShortcutLabel] = useState("⌘K");
   const moreRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
+
+  // ⌘K / Ctrl+K opens the command palette from anywhere in the app.
+  useEffect(() => {
+    if (!/Mac|iP(hone|ad|od)/.test(navigator.userAgent)) setShortcutLabel("Ctrl K");
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((o) => !o);
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -155,6 +171,17 @@ export function AppHeader({ email }: { email: string | null }) {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
+          <button
+            type="button"
+            onClick={() => setPaletteOpen(true)}
+            className="flex items-center gap-2 rounded-lg border border-slate-surface/70 bg-slate-surface/40 px-3 py-1.5 text-xs text-dim transition-colors hover:border-cyan/40 hover:text-light"
+            aria-label="Open command palette"
+          >
+            Jump to…
+            <kbd className="rounded border border-slate-high/60 px-1.5 py-0.5 text-[0.625rem] tracking-wide">
+              {shortcutLabel}
+            </kbd>
+          </button>
           <NotificationBell />
           <div ref={userRef} className="relative">
             <button
@@ -236,6 +263,8 @@ export function AppHeader({ email }: { email: string | null }) {
           </form>
         </div>
       )}
+
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
     </header>
   );
 }
