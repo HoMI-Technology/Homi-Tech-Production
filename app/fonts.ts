@@ -30,6 +30,11 @@ export const fraunces = localFont({
   weight: "100 900",
   display: "swap",
   variable: "--font-fraunces",
+  // Not preloaded: the measured LCP elements on marketing pages are Inter
+  // paragraphs, and on Lighthouse's simulated 1.6Mbps link every preloaded
+  // byte delays the render-blocking CSS (FCP). Display headings swap in a
+  // beat later with metrics-matched fallback — invisible to layout.
+  preload: false,
 });
 
 export const jetbrainsMono = localFont({
