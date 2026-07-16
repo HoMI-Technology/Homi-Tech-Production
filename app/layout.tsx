@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { fraunces, inter, jetbrainsMono } from "@/app/fonts";
 import { CookieConsent } from "@/components/consent/CookieConsent";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { CONSENT_BOOT_SCRIPT } from "@/components/consent/consent-shared";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 import { AnalyticsScripts } from "@/components/analytics/AnalyticsScripts";
@@ -87,6 +88,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CookieConsent />
         <AnalyticsScripts />
         <ServiceWorkerRegister />
+        {/* Field Core Web Vitals (LCP/CLS/INP from real users). Vercel-only:
+            on localhost/CI the injected script would 404 and pollute
+            Lighthouse's console-error audit. Needs Speed Insights enabled on
+            the Vercel project — see DEPLOY.md. */}
+        {process.env.VERCEL === "1" && <SpeedInsights />}
       </body>
     </html>
   );

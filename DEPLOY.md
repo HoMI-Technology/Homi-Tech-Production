@@ -18,3 +18,23 @@ npx vercel deploy --prod --yes --token <YOUR_VERCEL_TOKEN>
 (env NEXT_PUBLIC_SUPABASE_URL / ANON_KEY are committed in .env.production;
 server-only keys — ANTHROPIC_API_KEY, STRIPE_*, RESEND_API_KEY, PLAID_* —
 are set in Vercel → Project → Settings → Environment Variables.)
+
+## Performance measurement (one-time setup)
+
+Two switches turn on the measurement shipped in the perf/measurement branch:
+
+1. **Field Core Web Vitals** — Vercel dashboard → homi-platform → Speed
+   Insights → Enable. The `<SpeedInsights />` component is already wired in
+   `app/layout.tsx` (Vercel deployments only) and starts reporting LCP/CLS/INP
+   from real users as soon as the toggle is on. Watch the homepage LCP
+   specifically: the 8s cinematic hero intentionally defers the headline, and
+   field data should drive whether that tradeoff stays.
+
+2. **Authenticated dashboard in Lighthouse CI** — create a dedicated
+   low-value test account (Supabase → Authentication → Add user, e.g.
+   lighthouse-ci@homitechnology.com; no MFA, no real data), then add two
+   GitHub repo secrets: `LHCI_TEST_EMAIL` and `LHCI_TEST_PASSWORD`
+   (Settings → Secrets and variables → Actions). The lighthouse workflow's
+   dashboard step activates automatically once the secrets exist; until then
+   it skips itself. Budgets: lighthouserc.dashboard.json (warn-first while a
+   baseline accumulates; CLS and accessibility gate immediately).

@@ -26,6 +26,15 @@ jobs:
       NEXT_PUBLIC_SITE_URL: https://homitechnology.com
       NEXT_TELEMETRY_DISABLED: "1"
       NODE_OPTIONS: --max-old-space-size=4096
+      # puppeteer (login script for the authenticated dashboard run) uses the
+      # runner's preinstalled Chrome — never downloads its own.
+      PUPPETEER_SKIP_DOWNLOAD: "1"
+      PUPPETEER_EXECUTABLE_PATH: /usr/bin/google-chrome
+      # Dedicated low-value test account for the authenticated run. When the
+      # secrets are unset the dashboard step skips itself — public routes are
+      # still asserted either way.
+      LHCI_TEST_EMAIL: ${{ secrets.LHCI_TEST_EMAIL }}
+      LHCI_TEST_PASSWORD: ${{ secrets.LHCI_TEST_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -38,9 +47,12 @@ jobs:
         run: npx next build
       - name: Lighthouse CI (asserts §11 budget)
         run: npx lhci autorun
+      - name: Lighthouse CI — authenticated dashboard
+        if: env.LHCI_TEST_EMAIL != ''
+        run: npx lhci autorun --config=lighthouserc.dashboard.json
 
-# NOTE — authenticated routes (dashboard, results, journal, etc.):
-# LHCI here tests only public routes; authed pages redirect to sign-in.
-# To budget those too, add a puppeteer login script and point
-# collect.puppeteerScript at it, or run LHCI against a Vercel preview URL
-# with a seeded session cookie. Tracked as a follow-up in BUILD-BRIEF §11.
+# The authenticated dashboard run signs in via scripts/lhci-login.cjs using a
+# dedicated test account (repo secrets LHCI_TEST_EMAIL / LHCI_TEST_PASSWORD —
+# see DEPLOY.md). Budgets live in lighthouserc.dashboard.json: warn-first
+# while baseline data accumulates, except CLS and accessibility which gate
+# immediately.
