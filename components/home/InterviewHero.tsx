@@ -304,15 +304,14 @@ export function InterviewHero() {
         </p>
 
         {/* Question card area — fixed min-height to avoid CLS. Rendered
-            server-side too (SEO/AT + no flash-of-nothing); the settled
-            state (once hydrated) swaps it out for returning visitors. */}
+            server-side AND visible from first paint (it is the LCP-adjacent
+            content; hiding it until hydration blew the §11 LCP budget).
+            The settled state (once hydrated) swaps it out for returning
+            visitors — a brief question flash for them beats an invisible
+            hero for every first-time visitor. */}
         <div className="relative mt-10 flex min-h-[220px] w-full max-w-xl flex-col items-center justify-center">
           {!(hydrated && settled) && showQuestions && activeQuestion && (
-            <div
-              key={activeQuestion.id}
-              className={`stage-item ${reducedMotion || !hydrated ? "" : "is-on"} w-full`}
-              style={reducedMotion || !hydrated ? undefined : { opacity: 1, transform: "none", filter: "none" }}
-            >
+            <div key={activeQuestion.id} className="w-full">
               <p className="font-display text-xl leading-snug text-light sm:text-2xl">
                 {activeQuestion.prompt}
               </p>
