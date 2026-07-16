@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
-import { buildAssessmentContext } from "@/lib/advisor/context";
+import { buildCompanionContext } from "@/lib/advisor/context";
 import { PERSONAS, type AdvisorPersona } from "@/lib/advisor/personas";
 import { track } from "@/lib/analytics";
 
@@ -147,13 +147,15 @@ export function CompanionWidget() {
     setSending(true);
 
     try {
-      const assessment = buildAssessmentContext();
+      const { assessment, finance, surface } = buildCompanionContext(pathname);
       const res = await fetch("/api/advisor", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           messages: nextMessages.map((m) => ({ role: m.role, content: m.content })),
           assessment,
+          finance,
+          surface,
           persona,
         }),
       });

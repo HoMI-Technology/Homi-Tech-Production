@@ -21,6 +21,28 @@ export interface AdvisorAssessmentContext {
   hardStops: string[];
 }
 
+/**
+ * The user's live money picture, derived from the Finance Command dashboard
+ * (lib/finance/store). Only ever built when the user has actually saved
+ * finance data — never from the store's placeholder defaults. All figures
+ * are monthly USD unless noted.
+ */
+export interface AdvisorFinanceContext {
+  monthlyIncome: number;
+  /** Income minus expenses minus debt payments. */
+  netCashFlow: number;
+  /** Percentage of gross monthly income. */
+  savingsRate: number;
+  /** Months of liquid savings covering outflow; null when outflow is zero. */
+  runwayMonths: number | null;
+  /** Debt-to-income ratio as a percentage. */
+  dti: number;
+  liquidSavings: number;
+  totalDebt: number;
+  /** Assets minus liabilities from the Net Worth tab. */
+  netWorth: number;
+}
+
 interface FallbackInput {
   message: string;
   assessment?: AdvisorAssessmentContext | null;

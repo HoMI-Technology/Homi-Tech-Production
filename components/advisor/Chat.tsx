@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { loadLocalResult } from "@/lib/assessment/storage";
-import { buildAssessmentContext } from "@/lib/advisor/context";
+import { buildCompanionContext } from "@/lib/advisor/context";
 
 type Role = "user" | "assistant";
 
@@ -105,13 +105,14 @@ export function Chat() {
     setSending(true);
 
     try {
-      const assessment = buildAssessmentContext();
+      const { assessment, finance } = buildCompanionContext();
       const res = await fetch("/api/advisor", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           messages: nextMessages.map((m) => ({ role: m.role, content: m.content })),
           assessment,
+          finance,
         }),
       });
 
