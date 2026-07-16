@@ -14,8 +14,13 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Feature-branch PRs collapse to the latest push: a newer commit cancels the
+  # superseded run to save minutes while iterating. Pushes to main are keyed by
+  # commit SHA so a burst of merges each get their own complete run instead of
+  # cancelling one another — verify is the required check and the per-commit
+  # record of main's health, so a cancelled main run reads as a false failure.
+  group: ci-${{ github.ref }}-${{ github.event_name == 'push' && github.sha || 'head' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   verify:
