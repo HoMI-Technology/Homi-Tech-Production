@@ -40,7 +40,7 @@ export function CookieConsent() {
   }
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 px-4 pb-4">
+    <div className="fixed inset-x-0 bottom-0 z-[60] px-4 pb-4">
       <div className="glass mx-auto flex max-w-2xl flex-col items-center gap-3 p-4 text-center sm:flex-row sm:justify-between sm:text-left">
         <p className="text-sm text-light">
           HōMI uses only essential cookies to keep you signed in. No trackers. No ad tech.{" "}
