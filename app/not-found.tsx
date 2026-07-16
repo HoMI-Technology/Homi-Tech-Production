@@ -7,7 +7,7 @@ export default function NotFound() {
   return (
     <>
       <SiteHeader />
-      <main className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
+      <main id="main" className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
         <ThresholdCompass size={180} className="compass-float" />
         <h1 className="mt-8 text-4xl font-black text-light">Off the compass.</h1>
         <p className="mt-3 max-w-md text-dim">

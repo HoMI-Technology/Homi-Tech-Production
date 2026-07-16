@@ -64,7 +64,19 @@ body {
   color: #ffffff;
 }
 
-/* Focus — WCAG 2.2 AA, 2px cyan */
+
+/* ═══════════════════════════════════════════════════════════════════
+   All design-system classes live in @layer components so Tailwind
+   utilities (@layer utilities, declared later) can override them.
+   Unlayered rules would silently beat every utility — see the .btn /
+   md:hidden bug this fixed. Keep element/base rules (html, body,
+   :root) and their media-query overrides OUTSIDE any layer, together.
+   ═══════════════════════════════════════════════════════════════════ */
+
+@layer components {
+/* Focus — WCAG 2.2 AA, 2px cyan. Lives in the layer so higher-specificity
+   component focus styles (.input:focus, .homi-slider) keep their intended
+   custom treatment instead of double-ringing. */
 :focus-visible {
   outline: 2px solid var(--color-cyan);
   outline-offset: 2px;
@@ -163,7 +175,10 @@ body {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
 }
+}
 
+/* Unlayered on purpose: the html rule must outrank the unlayered
+   `html { scroll-behavior: smooth }` base above. */
 @media (prefers-reduced-motion: reduce) {
   .ring-outer, .ring-middle, .ring-inner, .compass-float, .text-aurora {
     animation: none !important;
@@ -176,6 +191,7 @@ body {
 }
 
 /* ── Buttons ───────────────────────────────────────────────────── */
+@layer components {
 .btn {
   display: inline-flex;
   align-items: center;
@@ -850,3 +866,4 @@ html[data-homi-consent-hold] #cookie-consent {
   border: 2px solid var(--color-navy);
 }
 ::-webkit-scrollbar-thumb:hover { background: rgba(34, 211, 238, 0.4); }
+}
