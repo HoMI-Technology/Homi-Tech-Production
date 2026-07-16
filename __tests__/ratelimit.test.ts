@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
-import { rateLimit, rateLimitMemory, getClientIp } from "@/lib/ratelimit";
+import { afterEach, describe, it, expect, vi } from "vitest";
+import { rateLimit, rateLimitMemory, getClientIp, hasUpstash } from "@/lib/ratelimit";
 
-describe("rateLimitMemory", () => {
+describe("rateLimitMemory (in-process fallback)", () => {
   it("allows up to the limit and blocks beyond it", () => {
     const key = `test-${Math.random()}`;
     for (let i = 0; i < 5; i++) {
@@ -27,38 +27,87 @@ describe("rateLimitMemory", () => {
   });
 });
 
-describe("rateLimit (async)", () => {
-  const originalFetch = global.fetch;
-
+describe("rateLimit (Upstash Redis path)", () => {
   afterEach(() => {
-    global.fetch = originalFetch;
     vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
-  it("uses Redis when Upstash env is configured", async () => {
-    vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://example.upstash.io");
-    vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "token");
+  function stubUpstash() {
+    vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://fake.upstash.io");
+    vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "fake-token");
+  }
 
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ result: [1, 1] }),
-    }) as typeof fetch;
+  /** Upstash /pipeline responds with an ARRAY of per-command results. */
+  function pipelineResponse(count: number) {
+    return new Response(JSON.stringify([{ result: count }, { result: 1 }]), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
-    const result = await rateLimit(`redis-test-${Math.random()}`, { limit: 5, windowMs: 60_000 });
-    expect(result.allowed).toBe(true);
-    expect(result.remaining).toBe(4);
-    expect(global.fetch).toHaveBeenCalled();
+  it("hasUpstash reflects env configuration", () => {
+    expect(hasUpstash()).toBe(false);
+    stubUpstash();
+    expect(hasUpstash()).toBe(true);
   });
 
-  it("falls back to memory when Redis fetch fails", async () => {
-    vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://example.upstash.io");
-    vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "token");
+  it("allows while the INCR count is within the limit", async () => {
+    stubUpstash();
+    const fetchMock = vi.fn().mockResolvedValue(pipelineResponse(3));
+    vi.stubGlobal("fetch", fetchMock);
 
-    global.fetch = vi.fn().mockRejectedValue(new Error("network")) as typeof fetch;
+    const result = await rateLimit("redis-key", { limit: 5, windowMs: 60_000 });
+    expect(result).toEqual({ allowed: true, remaining: 2 });
+
+    // One pipelined round trip: INCR + PEXPIRE NX on a window-scoped key.
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe("https://fake.upstash.io/pipeline");
+    expect(init.headers.Authorization).toBe("Bearer fake-token");
+    const commands = JSON.parse(init.body);
+    expect(commands[0][0]).toBe("INCR");
+    expect(commands[0][1]).toMatch(/^rl:redis-key:\d+$/);
+    expect(commands[1][0]).toBe("PEXPIRE");
+    expect(commands[1][3]).toBe("NX");
+  });
+
+  it("blocks when the INCR count exceeds the limit", async () => {
+    stubUpstash();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(pipelineResponse(6)));
+
+    const result = await rateLimit("redis-key", { limit: 5, windowMs: 60_000 });
+    expect(result).toEqual({ allowed: false, remaining: 0 });
+  });
+
+  it("fails open to the in-memory fallback when Redis errors", async () => {
+    stubUpstash();
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("connect timeout")));
+    vi.spyOn(console, "warn").mockImplementation(() => {});
 
     const key = `fallback-${Math.random()}`;
-    const result = await rateLimit(key, { limit: 2, windowMs: 60_000 });
-    expect(result.allowed).toBe(true);
+    // Request still succeeds (availability over strictness)…
+    expect((await rateLimit(key, { limit: 2, windowMs: 60_000 })).allowed).toBe(true);
+    expect((await rateLimit(key, { limit: 2, windowMs: 60_000 })).allowed).toBe(true);
+    // …and the memory fallback still enforces the limit.
+    expect((await rateLimit(key, { limit: 2, windowMs: 60_000 })).allowed).toBe(false);
+  });
+
+  it("fails open when Upstash responds non-200", async () => {
+    stubUpstash();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("nope", { status: 500 })));
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const key = `non200-${Math.random()}`;
+    expect((await rateLimit(key, { limit: 1, windowMs: 60_000 })).allowed).toBe(true);
+  });
+
+  it("does not call fetch at all when Upstash env is absent", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    await rateLimit(`no-env-${Math.random()}`, { limit: 1, windowMs: 60_000 });
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
 

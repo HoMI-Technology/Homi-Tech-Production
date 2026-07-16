@@ -136,6 +136,7 @@ function Field({
       </div>
       <input
         type="range"
+        aria-label={label}
         className="homi-slider mt-2"
         min={min}
         max={max}
