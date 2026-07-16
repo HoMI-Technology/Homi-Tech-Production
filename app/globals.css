@@ -4,6 +4,30 @@
    woff2s only after CSS, so the fallback→webfont swap re-triggered LCP
    ~1-2s after first paint on throttled networks. */
 
+/* ── ō/Ō brand-glyph patch ───────────────────────────────────────────
+   The next/font files are the fontsource *latin* subsets, which do not
+   contain U+014C/U+014D — so the ō in HōMI fell back to Arial/Georgia.
+   These ~1.5KB faces carry only those two glyphs (subset from the same
+   fontsource latin-ext files, weight axis intact) and sit first in the
+   font stacks below; unicode-range means browsers fetch them only when
+   an ō/Ō is on the page and use them for nothing else. */
+@font-face {
+  font-family: "Inter Omacron";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(/fonts/inter-omacron.woff2) format("woff2-variations");
+  unicode-range: U+014C-014D;
+}
+@font-face {
+  font-family: "Fraunces Omacron";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(/fonts/fraunces-omacron.woff2) format("woff2-variations");
+  unicode-range: U+014C-014D;
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    HōMI Design System — brand canon locked.
    Colors, compass motion, and typography per CANON.md / homi-tokens.json.
@@ -28,8 +52,8 @@
   --color-light: #e2e8f0;
   --color-dim: #94a3b8;
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-sans: "Inter Omacron", var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces Omacron", var(--font-fraunces), Georgia, serif;
   --font-score: var(--font-jbm), ui-monospace, monospace;
 
   --radius-sm: 8px;
