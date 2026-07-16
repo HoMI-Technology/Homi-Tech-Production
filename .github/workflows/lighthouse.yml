@@ -12,6 +12,9 @@ on:
       - "components/**"
       - "lighthouserc.json"
       - "lighthouse-budget.json"
+  # Manual/API trigger — pushes from bot credentials (agent sessions) don't
+  # fire pull_request synchronize events, so branches need a way to run CI.
+  workflow_dispatch:
 
 jobs:
   lighthouse:
