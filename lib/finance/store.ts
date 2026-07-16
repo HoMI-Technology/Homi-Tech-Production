@@ -76,6 +76,22 @@ export const DEFAULT_FINANCE_STATE: FinanceState = {
   ],
 };
 
+/**
+ * Whether the user has actually saved finance data, as opposed to the
+ * defaults `loadFinanceState` falls back to. Consumers that speak in the
+ * user's voice (the Companion context builder) must check this first —
+ * quoting the placeholder numbers back to a user as "your numbers" would
+ * be a lie.
+ */
+export function hasSavedFinanceState(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(STORAGE_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
 /** Loads finance state from localStorage, merged over defaults. SSR-safe. */
 export function loadFinanceState(): FinanceState {
   if (typeof window === "undefined") return DEFAULT_FINANCE_STATE;
