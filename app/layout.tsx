@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { CookieConsent } from "@/components/consent/CookieConsent";
+import { CONSENT_BOOT_SCRIPT } from "@/components/consent/consent-shared";
 import { AnalyticsScripts } from "@/components/analytics/AnalyticsScripts";
 import { SITE_URL } from "@/lib/seo/site";
 
@@ -55,6 +56,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="field grain min-h-screen">
+        {/* Pre-paint consent gate — see consent-shared.ts. Must precede the
+            server-rendered CookieConsent bar so consented visitors never see
+            a flash of it. */}
+        <script dangerouslySetInnerHTML={{ __html: CONSENT_BOOT_SCRIPT }} />
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-slate-surface focus:px-4 focus:py-2 focus:text-light"

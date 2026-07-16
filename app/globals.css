@@ -831,6 +831,15 @@ input[type="range"].homi-slider::-moz-range-thumb {
     0 0 44px -18px rgba(34, 211, 238, 0.45);
 }
 
+/* ── Consent bar pre-paint gate ────────────────────────────────── */
+/* The bar is server-rendered visible (it must paint at FCP, not at
+   hydration — see components/consent/CookieConsent.tsx). The boot script
+   stamps these attributes before first paint. */
+html[data-homi-consent] #cookie-consent,
+html[data-homi-consent-hold] #cookie-consent {
+  display: none;
+}
+
 /* ── Scrollbar ─────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: var(--color-navy); }
