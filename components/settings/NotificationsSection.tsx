@@ -2,47 +2,81 @@
 
 import { useEffect, useState } from "react";
 
-const NOTIFICATIONS_KEY = "homi:notifications";
-
 export function NotificationsSection() {
-  const [enabled, setEnabled] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [enabled, setEnabled] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setMounted(true);
-    try {
-      setEnabled(window.localStorage.getItem(NOTIFICATIONS_KEY) === "1");
-    } catch {
-      setEnabled(false);
+    let active = true;
+    async function load() {
+      try {
+        const res = await fetch("/api/account/notifications");
+        if (!res.ok) {
+          if (active) setLoading(false);
+          return;
+        }
+        const json = (await res.json()) as { emailRemindersEnabled?: boolean };
+        if (active) {
+          setEnabled(json.emailRemindersEnabled ?? true);
+          setLoading(false);
+        }
+      } catch {
+        if (active) setLoading(false);
+      }
     }
+    load();
+    return () => {
+      active = false;
+    };
   }, []);
 
-  function toggle() {
+  async function toggle() {
     const next = !enabled;
+    setSaving(true);
+    setError(null);
     setEnabled(next);
+
     try {
-      window.localStorage.setItem(NOTIFICATIONS_KEY, next ? "1" : "0");
+      const res = await fetch("/api/account/notifications", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ emailRemindersEnabled: next }),
+      });
+      if (!res.ok) {
+        setEnabled(!next);
+        setError("Couldn't save your preference. Try again.");
+      }
     } catch {
-      // Not fatal — the toggle still reflects in-session state.
+      setEnabled(!next);
+      setError("Couldn't save your preference. Try again.");
+    } finally {
+      setSaving(false);
     }
   }
 
   return (
     <section className="glass p-6 sm:p-8">
       <h2 className="font-display text-xl font-semibold text-light">Notifications</h2>
-      <p className="mt-1 text-sm text-dim">Reminders about your decision readiness. Coming soon.</p>
+      <p className="mt-1 text-sm text-dim">
+        Email reminders about check-ins, plan progress, and when it&apos;s time to reassess your readiness.
+      </p>
 
       <div className="mt-6 flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-light">Email reminders</p>
-          <p className="text-sm text-dim">Occasional nudges about check-ins and plan progress.</p>
+          <p className="text-sm text-dim">
+            Occasional nudges — including a 30-day reassessment reminder after your last read.
+          </p>
         </div>
         <button
           onClick={toggle}
-          disabled={!mounted}
+          disabled={loading || saving}
           role="switch"
           aria-checked={enabled}
-          className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${
+          aria-label="Email reminders"
+          className={`relative h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-50 ${
             enabled ? "bg-cyan" : "bg-slate-surface"
           }`}
         >
@@ -53,6 +87,8 @@ export function NotificationsSection() {
           />
         </button>
       </div>
+
+      {error && <p className="mt-3 text-sm text-crimson">{error}</p>}
     </section>
   );
 }

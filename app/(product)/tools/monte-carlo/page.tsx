@@ -4,8 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { runMonteCarlo, type MonteCarloResult } from "@/lib/tools/montecarlo";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
+import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 
-export default function MonteCarloPage() {
+function MonteCarloPageInner() {
   const [currentSavings, setCurrentSavings] = useState(20000);
   const [monthlyContribution, setMonthlyContribution] = useState(600);
   const [years, setYears] = useState(10);
@@ -132,6 +133,14 @@ export default function MonteCarloPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MonteCarloPage() {
+  return (
+    <AdvancedToolGate>
+      <MonteCarloPageInner />
+    </AdvancedToolGate>
   );
 }
 

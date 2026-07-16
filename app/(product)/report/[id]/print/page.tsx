@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { PILLARS, VERDICT_META, LEGAL_DISCLAIMER } from "@/lib/brand";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring";
 import { Wordmark } from "@/components/brand/Wordmark";
+import { UpgradePanel } from "@/components/ui/UpgradePanel";
+import { getUserEntitlements } from "@/lib/entitlements";
 import type { AssessmentRow } from "@/types/database";
 import { AutoPrint } from "./AutoPrint";
 
@@ -28,6 +30,17 @@ export default async function ReportPrintPage({
 
   if (!user) {
     redirect("/auth/sign-in");
+  }
+
+  const { entitlements } = await getUserEntitlements(supabase);
+  if (!entitlements.fullReport) {
+    return (
+      <UpgradePanel
+        feature="report-print"
+        body="Printable full reports with detailed pillar breakdowns are part of HōMI Plus."
+        minTier="plus"
+      />
+    );
   }
 
   const { data } = await supabase

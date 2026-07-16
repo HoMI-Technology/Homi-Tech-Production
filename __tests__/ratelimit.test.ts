@@ -1,29 +1,29 @@
 import { afterEach, describe, it, expect, vi } from "vitest";
-import { rateLimit, getClientIp, hasUpstash } from "@/lib/ratelimit";
+import { rateLimit, rateLimitMemory, getClientIp, hasUpstash } from "@/lib/ratelimit";
 
-describe("rateLimit (in-memory fallback — no Upstash env)", () => {
-  it("allows up to the limit and blocks beyond it", async () => {
+describe("rateLimitMemory (in-process fallback)", () => {
+  it("allows up to the limit and blocks beyond it", () => {
     const key = `test-${Math.random()}`;
     for (let i = 0; i < 5; i++) {
-      expect((await rateLimit(key, { limit: 5, windowMs: 60_000 })).allowed).toBe(true);
+      expect(rateLimitMemory(key, { limit: 5, windowMs: 60_000 }).allowed).toBe(true);
     }
-    expect((await rateLimit(key, { limit: 5, windowMs: 60_000 })).allowed).toBe(false);
+    expect(rateLimitMemory(key, { limit: 5, windowMs: 60_000 }).allowed).toBe(false);
   });
 
-  it("tracks remaining correctly", async () => {
+  it("tracks remaining correctly", () => {
     const key = `test-${Math.random()}`;
-    expect((await rateLimit(key, { limit: 3, windowMs: 60_000 })).remaining).toBe(2);
-    expect((await rateLimit(key, { limit: 3, windowMs: 60_000 })).remaining).toBe(1);
-    expect((await rateLimit(key, { limit: 3, windowMs: 60_000 })).remaining).toBe(0);
-    expect((await rateLimit(key, { limit: 3, windowMs: 60_000 })).allowed).toBe(false);
+    expect(rateLimitMemory(key, { limit: 3, windowMs: 60_000 }).remaining).toBe(2);
+    expect(rateLimitMemory(key, { limit: 3, windowMs: 60_000 }).remaining).toBe(1);
+    expect(rateLimitMemory(key, { limit: 3, windowMs: 60_000 }).remaining).toBe(0);
+    expect(rateLimitMemory(key, { limit: 3, windowMs: 60_000 }).allowed).toBe(false);
   });
 
-  it("isolates keys", async () => {
+  it("isolates keys", () => {
     const a = `a-${Math.random()}`;
     const b = `b-${Math.random()}`;
-    await rateLimit(a, { limit: 1, windowMs: 60_000 });
-    expect((await rateLimit(a, { limit: 1, windowMs: 60_000 })).allowed).toBe(false);
-    expect((await rateLimit(b, { limit: 1, windowMs: 60_000 })).allowed).toBe(true);
+    rateLimitMemory(a, { limit: 1, windowMs: 60_000 });
+    expect(rateLimitMemory(a, { limit: 1, windowMs: 60_000 }).allowed).toBe(false);
+    expect(rateLimitMemory(b, { limit: 1, windowMs: 60_000 }).allowed).toBe(true);
   });
 });
 
@@ -39,6 +39,7 @@ describe("rateLimit (Upstash Redis path)", () => {
     vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "fake-token");
   }
 
+  /** Upstash /pipeline responds with an ARRAY of per-command results. */
   function pipelineResponse(count: number) {
     return new Response(JSON.stringify([{ result: count }, { result: 1 }]), {
       status: 200,

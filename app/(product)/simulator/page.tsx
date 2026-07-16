@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { ScoreSimulator } from "@/components/simulator/ScoreSimulator";
+import { UpgradePanel } from "@/components/ui/UpgradePanel";
+import { getUserEntitlements } from "@/lib/entitlements";
 import type { AnchorAssessment } from "@/lib/simulator";
 
 export const metadata: Metadata = {
@@ -20,6 +22,17 @@ export default async function SimulatorPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const { entitlements } = await getUserEntitlements(supabase);
+  if (!entitlements.advancedTools) {
+    return (
+      <UpgradePanel
+        feature="score-simulator"
+        body="The readiness score simulator lets you test money moves before you make them — part of HōMI Pro."
+        minTier="pro"
+      />
+    );
+  }
 
   const [{ data: snapshots }, { data: assessments }] = await Promise.all([
     user

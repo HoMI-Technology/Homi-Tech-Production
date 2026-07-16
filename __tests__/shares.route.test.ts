@@ -14,11 +14,19 @@ const state = vi.hoisted(() => ({
   user: null as { id: string } | null,
   ownedAssessment: null as { id: string } | null,
   ownershipError: null as unknown,
+  activeShareCount: 0,
   insertResult: { data: { share_token: "tok_123" }, error: null } as {
     data: { share_token: string } | null;
     error: unknown;
   },
   insertCalls: 0,
+}));
+
+vi.mock("@/lib/entitlements", () => ({
+  getUserEntitlements: async () => ({
+    userId: state.user?.id ?? null,
+    entitlements: { maxActiveShares: 2 },
+  }),
 }));
 
 vi.mock("@/lib/env", () => ({
@@ -44,7 +52,21 @@ vi.mock("@/lib/supabase/server", () => {
         state.insertCalls += 1;
         return builder;
       },
-      select: () => builder,
+      select: (_cols?: string, opts?: { count?: string; head?: boolean }) => {
+        if (opts?.head) {
+          return {
+            eq: () => ({
+              is: () => ({
+                gt: async () => ({ count: state.activeShareCount }),
+              }),
+            }),
+          };
+        }
+        return builder;
+      },
+      eq: () => builder,
+      is: () => builder,
+      gt: () => builder,
       single: async () => state.insertResult,
     };
     return builder;
@@ -72,6 +94,7 @@ beforeEach(() => {
   state.user = { id: "owner-1" };
   state.ownedAssessment = null;
   state.ownershipError = null;
+  state.activeShareCount = 0;
   state.insertResult = { data: { share_token: "tok_123" }, error: null };
   state.insertCalls = 0;
 });
@@ -114,5 +137,13 @@ describe("POST /api/shares", () => {
     const body = (await res.json()) as { url: string };
     expect(body.url).toBe("https://homitechnology.com/share/tok_123");
     expect(state.insertCalls).toBe(1);
+  });
+
+  it("402s when the active share limit is reached", async () => {
+    state.ownedAssessment = { id: VALID_UUID };
+    state.activeShareCount = 2;
+    const res = await POST(req({ assessmentId: VALID_UUID }));
+    expect(res.status).toBe(402);
+    expect(state.insertCalls).toBe(0);
   });
 });

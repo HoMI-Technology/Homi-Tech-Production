@@ -8,6 +8,8 @@ interface PresetCopy {
   body: string;
   actionHref?: string;
   actionLabel?: string;
+  secondaryHref?: string;
+  secondaryLabel?: string;
 }
 
 /** Calm, protective default copy per surface — used when only `preset` is passed. */
@@ -21,10 +23,14 @@ const PRESETS: Record<EmptyStatePreset, PresetCopy> = {
     body: "Add a milestone, deadline, or review — the moments worth tracking as your readiness changes.",
   },
   dashboard: {
-    title: "You haven't taken your assessment yet",
-    body: "Three pillars, one honest verdict: Financial Reality, Emotional Truth, and Perfect Timing. It takes about ten minutes and gives you a real answer.",
-    actionHref: "/assessment",
-    actionLabel: "Start your assessment",
+    // First-run activation: the shortest path to a real score leads (Shadow
+    // Score, ~2 minutes); the full assessment is the deeper second path.
+    title: "One measurement and this page comes alive",
+    body: "Get a first read in about two minutes with the Shadow Score — or go deep with the full three-pillar assessment: Financial Reality, Emotional Truth, Perfect Timing. Either way, you get an honest verdict, not a maybe.",
+    actionHref: "/shadow-score",
+    actionLabel: "Get your Shadow Score",
+    secondaryHref: "/assessment",
+    secondaryLabel: "Take the full assessment",
   },
   signals: {
     title: "No signals yet",
@@ -45,18 +51,24 @@ export function EmptyState({
   body,
   actionHref,
   actionLabel,
+  secondaryHref,
+  secondaryLabel,
 }: {
   preset?: EmptyStatePreset;
   title?: string;
   body?: string;
   actionHref?: string;
   actionLabel?: string;
+  secondaryHref?: string;
+  secondaryLabel?: string;
 }) {
   const defaults = preset ? PRESETS[preset] : undefined;
   const resolvedTitle = title ?? defaults?.title ?? "Nothing here yet";
   const resolvedBody = body ?? defaults?.body;
   const resolvedHref = actionHref ?? defaults?.actionHref;
   const resolvedLabel = actionLabel ?? defaults?.actionLabel;
+  const resolvedSecondaryHref = secondaryHref ?? defaults?.secondaryHref;
+  const resolvedSecondaryLabel = secondaryLabel ?? defaults?.secondaryLabel;
 
   return (
     <div className="flex flex-col items-center gap-4 text-center">
@@ -66,9 +78,16 @@ export function EmptyState({
         {resolvedBody && <p className="mt-3 max-w-md text-sm leading-relaxed text-dim">{resolvedBody}</p>}
       </div>
       {resolvedHref && resolvedLabel && (
-        <Link href={resolvedHref} className="btn btn-primary mt-2">
-          {resolvedLabel}
-        </Link>
+        <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
+          <Link href={resolvedHref} className="btn btn-primary">
+            {resolvedLabel}
+          </Link>
+          {resolvedSecondaryHref && resolvedSecondaryLabel && (
+            <Link href={resolvedSecondaryHref} className="btn btn-ghost">
+              {resolvedSecondaryLabel}
+            </Link>
+          )}
+        </div>
       )}
     </div>
   );

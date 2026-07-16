@@ -4,8 +4,9 @@ import { useMemo, useState } from "react";
 import { computeRothConversion } from "@/lib/tools/roth";
 import { formatCurrency } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
+import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 
-export default function RothConversionPage() {
+function RothConversionPageInner() {
   const [currentBalance, setCurrentBalance] = useState(120000);
   const [convertAmount, setConvertAmount] = useState(30000);
   const [marginalRateNow, setMarginalRateNow] = useState(22);
@@ -89,6 +90,14 @@ export default function RothConversionPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RothConversionPage() {
+  return (
+    <AdvancedToolGate>
+      <RothConversionPageInner />
+    </AdvancedToolGate>
   );
 }
 
