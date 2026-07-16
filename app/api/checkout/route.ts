@@ -3,6 +3,7 @@ import { z } from "zod";
 import { env, hasStripe } from "@/lib/env";
 import { getTier } from "@/lib/stripe/tiers";
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit, getClientIp } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 
@@ -13,6 +14,12 @@ const bodySchema = z.object({
 export async function POST(request: Request) {
   if (!hasStripe()) {
     return NextResponse.json({ configured: false });
+  }
+
+  const ip = getClientIp(request);
+  const { allowed } = await rateLimit(`checkout:${ip}`, { limit: 10, windowMs: 60_000 });
+  if (!allowed) {
+    return NextResponse.json({ error: "Too many requests. Try again in a moment." }, { status: 429 });
   }
 
   let json: unknown;

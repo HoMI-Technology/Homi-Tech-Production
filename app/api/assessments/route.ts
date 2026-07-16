@@ -3,6 +3,7 @@ import { z } from "zod";
 import { computeScore, generateKeyInsight, generateNextSteps } from "@/lib/scoring";
 import { createClient } from "@/lib/supabase/server";
 import { assessmentInputsSchema } from "@/lib/validation/assessment";
+import { rateLimit, getClientIp } from "@/lib/ratelimit";
 
 const bodySchema = z.object({
   inputs: assessmentInputsSchema,
@@ -11,6 +12,12 @@ const bodySchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    const { allowed } = await rateLimit(`assessments-write:${ip}`, { limit: 20, windowMs: 60_000 });
+    if (!allowed) {
+      return NextResponse.json({ error: "Too many requests. Try again in a moment." }, { status: 429 });
+    }
+
     const json = await req.json();
     const parsed = bodySchema.safeParse(json);
     if (!parsed.success) {

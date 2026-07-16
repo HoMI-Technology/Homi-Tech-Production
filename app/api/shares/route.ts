@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { env } from "@/lib/env";
+import { rateLimit, getClientIp } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 
@@ -11,6 +12,12 @@ const bodySchema = z.object({
 
 /** POST /api/shares — creates a 30-day score-share link for one of the current user's assessments. */
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  const { allowed } = await rateLimit(`shares-write:${ip}`, { limit: 15, windowMs: 60_000 });
+  if (!allowed) {
+    return NextResponse.json({ error: "Too many requests. Try again in a moment." }, { status: 429 });
+  }
+
   const supabase = await createClient();
   const {
     data: { user },

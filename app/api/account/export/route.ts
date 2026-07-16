@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit, getClientIp } from "@/lib/ratelimit";
 
 /** GET /api/account/export — downloads all of the current user's data as a JSON attachment. */
-export async function GET() {
+export async function GET(request: Request) {
+  const ip = getClientIp(request);
+  const { allowed } = await rateLimit(`account-export:${ip}`, { limit: 5, windowMs: 60_000 });
+  if (!allowed) {
+    return NextResponse.json({ error: "Too many requests. Try again in a moment." }, { status: 429 });
+  }
+
   const supabase = await createClient();
   const {
     data: { user },

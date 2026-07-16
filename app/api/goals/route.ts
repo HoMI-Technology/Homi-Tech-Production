@@ -39,7 +39,7 @@ function serverError(scope: string, message: string) {
 /** GET /api/goals — the caller's down-payment goal, or null when unset. */
 export async function GET(request: Request) {
   const ip = getClientIp(request);
-  const { allowed } = rateLimit(`goals-read:${ip}`, { limit: 30, windowMs: 60_000 });
+  const { allowed } = await rateLimit(`goals-read:${ip}`, { limit: 30, windowMs: 60_000 });
   if (!allowed) {
     return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
   }
@@ -75,7 +75,7 @@ export async function GET(request: Request) {
 /** PUT /api/goals — creates or replaces the caller's down-payment goal. */
 export async function PUT(request: Request) {
   const ip = getClientIp(request);
-  const { allowed } = rateLimit(`goals-write:${ip}`, { limit: 20, windowMs: 60_000 });
+  const { allowed } = await rateLimit(`goals-write:${ip}`, { limit: 20, windowMs: 60_000 });
   if (!allowed) {
     return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
   }
@@ -130,7 +130,7 @@ export async function PUT(request: Request) {
 /** DELETE /api/goals — removes the caller's down-payment goal. Idempotent. */
 export async function DELETE(request: Request) {
   const ip = getClientIp(request);
-  const { allowed } = rateLimit(`goals-write:${ip}`, { limit: 20, windowMs: 60_000 });
+  const { allowed } = await rateLimit(`goals-write:${ip}`, { limit: 20, windowMs: 60_000 });
   if (!allowed) {
     return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
   }
