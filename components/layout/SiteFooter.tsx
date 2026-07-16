@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CopyrightYear } from "@/components/layout/CopyrightYear";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { LEGAL_DISCLAIMER } from "@/lib/brand";
@@ -47,8 +48,8 @@ export function SiteFooter() {
   return (
     <footer className="relative mt-24 border-t border-slate-surface/60">
       <div className="mx-auto max-w-6xl px-6 py-16">
-        <div className="grid gap-12 md:grid-cols-[1.4fr_repeat(4,1fr)]">
-          <div>
+        <div className="grid gap-12 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-[1.4fr_repeat(4,1fr)]">
+          <div className="sm:col-span-2 md:col-span-4 lg:col-span-1">
             <div className="flex items-center gap-3">
               <ThresholdCompass size={44} animated={false} glow={false} />
               <Wordmark size="text-xl" />
@@ -80,7 +81,9 @@ export function SiteFooter() {
 
         <p className="text-xs leading-relaxed text-dim/80">{LEGAL_DISCLAIMER}</p>
         <div className="mt-6 flex flex-col items-start justify-between gap-3 text-xs text-dim/70 sm:flex-row">
-          <span>© {new Date().getFullYear()} HOMI TECHNOLOGIES LLC. All rights reserved.</span>
+          <span>
+            © <CopyrightYear initial={new Date().getFullYear()} /> HOMI TECHNOLOGIES LLC. All rights reserved.
+          </span>
           <span>HōMI · Decision Readiness Intelligence™ | Educational Guidance Only | Not Financial Advice</span>
         </div>
       </div>
