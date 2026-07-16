@@ -50,6 +50,8 @@ export function AppHeader({ email }: { email: string | null }) {
   const [userOpen, setUserOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -85,10 +87,41 @@ export function AppHeader({ email }: { email: string | null }) {
     };
   }, []);
 
+  // While the mobile menu is open: lock body scroll, close on Escape
+  // (returning focus to the toggle), outside click, or growing past lg.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setMobileOpen(false);
+        toggleRef.current?.focus();
+      }
+    }
+    function onPointer(e: MouseEvent) {
+      if (headerRef.current && !headerRef.current.contains(e.target as Node)) setMobileOpen(false);
+    }
+    const desktop = window.matchMedia("(min-width: 64rem)");
+    function onDesktop() {
+      if (desktop.matches) setMobileOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onPointer);
+    desktop.addEventListener("change", onDesktop);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onPointer);
+      desktop.removeEventListener("change", onDesktop);
+    };
+  }, [mobileOpen]);
+
   const initial = (email?.trim()?.[0] ?? "H").toUpperCase();
 
   return (
     <header
+      ref={headerRef}
       className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${
         scrolled ? "glass !rounded-none border-x-0 border-t-0" : "bg-transparent"
       }`}
@@ -98,7 +131,7 @@ export function AppHeader({ email }: { email: string | null }) {
           <Wordmark size="text-2xl" />
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
+        <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary">
           {PRIMARY.map((item) => {
             const active = isActive(pathname, item.href);
             return (
@@ -154,7 +187,7 @@ export function AppHeader({ email }: { email: string | null }) {
           </div>
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-3 lg:flex">
           <NotificationBell />
           <div ref={userRef} className="relative">
             <button
@@ -197,9 +230,11 @@ export function AppHeader({ email }: { email: string | null }) {
         </div>
 
         <button
-          className="btn btn-ghost !p-2 md:hidden"
+          ref={toggleRef}
+          className="btn btn-ghost !p-2 lg:hidden"
           onClick={() => setMobileOpen((o) => !o)}
           aria-expanded={mobileOpen}
+          aria-controls="app-mobile-menu"
           aria-label="Toggle menu"
         >
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
@@ -209,7 +244,10 @@ export function AppHeader({ email }: { email: string | null }) {
       </div>
 
       {mobileOpen && (
-        <div className="glass mx-4 mb-4 flex flex-col gap-1 p-4 md:hidden">
+        <div
+          id="app-mobile-menu"
+          className="glass mx-4 mb-4 flex max-h-[calc(100dvh-88px)] flex-col gap-1 overflow-y-auto overscroll-contain p-4 lg:hidden"
+        >
           <div className="flex items-center justify-between px-1 pb-1">
             <span className="truncate text-xs text-dim">{email ?? "Signed in"}</span>
             <NotificationBell />

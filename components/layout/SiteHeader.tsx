@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 
@@ -19,6 +19,8 @@ export function SiteHeader() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -29,8 +31,39 @@ export function SiteHeader() {
 
   useEffect(() => setOpen(false), [pathname]);
 
+  // While the mobile menu is open: lock body scroll, close on Escape
+  // (returning focus to the toggle), outside click, or growing past lg.
+  useEffect(() => {
+    if (!open) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setOpen(false);
+        toggleRef.current?.focus();
+      }
+    }
+    function onPointer(e: MouseEvent) {
+      if (headerRef.current && !headerRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    const desktop = window.matchMedia("(min-width: 64rem)");
+    function onDesktop() {
+      if (desktop.matches) setOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onPointer);
+    desktop.addEventListener("change", onDesktop);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onPointer);
+      desktop.removeEventListener("change", onDesktop);
+    };
+  }, [open]);
+
   return (
     <header
+      ref={headerRef}
       className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${
         scrolled ? "glass !rounded-none border-x-0 border-t-0" : "bg-transparent"
       }`}
@@ -40,7 +73,7 @@ export function SiteHeader() {
           <Wordmark size="text-2xl" />
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
+        <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary">
           {NAV.map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
@@ -58,7 +91,7 @@ export function SiteHeader() {
           })}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-3 lg:flex">
           <NotificationBell />
           <Link href="/auth/sign-in" className="text-sm text-dim transition-colors hover:text-light">
             Sign in
@@ -69,9 +102,11 @@ export function SiteHeader() {
         </div>
 
         <button
-          className="btn btn-ghost !p-2 md:hidden"
+          ref={toggleRef}
+          className="btn btn-ghost !p-2 lg:hidden"
           onClick={() => setOpen(!open)}
           aria-expanded={open}
+          aria-controls="site-mobile-menu"
           aria-label="Toggle menu"
         >
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
@@ -81,7 +116,10 @@ export function SiteHeader() {
       </div>
 
       {open && (
-        <div className="glass mx-4 mb-4 flex flex-col gap-1 p-4 md:hidden">
+        <div
+          id="site-mobile-menu"
+          className="glass mx-4 mb-4 flex max-h-[calc(100dvh-88px)] flex-col gap-1 overflow-y-auto overscroll-contain p-4 lg:hidden"
+        >
           <div className="flex items-center justify-between px-1 pb-1">
             <span className="text-xs uppercase tracking-wide text-dim">Menu</span>
             <NotificationBell />
