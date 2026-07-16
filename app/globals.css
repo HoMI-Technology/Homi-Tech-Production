@@ -1,7 +1,8 @@
 @import "tailwindcss";
-@import "@fontsource-variable/inter";
-@import "@fontsource-variable/fraunces";
-@import "@fontsource-variable/jetbrains-mono";
+/* Fonts load via next/font/local (app/fonts.ts) — preloaded, size-adjusted
+   fallbacks. The old @fontsource @imports made the browser discover the
+   woff2s only after CSS, so the fallback→webfont swap re-triggered LCP
+   ~1-2s after first paint on throttled networks. */
 
 /* ═══════════════════════════════════════════════════════════════════
    HōMI Design System — brand canon locked.
@@ -27,9 +28,9 @@
   --color-light: #e2e8f0;
   --color-dim: #94a3b8;
 
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Fraunces Variable", Georgia, serif;
-  --font-score: "JetBrains Mono Variable", ui-monospace, monospace;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-score: var(--font-jbm), ui-monospace, monospace;
 
   --radius-sm: 8px;
   --radius-md: 12px;

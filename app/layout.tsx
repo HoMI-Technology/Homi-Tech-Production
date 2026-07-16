@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { fraunces, inter, jetbrainsMono } from "@/app/fonts";
 import { CookieConsent } from "@/components/consent/CookieConsent";
 import { CONSENT_BOOT_SCRIPT } from "@/components/consent/consent-shared";
 import { AnalyticsScripts } from "@/components/analytics/AnalyticsScripts";
@@ -54,7 +55,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${fraunces.variable} ${jetbrainsMono.variable}`}>
       <body className="field grain min-h-screen">
         {/* Pre-paint consent gate — see consent-shared.ts. Must precede the
             server-rendered CookieConsent bar so consented visitors never see
