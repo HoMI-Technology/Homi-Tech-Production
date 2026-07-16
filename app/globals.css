@@ -172,7 +172,12 @@ body {
   }
 }
 
-/* ── Buttons ───────────────────────────────────────────────────── */
+/* ── Buttons ───────────────────────────────────────────────────────
+   Layered as `components` so Tailwind utilities (which live in the
+   later `utilities` layer) can override these defaults. Unlayered,
+   these rules would beat every utility — e.g. `md:hidden` on a .btn
+   silently loses to `display: inline-flex`. ─────────────────────── */
+@layer components {
 .btn {
   display: inline-flex;
   align-items: center;
@@ -213,6 +218,7 @@ body {
 .btn-emerald:hover {
   transform: translateY(-1px);
   box-shadow: 0 14px 32px -8px rgba(52, 211, 153, 0.65);
+}
 }
 
 /* ── Reveal on scroll ──────────────────────────────────────────── */
