@@ -1,24 +1,8 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isProtectedPath } from "@/lib/auth/protected-routes";
 
 type CookieToSet = { name: string; value: string; options?: CookieOptions };
-
-/** Routes that require an authenticated session. */
-const PROTECTED_PREFIXES = [
-  "/dashboard",
-  "/advisor",
-  "/journal",
-  "/daily",
-  "/admin",
-  "/settings",
-  "/family",
-  "/calendar",
-  "/outcomes",
-  "/connections",
-  "/report",
-  "/partner/portal",
-  "/employee/portal",
-];
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -47,11 +31,8 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isProtected = PROTECTED_PREFIXES.some(
-    (p) => path === p || path.startsWith(`${p}/`),
-  );
 
-  if (isProtected && !user) {
+  if (isProtectedPath(path) && !user) {
     const redirect = request.nextUrl.clone();
     redirect.pathname = "/auth/sign-in";
     redirect.searchParams.set("next", path);
@@ -63,6 +44,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|fonts|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml|webmanifest)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|fonts|sw\\.js|offline\\.html|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml|webmanifest)$).*)",
   ],
 };

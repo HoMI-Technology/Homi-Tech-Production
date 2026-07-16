@@ -21,6 +21,16 @@ export function formatCompactCurrency(value: number): string {
   }).format(value);
 }
 
+/**
+ * Money for stat-tile hero numerals: full dollars under $100k, compact
+ * ("$123.5K", "$1.2M") at or above — six-figure strings overflow the tiles
+ * in the dashboard's 2-column mobile grid.
+ */
+export function formatCurrencyTile(value: number): string {
+  if (!Number.isFinite(value)) return "$0";
+  return Math.abs(value) >= 100_000 ? formatCompactCurrency(value) : formatCurrency(value);
+}
+
 export function formatPercent(value: number, decimals = 1): string {
   if (!Number.isFinite(value)) return "0%";
   return `${value.toFixed(decimals)}%`;

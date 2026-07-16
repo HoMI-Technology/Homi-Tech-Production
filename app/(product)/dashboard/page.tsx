@@ -1,12 +1,23 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import { headers } from "next/headers";
 import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
+import { getCachedClient, getCachedUser } from "@/lib/supabase/server";
 import { PILLARS, VERDICT_META, type VerdictKey } from "@/lib/brand";
+import {
+  dashboardInsight,
+  greetingForHour,
+  hourInTimezone,
+  verdictHeldDays,
+  verdictImproved,
+  type AssessmentReading,
+} from "@/lib/dashboard/insight";
+import { checkedInToday, contextualActionHrefs } from "@/lib/dashboard/context-actions";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
+import { CinemaFX } from "@/components/home/CinemaFX";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Reveal } from "@/components/ui/Reveal";
-import { ScoreRing } from "@/components/ui/ScoreRing";
 import { Sparkline } from "@/components/ui/Sparkline";
 import { StatTile } from "@/components/ui/StatTile";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -15,19 +26,17 @@ import { ScoreDeltaBadge } from "@/components/dashboard/ScoreDeltaBadge";
 import { DailyPulseStrip } from "@/components/dashboard/DailyPulseStrip";
 import { QuickActionGrid } from "@/components/dashboard/QuickActionGrid";
 import { OutcomeSurveyPrompt } from "@/components/dashboard/OutcomeSurveyPrompt";
-import { ConnectionsTile } from "@/components/dashboard/ConnectionsTile";
-import { BankConnectCard } from "@/components/dashboard/BankConnectCard";
-import { GoalCard, type GoalData } from "@/components/dashboard/GoalCard";
-import { getEntitlements } from "@/lib/entitlements";
-import { formatCurrency } from "@/lib/tools/format";
+import { EntranceConductor } from "@/components/dashboard/Entrance";
+import { ENTRANCE_BOOT_SCRIPT } from "@/components/dashboard/entrance-shared";
+import { HeroScore } from "@/components/dashboard/HeroScore";
+import { PillarRing } from "@/components/dashboard/PillarRing";
+import { LoadErrorPanel } from "@/components/dashboard/LoadErrorPanel";
+import { VerdictCelebrate } from "@/components/dashboard/VerdictCelebrate";
 import {
-  netWorthDelta,
-  netWorthTrend,
-  snapshotLiquidSavings,
-  type ItemReading,
-  type SnapshotReading,
-} from "@/lib/dashboard/financial-position";
-import type { AssessmentRow, DailyCheckin, Goal, OutcomeSurvey, Profile } from "@/types/database";
+  FinancialPositionSection,
+  FinancialPositionSkeleton,
+} from "@/components/dashboard/FinancialPositionSection";
+import type { AssessmentRow, DailyCheckin, OutcomeSurvey, Profile } from "@/types/database";
 
 export const metadata: Metadata = {
   title: "Dashboard | HōMI",
@@ -45,6 +54,18 @@ function daysSince(dateStr: string | null): number | null {
   const then = new Date(dateStr).getTime();
   const now = Date.now();
   return Math.floor((now - then) / (1000 * 60 * 60 * 24));
+}
+
+function toReading(row: AssessmentRow | null): AssessmentReading | null {
+  if (!row) return null;
+  return {
+    overall_score: row.overall_score,
+    verdict: row.verdict,
+    financial_score: row.financial_score,
+    emotional_score: row.emotional_score,
+    timing_score: row.timing_score,
+    date: row.completed_at ?? row.created_at,
+  };
 }
 
 /** Curated next step per weakest pillar — honest guidance, no invented numbers. */
@@ -76,98 +97,74 @@ const NEXT_MOVES: Record<
 };
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
+  const user = await getCachedUser();
+  const supabase = await getCachedClient();
+  const requestHeaders = await headers();
+  const timeZone = requestHeaders.get("x-vercel-ip-timezone");
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Shell queries only — everything the greeting, verdict hero, trajectory,
+  // pillars, pulse, and actions need. The money section streams separately
+  // behind Suspense (FinancialPositionSection) so Plaid-derived data never
+  // blocks first paint.
+  const [profileR, assessmentsR, checkinsR, journalR, surveysR] = await Promise.all([
+    user
+      ? supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
+      : Promise.resolve({ data: null as Profile | null, error: null }),
+    user
+      ? supabase
+          .from("assessments")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("status", "completed")
+          .order("created_at", { ascending: false })
+          .limit(10)
+      : Promise.resolve({ data: [] as AssessmentRow[], error: null }),
+    user
+      ? supabase
+          .from("daily_checkins")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(14)
+      : Promise.resolve({ data: [] as DailyCheckin[], error: null }),
+    user
+      ? supabase
+          .from("decision_journal")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id)
+      : Promise.resolve({ count: 0, error: null }),
+    user
+      ? supabase
+          .from("outcome_surveys")
+          .select("*")
+          .eq("user_id", user.id)
+          .is("completed_at", null)
+          .lt("due_at", new Date().toISOString())
+          .order("due_at", { ascending: true })
+          .limit(1)
+      : Promise.resolve({ data: [] as OutcomeSurvey[], error: null }),
+  ]);
 
-  const [
-    { data: profile },
-    { data: assessments },
-    { data: checkins },
-    { count: journalCount },
-    { data: dueSurveys },
-    { data: snapshotRows },
-    { data: plaidItemRows },
-    { count: plaidAccountCount },
-    { data: goalRow },
-  ] = await Promise.all([
-      user
-        ? supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
-        : Promise.resolve({ data: null as Profile | null }),
-      user
-        ? supabase
-            .from("assessments")
-            .select("*")
-            .eq("user_id", user.id)
-            .eq("status", "completed")
-            .order("created_at", { ascending: false })
-            .limit(10)
-        : Promise.resolve({ data: [] as AssessmentRow[] }),
-      user
-        ? supabase
-            .from("daily_checkins")
-            .select("*")
-            .eq("user_id", user.id)
-            .order("created_at", { ascending: false })
-            .limit(14)
-        : Promise.resolve({ data: [] as DailyCheckin[] }),
-      user
-        ? supabase
-            .from("decision_journal")
-            .select("*", { count: "exact", head: true })
-            .eq("user_id", user.id)
-        : Promise.resolve({ count: 0 }),
-      user
-        ? supabase
-            .from("outcome_surveys")
-            .select("*")
-            .eq("user_id", user.id)
-            .is("completed_at", null)
-            .lt("due_at", new Date().toISOString())
-            .order("due_at", { ascending: true })
-            .limit(1)
-        : Promise.resolve({ data: [] as OutcomeSurvey[] }),
-      user
-        ? supabase
-            .from("financial_snapshots")
-            .select("net_worth, net_cash_flow, savings_rate, completed_at, state")
-            .eq("user_id", user.id)
-            .order("completed_at", { ascending: false })
-            .limit(12)
-        : Promise.resolve({ data: [] as SnapshotReading[] }),
-      user
-        ? supabase
-            .from("plaid_items")
-            .select("id, institution_name, status, last_successful_sync")
-            .eq("user_id", user.id)
-            .order("created_at", { ascending: true })
-        : Promise.resolve({ data: [] as ItemReading[] }),
-      // RLS scopes plaid_accounts to the caller's items — a bare count is safe.
-      user
-        ? supabase.from("plaid_accounts").select("id", { count: "exact", head: true })
-        : Promise.resolve({ count: 0 }),
-      user
-        ? supabase
-            .from("goals")
-            .select("label, target_amount, target_date")
-            .eq("user_id", user.id)
-            .eq("kind", "down_payment")
-            .maybeSingle()
-        : Promise.resolve({ data: null as Pick<Goal, "label" | "target_amount" | "target_date"> | null }),
-    ]);
+  // Empty and failed are different truths. A transient error must never render
+  // first-run copy to a user who has real history.
+  const assessmentsFailed = Boolean(user && assessmentsR.error);
+  const checkinsFailed = Boolean(user && checkinsR.error);
 
-  const assessmentRows: AssessmentRow[] = assessments ?? [];
-  const checkinRows: DailyCheckin[] = checkins ?? [];
+  const profile = profileR.data ?? null;
+  const assessmentRows: AssessmentRow[] = assessmentsR.data ?? [];
+  const checkinRows: DailyCheckin[] = checkinsR.data ?? [];
+  const journalCount = journalR.count ?? 0;
   const latest = assessmentRows[0] ?? null;
-  const dueSurvey: OutcomeSurvey | null = dueSurveys?.[0] ?? null;
+  const previousAssessment = assessmentRows[1] ?? null;
+  const dueSurvey: OutcomeSurvey | null = surveysR.data?.[0] ?? null;
 
-  const name = firstName(profile ?? null, user?.email ?? null);
+  const name = firstName(profile, user?.email ?? null);
+  const greeting = greetingForHour(hourInTimezone(timeZone));
   const since = daysSince(latest?.completed_at ?? latest?.created_at ?? null);
   const showNudge = since !== null && since > 30;
   const verdict = (latest?.verdict as VerdictKey | null) ?? null;
   const verdictMeta = VERDICT_META[verdict ?? "BUILD_FIRST"];
+  const improved = verdictImproved(latest?.verdict ?? null, previousAssessment?.verdict ?? null);
 
   const historyPoints: ScoreHistoryPoint[] = [...assessmentRows]
     .reverse()
@@ -178,7 +175,6 @@ export default async function DashboardPage() {
       date: a.completed_at ?? a.created_at,
     }));
 
-  const previousAssessment = assessmentRows[1] ?? null;
   const scoreDelta =
     latest && previousAssessment && latest.overall_score !== null && previousAssessment.overall_score !== null
       ? {
@@ -207,93 +203,107 @@ export default async function DashboardPage() {
   const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const checkinsThisWeek = checkinRows.filter((c) => new Date(c.created_at).getTime() >= weekAgo).length;
 
-  const deltaTone =
-    scoreDelta === null ? "flat" : scoreDelta.current > scoreDelta.previous ? "up" : scoreDelta.current < scoreDelta.previous ? "down" : "flat";
+  // One true sentence about where the user stands (rule-based, never invented).
+  const insight = dashboardInsight({
+    latest: toReading(latest),
+    previous: toReading(previousAssessment),
+    checkinsThisWeek,
+  });
+  const subtitle =
+    insight ??
+    (latest
+      ? `Here is where your decision stands today${since !== null && since > 0 ? ` — last measured ${since} day${since === 1 ? "" : "s"} ago` : ""}.`
+      : "Here is where your decision stands today.");
 
-  // ── Financial position (bank sync + goal) ─────────────────────────────
-  const snapshots: SnapshotReading[] = snapshotRows ?? [];
-  const bankItems: ItemReading[] = plaidItemRows ?? [];
-  const latestSnapshot = snapshots[0] ?? null;
-  const netWorthSeries = netWorthTrend(snapshots);
-  const nwDelta = netWorthDelta(snapshots);
-  const bankSyncEntitled = getEntitlements(profile?.subscription_tier ?? null).bankSync;
-  const goal: GoalData | null = goalRow
-    ? {
-        label: goalRow.label,
-        target_amount: Number(goalRow.target_amount),
-        target_date: goalRow.target_date,
-      }
-    : null;
-  const goalSavings = latestSnapshot ? snapshotLiquidSavings(latestSnapshot.state) : null;
-  const netWorth = latestSnapshot ? Number(latestSnapshot.net_worth) : 0;
-  const cashFlow = latestSnapshot ? Number(latestSnapshot.net_cash_flow) : 0;
-  const savingsRatePct = latestSnapshot ? Math.round(Number(latestSnapshot.savings_rate) * 100) : 0;
+  const heldDays = verdictHeldDays(
+    assessmentRows.map((a) => ({ verdict: a.verdict, date: a.completed_at ?? a.created_at })),
+  );
+
+  const featured = assessmentsFailed
+    ? []
+    : contextualActionHrefs({
+        hasAssessment: latest !== null,
+        weakestPillar: weakest?.key ?? null,
+        checkedInToday: checkedInToday(checkinRows[0]?.created_at ?? null),
+      });
 
   return (
-    <div className="field">
+    <div
+      id="dash-root"
+      className="field"
+      style={verdict ? ({ "--field-tint": `${verdictMeta.color}12` } as React.CSSProperties) : undefined}
+    >
+      {/* Pre-paint entrance gate — see entrance-shared.ts. Must be inside the
+          container and before the stages so the attribute lands before paint. */}
+      <script dangerouslySetInnerHTML={{ __html: ENTRANCE_BOOT_SCRIPT }} />
+      <EntranceConductor containerId="dash-root" />
+      <CinemaFX />
+
       <div className="mx-auto max-w-6xl px-6 py-12">
         {/* ── Header ──────────────────────────────────────────── */}
-        <Reveal>
+        <div className="dash-stage">
           <p className="eyebrow">Decision readiness</p>
           <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">
-            Welcome back, <span className="text-aurora">{name}</span>
+            {greeting}, <span className="text-aurora">{name}</span>
           </h1>
-          <p className="mt-2 text-dim">
-            {latest
-              ? `Here is where your decision stands today${since !== null && since > 0 ? ` — last measured ${since} day${since === 1 ? "" : "s"} ago` : ""}.`
-              : "Here is where your decision stands today."}
-          </p>
-        </Reveal>
+          <p className="mt-2 text-dim">{subtitle}</p>
+        </div>
 
         {/* ── Stat rail ───────────────────────────────────────── */}
         {latest && (
-          <Reveal delay={80}>
-            <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {[
               <StatTile
-                label="HōMI-Score"
-                value={String(Math.round(latest.overall_score ?? 0))}
-                unit="/100"
+                key="verdict"
+                label="Verdict held"
+                value={heldDays !== null ? String(heldDays) : "—"}
+                unit={heldDays !== null ? (heldDays === 1 ? "day" : "days") : undefined}
                 accent={verdictMeta.color}
-                delta={
-                  scoreDelta
-                    ? `${scoreDelta.current - scoreDelta.previous >= 0 ? "+" : ""}${scoreDelta.current - scoreDelta.previous}`
-                    : undefined
-                }
-                deltaTone={deltaTone}
-                footer={scoreDelta ? "vs. previous assessment" : verdictMeta.label}
+                footer={verdictMeta.label}
                 spark={
                   historyPoints.length >= 2 ? (
                     <Sparkline id="score" values={historyPoints.map((p) => p.score)} color={verdictMeta.color} />
                   ) : undefined
                 }
-              />
+              />,
               <StatTile
+                key="strongest"
                 label="Strongest pillar"
                 value={strongest ? `${strongest.value}` : "—"}
                 unit={strongest ? `/${strongest.max}` : undefined}
                 accent={strongest?.color}
                 footer={strongest?.name}
-              />
+              />,
               <StatTile
+                key="checkins"
                 label="Check-ins this week"
                 value={String(checkinsThisWeek)}
                 unit="/7"
                 accent="#34d399"
                 footer={checkinRows.length > 0 ? `${checkinRows.length} in the last 14 logged` : "Start a daily pulse"}
-              />
+              />,
               <StatTile
+                key="journal"
                 label="Journal entries"
-                value={String(journalCount ?? 0)}
+                value={String(journalCount)}
                 accent="#facc15"
                 footer="Decisions logged"
-              />
-            </div>
-          </Reveal>
+              />,
+            ].map((tile, i) => (
+              <div
+                key={i}
+                className="dash-stage"
+                style={{ "--stage-delay": `${140 + i * 70}ms` } as React.CSSProperties}
+              >
+                {tile}
+              </div>
+            ))}
+          </div>
         )}
 
         {/* ── Hero: the verdict instrument ────────────────────── */}
-        <Reveal delay={140}>
-          <div className="glass sweep relative mt-8 overflow-hidden">
+        <div className="dash-stage" style={{ "--stage-delay": "420ms" } as React.CSSProperties}>
+          <div className="glass sweep tilt-3d relative mt-8 overflow-hidden">
             <div
               aria-hidden
               className="pointer-events-none absolute -left-24 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full"
@@ -302,20 +312,25 @@ export default async function DashboardPage() {
                 filter: "blur(20px)",
               }}
             />
+            {latest && (
+              <VerdictCelebrate assessmentId={latest.id} improved={improved} label={verdictMeta.label} />
+            )}
             <div className="relative grid gap-8 p-8 md:grid-cols-[auto_1fr] md:items-center">
-              {latest ? (
+              {assessmentsFailed ? (
+                <div className="md:col-span-2">
+                  <LoadErrorPanel
+                    title="Your readiness didn't load"
+                    body="Your assessments are safe — this is a loading hiccup on our side, not a change in your data."
+                  />
+                </div>
+              ) : latest ? (
                 <>
                   <div className="flex justify-center">
                     <ThresholdCompass size={170} verdict={verdict ?? undefined} />
                   </div>
                   <div>
                     <div className="flex flex-wrap items-center gap-4">
-                      <span
-                        className="score-numeral text-6xl font-bold text-light"
-                        style={{ textShadow: `0 0 44px ${verdictMeta.color}55` }}
-                      >
-                        {Math.round(latest.overall_score ?? 0)}
-                      </span>
+                      <HeroScore value={Math.round(latest.overall_score ?? 0)} color={verdictMeta.color} />
                       {verdict && <VerdictBadge verdict={verdict} size="lg" />}
                     </div>
                     <p className="mt-3 max-w-xl text-sm leading-relaxed text-dim">{verdictMeta.line}</p>
@@ -333,8 +348,9 @@ export default async function DashboardPage() {
                       </div>
                       <div className="relative mt-2 h-4 text-[0.6875rem] text-dim">
                         <span className="absolute -translate-x-1/2" style={{ left: "25%" }}>Not yet</span>
-                        <span className="absolute -translate-x-1/2" style={{ left: "57%" }}>Build first</span>
-                        <span className="absolute -translate-x-1/2" style={{ left: "72%" }}>Almost there</span>
+                        {/* Middle band labels collide below ~400px — endpoints carry the scale there. */}
+                        <span className="absolute hidden -translate-x-1/2 sm:block" style={{ left: "57%" }}>Build first</span>
+                        <span className="absolute hidden -translate-x-1/2 sm:block" style={{ left: "72%" }}>Almost there</span>
                         <span className="absolute -translate-x-1/2" style={{ left: "90%" }}>Ready</span>
                       </div>
                     </div>
@@ -361,7 +377,7 @@ export default async function DashboardPage() {
               )}
             </div>
           </div>
-        </Reveal>
+        </div>
 
         {dueSurvey && <OutcomeSurveyPrompt surveyId={dueSurvey.id} kind={dueSurvey.kind} />}
 
@@ -383,11 +399,19 @@ export default async function DashboardPage() {
               }
             />
             <div className="mt-6">
-              <ScoreHistory points={historyPoints} />
+              {assessmentsFailed ? (
+                <LoadErrorPanel compact title="History didn't load" body="Your score history is intact — retry in a moment." />
+              ) : (
+                <ScoreHistory points={historyPoints} />
+              )}
             </div>
           </Reveal>
 
-          {nextMove && weakest ? (
+          {assessmentsFailed ? (
+            <Reveal delay={160} className="glass flex flex-col justify-center p-8">
+              <LoadErrorPanel compact title="Next move didn't load" body="Retry to see your personalized next step." />
+            </Reveal>
+          ) : nextMove && weakest ? (
             <Reveal delay={160} className="glass panel-focus flex flex-col p-8">
               <SectionHeader eyebrow="Next best move" title={nextMove.title} />
               <p className="mt-3 text-sm leading-relaxed text-dim">{nextMove.body}</p>
@@ -410,12 +434,17 @@ export default async function DashboardPage() {
             <Reveal delay={160} className="glass flex flex-col items-start justify-center p-8">
               <SectionHeader
                 eyebrow="Next best move"
-                title="Take your first assessment"
-                subtitle="Twenty minutes of honesty. Three pillars. One verdict."
+                title="Get your first score"
+                subtitle="Two minutes for a first read, or the full three-pillar assessment for the real verdict."
               />
-              <Link href="/assessment" className="btn btn-primary mt-6 !px-4 !py-2 text-sm">
-                Start the assessment
-              </Link>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link href="/shadow-score" className="btn btn-primary !px-4 !py-2 text-sm">
+                  Get your Shadow Score
+                </Link>
+                <Link href="/assessment" className="btn btn-ghost !px-4 !py-2 text-sm">
+                  Full assessment
+                </Link>
+              </div>
             </Reveal>
           )}
         </div>
@@ -440,7 +469,7 @@ export default async function DashboardPage() {
                     {isFocus && <span className="chip !text-[0.6875rem]">Focus here</span>}
                   </div>
                   <div className="mt-5 flex justify-center">
-                    <ScoreRing value={pillar.value} max={pillar.max} size={120} color={pillar.color} sublabel={`of ${pillar.max}`} />
+                    <PillarRing value={pillar.value} max={pillar.max} size={120} color={pillar.color} sublabel={`of ${pillar.max}`} />
                   </div>
                 </div>
               );
@@ -448,76 +477,15 @@ export default async function DashboardPage() {
           </div>
         </Reveal>
 
-        {/* ── Financial position ──────────────────────────────── */}
-        <Reveal delay={80}>
-          <div className="mt-10">
-            <SectionHeader
-              eyebrow="Money"
-              title="Financial position"
-              subtitle="Net worth, cash flow, and savings from your connected banks."
-              action={
-                <Link href="/simulator" className="btn btn-ghost !px-4 !py-2 text-sm">
-                  Simulate your score
-                </Link>
-              }
+        {/* ── Financial position (streams behind Suspense) ────── */}
+        {user && (
+          <Suspense fallback={<FinancialPositionSkeleton />}>
+            <FinancialPositionSection
+              userId={user.id}
+              subscriptionTier={profile?.subscription_tier ?? null}
             />
-            <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {bankItems.length === 0 ? (
-                <BankConnectCard plusRequired={!bankSyncEntitled} />
-              ) : latestSnapshot ? (
-                <>
-                  <StatTile
-                    label="Net worth"
-                    value={formatCurrency(netWorth)}
-                    accent="#22d3ee"
-                    delta={
-                      nwDelta
-                        ? `${nwDelta.delta >= 0 ? "+" : "−"}${formatCurrency(Math.abs(nwDelta.delta))}`
-                        : undefined
-                    }
-                    deltaTone={nwDelta?.tone}
-                    footer={nwDelta ? "vs. previous snapshot" : "From your synced balances"}
-                    spark={
-                      netWorthSeries.length >= 2 ? (
-                        <Sparkline id="networth" values={netWorthSeries} color="#22d3ee" />
-                      ) : undefined
-                    }
-                  />
-                  <StatTile
-                    label="Cash flow · 30d"
-                    value={formatCurrency(cashFlow)}
-                    accent={cashFlow >= 0 ? "#34d399" : "#f24822"}
-                    footer="Based on recently synced activity"
-                  />
-                  <StatTile
-                    label="Savings rate"
-                    value={String(savingsRatePct)}
-                    unit="%"
-                    accent="#facc15"
-                    footer="Of synced income, last 30 days"
-                  />
-                  <ConnectionsTile items={bankItems} accountCount={plaidAccountCount ?? 0} />
-                </>
-              ) : (
-                <div className="glass p-6 md:col-span-2 lg:col-span-2">
-                  <h3 className="font-semibold text-light">First sync pending</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-dim">
-                    Your bank is connected — net worth, cash flow, and savings appear here once the first
-                    sync completes.
-                  </p>
-                  <Link href="/connections" className="btn btn-ghost mt-4 !px-4 !py-2 text-sm">
-                    Check sync status
-                  </Link>
-                </div>
-              )}
-              <GoalCard
-                goal={goal}
-                liquidSavings={goalSavings}
-                monthlyNetCashFlow={latestSnapshot ? cashFlow : null}
-              />
-            </div>
-          </div>
-        </Reveal>
+          </Suspense>
+        )}
 
         {/* ── Daily pulse ─────────────────────────────────────── */}
         <Reveal delay={80} className="glass mt-8 block p-8">
@@ -532,16 +500,24 @@ export default async function DashboardPage() {
             }
           />
           <div className="mt-6">
-            <DailyPulseStrip checkins={checkinRows} />
+            {checkinsFailed ? (
+              <LoadErrorPanel compact title="Check-ins didn't load" body="Your check-in history is intact — retry in a moment." />
+            ) : (
+              <DailyPulseStrip checkins={checkinRows} />
+            )}
           </div>
         </Reveal>
 
         {/* ── Quick actions ───────────────────────────────────── */}
         <Reveal delay={80}>
           <div className="mt-10">
-            <SectionHeader eyebrow="Instruments" title="Quick actions" />
+            <SectionHeader
+              eyebrow="Instruments"
+              title="Quick actions"
+              subtitle={featured.length > 0 ? "The three that matter right now, first." : undefined}
+            />
             <div className="mt-5">
-              <QuickActionGrid journalCount={journalCount ?? 0} />
+              <QuickActionGrid journalCount={journalCount} featured={featured} />
             </div>
           </div>
         </Reveal>

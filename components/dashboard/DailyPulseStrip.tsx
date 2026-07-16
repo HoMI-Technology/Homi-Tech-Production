@@ -1,8 +1,23 @@
 import type { DailyCheckin } from "@/types/database";
 
+const WIDTH = 640;
+const HEIGHT = 132;
+const PAD_TOP = 14;
+const PAD_BOTTOM = 24;
+const PAD_LEFT = 16;
+/** Right gutter reserved for the inline series labels. */
+const LABEL_GUTTER = 64;
+
 /**
- * Server-safe mini trend chart for mood vs. financial stress over the
- * last N check-ins (most-recent-first input; rendered oldest-to-newest).
+ * Server-safe mood vs. financial-stress trend over recent check-ins.
+ *
+ * Honesty and accessibility upgrades over v1:
+ *  · x positions are time-weighted — a two-week gap *looks* like a gap
+ *    instead of pretending check-ins were evenly spaced.
+ *  · Series are dual-encoded (solid vs. dashed + inline end labels), so the
+ *    emerald/crimson pair survives red-green color blindness.
+ *  · Mood carries a soft gradient area (the Sparkline language); stress stays
+ *    a bare dashed line so the two never read as one shape.
  */
 export function DailyPulseStrip({ checkins }: { checkins: DailyCheckin[] }) {
   if (checkins.length === 0) {
@@ -14,44 +29,128 @@ export function DailyPulseStrip({ checkins }: { checkins: DailyCheckin[] }) {
   }
 
   const ordered = [...checkins].reverse();
-  const width = 640;
-  const height = 100;
-  const padding = 16;
-  const chartWidth = width - padding * 2;
-  const chartHeight = height - padding * 2;
+  const chartWidth = WIDTH - PAD_LEFT - LABEL_GUTTER;
+  const chartHeight = HEIGHT - PAD_TOP - PAD_BOTTOM;
+  const baseline = PAD_TOP + chartHeight;
 
-  const pointsFor = (key: "mood" | "financial_stress") =>
-    ordered.map((c, i) => {
-      const x = padding + (ordered.length === 1 ? chartWidth / 2 : (i / (ordered.length - 1)) * chartWidth);
-      const value = c[key];
-      const y = padding + chartHeight - (value / 10) * chartHeight;
-      return `${x},${y}`;
-    });
+  const times = ordered.map((c) => new Date(c.created_at).getTime());
+  const tMin = Math.min(...times);
+  const tMax = Math.max(...times);
+  const span = tMax - tMin;
 
-  const moodPoints = pointsFor("mood").join(" ");
-  const stressPoints = pointsFor("financial_stress").join(" ");
+  const xFor = (i: number) =>
+    ordered.length === 1 || span === 0
+      ? PAD_LEFT + chartWidth / 2
+      : PAD_LEFT + ((times[i] - tMin) / span) * chartWidth;
+  const yFor = (value: number) => PAD_TOP + chartHeight - (value / 10) * chartHeight;
+
+  const moodPts = ordered.map((c, i) => [xFor(i), yFor(c.mood)] as const);
+  const stressPts = ordered.map((c, i) => [xFor(i), yFor(c.financial_stress)] as const);
+  const toStr = (pts: ReadonlyArray<readonly [number, number]>) =>
+    pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+
+  const moodLine = toStr(moodPts);
+  const stressLine = toStr(stressPts);
+  const moodArea = `${moodPts[0][0].toFixed(1)},${baseline} ${moodLine} ${moodPts[moodPts.length - 1][0].toFixed(1)},${baseline}`;
+
+  const [moodEndX, moodEndY] = moodPts[moodPts.length - 1];
+  const [stressEndX, stressEndY] = stressPts[stressPts.length - 1];
+  // Nudge the inline labels apart when the lines end close together.
+  let moodLabelY = moodEndY;
+  let stressLabelY = stressEndY;
+  if (Math.abs(moodLabelY - stressLabelY) < 14) {
+    if (moodLabelY <= stressLabelY) {
+      moodLabelY -= (14 - Math.abs(moodEndY - stressEndY)) / 2;
+      stressLabelY += (14 - Math.abs(moodEndY - stressEndY)) / 2;
+    } else {
+      moodLabelY += (14 - Math.abs(moodEndY - stressEndY)) / 2;
+      stressLabelY -= (14 - Math.abs(moodEndY - stressEndY)) / 2;
+    }
+  }
+
+  const fmtDate = (t: number) =>
+    new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
   return (
     <div>
       <svg
-        viewBox={`0 0 ${width} ${height}`}
+        viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         width="100%"
-        height={height}
+        height={HEIGHT}
         role="img"
-        aria-label="Mood and financial stress trend over recent check-ins"
+        aria-label={`Mood and financial stress across ${ordered.length} check-in${ordered.length === 1 ? "" : "s"}, ${fmtDate(tMin)} to ${fmtDate(tMax)}`}
         preserveAspectRatio="xMidYMid meet"
       >
-        <polyline points={moodPoints} fill="none" stroke="#34d399" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-        <polyline points={stressPoints} fill="none" stroke="#f24822" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
+        <defs>
+          <linearGradient id="pulse-mood" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#34d399" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="#34d399" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+
+        <polygon points={moodArea} fill="url(#pulse-mood)" />
+        <polyline
+          points={moodLine}
+          fill="none"
+          stroke="#34d399"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <polyline
+          points={stressLine}
+          fill="none"
+          stroke="#f24822"
+          strokeWidth="2.5"
+          strokeDasharray="6 5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="0.85"
+        />
+
+        {/* Endpoint markers + inline labels — legible without color. */}
+        <circle cx={moodEndX} cy={moodEndY} r="3" fill="#34d399" style={{ filter: "drop-shadow(0 0 4px #34d399)" }} />
+        <circle cx={stressEndX} cy={stressEndY} r="3" fill="#f24822" style={{ filter: "drop-shadow(0 0 4px #f24822)" }} />
+        <text x={moodEndX + 8} y={moodLabelY + 3.5} fontSize="10" fill="#34d399" fontFamily="var(--font-sans)">
+          Mood
+        </text>
+        <text x={stressEndX + 8} y={stressLabelY + 3.5} fontSize="10" fill="#f24822" fontFamily="var(--font-sans)">
+          Stress
+        </text>
+
+        {/* Time context. */}
+        <text x={PAD_LEFT} y={HEIGHT - 8} fontSize="9" fill="rgba(148,163,184,0.7)" fontFamily="var(--font-sans)">
+          {fmtDate(tMin)}
+        </text>
+        {span > 0 && (
+          <text
+            x={PAD_LEFT + chartWidth}
+            y={HEIGHT - 8}
+            textAnchor="end"
+            fontSize="9"
+            fill="rgba(148,163,184,0.7)"
+            fontFamily="var(--font-sans)"
+          >
+            {fmtDate(tMax)}
+          </text>
+        )}
       </svg>
       <div className="mt-3 flex gap-6 text-xs text-dim">
         <span className="flex items-center gap-2">
-          <span className="inline-block h-2 w-2 rounded-full bg-emerald" /> Mood
+          <svg width="18" height="6" aria-hidden="true">
+            <line x1="0" y1="3" x2="18" y2="3" stroke="#34d399" strokeWidth="2.5" strokeLinecap="round" />
+          </svg>
+          Mood
         </span>
         <span className="flex items-center gap-2">
-          <span className="inline-block h-2 w-2 rounded-full bg-crimson" /> Financial stress
+          <svg width="18" height="6" aria-hidden="true">
+            <line x1="0" y1="3" x2="18" y2="3" stroke="#f24822" strokeWidth="2.5" strokeDasharray="5 4" strokeLinecap="round" />
+          </svg>
+          Financial stress
         </span>
-        <span className="ml-auto">{checkins.length} check-in{checkins.length === 1 ? "" : "s"} logged</span>
+        <span className="ml-auto">
+          {checkins.length} check-in{checkins.length === 1 ? "" : "s"} logged
+        </span>
       </div>
     </div>
   );
