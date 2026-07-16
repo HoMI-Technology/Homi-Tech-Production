@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { CookieConsent } from "@/components/consent/CookieConsent";
+import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 import { AnalyticsScripts } from "@/components/analytics/AnalyticsScripts";
 import { SITE_URL } from "@/lib/seo/site";
 
@@ -43,6 +44,14 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/icon-512.png", sizes: "512x512", type: "image/png" }],
   },
+  appleWebApp: {
+    capable: true,
+    title: "HōMI",
+    // "black" (opaque) rather than "black-translucent": translucent makes
+    // standalone content flow under the iOS status bar, and the layout has
+    // no safe-area-inset padding to compensate.
+    statusBarStyle: "black",
+  },
 };
 
 export const viewport: Viewport = {
@@ -64,6 +73,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <CookieConsent />
         <AnalyticsScripts />
+        <ServiceWorkerRegister />
       </body>
     </html>
   );
