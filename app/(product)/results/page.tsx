@@ -28,6 +28,7 @@ export default function ResultsPage() {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [remote, setRemote] = useState<StoredAssessment | null>(null);
   const [remoteChecked, setRemoteChecked] = useState(false);
+  const [fullReport, setFullReport] = useState(false);
 
   useEffect(() => {
     setStored(loadLocalResult());
@@ -45,6 +46,12 @@ export default function ResultsPage() {
         if (!signedIn) {
           if (active) setRemoteChecked(true);
           return;
+        }
+
+        const entRes = await fetch("/api/account/entitlements");
+        if (entRes.ok) {
+          const entJson = (await entRes.json()) as { entitlements?: { fullReport?: boolean } };
+          if (active) setFullReport(Boolean(entJson.entitlements?.fullReport));
         }
 
         const res = await fetch("/api/assessments/latest");
@@ -308,9 +315,14 @@ export default function ResultsPage() {
         <Link href={kind === "shadow" ? "/assessment" : "/shadow-score"} className="btn btn-ghost">
           {kind === "shadow" ? "Take the full assessment" : "Retake the assessment"}
         </Link>
-        {effective.serverId && (
+        {effective.serverId && fullReport && (
           <Link href={`/report/${effective.serverId}/credential`} className="btn btn-ghost">
             Get credential
+          </Link>
+        )}
+        {effective.serverId && !fullReport && !isAnonymous && (
+          <Link href="/pricing" className="btn btn-ghost">
+            Unlock credential (Plus)
           </Link>
         )}
         {/* Results are saved anonymously (no server id yet), so this gracefully

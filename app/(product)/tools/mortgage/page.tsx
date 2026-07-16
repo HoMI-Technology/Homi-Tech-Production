@@ -4,8 +4,9 @@ import { useMemo, useState } from "react";
 import { fullPaymentBreakdown, amortizationSummary } from "@/lib/tools/mortgage";
 import { formatCurrency } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
+import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 
-export default function MortgagePage() {
+function MortgagePageInner() {
   const [price, setPrice] = useState(400000);
   const [downPayment, setDownPayment] = useState(80000);
   const [rate, setRate] = useState(6.5);
@@ -159,5 +160,13 @@ function BarRow({ label, value, max, color }: { label: string; value: number; ma
         <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
       </div>
     </div>
+  );
+}
+
+export default function MortgagePage() {
+  return (
+    <AdvancedToolGate>
+      <MortgagePageInner />
+    </AdvancedToolGate>
   );
 }

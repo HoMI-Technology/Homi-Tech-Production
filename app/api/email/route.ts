@@ -1,21 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
-import { welcomeEmail, verdictEmail, reassessmentReminder, waitlistConfirmation } from "@/lib/email/templates";
-import { isUnsubscribed, listUnsubscribeHeaders } from "@/lib/email/unsubscribe";
-import type { VerdictKey } from "@/lib/brand";
-
-// Marketing/lifecycle templates honor the opt-out list. Transactional account
-// mail (verdict delivery, password reset) always sends.
-const MARKETING_TEMPLATES = new Set(["welcome", "reassessment", "waitlist"]);
+import { sendTemplateEmail } from "@/lib/email/send";
 
 export const runtime = "nodejs";
-
-const VERDICT_KEYS: VerdictKey[] = ["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"];
-
-function isVerdictKey(value: unknown): value is VerdictKey {
-  return typeof value === "string" && (VERDICT_KEYS as string[]).includes(value);
-}
 
 const bodySchema = z.object({
   template: z.enum(["welcome", "verdict", "reassessment", "waitlist"]),
@@ -50,71 +38,22 @@ export async function POST(request: Request) {
 
   const { template, to, params } = parsed.data;
 
-  // Suppress marketing/lifecycle mail to opted-out recipients.
-  if (MARKETING_TEMPLATES.has(template) && (await isUnsubscribed(to))) {
-    return NextResponse.json({ ok: true, skipped: "unsubscribed" });
+  const result = await sendTemplateEmail({ template, to, params });
+
+  if (!result.ok) {
+    const correlationId = crypto.randomUUID();
+    return NextResponse.json(
+      { error: "Failed to send email.", correlationId },
+      { status: result.reason === "render_error" ? 500 : 502 },
+    );
   }
 
-  let rendered: { subject: string; html: string };
-  try {
-    switch (template) {
-      case "welcome":
-        rendered = welcomeEmail(String(params?.name ?? "there"));
-        break;
-      case "verdict": {
-        const verdict = isVerdictKey(params?.verdict) ? params.verdict : "NOT_YET";
-        rendered = verdictEmail(String(params?.name ?? "there"), Number(params?.score ?? 0), verdict);
-        break;
-      }
-      case "reassessment":
-        rendered = reassessmentReminder(String(params?.name ?? "there"), Number(params?.daysSince ?? 30));
-        break;
-      case "waitlist":
-        rendered = waitlistConfirmation();
-        break;
-      default:
-        return NextResponse.json({ error: `Unknown template.` }, { status: 400 });
+  if (!result.sent) {
+    if (result.reason === "unsubscribed") {
+      return NextResponse.json({ ok: true, skipped: "unsubscribed" });
     }
-  } catch {
-    return NextResponse.json({ error: "Failed to render email template." }, { status: 500 });
-  }
-
-  const resendKey = process.env.RESEND_API_KEY;
-  if (!resendKey) {
     return NextResponse.json({ configured: false });
   }
 
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${resendKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: "HōMI <hello@homitechnology.com>",
-        to,
-        subject: rendered.subject,
-        html: rendered.html,
-        // RFC 8058 one-click unsubscribe on marketing/lifecycle mail.
-        ...(MARKETING_TEMPLATES.has(template)
-          ? { headers: listUnsubscribeHeaders(to) }
-          : {}),
-      }),
-    });
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      const correlationId = crypto.randomUUID();
-      console.error(`[email:${correlationId}]`, text);
-      return NextResponse.json(
-        { error: "Email provider rejected the request.", correlationId },
-        { status: 502 },
-      );
-    }
-    return NextResponse.json({ configured: true, ok: true });
-  } catch (err) {
-    const correlationId = crypto.randomUUID();
-    console.error(`[email:${correlationId}]`, err);
-    return NextResponse.json({ error: "Failed to send email.", correlationId }, { status: 502 });
-  }
+  return NextResponse.json({ configured: true, ok: true });
 }

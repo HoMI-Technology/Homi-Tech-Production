@@ -56,6 +56,8 @@ export interface Entitlements {
    * connections carry a real per-item cost, so this stays a paid capability.
    */
   bankSync: boolean;
+  /** Linked household members and shared family dashboard (Family tier). */
+  householdMode: boolean;
 }
 
 /** Boolean capability keys — the ones a route can gate on directly. */
@@ -79,6 +81,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     maxActiveShares: 3,
     advancedTools: false,
     bankSync: false,
+    householdMode: false,
   },
   plus: {
     tier: "plus",
@@ -91,6 +94,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     maxActiveShares: 25,
     advancedTools: false,
     bankSync: true,
+    householdMode: false,
   },
   pro: {
     tier: "pro",
@@ -103,6 +107,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     maxActiveShares: 100,
     advancedTools: true,
     bankSync: true,
+    householdMode: false,
   },
   family: {
     tier: "family",
@@ -115,6 +120,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     maxActiveShares: 100,
     advancedTools: true,
     bankSync: true,
+    householdMode: true,
   },
 };
 

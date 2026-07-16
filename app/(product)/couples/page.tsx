@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ScoreRing } from "@/components/ui/ScoreRing";
 import { sliderFillPercent } from "@/lib/assessment/format";
+import { CouplesModeGate } from "@/components/entitlements/AdvancedToolGate";
 
 const STORAGE_KEY = "homi:couples";
 
@@ -104,7 +105,7 @@ function tempFor(pct: number): { color: string; label: string; className: string
   return { color: "#f24822", label: "Significant gap", className: "bg-verdict-notyet" };
 }
 
-export default function CouplesPage() {
+function CouplesPageInner() {
   const [hydrated, setHydrated] = useState(false);
   const [stored, setStored] = useState<StoredCouples | null>(null);
   const [phase, setPhase] = useState<"idle" | "partnerA" | "partnerB" | "results">("idle");
@@ -251,5 +252,13 @@ export default function CouplesPage() {
         Start
       </button>
     </div>
+  );
+}
+
+export default function CouplesPage() {
+  return (
+    <CouplesModeGate>
+      <CouplesPageInner />
+    </CouplesModeGate>
   );
 }
