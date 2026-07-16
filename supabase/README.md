@@ -16,7 +16,7 @@ Apply in numeric order — later files depend on tables/types created earlier.
 | 3 | `00003_indexes.sql` | Query-pattern indexes (owner + created_at, lookup columns) |
 | 4 | `00004_rls.sql` | Row Level Security — enable/force + policies + `is_admin()` helper |
 | 5 | `00005_triggers.sql` | `auth.users` → `profiles` provisioning trigger, `updated_at` touch triggers |
-| 6 | `00006_seed_question_bank.sql` | 45 canonical assessment questions (ported from `lib/questions/bank.ts`) |
+| 6 | `00006_seed_question_bank.sql` | 45 seeded assessment questions (from a since-removed prototype bank; the live flow derives the frozen engine's canonical inputs directly — see `lib/assessment/derive.ts`. The table remains as seeded and serves as the healthcheck ping target) |
 
 ## Applying migrations
 

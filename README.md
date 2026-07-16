@@ -50,7 +50,6 @@ homi-production/
 ├── components/              # UI components (brand, layout, assessment, ui)
 ├── lib/
 │   ├── scoring/              # Canonical HōMI-Score engine (engine, weights, shadow, insights)
-│   ├── questions/             # 45-question assessment bank (bank.ts)
 │   ├── assessment/            # Assessment flow types, storage, derivation
 │   ├── tools/                 # Mortgage, debt, Monte Carlo calculators
 │   ├── supabase/               # Client/server Supabase helpers
