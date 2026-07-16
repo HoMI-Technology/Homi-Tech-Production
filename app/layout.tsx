@@ -47,7 +47,10 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "HōMI",
-    statusBarStyle: "black-translucent",
+    // "black" (opaque) rather than "black-translucent": translucent makes
+    // standalone content flow under the iOS status bar, and the layout has
+    // no safe-area-inset padding to compensate.
+    statusBarStyle: "black",
   },
 };
 
