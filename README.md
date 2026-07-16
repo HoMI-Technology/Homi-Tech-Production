@@ -123,6 +123,8 @@ truth and `lib/scoring/weights.ts` is a C2-restricted trade-secret boundary.
 | `PLAID_SECRET` | No | Plaid API secret |
 | `PLAID_ENV` | No | Plaid environment (`sandbox`, `development`, `production`) |
 | `RESEND_API_KEY` | No | Enables transactional email |
+| `UPSTASH_REDIS_REST_URL` | No | Redis-backed rate limiting shared across serverless instances; in-memory fallback when absent |
+| `UPSTASH_REDIS_REST_TOKEN` | No | Upstash REST token (pairs with the URL above) |
 | `NEXT_PUBLIC_SITE_URL` | Yes | Canonical site URL used for metadata, sitemaps, and redirects |
 
 ---

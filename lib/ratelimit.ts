@@ -1,14 +1,18 @@
 /**
- * In-memory sliding-window rate limiter.
+ * Rate limiter — Upstash Redis when configured, in-memory fallback otherwise.
  *
- * KNOWN LIMITATION (deliberate tradeoff): state lives in the process, so
- * on serverless platforms each warm instance enforces limits separately —
- * a determined client hitting N instances gets ~N× the nominal limit.
- * Acceptable at launch traffic; NOT sufficient against a real abuser.
- * The upgrade path is swapping the body of `rateLimit()` for a shared
- * store (e.g. Upstash Redis `INCR`+`EXPIRE`) — callers keep the same
- * signature, so no route changes are needed. Do not treat these limits
- * as a security boundary; they are cost/abuse dampening only.
+ * With UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN set, limits are
+ * enforced in a shared Redis store (fixed window via INCR + PEXPIRE NX in a
+ * single pipelined round trip), so they hold across all serverless
+ * instances. Uses Upstash's plain REST API via fetch — no SDK dependency.
+ *
+ * Without those env vars (local dev, preview without keys), it falls back to
+ * the original in-memory sliding window. KNOWN LIMITATION of the fallback:
+ * state lives in the process, so each warm serverless instance enforces
+ * limits separately — a determined client hitting N instances gets ~N× the
+ * nominal limit. The same fallback also absorbs Redis outages (fail-open to
+ * memory, never hard-fail the request): these limits are cost/abuse
+ * dampening, not a security boundary — auth and entitlements are.
  */
 
 interface Bucket {
@@ -46,11 +50,8 @@ export interface RateLimitResult {
   remaining: number;
 }
 
-/**
- * Records a hit for `key` and reports whether it's within the allowed
- * rate. Sliding window: only hits within the last `windowMs` count.
- */
-export function rateLimit(key: string, options: RateLimitOptions): RateLimitResult {
+/** In-memory sliding-window fallback (also the local-dev implementation). */
+function memoryRateLimit(key: string, options: RateLimitOptions): RateLimitResult {
   const now = Date.now();
   cleanup(now);
 
@@ -67,6 +68,87 @@ export function rateLimit(key: string, options: RateLimitOptions): RateLimitResu
   buckets.set(key, { hits: recent });
 
   return { allowed: true, remaining: Math.max(0, options.limit - recent.length) };
+}
+
+/** True when Upstash Redis env vars are configured. */
+export function hasUpstash(): boolean {
+  return Boolean(
+    process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN,
+  );
+}
+
+/** Cap on how long we'll wait for Redis before failing open to memory. */
+const REDIS_TIMEOUT_MS = 1000;
+
+/**
+ * Fixed-window count in Upstash via a single pipelined round trip:
+ * INCR the window's counter, then PEXPIRE it (NX: only set a TTL the first
+ * time) so abandoned windows self-clean. Fixed window admits ≤ 2× the limit
+ * across a window boundary in the worst case — acceptable for cost/abuse
+ * dampening and the standard tradeoff for a one-round-trip limiter.
+ */
+async function upstashRateLimit(
+  key: string,
+  options: RateLimitOptions,
+): Promise<RateLimitResult> {
+  const url = process.env.UPSTASH_REDIS_REST_URL!;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN!;
+
+  const windowIndex = Math.floor(Date.now() / options.windowMs);
+  const redisKey = `rl:${key}:${windowIndex}`;
+
+  const res = await fetch(`${url}/pipeline`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify([
+      ["INCR", redisKey],
+      ["PEXPIRE", redisKey, String(options.windowMs), "NX"],
+    ]),
+    signal: AbortSignal.timeout(REDIS_TIMEOUT_MS),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Upstash pipeline responded ${res.status}`);
+  }
+
+  const results = (await res.json()) as Array<{ result?: unknown; error?: string }>;
+  const first = results?.[0];
+  if (!first || typeof first.result !== "number") {
+    throw new Error(first?.error ?? "Upstash pipeline returned no INCR count");
+  }
+
+  const count = first.result;
+  return {
+    allowed: count <= options.limit,
+    remaining: Math.max(0, options.limit - count),
+  };
+}
+
+/**
+ * Records a hit for `key` and reports whether it's within the allowed rate.
+ * Redis-backed (shared across instances) when Upstash is configured;
+ * in-memory otherwise. Redis errors fail open to the in-memory fallback so
+ * an Upstash outage can never take the API down.
+ */
+export async function rateLimit(
+  key: string,
+  options: RateLimitOptions,
+): Promise<RateLimitResult> {
+  if (hasUpstash()) {
+    try {
+      return await upstashRateLimit(key, options);
+    } catch (err) {
+      console.warn(
+        `[ratelimit] Upstash unavailable, falling back to in-memory: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      );
+    }
+  }
+  return memoryRateLimit(key, options);
 }
 
 /** Extracts a best-effort client IP from standard proxy headers. */
