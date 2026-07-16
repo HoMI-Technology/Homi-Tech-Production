@@ -1,8 +1,10 @@
 import { describe, it, expect } from "vitest";
 import {
+  getAdminEntitlements,
   getEntitlements,
   normalizeTier,
   requireCapability,
+  type BooleanCapability,
   type Entitlements,
 } from "@/lib/entitlements";
 import { TIERS } from "@/lib/stripe/tiers";
@@ -100,6 +102,54 @@ describe("getEntitlements", () => {
     for (const tier of ["plus", "pro", "family"] as const) {
       expect(TIERS[tier]).toBeDefined();
       expect(getEntitlements(tier).tier).toBe(tier);
+    }
+  });
+});
+
+describe("getAdminEntitlements (role = 'admin' paywall bypass)", () => {
+  const bools: BooleanCapability[] = [
+    "advisorAccess",
+    "fullReport",
+    "unlimitedRescoring",
+    "couplesMode",
+    "advancedTools",
+    "bankSync",
+    "householdMode",
+  ];
+
+  it("unlocks every capability regardless of stored tier", () => {
+    for (const stored of [null, undefined, "", "free", "plus"]) {
+      const admin = getAdminEntitlements(stored as string | null | undefined);
+      for (const key of bools) {
+        expect(admin[key], `${key} locked for admin with stored tier ${stored}`).toBe(true);
+      }
+      expect(admin.familySeats).toBe(getEntitlements("family").familySeats);
+      expect(admin.maxActiveShares).toBeGreaterThanOrEqual(
+        getEntitlements("family").maxActiveShares,
+      );
+    }
+  });
+
+  it("keeps the advisor quota finite but above every paid tier", () => {
+    const admin = getAdminEntitlements("free");
+    expect(Number.isFinite(admin.advisorMessagesPerDay)).toBe(true);
+    for (const tier of ["free", "plus", "pro", "family"] as const) {
+      expect(admin.advisorMessagesPerDay).toBeGreaterThanOrEqual(
+        getEntitlements(tier).advisorMessagesPerDay,
+      );
+    }
+  });
+
+  it("reports the stored subscription tier truthfully (billing display stays honest)", () => {
+    expect(getAdminEntitlements("free").tier).toBe("free");
+    expect(getAdminEntitlements("plus").tier).toBe("plus");
+    expect(getAdminEntitlements(undefined).tier).toBe("free");
+  });
+
+  it("passes every capability gate with no 402", () => {
+    const admin = getAdminEntitlements("free");
+    for (const key of bools) {
+      expect(requireCapability("admin-1", admin, key).ok).toBe(true);
     }
   });
 });
