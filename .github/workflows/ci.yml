@@ -13,9 +13,13 @@ on:
   # fire pull_request synchronize events, so branches need a way to run CI.
   workflow_dispatch:
 
+# Cancel superseded runs on PRs/feature branches (a new push makes the old
+# run moot). NEVER cancel on main: every commit merged to main must be fully
+# validated post-merge, and rapid successive merges would otherwise cancel
+# each other's runs (showing as spurious "verify (push) — Cancelled" reds).
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   verify:
