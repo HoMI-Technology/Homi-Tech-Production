@@ -22,3 +22,26 @@ describe.skipIf(!enabled)("RLS cross-tenant isolation", () => {
     expect(Array.isArray(data)).toBe(true);
   });
 });
+
+describe.skipIf(!enabled)("profiles privilege-escalation guard (00020)", () => {
+  it("a user cannot self-grant role=admin", async () => {
+    const { createClient } = await import("@supabase/supabase-js");
+    const b = createClient(process.env.SUPABASE_URL!, process.env.USER_B_JWT!);
+    const { error } = await b.from("profiles").update({ role: "admin" }).neq("id", "");
+    expect(error).not.toBeNull();
+  });
+
+  it("a user cannot self-upgrade subscription_tier", async () => {
+    const { createClient } = await import("@supabase/supabase-js");
+    const b = createClient(process.env.SUPABASE_URL!, process.env.USER_B_JWT!);
+    const { error } = await b.from("profiles").update({ subscription_tier: "pro" }).neq("id", "");
+    expect(error).not.toBeNull();
+  });
+
+  it("benign self-updates still work (onboarding_completed)", async () => {
+    const { createClient } = await import("@supabase/supabase-js");
+    const b = createClient(process.env.SUPABASE_URL!, process.env.USER_B_JWT!);
+    const { error } = await b.from("profiles").update({ onboarding_completed: true }).neq("id", "");
+    expect(error).toBeNull();
+  });
+});
