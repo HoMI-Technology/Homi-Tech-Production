@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { assessmentInputsSchema } from "@/lib/validation/assessment";
 import { getUserEntitlements } from "@/lib/entitlements";
 import { sendVerdictEmailForAssessment } from "@/lib/email/lifecycle";
+import { rateLimit, getClientIp } from "@/lib/ratelimit";
 import type { VerdictKey } from "@/lib/brand";
 
 const bodySchema = z.object({
@@ -14,6 +15,12 @@ const bodySchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    const { allowed } = await rateLimit(`assessments-write:${ip}`, { limit: 20, windowMs: 60_000 });
+    if (!allowed) {
+      return NextResponse.json({ error: "Too many requests. Try again in a moment." }, { status: 429 });
+    }
+
     const json = await req.json();
     const parsed = bodySchema.safeParse(json);
     if (!parsed.success) {

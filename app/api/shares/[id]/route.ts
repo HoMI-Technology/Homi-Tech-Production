@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit, getClientIp } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 
@@ -10,6 +11,12 @@ export const runtime = "nodejs";
  * product's B2B thesis.
  */
 export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }) {
+  const ip = getClientIp(request);
+  const { allowed } = await rateLimit(`shares-write:${ip}`, { limit: 15, windowMs: 60_000 });
+  if (!allowed) {
+    return NextResponse.json({ error: "Too many requests. Try again in a moment." }, { status: 429 });
+  }
+
   const { id } = await context.params;
 
   const supabase = await createClient();

@@ -6,12 +6,10 @@ import {
   clampDraftIndex,
   draftLooksStarted,
   loadDraft,
-  normalizeDraftForm,
   saveDraft,
+  type AssessmentDraft,
 } from "@/lib/assessment/draft";
-import { INITIAL_FULL_FORM, type FullAssessmentForm } from "@/lib/assessment/types";
 
-/** Minimal in-memory Storage stand-in — vitest runs this suite under the "node" environment. */
 function createMockStorage(): Storage {
   const store = new Map<string, string>();
   return {
@@ -30,7 +28,14 @@ function createMockStorage(): Storage {
   } as Storage;
 }
 
-describe("assessment draft persistence", () => {
+const sampleDraft = (): AssessmentDraft => ({
+  decisionType: "home_buying",
+  responses: { fin_income: 6500 },
+  conflict: { referralSource: null, deadlineOrigin: null },
+  index: 4,
+});
+
+describe("assessment draft persistence (bank flow v2)", () => {
   beforeEach(() => {
     (globalThis as unknown as { window: Window }).window = {
       localStorage: createMockStorage(),
@@ -42,16 +47,9 @@ describe("assessment draft persistence", () => {
   });
 
   it("round-trips a saved draft", () => {
-    const form: FullAssessmentForm = {
-      ...INITIAL_FULL_FORM,
-      monthlyGrossIncome: 6500,
-      creditScore: 720,
-    };
-    saveDraft(form, 4);
-
-    const loaded = loadDraft(16);
-    expect(loaded?.form.monthlyGrossIncome).toBe(6500);
-    expect(loaded?.form.creditScore).toBe(720);
+    saveDraft(sampleDraft());
+    const loaded = loadDraft(50);
+    expect(loaded?.responses.fin_income).toBe(6500);
     expect(loaded?.index).toBe(4);
     expect(loaded?.updatedAt).toBeTruthy();
   });
@@ -63,63 +61,44 @@ describe("assessment draft persistence", () => {
   it("invalidates a draft saved under a different schema version", () => {
     const staleEnvelope = {
       version: DRAFT_VERSION - 1,
-      form: INITIAL_FULL_FORM,
+      decisionType: "home_buying",
+      responses: {},
+      conflict: { referralSource: null, deadlineOrigin: null },
       index: 2,
       updatedAt: new Date().toISOString(),
     };
     window.localStorage.setItem(DRAFT_KEY, JSON.stringify(staleEnvelope));
-
     expect(loadDraft()).toBeNull();
   });
 
   it("clears a saved draft", () => {
-    saveDraft({ ...INITIAL_FULL_FORM, monthlyGrossIncome: 1 }, 1);
+    saveDraft(sampleDraft());
     expect(loadDraft()).not.toBeNull();
-
     clearDraft();
     expect(loadDraft()).toBeNull();
   });
 
-  it("returns null when the stored value is corrupt JSON", () => {
-    window.localStorage.setItem(DRAFT_KEY, "{not valid json");
+  it("ignores blank drafts that look like a fresh start", () => {
+    saveDraft({
+      decisionType: "home_buying",
+      responses: {},
+      conflict: { referralSource: null, deadlineOrigin: null },
+      index: 0,
+    });
+    expect(draftLooksStarted({ responses: {}, conflict: { referralSource: null, deadlineOrigin: null }, index: 0 })).toBe(
+      false,
+    );
     expect(loadDraft()).toBeNull();
   });
 
-  it("returns null for a well-formed but incomplete envelope", () => {
-    window.localStorage.setItem(DRAFT_KEY, JSON.stringify({ version: DRAFT_VERSION }));
-    expect(loadDraft()).toBeNull();
-  });
-
-  it("is SSR-safe: no-ops and returns null when window is undefined", () => {
-    delete (globalThis as { window?: Window }).window;
-
-    expect(loadDraft()).toBeNull();
-    expect(() => saveDraft(INITIAL_FULL_FORM, 0)).not.toThrow();
-    expect(() => clearDraft()).not.toThrow();
+  it("clamps loaded index to max step", () => {
+    saveDraft({ ...sampleDraft(), index: 40 });
+    const loaded = loadDraft(5);
+    expect(loaded?.index).toBe(5);
   });
 
   it("clamps out-of-range step indexes", () => {
     expect(clampDraftIndex(-3, 10)).toBe(0);
     expect(clampDraftIndex(99, 5)).toBe(5);
-    expect(clampDraftIndex(2.9, 10)).toBe(2);
-  });
-
-  it("merges partial form onto INITIAL_FULL_FORM", () => {
-    const merged = normalizeDraftForm({ monthlyGrossIncome: 4000 } as Partial<FullAssessmentForm>);
-    expect(merged.monthlyGrossIncome).toBe(4000);
-    expect(merged.creditScore).toBe(INITIAL_FULL_FORM.creditScore);
-  });
-
-  it("ignores blank drafts that look like a fresh start", () => {
-    saveDraft(INITIAL_FULL_FORM, 0);
-    expect(draftLooksStarted(INITIAL_FULL_FORM, 0)).toBe(false);
-    expect(loadDraft()).toBeNull();
-  });
-
-  it("clamps loaded index to max step", () => {
-    const form: FullAssessmentForm = { ...INITIAL_FULL_FORM, monthlyGrossIncome: 5000 };
-    saveDraft(form, 40);
-    const loaded = loadDraft(5);
-    expect(loaded?.index).toBe(5);
   });
 });

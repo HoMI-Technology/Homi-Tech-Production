@@ -89,7 +89,7 @@ function buildContextNote(assessment: AdvisorAssessmentContext | null | undefine
 
 export async function POST(request: Request) {
   const ip = getClientIp(request);
-  const { allowed } = rateLimit(`advisor:${ip}`, { limit: 20, windowMs: 60_000 });
+  const { allowed } = await rateLimit(`advisor:${ip}`, { limit: 20, windowMs: 60_000 });
   if (!allowed) {
     return NextResponse.json(
       { error: "Too many requests. Take a breath and try again in a minute." },
