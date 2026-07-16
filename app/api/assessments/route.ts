@@ -3,6 +3,10 @@ import { z } from "zod";
 import { computeScore, generateKeyInsight, generateNextSteps } from "@/lib/scoring";
 import { createClient } from "@/lib/supabase/server";
 import { assessmentInputsSchema } from "@/lib/validation/assessment";
+import { getUserEntitlements } from "@/lib/entitlements";
+import { sendVerdictEmailForAssessment } from "@/lib/email/lifecycle";
+import { rateLimit, getClientIp } from "@/lib/ratelimit";
+import type { VerdictKey } from "@/lib/brand";
 
 const bodySchema = z.object({
   inputs: assessmentInputsSchema,
@@ -11,6 +15,12 @@ const bodySchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    const { allowed } = await rateLimit(`assessments-write:${ip}`, { limit: 20, windowMs: 60_000 });
+    if (!allowed) {
+      return NextResponse.json({ error: "Too many requests. Try again in a moment." }, { status: 429 });
+    }
+
     const json = await req.json();
     const parsed = bodySchema.safeParse(json);
     if (!parsed.success) {
@@ -25,6 +35,28 @@ export async function POST(req: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ saved: false }, { status: 401 });
+    }
+
+    const { entitlements } = await getUserEntitlements(supabase);
+
+    // Free tier gets one completed full assessment; Plus+ gets unlimited re-scoring.
+    if (kind === "full" && !entitlements.unlimitedRescoring) {
+      const { count } = await supabase
+        .from("assessments")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("is_shadow", false)
+        .eq("status", "completed");
+
+      if ((count ?? 0) >= 1) {
+        return NextResponse.json(
+          {
+            error: "Your free plan includes one full assessment. Upgrade to re-score as your numbers change.",
+            code: "rescoring_locked",
+          },
+          { status: 402 },
+        );
+      }
     }
 
     // Never trust client-computed scores — recompute server-side.
@@ -65,6 +97,22 @@ export async function POST(req: NextRequest) {
         { error: "Could not save the assessment right now.", correlationId },
         { status: 500 },
       );
+    }
+
+    // Verdict email is transactional — fire-and-forget after a full (non-shadow) save.
+    if (kind === "full" && user.email) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      void sendVerdictEmailForAssessment({
+        email: user.email,
+        fullName: profile?.full_name,
+        score: result.score,
+        verdict: result.verdict as VerdictKey,
+      });
     }
 
     return NextResponse.json({ saved: true, id: data.id });

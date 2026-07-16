@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { maybeSendWelcomeEmail } from "@/lib/email/lifecycle";
 
 /**
  * GET /auth/callback — exchanges a Supabase auth code (from magic link,
@@ -12,7 +13,11 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient();
-    await supabase.auth.exchangeCodeForSession(code);
+    const { data } = await supabase.auth.exchangeCodeForSession(code);
+    const user = data?.user;
+    if (user?.email) {
+      void maybeSendWelcomeEmail(user.id, user.email);
+    }
   }
 
   return NextResponse.redirect(new URL(next, url.origin));

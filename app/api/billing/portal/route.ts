@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { env, hasStripe } from "@/lib/env";
+import { rateLimit, getClientIp } from "@/lib/ratelimit";
 
 /** POST /api/billing/portal — creates a Stripe Billing Portal session for the current user. */
-export async function POST() {
+export async function POST(request: Request) {
   if (!hasStripe()) {
     return NextResponse.json({ configured: false });
+  }
+
+  const ip = getClientIp(request);
+  const { allowed } = await rateLimit(`billing-portal:${ip}`, { limit: 10, windowMs: 60_000 });
+  if (!allowed) {
+    return NextResponse.json({ error: "Too many requests. Try again in a moment." }, { status: 429 });
   }
 
   const supabase = await createClient();

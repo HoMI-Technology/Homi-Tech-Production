@@ -19,6 +19,9 @@ export interface Profile {
   stripe_customer_id: string | null;
   partner_id: string | null;
   onboarding_completed: boolean;
+  email_reminders_enabled: boolean;
+  welcome_email_sent_at: string | null;
+  last_reassessment_email_at: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -66,7 +66,9 @@ describe("getEntitlements", () => {
 
   it("grants 5 household seats only on Family", () => {
     expect(getEntitlements("family").familySeats).toBe(5);
+    expect(getEntitlements("family").householdMode).toBe(true);
     expect(getEntitlements("pro").familySeats).toBe(1);
+    expect(getEntitlements("pro").householdMode).toBe(false);
   });
 
   it("capabilities are monotonic across the ladder (paid never loses a boolean)", () => {

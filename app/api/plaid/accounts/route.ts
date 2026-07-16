@@ -20,7 +20,7 @@ const INFRA_MISSING_CODES = new Set([
  */
 export async function GET(request: Request) {
   const ip = getClientIp(request);
-  const { allowed } = rateLimit(`plaid-accounts:${ip}`, { limit: 30, windowMs: 60_000 });
+  const { allowed } = await rateLimit(`plaid-accounts:${ip}`, { limit: 30, windowMs: 60_000 });
   if (!allowed) {
     return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
   }

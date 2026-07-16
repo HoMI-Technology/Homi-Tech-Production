@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { compareStrategies, type Debt, type PayoffResult } from "@/lib/tools/debt";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
+import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 
 function makeDebt(partial: Partial<Debt> = {}): Debt {
   return {
@@ -15,6 +16,14 @@ function makeDebt(partial: Partial<Debt> = {}): Debt {
 }
 
 export default function DebtPayoffPage() {
+  return (
+    <AdvancedToolGate>
+      <DebtPayoffPageInner />
+    </AdvancedToolGate>
+  );
+}
+
+function DebtPayoffPageInner() {
   const [debts, setDebts] = useState<Debt[]>([
     makeDebt({ name: "Credit card", balance: 4500, apr: 22.9, minPayment: 120 }),
     makeDebt({ name: "Car loan", balance: 12000, apr: 6.5, minPayment: 280 }),

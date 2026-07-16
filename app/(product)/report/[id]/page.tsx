@@ -9,6 +9,8 @@ import { PrintButton } from "@/components/assessment/PrintButton";
 import { ShareScoreButton } from "@/components/share/ShareScoreButton";
 import { VerdictOverride } from "@/components/assessment/VerdictOverride";
 import { TrinityBar } from "@/components/assessment/TrinityBar";
+import { UpgradePanel } from "@/components/ui/UpgradePanel";
+import { getUserEntitlements } from "@/lib/entitlements";
 import type { AssessmentRow } from "@/types/database";
 
 const FINANCIAL = PILLARS.find((p) => p.key === "financial")!;
@@ -25,6 +27,17 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
 
   if (!user) {
     redirect("/auth/sign-in");
+  }
+
+  const { entitlements } = await getUserEntitlements(supabase);
+  if (!entitlements.fullReport) {
+    return (
+      <UpgradePanel
+        feature="full-report"
+        body="The detailed pillar breakdown, printable report, and readiness credential are part of HōMI Plus."
+        minTier="plus"
+      />
+    );
   }
 
   const { data } = await supabase

@@ -6,6 +6,8 @@ import { VERDICT_META, LEGAL_DISCLAIMER } from "@/lib/brand";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { CredentialPrintButton } from "@/components/assessment/CredentialPrintButton";
+import { UpgradePanel } from "@/components/ui/UpgradePanel";
+import { getUserEntitlements } from "@/lib/entitlements";
 import type { AssessmentRow, Profile } from "@/types/database";
 
 /**
@@ -24,6 +26,17 @@ export default async function ReportCredentialPage({ params }: { params: Promise
 
   if (!user) {
     redirect("/auth/sign-in");
+  }
+
+  const { entitlements } = await getUserEntitlements(supabase);
+  if (!entitlements.fullReport) {
+    return (
+      <UpgradePanel
+        feature="readiness-credential"
+        body="The printable readiness credential is part of HōMI Plus — your shareable proof of an honest read."
+        minTier="plus"
+      />
+    );
   }
 
   const [{ data: assessmentData }, { data: profileData }, { data: shareData }] = await Promise.all([

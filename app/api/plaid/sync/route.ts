@@ -22,7 +22,7 @@ const bodySchema = z.object({
  */
 export async function POST(request: Request) {
   const ip = getClientIp(request);
-  const { allowed } = rateLimit(`plaid-sync-ip:${ip}`, { limit: 10, windowMs: 60_000 });
+  const { allowed } = await rateLimit(`plaid-sync-ip:${ip}`, { limit: 10, windowMs: 60_000 });
   if (!allowed) {
     return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
   }
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
   }
 
   // "Too soon" guard — a sync just ran for this user; let it breathe.
-  const userLimit = rateLimit(`plaid-sync-user:${userId}`, { limit: 3, windowMs: 5 * 60_000 });
+  const userLimit = await rateLimit(`plaid-sync-user:${userId}`, { limit: 3, windowMs: 5 * 60_000 });
   if (!userLimit.allowed) {
     return NextResponse.json(
       { error: "A sync ran recently. Give it a few minutes and try again." },

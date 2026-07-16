@@ -56,7 +56,7 @@ function buildContextNote(horizon: Horizon, assessment: TwinAssessmentContext, f
 
 export async function POST(request: Request) {
   const ip = getClientIp(request);
-  const { allowed } = rateLimit(`twin:${ip}`, { limit: 10, windowMs: 60_000 });
+  const { allowed } = await rateLimit(`twin:${ip}`, { limit: 10, windowMs: 60_000 });
   if (!allowed) {
     return NextResponse.json(
       { error: "Too many requests. Take a breath and try again in a minute." },

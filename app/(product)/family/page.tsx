@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { ScoreRing } from "@/components/ui/ScoreRing";
+import { FamilyHouseholdGate } from "@/components/entitlements/AdvancedToolGate";
 import type { VerdictType } from "@/types/database";
 
 interface FamilyMember {
@@ -44,6 +45,14 @@ function emptyGoal(): SharedGoal {
 }
 
 export default function FamilyPage() {
+  return (
+    <FamilyHouseholdGate>
+      <FamilyPageInner />
+    </FamilyHouseholdGate>
+  );
+}
+
+function FamilyPageInner() {
   const supabase = useMemo(() => createClient(), []);
 
   const [loading, setLoading] = useState(true);
@@ -175,6 +184,23 @@ export default function FamilyPage() {
       setError("Give this member a name.");
       return;
     }
+
+    const entRes = await fetch("/api/account/entitlements");
+    if (entRes.ok) {
+      const json = (await entRes.json()) as { entitlements?: { familySeats?: number } };
+      const seats = json.entitlements?.familySeats ?? 1;
+      const maxMembers = Math.max(0, seats - 1);
+      const addingNew = editingMemberIndex === null;
+      if (addingNew && household.members.length >= maxMembers) {
+        setError(
+          maxMembers === 0
+            ? "Household linking is part of HōMI Family."
+            : `Your plan allows ${seats} household seats. Upgrade for more.`,
+        );
+        return;
+      }
+    }
+
     const members = [...household.members];
     if (editingMemberIndex !== null) {
       members[editingMemberIndex] = memberDraft;
