@@ -42,8 +42,9 @@ describe("web app manifest", () => {
     expect(icons.some((i) => i.sizes === "512x512")).toBe(true);
     const maskable = icons.filter((i) => i.purpose === "maskable");
     expect(maskable.length).toBeGreaterThan(0);
-    // The default icon has transparent rounded corners; maskable must be a
-    // dedicated full-bleed asset, never the same file as the "any" icon.
+    // The "any" icons fill the tile edge-to-edge; the maskable variant pulls
+    // the compass + wordmark lockup into the safe zone, so it must be a
+    // dedicated asset, never the same file as the "any" icon.
     const anySrcs = new Set(icons.filter((i) => i.purpose !== "maskable").map((i) => i.src));
     for (const icon of maskable) expect(anySrcs.has(icon.src)).toBe(false);
   });

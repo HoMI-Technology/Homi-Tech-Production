@@ -31,7 +31,7 @@ export const metadata: Metadata = {
       "Everyone else tells you how. HōMI tells you if. Decision Readiness Intelligence™ across Financial Reality, Emotional Truth, and Perfect Timing.",
     siteName: "HōMI",
     type: "website",
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: "HōMI Threshold Compass — Credit scores look backward. HōMI looks at readiness now." }],
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "The HōMI Threshold Compass above the HōMI wordmark — Decision Readiness Intelligence. Know When You're Ready." }],
   },
   twitter: {
     card: "summary_large_image",
@@ -40,11 +40,18 @@ export const metadata: Metadata = {
     images: ["/og.png"],
   },
   icons: {
+    // Browser tab / address bar: the scalable SVG is the compass mark alone —
+    // at 16-32px the wordmark is illegible, so the compass carries the ID here.
     icon: [
       { url: "/icon.svg", type: "image/svg+xml" },
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
-    apple: [{ url: "/icon-512.png", sizes: "512x512", type: "image/png" }],
+    // iOS "Add to Home Screen" / web app: the full compass + HōMI lockup.
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
   },
   appleWebApp: {
     capable: true,
