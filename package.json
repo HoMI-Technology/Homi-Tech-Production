@@ -13,6 +13,7 @@
     "test:acceptance": "vitest run --config vitest.acceptance.config.ts",
     "brand-check": "node scripts/brand-check.mjs",
     "stripe-setup": "node scripts/stripe-setup.mjs",
+    "create-admin": "node scripts/create-admin.mjs",
     "lighthouse": "lhci autorun"
   },
   "dependencies": {

@@ -143,6 +143,21 @@ export function getEntitlements(tier: string | null | undefined): Entitlements {
   return ENTITLEMENTS[normalizeTier(tier)];
 }
 
+/**
+ * Internal/admin accounts (profiles.role = 'admin') bypass the paywall
+ * entirely: every capability on, top-of-ladder limits, and an advisor quota
+ * high enough to never bite in practice (kept finite so the atomic usage RPC
+ * still bounds runaway LLM spend). `tier` still reflects the stored
+ * subscription_tier so billing surfaces stay truthful about what is paid for.
+ */
+export function getAdminEntitlements(storedTier?: string | null): Entitlements {
+  return {
+    ...ENTITLEMENTS.family,
+    tier: normalizeTier(storedTier),
+    advisorMessagesPerDay: 1000,
+  };
+}
+
 /** Result of a capability check — a discriminated union for ergonomic routing. */
 export type CapabilityCheck =
   | { ok: true }
@@ -179,7 +194,8 @@ export function requireCapability(
 
 /**
  * Resolves the current request's user and their entitlements from a
- * request-scoped Supabase server client. Reads `profiles.subscription_tier`;
+ * request-scoped Supabase server client. Reads `profiles.subscription_tier`
+ * and `profiles.role`; admins bypass the paywall (see getAdminEntitlements),
  * any missing profile / unknown tier falls back to the free capability set.
  *
  * Returns `userId: null` for anonymous requests (the caller decides whether
@@ -198,12 +214,15 @@ export async function getUserEntitlements(
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("subscription_tier")
+    .select("subscription_tier, role")
     .eq("id", user.id)
     .maybeSingle();
 
+  const storedTier = profile?.subscription_tier as string | null | undefined;
+
   return {
     userId: user.id,
-    entitlements: getEntitlements(profile?.subscription_tier as string | null | undefined),
+    entitlements:
+      profile?.role === "admin" ? getAdminEntitlements(storedTier) : getEntitlements(storedTier),
   };
 }
