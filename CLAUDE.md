@@ -2,7 +2,7 @@
 
 Open **only** this repository root. SSOT:
 
-- GitHub: https://github.com/HoMI-Technology/Homi-Tech-Production-
+- GitHub: https://github.com/HoMI-Technology/Homi-Tech-Production
 - Local: C:\Users\cody\code\Homi-Tech-Production-
 
 Before large changes: `git status` + `git pull --ff-only`.
