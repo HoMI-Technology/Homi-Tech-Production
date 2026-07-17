@@ -96,6 +96,7 @@ export function CompanionWidget() {
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState("");
   const [messages, setMessages] = useState<CompanionMessage[]>([]);
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [gateCta, setGateCta] = useState<{ href: string; label: string } | null>(null);
@@ -116,6 +117,26 @@ export function CompanionWidget() {
     setIdentity(loadIdentity());
     setIdentityChosen(hasChosenIdentity());
     setHydrated(true);
+
+    // One memory: signed-in users resume their server thread — same
+    // conversation as the full-page chat, any device. Anonymous (401) or
+    // failure keeps the local sessionStorage copy loaded above.
+    let cancelled = false;
+    fetch("/api/advisor/history")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { conversationId?: string | null; messages?: Array<{ role: Role; content: string }> } | null) => {
+        if (cancelled || !data) return;
+        if (data.conversationId) setConversationId(data.conversationId);
+        if (Array.isArray(data.messages) && data.messages.length > 0) {
+          setMessages(data.messages.map((m) => ({ id: makeId(), role: m.role, content: m.content })));
+        }
+      })
+      .catch(() => {
+        // Offline or transient failure — the local thread stands.
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   function commitNameDraft() {
@@ -208,6 +229,7 @@ export function CompanionWidget() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           messages: nextMessages.map((m) => ({ role: m.role, content: m.content })),
+          conversationId,
           assessment,
           finance,
           surface,
@@ -216,7 +238,11 @@ export function CompanionWidget() {
         }),
       });
 
-      const data = (await res.json().catch(() => ({}))) as { reply?: unknown; error?: unknown };
+      const data = (await res.json().catch(() => ({}))) as {
+        reply?: unknown;
+        error?: unknown;
+        conversationId?: unknown;
+      };
 
       if (!res.ok) {
         // The gate returns truthful, on-brand copy (sign-in / upgrade / retry) —
@@ -235,6 +261,7 @@ export function CompanionWidget() {
       }
 
       setGateCta(null);
+      if (typeof data.conversationId === "string") setConversationId(data.conversationId);
       const replyContent: string =
         typeof data.reply === "string"
           ? data.reply

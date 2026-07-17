@@ -4,6 +4,7 @@ import { hasAnthropic, env } from "@/lib/env";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
 import { createClient } from "@/lib/supabase/server";
 import { gateCompanion } from "@/lib/advisor/quota";
+import { persistCompanionExchange } from "@/lib/advisor/memory";
 import {
   buildPersonaFallbackReply,
   type AdvisorAssessmentContext,
@@ -68,6 +69,8 @@ const personaSchema = z.enum(["homie", "reality", "gut", "timing", "planner"]);
 
 const bodySchema = z.object({
   messages: z.array(messageSchema).min(1).max(50),
+  /** Server thread id from a prior reply/history load; RLS restricts it to the user's own. */
+  conversationId: z.string().uuid().nullish(),
   assessment: assessmentContextSchema.nullish(),
   finance: financeContextSchema.nullish(),
   /** Human-readable label of the surface the user is on, e.g. "the mortgage calculator". */
@@ -204,10 +207,13 @@ export async function POST(request: Request) {
   // consumes one message from the tier's server-authoritative daily quota
   // (free tier gets a genuine taste; over-quota returns a graceful 402 the
   // client renders as an upgrade nudge, never a fake error). See lib/advisor/quota.
+  let supabase: Awaited<ReturnType<typeof createClient>> | null = null;
+  let gateUserId: string | null = null;
   if (!demoContext) {
-    const supabase = await createClient();
+    supabase = await createClient();
     const gate = await gateCompanion(supabase);
     if (!gate.ok) return gate.response;
+    gateUserId = gate.userId;
   }
 
   const assessment = demoContext ? DEMO_ASSESSMENT_CONTEXT : parsed.data.assessment;
@@ -219,9 +225,28 @@ export async function POST(request: Request) {
   const activePersona: AdvisorPersona = persona ?? "homie";
   const personaMeta = getPersona(activePersona);
 
+  // Single exit: persist the exchange to the user's server thread (best-effort,
+  // signed-in only, never for demo mode) and reply with the conversation id so
+  // the client can echo it back on the next message.
+  async function respond(reply: string, source: "model" | "fallback") {
+    let conversationId = demoContext ? null : (parsed.success ? parsed.data.conversationId : null) ?? null;
+    if (supabase && gateUserId) {
+      const persisted = await persistCompanionExchange(supabase, {
+        userId: gateUserId,
+        conversationId,
+        userMessage: lastUserMessage,
+        assistantMessage: reply,
+        source,
+        persona: activePersona,
+      });
+      if (persisted) conversationId = persisted;
+    }
+    return NextResponse.json({ reply, source, conversationId });
+  }
+
   if (!hasAnthropic()) {
     const reply = buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
-    return NextResponse.json({ reply, source: "fallback" });
+    return respond(reply, "fallback");
   }
 
   try {
@@ -250,7 +275,7 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       const reply = buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
-      return NextResponse.json({ reply, source: "fallback" });
+      return respond(reply, "fallback");
     }
 
     const data = (await response.json()) as {
@@ -260,12 +285,12 @@ export async function POST(request: Request) {
 
     if (!text) {
       const reply = buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
-      return NextResponse.json({ reply, source: "fallback" });
+      return respond(reply, "fallback");
     }
 
-    return NextResponse.json({ reply: text, source: "model" });
+    return respond(text, "model");
   } catch {
     const reply = buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
-    return NextResponse.json({ reply, source: "fallback" });
+    return respond(reply, "fallback");
   }
 }

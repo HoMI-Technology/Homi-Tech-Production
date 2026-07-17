@@ -100,10 +100,12 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
 "can I afford this?" and it answers with *your* runway and DTI, not generics.
 
 ### Phase 2 — One memory, one identity
-- **Unified thread persistence** (audit T2.6): widget uses `sessionStorage`, chat
-  uses `localStorage` — same friend, different amnesia. Move both to the existing
-  `advisor_conversations` / `advisor_messages` tables so the mote remembers across
-  devices, with local storage as the anonymous fallback.
+- **Unified thread persistence** (audit T2.6) — SHIPPED: signed-in users get one
+  server thread on the existing `advisor_conversations` / `advisor_messages`
+  tables (`lib/advisor/memory.ts`, `/api/advisor/history`). The widget and the
+  full-page chat resume the same conversation on any device; local storage
+  remains the anonymous/offline fallback, and persistence is best-effort so a
+  storage failure never breaks the chat itself.
 - **Server-side context assembly**: for signed-in users, the route reads
   `financial_snapshots`, `goals`, and `credit_snapshots` directly (RLS-scoped) so
   the Companion's knowledge doesn't depend on which browser the user opened.
