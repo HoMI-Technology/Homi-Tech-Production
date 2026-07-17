@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Disclaimer",
   description:
     "HōMI provides educational guidance only. Read the full disclaimer on what HōMI is, and what it is not.",
+  alternates: { canonical: "/legal/disclaimer" },
 };
 
 export default function DisclaimerPage() {

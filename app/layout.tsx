@@ -17,7 +17,6 @@ export const metadata: Metadata = {
   description:
     "HōMI is Decision Readiness Intelligence™ — the first platform that measures your true readiness for life's biggest decisions. Not 'can you afford it?' — 'are you ready for it?'",
   applicationName: "HōMI",
-  alternates: { canonical: "/" },
   keywords: [
     "decision readiness",
     "home buying readiness",
@@ -36,6 +35,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
+    site: "@homi_tech",
+    creator: "@homi_tech",
     title: "HōMI · Decision Readiness Intelligence™",
     description: "Credit scores look backward. HōMI looks at readiness now.",
     images: ["/og-v2.png"],

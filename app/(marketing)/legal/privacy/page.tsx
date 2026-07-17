@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
     "How HOMI TECHNOLOGIES LLC collects, stores, and protects your data. We do not sell your data — ever.",
+  alternates: { canonical: "/legal/privacy" },
 };
 
 export default function PrivacyPage() {

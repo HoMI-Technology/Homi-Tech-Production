@@ -19,7 +19,7 @@ export default function DmcaPage() {
           <div>
             <h2 className="text-xl font-bold text-light">1. DMCA Notice and Takedown Policy</h2>
             <p className="mt-3 leading-relaxed">
-              HōMI Technologies LLC respects the intellectual property rights of others and expects
+              HOMI TECHNOLOGIES LLC respects the intellectual property rights of others and expects
               users of our Services to do the same.
             </p>
             <p className="mt-3 leading-relaxed">
@@ -52,7 +52,7 @@ export default function DmcaPage() {
                 dmca@homitechnology.com
               </a>
               <br />
-              Mailing Address: HōMI Technologies LLC, Attn: Copyright Agent, 651 N Broad St, Suite
+              Mailing Address: HOMI TECHNOLOGIES LLC, Attn: Copyright Agent, 651 N Broad St, Suite
               201, Middletown, DE 19709
             </p>
           </div>

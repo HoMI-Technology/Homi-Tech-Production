@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Get Notified",
   description:
     "Tell HōMI what you're deciding on, and we'll reach out when it's your turn. No filler, no spam — just the truth when it's ready.",
+  alternates: { canonical: "/waitlist" },
 };
 
 export default function WaitlistPage() {
