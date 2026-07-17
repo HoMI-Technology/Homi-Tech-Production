@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "About HōMI",
   description:
     "HōMI is a product of HOMI TECHNOLOGIES LLC — a Decision Companion built on zero conflict of interest. Here's what we are, and what we are not.",
+  alternates: { canonical: "/about" },
 };
 
 export default function AboutPage() {

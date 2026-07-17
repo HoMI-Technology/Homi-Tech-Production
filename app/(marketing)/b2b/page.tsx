@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "HōMI for Teams",
   description:
     "A financial-wellness benefit that measures readiness, not just affordability. Bring HōMI to your employees as a Decision Companion, not another budgeting app.",
+  alternates: { canonical: "/b2b" },
 };
 
 export default function B2BPage() {

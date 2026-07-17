@@ -4,9 +4,10 @@ import { Reveal } from "@/components/ui/Reveal";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 
 export const metadata: Metadata = {
-  title: "HōMI for Employees | HōMI",
+  title: "HōMI for Employees",
   description:
     "The financial-wellness benefit that tells your people the truth. Privacy-first readiness for the big decisions life throws at your workforce.",
+  alternates: { canonical: "/employee" },
 };
 
 const OUTCOMES = [
