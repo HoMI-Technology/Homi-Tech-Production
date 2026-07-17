@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   DEFAULT_FINANCE_STATE,
   loadFinanceState,
+  pullFinanceState,
   saveFinanceState,
   netCashFlow,
   savingsRate,
@@ -56,12 +57,30 @@ export default function FinancePage() {
   const [hydrated, setHydrated] = useState(false);
   const [tab, setTab] = useState<TabKey>("overview");
 
+  // True once the user edits anything — a late-arriving server copy must
+  // never overwrite an edit already on screen.
+  const dirtyRef = useRef(false);
+
   // Load persisted state + initial tab from URL hash, once, after mount.
+  // Local renders immediately; the server copy reconciles in the background
+  // (last-write-wins — lib/persistence.ts). Persist-on-change stays disabled
+  // until the pull settles: hydrating defaults first and pulling second would
+  // stamp-and-push defaults over a user's real cross-device numbers.
   useEffect(() => {
     setState(loadFinanceState());
     const hash = window.location.hash.replace("#", "") as TabKey;
     if (TABS.some((t) => t.key === hash)) setTab(hash);
-    setHydrated(true);
+    let cancelled = false;
+    void pullFinanceState()
+      .then((remote) => {
+        if (!cancelled && remote && !dirtyRef.current) setState(remote);
+      })
+      .finally(() => {
+        if (!cancelled) setHydrated(true);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Persist on every change, after hydration.
@@ -86,6 +105,7 @@ export default function FinancePage() {
   }, []);
 
   const patch = useCallback((partial: Partial<FinanceState>) => {
+    dirtyRef.current = true;
     setState((prev) => ({ ...prev, ...partial }));
   }, []);
 
