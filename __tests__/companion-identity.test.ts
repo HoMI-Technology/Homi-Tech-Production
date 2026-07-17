@@ -10,10 +10,14 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   DEFAULT_IDENTITY_NAME,
   IDENTITY_NAME_MAX,
+  HOMI_PRESETS,
+  getPreset,
+  hasChosenIdentity,
   loadIdentity,
   saveIdentity,
   sanitizeIdentityName,
 } from "@/lib/advisor/identity";
+import { PERSONAS } from "@/lib/advisor/personas";
 import { buildFinanceContext } from "@/lib/advisor/context";
 import { DEFAULT_FINANCE_STATE, saveFinanceState, financeSavedAt } from "@/lib/finance/store";
 
@@ -26,9 +30,11 @@ describe("identity store", () => {
     expect(loadIdentity().name).toBe(DEFAULT_IDENTITY_NAME);
   });
 
-  it("round-trips a user-chosen name", () => {
-    saveIdentity({ name: "Moose" });
-    expect(loadIdentity().name).toBe("Moose");
+  it("round-trips a user-chosen name and preset", () => {
+    saveIdentity({ name: "Moose", preset: "steady" });
+    const loaded = loadIdentity();
+    expect(loaded.name).toBe("Moose");
+    expect(loaded.preset).toBe("steady");
   });
 
   it("sanitizes whitespace, line breaks, and length", () => {
@@ -38,14 +44,43 @@ describe("identity store", () => {
   });
 
   it("falls back to the default rather than storing an empty name", () => {
-    const saved = saveIdentity({ name: "   " });
+    const saved = saveIdentity({ name: "   ", preset: "homi" });
     expect(saved.name).toBe(DEFAULT_IDENTITY_NAME);
     expect(loadIdentity().name).toBe(DEFAULT_IDENTITY_NAME);
   });
 
-  it("ignores corrupted storage", () => {
+  it("ignores corrupted storage and unknown presets", () => {
     window.localStorage.setItem("homi:companion-identity", "{not json");
     expect(loadIdentity().name).toBe(DEFAULT_IDENTITY_NAME);
+    window.localStorage.setItem(
+      "homi:companion-identity",
+      JSON.stringify({ name: "Moose", preset: "dragon" }),
+    );
+    expect(loadIdentity().preset).toBe("homi");
+  });
+
+  it("tracks whether an identity was ever chosen (gates the first-open picker)", () => {
+    expect(hasChosenIdentity()).toBe(false);
+    saveIdentity({ name: "Clarity", preset: "clarity" });
+    expect(hasChosenIdentity()).toBe(true);
+  });
+});
+
+describe("starter presets", () => {
+  it("offers a small curated set — a few, not fifty", () => {
+    expect(HOMI_PRESETS.length).toBeGreaterThanOrEqual(3);
+    expect(HOMI_PRESETS.length).toBeLessThanOrEqual(6);
+  });
+
+  it("every preset maps to a real persona", () => {
+    for (const p of HOMI_PRESETS) {
+      expect(PERSONAS.some((persona) => persona.key === p.persona)).toBe(true);
+    }
+  });
+
+  it("resolves unknown preset keys to the classic", () => {
+    expect(getPreset("nonsense").key).toBe("homi");
+    expect(getPreset(undefined).key).toBe("homi");
   });
 });
 

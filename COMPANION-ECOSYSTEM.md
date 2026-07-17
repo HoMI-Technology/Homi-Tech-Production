@@ -30,10 +30,13 @@ each phase ships independently.
   fake scarcity.
 - **Your HōMI.** Every user names and shapes their own HōMI. Identity is
   *configuration inside the brand-voice envelope* — a name, a visual accent within
-  brand canon, tone/pacing/depth/focus settings — never a fixed character roster and
-  never a way to opt out of the voice rules. The five personas become presets inside
-  this system. (Canon per `COMPANION-INTELLIGENCE-AUDIT.md`.) What the user never
-  configures: the math, verdict bands, weights, or the no-advice floor.
+  brand canon, tone/pacing/depth/focus settings — never a way to opt out of the
+  voice rules. A few curated starter HōMIs (the classic compass plus Steady,
+  Clarity, and Horizon — the prototype archetypes re-voiced as brand-color forms,
+  deliberately a few and not fifty) give people a starting point; each is
+  renameable and maps to a persona default (`lib/advisor/identity.ts`). What the
+  user never configures: the math, verdict bands, weights, or the no-advice floor.
+  (Canon per `COMPANION-INTELLIGENCE-AUDIT.md`.)
 
 ## 2. What exists today (the seams)
 

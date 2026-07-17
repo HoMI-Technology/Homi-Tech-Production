@@ -7,9 +7,13 @@ import { buildCompanionContext } from "@/lib/advisor/context";
 import {
   loadIdentity,
   saveIdentity,
+  hasChosenIdentity,
+  getPreset,
+  HOMI_PRESETS,
   IDENTITY_NAME_MAX,
   DEFAULT_IDENTITY,
   type HomiIdentity,
+  type HomiPreset,
 } from "@/lib/advisor/identity";
 import { PERSONAS, type AdvisorPersona } from "@/lib/advisor/personas";
 import { track } from "@/lib/analytics";
@@ -55,6 +59,28 @@ const FOCUSABLE_SELECTOR =
   'button:not([disabled]), [href], input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /**
+ * The HōMI's visual form: the threshold compass for the classic, a glowing
+ * brand-color orb for the others. Abstract on purpose — no mascots.
+ */
+function HomiForm({ preset, size, glow = false }: { preset: HomiPreset; size: number; glow?: boolean }) {
+  if (preset.form === "compass") {
+    return <ThresholdCompass size={size} animated={false} glow={glow} verdict={undefined} />;
+  }
+  return (
+    <span
+      aria-hidden="true"
+      className="inline-block shrink-0 rounded-full"
+      style={{
+        width: size,
+        height: size,
+        background: `radial-gradient(circle at 35% 30%, ${preset.color}, ${preset.color}22 72%)`,
+        boxShadow: `0 0 ${Math.round(size / 2)}px ${preset.color}55`,
+      }}
+    />
+  );
+}
+
+/**
  * Floating Decision Companion — a compass-styled launcher (bottom-right,
  * product pages only) that opens a compact persona-aware chat panel. Not a
  * replacement for the full /advisor page (hidden there by design), just a
@@ -66,6 +92,7 @@ export function CompanionWidget() {
   const [hydrated, setHydrated] = useState(false);
   const [persona, setPersona] = useState<AdvisorPersona>("homie");
   const [identity, setIdentity] = useState<HomiIdentity>(DEFAULT_IDENTITY);
+  const [identityChosen, setIdentityChosen] = useState(true);
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState("");
   const [messages, setMessages] = useState<CompanionMessage[]>([]);
@@ -87,6 +114,7 @@ export function CompanionWidget() {
       }
     }
     setIdentity(loadIdentity());
+    setIdentityChosen(hasChosenIdentity());
     setHydrated(true);
   }, []);
 
@@ -94,8 +122,16 @@ export function CompanionWidget() {
     setEditingName(false);
     const trimmed = nameDraft.trim();
     if (!trimmed) return;
-    setIdentity(saveIdentity({ name: trimmed }));
+    setIdentity(saveIdentity({ name: trimmed, preset: identity.preset }));
+    setIdentityChosen(true);
     track("companion_renamed");
+  }
+
+  function choosePreset(p: HomiPreset) {
+    setIdentity(saveIdentity({ name: p.name, preset: p.key }));
+    setPersona(p.persona);
+    setIdentityChosen(true);
+    track("companion_preset_chosen");
   }
 
   useEffect(() => {
@@ -281,6 +317,7 @@ export function CompanionWidget() {
                 title="Name your HōMI"
                 className="group flex items-center gap-1.5 rounded px-1 -mx-1 text-left transition-colors hover:bg-slate-surface/40"
               >
+                <HomiForm preset={getPreset(identity.preset)} size={14} />
                 <span className="font-display text-sm font-semibold text-light">
                   {identity.name === DEFAULT_IDENTITY.name ? "HōMI Companion" : identity.name}
                 </span>
@@ -333,9 +370,32 @@ export function CompanionWidget() {
           </div>
 
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
-            {messages.length === 0 && (
+            {messages.length === 0 && !identityChosen && (
+              <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
+                <div>
+                  <p className="font-display text-sm font-semibold text-light">Choose your HōMI</p>
+                  <p className="mt-1 text-xs text-dim">A starting point, not a box. Rename it any time.</p>
+                </div>
+                <div className="grid w-full grid-cols-2 gap-2">
+                  {HOMI_PRESETS.map((p) => (
+                    <button
+                      key={p.key}
+                      type="button"
+                      onClick={() => choosePreset(p)}
+                      className="glass flex flex-col items-center gap-1.5 rounded-xl border border-slate-surface/60 p-3 transition-colors hover:border-cyan/40"
+                    >
+                      <HomiForm preset={p} size={28} />
+                      <span className="text-sm font-semibold text-light">{p.name}</span>
+                      <span className="text-[11px] leading-snug text-dim">{p.role}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {messages.length === 0 && identityChosen && (
               <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-                <ThresholdCompass size={48} glow animated={false} />
+                <HomiForm preset={getPreset(identity.preset)} size={48} glow />
                 <p className="text-xs text-dim">{activePersona.role}</p>
                 <p className="max-w-[240px] text-sm text-light">
                   Ask me anything, in {activePersona.name.toLowerCase()} mode.
