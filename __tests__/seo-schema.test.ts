@@ -15,8 +15,8 @@ describe("organizationJsonLd", () => {
   });
 
   it("resolves logo against the site URL when a path is given", () => {
-    const data = organizationJsonLd(SITE, "/icon-512.png");
-    expect(data.logo).toBe(`${SITE}/icon-512.png`);
+    const data = organizationJsonLd(SITE, "/icon-512-v2.png");
+    expect(data.logo).toBe(`${SITE}/icon-512-v2.png`);
   });
 });
 
