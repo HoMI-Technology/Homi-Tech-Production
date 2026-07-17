@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "HōMI — Decision Readiness Intelligence",
+    name: "HōMI — Decision Readiness Intelligence™",
     short_name: "HōMI",
     description:
       "HōMI measures your true readiness for life's biggest decisions across Financial Reality, Emotional Truth, and Perfect Timing.",
