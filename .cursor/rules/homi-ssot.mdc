@@ -5,7 +5,7 @@ alwaysApply: true
 
 # HōMI SSOT
 
-- Product source of truth is GitHub `HoMI-Technology/Homi-Tech-Production-` and **this workspace only**.
+- Product source of truth is GitHub `HoMI-Technology/Homi-Tech-Production` and **this workspace only**.
 - Local path: `C:\Users\cody\code\Homi-Tech-Production-` (`HOMI_SSOT`).
 - Never invent a second product root under Desktop `HoMI Tech` archives.
 - Prefer small PRs; after merge keep `main` 1:1 with `origin/main`.
