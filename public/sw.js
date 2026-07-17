@@ -19,20 +19,20 @@
  * markup; hashed assets referenced by the running page stay fetchable.
  */
 
-// Bumped v2 → v3 when the icon/OG art changed to the Threshold Compass + HōMI
-// lockup. The activate handler purges non-matching caches, so returning PWA
-// users get the new (same-named) icons instead of the stale cached ones.
-const CACHE_VERSION = "homi-v3";
+// Bumped on icon/OG art changes so the activate handler purges stale caches.
+// v4: icon files were renamed to -v2 URLs (cache-bust) so browsers holding a
+// stale favicon/touch-icon under the old paths refetch the new compass art.
+const CACHE_VERSION = "homi-v4";
 const OFFLINE_URL = "/offline.html";
 const MAX_ASSET_ENTRIES = 100;
 
 const PRECACHE_URLS = [
   OFFLINE_URL,
-  "/icon.svg",
-  "/icon-192.png",
-  "/icon-512.png",
-  "/icon-512-maskable.png",
-  "/apple-touch-icon.png",
+  "/icon-v2.svg",
+  "/icon-192-v2.png",
+  "/icon-512-v2.png",
+  "/icon-512-maskable-v2.png",
+  "/apple-touch-icon-v2.png",
 ];
 
 self.addEventListener("install", (event) => {
