@@ -4,6 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { buildCompanionContext } from "@/lib/advisor/context";
+import {
+  loadIdentity,
+  saveIdentity,
+  IDENTITY_NAME_MAX,
+  DEFAULT_IDENTITY,
+  type HomiIdentity,
+} from "@/lib/advisor/identity";
 import { PERSONAS, type AdvisorPersona } from "@/lib/advisor/personas";
 import { track } from "@/lib/analytics";
 
@@ -58,6 +65,9 @@ export function CompanionWidget() {
   const [open, setOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [persona, setPersona] = useState<AdvisorPersona>("homie");
+  const [identity, setIdentity] = useState<HomiIdentity>(DEFAULT_IDENTITY);
+  const [editingName, setEditingName] = useState(false);
+  const [nameDraft, setNameDraft] = useState("");
   const [messages, setMessages] = useState<CompanionMessage[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -76,8 +86,17 @@ export function CompanionWidget() {
         setPersona(storedPersona);
       }
     }
+    setIdentity(loadIdentity());
     setHydrated(true);
   }, []);
+
+  function commitNameDraft() {
+    setEditingName(false);
+    const trimmed = nameDraft.trim();
+    if (!trimmed) return;
+    setIdentity(saveIdentity({ name: trimmed }));
+    track("companion_renamed");
+  }
 
   useEffect(() => {
     if (!hydrated) return;
@@ -156,6 +175,7 @@ export function CompanionWidget() {
           assessment,
           finance,
           surface,
+          identity,
           persona,
         }),
       });
@@ -237,7 +257,47 @@ export function CompanionWidget() {
           className="glass fixed bottom-24 right-6 z-50 flex h-[70vh] max-h-[560px] w-[380px] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl shadow-2xl"
         >
           <div className="flex items-center justify-between border-b border-slate-surface/60 px-4 py-3">
-            <p className="font-display text-sm font-semibold text-light">HōMI Companion</p>
+            {editingName ? (
+              <input
+                autoFocus
+                value={nameDraft}
+                onChange={(e) => setNameDraft(e.target.value)}
+                onBlur={commitNameDraft}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") commitNameDraft();
+                  if (e.key === "Escape") setEditingName(false);
+                }}
+                maxLength={IDENTITY_NAME_MAX}
+                aria-label="Name your HōMI"
+                className="input w-40 !py-1 text-sm"
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setNameDraft(identity.name === DEFAULT_IDENTITY.name ? "" : identity.name);
+                  setEditingName(true);
+                }}
+                title="Name your HōMI"
+                className="group flex items-center gap-1.5 rounded px-1 -mx-1 text-left transition-colors hover:bg-slate-surface/40"
+              >
+                <span className="font-display text-sm font-semibold text-light">
+                  {identity.name === DEFAULT_IDENTITY.name ? "HōMI Companion" : identity.name}
+                </span>
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  className="text-dim opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-hidden="true"
+                >
+                  <path d="M11.5 2.5l2 2L5 13l-2.5.5L3 11l8.5-8.5z" strokeLinejoin="round" />
+                </svg>
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setOpen(false)}
@@ -327,7 +387,7 @@ export function CompanionWidget() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               rows={1}
-              placeholder="Ask HōMI…"
+              placeholder={`Ask ${identity.name}…`}
               className="input max-h-28 flex-1 resize-none !py-2 text-sm"
             />
             <button

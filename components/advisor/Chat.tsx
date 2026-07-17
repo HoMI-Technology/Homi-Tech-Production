@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { loadLocalResult } from "@/lib/assessment/storage";
 import { buildCompanionContext } from "@/lib/advisor/context";
+import { loadIdentity } from "@/lib/advisor/identity";
 
 type Role = "user" | "assistant";
 
@@ -113,6 +114,7 @@ export function Chat() {
           messages: nextMessages.map((m) => ({ role: m.role, content: m.content })),
           assessment,
           finance,
+          identity: loadIdentity(),
         }),
       });
 
