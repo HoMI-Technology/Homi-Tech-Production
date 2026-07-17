@@ -11,7 +11,7 @@ import { SITE_URL } from "@/lib/seo/site";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "HōMI · Decision Intelligence OS",
+    default: "HōMI · Decision Readiness Intelligence™",
     template: "%s · HōMI",
   },
   description:
@@ -27,16 +27,16 @@ export const metadata: Metadata = {
     "decision companion",
   ],
   openGraph: {
-    title: "HōMI · Decision Intelligence OS",
+    title: "HōMI · Decision Readiness Intelligence™",
     description:
       "Everyone else tells you how. HōMI tells you if. Decision Readiness Intelligence™ across Financial Reality, Emotional Truth, and Perfect Timing.",
     siteName: "HōMI",
     type: "website",
-    images: [{ url: "/og-v2.png", width: 1200, height: 630, alt: "The HōMI Threshold Compass above the HōMI wordmark — Decision Readiness Intelligence. Know When You're Ready." }],
+    images: [{ url: "/og-v2.png", width: 1200, height: 630, alt: "The HōMI Threshold Compass above the HōMI wordmark — Decision Readiness Intelligence™. Know When You're Ready." }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "HōMI · Decision Intelligence OS",
+    title: "HōMI · Decision Readiness Intelligence™",
     description: "Credit scores look backward. HōMI looks at readiness now.",
     images: ["/og-v2.png"],
   },
