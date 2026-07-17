@@ -6,6 +6,7 @@
  */
 
 const STORAGE_KEY = "homi:finance";
+const SAVED_AT_KEY = "homi:finance:saved-at";
 
 export interface ExpenseCategory {
   id: string;
@@ -110,9 +111,24 @@ export function saveFinanceState(state: FinanceState): void {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    window.localStorage.setItem(SAVED_AT_KEY, new Date().toISOString());
   } catch {
     // Storage may be unavailable (private browsing quota, etc). Fail silently —
     // the in-memory state still works for the current session.
+  }
+}
+
+/**
+ * When the user last saved finance data, as an ISO timestamp — the freshness
+ * signal the Companion discloses ("your numbers are N days old"). Null when
+ * nothing has been saved or the timestamp predates this feature.
+ */
+export function financeSavedAt(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return window.localStorage.getItem(SAVED_AT_KEY);
+  } catch {
+    return null;
   }
 }
 
