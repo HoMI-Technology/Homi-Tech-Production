@@ -128,10 +128,14 @@ function writeLocal(stamped: Stamped<FinanceState>): void {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(stamped.value));
     window.localStorage.setItem(STAMP_KEY, String(stamped.updatedAt));
-    window.localStorage.setItem(
-      SAVED_AT_KEY,
-      new Date(stamped.updatedAt).toISOString(),
-    );
+    // Stamp 0 means "legacy data of unknown age" — writing it as 1970 would
+    // make the Companion claim the numbers are decades old.
+    if (stamped.updatedAt > 0) {
+      window.localStorage.setItem(
+        SAVED_AT_KEY,
+        new Date(stamped.updatedAt).toISOString(),
+      );
+    }
   } catch {
     // Storage may be unavailable (private browsing quota, etc). Fail silently —
     // the in-memory state still works for the current session.
@@ -188,11 +192,12 @@ export function saveFinanceState(state: FinanceState): void {
 
 /**
  * Reconcile with the server copy (last-write-wins) and return the freshest
- * state, hydrating localStorage with the winner. Null when neither side has
- * saved data or the caller is offline/anonymous — callers fall back to
- * loadFinanceState() / defaults. Call BEFORE the first saveFinanceState of a
- * session: hydrating defaults first and pulling second would push defaults
- * over a user's real cross-device numbers.
+ * state, hydrating localStorage with the winner. Anonymous and offline
+ * sessions reconcile to the local copy (null only when nothing is stored
+ * anywhere) — callers fall back to loadFinanceState() / defaults either way.
+ * Call BEFORE the first saveFinanceState of a session: hydrating defaults
+ * first and pulling second would push defaults over a user's real
+ * cross-device numbers.
  */
 export async function pullFinanceState(): Promise<FinanceState | null> {
   const result = await financeSync.pull();
