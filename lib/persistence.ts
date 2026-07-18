@@ -3,15 +3,18 @@
  *
  * The split-brain problem: some features persist to localStorage, some to the
  * database, and users can't form a model of what survives. This module is the
- * one contract both sides share, applied feature-by-feature (finance first):
+ * one contract both sides share, applied feature-by-feature (finance and the
+ * advisor thread first):
  *
  *  · Reads are LOCAL-FIRST: the UI renders from localStorage immediately;
  *    `pull()` then reconciles against the server copy in the background.
  *  · Writes are LOCAL-FIRST: localStorage synchronously (never lose an edit
- *    to a network blip), then a debounced background `push()` to the server.
+ *    to a network blip), then a debounced background `push()` to the server —
+ *    unless the resource uses `externalWrites`, where the feature's own
+ *    mutation flow persists (e.g. POST /api/advisor stores each exchange).
  *  · Conflicts resolve LAST-WRITE-WINS by the writing client's clock — these
- *    are single-author resources (a user's own numbers), where LWW is honest
- *    and anything fancier is ceremony.
+ *    are single-author resources (a user's own numbers, a user's own thread),
+ *    where LWW is honest and anything fancier is ceremony.
  *  · Anonymous sessions degrade to exactly the old behavior: the first 401
  *    disables sync for the session and localStorage carries on alone.
  *
@@ -21,6 +24,9 @@
  *         → { ok: true } | { stale: true, state: T, client_updated_at: number }
  *    (401 when signed out; PUT answers `stale` when the server copy is newer
  *     instead of accepting the write.)
+ * Resources whose server endpoint predates this shape or whose writes persist
+ * through their own mutation flow (the advisor thread) supply `parseRemote`
+ * and/or `externalWrites` instead.
  */
 
 export interface Stamped<T> {
@@ -56,7 +62,7 @@ export function reconcile<T>(
 }
 
 export interface SyncedResourceConfig<T> {
-  /** API route implementing the GET/PUT shape above. */
+  /** API route implementing the GET shape above (and PUT, unless externalWrites). */
   endpoint: string;
   /** Read the local copy (null when nothing stored). */
   loadLocal: () => Stamped<T> | null;
@@ -64,13 +70,26 @@ export interface SyncedResourceConfig<T> {
   saveLocal: (stamped: Stamped<T>) => void;
   /** Push debounce; edits within the window collapse to one request. */
   debounceMs?: number;
+  /**
+   * Map a GET response body to the remote copy (null = server has nothing).
+   * Defaults to the contract shape `{ state, client_updated_at }`.
+   */
+  parseRemote?: (body: unknown) => Stamped<T> | null;
+  /**
+   * True when server writes flow through the feature's own mutation endpoints
+   * instead of a PUT to `endpoint` (e.g. the advisor thread, where POST
+   * /api/advisor persists each exchange). Pull still reconciles and adopts
+   * the winner locally, but no push is ever attempted.
+   */
+  externalWrites?: boolean;
 }
 
 export interface SyncedResource<T> {
   /**
    * Fetch the server copy, reconcile with local, persist the winner locally,
-   * and return it (null when neither side has data or the network failed —
-   * the caller falls back to local/defaults either way).
+   * and return it (null when neither side has data — on network failure the
+   * local copy is reconciled against nothing and returned as-is, so the
+   * caller falls back to local/defaults either way).
    */
   pull: () => Promise<Stamped<T> | null>;
   /** Queue a background write of the given stamped value. */
@@ -81,8 +100,19 @@ export interface SyncedResource<T> {
   isDisabled: () => boolean;
 }
 
+/** The contract GET shape: `{ state, client_updated_at }`. */
+function defaultParseRemote<T>(body: unknown): Stamped<T> | null {
+  const b = body as { state?: T | null; client_updated_at?: unknown } | null;
+  if (b?.state != null && typeof b.client_updated_at === "number") {
+    return { value: b.state, updatedAt: b.client_updated_at };
+  }
+  return null;
+}
+
 export function createSyncedResource<T>(config: SyncedResourceConfig<T>): SyncedResource<T> {
   const debounceMs = config.debounceMs ?? 1500;
+  const parseRemote = config.parseRemote ?? defaultParseRemote<T>;
+  const externalWrites = config.externalWrites ?? false;
   let disabled = false;
   let timer: number | undefined;
   let pending: Stamped<T> | null = null;
@@ -93,7 +123,7 @@ export function createSyncedResource<T>(config: SyncedResourceConfig<T>): Synced
     timer = undefined;
     const toSend = pending;
     pending = null;
-    if (!toSend || disabled) return;
+    if (!toSend || disabled || externalWrites) return;
     try {
       const res = await fetch(config.endpoint, {
         method: "PUT",
@@ -133,7 +163,7 @@ export function createSyncedResource<T>(config: SyncedResourceConfig<T>): Synced
   }
 
   function push(stamped: Stamped<T>): void {
-    if (typeof window === "undefined" || disabled) return;
+    if (typeof window === "undefined" || disabled || externalWrites) return;
     pending = stamped;
     armFlushListeners();
     if (timer !== undefined) window.clearTimeout(timer);
@@ -148,12 +178,8 @@ export function createSyncedResource<T>(config: SyncedResourceConfig<T>): Synced
       if (res.status === 401) {
         disabled = true;
       } else if (res.ok) {
-        const body = (await res.json().catch(() => null)) as
-          | { state?: T | null; client_updated_at?: number }
-          | null;
-        if (body?.state != null && typeof body.client_updated_at === "number") {
-          remote = { value: body.state, updatedAt: body.client_updated_at };
-        }
+        const body = (await res.json().catch(() => null)) as unknown;
+        remote = parseRemote(body);
       }
     } catch {
       // Offline — reconcile against nothing; local wins below.
@@ -166,7 +192,7 @@ export function createSyncedResource<T>(config: SyncedResourceConfig<T>): Synced
       return remote;
     }
     if (result.winner === "local" && local) {
-      if (result.shouldPushLocal && !disabled) push(local);
+      if (result.shouldPushLocal && !disabled && !externalWrites) push(local);
       return local;
     }
     return null;

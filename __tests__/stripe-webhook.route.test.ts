@@ -296,12 +296,14 @@ describe("POST /api/webhooks/stripe — processing contract", () => {
     expect(state.profileUpdates).toHaveLength(0);
   });
 
-  it("acknowledges without processing when the service role key is missing", async () => {
+  it("returns 500 when the service role key is missing so Stripe retries", async () => {
     envState.SUPABASE_SERVICE_ROLE_KEY = undefined;
     verified(checkoutEvent);
     const res = await POST(request("{}"));
-    expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ received: true });
+    expect(res.status).toBe(500);
+    expect(await res.json()).toEqual({
+      error: "Server misconfigured; webhook will retry.",
+    });
     expect(state.profileUpdates).toHaveLength(0);
   });
 });

@@ -5,7 +5,11 @@ import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { loadLocalResult } from "@/lib/assessment/storage";
 import { buildCompanionContext } from "@/lib/advisor/context";
 import { loadIdentity } from "@/lib/advisor/identity";
-import { CHAT_THREAD_KEY } from "@/lib/advisor/thread-keys";
+import {
+  loadThreadMessages,
+  saveThreadMessages,
+  pullAdvisorThread,
+} from "@/lib/advisor/thread-store";
 
 type Role = "user" | "assistant";
 
@@ -14,8 +18,6 @@ interface ChatMessage {
   role: Role;
   content: string;
 }
-
-const THREAD_KEY = CHAT_THREAD_KEY;
 
 const SUGGESTED_PROMPTS = [
   "Am I actually ready?",
@@ -26,28 +28,6 @@ const SUGGESTED_PROMPTS = [
 
 function makeId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-}
-
-function loadThread(): ChatMessage[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(THREAD_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed;
-  } catch {
-    return [];
-  }
-}
-
-function saveThread(messages: ChatMessage[]): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(THREAD_KEY, JSON.stringify(messages));
-  } catch {
-    // Ignore — thread persistence is a nicety.
-  }
 }
 
 function CompassAvatar() {
@@ -81,31 +61,25 @@ export function Chat() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setMessages(loadThread());
+    setMessages(loadThreadMessages("chat"));
     setHasAssessment(Boolean(loadLocalResult()));
 
-    // One memory: resume the server thread (shared with the floating widget)
-    // when signed in; on 401/failure the localStorage copy above stands.
+    // One memory: reconcile the server thread (shared with the floating
+    // widget) in the background via the persistence contract; on
+    // 401/offline the local copy above stands.
     let cancelled = false;
-    fetch("/api/advisor/history")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data: { conversationId?: string | null; messages?: Array<{ role: Role; content: string }> } | null) => {
-        if (cancelled || !data) return;
-        if (data.conversationId) setConversationId(data.conversationId);
-        if (Array.isArray(data.messages) && data.messages.length > 0) {
-          setMessages(data.messages.map((m) => ({ id: makeId(), role: m.role, content: m.content })));
-        }
-      })
-      .catch(() => {
-        // Offline — local thread stands.
-      });
+    void pullAdvisorThread("chat").then((thread) => {
+      if (cancelled || !thread) return;
+      if (thread.conversationId) setConversationId(thread.conversationId);
+      if (thread.messages.length > 0) setMessages(thread.messages);
+    });
     return () => {
       cancelled = true;
     };
   }, []);
 
   useEffect(() => {
-    saveThread(messages);
+    saveThreadMessages("chat", messages);
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 

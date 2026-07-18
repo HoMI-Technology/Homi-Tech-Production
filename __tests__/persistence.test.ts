@@ -45,7 +45,10 @@ function jsonResponse(status: number, body: unknown) {
   } as Response;
 }
 
-function makeHarness(initialLocal: Stamped<number> | null = null) {
+function makeHarness(
+  initialLocal: Stamped<number> | null = null,
+  extra: Partial<Parameters<typeof createSyncedResource<number>>[0]> = {},
+) {
   let local = initialLocal;
   const calls: FetchCall[] = [];
   const responses: Response[] = [];
@@ -65,6 +68,7 @@ function makeHarness(initialLocal: Stamped<number> | null = null) {
       local = s;
     },
     debounceMs: 100,
+    ...extra,
   });
   return { resource, calls, responses, getLocal: () => local };
 }
@@ -133,5 +137,32 @@ describe("createSyncedResource", () => {
     h.resource.push({ value: 1, updatedAt: 100 });
     await vi.advanceTimersByTimeAsync(250);
     expect(h.getLocal()).toEqual({ value: 9, updatedAt: 999 });
+  });
+
+  it("honors a custom parseRemote adapter for non-contract GET shapes", async () => {
+    const h = makeHarness(null, {
+      parseRemote: (body) => {
+        const b = body as { items?: number; stamp?: number } | null;
+        return typeof b?.items === "number" && typeof b?.stamp === "number"
+          ? { value: b.items, updatedAt: b.stamp }
+          : null;
+      },
+    });
+    h.responses.push(jsonResponse(200, { items: 42, stamp: 700 }));
+    const result = await h.resource.pull();
+    expect(result).toEqual({ value: 42, updatedAt: 700 });
+    expect(h.getLocal()).toEqual({ value: 42, updatedAt: 700 });
+  });
+
+  it("externalWrites never PUTs — not after local wins, not on push()", async () => {
+    const h = makeHarness({ value: 5, updatedAt: 900 }, { externalWrites: true });
+    h.responses.push(jsonResponse(200, { state: 1, client_updated_at: 100 })); // GET — local wins
+    const result = await h.resource.pull();
+    expect(result).toEqual({ value: 5, updatedAt: 900 });
+    h.resource.push({ value: 6, updatedAt: 1000 });
+    await h.resource.flush();
+    await vi.advanceTimersByTimeAsync(500);
+    expect(h.calls).toHaveLength(1); // the GET only — server writes stay external
+    expect(h.getLocal()).toEqual({ value: 5, updatedAt: 900 });
   });
 });

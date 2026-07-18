@@ -5,7 +5,7 @@ import { getClientIp, rateLimit } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 
-/** Postgres/PostgREST codes meaning "migration 00021 isn't applied yet". */
+/** Postgres/PostgREST codes meaning "migration 00023 isn't applied yet". */
 const INFRA_MISSING_CODES = new Set([
   "42P01", // undefined_table
   "PGRST205", // PostgREST: table not found in schema cache
@@ -20,7 +20,7 @@ const INFRA_MISSING_CODES = new Set([
  * resource — the loser of a same-user race converges on the next pull.
  *
  * Ownership is structural: user_id always comes from the session, and RLS
- * (00021) enforces the same rule in the database as defense-in-depth.
+ * (00023) enforces the same rule in the database as defense-in-depth.
  */
 
 const moneyLike = z.number().finite().min(-1_000_000_000).max(1_000_000_000);

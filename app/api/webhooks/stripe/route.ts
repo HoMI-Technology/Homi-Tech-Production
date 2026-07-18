@@ -215,8 +215,14 @@ export async function POST(request: Request) {
 
   const supabase = getServiceClient();
   if (!supabase) {
-    console.warn("[stripe webhook] SUPABASE_SERVICE_ROLE_KEY missing — cannot dedupe or process.");
-    return NextResponse.json({ received: true });
+    // Configuration error, not "successfully ignored." A 200 here would make
+    // Stripe stop retrying while the customer remains unprovisioned forever.
+    // 500 forces redelivery once the service role is restored.
+    console.error("[stripe webhook] SUPABASE_SERVICE_ROLE_KEY missing — cannot dedupe or process.");
+    return NextResponse.json(
+      { error: "Server misconfigured; webhook will retry." },
+      { status: 500 },
+    );
   }
 
   // Insert-first idempotency: `webhook_events(event_id)` is UNIQUE. A

@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:acceptance": "vitest run --config vitest.acceptance.config.ts",
+    "test:e2e": "playwright test",
     "brand-check": "node scripts/brand-check.mjs",
     "stripe-setup": "node scripts/stripe-setup.mjs",
     "create-admin": "node scripts/create-admin.mjs",
@@ -33,6 +34,7 @@
   },
   "devDependencies": {
     "@lhci/cli": "^0.14.0",
+    "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4.1.7",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
