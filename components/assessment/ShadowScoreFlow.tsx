@@ -219,7 +219,16 @@ export function ShadowScoreFlow() {
 
     const prior = loadLocalResult();
     const previous = prior
-      ? { score: prior.result.score, verdict: prior.result.verdict, completedAt: prior.completedAt }
+      ? {
+          score: prior.result.score,
+          verdict: prior.result.verdict,
+          completedAt: prior.completedAt,
+          pillars: {
+            financial: prior.result.financial.total,
+            emotional: prior.result.emotional.total,
+            timing: prior.result.timing.total,
+          },
+        }
       : undefined;
 
     saveLocalResult({
