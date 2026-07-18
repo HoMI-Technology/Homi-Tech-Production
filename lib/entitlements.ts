@@ -123,7 +123,11 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     tier: "family",
     advisorAccess: true,
     advisorRealModel: true,
-    advisorMessagesPerDay: 40,
+    // Per-member; matches Pro (family is "everything in Pro" for up to 5).
+    // Household aggregate can reach familySeats × this at full tilt — the
+    // Anthropic prepaid cap is the real cost backstop, and a shared household
+    // pool is the proper optimization (tracked for later).
+    advisorMessagesPerDay: 100,
     fullReport: true,
     unlimitedRescoring: true,
     couplesMode: true,
