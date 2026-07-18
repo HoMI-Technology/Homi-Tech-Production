@@ -4,8 +4,9 @@ This folder is the complete source of the live deployment.
 
 - Live URL: https://homitechnology.com (alias: homi-platform-homi-tech.vercel.app)
 - Vercel project: homi-platform (team: homi-tech, id: prj_LSgxv4XcVDWEQVvvMzmelruM7Xtb)
-- Supabase project: giyycykxkzfbowiapxpd (repo migrations 00001–00020 in
-  `supabase/migrations/`, applied in numeric order)
+- Supabase project: giyycykxkzfbowiapxpd (repo migrations **00001–00023** in
+  `supabase/migrations/`, applied in numeric order after history repair —
+  see `docs/MIGRATION-REPAIR.md`)
 
 ## Run locally
 npm install
@@ -59,3 +60,26 @@ file:line evidence — then verify on the preview deploy with devtools open
 (blocked requests show as CSP errors). Server-side-only calls (Stripe,
 Anthropic, Resend APIs) never need CSP entries. Dropping `'unsafe-inline'`
 from `script-src` requires nonce middleware and is a planned follow-up.
+
+## Launch preflight (human — not agent-runnable)
+
+Do these **before** charging real cards. Code on `main` does not substitute.
+
+1. **DB backup**, then run `docs/MIGRATION-REPAIR.md` (phantom history →
+   `migration repair --status reverted` only — never hand-DELETE).
+2. Apply unapplied migrations **00001–00023** in order; verify
+   `webhook_events`, `advisor_usage`, `score_shares.revoked_at`,
+   `user_finance_state`, bank_sync / calibration tables exist.
+3. Vercel env on **Preview + Production**: `SUPABASE_SERVICE_ROLE_KEY`,
+   `STRIPE_*`, `ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `UPSTASH_*`,
+   `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN`, `CRON_SECRET`, PostHog keys.
+4. Stripe **test** products with `lookup_key`s (`npm run stripe-setup` with
+   `sk_test_…`); register webhook → `/api/webhooks/stripe`; prove
+   checkout → tier, replay, downgrade on a test clock. Live keys last.
+5. Supabase Auth: Site URL + redirect allowlist, HaveIBeenPwned, custom
+   SMTP (Resend). Password-reset round-trip on the prod domain.
+6. Vercel **Pro**; GitHub: protect `main` (require `verify` + review).
+7. Smoke: `/api/healthcheck` 200 + commit SHA; share create/revoke;
+   free-tier entitlement gate; one Sentry error with release SHA.
+8. Optional E2E: set GitHub `E2E_*` secrets, then `npm run test:e2e`
+   (live specs skip cleanly until secrets exist).

@@ -82,8 +82,14 @@ export async function POST(request: Request) {
 
   const admin = createAdminClient();
   if (!admin) {
+    // Same contract as the Stripe webhook: missing service role is a
+    // configuration error. Acking with 200 would silence Plaid redelivery
+    // while item status never updates.
     console.error(`[plaid/webhook:${correlationId}] SUPABASE_SERVICE_ROLE_KEY missing — cannot process`);
-    return ack({ processed: false });
+    return NextResponse.json(
+      { error: "Server misconfigured; webhook will retry." },
+      { status: 500 },
+    );
   }
 
   // Insert-first idempotency (same ledger as the Stripe webhook). Plaid sends
