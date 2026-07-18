@@ -11,6 +11,7 @@ import {
   DEFAULT_IDENTITY_NAME,
   IDENTITY_NAME_MAX,
   HOMI_PRESETS,
+  clearIdentity,
   getPreset,
   hasChosenIdentity,
   loadIdentity,
@@ -63,6 +64,13 @@ describe("identity store", () => {
     expect(hasChosenIdentity()).toBe(false);
     saveIdentity({ name: "Clarity", preset: "clarity" });
     expect(hasChosenIdentity()).toBe(true);
+  });
+
+  it("clearIdentity resets to the picker state", () => {
+    saveIdentity({ name: "Marcus", preset: "steady" });
+    clearIdentity();
+    expect(hasChosenIdentity()).toBe(false);
+    expect(loadIdentity().name).toBe(DEFAULT_IDENTITY_NAME);
   });
 });
 

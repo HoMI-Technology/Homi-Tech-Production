@@ -9,6 +9,7 @@ import { describe, expect, it } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   COMPANION_CONVERSATION_TITLE,
+  forgetCompanionThread,
   loadCompanionThread,
   persistCompanionExchange,
 } from "@/lib/advisor/memory";
@@ -23,7 +24,7 @@ type Result = { data: unknown; error: unknown };
 function makeChain(result: Result, captures?: { inserts?: unknown[]; updates?: unknown[] }) {
   const chain: Record<string, unknown> = {};
   const self = () => chain;
-  for (const m of ["select", "order", "limit", "eq"]) chain[m] = self;
+  for (const m of ["select", "order", "limit", "eq", "delete"]) chain[m] = self;
   chain.insert = (payload: unknown) => {
     captures?.inserts?.push(payload);
     return chain;
@@ -143,5 +144,26 @@ describe("persistCompanionExchange", () => {
   it("never throws even when the client itself blows up", async () => {
     const supabase = { from: () => { throw new Error("boom"); } } as unknown as SupabaseClient;
     expect(await persistCompanionExchange(supabase, { ...exchange, conversationId: null })).toBeNull();
+  });
+});
+
+describe("forgetCompanionThread", () => {
+  it("deletes scoped to the user and reports success honestly", async () => {
+    const supabase = makeSupabase({
+      advisor_conversations: [makeChain({ data: null, error: null })],
+    });
+    expect(await forgetCompanionThread(supabase, "u1")).toBe(true);
+  });
+
+  it("reports failure instead of pretending", async () => {
+    const supabase = makeSupabase({
+      advisor_conversations: [makeChain({ data: null, error: { code: "500" } })],
+    });
+    expect(await forgetCompanionThread(supabase, "u1")).toBe(false);
+  });
+
+  it("never throws when the client blows up", async () => {
+    const supabase = { from: () => { throw new Error("boom"); } } as unknown as SupabaseClient;
+    expect(await forgetCompanionThread(supabase, "u1")).toBe(false);
   });
 });

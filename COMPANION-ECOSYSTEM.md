@@ -116,8 +116,13 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   blockers, next best action) — the single backbone the dashboard, chat, and any
   future report all read from, adapted from the strategy corpus's
   `CompanionReadinessState`.
-- **"What HōMI remembers"**: an inspectable memory panel — facts separated from
-  inferences, every entry editable and deletable by the user.
+- **"What HōMI remembers"** — SHIPPED: an inspectable memory panel in Settings
+  (`components/settings/CompanionMemorySection.tsx`) stating plainly what the
+  Companion knows (identity, readiness, money picture with freshness, stored
+  conversation) with real controls: "Forget this conversation" (deletes the
+  server thread via `DELETE /api/advisor/history` and clears local copies) and
+  "Reset my HōMI" (returns to the identity picker). Only facts the user gave —
+  no hidden inferences.
 
 ### Phase 3 — The go-to for anything financial
 - **Plaid-aware context**: once the transactions table lands (known limitation in
