@@ -1,0 +1,74 @@
+name: E2E
+
+# Playwright smoke suite (AUDIT T3.5). Independent of ci.yml / lighthouse.yml —
+# separate workflow, separate check, no shared state.
+#
+# Fork-safe by design: anonymous/local specs always run; specs that need a
+# live Supabase test project or Stripe test-mode keys SKIP with a clear
+# message when their env is absent (fork PRs receive no secrets), so this
+# workflow is green on forks without weakening the signal on repo PRs.
+#
+# Secrets are only ever exposed on plain `pull_request` (never
+# pull_request_target), so fork code cannot reach them.
+
+on:
+  pull_request:
+    branches: [main]
+  # Manual/API trigger — pushes from bot credentials (agent sessions) don't
+  # fire pull_request synchronize events, so branches need a way to run CI.
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # Public, browser-safe values (mirrors ci.yml).
+      NEXT_PUBLIC_SUPABASE_URL: https://giyycykxkzfbowiapxpd.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NEXT_TELEMETRY_DISABLED: "1"
+      NODE_OPTIONS: --max-old-space-size=4096
+      # --- Live-spec env (specs SKIP when these are empty) ---
+      # Supabase test project: the specs read E2E_*; the dev server under test
+      # reads the unprefixed names (webhook + admin paths need the service key).
+      E2E_SUPABASE_URL: ${{ secrets.E2E_SUPABASE_URL }}
+      E2E_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.E2E_SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.E2E_SUPABASE_SERVICE_ROLE_KEY }}
+      # Stripe TEST mode only — the suite refuses sk_live_* / non-whsec_* values.
+      E2E_STRIPE_SECRET_KEY: ${{ secrets.E2E_STRIPE_SECRET_KEY }}
+      E2E_STRIPE_WEBHOOK_SECRET: ${{ secrets.E2E_STRIPE_WEBHOOK_SECRET }}
+      STRIPE_SECRET_KEY: ${{ secrets.E2E_STRIPE_SECRET_KEY }}
+      STRIPE_WEBHOOK_SECRET: ${{ secrets.E2E_STRIPE_WEBHOOK_SECRET }}
+      STRIPE_PRICE_PLUS: ${{ secrets.E2E_STRIPE_PRICE_PLUS }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install (reproducible)
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright smoke suite
+        run: npx playwright test
+
+      - name: Upload Playwright report + traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore
