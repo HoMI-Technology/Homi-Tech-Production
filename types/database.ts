@@ -185,6 +185,17 @@ export interface Goal {
   updated_at: string;
 }
 
+/** Manual Finance dashboard state (00021, audit T2.6) — one row per user. */
+export interface UserFinanceStateRow {
+  user_id: string;
+  /** The whole FinanceState (lib/finance/store.ts) as jsonb. */
+  state: Record<string, unknown>;
+  /** ms-epoch LWW stamp; bigint arrives as a string via PostgREST. */
+  client_updated_at: number | string;
+  created_at: string;
+  updated_at: string;
+}
+
 export type PlaidItemStatus =
   | "healthy"
   | "login_required"

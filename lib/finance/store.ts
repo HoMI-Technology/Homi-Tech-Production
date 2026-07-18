@@ -1,11 +1,27 @@
 /**
- * Finance Command Dashboard — shared localStorage-backed state.
+ * Finance Command Dashboard — shared local-first state (audit T2.6).
+ *
+ * localStorage stays the synchronous source the UI reads and writes (an edit
+ * can never be lost to a network blip), and a background sync layer
+ * (lib/persistence.ts) mirrors it to the database for signed-in users so the
+ * numbers follow them across devices. Anonymous visitors get exactly the old
+ * localStorage-only behavior.
+ *
  * SSR-safe: all reads/writes are guarded behind `typeof window` checks,
  * so importing this module on the server (or during the SSR render pass
  * of a client component) never throws.
  */
 
+import { createSyncedResource, type Stamped } from "@/lib/persistence";
+
 const STORAGE_KEY = "homi:finance";
+/** ms-epoch stamp of the last local write — the LWW tiebreaker. Kept in a
+ * separate key so the legacy `homi:finance` format (read directly by the
+ * simulator and the Companion context) never changes shape. */
+const STAMP_KEY = "homi:finance:updated-at";
+/** ISO timestamp of the same write — the freshness signal financeSavedAt()
+ * exposes to the Companion. Always derived from the LWW stamp so the two
+ * keys can never disagree about when the numbers were saved. */
 const SAVED_AT_KEY = "homi:finance:saved-at";
 
 export interface ExpenseCategory {
@@ -106,15 +122,37 @@ export function loadFinanceState(): FinanceState {
   }
 }
 
-/** Persists finance state to localStorage. SSR-safe no-op on the server. */
-export function saveFinanceState(state: FinanceState): void {
+/** Local write WITHOUT a sync push — the sync layer itself uses this. */
+function writeLocal(stamped: Stamped<FinanceState>): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    window.localStorage.setItem(SAVED_AT_KEY, new Date().toISOString());
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(stamped.value));
+    window.localStorage.setItem(STAMP_KEY, String(stamped.updatedAt));
+    window.localStorage.setItem(
+      SAVED_AT_KEY,
+      new Date(stamped.updatedAt).toISOString(),
+    );
   } catch {
     // Storage may be unavailable (private browsing quota, etc). Fail silently —
     // the in-memory state still works for the current session.
+  }
+}
+
+/** The local copy with its LWW stamp; legacy data without a stamp reads 0. */
+function loadStampedFinanceState(): Stamped<FinanceState> | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<FinanceState>;
+    const stampRaw = window.localStorage.getItem(STAMP_KEY);
+    const updatedAt = stampRaw ? Number.parseInt(stampRaw, 10) : 0;
+    return {
+      value: { ...DEFAULT_FINANCE_STATE, ...parsed },
+      updatedAt: Number.isFinite(updatedAt) ? updatedAt : 0,
+    };
+  } catch {
+    return null;
   }
 }
 
@@ -130,6 +168,35 @@ export function financeSavedAt(): string | null {
   } catch {
     return null;
   }
+}
+
+const financeSync = createSyncedResource<FinanceState>({
+  endpoint: "/api/finance-state",
+  loadLocal: loadStampedFinanceState,
+  saveLocal: writeLocal,
+});
+
+/**
+ * Persists finance state locally (synchronous) and queues a background sync
+ * to the database for signed-in users. SSR-safe no-op on the server.
+ */
+export function saveFinanceState(state: FinanceState): void {
+  const stamped: Stamped<FinanceState> = { value: state, updatedAt: Date.now() };
+  writeLocal(stamped);
+  financeSync.push(stamped);
+}
+
+/**
+ * Reconcile with the server copy (last-write-wins) and return the freshest
+ * state, hydrating localStorage with the winner. Null when neither side has
+ * saved data or the caller is offline/anonymous — callers fall back to
+ * loadFinanceState() / defaults. Call BEFORE the first saveFinanceState of a
+ * session: hydrating defaults first and pulling second would push defaults
+ * over a user's real cross-device numbers.
+ */
+export async function pullFinanceState(): Promise<FinanceState | null> {
+  const result = await financeSync.pull();
+  return result?.value ?? null;
 }
 
 /** Derived read: net cash flow (income - expenses - debt payments). */

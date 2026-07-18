@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { MoneyField } from "@/components/ui/MoneyField";
 import { formatCurrency } from "@/lib/tools/format";
 import { goalProgress, goalProjection } from "@/lib/dashboard/financial-position";
-import { loadFinanceState, netCashFlow } from "@/lib/finance/store";
+import { loadFinanceState, netCashFlow, pullFinanceState } from "@/lib/finance/store";
 
 /**
  * Down-payment goal card for the dashboard's Financial position section.
@@ -45,17 +45,31 @@ export function GoalCard({
   const [source, setSource] = useState<SavingsSource>(liquidSavings !== null ? "synced" : null);
 
   // Manual fallback — only when no synced snapshot supplied the numbers.
+  // Local copy renders immediately; the background pull then adopts the
+  // freshest cross-device copy (T2.6), so a goal set up on a laptop shows
+  // real progress on a phone that never opened /finance.
   useEffect(() => {
     if (liquidSavings !== null) return;
     try {
-      if (window.localStorage.getItem("homi:finance") === null) return;
+      if (window.localStorage.getItem("homi:finance") !== null) {
+        const manual = loadFinanceState();
+        setSaved(manual.liquidSavings);
+        setFlow(netCashFlow(manual));
+        setSource("manual");
+      }
     } catch {
       return;
     }
-    const manual = loadFinanceState();
-    setSaved(manual.liquidSavings);
-    setFlow(netCashFlow(manual));
-    setSource("manual");
+    let cancelled = false;
+    void pullFinanceState().then((remote) => {
+      if (cancelled || !remote) return;
+      setSaved(remote.liquidSavings);
+      setFlow(netCashFlow(remote));
+      setSource("manual");
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [liquidSavings]);
 
   async function save() {
