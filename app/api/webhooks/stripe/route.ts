@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
-import { createHmac, timingSafeEqual } from "node:crypto";
+import Stripe from "stripe";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { env } from "@/lib/env";
 import { TIERS, type TierKey } from "@/lib/stripe/tiers";
+import { createStripeClient } from "@/lib/stripe/server";
 
 export const runtime = "nodejs";
-
-const TOLERANCE_SECONDS = 300;
 
 /**
  * Thrown when a Supabase mutation returns a (non-thrown) `.error` that looks
@@ -14,41 +13,6 @@ const TOLERANCE_SECONDS = 300;
  * response so Stripe retries delivery instead of silently losing the event.
  */
 class TransientDbError extends Error {}
-
-/**
- * Verifies a Stripe `stripe-signature` header against the raw request
- * body using HMAC-SHA256, per Stripe's documented scheme:
- * signed payload = `${timestamp}.${rawBody}`, compared timing-safe
- * against each `v1=` signature, with a timestamp tolerance window.
- */
-function verifyStripeSignature(rawBody: string, signatureHeader: string, secret: string): boolean {
-  const parts = signatureHeader.split(",").reduce<Record<string, string[]>>((acc, part) => {
-    const [key, value] = part.split("=");
-    if (!key || value === undefined) return acc;
-    (acc[key] ??= []).push(value);
-    return acc;
-  }, {});
-
-  const timestamp = parts.t?.[0];
-  const v1Signatures = parts.v1 ?? [];
-  if (!timestamp || v1Signatures.length === 0) return false;
-
-  const timestampSeconds = Number(timestamp);
-  if (!Number.isFinite(timestampSeconds)) return false;
-
-  const nowSeconds = Math.floor(Date.now() / 1000);
-  if (Math.abs(nowSeconds - timestampSeconds) > TOLERANCE_SECONDS) return false;
-
-  const signedPayload = `${timestamp}.${rawBody}`;
-  const expected = createHmac("sha256", secret).update(signedPayload, "utf8").digest("hex");
-  const expectedBuf = Buffer.from(expected, "hex");
-
-  return v1Signatures.some((sig) => {
-    const sigBuf = Buffer.from(sig, "hex");
-    if (sigBuf.length !== expectedBuf.length) return false;
-    return timingSafeEqual(sigBuf, expectedBuf);
-  });
-}
 
 function getServiceClient() {
   const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
@@ -85,14 +49,6 @@ function mapSubscriptionStatus(
   return stripeStatus ?? "active";
 }
 
-interface StripeEvent {
-  id: string;
-  type: string;
-  data: {
-    object: Record<string, unknown>;
-  };
-}
-
 /**
  * Fetches the checkout session's line items from the Stripe API.
  *
@@ -109,21 +65,17 @@ async function fetchSessionPrice(
   const secretKey = env.STRIPE_SECRET_KEY;
   if (!secretKey) return null;
   try {
-    const res = await fetch(
-      `https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}/line_items?limit=1`,
-      { headers: { Authorization: `Bearer ${secretKey}` } },
-    );
-    if (!res.ok) return null;
-    const body = (await res.json()) as {
-      data?: Array<{ price?: { lookup_key?: string | null } }>;
-    };
-    return body.data?.[0]?.price ?? null;
+    const stripe = createStripeClient(secretKey);
+    const lineItems = await stripe.checkout.sessions.listLineItems(sessionId, { limit: 1 });
+    const price = lineItems.data[0]?.price;
+    if (!price || typeof price === "string" || !("lookup_key" in price)) return null;
+    return { lookup_key: price.lookup_key };
   } catch {
     return null;
   }
 }
 
-async function handleCheckoutCompleted(event: StripeEvent) {
+async function handleCheckoutCompleted(event: Stripe.Event) {
   const session = event.data.object as {
     id?: string;
     client_reference_id?: string | null;
@@ -167,7 +119,7 @@ async function handleCheckoutCompleted(event: StripeEvent) {
   }
 }
 
-async function handleSubscriptionUpdated(event: StripeEvent) {
+async function handleSubscriptionUpdated(event: Stripe.Event) {
   const subscription = event.data.object as {
     customer?: string | null;
     status?: string | null;
@@ -198,7 +150,7 @@ async function handleSubscriptionUpdated(event: StripeEvent) {
   }
 }
 
-async function handleSubscriptionDeleted(event: StripeEvent) {
+async function handleSubscriptionDeleted(event: Stripe.Event) {
   const subscription = event.data.object as { customer?: string | null };
   const customerId = subscription.customer;
   if (!customerId) return;
@@ -218,7 +170,7 @@ async function handleSubscriptionDeleted(event: StripeEvent) {
   }
 }
 
-async function handleInvoicePaymentFailed(event: StripeEvent) {
+async function handleInvoicePaymentFailed(event: Stripe.Event) {
   const invoice = event.data.object as { customer?: string | null };
   const customerId = invoice.customer;
   if (!customerId) return;
@@ -243,14 +195,21 @@ export async function POST(request: Request) {
   const webhookSecret = env.STRIPE_WEBHOOK_SECRET;
   const rawBody = await request.text();
 
-  if (!signature || !webhookSecret || !verifyStripeSignature(rawBody, signature, webhookSecret)) {
+  // Official SDK verification (HMAC-SHA256 + timestamp tolerance, timing-safe)
+  // over the RAW body — the body must not be parsed before this point.
+  let event: Stripe.Event;
+  if (!signature || !webhookSecret) {
     return NextResponse.json({ error: "Invalid signature." }, { status: 400 });
   }
-
-  let event: StripeEvent;
   try {
-    event = JSON.parse(rawBody) as StripeEvent;
-  } catch {
+    // Verification needs no API key; the key (if configured) only feeds the
+    // line-item round-trip in fetchSessionPrice.
+    const stripe = createStripeClient(env.STRIPE_SECRET_KEY ?? "webhook_verify_only");
+    event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
+  } catch (err) {
+    if (err instanceof Stripe.errors.StripeSignatureVerificationError) {
+      return NextResponse.json({ error: "Invalid signature." }, { status: 400 });
+    }
     return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
   }
 
