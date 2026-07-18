@@ -17,6 +17,7 @@ import { SubFactorBar } from "@/components/assessment/SubFactorBar";
 import { TrinityBar } from "@/components/assessment/TrinityBar";
 import { ShareScoreButton } from "@/components/share/ShareScoreButton";
 import { ScoreDeltaBadge } from "@/components/dashboard/ScoreDeltaBadge";
+import { ScoreExplanation } from "@/components/results/ScoreExplanation";
 import { VerdictOverride } from "@/components/assessment/VerdictOverride";
 
 const FINANCIAL = PILLARS.find((p) => p.key === "financial")!;
@@ -166,6 +167,9 @@ export default function ResultsPage() {
           <p className="mt-4 max-w-md text-base text-light">{meta.line}</p>
         </div>
       </div>
+
+      {/* Why did this change — only when there's a previous result to compare */}
+      <ScoreExplanation stored={effective} />
 
       {/* Hard stops */}
       {result.hardStops.length > 0 && (

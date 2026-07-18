@@ -21,6 +21,7 @@
  */
 export const PUBLIC_PRODUCT_ROUTES = [
   "assessment",
+  "calibration",
   "demo",
   "onboarding",
   "plan",

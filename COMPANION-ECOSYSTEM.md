@@ -135,9 +135,13 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   there"). Deep-link with query params; the planner persona already names tools.
 - **Behavioral genome**: `behavioral_genome` informs *how* the mote talks (pace,
   framing), never *what* it claims.
-- **Explainability view**: a "why did this change" surface built from structured
-  state — score movement, dimension deltas, causes in magnitude bands (small /
-  moderate / large), never numeric weights, so scoring canon can never leak.
+- **Explainability view** — SHIPPED: the "why did this change" card on /results
+  (`components/results/ScoreExplanation.tsx`) built from `lib/advisor/explain.ts` —
+  score movement and per-pillar deltas in magnitude bands (small / moderate /
+  large), never numeric weights, with honest caveats for staleness, missing
+  pillar detail, and active hard stops. The Companion receives the same
+  explanation via the spine's `whatChanged` field, so chat and view always tell
+  one story. Previous-score snapshots now carry pillar totals to power it.
 - **Milestone moments and ambient context**: mark score-threshold crossings in the
   Companion surface and keep a one-line context bar of what the conversation has
   covered — warmth mechanics harvested from the companions-v2 prototype, re-voiced
