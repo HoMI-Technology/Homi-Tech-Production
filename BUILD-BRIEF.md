@@ -8,7 +8,7 @@ You are a staff-level full-stack engineer finishing and hardening a production N
 
 - **Product:** HōMI — "Decision Readiness Intelligence." Tells people *if* they're ready for a big decision (starting with homebuying), not *how*. Scores readiness across three pillars and returns a verdict + a build-first path.
 - **Stack:** Next.js 15 (App Router) · React 19 · TypeScript (strict) · Tailwind v4 · Supabase (`@supabase/ssr`) · Stripe · deployed on Vercel.
-- **Repo:** `github.com/HoMI-Technology/Homi-Tech-Production-` (branch `main`). Live at `homitechnology.com`.
+- **Repo:** `github.com/HoMI-Technology/Homi-Tech-Production` (branch `main`). Live at `homitechnology.com`.
 - **Baseline (verified 2026-07-08):** `tsc --noEmit` clean; `vitest run` 84/84 pass; app deploys. Do not regress this.
 - **Company:** HOMI TECHNOLOGIES LLC.
 

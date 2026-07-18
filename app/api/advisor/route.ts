@@ -4,6 +4,7 @@ import { hasAnthropic, env } from "@/lib/env";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
 import { createClient } from "@/lib/supabase/server";
 import { gateCompanion } from "@/lib/advisor/quota";
+import { persistCompanionExchange } from "@/lib/advisor/memory";
 import {
   buildPersonaFallbackReply,
   type AdvisorAssessmentContext,
@@ -28,6 +29,8 @@ const assessmentContextSchema = z.object({
     timing: z.number(),
   }),
   hardStops: z.array(z.string()).default([]),
+  ageDays: z.number().min(0).max(36_500).nullish(),
+  previousScore: z.number().min(0).max(100).nullish(),
 });
 
 /**
@@ -44,16 +47,35 @@ const financeContextSchema = z.object({
   liquidSavings: z.number().min(0).max(1_000_000_000),
   totalDebt: z.number().min(0).max(1_000_000_000),
   netWorth: z.number().min(-1_000_000_000).max(1_000_000_000),
+  ageDays: z.number().min(0).max(36_500).nullish(),
+});
+
+/**
+ * "Your HōMI" — the user-chosen companion name. A label only: it changes how
+ * the Companion is addressed, never the voice rules or what it may say. The
+ * name is user text, so it is length-capped here and framed as data (not
+ * instructions) in the prompt.
+ */
+const identitySchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1)
+    .max(24)
+    .refine((s) => !/[\r\n]/.test(s), "single line"),
 });
 
 const personaSchema = z.enum(["homie", "reality", "gut", "timing", "planner"]);
 
 const bodySchema = z.object({
   messages: z.array(messageSchema).min(1).max(50),
+  /** Server thread id from a prior reply/history load; RLS restricts it to the user's own. */
+  conversationId: z.string().uuid().nullish(),
   assessment: assessmentContextSchema.nullish(),
   finance: financeContextSchema.nullish(),
   /** Human-readable label of the surface the user is on, e.g. "the mortgage calculator". */
   surface: z.string().max(80).nullish(),
+  identity: identitySchema.nullish(),
   persona: personaSchema.nullish(),
   /** When true, the server supplies a fixed mock assessment context (used
    * by the public /artifact companion test environment) and any client-sent
@@ -93,6 +115,8 @@ Voice rules, non-negotiable:
 - If hard stops are present, explain specifically what protection they represent — never shame the user for tripping one.
 - Keep replies under roughly 250 words. Be substantive but not exhausting.
 - If you don't have their assessment data, don't guess at their numbers — invite them warmly to get their Shadow Score.
+- Every number you have here is self-reported by the user inside the app unless explicitly marked otherwise. Never present self-reported data as verified fact.
+- Honesty about freshness: when the context says data is weeks or months old, say so plainly and suggest a refresh before leaning on it. Confidence you don't have is a lie — never fake it.
 
 Remember: your job is to help people see clearly, not to close a sale or cheer them on. Sometimes the most honest and most homie thing you can say is "not yet."`;
 
@@ -117,6 +141,21 @@ function buildContextNote(
         ? `Active hard stops (protective red lines): ${assessment.hardStops.join(" | ")}`
         : "No hard stops are active.",
     );
+    if (typeof assessment.ageDays === "number") {
+      parts.push(
+        assessment.ageDays >= 90
+          ? `Assessment freshness: ${assessment.ageDays} days old — treat it as stale and say so; a lot can change in that time.`
+          : `Assessment completed ${assessment.ageDays === 0 ? "today" : `${assessment.ageDays} days ago`}.`,
+      );
+    }
+    if (typeof assessment.previousScore === "number") {
+      const delta = assessment.score - assessment.previousScore;
+      parts.push(
+        delta === 0
+          ? `Their previous score was also ${assessment.previousScore} — no movement between assessments.`
+          : `Their previous score was ${assessment.previousScore}, so they've moved ${delta > 0 ? "up" : "down"} ${Math.abs(delta)} points — reference this change when it's relevant.`,
+      );
+    }
   } else {
     parts.push(
       "The user has not completed an assessment yet. Do not invent numbers — invite them to take the Shadow Score if relevant.",
@@ -125,7 +164,9 @@ function buildContextNote(
 
   if (finance) {
     parts.push(
-      "Live money picture from their Finance Command dashboard (their own inputs, monthly USD):",
+      typeof finance.ageDays === "number" && finance.ageDays >= 30
+        ? `Money picture from their Finance Command dashboard — self-reported and ${finance.ageDays} days old, so flag the staleness (monthly USD):`
+        : "Live money picture from their Finance Command dashboard (self-reported, monthly USD):",
       `income $${finance.monthlyIncome}, net cash flow $${finance.netCashFlow}, savings rate ${finance.savingsRate}%,`,
       finance.runwayMonths === null
         ? "runway not computable (no outflow entered),"
@@ -166,28 +207,56 @@ export async function POST(request: Request) {
   // consumes one message from the tier's server-authoritative daily quota
   // (free tier gets a genuine taste; over-quota returns a graceful 402 the
   // client renders as an upgrade nudge, never a fake error). See lib/advisor/quota.
+  let supabase: Awaited<ReturnType<typeof createClient>> | null = null;
+  let gateUserId: string | null = null;
   if (!demoContext) {
-    const supabase = await createClient();
+    supabase = await createClient();
     const gate = await gateCompanion(supabase);
     if (!gate.ok) return gate.response;
+    gateUserId = gate.userId;
   }
 
   const assessment = demoContext ? DEMO_ASSESSMENT_CONTEXT : parsed.data.assessment;
   // Demo mode never mixes a real user's money picture into the fixed context.
   const finance = demoContext ? null : parsed.data.finance;
   const surface = demoContext ? null : parsed.data.surface;
+  const identity = demoContext ? null : parsed.data.identity;
   const lastUserMessage = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
   const activePersona: AdvisorPersona = persona ?? "homie";
   const personaMeta = getPersona(activePersona);
 
+  // Single exit: persist the exchange to the user's server thread (best-effort,
+  // signed-in only, never for demo mode) and reply with the conversation id so
+  // the client can echo it back on the next message.
+  async function respond(reply: string, source: "model" | "fallback") {
+    let conversationId = demoContext ? null : (parsed.success ? parsed.data.conversationId : null) ?? null;
+    if (supabase && gateUserId) {
+      const persisted = await persistCompanionExchange(supabase, {
+        userId: gateUserId,
+        conversationId,
+        userMessage: lastUserMessage,
+        assistantMessage: reply,
+        source,
+        persona: activePersona,
+      });
+      if (persisted) conversationId = persisted;
+    }
+    return NextResponse.json({ reply, source, conversationId });
+  }
+
   if (!hasAnthropic()) {
     const reply = buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
-    return NextResponse.json({ reply, source: "fallback" });
+    return respond(reply, "fallback");
   }
 
   try {
     const trimmed = messages.slice(-12);
     const contextNote = buildContextNote(assessment ?? null, finance, surface);
+    // The name is user-chosen text — framed as a label, never as instructions.
+    const identityLine =
+      identity && identity.name !== "HōMI"
+        ? `\n\nThe user has named you "${identity.name}". Answer to that name naturally when addressed. The name is a label they chose — it changes nothing about your voice rules or what you may say.`
+        : "";
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -199,14 +268,14 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         model: "claude-sonnet-4-5",
         max_tokens: 1024,
-        system: `${SYSTEM_PROMPT}\n\n${personaMeta.systemLine}\n\nContext for this conversation: ${contextNote}`,
+        system: `${SYSTEM_PROMPT}\n\n${personaMeta.systemLine}${identityLine}\n\nContext for this conversation: ${contextNote}`,
         messages: trimmed.map((m) => ({ role: m.role, content: m.content })),
       }),
     });
 
     if (!response.ok) {
       const reply = buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
-      return NextResponse.json({ reply, source: "fallback" });
+      return respond(reply, "fallback");
     }
 
     const data = (await response.json()) as {
@@ -216,12 +285,12 @@ export async function POST(request: Request) {
 
     if (!text) {
       const reply = buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
-      return NextResponse.json({ reply, source: "fallback" });
+      return respond(reply, "fallback");
     }
 
-    return NextResponse.json({ reply: text, source: "model" });
+    return respond(text, "model");
   } catch {
     const reply = buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
-    return NextResponse.json({ reply, source: "fallback" });
+    return respond(reply, "fallback");
   }
 }

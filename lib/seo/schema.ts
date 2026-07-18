@@ -16,6 +16,7 @@ export interface OrganizationJsonLd {
   legalName: string;
   url: string;
   logo?: string;
+  sameAs?: string[];
 }
 
 export function organizationJsonLd(siteUrl: string, logoPath?: string): OrganizationJsonLd {
@@ -25,6 +26,7 @@ export function organizationJsonLd(siteUrl: string, logoPath?: string): Organiza
     name: BRAND.name,
     legalName: BRAND.legalEntity,
     url: siteUrl,
+    sameAs: ["https://x.com/homi_tech"],
     ...(logoPath ? { logo: `${siteUrl}${logoPath}` } : {}),
   };
 }

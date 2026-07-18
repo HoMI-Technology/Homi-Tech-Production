@@ -4,9 +4,10 @@ import { Reveal } from "@/components/ui/Reveal";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 
 export const metadata: Metadata = {
-  title: "Partner Program | HōMI",
+  title: "Partner Program",
   description:
     "White-label readiness assessments for financial advisors, coaches, and HR consultants. Give your clients the one voice with zero conflict of interest.",
+  alternates: { canonical: "/partner" },
 };
 
 const STEPS = [

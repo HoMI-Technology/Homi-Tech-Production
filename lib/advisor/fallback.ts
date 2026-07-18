@@ -19,6 +19,10 @@ export interface AdvisorAssessmentContext {
     timing: number;
   };
   hardStops: string[];
+  /** Days since the assessment was completed — the freshness the Companion discloses. */
+  ageDays?: number | null;
+  /** The score this result replaced, when one exists — the seed of "what changed". */
+  previousScore?: number | null;
 }
 
 /**
@@ -41,6 +45,8 @@ export interface AdvisorFinanceContext {
   totalDebt: number;
   /** Assets minus liabilities from the Net Worth tab. */
   netWorth: number;
+  /** Days since the user last saved finance data; null when unknown. */
+  ageDays?: number | null;
 }
 
 interface FallbackInput {

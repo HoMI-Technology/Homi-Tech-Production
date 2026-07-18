@@ -2,7 +2,7 @@
 
 ## Source of truth
 
-- **GitHub:** https://github.com/HoMI-Technology/Homi-Tech-Production-
+- **GitHub:** https://github.com/HoMI-Technology/Homi-Tech-Production
 - **Local only:** `C:\Users\cody\code\Homi-Tech-Production-` (env `HOMI_SSOT`)
 - **Default branch:** `main`
 - **Never** treat Desktop `HoMI Tech` dumps, zips, or other clones as product truth.

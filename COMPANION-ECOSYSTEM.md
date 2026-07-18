@@ -28,6 +28,15 @@ each phase ships independently.
 - **Protection first.** The mote never becomes a sales funnel. Upgrade nudges stay
   truthful 402s from the server-authoritative gate (`lib/advisor/quota.ts`), never
   fake scarcity.
+- **Your HōMI.** Every user names and shapes their own HōMI. Identity is
+  *configuration inside the brand-voice envelope* — a name, a visual accent within
+  brand canon, tone/pacing/depth/focus settings — never a way to opt out of the
+  voice rules. A few curated starter HōMIs (the classic compass plus Steady,
+  Clarity, and Horizon — the prototype archetypes re-voiced as brand-color forms,
+  deliberately a few and not fifty) give people a starting point; each is
+  renameable and maps to a persona default (`lib/advisor/identity.ts`). What the
+  user never configures: the math, verdict bands, weights, or the no-advice floor.
+  (Canon per `COMPANION-INTELLIGENCE-AUDIT.md`.)
 
 ## 2. What exists today (the seams)
 
@@ -58,11 +67,14 @@ surface   (which page the user is standing on)      ── Phase 1 (this change)
 goals, credit, genome, plaid summary                ── Phase 2+ (server-side)
 ```
 
-Two hard rules for the spine:
+Three hard rules for the spine:
 
 1. **Never present defaults as the user's numbers.** Finance context is only built
    when the user has actually saved finance data (`hasSavedFinanceState()`).
-2. **Client context is a convenience, not an authority.** As context grows past what
+2. **State travels with confidence.** Every context block carries a source label
+   (verified / self-reported / stale / missing) and a freshness marker; missing data
+   is a first-class signal the Companion names honestly, never hides or imputes.
+3. **Client context is a convenience, not an authority.** As context grows past what
    the client holds (Plaid, credit snapshots, goals), the route should assemble
    context server-side from Supabase for the signed-in user, and client-sent context
    becomes a fallback. RLS already scopes every table involved.
@@ -88,15 +100,29 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
 "can I afford this?" and it answers with *your* runway and DTI, not generics.
 
 ### Phase 2 — One memory, one identity
-- **Unified thread persistence** (audit T2.6): widget uses `sessionStorage`, chat
-  uses `localStorage` — same friend, different amnesia. Move both to the existing
-  `advisor_conversations` / `advisor_messages` tables so the mote remembers across
-  devices, with local storage as the anonymous fallback.
+- **Unified thread persistence** (audit T2.6) — SHIPPED: signed-in users get one
+  server thread on the existing `advisor_conversations` / `advisor_messages`
+  tables (`lib/advisor/memory.ts`, `/api/advisor/history`). The widget and the
+  full-page chat resume the same conversation on any device; local storage
+  remains the anonymous/offline fallback, and persistence is best-effort so a
+  storage failure never breaks the chat itself.
 - **Server-side context assembly**: for signed-in users, the route reads
   `financial_snapshots`, `goals`, and `credit_snapshots` directly (RLS-scoped) so
   the Companion's knowledge doesn't depend on which browser the user opened.
 - **Cross-surface continuity**: opening the widget mid-conversation shows the same
   thread the full-page chat holds.
+- **Canonical readiness-state contract**: server-assembled context ships as one
+  versioned object (score, verdict, pillars, trend, confidence, data quality,
+  blockers, next best action) — the single backbone the dashboard, chat, and any
+  future report all read from, adapted from the strategy corpus's
+  `CompanionReadinessState`.
+- **"What HōMI remembers"** — SHIPPED: an inspectable memory panel in Settings
+  (`components/settings/CompanionMemorySection.tsx`) stating plainly what the
+  Companion knows (identity, readiness, money picture with freshness, stored
+  conversation) with real controls: "Forget this conversation" (deletes the
+  server thread via `DELETE /api/advisor/history` and clears local copies) and
+  "Reset my HōMI" (returns to the identity picker). Only facts the user gave —
+  no hidden inferences.
 
 ### Phase 3 — The go-to for anything financial
 - **Plaid-aware context**: once the transactions table lands (known limitation in
@@ -109,6 +135,13 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   there"). Deep-link with query params; the planner persona already names tools.
 - **Behavioral genome**: `behavioral_genome` informs *how* the mote talks (pace,
   framing), never *what* it claims.
+- **Explainability view**: a "why did this change" surface built from structured
+  state — score movement, dimension deltas, causes in magnitude bands (small /
+  moderate / large), never numeric weights, so scoring canon can never leak.
+- **Milestone moments and ambient context**: mark score-threshold crossings in the
+  Companion surface and keep a one-line context bar of what the conversation has
+  covered — warmth mechanics harvested from the companions-v2 prototype, re-voiced
+  to canon (no emoji, no hype).
 
 ### Phase 4 — The mote reaches out (carefully)
 - **Signals, not spam**: surface proactive nudges inside `/signals` and `/daily`
@@ -120,6 +153,16 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   sign-in gate as the honest threshold — not a locked teaser.
 - **Couples/family mode**: shared threads where the mote holds both partners'
   context — requires explicit consent from both, enforced via `family_accounts`.
+- **Institutional share preview**: before any partner integration exists, show the
+  user "here is what a lender or agent would see if you shared your readiness" —
+  band, confidence, data quality, timestamp, disclaimer. Trust feature first,
+  B2B groundwork second.
+- **Partner report contract (design-ahead)**: when sharing arrives, reports are
+  generated from stored structured state — never from chat — and carry consent
+  timestamp, expiry, revocation, access logging, and methodology version. Whether
+  HōMI ever operates as a consumer reporting agency (the corpus's "Path A") is an
+  open business decision; every document stays consistent with today's educational,
+  non-CRA posture until the founder decides otherwise.
 
 ## 5. Non-negotiables (inherited from BUILD-BRIEF)
 
@@ -132,6 +175,11 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   fixed-context demo mode.
 - Graceful degradation: every surface keeps a deterministic fallback
   (`lib/advisor/fallback.ts`) so the mote never goes dark when the model does.
+- AI interprets; deterministic systems score. No LLM ever sees the formula or
+  weights in a prompt, client bundle, log, or API response — explainability ships
+  as server-generated text and magnitude bands only.
+- Missing data is a first-class signal. The Companion says "I can't verify that
+  yet" instead of pretending; confidence always travels with the claim.
 
 ## 6. Success measures
 
@@ -140,3 +188,13 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
 - Share of Companion conversations where real user context (finance or assessment)
   was present — the "does it actually know me" metric.
 - Free → Plus conversion attributable to honest 402 nudges (not dark patterns).
+- Context coverage: share of Companion conversations where real, source-labeled
+  user state (assessment or finance) was present — the "does it actually know me"
+  metric with its honesty guarantee attached.
+
+---
+
+*Provenance: the identity, confidence, memory, explainability, and sharing items
+above were adopted from the founder's strategy corpus — see
+`COMPANION-INTELLIGENCE-AUDIT.md` for the full audit, conflict matrix, and
+superseded directions.*

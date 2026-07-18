@@ -12,6 +12,7 @@ import { PILLAR_MAX_POINTS } from "@/lib/scoring";
 import {
   loadFinanceState,
   hasSavedFinanceState,
+  financeSavedAt,
   netCashFlow,
   savingsRate,
   runwayMonths,
@@ -19,6 +20,14 @@ import {
   totalNetWorth,
 } from "@/lib/finance/store";
 import type { AdvisorAssessmentContext, AdvisorFinanceContext } from "@/lib/advisor/fallback";
+
+/** Whole days between an ISO timestamp and now; null when unparseable. */
+function daysSince(iso: string | null | undefined): number | null {
+  if (!iso) return null;
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return null;
+  return Math.max(0, Math.floor((Date.now() - t) / 86_400_000));
+}
 
 export function buildAssessmentContext(): AdvisorAssessmentContext | undefined {
   const stored = loadLocalResult();
@@ -33,6 +42,8 @@ export function buildAssessmentContext(): AdvisorAssessmentContext | undefined {
       timing: Math.round((result.timing.total / PILLAR_MAX_POINTS.timing) * 100),
     },
     hardStops: result.hardStops.map((h) => h.message),
+    ageDays: daysSince(stored.completedAt),
+    previousScore: stored.previous?.score ?? null,
   };
 }
 
@@ -54,6 +65,7 @@ export function buildFinanceContext(): AdvisorFinanceContext | undefined {
     liquidSavings: Math.round(state.liquidSavings),
     totalDebt: Math.round(state.totalDebt),
     netWorth: Math.round(totalNetWorth(state)),
+    ageDays: daysSince(financeSavedAt()),
   };
 }
 

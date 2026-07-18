@@ -19,6 +19,10 @@ const STORAGE_KEY = "homi:finance";
  * separate key so the legacy `homi:finance` format (read directly by the
  * simulator and the Companion context) never changes shape. */
 const STAMP_KEY = "homi:finance:updated-at";
+/** ISO timestamp of the same write — the freshness signal financeSavedAt()
+ * exposes to the Companion. Always derived from the LWW stamp so the two
+ * keys can never disagree about when the numbers were saved. */
+const SAVED_AT_KEY = "homi:finance:saved-at";
 
 export interface ExpenseCategory {
   id: string;
@@ -124,6 +128,10 @@ function writeLocal(stamped: Stamped<FinanceState>): void {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(stamped.value));
     window.localStorage.setItem(STAMP_KEY, String(stamped.updatedAt));
+    window.localStorage.setItem(
+      SAVED_AT_KEY,
+      new Date(stamped.updatedAt).toISOString(),
+    );
   } catch {
     // Storage may be unavailable (private browsing quota, etc). Fail silently —
     // the in-memory state still works for the current session.
@@ -143,6 +151,20 @@ function loadStampedFinanceState(): Stamped<FinanceState> | null {
       value: { ...DEFAULT_FINANCE_STATE, ...parsed },
       updatedAt: Number.isFinite(updatedAt) ? updatedAt : 0,
     };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * When the user last saved finance data, as an ISO timestamp — the freshness
+ * signal the Companion discloses ("your numbers are N days old"). Null when
+ * nothing has been saved or the timestamp predates this feature.
+ */
+export function financeSavedAt(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return window.localStorage.getItem(SAVED_AT_KEY);
   } catch {
     return null;
   }

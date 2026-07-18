@@ -2,8 +2,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Tools | HōMI",
+  title: "Tools",
   description: "Honest calculators for the math behind your biggest decisions.",
+  alternates: { canonical: "/tools" },
 };
 
 const TOOLS = [

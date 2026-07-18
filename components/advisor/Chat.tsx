@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { loadLocalResult } from "@/lib/assessment/storage";
 import { buildCompanionContext } from "@/lib/advisor/context";
+import { loadIdentity } from "@/lib/advisor/identity";
+import { CHAT_THREAD_KEY } from "@/lib/advisor/thread-keys";
 
 type Role = "user" | "assistant";
 
@@ -13,7 +15,7 @@ interface ChatMessage {
   content: string;
 }
 
-const THREAD_KEY = "homi:advisor-thread";
+const THREAD_KEY = CHAT_THREAD_KEY;
 
 const SUGGESTED_PROMPTS = [
   "Am I actually ready?",
@@ -71,6 +73,7 @@ function TypingIndicator() {
 
 export function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [hasAssessment, setHasAssessment] = useState(false);
@@ -80,6 +83,25 @@ export function Chat() {
   useEffect(() => {
     setMessages(loadThread());
     setHasAssessment(Boolean(loadLocalResult()));
+
+    // One memory: resume the server thread (shared with the floating widget)
+    // when signed in; on 401/failure the localStorage copy above stands.
+    let cancelled = false;
+    fetch("/api/advisor/history")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { conversationId?: string | null; messages?: Array<{ role: Role; content: string }> } | null) => {
+        if (cancelled || !data) return;
+        if (data.conversationId) setConversationId(data.conversationId);
+        if (Array.isArray(data.messages) && data.messages.length > 0) {
+          setMessages(data.messages.map((m) => ({ id: makeId(), role: m.role, content: m.content })));
+        }
+      })
+      .catch(() => {
+        // Offline — local thread stands.
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -111,12 +133,18 @@ export function Chat() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           messages: nextMessages.map((m) => ({ role: m.role, content: m.content })),
+          conversationId,
           assessment,
           finance,
+          identity: loadIdentity(),
         }),
       });
 
-      const data = (await res.json().catch(() => ({}))) as { reply?: unknown; error?: unknown };
+      const data = (await res.json().catch(() => ({}))) as {
+        reply?: unknown;
+        error?: unknown;
+        conversationId?: unknown;
+      };
 
       if (!res.ok) {
         // Surface the gate's truthful copy (e.g. daily-quota upgrade nudge) rather
@@ -130,6 +158,7 @@ export function Chat() {
         return;
       }
 
+      if (typeof data.conversationId === "string") setConversationId(data.conversationId);
       const replyContent: string =
         typeof data.reply === "string"
           ? data.reply

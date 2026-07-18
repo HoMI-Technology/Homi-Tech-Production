@@ -33,7 +33,7 @@ export const metadata: Metadata = {
 export default function MarketingHomePage() {
   return (
     <div>
-      <JsonLd data={organizationJsonLd(SITE_URL, "/icon-512.png")} />
+      <JsonLd data={organizationJsonLd(SITE_URL, "/icon-512-v2.png")} />
       <JsonLd data={websiteJsonLd(SITE_URL)} />
       <CinemaFX />
 
