@@ -45,6 +45,8 @@ The CLI tracks applied migrations in the `supabase_migrations` schema, so
 development, use `supabase start` + `supabase db reset` to rebuild the local
 stack from these migrations plus seed data.
 
+> **Production history repair:** the remote project's migration history still contains prototype-era phantom rows — before any `db push` against production, a human must run the runbook in [`docs/MIGRATION-REPAIR.md`](../docs/MIGRATION-REPAIR.md) (AUDIT T0.6).
+
 ## Row Level Security overview
 
 Every table has RLS **enabled**; tables holding user-owned data additionally
