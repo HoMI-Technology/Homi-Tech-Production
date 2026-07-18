@@ -4,6 +4,7 @@ import { hasAnthropic, env } from "@/lib/env";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
 import { createClient } from "@/lib/supabase/server";
 import { gateCompanion } from "@/lib/advisor/quota";
+import { getUserEntitlements } from "@/lib/entitlements";
 import { buildFallbackTrinity, type TrinityAssessmentContext } from "@/lib/trinity/fallback";
 import { VERDICT_META } from "@/lib/brand";
 
@@ -96,6 +97,10 @@ export async function POST(request: Request) {
   const gate = await gateCompanion(supabase);
   if (!gate.ok) return gate.response;
 
+  // Real model only for paid tiers (advisorRealModel). Authenticated FREE users
+  // get the deterministic fallback trinity — no model spend.
+  const { entitlements } = await getUserEntitlements(supabase);
+
   let json: unknown;
   try {
     json = await request.json();
@@ -110,7 +115,7 @@ export async function POST(request: Request) {
 
   const { assessment } = parsed.data;
 
-  if (!hasAnthropic()) {
+  if (!hasAnthropic() || !entitlements.advisorRealModel) {
     const trinity = buildFallbackTrinity(assessment);
     return NextResponse.json({ trinity, source: "fallback" });
   }
@@ -125,7 +130,7 @@ export async function POST(request: Request) {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-5",
+        model: "claude-haiku-4-5-20251001",
         max_tokens: 1200,
         system: `${SYSTEM_PROMPT}\n\nContext for this analysis: ${contextNote}`,
         messages: [
@@ -138,11 +143,15 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
+      console.error("[trinity] model call failed", { status: response.status, reason: "non_200_response" });
       const trinity = buildFallbackTrinity(assessment);
       return NextResponse.json({ trinity, source: "fallback" });
     }
 
-    const data = (await response.json()) as { content?: Array<{ type: string; text?: string }> };
+    const data = (await response.json()) as {
+      content?: Array<{ type: string; text?: string }>;
+      usage?: { input_tokens?: number; output_tokens?: number };
+    };
     const text = data.content?.find((block) => block.type === "text")?.text?.trim();
 
     const trinity = text ? tryParseTrinityJson(text) : null;
@@ -152,8 +161,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ trinity: fallback, source: "fallback" });
     }
 
+    console.log("[advisor:cost]", {
+      surface: "trinity",
+      model: "claude-haiku-4-5-20251001",
+      input_tokens: data.usage?.input_tokens,
+      output_tokens: data.usage?.output_tokens,
+      userId: gate.userId,
+      tier: entitlements.tier,
+    });
+
     return NextResponse.json({ trinity, source: "model" });
-  } catch {
+  } catch (err) {
+    console.error("[trinity] model call failed", {
+      status: undefined,
+      reason: err instanceof Error ? err.message : String(err),
+    });
     const trinity = buildFallbackTrinity(assessment);
     return NextResponse.json({ trinity, source: "fallback" });
   }

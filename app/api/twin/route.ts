@@ -4,6 +4,7 @@ import { hasAnthropic, env } from "@/lib/env";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
 import { createClient } from "@/lib/supabase/server";
 import { gateCompanion } from "@/lib/advisor/quota";
+import { getUserEntitlements } from "@/lib/entitlements";
 import { buildFallbackLetter, type TwinAssessmentContext, type Horizon } from "@/lib/twin/fallback";
 import { VERDICT_META } from "@/lib/brand";
 
@@ -70,6 +71,10 @@ export async function POST(request: Request) {
   const gate = await gateCompanion(supabase);
   if (!gate.ok) return gate.response;
 
+  // Real model only for paid tiers (advisorRealModel). Authenticated FREE users
+  // get the deterministic fallback letter — no model spend.
+  const { entitlements } = await getUserEntitlements(supabase);
+
   let json: unknown;
   try {
     json = await request.json();
@@ -84,7 +89,7 @@ export async function POST(request: Request) {
 
   const { horizon, fear, assessment } = parsed.data;
 
-  if (!hasAnthropic()) {
+  if (!hasAnthropic() || !entitlements.advisorRealModel) {
     const letter = buildFallbackLetter({ horizon, fear, assessment });
     return NextResponse.json({ letter, source: "fallback" });
   }
@@ -99,7 +104,7 @@ export async function POST(request: Request) {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-5",
+        model: "claude-haiku-4-5-20251001",
         max_tokens: 900,
         system: `${SYSTEM_PROMPT}\n\nContext for this letter: ${contextNote}`,
         messages: [
@@ -113,17 +118,30 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
+      console.error("[twin] model call failed", { status: response.status, reason: "non_200_response" });
       const letter = buildFallbackLetter({ horizon, fear, assessment });
       return NextResponse.json({ letter, source: "fallback" });
     }
 
-    const data = (await response.json()) as { content?: Array<{ type: string; text?: string }> };
+    const data = (await response.json()) as {
+      content?: Array<{ type: string; text?: string }>;
+      usage?: { input_tokens?: number; output_tokens?: number };
+    };
     const text = data.content?.find((block) => block.type === "text")?.text?.trim();
 
     if (!text) {
       const letter = buildFallbackLetter({ horizon, fear, assessment });
       return NextResponse.json({ letter, source: "fallback" });
     }
+
+    console.log("[advisor:cost]", {
+      surface: "twin",
+      model: "claude-haiku-4-5-20251001",
+      input_tokens: data.usage?.input_tokens,
+      output_tokens: data.usage?.output_tokens,
+      userId: gate.userId,
+      tier: entitlements.tier,
+    });
 
     // Model returns plain prose; split into paragraphs for rendering,
     // treating the first line as the salutation if it reads like one.
@@ -135,7 +153,11 @@ export async function POST(request: Request) {
       letter: { salutation, paragraphs: paragraphs.length > 0 ? paragraphs : [text] },
       source: "model",
     });
-  } catch {
+  } catch (err) {
+    console.error("[twin] model call failed", {
+      status: undefined,
+      reason: err instanceof Error ? err.message : String(err),
+    });
     const letter = buildFallbackLetter({ horizon, fear, assessment });
     return NextResponse.json({ letter, source: "fallback" });
   }

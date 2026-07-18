@@ -4,6 +4,7 @@ import { hasAnthropic, env } from "@/lib/env";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
 import { createClient } from "@/lib/supabase/server";
 import { gateCompanion } from "@/lib/advisor/quota";
+import { getUserEntitlements, type Entitlements } from "@/lib/entitlements";
 import { persistCompanionExchange } from "@/lib/advisor/memory";
 import {
   buildPersonaFallbackReply,
@@ -214,12 +215,20 @@ export async function POST(request: Request) {
   // client renders as an upgrade nudge, never a fake error). See lib/advisor/quota.
   let supabase: Awaited<ReturnType<typeof createClient>> | null = null;
   let gateUserId: string | null = null;
+  let entitlements: Entitlements | null = null;
   if (!demoContext) {
     supabase = await createClient();
     const gate = await gateCompanion(supabase);
     if (!gate.ok) return gate.response;
     gateUserId = gate.userId;
+    // Resolve the signed-in user's capabilities so we can gate the real model to
+    // paid tiers only (advisorRealModel). Free tier → deterministic fallback.
+    ({ entitlements } = await getUserEntitlements(supabase));
   }
+  // Cost-safety switch: the real Anthropic model is served ONLY to authenticated
+  // PAID users. Anonymous /artifact playground (demoContext) and free tier never
+  // spend model dollars — they get the rule-based fallback.
+  const advisorRealModel = !demoContext && entitlements?.advisorRealModel === true;
 
   const assessment = demoContext ? DEMO_ASSESSMENT_CONTEXT : parsed.data.assessment;
   // Demo mode never mixes a real user's money picture into the fixed context.
@@ -250,7 +259,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ reply, source, conversationId });
   }
 
-  if (!hasAnthropic()) {
+  // Real model only for authenticated paid users with a configured key. Free
+  // tier, anonymous demoContext, and a missing key all fall through to the
+  // deterministic persona fallback ($0 AI cost).
+  if (!hasAnthropic() || !advisorRealModel) {
     const reply = buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
     return respond(reply, "fallback");
   }
@@ -272,7 +284,7 @@ export async function POST(request: Request) {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-5",
+        model: "claude-haiku-4-5-20251001",
         max_tokens: 1024,
         system: `${SYSTEM_PROMPT}\n\n${personaMeta.systemLine}${identityLine}\n\nContext for this conversation: ${contextNote}`,
         messages: trimmed.map((m) => ({ role: m.role, content: m.content })),
@@ -280,12 +292,16 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
+      // Surface a bad/expired key (or upstream outage) in logs — a silent
+      // fallback here is indistinguishable from the normal $0 path otherwise.
+      console.error("[advisor] model call failed", { status: response.status, reason: "non_200_response" });
       const reply = buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
       return respond(reply, "fallback");
     }
 
     const data = (await response.json()) as {
       content?: Array<{ type: string; text?: string }>;
+      usage?: { input_tokens?: number; output_tokens?: number };
     };
     const text = data.content?.find((block) => block.type === "text")?.text?.trim();
 
@@ -294,8 +310,21 @@ export async function POST(request: Request) {
       return respond(reply, "fallback");
     }
 
+    console.log("[advisor:cost]", {
+      surface: "advisor",
+      model: "claude-haiku-4-5-20251001",
+      input_tokens: data.usage?.input_tokens,
+      output_tokens: data.usage?.output_tokens,
+      userId: gateUserId,
+      tier: entitlements?.tier,
+    });
+
     return respond(text, "model");
-  } catch {
+  } catch (err) {
+    console.error("[advisor] model call failed", {
+      status: undefined,
+      reason: err instanceof Error ? err.message : String(err),
+    });
     const reply = buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
     return respond(reply, "fallback");
   }

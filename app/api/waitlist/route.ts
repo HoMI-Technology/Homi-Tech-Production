@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
 import { createClient } from "@/lib/supabase/server";
+import { sendTemplateEmail } from "@/lib/email/send";
 
 export const runtime = "nodejs";
 
@@ -47,6 +48,18 @@ export async function POST(request: Request) {
   if (error && error.code !== "23505") {
     const correlationId = crypto.randomUUID();
     console.error(`[waitlist:${correlationId}]`, error);
+  }
+
+  // Best-effort confirmation email on a fresh sign-up. Never let a delivery
+  // failure break the response; sendTemplateEmail no-ops when RESEND_API_KEY is
+  // unset and honors the unsubscribe list.
+  if (!error) {
+    try {
+      await sendTemplateEmail({ template: "waitlist", to: email });
+    } catch (err) {
+      const correlationId = crypto.randomUUID();
+      console.error(`[waitlist:email:${correlationId}]`, err);
+    }
   }
 
   return NextResponse.json({ ok: true });
