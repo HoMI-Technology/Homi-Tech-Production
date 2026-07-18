@@ -75,6 +75,8 @@ const bodySchema = z.object({
   finance: financeContextSchema.nullish(),
   /** Human-readable label of the surface the user is on, e.g. "the mortgage calculator". */
   surface: z.string().max(80).nullish(),
+  /** Score-movement one-liner from the explainability engine (lib/advisor/explain). */
+  whatChanged: z.string().max(240).nullish(),
   identity: identitySchema.nullish(),
   persona: personaSchema.nullish(),
   /** When true, the server supplies a fixed mock assessment context (used
@@ -124,6 +126,7 @@ function buildContextNote(
   assessment: AdvisorAssessmentContext | null | undefined,
   finance?: AdvisorFinanceContext | null,
   surface?: string | null,
+  whatChanged?: string | null,
 ): string {
   const parts: string[] = [];
 
@@ -148,7 +151,9 @@ function buildContextNote(
           : `Assessment completed ${assessment.ageDays === 0 ? "today" : `${assessment.ageDays} days ago`}.`,
       );
     }
-    if (typeof assessment.previousScore === "number") {
+    if (whatChanged) {
+      parts.push(`What changed: ${whatChanged} Reference this movement when it's relevant.`);
+    } else if (typeof assessment.previousScore === "number") {
       const delta = assessment.score - assessment.previousScore;
       parts.push(
         delta === 0
@@ -220,6 +225,7 @@ export async function POST(request: Request) {
   // Demo mode never mixes a real user's money picture into the fixed context.
   const finance = demoContext ? null : parsed.data.finance;
   const surface = demoContext ? null : parsed.data.surface;
+  const whatChanged = demoContext ? null : parsed.data.whatChanged;
   const identity = demoContext ? null : parsed.data.identity;
   const lastUserMessage = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
   const activePersona: AdvisorPersona = persona ?? "homie";
@@ -251,7 +257,7 @@ export async function POST(request: Request) {
 
   try {
     const trimmed = messages.slice(-12);
-    const contextNote = buildContextNote(assessment ?? null, finance, surface);
+    const contextNote = buildContextNote(assessment ?? null, finance, surface, whatChanged);
     // The name is user-chosen text — framed as a label, never as instructions.
     const identityLine =
       identity && identity.name !== "HōMI"

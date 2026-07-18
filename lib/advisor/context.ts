@@ -19,6 +19,7 @@ import {
   debtToIncome,
   totalNetWorth,
 } from "@/lib/finance/store";
+import { buildScoreExplanation } from "@/lib/advisor/explain";
 import type { AdvisorAssessmentContext, AdvisorFinanceContext } from "@/lib/advisor/fallback";
 
 /** Whole days between an ISO timestamp and now; null when unparseable. */
@@ -116,10 +117,23 @@ export function buildSurfaceContext(pathname: string | null | undefined): string
   return SURFACE_LABELS.find(([prefix]) => pathname.startsWith(prefix))?.[1];
 }
 
+/**
+ * The score-movement one-liner from the explainability engine — the same
+ * source the /results "why did this change" card renders, so the Companion
+ * and the view can never tell different stories. Undefined when there's no
+ * previous assessment to compare against.
+ */
+export function buildWhatChanged(): string | undefined {
+  const stored = loadLocalResult();
+  if (!stored) return undefined;
+  return buildScoreExplanation(stored)?.companionLine;
+}
+
 export interface CompanionContext {
   assessment: AdvisorAssessmentContext | undefined;
   finance: AdvisorFinanceContext | undefined;
   surface: string | undefined;
+  whatChanged: string | undefined;
 }
 
 /** Everything the Companion knows about this user and this moment. */
@@ -128,5 +142,6 @@ export function buildCompanionContext(pathname?: string | null): CompanionContex
     assessment: buildAssessmentContext(),
     finance: buildFinanceContext(),
     surface: buildSurfaceContext(pathname),
+    whatChanged: buildWhatChanged(),
   };
 }

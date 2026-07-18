@@ -22,6 +22,16 @@ export interface PreviousScoreSnapshot {
   score: number;
   verdict: VerdictKey;
   completedAt: string;
+  /**
+   * Raw pillar totals of the previous result — powers the "why did this
+   * change" explanation. Optional: snapshots saved before this field existed
+   * only carry the composite, and the explanation degrades honestly.
+   */
+  pillars?: {
+    financial: number;
+    emotional: number;
+    timing: number;
+  };
 }
 
 export interface StoredAssessment {
