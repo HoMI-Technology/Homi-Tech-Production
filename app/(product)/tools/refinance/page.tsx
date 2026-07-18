@@ -4,8 +4,9 @@ import { useMemo, useState } from "react";
 import { analyzeRefinance } from "@/lib/tools/refinance";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
 import { CalcField } from "@/components/tools/CalcField";
+import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 
-export default function RefinancePage() {
+function RefinancePageInner() {
   const [balance, setBalance] = useState(320000);
   const [currentRate, setCurrentRate] = useState(7.5);
   const [currentTermYears, setCurrentTermYears] = useState(27);
@@ -109,5 +110,13 @@ export default function RefinancePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RefinancePage() {
+  return (
+    <AdvancedToolGate>
+      <RefinancePageInner />
+    </AdvancedToolGate>
   );
 }

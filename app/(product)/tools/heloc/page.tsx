@@ -4,8 +4,9 @@ import { useMemo, useState } from "react";
 import { helocAvailability, helocTiers } from "@/lib/tools/heloc";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { CalcField } from "@/components/tools/CalcField";
+import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 
-export default function HelocPage() {
+function HelocPageInner() {
   const [homeValue, setHomeValue] = useState(500000);
   const [mortgageBalance, setMortgageBalance] = useState(280000);
   const [maxCltv, setMaxCltv] = useState(85);
@@ -88,5 +89,13 @@ export default function HelocPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function HelocPage() {
+  return (
+    <AdvancedToolGate>
+      <HelocPageInner />
+    </AdvancedToolGate>
   );
 }

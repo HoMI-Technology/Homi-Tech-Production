@@ -88,3 +88,72 @@ describe("loan program comparison", () => {
     expect(all.map((p) => p.program)).toEqual(["conventional", "fha", "va"]);
   });
 });
+
+describe("tools-expansion — zero / invalid inputs", () => {
+  it("HELOC: zero home value yields zeros, never NaN", () => {
+    const r = helocAvailability({ homeValue: 0, mortgageBalance: 0, maxCltv: 0.85, rate: 8 });
+    expect(r.equity).toBe(0);
+    expect(r.equityPct).toBe(0);
+    expect(r.availableLine).toBe(0);
+    expect(r.interestOnlyMonthly).toBe(0);
+    expect(r.currentCltv).toBe(0);
+  });
+
+  it("HELOC: negative inputs clamp to zero", () => {
+    const r = helocAvailability({ homeValue: -100000, mortgageBalance: -50000, maxCltv: 0.85, rate: 8 });
+    expect(r.equity).toBe(0);
+    expect(r.availableLine).toBe(0);
+    expect(r.interestOnlyMonthly).toBe(0);
+  });
+
+  it("HELOC: a zero rate costs nothing interest-only", () => {
+    const r = helocAvailability({ homeValue: 500000, mortgageBalance: 300000, maxCltv: 0.85, rate: 0 });
+    expect(r.availableLine).toBe(125000);
+    expect(r.interestOnlyMonthly).toBe(0);
+  });
+
+  it("refinance: zero closing costs break even immediately", () => {
+    const r = analyzeRefinance({
+      balance: 300000, currentRate: 7.5, currentTermYears: 30,
+      newRate: 6, newTermYears: 30, closingCosts: 0,
+    });
+    expect(r.monthlySavings).toBeGreaterThan(0);
+    expect(r.breakEvenMonths).toBe(0);
+  });
+
+  it("refinance: zero balance has no payment and no break-even", () => {
+    const r = analyzeRefinance({
+      balance: 0, currentRate: 7, currentTermYears: 30,
+      newRate: 6, newTermYears: 30, closingCosts: 6000,
+    });
+    expect(r.currentMonthly).toBe(0);
+    expect(r.newMonthly).toBe(0);
+    expect(r.monthlySavings).toBe(0);
+    expect(r.breakEvenMonths).toBeNull();
+  });
+
+  it("APR: no offers ranks nothing", () => {
+    expect(compareOffers(400000, 30, [])).toEqual([]);
+  });
+
+  it("APR: a single offer is trivially the best", () => {
+    const results = compareOffers(400000, 30, [{ label: "solo", rate: 6, points: 1, fees: 2000 }]);
+    expect(bestOfferIndex(results)).toBe(0);
+    expect(results[0].apr).toBeGreaterThan(6);
+  });
+
+  it("loan programs: zero home price yields zero costs, never NaN", () => {
+    const all = comparePrograms({ homePrice: 0, downPayment: 0, rate: 6.5, termYears: 30 });
+    for (const p of all) {
+      expect(p.loanAmount).toBe(0);
+      expect(p.monthlyTotal).toBe(0);
+      expect(p.ltv).toBe(0);
+    }
+  });
+
+  it("loan programs: a negative down payment clamps to zero", () => {
+    const va = evaluateProgram("va", { homePrice: 400000, downPayment: -5000, rate: 6.5, termYears: 30 });
+    // Full price financed, plus the first-use funding fee on top.
+    expect(va.loanAmount).toBeCloseTo(408600, 1);
+  });
+});

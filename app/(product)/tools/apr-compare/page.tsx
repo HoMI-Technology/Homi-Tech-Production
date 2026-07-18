@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { compareOffers, bestOfferIndex, type LoanOffer } from "@/lib/tools/apr";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { CalcField } from "@/components/tools/CalcField";
+import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 
 const START: LoanOffer[] = [
   { label: "Offer A", rate: 6.25, points: 0, fees: 3000 },
@@ -11,7 +12,7 @@ const START: LoanOffer[] = [
   { label: "Offer C", rate: 5.75, points: 2, fees: 4000 },
 ];
 
-export default function AprComparePage() {
+function AprComparePageInner() {
   const [loan, setLoan] = useState(400000);
   const [termYears, setTermYears] = useState(30);
   const [offers, setOffers] = useState<LoanOffer[]>(START);
@@ -79,5 +80,13 @@ export default function AprComparePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AprComparePage() {
+  return (
+    <AdvancedToolGate>
+      <AprComparePageInner />
+    </AdvancedToolGate>
   );
 }

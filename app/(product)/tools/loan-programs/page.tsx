@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { comparePrograms } from "@/lib/tools/loanprograms";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { CalcField } from "@/components/tools/CalcField";
+import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 
 const PROGRAM_COLOR: Record<string, string> = {
   conventional: "#22d3ee",
@@ -11,7 +12,7 @@ const PROGRAM_COLOR: Record<string, string> = {
   va: "#34d399",
 };
 
-export default function LoanProgramsPage() {
+function LoanProgramsPageInner() {
   const [homePrice, setHomePrice] = useState(400000);
   const [downPct, setDownPct] = useState(5);
   const [rate, setRate] = useState(6.5);
@@ -86,5 +87,13 @@ export default function LoanProgramsPage() {
         month-one option isn&rsquo;t always the cheapest over time.
       </p>
     </div>
+  );
+}
+
+export default function LoanProgramsPage() {
+  return (
+    <AdvancedToolGate>
+      <LoanProgramsPageInner />
+    </AdvancedToolGate>
   );
 }
