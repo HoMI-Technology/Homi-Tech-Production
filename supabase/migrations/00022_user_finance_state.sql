@@ -1,6 +1,7 @@
 -- =============================================================================
--- 00021_user_finance_state.sql — manual Finance dashboard state. Apply after
--- 00020.
+-- 00022_user_finance_state.sql — manual Finance dashboard state. Apply after
+-- 00021_readiness_calibration. (Renumbered from 00021 to avoid colliding with
+-- the calibration migration that landed on main first.)
 --
 -- Audit T2.6 (split-brain persistence): /finance was localStorage-only while
 -- the dashboard read the database — the same user got different answers about
