@@ -97,6 +97,19 @@ export function sanitizeIdentityName(raw: string): string | null {
   return cleaned.slice(0, IDENTITY_NAME_MAX);
 }
 
+/**
+ * Resets the identity entirely: the next widget open shows the "choose your
+ * HōMI" picker again. Used by the "what HōMI remembers" panel.
+ */
+export function clearIdentity(): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // Best-effort.
+  }
+}
+
 /** Whether the user has ever chosen/saved an identity — gates the first-open picker. */
 export function hasChosenIdentity(): boolean {
   if (typeof window === "undefined") return false;

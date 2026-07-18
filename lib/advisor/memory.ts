@@ -138,3 +138,17 @@ export async function persistCompanionExchange(
     return null;
   }
 }
+
+/**
+ * "Forget this conversation" — deletes the user's Companion conversations
+ * (messages cascade). RLS plus the explicit user_id filter mean this can only
+ * ever remove the caller's own thread. Returns whether the delete succeeded.
+ */
+export async function forgetCompanionThread(supabase: SupabaseClient, userId: string): Promise<boolean> {
+  try {
+    const { error } = await supabase.from("advisor_conversations").delete().eq("user_id", userId);
+    return !error;
+  } catch {
+    return false;
+  }
+}

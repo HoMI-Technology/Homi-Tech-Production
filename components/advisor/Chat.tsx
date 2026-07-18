@@ -5,6 +5,7 @@ import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { loadLocalResult } from "@/lib/assessment/storage";
 import { buildCompanionContext } from "@/lib/advisor/context";
 import { loadIdentity } from "@/lib/advisor/identity";
+import { CHAT_THREAD_KEY } from "@/lib/advisor/thread-keys";
 
 type Role = "user" | "assistant";
 
@@ -14,7 +15,7 @@ interface ChatMessage {
   content: string;
 }
 
-const THREAD_KEY = "homi:advisor-thread";
+const THREAD_KEY = CHAT_THREAD_KEY;
 
 const SUGGESTED_PROMPTS = [
   "Am I actually ready?",

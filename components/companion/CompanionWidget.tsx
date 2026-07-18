@@ -16,6 +16,7 @@ import {
   type HomiPreset,
 } from "@/lib/advisor/identity";
 import { PERSONAS, type AdvisorPersona } from "@/lib/advisor/personas";
+import { WIDGET_THREAD_KEY } from "@/lib/advisor/thread-keys";
 import { track } from "@/lib/analytics";
 
 type Role = "user" | "assistant";
@@ -26,7 +27,7 @@ interface CompanionMessage {
   content: string;
 }
 
-const THREAD_KEY = "homi:companion-thread";
+const THREAD_KEY = WIDGET_THREAD_KEY;
 const OPEN_KEY = "homi:companion-open";
 const PERSONA_KEY = "homi:companion-persona";
 
