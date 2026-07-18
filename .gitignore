@@ -13,3 +13,7 @@ next-env.d.ts
 
 # Lighthouse CI local report artifacts
 .lighthouseci/
+
+# Playwright E2E local artifacts (reports, traces, failure screenshots)
+test-results/
+playwright-report/
