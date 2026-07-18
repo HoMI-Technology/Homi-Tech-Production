@@ -24,7 +24,9 @@ import { getUserEntitlements } from "@/lib/entitlements";
  *
  * Returns a discriminated union so callers do: `if (!gate.ok) return gate.response;`
  */
-export type CompanionGate = { ok: true } | { ok: false; response: NextResponse };
+export type CompanionGate =
+  | { ok: true; userId: string }
+  | { ok: false; response: NextResponse };
 
 /** Postgres/PostgREST codes that mean "the usage infra isn't there yet". */
 const INFRA_MISSING_CODES = new Set([
@@ -54,7 +56,7 @@ export async function gateCompanion(supabase: SupabaseClient): Promise<Companion
   if (error) {
     if (error.code && INFRA_MISSING_CODES.has(error.code)) {
       // Quota infra not applied yet — don't block the product.
-      return { ok: true };
+      return { ok: true, userId };
     }
     const correlationId = crypto.randomUUID();
     console.error(`[companion-gate:${correlationId}] usage rpc failed`, error.code, error.message);
@@ -80,5 +82,5 @@ export async function gateCompanion(supabase: SupabaseClient): Promise<Companion
     };
   }
 
-  return { ok: true };
+  return { ok: true, userId };
 }
