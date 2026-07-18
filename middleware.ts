@@ -7,9 +7,23 @@ type CookieToSet = { name: string; value: string; options?: CookieOptions };
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
 
+  const path = request.nextUrl.pathname;
+  const isProtected = isProtectedPath(path);
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return response;
+  if (!url || !key) {
+    // Fail CLOSED: without Supabase config the session can't be verified, so
+    // a protected route must never be served — send it to sign-in instead of
+    // passing it through. Public routes still pass through.
+    if (isProtected) {
+      const redirect = request.nextUrl.clone();
+      redirect.pathname = "/auth/sign-in";
+      redirect.searchParams.set("next", path);
+      return NextResponse.redirect(redirect);
+    }
+    return response;
+  }
 
   const supabase = createServerClient(url, key, {
     cookies: {
@@ -30,9 +44,7 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const path = request.nextUrl.pathname;
-
-  if (isProtectedPath(path) && !user) {
+  if (isProtected && !user) {
     const redirect = request.nextUrl.clone();
     redirect.pathname = "/auth/sign-in";
     redirect.searchParams.set("next", path);
