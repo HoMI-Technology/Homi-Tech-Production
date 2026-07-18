@@ -16,7 +16,11 @@ import {
   type HomiPreset,
 } from "@/lib/advisor/identity";
 import { PERSONAS, type AdvisorPersona } from "@/lib/advisor/personas";
-import { WIDGET_THREAD_KEY } from "@/lib/advisor/thread-keys";
+import {
+  loadThreadMessages,
+  saveThreadMessages,
+  pullAdvisorThread,
+} from "@/lib/advisor/thread-store";
 import { track } from "@/lib/analytics";
 
 type Role = "user" | "assistant";
@@ -27,33 +31,11 @@ interface CompanionMessage {
   content: string;
 }
 
-const THREAD_KEY = WIDGET_THREAD_KEY;
 const OPEN_KEY = "homi:companion-open";
 const PERSONA_KEY = "homi:companion-persona";
 
 function makeId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-}
-
-function loadThread(): CompanionMessage[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.sessionStorage.getItem(THREAD_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveThread(messages: CompanionMessage[]): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.sessionStorage.setItem(THREAD_KEY, JSON.stringify(messages));
-  } catch {
-    // Not fatal — thread persistence is a nicety.
-  }
 }
 
 const FOCUSABLE_SELECTOR =
@@ -107,7 +89,7 @@ export function CompanionWidget() {
 
   // Hydrate persisted state on mount (client only).
   useEffect(() => {
-    setMessages(loadThread());
+    setMessages(loadThreadMessages("widget"));
     if (typeof window !== "undefined") {
       setOpen(window.sessionStorage.getItem(OPEN_KEY) === "1");
       const storedPersona = window.sessionStorage.getItem(PERSONA_KEY) as AdvisorPersona | null;
@@ -119,22 +101,16 @@ export function CompanionWidget() {
     setIdentityChosen(hasChosenIdentity());
     setHydrated(true);
 
-    // One memory: signed-in users resume their server thread — same
-    // conversation as the full-page chat, any device. Anonymous (401) or
-    // failure keeps the local sessionStorage copy loaded above.
+    // One memory: signed-in users reconcile their server thread — same
+    // conversation as the full-page chat, any device — via the persistence
+    // contract. Anonymous (401) or failure keeps the local sessionStorage
+    // copy loaded above.
     let cancelled = false;
-    fetch("/api/advisor/history")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data: { conversationId?: string | null; messages?: Array<{ role: Role; content: string }> } | null) => {
-        if (cancelled || !data) return;
-        if (data.conversationId) setConversationId(data.conversationId);
-        if (Array.isArray(data.messages) && data.messages.length > 0) {
-          setMessages(data.messages.map((m) => ({ id: makeId(), role: m.role, content: m.content })));
-        }
-      })
-      .catch(() => {
-        // Offline or transient failure — the local thread stands.
-      });
+    void pullAdvisorThread("widget").then((thread) => {
+      if (cancelled || !thread) return;
+      if (thread.conversationId) setConversationId(thread.conversationId);
+      if (thread.messages.length > 0) setMessages(thread.messages);
+    });
     return () => {
       cancelled = true;
     };
@@ -158,7 +134,7 @@ export function CompanionWidget() {
 
   useEffect(() => {
     if (!hydrated) return;
-    saveThread(messages);
+    saveThreadMessages("widget", messages);
   }, [messages, hydrated]);
 
   useEffect(() => {

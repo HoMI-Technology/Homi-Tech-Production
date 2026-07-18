@@ -10,16 +10,22 @@ export const WIDGET_THREAD_KEY = "homi:companion-thread";
 /** Full-page /advisor chat thread (localStorage). */
 export const CHAT_THREAD_KEY = "homi:advisor-thread";
 
-/** Clears both local thread copies. SSR-safe; storage failures are ignored. */
+/** LWW stamps (ms epoch) for the two local threads — lib/persistence.ts. */
+export const WIDGET_THREAD_STAMP_KEY = "homi:companion-thread:updated-at";
+export const CHAT_THREAD_STAMP_KEY = "homi:advisor-thread:updated-at";
+
+/** Clears both local thread copies and their stamps. SSR-safe; storage failures are ignored. */
 export function clearLocalThreads(): void {
   if (typeof window === "undefined") return;
   try {
     window.sessionStorage.removeItem(WIDGET_THREAD_KEY);
+    window.sessionStorage.removeItem(WIDGET_THREAD_STAMP_KEY);
   } catch {
     // Ignore — best-effort cleanup.
   }
   try {
     window.localStorage.removeItem(CHAT_THREAD_KEY);
+    window.localStorage.removeItem(CHAT_THREAD_STAMP_KEY);
   } catch {
     // Ignore — best-effort cleanup.
   }

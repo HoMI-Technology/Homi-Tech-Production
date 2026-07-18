@@ -25,6 +25,12 @@ export interface CompanionThreadMessage {
 export interface CompanionThread {
   conversationId: string;
   messages: CompanionThreadMessage[];
+  /**
+   * ms epoch of the conversation's last server-side write — the LWW
+   * tiebreaker the persistence contract (lib/persistence.ts) reconciles the
+   * local copy against. Null when the timestamp is missing/unparseable.
+   */
+  updatedAt: number | null;
 }
 
 /**
@@ -37,7 +43,7 @@ export async function loadCompanionThread(supabase: SupabaseClient): Promise<Com
   try {
     const { data: convo, error } = await supabase
       .from("advisor_conversations")
-      .select("id")
+      .select("id, updated_at")
       .order("updated_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -58,7 +64,12 @@ export async function loadCompanionThread(supabase: SupabaseClient): Promise<Com
       )
       .map((r) => ({ role: r.role, content: r.content }));
 
-    return { conversationId: convo.id as string, messages };
+    const parsed = Date.parse(convo.updated_at as string);
+    return {
+      conversationId: convo.id as string,
+      messages,
+      updatedAt: Number.isNaN(parsed) ? null : parsed,
+    };
   } catch {
     return null;
   }

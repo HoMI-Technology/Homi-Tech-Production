@@ -7,9 +7,11 @@ export const runtime = "nodejs";
 
 /**
  * The Companion's server-side memory: returns the signed-in user's thread
- * (conversation id + recent messages, chronological) so every surface and
- * every device resumes the same conversation. Anonymous → 401; the client
- * falls back to its local copy. RLS scopes all reads to the session's user.
+ * (conversation id + recent messages, chronological, plus the ms-epoch
+ * `updatedAt` stamp the persistence contract reconciles against) so every
+ * surface and every device resumes the same conversation. Anonymous → 401;
+ * the client falls back to its local copy. RLS scopes all reads to the
+ * session's user.
  */
 export async function GET(request: Request) {
   const ip = getClientIp(request);
@@ -27,7 +29,7 @@ export async function GET(request: Request) {
   }
 
   const thread = await loadCompanionThread(supabase);
-  return NextResponse.json(thread ?? { conversationId: null, messages: [] });
+  return NextResponse.json(thread ?? { conversationId: null, messages: [], updatedAt: null });
 }
 
 /**

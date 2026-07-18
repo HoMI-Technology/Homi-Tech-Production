@@ -72,6 +72,30 @@ describe("loadCompanionThread", () => {
     expect(thread?.messages.map((m) => m.content)).toEqual(["first", "second"]);
   });
 
+  it("carries the conversation's updated_at as a numeric ms-epoch stamp", async () => {
+    const supabase = makeSupabase({
+      advisor_conversations: [
+        makeChain({ data: { id: "c1", updated_at: "2026-07-17T00:00:05Z" }, error: null }),
+      ],
+      advisor_messages: [
+        makeChain({ data: [{ role: "user", content: "hi", created_at: "2026-07-17T00:00:05Z" }], error: null }),
+      ],
+    });
+    const thread = await loadCompanionThread(supabase);
+    expect(thread?.updatedAt).toBe(Date.parse("2026-07-17T00:00:05Z"));
+  });
+
+  it("reports a null stamp when the conversation timestamp is unparseable", async () => {
+    const supabase = makeSupabase({
+      advisor_conversations: [makeChain({ data: { id: "c1" }, error: null })],
+      advisor_messages: [
+        makeChain({ data: [{ role: "user", content: "hi", created_at: "2026-07-17T00:00:05Z" }], error: null }),
+      ],
+    });
+    const thread = await loadCompanionThread(supabase);
+    expect(thread?.updatedAt).toBeNull();
+  });
+
   it("returns null instead of throwing on a read error", async () => {
     const supabase = makeSupabase({
       advisor_conversations: [makeChain({ data: { id: "c1" }, error: null })],
