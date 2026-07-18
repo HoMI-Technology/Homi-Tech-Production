@@ -4,11 +4,13 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { safeNext } from "@/lib/auth/safeNext";
 
 function SignUpForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/onboarding";
+  // Same-origin only — defense-in-depth against ?next=//evil.com open redirects.
+  const next = safeNext(searchParams.get("next"), "/onboarding");
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
