@@ -4,10 +4,12 @@ This folder is the complete source of the live deployment.
 
 - Live URL: https://homitechnology.com (alias: homi-platform-homi-tech.vercel.app)
 - Vercel project: homi-platform (team: homi-tech, id: prj_LSgxv4XcVDWEQVvvMzmelruM7Xtb)
-- Supabase project: giyycykxkzfbowiapxpd (migrations 00001–00010 applied)
+- Supabase project: giyycykxkzfbowiapxpd (repo migrations 00001–00020 in
+  `supabase/migrations/`, applied in numeric order)
 
 ## Run locally
 npm install
+cp .env.example .env.local   # fill in Supabase (and any optional) values
 npm run dev        # http://localhost:3000
 
 ## Verify
@@ -15,9 +17,11 @@ npm run typecheck && npm test && npm run brand-check
 
 ## Deploy
 npx vercel deploy --prod --yes --token <YOUR_VERCEL_TOKEN>
-(env NEXT_PUBLIC_SUPABASE_URL / ANON_KEY are committed in .env.production;
-server-only keys — ANTHROPIC_API_KEY, STRIPE_*, RESEND_API_KEY, PLAID_* —
-are set in Vercel → Project → Settings → Environment Variables.)
+(No env file is committed — `.gitignore` excludes `.env*`. All vars are set
+in Vercel → Project → Settings → Environment Variables: the client-safe
+NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / NEXT_PUBLIC_SITE_URL
+plus server-only keys — SUPABASE_SERVICE_ROLE_KEY, ANTHROPIC_API_KEY, STRIPE_*,
+RESEND_API_KEY, PLAID_*, and the optional integrations listed in `.env.example`.)
 
 ## Performance measurement (one-time setup)
 

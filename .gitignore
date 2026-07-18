@@ -9,6 +9,7 @@ next-env.d.ts
 .vercel
 .DS_Store
 .env*
+!.env.example
 
 # Lighthouse CI local report artifacts
 .lighthouseci/
