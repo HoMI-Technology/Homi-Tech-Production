@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import Stripe from "stripe";
 import { z } from "zod";
 import { env, hasStripe } from "@/lib/env";
 import { getTier } from "@/lib/stripe/tiers";
+import { createStripeClient } from "@/lib/stripe/server";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
 
@@ -57,42 +59,32 @@ export async function POST(request: Request) {
   const clientReferenceId = user.id;
 
   const siteUrl = env.NEXT_PUBLIC_SITE_URL;
-
-  const form = new URLSearchParams();
-  form.set("mode", "subscription");
-  form.set("line_items[0][price]", priceId);
-  form.set("line_items[0][quantity]", "1");
-  form.set("success_url", `${siteUrl}/dashboard?upgraded=1`);
-  form.set("cancel_url", `${siteUrl}/pricing`);
-  if (clientReferenceId) form.set("client_reference_id", clientReferenceId);
+  // hasStripe() above guarantees the key is present.
+  const stripe = createStripeClient(env.STRIPE_SECRET_KEY as string);
 
   try {
-    const response = await fetch("https://api.stripe.com/v1/checkout/sessions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
-        "content-type": "application/x-www-form-urlencoded",
-      },
-      body: form.toString(),
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${siteUrl}/dashboard?upgraded=1`,
+      cancel_url: `${siteUrl}/pricing`,
+      ...(clientReferenceId ? { client_reference_id: clientReferenceId } : {}),
     });
 
-    if (!response.ok) {
-      const errBody = await response.text();
-      const correlationId = crypto.randomUUID();
-      console.error(`[checkout:${correlationId}]`, errBody);
-      return NextResponse.json(
-        { error: "Stripe checkout session creation failed.", correlationId },
-        { status: 502 },
-      );
-    }
-
-    const session = (await response.json()) as { url?: string };
     if (!session.url) {
       return NextResponse.json({ error: "Stripe did not return a checkout URL." }, { status: 502 });
     }
 
     return NextResponse.json({ configured: true, url: session.url });
-  } catch {
-    return NextResponse.json({ error: "Could not reach Stripe." }, { status: 502 });
+  } catch (err) {
+    if (err instanceof Stripe.errors.StripeConnectionError) {
+      return NextResponse.json({ error: "Could not reach Stripe." }, { status: 502 });
+    }
+    const correlationId = crypto.randomUUID();
+    console.error(`[checkout:${correlationId}]`, err);
+    return NextResponse.json(
+      { error: "Stripe checkout session creation failed.", correlationId },
+      { status: 502 },
+    );
   }
 }
