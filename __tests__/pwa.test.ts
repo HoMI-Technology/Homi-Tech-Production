@@ -54,6 +54,17 @@ describe("web app manifest", () => {
       expect(publicFileExists(icon.src), `${icon.src} missing from /public`).toBe(true);
     }
   });
+
+  it("declares install-sheet screenshots for both form factors, and the files exist", () => {
+    const shots = m.screenshots ?? [];
+    // A "wide" screenshot is required for the richer desktop install dialog.
+    expect(shots.some((s) => s.form_factor === "wide")).toBe(true);
+    expect(shots.some((s) => s.form_factor === "narrow")).toBe(true);
+    for (const shot of shots) {
+      expect(shot.sizes, "screenshot missing sizes").toBeTruthy();
+      expect(publicFileExists(shot.src), `${shot.src} missing from /public`).toBe(true);
+    }
+  });
 });
 
 describe("service worker", () => {
