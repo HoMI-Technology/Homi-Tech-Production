@@ -32,6 +32,7 @@ const TIERS: PricingTier[] = [
       "Shadow Score — a 90-second read on where you stand",
       "One full assessment across all three pillars",
       "Basic finance tools",
+      "HōMI Companion — starter guidance",
     ],
     cta: null,
   },
@@ -44,6 +45,7 @@ const TIERS: PricingTier[] = [
     features: [
       "Unlimited assessments",
       "Full readiness report across all pillars",
+      "Decision Companion — full AI conversations",
       "A transformation plan built around your gaps",
       "Private journal to track the moment before",
     ],
@@ -57,10 +59,9 @@ const TIERS: PricingTier[] = [
     description: "Everything in Plus, with a companion who talks back.",
     features: [
       "Everything in Plus",
-      "Decision Companion conversations",
       "Couples mode for shared decisions",
       "Behavioral genome across your decision history",
-      "Priority signal alerts as your readiness shifts",
+      "Higher daily Companion limits",
     ],
     cta: "Start Pro",
     highlight: true,

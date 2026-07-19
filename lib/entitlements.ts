@@ -9,7 +9,8 @@
  *
  * Capability lines are drawn from the published tier features in
  * `lib/stripe/tiers.ts` (kept in sync deliberately):
- *   - "Decision Companion chat access"  → Plus+   (advisorAccess)
+ *   - "Full AI Companion conversations" → Plus+   (advisorRealModel; free tier
+ *     gets the deterministic rule-based Companion only)
  *   - "Unlimited re-scoring"            → Plus+   (unlimitedRescoring)
  *   - detailed pillar breakdown / export → Plus+  (fullReport)
  *   - "Couples mode"                     → Pro+    (couplesMode)
@@ -33,6 +34,12 @@ export interface Entitlements {
   tier: EntitlementTier;
   /** Access to the Decision Companion chat (advisor / twin / trinity). */
   advisorAccess: boolean;
+  /**
+   * Whether the Companion is served by the real Anthropic model. Free tier gets
+   * the deterministic rule-based fallback only ($0 AI cost); paid tiers spend on
+   * the cheap model. This is the cost-safety switch — never grant it to free.
+   */
+  advisorRealModel: boolean;
   /** Per-user daily advisor message quota. 0 when advisorAccess is false. */
   advisorMessagesPerDay: number;
   /** Detailed pillar-breakdown report + credential export. */
@@ -73,6 +80,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     // The ceiling is a graceful upgrade nudge (enforced server-side via the daily
     // usage counter), never a hard paywall on the funnel's core surface.
     advisorAccess: true,
+    advisorRealModel: false,
     advisorMessagesPerDay: 5,
     fullReport: false,
     unlimitedRescoring: false,
@@ -86,7 +94,8 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
   plus: {
     tier: "plus",
     advisorAccess: true,
-    advisorMessagesPerDay: 25,
+    advisorRealModel: true,
+    advisorMessagesPerDay: 20,
     fullReport: true,
     unlimitedRescoring: true,
     couplesMode: false,
@@ -99,6 +108,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
   pro: {
     tier: "pro",
     advisorAccess: true,
+    advisorRealModel: true,
     advisorMessagesPerDay: 100,
     fullReport: true,
     unlimitedRescoring: true,
@@ -112,6 +122,11 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
   family: {
     tier: "family",
     advisorAccess: true,
+    advisorRealModel: true,
+    // Per-member; matches Pro (family is "everything in Pro" for up to 5).
+    // Household aggregate can reach familySeats × this at full tilt — the
+    // Anthropic prepaid cap is the real cost backstop, and a shared household
+    // pool is the proper optimization (tracked for later).
     advisorMessagesPerDay: 100,
     fullReport: true,
     unlimitedRescoring: true,
