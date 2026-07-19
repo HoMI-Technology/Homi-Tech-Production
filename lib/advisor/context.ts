@@ -22,12 +22,23 @@ import {
 import { buildScoreExplanation } from "@/lib/advisor/explain";
 import type { AdvisorAssessmentContext, AdvisorFinanceContext } from "@/lib/advisor/fallback";
 
-/** Whole days between an ISO timestamp and now; null when unparseable. */
+/**
+ * Whole days between an ISO timestamp and now; null when the age is not
+ * trustworthy. Null covers three cases: missing, unparseable, and
+ * *implausible* — a legacy/epoch-adjacent stamp (e.g. 1970) would otherwise
+ * yield ~20,000 days, which the Companion faithfully reports as "your data is
+ * almost 57 years old." Future stamps (negative age) are equally nonsensical.
+ * In every untrusted case we return null so the context note says freshness is
+ * unknown rather than surfacing a garbage number on a trust-critical surface.
+ */
+const MAX_PLAUSIBLE_AGE_DAYS = 3650; // ~10y; older than any real user data here
 function daysSince(iso: string | null | undefined): number | null {
   if (!iso) return null;
   const t = Date.parse(iso);
   if (Number.isNaN(t)) return null;
-  return Math.max(0, Math.floor((Date.now() - t) / 86_400_000));
+  const days = Math.floor((Date.now() - t) / 86_400_000);
+  if (days < 0 || days > MAX_PLAUSIBLE_AGE_DAYS) return null;
+  return days;
 }
 
 export function buildAssessmentContext(): AdvisorAssessmentContext | undefined {
