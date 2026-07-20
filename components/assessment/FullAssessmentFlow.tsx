@@ -7,6 +7,7 @@ import { computeScore } from "@/lib/scoring";
 import { saveLocalResult, loadLocalResult, attachServerId } from "@/lib/assessment/storage";
 import { deriveAssessmentInputs } from "@/lib/assessment/derive";
 import { saveDraft, loadDraft, clearDraft, type AssessmentDraft } from "@/lib/assessment/draft";
+import { track } from "@/lib/analytics";
 import {
   INITIAL_FULL_FORM,
   creditScoreBandHint,
@@ -90,6 +91,7 @@ export function FullAssessmentFlow() {
     } else {
       setDraftReady(true);
     }
+    track("assessment_started", { kind: "full", resumed: draft ? 1 : 0 });
     // Only ever run once, on mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

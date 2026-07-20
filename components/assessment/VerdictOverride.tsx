@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { loadLocalResult, saveOverride } from "@/lib/assessment/storage";
+import { track } from "@/lib/analytics";
 
 interface HardStopLike {
   code: string;
@@ -49,6 +50,7 @@ export function VerdictOverride({
 
     // Score/verdict never change here — this only records the user's choice.
     saveOverride({ at, acknowledgedHardStops });
+    track("override_recorded");
 
     try {
       const supabase = createClient();

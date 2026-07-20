@@ -131,6 +131,7 @@ export function ShadowScoreFlow() {
 
   useEffect(() => {
     const draft = loadShadowDraft(STEP_IDS.length - 1);
+    track("assessment_started", { kind: "shadow", resumed: draft ? 1 : 0 });
     if (draft) {
       setResumeDraft(draft);
       return;
