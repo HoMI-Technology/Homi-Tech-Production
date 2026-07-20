@@ -7,6 +7,7 @@ import { gateCompanion } from "@/lib/advisor/quota";
 import { getUserEntitlements, type Entitlements } from "@/lib/entitlements";
 import { persistCompanionExchange } from "@/lib/advisor/memory";
 import { getVerifiedCashFlow, type VerifiedCashFlow } from "@/lib/plaid/cashflow";
+import { assembleServerContext } from "@/lib/advisor/server-context";
 import {
   buildPersonaFallbackReply,
   type AdvisorAssessmentContext,
@@ -269,10 +270,18 @@ export async function POST(request: Request) {
   // spend model dollars — they get the rule-based fallback.
   const advisorRealModel = !demoContext && entitlements?.advisorRealModel === true;
 
-  const assessment = demoContext ? DEMO_ASSESSMENT_CONTEXT : parsed.data.assessment;
+  // The authority flip: signed-in users' context is assembled SERVER-SIDE from
+  // their own rows (RLS-scoped) and wins per block; the client-sent context is
+  // the fallback for anonymous users and blocks with no server data yet.
+  // Best-effort — assembly failure degrades to client context, never breaks chat.
+  const serverState = supabase && gateUserId ? await assembleServerContext(supabase) : null;
+
+  const assessment = demoContext
+    ? DEMO_ASSESSMENT_CONTEXT
+    : (serverState?.assessment ?? parsed.data.assessment);
   // Demo mode never mixes a real user's money picture into the fixed context.
-  const finance = demoContext ? null : parsed.data.finance;
-  const credit = demoContext ? null : parsed.data.credit;
+  const finance = demoContext ? null : (serverState?.finance ?? parsed.data.finance);
+  const credit = demoContext ? null : (serverState?.credit ?? parsed.data.credit);
   const surface = demoContext ? null : parsed.data.surface;
   const whatChanged = demoContext ? null : parsed.data.whatChanged;
   const identity = demoContext ? null : parsed.data.identity;
@@ -313,7 +322,11 @@ export async function POST(request: Request) {
     // from the user's stored bank transactions (RLS-scoped read; null for
     // anonymous/demo/unlinked users, and on any failure — best-effort).
     const verified = supabase && gateUserId ? await getVerifiedCashFlow(supabase) : null;
-    const contextNote = buildContextNote(assessment ?? null, finance, surface, whatChanged, verified, credit);
+    const provenance = serverState
+      ? "Context assembled server-side from the user's own account records (authoritative across their devices). "
+      : "";
+    const contextNote =
+      provenance + buildContextNote(assessment ?? null, finance, surface, whatChanged, verified, credit);
     // The name is user-chosen text — framed as a label, never as instructions.
     const identityLine =
       identity && identity.name !== "HōMI"
