@@ -20,6 +20,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/legal/privacy",
     "/legal/terms",
     "/legal/disclaimer",
+    "/legal/acceptable-use",
+    "/legal/cookies",
+    "/legal/dmca",
+    "/legal/subprocessors",
   ];
   return routes.map((path) => ({
     url: `${BASE}${path}`,

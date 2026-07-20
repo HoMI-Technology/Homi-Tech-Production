@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
+import { safeSecretEquals } from "@/lib/security";
 import { sendTemplateEmail } from "@/lib/email/send";
 
 export const runtime = "nodejs";
@@ -14,7 +15,7 @@ const bodySchema = z.object({
 export async function POST(request: Request) {
   const internalSecret = process.env.INTERNAL_API_SECRET;
   const provided = request.headers.get("x-homi-internal");
-  if (!internalSecret || provided !== internalSecret) {
+  if (!internalSecret || !safeSecretEquals(provided, internalSecret)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

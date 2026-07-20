@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     creator: "@homi_tech",
     title: "HōMI · Decision Readiness Intelligence™",
     description: "Credit scores look backward. HōMI looks at readiness now.",
-    images: ["/og-v2.png"],
+    images: [{ url: "/og-v2.png", alt: "The HōMI Threshold Compass above the HōMI wordmark — Decision Readiness Intelligence™. Know When You're Ready." }],
   },
   icons: {
     // Browser tab / address bar: the scalable SVG is the compass mark alone —
