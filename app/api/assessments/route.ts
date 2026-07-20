@@ -3,6 +3,8 @@ import { z } from "zod";
 import { computeScore, generateKeyInsight, generateNextSteps } from "@/lib/scoring";
 import { createClient } from "@/lib/supabase/server";
 import { assessmentInputsSchema } from "@/lib/validation/assessment";
+import { readAttributionCookie } from "@/lib/attribution";
+import { captureServerEvent } from "@/lib/analytics/server";
 import { getUserEntitlements } from "@/lib/entitlements";
 import { sendVerdictEmailForAssessment } from "@/lib/email/lifecycle";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
@@ -62,10 +64,14 @@ export async function POST(req: NextRequest) {
     // Never trust client-computed scores — recompute server-side.
     const result = computeScore(inputs);
 
+    // First-touch acquisition snapshot (00026 — occurrence data only).
+    const attribution = readAttributionCookie(req.headers.get("cookie"));
+
     const { data, error } = await supabase
       .from("assessments")
       .insert({
         user_id: user.id,
+        ...(attribution ? { attribution } : {}),
         decision_type: "home_buying",
         status: "completed",
         financial_score: result.financial.total,
@@ -136,6 +142,11 @@ export async function POST(req: NextRequest) {
         verdict: result.verdict as VerdictKey,
       });
     }
+
+    // Server-side funnel truth (00026 measurement): the client success page may
+    // never render (tab closed, blocker), but the completion happened. Occurrence
+    // + verdict label only — never the score. Fire-and-forget.
+    captureServerEvent("assessment_completed", user.id, { kind, verdict: result.verdict });
 
     return NextResponse.json({ saved: true, id: data.id });
   } catch (err) {

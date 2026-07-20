@@ -7,8 +7,16 @@ import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { Reveal } from "@/components/ui/Reveal";
 import { StatTile } from "@/components/ui/StatTile";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import type { Profile, AssessmentRow } from "@/types/database";
+import type { Profile } from "@/types/database";
 import type { VerdictKey } from "@/lib/brand";
+
+/** Identity-stripped row returned by partner_recent_assessments (00030). */
+interface PartnerRecentRow {
+  created_at: string | null;
+  verdict: string | null;
+  overall_score: number | null;
+  is_shadow: boolean | null;
+}
 
 export const metadata: Metadata = {
   title: "Partner Portal | HōMI",
@@ -77,58 +85,67 @@ export default async function PartnerPortalPage() {
     );
   }
 
-  const inviteLink = `${SITE_URL}/shadow-score?ref=partner`;
+  // Per-partner invite code (00026): mint on first visit, stable forever. Every
+  // assessment taken through the link is stamped with this ref, which is what
+  // makes the scoped stats below — and the invite panel's promise — actually true.
+  let partnerCode: string | null = null;
+  try {
+    const { data: existing } = await supabase
+      .from("partner_codes")
+      .select("code")
+      .eq("partner_user_id", user.id)
+      .maybeSingle();
+    if (existing?.code) {
+      partnerCode = existing.code as string;
+    } else {
+      const minted = `ptr_${crypto.randomUUID().replace(/-/g, "").slice(0, 8)}`;
+      const { data: inserted } = await supabase
+        .from("partner_codes")
+        .insert({ code: minted, partner_user_id: user.id })
+        .select("code")
+        .maybeSingle();
+      partnerCode = (inserted?.code as string | undefined) ?? null;
+    }
+  } catch {
+    partnerCode = null;
+  }
 
+  const inviteLink = partnerCode
+    ? `${SITE_URL}/shadow-score?ref=${partnerCode}`
+    : `${SITE_URL}/shadow-score`;
+
+  // Anonymized, partner-scoped stats via SECURITY DEFINER RPCs (00030) — the
+  // only partner read path into client assessment data. Aggregates and
+  // identity-stripped rows only; replaces the old global, mislabeled queries.
   let assessmentCount = 0;
   let recentCount = 0;
   let avgScore: number | null = null;
-  let recent: AssessmentRow[] = [];
+  let recent: PartnerRecentRow[] = [];
 
-  try {
-    const { count } = await supabase
-      .from("assessments")
-      .select("*", { count: "exact", head: true });
-    assessmentCount = count ?? 0;
-  } catch {
-    assessmentCount = 0;
-  }
-
-  try {
-    const since = new Date();
-    since.setUTCDate(since.getUTCDate() - 29);
-    const { count } = await supabase
-      .from("assessments")
-      .select("*", { count: "exact", head: true })
-      .gte("created_at", since.toISOString());
-    recentCount = count ?? 0;
-  } catch {
-    recentCount = 0;
-  }
-
-  try {
-    const { data } = await supabase
-      .from("assessments")
-      .select("overall_score")
-      .not("overall_score", "is", null)
-      .limit(500);
-    const rows = (data as { overall_score: number | null }[] | null) ?? [];
-    if (rows.length > 0) {
-      const sum = rows.reduce((acc, r) => acc + (r.overall_score ?? 0), 0);
-      avgScore = Math.round(sum / rows.length);
+  if (partnerCode) {
+    try {
+      const { data } = await supabase.rpc("partner_code_stats", { p_code: partnerCode });
+      const stats = (data as
+        | { assessment_count: number; recent_count: number; avg_score: number | null }[]
+        | null)?.[0];
+      if (stats) {
+        assessmentCount = Number(stats.assessment_count ?? 0);
+        recentCount = Number(stats.recent_count ?? 0);
+        avgScore = stats.avg_score === null ? null : Math.round(Number(stats.avg_score));
+      }
+    } catch {
+      // Leave zeros — the portal renders honestly empty rather than erroring.
     }
-  } catch {
-    avgScore = null;
-  }
 
-  try {
-    const { data } = await supabase
-      .from("assessments")
-      .select("id, verdict, overall_score, created_at, is_shadow, user_id, decision_type, status, financial_score, emotional_score, timing_score, inputs, sub_scores, insights, hard_stops, completed_at")
-      .order("created_at", { ascending: false })
-      .limit(10);
-    recent = (data as AssessmentRow[] | null) ?? [];
-  } catch {
-    recent = [];
+    try {
+      const { data } = await supabase.rpc("partner_recent_assessments", {
+        p_code: partnerCode,
+        p_limit: 10,
+      });
+      recent = (data as PartnerRecentRow[] | null) ?? [];
+    } catch {
+      recent = [];
+    }
   }
 
   return (
@@ -160,19 +177,19 @@ export default async function PartnerPortalPage() {
               label="Assessments taken"
               value={assessmentCount.toLocaleString()}
               accent="#22d3ee"
-              footer="Lifetime, platform-wide"
+              footer="Lifetime, from your invite link"
             />
             <StatTile
               label="Last 30 days"
               value={recentCount.toLocaleString()}
               accent="#34d399"
-              footer="New assessments"
+              footer="New assessments from your invites"
             />
             <StatTile
               label="Average readiness score"
               value={avgScore !== null ? String(avgScore) : "—"}
               accent="#facc15"
-              footer="Across completed assessments"
+              footer="Across your invited assessments"
             />
           </div>
         </Reveal>
@@ -211,9 +228,9 @@ export default async function PartnerPortalPage() {
               </div>
             ) : (
               <div className="divide-y divide-slate-surface/40">
-                {recent.map((a) => (
+                {recent.map((a, i) => (
                   <div
-                    key={a.id}
+                    key={`${a.created_at ?? "row"}-${i}`}
                     className="flex flex-wrap items-center justify-between gap-3 px-2 py-4 transition-colors hover:bg-cyan/5"
                   >
                     <div className="flex items-center gap-4">
