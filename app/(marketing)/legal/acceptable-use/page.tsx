@@ -4,6 +4,7 @@ import { BRAND } from "@/lib/brand";
 export const metadata: Metadata = {
   title: "Acceptable Use Policy",
   description: "The rules and guidelines for using HōMI's Services.",
+  alternates: { canonical: "/legal/acceptable-use" },
 };
 
 // Text recovered verbatim from the v153 build (src/pages/AcceptableUsePage.tsx);

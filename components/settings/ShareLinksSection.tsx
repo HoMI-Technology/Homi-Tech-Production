@@ -10,10 +10,16 @@ interface ShareLinkRow {
   created_at: string;
 }
 
+interface VerificationRow {
+  share_id: string;
+  verified_at: string;
+}
+
 /** Settings panel: lists the signed-in user's active share links with a per-row revoke action. */
 export function ShareLinksSection() {
   const [loading, setLoading] = useState(true);
   const [links, setLinks] = useState<ShareLinkRow[]>([]);
+  const [verifyCounts, setVerifyCounts] = useState<Record<string, number>>({});
   const [revokingId, setRevokingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +33,23 @@ export function ShareLinksSection() {
         .is("revoked_at", null)
         .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
         .order("created_at", { ascending: false });
-      setLinks((data as ShareLinkRow[] | null) ?? []);
+      const rows = (data as ShareLinkRow[] | null) ?? [];
+      setLinks(rows);
+
+      // Consumer-visible receipt audit (00022): how many times a partner
+      // verified each of my links. RLS scopes this to shares I own.
+      if (rows.length > 0) {
+        const { data: verifications } = await supabase
+          .from("receipt_verifications")
+          .select("share_id, verified_at");
+        const counts: Record<string, number> = {};
+        for (const v of (verifications as VerificationRow[] | null) ?? []) {
+          counts[v.share_id] = (counts[v.share_id] ?? 0) + 1;
+        }
+        setVerifyCounts(counts);
+      } else {
+        setVerifyCounts({});
+      }
     } catch {
       // Leave the list empty — the section still renders gracefully.
     } finally {
@@ -80,6 +102,11 @@ export function ShareLinksSection() {
                   <p className="score-numeral break-all text-sm font-medium text-light">{link.share_token}</p>
                   <p className="text-sm text-dim">
                     {link.expires_at ? `Expires ${new Date(link.expires_at).toLocaleDateString()}` : "No expiration"}
+                    {verifyCounts[link.id] ? (
+                      <span className="ml-2 text-emerald">
+                        · Verified by a partner {verifyCounts[link.id]}×
+                      </span>
+                    ) : null}
                   </p>
                 </div>
                 <button

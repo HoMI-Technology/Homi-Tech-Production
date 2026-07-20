@@ -18,6 +18,8 @@ export interface Profile {
   subscription_status: string;
   stripe_customer_id: string | null;
   partner_id: string | null;
+  /** First-touch acquisition snapshot — migration 00026. */
+  attribution?: Record<string, unknown> | null;
   onboarding_completed: boolean;
   email_reminders_enabled: boolean;
   welcome_email_sent_at: string | null;
@@ -45,6 +47,8 @@ export interface AssessmentRow {
   created_at: string;
   /** Set once the user confirms "I'm deciding anyway" despite the verdict. Never changes score/verdict. */
   user_override: { at: string; acknowledged_hard_stops: boolean } | null;
+  /** First-touch acquisition snapshot — migration 00026. */
+  attribution?: Record<string, unknown> | null;
 }
 
 export type OutcomeSurveyKind = "day30" | "day90" | "day365";

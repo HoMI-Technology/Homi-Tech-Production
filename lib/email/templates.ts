@@ -142,6 +142,31 @@ export function verdictEmail(
   return { subject: `Your HōMI-Score: ${score} — ${label}`, html: layout(body) };
 }
 
+export function outcomeSurveyEmail(
+  name: string,
+  daysSince: number,
+): { subject: string; html: string } {
+  const horizon =
+    daysSince >= 300 ? "a year" : daysSince >= 80 ? "three months" : "a month";
+  const body = `
+    <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">Hi ${name},</p>
+    <p style="margin:0 0 16px 0;">
+      About ${horizon} ago, HōMI gave you a read on your readiness. Here's the honest part:
+      a verdict only means something if it turns out to be right. Two minutes from you —
+      what actually happened, and how it actually feels — is how HōMI stays honest for
+      the next person standing where you stood.
+    </p>
+    <p style="margin:0 0 20px 0;">
+      No judgment either way. Moved forward, waited, changed your mind — every outcome
+      makes the read sharper.
+    </p>
+    <p style="margin:0;">
+      <a href="${SITE}/outcomes" style="color:#22d3ee;text-decoration:none;font-weight:700;">Share your outcome &rarr;</a>
+    </p>
+  `;
+  return { subject: "How did it actually go?", html: layout(body) };
+}
+
 export function reassessmentReminder(
   name: string,
   daysSince: number,
@@ -161,6 +186,27 @@ export function reassessmentReminder(
     </p>
   `;
   return { subject: "A quick check-in on your readiness", html: layout(body) };
+}
+
+export function outcomeSurveyReminder(
+  name: string,
+  days: number,
+): { subject: string; html: string } {
+  const body = `
+    <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">Hi ${name},</p>
+    <p style="margin:0 0 16px 0;">
+      It's been about ${days} days since your decision. HōMI gave you an honest read back then —
+      now we'd love an honest read back: how is it actually going?
+    </p>
+    <p style="margin:0 0 20px 0;">
+      It's a 30-second check-in, and there's no wrong answer. Whether it went well or didn't, your
+      outcome is what keeps every future verdict honest.
+    </p>
+    <p style="margin:0;">
+      <a href="${SITE}/dashboard" style="color:#22d3ee;text-decoration:none;font-weight:700;">Share how it went &rarr;</a>
+    </p>
+  `;
+  return { subject: "How did it go? A quick outcome check-in", html: layout(body) };
 }
 
 export function waitlistConfirmation(): { subject: string; html: string } {

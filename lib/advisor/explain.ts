@@ -12,6 +12,7 @@
  */
 
 import { PILLAR_MAX_POINTS } from "@/lib/scoring";
+import { findCrossedMilestone, type Milestone } from "@/lib/advisor/milestones";
 import type { StoredAssessment } from "@/lib/assessment/storage";
 
 export type MagnitudeBand = "small" | "moderate" | "large";
@@ -29,6 +30,8 @@ export interface PillarMovement {
 export interface ScoreExplanation {
   /** "Your score moved from 63 to 71." / "Your score held at 71." */
   headline: string;
+  /** Threshold crossing between the two scores, when one happened. */
+  milestone: Milestone | null;
   /** One line per pillar, biggest movement first. Empty when pillar detail is unavailable. */
   movements: PillarMovement[];
   /** Honest limitation/staleness notes ("timing answers are 47 days old", …). */
@@ -78,6 +81,7 @@ export function buildScoreExplanation(stored: StoredAssessment): ScoreExplanatio
     delta === 0
       ? `Your score held at ${result.score}.`
       : `Your score moved from ${previous.score} to ${result.score}.`;
+  const milestone = findCrossedMilestone(previous.score, result.score);
 
   const caveats: string[] = [];
   const movements: PillarMovement[] = [];
@@ -129,9 +133,10 @@ export function buildScoreExplanation(stored: StoredAssessment): ScoreExplanatio
   const driver = movements.find((m) => m.direction !== "flat");
   const compositeSize = delta === 0 ? null : compositeBand(Math.abs(delta));
   const companionLine =
-    delta === 0
+    (delta === 0
       ? `Score unchanged at ${result.score} since the previous assessment.`
-      : `Score ${delta > 0 ? "up" : "down"} ${Math.abs(delta)} (a ${compositeSize} move) since the previous assessment${driver ? `; main mover: ${driver.line.replace(/\.$/, "").toLowerCase()}` : ""}.`;
+      : `Score ${delta > 0 ? "up" : "down"} ${Math.abs(delta)} (a ${compositeSize} move) since the previous assessment${driver ? `; main mover: ${driver.line.replace(/\.$/, "").toLowerCase()}` : ""}.`) +
+    (milestone ? ` Milestone: ${milestone.line}` : "");
 
-  return { headline, movements, caveats, companionLine };
+  return { headline, milestone, movements, caveats, companionLine };
 }

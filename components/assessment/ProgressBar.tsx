@@ -21,7 +21,14 @@ export function ProgressBar({
   };
 
   return (
-    <div className="flex w-full gap-1.5" role="progressbar" aria-valuenow={currentIndex + 1} aria-valuemin={1} aria-valuemax={steps.length}>
+    <div
+      className="flex w-full gap-1.5"
+      role="progressbar"
+      aria-label="Assessment progress"
+      aria-valuenow={currentIndex + 1}
+      aria-valuemin={1}
+      aria-valuemax={steps.length}
+    >
       {steps.map((step, i) => {
         const done = i <= currentIndex;
         return (

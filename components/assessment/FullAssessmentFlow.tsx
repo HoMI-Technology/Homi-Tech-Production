@@ -6,6 +6,7 @@ import { PILLARS } from "@/lib/brand";
 import { computeScore } from "@/lib/scoring";
 import { saveLocalResult, loadLocalResult, attachServerId } from "@/lib/assessment/storage";
 import { saveDraft, loadDraft, clearDraft, type AssessmentDraft } from "@/lib/assessment/draft";
+import { track } from "@/lib/analytics";
 import {
   ACTIVE_DECISION_TYPES,
   DECISION_TYPE_LABELS,
@@ -70,6 +71,8 @@ export function FullAssessmentFlow() {
     } else {
       setDraftReady(true);
     }
+    track("assessment_started", { kind: "full", resumed: draft ? 1 : 0 });
+    // Only ever run once, on mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

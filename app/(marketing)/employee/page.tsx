@@ -4,7 +4,8 @@ import { Reveal } from "@/components/ui/Reveal";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 
 export const metadata: Metadata = {
-  title: "HōMI for Employees",
+  // Rendered through the "%s · HōMI" root template — don't repeat the brand.
+  title: "For Employees",
   description:
     "The financial-wellness benefit that tells your people the truth. Privacy-first readiness for the big decisions life throws at your workforce.",
   alternates: { canonical: "/employee" },

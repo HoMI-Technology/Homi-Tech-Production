@@ -87,11 +87,32 @@ export async function POST(request: Request) {
       created_by: user.id,
       expires_at: expiresAt,
     })
-    .select("share_token")
+    .select("id, share_token")
     .single();
 
   if (error || !data) {
     return NextResponse.json({ error: "Could not create a share link." }, { status: 500 });
+  }
+
+  // Compensating re-check: the pre-insert count above is not atomic with the
+  // insert, so two concurrent requests can both pass the gate. Re-count after
+  // inserting and roll back the overflow row instead of exceeding the plan cap.
+  const { count: afterCount } = await supabase
+    .from("score_shares")
+    .select("id", { count: "exact", head: true })
+    .eq("created_by", user.id)
+    .is("revoked_at", null)
+    .gt("expires_at", new Date().toISOString());
+
+  if ((afterCount ?? 0) > entitlements.maxActiveShares) {
+    await supabase.from("score_shares").delete().eq("id", data.id).eq("created_by", user.id);
+    return NextResponse.json(
+      {
+        error: `Your plan allows ${entitlements.maxActiveShares} active share links. Revoke one or upgrade for more.`,
+        code: "share_limit",
+      },
+      { status: 402 },
+    );
   }
 
   return NextResponse.json({ url: `${env.NEXT_PUBLIC_SITE_URL}/share/${data.share_token}` });

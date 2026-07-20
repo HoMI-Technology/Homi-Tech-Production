@@ -5,7 +5,9 @@ import { CookieConsent } from "@/components/consent/CookieConsent";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { CONSENT_BOOT_SCRIPT } from "@/components/consent/consent-shared";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
+import { AppleSplashLinks } from "@/components/pwa/AppleSplashLinks";
 import { AnalyticsScripts } from "@/components/analytics/AnalyticsScripts";
+import { AttributionCapture } from "@/components/analytics/AttributionCapture";
 import { SITE_URL } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
@@ -39,7 +41,7 @@ export const metadata: Metadata = {
     creator: "@homi_tech",
     title: "HōMI · Decision Readiness Intelligence™",
     description: "Credit scores look backward. HōMI looks at readiness now.",
-    images: ["/og-v2.png"],
+    images: [{ url: "/og-v2.png", alt: "The HōMI Threshold Compass above the HōMI wordmark — Decision Readiness Intelligence™. Know When You're Ready." }],
   },
   icons: {
     // Browser tab / address bar: the scalable SVG is the compass mark alone —
@@ -76,6 +78,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${fraunces.variable} ${jetbrainsMono.variable}`}>
+      <head>
+        {/* iOS PWA launch images (portrait, modern iPhones). Hoisted to head. */}
+        <AppleSplashLinks />
+      </head>
       <body className="field grain min-h-screen">
         {/* Pre-paint consent gate — see consent-shared.ts. Must precede the
             server-rendered CookieConsent bar so consented visitors never see
@@ -91,6 +97,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CookieConsent />
         <AnalyticsScripts />
         <ServiceWorkerRegister />
+        <AttributionCapture />
         {/* Field Core Web Vitals (LCP/CLS/INP from real users). Vercel-only:
             on localhost/CI the injected script would 404 and pollute
             Lighthouse's console-error audit. Needs Speed Insights enabled on

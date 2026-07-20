@@ -15,7 +15,9 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     // Acceptance specs are the §9 oracle; intentionally RED until the fixes land,
     // so they run via their own config (npm run test:acceptance), not the default gate.
-    exclude: [...configDefaults.exclude, "**/__tests__/acceptance/**"],
+    // Playwright E2E specs live in e2e/ and run via `npm run e2e` (their own
+    // runner) — keep Vitest from picking them up by its default *.spec.ts glob.
+    exclude: [...configDefaults.exclude, "**/__tests__/acceptance/**", "e2e/**"],
   },
   resolve: {
     alias: {

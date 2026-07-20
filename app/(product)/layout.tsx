@@ -1,6 +1,7 @@
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
+import { SessionExpiredToast } from "@/components/layout/SessionExpiredToast";
 import { CompanionWidget } from "@/components/companion/CompanionWidget";
 import { getCachedUser } from "@/lib/supabase/server";
 
@@ -24,6 +25,7 @@ export default async function ProductLayout({ children }: { children: React.Reac
       <main id="main" className="pt-[72px] min-h-screen">{children}</main>
       <SiteFooter />
       <CompanionWidget />
+      {user && <SessionExpiredToast />}
     </>
   );
 }

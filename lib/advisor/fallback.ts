@@ -49,6 +49,19 @@ export interface AdvisorFinanceContext {
   ageDays?: number | null;
 }
 
+/**
+ * The user's credit picture from the /credit page — self-reported, like the
+ * finance context. Only built when the user has actually saved credit data.
+ */
+export interface AdvisorCreditContext {
+  score: number;
+  /** Utilization percentage (0–100+). */
+  utilization: number;
+  onTimeStreakMonths: number;
+  /** Days since last save; null when unknown. */
+  ageDays?: number | null;
+}
+
 interface FallbackInput {
   message: string;
   assessment?: AdvisorAssessmentContext | null;
