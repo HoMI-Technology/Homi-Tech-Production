@@ -4,6 +4,7 @@ import { BRAND } from "@/lib/brand";
 export const metadata: Metadata = {
   title: "Subprocessors",
   description: "The third-party service providers HōMI uses to deliver its Services.",
+  alternates: { canonical: "/legal/subprocessors" },
 };
 
 // Base list recovered verbatim from the v153 build (src/pages/SubprocessorsPage.tsx).

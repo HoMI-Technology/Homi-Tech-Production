@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { safeSecretEquals } from "@/lib/security";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { sendTemplateEmail } from "@/lib/email/send";
 import { daysSinceAssessment } from "@/lib/email/lifecycle";
@@ -30,7 +31,7 @@ export async function GET(request: Request) {
   const cronSecret = process.env.CRON_SECRET;
   const auth = request.headers.get("authorization");
 
-  if (!cronSecret || auth !== `Bearer ${cronSecret}`) {
+  if (!cronSecret || !safeSecretEquals(auth, `Bearer ${cronSecret}`)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

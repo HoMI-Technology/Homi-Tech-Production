@@ -90,6 +90,28 @@ export async function POST(req: NextRequest) {
       .select("id")
       .single();
 
+    // Compensating re-check for the free-tier gate above: the pre-insert count
+    // is not atomic with the insert, so two concurrent completions can both
+    // pass. Re-count and roll back the overflow row instead of storing it.
+    if (data && kind === "full" && !entitlements.unlimitedRescoring) {
+      const { count: afterCount } = await supabase
+        .from("assessments")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("is_shadow", false)
+        .eq("status", "completed");
+      if ((afterCount ?? 0) > 1) {
+        await supabase.from("assessments").delete().eq("id", data.id).eq("user_id", user.id);
+        return NextResponse.json(
+          {
+            error: "Your free plan includes one full assessment. Upgrade to re-score as your numbers change.",
+            code: "rescoring_locked",
+          },
+          { status: 402 },
+        );
+      }
+    }
+
     if (error) {
       const correlationId = crypto.randomUUID();
       console.error(`[assessments:POST:${correlationId}]`, error);

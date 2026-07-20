@@ -46,7 +46,13 @@ export async function DELETE(request: Request, context: { params: Promise<{ id: 
     .eq("created_by", user.id);
 
   if (updateError) {
-    return NextResponse.json({ error: updateError.message }, { status: 500 });
+    // Never echo raw DB errors to the client — log with a correlation id.
+    const correlationId = crypto.randomUUID();
+    console.error(`[shares:DELETE:${correlationId}]`, updateError);
+    return NextResponse.json(
+      { error: "Could not revoke the share link right now.", correlationId },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ ok: true });

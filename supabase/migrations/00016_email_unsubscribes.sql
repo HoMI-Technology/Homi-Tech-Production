@@ -17,7 +17,13 @@ create table if not exists email_unsubscribes (
 alter table email_unsubscribes enable row level security;
 alter table email_unsubscribes force row level security;
 
-grant select, insert on email_unsubscribes to service_role;
+-- update is required: the unsubscribe endpoint upserts (ON CONFLICT DO UPDATE),
+-- so a repeat unsubscribe for the same email takes the update path.
+grant select, insert, update on email_unsubscribes to service_role;
+
+-- Forced RLS with no policies already denies anon/authenticated; revoke the
+-- platform's default table grants too so the deny doesn't depend on RLS alone.
+revoke all on email_unsubscribes from anon, authenticated;
 
 -- ROLLBACK:
 -- drop table if exists email_unsubscribes;

@@ -91,16 +91,8 @@ export async function POST(request: Request) {
     );
   }
 
-  // Companion gate: this is an LLM endpoint (AUDIT T1.3). Require a session and
-  // consume from the tier's daily quota — no anonymous LLM spend.
-  const supabase = await createClient();
-  const gate = await gateCompanion(supabase);
-  if (!gate.ok) return gate.response;
-
-  // Real model only for paid tiers (advisorRealModel). Authenticated FREE users
-  // get the deterministic fallback trinity — no model spend.
-  const { entitlements } = await getUserEntitlements(supabase);
-
+  // Validate the body BEFORE the Companion gate: gateCompanion atomically
+  // consumes one daily-quota message, and a malformed request must not burn it.
   let json: unknown;
   try {
     json = await request.json();
@@ -112,6 +104,16 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid request body.", issues: parsed.error.issues }, { status: 400 });
   }
+
+  // Companion gate: this is an LLM endpoint (AUDIT T1.3). Require a session and
+  // consume from the tier's daily quota — no anonymous LLM spend.
+  const supabase = await createClient();
+  const gate = await gateCompanion(supabase);
+  if (!gate.ok) return gate.response;
+
+  // Real model only for paid tiers (advisorRealModel). Authenticated FREE users
+  // get the deterministic fallback trinity — no model spend.
+  const { entitlements } = await getUserEntitlements(supabase);
 
   const { assessment } = parsed.data;
 
