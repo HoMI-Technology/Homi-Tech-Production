@@ -106,16 +106,22 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   full-page chat resume the same conversation on any device; local storage
   remains the anonymous/offline fallback, and persistence is best-effort so a
   storage failure never breaks the chat itself.
-- **Server-side context assembly**: for signed-in users, the route reads
-  `financial_snapshots`, `goals`, and `credit_snapshots` directly (RLS-scoped) so
-  the Companion's knowledge doesn't depend on which browser the user opened.
+- **Server-side context assembly** — SHIPPED (the authority flip): for
+  signed-in users the route assembles context from their own rows via
+  `lib/advisor/server-context.ts` — `assessments` (latest two, for score,
+  pillars, hard stops, previous score), `user_finance_state` (mirrored
+  dashboard state with LWW freshness), and `credit_snapshots` — and the
+  server wins per block, with client-sent context as the fallback for
+  anonymous users and empty tables. The Companion's knowledge no longer
+  depends on which browser the user opened.
 - **Cross-surface continuity**: opening the widget mid-conversation shows the same
   thread the full-page chat holds.
-- **Canonical readiness-state contract**: server-assembled context ships as one
-  versioned object (score, verdict, pillars, trend, confidence, data quality,
-  blockers, next best action) — the single backbone the dashboard, chat, and any
-  future report all read from, adapted from the strategy corpus's
-  `CompanionReadinessState`.
+- **Canonical readiness-state contract** — SHIPPED (v1):
+  `ServerCompanionState` in `lib/advisor/server-context.ts` — one object
+  carrying assessment, finance, and credit blocks with freshness and a
+  generation timestamp, assembled concurrently and degrading per block.
+  Adapted from the strategy corpus's `CompanionReadinessState`; trend and
+  next-best-action fields join it as those systems land.
 - **"What HōMI remembers"** — SHIPPED: an inspectable memory panel in Settings
   (`components/settings/CompanionMemorySection.tsx`) stating plainly what the
   Companion knows (identity, readiness, money picture with freshness, stored
