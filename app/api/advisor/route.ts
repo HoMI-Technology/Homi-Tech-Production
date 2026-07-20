@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { gateCompanion } from "@/lib/advisor/quota";
 import { getUserEntitlements, type Entitlements } from "@/lib/entitlements";
 import { persistCompanionExchange } from "@/lib/advisor/memory";
+import { getVerifiedCashFlow, type VerifiedCashFlow } from "@/lib/plaid/cashflow";
 import {
   buildPersonaFallbackReply,
   type AdvisorAssessmentContext,
@@ -128,6 +129,7 @@ function buildContextNote(
   finance?: AdvisorFinanceContext | null,
   surface?: string | null,
   whatChanged?: string | null,
+  verified?: VerifiedCashFlow | null,
 ): string {
   const parts: string[] = [];
 
@@ -178,6 +180,14 @@ function buildContextNote(
         ? "runway not computable (no outflow entered),"
         : `runway ${finance.runwayMonths} months,`,
       `DTI ${finance.dti}%, liquid savings $${finance.liquidSavings}, total debt $${finance.totalDebt}, net worth $${finance.netWorth}.`,
+    );
+  }
+
+  if (verified) {
+    parts.push(
+      `VERIFIED cash flow from their linked bank (last ${verified.windowDays} days, ${verified.transactionCount} settled transactions):`,
+      `money in $${verified.income}, money out $${verified.expenses}, net $${verified.netCashFlow}.`,
+      "This block is the only bank-verified data here — everything else is self-reported. When the verified numbers and their self-reported ones disagree, name the gap honestly instead of picking one silently.",
     );
   }
 
@@ -269,7 +279,11 @@ export async function POST(request: Request) {
 
   try {
     const trimmed = messages.slice(-12);
-    const contextNote = buildContextNote(assessment ?? null, finance, surface, whatChanged);
+    // The Companion's first server-assembled context block: verified cash flow
+    // from the user's stored bank transactions (RLS-scoped read; null for
+    // anonymous/demo/unlinked users, and on any failure — best-effort).
+    const verified = supabase && gateUserId ? await getVerifiedCashFlow(supabase) : null;
+    const contextNote = buildContextNote(assessment ?? null, finance, surface, whatChanged, verified);
     // The name is user-chosen text — framed as a label, never as instructions.
     const identityLine =
       identity && identity.name !== "HōMI"
