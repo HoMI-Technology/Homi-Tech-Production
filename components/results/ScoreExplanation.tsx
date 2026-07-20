@@ -25,6 +25,15 @@ export function ScoreExplanation({ stored }: { stored: StoredAssessment }) {
       <p className="text-sm font-semibold uppercase tracking-wide text-dim">Why did this change</p>
       <p className="mt-2 font-display text-xl font-semibold text-light">{explanation.headline}</p>
 
+      {explanation.milestone && (
+        <p
+          className="mt-3 border-l-2 pl-3 text-sm font-medium text-light"
+          style={{ borderColor: explanation.milestone.direction === "up" ? "#34d399" : "#facc15" }}
+        >
+          {explanation.milestone.line}
+        </p>
+      )}
+
       {explanation.movements.length > 0 && (
         <ul className="mt-4 space-y-2">
           {explanation.movements.map((m) => (
