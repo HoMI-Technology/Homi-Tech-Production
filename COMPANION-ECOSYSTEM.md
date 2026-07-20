@@ -147,10 +147,13 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   pillar detail, and active hard stops. The Companion receives the same
   explanation via the spine's `whatChanged` field, so chat and view always tell
   one story. Previous-score snapshots now carry pillar totals to power it.
-- **Milestone moments and ambient context**: mark score-threshold crossings in the
-  Companion surface and keep a one-line context bar of what the conversation has
-  covered — warmth mechanics harvested from the companions-v2 prototype, re-voiced
-  to canon (no emoji, no hype).
+- **Milestone moments** — SHIPPED: score-threshold crossings (40/50/60/70/80/90)
+  marked in canon voice, both directions (`lib/advisor/milestones.ts`) — up
+  reports the highest threshold reached, down reports honestly where you are
+  now. Folded into the explanation engine, so the /results card shows the
+  crossing as a highlighted strip and the Companion's context carries the same
+  words. Harvested from the companions-v2 prototype, re-voiced (no emoji, no
+  hype — a CI test enforces it). The ambient context bar remains future UX.
 
 ### Phase 4 — The mote reaches out (carefully)
 - **Signals, not spam**: surface proactive nudges inside `/signals` and `/daily`
