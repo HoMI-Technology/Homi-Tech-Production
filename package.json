@@ -2,7 +2,7 @@
   "name": "homi-production",
   "version": "1.0.0",
   "private": true,
-  "description": "HōMI — Decision Readiness Intelligence. Production full-stack platform by HOMI TECHNOLOGIES LLC.",
+  "description": "HōMI — Decision Readiness Intelligence™. Production full-stack platform by HOMI TECHNOLOGIES LLC.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -5,6 +5,7 @@ import { BRAND } from "@/lib/brand";
 export const metadata: Metadata = {
   title: "Cookie Policy",
   description: "How HōMI uses cookies and browser storage — essential only, zero trackers, zero ad tech.",
+  alternates: { canonical: "/legal/cookies" },
 };
 
 export default function CookiesPage() {

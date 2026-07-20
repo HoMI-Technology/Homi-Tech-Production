@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "DMCA Policy",
   description: "HōMI's notice-and-takedown policy for copyright infringement claims.",
+  alternates: { canonical: "/legal/dmca" },
 };
 
 // Text recovered verbatim from the v153 build (src/pages/DmcaPage.tsx);
