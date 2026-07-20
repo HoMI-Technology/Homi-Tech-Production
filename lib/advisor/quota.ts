@@ -49,13 +49,23 @@ export async function gateCompanion(supabase: SupabaseClient): Promise<Companion
     };
   }
 
-  const { data, error } = await supabase.rpc("try_consume_advisor_message", {
-    p_limit: entitlements.advisorMessagesPerDay,
+  // Prefer the monthly-aware v2 consume (00029). If it isn't applied yet, fall
+  // back to the daily-only v1 (00013) so a mid-migration deploy still enforces
+  // the daily cap instead of dropping enforcement entirely.
+  let { data, error } = await supabase.rpc("try_consume_advisor_message_v2", {
+    p_daily_limit: entitlements.advisorMessagesPerDay,
+    p_monthly_limit: entitlements.advisorMessagesPerMonth,
   });
+
+  if (error && error.code && INFRA_MISSING_CODES.has(error.code)) {
+    ({ data, error } = await supabase.rpc("try_consume_advisor_message", {
+      p_limit: entitlements.advisorMessagesPerDay,
+    }));
+  }
 
   if (error) {
     if (error.code && INFRA_MISSING_CODES.has(error.code)) {
-      // Quota infra not applied yet — don't block the product.
+      // Neither quota RPC is applied yet — don't block the product.
       return { ok: true, userId };
     }
     const correlationId = crypto.randomUUID();
