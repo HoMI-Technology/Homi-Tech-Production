@@ -10,6 +10,7 @@ import { getVerifiedCashFlow, type VerifiedCashFlow } from "@/lib/plaid/cashflow
 import {
   buildPersonaFallbackReply,
   type AdvisorAssessmentContext,
+  type AdvisorCreditContext,
   type AdvisorFinanceContext,
 } from "@/lib/advisor/fallback";
 import { getPersona, type AdvisorPersona } from "@/lib/advisor/personas";
@@ -58,6 +59,13 @@ const financeContextSchema = z.object({
  * name is user text, so it is length-capped here and framed as data (not
  * instructions) in the prompt.
  */
+const creditContextSchema = z.object({
+  score: z.number().min(300).max(850),
+  utilization: z.number().min(0).max(1000),
+  onTimeStreakMonths: z.number().min(0).max(1200),
+  ageDays: z.number().min(0).max(36_500).nullish(),
+});
+
 const identitySchema = z.object({
   name: z
     .string()
@@ -75,6 +83,7 @@ const bodySchema = z.object({
   conversationId: z.string().uuid().nullish(),
   assessment: assessmentContextSchema.nullish(),
   finance: financeContextSchema.nullish(),
+  credit: creditContextSchema.nullish(),
   /** Human-readable label of the surface the user is on, e.g. "the mortgage calculator". */
   surface: z.string().max(80).nullish(),
   /** Score-movement one-liner from the explainability engine (lib/advisor/explain). */
@@ -122,6 +131,8 @@ Voice rules, non-negotiable:
 - Every number you have here is self-reported by the user inside the app unless explicitly marked otherwise. Never present self-reported data as verified fact.
 - Honesty about freshness: when the context says data is weeks or months old, say so plainly and suggest a refresh before leaning on it. Confidence you don't have is a lie — never fake it.
 
+Tool hand-offs: HōMI has real calculators you can point people to by path when they'd genuinely help — /tools/mortgage, /tools/affordability, /tools/down-payment, /tools/debt-payoff, /tools/rent-vs-buy, /tools/fire, /tools/monte-carlo, /tools/roth-conversion, /tools/runway, /tools/blind-budget — plus /finance (money dashboard), /credit (credit overview), /assessment (full assessment), and /shadow-score (quick score). Mention a path only when it moves their actual question forward; never more than one per reply, and never as a brush-off.
+
 Remember: your job is to help people see clearly, not to close a sale or cheer them on. Sometimes the most honest and most homie thing you can say is "not yet."`;
 
 function buildContextNote(
@@ -130,6 +141,7 @@ function buildContextNote(
   surface?: string | null,
   whatChanged?: string | null,
   verified?: VerifiedCashFlow | null,
+  credit?: AdvisorCreditContext | null,
 ): string {
   const parts: string[] = [];
 
@@ -181,6 +193,23 @@ function buildContextNote(
         : `runway ${finance.runwayMonths} months,`,
       `DTI ${finance.dti}%, liquid savings $${finance.liquidSavings}, total debt $${finance.totalDebt}, net worth $${finance.netWorth}.`,
     );
+  }
+
+  if (credit) {
+    const freshness =
+      typeof credit.ageDays === "number"
+        ? credit.ageDays === 0
+          ? "updated today"
+          : `${credit.ageDays} days old`
+        : "age unknown";
+    parts.push(
+      `Credit picture (self-reported on the credit page, ${freshness}): score ${credit.score}, utilization ${credit.utilization}%, on-time streak ${credit.onTimeStreakMonths} months.`,
+    );
+    if (credit.score < 620) {
+      parts.push(
+        "Their credit score is below the 620 protective hard stop — explain the protection it represents without shame.",
+      );
+    }
   }
 
   if (verified) {
@@ -243,6 +272,7 @@ export async function POST(request: Request) {
   const assessment = demoContext ? DEMO_ASSESSMENT_CONTEXT : parsed.data.assessment;
   // Demo mode never mixes a real user's money picture into the fixed context.
   const finance = demoContext ? null : parsed.data.finance;
+  const credit = demoContext ? null : parsed.data.credit;
   const surface = demoContext ? null : parsed.data.surface;
   const whatChanged = demoContext ? null : parsed.data.whatChanged;
   const identity = demoContext ? null : parsed.data.identity;
@@ -283,7 +313,7 @@ export async function POST(request: Request) {
     // from the user's stored bank transactions (RLS-scoped read; null for
     // anonymous/demo/unlinked users, and on any failure — best-effort).
     const verified = supabase && gateUserId ? await getVerifiedCashFlow(supabase) : null;
-    const contextNote = buildContextNote(assessment ?? null, finance, surface, whatChanged, verified);
+    const contextNote = buildContextNote(assessment ?? null, finance, surface, whatChanged, verified, credit);
     // The name is user-chosen text — framed as a label, never as instructions.
     const identityLine =
       identity && identity.name !== "HōMI"

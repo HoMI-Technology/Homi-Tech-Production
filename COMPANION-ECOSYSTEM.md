@@ -133,11 +133,19 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   `/api/advisor`) — money in/out/net over 30 days, summarized server-side,
   never raw transactions in a prompt — with an instruction to name any gap
   between verified and self-reported numbers honestly.
-- **Credit awareness**: `credit_snapshots` in the spine; the mote can explain what a
-  620 hard stop means with the user's actual trajectory.
-- **Tool hand-offs**: the mote recommends HōMI tools by name with the user's numbers
-  pre-loaded ("run your real numbers through the debt payoff planner — I'll be
-  there"). Deep-link with query params; the planner persona already names tools.
+- **Credit awareness** — SHIPPED: the /credit page's state extracted to
+  `lib/credit/store.ts` (defaults-leak gate + freshness stamp, mirroring the
+  finance store) and joined to the spine via `buildCreditContext()` — score,
+  utilization, on-time streak, all labeled self-reported with age. Scores
+  below the 620 hard stop get an explain-the-protection instruction in the
+  prompt. Server-side `credit_snapshots` remains the follow-up once credit
+  data syncs to the database.
+- **Tool hand-offs** — SHIPPED (v1): the system prompt carries the full tool
+  directory (paths included) with a one-per-reply, never-as-a-brush-off rule,
+  and Companion messages render known product routes as real links via an
+  allowlist (`components/companion/MessageContent.tsx` — model output can
+  never fabricate navigation to unknown or external destinations). Query-param
+  pre-loading of the user's numbers into each calculator remains follow-up.
 - **Behavioral genome**: `behavioral_genome` informs *how* the mote talks (pace,
   framing), never *what* it claims.
 - **Explainability view** — SHIPPED: the "why did this change" card on /results
@@ -165,10 +173,14 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   sign-in gate as the honest threshold — not a locked teaser.
 - **Couples/family mode**: shared threads where the mote holds both partners'
   context — requires explicit consent from both, enforced via `family_accounts`.
-- **Institutional share preview**: before any partner integration exists, show the
-  user "here is what a lender or agent would see if you shared your readiness" —
-  band, confidence, data quality, timestamp, disclaimer. Trust feature first,
-  B2B groundwork second.
+- **Institutional share preview** — SHIPPED: Settings' "If you shared your
+  readiness" section (`components/settings/SharePreviewSection.tsx`, derivation
+  in `lib/advisor/share-preview.ts`) — verdict band, score, confidence with its
+  reasons shown (high only when the assessment is fresh AND a money picture
+  exists; each degradation drops a band), per-source data quality, hard stops
+  verbatim, and the not-a-credit-decision disclaimer as part of the product.
+  Nothing is shareable yet and the section says so; consent-first sharing is
+  the B2B follow-up.
 - **Partner report contract (design-ahead)**: when sharing arrives, reports are
   generated from stored structured state — never from chat — and carry consent
   timestamp, expiry, revocation, access logging, and methodology version. Whether

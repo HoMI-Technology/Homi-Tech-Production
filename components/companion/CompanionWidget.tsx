@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { buildCompanionContext } from "@/lib/advisor/context";
+import { MessageContent } from "@/components/companion/MessageContent";
 import {
   loadIdentity,
   saveIdentity,
@@ -200,7 +201,7 @@ export function CompanionWidget() {
     setSending(true);
 
     try {
-      const { assessment, finance, surface, whatChanged } = buildCompanionContext(pathname);
+      const { assessment, finance, credit, surface, whatChanged } = buildCompanionContext(pathname);
       const res = await fetch("/api/advisor", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -211,6 +212,7 @@ export function CompanionWidget() {
           finance,
           surface,
           whatChanged,
+          credit,
           identity,
           persona,
         }),
@@ -418,7 +420,7 @@ export function CompanionWidget() {
               ) : (
                 <div key={m.id} className="flex justify-start">
                   <div className="glass max-w-[85%] rounded-2xl rounded-tl-sm px-3 py-2 text-sm leading-relaxed text-light">
-                    {m.content}
+                    <MessageContent text={m.content} />
                   </div>
                 </div>
               ),
