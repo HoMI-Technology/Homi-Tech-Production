@@ -34,7 +34,7 @@ function toPct(total: number, max: number): number {
 
 export async function POST(request: Request) {
   const ip = getClientIp(request);
-  const { allowed } = rateLimit(`shadow-share:${ip}`, { limit: 5, windowMs: 60 * 60 * 1000 });
+  const { allowed } = await rateLimit(`shadow-share:${ip}`, { limit: 5, windowMs: 60 * 60 * 1000 });
   if (!allowed) {
     return NextResponse.json(
       { error: "Too many share links created. Try again in an hour." },

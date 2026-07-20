@@ -64,7 +64,7 @@ export async function GET(
 
   // Rate-limit per key (hashed), not per IP — a partner is one caller behind
   // shared egress. Falls back to IP only if the key is malformed.
-  const { allowed } = rateLimit(`receipt:${hashPartnerKey(key).slice(0, 16) || ip}`, {
+  const { allowed } = await rateLimit(`receipt:${hashPartnerKey(key).slice(0, 16) || ip}`, {
     limit: 120,
     windowMs: 60_000,
   });

@@ -15,7 +15,7 @@ export const runtime = "nodejs";
  */
 export async function POST(request: Request) {
   const ip = getClientIp(request);
-  const { allowed } = rateLimit(`csp-report:${ip}`, { limit: 30, windowMs: 60_000 });
+  const { allowed } = await rateLimit(`csp-report:${ip}`, { limit: 30, windowMs: 60_000 });
   if (!allowed) return new NextResponse(null, { status: 204 });
 
   try {
