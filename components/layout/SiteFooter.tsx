@@ -74,7 +74,10 @@ export function SiteFooter() {
           </div>
           {COLUMNS.map((col) => (
             <nav key={col.title} aria-label={col.title}>
-              <h3 className="text-sm font-semibold text-light">{col.title}</h3>
+              {/* Not a heading: pages end their own outlines at varying levels,
+                  so a fixed h3 here trips heading-order on h1-only pages. The
+                  nav's aria-label already names the group. */}
+              <p className="text-sm font-semibold text-light">{col.title}</p>
               <ul className="mt-4 space-y-2.5">
                 {col.links.map((l) => (
                   <li key={l.href}>

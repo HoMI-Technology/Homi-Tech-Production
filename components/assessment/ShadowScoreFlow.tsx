@@ -306,7 +306,7 @@ export function ShadowScoreFlow() {
         <h1 className="mt-2 font-display text-3xl font-semibold text-light">The 90-second read</h1>
         <p className="mx-auto mt-2 max-w-md text-sm text-dim">
           Six questions. HōMI fills the rest with neutral assumptions. For your full, precise HōMI-Score,{" "}
-          <Link href="/assessment" className="text-cyan hover:underline">
+          <Link href="/assessment" className="text-cyan underline underline-offset-2">
             take the complete assessment
           </Link>
           .
