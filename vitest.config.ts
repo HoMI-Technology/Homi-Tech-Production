@@ -17,7 +17,13 @@ export default defineConfig({
     // so they run via their own config (npm run test:acceptance), not the default gate.
     // Playwright E2E specs live in e2e/ and run via `npm run e2e` (their own
     // runner) — keep Vitest from picking them up by its default *.spec.ts glob.
-    exclude: [...configDefaults.exclude, "**/__tests__/acceptance/**", "e2e/**"],
+    exclude: [
+      ...configDefaults.exclude,
+      "**/__tests__/acceptance/**",
+      "e2e/**",
+      // Nested agent worktrees must not pollute the root suite.
+      "**/.claude/**",
+    ],
   },
   resolve: {
     alias: {

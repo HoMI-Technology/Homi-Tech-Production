@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { HeaderShell, isActivePath } from "@/components/layout/HeaderShell";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { CommandPalette } from "@/components/layout/CommandPalette";
+import { DashboardSwitcher } from "@/components/layout/DashboardSwitcher";
 
 /**
  * Signed-in application header. Replaces the marketing SiteHeader for
@@ -41,7 +42,17 @@ const MORE = [
   { href: "/connections", label: "Connections" },
 ];
 
-export function AppHeader({ email }: { email: string | null }) {
+export function AppHeader({
+  email,
+  role,
+  employerId,
+  organizationId,
+}: {
+  email: string | null;
+  role?: string | null;
+  employerId?: string | null;
+  organizationId?: string | null;
+}) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);

@@ -36,7 +36,17 @@ import {
   FinancialPositionSection,
   FinancialPositionSkeleton,
 } from "@/components/dashboard/FinancialPositionSection";
-import type { AssessmentRow, DailyCheckin, OutcomeSurvey, Profile } from "@/types/database";
+import { GenomeWidget } from "@/components/dashboard/GenomeWidget";
+import { TrinityGapAlert } from "@/components/dashboard/TrinityGapAlert";
+import { DecisionTimeline } from "@/components/dashboard/DecisionTimeline";
+import type {
+  AssessmentRow,
+  BehavioralGenome,
+  DailyCheckin,
+  JournalEntry,
+  OutcomeSurvey,
+  Profile,
+} from "@/types/database";
 
 export const metadata: Metadata = {
   title: "Dashboard | HōMI",
@@ -106,44 +116,63 @@ export default async function DashboardPage() {
   // pillars, pulse, and actions need. The money section streams separately
   // behind Suspense (FinancialPositionSection) so Plaid-derived data never
   // blocks first paint.
-  const [profileR, assessmentsR, checkinsR, journalR, surveysR] = await Promise.all([
-    user
-      ? supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
-      : Promise.resolve({ data: null as Profile | null, error: null }),
-    user
-      ? supabase
-          .from("assessments")
-          .select("*")
-          .eq("user_id", user.id)
-          .eq("status", "completed")
-          .order("created_at", { ascending: false })
-          .limit(10)
-      : Promise.resolve({ data: [] as AssessmentRow[], error: null }),
-    user
-      ? supabase
-          .from("daily_checkins")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false })
-          .limit(14)
-      : Promise.resolve({ data: [] as DailyCheckin[], error: null }),
-    user
-      ? supabase
-          .from("decision_journal")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id)
-      : Promise.resolve({ count: 0, error: null }),
-    user
-      ? supabase
-          .from("outcome_surveys")
-          .select("*")
-          .eq("user_id", user.id)
-          .is("completed_at", null)
-          .lt("due_at", new Date().toISOString())
-          .order("due_at", { ascending: true })
-          .limit(1)
-      : Promise.resolve({ data: [] as OutcomeSurvey[], error: null }),
-  ]);
+  const [profileR, assessmentsR, checkinsR, journalR, surveysR, genomeR, journalEntriesR] =
+    await Promise.all([
+      user
+        ? supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
+        : Promise.resolve({ data: null as Profile | null, error: null }),
+      user
+        ? supabase
+            .from("assessments")
+            .select("*")
+            .eq("user_id", user.id)
+            .eq("status", "completed")
+            .order("created_at", { ascending: false })
+            .limit(10)
+        : Promise.resolve({ data: [] as AssessmentRow[], error: null }),
+      user
+        ? supabase
+            .from("daily_checkins")
+            .select("*")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false })
+            .limit(14)
+        : Promise.resolve({ data: [] as DailyCheckin[], error: null }),
+      user
+        ? supabase
+            .from("decision_journal")
+            .select("*", { count: "exact", head: true })
+            .eq("user_id", user.id)
+        : Promise.resolve({ count: 0, error: null }),
+      user
+        ? supabase
+            .from("outcome_surveys")
+            .select("*")
+            .eq("user_id", user.id)
+            .is("completed_at", null)
+            .lt("due_at", new Date().toISOString())
+            .order("due_at", { ascending: true })
+            .limit(1)
+        : Promise.resolve({ data: [] as OutcomeSurvey[], error: null }),
+      user
+        ? supabase
+            .from("behavioral_genome")
+            .select("*")
+            .eq("user_id", user.id)
+            .maybeSingle()
+        : Promise.resolve({ data: null as BehavioralGenome | null, error: null }),
+      user
+        ? supabase
+            .from("decision_journal")
+            .select("id, title, context, decision_date, created_at")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false })
+            .limit(8)
+        : Promise.resolve({
+            data: [] as Pick<JournalEntry, "id" | "title" | "context" | "decision_date" | "created_at">[],
+            error: null,
+          }),
+    ]);
 
   // Empty and failed are different truths. A transient error must never render
   // first-run copy to a user who has real history.
@@ -157,6 +186,12 @@ export default async function DashboardPage() {
   const latest = assessmentRows[0] ?? null;
   const previousAssessment = assessmentRows[1] ?? null;
   const dueSurvey: OutcomeSurvey | null = surveysR.data?.[0] ?? null;
+  const genome = (genomeR.data as BehavioralGenome | null) ?? null;
+  const journalEntries =
+    (journalEntriesR.data as Pick<
+      JournalEntry,
+      "id" | "title" | "context" | "decision_date" | "created_at"
+    >[] | null) ?? [];
 
   const name = firstName(profile, user?.email ?? null);
   const greeting = greetingForHour(hourInTimezone(timeZone));
@@ -381,6 +416,16 @@ export default async function DashboardPage() {
 
         {dueSurvey && <OutcomeSurveyPrompt surveyId={dueSurvey.id} kind={dueSurvey.kind} />}
 
+        {latest && (
+          <TrinityGapAlert
+            pillars={pillarReadings.map((p) => ({
+              key: p.key,
+              name: p.name,
+              value: p.value,
+            }))}
+          />
+        )}
+
         {/* ── History + next best move ────────────────────────── */}
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
           <Reveal delay={80} className="glass p-8">
@@ -477,6 +522,15 @@ export default async function DashboardPage() {
           </div>
         </Reveal>
 
+        {/* ── Behavioral Genome ───────────────────────────────── */}
+        {genome && (
+          <Reveal delay={120}>
+            <div className="mt-8">
+              <GenomeWidget scores={genome.scores} />
+            </div>
+          </Reveal>
+        )}
+
         {/* ── Financial position (streams behind Suspense) ────── */}
         {user && (
           <Suspense fallback={<FinancialPositionSkeleton />}>
@@ -505,6 +559,17 @@ export default async function DashboardPage() {
             ) : (
               <DailyPulseStrip checkins={checkinRows} />
             )}
+          </div>
+        </Reveal>
+
+        {/* ── Decision timeline ───────────────────────────────── */}
+        <Reveal delay={100}>
+          <div className="mt-8">
+            <DecisionTimeline
+              assessments={assessmentRows}
+              checkins={checkinRows}
+              journalEntries={journalEntries}
+            />
           </div>
         </Reveal>
 
