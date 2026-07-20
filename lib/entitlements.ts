@@ -42,6 +42,13 @@ export interface Entitlements {
   advisorRealModel: boolean;
   /** Per-user daily advisor message quota. 0 when advisorAccess is false. */
   advisorMessagesPerDay: number;
+  /**
+   * Per-user MONTHLY advisor message ceiling. Daily quotas alone leave the
+   * monthly LLM-spend tail uncapped (a Plus user at the daily cap every day
+   * costs a multiple of the tier price); this bounds it. Set comfortably above
+   * daily × typical-active-days so it only ever catches pathological use.
+   */
+  advisorMessagesPerMonth: number;
   /** Detailed pillar-breakdown report + credential export. */
   fullReport: boolean;
   /** Re-run the assessment as many times as desired. */
@@ -82,6 +89,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     advisorAccess: true,
     advisorRealModel: false,
     advisorMessagesPerDay: 5,
+    advisorMessagesPerMonth: 60,
     fullReport: false,
     unlimitedRescoring: false,
     couplesMode: false,
@@ -95,7 +103,8 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     tier: "plus",
     advisorAccess: true,
     advisorRealModel: true,
-    advisorMessagesPerDay: 20,
+    advisorMessagesPerDay: 25,
+    advisorMessagesPerMonth: 300,
     fullReport: true,
     unlimitedRescoring: true,
     couplesMode: false,
@@ -110,6 +119,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     advisorAccess: true,
     advisorRealModel: true,
     advisorMessagesPerDay: 100,
+    advisorMessagesPerMonth: 1200,
     fullReport: true,
     unlimitedRescoring: true,
     couplesMode: true,
@@ -128,6 +138,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     // Anthropic prepaid cap is the real cost backstop, and a shared household
     // pool is the proper optimization (tracked for later).
     advisorMessagesPerDay: 100,
+    advisorMessagesPerMonth: 1200,
     fullReport: true,
     unlimitedRescoring: true,
     couplesMode: true,

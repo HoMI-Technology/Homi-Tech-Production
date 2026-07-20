@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { PILLARS, VERDICT_META } from "@/lib/brand";
 import { PILLAR_MAX_POINTS, generateKeyInsight, generateNextSteps } from "@/lib/scoring";
@@ -8,6 +8,7 @@ import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage
 import { mapAssessmentRowToStored } from "@/lib/assessment/remote";
 import { pickResult } from "@/lib/assessment/resolveResult";
 import { createClient } from "@/lib/supabase/client";
+import { track } from "@/lib/analytics";
 import { deriveConflictSignals } from "@/lib/conflict/engine";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
@@ -16,6 +17,7 @@ import { CountUpScore } from "@/components/assessment/CountUpScore";
 import { SubFactorBar } from "@/components/assessment/SubFactorBar";
 import { TrinityBar } from "@/components/assessment/TrinityBar";
 import { ShareScoreButton } from "@/components/share/ShareScoreButton";
+import { ShareShadowButton } from "@/components/share/ShareShadowButton";
 import { ScoreDeltaBadge } from "@/components/dashboard/ScoreDeltaBadge";
 import { ScoreExplanation } from "@/components/results/ScoreExplanation";
 import { VerdictOverride } from "@/components/assessment/VerdictOverride";
@@ -74,6 +76,18 @@ export default function ResultsPage() {
       active = false;
     };
   }, []);
+
+  // Canonical funnel event: fire once per rendered verdict (occurrence +
+  // verdict label only — never the score). Must live above the early returns.
+  const trackedVerdict = useRef<string | null>(null);
+  useEffect(() => {
+    if (stored === undefined) return;
+    const effectiveNow = pickResult(stored, remote);
+    if (!effectiveNow) return;
+    if (trackedVerdict.current === effectiveNow.result.verdict) return;
+    trackedVerdict.current = effectiveNow.result.verdict;
+    track("verdict_shown", { verdict: effectiveNow.result.verdict });
+  }, [stored, remote]);
 
   if (stored === undefined) {
     return (
@@ -331,8 +345,15 @@ export default function ResultsPage() {
         )}
         {/* Results are saved anonymously (no server id yet), so this gracefully
             shows the "sign in to share" variant until the user has an account. */}
-        <ShareScoreButton assessmentId={null} />
+        {!isAnonymous && <ShareScoreButton assessmentId={null} />}
       </div>
+
+      {isAnonymous && (
+        <div className="mt-6 flex justify-center">
+          {/* Anonymous funnel's shareable exit: journey card, no account needed. */}
+          <ShareShadowButton inputs={effective.inputs} />
+        </div>
+      )}
 
       <div className="mt-6 flex justify-center">
         <VerdictOverride hardStops={result.hardStops} assessmentId={effective.serverId ?? null} />

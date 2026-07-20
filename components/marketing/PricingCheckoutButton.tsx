@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { track } from "@/lib/analytics";
 
 export type PricingTier = "plus" | "pro" | "family";
 
@@ -47,6 +48,7 @@ export function PricingCheckoutButton({
 
   async function handleClick() {
     setStatus("loading");
+    track("checkout_started", { tier });
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",

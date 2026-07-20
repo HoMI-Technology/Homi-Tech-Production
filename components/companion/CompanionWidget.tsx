@@ -84,9 +84,30 @@ export function CompanionWidget() {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [gateCta, setGateCta] = useState<{ href: string; label: string } | null>(null);
+  // LCP guard: the widget is never the largest paint and never above the fold,
+  // so we keep its markup + hydration cost off the critical path until the page
+  // is idle. This removed the launcher from the LCP path on the interactive
+  // (product) routes (mortgage/shadow-score) that were breaking the 2.5s budget.
+  const [idleReady, setIdleReady] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Defer first render until the browser is idle (falls back to a short timer
+  // where requestIdleCallback is unavailable, e.g. Safari). Reduced-motion and
+  // functionality are unchanged — only the timing of mount shifts.
+  useEffect(() => {
+    type IdleWindow = Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+    };
+    const w = window as IdleWindow;
+    if (typeof w.requestIdleCallback === "function") {
+      const id = w.requestIdleCallback(() => setIdleReady(true), { timeout: 3000 });
+      return () => (w as unknown as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback?.(id);
+    }
+    const t = window.setTimeout(() => setIdleReady(true), 1200);
+    return () => window.clearTimeout(t);
+  }, []);
 
   // Hydrate persisted state on mount (client only).
   useEffect(() => {
@@ -267,6 +288,7 @@ export function CompanionWidget() {
 
   // Full chat lives on /advisor already — don't double up the surface there.
   if (pathname === "/advisor") return null;
+  if (!idleReady) return null;
 
   const activePersona = PERSONAS.find((p) => p.key === persona) ?? PERSONAS[0];
 

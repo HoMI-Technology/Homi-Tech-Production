@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { z } from "zod";
 import { computeScore, generateKeyInsight, generateNextSteps } from "@/lib/scoring";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { assessmentInputsSchema } from "@/lib/validation/assessment";
 import { getUserEntitlements } from "@/lib/entitlements";
-import { sendVerdictEmailForAssessment } from "@/lib/email/lifecycle";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
-import type { VerdictKey } from "@/lib/brand";
+import { readAttributionCookie } from "@/lib/attribution";
+import { sendLifecycleEmail } from "@/lib/email/send";
+import { verdictEmail } from "@/lib/email/templates";
+import { captureServerEvent } from "@/lib/analytics/server";
 
 const bodySchema = z.object({
   inputs: assessmentInputsSchema,
@@ -62,10 +66,14 @@ export async function POST(req: NextRequest) {
     // Never trust client-computed scores — recompute server-side.
     const result = computeScore(inputs);
 
+    // First-touch acquisition snapshot (occurrence data only).
+    const attribution = readAttributionCookie(req.headers.get("cookie"));
+
     const { data, error } = await supabase
       .from("assessments")
       .insert({
         user_id: user.id,
+        ...(attribution ? { attribution } : {}),
         decision_type: "home_buying",
         status: "completed",
         financial_score: result.financial.total,
@@ -121,21 +129,42 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Verdict email is transactional — fire-and-forget after a full (non-shadow) save.
-    if (kind === "full" && user.email) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      void sendVerdictEmailForAssessment({
-        email: user.email,
-        fullName: profile?.full_name,
-        score: result.score,
-        verdict: result.verdict as VerdictKey,
-      });
-    }
+    // Post-response: verdict email (deduped per assessment) + server-side
+    // funnel capture. Neither may add latency or failure modes to the save.
+    const assessmentId = data.id as string;
+    const userId = user.id;
+    const userEmail = user.email ?? null;
+    const verdict = result.verdict;
+    const score = result.score;
+    after(async () => {
+      try {
+        captureServerEvent("assessment_completed", userId, { kind, verdict });
+        if (kind !== "full" || !userEmail) return;
+        const service = createAdminClient();
+        if (!service) return;
+        const { data: profile } = await service
+          .from("profiles")
+          .select("full_name")
+          .eq("id", userId)
+          .maybeSingle();
+        const name =
+          (profile as { full_name?: string | null } | null)?.full_name?.split(" ")[0] || "there";
+        await sendLifecycleEmail({
+          service,
+          dedupeKey: `verdict:${assessmentId}`,
+          userId,
+          to: userEmail,
+          template: "verdict",
+          marketing: false,
+          render: () => verdictEmail(name, score, verdict),
+        });
+      } catch (err) {
+        console.error(
+          "[assessments] post-save lifecycle failed:",
+          err instanceof Error ? err.message : "unknown",
+        );
+      }
+    });
 
     return NextResponse.json({ saved: true, id: data.id });
   } catch (err) {

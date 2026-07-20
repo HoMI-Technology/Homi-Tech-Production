@@ -47,7 +47,7 @@ export async function maybeSendWelcomeEmail(userId: string, email: string): Prom
 }
 
 /**
- * Delivers the verdict email after a completed full assessment. Transactional —
+ * Delivers the verdict email after a completed full assessment. Transactional ΓÇö
  * always sends (not subject to marketing opt-out).
  */
 export async function sendVerdictEmailForAssessment(options: {
@@ -72,4 +72,79 @@ export function daysSinceAssessment(completedAt: string): number {
   const then = new Date(completedAt).getTime();
   const now = Date.now();
   return Math.max(1, Math.floor((now - then) / (1000 * 60 * 60 * 24)));
+}
+
+// --- Launch-loop pure planners (PR #60) --------------------------------------
+export interface LifecycleAssessmentRow {
+  id: string;
+  user_id: string;
+  completed_at: string | null;
+  is_shadow: boolean | null;
+}
+
+export type LifecycleSendKind = "reassess30" | "outcome30" | "outcome90" | "outcome365";
+
+export interface PlannedSend {
+  kind: LifecycleSendKind;
+  assessmentId: string;
+  userId: string;
+  dedupeKey: string;
+  daysSince: number;
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const OUTCOME_CHECKPOINTS: Array<{ kind: LifecycleSendKind; day: number }> = [
+  { kind: "outcome30", day: 30 },
+  { kind: "outcome90", day: 90 },
+  { kind: "outcome365", day: 365 },
+];
+const GRACE_DAYS = 14;
+
+export function daysBetween(fromIso: string, now: Date): number {
+  return Math.floor((now.getTime() - new Date(fromIso).getTime()) / DAY_MS);
+}
+
+export function latestPerUser(rows: LifecycleAssessmentRow[]): LifecycleAssessmentRow[] {
+  const byUser = new Map<string, LifecycleAssessmentRow>();
+  for (const row of rows) {
+    if (!row.completed_at) continue;
+    const existing = byUser.get(row.user_id);
+    if (!existing || new Date(row.completed_at) > new Date(existing.completed_at!)) {
+      byUser.set(row.user_id, row);
+    }
+  }
+  return [...byUser.values()];
+}
+
+export function planReassessmentNudges(rows: LifecycleAssessmentRow[], now: Date): PlannedSend[] {
+  return latestPerUser(rows)
+    .map((row) => ({ row, daysSince: daysBetween(row.completed_at!, now) }))
+    .filter(({ daysSince }) => daysSince >= 30 && daysSince < 30 + GRACE_DAYS)
+    .map(({ row, daysSince }) => ({
+      kind: "reassess30" as const,
+      assessmentId: row.id,
+      userId: row.user_id,
+      dedupeKey: `reassess30:${row.id}`,
+      daysSince,
+    }));
+}
+
+export function planOutcomeSurveys(rows: LifecycleAssessmentRow[], now: Date): PlannedSend[] {
+  const sends: PlannedSend[] = [];
+  for (const row of rows) {
+    if (!row.completed_at || row.is_shadow) continue;
+    const daysSince = daysBetween(row.completed_at, now);
+    for (const { kind, day } of OUTCOME_CHECKPOINTS) {
+      if (daysSince >= day && daysSince < day + GRACE_DAYS) {
+        sends.push({
+          kind,
+          assessmentId: row.id,
+          userId: row.user_id,
+          dedupeKey: `${kind}:${row.id}`,
+          daysSince,
+        });
+      }
+    }
+  }
+  return sends;
 }
