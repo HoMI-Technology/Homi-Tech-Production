@@ -150,8 +150,12 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   directory (paths included) with a one-per-reply, never-as-a-brush-off rule,
   and Companion messages render known product routes as real links via an
   allowlist (`components/companion/MessageContent.tsx` — model output can
-  never fabricate navigation to unknown or external destinations). Query-param
-  pre-loading of the user's numbers into each calculator remains follow-up.
+  never fabricate navigation to unknown or external destinations). Pre-loading is
+  live for the highest-traffic hand-offs: /tools/runway and
+  /tools/affordability open with the user's saved numbers via
+  `lib/tools/prefill.ts` (same defaults-leak gate as the spine; mount-only so
+  it never fights live edits). Remaining calculators adopt the same hook as
+  needed.
 - **Behavioral genome**: `behavioral_genome` informs *how* the mote talks (pace,
   framing), never *what* it claims.
 - **Explainability view** — SHIPPED: the "why did this change" card on /results

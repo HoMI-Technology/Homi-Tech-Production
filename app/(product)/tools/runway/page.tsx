@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
+import { getToolPrefill } from "@/lib/tools/prefill";
 
 function temperature(months: number): { label: string; color: string; className: string } {
   if (months >= 6) return { label: "Protected", color: "#34d399", className: "bg-verdict-ready" };
@@ -14,6 +15,15 @@ function temperature(months: number): { label: string; color: string; className:
 export default function RunwayPage() {
   const [expenses, setExpenses] = useState(3200);
   const [savings, setSavings] = useState(9600);
+
+  // Companion hand-off: open with the user's saved numbers, not defaults.
+  // Mount-only, so it never fights the user's live edits.
+  useEffect(() => {
+    const prefill = getToolPrefill();
+    if (!prefill) return;
+    setExpenses(prefill.monthlyOutflow);
+    setSavings(prefill.liquidSavings);
+  }, []);
 
   const months = useMemo(() => (expenses > 0 ? savings / expenses : 0), [expenses, savings]);
   const temp = temperature(months);
