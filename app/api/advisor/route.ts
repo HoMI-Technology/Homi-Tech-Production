@@ -4,6 +4,7 @@ import { hasAnthropic, env } from "@/lib/env";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
 import { createClient } from "@/lib/supabase/server";
 import { gateCompanion } from "@/lib/advisor/quota";
+import { loadServerAssessmentContext } from "@/lib/advisor/server-context";
 import { buildPersonaFallbackReply, type AdvisorAssessmentContext } from "@/lib/advisor/fallback";
 import { getPersona, type AdvisorPersona } from "@/lib/advisor/personas";
 import { VERDICT_META } from "@/lib/brand";
@@ -111,18 +112,37 @@ export async function POST(request: Request) {
 
   const { messages, persona, demoContext } = parsed.data;
 
-  // Companion gate. The public /artifact playground (demoContext) stays open on
-  // the anonymous IP budget above. The real Companion requires a session and
-  // consumes one message from the tier's server-authoritative daily quota
-  // (free tier gets a genuine taste; over-quota returns a graceful 402 the
-  // client renders as an upgrade nudge, never a fake error). See lib/advisor/quota.
-  if (!demoContext) {
+  // Assessment context. Demo playground uses the fixed mock. For the real
+  // Companion we read the user's LATEST assessment server-side (integrity: the
+  // Companion must reason about real numbers, never a client-forged block) —
+  // the client-sent `assessment` field is ignored for signed-in users.
+  let assessment: AdvisorAssessmentContext | null | undefined;
+
+  if (demoContext) {
+    // The public /artifact playground stays open, but on a tight anonymous
+    // DAILY budget (not just the 20/min burst limit) so it can't be a spend
+    // faucet. Per-IP; upgrades to cross-instance once Redis lands (PR #10).
+    const demoBudget = rateLimit(`advisor-demo:${ip}`, { limit: 5, windowMs: 24 * 60 * 60 * 1000 });
+    if (!demoBudget.allowed) {
+      return NextResponse.json(
+        { error: "You've reached the demo limit for today. Sign up to keep talking with your Companion." },
+        { status: 429 },
+      );
+    }
+    assessment = DEMO_ASSESSMENT_CONTEXT;
+  } else {
+    // Companion gate: requires a session and consumes one message from the
+    // tier's server-authoritative daily+monthly quota (free tier gets a genuine
+    // taste; over-quota returns a graceful 402 the client renders as an upgrade
+    // nudge). See lib/advisor/quota.
     const supabase = await createClient();
     const gate = await gateCompanion(supabase);
     if (!gate.ok) return gate.response;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    assessment = user ? await loadServerAssessmentContext(supabase, user.id) : undefined;
   }
-
-  const assessment = demoContext ? DEMO_ASSESSMENT_CONTEXT : parsed.data.assessment;
   const lastUserMessage = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
   const activePersona: AdvisorPersona = persona ?? "homie";
   const personaMeta = getPersona(activePersona);
