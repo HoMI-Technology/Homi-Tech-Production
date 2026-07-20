@@ -37,6 +37,7 @@ export const PUBLIC_PRODUCT_ROUTES = [
 export const PROTECTED_PRODUCT_ROUTES = [
   "admin",
   "advisor",
+  "agents",
   "calendar",
   "connections",
   "couples",
