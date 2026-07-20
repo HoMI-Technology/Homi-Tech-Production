@@ -35,3 +35,18 @@ pwsh -File C:\Users\cody\ai-server\scripts\homi-ssot.ps1 pipeline -Task "..."
 
 - Next.js app (`homi-production`): `app/`, `components/`, `lib/`, `supabase/`
 - Keep secrets out of git; use `.env.local` (gitignored)
+
+## Domains (owned, DNS at GoDaddy)
+
+HōMI Tech owns **three** domains — always treat **`homitechnology.com` as canonical**:
+
+| Domain | Role |
+|--------|------|
+| `homitechnology.com` | **PRIMARY / canonical** — the Vercel app + the verified Resend sending domain (`from: hello@homitechnology.com`, `lib/email/send.ts`) |
+| `homitechnology.co` | secondary — should 301-redirect to `homitechnology.com` (Vercel) |
+| `hōmi.com` = punycode `xn--hmi-qxa.com` | short ō-brand — should 301-redirect to `homitechnology.com` (Vercel). The `ō` is real, **not** a typo; the Resend account login is `info@xn--hmi-qxa.com`. |
+
+- Canonical URL is centralized in `NEXT_PUBLIC_SITE_URL` (fallback `https://homitechnology.com`). Keep it set to the canonical host in Vercel prod; the app is **domain-agnostic — do NOT hardcode a domain** in code.
+- Auth redirects are built from `window.location.origin`, so **Supabase Auth + Google OAuth redirect allowlists must include all three hosts** or sign-in/OAuth/magic-link/password-reset breaks on the non-canonical domains.
+- Each domain is a separate Resend domain with its own DKIM key; a redirect domain can still send email (redirect uses `@`/`www`, email uses `send`/`resend._domainkey` — different DNS names, no conflict).
+- Also owned at GoDaddy but **NOT** part of HōMI: `promptingit.co`, `rapidcarex.com`, `closer-os.com`.
