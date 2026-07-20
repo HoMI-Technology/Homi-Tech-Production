@@ -19,8 +19,13 @@ import {
   debtToIncome,
   totalNetWorth,
 } from "@/lib/finance/store";
+import { loadCreditState, hasSavedCreditState, creditSavedAt } from "@/lib/credit/store";
 import { buildScoreExplanation } from "@/lib/advisor/explain";
-import type { AdvisorAssessmentContext, AdvisorFinanceContext } from "@/lib/advisor/fallback";
+import type {
+  AdvisorAssessmentContext,
+  AdvisorCreditContext,
+  AdvisorFinanceContext,
+} from "@/lib/advisor/fallback";
 
 /**
  * Whole days between an ISO timestamp and now; null when the age is not
@@ -78,6 +83,21 @@ export function buildFinanceContext(): AdvisorFinanceContext | undefined {
     totalDebt: Math.round(state.totalDebt),
     netWorth: Math.round(totalNetWorth(state)),
     ageDays: daysSince(financeSavedAt()),
+  };
+}
+
+/**
+ * The user's credit picture from the /credit page. Same defaults-leak gate
+ * as finance: undefined until the user has actually saved credit data.
+ */
+export function buildCreditContext(): AdvisorCreditContext | undefined {
+  if (!hasSavedCreditState()) return undefined;
+  const state = loadCreditState();
+  return {
+    score: Math.round(state.score),
+    utilization: Math.round(state.utilization),
+    onTimeStreakMonths: Math.round(state.onTimeStreakMonths),
+    ageDays: daysSince(creditSavedAt()),
   };
 }
 
@@ -143,6 +163,7 @@ export function buildWhatChanged(): string | undefined {
 export interface CompanionContext {
   assessment: AdvisorAssessmentContext | undefined;
   finance: AdvisorFinanceContext | undefined;
+  credit: AdvisorCreditContext | undefined;
   surface: string | undefined;
   whatChanged: string | undefined;
 }
@@ -152,6 +173,7 @@ export function buildCompanionContext(pathname?: string | null): CompanionContex
   return {
     assessment: buildAssessmentContext(),
     finance: buildFinanceContext(),
+    credit: buildCreditContext(),
     surface: buildSurfaceContext(pathname),
     whatChanged: buildWhatChanged(),
   };

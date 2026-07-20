@@ -2,42 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { sliderFillPercent } from "@/lib/assessment/format";
+import {
+  loadCreditState,
+  saveCreditState,
+  DEFAULT_CREDIT_STATE,
+  CREDIT_HARD_STOP,
+  type CreditState,
+} from "@/lib/credit/store";
 
-const STORAGE_KEY = "homi:credit";
-
-interface CreditState {
-  score: number;
-  utilization: number;
-  onTimeStreakMonths: number;
-}
-
-const DEFAULT_STATE: CreditState = {
-  score: 680,
-  utilization: 35,
-  onTimeStreakMonths: 12,
-};
-
-function loadCreditState(): CreditState {
-  if (typeof window === "undefined") return DEFAULT_STATE;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_STATE;
-    return { ...DEFAULT_STATE, ...(JSON.parse(raw) as Partial<CreditState>) };
-  } catch {
-    return DEFAULT_STATE;
-  }
-}
-
-function saveCreditState(state: CreditState): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {
-    // Storage unavailable — session-only state still works.
-  }
-}
-
-const HARD_STOP = 620;
+const HARD_STOP = CREDIT_HARD_STOP;
 const BANDS = [
   { min: 620, label: "660", value: 660 },
   { min: 660, label: "700", value: 700 },
@@ -88,7 +61,7 @@ const BAND_META: Record<Band, { label: string; color: string; explanation: strin
 };
 
 export default function CreditPage() {
-  const [state, setState] = useState<CreditState>(DEFAULT_STATE);
+  const [state, setState] = useState<CreditState>(DEFAULT_CREDIT_STATE);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {

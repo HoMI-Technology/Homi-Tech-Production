@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { loadLocalResult } from "@/lib/assessment/storage";
 import { buildCompanionContext } from "@/lib/advisor/context";
+import { MessageContent } from "@/components/companion/MessageContent";
 import { loadIdentity } from "@/lib/advisor/identity";
 import {
   loadThreadMessages,
@@ -101,7 +102,7 @@ export function Chat() {
     setSending(true);
 
     try {
-      const { assessment, finance, whatChanged } = buildCompanionContext();
+      const { assessment, finance, credit, whatChanged } = buildCompanionContext();
       const res = await fetch("/api/advisor", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -111,6 +112,7 @@ export function Chat() {
           assessment,
           finance,
           whatChanged,
+          credit,
           identity: loadIdentity(),
         }),
       });
@@ -204,7 +206,7 @@ export function Chat() {
             <div key={m.id} className="flex items-start gap-2">
               <CompassAvatar />
               <div className="glass max-w-[80%] rounded-2xl rounded-tl-sm px-4 py-3 text-sm leading-relaxed text-light">
-                {m.content}
+                <MessageContent text={m.content} />
               </div>
             </div>
           ),
