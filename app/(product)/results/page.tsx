@@ -17,6 +17,7 @@ import { CountUpScore } from "@/components/assessment/CountUpScore";
 import { SubFactorBar } from "@/components/assessment/SubFactorBar";
 import { TrinityBar } from "@/components/assessment/TrinityBar";
 import { ShareScoreButton } from "@/components/share/ShareScoreButton";
+import { ShareShadowButton } from "@/components/share/ShareShadowButton";
 import { ScoreDeltaBadge } from "@/components/dashboard/ScoreDeltaBadge";
 import { VerdictOverride } from "@/components/assessment/VerdictOverride";
 
@@ -328,8 +329,15 @@ export default function ResultsPage() {
         )}
         {/* Results are saved anonymously (no server id yet), so this gracefully
             shows the "sign in to share" variant until the user has an account. */}
-        <ShareScoreButton assessmentId={null} />
+        {!isAnonymous && <ShareScoreButton assessmentId={null} />}
       </div>
+
+      {isAnonymous && (
+        <div className="mt-6 flex justify-center">
+          {/* Anonymous funnel's shareable exit: journey card, no account needed. */}
+          <ShareShadowButton inputs={effective.inputs} />
+        </div>
+      )}
 
       <div className="mt-6 flex justify-center">
         <VerdictOverride hardStops={result.hardStops} assessmentId={effective.serverId ?? null} />
