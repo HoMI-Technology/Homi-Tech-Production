@@ -53,7 +53,7 @@ const contentSecurityPolicy = [
   "object-src 'none'",
   "base-uri 'self'",
   "frame-ancestors 'none'",
-  "upgrade-insecure-requests",
+  "upgrade-insecure-requests",`n  "report-uri /api/csp-report",`n  "report-to csp",
 ].join("; ");
 
 const nextConfig: NextConfig = {
