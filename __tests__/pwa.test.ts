@@ -55,6 +55,21 @@ describe("web app manifest", () => {
     }
   });
 
+  it("references iOS splash images that all exist in /public/splash", () => {
+    const source = fs.readFileSync(
+      path.join(ROOT, "components/pwa/AppleSplashLinks.tsx"),
+      "utf8",
+    );
+    const devices = [...source.matchAll(/device: "([^"]+)"/g)].map((m) => m[1]);
+    expect(devices.length).toBeGreaterThan(0);
+    for (const device of devices) {
+      expect(
+        publicFileExists(`/splash/${device}.png`),
+        `/splash/${device}.png missing from /public`,
+      ).toBe(true);
+    }
+  });
+
   it("declares install-sheet screenshots for both form factors, and the files exist", () => {
     const shots = m.screenshots ?? [];
     // A "wide" screenshot is required for the richer desktop install dialog.
