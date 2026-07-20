@@ -4,6 +4,7 @@ import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { env } from "@/lib/env";
 import { TIERS, type TierKey } from "@/lib/stripe/tiers";
 import { createStripeClient } from "@/lib/stripe/server";
+import { captureServerEvent } from "@/lib/analytics/server";
 
 export const runtime = "nodejs";
 
@@ -144,6 +145,10 @@ async function handleCheckoutCompleted(event: Stripe.Event) {
   if (error) {
     throw new TransientDbError(`profiles.update (checkout.session.completed) failed: ${error.message}`);
   }
+
+  // Server-side funnel truth: the client success page may never render (tab
+  // closed, blocker), but the money event happened. Occurrence + tier only.
+  captureServerEvent("checkout_completed", userId, tier ? { tier } : undefined);
 }
 
 async function handleSubscriptionUpdated(event: Stripe.Event) {

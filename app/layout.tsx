@@ -7,6 +7,7 @@ import { CONSENT_BOOT_SCRIPT } from "@/components/consent/consent-shared";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 import { AppleSplashLinks } from "@/components/pwa/AppleSplashLinks";
 import { AnalyticsScripts } from "@/components/analytics/AnalyticsScripts";
+import { AttributionCapture } from "@/components/analytics/AttributionCapture";
 import { SITE_URL } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
@@ -96,6 +97,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CookieConsent />
         <AnalyticsScripts />
         <ServiceWorkerRegister />
+        <AttributionCapture />
         {/* Field Core Web Vitals (LCP/CLS/INP from real users). Vercel-only:
             on localhost/CI the injected script would 404 and pollute
             Lighthouse's console-error audit. Needs Speed Insights enabled on
