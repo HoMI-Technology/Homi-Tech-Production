@@ -53,6 +53,7 @@ export const PROTECTED_PRODUCT_ROUTES = [
   "settings",
   "signals",
   "simulator",
+  "team",
   "trinity",
   "twin",
 ] as const;
@@ -68,7 +69,9 @@ export const PARTIALLY_PROTECTED_PRODUCT_ROUTES = ["partner", "employee"] as con
 export const PROTECTED_PREFIXES: string[] = [
   ...PROTECTED_PRODUCT_ROUTES.map((r) => `/${r}`),
   "/partner/portal",
+  "/partner/dashboard",
   "/employee/portal",
+  "/employee/dashboard",
 ];
 
 /** True when `path` requires an authenticated session. */
