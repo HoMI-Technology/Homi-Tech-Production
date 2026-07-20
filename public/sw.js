@@ -13,6 +13,9 @@
  *     cached (cache-first), capped at MAX_ASSET_ENTRIES so content-hashed
  *     assets from old deploys can't grow storage without bound.
  *   - /api/* and /auth/* are never intercepted.
+ *   - Web Push: `push` renders the outcome-survey nudge; `notificationclick`
+ *     focuses an existing tab or opens the deep link. Inert unless the server
+ *     is VAPID-configured and the user has granted permission.
  *
  * Update model: skipWaiting + clients.claim. Safe here because HTML is
  * never cached — a newly activated worker can't strand a page on stale
@@ -125,4 +128,42 @@ self.addEventListener("fetch", (event) => {
   if (isCacheableAsset(url)) {
     event.respondWith(handleAsset(event));
   }
+});
+
+// ── Web Push ────────────────────────────────────────────────────────────────
+// Payload shape is set by lib/push/send.ts: { title, body, url, tag }.
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = {};
+  }
+  const title = data.title || "HōMI";
+  const options = {
+    body: data.body || "",
+    tag: data.tag || "homi-notification",
+    icon: "/icon-192-v2.png",
+    badge: "/icon-192-v2.png",
+    data: { url: data.url || "/dashboard" },
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const target = new URL(event.notification.data?.url || "/dashboard", self.location.origin).href;
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+      for (const client of clients) {
+        // Focus an already-open HōMI tab and route it, rather than opening a
+        // duplicate window.
+        if (client.url.startsWith(self.location.origin) && "focus" in client) {
+          client.navigate(target);
+          return client.focus();
+        }
+      }
+      return self.clients.openWindow(target);
+    }),
+  );
 });

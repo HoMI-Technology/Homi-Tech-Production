@@ -91,6 +91,14 @@ describe("service worker", () => {
     expect(SW_SOURCE).toContain('url.pathname.startsWith("/api/")');
     expect(SW_SOURCE).toContain('url.pathname.startsWith("/auth/")');
   });
+
+  it("handles push and notificationclick for the survey nudge", () => {
+    expect(SW_SOURCE).toContain('addEventListener("push"');
+    expect(SW_SOURCE).toContain('addEventListener("notificationclick"');
+    // The click handler must route to a URL and prefer focusing an open tab.
+    expect(SW_SOURCE).toContain("showNotification");
+    expect(SW_SOURCE).toContain("openWindow");
+  });
 });
 
 describe("middleware", () => {
