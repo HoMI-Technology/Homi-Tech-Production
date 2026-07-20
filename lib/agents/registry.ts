@@ -291,26 +291,33 @@ export interface AgentReceipt {
 }
 
 /**
- * Generate a signed receipt for an agent exchange. The signing key is read from
- * RECEIPT_SIGNING_KEY; a dev fallback is used only in development and is marked
- * as non-verifiable in production.
+ * Generate a content-integrity receipt for an agent exchange.
+ *
+ * `hash` is an UNKEYED SHA-256 over public exchange metadata (id, agents, tools,
+ * timestamp). It is a convenience integrity/display label — NOT a signature. It
+ * proves nothing about authenticity and is trivially reproducible by anyone, so
+ * do not treat it as tamper-proof. (A previous version also computed an HMAC with
+ * RECEIPT_SIGNING_KEY and then discarded it, giving false assurance — removed.)
+ *
+ * If authenticated, verifiable receipts are ever required here, use the partner
+ * receipt system (lib/receipts/index.ts, RECEIPT_SIGNING_SECRET), which HMAC-signs
+ * with a kid, verifies in constant time, and fails safe to unsigned when unset.
  */
 export function generateReceipt(
   agents: AgentId[],
   tools: string[],
-): { id: string; hash: string; signature: string } {
+): { id: string; hash: string } {
   const timestamp = Date.now();
   const id = `RCPT-${timestamp}-${crypto.randomBytes(4).toString("hex").toUpperCase()}`;
   const payload = `${id}:${agents.join(",")}:${tools.join(",")}:${timestamp}`;
-  const key = process.env.RECEIPT_SIGNING_KEY ?? "dev-key";
   const hash = crypto.createHash("sha256").update(payload).digest("hex");
-  const signature = crypto.createHmac("sha256", key).update(hash).digest("hex");
-  return { id, hash, signature };
+  return { id, hash };
 }
 
 /**
- * Build the full receipt object returned to clients. The integrity field is a
- * convenience label; callers verify with the signature.
+ * Build the receipt object returned to clients. `integrity` is the unkeyed
+ * content hash from generateReceipt — a display label, not a verifiable
+ * signature. Do not treat it as tamper-proof.
  */
 export function buildReceipt(agents: AgentId[], tools: string[]): AgentReceipt {
   const receipt = generateReceipt(agents, tools);
