@@ -18,6 +18,10 @@ export interface Profile {
   subscription_status: string;
   stripe_customer_id: string | null;
   partner_id: string | null;
+  /** Employer organization (benefits) — migration 00032. */
+  employer_id: string | null;
+  /** Primary B2B organization — migration 00032. */
+  organization_id: string | null;
   /** First-touch acquisition snapshot — migration 00026. */
   attribution?: Record<string, unknown> | null;
   onboarding_completed: boolean;
@@ -47,6 +51,9 @@ export interface AssessmentRow {
   created_at: string;
   /** Set once the user confirms "I'm deciding anyway" despite the verdict. Never changes score/verdict. */
   user_override: { at: string; acknowledged_hard_stops: boolean } | null;
+  /** Partner / campaign ref text — migration 00032. */
+  referral_source?: string | null;
+  organization_id?: string | null;
   /** First-touch acquisition snapshot — migration 00026. */
   attribution?: Record<string, unknown> | null;
 }
@@ -170,10 +177,24 @@ export interface BehavioralGenome {
   id: string;
   user_id: string;
   answers: Record<string, unknown>;
-  scores: Record<string, unknown>;
+  /** DimensionScore[] or keyed map. */
+  scores: Record<string, unknown> | { key: string; name: string; score: number }[];
   completed_at: string;
   created_at: string;
   updated_at: string;
+  assessment_id?: string | null;
+}
+
+/** Stripe payment ledger — migration 00032. Service-role writes; owner/admin read. */
+export interface Payment {
+  id: string;
+  user_id: string | null;
+  stripe_payment_intent_id: string | null;
+  amount: number;
+  currency: string;
+  status: "succeeded" | "pending" | "failed" | "refunded";
+  description: string | null;
+  created_at: string;
 }
 
 export type GoalKind = "down_payment";

@@ -53,11 +53,14 @@ describe("route-protection classification", () => {
     }
   });
 
-  it("gates only the /portal sub-path of partially-protected routes", () => {
+  it("gates only the /portal and /dashboard sub-paths of partially-protected routes", () => {
     expect(isProtectedPath("/partner")).toBe(false);
     expect(isProtectedPath("/partner/portal")).toBe(true);
+    expect(isProtectedPath("/partner/dashboard")).toBe(true);
     expect(isProtectedPath("/employee")).toBe(false);
     expect(isProtectedPath("/employee/portal")).toBe(true);
+    expect(isProtectedPath("/employee/dashboard")).toBe(true);
+    expect(isProtectedPath("/team")).toBe(true);
   });
 
   it("does not gate a route that merely shares a name prefix", () => {
