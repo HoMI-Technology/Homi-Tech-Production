@@ -23,6 +23,7 @@ import { DashboardSwitcher } from "@/components/layout/DashboardSwitcher";
 
 const PRIMARY = [
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/agents", label: "Agents" },
   { href: "/assessment", label: "Assessment" },
   { href: "/tools", label: "Tools" },
   { href: "/journal", label: "Journal" },
