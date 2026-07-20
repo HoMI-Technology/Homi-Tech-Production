@@ -73,12 +73,12 @@ Also required for the cron + email + receipt features (already in the app):
 Against the live Supabase project, **in numeric order**, after a backup:
 
 ```
-00019_attribution.sql          -- profiles/assessments.attribution + partner_codes
-00020_email_sends.sql          -- lifecycle idempotency ledger
-00021_shadow_shares.sql        -- anonymous share cards
-00022_receipts.sql             -- partner_api_keys + receipt_verifications
-00023_advisor_monthly_quota.sql-- try_consume_advisor_message_v2
-00024_partner_stats.sql        -- partner-scoped SECURITY DEFINER stat RPCs
+00026_attribution.sql          -- profiles/assessments.attribution + partner_codes
+00027_email_sends.sql          -- lifecycle idempotency ledger
+00028_shadow_shares.sql        -- anonymous share cards
+00029_receipts.sql             -- partner_api_keys + receipt_verifications
+00030_advisor_monthly_quota.sql-- try_consume_advisor_message_v2
+00031_partner_stats.sql        -- partner-scoped SECURITY DEFINER stat RPCs
 ```
 
 All are expand-only (nullable adds, new tables, `create or replace`), each
