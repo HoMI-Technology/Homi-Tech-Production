@@ -5,25 +5,31 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
  *
  * Complements the §9 acceptance oracle (`__tests__/acceptance/stripe-webhook.test.ts`,
  * which exercises the REAL `stripe` SDK + real HMAC signatures). Here the SDK
- * boundary (`webhooks.constructEvent`) is mocked so we can lock the exact
- * HTTP contract at the seam:
+ * boundary (`webhooks.constructEvent` + `checkout.sessions.listLineItems`) is
+ * mocked so we can lock the exact HTTP contract at the seam:
  *   - signature verification failure -> 400 "Invalid signature."
  *     (missing header, tampered body, stale timestamp, missing secret)
  *   - verified-but-unparseable payload -> 400 "Invalid JSON payload."
  *   - insert-first idempotency -> replay acknowledged without reprocessing
- *   - transient DB failure -> >=500 so Stripe retries
- *   - per-event handler mapping, lookup_key-only tier resolution
+ *   - transient failure -> >=500 AND the idempotency claim is RELEASED so the
+ *     retry actually reprocesses (audit: retry-defeating idempotency)
+ *   - checkout tier resolution fails CLOSED: a failed line-item round-trip
+ *     retries; only a genuinely lookup_key-less price records without a tier
+ *     (audit: fail-open tiering left paid users on free)
  */
 
 const sdkMocks = vi.hoisted(() => {
   class FakeSignatureVerificationError extends Error {}
-  return { constructEvent: vi.fn(), FakeSignatureVerificationError };
+  return { constructEvent: vi.fn(), listLineItems: vi.fn(), FakeSignatureVerificationError };
 });
-const { constructEvent, FakeSignatureVerificationError } = sdkMocks;
+const { constructEvent, listLineItems, FakeSignatureVerificationError } = sdkMocks;
 
 vi.mock("stripe", () => ({
   default: Object.assign(
-    vi.fn().mockImplementation(() => ({ webhooks: { constructEvent: sdkMocks.constructEvent } })),
+    vi.fn().mockImplementation(() => ({
+      webhooks: { constructEvent: sdkMocks.constructEvent },
+      checkout: { sessions: { listLineItems: sdkMocks.listLineItems } },
+    })),
     {
       createFetchHttpClient: vi.fn(),
       errors: { StripeSignatureVerificationError: sdkMocks.FakeSignatureVerificationError },
@@ -48,6 +54,8 @@ const state = vi.hoisted(() => ({
 }));
 
 // Service client stub mirroring supabase semantics (errors RETURNED, not thrown).
+// `webhook_events` insert enforces a UNIQUE(event_id); `delete` releases it so
+// the route's transient-failure rollback can be exercised.
 vi.mock("@supabase/supabase-js", () => ({
   createClient: () => ({
     from(table: string) {
@@ -68,6 +76,17 @@ vi.mock("@supabase/supabase-js", () => ({
               return chain;
             },
             then: (r: (v: unknown) => void) => r(result),
+          });
+          return chain;
+        },
+        delete() {
+          const chain: Record<string, unknown> = {};
+          Object.assign(chain, {
+            eq: (_column: string, value: unknown) => {
+              if (table === "webhook_events") state.seenEventIds.delete(String(value));
+              return chain;
+            },
+            then: (r: (v: unknown) => void) => r({ error: null }),
           });
           return chain;
         },
@@ -127,6 +146,9 @@ beforeEach(() => {
   envState.STRIPE_SECRET_KEY = "sk_test_x";
   envState.SUPABASE_SERVICE_ROLE_KEY = "service_role_test";
   constructEvent.mockReset();
+  // Default: the checkout line-item round-trip succeeds with a mapped price.
+  listLineItems.mockReset();
+  listLineItems.mockResolvedValue({ data: [{ price: { lookup_key: "homi_plus_monthly" } }] });
 });
 
 describe("POST /api/webhooks/stripe — signature failures -> 400", () => {
@@ -199,27 +221,60 @@ describe("POST /api/webhooks/stripe — processing contract", () => {
     expect(res.status).toBe(500);
   });
 
-  it("returns 500 on a transient profile-update failure so Stripe retries", async () => {
+  it("releases the idempotency claim on a transient profile-update failure so the retry reprocesses", async () => {
     state.failProfileUpdate = true;
     verified(checkoutEvent);
-    const res = await POST(request("{}"));
-    expect(res.status).toBe(500);
-    expect(await res.json()).toEqual({ error: "Transient database error." });
+    const first = await POST(request("{}"));
+    expect(first.status).toBe(500);
+    expect(await first.json()).toEqual({ error: "Transient database error." });
+    expect(state.profileUpdates).toHaveLength(0);
+
+    // The claim was rolled back, so the redelivery is NOT acked as a duplicate.
+    state.failProfileUpdate = false;
+    const retry = await POST(request("{}"));
+    expect(retry.status).toBe(200);
+    expect(state.profileUpdates).toHaveLength(1);
+    expect(state.profileUpdates[0].subscription_tier).toBe("plus");
   });
 
-  it("checkout.session.completed provisions by user id with lookup_key tier", async () => {
+  it("checkout.session.completed provisions by user id with the round-trip lookup_key tier", async () => {
+    listLineItems.mockResolvedValue({ data: [{ price: { lookup_key: "homi_pro_monthly" } }] });
     verified(checkoutEvent);
-    // The tier round-trip goes through the SDK; with the module mocked it
-    // rejects, so no tier is set — the lookup_key-only contract means NO
-    // hardcoded-cents fallback fills one in.
     const res = await POST(request("{}"));
     expect(res.status).toBe(200);
     expect(state.profileUpdates).toHaveLength(1);
     const patch = state.profileUpdates[0];
     expect(patch.subscription_status).toBe("active");
     expect(patch.stripe_customer_id).toBe("cus_1");
-    expect(patch.subscription_tier).toBeUndefined();
+    expect(patch.subscription_tier).toBe("pro");
     expect(state.profileWhere).toContainEqual({ column: "id", value: "user-a" });
+  });
+
+  it("fails CLOSED (500) and releases the claim when the line-item round-trip fails", async () => {
+    listLineItems.mockRejectedValue(new Error("stripe api timeout"));
+    verified(checkoutEvent);
+    const first = await POST(request("{}"));
+    expect(first.status).toBe(500);
+    expect(state.profileUpdates).toHaveLength(0);
+
+    // A retry once Stripe is reachable resolves the tier — not lost to a silent 200.
+    listLineItems.mockResolvedValue({ data: [{ price: { lookup_key: "homi_plus_monthly" } }] });
+    const retry = await POST(request("{}"));
+    expect(retry.status).toBe(200);
+    expect(state.profileUpdates).toHaveLength(1);
+    expect(state.profileUpdates[0].subscription_tier).toBe("plus");
+  });
+
+  it("records the customer WITHOUT a tier (200) when the price carries no lookup_key", async () => {
+    // A missing lookup_key is a Stripe misconfiguration a retry cannot fix, so
+    // it is recorded (not retried) — distinct from a failed round-trip.
+    listLineItems.mockResolvedValue({ data: [{ price: { lookup_key: null } }] });
+    verified(checkoutEvent);
+    const res = await POST(request("{}"));
+    expect(res.status).toBe(200);
+    expect(state.profileUpdates).toHaveLength(1);
+    expect(state.profileUpdates[0].subscription_status).toBe("active");
+    expect(state.profileUpdates[0].subscription_tier).toBeUndefined();
   });
 
   it("customer.subscription.updated maps inline lookup_key price + past_due status", async () => {
