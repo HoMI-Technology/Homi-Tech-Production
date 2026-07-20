@@ -5,6 +5,7 @@ import { CookieConsent } from "@/components/consent/CookieConsent";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { CONSENT_BOOT_SCRIPT } from "@/components/consent/consent-shared";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
+import { AppleSplashLinks } from "@/components/pwa/AppleSplashLinks";
 import { AnalyticsScripts } from "@/components/analytics/AnalyticsScripts";
 import { SITE_URL } from "@/lib/seo/site";
 
@@ -76,6 +77,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${fraunces.variable} ${jetbrainsMono.variable}`}>
+      <head>
+        {/* iOS PWA launch images (portrait, modern iPhones). Hoisted to head. */}
+        <AppleSplashLinks />
+      </head>
       <body className="field grain min-h-screen">
         {/* Pre-paint consent gate — see consent-shared.ts. Must precede the
             server-rendered CookieConsent bar so consented visitors never see

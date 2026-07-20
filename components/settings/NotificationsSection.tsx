@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { PushToggle } from "@/components/settings/PushToggle";
 
 export function NotificationsSection() {
   const [enabled, setEnabled] = useState(true);
@@ -89,6 +90,9 @@ export function NotificationsSection() {
       </div>
 
       {error && <p className="mt-3 text-sm text-crimson">{error}</p>}
+
+      {/* Renders only when push is configured + supported (see PushToggle). */}
+      <PushToggle />
     </section>
   );
 }

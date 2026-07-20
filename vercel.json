@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/reassessment",
       "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/cron/outcome-surveys",
+      "schedule": "0 15 * * *"
     }
   ]
 }
