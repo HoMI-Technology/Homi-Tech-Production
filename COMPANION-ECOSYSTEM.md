@@ -125,9 +125,14 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   no hidden inferences.
 
 ### Phase 3 — The go-to for anything financial
-- **Plaid-aware context**: once the transactions table lands (known limitation in
-  `lib/plaid/sync.ts`), summarize real cash flow into the spine — always summarized
-  server-side, never raw transactions in a prompt.
+- **Plaid-aware context** — SHIPPED: the transactions table exists (migration
+  00024, `plaid_transactions`, RLS owner-scoped, service-role writes only); the
+  sync engine persists every window and computes 30-day cash flow from the full
+  stored history (former under-reporting limitation resolved). The Companion
+  gets its first server-assembled VERIFIED block (`lib/plaid/cashflow.ts` in
+  `/api/advisor`) — money in/out/net over 30 days, summarized server-side,
+  never raw transactions in a prompt — with an instruction to name any gap
+  between verified and self-reported numbers honestly.
 - **Credit awareness**: `credit_snapshots` in the spine; the mote can explain what a
   620 hard stop means with the user's actual trajectory.
 - **Tool hand-offs**: the mote recommends HōMI tools by name with the user's numbers
