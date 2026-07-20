@@ -54,6 +54,10 @@ const contentSecurityPolicy = [
   "base-uri 'self'",
   "frame-ancestors 'none'",
   "upgrade-insecure-requests",
+  // Collect violations so the enforced policy can be tightened from real data
+  // (report-uri = legacy browsers; report-to = Reporting API, see Report-To header).
+  "report-uri /api/csp-report",
+  "report-to csp",
 ].join("; ");
 
 const nextConfig: NextConfig = {
@@ -86,6 +90,12 @@ const nextConfig: NextConfig = {
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
+          },
+          // Reporting API endpoint group referenced by the CSP `report-to`
+          // directive; violations POST to /api/csp-report (see that route).
+          {
+            key: "Report-To",
+            value: '{"group":"csp","max_age":10886400,"endpoints":[{"url":"/api/csp-report"}]}',
           },
           // Same policy in both headers: enforced on production builds,
           // report-only everywhere for ongoing violation visibility.
