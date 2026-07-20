@@ -1,5 +1,5 @@
 -- =============================================================================
--- 00024_partner_stats.sql — partner-scoped, anonymized portal stats.
+-- 00031_partner_stats.sql — partner-scoped, anonymized portal stats.
 -- Apply after 00023.
 --
 -- The partner portal previously queried assessments with the user-scoped
