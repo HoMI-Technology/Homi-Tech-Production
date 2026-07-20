@@ -12,16 +12,15 @@
  *   • On Plaid error TRANSACTIONS_SYNC_MUTATION_DURING_PAGINATION the whole
  *     loop restarts from the ORIGINALLY stored cursor with fresh collections.
  *
- * KNOWN LIMITATION (deliberate, Session 2): there is no transactions table
- * yet, so snapshot cash-flow math uses only the transactions returned by the
- * CURRENT sync window (plus account balances, which are authoritative). After
- * the first full sync, later incremental windows may contain few or zero
- * transactions and the 30-day cash-flow read will under-report until full
- * transaction persistence lands in a later session.
+ * Transactions are PERSISTED (migration 00024): every sync window's
+ * added/modified transactions are upserted into plaid_transactions and
+ * removed ones deleted, so 30-day cash flow is computed from the full stored
+ * history — incremental windows no longer under-report (the former Session-2
+ * limitation). All persistence is idempotent, so a replayed window is safe.
  *
- * All writes go through the service-role client (plaid_items/plaid_accounts
- * have no authenticated write policies). The decrypted access token lives
- * only inside this function and is never logged.
+ * All writes go through the service-role client (plaid_items/plaid_accounts/
+ * plaid_transactions have no authenticated write policies). The decrypted
+ * access token lives only inside this function and is never logged.
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -54,6 +53,35 @@ interface PlaidTransaction {
   amount: number;
   date?: string;
   authorized_date?: string | null;
+  name?: string | null;
+  merchant_name?: string | null;
+  personal_finance_category?: { primary?: string | null } | null;
+  pending?: boolean;
+  iso_currency_code?: string | null;
+}
+
+/**
+ * Maps one Plaid transaction to a plaid_transactions row. Exported pure for
+ * tests — the mapping is where a silent field drift would corrupt cash flow.
+ */
+export function mapTransactionRow(
+  item: Pick<SyncableItem, "id" | "user_id">,
+  txn: PlaidTransaction,
+): Record<string, unknown> {
+  return {
+    item_id: item.id,
+    user_id: item.user_id,
+    account_id: txn.account_id ?? null,
+    transaction_id: txn.transaction_id,
+    amount: txn.amount,
+    txn_date: txn.date ?? txn.authorized_date ?? null,
+    name: txn.name ?? null,
+    merchant_name: txn.merchant_name ?? null,
+    category: txn.personal_finance_category?.primary ?? null,
+    pending: txn.pending ?? false,
+    iso_currency: txn.iso_currency_code ?? null,
+    updated_at: new Date().toISOString(),
+  };
 }
 
 interface PlaidSyncAccount {
@@ -208,7 +236,35 @@ export async function syncItem(admin: SupabaseClient, item: SyncableItem): Promi
     }
   }
 
-  const snapshotInserted = await recomputeSnapshot(admin, item.user_id, added, modified, removedIds);
+  // Persist this window's transactions BEFORE recomputing the snapshot, so
+  // cash flow reads the full stored history including today's changes.
+  // Effective set: added, overridden by modified, minus removed.
+  const effective = new Map(added);
+  for (const [id, txn] of modified) effective.set(id, txn);
+  for (const id of removedIds) effective.delete(id);
+
+  if (effective.size > 0) {
+    const rows = Array.from(effective.values()).map((txn) => mapTransactionRow(item, txn));
+    for (let i = 0; i < rows.length; i += PAGE_SIZE) {
+      const { error } = await admin
+        .from("plaid_transactions")
+        .upsert(rows.slice(i, i + PAGE_SIZE), { onConflict: "transaction_id" });
+      if (error) {
+        throw new PlaidSyncError(`plaid_transactions upsert failed: ${error.message}`);
+      }
+    }
+  }
+  if (removedIds.size > 0) {
+    const { error } = await admin
+      .from("plaid_transactions")
+      .delete()
+      .in("transaction_id", Array.from(removedIds));
+    if (error) {
+      throw new PlaidSyncError(`plaid_transactions delete failed: ${error.message}`);
+    }
+  }
+
+  const snapshotInserted = await recomputeSnapshot(admin, item.user_id);
 
   // Persist the cursor ONLY now — after has_more=false and all writes landed.
   const nowIso = new Date().toISOString();
@@ -236,19 +292,14 @@ export async function syncItem(admin: SupabaseClient, item: SyncableItem): Promi
 
 /**
  * Recomputes the user's financial snapshot from ALL their synced accounts
- * (across items) plus this sync window's transactions, and INSERTS a new
- * financial_snapshots row only when the headline values actually changed
- * versus the latest row. `state` mirrors the Finance dashboard's overview
- * inputs (lib/finance/store FinanceState) with provenance fields so Session 3
- * can tell a Plaid-derived snapshot from a manually entered one.
+ * (across items) plus the FULL stored transaction history's last 30 days
+ * (plaid_transactions — no longer just the current sync window), and INSERTS
+ * a new financial_snapshots row only when the headline values actually
+ * changed versus the latest row. `state` mirrors the Finance dashboard's
+ * overview inputs (lib/finance/store FinanceState) with provenance fields so
+ * a Plaid-derived snapshot is distinguishable from a manually entered one.
  */
-async function recomputeSnapshot(
-  admin: SupabaseClient,
-  userId: string,
-  added: Map<string, PlaidTransaction>,
-  modified: Map<string, PlaidTransaction>,
-  removedIds: Set<string>,
-): Promise<boolean> {
+async function recomputeSnapshot(admin: SupabaseClient, userId: string): Promise<boolean> {
   const { data: itemRows, error: itemsError } = await admin
     .from("plaid_items")
     .select("id")
@@ -277,22 +328,29 @@ async function recomputeSnapshot(
     if (account.type === "credit" || account.type === "loan") totalDebt += balance;
   }
 
-  // Effective window transactions: added, overridden by modified, minus removed.
-  const effective = new Map(added);
-  for (const [id, txn] of modified) effective.set(id, txn);
-  for (const id of removedIds) effective.delete(id);
+  // 30-day cash flow from the FULL stored history (pending excluded — those
+  // amounts can still change or vanish).
+  const cutoffDate = new Date(Date.now() - CASH_FLOW_WINDOW_DAYS * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
+  const { data: txnRows, error: txnError } = await admin
+    .from("plaid_transactions")
+    .select("amount, pending")
+    .eq("user_id", userId)
+    .gte("txn_date", cutoffDate);
+  if (txnError) {
+    throw new PlaidSyncError(`plaid_transactions lookup failed: ${txnError.message}`);
+  }
 
-  const cutoff = new Date(Date.now() - CASH_FLOW_WINDOW_DAYS * 24 * 60 * 60 * 1000);
   let income = 0;
   let expenses = 0;
-  for (const txn of effective.values()) {
-    const dateStr = txn.date ?? txn.authorized_date;
-    if (!dateStr) continue;
-    const txnDate = new Date(`${dateStr}T00:00:00Z`);
-    if (Number.isNaN(txnDate.getTime()) || txnDate < cutoff) continue;
+  for (const txn of txnRows ?? []) {
+    if (txn.pending) continue;
+    const amount = Number(txn.amount);
+    if (!Number.isFinite(amount)) continue;
     // Plaid convention: positive amount = money OUT, negative = money IN.
-    if (txn.amount < 0) income += -txn.amount;
-    else expenses += txn.amount;
+    if (amount < 0) income += -amount;
+    else expenses += amount;
   }
 
   const netCashFlow = round2(income - expenses);

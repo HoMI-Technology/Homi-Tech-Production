@@ -9,6 +9,7 @@ import { SecuritySection } from "@/components/settings/SecuritySection";
 import { ShareLinksSection } from "@/components/settings/ShareLinksSection";
 import { PrivacySection } from "@/components/settings/PrivacySection";
 import { CompanionMemorySection } from "@/components/settings/CompanionMemorySection";
+import { SharePreviewSection } from "@/components/settings/SharePreviewSection";
 import type { Profile } from "@/types/database";
 
 export default function SettingsPage() {
@@ -71,6 +72,8 @@ export default function SettingsPage() {
           <NotificationsSection />
 
           <CompanionMemorySection />
+
+          <SharePreviewSection />
 
           <PrivacySection />
 

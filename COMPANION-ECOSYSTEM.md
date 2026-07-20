@@ -106,16 +106,22 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   full-page chat resume the same conversation on any device; local storage
   remains the anonymous/offline fallback, and persistence is best-effort so a
   storage failure never breaks the chat itself.
-- **Server-side context assembly**: for signed-in users, the route reads
-  `financial_snapshots`, `goals`, and `credit_snapshots` directly (RLS-scoped) so
-  the Companion's knowledge doesn't depend on which browser the user opened.
+- **Server-side context assembly** — SHIPPED (the authority flip): for
+  signed-in users the route assembles context from their own rows via
+  `lib/advisor/server-context.ts` — `assessments` (latest two, for score,
+  pillars, hard stops, previous score), `user_finance_state` (mirrored
+  dashboard state with LWW freshness), and `credit_snapshots` — and the
+  server wins per block, with client-sent context as the fallback for
+  anonymous users and empty tables. The Companion's knowledge no longer
+  depends on which browser the user opened.
 - **Cross-surface continuity**: opening the widget mid-conversation shows the same
   thread the full-page chat holds.
-- **Canonical readiness-state contract**: server-assembled context ships as one
-  versioned object (score, verdict, pillars, trend, confidence, data quality,
-  blockers, next best action) — the single backbone the dashboard, chat, and any
-  future report all read from, adapted from the strategy corpus's
-  `CompanionReadinessState`.
+- **Canonical readiness-state contract** — SHIPPED (v1):
+  `ServerCompanionState` in `lib/advisor/server-context.ts` — one object
+  carrying assessment, finance, and credit blocks with freshness and a
+  generation timestamp, assembled concurrently and degrading per block.
+  Adapted from the strategy corpus's `CompanionReadinessState`; trend and
+  next-best-action fields join it as those systems land.
 - **"What HōMI remembers"** — SHIPPED: an inspectable memory panel in Settings
   (`components/settings/CompanionMemorySection.tsx`) stating plainly what the
   Companion knows (identity, readiness, money picture with freshness, stored
@@ -125,14 +131,31 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   no hidden inferences.
 
 ### Phase 3 — The go-to for anything financial
-- **Plaid-aware context**: once the transactions table lands (known limitation in
-  `lib/plaid/sync.ts`), summarize real cash flow into the spine — always summarized
-  server-side, never raw transactions in a prompt.
-- **Credit awareness**: `credit_snapshots` in the spine; the mote can explain what a
-  620 hard stop means with the user's actual trajectory.
-- **Tool hand-offs**: the mote recommends HōMI tools by name with the user's numbers
-  pre-loaded ("run your real numbers through the debt payoff planner — I'll be
-  there"). Deep-link with query params; the planner persona already names tools.
+- **Plaid-aware context** — SHIPPED: the transactions table exists (migration
+  00024, `plaid_transactions`, RLS owner-scoped, service-role writes only); the
+  sync engine persists every window and computes 30-day cash flow from the full
+  stored history (former under-reporting limitation resolved). The Companion
+  gets its first server-assembled VERIFIED block (`lib/plaid/cashflow.ts` in
+  `/api/advisor`) — money in/out/net over 30 days, summarized server-side,
+  never raw transactions in a prompt — with an instruction to name any gap
+  between verified and self-reported numbers honestly.
+- **Credit awareness** — SHIPPED: the /credit page's state extracted to
+  `lib/credit/store.ts` (defaults-leak gate + freshness stamp, mirroring the
+  finance store) and joined to the spine via `buildCreditContext()` — score,
+  utilization, on-time streak, all labeled self-reported with age. Scores
+  below the 620 hard stop get an explain-the-protection instruction in the
+  prompt. Server-side `credit_snapshots` remains the follow-up once credit
+  data syncs to the database.
+- **Tool hand-offs** — SHIPPED (v1): the system prompt carries the full tool
+  directory (paths included) with a one-per-reply, never-as-a-brush-off rule,
+  and Companion messages render known product routes as real links via an
+  allowlist (`components/companion/MessageContent.tsx` — model output can
+  never fabricate navigation to unknown or external destinations). Pre-loading is
+  live for the highest-traffic hand-offs: /tools/runway and
+  /tools/affordability open with the user's saved numbers via
+  `lib/tools/prefill.ts` (same defaults-leak gate as the spine; mount-only so
+  it never fights live edits). Remaining calculators adopt the same hook as
+  needed.
 - **Behavioral genome**: `behavioral_genome` informs *how* the mote talks (pace,
   framing), never *what* it claims.
 - **Explainability view** — SHIPPED: the "why did this change" card on /results
@@ -142,10 +165,13 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   pillar detail, and active hard stops. The Companion receives the same
   explanation via the spine's `whatChanged` field, so chat and view always tell
   one story. Previous-score snapshots now carry pillar totals to power it.
-- **Milestone moments and ambient context**: mark score-threshold crossings in the
-  Companion surface and keep a one-line context bar of what the conversation has
-  covered — warmth mechanics harvested from the companions-v2 prototype, re-voiced
-  to canon (no emoji, no hype).
+- **Milestone moments** — SHIPPED: score-threshold crossings (40/50/60/70/80/90)
+  marked in canon voice, both directions (`lib/advisor/milestones.ts`) — up
+  reports the highest threshold reached, down reports honestly where you are
+  now. Folded into the explanation engine, so the /results card shows the
+  crossing as a highlighted strip and the Companion's context carries the same
+  words. Harvested from the companions-v2 prototype, re-voiced (no emoji, no
+  hype — a CI test enforces it). The ambient context bar remains future UX.
 
 ### Phase 4 — The mote reaches out (carefully)
 - **Signals, not spam**: surface proactive nudges inside `/signals` and `/daily`
@@ -157,10 +183,14 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   sign-in gate as the honest threshold — not a locked teaser.
 - **Couples/family mode**: shared threads where the mote holds both partners'
   context — requires explicit consent from both, enforced via `family_accounts`.
-- **Institutional share preview**: before any partner integration exists, show the
-  user "here is what a lender or agent would see if you shared your readiness" —
-  band, confidence, data quality, timestamp, disclaimer. Trust feature first,
-  B2B groundwork second.
+- **Institutional share preview** — SHIPPED: Settings' "If you shared your
+  readiness" section (`components/settings/SharePreviewSection.tsx`, derivation
+  in `lib/advisor/share-preview.ts`) — verdict band, score, confidence with its
+  reasons shown (high only when the assessment is fresh AND a money picture
+  exists; each degradation drops a band), per-source data quality, hard stops
+  verbatim, and the not-a-credit-decision disclaimer as part of the product.
+  Nothing is shareable yet and the section says so; consent-first sharing is
+  the B2B follow-up.
 - **Partner report contract (design-ahead)**: when sharing arrives, reports are
   generated from stored structured state — never from chat — and carry consent
   timestamp, expiry, revocation, access logging, and methodology version. Whether

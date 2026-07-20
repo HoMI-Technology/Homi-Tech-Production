@@ -163,6 +163,27 @@ export function reassessmentReminder(
   return { subject: "A quick check-in on your readiness", html: layout(body) };
 }
 
+export function outcomeSurveyReminder(
+  name: string,
+  days: number,
+): { subject: string; html: string } {
+  const body = `
+    <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">Hi ${name},</p>
+    <p style="margin:0 0 16px 0;">
+      It's been about ${days} days since your decision. HōMI gave you an honest read back then —
+      now we'd love an honest read back: how is it actually going?
+    </p>
+    <p style="margin:0 0 20px 0;">
+      It's a 30-second check-in, and there's no wrong answer. Whether it went well or didn't, your
+      outcome is what keeps every future verdict honest.
+    </p>
+    <p style="margin:0;">
+      <a href="${SITE}/dashboard" style="color:#22d3ee;text-decoration:none;font-weight:700;">Share how it went &rarr;</a>
+    </p>
+  `;
+  return { subject: "How did it go? A quick outcome check-in", html: layout(body) };
+}
+
 export function waitlistConfirmation(): { subject: string; html: string } {
   const body = `
     <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">You're on the list.</p>

@@ -20,6 +20,7 @@ interface Captured {
   itemUpdates: { patch: Record<string, unknown>; id: string }[];
   accountUpserts: Record<string, unknown>[][];
   snapshotInserts: Record<string, unknown>[];
+  txnUpserts: Record<string, unknown>[][];
 }
 
 /** Rows the fake DB serves back. */
@@ -30,6 +31,7 @@ interface DbFixtures {
 }
 
 function fakeAdmin(captured: Captured, fixtures: DbFixtures) {
+  const txnStore = new Map<string, Record<string, unknown>>();
   return {
     from: (table: string) => {
       if (table === "plaid_items") {
@@ -56,6 +58,33 @@ function fakeAdmin(captured: Captured, fixtures: DbFixtures) {
           },
           select: () => ({
             in: async () => ({ data: fixtures.accounts, error: null }),
+          }),
+        };
+      }
+      if (table === "plaid_transactions") {
+        // In-memory store keyed by transaction_id — upserts/deletes mutate it,
+        // the cash-flow select reads it back, mirroring the real table.
+        return {
+          upsert: async (rows: Record<string, unknown>[]) => {
+            captured.txnUpserts.push(rows);
+            for (const row of rows) txnStore.set(String(row.transaction_id), row);
+            return { error: null };
+          },
+          delete: () => ({
+            in: async (_col: string, ids: string[]) => {
+              for (const id of ids) txnStore.delete(id);
+              return { error: null };
+            },
+          }),
+          select: () => ({
+            eq: () => ({
+              gte: async (_col: string, cutoff: string) => ({
+                data: Array.from(txnStore.values()).filter(
+                  (row) => typeof row.txn_date === "string" && (row.txn_date as string) >= cutoff,
+                ),
+                error: null,
+              }),
+            }),
           }),
         };
       }
@@ -138,7 +167,7 @@ function makeItem(cursor: string | null) {
 }
 
 function emptyCaptured(): Captured {
-  return { itemUpdates: [], accountUpserts: [], snapshotInserts: [] };
+  return { itemUpdates: [], accountUpserts: [], snapshotInserts: [], txnUpserts: [] };
 }
 
 describe("syncItem cursor discipline", () => {

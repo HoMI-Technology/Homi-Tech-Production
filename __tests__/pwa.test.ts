@@ -54,6 +54,32 @@ describe("web app manifest", () => {
       expect(publicFileExists(icon.src), `${icon.src} missing from /public`).toBe(true);
     }
   });
+
+  it("references iOS splash images that all exist in /public/splash", () => {
+    const source = fs.readFileSync(
+      path.join(ROOT, "components/pwa/AppleSplashLinks.tsx"),
+      "utf8",
+    );
+    const devices = [...source.matchAll(/device: "([^"]+)"/g)].map((m) => m[1]);
+    expect(devices.length).toBeGreaterThan(0);
+    for (const device of devices) {
+      expect(
+        publicFileExists(`/splash/${device}.png`),
+        `/splash/${device}.png missing from /public`,
+      ).toBe(true);
+    }
+  });
+
+  it("declares install-sheet screenshots for both form factors, and the files exist", () => {
+    const shots = m.screenshots ?? [];
+    // A "wide" screenshot is required for the richer desktop install dialog.
+    expect(shots.some((s) => s.form_factor === "wide")).toBe(true);
+    expect(shots.some((s) => s.form_factor === "narrow")).toBe(true);
+    for (const shot of shots) {
+      expect(shot.sizes, "screenshot missing sizes").toBeTruthy();
+      expect(publicFileExists(shot.src), `${shot.src} missing from /public`).toBe(true);
+    }
+  });
 });
 
 describe("service worker", () => {
@@ -79,6 +105,14 @@ describe("service worker", () => {
   it("never intercepts API or auth routes", () => {
     expect(SW_SOURCE).toContain('url.pathname.startsWith("/api/")');
     expect(SW_SOURCE).toContain('url.pathname.startsWith("/auth/")');
+  });
+
+  it("handles push and notificationclick for the survey nudge", () => {
+    expect(SW_SOURCE).toContain('addEventListener("push"');
+    expect(SW_SOURCE).toContain('addEventListener("notificationclick"');
+    // The click handler must route to a URL and prefer focusing an open tab.
+    expect(SW_SOURCE).toContain("showNotification");
+    expect(SW_SOURCE).toContain("openWindow");
   });
 });
 

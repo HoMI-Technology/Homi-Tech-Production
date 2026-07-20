@@ -1,11 +1,22 @@
-import { welcomeEmail, verdictEmail, reassessmentReminder, waitlistConfirmation } from "@/lib/email/templates";
+import {
+  welcomeEmail,
+  verdictEmail,
+  reassessmentReminder,
+  outcomeSurveyReminder,
+  waitlistConfirmation,
+} from "@/lib/email/templates";
 import { isUnsubscribed, listUnsubscribeHeaders } from "@/lib/email/unsubscribe";
 import type { VerdictKey } from "@/lib/brand";
 
-export type EmailTemplate = "welcome" | "verdict" | "reassessment" | "waitlist";
+export type EmailTemplate = "welcome" | "verdict" | "reassessment" | "outcome_survey" | "waitlist";
 
 /** Marketing/lifecycle templates honor the global opt-out list. */
-const MARKETING_TEMPLATES = new Set<EmailTemplate>(["welcome", "reassessment", "waitlist"]);
+const MARKETING_TEMPLATES = new Set<EmailTemplate>([
+  "welcome",
+  "reassessment",
+  "outcome_survey",
+  "waitlist",
+]);
 
 const VERDICT_KEYS: VerdictKey[] = ["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"];
 
@@ -26,6 +37,8 @@ function renderTemplate(
     }
     case "reassessment":
       return reassessmentReminder(String(params?.name ?? "there"), Number(params?.daysSince ?? 30));
+    case "outcome_survey":
+      return outcomeSurveyReminder(String(params?.name ?? "there"), Number(params?.days ?? 30));
     case "waitlist":
       return waitlistConfirmation();
     default: {

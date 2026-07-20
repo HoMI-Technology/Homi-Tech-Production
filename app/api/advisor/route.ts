@@ -4,10 +4,14 @@ import { hasAnthropic, env } from "@/lib/env";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
 import { createClient } from "@/lib/supabase/server";
 import { gateCompanion } from "@/lib/advisor/quota";
+import { getUserEntitlements, type Entitlements } from "@/lib/entitlements";
 import { persistCompanionExchange } from "@/lib/advisor/memory";
+import { getVerifiedCashFlow, type VerifiedCashFlow } from "@/lib/plaid/cashflow";
+import { assembleServerContext } from "@/lib/advisor/server-context";
 import {
   buildPersonaFallbackReply,
   type AdvisorAssessmentContext,
+  type AdvisorCreditContext,
   type AdvisorFinanceContext,
 } from "@/lib/advisor/fallback";
 import { getPersona, type AdvisorPersona } from "@/lib/advisor/personas";
@@ -56,6 +60,13 @@ const financeContextSchema = z.object({
  * name is user text, so it is length-capped here and framed as data (not
  * instructions) in the prompt.
  */
+const creditContextSchema = z.object({
+  score: z.number().min(300).max(850),
+  utilization: z.number().min(0).max(1000),
+  onTimeStreakMonths: z.number().min(0).max(1200),
+  ageDays: z.number().min(0).max(36_500).nullish(),
+});
+
 const identitySchema = z.object({
   name: z
     .string()
@@ -73,6 +84,7 @@ const bodySchema = z.object({
   conversationId: z.string().uuid().nullish(),
   assessment: assessmentContextSchema.nullish(),
   finance: financeContextSchema.nullish(),
+  credit: creditContextSchema.nullish(),
   /** Human-readable label of the surface the user is on, e.g. "the mortgage calculator". */
   surface: z.string().max(80).nullish(),
   /** Score-movement one-liner from the explainability engine (lib/advisor/explain). */
@@ -120,6 +132,8 @@ Voice rules, non-negotiable:
 - Every number you have here is self-reported by the user inside the app unless explicitly marked otherwise. Never present self-reported data as verified fact.
 - Honesty about freshness: when the context says data is weeks or months old, say so plainly and suggest a refresh before leaning on it. Confidence you don't have is a lie — never fake it.
 
+Tool hand-offs: HōMI has real calculators you can point people to by path when they'd genuinely help — /tools/mortgage, /tools/affordability, /tools/down-payment, /tools/debt-payoff, /tools/rent-vs-buy, /tools/fire, /tools/monte-carlo, /tools/roth-conversion, /tools/runway, /tools/blind-budget — plus /finance (money dashboard), /credit (credit overview), /assessment (full assessment), and /shadow-score (quick score). Mention a path only when it moves their actual question forward; never more than one per reply, and never as a brush-off.
+
 Remember: your job is to help people see clearly, not to close a sale or cheer them on. Sometimes the most honest and most homie thing you can say is "not yet."`;
 
 function buildContextNote(
@@ -127,6 +141,8 @@ function buildContextNote(
   finance?: AdvisorFinanceContext | null,
   surface?: string | null,
   whatChanged?: string | null,
+  verified?: VerifiedCashFlow | null,
+  credit?: AdvisorCreditContext | null,
 ): string {
   const parts: string[] = [];
 
@@ -180,6 +196,31 @@ function buildContextNote(
     );
   }
 
+  if (credit) {
+    const freshness =
+      typeof credit.ageDays === "number"
+        ? credit.ageDays === 0
+          ? "updated today"
+          : `${credit.ageDays} days old`
+        : "age unknown";
+    parts.push(
+      `Credit picture (self-reported on the credit page, ${freshness}): score ${credit.score}, utilization ${credit.utilization}%, on-time streak ${credit.onTimeStreakMonths} months.`,
+    );
+    if (credit.score < 620) {
+      parts.push(
+        "Their credit score is below the 620 protective hard stop — explain the protection it represents without shame.",
+      );
+    }
+  }
+
+  if (verified) {
+    parts.push(
+      `VERIFIED cash flow from their linked bank (last ${verified.windowDays} days, ${verified.transactionCount} settled transactions):`,
+      `money in $${verified.income}, money out $${verified.expenses}, net $${verified.netCashFlow}.`,
+      "This block is the only bank-verified data here — everything else is self-reported. When the verified numbers and their self-reported ones disagree, name the gap honestly instead of picking one silently.",
+    );
+  }
+
   return parts.join(" ");
 }
 
@@ -214,16 +255,33 @@ export async function POST(request: Request) {
   // client renders as an upgrade nudge, never a fake error). See lib/advisor/quota.
   let supabase: Awaited<ReturnType<typeof createClient>> | null = null;
   let gateUserId: string | null = null;
+  let entitlements: Entitlements | null = null;
   if (!demoContext) {
     supabase = await createClient();
     const gate = await gateCompanion(supabase);
     if (!gate.ok) return gate.response;
     gateUserId = gate.userId;
+    // Resolve the signed-in user's capabilities so we can gate the real model to
+    // paid tiers only (advisorRealModel). Free tier → deterministic fallback.
+    ({ entitlements } = await getUserEntitlements(supabase));
   }
+  // Cost-safety switch: the real Anthropic model is served ONLY to authenticated
+  // PAID users. Anonymous /artifact playground (demoContext) and free tier never
+  // spend model dollars — they get the rule-based fallback.
+  const advisorRealModel = !demoContext && entitlements?.advisorRealModel === true;
 
-  const assessment = demoContext ? DEMO_ASSESSMENT_CONTEXT : parsed.data.assessment;
+  // The authority flip: signed-in users' context is assembled SERVER-SIDE from
+  // their own rows (RLS-scoped) and wins per block; the client-sent context is
+  // the fallback for anonymous users and blocks with no server data yet.
+  // Best-effort — assembly failure degrades to client context, never breaks chat.
+  const serverState = supabase && gateUserId ? await assembleServerContext(supabase) : null;
+
+  const assessment = demoContext
+    ? DEMO_ASSESSMENT_CONTEXT
+    : (serverState?.assessment ?? parsed.data.assessment);
   // Demo mode never mixes a real user's money picture into the fixed context.
-  const finance = demoContext ? null : parsed.data.finance;
+  const finance = demoContext ? null : (serverState?.finance ?? parsed.data.finance);
+  const credit = demoContext ? null : (serverState?.credit ?? parsed.data.credit);
   const surface = demoContext ? null : parsed.data.surface;
   const whatChanged = demoContext ? null : parsed.data.whatChanged;
   const identity = demoContext ? null : parsed.data.identity;
@@ -250,14 +308,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ reply, source, conversationId });
   }
 
-  if (!hasAnthropic()) {
+  // Real model only for authenticated paid users with a configured key. Free
+  // tier, anonymous demoContext, and a missing key all fall through to the
+  // deterministic persona fallback ($0 AI cost).
+  if (!hasAnthropic() || !advisorRealModel) {
     const reply = buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
     return respond(reply, "fallback");
   }
 
   try {
     const trimmed = messages.slice(-12);
-    const contextNote = buildContextNote(assessment ?? null, finance, surface, whatChanged);
+    // The Companion's first server-assembled context block: verified cash flow
+    // from the user's stored bank transactions (RLS-scoped read; null for
+    // anonymous/demo/unlinked users, and on any failure — best-effort).
+    const verified = supabase && gateUserId ? await getVerifiedCashFlow(supabase) : null;
+    const provenance = serverState
+      ? "Context assembled server-side from the user's own account records (authoritative across their devices). "
+      : "";
+    const contextNote =
+      provenance + buildContextNote(assessment ?? null, finance, surface, whatChanged, verified, credit);
     // The name is user-chosen text — framed as a label, never as instructions.
     const identityLine =
       identity && identity.name !== "HōMI"
@@ -272,7 +341,7 @@ export async function POST(request: Request) {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-5",
+        model: "claude-haiku-4-5-20251001",
         max_tokens: 1024,
         system: `${SYSTEM_PROMPT}\n\n${personaMeta.systemLine}${identityLine}\n\nContext for this conversation: ${contextNote}`,
         messages: trimmed.map((m) => ({ role: m.role, content: m.content })),
@@ -280,12 +349,16 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
+      // Surface a bad/expired key (or upstream outage) in logs — a silent
+      // fallback here is indistinguishable from the normal $0 path otherwise.
+      console.error("[advisor] model call failed", { status: response.status, reason: "non_200_response" });
       const reply = buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
       return respond(reply, "fallback");
     }
 
     const data = (await response.json()) as {
       content?: Array<{ type: string; text?: string }>;
+      usage?: { input_tokens?: number; output_tokens?: number };
     };
     const text = data.content?.find((block) => block.type === "text")?.text?.trim();
 
@@ -294,8 +367,21 @@ export async function POST(request: Request) {
       return respond(reply, "fallback");
     }
 
+    console.log("[advisor:cost]", {
+      surface: "advisor",
+      model: "claude-haiku-4-5-20251001",
+      input_tokens: data.usage?.input_tokens,
+      output_tokens: data.usage?.output_tokens,
+      userId: gateUserId,
+      tier: entitlements?.tier,
+    });
+
     return respond(text, "model");
-  } catch {
+  } catch (err) {
+    console.error("[advisor] model call failed", {
+      status: undefined,
+      reason: err instanceof Error ? err.message : String(err),
+    });
     const reply = buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
     return respond(reply, "fallback");
   }

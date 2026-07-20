@@ -25,7 +25,7 @@ export const TIERS: Record<TierKey, Tier> = {
     features: [
       "Full assessment with detailed pillar breakdowns",
       "Unlimited re-scoring as your numbers change",
-      "Decision Companion chat access",
+      "Full AI Companion conversations",
       "Progress tracking over time",
     ],
   },
@@ -38,7 +38,7 @@ export const TIERS: Record<TierKey, Tier> = {
     features: [
       "Everything in Plus",
       "Advanced finance tools (mortgage, debt payoff modeling)",
-      "Priority Decision Companion responses",
+      "Higher daily Companion limits",
       "Couples mode — shared readiness view",
       "Decision journal with outcome tracking",
     ],
