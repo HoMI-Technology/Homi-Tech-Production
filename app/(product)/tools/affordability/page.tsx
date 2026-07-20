@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { computeAffordability, paymentBreakdown, type AffordabilityInputs } from "@/lib/tools/mortgage";
 import { formatCurrency } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
+import { getToolPrefill } from "@/lib/tools/prefill";
 
 const TIERS = [
   { key: "protected" as const, label: "Protected", ratio: "28%", color: "#34d399", className: "bg-verdict-ready" },
@@ -14,6 +15,15 @@ const TIERS = [
 export default function AffordabilityPage() {
   const [income, setIncome] = useState(95000);
   const [debts, setDebts] = useState(400);
+
+  // Companion hand-off: seed with the user's saved numbers on mount only.
+  useEffect(() => {
+    const prefill = getToolPrefill();
+    if (!prefill) return;
+    setIncome(prefill.annualIncome);
+    setDebts(prefill.monthlyDebtPayments);
+    setDownPayment(prefill.liquidSavings);
+  }, []);
   const [rate, setRate] = useState(6.5);
   const [term, setTerm] = useState(30);
   const [taxInsRate, setTaxInsRate] = useState(1.5);
