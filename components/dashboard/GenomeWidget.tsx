@@ -42,9 +42,11 @@ export function GenomeWidget({ scores }: GenomeWidgetProps) {
             <div key={dim.key}>
               <div className="flex items-center justify-between text-sm">
                 <span className="flex items-center gap-2 text-light">
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke={dim.color} strokeWidth="1.5">
-                    <path d={dim.icon} />
-                  </svg>
+                  <span
+                    className="inline-block h-2 w-2 shrink-0 rounded-full"
+                    style={{ backgroundColor: dim.color }}
+                    aria-hidden
+                  />
                   {dim.name}
                 </span>
                 <span className="score-numeral text-dim">{Math.round(pct)}</span>

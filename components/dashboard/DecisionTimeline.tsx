@@ -16,7 +16,10 @@ interface TimelineEvent {
 interface DecisionTimelineProps {
   assessments: AssessmentRow[];
   checkins: DailyCheckin[];
-  journalEntries: JournalEntry[];
+  journalEntries: Pick<
+    JournalEntry,
+    "id" | "title" | "context" | "decision_date" | "created_at"
+  >[];
   maxItems?: number;
 }
 

@@ -69,7 +69,7 @@ export function ShortcutHelp() {
             exit={reducedMotion ? {} : { opacity: 0, scale: 0.96, y: 10 }}
             transition={reducedMotion ? {} : { type: "spring", stiffness: 400, damping: 30 }}
             className="glass panel-focus relative w-full max-w-lg overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-slate-high/30 px-6 py-4">
               <div>
