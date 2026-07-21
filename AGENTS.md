@@ -84,3 +84,35 @@ pwsh -File C:\Users\cody\ai-server\scripts\homi-ssot.ps1 pipeline -Task "..."
 
 - Next.js app (`homi-production`): `app/`, `components/`, `lib/`, `supabase/`
 - Keep secrets out of git; use `.env.local` (gitignored)
+
+## Cursor Cloud specific instructions
+
+Single Next.js 15 / React 19 app (`homi-production`), package manager **npm**
+(only `package-lock.json`; `.npmrc` sets `legacy-peer-deps=true`), **Node 22**.
+Dependencies are refreshed automatically by the startup update script (`npm ci`),
+so you should not need to install them manually.
+
+- **`.env.local` is required and gitignored**, so it does not persist across
+  fresh Cloud VMs — recreate it if the app can't find Supabase vars. The CI
+  placeholder Supabase values (see `NEXT_PUBLIC_SUPABASE_URL` /
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.github/workflows/ci.yml`) plus
+  `NEXT_PUBLIC_SITE_URL=http://localhost:3000` and any non-empty
+  `SUPABASE_SERVICE_ROLE_KEY` are enough for lint/typecheck/test/build and to
+  run the app. Every other integration (Stripe, Plaid, Anthropic, Resend,
+  Sentry, Upstash, PostHog, web-push) degrades gracefully when unset. Real
+  login/DB persistence and the live E2E specs need a real Supabase project.
+- **Standard commands** are the `package.json` scripts (`dev`, `build`, `start`,
+  `typecheck`, `test`, `test:e2e`, `brand-check`). Dev server is `npm run dev`
+  on `http://localhost:3000`.
+- **CI gate order** (`.github/workflows/ci.yml`): `brand-check` → `tsc --noEmit`
+  → `vitest run` → `next build`. Treat these four as the real pass/fail signal.
+- **Do NOT rely on `npm run lint`**: there is no committed ESLint config, so
+  `next lint` drops into an interactive setup prompt and hangs a non-interactive
+  shell. It is intentionally not part of the CI gate; use `typecheck` +
+  `brand-check` instead.
+- **Core flow needs no secrets to test**: the assessment (`/assessment` →
+  `/results`) and the scoring engine (`POST /api/scoring` with the body shape in
+  `lib/validation/assessment.ts`) run fully on placeholder env. This is the
+  fastest way to smoke-test that the app works end-to-end.
+- **Playwright E2E** (`npm run test:e2e`) additionally requires
+  `npx playwright install chromium` (browsers are not part of `npm ci`).
