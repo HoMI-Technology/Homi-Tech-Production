@@ -9,6 +9,11 @@ an existing database (guards via `IF NOT EXISTS`, `DO $$ ... EXCEPTION`,
 
 Apply in numeric order — later files depend on tables/types created earlier.
 
+> **Note:** Three prefix collisions exist in this repo (`00018`, `00020`, `00024`).
+> Apply both files sharing a prefix in filesystem sort order (see table).
+> Remote project `giyycykxkzfbowiapxpd` has migrations through `00031`; `00032`
+> is pending (`npm run verify-supabase` + `supabase db push` after repair).
+
 | # | File | Purpose |
 |---|------|---------|
 | 1 | `00001_enums.sql` | Enum types (`user_role`, `subscription_tier`, `assessment_status`, `verdict_type`, `dimension_type`, `message_role`, `org_kind`) |
@@ -17,6 +22,50 @@ Apply in numeric order — later files depend on tables/types created earlier.
 | 4 | `00004_rls.sql` | Row Level Security — enable/force + policies + `is_admin()` helper |
 | 5 | `00005_triggers.sql` | `auth.users` → `profiles` provisioning trigger, `updated_at` touch triggers |
 | 6 | `00006_seed_question_bank.sql` | 45 canonical assessment questions (ported from `lib/questions/bank.ts`) |
+| 7 | `00007_family_calendar.sql` | Family mode + milestone calendar tables |
+| 8 | `00008_share_rpc.sql` | Public score-share lookup via `SECURITY DEFINER` RPC |
+| 9 | `00009_security_perf_hardening.sql` | Security + performance hardening (RLS, indexes, grants) |
+| 10 | `00010_override_outcomes.sql` | Outcome surveys + override tracking |
+| 11 | `00011_shares_ownership.sql` | Tightens `score_shares` insert policy (cross-tenant fix) |
+| 12 | `00012_outcome_surveys_index.sql` | Index on `outcome_surveys.assessment_id` |
+| 13 | `00013_advisor_usage.sql` | Server-authoritative daily AI advisor message quota |
+| 14 | `00014_share_revocation.sql` | Revocable score-share links |
+| 15 | `00015_webhook_events.sql` | Stripe webhook idempotency ledger |
+| 16 | `00016_email_unsubscribes.sql` | CAN-SPAM / RFC 8058 opt-out ledger |
+| 17 | `00017_bank_sync.sql` | Plaid bank-sync foundation (`plaid_items`, `plaid_accounts`) |
+| 18a | `00018_goals.sql` | User savings goals |
+| 18b | `00018_profile_field_locks.sql` | Privilege-escalation lock on `profiles` + outcome ownership |
+| 19 | `00019_profile_email_prefs.sql` | Lifecycle email state + reminder preferences |
+| 20a | `00020_profiles_column_grants.sql` | Column-level grants on `profiles` self-service updates |
+| 20b | `00020_profiles_privilege_guard.sql` | `BEFORE UPDATE` trigger blocking role/tier self-escalation |
+| 21 | `00021_readiness_calibration.sql` | Anonymized network calibration RPC |
+| 22 | `00022_outcome_surveys_ownership.sql` | Cross-tenant fix on `outcome_surveys` |
+| 23 | `00023_user_finance_state.sql` | Manual Finance dashboard state |
+| 24a | `00024_plaid_transactions.sql` | Full Plaid transaction persistence |
+| 24b | `00024_push_and_survey_notifications.sql` | Web Push subscriptions + survey nudge prefs |
+| 25 | `00025_profiles_delete_own.sql` | Self-service account erasure path |
+| 26 | `00026_attribution.sql` | First-touch acquisition attribution + `partner_codes` |
+| 27 | `00027_email_sends.sql` | Lifecycle email idempotency ledger |
+| 28 | `00028_shadow_shares.sql` | Anonymous Shadow Score share cards |
+| 29 | `00029_receipts.sql` | Partner-side receipt verification (B2B v1) |
+| 30 | `00030_advisor_monthly_quota.sql` | Monthly ceiling for Companion usage |
+| 31 | `00031_partner_stats.sql` | Partner-scoped, anonymized portal stats |
+| 32 | `00032_dashboard_ecosystem.sql` | Employer/org pointers, genome hardening, payments, partner read policies |
+
+**Total:** 34 SQL files covering migrations `00001`–`00032` (three shared prefixes).
+
+### Tier 2 verification checklist
+
+```bash
+cp .env.example .env.local          # Tier 1 values from ci.yml
+npm run verify-supabase             # anon client smoke test (no service role)
+# Tier 2 — owner-provided secret:
+#   SUPABASE_SERVICE_ROLE_KEY=...   # Dashboard → Settings → API
+npm run create-admin                # optional admin bootstrap
+```
+
+Auth redirect (live E2E): Supabase Dashboard → **Auth → URL Configuration** →
+allow `http://localhost:3000/**`. See `e2e/README.md` for the full env map.
 
 ## Applying migrations
 
