@@ -22,7 +22,22 @@ import { expect, type Page } from "@playwright/test";
 export const VERDICT_BADGE = /READY|ALMOST THERE|BUILD FIRST|NOT YET/;
 
 const STEP_COUNTER = /^Step \d+ of \d+$/;
-const MAX_STEPS = 60; // flow is ~49 steps; headroom, never an infinite loop
+const MAX_STEPS = 60; // flow is ~52 steps today; headroom, never an infinite loop
+const STEP_ANIM_MS = 450; // StepShell step-enter-anim duration (420ms) + buffer
+
+async function setReactNumberInput(page: Page): Promise<void> {
+  await page.locator('input[type="number"]').first().evaluate((el) => {
+    const input = el as HTMLInputElement;
+    const setter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      "value",
+    )?.set;
+    if (setter) setter.call(input, "5000");
+    else input.value = "5000";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+}
 
 export async function completeFullAssessment(page: Page): Promise<void> {
   await page.goto("/assessment");
@@ -44,40 +59,33 @@ export async function completeFullAssessment(page: Page): Promise<void> {
 
     const slider = page.locator('input[type="range"]').first();
     const number = page.locator('input[type="number"]').first();
-    const choiceCard = page.locator('button[aria-pressed="false"]:not([disabled])').first();
+    // Question choice cards only — exclude decision-picker cards (disabled when inactive).
+    const choiceCard = page
+      .locator('button[aria-pressed="false"]:not([disabled])')
+      .filter({ hasNot: page.locator("text=Coming soon") })
+      .first();
 
     if (await slider.count()) {
-      // Clicking sets a value at the click point; ArrowRight guarantees a
-      // change event even if the click landed on the current position.
       await slider.click();
       await slider.press("ArrowRight");
     } else if (await number.count()) {
-      // Framer-motion remounts fields; use the native value setter so React
-      // controlled inputs pick up the change and enable Continue.
-      await page.locator('input[type="number"]').first().evaluate((el) => {
-        const input = el as HTMLInputElement;
-        const setter = Object.getOwnPropertyDescriptor(
-          window.HTMLInputElement.prototype,
-          "value",
-        )?.set;
-        if (setter) setter.call(input, "5000");
-        else input.value = "5000";
-        input.dispatchEvent(new Event("input", { bubbles: true }));
-        input.dispatchEvent(new Event("change", { bubbles: true }));
-      });
+      await setReactNumberInput(page);
     } else if (await choiceCard.count()) {
       await choiceCard.click();
     }
-    // Pillar intros and the decision picker have nothing to fill — just continue.
 
     const action = page.getByRole("button", { name: /^(Continue|Skip)$/ });
     await expect(action).toBeEnabled({ timeout: 15_000 });
-    await action.click();
+    // Let step-enter CSS animation finish so onNext isn't dropped mid-transition.
+    await page.waitForTimeout(STEP_ANIM_MS);
 
-    // Every transition advances the "Step N of M" counter — wait for it.
-    if (before) {
-      await expect(counter).not.toHaveText(before);
-    }
+    // Retry Continue once if the step counter doesn't advance (i18n/motion flake).
+    await expect(async () => {
+      if (await reviewHeading.isVisible()) return;
+      await action.click();
+      if (!before) return;
+      await expect(counter).not.toHaveText(before, { timeout: 5_000 });
+    }).toPass({ timeout: 25_000 });
   }
 
   await expect(reviewHeading).toBeVisible();
