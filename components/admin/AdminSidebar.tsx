@@ -19,6 +19,11 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
         icon: <path d="M3 10l7-6 7 6M5 9v7a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9" />,
       },
       {
+        href: "/admin/analytics",
+        label: "Analytics",
+        icon: <path d="M3 16.5v-5M8 16.5V8M13 16.5v-3M18 16.5V4" />,
+      },
+      {
         href: "/admin/users",
         label: "Users",
         icon: (

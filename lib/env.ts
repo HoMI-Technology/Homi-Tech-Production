@@ -45,6 +45,20 @@ export const env = {
     return process.env.ANTHROPIC_API_KEY;
   },
 
+  // --- PostHog (optional; capture + owner dashboard query API) ---
+  get NEXT_PUBLIC_POSTHOG_KEY(): string | undefined {
+    return process.env.NEXT_PUBLIC_POSTHOG_KEY;
+  },
+  get NEXT_PUBLIC_POSTHOG_HOST(): string | undefined {
+    return process.env.NEXT_PUBLIC_POSTHOG_HOST;
+  },
+  get POSTHOG_PERSONAL_API_KEY(): string | undefined {
+    return process.env.POSTHOG_PERSONAL_API_KEY;
+  },
+  get POSTHOG_PROJECT_ID(): string | undefined {
+    return process.env.POSTHOG_PROJECT_ID;
+  },
+
   // --- Stripe (optional) ---
   get STRIPE_SECRET_KEY(): string | undefined {
     return process.env.STRIPE_SECRET_KEY;
@@ -71,4 +85,18 @@ export function hasAnthropic(): boolean {
 /** True when Stripe secret key is configured (checkout/webhooks can run). */
 export function hasStripe(): boolean {
   return Boolean(process.env.STRIPE_SECRET_KEY);
+}
+
+/** True when PostHog capture is configured (snippet + server capture run). */
+export function hasPostHog(): boolean {
+  return Boolean(process.env.NEXT_PUBLIC_POSTHOG_KEY);
+}
+
+/**
+ * True when the owner analytics dashboard can query PostHog: capture key
+ * present (so events flow in) plus a personal API key (so HogQL query API
+ * calls authenticate). The project id is auto-detected when unset.
+ */
+export function hasPostHogAnalytics(): boolean {
+  return Boolean(process.env.NEXT_PUBLIC_POSTHOG_KEY && process.env.POSTHOG_PERSONAL_API_KEY);
 }

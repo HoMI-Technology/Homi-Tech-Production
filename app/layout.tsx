@@ -7,6 +7,7 @@ import { CONSENT_BOOT_SCRIPT } from "@/components/consent/consent-shared";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 import { AppleSplashLinks } from "@/components/pwa/AppleSplashLinks";
 import { AnalyticsScripts } from "@/components/analytics/AnalyticsScripts";
+import { PageViewBeacon } from "@/components/analytics/PageViewBeacon";
 import { AttributionCapture } from "@/components/analytics/AttributionCapture";
 import { SITE_URL } from "@/lib/seo/site";
 
@@ -104,6 +105,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <CookieConsent />
         <AnalyticsScripts />
+        <PageViewBeacon />
         <ServiceWorkerRegister />
         <AttributionCapture />
         {/* Field Core Web Vitals (LCP/CLS/INP from real users). Vercel-only:
