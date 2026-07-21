@@ -50,7 +50,11 @@ export const env = {
     return process.env.NEXT_PUBLIC_POSTHOG_KEY;
   },
   get NEXT_PUBLIC_POSTHOG_HOST(): string | undefined {
-    return process.env.NEXT_PUBLIC_POSTHOG_HOST;
+    const raw = process.env.NEXT_PUBLIC_POSTHOG_HOST;
+    if (!raw?.trim()) return undefined;
+    // Strip pasted inline comments (e.g. "https://… # Or https://eu…").
+    const cleaned = raw.split("#", 1)[0]?.trim();
+    return cleaned || undefined;
   },
   get POSTHOG_PERSONAL_API_KEY(): string | undefined {
     return process.env.POSTHOG_PERSONAL_API_KEY;

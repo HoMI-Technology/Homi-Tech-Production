@@ -1,4 +1,5 @@
 import Script from "next/script";
+import { sanitizePosthogHost } from "@/lib/analytics/posthog-host";
 
 /**
  * Loads the PostHog snippet ONLY when NEXT_PUBLIC_POSTHOG_KEY is set, so the
@@ -15,7 +16,7 @@ import Script from "next/script";
  */
 export function AnalyticsScripts() {
   const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-  const host = process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com";
+  const host = sanitizePosthogHost(process.env.NEXT_PUBLIC_POSTHOG_HOST);
   if (!key) return null;
 
   return (

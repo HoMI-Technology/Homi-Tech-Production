@@ -1,4 +1,5 @@
 import { unstable_cache } from "next/cache";
+import { sanitizePosthogHost } from "@/lib/analytics/posthog-host";
 import { env } from "@/lib/env";
 
 /**
@@ -77,7 +78,7 @@ interface HogQLResponse {
 }
 
 function posthogHost(): string {
-  return (env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com").replace(/\/+$/, "");
+  return sanitizePosthogHost(env.NEXT_PUBLIC_POSTHOG_HOST);
 }
 
 /**
