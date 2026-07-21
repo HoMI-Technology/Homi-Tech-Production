@@ -1,105 +1,116 @@
-import Link from "next/link";
-import { SectionHeader } from "@/components/ui/SectionHeader";
+"use client";
+
+import { useMemo } from "react";
 import { VERDICT_META, type VerdictKey } from "@/lib/brand";
 import type { AssessmentRow, DailyCheckin, JournalEntry } from "@/types/database";
 
-type TimelineEvent = {
+interface TimelineEvent {
   id: string;
   type: "assessment" | "journal" | "checkin";
   date: string;
   title: string;
   subtitle?: string;
   color: string;
-};
+}
+
+interface DecisionTimelineProps {
+  assessments: AssessmentRow[];
+  checkins: DailyCheckin[];
+  journalEntries: JournalEntry[];
+  maxItems?: number;
+}
 
 export function DecisionTimeline({
   assessments,
   checkins,
   journalEntries,
-  maxItems = 12,
-}: {
-  assessments: AssessmentRow[];
-  checkins: DailyCheckin[];
-  journalEntries: Pick<JournalEntry, "id" | "title" | "context" | "created_at" | "decision_date">[];
-  maxItems?: number;
-}) {
-  const events: TimelineEvent[] = [
-    ...assessments.map((a): TimelineEvent => {
-      const verdict = a.verdict as VerdictKey | null;
-      const meta = verdict ? VERDICT_META[verdict] : null;
-      return {
-        id: `a-${a.id}`,
-        type: "assessment",
-        date: a.completed_at ?? a.created_at,
-        title: meta ? `Assessment · ${meta.label}` : "Assessment completed",
-        subtitle:
-          a.overall_score != null ? `Score ${Math.round(a.overall_score)}` : a.decision_type,
-        color: meta?.color ?? "#22d3ee",
-      };
-    }),
-    ...journalEntries.map(
-      (j): TimelineEvent => ({
+  maxItems = 15,
+}: DecisionTimelineProps) {
+  const events = useMemo<TimelineEvent[]>(() => {
+    const mapped: TimelineEvent[] = [
+      ...assessments.slice(0, maxItems).map((a): TimelineEvent => {
+        const verdict = a.verdict as VerdictKey | null;
+        const meta = verdict ? VERDICT_META[verdict] : null;
+        return {
+          id: `a-${a.id}`,
+          type: "assessment",
+          date: a.completed_at ?? a.created_at,
+          title: meta?.label ?? "Assessment",
+          subtitle: a.overall_score !== null ? `Score: ${Math.round(a.overall_score)}` : undefined,
+          color: meta?.color ?? "#22d3ee",
+        };
+      }),
+      ...journalEntries.slice(0, maxItems).map((j): TimelineEvent => ({
         id: `j-${j.id}`,
         type: "journal",
-        date: j.decision_date ?? j.created_at,
-        title: j.title || "Journal entry",
+        date: j.created_at,
+        title: j.title,
         subtitle: j.context ?? undefined,
         color: "#34d399",
-      }),
-    ),
-    ...checkins.map(
-      (c): TimelineEvent => ({
+      })),
+      ...checkins.slice(0, maxItems).map((c): TimelineEvent => ({
         id: `c-${c.id}`,
         type: "checkin",
         date: c.created_at,
-        title: "Daily check-in",
-        subtitle: `Mood ${c.mood}/10`,
+        title: "Daily Check-in",
+        subtitle: `Mood: ${c.mood}/10`,
         color: "#facc15",
-      }),
-    ),
-  ]
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, maxItems);
+      })),
+    ];
 
-  if (events.length === 0) return null;
+    mapped.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return mapped.slice(0, maxItems);
+  }, [assessments, checkins, journalEntries, maxItems]);
+
+  if (events.length === 0) {
+    return (
+      <div className="glass p-6">
+        <p className="eyebrow">Timeline</p>
+        <h3 className="mt-2 font-display text-xl text-light">Your decision history</h3>
+        <p className="mt-3 text-sm text-dim">
+          Your assessments, journal entries, and check-ins will appear here.
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="glass p-8">
-      <SectionHeader
-        eyebrow="History"
-        title="Decision timeline"
-        subtitle="Assessments, journal entries, and check-ins."
-        action={
-          <Link href="/journal" className="btn btn-ghost !px-4 !py-2 text-sm">
-            Open journal
-          </Link>
-        }
-      />
-      <ol className="relative mt-6 space-y-4 border-l border-slate-surface/80 pl-5">
-        {events.map((event) => (
-          <li key={event.id} className="relative">
-            <span
-              aria-hidden
-              className="absolute -left-[1.4rem] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-navy"
-              style={{
-                background: event.color,
-                boxShadow: `0 0 8px ${event.color}66`,
-              }}
-            />
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <p className="text-sm font-medium text-light">{event.title}</p>
-              <time className="text-xs text-dim" dateTime={event.date}>
-                {new Date(event.date).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </time>
+    <div className="glass p-6">
+      <p className="eyebrow">Timeline</p>
+      <h3 className="mt-2 font-display text-xl text-light">Your decision history</h3>
+
+      <div className="mt-5 relative">
+        <div
+          className="absolute left-[7px] top-2 bottom-2 w-px"
+          style={{ background: "linear-gradient(to bottom, rgba(148,163,184,0.3), transparent)" }}
+        />
+
+        <div className="space-y-4">
+          {events.map((event) => (
+            <div key={event.id} className="flex items-start gap-4">
+              <div
+                className="relative z-10 mt-1.5 h-[15px] w-[15px] shrink-0 rounded-full border-2"
+                style={{
+                  background: event.color + "22",
+                  borderColor: event.color,
+                  boxShadow: `0 0 8px ${event.color}33`,
+                }}
+              />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-medium text-light">{event.title}</span>
+                  <span className="text-xs text-dim/60">
+                    {new Date(event.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  </span>
+                </div>
+                {event.subtitle && (
+                  <p className="mt-0.5 text-xs text-dim truncate">{event.subtitle}</p>
+                )}
+              </div>
             </div>
-            {event.subtitle && <p className="mt-0.5 text-xs text-dim">{event.subtitle}</p>}
-          </li>
-        ))}
-      </ol>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
