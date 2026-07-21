@@ -52,8 +52,14 @@ export async function completeFullAssessment(page: Page): Promise<void> {
       await slider.click();
       await slider.press("ArrowRight");
     } else if (await number.count()) {
-      // Any positive number satisfies validation; scoring clamps to its ranges.
-      await number.fill("5000");
+      // Framer-motion page transitions remount fields; set value via DOM to
+      // avoid Playwright stability/detach flakes on CI.
+      await page.locator('input[type="number"]').first().evaluate((el) => {
+        const input = el as HTMLInputElement;
+        input.value = "5000";
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      });
     } else if (await choiceCard.count()) {
       await choiceCard.click();
     }
