@@ -224,6 +224,21 @@ export function waitlistConfirmation(): { subject: string; html: string } {
   return { subject: "You're on the HōMI waitlist", html: layout(body) };
 }
 
+/**
+ * Broadcast campaign wrapper (admin composer). The body HTML is admin-authored
+ * in /admin/email and trusted as-is; this reuses the shared shell and appends
+ * the CAN-SPAM unsubscribe footer so every broadcast carries a working opt-out.
+ */
+export function campaignEmail(bodyHtml: string, unsubscribeHref: string): { html: string } {
+  const body = `${bodyHtml}
+    <p style="margin:32px 0 0 0;color:#94a3b8;font-size:12px;line-height:1.6;">
+      You're receiving this because you signed up for HōMI updates.
+      <a href="${unsubscribeHref}" style="color:#94a3b8;text-decoration:underline;">Unsubscribe</a>
+    </p>
+  `;
+  return { html: layout(body) };
+}
+
 // ── Lifecycle templates (ported from the recovered Email OS, on-brand) ───────
 // Typed params rather than {{merge_tags}} to match the existing convention.
 

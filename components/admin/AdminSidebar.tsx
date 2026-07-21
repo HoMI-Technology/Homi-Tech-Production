@@ -69,6 +69,17 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
         ),
       },
       {
+        href: "/admin/email",
+        label: "Email",
+        icon: (
+          <>
+            <rect x="3" y="5" width="14" height="11" rx="1.5" />
+            <path d="M4 7l6 4.5L16 7" />
+            <path d="M7 18h6" />
+          </>
+        ),
+      },
+      {
         href: "/admin/organizations",
         label: "Organizations",
         icon: (
