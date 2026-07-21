@@ -115,4 +115,15 @@ so you should not need to install them manually.
   `lib/validation/assessment.ts`) run fully on placeholder env. This is the
   fastest way to smoke-test that the app works end-to-end.
 - **Playwright E2E** (`npm run test:e2e`) additionally requires
-  `npx playwright install chromium` (browsers are not part of `npm ci`).
+  `npx playwright install chromium` (browsers are not part of `npm ci`). It
+  reuses an already-running dev server on `:3000`; the 4 "live" specs self-skip
+  without real Supabase/Stripe secrets, leaving 6 always-on specs (incl. the
+  full assessment→verdict flow) as the gate.
+- **Lighthouse** (`npm run lighthouse`) collects against a **production** server
+  (`npm run start`). `next dev` overwrites `.next` with a dev build, so re-run
+  `npm run build` before `npm run start`/lighthouse or `next start` errors with
+  "Could not find a production build". In this container Chrome needs
+  `--no-sandbox`, e.g.
+  `CHROME_PATH=/usr/local/bin/google-chrome npx lhci autorun --collect.settings.chromeFlags="--no-sandbox --disable-dev-shm-usage --disable-gpu" --upload.target=filesystem`.
+  Perf/LCP budget assertions can marginally fail on the throttled Cloud VM CPU
+  (not a code defect); a11y/SEO/best-practices pass.
