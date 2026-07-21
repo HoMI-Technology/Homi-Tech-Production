@@ -18,7 +18,10 @@ test.describe("assessment → verdict (anonymous)", () => {
 
     await expect(page).toHaveURL(/\/results$/);
     await expect(page.getByText("HōMI-Score out of 100")).toBeVisible();
-    await expect(page.getByText(VERDICT_BADGE).first()).toBeVisible();
+    // ClientProviders AnimatePresence + results hydration — badge follows score.
+    await expect(
+      page.locator('[class*="bg-verdict-"]').or(page.getByText(VERDICT_BADGE)).first(),
+    ).toBeVisible({ timeout: 30_000 });
 
     // The persisted result carries one of the four canonical verdict keys.
     // (We assert the enum, not thresholds — lib/scoring canon owns those.)

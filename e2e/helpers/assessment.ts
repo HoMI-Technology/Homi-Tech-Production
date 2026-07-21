@@ -52,14 +52,27 @@ export async function completeFullAssessment(page: Page): Promise<void> {
       await slider.click();
       await slider.press("ArrowRight");
     } else if (await number.count()) {
-      // Any positive number satisfies validation; scoring clamps to its ranges.
-      await number.fill("5000");
+      // Framer-motion remounts fields; use the native value setter so React
+      // controlled inputs pick up the change and enable Continue.
+      await page.locator('input[type="number"]').first().evaluate((el) => {
+        const input = el as HTMLInputElement;
+        const setter = Object.getOwnPropertyDescriptor(
+          window.HTMLInputElement.prototype,
+          "value",
+        )?.set;
+        if (setter) setter.call(input, "5000");
+        else input.value = "5000";
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      });
     } else if (await choiceCard.count()) {
       await choiceCard.click();
     }
     // Pillar intros and the decision picker have nothing to fill — just continue.
 
-    await page.getByRole("button", { name: /^(Continue|Skip)$/ }).click();
+    const action = page.getByRole("button", { name: /^(Continue|Skip)$/ });
+    await expect(action).toBeEnabled({ timeout: 15_000 });
+    await action.click();
 
     // Every transition advances the "Step N of M" counter — wait for it.
     if (before) {
