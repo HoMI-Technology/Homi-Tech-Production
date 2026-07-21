@@ -1,4 +1,6 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
+import { dismissCookieConsent } from "./consent";
+import { englishLocaleCookie, pinEnglishLocalePage } from "./locale";
 
 /**
  * Drives the real full-assessment flow (/assessment → /results) the way a
@@ -25,17 +27,27 @@ const STEP_COUNTER = /^Step \d+ of \d+$/;
 const MAX_STEPS = 60; // flow is ~52 steps today; headroom, never an infinite loop
 const STEP_ANIM_MS = 450; // StepShell step-enter-anim duration (420ms) + buffer
 
-async function setReactNumberInput(page: Page): Promise<void> {
-  const field = page.getByRole("spinbutton").first();
-  await field.click();
-  await field.fill("5000");
+/**
+ * Set a number field via the native value setter so framer-motion /
+ * step-shell remounts cannot detach the node mid-click/fill.
+ */
+async function setReactNumberInput(assessmentPane: Locator): Promise<void> {
+  const field = assessmentPane.getByRole("spinbutton").first();
+  await expect(field).toBeVisible({ timeout: 15_000 });
+  await field.evaluate((el) => {
+    const input = el as HTMLInputElement;
+    const proto = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      "value",
+    );
+    proto?.set?.call(input, "5000");
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  });
 }
 
 export async function completeFullAssessment(page: Page): Promise<void> {
-  // Pin English so review-step copy matches (PR #70 adds /es routing).
-  await page.context().addCookies([
-    { name: "NEXT_LOCALE", value: "en", domain: "localhost", path: "/" },
-  ]);
+  await pinEnglishLocalePage(page);
 
   // Clear drafts before the app reads them on mount.
   await page.addInitScript(() => {
@@ -44,41 +56,49 @@ export async function completeFullAssessment(page: Page): Promise<void> {
   });
 
   await page.goto("/assessment");
+  if (page.url().includes("/es/")) {
+    await page.context().addCookies([englishLocaleCookie()]);
+    await page.reload();
+  }
+  await dismissCookieConsent(page);
 
-  const acceptCookies = page.getByRole("button", { name: "Accept" });
-  if (await acceptCookies.isVisible().catch(() => false)) {
-    await acceptCookies.click();
+  // Both ClientProviders and the product layout render id="main"; the inner one
+  // holds the assessment flow. .last() avoids the header locale switcher.
+  const assessmentPane = page.locator("main#main").last();
+
+  await expect(assessmentPane.getByText(STEP_COUNTER)).toBeVisible({ timeout: 30_000 });
+
+  const resumeBanner = page.getByText("Resume where you left off");
+  if (await resumeBanner.isVisible().catch(() => false)) {
+    await assessmentPane.getByRole("button", { name: "Start over" }).click();
+    await expect(resumeBanner).toBeHidden({ timeout: 10_000 });
+    await expect(assessmentPane.getByText("Step 1 of")).toBeVisible({ timeout: 10_000 });
   }
 
-  const startOver = page.getByRole("button", { name: "Start over" });
-  if (await startOver.isVisible().catch(() => false)) {
-    await startOver.click();
-  }
-
-  const counter = page.getByText(STEP_COUNTER);
-  const reviewHeading = page.getByRole("heading", { name: "Review your answers" });
+  const counter = assessmentPane.getByText(STEP_COUNTER);
+  const reviewHeading = assessmentPane.getByRole("heading", { name: "Review your answers" });
 
   for (let step = 0; step < MAX_STEPS; step += 1) {
     if (await reviewHeading.isVisible()) break;
 
     const before = (await counter.textContent()) ?? "";
 
-    const slider = page.locator('input[type="range"]').first();
-    const number = page.getByRole("spinbutton").first();
-    const choiceCard = page
-      .locator('main button[aria-pressed="false"]:not([disabled])')
+    const slider = assessmentPane.locator('input[type="range"]').first();
+    const number = assessmentPane.getByRole("spinbutton").first();
+    const choiceCard = assessmentPane
+      .locator('button[aria-pressed="false"]:not([disabled])')
       .first();
 
     if (await slider.count()) {
       await slider.click();
       await slider.press("ArrowRight");
     } else if (await number.count()) {
-      await setReactNumberInput(page);
+      await setReactNumberInput(assessmentPane);
     } else if (await choiceCard.count()) {
       await choiceCard.click();
     }
 
-    const action = page.getByRole("button", { name: /^(Continue|Skip)$/ });
+    const action = assessmentPane.getByRole("button", { name: /^(Continue|Skip)$/ });
     await expect(action).toBeEnabled({ timeout: 15_000 });
     // Let step-enter CSS animation finish so onNext isn't dropped mid-transition.
     await page.waitForTimeout(STEP_ANIM_MS);
@@ -93,6 +113,6 @@ export async function completeFullAssessment(page: Page): Promise<void> {
   }
 
   await expect(reviewHeading).toBeVisible();
-  await page.getByRole("button", { name: "See my HōMI-Score" }).click();
+  await assessmentPane.getByRole("button", { name: "See my HōMI-Score" }).click();
   await page.waitForURL("**/results");
 }

@@ -1,4 +1,5 @@
 import { expect, type Page } from "@playwright/test";
+import { pinEnglishLocalePage } from "./locale";
 
 /**
  * Signs in through the real UI (/auth/sign-in) and waits until the app has
@@ -6,6 +7,7 @@ import { expect, type Page } from "@playwright/test";
  * fresh sign-in to /dashboard (lib/auth/safeNext fallback).
  */
 export async function signInViaUi(page: Page, email: string, password: string): Promise<void> {
+  await pinEnglishLocalePage(page);
   await page.goto("/auth/sign-in");
   await page.locator("#email").fill(email);
   await page.locator("#password").fill(password);

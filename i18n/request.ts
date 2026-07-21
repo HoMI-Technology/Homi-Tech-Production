@@ -1,6 +1,16 @@
 import { hasLocale } from "next-intl";
 import { getRequestConfig } from "next-intl/server";
 import { routing } from "./routing";
+import en from "../messages/en.json";
+import es from "../messages/es.json";
+
+/**
+ * Static catalogs avoid webpack dynamic-JSON races under concurrent
+ * `next dev` compilation (Playwright CI was seeing intermittent
+ * `JSON.parse` failures on `/[locale]/*` when messages were
+ * `await import(\`../messages/${locale}.json\`)`).
+ */
+const catalogs = { en, es } as const;
 
 /**
  * Per-request next-intl config: resolves the negotiated locale and loads
@@ -15,6 +25,6 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   return {
     locale,
-    messages: (await import(`../messages/${locale}.json`)).default,
+    messages: catalogs[locale as keyof typeof catalogs] ?? catalogs.en,
   };
 });

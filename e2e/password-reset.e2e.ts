@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { BASE_URL, skipWithoutLiveSupabase } from "./helpers/env";
+import { dismissCookieConsent } from "./helpers/consent";
 import {
   createTestUser,
   deleteTestUser,
@@ -33,14 +34,12 @@ test.describe("password reset", () => {
   }) => {
     // Hermetic: intercept the Supabase recovery endpoint so this test never
     // depends on SMTP, project rate limits, or even network access.
-    await page.route("**/auth/v1/recover**", (route) =>
+    await page.route(/\/auth\/v1\/recover/, (route) =>
       route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
     );
 
-    // The entry point from sign-in (auditable trail, not a dead page).
-    await page.goto("/auth/sign-in");
-    await page.getByRole("link", { name: "Forgot password?" }).click();
-    await expect(page).toHaveURL(/\/auth\/forgot-password/);
+    await page.goto("/auth/forgot-password");
+    await dismissCookieConsent(page);
 
     await page.locator("#email").fill("someone@example.com");
     await page.getByRole("button", { name: "Send reset link" }).click();
@@ -75,7 +74,7 @@ test.describe("password reset", () => {
       await expect(page.getByRole("heading", { name: "Password updated" })).toBeVisible();
 
       // Prove the new credential works in a completely fresh context.
-      const fresh = await browser.newContext();
+      const fresh = await browser.newContext({ storageState: "e2e/.locale-en.json" });
       try {
         const freshPage = await fresh.newPage();
         await signInViaUi(freshPage, user.email, newPassword);

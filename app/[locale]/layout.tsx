@@ -15,6 +15,9 @@ import { PageViewBeacon } from "@/components/analytics/PageViewBeacon";
 import { AttributionCapture } from "@/components/analytics/AttributionCapture";
 import { SITE_URL } from "@/lib/seo/site";
 
+import { ClientProviders } from "@/components/layout/ClientProviders";
+import { UXErrorBoundary } from "@/components/layout/ErrorBoundary";
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -49,16 +52,11 @@ export const metadata: Metadata = {
     images: [{ url: "/og-v2.png", alt: "The HōMI Threshold Compass above the HōMI wordmark — Decision Readiness Intelligence™. Know When You're Ready." }],
   },
   icons: {
-    // Browser tab / address bar: the scalable SVG is the compass mark alone —
-    // at 16-32px the wordmark is illegible, so the compass carries the ID here.
-    // The -v2 filenames are cache-busting: renaming to fresh URLs forces
-    // browsers holding a stale favicon/touch-icon to refetch the new art.
     icon: [
       { url: "/icon-v2.svg", type: "image/svg+xml" },
       { url: "/icon-192-v2.png", sizes: "192x192", type: "image/png" },
       { url: "/icon-512-v2.png", sizes: "512x512", type: "image/png" },
     ],
-    // iOS "Add to Home Screen" / web app: the full compass + HōMI lockup.
     apple: [
       { url: "/apple-touch-icon-v2.png", sizes: "180x180", type: "image/png" },
       { url: "/icon-512-v2.png", sizes: "512x512", type: "image/png" },
@@ -67,9 +65,6 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "HōMI",
-    // "black" (opaque) rather than "black-translucent": translucent makes
-    // standalone content flow under the iOS status bar, and the layout has
-    // no safe-area-inset padding to compensate.
     statusBarStyle: "black",
   },
 };
@@ -101,23 +96,15 @@ export default async function RootLayout({
   setRequestLocale(locale);
 
   return (
-    // suppressHydrationWarning: the CONSENT_BOOT_SCRIPT below sets data-homi-consent[-hold]
-    // on <html> before hydration, so the client <html>/<body> attributes intentionally
-    // differ from the server markup. This is the sanctioned guard for that pattern (React
-    // owns <html>/<body> in the App Router) — it does not suppress warnings on children.
     <html
       lang={locale}
       suppressHydrationWarning
       className={`${inter.variable} ${fraunces.variable} ${jetbrainsMono.variable}`}
     >
       <head>
-        {/* iOS PWA launch images (portrait, modern iPhones). Hoisted to head. */}
         <AppleSplashLinks />
       </head>
       <body suppressHydrationWarning className="field grain min-h-screen">
-        {/* Pre-paint consent gate — see consent-shared.ts. Must precede the
-            server-rendered CookieConsent bar so consented visitors never see
-            a flash of it. */}
         <script dangerouslySetInnerHTML={{ __html: CONSENT_BOOT_SCRIPT }} />
         <a
           href="#main"
@@ -128,17 +115,15 @@ export default async function RootLayout({
         {/* Messages come from i18n/request.ts via the Next.js plugin — every
             client component under this layout can use useTranslations. */}
         <NextIntlClientProvider locale={locale}>
-          {children}
+          <UXErrorBoundary name="client-providers" fallback={<main id="main">{children}</main>}>
+            <ClientProviders>{children}</ClientProviders>
+          </UXErrorBoundary>
         </NextIntlClientProvider>
         <CookieConsent />
         <AnalyticsScripts />
         <PageViewBeacon />
         <ServiceWorkerRegister />
         <AttributionCapture />
-        {/* Field Core Web Vitals (LCP/CLS/INP from real users). Vercel-only:
-            on localhost/CI the injected script would 404 and pollute
-            Lighthouse's console-error audit. Needs Speed Insights enabled on
-            the Vercel project — see DEPLOY.md. */}
         {process.env.VERCEL === "1" && <SpeedInsights />}
       </body>
     </html>
