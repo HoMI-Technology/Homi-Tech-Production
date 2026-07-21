@@ -4,7 +4,7 @@
  */
 
 export const BRAND = {
-  name: "HōMI", // never render this raw — use <Wordmark /> ; string form is "HōMI"
+  name: "HōMI",
   display: "HōMI",
   legalEntity: "HOMI TECHNOLOGIES LLC",
   domain: "homitechnology.com",
@@ -62,7 +62,7 @@ export const VERDICT_META: Record<
     line: "Build First is not failure. It is the map.",
   },
   NOT_YET: {
-    label: "NOT YET",
+    label: "DO NOT PROCEED",
     color: COLORS.crimson,
     temperature: "Hot",
     className: "verdict-notyet",
