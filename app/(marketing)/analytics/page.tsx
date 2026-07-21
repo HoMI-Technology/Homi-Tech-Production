@@ -138,7 +138,7 @@ export default async function MarketingAnalyticsPage() {
           <StatTile
             label="Conversion"
             value={funnel.visit > 0 ? `${Math.round((funnel.complete / funnel.visit) * 100)}%` : "—"}
-            accent="#fb923c"
+            accent="#fab633"
             footer="Visit to complete"
           />
         </div>
