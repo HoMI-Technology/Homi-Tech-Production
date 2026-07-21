@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
+import { ScrollProgress } from "./ScrollProgress";
+import { WelcomeBanner } from "./WelcomeBanner";
+import { KeyboardShortcutsProvider } from "./KeyboardShortcutsProvider";
 
 const spring = {
   type: "spring" as const,
@@ -25,31 +28,32 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
     setMounted(true);
   }, []);
 
+  // SSR: render static children only (no animations, no localStorage, no window)
+  if (!mounted) {
+    return <main id="main">{children}</main>;
+  }
+
+  // Client: full UX layer active
   return (
     <>
-      {/* ScrollProgress and KeyboardShortcutsProvider mount safely — they check useReducedMotion */}
-      {/* They are imported here to keep them in the client bundle */}
-      {/* We render them conditionally below */}
+      <ScrollProgress />
+      <KeyboardShortcutsProvider />
 
       <main id="main">
-        {mounted ? (
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={pathname}
-              variants={variants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              transition={spring}
-              style={{ willChange: "transform, opacity" }}
-            >
-              {/* WelcomeBanner is safe here — useEffect controls localStorage access */}
-              {children}
-            </motion.div>
-          </AnimatePresence>
-        ) : (
-          <>{children}</>
-        )}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={pathname}
+            variants={variants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={spring}
+            style={{ willChange: "transform, opacity" }}
+          >
+            <WelcomeBanner />
+            {children}
+          </motion.div>
+        </AnimatePresence>
       </main>
     </>
   );
