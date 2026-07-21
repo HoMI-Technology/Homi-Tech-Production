@@ -17,6 +17,7 @@ next-env.d.ts
 # Playwright E2E local artifacts (reports, traces, failure screenshots)
 test-results/
 playwright-report/
+e2e/.locale-en.json
 
 # Claude Code local state + agent git worktrees (never commit; their __tests__
 # otherwise pollute local `vitest` with phantom duplicate-file failures)
