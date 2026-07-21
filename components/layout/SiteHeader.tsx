@@ -1,27 +1,30 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import { HeaderShell, isActivePath } from "@/components/layout/HeaderShell";
 import { NotificationBell } from "@/components/layout/NotificationBell";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 
 const NAV = [
-  { href: "/how-it-works", label: "How It Works" },
-  { href: "/assessment", label: "Assessment" },
-  { href: "/tools", label: "Tools" },
-  { href: "/guides", label: "Guides" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/b2b", label: "For Teams" },
-];
+  { href: "/how-it-works", key: "howItWorks" },
+  { href: "/assessment", key: "assessment" },
+  { href: "/tools", key: "tools" },
+  { href: "/guides", key: "guides" },
+  { href: "/pricing", key: "pricing" },
+  { href: "/b2b", key: "forTeams" },
+] as const;
 
 /** Marketing header for anonymous visitors. Chrome lives in HeaderShell. */
 export function SiteHeader() {
+  const t = useTranslations("nav");
+  // Locale-aware pathname (no /es prefix) so active-route checks hold in Spanish.
   const pathname = usePathname();
 
   return (
     <HeaderShell
       logoHref="/"
-      logoAriaLabel="HōMI home"
+      logoAriaLabel={t("homeAria")}
       menuId="site-mobile-menu"
       nav={NAV.map((item) => {
         const active = isActivePath(pathname, item.href);
@@ -34,38 +37,42 @@ export function SiteHeader() {
             }`}
             aria-current={active ? "page" : undefined}
           >
-            {item.label}
+            {t(item.key)}
           </Link>
         );
       })}
       right={
         <>
+          <LanguageSwitcher />
           <NotificationBell />
           <Link href="/auth/sign-in" className="text-sm text-dim transition-colors hover:text-light">
-            Sign in
+            {t("signIn")}
           </Link>
           <Link href="/shadow-score" className="btn btn-primary !px-4 !py-2 text-sm">
-            Get your score
+            {t("getYourScore")}
           </Link>
         </>
       }
       menuContent={
         <>
           <div className="flex items-center justify-between px-1 pb-1">
-            <span className="text-xs uppercase tracking-wide text-dim">Menu</span>
+            <span className="text-xs uppercase tracking-wide text-dim">{t("menu")}</span>
             <NotificationBell />
           </div>
           {NAV.map((item) => (
             <Link key={item.href} href={item.href} className="rounded-lg px-3 py-2 text-sm text-light hover:bg-slate-surface">
-              {item.label}
+              {t(item.key)}
             </Link>
           ))}
           <div className="hairline my-2" />
+          <div className="px-1 py-1">
+            <LanguageSwitcher />
+          </div>
           <Link href="/auth/sign-in" className="rounded-lg px-3 py-2 text-sm text-dim">
-            Sign in
+            {t("signIn")}
           </Link>
           <Link href="/shadow-score" className="btn btn-primary mt-1">
-            Get your score
+            {t("getYourScore")}
           </Link>
         </>
       }

@@ -8,9 +8,9 @@ import {
   isProtectedPath,
 } from "@/lib/auth/protected-routes";
 
-const PRODUCT_DIR = join(process.cwd(), "app", "(product)");
+const PRODUCT_DIR = join(process.cwd(), "app", "[locale]", "(product)");
 
-/** Every route-group directory under app/(product). */
+/** Every route-group directory under app/[locale]/(product). */
 function productRouteDirs(): string[] {
   return readdirSync(PRODUCT_DIR, { withFileTypes: true })
     .filter((d) => d.isDirectory())
@@ -28,7 +28,7 @@ describe("route-protection classification", () => {
     const unclassified = productRouteDirs().filter((r) => !classified.has(r));
     expect(
       unclassified,
-      `Unclassified app/(product) routes: ${unclassified.join(", ")}. ` +
+      `Unclassified app/[locale]/(product) routes: ${unclassified.join(", ")}. ` +
         `Add each to PUBLIC_PRODUCT_ROUTES or PROTECTED_PRODUCT_ROUTES in lib/auth/protected-routes.ts.`,
     ).toEqual([]);
   });

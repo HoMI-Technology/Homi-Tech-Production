@@ -136,6 +136,34 @@ export interface WaitlistEntry {
   created_at: string;
 }
 
+/** Broadcast campaigns — migration 00033. */
+export type CampaignAudience = "waitlist" | "free" | "plus" | "pro" | "family" | "all";
+export type CampaignStatus = "draft" | "sending" | "sent";
+export type CampaignSendStatus = "sent" | "failed" | "suppressed";
+
+export interface Campaign {
+  id: string;
+  name: string;
+  subject: string;
+  html_body: string;
+  audience: CampaignAudience;
+  status: CampaignStatus;
+  created_by: string | null;
+  sent_at: string | null;
+  recipient_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CampaignSend {
+  id: string;
+  campaign_id: string;
+  email: string;
+  status: CampaignSendStatus;
+  error: string | null;
+  sent_at: string;
+}
+
 export type CalendarEventKind = "milestone" | "deadline" | "review" | "payment";
 
 export interface CalendarEvent {

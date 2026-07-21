@@ -44,6 +44,10 @@ export default defineConfig({
     : [["list"], ["html", { open: "never" }]],
   use: {
     baseURL,
+    locale: "en-US",
+    extraHTTPHeaders: {
+      "Accept-Language": "en-US",
+    },
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     // Dev mode compiles on demand — first navigation to a route can be slow.

@@ -1,12 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import "./globals.css";
+import "@/app/globals.css";
 import { fraunces, inter, jetbrainsMono } from "@/app/fonts";
+import { notFound } from "next/navigation";
+import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
+import { routing } from "@/i18n/routing";
 import { CookieConsent } from "@/components/consent/CookieConsent";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { CONSENT_BOOT_SCRIPT } from "@/components/consent/consent-shared";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 import { AppleSplashLinks } from "@/components/pwa/AppleSplashLinks";
 import { AnalyticsScripts } from "@/components/analytics/AnalyticsScripts";
+import { PageViewBeacon } from "@/components/analytics/PageViewBeacon";
 import { AttributionCapture } from "@/components/analytics/AttributionCapture";
 import { SITE_URL } from "@/lib/seo/site";
 
@@ -70,10 +75,29 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+/** Pre-render both locales for every static route. */
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
+export default async function RootLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  // Unknown locale prefixes (e.g. /fr/...) fall through to the 404.
+  if (!hasLocale(routing.locales, locale)) {
+    notFound();
+  }
+  // Enables static rendering while keeping per-request translations.
+  setRequestLocale(locale);
+
   return (
     <html
-      lang="en"
+      lang={locale}
       suppressHydrationWarning
       className={`${inter.variable} ${fraunces.variable} ${jetbrainsMono.variable}`}
     >
@@ -88,13 +112,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
-
-        <UXErrorBoundary name="client-providers" fallback={<main id="main">{children}</main>}>
-          <ClientProviders>{children}</ClientProviders>
-        </UXErrorBoundary>
-
+        {/* Messages come from i18n/request.ts via the Next.js plugin — every
+            client component under this layout can use useTranslations. */}
+        <NextIntlClientProvider locale={locale}>
+          <UXErrorBoundary name="client-providers" fallback={<main id="main">{children}</main>}>
+            <ClientProviders>{children}</ClientProviders>
+          </UXErrorBoundary>
+        </NextIntlClientProvider>
         <CookieConsent />
         <AnalyticsScripts />
+        <PageViewBeacon />
         <ServiceWorkerRegister />
         <AttributionCapture />
         {process.env.VERCEL === "1" && <SpeedInsights />}

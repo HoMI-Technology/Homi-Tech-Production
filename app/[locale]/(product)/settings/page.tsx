@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { ProfileSection } from "@/components/settings/ProfileSection";
 import { SubscriptionSection } from "@/components/settings/SubscriptionSection";
 import { NotificationsSection } from "@/components/settings/NotificationsSection";
@@ -13,6 +15,7 @@ import { SharePreviewSection } from "@/components/settings/SharePreviewSection";
 import type { Profile } from "@/types/database";
 
 export default function SettingsPage() {
+  const t = useTranslations("settings");
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [email, setEmail] = useState<string>("");
@@ -49,8 +52,8 @@ export default function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:py-16">
-      <h1 className="font-display text-3xl font-semibold text-light">Settings</h1>
-      <p className="mt-2 text-sm text-dim">Manage your profile, subscription, and privacy.</p>
+      <h1 className="font-display text-3xl font-semibold text-light">{t("title")}</h1>
+      <p className="mt-2 text-sm text-dim">{t("subtitle")}</p>
 
       {loading ? (
         <div className="mt-10 flex flex-col gap-6">
@@ -79,12 +82,20 @@ export default function SettingsPage() {
 
           <section className="glass flex items-center justify-between p-6 sm:p-8">
             <div>
-              <h2 className="font-display text-xl font-semibold text-light">Sign out</h2>
-              <p className="mt-1 text-sm text-dim">End your session on this device.</p>
+              <h2 className="font-display text-xl font-semibold text-light">{t("language.title")}</h2>
+              <p className="mt-1 text-sm text-dim">{t("language.description")}</p>
+            </div>
+            <LanguageSwitcher />
+          </section>
+
+          <section className="glass flex items-center justify-between p-6 sm:p-8">
+            <div>
+              <h2 className="font-display text-xl font-semibold text-light">{t("signOut.title")}</h2>
+              <p className="mt-1 text-sm text-dim">{t("signOut.description")}</p>
             </div>
             <form action="/auth/sign-out" method="POST">
               <button type="submit" className="btn btn-ghost !px-4 !py-2 text-sm">
-                Sign out
+                {t("signOut.button")}
               </button>
             </form>
           </section>

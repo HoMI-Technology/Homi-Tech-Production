@@ -26,6 +26,18 @@ declare global {
   }
 }
 
+/**
+ * Coarse page section for the `page_viewed` occurrence event — first path
+ * segment only, lowercase alphanumeric/dash, max 24 chars. Never includes
+ * dynamic segments (share tokens, ids): occurrence-only, matching the sink's
+ * no-PII contract.
+ */
+export function pageSection(pathname: string): string {
+  const first = (pathname.split("/")[1] ?? "").toLowerCase();
+  const cleaned = first.replace(/[^a-z0-9-]/g, "").slice(0, 24);
+  return cleaned || "home";
+}
+
 export function track(event: string, props?: Record<string, string | number>): void {
   if (typeof window === "undefined") return;
   if (!window.__homiEvents) window.__homiEvents = [];

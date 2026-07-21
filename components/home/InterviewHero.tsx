@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { CinematicCompass, Particles } from "./CinematicCompass";
 import { track } from "@/lib/analytics";
 
@@ -27,27 +28,12 @@ interface Signals {
 
 type Temperature = "COOL" | "WARM" | "WARM_PLUS" | "HOT";
 
-const TEMPERATURE_COPY: Record<Temperature, { label: string; color: string; copy: string }> = {
-  COOL: {
-    label: "Running cool",
-    color: "#34d399",
-    copy: "You're running cool. Steady signals across all three. The full read confirms it in three minutes.",
-  },
-  WARM: {
-    label: "Running warm",
-    color: "#facc15",
-    copy: "You're running warm. Close — one signal needs attention before you leap.",
-  },
-  WARM_PLUS: {
-    label: "Running warm+",
-    color: "#fab633",
-    copy: "You're running warm+. Something needs building first. That's not a wall — it's a map.",
-  },
-  HOT: {
-    label: "Running hot",
-    color: "#f24822",
-    copy: "You're running hot. This is a protection signal — slow down before pressure makes the decision for you.",
-  },
+/** Color stays code (design canon); label/copy come from messages.{en,es}. */
+const TEMPERATURE_META: Record<Temperature, { messageKey: string; color: string }> = {
+  COOL: { messageKey: "cool", color: "#34d399" },
+  WARM: { messageKey: "warm", color: "#facc15" },
+  WARM_PLUS: { messageKey: "warmPlus", color: "#fab633" },
+  HOT: { messageKey: "hot", color: "#f24822" },
 };
 
 function computeTemperature(s: { financial: Signal; emotional: Signal; timing: Signal }): Temperature {
@@ -82,49 +68,28 @@ interface Question {
   chips: { label: string; value: Signal }[];
 }
 
-const QUESTIONS: Question[] = [
-  {
-    id: "financial",
-    prompt: "If you lost your income tomorrow — how many months could you cover?",
-    ringColor: "#22d3ee",
-    announce: "Financial Reality signal set.",
-    event: "hero_q1_answered",
-    chips: [
-      { label: "Under a month", value: 0 },
-      { label: "1–3 months", value: 1 },
-      { label: "3–6 months", value: 2 },
-      { label: "6+ months", value: 3 },
-    ],
-  },
-  {
-    id: "emotional",
-    prompt: "How much of this decision is driven by what YOU want — versus pressure from around you?",
-    ringColor: "#34d399",
-    announce: "Emotional Truth signal set.",
-    event: "hero_q2_answered",
-    chips: [
-      { label: "All outside", value: 0 },
-      { label: "Mostly outside", value: 1 },
-      { label: "Mostly me", value: 2 },
-      { label: "From me", value: 3 },
-    ],
-  },
-  {
-    id: "timing",
-    prompt: "If you waited 12 months, what would likely change?",
-    ringColor: "#facc15",
-    announce: "Perfect Timing signal set.",
-    event: "hero_q3_answered",
-    chips: [
-      { label: "Everything's blocked on now", value: 0 },
-      { label: "Prices might run away", value: 1 },
-      { label: "I'd save more, same goal", value: 2 },
-      { label: "Little — I'm choosing the moment", value: 3 },
-    ],
-  },
+/** Static per-question config; prompt/announce/chip labels come from messages. */
+const QUESTION_META: { id: Question["id"]; ringColor: string; event: string }[] = [
+  { id: "financial", ringColor: "#22d3ee", event: "hero_q1_answered" },
+  { id: "emotional", ringColor: "#34d399", event: "hero_q2_answered" },
+  { id: "timing", ringColor: "#facc15", event: "hero_q3_answered" },
 ];
 
 export function InterviewHero() {
+  const t = useTranslations("home.hero");
+  const questions = useMemo<Question[]>(
+    () =>
+      QUESTION_META.map((meta) => ({
+        ...meta,
+        prompt: t(`questions.${meta.id}.prompt`),
+        announce: t(`questions.${meta.id}.announce`),
+        chips: (t.raw(`questions.${meta.id}.chips`) as string[]).map((label, value) => ({
+          label,
+          value: value as Signal,
+        })),
+      })),
+    [t],
+  );
   const [signals, setSignals] = useState<Signals>({ financial: null, emotional: null, timing: null });
   const [reducedMotion, setReducedMotion] = useState(false);
   const [settled, setSettled] = useState(false);
@@ -205,7 +170,7 @@ export function InterviewHero() {
   }
 
   // Which question is "active" (first unanswered).
-  const activeQuestion = QUESTIONS.find((q) => signals[q.id] === null) ?? null;
+  const activeQuestion = questions.find((q) => signals[q.id] === null) ?? null;
 
   const ignited = {
     financial: signals.financial !== null,
@@ -242,7 +207,7 @@ export function InterviewHero() {
         {/* Kicker chip */}
         <span className="inline-flex items-center gap-2 rounded-full border border-cyan/30 bg-cyan/5 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.25em] text-cyan">
           <span className="inline-block h-1.5 w-1.5 rounded-full bg-cyan" style={{ boxShadow: "0 0 8px #22d3ee" }} />
-          Decision Readiness Intelligence™
+          {t("kicker")}
         </span>
 
         {/* Compass + floor pool + reflection */}
@@ -293,14 +258,14 @@ export function InterviewHero() {
             transition: reducedMotion ? "none" : "opacity 900ms ease",
           }}
         >
-          Will you be okay?
+          {t("h1")}
         </h1>
 
         <p
           className="mt-4 max-w-md text-base text-dim sm:text-lg"
           style={{ opacity: Math.min(1, h1Opacity + 0.2) }}
         >
-          Your homie, not your banker.
+          {t("sub")}
         </p>
 
         {/* Question card area — fixed min-height to avoid CLS. Rendered
@@ -331,7 +296,7 @@ export function InterviewHero() {
                   </button>
                 ))}
               </div>
-              <p className="mt-5 text-xs text-dim/70">Your answers aren&rsquo;t stored or sent.</p>
+              <p className="mt-5 text-xs text-dim/70">{t("note")}</p>
             </div>
           )}
 
@@ -340,19 +305,19 @@ export function InterviewHero() {
               <span
                 className="inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-bold uppercase tracking-widest"
                 style={{
-                  color: TEMPERATURE_COPY[temperature].color,
-                  borderColor: `${TEMPERATURE_COPY[temperature].color}55`,
-                  background: `${TEMPERATURE_COPY[temperature].color}12`,
+                  color: TEMPERATURE_META[temperature].color,
+                  borderColor: `${TEMPERATURE_META[temperature].color}55`,
+                  background: `${TEMPERATURE_META[temperature].color}12`,
                 }}
               >
                 <span
                   className="inline-block h-2 w-2 rounded-full"
-                  style={{ background: TEMPERATURE_COPY[temperature].color, boxShadow: `0 0 8px ${TEMPERATURE_COPY[temperature].color}` }}
+                  style={{ background: TEMPERATURE_META[temperature].color, boxShadow: `0 0 8px ${TEMPERATURE_META[temperature].color}` }}
                 />
-                {TEMPERATURE_COPY[temperature].label}
+                {t(`temps.${TEMPERATURE_META[temperature].messageKey}.label`)}
               </span>
               <p className="mt-4 max-w-md text-base leading-relaxed text-light sm:text-lg">
-                {TEMPERATURE_COPY[temperature].copy}
+                {t(`temps.${TEMPERATURE_META[temperature].messageKey}.copy`)}
               </p>
               <div className="mt-7 flex flex-col items-center gap-4">
                 <Link
@@ -360,13 +325,13 @@ export function InterviewHero() {
                   className="btn btn-primary btn-glow px-9 py-4 text-base"
                   onClick={handleCtaClick}
                 >
-                  Check My Readiness
+                  {t("cta")}
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
                     <path d="M2 8h11m0 0L9 4m4 4l-4 4" />
                   </svg>
                 </Link>
                 <a href="#statement" className="text-sm text-dim underline-offset-4 hover:text-light hover:underline">
-                  Just exploring
+                  {t("exploring")}
                 </a>
               </div>
             </div>

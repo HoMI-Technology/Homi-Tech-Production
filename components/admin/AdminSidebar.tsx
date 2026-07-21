@@ -19,6 +19,11 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
         icon: <path d="M3 10l7-6 7 6M5 9v7a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9" />,
       },
       {
+        href: "/admin/analytics",
+        label: "Analytics",
+        icon: <path d="M3 16.5v-5M8 16.5V8M13 16.5v-3M18 16.5V4" />,
+      },
+      {
         href: "/admin/users",
         label: "Users",
         icon: (
@@ -60,6 +65,17 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
           <>
             <path d="M3 6l7 5 7-5" />
             <rect x="3" y="4" width="14" height="12" rx="1.5" />
+          </>
+        ),
+      },
+      {
+        href: "/admin/email",
+        label: "Email",
+        icon: (
+          <>
+            <rect x="3" y="5" width="14" height="11" rx="1.5" />
+            <path d="M4 7l6 4.5L16 7" />
+            <path d="M7 18h6" />
           </>
         ),
       },
