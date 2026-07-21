@@ -27,10 +27,23 @@ const STEP_COUNTER = /^Step \d+ of \d+$/;
 const MAX_STEPS = 60; // flow is ~52 steps today; headroom, never an infinite loop
 const STEP_ANIM_MS = 450; // StepShell step-enter-anim duration (420ms) + buffer
 
+/**
+ * Set a number field via the native value setter so framer-motion /
+ * step-shell remounts cannot detach the node mid-click/fill.
+ */
 async function setReactNumberInput(assessmentPane: Locator): Promise<void> {
   const field = assessmentPane.getByRole("spinbutton").first();
-  await field.click();
-  await field.fill("5000");
+  await expect(field).toBeVisible({ timeout: 15_000 });
+  await field.evaluate((el) => {
+    const input = el as HTMLInputElement;
+    const proto = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      "value",
+    );
+    proto?.set?.call(input, "5000");
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  });
 }
 
 export async function completeFullAssessment(page: Page): Promise<void> {
