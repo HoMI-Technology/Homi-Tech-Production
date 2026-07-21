@@ -77,12 +77,20 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${fraunces.variable} ${jetbrainsMono.variable}`}>
+    // suppressHydrationWarning: the CONSENT_BOOT_SCRIPT below sets data-homi-consent[-hold]
+    // on <html> before hydration, so the client <html>/<body> attributes intentionally
+    // differ from the server markup. This is the sanctioned guard for that pattern (React
+    // owns <html>/<body> in the App Router) — it does not suppress warnings on children.
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${inter.variable} ${fraunces.variable} ${jetbrainsMono.variable}`}
+    >
       <head>
         {/* iOS PWA launch images (portrait, modern iPhones). Hoisted to head. */}
         <AppleSplashLinks />
       </head>
-      <body className="field grain min-h-screen">
+      <body suppressHydrationWarning className="field grain min-h-screen">
         {/* Pre-paint consent gate — see consent-shared.ts. Must precede the
             server-rendered CookieConsent bar so consented visitors never see
             a flash of it. */}
