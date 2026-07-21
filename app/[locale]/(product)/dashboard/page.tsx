@@ -37,6 +37,7 @@ import {
   FinancialPositionSkeleton,
 } from "@/components/dashboard/FinancialPositionSection";
 import { GenomeWidget } from "@/components/dashboard/GenomeWidget";
+import { genomeScoresMap } from "@/lib/genome/constants";
 import { TrinityGapAlert } from "@/components/dashboard/TrinityGapAlert";
 import { DecisionTimeline } from "@/components/dashboard/DecisionTimeline";
 import type {
@@ -417,13 +418,7 @@ export default async function DashboardPage() {
         {dueSurvey && <OutcomeSurveyPrompt surveyId={dueSurvey.id} kind={dueSurvey.kind} />}
 
         {latest && (
-          <TrinityGapAlert
-            pillars={pillarReadings.map((p) => ({
-              key: p.key,
-              name: p.name,
-              value: p.value,
-            }))}
-          />
+          <TrinityGapAlert pillars={pillarReadings} />
         )}
 
         {/* ── History + next best move ────────────────────────── */}
@@ -526,7 +521,7 @@ export default async function DashboardPage() {
         {genome && (
           <Reveal delay={120}>
             <div className="mt-8">
-              <GenomeWidget scores={genome.scores} />
+              <GenomeWidget scores={genomeScoresMap(genome.scores)} />
             </div>
           </Reveal>
         )}

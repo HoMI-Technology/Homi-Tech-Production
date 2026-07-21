@@ -18,6 +18,7 @@ test.describe("assessment → verdict (anonymous)", () => {
 
     await expect(page).toHaveURL(/\/results$/);
     await expect(page.getByText("HōMI-Score out of 100")).toBeVisible();
+    // ClientProviders AnimatePresence + results hydration — badge follows score.
     await expect(
       page.locator('[class*="bg-verdict-"]').or(page.getByText(VERDICT_BADGE)).first(),
     ).toBeVisible({ timeout: 30_000 });

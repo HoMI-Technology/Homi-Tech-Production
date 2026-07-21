@@ -8,13 +8,6 @@ import { captureServerEvent } from "@/lib/analytics/server";
 
 export const runtime = "nodejs";
 
-/**
- * Thrown when a Supabase mutation returns a (non-thrown) `.error` that looks
- * transient/infra-level, OR when the tier round-trip to Stripe fails. The
- * top-level handler turns this into an HTTP >=500 response so Stripe retries
- * delivery instead of silently losing the event — and it releases the
- * insert-first idempotency claim first so the retry genuinely reprocesses.
- */
 class TransientDbError extends Error {}
 
 function getServiceClient() {
@@ -25,22 +18,12 @@ function getServiceClient() {
   });
 }
 
-/**
- * Maps a Stripe price `lookup_key` to a HōMI tier. `lookup_key` is the ONLY
- * signal trusted here — a hardcoded-cents fallback silently mis-tiers any
- * couponed/prorated price, so every price used in Checkout/subscriptions
- * MUST carry one of the lookup keys in `lib/stripe/tiers.ts`.
- */
 function mapPriceToTier(lookupKey: string | null | undefined): TierKey | null {
   if (!lookupKey) return null;
   const match = Object.values(TIERS).find((t) => t.lookupKey === lookupKey);
   return match ? match.key : null;
 }
 
-/**
- * Maps a Stripe subscription status (+ `cancel_at_period_end`) to the
- * `profiles.subscription_status` value HōMI understands.
- */
 function mapSubscriptionStatus(
   stripeStatus: string | null | undefined,
   cancelAtPeriodEnd: boolean | null | undefined,
@@ -52,27 +35,10 @@ function mapSubscriptionStatus(
   return stripeStatus ?? "active";
 }
 
-/**
- * Discriminated result so the caller can tell "the round-trip failed" (retry
- * — a redelivery can succeed) apart from "the price carried no lookup_key"
- * (a Stripe misconfiguration a retry can NOT fix). The previous version
- * returned `null` for both and the handler silently dropped the tier —
- * leaving paying users on the free tier (audit HIGH, fail-open).
- */
 type SessionPriceResult =
   | { ok: true; lookupKey: string | null }
   | { ok: false; reason: "stripe_key_missing" | "api_error" };
 
-/**
- * Fetches the checkout session's line items from the Stripe API.
- *
- * `checkout.session.completed` payloads NEVER include `line_items` (it is an
- * expandable field that only appears on explicit API reads), so relying on
- * the event body for price data silently mis-tiers every subscription. This
- * round-trip is the documented, reliable way to learn what was purchased.
- * (`customer.subscription.updated`/`invoice.*` DO carry price data inline —
- * see `handleSubscriptionUpdated` below, which does NOT round-trip.)
- */
 async function fetchSessionPrice(sessionId: string): Promise<SessionPriceResult> {
   const secretKey = env.STRIPE_SECRET_KEY;
   if (!secretKey) return { ok: false, reason: "stripe_key_missing" };
@@ -86,6 +52,56 @@ async function fetchSessionPrice(sessionId: string): Promise<SessionPriceResult>
     return { ok: true, lookupKey: price.lookup_key ?? null };
   } catch {
     return { ok: false, reason: "api_error" };
+  }
+}
+
+// NEW: Record payment event for revenue analytics
+async function recordPayment(supabase: ReturnType<typeof getServiceClient>, event: Stripe.Event) {
+  if (!supabase) return;
+
+  let paymentIntentId: string | undefined;
+  let amount: number | undefined;
+  let currency = "usd";
+  let userId: string | null = null;
+
+  if (event.type === "payment_intent.succeeded" || event.type === "payment_intent.created") {
+    const pi = event.data.object as Stripe.PaymentIntent;
+    paymentIntentId = pi.id;
+    amount = pi.amount;
+    currency = pi.currency;
+  } else if (event.type === "charge.succeeded") {
+    const charge = event.data.object as Stripe.Charge;
+    paymentIntentId = charge.payment_intent?.toString();
+    amount = charge.amount;
+    currency = charge.currency;
+  }
+
+  if (!paymentIntentId || amount === undefined) return;
+
+  try {
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("stripe_customer_id", (event.data.object as { customer?: string }).customer ?? "")
+      .limit(1);
+    userId = profiles?.[0]?.id ?? null;
+  } catch { /* best-effort */ }
+
+  const { error } = await supabase.from("payments").upsert(
+    {
+      stripe_payment_intent_id: paymentIntentId,
+      user_id: userId,
+      amount,
+      currency,
+      status: event.type.includes("succeeded") ? "succeeded" : "pending",
+      description: `Stripe ${event.type}`,
+      created_at: new Date().toISOString(),
+    },
+    { onConflict: "stripe_payment_intent_id" },
+  );
+
+  if (error) {
+    console.warn("[stripe webhook] payments upsert failed:", error.message);
   }
 }
 
@@ -115,10 +131,6 @@ async function handleCheckoutCompleted(event: Stripe.Event) {
     return;
   }
 
-  // Authoritative tier resolution: read line items back from the Stripe API
-  // (webhook payloads never embed them), enforcing lookup_key only. FAIL
-  // CLOSED — if the round-trip itself failed we throw so Stripe redelivers;
-  // silently omitting the tier left paying customers on the free plan.
   const price = await fetchSessionPrice(session.id);
   if (!price.ok) {
     throw new TransientDbError(
@@ -134,10 +146,8 @@ async function handleCheckoutCompleted(event: Stripe.Event) {
   if (tier) {
     patch.subscription_tier = tier;
   } else {
-    // Deterministic mapping gap (price has no/unknown lookup_key). A retry
-    // cannot fix configuration — record the customer, scream in the logs.
     console.error(
-      `[stripe webhook] UNMAPPED price lookup_key ${JSON.stringify(price.lookupKey)} for session ${session.id} — customer recorded WITHOUT tier change; fix the price lookup_key in Stripe.`,
+      `[stripe webhook] UNMAPPED price lookup_key ${JSON.stringify(price.lookupKey)} for session ${session.id}`,
     );
   }
 
@@ -146,8 +156,6 @@ async function handleCheckoutCompleted(event: Stripe.Event) {
     throw new TransientDbError(`profiles.update (checkout.session.completed) failed: ${error.message}`);
   }
 
-  // Server-side funnel truth: the client success page may never render (tab
-  // closed, blocker), but the money event happened. Occurrence + tier only.
   captureServerEvent("checkout_completed", userId, tier ? { tier } : undefined);
 }
 
@@ -168,7 +176,6 @@ async function handleSubscriptionUpdated(event: Stripe.Event) {
     return;
   }
 
-  // The event carries the price inline — no Stripe round-trip needed here.
   const lookupKey = subscription.items?.data?.[0]?.price?.lookup_key ?? null;
   const tier = mapPriceToTier(lookupKey);
   const status = mapSubscriptionStatus(subscription.status, subscription.cancel_at_period_end);
@@ -227,15 +234,11 @@ export async function POST(request: Request) {
   const webhookSecret = env.STRIPE_WEBHOOK_SECRET;
   const rawBody = await request.text();
 
-  // Official SDK verification (HMAC-SHA256 + timestamp tolerance, timing-safe)
-  // over the RAW body — the body must not be parsed before this point.
   let event: Stripe.Event;
   if (!signature || !webhookSecret) {
     return NextResponse.json({ error: "Invalid signature." }, { status: 400 });
   }
   try {
-    // Verification needs no API key; the key (if configured) only feeds the
-    // line-item round-trip in fetchSessionPrice.
     const stripe = createStripeClient(env.STRIPE_SECRET_KEY ?? "webhook_verify_only");
     event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
   } catch (err) {
@@ -247,9 +250,6 @@ export async function POST(request: Request) {
 
   const supabase = getServiceClient();
   if (!supabase) {
-    // Configuration error, not "successfully ignored." A 200 here would make
-    // Stripe stop retrying while the customer remains unprovisioned forever.
-    // 500 forces redelivery once the service role is restored.
     console.error("[stripe webhook] SUPABASE_SERVICE_ROLE_KEY missing — cannot dedupe or process.");
     return NextResponse.json(
       { error: "Server misconfigured; webhook will retry." },
@@ -257,9 +257,6 @@ export async function POST(request: Request) {
     );
   }
 
-  // Insert-first idempotency: `webhook_events(event_id)` is UNIQUE. A
-  // duplicate delivery hits the unique violation (23505) and is
-  // acknowledged WITHOUT re-processing.
   const { error: insertError } = await supabase
     .from("webhook_events")
     .insert({ event_id: event.id, type: event.type });
@@ -268,10 +265,17 @@ export async function POST(request: Request) {
     if (insertError.code === "23505") {
       return NextResponse.json({ received: true, duplicate: true });
     }
-    // Couldn't record the event at all — treat as transient so Stripe
-    // retries rather than us silently dropping it.
     console.error("[stripe webhook] webhook_events insert failed", insertError);
     return NextResponse.json({ error: "Could not record webhook event." }, { status: 500 });
+  }
+
+  // NEW: Record payment events for revenue analytics
+  if (
+    event.type === "payment_intent.succeeded" ||
+    event.type === "payment_intent.created" ||
+    event.type === "charge.succeeded"
+  ) {
+    await recordPayment(supabase, event);
   }
 
   try {
@@ -289,17 +293,10 @@ export async function POST(request: Request) {
         await handleInvoicePaymentFailed(event);
         break;
       default:
-        // Unhandled event types are acknowledged, not errors.
         break;
     }
   } catch (err) {
     if (err instanceof TransientDbError) {
-      // Release the insert-first idempotency claim so Stripe's retry actually
-      // re-runs the handler. Without this, the retry hits the UNIQUE row we
-      // just wrote, is acknowledged as a duplicate, and the handler never
-      // runs again — the exact path that left paid users on the free tier.
-      // Best-effort: a failed rollback still returns 500 (Stripe retries),
-      // it just risks the original stuck state for that one event.
       try {
         await supabase.from("webhook_events").delete().eq("event_id", event.id);
       } catch (rollbackErr) {
@@ -309,9 +306,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Transient database error." }, { status: 500 });
     }
     console.error("[stripe webhook] handler error", err);
-    // A genuine handler bug (not a DB-transience signal) still acknowledges
-    // receipt AND keeps the ledger row — retrying a deterministic bug would
-    // just poison-loop the delivery.
   }
 
   return NextResponse.json({ received: true });
