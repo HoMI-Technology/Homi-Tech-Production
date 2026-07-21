@@ -10,10 +10,8 @@ import { AnalyticsScripts } from "@/components/analytics/AnalyticsScripts";
 import { AttributionCapture } from "@/components/analytics/AttributionCapture";
 import { SITE_URL } from "@/lib/seo/site";
 
-import { PageTransition } from "@/components/layout/PageTransition";
-import { ScrollProgress } from "@/components/layout/ScrollProgress";
-import { WelcomeBanner } from "@/components/layout/WelcomeBanner";
-import { KeyboardShortcutsProvider } from "@/components/layout/KeyboardShortcutsProvider";
+import { ClientProviders } from "@/components/layout/ClientProviders";
+import { UXErrorBoundary } from "@/components/layout/ErrorBoundary";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -91,15 +89,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
 
-        <ScrollProgress />
-        <KeyboardShortcutsProvider />
-
-        <main id="main">
-          <PageTransition>
-            <WelcomeBanner />
-            {children}
-          </PageTransition>
-        </main>
+        <UXErrorBoundary name="client-providers" fallback={<main id="main">{children}</main>}>
+          <ClientProviders>{children}</ClientProviders>
+        </UXErrorBoundary>
 
         <CookieConsent />
         <AnalyticsScripts />
