@@ -1,3 +1,5 @@
+import { sanitizePosthogHost } from "@/lib/analytics/posthog-host";
+
 /**
  * Server-side analytics capture — the truth-mirror for funnel-critical events.
  * Client-side track() (lib/analytics.ts) loses 25-40% of events to content
@@ -10,7 +12,7 @@
  * latency or failure modes to a product path — callers do not await this.
  */
 
-const POSTHOG_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com";
+const POSTHOG_HOST = sanitizePosthogHost(process.env.NEXT_PUBLIC_POSTHOG_HOST);
 
 export function captureServerEvent(
   event: string,
