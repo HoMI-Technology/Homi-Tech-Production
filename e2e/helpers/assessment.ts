@@ -26,24 +26,30 @@ const MAX_STEPS = 60; // flow is ~52 steps today; headroom, never an infinite lo
 const STEP_ANIM_MS = 450; // StepShell step-enter-anim duration (420ms) + buffer
 
 async function setReactNumberInput(page: Page): Promise<void> {
-  await page.locator('input[type="number"]').first().evaluate((el) => {
-    const input = el as HTMLInputElement;
-    const setter = Object.getOwnPropertyDescriptor(
-      window.HTMLInputElement.prototype,
-      "value",
-    )?.set;
-    if (setter) setter.call(input, "5000");
-    else input.value = "5000";
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    input.dispatchEvent(new Event("change", { bubbles: true }));
-  });
+  const field = page.getByRole("spinbutton").first();
+  await field.click();
+  await field.fill("5000");
 }
 
 export async function completeFullAssessment(page: Page): Promise<void> {
+  // Pin English so review-step copy matches (PR #70 adds /es routing).
+  await page.context().addCookies([
+    { name: "NEXT_LOCALE", value: "en", domain: "localhost", path: "/" },
+  ]);
+
+  // Clear drafts before the app reads them on mount.
+  await page.addInitScript(() => {
+    localStorage.removeItem("homi:assessment-draft");
+    localStorage.removeItem("homi:last-assessment");
+  });
+
   await page.goto("/assessment");
 
-  // A leftover draft banner only appears when localStorage has an in-progress
-  // draft (never in a fresh context, but stay deterministic if reused).
+  const acceptCookies = page.getByRole("button", { name: "Accept" });
+  if (await acceptCookies.isVisible().catch(() => false)) {
+    await acceptCookies.click();
+  }
+
   const startOver = page.getByRole("button", { name: "Start over" });
   if (await startOver.isVisible().catch(() => false)) {
     await startOver.click();
@@ -58,11 +64,9 @@ export async function completeFullAssessment(page: Page): Promise<void> {
     const before = (await counter.textContent()) ?? "";
 
     const slider = page.locator('input[type="range"]').first();
-    const number = page.locator('input[type="number"]').first();
-    // Question choice cards only — exclude decision-picker cards (disabled when inactive).
+    const number = page.getByRole("spinbutton").first();
     const choiceCard = page
-      .locator('button[aria-pressed="false"]:not([disabled])')
-      .filter({ hasNot: page.locator("text=Coming soon") })
+      .locator('main button[aria-pressed="false"]:not([disabled])')
       .first();
 
     if (await slider.count()) {
