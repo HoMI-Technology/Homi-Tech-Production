@@ -1,12 +1,15 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { safeNext } from "@/lib/auth/safeNext";
 
 function SignInForm() {
+  const t = useTranslations("auth.signIn");
+  const tc = useTranslations("auth.common");
   const router = useRouter();
   const searchParams = useSearchParams();
   // Same-origin only — blocks ?next=//evil.com open-redirects post-login.
@@ -49,7 +52,7 @@ function SignInForm() {
       router.push(next);
       router.refresh();
     } catch {
-      setError("Something went wrong. Try again in a moment.");
+      setError(tc("genericError"));
     } finally {
       setLoading(false);
     }
@@ -65,7 +68,7 @@ function SignInForm() {
       const { data: factorsData, error: factorsError } = await supabase.auth.mfa.listFactors();
       const factor = factorsData?.totp?.[0];
       if (factorsError || !factor) {
-        setMfaError("No authenticator app found on this account. Try signing in again.");
+        setMfaError(t("mfa.noApp"));
         return;
       }
 
@@ -73,7 +76,7 @@ function SignInForm() {
         factorId: factor.id,
       });
       if (challengeError || !challengeData) {
-        setMfaError(challengeError?.message ?? "Could not verify that code. Try again.");
+        setMfaError(challengeError?.message ?? t("mfa.verifyFailed"));
         return;
       }
 
@@ -90,7 +93,7 @@ function SignInForm() {
       router.push(next);
       router.refresh();
     } catch {
-      setMfaError("Something went wrong. Try again.");
+      setMfaError(t("mfa.genericError"));
     } finally {
       setMfaSubmitting(false);
     }
@@ -106,13 +109,13 @@ function SignInForm() {
       });
       if (oauthError) setError(oauthError.message);
     } catch {
-      setError("Could not start Google sign-in. Try again in a moment.");
+      setError(t("googleError"));
     }
   }
 
   async function handleMagicLink() {
     if (!email) {
-      setError("Enter your email first, then request the link.");
+      setError(tc("emailFirst"));
       return;
     }
     setError(null);
@@ -134,7 +137,7 @@ function SignInForm() {
       }
       setMagicSent(true);
     } catch {
-      setError("Couldn't send the link. Try again in a moment.");
+      setError(tc("magicError"));
     } finally {
       setMagicLoading(false);
     }
@@ -143,13 +146,13 @@ function SignInForm() {
   if (needsMfa) {
     return (
       <div>
-        <h1 className="font-display text-2xl font-semibold text-light">Two-factor verification</h1>
-        <p className="mt-2 text-sm text-dim">Enter the 6-digit code from your authenticator app.</p>
+        <h1 className="font-display text-2xl font-semibold text-light">{t("mfa.title")}</h1>
+        <p className="mt-2 text-sm text-dim">{t("mfa.subtitle")}</p>
 
         <form onSubmit={handleMfaVerify} className="mt-6 space-y-4">
           <div>
             <label htmlFor="mfa-code" className="mb-1.5 block text-sm text-dim">
-              Authentication code
+              {t("mfa.label")}
             </label>
             <input
               id="mfa-code"
@@ -175,7 +178,7 @@ function SignInForm() {
             disabled={mfaSubmitting || mfaCode.length !== 6}
             className="btn btn-primary w-full disabled:opacity-60"
           >
-            {mfaSubmitting ? "Verifying…" : "Verify and continue"}
+            {mfaSubmitting ? t("mfa.verifying") : t("mfa.submit")}
           </button>
         </form>
       </div>
@@ -184,18 +187,21 @@ function SignInForm() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-semibold text-light">Welcome back</h1>
-      <p className="mt-2 text-sm text-dim">Sign in to pick up where you left off.</p>
+      <h1 className="font-display text-2xl font-semibold text-light">{t("title")}</h1>
+      <p className="mt-2 text-sm text-dim">{t("subtitle")}</p>
 
       {magicSent ? (
         <div className="mt-6 rounded-xl border border-cyan/30 bg-cyan/10 p-4 text-sm text-light">
-          Check your inbox. We sent a sign-in link to <span className="font-medium">{email}</span>.
+          {tc.rich("magicSent", {
+            email,
+            b: (chunks) => <span className="font-medium">{chunks}</span>,
+          })}
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
             <label htmlFor="email" className="mb-1.5 block text-sm text-dim">
-              Email
+              {tc("email")}
             </label>
             <input
               id="email"
@@ -212,10 +218,10 @@ function SignInForm() {
           <div>
             <div className="mb-1.5 flex items-center justify-between">
               <label htmlFor="password" className="block text-sm text-dim">
-                Password
+                {t("password")}
               </label>
               <Link href="/auth/forgot-password" className="text-sm text-cyan hover:underline">
-                Forgot password?
+                {t("forgot")}
               </Link>
             </div>
             <input
@@ -237,7 +243,7 @@ function SignInForm() {
           )}
 
           <button type="submit" disabled={loading} className="btn btn-primary w-full disabled:opacity-60">
-            {loading ? "Signing in…" : "Sign in"}
+            {loading ? t("submitting") : t("submit")}
           </button>
 
           <button
@@ -246,7 +252,7 @@ function SignInForm() {
             disabled={magicLoading}
             className="btn btn-ghost w-full disabled:opacity-60"
           >
-            {magicLoading ? "Sending link…" : "Email me a magic link"}
+            {magicLoading ? tc("magicSending") : tc("magic")}
           </button>
         </form>
       )}
@@ -258,7 +264,7 @@ function SignInForm() {
             type="button"
             onClick={handleGoogleSignIn}
             className="btn btn-ghost w-full"
-            aria-label="Continue with Google"
+            aria-label={t("continueGoogle")}
           >
             <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" className="mr-1">
               <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.71-1.57 2.68-3.89 2.68-6.62z" />
@@ -266,7 +272,7 @@ function SignInForm() {
               <path fill="#FBBC05" d="M3.97 10.72a5.4 5.4 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z" />
               <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.9 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z" />
             </svg>
-            Continue with Google
+            {t("continueGoogle")}
           </button>
         </>
       )}
@@ -274,14 +280,14 @@ function SignInForm() {
       <div className="hairline my-6" />
 
       <p className="text-center text-sm text-dim">
-        New to HōMI?{" "}
+        {t("newTo")}{" "}
         <Link href="/auth/sign-up" className="font-medium text-cyan hover:underline">
-          Create an account
+          {t("createAccount")}
         </Link>
       </p>
       <p className="mt-2 text-center text-sm text-dim">
         <Link href="/demo" className="text-dim hover:text-light">
-          Try the demo
+          {t("tryDemo")}
         </Link>
       </p>
     </div>
@@ -290,7 +296,7 @@ function SignInForm() {
 
 export default function SignInPage() {
   return (
-    <Suspense fallback={<div className="text-sm text-dim">Loading…</div>}>
+    <Suspense fallback={<div className="text-sm text-dim">…</div>}>
       <SignInForm />
     </Suspense>
   );

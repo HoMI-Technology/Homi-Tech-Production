@@ -33,7 +33,7 @@ const LABEL_TO_VERDICT: Record<string, string> = {
 /** Reads the landing page source and pairs each standalone displayed score
  *  numeral with the next verdict label within 300 chars. */
 function landingScoreVerdictPairs(): Array<{ score: number; label: string; verdict: string }> {
-  const path = fileURLToPath(new URL("../../app/(marketing)/page.tsx", import.meta.url));
+  const path = fileURLToPath(new URL("../../app/[locale]/(marketing)/page.tsx", import.meta.url));
   const src = readFileSync(path, "utf8");
   const pairs: Array<{ score: number; label: string; verdict: string }> = [];
   const numRe = /score-numeral[^>]*>\s*(\d{1,3})\s*</g;

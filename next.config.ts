@@ -1,4 +1,10 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+
+// next-intl plugin (Module A — feat/i18n): wires the per-request message
+// loader. It touches only i18n request config resolution — the CSP/headers
+// logic below is unchanged.
+const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 /**
  * Content Security Policy (AUDIT-2026-07-08 T1.5, enforce half).
@@ -104,4 +110,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

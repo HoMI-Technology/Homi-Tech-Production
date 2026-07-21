@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import "./globals.css";
+import "@/app/globals.css";
 import { fraunces, inter, jetbrainsMono } from "@/app/fonts";
+import { notFound } from "next/navigation";
+import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
+import { routing } from "@/i18n/routing";
 import { CookieConsent } from "@/components/consent/CookieConsent";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { CONSENT_BOOT_SCRIPT } from "@/components/consent/consent-shared";
@@ -75,14 +79,33 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+/** Pre-render both locales for every static route. */
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
+export default async function RootLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  // Unknown locale prefixes (e.g. /fr/...) fall through to the 404.
+  if (!hasLocale(routing.locales, locale)) {
+    notFound();
+  }
+  // Enables static rendering while keeping per-request translations.
+  setRequestLocale(locale);
+
   return (
     // suppressHydrationWarning: the CONSENT_BOOT_SCRIPT below sets data-homi-consent[-hold]
     // on <html> before hydration, so the client <html>/<body> attributes intentionally
     // differ from the server markup. This is the sanctioned guard for that pattern (React
     // owns <html>/<body> in the App Router) — it does not suppress warnings on children.
     <html
-      lang="en"
+      lang={locale}
       suppressHydrationWarning
       className={`${inter.variable} ${fraunces.variable} ${jetbrainsMono.variable}`}
     >
@@ -101,7 +124,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
-        {children}
+        {/* Messages come from i18n/request.ts via the Next.js plugin — every
+            client component under this layout can use useTranslations. */}
+        <NextIntlClientProvider locale={locale}>
+          {children}
+        </NextIntlClientProvider>
         <CookieConsent />
         <AnalyticsScripts />
         <ServiceWorkerRegister />

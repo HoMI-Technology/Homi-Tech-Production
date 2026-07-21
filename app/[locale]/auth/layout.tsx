@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { LEGAL_DISCLAIMER } from "@/lib/brand";

@@ -13,6 +13,9 @@ export default defineConfig({
     // jest-dom matchers for component tests (opt into jsdom per-file via a
     // `// @vitest-environment jsdom` docblock).
     setupFiles: ["./vitest.setup.ts"],
+    // next-intl's ESM build imports "next/server" (extensionless); inline it so
+    // Vitest resolves it through its own resolver (middleware.test.ts).
+    server: { deps: { inline: ["next-intl"] } },
     // Acceptance specs are the §9 oracle; intentionally RED until the fixes land,
     // so they run via their own config (npm run test:acceptance), not the default gate.
     // Playwright E2E specs live in e2e/ and run via `npm run e2e` (their own

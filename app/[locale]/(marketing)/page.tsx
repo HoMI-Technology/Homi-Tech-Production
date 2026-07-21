@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { Reveal } from "@/components/ui/Reveal";
 import { HeroSequence } from "@/components/home/HeroSequence";
 import { InterviewHero } from "@/components/home/InterviewHero";
@@ -25,12 +26,44 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
+interface WrongRowData {
+  system: string;
+  asks: string;
+  missed: string;
+}
+
+interface TitledBody {
+  title: string;
+  body: string;
+}
+
 /**
  * The HōMI landing experience — a cinematic product reveal. The
  * Threshold Compass is the instrument at the center of everything;
  * the page is a private decision room, not a sales funnel.
+ *
+ * Copy lives in messages/{en,es}.json ("home.*"). Two things stay
+ * hardcoded on purpose: the verdict labels (READY / ALMOST THERE /
+ * BUILD FIRST / NOT YET — trademark-pending canon, and the
+ * landing-canon tests grep this source for score/verdict pairs) and
+ * the sample score numerals beside them.
  */
-export default function MarketingHomePage() {
+export default async function MarketingHomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("home");
+
+  const scoreLeft = t.raw("score.leftItems") as string[];
+  const scoreRight = t.raw("score.rightItems") as string[];
+  const wrongRows = t.raw("wrong.rows") as WrongRowData[];
+  const notItems = t.raw("companion.notItems") as TitledBody[];
+  const buildSteps = t.raw("buildFirst.steps") as string[];
+  const proofs = t.raw("zero.proofs") as TitledBody[];
+
   return (
     <div>
       <JsonLd data={organizationJsonLd(SITE_URL, "/icon-512-v2.png")} />
@@ -48,10 +81,8 @@ export default function MarketingHomePage() {
             <path d="M7.5 10l1.8 1.8L12.8 8" />
           </svg>
           <p className="text-sm leading-relaxed text-dim">
-            <span className="font-semibold text-emerald">Educational only — not financial advice.</span>{" "}
-            HōMI provides educational guidance only. Consider consulting qualified
-            professionals before making legal, tax, mortgage, investment, or real estate
-            decisions.
+            <span className="font-semibold text-emerald">{t("edu.strong")}</span>{" "}
+            {t("edu.body")}
           </p>
         </div>
       </section>
@@ -70,51 +101,47 @@ export default function MarketingHomePage() {
       <Reveal>
         <section className="px-6 py-24">
           <div className="mx-auto max-w-5xl">
-            <Kicker>The signal that was never designed for you</Kicker>
+            <Kicker>{t("score.kicker")}</Kicker>
             <h2 className="mx-auto mt-5 max-w-2xl text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
-              A credit score tells institutions if they may trust your history.
+              {t("score.title")}
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-center text-lg text-dim">
-              HōMI helps you know if you can trust the decision.
+              {t("score.sub")}
             </p>
 
             <div className="glass mx-auto mt-10 max-w-2xl p-8" style={{ borderColor: "rgba(34,211,238,0.25)" }}>
               <blockquote className="font-display text-2xl leading-relaxed text-light">
-                &ldquo;Most people don&rsquo;t regret what they bought. They regret when
-                they bought it.&rdquo;
+                {t("score.quote")}
               </blockquote>
             </div>
 
             <div className="mt-14 grid gap-6 md:grid-cols-2">
               <div className="tilt-3d sweep rounded-2xl border border-slate-high/50 bg-navy-light/60 p-8">
                 <p className="text-sm font-semibold uppercase tracking-widest text-dim">
-                  Credit score
+                  {t("score.leftTitle")}
                 </p>
                 <ul className="mt-6 space-y-3.5 text-[15px] text-dim">
-                  <li className="flex items-center gap-3"><Dash /> Past-facing</li>
-                  <li className="flex items-center gap-3"><Dash /> Delayed</li>
-                  <li className="flex items-center gap-3"><Dash /> Institution-first</li>
-                  <li className="flex items-center gap-3"><Dash /> Narrow</li>
-                  <li className="flex items-center gap-3"><Dash /> History-based</li>
+                  {scoreLeft.map((item) => (
+                    <li key={item} className="flex items-center gap-3"><Dash /> {item}</li>
+                  ))}
                 </ul>
               </div>
               <div className="glass tilt-3d sweep p-8" style={{ borderColor: "rgba(34,211,238,0.3)" }}>
                 <p className="text-sm font-semibold uppercase tracking-widest text-cyan">
-                  HōMI-Score
+                  {t("score.rightTitle")}
                 </p>
                 <ul className="mt-6 space-y-3.5 text-[15px] text-light">
-                  <li className="flex items-center gap-3"><Dot c="#22d3ee" /> Live</li>
-                  <li className="flex items-center gap-3"><Dot c="#34d399" /> Contextual</li>
-                  <li className="flex items-center gap-3"><Dot c="#facc15" /> Consumer-first</li>
-                  <li className="flex items-center gap-3"><Dot c="#22d3ee" /> Three-dimensional</li>
-                  <li className="flex items-center gap-3"><Dot c="#34d399" /> Readiness-based</li>
+                  {scoreRight.map((item, i) => (
+                    <li key={item} className="flex items-center gap-3">
+                      <Dot c={["#22d3ee", "#34d399", "#facc15", "#22d3ee", "#34d399"][i % 5]} /> {item}
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
 
             <p className="mx-auto mt-10 max-w-xl text-center text-dim">
-              The credit score tells the world what happened. The HōMI-Score tells you
-              what is ready.
+              {t("score.foot")}
             </p>
           </div>
         </section>
@@ -124,27 +151,27 @@ export default function MarketingHomePage() {
       <Reveal>
         <section className="px-6 py-24">
           <div className="mx-auto max-w-4xl">
-            <Kicker>The human problem</Kicker>
+            <Kicker>{t("wrong.kicker")}</Kicker>
             <h2 className="mt-5 text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
-              Everyone asks the wrong question.
+              {t("wrong.title")}
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-center text-dim">
-              Major decisions are pressure, timing, and alignment problems — not just math.
+              {t("wrong.sub")}
             </p>
 
             <div className="glass mt-12 overflow-hidden !rounded-2xl">
               <table className="w-full border-collapse text-left text-sm">
                 <thead>
                   <tr className="border-b border-slate-high/50 bg-navy-light/60 text-xs uppercase tracking-widest text-dim">
-                    <th className="px-6 py-4 font-semibold">System</th>
-                    <th className="px-6 py-4 font-semibold">Question it asks</th>
-                    <th className="hidden px-6 py-4 font-semibold sm:table-cell">What gets missed</th>
+                    <th className="px-6 py-4 font-semibold">{t("wrong.colSystem")}</th>
+                    <th className="px-6 py-4 font-semibold">{t("wrong.colAsks")}</th>
+                    <th className="hidden px-6 py-4 font-semibold sm:table-cell">{t("wrong.colMissed")}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <WrongRow system="Lenders" asks="Can you afford the payment?" missed="Will you be okay after the decision?" />
-                  <WrongRow system="Calculators" asks="What's the monthly cost?" missed="Emergency buffer, emotional readiness, timing risk." />
-                  <WrongRow system="Marketplaces" asks="How do we move you forward?" missed="Whether forward is the right direction right now." />
+                  {wrongRows.map((row) => (
+                    <WrongRow key={row.system} system={row.system} asks={row.asks} missed={row.missed} />
+                  ))}
                   <tr className="border-l-2 border-cyan bg-cyan/5">
                     <td className="px-6 py-5 font-bold">
                       <span style={{ color: "#22d3ee" }}>H</span>
@@ -152,9 +179,9 @@ export default function MarketingHomePage() {
                       <span style={{ color: "#facc15" }}>M</span>
                       <span style={{ color: "#22d3ee" }}>I</span>
                     </td>
-                    <td className="px-6 py-5 font-medium text-light">Will you be okay?</td>
+                    <td className="px-6 py-5 font-medium text-light">{t("wrong.homiAsks")}</td>
                     <td className="hidden px-6 py-5 font-medium text-emerald sm:table-cell">
-                      Nothing — the whole-person readiness question.
+                      {t("wrong.homiMissed")}
                     </td>
                   </tr>
                 </tbody>
@@ -168,11 +195,11 @@ export default function MarketingHomePage() {
       <Reveal>
         <section className="px-6 py-24">
           <div className="mx-auto max-w-4xl text-center">
-            <Kicker>The category, drawn</Kicker>
+            <Kicker>{t("moment.kicker")}</Kicker>
             <h2 className="mt-5 font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
-              Most systems arrive after you decide.
+              {t("moment.title")}
             </h2>
-            <p className="mt-4 text-lg text-dim">HōMI enters before the commitment.</p>
+            <p className="mt-4 text-lg text-dim">{t("moment.sub")}</p>
             <div className="mt-14">
               <TimelineShift />
             </div>
@@ -185,43 +212,33 @@ export default function MarketingHomePage() {
         <section className="px-6 py-24">
           <div className="mx-auto grid max-w-5xl items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
             <div>
-              <KickerLeft>Decision companion</KickerLeft>
+              <KickerLeft>{t("companion.kicker")}</KickerLeft>
               <h2 className="mt-4 font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
-                Your Decision Companion
+                {t("companion.title")}
               </h2>
               <p className="mt-5 max-w-xl text-lg leading-relaxed text-dim">
-                HōMI evaluates readiness across Financial Reality, Emotional Truth, and
-                Perfect Timing — then gives you a clear verdict and a build-first path
-                when you&rsquo;re not there yet.
+                {t("companion.body")}
               </p>
               <p className="mt-4 font-semibold text-cyan">
-                Everyone else tells you how. HōMI tells you if.
+                {t("companion.tagline")}
               </p>
               <p className="mt-3 text-sm italic text-dim/80">
-                We measure readiness, not affordability. We validate emotions, not
-                suppress them.
+                {t("companion.note")}
               </p>
             </div>
 
             <div className="glass p-7">
               <p className="text-xs font-semibold uppercase tracking-[0.25em] text-yellow">
-                What HōMI is not
+                {t("companion.notTitle")}
               </p>
               <div className="mt-5 space-y-5">
-                <div>
-                  <p className="font-semibold text-light">Not a lender or broker</p>
-                  <p className="mt-1 text-sm text-dim">No loans originated, no transactions pushed.</p>
-                </div>
-                <div className="hairline" />
-                <div>
-                  <p className="font-semibold text-light">Not a credit bureau</p>
-                  <p className="mt-1 text-sm text-dim">A different question than repayment risk.</p>
-                </div>
-                <div className="hairline" />
-                <div>
-                  <p className="font-semibold text-light">Not financial advice</p>
-                  <p className="mt-1 text-sm text-dim">Educational decision-readiness guidance only.</p>
-                </div>
+                {notItems.map((item, i) => (
+                  <div key={item.title}>
+                    {i > 0 && <div className="hairline mb-5" />}
+                    <p className="font-semibold text-light">{item.title}</p>
+                    <p className="mt-1 text-sm text-dim">{item.body}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -232,12 +249,12 @@ export default function MarketingHomePage() {
       <Reveal>
         <section className="px-6 py-24">
           <div className="mx-auto max-w-6xl">
-            <Kicker>Threshold preview</Kicker>
+            <Kicker>{t("threshold.kicker")}</Kicker>
             <h2 className="mx-auto mt-5 max-w-2xl text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
-              History is static. Readiness is live.
+              {t("threshold.title")}
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-center text-dim">
-              Move the signals. Watch the instrument answer.
+              {t("threshold.sub")}
             </p>
             <div className="mt-14">
               <ThresholdPreview />
@@ -250,22 +267,22 @@ export default function MarketingHomePage() {
       <Reveal>
         <section className="px-6 py-24">
           <div className="mx-auto max-w-4xl">
-            <Kicker color="#34d399">The verdict spectrum</Kicker>
+            <Kicker color="#34d399">{t("spectrum.kicker")}</Kicker>
             <h2 className="mt-5 text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
-              Four verdicts. Zero judgment.
+              {t("spectrum.title")}
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-center text-dim">
-              Cool means clear. Hot means stop. HōMI never blurs the line to make you
-              feel better.
+              {t("spectrum.sub")}
             </p>
 
             <div className="glass mt-12 p-8">
-              <div className="spectrum-bar" role="img" aria-label="Verdict spectrum from NOT YET (hot) through BUILD FIRST and ALMOST THERE to READY (cool)" />
+              <div className="spectrum-bar" role="img" aria-label={t("spectrum.aria")} />
               <div className="mt-6 flex flex-wrap justify-center gap-3">
-                <SpectrumChip color="#34d399" label="READY" range="80–100" temp="Cool" />
-                <SpectrumChip color="#facc15" label="ALMOST THERE" range="65–79" temp="Warm" />
-                <SpectrumChip color="#fab633" label="BUILD FIRST" range="50–64" temp="Warm+" />
-                <SpectrumChip color="#f24822" label="NOT YET" range="0–49" temp="Hot" />
+                {/* Verdict labels stay English: trademark-pending canon. */}
+                <SpectrumChip color="#34d399" label="READY" range="80–100" temp={t("spectrum.temps.cool")} />
+                <SpectrumChip color="#facc15" label="ALMOST THERE" range="65–79" temp={t("spectrum.temps.warm")} />
+                <SpectrumChip color="#fab633" label="BUILD FIRST" range="50–64" temp={t("spectrum.temps.warmPlus")} />
+                <SpectrumChip color="#f24822" label="NOT YET" range="0–49" temp={t("spectrum.temps.hot")} />
               </div>
             </div>
           </div>
@@ -285,9 +302,9 @@ export default function MarketingHomePage() {
       <Reveal>
         <section className="px-6 py-24">
           <div className="mx-auto max-w-6xl">
-            <Kicker>The companion layer</Kicker>
+            <Kicker>{t("voices.kicker")}</Kicker>
             <h2 className="mt-5 text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
-              One companion. Six ways of telling the truth.
+              {t("voices.title")}
             </h2>
             <div className="mt-14">
               <Voices />
@@ -300,31 +317,32 @@ export default function MarketingHomePage() {
       <Reveal>
         <section className="px-6 py-24">
           <div className="mx-auto max-w-3xl">
-            <Kicker color="#fab633">After your verdict</Kicker>
+            <Kicker color="#fab633">{t("buildFirst.kicker")}</Kicker>
             <h2 className="mt-5 text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
-              Your Build First path.
+              {t("buildFirst.title")}
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-center text-dim">
-              When you&rsquo;re not ready yet, HōMI shows what to build first.
+              {t("buildFirst.sub")}
             </p>
 
             <div className="glass mt-12 p-8" style={{ borderColor: "rgba(250,182,51,0.3)" }}>
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-widest text-amber">Sample verdict</p>
-                  <p className="mt-0.5 text-xs text-dim/70">Illustration only — not your score</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-amber">{t("buildFirst.sample")}</p>
+                  <p className="mt-0.5 text-xs text-dim/70">{t("buildFirst.illustration")}</p>
                 </div>
                 <div className="text-right">
+                  {/* Canon-checked pair (landing-canon tests): 52 → BUILD FIRST. */}
                   <p className="score-numeral text-4xl font-bold text-light">52</p>
                   <p className="text-xs font-bold tracking-wide text-amber">BUILD FIRST</p>
                 </div>
               </div>
               <div className="hairline my-6" />
-              <p className="text-sm font-semibold text-light">Build first — prioritized actions</p>
+              <p className="text-sm font-semibold text-light">{t("buildFirst.listTitle")}</p>
               <ol className="mt-4 space-y-3">
-                <BuildStep n="01" text="Build your emergency fund toward 6 months of expenses." />
-                <BuildStep n="02" text="Bring your debt-to-income ratio below 36%." />
-                <BuildStep n="03" text="Push your credit score above 700." />
+                {buildSteps.map((step, i) => (
+                  <BuildStep key={step} n={`0${i + 1}`} text={step} />
+                ))}
               </ol>
             </div>
           </div>
@@ -335,42 +353,41 @@ export default function MarketingHomePage() {
       <Reveal>
         <section className="px-6 py-24">
           <div className="mx-auto max-w-5xl">
-            <Kicker color="#fab633">Platform vision · Preview</Kicker>
+            <Kicker color="#fab633">{t("prs.kicker")}</Kicker>
             <h2 className="mx-auto mt-5 max-w-2xl text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
-              Permissioned Readiness Summary
+              {t("prs.title")}
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-center text-dim">
-              Businesses do not need another way to rush people forward. They need a
-              clearer signal before pressure becomes regret.
+              {t("prs.sub")}
             </p>
 
             <div className="glass tilt-3d sweep mx-auto mt-12 max-w-lg p-8">
               <div className="flex items-center justify-between">
-                <span className="text-xs uppercase tracking-widest text-dim">Readiness summary</span>
+                <span className="text-xs uppercase tracking-widest text-dim">{t("prs.summary")}</span>
                 <span className="rounded-full border border-emerald/40 bg-emerald/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald">
-                  Consumer-authorized
+                  {t("prs.badge")}
                 </span>
               </div>
               <div className="hairline my-5" />
               <div className="flex items-end justify-between">
                 <div>
                   <p className="text-xs text-dim">HōMI-Score</p>
+                  {/* Canon-checked pair (landing-canon tests): 76 → ALMOST THERE. */}
                   <p className="score-numeral text-5xl font-bold text-light">76</p>
                 </div>
                 <span className="inline-flex items-center gap-2 rounded-full border border-yellow/40 bg-yellow/10 px-4 py-1.5 text-sm font-bold text-yellow">
-                  ALMOST THERE <span className="font-normal opacity-70">· Warm</span>
+                  ALMOST THERE <span className="font-normal opacity-70">· {t("prs.warmTag")}</span>
                 </span>
               </div>
               <div className="mt-6 space-y-3 text-sm">
-                <Row k="Primary signal" v="Timing is close. Monthly pressure is still warm." />
-                <Row k="Shared with" v="Partner preview" />
-                <Row k="Readiness receipt" v="Verified" accent="#34d399" />
-                <Row k="Expires" v="30 days" />
+                <Row k={t("prs.primarySignal")} v={t("prs.primarySignalValue")} />
+                <Row k={t("prs.sharedWith")} v={t("prs.sharedWithValue")} />
+                <Row k={t("prs.receipt")} v={t("prs.receiptValue")} accent="#34d399" />
+                <Row k={t("prs.expires")} v={t("prs.expiresValue")} />
               </div>
               <div className="hairline my-5" />
               <p className="text-xs leading-relaxed text-dim/70">
-                Pre-application clarity, shared only with the consumer&rsquo;s permission.
-                Educational guidance only.
+                {t("prs.foot")}
               </p>
             </div>
           </div>
@@ -381,15 +398,13 @@ export default function MarketingHomePage() {
       <Reveal>
         <section className="px-6 py-24">
           <div className="mx-auto max-w-3xl text-center">
-            <Kicker>The wedge</Kicker>
+            <Kicker>{t("wedge.kicker")}</Kicker>
             <h2 className="mt-5 font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
-              Home is the first threshold.
-              <span className="block text-dim">Not the whole company.</span>
+              {t("wedge.title")}
+              <span className="block text-dim">{t("wedge.titleDim")}</span>
             </h2>
             <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-dim">
-              Homebuying is where HōMI begins because it is emotional, expensive,
-              high-pressure, and often mistimed. It is the hardest room to be honest in —
-              so that is where the honest voice starts.
+              {t("wedge.body")}
             </p>
           </div>
         </section>
@@ -398,17 +413,16 @@ export default function MarketingHomePage() {
       <Reveal>
         <section className="px-6 py-24">
           <div className="mx-auto max-w-5xl">
-            <Kicker>Platform vision</Kicker>
+            <Kicker>{t("vision.kicker")}</Kicker>
             <h2 className="mx-auto mt-5 max-w-2xl text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
-              The next score is not about the past.
-              <span className="text-aurora"> It is about readiness.</span>
+              {t("vision.title")}
+              <span className="text-aurora"> {t("vision.titleAccent")}</span>
             </h2>
             <div className="mt-14">
               <DecisionOrbit />
             </div>
             <p className="mx-auto mt-12 max-w-xl text-center text-dim">
-              The credit score became infrastructure for lender risk. HōMI is building
-              infrastructure for consumer readiness.
+              {t("vision.foot")}
             </p>
           </div>
         </section>
@@ -418,27 +432,26 @@ export default function MarketingHomePage() {
       <Reveal>
         <section className="px-6 py-24">
           <div className="mx-auto max-w-5xl">
-            <Kicker color="#34d399">Why you can trust the answer</Kicker>
+            <Kicker color="#34d399">{t("zero.kicker")}</Kicker>
             <h2 className="mt-5 text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
-              Zero conflict of interest. Finally.
+              {t("zero.title")}
             </h2>
             <p className="text-center font-display text-3xl sm:text-4xl text-light mt-8">
-              Built to say <span className="text-aurora">not yet</span>.
+              {t("zero.bigA")} <span className="text-aurora">{t("zero.bigAccent")}</span>.
             </p>
             <div className="mt-12 grid gap-6 sm:grid-cols-3">
-              <Proof title="No commissions" body="Nobody at HōMI earns a cent when you transact. Nobody ever will." />
-              <Proof title="No referral fees" body="We don't hand you to a lender, an agent, or a product. There is no chain behind the curtain." />
-              <Proof title="No push" body="Every other platform profits when you say yes. HōMI profits when you're ready." />
+              {proofs.map((p) => (
+                <Proof key={p.title} title={p.title} body={p.body} />
+              ))}
             </div>
             <p className="mx-auto mt-10 max-w-lg text-center text-sm text-dim/80">
-              HōMI provides educational decision-readiness guidance only.
+              {t("zero.note")}
             </p>
             <p className="mt-8 text-center font-display text-xl text-light">
-              &ldquo;The friend who says: I love you, but you&rsquo;re not ready yet — and
-              then helps you get there.&rdquo;
+              {t("zero.quote")}
             </p>
             <p className="mt-4 text-center text-xs uppercase tracking-widest text-dim/70">
-              — HOMI TECHNOLOGIES LLC
+              {t("zero.attribution")}
             </p>
           </div>
         </section>
@@ -469,21 +482,20 @@ export default function MarketingHomePage() {
               }}
             >
               <h2 className="font-display text-4xl font-semibold leading-tight text-light sm:text-5xl">
-                Not yet is not <span className="text-emerald">no</span>.
+                {t("final.titleA")}<span className="text-emerald">{t("final.titleAccent")}</span>{t("final.titleB")}
               </h2>
               <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-dim">
-                It means you have time to build. And HōMI will show you exactly what to
-                build first. Before the next major decision, know where you stand.
+                {t("final.body")}
               </p>
               <div className="mt-9 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <Link href="/shadow-score" className="btn btn-primary btn-glow px-9 py-4 text-base">
-                  Start Your Free Assessment
+                  {t("final.primary")}
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
                     <path d="M2 8h11m0 0L9 4m4 4l-4 4" />
                   </svg>
                 </Link>
                 <a href="#compass" className="btn btn-ghost px-8 py-3.5 text-base">
-                  Explore the Compass
+                  {t("final.secondary")}
                 </a>
               </div>
             </div>
