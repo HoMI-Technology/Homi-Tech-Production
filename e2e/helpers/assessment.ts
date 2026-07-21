@@ -52,8 +52,12 @@ export async function completeFullAssessment(page: Page): Promise<void> {
       await slider.click();
       await slider.press("ArrowRight");
     } else if (await number.count()) {
-      // Any positive number satisfies validation; scoring clamps to its ranges.
-      await number.fill("5000");
+      // React may remount number fields mid-fill (motion/i18n); click + type
+      // survives detaches better than fill() alone.
+      const field = page.locator('input[type="number"]').first();
+      await field.waitFor({ state: "visible" });
+      await field.click();
+      await field.pressSequentially("5000", { delay: 40 });
     } else if (await choiceCard.count()) {
       await choiceCard.click();
     }
