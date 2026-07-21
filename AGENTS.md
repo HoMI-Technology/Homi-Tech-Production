@@ -101,6 +101,19 @@ so you should not need to install them manually.
   run the app. Every other integration (Stripe, Plaid, Anthropic, Resend,
   Sentry, Upstash, PostHog, web-push) degrades gracefully when unset. Real
   login/DB persistence and the live E2E specs need a real Supabase project.
+- **When real Supabase secrets are provided as VM env secrets**
+  (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+  `SUPABASE_SERVICE_ROLE_KEY`), copy them into `.env.local` so the dev server
+  reads them reliably. **Gotcha:** a dev server launched inside a `tmux` session
+  that was created *before* the secrets were injected keeps the stale env and
+  logs in fail with "Something went wrong"; writing the values into `.env.local`
+  (which Next always loads) sidesteps this — or recreate the tmux server. The
+  authenticated Supabase MCP server can apply migrations / query the DB directly.
+- **The reachable Supabase project is the live/production project** (real
+  `profiles`, `waitlist`, etc.), not a throwaway. Per `e2e/README.md`, do NOT run
+  the destructive live Playwright suite (it creates/deletes auth users) against
+  it — use a dedicated test project for that. Self-cleaning single-user checks
+  (admin `create` → sign in → admin `delete`) are fine for smoke-testing auth.
 - **Standard commands** are the `package.json` scripts (`dev`, `build`, `start`,
   `typecheck`, `test`, `test:e2e`, `brand-check`). Dev server is `npm run dev`
   on `http://localhost:3000`.
@@ -115,4 +128,15 @@ so you should not need to install them manually.
   `lib/validation/assessment.ts`) run fully on placeholder env. This is the
   fastest way to smoke-test that the app works end-to-end.
 - **Playwright E2E** (`npm run test:e2e`) additionally requires
-  `npx playwright install chromium` (browsers are not part of `npm ci`).
+  `npx playwright install chromium` (browsers are not part of `npm ci`). It
+  reuses an already-running dev server on `:3000`; the 4 "live" specs self-skip
+  without real Supabase/Stripe secrets, leaving 6 always-on specs (incl. the
+  full assessment→verdict flow) as the gate.
+- **Lighthouse** (`npm run lighthouse`) collects against a **production** server
+  (`npm run start`). `next dev` overwrites `.next` with a dev build, so re-run
+  `npm run build` before `npm run start`/lighthouse or `next start` errors with
+  "Could not find a production build". In this container Chrome needs
+  `--no-sandbox`, e.g.
+  `CHROME_PATH=/usr/local/bin/google-chrome npx lhci autorun --collect.settings.chromeFlags="--no-sandbox --disable-dev-shm-usage --disable-gpu" --upload.target=filesystem`.
+  Perf/LCP budget assertions can marginally fail on the throttled Cloud VM CPU
+  (not a code defect); a11y/SEO/best-practices pass.
