@@ -6,6 +6,10 @@ import { test, expect } from "@playwright/test";
  * Asserts the sticky stage stays in viewport while scroll progress advances
  * data-step through all four ring states — the regression that previously
  * showed blank navy between states when body overflow-x:hidden killed sticky.
+ *
+ * Title checks use DOM text on the active `.pin-step` (not getByRole visibility):
+ * inactive steps are aria-hidden, and `.pin-step` opacity transitions over 600ms,
+ * so role+visible assertions race the reveal and flake under short lg viewports.
  */
 
 const STEP_TITLES = [
@@ -39,12 +43,14 @@ async function scrollPinThrough(page: import("@playwright/test").Page) {
       },
       { top: sceneTop, travel, p },
     );
-    // Allow rAF + React setState to flush.
+    // Allow rAF + React setState to flush (not the full 600ms CSS fade).
     await page.waitForTimeout(50);
 
     const stepAttr = await stage.getAttribute("data-step");
     const step = Number(stepAttr);
     expect(Number.isFinite(step)).toBe(true);
+    expect(step).toBeGreaterThanOrEqual(0);
+    expect(step).toBeLessThanOrEqual(3);
     seen.add(step);
 
     const stageBox = await stage.boundingBox();
@@ -54,10 +60,11 @@ async function scrollPinThrough(page: import("@playwright/test").Page) {
     if (p > 0.08 && p < 0.92) {
       expect(Math.abs(stageBox!.y)).toBeLessThanOrEqual(16);
       expect(stageBox!.height).toBeGreaterThanOrEqual(vh - 24);
-      // Only the active step is in the a11y tree (others are aria-hidden).
-      await expect(
-        stage.getByRole("heading", { level: 3, name: STEP_TITLES[step as 0 | 1 | 2 | 3] }),
-      ).toBeVisible();
+      // Active step copy is present in the DOM for the current data-step.
+      // Avoid getByRole(...).toBeVisible() — aria-hidden siblings + opacity
+      // transitions make that race the 600ms .pin-step fade.
+      const titleText = await stage.locator(".pin-step").nth(step).locator("h3").innerText();
+      expect(titleText.trim()).toBe(STEP_TITLES[step as 0 | 1 | 2 | 3]);
     }
   }
   return seen;
