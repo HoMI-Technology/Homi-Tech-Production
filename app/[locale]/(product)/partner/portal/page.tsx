@@ -111,9 +111,7 @@ export default async function PartnerPortalPage() {
     partnerCode = null;
   }
 
-  const inviteLink = partnerCode
-    ? `${SITE_URL}/shadow-score?ref=${partnerCode}`
-    : `${SITE_URL}/shadow-score`;
+  const inviteLink = partnerCode ? `${SITE_URL}/shadow-score?ref=${partnerCode}` : null;
 
   // Anonymized, partner-scoped stats via SECURITY DEFINER RPCs (00024) — the
   // only partner read path into client assessment data. Aggregates and
@@ -209,12 +207,23 @@ export default async function PartnerPortalPage() {
               title="Your invite link"
               subtitle="Share this with clients. Every assessment they take is tagged to your partner account — no commission, no per-conversion fee."
             />
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <code className="input flex-1 overflow-x-auto whitespace-nowrap font-mono text-sm text-light">
-                {inviteLink}
-              </code>
-              <CopyButton value={inviteLink} className="shrink-0" />
-            </div>
+            {partnerCode && inviteLink ? (
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <code className="input flex-1 overflow-x-auto whitespace-nowrap font-mono text-sm text-light">
+                  {inviteLink}
+                </code>
+                <CopyButton value={inviteLink} className="shrink-0" />
+              </div>
+            ) : (
+              <div className="mt-5 rounded-xl border border-crimson/30 bg-crimson/5 p-4 text-sm text-dim">
+                <p className="font-medium text-light">Invite link unavailable</p>
+                <p className="mt-1">
+                  We couldn&apos;t mint your partner referral code, so a bare Shadow Score
+                  link would not attribute clients to you. Refresh this page, or contact
+                  support if it keeps failing.
+                </p>
+              </div>
+            )}
           </div>
         </Reveal>
       </section>

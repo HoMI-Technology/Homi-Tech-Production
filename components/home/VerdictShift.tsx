@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 /**
  * Section 6 — "Not Yet Is Not No" as a visual moment. When the section

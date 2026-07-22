@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Reveal } from "@/components/ui/Reveal";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { PILLARS } from "@/lib/brand";

@@ -7,6 +7,7 @@ import { HeaderShell, isActivePath } from "@/components/layout/HeaderShell";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 import { DashboardSwitcher } from "@/components/layout/DashboardSwitcher";
+import { APP_MORE_NAV, APP_PRIMARY_NAV } from "@/lib/layout/app-nav";
 
 /**
  * Signed-in application header. Replaces the marketing SiteHeader for
@@ -21,37 +22,8 @@ import { DashboardSwitcher } from "@/components/layout/DashboardSwitcher";
  * component owns the product nav, the "More" dropdown, and the account menu.
  */
 
-const AGENTS_ENABLED = process.env.NEXT_PUBLIC_FF_AGENT_OS === "true";
-
-const PRIMARY_BASE = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/assessment", label: "Assessment" },
-  { href: "/tools", label: "Tools" },
-  { href: "/journal", label: "Journal" },
-] as const;
-
-const PRIMARY = AGENTS_ENABLED
-  ? [
-      PRIMARY_BASE[0],
-      { href: "/agents", label: "Agents" },
-      ...PRIMARY_BASE.slice(1),
-    ]
-  : [...PRIMARY_BASE];
-
-// Everything else that was orphaned, grouped under "More" so it's all reachable.
-const MORE = [
-  { href: "/advisor", label: "Companion" },
-  { href: "/decisions", label: "Decisions" },
-  { href: "/signals", label: "Signals" },
-  { href: "/twin", label: "Future Twin" },
-  { href: "/trinity", label: "Trinity" },
-  { href: "/finance", label: "Finance" },
-  { href: "/calendar", label: "Calendar" },
-  { href: "/daily", label: "Daily Check-in" },
-  { href: "/family", label: "Family" },
-  { href: "/credit", label: "Credit" },
-  { href: "/connections", label: "Connections" },
-];
+const PRIMARY = APP_PRIMARY_NAV;
+const MORE = APP_MORE_NAV;
 
 export function AppHeader({
   email,

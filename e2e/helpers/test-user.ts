@@ -73,10 +73,35 @@ export async function deleteTestUser(userId: string): Promise<void> {
     // best effort
   }
   try {
+    await serviceClient().from("partner_codes").delete().eq("partner_user_id", userId);
+  } catch {
+    // best effort
+  }
+  try {
     await serviceClient().auth.admin.deleteUser(userId);
   } catch {
     // best effort
   }
+}
+
+/**
+ * Updates profiles.role for a throwaway E2E user. Used for multi-role shell
+ * smoke; always pair with deleteTestUser in finally.
+ */
+export async function setTestUserRole(
+  userId: string,
+  role: "user" | "admin" | "partner" | "employee",
+  extras: { employer_id?: string | null; organization_id?: string | null } = {},
+): Promise<void> {
+  const { error } = await serviceClient()
+    .from("profiles")
+    .update({
+      role,
+      employer_id: extras.employer_id ?? null,
+      organization_id: extras.organization_id ?? null,
+    })
+    .eq("id", userId);
+  if (error) throw new Error(`setTestUserRole failed: ${error.message}`);
 }
 
 /**

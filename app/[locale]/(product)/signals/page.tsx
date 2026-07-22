@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
 import { deriveSignals, type Signal, type SignalSeverity } from "@/lib/signals/engine";

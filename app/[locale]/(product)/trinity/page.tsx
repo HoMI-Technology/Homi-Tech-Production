@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useEffect } from "react";
-import { usePathname } from "next/navigation";
 import { VERDICT_META } from "@/lib/brand";
 import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
+import { Link, usePathname } from "@/i18n/navigation";
 
 interface TrinityResult {
   advocate: string;

@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { computeShadowScore, type ShadowInputs } from "@/lib/scoring";
 import { saveLocalResult, loadLocalResult, attachServerId } from "@/lib/assessment/storage";
 import {
@@ -29,6 +27,7 @@ import { MoneyField } from "./MoneyField";
 import { NumberField } from "./NumberField";
 import { ChoiceCards } from "./ChoiceCards";
 import { SliderField } from "./SliderField";
+import { useRouter, Link } from "@/i18n/navigation";
 
 const HERO_SIGNALS_KEY = "homi:hero-signals";
 

@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { validateNewPassword } from "@/lib/auth/password";
+import { Link, useRouter } from "@/i18n/navigation";
 
 /**
  * /auth/reset-password — the second half of the recovery flow. The user

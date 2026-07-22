@@ -1,6 +1,7 @@
-import { redirect, notFound } from "next/navigation";
-import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { signInRedirect } from "@/lib/auth/signInRedirect";
 import { env } from "@/lib/env";
 import { VERDICT_META, LEGAL_DISCLAIMER } from "@/lib/brand";
 import { Wordmark } from "@/components/brand/Wordmark";
@@ -25,7 +26,7 @@ export default async function ReportCredentialPage({ params }: { params: Promise
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/sign-in");
+    return signInRedirect(`/report/${id}/credential`);
   }
 
   const { entitlements } = await getUserEntitlements(supabase);

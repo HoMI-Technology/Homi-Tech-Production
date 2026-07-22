@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { track } from "@/lib/analytics";
 
 /** Links to the print-optimized report route, which triggers the browser print dialog on load. */
