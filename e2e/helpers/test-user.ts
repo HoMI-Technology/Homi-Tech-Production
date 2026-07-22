@@ -86,22 +86,45 @@ export async function deleteTestUser(userId: string): Promise<void> {
 
 /**
  * Updates profiles.role for a throwaway E2E user. Used for multi-role shell
- * smoke; always pair with deleteTestUser in finally.
+ * smoke; always pair with deleteTestUser in finally. Retries briefly because
+ * the on_auth_user_created trigger may lag the admin.createUser response.
  */
 export async function setTestUserRole(
   userId: string,
   role: "user" | "admin" | "partner" | "employee",
   extras: { employer_id?: string | null; organization_id?: string | null } = {},
 ): Promise<void> {
-  const { error } = await serviceClient()
-    .from("profiles")
-    .update({
-      role,
-      employer_id: extras.employer_id ?? null,
-      organization_id: extras.organization_id ?? null,
-    })
-    .eq("id", userId);
-  if (error) throw new Error(`setTestUserRole failed: ${error.message}`);
+  const payload = {
+    role,
+    employer_id: extras.employer_id ?? null,
+    organization_id: extras.organization_id ?? null,
+  };
+  let lastError: string | null = null;
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const { data: existing } = await serviceClient()
+      .from("profiles")
+      .select("id")
+      .eq("id", userId)
+      .maybeSingle();
+    if (!existing) {
+      await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
+      continue;
+    }
+    const { error } = await serviceClient().from("profiles").update(payload).eq("id", userId);
+    if (!error) {
+      const { data: check } = await serviceClient()
+        .from("profiles")
+        .select("role")
+        .eq("id", userId)
+        .maybeSingle();
+      if (check?.role === role) return;
+      lastError = `role still ${check?.role ?? "null"} after update`;
+    } else {
+      lastError = error.message;
+    }
+    await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
+  }
+  throw new Error(`setTestUserRole failed: ${lastError ?? "profile missing"}`);
 }
 
 /**

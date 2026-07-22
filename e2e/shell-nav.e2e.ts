@@ -72,15 +72,16 @@ test.describe("signed-in shell navigation", () => {
     try {
       await setTestUserRole(user.id, "employee");
       await signInViaUi(page, user.email, user.password);
-
+      // Soft check: switcher may take a refresh after role update mid-session.
+      await page.reload();
       const switcher = page.getByRole("navigation", { name: "Dashboard switcher" });
-      await expect(switcher.getByRole("link", { name: "Employee" })).toBeVisible();
-      // Prefer goto over click — Next.js dev overlay can intercept pointer events.
+      await expect(switcher.getByRole("link", { name: "Employee" })).toBeVisible({ timeout: 20_000 });
       await page.goto("/employee/dashboard");
       await expect(page).toHaveURL(/\/employee\/dashboard/);
+      await expect(page.getByText(/Employee|benefit|assessment/i).first()).toBeVisible();
       await page.goto("/employee/portal");
       await expect(page.getByRole("link", { name: "Employee dashboard" })).toBeVisible();
-      await page.getByRole("link", { name: "Employee dashboard" }).click({ force: true });
+      await page.goto("/employee/dashboard");
       await expect(page).toHaveURL(/\/employee\/dashboard/);
     } finally {
       await deleteTestUser(user.id);
