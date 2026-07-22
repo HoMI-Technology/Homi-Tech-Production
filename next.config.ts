@@ -71,6 +71,18 @@ const nextConfig: NextConfig = {
   eslint: { ignoreDuringBuilds: true },
   reactStrictMode: true,
   poweredByHeader: false,
+  async redirects() {
+    // Legacy / poisoned calculator slugs from satellite catalogs → canonical routes.
+    const toolAliases = [
+      ["mortgage-payment", "mortgage"],
+      ["home-equity", "heloc"],
+      ["apr-comparison", "apr-compare"],
+    ] as const;
+    return toolAliases.flatMap(([from, to]) => [
+      { source: `/tools/${from}`, destination: `/tools/${to}`, permanent: true },
+      { source: `/es/tools/${from}`, destination: `/es/tools/${to}`, permanent: true },
+    ]);
+  },
   async headers() {
     return [
       {
@@ -79,6 +91,15 @@ const nextConfig: NextConfig = {
         source: "/fonts/:path*",
         headers: [
           { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        source: "/architecture.json",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=60, must-revalidate" },
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Access-Control-Allow-Methods", value: "GET, OPTIONS" },
+          { key: "Access-Control-Allow-Headers", value: "Content-Type" },
         ],
       },
       {

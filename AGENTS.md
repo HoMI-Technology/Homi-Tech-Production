@@ -85,6 +85,36 @@ pwsh -File C:\Users\cody\ai-server\scripts\homi-ssot.ps1 pipeline -Task "..."
 - Next.js app (`homi-production`): `app/`, `components/`, `lib/`, `supabase/`
 - Keep secrets out of git; use `.env.local` (gitignored)
 
+## Agent-scrapable architecture feed
+
+Any agent can fetch the complete HōMI architecture snapshot:
+
+```
+https://homitechnology.com/architecture.json
+```
+
+Locally after `npm run architecture:gen`, the same file is served from
+`public/architecture.json`. Regenerate and check drift with:
+
+```bash
+npm run architecture:gen
+npm run architecture:check
+```
+
+**Authority:** executable TypeScript wins on conflict (`lib/scoring`,
+`lib/brand`, `lib/agents/registry`). The feed is a derived index.
+
+**Consumption protocol (short):**
+
+1. Fetch the product-domain JSON (not third-party mirrors).
+2. Prefer `calculators[].route` for tool paths — never invent slugs.
+3. Use real agent unlock levels from `ai_agents[].level` (Oracle is 10).
+4. Treat `gaps[]` as hints; verify in-repo before scheduling work.
+5. Verdict enum stays `NOT_YET`; badge label is `DO NOT PROCEED`
+   (`docs/adr/001-verdict-vocabulary.md`).
+
+In-product UI: `/agent-hub` (Agent Hub — feed URL, prompt builder, exports).
+
 ## Cursor Cloud specific instructions
 
 Single Next.js 15 / React 19 app (`homi-production`), package manager **npm**
@@ -117,8 +147,9 @@ so you should not need to install them manually.
 - **Standard commands** are the `package.json` scripts (`dev`, `build`, `start`,
   `typecheck`, `test`, `test:e2e`, `brand-check`). Dev server is `npm run dev`
   on `http://localhost:3000`.
-- **CI gate order** (`.github/workflows/ci.yml`): `brand-check` → `tsc --noEmit`
-  → `vitest run` → `next build`. Treat these four as the real pass/fail signal.
+- **CI gate order** (`.github/workflows/ci.yml`): `brand-check` →
+  `architecture:check` → `tsc --noEmit` → `vitest run` → `next build`. Treat
+  these as the real pass/fail signal.
 - **Do NOT rely on `npm run lint`**: there is no committed ESLint config, so
   `next lint` drops into an interactive setup prompt and hangs a non-interactive
   shell. It is intentionally not part of the CI gate; use `typecheck` +

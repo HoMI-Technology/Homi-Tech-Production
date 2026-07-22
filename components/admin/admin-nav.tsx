@@ -103,6 +103,17 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
         label: "Activity",
         icon: <path d="M3 11h3l2 6 4-12 2 6h3" />,
       },
+      {
+        href: "/agent-hub",
+        label: "Agent Hub",
+        icon: (
+          <>
+            <circle cx="10" cy="8" r="3" />
+            <path d="M4 17c1.5-2.5 3.5-3.5 6-3.5s4.5 1 6 3.5" />
+            <path d="M16 4l2 2-2 2M18 6h-3" />
+          </>
+        ),
+      },
     ],
   },
 ];

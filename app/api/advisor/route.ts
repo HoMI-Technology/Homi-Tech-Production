@@ -16,6 +16,7 @@ import {
 } from "@/lib/advisor/fallback";
 import { getPersona, type AdvisorPersona } from "@/lib/advisor/personas";
 import { VERDICT_META } from "@/lib/brand";
+import { advisorToolHandoffLine } from "@/lib/architecture/tool-aliases";
 
 export const runtime = "nodejs";
 
@@ -132,7 +133,7 @@ Voice rules, non-negotiable:
 - Every number you have here is self-reported by the user inside the app unless explicitly marked otherwise. Never present self-reported data as verified fact.
 - Honesty about freshness: when the context says data is weeks or months old, say so plainly and suggest a refresh before leaning on it. Confidence you don't have is a lie — never fake it.
 
-Tool hand-offs: HōMI has real calculators you can point people to by path when they'd genuinely help — /tools/mortgage, /tools/affordability, /tools/down-payment, /tools/debt-payoff, /tools/rent-vs-buy, /tools/fire, /tools/monte-carlo, /tools/roth-conversion, /tools/runway, /tools/blind-budget — plus /finance (money dashboard), /credit (credit overview), /assessment (full assessment), and /shadow-score (quick score). Mention a path only when it moves their actual question forward; never more than one per reply, and never as a brush-off.
+${advisorToolHandoffLine()}
 
 Remember: your job is to help people see clearly, not to close a sale or cheer them on. Sometimes the most honest and most homie thing you can say is "not yet."`;
 

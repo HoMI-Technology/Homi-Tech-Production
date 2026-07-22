@@ -1,0 +1,103 @@
+import type { ArchitectureCalculator } from "./types";
+
+/** Curated calculator contracts — routes are SSOT filesystem paths. */
+export const ARCHITECTURE_CALCULATORS: ArchitectureCalculator[] = [
+  {
+    id: "affordability",
+    name: "Affordability Calculator",
+    route: "/tools/affordability",
+    inputs: ["Gross monthly income", "Monthly debt payments", "Down payment amount", "Interest rate", "Loan term"],
+    outputs: ["Max home price", "Monthly payment (P&I)", "Recommended home price band"],
+  },
+  {
+    id: "debt-payoff",
+    name: "Debt Payoff",
+    route: "/tools/debt-payoff",
+    inputs: ["Total debt", "Interest rate", "Monthly payment", "Strategy (avalanche/snowball)"],
+    outputs: ["Payoff date", "Total interest paid", "Months to payoff", "Interest saved"],
+  },
+  {
+    id: "down-payment",
+    name: "Down Payment Goal",
+    route: "/tools/down-payment",
+    inputs: ["Target home price", "Down payment percent", "Current savings", "Monthly contribution"],
+    outputs: ["Target amount", "Months to goal", "Projected date"],
+  },
+  {
+    id: "monte-carlo",
+    name: "Monte Carlo Projection",
+    route: "/tools/monte-carlo",
+    inputs: ["Starting capital", "Monthly contribution", "Expected return", "Volatility", "Years", "Simulations"],
+    outputs: ["Percentile bands", "Probability of goal", "Median path"],
+  },
+  {
+    id: "rent-vs-buy",
+    name: "Rent vs. Buy",
+    route: "/tools/rent-vs-buy",
+    inputs: ["Monthly rent", "Home price", "Down payment", "Rate", "Horizon years", "Appreciation"],
+    outputs: ["Net cost comparison", "Break-even year", "Opportunity cost"],
+  },
+  {
+    id: "runway",
+    name: "Emergency Runway",
+    route: "/tools/runway",
+    inputs: ["Liquid savings", "Monthly essential expenses"],
+    outputs: ["Months of runway", "Hard-stop proximity"],
+  },
+  {
+    id: "fire",
+    name: "FIRE Number",
+    route: "/tools/fire",
+    inputs: ["Annual spend", "Withdrawal rate", "Current invested assets", "Savings rate"],
+    outputs: ["FIRE number", "Years to FI (illustrative)"],
+  },
+  {
+    id: "mortgage",
+    name: "Mortgage Payment",
+    route: "/tools/mortgage",
+    inputs: ["Principal", "Interest rate", "Term years"],
+    outputs: ["Monthly P&I", "Total interest", "Amortization summary"],
+  },
+  {
+    id: "roth-conversion",
+    name: "Roth Conversion",
+    route: "/tools/roth-conversion",
+    inputs: ["Traditional balance", "Conversion amount", "Marginal tax rate"],
+    outputs: ["Tax due", "Post-conversion Roth balance (illustrative)"],
+  },
+  {
+    id: "blind-budget",
+    name: "Blind Budget",
+    route: "/tools/blind-budget",
+    inputs: ["Income", "Category guesses"],
+    outputs: ["Category gaps", "Honesty score"],
+  },
+  {
+    id: "heloc",
+    name: "Home Equity Line",
+    route: "/tools/heloc",
+    inputs: ["Home value", "Mortgage balance", "HELOC rate", "Draw amount"],
+    outputs: ["Available equity", "Illustrative payment"],
+  },
+  {
+    id: "refinance",
+    name: "Refinance Break-Even",
+    route: "/tools/refinance",
+    inputs: ["Current rate", "New rate", "Balance", "Closing costs", "Remaining term"],
+    outputs: ["Monthly savings", "Break-even months"],
+  },
+  {
+    id: "apr-compare",
+    name: "APR Comparison",
+    route: "/tools/apr-compare",
+    inputs: ["Loan A terms", "Loan B terms", "Fees"],
+    outputs: ["Effective APR comparison", "Cost delta"],
+  },
+  {
+    id: "loan-programs",
+    name: "Loan Programs",
+    route: "/tools/loan-programs",
+    inputs: ["Credit band", "Down payment", "Occupancy", "Property type"],
+    outputs: ["Program fit sketch", "Educational notes"],
+  },
+];
