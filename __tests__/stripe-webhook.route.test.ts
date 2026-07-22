@@ -334,6 +334,32 @@ describe("POST /api/webhooks/stripe — processing contract", () => {
     expect(state.paymentUpserts).toHaveLength(0);
   });
 
+  it("charge.refunded marks the matching payments row as refunded", async () => {
+    verified({
+      id: "evt_refund_1",
+      type: "charge.refunded",
+      data: {
+        object: {
+          id: "ch_1",
+          payment_intent: "pi_test_1",
+          amount: 999,
+          amount_refunded: 999,
+          currency: "usd",
+          customer: "cus_1",
+          refunded: true,
+        },
+      },
+    });
+    const res = await POST(request("{}"));
+    expect(res.status).toBe(200);
+    expect(state.paymentUpserts).toHaveLength(1);
+    expect(state.paymentUpserts[0]).toMatchObject({
+      stripe_payment_intent_id: "pi_test_1",
+      status: "refunded",
+      amount: 999,
+    });
+  });
+
   it("skips ledger write when checkout amount_total is 0", async () => {
     verified({
       id: "evt_checkout_free",

@@ -52,8 +52,12 @@ export function HeaderShell({
 
   useEffect(() => {
     if (!open) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    // Lock vertical scroll only. Never set overflow-x:hidden on body —
+    // that kills position:sticky for the homepage AlignmentScene pin stage.
+    const prevOverflowY = document.body.style.overflowY;
+    const prevOverflowX = document.body.style.overflowX;
+    document.body.style.overflowY = "hidden";
+    document.body.style.overflowX = "clip";
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
         setOpen(false);
@@ -71,7 +75,8 @@ export function HeaderShell({
     document.addEventListener("mousedown", onPointer);
     desktop.addEventListener("change", onDesktop);
     return () => {
-      document.body.style.overflow = prevOverflow;
+      document.body.style.overflowY = prevOverflowY;
+      document.body.style.overflowX = prevOverflowX;
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("mousedown", onPointer);
       desktop.removeEventListener("change", onDesktop);

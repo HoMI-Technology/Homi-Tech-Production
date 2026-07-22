@@ -10,6 +10,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:dates-tz": "node scripts/test-dates-tz.mjs",
     "test:acceptance": "vitest run --config vitest.acceptance.config.ts",
     "test:e2e": "playwright test",
     "brand-check": "node scripts/brand-check.mjs",

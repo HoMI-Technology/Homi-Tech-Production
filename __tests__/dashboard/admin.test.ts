@@ -27,6 +27,7 @@ describe("revenue calculation", () => {
       { amount: 2900, status: "succeeded", created_at: "2026-07-01T00:00:00Z" },
       { amount: 1000, status: "failed", created_at: "2026-07-02T00:00:00Z" },
       { amount: 4900, status: "succeeded", created_at: "2026-07-03T00:00:00Z" },
+      { amount: 999, status: "refunded", created_at: "2026-07-04T00:00:00Z" },
     ]);
     expect(total).toBe(7800);
     expect(formatUsdFromCents(7800)).toMatch(/\$78/);

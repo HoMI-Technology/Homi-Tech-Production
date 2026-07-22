@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { localDateISO, formatLocalDateISO } from "@/lib/dates";
+import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 import type { JournalEntry } from "@/types/database";
 
 interface OutcomeDraft {
@@ -93,8 +94,8 @@ export default function OutcomesPage() {
 
   if (!authChecked) {
     return (
-      <div className="mx-auto max-w-2xl px-6 py-24 text-center">
-        <p className="text-dim">Loading…</p>
+      <div className="mx-auto max-w-2xl px-6 py-24">
+        <ProductLoadingSkeleton label="Loading outcomes" rows={2} />
       </div>
     );
   }
@@ -173,7 +174,7 @@ export default function OutcomesPage() {
       )}
 
       {loading ? (
-        <p className="mt-8 text-sm text-dim">Loading your outcomes…</p>
+        <ProductLoadingSkeleton label="Loading outcomes" />
       ) : entries.length === 0 ? (
         <div className="glass mt-8 p-10 text-center">
           <p className="text-light">No decisions logged yet.</p>

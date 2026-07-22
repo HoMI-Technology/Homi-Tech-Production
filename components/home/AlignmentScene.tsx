@@ -104,7 +104,13 @@ export function AlignmentScene() {
 
   return (
     <div ref={sceneRef} className="pin-scene">
-      <div className="pin-stage hero-deep">
+      <div
+        className="pin-stage hero-deep"
+        data-step={step}
+        data-testid="alignment-pin-stage"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {/* Horizon light behind the pinned instrument */}
         <div
           aria-hidden

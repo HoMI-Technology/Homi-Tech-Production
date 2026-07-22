@@ -67,7 +67,7 @@ async function recordPayment(supabase: NonNullable<ReturnType<typeof getServiceC
   let userId: string | null = null;
   let customerId: string | null = null;
   let description = `Stripe ${event.type}`;
-  let status: "succeeded" | "pending" | "failed" = "succeeded";
+  let status: "succeeded" | "pending" | "failed" | "refunded" = "succeeded";
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
@@ -122,6 +122,18 @@ async function recordPayment(supabase: NonNullable<ReturnType<typeof getServiceC
     amount = charge.amount;
     currency = charge.currency;
     customerId = typeof charge.customer === "string" ? charge.customer : null;
+  } else if (event.type === "charge.refunded") {
+    const charge = event.data.object as Stripe.Charge;
+    paymentIntentId = typeof charge.payment_intent === "string"
+      ? charge.payment_intent
+      : charge.payment_intent?.id;
+    // Prefer the original charge amount so the ledger row stays findable;
+    // status flips to refunded so admin revenue excludes it.
+    amount = charge.amount_refunded > 0 ? charge.amount_refunded : charge.amount;
+    currency = charge.currency;
+    customerId = typeof charge.customer === "string" ? charge.customer : null;
+    description = charge.refunded ? "Charge refunded" : "Charge partially refunded";
+    status = "refunded";
   }
 
   // Schema requires amount > 0; skip $0 / free / missing amounts.
@@ -330,7 +342,8 @@ export async function POST(request: Request) {
     event.type === "invoice.payment_succeeded" ||
     event.type === "payment_intent.succeeded" ||
     event.type === "payment_intent.created" ||
-    event.type === "charge.succeeded"
+    event.type === "charge.succeeded" ||
+    event.type === "charge.refunded"
   ) {
     await recordPayment(supabase, event);
   }
