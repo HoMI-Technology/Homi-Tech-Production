@@ -303,7 +303,7 @@ body {
 .bg-verdict-build { background: rgba(250, 182, 51, 0.10); border-color: rgba(250, 182, 51, 0.35); }
 .bg-verdict-notyet { background: rgba(242, 72, 34, 0.10); border-color: rgba(242, 72, 34, 0.35); }
 
-/* ── Range slider (assessment) ─────────────────────────────────── */
+/* ── Range slider (assessment + tools) ─────────────────────────── */
 input[type="range"].homi-slider {
   -webkit-appearance: none;
   appearance: none;
@@ -312,6 +312,7 @@ input[type="range"].homi-slider {
   border-radius: 999px;
   background: linear-gradient(90deg, #22d3ee var(--fill, 50%), rgba(51, 65, 85, 0.8) var(--fill, 50%));
   outline-offset: 6px;
+  transition: background 180ms ease;
 }
 input[type="range"].homi-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -322,9 +323,16 @@ input[type="range"].homi-slider::-webkit-slider-thumb {
   border: 3px solid #22d3ee;
   box-shadow: 0 0 16px rgba(34, 211, 238, 0.55);
   cursor: grab;
-  transition: transform 150ms ease;
+  transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 160ms ease;
 }
-input[type="range"].homi-slider::-webkit-slider-thumb:hover { transform: scale(1.12); }
+input[type="range"].homi-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.12);
+  box-shadow: 0 0 22px rgba(34, 211, 238, 0.75);
+}
+input[type="range"].homi-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.06);
+}
 input[type="range"].homi-slider::-moz-range-thumb {
   width: 22px;
   height: 22px;
@@ -523,13 +531,20 @@ input[type="range"].homi-slider::-moz-range-thumb {
 
 /* Giant display type — the question at cinema scale */
 .type-giant {
-  font-size: clamp(3rem, 7vw, 6.5rem);
-  line-height: 1.0;
+  font-size: clamp(2.25rem, 7vw, 6.5rem);
+  line-height: 1.05;
   letter-spacing: -0.02em;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: balance;
+  text-wrap: balance;
+}
+@media (min-width: 640px) {
+  .type-giant {
+    white-space: nowrap;
+  }
 }
 .type-statement {
-  font-size: clamp(2.5rem, 6.5vw, 5.5rem);
+  font-size: clamp(2rem, 6.5vw, 5.5rem);
   line-height: 1.06;
   letter-spacing: -0.015em;
 }

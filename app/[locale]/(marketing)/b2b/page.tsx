@@ -54,21 +54,21 @@ export default function B2BPage() {
               What your people get
             </h2>
             <div className="mt-12 grid gap-6 md:grid-cols-3">
-              <div className="glass p-8">
+              <div className="glass glass-hover p-8">
                 <h3 className="text-lg font-bold text-light">A private readiness score</h3>
                 <p className="mt-3 text-sm leading-relaxed text-dim">
                   Individual results stay individual. Employers see participation and
                   aggregate trends — never a single person&rsquo;s answers.
                 </p>
               </div>
-              <div className="glass p-8">
+              <div className="glass glass-hover p-8">
                 <h3 className="text-lg font-bold text-light">A Decision Companion</h3>
                 <p className="mt-3 text-sm leading-relaxed text-dim">
                   Conversations that help employees see their own situation clearly before a
                   major purchase, a career change, or a move.
                 </p>
               </div>
-              <div className="glass p-8">
+              <div className="glass glass-hover p-8">
                 <h3 className="text-lg font-bold text-light">Zero conflict of interest</h3>
                 <p className="mt-3 text-sm leading-relaxed text-dim">
                   No commissions, no referral fees, no product being pushed. The benefit

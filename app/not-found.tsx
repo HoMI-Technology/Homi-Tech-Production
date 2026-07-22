@@ -12,6 +12,13 @@
  * locale-agnostic by definition; translated 404s inside valid locales are
  * served by app/[locale]/not-found.tsx.
  */
+
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "404 — HōMI",
+};
+
 export default function GlobalNotFound() {
   return (
     <html lang="en">
