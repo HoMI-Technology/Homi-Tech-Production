@@ -1,12 +1,12 @@
 import { Link } from "@/i18n/navigation";
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AccessPanel } from "@/components/b2b/AccessPanel";
 import { StatTile } from "@/components/ui/StatTile";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { canAccessEmployeeHub } from "@/lib/dashboard/employee-access";
+import { signInRedirect } from "@/lib/auth/signInRedirect";
 import type { AssessmentRow, Organization, Profile } from "@/types/database";
 import type { VerdictKey } from "@/lib/brand";
 
@@ -21,7 +21,7 @@ export default async function EmployeeDashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/auth/sign-in?next=/employee/dashboard");
+  if (!user) return signInRedirect("/employee/dashboard");
 
   const { data: profileData } = await supabase
     .from("profiles")

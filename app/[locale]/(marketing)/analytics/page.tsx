@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 import { getCachedClient, getCachedUser } from "@/lib/supabase/server";
+import { signInRedirect } from "@/lib/auth/signInRedirect";
 import { StatTile } from "@/components/ui/StatTile";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Sparkline } from "@/components/ui/Sparkline";
@@ -24,7 +26,7 @@ function shortLabel(dateStr: string) {
 
 export default async function MarketingAnalyticsPage() {
   const user = await getCachedUser();
-  if (!user) redirect("/auth/sign-in?next=/analytics");
+  if (!user) return signInRedirect("/analytics");
 
   const supabase = await getCachedClient();
 
@@ -35,7 +37,8 @@ export default async function MarketingAnalyticsPage() {
     .maybeSingle();
 
   if (profile?.role !== "admin") {
-    redirect("/dashboard");
+    const locale = await getLocale();
+    redirect({ href: "/dashboard", locale });
   }
 
   const since = new Date();
