@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { StatTile } from "@/components/ui/StatTile";
 import { Sparkline } from "@/components/ui/Sparkline";
 import { SectionHeader } from "@/components/ui/SectionHeader";

@@ -24,7 +24,7 @@ function shortLabel(dateStr: string) {
 
 export default async function MarketingAnalyticsPage() {
   const user = await getCachedUser();
-  if (!user) redirect("/auth/login?redirect=/analytics");
+  if (!user) redirect("/auth/sign-in?next=/analytics");
 
   const supabase = await getCachedClient();
 

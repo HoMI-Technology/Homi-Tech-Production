@@ -1,6 +1,6 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { AdminMobileNav, AdminSidebar } from "@/components/admin/AdminSidebar";
 import { Wordmark } from "@/components/brand/Wordmark";
 import type { Profile } from "@/types/database";
 
@@ -30,7 +30,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="field flex min-h-screen items-center justify-center px-6">
         <div className="glass w-full max-w-md p-10 text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-surface">
-            <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" className="text-crimson">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              className="text-crimson"
+            >
               <path d="M10 3l7 3.5v4c0 4-3 6.5-7 7.5-4-1-7-3.5-7-7.5v-4L10 3z" />
               <path d="M10 8.5v3M10 14.5h.01" />
             </svg>
@@ -42,8 +50,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               : "Sign in with an administrator account to continue."}
           </p>
           <div className="mt-8">
-            <Link href={user ? "/" : "/auth/sign-in?next=/admin"} className="btn btn-primary">
-              {user ? "Return home" : "Sign in"}
+            <Link href={user ? "/dashboard" : "/auth/sign-in?next=/admin"} className="btn btn-primary">
+              {user ? "Return to dashboard" : "Sign in"}
             </Link>
           </div>
         </div>
@@ -65,7 +73,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <AdminSidebar />
           </div>
         </aside>
-        <main className="min-w-0 flex-1">{children}</main>
+        <div className="min-w-0 flex-1">
+          <AdminMobileNav />
+          {children}
+        </div>
       </div>
     </div>
   );

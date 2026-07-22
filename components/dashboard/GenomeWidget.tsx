@@ -1,5 +1,6 @@
 "use client";
 
+import { Link } from "@/i18n/navigation";
 import { GENOME_DIMENSIONS } from "@/lib/genome/constants";
 
 interface GenomeWidgetProps {
@@ -15,9 +16,9 @@ export function GenomeWidget({ scores }: GenomeWidgetProps) {
         <p className="mt-3 text-sm text-dim">
           Complete the behavioral genome assessment to reveal your 9 decision-psychology dimensions.
         </p>
-        <a href="/genome" className="btn btn-primary mt-4 !px-4 !py-2 text-sm">
+        <Link href="/genome" className="btn btn-primary mt-4 !px-4 !py-2 text-sm">
           Start Genome Assessment
-        </a>
+        </Link>
       </div>
     );
   }

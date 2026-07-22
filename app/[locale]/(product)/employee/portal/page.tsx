@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { AccessPanel } from "@/components/b2b/AccessPanel";
@@ -6,6 +6,7 @@ import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { ScoreRing } from "@/components/ui/ScoreRing";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { canAccessEmployeeHub } from "@/lib/dashboard/employee-access";
 import { VERDICT_META } from "@/lib/brand";
 import type { Profile, AssessmentRow } from "@/types/database";
 import type { VerdictKey } from "@/lib/brand";
@@ -91,7 +92,7 @@ export default async function EmployeePortalPage() {
     profile = null;
   }
 
-  if (!profile || (profile.role !== "employee" && profile.role !== "admin")) {
+  if (!profile || !canAccessEmployeeHub(profile)) {
     return (
       <AccessPanel
         title="Employee benefit access required"
@@ -138,6 +139,11 @@ export default async function EmployeePortalPage() {
           <p className="mt-2 max-w-2xl text-dim">
             Your private readiness hub. Nothing here is visible to your employer.
           </p>
+          <div className="mt-5">
+            <Link href="/employee/dashboard" className="btn btn-ghost !px-4 !py-2 text-sm">
+              Employee dashboard
+            </Link>
+          </div>
         </Reveal>
       </section>
 

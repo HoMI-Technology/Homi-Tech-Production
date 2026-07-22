@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { anyNeedsAttention, syncedAgo, type ItemReading } from "@/lib/dashboard/financial-position";
 
 /**

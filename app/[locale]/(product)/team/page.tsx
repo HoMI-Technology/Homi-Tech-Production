@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -183,9 +183,14 @@ export default async function TeamDashboardPage() {
         </div>
 
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/admin/organizations" className="btn btn-ghost !px-4 !py-2 text-sm">
-            Manage organizations
+          <Link href="/dashboard" className="btn btn-ghost !px-4 !py-2 text-sm">
+            Personal dashboard
           </Link>
+          {profile.role === "admin" && (
+            <Link href="/admin/organizations" className="btn btn-ghost !px-4 !py-2 text-sm">
+              Manage organizations
+            </Link>
+          )}
           <Link href="/b2b" className="btn btn-ghost !px-4 !py-2 text-sm">
             Enterprise overview
           </Link>

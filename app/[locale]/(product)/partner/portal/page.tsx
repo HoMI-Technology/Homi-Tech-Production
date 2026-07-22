@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { AccessPanel } from "@/components/b2b/AccessPanel";
@@ -168,6 +168,11 @@ export default async function PartnerPortalPage() {
             Invite clients, track aggregate readiness, and reach the resources
             that help you use HōMI in your practice.
           </p>
+          <div className="mt-5">
+            <Link href="/partner/dashboard" className="btn btn-ghost !px-4 !py-2 text-sm">
+              Partner dashboard
+            </Link>
+          </div>
         </Reveal>
       </section>
 

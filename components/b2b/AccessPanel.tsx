@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 /** Shown instead of a portal dashboard when the signed-in user lacks the required role. */
 export function AccessPanel({
@@ -6,11 +6,16 @@ export function AccessPanel({
   body,
   href,
   linkLabel,
+  secondaryHref = "/dashboard",
+  secondaryLabel = "Personal dashboard",
 }: {
   title: string;
   body: string;
   href: string;
   linkLabel: string;
+  /** Escape hatch so wrong-role users are not soft-looped through marketing ↔ portal. */
+  secondaryHref?: string | null;
+  secondaryLabel?: string;
 }) {
   return (
     <div className="mx-auto flex min-h-[60vh] max-w-2xl items-center px-6 py-20">
@@ -23,10 +28,15 @@ export function AccessPanel({
         </div>
         <h1 className="mt-5 font-display text-2xl text-light">{title}</h1>
         <p className="mt-3 text-sm leading-relaxed text-dim">{body}</p>
-        <div className="mt-8">
+        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link href={href} className="btn btn-primary">
             {linkLabel}
           </Link>
+          {secondaryHref && (
+            <Link href={secondaryHref} className="btn btn-ghost">
+              {secondaryLabel}
+            </Link>
+          )}
         </div>
       </div>
     </div>
