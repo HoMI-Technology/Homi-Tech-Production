@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { PILLARS } from "@/lib/brand";
 import { computeScore } from "@/lib/scoring";
 import { saveLocalResult, loadLocalResult, attachServerId } from "@/lib/assessment/storage";
@@ -103,6 +104,11 @@ export function FullAssessmentFlow() {
 
   const step = steps[index];
   const progressSteps = useMemo(() => stepMeta(steps), [steps]);
+  usePageTitle(
+    draftReady
+      ? `Assessment · Step ${index + 1} of ${steps.length} · HōMI`
+      : "Assessment · HōMI",
+  );
 
   function setResponse(questionId: string, value: ResponseValue) {
     setResponses((prev) => ({ ...prev, [questionId]: value }));

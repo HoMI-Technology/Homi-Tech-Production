@@ -23,6 +23,7 @@ export default defineConfig({
     exclude: [
       ...configDefaults.exclude,
       "**/__tests__/acceptance/**",
+      "**/__tests__/architecture.gen.test.ts",
       "e2e/**",
       // Nested agent worktrees must not pollute the root suite.
       "**/.claude/**",

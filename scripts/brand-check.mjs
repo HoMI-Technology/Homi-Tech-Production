@@ -36,6 +36,8 @@ const FORBIDDEN_WORDS = [
   "disrupting",
   "guaranteed",
   "bank-level",
+  "Skip the advisor",
+  "Our AI knows best",
 ];
 
 const BANNED_HEXES = ["#fb923c", "#ef4444"];

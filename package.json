@@ -13,6 +13,8 @@
     "test:acceptance": "vitest run --config vitest.acceptance.config.ts",
     "test:e2e": "playwright test",
     "brand-check": "node scripts/brand-check.mjs",
+    "architecture:gen": "vitest run --config vitest.architecture.config.ts",
+    "architecture:check": "node scripts/check-architecture.mjs",
     "stripe-setup": "node scripts/stripe-setup.mjs",
     "create-admin": "node scripts/create-admin.mjs",
     "verify-supabase": "node scripts/verify-supabase-connectivity.mjs",

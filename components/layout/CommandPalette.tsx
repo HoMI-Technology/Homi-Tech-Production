@@ -18,6 +18,8 @@ const ITEMS: PaletteItem[] = [
   { href: "/daily", label: "Daily check-in", group: "Act", keywords: "mood stress pulse" },
   { href: "/simulator", label: "Simulate your score", group: "Act", keywords: "what if test move" },
   { href: "/advisor", label: "Talk to the Companion", group: "Act", keywords: "chat advisor ai talk" },
+  { href: "/agents", label: "AI Agents roster", group: "Act", keywords: "agent os ensemble homie scout" },
+  { href: "/agent-hub", label: "Agent Hub feed", group: "Act", keywords: "architecture json prompt export scrape" },
   { href: "/tools", label: "Tools", group: "Navigate", keywords: "calculators mortgage affordability money" },
   { href: "/journal", label: "Journal", group: "Navigate", keywords: "decisions log notes" },
   { href: "/plan", label: "Plan", group: "Navigate", keywords: "next steps path" },

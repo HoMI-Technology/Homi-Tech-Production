@@ -1,0 +1,2161 @@
+{
+  "_meta": {
+    "version": "v1",
+    "generated": "2026-07-22",
+    "product": "HōMI",
+    "full_name": "HOMI TECHNOLOGIES LLC — Decision Readiness Intelligence™",
+    "domain": "homitechnology.com",
+    "repo": "github.com/HoMI-Technology/Homi-Tech-Production",
+    "core_question": "Will you be okay?",
+    "stack": "Next.js 15 + React 19 + TypeScript + Tailwind CSS v4 + Supabase + Stripe + Plaid + Anthropic",
+    "legal_entity": "HOMI TECHNOLOGIES LLC",
+    "feed_url": "https://homitechnology.com/architecture.json",
+    "authority": "Executable TypeScript in this repo wins over this document. Prefer lib/scoring, lib/brand, lib/agents/registry on conflict."
+  },
+  "stats": {
+    "product_routes": 90,
+    "api_routes": 24,
+    "component_directories": 27,
+    "lib_modules": 41,
+    "db_tables": 37,
+    "migrations": 35,
+    "calculators": 14,
+    "ai_agents": 7,
+    "gaps": 3
+  },
+  "product_routes": [
+    {
+      "path": "/",
+      "name": "Landing Page",
+      "category": "Marketing",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/page.tsx"
+    },
+    {
+      "path": "/about",
+      "name": "About",
+      "category": "Marketing",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/about/page.tsx"
+    },
+    {
+      "path": "/admin",
+      "name": "Admin",
+      "category": "Admin",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/admin/page.tsx"
+    },
+    {
+      "path": "/admin/activity",
+      "name": "Activity",
+      "category": "Admin",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/admin/activity/page.tsx"
+    },
+    {
+      "path": "/admin/analytics",
+      "name": "Analytics",
+      "category": "Admin",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/admin/analytics/page.tsx"
+    },
+    {
+      "path": "/admin/assessments",
+      "name": "Assessments",
+      "category": "Admin",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/admin/assessments/page.tsx"
+    },
+    {
+      "path": "/admin/email",
+      "name": "Email",
+      "category": "Admin",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/admin/email/page.tsx"
+    },
+    {
+      "path": "/admin/marketing",
+      "name": "Marketing",
+      "category": "Admin",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/admin/marketing/page.tsx"
+    },
+    {
+      "path": "/admin/organizations",
+      "name": "Organizations",
+      "category": "Admin",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/admin/organizations/page.tsx"
+    },
+    {
+      "path": "/admin/users",
+      "name": "Users",
+      "category": "Admin",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/admin/users/page.tsx"
+    },
+    {
+      "path": "/admin/waitlist",
+      "name": "Waitlist",
+      "category": "Admin",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/admin/waitlist/page.tsx"
+    },
+    {
+      "path": "/advisor",
+      "name": "Advisor",
+      "category": "AI Companion",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/advisor/page.tsx"
+    },
+    {
+      "path": "/agent-hub",
+      "name": "Agent Hub",
+      "category": "AI Companion",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/agent-hub/page.tsx"
+    },
+    {
+      "path": "/agents",
+      "name": "Agents",
+      "category": "AI Companion",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/agents/page.tsx"
+    },
+    {
+      "path": "/analytics",
+      "name": "Analytics",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/analytics/page.tsx"
+    },
+    {
+      "path": "/artifact",
+      "name": "Artifact",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/artifact/page.tsx"
+    },
+    {
+      "path": "/assessment",
+      "name": "Assessment",
+      "category": "Assessment",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/assessment/page.tsx"
+    },
+    {
+      "path": "/auth/forgot-password",
+      "name": "Forgot Password",
+      "category": "Auth",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/auth/forgot-password/page.tsx"
+    },
+    {
+      "path": "/auth/reset-password",
+      "name": "Reset Password",
+      "category": "Auth",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/auth/reset-password/page.tsx"
+    },
+    {
+      "path": "/auth/sign-in",
+      "name": "Sign In",
+      "category": "Auth",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/auth/sign-in/page.tsx"
+    },
+    {
+      "path": "/auth/sign-up",
+      "name": "Sign Up",
+      "category": "Auth",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/auth/sign-up/page.tsx"
+    },
+    {
+      "path": "/b2b",
+      "name": "B2b",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/b2b/page.tsx"
+    },
+    {
+      "path": "/blog",
+      "name": "Blog",
+      "category": "Marketing",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/blog/page.tsx"
+    },
+    {
+      "path": "/blog/[slug]",
+      "name": "[slug]",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/blog/[slug]/page.tsx"
+    },
+    {
+      "path": "/calendar",
+      "name": "Calendar",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/calendar/page.tsx"
+    },
+    {
+      "path": "/calibration",
+      "name": "Calibration",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/calibration/page.tsx"
+    },
+    {
+      "path": "/connections",
+      "name": "Connections",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/connections/page.tsx"
+    },
+    {
+      "path": "/couples",
+      "name": "Couples",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/couples/page.tsx"
+    },
+    {
+      "path": "/credit",
+      "name": "Credit",
+      "category": "Dashboard",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/credit/page.tsx"
+    },
+    {
+      "path": "/daily",
+      "name": "Daily",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/daily/page.tsx"
+    },
+    {
+      "path": "/dashboard",
+      "name": "Dashboard",
+      "category": "Dashboard",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/dashboard/page.tsx"
+    },
+    {
+      "path": "/decisions",
+      "name": "Decisions",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/decisions/page.tsx"
+    },
+    {
+      "path": "/demo",
+      "name": "Demo",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/demo/page.tsx"
+    },
+    {
+      "path": "/employee",
+      "name": "Employee",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/employee/page.tsx"
+    },
+    {
+      "path": "/employee/dashboard",
+      "name": "Dashboard",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/employee/dashboard/page.tsx"
+    },
+    {
+      "path": "/employee/portal",
+      "name": "Portal",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/employee/portal/page.tsx"
+    },
+    {
+      "path": "/family",
+      "name": "Family",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/family/page.tsx"
+    },
+    {
+      "path": "/finance",
+      "name": "Finance",
+      "category": "Dashboard",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/finance/page.tsx"
+    },
+    {
+      "path": "/genome",
+      "name": "Genome",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/genome/page.tsx"
+    },
+    {
+      "path": "/guides",
+      "name": "Guides",
+      "category": "Marketing",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/guides/page.tsx"
+    },
+    {
+      "path": "/guides/[slug]",
+      "name": "[slug]",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/guides/[slug]/page.tsx"
+    },
+    {
+      "path": "/how-it-works",
+      "name": "How It Works",
+      "category": "Marketing",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/how-it-works/page.tsx"
+    },
+    {
+      "path": "/journal",
+      "name": "Journal",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/journal/page.tsx"
+    },
+    {
+      "path": "/learning",
+      "name": "Learning",
+      "category": "Marketing",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/learning/page.tsx"
+    },
+    {
+      "path": "/learning/[slug]",
+      "name": "[slug]",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/learning/[slug]/page.tsx"
+    },
+    {
+      "path": "/legal/acceptable-use",
+      "name": "Acceptable Use",
+      "category": "Legal",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/legal/acceptable-use/page.tsx"
+    },
+    {
+      "path": "/legal/cookies",
+      "name": "Cookies",
+      "category": "Legal",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/legal/cookies/page.tsx"
+    },
+    {
+      "path": "/legal/disclaimer",
+      "name": "Disclaimer",
+      "category": "Legal",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/legal/disclaimer/page.tsx"
+    },
+    {
+      "path": "/legal/dmca",
+      "name": "Dmca",
+      "category": "Legal",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/legal/dmca/page.tsx"
+    },
+    {
+      "path": "/legal/privacy",
+      "name": "Privacy",
+      "category": "Legal",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/legal/privacy/page.tsx"
+    },
+    {
+      "path": "/legal/subprocessors",
+      "name": "Subprocessors",
+      "category": "Legal",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/legal/subprocessors/page.tsx"
+    },
+    {
+      "path": "/legal/terms",
+      "name": "Terms",
+      "category": "Legal",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/legal/terms/page.tsx"
+    },
+    {
+      "path": "/method",
+      "name": "Method",
+      "category": "Marketing",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/method/page.tsx"
+    },
+    {
+      "path": "/onboarding",
+      "name": "Onboarding",
+      "category": "Dashboard",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/onboarding/page.tsx"
+    },
+    {
+      "path": "/outcomes",
+      "name": "Outcomes",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/outcomes/page.tsx"
+    },
+    {
+      "path": "/partner",
+      "name": "Partner",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/partner/page.tsx"
+    },
+    {
+      "path": "/partner/dashboard",
+      "name": "Dashboard",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/partner/dashboard/page.tsx"
+    },
+    {
+      "path": "/partner/portal",
+      "name": "Portal",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/partner/portal/page.tsx"
+    },
+    {
+      "path": "/plan",
+      "name": "Plan",
+      "category": "Assessment",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/plan/page.tsx"
+    },
+    {
+      "path": "/pricing",
+      "name": "Pricing",
+      "category": "Marketing",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/pricing/page.tsx"
+    },
+    {
+      "path": "/report/[id]",
+      "name": "[id]",
+      "category": "Assessment",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/report/[id]/page.tsx"
+    },
+    {
+      "path": "/report/[id]/credential",
+      "name": "Credential",
+      "category": "Assessment",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/report/[id]/credential/page.tsx"
+    },
+    {
+      "path": "/report/[id]/print",
+      "name": "Print",
+      "category": "Assessment",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/report/[id]/print/page.tsx"
+    },
+    {
+      "path": "/results",
+      "name": "Results",
+      "category": "Assessment",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/results/page.tsx"
+    },
+    {
+      "path": "/settings",
+      "name": "Settings",
+      "category": "Dashboard",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/settings/page.tsx"
+    },
+    {
+      "path": "/shadow-score",
+      "name": "Shadow Score",
+      "category": "Assessment",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/shadow-score/page.tsx"
+    },
+    {
+      "path": "/shadow/[token]",
+      "name": "[token]",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/shadow/[token]/page.tsx"
+    },
+    {
+      "path": "/share/[token]",
+      "name": "[token]",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/share/[token]/page.tsx"
+    },
+    {
+      "path": "/signals",
+      "name": "Signals",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/signals/page.tsx"
+    },
+    {
+      "path": "/simulator",
+      "name": "Simulator",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/simulator/page.tsx"
+    },
+    {
+      "path": "/team",
+      "name": "Team",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/team/page.tsx"
+    },
+    {
+      "path": "/tools",
+      "name": "Tools",
+      "category": "Tools",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/tools/page.tsx"
+    },
+    {
+      "path": "/tools/affordability",
+      "name": "Affordability",
+      "category": "Tools",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/tools/affordability/page.tsx"
+    },
+    {
+      "path": "/tools/apr-compare",
+      "name": "Apr Compare",
+      "category": "Tools",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/tools/apr-compare/page.tsx"
+    },
+    {
+      "path": "/tools/blind-budget",
+      "name": "Blind Budget",
+      "category": "Tools",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/tools/blind-budget/page.tsx"
+    },
+    {
+      "path": "/tools/debt-payoff",
+      "name": "Debt Payoff",
+      "category": "Tools",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/tools/debt-payoff/page.tsx"
+    },
+    {
+      "path": "/tools/down-payment",
+      "name": "Down Payment",
+      "category": "Tools",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/tools/down-payment/page.tsx"
+    },
+    {
+      "path": "/tools/fire",
+      "name": "Fire",
+      "category": "Tools",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/tools/fire/page.tsx"
+    },
+    {
+      "path": "/tools/heloc",
+      "name": "Heloc",
+      "category": "Tools",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/tools/heloc/page.tsx"
+    },
+    {
+      "path": "/tools/loan-programs",
+      "name": "Loan Programs",
+      "category": "Tools",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/tools/loan-programs/page.tsx"
+    },
+    {
+      "path": "/tools/monte-carlo",
+      "name": "Monte Carlo",
+      "category": "Tools",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/tools/monte-carlo/page.tsx"
+    },
+    {
+      "path": "/tools/mortgage",
+      "name": "Mortgage",
+      "category": "Tools",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/tools/mortgage/page.tsx"
+    },
+    {
+      "path": "/tools/refinance",
+      "name": "Refinance",
+      "category": "Tools",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/tools/refinance/page.tsx"
+    },
+    {
+      "path": "/tools/rent-vs-buy",
+      "name": "Rent Vs Buy",
+      "category": "Tools",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/tools/rent-vs-buy/page.tsx"
+    },
+    {
+      "path": "/tools/roth-conversion",
+      "name": "Roth Conversion",
+      "category": "Tools",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/tools/roth-conversion/page.tsx"
+    },
+    {
+      "path": "/tools/runway",
+      "name": "Runway",
+      "category": "Tools",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/tools/runway/page.tsx"
+    },
+    {
+      "path": "/trinity",
+      "name": "Trinity",
+      "category": "AI Companion",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/trinity/page.tsx"
+    },
+    {
+      "path": "/twin",
+      "name": "Twin",
+      "category": "AI Companion",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(product)/twin/page.tsx"
+    },
+    {
+      "path": "/unsubscribe",
+      "name": "Unsubscribe",
+      "category": "Legal",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/unsubscribe/page.tsx"
+    },
+    {
+      "path": "/waitlist",
+      "name": "Waitlist",
+      "category": "Marketing",
+      "status": "complete",
+      "features": [],
+      "file": "app/[locale]/(marketing)/waitlist/page.tsx"
+    }
+  ],
+  "api_routes": [
+    {
+      "path": "/api/account",
+      "purpose": "Account management",
+      "method": "GET/POST"
+    },
+    {
+      "path": "/api/admin",
+      "purpose": "Admin endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/advisor",
+      "purpose": "AI companion chat (Claude)",
+      "method": "POST"
+    },
+    {
+      "path": "/api/agents",
+      "purpose": "AI agent system",
+      "method": "POST"
+    },
+    {
+      "path": "/api/assessments",
+      "purpose": "Assessment CRUD + scoring",
+      "method": "GET/POST"
+    },
+    {
+      "path": "/api/billing",
+      "purpose": "Stripe billing portal",
+      "method": "GET"
+    },
+    {
+      "path": "/api/checkout",
+      "purpose": "Stripe checkout session",
+      "method": "POST"
+    },
+    {
+      "path": "/api/cron",
+      "purpose": "Scheduled jobs",
+      "method": "POST"
+    },
+    {
+      "path": "/api/csp-report",
+      "purpose": "CSP violation reporting",
+      "method": "POST"
+    },
+    {
+      "path": "/api/email",
+      "purpose": "Email sending (Resend)",
+      "method": "POST"
+    },
+    {
+      "path": "/api/finance-state",
+      "purpose": "Finance state sync",
+      "method": "GET/POST"
+    },
+    {
+      "path": "/api/goals",
+      "purpose": "Goal tracking",
+      "method": "GET/POST"
+    },
+    {
+      "path": "/api/healthcheck",
+      "purpose": "Health monitoring",
+      "method": "GET"
+    },
+    {
+      "path": "/api/plaid",
+      "purpose": "Bank linking (Plaid)",
+      "method": "POST"
+    },
+    {
+      "path": "/api/push",
+      "purpose": "Push notifications",
+      "method": "POST"
+    },
+    {
+      "path": "/api/scoring",
+      "purpose": "Score computation",
+      "method": "POST"
+    },
+    {
+      "path": "/api/shadow-shares",
+      "purpose": "Anonymous sharing",
+      "method": "GET/POST"
+    },
+    {
+      "path": "/api/shares",
+      "purpose": "Score sharing",
+      "method": "GET/POST"
+    },
+    {
+      "path": "/api/trinity",
+      "purpose": "3-perspective AI",
+      "method": "POST"
+    },
+    {
+      "path": "/api/twin",
+      "purpose": "Future self letter",
+      "method": "POST"
+    },
+    {
+      "path": "/api/unsubscribe",
+      "purpose": "Email unsubscribe",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v1",
+      "purpose": "API versioning surface",
+      "method": "GET"
+    },
+    {
+      "path": "/api/waitlist",
+      "purpose": "Waitlist signup",
+      "method": "POST"
+    },
+    {
+      "path": "/api/webhooks",
+      "purpose": "Stripe webhooks",
+      "method": "POST"
+    }
+  ],
+  "component_directories": [
+    {
+      "name": "admin",
+      "count": 12,
+      "description": "admin UI module",
+      "examples": [
+        "admin-nav",
+        "AdminSidebar",
+        "Badge",
+        "BarSeries",
+        "CampaignComposer"
+      ]
+    },
+    {
+      "name": "advisor",
+      "count": 1,
+      "description": "advisor UI module",
+      "examples": [
+        "Chat"
+      ]
+    },
+    {
+      "name": "agents",
+      "count": 3,
+      "description": "agents UI module",
+      "examples": [
+        "AgentChat",
+        "AgentHubPanel",
+        "AgentRoster"
+      ]
+    },
+    {
+      "name": "analytics",
+      "count": 3,
+      "description": "analytics UI module",
+      "examples": [
+        "AnalyticsScripts",
+        "AttributionCapture",
+        "PageViewBeacon"
+      ]
+    },
+    {
+      "name": "assessment",
+      "count": 16,
+      "description": "assessment UI module",
+      "examples": [
+        "BankQuestionField",
+        "ChoiceCards",
+        "CountUpScore",
+        "CredentialPrintButton",
+        "FullAssessmentFlow"
+      ]
+    },
+    {
+      "name": "b2b",
+      "count": 2,
+      "description": "b2b UI module",
+      "examples": [
+        "AccessPanel",
+        "CopyButton"
+      ]
+    },
+    {
+      "name": "brand",
+      "count": 3,
+      "description": "brand UI module",
+      "examples": [
+        "ThresholdCompass",
+        "Wordmark.test",
+        "Wordmark"
+      ]
+    },
+    {
+      "name": "calendar",
+      "count": 3,
+      "description": "calendar UI module",
+      "examples": [
+        "EventForm",
+        "MonthGrid",
+        "UpcomingList"
+      ]
+    },
+    {
+      "name": "companion",
+      "count": 2,
+      "description": "companion UI module",
+      "examples": [
+        "CompanionWidget",
+        "MessageContent"
+      ]
+    },
+    {
+      "name": "connections",
+      "count": 1,
+      "description": "connections UI module",
+      "examples": [
+        "PlaidLinkLauncher"
+      ]
+    },
+    {
+      "name": "consent",
+      "count": 2,
+      "description": "consent UI module",
+      "examples": [
+        "consent-shared",
+        "CookieConsent"
+      ]
+    },
+    {
+      "name": "dashboard",
+      "count": 19,
+      "description": "dashboard UI module",
+      "examples": [
+        "BankConnectCard",
+        "ConnectionsTile",
+        "DailyPulseStrip",
+        "DecisionTimeline",
+        "entrance-shared"
+      ]
+    },
+    {
+      "name": "decisions",
+      "count": 1,
+      "description": "decisions UI module",
+      "examples": [
+        "NetPositionChart"
+      ]
+    },
+    {
+      "name": "entitlements",
+      "count": 2,
+      "description": "entitlements UI module",
+      "examples": [
+        "AdvancedToolGate",
+        "EntitlementGate"
+      ]
+    },
+    {
+      "name": "home",
+      "count": 14,
+      "description": "home UI module",
+      "examples": [
+        "AlignmentScene",
+        "CinemaFX",
+        "CinematicCompass",
+        "Compass3D",
+        "CompassExplainer"
+      ]
+    },
+    {
+      "name": "layout",
+      "count": 18,
+      "description": "layout UI module",
+      "examples": [
+        "AppHeader",
+        "ClientProviders",
+        "CommandPalette",
+        "CopyrightYear",
+        "CSSLatentFeatures"
+      ]
+    },
+    {
+      "name": "learning",
+      "count": 1,
+      "description": "learning UI module",
+      "examples": [
+        "learning-data"
+      ]
+    },
+    {
+      "name": "marketing",
+      "count": 6,
+      "description": "marketing UI module",
+      "examples": [
+        "ArtifactPlayground",
+        "blog-data",
+        "guides-data",
+        "PricingCheckoutButton",
+        "UnsubscribeConfirm"
+      ]
+    },
+    {
+      "name": "pwa",
+      "count": 2,
+      "description": "pwa UI module",
+      "examples": [
+        "AppleSplashLinks",
+        "ServiceWorkerRegister"
+      ]
+    },
+    {
+      "name": "results",
+      "count": 1,
+      "description": "results UI module",
+      "examples": [
+        "ScoreExplanation"
+      ]
+    },
+    {
+      "name": "seo",
+      "count": 1,
+      "description": "seo UI module",
+      "examples": [
+        "JsonLd"
+      ]
+    },
+    {
+      "name": "settings",
+      "count": 10,
+      "description": "settings UI module",
+      "examples": [
+        "CompanionMemorySection",
+        "DeleteAccountModal",
+        "NotificationsSection",
+        "PrivacySection",
+        "ProfileSection"
+      ]
+    },
+    {
+      "name": "share",
+      "count": 3,
+      "description": "share UI module",
+      "examples": [
+        "ShareScoreButton",
+        "ShareShadowButton",
+        "ShareViewPing"
+      ]
+    },
+    {
+      "name": "simulator",
+      "count": 1,
+      "description": "simulator UI module",
+      "examples": [
+        "ScoreSimulator"
+      ]
+    },
+    {
+      "name": "tools",
+      "count": 2,
+      "description": "tools UI module",
+      "examples": [
+        "CalcField",
+        "RadarChart"
+      ]
+    },
+    {
+      "name": "twin",
+      "count": 1,
+      "description": "twin UI module",
+      "examples": [
+        "TypedLetter"
+      ]
+    },
+    {
+      "name": "ui",
+      "count": 14,
+      "description": "ui UI module",
+      "examples": [
+        "Celebrate",
+        "count-up",
+        "EmptyState",
+        "MoneyField",
+        "NumberField"
+      ]
+    }
+  ],
+  "lib_modules": [
+    {
+      "name": "admin",
+      "purpose": "admin domain module"
+    },
+    {
+      "name": "advisor",
+      "purpose": "advisor domain module"
+    },
+    {
+      "name": "agents",
+      "purpose": "agents domain module"
+    },
+    {
+      "name": "analytics",
+      "purpose": "analytics domain module"
+    },
+    {
+      "name": "analytics",
+      "purpose": "analytics.ts helper"
+    },
+    {
+      "name": "architecture",
+      "purpose": "architecture domain module"
+    },
+    {
+      "name": "assessment",
+      "purpose": "assessment domain module"
+    },
+    {
+      "name": "attribution",
+      "purpose": "attribution.ts helper"
+    },
+    {
+      "name": "auth",
+      "purpose": "auth domain module"
+    },
+    {
+      "name": "brand",
+      "purpose": "brand domain module"
+    },
+    {
+      "name": "conflict",
+      "purpose": "conflict domain module"
+    },
+    {
+      "name": "credit",
+      "purpose": "credit domain module"
+    },
+    {
+      "name": "dashboard",
+      "purpose": "dashboard domain module"
+    },
+    {
+      "name": "decisions",
+      "purpose": "decisions domain module"
+    },
+    {
+      "name": "demo",
+      "purpose": "demo domain module"
+    },
+    {
+      "name": "email",
+      "purpose": "email domain module"
+    },
+    {
+      "name": "entitlements",
+      "purpose": "entitlements.ts helper"
+    },
+    {
+      "name": "env",
+      "purpose": "env.ts helper"
+    },
+    {
+      "name": "finance",
+      "purpose": "finance domain module"
+    },
+    {
+      "name": "flags",
+      "purpose": "flags.ts helper"
+    },
+    {
+      "name": "genome",
+      "purpose": "genome domain module"
+    },
+    {
+      "name": "keyboard",
+      "purpose": "keyboard domain module"
+    },
+    {
+      "name": "notifications",
+      "purpose": "notifications domain module"
+    },
+    {
+      "name": "outcomes",
+      "purpose": "outcomes domain module"
+    },
+    {
+      "name": "persistence",
+      "purpose": "persistence.ts helper"
+    },
+    {
+      "name": "plaid",
+      "purpose": "plaid domain module"
+    },
+    {
+      "name": "push",
+      "purpose": "push domain module"
+    },
+    {
+      "name": "questions",
+      "purpose": "questions domain module"
+    },
+    {
+      "name": "ratelimit",
+      "purpose": "ratelimit.ts helper"
+    },
+    {
+      "name": "receipts",
+      "purpose": "receipts domain module"
+    },
+    {
+      "name": "scoring",
+      "purpose": "scoring domain module"
+    },
+    {
+      "name": "security",
+      "purpose": "security.ts helper"
+    },
+    {
+      "name": "seo",
+      "purpose": "seo domain module"
+    },
+    {
+      "name": "signals",
+      "purpose": "signals domain module"
+    },
+    {
+      "name": "simulator",
+      "purpose": "simulator.ts helper"
+    },
+    {
+      "name": "stripe",
+      "purpose": "stripe domain module"
+    },
+    {
+      "name": "supabase",
+      "purpose": "supabase domain module"
+    },
+    {
+      "name": "tools",
+      "purpose": "tools domain module"
+    },
+    {
+      "name": "trinity",
+      "purpose": "trinity domain module"
+    },
+    {
+      "name": "twin",
+      "purpose": "twin domain module"
+    },
+    {
+      "name": "validation",
+      "purpose": "validation domain module"
+    }
+  ],
+  "db_tables": [
+    {
+      "name": "profiles",
+      "columns": [
+        "id",
+        "email",
+        "subscription_tier",
+        "role"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "User profile and tier"
+    },
+    {
+      "name": "assessments",
+      "columns": [
+        "id",
+        "user_id",
+        "score",
+        "verdict",
+        "pillars"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Scored readiness assessments"
+    },
+    {
+      "name": "checkins",
+      "columns": [
+        "id",
+        "user_id",
+        "mood",
+        "created_at"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Daily pulse check-ins"
+    },
+    {
+      "name": "journal_entries",
+      "columns": [
+        "id",
+        "user_id",
+        "body"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Decision journal"
+    },
+    {
+      "name": "outcomes",
+      "columns": [
+        "id",
+        "user_id",
+        "assessment_id"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Post-decision outcomes"
+    },
+    {
+      "name": "behavioral_genome",
+      "columns": [
+        "id",
+        "user_id",
+        "traits"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Behavioral genome snapshot"
+    },
+    {
+      "name": "couples",
+      "columns": [
+        "id",
+        "user_id"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Couples mode state"
+    },
+    {
+      "name": "plaid_items",
+      "columns": [
+        "id",
+        "user_id"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Linked bank items"
+    },
+    {
+      "name": "plaid_accounts",
+      "columns": [
+        "id",
+        "item_id"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Linked accounts"
+    },
+    {
+      "name": "plaid_transactions",
+      "columns": [
+        "id",
+        "account_id"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Synced transactions"
+    },
+    {
+      "name": "credit_snapshots",
+      "columns": [
+        "id",
+        "user_id",
+        "score"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Self-reported / snapshot credit"
+    },
+    {
+      "name": "financial_snapshots",
+      "columns": [
+        "id",
+        "user_id"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Periodic finance snapshots"
+    },
+    {
+      "name": "user_finance_state",
+      "columns": [
+        "user_id",
+        "payload"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Finance dashboard persistence"
+    },
+    {
+      "name": "goals",
+      "columns": [
+        "id",
+        "user_id",
+        "title"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "User goals"
+    },
+    {
+      "name": "advisor_conversations",
+      "columns": [
+        "id",
+        "user_id"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Companion threads"
+    },
+    {
+      "name": "advisor_messages",
+      "columns": [
+        "id",
+        "conversation_id",
+        "role"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Companion messages"
+    },
+    {
+      "name": "advisor_usage",
+      "columns": [
+        "user_id",
+        "day",
+        "count"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Daily companion quota"
+    },
+    {
+      "name": "question_bank",
+      "columns": [
+        "id",
+        "pillar",
+        "prompt"
+      ],
+      "rls": true,
+      "category": "platform",
+      "description": "Canonical assessment questions"
+    },
+    {
+      "name": "score_shares",
+      "columns": [
+        "id",
+        "assessment_id",
+        "token"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Public score share links"
+    },
+    {
+      "name": "shadow_shares",
+      "columns": [
+        "id",
+        "token"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Anonymous shadow-score shares"
+    },
+    {
+      "name": "receipt_verifications",
+      "columns": [
+        "id",
+        "user_id"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Receipt verification records"
+    },
+    {
+      "name": "partner_codes",
+      "columns": [
+        "id",
+        "code"
+      ],
+      "rls": true,
+      "category": "b2b",
+      "description": "Partner invite codes"
+    },
+    {
+      "name": "partner_api_keys",
+      "columns": [
+        "id",
+        "partner_id"
+      ],
+      "rls": true,
+      "category": "b2b",
+      "description": "Partner API keys"
+    },
+    {
+      "name": "organizations",
+      "columns": [
+        "id",
+        "name"
+      ],
+      "rls": true,
+      "category": "b2b",
+      "description": "B2B organizations"
+    },
+    {
+      "name": "organization_members",
+      "columns": [
+        "org_id",
+        "user_id",
+        "role"
+      ],
+      "rls": true,
+      "category": "b2b",
+      "description": "Org membership"
+    },
+    {
+      "name": "campaigns",
+      "columns": [
+        "id",
+        "name"
+      ],
+      "rls": true,
+      "category": "platform",
+      "description": "Marketing campaigns"
+    },
+    {
+      "name": "campaign_sends",
+      "columns": [
+        "id",
+        "campaign_id"
+      ],
+      "rls": true,
+      "category": "platform",
+      "description": "Campaign send log"
+    },
+    {
+      "name": "email_sends",
+      "columns": [
+        "id",
+        "template"
+      ],
+      "rls": true,
+      "category": "platform",
+      "description": "Transactional email log"
+    },
+    {
+      "name": "email_unsubscribes",
+      "columns": [
+        "email"
+      ],
+      "rls": true,
+      "category": "platform",
+      "description": "Email unsubscribe list"
+    },
+    {
+      "name": "push_subscriptions",
+      "columns": [
+        "id",
+        "user_id"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Web push subscriptions"
+    },
+    {
+      "name": "calendar_events",
+      "columns": [
+        "id",
+        "user_id",
+        "starts_at"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Decision calendar events"
+    },
+    {
+      "name": "family_accounts",
+      "columns": [
+        "id",
+        "owner_id"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Household / family seats"
+    },
+    {
+      "name": "audit_log",
+      "columns": [
+        "id",
+        "actor_id",
+        "action"
+      ],
+      "rls": true,
+      "category": "platform",
+      "description": "Admin audit trail"
+    },
+    {
+      "name": "webhook_events",
+      "columns": [
+        "event_id"
+      ],
+      "rls": true,
+      "category": "platform",
+      "description": "Stripe webhook idempotency"
+    },
+    {
+      "name": "waitlist",
+      "columns": [
+        "id",
+        "email"
+      ],
+      "rls": true,
+      "category": "platform",
+      "description": "Launch waitlist"
+    },
+    {
+      "name": "outcome_surveys",
+      "columns": [
+        "id",
+        "assessment_id"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Outcome satisfaction surveys"
+    },
+    {
+      "name": "payments",
+      "columns": [
+        "id",
+        "user_id",
+        "stripe_id"
+      ],
+      "rls": true,
+      "category": "platform",
+      "description": "Payment records"
+    }
+  ],
+  "ai_agents": [
+    {
+      "id": "homie",
+      "name": "Homie",
+      "role": "Companion",
+      "mode": "explore",
+      "level": 1,
+      "boundary": "Never pressures conversion. Never suggests paid actions.",
+      "color": "#22d3ee",
+      "description": "Your warm, direct coordinator. Homie listens first, then pulls in the right specialist when your question needs one."
+    },
+    {
+      "id": "scout",
+      "name": "Scout",
+      "role": "Explorer",
+      "mode": "compare",
+      "level": 1,
+      "boundary": "Presents alternatives, never picks for you.",
+      "color": "#34d399",
+      "description": "Discovers context and patterns in the user's readiness data — market awareness, life transitions, and things they might have missed."
+    },
+    {
+      "id": "analyst",
+      "name": "Analyst",
+      "role": "Numbers",
+      "mode": "analyze",
+      "level": 3,
+      "boundary": "Educational math only. No product advice.",
+      "color": "#facc15",
+      "description": "Deep-dives into the financial metrics. Explains DTI, runway, affordability, and opportunity costs in plain language."
+    },
+    {
+      "id": "coach",
+      "name": "Coach",
+      "role": "Mentor",
+      "mode": "decompress",
+      "level": 5,
+      "boundary": "Not a therapist. Identifies but does not treat.",
+      "color": "#fab633",
+      "description": "Builds the emotional and motivational side of the decision — pressure, clarity, fear, FOMO, and what 'ready' actually feels like."
+    },
+    {
+      "id": "architect",
+      "name": "Architect",
+      "role": "Strategy",
+      "mode": "plan",
+      "level": 8,
+      "boundary": "Build plans, not financial advice.",
+      "color": "#f24822",
+      "description": "Designs the decision roadmap: what to fix, in what order, and how long it realistically takes to move from NOT YET to READY."
+    },
+    {
+      "id": "oracle",
+      "name": "Oracle",
+      "role": "Projection",
+      "mode": "simulate",
+      "level": 10,
+      "boundary": "Simulates, never predicts with certainty.",
+      "color": "#a78bfa",
+      "description": "Runs scenario analysis and stress tests — what happens if income drops, rates rise, or timing shifts."
+    },
+    {
+      "id": "sentinel",
+      "name": "Sentinel",
+      "role": "Guardian",
+      "mode": "explore",
+      "level": 1,
+      "boundary": "Cannot be bypassed. Monitors all interactions for safety and compliance.",
+      "color": "#f24822",
+      "description": "Always active safety layer. Blocks disallowed advice, pressure language, and any attempt to bypass HōMI's educational-only posture."
+    }
+  ],
+  "gaps": [
+    {
+      "id": 1,
+      "severity": "low",
+      "area": "DevOps",
+      "issue": "Playwright E2E covers core funnels but not the full product matrix",
+      "fix": "Expand specs surgically for money/auth/share; keep live specs gated on secrets",
+      "effort": "4 hrs",
+      "verified": true
+    },
+    {
+      "id": 2,
+      "severity": "medium",
+      "area": "Analytics",
+      "issue": "PostHog events are not instrumented uniformly across product routes",
+      "fix": "Align capture calls to BUILD-BRIEF taxonomy (assessment_*, verdict_*, checkout_*)",
+      "effort": "2 hrs",
+      "verified": true
+    },
+    {
+      "id": 3,
+      "severity": "low",
+      "area": "Brand",
+      "issue": "Verdict vocabulary is dual-stable: enum NOT_YET, badge DO NOT PROCEED, prose often says “not yet”",
+      "fix": "Keep Policy A (see docs/adr/001-verdict-vocabulary.md); do not rename the enum without a migration ADR",
+      "effort": "docs only",
+      "verified": true
+    }
+  ],
+  "calculators": [
+    {
+      "id": "affordability",
+      "name": "Affordability Calculator",
+      "route": "/tools/affordability",
+      "inputs": [
+        "Gross monthly income",
+        "Monthly debt payments",
+        "Down payment amount",
+        "Interest rate",
+        "Loan term"
+      ],
+      "outputs": [
+        "Max home price",
+        "Monthly payment (P&I)",
+        "Recommended home price band"
+      ]
+    },
+    {
+      "id": "debt-payoff",
+      "name": "Debt Payoff",
+      "route": "/tools/debt-payoff",
+      "inputs": [
+        "Total debt",
+        "Interest rate",
+        "Monthly payment",
+        "Strategy (avalanche/snowball)"
+      ],
+      "outputs": [
+        "Payoff date",
+        "Total interest paid",
+        "Months to payoff",
+        "Interest saved"
+      ]
+    },
+    {
+      "id": "down-payment",
+      "name": "Down Payment Goal",
+      "route": "/tools/down-payment",
+      "inputs": [
+        "Target home price",
+        "Down payment percent",
+        "Current savings",
+        "Monthly contribution"
+      ],
+      "outputs": [
+        "Target amount",
+        "Months to goal",
+        "Projected date"
+      ]
+    },
+    {
+      "id": "monte-carlo",
+      "name": "Monte Carlo Projection",
+      "route": "/tools/monte-carlo",
+      "inputs": [
+        "Starting capital",
+        "Monthly contribution",
+        "Expected return",
+        "Volatility",
+        "Years",
+        "Simulations"
+      ],
+      "outputs": [
+        "Percentile bands",
+        "Probability of goal",
+        "Median path"
+      ]
+    },
+    {
+      "id": "rent-vs-buy",
+      "name": "Rent vs. Buy",
+      "route": "/tools/rent-vs-buy",
+      "inputs": [
+        "Monthly rent",
+        "Home price",
+        "Down payment",
+        "Rate",
+        "Horizon years",
+        "Appreciation"
+      ],
+      "outputs": [
+        "Net cost comparison",
+        "Break-even year",
+        "Opportunity cost"
+      ]
+    },
+    {
+      "id": "runway",
+      "name": "Emergency Runway",
+      "route": "/tools/runway",
+      "inputs": [
+        "Liquid savings",
+        "Monthly essential expenses"
+      ],
+      "outputs": [
+        "Months of runway",
+        "Hard-stop proximity"
+      ]
+    },
+    {
+      "id": "fire",
+      "name": "FIRE Number",
+      "route": "/tools/fire",
+      "inputs": [
+        "Annual spend",
+        "Withdrawal rate",
+        "Current invested assets",
+        "Savings rate"
+      ],
+      "outputs": [
+        "FIRE number",
+        "Years to FI (illustrative)"
+      ]
+    },
+    {
+      "id": "mortgage",
+      "name": "Mortgage Payment",
+      "route": "/tools/mortgage",
+      "inputs": [
+        "Principal",
+        "Interest rate",
+        "Term years"
+      ],
+      "outputs": [
+        "Monthly P&I",
+        "Total interest",
+        "Amortization summary"
+      ]
+    },
+    {
+      "id": "roth-conversion",
+      "name": "Roth Conversion",
+      "route": "/tools/roth-conversion",
+      "inputs": [
+        "Traditional balance",
+        "Conversion amount",
+        "Marginal tax rate"
+      ],
+      "outputs": [
+        "Tax due",
+        "Post-conversion Roth balance (illustrative)"
+      ]
+    },
+    {
+      "id": "blind-budget",
+      "name": "Blind Budget",
+      "route": "/tools/blind-budget",
+      "inputs": [
+        "Income",
+        "Category guesses"
+      ],
+      "outputs": [
+        "Category gaps",
+        "Honesty score"
+      ]
+    },
+    {
+      "id": "heloc",
+      "name": "Home Equity Line",
+      "route": "/tools/heloc",
+      "inputs": [
+        "Home value",
+        "Mortgage balance",
+        "HELOC rate",
+        "Draw amount"
+      ],
+      "outputs": [
+        "Available equity",
+        "Illustrative payment"
+      ]
+    },
+    {
+      "id": "refinance",
+      "name": "Refinance Break-Even",
+      "route": "/tools/refinance",
+      "inputs": [
+        "Current rate",
+        "New rate",
+        "Balance",
+        "Closing costs",
+        "Remaining term"
+      ],
+      "outputs": [
+        "Monthly savings",
+        "Break-even months"
+      ]
+    },
+    {
+      "id": "apr-compare",
+      "name": "APR Comparison",
+      "route": "/tools/apr-compare",
+      "inputs": [
+        "Loan A terms",
+        "Loan B terms",
+        "Fees"
+      ],
+      "outputs": [
+        "Effective APR comparison",
+        "Cost delta"
+      ]
+    },
+    {
+      "id": "loan-programs",
+      "name": "Loan Programs",
+      "route": "/tools/loan-programs",
+      "inputs": [
+        "Credit band",
+        "Down payment",
+        "Occupancy",
+        "Property type"
+      ],
+      "outputs": [
+        "Program fit sketch",
+        "Educational notes"
+      ]
+    }
+  ],
+  "scoring_engine": {
+    "description": "Deterministic code-only scoring (lib/scoring/engine.ts). AI explains only, never calculates.",
+    "pillars": [
+      {
+        "key": "financial",
+        "name": "Financial Reality",
+        "maxScore": 35,
+        "color": "#22d3ee",
+        "question": "Can you afford it?"
+      },
+      {
+        "key": "emotional",
+        "name": "Emotional Truth",
+        "maxScore": 35,
+        "color": "#34d399",
+        "question": "Do you really want it?"
+      },
+      {
+        "key": "timing",
+        "name": "Perfect Timing",
+        "maxScore": 30,
+        "color": "#facc15",
+        "question": "Is now the right moment?"
+      }
+    ],
+    "verdict_thresholds": {
+      "READY": {
+        "key": "READY",
+        "label": "READY",
+        "min": 80,
+        "max": 100,
+        "color": "#34d399"
+      },
+      "ALMOST_THERE": {
+        "key": "ALMOST_THERE",
+        "label": "ALMOST THERE",
+        "min": 65,
+        "max": 79,
+        "color": "#facc15"
+      },
+      "BUILD_FIRST": {
+        "key": "BUILD_FIRST",
+        "label": "BUILD FIRST",
+        "min": 50,
+        "max": 64,
+        "color": "#fab633"
+      },
+      "NOT_YET": {
+        "key": "NOT_YET",
+        "label": "DO NOT PROCEED",
+        "min": 0,
+        "max": 49,
+        "color": "#f24822"
+      }
+    },
+    "hard_stops": [
+      {
+        "code": "DTI_OVER_50",
+        "condition": "Debt-to-income > 50%",
+        "effect": "Forced NOT_YET regardless of score"
+      },
+      {
+        "code": "HOUSING_OVER_45",
+        "condition": "Housing cost > 45% of income",
+        "effect": "Forced NOT_YET regardless of score"
+      },
+      {
+        "code": "RUNWAY_UNDER_1",
+        "condition": "Less than 1 month runway",
+        "effect": "Forced NOT_YET regardless of score"
+      },
+      {
+        "code": "CREDIT_UNDER_620",
+        "condition": "Credit score under 620",
+        "effect": "Forced NOT_YET regardless of score"
+      }
+    ],
+    "vocabulary_note": "Storage/API enum is NOT_YET; user-facing badge label is DO NOT PROCEED; calm prose may still say “not yet.” See docs/adr/001-verdict-vocabulary.md."
+  },
+  "brand": {
+    "wordmark": "H=#22d3ee, ō=#34d399, M=#facc15, I=#22d3ee",
+    "taglines": [
+      "Know When You're Ready",
+      "A Decision Companion",
+      "Decision Readiness Intelligence™",
+      "Know Before You Leap"
+    ],
+    "voice": "Calm, clear, warm, honest. Never fear-based. Never hype.",
+    "forbidden_phrases": [
+      "Guaranteed",
+      "You qualify",
+      "Skip the advisor",
+      "Bank-level security",
+      "replaces your credit score",
+      "This is financial advice",
+      "Our AI knows best",
+      "AI-powered",
+      "revolutionary",
+      "game-changing",
+      "dream home",
+      "pre-approval"
+    ],
+    "required_disclaimer": "educational guidance only",
+    "positioning": {
+      "is": [
+        "educational readiness layer",
+        "decision companion"
+      ],
+      "is_not": [
+        "lender",
+        "broker",
+        "credit bureau",
+        "advisor",
+        "real estate agent"
+      ],
+      "never_say": "HōMI replaces your credit score or professional advice",
+      "always_say": "HōMI is an educational readiness layer, not a replacement for professional advice"
+    }
+  },
+  "compliance": {
+    "is_not": [
+      "lender",
+      "broker",
+      "credit bureau",
+      "advisor",
+      "real estate agent"
+    ],
+    "safe_claims": [
+      "readiness assessment",
+      "educational guidance"
+    ],
+    "disclaimer": "HōMI is a product of HOMI TECHNOLOGIES LLC. HōMI is not a lender, mortgage broker, registered investment advisor, credit bureau, real estate agent or brokerage, financial planner, bank or deposit institution, or product recommendation engine. HōMI provides educational guidance only and does not provide financial, legal, tax, mortgage, real estate, or investment advice.",
+    "positioning": "Readiness layer — never a credit score replacement"
+  },
+  "tool_aliases": {
+    "/tools/mortgage-payment": "/tools/mortgage",
+    "/tools/home-equity": "/tools/heloc",
+    "/tools/apr-comparison": "/tools/apr-compare"
+  },
+  "agent_consumption": {
+    "protocol": [
+      "Fetch architecture.json from the product domain (homitechnology.com), not third-party mirrors.",
+      "If _meta.generated is stale or architecture:check would fail, refuse to plan from the feed alone.",
+      "For scoring, verdicts, and agent levels: open lib/* when the feed disagrees.",
+      "Treat gaps[].severity as a hint; verify each issue in the repo before scheduling work.",
+      "Never emit calculator paths that are not in calculators[].route.",
+      "Never copy non-canon hex colors into product code — brand-check bans the orange/red Tailwind defaults."
+    ],
+    "smoke_test": "jq -e '((.ai_agents[] | select(.id==\"oracle\") | .level) == 10) and (([.calculators[].route] | map(select(test(\"mortgage-payment|home-equity|apr-comparison\"))) | length) == 0)'"
+  }
+}
