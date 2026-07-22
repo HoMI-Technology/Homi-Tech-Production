@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "@/i18n/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { pageSection, track } from "@/lib/analytics";
 
