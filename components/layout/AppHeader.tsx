@@ -112,11 +112,12 @@ export function AppHeader({
   }, []);
 
   const initial = (email?.trim()?.[0] ?? "H").toUpperCase();
+  // Pass employer vs organization separately — never a combined orgMember flag
+  // (that conflates Employee and Team tabs; see switcher-visibility tests).
   const switcherProps = {
     role,
     employerId,
     organizationId,
-    orgMember: Boolean(employerId || organizationId),
   };
 
   return (

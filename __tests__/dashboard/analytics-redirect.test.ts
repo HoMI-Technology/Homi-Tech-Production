@@ -4,16 +4,16 @@ import { describe, expect, it } from "vitest";
 
 /**
  * Regression: marketing analytics used a dead auth URL
- * (/auth/login?redirect=...) that does not exist. Sign-in is
- * /auth/sign-in?next=...
+ * (/auth/login?redirect=...) that does not exist. Sign-in goes through
+ * locale-aware signInRedirect("/analytics").
  */
 describe("marketing analytics auth redirect", () => {
-  it("sends anonymous users to /auth/sign-in?next=/analytics", () => {
+  it("sends anonymous users through signInRedirect(/analytics)", () => {
     const source = readFileSync(
       resolve(process.cwd(), "app/[locale]/(marketing)/analytics/page.tsx"),
       "utf8",
     );
-    expect(source).toContain('redirect("/auth/sign-in?next=/analytics")');
+    expect(source).toContain('signInRedirect("/analytics")');
     expect(source).not.toContain("/auth/login");
     expect(source).not.toContain("redirect=/analytics");
   });

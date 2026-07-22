@@ -52,6 +52,21 @@ describe("visibleDashboards", () => {
     }).map((d) => d.href);
     expect(hrefs).toEqual(["/dashboard", "/employee/dashboard", "/team"]);
   });
+
+  it("does not conflate employer and organization when IDs are passed separately", () => {
+    // Regression: AppHeader previously passed orgMember=Boolean(employer||org),
+    // which made employer-only users see Team (and org-only users see Employee).
+    expect(
+      visibleDashboards({ role: "user", employerId: "e1", organizationId: null }).map(
+        (d) => d.href,
+      ),
+    ).toEqual(["/dashboard", "/employee/dashboard"]);
+    expect(
+      visibleDashboards({ role: "user", employerId: null, organizationId: "o1" }).map(
+        (d) => d.href,
+      ),
+    ).toEqual(["/dashboard", "/team"]);
+  });
 });
 
 describe("activeDashboardHref", () => {
