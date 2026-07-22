@@ -130,9 +130,11 @@ export function AlignmentScene() {
           }}
         />
 
-        <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-6 px-6 py-8 sm:gap-10 lg:grid-cols-2 lg:py-0">
+        {/* Two-column + giant type only from xl — at lg/1024×768 the side-by-side
+            compass + text-6xl clip under .pin-stage { overflow: hidden }. */}
+        <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-6 px-6 py-8 sm:gap-10 xl:grid-cols-2 xl:py-0">
           <div className="flex justify-center">
-            <div className="w-[200px] sm:w-[320px] lg:w-[440px]">
+            <div className="w-[200px] sm:w-[280px] md:w-[320px] xl:w-[440px]">
               <CinematicCompass
                 responsive
                 glow={glow}
@@ -142,7 +144,7 @@ export function AlignmentScene() {
             </div>
           </div>
 
-          <div className="relative min-h-[160px] text-center sm:min-h-[220px] lg:text-left">
+          <div className="relative min-h-[160px] text-center sm:min-h-[200px] xl:min-h-[220px] xl:text-left">
             {STEPS.map((s, i) => (
               <div
                 key={s.title}
@@ -157,10 +159,10 @@ export function AlignmentScene() {
                 <p className="text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color: s.color }}>
                   {s.kicker}
                 </p>
-                <h3 className="mt-3 font-display text-3xl font-semibold leading-tight text-light sm:mt-4 sm:text-4xl lg:text-6xl">
+                <h3 className="mt-3 font-display text-3xl font-semibold leading-tight text-light sm:mt-4 sm:text-4xl xl:text-6xl">
                   {s.title}
                 </h3>
-                <p className="mt-3 max-w-md text-base leading-relaxed text-dim sm:mt-5 sm:text-lg lg:pr-6 mx-auto lg:mx-0">
+                <p className="mt-3 max-w-md text-base leading-relaxed text-dim sm:mt-4 sm:text-lg xl:mt-5 xl:pr-6 mx-auto xl:mx-0">
                   {s.line}
                 </p>
               </div>
