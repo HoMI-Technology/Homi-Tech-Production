@@ -8,6 +8,7 @@ import { PILLAR_MAX_POINTS } from "@/lib/scoring";
 import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { TypedLetter } from "@/components/twin/TypedLetter";
+import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 
 type Horizon = "5" | "10" | "retirement";
 
@@ -107,8 +108,8 @@ export default function TwinPage() {
 
   if (stored === undefined) {
     return (
-      <div className="mx-auto max-w-2xl px-6 py-24 text-center">
-        <p className="text-dim">Loading your results…</p>
+      <div className="mx-auto max-w-2xl px-6 py-24">
+        <ProductLoadingSkeleton label="Loading Temporal Twin" />
       </div>
     );
   }

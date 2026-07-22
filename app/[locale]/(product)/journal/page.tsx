@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { sliderFillPercent } from "@/lib/assessment/format";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { formatLocalDateISO, localDateISO } from "@/lib/dates";
 import type { JournalEntry } from "@/types/database";
 
 const DECISION_TYPES = [
@@ -32,7 +34,7 @@ function emptyDraft(): DraftEntry {
     context: "",
     expected_impact: "",
     mood: 5,
-    decision_date: new Date().toISOString().slice(0, 10),
+    decision_date: localDateISO(),
   };
 }
 
@@ -136,7 +138,7 @@ export default function JournalPage() {
       context: entry.context ?? "",
       expected_impact: entry.expected_impact ?? "",
       mood: entry.mood ?? 5,
-      decision_date: entry.decision_date ?? new Date().toISOString().slice(0, 10),
+      decision_date: entry.decision_date ?? localDateISO(),
     });
   }
 
@@ -296,7 +298,11 @@ export default function JournalPage() {
 
       <div className="mt-8 space-y-4">
         {loading ? (
-          <p className="text-sm text-dim">Loading your journal...</p>
+          <div className="space-y-4" aria-busy="true" aria-label="Loading journal">
+            <Skeleton className="h-24 w-full rounded-xl" />
+            <Skeleton className="h-24 w-full rounded-xl" />
+            <Skeleton className="h-24 w-full rounded-xl" />
+          </div>
         ) : entries.length === 0 ? (
           <div className="glass p-10">
             <EmptyState preset="journal" />
@@ -419,7 +425,7 @@ export default function JournalPage() {
                     </p>
                   )}
                   <div className="mt-3 flex items-center gap-4 text-xs text-dim">
-                    {entry.decision_date && <span>{new Date(entry.decision_date).toLocaleDateString()}</span>}
+                    {entry.decision_date && <span>{formatLocalDateISO(entry.decision_date)}</span>}
                     {entry.mood !== null && <span>Mood: {entry.mood}/10</span>}
                   </div>
                 </>

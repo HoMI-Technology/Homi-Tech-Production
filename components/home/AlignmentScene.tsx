@@ -10,6 +10,13 @@ import { CinematicCompass } from "./CinematicCompass";
  * when all three burn together, the keyhole turns emerald. The reader
  * doesn't watch alignment happen. They scroll it into existence.
  *
+ * Implementation: CSS `position: sticky` on `.pin-stage` inside a tall
+ * `.pin-scene` (strategy a — correct the custom pin, no GSAP). Scroll
+ * progress is derived from the scene's bounding rect. Requires no
+ * `overflow: hidden` ancestor on `body` (see `overflow-x: clip` in
+ * globals.css) or sticky collapses and the stage scrolls away, leaving
+ * blank navy for most of the pin range.
+ *
  * Reduced motion: renders as four stacked, fully-visible panels.
  */
 
@@ -57,15 +64,17 @@ export function AlignmentScene() {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         const r = el.getBoundingClientRect();
-        const total = r.height - window.innerHeight;
+        const total = Math.max(1, r.height - window.innerHeight);
         const progress = Math.max(0, Math.min(1, -r.top / total));
         setStep(Math.min(3, Math.floor(progress * 4)));
       });
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
       cancelAnimationFrame(raf);
     };
   }, []);
@@ -95,7 +104,13 @@ export function AlignmentScene() {
 
   return (
     <div ref={sceneRef} className="pin-scene">
-      <div className="pin-stage hero-deep">
+      <div
+        className="pin-stage hero-deep"
+        data-step={step}
+        data-testid="alignment-pin-stage"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {/* Horizon light behind the pinned instrument */}
         <div
           aria-hidden
@@ -115,9 +130,9 @@ export function AlignmentScene() {
           }}
         />
 
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-6 lg:grid-cols-2">
+        <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-6 px-6 py-8 sm:gap-10 lg:grid-cols-2 lg:py-0">
           <div className="flex justify-center">
-            <div className="w-[280px] sm:w-[380px] lg:w-[440px]">
+            <div className="w-[200px] sm:w-[320px] lg:w-[440px]">
               <CinematicCompass
                 responsive
                 glow={glow}
@@ -127,7 +142,7 @@ export function AlignmentScene() {
             </div>
           </div>
 
-          <div className="relative min-h-[220px] text-center lg:text-left">
+          <div className="relative min-h-[160px] text-center sm:min-h-[220px] lg:text-left">
             {STEPS.map((s, i) => (
               <div
                 key={s.title}
@@ -142,10 +157,10 @@ export function AlignmentScene() {
                 <p className="text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color: s.color }}>
                   {s.kicker}
                 </p>
-                <h3 className="mt-4 font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
+                <h3 className="mt-3 font-display text-3xl font-semibold leading-tight text-light sm:mt-4 sm:text-4xl lg:text-6xl">
                   {s.title}
                 </h3>
-                <p className="mt-5 max-w-md text-lg leading-relaxed text-dim lg:pr-6 mx-auto lg:mx-0">
+                <p className="mt-3 max-w-md text-base leading-relaxed text-dim sm:mt-5 sm:text-lg lg:pr-6 mx-auto lg:mx-0">
                   {s.line}
                 </p>
               </div>
@@ -153,8 +168,8 @@ export function AlignmentScene() {
           </div>
         </div>
 
-        {/* Progress ticks */}
-        <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 gap-2" aria-hidden>
+        {/* Progress ticks — four-dot indicator synced to visible step */}
+        <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-2 sm:bottom-8" aria-hidden>
           {STEPS.map((s, i) => (
             <span
               key={i}

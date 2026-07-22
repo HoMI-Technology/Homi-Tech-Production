@@ -16,7 +16,7 @@
     "product_routes": 90,
     "api_routes": 24,
     "component_directories": 27,
-    "lib_modules": 41,
+    "lib_modules": 42,
     "db_tables": 37,
     "migrations": 35,
     "calculators": 14,
@@ -1122,7 +1122,7 @@
     },
     {
       "name": "ui",
-      "count": 14,
+      "count": 16,
       "description": "ui UI module",
       "examples": [
         "Celebrate",
@@ -1185,6 +1185,10 @@
     {
       "name": "dashboard",
       "purpose": "dashboard domain module"
+    },
+    {
+      "name": "dates",
+      "purpose": "dates.ts helper"
     },
     {
       "name": "decisions",

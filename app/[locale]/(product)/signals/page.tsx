@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
 import { deriveSignals, type Signal, type SignalSeverity } from "@/lib/signals/engine";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Skeleton } from "@/components/ui/Skeleton";
 import type { DailyCheckin } from "@/types/database";
 
 const SEVERITY_CLASS: Record<SignalSeverity, string> = {
@@ -64,8 +65,11 @@ export default function SignalsPage() {
       </p>
 
       {loading ? (
-        <div className="mt-8 glass p-6">
-          <p className="text-sm text-dim">Loading...</p>
+        <div className="mt-8 glass space-y-4 p-6" aria-busy="true" aria-label="Loading signals">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
         </div>
       ) : !storedAssessment ? (
         <div className="mt-8 glass p-10">

@@ -183,7 +183,7 @@ export default async function AdminOverviewPage() {
           <SectionHeader
             eyebrow="Revenue"
             title="Succeeded payments — last 30 days"
-            subtitle="From the payments ledger (migration 00032)."
+            subtitle="From the payments ledger (Stripe webhook)."
           />
           <div className="mt-4 flex flex-wrap items-end gap-6">
             <div>
@@ -206,7 +206,10 @@ export default async function AdminOverviewPage() {
           </div>
           {revenue30dCents === 0 && (
             <p className="mt-4 text-sm text-dim">
-              No succeeded payments recorded yet. Insert from the Stripe webhook after 00032 applies.
+              No succeeded payments in the last 30 days yet. New Checkout and
+              invoice events land here once the Stripe webhook is delivering
+              <span className="font-mono text-xs text-light"> checkout.session.completed </span>
+              / <span className="font-mono text-xs text-light">invoice.payment_succeeded</span>.
             </p>
           )}
         </div>

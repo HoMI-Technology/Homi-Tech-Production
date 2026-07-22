@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { localDateISO, formatLocalDateISO } from "@/lib/dates";
+import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 import type { JournalEntry } from "@/types/database";
 
 interface OutcomeDraft {
@@ -11,7 +13,7 @@ interface OutcomeDraft {
 }
 
 function emptyDraft(): OutcomeDraft {
-  return { actual_impact: "", outcome_date: new Date().toISOString().slice(0, 10) };
+  return { actual_impact: "", outcome_date: localDateISO() };
 }
 
 function moodColor(mood: number | null): string {
@@ -92,8 +94,8 @@ export default function OutcomesPage() {
 
   if (!authChecked) {
     return (
-      <div className="mx-auto max-w-2xl px-6 py-24 text-center">
-        <p className="text-dim">Loading…</p>
+      <div className="mx-auto max-w-2xl px-6 py-24">
+        <ProductLoadingSkeleton label="Loading outcomes" rows={2} />
       </div>
     );
   }
@@ -172,7 +174,7 @@ export default function OutcomesPage() {
       )}
 
       {loading ? (
-        <p className="mt-8 text-sm text-dim">Loading your outcomes…</p>
+        <ProductLoadingSkeleton label="Loading outcomes" />
       ) : entries.length === 0 ? (
         <div className="glass mt-8 p-10 text-center">
           <p className="text-light">No decisions logged yet.</p>
@@ -197,7 +199,7 @@ export default function OutcomesPage() {
                         <h3 className="font-semibold text-light">{entry.title}</h3>
                         {entry.decision_date && (
                           <p className="mt-1 text-xs text-dim">
-                            Decided {new Date(entry.decision_date).toLocaleDateString()}
+                            Decided {formatLocalDateISO(entry.decision_date)}
                           </p>
                         )}
                       </div>
@@ -294,8 +296,8 @@ export default function OutcomesPage() {
                       )}
                     </div>
                     <div className="mt-3 flex items-center gap-4 text-xs text-dim">
-                      {entry.decision_date && <span>Decided {new Date(entry.decision_date).toLocaleDateString()}</span>}
-                      {entry.outcome_date && <span>Outcome {new Date(entry.outcome_date).toLocaleDateString()}</span>}
+                      {entry.decision_date && <span>Decided {formatLocalDateISO(entry.decision_date)}</span>}
+                      {entry.outcome_date && <span>Outcome {formatLocalDateISO(entry.outcome_date)}</span>}
                     </div>
                   </div>
                 ))}

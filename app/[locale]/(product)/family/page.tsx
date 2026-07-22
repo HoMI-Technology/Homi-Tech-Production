@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { ScoreRing } from "@/components/ui/ScoreRing";
 import { FamilyHouseholdGate } from "@/components/entitlements/AdvancedToolGate";
+import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 import type { VerdictType } from "@/types/database";
 
 interface FamilyMember {
@@ -270,7 +271,7 @@ function FamilyPageInner() {
   if (!checkedAuth || loading) {
     return (
       <div className="field mx-auto max-w-6xl px-6 py-16">
-        <p className="text-sm text-dim">Loading family mode...</p>
+        <ProductLoadingSkeleton label="Loading family mode" />
       </div>
     );
   }

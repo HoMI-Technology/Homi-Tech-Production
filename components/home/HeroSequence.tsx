@@ -44,7 +44,8 @@ export function HeroSequence() {
   }, []);
 
   // Camera pull-back: as the reader scrolls away, the scene recedes —
-  // scales down slightly and dims, like a crane shot leaving the room.
+  // scales down slightly. Opacity is left alone so headline contrast
+  // never dips below WCAG AA mid-scroll.
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const el = heroRef.current;
@@ -54,7 +55,6 @@ export function HeroSequence() {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         const t = Math.min(1, window.scrollY / (window.innerHeight * 0.9));
-        el.style.opacity = `${1 - t * 0.65}`;
         el.style.transform = `scale(${1 - t * 0.045}) translateY(${t * -18}px)`;
       });
     };
@@ -72,7 +72,7 @@ export function HeroSequence() {
     <section
       ref={heroRef}
       className="hero-field hero-deep relative flex min-h-[96vh] items-center overflow-hidden px-6 pb-16 pt-24"
-      style={{ transformOrigin: "50% 30%", willChange: "transform, opacity" }}
+      style={{ transformOrigin: "50% 30%", willChange: "transform" }}
     >
       <Particles />
       <div className="aurora-band" aria-hidden />

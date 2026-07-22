@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { VERDICT_META } from "@/lib/brand";
 import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
+import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 
 interface TrinityResult {
   advocate: string;
@@ -89,8 +90,8 @@ export default function TrinityPage() {
 
   if (stored === undefined) {
     return (
-      <div className="mx-auto max-w-2xl px-6 py-24 text-center">
-        <p className="text-dim">Loading your results…</p>
+      <div className="mx-auto max-w-2xl px-6 py-24">
+        <ProductLoadingSkeleton label="Loading Trinity Engine" />
       </div>
     );
   }
