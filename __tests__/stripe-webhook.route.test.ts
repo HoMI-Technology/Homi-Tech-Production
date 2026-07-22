@@ -49,6 +49,7 @@ const state = vi.hoisted(() => ({
   profileUpdates: [] as Array<Record<string, unknown>>,
   profileWhere: [] as Array<{ column: string; value: unknown }>,
   seenEventIds: new Set<string>(),
+  paymentUpserts: [] as Array<Record<string, unknown>>,
   failProfileUpdate: false,
   failEventInsert: false,
 }));
@@ -64,6 +65,7 @@ vi.mock("@supabase/supabase-js", () => ({
       Object.assign(builder, {
         select: then,
         eq: then,
+        limit: then,
         maybeSingle: async () => ({ data: null, error: null }),
         update(obj: Record<string, unknown>) {
           const result = state.failProfileUpdate
@@ -87,6 +89,14 @@ vi.mock("@supabase/supabase-js", () => ({
               return chain;
             },
             then: (r: (v: unknown) => void) => r({ error: null }),
+          });
+          return chain;
+        },
+        upsert(row: Record<string, unknown>) {
+          if (table === "payments") state.paymentUpserts.push(row);
+          const chain: Record<string, unknown> = {};
+          Object.assign(chain, {
+            then: (r: (v: unknown) => void) => r({ data: [row], error: null }),
           });
           return chain;
         },
@@ -133,13 +143,25 @@ function verified(event: unknown) {
 const checkoutEvent = {
   id: "evt_checkout_1",
   type: "checkout.session.completed",
-  data: { object: { id: "cs_test_1", client_reference_id: "user-a", customer: "cus_1", subscription: "sub_1" } },
+  data: {
+    object: {
+      id: "cs_test_1",
+      client_reference_id: "user-a",
+      customer: "cus_1",
+      subscription: "sub_1",
+      payment_intent: "pi_test_1",
+      amount_total: 999,
+      currency: "usd",
+      payment_status: "paid",
+    },
+  },
 };
 
 beforeEach(() => {
   state.profileUpdates = [];
   state.profileWhere = [];
   state.seenEventIds = new Set();
+  state.paymentUpserts = [];
   state.failProfileUpdate = false;
   state.failEventInsert = false;
   envState.STRIPE_WEBHOOK_SECRET = "whsec_test_secret";
@@ -248,6 +270,66 @@ describe("POST /api/webhooks/stripe — processing contract", () => {
     expect(patch.stripe_customer_id).toBe("cus_1");
     expect(patch.subscription_tier).toBe("pro");
     expect(state.profileWhere).toContainEqual({ column: "id", value: "user-a" });
+  });
+
+  it("checkout.session.completed writes a succeeded row to the payments ledger", async () => {
+    verified(checkoutEvent);
+    const res = await POST(request("{}"));
+    expect(res.status).toBe(200);
+    expect(state.paymentUpserts).toHaveLength(1);
+    expect(state.paymentUpserts[0]).toMatchObject({
+      stripe_payment_intent_id: "pi_test_1",
+      user_id: "user-a",
+      amount: 999,
+      currency: "usd",
+      status: "succeeded",
+    });
+  });
+
+  it("invoice.payment_succeeded writes a succeeded row to the payments ledger", async () => {
+    verified({
+      id: "evt_inv_ok_1",
+      type: "invoice.payment_succeeded",
+      data: {
+        object: {
+          id: "in_1",
+          customer: "cus_1",
+          amount_paid: 1999,
+          currency: "usd",
+          payment_intent: "pi_inv_1",
+          billing_reason: "subscription_cycle",
+        },
+      },
+    });
+    const res = await POST(request("{}"));
+    expect(res.status).toBe(200);
+    expect(state.paymentUpserts).toHaveLength(1);
+    expect(state.paymentUpserts[0]).toMatchObject({
+      stripe_payment_intent_id: "pi_inv_1",
+      amount: 1999,
+      status: "succeeded",
+    });
+  });
+
+  it("skips ledger write when checkout amount_total is 0", async () => {
+    verified({
+      id: "evt_checkout_free",
+      type: "checkout.session.completed",
+      data: {
+        object: {
+          id: "cs_free",
+          client_reference_id: "user-a",
+          customer: "cus_1",
+          payment_intent: "pi_free",
+          amount_total: 0,
+          currency: "usd",
+          payment_status: "paid",
+        },
+      },
+    });
+    const res = await POST(request("{}"));
+    expect(res.status).toBe(200);
+    expect(state.paymentUpserts).toHaveLength(0);
   });
 
   it("fails CLOSED (500) and releases the claim when the line-item round-trip fails", async () => {

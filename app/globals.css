@@ -52,6 +52,20 @@
   --color-light: #e2e8f0;
   --color-dim: #94a3b8;
 
+  /*
+   * Approved text/background contrast pairings (WCAG AA, dark-first canon).
+   * Use these — do not invent one-off greys on marketing/product surfaces.
+   *
+   *  1. text-light (#e2e8f0) on navy (#0a1628)     ≈ 12.6:1  — primary body/headlines
+   *  2. text-dim   (#94a3b8) on navy (#0a1628)     ≈  5.4:1  — secondary/supporting (≥14px)
+   *  3. text-ink   (#ffffff) on cyan/emerald CTAs  ≈  8+:1   — primary button labels
+   *  4. text-cyan  (#22d3ee) on navy               ≈  8.6:1  — accents/kickers only
+   *  5. text-emerald (#34d399) on navy             ≈  9.0:1  — success/positive accents
+   *
+   * Never: translucent headline opacity below ~0.85 on navy; never #64748b
+   * (slate-500) as body text on navy (~3.8:1, fails AA).
+   */
+
   --font-sans: "Inter Omacron", var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: "Fraunces Omacron", var(--font-fraunces), Georgia, serif;
   --font-score: var(--font-jbm), ui-monospace, monospace;
@@ -80,7 +94,9 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  overflow-x: hidden;
+  /* `clip` (not `hidden`) — overflow:hidden on body creates a scroll
+     containment that breaks position:sticky descendants (homepage pin-stage). */
+  overflow-x: clip;
 }
 
 ::selection {
@@ -518,16 +534,22 @@ input[type="range"].homi-slider::-moz-range-thumb {
   letter-spacing: -0.015em;
 }
 
-/* Text shine — light passes through the headline once */
+/* Text shine — light passes through the headline once.
+   Base `color` stays solid (#e2e8f0) so contrast never depends on
+   background-clip support or mid-animation gradient position. The shine
+   only applies once `.go` is set. */
 .text-shine {
+  color: var(--color-light);
+}
+.text-shine.go {
   background: linear-gradient(110deg, #e2e8f0 0%, #e2e8f0 42%, #ffffff 50%, #22d3ee 54%, #e2e8f0 62%, #e2e8f0 100%);
   background-size: 300% auto;
   background-position: 100% center;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  animation: shine-pass 2400ms cubic-bezier(0.4, 0, 0.2, 1) 600ms forwards;
 }
-.text-shine.go { animation: shine-pass 2400ms cubic-bezier(0.4, 0, 0.2, 1) 600ms forwards; }
 @keyframes shine-pass { to { background-position: 0% center; } }
 
 /* Flashlight — the cursor is a torch; darkness hides the truth */
@@ -561,15 +583,24 @@ input[type="range"].homi-slider::-moz-range-thumb {
 .torch-off .torch-content { -webkit-mask-image: none; mask-image: none; }
 .torch-off .torch-beamlight { display: none; }
 
-/* Pinned alignment scene */
-.pin-scene { height: 420vh; position: relative; }
+/* Pinned alignment scene — sticky stage stays viewport-centered while the
+   tall pin-scene drives scroll progress. Requires no overflow:hidden ancestor
+   between here and the scrolling viewport (see body overflow-x: clip). */
+.pin-scene {
+  height: 420vh;
+  position: relative;
+}
 .pin-stage {
   position: sticky;
   top: 0;
+  width: 100%;
   height: 100vh;
+  height: 100dvh;
   display: flex;
   align-items: center;
+  justify-content: center;
   overflow: hidden;
+  box-sizing: border-box;
 }
 .pin-step { transition: opacity 600ms ease, transform 600ms ease; }
 
@@ -604,7 +635,13 @@ input[type="range"].homi-slider::-moz-range-thumb {
   .comet-orbit { animation: none; }
   .sword { opacity: 1 !important; }
   .beam, .beam.go { animation: none; opacity: 0; }
-  .text-shine, .text-shine.go { animation: none; background-position: 0% center; }
+  .text-shine.go {
+    animation: none;
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    color: var(--color-light);
+  }
   .torch-content { -webkit-mask-image: none !important; mask-image: none !important; }
   .torch-beamlight { display: none; }
 }

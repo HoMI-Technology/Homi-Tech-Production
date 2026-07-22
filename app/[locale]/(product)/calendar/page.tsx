@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { MonthGrid } from "@/components/calendar/MonthGrid";
 import { EventForm } from "@/components/calendar/EventForm";
 import { UpcomingList } from "@/components/calendar/UpcomingList";
+import { localDateISO } from "@/lib/dates";
 import type { CalendarEvent, CalendarEventKind } from "@/types/database";
 
 const KIND_LABEL: Record<CalendarEventKind, string> = {
@@ -29,7 +30,7 @@ function startOfMonth(d: Date): Date {
 function addDaysIso(daysFromNow: number): string {
   const d = new Date();
   d.setDate(d.getDate() + daysFromNow);
-  return d.toISOString().slice(0, 10);
+  return localDateISO(d);
 }
 
 export default function CalendarPage() {

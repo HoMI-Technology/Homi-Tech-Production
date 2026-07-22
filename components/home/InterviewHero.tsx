@@ -184,7 +184,8 @@ export function InterviewHero() {
     inner: ignited.timing ? 1.2 : 0.06,
   };
 
-  const h1Opacity = settled || reducedMotion ? 1 : [0.14, 0.4, 0.7, 1][answeredCount] ?? 1;
+  // Headline stays at full contrast from first paint (WCAG AA). The interview
+  // reveal is carried by ring ignition + question cards, not by dimming the h1.
   const floorPoolOpacity = 0.08 + answeredCount * 0.09;
 
   const showQuestions = !settled;
@@ -249,22 +250,15 @@ export function InterviewHero() {
           </div>
         </div>
 
-        {/* h1 — always in the DOM, opacity animates */}
+        {/* h1 — always in the DOM at full contrast (never opacity-dimmed) */}
         <h1
           className="type-giant relative z-10 mt-12 font-display font-semibold text-light"
-          style={{
-            whiteSpace: "normal",
-            opacity: h1Opacity,
-            transition: reducedMotion ? "none" : "opacity 900ms ease",
-          }}
+          style={{ whiteSpace: "normal" }}
         >
           {t("h1")}
         </h1>
 
-        <p
-          className="mt-4 max-w-md text-base text-dim sm:text-lg"
-          style={{ opacity: Math.min(1, h1Opacity + 0.2) }}
-        >
+        <p className="mt-4 max-w-md text-base text-dim sm:text-lg">
           {t("sub")}
         </p>
 

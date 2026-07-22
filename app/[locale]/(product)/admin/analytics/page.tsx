@@ -88,9 +88,12 @@ function SetupState() {
       title: "Create a PostHog personal API key",
       body: (
         <>
-          In PostHog, open <span className="text-light">Settings → Personal API keys</span> and
-          create a key with the <span className="font-mono text-cyan">query</span> read scope
-          (project-scoped is fine).
+          Client-side tracking already fires when{" "}
+          <span className="font-mono text-xs text-light">NEXT_PUBLIC_POSTHOG_KEY</span> is set —
+          this dashboard is the missing half. In PostHog, open{" "}
+          <span className="text-light">Settings → Personal API keys</span> and create a key with
+          the <span className="font-mono text-cyan">query</span> read scope (project-scoped is
+          fine).
         </>
       ),
     },
@@ -100,7 +103,8 @@ function SetupState() {
         <>
           Set <span className="rounded bg-slate-surface px-1.5 py-0.5 font-mono text-xs text-cyan">POSTHOG_PERSONAL_API_KEY</span>{" "}
           in <span className="font-mono text-xs text-light">.env.local</span> and your hosting
-          provider. The project id is auto-detected; set{" "}
+          provider (Vercel → Project → Settings → Environment Variables). Redeploy after saving.
+          The project id is auto-detected; set{" "}
           <span className="rounded bg-slate-surface px-1.5 py-0.5 font-mono text-xs text-cyan">POSTHOG_PROJECT_ID</span>{" "}
           only to pin a specific project.
         </>
@@ -120,7 +124,18 @@ function SetupState() {
             ),
           },
         ]
-      : []),
+      : [
+          {
+            title: "Capture is already live",
+            body: (
+              <>
+                <span className="rounded bg-slate-surface px-1.5 py-0.5 font-mono text-xs text-cyan">NEXT_PUBLIC_POSTHOG_KEY</span>{" "}
+                is set — page views and product events are already reaching PostHog. Only the
+                personal API key above is needed for this admin view to query them.
+              </>
+            ),
+          },
+        ]),
     {
       title: "Redeploy and come back",
       body: (

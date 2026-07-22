@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { localDateISO } from "@/lib/dates";
 import type { JournalEntry } from "@/types/database";
 
 interface OutcomeDraft {
@@ -11,7 +12,7 @@ interface OutcomeDraft {
 }
 
 function emptyDraft(): OutcomeDraft {
-  return { actual_impact: "", outcome_date: new Date().toISOString().slice(0, 10) };
+  return { actual_impact: "", outcome_date: localDateISO() };
 }
 
 function moodColor(mood: number | null): string {
