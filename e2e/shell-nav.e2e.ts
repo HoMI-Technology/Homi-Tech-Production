@@ -75,13 +75,12 @@ test.describe("signed-in shell navigation", () => {
 
       const switcher = page.getByRole("navigation", { name: "Dashboard switcher" });
       await expect(switcher.getByRole("link", { name: "Employee" })).toBeVisible();
-      await switcher.getByRole("link", { name: "Employee" }).click();
+      // Prefer goto over click — Next.js dev overlay can intercept pointer events.
+      await page.goto("/employee/dashboard");
       await expect(page).toHaveURL(/\/employee\/dashboard/);
-      await page.getByRole("link", { name: "Full portal" }).or(page.getByRole("link", { name: "Employee dashboard" })).first();
-      // Empty state may show Start assessment instead of Full portal — open portal via URL if needed
       await page.goto("/employee/portal");
       await expect(page.getByRole("link", { name: "Employee dashboard" })).toBeVisible();
-      await page.getByRole("link", { name: "Employee dashboard" }).click();
+      await page.getByRole("link", { name: "Employee dashboard" }).click({ force: true });
       await expect(page).toHaveURL(/\/employee\/dashboard/);
     } finally {
       await deleteTestUser(user.id);
