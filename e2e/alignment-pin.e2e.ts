@@ -18,9 +18,9 @@ const STEP_TITLES = [
 async function scrollPinThrough(page: import("@playwright/test").Page) {
   const scene = page.locator(".pin-scene");
   await expect(scene).toBeVisible();
+  const stage = page.getByTestId("alignment-pin-stage");
+  await expect(stage).toBeVisible();
 
-  const box = await scene.boundingBox();
-  expect(box).toBeTruthy();
   const vh = page.viewportSize()?.height ?? 900;
   const sceneTop = (await scene.evaluate((el) => {
     const r = el.getBoundingClientRect();
@@ -40,21 +40,24 @@ async function scrollPinThrough(page: import("@playwright/test").Page) {
       { top: sceneTop, travel, p },
     );
     // Allow rAF + React setState to flush.
-    await page.waitForTimeout(40);
-    const stage = page.getByTestId("alignment-pin-stage");
+    await page.waitForTimeout(50);
+
     const stepAttr = await stage.getAttribute("data-step");
     const step = Number(stepAttr);
+    expect(Number.isFinite(step)).toBe(true);
     seen.add(step);
 
     const stageBox = await stage.boundingBox();
     expect(stageBox).toBeTruthy();
-    // Sticky: stage top should sit at (or very near) the viewport top while
-    // we are inside the pin range (not the very first/last frames).
+    // Sticky: stage top should sit near the viewport top while we are inside
+    // the pin range. Allow a few px of subpixel / mobile chrome slack.
     if (p > 0.08 && p < 0.92) {
-      expect(Math.abs(stageBox!.y)).toBeLessThanOrEqual(4);
-      expect(stageBox!.height).toBeGreaterThanOrEqual(vh - 4);
-      // Not a blank viewport — active title must be present.
-      await expect(stage.getByRole("heading", { level: 3 }).nth(step)).toBeVisible();
+      expect(Math.abs(stageBox!.y)).toBeLessThanOrEqual(16);
+      expect(stageBox!.height).toBeGreaterThanOrEqual(vh - 24);
+      // Only the active step is in the a11y tree (others are aria-hidden).
+      await expect(
+        stage.getByRole("heading", { level: 3, name: STEP_TITLES[step as 0 | 1 | 2 | 3] }),
+      ).toBeVisible();
     }
   }
   return seen;
@@ -62,7 +65,6 @@ async function scrollPinThrough(page: import("@playwright/test").Page) {
 
 test.describe("AlignmentScene pinned scroll", () => {
   test.use({
-    // Force motion on so the pin path renders (not the reduced-motion stack).
     colorScheme: "dark",
   });
 
@@ -77,7 +79,6 @@ test.describe("AlignmentScene pinned scroll", () => {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
       await page.emulateMedia({ reducedMotion: "no-preference" });
       await page.addInitScript(() => {
-        // Defeat session-stored hero shortcuts that could alter layout height.
         try {
           sessionStorage.clear();
         } catch {
@@ -91,13 +92,15 @@ test.describe("AlignmentScene pinned scroll", () => {
       const consent = page.getByRole("button", { name: /accept|agree|got it|allow/i });
       if (await consent.count()) {
         await consent.first().click().catch(() => undefined);
+        await page.waitForTimeout(100);
       }
 
       const seen = await scrollPinThrough(page);
       for (const expected of [0, 1, 2, 3]) {
-        expect(seen.has(expected), `expected to visit step ${expected} (${STEP_TITLES[expected]})`).toBe(
-          true,
-        );
+        expect(
+          seen.has(expected),
+          `expected to visit step ${expected} (${STEP_TITLES[expected]})`,
+        ).toBe(true);
       }
     });
   }
