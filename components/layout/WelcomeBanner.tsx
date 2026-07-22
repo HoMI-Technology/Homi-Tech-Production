@@ -1,17 +1,34 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { usePathname } from "next/navigation";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 const STORAGE_KEY = "homi_welcomed";
 const DISMISS_MS = 10000;
 
+/**
+ * Signed-in onboarding toast. Deliberately scoped to the app dashboard: this
+ * is a large text block that appears ~800ms after load, so on the public
+ * marketing/funnel/tool pages it became the Largest Contentful Paint element
+ * (painting late under Lighthouse's throttled mobile profile → ~4s LCP, the
+ * site-wide budget failure). Those pages already have their own hero and CTA;
+ * the "Welcome to HōMI" nudge belongs where a new user lands after signing in.
+ */
+function isAppSurface(pathname: string | null): boolean {
+  if (!pathname) return false;
+  // Match /dashboard and /<locale>/dashboard (the i18n-prefixed variant).
+  return /^\/(?:[a-z]{2}\/)?dashboard(?:\/|$)/.test(pathname);
+}
+
 export function WelcomeBanner() {
+  const pathname = usePathname();
   const [show, setShow] = useState(false);
   const [progress, setProgress] = useState(0);
   const reducedMotion = useReducedMotion();
 
   useEffect(() => {
+    if (!isAppSurface(pathname)) return;
     // Safe localStorage access inside useEffect (post-hydration)
     try {
       const welcomed = localStorage.getItem(STORAGE_KEY);
@@ -22,7 +39,7 @@ export function WelcomeBanner() {
     } catch {
       // localStorage not available (private browsing) — silently skip
     }
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     if (!show || reducedMotion) return;
@@ -53,7 +70,15 @@ export function WelcomeBanner() {
 
   return (
     <div
-      className="glass glass-hover relative mx-4 mt-4 overflow-hidden"
+      // Fixed overlay (out of document flow): an in-flow banner that appears
+      // 800ms after load pushed all content down — it was simultaneously the
+      // top CLS source AND, being the largest late-painting text block, the LCP
+      // element itself (~0.33 CLS / ~4s LCP on every public route, breaking the
+      // mobile Lighthouse budget). As a fixed toast it can neither shift layout
+      // nor displace the page's real hero as the largest contentful paint.
+      className="glass glass-hover fixed inset-x-4 bottom-4 z-40 mx-auto max-w-xl overflow-hidden sm:left-auto sm:right-4 sm:mx-0"
+      role="dialog"
+      aria-label="Welcome to HōMI"
       style={{
         borderColor: "rgba(34, 211, 238, 0.25)",
         boxShadow: "inset 0 1px 0 rgba(226, 232, 240, 0.07), 0 24px 48px -18px rgba(2, 6, 16, 0.7), 0 0 44px -18px rgba(34, 211, 238, 0.2)",
