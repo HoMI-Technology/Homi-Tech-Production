@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 
 interface PaletteItem {
   href: string;
@@ -32,6 +32,10 @@ const ITEMS: PaletteItem[] = [
   { href: "/connections", label: "Connections", group: "Navigate", keywords: "bank plaid sync accounts" },
   { href: "/couples", label: "Couples", group: "Navigate", keywords: "partner alignment" },
   { href: "/genome", label: "Genome", group: "Navigate", keywords: "psychology profile" },
+  { href: "/partner/dashboard", label: "Partner dashboard", group: "Roles", keywords: "referral clients partner" },
+  { href: "/employee/dashboard", label: "Employee dashboard", group: "Roles", keywords: "benefits employer" },
+  { href: "/team", label: "Team dashboard", group: "Roles", keywords: "organization b2b aggregate" },
+  { href: "/admin", label: "Admin", group: "Roles", keywords: "platform users waitlist" },
   { href: "/settings", label: "Settings", group: "Navigate", keywords: "account profile billing subscription" },
 ];
 

@@ -4,48 +4,45 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import {
+  activeDashboardHref,
+  visibleDashboards,
+  type SwitcherContext,
+} from "@/lib/dashboard/switcher-visibility";
 
-type DashboardLink = {
-  href: string;
-  label: string;
-  requiredRole?: string;
-  requiredOrg?: boolean;
-};
+export type DashboardSwitcherProps = SwitcherContext;
 
-const ALL_DASHBOARDS: DashboardLink[] = [
-  { href: "/dashboard", label: "Personal" },
-  { href: "/partner/dashboard", label: "Partner", requiredRole: "partner" },
-  { href: "/employee/dashboard", label: "Employee", requiredOrg: true },
-  { href: "/team", label: "Team", requiredOrg: true },
-  { href: "/admin", label: "Admin", requiredRole: "admin" },
-  { href: "/analytics", label: "Analytics", requiredRole: "admin" },
-];
-
-interface DashboardSwitcherProps {
+export function DashboardSwitcher({
+  role,
+  employerId,
+  organizationId,
+  orgMember,
+  userRole,
+}: DashboardSwitcherProps & {
+  /** @deprecated Prefer `role`. Kept for call-site compatibility. */
   userRole?: string;
-  orgMember?: boolean;
-}
-
-export function DashboardSwitcher({ userRole = "user", orgMember = false }: DashboardSwitcherProps) {
+}) {
   const pathname = usePathname();
   const reducedMotion = useReducedMotion();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const visible = ALL_DASHBOARDS.filter((d) => {
-    if (d.requiredRole && d.requiredRole !== userRole) return false;
-    if (d.requiredOrg && !orgMember) return false;
-    return true;
+  const visible = visibleDashboards({
+    role: role ?? userRole,
+    employerId,
+    organizationId,
+    orgMember,
   });
 
   if (visible.length <= 1) return null;
 
-  const activeDashboard = visible.find((d) => pathname.startsWith(d.href)) ?? visible[0];
+  const activeHref = activeDashboardHref(pathname, visible) ?? visible[0].href;
+  const activeDashboard = visible.find((d) => d.href === activeHref) ?? visible[0];
 
   return (
     <nav className="relative" aria-label="Dashboard switcher">
       <div className="hidden items-center gap-1 rounded-xl border border-slate-high/30 bg-slate-surface/50 p-1 sm:inline-flex">
         {visible.map((dashboard) => {
-          const isActive = pathname.startsWith(dashboard.href);
+          const isActive = dashboard.href === activeHref;
           return (
             <Link
               key={dashboard.href}
@@ -55,13 +52,16 @@ export function DashboardSwitcher({ userRole = "user", orgMember = false }: Dash
               {isActive && !reducedMotion && (
                 <motion.div
                   layoutId="dash-active-pill"
-                  className="absolute inset-0 rounded-lg bg-navy-light/80 border border-slate-high/40"
+                  className="absolute inset-0 rounded-lg border border-slate-high/40 bg-navy-light/80"
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   style={{ zIndex: 0 }}
                 />
               )}
               {isActive && reducedMotion && (
-                <div className="absolute inset-0 rounded-lg bg-navy-light/80 border border-slate-high/40" style={{ zIndex: 0 }} />
+                <div
+                  className="absolute inset-0 rounded-lg border border-slate-high/40 bg-navy-light/80"
+                  style={{ zIndex: 0 }}
+                />
               )}
               <span className="relative z-10">{dashboard.label}</span>
             </Link>
@@ -71,13 +71,20 @@ export function DashboardSwitcher({ userRole = "user", orgMember = false }: Dash
 
       <div className="sm:hidden">
         <button
+          type="button"
           onClick={() => setMobileOpen((v) => !v)}
           className="flex items-center gap-2 rounded-lg border border-slate-high/30 bg-slate-surface/50 px-3 py-2 text-sm font-medium text-light"
           aria-expanded={mobileOpen}
           aria-haspopup="listbox"
         >
           <span>{activeDashboard.label}</span>
-          <svg className={`h-4 w-4 text-dim transition-transform ${mobileOpen ? "rotate-180" : ""}`} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            className={`h-4 w-4 text-dim transition-transform ${mobileOpen ? "rotate-180" : ""}`}
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M3 6l5 5 5-5" />
           </svg>
         </button>
@@ -92,7 +99,7 @@ export function DashboardSwitcher({ userRole = "user", orgMember = false }: Dash
               className="glass absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden"
             >
               {visible.map((dashboard) => {
-                const isActive = pathname.startsWith(dashboard.href);
+                const isActive = dashboard.href === activeHref;
                 return (
                   <Link
                     key={dashboard.href}

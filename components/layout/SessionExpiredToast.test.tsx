@@ -3,8 +3,21 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { SessionExpiredToast } from "./SessionExpiredToast";
 
-vi.mock("next/navigation", () => ({
+vi.mock("@/i18n/navigation", () => ({
   usePathname: () => "/dashboard",
+  Link: ({
+    href,
+    children,
+    ...rest
+  }: {
+    href: string;
+    children: React.ReactNode;
+    className?: string;
+  }) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
 }));
 
 /**

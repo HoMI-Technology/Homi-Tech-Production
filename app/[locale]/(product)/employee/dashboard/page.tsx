@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -6,6 +6,7 @@ import { AccessPanel } from "@/components/b2b/AccessPanel";
 import { StatTile } from "@/components/ui/StatTile";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
+import { canAccessEmployeeHub } from "@/lib/dashboard/employee-access";
 import type { AssessmentRow, Organization, Profile } from "@/types/database";
 import type { VerdictKey } from "@/lib/brand";
 
@@ -42,8 +43,7 @@ export default async function EmployeeDashboardPage() {
     );
   }
 
-  const hasEmployer =
-    Boolean(profile.employer_id) || profile.role === "employee" || profile.role === "admin";
+  const hasEmployer = canAccessEmployeeHub(profile);
 
   if (!hasEmployer) {
     return (
