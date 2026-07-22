@@ -9,6 +9,7 @@ import { mapAssessmentRowToStored } from "@/lib/assessment/remote";
 import { pickResult } from "@/lib/assessment/resolveResult";
 import { createClient } from "@/lib/supabase/client";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
+import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 
 const PLAN_PROGRESS_KEY = "homi:plan-progress";
 
@@ -106,8 +107,8 @@ export default function PlanPage() {
 
   if (stored === undefined) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-24 text-center">
-        <p className="text-dim">Loading your plan…</p>
+      <div className="mx-auto max-w-2xl px-4 py-24">
+        <ProductLoadingSkeleton label="Loading plan" />
       </div>
     );
   }
@@ -117,8 +118,8 @@ export default function PlanPage() {
     // we've had a chance to check the DB for a prior result.
     if (!remoteChecked) {
       return (
-        <div className="mx-auto max-w-2xl px-4 py-24 text-center">
-          <p className="text-dim">Loading your plan…</p>
+        <div className="mx-auto max-w-2xl px-4 py-24">
+          <ProductLoadingSkeleton label="Loading plan" />
         </div>
       );
     }

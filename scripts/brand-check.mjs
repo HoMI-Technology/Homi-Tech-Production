@@ -38,7 +38,26 @@ const FORBIDDEN_WORDS = [
   "bank-level",
 ];
 
-const BANNED_HEXES = ["#fb923c", "#ef4444"];
+const BANNED_HEXES = ["#fb923c", "#ef4444", "#64748b"];
+
+/** Patterns that tank WCAG AA on the navy canvas — prefer text-light / text-dim. */
+const WEAK_CONTRAST_PATTERNS = [
+  {
+    re: /\bopacity:\s*\[0\.(?:0\d+|1[0-4])/,
+    message:
+      "Headline opacity ramp starting below 0.15 destroys contrast (InterviewHero bug class) — keep brand text at full opacity.",
+  },
+  {
+    re: /text-\[#64748b\]|color:\s*["']?#64748b/i,
+    message: "Banned weak text color #64748b (~3.8:1 on navy) — use text-dim (#94a3b8) or text-light.",
+  },
+  {
+    // Explicit text opacity dims on JSX style objects for copy elements.
+    re: /className=\{?[`'"][^`'"]*\b(?:font-display|type-giant|text-(?:light|dim|xl|2xl|3xl|4xl|5xl|lg))\b[^`'"]*[`'"]\}?[^\}]*opacity:\s*0\.(?:[0-7]\d*|8[0-4])/,
+    message:
+      "Text opacity below 0.85 on navy fails WCAG AA for body/headline text — use full-opacity text-light/text-dim.",
+  },
+];
 
 function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -104,6 +123,15 @@ function checkLine(filePath, lineNumber, line, violations) {
   for (const hex of BANNED_HEXES) {
     if (lowerLine.includes(hex)) {
       violations.push({ file: filePath, line: lineNumber, message: `Banned color ${hex}.` });
+    }
+  }
+
+  // Contrast footguns — only flag in TSX/JSX (runtime UI), not CSS keyframes/docs.
+  if (filePath.endsWith(".tsx") || filePath.endsWith(".jsx")) {
+    for (const { re, message } of WEAK_CONTRAST_PATTERNS) {
+      if (re.test(line)) {
+        violations.push({ file: filePath, line: lineNumber, message });
+      }
     }
   }
 }

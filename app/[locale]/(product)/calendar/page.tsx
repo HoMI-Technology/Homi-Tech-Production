@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/client";
 import { MonthGrid } from "@/components/calendar/MonthGrid";
 import { EventForm } from "@/components/calendar/EventForm";
 import { UpcomingList } from "@/components/calendar/UpcomingList";
+import { formatLocalDateISO, localDateISO } from "@/lib/dates";
+import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 import type { CalendarEvent, CalendarEventKind } from "@/types/database";
 
 const KIND_LABEL: Record<CalendarEventKind, string> = {
@@ -29,7 +31,7 @@ function startOfMonth(d: Date): Date {
 function addDaysIso(daysFromNow: number): string {
   const d = new Date();
   d.setDate(d.getDate() + daysFromNow);
-  return d.toISOString().slice(0, 10);
+  return localDateISO(d);
 }
 
 export default function CalendarPage() {
@@ -317,7 +319,7 @@ export default function CalendarPage() {
 
             <div className="mt-6">
               {loading ? (
-                <p className="text-sm text-dim">Loading...</p>
+                <ProductLoadingSkeleton label="Loading calendar" rows={2} />
               ) : (
                 <MonthGrid
                   viewMonth={viewMonth}
@@ -331,7 +333,7 @@ export default function CalendarPage() {
             {selectedDate && (
               <div className="mt-8 border-t border-slate-high/40 pt-6">
                 <h3 className="font-semibold text-light">
-                  {new Date(selectedDate).toLocaleDateString("en-US", {
+                  {formatLocalDateISO(selectedDate, "en-US", {
                     weekday: "long",
                     month: "long",
                     day: "numeric",

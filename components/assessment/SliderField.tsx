@@ -43,7 +43,7 @@ export function SliderField({
           {label}
         </label>
         <span
-          className="score-numeral rounded-lg px-3 py-1 text-lg font-bold"
+          className="score-numeral rounded-lg px-3 py-1 text-lg font-bold transition-colors duration-200"
           style={{ color, background: `${color}1a` }}
         >
           {display}

@@ -55,37 +55,102 @@ async function fetchSessionPrice(sessionId: string): Promise<SessionPriceResult>
   }
 }
 
-// NEW: Record payment event for revenue analytics
-async function recordPayment(supabase: ReturnType<typeof getServiceClient>, event: Stripe.Event) {
-  if (!supabase) return;
-
+// Record payment events for the admin revenue ledger (`payments` table).
+// Checkout success is the primary path for HōMI subscriptions — Stripe may
+// deliver `checkout.session.completed` without a separately-subscribed
+// `payment_intent.succeeded`, so we ledger from both Checkout and invoice
+// success as well as the PI/charge events.
+async function recordPayment(supabase: NonNullable<ReturnType<typeof getServiceClient>>, event: Stripe.Event) {
   let paymentIntentId: string | undefined;
   let amount: number | undefined;
   let currency = "usd";
   let userId: string | null = null;
+  let customerId: string | null = null;
+  let description = `Stripe ${event.type}`;
+  let status: "succeeded" | "pending" | "failed" | "refunded" = "succeeded";
 
-  if (event.type === "payment_intent.succeeded" || event.type === "payment_intent.created") {
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    const pi = session.payment_intent;
+    paymentIntentId =
+      typeof pi === "string" ? pi : pi && typeof pi === "object" && "id" in pi ? String(pi.id) : undefined;
+    // Do NOT invent a synthetic `checkout_${session.id}` key. Subscription
+    // checkouts often omit payment_intent here and later deliver the same
+    // money via invoice.payment_succeeded / payment_intent.succeeded with a
+    // real PI id — a synthetic key would double-count revenue.
+    amount = session.amount_total ?? undefined;
+    currency = session.currency ?? "usd";
+    userId = session.client_reference_id ?? null;
+    customerId = typeof session.customer === "string" ? session.customer : null;
+    description = "Checkout completed";
+    status = session.payment_status === "paid" || session.payment_status === "no_payment_required"
+      ? "succeeded"
+      : "pending";
+  } else if (event.type === "invoice.payment_succeeded") {
+    // Stripe API ≥2025 moved PI off the Invoice top-level; webhook payloads
+    // may still carry `payment_intent` as a string, so read it defensively.
+    const invoice = event.data.object as Stripe.Invoice & {
+      payment_intent?: string | Stripe.PaymentIntent | null;
+    };
+    const pi = invoice.payment_intent;
+    paymentIntentId =
+      typeof pi === "string" ? pi : pi && typeof pi === "object" && "id" in pi ? String(pi.id) : undefined;
+    // Invoice-only fallback is safe: renewals won't also emit a Checkout
+    // session with a conflicting synthetic key.
+    if (!paymentIntentId && invoice.id) {
+      paymentIntentId = `invoice_${invoice.id}`;
+    }
+    amount = invoice.amount_paid ?? undefined;
+    currency = invoice.currency ?? "usd";
+    customerId = typeof invoice.customer === "string" ? invoice.customer : null;
+    description = invoice.billing_reason === "subscription_create"
+      ? "Subscription started"
+      : "Invoice paid";
+    status = "succeeded";
+  } else if (event.type === "payment_intent.succeeded" || event.type === "payment_intent.created") {
     const pi = event.data.object as Stripe.PaymentIntent;
     paymentIntentId = pi.id;
     amount = pi.amount;
     currency = pi.currency;
+    customerId = typeof pi.customer === "string" ? pi.customer : null;
+    status = event.type === "payment_intent.succeeded" ? "succeeded" : "pending";
   } else if (event.type === "charge.succeeded") {
     const charge = event.data.object as Stripe.Charge;
-    paymentIntentId = charge.payment_intent?.toString();
+    paymentIntentId = typeof charge.payment_intent === "string"
+      ? charge.payment_intent
+      : charge.payment_intent?.id;
     amount = charge.amount;
     currency = charge.currency;
+    customerId = typeof charge.customer === "string" ? charge.customer : null;
+  } else if (event.type === "charge.refunded") {
+    const charge = event.data.object as Stripe.Charge;
+    paymentIntentId = typeof charge.payment_intent === "string"
+      ? charge.payment_intent
+      : charge.payment_intent?.id;
+    // Prefer the original charge amount so the ledger row stays findable;
+    // status flips to refunded so admin revenue excludes it.
+    amount = charge.amount_refunded > 0 ? charge.amount_refunded : charge.amount;
+    currency = charge.currency;
+    customerId = typeof charge.customer === "string" ? charge.customer : null;
+    description = charge.refunded ? "Charge refunded" : "Charge partially refunded";
+    status = "refunded";
   }
 
-  if (!paymentIntentId || amount === undefined) return;
+  // Schema requires amount > 0; skip $0 / free / missing amounts.
+  if (!paymentIntentId || amount === undefined || amount <= 0) return;
 
-  try {
-    const { data: profiles } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("stripe_customer_id", (event.data.object as { customer?: string }).customer ?? "")
-      .limit(1);
-    userId = profiles?.[0]?.id ?? null;
-  } catch { /* best-effort */ }
+  if (!userId && customerId) {
+    try {
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("stripe_customer_id", customerId)
+        .limit(1);
+      userId = profiles?.[0]?.id ?? null;
+    } catch {
+      /* best-effort */
+    }
+  }
 
   const { error } = await supabase.from("payments").upsert(
     {
@@ -93,9 +158,11 @@ async function recordPayment(supabase: ReturnType<typeof getServiceClient>, even
       user_id: userId,
       amount,
       currency,
-      status: event.type.includes("succeeded") ? "succeeded" : "pending",
-      description: `Stripe ${event.type}`,
-      created_at: new Date().toISOString(),
+      status,
+      description,
+      // Omit created_at so INSERT uses the DB default and UPDATE does not
+      // rewrite the original timestamp (keeps the 30-day revenue window honest
+      // across Stripe retries / multi-event upserts for the same PI).
     },
     { onConflict: "stripe_payment_intent_id" },
   );
@@ -269,11 +336,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Could not record webhook event." }, { status: 500 });
   }
 
-  // NEW: Record payment events for revenue analytics
+  // Record payment ledger rows for the admin revenue panel.
   if (
+    event.type === "checkout.session.completed" ||
+    event.type === "invoice.payment_succeeded" ||
     event.type === "payment_intent.succeeded" ||
     event.type === "payment_intent.created" ||
-    event.type === "charge.succeeded"
+    event.type === "charge.succeeded" ||
+    event.type === "charge.refunded"
   ) {
     await recordPayment(supabase, event);
   }

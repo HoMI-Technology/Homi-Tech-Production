@@ -54,13 +54,13 @@ export default async function PricingPage({
 
       <Reveal>
         <section className="px-6 py-10">
-          <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-4">
-            {TIERS.map((tier) => {
+          <div className="mx-auto grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {TIERS.map((tier, i) => {
               const features = t.raw(`tiers.${tier.id}.features`) as string[];
               return (
+                <Reveal key={tier.id} delay={(i % 4) * 80}>
                 <div
-                  key={tier.id}
-                  className={`glass glass-hover flex flex-col p-8 ${
+                  className={`glass glass-hover flex h-full flex-col p-6 sm:p-8 ${
                     tier.highlight ? "border-cyan/40" : ""
                   }`}
                 >
@@ -109,6 +109,7 @@ export default async function PricingPage({
                     )}
                   </div>
                 </div>
+                </Reveal>
               );
             })}
           </div>

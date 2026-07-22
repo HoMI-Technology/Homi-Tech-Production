@@ -1,3 +1,4 @@
+import { localDateISO } from "@/lib/dates";
 import type { CalendarEvent, CalendarEventKind } from "@/types/database";
 
 const KIND_LABEL: Record<CalendarEventKind, string> = {
@@ -21,7 +22,7 @@ export function UpcomingList({
   events: CalendarEvent[];
   onSelect: (isoDate: string) => void;
 }) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDateISO();
   const upcoming = events
     .filter((ev) => !ev.completed && ev.event_date >= today)
     .sort((a, b) => (a.event_date < b.event_date ? -1 : 1))

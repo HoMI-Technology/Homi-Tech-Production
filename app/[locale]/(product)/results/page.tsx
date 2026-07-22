@@ -21,6 +21,7 @@ import { ShareShadowButton } from "@/components/share/ShareShadowButton";
 import { ScoreDeltaBadge } from "@/components/dashboard/ScoreDeltaBadge";
 import { ScoreExplanation } from "@/components/results/ScoreExplanation";
 import { VerdictOverride } from "@/components/assessment/VerdictOverride";
+import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 
 const FINANCIAL = PILLARS.find((p) => p.key === "financial")!;
 const EMOTIONAL = PILLARS.find((p) => p.key === "emotional")!;
@@ -91,8 +92,8 @@ export default function ResultsPage() {
 
   if (stored === undefined) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-24 text-center">
-        <p className="text-dim">Loading your results…</p>
+      <div className="mx-auto max-w-2xl px-4 py-24">
+        <ProductLoadingSkeleton label="Loading results" />
       </div>
     );
   }
@@ -107,8 +108,8 @@ export default function ResultsPage() {
     // we've had a chance to check the DB for a prior result.
     if (!remoteChecked) {
       return (
-        <div className="mx-auto max-w-2xl px-4 py-24 text-center">
-          <p className="text-dim">Loading your results…</p>
+        <div className="mx-auto max-w-2xl px-4 py-24">
+          <ProductLoadingSkeleton label="Loading results" />
         </div>
       );
     }

@@ -109,8 +109,8 @@ export default function HowItWorksPage() {
                 copy: "Every verdict below READY comes with a map: the specific, ordered things to build first. Not yet is a starting line, not a wall.",
               },
             ].map((s) => (
-              <div key={s.step} className="glass p-8">
-                <span className="font-score text-sm text-dim">{s.step}</span>
+              <div key={s.step} className="glass glass-hover p-8">
+                <span className="score-numeral text-sm text-dim">{s.step}</span>
                 <h2 className="mt-3 text-2xl font-bold text-light">{s.title}</h2>
                 <p className="mt-3 text-sm leading-relaxed text-dim">{s.copy}</p>
               </div>

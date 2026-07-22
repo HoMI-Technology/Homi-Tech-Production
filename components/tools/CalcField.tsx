@@ -43,7 +43,7 @@ export function CalcField({
     <div>
       <div className="flex items-center justify-between">
         <label className="text-sm text-light">{label}</label>
-        <span className="score-numeral text-sm text-cyan">{display}</span>
+        <span className="score-numeral text-sm text-cyan transition-colors duration-200">{display}</span>
       </div>
       <input
         type="range"
@@ -81,7 +81,10 @@ export function CalcBar({
         <span className="score-numeral text-light">{display}</span>
       </div>
       <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-surface">
-        <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
+        <div
+          className="h-full rounded-full transition-[width] duration-300 ease-out"
+          style={{ width: `${pct}%`, background: color }}
+        />
       </div>
     </div>
   );

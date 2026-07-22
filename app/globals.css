@@ -52,6 +52,20 @@
   --color-light: #e2e8f0;
   --color-dim: #94a3b8;
 
+  /*
+   * Approved text/background contrast pairings (WCAG AA, dark-first canon).
+   * Use these — do not invent one-off greys on marketing/product surfaces.
+   *
+   *  1. text-light (#e2e8f0) on navy (#0a1628)     ≈ 12.6:1  — primary body/headlines
+   *  2. text-dim   (#94a3b8) on navy (#0a1628)     ≈  5.4:1  — secondary/supporting (≥14px)
+   *  3. text-ink   (#ffffff) on cyan/emerald CTAs  ≈  8+:1   — primary button labels
+   *  4. text-cyan  (#22d3ee) on navy               ≈  8.6:1  — accents/kickers only
+   *  5. text-emerald (#34d399) on navy             ≈  9.0:1  — success/positive accents
+   *
+   * Never: translucent headline opacity below ~0.85 on navy; never slate-500
+   * as body text on navy (~3.8:1, fails AA).
+   */
+
   --font-sans: "Inter Omacron", var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: "Fraunces Omacron", var(--font-fraunces), Georgia, serif;
   --font-score: var(--font-jbm), ui-monospace, monospace;
@@ -80,7 +94,9 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  overflow-x: hidden;
+  /* `clip` (not `hidden`) — overflow:hidden on body creates a scroll
+     containment that breaks position:sticky descendants (homepage pin-stage). */
+  overflow-x: clip;
 }
 
 ::selection {
@@ -221,14 +237,22 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-height: 44px;
   font-weight: 600;
   font-size: 0.9375rem;
   letter-spacing: 0.01em;
   border-radius: 12px;
   padding: 0.75rem 1.5rem;
-  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 300ms ease,
+    border-color 300ms ease;
   cursor: pointer;
   white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active:not(:disabled) {
+  transform: translateY(1px) scale(0.985);
 }
 .btn-primary {
   background: linear-gradient(135deg, #22d3ee, #0ea5c4);
@@ -238,6 +262,10 @@ body {
 .btn-primary:hover {
   transform: translateY(-1px);
   box-shadow: 0 14px 32px -8px rgba(34, 211, 238, 0.65), 0 0 0 1px rgba(34, 211, 238, 0.4);
+}
+.btn-primary:active:not(:disabled) {
+  transform: translateY(1px) scale(0.985);
+  box-shadow: 0 4px 14px -6px rgba(34, 211, 238, 0.45);
 }
 .btn-ghost {
   background: rgba(30, 41, 59, 0.5);
@@ -256,6 +284,10 @@ body {
 .btn-emerald:hover {
   transform: translateY(-1px);
   box-shadow: 0 14px 32px -8px rgba(52, 211, 153, 0.65);
+}
+.btn-emerald:active:not(:disabled) {
+  transform: translateY(1px) scale(0.985);
+  box-shadow: 0 4px 14px -6px rgba(52, 211, 153, 0.45);
 }
 
 /* ── Reveal on scroll ──────────────────────────────────────────── */
@@ -287,41 +319,60 @@ body {
 .bg-verdict-build { background: rgba(250, 182, 51, 0.10); border-color: rgba(250, 182, 51, 0.35); }
 .bg-verdict-notyet { background: rgba(242, 72, 34, 0.10); border-color: rgba(242, 72, 34, 0.35); }
 
-/* ── Range slider (assessment) ─────────────────────────────────── */
+/* ── Range slider (assessment + tools) ─────────────────────────── */
 input[type="range"].homi-slider {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 6px;
+  height: 44px;
+  margin: 0;
   border-radius: 999px;
-  background: linear-gradient(90deg, #22d3ee var(--fill, 50%), rgba(51, 65, 85, 0.8) var(--fill, 50%));
   outline-offset: 6px;
+  cursor: pointer;
+  /* Full-row hit target; visible track is a centered 6px stripe. */
+  background:
+    linear-gradient(90deg, #22d3ee var(--fill, 50%), rgba(51, 65, 85, 0.8) var(--fill, 50%))
+      no-repeat center / 100% 6px;
+  transition: background 180ms ease;
 }
 input[type="range"].homi-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: #e2e8f0;
   border: 3px solid #22d3ee;
   box-shadow: 0 0 16px rgba(34, 211, 238, 0.55);
   cursor: grab;
-  transition: transform 150ms ease;
+  transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 160ms ease;
 }
-input[type="range"].homi-slider::-webkit-slider-thumb:hover { transform: scale(1.12); }
+input[type="range"].homi-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.12);
+  box-shadow: 0 0 22px rgba(34, 211, 238, 0.75);
+}
+input[type="range"].homi-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.06);
+}
 input[type="range"].homi-slider::-moz-range-thumb {
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: #e2e8f0;
   border: 3px solid #22d3ee;
   box-shadow: 0 0 16px rgba(34, 211, 238, 0.55);
   cursor: grab;
+}
+input[type="range"].homi-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: transparent;
 }
 
 /* ── Inputs ────────────────────────────────────────────────────── */
 .input {
   width: 100%;
+  min-height: 44px;
   background: rgba(15, 23, 42, 0.7);
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 12px;
@@ -507,27 +558,40 @@ input[type="range"].homi-slider::-moz-range-thumb {
 
 /* Giant display type — the question at cinema scale */
 .type-giant {
-  font-size: clamp(3rem, 7vw, 6.5rem);
-  line-height: 1.0;
+  font-size: clamp(2.25rem, 7vw, 6.5rem);
+  line-height: 1.05;
   letter-spacing: -0.02em;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: balance;
+  text-wrap: balance;
+}
+@media (min-width: 640px) {
+  .type-giant {
+    white-space: nowrap;
+  }
 }
 .type-statement {
-  font-size: clamp(2.5rem, 6.5vw, 5.5rem);
+  font-size: clamp(2rem, 6.5vw, 5.5rem);
   line-height: 1.06;
   letter-spacing: -0.015em;
 }
 
-/* Text shine — light passes through the headline once */
+/* Text shine — light passes through the headline once.
+   Base `color` stays solid (#e2e8f0) so contrast never depends on
+   background-clip support or mid-animation gradient position. The shine
+   only applies once `.go` is set. */
 .text-shine {
+  color: var(--color-light);
+}
+.text-shine.go {
   background: linear-gradient(110deg, #e2e8f0 0%, #e2e8f0 42%, #ffffff 50%, #22d3ee 54%, #e2e8f0 62%, #e2e8f0 100%);
   background-size: 300% auto;
   background-position: 100% center;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  animation: shine-pass 2400ms cubic-bezier(0.4, 0, 0.2, 1) 600ms forwards;
 }
-.text-shine.go { animation: shine-pass 2400ms cubic-bezier(0.4, 0, 0.2, 1) 600ms forwards; }
 @keyframes shine-pass { to { background-position: 0% center; } }
 
 /* Flashlight — the cursor is a torch; darkness hides the truth */
@@ -561,15 +625,24 @@ input[type="range"].homi-slider::-moz-range-thumb {
 .torch-off .torch-content { -webkit-mask-image: none; mask-image: none; }
 .torch-off .torch-beamlight { display: none; }
 
-/* Pinned alignment scene */
-.pin-scene { height: 420vh; position: relative; }
+/* Pinned alignment scene — sticky stage stays viewport-centered while the
+   tall pin-scene drives scroll progress. Requires no overflow:hidden ancestor
+   between here and the scrolling viewport (see body overflow-x: clip). */
+.pin-scene {
+  height: 420vh;
+  position: relative;
+}
 .pin-stage {
   position: sticky;
   top: 0;
+  width: 100%;
   height: 100vh;
+  height: 100dvh;
   display: flex;
   align-items: center;
+  justify-content: center;
   overflow: hidden;
+  box-sizing: border-box;
 }
 .pin-step { transition: opacity 600ms ease, transform 600ms ease; }
 
@@ -604,7 +677,13 @@ input[type="range"].homi-slider::-moz-range-thumb {
   .comet-orbit { animation: none; }
   .sword { opacity: 1 !important; }
   .beam, .beam.go { animation: none; opacity: 0; }
-  .text-shine, .text-shine.go { animation: none; background-position: 0% center; }
+  .text-shine.go {
+    animation: none;
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    color: var(--color-light);
+  }
   .torch-content { -webkit-mask-image: none !important; mask-image: none !important; }
   .torch-beamlight { display: none; }
 }
