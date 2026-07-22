@@ -311,6 +311,29 @@ describe("POST /api/webhooks/stripe — processing contract", () => {
     });
   });
 
+  it("checkout.session.completed without payment_intent does not invent a synthetic ledger key", async () => {
+    verified({
+      id: "evt_checkout_no_pi",
+      type: "checkout.session.completed",
+      data: {
+        object: {
+          id: "cs_no_pi",
+          client_reference_id: "user-a",
+          customer: "cus_1",
+          amount_total: 999,
+          currency: "usd",
+          payment_status: "paid",
+          // payment_intent intentionally absent (common on subscription Checkout)
+        },
+      },
+    });
+    const res = await POST(request("{}"));
+    expect(res.status).toBe(200);
+    // Profile still provisions; ledger waits for invoice/PI with a real id.
+    expect(state.profileUpdates.length).toBeGreaterThanOrEqual(1);
+    expect(state.paymentUpserts).toHaveLength(0);
+  });
+
   it("skips ledger write when checkout amount_total is 0", async () => {
     verified({
       id: "evt_checkout_free",

@@ -74,11 +74,10 @@ async function recordPayment(supabase: NonNullable<ReturnType<typeof getServiceC
     const pi = session.payment_intent;
     paymentIntentId =
       typeof pi === "string" ? pi : pi && typeof pi === "object" && "id" in pi ? String(pi.id) : undefined;
-    // Subscription checkouts sometimes omit payment_intent on the session;
-    // fall back to a stable session-scoped key so the row still lands.
-    if (!paymentIntentId && session.id) {
-      paymentIntentId = `checkout_${session.id}`;
-    }
+    // Do NOT invent a synthetic `checkout_${session.id}` key. Subscription
+    // checkouts often omit payment_intent here and later deliver the same
+    // money via invoice.payment_succeeded / payment_intent.succeeded with a
+    // real PI id — a synthetic key would double-count revenue.
     amount = session.amount_total ?? undefined;
     currency = session.currency ?? "usd";
     userId = session.client_reference_id ?? null;
@@ -96,6 +95,8 @@ async function recordPayment(supabase: NonNullable<ReturnType<typeof getServiceC
     const pi = invoice.payment_intent;
     paymentIntentId =
       typeof pi === "string" ? pi : pi && typeof pi === "object" && "id" in pi ? String(pi.id) : undefined;
+    // Invoice-only fallback is safe: renewals won't also emit a Checkout
+    // session with a conflicting synthetic key.
     if (!paymentIntentId && invoice.id) {
       paymentIntentId = `invoice_${invoice.id}`;
     }
@@ -147,7 +148,9 @@ async function recordPayment(supabase: NonNullable<ReturnType<typeof getServiceC
       currency,
       status,
       description,
-      created_at: new Date().toISOString(),
+      // Omit created_at so INSERT uses the DB default and UPDATE does not
+      // rewrite the original timestamp (keeps the 30-day revenue window honest
+      // across Stripe retries / multi-event upserts for the same PI).
     },
     { onConflict: "stripe_payment_intent_id" },
   );

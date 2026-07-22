@@ -6,25 +6,15 @@ describe("localDateISO", () => {
     vi.useRealTimers();
   });
 
-  it("returns the local calendar day, not the UTC day (UTC-8 evening)", () => {
-    // 2026-07-22 22:00 in America/Los_Angeles = 2026-07-23 05:00 UTC
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-07-23T05:00:00.000Z"));
-    // Force a west-of-UTC offset by stubbing local getters via a fixed Date
-    // constructed in local terms — vitest runs in the VM's timezone, so we
-    // assert the invariant: local Y-M-D matches getFullYear/Month/Date, and
-    // differs from toISOString when they diverge.
-    const now = new Date();
-    const local = localDateISO(now);
-    const utc = now.toISOString().slice(0, 10);
-    expect(local).toBe(
-      `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`,
-    );
-    // Document the classic bug class: UTC slice is not always local "today".
-    if (now.getTimezoneOffset() !== 0) {
-      // In non-UTC zones near day boundaries they can differ; always true that
-      // our helper tracks local components.
-      expect(local === utc || local !== utc).toBe(true);
+  it("returns the local calendar day for an explicit local evening Date", () => {
+    // Constructed in local wall-clock terms — immune to the VM's UTC offset.
+    const d = new Date(2026, 6, 22, 23, 30, 0); // Jul 22 23:30 local
+    expect(localDateISO(d)).toBe("2026-07-22");
+    // Contrasts with the classic UTC-slice bug for the same absolute instant
+    // when the VM is west of UTC (offset > 0 minutes behind UTC).
+    const utcSlice = d.toISOString().slice(0, 10);
+    if (d.getTimezoneOffset() > 0) {
+      expect(utcSlice).not.toBe("2026-07-22");
     }
   });
 

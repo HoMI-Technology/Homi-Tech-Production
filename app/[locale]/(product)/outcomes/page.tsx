@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { localDateISO } from "@/lib/dates";
+import { localDateISO, formatLocalDateISO } from "@/lib/dates";
 import type { JournalEntry } from "@/types/database";
 
 interface OutcomeDraft {
@@ -198,7 +198,7 @@ export default function OutcomesPage() {
                         <h3 className="font-semibold text-light">{entry.title}</h3>
                         {entry.decision_date && (
                           <p className="mt-1 text-xs text-dim">
-                            Decided {new Date(entry.decision_date).toLocaleDateString()}
+                            Decided {formatLocalDateISO(entry.decision_date)}
                           </p>
                         )}
                       </div>
@@ -295,8 +295,8 @@ export default function OutcomesPage() {
                       )}
                     </div>
                     <div className="mt-3 flex items-center gap-4 text-xs text-dim">
-                      {entry.decision_date && <span>Decided {new Date(entry.decision_date).toLocaleDateString()}</span>}
-                      {entry.outcome_date && <span>Outcome {new Date(entry.outcome_date).toLocaleDateString()}</span>}
+                      {entry.decision_date && <span>Decided {formatLocalDateISO(entry.decision_date)}</span>}
+                      {entry.outcome_date && <span>Outcome {formatLocalDateISO(entry.outcome_date)}</span>}
                     </div>
                   </div>
                 ))}
