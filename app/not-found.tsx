@@ -37,33 +37,119 @@ export default function GlobalNotFound() {
           padding: "24px",
         }}
       >
-        <p style={{ fontWeight: 900, fontSize: 28, letterSpacing: "-0.02em", margin: 0 }}>
+        {/* Wordmark */}
+        <p
+          style={{
+            fontWeight: 900,
+            fontSize: 32,
+            letterSpacing: "-0.02em",
+            margin: 0,
+            lineHeight: 1,
+          }}
+        >
           <span style={{ color: "#22d3ee" }}>H</span>
           <span style={{ color: "#34d399" }}>ō</span>
           <span style={{ color: "#facc15" }}>M</span>
           <span style={{ color: "#22d3ee" }}>I</span>
         </p>
-        <h1 style={{ fontSize: 24, fontWeight: 800, marginTop: 24 }}>Off the compass.</h1>
-        <p style={{ color: "#94a3b8", maxWidth: 420, lineHeight: 1.6 }}>
-          This page doesn&rsquo;t exist. That&rsquo;s not a no — it&rsquo;s just not here.
+
+        {/* Compass ring decorative element */}
+        <div
+          style={{
+            marginTop: 32,
+            width: 80,
+            height: 80,
+            borderRadius: "50%",
+            border: "2px solid rgba(34, 211, 238, 0.25)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            position: "relative",
+          }}
+        >
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              border: "2px solid rgba(52, 211, 153, 0.2)",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              width: 6,
+              height: 6,
+              borderRadius: "50%",
+              background: "#22d3ee",
+              top: 8,
+              left: "50%",
+              transform: "translateX(-50%)",
+              boxShadow: "0 0 10px rgba(34, 211, 238, 0.5)",
+            }}
+          />
+        </div>
+
+        <h1
+          style={{
+            fontSize: 26,
+            fontWeight: 800,
+            marginTop: 28,
+            color: "#e2e8f0",
+          }}
+        >
+          Off the compass.
+        </h1>
+        <p
+          style={{
+            color: "#94a3b8",
+            maxWidth: 420,
+            lineHeight: 1.6,
+            marginTop: 12,
+          }}
+        >
+          This page doesn&rsquo;t exist. That&rsquo;s not a no — it&rsquo;s just
+          not here.
         </p>
-        {/* Plain anchor: no router/context exists in this fallback. */}
+
         <a
           href="/"
           style={{
-            marginTop: 24,
+            marginTop: 28,
             display: "inline-block",
             background: "linear-gradient(135deg, #22d3ee, #0ea5c4)",
             color: "#04121c",
             borderRadius: 12,
-            padding: "12px 24px",
+            padding: "12px 28px",
             fontWeight: 600,
             fontSize: 15,
             textDecoration: "none",
+            transition: "transform 200ms ease, box-shadow 300ms ease",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLAnchorElement).style.transform =
+              "translateY(-1px)";
+            (e.currentTarget as HTMLAnchorElement).style.boxShadow =
+              "0 14px 32px -8px rgba(34, 211, 238, 0.55)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLAnchorElement).style.transform = "none";
+            (e.currentTarget as HTMLAnchorElement).style.boxShadow = "none";
           }}
         >
           Back to true north
         </a>
+
+        <p
+          style={{
+            color: "#94a3b8",
+            fontSize: 12,
+            marginTop: 32,
+            opacity: 0.5,
+          }}
+        >
+          Error 404
+        </p>
       </body>
     </html>
   );
