@@ -190,8 +190,11 @@ const THRESHOLD_BUILD = 50;
 /**
  * Clamps a numeric value to [min, max].
  * Pure, no side effects.
+ * Defensively returns `min` when `value` is NaN or non-finite,
+ * preventing NaN propagation through the scoring engine.
  */
 function clamp(value: number, min: number, max: number): number {
+  if (!Number.isFinite(value)) return min;
   if (value <= min) return min;
   if (value >= max) return max;
   return value;
