@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "analyze": "cross-env ANALYZE=true next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
@@ -19,7 +20,9 @@
     "stripe-setup": "node scripts/stripe-setup.mjs",
     "create-admin": "node scripts/create-admin.mjs",
     "verify-supabase": "node scripts/verify-supabase-connectivity.mjs",
-    "lighthouse": "lhci autorun"
+    "lighthouse": "lhci autorun",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.2.5",
