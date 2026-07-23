@@ -17,6 +17,7 @@ import { SITE_URL } from "@/lib/seo/site";
 
 import { ClientProviders } from "@/components/layout/ClientProviders";
 import { UXErrorBoundary } from "@/components/layout/ErrorBoundary";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -115,9 +116,11 @@ export default async function RootLayout({
         {/* Messages come from i18n/request.ts via the Next.js plugin — every
             client component under this layout can use useTranslations. */}
         <NextIntlClientProvider locale={locale}>
-          <UXErrorBoundary name="client-providers" fallback={<div id="main-fallback">{children}</div>}>
-            <ClientProviders>{children}</ClientProviders>
-          </UXErrorBoundary>
+          <ToastProvider>
+            <UXErrorBoundary name="client-providers" fallback={<div id="main-fallback">{children}</div>}>
+              <ClientProviders>{children}</ClientProviders>
+            </UXErrorBoundary>
+          </ToastProvider>
         </NextIntlClientProvider>
         <CookieConsent />
         <AnalyticsScripts />
