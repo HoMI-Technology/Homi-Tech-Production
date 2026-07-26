@@ -112,31 +112,29 @@ export default function GlobalNotFound() {
           not here.
         </p>
 
-        <a
-          href="/"
-          style={{
-            marginTop: 28,
-            display: "inline-block",
-            background: "linear-gradient(135deg, #22d3ee, #0ea5c4)",
-            color: "#04121c",
-            borderRadius: 12,
-            padding: "12px 28px",
-            fontWeight: 600,
-            fontSize: 15,
-            textDecoration: "none",
-            transition: "transform 200ms ease, box-shadow 300ms ease",
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              a.homi-404-home {
+                margin-top: 28px;
+                display: inline-block;
+                background: linear-gradient(135deg, #22d3ee, #0ea5c4);
+                color: #04121c;
+                border-radius: 12px;
+                padding: 12px 28px;
+                font-weight: 600;
+                font-size: 15px;
+                text-decoration: none;
+                transition: transform 200ms ease, box-shadow 300ms ease;
+              }
+              a.homi-404-home:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 14px 32px -8px rgba(34, 211, 238, 0.55);
+              }
+            `,
           }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.transform =
-              "translateY(-1px)";
-            (e.currentTarget as HTMLAnchorElement).style.boxShadow =
-              "0 14px 32px -8px rgba(34, 211, 238, 0.55)";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.transform = "none";
-            (e.currentTarget as HTMLAnchorElement).style.boxShadow = "none";
-          }}
-        >
+        />
+        <a href="/" className="homi-404-home">
           Back to true north
         </a>
 
