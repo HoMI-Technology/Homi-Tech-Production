@@ -1,11 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { runMonteCarlo, type MonteCarloResult } from "@/lib/tools/montecarlo";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
-import { sliderFillPercent } from "@/lib/assessment/format";
+import { LensField } from "@/components/tools/LensField";
+import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { ChainLinks } from "@/components/tools/ChainLinks";
+import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
+import { getLens } from "@/lib/tools/registry";
+import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
+
+const LENS = getLens("monte-carlo")!;
 
 function MonteCarloPageInner() {
   const [currentSavings, setCurrentSavings] = useState(20000);
@@ -19,6 +26,17 @@ function MonteCarloPageInner() {
   const [incomeGrowth, setIncomeGrowth] = useState(0);
 
   const [result, setResult] = useState<MonteCarloResult | null>(null);
+
+  // Decision Lab: mount-only seed from the CFM via the registry contract.
+  // The simulation below re-runs automatically once seeds land.
+  const apply = useCallback((key: string, v: number) => {
+    if (key === "currentSavings") setCurrentSavings(v);
+    else if (key === "monthlyContribution") setMonthlyContribution(v);
+    else if (key === "expectedReturn") setExpectedReturn(v);
+    else if (key === "volatility") setVolatility(v);
+  }, []);
+  const { prefilled, markAll } = useLensPrefill("monte-carlo", apply);
+  const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
 
   // Run the (seeded, deterministic) simulation client-side only, after mount,
   // to avoid any risk of hydration mismatch from randomized content.
@@ -54,20 +72,31 @@ function MonteCarloPageInner() {
       title="Monte Carlo Projection"
       description={`Markets don't move in a straight line. This runs 10,000 simulated paths for your savings and shows the range of realistic outcomes — not just one optimistic average.`}
     >
+      <SavedNumbersStrip />
+
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
-          <Field label="Current savings" value={currentSavings} onChange={setCurrentSavings} min={0} max={500000} step={1000} format="currency" />
-          <Field label="Monthly contribution" value={monthlyContribution} onChange={setMonthlyContribution} min={0} max={10000} step={50} format="currency" />
-          <Field label="Time horizon (years)" value={years} onChange={setYears} min={1} max={40} step={1} format="years" />
-          <Field label="Expected annual return" value={expectedReturn} onChange={setExpectedReturn} min={0} max={12} step={0.5} format="percent" />
-          <Field label="Volatility (annual std dev)" value={volatility} onChange={setVolatility} min={2} max={30} step={1} format="percent" />
-          <Field label="Target amount" value={targetAmount} onChange={setTargetAmount} min={0} max={1000000} step={5000} format="currency" />
+          <LensField label="Current savings" value={currentSavings} onChange={setCurrentSavings} min={0} max={500000} step={1000} format="currency" source={sourceFor("currentSavings")} />
+          <LensField label="Monthly contribution" value={monthlyContribution} onChange={setMonthlyContribution} min={0} max={10000} step={50} format="currency" source={sourceFor("monthlyContribution")} />
+          <LensField label="Time horizon (years)" value={years} onChange={setYears} min={1} max={40} step={1} format="years" />
+          <LensField label="Expected annual return" value={expectedReturn} onChange={setExpectedReturn} min={0} max={12} step={0.5} format="percent" source={sourceFor("expectedReturn")} />
+          <LensField label="Volatility (annual std dev)" value={volatility} onChange={setVolatility} min={2} max={30} step={1} format="percent" source={sourceFor("volatility")} />
+          <LensField label="Target amount" value={targetAmount} onChange={setTargetAmount} min={0} max={1000000} step={5000} format="currency" />
 
           <div className="hairline" />
 
-          <Field label="Job loss probability (per year)" value={jobLossProb} onChange={setJobLossProb} min={0} max={20} step={1} format="percent" />
-          <Field label="Maintenance/emergency shock probability (per year)" value={maintenanceShock} onChange={setMaintenanceShock} min={0} max={30} step={1} format="percent" />
-          <Field label="Income growth (annual)" value={incomeGrowth} onChange={setIncomeGrowth} min={0} max={8} step={0.5} format="percent" />
+          <LensField label="Job loss probability (per year)" value={jobLossProb} onChange={setJobLossProb} min={0} max={20} step={1} format="percent" />
+          <LensField label="Maintenance/emergency shock probability (per year)" value={maintenanceShock} onChange={setMaintenanceShock} min={0} max={30} step={1} format="percent" />
+          <LensField label="Income growth (annual)" value={incomeGrowth} onChange={setIncomeGrowth} min={0} max={8} step={0.5} format="percent" />
+
+          <div className="hairline" />
+          <UpdateNumbersButton
+            getFields={() => ({
+              investedAssets: currentSavings,
+              annualContribution: Math.round(monthlyContribution * 12),
+            })}
+            onSaved={() => markAll(["currentSavings", "monthlyContribution"])}
+          />
         </div>
 
         <div className="space-y-6">
@@ -126,6 +155,8 @@ function MonteCarloPageInner() {
                   savings discipline. A plan that still works around P50 is a plan you can trust.
                 </p>
               </div>
+
+              {LENS.chains && <ChainLinks chains={LENS.chains} />}
             </>
           )}
         </div>
@@ -171,46 +202,5 @@ function BandChart({ result, target }: { result: MonteCarloResult; target: numbe
         </>
       )}
     </svg>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  min,
-  max,
-  step,
-  format,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-  min: number;
-  max: number;
-  step: number;
-  format: "currency" | "percent" | "years";
-}) {
-  const fill = sliderFillPercent(value, min, max);
-  const display =
-    format === "currency" ? formatCurrency(value) : format === "percent" ? `${value}%` : `${value} yrs`;
-
-  return (
-    <div>
-      <div className="flex items-center justify-between">
-        <label className="text-sm text-light">{label}</label>
-        <span className="score-numeral text-sm text-cyan">{display}</span>
-      </div>
-      <input
-        type="range"
-        className="homi-slider mt-2"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        style={{ ["--fill" as string]: `${fill}%` }}
-      />
-    </div>
   );
 }

@@ -1,10 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { computeFireNumber, computeCoastFire } from "@/lib/tools/fire";
 import { formatCurrency } from "@/lib/tools/format";
-import { sliderFillPercent } from "@/lib/assessment/format";
+import { LensField } from "@/components/tools/LensField";
+import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { ChainLinks } from "@/components/tools/ChainLinks";
+import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
+import { getLens } from "@/lib/tools/registry";
+import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { ToolShell, ToolResultHero, ToolMetric } from "@/components/tools/ToolShell";
+
+const LENS = getLens("fire")!;
 
 export default function FirePage() {
   const [annualExpenses, setAnnualExpenses] = useState(48000);
@@ -13,6 +20,15 @@ export default function FirePage() {
   const [retirementAge, setRetirementAge] = useState(55);
   const [currentSavings, setCurrentSavings] = useState(85000);
   const [expectedReturnPercent, setExpectedReturnPercent] = useState(7);
+
+  // Decision Lab: mount-only seed from the CFM via the registry contract.
+  const apply = useCallback((key: string, v: number) => {
+    if (key === "annualExpenses") setAnnualExpenses(v);
+    else if (key === "currentSavings") setCurrentSavings(v);
+    else if (key === "expectedReturnPercent") setExpectedReturnPercent(v);
+  }, []);
+  const { prefilled, markAll } = useLensPrefill("fire", apply);
+  const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
 
   const fireNumber = useMemo(() => computeFireNumber(annualExpenses, swrPercent), [annualExpenses, swrPercent]);
 
@@ -34,14 +50,22 @@ export default function FirePage() {
       title="FIRE Number"
       description={`Financial independence, laid out plainly: the number you'd need invested to cover your life on withdrawals alone, and whether what you already have is on track to coast there.`}
     >
+      <SavedNumbersStrip />
+
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
-          <Field label="Annual expenses" value={annualExpenses} onChange={setAnnualExpenses} min={12000} max={200000} step={1000} format="currency" />
-          <Field label="Safe withdrawal rate" value={swrPercent} onChange={setSwrPercent} min={3} max={5} step={0.1} format="percent" />
-          <Field label="Current age" value={currentAge} onChange={setCurrentAge} min={18} max={70} step={1} format="age" />
-          <Field label="Target retirement age" value={retirementAge} onChange={setRetirementAge} min={currentAge} max={80} step={1} format="age" />
-          <Field label="Current invested savings" value={currentSavings} onChange={setCurrentSavings} min={0} max={2000000} step={1000} format="currency" />
-          <Field label="Expected annual return" value={expectedReturnPercent} onChange={setExpectedReturnPercent} min={2} max={12} step={0.5} format="percent" />
+          <LensField label="Annual expenses" value={annualExpenses} onChange={setAnnualExpenses} min={12000} max={200000} step={1000} format="currency" source={sourceFor("annualExpenses")} />
+          <LensField label="Safe withdrawal rate" value={swrPercent} onChange={setSwrPercent} min={3} max={5} step={0.1} format="percent" />
+          <LensField label="Current age" value={currentAge} onChange={setCurrentAge} min={18} max={70} step={1} format="years" />
+          <LensField label="Target retirement age" value={retirementAge} onChange={setRetirementAge} min={currentAge} max={80} step={1} format="years" />
+          <LensField label="Current invested savings" value={currentSavings} onChange={setCurrentSavings} min={0} max={2000000} step={1000} format="currency" source={sourceFor("currentSavings")} />
+          <LensField label="Expected annual return" value={expectedReturnPercent} onChange={setExpectedReturnPercent} min={2} max={12} step={0.5} format="percent" source={sourceFor("expectedReturnPercent")} />
+
+          <div className="hairline" />
+          <UpdateNumbersButton
+            getFields={() => ({ investedAssets: currentSavings })}
+            onSaved={() => markAll(["currentSavings"])}
+          />
         </div>
 
         <div className="space-y-6">
@@ -93,49 +117,10 @@ export default function FirePage() {
               personal question than the math above.
             </p>
           </div>
+
+          {LENS.chains && <ChainLinks chains={LENS.chains} />}
         </div>
       </div>
     </ToolShell>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  min,
-  max,
-  step,
-  format,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-  min: number;
-  max: number;
-  step: number;
-  format: "currency" | "percent" | "age";
-}) {
-  const fill = sliderFillPercent(value, min, max);
-  const display =
-    format === "currency" ? formatCurrency(value) : format === "percent" ? `${value}%` : `${value}`;
-
-  return (
-    <div>
-      <div className="flex items-center justify-between">
-        <label className="text-sm text-light">{label}</label>
-        <span className="score-numeral text-sm text-cyan">{display}</span>
-      </div>
-      <input
-        type="range"
-        className="homi-slider mt-2"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        style={{ ["--fill" as string]: `${fill}%` }}
-      />
-    </div>
   );
 }
