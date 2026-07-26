@@ -223,6 +223,17 @@ function OverviewTab({
           }
         />
       </div>
+
+      <div className="glass grid gap-5 p-6 sm:grid-cols-2 lg:grid-cols-5">
+        <p className="sm:col-span-2 lg:col-span-5 text-xs font-semibold uppercase tracking-widest text-dim">
+          Inputs — every tab reads these
+        </p>
+        <NumberField label="Monthly income" value={state.monthlyIncome} onChange={(v) => patch({ monthlyIncome: v ?? 0 })} />
+        <NumberField label="Monthly expenses" value={state.monthlyExpenses} onChange={(v) => patch({ monthlyExpenses: v ?? 0 })} />
+        <NumberField label="Liquid savings" value={state.liquidSavings} onChange={(v) => patch({ liquidSavings: v ?? 0 })} />
+        <NumberField label="Total debt" value={state.totalDebt} onChange={(v) => patch({ totalDebt: v ?? 0 })} />
+        <NumberField label="Monthly debt payments" value={state.monthlyDebtPayments} onChange={(v) => patch({ monthlyDebtPayments: v ?? 0 })} />
+      </div>
     </div>
   );
 }
@@ -239,9 +250,11 @@ function StatCard({
   read: string;
 }) {
   return (
-    <div className={`glass glass-hover border p-5 ${TEMP_BG[temperature]}`}>
-      <p className="text-xs uppercase tracking-wide text-dim">{label}</p>
-      <p className={`score-numeral mt-2 text-2xl font-bold ${TEMP_TEXT[temperature]}`}>{value}</p>
+    <div className={`glass glass-hover relative overflow-hidden border p-5 ${TEMP_BG[temperature]}`}>
+      <p className="text-xs font-semibold uppercase tracking-widest text-dim">{label}</p>
+      <p className={`score-numeral mt-2 text-2xl font-bold tracking-tight sm:text-3xl ${TEMP_TEXT[temperature]}`}>
+        {value}
+      </p>
       <p className="mt-3 text-xs leading-relaxed text-dim">{read}</p>
     </div>
   );

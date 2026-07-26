@@ -86,5 +86,6 @@ HeaderShell        → shared fixed glass bar + mobile panel behavior
 2. **Dashboard operate** — hero above supporting stats; pillar hierarchy  
 3. **Landing hook** — thesis + single primary CTA, on-token craft  
 4. **Tools** — `ToolShell` / `ToolGrid` / `ToolResultHero` in `components/tools/ToolShell.tsx`; hub groups by job; every calculator uses shared chrome + mono results  
+5. **Finance / journal / credit** — metrics before inputs (finance); ToolShell + score hero (credit); eyebrow + entry density (journal)  
 
-Secondary product pages (journal, finance, credit) should reuse the same operate hierarchy when touched.
+Secondary product pages should keep matching operate hierarchy when touched.

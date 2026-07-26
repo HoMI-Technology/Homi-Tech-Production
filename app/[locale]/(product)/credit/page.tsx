@@ -9,6 +9,7 @@ import {
   CREDIT_HARD_STOP,
   type CreditState,
 } from "@/lib/credit/store";
+import { ToolShell, ToolResultHero } from "@/components/tools/ToolShell";
 
 const HARD_STOP = CREDIT_HARD_STOP;
 const BANDS = [
@@ -79,32 +80,63 @@ export default function CreditPage() {
   const isHardStop = state.score < HARD_STOP;
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="font-display text-3xl text-light">Credit Health Center</h1>
-      <p className="mt-2 max-w-2xl text-dim">
-        A calm, honest read on where your credit stands — and what it means for what you can do next.
-      </p>
-
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.3fr]">
+    <ToolShell
+      eyebrow="Operate · credit"
+      title="Credit health"
+      description="A calm, honest read on where your credit stands — and what it means for what you can do next."
+      backHref="/dashboard"
+      backLabel="Dashboard"
+    >
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass h-fit space-y-6 p-6">
-          <SliderField label="Credit score" value={state.score} min={300} max={850} step={1} onChange={(v) => setState((s) => ({ ...s, score: v }))} suffix="" />
-          <SliderField label="Credit utilization" value={state.utilization} min={0} max={100} step={1} onChange={(v) => setState((s) => ({ ...s, utilization: v }))} suffix="%" />
-          <SliderField label="On-time payment streak" value={state.onTimeStreakMonths} min={0} max={60} step={1} onChange={(v) => setState((s) => ({ ...s, onTimeStreakMonths: v }))} suffix=" mo" />
+          <SliderField
+            label="Credit score"
+            value={state.score}
+            min={300}
+            max={850}
+            step={1}
+            onChange={(v) => setState((s) => ({ ...s, score: v }))}
+            suffix=""
+          />
+          <SliderField
+            label="Credit utilization"
+            value={state.utilization}
+            min={0}
+            max={100}
+            step={1}
+            onChange={(v) => setState((s) => ({ ...s, utilization: v }))}
+            suffix="%"
+          />
+          <SliderField
+            label="On-time payment streak"
+            value={state.onTimeStreakMonths}
+            min={0}
+            max={60}
+            step={1}
+            onChange={(v) => setState((s) => ({ ...s, onTimeStreakMonths: v }))}
+            suffix=" mo"
+          />
         </div>
 
         <div className="space-y-6">
-          <div className="glass p-6">
-            <h2 className="font-semibold text-light">Score dial</h2>
+          <ToolResultHero
+            label="Your score"
+            value={hydrated ? String(state.score) : "—"}
+            color={meta.color}
+            badge={
+              <span
+                className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                  isHardStop ? "border-crimson/40 bg-verdict-notyet text-crimson" : "border-slate-surface/60 text-light"
+                }`}
+                style={{ color: meta.color, borderColor: `${meta.color}55` }}
+              >
+                {isHardStop ? "DO NOT PROCEED zone" : meta.label.split("—")[0]?.trim() ?? meta.label}
+              </span>
+            }
+            footer={meta.explanation}
+          >
             <ScoreDial score={state.score} />
-          </div>
-
-          <div className={`glass border p-6 ${isHardStop ? "bg-verdict-notyet" : "bg-slate-surface/20"}`}>
-            <div className="flex items-center gap-2">
-              <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: meta.color }} />
-              <h2 className="font-semibold text-light">{meta.label}</h2>
-            </div>
-            <p className="mt-3 text-sm leading-relaxed text-dim">{meta.explanation}</p>
-          </div>
+          </ToolResultHero>
         </div>
       </div>
 
@@ -113,7 +145,7 @@ export default function CreditPage() {
         <UtilizationGauge utilization={state.utilization} />
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-3">
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {BAND_META_ORDER.map((b) => (
           <BandCard key={b} bandKey={b} active={b === band} />
         ))}
@@ -123,7 +155,7 @@ export default function CreditPage() {
         <h2 className="font-semibold text-light">Your action list</h2>
         <ActionList state={state} />
       </div>
-    </div>
+    </ToolShell>
   );
 }
 
