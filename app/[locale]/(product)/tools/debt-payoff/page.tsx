@@ -3,8 +3,13 @@
 import { useMemo, useState } from "react";
 import { compareStrategies, type Debt, type PayoffResult } from "@/lib/tools/debt";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
+import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { ChainLinks } from "@/components/tools/ChainLinks";
+import { getLens } from "@/lib/tools/registry";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
+
+const LENS = getLens("debt-payoff")!;
 
 function makeDebt(partial: Partial<Debt> = {}): Debt {
   return {
@@ -32,6 +37,10 @@ function DebtPayoffPageInner() {
   ]);
   const [extra, setExtra] = useState(300);
 
+  // Note: itemized debts don't map to CFM fields — this lens joins the
+  // shared-numbers strip and the decision chains, and the itemized payoff
+  // CFM mapping is a Phase 2 candidate.
+
   const validDebts = debts.filter((d) => d.balance > 0 && d.minPayment > 0);
   const comparison = useMemo(
     () => (validDebts.length > 0 ? compareStrategies(validDebts, extra) : null),
@@ -53,6 +62,8 @@ function DebtPayoffPageInner() {
       title="Debt Payoff"
       description={`Avalanche pays the highest interest rate first — mathematically optimal. Snowball pays the smallest balance first — psychologically easier for some. Both are shown honestly, side by side.`}
     >
+      <SavedNumbersStrip />
+
       <div className="mt-8 glass p-6">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold text-light">Your debts</h2>
@@ -141,6 +152,12 @@ function DebtPayoffPageInner() {
               <>Your debts are ordered similarly under both strategies here, so the difference is small either way.</>
             )}
           </p>
+        </div>
+      )}
+
+      {LENS.chains && (
+        <div className="mt-8 max-w-xl">
+          <ChainLinks chains={LENS.chains} />
         </div>
       )}
     </ToolShell>

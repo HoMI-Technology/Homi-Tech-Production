@@ -1,9 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { computeBlindBudget } from "@/lib/tools/blindbudget";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
+import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { ToolShell } from "@/components/tools/ToolShell";
 
 export default function BlindBudgetPage() {
@@ -13,6 +15,18 @@ export default function BlindBudgetPage() {
   const [fixedCostsHigh, setFixedCostsHigh] = useState(3000);
   const [savingsLow, setSavingsLow] = useState(6000);
   const [savingsHigh, setSavingsHigh] = useState(10000);
+
+  // Decision Lab: when the user's numbers are saved, the ranges seed
+  // centered on them (±15%) instead of generic defaults. Mount-only.
+  const apply = useCallback((key: string, v: number) => {
+    if (key === "incomeLow") setIncomeLow(v);
+    else if (key === "incomeHigh") setIncomeHigh(v);
+    else if (key === "fixedCostsLow") setFixedCostsLow(v);
+    else if (key === "fixedCostsHigh") setFixedCostsHigh(v);
+    else if (key === "savingsLow") setSavingsLow(v);
+    else if (key === "savingsHigh") setSavingsHigh(v);
+  }, []);
+  useLensPrefill("blind-budget", apply);
 
   const result = useMemo(
     () => computeBlindBudget({ incomeLow, incomeHigh, fixedCostsLow, fixedCostsHigh, savingsLow, savingsHigh }),
@@ -24,6 +38,8 @@ export default function BlindBudgetPage() {
       title="Blind Budget"
       description={`Plan without knowing your exact numbers. Give a range for what you're not sure of — you'll still get an honest answer. Precision isn't required for honesty.`}
     >
+      <SavedNumbersStrip />
+
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-6 p-6">
           <RangeField
@@ -132,6 +148,7 @@ function RangeField({
         <p className="text-xs text-dim">Low end</p>
         <input
           type="range"
+          aria-label={`${label} (low end)`}
           className="homi-slider mt-1"
           min={min}
           max={max}
@@ -145,6 +162,7 @@ function RangeField({
         <p className="text-xs text-dim">High end</p>
         <input
           type="range"
+          aria-label={`${label} (high end)`}
           className="homi-slider mt-1"
           min={min}
           max={max}

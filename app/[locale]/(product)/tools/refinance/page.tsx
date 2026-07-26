@@ -1,11 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { analyzeRefinance } from "@/lib/tools/refinance";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
 import { CalcField } from "@/components/tools/CalcField";
+import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { ChainLinks } from "@/components/tools/ChainLinks";
+import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
+import { getLens } from "@/lib/tools/registry";
+import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
+
+const LENS = getLens("refinance")!;
 
 function RefinancePageInner() {
   const [balance, setBalance] = useState(320000);
@@ -14,6 +21,15 @@ function RefinancePageInner() {
   const [newRate, setNewRate] = useState(6.0);
   const [newTermYears, setNewTermYears] = useState(30);
   const [closingCosts, setClosingCosts] = useState(6000);
+
+  // Decision Lab: mount-only seed from the CFM via the registry contract.
+  const apply = useCallback((key: string, v: number) => {
+    if (key === "balance") setBalance(v);
+    else if (key === "currentRate") setCurrentRate(v);
+    else if (key === "newRate") setNewRate(v);
+  }, []);
+  const { prefilled, markAll } = useLensPrefill("refinance", apply);
+  const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
 
   const r = useMemo(
     () => analyzeRefinance({ balance, currentRate, currentTermYears, newRate, newTermYears, closingCosts }),
@@ -27,14 +43,26 @@ function RefinancePageInner() {
       title="Refinance Break-Even"
       description={`A lower rate isn't automatically a better deal. This shows the month your payment savings finally pay back the closing costs — and whether you'll still be in the home by then.`}
     >
+      <SavedNumbersStrip />
+
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
-          <CalcField label="Loan balance" value={balance} onChange={setBalance} min={50000} max={1500000} step={5000} format="currency" />
-          <CalcField label="Current rate" value={currentRate} onChange={setCurrentRate} min={2} max={12} step={0.125} format="percent" />
+          <CalcField label="Loan balance" value={balance} onChange={setBalance} min={50000} max={1500000} step={5000} format="currency" source={sourceFor("balance")} />
+          <CalcField label="Current rate" value={currentRate} onChange={setCurrentRate} min={2} max={12} step={0.125} format="percent" source={sourceFor("currentRate")} />
           <CalcField label="Years left on current loan" value={currentTermYears} onChange={setCurrentTermYears} min={5} max={30} step={1} format="years" />
-          <CalcField label="New rate" value={newRate} onChange={setNewRate} min={2} max={12} step={0.125} format="percent" />
+          <CalcField label="New rate" value={newRate} onChange={setNewRate} min={2} max={12} step={0.125} format="percent" source={sourceFor("newRate")} />
           <CalcField label="New loan term" value={newTermYears} onChange={setNewTermYears} min={10} max={30} step={5} format="years" />
           <CalcField label="Closing costs" value={closingCosts} onChange={setClosingCosts} min={0} max={20000} step={250} format="currency" />
+
+          <div className="hairline" />
+          <UpdateNumbersButton
+            getFields={() => ({
+              currentMortgageBalance: balance,
+              currentMortgageRatePct: currentRate,
+              assumedRatePct: newRate,
+            })}
+            onSaved={() => markAll(["balance", "currentRate", "newRate"])}
+          />
         </div>
 
         <div className="space-y-6">
@@ -105,6 +133,8 @@ function RefinancePageInner() {
               above are why &ldquo;lower rate&rdquo; and &ldquo;cheaper loan&rdquo; aren&rsquo;t the same thing.
             </p>
           </div>
+
+          {LENS.chains && <ChainLinks chains={LENS.chains} />}
         </div>
       </div>
     </ToolShell>

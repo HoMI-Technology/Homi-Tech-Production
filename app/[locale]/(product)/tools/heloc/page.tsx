@@ -1,17 +1,32 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { helocAvailability, helocTiers } from "@/lib/tools/heloc";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { CalcField } from "@/components/tools/CalcField";
+import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { ChainLinks } from "@/components/tools/ChainLinks";
+import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
+import { getLens } from "@/lib/tools/registry";
+import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
+
+const LENS = getLens("heloc")!;
 
 function HelocPageInner() {
   const [homeValue, setHomeValue] = useState(500000);
   const [mortgageBalance, setMortgageBalance] = useState(280000);
   const [maxCltv, setMaxCltv] = useState(85);
   const [rate, setRate] = useState(8.5);
+
+  // Decision Lab: mount-only seed from the CFM via the registry contract.
+  const apply = useCallback((key: string, v: number) => {
+    if (key === "homeValue") setHomeValue(v);
+    else if (key === "mortgageBalance") setMortgageBalance(v);
+  }, []);
+  const { prefilled, markAll } = useLensPrefill("heloc", apply);
+  const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
 
   const result = useMemo(
     () => helocAvailability({ homeValue, mortgageBalance, maxCltv: maxCltv / 100, rate }),
@@ -27,12 +42,20 @@ function HelocPageInner() {
       title="Home Equity Line (HELOC)"
       description={`How much you can actually borrow against your home — the honest number after the lender's combined loan-to-value cap, not just your paper equity.`}
     >
+      <SavedNumbersStrip />
+
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
-          <CalcField label="Home value" value={homeValue} onChange={setHomeValue} min={100000} max={2000000} step={5000} format="currency" />
-          <CalcField label="Mortgage balance" value={mortgageBalance} onChange={setMortgageBalance} min={0} max={homeValue} step={5000} format="currency" />
+          <CalcField label="Home value" value={homeValue} onChange={setHomeValue} min={100000} max={2000000} step={5000} format="currency" source={sourceFor("homeValue")} />
+          <CalcField label="Mortgage balance" value={mortgageBalance} onChange={setMortgageBalance} min={0} max={homeValue} step={5000} format="currency" source={sourceFor("mortgageBalance")} />
           <CalcField label="Lender max CLTV" value={maxCltv} onChange={setMaxCltv} min={70} max={90} step={5} format="percent" />
           <CalcField label="Line rate (variable)" value={rate} onChange={setRate} min={4} max={14} step={0.25} format="percent" />
+
+          <div className="hairline" />
+          <UpdateNumbersButton
+            getFields={() => ({ homeValue, currentMortgageBalance: mortgageBalance })}
+            onSaved={() => markAll(["homeValue", "mortgageBalance"])}
+          />
         </div>
 
         <div className="space-y-6">
@@ -84,6 +107,8 @@ function HelocPageInner() {
               your home on the hook. This is educational math, not a lending offer.
             </p>
           </div>
+
+          {LENS.chains && <ChainLinks chains={LENS.chains} />}
         </div>
       </div>
     </ToolShell>

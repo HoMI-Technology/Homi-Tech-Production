@@ -1,11 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { compareOffers, bestOfferIndex, type LoanOffer } from "@/lib/tools/apr";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { CalcField } from "@/components/tools/CalcField";
+import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { ChainLinks } from "@/components/tools/ChainLinks";
+import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
+import { getLens } from "@/lib/tools/registry";
+import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
+
+const LENS = getLens("apr-compare")!;
 
 const START: LoanOffer[] = [
   { label: "Offer A", rate: 6.25, points: 0, fees: 3000 },
@@ -17,6 +24,14 @@ function AprComparePageInner() {
   const [loan, setLoan] = useState(400000);
   const [termYears, setTermYears] = useState(30);
   const [offers, setOffers] = useState<LoanOffer[]>(START);
+
+  // Decision Lab: mount-only seed from the CFM via the registry contract.
+  const apply = useCallback((key: string, v: number) => {
+    if (key === "loan") setLoan(v);
+    else if (key === "termYears") setTermYears(v);
+  }, []);
+  const { prefilled, markAll } = useLensPrefill("apr-compare", apply);
+  const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
 
   const results = useMemo(() => compareOffers(loan, termYears, offers), [loan, termYears, offers]);
   const best = useMemo(() => bestOfferIndex(results), [results]);
@@ -30,10 +45,12 @@ function AprComparePageInner() {
       title="APR Comparison"
       description={`The lowest rate isn't always the cheapest loan. Points and fees hide in the headline number — this ranks three offers by their true, cost-inclusive APR.`}
     >
+      <SavedNumbersStrip />
+
       <div className="mt-8 grid gap-6 lg:grid-cols-3">
         <div className="glass space-y-5 p-6 lg:col-span-1">
-          <CalcField label="Loan amount" value={loan} onChange={setLoan} min={50000} max={1500000} step={5000} format="currency" />
-          <CalcField label="Loan term" value={termYears} onChange={setTermYears} min={10} max={30} step={5} format="years" />
+          <CalcField label="Loan amount" value={loan} onChange={setLoan} min={50000} max={1500000} step={5000} format="currency" source={sourceFor("loan")} />
+          <CalcField label="Loan term" value={termYears} onChange={setTermYears} min={10} max={30} step={5} format="years" source={sourceFor("termYears")} />
           <div className="hairline" />
           {offers.map((o, i) => (
             <div key={i} className="space-y-4">
@@ -44,6 +61,12 @@ function AprComparePageInner() {
               {i < offers.length - 1 && <div className="hairline" />}
             </div>
           ))}
+
+          <div className="hairline" />
+          <UpdateNumbersButton
+            getFields={() => ({ termYears })}
+            onSaved={() => markAll(["termYears"])}
+          />
         </div>
 
         <div className="space-y-6 lg:col-span-2">
@@ -75,6 +98,8 @@ function AprComparePageInner() {
               you&rsquo;ll actually keep the loan) — not the number on the flyer. Educational math, not a quote.
             </p>
           </div>
+
+          {LENS.chains && <ChainLinks chains={LENS.chains} />}
         </div>
       </div>
     </ToolShell>
