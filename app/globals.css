@@ -80,6 +80,8 @@
   color-scheme: dark;
   /* Product chrome: dense single-line bar (was 72px marketing height) */
   --nav-height: 60px;
+  /* Total fixed-header clearance incl. notch / Dynamic Island (needs viewport-fit=cover). */
+  --nav-offset: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
   --glow-cyan: 0 0 30px rgba(34, 211, 238, 0.4);
   --glow-emerald: 0 0 30px rgba(52, 211, 153, 0.35);
   --glow-yellow: 0 0 30px rgba(250, 204, 21, 0.3);
@@ -91,13 +93,15 @@
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
+  min-height: 2.75rem;
   border-radius: 0.5rem;
-  padding: 0.375rem 0.65rem;
+  padding: 0.5rem 0.75rem;
   font-size: 0.8125rem;
   font-weight: 500;
   letter-spacing: -0.01em;
   color: var(--color-dim);
   transition: color 0.15s ease, background-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 .chrome-nav-link:hover {
   color: var(--color-light);
@@ -117,14 +121,17 @@
 .chrome-icon-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.4rem;
-  height: 2rem;
+  height: 2.75rem;
+  min-width: 2.75rem;
   border-radius: 0.5rem;
   border: 1px solid rgba(148, 163, 184, 0.18);
   background: rgba(30, 41, 59, 0.4);
-  padding: 0 0.5rem 0 0.45rem;
+  padding: 0 0.55rem 0 0.5rem;
   color: var(--color-dim);
   transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 .chrome-icon-btn:hover {
   color: var(--color-light);
@@ -149,17 +156,18 @@
 
 .chrome-avatar {
   display: flex;
-  height: 2rem;
-  width: 2rem;
+  height: 2.75rem;
+  width: 2.75rem;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
   border: 1px solid rgba(148, 163, 184, 0.22);
   background: rgba(30, 41, 59, 0.65);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: var(--color-light);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 .chrome-avatar:hover {
   border-color: rgba(34, 211, 238, 0.45);
@@ -195,11 +203,13 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-height: 2.75rem;
   border-radius: 0.5rem;
-  padding: 0.5rem 0.7rem;
-  font-size: 0.8125rem;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
   color: var(--color-dim);
   transition: color 0.12s ease, background-color 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 .chrome-menu-item:hover {
   background: rgba(30, 41, 59, 0.75);
@@ -213,18 +223,20 @@
 /* Workspace switcher — one trigger, not six pills */
 .chrome-workspace-trigger {
   display: inline-flex;
-  max-width: 9.5rem;
+  max-width: 11rem;
   align-items: center;
   gap: 0.4rem;
-  height: 2rem;
+  height: 2.75rem;
+  min-height: 2.75rem;
   border-radius: 0.5rem;
   border: 1px solid rgba(148, 163, 184, 0.2);
   background: rgba(30, 41, 59, 0.45);
-  padding: 0 0.55rem 0 0.45rem;
-  font-size: 0.75rem;
+  padding: 0 0.65rem 0 0.55rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: var(--color-light);
   transition: border-color 0.15s ease, background-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 .chrome-workspace-trigger:hover {
   border-color: rgba(34, 211, 238, 0.35);
@@ -273,12 +285,14 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
+  min-height: 2.75rem;
   border-radius: 0.5rem;
-  padding: 0.5rem 0.65rem;
-  font-size: 0.8125rem;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-dim);
   transition: color 0.12s ease, background-color 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 .chrome-workspace-item:hover {
   background: rgba(30, 41, 59, 0.8);
@@ -292,7 +306,7 @@
 html {
   scroll-behavior: smooth;
   /* Fixed header clearance for in-page anchors / focus targets. */
-  scroll-padding-top: calc(var(--nav-height) + env(safe-area-inset-top, 0px) + 0.75rem);
+  scroll-padding-top: calc(var(--nav-offset) + 0.75rem);
 }
 
 body {
@@ -329,7 +343,9 @@ body {
 
 /* Shared main offset under fixed header (safe-area aware). */
 .main-under-nav {
-  padding-top: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
+  padding-top: var(--nav-offset);
+  /* Clears Companion FAB + Android/iOS home indicator on product routes */
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
 }
 
 ::selection {
@@ -611,7 +627,8 @@ input[type="range"].homi-slider::-moz-range-track {
   border-radius: 12px;
   padding: 0.75rem 1rem;
   color: var(--color-light);
-  font-size: 0.9375rem;
+  /* 16px minimum — iOS Safari auto-zooms focused inputs below 16px */
+  font-size: 1rem;
   transition: border-color 200ms ease, box-shadow 200ms ease;
 }
 .input::placeholder { color: rgba(148, 163, 184, 0.55); }
@@ -1238,13 +1255,21 @@ input[type="range"].homi-slider::-moz-range-track {
 /* Greeting strip inside the instrument — one fold moment */
 .dash-hero-meta {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem 1.5rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
   margin-bottom: 1.5rem;
   padding-bottom: 1.25rem;
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+@media (min-width: 640px) {
+  .dash-hero-meta {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+  }
 }
 .dash-hero-meta h1 {
   font-family: var(--font-display);
@@ -1253,6 +1278,8 @@ input[type="range"].homi-slider::-moz-range-track {
   letter-spacing: -0.025em;
   line-height: 1.15;
   color: var(--color-light);
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .dash-hero-meta p {
   max-width: 36rem;
@@ -1262,6 +1289,29 @@ input[type="range"].homi-slider::-moz-range-track {
 }
 
 /* Next-move action dock — unmissable, not a footnote */
+.dash-action-dock > .dash-action-dock-actions {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+@media (min-width: 640px) {
+  .dash-action-dock > .dash-action-dock-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    width: auto;
+  }
+}
+.dash-action-dock > .dash-action-dock-actions > .btn {
+  width: 100%;
+}
+@media (min-width: 640px) {
+  .dash-action-dock > .dash-action-dock-actions > .btn {
+    width: auto;
+  }
+}
 .dash-action-dock {
   display: flex;
   flex-direction: column;
@@ -1310,19 +1360,39 @@ input[type="range"].homi-slider::-moz-range-track {
   background: rgba(148, 163, 184, 0.1);
   overflow: hidden;
 }
+/* 3-up: avoid orphan half-width cell on phones */
+.dash-rail:has(> :nth-child(3):last-child) > :last-child {
+  grid-column: 1 / -1;
+}
+/* 5-up: last cell full-width until large desktop */
+.dash-rail:has(> :nth-child(5):last-child) > :last-child {
+  grid-column: 1 / -1;
+}
 @media (min-width: 1024px) {
   .dash-rail {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
-  /* 5-up rails (e.g. analytics) still read as one instrument strip */
+  .dash-rail:has(> :nth-child(3):last-child) > :last-child {
+    grid-column: auto;
+  }
   .dash-rail:has(> :nth-child(5):last-child) {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
+  .dash-rail:has(> :nth-child(5):last-child) > :last-child {
+    grid-column: auto;
+  }
+}
+/* Horizontal table shells — touch pan without dragging the page */
+.table-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
 }
 .dash-rail-cell {
   background: rgba(15, 23, 42, 0.94);
   padding: 0.85rem 1rem 0.95rem;
   min-height: 4.75rem;
+  min-width: 0;
 }
 .dash-rail-label {
   font-size: 0.625rem;
@@ -1453,7 +1523,7 @@ input[type="range"].homi-slider::-moz-range-track {
 @media (min-width: 1024px) {
   .dash-side-stack {
     position: sticky;
-    top: calc(var(--nav-height) + 1rem);
+    top: calc(var(--nav-offset) + 1rem);
   }
 }
 .dash-panel {

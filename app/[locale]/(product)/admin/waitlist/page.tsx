@@ -88,7 +88,7 @@ export default async function AdminWaitlistPage() {
         </div>
       )}
 
-      <div className="glass mt-6 overflow-x-auto">
+      <div className="glass mt-6 table-scroll">
         {entries.length === 0 ? (
           <p className="p-10 text-center text-sm text-dim">No waitlist signups yet.</p>
         ) : (

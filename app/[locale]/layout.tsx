@@ -74,6 +74,8 @@ export const viewport: Viewport = {
   themeColor: "#0a1628",
   width: "device-width",
   initialScale: 1,
+  // Required for env(safe-area-inset-*) on notched iPhones / installed PWA.
+  viewportFit: "cover",
 };
 
 /** Pre-render both locales for every static route. */

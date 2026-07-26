@@ -53,7 +53,9 @@ export function ActionDock({
         <p className="dash-action-dock-label">{kicker}</p>
         <p className="dash-action-dock-title">{title}</p>
       </div>
-      {children != null && <div className="flex flex-wrap gap-2.5">{children}</div>}
+      {children != null && (
+        <div className="dash-action-dock-actions">{children}</div>
+      )}
     </div>
   );
 }

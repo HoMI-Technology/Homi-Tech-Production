@@ -76,7 +76,7 @@ export default async function AdminUsersPage() {
         />
       </div>
 
-      <div className="glass mt-6 overflow-x-auto">
+      <div className="glass mt-6 table-scroll">
         {users.length === 0 ? (
           <p className="p-10 text-center text-sm text-dim">No users yet.</p>
         ) : (
@@ -93,7 +93,9 @@ export default async function AdminUsersPage() {
             <tbody>
               {users.map((u) => (
                 <tr key={u.id}>
-                  <td>{u.email}</td>
+                  <td className="max-w-[10rem] truncate sm:max-w-none" title={u.email}>
+                    {u.email}
+                  </td>
                   <td className="text-dim">{u.full_name || "—"}</td>
                   <td>
                     <RoleBadge role={u.role} />

@@ -54,7 +54,7 @@ export default async function ProductLayout({ children }: { children: React.Reac
       ) : (
         <SiteHeader />
       )}
-      <main id="main" className="main-under-nav min-h-screen">
+      <main id="main" className="main-under-nav min-h-dvh">
         {children}
       </main>
       <SiteFooter />

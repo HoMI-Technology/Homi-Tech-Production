@@ -200,7 +200,7 @@ export default async function AdminActivityPage() {
         {entries.length === 0 ? (
           <p className="py-12 text-center text-sm text-dim">No audit log entries yet.</p>
         ) : (
-          <div className="mt-3 overflow-x-auto">
+          <div className="mt-3 table-scroll">
             <table className="table-premium min-w-[680px]">
               <thead>
                 <tr>

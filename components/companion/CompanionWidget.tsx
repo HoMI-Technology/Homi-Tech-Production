@@ -314,7 +314,7 @@ export function CompanionWidget() {
         aria-expanded={open}
         aria-controls="homi-companion-panel"
         aria-label={open ? "Close HōMI Companion" : "Open HōMI Companion"}
-        className="compass-glow fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full border border-cyan/40 bg-navy-light/90 shadow-lg backdrop-blur transition-transform hover:scale-105"
+        className="compass-glow fixed right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full border border-cyan/40 bg-navy-light/90 shadow-lg backdrop-blur transition-transform hover:scale-105 bottom-[max(1.5rem,env(safe-area-inset-bottom,0px))]"
       >
         <ThresholdCompass size={40} animated={!open} glow={false} verdict={undefined} />
       </button>
@@ -326,7 +326,7 @@ export function CompanionWidget() {
           role="dialog"
           aria-modal="true"
           aria-label="HōMI Companion"
-          className="glass fixed bottom-24 right-6 z-50 flex h-[70vh] max-h-[560px] w-[380px] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl shadow-2xl"
+          className="glass fixed right-4 z-50 flex h-[min(70dvh,560px)] max-h-[calc(100dvh-env(safe-area-inset-top,0px)-8rem)] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl shadow-2xl bottom-[max(5.5rem,calc(env(safe-area-inset-bottom,0px)+4.5rem))] sm:right-6"
         >
           <div className="flex items-center justify-between border-b border-slate-surface/60 px-4 py-3">
             {editingName ? (

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { ADMIN_NAV_GROUPS } from "@/components/admin/admin-nav";
 
@@ -24,7 +25,7 @@ export function AdminSidebar() {
                   key={item.href}
                   href={item.href}
                   aria-current={active ? "page" : undefined}
-                  className={`relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+                  className={`relative flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                     active
                       ? "bg-slate-surface/80 text-cyan shadow-[inset_0_1px_0_rgba(226,232,240,0.06),0_0_24px_-8px_rgba(34,211,238,0.5)]"
                       : "text-dim hover:bg-slate-surface/50 hover:text-light"
@@ -54,11 +55,20 @@ export function AdminSidebar() {
 /** Compact horizontal admin nav for viewports below `md`. */
 export function AdminMobileNav() {
   const pathname = usePathname();
+  const scrollerRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const root = scrollerRef.current;
+    if (!root) return;
+    const active = root.querySelector<HTMLElement>("[aria-current='page']");
+    active?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+  }, [pathname]);
 
   return (
     <nav
+      ref={scrollerRef}
       aria-label="Admin sections"
-      className="mb-6 -mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 md:hidden"
+      className="admin-mobile-nav sticky top-[var(--nav-offset)] z-20 -mx-1 mb-6 flex gap-1.5 overflow-x-auto overscroll-x-contain px-1 pb-2 pt-1 md:hidden [-webkit-overflow-scrolling:touch] [scrollbar-width:thin]"
     >
       {ADMIN_NAV_GROUPS.flatMap((g) => g.items).map((item) => {
         const active = isAdminNavActive(pathname, item.href);
@@ -67,7 +77,7 @@ export function AdminMobileNav() {
             key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
-            className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-medium whitespace-nowrap transition-colors ${
+            className={`inline-flex min-h-11 shrink-0 snap-start items-center rounded-lg border px-3.5 py-2.5 text-sm font-medium whitespace-nowrap transition-colors ${
               active
                 ? "border-cyan/40 bg-slate-surface text-cyan"
                 : "border-slate-high/30 bg-slate-surface/40 text-dim hover:text-light"
