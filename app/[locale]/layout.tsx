@@ -115,7 +115,7 @@ export default async function RootLayout({
         {/* Messages come from i18n/request.ts via the Next.js plugin — every
             client component under this layout can use useTranslations. */}
         <NextIntlClientProvider locale={locale}>
-          <UXErrorBoundary name="client-providers" fallback={<main id="main">{children}</main>}>
+          <UXErrorBoundary name="client-providers" fallback={<div id="main-fallback">{children}</div>}>
             <ClientProviders>{children}</ClientProviders>
           </UXErrorBoundary>
         </NextIntlClientProvider>

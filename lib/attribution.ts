@@ -86,3 +86,32 @@ export function serializeAttributionCookie(snapshot: AttributionSnapshot): strin
   const value = encodeURIComponent(JSON.stringify(snapshot));
   return `${ATTRIBUTION_COOKIE}=${value}; Max-Age=${ATTRIBUTION_MAX_AGE_SECONDS}; Path=/; SameSite=Lax`;
 }
+
+/**
+ * Partner invite codes are `ptr_` + 8 alphanumerics (see partner_codes mint).
+ * Used to denormalize assessments.referral_source = partner_user_id on write.
+ */
+export const PARTNER_REF_PATTERN = /^ptr_[a-z0-9]{8}$/i;
+
+export function isPartnerInviteRef(ref: string | undefined | null): boolean {
+  return Boolean(ref && PARTNER_REF_PATTERN.test(ref));
+}
+
+/**
+ * Pure helper: given a first-touch snapshot and a code→partner map, return the
+ * partner profile id to stamp on assessments.referral_source. Does not set
+ * profiles.partner_id (named roster is an explicit relationship, not invite traffic).
+ */
+export function resolvePartnerReferralSource(
+  attribution: AttributionSnapshot | null | undefined,
+  codeToPartnerId: ReadonlyMap<string, string> | Record<string, string>,
+): string | null {
+  const ref = attribution?.ref;
+  if (!ref || !isPartnerInviteRef(ref)) return null;
+  const key = ref.toLowerCase();
+  if (codeToPartnerId instanceof Map) {
+    return codeToPartnerId.get(key) ?? codeToPartnerId.get(ref) ?? null;
+  }
+  const record = codeToPartnerId as Record<string, string>;
+  return record[key] ?? record[ref] ?? null;
+}

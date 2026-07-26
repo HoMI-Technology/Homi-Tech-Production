@@ -287,7 +287,14 @@ export function CompanionWidget() {
   }
 
   // Full chat lives on /advisor already — don't double up the surface there.
-  if (pathname === "/advisor") return null;
+  // Ops console: keep Companion off admin so attention work stays uncluttered.
+  if (
+    pathname === "/advisor" ||
+    pathname === "/admin" ||
+    pathname.startsWith("/admin/")
+  ) {
+    return null;
+  }
   if (!idleReady) return null;
 
   const activePersona = PERSONAS.find((p) => p.key === persona) ?? PERSONAS[0];

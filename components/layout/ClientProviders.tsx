@@ -28,9 +28,9 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
     setMounted(true);
   }, []);
 
-  // SSR: render static children only (no animations, no localStorage, no window)
+  // SSR: no second <main> — product/marketing layouts own the landmark.
   if (!mounted) {
-    return <main id="main">{children}</main>;
+    return <>{children}</>;
   }
 
   // Client: full UX layer active
@@ -39,22 +39,20 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
       <ScrollProgress />
       <KeyboardShortcutsProvider />
 
-      <main id="main">
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={pathname}
-            variants={variants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            transition={spring}
-            style={{ willChange: "transform, opacity" }}
-          >
-            <WelcomeBanner />
-            {children}
-          </motion.div>
-        </AnimatePresence>
-      </main>
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={pathname}
+          variants={variants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={spring}
+          style={{ willChange: "transform, opacity" }}
+        >
+          <WelcomeBanner />
+          {children}
+        </motion.div>
+      </AnimatePresence>
     </>
   );
 }

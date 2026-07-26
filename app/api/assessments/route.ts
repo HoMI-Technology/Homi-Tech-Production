@@ -7,7 +7,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { assessmentInputsSchema } from "@/lib/validation/assessment";
 import { getUserEntitlements } from "@/lib/entitlements";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
-import { readAttributionCookie } from "@/lib/attribution";
+import {
+  isPartnerInviteRef,
+  readAttributionCookie,
+  resolvePartnerReferralSource,
+} from "@/lib/attribution";
 import { sendLifecycleEmail } from "@/lib/email/send";
 import { verdictEmail } from "@/lib/email/templates";
 import { captureServerEvent } from "@/lib/analytics/server";
@@ -69,11 +73,37 @@ export async function POST(req: NextRequest) {
     // First-touch acquisition snapshot (occurrence data only).
     const attribution = readAttributionCookie(req.headers.get("cookie"));
 
+    // Denormalize partner invite ref → assessments.referral_source so partner
+    // dashboard KPIs match portal RPC stats (attribution.ref = ptr_…).
+    // Does NOT set profiles.partner_id (named roster is explicit, not invite traffic).
+    let referralSource: string | null = null;
+    if (attribution?.ref && isPartnerInviteRef(attribution.ref)) {
+      try {
+        const admin = createAdminClient();
+        const db = admin ?? supabase;
+        const { data: codeRow } = await db
+          .from("partner_codes")
+          .select("code, partner_user_id")
+          .eq("code", attribution.ref)
+          .maybeSingle();
+        if (codeRow?.partner_user_id && codeRow?.code) {
+          const map = new Map<string, string>([
+            [String(codeRow.code).toLowerCase(), String(codeRow.partner_user_id)],
+            [String(codeRow.code), String(codeRow.partner_user_id)],
+          ]);
+          referralSource = resolvePartnerReferralSource(attribution, map);
+        }
+      } catch {
+        referralSource = null;
+      }
+    }
+
     const { data, error } = await supabase
       .from("assessments")
       .insert({
         user_id: user.id,
         ...(attribution ? { attribution } : {}),
+        ...(referralSource ? { referral_source: referralSource } : {}),
         decision_type: "home_buying",
         status: "completed",
         financial_score: result.financial.total,
