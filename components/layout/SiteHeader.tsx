@@ -32,7 +32,7 @@ export function SiteHeader() {
           <Link
             key={item.href}
             href={item.href}
-            className={`rounded-lg px-3 py-2 text-sm transition-colors ${
+            className={`rounded-lg px-3 py-2 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan ${
               active ? "text-cyan" : "text-dim hover:text-light"
             }`}
             aria-current={active ? "page" : undefined}

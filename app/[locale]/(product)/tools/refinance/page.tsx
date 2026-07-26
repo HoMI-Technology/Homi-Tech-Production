@@ -5,6 +5,7 @@ import { analyzeRefinance } from "@/lib/tools/refinance";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
 import { CalcField } from "@/components/tools/CalcField";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
+import { ToolShell } from "@/components/tools/ToolShell";
 
 function RefinancePageInner() {
   const [balance, setBalance] = useState(320000);
@@ -22,14 +23,11 @@ function RefinancePageInner() {
   const worthIt = r.breakEvenMonths !== null;
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="font-display text-3xl text-light">Refinance Break-Even</h1>
-      <p className="mt-2 max-w-2xl text-dim">
-        A lower rate isn&rsquo;t automatically a better deal. This shows the month your payment savings
-        finally pay back the closing costs — and whether you&rsquo;ll still be in the home by then.
-      </p>
-
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.3fr]">
+    <ToolShell
+      title="Refinance Break-Even"
+      description={`A lower rate isn't automatically a better deal. This shows the month your payment savings finally pay back the closing costs — and whether you'll still be in the home by then.`}
+    >
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
           <CalcField label="Loan balance" value={balance} onChange={setBalance} min={50000} max={1500000} step={5000} format="currency" />
           <CalcField label="Current rate" value={currentRate} onChange={setCurrentRate} min={2} max={12} step={0.125} format="percent" />
@@ -109,7 +107,7 @@ function RefinancePageInner() {
           </div>
         </div>
       </div>
-    </div>
+    </ToolShell>
   );
 }
 

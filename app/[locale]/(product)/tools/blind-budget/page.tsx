@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { computeBlindBudget } from "@/lib/tools/blindbudget";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
+import { ToolShell } from "@/components/tools/ToolShell";
 
 export default function BlindBudgetPage() {
   const [incomeLow, setIncomeLow] = useState(4500);
@@ -19,14 +20,11 @@ export default function BlindBudgetPage() {
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="font-display text-3xl text-light">Blind Budget</h1>
-      <p className="mt-2 max-w-2xl text-dim">
-        Plan without knowing your exact numbers. Give a range for what you're not sure of — you'll still
-        get an honest answer. Precision isn't required for honesty.
-      </p>
-
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.3fr]">
+    <ToolShell
+      title="Blind Budget"
+      description={`Plan without knowing your exact numbers. Give a range for what you're not sure of — you'll still get an honest answer. Precision isn't required for honesty.`}
+    >
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-6 p-6">
           <RangeField
             label="Monthly income"
@@ -89,7 +87,7 @@ export default function BlindBudgetPage() {
           </div>
         </div>
       </div>
-    </div>
+    </ToolShell>
   );
 }
 

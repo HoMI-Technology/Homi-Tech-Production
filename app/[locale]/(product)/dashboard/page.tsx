@@ -275,71 +275,19 @@ export default async function DashboardPage() {
       <EntranceConductor containerId="dash-root" />
       <CinemaFX />
 
-      <div className="mx-auto max-w-6xl px-6 py-12">
-        {/* ── Header ──────────────────────────────────────────── */}
+      <div className="mx-auto max-w-6xl px-6 py-10 sm:py-12">
+        {/* ── Header (compact — score hero owns the hierarchy) ── */}
         <div className="dash-stage">
           <p className="eyebrow">Decision readiness</p>
           <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">
             {greeting}, <span className="text-aurora">{name}</span>
           </h1>
-          <p className="mt-2 text-dim">{subtitle}</p>
+          <p className="mt-2 max-w-2xl text-dim">{subtitle}</p>
         </div>
 
-        {/* ── Stat rail ───────────────────────────────────────── */}
-        {latest && (
-          <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {[
-              <StatTile
-                key="verdict"
-                label="Verdict held"
-                value={heldDays !== null ? String(heldDays) : "—"}
-                unit={heldDays !== null ? (heldDays === 1 ? "day" : "days") : undefined}
-                accent={verdictMeta.color}
-                footer={verdictMeta.label}
-                spark={
-                  historyPoints.length >= 2 ? (
-                    <Sparkline id="score" values={historyPoints.map((p) => p.score)} color={verdictMeta.color} />
-                  ) : undefined
-                }
-              />,
-              <StatTile
-                key="strongest"
-                label="Strongest pillar"
-                value={strongest ? `${strongest.value}` : "—"}
-                unit={strongest ? `/${strongest.max}` : undefined}
-                accent={strongest?.color}
-                footer={strongest?.name}
-              />,
-              <StatTile
-                key="checkins"
-                label="Check-ins this week"
-                value={String(checkinsThisWeek)}
-                unit="/7"
-                accent="#34d399"
-                footer={checkinRows.length > 0 ? `${checkinRows.length} in the last 14 logged` : "Start a daily pulse"}
-              />,
-              <StatTile
-                key="journal"
-                label="Journal entries"
-                value={String(journalCount)}
-                accent="#facc15"
-                footer="Decisions logged"
-              />,
-            ].map((tile, i) => (
-              <div
-                key={i}
-                className="dash-stage"
-                style={{ "--stage-delay": `${140 + i * 70}ms` } as React.CSSProperties}
-              >
-                {tile}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* ── Hero: the verdict instrument ────────────────────── */}
-        <div className="dash-stage" style={{ "--stage-delay": "420ms" } as React.CSSProperties}>
-          <div className="glass sweep tilt-3d relative mt-8 overflow-hidden">
+        {/* ── Hero first: the verdict instrument (OPERATE primary) ─ */}
+        <div className="dash-stage" style={{ "--stage-delay": "120ms" } as React.CSSProperties}>
+          <div className="glass sweep tilt-3d relative mt-6 overflow-hidden sm:mt-8">
             <div
               aria-hidden
               className="pointer-events-none absolute -left-24 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full"
@@ -351,7 +299,7 @@ export default async function DashboardPage() {
             {latest && (
               <VerdictCelebrate assessmentId={latest.id} improved={improved} label={verdictMeta.label} />
             )}
-            <div className="relative grid gap-8 p-8 md:grid-cols-[auto_1fr] md:items-center">
+            <div className="relative grid gap-8 p-6 sm:p-8 md:grid-cols-[auto_1fr] md:items-center">
               {assessmentsFailed ? (
                 <div className="md:col-span-2">
                   <LoadErrorPanel
@@ -365,9 +313,17 @@ export default async function DashboardPage() {
                     <ThresholdCompass size={170} verdict={verdict ?? undefined} />
                   </div>
                   <div>
-                    <div className="flex flex-wrap items-center gap-4">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-dim">HōMI-Score</p>
+                    <div className="mt-2 flex flex-wrap items-center gap-4">
                       <HeroScore value={Math.round(latest.overall_score ?? 0)} color={verdictMeta.color} />
                       {verdict && <VerdictBadge verdict={verdict} size="lg" />}
+                      {scoreDelta && (
+                        <ScoreDeltaBadge
+                          current={scoreDelta.current}
+                          previous={scoreDelta.previous}
+                          previousDate={scoreDelta.previousDate}
+                        />
+                      )}
                     </div>
                     <p className="mt-3 max-w-xl text-sm leading-relaxed text-dim">{verdictMeta.line}</p>
                     <div className="mt-5 max-w-xl">
@@ -396,13 +352,42 @@ export default async function DashboardPage() {
                         that time. Consider a retest.
                       </p>
                     )}
+                    {/* One primary next step: weakest-pillar move when available; retest only when stale. */}
                     <div className="mt-6 flex flex-wrap gap-3">
-                      <Link href="/assessment" className="btn btn-primary">
-                        Retake full assessment
-                      </Link>
-                      <Link href="/plan" className="btn btn-ghost">
-                        View your plan
-                      </Link>
+                      {showNudge ? (
+                        <>
+                          <Link href="/assessment" className="btn btn-primary">
+                            Retake full assessment
+                          </Link>
+                          {nextMove ? (
+                            <Link href={nextMove.href} className="btn btn-ghost">
+                              {nextMove.cta}
+                            </Link>
+                          ) : (
+                            <Link href="/plan" className="btn btn-ghost">
+                              View your plan
+                            </Link>
+                          )}
+                        </>
+                      ) : nextMove ? (
+                        <>
+                          <Link href={nextMove.href} className="btn btn-primary">
+                            {nextMove.cta}
+                          </Link>
+                          <Link href="/plan" className="btn btn-ghost">
+                            View your plan
+                          </Link>
+                        </>
+                      ) : (
+                        <>
+                          <Link href="/plan" className="btn btn-primary">
+                            View your plan
+                          </Link>
+                          <Link href="/assessment" className="btn btn-ghost">
+                            Retake assessment
+                          </Link>
+                        </>
+                      )}
                     </div>
                   </div>
                 </>
@@ -415,172 +400,234 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {dueSurvey && <OutcomeSurveyPrompt surveyId={dueSurvey.id} kind={dueSurvey.kind} />}
+        {latest && dueSurvey && (
+          <OutcomeSurveyPrompt surveyId={dueSurvey.id} kind={dueSurvey.kind} />
+        )}
 
+        {/* First-run: hero EmptyState only — no zero pillars / instrument wall */}
         {latest && (
-          <TrinityGapAlert pillars={pillarReadings} />
-        )}
+          <>
+            <TrinityGapAlert pillars={pillarReadings} />
 
-        {/* ── History + next best move ────────────────────────── */}
-        <div className="mt-8 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-          <Reveal delay={80} className="glass p-8">
-            <SectionHeader
-              eyebrow="Trajectory"
-              title="Score history"
-              subtitle="Your HōMI-Score over time, colored by verdict."
-              action={
-                scoreDelta ? (
-                  <ScoreDeltaBadge
-                    current={scoreDelta.current}
-                    previous={scoreDelta.previous}
-                    previousDate={scoreDelta.previousDate}
-                  />
-                ) : undefined
-              }
-            />
-            <div className="mt-6">
-              {assessmentsFailed ? (
-                <LoadErrorPanel compact title="History didn't load" body="Your score history is intact — retry in a moment." />
-              ) : (
-                <ScoreHistory points={historyPoints} />
-              )}
-            </div>
-          </Reveal>
-
-          {assessmentsFailed ? (
-            <Reveal delay={160} className="glass flex flex-col justify-center p-8">
-              <LoadErrorPanel compact title="Next move didn't load" body="Retry to see your personalized next step." />
-            </Reveal>
-          ) : nextMove && weakest ? (
-            <Reveal delay={160} className="glass panel-focus flex flex-col p-8">
-              <SectionHeader eyebrow="Next best move" title={nextMove.title} />
-              <p className="mt-3 text-sm leading-relaxed text-dim">{nextMove.body}</p>
-              <div className="mt-4">
-                <span className="chip">
-                  <span className="inline-block h-2 w-2 rounded-full" style={{ background: weakest.color }} />
-                  {weakest.name} · {weakest.value}/{weakest.max}
-                </span>
-              </div>
-              <div className="mt-auto flex flex-wrap gap-3 pt-6">
-                <Link href={nextMove.href} className="btn btn-primary !px-4 !py-2 text-sm">
-                  {nextMove.cta}
-                </Link>
-                <Link href={nextMove.secondary.href} className="btn btn-ghost !px-4 !py-2 text-sm">
-                  {nextMove.secondary.label}
-                </Link>
-              </div>
-            </Reveal>
-          ) : (
-            <Reveal delay={160} className="glass flex flex-col items-start justify-center p-8">
-              <SectionHeader
-                eyebrow="Next best move"
-                title="Get your first score"
-                subtitle="Two minutes for a first read, or the full three-pillar assessment for the real verdict."
-              />
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link href="/shadow-score" className="btn btn-primary !px-4 !py-2 text-sm">
-                  Get your Shadow Score
-                </Link>
-                <Link href="/assessment" className="btn btn-ghost !px-4 !py-2 text-sm">
-                  Full assessment
-                </Link>
-              </div>
-            </Reveal>
-          )}
-        </div>
-
-        {/* ── Pillars ─────────────────────────────────────────── */}
-        <Reveal delay={100}>
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
-            {pillarReadings.map((pillar) => {
-              const isFocus = latest !== null && weakest !== null && pillar.key === weakest.key;
-              return (
-                <div key={pillar.key} className={`glass glass-hover sweep relative overflow-hidden p-6 ${isFocus ? "panel-focus" : ""}`}>
-                  <span
-                    aria-hidden
-                    className="absolute inset-x-0 top-0 h-px"
-                    style={{ background: `linear-gradient(90deg, transparent, ${pillar.color}88, transparent)` }}
-                  />
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="font-semibold text-light">{pillar.name}</h3>
-                      <p className="mt-1 text-xs text-dim">{pillar.question}</p>
-                    </div>
-                    {isFocus && <span className="chip !text-[0.6875rem]">Focus here</span>}
-                  </div>
-                  <div className="mt-5 flex justify-center">
-                    <PillarRing value={pillar.value} max={pillar.max} size={120} color={pillar.color} sublabel={`of ${pillar.max}`} />
-                  </div>
+            {/* ── Pillars — focus pillar carries the next move (no duplicate card) ── */}
+            <Reveal delay={80}>
+              <div className="mt-8">
+                <SectionHeader
+                  eyebrow="Three pillars"
+                  title="Where the score comes from"
+                  subtitle="Financial Reality · Emotional Truth · Perfect Timing — focus follows the softest ring."
+                />
+                <div className="mt-5 grid gap-5 md:grid-cols-3">
+                  {pillarReadings.map((pillar) => {
+                    const isFocus = weakest !== null && pillar.key === weakest.key;
+                    return (
+                      <div
+                        key={pillar.key}
+                        className={`glass glass-hover sweep relative overflow-hidden p-6 ${isFocus ? "panel-focus" : ""}`}
+                      >
+                        <span
+                          aria-hidden
+                          className="absolute inset-x-0 top-0 h-px"
+                          style={{
+                            background: `linear-gradient(90deg, transparent, ${pillar.color}88, transparent)`,
+                          }}
+                        />
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <h3 className="font-semibold text-light">{pillar.name}</h3>
+                            <p className="mt-1 text-xs text-dim">{pillar.question}</p>
+                          </div>
+                          {isFocus && <span className="chip !text-[0.6875rem]">Focus here</span>}
+                        </div>
+                        <div className="mt-5 flex justify-center">
+                          <PillarRing
+                            value={pillar.value}
+                            max={pillar.max}
+                            size={120}
+                            color={pillar.color}
+                            sublabel={`of ${pillar.max}`}
+                          />
+                        </div>
+                        {isFocus && nextMove && (
+                          <div className="mt-5 border-t border-slate-surface/60 pt-4">
+                            <p className="text-sm text-dim">{nextMove.body}</p>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              <Link
+                                href={nextMove.href}
+                                className="btn btn-primary !px-4 !py-2 text-sm"
+                              >
+                                {nextMove.cta}
+                              </Link>
+                              <Link
+                                href={nextMove.secondary.href}
+                                className="btn btn-ghost !px-4 !py-2 text-sm"
+                              >
+                                {nextMove.secondary.label}
+                              </Link>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
-          </div>
-        </Reveal>
+              </div>
+            </Reveal>
 
-        {/* ── Behavioral Genome ───────────────────────────────── */}
-        {genome && (
-          <Reveal delay={120}>
-            <div className="mt-8">
-              <GenomeWidget scores={genomeScoresMap(genome.scores)} />
+            {/* ── Supporting density: stats (never above the hero) ── */}
+            <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+              {[
+                <StatTile
+                  key="verdict"
+                  label="Verdict held"
+                  value={heldDays !== null ? String(heldDays) : "—"}
+                  unit={heldDays !== null ? (heldDays === 1 ? "day" : "days") : undefined}
+                  accent={verdictMeta.color}
+                  footer={verdictMeta.label}
+                  spark={
+                    historyPoints.length >= 2 ? (
+                      <Sparkline
+                        id="score"
+                        values={historyPoints.map((p) => p.score)}
+                        color={verdictMeta.color}
+                      />
+                    ) : undefined
+                  }
+                />,
+                <StatTile
+                  key="strongest"
+                  label="Strongest pillar"
+                  value={strongest ? `${strongest.value}` : "—"}
+                  unit={strongest ? `/${strongest.max}` : undefined}
+                  accent={strongest?.color}
+                  footer={strongest?.name}
+                />,
+                <StatTile
+                  key="checkins"
+                  label="Check-ins this week"
+                  value={String(checkinsThisWeek)}
+                  unit="/7"
+                  accent="#34d399"
+                  footer={
+                    checkinRows.length > 0
+                      ? `${checkinRows.length} in the last 14 logged`
+                      : "Start a daily pulse"
+                  }
+                />,
+                <StatTile
+                  key="journal"
+                  label="Journal entries"
+                  value={String(journalCount)}
+                  accent="#facc15"
+                  footer="Decisions logged"
+                />,
+              ].map((tile, i) => (
+                <div
+                  key={i}
+                  className="dash-stage"
+                  style={{ "--stage-delay": `${200 + i * 50}ms` } as React.CSSProperties}
+                >
+                  {tile}
+                </div>
+              ))}
             </div>
-          </Reveal>
-        )}
 
-        {/* ── Financial position (streams behind Suspense) ────── */}
-        {user && (
-          <Suspense fallback={<FinancialPositionSkeleton />}>
-            <FinancialPositionSection
-              userId={user.id}
-              subscriptionTier={profile?.subscription_tier ?? null}
-            />
-          </Suspense>
-        )}
+            {/* ── Trajectory (full width — next move lives on hero + focus pillar) ── */}
+            <Reveal delay={80} className="glass mt-8 block p-8">
+              <SectionHeader
+                eyebrow="Trajectory"
+                title="Score history"
+                subtitle="Your HōMI-Score over time, colored by verdict."
+                action={
+                  scoreDelta ? (
+                    <ScoreDeltaBadge
+                      current={scoreDelta.current}
+                      previous={scoreDelta.previous}
+                      previousDate={scoreDelta.previousDate}
+                    />
+                  ) : undefined
+                }
+              />
+              <div className="mt-6">
+                {assessmentsFailed ? (
+                  <LoadErrorPanel
+                    compact
+                    title="History didn't load"
+                    body="Your score history is intact — retry in a moment."
+                  />
+                ) : (
+                  <ScoreHistory points={historyPoints} />
+                )}
+              </div>
+            </Reveal>
 
-        {/* ── Daily pulse ─────────────────────────────────────── */}
-        <Reveal delay={80} className="glass mt-8 block p-8">
-          <SectionHeader
-            eyebrow="Cadence"
-            title="Daily pulse"
-            subtitle="Mood and stress trend from your last check-ins."
-            action={
-              <Link href="/daily" className="btn btn-ghost !px-4 !py-2 text-sm">
-                Check in today
-              </Link>
-            }
-          />
-          <div className="mt-6">
-            {checkinsFailed ? (
-              <LoadErrorPanel compact title="Check-ins didn't load" body="Your check-in history is intact — retry in a moment." />
-            ) : (
-              <DailyPulseStrip checkins={checkinRows} />
+            {genome && (
+              <Reveal delay={120}>
+                <div className="mt-8">
+                  <GenomeWidget scores={genomeScoresMap(genome.scores)} />
+                </div>
+              </Reveal>
             )}
-          </div>
-        </Reveal>
 
-        {/* ── Decision timeline ───────────────────────────────── */}
-        <Reveal delay={100}>
-          <div className="mt-8">
-            <DecisionTimeline
-              assessments={assessmentRows}
-              checkins={checkinRows}
-              journalEntries={journalEntries}
-            />
-          </div>
-        </Reveal>
+            {user && (
+              <Suspense fallback={<FinancialPositionSkeleton />}>
+                <FinancialPositionSection
+                  userId={user.id}
+                  subscriptionTier={profile?.subscription_tier ?? null}
+                />
+              </Suspense>
+            )}
 
-        {/* ── Quick actions ───────────────────────────────────── */}
-        <Reveal delay={80}>
-          <div className="mt-10">
-            <SectionHeader
-              eyebrow="Instruments"
-              title="Quick actions"
-              subtitle={featured.length > 0 ? "The three that matter right now, first." : undefined}
-            />
-            <div className="mt-5">
-              <QuickActionGrid journalCount={journalCount} featured={featured} />
-            </div>
-          </div>
-        </Reveal>
+            <Reveal delay={80} className="glass mt-8 block p-8">
+              <SectionHeader
+                eyebrow="Cadence"
+                title="Daily pulse"
+                subtitle="Mood and stress trend from your last check-ins."
+                action={
+                  <Link href="/daily" className="btn btn-ghost !px-4 !py-2 text-sm">
+                    Check in today
+                  </Link>
+                }
+              />
+              <div className="mt-6">
+                {checkinsFailed ? (
+                  <LoadErrorPanel
+                    compact
+                    title="Check-ins didn't load"
+                    body="Your check-in history is intact — retry in a moment."
+                  />
+                ) : (
+                  <DailyPulseStrip checkins={checkinRows} />
+                )}
+              </div>
+            </Reveal>
+
+            <Reveal delay={100}>
+              <div className="mt-8">
+                <DecisionTimeline
+                  assessments={assessmentRows}
+                  checkins={checkinRows}
+                  journalEntries={journalEntries}
+                />
+              </div>
+            </Reveal>
+
+            <Reveal delay={80}>
+              <div className="mt-10">
+                <SectionHeader
+                  eyebrow="Instruments"
+                  title="Quick actions"
+                  subtitle={
+                    featured.length > 0 ? "The three that matter right now, first." : undefined
+                  }
+                />
+                <div className="mt-5">
+                  <QuickActionGrid journalCount={journalCount} featured={featured} />
+                </div>
+              </div>
+            </Reveal>
+          </>
+        )}
       </div>
     </div>
   );

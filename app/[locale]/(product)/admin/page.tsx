@@ -6,6 +6,7 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { BarSeries } from "@/components/admin/BarSeries";
 import { CsvExportButton } from "@/components/admin/CsvExportButton";
 import { SystemHealthCard } from "@/components/admin/SystemHealthCard";
+import { AttentionStrip, type AttentionItem } from "@/components/operate/AttentionStrip";
 import { VERDICT_META, type VerdictKey } from "@/lib/brand";
 import {
   dailySucceededCents,
@@ -155,11 +156,67 @@ export default async function AdminOverviewPage() {
   const revenueDaily = dailySucceededCents(payments, 30);
   const revenueSpark = revenueDaily.map((d) => d.cents / 100);
 
+  const attention: AttentionItem[] = [];
+  if (waitlistCount > 0) {
+    attention.push({
+      id: "waitlist",
+      severity: waitlistCount >= 20 ? "warn" : "info",
+      title: `${waitlistCount.toLocaleString()} waitlist signups`,
+      detail: "Review and convert demand.",
+      href: "/admin/waitlist",
+      cta: "Open waitlist",
+    });
+  }
+  if (revenue30dCents === 0) {
+    attention.push({
+      id: "revenue",
+      severity: "warn",
+      title: "No succeeded payments in 30 days",
+      detail: "Confirm Stripe webhook delivery if you expect revenue.",
+      href: "/admin",
+      cta: "Review revenue",
+    });
+  }
+  if (last7 === 0 && assessmentsCompleted > 0) {
+    attention.push({
+      id: "assess-quiet",
+      severity: "info",
+      title: "No assessments completed in the last 7 days",
+      detail: "Check acquisition and product health.",
+      href: "/admin/assessments",
+      cta: "Assessments",
+    });
+  }
+  if (totalUsers === 0) {
+    attention.push({
+      id: "users",
+      severity: "critical",
+      title: "No user profiles yet",
+      detail: "Platform is empty or DB is unreachable.",
+      href: "/admin/users",
+      cta: "Users",
+    });
+  }
+  if (attention.length === 0) {
+    attention.push({
+      id: "ok",
+      severity: "ok",
+      title: "No urgent ops issues from overview signals",
+      detail: `${totalUsers.toLocaleString()} users · ${assessmentsCompleted.toLocaleString()} assessments · waitlist ${waitlistCount.toLocaleString()}`,
+      href: "/admin/activity",
+      cta: "Activity log",
+    });
+  }
+
   return (
     <div>
       <p className="eyebrow">Mission control</p>
       <h1 className="mt-1 font-display text-2xl text-light md:text-3xl">Overview</h1>
-      <p className="mt-1 text-sm text-dim">Platform-wide activity and readiness signal.</p>
+      <p className="mt-1 text-sm text-dim">What needs attention — then platform-wide signal.</p>
+
+      <div className="mt-8">
+        <AttentionStrip items={attention} title="Needs attention" />
+      </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile label="Total users" value={totalUsers.toLocaleString()} accent="#22d3ee" footer="All accounts" />

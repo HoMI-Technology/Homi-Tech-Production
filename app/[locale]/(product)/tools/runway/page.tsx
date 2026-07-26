@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
 import { getToolPrefill } from "@/lib/tools/prefill";
+import { ToolShell, ToolResultHero } from "@/components/tools/ToolShell";
 
 function temperature(months: number): { label: string; color: string; className: string } {
   if (months >= 6) return { label: "Protected", color: "#34d399", className: "bg-verdict-ready" };
@@ -30,42 +31,46 @@ export default function RunwayPage() {
   const cappedForBar = Math.min(months, 12);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="font-display text-3xl text-light">Emergency Runway</h1>
-      <p className="mt-2 max-w-2xl text-dim">
-        Runway comes first. Before any big purchase, any investment, any leap — this is the number that
-        tells you how long you can absorb a shock.
-      </p>
-
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.3fr]">
+    <ToolShell
+      title="Emergency Runway"
+      description={`Runway comes first. Before any big purchase, any investment, any leap — this is the number that tells you how long you can absorb a shock.`}
+    >
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
           <Field label="Monthly essential expenses" value={expenses} onChange={setExpenses} min={0} max={20000} step={50} format="currency" />
           <Field label="Liquid savings" value={savings} onChange={setSavings} min={0} max={200000} step={500} format="currency" />
         </div>
 
         <div className="space-y-6">
-          <div className={`glass border p-8 text-center ${temp.className}`}>
-            <p className="text-sm text-dim">Your runway</p>
-            <p className="score-numeral mt-2 text-5xl font-bold" style={{ color: temp.color }}>
-              {formatMonths(months)}
-            </p>
-            <p className="mt-2 text-sm font-semibold" style={{ color: temp.color }}>
-              {temp.label}
-            </p>
-
-            <div className="mx-auto mt-6 h-3 w-full max-w-md overflow-hidden rounded-full bg-slate-surface">
-              <div
-                className="h-full rounded-full transition-all"
-                style={{ width: `${(cappedForBar / 12) * 100}%`, background: temp.color }}
-              />
-            </div>
-            <div className="mx-auto mt-2 flex max-w-md justify-between text-xs text-dim">
-              <span>0</span>
-              <span>3mo</span>
-              <span>6mo</span>
-              <span>12mo+</span>
-            </div>
-          </div>
+          <ToolResultHero
+            label="Your runway"
+            value={formatMonths(months)}
+            color={temp.color}
+            badge={
+              <span
+                className={`rounded-full border px-3 py-1 text-xs font-semibold ${temp.className}`}
+                style={{ borderColor: `${temp.color}55`, color: temp.color }}
+              >
+                {temp.label}
+              </span>
+            }
+            footer={
+              <div>
+                <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-slate-surface">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{ width: `${(cappedForBar / 12) * 100}%`, background: temp.color }}
+                  />
+                </div>
+                <div className="mt-2 flex justify-between text-xs text-dim">
+                  <span>0</span>
+                  <span>3mo</span>
+                  <span>6mo</span>
+                  <span>12mo+</span>
+                </div>
+              </div>
+            }
+          />
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">What this means</h2>
@@ -82,7 +87,7 @@ export default function RunwayPage() {
           </div>
         </div>
       </div>
-    </div>
+    </ToolShell>
   );
 }
 

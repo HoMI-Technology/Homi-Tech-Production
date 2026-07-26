@@ -277,7 +277,11 @@ export function AppHeader({
           </>
         }
       />
-      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        roleContext={switcherProps}
+      />
     </>
   );
 }

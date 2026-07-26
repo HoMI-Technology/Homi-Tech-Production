@@ -5,6 +5,7 @@ import { helocAvailability, helocTiers } from "@/lib/tools/heloc";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { CalcField } from "@/components/tools/CalcField";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
+import { ToolShell } from "@/components/tools/ToolShell";
 
 function HelocPageInner() {
   const [homeValue, setHomeValue] = useState(500000);
@@ -22,14 +23,11 @@ function HelocPageInner() {
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="font-display text-3xl text-light">Home Equity Line (HELOC)</h1>
-      <p className="mt-2 max-w-2xl text-dim">
-        How much you can actually borrow against your home — the honest number after the lender&rsquo;s
-        combined loan-to-value cap, not just your paper equity.
-      </p>
-
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.3fr]">
+    <ToolShell
+      title="Home Equity Line (HELOC)"
+      description={`How much you can actually borrow against your home — the honest number after the lender's combined loan-to-value cap, not just your paper equity.`}
+    >
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
           <CalcField label="Home value" value={homeValue} onChange={setHomeValue} min={100000} max={2000000} step={5000} format="currency" />
           <CalcField label="Mortgage balance" value={mortgageBalance} onChange={setMortgageBalance} min={0} max={homeValue} step={5000} format="currency" />
@@ -88,7 +86,7 @@ function HelocPageInner() {
           </div>
         </div>
       </div>
-    </div>
+    </ToolShell>
   );
 }
 

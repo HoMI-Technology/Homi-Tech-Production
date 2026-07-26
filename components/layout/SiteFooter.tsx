@@ -59,9 +59,9 @@ export function SiteFooter() {
   const t = useTranslations("footer");
 
   return (
-    <footer className="relative mt-24 border-t border-slate-surface/60">
-      <div className="mx-auto max-w-6xl px-6 py-16">
-        <div className="grid gap-12 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-[1.4fr_repeat(4,1fr)]">
+    <footer className="relative mt-20 border-t border-slate-surface/60 sm:mt-24">
+      <div className="mx-auto max-w-6xl px-6 py-12 sm:py-16">
+        <div className="grid gap-10 sm:grid-cols-2 sm:gap-12 md:grid-cols-4 lg:grid-cols-[1.4fr_repeat(4,1fr)]">
           <div className="sm:col-span-2 md:col-span-4 lg:col-span-1">
             <div className="flex items-center gap-3">
               <ThresholdCompass size={44} animated={false} glow={false} />
@@ -77,8 +77,8 @@ export function SiteFooter() {
               href="https://x.com/homi_tech"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="HōMI on X"
-              className="mt-4 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-surface/60 text-dim transition-colors hover:text-cyan"
+              aria-label="HōMI on X (opens in a new tab)"
+              className="mt-4 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-surface/60 text-dim transition-colors hover:border-cyan/40 hover:text-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
             >
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />

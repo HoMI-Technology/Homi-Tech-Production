@@ -5,6 +5,7 @@ import { computeRothConversion } from "@/lib/tools/roth";
 import { formatCurrency } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
+import { ToolShell } from "@/components/tools/ToolShell";
 
 function RothConversionPageInner() {
   const [currentBalance, setCurrentBalance] = useState(120000);
@@ -30,14 +31,11 @@ function RothConversionPageInner() {
   const benefitPositive = result.netEducationalBenefit >= 0;
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="font-display text-3xl text-light">Roth Conversion — Educational</h1>
-      <p className="mt-2 max-w-2xl text-dim">
-        A plain-language look at one trade-off: paying tax on a conversion now versus the tax you'd
-        otherwise owe on that money later. This is education, not a recommendation to convert anything.
-      </p>
-
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.3fr]">
+    <ToolShell
+      title="Roth Conversion — Educational"
+      description={`A plain-language look at one trade-off: paying tax on a conversion now versus the tax you'd otherwise owe on that money later. This is education, not a recommendation to convert anything.`}
+    >
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
           <Field label="Current traditional balance" value={currentBalance} onChange={setCurrentBalance} min={0} max={1000000} step={5000} format="currency" />
           <Field label="Amount considering converting" value={convertAmount} onChange={setConvertAmount} min={0} max={currentBalance || 500000} step={1000} format="currency" />
@@ -89,7 +87,7 @@ function RothConversionPageInner() {
           </div>
         </div>
       </div>
-    </div>
+    </ToolShell>
   );
 }
 

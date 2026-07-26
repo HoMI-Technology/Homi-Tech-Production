@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { monthlyPayment } from "@/lib/tools/mortgage";
 import { formatCurrency } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
+import { ToolShell } from "@/components/tools/ToolShell";
 
 interface YearCost {
   year: number;
@@ -65,14 +66,11 @@ export default function RentVsBuyPage() {
   const buyPoints = [`${scaleX(0)},${scaleY(0)}`, ...data.map((d) => `${scaleX(d.year)},${scaleY(d.buyCost)}`)].join(" ");
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="font-display text-3xl text-light">Rent vs. Buy</h1>
-      <p className="mt-2 max-w-2xl text-dim">
-        A cumulative cost comparison over your time horizon. Read this as one honest input among many —
-        the real answer depends on timing, not just math.
-      </p>
-
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.3fr]">
+    <ToolShell
+      title="Rent vs. Buy"
+      description={`A cumulative cost comparison over your time horizon. Read this as one honest input among many — the real answer depends on timing, not just math.`}
+    >
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
           <Field label="Monthly rent" value={rent} onChange={setRent} min={500} max={8000} step={50} format="currency" />
           <Field label="Home price" value={price} onChange={setPrice} min={100000} max={1500000} step={5000} format="currency" />
@@ -121,7 +119,7 @@ export default function RentVsBuyPage() {
           </div>
         </div>
       </div>
-    </div>
+    </ToolShell>
   );
 }
 

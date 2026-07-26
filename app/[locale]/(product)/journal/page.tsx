@@ -194,21 +194,35 @@ export default function JournalPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="mx-auto max-w-6xl px-6 py-10 sm:py-12">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl text-light">Decision Journal</h1>
+          <p className="eyebrow">Operate · decisions</p>
+          <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">Decision journal</h1>
           <p className="mt-2 max-w-xl text-dim">
             Log the decision before you make it. Your future self will thank you.
           </p>
+          {!loading && (
+            <p className="score-numeral mt-3 text-xs text-dim/80">
+              {entries.length} entr{entries.length === 1 ? "y" : "ies"} logged
+            </p>
+          )}
         </div>
-        <button className="btn btn-primary" onClick={() => setShowForm((s) => !s)}>
-          {showForm ? "Cancel" : "+ Log a decision"}
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => setShowForm((s) => !s)}
+          aria-expanded={showForm}
+        >
+          {showForm ? "Cancel" : "Log a decision"}
         </button>
       </div>
 
       {error && (
-        <div className="mt-4 rounded-lg border border-crimson/30 bg-verdict-notyet px-4 py-3 text-sm text-light">
+        <div
+          role="alert"
+          className="mt-4 rounded-lg border border-crimson/30 bg-verdict-notyet px-4 py-3 text-sm text-light"
+        >
           {error}
         </div>
       )}
@@ -309,7 +323,7 @@ export default function JournalPage() {
           </div>
         ) : (
           entries.map((entry) => (
-            <div key={entry.id} className="glass p-6">
+            <article key={entry.id} className="glass glass-hover p-6">
               {editingId === entry.id && editDraft ? (
                 <div className="space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2">
@@ -426,11 +440,13 @@ export default function JournalPage() {
                   )}
                   <div className="mt-3 flex items-center gap-4 text-xs text-dim">
                     {entry.decision_date && <span>{formatLocalDateISO(entry.decision_date)}</span>}
-                    {entry.mood !== null && <span>Mood: {entry.mood}/10</span>}
+                    {entry.mood !== null && (
+                      <span className="score-numeral">Mood: {entry.mood}/10</span>
+                    )}
                   </div>
                 </>
               )}
-            </div>
+            </article>
           ))
         )}
       </div>
