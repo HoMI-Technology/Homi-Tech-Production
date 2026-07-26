@@ -20,9 +20,9 @@ import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
 import { SITE_URL } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
-  title: "Know When You're Ready. Move When It Matters.",
+  title: "Know When You're Ready — Decision Readiness Intelligence™",
   description:
-    "Credit scores look backward. HōMI looks at readiness now. Decision Readiness Intelligence™ across Financial Reality, Emotional Truth, and Perfect Timing — before life's biggest decisions.",
+    "Credit scores look backward. HōMI measures readiness now across Financial Reality, Emotional Truth, and Perfect Timing — so you know whether to proceed before you leap.",
   alternates: { canonical: "/" },
 };
 

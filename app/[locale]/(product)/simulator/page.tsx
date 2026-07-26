@@ -4,6 +4,7 @@ import { ScoreSimulator } from "@/components/simulator/ScoreSimulator";
 import { UpgradePanel } from "@/components/ui/UpgradePanel";
 import { getUserEntitlements } from "@/lib/entitlements";
 import type { AnchorAssessment } from "@/lib/simulator";
+import { ToolShell } from "@/components/tools/ToolShell";
 
 export const metadata: Metadata = {
   title: "Score Simulator | HōMI",
@@ -58,17 +59,14 @@ export default async function SimulatorPage() {
   const anchorAssessment = (assessments?.[0] as AnchorAssessment | undefined) ?? null;
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <p className="eyebrow">What-if instrument</p>
-      <h1 className="mt-1 font-display text-3xl text-light">Simulate your score</h1>
-      <p className="mt-2 max-w-2xl text-dim">
-        Move the levers — income, expenses, savings, debt — and watch your readiness respond. Same engine,
-        same thresholds as the real assessment; every figure comes from your own numbers.
-      </p>
-
-      <div className="mt-8">
-        <ScoreSimulator snapshotState={snapshotState} anchorAssessment={anchorAssessment} />
-      </div>
-    </div>
+    <ToolShell
+      eyebrow="What-if instrument"
+      title="Simulate your score"
+      description="Move the levers — income, expenses, savings, debt — and watch your readiness respond. Same engine, same thresholds as the real assessment; every figure comes from your own numbers."
+      backHref="/tools"
+      backLabel="All tools"
+    >
+      <ScoreSimulator snapshotState={snapshotState} anchorAssessment={anchorAssessment} />
+    </ToolShell>
   );
 }

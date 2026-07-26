@@ -5,6 +5,7 @@ import { runMonteCarlo, type MonteCarloResult } from "@/lib/tools/montecarlo";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
+import { ToolShell } from "@/components/tools/ToolShell";
 
 function MonteCarloPageInner() {
   const [currentSavings, setCurrentSavings] = useState(20000);
@@ -49,14 +50,11 @@ function MonteCarloPageInner() {
   ]);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="font-display text-3xl text-light">Monte Carlo Projection</h1>
-      <p className="mt-2 max-w-2xl text-dim">
-        Markets don't move in a straight line. This runs 10,000 simulated paths for your savings and shows
-        the range of realistic outcomes — not just one optimistic average.
-      </p>
-
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.3fr]">
+    <ToolShell
+      title="Monte Carlo Projection"
+      description={`Markets don't move in a straight line. This runs 10,000 simulated paths for your savings and shows the range of realistic outcomes — not just one optimistic average.`}
+    >
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
           <Field label="Current savings" value={currentSavings} onChange={setCurrentSavings} min={0} max={500000} step={1000} format="currency" />
           <Field label="Monthly contribution" value={monthlyContribution} onChange={setMonthlyContribution} min={0} max={10000} step={50} format="currency" />
@@ -132,7 +130,7 @@ function MonteCarloPageInner() {
           )}
         </div>
       </div>
-    </div>
+    </ToolShell>
   );
 }
 

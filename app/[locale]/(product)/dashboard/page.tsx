@@ -275,19 +275,184 @@ export default async function DashboardPage() {
       <EntranceConductor containerId="dash-root" />
       <CinemaFX />
 
-      <div className="mx-auto max-w-6xl px-6 py-12">
-        {/* ── Header ──────────────────────────────────────────── */}
+      <div className="mx-auto max-w-6xl px-6 py-10 sm:py-12">
+        {/* ── Header (compact — score hero owns the hierarchy) ── */}
         <div className="dash-stage">
           <p className="eyebrow">Decision readiness</p>
           <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">
             {greeting}, <span className="text-aurora">{name}</span>
           </h1>
-          <p className="mt-2 text-dim">{subtitle}</p>
+          <p className="mt-2 max-w-2xl text-dim">{subtitle}</p>
         </div>
 
-        {/* ── Stat rail ───────────────────────────────────────── */}
+        {/* ── Hero first: the verdict instrument (OPERATE primary) ─ */}
+        <div className="dash-stage" style={{ "--stage-delay": "120ms" } as React.CSSProperties}>
+          <div className="glass sweep tilt-3d relative mt-6 overflow-hidden sm:mt-8">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -left-24 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full"
+              style={{
+                background: `radial-gradient(circle, ${verdictMeta.color}1f, transparent 70%)`,
+                filter: "blur(20px)",
+              }}
+            />
+            {latest && (
+              <VerdictCelebrate assessmentId={latest.id} improved={improved} label={verdictMeta.label} />
+            )}
+            <div className="relative grid gap-8 p-6 sm:p-8 md:grid-cols-[auto_1fr] md:items-center">
+              {assessmentsFailed ? (
+                <div className="md:col-span-2">
+                  <LoadErrorPanel
+                    title="Your readiness didn't load"
+                    body="Your assessments are safe — this is a loading hiccup on our side, not a change in your data."
+                  />
+                </div>
+              ) : latest ? (
+                <>
+                  <div className="flex justify-center">
+                    <ThresholdCompass size={170} verdict={verdict ?? undefined} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-dim">HōMI-Score</p>
+                    <div className="mt-2 flex flex-wrap items-center gap-4">
+                      <HeroScore value={Math.round(latest.overall_score ?? 0)} color={verdictMeta.color} />
+                      {verdict && <VerdictBadge verdict={verdict} size="lg" />}
+                      {scoreDelta && (
+                        <ScoreDeltaBadge
+                          current={scoreDelta.current}
+                          previous={scoreDelta.previous}
+                          previousDate={scoreDelta.previousDate}
+                        />
+                      )}
+                    </div>
+                    <p className="mt-3 max-w-xl text-sm leading-relaxed text-dim">{verdictMeta.line}</p>
+                    <div className="mt-5 max-w-xl">
+                      <div className="relative">
+                        <div className="spectrum-bar" />
+                        <span
+                          aria-hidden
+                          className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-navy bg-light"
+                          style={{
+                            left: `${Math.max(2, Math.min(98, Math.round(latest.overall_score ?? 0)))}%`,
+                            boxShadow: `0 0 12px ${verdictMeta.color}`,
+                          }}
+                        />
+                      </div>
+                      <div className="relative mt-2 h-4 text-[0.6875rem] text-dim">
+                        <span className="absolute -translate-x-1/2" style={{ left: "25%" }}>Not yet</span>
+                        {/* Middle band labels collide below ~400px — endpoints carry the scale there. */}
+                        <span className="absolute hidden -translate-x-1/2 sm:block" style={{ left: "57%" }}>Build first</span>
+                        <span className="absolute hidden -translate-x-1/2 sm:block" style={{ left: "72%" }}>Almost there</span>
+                        <span className="absolute -translate-x-1/2" style={{ left: "90%" }}>Ready</span>
+                      </div>
+                    </div>
+                    {showNudge && (
+                      <p className="mt-3 rounded-lg border border-amber/30 bg-verdict-build px-4 py-2 text-sm text-light">
+                        It has been {since} days since your last assessment. Life changes — a lot can shift in
+                        that time. Consider a retest.
+                      </p>
+                    )}
+                    {/* One primary next step: weakest-pillar move when available; retest only when stale. */}
+                    <div className="mt-6 flex flex-wrap gap-3">
+                      {showNudge ? (
+                        <>
+                          <Link href="/assessment" className="btn btn-primary">
+                            Retake full assessment
+                          </Link>
+                          {nextMove ? (
+                            <Link href={nextMove.href} className="btn btn-ghost">
+                              {nextMove.cta}
+                            </Link>
+                          ) : (
+                            <Link href="/plan" className="btn btn-ghost">
+                              View your plan
+                            </Link>
+                          )}
+                        </>
+                      ) : nextMove ? (
+                        <>
+                          <Link href={nextMove.href} className="btn btn-primary">
+                            {nextMove.cta}
+                          </Link>
+                          <Link href="/plan" className="btn btn-ghost">
+                            View your plan
+                          </Link>
+                        </>
+                      ) : (
+                        <>
+                          <Link href="/plan" className="btn btn-primary">
+                            View your plan
+                          </Link>
+                          <Link href="/assessment" className="btn btn-ghost">
+                            Retake assessment
+                          </Link>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="md:col-span-2">
+                  <EmptyState preset="dashboard" />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {dueSurvey && <OutcomeSurveyPrompt surveyId={dueSurvey.id} kind={dueSurvey.kind} />}
+
         {latest && (
-          <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <TrinityGapAlert pillars={pillarReadings} />
+        )}
+
+        {/* ── Pillars (secondary hierarchy — three rings) ─────── */}
+        <Reveal delay={80}>
+          <div className="mt-8">
+            <SectionHeader
+              eyebrow="Three pillars"
+              title="Where the score comes from"
+              subtitle="Financial Reality · Emotional Truth · Perfect Timing — focus follows the softest ring."
+            />
+            <div className="mt-5 grid gap-5 md:grid-cols-3">
+              {pillarReadings.map((pillar) => {
+                const isFocus = latest !== null && weakest !== null && pillar.key === weakest.key;
+                return (
+                  <div
+                    key={pillar.key}
+                    className={`glass glass-hover sweep relative overflow-hidden p-6 ${isFocus ? "panel-focus" : ""}`}
+                  >
+                    <span
+                      aria-hidden
+                      className="absolute inset-x-0 top-0 h-px"
+                      style={{ background: `linear-gradient(90deg, transparent, ${pillar.color}88, transparent)` }}
+                    />
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="font-semibold text-light">{pillar.name}</h3>
+                        <p className="mt-1 text-xs text-dim">{pillar.question}</p>
+                      </div>
+                      {isFocus && <span className="chip !text-[0.6875rem]">Focus here</span>}
+                    </div>
+                    <div className="mt-5 flex justify-center">
+                      <PillarRing
+                        value={pillar.value}
+                        max={pillar.max}
+                        size={120}
+                        color={pillar.color}
+                        sublabel={`of ${pillar.max}`}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </Reveal>
+
+        {/* ── Supporting density: stats (never above the hero) ── */}
+        {latest && (
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             {[
               <StatTile
                 key="verdict"
@@ -329,96 +494,12 @@ export default async function DashboardPage() {
               <div
                 key={i}
                 className="dash-stage"
-                style={{ "--stage-delay": `${140 + i * 70}ms` } as React.CSSProperties}
+                style={{ "--stage-delay": `${200 + i * 50}ms` } as React.CSSProperties}
               >
                 {tile}
               </div>
             ))}
           </div>
-        )}
-
-        {/* ── Hero: the verdict instrument ────────────────────── */}
-        <div className="dash-stage" style={{ "--stage-delay": "420ms" } as React.CSSProperties}>
-          <div className="glass sweep tilt-3d relative mt-8 overflow-hidden">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -left-24 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full"
-              style={{
-                background: `radial-gradient(circle, ${verdictMeta.color}1f, transparent 70%)`,
-                filter: "blur(20px)",
-              }}
-            />
-            {latest && (
-              <VerdictCelebrate assessmentId={latest.id} improved={improved} label={verdictMeta.label} />
-            )}
-            <div className="relative grid gap-8 p-8 md:grid-cols-[auto_1fr] md:items-center">
-              {assessmentsFailed ? (
-                <div className="md:col-span-2">
-                  <LoadErrorPanel
-                    title="Your readiness didn't load"
-                    body="Your assessments are safe — this is a loading hiccup on our side, not a change in your data."
-                  />
-                </div>
-              ) : latest ? (
-                <>
-                  <div className="flex justify-center">
-                    <ThresholdCompass size={170} verdict={verdict ?? undefined} />
-                  </div>
-                  <div>
-                    <div className="flex flex-wrap items-center gap-4">
-                      <HeroScore value={Math.round(latest.overall_score ?? 0)} color={verdictMeta.color} />
-                      {verdict && <VerdictBadge verdict={verdict} size="lg" />}
-                    </div>
-                    <p className="mt-3 max-w-xl text-sm leading-relaxed text-dim">{verdictMeta.line}</p>
-                    <div className="mt-5 max-w-xl">
-                      <div className="relative">
-                        <div className="spectrum-bar" />
-                        <span
-                          aria-hidden
-                          className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-navy bg-light"
-                          style={{
-                            left: `${Math.max(2, Math.min(98, Math.round(latest.overall_score ?? 0)))}%`,
-                            boxShadow: `0 0 12px ${verdictMeta.color}`,
-                          }}
-                        />
-                      </div>
-                      <div className="relative mt-2 h-4 text-[0.6875rem] text-dim">
-                        <span className="absolute -translate-x-1/2" style={{ left: "25%" }}>Not yet</span>
-                        {/* Middle band labels collide below ~400px — endpoints carry the scale there. */}
-                        <span className="absolute hidden -translate-x-1/2 sm:block" style={{ left: "57%" }}>Build first</span>
-                        <span className="absolute hidden -translate-x-1/2 sm:block" style={{ left: "72%" }}>Almost there</span>
-                        <span className="absolute -translate-x-1/2" style={{ left: "90%" }}>Ready</span>
-                      </div>
-                    </div>
-                    {showNudge && (
-                      <p className="mt-3 rounded-lg border border-amber/30 bg-verdict-build px-4 py-2 text-sm text-light">
-                        It has been {since} days since your last assessment. Life changes — a lot can shift in
-                        that time. Consider a retest.
-                      </p>
-                    )}
-                    <div className="mt-6 flex flex-wrap gap-3">
-                      <Link href="/assessment" className="btn btn-primary">
-                        Retake full assessment
-                      </Link>
-                      <Link href="/plan" className="btn btn-ghost">
-                        View your plan
-                      </Link>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="md:col-span-2">
-                  <EmptyState preset="dashboard" />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {dueSurvey && <OutcomeSurveyPrompt surveyId={dueSurvey.id} kind={dueSurvey.kind} />}
-
-        {latest && (
-          <TrinityGapAlert pillars={pillarReadings} />
         )}
 
         {/* ── History + next best move ────────────────────────── */}
@@ -488,34 +569,6 @@ export default async function DashboardPage() {
             </Reveal>
           )}
         </div>
-
-        {/* ── Pillars ─────────────────────────────────────────── */}
-        <Reveal delay={100}>
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
-            {pillarReadings.map((pillar) => {
-              const isFocus = latest !== null && weakest !== null && pillar.key === weakest.key;
-              return (
-                <div key={pillar.key} className={`glass glass-hover sweep relative overflow-hidden p-6 ${isFocus ? "panel-focus" : ""}`}>
-                  <span
-                    aria-hidden
-                    className="absolute inset-x-0 top-0 h-px"
-                    style={{ background: `linear-gradient(90deg, transparent, ${pillar.color}88, transparent)` }}
-                  />
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="font-semibold text-light">{pillar.name}</h3>
-                      <p className="mt-1 text-xs text-dim">{pillar.question}</p>
-                    </div>
-                    {isFocus && <span className="chip !text-[0.6875rem]">Focus here</span>}
-                  </div>
-                  <div className="mt-5 flex justify-center">
-                    <PillarRing value={pillar.value} max={pillar.max} size={120} color={pillar.color} sublabel={`of ${pillar.max}`} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Reveal>
 
         {/* ── Behavioral Genome ───────────────────────────────── */}
         {genome && (

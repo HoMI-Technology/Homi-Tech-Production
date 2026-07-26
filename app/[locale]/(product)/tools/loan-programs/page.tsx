@@ -5,6 +5,7 @@ import { comparePrograms } from "@/lib/tools/loanprograms";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { CalcField } from "@/components/tools/CalcField";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
+import { ToolShell } from "@/components/tools/ToolShell";
 
 const PROGRAM_COLOR: Record<string, string> = {
   conventional: "#22d3ee",
@@ -27,13 +28,10 @@ function LoanProgramsPageInner() {
   const cheapest = results.reduce((best, r) => (r.monthlyTotal < best.monthlyTotal ? r : best), results[0]);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="font-display text-3xl text-light">Loan Program Comparison</h1>
-      <p className="mt-2 max-w-2xl text-dim">
-        Conventional, FHA, and VA side by side. The note rate is only part of the story — down payment,
-        mortgage insurance, and upfront fees change the real monthly cost.
-      </p>
-
+    <ToolShell
+      title="Loan Program Comparison"
+      description={`Conventional, FHA, and VA side by side. The note rate is only part of the story — down payment, mortgage insurance, and upfront fees change the real monthly cost.`}
+    >
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.6fr]">
         <div className="glass space-y-5 p-6">
           <CalcField label="Home price" value={homePrice} onChange={setHomePrice} min={100000} max={1500000} step={5000} format="currency" />
@@ -86,7 +84,7 @@ function LoanProgramsPageInner() {
         loans require eligibility; FHA MIP is life-of-loan at low down payments, which is why the cheapest
         month-one option isn&rsquo;t always the cheapest over time.
       </p>
-    </div>
+    </ToolShell>
   );
 }
 

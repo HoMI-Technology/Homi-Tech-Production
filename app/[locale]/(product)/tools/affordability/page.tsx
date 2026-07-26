@@ -5,6 +5,7 @@ import { computeAffordability, paymentBreakdown, type AffordabilityInputs } from
 import { formatCurrency } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
 import { getToolPrefill } from "@/lib/tools/prefill";
+import { ToolShell } from "@/components/tools/ToolShell";
 
 const TIERS = [
   { key: "protected" as const, label: "Protected", ratio: "28%", color: "#34d399", className: "bg-verdict-ready" },
@@ -47,14 +48,11 @@ export default function AffordabilityPage() {
   const maxBar = Math.max(stretchBreakdown.principalAndInterest, stretchBreakdown.taxesAndInsurance, 1);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="font-display text-3xl text-light">Affordability</h1>
-      <p className="mt-2 max-w-2xl text-dim">
-        What you can afford is not the same as what a lender will approve you for. Here are three honest
-        tiers of monthly housing cost, based on your income before other debts are even in the picture.
-      </p>
-
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.3fr]">
+    <ToolShell
+      title="Affordability"
+      description={`What you can afford is not the same as what a lender will approve you for. Here are three honest tiers of monthly housing cost, based on your income before other debts are even in the picture.`}
+    >
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
           <Field label="Gross annual income" value={income} onChange={setIncome} min={0} max={500000} step={1000} format="currency" />
           <Field label="Other monthly debts" value={debts} onChange={setDebts} min={0} max={10000} step={25} format="currency" />
@@ -114,7 +112,7 @@ export default function AffordabilityPage() {
           </div>
         </div>
       </div>
-    </div>
+    </ToolShell>
   );
 }
 
