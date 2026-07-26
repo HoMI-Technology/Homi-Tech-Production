@@ -326,16 +326,48 @@ export default async function PartnerDashboardPage() {
         </>
       )}
 
-      <div className="mt-8 flex flex-wrap gap-4 text-sm">
-        <Link href="/guides" className="text-cyan hover:underline">
-          Client guides
-        </Link>
-        <Link href="/method" className="text-cyan hover:underline">
-          The HōMI method
-        </Link>
-        <Link href="/how-it-works" className="text-cyan hover:underline">
-          How the assessment works
-        </Link>
+      {clients.length > 0 && (
+        <div className="glass mt-6 p-5 sm:p-6">
+          <div className="dash-section-head">
+            <h2>Named roster</h2>
+            <p>Explicit partner_id links only. Invite traffic is separate.</p>
+          </div>
+          <ul className="divide-y divide-white/5">
+            {clients.slice(0, 25).map((c) => (
+              <li
+                key={c.id}
+                className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm"
+              >
+                <span className="font-medium text-light">{c.full_name || "Linked client"}</span>
+                <span className="text-xs text-dim">
+                  Joined{" "}
+                  {new Date(c.created_at).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="mt-8 grid gap-3 sm:grid-cols-3">
+        {[
+          { href: "/guides", title: "Client guides", body: "Share ready explainers" },
+          { href: "/method", title: "HōMI method", body: "How the instrument works" },
+          { href: "/how-it-works", title: "Assessment", body: "What clients complete" },
+        ].map((card) => (
+          <Link
+            key={card.href}
+            href={card.href}
+            className="glass glass-hover block p-4 transition-colors"
+          >
+            <p className="font-semibold text-light">{card.title}</p>
+            <p className="mt-1 text-sm text-dim">{card.body}</p>
+          </Link>
+        ))}
       </div>
 
       <p className="mt-10 text-center text-xs text-dim">

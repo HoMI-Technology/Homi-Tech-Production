@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { StatTile } from "@/components/ui/StatTile";
 import { Sparkline } from "@/components/ui/Sparkline";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { BarSeries } from "@/components/admin/BarSeries";
 import { FunnelBars, type FunnelStage } from "@/components/admin/FunnelBars";
+import { PageHeader } from "@/components/operate/PageHeader";
+import { MetricRail } from "@/components/operate/MetricRail";
 import type { SubscriptionTier } from "@/types/database";
 
 export const metadata: Metadata = {
@@ -154,47 +155,69 @@ export default async function AdminMarketingPage() {
 
   return (
     <div>
-      <p className="eyebrow">Growth</p>
-      <h1 className="mt-1 font-display text-2xl text-light md:text-3xl">Marketing</h1>
-      <p className="mt-1 text-sm text-dim">
-        Acquisition funnel, signup momentum, and demand signal — all from live platform data.
-      </p>
+      <PageHeader
+        eyebrow="Admin"
+        title="Marketing"
+        description="Acquisition funnel, signup momentum, and demand from live platform data."
+        primaryAction={{ label: "Waitlist", href: "/admin/waitlist", variant: "ghost" }}
+      />
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile
-          label="Waitlist"
-          value={waitlistTotal.toLocaleString()}
-          accent="#fab633"
-          footer={`${last7(waitlistSeries).toLocaleString()} in the last 7 days`}
-          spark={
-            waitlistSeries.length >= 2 ? (
-              <Sparkline id="mk-waitlist" values={waitlistSeries.map((d) => d.count)} color="#fab633" />
-            ) : undefined
-          }
+      <div className="mt-6">
+        <MetricRail
+          cells={[
+            {
+              label: "Waitlist",
+              value: waitlistTotal.toLocaleString(),
+              footer: `${last7(waitlistSeries).toLocaleString()} in last 7 days`,
+              color: "#fab633",
+            },
+            {
+              label: "Accounts",
+              value: accountsTotal.toLocaleString(),
+              footer: `${last7(signupSeries).toLocaleString()} new in last 7 days`,
+              color: "#22d3ee",
+            },
+            {
+              label: "Assessed",
+              value: assessedUsers.toLocaleString(),
+              footer: "Completed at least one",
+              color: "#34d399",
+            },
+            {
+              label: "Paid",
+              value: paidTotal.toLocaleString(),
+              footer:
+                accountsTotal > 0
+                  ? `${Math.round((paidTotal / accountsTotal) * 100)}% of accounts`
+                  : "Awaiting billing",
+              color: "#facc15",
+            },
+          ]}
         />
-        <StatTile
-          label="Accounts"
-          value={accountsTotal.toLocaleString()}
-          accent="#22d3ee"
-          footer={`${last7(signupSeries).toLocaleString()} new in the last 7 days`}
-          spark={
-            signupSeries.length >= 2 ? (
-              <Sparkline id="mk-signups" values={signupSeries.map((d) => d.count)} color="#22d3ee" />
-            ) : undefined
-          }
-        />
-        <StatTile
-          label="Assessed users"
-          value={assessedUsers.toLocaleString()}
-          accent="#34d399"
-          footer="Completed at least one assessment"
-        />
-        <StatTile
-          label="Paid accounts"
-          value={paidTotal.toLocaleString()}
-          accent="#facc15"
-          footer={accountsTotal > 0 ? `${Math.round((paidTotal / accountsTotal) * 100)}% of accounts` : "Awaiting billing launch"}
-        />
+        {(waitlistSeries.length >= 2 || signupSeries.length >= 2) && (
+          <div className="mt-3 flex flex-wrap justify-end gap-6">
+            {waitlistSeries.length >= 2 && (
+              <div className="w-36">
+                <p className="mb-1 text-[0.625rem] uppercase tracking-wide text-dim">Waitlist</p>
+                <Sparkline
+                  id="mk-waitlist"
+                  values={waitlistSeries.map((d) => d.count)}
+                  color="#fab633"
+                />
+              </div>
+            )}
+            {signupSeries.length >= 2 && (
+              <div className="w-36">
+                <p className="mb-1 text-[0.625rem] uppercase tracking-wide text-dim">Signups</p>
+                <Sparkline
+                  id="mk-signups"
+                  values={signupSeries.map((d) => d.count)}
+                  color="#22d3ee"
+                />
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_1fr]">

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CampaignComposer } from "@/components/admin/CampaignComposer";
+import { PageHeader } from "@/components/operate/PageHeader";
+import { MetricRail } from "@/components/operate/MetricRail";
 import type { Campaign, CampaignSendStatus } from "@/types/database";
 
 export const metadata: Metadata = {
@@ -54,18 +56,53 @@ export default async function AdminEmailPage() {
     }
   }
 
+  const totalSent = campaigns.reduce((acc, c) => acc + (c.send_counts.sent ?? 0), 0);
+  const totalFailed = campaigns.reduce((acc, c) => acc + (c.send_counts.failed ?? 0), 0);
+  const drafted = campaigns.filter((c) => c.status === "draft").length;
+
   return (
     <div>
-      <p className="eyebrow">Broadcast</p>
-      <h1 className="mt-1 font-display text-2xl text-light md:text-3xl">Email campaigns</h1>
-      <p className="mt-1 text-sm text-dim">
-        Compose a broadcast, confirm the audience, and send. The unsubscribe list is honored on every blast.
-      </p>
+      <PageHeader
+        eyebrow="Admin"
+        title="Email campaigns"
+        description="Compose a broadcast, confirm the audience, and send. Unsubscribes are honored."
+      />
+
+      <div className="mt-6">
+        <MetricRail
+          cells={[
+            {
+              label: "Campaigns",
+              value: String(campaigns.length),
+              footer: "Shown",
+              color: "#22d3ee",
+            },
+            {
+              label: "Drafts",
+              value: String(drafted),
+              footer: "Not sent",
+              color: "#94a3b8",
+            },
+            {
+              label: "Sent",
+              value: totalSent.toLocaleString(),
+              footer: "Recipients delivered",
+              color: "#34d399",
+            },
+            {
+              label: "Failed",
+              value: totalFailed.toLocaleString(),
+              footer: "Delivery errors",
+              color: "#f24822",
+            },
+          ]}
+        />
+      </div>
 
       {!service && (
         <div className="glass mt-6 p-6">
           <p className="text-sm text-dim">
-            Supabase service role is not configured, so campaigns can't be loaded or sent from this environment.
+            Supabase service role is not configured, so campaigns can&apos;t be loaded or sent from this environment.
           </p>
         </div>
       )}
@@ -73,7 +110,10 @@ export default async function AdminEmailPage() {
       {service && (
         <>
           <div className="glass mt-6 p-6">
-            <p className="eyebrow !text-[0.625rem]">New campaign</p>
+            <div className="dash-section-head">
+              <h2>New campaign</h2>
+              <p>Compose and confirm before send.</p>
+            </div>
             <CampaignComposer />
           </div>
 

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/operate/PageHeader";
+import { MetricRail } from "@/components/operate/MetricRail";
 import type { WaitlistEntry } from "@/types/database";
 
 export const metadata: Metadata = {
@@ -43,9 +45,37 @@ export default async function AdminWaitlistPage() {
 
   return (
     <div>
-      <p className="eyebrow">Demand</p>
-      <h1 className="mt-1 font-display text-2xl text-light md:text-3xl">Waitlist</h1>
-      <p className="mt-1 text-sm text-dim">{entries.length.toLocaleString()} entries shown.</p>
+      <PageHeader
+        eyebrow="Admin"
+        title="Waitlist"
+        description="Signups and interest areas."
+        primaryAction={{ label: "Marketing", href: "/admin/marketing", variant: "ghost" }}
+      />
+
+      <div className="mt-6">
+        <MetricRail
+          cells={[
+            {
+              label: "Entries",
+              value: entries.length.toLocaleString(),
+              footer: "Shown window",
+              color: "#fab633",
+            },
+            {
+              label: "Top interest",
+              value: topInterests[0]?.[0] ?? "—",
+              footer: topInterests[0] ? `${topInterests[0][1]} signups` : "No tags yet",
+              color: "#22d3ee",
+            },
+            {
+              label: "Interest tags",
+              value: String(Object.keys(interestCounts).length),
+              footer: "Distinct",
+              color: "#34d399",
+            },
+          ]}
+        />
+      </div>
 
       {topInterests.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2">

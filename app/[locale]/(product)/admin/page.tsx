@@ -6,7 +6,6 @@ import { BarSeries } from "@/components/admin/BarSeries";
 import { CsvExportButton } from "@/components/admin/CsvExportButton";
 import { SystemHealthCard } from "@/components/admin/SystemHealthCard";
 import { AttentionStrip, type AttentionItem } from "@/components/operate/AttentionStrip";
-import { PageFrame } from "@/components/operate/PageFrame";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { VERDICT_META, type VerdictKey } from "@/lib/brand";
@@ -211,7 +210,7 @@ export default async function AdminOverviewPage() {
   }
 
   return (
-    <PageFrame role="admin" density="compact">
+    <div>
       <PageHeader
         eyebrow="Admin"
         title="Overview"
@@ -407,6 +406,6 @@ export default async function AdminOverviewPage() {
       <p className="mt-8 text-center text-xs text-dim">
         Decision-support software. Not financial, legal, or tax advice. HōMI Technologies LLC.
       </p>
-    </PageFrame>
+    </div>
   );
 }

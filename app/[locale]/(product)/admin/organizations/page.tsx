@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { StatTile } from "@/components/ui/StatTile";
-import { SectionHeader } from "@/components/ui/SectionHeader";
+import { PageHeader } from "@/components/operate/PageHeader";
+import { MetricRail } from "@/components/operate/MetricRail";
 import type { Organization } from "@/types/database";
 
 export const metadata: Metadata = {
@@ -56,18 +56,42 @@ export default async function AdminOrganizationsPage() {
 
   return (
     <div>
-      <p className="eyebrow">B2B</p>
-      <h1 className="mt-1 font-display text-2xl text-light md:text-3xl">Organizations</h1>
-      <p className="mt-1 text-sm text-dim">Employer and partner accounts, membership, and family households.</p>
+      <PageHeader
+        eyebrow="Admin"
+        title="Organizations"
+        description="Employer and partner accounts, membership, and family households."
+      />
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-3">
-        <StatTile label="Organizations" value={organizations.length.toLocaleString()} accent="#22d3ee" footer="Employer + partner" />
-        <StatTile label="Organization members" value={totalMembers.toLocaleString()} accent="#34d399" footer="Across all orgs" />
-        <StatTile label="Family accounts" value={familyAccountsCount.toLocaleString()} accent="#facc15" footer="Households" />
+      <div className="mt-6">
+        <MetricRail
+          cells={[
+            {
+              label: "Organizations",
+              value: organizations.length.toLocaleString(),
+              footer: "Employer + partner",
+              color: "#22d3ee",
+            },
+            {
+              label: "Members",
+              value: totalMembers.toLocaleString(),
+              footer: "Across all orgs",
+              color: "#34d399",
+            },
+            {
+              label: "Family",
+              value: familyAccountsCount.toLocaleString(),
+              footer: "Households",
+              color: "#facc15",
+            },
+          ]}
+        />
       </div>
 
-      <div className="glass mt-8 p-6">
-        <SectionHeader eyebrow="Accounts" title="All organizations" />
+      <div className="glass mt-6 p-6">
+        <div className="dash-section-head">
+          <h2>All organizations</h2>
+          <p>Employer and partner accounts.</p>
+        </div>
         {organizations.length === 0 ? (
           <p className="py-12 text-center text-sm text-dim">
             No organizations yet. Employer and partner accounts will appear here once created.

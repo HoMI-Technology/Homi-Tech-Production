@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
-import { StatTile } from "@/components/ui/StatTile";
 import { Sparkline } from "@/components/ui/Sparkline";
-import { SectionHeader } from "@/components/ui/SectionHeader";
 import { BarSeries } from "@/components/admin/BarSeries";
 import { FunnelSeries, type FunnelSeriesStep } from "@/components/admin/FunnelSeries";
+import { PageHeader } from "@/components/operate/PageHeader";
+import { MetricRail } from "@/components/operate/MetricRail";
 import { hasPostHogAnalytics, hasPostHog } from "@/lib/env";
 import {
   getAnalyticsBundle,
@@ -238,14 +238,11 @@ export default async function AdminAnalyticsPage({
   return (
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="eyebrow">Owner analytics</p>
-          <h1 className="mt-1 font-display text-2xl text-light md:text-3xl">Analytics</h1>
-          <p className="mt-1 text-sm text-dim">
-            Traffic, sessions, and the product funnel — queried live from PostHog (HogQL), cached 5
-            minutes.
-          </p>
-        </div>
+        <PageHeader
+          eyebrow="Admin"
+          title="Analytics"
+          description="Traffic, sessions, and product funnel from PostHog (HogQL), cached 5 minutes."
+        />
         {configured && <RangeToggle range={range} />}
       </div>
 
@@ -255,60 +252,69 @@ export default async function AdminAnalyticsPage({
         <ErrorNote />
       ) : (
         <>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            <StatTile
-              label="Visits"
-              value={bundle.overview.visits.toLocaleString()}
-              accent="#22d3ee"
-              footer={`Sessions · last ${days}d`}
+          <div className="mt-6">
+            <MetricRail
+              cells={[
+                {
+                  label: "Visits",
+                  value: bundle.overview.visits.toLocaleString(),
+                  footer: `Sessions · last ${days}d`,
+                  color: "#22d3ee",
+                },
+                {
+                  label: "Uniques",
+                  value: bundle.overview.uniques.toLocaleString(),
+                  footer: "Distinct visitors",
+                  color: "#34d399",
+                },
+                {
+                  label: "Views",
+                  value: bundle.overview.views.toLocaleString(),
+                  footer: "Page views",
+                  color: "#facc15",
+                },
+                {
+                  label: "Avg session",
+                  value: formatDuration(bundle.overview.avgSessionSeconds),
+                  footer: "First to last event",
+                  color: "#fab633",
+                },
+                {
+                  label: "Bounce",
+                  value: formatPct(bundle.overview.bounceRatePct),
+                  footer: "Single-page sessions",
+                  color: "#94a3b8",
+                },
+              ]}
             />
-            <StatTile
-              label="Uniques"
-              value={bundle.overview.uniques.toLocaleString()}
-              accent="#34d399"
-              footer="Distinct visitors"
-              spark={
-                uniquesDaily.length >= 2 ? (
-                  <Sparkline id="admin-analytics-uniques" values={uniquesDaily} color="#34d399" />
-                ) : undefined
-              }
-            />
-            <StatTile
-              label="Views"
-              value={bundle.overview.views.toLocaleString()}
-              accent="#facc15"
-              footer="Page views"
-              spark={
-                filledDaily.length >= 2 ? (
-                  <Sparkline
-                    id="admin-analytics-views"
-                    values={filledDaily.map((d) => d.count)}
-                    color="#facc15"
-                  />
-                ) : undefined
-              }
-            />
-            <StatTile
-              label="Avg session"
-              value={formatDuration(bundle.overview.avgSessionSeconds)}
-              accent="#fab633"
-              footer="First to last event"
-            />
-            <StatTile
-              label="Bounce rate"
-              value={formatPct(bundle.overview.bounceRatePct)}
-              accent="#94a3b8"
-              footer="Single-page sessions"
-            />
+            {(uniquesDaily.length >= 2 || filledDaily.length >= 2) && (
+              <div className="mt-3 flex flex-wrap justify-end gap-6">
+                {uniquesDaily.length >= 2 && (
+                  <div className="w-36">
+                    <p className="mb-1 text-[0.625rem] uppercase tracking-wide text-dim">Uniques</p>
+                    <Sparkline id="admin-analytics-uniques" values={uniquesDaily} color="#34d399" />
+                  </div>
+                )}
+                {filledDaily.length >= 2 && (
+                  <div className="w-36">
+                    <p className="mb-1 text-[0.625rem] uppercase tracking-wide text-dim">Views</p>
+                    <Sparkline
+                      id="admin-analytics-views"
+                      values={filledDaily.map((d) => d.count)}
+                      color="#facc15"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
             <div className="glass p-6">
-              <SectionHeader
-                eyebrow="Traffic"
-                title={`Page views — last ${days} days`}
-                subtitle="From the page_viewed occurrence event (cookieless, memory persistence)."
-              />
+              <div className="dash-section-head">
+                <h2>Page views · last {days} days</h2>
+                <p>From page_viewed (cookieless, memory persistence).</p>
+              </div>
               <div className="mt-4">
                 {filledDaily.every((d) => d.count === 0) ? (
                   <p className="py-10 text-center text-sm text-dim">
@@ -326,11 +332,10 @@ export default async function AdminAnalyticsPage({
             </div>
 
             <div className="glass p-6">
-              <SectionHeader
-                eyebrow="Funnel"
-                title="Assessment → share"
-                subtitle="Distinct users reaching each step in the window."
-              />
+              <div className="dash-section-head">
+                <h2>Assessment to share</h2>
+                <p>Distinct users reaching each step in the window.</p>
+              </div>
               <div className="mt-5">
                 <FunnelSeries steps={funnelSteps} />
               </div>
@@ -338,8 +343,8 @@ export default async function AdminAnalyticsPage({
           </div>
 
           <p className="mt-8 text-center text-xs text-dim">
-            Cookieless capture (memory persistence) means uniques and sessions are directional, not
-            absolute. Counts are occurrence-only — no scores, answers, or PII leave PostHog.
+            Cookieless capture means uniques and sessions are directional, not absolute. Counts are
+            occurrence-only. No scores, answers, or PII leave PostHog.
           </p>
         </>
       )}

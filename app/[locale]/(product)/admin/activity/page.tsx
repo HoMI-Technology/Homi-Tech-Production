@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { BarSeries } from "@/components/admin/BarSeries";
-import { SectionHeader } from "@/components/ui/SectionHeader";
+import { PageHeader } from "@/components/operate/PageHeader";
+import { MetricRail } from "@/components/operate/MetricRail";
 
 export const metadata: Metadata = {
   title: "Activity | HōMI Admin",
@@ -97,13 +98,44 @@ export default async function AdminActivityPage() {
 
   return (
     <div>
-      <p className="eyebrow">Audit trail</p>
-      <h1 className="mt-1 font-display text-2xl text-light md:text-3xl">Activity</h1>
-      <p className="mt-1 text-sm text-dim">Recent audit log entries across the platform.</p>
+      <PageHeader
+        eyebrow="Admin"
+        title="Activity"
+        description="Recent audit log entries across the platform."
+        primaryAction={{ label: "Overview", href: "/admin", variant: "ghost" }}
+      />
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+      <div className="mt-6">
+        <MetricRail
+          cells={[
+            {
+              label: "Recent rows",
+              value: String(entries.length),
+              footer: "Latest 100",
+              color: "#22d3ee",
+            },
+            {
+              label: "14d actions",
+              value: totalActions.toLocaleString(),
+              footer: "In window",
+              color: "#34d399",
+            },
+            {
+              label: "Action types",
+              value: String(actionCounts.length),
+              footer: "Top breakdown",
+              color: "#facc15",
+            },
+          ]}
+        />
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         <div className="glass p-6">
-          <SectionHeader eyebrow="Volume" title="Activity — last 14 days" />
+          <div className="dash-section-head">
+            <h2>Volume · last 14 days</h2>
+            <p>Audit log activity.</p>
+          </div>
           <div className="mt-4">
             {dailyCounts.length === 0 || dailyCounts.every((d) => d.count === 0) ? (
               <p className="py-10 text-center text-sm text-dim">No activity recorded yet.</p>
@@ -120,7 +152,10 @@ export default async function AdminActivityPage() {
         </div>
 
         <div className="glass p-6">
-          <SectionHeader eyebrow="Breakdown" title="By action type" />
+          <div className="dash-section-head">
+            <h2>By action type</h2>
+            <p>Top actions in the window.</p>
+          </div>
           <div className="mt-5 space-y-4">
             {actionCounts.length === 0 ? (
               <p className="py-6 text-center text-sm text-dim">No actions recorded in the last 14 days.</p>
@@ -158,7 +193,10 @@ export default async function AdminActivityPage() {
       </div>
 
       <div className="glass mt-8 p-6">
-        <SectionHeader eyebrow="Log" title="Recent entries" />
+        <div className="dash-section-head">
+          <h2>Recent entries</h2>
+          <p>Latest audit log rows.</p>
+        </div>
         {entries.length === 0 ? (
           <p className="py-12 text-center text-sm text-dim">No audit log entries yet.</p>
         ) : (
