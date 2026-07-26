@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { MoneyField } from "@/components/ui/MoneyField";
 import { NumberField } from "@/components/ui/NumberField";
 import { ScoreRing } from "@/components/ui/ScoreRing";

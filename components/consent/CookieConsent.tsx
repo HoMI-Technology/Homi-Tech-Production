@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+// Outside NextIntlClientProvider in root layout — must use next/link, not i18n Link.
 import Link from "next/link";
 import { CONSENT_KEY } from "./consent-shared";
 

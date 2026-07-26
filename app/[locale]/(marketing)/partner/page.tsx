@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import type { Metadata } from "next";
 import { Reveal } from "@/components/ui/Reveal";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";

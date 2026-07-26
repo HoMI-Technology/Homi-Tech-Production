@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { usePathname } from "next/navigation";
 import { PILLARS, VERDICT_META } from "@/lib/brand";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring";

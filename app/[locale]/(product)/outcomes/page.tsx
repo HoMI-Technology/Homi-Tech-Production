@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { localDateISO, formatLocalDateISO } from "@/lib/dates";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
