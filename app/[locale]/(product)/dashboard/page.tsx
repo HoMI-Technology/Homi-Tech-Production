@@ -14,13 +14,10 @@ import {
 } from "@/lib/dashboard/insight";
 import { checkedInToday, contextualActionHrefs } from "@/lib/dashboard/context-actions";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
-import { CinemaFX } from "@/components/home/CinemaFX";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Reveal } from "@/components/ui/Reveal";
 import { Sparkline } from "@/components/ui/Sparkline";
-import { StatTile } from "@/components/ui/StatTile";
-import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ScoreHistory, type ScoreHistoryPoint } from "@/components/dashboard/ScoreHistory";
 import { ScoreDeltaBadge } from "@/components/dashboard/ScoreDeltaBadge";
 import { DailyPulseStrip } from "@/components/dashboard/DailyPulseStrip";
@@ -263,97 +260,131 @@ export default async function DashboardPage() {
         checkedInToday: checkedInToday(checkinRows[0]?.created_at ?? null),
       });
 
+  const instrumentTint = verdictMeta.color;
+  const scorePct = latest?.overall_score != null ? Math.round(latest.overall_score) : 0;
+
   return (
     <div
       id="dash-root"
       className="field"
-      style={verdict ? ({ "--field-tint": `${verdictMeta.color}12` } as React.CSSProperties) : undefined}
+      style={
+        verdict
+          ? ({
+              "--field-tint": `${verdictMeta.color}18`,
+              "--instrument-tint": instrumentTint,
+            } as React.CSSProperties)
+          : undefined
+      }
     >
       {/* Pre-paint entrance gate — see entrance-shared.ts. Must be inside the
           container and before the stages so the attribute lands before paint. */}
       <script dangerouslySetInnerHTML={{ __html: ENTRANCE_BOOT_SCRIPT }} />
       <EntranceConductor containerId="dash-root" />
-      <CinemaFX />
 
-      <div className="mx-auto max-w-6xl px-6 py-10 sm:py-12">
-        {/* ── Header (compact — score hero owns the hierarchy) ── */}
+      <div className="mx-auto max-w-6xl px-5 py-8 sm:px-6 sm:py-10 lg:py-12">
+        {/* ── Greeting — compact, instrument owns the fold ── */}
         <div className="dash-stage">
-          <p className="eyebrow">Decision readiness</p>
-          <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">
+          <div className="dash-section-kicker">
+            <span>Operate</span>
+          </div>
+          <h1 className="font-display text-[1.75rem] leading-tight tracking-tight text-light sm:text-4xl">
             {greeting}, <span className="text-aurora">{name}</span>
           </h1>
-          <p className="mt-2 max-w-2xl text-dim">{subtitle}</p>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-dim sm:text-base">{subtitle}</p>
         </div>
 
-        {/* ── Hero first: the verdict instrument (OPERATE primary) ─ */}
-        <div className="dash-stage" style={{ "--stage-delay": "120ms" } as React.CSSProperties}>
-          <div className="glass sweep tilt-3d relative mt-6 overflow-hidden sm:mt-8">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -left-24 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full"
-              style={{
-                background: `radial-gradient(circle, ${verdictMeta.color}1f, transparent 70%)`,
-                filter: "blur(20px)",
-              }}
-            />
+        {/* ── Score instrument (new visual system) ── */}
+        <div className="dash-stage mt-6 sm:mt-8" style={{ "--stage-delay": "80ms" } as React.CSSProperties}>
+          <div
+            className="dash-instrument"
+            style={{ ["--instrument-tint" as string]: instrumentTint }}
+          >
             {latest && (
               <VerdictCelebrate assessmentId={latest.id} improved={improved} label={verdictMeta.label} />
             )}
-            <div className="relative grid gap-8 p-6 sm:p-8 md:grid-cols-[auto_1fr] md:items-center">
+            <div className="dash-instrument-inner p-5 sm:p-8 lg:p-10">
               {assessmentsFailed ? (
-                <div className="md:col-span-2">
-                  <LoadErrorPanel
-                    title="Your readiness didn't load"
-                    body="Your assessments are safe — this is a loading hiccup on our side, not a change in your data."
-                  />
-                </div>
+                <LoadErrorPanel
+                  title="Your readiness didn't load"
+                  body="Your assessments are safe — this is a loading hiccup on our side, not a change in your data."
+                />
               ) : latest ? (
                 <>
-                  <div className="flex justify-center">
-                    <ThresholdCompass size={170} verdict={verdict ?? undefined} />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-widest text-dim">HōMI-Score</p>
-                    <div className="mt-2 flex flex-wrap items-center gap-4">
-                      <HeroScore value={Math.round(latest.overall_score ?? 0)} color={verdictMeta.color} />
-                      {verdict && <VerdictBadge verdict={verdict} size="lg" />}
-                      {scoreDelta && (
-                        <ScoreDeltaBadge
-                          current={scoreDelta.current}
-                          previous={scoreDelta.previous}
-                          previousDate={scoreDelta.previousDate}
-                        />
+                  <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,200px)_1fr] lg:gap-12">
+                    <div className="flex justify-center lg:justify-start">
+                      <ThresholdCompass size={188} verdict={verdict ?? undefined} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-[0.6875rem] font-bold uppercase tracking-[0.16em] text-dim">
+                          HōMI-Score
+                        </p>
+                        {scoreDelta && (
+                          <ScoreDeltaBadge
+                            current={scoreDelta.current}
+                            previous={scoreDelta.previous}
+                            previousDate={scoreDelta.previousDate}
+                          />
+                        )}
+                      </div>
+                      <div className="mt-2 flex flex-wrap items-end gap-4">
+                        <HeroScore value={scorePct} color={instrumentTint} />
+                        {verdict && <div className="mb-2"><VerdictBadge verdict={verdict} size="lg" /></div>}
+                      </div>
+                      <p className="mt-3 max-w-xl text-sm leading-relaxed text-light/90 sm:text-base">
+                        {verdictMeta.line}
+                      </p>
+
+                      <div className="mt-6 max-w-xl">
+                        <div className="dash-spectrum">
+                          <span
+                            aria-hidden
+                            className="dash-spectrum-marker"
+                            style={{
+                              left: `${Math.max(3, Math.min(97, scorePct))}%`,
+                              ["--instrument-tint" as string]: instrumentTint,
+                            }}
+                          />
+                        </div>
+                        <div className="relative mt-2 h-4 text-[0.625rem] font-medium uppercase tracking-wide text-dim sm:text-[0.6875rem]">
+                          <span className="absolute -translate-x-1/2" style={{ left: "12%" }}>
+                            Not yet
+                          </span>
+                          <span className="absolute hidden -translate-x-1/2 sm:block" style={{ left: "42%" }}>
+                            Build
+                          </span>
+                          <span className="absolute hidden -translate-x-1/2 sm:block" style={{ left: "68%" }}>
+                            Almost
+                          </span>
+                          <span className="absolute -translate-x-1/2" style={{ left: "92%" }}>
+                            Ready
+                          </span>
+                        </div>
+                      </div>
+
+                      {showNudge && (
+                        <p className="mt-4 rounded-lg border border-amber/35 bg-verdict-build/90 px-4 py-2.5 text-sm text-light">
+                          It has been {since} days since your last assessment. Life changes — consider a retest.
+                        </p>
                       )}
                     </div>
-                    <p className="mt-3 max-w-xl text-sm leading-relaxed text-dim">{verdictMeta.line}</p>
-                    <div className="mt-5 max-w-xl">
-                      <div className="relative">
-                        <div className="spectrum-bar" />
-                        <span
-                          aria-hidden
-                          className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-navy bg-light"
-                          style={{
-                            left: `${Math.max(2, Math.min(98, Math.round(latest.overall_score ?? 0)))}%`,
-                            boxShadow: `0 0 12px ${verdictMeta.color}`,
-                          }}
-                        />
-                      </div>
-                      <div className="relative mt-2 h-4 text-[0.6875rem] text-dim">
-                        <span className="absolute -translate-x-1/2" style={{ left: "25%" }}>Not yet</span>
-                        {/* Middle band labels collide below ~400px — endpoints carry the scale there. */}
-                        <span className="absolute hidden -translate-x-1/2 sm:block" style={{ left: "57%" }}>Build first</span>
-                        <span className="absolute hidden -translate-x-1/2 sm:block" style={{ left: "72%" }}>Almost there</span>
-                        <span className="absolute -translate-x-1/2" style={{ left: "90%" }}>Ready</span>
-                      </div>
-                    </div>
-                    {showNudge && (
-                      <p className="mt-3 rounded-lg border border-amber/30 bg-verdict-build px-4 py-2 text-sm text-light">
-                        It has been {since} days since your last assessment. Life changes — a lot can shift in
-                        that time. Consider a retest.
+                  </div>
+
+                  {/* Primary action dock — unmissable next step */}
+                  <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-cyan">
+                        Next move
                       </p>
-                    )}
-                    {/* One primary next step: weakest-pillar move when available; retest only when stale. */}
-                    <div className="mt-6 flex flex-wrap gap-3">
+                      <p className="mt-1 text-sm text-light sm:text-base">
+                        {showNudge
+                          ? "Re-measure your readiness"
+                          : nextMove
+                            ? nextMove.title
+                            : "Open your plan"}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-3">
                       {showNudge ? (
                         <>
                           <Link href="/assessment" className="btn btn-primary">
@@ -392,44 +423,103 @@ export default async function DashboardPage() {
                   </div>
                 </>
               ) : (
-                <div className="md:col-span-2">
-                  <EmptyState preset="dashboard" />
-                </div>
+                <EmptyState preset="dashboard" />
               )}
             </div>
           </div>
         </div>
 
         {latest && dueSurvey && (
-          <OutcomeSurveyPrompt surveyId={dueSurvey.id} kind={dueSurvey.kind} />
+          <div className="mt-6">
+            <OutcomeSurveyPrompt surveyId={dueSurvey.id} kind={dueSurvey.kind} />
+          </div>
         )}
 
-        {/* First-run: hero EmptyState only — no zero pillars / instrument wall */}
+        {/* First-run: hero only — no zero pillars / instrument wall */}
         {latest && (
           <>
-            <TrinityGapAlert pillars={pillarReadings} />
+            <div className="mt-6">
+              <TrinityGapAlert pillars={pillarReadings} />
+            </div>
 
-            {/* ── Pillars — focus pillar carries the next move (no duplicate card) ── */}
+            {/* ── Metric rail (not equal glass KPI wall) ── */}
+            <div className="dash-stage mt-8" style={{ "--stage-delay": "140ms" } as React.CSSProperties}>
+              <div className="dash-section-kicker">
+                <span>At a glance</span>
+              </div>
+              <div className="dash-rail">
+                <div className="dash-rail-cell">
+                  <p className="dash-rail-label">Verdict held</p>
+                  <p className="dash-rail-value" style={{ color: instrumentTint }}>
+                    {heldDays !== null ? heldDays : "—"}
+                    {heldDays !== null && (
+                      <span className="ml-1 text-sm font-normal text-dim">
+                        {heldDays === 1 ? "day" : "days"}
+                      </span>
+                    )}
+                  </p>
+                  <p className="dash-rail-footer">{verdictMeta.label}</p>
+                </div>
+                <div className="dash-rail-cell">
+                  <p className="dash-rail-label">Strongest</p>
+                  <p className="dash-rail-value" style={{ color: strongest?.color }}>
+                    {strongest ? strongest.value : "—"}
+                    {strongest && (
+                      <span className="ml-1 text-sm font-normal text-dim">/{strongest.max}</span>
+                    )}
+                  </p>
+                  <p className="dash-rail-footer">{strongest?.name ?? "—"}</p>
+                </div>
+                <div className="dash-rail-cell">
+                  <p className="dash-rail-label">Check-ins · 7d</p>
+                  <p className="dash-rail-value text-emerald">
+                    {checkinsThisWeek}
+                    <span className="ml-1 text-sm font-normal text-dim">/7</span>
+                  </p>
+                  <p className="dash-rail-footer">
+                    {checkinRows.length > 0
+                      ? `${checkinRows.length} in last 14 logged`
+                      : "Start a daily pulse"}
+                  </p>
+                </div>
+                <div className="dash-rail-cell">
+                  <p className="dash-rail-label">Journal</p>
+                  <p className="dash-rail-value text-yellow">{journalCount}</p>
+                  <p className="dash-rail-footer">Decisions logged</p>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Pillars: focus first (wide), others quiet ── */}
             <Reveal delay={80}>
-              <div className="mt-8">
-                <SectionHeader
-                  eyebrow="Three pillars"
-                  title="Where the score comes from"
-                  subtitle="Financial Reality · Emotional Truth · Perfect Timing — focus follows the softest ring."
-                />
-                <div className="mt-5 grid gap-5 md:grid-cols-3">
+              <div className="mt-10">
+                <div className="dash-section-kicker">
+                  <span>Three pillars</span>
+                </div>
+                <h2 className="font-display text-2xl text-light sm:text-3xl">
+                  Softest lever first
+                </h2>
+                <p className="mt-2 max-w-2xl text-sm text-dim">
+                  Financial Reality · Emotional Truth · Perfect Timing — the weak ring owns the next move.
+                </p>
+                <div className="mt-6 grid gap-4 lg:grid-cols-12">
                   {pillarReadings.map((pillar) => {
                     const isFocus = weakest !== null && pillar.key === weakest.key;
                     return (
                       <div
                         key={pillar.key}
-                        className={`glass glass-hover sweep relative overflow-hidden p-6 ${isFocus ? "panel-focus" : ""}`}
+                        className={`glass relative overflow-hidden p-5 sm:p-6 ${
+                          isFocus
+                            ? "dash-pillar-focus lg:col-span-6"
+                            : "dash-pillar-quiet glass-hover lg:col-span-3"
+                        }`}
+                        style={{ ["--pillar-tint" as string]: pillar.color }}
                       >
                         <span
                           aria-hidden
-                          className="absolute inset-x-0 top-0 h-px"
+                          className="absolute inset-x-0 top-0 h-0.5"
                           style={{
-                            background: `linear-gradient(90deg, transparent, ${pillar.color}88, transparent)`,
+                            background: `linear-gradient(90deg, transparent, ${pillar.color}, transparent)`,
                           }}
                         />
                         <div className="flex items-start justify-between gap-3">
@@ -437,21 +527,28 @@ export default async function DashboardPage() {
                             <h3 className="font-semibold text-light">{pillar.name}</h3>
                             <p className="mt-1 text-xs text-dim">{pillar.question}</p>
                           </div>
-                          {isFocus && <span className="chip !text-[0.6875rem]">Focus here</span>}
+                          {isFocus && (
+                            <span className="chip !border-cyan/40 !bg-cyan/10 !text-[0.6875rem] !text-cyan">
+                              Focus
+                            </span>
+                          )}
                         </div>
-                        <div className="mt-5 flex justify-center">
+                        <div className={`mt-5 flex ${isFocus ? "justify-start sm:justify-center" : "justify-center"}`}>
                           <PillarRing
                             value={pillar.value}
                             max={pillar.max}
-                            size={120}
+                            size={isFocus ? 140 : 108}
                             color={pillar.color}
                             sublabel={`of ${pillar.max}`}
                           />
                         </div>
                         {isFocus && nextMove && (
-                          <div className="mt-5 border-t border-slate-surface/60 pt-4">
-                            <p className="text-sm text-dim">{nextMove.body}</p>
-                            <div className="mt-3 flex flex-wrap gap-2">
+                          <div className="mt-5 border-t border-white/10 pt-4">
+                            <p className="text-[0.6875rem] font-bold uppercase tracking-[0.12em] text-cyan">
+                              Why this pillar
+                            </p>
+                            <p className="mt-2 text-sm leading-relaxed text-dim">{nextMove.body}</p>
+                            <div className="mt-4 flex flex-wrap gap-2">
                               <Link
                                 href={nextMove.href}
                                 className="btn btn-primary !px-4 !py-2 text-sm"
@@ -474,136 +571,97 @@ export default async function DashboardPage() {
               </div>
             </Reveal>
 
-            {/* ── Supporting density: stats (never above the hero) ── */}
-            <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-              {[
-                <StatTile
-                  key="verdict"
-                  label="Verdict held"
-                  value={heldDays !== null ? String(heldDays) : "—"}
-                  unit={heldDays !== null ? (heldDays === 1 ? "day" : "days") : undefined}
-                  accent={verdictMeta.color}
-                  footer={verdictMeta.label}
-                  spark={
-                    historyPoints.length >= 2 ? (
-                      <Sparkline
-                        id="score"
-                        values={historyPoints.map((p) => p.score)}
-                        color={verdictMeta.color}
-                      />
-                    ) : undefined
-                  }
-                />,
-                <StatTile
-                  key="strongest"
-                  label="Strongest pillar"
-                  value={strongest ? `${strongest.value}` : "—"}
-                  unit={strongest ? `/${strongest.max}` : undefined}
-                  accent={strongest?.color}
-                  footer={strongest?.name}
-                />,
-                <StatTile
-                  key="checkins"
-                  label="Check-ins this week"
-                  value={String(checkinsThisWeek)}
-                  unit="/7"
-                  accent="#34d399"
-                  footer={
-                    checkinRows.length > 0
-                      ? `${checkinRows.length} in the last 14 logged`
-                      : "Start a daily pulse"
-                  }
-                />,
-                <StatTile
-                  key="journal"
-                  label="Journal entries"
-                  value={String(journalCount)}
-                  accent="#facc15"
-                  footer="Decisions logged"
-                />,
-              ].map((tile, i) => (
-                <div
-                  key={i}
-                  className="dash-stage"
-                  style={{ "--stage-delay": `${200 + i * 50}ms` } as React.CSSProperties}
-                >
-                  {tile}
-                </div>
-              ))}
-            </div>
-
-            {/* ── Trajectory (full width — next move lives on hero + focus pillar) ── */}
-            <Reveal delay={80} className="glass mt-8 block p-8">
-              <SectionHeader
-                eyebrow="Trajectory"
-                title="Score history"
-                subtitle="Your HōMI-Score over time, colored by verdict."
-                action={
-                  scoreDelta ? (
+            {/* ── Trajectory ── */}
+            <Reveal delay={80} className="mt-10 block">
+              <div className="dash-section-kicker">
+                <span>Trajectory</span>
+              </div>
+              <div className="glass p-6 sm:p-8">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <h2 className="font-display text-xl text-light sm:text-2xl">Score history</h2>
+                    <p className="mt-1 text-sm text-dim">Your HōMI-Score over time, colored by verdict.</p>
+                  </div>
+                  {scoreDelta && (
                     <ScoreDeltaBadge
                       current={scoreDelta.current}
                       previous={scoreDelta.previous}
                       previousDate={scoreDelta.previousDate}
                     />
-                  ) : undefined
-                }
-              />
-              <div className="mt-6">
-                {assessmentsFailed ? (
-                  <LoadErrorPanel
-                    compact
-                    title="History didn't load"
-                    body="Your score history is intact — retry in a moment."
-                  />
-                ) : (
-                  <ScoreHistory points={historyPoints} />
-                )}
+                  )}
+                </div>
+                <div className="mt-6">
+                  {assessmentsFailed ? (
+                    <LoadErrorPanel
+                      compact
+                      title="History didn't load"
+                      body="Your score history is intact — retry in a moment."
+                    />
+                  ) : (
+                    <ScoreHistory points={historyPoints} />
+                  )}
+                </div>
               </div>
             </Reveal>
 
             {genome && (
               <Reveal delay={120}>
-                <div className="mt-8">
+                <div className="mt-10">
+                  <div className="dash-section-kicker">
+                    <span>Genome</span>
+                  </div>
                   <GenomeWidget scores={genomeScoresMap(genome.scores)} />
                 </div>
               </Reveal>
             )}
 
             {user && (
-              <Suspense fallback={<FinancialPositionSkeleton />}>
-                <FinancialPositionSection
-                  userId={user.id}
-                  subscriptionTier={profile?.subscription_tier ?? null}
-                />
-              </Suspense>
+              <div className="mt-10">
+                <div className="dash-section-kicker">
+                  <span>Money</span>
+                </div>
+                <Suspense fallback={<FinancialPositionSkeleton />}>
+                  <FinancialPositionSection
+                    userId={user.id}
+                    subscriptionTier={profile?.subscription_tier ?? null}
+                  />
+                </Suspense>
+              </div>
             )}
 
-            <Reveal delay={80} className="glass mt-8 block p-8">
-              <SectionHeader
-                eyebrow="Cadence"
-                title="Daily pulse"
-                subtitle="Mood and stress trend from your last check-ins."
-                action={
+            <Reveal delay={80} className="mt-10 block">
+              <div className="dash-section-kicker">
+                <span>Cadence</span>
+              </div>
+              <div className="glass p-6 sm:p-8">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <h2 className="font-display text-xl text-light sm:text-2xl">Daily pulse</h2>
+                    <p className="mt-1 text-sm text-dim">Mood and stress from your last check-ins.</p>
+                  </div>
                   <Link href="/daily" className="btn btn-ghost !px-4 !py-2 text-sm">
                     Check in today
                   </Link>
-                }
-              />
-              <div className="mt-6">
-                {checkinsFailed ? (
-                  <LoadErrorPanel
-                    compact
-                    title="Check-ins didn't load"
-                    body="Your check-in history is intact — retry in a moment."
-                  />
-                ) : (
-                  <DailyPulseStrip checkins={checkinRows} />
-                )}
+                </div>
+                <div className="mt-6">
+                  {checkinsFailed ? (
+                    <LoadErrorPanel
+                      compact
+                      title="Check-ins didn't load"
+                      body="Your check-in history is intact — retry in a moment."
+                    />
+                  ) : (
+                    <DailyPulseStrip checkins={checkinRows} />
+                  )}
+                </div>
               </div>
             </Reveal>
 
             <Reveal delay={100}>
-              <div className="mt-8">
+              <div className="mt-10">
+                <div className="dash-section-kicker">
+                  <span>Timeline</span>
+                </div>
                 <DecisionTimeline
                   assessments={assessmentRows}
                   checkins={checkinRows}
@@ -613,14 +671,14 @@ export default async function DashboardPage() {
             </Reveal>
 
             <Reveal delay={80}>
-              <div className="mt-10">
-                <SectionHeader
-                  eyebrow="Instruments"
-                  title="Quick actions"
-                  subtitle={
-                    featured.length > 0 ? "The three that matter right now, first." : undefined
-                  }
-                />
+              <div className="mt-10 mb-4">
+                <div className="dash-section-kicker">
+                  <span>Instruments</span>
+                </div>
+                <h2 className="font-display text-xl text-light sm:text-2xl">Quick actions</h2>
+                {featured.length > 0 && (
+                  <p className="mt-1 text-sm text-dim">The three that matter right now, first.</p>
+                )}
                 <div className="mt-5">
                   <QuickActionGrid journalCount={journalCount} featured={featured} />
                 </div>
