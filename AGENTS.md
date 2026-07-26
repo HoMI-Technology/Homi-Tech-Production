@@ -1,9 +1,23 @@
 # HōMI Tech — agent instructions (SSOT)
 
+## Operator manual (humans + agents)
+
+**Read and follow:** [`docs/OPERATORS-MANUAL.md`](docs/OPERATORS-MANUAL.md)
+
+| Command | Purpose |
+|---------|---------|
+| `homi doctor` | Machine + auth + secrets + noise health check |
+| `homi ssot status\|pull\|push` | Windows 1:1 GitHub sync (`scripts/homi-ssot.ps1`) |
+| `homi secrets` | E2E / LHCI GitHub secrets present? |
+| `homi hygiene` | Open PR policy report |
+| `homi manual` | Open the Operators Manual |
+
+Do **not** invent a parallel ops process. Point the user at the manual section + command.
+
 ## Source of truth
 
 - **GitHub:** https://github.com/HoMI-Technology/Homi-Tech-Production
-- **Local only:** `C:\Users\cody\code\Homi-Tech-Production-` (env `HOMI_SSOT`)
+- **Local only (this PC):** `C:\Users\Quality Assurance\Desktop\kimi-workspace\Homi-Tech-Production`
 - **Default branch:** `main`
 - **Never** treat Desktop `HoMI Tech` dumps, zips, or other clones as product truth.
 
