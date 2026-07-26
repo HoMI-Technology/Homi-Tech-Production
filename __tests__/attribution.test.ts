@@ -4,6 +4,8 @@ import {
   readAttributionCookie,
   serializeAttributionCookie,
   ATTRIBUTION_COOKIE,
+  isPartnerInviteRef,
+  resolvePartnerReferralSource,
 } from "@/lib/attribution";
 
 const NOW = new Date("2026-07-16T12:00:00Z");
@@ -62,5 +64,35 @@ describe("attribution cookie roundtrip", () => {
     const snap = readAttributionCookie(`${ATTRIBUTION_COOKIE}=${raw}`);
     expect(snap?.ref).toBe("ok-ref");
     expect(snap?.utm_source ?? "").not.toContain("<");
+  });
+});
+
+describe("partner invite referral denorm", () => {
+  it("accepts ptr_ invite shape only", () => {
+    expect(isPartnerInviteRef("ptr_a1b2c3d4")).toBe(true);
+    expect(isPartnerInviteRef("PTR_A1B2C3D4")).toBe(true);
+    expect(isPartnerInviteRef("reddit")).toBe(false);
+    expect(isPartnerInviteRef("ptr_short")).toBe(false);
+    expect(isPartnerInviteRef(undefined)).toBe(false);
+  });
+
+  it("resolves partner_user_id from code map without inventing roster links", () => {
+    const map = new Map([["ptr_a1b2c3d4", "partner-uuid-1"]]);
+    const snap = buildAttribution(
+      new URLSearchParams("ref=ptr_a1b2c3d4"),
+      "/shadow-score",
+      NOW,
+    );
+    expect(resolvePartnerReferralSource(snap, map)).toBe("partner-uuid-1");
+    expect(resolvePartnerReferralSource(snap, { "ptr_a1b2c3d4": "partner-uuid-1" })).toBe(
+      "partner-uuid-1",
+    );
+    expect(resolvePartnerReferralSource(null, map)).toBeNull();
+    expect(
+      resolvePartnerReferralSource(
+        buildAttribution(new URLSearchParams("utm_source=x"), "/", NOW),
+        map,
+      ),
+    ).toBeNull();
   });
 });

@@ -2,72 +2,50 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
-
-interface PaletteItem {
-  href: string;
-  label: string;
-  group: string;
-  keywords?: string;
-}
-
-/** Every signed-in destination, so the palette replaces "hunt the More menu". */
-const ITEMS: PaletteItem[] = [
-  { href: "/dashboard", label: "Dashboard", group: "Navigate", keywords: "home overview score" },
-  { href: "/assessment", label: "Take the assessment", group: "Act", keywords: "readiness verdict full test measure" },
-  { href: "/shadow-score", label: "Get a Shadow Score", group: "Act", keywords: "quick score fast read" },
-  { href: "/daily", label: "Daily check-in", group: "Act", keywords: "mood stress pulse" },
-  { href: "/simulator", label: "Simulate your score", group: "Act", keywords: "what if test move" },
-  { href: "/advisor", label: "Talk to the Companion", group: "Act", keywords: "chat advisor ai talk" },
-  { href: "/agents", label: "AI Agents roster", group: "Act", keywords: "agent os ensemble homie scout" },
-  { href: "/agent-hub", label: "Agent Hub feed", group: "Act", keywords: "architecture json prompt export scrape" },
-  { href: "/tools", label: "Tools", group: "Navigate", keywords: "calculators mortgage affordability money" },
-  { href: "/journal", label: "Journal", group: "Navigate", keywords: "decisions log notes" },
-  { href: "/plan", label: "Plan", group: "Navigate", keywords: "next steps path" },
-  { href: "/decisions", label: "Decisions", group: "Navigate", keywords: "net position" },
-  { href: "/signals", label: "Signals", group: "Navigate", keywords: "timing market watch" },
-  { href: "/twin", label: "Future Twin", group: "Navigate", keywords: "letter future self" },
-  { href: "/trinity", label: "Trinity", group: "Navigate", keywords: "pillars balance" },
-  { href: "/finance", label: "Finance", group: "Navigate", keywords: "budget money numbers" },
-  { href: "/calendar", label: "Calendar", group: "Navigate", keywords: "milestones dates" },
-  { href: "/family", label: "Family", group: "Navigate", keywords: "household members" },
-  { href: "/credit", label: "Credit", group: "Navigate", keywords: "score report" },
-  { href: "/connections", label: "Connections", group: "Navigate", keywords: "bank plaid sync accounts" },
-  { href: "/couples", label: "Couples", group: "Navigate", keywords: "partner alignment" },
-  { href: "/genome", label: "Genome", group: "Navigate", keywords: "psychology profile" },
-  { href: "/partner/dashboard", label: "Partner dashboard", group: "Roles", keywords: "referral clients partner" },
-  { href: "/partner/portal", label: "Partner portal", group: "Roles", keywords: "invite resources partner" },
-  { href: "/employee/dashboard", label: "Employee dashboard", group: "Roles", keywords: "benefits employer" },
-  { href: "/employee/portal", label: "Employee portal", group: "Roles", keywords: "benefits hub portal" },
-  { href: "/team", label: "Team dashboard", group: "Roles", keywords: "organization b2b aggregate" },
-  { href: "/admin", label: "Admin", group: "Roles", keywords: "platform users waitlist" },
-  { href: "/settings", label: "Settings", group: "Navigate", keywords: "account profile billing subscription" },
-];
+import {
+  PALETTE_CATALOG,
+  type PaletteItem,
+  visiblePaletteItems,
+} from "@/lib/dashboard/palette-visibility";
+import type { SwitcherContext } from "@/lib/dashboard/switcher-visibility";
 
 /**
- * ⌘K command palette — in-house (~zero dependency cost against the enforced
- * script budget), glass-styled, keyboard-first. Filtering is
- * prefix-then-substring over label + keywords; arrow keys move, Enter opens,
- * Escape closes. Focus returns to the opener on close.
+ * ⌘K command palette — capability-filtered, glass-styled, keyboard-first.
+ * Role destinations come from the same pure rules as the dashboard switcher.
  */
-export function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function CommandPalette({
+  open,
+  onClose,
+  roleContext,
+}: {
+  open: boolean;
+  onClose: () => void;
+  /** When omitted, shows the full catalog (should only happen in tests). */
+  roleContext?: SwitcherContext;
+}) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
 
+  const catalog = useMemo(
+    () => (roleContext ? visiblePaletteItems(roleContext) : PALETTE_CATALOG),
+    [roleContext],
+  );
+
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return ITEMS;
+    if (!q) return catalog;
     const starts: PaletteItem[] = [];
     const contains: PaletteItem[] = [];
-    for (const item of ITEMS) {
+    for (const item of catalog) {
       const label = item.label.toLowerCase();
       if (label.startsWith(q)) starts.push(item);
       else if (`${label} ${item.keywords ?? ""}`.includes(q)) contains.push(item);
     }
     return [...starts, ...contains];
-  }, [query]);
+  }, [query, catalog]);
 
   useEffect(() => {
     if (!open) return;
@@ -76,6 +54,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
     setActive(0);
     const t = window.setTimeout(() => inputRef.current?.focus(), 0);
     const prevOverflow = document.body.style.overflow;
+    // Prefer y-only lock when possible; overflow hidden matches prior behavior.
     document.body.style.overflow = "hidden";
     return () => {
       window.clearTimeout(t);
@@ -102,7 +81,9 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
       setActive((a) => (results.length === 0 ? 0 : (a + 1) % results.length));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setActive((a) => (results.length === 0 ? 0 : (a - 1 + results.length) % results.length));
+      setActive((a) =>
+        results.length === 0 ? 0 : (a - 1 + results.length) % results.length,
+      );
     } else if (e.key === "Enter") {
       e.preventDefault();
       go(results[active]);
@@ -137,7 +118,9 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
         <div className="hairline" />
         <ul id="palette-list" role="listbox" aria-label="Results" className="max-h-[320px] overflow-y-auto p-2">
           {results.length === 0 && (
-            <li className="px-3 py-6 text-center text-sm text-dim">Nothing matches &ldquo;{query}&rdquo;.</li>
+            <li className="px-3 py-6 text-center text-sm text-dim">
+              Nothing matches &ldquo;{query}&rdquo;.
+            </li>
           )}
           {results.map((item, i) => (
             <li key={item.href} id={`palette-item-${i}`} role="option" aria-selected={i === active}>

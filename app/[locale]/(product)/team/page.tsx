@@ -123,13 +123,13 @@ export default async function TeamDashboardPage() {
 
   return (
     <div className="field">
-      <div className="mx-auto max-w-6xl px-6 py-12">
+      <div className="mx-auto max-w-6xl px-6 py-12" data-operate-role="team" data-density="compact">
         <p className="eyebrow">Team</p>
         <h1 className="mt-1 font-display text-3xl text-light">
           {org?.name ?? "Organization"} readiness
         </h1>
         <p className="mt-2 max-w-2xl text-dim">
-          De-identified cohort view — no individual emails or journal content.
+          Aggregate cohort view only — individuals are not listed. Scores shown as group distribution.
         </p>
 
         <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
