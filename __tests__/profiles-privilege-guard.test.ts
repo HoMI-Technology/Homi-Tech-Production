@@ -3,18 +3,19 @@ import { join } from "node:path";
 import { describe, it, expect } from "vitest";
 
 /**
- * Guard for migration 00020 (profiles privilege-escalation fix). The real
+ * Guard for migration 00020a (profiles privilege-escalation fix; renumbered
+ * from 00020 to avoid clashing with profiles_column_grants). The real
  * behavioural oracle is the opt-in live-DB suite in
  * __tests__/acceptance/rls.integration.test.ts; this CI-runnable test pins
  * the migration's invariants so an edit can't silently drop a privileged
  * column from the guard or detach the trigger.
  */
 const sql = readFileSync(
-  join(process.cwd(), "supabase", "migrations", "00020_profiles_privilege_guard.sql"),
+  join(process.cwd(), "supabase", "migrations", "00020a_profiles_privilege_guard.sql"),
   "utf8",
 );
 
-describe("00020_profiles_privilege_guard.sql", () => {
+describe("00020a_profiles_privilege_guard.sql", () => {
   it("guards every privileged column", () => {
     for (const col of ["role", "subscription_tier", "subscription_status", "stripe_customer_id"]) {
       expect(sql).toMatch(new RegExp(`new\\.${col} is distinct from old\\.${col}`));
