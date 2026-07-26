@@ -110,29 +110,47 @@ export default function FinancePage() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="font-display text-3xl text-light">Finance Command Dashboard</h1>
+    <div className="mx-auto max-w-6xl px-6 py-10 sm:py-12">
+      <p className="eyebrow">Operate · money</p>
+      <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">Finance</h1>
       <p className="mt-2 max-w-2xl text-dim">
-        Your personal-finance cockpit. Enter your numbers once — every tab reads from the same honest picture.
+        Your personal-finance cockpit. Enter numbers once — every tab reads the same honest picture.
       </p>
 
-      <div className="mt-8 flex flex-wrap gap-2 border-b border-slate-surface/60 pb-px">
-        {TABS.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`rounded-t-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
-              tab === t.key
-                ? "border-b-2 border-cyan bg-slate-surface/40 text-cyan"
-                : "text-dim hover:text-light"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
+      <div
+        role="tablist"
+        aria-label="Finance sections"
+        className="mt-8 flex flex-wrap gap-1 border-b border-slate-surface/60 pb-px"
+      >
+        {TABS.map((t) => {
+          const selected = tab === t.key;
+          return (
+            <button
+              key={t.key}
+              type="button"
+              role="tab"
+              id={`finance-tab-${t.key}`}
+              aria-selected={selected}
+              aria-controls={`finance-panel-${t.key}`}
+              onClick={() => setTab(t.key)}
+              className={`rounded-t-lg px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan ${
+                selected
+                  ? "border-b-2 border-cyan bg-slate-surface/40 text-cyan"
+                  : "text-dim hover:text-light"
+              }`}
+            >
+              {t.label}
+            </button>
+          );
+        })}
       </div>
 
-      <div className="mt-8">
+      <div
+        role="tabpanel"
+        id={`finance-panel-${tab}`}
+        aria-labelledby={`finance-tab-${tab}`}
+        className="mt-8"
+      >
         {tab === "overview" && <OverviewTab state={state} patch={patch} />}
         {tab === "cashflow" && <CashFlowTab state={state} patch={patch} />}
         {tab === "debt" && <DebtTab />}
@@ -159,15 +177,8 @@ function OverviewTab({
 
   return (
     <div className="space-y-8">
-      <div className="glass grid gap-5 p-6 sm:grid-cols-2 lg:grid-cols-5">
-        <NumberField label="Monthly income" value={state.monthlyIncome} onChange={(v) => patch({ monthlyIncome: v ?? 0 })} />
-        <NumberField label="Monthly expenses" value={state.monthlyExpenses} onChange={(v) => patch({ monthlyExpenses: v ?? 0 })} />
-        <NumberField label="Liquid savings" value={state.liquidSavings} onChange={(v) => patch({ liquidSavings: v ?? 0 })} />
-        <NumberField label="Total debt" value={state.totalDebt} onChange={(v) => patch({ totalDebt: v ?? 0 })} />
-        <NumberField label="Monthly debt payments" value={state.monthlyDebtPayments} onChange={(v) => patch({ monthlyDebtPayments: v ?? 0 })} />
-      </div>
-
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Operate hierarchy: position metrics first, inputs second. */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Net cash flow"
           value={formatCurrency(flow)}
