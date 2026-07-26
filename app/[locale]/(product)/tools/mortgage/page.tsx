@@ -5,6 +5,7 @@ import { fullPaymentBreakdown, amortizationSummary } from "@/lib/tools/mortgage"
 import { formatCurrency } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
+import { ToolShell, ToolResultHero, ToolMetric } from "@/components/tools/ToolShell";
 
 function MortgagePageInner() {
   const [price, setPrice] = useState(400000);
@@ -36,14 +37,11 @@ function MortgagePageInner() {
   const maxBar = Math.max(breakdown.principalAndInterest, breakdown.taxesAndInsurance, breakdown.hoa, 1);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="font-display text-3xl text-light">Mortgage Payment</h1>
-      <p className="mt-2 max-w-2xl text-dim">
-        The full monthly payment, broken into its real parts, plus what the loan actually costs over its
-        full life — not just the headline rate.
-      </p>
-
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.3fr]">
+    <ToolShell
+      title="Mortgage Payment"
+      description={`The full monthly payment, broken into its real parts, plus what the loan actually costs over its full life — not just the headline rate.`}
+    >
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
           <Field label="Home price" value={price} onChange={setPrice} min={100000} max={1500000} step={5000} format="currency" />
           <Field label="Down payment" value={downPayment} onChange={setDownPayment} min={0} max={price} step={1000} format="currency" />
@@ -54,33 +52,25 @@ function MortgagePageInner() {
         </div>
 
         <div className="space-y-6">
-          <div className="glass p-6">
-            <h2 className="font-semibold text-light">Monthly payment breakdown</h2>
-            <p className="mt-1 text-xs text-dim">Loan amount: {formatCurrency(loanAmount)}</p>
-            <div className="mt-5 space-y-4">
+          <ToolResultHero
+            label="Total monthly payment"
+            value={formatCurrency(breakdown.total)}
+            color="#22d3ee"
+            footer={`Loan amount ${formatCurrency(loanAmount)} · principal, interest, taxes, insurance${breakdown.hoa > 0 ? ", HOA" : ""}`}
+          >
+            <div className="space-y-4">
               <BarRow label="Principal &amp; interest" value={breakdown.principalAndInterest} max={maxBar} color="#22d3ee" />
               <BarRow label="Taxes &amp; insurance (est.)" value={breakdown.taxesAndInsurance} max={maxBar} color="#facc15" />
               {breakdown.hoa > 0 && <BarRow label="HOA" value={breakdown.hoa} max={maxBar} color="#34d399" />}
             </div>
-            <div className="hairline my-4" />
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-dim">Total monthly</span>
-              <span className="score-numeral text-xl font-bold text-light">{formatCurrency(breakdown.total)}</span>
-            </div>
-          </div>
+          </ToolResultHero>
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">Amortization summary</h2>
             <p className="mt-1 text-xs text-dim">Principal &amp; interest only, over the full {termYears}-year term.</p>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <div>
-                <p className="text-xs text-dim">Total interest paid</p>
-                <p className="score-numeral mt-1 text-xl font-bold text-amber">{formatCurrency(amortization.totalInterestPaid)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-dim">Total paid (P&amp;I)</p>
-                <p className="score-numeral mt-1 text-xl font-bold text-light">{formatCurrency(amortization.totalPaid)}</p>
-              </div>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <ToolMetric label="Total interest paid" value={formatCurrency(amortization.totalInterestPaid)} accent="#fab633" />
+              <ToolMetric label="Total paid (P&I)" value={formatCurrency(amortization.totalPaid)} />
             </div>
             <div className="hairline my-4" />
             <div className="flex items-center justify-between">
@@ -103,7 +93,7 @@ function MortgagePageInner() {
           </div>
         </div>
       </div>
-    </div>
+    </ToolShell>
   );
 }
 

@@ -24,6 +24,24 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { randomBytes } from "node:crypto";
+import { readFileSync, existsSync } from "node:fs";
+import { resolve } from "node:path";
+
+// Load .env.local the same way as verify-supabase-connectivity.mjs
+function loadEnvLocal() {
+  const path = resolve(process.cwd(), ".env.local");
+  if (!existsSync(path)) return;
+  for (const line of readFileSync(path, "utf8").split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eq = trimmed.indexOf("=");
+    if (eq === -1) continue;
+    const key = trimmed.slice(0, eq);
+    const value = trimmed.slice(eq + 1);
+    if (process.env[key] === undefined) process.env[key] = value;
+  }
+}
+loadEnvLocal();
 
 const DEFAULT_EMAIL = "info@homitechnology.com";
 

@@ -89,8 +89,9 @@ export function HeaderShell({
       className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${
         scrolled ? "glass !rounded-none border-x-0 border-t-0" : "bg-transparent"
       }`}
+      style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
-      <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between px-6">
+      <div className="mx-auto flex h-[var(--nav-height)] max-w-6xl items-center justify-between px-6">
         <Link href={logoHref} className="flex items-center gap-2" aria-label={logoAriaLabel}>
           <Wordmark size="text-2xl" />
         </Link>
@@ -103,13 +104,14 @@ export function HeaderShell({
 
         <button
           ref={toggleRef}
+          type="button"
           className="btn btn-ghost !p-2 lg:hidden"
           onClick={() => setOpen(!open)}
           aria-expanded={open}
           aria-controls={menuId}
-          aria-label="Toggle menu"
+          aria-label={open ? "Close menu" : "Open menu"}
         >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
             {open ? <path d="M4 4l12 12M16 4L4 16" /> : <path d="M3 5h14M3 10h14M3 15h14" />}
           </svg>
         </button>
@@ -118,7 +120,10 @@ export function HeaderShell({
       {open && (
         <div
           id={menuId}
-          className="glass mx-4 mb-4 flex max-h-[calc(100dvh-88px)] flex-col gap-1 overflow-y-auto overscroll-contain p-4 lg:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navigation menu"
+          className="glass mx-4 mb-4 flex max-h-[calc(100dvh-var(--nav-height)-env(safe-area-inset-top,0px)-1rem)] flex-col gap-1 overflow-y-auto overscroll-contain p-4 lg:hidden"
         >
           {menuContent}
         </div>

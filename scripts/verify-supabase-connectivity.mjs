@@ -73,9 +73,14 @@ if (count !== 45) {
   console.log("[verify-supabase] OK: question_bank reachable (45 rows)");
 }
 
-const { error: profileError } = await supabase.from("profiles").select("id").limit(1);
+const { data: profileData, error: profileError } = await supabase
+  .from("profiles")
+  .select("id")
+  .limit(1);
 if (profileError) {
   console.log("[verify-supabase] OK: profiles blocked for anon (RLS)");
+} else if (!profileData || profileData.length === 0) {
+  console.log("[verify-supabase] OK: profiles blocked for anon (RLS) — empty result");
 } else {
   console.warn(
     "[verify-supabase] WARN: anon can read profiles — review RLS if unexpected",

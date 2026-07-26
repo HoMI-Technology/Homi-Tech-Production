@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { compareStrategies, type Debt, type PayoffResult } from "@/lib/tools/debt";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
+import { ToolShell } from "@/components/tools/ToolShell";
 
 function makeDebt(partial: Partial<Debt> = {}): Debt {
   return {
@@ -48,13 +49,10 @@ function DebtPayoffPageInner() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="font-display text-3xl text-light">Debt Payoff</h1>
-      <p className="mt-2 max-w-2xl text-dim">
-        Avalanche pays the highest interest rate first — mathematically optimal. Snowball pays the smallest
-        balance first — psychologically easier for some. Both are shown honestly, side by side.
-      </p>
-
+    <ToolShell
+      title="Debt Payoff"
+      description={`Avalanche pays the highest interest rate first — mathematically optimal. Snowball pays the smallest balance first — psychologically easier for some. Both are shown honestly, side by side.`}
+    >
       <div className="mt-8 glass p-6">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold text-light">Your debts</h2>
@@ -145,7 +143,7 @@ function DebtPayoffPageInner() {
           </p>
         </div>
       )}
-    </div>
+    </ToolShell>
   );
 }
 
