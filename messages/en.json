@@ -59,7 +59,7 @@
     "hero": {
       "kicker": "Decision Readiness Intelligence™",
       "h1": "Know when you’re ready.",
-      "sub": "Credit scores look backward. HōMI measures readiness now — before you leap.",
+      "sub": "Credit scores look backward. HōMI measures readiness now, before you leap.",
       "note": "Your answers aren’t stored or sent.",
       "cta": "Check my readiness",
       "exploring": "Just exploring",
@@ -102,15 +102,15 @@
         },
         "warm": {
           "label": "Running warm",
-          "copy": "You’re running warm. Close — one signal needs attention before you leap."
+          "copy": "You’re running warm. Close: one signal needs attention before you leap."
         },
         "warmPlus": {
           "label": "Running warm+",
-          "copy": "You’re running warm+. Something needs building first. That’s not a wall — it’s a map."
+          "copy": "You’re running warm+. Something needs building first. That is not a wall. It is a map."
         },
         "hot": {
           "label": "Running hot",
-          "copy": "You’re running hot. This is a protection signal — slow down before pressure makes the decision for you."
+          "copy": "You’re running hot. This is a protection signal. Slow down before pressure makes the decision for you."
         }
       }
     },

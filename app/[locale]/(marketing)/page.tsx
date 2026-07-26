@@ -73,18 +73,12 @@ export default async function MarketingHomePage({
       {/* ── 1 · Opening scene — the first 8 seconds ─────────────── */}
       {heroVariant === "interview" ? <InterviewHero /> : <HeroSequence />}
 
-      {/* ── 1b · Educational-only strip ─────────────────────────── */}
-      <section className="px-6">
-        <div className="glass mx-auto flex max-w-4xl items-start gap-3 !rounded-xl px-5 py-4">
-          <svg className="mt-0.5 h-4 w-4 shrink-0 text-emerald" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
-            <path d="M10 2l6 2.5v4.5c0 4.14-2.56 7.42-6 8.5-3.44-1.08-6-4.36-6-8.5V4.5L10 2z" />
-            <path d="M7.5 10l1.8 1.8L12.8 8" />
-          </svg>
-          <p className="text-sm leading-relaxed text-dim">
-            <span className="font-semibold text-emerald">{t("edu.strong")}</span>{" "}
-            {t("edu.body")}
-          </p>
-        </div>
+      {/* ── 1b · Educational-only strip (quiet trust, not a second hero) ── */}
+      <section className="border-t border-white/[0.04] px-6 py-5">
+        <p className="mx-auto max-w-3xl text-center text-xs leading-relaxed text-dim sm:text-sm">
+          <span className="font-medium text-emerald/90">{t("edu.strong")}</span>{" "}
+          {t("edu.body")}
+        </p>
       </section>
 
       {/* ── 1d · The statement — lit word by word by your scroll ── */}
