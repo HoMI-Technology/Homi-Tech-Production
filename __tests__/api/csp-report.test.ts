@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 
 vi.mock("@/lib/ratelimit", () => ({
-  rateLimit: vi.fn(async () => ({ allowed: true })),
+  rateLimit: vi.fn(async () => ({ allowed: true, remaining: 10 })),
   getClientIp: vi.fn(() => "127.0.0.1"),
 }));
 
@@ -57,7 +57,7 @@ describe("POST /api/csp-report", () => {
   });
 
   it("returns 204 when rate-limited (silent drop)", async () => {
-    mockRateLimit.mockResolvedValueOnce({ allowed: false });
+    mockRateLimit.mockResolvedValueOnce({ allowed: false, remaining: 0 });
 
     const req = new Request("http://localhost/api/csp-report", {
       method: "POST",
