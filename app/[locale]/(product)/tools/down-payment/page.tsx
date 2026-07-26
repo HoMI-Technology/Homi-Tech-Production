@@ -1,9 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
-import { sliderFillPercent } from "@/lib/assessment/format";
+import { LensField } from "@/components/tools/LensField";
+import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { ChainLinks } from "@/components/tools/ChainLinks";
+import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
+import { getLens } from "@/lib/tools/registry";
+import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { ToolShell } from "@/components/tools/ToolShell";
+
+const LENS = getLens("down-payment")!;
 
 interface GrowthPoint {
   month: number;
@@ -33,6 +40,15 @@ export default function DownPaymentPage() {
   const [saved, setSaved] = useState(15000);
   const [monthly, setMonthly] = useState(800);
   const [apy, setApy] = useState(4);
+
+  // Decision Lab: mount-only seed from the CFM via the registry contract.
+  const apply = useCallback((key: string, v: number) => {
+    if (key === "price") setPrice(v);
+    else if (key === "saved") setSaved(v);
+    else if (key === "monthly") setMonthly(v);
+  }, []);
+  const { prefilled, markAll } = useLensPrefill("down-payment", apply);
+  const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
 
   const goal = (price * targetPct) / 100;
   const remaining = Math.max(0, goal - saved);
@@ -71,13 +87,21 @@ export default function DownPaymentPage() {
       title="Down Payment Goal"
       description={`How long it will actually take to hit your down payment target, given what you have saved and what you're realistically able to set aside each month.`}
     >
+      <SavedNumbersStrip />
+
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
-          <Field label="Target home price" value={price} onChange={setPrice} min={100000} max={1500000} step={5000} format="currency" />
-          <Field label="Target down payment %" value={targetPct} onChange={setTargetPct} min={3} max={30} step={1} format="percent" />
-          <Field label="Already saved" value={saved} onChange={setSaved} min={0} max={goal * 1.5 || 200000} step={500} format="currency" />
-          <Field label="Monthly contribution" value={monthly} onChange={setMonthly} min={0} max={10000} step={50} format="currency" />
-          <Field label="Savings APY" value={apy} onChange={setApy} min={0} max={10} step={0.1} format="percent" />
+          <LensField label="Target home price" value={price} onChange={setPrice} min={100000} max={1500000} step={5000} format="currency" source={sourceFor("price")} />
+          <LensField label="Target down payment %" value={targetPct} onChange={setTargetPct} min={3} max={30} step={1} format="percent" />
+          <LensField label="Already saved" value={saved} onChange={setSaved} min={0} max={goal * 1.5 || 200000} step={500} format="currency" source={sourceFor("saved")} />
+          <LensField label="Monthly contribution" value={monthly} onChange={setMonthly} min={0} max={10000} step={50} format="currency" source={sourceFor("monthly")} />
+          <LensField label="Savings APY" value={apy} onChange={setApy} min={0} max={10} step={0.1} format="percent" />
+
+          <div className="hairline" />
+          <UpdateNumbersButton
+            getFields={() => ({ targetPrice: price, downPaymentSaved: saved })}
+            onSaved={() => markAll(["price", "saved"])}
+          />
         </div>
 
         <div className="space-y-6">
@@ -109,48 +133,10 @@ export default function DownPaymentPage() {
               <polyline points={linePoints} fill="none" stroke="#22d3ee" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
+
+          {LENS.chains && <ChainLinks chains={LENS.chains} />}
         </div>
       </div>
     </ToolShell>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  min,
-  max,
-  step,
-  format,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-  min: number;
-  max: number;
-  step: number;
-  format: "currency" | "percent";
-}) {
-  const fill = sliderFillPercent(value, min, max);
-  const display = format === "currency" ? formatCurrency(value) : `${value}%`;
-
-  return (
-    <div>
-      <div className="flex items-center justify-between">
-        <label className="text-sm text-light">{label}</label>
-        <span className="score-numeral text-sm text-cyan">{display}</span>
-      </div>
-      <input
-        type="range"
-        className="homi-slider mt-2"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        style={{ ["--fill" as string]: `${fill}%` }}
-      />
-    </div>
   );
 }

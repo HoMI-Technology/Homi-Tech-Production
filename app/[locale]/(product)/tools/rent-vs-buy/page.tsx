@@ -1,10 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { monthlyPayment } from "@/lib/tools/mortgage";
 import { formatCurrency } from "@/lib/tools/format";
-import { sliderFillPercent } from "@/lib/assessment/format";
+import { LensField } from "@/components/tools/LensField";
+import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { ChainLinks } from "@/components/tools/ChainLinks";
+import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
+import { getLens } from "@/lib/tools/registry";
+import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { ToolShell } from "@/components/tools/ToolShell";
+
+const LENS = getLens("rent-vs-buy")!;
 
 interface YearCost {
   year: number;
@@ -48,6 +55,15 @@ export default function RentVsBuyPage() {
   const [appreciation, setAppreciation] = useState(3.5);
   const [years, setYears] = useState(5);
 
+  // Decision Lab: mount-only seed from the CFM via the registry contract.
+  const apply = useCallback((key: string, v: number) => {
+    if (key === "rent") setRent(v);
+    else if (key === "price") setPrice(v);
+    else if (key === "rate") setRate(v);
+  }, []);
+  const { prefilled, markAll } = useLensPrefill("rent-vs-buy", apply);
+  const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
+
   const data = useMemo(() => simulate(rent, price, rate, appreciation, years), [rent, price, rate, appreciation, years]);
   const finalYear = data[data.length - 1];
   const buyIsCheaper = finalYear ? finalYear.buyCost < finalYear.rentCost : false;
@@ -70,13 +86,21 @@ export default function RentVsBuyPage() {
       title="Rent vs. Buy"
       description={`A cumulative cost comparison over your time horizon. Read this as one honest input among many — the real answer depends on timing, not just math.`}
     >
+      <SavedNumbersStrip />
+
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
-          <Field label="Monthly rent" value={rent} onChange={setRent} min={500} max={8000} step={50} format="currency" />
-          <Field label="Home price" value={price} onChange={setPrice} min={100000} max={1500000} step={5000} format="currency" />
-          <Field label="Mortgage rate" value={rate} onChange={setRate} min={2} max={12} step={0.125} format="percent" />
-          <Field label="Annual appreciation" value={appreciation} onChange={setAppreciation} min={-2} max={8} step={0.5} format="percent" />
-          <Field label="Time horizon (years)" value={years} onChange={setYears} min={1} max={10} step={1} format="years" />
+          <LensField label="Monthly rent" value={rent} onChange={setRent} min={500} max={8000} step={50} format="currency" source={sourceFor("rent")} />
+          <LensField label="Home price" value={price} onChange={setPrice} min={100000} max={1500000} step={5000} format="currency" source={sourceFor("price")} />
+          <LensField label="Mortgage rate" value={rate} onChange={setRate} min={2} max={12} step={0.125} format="percent" source={sourceFor("rate")} />
+          <LensField label="Annual appreciation" value={appreciation} onChange={setAppreciation} min={-2} max={8} step={0.5} format="percent" />
+          <LensField label="Time horizon (years)" value={years} onChange={setYears} min={1} max={10} step={1} format="years" />
+
+          <div className="hairline" />
+          <UpdateNumbersButton
+            getFields={() => ({ currentRent: rent, targetPrice: price, assumedRatePct: rate })}
+            onSaved={() => markAll(["rent", "price", "rate"])}
+          />
         </div>
 
         <div className="space-y-6">
@@ -117,49 +141,10 @@ export default function RentVsBuyPage() {
               the numbers above.
             </p>
           </div>
+
+          {LENS.chains && <ChainLinks chains={LENS.chains} />}
         </div>
       </div>
     </ToolShell>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  min,
-  max,
-  step,
-  format,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-  min: number;
-  max: number;
-  step: number;
-  format: "currency" | "percent" | "years";
-}) {
-  const fill = sliderFillPercent(value, min, max);
-  const display =
-    format === "currency" ? formatCurrency(value) : format === "percent" ? `${value}%` : `${value} yrs`;
-
-  return (
-    <div>
-      <div className="flex items-center justify-between">
-        <label className="text-sm text-light">{label}</label>
-        <span className="score-numeral text-sm text-cyan">{display}</span>
-      </div>
-      <input
-        type="range"
-        className="homi-slider mt-2"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        style={{ ["--fill" as string]: `${fill}%` }}
-      />
-    </div>
   );
 }
