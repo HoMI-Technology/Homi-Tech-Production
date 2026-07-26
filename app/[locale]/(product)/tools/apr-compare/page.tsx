@@ -5,6 +5,7 @@ import { compareOffers, bestOfferIndex, type LoanOffer } from "@/lib/tools/apr";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { CalcField } from "@/components/tools/CalcField";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
+import { ToolShell } from "@/components/tools/ToolShell";
 
 const START: LoanOffer[] = [
   { label: "Offer A", rate: 6.25, points: 0, fees: 3000 },
@@ -25,13 +26,10 @@ function AprComparePageInner() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="font-display text-3xl text-light">APR Comparison</h1>
-      <p className="mt-2 max-w-2xl text-dim">
-        The lowest rate isn&rsquo;t always the cheapest loan. Points and fees hide in the headline number —
-        this ranks three offers by their true, cost-inclusive APR.
-      </p>
-
+    <ToolShell
+      title="APR Comparison"
+      description={`The lowest rate isn't always the cheapest loan. Points and fees hide in the headline number — this ranks three offers by their true, cost-inclusive APR.`}
+    >
       <div className="mt-8 grid gap-6 lg:grid-cols-3">
         <div className="glass space-y-5 p-6 lg:col-span-1">
           <CalcField label="Loan amount" value={loan} onChange={setLoan} min={50000} max={1500000} step={5000} format="currency" />
@@ -79,7 +77,7 @@ function AprComparePageInner() {
           </div>
         </div>
       </div>
-    </div>
+    </ToolShell>
   );
 }
 

@@ -41,7 +41,7 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
   return (
     <>
       <SiteHeader />
-      <main id="main" className="pt-[72px] min-h-screen">
+      <main id="main" className="main-under-nav min-h-screen">
         <div className="mx-auto max-w-3xl px-4 py-12 sm:py-16">
           <div className="glass flex flex-col items-center gap-6 p-8 text-center sm:p-12">
             <p className="text-sm uppercase tracking-widest text-dim">

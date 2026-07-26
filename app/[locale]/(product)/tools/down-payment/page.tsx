@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
+import { ToolShell } from "@/components/tools/ToolShell";
 
 interface GrowthPoint {
   month: number;
@@ -66,14 +67,11 @@ export default function DownPaymentPage() {
   const goalY = padding + chartHeight - (goal / maxSaved) * chartHeight;
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="font-display text-3xl text-light">Down Payment Goal</h1>
-      <p className="mt-2 max-w-2xl text-dim">
-        How long it will actually take to hit your down payment target, given what you have saved and what
-        you're realistically able to set aside each month.
-      </p>
-
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.3fr]">
+    <ToolShell
+      title="Down Payment Goal"
+      description={`How long it will actually take to hit your down payment target, given what you have saved and what you're realistically able to set aside each month.`}
+    >
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
           <Field label="Target home price" value={price} onChange={setPrice} min={100000} max={1500000} step={5000} format="currency" />
           <Field label="Target down payment %" value={targetPct} onChange={setTargetPct} min={3} max={30} step={1} format="percent" />
@@ -113,7 +111,7 @@ export default function DownPaymentPage() {
           </div>
         </div>
       </div>
-    </div>
+    </ToolShell>
   );
 }
 

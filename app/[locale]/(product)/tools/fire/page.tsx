@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { computeFireNumber, computeCoastFire } from "@/lib/tools/fire";
 import { formatCurrency } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
+import { ToolShell, ToolResultHero, ToolMetric } from "@/components/tools/ToolShell";
 
 export default function FirePage() {
   const [annualExpenses, setAnnualExpenses] = useState(48000);
@@ -29,14 +30,11 @@ export default function FirePage() {
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="font-display text-3xl text-light">FIRE Number</h1>
-      <p className="mt-2 max-w-2xl text-dim">
-        Financial independence, laid out plainly: the number you'd need invested to cover your life on
-        withdrawals alone, and whether what you already have is on track to coast there.
-      </p>
-
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.3fr]">
+    <ToolShell
+      title="FIRE Number"
+      description={`Financial independence, laid out plainly: the number you'd need invested to cover your life on withdrawals alone, and whether what you already have is on track to coast there.`}
+    >
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
           <Field label="Annual expenses" value={annualExpenses} onChange={setAnnualExpenses} min={12000} max={200000} step={1000} format="currency" />
           <Field label="Safe withdrawal rate" value={swrPercent} onChange={setSwrPercent} min={3} max={5} step={0.1} format="percent" />
@@ -47,40 +45,40 @@ export default function FirePage() {
         </div>
 
         <div className="space-y-6">
-          <div className="glass border p-8 text-center bg-verdict-ready">
-            <p className="text-sm text-dim">Your FIRE number</p>
-            <p className="score-numeral mt-2 text-5xl font-bold text-emerald">{formatCurrency(fireNumber)}</p>
-            <p className="mt-2 text-sm text-dim">
-              At a {swrPercent}% withdrawal rate on {formatCurrency(annualExpenses)}/yr of expenses.
-            </p>
-          </div>
+          <ToolResultHero
+            label="Your FIRE number"
+            value={formatCurrency(fireNumber)}
+            color="#34d399"
+            footer={`At a ${swrPercent}% withdrawal rate on ${formatCurrency(annualExpenses)}/yr of expenses.`}
+            badge={
+              <span
+                className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                  coast.isCoastFire
+                    ? "border-emerald/40 bg-verdict-ready text-emerald"
+                    : "border-amber/40 bg-verdict-build text-amber"
+                }`}
+              >
+                {coast.isCoastFire ? "Coasting" : "Not yet coasting"}
+              </span>
+            }
+          />
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">Coast-FIRE</h2>
             <p className="mt-1 text-xs text-dim">
-              What today's savings alone — with no more contributions — could grow into by {retirementAge}.
+              What today&apos;s savings alone — with no more contributions — could grow into by {retirementAge}.
             </p>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <div>
-                <p className="text-xs text-dim">Needed today to coast</p>
-                <p className="score-numeral mt-1 text-xl font-bold text-light">{formatCurrency(coast.coastFireNumberNeededNow)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-dim">Projected at {retirementAge}</p>
-                <p className="score-numeral mt-1 text-xl font-bold text-light">{formatCurrency(coast.projectedAtRetirement)}</p>
-              </div>
-            </div>
-            <div className="hairline my-4" />
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-dim">Coast-FIRE status</span>
-              <span className={`text-sm font-semibold ${coast.isCoastFire ? "text-emerald" : "text-amber"}`}>
-                {coast.isCoastFire ? "Already coasting" : "Not yet coasting"}
-              </span>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <ToolMetric label="Needed today to coast" value={formatCurrency(coast.coastFireNumberNeededNow)} />
+              <ToolMetric
+                label={`Projected at ${retirementAge}`}
+                value={formatCurrency(coast.projectedAtRetirement)}
+              />
             </div>
             {coast.coastFireAge !== null && (
-              <p className="mt-3 text-sm text-dim">
-                At this return rate, today's savings alone would reach your FIRE number around age{" "}
-                <span className="text-light">{coast.coastFireAge.toFixed(1)}</span>.
+              <p className="mt-4 text-sm text-dim">
+                At this return rate, today&apos;s savings alone would reach your FIRE number around age{" "}
+                <span className="score-numeral text-light">{coast.coastFireAge.toFixed(1)}</span>.
               </p>
             )}
           </div>
@@ -97,7 +95,7 @@ export default function FirePage() {
           </div>
         </div>
       </div>
-    </div>
+    </ToolShell>
   );
 }
 

@@ -41,6 +41,9 @@ export default async function ProductLayout({ children }: { children: React.Reac
 
   return (
     <>
+      <a href="#main" className="skip-link">
+        Skip to content
+      </a>
       {user ? (
         <AppHeader
           email={user.email ?? null}
@@ -51,7 +54,9 @@ export default async function ProductLayout({ children }: { children: React.Reac
       ) : (
         <SiteHeader />
       )}
-      <main id="main" className="pt-[72px] min-h-screen">{children}</main>
+      <main id="main" className="main-under-nav min-h-screen">
+        {children}
+      </main>
       <SiteFooter />
       <CompanionWidget />
       {user && <SessionExpiredToast />}

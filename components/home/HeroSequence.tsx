@@ -115,7 +115,7 @@ export function HeroSequence() {
         }}
         aria-hidden={!resolved}
       >
-        {/* Copy column — three elements. Emptiness is the luxury. */}
+        {/* Copy column — thesis, one primary path, one secondary. */}
         <div className="order-2 text-center lg:order-1 lg:text-left">
           <span className="inline-flex items-center gap-2 rounded-full border border-cyan/30 bg-cyan/5 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.25em] text-cyan">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-cyan" style={{ boxShadow: "0 0 8px #22d3ee" }} />
@@ -123,7 +123,7 @@ export function HeroSequence() {
           </span>
 
           <h1 className="type-giant mt-8 font-display font-semibold">
-            <span className={`text-shine ${resolved ? "go" : ""}`}>Will you</span>
+            <span className={`text-shine ${resolved ? "go" : ""}`}>Know when</span>
             <br />
             <span
               style={{
@@ -133,30 +133,33 @@ export function HeroSequence() {
                 color: "transparent",
               }}
             >
-              be okay
+              you&apos;re ready
             </span>
-            <span style={{ color: "#facc15" }}>?</span>
+            <span style={{ color: "#facc15" }}>.</span>
           </h1>
 
           <p className="mx-auto mt-7 max-w-md text-lg leading-relaxed text-dim lg:mx-0 sm:text-xl">
             Credit scores look backward.{" "}
-            <span className="font-semibold text-light">HōMI looks at readiness now.</span>
+            <span className="font-semibold text-light">
+              HōMI measures readiness now
+            </span>{" "}
+            — Financial Reality, Emotional Truth, and Perfect Timing — before you leap.
           </p>
 
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row lg:justify-start sm:justify-center">
             <Link href="/shadow-score" className="btn btn-primary btn-glow px-9 py-4 text-base">
-              See Your Readiness
+              Check my readiness
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
                 <path d="M2 8h11m0 0L9 4m4 4l-4 4" />
               </svg>
             </Link>
-            <Link href="/advisor" className="btn btn-ghost px-8 py-3.5 text-base">
-              Talk to the Companion
+            <Link href="/how-it-works" className="btn btn-ghost px-8 py-3.5 text-base">
+              How it works
             </Link>
           </div>
 
           <p className="mt-6 text-xs text-dim/70">
-            Your homie, not your banker · Free · ~3 minutes · No credit pull
+            Free · ~3 minutes · No credit pull · Educational guidance only
           </p>
         </div>
 

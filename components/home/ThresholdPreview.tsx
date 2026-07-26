@@ -202,7 +202,7 @@ export function ThresholdPreview() {
 
         <div className="flex flex-col items-start gap-2">
           <Link href="/shadow-score" className="btn btn-primary">
-            See Your Readiness
+            Check my readiness
           </Link>
           <p className="text-xs text-dim/70">
             This preview uses illustrative signals only — no scoring internals. Your real
