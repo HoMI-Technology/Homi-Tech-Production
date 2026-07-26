@@ -270,31 +270,18 @@ export default async function DashboardPage() {
       style={
         verdict
           ? ({
-              "--field-tint": `${verdictMeta.color}18`,
+              "--field-tint": `${verdictMeta.color}14`,
               "--instrument-tint": instrumentTint,
             } as React.CSSProperties)
-          : undefined
+          : ({ ["--instrument-tint" as string]: "#22d3ee" } as React.CSSProperties)
       }
     >
-      {/* Pre-paint entrance gate — see entrance-shared.ts. Must be inside the
-          container and before the stages so the attribute lands before paint. */}
       <script dangerouslySetInnerHTML={{ __html: ENTRANCE_BOOT_SCRIPT }} />
       <EntranceConductor containerId="dash-root" />
 
-      <div className="mx-auto max-w-6xl px-5 py-8 sm:px-6 sm:py-10 lg:py-12">
-        {/* ── Greeting — compact, instrument owns the fold ── */}
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:py-10">
+        {/* ── Single fold instrument: greeting + score + next move ── */}
         <div className="dash-stage">
-          <div className="dash-section-kicker">
-            <span>Operate</span>
-          </div>
-          <h1 className="font-display text-[1.75rem] leading-tight tracking-tight text-light sm:text-4xl">
-            {greeting}, <span className="text-aurora">{name}</span>
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-dim sm:text-base">{subtitle}</p>
-        </div>
-
-        {/* ── Score instrument (new visual system) ── */}
-        <div className="dash-stage mt-6 sm:mt-8" style={{ "--stage-delay": "80ms" } as React.CSSProperties}>
           <div
             className="dash-instrument"
             style={{ ["--instrument-tint" as string]: instrumentTint }}
@@ -302,21 +289,28 @@ export default async function DashboardPage() {
             {latest && (
               <VerdictCelebrate assessmentId={latest.id} improved={improved} label={verdictMeta.label} />
             )}
-            <div className="dash-instrument-inner p-5 sm:p-8 lg:p-10">
+            <div className="dash-instrument-inner p-5 sm:p-7 lg:p-9">
+              <div className="dash-hero-meta">
+                <h1>
+                  {greeting}, <span className="text-aurora">{name}</span>
+                </h1>
+                <p>{subtitle}</p>
+              </div>
+
               {assessmentsFailed ? (
                 <LoadErrorPanel
                   title="Your readiness didn't load"
-                  body="Your assessments are safe — this is a loading hiccup on our side, not a change in your data."
+                  body="Your assessments are safe - this is a loading hiccup on our side, not a change in your data."
                 />
               ) : latest ? (
                 <>
-                  <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,200px)_1fr] lg:gap-12">
+                  <div className="grid items-center gap-7 lg:grid-cols-[minmax(0,188px)_1fr] lg:gap-10">
                     <div className="flex justify-center lg:justify-start">
-                      <ThresholdCompass size={188} verdict={verdict ?? undefined} />
+                      <ThresholdCompass size={176} verdict={verdict ?? undefined} />
                     </div>
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-[0.6875rem] font-bold uppercase tracking-[0.16em] text-dim">
+                        <p className="text-[0.625rem] font-bold uppercase tracking-[0.16em] text-dim">
                           HōMI-Score
                         </p>
                         {scoreDelta && (
@@ -327,15 +321,19 @@ export default async function DashboardPage() {
                           />
                         )}
                       </div>
-                      <div className="mt-2 flex flex-wrap items-end gap-4">
+                      <div className="mt-1.5 flex flex-wrap items-end gap-3 sm:gap-4">
                         <HeroScore value={scorePct} color={instrumentTint} />
-                        {verdict && <div className="mb-2"><VerdictBadge verdict={verdict} size="lg" /></div>}
+                        {verdict && (
+                          <div className="mb-1.5">
+                            <VerdictBadge verdict={verdict} size="lg" />
+                          </div>
+                        )}
                       </div>
-                      <p className="mt-3 max-w-xl text-sm leading-relaxed text-light/90 sm:text-base">
+                      <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-light/90">
                         {verdictMeta.line}
                       </p>
 
-                      <div className="mt-6 max-w-xl">
+                      <div className="mt-5 max-w-lg">
                         <div className="dash-spectrum">
                           <span
                             aria-hidden
@@ -346,7 +344,7 @@ export default async function DashboardPage() {
                             }}
                           />
                         </div>
-                        <div className="relative mt-2 h-4 text-[0.625rem] font-medium uppercase tracking-wide text-dim sm:text-[0.6875rem]">
+                        <div className="relative mt-2 h-4 text-[0.6rem] font-medium uppercase tracking-wide text-dim">
                           <span className="absolute -translate-x-1/2" style={{ left: "12%" }}>
                             Not yet
                           </span>
@@ -364,19 +362,16 @@ export default async function DashboardPage() {
 
                       {showNudge && (
                         <p className="mt-4 rounded-lg border border-amber/35 bg-verdict-build/90 px-4 py-2.5 text-sm text-light">
-                          It has been {since} days since your last assessment. Life changes — consider a retest.
+                          It has been {since} days since your last assessment. Life changes - consider a retest.
                         </p>
                       )}
                     </div>
                   </div>
 
-                  {/* Primary action dock — unmissable next step */}
-                  <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                  <div className="dash-action-dock">
                     <div className="min-w-0">
-                      <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-cyan">
-                        Next move
-                      </p>
-                      <p className="mt-1 text-sm text-light sm:text-base">
+                      <p className="dash-action-dock-label">Next move</p>
+                      <p className="dash-action-dock-title">
                         {showNudge
                           ? "Re-measure your readiness"
                           : nextMove
@@ -384,11 +379,11 @@ export default async function DashboardPage() {
                             : "Open your plan"}
                       </p>
                     </div>
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-wrap gap-2.5">
                       {showNudge ? (
                         <>
                           <Link href="/assessment" className="btn btn-primary">
-                            Retake full assessment
+                            Retake assessment
                           </Link>
                           {nextMove ? (
                             <Link href={nextMove.href} className="btn btn-ghost">
@@ -396,7 +391,7 @@ export default async function DashboardPage() {
                             </Link>
                           ) : (
                             <Link href="/plan" className="btn btn-ghost">
-                              View your plan
+                              View plan
                             </Link>
                           )}
                         </>
@@ -406,16 +401,16 @@ export default async function DashboardPage() {
                             {nextMove.cta}
                           </Link>
                           <Link href="/plan" className="btn btn-ghost">
-                            View your plan
+                            View plan
                           </Link>
                         </>
                       ) : (
                         <>
                           <Link href="/plan" className="btn btn-primary">
-                            View your plan
+                            View plan
                           </Link>
                           <Link href="/assessment" className="btn btn-ghost">
-                            Retake assessment
+                            Retake
                           </Link>
                         </>
                       )}
@@ -430,23 +425,19 @@ export default async function DashboardPage() {
         </div>
 
         {latest && dueSurvey && (
-          <div className="mt-6">
+          <div className="mt-5">
             <OutcomeSurveyPrompt surveyId={dueSurvey.id} kind={dueSurvey.kind} />
           </div>
         )}
 
-        {/* First-run: hero only — no zero pillars / instrument wall */}
         {latest && (
           <>
-            <div className="mt-6">
+            <div className="mt-5">
               <TrinityGapAlert pillars={pillarReadings} />
             </div>
 
-            {/* ── Metric rail (not equal glass KPI wall) ── */}
-            <div className="dash-stage mt-8" style={{ "--stage-delay": "140ms" } as React.CSSProperties}>
-              <div className="dash-section-kicker">
-                <span>At a glance</span>
-              </div>
+            {/* Metric strip - no kicker, sits under instrument */}
+            <div className="dash-stage mt-5" style={{ "--stage-delay": "100ms" } as React.CSSProperties}>
               <div className="dash-rail">
                 <div className="dash-rail-cell">
                   <p className="dash-rail-label">Verdict held</p>
@@ -478,7 +469,7 @@ export default async function DashboardPage() {
                   </p>
                   <p className="dash-rail-footer">
                     {checkinRows.length > 0
-                      ? `${checkinRows.length} in last 14 logged`
+                      ? `${checkinRows.length} in last 14`
                       : "Start a daily pulse"}
                   </p>
                 </div>
@@ -490,198 +481,199 @@ export default async function DashboardPage() {
               </div>
             </div>
 
-            {/* ── Pillars: focus first (wide), others quiet ── */}
-            <Reveal delay={80}>
-              <div className="mt-10">
-                <div className="dash-section-kicker">
-                  <span>Three pillars</span>
-                </div>
-                <h2 className="font-display text-2xl text-light sm:text-3xl">
-                  Softest lever first
-                </h2>
-                <p className="mt-2 max-w-2xl text-sm text-dim">
-                  Financial Reality · Emotional Truth · Perfect Timing — the weak ring owns the next move.
-                </p>
-                <div className="mt-6 grid gap-4 lg:grid-cols-12">
-                  {pillarReadings.map((pillar) => {
-                    const isFocus = weakest !== null && pillar.key === weakest.key;
-                    return (
-                      <div
-                        key={pillar.key}
-                        className={`glass relative overflow-hidden p-5 sm:p-6 ${
-                          isFocus
-                            ? "dash-pillar-focus lg:col-span-6"
-                            : "dash-pillar-quiet glass-hover lg:col-span-3"
-                        }`}
-                        style={{ ["--pillar-tint" as string]: pillar.color }}
-                      >
-                        <span
-                          aria-hidden
-                          className="absolute inset-x-0 top-0 h-0.5"
-                          style={{
-                            background: `linear-gradient(90deg, transparent, ${pillar.color}, transparent)`,
-                          }}
-                        />
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <h3 className="font-semibold text-light">{pillar.name}</h3>
-                            <p className="mt-1 text-xs text-dim">{pillar.question}</p>
-                          </div>
-                          {isFocus && (
-                            <span className="chip !border-cyan/40 !bg-cyan/10 !text-[0.6875rem] !text-cyan">
-                              Focus
-                            </span>
-                          )}
-                        </div>
-                        <div className={`mt-5 flex ${isFocus ? "justify-start sm:justify-center" : "justify-center"}`}>
-                          <PillarRing
-                            value={pillar.value}
-                            max={pillar.max}
-                            size={isFocus ? 140 : 108}
-                            color={pillar.color}
-                            sublabel={`of ${pillar.max}`}
-                          />
-                        </div>
-                        {isFocus && nextMove && (
-                          <div className="mt-5 border-t border-white/10 pt-4">
-                            <p className="text-[0.6875rem] font-bold uppercase tracking-[0.12em] text-cyan">
-                              Why this pillar
-                            </p>
-                            <p className="mt-2 text-sm leading-relaxed text-dim">{nextMove.body}</p>
-                            <div className="mt-4 flex flex-wrap gap-2">
-                              <Link
-                                href={nextMove.href}
-                                className="btn btn-primary !px-4 !py-2 text-sm"
-                              >
-                                {nextMove.cta}
-                              </Link>
-                              <Link
-                                href={nextMove.secondary.href}
-                                className="btn btn-ghost !px-4 !py-2 text-sm"
-                              >
-                                {nextMove.secondary.label}
-                              </Link>
+            {/* Body: pillars + history main, pulse/actions side */}
+            <div className="dash-body-grid mt-8">
+              <div className="min-w-0 space-y-8">
+                <Reveal delay={60}>
+                  <div>
+                    <div className="dash-section-head">
+                      <h2>Softest lever first</h2>
+                      <p>
+                        Financial Reality, Emotional Truth, Perfect Timing. The weak ring owns your next move.
+                      </p>
+                    </div>
+                    <div className="grid gap-3 lg:grid-cols-12">
+                      {pillarReadings.map((pillar) => {
+                        const isFocus = weakest !== null && pillar.key === weakest.key;
+                        return (
+                          <div
+                            key={pillar.key}
+                            className={`glass relative overflow-hidden p-4 sm:p-5 ${
+                              isFocus
+                                ? "dash-pillar-focus lg:col-span-6"
+                                : "dash-pillar-quiet glass-hover lg:col-span-3"
+                            }`}
+                            style={{ ["--pillar-tint" as string]: pillar.color }}
+                          >
+                            <span
+                              aria-hidden
+                              className="absolute inset-x-0 top-0 h-0.5"
+                              style={{
+                                background: `linear-gradient(90deg, transparent, ${pillar.color}, transparent)`,
+                              }}
+                            />
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <h3 className="text-sm font-semibold text-light sm:text-base">
+                                  {pillar.name}
+                                </h3>
+                                <p className="mt-0.5 text-xs text-dim">{pillar.question}</p>
+                              </div>
+                              {isFocus && (
+                                <span className="chip !border-cyan/40 !bg-cyan/10 !text-[0.625rem] !text-cyan">
+                                  Focus
+                                </span>
+                              )}
                             </div>
+                            <div
+                              className={`mt-4 flex ${isFocus ? "justify-start sm:justify-center" : "justify-center"}`}
+                            >
+                              <PillarRing
+                                value={pillar.value}
+                                max={pillar.max}
+                                size={isFocus ? 128 : 96}
+                                color={pillar.color}
+                                sublabel={`of ${pillar.max}`}
+                              />
+                            </div>
+                            {isFocus && nextMove && (
+                              <div className="mt-4 border-t border-white/10 pt-3">
+                                <p className="text-[0.625rem] font-bold uppercase tracking-[0.12em] text-cyan">
+                                  Why this pillar
+                                </p>
+                                <p className="mt-1.5 text-sm leading-relaxed text-dim">{nextMove.body}</p>
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                  <Link
+                                    href={nextMove.href}
+                                    className="btn btn-primary !px-3.5 !py-1.5 text-sm"
+                                  >
+                                    {nextMove.cta}
+                                  </Link>
+                                  <Link
+                                    href={nextMove.secondary.href}
+                                    className="btn btn-ghost !px-3.5 !py-1.5 text-sm"
+                                  >
+                                    {nextMove.secondary.label}
+                                  </Link>
+                                </div>
+                              </div>
+                            )}
                           </div>
-                        )}
+                        );
+                      })}
+                    </div>
+                  </div>
+                </Reveal>
+
+                <Reveal delay={80} className="block">
+                  <div className="glass p-5 sm:p-6">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="dash-section-head !mb-0">
+                        <h2>Score history</h2>
+                        <p>HōMI-Score over time, colored by verdict.</p>
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </Reveal>
+                      {scoreDelta && (
+                        <ScoreDeltaBadge
+                          current={scoreDelta.current}
+                          previous={scoreDelta.previous}
+                          previousDate={scoreDelta.previousDate}
+                        />
+                      )}
+                    </div>
+                    <div className="mt-5">
+                      {assessmentsFailed ? (
+                        <LoadErrorPanel
+                          compact
+                          title="History didn't load"
+                          body="Your score history is intact - retry in a moment."
+                        />
+                      ) : (
+                        <ScoreHistory points={historyPoints} />
+                      )}
+                    </div>
+                  </div>
+                </Reveal>
 
-            {/* ── Trajectory ── */}
-            <Reveal delay={80} className="mt-10 block">
-              <div className="dash-section-kicker">
-                <span>Trajectory</span>
-              </div>
-              <div className="glass p-6 sm:p-8">
-                <div className="flex flex-wrap items-start justify-between gap-3">
+                {genome && (
+                  <Reveal delay={100}>
+                    <GenomeWidget scores={genomeScoresMap(genome.scores)} />
+                  </Reveal>
+                )}
+
+                {user && (
                   <div>
-                    <h2 className="font-display text-xl text-light sm:text-2xl">Score history</h2>
-                    <p className="mt-1 text-sm text-dim">Your HōMI-Score over time, colored by verdict.</p>
+                    <Suspense fallback={<FinancialPositionSkeleton />}>
+                      <FinancialPositionSection
+                        userId={user.id}
+                        subscriptionTier={profile?.subscription_tier ?? null}
+                      />
+                    </Suspense>
                   </div>
-                  {scoreDelta && (
-                    <ScoreDeltaBadge
-                      current={scoreDelta.current}
-                      previous={scoreDelta.previous}
-                      previousDate={scoreDelta.previousDate}
-                    />
-                  )}
-                </div>
-                <div className="mt-6">
-                  {assessmentsFailed ? (
-                    <LoadErrorPanel
-                      compact
-                      title="History didn't load"
-                      body="Your score history is intact — retry in a moment."
-                    />
-                  ) : (
-                    <ScoreHistory points={historyPoints} />
-                  )}
-                </div>
-              </div>
-            </Reveal>
+                )}
 
-            {genome && (
-              <Reveal delay={120}>
-                <div className="mt-10">
-                  <div className="dash-section-kicker">
-                    <span>Genome</span>
-                  </div>
-                  <GenomeWidget scores={genomeScoresMap(genome.scores)} />
-                </div>
-              </Reveal>
-            )}
-
-            {user && (
-              <div className="mt-10">
-                <div className="dash-section-kicker">
-                  <span>Money</span>
-                </div>
-                <Suspense fallback={<FinancialPositionSkeleton />}>
-                  <FinancialPositionSection
-                    userId={user.id}
-                    subscriptionTier={profile?.subscription_tier ?? null}
+                <Reveal delay={80}>
+                  <DecisionTimeline
+                    assessments={assessmentRows}
+                    checkins={checkinRows}
+                    journalEntries={journalEntries}
                   />
-                </Suspense>
+                </Reveal>
               </div>
-            )}
 
-            <Reveal delay={80} className="mt-10 block">
-              <div className="dash-section-kicker">
-                <span>Cadence</span>
-              </div>
-              <div className="glass p-6 sm:p-8">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <h2 className="font-display text-xl text-light sm:text-2xl">Daily pulse</h2>
-                    <p className="mt-1 text-sm text-dim">Mood and stress from your last check-ins.</p>
+              <aside className="dash-side-stack" aria-label="Cadence">
+                <div className="dash-panel">
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <h3>Daily pulse</h3>
+                    <Link href="/daily" className="text-xs font-medium text-cyan hover:underline">
+                      Check in
+                    </Link>
                   </div>
-                  <Link href="/daily" className="btn btn-ghost !px-4 !py-2 text-sm">
-                    Check in today
-                  </Link>
-                </div>
-                <div className="mt-6">
                   {checkinsFailed ? (
                     <LoadErrorPanel
                       compact
                       title="Check-ins didn't load"
-                      body="Your check-in history is intact — retry in a moment."
+                      body="Retry in a moment."
                     />
                   ) : (
                     <DailyPulseStrip checkins={checkinRows} />
                   )}
                 </div>
-              </div>
-            </Reveal>
 
-            <Reveal delay={100}>
-              <div className="mt-10">
-                <div className="dash-section-kicker">
-                  <span>Timeline</span>
+                <div className="dash-panel">
+                  <h3 className="mb-1">Snapshot</h3>
+                  <div className="dash-side-metric">
+                    <span className="dash-side-metric-label">Held</span>
+                    <span className="dash-side-metric-value" style={{ color: instrumentTint }}>
+                      {heldDays !== null ? `${heldDays}d` : "—"}
+                    </span>
+                  </div>
+                  <div className="dash-side-metric">
+                    <span className="dash-side-metric-label">Strongest</span>
+                    <span className="dash-side-metric-value" style={{ color: strongest?.color }}>
+                      {strongest ? strongest.value : "—"}
+                    </span>
+                  </div>
+                  <div className="dash-side-metric">
+                    <span className="dash-side-metric-label">Pulse · 7d</span>
+                    <span className="dash-side-metric-value text-emerald">{checkinsThisWeek}/7</span>
+                  </div>
+                  <div className="dash-side-metric">
+                    <span className="dash-side-metric-label">Journal</span>
+                    <span className="dash-side-metric-value text-yellow">{journalCount}</span>
+                  </div>
                 </div>
-                <DecisionTimeline
-                  assessments={assessmentRows}
-                  checkins={checkinRows}
-                  journalEntries={journalEntries}
-                />
-              </div>
-            </Reveal>
+              </aside>
+            </div>
 
             <Reveal delay={80}>
-              <div className="mt-10 mb-4">
-                <div className="dash-section-kicker">
-                  <span>Instruments</span>
+              <div className="mt-10 mb-2">
+                <div className="dash-section-head">
+                  <h2>Quick actions</h2>
+                  {featured.length > 0 && (
+                    <p>The instruments that matter for your current state, first.</p>
+                  )}
                 </div>
-                <h2 className="font-display text-xl text-light sm:text-2xl">Quick actions</h2>
-                {featured.length > 0 && (
-                  <p className="mt-1 text-sm text-dim">The three that matter right now, first.</p>
-                )}
-                <div className="mt-5">
-                  <QuickActionGrid journalCount={journalCount} featured={featured} />
-                </div>
+                <QuickActionGrid journalCount={journalCount} featured={featured} />
               </div>
             </Reveal>
           </>
