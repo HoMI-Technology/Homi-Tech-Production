@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { ScoreRing } from "@/components/ui/ScoreRing";

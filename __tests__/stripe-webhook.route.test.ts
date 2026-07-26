@@ -19,22 +19,47 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
  */
 
 const sdkMocks = vi.hoisted(() => {
-  class FakeSignatureVerificationError extends Error {}
-  return { constructEvent: vi.fn(), listLineItems: vi.fn(), FakeSignatureVerificationError };
+  // Named class so `instanceof Stripe.errors.StripeSignatureVerificationError`
+  // works under Vitest 4 (anonymous Error subclasses can lose identity across
+  // mock re-evaluation boundaries).
+  class StripeSignatureVerificationError extends Error {
+    constructor(message?: string) {
+      super(message);
+      this.name = "StripeSignatureVerificationError";
+    }
+  }
+  return {
+    constructEvent: vi.fn(),
+    listLineItems: vi.fn(),
+    StripeSignatureVerificationError,
+  };
 });
-const { constructEvent, listLineItems, FakeSignatureVerificationError } = sdkMocks;
+const { constructEvent, listLineItems, StripeSignatureVerificationError: FakeSignatureVerificationError } =
+  sdkMocks;
 
-vi.mock("stripe", () => ({
-  default: Object.assign(
+vi.mock("stripe", () => {
+  const StripeMock = Object.assign(
     vi.fn().mockImplementation(() => ({
       webhooks: { constructEvent: sdkMocks.constructEvent },
       checkout: { sessions: { listLineItems: sdkMocks.listLineItems } },
     })),
     {
       createFetchHttpClient: vi.fn(),
-      errors: { StripeSignatureVerificationError: sdkMocks.FakeSignatureVerificationError },
+      errors: {
+        StripeSignatureVerificationError: sdkMocks.StripeSignatureVerificationError,
+      },
     },
-  ),
+  );
+  return { default: StripeMock, __esModule: true };
+});
+
+// Vitest 4: also mock the app factory so constructEvent is always the hoisted spy
+// (new Stripe() identity can diverge across mock re-evaluation).
+vi.mock("@/lib/stripe/server", () => ({
+  createStripeClient: () => ({
+    webhooks: { constructEvent: sdkMocks.constructEvent },
+    checkout: { sessions: { listLineItems: sdkMocks.listLineItems } },
+  }),
 }));
 
 const envState = vi.hoisted(() => ({

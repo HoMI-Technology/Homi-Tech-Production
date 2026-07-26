@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { CinematicCompass, Particles } from "./CinematicCompass";
 import { Compass3D } from "./Compass3D";

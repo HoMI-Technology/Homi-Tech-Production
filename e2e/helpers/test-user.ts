@@ -73,10 +73,58 @@ export async function deleteTestUser(userId: string): Promise<void> {
     // best effort
   }
   try {
+    await serviceClient().from("partner_codes").delete().eq("partner_user_id", userId);
+  } catch {
+    // best effort
+  }
+  try {
     await serviceClient().auth.admin.deleteUser(userId);
   } catch {
     // best effort
   }
+}
+
+/**
+ * Updates profiles.role for a throwaway E2E user (recovered from PR #81).
+ * Always pair with deleteTestUser in finally. Retries briefly because the
+ * on_auth_user_created trigger may lag the admin.createUser response.
+ */
+export async function setTestUserRole(
+  userId: string,
+  role: "user" | "admin" | "partner" | "employee",
+  extras: { employer_id?: string | null; organization_id?: string | null } = {},
+): Promise<void> {
+  const payload = {
+    role,
+    employer_id: extras.employer_id ?? null,
+    organization_id: extras.organization_id ?? null,
+  };
+  let lastError: string | null = null;
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const { data: existing } = await serviceClient()
+      .from("profiles")
+      .select("id")
+      .eq("id", userId)
+      .maybeSingle();
+    if (!existing) {
+      await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
+      continue;
+    }
+    const { error } = await serviceClient().from("profiles").update(payload).eq("id", userId);
+    if (!error) {
+      const { data: check } = await serviceClient()
+        .from("profiles")
+        .select("role")
+        .eq("id", userId)
+        .maybeSingle();
+      if (check?.role === role) return;
+      lastError = `role still ${check?.role ?? "null"} after update`;
+    } else {
+      lastError = error.message;
+    }
+    await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
+  }
+  throw new Error(`setTestUserRole failed: ${lastError ?? "profile missing"}`);
 }
 
 /**

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { ScrollProgress } from "./ScrollProgress";
 import { WelcomeBanner } from "./WelcomeBanner";
 import { KeyboardShortcutsProvider } from "./KeyboardShortcutsProvider";

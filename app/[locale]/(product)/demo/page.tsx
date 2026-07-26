@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { PILLARS, VERDICT_META } from "@/lib/brand";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";

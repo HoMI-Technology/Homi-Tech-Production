@@ -1,5 +1,6 @@
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { signInRedirect } from "@/lib/auth/signInRedirect";
 import { PILLARS, VERDICT_META, LEGAL_DISCLAIMER } from "@/lib/brand";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring";
 import { Wordmark } from "@/components/brand/Wordmark";
@@ -29,7 +30,7 @@ export default async function ReportPrintPage({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/sign-in");
+    return signInRedirect(`/report/${id}/print`);
   }
 
   const { entitlements } = await getUserEntitlements(supabase);

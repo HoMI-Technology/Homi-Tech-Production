@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { VERDICT_META, type VerdictKey } from "@/lib/brand";
 import { ShareViewPing } from "@/components/share/ShareViewPing";

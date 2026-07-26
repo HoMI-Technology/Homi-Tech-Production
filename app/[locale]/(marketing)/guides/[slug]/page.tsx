@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
 import { Reveal } from "@/components/ui/Reveal";
 import { GUIDES, getAllGuideSlugs, getGuide } from "@/components/marketing/guides-data";

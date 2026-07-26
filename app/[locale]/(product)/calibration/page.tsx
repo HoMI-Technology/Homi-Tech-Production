@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { StatTile } from "@/components/ui/StatTile";
