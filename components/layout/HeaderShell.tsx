@@ -91,21 +91,21 @@ export function HeaderShell({
       }`}
       style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
-      <div className="mx-auto flex h-[var(--nav-height)] max-w-6xl items-center justify-between px-6">
-        <Link href={logoHref} className="flex items-center gap-2" aria-label={logoAriaLabel}>
+      <div className="chrome-bar mx-auto flex h-[var(--nav-height)] max-w-7xl items-center gap-3 px-4 sm:gap-4 sm:px-6 lg:gap-6">
+        <Link href={logoHref} className="flex shrink-0 items-center gap-2" aria-label={logoAriaLabel}>
           <Wordmark size="text-2xl" />
         </Link>
 
-        <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary">
+        <nav className="hidden min-w-0 flex-1 items-center gap-0.5 lg:flex" aria-label="Primary">
           {nav}
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">{right}</div>
+        <div className="ml-auto hidden shrink-0 items-center gap-1.5 lg:flex">{right}</div>
 
         <button
           ref={toggleRef}
           type="button"
-          className="btn btn-ghost !p-2 lg:hidden"
+          className="btn btn-ghost ml-auto !p-2 lg:ml-0 lg:hidden"
           onClick={() => setOpen(!open)}
           aria-expanded={open}
           aria-controls={menuId}

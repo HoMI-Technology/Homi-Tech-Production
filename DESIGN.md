@@ -45,7 +45,8 @@ Never introduce Anthropic / Linear-beige / purple-SaaS palettes. Never apply the
 ### CHROME — `HeaderShell`, `SiteHeader`, `AppHeader`, `SiteFooter`
 
 - Dual shell is intentional: marketing vs signed-in product nav.
-- Header height token: `--nav-height` (72px) + safe-area.
+- Header height token: `--nav-height` (60px product density) + safe-area.
+- Product bar stays **one line**: short PRIMARY (Home / Assess / Tools / More), workspace **dropdown** (never multi-pill role switcher), icon search + kbd, bell, avatar.
 - Prefer content/IA fixes over rewriting mobile menu behavior.
 - Preserve: vertical scroll lock only, Escape + focus return, close on nav/desktop breakpoint.
 - Never `overflow-x: hidden` on `body` (breaks homepage sticky pin stages).

@@ -57,10 +57,12 @@ test.describe("signed-in shell navigation", () => {
 
       const switcher = page.getByRole("navigation", { name: "Dashboard switcher" });
       await expect(switcher).toBeVisible();
-      await expect(switcher.getByRole("link", { name: "Personal" })).toBeVisible();
-      await expect(switcher.getByRole("link", { name: "Partner" })).toBeVisible();
+      // Workspace is a single dropdown (not multi-pill) — open then pick Partner.
+      await switcher.getByRole("button", { name: /Workspace:/ }).click();
+      await expect(switcher.getByRole("menuitem", { name: "Personal" })).toBeVisible();
+      await expect(switcher.getByRole("menuitem", { name: "Partner" })).toBeVisible();
 
-      await switcher.getByRole("link", { name: "Partner" }).click();
+      await switcher.getByRole("menuitem", { name: "Partner" }).click();
       await expect(page).toHaveURL(/\/partner\/dashboard/);
       // Portal is a redirect to partner home (operate program D2).
       await page.goto("/partner/portal");
@@ -77,7 +79,8 @@ test.describe("signed-in shell navigation", () => {
       await signInViaUi(page, user.email, user.password);
       await page.reload();
       const switcher = page.getByRole("navigation", { name: "Dashboard switcher" });
-      await expect(switcher.getByRole("link", { name: "Employee" })).toBeVisible({
+      await switcher.getByRole("button", { name: /Workspace:/ }).click();
+      await expect(switcher.getByRole("menuitem", { name: "Employee" })).toBeVisible({
         timeout: 20_000,
       });
       await page.goto("/employee/dashboard");
