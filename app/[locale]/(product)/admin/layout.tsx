@@ -60,13 +60,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="field min-h-screen">
-      <div className="mx-auto flex max-w-7xl gap-8 px-6 py-10">
-        <aside className="hidden w-56 shrink-0 md:block">
+    <div className="field min-h-screen" data-operate-role="admin" data-density="compact">
+      <div className="mx-auto flex max-w-7xl gap-6 px-4 py-8 sm:gap-8 sm:px-6 sm:py-10">
+        <aside className="hidden w-52 shrink-0 md:block lg:w-56">
           <div className="sticky top-24">
-            <div className="mb-6 flex items-center gap-2 px-1">
+            <div className="mb-5 flex items-center gap-2 border-b border-white/[0.06] px-1 pb-4">
               <Wordmark size="text-lg" />
-              <span className="rounded-full bg-slate-surface px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-dim">
+              <span className="rounded-full border border-slate-high/40 bg-slate-surface/60 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-dim">
                 Admin
               </span>
             </div>

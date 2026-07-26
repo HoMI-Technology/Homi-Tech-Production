@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
+import { PageHeader } from "@/components/operate/PageHeader";
+import { MetricRail } from "@/components/operate/MetricRail";
 import type { AssessmentRow } from "@/types/database";
 import type { VerdictKey } from "@/lib/brand";
 
@@ -40,15 +42,51 @@ export default async function AdminAssessmentsPage() {
   }
 
   const completed = assessments.filter((a) => a.verdict !== null).length;
+  const scores = assessments
+    .map((a) => a.overall_score)
+    .filter((s): s is number => s != null);
+  const avg =
+    scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
+  const shadows = assessments.filter((a) => a.is_shadow).length;
 
   return (
     <div>
-      <p className="eyebrow">Signal</p>
-      <h1 className="mt-1 font-display text-2xl text-light md:text-3xl">Assessments</h1>
-      <p className="mt-1 text-sm text-dim">
-        Most recent 50 assessments across all users
-        {assessments.length > 0 ? ` · ${completed} completed` : ""}.
-      </p>
+      <PageHeader
+        eyebrow="Admin"
+        title="Assessments"
+        description="Most recent 50 assessments across all users."
+      />
+
+      <div className="mt-6">
+        <MetricRail
+          cells={[
+            {
+              label: "Shown",
+              value: String(assessments.length),
+              footer: "Latest window",
+              color: "#22d3ee",
+            },
+            {
+              label: "Completed",
+              value: String(completed),
+              footer: "With verdict",
+              color: "#34d399",
+            },
+            {
+              label: "Avg score",
+              value: avg !== null ? String(avg) : "—",
+              footer: "In window",
+              color: "#facc15",
+            },
+            {
+              label: "Shadow",
+              value: String(shadows),
+              footer: "Quick reads",
+              color: "#fab633",
+            },
+          ]}
+        />
+      </div>
 
       <div className="glass mt-6 overflow-x-auto">
         {assessments.length === 0 ? (

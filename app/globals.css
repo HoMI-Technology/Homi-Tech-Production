@@ -1314,6 +1314,10 @@ input[type="range"].homi-slider::-moz-range-track {
   .dash-rail {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+  /* 5-up rails (e.g. analytics) still read as one instrument strip */
+  .dash-rail:has(> :nth-child(5):last-child) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
 }
 .dash-rail-cell {
   background: rgba(15, 23, 42, 0.94);

@@ -197,11 +197,46 @@ export default async function EmployeeDashboardPage() {
         />
       </div>
 
+      {latest && (
+        <div className="mt-5">
+          <div className="dash-section-head">
+            <h2>Three pillars</h2>
+            <p>Private to you. Your employer never sees these numbers by name.</p>
+          </div>
+          <div className="dash-rail">
+            <div className="dash-rail-cell">
+              <p className="dash-rail-label">Financial</p>
+              <p className="dash-rail-value" style={{ color: "#22d3ee" }}>
+                {latest.financial_score != null ? Math.round(latest.financial_score) : "—"}
+              </p>
+              <p className="dash-rail-footer">Reality</p>
+            </div>
+            <div className="dash-rail-cell">
+              <p className="dash-rail-label">Emotional</p>
+              <p className="dash-rail-value" style={{ color: "#34d399" }}>
+                {latest.emotional_score != null ? Math.round(latest.emotional_score) : "—"}
+              </p>
+              <p className="dash-rail-footer">Truth</p>
+            </div>
+            <div className="dash-rail-cell">
+              <p className="dash-rail-label">Timing</p>
+              <p className="dash-rail-value" style={{ color: "#facc15" }}>
+                {latest.timing_score != null ? Math.round(latest.timing_score) : "—"}
+              </p>
+              <p className="dash-rail-footer">Perfect window</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
         {[
           { href: "/assessment", title: "Assessment", body: "Three-pillar readiness read" },
           { href: "/tools", title: "Tools", body: "Calculators for money decisions" },
           { href: "/advisor", title: "Companion", body: "Private coaching chat" },
+          { href: "/journal", title: "Journal", body: "Log decisions as you make them" },
+          { href: "/daily", title: "Daily pulse", body: "Mood and stress check-in" },
+          { href: "/plan", title: "Plan", body: "Personalized next steps" },
         ].map((card) => (
           <Link
             key={card.href}

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { RoleBadge, TierBadge } from "@/components/admin/Badge";
+import { PageHeader } from "@/components/operate/PageHeader";
+import { MetricRail } from "@/components/operate/MetricRail";
 import type { Profile } from "@/types/database";
 
 export const metadata: Metadata = {
@@ -32,15 +34,47 @@ export default async function AdminUsersPage() {
   }
 
   const paid = users.filter((u) => u.subscription_tier && u.subscription_tier !== "free").length;
+  const admins = users.filter((u) => u.role === "admin").length;
+  const partners = users.filter((u) => u.role === "partner").length;
 
   return (
     <div>
-      <p className="eyebrow">Directory</p>
-      <h1 className="mt-1 font-display text-2xl text-light md:text-3xl">Users</h1>
-      <p className="mt-1 text-sm text-dim">
-        Read-only directory. {users.length.toLocaleString()} shown
-        {paid > 0 ? ` · ${paid.toLocaleString()} on paid tiers` : ""}.
-      </p>
+      <PageHeader
+        eyebrow="Admin"
+        title="Users"
+        description="Read-only directory of accounts."
+      />
+
+      <div className="mt-6">
+        <MetricRail
+          cells={[
+            {
+              label: "Shown",
+              value: users.length.toLocaleString(),
+              footer: "Latest 200",
+              color: "#22d3ee",
+            },
+            {
+              label: "Paid",
+              value: paid.toLocaleString(),
+              footer: "Non-free tiers",
+              color: "#facc15",
+            },
+            {
+              label: "Partners",
+              value: partners.toLocaleString(),
+              footer: "Role = partner",
+              color: "#34d399",
+            },
+            {
+              label: "Admins",
+              value: admins.toLocaleString(),
+              footer: "Role = admin",
+              color: "#fab633",
+            },
+          ]}
+        />
+      </div>
 
       <div className="glass mt-6 overflow-x-auto">
         {users.length === 0 ? (
