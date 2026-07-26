@@ -7,13 +7,12 @@ import { CinematicCompass, Particles } from "./CinematicCompass";
 import { track } from "@/lib/analytics";
 
 /**
- * InterviewHero — the hero is a 3-question cinematic interview held in a
- * dark room. The compass ignites one ring per answer; at the end, a
- * temperature verdict (not a score) points the reader either to the
- * full assessment or lets them keep exploring.
+ * InterviewHero — landing hook (PERSUADE).
+ * Redesign-preserve under DESIGN.md: navy/cyan/Fraunces brand lock, compass
+ * instrument, 3-signal interview. Taste pass: fit the fold, asymmetric split
+ * at lg+, no decorative kicker dots, one clear primary path, quieter chrome.
  *
- * SEO/AT: the h1 is in the DOM from first paint (low opacity, not
- * display:none) so it is always crawlable and announced.
+ * SEO/AT: h1 is in the DOM from first paint at full contrast.
  */
 
 export const HERO_VARIANT: "interview" | "film" = "interview";
@@ -48,7 +47,6 @@ function computeTemperature(s: { financial: Signal; emotional: Signal; timing: S
   else if (sum >= 3) temp = "WARM_PLUS";
   else temp = "HOT";
 
-  // Caps: a 0 anywhere caps at WARM_PLUS; a 1 anywhere (no 0) caps at WARM.
   const rank: Record<Temperature, number> = { HOT: 0, WARM_PLUS: 1, WARM: 2, COOL: 3 };
   if (hasZero && rank[temp] > rank.WARM_PLUS) temp = "WARM_PLUS";
   else if (hasOne && rank[temp] > rank.WARM) temp = "WARM";
@@ -68,7 +66,6 @@ interface Question {
   chips: { label: string; value: Signal }[];
 }
 
-/** Static per-question config; prompt/announce/chip labels come from messages. */
 const QUESTION_META: { id: Question["id"]; ringColor: string; event: string }[] = [
   { id: "financial", ringColor: "#22d3ee", event: "hero_q1_answered" },
   { id: "emotional", ringColor: "#34d399", event: "hero_q2_answered" },
@@ -103,7 +100,6 @@ export function InterviewHero() {
 
     const done = sessionStorage.getItem(SESSION_DONE_KEY) === "1";
     if (done || reduced) {
-      // Try to restore prior answers for a fully-lit settled state.
       try {
         const raw = sessionStorage.getItem(SESSION_SIGNALS_KEY);
         if (raw) {
@@ -158,7 +154,7 @@ export function InterviewHero() {
             financial: next.financial,
             emotional: next.emotional,
             timing: next.timing,
-          })
+          }),
         );
       } catch {
         // ignore
@@ -169,8 +165,10 @@ export function InterviewHero() {
     track(question.event);
   }
 
-  // Which question is "active" (first unanswered).
   const activeQuestion = questions.find((q) => signals[q.id] === null) ?? null;
+  const activeIndex = activeQuestion
+    ? questions.findIndex((q) => q.id === activeQuestion.id)
+    : questions.length - 1;
 
   const ignited = {
     financial: signals.financial !== null,
@@ -184,152 +182,173 @@ export function InterviewHero() {
     inner: ignited.timing ? 1.2 : 0.06,
   };
 
-  // Headline stays at full contrast from first paint (WCAG AA). The interview
-  // reveal is carried by ring ignition + question cards, not by dimming the h1.
   const floorPoolOpacity = 0.08 + answeredCount * 0.09;
-
   const showQuestions = !settled;
 
   function handleCtaClick() {
     track("hero_cta_click");
   }
 
+  // reducedMotion is read so returning visitors with PRM still hydrate settled state;
+  // compass motion is already gated inside child components / CSS.
+  void reducedMotion;
+
   return (
-    <section className="hero-deep hero-field relative flex min-h-[96vh] flex-col items-center overflow-hidden px-6 pb-16 pt-28">
+    <section className="hero-deep hero-field relative flex min-h-[100dvh] flex-col justify-center overflow-hidden px-5 pb-12 pt-20 sm:px-6 sm:pb-14 sm:pt-20 lg:pt-24">
       <Particles />
       <div className="aurora-band" aria-hidden />
 
-      {/* Announcer for ring ignitions */}
       <div className="sr-only" role="status" aria-live="polite">
         {announcement}
       </div>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center text-center">
-        {/* Kicker chip */}
-        <span className="inline-flex items-center gap-2 rounded-full border border-cyan/30 bg-cyan/5 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.25em] text-cyan">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-cyan" style={{ boxShadow: "0 0 8px #22d3ee" }} />
-          {t("kicker")}
-        </span>
-
-        {/* Compass + floor pool + reflection */}
-        <div className="relative mt-10 flex w-full flex-col items-center">
-          <div
-            aria-hidden
-            className="horizon"
-            style={{ width: "70%", height: "70%", left: "15%", top: "10%" }}
-          />
-          <div className="compass-float relative w-[220px] sm:w-[300px]">
-            <CinematicCompass responsive glow={glow} materialized keyholePulse={answeredCount > 0} />
-          </div>
-
-          {/* Floor pool */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute left-1/2 top-[78%] h-24 w-[260px] -translate-x-1/2 rounded-[50%] sm:w-[340px]"
-            style={{
-              background: "radial-gradient(ellipse at center, rgba(34,211,238,0.35), rgba(52,211,153,0.15) 45%, transparent 75%)",
-              opacity: floorPoolOpacity,
-              transition: "opacity 900ms ease",
-              filter: "blur(6px)",
-            }}
-          />
-
-          {/* Reflection — blurred, flipped, low-opacity copy of the compass */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute left-1/2 top-full w-[220px] -translate-x-1/2 sm:w-[300px]"
-            style={{
-              transform: "scaleY(-1)",
-              opacity: 0.16,
-              filter: "blur(3px)",
-              maskImage: "linear-gradient(to bottom, black, transparent 70%)",
-              WebkitMaskImage: "linear-gradient(to bottom, black, transparent 70%)",
-            }}
-          >
-            <CinematicCompass responsive glow={glow} materialized />
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:text-left">
+        {/* Instrument — mobile first (visual anchor), desktop right */}
+        <div className="order-1 flex justify-center lg:order-2 lg:justify-end">
+          <div className="relative flex w-full max-w-[320px] flex-col items-center sm:max-w-[380px]">
+            <div
+              aria-hidden
+              className="horizon"
+              style={{ width: "78%", height: "78%", left: "11%", top: "6%" }}
+            />
+            <div className="compass-float relative w-[200px] sm:w-[280px] lg:w-[320px]">
+              <CinematicCompass responsive glow={glow} materialized keyholePulse={answeredCount > 0} />
+            </div>
+            <div
+              aria-hidden
+              className="pointer-events-none absolute left-1/2 top-[72%] h-20 w-[220px] -translate-x-1/2 rounded-[50%] sm:w-[300px]"
+              style={{
+                background:
+                  "radial-gradient(ellipse at center, rgba(34,211,238,0.32), rgba(52,211,153,0.12) 45%, transparent 75%)",
+                opacity: floorPoolOpacity,
+                transition: "opacity 900ms ease",
+                filter: "blur(6px)",
+              }}
+            />
           </div>
         </div>
 
-        {/* h1 — always in the DOM at full contrast (never opacity-dimmed) */}
-        <h1
-          className="type-giant relative z-10 mt-12 font-display font-semibold text-light"
-          style={{ whiteSpace: "normal" }}
-        >
-          {t("h1")}
-        </h1>
+        {/* Thesis + interview */}
+        <div className="order-2 flex flex-col items-center text-center lg:order-1 lg:items-start lg:text-left">
+          <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-cyan/90">
+            {t("kicker")}
+          </p>
 
-        <p className="mt-4 max-w-md text-base text-dim sm:text-lg">
-          {t("sub")}
-        </p>
+          <h1
+            className="mt-4 max-w-[14ch] font-display text-[clamp(2.1rem,5.2vw,3.75rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-light sm:max-w-none"
+            style={{ textWrap: "balance" }}
+          >
+            {t("h1")}
+          </h1>
 
-        {/* Question card area — fixed min-height to avoid CLS. Rendered
-            server-side AND visible from first paint (it is the LCP-adjacent
-            content; hiding it until hydration blew the §11 LCP budget).
-            The settled state (once hydrated) swaps it out for returning
-            visitors — a brief question flash for them beats an invisible
-            hero for every first-time visitor. */}
-        <div className="relative mt-10 flex min-h-[220px] w-full max-w-xl flex-col items-center justify-center">
-          {!(hydrated && settled) && showQuestions && activeQuestion && (
-            <div key={activeQuestion.id} className="w-full">
-              <p className="font-display text-xl leading-snug text-light sm:text-2xl">
-                {activeQuestion.prompt}
-              </p>
-              <div
-                role="group"
-                aria-label={activeQuestion.prompt}
-                className="mt-6 flex flex-wrap items-center justify-center gap-3"
-              >
-                {activeQuestion.chips.map((chip) => (
-                  <button
-                    key={chip.label}
-                    type="button"
-                    onClick={() => answer(activeQuestion, chip.value)}
-                    className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-slate-high/60 bg-navy-light/60 px-5 text-sm font-medium text-light transition-colors hover:border-cyan/60 hover:text-cyan"
-                  >
-                    {chip.label}
-                  </button>
-                ))}
-              </div>
-              <p className="mt-5 text-xs text-dim/70">{t("note")}</p>
-            </div>
+          <p className="mt-3 max-w-[36ch] text-[0.9375rem] leading-relaxed text-dim sm:text-base lg:max-w-md">
+            {t("sub")}
+          </p>
+
+          {/* Semantic progress: which of 3 signals is active */}
+          {showQuestions && !(hydrated && settled) && (
+            <ol
+              className="mt-6 flex items-center gap-2"
+              aria-label={`Signal ${Math.min(activeIndex + 1, 3)} of 3`}
+            >
+              {questions.map((q, i) => {
+                const done = signals[q.id] !== null;
+                const active = activeQuestion?.id === q.id;
+                return (
+                  <li key={q.id}>
+                    <span
+                      className="block h-1.5 rounded-full transition-all duration-300"
+                      style={{
+                        width: active ? "1.75rem" : "0.75rem",
+                        background: done || active ? q.ringColor : "rgba(148,163,184,0.28)",
+                        opacity: done || active ? 1 : 0.7,
+                      }}
+                      aria-current={active ? "step" : undefined}
+                    />
+                  </li>
+                );
+              })}
+            </ol>
           )}
 
-          {hydrated && (settled || allAnswered) && temperature && (
-            <div className="stage-item is-on flex w-full flex-col items-center">
-              <span
-                className="inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-bold uppercase tracking-widest"
-                style={{
-                  color: TEMPERATURE_META[temperature].color,
-                  borderColor: `${TEMPERATURE_META[temperature].color}55`,
-                  background: `${TEMPERATURE_META[temperature].color}12`,
-                }}
-              >
-                <span
-                  className="inline-block h-2 w-2 rounded-full"
-                  style={{ background: TEMPERATURE_META[temperature].color, boxShadow: `0 0 8px ${TEMPERATURE_META[temperature].color}` }}
-                />
-                {t(`temps.${TEMPERATURE_META[temperature].messageKey}.label`)}
-              </span>
-              <p className="mt-4 max-w-md text-base leading-relaxed text-light sm:text-lg">
-                {t(`temps.${TEMPERATURE_META[temperature].messageKey}.copy`)}
-              </p>
-              <div className="mt-7 flex flex-col items-center gap-4">
-                <Link
-                  href="/shadow-score"
-                  className="btn btn-primary btn-glow px-9 py-4 text-base"
-                  onClick={handleCtaClick}
+          <div className="relative mt-6 flex min-h-[200px] w-full max-w-xl flex-col items-center justify-center lg:items-start">
+            {!(hydrated && settled) && showQuestions && activeQuestion && (
+              <div key={activeQuestion.id} className="w-full">
+                <p className="font-display text-lg leading-snug text-light sm:text-xl lg:text-[1.35rem]">
+                  {activeQuestion.prompt}
+                </p>
+                <div
+                  role="group"
+                  aria-label={activeQuestion.prompt}
+                  className="mt-5 flex flex-wrap items-center justify-center gap-2.5 lg:justify-start"
                 >
-                  {t("cta")}
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                    <path d="M2 8h11m0 0L9 4m4 4l-4 4" />
-                  </svg>
-                </Link>
-                <a href="#statement" className="text-sm text-dim underline-offset-4 hover:text-light hover:underline">
-                  {t("exploring")}
-                </a>
+                  {activeQuestion.chips.map((chip) => (
+                    <button
+                      key={chip.label}
+                      type="button"
+                      onClick={() => answer(activeQuestion, chip.value)}
+                      className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-slate-high/50 bg-navy-light/70 px-4 py-2 text-sm font-medium text-light transition-[border-color,background-color,color,transform] duration-150 hover:border-cyan/55 hover:bg-slate-surface/60 hover:text-cyan active:scale-[0.98]"
+                    >
+                      {chip.label}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-4 text-xs text-dim/75">{t("note")}</p>
               </div>
-            </div>
-          )}
+            )}
+
+            {hydrated && (settled || allAnswered) && temperature && (
+              <div className="stage-item is-on flex w-full flex-col items-center lg:items-start">
+                <span
+                  className="inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[0.6875rem] font-bold uppercase tracking-[0.12em]"
+                  style={{
+                    color: TEMPERATURE_META[temperature].color,
+                    borderColor: `${TEMPERATURE_META[temperature].color}55`,
+                    background: `${TEMPERATURE_META[temperature].color}12`,
+                  }}
+                >
+                  <span
+                    className="inline-block h-1.5 w-1.5 rounded-full"
+                    style={{
+                      background: TEMPERATURE_META[temperature].color,
+                      boxShadow: `0 0 8px ${TEMPERATURE_META[temperature].color}`,
+                    }}
+                    aria-hidden
+                  />
+                  {t(`temps.${TEMPERATURE_META[temperature].messageKey}.label`)}
+                </span>
+                <p className="mt-3 max-w-md text-sm leading-relaxed text-light/95 sm:text-base">
+                  {t(`temps.${TEMPERATURE_META[temperature].messageKey}.copy`)}
+                </p>
+                <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row lg:justify-start">
+                  <Link
+                    href="/shadow-score"
+                    className="btn btn-primary btn-glow px-8 py-3.5 text-base"
+                    onClick={handleCtaClick}
+                  >
+                    {t("cta")}
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      aria-hidden
+                    >
+                      <path d="M2 8h11m0 0L9 4m4 4l-4 4" />
+                    </svg>
+                  </Link>
+                  <a
+                    href="#statement"
+                    className="text-sm text-dim underline-offset-4 transition-colors hover:text-light hover:underline"
+                  >
+                    {t("exploring")}
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </section>
