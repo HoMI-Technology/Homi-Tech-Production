@@ -1,6 +1,6 @@
 # HōMI Decision Lab — Tools Redesign
 
-**Status:** Phase 1 shipped on this branch. Phases 2–5 designed below, not yet built.
+**Status:** Phase 1 complete on `feature/decision-lab-phase-1` — all 14 lenses refactored. Phases 2–5 designed below, not yet built.
 
 The 14 calculators stop being isolated pages and become **lenses** on one shared,
 source-labeled model of the user's financial reality — with the HōMI Companion as
@@ -51,7 +51,9 @@ are never presented as the user's numbers.
 ### Lens Registry (`lib/tools/registry.ts`)
 
 One `LensDefinition` drives four things: the hub, CFM prefill
-(`inputs[].cfmPath`), decision chains, and (Phase 3) the Companion's lens digest.
+(`inputs[].cfmPath` / `inputs[].derive` for computed seeds like annual income),
+decision chains, and (Phase 3) the Companion's lens digest. `resolveLensSeeds()`
+is the pure resolver: CFM → clamped slider seeds, missing data never seeds.
 Lenses are grouped by Threshold Compass ring — **Financial Reality** (cyan),
 **Stability** (emerald), **Perfect Timing** (yellow) — plus Readiness.
 
@@ -62,30 +64,41 @@ obligation against saved finance state (runway + DTI, before/after,
 temperature-banded). The Companion will receive these precomputed in Phase 3 and
 read them — never recompute them (canon: AI explains, code calculates).
 
-### Shared components
+### Shared components & hooks
 
 - `SavedNumbersStrip` — "built on your numbers, N days old" or the honest
   illustrative state with a path to `/finance`.
-- `LensField` — slider input; CFM-seeded values render a "your numbers" tag.
+- `LensField` / `CalcField` — slider inputs; CFM-seeded values render a
+  "your numbers" tag, fallbacks get nothing.
 - `DeltasCard` — precomputed deltas; card accent follows the WORST temperature
   so a bad trade is never visually buried (radical honesty).
 - `ChainLinks` — registry-driven next-lens hand-offs; routes never fabricated.
+- `UpdateNumbersButton` — the explicit, always-labeled overlay write-back.
+- `useCfm` / `useLensPrefill` — mount-only hydration; never fights live edits.
 
 ---
 
 ## Phases
 
-### Phase 1 — CFM + registry + reference lens (this branch)
-- [x] CFM, deltas engine, registry, shared components, `useCfm` hook
-- [x] Mortgage page refactored as the reference implementation
+### Phase 1 — CFM + registry + all lenses (this branch) ✅
+- [x] CFM, deltas engine, registry with full input contracts, shared
+      components, `useCfm` / `useLensPrefill` hooks
+- [x] All 14 lenses refactored onto the pattern (mortgage = reference)
 - [x] Hub rendered from the registry (hardcoded GROUPS deleted)
-- [ ] Remaining 13 lenses adopt the same pattern (mechanical, per-lens input
-      specs move into the registry as each is refactored — Monte Carlo last;
-      its async compute needs the digest deferred until simulation completes)
+- [x] DeltasCards on mortgage + affordability (housing obligations);
+      refinance/heloc deltas deferred — a replacement payment needs a
+      different delta shape than a new obligation (Phase 2 design note)
+- [x] 30+ test cases across cfm / deltas / registry suites
 
-### Phase 2 — Chains everywhere
-ChainLinks on every lens result panel; chain follow-through instrumented
-(PostHog: `lens_prefilled`, `lens_delta_viewed`, `chain_followed`).
+Known follow-ups:
+- debt-payoff: itemized-debt CFM mapping (FinanceState.liabilities → debt
+  rows) is a Phase 2 candidate
+- mortgage page uses its own inline prefill (reference implementation);
+  could adopt `useLensPrefill` for uniformity in a cleanup pass
+
+### Phase 2 — Chains everywhere + instrumentation
+PostHog events: `lens_prefilled`, `lens_delta_viewed`, `chain_followed`,
+`numbers_writeback`. Success: chain follow-through >15%.
 
 ### Phase 3 — Companion lens digest + synthesis
 One compact block added to `buildCompanionContext()` only when the user is on a
@@ -116,8 +129,10 @@ milestone voice test: bands never expose formula internals.
 
 - All math deterministic (`lib/tools/*.ts`, `lib/finance/store.ts`); AI never
   calculates.
-- Missing data is a first-class signal (`missing` source, `cfmCoverage`).
-- Write-back is explicit and never touches assessment inputs.
+- Missing data is a first-class signal (`missing` source, `cfmCoverage`,
+  seeds never come from missing data — registry tests enforce this).
+- Write-back is explicit and never touches assessment inputs or
+  finance-dashboard fields.
 - Educational-only disclaimers retained on every lens.
 - No fake metrics: illustrative defaults are visually distinct from user data.
 - SSR-safe storage access; mount-only hydration (no live-edit fights, no
