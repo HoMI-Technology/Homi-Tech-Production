@@ -371,7 +371,7 @@ export default async function AdminOverviewPage() {
         {recentSignups.length === 0 ? (
           <p className="mt-4 py-6 text-center text-sm text-dim">No signups yet.</p>
         ) : (
-          <div className="mt-3 overflow-x-auto">
+          <div className="mt-3 table-scroll">
             <table className="table-premium min-w-[480px]">
               <thead>
                 <tr>

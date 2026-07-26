@@ -99,17 +99,21 @@ async function handleNavigation(event) {
 async function handleAsset(event) {
   const cached = await caches.match(event.request);
   if (cached) return cached;
-  const response = await fetch(event.request);
-  if (response.ok) {
-    const copy = response.clone();
-    event.waitUntil(
-      caches
-        .open(CACHE_VERSION)
-        .then((cache) => cache.put(event.request, copy))
-        .then(trimCache),
-    );
+  try {
+    const response = await fetch(event.request);
+    if (response.ok) {
+      const copy = response.clone();
+      event.waitUntil(
+        caches
+          .open(CACHE_VERSION)
+          .then((cache) => cache.put(event.request, copy))
+          .then(trimCache),
+      );
+    }
+    return response;
+  } catch {
+    return Response.error();
   }
-  return response;
 }
 
 self.addEventListener("fetch", (event) => {
@@ -118,7 +122,14 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
-  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/auth/")) return;
+  // Never intercept API/auth (incl. locale-prefixed /es/auth/*).
+  if (
+    url.pathname.startsWith("/api/") ||
+    url.pathname.startsWith("/auth/") ||
+    /^\/[a-z]{2}\/auth\//.test(url.pathname)
+  ) {
+    return;
+  }
 
   if (request.mode === "navigate") {
     event.respondWith(handleNavigation(event));

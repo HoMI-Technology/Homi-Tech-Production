@@ -3,11 +3,11 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { signInRedirect } from "@/lib/auth/signInRedirect";
 import { AccessPanel } from "@/components/b2b/AccessPanel";
-import { CopyButton } from "@/components/b2b/CopyButton";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageFrame } from "@/components/operate/PageFrame";
 import { MetricRail } from "@/components/operate/MetricRail";
+import { InviteShareRow } from "@/components/operate/InviteShareRow";
 import {
   ActionDock,
   OperateHeroMeta,
@@ -231,12 +231,7 @@ export default async function PartnerDashboardPage() {
           title={hasBook ? "Share your invite link" : "Share your link to open the book"}
         >
           {inviteUrl ? (
-            <>
-              <code className="max-w-full truncate rounded-lg border border-slate-surface bg-navy-light px-3 py-2 font-mono text-xs text-cyan sm:max-w-md">
-                {inviteUrl}
-              </code>
-              <CopyButton value={inviteUrl} label="Copy invite link" />
-            </>
+            <InviteShareRow url={inviteUrl} />
           ) : (
             <p className="text-sm text-dim">Could not mint an invite code. Refresh or contact support.</p>
           )}
@@ -276,7 +271,7 @@ export default async function PartnerDashboardPage() {
               <h2>Recent readiness</h2>
               <p>Roster names only when linked. Never emails.</p>
             </div>
-            <div className="overflow-x-auto">
+            <div className="table-scroll">
               <table className="table-premium min-w-[520px]">
                 <thead>
                   <tr>

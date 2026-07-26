@@ -97,7 +97,7 @@ export default async function AdminOrganizationsPage() {
             No organizations yet. Employer and partner accounts will appear here once created.
           </p>
         ) : (
-          <div className="mt-3 overflow-x-auto">
+          <div className="mt-3 table-scroll">
             <table className="table-premium min-w-[720px]">
               <thead>
                 <tr>

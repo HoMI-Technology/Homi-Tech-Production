@@ -117,7 +117,7 @@ export default async function AdminEmailPage() {
             <CampaignComposer />
           </div>
 
-          <div className="glass mt-6 overflow-x-auto">
+          <div className="glass mt-6 table-scroll">
             {campaigns.length === 0 ? (
               <p className="p-10 text-center text-sm text-dim">No campaigns yet.</p>
             ) : (

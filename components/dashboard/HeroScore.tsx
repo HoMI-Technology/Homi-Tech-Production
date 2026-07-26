@@ -24,7 +24,7 @@ export function HeroScore({ value, color }: { value: number; color: string }) {
 
   return (
     <span
-      className="score-numeral relative inline-block text-6xl font-bold text-light"
+      className="score-numeral relative inline-block text-5xl font-bold text-light sm:text-6xl"
       style={{ textShadow: `0 0 44px ${color}55` }}
     >
       {/* Sizing ghost — reserves the final width so counting never shifts layout. */}
