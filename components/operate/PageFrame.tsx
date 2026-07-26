@@ -26,8 +26,8 @@ export function PageFrame({
       ? "max-w-7xl"
       : width === "narrow"
         ? "max-w-3xl"
-        : "max-w-6xl";
-  const py = density === "compact" ? "py-8 sm:py-10" : "py-10 sm:py-12";
+        : "max-w-7xl";
+  const py = density === "compact" ? "py-6 sm:py-8" : "py-8 sm:py-10";
 
   return (
     <div
@@ -35,7 +35,7 @@ export function PageFrame({
       data-operate-role={role}
       data-density={density}
     >
-      <div className={`mx-auto ${max} px-6 ${py}`}>{children}</div>
+      <div className={`mx-auto ${max} px-4 sm:px-6 ${py}`}>{children}</div>
     </div>
   );
 }

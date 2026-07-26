@@ -91,50 +91,52 @@ export default async function MarketingHomePage({
         <AlignmentScene />
       </div>
 
-      {/* ── 3 · The outdated score ──────────────────────────────── */}
+      {/* ── 3 · The outdated score (taste: no kicker, less glass shout) ── */}
       <Reveal>
-        <section className="px-6 py-24">
+        <section className="px-6 py-20 sm:py-24">
           <div className="mx-auto max-w-5xl">
-            <Kicker>{t("score.kicker")}</Kicker>
-            <h2 className="mx-auto mt-5 max-w-2xl text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
+            <h2 className="mx-auto max-w-2xl text-center font-display text-3xl font-semibold leading-tight tracking-tight text-light sm:text-5xl">
               {t("score.title")}
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-center text-lg text-dim">
+            <p className="mx-auto mt-4 max-w-xl text-center text-base text-dim sm:text-lg">
               {t("score.sub")}
             </p>
 
-            <div className="glass mx-auto mt-10 max-w-2xl p-8" style={{ borderColor: "rgba(34,211,238,0.25)" }}>
-              <blockquote className="font-display text-2xl leading-relaxed text-light">
-                {t("score.quote")}
-              </blockquote>
-            </div>
+            <blockquote className="mx-auto mt-10 max-w-2xl border-l-2 border-cyan/50 pl-5 font-display text-xl leading-relaxed text-light sm:text-2xl">
+              {t("score.quote")}
+            </blockquote>
 
-            <div className="mt-14 grid gap-6 md:grid-cols-2">
-              <div className="tilt-3d sweep rounded-2xl border border-slate-high/50 bg-navy-light/60 p-8">
-                <p className="text-sm font-semibold uppercase tracking-widest text-dim">
+            <div className="mt-12 grid gap-4 md:grid-cols-2 md:gap-6">
+              <div className="rounded-2xl border border-slate-high/40 bg-navy-light/50 p-6 sm:p-8">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-dim">
                   {t("score.leftTitle")}
                 </p>
-                <ul className="mt-6 space-y-3.5 text-[15px] text-dim">
+                <ul className="mt-5 space-y-3 text-[15px] text-dim">
                   {scoreLeft.map((item) => (
-                    <li key={item} className="flex items-center gap-3"><Dash /> {item}</li>
+                    <li key={item} className="flex items-start gap-3">
+                      <Dash /> <span>{item}</span>
+                    </li>
                   ))}
                 </ul>
               </div>
-              <div className="glass tilt-3d sweep p-8" style={{ borderColor: "rgba(34,211,238,0.3)" }}>
-                <p className="text-sm font-semibold uppercase tracking-widest text-cyan">
+              <div
+                className="rounded-2xl border border-cyan/25 bg-cyan/[0.04] p-6 sm:p-8"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan">
                   {t("score.rightTitle")}
                 </p>
-                <ul className="mt-6 space-y-3.5 text-[15px] text-light">
-                  {scoreRight.map((item, i) => (
-                    <li key={item} className="flex items-center gap-3">
-                      <Dot c={["#22d3ee", "#34d399", "#facc15", "#22d3ee", "#34d399"][i % 5]} /> {item}
+                <ul className="mt-5 space-y-3 text-[15px] text-light">
+                  {scoreRight.map((item) => (
+                    <li key={item} className="flex items-start gap-3">
+                      <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-cyan" aria-hidden />
+                      <span>{item}</span>
                     </li>
                   ))}
                 </ul>
               </div>
             </div>
 
-            <p className="mx-auto mt-10 max-w-xl text-center text-dim">
+            <p className="mx-auto mt-8 max-w-xl text-center text-sm text-dim">
               {t("score.foot")}
             </p>
           </div>

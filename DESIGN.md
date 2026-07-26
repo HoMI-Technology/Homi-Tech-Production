@@ -35,12 +35,14 @@ Never introduce Anthropic / Linear-beige / purple-SaaS palettes. Never apply the
 
 ### OPERATE — dashboard, tools results, finance, journal, admin
 
+- **Direction A — Cockpit Linear** (locked 2026-07-26 via design-shotgun): one instrument fold, next-move dock, slim metric rail, workspace dropdown in chrome. Not multi-pill switchers. Not equal StatTile KPI walls as the hero.
 - One primary job: **where do I stand, what do I do next?**
-- Dominant readiness numeral + verdict chip; secondary modules recessive.
+- Dominant readiness numeral + verdict chip (personal/employee) or book/cohort pulse (partner/team/admin); secondary modules recessive.
 - Tabular / mono numbers for scores and money.
+- Shared primitives: `components/operate/*` (`PageFrame`, `PageHeader`, `OperateInstrument`, `MetricRail`, `ActionDock`).
 - No GSAP / scroll-jack / marquee on app chrome or dashboard.
 - Glass is atmosphere under controlled contrast — not the text substrate over busy gradients.
-- Equal 4-tile KPI walls must not outrank the score hero.
+- Equal 4-tile KPI walls must not outrank the score / pulse hero.
 
 ### CHROME — `HeaderShell`, `SiteHeader`, `AppHeader`, `SiteFooter`
 

@@ -3,8 +3,13 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { signInRedirect } from "@/lib/auth/signInRedirect";
 import { AccessPanel } from "@/components/b2b/AccessPanel";
-import { StatTile } from "@/components/ui/StatTile";
-import { SectionHeader } from "@/components/ui/SectionHeader";
+import { PageFrame } from "@/components/operate/PageFrame";
+import { MetricRail } from "@/components/operate/MetricRail";
+import {
+  ActionDock,
+  OperateHeroMeta,
+  OperateInstrument,
+} from "@/components/operate/OperateInstrument";
 import { VERDICT_META, type VerdictKey } from "@/lib/brand";
 import type { AssessmentRow, Organization, Profile } from "@/types/database";
 
@@ -15,6 +20,7 @@ export const metadata: Metadata = {
 
 /**
  * /team — B2B team dashboard (marketing owns /b2b).
+ * Aggregate only — no individual listing.
  */
 export default async function TeamDashboardPage() {
   const supabase = await createClient();
@@ -121,85 +127,106 @@ export default async function TeamDashboardPage() {
     }
   }
 
+  const readyRate =
+    assessments.length > 0
+      ? `${Math.round((verdictCounts.READY / assessments.length) * 100)}%`
+      : "—";
+
   return (
-    <div className="field">
-      <div className="mx-auto max-w-6xl px-6 py-12" data-operate-role="team" data-density="compact">
-        <p className="eyebrow">Team</p>
-        <h1 className="mt-1 font-display text-3xl text-light">
-          {org?.name ?? "Organization"} readiness
-        </h1>
-        <p className="mt-2 max-w-2xl text-dim">
-          Aggregate cohort view only — individuals are not listed. Scores shown as group distribution.
-        </p>
-
-        <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <StatTile label="Members" value={String(memberIds.length)} accent="#22d3ee" footer="In organization" />
-          <StatTile label="Assessments" value={String(assessments.length)} accent="#34d399" footer="Completed" />
-          <StatTile label="Avg score" value={avg !== null ? String(avg) : "—"} accent="#facc15" footer="Cohort" />
-          <StatTile
-            label="Ready rate"
-            value={
-              assessments.length > 0
-                ? `${Math.round((verdictCounts.READY / assessments.length) * 100)}%`
-                : "—"
-            }
-            accent="#34d399"
-            footer="Verdict = READY"
-          />
-        </div>
-
-        <div className="glass mt-8 p-6">
-          <SectionHeader eyebrow="Outcomes" title="Verdict distribution" />
-          <div className="mt-5 space-y-4">
-            {(Object.keys(verdictCounts) as VerdictKey[]).map((k) => {
-              const meta = VERDICT_META[k];
-              const count = verdictCounts[k];
-              const pct =
-                assessments.length > 0 ? Math.round((count / assessments.length) * 100) : 0;
-              return (
-                <div key={k}>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-semibold text-light">{meta.label}</span>
-                    <span className="score-numeral text-dim">
-                      {count} · {pct}%
-                    </span>
-                  </div>
-                  <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-surface">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${pct}%`,
-                        background: `linear-gradient(90deg, ${meta.color}99, ${meta.color})`,
-                      }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-            {assessments.length === 0 && (
-              <p className="py-6 text-center text-sm text-dim">No team assessments yet.</p>
-            )}
-          </div>
-        </div>
-
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/dashboard" className="btn btn-ghost !px-4 !py-2 text-sm">
+    <PageFrame role="team" density="compact">
+      <OperateInstrument tint="#34d399">
+        <OperateHeroMeta
+          title={
+            <>
+              {org?.name ?? "Organization"}{" "}
+              <span className="text-aurora">readiness</span>
+            </>
+          }
+          description="Aggregate cohort view only. Individuals are not listed."
+        />
+        <MetricRail
+          cells={[
+            {
+              label: "Members",
+              value: String(memberIds.length),
+              footer: "In organization",
+              color: "#22d3ee",
+            },
+            {
+              label: "Assessments",
+              value: String(assessments.length),
+              footer: "Completed",
+              color: "#34d399",
+            },
+            {
+              label: "Avg score",
+              value: avg !== null ? String(avg) : "—",
+              footer: "Cohort",
+              color: "#facc15",
+            },
+            {
+              label: "Ready rate",
+              value: readyRate,
+              footer: "Verdict = READY",
+              color: "#34d399",
+            },
+          ]}
+        />
+        <ActionDock kicker="Next move" title="Review cohort, not individuals">
+          <Link href="/dashboard" className="btn btn-ghost">
             Personal dashboard
           </Link>
           {profile.role === "admin" && (
-            <Link href="/admin/organizations" className="btn btn-ghost !px-4 !py-2 text-sm">
+            <Link href="/admin/organizations" className="btn btn-ghost">
               Manage organizations
             </Link>
           )}
-          <Link href="/b2b" className="btn btn-ghost !px-4 !py-2 text-sm">
+          <Link href="/b2b" className="btn btn-ghost">
             Enterprise overview
           </Link>
-        </div>
+        </ActionDock>
+      </OperateInstrument>
 
-        <p className="mt-10 text-center text-xs text-dim">
-          Aggregate metrics only. Not financial advice. HōMI Technologies LLC.
-        </p>
+      <div className="glass mt-6 p-5 sm:p-6">
+        <div className="dash-section-head">
+          <h2>Verdict distribution</h2>
+          <p>Group bands only. No named individuals.</p>
+        </div>
+        <div className="mt-2 space-y-4">
+          {(Object.keys(verdictCounts) as VerdictKey[]).map((k) => {
+            const meta = VERDICT_META[k];
+            const count = verdictCounts[k];
+            const pct =
+              assessments.length > 0 ? Math.round((count / assessments.length) * 100) : 0;
+            return (
+              <div key={k}>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-semibold text-light">{meta.label}</span>
+                  <span className="score-numeral text-dim">
+                    {count} · {pct}%
+                  </span>
+                </div>
+                <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-surface">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${pct}%`,
+                      background: `linear-gradient(90deg, ${meta.color}99, ${meta.color})`,
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+          {assessments.length === 0 && (
+            <p className="py-6 text-center text-sm text-dim">No team assessments yet.</p>
+          )}
+        </div>
       </div>
-    </div>
+
+      <p className="mt-10 text-center text-xs text-dim">
+        Aggregate metrics only. Not financial advice. HōMI Technologies LLC.
+      </p>
+    </PageFrame>
   );
 }

@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { StatTile } from "@/components/ui/StatTile";
 import { Sparkline } from "@/components/ui/Sparkline";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { BarSeries } from "@/components/admin/BarSeries";
 import { CsvExportButton } from "@/components/admin/CsvExportButton";
 import { SystemHealthCard } from "@/components/admin/SystemHealthCard";
 import { AttentionStrip, type AttentionItem } from "@/components/operate/AttentionStrip";
+import { PageFrame } from "@/components/operate/PageFrame";
+import { PageHeader } from "@/components/operate/PageHeader";
+import { MetricRail } from "@/components/operate/MetricRail";
 import { VERDICT_META, type VerdictKey } from "@/lib/brand";
 import {
   dailySucceededCents,
@@ -209,30 +211,59 @@ export default async function AdminOverviewPage() {
   }
 
   return (
-    <div>
-      <p className="eyebrow">Mission control</p>
-      <h1 className="mt-1 font-display text-2xl text-light md:text-3xl">Overview</h1>
-      <p className="mt-1 text-sm text-dim">What needs attention — then platform-wide signal.</p>
+    <PageFrame role="admin" density="compact">
+      <PageHeader
+        eyebrow="Admin"
+        title="Overview"
+        description="What needs attention, then platform-wide signal."
+        primaryAction={{ label: "Activity", href: "/admin/activity", variant: "ghost" }}
+        secondaryAction={{ label: "Analytics", href: "/admin/analytics", variant: "ghost" }}
+      />
 
-      <div className="mt-8">
+      <div className="mt-6">
         <AttentionStrip items={attention} title="Needs attention" />
       </div>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile label="Total users" value={totalUsers.toLocaleString()} accent="#22d3ee" footer="All accounts" />
-        <StatTile
-          label="Assessments completed"
-          value={assessmentsCompleted.toLocaleString()}
-          accent="#34d399"
-          footer={`${last7.toLocaleString()} in the last 7 days`}
-          spark={
-            dailyCounts.length >= 2 ? (
-              <Sparkline id="admin-assessments" values={dailyCounts.map((d) => d.count)} color="#34d399" />
-            ) : undefined
-          }
+      <div className="mt-6">
+        <MetricRail
+          cells={[
+            {
+              label: "Total users",
+              value: totalUsers.toLocaleString(),
+              footer: "All accounts",
+              color: "#22d3ee",
+            },
+            {
+              label: "Assessments",
+              value: assessmentsCompleted.toLocaleString(),
+              footer: `${last7.toLocaleString()} in last 7 days`,
+              color: "#34d399",
+            },
+            {
+              label: "Avg score",
+              value: avgScore !== null ? String(avgScore) : "—",
+              footer: "Completed assessments",
+              color: "#facc15",
+            },
+            {
+              label: "Waitlist",
+              value: waitlistCount.toLocaleString(),
+              footer: "Signups captured",
+              color: "#fab633",
+            },
+          ]}
         />
-        <StatTile label="Average score" value={avgScore !== null ? String(avgScore) : "—"} accent="#facc15" footer="Across completed assessments" />
-        <StatTile label="Waitlist" value={waitlistCount.toLocaleString()} accent="#fab633" footer="Signups captured" />
+        {dailyCounts.length >= 2 && (
+          <div className="mt-3 flex justify-end">
+            <div className="w-36">
+              <Sparkline
+                id="admin-assessments"
+                values={dailyCounts.map((d) => d.count)}
+                color="#34d399"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
@@ -374,8 +405,8 @@ export default async function AdminOverviewPage() {
       </div>
 
       <p className="mt-8 text-center text-xs text-dim">
-        Decision-support software — not financial, legal, or tax advice. HōMI Technologies LLC.
+        Decision-support software. Not financial, legal, or tax advice. HōMI Technologies LLC.
       </p>
-    </div>
+    </PageFrame>
   );
 }
