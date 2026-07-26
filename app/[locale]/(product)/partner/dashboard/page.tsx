@@ -4,12 +4,15 @@ import { createClient } from "@/lib/supabase/server";
 import { signInRedirect } from "@/lib/auth/signInRedirect";
 import { AccessPanel } from "@/components/b2b/AccessPanel";
 import { CopyButton } from "@/components/b2b/CopyButton";
-import { StatTile } from "@/components/ui/StatTile";
-import { SectionHeader } from "@/components/ui/SectionHeader";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageFrame } from "@/components/operate/PageFrame";
-import { PageHeader } from "@/components/operate/PageHeader";
+import { MetricRail } from "@/components/operate/MetricRail";
+import {
+  ActionDock,
+  OperateHeroMeta,
+  OperateInstrument,
+} from "@/components/operate/OperateInstrument";
 import type { Profile } from "@/types/database";
 import type { VerdictKey } from "@/lib/brand";
 import { VERDICT_META } from "@/lib/brand";
@@ -186,108 +189,94 @@ export default async function PartnerDashboardPage() {
 
   return (
     <PageFrame role="partner" density="compact">
-      <PageHeader
-        eyebrow="Partner"
-        title="Partner home"
-        description="Book pulse from your invite link. Individual emails stay private."
-        badge={
-          <span className="rounded-full bg-slate-surface px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-dim">
-            Channel
-          </span>
-        }
-        primaryAction={
-          inviteUrl
-            ? undefined
-            : { label: "Create invite code", href: "/partner/dashboard" }
-        }
-      />
-
-      {/* Invite OS — primary action when book is empty */}
-      <div className={`glass mt-8 p-6 ${!hasBook ? "panel-focus" : ""}`}>
-        <SectionHeader
-          eyebrow="Invite"
-          title="Your client link"
-          subtitle="Every assessment taken through this link is attributed to your book."
+      <OperateInstrument tint="#22d3ee">
+        <OperateHeroMeta
+          title={
+            <>
+              Partner <span className="text-aurora">book</span>
+            </>
+          }
+          description="Where your book stands. Invite link attributes readiness. Emails stay private."
         />
-        {inviteUrl ? (
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <code className="block flex-1 truncate rounded-lg border border-slate-surface bg-navy-light px-3 py-2 font-mono text-xs text-cyan sm:text-sm">
-              {inviteUrl}
-            </code>
-            <CopyButton value={inviteUrl} label="Copy invite link" />
-          </div>
-        ) : (
-          <p className="mt-4 text-sm text-dim">
-            Could not mint an invite code. Refresh or contact support.
-          </p>
-        )}
-      </div>
-
-      {/* Book pulse hero */}
-      <div className="glass mt-8 p-6 sm:p-8">
-        <SectionHeader
-          eyebrow="Book pulse"
-          title="Where your book stands"
-          subtitle="Attributed assessments from your invite (and roster links)."
+        <MetricRail
+          cells={[
+            {
+              label: "Assessments",
+              value: String(assessmentCount),
+              footer: "Attributed to you",
+              color: "#22d3ee",
+            },
+            {
+              label: "Avg score",
+              value: avg !== null ? String(avg) : "—",
+              footer: "Cohort",
+              color: "#facc15",
+            },
+            {
+              label: "Ready",
+              value: readyRate !== null ? `${readyRate}%` : String(readyCount),
+              footer: "Verdict = READY",
+              color: "#34d399",
+            },
+            {
+              label: "Roster",
+              value: String(clients.length),
+              footer: "Named partner_id only",
+              color: "#34d399",
+            },
+          ]}
         />
-        <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <StatTile
-            label="Assessments"
-            value={String(assessmentCount)}
-            accent="#22d3ee"
-            footer="Attributed to you"
-          />
-          <StatTile
-            label="Avg score"
-            value={avg !== null ? String(avg) : "—"}
-            accent="#facc15"
-            footer="Cohort"
-          />
-          <StatTile
-            label="Ready"
-            value={readyRate !== null ? `${readyRate}%` : String(readyCount)}
-            accent="#34d399"
-            footer="Verdict = READY"
-          />
-          <StatTile
-            label="Roster"
-            value={String(clients.length)}
-            accent="#34d399"
-            footer="Named via partner_id"
-          />
-        </div>
-      </div>
+        <ActionDock
+          kicker="Next move"
+          title={hasBook ? "Share your invite link" : "Share your link to open the book"}
+        >
+          {inviteUrl ? (
+            <>
+              <code className="max-w-full truncate rounded-lg border border-slate-surface bg-navy-light px-3 py-2 font-mono text-xs text-cyan sm:max-w-md">
+                {inviteUrl}
+              </code>
+              <CopyButton value={inviteUrl} label="Copy invite link" />
+            </>
+          ) : (
+            <p className="text-sm text-dim">Could not mint an invite code. Refresh or contact support.</p>
+          )}
+        </ActionDock>
+      </OperateInstrument>
 
       {!hasBook && (
-        <div className="glass mt-8 p-10">
+        <div className="glass mt-6 p-8">
           <EmptyState
             title="Share your link to open the book"
-            body="When clients complete a Shadow Score or full assessment through your invite, readiness appears here — no emails, no guesswork. Use Copy invite link above."
+            body="When clients complete a Shadow Score or full assessment through your invite, readiness appears here. No emails. No guesswork."
           />
         </div>
       )}
 
       {hasBook && (
         <>
-          <div className="glass mt-8 p-6">
-            <SectionHeader eyebrow="Distribution" title="Verdict mix" />
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6">
+            <div className="dash-section-head">
+              <h2>Verdict mix</h2>
+              <p>Distribution across your attributed book.</p>
+            </div>
+            <div className="dash-rail">
               {VERDICT_KEYS.map((k) => (
-                <div key={k} className="rounded-lg border border-slate-surface/60 px-3 py-3">
-                  <p className="text-xs text-dim">{VERDICT_META[k].label}</p>
-                  <p className="score-numeral mt-1 text-2xl text-light">{verdictCounts[k]}</p>
+                <div key={k} className="dash-rail-cell">
+                  <p className="dash-rail-label">{VERDICT_META[k].label}</p>
+                  <p className="dash-rail-value" style={{ color: VERDICT_META[k].color }}>
+                    {verdictCounts[k]}
+                  </p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="glass mt-8 p-6">
-            <SectionHeader
-              eyebrow="Pipeline"
-              title="Recent readiness"
-              subtitle="Identity-stripped by default; roster names only when linked."
-            />
-            <div className="mt-4 overflow-x-auto">
+          <div className="glass mt-6 p-5 sm:p-6">
+            <div className="dash-section-head">
+              <h2>Recent readiness</h2>
+              <p>Roster names only when linked. Never emails.</p>
+            </div>
+            <div className="overflow-x-auto">
               <table className="table-premium min-w-[520px]">
                 <thead>
                   <tr>
@@ -308,11 +297,6 @@ export default async function PartnerDashboardPage() {
                           {client?.full_name || "Client"}
                           {a.is_shadow && (
                             <span className="ml-2 text-[0.625rem] uppercase text-dim">Shadow</span>
-                          )}
-                          {a.user_id && (
-                            <span className="ml-2 font-mono text-[0.625rem] text-dim">
-                              {a.user_id.slice(0, 8)}
-                            </span>
                           )}
                         </td>
                         <td className="score-numeral text-dim">
@@ -355,7 +339,7 @@ export default async function PartnerDashboardPage() {
       </div>
 
       <p className="mt-10 text-center text-xs text-dim">
-        Decision-support for clients — not financial advice. HōMI Technologies LLC.
+        Decision-support for clients. Not financial advice. HōMI Technologies LLC.
       </p>
     </PageFrame>
   );

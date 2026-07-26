@@ -8,8 +8,8 @@ type HeaderAction = {
 };
 
 /**
- * Operate page header — one title, one job line, at most one primary action.
- * Mirrors Polaris Page discipline without importing Polaris.
+ * Operate page header — Direction A.
+ * One title, one job line, at most two actions. No decorative kicker spam.
  */
 export function PageHeader({
   eyebrow,
@@ -32,22 +32,28 @@ export function PageHeader({
     <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="eyebrow">{eyebrow}</p>
+          <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-dim">
+            {eyebrow}
+          </p>
           {badge}
         </div>
-        <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">{title}</h1>
-        {description && <p className="mt-2 max-w-2xl text-dim">{description}</p>}
+        <h1 className="mt-1 font-display text-[1.75rem] leading-tight tracking-tight text-light sm:text-3xl md:text-4xl">
+          {title}
+        </h1>
+        {description && (
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-dim sm:text-base">
+            {description}
+          </p>
+        )}
         {children}
       </div>
       {(primaryAction || secondaryAction) && (
-        <div className="flex shrink-0 flex-wrap gap-3">
+        <div className="flex shrink-0 flex-wrap gap-2.5">
           {primaryAction && (
             <Link
               href={primaryAction.href}
               className={
-                primaryAction.variant === "ghost"
-                  ? "btn btn-ghost"
-                  : "btn btn-primary"
+                primaryAction.variant === "ghost" ? "btn btn-ghost" : "btn btn-primary"
               }
             >
               {primaryAction.label}
@@ -57,9 +63,7 @@ export function PageHeader({
             <Link
               href={secondaryAction.href}
               className={
-                secondaryAction.variant === "primary"
-                  ? "btn btn-primary"
-                  : "btn btn-ghost"
+                secondaryAction.variant === "primary" ? "btn btn-primary" : "btn btn-ghost"
               }
             >
               {secondaryAction.label}
