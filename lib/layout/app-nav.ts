@@ -29,6 +29,10 @@ export const APP_PRIMARY_NAV = AGENTS_ENABLED
  * product surface stay one click away without crowding the bar.
  */
 export const APP_MORE_NAV = [
+  { href: "/path", label: "Path to Ready" },
+  { href: "/household", label: "Household" },
+  { href: "/tools/preflight", label: "Pre-Flight" },
+  { href: "/scenarios", label: "Scenarios" },
   { href: "/journal", label: "Journal" },
   { href: "/advisor", label: "Companion" },
   { href: "/decisions", label: "Decisions" },

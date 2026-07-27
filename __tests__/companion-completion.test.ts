@@ -42,6 +42,7 @@ describe("share preview", () => {
       credit: undefined,
       surface: undefined,
       whatChanged: undefined,
+      path: undefined,
       ...overrides,
     };
   }

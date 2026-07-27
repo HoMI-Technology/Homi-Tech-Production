@@ -34,6 +34,24 @@ const GROUPS: ToolGroup[] = [
         desc: "Move income, savings, and debt levers and watch readiness respond.",
         accent: "#22d3ee",
       },
+      {
+        href: "/tools/preflight",
+        name: "Decision Pre-Flight",
+        desc: "Sixty-second protective gate before you sign, bid, or stretch.",
+        accent: "#f24822",
+      },
+      {
+        href: "/scenarios",
+        name: "Scenario Studio",
+        desc: "Buy now vs wait 12/24 months with readiness honesty overlay.",
+        accent: "#facc15",
+      },
+      {
+        href: "/path",
+        name: "Path to Ready",
+        desc: "Binding-constraint path from your verdict — not another budget.",
+        accent: "#34d399",
+      },
     ],
   },
   {

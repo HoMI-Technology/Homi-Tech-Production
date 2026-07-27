@@ -37,6 +37,7 @@ import { GenomeWidget } from "@/components/dashboard/GenomeWidget";
 import { genomeScoresMap } from "@/lib/genome/constants";
 import { TrinityGapAlert } from "@/components/dashboard/TrinityGapAlert";
 import { DecisionTimeline } from "@/components/dashboard/DecisionTimeline";
+import { PathNextMove } from "@/components/dashboard/PathNextMove";
 import type {
   AssessmentRow,
   BehavioralGenome,
@@ -423,6 +424,9 @@ export default async function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Path to Ready next-move island (localStorage) — null when no path */}
+        <PathNextMove />
 
         {latest && dueSurvey && (
           <div className="mt-5">

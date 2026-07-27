@@ -222,7 +222,8 @@ export function CompanionWidget() {
     setSending(true);
 
     try {
-      const { assessment, finance, credit, surface, whatChanged } = buildCompanionContext(pathname);
+      const { assessment, finance, credit, surface, whatChanged, path } =
+        buildCompanionContext(pathname);
       const res = await fetch("/api/advisor", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -234,6 +235,7 @@ export function CompanionWidget() {
           surface,
           whatChanged,
           credit,
+          path,
           identity,
           persona,
         }),

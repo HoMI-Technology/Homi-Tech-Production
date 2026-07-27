@@ -24,8 +24,10 @@ export const PUBLIC_PRODUCT_ROUTES = [
   "calibration",
   "demo",
   "onboarding",
+  "path",
   "plan",
   "results",
+  "scenarios",
   "shadow-score",
   "tools",
 ] as const;
@@ -49,6 +51,7 @@ export const PROTECTED_PRODUCT_ROUTES = [
   "family",
   "finance",
   "genome",
+  "household",
   "journal",
   "outcomes",
   "report",

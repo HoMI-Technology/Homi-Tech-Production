@@ -1,0 +1,466 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "@/i18n/navigation";
+import type { AssessmentResult } from "@/lib/scoring";
+import { PILLAR_MAX_POINTS } from "@/lib/scoring";
+import {
+  generatePathFromResult,
+  saveReadinessPath,
+  loadReadinessPath,
+  pullReadinessPath,
+  bindingConstraintLabel,
+  PATH_DISCLAIMER,
+  HARD_STOP_ORDER,
+  completePathStep,
+  financeSnapshotForPath,
+  getFinanceSavedAtForPath,
+  computeBindingProgress,
+  computePathFreshness,
+  pathCompletionRatio,
+  type PathReasonCode,
+  type ReadinessPath,
+} from "@/lib/readiness";
+import { track } from "@/lib/analytics";
+import { hasSavedFinanceState } from "@/lib/finance/store";
+import { PathPreview } from "./PathPreview";
+import { PathProgressHero } from "./PathProgressHero";
+
+export type PathToReadyCardProps = {
+  result: AssessmentResult;
+  assessmentCompletedAt?: string | null;
+  isAnonymous?: boolean;
+};
+
+const SIGN_IN_HREF = `/auth/sign-in?next=${encodeURIComponent("/results")}`;
+
+function isReadyCelebrate(result: AssessmentResult): boolean {
+  return result.verdict === "READY" && result.hardStops.length === 0;
+}
+
+function confidenceLabel(
+  confidence: ReadinessPath["confidence"],
+): { text: string; className: string } {
+  if (confidence === "assessment_plus_finance") {
+    return {
+      text: "Assessment + finance",
+      className: "border-emerald/40 bg-emerald/10 text-emerald",
+    };
+  }
+  return {
+    text: "Assessment only",
+    className: "border-cyan/40 bg-cyan/10 text-cyan",
+  };
+}
+
+function softBindingCode(result: AssessmentResult): PathReasonCode | null {
+  if (result.hardStops.length > 0) {
+    for (const code of HARD_STOP_ORDER) {
+      if (result.hardStops.some((s) => s.code === code)) return code;
+    }
+    return result.hardStops[0]?.code ?? null;
+  }
+  if (result.verdict === "READY") return "READY_CELEBRATE";
+
+  const ratios = {
+    financial: result.financial.total / PILLAR_MAX_POINTS.financial,
+    emotional: result.emotional.total / PILLAR_MAX_POINTS.emotional,
+    timing: result.timing.total / PILLAR_MAX_POINTS.timing,
+  };
+  const weakest = (Object.entries(ratios) as [keyof typeof ratios, number][]).sort(
+    (a, b) => a[1] - b[1],
+  )[0]?.[0];
+  if (weakest === "financial") return "PILLAR_FINANCIAL";
+  if (weakest === "emotional") return "PILLAR_EMOTIONAL";
+  if (weakest === "timing") return "PILLAR_TIMING";
+  return null;
+}
+
+/**
+ * Results-page Path to Ready — progress hero, one-click calendar commit,
+ * step completion, staleness. Protective voice; OPERATE density.
+ */
+export function PathToReadyCard({
+  result,
+  assessmentCompletedAt = null,
+  isAnonymous = false,
+}: PathToReadyCardProps) {
+  const [path, setPath] = useState<ReadinessPath | null>(null);
+  const [hydrated, setHydrated] = useState(false);
+  const [committing, setCommitting] = useState(false);
+  const [commitMsg, setCommitMsg] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const readyBand = isReadyCelebrate(result);
+  const finance = useMemo(() => financeSnapshotForPath(), [path?.id, hydrated]);
+
+  const progress = useMemo(
+    () => computeBindingProgress(path, result, finance),
+    [path, result, finance],
+  );
+
+  const freshness = useMemo(
+    () =>
+      computePathFreshness(path, {
+        financeSavedAt: getFinanceSavedAtForPath(),
+      }),
+    [path],
+  );
+
+  useEffect(() => {
+    let active = true;
+    async function hydrate() {
+      const local = loadReadinessPath();
+      if (local && local.verdict === result.verdict) {
+        if (active) setPath(local);
+      }
+      if (!isAnonymous) {
+        const remote = await pullReadinessPath();
+        if (active && remote && remote.verdict === result.verdict) {
+          setPath(remote);
+        }
+      }
+      if (active) setHydrated(true);
+    }
+    void hydrate();
+    return () => {
+      active = false;
+    };
+  }, [result.verdict, isAnonymous]);
+
+  const handleGenerate = useCallback(() => {
+    const next = generatePathFromResult(result, assessmentCompletedAt);
+    setPath(next);
+    setCommitMsg(null);
+    setError(null);
+    track("path_generated", { verdict: result.verdict });
+  }, [result, assessmentCompletedAt]);
+
+  const handleSave = useCallback(() => {
+    if (!path) return;
+    saveReadinessPath(path);
+    setCommitMsg("Path saved on this device.");
+    track("path_saved", { stepCount: path.steps.length });
+  }, [path]);
+
+  const handleGenerateAndSaveOptional = useCallback(() => {
+    const next = generatePathFromResult(result, assessmentCompletedAt);
+    saveReadinessPath(next);
+    setPath(next);
+    track("path_generated", { verdict: result.verdict });
+    track("path_saved", { stepCount: next.steps.length });
+  }, [result, assessmentCompletedAt]);
+
+  const handleComplete = useCallback((stepId: string) => {
+    const next = completePathStep(stepId, "done");
+    if (next) setPath(next);
+    track("path_step_done", { stepId });
+  }, []);
+
+  const handleSkip = useCallback((stepId: string) => {
+    const next = completePathStep(stepId, "skipped");
+    if (next) setPath(next);
+    track("path_step_skipped", { stepId });
+  }, []);
+
+  /** One-click: save + server calendar commit for signed-in users. */
+  const handleOneClickCommit = useCallback(async () => {
+    if (!path) return;
+    setCommitting(true);
+    setError(null);
+    setCommitMsg(null);
+
+    // Always persist locally first
+    saveReadinessPath(path);
+    track("path_saved", { stepCount: path.steps.length });
+
+    if (isAnonymous) {
+      setCommitting(false);
+      setCommitMsg("Path saved. Sign in to put it on your calendar.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/readiness-path/commit-calendar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path }),
+      });
+      const json = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        path?: ReadinessPath;
+        inserted?: number;
+        error?: string;
+      };
+      if (!res.ok) {
+        setError(json.error ?? "Could not commit to calendar.");
+        setCommitting(false);
+        return;
+      }
+      if (json.path) {
+        saveReadinessPath(json.path);
+        setPath(json.path);
+      }
+      setCommitMsg(
+        json.inserted && json.inserted > 0
+          ? `On your calendar — ${json.inserted} milestone${json.inserted === 1 ? "" : "s"} added.`
+          : "Path is on your calendar.",
+      );
+      track("path_calendar_committed", {
+        inserted: json.inserted ?? 0,
+        verdict: path.verdict,
+      });
+    } catch {
+      setError("Network error committing path. Path is still saved locally.");
+    }
+    setCommitting(false);
+  }, [path, isAnonymous]);
+
+  if (!hydrated) {
+    return (
+      <section
+        className="glass mt-8 border border-slate-surface/50 p-6 sm:p-8"
+        aria-label="Path to Ready"
+        aria-busy="true"
+      >
+        <p className="eyebrow">Path to Ready</p>
+        <p className="mt-2 text-sm text-dim">Loading path…</p>
+      </section>
+    );
+  }
+
+  // ── READY band ────────────────────────────────────────────────────
+  if (readyBand && !path) {
+    return (
+      <section
+        className="glass mt-8 flex flex-col items-start justify-between gap-4 border border-emerald/35 p-5 sm:flex-row sm:items-center sm:p-6"
+        aria-label="Path to Ready — READY band"
+      >
+        <div className="min-w-0">
+          <p className="eyebrow text-emerald">Path to Ready</p>
+          <p className="mt-1 font-display text-lg font-semibold text-light">
+            READY band — no forced homework.
+          </p>
+          <p className="mt-1 text-sm text-dim">
+            Protection signals are clear. Optional maintenance keeps the band
+            honest.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleGenerateAndSaveOptional}
+          className="btn btn-ghost shrink-0 !px-4 !py-2 text-sm"
+        >
+          Add optional 90-day review
+        </button>
+      </section>
+    );
+  }
+
+  // ── Active / preview path ─────────────────────────────────────────
+  if (path) {
+    const conf = confidenceLabel(path.confidence);
+    const isOptional = path.mode === "ready_optional";
+    const completion = Math.round(pathCompletionRatio(path) * 100);
+
+    return (
+      <section
+        className="glass relative mt-8 overflow-hidden border border-cyan/30 p-6 sm:p-8"
+        aria-label="Path to Ready"
+      >
+        <span
+          aria-hidden
+          className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan/60 to-transparent"
+        />
+
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="eyebrow">Path to Ready</p>
+            <h2 className="mt-1 font-display text-xl font-semibold text-light">
+              {isOptional ? "Optional maintenance" : "Your sequenced path"}
+            </h2>
+            <p className="mt-1 text-sm text-dim">
+              Score{" "}
+              <span className="score-numeral text-light">{path.score}</span>
+              {" · "}
+              {path.verdict === "NOT_YET" ? "DO NOT PROCEED" : path.verdict.replace("_", " ")}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <span
+              className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${conf.className}`}
+            >
+              {conf.text}
+            </span>
+            {!isOptional && (
+              <span className="inline-flex items-center rounded-full border border-slate-surface/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-dim">
+                <span className="score-numeral mr-1 text-light">{completion}</span>
+                % steps
+              </span>
+            )}
+          </div>
+        </div>
+
+        {freshness.isStale && (
+          <div
+            className="mt-4 rounded-lg border border-amber/40 bg-amber/10 px-4 py-3"
+            role="status"
+          >
+            <p className="text-xs font-semibold uppercase tracking-wide text-amber">
+              Path may be stale
+            </p>
+            <ul className="mt-1 list-inside list-disc text-sm text-light">
+              {freshness.reasons.map((r) => (
+                <li key={r}>{r}</li>
+              ))}
+            </ul>
+            <button
+              type="button"
+              className="btn btn-ghost mt-3 !px-3 !py-1.5 text-sm"
+              onClick={handleGenerate}
+            >
+              Regenerate from this assessment
+            </button>
+          </div>
+        )}
+
+        {!isOptional && (
+          <div className="mt-5">
+            <PathProgressHero progress={progress} />
+          </div>
+        )}
+
+        <div className="mt-5">
+          <PathPreview
+            steps={path.steps}
+            onComplete={handleComplete}
+            onSkip={handleSkip}
+          />
+        </div>
+
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <button
+            type="button"
+            onClick={() => void handleOneClickCommit()}
+            className="btn btn-primary !px-5 !py-2.5 text-sm"
+            disabled={committing}
+            aria-label={
+              isAnonymous
+                ? "Save path and prepare calendar commit"
+                : "Save path and put milestones on calendar"
+            }
+          >
+            {committing
+              ? "Committing…"
+              : isAnonymous
+                ? "Save path"
+                : path.calendarCommittedAt
+                  ? "Update calendar milestones"
+                  : "Save & put on calendar"}
+          </button>
+
+          {isAnonymous && (
+            <Link href={SIGN_IN_HREF} className="btn btn-emerald !px-5 !py-2.5 text-sm">
+              Sign in for multi-device path
+            </Link>
+          )}
+
+          <Link href="/path" className="btn btn-emerald !px-5 !py-2.5 text-sm">
+            Open full path
+          </Link>
+
+          {!isAnonymous && path.calendarCommittedAt && (
+            <Link href="/calendar" className="btn btn-ghost !px-5 !py-2.5 text-sm">
+              Open calendar
+            </Link>
+          )}
+
+          <button
+            type="button"
+            onClick={handleSave}
+            className="btn btn-ghost !px-5 !py-2.5 text-sm"
+          >
+            Save only
+          </button>
+
+          <button
+            type="button"
+            onClick={handleGenerate}
+            className="btn btn-ghost !px-5 !py-2.5 text-sm"
+          >
+            Regenerate
+          </button>
+        </div>
+
+        {commitMsg && (
+          <p className="mt-3 text-sm text-emerald" role="status">
+            {commitMsg}
+          </p>
+        )}
+        {error && (
+          <p className="mt-3 text-sm text-crimson" role="alert">
+            {error}
+          </p>
+        )}
+
+        <p className="mt-5 text-xs leading-relaxed text-dim">
+          {path.disclaimer || PATH_DISCLAIMER}
+        </p>
+      </section>
+    );
+  }
+
+  // ── Build prompt ──────────────────────────────────────────────────
+  const constraint = bindingConstraintLabel(softBindingCode(result));
+  const conf = confidenceLabel(
+    hasSavedFinanceState() ? "assessment_plus_finance" : "assessment_only",
+  );
+
+  return (
+    <section
+      className="glass relative mt-8 overflow-hidden border border-cyan/30 p-6 sm:p-8"
+      aria-label="Path to Ready"
+    >
+      <span
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan/50 to-transparent"
+      />
+      <p className="eyebrow">Path to Ready</p>
+      <h2 className="mt-1 font-display text-xl font-semibold text-light">
+        Turn this verdict into sequenced moves
+      </h2>
+      <p className="mt-2 max-w-xl text-sm leading-relaxed text-dim">
+        One binding constraint at a time — protection signal first, not a
+        checklist wall. Educational readiness only.
+      </p>
+
+      <div className="mt-5 flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center rounded-full border border-amber/40 bg-amber/10 px-2.5 py-1 text-xs font-medium text-amber">
+          {constraint}
+        </span>
+        <span
+          className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${conf.className}`}
+        >
+          {conf.text}
+        </span>
+        {result.hardStops.length > 0 && (
+          <span className="inline-flex items-center rounded-full border border-crimson/40 bg-crimson/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-crimson">
+            Protection signal
+          </span>
+        )}
+      </div>
+
+      <div className="mt-6">
+        <button
+          type="button"
+          onClick={handleGenerate}
+          className="btn btn-primary"
+        >
+          Generate Path to Ready
+        </button>
+      </div>
+
+      <p className="mt-5 text-xs leading-relaxed text-dim">{PATH_DISCLAIMER}</p>
+    </section>
+  );
+}

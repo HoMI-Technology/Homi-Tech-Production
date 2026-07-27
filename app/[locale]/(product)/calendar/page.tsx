@@ -1,13 +1,25 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { MonthGrid } from "@/components/calendar/MonthGrid";
 import { EventForm } from "@/components/calendar/EventForm";
 import { UpcomingList } from "@/components/calendar/UpcomingList";
+import { PathCommitBanner } from "@/components/calendar/PathCommitBanner";
 import { formatLocalDateISO, localDateISO } from "@/lib/dates";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
+import { useToast } from "@/hooks/useToast";
+import {
+  formatPathEventNotes,
+  isPathCalendarEvent,
+  loadReadinessPath,
+  pullReadinessPath,
+  markPathCalendarCommitted,
+  parsePathMarker,
+  pathStepEventDate,
+  type ReadinessPath,
+} from "@/lib/readiness";
 import type { CalendarEvent, CalendarEventKind } from "@/types/database";
 
 const KIND_LABEL: Record<CalendarEventKind, string> = {
@@ -34,8 +46,28 @@ function addDaysIso(daysFromNow: number): string {
   return localDateISO(d);
 }
 
+function stripCommitQueryParams(): void {
+  if (typeof window === "undefined") return;
+  const url = new URL(window.location.href);
+  if (!url.searchParams.has("commitPath") && !url.searchParams.has("path")) return;
+  url.searchParams.delete("commitPath");
+  url.searchParams.delete("path");
+  const next = `${url.pathname}${url.search}${url.hash}`;
+  window.history.replaceState({}, "", next);
+}
+
+function shouldAutoCommitPath(): boolean {
+  if (typeof window === "undefined") return false;
+  const params = new URLSearchParams(window.location.search);
+  return params.get("commitPath") === "1" || params.get("path") === "1";
+}
+
+/** Survives Strict Mode remounts within the same tab session. */
+const autoCommittedKeys = new Set<string>();
+
 export default function CalendarPage() {
   const supabase = useMemo(() => createClient(), []);
+  const toast = useToast();
   const [checkedAuth, setCheckedAuth] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -45,6 +77,28 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [seeding, setSeeding] = useState(false);
+  const [activePath, setActivePath] = useState<ReadinessPath | null>(null);
+  const [pathCommitting, setPathCommitting] = useState(false);
+  const [pathCommitted, setPathCommitted] = useState(false);
+  const [showPathOnly, setShowPathOnly] = useState(false);
+  const autoCommitAttempted = useRef(false);
+
+  useEffect(() => {
+    let active = true;
+    async function hydratePath() {
+      setActivePath(loadReadinessPath());
+      try {
+        const remote = await pullReadinessPath();
+        if (active && remote) setActivePath(remote);
+      } catch {
+        // local only
+      }
+    }
+    void hydratePath();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -77,6 +131,96 @@ export default function CalendarPage() {
       active = false;
     };
   }, [supabase]);
+
+  const commitPathSteps = useCallback(
+    async (
+      path: ReadinessPath,
+      existing: CalendarEvent[],
+      opts?: { quietIfEmpty?: boolean },
+    ): Promise<boolean> => {
+      if (!userId) return false;
+      setPathCommitting(true);
+      setError(null);
+
+      const existingStepIds = new Set(
+        existing
+          .map((ev) => parsePathMarker(ev.notes))
+          .filter(
+            (m): m is { pathId: string; stepId: string } =>
+              m != null && m.pathId === path.id,
+          )
+          .map((m) => m.stepId),
+      );
+
+      const rows = path.steps
+        .filter((step) => !existingStepIds.has(step.id))
+        .map((step) => ({
+          user_id: userId,
+          title: step.title,
+          kind: step.kind as CalendarEventKind,
+          event_date: pathStepEventDate(step),
+          notes: formatPathEventNotes(path, step),
+          completed: false,
+        }));
+
+      if (rows.length === 0) {
+        setPathCommitting(false);
+        setPathCommitted(true);
+        if (!opts?.quietIfEmpty) {
+          toast.success("Path to Ready is on your calendar");
+        }
+        return true;
+      }
+
+      const { data, error: insertError } = await supabase
+        .from("calendar_events")
+        .insert(rows)
+        .select();
+
+      setPathCommitting(false);
+      if (insertError) {
+        setError(insertError.message);
+        toast.error("Could not add path milestones");
+        return false;
+      }
+
+      setEvents((prev) => [...prev, ...((data as CalendarEvent[]) ?? [])]);
+      setPathCommitted(true);
+      const marked = markPathCalendarCommitted(path);
+      setActivePath(marked);
+      toast.success("Path to Ready is on your calendar");
+      return true;
+    },
+    [supabase, toast, userId],
+  );
+
+  // Auto-commit when arriving with ?commitPath=1 or ?path=1
+  useEffect(() => {
+    if (!userId || loading || autoCommitAttempted.current) return;
+    if (!shouldAutoCommitPath()) return;
+
+    const path = loadReadinessPath();
+    if (!path || path.steps.length === 0) {
+      autoCommitAttempted.current = true;
+      stripCommitQueryParams();
+      return;
+    }
+
+    const key = `${userId}:${path.id}`;
+    if (autoCommittedKeys.has(key)) {
+      autoCommitAttempted.current = true;
+      setActivePath(path);
+      stripCommitQueryParams();
+      return;
+    }
+    autoCommittedKeys.add(key);
+    autoCommitAttempted.current = true;
+
+    setActivePath(path);
+    void commitPathSteps(path, events, { quietIfEmpty: false }).finally(() => {
+      stripCommitQueryParams();
+    });
+  }, [userId, loading, events, commitPathSteps]);
 
   if (checkedAuth && !userId) {
     return (
@@ -246,8 +390,19 @@ export default function CalendarPage() {
     setEvents((prev) => [...prev, ...((data as CalendarEvent[]) ?? [])]);
   }
 
+  async function handleRefreshPathMilestones() {
+    const path = loadReadinessPath() ?? activePath;
+    if (!path || !userId) return;
+    setActivePath(path);
+    await commitPathSteps(path, events);
+  }
+
+  const displayEvents = showPathOnly
+    ? events.filter((ev) => isPathCalendarEvent(ev.notes))
+    : events;
+
   const selectedEvents = selectedDate
-    ? events.filter((ev) => ev.event_date === selectedDate)
+    ? displayEvents.filter((ev) => ev.event_date === selectedDate)
     : [];
 
   return (
@@ -265,10 +420,22 @@ export default function CalendarPage() {
             className="btn btn-ghost shrink-0"
             onClick={handleSuggestDefaults}
             disabled={seeding}
+            aria-label="Suggest default milestone reviews"
           >
             {seeding ? "Adding..." : "Suggest default milestones"}
           </button>
         </div>
+
+        {activePath && (
+          <PathCommitBanner
+            path={activePath}
+            onRefresh={handleRefreshPathMilestones}
+            refreshing={pathCommitting}
+            showPathOnly={showPathOnly}
+            onTogglePathOnly={() => setShowPathOnly((v) => !v)}
+            committed={pathCommitted}
+          />
+        )}
 
         {error && (
           <div className="mt-4 rounded-lg border border-crimson/30 bg-verdict-notyet px-4 py-3 text-sm text-light">
@@ -323,7 +490,7 @@ export default function CalendarPage() {
               ) : (
                 <MonthGrid
                   viewMonth={viewMonth}
-                  events={events}
+                  events={displayEvents}
                   selectedDate={selectedDate}
                   onSelectDate={setSelectedDate}
                 />
@@ -355,17 +522,28 @@ export default function CalendarPage() {
                             className="mt-1"
                           />
                           <div>
-                            <p
-                              className={`text-sm font-semibold ${
-                                ev.completed ? "text-dim line-through" : "text-light"
-                              }`}
-                            >
-                              {ev.title}
-                            </p>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p
+                                className={`text-sm font-semibold ${
+                                  ev.completed ? "text-dim line-through" : "text-light"
+                                }`}
+                              >
+                                {ev.title}
+                              </p>
+                              {isPathCalendarEvent(ev.notes) && (
+                                <span className="rounded-full bg-cyan/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-cyan">
+                                  Path
+                                </span>
+                              )}
+                            </div>
                             <p className={`mt-1 text-xs ${KIND_TEXT_CLASS[ev.kind]}`}>
                               {KIND_LABEL[ev.kind]}
                             </p>
-                            {ev.notes && <p className="mt-1 text-xs text-dim">{ev.notes}</p>}
+                            {ev.notes && (
+                              <p className="mt-1 whitespace-pre-line text-xs text-dim">
+                                {ev.notes.replace(/\n*<!--homi-path:[^>]+-->\s*$/, "").trim()}
+                              </p>
+                            )}
                           </div>
                         </div>
                         <button
@@ -393,7 +571,7 @@ export default function CalendarPage() {
           </div>
 
           <div className="space-y-6">
-            <UpcomingList events={events} onSelect={setSelectedDate} />
+            <UpcomingList events={displayEvents} onSelect={setSelectedDate} />
           </div>
         </div>
       </div>
