@@ -1,6 +1,6 @@
 /**
  * Paid-media performance math — CAC, ROAS, CPC — over the ad_spend ledger
- * (migration 00036) joined to attributed signups and channel revenue.
+ * (migration 00037) joined to attributed signups and channel revenue.
  *
  * Everything is pure and cents-based. Division guards return null ("not
  * computable", rendered as —) rather than 0 or Infinity, so a channel with

@@ -8,7 +8,7 @@ import type { User } from "@supabase/supabase-js";
 export const runtime = "nodejs";
 
 /**
- * Admin ad-spend ledger writes (migration 00036). Gated on the session user's
+ * Admin ad-spend ledger writes (migration 00037). Gated on the session user's
  * profiles.role === "admin" — the same gate the /admin layout renders — then
  * the write goes through the SSR client so the is_admin() RLS policy is the
  * second, database-level guard. Upsert keys on (spend_date, channel, campaign)

@@ -225,7 +225,7 @@ export interface Payment {
   created_at: string;
 }
 
-/** Manual paid-media spend ledger (migration 00036) — powers CAC/ROAS. */
+/** Manual paid-media spend ledger (migration 00037) — powers CAC/ROAS. */
 export interface AdSpend {
   id: string;
   /** ISO date (YYYY-MM-DD) the spend is attributed to. */
