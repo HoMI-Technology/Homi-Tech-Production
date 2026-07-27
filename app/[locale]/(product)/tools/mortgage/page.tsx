@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { fullPaymentBreakdown, amortizationSummary } from "@/lib/tools/mortgage";
 import { formatCurrency } from "@/lib/tools/format";
+import { track } from "@/lib/analytics";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell, ToolResultHero, ToolMetric } from "@/components/tools/ToolShell";
 import { LensField } from "@/components/tools/LensField";
@@ -73,6 +74,7 @@ function MortgagePageInner() {
     if (values.taxInsRate !== undefined) setTaxInsRate(values.taxInsRate);
     if (values.hoaMonthly !== undefined) setHoaMonthly(values.hoaMonthly);
     setPrefilled(seeded);
+    if (seeded.size > 0) track("lens_prefilled", { lens: "mortgage", count: seeded.size });
   }, []);
 
   const loanAmount = Math.max(0, price - downPayment);
@@ -143,6 +145,9 @@ function MortgagePageInner() {
       taxInsuranceRatePct: taxInsRate,
       hoaMonthly,
     });
+    track("numbers_writeback", {
+      fields: ["targetPrice", "downPaymentSaved", "assumedRatePct", "termYears", "taxInsuranceRatePct", "hoaMonthly"],
+    });
     setPrefilled(new Set(["price", "downPayment", "rate", "termYears", "taxInsRate", "hoaMonthly"]));
     setWriteBackDone(true);
   }
@@ -212,7 +217,7 @@ function MortgagePageInner() {
                   This replaces my current rent ({formatCurrency(overlay.currentRent)}/mo)
                 </label>
               )}
-              <DeltasCard deltas={deltas} />
+              <DeltasCard deltas={deltas} lensId="mortgage" />
             </>
           )}
 

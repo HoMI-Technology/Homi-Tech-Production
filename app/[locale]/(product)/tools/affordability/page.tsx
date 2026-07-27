@@ -162,7 +162,7 @@ export default function AffordabilityPage() {
             </div>
           </div>
 
-          {hydrated && deltas && <DeltasCard deltas={deltas} />}
+          {hydrated && deltas && <DeltasCard deltas={deltas} lensId="affordability" />}
           {hydrated && readiness && <ReadinessBand impact={readiness} />}
 
           <div className="glass p-6">
