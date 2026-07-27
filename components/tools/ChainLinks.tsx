@@ -9,10 +9,13 @@
 
 "use client";
 
+import { usePathname } from "next/navigation";
 import { Link } from "@/i18n/navigation";
+import { track } from "@/lib/analytics";
 import { getLens, type LensChain } from "@/lib/tools/registry";
 
 export function ChainLinks({ chains }: { chains: LensChain[] }) {
+  const pathname = usePathname();
   const resolved = chains
     .map((c) => ({ chain: c, lens: getLens(c.lensId) }))
     .filter((r): r is { chain: LensChain; lens: NonNullable<ReturnType<typeof getLens>> } =>
@@ -28,6 +31,9 @@ export function ChainLinks({ chains }: { chains: LensChain[] }) {
           <Link
             key={chain.lensId}
             href={lens.path}
+            onClick={() =>
+              track("chain_followed", { from: pathname, to: lens.path })
+            }
             className="group flex items-center justify-between gap-3 rounded-lg border border-white/5 p-3 transition-colors hover:border-cyan/30"
           >
             <span>

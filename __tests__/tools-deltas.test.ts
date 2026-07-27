@@ -6,7 +6,11 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { computeHousingDeltas, worstDeltaTemperature } from "@/lib/tools/deltas";
+import {
+  computeHousingDeltas,
+  computeReplacementDeltas,
+  worstDeltaTemperature,
+} from "@/lib/tools/deltas";
 import { DEFAULT_FINANCE_STATE, type FinanceState } from "@/lib/finance/store";
 
 const BASE: FinanceState = {
@@ -62,6 +66,74 @@ describe("computeHousingDeltas", () => {
     const dti = better.find((d) => d.metric === "dti")!;
     expect(dti.to).toBe(0);
     expect(dti.improved).toBe(true);
+  });
+});
+
+describe("computeReplacementDeltas", () => {
+  it("a swap only moves the numbers by the difference, never stacks", () => {
+    // Current P&I 2200 replaced by a refinanced 1900 → outflow drops 300.
+    const deltas = computeReplacementDeltas(BASE, {
+      newPaymentMonthly: 1900,
+      replacedPaymentMonthly: 2200,
+    })!;
+    const runway = deltas.find((d) => d.metric === "runway")!;
+    // After outflow: 3000 - 2200 + 500 + 1900 = 3200 → 21000/3200 ≈ 6.6.
+    expect(runway.to).toBe(6.6);
+    expect(runway.improved).toBe(true);
+    const dti = deltas.find((d) => d.metric === "dti")!;
+    // DTI: (500 + 1900 - 2200) / 6000 = 3.3%.
+    expect(dti.to).toBe(3.3);
+    expect(dti.improved).toBe(true);
+  });
+
+  it("a worse swap hurts honestly", () => {
+    const deltas = computeReplacementDeltas(BASE, {
+      newPaymentMonthly: 2600,
+      replacedPaymentMonthly: 2200,
+    })!;
+    const runway = deltas.find((d) => d.metric === "runway")!;
+    // After outflow: 3000 - 2200 + 500 + 2600 = 3900 → 21000/3900 ≈ 5.4.
+    expect(runway.to).toBe(5.4);
+    expect(runway.improved).toBe(false);
+  });
+
+  it("never claims more relief than the user's own outflow supports", () => {
+    // Replaced payment (9000) exceeds the entire current outflow (3500) —
+    // cap kicks in so the "after" can't be flattered by phantom relief.
+    const deltas = computeReplacementDeltas(BASE, {
+      newPaymentMonthly: 1000,
+      replacedPaymentMonthly: 9000,
+    })!;
+    const runway = deltas.find((d) => d.metric === "runway")!;
+    // Capped replaced = 3500 → after outflow: 3000 - 3500 + 500 + 1000 = 1000 → 21 months.
+    expect(runway.to).toBe(21);
+  });
+
+  it("a flat swap is a flat answer", () => {
+    const deltas = computeReplacementDeltas(BASE, {
+      newPaymentMonthly: 2200,
+      replacedPaymentMonthly: 2200,
+    })!;
+    expect(deltas.find((d) => d.metric === "runway")!.improved).toBeNull();
+    expect(deltas.find((d) => d.metric === "dti")!.improved).toBeNull();
+  });
+
+  it("returns null on missing income or nonsensical payments", () => {
+    expect(
+      computeReplacementDeltas({ ...BASE, monthlyIncome: 0 }, {
+        newPaymentMonthly: 1900,
+        replacedPaymentMonthly: 2200,
+      }),
+    ).toBeNull();
+    expect(
+      computeReplacementDeltas(BASE, { newPaymentMonthly: -1, replacedPaymentMonthly: 2200 }),
+    ).toBeNull();
+    expect(
+      computeReplacementDeltas(BASE, {
+        newPaymentMonthly: 1900,
+        replacedPaymentMonthly: Number.NaN,
+      }),
+    ).toBeNull();
   });
 });
 

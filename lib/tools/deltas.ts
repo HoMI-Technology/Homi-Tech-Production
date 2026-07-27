@@ -10,6 +10,13 @@
  * Canon: this is the ONLY place lens-impact arithmetic happens. The
  * Companion receives these numbers precomputed in its lens digest and
  * reads them — it never recomputes them.
+ *
+ * Two shapes exist, and they are not interchangeable:
+ * - computeHousingDeltas: a NEW obligation (optionally replacing rent).
+ * - computeReplacementDeltas: an EXISTING obligation swapped for a new
+ *   one (refinance). Passing a replacement through the new-obligation
+ *   shape would stack payments that never coexist — the dishonest
+ *   direction.
  */
 
 import {
@@ -42,42 +49,37 @@ export interface HousingDeltaOptions {
   replacedRentMonthly?: number;
 }
 
+export interface ReplacementDeltaOptions {
+  /** The new monthly payment after the swap (e.g. refinanced P&I). */
+  newPaymentMonthly: number;
+  /** The monthly payment being replaced (e.g. current P&I). Capped at the
+   * user's total current outflow — we never claim more relief than their
+   * own numbers support. */
+  replacedPaymentMonthly: number;
+}
+
 function round1(n: number): number {
   return Math.round(n * 10) / 10;
 }
 
-/**
- * Diffs a proposed monthly housing obligation against the user's current
- * numbers. Returns null when there is no usable income — a missing-data
- * signal the UI must surface rather than a zero it must hide.
- *
- * Pure: pass the finance state explicitly so tests need no storage.
- */
-export function computeHousingDeltas(
+/** The single arithmetic core both public shapes delegate to. */
+function diffObligation(
   finance: FinanceState,
-  newMonthlyObligation: number,
-  opts: HousingDeltaOptions = {},
-): MetricDelta[] | null {
-  if (finance.monthlyIncome <= 0) return null;
-  if (!Number.isFinite(newMonthlyObligation) || newMonthlyObligation < 0) return null;
-
-  const replacedRent = Math.max(0, opts.replacedRentMonthly ?? 0);
-
+  newObligation: number,
+  replaced: number,
+): MetricDelta[] {
   // --- Runway ---
   const fromRunway = runwayMonths(finance);
   const toOutflow =
-    finance.monthlyExpenses - replacedRent + finance.monthlyDebtPayments + newMonthlyObligation;
+    finance.monthlyExpenses - replaced + finance.monthlyDebtPayments + newObligation;
   const toRunway = toOutflow > 0 ? finance.liquidSavings / toOutflow : Infinity;
 
   // --- DTI ---
-  // Housing obligations count toward DTI; replaced rent leaves the ratio.
   const fromDti = debtToIncome(finance);
   const toDti =
-    ((finance.monthlyDebtPayments + newMonthlyObligation - replacedRent) /
-      finance.monthlyIncome) *
-    100;
+    ((finance.monthlyDebtPayments + newObligation - replaced) / finance.monthlyIncome) * 100;
 
-  const deltas: MetricDelta[] = [
+  return [
     {
       metric: "runway",
       label: "Emergency runway",
@@ -100,8 +102,49 @@ export function computeHousingDeltas(
       improved: toDti < fromDti ? true : toDti > fromDti ? false : null,
     },
   ];
+}
 
-  return deltas;
+/**
+ * Diffs a proposed monthly housing obligation against the user's current
+ * numbers. Returns null when there is no usable income — a missing-data
+ * signal the UI must surface rather than a zero it must hide.
+ *
+ * Pure: pass the finance state explicitly so tests need no storage.
+ */
+export function computeHousingDeltas(
+  finance: FinanceState,
+  newMonthlyObligation: number,
+  opts: HousingDeltaOptions = {},
+): MetricDelta[] | null {
+  if (finance.monthlyIncome <= 0) return null;
+  if (!Number.isFinite(newMonthlyObligation) || newMonthlyObligation < 0) return null;
+
+  const replacedRent = Math.max(0, opts.replacedRentMonthly ?? 0);
+  return diffObligation(finance, newMonthlyObligation, replacedRent);
+}
+
+/**
+ * Diffs a REPLACEMENT swap: an obligation the user already carries (their
+ * current mortgage payment) is exchanged for a new one (the refinanced
+ * payment). Only the difference touches their runway and DTI.
+ *
+ * Honesty guards:
+ * - The replaced amount is capped at the user's total current outflow —
+ *   a swap can never "free up" more than they actually spend.
+ * - Null when income is missing or either payment is nonsensical.
+ */
+export function computeReplacementDeltas(
+  finance: FinanceState,
+  opts: ReplacementDeltaOptions,
+): MetricDelta[] | null {
+  if (finance.monthlyIncome <= 0) return null;
+  const { newPaymentMonthly, replacedPaymentMonthly } = opts;
+  if (!Number.isFinite(newPaymentMonthly) || newPaymentMonthly < 0) return null;
+  if (!Number.isFinite(replacedPaymentMonthly) || replacedPaymentMonthly < 0) return null;
+
+  const maxReplaceable = finance.monthlyExpenses + finance.monthlyDebtPayments;
+  const replaced = Math.min(replacedPaymentMonthly, maxReplaceable);
+  return diffObligation(finance, newPaymentMonthly, replaced);
 }
 
 /** Worst temperature across a delta set — drives the card accent so a

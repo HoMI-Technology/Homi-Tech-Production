@@ -9,6 +9,7 @@
 "use client";
 
 import { useState } from "react";
+import { track } from "@/lib/analytics";
 import { saveToolsOverlayFields, type ToolsOverlay } from "@/lib/tools/cfm";
 
 export function UpdateNumbersButton({
@@ -26,7 +27,9 @@ export function UpdateNumbersButton({
       <button
         type="button"
         onClick={() => {
-          saveToolsOverlayFields(getFields());
+          const fields = getFields();
+          saveToolsOverlayFields(fields);
+          track("numbers_writeback", { fields: Object.keys(fields) });
           onSaved?.();
           setDone(true);
         }}

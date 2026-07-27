@@ -14,6 +14,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { track } from "@/lib/analytics";
 import { buildCfm } from "@/lib/tools/cfm";
 import { getLens, resolveLensSeeds } from "@/lib/tools/registry";
 import { useCfm } from "@/hooks/use-cfm";
@@ -55,6 +56,7 @@ export function useLensPrefill(
     if (keys.length === 0) return;
     for (const key of keys) apply(key, seeds[key]);
     setPrefilled(new Set(keys));
+    track("lens_prefilled", { lens: lensId, count: keys.length });
     // apply is a per-page dispatcher over stable setState functions; it
     // intentionally runs once on mount only.
     // eslint-disable-next-line react-hooks/exhaustive-deps

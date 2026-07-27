@@ -10,6 +10,8 @@
 
 "use client";
 
+import { useEffect, useRef } from "react";
+import { track } from "@/lib/analytics";
 import type { MetricDelta } from "@/lib/tools/deltas";
 import { worstDeltaTemperature } from "@/lib/tools/deltas";
 import type { Temperature } from "@/lib/finance/store";
@@ -26,7 +28,19 @@ function formatValue(v: number, unit: MetricDelta["unit"]): string {
   return unit === "months" ? `${v} mo` : `${Math.round(v)}%`;
 }
 
-export function DeltasCard({ deltas }: { deltas: MetricDelta[] }) {
+export function DeltasCard({ deltas, lensId }: { deltas: MetricDelta[]; lensId?: string }) {
+  // Phase 2 instrumentation: fire once per mount, not per slider tick.
+  const viewedRef = useRef(false);
+  useEffect(() => {
+    if (viewedRef.current || deltas.length === 0) return;
+    viewedRef.current = true;
+    track("lens_delta_viewed", {
+      lens: lensId ?? "unknown",
+      worst: worstDeltaTemperature(deltas),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   if (deltas.length === 0) return null;
   const accent = TEMP_COLOR[worstDeltaTemperature(deltas)];
 
