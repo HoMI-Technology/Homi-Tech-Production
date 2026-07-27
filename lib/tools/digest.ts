@@ -11,6 +11,8 @@
  *   The context note instructs the model to read, never recompute.
  * - cfmCoverage is the honesty dial: below HALF_REAL_COVERAGE the
  *   Companion must speak in illustrative terms, never "your numbers".
+ * - readiness (Phase 5) is magnitude + direction ONLY — band, direction,
+ *   hardStop. No composite delta, no weights, no formulas.
  * - Transport is sessionStorage (ephemeral, numeric-only, page-scoped):
  *   slider state is live UI state, not account data, so it never goes
  *   through the server-side context assembly. Stale digests from another
@@ -18,6 +20,7 @@
  */
 
 import type { MetricDelta } from "@/lib/tools/deltas";
+import type { ReadinessDigest } from "@/lib/tools/readiness-bands";
 
 export const SYNTHESIS_MESSAGE = "What does this change for me?";
 export const SYNTHESIS_EVENT = "homi:lens-synthesis";
@@ -38,6 +41,8 @@ export interface LensDigestInput {
   keyInputs: Record<string, number>;
   /** Precomputed impact deltas (null when no saved finance state). */
   deltas: MetricDelta[] | null;
+  /** Phase 5: magnitude-only readiness impact, when computable. */
+  readiness?: ReadinessDigest;
 }
 
 /** The full digest as transported to /api/advisor. */
@@ -127,6 +132,16 @@ function formatDigestValue(value: number, unit: DigestUnit): string {
 
 const TEMPERATURE_RANK: Record<string, number> = { emerald: 0, yellow: 1, amber: 2, crimson: 3 };
 
+function readinessNote(readiness: ReadinessDigest): string {
+  if (readiness.hardStop) {
+    return "Readiness impact (from the canonical engine, magnitude only): the hypothetical crosses a protective hard stop. Explain what the protection represents — never how to get around it, and never quote weights or formulas.";
+  }
+  if (readiness.direction === "flat" || !readiness.band) {
+    return "Readiness impact (from the canonical engine, magnitude only): barely moves the user's readiness. Magnitude language only — never weights or formulas.";
+  }
+  return `Readiness impact (from the canonical engine, magnitude only): a ${readiness.band} ${readiness.direction}ward shift. Speak in this magnitude language only — never the composite delta, weights, or formulas.`;
+}
+
 /**
  * The lens block of the Companion's context note. The wording is the
  * guardrail: numbers are authoritative and precomputed, coverage sets the
@@ -162,6 +177,8 @@ export function buildLensDigestNote(lens: LensDigest): string {
   } else {
     parts.push("No impact deltas — the user has no saved finance numbers, so nothing here is personalized yet.");
   }
+
+  if (lens.readiness) parts.push(readinessNote(lens.readiness));
 
   const pct = Math.round(lens.cfmCoverage * 100);
   parts.push(
@@ -223,13 +240,21 @@ export function buildLensSynthesisFallback(lens: LensDigest): string {
         ? " That move helps — still worth checking the rest of your picture before you treat it as free."
         : "";
 
+  const readiness = lens.readiness
+    ? lens.readiness.hardStop
+      ? " And one thing I won't gloss over: a move like this crosses one of your protective lines — the score simulator shows exactly which."
+      : lens.readiness.band && lens.readiness.direction !== "flat"
+        ? ` In readiness terms, that's a ${lens.readiness.band} shift ${lens.readiness.direction === "down" ? "downward" : "upward"}.`
+        : " In readiness terms, it barely moves the needle."
+    : "";
+
   const coverage =
     lens.cfmCoverage < HALF_REAL_COVERAGE
       ? " One honest caveat: some of this tool's inputs are still illustrative, so treat the shape of this as right and the exact numbers as close."
       : "";
 
   return (
-    `Straight answer: your ${headline}. On your saved numbers, your ${rendered}.${protection}${coverage} ` +
+    `Straight answer: your ${headline}. On your saved numbers, your ${rendered}.${protection}${readiness}${coverage} ` +
     "If you want the full picture, the score simulator shows how a move like this lands on your readiness — magnitude only, no black box."
   );
 }
