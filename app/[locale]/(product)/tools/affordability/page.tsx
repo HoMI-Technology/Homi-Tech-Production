@@ -7,6 +7,7 @@ import { LensField } from "@/components/tools/LensField";
 import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
 import { DeltasCard } from "@/components/tools/DeltasCard";
 import { ChainLinks } from "@/components/tools/ChainLinks";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
 import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
 import { getLens } from "@/lib/tools/registry";
 import { computeHousingDeltas } from "@/lib/tools/deltas";
@@ -62,6 +63,22 @@ export default function AffordabilityPage() {
     return computeHousingDeltas(finance, stretchBreakdown.total);
   }, [finance, stretchBreakdown.total]);
 
+  // The lens digest the Companion reads — every number precomputed here.
+  const digest = useMemo(
+    () => ({
+      lensId: "affordability",
+      path: "/tools/affordability",
+      headline: {
+        label: "Stretch-tier monthly housing cost",
+        value: Math.round(stretchBreakdown.total),
+        unit: "currency" as const,
+      },
+      keyInputs: { income, debts, rate, term },
+      deltas,
+    }),
+    [stretchBreakdown.total, income, debts, rate, term, deltas],
+  );
+
   const maxBar = Math.max(stretchBreakdown.principalAndInterest, stretchBreakdown.taxesAndInsurance, 1);
 
   return (
@@ -114,6 +131,8 @@ export default function AffordabilityPage() {
               );
             })}
           </div>
+
+          <LensSynthesis digest={digest} />
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">Monthly payment breakdown</h2>
