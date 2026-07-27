@@ -156,15 +156,25 @@ recomputes them (canon: AI explains, code calculates).
 
 ## Merge gate
 
-- [ ] `typecheck` / `lint` / `test` / `build` green
-- [ ] Apply migration `00036_tool_scenarios`
-- [ ] Manual: saved-numbers pass + incognito illustrative pass across several
-      lenses (not just mortgage)
+- [x] `typecheck` / `lint` / `test` / `build` green — CI green on #111 and on
+      `main` through 44fee8d
+- [x] Apply migration `00036_tool_scenarios` — applied to production; table,
+      RLS, and `tool_scenarios_user_idx` all verified present
+- [x] Manual: saved-numbers pass + incognito illustrative pass across several
+      lenses (not just mortgage) — verified on mortgage + runway. Seeded fields
+      carry the "your numbers" tag; fields with no CFM data (all `housing.*`
+      on mortgage) correctly fall back untagged. Empty-storage origin shows the
+      "These are illustrative numbers" banner with no tags anywhere.
 - [ ] Manual: synthesis click on a housing lens and a non-housing lens
-      (paid + $0 paths)
+      (paid + $0 paths) — button renders on both; the click itself (which sends
+      a Companion message) is still unexercised
 - [ ] Manual: scenario save / compare / drift-banner pass (mortgage +
-      refinance swap evaluation)
-- [ ] Manual: readiness band with and without a stored assessment
+      refinance swap evaluation) — compare needs two saved scenarios, i.e. a
+      write to a real account; not yet exercised
+- [x] Manual: readiness band **without** a stored assessment — mortgage renders
+      "LARGE SHIFT DOWN" plus the "No assessment on file — this uses neutral
+      placeholders" honesty note
+- [ ] Manual: readiness band **with** a stored assessment
 
 ## Queued after merge
 
