@@ -19,8 +19,12 @@
  */
 
 import { DEFAULT_FINANCE_STATE, type FinanceState } from "@/lib/finance/store";
-import { fullPaymentBreakdown } from "@/lib/tools/mortgage";
-import { computeHousingDeltas } from "@/lib/tools/deltas";
+import { fullPaymentBreakdown, monthlyPayment } from "@/lib/tools/mortgage";
+import {
+  computeHousingDeltas,
+  computeReplacementDeltas,
+  type MetricDelta,
+} from "@/lib/tools/deltas";
 import type { CanonicalFinancialModel } from "@/lib/tools/cfm";
 
 export interface ScenarioCfmSnapshot {
@@ -107,9 +111,37 @@ export function snapshotToFinanceState(snapshot: ScenarioCfmSnapshot): FinanceSt
   };
 }
 
+/** The refinance scenario's payment pair, when its inputs are complete. */
+function refinancePayments(
+  inputs: Record<string, number>,
+): { newPayment: number; currentPayment: number } | null {
+  const { balance, currentRate, currentTermYears, newRate, newTermYears } = inputs;
+  if (
+    typeof balance !== "number" ||
+    balance <= 0 ||
+    typeof currentRate !== "number" ||
+    typeof newRate !== "number" ||
+    typeof currentTermYears !== "number" ||
+    currentTermYears <= 0 ||
+    typeof newTermYears !== "number" ||
+    newTermYears <= 0
+  ) {
+    return null;
+  }
+  return {
+    newPayment: monthlyPayment(balance, newRate, newTermYears),
+    currentPayment: monthlyPayment(balance, currentRate, currentTermYears),
+  };
+}
+
 /** Monthly obligation implied by a scenario's inputs, when the lens produces
- * one (housing lenses). Null for lenses without a monthly obligation. */
+ * one (housing lenses; refinance contributes its NEW payment). Null for
+ * lenses without a monthly obligation — the comparison shows "—" rather
+ * than inventing a number. */
 export function scenarioMonthlyObligation(scenario: ToolScenario): number | null {
+  if (scenario.lensId === "refinance") {
+    return refinancePayments(scenario.inputs)?.newPayment ?? null;
+  }
   const { price, downPayment, rate, termYears } = scenario.inputs;
   if (
     typeof price !== "number" ||
@@ -130,6 +162,24 @@ export function scenarioMonthlyObligation(scenario: ToolScenario): number | null
   return breakdown.total;
 }
 
+/** The right delta shape per lens: refinance scenarios swap an obligation;
+ * everything else with a monthly cost adds one. */
+function deltasForScenario(
+  scenario: ToolScenario,
+  finance: FinanceState,
+): MetricDelta[] | null {
+  if (scenario.lensId === "refinance") {
+    const payments = refinancePayments(scenario.inputs);
+    if (!payments) return null;
+    return computeReplacementDeltas(finance, {
+      newPaymentMonthly: payments.newPayment,
+      replacedPaymentMonthly: payments.currentPayment,
+    });
+  }
+  const obligation = scenarioMonthlyObligation(scenario);
+  return obligation === null ? null : computeHousingDeltas(finance, obligation);
+}
+
 export interface ScenarioEvaluation {
   monthlyCost: number | null;
   runwayAfter: number | null;
@@ -144,7 +194,7 @@ export function evaluateScenario(scenario: ToolScenario): ScenarioEvaluation {
   if (monthlyCost === null || !scenario.cfmSnapshot || scenario.cfmSnapshot.monthlyIncome <= 0) {
     return { monthlyCost, runwayAfter: null, dtiAfter: null };
   }
-  const deltas = computeHousingDeltas(snapshotToFinanceState(scenario.cfmSnapshot), monthlyCost);
+  const deltas = deltasForScenario(scenario, snapshotToFinanceState(scenario.cfmSnapshot));
   return {
     monthlyCost,
     runwayAfter: deltas?.find((d) => d.metric === "runway")?.to ?? null,

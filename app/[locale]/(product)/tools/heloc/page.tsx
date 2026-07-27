@@ -5,10 +5,17 @@ import { helocAvailability, helocTiers } from "@/lib/tools/heloc";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { CalcField } from "@/components/tools/CalcField";
 import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { DeltasCard } from "@/components/tools/DeltasCard";
 import { ChainLinks } from "@/components/tools/ChainLinks";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
 import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
+import { ReadinessBand } from "@/components/tools/ReadinessBand";
 import { getLens } from "@/lib/tools/registry";
+import { computeHousingDeltas } from "@/lib/tools/deltas";
+import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readiness-bands";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
+import { useReadinessAnchors } from "@/hooks/use-readiness";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
 
@@ -25,8 +32,9 @@ function HelocPageInner() {
     if (key === "homeValue") setHomeValue(v);
     else if (key === "mortgageBalance") setMortgageBalance(v);
   }, []);
-  const { prefilled, markAll } = useLensPrefill("heloc", apply);
+  const { prefilled, finance, hydrated, markAll } = useLensPrefill("heloc", apply);
   const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
+  const readinessCtx = useReadinessAnchors();
 
   const result = useMemo(
     () => helocAvailability({ homeValue, mortgageBalance, maxCltv: maxCltv / 100, rate }),
@@ -35,6 +43,39 @@ function HelocPageInner() {
   const tiers = useMemo(
     () => helocTiers(homeValue, mortgageBalance, rate),
     [homeValue, mortgageBalance, rate],
+  );
+
+  // Deterministic impact of carrying the FULL draw, interest-only — the
+  // most conservative honest frame for a line of credit.
+  const deltas = useMemo(() => {
+    if (!finance || result.availableLine <= 0) return null;
+    return computeHousingDeltas(finance, result.interestOnlyMonthly);
+  }, [finance, result.availableLine, result.interestOnlyMonthly]);
+
+  // Phase 5: readiness impact of the full draw, magnitude only.
+  const readiness = useMemo(() => {
+    if (!readinessCtx || result.availableLine <= 0) return null;
+    return readinessImpactForHousing(readinessCtx.baseline, readinessCtx.anchors, {
+      monthlyObligation: result.interestOnlyMonthly,
+      upfrontCost: 0,
+    });
+  }, [readinessCtx, result.availableLine, result.interestOnlyMonthly]);
+
+  // The lens digest the Companion reads — every number precomputed here.
+  const digest = useMemo(
+    () => ({
+      lensId: "heloc",
+      path: "/tools/heloc",
+      headline: {
+        label: "Available line at selected CLTV",
+        value: Math.round(result.availableLine),
+        unit: "currency" as const,
+      },
+      keyInputs: { homeValue, mortgageBalance, maxCltv, rate },
+      deltas,
+      readiness: readiness ? toReadinessDigest(readiness) : undefined,
+    }),
+    [result.availableLine, homeValue, mortgageBalance, maxCltv, rate, deltas, readiness],
   );
 
   return (
@@ -56,6 +97,10 @@ function HelocPageInner() {
             getFields={() => ({ homeValue, currentMortgageBalance: mortgageBalance })}
             onSaved={() => markAll(["homeValue", "mortgageBalance"])}
           />
+          <SaveScenarioButton
+            lensId="heloc"
+            getInputs={() => ({ homeValue, mortgageBalance, maxCltv, rate })}
+          />
         </div>
 
         <div className="space-y-6">
@@ -73,6 +118,8 @@ function HelocPageInner() {
               </div>
             </div>
           </div>
+
+          <LensSynthesis digest={digest} />
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">What each CLTV tier unlocks</h2>
@@ -96,6 +143,9 @@ function HelocPageInner() {
               })}
             </div>
           </div>
+
+          {hydrated && deltas && <DeltasCard deltas={deltas} lensId="heloc" />}
+          {hydrated && readiness && <ReadinessBand impact={readiness} />}
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">What this means</h2>
