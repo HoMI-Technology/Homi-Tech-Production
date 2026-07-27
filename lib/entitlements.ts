@@ -60,6 +60,12 @@ export interface Entitlements {
   /** Maximum number of simultaneously active share links. */
   maxActiveShares: number;
   /**
+   * Saved tool scenarios (Decision Lab Phase 4). Free gets one — enough to
+   * name a future, not enough to compare two. Comparison needs ≥2 scenarios,
+   * so the cap itself is the honest gate on the comparison view.
+   */
+  maxScenarios: number;
+  /**
    * Advanced finance tools (mortgage, debt payoff modeling) — the published
    * Pro feature. Capability flag only: it must NOT be used to gate the
    * public funnel tool pages, only Pro-exclusive advanced tooling surfaces.
@@ -95,6 +101,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     couplesMode: false,
     familySeats: 1,
     maxActiveShares: 3,
+    maxScenarios: 1,
     advancedTools: false,
     bankSync: false,
     householdMode: false,
@@ -110,6 +117,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     couplesMode: false,
     familySeats: 1,
     maxActiveShares: 25,
+    maxScenarios: 25,
     advancedTools: false,
     bankSync: true,
     householdMode: false,
@@ -125,6 +133,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     couplesMode: true,
     familySeats: 1,
     maxActiveShares: 100,
+    maxScenarios: 100,
     advancedTools: true,
     bankSync: true,
     householdMode: false,
@@ -144,6 +153,7 @@ const ENTITLEMENTS: Record<EntitlementTier, Entitlements> = {
     couplesMode: true,
     familySeats: 5,
     maxActiveShares: 100,
+    maxScenarios: 100,
     advancedTools: true,
     bankSync: true,
     householdMode: true,
