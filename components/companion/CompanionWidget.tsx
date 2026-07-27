@@ -6,6 +6,11 @@ import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { buildCompanionContext } from "@/lib/advisor/context";
 import { MessageContent } from "@/components/companion/MessageContent";
 import {
+  consumeLensDigest,
+  takePendingSynthesisMessage,
+  SYNTHESIS_EVENT,
+} from "@/lib/tools/digest";
+import {
   loadIdentity,
   saveIdentity,
   hasChosenIdentity,
@@ -223,6 +228,10 @@ export function CompanionWidget() {
 
     try {
       const { assessment, finance, credit, surface, whatChanged } = buildCompanionContext(pathname);
+      // Decision Lab Phase 3: if a lens on this page has published a fresh
+      // digest, the Companion reads its precomputed numbers — it never
+      // recomputes them. Page-scoped and staleness-guarded at consume.
+      const lensDigest = consumeLensDigest(pathname);
       const res = await fetch("/api/advisor", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -234,6 +243,7 @@ export function CompanionWidget() {
           surface,
           whatChanged,
           credit,
+          lensDigest,
           identity,
           persona,
         }),
@@ -278,6 +288,26 @@ export function CompanionWidget() {
       setSending(false);
     }
   }
+
+  // Latest-ref so the synthesis listener (registered once) always calls the
+  // current sendMessage closure.
+  const sendMessageRef = useRef(sendMessage);
+  sendMessageRef.current = sendMessage;
+
+  // "What does this change for me?" — a lens button queues the message and
+  // fires the event; the panel opens and sends it with the page's fresh
+  // digest attached (picked up inside sendMessage).
+  useEffect(() => {
+    function handleSynthesis() {
+      const pending = takePendingSynthesisMessage();
+      if (!pending) return;
+      setOpen(true);
+      track("lens_synthesis_opened");
+      sendMessageRef.current(pending);
+    }
+    window.addEventListener(SYNTHESIS_EVENT, handleSynthesis);
+    return () => window.removeEventListener(SYNTHESIS_EVENT, handleSynthesis);
+  }, []);
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
