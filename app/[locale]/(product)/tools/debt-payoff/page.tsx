@@ -1,11 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { compareStrategies, type Debt, type PayoffResult } from "@/lib/tools/debt";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
 import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
 import { ChainLinks } from "@/components/tools/ChainLinks";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
 import { getLens } from "@/lib/tools/registry";
+import {
+  loadFinanceState,
+  hasSavedFinanceState,
+  netCashFlow,
+} from "@/lib/finance/store";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
 
@@ -36,15 +43,63 @@ function DebtPayoffPageInner() {
     makeDebt({ name: "Student loan", balance: 18000, apr: 5.0, minPayment: 210 }),
   ]);
   const [extra, setExtra] = useState(300);
+  /** True when the debt rows were seeded from the finance dashboard — the
+   * honesty note explains which fields are real and which still need the
+   * user. */
+  const [balancesSeeded, setBalancesSeeded] = useState(false);
 
-  // Note: itemized debts don't map to CFM fields — this lens joins the
-  // shared-numbers strip and the decision chains, and the itemized payoff
-  // CFM mapping is a Phase 2 candidate.
+  // Decision Lab: itemized CFM mapping. The finance dashboard stores
+  // liability names and balances — never rates or minimums — so a seed
+  // replaces the illustrative rows with real balances and leaves apr /
+  // minPayment at zero, which the page treats as "needs your input"
+  // rather than inventing numbers. The extra payment seeds from actual
+  // positive cash flow. Mount-only; never fights live edits.
+  useEffect(() => {
+    if (!hasSavedFinanceState()) return;
+    const finance = loadFinanceState();
+    const real = finance.liabilities.filter((l) => l.amount > 0);
+    if (real.length > 0) {
+      setDebts(real.map((l) => makeDebt({ name: l.name, balance: l.amount })));
+      setBalancesSeeded(true);
+    }
+    const flow = netCashFlow(finance);
+    if (flow > 0) setExtra(Math.round(flow));
+  }, []);
 
   const validDebts = debts.filter((d) => d.balance > 0 && d.minPayment > 0);
   const comparison = useMemo(
     () => (validDebts.length > 0 ? compareStrategies(validDebts, extra) : null),
     [debts, extra],
+  );
+
+  const totalBalance = useMemo(
+    () => debts.reduce((s, d) => s + (d.balance > 0 ? d.balance : 0), 0),
+    [debts],
+  );
+  const weightedAprPct = useMemo(() => {
+    if (totalBalance <= 0) return 0;
+    const w = debts.reduce((s, d) => (d.balance > 0 ? s + d.balance * d.apr : s), 0);
+    return Math.round((w / totalBalance) * 100) / 100;
+  }, [debts, totalBalance]);
+
+  // The lens digest the Companion reads — only once a real comparison
+  // exists, so the headline never describes placeholder math.
+  const digest = useMemo(
+    () =>
+      comparison
+        ? {
+            lensId: "debt-payoff",
+            path: "/tools/debt-payoff",
+            headline: {
+              label: "Interest saved by avalanche vs snowball",
+              value: Math.round(Math.max(0, comparison.interestSaved)),
+              unit: "currency" as const,
+            },
+            keyInputs: { extra, debtCount: validDebts.length, totalBalance: Math.round(totalBalance) },
+            deltas: null,
+          }
+        : null,
+    [comparison, extra, validDebts.length, totalBalance],
   );
 
   function updateDebt(id: string, patch: Partial<Debt>) {
@@ -71,6 +126,13 @@ function DebtPayoffPageInner() {
             + Add debt
           </button>
         </div>
+
+        {balancesSeeded && (
+          <p className="mt-3 rounded-lg border border-cyan/20 bg-cyan/5 p-3 text-xs leading-relaxed text-dim">
+            Balances loaded from your finance dashboard. Rates and minimum payments aren&apos;t stored
+            there — add them to each row to see your comparison.
+          </p>
+        )}
 
         <div className="mt-4 space-y-3">
           {debts.map((debt) => (
@@ -126,13 +188,32 @@ function DebtPayoffPageInner() {
             onChange={(e) => setExtra(Number(e.target.value))}
           />
         </div>
+
+        <div className="mt-5 max-w-sm">
+          <SaveScenarioButton
+            lensId="debt-payoff"
+            getInputs={() => ({
+              extra,
+              debtCount: debts.filter((d) => d.balance > 0).length,
+              totalBalance: Math.round(totalBalance),
+              weightedAprPct,
+            })}
+          />
+        </div>
       </div>
 
       {comparison ? (
-        <div className="mt-8 grid gap-6 lg:grid-cols-2">
-          <StrategyCard title="Avalanche" subtitle="Highest interest rate first" result={comparison.avalanche} color="#22d3ee" />
-          <StrategyCard title="Snowball" subtitle="Smallest balance first" result={comparison.snowball} color="#facc15" />
-        </div>
+        <>
+          {digest && (
+            <div className="mt-8 max-w-xl">
+              <LensSynthesis digest={digest} />
+            </div>
+          )}
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            <StrategyCard title="Avalanche" subtitle="Highest interest rate first" result={comparison.avalanche} color="#22d3ee" />
+            <StrategyCard title="Snowball" subtitle="Smallest balance first" result={comparison.snowball} color="#facc15" />
+          </div>
+        </>
       ) : (
         <p className="mt-8 text-sm text-dim">Add at least one debt with a balance and minimum payment to see a comparison.</p>
       )}

@@ -5,6 +5,8 @@ import { formatCurrency, formatMonths } from "@/lib/tools/format";
 import { LensField } from "@/components/tools/LensField";
 import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
 import { ChainLinks } from "@/components/tools/ChainLinks";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
 import { getLens } from "@/lib/tools/registry";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { ToolShell, ToolResultHero } from "@/components/tools/ToolShell";
@@ -35,6 +37,23 @@ export default function RunwayPage() {
   const temp = temperature(months);
   const cappedForBar = Math.min(months, 12);
 
+  // The lens digest the Companion reads. Runway IS the user's current
+  // state, not a new obligation — no deltas by design.
+  const digest = useMemo(
+    () => ({
+      lensId: "runway",
+      path: "/tools/runway",
+      headline: {
+        label: "Emergency runway",
+        value: Math.round(months * 10) / 10,
+        unit: "months" as const,
+      },
+      keyInputs: { expenses, savings },
+      deltas: null,
+    }),
+    [months, expenses, savings],
+  );
+
   return (
     <ToolShell
       title="Emergency Runway"
@@ -46,6 +65,12 @@ export default function RunwayPage() {
         <div className="glass space-y-5 p-6">
           <LensField label="Monthly essential expenses" value={expenses} onChange={setExpenses} min={0} max={20000} step={50} format="currency" source={sourceFor("expenses")} />
           <LensField label="Liquid savings" value={savings} onChange={setSavings} min={0} max={200000} step={500} format="currency" source={sourceFor("savings")} />
+
+          <div className="hairline" />
+          <SaveScenarioButton
+            lensId="runway"
+            getInputs={() => ({ expenses, savings })}
+          />
         </div>
 
         <div className="space-y-6">
@@ -78,6 +103,8 @@ export default function RunwayPage() {
               </div>
             }
           />
+
+          <LensSynthesis digest={digest} />
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">What this means</h2>
