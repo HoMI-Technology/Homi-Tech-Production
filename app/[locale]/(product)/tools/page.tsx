@@ -18,12 +18,19 @@ export const metadata: Metadata = {
 export default function ToolsHubPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-10 sm:py-12">
-      <p className="eyebrow">Decision math</p>
-      <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">Tools</h1>
-      <p className="mt-2 max-w-2xl text-dim">
-        No hype, no black boxes — the math behind decisions that matter, laid out plainly.
-        {` ${LENSES.length} calculators,`} all wired to your saved numbers. Educational guidance only.
-      </p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="eyebrow">Decision math</p>
+          <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">Tools</h1>
+          <p className="mt-2 max-w-2xl text-dim">
+            No hype, no black boxes — the math behind decisions that matter, laid out plainly.
+            {` ${LENSES.length} calculators,`} all wired to your saved numbers. Educational guidance only.
+          </p>
+        </div>
+        <Link href="/tools/scenarios" className="text-sm font-medium text-cyan hover:underline">
+          Saved scenarios →
+        </Link>
+      </div>
 
       <div className="mt-10 space-y-14">
         {RING_ORDER.map((ring) => {

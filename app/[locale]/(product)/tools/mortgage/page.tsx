@@ -10,6 +10,7 @@ import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
 import { DeltasCard } from "@/components/tools/DeltasCard";
 import { ChainLinks } from "@/components/tools/ChainLinks";
 import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
 import { getLens } from "@/lib/tools/registry";
 import { buildCfm, resolveCfmValue, saveToolsOverlayFields } from "@/lib/tools/cfm";
 import { computeHousingDeltas } from "@/lib/tools/deltas";
@@ -159,6 +160,10 @@ function MortgagePageInner() {
             Saves these as your planning numbers so the other tools — and your HōMI — start
             from the same place. Nothing here changes your assessment.
           </p>
+          <SaveScenarioButton
+            lensId="mortgage"
+            getInputs={() => ({ price, downPayment, rate, termYears, taxInsRate, hoaMonthly })}
+          />
         </div>
 
         <div className="space-y-6">
