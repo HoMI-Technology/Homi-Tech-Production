@@ -227,7 +227,8 @@ export function CompanionWidget() {
     setSending(true);
 
     try {
-      const { assessment, finance, credit, surface, whatChanged } = buildCompanionContext(pathname);
+      const { assessment, finance, credit, surface, whatChanged, path } =
+        buildCompanionContext(pathname);
       // Decision Lab Phase 3: if a lens on this page has published a fresh
       // digest, the Companion reads its precomputed numbers — it never
       // recomputes them. Page-scoped and staleness-guarded at consume.
@@ -243,6 +244,7 @@ export function CompanionWidget() {
           surface,
           whatChanged,
           credit,
+          path,
           lensDigest,
           identity,
           persona,

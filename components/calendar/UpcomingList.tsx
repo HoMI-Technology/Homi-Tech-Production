@@ -1,4 +1,5 @@
 import { localDateISO } from "@/lib/dates";
+import { isPathCalendarEvent } from "@/lib/readiness";
 import type { CalendarEvent, CalendarEventKind } from "@/types/database";
 
 const KIND_LABEL: Record<CalendarEventKind, string> = {
@@ -42,7 +43,14 @@ export function UpcomingList({
               onClick={() => onSelect(ev.event_date)}
               className="glass-hover flex w-full flex-col rounded-lg border border-slate-high/40 p-3 text-left"
             >
-              <span className="text-sm font-semibold text-light">{ev.title}</span>
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-sm font-semibold text-light">{ev.title}</span>
+                {isPathCalendarEvent(ev.notes) && (
+                  <span className="shrink-0 rounded-full bg-cyan/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-cyan">
+                    Path
+                  </span>
+                )}
+              </div>
               <div className="mt-1 flex items-center gap-2 text-xs text-dim">
                 <span className={KIND_TEXT_CLASS[ev.kind]}>{KIND_LABEL[ev.kind]}</span>
                 <span aria-hidden="true">&middot;</span>

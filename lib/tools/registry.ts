@@ -147,6 +147,33 @@ export const LENSES: LensDefinition[] = [
     accent: "#22d3ee",
     gate: "free",
   },
+  {
+    id: "preflight",
+    path: "/tools/preflight",
+    name: "Decision Pre-Flight",
+    desc: "Sixty-second protective gate before you sign, bid, or stretch.",
+    ring: "readiness",
+    accent: "#f24822",
+    gate: "free",
+  },
+  {
+    id: "path-to-ready",
+    path: "/path",
+    name: "Path to Ready",
+    desc: "Binding-constraint path from your verdict — not another budget.",
+    ring: "readiness",
+    accent: "#34d399",
+    gate: "free",
+  },
+  {
+    id: "scenario-studio",
+    path: "/scenarios",
+    name: "Scenario Studio",
+    desc: "Buy now vs wait 12/24 months with readiness honesty overlay.",
+    ring: "readiness",
+    accent: "#facc15",
+    gate: "free",
+  },
 
   // --- Financial Reality (housing) ---
   {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Link } from "@/i18n/navigation";
 import { ScoreRing } from "@/components/ui/ScoreRing";
 import { sliderFillPercent } from "@/lib/assessment/format";
 import { CouplesModeGate } from "@/components/entitlements/AdvancedToolGate";
@@ -197,6 +198,13 @@ function CouplesPageInner() {
           <div>
             <h1 className="font-display text-3xl text-light">Alignment Results</h1>
             <p className="mt-2 text-dim">Taken {new Date(stored.completedAt).toLocaleDateString()}.</p>
+            <p className="mt-2 text-sm text-dim">
+              Path to Ready treats significant gaps as household readiness work —{" "}
+              <Link href="/path" className="text-cyan underline-offset-2 hover:underline">
+                open your path
+              </Link>
+              .
+            </p>
           </div>
           <button className="btn btn-ghost" onClick={startOver}>
             Retake

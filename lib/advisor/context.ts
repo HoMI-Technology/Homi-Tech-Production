@@ -21,6 +21,11 @@ import {
 } from "@/lib/finance/store";
 import { loadCreditState, hasSavedCreditState, creditSavedAt } from "@/lib/credit/store";
 import { buildScoreExplanation } from "@/lib/advisor/explain";
+import {
+  loadReadinessPath,
+  getFinanceSavedAtForPath,
+  buildPathCoachPack,
+} from "@/lib/readiness";
 import type {
   AdvisorAssessmentContext,
   AdvisorCreditContext,
@@ -129,6 +134,9 @@ const SURFACE_LABELS: Array<[prefix: string, label: string]> = [
   ["/shadow-score", "the Shadow Score"],
   ["/results", "their assessment results"],
   ["/report", "their readiness report"],
+  ["/path", "their Path to Ready"],
+  ["/tools/preflight", "Decision Pre-Flight"],
+  ["/scenarios", "the scenario studio"],
   ["/plan", "their readiness plan"],
   ["/simulator", "the scenario simulator"],
   ["/twin", "the future-self letter"],
@@ -160,12 +168,60 @@ export function buildWhatChanged(): string | undefined {
   return buildScoreExplanation(stored)?.companionLine;
 }
 
+/**
+ * Active Path to Ready from localStorage — educational next-step only.
+ * Undefined when the user has not generated/committed a path.
+ */
+export interface AdvisorPathContext {
+  verdict: string;
+  bindingConstraint: string | null;
+  nextStepTitle: string | null;
+  nextStepHref: string | null;
+  stepCount: number;
+  mode: string;
+  confidence: string;
+  pendingCount: number;
+  completedCount: number;
+  completionPct: number;
+  boardMeetingLine: string;
+  isStale: boolean;
+}
+
+/**
+ * Compact path block for the Companion — includes coach board-meeting line.
+ * Next step prefers first pending non-REASSESS step.
+ */
+export function buildPathContext(): AdvisorPathContext | undefined {
+  const path = loadReadinessPath();
+  if (!path) return undefined;
+
+  const coach = buildPathCoachPack(path, {
+    financeSavedAt: getFinanceSavedAtForPath(),
+  });
+
+  return {
+    verdict: path.verdict,
+    bindingConstraint: coach.bindingLabel,
+    nextStepTitle: coach.nextStepTitle,
+    nextStepHref: coach.nextStepHref,
+    stepCount: path.steps.length,
+    mode: path.mode,
+    confidence: path.confidence,
+    pendingCount: coach.pendingCount,
+    completedCount: coach.completedCount,
+    completionPct: coach.completionPct,
+    boardMeetingLine: coach.boardMeetingLine,
+    isStale: coach.isStale,
+  };
+}
+
 export interface CompanionContext {
   assessment: AdvisorAssessmentContext | undefined;
   finance: AdvisorFinanceContext | undefined;
   credit: AdvisorCreditContext | undefined;
   surface: string | undefined;
   whatChanged: string | undefined;
+  path: AdvisorPathContext | undefined;
 }
 
 /** Everything the Companion knows about this user and this moment. */
@@ -176,5 +232,6 @@ export function buildCompanionContext(pathname?: string | null): CompanionContex
     credit: buildCreditContext(),
     surface: buildSurfaceContext(pathname),
     whatChanged: buildWhatChanged(),
+    path: buildPathContext(),
   };
 }

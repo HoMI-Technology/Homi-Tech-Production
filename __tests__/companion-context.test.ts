@@ -10,13 +10,60 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   buildCompanionContext,
   buildFinanceContext,
+  buildPathContext,
   buildSurfaceContext,
 } from "@/lib/advisor/context";
 import { DEFAULT_FINANCE_STATE, saveFinanceState } from "@/lib/finance/store";
+import { saveReadinessPath, type ReadinessPath } from "@/lib/readiness";
 
 beforeEach(() => {
   window.localStorage.clear();
 });
+
+function samplePath(overrides: Partial<ReadinessPath> = {}): ReadinessPath {
+  return {
+    id: "path-test-1",
+    version: 1,
+    createdAt: "2026-07-01T00:00:00.000Z",
+    assessmentCompletedAt: "2026-07-01T00:00:00.000Z",
+    verdict: "BUILD_FIRST",
+    score: 52,
+    bindingConstraint: "RUNWAY_UNDER_1_MONTH",
+    confidence: "assessment_only",
+    disclaimer: "Educational readiness only.",
+    mode: "build",
+    calendarCommittedAt: null,
+    steps: [
+      {
+        id: "step-1",
+        title: "Build emergency runway",
+        kind: "milestone",
+        daysFromNow: 3,
+        reasonCode: "RUNWAY_UNDER_1_MONTH",
+        href: "/tools/runway",
+        notes: "Protective step — educational only.",
+        fundingTarget: 6000,
+        fundingLabel: "1-month runway target",
+        status: "pending",
+        completedAt: null,
+      },
+      {
+        id: "step-reassess",
+        title: "Reassess readiness",
+        kind: "review",
+        daysFromNow: 60,
+        reasonCode: "REASSESS",
+        href: "/assessment",
+        notes: "Re-run when the binding constraint moves.",
+        fundingTarget: null,
+        fundingLabel: null,
+        status: "pending",
+        completedAt: null,
+      },
+    ],
+    ...overrides,
+  };
+}
 
 describe("buildFinanceContext", () => {
   it("returns undefined until the user has saved finance data", () => {
@@ -71,12 +118,80 @@ describe("buildSurfaceContext", () => {
   });
 });
 
+describe("buildPathContext", () => {
+  it("returns undefined when no path is stored", () => {
+    expect(buildPathContext()).toBeUndefined();
+  });
+
+  it("maps a stored path into a compact companion block", () => {
+    saveReadinessPath(samplePath());
+    const path = buildPathContext();
+    expect(path).toBeDefined();
+    expect(path?.verdict).toBe("BUILD_FIRST");
+    expect(path?.bindingConstraint).toMatch(/runway/i);
+    expect(path?.nextStepTitle).toBe("Build emergency runway");
+    expect(path?.nextStepHref).toBe("/tools/runway");
+    expect(path?.stepCount).toBe(2);
+    expect(path?.mode).toBe("build");
+    expect(path?.confidence).toBe("assessment_only");
+    expect(path?.pendingCount).toBe(2);
+    expect(path?.completionPct).toBeGreaterThanOrEqual(0);
+    expect(path?.boardMeetingLine).toMatch(/Path coach|binding|READY/i);
+  });
+
+  it("prefers the first non-REASSESS step as next", () => {
+    saveReadinessPath(
+      samplePath({
+        steps: [
+          {
+            id: "reassess-first",
+            title: "Reassess readiness",
+            kind: "review",
+            daysFromNow: 90,
+            reasonCode: "REASSESS",
+            href: "/assessment",
+            notes: "Review",
+            fundingTarget: null,
+            fundingLabel: null,
+            status: "pending",
+            completedAt: null,
+          },
+          {
+            id: "action",
+            title: "Stabilize cash flow",
+            kind: "milestone",
+            daysFromNow: 5,
+            reasonCode: "NEGATIVE_CASHFLOW",
+            href: "/finance",
+            notes: "Educational",
+            fundingTarget: null,
+            fundingLabel: null,
+            status: "pending",
+            completedAt: null,
+          },
+        ],
+      }),
+    );
+    expect(buildPathContext()?.nextStepTitle).toBe("Stabilize cash flow");
+    expect(buildPathContext()?.nextStepHref).toBe("/finance");
+  });
+});
+
 describe("buildCompanionContext", () => {
   it("assembles assessment, finance, and surface without leaking defaults", () => {
     const ctx = buildCompanionContext("/finance");
-    // Nothing saved: no assessment, no finance — but the surface is known.
+    // Nothing saved: no assessment, no finance, no path — but the surface is known.
     expect(ctx.assessment).toBeUndefined();
     expect(ctx.finance).toBeUndefined();
+    expect(ctx.path).toBeUndefined();
     expect(ctx.surface).toBe("the Finance Command dashboard");
+  });
+
+  it("includes path when localStorage has a readiness path", () => {
+    saveReadinessPath(samplePath({ confidence: "assessment_plus_finance" }));
+    const ctx = buildCompanionContext("/finance");
+    expect(ctx.path).toBeDefined();
+    expect(ctx.path?.confidence).toBe("assessment_plus_finance");
+    expect(ctx.path?.stepCount).toBe(2);
   });
 });

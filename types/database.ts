@@ -177,6 +177,15 @@ export interface CalendarEvent {
   created_at: string;
 }
 
+/** Path to Ready — migration 00036. Full path JSON LWW per user. */
+export interface UserReadinessPathRow {
+  user_id: string;
+  path: Record<string, unknown>;
+  client_updated_at: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface FinancialSnapshot {
   id: string;
   user_id: string;

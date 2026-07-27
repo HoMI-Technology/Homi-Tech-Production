@@ -27,8 +27,8 @@ export default function ToolsHubPage() {
             {` ${LENSES.length} calculators,`} all wired to your saved numbers. Educational guidance only.
           </p>
         </div>
-        <Link href="/tools/scenarios" className="text-sm font-medium text-cyan hover:underline">
-          Saved scenarios →
+        <Link href="/scenarios" className="text-sm font-medium text-cyan hover:underline">
+          Scenario studio →
         </Link>
       </div>
 

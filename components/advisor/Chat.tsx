@@ -102,7 +102,7 @@ export function Chat() {
     setSending(true);
 
     try {
-      const { assessment, finance, credit, whatChanged } = buildCompanionContext();
+      const { assessment, finance, credit, whatChanged, path } = buildCompanionContext();
       const res = await fetch("/api/advisor", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -113,6 +113,7 @@ export function Chat() {
           finance,
           whatChanged,
           credit,
+          path,
           identity: loadIdentity(),
         }),
       });

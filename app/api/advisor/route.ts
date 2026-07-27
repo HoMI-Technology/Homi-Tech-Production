@@ -73,6 +73,25 @@ const creditContextSchema = z.object({
   ageDays: z.number().min(0).max(36_500).nullish(),
 });
 
+/**
+ * Active Path to Ready — client-held localStorage path. Educational only;
+ * labels already humanized by buildPathContext (bindingConstraint is a label).
+ */
+const pathContextSchema = z.object({
+  verdict: z.string().max(40),
+  bindingConstraint: z.string().max(120).nullable(),
+  nextStepTitle: z.string().max(160).nullable(),
+  nextStepHref: z.string().max(120).nullable(),
+  stepCount: z.number().int().min(0).max(20),
+  mode: z.string().max(40),
+  confidence: z.string().max(40),
+  pendingCount: z.number().int().min(0).max(20).optional(),
+  completedCount: z.number().int().min(0).max(20).optional(),
+  completionPct: z.number().int().min(0).max(100).optional(),
+  boardMeetingLine: z.string().max(500).optional(),
+  isStale: z.boolean().optional(),
+});
+
 const identitySchema = z.object({
   name: z
     .string()
@@ -141,6 +160,7 @@ const bodySchema = z.object({
   assessment: assessmentContextSchema.nullish(),
   finance: financeContextSchema.nullish(),
   credit: creditContextSchema.nullish(),
+  path: pathContextSchema.nullish(),
   /** Human-readable label of the surface the user is on, e.g. "the mortgage calculator". */
   surface: z.string().max(80).nullish(),
   /** Score-movement one-liner from the explainability engine (lib/advisor/explain). */
@@ -189,10 +209,26 @@ Voice rules, non-negotiable:
 - If you don't have their assessment data, don't guess at their numbers — invite them warmly to get their Shadow Score.
 - Every number you have here is self-reported by the user inside the app unless explicitly marked otherwise. Never present self-reported data as verified fact.
 - Honesty about freshness: when the context says data is weeks or months old, say so plainly and suggest a refresh before leaning on it. Confidence you don't have is a lie — never fake it.
+- Path to Ready coach rules: when an active path is present, open high-stakes money questions by naming the binding constraint and the next pending step. Never invent a READY verdict that contradicts the scorer. Never complete or skip path steps for them in prose as if done — invite them to mark steps on /path. If the path is marked stale, say so and point to reassess. Weekly board-meeting style: one binding issue, one next move, one honesty check.
 
 ${advisorToolHandoffLine()}
 
 Remember: your job is to help people see clearly, not to close a sale or cheer them on. Sometimes the most honest and most homie thing you can say is "not yet."`;
+
+type AdvisorPathNote = {
+  verdict: string;
+  bindingConstraint: string | null;
+  nextStepTitle: string | null;
+  nextStepHref: string | null;
+  stepCount: number;
+  mode: string;
+  confidence: string;
+  pendingCount?: number;
+  completedCount?: number;
+  completionPct?: number;
+  boardMeetingLine?: string;
+  isStale?: boolean;
+};
 
 function buildContextNote(
   assessment: AdvisorAssessmentContext | null | undefined,
@@ -201,6 +237,7 @@ function buildContextNote(
   whatChanged?: string | null,
   verified?: VerifiedCashFlow | null,
   credit?: AdvisorCreditContext | null,
+  path?: AdvisorPathNote | null,
   lens?: LensDigest | null,
 ): string {
   const parts: string[] = [];
@@ -269,6 +306,28 @@ function buildContextNote(
       parts.push(
         "Their credit score is below the 620 protective hard stop — explain the protection it represents without shame.",
       );
+    }
+  }
+
+  if (path) {
+    const binding = path.bindingConstraint ?? "none labeled";
+    const next =
+      path.nextStepTitle != null
+        ? path.nextStepHref
+          ? `${path.nextStepTitle} (${path.nextStepHref})`
+          : path.nextStepTitle
+        : "none";
+    parts.push(
+      `Active Path to Ready: binding ${binding}; next step ${next}. ` +
+        `Mode ${path.mode}, confidence ${path.confidence}, ${path.stepCount} steps` +
+        (path.pendingCount != null
+          ? `, ${path.pendingCount} pending, ${path.completedCount ?? 0} done, ${path.completionPct ?? 0}% complete`
+          : "") +
+        (path.isStale ? ", PATH STALE — urge regenerate/reassess" : "") +
+        `. Educational only.`,
+    );
+    if (path.boardMeetingLine) {
+      parts.push(path.boardMeetingLine);
     }
   }
 
@@ -350,6 +409,7 @@ export async function POST(request: Request) {
   // Demo mode never mixes a real user's money picture into the fixed context.
   const finance = demoContext ? null : (serverState?.finance ?? parsed.data.finance);
   const credit = demoContext ? null : (serverState?.credit ?? parsed.data.credit);
+  const path = demoContext ? null : (parsed.data.path ?? null);
   const surface = demoContext ? null : parsed.data.surface;
   const whatChanged = demoContext ? null : parsed.data.whatChanged;
   const lensDigest = demoContext ? null : (parsed.data.lensDigest ?? null);
@@ -404,7 +464,17 @@ export async function POST(request: Request) {
       ? "Context assembled server-side from the user's own account records (authoritative across their devices). "
       : "";
     const contextNote =
-      provenance + buildContextNote(assessment ?? null, finance, surface, whatChanged, verified, credit, lensDigest);
+      provenance +
+      buildContextNote(
+        assessment ?? null,
+        finance,
+        surface,
+        whatChanged,
+        verified,
+        credit,
+        path,
+        lensDigest,
+      );
     // The name is user-chosen text — framed as a label, never as instructions.
     const identityLine =
       identity && identity.name !== "HōMI"

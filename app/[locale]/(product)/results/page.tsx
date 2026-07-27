@@ -22,6 +22,7 @@ import { ScoreDeltaBadge } from "@/components/dashboard/ScoreDeltaBadge";
 import { ScoreExplanation } from "@/components/results/ScoreExplanation";
 import { VerdictOverride } from "@/components/assessment/VerdictOverride";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
+import { PathToReadyCard } from "@/components/readiness";
 
 const FINANCIAL = PILLARS.find((p) => p.key === "financial")!;
 const EMOTIONAL = PILLARS.find((p) => p.key === "emotional")!;
@@ -199,6 +200,25 @@ export default function ResultsPage() {
           ))}
         </div>
       )}
+
+      {/* Path to Ready — binding-constraint sequence (primary operate move) */}
+      <PathToReadyCard
+        result={result}
+        assessmentCompletedAt={effective.completedAt}
+        isAnonymous={isAnonymous}
+      />
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Link href="/tools/preflight" className="btn btn-ghost !px-4 !py-2 text-sm">
+          Decision Pre-Flight
+        </Link>
+        <Link href="/scenarios" className="btn btn-ghost !px-4 !py-2 text-sm">
+          Scenario studio
+        </Link>
+        <Link href="/path" className="btn btn-ghost !px-4 !py-2 text-sm">
+          Full path
+        </Link>
+      </div>
 
       {/* Pillar rings */}
       <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-3">
