@@ -9,9 +9,12 @@ import { DeltasCard } from "@/components/tools/DeltasCard";
 import { ChainLinks } from "@/components/tools/ChainLinks";
 import { LensSynthesis } from "@/components/tools/LensSynthesis";
 import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
+import { ReadinessBand } from "@/components/tools/ReadinessBand";
 import { getLens } from "@/lib/tools/registry";
 import { computeHousingDeltas } from "@/lib/tools/deltas";
+import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readiness-bands";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
+import { useReadinessAnchors } from "@/hooks/use-readiness";
 import { ToolShell } from "@/components/tools/ToolShell";
 
 const LENS = getLens("affordability")!;
@@ -41,6 +44,7 @@ export default function AffordabilityPage() {
   }, []);
   const { prefilled, finance, hydrated, markAll } = useLensPrefill("affordability", apply);
   const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
+  const readinessCtx = useReadinessAnchors();
 
   const inputs: AffordabilityInputs = {
     annualIncome: income,
@@ -63,6 +67,15 @@ export default function AffordabilityPage() {
     return computeHousingDeltas(finance, stretchBreakdown.total);
   }, [finance, stretchBreakdown.total]);
 
+  // Phase 5: readiness impact of the Stretch-tier payment, magnitude only.
+  const readiness = useMemo(() => {
+    if (!readinessCtx) return null;
+    return readinessImpactForHousing(readinessCtx.baseline, readinessCtx.anchors, {
+      monthlyObligation: stretchBreakdown.total,
+      upfrontCost: downPayment,
+    });
+  }, [readinessCtx, stretchBreakdown.total, downPayment]);
+
   // The lens digest the Companion reads — every number precomputed here.
   const digest = useMemo(
     () => ({
@@ -75,8 +88,9 @@ export default function AffordabilityPage() {
       },
       keyInputs: { income, debts, rate, term },
       deltas,
+      readiness: readiness ? toReadinessDigest(readiness) : undefined,
     }),
-    [stretchBreakdown.total, income, debts, rate, term, deltas],
+    [stretchBreakdown.total, income, debts, rate, term, deltas, readiness],
   );
 
   const maxBar = Math.max(stretchBreakdown.principalAndInterest, stretchBreakdown.taxesAndInsurance, 1);
@@ -149,6 +163,7 @@ export default function AffordabilityPage() {
           </div>
 
           {hydrated && deltas && <DeltasCard deltas={deltas} />}
+          {hydrated && readiness && <ReadinessBand impact={readiness} />}
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">What this means</h2>
