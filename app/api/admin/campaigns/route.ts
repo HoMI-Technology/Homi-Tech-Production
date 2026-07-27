@@ -8,6 +8,7 @@ import {
   resolveAudienceRecipients,
   sendCampaignEmails,
 } from "@/lib/email/campaign";
+import { logAdminAction } from "@/lib/audit";
 import type { Campaign, CampaignSendStatus } from "@/types/database";
 import type { User, SupabaseClient } from "@supabase/supabase-js";
 
@@ -279,6 +280,19 @@ export async function POST(request: Request) {
         updated_at: now,
       })
       .eq("id", body.campaignId);
+
+    await logAdminAction(service, {
+      actorId: gate.user.id,
+      action: "admin.campaign.send",
+      resourceType: "campaign",
+      resourceId: body.campaignId,
+      metadata: {
+        audience: campaign.audience,
+        sent: outcome.sent.length,
+        failed: outcome.failed.length,
+        suppressed: resolved.suppressed.length,
+      },
+    });
 
     return NextResponse.json({
       ok: true,
