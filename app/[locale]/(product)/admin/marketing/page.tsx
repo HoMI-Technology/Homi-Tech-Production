@@ -6,6 +6,13 @@ import { BarSeries } from "@/components/admin/BarSeries";
 import { FunnelBars, type FunnelStage } from "@/components/admin/FunnelBars";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
+import {
+  arpuCents,
+  arrCents,
+  estimatedMrrCents,
+  formatUsdFromCents,
+  paidConversionPct,
+} from "@/lib/dashboard/revenue";
 import type { SubscriptionTier } from "@/types/database";
 
 export const metadata: Metadata = {
@@ -92,11 +99,16 @@ export default async function AdminMarketingPage() {
   }
 
   try {
-    const { data } = await supabase.from("profiles").select("subscription_tier").limit(10000);
-    const rows = (data as { subscription_tier: SubscriptionTier }[] | null) ?? [];
+    const { data } = await supabase
+      .from("profiles")
+      .select("subscription_tier, role")
+      .limit(10000);
+    const rows = (data as { subscription_tier: SubscriptionTier; role: string }[] | null) ?? [];
+    // Exclude admins: create-admin comps them to the 'family' tier via the
+    // entitlements bypass, so counting them would inflate tier mix and MRR.
     tierCounts = rows.reduce(
       (acc, r) => {
-        if (r.subscription_tier in acc) acc[r.subscription_tier] += 1;
+        if (r.role !== "admin" && r.subscription_tier in acc) acc[r.subscription_tier] += 1;
         return acc;
       },
       { free: 0, plus: 0, pro: 0, family: 0 } as Record<SubscriptionTier, number>,
@@ -152,6 +164,15 @@ export default async function AdminMarketingPage() {
 
   const totalTiered = TIER_ORDER.reduce((acc, t) => acc + tierCounts[t], 0);
   const totalInterest = interestCounts.reduce((acc, i) => acc + i.count, 0);
+
+  // Revenue intelligence — list-price MRR proxy from active paid tiers
+  // (admins already excluded above), ARPU per payer, ARR run-rate, and the
+  // free→paid conversion rate.
+  const paidCounts = { plus: tierCounts.plus, pro: tierCounts.pro, family: tierCounts.family };
+  const mrrCents = estimatedMrrCents(paidCounts);
+  const arpu = arpuCents(paidCounts);
+  const arr = arrCents(paidCounts);
+  const conversionPct = paidConversionPct(paidCounts, accountsTotal);
 
   return (
     <div>
@@ -217,6 +238,40 @@ export default async function AdminMarketingPage() {
               </div>
             )}
           </div>
+        )}
+      </div>
+
+      <div className="glass mt-8 p-6">
+        <SectionHeader
+          eyebrow="Revenue"
+          title="Recurring revenue"
+          subtitle="List-price MRR proxy from active paid tiers (comped admin accounts excluded)."
+        />
+        <div className="mt-5 grid grid-cols-2 gap-6 sm:grid-cols-4">
+          <div>
+            <p className="text-xs text-dim">MRR (est.)</p>
+            <p className="score-numeral mt-1 text-3xl text-light">{formatUsdFromCents(mrrCents)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-dim">ARR run-rate</p>
+            <p className="score-numeral mt-1 text-3xl text-light">{formatUsdFromCents(arr)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-dim">ARPU / payer</p>
+            <p className="score-numeral mt-1 text-3xl text-light">{formatUsdFromCents(arpu)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-dim">Paid conversion</p>
+            <p className="score-numeral mt-1 text-3xl text-light">{conversionPct}%</p>
+            <p className="mt-1 text-xs text-dim">{paidTotal.toLocaleString()} of {accountsTotal.toLocaleString()} accounts</p>
+          </div>
+        </div>
+        {mrrCents === 0 && (
+          <p className="mt-4 text-sm text-dim">
+            No paid subscriptions yet. MRR is estimated from tier list prices
+            (Plus {formatUsdFromCents(999)}, Pro {formatUsdFromCents(2499)}, Family {formatUsdFromCents(3999)} / mo)
+            and fills in as accounts upgrade.
+          </p>
         )}
       </div>
 

@@ -227,6 +227,16 @@ export interface SimulationOutcome {
   };
 }
 
+export interface SimulateOptions {
+  /**
+   * Additional monthly debt service the balance levers cannot derive — e.g.
+   * a hypothetical new housing payment a Decision Lab lens is testing
+   * (Phase 5). Counted in BOTH the DTI numerator and the outflow, so the
+   * engine sees the obligation exactly once.
+   */
+  extraDebtService?: number;
+}
+
 /**
  * Monthly debt payments for a lever position. Known baseline payments scale
  * proportionally with the balance ("pay off half the debt, halve the
@@ -254,11 +264,14 @@ export function simulate(
   levers: SimulatorLevers,
   baseline: SimulatorBaseline,
   anchors: SimulatorAnchors,
+  opts: SimulateOptions = {},
 ): SimulationOutcome {
   const payments = deriveDebtPayments(levers.totalDebt, baseline);
-  const debtToIncomeRatio = levers.monthlyIncome > 0 ? payments.amount / levers.monthlyIncome : 0;
+  const extra = Math.max(0, opts.extraDebtService ?? 0);
+  const totalPayments = payments.amount + extra;
+  const debtToIncomeRatio = levers.monthlyIncome > 0 ? totalPayments / levers.monthlyIncome : 0;
   // Runway counts debt payments as outflow, matching lib/finance/store.
-  const outflow = Math.max(0, levers.monthlyExpenses) + payments.amount;
+  const outflow = Math.max(0, levers.monthlyExpenses) + totalPayments;
   const emergencyFundMonths = outflow > 0 ? Math.max(0, levers.liquidSavings) / outflow : 0;
 
   const result = computeScore({
@@ -281,7 +294,7 @@ export function simulate(
     compositeScore,
     verdict,
     hardStops: result.hardStops,
-    monthlyDebtPayments: payments.amount,
+    monthlyDebtPayments: totalPayments,
     debtPaymentsEstimated: payments.estimated,
     derived: { debtToIncomeRatio, emergencyFundMonths },
   };

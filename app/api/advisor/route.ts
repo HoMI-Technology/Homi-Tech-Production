@@ -15,6 +15,11 @@ import {
   type AdvisorFinanceContext,
 } from "@/lib/advisor/fallback";
 import { getPersona, type AdvisorPersona } from "@/lib/advisor/personas";
+import {
+  buildLensDigestNote,
+  buildLensSynthesisFallback,
+  type LensDigest,
+} from "@/lib/tools/digest";
 import { VERDICT_META } from "@/lib/brand";
 import { advisorToolHandoffLine } from "@/lib/architecture/tool-aliases";
 
@@ -98,6 +103,56 @@ const identitySchema = z.object({
 
 const personaSchema = z.enum(["homie", "reality", "gut", "timing", "planner"]);
 
+const temperatureSchema = z.enum(["emerald", "yellow", "amber", "crimson"]);
+
+/**
+ * Phase 5: readiness impact in the digest — magnitude + direction ONLY.
+ * The composite delta, weights, and formulas never cross this boundary.
+ */
+const readinessDigestSchema = z.object({
+  band: z.enum(["small", "moderate", "large"]).nullable(),
+  direction: z.enum(["up", "down", "flat"]),
+  hardStop: z.boolean(),
+});
+
+/**
+ * Lens digest — Decision Lab Phase 3. The compact, precomputed summary of
+ * the tool the user is standing in. Client-sent by design (live slider
+ * state is ephemeral UI state, not account data — it never goes through
+ * server-side context assembly), numeric-only so no user text enters the
+ * prompt through this channel, and every figure carries sanity caps.
+ */
+const lensDigestSchema = z.object({
+  lensId: z.string().max(40),
+  path: z.string().max(120),
+  headline: z.object({
+    label: z.string().max(80),
+    value: z.number().min(-1_000_000_000).max(1_000_000_000),
+    unit: z.enum(["currency", "percent", "months", "number"]),
+  }),
+  keyInputs: z
+    .record(z.string().max(40), z.number().min(-1_000_000_000).max(1_000_000_000))
+    .refine((r) => Object.keys(r).length <= 5, "at most 5 key inputs"),
+  deltas: z
+    .array(
+      z.object({
+        metric: z.enum(["runway", "dti"]),
+        label: z.string().max(60),
+        unit: z.enum(["months", "percent"]),
+        from: z.number().min(-1_000_000).max(1_000_000),
+        to: z.number().min(-1_000_000).max(1_000_000),
+        fromTemperature: temperatureSchema,
+        toTemperature: temperatureSchema,
+        improved: z.boolean().nullable(),
+      }),
+    )
+    .max(4)
+    .nullable(),
+  readiness: readinessDigestSchema.nullish(),
+  cfmCoverage: z.number().min(0).max(1),
+  updatedAt: z.number().min(0),
+});
+
 const bodySchema = z.object({
   messages: z.array(messageSchema).min(1).max(50),
   /** Server thread id from a prior reply/history load; RLS restricts it to the user's own. */
@@ -110,6 +165,8 @@ const bodySchema = z.object({
   surface: z.string().max(80).nullish(),
   /** Score-movement one-liner from the explainability engine (lib/advisor/explain). */
   whatChanged: z.string().max(240).nullish(),
+  /** Precomputed digest of the tool the user is on (lib/tools/digest). */
+  lensDigest: lensDigestSchema.nullish(),
   identity: identitySchema.nullish(),
   persona: personaSchema.nullish(),
   /** When true, the server supplies a fixed mock assessment context (used
@@ -181,6 +238,7 @@ function buildContextNote(
   verified?: VerifiedCashFlow | null,
   credit?: AdvisorCreditContext | null,
   path?: AdvisorPathNote | null,
+  lens?: LensDigest | null,
 ): string {
   const parts: string[] = [];
 
@@ -281,6 +339,13 @@ function buildContextNote(
     );
   }
 
+  if (lens) {
+    // The guardrails live in the wording of this block: numbers are
+    // authoritative and precomputed, coverage sets the voice, synthesis
+    // answers lead with the worst news.
+    parts.push(buildLensDigestNote(lens));
+  }
+
   return parts.join(" ");
 }
 
@@ -334,6 +399,8 @@ export async function POST(request: Request) {
   // their own rows (RLS-scoped) and wins per block; the client-sent context is
   // the fallback for anonymous users and blocks with no server data yet.
   // Best-effort — assembly failure degrades to client context, never breaks chat.
+  // The lens digest is the deliberate exception: live slider state is ephemeral
+  // UI state, not account data, so it stays client-sent (Zod-capped above).
   const serverState = supabase && gateUserId ? await assembleServerContext(supabase) : null;
 
   const assessment = demoContext
@@ -345,10 +412,21 @@ export async function POST(request: Request) {
   const path = demoContext ? null : (parsed.data.path ?? null);
   const surface = demoContext ? null : parsed.data.surface;
   const whatChanged = demoContext ? null : parsed.data.whatChanged;
+  const lensDigest = demoContext ? null : (parsed.data.lensDigest ?? null);
   const identity = demoContext ? null : parsed.data.identity;
   const lastUserMessage = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
   const activePersona: AdvisorPersona = persona ?? "homie";
   const personaMeta = getPersona(activePersona);
+
+  // The synthesis trigger ("What does this change for me?") has a
+  // deterministic answer built from the same precomputed digest the model
+  // would read — so free tier, quota exhaustion, and Anthropic outages all
+  // produce the same numbers a paid answer would, never a contradiction.
+  const synthesisRequested = lastUserMessage.trim().toLowerCase().startsWith("what does this change");
+  function deterministicReply(): string {
+    if (lensDigest && synthesisRequested) return buildLensSynthesisFallback(lensDigest);
+    return buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
+  }
 
   // Single exit: persist the exchange to the user's server thread (best-effort,
   // signed-in only, never for demo mode) and reply with the conversation id so
@@ -373,8 +451,7 @@ export async function POST(request: Request) {
   // tier, anonymous demoContext, and a missing key all fall through to the
   // deterministic persona fallback ($0 AI cost).
   if (!hasAnthropic() || !advisorRealModel) {
-    const reply = buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
-    return respond(reply, "fallback");
+    return respond(deterministicReply(), "fallback");
   }
 
   try {
@@ -388,7 +465,16 @@ export async function POST(request: Request) {
       : "";
     const contextNote =
       provenance +
-      buildContextNote(assessment ?? null, finance, surface, whatChanged, verified, credit, path);
+      buildContextNote(
+        assessment ?? null,
+        finance,
+        surface,
+        whatChanged,
+        verified,
+        credit,
+        path,
+        lensDigest,
+      );
     // The name is user-chosen text — framed as a label, never as instructions.
     const identityLine =
       identity && identity.name !== "HōMI"
@@ -414,8 +500,7 @@ export async function POST(request: Request) {
       // Surface a bad/expired key (or upstream outage) in logs — a silent
       // fallback here is indistinguishable from the normal $0 path otherwise.
       console.error("[advisor] model call failed", { status: response.status, reason: "non_200_response" });
-      const reply = buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
-      return respond(reply, "fallback");
+      return respond(deterministicReply(), "fallback");
     }
 
     const data = (await response.json()) as {
@@ -425,8 +510,7 @@ export async function POST(request: Request) {
     const text = data.content?.find((block) => block.type === "text")?.text?.trim();
 
     if (!text) {
-      const reply = buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
-      return respond(reply, "fallback");
+      return respond(deterministicReply(), "fallback");
     }
 
     console.log("[advisor:cost]", {
@@ -444,7 +528,6 @@ export async function POST(request: Request) {
       status: undefined,
       reason: err instanceof Error ? err.message : String(err),
     });
-    const reply = buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
-    return respond(reply, "fallback");
+    return respond(deterministicReply(), "fallback");
   }
 }

@@ -1,17 +1,40 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { helocAvailability, helocTiers } from "@/lib/tools/heloc";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { CalcField } from "@/components/tools/CalcField";
+import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { DeltasCard } from "@/components/tools/DeltasCard";
+import { ChainLinks } from "@/components/tools/ChainLinks";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
+import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
+import { ReadinessBand } from "@/components/tools/ReadinessBand";
+import { getLens } from "@/lib/tools/registry";
+import { computeHousingDeltas } from "@/lib/tools/deltas";
+import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readiness-bands";
+import { useLensPrefill } from "@/hooks/use-lens-prefill";
+import { useReadinessAnchors } from "@/hooks/use-readiness";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
+
+const LENS = getLens("heloc")!;
 
 function HelocPageInner() {
   const [homeValue, setHomeValue] = useState(500000);
   const [mortgageBalance, setMortgageBalance] = useState(280000);
   const [maxCltv, setMaxCltv] = useState(85);
   const [rate, setRate] = useState(8.5);
+
+  // Decision Lab: mount-only seed from the CFM via the registry contract.
+  const apply = useCallback((key: string, v: number) => {
+    if (key === "homeValue") setHomeValue(v);
+    else if (key === "mortgageBalance") setMortgageBalance(v);
+  }, []);
+  const { prefilled, finance, hydrated, markAll } = useLensPrefill("heloc", apply);
+  const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
+  const readinessCtx = useReadinessAnchors();
 
   const result = useMemo(
     () => helocAvailability({ homeValue, mortgageBalance, maxCltv: maxCltv / 100, rate }),
@@ -22,17 +45,62 @@ function HelocPageInner() {
     [homeValue, mortgageBalance, rate],
   );
 
+  // Deterministic impact of carrying the FULL draw, interest-only — the
+  // most conservative honest frame for a line of credit.
+  const deltas = useMemo(() => {
+    if (!finance || result.availableLine <= 0) return null;
+    return computeHousingDeltas(finance, result.interestOnlyMonthly);
+  }, [finance, result.availableLine, result.interestOnlyMonthly]);
+
+  // Phase 5: readiness impact of the full draw, magnitude only.
+  const readiness = useMemo(() => {
+    if (!readinessCtx || result.availableLine <= 0) return null;
+    return readinessImpactForHousing(readinessCtx.baseline, readinessCtx.anchors, {
+      monthlyObligation: result.interestOnlyMonthly,
+      upfrontCost: 0,
+    });
+  }, [readinessCtx, result.availableLine, result.interestOnlyMonthly]);
+
+  // The lens digest the Companion reads — every number precomputed here.
+  const digest = useMemo(
+    () => ({
+      lensId: "heloc",
+      path: "/tools/heloc",
+      headline: {
+        label: "Available line at selected CLTV",
+        value: Math.round(result.availableLine),
+        unit: "currency" as const,
+      },
+      keyInputs: { homeValue, mortgageBalance, maxCltv, rate },
+      deltas,
+      readiness: readiness ? toReadinessDigest(readiness) : undefined,
+    }),
+    [result.availableLine, homeValue, mortgageBalance, maxCltv, rate, deltas, readiness],
+  );
+
   return (
     <ToolShell
       title="Home Equity Line (HELOC)"
       description={`How much you can actually borrow against your home — the honest number after the lender's combined loan-to-value cap, not just your paper equity.`}
     >
+      <SavedNumbersStrip />
+
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
-          <CalcField label="Home value" value={homeValue} onChange={setHomeValue} min={100000} max={2000000} step={5000} format="currency" />
-          <CalcField label="Mortgage balance" value={mortgageBalance} onChange={setMortgageBalance} min={0} max={homeValue} step={5000} format="currency" />
+          <CalcField label="Home value" value={homeValue} onChange={setHomeValue} min={100000} max={2000000} step={5000} format="currency" source={sourceFor("homeValue")} />
+          <CalcField label="Mortgage balance" value={mortgageBalance} onChange={setMortgageBalance} min={0} max={homeValue} step={5000} format="currency" source={sourceFor("mortgageBalance")} />
           <CalcField label="Lender max CLTV" value={maxCltv} onChange={setMaxCltv} min={70} max={90} step={5} format="percent" />
           <CalcField label="Line rate (variable)" value={rate} onChange={setRate} min={4} max={14} step={0.25} format="percent" />
+
+          <div className="hairline" />
+          <UpdateNumbersButton
+            getFields={() => ({ homeValue, currentMortgageBalance: mortgageBalance })}
+            onSaved={() => markAll(["homeValue", "mortgageBalance"])}
+          />
+          <SaveScenarioButton
+            lensId="heloc"
+            getInputs={() => ({ homeValue, mortgageBalance, maxCltv, rate })}
+          />
         </div>
 
         <div className="space-y-6">
@@ -50,6 +118,8 @@ function HelocPageInner() {
               </div>
             </div>
           </div>
+
+          <LensSynthesis digest={digest} />
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">What each CLTV tier unlocks</h2>
@@ -74,6 +144,9 @@ function HelocPageInner() {
             </div>
           </div>
 
+          {hydrated && deltas && <DeltasCard deltas={deltas} lensId="heloc" />}
+          {hydrated && readiness && <ReadinessBand impact={readiness} />}
+
           <div className="glass p-6">
             <h2 className="font-semibold text-light">What this means</h2>
             <p className="mt-2 text-sm leading-relaxed text-dim">
@@ -84,6 +157,8 @@ function HelocPageInner() {
               your home on the hook. This is educational math, not a lending offer.
             </p>
           </div>
+
+          {LENS.chains && <ChainLinks chains={LENS.chains} />}
         </div>
       </div>
     </ToolShell>

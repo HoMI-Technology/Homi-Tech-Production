@@ -1,11 +1,25 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { analyzeRefinance } from "@/lib/tools/refinance";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
 import { CalcField } from "@/components/tools/CalcField";
+import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { DeltasCard } from "@/components/tools/DeltasCard";
+import { ChainLinks } from "@/components/tools/ChainLinks";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
+import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
+import { ReadinessBand } from "@/components/tools/ReadinessBand";
+import { getLens } from "@/lib/tools/registry";
+import { computeReplacementDeltas } from "@/lib/tools/deltas";
+import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readiness-bands";
+import { useLensPrefill } from "@/hooks/use-lens-prefill";
+import { useReadinessAnchors } from "@/hooks/use-readiness";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
+
+const LENS = getLens("refinance")!;
 
 function RefinancePageInner() {
   const [balance, setBalance] = useState(320000);
@@ -15,9 +29,57 @@ function RefinancePageInner() {
   const [newTermYears, setNewTermYears] = useState(30);
   const [closingCosts, setClosingCosts] = useState(6000);
 
+  // Decision Lab: mount-only seed from the CFM via the registry contract.
+  const apply = useCallback((key: string, v: number) => {
+    if (key === "balance") setBalance(v);
+    else if (key === "currentRate") setCurrentRate(v);
+    else if (key === "newRate") setNewRate(v);
+  }, []);
+  const { prefilled, finance, hydrated, markAll } = useLensPrefill("refinance", apply);
+  const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
+  const readinessCtx = useReadinessAnchors();
+
   const r = useMemo(
     () => analyzeRefinance({ balance, currentRate, currentTermYears, newRate, newTermYears, closingCosts }),
     [balance, currentRate, currentTermYears, newRate, newTermYears, closingCosts],
+  );
+
+  // Replacement shape: the old payment leaves, the new one arrives. Only
+  // the difference touches runway and DTI — never stacked.
+  const deltas = useMemo(() => {
+    if (!finance) return null;
+    return computeReplacementDeltas(finance, {
+      newPaymentMonthly: r.newMonthly,
+      replacedPaymentMonthly: r.currentMonthly,
+    });
+  }, [finance, r.newMonthly, r.currentMonthly]);
+
+  // Phase 5: readiness impact of the swap, magnitude only. The current
+  // payment flows through the same replaced-obligation channel rent uses.
+  const readiness = useMemo(() => {
+    if (!readinessCtx) return null;
+    return readinessImpactForHousing(readinessCtx.baseline, readinessCtx.anchors, {
+      monthlyObligation: r.newMonthly,
+      upfrontCost: closingCosts,
+      replacedRentMonthly: r.currentMonthly,
+    });
+  }, [readinessCtx, r.newMonthly, r.currentMonthly, closingCosts]);
+
+  // The lens digest the Companion reads — every number precomputed here.
+  const digest = useMemo(
+    () => ({
+      lensId: "refinance",
+      path: "/tools/refinance",
+      headline: {
+        label: "New monthly payment",
+        value: Math.round(r.newMonthly),
+        unit: "currency" as const,
+      },
+      keyInputs: { balance, currentRate, newRate, newTermYears, closingCosts },
+      deltas,
+      readiness: readiness ? toReadinessDigest(readiness) : undefined,
+    }),
+    [r.newMonthly, balance, currentRate, newRate, newTermYears, closingCosts, deltas, readiness],
   );
 
   const worthIt = r.breakEvenMonths !== null;
@@ -27,14 +89,30 @@ function RefinancePageInner() {
       title="Refinance Break-Even"
       description={`A lower rate isn't automatically a better deal. This shows the month your payment savings finally pay back the closing costs — and whether you'll still be in the home by then.`}
     >
+      <SavedNumbersStrip />
+
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
-          <CalcField label="Loan balance" value={balance} onChange={setBalance} min={50000} max={1500000} step={5000} format="currency" />
-          <CalcField label="Current rate" value={currentRate} onChange={setCurrentRate} min={2} max={12} step={0.125} format="percent" />
+          <CalcField label="Loan balance" value={balance} onChange={setBalance} min={50000} max={1500000} step={5000} format="currency" source={sourceFor("balance")} />
+          <CalcField label="Current rate" value={currentRate} onChange={setCurrentRate} min={2} max={12} step={0.125} format="percent" source={sourceFor("currentRate")} />
           <CalcField label="Years left on current loan" value={currentTermYears} onChange={setCurrentTermYears} min={5} max={30} step={1} format="years" />
-          <CalcField label="New rate" value={newRate} onChange={setNewRate} min={2} max={12} step={0.125} format="percent" />
+          <CalcField label="New rate" value={newRate} onChange={setNewRate} min={2} max={12} step={0.125} format="percent" source={sourceFor("newRate")} />
           <CalcField label="New loan term" value={newTermYears} onChange={setNewTermYears} min={10} max={30} step={5} format="years" />
           <CalcField label="Closing costs" value={closingCosts} onChange={setClosingCosts} min={0} max={20000} step={250} format="currency" />
+
+          <div className="hairline" />
+          <UpdateNumbersButton
+            getFields={() => ({
+              currentMortgageBalance: balance,
+              currentMortgageRatePct: currentRate,
+              assumedRatePct: newRate,
+            })}
+            onSaved={() => markAll(["balance", "currentRate", "newRate"])}
+          />
+          <SaveScenarioButton
+            lensId="refinance"
+            getInputs={() => ({ balance, currentRate, currentTermYears, newRate, newTermYears, closingCosts })}
+          />
         </div>
 
         <div className="space-y-6">
@@ -56,6 +134,8 @@ function RefinancePageInner() {
               </div>
             </div>
           </div>
+
+          <LensSynthesis digest={digest} />
 
           <div className="glass panel-focus p-6">
             <p className="eyebrow">Break-even</p>
@@ -79,6 +159,9 @@ function RefinancePageInner() {
               </>
             )}
           </div>
+
+          {hydrated && deltas && <DeltasCard deltas={deltas} lensId="refinance" />}
+          {hydrated && readiness && <ReadinessBand impact={readiness} />}
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">Lifetime interest</h2>
@@ -105,6 +188,8 @@ function RefinancePageInner() {
               above are why &ldquo;lower rate&rdquo; and &ldquo;cheaper loan&rdquo; aren&rsquo;t the same thing.
             </p>
           </div>
+
+          {LENS.chains && <ChainLinks chains={LENS.chains} />}
         </div>
       </div>
     </ToolShell>

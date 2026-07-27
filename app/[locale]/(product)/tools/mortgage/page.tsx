@@ -1,11 +1,35 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { fullPaymentBreakdown, amortizationSummary } from "@/lib/tools/mortgage";
 import { formatCurrency } from "@/lib/tools/format";
-import { sliderFillPercent } from "@/lib/assessment/format";
+import { track } from "@/lib/analytics";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell, ToolResultHero, ToolMetric } from "@/components/tools/ToolShell";
+import { LensField } from "@/components/tools/LensField";
+import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { DeltasCard } from "@/components/tools/DeltasCard";
+import { ChainLinks } from "@/components/tools/ChainLinks";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
+import { ReadinessBand } from "@/components/tools/ReadinessBand";
+import { getLens } from "@/lib/tools/registry";
+import { buildCfm, resolveCfmValue, saveToolsOverlayFields } from "@/lib/tools/cfm";
+import { computeHousingDeltas } from "@/lib/tools/deltas";
+import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readiness-bands";
+import { useCfm } from "@/hooks/use-cfm";
+import { useReadinessAnchors } from "@/hooks/use-readiness";
+import {
+  loadFinanceState,
+  hasSavedFinanceState,
+  type FinanceState,
+} from "@/lib/finance/store";
+
+const LENS = getLens("mortgage")!;
+
+function clamp(v: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, v));
+}
 
 function MortgagePageInner() {
   const [price, setPrice] = useState(400000);
@@ -14,6 +38,44 @@ function MortgagePageInner() {
   const [termYears, setTermYears] = useState(30);
   const [taxInsRate, setTaxInsRate] = useState(1.5);
   const [hoaMonthly, setHoaMonthly] = useState(0);
+
+  /** Input keys seeded from the CFM — these render the "your numbers" tag. */
+  const [prefilled, setPrefilled] = useState<Set<string>>(new Set());
+  const [finance, setFinance] = useState<FinanceState | null>(null);
+  const [replaceRent, setReplaceRent] = useState(false);
+  const [writeBackDone, setWriteBackDone] = useState(false);
+
+  const { overlay, hydrated } = useCfm();
+  const readinessCtx = useReadinessAnchors();
+
+  // Mount-only CFM prefill: seeds sliders from the user's saved numbers via
+  // the registry contract, then never fights live edits again.
+  useEffect(() => {
+    const cfm = buildCfm();
+    if (hasSavedFinanceState()) setFinance(loadFinanceState());
+    if (!cfm || !LENS.inputs) return;
+
+    const seeded = new Set<string>();
+    const values: Record<string, number> = {};
+    for (const spec of LENS.inputs) {
+      if (!spec.cfmPath) continue;
+      const field = resolveCfmValue(cfm, spec.cfmPath);
+      if (field.source === "missing") continue;
+      values[spec.key] = clamp(field.value, spec.min, spec.max);
+      seeded.add(spec.key);
+    }
+
+    if (values.price !== undefined) setPrice(values.price);
+    if (values.downPayment !== undefined) {
+      setDownPayment(Math.min(values.downPayment, values.price ?? values.downPayment));
+    }
+    if (values.rate !== undefined) setRate(values.rate);
+    if (values.termYears !== undefined) setTermYears(values.termYears);
+    if (values.taxInsRate !== undefined) setTaxInsRate(values.taxInsRate);
+    if (values.hoaMonthly !== undefined) setHoaMonthly(values.hoaMonthly);
+    setPrefilled(seeded);
+    if (seeded.size > 0) track("lens_prefilled", { lens: "mortgage", count: seeded.size });
+  }, []);
 
   const loanAmount = Math.max(0, price - downPayment);
 
@@ -34,6 +96,62 @@ function MortgagePageInner() {
     [loanAmount, rate, termYears],
   );
 
+  const replacedRentMonthly = replaceRent ? (overlay.currentRent ?? 0) : 0;
+
+  // Deterministic impact deltas — the only place this arithmetic happens.
+  const deltas = useMemo(() => {
+    if (!finance) return null;
+    return computeHousingDeltas(finance, breakdown.total, {
+      replacedRentMonthly,
+    });
+  }, [finance, breakdown.total, replacedRentMonthly]);
+
+  // Phase 5: readiness impact of carrying this payment, magnitude only.
+  const readiness = useMemo(() => {
+    if (!readinessCtx) return null;
+    return readinessImpactForHousing(readinessCtx.baseline, readinessCtx.anchors, {
+      monthlyObligation: breakdown.total,
+      upfrontCost: downPayment,
+      replacedRentMonthly,
+    });
+  }, [readinessCtx, breakdown.total, downPayment, replacedRentMonthly]);
+
+  // The lens digest the Companion reads — every number precomputed here.
+  const digest = useMemo(
+    () => ({
+      lensId: "mortgage",
+      path: "/tools/mortgage",
+      headline: {
+        label: "Total monthly payment",
+        value: Math.round(breakdown.total),
+        unit: "currency" as const,
+      },
+      keyInputs: { price, downPayment, rate, termYears },
+      deltas,
+      readiness: readiness ? toReadinessDigest(readiness) : undefined,
+    }),
+    [breakdown.total, price, downPayment, rate, termYears, deltas, readiness],
+  );
+
+  const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
+
+  // Explicit, user-initiated write-back. Never silent.
+  function updateMyNumbers() {
+    saveToolsOverlayFields({
+      targetPrice: price,
+      downPaymentSaved: downPayment,
+      assumedRatePct: rate,
+      termYears,
+      taxInsuranceRatePct: taxInsRate,
+      hoaMonthly,
+    });
+    track("numbers_writeback", {
+      fields: ["targetPrice", "downPaymentSaved", "assumedRatePct", "termYears", "taxInsuranceRatePct", "hoaMonthly"].join(","),
+    });
+    setPrefilled(new Set(["price", "downPayment", "rate", "termYears", "taxInsRate", "hoaMonthly"]));
+    setWriteBackDone(true);
+  }
+
   const maxBar = Math.max(breakdown.principalAndInterest, breakdown.taxesAndInsurance, breakdown.hoa, 1);
 
   return (
@@ -41,14 +159,33 @@ function MortgagePageInner() {
       title="Mortgage Payment"
       description={`The full monthly payment, broken into its real parts, plus what the loan actually costs over its full life — not just the headline rate.`}
     >
+      <SavedNumbersStrip />
+
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
-          <Field label="Home price" value={price} onChange={setPrice} min={100000} max={1500000} step={5000} format="currency" />
-          <Field label="Down payment" value={downPayment} onChange={setDownPayment} min={0} max={price} step={1000} format="currency" />
-          <Field label="Interest rate" value={rate} onChange={setRate} min={2} max={12} step={0.125} format="percent" />
-          <Field label="Loan term (years)" value={termYears} onChange={setTermYears} min={10} max={30} step={5} format="years" />
-          <Field label="Taxes + insurance (% of price / yr)" value={taxInsRate} onChange={setTaxInsRate} min={0.5} max={3} step={0.1} format="percent" />
-          <Field label="HOA (monthly)" value={hoaMonthly} onChange={setHoaMonthly} min={0} max={1500} step={25} format="currency" />
+          <LensField label="Home price" value={price} onChange={setPrice} min={100000} max={1500000} step={5000} format="currency" source={sourceFor("price")} />
+          <LensField label="Down payment" value={downPayment} onChange={setDownPayment} min={0} max={price} step={1000} format="currency" source={sourceFor("downPayment")} />
+          <LensField label="Interest rate" value={rate} onChange={setRate} min={2} max={12} step={0.125} format="percent" source={sourceFor("rate")} />
+          <LensField label="Loan term (years)" value={termYears} onChange={setTermYears} min={10} max={30} step={5} format="years" source={sourceFor("termYears")} />
+          <LensField label="Taxes + insurance (% of price / yr)" value={taxInsRate} onChange={setTaxInsRate} min={0.5} max={3} step={0.1} format="percent" source={sourceFor("taxInsRate")} />
+          <LensField label="HOA (monthly)" value={hoaMonthly} onChange={setHoaMonthly} min={0} max={1500} step={25} format="currency" source={sourceFor("hoaMonthly")} />
+
+          <div className="hairline" />
+          <button
+            type="button"
+            onClick={updateMyNumbers}
+            className="w-full rounded-lg border border-cyan/40 px-4 py-2.5 text-sm font-medium text-cyan transition-colors hover:bg-cyan/10"
+          >
+            {writeBackDone ? "Saved — future tools start here" : "Update my numbers from this tool"}
+          </button>
+          <p className="text-xs leading-relaxed text-dim/70">
+            Saves these as your planning numbers so the other tools — and your HōMI — start
+            from the same place. Nothing here changes your assessment.
+          </p>
+          <SaveScenarioButton
+            lensId="mortgage"
+            getInputs={() => ({ price, downPayment, rate, termYears, taxInsRate, hoaMonthly })}
+          />
         </div>
 
         <div className="space-y-6">
@@ -64,6 +201,27 @@ function MortgagePageInner() {
               {breakdown.hoa > 0 && <BarRow label="HOA" value={breakdown.hoa} max={maxBar} color="#34d399" />}
             </div>
           </ToolResultHero>
+
+          <LensSynthesis digest={digest} />
+
+          {hydrated && finance && deltas && (
+            <>
+              {overlay.currentRent !== undefined && overlay.currentRent > 0 && (
+                <label className="flex items-center gap-2 text-sm text-dim">
+                  <input
+                    type="checkbox"
+                    checked={replaceRent}
+                    onChange={(e) => setReplaceRent(e.target.checked)}
+                    className="accent-cyan"
+                  />
+                  This replaces my current rent ({formatCurrency(overlay.currentRent)}/mo)
+                </label>
+              )}
+              <DeltasCard deltas={deltas} lensId="mortgage" />
+            </>
+          )}
+
+          {hydrated && readiness && <ReadinessBand impact={readiness} />}
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">Amortization summary</h2>
@@ -91,51 +249,11 @@ function MortgagePageInner() {
               it as the shape of the payment, not the final number.
             </p>
           </div>
+
+          {LENS.chains && <ChainLinks chains={LENS.chains} />}
         </div>
       </div>
     </ToolShell>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  min,
-  max,
-  step,
-  format,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-  min: number;
-  max: number;
-  step: number;
-  format: "currency" | "percent" | "years";
-}) {
-  const fill = sliderFillPercent(value, min, max);
-  const display =
-    format === "currency" ? formatCurrency(value) : format === "percent" ? `${value}%` : `${value} yrs`;
-
-  return (
-    <div>
-      <div className="flex items-center justify-between">
-        <label className="text-sm text-light">{label}</label>
-        <span className="score-numeral text-sm text-cyan">{display}</span>
-      </div>
-      <input
-        type="range"
-        aria-label={label}
-        className="homi-slider mt-2"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        style={{ ["--fill" as string]: `${fill}%` }}
-      />
-    </div>
   );
 }
 
