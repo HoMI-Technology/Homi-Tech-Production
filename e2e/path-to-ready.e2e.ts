@@ -125,8 +125,9 @@ test.describe("Path to Ready (seeded)", () => {
       timeout: 20_000,
     });
     await expect(page.getByText(/Emergency runway|Binding constraint/i).first()).toBeVisible();
+    // Step title may appear in path list + coach board — scope to first match.
     await expect(
-      page.getByText("Stabilize emergency runway to at least 1 month"),
+      page.getByText("Stabilize emergency runway to at least 1 month").first(),
     ).toBeVisible();
 
     await page.getByRole("button", { name: "Mark done" }).first().click();
@@ -148,7 +149,9 @@ test.describe("Path to Ready (seeded)", () => {
     expect(stored?.steps?.[0]?.status).toBe("done");
   });
 
-  test("results surface offers Path to Ready for non-ready verdict", async ({ page }) => {
+  test("results surface auto-generates Path to Ready for non-ready verdict", async ({
+    page,
+  }) => {
     test.setTimeout(90_000);
     await pinEnglishLocalePage(page);
 
@@ -167,12 +170,15 @@ test.describe("Path to Ready (seeded)", () => {
     }
     await dismissCookieConsent(page);
 
+    // Auto-path on results hydrate — no Generate click required.
     await expect(page.getByText("Path to Ready").first()).toBeVisible({
       timeout: 20_000,
     });
-    await page.getByRole("button", { name: /Generate Path to Ready/i }).click();
     await expect(
-      page.getByText(/sequenced path|Binding|runway/i).first(),
+      page.getByText(/Your sequenced path|Binding constraint|runway/i).first(),
+    ).toBeVisible({ timeout: 15_000 });
+    await expect(
+      page.getByRole("link", { name: /Open full path/i }).first(),
     ).toBeVisible({ timeout: 10_000 });
   });
 });
