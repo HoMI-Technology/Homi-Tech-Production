@@ -62,6 +62,26 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
         ),
       },
       {
+        href: "/admin/attribution",
+        label: "Attribution",
+        icon: (
+          <>
+            <circle cx="10" cy="10" r="7" />
+            <path d="M10 10l4-2.5M10 10v4" />
+            <circle cx="10" cy="10" r="1.5" fill="currentColor" stroke="none" />
+          </>
+        ),
+      },
+      {
+        href: "/admin/ad-spend",
+        label: "Ad Spend",
+        icon: (
+          <>
+            <path d="M10 3v14M13.5 6.5C13.5 5 12 4 10 4S6.5 5 6.5 6.5 8 9 10 9.5s3.5 1 3.5 2.5S12 15 10 15s-3.5-1-3.5-2.5" />
+          </>
+        ),
+      },
+      {
         href: "/admin/waitlist",
         label: "Waitlist",
         icon: (
