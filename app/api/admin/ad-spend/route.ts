@@ -15,9 +15,7 @@ export const runtime = "nodejs";
  * so re-logging the same day/channel edits in place rather than duplicating.
  */
 
-async function requireAdmin(): Promise<
-  { user: User } | { response: NextResponse }
-> {
+async function requireAdmin(): Promise<{ user: User } | { response: NextResponse }> {
   const supabase = await createClient();
   const {
     data: { user },

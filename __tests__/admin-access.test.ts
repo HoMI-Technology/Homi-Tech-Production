@@ -72,9 +72,10 @@ describe("evaluateAdminAccess", () => {
   });
 
   it("refuses an admin whose email is not on a configured allowlist", () => {
-    expect(
-      evaluateAdminAccess(base({ allowlist: ["someone@else.com"] })),
-    ).toEqual({ allow: false, reason: "not-admin" });
+    expect(evaluateAdminAccess(base({ allowlist: ["someone@else.com"] }))).toEqual({
+      allow: false,
+      reason: "not-admin",
+    });
   });
 
   it("allows an admin who is on the allowlist", () => {

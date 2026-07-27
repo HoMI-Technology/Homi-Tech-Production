@@ -19,7 +19,8 @@ import {
 
 export const metadata: Metadata = {
   title: "Attribution | Admin | HōMI",
-  description: "Acquisition channels, sources, campaigns, and channel-level conversion from first-touch data.",
+  description:
+    "Acquisition channels, sources, campaigns, and channel-level conversion from first-touch data.",
 };
 
 /** Canon accent cycle for channel rows (brand-locked palette only). */
@@ -143,10 +144,11 @@ export default async function AdminAttributionPage() {
       {!hasAnyAttribution ? (
         <div className="glass mt-8 p-8 text-center">
           <p className="text-sm text-dim">
-            No attribution captured yet. First-touch <span className="font-mono text-light">?utm_*</span> /{" "}
-            <span className="font-mono text-light">?ref</span> parameters are snapshotted onto each account as
-            traffic arrives from campaigns and referrals — this dashboard fills in once tagged links start
-            driving signups.
+            No attribution captured yet. First-touch{" "}
+            <span className="font-mono text-light">?utm_*</span> /{" "}
+            <span className="font-mono text-light">?ref</span> parameters are snapshotted onto each
+            account as traffic arrives from campaigns and referrals — this dashboard fills in once
+            tagged links start driving signups.
           </p>
         </div>
       ) : (
@@ -164,9 +166,17 @@ export default async function AdminAttributionPage() {
             </div>
 
             <div className="glass p-6">
-              <SectionHeader eyebrow="Mix" title="Channels" subtitle="Share of accounts by acquisition channel." />
+              <SectionHeader
+                eyebrow="Mix"
+                title="Channels"
+                subtitle="Share of accounts by acquisition channel."
+              />
               <div className="mt-5">
-                <RankedBars rows={channelRows} emptyLabel="No channel data yet." total={totalSignups} />
+                <RankedBars
+                  rows={channelRows}
+                  emptyLabel="No channel data yet."
+                  total={totalSignups}
+                />
               </div>
             </div>
           </div>
@@ -176,7 +186,11 @@ export default async function AdminAttributionPage() {
               <SectionHeader eyebrow="Source × medium" title="Where traffic originates" />
               <div className="mt-5">
                 <RankedBars
-                  rows={sourceMedium.map((r) => ({ label: r.source, sublabel: r.medium, count: r.count }))}
+                  rows={sourceMedium.map((r) => ({
+                    label: r.source,
+                    sublabel: r.medium,
+                    count: r.count,
+                  }))}
                   color="#34d399"
                   emptyLabel="No tagged sources yet."
                 />
@@ -184,7 +198,11 @@ export default async function AdminAttributionPage() {
             </div>
 
             <div className="glass p-6">
-              <SectionHeader eyebrow="Campaigns" title="Top campaigns" subtitle="By utm_campaign, first-touch." />
+              <SectionHeader
+                eyebrow="Campaigns"
+                title="Top campaigns"
+                subtitle="By utm_campaign, first-touch."
+              />
               <div className="mt-5">
                 <RankedBars
                   rows={campaigns.map((c) => ({ label: c.key, count: c.count }))}
@@ -246,8 +264,8 @@ export default async function AdminAttributionPage() {
       )}
 
       <p className="mt-8 text-center text-xs text-dim">
-        First-touch attribution — occurrence data only (channel + landing path), never user-entered content.
-        HōMI Technologies LLC.
+        First-touch attribution — occurrence data only (channel + landing path), never user-entered
+        content. HōMI Technologies LLC.
       </p>
     </div>
   );

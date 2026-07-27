@@ -17,7 +17,9 @@ import {
 
 describe("scalar guards", () => {
   it("sumSpendCents ignores non-finite amounts", () => {
-    expect(sumSpendCents([{ channel: "g", spend_cents: 100, impressions: 0, clicks: 0 }])).toBe(100);
+    expect(sumSpendCents([{ channel: "g", spend_cents: 100, impressions: 0, clicks: 0 }])).toBe(
+      100,
+    );
   });
 
   it("cacCents is null with no customers, else spend/customers", () => {

@@ -5,7 +5,11 @@ import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { AdSpendForm } from "@/components/admin/AdSpendForm";
 import { CsvExportButton } from "@/components/admin/CsvExportButton";
-import { channelConversion, deriveChannel, type AttributionLike } from "@/lib/dashboard/attribution";
+import {
+  channelConversion,
+  deriveChannel,
+  type AttributionLike,
+} from "@/lib/dashboard/attribution";
 import { formatUsdFromCents } from "@/lib/dashboard/revenue";
 import {
   blendedCacCents,
@@ -222,7 +226,9 @@ export default async function AdminAdSpendPage() {
                       <td className="score-numeral text-dim">{r.paid.toLocaleString()}</td>
                       <td className="score-numeral text-light">{fmtCacRoas(r.cacCents, "usd")}</td>
                       <td className="score-numeral text-light">{fmtCacRoas(r.roas, "x")}</td>
-                      <td className="score-numeral text-dim">{formatUsdFromCents(r.revenueCents)}</td>
+                      <td className="score-numeral text-dim">
+                        {formatUsdFromCents(r.revenueCents)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
