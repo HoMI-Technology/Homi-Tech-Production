@@ -130,3 +130,37 @@ describe("digest transport", () => {
     expect(takePendingSynthesisMessage()).toBeNull();
   });
 });
+
+describe("prompt token budget (headroom guard)", () => {
+  // The largest digest any lens can legally produce: 5 key inputs, both
+  // deltas landing protective, a hard-stop readiness note, full coverage.
+  // If this fits the budget, every real digest does. ~4 chars ≈ 1 token.
+  const MAXIMAL = digest({
+    keyInputs: {
+      price: 1500000,
+      downPayment: 300000,
+      rate: 11.875,
+      termYears: 30,
+      hoaMonthly: 1500,
+    },
+    readiness: { band: "large", direction: "down", hardStop: true },
+    cfmCoverage: 1,
+  });
+
+  it("the digest note stays within its prompt budget (~500 tokens)", () => {
+    const note = buildLensDigestNote(MAXIMAL);
+    expect(note.length).toBeLessThanOrEqual(2000);
+  });
+
+  it("the fallback synthesis stays within its reply budget (~250 tokens)", () => {
+    const reply = buildLensSynthesisFallback(MAXIMAL);
+    expect(reply.length).toBeLessThanOrEqual(1000);
+  });
+
+  it("a digest with no deltas and illustrative voice is smaller still", () => {
+    const note = buildLensDigestNote(
+      digest({ deltas: null, readiness: undefined, cfmCoverage: 0 }),
+    );
+    expect(note.length).toBeLessThanOrEqual(1600);
+  });
+});
