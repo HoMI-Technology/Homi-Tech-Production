@@ -1,7 +1,7 @@
 -- =============================================================================
--- 00037_households.sql — True dual-user household accounts
+-- 00039_households.sql — True dual-user household accounts
 -- Two members share readiness context; each keeps their own auth + assessments.
--- Apply after 00036_user_readiness_path.
+-- Apply after 00038_user_readiness_path.
 -- =============================================================================
 
 create table if not exists households (

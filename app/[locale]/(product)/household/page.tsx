@@ -223,7 +223,7 @@ export default function HouseholdPage() {
         <div className="glass p-8">
           <h1 className="font-display text-2xl text-light">Household</h1>
           <p className="mt-3 text-sm text-dim">
-            Apply migration <code className="text-cyan">00037_households</code>{" "}
+            Apply migration <code className="text-cyan">00039_households</code>{" "}
             to enable dual-user accounts.
           </p>
         </div>

@@ -1,9 +1,9 @@
 -- =============================================================================
--- 00036_user_readiness_path.sql — Path to Ready server persistence
+-- 00038_user_readiness_path.sql — Path to Ready server persistence
 --
 -- One row per user; full ReadinessPath JSON (steps include status).
 -- Local-first LWW via client_updated_at (same contract as user_finance_state).
--- Apply after 00035_partner_attribution_backfill.
+-- Apply after 00037_ad_spend (main).
 -- =============================================================================
 
 create table if not exists user_readiness_path (
