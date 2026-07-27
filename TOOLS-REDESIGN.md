@@ -1,6 +1,6 @@
 # HōMI Decision Lab — Tools Redesign
 
-**Status:** Phases 1, 3, 4, 5 complete on `feature/decision-lab-phase-1`. Phase 2 (instrumentation) partially covered — synthesis and write-back events already fire; the remaining four events are queued below.
+**Status:** COMPLETE on `feature/decision-lab-phase-1`. All 14 lenses wired end-to-end: CFM prefill, Companion digest + synthesis, scenarios, and (where a monthly obligation exists) impact deltas + readiness magnitude bands. Phase 2 instrumentation live.
 
 The 14 calculators stop being isolated pages and become **lenses** on one shared,
 source-labeled model of the user's financial reality — with the HōMI Companion as
@@ -59,10 +59,15 @@ Lenses are grouped by Threshold Compass ring — **Financial Reality** (cyan),
 
 ### Impact deltas (`lib/tools/deltas.ts`)
 
-The only place lens-impact arithmetic happens. Diffs a lens's computed monthly
-obligation against saved finance state (runway + DTI, before/after,
-temperature-banded). The Companion receives these precomputed in the digest and
-reads them — never recomputes them (canon: AI explains, code calculates).
+The only place lens-impact arithmetic happens, in two non-interchangeable shapes:
+
+- `computeHousingDeltas` — a NEW obligation (optionally replacing rent).
+- `computeReplacementDeltas` — an EXISTING obligation swapped for a new one
+  (refinance). Only the difference moves runway/DTI, and the replaced amount is
+  capped at the user's actual outflow so relief is never flattered.
+
+The Companion receives these precomputed in the digest and reads them — never
+recomputes them (canon: AI explains, code calculates).
 
 ### Shared components & hooks
 
@@ -91,67 +96,61 @@ reads them — never recomputes them (canon: AI explains, code calculates).
       components, `useCfm` / `useLensPrefill` hooks
 - [x] All 14 lenses refactored onto the pattern (mortgage = reference)
 - [x] Hub rendered from the registry (hardcoded GROUPS deleted)
-- [x] DeltasCards on mortgage + affordability (housing obligations)
-- [x] 30+ test cases across cfm / deltas / registry suites
 
-Known follow-ups:
-- debt-payoff: itemized-debt CFM mapping (FinanceState.liabilities → debt
-  rows)
-- refinance/heloc: replacement-payment delta shape (a replacement obligation
-  is not a new one)
-- mortgage page uses its own inline prefill (reference implementation);
-  could adopt `useLensPrefill` for uniformity in a cleanup pass
-
-### Phase 2 — Chains everywhere + instrumentation (partial)
-- [x] `lens_synthesis_clicked` / `lens_synthesis_opened` fire from Phase 3
-- [ ] Remaining PostHog events: `lens_prefilled`, `lens_delta_viewed`,
-      `chain_followed`, `numbers_writeback`. Success: chain follow-through >15%.
+### Phase 2 — Chains everywhere + instrumentation ✅
+- [x] `lens_prefilled` (useLensPrefill + mortgage's inline reference prefill)
+- [x] `lens_delta_viewed` (DeltasCard, once per mount, with lens + worst
+      temperature attribution)
+- [x] `chain_followed` (ChainLinks, from/to paths)
+- [x] `numbers_writeback` (UpdateNumbersButton + mortgage's inline write-back)
+- [x] `lens_synthesis_clicked` / `lens_synthesis_opened` (Phase 3)
+- Success metric to watch: chain follow-through >15%.
 
 ### Phase 3 — Companion lens digest + synthesis ✅
-- [x] `lib/tools/digest.ts` — the contract: `LensDigest` (headline, ≤5 rounded
-      key inputs, precomputed deltas, readiness), sessionStorage transport,
-      page-scoped with a 30-minute staleness guard, `cfmCoverage` honesty dial
-      (<50% coverage = the Companion speaks in illustrative terms)
+- [x] `lib/tools/digest.ts` — sessionStorage transport, page-scoped, 30-minute
+      staleness guard, `cfmCoverage` honesty dial (<50% = illustrative voice)
 - [x] `buildLensDigestNote` prompt block: read-don't-compute, worst news first,
       magnitude-only readiness language
-- [x] `LensSynthesis` component + "What does this change for me?" — opens the
-      dock pre-seeded; wired on mortgage + affordability
-- [x] `/api/advisor` — Zod-validated `lensDigestSchema`; deterministic fallback
-      reads the same digest, so the $0 answer can never contradict the paid one
-- [x] 10 digest test cases (jsdom): guardrails, ordering, scoping, staleness
+- [x] `/api/advisor` — Zod-validated; deterministic fallback reads the same
+      digest, so the $0 answer can never contradict the paid one
+- [x] **Live on all 14 lenses.** Headline choices are deliberate:
+      blind-budget leads with the worst-case end of the band; monte-carlo with
+      the median (a plan that only works at P90 is riding the market);
+      debt-payoff publishes only once a real comparison exists.
+- [x] Prompt headroom guard: maximal legal digest (5 inputs, protective
+      deltas, hard-stop readiness, full coverage) must stay ≤2,000 chars
+      (~500 tokens) for the note and ≤1,000 chars for the fallback — CI
+      tripwire against prompt bloat.
 
 ### Phase 4 — Scenarios ✅
-- [x] `supabase/migrations/00036_tool_scenarios.sql` — RLS owner-scoped, jsonb
-      size caps, LWW stamp. **Must be applied before server sync works; the
-      button degrades to browser-only honestly until then.**
-- [x] `lib/tools/scenarios.ts` — snapshot/drift/evaluate/compare, all
-      deterministic; comparison matrix never calls AI; a tie is a tie
+- [x] `supabase/migrations/00036_tool_scenarios.sql` — RLS owner-scoped.
+      **Must be applied before server sync works; degrades to browser-only
+      honestly until then.**
 - [x] Tier cap is the honest gate (`maxScenarios`: free 1 / plus 25 / pro+
-      family 100) — comparison needs ≥2, so the cap IS the comparison gate;
-      402 copy says so plainly
-- [x] `/api/tools/scenarios` GET/POST + `[id]` DELETE, server-side cap,
-      rate-limited
+      family 100); 402 copy says so plainly
 - [x] `/tools/scenarios` comparison page — same-lens only, drift banners name
       exactly what changed since save (displayed, never auto-refreshed)
-- [x] SaveScenarioButton wired on mortgage; hub links to the comparison page
-- [x] 9 scenario test cases
+- [x] **Live on all 14 lenses.** Refinance scenarios evaluate with the
+      replacement shape (swap, never stack); apr-compare flattens all three
+      offers so a saved scenario reproduces the full comparison; debt-payoff
+      saves deterministic aggregates (count, total, weighted APR).
 
 ### Phase 5 — Readiness bands in lenses ✅
 - [x] `lib/simulator.ts` — additive `SimulateOptions.extraDebtService`, counted
-      once in both DTI numerator and outflow (no double-count, backward
-      compatible)
-- [x] `lib/tools/readiness-bands.ts` — canonical `simulate()` run
-      baseline-vs-hypothetical; `compositeBand` thresholds shared with the
-      explainability engine (≤3 small, ≤9 moderate, else large); hard-stop
-      crossings surfaced as their own signal
-- [x] Band + direction only cross the UI/API boundary — never the composite
-      delta, weights, or formulas. CI guard (`tools-readiness-bands.test.ts`)
-      sweeps band thresholds against explain.ts and regex-guards every
-      user-facing line for digits/weight/formula language
-- [x] `ReadinessBand` + `useReadinessAnchors`; wired on mortgage + affordability;
-      readiness magnitude rides the Phase 3 digest (`readinessDigestSchema`)
-- [x] Neutral-anchor honesty: without a stored assessment, the band says so
-      instead of pretending
+      once in both DTI numerator and outflow
+- [x] `compositeBand` thresholds shared with the explainability engine; CI
+      guard sweeps alignment and regex-guards every user-facing line for
+      digits/weight/formula language
+- [x] **Live on all 7 obligation-producing lenses**: mortgage, affordability,
+      rent-vs-buy, heloc, refinance (replacement frame), apr-compare (winning
+      offer), loan-programs (cheapest program). Savings/horizon lenses carry
+      no band by design — a plan is not a payment.
+
+### Debt-payoff itemized CFM mapping ✅
+- [x] Rows seed from finance-dashboard liabilities: real names and balances;
+      apr/minPayment deliberately left at zero (needs-your-input) because the
+      dashboard doesn't store them. An honesty banner says exactly which
+      fields are real. Extra payment seeds from actual positive cash flow.
 
 ---
 
@@ -159,17 +158,22 @@ Known follow-ups:
 
 - [ ] `typecheck` / `lint` / `test` / `build` green
 - [ ] Apply migration `00036_tool_scenarios`
-- [ ] Manual: saved-numbers pass + incognito illustrative pass
-- [ ] Manual: synthesis click on mortgage + affordability (paid and $0 paths)
-- [ ] Manual: scenario save / compare / drift-banner pass
+- [ ] Manual: saved-numbers pass + incognito illustrative pass across several
+      lenses (not just mortgage)
+- [ ] Manual: synthesis click on a housing lens and a non-housing lens
+      (paid + $0 paths)
+- [ ] Manual: scenario save / compare / drift-banner pass (mortgage +
+      refinance swap evaluation)
+- [ ] Manual: readiness band with and without a stored assessment
 
-## Queued roll-outs
+## Queued after merge
 
-- Remaining lenses adopt `<LensSynthesis />` + `SaveScenarioButton` one at a time
-  (token headroom measurement before digests go wide)
-- refinance/heloc replacement-payment delta shape
-- debt-payoff itemized-debt CFM mapping
-- Phase 2 remaining PostHog events
+- Prompt token headroom measurement against the production system prompt
+  (the CI guard bounds the digest block; total-prompt measurement is a
+  deploy-time check)
+- Mortgage page could adopt `useLensPrefill` for uniformity (cleanup only —
+  its inline reference implementation is event-equivalent)
+- Watch Phase 2 funnels; tune chain pitches against follow-through
 
 ---
 
@@ -183,6 +187,8 @@ Known follow-ups:
   finance-dashboard fields.
 - Readiness impact is magnitude-only everywhere it appears; the CI guard
   fails if bands drift from the explainability engine or leak internals.
+- Replacement deltas never stack obligations, and never claim relief beyond
+  the user's actual outflow (cap test enforced).
 - Educational-only disclaimers retained on every lens.
 - No fake metrics: illustrative defaults are visually distinct from user data.
 - SSR-safe storage access; mount-only hydration (no live-edit fights, no
