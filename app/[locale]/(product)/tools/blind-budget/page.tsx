@@ -5,6 +5,8 @@ import { computeBlindBudget } from "@/lib/tools/blindbudget";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
 import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { ToolShell } from "@/components/tools/ToolShell";
 
@@ -31,6 +33,24 @@ export default function BlindBudgetPage() {
   const result = useMemo(
     () => computeBlindBudget({ incomeLow, incomeHigh, fixedCostsLow, fixedCostsHigh, savingsLow, savingsHigh }),
     [incomeLow, incomeHigh, fixedCostsLow, fixedCostsHigh, savingsLow, savingsHigh],
+  );
+
+  // The lens digest the Companion reads. The honest headline is the low
+  // end of the safe-to-spend band — the number that holds in the worst
+  // case, not the flattering one. No obligation deltas by design.
+  const digest = useMemo(
+    () => ({
+      lensId: "blind-budget",
+      path: "/tools/blind-budget",
+      headline: {
+        label: "Safe-to-spend, worst-case end",
+        value: Math.round(result.safeToSpendLow),
+        unit: "currency" as const,
+      },
+      keyInputs: { incomeLow, incomeHigh, fixedCostsLow, fixedCostsHigh },
+      deltas: null,
+    }),
+    [result.safeToSpendLow, incomeLow, incomeHigh, fixedCostsLow, fixedCostsHigh],
   );
 
   return (
@@ -72,6 +92,12 @@ export default function BlindBudgetPage() {
             max={100000}
             step={500}
           />
+
+          <div className="hairline" />
+          <SaveScenarioButton
+            lensId="blind-budget"
+            getInputs={() => ({ incomeLow, incomeHigh, fixedCostsLow, fixedCostsHigh, savingsLow, savingsHigh })}
+          />
         </div>
 
         <div className="space-y-6">
@@ -82,6 +108,8 @@ export default function BlindBudgetPage() {
             </p>
             <p className="mt-2 text-xs text-dim">per month, across your worst case to your best case</p>
           </div>
+
+          <LensSynthesis digest={digest} />
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">Runway band</h2>

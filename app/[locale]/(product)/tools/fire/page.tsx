@@ -6,6 +6,8 @@ import { formatCurrency } from "@/lib/tools/format";
 import { LensField } from "@/components/tools/LensField";
 import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
 import { ChainLinks } from "@/components/tools/ChainLinks";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
 import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
 import { getLens } from "@/lib/tools/registry";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
@@ -45,6 +47,23 @@ export default function FirePage() {
     [annualExpenses, swrPercent, currentAge, retirementAge, currentSavings, expectedReturnPercent],
   );
 
+  // The lens digest the Companion reads — a long-horizon target, not a
+  // monthly obligation, so no deltas by design.
+  const digest = useMemo(
+    () => ({
+      lensId: "fire",
+      path: "/tools/fire",
+      headline: {
+        label: "FIRE number",
+        value: Math.round(fireNumber),
+        unit: "currency" as const,
+      },
+      keyInputs: { annualExpenses, swrPercent, currentSavings, expectedReturnPercent, retirementAge },
+      deltas: null,
+    }),
+    [fireNumber, annualExpenses, swrPercent, currentSavings, expectedReturnPercent, retirementAge],
+  );
+
   return (
     <ToolShell
       title="FIRE Number"
@@ -66,6 +85,10 @@ export default function FirePage() {
             getFields={() => ({ investedAssets: currentSavings })}
             onSaved={() => markAll(["currentSavings"])}
           />
+          <SaveScenarioButton
+            lensId="fire"
+            getInputs={() => ({ annualExpenses, swrPercent, currentAge, retirementAge, currentSavings, expectedReturnPercent })}
+          />
         </div>
 
         <div className="space-y-6">
@@ -86,6 +109,8 @@ export default function FirePage() {
               </span>
             }
           />
+
+          <LensSynthesis digest={digest} />
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">Coast-FIRE</h2>
