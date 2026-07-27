@@ -5,10 +5,17 @@ import { compareOffers, bestOfferIndex, type LoanOffer } from "@/lib/tools/apr";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { CalcField } from "@/components/tools/CalcField";
 import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { DeltasCard } from "@/components/tools/DeltasCard";
 import { ChainLinks } from "@/components/tools/ChainLinks";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
 import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
+import { ReadinessBand } from "@/components/tools/ReadinessBand";
 import { getLens } from "@/lib/tools/registry";
+import { computeHousingDeltas } from "@/lib/tools/deltas";
+import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readiness-bands";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
+import { useReadinessAnchors } from "@/hooks/use-readiness";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
 
@@ -30,11 +37,46 @@ function AprComparePageInner() {
     if (key === "loan") setLoan(v);
     else if (key === "termYears") setTermYears(v);
   }, []);
-  const { prefilled, markAll } = useLensPrefill("apr-compare", apply);
+  const { prefilled, finance, hydrated, markAll } = useLensPrefill("apr-compare", apply);
   const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
+  const readinessCtx = useReadinessAnchors();
 
   const results = useMemo(() => compareOffers(loan, termYears, offers), [loan, termYears, offers]);
   const best = useMemo(() => bestOfferIndex(results), [results]);
+  const winning = results[best];
+
+  // Deterministic impact of carrying the WINNING offer's payment — the
+  // honest frame, since the winner is decided by code, not preference.
+  const deltas = useMemo(() => {
+    if (!finance || !winning) return null;
+    return computeHousingDeltas(finance, winning.monthly);
+  }, [finance, winning]);
+
+  // Phase 5: readiness impact of the winning offer, magnitude only.
+  const readiness = useMemo(() => {
+    if (!readinessCtx || !winning) return null;
+    return readinessImpactForHousing(readinessCtx.baseline, readinessCtx.anchors, {
+      monthlyObligation: winning.monthly,
+      upfrontCost: winning.upfrontCost,
+    });
+  }, [readinessCtx, winning]);
+
+  // The lens digest the Companion reads — every number precomputed here.
+  const digest = useMemo(
+    () => ({
+      lensId: "apr-compare",
+      path: "/tools/apr-compare",
+      headline: {
+        label: `Best true APR (${winning?.label ?? "—"})`,
+        value: Math.round((winning?.apr ?? 0) * 1000) / 1000,
+        unit: "percent" as const,
+      },
+      keyInputs: { loan, termYears },
+      deltas,
+      readiness: readiness ? toReadinessDigest(readiness) : undefined,
+    }),
+    [winning, loan, termYears, deltas, readiness],
+  );
 
   function update(i: number, patch: Partial<LoanOffer>) {
     setOffers((prev) => prev.map((o, idx) => (idx === i ? { ...o, ...patch } : o)));
@@ -67,6 +109,22 @@ function AprComparePageInner() {
             getFields={() => ({ termYears })}
             onSaved={() => markAll(["termYears"])}
           />
+          <SaveScenarioButton
+            lensId="apr-compare"
+            getInputs={() => ({
+              loan,
+              termYears,
+              aRate: offers[0].rate,
+              aPoints: offers[0].points,
+              aFees: offers[0].fees,
+              bRate: offers[1].rate,
+              bPoints: offers[1].points,
+              bFees: offers[1].fees,
+              cRate: offers[2].rate,
+              cPoints: offers[2].points,
+              cFees: offers[2].fees,
+            })}
+          />
         </div>
 
         <div className="space-y-6 lg:col-span-2">
@@ -88,6 +146,11 @@ function AprComparePageInner() {
               </div>
             ))}
           </div>
+
+          <LensSynthesis digest={digest} />
+
+          {hydrated && deltas && <DeltasCard deltas={deltas} lensId="apr-compare" />}
+          {hydrated && readiness && <ReadinessBand impact={readiness} />}
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">Why APR, not rate</h2>

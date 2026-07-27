@@ -5,10 +5,17 @@ import { comparePrograms } from "@/lib/tools/loanprograms";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { CalcField } from "@/components/tools/CalcField";
 import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { DeltasCard } from "@/components/tools/DeltasCard";
 import { ChainLinks } from "@/components/tools/ChainLinks";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
 import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
+import { ReadinessBand } from "@/components/tools/ReadinessBand";
 import { getLens } from "@/lib/tools/registry";
+import { computeHousingDeltas } from "@/lib/tools/deltas";
+import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readiness-bands";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
+import { useReadinessAnchors } from "@/hooks/use-readiness";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
 
@@ -33,8 +40,9 @@ function LoanProgramsPageInner() {
     else if (key === "rate") setRate(v);
     else if (key === "termYears") setTermYears(v);
   }, []);
-  const { prefilled, markAll } = useLensPrefill("loan-programs", apply);
+  const { prefilled, finance, hydrated, markAll } = useLensPrefill("loan-programs", apply);
   const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
+  const readinessCtx = useReadinessAnchors();
 
   const downPayment = Math.round((downPct / 100) * homePrice);
   const results = useMemo(
@@ -42,6 +50,39 @@ function LoanProgramsPageInner() {
     [homePrice, downPayment, rate, termYears, firstTimeUse],
   );
   const cheapest = results.reduce((best, r) => (r.monthlyTotal < best.monthlyTotal ? r : best), results[0]);
+
+  // Deterministic impact of carrying the CHEAPEST program's payment —
+  // cheapest is decided by code, so the frame is honest.
+  const deltas = useMemo(() => {
+    if (!finance) return null;
+    return computeHousingDeltas(finance, cheapest.monthlyTotal);
+  }, [finance, cheapest.monthlyTotal]);
+
+  // Phase 5: readiness impact of the cheapest program, magnitude only.
+  const readiness = useMemo(() => {
+    if (!readinessCtx) return null;
+    return readinessImpactForHousing(readinessCtx.baseline, readinessCtx.anchors, {
+      monthlyObligation: cheapest.monthlyTotal,
+      upfrontCost: downPayment,
+    });
+  }, [readinessCtx, cheapest.monthlyTotal, downPayment]);
+
+  // The lens digest the Companion reads — every number precomputed here.
+  const digest = useMemo(
+    () => ({
+      lensId: "loan-programs",
+      path: "/tools/loan-programs",
+      headline: {
+        label: `Cheapest monthly total (${cheapest.label})`,
+        value: Math.round(cheapest.monthlyTotal),
+        unit: "currency" as const,
+      },
+      keyInputs: { homePrice, downPct, rate, termYears },
+      deltas,
+      readiness: readiness ? toReadinessDigest(readiness) : undefined,
+    }),
+    [cheapest, homePrice, downPct, rate, termYears, deltas, readiness],
+  );
 
   return (
     <ToolShell
@@ -73,6 +114,10 @@ function LoanProgramsPageInner() {
             getFields={() => ({ targetPrice: homePrice, assumedRatePct: rate, termYears })}
             onSaved={() => markAll(["homePrice", "rate", "termYears"])}
           />
+          <SaveScenarioButton
+            lensId="loan-programs"
+            getInputs={() => ({ homePrice, downPct, rate, termYears, firstTimeUse: firstTimeUse ? 1 : 0 })}
+          />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-3">
@@ -100,6 +145,12 @@ function LoanProgramsPageInner() {
             );
           })}
         </div>
+      </div>
+
+      <div className="mt-6 max-w-3xl space-y-6">
+        <LensSynthesis digest={digest} />
+        {hydrated && deltas && <DeltasCard deltas={deltas} lensId="loan-programs" />}
+        {hydrated && readiness && <ReadinessBand impact={readiness} />}
       </div>
 
       {LENS.chains && (
