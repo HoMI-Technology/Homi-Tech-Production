@@ -87,6 +87,16 @@ const personaSchema = z.enum(["homie", "reality", "gut", "timing", "planner"]);
 const temperatureSchema = z.enum(["emerald", "yellow", "amber", "crimson"]);
 
 /**
+ * Phase 5: readiness impact in the digest — magnitude + direction ONLY.
+ * The composite delta, weights, and formulas never cross this boundary.
+ */
+const readinessDigestSchema = z.object({
+  band: z.enum(["small", "moderate", "large"]).nullable(),
+  direction: z.enum(["up", "down", "flat"]),
+  hardStop: z.boolean(),
+});
+
+/**
  * Lens digest — Decision Lab Phase 3. The compact, precomputed summary of
  * the tool the user is standing in. Client-sent by design (live slider
  * state is ephemeral UI state, not account data — it never goes through
@@ -119,6 +129,7 @@ const lensDigestSchema = z.object({
     )
     .max(4)
     .nullable(),
+  readiness: readinessDigestSchema.nullish(),
   cfmCoverage: z.number().min(0).max(1),
   updatedAt: z.number().min(0),
 });
