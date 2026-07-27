@@ -8,6 +8,7 @@
 
 import { describe, it, expect } from "vitest";
 import {
+  deriveNextLevel,
   evaluateAdminAccess,
   isEmailAllowlisted,
   parseAdminEmails,
@@ -52,6 +53,51 @@ describe("isEmailAllowlisted", () => {
     expect(isEmailAllowlisted("Admin@X.com", ["admin@x.com"])).toBe(true);
     expect(isEmailAllowlisted("other@x.com", ["admin@x.com"])).toBe(false);
     expect(isEmailAllowlisted(null, ["admin@x.com"])).toBe(false);
+  });
+});
+
+describe("deriveNextLevel", () => {
+  it("reports aal2 when any factor is verified", () => {
+    expect(deriveNextLevel([{ status: "verified" }])).toBe("aal2");
+    expect(deriveNextLevel([{ status: "unverified" }, { status: "verified" }])).toBe("aal2");
+  });
+
+  it("reports aal1 for an empty list or only-unverified factors", () => {
+    expect(deriveNextLevel([])).toBe("aal1");
+    expect(deriveNextLevel([{ status: "unverified" }])).toBe("aal1");
+  });
+
+  it("returns null when the lookup itself failed, so the policy fails safe", () => {
+    expect(deriveNextLevel(null)).toBeNull();
+    expect(deriveNextLevel(undefined)).toBeNull();
+  });
+});
+
+describe("stale-session regression: enrolling MFA on an existing session", () => {
+  /**
+   * The session cookie is minted at sign-in, so its cached user carries no
+   * factors for an admin who enrolls TOTP afterwards. Deriving nextLevel from
+   * that session reported "aal1" and sent an already-enrolled admin back to the
+   * enrollment wall forever. nextLevel must come from listFactors() instead.
+   */
+  const staleSessionNextLevel = "aal1" as const; // what the cached session claimed
+  const authoritative = deriveNextLevel([{ status: "verified" }]);
+
+  it("derives aal2 from the factor list even though the session says aal1", () => {
+    expect(staleSessionNextLevel).toBe("aal1");
+    expect(authoritative).toBe("aal2");
+  });
+
+  it("asks the enrolled admin to step up rather than to enroll again", () => {
+    const stale = evaluateAdminAccess(
+      base({ requireMfa: true, currentLevel: "aal1", nextLevel: staleSessionNextLevel }),
+    );
+    expect(stale).toEqual({ allow: false, reason: "needs-enrollment" }); // the bug
+
+    const fixed = evaluateAdminAccess(
+      base({ requireMfa: true, currentLevel: "aal1", nextLevel: authoritative }),
+    );
+    expect(fixed).toEqual({ allow: false, reason: "needs-stepup" }); // the fix
   });
 });
 
