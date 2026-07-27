@@ -37,7 +37,7 @@
     "next-intl": "^4.13.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-plaid-link": "^4.2.0",
+    "react-plaid-link": "^5.0.0",
     "stripe": "^22.3.2",
     "web-push": "^3.6.7",
     "zod": "^4.4.3"
