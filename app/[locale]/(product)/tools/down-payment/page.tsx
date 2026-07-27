@@ -5,10 +5,13 @@ import { formatCurrency, formatMonths } from "@/lib/tools/format";
 import { LensField } from "@/components/tools/LensField";
 import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
 import { ChainLinks } from "@/components/tools/ChainLinks";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
 import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
 import { getLens } from "@/lib/tools/registry";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { ToolShell } from "@/components/tools/ToolShell";
+import type { LensDigestInput } from "@/lib/tools/digest";
 
 const LENS = getLens("down-payment")!;
 
@@ -65,6 +68,24 @@ export default function DownPaymentPage() {
     return d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
   }, [monthsToGoal]);
 
+  // The lens digest the Companion reads — a savings plan, not a payment,
+  // so there are no obligation deltas by design. When the goal is
+  // unreachable inside 50 years the headline says what is still missing
+  // instead of quoting a capped month count.
+  const digest = useMemo<LensDigestInput>(
+    () => ({
+      lensId: "down-payment",
+      path: "/tools/down-payment",
+      headline:
+        monthsToGoal !== null
+          ? { label: "Time to goal", value: monthsToGoal, unit: "months" as const }
+          : { label: "Remaining to save", value: Math.round(remaining), unit: "currency" as const },
+      keyInputs: { price, targetPct, saved, monthly, apy },
+      deltas: null,
+    }),
+    [monthsToGoal, remaining, price, targetPct, saved, monthly, apy],
+  );
+
   const width = 640;
   const height = 220;
   const padding = 24;
@@ -102,6 +123,10 @@ export default function DownPaymentPage() {
             getFields={() => ({ targetPrice: price, downPaymentSaved: saved })}
             onSaved={() => markAll(["price", "saved"])}
           />
+          <SaveScenarioButton
+            lensId="down-payment"
+            getInputs={() => ({ price, targetPct, saved, monthly, apy })}
+          />
         </div>
 
         <div className="space-y-6">
@@ -124,6 +149,8 @@ export default function DownPaymentPage() {
             </div>
             {targetDate && <p className="mt-3 text-center text-sm text-dim">Estimated: {targetDate}</p>}
           </div>
+
+          <LensSynthesis digest={digest} />
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">Growth curve</h2>

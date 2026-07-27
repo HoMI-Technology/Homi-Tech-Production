@@ -5,10 +5,17 @@ import { monthlyPayment } from "@/lib/tools/mortgage";
 import { formatCurrency } from "@/lib/tools/format";
 import { LensField } from "@/components/tools/LensField";
 import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { DeltasCard } from "@/components/tools/DeltasCard";
 import { ChainLinks } from "@/components/tools/ChainLinks";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
 import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
+import { ReadinessBand } from "@/components/tools/ReadinessBand";
 import { getLens } from "@/lib/tools/registry";
+import { computeHousingDeltas } from "@/lib/tools/deltas";
+import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readiness-bands";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
+import { useReadinessAnchors } from "@/hooks/use-readiness";
 import { ToolShell } from "@/components/tools/ToolShell";
 
 const LENS = getLens("rent-vs-buy")!;
@@ -61,12 +68,54 @@ export default function RentVsBuyPage() {
     else if (key === "price") setPrice(v);
     else if (key === "rate") setRate(v);
   }, []);
-  const { prefilled, markAll } = useLensPrefill("rent-vs-buy", apply);
+  const { prefilled, finance, hydrated, markAll } = useLensPrefill("rent-vs-buy", apply);
   const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
+  const readinessCtx = useReadinessAnchors();
 
   const data = useMemo(() => simulate(rent, price, rate, appreciation, years), [rent, price, rate, appreciation, years]);
   const finalYear = data[data.length - 1];
   const buyIsCheaper = finalYear ? finalYear.buyCost < finalYear.rentCost : false;
+
+  // The monthly carrying cost of buying at these inputs — P&I + tax/ins +
+  // maintenance, matching the simulate() assumptions above. Counting
+  // maintenance in the obligation is deliberately conservative.
+  const buyMonthly = useMemo(() => {
+    const loan = price * 0.8;
+    return monthlyPayment(loan, rate, 30) + (price * 0.015) / 12 + (price * 0.01) / 12;
+  }, [price, rate]);
+
+  // Buying replaces rent — the same frame the mortgage lens offers.
+  const deltas = useMemo(() => {
+    if (!finance) return null;
+    return computeHousingDeltas(finance, buyMonthly, { replacedRentMonthly: rent });
+  }, [finance, buyMonthly, rent]);
+
+  // Phase 5: readiness impact of the swap, magnitude only.
+  const readiness = useMemo(() => {
+    if (!readinessCtx) return null;
+    return readinessImpactForHousing(readinessCtx.baseline, readinessCtx.anchors, {
+      monthlyObligation: buyMonthly,
+      upfrontCost: price * 0.2,
+      replacedRentMonthly: rent,
+    });
+  }, [readinessCtx, buyMonthly, price, rent]);
+
+  // The lens digest the Companion reads — every number precomputed here.
+  const digest = useMemo(
+    () => ({
+      lensId: "rent-vs-buy",
+      path: "/tools/rent-vs-buy",
+      headline: {
+        label: `${years}-year net cost of buying`,
+        value: Math.round(finalYear?.buyCost ?? 0),
+        unit: "currency" as const,
+      },
+      keyInputs: { rent, price, rate, appreciation, years },
+      deltas,
+      readiness: readiness ? toReadinessDigest(readiness) : undefined,
+    }),
+    [years, finalYear?.buyCost, rent, price, rate, appreciation, deltas, readiness],
+  );
 
   const width = 640;
   const height = 260;
@@ -101,6 +150,10 @@ export default function RentVsBuyPage() {
             getFields={() => ({ currentRent: rent, targetPrice: price, assumedRatePct: rate })}
             onSaved={() => markAll(["rent", "price", "rate"])}
           />
+          <SaveScenarioButton
+            lensId="rent-vs-buy"
+            getInputs={() => ({ rent, price, rate, appreciation, years })}
+          />
         </div>
 
         <div className="space-y-6">
@@ -116,6 +169,8 @@ export default function RentVsBuyPage() {
             </div>
           </div>
 
+          <LensSynthesis digest={digest} />
+
           {finalYear && (
             <div className="glass p-6">
               <div className="grid grid-cols-2 gap-4 text-center">
@@ -130,6 +185,9 @@ export default function RentVsBuyPage() {
               </div>
             </div>
           )}
+
+          {hydrated && deltas && <DeltasCard deltas={deltas} lensId="rent-vs-buy" />}
+          {hydrated && readiness && <ReadinessBand impact={readiness} />}
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">What this means</h2>
