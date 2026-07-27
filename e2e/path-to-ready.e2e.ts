@@ -125,9 +125,12 @@ test.describe("Path to Ready (seeded)", () => {
       timeout: 20_000,
     });
     await expect(page.getByText(/Emergency runway|Binding constraint/i).first()).toBeVisible();
-    // Step title may appear in path list + coach board — scope to first match.
+    // Exact match rather than `.first()`: the step title also appears inside
+    // the path-coach summary line and the "what does this mean" advisor
+    // deep-link. In DOM order the summary comes first, so `.first()` turns this
+    // green while asserting against the coach board instead of the step itself.
     await expect(
-      page.getByText("Stabilize emergency runway to at least 1 month").first(),
+      page.getByText("Stabilize emergency runway to at least 1 month", { exact: true }),
     ).toBeVisible();
 
     await page.getByRole("button", { name: "Mark done" }).first().click();
