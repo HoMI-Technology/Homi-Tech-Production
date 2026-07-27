@@ -16,6 +16,15 @@ on:
   # fire pull_request synchronize events, so branches need a way to run CI.
   workflow_dispatch:
 
+# Cancel superseded runs, matching ci.yml and e2e.yml. Without this, a new push
+# cancelled its CI and E2E runs but left Lighthouse — the most expensive job in
+# the repo at ~7 minutes — running to completion against a commit nobody would
+# merge. On a metered private repo that was the largest single source of wasted
+# Actions minutes.
+concurrency:
+  group: lighthouse-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
   lighthouse:
     runs-on: ubuntu-latest
