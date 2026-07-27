@@ -79,7 +79,7 @@ const identitySchema = z.object({
     .trim()
     .min(1)
     .max(24)
-    .refine((s) => ![\r\n]/.test(s), "single line"),
+    .refine((s) => !/[\r\n]/.test(s), "single line"),
 });
 
 const personaSchema = z.enum(["homie", "reality", "gut", "timing", "planner"]);
