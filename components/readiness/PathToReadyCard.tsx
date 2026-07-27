@@ -25,6 +25,9 @@ import {
   trackPathSaved,
   trackPathCalendarCommitted,
   trackPathStepDone,
+  trackPathHabitImpression,
+  derivePathHabitStage,
+  pathHabitOncePerSession,
   exportPathMarkdown,
   exportPathJson,
   downloadTextFile,
@@ -157,6 +160,16 @@ export function PathToReadyCard({
       active = false;
     };
   }, [result, assessmentCompletedAt, isAnonymous]);
+
+  useEffect(() => {
+    if (!hydrated || !path) return;
+    if (!pathHabitOncePerSession("habit_impression:results")) return;
+    trackPathHabitImpression({
+      surface: "results",
+      stage: derivePathHabitStage(path),
+      verdict: path.verdict,
+    });
+  }, [hydrated, path]);
 
   const handleGenerate = useCallback(() => {
     const next = generatePathFromResult(result, assessmentCompletedAt);
@@ -340,6 +353,7 @@ export function PathToReadyCard({
 
     return (
       <section
+        id="path-to-ready"
         className="glass relative mt-8 overflow-hidden border border-cyan/30 p-6 sm:p-8"
         aria-label="Path to Ready"
       >
@@ -510,6 +524,7 @@ export function PathToReadyCard({
 
   return (
     <section
+      id="path-to-ready"
       className="glass relative mt-8 overflow-hidden border border-cyan/30 p-6 sm:p-8"
       aria-label="Path to Ready"
     >

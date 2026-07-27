@@ -7,6 +7,7 @@
 import { track } from "@/lib/analytics";
 import type { PathMode } from "./path";
 import type { Verdict as ScoringVerdict } from "@/lib/scoring";
+import type { PathHabitStage, PathHabitSurface } from "./habit";
 
 export type PathFunnelSource =
   | "results_auto"
@@ -16,6 +17,19 @@ export type PathFunnelSource =
   | "dashboard_nudge"
   | "household"
   | "unknown";
+
+/**
+ * Habit funnel (ordered for admin dashboards):
+ * verdict_shown (existing) → path_generated → path_habit_impression →
+ * path_page_viewed → path_start_step_clicked → path_first_step_done
+ */
+export const PATH_HABIT_FUNNEL_EVENTS = [
+  "path_generated",
+  "path_habit_impression",
+  "path_page_viewed",
+  "path_start_step_clicked",
+  "path_first_step_done",
+] as const;
 
 /** Funnel: assessment result shown → path offered → generated → saved → calendar → first step */
 export const PATH_FUNNEL_EVENTS = {
@@ -35,6 +49,10 @@ export const PATH_FUNNEL_EVENTS = {
   householdInviteSent: "household_invite_sent",
   householdJoined: "household_joined",
   pathPricingExposure: "path_pricing_exposure",
+  pathHabitImpression: "path_habit_impression",
+  pathPageViewed: "path_page_viewed",
+  pathStartStepClicked: "path_start_step_clicked",
+  pathReturnVisit: "path_return_visit",
 } as const;
 
 export function trackPathOffered(props: {
@@ -119,5 +137,53 @@ export function trackPathPricingExposure(props: {
   track(PATH_FUNNEL_EVENTS.pathPricingExposure, {
     experiment: props.experiment,
     variant: props.variant,
+  });
+}
+
+/** Dashboard / results / path — user saw the habit surface. */
+export function trackPathHabitImpression(props: {
+  surface: PathHabitSurface;
+  stage: PathHabitStage;
+  verdict?: string;
+}): void {
+  track(PATH_FUNNEL_EVENTS.pathHabitImpression, {
+    surface: props.surface,
+    stage: props.stage,
+    ...(props.verdict ? { verdict: props.verdict } : {}),
+  });
+}
+
+/** Full /path page open. */
+export function trackPathPageViewed(props: {
+  stage: PathHabitStage;
+  pendingSteps: number;
+  mode: PathMode | string;
+}): void {
+  track(PATH_FUNNEL_EVENTS.pathPageViewed, {
+    stage: props.stage,
+    pending_steps: props.pendingSteps,
+    mode: String(props.mode),
+  });
+}
+
+/** User clicked Start step / Open tool from a habit surface. */
+export function trackPathStartStepClicked(props: {
+  surface: PathHabitSurface;
+  reasonCode: string;
+}): void {
+  track(PATH_FUNNEL_EVENTS.pathStartStepClicked, {
+    surface: props.surface,
+    reason_code: props.reasonCode,
+  });
+}
+
+/** Incomplete path revisited after ≥1 day. */
+export function trackPathReturnVisit(props: {
+  stage: PathHabitStage;
+  ageDays: number;
+}): void {
+  track(PATH_FUNNEL_EVENTS.pathReturnVisit, {
+    stage: props.stage,
+    age_days: props.ageDays,
   });
 }

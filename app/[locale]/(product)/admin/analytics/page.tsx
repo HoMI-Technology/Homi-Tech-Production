@@ -24,6 +24,11 @@ const FUNNEL_LABELS: Record<string, string> = {
   checkout_started: "Checkout started",
   checkout_completed: "Checkout completed",
   share_created: "Share created",
+  path_generated: "Path generated",
+  path_habit_impression: "Path habit shown",
+  path_page_viewed: "Path page opened",
+  path_start_step_clicked: "Start step clicked",
+  path_first_step_done: "First step done",
 };
 
 function dayKey(d: Date) {
@@ -234,6 +239,14 @@ export default async function AdminAnalyticsPage({
     users: s.users,
     occurrences: s.occurrences,
   }));
+  const pathHabitSteps: FunnelSeriesStep[] = (bundle?.pathHabitFunnel ?? []).map(
+    (s) => ({
+      label: FUNNEL_LABELS[s.event] ?? s.event,
+      event: s.event,
+      users: s.users,
+      occurrences: s.occurrences,
+    }),
+  );
 
   return (
     <div>
@@ -338,6 +351,19 @@ export default async function AdminAnalyticsPage({
               </div>
               <div className="mt-5">
                 <FunnelSeries steps={funnelSteps} />
+              </div>
+            </div>
+
+            <div className="glass p-6">
+              <div className="dash-section-head">
+                <h2>Path habit (NOT_YET activation)</h2>
+                <p>
+                  Generated → shown → opened → start step → first step done.
+                  North star for protective path adoption.
+                </p>
+              </div>
+              <div className="mt-5">
+                <FunnelSeries steps={pathHabitSteps} />
               </div>
             </div>
           </div>

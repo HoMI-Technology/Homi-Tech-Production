@@ -67,6 +67,15 @@ export const FUNNEL_EVENTS = [
   "share_created",
 ] as const;
 
+/** Path habit funnel for NOT_YET activation (mirrors lib/readiness/analytics). */
+export const PATH_HABIT_FUNNEL_EVENTS = [
+  "path_generated",
+  "path_habit_impression",
+  "path_page_viewed",
+  "path_start_step_clicked",
+  "path_first_step_done",
+] as const;
+
 const QUERY_TIMEOUT_MS = 8_000;
 const CACHE_REVALIDATE_S = 300;
 
@@ -159,13 +168,19 @@ function toNumber(value: unknown): number | null {
  */
 export async function getAnalyticsBundle(
   range: AnalyticsRange,
-): Promise<{ overview: OverviewMetrics; daily: DailyPoint[]; funnel: FunnelStep[] } | null> {
+): Promise<{
+  overview: OverviewMetrics;
+  daily: DailyPoint[];
+  funnel: FunnelStep[];
+  pathHabitFunnel: FunnelStep[];
+} | null> {
   const projectId = await getCachedProjectId();
   if (!projectId) return null;
 
   const days = rangeDays(range);
   // days is whitelisted (7|30) by rangeDays — safe to inline; no user input
   // reaches these statements.
+  const allFunnelEvents = [...FUNNEL_EVENTS, ...PATH_HABIT_FUNNEL_EVENTS];
   const [overviewRows, sessionRows, dailyRows, funnelRows] = await Promise.all([
     getCachedHogQL(
       projectId,
@@ -201,7 +216,7 @@ export async function getAnalyticsBundle(
       `SELECT event, count(DISTINCT person_id) AS users, count() AS occurrences
        FROM events
        WHERE timestamp >= now() - INTERVAL ${days} DAY
-         AND event IN (${FUNNEL_EVENTS.map((e) => `'${e}'`).join(", ")})
+         AND event IN (${allFunnelEvents.map((e) => `'${e}'`).join(", ")})
        GROUP BY event`,
     ),
   ]);
@@ -235,6 +250,11 @@ export async function getAnalyticsBundle(
     users: byEvent.get(event)?.users ?? 0,
     occurrences: byEvent.get(event)?.occurrences ?? 0,
   }));
+  const pathHabitFunnel: FunnelStep[] = PATH_HABIT_FUNNEL_EVENTS.map((event) => ({
+    event,
+    users: byEvent.get(event)?.users ?? 0,
+    occurrences: byEvent.get(event)?.occurrences ?? 0,
+  }));
 
-  return { overview, daily, funnel };
+  return { overview, daily, funnel, pathHabitFunnel };
 }

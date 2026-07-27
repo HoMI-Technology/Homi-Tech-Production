@@ -98,6 +98,7 @@ export { generatePathFromScenario } from "./scenario-path";
 
 export {
   PATH_FUNNEL_EVENTS,
+  PATH_HABIT_FUNNEL_EVENTS,
   trackPathOffered,
   trackPathGenerated,
   trackPathSaved,
@@ -106,8 +107,21 @@ export {
   trackPathFirstStepNudge,
   trackPathExported,
   trackPathPricingExposure,
+  trackPathHabitImpression,
+  trackPathPageViewed,
+  trackPathStartStepClicked,
+  trackPathReturnVisit,
   type PathFunnelSource,
 } from "./analytics";
+
+export {
+  derivePathHabitStage,
+  pathPendingStepCount,
+  isPathReturnVisit,
+  pathHabitOncePerSession,
+  type PathHabitStage,
+  type PathHabitSurface,
+} from "./habit";
 
 export {
   HOUSING_READINESS_DISCLAIMER,

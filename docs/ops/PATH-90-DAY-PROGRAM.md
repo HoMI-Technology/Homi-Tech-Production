@@ -36,5 +36,9 @@ Shipped in branch `feat/path-90-day-complete` (code map).
 
 - Branch protection requiring `verify` check  
 - Resend configured for household emails  
-- PostHog key for production analytics  
+- PostHog key for production analytics (`NEXT_PUBLIC_POSTHOG_KEY` + admin HogQL keys)  
 - Partner sales packaging beyond certificate page  
+
+## After ship — habit & measure (not more platform)
+
+See **`docs/ops/PATH-HABIT-MEASURE.md`**. Dashboard/results make Path the default for non-READY; Admin Analytics shows the Path habit funnel.
