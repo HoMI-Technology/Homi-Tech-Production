@@ -11,10 +11,13 @@ import { DeltasCard } from "@/components/tools/DeltasCard";
 import { ChainLinks } from "@/components/tools/ChainLinks";
 import { LensSynthesis } from "@/components/tools/LensSynthesis";
 import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
+import { ReadinessBand } from "@/components/tools/ReadinessBand";
 import { getLens } from "@/lib/tools/registry";
 import { buildCfm, resolveCfmValue, saveToolsOverlayFields } from "@/lib/tools/cfm";
 import { computeHousingDeltas } from "@/lib/tools/deltas";
+import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readiness-bands";
 import { useCfm } from "@/hooks/use-cfm";
+import { useReadinessAnchors } from "@/hooks/use-readiness";
 import {
   loadFinanceState,
   hasSavedFinanceState,
@@ -42,6 +45,7 @@ function MortgagePageInner() {
   const [writeBackDone, setWriteBackDone] = useState(false);
 
   const { overlay, hydrated } = useCfm();
+  const readinessCtx = useReadinessAnchors();
 
   // Mount-only CFM prefill: seeds sliders from the user's saved numbers via
   // the registry contract, then never fights live edits again.
@@ -90,13 +94,25 @@ function MortgagePageInner() {
     [loanAmount, rate, termYears],
   );
 
+  const replacedRentMonthly = replaceRent ? (overlay.currentRent ?? 0) : 0;
+
   // Deterministic impact deltas — the only place this arithmetic happens.
   const deltas = useMemo(() => {
     if (!finance) return null;
     return computeHousingDeltas(finance, breakdown.total, {
-      replacedRentMonthly: replaceRent ? (overlay.currentRent ?? 0) : 0,
+      replacedRentMonthly,
     });
-  }, [finance, breakdown.total, replaceRent, overlay.currentRent]);
+  }, [finance, breakdown.total, replacedRentMonthly]);
+
+  // Phase 5: readiness impact of carrying this payment, magnitude only.
+  const readiness = useMemo(() => {
+    if (!readinessCtx) return null;
+    return readinessImpactForHousing(readinessCtx.baseline, readinessCtx.anchors, {
+      monthlyObligation: breakdown.total,
+      upfrontCost: downPayment,
+      replacedRentMonthly,
+    });
+  }, [readinessCtx, breakdown.total, downPayment, replacedRentMonthly]);
 
   // The lens digest the Companion reads — every number precomputed here.
   const digest = useMemo(
@@ -110,8 +126,9 @@ function MortgagePageInner() {
       },
       keyInputs: { price, downPayment, rate, termYears },
       deltas,
+      readiness: readiness ? toReadinessDigest(readiness) : undefined,
     }),
-    [breakdown.total, price, downPayment, rate, termYears, deltas],
+    [breakdown.total, price, downPayment, rate, termYears, deltas, readiness],
   );
 
   const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
@@ -198,6 +215,8 @@ function MortgagePageInner() {
               <DeltasCard deltas={deltas} />
             </>
           )}
+
+          {hydrated && readiness && <ReadinessBand impact={readiness} />}
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">Amortization summary</h2>
