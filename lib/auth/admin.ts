@@ -52,6 +52,31 @@ export interface AdminAccessInput {
   nextLevel: AssuranceLevel | null;
 }
 
+/** A factor as returned by `supabase.auth.mfa.listFactors()`. */
+export interface EnrolledFactor {
+  status?: string | null;
+}
+
+/**
+ * Resolve `nextLevel` from an *authoritative* factor list.
+ *
+ * This must never be read off the session. `getAuthenticatorAssuranceLevel()`
+ * derives nextLevel from the session's cached user object, which is written at
+ * sign-in — so an admin who enrolls TOTP on an existing session keeps looking
+ * factor-less until they re-authenticate, and a mandated-MFA console reports
+ * "enroll" to someone already enrolled. `listFactors()` queries the auth server,
+ * so it can't go stale.
+ *
+ * A null/undefined list means the lookup itself failed: return null so the
+ * policy fails safe rather than inventing an assurance level.
+ */
+export function deriveNextLevel(
+  factors: readonly EnrolledFactor[] | null | undefined,
+): AssuranceLevel | null {
+  if (!factors) return null;
+  return factors.some((f) => f.status === "verified") ? "aal2" : "aal1";
+}
+
 /**
  * Parse an `ADMIN_EMAILS` env value ("a@x.com, b@y.com") into a normalized,
  * lowercased, de-duplicated list. Empty/undefined → [] (allowlist disabled).
