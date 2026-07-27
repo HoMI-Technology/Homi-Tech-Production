@@ -73,6 +73,15 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
         ),
       },
       {
+        href: "/admin/ad-spend",
+        label: "Ad Spend",
+        icon: (
+          <>
+            <path d="M10 3v14M13.5 6.5C13.5 5 12 4 10 4S6.5 5 6.5 6.5 8 9 10 9.5s3.5 1 3.5 2.5S12 15 10 15s-3.5-1-3.5-2.5" />
+          </>
+        ),
+      },
+      {
         href: "/admin/waitlist",
         label: "Waitlist",
         icon: (

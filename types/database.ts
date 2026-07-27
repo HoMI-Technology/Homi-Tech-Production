@@ -225,6 +225,24 @@ export interface Payment {
   created_at: string;
 }
 
+/** Manual paid-media spend ledger (migration 00036) — powers CAC/ROAS. */
+export interface AdSpend {
+  id: string;
+  /** ISO date (YYYY-MM-DD) the spend is attributed to. */
+  spend_date: string;
+  /** Channel label, aligned with attribution vocabulary (google, meta, …). */
+  channel: string;
+  /** Optional utm_campaign this spend maps to; '' when unspecified. */
+  campaign: string;
+  spend_cents: number;
+  impressions: number;
+  clicks: number;
+  notes: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export type GoalKind = "down_payment";
 
 export interface Goal {
