@@ -6,6 +6,8 @@ import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { LensField } from "@/components/tools/LensField";
 import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
 import { ChainLinks } from "@/components/tools/ChainLinks";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
 import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
 import { getLens } from "@/lib/tools/registry";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
@@ -67,6 +69,27 @@ function MonteCarloPageInner() {
     incomeGrowth,
   ]);
 
+  // The lens digest the Companion reads — the median, not the strong case,
+  // because a plan that only works at P90 is riding on the market. Only
+  // published once the deterministic run has landed.
+  const digest = useMemo(
+    () =>
+      result
+        ? {
+            lensId: "monte-carlo",
+            path: "/tools/monte-carlo",
+            headline: {
+              label: `Median outcome after ${years} years`,
+              value: Math.round(result.finalP50),
+              unit: "currency" as const,
+            },
+            keyInputs: { currentSavings, monthlyContribution, years, expectedReturn, volatility },
+            deltas: null,
+          }
+        : null,
+    [result, years, currentSavings, monthlyContribution, expectedReturn, volatility],
+  );
+
   return (
     <ToolShell
       title="Monte Carlo Projection"
@@ -97,6 +120,20 @@ function MonteCarloPageInner() {
             })}
             onSaved={() => markAll(["currentSavings", "monthlyContribution"])}
           />
+          <SaveScenarioButton
+            lensId="monte-carlo"
+            getInputs={() => ({
+              currentSavings,
+              monthlyContribution,
+              years,
+              expectedReturn,
+              volatility,
+              targetAmount,
+              jobLossProb,
+              maintenanceShock,
+              incomeGrowth,
+            })}
+          />
         </div>
 
         <div className="space-y-6">
@@ -125,6 +162,8 @@ function MonteCarloPageInner() {
                   </p>
                 )}
               </div>
+
+              {digest && <LensSynthesis digest={digest} />}
 
               <div className="glass p-6">
                 <h2 className="font-semibold text-light">Resilience</h2>

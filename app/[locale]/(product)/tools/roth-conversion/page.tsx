@@ -5,6 +5,8 @@ import { computeRothConversion } from "@/lib/tools/roth";
 import { formatCurrency } from "@/lib/tools/format";
 import { LensField } from "@/components/tools/LensField";
 import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
 import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
@@ -40,6 +42,24 @@ function RothConversionPageInner() {
 
   const benefitPositive = result.netEducationalBenefit >= 0;
 
+  // The lens digest the Companion reads. The headline is the tax avoided
+  // at horizon (always non-negative); the net benefit can go either way
+  // and stays visible in the UI where its sign is styled honestly.
+  const digest = useMemo(
+    () => ({
+      lensId: "roth-conversion",
+      path: "/tools/roth-conversion",
+      headline: {
+        label: "Tax avoided at horizon",
+        value: Math.round(result.taxAvoidedAtHorizon),
+        unit: "currency" as const,
+      },
+      keyInputs: { currentBalance, convertAmount, marginalRateNow, expectedRateRetirement, yearsToHorizon },
+      deltas: null,
+    }),
+    [result.taxAvoidedAtHorizon, currentBalance, convertAmount, marginalRateNow, expectedRateRetirement, yearsToHorizon],
+  );
+
   return (
     <ToolShell
       title="Roth Conversion — Educational"
@@ -60,6 +80,10 @@ function RothConversionPageInner() {
           <UpdateNumbersButton
             getFields={() => ({ investedAssets: currentBalance })}
             onSaved={() => markAll(["currentBalance"])}
+          />
+          <SaveScenarioButton
+            lensId="roth-conversion"
+            getInputs={() => ({ currentBalance, convertAmount, marginalRateNow, expectedRateRetirement, yearsToHorizon, expectedGrowth })}
           />
         </div>
 
@@ -92,6 +116,8 @@ function RothConversionPageInner() {
               money or for paying the conversion tax out of the converted funds themselves.
             </p>
           </div>
+
+          <LensSynthesis digest={digest} />
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">What this means</h2>
