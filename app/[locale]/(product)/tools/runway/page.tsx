@@ -1,10 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
-import { sliderFillPercent } from "@/lib/assessment/format";
-import { getToolPrefill } from "@/lib/tools/prefill";
+import { LensField } from "@/components/tools/LensField";
+import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { ChainLinks } from "@/components/tools/ChainLinks";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
+import { getLens } from "@/lib/tools/registry";
+import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { ToolShell, ToolResultHero } from "@/components/tools/ToolShell";
+
+const LENS = getLens("runway")!;
 
 function temperature(months: number): { label: string; color: string; className: string } {
   if (months >= 6) return { label: "Protected", color: "#34d399", className: "bg-verdict-ready" };
@@ -17,28 +24,53 @@ export default function RunwayPage() {
   const [expenses, setExpenses] = useState(3200);
   const [savings, setSavings] = useState(9600);
 
-  // Companion hand-off: open with the user's saved numbers, not defaults.
-  // Mount-only, so it never fights the user's live edits.
-  useEffect(() => {
-    const prefill = getToolPrefill();
-    if (!prefill) return;
-    setExpenses(prefill.monthlyOutflow);
-    setSavings(prefill.liquidSavings);
+  // Decision Lab: mount-only seed from the user's saved numbers via the
+  // registry contract — never fights live edits afterward.
+  const apply = useCallback((key: string, v: number) => {
+    if (key === "expenses") setExpenses(v);
+    else if (key === "savings") setSavings(v);
   }, []);
+  const { prefilled } = useLensPrefill("runway", apply);
+  const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
 
   const months = useMemo(() => (expenses > 0 ? savings / expenses : 0), [expenses, savings]);
   const temp = temperature(months);
   const cappedForBar = Math.min(months, 12);
+
+  // The lens digest the Companion reads. Runway IS the user's current
+  // state, not a new obligation — no deltas by design.
+  const digest = useMemo(
+    () => ({
+      lensId: "runway",
+      path: "/tools/runway",
+      headline: {
+        label: "Emergency runway",
+        value: Math.round(months * 10) / 10,
+        unit: "months" as const,
+      },
+      keyInputs: { expenses, savings },
+      deltas: null,
+    }),
+    [months, expenses, savings],
+  );
 
   return (
     <ToolShell
       title="Emergency Runway"
       description={`Runway comes first. Before any big purchase, any investment, any leap — this is the number that tells you how long you can absorb a shock.`}
     >
+      <SavedNumbersStrip />
+
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
-          <Field label="Monthly essential expenses" value={expenses} onChange={setExpenses} min={0} max={20000} step={50} format="currency" />
-          <Field label="Liquid savings" value={savings} onChange={setSavings} min={0} max={200000} step={500} format="currency" />
+          <LensField label="Monthly essential expenses" value={expenses} onChange={setExpenses} min={0} max={20000} step={50} format="currency" source={sourceFor("expenses")} />
+          <LensField label="Liquid savings" value={savings} onChange={setSavings} min={0} max={200000} step={500} format="currency" source={sourceFor("savings")} />
+
+          <div className="hairline" />
+          <SaveScenarioButton
+            lensId="runway"
+            getInputs={() => ({ expenses, savings })}
+          />
         </div>
 
         <div className="space-y-6">
@@ -72,6 +104,8 @@ export default function RunwayPage() {
             }
           />
 
+          <LensSynthesis digest={digest} />
+
           <div className="glass p-6">
             <h2 className="font-semibold text-light">What this means</h2>
             <p className="mt-2 text-sm leading-relaxed text-dim">
@@ -85,48 +119,10 @@ export default function RunwayPage() {
                 "Under one month of runway is a red-line condition. This is the moment to pause on any new financial commitment — buying, investing, or otherwise — and build a buffer first. That is not failure. That is protection."}
             </p>
           </div>
+
+          {LENS.chains && <ChainLinks chains={LENS.chains} />}
         </div>
       </div>
     </ToolShell>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  min,
-  max,
-  step,
-  format,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-  min: number;
-  max: number;
-  step: number;
-  format: "currency";
-}) {
-  const fill = sliderFillPercent(value, min, max);
-  const display = format === "currency" ? formatCurrency(value) : String(value);
-
-  return (
-    <div>
-      <div className="flex items-center justify-between">
-        <label className="text-sm text-light">{label}</label>
-        <span className="score-numeral text-sm text-cyan">{display}</span>
-      </div>
-      <input
-        type="range"
-        className="homi-slider mt-2"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        style={{ ["--fill" as string]: `${fill}%` }}
-      />
-    </div>
   );
 }

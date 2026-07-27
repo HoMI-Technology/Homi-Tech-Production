@@ -1,11 +1,25 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { comparePrograms } from "@/lib/tools/loanprograms";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { CalcField } from "@/components/tools/CalcField";
+import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { DeltasCard } from "@/components/tools/DeltasCard";
+import { ChainLinks } from "@/components/tools/ChainLinks";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
+import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
+import { ReadinessBand } from "@/components/tools/ReadinessBand";
+import { getLens } from "@/lib/tools/registry";
+import { computeHousingDeltas } from "@/lib/tools/deltas";
+import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readiness-bands";
+import { useLensPrefill } from "@/hooks/use-lens-prefill";
+import { useReadinessAnchors } from "@/hooks/use-readiness";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
+
+const LENS = getLens("loan-programs")!;
 
 const PROGRAM_COLOR: Record<string, string> = {
   conventional: "#22d3ee",
@@ -20,6 +34,16 @@ function LoanProgramsPageInner() {
   const [termYears, setTermYears] = useState(30);
   const [firstTimeUse, setFirstTimeUse] = useState(true);
 
+  // Decision Lab: mount-only seed from the CFM via the registry contract.
+  const apply = useCallback((key: string, v: number) => {
+    if (key === "homePrice") setHomePrice(v);
+    else if (key === "rate") setRate(v);
+    else if (key === "termYears") setTermYears(v);
+  }, []);
+  const { prefilled, finance, hydrated, markAll } = useLensPrefill("loan-programs", apply);
+  const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
+  const readinessCtx = useReadinessAnchors();
+
   const downPayment = Math.round((downPct / 100) * homePrice);
   const results = useMemo(
     () => comparePrograms({ homePrice, downPayment, rate, termYears, firstTimeUse }),
@@ -27,18 +51,53 @@ function LoanProgramsPageInner() {
   );
   const cheapest = results.reduce((best, r) => (r.monthlyTotal < best.monthlyTotal ? r : best), results[0]);
 
+  // Deterministic impact of carrying the CHEAPEST program's payment —
+  // cheapest is decided by code, so the frame is honest.
+  const deltas = useMemo(() => {
+    if (!finance) return null;
+    return computeHousingDeltas(finance, cheapest.monthlyTotal);
+  }, [finance, cheapest.monthlyTotal]);
+
+  // Phase 5: readiness impact of the cheapest program, magnitude only.
+  const readiness = useMemo(() => {
+    if (!readinessCtx) return null;
+    return readinessImpactForHousing(readinessCtx.baseline, readinessCtx.anchors, {
+      monthlyObligation: cheapest.monthlyTotal,
+      upfrontCost: downPayment,
+    });
+  }, [readinessCtx, cheapest.monthlyTotal, downPayment]);
+
+  // The lens digest the Companion reads — every number precomputed here.
+  const digest = useMemo(
+    () => ({
+      lensId: "loan-programs",
+      path: "/tools/loan-programs",
+      headline: {
+        label: `Cheapest monthly total (${cheapest.label})`,
+        value: Math.round(cheapest.monthlyTotal),
+        unit: "currency" as const,
+      },
+      keyInputs: { homePrice, downPct, rate, termYears },
+      deltas,
+      readiness: readiness ? toReadinessDigest(readiness) : undefined,
+    }),
+    [cheapest, homePrice, downPct, rate, termYears, deltas, readiness],
+  );
+
   return (
     <ToolShell
       title="Loan Program Comparison"
       description={`Conventional, FHA, and VA side by side. The note rate is only part of the story — down payment, mortgage insurance, and upfront fees change the real monthly cost.`}
     >
+      <SavedNumbersStrip />
+
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.6fr]">
         <div className="glass space-y-5 p-6">
-          <CalcField label="Home price" value={homePrice} onChange={setHomePrice} min={100000} max={1500000} step={5000} format="currency" />
+          <CalcField label="Home price" value={homePrice} onChange={setHomePrice} min={100000} max={1500000} step={5000} format="currency" source={sourceFor("homePrice")} />
           <CalcField label="Down payment" value={downPct} onChange={setDownPct} min={0} max={25} step={0.5} format="percent" />
           <p className="-mt-2 text-xs text-dim">{formatCurrency(downPayment)} down</p>
-          <CalcField label="Interest rate" value={rate} onChange={setRate} min={3} max={10} step={0.125} format="percent" />
-          <CalcField label="Loan term" value={termYears} onChange={setTermYears} min={15} max={30} step={5} format="years" />
+          <CalcField label="Interest rate" value={rate} onChange={setRate} min={3} max={10} step={0.125} format="percent" source={sourceFor("rate")} />
+          <CalcField label="Loan term" value={termYears} onChange={setTermYears} min={15} max={30} step={5} format="years" source={sourceFor("termYears")} />
           <div className="flex items-center justify-between pt-1">
             <label className="text-sm text-light">First-time VA use</label>
             <button
@@ -49,6 +108,16 @@ function LoanProgramsPageInner() {
               {firstTimeUse ? "Yes" : "No"}
             </button>
           </div>
+
+          <div className="hairline" />
+          <UpdateNumbersButton
+            getFields={() => ({ targetPrice: homePrice, assumedRatePct: rate, termYears })}
+            onSaved={() => markAll(["homePrice", "rate", "termYears"])}
+          />
+          <SaveScenarioButton
+            lensId="loan-programs"
+            getInputs={() => ({ homePrice, downPct, rate, termYears, firstTimeUse: firstTimeUse ? 1 : 0 })}
+          />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-3">
@@ -77,6 +146,18 @@ function LoanProgramsPageInner() {
           })}
         </div>
       </div>
+
+      <div className="mt-6 max-w-3xl space-y-6">
+        <LensSynthesis digest={digest} />
+        {hydrated && deltas && <DeltasCard deltas={deltas} lensId="loan-programs" />}
+        {hydrated && readiness && <ReadinessBand impact={readiness} />}
+      </div>
+
+      {LENS.chains && (
+        <div className="mt-8 max-w-xl">
+          <ChainLinks chains={LENS.chains} />
+        </div>
+      )}
 
       <p className="mt-8 max-w-3xl text-xs leading-relaxed text-dim">
         Program rules (minimum down, MIP/PMI rates, VA funding fee) follow standard 2026 guidelines and are

@@ -1,9 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { computeRothConversion } from "@/lib/tools/roth";
 import { formatCurrency } from "@/lib/tools/format";
-import { sliderFillPercent } from "@/lib/assessment/format";
+import { LensField } from "@/components/tools/LensField";
+import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
+import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
+import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
 
@@ -14,6 +19,13 @@ function RothConversionPageInner() {
   const [expectedRateRetirement, setExpectedRateRetirement] = useState(24);
   const [yearsToHorizon, setYearsToHorizon] = useState(20);
   const [expectedGrowth, setExpectedGrowth] = useState(7);
+
+  // Decision Lab: mount-only seed from the CFM via the registry contract.
+  const apply = useCallback((key: string, v: number) => {
+    if (key === "currentBalance") setCurrentBalance(v);
+  }, []);
+  const { prefilled, markAll } = useLensPrefill("roth-conversion", apply);
+  const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
 
   const result = useMemo(
     () =>
@@ -30,19 +42,49 @@ function RothConversionPageInner() {
 
   const benefitPositive = result.netEducationalBenefit >= 0;
 
+  // The lens digest the Companion reads. The headline is the tax avoided
+  // at horizon (always non-negative); the net benefit can go either way
+  // and stays visible in the UI where its sign is styled honestly.
+  const digest = useMemo(
+    () => ({
+      lensId: "roth-conversion",
+      path: "/tools/roth-conversion",
+      headline: {
+        label: "Tax avoided at horizon",
+        value: Math.round(result.taxAvoidedAtHorizon),
+        unit: "currency" as const,
+      },
+      keyInputs: { currentBalance, convertAmount, marginalRateNow, expectedRateRetirement, yearsToHorizon },
+      deltas: null,
+    }),
+    [result.taxAvoidedAtHorizon, currentBalance, convertAmount, marginalRateNow, expectedRateRetirement, yearsToHorizon],
+  );
+
   return (
     <ToolShell
       title="Roth Conversion — Educational"
       description={`A plain-language look at one trade-off: paying tax on a conversion now versus the tax you'd otherwise owe on that money later. This is education, not a recommendation to convert anything.`}
     >
+      <SavedNumbersStrip />
+
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
-          <Field label="Current traditional balance" value={currentBalance} onChange={setCurrentBalance} min={0} max={1000000} step={5000} format="currency" />
-          <Field label="Amount considering converting" value={convertAmount} onChange={setConvertAmount} min={0} max={currentBalance || 500000} step={1000} format="currency" />
-          <Field label="Marginal tax rate now" value={marginalRateNow} onChange={setMarginalRateNow} min={0} max={40} step={1} format="percent" />
-          <Field label="Expected tax rate at retirement" value={expectedRateRetirement} onChange={setExpectedRateRetirement} min={0} max={40} step={1} format="percent" />
-          <Field label="Years to horizon" value={yearsToHorizon} onChange={setYearsToHorizon} min={1} max={40} step={1} format="years" />
-          <Field label="Expected annual growth" value={expectedGrowth} onChange={setExpectedGrowth} min={0} max={12} step={0.5} format="percent" />
+          <LensField label="Current traditional balance" value={currentBalance} onChange={setCurrentBalance} min={0} max={1000000} step={5000} format="currency" source={sourceFor("currentBalance")} />
+          <LensField label="Amount considering converting" value={convertAmount} onChange={setConvertAmount} min={0} max={currentBalance || 500000} step={1000} format="currency" />
+          <LensField label="Marginal tax rate now" value={marginalRateNow} onChange={setMarginalRateNow} min={0} max={40} step={1} format="percent" />
+          <LensField label="Expected tax rate at retirement" value={expectedRateRetirement} onChange={setExpectedRateRetirement} min={0} max={40} step={1} format="percent" />
+          <LensField label="Years to horizon" value={yearsToHorizon} onChange={setYearsToHorizon} min={1} max={40} step={1} format="years" />
+          <LensField label="Expected annual growth" value={expectedGrowth} onChange={setExpectedGrowth} min={0} max={12} step={0.5} format="percent" />
+
+          <div className="hairline" />
+          <UpdateNumbersButton
+            getFields={() => ({ investedAssets: currentBalance })}
+            onSaved={() => markAll(["currentBalance"])}
+          />
+          <SaveScenarioButton
+            lensId="roth-conversion"
+            getInputs={() => ({ currentBalance, convertAmount, marginalRateNow, expectedRateRetirement, yearsToHorizon, expectedGrowth })}
+          />
         </div>
 
         <div className="space-y-6">
@@ -75,6 +117,8 @@ function RothConversionPageInner() {
             </p>
           </div>
 
+          <LensSynthesis digest={digest} />
+
           <div className="glass p-6">
             <h2 className="font-semibold text-light">What this means</h2>
             <p className="mt-2 text-sm leading-relaxed text-dim">
@@ -96,46 +140,5 @@ export default function RothConversionPage() {
     <AdvancedToolGate>
       <RothConversionPageInner />
     </AdvancedToolGate>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  min,
-  max,
-  step,
-  format,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-  min: number;
-  max: number;
-  step: number;
-  format: "currency" | "percent" | "years";
-}) {
-  const fill = sliderFillPercent(value, min, max);
-  const display =
-    format === "currency" ? formatCurrency(value) : format === "percent" ? `${value}%` : `${value} yrs`;
-
-  return (
-    <div>
-      <div className="flex items-center justify-between">
-        <label className="text-sm text-light">{label}</label>
-        <span className="score-numeral text-sm text-cyan">{display}</span>
-      </div>
-      <input
-        type="range"
-        className="homi-slider mt-2"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        style={{ ["--fill" as string]: `${fill}%` }}
-      />
-    </div>
   );
 }

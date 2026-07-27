@@ -1,9 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { computeBlindBudget } from "@/lib/tools/blindbudget";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
+import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
+import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { ToolShell } from "@/components/tools/ToolShell";
 
 export default function BlindBudgetPage() {
@@ -14,9 +18,39 @@ export default function BlindBudgetPage() {
   const [savingsLow, setSavingsLow] = useState(6000);
   const [savingsHigh, setSavingsHigh] = useState(10000);
 
+  // Decision Lab: when the user's numbers are saved, the ranges seed
+  // centered on them (±15%) instead of generic defaults. Mount-only.
+  const apply = useCallback((key: string, v: number) => {
+    if (key === "incomeLow") setIncomeLow(v);
+    else if (key === "incomeHigh") setIncomeHigh(v);
+    else if (key === "fixedCostsLow") setFixedCostsLow(v);
+    else if (key === "fixedCostsHigh") setFixedCostsHigh(v);
+    else if (key === "savingsLow") setSavingsLow(v);
+    else if (key === "savingsHigh") setSavingsHigh(v);
+  }, []);
+  useLensPrefill("blind-budget", apply);
+
   const result = useMemo(
     () => computeBlindBudget({ incomeLow, incomeHigh, fixedCostsLow, fixedCostsHigh, savingsLow, savingsHigh }),
     [incomeLow, incomeHigh, fixedCostsLow, fixedCostsHigh, savingsLow, savingsHigh],
+  );
+
+  // The lens digest the Companion reads. The honest headline is the low
+  // end of the safe-to-spend band — the number that holds in the worst
+  // case, not the flattering one. No obligation deltas by design.
+  const digest = useMemo(
+    () => ({
+      lensId: "blind-budget",
+      path: "/tools/blind-budget",
+      headline: {
+        label: "Safe-to-spend, worst-case end",
+        value: Math.round(result.safeToSpendLow),
+        unit: "currency" as const,
+      },
+      keyInputs: { incomeLow, incomeHigh, fixedCostsLow, fixedCostsHigh },
+      deltas: null,
+    }),
+    [result.safeToSpendLow, incomeLow, incomeHigh, fixedCostsLow, fixedCostsHigh],
   );
 
   return (
@@ -24,6 +58,8 @@ export default function BlindBudgetPage() {
       title="Blind Budget"
       description={`Plan without knowing your exact numbers. Give a range for what you're not sure of — you'll still get an honest answer. Precision isn't required for honesty.`}
     >
+      <SavedNumbersStrip />
+
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-6 p-6">
           <RangeField
@@ -56,6 +92,12 @@ export default function BlindBudgetPage() {
             max={100000}
             step={500}
           />
+
+          <div className="hairline" />
+          <SaveScenarioButton
+            lensId="blind-budget"
+            getInputs={() => ({ incomeLow, incomeHigh, fixedCostsLow, fixedCostsHigh, savingsLow, savingsHigh })}
+          />
         </div>
 
         <div className="space-y-6">
@@ -66,6 +108,8 @@ export default function BlindBudgetPage() {
             </p>
             <p className="mt-2 text-xs text-dim">per month, across your worst case to your best case</p>
           </div>
+
+          <LensSynthesis digest={digest} />
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">Runway band</h2>
@@ -132,6 +176,7 @@ function RangeField({
         <p className="text-xs text-dim">Low end</p>
         <input
           type="range"
+          aria-label={`${label} (low end)`}
           className="homi-slider mt-1"
           min={min}
           max={max}
@@ -145,6 +190,7 @@ function RangeField({
         <p className="text-xs text-dim">High end</p>
         <input
           type="range"
+          aria-label={`${label} (high end)`}
           className="homi-slider mt-1"
           min={min}
           max={max}

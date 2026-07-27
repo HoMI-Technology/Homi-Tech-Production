@@ -1,14 +1,11 @@
 /**
- * "Why did this change" — the explainability engine. Turns the stored
- * assessment (current + previous snapshot) into a plain-language explanation
- * of score movement, expressed ONLY in magnitude bands (small / moderate /
- * large). Numeric pillar weights and the scoring formula never appear here —
- * transparency without leaking the canon (BUILD-BRIEF trade-secret rule;
- * blueprint Phase 3).
+ * Explain.ts — public surface additions for Phase 5.
  *
- * Pure functions over StoredAssessment — the /results card and the
- * Companion's context both read from this one source, so the view and the
- * chat can never tell different stories.
+ * compositeBand is exported so the Decision Lab's readiness bands map a
+ * hypothetical composite shift through the SAME thresholds the "why did
+ * this change" engine uses for real score movement. One source of truth —
+ * the CI guard in __tests__/tools-readiness-bands.test.ts fails if the two
+ * ever drift apart.
  */
 
 import { PILLAR_MAX_POINTS } from "@/lib/scoring";
@@ -46,8 +43,9 @@ const PILLAR_NAMES = {
   timing: "Perfect Timing",
 } as const;
 
-/** Composite (0–100) delta → band. Zero is flat, not "small". */
-function compositeBand(absDelta: number): MagnitudeBand {
+/** Composite (0–100) delta → band. Zero is flat, not "small".
+ * Exported for lib/tools/readiness-bands.ts — see the header note. */
+export function compositeBand(absDelta: number): MagnitudeBand {
   if (absDelta <= 3) return "small";
   if (absDelta <= 9) return "moderate";
   return "large";

@@ -1,11 +1,23 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { computeAffordability, paymentBreakdown, type AffordabilityInputs } from "@/lib/tools/mortgage";
 import { formatCurrency } from "@/lib/tools/format";
-import { sliderFillPercent } from "@/lib/assessment/format";
-import { getToolPrefill } from "@/lib/tools/prefill";
+import { LensField } from "@/components/tools/LensField";
+import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
+import { DeltasCard } from "@/components/tools/DeltasCard";
+import { ChainLinks } from "@/components/tools/ChainLinks";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
+import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
+import { ReadinessBand } from "@/components/tools/ReadinessBand";
+import { getLens } from "@/lib/tools/registry";
+import { computeHousingDeltas } from "@/lib/tools/deltas";
+import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readiness-bands";
+import { useLensPrefill } from "@/hooks/use-lens-prefill";
+import { useReadinessAnchors } from "@/hooks/use-readiness";
 import { ToolShell } from "@/components/tools/ToolShell";
+
+const LENS = getLens("affordability")!;
 
 const TIERS = [
   { key: "protected" as const, label: "Protected", ratio: "28%", color: "#34d399", className: "bg-verdict-ready" },
@@ -16,19 +28,23 @@ const TIERS = [
 export default function AffordabilityPage() {
   const [income, setIncome] = useState(95000);
   const [debts, setDebts] = useState(400);
-
-  // Companion hand-off: seed with the user's saved numbers on mount only.
-  useEffect(() => {
-    const prefill = getToolPrefill();
-    if (!prefill) return;
-    setIncome(prefill.annualIncome);
-    setDebts(prefill.monthlyDebtPayments);
-    setDownPayment(prefill.liquidSavings);
-  }, []);
   const [rate, setRate] = useState(6.5);
   const [term, setTerm] = useState(30);
   const [taxInsRate, setTaxInsRate] = useState(1.5);
   const [downPayment, setDownPayment] = useState(40000);
+
+  // Decision Lab: mount-only seed from the CFM via the registry contract.
+  const apply = useCallback((key: string, v: number) => {
+    if (key === "income") setIncome(v);
+    else if (key === "debts") setDebts(v);
+    else if (key === "rate") setRate(v);
+    else if (key === "term") setTerm(v);
+    else if (key === "taxInsRate") setTaxInsRate(v);
+    else if (key === "downPayment") setDownPayment(v);
+  }, []);
+  const { prefilled, finance, hydrated, markAll } = useLensPrefill("affordability", apply);
+  const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
+  const readinessCtx = useReadinessAnchors();
 
   const inputs: AffordabilityInputs = {
     annualIncome: income,
@@ -45,6 +61,38 @@ export default function AffordabilityPage() {
     [result, rate, term, taxInsRate, downPayment],
   );
 
+  // Deterministic impact of carrying the Stretch-tier payment.
+  const deltas = useMemo(() => {
+    if (!finance) return null;
+    return computeHousingDeltas(finance, stretchBreakdown.total);
+  }, [finance, stretchBreakdown.total]);
+
+  // Phase 5: readiness impact of the Stretch-tier payment, magnitude only.
+  const readiness = useMemo(() => {
+    if (!readinessCtx) return null;
+    return readinessImpactForHousing(readinessCtx.baseline, readinessCtx.anchors, {
+      monthlyObligation: stretchBreakdown.total,
+      upfrontCost: downPayment,
+    });
+  }, [readinessCtx, stretchBreakdown.total, downPayment]);
+
+  // The lens digest the Companion reads — every number precomputed here.
+  const digest = useMemo(
+    () => ({
+      lensId: "affordability",
+      path: "/tools/affordability",
+      headline: {
+        label: "Stretch-tier monthly housing cost",
+        value: Math.round(stretchBreakdown.total),
+        unit: "currency" as const,
+      },
+      keyInputs: { income, debts, rate, term },
+      deltas,
+      readiness: readiness ? toReadinessDigest(readiness) : undefined,
+    }),
+    [stretchBreakdown.total, income, debts, rate, term, deltas, readiness],
+  );
+
   const maxBar = Math.max(stretchBreakdown.principalAndInterest, stretchBreakdown.taxesAndInsurance, 1);
 
   return (
@@ -52,14 +100,27 @@ export default function AffordabilityPage() {
       title="Affordability"
       description={`What you can afford is not the same as what a lender will approve you for. Here are three honest tiers of monthly housing cost, based on your income before other debts are even in the picture.`}
     >
+      <SavedNumbersStrip />
+
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
-          <Field label="Gross annual income" value={income} onChange={setIncome} min={0} max={500000} step={1000} format="currency" />
-          <Field label="Other monthly debts" value={debts} onChange={setDebts} min={0} max={10000} step={25} format="currency" />
-          <Field label="Interest rate" value={rate} onChange={setRate} min={2} max={12} step={0.125} format="percent" />
-          <Field label="Loan term (years)" value={term} onChange={setTerm} min={10} max={30} step={5} format="years" />
-          <Field label="Taxes + insurance (% of price / yr)" value={taxInsRate} onChange={setTaxInsRate} min={0.5} max={3} step={0.1} format="percent" />
-          <Field label="Down payment" value={downPayment} onChange={setDownPayment} min={0} max={500000} step={1000} format="currency" />
+          <LensField label="Gross annual income" value={income} onChange={setIncome} min={0} max={500000} step={1000} format="currency" source={sourceFor("income")} />
+          <LensField label="Other monthly debts" value={debts} onChange={setDebts} min={0} max={10000} step={25} format="currency" source={sourceFor("debts")} />
+          <LensField label="Interest rate" value={rate} onChange={setRate} min={2} max={12} step={0.125} format="percent" source={sourceFor("rate")} />
+          <LensField label="Loan term (years)" value={term} onChange={setTerm} min={10} max={30} step={5} format="years" source={sourceFor("term")} />
+          <LensField label="Taxes + insurance (% of price / yr)" value={taxInsRate} onChange={setTaxInsRate} min={0.5} max={3} step={0.1} format="percent" source={sourceFor("taxInsRate")} />
+          <LensField label="Down payment" value={downPayment} onChange={setDownPayment} min={0} max={500000} step={1000} format="currency" source={sourceFor("downPayment")} />
+
+          <div className="hairline" />
+          <UpdateNumbersButton
+            getFields={() => ({
+              assumedRatePct: rate,
+              termYears: term,
+              taxInsuranceRatePct: taxInsRate,
+              downPaymentSaved: downPayment,
+            })}
+            onSaved={() => markAll(["rate", "term", "taxInsRate", "downPayment"])}
+          />
         </div>
 
         <div className="space-y-6">
@@ -85,6 +146,8 @@ export default function AffordabilityPage() {
             })}
           </div>
 
+          <LensSynthesis digest={digest} />
+
           <div className="glass p-6">
             <h2 className="font-semibold text-light">Monthly payment breakdown</h2>
             <p className="mt-1 text-xs text-dim">At the Stretch tier price of {formatCurrency(result.stretch.maxPrice)}.</p>
@@ -99,6 +162,9 @@ export default function AffordabilityPage() {
             </div>
           </div>
 
+          {hydrated && deltas && <DeltasCard deltas={deltas} lensId="affordability" />}
+          {hydrated && readiness && <ReadinessBand impact={readiness} />}
+
           <div className="glass p-6">
             <h2 className="font-semibold text-light">What this means</h2>
             <p className="mt-2 text-sm leading-relaxed text-dim">
@@ -110,54 +176,11 @@ export default function AffordabilityPage() {
               back-end DTI will.
             </p>
           </div>
+
+          {LENS.chains && <ChainLinks chains={LENS.chains} />}
         </div>
       </div>
     </ToolShell>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  min,
-  max,
-  step,
-  format,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-  min: number;
-  max: number;
-  step: number;
-  format: "currency" | "percent" | "years";
-}) {
-  const fill = sliderFillPercent(value, min, max);
-  const display =
-    format === "currency"
-      ? formatCurrency(value)
-      : format === "percent"
-        ? `${value}%`
-        : `${value} yrs`;
-
-  return (
-    <div>
-      <div className="flex items-center justify-between">
-        <label className="text-sm text-light">{label}</label>
-        <span className="score-numeral text-sm text-cyan">{display}</span>
-      </div>
-      <input
-        type="range"
-        className="homi-slider mt-2"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        style={{ ["--fill" as string]: `${fill}%` }}
-      />
-    </div>
   );
 }
 
