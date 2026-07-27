@@ -7,10 +7,15 @@ name: CI
 on:
   pull_request:
     branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
   push:
-    branches: [main]
-  # Manual/API trigger — pushes from bot credentials (agent sessions) don't
-  # fire pull_request synchronize events, so branches need a way to run CI.
+    branches:
+      - main
+      # Feature branches: agent/bot pushes often skip pull_request events.
+      - "feat/**"
+      - "fix/**"
+      - "chore/**"
+  # Manual/API trigger — still useful when a branch name doesn't match globs.
   workflow_dispatch:
 
 # Cancel superseded runs on PRs/feature branches (a new push makes the old

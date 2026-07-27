@@ -9,8 +9,10 @@ import {
   saveReadinessPath,
   loadReadinessPath,
   pullReadinessPath,
+  ensurePathForVerdict,
   bindingConstraintLabel,
   PATH_DISCLAIMER,
+  PATH_LEGAL_SHORT,
   HARD_STOP_ORDER,
   completePathStep,
   financeSnapshotForPath,
@@ -18,10 +20,20 @@ import {
   computeBindingProgress,
   computePathFreshness,
   pathCompletionRatio,
+  trackPathOffered,
+  trackPathGenerated,
+  trackPathSaved,
+  trackPathCalendarCommitted,
+  trackPathStepDone,
+  exportPathMarkdown,
+  exportPathJson,
+  downloadTextFile,
+  trackPathExported,
+  exposePathPricing,
+  pathPricingCopy,
   type PathReasonCode,
   type ReadinessPath,
 } from "@/lib/readiness";
-import { track } from "@/lib/analytics";
 import { hasSavedFinanceState } from "@/lib/finance/store";
 import { PathPreview } from "./PathPreview";
 import { PathProgressHero } from "./PathProgressHero";
@@ -110,9 +122,27 @@ export function PathToReadyCard({
   useEffect(() => {
     let active = true;
     async function hydrate() {
-      const local = loadReadinessPath();
-      if (local && local.verdict === result.verdict) {
-        if (active) setPath(local);
+      // Activation: non-READY auto-generates a path on first results view.
+      if (!isReadyCelebrate(result)) {
+        trackPathOffered({
+          source: "results_auto",
+          verdict: result.verdict,
+          hardStopCount: result.hardStops.length,
+        });
+        const auto = ensurePathForVerdict(result, assessmentCompletedAt, false);
+        if (active && auto) {
+          setPath(auto);
+          trackPathGenerated({
+            source: "results_auto",
+            verdict: result.verdict,
+            mode: auto.mode,
+            stepCount: auto.steps.length,
+            auto: 1,
+          });
+        }
+      } else {
+        const local = loadReadinessPath();
+        if (local && local.verdict === result.verdict && active) setPath(local);
       }
       if (!isAnonymous) {
         const remote = await pullReadinessPath();
@@ -126,42 +156,87 @@ export function PathToReadyCard({
     return () => {
       active = false;
     };
-  }, [result.verdict, isAnonymous]);
+  }, [result, assessmentCompletedAt, isAnonymous]);
 
   const handleGenerate = useCallback(() => {
     const next = generatePathFromResult(result, assessmentCompletedAt);
+    saveReadinessPath(next);
     setPath(next);
     setCommitMsg(null);
     setError(null);
-    track("path_generated", { verdict: result.verdict });
+    trackPathGenerated({
+      source: "results_manual",
+      verdict: result.verdict,
+      mode: next.mode,
+      stepCount: next.steps.length,
+    });
   }, [result, assessmentCompletedAt]);
 
   const handleSave = useCallback(() => {
     if (!path) return;
     saveReadinessPath(path);
     setCommitMsg("Path saved on this device.");
-    track("path_saved", { stepCount: path.steps.length });
+    trackPathSaved({ source: "results_manual", stepCount: path.steps.length });
   }, [path]);
 
   const handleGenerateAndSaveOptional = useCallback(() => {
     const next = generatePathFromResult(result, assessmentCompletedAt);
     saveReadinessPath(next);
     setPath(next);
-    track("path_generated", { verdict: result.verdict });
-    track("path_saved", { stepCount: next.steps.length });
+    trackPathGenerated({
+      source: "results_manual",
+      verdict: result.verdict,
+      mode: next.mode,
+      stepCount: next.steps.length,
+    });
+    trackPathSaved({ source: "results_manual", stepCount: next.steps.length });
   }, [result, assessmentCompletedAt]);
 
-  const handleComplete = useCallback((stepId: string) => {
-    const next = completePathStep(stepId, "done");
-    if (next) setPath(next);
-    track("path_step_done", { stepId });
-  }, []);
+  const handleComplete = useCallback(
+    (stepId: string) => {
+      const before = loadReadinessPath();
+      const wasFirstPending =
+        before?.steps.find((s) => (s.status ?? "pending") === "pending")?.id ===
+        stepId;
+      const next = completePathStep(stepId, "done");
+      if (next) {
+        setPath(next);
+        const step = next.steps.find((s) => s.id === stepId);
+        trackPathStepDone({
+          reasonCode: step?.reasonCode ?? "unknown",
+          evidence: "manual",
+          firstStep: wasFirstPending ? 1 : 0,
+        });
+      }
+    },
+    [],
+  );
 
   const handleSkip = useCallback((stepId: string) => {
     const next = completePathStep(stepId, "skipped");
     if (next) setPath(next);
-    track("path_step_skipped", { stepId });
   }, []);
+
+  const handleExport = useCallback(
+    (format: "md" | "json") => {
+      if (!path) return;
+      if (format === "md") {
+        downloadTextFile(
+          `homi-path-${path.id.slice(0, 8)}.md`,
+          exportPathMarkdown(path),
+          "text/markdown",
+        );
+      } else {
+        downloadTextFile(
+          `homi-path-${path.id.slice(0, 8)}.json`,
+          exportPathJson(path),
+          "application/json",
+        );
+      }
+      trackPathExported({ format });
+    },
+    [path],
+  );
 
   /** One-click: save + server calendar commit for signed-in users. */
   const handleOneClickCommit = useCallback(async () => {
@@ -172,7 +247,7 @@ export function PathToReadyCard({
 
     // Always persist locally first
     saveReadinessPath(path);
-    track("path_saved", { stepCount: path.steps.length });
+    trackPathSaved({ source: "results_manual", stepCount: path.steps.length });
 
     if (isAnonymous) {
       setCommitting(false);
@@ -206,7 +281,7 @@ export function PathToReadyCard({
           ? `On your calendar — ${json.inserted} milestone${json.inserted === 1 ? "" : "s"} added.`
           : "Path is on your calendar.",
       );
-      track("path_calendar_committed", {
+      trackPathCalendarCommitted({
         inserted: json.inserted ?? 0,
         verdict: path.verdict,
       });
@@ -390,6 +465,20 @@ export function PathToReadyCard({
           >
             Regenerate
           </button>
+          <button
+            type="button"
+            onClick={() => handleExport("md")}
+            className="btn btn-ghost !px-5 !py-2.5 text-sm"
+          >
+            Export Markdown
+          </button>
+          <button
+            type="button"
+            onClick={() => handleExport("json")}
+            className="btn btn-ghost !px-5 !py-2.5 text-sm"
+          >
+            Export JSON
+          </button>
         </div>
 
         {commitMsg && (
@@ -403,9 +492,12 @@ export function PathToReadyCard({
           </p>
         )}
 
+        <PathPricingStrip />
+
         <p className="mt-5 text-xs leading-relaxed text-dim">
           {path.disclaimer || PATH_DISCLAIMER}
         </p>
+        <p className="mt-2 text-xs leading-relaxed text-dim">{PATH_LEGAL_SHORT}</p>
       </section>
     );
   }
@@ -461,6 +553,29 @@ export function PathToReadyCard({
       </div>
 
       <p className="mt-5 text-xs leading-relaxed text-dim">{PATH_DISCLAIMER}</p>
+      <p className="mt-2 text-xs leading-relaxed text-dim">{PATH_LEGAL_SHORT}</p>
     </section>
+  );
+}
+
+function PathPricingStrip() {
+  const [copy, setCopy] = useState<ReturnType<typeof pathPricingCopy> | null>(
+    null,
+  );
+  useEffect(() => {
+    const a = exposePathPricing("results_path_card");
+    setCopy(pathPricingCopy(a.variant));
+  }, []);
+  if (!copy) return null;
+  return (
+    <div className="mt-5 rounded-xl border border-slate-surface/70 bg-navy/30 p-4">
+      <p className="text-xs font-semibold uppercase tracking-wide text-cyan">
+        {copy.headline}
+      </p>
+      <p className="mt-1 text-sm text-dim">{copy.body}</p>
+      <Link href={copy.href} className="mt-2 inline-block text-sm font-semibold text-cyan underline-offset-2 hover:underline">
+        {copy.cta}
+      </Link>
+    </div>
   );
 }

@@ -131,16 +131,24 @@ export default function HouseholdPage() {
     });
     const json = (await res.json()) as {
       error?: string;
-      invite?: { acceptPath: string; token: string };
+      emailSent?: boolean | "unconfigured" | "error";
+      invite?: { acceptPath: string; acceptUrl?: string; token: string };
     };
     if (!res.ok) {
       setError(json.error ?? "Invite failed.");
       return;
     }
     if (json.invite) {
-      const origin = typeof window !== "undefined" ? window.location.origin : "";
-      setInviteLink(`${origin}${json.invite.acceptPath}`);
-      setMsg("Invite created — share the link with your partner.");
+      setInviteLink(json.invite.acceptUrl ?? json.invite.acceptPath);
+      const emailNote =
+        json.emailSent === true
+          ? " Email sent."
+          : json.emailSent === "unconfigured"
+            ? " Email provider not configured — share the link."
+            : json.emailSent === "error"
+              ? " Email failed — share the link."
+              : " Share the link with your partner.";
+      setMsg(`Invite created.${emailNote}`);
     }
   }
 

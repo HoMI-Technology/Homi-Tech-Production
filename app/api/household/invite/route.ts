@@ -2,11 +2,13 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getClientIp, rateLimit } from "@/lib/ratelimit";
+import { env } from "@/lib/env";
 
 export const runtime = "nodejs";
 
 const schema = z.object({
   email: z.string().email().max(200),
+  sendEmail: z.boolean().optional(),
 });
 
 /** POST — create invite token for partner email */
@@ -70,13 +72,48 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Could not create invite." }, { status: 500 });
   }
 
+  const acceptPath = `/household?invite=${invite.token}`;
+  const acceptUrl = `${env.NEXT_PUBLIC_SITE_URL}${acceptPath}`;
+  let emailSent: boolean | "unconfigured" | "error" = false;
+
+  if (parsed.data.sendEmail !== false) {
+    const resendKey = process.env.RESEND_API_KEY;
+    if (!resendKey) {
+      emailSent = "unconfigured";
+    } else {
+      try {
+        const res = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${resendKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: "HōMI <hello@homitechnology.com>",
+            to: invite.email,
+            subject: "You're invited to a HōMI household",
+            html: `<p>You've been invited to share Decision Readiness as a household on HōMI.</p>
+<p><a href="${acceptUrl}">Accept invite</a></p>
+<p>This is educational readiness — not joint credit or a loan decision.</p>
+<p>Link expires: ${invite.expires_at}</p>`,
+          }),
+        });
+        emailSent = res.ok ? true : "error";
+      } catch {
+        emailSent = "error";
+      }
+    }
+  }
+
   return NextResponse.json({
     ok: true,
+    emailSent,
     invite: {
       email: invite.email,
       token: invite.token,
       expires_at: invite.expires_at,
-      acceptPath: `/household?invite=${invite.token}`,
+      acceptPath,
+      acceptUrl,
     },
   });
 }

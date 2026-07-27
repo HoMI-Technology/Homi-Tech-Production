@@ -34,6 +34,7 @@ export {
   markPathCalendarCommitted,
   getFinanceSavedAtForPath,
   reconcilePathWithSignals,
+  ensurePathForVerdict,
 } from "./store";
 
 export {
@@ -94,3 +95,54 @@ export {
 } from "./scenario";
 
 export { generatePathFromScenario } from "./scenario-path";
+
+export {
+  PATH_FUNNEL_EVENTS,
+  trackPathOffered,
+  trackPathGenerated,
+  trackPathSaved,
+  trackPathCalendarCommitted,
+  trackPathStepDone,
+  trackPathFirstStepNudge,
+  trackPathExported,
+  trackPathPricingExposure,
+  type PathFunnelSource,
+} from "./analytics";
+
+export {
+  HOUSING_READINESS_DISCLAIMER,
+  PATH_LEGAL_SHORT,
+  PREFLIGHT_LEGAL_SHORT,
+  SCENARIO_LEGAL_SHORT,
+  HOUSEHOLD_LEGAL_SHORT,
+  CERTIFICATE_LEGAL,
+  HOUSING_COPY_BANNED,
+} from "./legal";
+
+export {
+  completeStepWithEvidence,
+  evidenceBasedAutoComplete,
+  type EvidenceKind,
+  type StepEvidence,
+} from "./evidence";
+
+export {
+  loadPathHistory,
+  archivePathVersion,
+  clearPathHistory,
+  type PathVersionRecord,
+} from "./versions";
+
+export {
+  exportPathMarkdown,
+  exportPathJson,
+  downloadTextFile,
+} from "./export";
+
+export {
+  getPathPricingAssignment,
+  exposePathPricing,
+  pathPricingCopy,
+  type PathPricingVariant,
+  type PathPricingAssignment,
+} from "./pricing-experiment";
