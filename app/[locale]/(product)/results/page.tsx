@@ -162,12 +162,19 @@ export default function ResultsPage() {
         </div>
       )}
 
-      {/* Score reveal */}
-      <div className="glass flex flex-col items-center gap-8 p-8 text-center sm:p-12 md:flex-row md:text-left">
+      {/* Score reveal — flagship moment */}
+      <div className="glass relative flex flex-col items-center gap-8 overflow-hidden p-8 text-center sm:p-12 md:flex-row md:text-left">
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan/50 to-transparent"
+        />
         <div className="shrink-0">
           <ThresholdCompass size={220} verdict={result.verdict} />
         </div>
         <div className="flex flex-col items-center md:items-start">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-dim">
+            Decision readiness
+          </p>
           <CountUpScore value={result.score} />
           <p className="mt-1 text-sm uppercase tracking-widest text-dim">HōMI-Score out of 100</p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-3 md:justify-start">
@@ -181,6 +188,12 @@ export default function ResultsPage() {
             )}
           </div>
           <p className="mt-4 max-w-md text-base text-light">{meta.line}</p>
+          {result.verdict !== "READY" && (
+            <p className="mt-3 max-w-md text-sm text-dim">
+              Not a judgment — a protective map. Your Path to Ready is built
+              from the binding constraint first.
+            </p>
+          )}
         </div>
       </div>
 

@@ -8,6 +8,7 @@ import {
   bindingConstraintLabel,
   type ReadinessPath,
 } from "@/lib/readiness";
+import { FirstStepNudge } from "@/components/readiness/FirstStepNudge";
 
 /**
  * Dashboard client island: surfaces Path to Ready as the Operate-style
@@ -38,7 +39,11 @@ export function PathNextMove() {
     };
   }, []);
 
-  if (!hydrated || !path) return null;
+  if (!hydrated) return null;
+
+  if (!path) {
+    return <FirstStepNudge />;
+  }
 
   if (path.mode === "ready_optional") {
     return (
@@ -68,40 +73,46 @@ export function PathNextMove() {
     path.steps[0] ??
     null;
   const constraint = bindingConstraintLabel(path.bindingConstraint);
+  const anyDone = path.steps.some(
+    (s) => (s.status ?? "pending") === "done" || (s.status ?? "pending") === "skipped",
+  );
 
   return (
-    <div
-      className="dash-action-dock mt-5"
-      style={{ ["--instrument-tint" as string]: "#22d3ee" }}
-      aria-label="Path to Ready next move"
-    >
-      <div className="min-w-0">
-        <p className="dash-action-dock-label">Path to Ready</p>
-        <p className="mt-1 text-xs text-dim">
-          Binding: <span className="text-light/90">{constraint}</span>
-        </p>
-        {nextStep ? (
-          <p className="dash-action-dock-title">{nextStep.title}</p>
-        ) : (
-          <p className="dash-action-dock-title">Review your path</p>
-        )}
-      </div>
-      <div className="dash-action-dock-actions flex flex-wrap gap-2.5">
-        {nextStep ? (
-          <Link href={nextStep.href} className="btn btn-primary">
-            Start step
+    <div className="mt-5 space-y-3">
+      {!anyDone && <FirstStepNudge />}
+      <div
+        className="dash-action-dock"
+        style={{ ["--instrument-tint" as string]: "#22d3ee" }}
+        aria-label="Path to Ready next move"
+      >
+        <div className="min-w-0">
+          <p className="dash-action-dock-label">Path to Ready</p>
+          <p className="mt-1 text-xs text-dim">
+            Binding: <span className="text-light/90">{constraint}</span>
+          </p>
+          {nextStep ? (
+            <p className="dash-action-dock-title">{nextStep.title}</p>
+          ) : (
+            <p className="dash-action-dock-title">Review your path</p>
+          )}
+        </div>
+        <div className="dash-action-dock-actions flex flex-wrap gap-2.5">
+          {nextStep ? (
+            <Link href={nextStep.href} className="btn btn-primary">
+              Start step
+            </Link>
+          ) : (
+            <Link href="/results" className="btn btn-primary">
+              Open path
+            </Link>
+          )}
+          <Link href="/calendar" className="btn btn-ghost">
+            Calendar
           </Link>
-        ) : (
-          <Link href="/results" className="btn btn-primary">
-            Open path
+          <Link href="/path" className="btn btn-ghost">
+            Full path
           </Link>
-        )}
-        <Link href="/calendar" className="btn btn-ghost">
-          Calendar
-        </Link>
-        <Link href="/path" className="btn btn-ghost">
-          Full path
-        </Link>
+        </div>
       </div>
     </div>
   );

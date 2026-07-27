@@ -26,7 +26,8 @@ import {
   loadCouplesAlignment,
   partnerBlocksJointReady,
 } from "./partner";
-import { autoCompletePathFromSignals } from "./autocomplete";
+import { evidenceBasedAutoComplete } from "./evidence";
+import { archivePathVersion } from "./versions";
 
 function injectPartnerStep(path: ReadinessPath): ReadinessPath {
   if (path.mode === "ready_optional") return path;
@@ -156,7 +157,12 @@ export function generatePathFromLocalAssessment(): ReadinessPath | null {
 export function generatePathFromResult(
   result: AssessmentResult,
   assessmentCompletedAt?: string | null,
+  opts?: { archiveExisting?: boolean },
 ): ReadinessPath {
+  if (opts?.archiveExisting !== false) {
+    const existing = loadReadinessPath();
+    if (existing) archivePathVersion(existing);
+  }
   const base = buildReadinessPath(result, {
     assessmentCompletedAt: assessmentCompletedAt ?? null,
     finance: financeSnapshotForPath(),
@@ -166,22 +172,46 @@ export function generatePathFromResult(
 
 /**
  * Auto-complete cleared gates from finance + latest assessment; persist if changed.
+ * Uses evidence stamps when steps auto-complete.
  */
 export function reconcilePathWithSignals(
   result?: AssessmentResult | null,
+  categories?: { subscriptionDragMonthly?: number; diningHeavy?: boolean } | null,
 ): { path: ReadinessPath | null; completedStepIds: string[]; reasons: string[] } {
   const path = loadReadinessPath();
   if (!path) return { path: null, completedStepIds: [], reasons: [] };
   const assessment = result ?? loadLocalResult()?.result ?? null;
-  const { path: next, completedStepIds, reasons } = autoCompletePathFromSignals(
+  const { path: next, completedStepIds, reasons } = evidenceBasedAutoComplete(
     path,
     assessment,
     financeSnapshotForPath(),
+    categories,
   );
   if (completedStepIds.length > 0) {
     saveReadinessPath(next);
   }
   return { path: next, completedStepIds, reasons };
+}
+
+/**
+ * Auto-generate path for non-READY verdicts (activation).
+ * Does not overwrite an existing path for the same verdict unless force.
+ */
+export function ensurePathForVerdict(
+  result: AssessmentResult,
+  assessmentCompletedAt?: string | null,
+  force = false,
+): ReadinessPath | null {
+  if (result.verdict === "READY" && result.hardStops.length === 0) {
+    return loadReadinessPath();
+  }
+  const existing = loadReadinessPath();
+  if (existing && existing.verdict === result.verdict && !force) {
+    return existing;
+  }
+  const path = generatePathFromResult(result, assessmentCompletedAt);
+  saveReadinessPath(path);
+  return path;
 }
 
 export function completePathStep(
