@@ -9,6 +9,7 @@ import { LensField } from "@/components/tools/LensField";
 import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
 import { DeltasCard } from "@/components/tools/DeltasCard";
 import { ChainLinks } from "@/components/tools/ChainLinks";
+import { LensSynthesis } from "@/components/tools/LensSynthesis";
 import { getLens } from "@/lib/tools/registry";
 import { buildCfm, resolveCfmValue, saveToolsOverlayFields } from "@/lib/tools/cfm";
 import { computeHousingDeltas } from "@/lib/tools/deltas";
@@ -96,6 +97,22 @@ function MortgagePageInner() {
     });
   }, [finance, breakdown.total, replaceRent, overlay.currentRent]);
 
+  // The lens digest the Companion reads — every number precomputed here.
+  const digest = useMemo(
+    () => ({
+      lensId: "mortgage",
+      path: "/tools/mortgage",
+      headline: {
+        label: "Total monthly payment",
+        value: Math.round(breakdown.total),
+        unit: "currency" as const,
+      },
+      keyInputs: { price, downPayment, rate, termYears },
+      deltas,
+    }),
+    [breakdown.total, price, downPayment, rate, termYears, deltas],
+  );
+
   const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
 
   // Explicit, user-initiated write-back. Never silent.
@@ -157,6 +174,8 @@ function MortgagePageInner() {
               {breakdown.hoa > 0 && <BarRow label="HOA" value={breakdown.hoa} max={maxBar} color="#34d399" />}
             </div>
           </ToolResultHero>
+
+          <LensSynthesis digest={digest} />
 
           {hydrated && finance && deltas && (
             <>
