@@ -16,8 +16,8 @@ const LENS = getLens("runway")!;
 function temperature(months: number): { label: string; color: string; className: string } {
   if (months >= 6) return { label: "Protected", color: "#34d399", className: "bg-verdict-ready" };
   if (months >= 3) return { label: "Warm", color: "#facc15", className: "bg-verdict-almost" };
-  if (months >= 1) return { label: "Exposed", color: "#fb923c", className: "bg-verdict-build" };
-  return { label: "Critical", color: "#ef4444", className: "bg-verdict-notyet" };
+  if (months >= 1) return { label: "Exposed", color: "#fab633", className: "bg-verdict-build" };
+  return { label: "Critical", color: "#f24822", className: "bg-verdict-notyet" };
 }
 
 export default function RunwayPage() {

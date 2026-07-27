@@ -29,7 +29,7 @@ export function UpdateNumbersButton({
         onClick={() => {
           const fields = getFields();
           saveToolsOverlayFields(fields);
-          track("numbers_writeback", { fields: Object.keys(fields) });
+          track("numbers_writeback", { fields: Object.keys(fields).join(",") });
           onSaved?.();
           setDone(true);
         }}

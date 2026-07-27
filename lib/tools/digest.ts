@@ -41,8 +41,8 @@ export interface LensDigestInput {
   keyInputs: Record<string, number>;
   /** Precomputed impact deltas (null when no saved finance state). */
   deltas: MetricDelta[] | null;
-  /** Phase 5: magnitude-only readiness impact, when computable. */
-  readiness?: ReadinessDigest;
+  /** Phase 5: magnitude-only readiness impact, when computable (null when not). */
+  readiness?: ReadinessDigest | null;
 }
 
 /** The full digest as transported to /api/advisor. */

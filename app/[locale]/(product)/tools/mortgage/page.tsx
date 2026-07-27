@@ -146,7 +146,7 @@ function MortgagePageInner() {
       hoaMonthly,
     });
     track("numbers_writeback", {
-      fields: ["targetPrice", "downPaymentSaved", "assumedRatePct", "termYears", "taxInsuranceRatePct", "hoaMonthly"],
+      fields: ["targetPrice", "downPaymentSaved", "assumedRatePct", "termYears", "taxInsuranceRatePct", "hoaMonthly"].join(","),
     });
     setPrefilled(new Set(["price", "downPayment", "rate", "termYears", "taxInsRate", "hoaMonthly"]));
     setWriteBackDone(true);
@@ -227,7 +227,7 @@ function MortgagePageInner() {
             <h2 className="font-semibold text-light">Amortization summary</h2>
             <p className="mt-1 text-xs text-dim">Principal &amp; interest only, over the full {termYears}-year term.</p>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <ToolMetric label="Total interest paid" value={formatCurrency(amortization.totalInterestPaid)} accent="#fb923c" />
+              <ToolMetric label="Total interest paid" value={formatCurrency(amortization.totalInterestPaid)} accent="#fab633" />
               <ToolMetric label="Total paid (P&I)" value={formatCurrency(amortization.totalPaid)} />
             </div>
             <div className="hairline my-4" />

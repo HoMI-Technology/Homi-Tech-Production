@@ -22,7 +22,7 @@ const LENS = getLens("affordability")!;
 const TIERS = [
   { key: "protected" as const, label: "Protected", ratio: "28%", color: "#34d399", className: "bg-verdict-ready" },
   { key: "stretch" as const, label: "Stretch", ratio: "33%", color: "#facc15", className: "bg-verdict-almost" },
-  { key: "redLine" as const, label: "Red Line", ratio: "36%", color: "#ef4444", className: "bg-verdict-notyet" },
+  { key: "redLine" as const, label: "Red Line", ratio: "36%", color: "#f24822", className: "bg-verdict-notyet" },
 ];
 
 export default function AffordabilityPage() {

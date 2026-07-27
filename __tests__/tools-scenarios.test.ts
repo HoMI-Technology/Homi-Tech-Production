@@ -44,7 +44,7 @@ function scenario(overrides: Partial<ToolScenario> = {}): ToolScenario {
 
 describe("scenarioDrift", () => {
   it("names exactly what changed", () => {
-    const cfm = deriveCfm({ ...DEFAULT_FINANCE_STATE, monthlyIncome: 7200 }, {}, null);
+    const cfm = deriveCfm({ ...DEFAULT_FINANCE_STATE, ...SNAPSHOT, monthlyIncome: 7200 }, {}, null);
     const drift = scenarioDrift(scenario(), cfm);
     expect(drift).toHaveLength(1);
     expect(drift[0]).toMatchObject({ field: "monthlyIncome", from: 6000, to: 7200 });

@@ -315,7 +315,7 @@ export const LENSES: LensDefinition[] = [
     name: "Debt Payoff",
     desc: "Avalanche vs snowball side by side — interest cost, not slogans.",
     ring: "stability",
-    accent: "#fb923c",
+    accent: "#fab633",
     gate: "plus",
     chains: [
       { lensId: "runway", pitch: "Watch runway grow as payments disappear", carry: [] },

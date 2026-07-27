@@ -13,10 +13,10 @@ import { Link } from "@/i18n/navigation";
 import type { ReadinessImpact } from "@/lib/tools/readiness-bands";
 
 function accent(impact: ReadinessImpact): string {
-  if (impact.hardStop) return "#ef4444";
+  if (impact.hardStop) return "#f24822";
   if (impact.direction === "up") return "#34d399";
   if (impact.direction === "flat") return "#94a3b8";
-  return impact.band === "large" ? "#ef4444" : "#facc15";
+  return impact.band === "large" ? "#f24822" : "#facc15";
 }
 
 export function ReadinessBand({ impact }: { impact: ReadinessImpact }) {

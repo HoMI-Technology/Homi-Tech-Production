@@ -19,8 +19,8 @@ import type { Temperature } from "@/lib/finance/store";
 const TEMP_COLOR: Record<Temperature, string> = {
   emerald: "#34d399",
   yellow: "#facc15",
-  amber: "#fb923c",
-  crimson: "#ef4444",
+  amber: "#fab633",
+  crimson: "#f24822",
 };
 
 function formatValue(v: number, unit: MetricDelta["unit"]): string {
