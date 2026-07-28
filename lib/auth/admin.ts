@@ -9,12 +9,11 @@
  *   1. Email allowlist (`ADMIN_EMAILS`) — even a profile row with
  *      `role='admin'` is refused unless its email is on the allowlist. A
  *      compromised/forged row alone can no longer mint console access.
- *   2. Mandatory MFA (`ADMIN_REQUIRE_MFA=1`) — an admin must hold an
- *      Assurance Level 2 (verified TOTP) session to reach the console.
- *
- * The step-up check (a verified factor exists but the current session is only
- * AAL1) is ALWAYS enforced regardless of the flags — if an admin has enrolled
- * MFA, we never serve the console to a half-authenticated session.
+ *   2. Mandatory MFA (`ADMIN_REQUIRE_MFA=1`) — historically required AAL2.
+ *      **Disabled in product policy (2026-07):** MFA/step-up never blocks
+ *      admin access. Solo-founder / password-only login is intentional.
+ *      `requireMfa` and AAL fields remain on the input for API stability and
+ *      tests; they are ignored by `evaluateAdminAccess`.
  *
  * Pure functions only: all Supabase/AAL lookups happen in the caller (the
  * admin layout) and are passed in, so this policy is unit-testable in
@@ -111,18 +110,10 @@ export function evaluateAdminAccess(input: AdminAccessInput): AdminAccessDecisio
     return { allow: false, reason: "not-admin" };
   }
 
-  const hasVerifiedFactor = input.nextLevel === "aal2";
-  const atAal2 = input.currentLevel === "aal2";
-
-  // Enrolled a factor but the session hasn't stepped up → always block.
-  if (hasVerifiedFactor && !atAal2) {
-    return { allow: false, reason: "needs-stepup" };
-  }
-
-  // MFA mandated but no verified factor yet → must enroll before continuing.
-  if (input.requireMfa && !hasVerifiedFactor) {
-    return { allow: false, reason: "needs-enrollment" };
-  }
+  // MFA / AAL intentionally not enforced — password session is enough.
+  void input.requireMfa;
+  void input.currentLevel;
+  void input.nextLevel;
 
   return { allow: true };
 }
