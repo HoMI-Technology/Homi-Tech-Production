@@ -1,9 +1,7 @@
 /**
  * Admin-access policy contract (lib/auth/admin). What matters:
- * - role-only gating is the default; the allowlist and MFA flags are opt-in
- *   and never loosen access, only tighten it
- * - a step-up (verified factor present, session still AAL1) is ALWAYS blocked
- * - the checks fail safe: missing AAL data never grants entry it shouldn't
+ * - role + optional email allowlist gate access
+ * - MFA / AAL never block (password-only product policy)
  */
 
 import { describe, it, expect } from "vitest";
@@ -73,34 +71,6 @@ describe("deriveNextLevel", () => {
   });
 });
 
-describe("stale-session regression: enrolling MFA on an existing session", () => {
-  /**
-   * The session cookie is minted at sign-in, so its cached user carries no
-   * factors for an admin who enrolls TOTP afterwards. Deriving nextLevel from
-   * that session reported "aal1" and sent an already-enrolled admin back to the
-   * enrollment wall forever. nextLevel must come from listFactors() instead.
-   */
-  const staleSessionNextLevel = "aal1" as const; // what the cached session claimed
-  const authoritative = deriveNextLevel([{ status: "verified" }]);
-
-  it("derives aal2 from the factor list even though the session says aal1", () => {
-    expect(staleSessionNextLevel).toBe("aal1");
-    expect(authoritative).toBe("aal2");
-  });
-
-  it("asks the enrolled admin to step up rather than to enroll again", () => {
-    const stale = evaluateAdminAccess(
-      base({ requireMfa: true, currentLevel: "aal1", nextLevel: staleSessionNextLevel }),
-    );
-    expect(stale).toEqual({ allow: false, reason: "needs-enrollment" }); // the bug
-
-    const fixed = evaluateAdminAccess(
-      base({ requireMfa: true, currentLevel: "aal1", nextLevel: authoritative }),
-    );
-    expect(fixed).toEqual({ allow: false, reason: "needs-stepup" }); // the fix
-  });
-});
-
 describe("evaluateAdminAccess", () => {
   it("allows a plain admin with no allowlist and MFA off (default behaviour)", () => {
     expect(evaluateAdminAccess(base())).toEqual({ allow: true });
@@ -130,37 +100,30 @@ describe("evaluateAdminAccess", () => {
     ).toEqual({ allow: true });
   });
 
-  it("ALWAYS blocks step-up when a factor exists but the session is AAL1 (even with MFA flag off)", () => {
+  it("never blocks on MFA step-up (AAL1 with enrolled factor)", () => {
     expect(
       evaluateAdminAccess(base({ requireMfa: false, currentLevel: "aal1", nextLevel: "aal2" })),
-    ).toEqual({ allow: false, reason: "needs-stepup" });
+    ).toEqual({ allow: true });
   });
 
-  it("allows an admin who has stepped up to AAL2", () => {
+  it("allows an admin at AAL2", () => {
     expect(
       evaluateAdminAccess(base({ requireMfa: true, currentLevel: "aal2", nextLevel: "aal2" })),
     ).toEqual({ allow: true });
   });
 
-  it("requires enrollment when MFA is mandated and no factor exists", () => {
+  it("ignores ADMIN_REQUIRE_MFA enrollment requirement", () => {
     expect(
       evaluateAdminAccess(base({ requireMfa: true, currentLevel: "aal1", nextLevel: "aal1" })),
-    ).toEqual({ allow: false, reason: "needs-enrollment" });
-  });
-
-  it("does not require enrollment when the MFA flag is off", () => {
-    expect(
-      evaluateAdminAccess(base({ requireMfa: false, currentLevel: "aal1", nextLevel: "aal1" })),
     ).toEqual({ allow: true });
   });
 
-  it("treats missing AAL data as no factor (fails safe, never a phantom step-up)", () => {
-    // requireMfa off → allowed; requireMfa on → must enroll. Never 'allow' under MFA with unknown AAL.
+  it("allows when AAL data is missing (MFA never gates)", () => {
     expect(
       evaluateAdminAccess(base({ requireMfa: false, currentLevel: null, nextLevel: null })),
     ).toEqual({ allow: true });
     expect(
       evaluateAdminAccess(base({ requireMfa: true, currentLevel: null, nextLevel: null })),
-    ).toEqual({ allow: false, reason: "needs-enrollment" });
+    ).toEqual({ allow: true });
   });
 });
