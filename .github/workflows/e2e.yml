@@ -8,12 +8,25 @@ name: E2E
 # message when their env is absent (fork PRs receive no secrets), so this
 # workflow is green on forks without weakening the signal on repo PRs.
 #
-# Secrets are only ever exposed on plain `pull_request` (never
-# pull_request_target), so fork code cannot reach them.
+# Secrets are only ever exposed on plain `pull_request` and `push` (never
+# pull_request_target), and forks can neither push to this repo nor receive
+# secrets on their PRs, so fork code cannot reach them.
+#
+# Runs on push to `main` too: e2e otherwise never ran post-merge, so a PR
+# merged with a red e2e left `main` silently broken and taxed every later PR
+# (this was #119). Mirrors ci.yml's push triggers so the required `verify`
+# check and this suite validate the same refs.
 
 on:
   pull_request:
     branches: [main]
+  push:
+    branches:
+      - main
+      # Feature branches: agent/bot pushes often skip pull_request events.
+      - "feat/**"
+      - "fix/**"
+      - "chore/**"
   # Manual/API trigger — pushes from bot credentials (agent sessions) don't
   # fire pull_request synchronize events, so branches need a way to run CI.
   workflow_dispatch:
