@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { fullPaymentBreakdown, amortizationSummary } from "@/lib/tools/mortgage";
 import { formatCurrency } from "@/lib/tools/format";
 import { track } from "@/lib/analytics";
@@ -14,22 +14,13 @@ import { LensSynthesis } from "@/components/tools/LensSynthesis";
 import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
 import { ReadinessBand } from "@/components/tools/ReadinessBand";
 import { getLens } from "@/lib/tools/registry";
-import { buildCfm, resolveCfmValue, saveToolsOverlayFields } from "@/lib/tools/cfm";
+import { saveToolsOverlayFields } from "@/lib/tools/cfm";
 import { computeHousingDeltas } from "@/lib/tools/deltas";
 import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readiness-bands";
-import { useCfm } from "@/hooks/use-cfm";
+import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { useReadinessAnchors } from "@/hooks/use-readiness";
-import {
-  loadFinanceState,
-  hasSavedFinanceState,
-  type FinanceState,
-} from "@/lib/finance/store";
 
 const LENS = getLens("mortgage")!;
-
-function clamp(v: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, v));
-}
 
 function MortgagePageInner() {
   const [price, setPrice] = useState(400000);
@@ -39,43 +30,25 @@ function MortgagePageInner() {
   const [taxInsRate, setTaxInsRate] = useState(1.5);
   const [hoaMonthly, setHoaMonthly] = useState(0);
 
-  /** Input keys seeded from the CFM — these render the "your numbers" tag. */
-  const [prefilled, setPrefilled] = useState<Set<string>>(new Set());
-  const [finance, setFinance] = useState<FinanceState | null>(null);
   const [replaceRent, setReplaceRent] = useState(false);
   const [writeBackDone, setWriteBackDone] = useState(false);
 
-  const { overlay, hydrated } = useCfm();
-  const readinessCtx = useReadinessAnchors();
-
-  // Mount-only CFM prefill: seeds sliders from the user's saved numbers via
-  // the registry contract, then never fights live edits again.
-  useEffect(() => {
-    const cfm = buildCfm();
-    if (hasSavedFinanceState()) setFinance(loadFinanceState());
-    if (!cfm || !LENS.inputs) return;
-
-    const seeded = new Set<string>();
-    const values: Record<string, number> = {};
-    for (const spec of LENS.inputs) {
-      if (!spec.cfmPath) continue;
-      const field = resolveCfmValue(cfm, spec.cfmPath);
-      if (field.source === "missing") continue;
-      values[spec.key] = clamp(field.value, spec.min, spec.max);
-      seeded.add(spec.key);
-    }
-
-    if (values.price !== undefined) setPrice(values.price);
-    if (values.downPayment !== undefined) {
-      setDownPayment(Math.min(values.downPayment, values.price ?? values.downPayment));
-    }
-    if (values.rate !== undefined) setRate(values.rate);
-    if (values.termYears !== undefined) setTermYears(values.termYears);
-    if (values.taxInsRate !== undefined) setTaxInsRate(values.taxInsRate);
-    if (values.hoaMonthly !== undefined) setHoaMonthly(values.hoaMonthly);
-    setPrefilled(seeded);
-    if (seeded.size > 0) track("lens_prefilled", { lens: "mortgage", count: seeded.size });
+  // Mount-only CFM prefill via the shared registry-driven hook. The per-key
+  // dispatcher caps down payment at the seeded price so loanAmount can never
+  // go negative — the registry orders `price` before `downPayment`, so the
+  // price seed is recorded first.
+  const seeds = useRef<Record<string, number>>({});
+  const apply = useCallback((key: string, v: number) => {
+    seeds.current[key] = v;
+    if (key === "price") setPrice(v);
+    else if (key === "downPayment") setDownPayment(Math.min(v, seeds.current.price ?? v));
+    else if (key === "rate") setRate(v);
+    else if (key === "termYears") setTermYears(v);
+    else if (key === "taxInsRate") setTaxInsRate(v);
+    else if (key === "hoaMonthly") setHoaMonthly(v);
   }, []);
+  const { prefilled, finance, overlay, hydrated, markAll } = useLensPrefill("mortgage", apply);
+  const readinessCtx = useReadinessAnchors();
 
   const loanAmount = Math.max(0, price - downPayment);
 
@@ -148,7 +121,7 @@ function MortgagePageInner() {
     track("numbers_writeback", {
       fields: ["targetPrice", "downPaymentSaved", "assumedRatePct", "termYears", "taxInsuranceRatePct", "hoaMonthly"].join(","),
     });
-    setPrefilled(new Set(["price", "downPayment", "rate", "termYears", "taxInsRate", "hoaMonthly"]));
+    markAll(["price", "downPayment", "rate", "termYears", "taxInsRate", "hoaMonthly"]);
     setWriteBackDone(true);
   }
 
