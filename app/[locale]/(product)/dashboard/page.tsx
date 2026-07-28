@@ -198,6 +198,9 @@ export default async function DashboardPage() {
   const showNudge = since !== null && since > 30;
   const verdict = (latest?.verdict as VerdictKey | null) ?? null;
   const verdictMeta = VERDICT_META[verdict ?? "BUILD_FIRST"];
+  // Non-READY bands: Path is the default habit, not plan/tools.
+  const pathIsDefaultHabit =
+    verdict === "NOT_YET" || verdict === "BUILD_FIRST" || verdict === "ALMOST_THERE";
   const improved = verdictImproved(latest?.verdict ?? null, previousAssessment?.verdict ?? null);
 
   const historyPoints: ScoreHistoryPoint[] = [...assessmentRows]
@@ -375,9 +378,11 @@ export default async function DashboardPage() {
                       <p className="dash-action-dock-title">
                         {showNudge
                           ? "Re-measure your readiness"
-                          : nextMove
-                            ? nextMove.title
-                            : "Open your plan"}
+                          : pathIsDefaultHabit
+                            ? "Work the binding constraint on your path"
+                            : nextMove
+                              ? nextMove.title
+                              : "Open your plan"}
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2.5">
@@ -385,6 +390,25 @@ export default async function DashboardPage() {
                         <>
                           <Link href="/assessment" className="btn btn-primary">
                             Retake assessment
+                          </Link>
+                          {pathIsDefaultHabit ? (
+                            <Link href="/path" className="btn btn-ghost">
+                              Open path
+                            </Link>
+                          ) : nextMove ? (
+                            <Link href={nextMove.href} className="btn btn-ghost">
+                              {nextMove.cta}
+                            </Link>
+                          ) : (
+                            <Link href="/plan" className="btn btn-ghost">
+                              View plan
+                            </Link>
+                          )}
+                        </>
+                      ) : pathIsDefaultHabit ? (
+                        <>
+                          <Link href="/path" className="btn btn-primary">
+                            Open Path to Ready
                           </Link>
                           {nextMove ? (
                             <Link href={nextMove.href} className="btn btn-ghost">

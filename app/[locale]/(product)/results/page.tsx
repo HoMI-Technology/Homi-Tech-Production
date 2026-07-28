@@ -189,10 +189,20 @@ export default function ResultsPage() {
           </div>
           <p className="mt-4 max-w-md text-base text-light">{meta.line}</p>
           {result.verdict !== "READY" && (
-            <p className="mt-3 max-w-md text-sm text-dim">
-              Not a judgment — a protective map. Your Path to Ready is built
-              from the binding constraint first.
-            </p>
+            <>
+              <p className="mt-3 max-w-md text-sm text-dim">
+                Not a judgment — a protective map. Your Path to Ready is built
+                from the binding constraint first.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <a href="#path-to-ready" className="btn btn-primary !px-4 !py-2 text-sm">
+                  Continue Path to Ready
+                </a>
+                <Link href="/path" className="btn btn-ghost !px-4 !py-2 text-sm">
+                  Open full path
+                </Link>
+              </div>
+            </>
           )}
         </div>
       </div>

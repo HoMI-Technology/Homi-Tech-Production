@@ -4,13 +4,15 @@ import { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import {
   loadReadinessPath,
+  pathHabitOncePerSession,
   trackPathFirstStepNudge,
   type ReadinessPath,
 } from "@/lib/readiness";
 
 /**
- * Surfaces when a build path has no completed steps and is older than a few hours.
+ * Surfaces when a build path has no completed steps.
  * Anti plan-dopamine: push the first protective action.
+ * (Dashboard prefers PathNextMove as the primary habit surface.)
  */
 export function FirstStepNudge() {
   const [path, setPath] = useState<ReadinessPath | null>(null);
@@ -29,11 +31,12 @@ export function FirstStepNudge() {
     const created = Date.parse(p.createdAt);
     if (!Number.isFinite(created)) return;
     const hours = (Date.now() - created) / 3_600_000;
-    // Nudge if path exists (immediate) or after 2h without first step
     if (hours >= 0) {
       setAgeHours(Math.max(0, Math.round(hours * 10) / 10));
       setShow(true);
-      trackPathFirstStepNudge({ ageHours: Math.round(hours) });
+      if (pathHabitOncePerSession("first_step_nudge")) {
+        trackPathFirstStepNudge({ ageHours: Math.round(hours) });
+      }
     }
   }, []);
 

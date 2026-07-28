@@ -80,6 +80,11 @@ export default function StatusPage() {
             ≥95% of non-READY result views when JS loads.
           </li>
           <li>
+            <span className="text-light">Path habit:</span> dashboard primary next move
+            is Path for non-READY; measure generate → impression → first step done
+            (Admin → Analytics).
+          </li>
+          <li>
             <span className="text-light">Error budget:</span> Path/household API 5xx
             &lt; 1% of authenticated requests (7-day).
           </li>

@@ -30,6 +30,11 @@ import {
   totalRecurringMonthly,
   capacityAfterRecurring,
   PATH_DISCLAIMER,
+  derivePathHabitStage,
+  pathPendingStepCount,
+  pathHabitOncePerSession,
+  trackPathPageViewed,
+  trackPathHabitImpression,
   type ReadinessPath,
   type RecurringItem,
 } from "@/lib/readiness";
@@ -129,6 +134,23 @@ export default function PathPage() {
       active = false;
     };
   }, []);
+
+  // Habit measurement: once per session when path page hydrates with a path.
+  useEffect(() => {
+    if (!hydrated || !path) return;
+    if (!pathHabitOncePerSession("path_page_viewed")) return;
+    const stage = derivePathHabitStage(path);
+    trackPathPageViewed({
+      stage,
+      pendingSteps: pathPendingStepCount(path),
+      mode: path.mode,
+    });
+    trackPathHabitImpression({
+      surface: "path_page",
+      stage,
+      verdict: path.verdict,
+    });
+  }, [hydrated, path]);
 
   const assessment = useMemo(() => loadLocalResult(), [path?.id, hydrated]);
   const financeSnap = useMemo(
