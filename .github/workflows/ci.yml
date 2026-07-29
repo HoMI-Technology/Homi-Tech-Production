@@ -22,8 +22,13 @@ on:
 # run moot). NEVER cancel on main: every commit merged to main must be fully
 # validated post-merge, and rapid successive merges would otherwise cancel
 # each other's runs (showing as spurious "verify (push) — Cancelled" reds).
+#
+# Keyed per PR (and per ref for push / workflow_dispatch), matching
+# lighthouse.yml and e2e.yml. Note the PR lane and the feature-branch push lane
+# stay separate on purpose: collapsing them would let a push run cancel the
+# pull_request run that branch protection requires for merge.
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:

@@ -1,0 +1,13 @@
+# CODEOWNERS — HōMI Tech
+#
+# Review ownership for paths that are expensive or dangerous to get wrong.
+# GitHub matches the LAST matching rule in this file, so add new, more specific
+# rules BELOW broader ones. Do not delete existing rules when adding your own.
+#
+# These rules only take effect once "Require review from Code Owners" is
+# enabled in branch protection for `main` (Settings → Branches → main).
+
+# GitHub Actions workflow definitions. Changes here can silently multiply
+# billed Actions minutes, disable a required check, or remove the concurrency
+# guards that cancel superseded runs — so they always need an owner's review.
+/.github/workflows/ @HoMI-Technology

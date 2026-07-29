@@ -21,8 +21,21 @@ on:
 # the repo at ~7 minutes — running to completion against a commit nobody would
 # merge. On a metered private repo that was the largest single source of wasted
 # Actions minutes.
+#
+# Group key: one lane per pull request (github.event.pull_request.number), and
+# for workflow_dispatch — where there is no PR payload — one lane per ref. PR
+# #12 therefore never cancels PR #13, and a manual run on feat/x never cancels
+# a manual run on feat/y. github.workflow keeps the namespace distinct from
+# ci.yml / e2e.yml even if a future workflow reuses the "lighthouse-" prefix.
+#
+# cancel-in-progress is deliberately an expression, not `true`: a run whose ref
+# is refs/heads/main (a manual dispatch on main) must always finish, because
+# main's results are the post-merge validation record.
+#
+# DO NOT remove or weaken this block — Lighthouse stays enabled, only
+# superseded runs die. Guarded by __tests__/ci/workflow-concurrency.test.ts.
 concurrency:
-  group: lighthouse-${{ github.ref }}
+  group: lighthouse-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:

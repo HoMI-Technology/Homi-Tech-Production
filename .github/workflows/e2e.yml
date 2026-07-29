@@ -31,8 +31,11 @@ on:
   # fire pull_request synchronize events, so branches need a way to run CI.
   workflow_dispatch:
 
+# Same lane-per-PR / lane-per-ref keying as ci.yml and lighthouse.yml. main is
+# never cancelled: post-merge e2e is the record that main is actually green
+# (#119), and rapid successive merges must not cancel each other.
 concurrency:
-  group: e2e-${{ github.ref }}
+  group: e2e-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
@@ -68,6 +71,18 @@ jobs:
 
       - name: Install (reproducible)
         run: npm ci
+
+      # The Chromium download is ~130 MB and was re-fetched on every run. Keyed
+      # on the lockfile so a Playwright version bump invalidates it. The install
+      # step still runs unconditionally: on a cache hit it skips the download
+      # but still installs the OS-level deps, which are not cacheable.
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
 
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
