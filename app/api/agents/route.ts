@@ -190,11 +190,12 @@ function buildAgentFallbackReply(
 }
 
 /**
- * Determine which tools the agent ensemble "called" for this exchange. For
- * now this is a deterministic set based on the routed agents; future versions
- * can call real tool-use APIs.
+ * Determine which tools the agent ensemble would suggest for this exchange.
+ * This is a deterministic label set based on routed agents; no tool executor is
+ * invoked. The field is named `tools_suggested` so the UI does not imply that a
+ * simulation ran when it did not.
  */
-function toolsCalledForAgents(agents: AgentId[]): string[] {
+function toolsSuggestedForAgents(agents: AgentId[]): string[] {
   const tools: string[] = [];
   if (agents.includes("analyst")) tools.push("calculate_buffer_months", "dti_snapshot");
   if (agents.includes("oracle")) tools.push("monte_carlo_stress_test");
@@ -279,14 +280,15 @@ export async function POST(request: Request) {
       });
       if (persisted) conversationId = persisted;
     }
+    const suggestedTools = toolsSuggestedForAgents(routedAgents);
     return NextResponse.json({
       reply,
       source,
       conversationId,
       routed_agents: routedAgents,
-      tools_called: toolsCalledForAgents(routedAgents),
+      tools_suggested: suggestedTools,
       sentinel: sentinelCheck(reply),
-      receipt: buildReceipt(routedAgents, toolsCalledForAgents(routedAgents)),
+      receipt: buildReceipt(routedAgents, suggestedTools),
     });
   }
 

@@ -7,7 +7,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
  * - Feature flag NEXT_PUBLIC_FF_AGENT_OS gates the endpoint.
  * - Free-tier and anonymous requests never reach Anthropic (fallback only).
  * - Paid users reach the model when ANTHROPIC_API_KEY is configured.
- * - Response includes routed_agents, tools_called, sentinel, and receipt.
+ * - Response includes routed_agents, tools_suggested, sentinel, and receipt.
  * - Sentinel guardrail result reflects the reply content.
  */
 
@@ -99,14 +99,14 @@ describe("POST /api/agents", () => {
       reply: string;
       source: string;
       routed_agents: string[];
-      tools_called: string[];
+      tools_suggested: string[];
       sentinel: { passed: boolean; flagged: boolean };
       receipt: { id: string; integrity: string; agents: string[]; tools: string[] };
     };
 
     expect(body.source).toBe("model");
     expect(body.routed_agents).toContain("analyst");
-    expect(body.tools_called).toContain("dti_snapshot");
+    expect(body.tools_suggested).toContain("dti_snapshot");
     expect(body.sentinel.passed).toBe(true);
     expect(body.receipt.id).toMatch(/^RCPT-/);
     expect(body.receipt.agents).toEqual(body.routed_agents);
