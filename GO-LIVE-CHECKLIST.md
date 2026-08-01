@@ -36,24 +36,53 @@ complete an assessment → verdict email arrives.
 
 ---
 
-## 2. 🔴 Apply database migrations to production
+## 2. 🔴 Database — schema is current, but the profiles guard does not work
 
-**Why:** merging code does **not** touch the database. Several shipped features
-(attribution columns, `partner_codes`, `shadow_shares`, `partner_api_keys` +
-`receipt_verifications`, the advisor monthly-quota RPC, dashboard/campaign
-tables) need their migrations run against the live Supabase project, or those
-routes error at runtime.
+**Schema coverage: fine.** A full object-level audit on 2026-07-28 confirmed
+**40 of 41** local migrations applied, including everything this section once
+listed as pending — `partner_codes`, `shadow_shares`, `partner_api_keys`,
+`receipt_verifications`, `try_consume_advisor_message_v2`, the dashboard/campaign
+tables, and the whole `00034`–`00039` Path/household range. `00040` was applied
+2026-08-01. Evidence: **`docs/ops/MIGRATION-DRIFT-2026-07-28.md`**.
+
+Do **not** run `supabase db push` over the full history — the remote ledger carries
+pre-rebuild rows under different version names and a replay would collide. Apply
+single files as documented in `docs/ops/MIGRATIONS-SSOT.md`.
+
+### 🔴 Launch blocker — privilege escalation is live right now
+
+Verifying `00040` uncovered that the guard it extends **has never enforced
+anything**. `guard_profiles_privileged_columns()` is `SECURITY DEFINER` owned by
+`postgres`; inside such a function `current_user` is the *owner*, and the body's
+first branch exempts `postgres`. So it returns `new` for every caller. The trigger
+fires on every UPDATE and waves it through — true since `00020a` installed it.
+
+`profiles_update_own` places no column restriction on self-updates, so **any
+authenticated user can currently set their own `role = 'admin'`, grant themselves
+any `subscription_tier`/`subscription_status`, rewrite `stripe_customer_id`, and
+redirect `email`.** Confirmed by a rolled-back probe against production: an
+`authenticated` self-update of `email` and `stripe_customer_id` both returned
+"1 row" with no exception.
+
+**Fix — `00041_profile_guard_security_invoker.sql`, written and verified, pending apply:**
 
 1. Take a Supabase backup / `db dump` first (there's no staging DB).
-2. Apply everything in `supabase/migrations/` that isn't already live, **in
-   numeric order** (through `00033_campaigns.sql`) — via the Supabase SQL editor
-   or `supabase db push`. Each file is expand-only and carries a `-- ROLLBACK:`
-   block.
-3. Sanity check: `partner_codes`, `shadow_shares`, `partner_api_keys`,
-   `receipt_verifications` exist; `try_consume_advisor_message_v2` exists.
+2. Apply `supabase/migrations/00041_profile_guard_security_invoker.sql`.
+3. Verify enforcement — *behaviour, not existence*. In a transaction you
+   `rollback`: `set local role authenticated` with `request.jwt.claims.sub` set to
+   a real profile id, then `update profiles set email = …` on that row. It must
+   raise `42501`. Checking that the trigger merely exists is what missed this bug.
+4. Regression check (same rolled-back transaction): a `full_name` self-update still
+   succeeds; a `service_role` write to `email` still succeeds; an admin's own
+   `subscription_tier` update still succeeds. All six paths verified pre-apply.
 
-*(If you want, I can apply these for you via the Supabase MCP once you confirm —
-I did not touch the production DB without your go-ahead.)*
+⚠ `00034_profile_field_locks.sql` must **not** be applied — it would install a
+duplicate trigger and its service-context test (`auth.uid() is null`) is weaker
+than the allowlist. Note its header's "escalation hole is open" claim turned out to
+be *accurate*, though for a different reason than it states. See the drift report.
+
+*(`00040` has been applied. `00041` has not — the apply was blocked by a
+permission classifier and needs your go-ahead.)*
 
 ---
 

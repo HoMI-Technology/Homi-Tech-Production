@@ -1,4 +1,32 @@
 -- =============================================================================
+-- ⚠ SUPERSEDED — DO NOT APPLY. Verified against production 2026-07-28.
+--
+-- Neither object in this file exists in prod, and neither should be created:
+--   • The privilege-escalation lock it describes is handled by
+--     00020a_profiles_privilege_guard.sql (trigger `profiles_privilege_guard`),
+--     as repaired by 00041. Applying this file would install a SECOND BEFORE
+--     UPDATE trigger doing the same work, with a weaker service-context test
+--     (`auth.uid() is null` instead of an explicit current_user allowlist).
+--   • The outcome_surveys ownership tightening below is ALREADY LIVE (applied
+--     remotely as `outcome_surveys_ownership_correct`); prod's with_check
+--     matches this policy.
+--   • The `email` column is locked by 00040_profile_email_lock.sql, which
+--     extends the live guard in place.
+--
+-- Kept unmodified below for history (forward-only rule). See
+-- docs/ops/MIGRATION-DRIFT-2026-07-28.md for the full verification.
+--
+-- CORRECTION 2026-08-01: an earlier version of this header said the original
+-- CRITICAL warning "is NOT an accurate description of production." That was
+-- wrong. The 00020a guard exists but never enforced — it is SECURITY DEFINER
+-- owned by `postgres`, so its own owner matches the service-context allowlist
+-- and it returns `new` for every caller. The escalation hole the warning
+-- describes was in fact open. 00041_profile_guard_security_invoker.sql closes
+-- it. This file is still superseded — 00041 fixes the guard in place; do not
+-- add a second trigger.
+-- =============================================================================
+
+-- =============================================================================
 -- 00018_profile_field_locks.sql — privilege-escalation lock + outcome ownership.
 -- apply after 00017_readiness_calibration.
 --
