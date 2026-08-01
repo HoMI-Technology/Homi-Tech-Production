@@ -8,13 +8,14 @@
 
 > **Addendum 2026-08-01 — read this first.** `00040` was applied on 2026-08-01 and
 > the schema conclusions below all held up. But applying it exposed a much larger
-> problem this audit did not catch: **the guard function `00040` extends has never
-> enforced anything.** It is `SECURITY DEFINER` owned by `postgres`, so its
-> service-context allowlist matches its own owner and short-circuits for every
+> problem this audit did not catch: **the guard function `00040` extends had never
+> enforced anything.** It was `SECURITY DEFINER` owned by `postgres`, so its
+> service-context allowlist matched its own owner and short-circuited for every
 > caller. `role`, `subscription_tier`, `subscription_status`, `stripe_customer_id`
-> and `email` were all self-writable by any authenticated user — and still are.
-> See **[The guard was inert](#the-guard-was-inert--2026-08-01)** at the bottom.
-> Fix written as `00041_profile_guard_security_invoker.sql`, **not yet applied.**
+> and `email` were all self-writable by any authenticated user.
+> **Closed 2026-08-01 by `00041_profile_guard_security_invoker.sql`, applied and
+> verified by behaviour.** See **[The guard was inert](#the-guard-was-inert--2026-08-01)**
+> at the bottom.
 
 ## Headline
 
@@ -173,7 +174,22 @@ Verified before apply, transaction-scoped and rolled back:
 | admin self → `subscription_tier` | allowed, 1 row |
 | admin self → `email` | allowed, 1 row |
 
-**Status: written and verified, NOT YET APPLIED.** Production is still exposed.
+**Status: APPLIED 2026-08-01.** Post-apply verification against production —
+again transaction-scoped and rolled back — confirms enforcement is live:
+
+| Attempt (as `authenticated`, own row) | Result |
+|---|---|
+| `role = 'admin'` (escalation) | blocked, `42501` |
+| `email` (mail redirect) | blocked, `42501` |
+| `stripe_customer_id` | blocked, `42501` |
+| `subscription_tier = 'plus'` (paid self-grant) | blocked, `42501` |
+| `full_name` (benign) | allowed, 1 row |
+| admin → own `subscription_tier` (product UI) | allowed, 1 row |
+| `service_role` → `email` + `subscription_status` | allowed, 1 row |
+
+`pg_proc.prosecdef` is now `false` for the function; the `email` clause is
+present. Supabase security advisors show no new findings, and the guard has
+dropped off the `SECURITY DEFINER`-executable warning lists.
 
 ### Audit any other `SECURITY DEFINER` trigger the same way
 
@@ -181,11 +197,17 @@ Any trigger function that is `SECURITY DEFINER` *and* gates on `current_user` ha
 this bug by construction. Sweep for it:
 
 ```sql
-select p.proname, pg_get_userbyid(p.proowner) as owner
+select p.proname,
+       pg_get_userbyid(p.proowner) as owner,
+       exists (select 1 from pg_trigger t where t.tgfoid = p.oid) as used_as_trigger
 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
 where n.nspname = 'public' and p.prosecdef
-  and pg_get_functiondef(p.oid) ilike '%current_user%';
+  and pg_get_functiondef(p.oid) ~* '\mcurrent_user\M';
 ```
+
+Run 2026-08-01 after applying `00041`: **zero rows.** No other `SECURITY DEFINER`
+function in `public` gates on `current_user`, so the bug class is confined to the
+one guard.
 
 ## How to re-run this audit
 

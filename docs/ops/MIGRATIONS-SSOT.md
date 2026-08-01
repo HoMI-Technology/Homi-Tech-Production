@@ -35,7 +35,7 @@ npx supabase migration repair 00038 --status applied --linked
 | `00038_user_readiness_path.sql` | Path to Ready LWW JSON |
 | `00039_households.sql` | Dual-user household + invites |
 | `00040_profile_email_lock.sql` | Adds `email` to the profiles privileged-column guard — applied 2026-08-01 |
-| `00041_profile_guard_security_invoker.sql` | Makes that guard actually enforce (`security invoker`) — **pending apply, security fix** |
+| `00041_profile_guard_security_invoker.sql` | Makes that guard actually enforce (`security invoker`) — applied 2026-08-01 |
 
 ## Drift status
 
@@ -44,13 +44,15 @@ files applied**, only `00040` outstanding. `00040` was applied 2026-08-01.
 `00034_profile_field_locks.sql` is **superseded — never apply it.** Full evidence
 and re-run method: `docs/ops/MIGRATION-DRIFT-2026-07-28.md`.
 
-🔴 **Open security gap.** Verifying `00040` revealed that the guard it extends has
-never enforced anything: `guard_profiles_privileged_columns()` is `SECURITY
+🟢 **Closed 2026-08-01.** Verifying `00040` revealed that the guard it extends had
+never enforced anything: `guard_profiles_privileged_columns()` was `SECURITY
 DEFINER` owned by `postgres`, so its `current_user in ('postgres', …)` service
-allowlist matches its own owner and short-circuits for every caller. Any
-authenticated user can self-write `role`, `subscription_tier`,
-`subscription_status`, `stripe_customer_id` and `email`. `00041` fixes it and is
-verified but **not yet applied** — apply it before launch.
+allowlist matched its own owner and short-circuited for every caller — any
+authenticated user could self-write `role`, `subscription_tier`,
+`subscription_status`, `stripe_customer_id` and `email`. `00041` switched it to
+`security invoker` and is applied; escalation attempts now raise `42501`, with the
+benign, admin and `service_role` paths unaffected. A sweep for other `SECURITY
+DEFINER` functions gating on `current_user` returned zero rows.
 
 Lesson for future audits: object existence ≠ enforcement. Probe behaviour, in a
 transaction you roll back.

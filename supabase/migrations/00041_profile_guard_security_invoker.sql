@@ -36,7 +36,12 @@
 --   caller whose RLS would otherwise hide rows). `authenticated` already holds
 --   EXECUTE on it, so the admin branch keeps working.
 --
--- VERIFIED (all four paths, transaction-scoped and rolled back, before apply):
+-- APPLIED TO PRODUCTION 2026-08-01. Post-apply behaviour re-verified: as
+--   `authenticated` on one's own row, role='admin', email, stripe_customer_id and
+--   subscription_tier self-updates all raise 42501; full_name, admin-via-is_admin
+--   and service_role writes all still succeed. pg_proc.prosecdef is now false.
+--
+-- VERIFIED (transaction-scoped and rolled back, before apply):
 --   authenticated → email                → blocked, SQLSTATE 42501
 --   authenticated → stripe_customer_id   → blocked, SQLSTATE 42501
 --   authenticated → full_name (benign)   → allowed, 1 row   (no regression)

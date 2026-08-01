@@ -8,7 +8,8 @@
 -- and returns `new` for every caller. The `email` clause below landed in that
 -- dead path. 00041_profile_guard_security_invoker.sql switches the function to
 -- SECURITY INVOKER and is what actually makes this — and the role/subscription
--- locks from 00020a — take effect. Apply 00041.
+-- locks from 00020a — take effect. 00041 was applied 2026-08-01; this lock is
+-- enforcing as of then, not as of this file.
 --
 -- WHY (verified against production 2026-07-28):
 --   The live guard `guard_profiles_privileged_columns()` locks role,

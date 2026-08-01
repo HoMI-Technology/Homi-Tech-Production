@@ -36,7 +36,7 @@ complete an assessment → verdict email arrives.
 
 ---
 
-## 2. 🔴 Database — schema is current, but the profiles guard does not work
+## 2. 🟢 Database — schema current, profiles guard repaired and enforcing
 
 **Schema coverage: fine.** A full object-level audit on 2026-07-28 confirmed
 **40 of 41** local migrations applied, including everything this section once
@@ -49,40 +49,38 @@ Do **not** run `supabase db push` over the full history — the remote ledger ca
 pre-rebuild rows under different version names and a replay would collide. Apply
 single files as documented in `docs/ops/MIGRATIONS-SSOT.md`.
 
-### 🔴 Launch blocker — privilege escalation is live right now
+### Resolved 2026-08-01 — a privilege escalation live since `00020a`
 
-Verifying `00040` uncovered that the guard it extends **has never enforced
-anything**. `guard_profiles_privileged_columns()` is `SECURITY DEFINER` owned by
+Verifying `00040` uncovered that the guard it extends **had never enforced
+anything**. `guard_profiles_privileged_columns()` was `SECURITY DEFINER` owned by
 `postgres`; inside such a function `current_user` is the *owner*, and the body's
-first branch exempts `postgres`. So it returns `new` for every caller. The trigger
-fires on every UPDATE and waves it through — true since `00020a` installed it.
+first branch exempts `postgres`. So it returned `new` for every caller — the
+trigger fired on every UPDATE and waved it through.
 
-`profiles_update_own` places no column restriction on self-updates, so **any
-authenticated user can currently set their own `role = 'admin'`, grant themselves
-any `subscription_tier`/`subscription_status`, rewrite `stripe_customer_id`, and
-redirect `email`.** Confirmed by a rolled-back probe against production: an
-`authenticated` self-update of `email` and `stripe_customer_id` both returned
-"1 row" with no exception.
+`profiles_update_own` places no column restriction on self-updates, so until this
+was fixed **any authenticated user could set their own `role = 'admin'`, grant
+themselves any `subscription_tier`/`subscription_status`, rewrite
+`stripe_customer_id`, and redirect `email`.**
 
-**Fix — `00041_profile_guard_security_invoker.sql`, written and verified, pending apply:**
+`00041_profile_guard_security_invoker.sql` switched the function to `SECURITY
+INVOKER` and was applied 2026-08-01. Post-apply verification against production
+(transaction-scoped, rolled back): `role`, `email`, `stripe_customer_id` and
+`subscription_tier` self-updates all raise `42501`; `full_name` self-updates,
+admin updates through `is_admin()`, and `service_role` writes are unaffected. A
+sweep for other `SECURITY DEFINER` functions gating on `current_user` returned
+zero rows, so the bug class is confined to this one guard.
 
-1. Take a Supabase backup / `db dump` first (there's no staging DB).
-2. Apply `supabase/migrations/00041_profile_guard_security_invoker.sql`.
-3. Verify enforcement — *behaviour, not existence*. In a transaction you
-   `rollback`: `set local role authenticated` with `request.jwt.claims.sub` set to
-   a real profile id, then `update profiles set email = …` on that row. It must
-   raise `42501`. Checking that the trigger merely exists is what missed this bug.
-4. Regression check (same rolled-back transaction): a `full_name` self-update still
-   succeeds; a `service_role` write to `email` still succeeds; an admin's own
-   `subscription_tier` update still succeeds. All six paths verified pre-apply.
+**Carry this forward: verify migrations by behaviour, not by object existence.**
+The July audit checked that the trigger existed, was `BEFORE UPDATE`, was enabled,
+and that its body matched the repo file — all four passed, and the guard was still
+inert. The check that works is a rolled-back transaction: `set local role
+authenticated` with `request.jwt.claims.sub` set to a real profile id, attempt the
+write, assert `42501`.
 
 ⚠ `00034_profile_field_locks.sql` must **not** be applied — it would install a
 duplicate trigger and its service-context test (`auth.uid() is null`) is weaker
 than the allowlist. Note its header's "escalation hole is open" claim turned out to
 be *accurate*, though for a different reason than it states. See the drift report.
-
-*(`00040` has been applied. `00041` has not — the apply was blocked by a
-permission classifier and needs your go-ahead.)*
 
 ---
 
