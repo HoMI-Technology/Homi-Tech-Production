@@ -166,8 +166,13 @@ Hobby plan prohibits commercial use — upgrade before charging a single card.
 - **`CRON_SECRET`:** set it (Vercel Cron sends it as a Bearer token; the cron
   routes fail closed without it, so the reassessment + outcome-survey emails
   won't run until it's present).
-- **`RECEIPT_SIGNING_KEY`:** set it so partner receipts are signed (unsigned
+- **`RECEIPT_SIGNING_SECRET`:** set it so partner receipts are signed (unsigned
   otherwise). Mint partner keys with `node scripts/mint-partner-key.mjs "<Org>"`.
+  ⚠ The name is `..._SECRET`. `RECEIPT_SIGNING_KEY` is the old name, is read by
+  nothing (`lib/receipts/index.ts:85` reads `RECEIPT_SIGNING_SECRET`), and is
+  currently set in Vercel where it does nothing. Setting only the old name leaves
+  receipts unsigned and reports no error. As of 2026-08-01 `RECEIPT_SIGNING_SECRET`
+  is set in **Production only** — Preview deployments return unsigned receipts.
 - **`EMAIL_UNSUBSCRIBE_SECRET`**, **`INTERNAL_API_SECRET`:** set to random 32-byte
   values (`openssl rand -base64 32`).
 - **Web push** (optional, powers outcome-survey push): `VAPID_PUBLIC_KEY` /
