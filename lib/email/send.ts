@@ -89,7 +89,7 @@ export async function sendTemplateEmail(options: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "H┼ìMI <hello@homitechnology.com>",
+        from: "HōMI <hello@homitechnology.com>",
         to,
         subject: rendered.subject,
         html: rendered.html,

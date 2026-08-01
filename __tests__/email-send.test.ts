@@ -114,3 +114,35 @@ describe("sendLifecycleEmail", () => {
     expect(calls.deletes).toEqual(["welcome:u1"]);
   });
 });
+
+/**
+ * The From name is brand-visible on the first email a user ever receives, and
+ * it is the kind of string that silently rots: `sendTemplateEmail` shipped for
+ * months carrying "H┼ìMI" — the UTF-8 bytes of `ō` decoded as CP437 and
+ * re-saved. Nothing failed, the mail just went out misbranded. Assert the exact
+ * codepoint on every sender so a bad round-trip breaks the build instead.
+ */
+describe("From header encoding", () => {
+  const EXPECTED_FROM = "HōMI <hello@homitechnology.com>";
+
+  async function capturedFrom(send: () => Promise<unknown>): Promise<string> {
+    await send();
+    expect(fetchMock).toHaveBeenCalled();
+    const [, init] = fetchMock.mock.calls.at(-1) as unknown as [string, RequestInit];
+    return (JSON.parse(String(init.body)) as { from: string }).from;
+  }
+
+  it("sendTemplateEmail addresses mail as HōMI, not mojibake", async () => {
+    const { sendTemplateEmail } = await import("@/lib/email/send");
+    const from = await capturedFrom(() =>
+      sendTemplateEmail({ template: "waitlist", to: "a@b.co" }),
+    );
+    expect(from).toBe(EXPECTED_FROM);
+  });
+
+  it("sendLifecycleEmail addresses mail as HōMI, not mojibake", async () => {
+    const { service } = makeService({});
+    const from = await capturedFrom(() => sendLifecycleEmail(args(service)));
+    expect(from).toBe(EXPECTED_FROM);
+  });
+});
