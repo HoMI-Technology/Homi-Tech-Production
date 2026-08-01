@@ -118,9 +118,13 @@ describe("sendLifecycleEmail", () => {
 /**
  * The From name is brand-visible on the first email a user ever receives, and
  * it is the kind of string that silently rots: `sendTemplateEmail` shipped for
- * months carrying "H┼ìMI" — the UTF-8 bytes of `ō` decoded as CP437 and
- * re-saved. Nothing failed, the mail just went out misbranded. Assert the exact
- * codepoint on every sender so a bad round-trip breaks the build instead.
+ * months with U+253C U+00EC in place of the wordmark's `ō` (U+014D) — the UTF-8
+ * bytes of `ō` decoded as CP437 and re-saved. Nothing failed, the mail just went
+ * out misbranded. Assert the exact codepoint on every sender so a bad encoding
+ * round-trip breaks the build instead.
+ *
+ * (Deliberately spelled by codepoint rather than pasting the corrupt characters,
+ * so the repo itself stays free of mojibake bytes.)
  */
 describe("From header encoding", () => {
   const EXPECTED_FROM = "HōMI <hello@homitechnology.com>";
