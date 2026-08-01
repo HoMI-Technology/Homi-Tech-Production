@@ -31,8 +31,35 @@ export const env = {
   },
 
   // --- Site ---
+  /**
+   * Canonical origin for anything that builds an absolute URL — Stripe
+   * success/cancel URLs, share links, household invites, the billing portal
+   * return URL.
+   *
+   * NEXT_PUBLIC_SITE_URL is set in Production only, so preview deployments used
+   * to fall through to the production origin: a preview checkout would send you
+   * to production on success, and a preview-generated share link would point at
+   * a row the production site can't resolve. Falling back to the deployment's
+   * own host keeps a preview self-consistent.
+   *
+   * Vercel exposes VERCEL_URL/VERCEL_ENV server-side and the NEXT_PUBLIC_*
+   * mirrors client-side (when "Automatically expose System Environment
+   * Variables" is on, the default). Both are checked so this getter returns the
+   * same origin on either side of the boundary. VERCEL_URL carries no scheme.
+   */
   get NEXT_PUBLIC_SITE_URL(): string {
-    return process.env.NEXT_PUBLIC_SITE_URL ?? "https://homitechnology.com";
+    const explicit = process.env.NEXT_PUBLIC_SITE_URL;
+    if (explicit) return explicit;
+
+    // `||` rather than `??`: an env var set to the empty string must fall
+    // through to the next candidate, and `??` would treat "" as a real value.
+    const vercelEnv = process.env.NEXT_PUBLIC_VERCEL_ENV || process.env.VERCEL_ENV;
+    const vercelUrl = process.env.NEXT_PUBLIC_VERCEL_URL || process.env.VERCEL_URL;
+    if (vercelEnv === "preview" && vercelUrl) {
+      return `https://${vercelUrl.replace(/^https?:\/\//, "")}`;
+    }
+
+    return "https://homitechnology.com";
   },
 
   // --- Supabase (server-only, optional) ---

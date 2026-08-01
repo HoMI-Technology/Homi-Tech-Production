@@ -52,7 +52,7 @@ Preview deployments therefore behave differently from production:
 |---|---|
 | `SUPABASE_SERVICE_ROLE_KEY` | Service-role paths dead — webhooks, crons, admin. `BUILD-BRIEF.md:116` calls this out explicitly as a thing to fix |
 | `RECEIPT_SIGNING_SECRET` | Unsigned receipts (see §1) |
-| `NEXT_PUBLIC_SITE_URL` | Falls back to `https://homitechnology.com`, so preview-generated links point at production |
+| `NEXT_PUBLIC_SITE_URL` | ✅ **fixed in code** — `lib/env.ts` now falls back to the deployment's own `VERCEL_URL` on preview builds, so a preview stays self-consistent. No env var needed |
 | `NEXT_PUBLIC_POSTHOG_KEY` / `_HOST` | No analytics from previews — probably intentional |
 | `ADMIN_EMAILS`, `ADMIN_REQUIRE_MFA` | Admin hardening off on previews — probably intentional |
 
@@ -74,9 +74,14 @@ only the `SUPABASE_*` / `NEXT_PUBLIC_SUPABASE_*` names:
 `DATABASE_ANON_KEY`, `DATABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`,
 `NEXT_PUBLIC_DATABASE_ANON_KEY`, `NEXT_PUBLIC_DATABASE_URL`
 
-**Salts read by nothing:** `MFA_RECOVERY_SALT`, `PARTNER_API_KEY_SALT`
-(verify against the MFA/partner code before deleting — these may be intended
-wiring that was never connected, which is a different bug from dead config).
+**Salts read by nothing:** `MFA_RECOVERY_SALT`, `PARTNER_API_KEY_SALT` —
+checked, and these are **dead config, not disconnected wiring**. Neither name
+appears anywhere in `lib/`, `app/` or `scripts/`. Partner keys are hashed with
+unsalted SHA-256 in `scripts/mint-partner-key.mjs:23` and
+`lib/receipts/index.ts:25`, which is deliberate: `lib/security.ts:7` notes that
+salting/stretching is unnecessary for high-entropy generated secrets (as opposed
+to passwords). `MFA_RECOVERY_SALT` is a leftover of the TOTP flow that commit
+`e56e278` disabled. Safe to delete.
 
 **Feature flags read by nothing** — every one of these is inert, so toggling them
 in the dashboard does nothing:
