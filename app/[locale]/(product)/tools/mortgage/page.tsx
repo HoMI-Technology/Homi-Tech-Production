@@ -223,7 +223,12 @@ function MortgagePageInner() {
             </p>
           </div>
 
-          {LENS.chains && <ChainLinks chains={LENS.chains} />}
+          {LENS.chains && (
+            <ChainLinks
+              chains={LENS.chains}
+              carryValues={{ price, downPayment, rate, termYears, taxInsRate, hoaMonthly }}
+            />
+          )}
         </div>
       </div>
     </ToolShell>

@@ -200,7 +200,7 @@ export default function RentVsBuyPage() {
             </p>
           </div>
 
-          {LENS.chains && <ChainLinks chains={LENS.chains} />}
+          {LENS.chains && <ChainLinks chains={LENS.chains} carryValues={{ price }} />}
         </div>
       </div>
     </ToolShell>
