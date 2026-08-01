@@ -102,20 +102,38 @@ be *accurate*, though for a different reason than it states. See the drift repor
 
 ---
 
-## 3. 🔴 Stripe — real products + live keys
+## 3. 🟠 Stripe — account verified, env vars remain (was 🔴)
 
 **Why:** billing is fully coded and idempotent but has never processed a live
-charge. Prove it in test mode, then go live.
+charge.
 
-1. `npm run stripe-setup` (or the dashboard) → create the 3 products with the
-   **lookup keys** the code maps on: `homi_plus_monthly`, `homi_pro_monthly`,
-   `homi_family_monthly`.
-2. Register the webhook endpoint `https://homitechnology.com/api/webhooks/stripe`
-   → copy its signing secret.
-3. Set in Vercel: **`STRIPE_SECRET_KEY`**, **`STRIPE_WEBHOOK_SECRET`**,
-   **`STRIPE_PRICE_PLUS/PRO/FAMILY`**.
-4. Run one **test-mode** checkout end-to-end (test clock for upgrade/downgrade/
-   cancel), confirm the profile tier updates, then swap in live keys.
+### ✅ Verified against the live account 2026-08-01
+
+Steps 1 and 2 are **done**, and confirmed by behaviour rather than by assumption:
+
+- **Products + prices** — `npm run stripe-verify` → all three match
+  `lib/stripe/tiers.ts`: Plus $9.99, Pro $24.99, Family $39.99, all usd,
+  monthly, livemode. Note `stripe-setup` alone does **not** prove this: it
+  matches on `lookup_key` and reuses whatever price it finds, whatever the
+  amount. Re-run the verifier, not just setup.
+- **Webhook** — `npm run stripe-verify-webhook` → one endpoint,
+  `https://homitechnology.com/api/webhooks/stripe`, enabled, subscribed to
+  exactly the four events the route handles and nothing stale.
+
+Live price IDs (not secret):
+
+```
+STRIPE_PRICE_PLUS=price_1TuckuJ1m2RNwf578nHi371A
+STRIPE_PRICE_PRO=price_1Tucm3J1m2RNwf57OWIpBfna
+STRIPE_PRICE_FAMILY=price_1TucnIJ1m2RNwf57R4hoO06T
+```
+
+### 🔴 Remaining
+
+1. Set all five in Vercel, **Production and Preview**: the three price IDs
+   above plus `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`.
+2. Run one **test-mode** checkout end-to-end (test clock for upgrade/downgrade/
+   cancel) and confirm the profile tier updates, before taking a real charge.
 
 ---
 
