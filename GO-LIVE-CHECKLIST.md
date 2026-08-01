@@ -19,17 +19,35 @@ queue and fail — users can't even create accounts. This also gates the entire
 retention loop (welcome / verdict / reassessment / outcome-survey emails) that
 is already coded and waiting.
 
+⚠ **The sender address is hardcoded, not configurable.** `hello@homitechnology.com`
+appears literally in `lib/email/send.ts` (both senders), `lib/email/campaign.ts`
+and `app/api/household/invite/route.ts`. The verified Resend domain **must** be
+`homitechnology.com` or every transactional send fails at the provider with a
+403 — the code has no env override to point somewhere else.
+
 1. **Resend** → add domain `homitechnology.com`, publish the SPF + DKIM DNS
-   records it gives you, wait for "Verified."
+   records it gives you, wait for "Verified." Add a **DMARC** record too
+   (`_dmarc.homitechnology.com`, start at `v=DMARC1; p=none; rua=mailto:…`) —
+   Gmail and Yahoo require it for bulk senders and it materially affects
+   inbox placement.
 2. Create a Resend API key → set **`RESEND_API_KEY`** in Vercel (Production +
-   Preview).
+   Preview). The app talks to Resend's **HTTPS API**, not SMTP — this key is
+   what the lifecycle and campaign mail uses.
 3. **Supabase Dashboard** → Project → Authentication → Emails → SMTP Settings →
-   enable custom SMTP, point it at Resend (host `smtp.resend.com`, port 465,
-   your Resend SMTP creds). Set the sender to `hello@homitechnology.com`.
+   enable custom SMTP: host `smtp.resend.com`, port `465`, username **`resend`**
+   (the literal word — not your email), password = **the same Resend API key**.
+   Sender `hello@homitechnology.com`, sender name `HōMI`.
+   *This is a separate path from step 2:* Supabase sends the auth mail
+   (confirmation, magic link, password reset) over SMTP, while the app sends
+   product mail over the API. Both must be configured — doing only one leaves
+   either signups or the retention loop broken.
 4. Supabase → Authentication → URL Configuration → set **Site URL** to
-   `https://homitechnology.com` and add it to the redirect allowlist.
+   `https://homitechnology.com` and add to the redirect allowlist:
+   `https://homitechnology.com/**` and `http://localhost:3000/**` (local dev and
+   Tier 2 E2E need the localhost entry — see `e2e/README.md`).
 5. Supabase → Authentication → Providers/Policies → enable **"Leaked password
-   protection" (HaveIBeenPwned)**.
+   protection" (HaveIBeenPwned)**. This is the one item here that shows up in
+   `get_advisors`, so it can be confirmed externally once flipped.
 
 *Verify:* sign up a throwaway address on the live site → confirmation arrives;
 complete an assessment → verdict email arrives.

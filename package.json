@@ -19,6 +19,7 @@
     "architecture:check": "node scripts/check-architecture.mjs",
     "stripe-setup": "node scripts/stripe-setup.mjs",
     "stripe-verify": "node scripts/verify-stripe-prices.mjs",
+    "stripe-verify-webhook": "node scripts/verify-stripe-webhook.mjs",
     "create-admin": "node scripts/create-admin.mjs",
     "verify-supabase": "node scripts/verify-supabase-connectivity.mjs",
     "lighthouse": "lhci autorun",
