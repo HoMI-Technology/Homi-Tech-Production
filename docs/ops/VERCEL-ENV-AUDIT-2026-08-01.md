@@ -58,7 +58,17 @@ Preview deployments therefore behave differently from production:
 
 The first three are worth fixing. The rest are defensible as-is.
 
-## 4. Set in Vercel, read by nothing (20)
+## 4. Set in Vercel, read by nothing (20) — 19 removed 2026-08-01
+
+**Status: cleaned up and re-verified.** All 19 listed below were removed from
+Production and a re-run of the diff confirms only `OPENAI_API_KEY` remains, held
+back deliberately because deleting the variable does not revoke the key.
+
+Before removing, each was checked against `next.config.ts`, `middleware.ts`,
+`vercel.json`, `instrumentation.ts`, the Sentry configs and every CI workflow —
+none was referenced outside the `process.env` scan.
+
+
 
 Dead configuration. Each is a small maintenance tax and, for the credentials, an
 unnecessary exposure surface.
@@ -104,5 +114,20 @@ vercel env ls > /tmp/envls.txt        # names + environments only, never values
 The one-off script used for this pass walked all `.ts/.tsx/.mjs/.js` files for
 `process.env.NAME` and `process.env["NAME"]`, excluded platform-provided names
 (`VERCEL_*`, `NODE_ENV`, …) and local/CI-only names, then compared both
-directions. Watch for one false positive: `lib/env.ts:11` mentions
-`process.env.X` inside a doc comment.
+directions.
+
+Two false positives to expect on a re-run:
+
+- **`X`** — `lib/env.ts:11` mentions `process.env.X` inside a doc comment.
+- **`NEXT_PUBLIC_VERCEL_ENV` / `NEXT_PUBLIC_VERCEL_URL`** — read by `lib/env.ts`
+  for the preview-origin fallback, and they will always show as "missing"
+  because Vercel injects them as *system* variables rather than project
+  settings. Do not add them by hand.
+
+  A caveat on those two: the `NEXT_PUBLIC_` mirrors only exist when
+  "Automatically expose System Environment Variables" is enabled (the default).
+  If it were off, the client-side branch of the preview fallback would go quiet
+  and fall through to the production origin. Every consumer that matters —
+  checkout, shares, shadow-shares, billing portal, household invites — is a
+  server route reading the unprefixed `VERCEL_ENV`/`VERCEL_URL`, so the fix
+  holds either way.
