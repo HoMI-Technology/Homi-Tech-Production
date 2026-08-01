@@ -25,7 +25,12 @@
 // Bumped on icon/OG art changes so the activate handler purges stale caches.
 // v4: icon files were renamed to -v2 URLs (cache-bust) so browsers holding a
 // stale favicon/touch-icon under the old paths refetch the new compass art.
-const CACHE_VERSION = "homi-v4";
+// v5: icon/OG/splash art redesigned in place (Direction A — depth, variable
+// ring weights, canon Inter 900 wordmark). The URLs are unchanged this time,
+// so this bump is the ONLY thing that evicts the old art: the fetch handler
+// serves precached icons cache-first, and install/addAll only re-runs for a
+// new CACHE_VERSION.
+const CACHE_VERSION = "homi-v5";
 const OFFLINE_URL = "/offline.html";
 const MAX_ASSET_ENTRIES = 100;
 
