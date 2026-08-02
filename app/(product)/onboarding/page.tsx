@@ -155,7 +155,7 @@ function StepWhatToExpect() {
         <li className="flex items-start gap-3 rounded-xl border border-verdict-notyet/30 bg-verdict-notyet/10 p-4">
           <span className="mt-0.5 text-crimson">●</span>
           <div>
-            <p className="text-sm font-semibold text-light">NOT YET</p>
+            <p className="text-sm font-semibold text-light">DO NOT PROCEED</p>
             <p className="text-xs text-dim">
               Not yet is not no. It&rsquo;s clarity. It&rsquo;s protection — the verdict that keeps
               you from a decision you&rsquo;d regret.
@@ -165,8 +165,8 @@ function StepWhatToExpect() {
       </ul>
 
       <p className="mt-6 text-sm leading-relaxed text-dim">
-        If HōMI ever tells you NOT YET, that&rsquo;s not a door closing. It&rsquo;s HōMI standing
-        between you and a mistake, on purpose.
+        If HōMI ever returns DO NOT PROCEED, that&rsquo;s not a door closing. It&rsquo;s HōMI
+        standing between you and a decision you&rsquo;d regret, on purpose.
       </p>
     </div>
   );

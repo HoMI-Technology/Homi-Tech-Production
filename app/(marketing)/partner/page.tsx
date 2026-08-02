@@ -30,8 +30,8 @@ const STEPS = [
 
 const PRINCIPLES = [
   {
-    title: "No conflict of interest",
-    body: "HōMI never recommends a product, a lender, or a purchase. There is nothing to upsell, so there is nothing to distort the verdict.",
+    title: "No transaction pressure",
+    body: "HōMI does not recommend a product, a lender, or a purchase, and does not take commissions or referral fees. There is nothing to upsell, so nothing to distort the verdict.",
   },
   {
     title: "We don't pay for conversions",
