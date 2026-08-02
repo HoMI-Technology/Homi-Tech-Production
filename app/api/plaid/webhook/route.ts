@@ -167,10 +167,11 @@ export async function POST(request: Request) {
           // transaction data so verified cash flow no longer reflects revoked
           // consent.
           await setStatus("revoked");
-          const { error: accountError } = await admin.from("plaid_accounts").delete().eq("item_id", item.id);
-          if (accountError) {
-            console.error(`[plaid/webhook:${correlationId}] account purge failed`, accountError.message);
-          }
+          // Transactions FIRST, deliberately. If the second delete fails we
+          // must not be left holding the more sensitive rows after the
+          // accounts row — their only UI entry point — is already gone. Both
+          // deletes are idempotent, and a failure still acks so Plaid
+          // redelivers and the retry completes the purge.
           const { error: txnError } = await admin
             .from("plaid_transactions")
             .delete()
@@ -180,6 +181,10 @@ export async function POST(request: Request) {
               `[plaid/webhook:${correlationId}] transaction purge failed`,
               txnError.message,
             );
+          }
+          const { error: accountError } = await admin.from("plaid_accounts").delete().eq("item_id", item.id);
+          if (accountError) {
+            console.error(`[plaid/webhook:${correlationId}] account purge failed`, accountError.message);
           }
           return ack();
         }

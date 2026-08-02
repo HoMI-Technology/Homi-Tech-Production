@@ -19,6 +19,7 @@ const state = vi.hoisted(() => ({
   itemUpdates: [] as Record<string, unknown>[],
   accountDeletes: [] as string[],
   transactionDeletes: [] as string[],
+  transactionDeleteError: null as { message: string } | null,
   syncCalls: [] as Record<string, unknown>[],
   adminAvailable: true,
 }));
@@ -70,7 +71,7 @@ vi.mock("@/lib/supabase/admin", () => ({
             delete: () => ({
               eq: async (_col: string, id: string) => {
                 state.transactionDeletes.push(id);
-                return { error: null };
+                return { error: state.transactionDeleteError };
               },
             }),
           };
@@ -173,6 +174,7 @@ beforeEach(() => {
   state.itemUpdates = [];
   state.accountDeletes = [];
   state.transactionDeletes = [];
+  state.transactionDeleteError = null;
   state.syncCalls = [];
   state.adminAvailable = true;
   clearWebhookKeyCache();
@@ -291,6 +293,17 @@ describe("POST /api/plaid/webhook — dispatch", () => {
     expect(state.itemUpdates).toEqual([{ status: "revoked" }]);
     expect(state.accountDeletes).toEqual(["item-row-uuid-1"]);
     expect(state.transactionDeletes).toEqual(["item-row-uuid-1"]);
+  });
+
+  // Transactions are purged BEFORE accounts so a partial failure cannot leave
+  // the more sensitive rows behind after their only UI entry point is gone.
+  // The webhook must still ack, so Plaid redelivers and the retry completes.
+  it("still purges accounts and acks when the transaction purge fails", async () => {
+    state.transactionDeleteError = { message: "transient failure" };
+    const res = await POST(webhookRequest(body("ITEM", "USER_PERMISSION_REVOKED")));
+    expect(res.status).toBe(200);
+    expect(state.transactionDeletes).toEqual(["item-row-uuid-1"]);
+    expect(state.accountDeletes).toEqual(["item-row-uuid-1"]);
   });
 
   it("200s WEBHOOK_UPDATE_ACKNOWLEDGED as a no-op", async () => {
