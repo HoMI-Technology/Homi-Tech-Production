@@ -163,11 +163,23 @@ export async function POST(request: Request) {
         case "USER_PERMISSION_REVOKED":
         case "USER_ACCOUNT_REVOKED": {
           // The user cut access at the institution: keep the item row as a
-          // "revoked" tombstone for the reconnect UX, but purge account data.
+          // "revoked" tombstone for the reconnect UX, but purge account and
+          // transaction data so verified cash flow no longer reflects revoked
+          // consent.
           await setStatus("revoked");
-          const { error } = await admin.from("plaid_accounts").delete().eq("item_id", item.id);
-          if (error) {
-            console.error(`[plaid/webhook:${correlationId}] account purge failed`, error.message);
+          const { error: accountError } = await admin.from("plaid_accounts").delete().eq("item_id", item.id);
+          if (accountError) {
+            console.error(`[plaid/webhook:${correlationId}] account purge failed`, accountError.message);
+          }
+          const { error: txnError } = await admin
+            .from("plaid_transactions")
+            .delete()
+            .eq("item_id", item.id);
+          if (txnError) {
+            console.error(
+              `[plaid/webhook:${correlationId}] transaction purge failed`,
+              txnError.message,
+            );
           }
           return ack();
         }

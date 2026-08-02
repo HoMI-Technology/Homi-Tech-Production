@@ -90,22 +90,11 @@ export default async function TeamDashboardPage() {
     }
   }
 
+  // De-identified cohort read: the security-definer function in 00042 returns
+  // only non-PII fields and enforces org membership server-side.
   let assessments: Pick<AssessmentRow, "verdict" | "overall_score">[] = [];
-  if (memberIds.length > 0) {
-    const { data } = await supabase
-      .from("assessments")
-      .select("verdict, overall_score")
-      .in("user_id", memberIds)
-      .eq("status", "completed")
-      .limit(2000);
-    assessments = (data as typeof assessments | null) ?? [];
-  } else if (orgId) {
-    const { data } = await supabase
-      .from("assessments")
-      .select("verdict, overall_score")
-      .eq("organization_id", orgId)
-      .eq("status", "completed")
-      .limit(2000);
+  if (orgId) {
+    const { data } = await supabase.rpc("get_org_assessment_summary", { org_id: orgId });
     assessments = (data as typeof assessments | null) ?? [];
   }
 
