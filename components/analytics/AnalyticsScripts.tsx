@@ -1,14 +1,31 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Script from "next/script";
 import { sanitizePosthogHost } from "@/lib/analytics/posthog-host";
+import { readConsent, onConsentChange } from "@/components/consent/consent-shared";
 
 /**
- * Loads the PostHog snippet ONLY when NEXT_PUBLIC_POSTHOG_KEY is set, so the
- * app ships zero analytics weight until the owner adds the key. Once present,
- * lib/analytics.ts `track()` forwards events to window.posthog automatically.
+ * Loads the PostHog snippet only when BOTH are true:
+ *   1. NEXT_PUBLIC_POSTHOG_KEY is set (the app ships zero analytics weight
+ *      until the owner adds the key), and
+ *   2. the visitor has granted consent for optional analytics.
  *
- * Privacy posture matches the product: no autocapture, no session recording —
- * only the explicit occurrence events track() sends. Respects the cookie-
- * consent posture (essential-only) by disabling persistence to cookies.
+ * Condition 2 is the one that was missing. This component previously rendered
+ * the snippet on key presence alone, so the moment the key was configured the
+ * SDK initialized and fetched `us-assets.i.posthog.com/static/array.js` BEFORE
+ * the visitor had answered the banner — confirmed with a network trace.
+ * Memory-only persistence limited the damage (no cookie, no persistent device
+ * id), but an SDK load plus a third-party request is exactly what "no
+ * analytics before opt-in" forbids.
+ *
+ * The decision is resolved in an effect rather than read during render, so the
+ * server and first client paint agree (no hydration mismatch) and nothing
+ * loads until the choice is known. Unset reads as "not allowed": silence is
+ * not consent.
+ *
+ * Privacy posture once allowed: no autocapture, no session recording, no
+ * automatic pageviews — only the explicit occurrence events track() sends.
  *
  * Sentry is intentionally NOT wired here: its Next SDK needs a package install
  * + instrumentation files, which is the owner's follow-up once SENTRY_DSN
@@ -17,7 +34,15 @@ import { sanitizePosthogHost } from "@/lib/analytics/posthog-host";
 export function AnalyticsScripts() {
   const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
   const host = sanitizePosthogHost(process.env.NEXT_PUBLIC_POSTHOG_HOST);
-  if (!key) return null;
+  const [allowed, setAllowed] = useState(false);
+
+  useEffect(() => {
+    setAllowed(readConsent() === "granted");
+    // Reacts to Accept, Reject, and later withdrawal — including from another tab.
+    return onConsentChange((state) => setAllowed(state === "granted"));
+  }, []);
+
+  if (!key || !allowed) return null;
 
   return (
     <Script id="posthog-init" strategy="afterInteractive">
