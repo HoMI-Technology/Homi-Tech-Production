@@ -37,6 +37,7 @@ npx supabase migration repair 00038 --status applied --linked
 | `00040_profile_email_lock.sql` | Adds `email` to the profiles privileged-column guard — applied 2026-08-01 |
 | `00041_profile_guard_security_invoker.sql` | Makes that guard actually enforce (`security invoker`) — applied 2026-08-01 |
 | `00042_household_membership_authorization.sql` | Requires an invitation to join a household; closes self-granted membership, row-move escalation and the invitee lockout — **NOT APPLIED, local only** |
+| `00043_household_integrity.sql` | One household per user, membership capped at two, invitations readable only by the owner — **NOT APPLIED, local only. Apply after `00042`.** |
 
 ## Drift status
 
@@ -58,8 +59,12 @@ DEFINER` functions gating on `current_user` returned zero rows.
 Lesson for future audits: object existence ≠ enforcement. Probe behaviour, in a
 transaction you roll back.
 
-`00042` is authored but **unapplied and unverified** — it has never run against
-any database. Its behaviour is encoded in
+`00042` and `00043` are authored but **unapplied and unverified** — neither has
+ever run against any database. `00043` `create or replace`s the predicate
+`00042` introduces, so **`00042` must be applied first**; applying them out of
+order silently drops `00043`'s member cap. Before applying `00043` to any
+populated database, run its pre-check for users holding more than one
+membership — the unique index it adds will abort rather than pick a winner. Its behaviour is encoded in
 `__tests__/acceptance/household-rls.integration.test.ts`, which self-skips until
 `RUN_RLS_IT=1` and a dedicated non-production project exist. Until it runs,
 treat the four defects it describes as still live in production.

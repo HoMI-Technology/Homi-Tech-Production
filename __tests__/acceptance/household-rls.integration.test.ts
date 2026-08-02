@@ -21,6 +21,13 @@ import { describe, it, expect } from "vitest";
  *   USER_B_EMAIL        — enables the invite-visibility leg (HH-001c).
  *   INVITE_TOKEN_FOR_B  — a pending, unexpired invite on HOUSEHOLD_A_ID
  *                         addressed to B's email; enables HH-005/006.
+ *   HOUSEHOLD_B_ID      — a household B already belongs to; with
+ *                         INVITE_TOKEN_FOR_B this enables HH-007 (00043).
+ *   USER_C_JWT +
+ *   INVITE_TOKEN_FOR_C  — a third user holding a live invite to a household
+ *                         that is already full; enables HH-008 (00043).
+ *   PARTNER_JWT         — a non-owner member of HOUSEHOLD_A_ID; enables
+ *                         HH-009 (00043).
  */
 
 const enabled =
@@ -177,5 +184,86 @@ describe.skipIf(!inviteEnabled)("HH — the invitation path works for its recipi
 
     // email is not in the UPDATE column grant -> 42501.
     expect(error).toBeTruthy();
+  });
+});
+
+/**
+ * 00043 — household integrity. These sit on top of 00042: an invitation is
+ * necessary to join, and these assert it is not sufficient.
+ */
+
+describe.skipIf(!(inviteEnabled && process.env.HOUSEHOLD_B_ID))(
+  "HH — a user belongs to at most one household",
+  () => {
+    it("HH-007: an invited user who already has a household cannot join a second", async () => {
+      const b = await client(process.env.USER_B_JWT!);
+      const bId = await userId(process.env.USER_B_JWT!);
+
+      const { error } = await b.from("household_members").insert({
+        household_id: process.env.HOUSEHOLD_A_ID!,
+        user_id: bId,
+        role: "partner",
+        display_name: "second household",
+      });
+
+      // Blocked by household_members_one_per_user, not by the invite check —
+      // B holds a valid invitation here. Without this the four household
+      // routes' .maybeSingle() calls would start erroring for B.
+      expect(error).toBeTruthy();
+    });
+  },
+);
+
+describe.skipIf(!(enabled && process.env.USER_C_JWT && process.env.INVITE_TOKEN_FOR_C))(
+  "HH — membership is capped at two",
+  () => {
+    it("HH-008: an invited third member cannot join a full household", async () => {
+      const c = await client(process.env.USER_C_JWT!);
+      const cId = await userId(process.env.USER_C_JWT!);
+
+      const { error } = await c.from("household_members").insert({
+        household_id: process.env.HOUSEHOLD_A_ID!,
+        user_id: cId,
+        role: "partner",
+        display_name: "third wheel",
+      });
+
+      // household_join_allowed()'s count clause. A third member would be
+      // dropped from lib/household/dual-score.ts's memberA/memberB verdict
+      // without trace — including their hard stops.
+      expect(error).toBeTruthy();
+    });
+  },
+);
+
+describe.skipIf(!enabled)("HH — invitations are visible only to the owner", () => {
+  it.skipIf(!process.env.PARTNER_JWT)(
+    "HH-009: a partner cannot read their household's invite tokens",
+    async () => {
+      const p = await client(process.env.PARTNER_JWT!);
+      const { data } = await p
+        .from("household_invites")
+        .select("email, token")
+        .eq("household_id", process.env.HOUSEHOLD_A_ID!);
+
+      // A token is the routing credential for an invitation. Before 00043 any
+      // member could read every one of them.
+      expect(data ?? []).toHaveLength(0);
+    },
+  );
+
+  it("HH-010: the owner can still read their household's invitations", async () => {
+    const a = await client(process.env.USER_A_JWT!);
+    const { error, data } = await a
+      .from("household_invites")
+      .select("id, email, status")
+      .eq("household_id", process.env.HOUSEHOLD_A_ID!);
+
+    // Regression guard on the narrowed USING: invite/route.ts does
+    // INSERT ... .select(), which needs the owner to retain SELECT.
+    expect(error).toBeNull();
+    if (process.env.INVITE_TOKEN_FOR_B) {
+      expect((data ?? []).length).toBeGreaterThan(0);
+    }
   });
 });
