@@ -1,36 +1,24 @@
-import { getLocale } from "next-intl/server";
-import { redirect } from "@/i18n/navigation";
-import type { AppLocale } from "@/i18n/routing";
+import { redirect } from "next/navigation";
 
 /**
- * Build the `next` query value the same way middleware does: unprefixed for
- * the default locale, `/es/...` for Spanish so post-login return keeps locale.
+ * Build the `next` query value the same way middleware does. Paths are
+ * normalised to a leading slash; there is no locale prefix any more.
  */
-export function signInNextParam(nextPath: string, locale: string): string {
-  const normalized = nextPath.startsWith("/") ? nextPath : `/${nextPath}`;
-  if (locale === "en") return normalized;
-  if (normalized === `/${locale}` || normalized.startsWith(`/${locale}/`)) {
-    return normalized;
-  }
-  return `/${locale}${normalized}`;
+export function signInNextParam(nextPath: string): string {
+  return nextPath.startsWith("/") ? nextPath : `/${nextPath}`;
 }
 
 /**
- * Locale-aware redirect to `/auth/sign-in`. Uses next-intl `redirect` so
- * Spanish users land on `/es/auth/sign-in?next=/es/...` instead of dropping
- * the locale via a hard-coded `next/navigation` redirect.
+ * Redirect to `/auth/sign-in`, preserving the caller's return path in the
+ * `next` query param.
+ *
+ * Kept async so existing `await signInRedirect(...)` call sites and their
+ * `Promise<never>` control-flow narrowing are unaffected.
  */
 export async function signInRedirect(nextPath: string): Promise<never> {
-  const locale = (await getLocale()) as AppLocale;
-  const next = signInNextParam(nextPath, locale);
-  redirect({
-    href: {
-      pathname: "/auth/sign-in",
-      query: { next },
-    },
-    locale,
-  });
-  // next-intl's redirect is typed looser than Next's `never`; keep the
-  // Promise<never> contract for call-site control-flow narrowing.
+  const next = signInNextParam(nextPath);
+  redirect(`/auth/sign-in?next=${encodeURIComponent(next)}`);
+  // `redirect` throws; keep the Promise<never> contract explicit for
+  // call-site control-flow narrowing.
   throw new Error("unreachable: signInRedirect");
 }

@@ -26,7 +26,6 @@ try {
 const baseURL = process.env.E2E_BASE_URL ?? "http://localhost:3000";
 
 export default defineConfig({
-  globalSetup: "./e2e/global-setup.ts",
   testDir: "./e2e",
   // Only *.e2e.ts files are Playwright specs. Helpers and *.setup.ts are not.
   testMatch: "**/*.e2e.ts",
@@ -45,7 +44,6 @@ export default defineConfig({
     : [["list"], ["html", { open: "never" }]],
   use: {
     baseURL,
-    storageState: "e2e/.locale-en.json",
     locale: "en-US",
     extraHTTPHeaders: {
       "Accept-Language": "en-US",

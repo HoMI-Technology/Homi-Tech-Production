@@ -2,14 +2,14 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-/** Recovered from PR #81 — report pages must use locale-aware sign-in. */
+/** Recovered from PR #81 — report pages must use the shared sign-in redirect. */
 const REPORT_PAGES = [
-  "app/[locale]/(product)/report/[id]/page.tsx",
-  "app/[locale]/(product)/report/[id]/credential/page.tsx",
-  "app/[locale]/(product)/report/[id]/print/page.tsx",
+  "app/(product)/report/[id]/page.tsx",
+  "app/(product)/report/[id]/credential/page.tsx",
+  "app/(product)/report/[id]/print/page.tsx",
 ] as const;
 
-describe("report pages use locale-aware signInRedirect", () => {
+describe("report pages use signInRedirect", () => {
   for (const rel of REPORT_PAGES) {
     it(`${rel} redirects via signInRedirect with a next path`, () => {
       const source = readFileSync(resolve(process.cwd(), rel), "utf8");
