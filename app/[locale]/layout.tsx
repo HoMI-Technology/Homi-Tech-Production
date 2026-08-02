@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     template: "%s · HōMI",
   },
   description:
-    "HōMI is Decision Readiness Intelligence™ — the first platform that measures your true readiness for life's biggest decisions. Not 'can you afford it?' — 'are you ready for it?'",
+    "HōMI is Decision Readiness Intelligence™ — a decision companion that helps you evaluate your readiness for life's biggest decisions. Not 'can you afford it?' — 'are you ready for it?'",
   applicationName: "HōMI",
   keywords: [
     "decision readiness",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "HōMI · Decision Readiness Intelligence™",
     description:
-      "Everyone else tells you how. HōMI tells you if. Decision Readiness Intelligence™ across Financial Reality, Emotional Truth, and Perfect Timing.",
+      "Readiness, not eligibility. Decision Readiness Intelligence™ across Financial Reality, Emotional Truth, and Perfect Timing.",
     siteName: "HōMI",
     type: "website",
     images: [{ url: "/og-v2.png", width: 1200, height: 630, alt: "The HōMI Threshold Compass above the HōMI wordmark — Decision Readiness Intelligence™. Know When You're Ready." }],

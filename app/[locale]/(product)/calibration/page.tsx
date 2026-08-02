@@ -15,7 +15,7 @@ import {
 export const metadata: Metadata = {
   title: "Readiness Calibration | HōMI",
   description:
-    "The Outcome Verification Network — proof, from real outcomes, that the verdict predicts how decisions actually turn out.",
+    "The Outcome Verification Network — how HōMI's readiness verdicts line up with the outcomes members report.",
 };
 
 export default async function CalibrationPage() {
@@ -39,9 +39,9 @@ export default async function CalibrationPage() {
         <p className="eyebrow">Outcome Verification Network</p>
         <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">Readiness Calibration</h1>
         <p className="mt-2 max-w-2xl text-dim">
-          Every verdict HōMI gives is a prediction. This is where those predictions get checked against
-          what actually happened — anonymized across everyone who reported an outcome. No opinions, just
-          the record.
+          Every verdict HōMI gives is a claim about readiness. This is where those claims get checked
+          against what members later reported — anonymized across everyone who shared an outcome.
+          Self-reported, and shown either way.
         </p>
 
         {/* Headline dividend */}
