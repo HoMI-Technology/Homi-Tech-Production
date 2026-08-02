@@ -18,6 +18,8 @@ const state = vi.hoisted(() => ({
   item: null as Record<string, unknown> | null,
   itemUpdates: [] as Record<string, unknown>[],
   accountDeletes: [] as string[],
+  transactionDeletes: [] as string[],
+  transactionDeleteError: null as { message: string } | null,
   syncCalls: [] as Record<string, unknown>[],
   adminAvailable: true,
 }));
@@ -60,6 +62,16 @@ vi.mock("@/lib/supabase/admin", () => ({
               eq: async (_col: string, id: string) => {
                 state.accountDeletes.push(id);
                 return { error: null };
+              },
+            }),
+          };
+        }
+        if (table === "plaid_transactions") {
+          return {
+            delete: () => ({
+              eq: async (_col: string, id: string) => {
+                state.transactionDeletes.push(id);
+                return { error: state.transactionDeleteError };
               },
             }),
           };
@@ -161,6 +173,8 @@ beforeEach(() => {
   state.item = { ...ITEM_ROW };
   state.itemUpdates = [];
   state.accountDeletes = [];
+  state.transactionDeletes = [];
+  state.transactionDeleteError = null;
   state.syncCalls = [];
   state.adminAvailable = true;
   clearWebhookKeyCache();
@@ -276,6 +290,30 @@ describe("POST /api/plaid/webhook — dispatch", () => {
     const res = await POST(webhookRequest(body("ITEM", "USER_ACCOUNT_REVOKED")));
     expect(res.status).toBe(200);
     expect(state.itemUpdates).toEqual([{ status: "revoked" }]);
+    expect(state.accountDeletes).toEqual(["item-row-uuid-1"]);
+  });
+
+  // The item row survives revocation as a reconnect tombstone, so `on delete
+  // cascade` never fires: transactions must be purged explicitly or the user's
+  // revoked financial history is retained indefinitely.
+  it("purges the item's transactions on USER_PERMISSION_REVOKED", async () => {
+    const res = await POST(webhookRequest(body("ITEM", "USER_PERMISSION_REVOKED")));
+    expect(res.status).toBe(200);
+    expect(state.transactionDeletes).toEqual(["item-row-uuid-1"]);
+  });
+
+  it("purges the item's transactions on USER_ACCOUNT_REVOKED", async () => {
+    const res = await POST(webhookRequest(body("ITEM", "USER_ACCOUNT_REVOKED")));
+    expect(res.status).toBe(200);
+    expect(state.transactionDeletes).toEqual(["item-row-uuid-1"]);
+  });
+
+  it("still purges accounts and acks when the transaction purge fails", async () => {
+    state.transactionDeleteError = { message: "transient failure" };
+    const res = await POST(webhookRequest(body("ITEM", "USER_PERMISSION_REVOKED")));
+    // Partial failure must not strand the account rows or NACK the webhook —
+    // Plaid would redeliver, and the retry re-runs both deletes idempotently.
+    expect(res.status).toBe(200);
     expect(state.accountDeletes).toEqual(["item-row-uuid-1"]);
   });
 

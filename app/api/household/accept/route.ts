@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 
   const { data: invite } = await supabase
     .from("household_invites")
-    .select("id, household_id, status, expires_at")
+    .select("id, household_id, status, expires_at, email")
     .eq("token", parsed.data.token)
     .maybeSingle();
 
@@ -63,6 +63,18 @@ export async function POST(request: Request) {
   }
   if (new Date(invite.expires_at).getTime() < Date.now()) {
     return NextResponse.json({ error: "Invite expired." }, { status: 410 });
+  }
+  // Recipient binding: holding the token is not authorization. A forwarded
+  // link must not let a different account join the household, so the invite
+  // is only valid for the address it was issued to. Compared case-insensitively
+  // because email case is not significant for identity here.
+  const inviteEmail = invite.email?.trim().toLowerCase();
+  const userEmail = user.email?.trim().toLowerCase();
+  if (!inviteEmail || !userEmail || inviteEmail !== userEmail) {
+    return NextResponse.json(
+      { error: "This invite was sent to a different email address." },
+      { status: 403 },
+    );
   }
 
   const { error: joinErr } = await supabase.from("household_members").insert({
