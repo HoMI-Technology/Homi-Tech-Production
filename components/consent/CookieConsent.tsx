@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 // Outside NextIntlClientProvider in root layout — must use next/link, not i18n Link.
 import Link from "next/link";
-import { CONSENT_KEY } from "./consent-shared";
+import { CONSENT_KEY, readConsent, writeConsent } from "./consent-shared";
 
 /**
  * Fixed-bottom consent bar, LCP-safe.
@@ -25,14 +25,18 @@ export function CookieConsent() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    // Already-consented (or storage-blocked, matching the old behavior of
-    // never nagging when we can't remember the answer) → keep it hidden.
+    // Already decided either way — or storage-blocked, matching the old
+    // behavior of never nagging when we can't remember the answer. A stored
+    // "denied" hides the bar just like "granted": the visitor answered.
+    if (readConsent() !== "unset") {
+      setDismissed(true);
+      return;
+    }
     try {
-      if (window.localStorage.getItem(CONSENT_KEY) === "1") {
-        setDismissed(true);
-        return;
-      }
+      window.localStorage.getItem(CONSENT_KEY);
     } catch {
+      // Storage unavailable: we cannot remember an answer, so don't ask.
+      // Analytics stays off regardless — readConsent() returns "unset".
       setDismissed(true);
       return;
     }
@@ -48,13 +52,10 @@ export function CookieConsent() {
 
   if (dismissed) return null;
 
-  function accept() {
-    try {
-      window.localStorage.setItem(CONSENT_KEY, "1");
-    } catch {
-      // Storage unavailable — still dismiss for this page view.
-    }
-    document.documentElement.setAttribute("data-homi-consent", "1");
+  // Both paths record a real decision. Rejecting is not "dismiss" — it stores
+  // "denied", which keeps the analytics gate shut and stops the bar returning.
+  function decide(state: "granted" | "denied") {
+    writeConsent(state);
     setDismissed(true);
   }
 
@@ -62,15 +63,27 @@ export function CookieConsent() {
     <div id="cookie-consent" className="fixed inset-x-0 bottom-0 z-[60] px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
       <div className="glass mx-auto flex max-w-2xl flex-col items-center gap-3 p-4 text-center sm:flex-row sm:justify-between sm:text-left">
         <p className="text-sm text-light">
-          HōMI uses only essential cookies to keep you signed in. No trackers. No ad tech.{" "}
+          HōMI uses essential cookies to keep you signed in. Optional analytics help us
+          improve the product — your choice, and you can change it anytime. No ad tech.{" "}
           <Link href="/legal/cookies" className="underline hover:text-cyan">
             Cookie policy
           </Link>
           .
         </p>
-        <button onClick={accept} className="btn btn-primary shrink-0 !px-4 !py-2 text-sm">
-          Accept
-        </button>
+        <div className="flex shrink-0 gap-2">
+          <button
+            onClick={() => decide("denied")}
+            className="btn btn-ghost shrink-0 !px-4 !py-2 text-sm"
+          >
+            Reject optional
+          </button>
+          <button
+            onClick={() => decide("granted")}
+            className="btn btn-primary shrink-0 !px-4 !py-2 text-sm"
+          >
+            Accept optional
+          </button>
+        </div>
       </div>
     </div>
   );
