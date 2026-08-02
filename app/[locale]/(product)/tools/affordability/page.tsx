@@ -29,7 +29,7 @@ export default function AffordabilityPage() {
   const [income, setIncome] = useState(95000);
   const [debts, setDebts] = useState(400);
   const [rate, setRate] = useState(6.5);
-  const [term, setTerm] = useState(30);
+  const [termYears, setTermYears] = useState(30);
   const [taxInsRate, setTaxInsRate] = useState(1.5);
   const [downPayment, setDownPayment] = useState(40000);
 
@@ -38,7 +38,7 @@ export default function AffordabilityPage() {
     if (key === "income") setIncome(v);
     else if (key === "debts") setDebts(v);
     else if (key === "rate") setRate(v);
-    else if (key === "term") setTerm(v);
+    else if (key === "termYears") setTermYears(v);
     else if (key === "taxInsRate") setTaxInsRate(v);
     else if (key === "downPayment") setDownPayment(v);
   }, []);
@@ -50,15 +50,15 @@ export default function AffordabilityPage() {
     annualIncome: income,
     monthlyDebts: debts,
     rate,
-    termYears: term,
+    termYears,
     taxInsuranceRate: taxInsRate / 100,
     downPayment,
   };
 
-  const result = useMemo(() => computeAffordability(inputs), [income, debts, rate, term, taxInsRate, downPayment]);
+  const result = useMemo(() => computeAffordability(inputs), [income, debts, rate, termYears, taxInsRate, downPayment]);
   const stretchBreakdown = useMemo(
-    () => paymentBreakdown(result.stretch.maxPrice, { rate, termYears: term, taxInsuranceRate: taxInsRate / 100, downPayment }),
-    [result, rate, term, taxInsRate, downPayment],
+    () => paymentBreakdown(result.stretch.maxPrice, { rate, termYears, taxInsuranceRate: taxInsRate / 100, downPayment }),
+    [result, rate, termYears, taxInsRate, downPayment],
   );
 
   // Deterministic impact of carrying the Stretch-tier payment.
@@ -86,11 +86,11 @@ export default function AffordabilityPage() {
         value: Math.round(stretchBreakdown.total),
         unit: "currency" as const,
       },
-      keyInputs: { income, debts, rate, term },
+      keyInputs: { income, debts, rate, termYears },
       deltas,
       readiness: readiness ? toReadinessDigest(readiness) : undefined,
     }),
-    [stretchBreakdown.total, income, debts, rate, term, deltas, readiness],
+    [stretchBreakdown.total, income, debts, rate, termYears, deltas, readiness],
   );
 
   const maxBar = Math.max(stretchBreakdown.principalAndInterest, stretchBreakdown.taxesAndInsurance, 1);
@@ -107,7 +107,7 @@ export default function AffordabilityPage() {
           <LensField label="Gross annual income" value={income} onChange={setIncome} min={0} max={500000} step={1000} format="currency" source={sourceFor("income")} />
           <LensField label="Other monthly debts" value={debts} onChange={setDebts} min={0} max={10000} step={25} format="currency" source={sourceFor("debts")} />
           <LensField label="Interest rate" value={rate} onChange={setRate} min={2} max={12} step={0.125} format="percent" source={sourceFor("rate")} />
-          <LensField label="Loan term (years)" value={term} onChange={setTerm} min={10} max={30} step={5} format="years" source={sourceFor("term")} />
+          <LensField label="Loan term (years)" value={termYears} onChange={setTermYears} min={10} max={30} step={5} format="years" source={sourceFor("termYears")} />
           <LensField label="Taxes + insurance (% of price / yr)" value={taxInsRate} onChange={setTaxInsRate} min={0.5} max={3} step={0.1} format="percent" source={sourceFor("taxInsRate")} />
           <LensField label="Down payment" value={downPayment} onChange={setDownPayment} min={0} max={500000} step={1000} format="currency" source={sourceFor("downPayment")} />
 
@@ -115,11 +115,11 @@ export default function AffordabilityPage() {
           <UpdateNumbersButton
             getFields={() => ({
               assumedRatePct: rate,
-              termYears: term,
+              termYears,
               taxInsuranceRatePct: taxInsRate,
               downPaymentSaved: downPayment,
             })}
-            onSaved={() => markAll(["rate", "term", "taxInsRate", "downPayment"])}
+            onSaved={() => markAll(["rate", "termYears", "taxInsRate", "downPayment"])}
           />
         </div>
 
@@ -177,7 +177,7 @@ export default function AffordabilityPage() {
             </p>
           </div>
 
-          {LENS.chains && <ChainLinks chains={LENS.chains} />}
+          {LENS.chains && <ChainLinks chains={LENS.chains} carryValues={{ price: result.stretch.maxPrice }} />}
         </div>
       </div>
     </ToolShell>

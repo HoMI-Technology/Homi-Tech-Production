@@ -12,9 +12,16 @@
 import { usePathname } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { track } from "@/lib/analytics";
-import { getLens, type LensChain } from "@/lib/tools/registry";
+import { getLens, resolveCarryWrites, type LensChain } from "@/lib/tools/registry";
+import { saveToolsOverlayFields } from "@/lib/tools/cfm";
 
-export function ChainLinks({ chains }: { chains: LensChain[] }) {
+export function ChainLinks({
+  chains,
+  carryValues,
+}: {
+  chains: LensChain[];
+  carryValues?: Record<string, number>;
+}) {
   const pathname = usePathname();
   const resolved = chains
     .map((c) => ({ chain: c, lens: getLens(c.lensId) }))
@@ -22,6 +29,20 @@ export function ChainLinks({ chains }: { chains: LensChain[] }) {
       Boolean(r.lens),
     );
   if (resolved.length === 0) return null;
+
+  function handleClick(chain: LensChain, lens: (typeof resolved)[number]["lens"]) {
+    const written = resolveCarryWrites(chain, carryValues ?? {}, lens);
+    const writtenFields = Object.keys(written);
+    if (writtenFields.length > 0) {
+      saveToolsOverlayFields(written);
+    }
+    track("chain_followed", {
+      from: pathname,
+      to: lens.path,
+      carriedKeys: chain.carry.join(","),
+      writtenFields: writtenFields.join(","),
+    });
+  }
 
   return (
     <div className="glass p-6">
@@ -31,9 +52,7 @@ export function ChainLinks({ chains }: { chains: LensChain[] }) {
           <Link
             key={chain.lensId}
             href={lens.path}
-            onClick={() =>
-              track("chain_followed", { from: pathname, to: lens.path })
-            }
+            onClick={() => handleClick(chain, lens)}
             className="group flex items-center justify-between gap-3 rounded-lg border border-white/5 p-3 transition-colors hover:border-cyan/30"
           >
             <span>
