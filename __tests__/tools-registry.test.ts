@@ -6,7 +6,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { LENSES, RING_ORDER, getLens, lensCoveragePaths, resolveLensSeeds } from "@/lib/tools/registry";
+import { LENSES, RING_ORDER, getLens, lensCoveragePaths, resolveCarryWrites, resolveLensSeeds } from "@/lib/tools/registry";
 import { deriveCfm } from "@/lib/tools/cfm";
 import { DEFAULT_FINANCE_STATE } from "@/lib/finance/store";
 
@@ -111,5 +111,57 @@ describe("resolveLensSeeds", () => {
     expect(seeds.incomeLow).toBe(8500);
     expect(seeds.incomeHigh).toBe(11500);
     expect(seeds.savingsLow).toBe(17000);
+  });
+});
+
+describe("resolveCarryWrites", () => {
+  it("maps carried values to the target lens's write-back fields", () => {
+    const rentVsBuy = getLens("rent-vs-buy")!;
+    const chain = { lensId: "rent-vs-buy", pitch: "Compare", carry: ["price", "rate"] };
+    const written = resolveCarryWrites(chain, { price: 450000, rate: 6.5, termYears: 30, hoaMonthly: 150 }, rentVsBuy);
+    expect(written).toEqual({
+      targetPrice: 450000,
+      assumedRatePct: 6.5,
+    });
+  });
+
+  it("ignores carried keys the target lens does not have", () => {
+    const downPayment = getLens("down-payment")!;
+    const chain = { lensId: "down-payment", pitch: "Save", carry: ["price", "rate"] };
+    const written = resolveCarryWrites(chain, { price: 400000, rate: 6.5 }, downPayment);
+    expect(written).toEqual({ targetPrice: 400000 });
+  });
+
+  it("ignores undefined or non-finite carried values", () => {
+    const mortgage = getLens("mortgage")!;
+    const chain = { lensId: "mortgage", pitch: "Pay", carry: ["price", "rate"] };
+    const written = resolveCarryWrites(chain, { price: NaN, rate: 6.5 }, mortgage);
+    expect(written).toEqual({ assumedRatePct: 6.5 });
+  });
+
+  it("skips target inputs without a writeBack field", () => {
+    const affordability = getLens("affordability")!;
+    const chain = { lensId: "affordability", pitch: "Check", carry: ["income"] };
+    const written = resolveCarryWrites(chain, { income: 120000 }, affordability);
+    expect(written).toEqual({});
+  });
+});
+
+describe("chain carry contract", () => {
+  it("every non-empty carry key resolves to an input on the target lens", () => {
+    const mismatches: string[] = [];
+    for (const lens of LENSES) {
+      for (const chain of lens.chains ?? []) {
+        const target = getLens(chain.lensId);
+        if (!target) continue;
+        for (const key of chain.carry) {
+          const input = target.inputs?.find((i) => i.key === key);
+          if (!input) {
+            mismatches.push(`${lens.id} -> ${chain.lensId} carries unknown key "${key}"`);
+          }
+        }
+      }
+    }
+    expect(mismatches).toEqual([]);
   });
 });

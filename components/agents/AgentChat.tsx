@@ -139,7 +139,7 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
         error?: unknown;
         conversationId?: unknown;
         routed_agents?: AgentId[];
-        tools_called?: string[];
+        tools_suggested?: string[];
         receipt?: { id?: string };
       };
 
@@ -166,7 +166,7 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
           role: "assistant",
           content: replyContent,
           agent: data.routed_agents?.[0],
-          tools: data.tools_called,
+          tools: data.tools_suggested,
           receipt: data.receipt?.id,
         },
       ]);

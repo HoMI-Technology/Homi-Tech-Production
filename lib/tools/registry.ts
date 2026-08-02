@@ -16,7 +16,7 @@
  * Pure TS — no storage, no React. Safe to import anywhere.
  */
 
-import { resolveCfmValue, type CanonicalFinancialModel } from "@/lib/tools/cfm";
+import { resolveCfmValue, type CanonicalFinancialModel, type ToolsOverlay } from "@/lib/tools/cfm";
 
 export type LensRing = "readiness" | "reality" | "stability" | "timing";
 
@@ -188,7 +188,7 @@ export const LENSES: LensDefinition[] = [
       { key: "income", label: "Gross annual income", derive: annualIncome, fallback: 95000, min: 0, max: 500000, step: 1000, format: "currency" },
       { key: "debts", label: "Other monthly debts", cfmPath: "core.monthlyDebtPayments", fallback: 400, min: 0, max: 10000, step: 25, format: "currency" },
       { key: "rate", label: "Interest rate", cfmPath: "housing.assumedRatePct", writeBack: "assumedRatePct", fallback: 6.5, min: 2, max: 12, step: 0.125, format: "percent" },
-      { key: "term", label: "Loan term (years)", cfmPath: "housing.termYears", writeBack: "termYears", fallback: 30, min: 10, max: 30, step: 5, format: "years" },
+      { key: "termYears", label: "Loan term (years)", cfmPath: "housing.termYears", writeBack: "termYears", fallback: 30, min: 10, max: 30, step: 5, format: "years" },
       { key: "taxInsRate", label: "Taxes + insurance (% of price / yr)", cfmPath: "housing.taxInsuranceRatePct", writeBack: "taxInsuranceRatePct", fallback: 1.5, min: 0.5, max: 3, step: 0.1, format: "percent" },
       { key: "downPayment", label: "Down payment", derive: downPaymentOrSavings, writeBack: "downPaymentSaved", fallback: 40000, min: 0, max: 500000, step: 1000, format: "currency" },
     ],
@@ -214,8 +214,8 @@ export const LENSES: LensDefinition[] = [
       { key: "hoaMonthly", label: "HOA (monthly)", cfmPath: "housing.hoaMonthly", writeBack: "hoaMonthly", fallback: 0, min: 0, max: 1500, step: 25, format: "currency" },
     ],
     chains: [
-      { lensId: "rent-vs-buy", pitch: "Compare buying at this price against staying put", carry: ["price", "rate", "termYears", "hoaMonthly"] },
-      { lensId: "affordability", pitch: "Check this payment against your comfort tiers", carry: ["price"] },
+      { lensId: "rent-vs-buy", pitch: "Compare buying at this price against staying put", carry: ["price", "rate"] },
+      { lensId: "affordability", pitch: "Check this payment against your comfort tiers", carry: ["rate", "termYears", "taxInsRate", "downPayment"] },
     ],
   },
   {
@@ -455,4 +455,27 @@ export function resolveLensSeeds(
     }
   }
   return seeds;
+}
+
+/**
+ * Maps carried source values into the target lens's overlay write-back fields.
+ * Only keys that exist in the target lens and declare a writeBack become
+ * persisted overlay writes; everything else is silently ignored. This keeps
+ * cross-lens hand-offs honest — a value is only carried when the target lens
+ * has an explicit input slot for it.
+ */
+export function resolveCarryWrites(
+  chain: LensChain,
+  carryValues: Record<string, number>,
+  targetLens: LensDefinition,
+): Partial<ToolsOverlay> {
+  const written: Partial<ToolsOverlay> = {};
+  for (const key of chain.carry) {
+    const value = carryValues[key];
+    if (value === undefined || !Number.isFinite(value)) continue;
+    const input = targetLens.inputs?.find((i) => i.key === key);
+    if (!input?.writeBack) continue;
+    written[input.writeBack] = value;
+  }
+  return written;
 }

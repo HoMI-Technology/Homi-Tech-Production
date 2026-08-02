@@ -21,3 +21,8 @@ playwright-report/
 # Claude Code local state + agent git worktrees (never commit; their __tests__
 # otherwise pollute local `vitest` with phantom duplicate-file failures)
 .claude/
+
+# Temporary audit/build artifacts and local Supabase CLI state
+.tmp-*
+supabase/.temp/
+scripts/strip-mfa-factors.mjs

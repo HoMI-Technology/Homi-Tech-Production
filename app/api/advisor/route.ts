@@ -22,6 +22,7 @@ import {
 } from "@/lib/tools/digest";
 import { VERDICT_META } from "@/lib/brand";
 import { advisorToolHandoffLine } from "@/lib/architecture/tool-aliases";
+import { sentinelCheck } from "@/lib/agents/registry";
 
 export const runtime = "nodejs";
 
@@ -521,6 +522,19 @@ export async function POST(request: Request) {
       userId: gateUserId,
       tier: entitlements?.tier,
     });
+
+    // Sentinel guardrail: the main Companion surface must not return advice-like
+    // or pressure language. If the model reply triggers a Sentinel pattern, fall
+    // back to the deterministic persona reply (which is built from the same
+    // canonical context) and log the event for review.
+    const sentinel = sentinelCheck(text);
+    if (sentinel.flagged) {
+      console.warn("[advisor] sentinel flagged model reply", {
+        userId: gateUserId,
+        rules: sentinel.rules_enforced,
+      });
+      return respond(deterministicReply(), "fallback");
+    }
 
     return respond(text, "model");
   } catch (err) {
