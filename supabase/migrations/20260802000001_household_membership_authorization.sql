@@ -50,11 +50,18 @@
 -- The existing member policy stays; permissive policies OR together, so
 -- household members keep their current visibility.
 -- -----------------------------------------------------------------------------
+-- `to authenticated` is explicit: an anonymous caller has no JWT email and can
+-- never satisfy this, but scoping the policy keeps it from being evaluated for
+-- anon at all. The null guard matters — without it a JWT carrying no email
+-- would compare against '' and match any row whose email were somehow empty.
+-- auth.jwt() is wrapped in a SELECT so it is evaluated once, not per row.
 drop policy if exists "household_invites_recipient_select" on household_invites;
 create policy "household_invites_recipient_select"
   on household_invites for select
+  to authenticated
   using (
-    lower(email) = lower(coalesce((select auth.jwt() ->> 'email'), ''))
+    (select auth.jwt() ->> 'email') is not null
+    and lower(email) = lower((select auth.jwt() ->> 'email'))
   );
 
 -- -----------------------------------------------------------------------------
@@ -70,6 +77,7 @@ create policy "household_invites_recipient_select"
 drop policy if exists "household_members_insert_self" on household_members;
 create policy "household_members_insert_self"
   on household_members for insert
+  to authenticated
   with check (
     user_id = (select auth.uid())
     and (
@@ -90,7 +98,8 @@ create policy "household_members_insert_self"
           where i.household_id = household_members.household_id
             and i.status = 'pending'
             and i.expires_at > now()
-            and lower(i.email) = lower(coalesce((select auth.jwt() ->> 'email'), ''))
+            and (select auth.jwt() ->> 'email') is not null
+            and lower(i.email) = lower((select auth.jwt() ->> 'email'))
         )
       )
     )
