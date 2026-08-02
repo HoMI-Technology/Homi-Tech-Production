@@ -23,6 +23,11 @@ import {
 import { VERDICT_META } from "@/lib/brand";
 import { advisorToolHandoffLine } from "@/lib/architecture/tool-aliases";
 import { sentinelCheck } from "@/lib/agents/registry";
+import {
+  sanitizePromptLiteral,
+  sanitizePromptLiteralList,
+  validateMessageOrder,
+} from "@/lib/advisor/prompt-safety";
 
 export const runtime = "nodejs";
 
@@ -253,9 +258,14 @@ function buildContextNote(
       `User's HōMI-Score: ${assessment.score}/100.`,
       `Verdict: ${meta.label} (${meta.line}).`,
       `Pillar breakdown — Financial Reality: ${assessment.pillars.financial}/100, Emotional Truth: ${assessment.pillars.emotional}/100, Perfect Timing: ${assessment.pillars.timing}/100.`,
-      assessment.hardStops.length > 0
-        ? `Active hard stops (protective red lines): ${assessment.hardStops.join(" | ")}`
-        : "No hard stops are active.",
+      (() => {
+        // hardStops can arrive from the request body, not only from server
+        // state, so they are treated as untrusted before entering the prompt.
+        const safeStops = sanitizePromptLiteralList(assessment.hardStops);
+        return safeStops.length > 0
+          ? `Active hard stops (protective red lines): ${safeStops.join(" | ")}`
+          : "No hard stops are active.";
+      })(),
     );
     if (typeof assessment.ageDays === "number") {
       parts.push(
@@ -374,6 +384,15 @@ export async function POST(request: Request) {
 
   const { messages, persona, demoContext } = parsed.data;
 
+  // An assistant-last transcript invites the model to continue its own turn —
+  // which is how a caller gets the platform's voice to appear to have already
+  // agreed to something it never said. Reject the shape before it reaches the
+  // model rather than passing a malformed conversation upstream.
+  const order = validateMessageOrder(messages);
+  if (!order.ok) {
+    return NextResponse.json({ error: order.reason }, { status: 400 });
+  }
+
   // Companion gate. The public /artifact playground (demoContext) stays open on
   // the anonymous IP budget above. The real Companion requires a session and
   // consumes one message from the tier's server-authoritative daily quota
@@ -411,8 +430,11 @@ export async function POST(request: Request) {
   const finance = demoContext ? null : (serverState?.finance ?? parsed.data.finance);
   const credit = demoContext ? null : (serverState?.credit ?? parsed.data.credit);
   const path = demoContext ? null : (parsed.data.path ?? null);
-  const surface = demoContext ? null : parsed.data.surface;
-  const whatChanged = demoContext ? null : parsed.data.whatChanged;
+  // Context literals are interpolated into the SYSTEM prompt, so a caller who
+  // puts instructions here would be speaking with the platform's voice.
+  // Sanitize them; the conversation turns themselves stay untouched.
+  const surface = demoContext ? null : sanitizePromptLiteral(parsed.data.surface, 80);
+  const whatChanged = demoContext ? null : sanitizePromptLiteral(parsed.data.whatChanged, 240);
   const lensDigest = demoContext ? null : (parsed.data.lensDigest ?? null);
   const identity = demoContext ? null : parsed.data.identity;
   const lastUserMessage = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
