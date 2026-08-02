@@ -52,13 +52,23 @@ Preview deployments therefore behave differently from production:
 |---|---|
 | `SUPABASE_SERVICE_ROLE_KEY` | Service-role paths dead — webhooks, crons, admin. `BUILD-BRIEF.md:116` calls this out explicitly as a thing to fix |
 | `RECEIPT_SIGNING_SECRET` | Unsigned receipts (see §1) |
-| `NEXT_PUBLIC_SITE_URL` | Falls back to `https://homitechnology.com`, so preview-generated links point at production |
+| `NEXT_PUBLIC_SITE_URL` | ✅ **fixed in code** — `lib/env.ts` now falls back to the deployment's own `VERCEL_URL` on preview builds, so a preview stays self-consistent. No env var needed |
 | `NEXT_PUBLIC_POSTHOG_KEY` / `_HOST` | No analytics from previews — probably intentional |
 | `ADMIN_EMAILS`, `ADMIN_REQUIRE_MFA` | Admin hardening off on previews — probably intentional |
 
 The first three are worth fixing. The rest are defensible as-is.
 
-## 4. Set in Vercel, read by nothing (20)
+## 4. Set in Vercel, read by nothing (20) — 19 removed 2026-08-01
+
+**Status: cleaned up and re-verified.** All 19 listed below were removed from
+Production and a re-run of the diff confirms only `OPENAI_API_KEY` remains, held
+back deliberately because deleting the variable does not revoke the key.
+
+Before removing, each was checked against `next.config.ts`, `middleware.ts`,
+`vercel.json`, `instrumentation.ts`, the Sentry configs and every CI workflow —
+none was referenced outside the `process.env` scan.
+
+
 
 Dead configuration. Each is a small maintenance tax and, for the credentials, an
 unnecessary exposure surface.
@@ -74,9 +84,14 @@ only the `SUPABASE_*` / `NEXT_PUBLIC_SUPABASE_*` names:
 `DATABASE_ANON_KEY`, `DATABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`,
 `NEXT_PUBLIC_DATABASE_ANON_KEY`, `NEXT_PUBLIC_DATABASE_URL`
 
-**Salts read by nothing:** `MFA_RECOVERY_SALT`, `PARTNER_API_KEY_SALT`
-(verify against the MFA/partner code before deleting — these may be intended
-wiring that was never connected, which is a different bug from dead config).
+**Salts read by nothing:** `MFA_RECOVERY_SALT`, `PARTNER_API_KEY_SALT` —
+checked, and these are **dead config, not disconnected wiring**. Neither name
+appears anywhere in `lib/`, `app/` or `scripts/`. Partner keys are hashed with
+unsalted SHA-256 in `scripts/mint-partner-key.mjs:23` and
+`lib/receipts/index.ts:25`, which is deliberate: `lib/security.ts:7` notes that
+salting/stretching is unnecessary for high-entropy generated secrets (as opposed
+to passwords). `MFA_RECOVERY_SALT` is a leftover of the TOTP flow that commit
+`e56e278` disabled. Safe to delete.
 
 **Feature flags read by nothing** — every one of these is inert, so toggling them
 in the dashboard does nothing:
@@ -99,5 +114,20 @@ vercel env ls > /tmp/envls.txt        # names + environments only, never values
 The one-off script used for this pass walked all `.ts/.tsx/.mjs/.js` files for
 `process.env.NAME` and `process.env["NAME"]`, excluded platform-provided names
 (`VERCEL_*`, `NODE_ENV`, …) and local/CI-only names, then compared both
-directions. Watch for one false positive: `lib/env.ts:11` mentions
-`process.env.X` inside a doc comment.
+directions.
+
+Two false positives to expect on a re-run:
+
+- **`X`** — `lib/env.ts:11` mentions `process.env.X` inside a doc comment.
+- **`NEXT_PUBLIC_VERCEL_ENV` / `NEXT_PUBLIC_VERCEL_URL`** — read by `lib/env.ts`
+  for the preview-origin fallback, and they will always show as "missing"
+  because Vercel injects them as *system* variables rather than project
+  settings. Do not add them by hand.
+
+  A caveat on those two: the `NEXT_PUBLIC_` mirrors only exist when
+  "Automatically expose System Environment Variables" is enabled (the default).
+  If it were off, the client-side branch of the preview fallback would go quiet
+  and fall through to the production origin. Every consumer that matters —
+  checkout, shares, shadow-shares, billing portal, household invites — is a
+  server route reading the unprefixed `VERCEL_ENV`/`VERCEL_URL`, so the fix
+  holds either way.

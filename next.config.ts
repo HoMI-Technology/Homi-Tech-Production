@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import { withSentryConfig } from "@sentry/nextjs";
 
 // next-intl plugin (Module A — feat/i18n): wires the per-request message
 // loader. It touches only i18n request config resolution — the CSP/headers
@@ -151,4 +152,49 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+const withIntl = withNextIntl(nextConfig);
+
+/**
+ * Sentry source-map upload — opt-in, and inert until fully configured.
+ *
+ * Without this wrapper Sentry still receives errors (see sentry.server.config.ts
+ * / sentry.edge.config.ts), but every frame points at minified bundled output
+ * rather than real files, which defeats most of the reason for enabling it.
+ *
+ * All three of SENTRY_AUTH_TOKEN / SENTRY_ORG / SENTRY_PROJECT are required
+ * before the wrapper engages. Guarding on all three rather than the token alone
+ * means a half-configured environment produces the previous build byte for byte
+ * instead of failing the build partway through upload — the build stays green
+ * on any machine that hasn't been given Sentry credentials, CI included.
+ *
+ * Notes on the options:
+ *  · deleteSourcemapsAfterUpload — maps are uploaded to Sentry, then removed
+ *    from the output. Without it they ship publicly and hand any visitor your
+ *    unminified server and client source.
+ *  · widenClientFileUpload is left off deliberately. It broadens *client* map
+ *    upload, and client-side Sentry.init is currently deferred on purpose
+ *    (instrumentation.ts) for Lighthouse budget reasons, so it would add build
+ *    time for maps nothing symbolicates. Turn it on with client init.
+ *  · No tunnelRoute: it exists to dodge ad blockers on *browser* ingest, and
+ *    there is no browser ingest here. It would also need a CSP connect-src
+ *    entry — the "Sentry ingest deliberately absent" note above stays true.
+ *  · telemetry off: no build-time analytics to Sentry.
+ */
+const sentryConfigured = Boolean(
+  process.env.SENTRY_AUTH_TOKEN && process.env.SENTRY_ORG && process.env.SENTRY_PROJECT,
+);
+
+export default sentryConfigured
+  ? withSentryConfig(withIntl, {
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      // Quiet locally, verbose in CI where the log is the only record.
+      silent: !process.env.CI,
+      sourcemaps: { deleteSourcemapsAfterUpload: true },
+      // Was `disableLogger: true`, deprecated in @sentry/nextjs v10 and slated
+      // for removal — this is the replacement spelling for the same tree-shake.
+      webpack: { treeshake: { removeDebugLogging: true } },
+      telemetry: false,
+    })
+  : withIntl;
