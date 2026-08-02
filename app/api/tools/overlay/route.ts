@@ -5,7 +5,7 @@ import { getClientIp, rateLimit } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 
-/** Postgres/PostgREST codes meaning "migration 00043 isn't applied yet". */
+/** Postgres/PostgREST codes meaning "migration 20260802000003 isn't applied yet". */
 const INFRA_MISSING_CODES = new Set([
   "42P01", // undefined_table
   "PGRST205", // PostgREST: table not found in schema cache
@@ -18,7 +18,7 @@ const INFRA_MISSING_CODES = new Set([
  * `stale: true` plus the newer copy instead of clobbering it.
  *
  * Ownership is structural: user_id always comes from the session, and RLS
- * (00043) enforces the same rule in the database as defense-in-depth.
+ * (20260802000003) enforces the same rule in the database as defense-in-depth.
  */
 
 const moneyLike = z.number().finite().min(-1_000_000_000).max(1_000_000_000);
@@ -45,7 +45,7 @@ const putSchema = z.object({
   client_updated_at: z.number().int().min(0).max(4_102_444_800_000),
 });
 
-/** GET /api/tools/overlay — the caller's tools overlay, or null. */
+/** GET /api/tools/overlay â€” the caller's tools overlay, or null. */
 export async function GET(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`tools-overlay-read:${ip}`, { limit: 30, windowMs: 60_000 });
@@ -83,7 +83,7 @@ export async function GET(request: Request) {
   });
 }
 
-/** PUT /api/tools/overlay — LWW upsert of the caller's tools overlay. */
+/** PUT /api/tools/overlay â€” LWW upsert of the caller's tools overlay. */
 export async function PUT(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`tools-overlay-write:${ip}`, { limit: 30, windowMs: 60_000 });

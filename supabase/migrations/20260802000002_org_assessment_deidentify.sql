@@ -1,5 +1,5 @@
 -- =============================================================================
--- 00042 · De-identified org assessment reads
+-- 20260802000002 · De-identified org assessment reads
 --
 -- The prior assessments_org_member_select policy granted org members SELECT on
 -- the full assessments table, exposing inputs/sub_scores/insights to teammates.

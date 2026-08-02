@@ -1,5 +1,5 @@
 -- =============================================================================
--- 00043_tools_overlay_sync.sql — server side of the tools overlay state.
+-- 20260802000003_tools_overlay_sync.sql — server side of the tools overlay state.
 --
 -- Audit T2.6 (split-brain persistence): lens-derived overlay values (mortgage
 -- target price, rent, rates, etc.) were localStorage-only, so users lost their

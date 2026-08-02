@@ -90,7 +90,7 @@ export default async function TeamDashboardPage() {
     }
   }
 
-  // De-identified cohort read: the security-definer function in 00042 returns
+  // De-identified cohort read: the security-definer function in 20260802000002 returns
   // only non-PII fields and enforces org membership server-side.
   let assessments: Pick<AssessmentRow, "verdict" | "overall_score">[] = [];
   if (orgId) {
