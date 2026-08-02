@@ -55,10 +55,21 @@
 --   The cap belongs on the partner leg only: the owner leg already requires an
 --   empty household, so the two legs together admit exactly two members.
 --
+--   TWO MECHANISMS, DELIBERATELY. A `count(*) < 2` test inside WITH CHECK is
+--   NOT sufficient on its own: Postgres takes no lock across that read, so two
+--   invitees accepting concurrently can both observe one member and both
+--   insert, producing the three-member household the cap exists to prevent.
+--   The guarantee therefore lives in a partial unique index —
+--   household_one_partner_per_household — which the storage layer enforces and
+--   which no interleaving can defeat. The count clause is kept as a fast path
+--   so the ordinary case fails as a clean RLS denial rather than a unique
+--   violation. The index is the invariant; the count is the error message.
+--
 --   This encodes 00039's own stated intent ("True dual-user household
 --   accounts. Two members share readiness context"). If households of three
 --   ever become a product goal, this cap is the WRONG fix and dual-score.ts is
---   the right one — revisit here first.
+--   the right one — revisit here first, and note that the index would need to
+--   go too.
 --
 -- -----------------------------------------------------------------------------
 -- G-3 — ANY PARTNER COULD READ EVERY INVITATION IN THEIR HOUSEHOLD
@@ -94,6 +105,25 @@ comment on index household_members_one_per_user is
   'One membership per user. The routes read household_members by user_id with '
   '.maybeSingle(), which errors on multiple rows, so a second membership '
   'breaks the household surface outright.';
+
+-- ---------------------------------------------------------------------------
+-- G-2 (storage half) — at most one partner per household
+--
+-- This is the real cap. The count(*) test in household_join_allowed() races:
+-- two concurrent accepts can each observe one member and each insert. A
+-- partial unique index cannot be raced — the second insert fails on the index
+-- no matter how the transactions interleave.
+--
+-- One partner + the owner leg's empty-household requirement = exactly two.
+-- ---------------------------------------------------------------------------
+
+create unique index if not exists household_one_partner_per_household
+  on household_members (household_id) where role = 'partner';
+
+comment on index household_one_partner_per_household is
+  'Caps a household at one partner, and with it at two members total, matching '
+  'the memberA/memberB shape of lib/household/dual-score.ts. Race-proof where '
+  'the count(*) clause in household_join_allowed() is not.';
 
 -- ---------------------------------------------------------------------------
 -- G-2 — cap membership at two (replaces the 00042 predicate)
@@ -138,6 +168,10 @@ as $$
     -- A partner needs a live invitation addressed to them, AND room in the
     -- household. The cap is what keeps the dual-score model honest: a third
     -- member would be dropped from the joint verdict without trace.
+    --
+    -- The count below is a FAST PATH, not the guarantee — it races under
+    -- concurrent accepts. household_one_partner_per_household is what actually
+    -- holds the line. Do not remove the index on the strength of this clause.
     when 'partner' then
       exists (
         select 1
@@ -219,6 +253,7 @@ create policy "household_invites_member_all"
 --     or invited_by = (select auth.uid())
 --   );
 --
+-- drop index if exists household_one_partner_per_household;
 -- drop index if exists household_members_one_per_user;
 --
 -- Then re-apply 00042 verbatim to drop the member cap from the predicate.

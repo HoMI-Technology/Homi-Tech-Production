@@ -71,14 +71,20 @@ describe.skipIf(!enabled)("HH — membership cannot be self-granted", () => {
 
   it("HH-001b: and therefore cannot read that household's members", async () => {
     const b = await client(process.env.USER_B_JWT!);
-    const { data } = await b
+    const { error, data } = await b
       .from("household_members")
       .select("user_id, last_score, last_verdict")
       .eq("household_id", process.env.HOUSEHOLD_A_ID!);
 
     // The whole point of HH-001: no membership row means no cross-tenant read
     // of another household's readiness figures.
-    expect(data ?? []).toHaveLength(0);
+    //
+    // Both halves are asserted deliberately. `data` alone would also be empty
+    // if the query ERRORED — a wrong table name or a dropped connection would
+    // then show green while proving nothing. RLS must filter to zero rows, not
+    // fail to zero rows.
+    expect(error).toBeNull();
+    expect(data).toEqual([]);
   });
 
   it.skipIf(!emailEnabled)(
@@ -228,9 +234,13 @@ describe.skipIf(!(enabled && process.env.USER_C_JWT && process.env.INVITE_TOKEN_
         display_name: "third wheel",
       });
 
-      // household_join_allowed()'s count clause. A third member would be
-      // dropped from lib/household/dual-score.ts's memberA/memberB verdict
-      // without trace — including their hard stops.
+      // Blocked twice over: household_join_allowed()'s count clause is the
+      // fast path, household_one_partner_per_household is the guarantee. Only
+      // the index survives concurrent accepts, so if this test is ever
+      // rewritten to run two accepts in parallel, the index is what it proves.
+      //
+      // A third member would be dropped from lib/household/dual-score.ts's
+      // memberA/memberB verdict without trace — including their hard stops.
       expect(error).toBeTruthy();
     });
   },
@@ -241,14 +251,18 @@ describe.skipIf(!enabled)("HH — invitations are visible only to the owner", ()
     "HH-009: a partner cannot read their household's invite tokens",
     async () => {
       const p = await client(process.env.PARTNER_JWT!);
-      const { data } = await p
+      const { error, data } = await p
         .from("household_invites")
         .select("email, token")
         .eq("household_id", process.env.HOUSEHOLD_A_ID!);
 
       // A token is the routing credential for an invitation. Before 00043 any
       // member could read every one of them.
-      expect(data ?? []).toHaveLength(0);
+      //
+      // As in HH-001b: assert the query SUCCEEDED and returned nothing, not
+      // merely that nothing came back.
+      expect(error).toBeNull();
+      expect(data).toEqual([]);
     },
   );
 
