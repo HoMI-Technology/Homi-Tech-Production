@@ -8,6 +8,11 @@
 
 Remote `supabase_migrations.schema_migrations` uses a **long history of timestamp-style versions** that predate the repo’s `000xx_*.sql` naming. Local files `00001`–`00039` are the **product schema contract** for this codebase. They do not always line up 1:1 with remote version strings.
 
+**Ledger divergence (audited 2026-08-02):** 139 remote entries against 42 local
+files, correlating **only through `00006`**. The ledger cannot currently be read
+as a record of what is applied, so **no new migration may assume a clean apply**
+— verify by object existence and behaviour, in a transaction you roll back.
+
 ## Applying new migrations (safe path)
 
 1. Prefer **idempotent SQL** (`create table if not exists`, `drop policy if exists`).
@@ -36,6 +41,45 @@ npx supabase migration repair 00038 --status applied --linked
 | `00039_households.sql` | Dual-user household + invites |
 | `00040_profile_email_lock.sql` | Adds `email` to the profiles privileged-column guard — applied 2026-08-01 |
 | `00041_profile_guard_security_invoker.sql` | Makes that guard actually enforce (`security invoker`) — applied 2026-08-01 |
+| `20260802000004_household_authorization_reconciled.sql` | Household membership authorization: invitation-backed INSERT, `household_members` UPDATE column grants, recipient invite SELECT + accept-only UPDATE, invites narrowed to the owner, one-membership-per-user and one-partner-per-household unique indexes — **NOT APPLIED** |
+
+### `20260802000004` — not applied, and carrying an open risk
+
+**NOT APPLIED. Never executed against any database** — production, staging or
+local. It is authoring only; nothing in it has been observed. It supersedes
+`20260802000001_household_membership_authorization.sql`, which was also never
+applied and is removed from the tree in the same commit — do not apply both.
+
+**A clean apply cannot be assumed.** The remote
+`supabase_migrations.schema_migrations` ledger holds **139 entries** against
+**42 local files** at the 2026-08-02 audit, and the two correlate **only through
+`00006`**. Reconcile the ledger before scheduling this file.
+
+**Blocking rehearsal item.** The owner leg of `household_members_insert_self`
+reads `households` in a subquery, which is evaluated under the caller's RLS. The
+only SELECT policy on `households` is `households_member_select` (00039), which
+requires membership — and a creator is not a member until that very insert
+lands. If RLS filters the subselect, **household creation breaks entirely**. The
+same gap appears to sit one step earlier: `app/api/household/route.ts` does
+`.insert(...).select(...)`, and `INSERT ... RETURNING` applies SELECT policies,
+so `POST /api/household` may already be failing today. Both candidate
+resolutions are written out (commented) in the migration header; the
+recommendation is a creator-scoped SELECT policy on `households`, which fixes
+both symptoms and adds no RPC-callable surface. Probe it with
+`__tests__/acceptance/household-rls.integration.test.ts` HH-011 / HH-011b
+(opt-in: `RUN_RLS_IT=1` + a dedicated non-production project) **before** applying
+anything.
+
+**Pre-checks before applying to a populated database** — if either returns rows,
+resolve the data first; do not force the index:
+
+```sql
+select user_id, count(*) from household_members
+ group by user_id having count(*) > 1;
+
+select household_id, count(*) from household_members
+ where role = 'partner' group by household_id having count(*) > 1;
+```
 
 ## Drift status
 
