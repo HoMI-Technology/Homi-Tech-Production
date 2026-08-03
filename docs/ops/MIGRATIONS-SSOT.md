@@ -36,6 +36,7 @@ npx supabase migration repair 00038 --status applied --linked
 | `00039_households.sql` | Dual-user household + invites |
 | `00040_profile_email_lock.sql` | Adds `email` to the profiles privileged-column guard — applied 2026-08-01 |
 | `00041_profile_guard_security_invoker.sql` | Makes that guard actually enforce (`security invoker`) — applied 2026-08-01 |
+| `20260803000001_finance_ledger.sql` | Budget & Runway PR 3 — `finance_*` tables + FORCE RLS + system categories + mutation idempotency. **Not applied to production yet** — disposable-DB first; single-file apply only. |
 
 ## Drift status
 
