@@ -22,12 +22,17 @@ import {
   getAgent,
   AGENTS,
 } from "@/lib/agents/registry";
+import {
+  promptSafeString,
+  promptSafeMessageContent,
+  sanitizePromptLiteral,
+} from "@/lib/advisor/prompt-safety";
 
 export const runtime = "nodejs";
 
 const messageSchema = z.object({
   role: z.enum(["user", "assistant"]),
-  content: z.string().min(1).max(4000),
+  content: promptSafeMessageContent(4000),
 });
 
 const assessmentContextSchema = z.object({
@@ -38,7 +43,10 @@ const assessmentContextSchema = z.object({
     emotional: z.number(),
     timing: z.number(),
   }),
-  hardStops: z.array(z.string()).default([]),
+  hardStops: z
+    .array(promptSafeString(160))
+    .transform((arr) => arr.filter((s): s is string => s !== null))
+    .default([]),
   ageDays: z.number().min(0).max(36_500).nullish(),
   previousScore: z.number().min(0).max(100).nullish(),
 });
@@ -61,16 +69,24 @@ const identitySchema = z.object({
     .trim()
     .min(1)
     .max(24)
-    .refine((s) => !/[\r\n]/.test(s), "single line"),
+    .refine((s) => !/[\r\n]/.test(s), "single line")
+    .transform((s) => sanitizePromptLiteral(s, { maxLength: 24 }) ?? "HōMI"),
 });
 
 const bodySchema = z.object({
-  messages: z.array(messageSchema).min(1).max(50),
+  messages: z
+    .array(messageSchema)
+    .min(1)
+    .max(50)
+    .refine(
+      (messages) => messages[messages.length - 1]?.role === "user",
+      "The last message must be from the user.",
+    ),
   conversationId: z.string().uuid().nullish(),
   assessment: assessmentContextSchema.nullish(),
   finance: financeContextSchema.nullish(),
-  surface: z.string().max(80).nullish(),
-  whatChanged: z.string().max(240).nullish(),
+  surface: promptSafeString(80).nullish(),
+  whatChanged: promptSafeString(240).nullish(),
   identity: identitySchema.nullish(),
   /** Agent OS conversation mode. Keyword routing still applies on top. */
   mode: z.enum(["explore", "analyze", "plan", "simulate", "compare", "decompress"]).nullish(),
@@ -348,6 +364,18 @@ export async function POST(request: Request) {
       tier: entitlements?.tier,
       routed_agents: routedAgents,
     });
+
+    // Sentinel guardrail: if the model reply triggers a Sentinel pattern, fall
+    // back to the deterministic agent reply and log the event for review.
+    const sentinel = sentinelCheck(text);
+    if (sentinel.flagged) {
+      console.warn("[agents] sentinel flagged model reply", {
+        userId: gateUserId,
+        rules: sentinel.rules_enforced,
+      });
+      const fallback = buildAgentFallbackReply(lastUserMessage, leadAgent, assessment);
+      return respond(fallback, "fallback");
+    }
 
     return respond(text, "model");
   } catch (err) {

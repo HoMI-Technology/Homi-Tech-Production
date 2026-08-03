@@ -23,12 +23,18 @@ import {
 import { VERDICT_META } from "@/lib/brand";
 import { advisorToolHandoffLine } from "@/lib/architecture/tool-aliases";
 import { sentinelCheck } from "@/lib/agents/registry";
+import {
+  promptSafeString,
+  promptSafeLabel,
+  promptSafeMessageContent,
+  sanitizePromptLiteral,
+} from "@/lib/advisor/prompt-safety";
 
 export const runtime = "nodejs";
 
 const messageSchema = z.object({
   role: z.enum(["user", "assistant"]),
-  content: z.string().min(1).max(4000),
+  content: promptSafeMessageContent(4000),
 });
 
 const assessmentContextSchema = z.object({
@@ -39,7 +45,10 @@ const assessmentContextSchema = z.object({
     emotional: z.number(),
     timing: z.number(),
   }),
-  hardStops: z.array(z.string()).default([]),
+  hardStops: z
+    .array(promptSafeString(160))
+    .transform((arr) => arr.filter((s): s is string => s !== null))
+    .default([]),
   ageDays: z.number().min(0).max(36_500).nullish(),
   previousScore: z.number().min(0).max(100).nullish(),
 });
@@ -79,17 +88,17 @@ const creditContextSchema = z.object({
  * labels already humanized by buildPathContext (bindingConstraint is a label).
  */
 const pathContextSchema = z.object({
-  verdict: z.string().max(40),
-  bindingConstraint: z.string().max(120).nullable(),
-  nextStepTitle: z.string().max(160).nullable(),
-  nextStepHref: z.string().max(120).nullable(),
+  verdict: promptSafeLabel(40),
+  bindingConstraint: promptSafeString(120).nullable(),
+  nextStepTitle: promptSafeString(160).nullable(),
+  nextStepHref: promptSafeString(120).nullable(),
   stepCount: z.number().int().min(0).max(20),
-  mode: z.string().max(40),
-  confidence: z.string().max(40),
+  mode: promptSafeLabel(40),
+  confidence: promptSafeLabel(40),
   pendingCount: z.number().int().min(0).max(20).optional(),
   completedCount: z.number().int().min(0).max(20).optional(),
   completionPct: z.number().int().min(0).max(100).optional(),
-  boardMeetingLine: z.string().max(500).optional(),
+  boardMeetingLine: promptSafeString(500).optional(),
   isStale: z.boolean().optional(),
 });
 
@@ -99,7 +108,8 @@ const identitySchema = z.object({
     .trim()
     .min(1)
     .max(24)
-    .refine((s) => !/[\r\n]/.test(s), "single line"),
+    .refine((s) => !/[\r\n]/.test(s), "single line")
+    .transform((s) => sanitizePromptLiteral(s, { maxLength: 24 }) ?? "HōMI"),
 });
 
 const personaSchema = z.enum(["homie", "reality", "gut", "timing", "planner"]);
@@ -155,7 +165,14 @@ const lensDigestSchema = z.object({
 });
 
 const bodySchema = z.object({
-  messages: z.array(messageSchema).min(1).max(50),
+  messages: z
+    .array(messageSchema)
+    .min(1)
+    .max(50)
+    .refine(
+      (messages) => messages[messages.length - 1]?.role === "user",
+      "The last message must be from the user.",
+    ),
   /** Server thread id from a prior reply/history load; RLS restricts it to the user's own. */
   conversationId: z.string().uuid().nullish(),
   assessment: assessmentContextSchema.nullish(),
@@ -163,9 +180,9 @@ const bodySchema = z.object({
   credit: creditContextSchema.nullish(),
   path: pathContextSchema.nullish(),
   /** Human-readable label of the surface the user is on, e.g. "the mortgage calculator". */
-  surface: z.string().max(80).nullish(),
+  surface: promptSafeString(80).nullish(),
   /** Score-movement one-liner from the explainability engine (lib/advisor/explain). */
-  whatChanged: z.string().max(240).nullish(),
+  whatChanged: promptSafeString(240).nullish(),
   /** Precomputed digest of the tool the user is on (lib/tools/digest). */
   lensDigest: lensDigestSchema.nullish(),
   identity: identitySchema.nullish(),
@@ -227,7 +244,7 @@ type AdvisorPathNote = {
   pendingCount?: number;
   completedCount?: number;
   completionPct?: number;
-  boardMeetingLine?: string;
+  boardMeetingLine?: string | null;
   isStale?: boolean;
 };
 
@@ -328,7 +345,9 @@ function buildContextNote(
         `. Educational only.`,
     );
     if (path.boardMeetingLine) {
-      parts.push(path.boardMeetingLine);
+      // The line was already sanitized by Zod, but keep it single-line in the
+      // prompt context note just in case the schema is reused elsewhere.
+      parts.push(sanitizePromptLiteral(path.boardMeetingLine, { maxLength: 500 }) ?? "");
     }
   }
 

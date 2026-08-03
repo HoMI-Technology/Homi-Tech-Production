@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   DEFAULT_SIMULATION_INPUTS,
   simulateAllScenarios,
   type SimulationInputs,
 } from "@/lib/decisions/simulate";
+import { loadDecisionInputs, saveDecisionInputs } from "@/lib/decisions/state";
 import { NetPositionChart } from "@/components/decisions/NetPositionChart";
 import { MoneyField } from "@/components/ui/MoneyField";
 import { PercentSlider } from "@/components/ui/PercentSlider";
@@ -31,8 +32,16 @@ const SCENARIO_META: Record<string, { color: string; borderClass: string; descri
 export default function DecisionsPage() {
   const [inputs, setInputs] = useState<SimulationInputs>(DEFAULT_SIMULATION_INPUTS);
 
+  useEffect(() => {
+    setInputs(loadDecisionInputs());
+  }, []);
+
   function update<K extends keyof SimulationInputs>(key: K, value: SimulationInputs[K]) {
-    setInputs((prev) => ({ ...prev, [key]: value }));
+    setInputs((prev) => {
+      const next = { ...prev, [key]: value };
+      saveDecisionInputs(next);
+      return next;
+    });
   }
 
   const scenarios = useMemo(() => simulateAllScenarios(inputs, 60), [inputs]);
