@@ -16,6 +16,7 @@ import {
   sourceMediumBreakdown,
   type AttributionLike,
 } from "@/lib/dashboard/attribution";
+import { COLORS } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "Attribution | Admin | HōMI",
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 /** Canon accent cycle for channel rows (brand-locked palette only). */
-const ACCENTS = ["#22d3ee", "#34d399", "#facc15", "#fab633", "#94a3b8"];
+const ACCENTS = [COLORS.cyan, COLORS.emerald, COLORS.yellow, COLORS.amber, COLORS.dim];
 
 type ProfileRow = {
   attribution: AttributionLike;
@@ -85,9 +86,9 @@ export default async function AdminAttributionPage() {
   );
 
   const funnel: FunnelStage[] = [
-    { label: "Attributed signups", count: attributedSignups, color: "#22d3ee" },
-    { label: "Attributed assessments", count: attributedAssessmentsCount, color: "#34d399" },
-    { label: "Paid (attributed)", count: paidFromAttributed, color: "#facc15" },
+    { label: "Attributed signups", count: attributedSignups, color: COLORS.cyan },
+    { label: "Attributed assessments", count: attributedAssessmentsCount, color: COLORS.emerald },
+    { label: "Paid (attributed)", count: paidFromAttributed, color: COLORS.yellow },
   ];
 
   const channelRows = channels.map((c, i) => ({
@@ -115,13 +116,13 @@ export default async function AdminAttributionPage() {
               label: "Attributed signups",
               value: attributedSignups.toLocaleString(),
               footer: `of ${totalSignups.toLocaleString()} total accounts`,
-              color: "#22d3ee",
+              color: COLORS.cyan,
             },
             {
               label: "Coverage",
               value: `${Math.round(coverage * 100)}%`,
               footer: "Accounts with a known source",
-              color: "#34d399",
+              color: COLORS.emerald,
             },
             {
               label: "Top channel",
@@ -129,13 +130,13 @@ export default async function AdminAttributionPage() {
               footer: nonDirectChannels[0]
                 ? `${nonDirectChannels[0].count.toLocaleString()} signups`
                 : "No channel data yet",
-              color: "#facc15",
+              color: COLORS.yellow,
             },
             {
               label: "Paid (attributed)",
               value: paidFromAttributed.toLocaleString(),
               footer: "Paid accounts with a source",
-              color: "#fab633",
+              color: COLORS.amber,
             },
           ]}
         />
@@ -191,7 +192,7 @@ export default async function AdminAttributionPage() {
                     sublabel: r.medium,
                     count: r.count,
                   }))}
-                  color="#34d399"
+                  color={COLORS.emerald}
                   emptyLabel="No tagged sources yet."
                 />
               </div>
@@ -206,7 +207,7 @@ export default async function AdminAttributionPage() {
               <div className="mt-5">
                 <RankedBars
                   rows={campaigns.map((c) => ({ label: c.key, count: c.count }))}
-                  color="#facc15"
+                  color={COLORS.yellow}
                   emptyLabel="No campaign tags yet."
                 />
               </div>

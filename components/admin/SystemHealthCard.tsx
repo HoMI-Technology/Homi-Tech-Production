@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import { COLORS } from "@/lib/brand";
+
 type HealthPayload = {
   ok?: boolean;
   database?: "ok" | "error";
@@ -37,7 +39,7 @@ export function SystemHealthCard() {
     };
   }, []);
 
-  const accent = state === "ok" ? "#34d399" : state === "error" ? "#f24822" : "#94a3b8";
+  const accent = state === "ok" ? COLORS.emerald : state === "error" ? COLORS.crimson : COLORS.dim;
   const label = state === "loading" ? "Checking…" : state === "ok" ? "Healthy" : "Degraded";
 
   return (

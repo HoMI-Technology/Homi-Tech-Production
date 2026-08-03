@@ -5,7 +5,9 @@
  * gradient bar. Server-safe (no client JS).
  */
 
-const DEFAULT_COLOR = "#22d3ee";
+import { COLORS } from "@/lib/brand";
+
+const DEFAULT_COLOR = COLORS.cyan;
 
 export interface RankedBarRow {
   /** Row label (left side). */

@@ -8,7 +8,7 @@ import { SystemHealthCard } from "@/components/admin/SystemHealthCard";
 import { AttentionStrip, type AttentionItem } from "@/components/operate/AttentionStrip";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
-import { VERDICT_META, type VerdictKey } from "@/lib/brand";
+import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
 import {
   dailySucceededCents,
   formatUsdFromCents,
@@ -230,25 +230,25 @@ export default async function AdminOverviewPage() {
               label: "Total users",
               value: totalUsers.toLocaleString(),
               footer: "All accounts",
-              color: "#22d3ee",
+              color: COLORS.cyan,
             },
             {
               label: "Assessments",
               value: assessmentsCompleted.toLocaleString(),
               footer: `${last7.toLocaleString()} in last 7 days`,
-              color: "#34d399",
+              color: COLORS.emerald,
             },
             {
               label: "Avg score",
               value: avgScore !== null ? String(avgScore) : "—",
               footer: "Completed assessments",
-              color: "#facc15",
+              color: COLORS.yellow,
             },
             {
               label: "Waitlist",
               value: waitlistCount.toLocaleString(),
               footer: "Signups captured",
-              color: "#fab633",
+              color: COLORS.amber,
             },
           ]}
         />
@@ -258,7 +258,7 @@ export default async function AdminOverviewPage() {
               <Sparkline
                 id="admin-assessments"
                 values={dailyCounts.map((d) => d.count)}
-                color="#34d399"
+                color={COLORS.emerald}
               />
             </div>
           </div>
@@ -287,7 +287,7 @@ export default async function AdminOverviewPage() {
             </div>
             {revenueSpark.some((v) => v > 0) && (
               <div className="ml-auto w-40">
-                <Sparkline id="admin-revenue" values={revenueSpark} color="#34d399" />
+                <Sparkline id="admin-revenue" values={revenueSpark} color={COLORS.emerald} />
               </div>
             )}
           </div>
@@ -310,7 +310,7 @@ export default async function AdminOverviewPage() {
             {dailyCounts.length === 0 ? (
               <p className="py-10 text-center text-sm text-dim">No assessment activity yet.</p>
             ) : (
-              <BarSeries id="assessments-30d" counts={dailyCounts} color="#22d3ee" ariaLabel="Assessments completed over the last 30 days" />
+              <BarSeries id="assessments-30d" counts={dailyCounts} color={COLORS.cyan} ariaLabel="Assessments completed over the last 30 days" />
             )}
           </div>
         </div>

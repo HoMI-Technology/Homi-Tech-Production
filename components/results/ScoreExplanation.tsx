@@ -2,11 +2,12 @@
 
 import { buildScoreExplanation } from "@/lib/advisor/explain";
 import type { StoredAssessment } from "@/lib/assessment/storage";
+import { COLORS } from "@/lib/brand";
 
 const DIRECTION_COLOR: Record<string, string> = {
-  up: "#34d399",
-  down: "#facc15",
-  flat: "#94a3b8",
+  up: COLORS.emerald,
+  down: COLORS.yellow,
+  flat: COLORS.dim,
 };
 
 /**
@@ -28,7 +29,7 @@ export function ScoreExplanation({ stored }: { stored: StoredAssessment }) {
       {explanation.milestone && (
         <p
           className="mt-3 border-l-2 pl-3 text-sm font-medium text-light"
-          style={{ borderColor: explanation.milestone.direction === "up" ? "#34d399" : "#facc15" }}
+          style={{ borderColor: explanation.milestone.direction === "up" ? COLORS.emerald : COLORS.yellow }}
         >
           {explanation.milestone.line}
         </p>

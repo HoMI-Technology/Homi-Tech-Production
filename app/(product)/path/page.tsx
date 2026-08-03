@@ -54,6 +54,13 @@ import { formatCurrency } from "@/lib/tools/format";
 /**
  * Path to Ready home — full timeline, progress, funding apply, coach prompts.
  * Works anonymous (localStorage) or signed-in (pull/push server).
+ *
+ * Surface roles (D4 — all four readiness surfaces stay, each with one job):
+ * - /results — the verdict MOMENT: score reveal, pillars, insight, immediate CTAs.
+ * - /path    — the ongoing plan-to-ready: binding-constraint sequence over time.
+ * - /plan    — simple next-steps checklist derived from the latest result.
+ * - /report/{id} — the persisted, shareable/printable RECORD of one assessment.
+ * Don't duplicate one surface's job on another — link across instead.
  */
 export default function PathPage() {
   const [path, setPath] = useState<ReadinessPath | null>(null);

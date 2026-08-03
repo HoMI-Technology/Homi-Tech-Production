@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { ScoreRing } from "@/components/ui/ScoreRing";
+import { COLORS } from "@/lib/brand";
 import { FamilyHouseholdGate } from "@/components/entitlements/AdvancedToolGate";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 import type { VerdictType } from "@/types/database";
@@ -514,7 +515,7 @@ function FamilyModeInner() {
               <h3 className="text-lg font-semibold text-light">Your readiness</h3>
               {latestAssessment && latestAssessment.overall_score !== null ? (
                 <div className="mt-4 flex flex-col items-center gap-4">
-                  <ScoreRing value={Math.round(latestAssessment.overall_score)} color="#22d3ee" />
+                  <ScoreRing value={Math.round(latestAssessment.overall_score)} color={COLORS.cyan} />
                   {latestAssessment.verdict && <VerdictBadge verdict={latestAssessment.verdict} />}
                 </div>
               ) : (

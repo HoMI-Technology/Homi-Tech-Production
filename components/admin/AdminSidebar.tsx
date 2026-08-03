@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ADMIN_NAV_GROUPS } from "@/components/admin/admin-nav";
+import { COLORS, withAlpha } from "@/lib/brand";
 
 function isAdminNavActive(pathname: string, href: string) {
   if (href === "/admin") return pathname === "/admin";
@@ -36,7 +37,7 @@ export function AdminSidebar() {
                     <span
                       aria-hidden
                       className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-cyan"
-                      style={{ boxShadow: "0 0 10px rgba(34,211,238,0.8)" }}
+                      style={{ boxShadow: `0 0 10px ${withAlpha(COLORS.cyan, 0.8)}` }}
                     />
                   )}
                   <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75">

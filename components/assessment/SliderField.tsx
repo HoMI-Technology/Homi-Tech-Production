@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 import { sliderFillPercent } from "@/lib/assessment/format";
+import { COLORS } from "@/lib/brand";
 
 /**
  * A .homi-slider range input with live value, label, and low/high hints.
@@ -16,7 +17,7 @@ export function SliderField({
   step = 1,
   lowLabel,
   highLabel,
-  color = "#22d3ee",
+  color = COLORS.cyan,
   formatValue,
   onChange,
 }: {

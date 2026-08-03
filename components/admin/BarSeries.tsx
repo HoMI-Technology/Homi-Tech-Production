@@ -1,3 +1,5 @@
+import { COLORS, withAlpha } from "@/lib/brand";
+
 /**
  * Shared premium daily bar chart for admin views — pure SVG, server-safe.
  * Gradient bars with rounded data-ends, native <title> tooltips, hairline
@@ -6,7 +8,7 @@
  */
 export function BarSeries({
   counts,
-  color = "#22d3ee",
+  color = COLORS.cyan,
   ariaLabel,
   id,
   height = 180,
@@ -60,7 +62,7 @@ export function BarSeries({
                   fill={`url(#${gradId})`}
                 />
               ) : (
-                <rect x={x} y={baseY - 2} width={Math.max(barWidth, 1)} height={2} rx={1} fill="#334155" />
+                <rect x={x} y={baseY - 2} width={Math.max(barWidth, 1)} height={2} rx={1} fill={COLORS.slateHigh} />
               )}
             </g>
           );
@@ -70,7 +72,7 @@ export function BarSeries({
           y1={baseY}
           x2={width - padding}
           y2={baseY}
-          stroke="rgba(148,163,184,0.25)"
+          stroke={withAlpha(COLORS.dim, 0.25)}
           strokeWidth={1}
         />
       </svg>

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { RoleBadge, TierBadge } from "@/components/admin/Badge";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
+import { COLORS } from "@/lib/brand";
 import type { Profile } from "@/types/database";
 
 export const metadata: Metadata = {
@@ -52,25 +53,25 @@ export default async function AdminUsersPage() {
               label: "Shown",
               value: users.length.toLocaleString(),
               footer: "Latest 200",
-              color: "#22d3ee",
+              color: COLORS.cyan,
             },
             {
               label: "Paid",
               value: paid.toLocaleString(),
               footer: "Non-free tiers",
-              color: "#facc15",
+              color: COLORS.yellow,
             },
             {
               label: "Partners",
               value: partners.toLocaleString(),
               footer: "Role = partner",
-              color: "#34d399",
+              color: COLORS.emerald,
             },
             {
               label: "Admins",
               value: admins.toLocaleString(),
               footer: "Role = admin",
-              color: "#fab633",
+              color: COLORS.amber,
             },
           ]}
         />

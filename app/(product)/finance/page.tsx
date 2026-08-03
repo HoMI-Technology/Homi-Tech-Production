@@ -27,6 +27,7 @@ import { runMonteCarlo, type MonteCarloResult } from "@/lib/tools/montecarlo";
 import { formatCurrency, formatCompactCurrency, formatMonths, formatPercent } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
 import { NumberField } from "@/components/ui/NumberField";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { Tabs, TabPanel } from "@/components/ui/Tabs";
 import Link from "next/link";
 import {
@@ -105,7 +106,7 @@ export default function FinancePage() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10 sm:py-12">
+    <PageFrame width="content" density="spacious" role="personal">
       <p className="eyebrow">Operate · money</p>
       <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">Finance</h1>
       <p className="mt-2 max-w-2xl text-dim">
@@ -129,7 +130,7 @@ export default function FinancePage() {
         {tab === "montecarlo" && <MonteCarloTab state={state} patch={patch} />}
         {tab === "networth" && <NetWorthTab state={state} patch={patch} />}
       </TabPanel>
-    </div>
+    </PageFrame>
   );
 }
 

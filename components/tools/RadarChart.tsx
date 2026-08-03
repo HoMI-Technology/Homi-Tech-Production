@@ -1,5 +1,7 @@
 "use client";
 
+import { COLORS, withAlpha } from "@/lib/brand";
+
 interface RadarDatum {
   label: string;
   value: number; // 0-100
@@ -36,7 +38,7 @@ export function RadarChart({ data, size = 420 }: { data: RadarDatum[]; size?: nu
             key={ratio}
             points={ringPoints.map((p) => `${p.x},${p.y}`).join(" ")}
             fill="none"
-            stroke="rgba(148,163,184,0.18)"
+            stroke={withAlpha(COLORS.dim, 0.18)}
             strokeWidth="1"
           />
         );
@@ -52,16 +54,16 @@ export function RadarChart({ data, size = 420 }: { data: RadarDatum[]; size?: nu
             y1={center}
             x2={outer.x}
             y2={outer.y}
-            stroke="rgba(148,163,184,0.18)"
+            stroke={withAlpha(COLORS.dim, 0.18)}
             strokeWidth="1"
           />
         );
       })}
 
       {/* Data polygon */}
-      <polygon points={dataPath} fill="#22d3ee" fillOpacity="0.22" stroke="#22d3ee" strokeWidth="2" />
+      <polygon points={dataPath} fill={COLORS.cyan} fillOpacity="0.22" stroke={COLORS.cyan} strokeWidth="2" />
       {dataPoints.map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r="3.5" fill="#22d3ee" />
+        <circle key={i} cx={p.x} cy={p.y} r="3.5" fill={COLORS.cyan} />
       ))}
 
       {/* Labels */}
@@ -77,7 +79,7 @@ export function RadarChart({ data, size = 420 }: { data: RadarDatum[]; size?: nu
             textAnchor={anchor}
             dominantBaseline="middle"
             fontSize="10.5"
-            fill="#e2e8f0"
+            fill={COLORS.light}
           >
             {d.label}
           </text>

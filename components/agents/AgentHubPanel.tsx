@@ -3,6 +3,7 @@
 import { useMemo, useState, useCallback } from "react";
 import type { ArchitectureDocument } from "@/lib/architecture/types";
 import { AGENTS } from "@/lib/agents/registry";
+import { COLORS } from "@/lib/brand";
 
 const FEED_CATEGORIES = [
   "_meta",
@@ -123,7 +124,7 @@ export function AgentHubPanel({ initialDoc }: { initialDoc: ArchitectureDocument
       <section className="relative overflow-hidden rounded-2xl border border-cyan/20 bg-gradient-to-br from-cyan/[0.07] via-navy to-emerald/[0.05] p-6 sm:p-8">
         <div
           className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full opacity-30 blur-3xl"
-          style={{ background: "radial-gradient(circle, #22d3ee55, transparent 70%)" }}
+          style={{ background: `radial-gradient(circle, ${COLORS.cyan}55, transparent 70%)` }}
         />
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan">Agent Feed URL</p>
         <h2 className="mt-2 font-display text-2xl font-semibold text-light sm:text-3xl">

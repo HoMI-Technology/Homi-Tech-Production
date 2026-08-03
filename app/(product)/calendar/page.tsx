@@ -7,6 +7,7 @@ import { MonthGrid } from "@/components/calendar/MonthGrid";
 import { EventForm } from "@/components/calendar/EventForm";
 import { UpcomingList } from "@/components/calendar/UpcomingList";
 import { PathCommitBanner } from "@/components/calendar/PathCommitBanner";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { formatLocalDateISO, localDateISO } from "@/lib/dates";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 import { useToast } from "@/hooks/useToast";
@@ -406,9 +407,8 @@ export default function CalendarPage() {
     : [];
 
   return (
-    <div className="field">
-      <div className="mx-auto max-w-6xl px-6 py-12">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <PageFrame width="content" density="spacious" role="personal">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="font-display text-3xl text-light">Calendar</h1>
             <p className="mt-2 max-w-xl text-dim">
@@ -574,7 +574,6 @@ export default function CalendarPage() {
             <UpcomingList events={displayEvents} onSelect={setSelectedDate} />
           </div>
         </div>
-      </div>
-    </div>
+    </PageFrame>
   );
 }

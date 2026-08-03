@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { CinematicCompass } from "./CinematicCompass";
+import { COLORS, withAlpha } from "@/lib/brand";
 
 /**
  * The alignment scene — pinned cinema. The compass locks to the screen
@@ -23,25 +24,25 @@ import { CinematicCompass } from "./CinematicCompass";
 const STEPS = [
   {
     kicker: "The first ring",
-    color: "#22d3ee",
+    color: COLORS.cyan,
     title: "Financial Reality",
     line: "Can you absorb this decision without destabilizing your foundation?",
   },
   {
     kicker: "The second ring",
-    color: "#34d399",
+    color: COLORS.emerald,
     title: "Emotional Truth",
     line: "Are you choosing from clarity, or from pressure?",
   },
   {
     kicker: "The third ring",
-    color: "#facc15",
+    color: COLORS.yellow,
     title: "Perfect Timing",
     line: "Does this moment support the decision?",
   },
   {
     kicker: "Alignment",
-    color: "#34d399",
+    color: COLORS.emerald,
     title: "The compass becomes a key",
     line: "When all three align — truly align — that's when you're ready.",
   },
@@ -124,7 +125,7 @@ export function AlignmentScene() {
             opacity: step === 3 ? 1 : 0.55,
             background:
               step === 3
-                ? "radial-gradient(ellipse at center, rgba(52,211,153,0.5), rgba(52,211,153,0.1) 40%, transparent 70%)"
+                ? `radial-gradient(ellipse at center, ${withAlpha(COLORS.emerald, 0.5)}, ${withAlpha(COLORS.emerald, 0.1)} 40%, transparent 70%)`
                 : undefined,
             transition: "all 800ms ease",
           }}
@@ -176,7 +177,7 @@ export function AlignmentScene() {
             <span
               key={i}
               className="h-1 w-8 rounded-full transition-all duration-500"
-              style={{ background: i <= step ? active.color : "rgba(51,65,85,0.7)" }}
+              style={{ background: i <= step ? active.color : withAlpha(COLORS.slateHigh, 0.7) }}
             />
           ))}
         </div>

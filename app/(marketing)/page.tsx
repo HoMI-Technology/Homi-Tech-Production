@@ -14,6 +14,7 @@ import { AlignmentScene } from "@/components/home/AlignmentScene";
 import { StatementReveal } from "@/components/home/StatementReveal";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
+import { COLORS, withAlpha } from "@/lib/brand";
 import { SITE_URL } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
@@ -215,10 +216,10 @@ export default function MarketingHomePage() {
                   ))}
                   <tr className="border-l-2 border-cyan bg-cyan/5">
                     <td className="px-6 py-5 font-bold">
-                      <span style={{ color: "#22d3ee" }}>H</span>
-                      <span style={{ color: "#34d399" }}>ō</span>
-                      <span style={{ color: "#facc15" }}>M</span>
-                      <span style={{ color: "#22d3ee" }}>I</span>
+                      <span style={{ color: COLORS.cyan }}>H</span>
+                      <span style={{ color: COLORS.emerald }}>ō</span>
+                      <span style={{ color: COLORS.yellow }}>M</span>
+                      <span style={{ color: COLORS.cyan }}>I</span>
                     </td>
                     <td className="px-6 py-5 font-medium text-light">Will you be okay?</td>
                     <td className="hidden px-6 py-5 font-medium text-emerald sm:table-cell">
@@ -308,7 +309,7 @@ export default function MarketingHomePage() {
       <Reveal>
         <section className="px-6 py-24">
           <div className="mx-auto max-w-4xl">
-            <Kicker color="#34d399">The verdict spectrum</Kicker>
+            <Kicker color={COLORS.emerald}>The verdict spectrum</Kicker>
             <h2 className="mt-5 text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
               Four verdicts. Zero judgment.
             </h2>
@@ -324,10 +325,10 @@ export default function MarketingHomePage() {
               />
               <div className="mt-6 flex flex-wrap justify-center gap-3">
                 {/* Verdict badge labels — public form; storage enum stays NOT_YET. */}
-                <SpectrumChip color="#34d399" label="READY" range="80–100" temp="Cool" />
-                <SpectrumChip color="#facc15" label="ALMOST THERE" range="65–79" temp="Warm" />
-                <SpectrumChip color="#fab633" label="BUILD FIRST" range="50–64" temp="Warm+" />
-                <SpectrumChip color="#f24822" label="DO NOT PROCEED" range="0–49" temp="Hot" />
+                <SpectrumChip color={COLORS.emerald} label="READY" range="80–100" temp="Cool" />
+                <SpectrumChip color={COLORS.yellow} label="ALMOST THERE" range="65–79" temp="Warm" />
+                <SpectrumChip color={COLORS.amber} label="BUILD FIRST" range="50–64" temp="Warm+" />
+                <SpectrumChip color={COLORS.crimson} label="DO NOT PROCEED" range="0–49" temp="Hot" />
               </div>
             </div>
           </div>
@@ -362,7 +363,7 @@ export default function MarketingHomePage() {
       <Reveal>
         <section className="px-6 py-24">
           <div className="mx-auto max-w-3xl">
-            <Kicker color="#fab633">After your verdict</Kicker>
+            <Kicker color={COLORS.amber}>After your verdict</Kicker>
             <h2 className="mt-5 text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
               Your Build First path.
             </h2>
@@ -370,7 +371,7 @@ export default function MarketingHomePage() {
               When you&rsquo;re not ready yet, HōMI shows what to build first.
             </p>
 
-            <div className="glass mt-12 p-8" style={{ borderColor: "rgba(250,182,51,0.3)" }}>
+            <div className="glass mt-12 p-8" style={{ borderColor: withAlpha(COLORS.amber, 0.3) }}>
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-widest text-amber">Sample verdict</p>
@@ -398,7 +399,7 @@ export default function MarketingHomePage() {
       <Reveal>
         <section className="px-6 py-24">
           <div className="mx-auto max-w-5xl">
-            <Kicker color="#fab633">Platform vision · Preview</Kicker>
+            <Kicker color={COLORS.amber}>Platform vision · Preview</Kicker>
             <h2 className="mx-auto mt-5 max-w-2xl text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
               Permissioned Readiness Summary
             </h2>
@@ -427,7 +428,7 @@ export default function MarketingHomePage() {
               <div className="mt-6 space-y-3 text-sm">
                 <Row k="Primary signal" v="Timing is close. Monthly pressure is still warm." />
                 <Row k="Shared with" v="Partner preview" />
-                <Row k="Readiness receipt" v="Verified" accent="#34d399" />
+                <Row k="Readiness receipt" v="Verified" accent={COLORS.emerald} />
                 <Row k="Expires" v="30 days" />
               </div>
               <div className="hairline my-5" />
@@ -477,7 +478,7 @@ export default function MarketingHomePage() {
       <Reveal>
         <section className="px-6 py-24">
           <div className="mx-auto max-w-5xl">
-            <Kicker color="#34d399">Why you can trust the answer</Kicker>
+            <Kicker color={COLORS.emerald}>Why you can trust the answer</Kicker>
             <h2 className="mt-5 text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
               Designed without transaction pressure.
             </h2>
@@ -523,7 +524,7 @@ export default function MarketingHomePage() {
               style={{
                 border: "1px solid transparent",
                 background:
-                  "linear-gradient(rgba(10,22,40,0.85), rgba(10,22,40,0.85)) padding-box, linear-gradient(120deg, rgba(250,204,21,0.55), rgba(52,211,153,0.55)) border-box",
+                  `linear-gradient(${withAlpha(COLORS.navy, 0.85)}, ${withAlpha(COLORS.navy, 0.85)}) padding-box, linear-gradient(120deg, ${withAlpha(COLORS.yellow, 0.55)}, ${withAlpha(COLORS.emerald, 0.55)}) border-box`,
               }}
             >
               <h2 className="font-display text-4xl font-semibold leading-tight text-light sm:text-5xl">
@@ -551,7 +552,7 @@ export default function MarketingHomePage() {
   );
 }
 
-function Kicker({ children, color = "#22d3ee" }: { children: React.ReactNode; color?: string }) {
+function Kicker({ children, color = COLORS.cyan }: { children: React.ReactNode; color?: string }) {
   return (
     <p className="text-center text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color }}>
       {children}
@@ -559,7 +560,7 @@ function Kicker({ children, color = "#22d3ee" }: { children: React.ReactNode; co
   );
 }
 
-function KickerLeft({ children, color = "#22d3ee" }: { children: React.ReactNode; color?: string }) {
+function KickerLeft({ children, color = COLORS.cyan }: { children: React.ReactNode; color?: string }) {
   return (
     <p className="text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color }}>
       {children}
@@ -625,7 +626,7 @@ function Row({ k, v, accent }: { k: string; v: string; accent?: string }) {
   return (
     <div className="flex items-baseline justify-between gap-4">
       <span className="shrink-0 text-dim">{k}</span>
-      <span className="text-right font-medium" style={{ color: accent ?? "#e2e8f0" }}>
+      <span className="text-right font-medium" style={{ color: accent ?? COLORS.light }}>
         {v}
       </span>
     </div>

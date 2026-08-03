@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { COLORS } from "@/lib/brand";
 
 export function ScrollProgress() {
   const barRef = useRef<HTMLDivElement>(null);
@@ -55,7 +56,7 @@ export function ScrollProgress() {
         right: 0,
         height: "3px",
         zIndex: 9999,
-        background: "linear-gradient(90deg, #22d3ee, #34d399)",
+        background: `linear-gradient(90deg, ${COLORS.cyan}, ${COLORS.emerald})`,
         transformOrigin: "left",
         transform: "scaleX(0)",
         opacity: 0,

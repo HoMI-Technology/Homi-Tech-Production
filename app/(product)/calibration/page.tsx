@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { StatTile } from "@/components/ui/StatTile";
 import {
@@ -34,8 +35,7 @@ export default async function CalibrationPage() {
   const maxCount = Math.max(1, ...rows.map((r) => r.response_count));
 
   return (
-    <div className="field">
-      <div className="mx-auto max-w-5xl px-6 py-12">
+    <PageFrame width="focus" density="spacious" role="personal">
         <p className="eyebrow">Outcome Verification Network</p>
         <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">Readiness Calibration</h1>
         <p className="mt-2 max-w-2xl text-dim">
@@ -153,7 +153,6 @@ export default async function CalibrationPage() {
           between the verdict you received and later self-reported satisfaction, not proof that the verdict
           caused the outcome. Educational evidence about decision readiness, not financial advice.
         </p>
-      </div>
-    </div>
+    </PageFrame>
   );
 }

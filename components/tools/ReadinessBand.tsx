@@ -10,13 +10,14 @@
 "use client";
 
 import Link from "next/link";
+import { COLORS } from "@/lib/brand";
 import type { ReadinessImpact } from "@/lib/tools/readiness-bands";
 
 function accent(impact: ReadinessImpact): string {
-  if (impact.hardStop) return "#f24822";
-  if (impact.direction === "up") return "#34d399";
-  if (impact.direction === "flat") return "#94a3b8";
-  return impact.band === "large" ? "#f24822" : "#facc15";
+  if (impact.hardStop) return COLORS.crimson;
+  if (impact.direction === "up") return COLORS.emerald;
+  if (impact.direction === "flat") return COLORS.dim;
+  return impact.band === "large" ? COLORS.crimson : COLORS.yellow;
 }
 
 export function ReadinessBand({ impact }: { impact: ReadinessImpact }) {

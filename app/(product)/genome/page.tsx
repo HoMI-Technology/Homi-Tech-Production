@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { DIMENSIONS, QUESTIONS, scoreGenome, type DimensionScore, type GenomeAnswers } from "@/lib/genome/dimensions";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { RadarChart } from "@/components/tools/RadarChart";
 import { sliderFillPercent } from "@/lib/assessment/format";
 
@@ -68,9 +69,9 @@ export default function GenomePage() {
 
   if (!hydrated) {
     return (
-      <div className="mx-auto max-w-6xl px-6 py-12">
+      <PageFrame width="content" density="spacious" role="personal">
         <h1 className="font-display text-3xl text-light">Behavioral Genome</h1>
-      </div>
+      </PageFrame>
     );
   }
 
@@ -78,7 +79,7 @@ export default function GenomePage() {
     const q = QUESTIONS[step];
     const currentValue = answers[q.id] ?? 4;
     return (
-      <div className="mx-auto max-w-3xl px-6 py-12">
+      <PageFrame width="narrow" density="spacious" role="personal">
         <h1 className="font-display text-3xl text-light">Behavioral Genome</h1>
         <p className="mt-2 text-dim">
           Question {step + 1} of {QUESTIONS.length}
@@ -119,14 +120,14 @@ export default function GenomePage() {
             </button>
           </div>
         </div>
-      </div>
+      </PageFrame>
     );
   }
 
   if (stored) {
     const radarData = stored.scores.map((s) => ({ label: shortLabel(s.name), value: s.score }));
     return (
-      <div className="mx-auto max-w-6xl px-6 py-12">
+      <PageFrame width="content" density="spacious" role="personal">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="font-display text-3xl text-light">Your Behavioral Genome</h1>
@@ -168,12 +169,12 @@ export default function GenomePage() {
             );
           })}
         </div>
-      </div>
+      </PageFrame>
     );
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-12">
+    <PageFrame width="narrow" density="spacious" role="personal">
       <h1 className="font-display text-3xl text-light">Behavioral Genome</h1>
       <p className="mt-3 text-dim">
         Nine dimensions of decision psychology — loss aversion, time perception, confidence calibration,
@@ -183,7 +184,7 @@ export default function GenomePage() {
       <button className="btn btn-primary mt-8" onClick={startOver}>
         Start
       </button>
-    </div>
+    </PageFrame>
   );
 }
 

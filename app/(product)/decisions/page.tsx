@@ -9,6 +9,7 @@ import {
 import { loadDecisionInputs, saveDecisionInputs } from "@/lib/decisions/state";
 import { NetPositionChart } from "@/components/decisions/NetPositionChart";
 import { MoneyField } from "@/components/ui/MoneyField";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { PercentSlider } from "@/components/ui/PercentSlider";
 
 const SCENARIO_META: Record<string, { color: string; borderClass: string; description: string }> = {
@@ -51,7 +52,7 @@ export default function DecisionsPage() {
   );
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-12">
+    <PageFrame width="focus" density="spacious" role="personal">
       <h1 className="font-display text-3xl text-light">Decision Rehearsal</h1>
       <p className="mt-2 max-w-2xl text-dim">
         Simulate the financial impact before you commit. Compare buying now against waiting 12 or 24
@@ -153,6 +154,6 @@ export default function DecisionsPage() {
           </div>
         </div>
       </div>
-    </div>
+    </PageFrame>
   );
 }

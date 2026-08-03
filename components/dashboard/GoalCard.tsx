@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { MoneyField } from "@/components/ui/MoneyField";
+import { COLORS } from "@/lib/brand";
 import { formatCurrency } from "@/lib/tools/format";
 import { goalProgress, goalProjection } from "@/lib/dashboard/financial-position";
 import { loadFinanceState, netCashFlow, pullFinanceState } from "@/lib/finance/store";
@@ -128,7 +129,7 @@ export function GoalCard({
       <span
         aria-hidden
         className="absolute inset-x-0 top-0 h-px"
-        style={{ background: "linear-gradient(90deg, transparent, #facc1588, transparent)" }}
+        style={{ background: `linear-gradient(90deg, transparent, ${COLORS.yellow}88, transparent)` }}
       />
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -224,7 +225,7 @@ export function GoalCard({
               className="h-full rounded-full"
               style={{
                 width: `${(progress?.ratio ?? 0) * 100}%`,
-                background: "linear-gradient(90deg, #22d3ee, #facc15)",
+                background: `linear-gradient(90deg, ${COLORS.cyan}, ${COLORS.yellow})`,
               }}
             />
           </div>

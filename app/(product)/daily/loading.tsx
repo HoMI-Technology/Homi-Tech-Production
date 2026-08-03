@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 /** Route-level loading UI for Daily Check-in — matches dashboard skeleton language. */
 export default function DailyLoading() {
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12" aria-busy="true" aria-label="Loading daily check-in">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 py-12" aria-busy="true" aria-label="Loading daily check-in">
       <Skeleton className="h-9 w-56" />
       <Skeleton className="mt-3 h-4 w-80 max-w-full" />
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.2fr]">

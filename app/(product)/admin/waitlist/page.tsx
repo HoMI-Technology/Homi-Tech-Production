@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
+import { COLORS } from "@/lib/brand";
 import type { WaitlistEntry } from "@/types/database";
 
 export const metadata: Metadata = {
@@ -59,19 +60,19 @@ export default async function AdminWaitlistPage() {
               label: "Entries",
               value: entries.length.toLocaleString(),
               footer: "Shown window",
-              color: "#fab633",
+              color: COLORS.amber,
             },
             {
               label: "Top interest",
               value: topInterests[0]?.[0] ?? "—",
               footer: topInterests[0] ? `${topInterests[0][1]} signups` : "No tags yet",
-              color: "#22d3ee",
+              color: COLORS.cyan,
             },
             {
               label: "Interest tags",
               value: String(Object.keys(interestCounts).length),
               footer: "Distinct",
-              color: "#34d399",
+              color: COLORS.emerald,
             },
           ]}
         />

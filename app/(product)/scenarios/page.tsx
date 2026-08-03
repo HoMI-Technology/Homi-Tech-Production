@@ -16,6 +16,7 @@ import {
 } from "@/lib/finance/store";
 import type { ScenarioKey, SimulationInputs } from "@/lib/decisions/simulate";
 import { NetPositionChart } from "@/components/decisions/NetPositionChart";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { SavedScenariosPanel } from "@/components/tools/SavedScenariosPanel";
 import { MoneyField } from "@/components/ui/MoneyField";
 import { PercentSlider } from "@/components/ui/PercentSlider";
@@ -94,7 +95,7 @@ export default function ScenariosPage() {
   );
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-12">
+    <PageFrame width="focus" density="spacious" role="personal">
       <p className="eyebrow">Path · Scenario studio</p>
       <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">
         Buy now vs wait
@@ -277,6 +278,6 @@ export default function ScenariosPage() {
       <div className="mt-12">
         <SavedScenariosPanel />
       </div>
-    </div>
+    </PageFrame>
   );
 }

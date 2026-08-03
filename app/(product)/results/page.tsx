@@ -28,6 +28,14 @@ const FINANCIAL = PILLARS.find((p) => p.key === "financial")!;
 const EMOTIONAL = PILLARS.find((p) => p.key === "emotional")!;
 const TIMING = PILLARS.find((p) => p.key === "timing")!;
 
+/**
+ * Surface roles (D4 — all four readiness surfaces stay, each with one job):
+ * - /results — the verdict MOMENT: score reveal, pillars, insight, immediate CTAs.
+ * - /path    — the ongoing plan-to-ready: binding-constraint sequence over time.
+ * - /plan    — simple next-steps checklist derived from the latest result.
+ * - /report/{id} — the persisted, shareable/printable RECORD of one assessment.
+ * Don't duplicate one surface's job on another — link across instead.
+ */
 export default function ResultsPage() {
   const [stored, setStored] = useState<StoredAssessment | null | undefined>(undefined);
   const [isAnonymous, setIsAnonymous] = useState(false);
@@ -377,6 +385,11 @@ export default function ResultsPage() {
         <Link href={kind === "shadow" ? "/assessment" : "/shadow-score"} className="btn btn-ghost">
           {kind === "shadow" ? "Take the full assessment" : "Retake the assessment"}
         </Link>
+        {effective.serverId && fullReport && (
+          <Link href={`/report/${effective.serverId}`} className="btn btn-ghost">
+            View full report
+          </Link>
+        )}
         {effective.serverId && fullReport && (
           <Link href={`/report/${effective.serverId}/credential`} className="btn btn-ghost">
             Get credential

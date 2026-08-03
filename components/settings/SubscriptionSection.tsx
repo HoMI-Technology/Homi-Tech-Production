@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { COLORS } from "@/lib/brand";
 import type { SubscriptionTier } from "@/types/database";
 
 const TIER_LABELS: Record<SubscriptionTier, string> = {
@@ -11,10 +12,10 @@ const TIER_LABELS: Record<SubscriptionTier, string> = {
 };
 
 const TIER_COLORS: Record<SubscriptionTier, string> = {
-  free: "#94a3b8",
-  plus: "#22d3ee",
-  pro: "#facc15",
-  family: "#34d399",
+  free: COLORS.dim,
+  plus: COLORS.cyan,
+  pro: COLORS.yellow,
+  family: COLORS.emerald,
 };
 
 export function SubscriptionSection({ tier }: { tier: SubscriptionTier }) {

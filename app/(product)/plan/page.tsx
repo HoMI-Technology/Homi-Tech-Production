@@ -38,6 +38,14 @@ function pillarPct(key: "financial" | "emotional" | "timing", stored: StoredAsse
   return Math.round((total / PILLAR_MAX_POINTS[key]) * 100);
 }
 
+/**
+ * Surface roles (D4 — all four readiness surfaces stay, each with one job):
+ * - /results — the verdict MOMENT: score reveal, pillars, insight, immediate CTAs.
+ * - /path    — the ongoing plan-to-ready: binding-constraint sequence over time.
+ * - /plan    — simple next-steps checklist derived from the latest result.
+ * - /report/{id} — the persisted, shareable/printable RECORD of one assessment.
+ * Don't duplicate one surface's job on another — link across instead.
+ */
 export default function PlanPage() {
   const [stored, setStored] = useState<StoredAssessment | null | undefined>(undefined);
   const [remote, setRemote] = useState<StoredAssessment | null>(null);

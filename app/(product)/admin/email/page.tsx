@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { CampaignComposer } from "@/components/admin/CampaignComposer";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
+import { COLORS } from "@/lib/brand";
 import type { Campaign, CampaignSendStatus } from "@/types/database";
 
 export const metadata: Metadata = {
@@ -75,25 +76,25 @@ export default async function AdminEmailPage() {
               label: "Campaigns",
               value: String(campaigns.length),
               footer: "Shown",
-              color: "#22d3ee",
+              color: COLORS.cyan,
             },
             {
               label: "Drafts",
               value: String(drafted),
               footer: "Not sent",
-              color: "#94a3b8",
+              color: COLORS.dim,
             },
             {
               label: "Sent",
               value: totalSent.toLocaleString(),
               footer: "Recipients delivered",
-              color: "#34d399",
+              color: COLORS.emerald,
             },
             {
               label: "Failed",
               value: totalFailed.toLocaleString(),
               footer: "Delivery errors",
-              color: "#f24822",
+              color: COLORS.crimson,
             },
           ]}
         />

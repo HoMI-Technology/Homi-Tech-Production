@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AgentRoster } from "@/components/agents/AgentRoster";
+import { PageFrame } from "@/components/operate/PageFrame";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function AgentsPage() {
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
+    <PageFrame width="content" density="spacious" role="personal">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="font-display text-3xl font-semibold text-light sm:text-4xl">
@@ -28,6 +29,6 @@ export default function AgentsPage() {
         </Link>
       </div>
       <AgentRoster />
-    </div>
+    </PageFrame>
   );
 }

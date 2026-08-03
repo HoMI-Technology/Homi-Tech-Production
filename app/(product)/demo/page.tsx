@@ -8,6 +8,7 @@ import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { ScoreHistory } from "@/components/dashboard/ScoreHistory";
 import { DailyPulseStrip } from "@/components/dashboard/DailyPulseStrip";
 import { DemoProvider, useDemo } from "@/lib/demo/context";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { track } from "@/lib/analytics";
 
 const QUICK_ACTIONS = [
@@ -45,7 +46,7 @@ function DemoPageContent() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
+    <PageFrame width="content" density="spacious" role="personal">
       {/* Demo banner */}
       <div className="glass flex flex-col items-start justify-between gap-4 border border-cyan/30 p-5 sm:flex-row sm:items-center">
         <div>
@@ -159,6 +160,6 @@ function DemoPageContent() {
           ))}
         </div>
       </div>
-    </div>
+    </PageFrame>
   );
 }

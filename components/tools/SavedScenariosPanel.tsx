@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { COLORS } from "@/lib/brand";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
 import { segmentedSelectionClasses } from "@/components/ui/SegmentedControl";
 import { getLens } from "@/lib/tools/registry";
@@ -168,7 +169,7 @@ export function SavedScenariosPanel() {
                 <span
                   aria-hidden
                   className="mr-2 inline-block h-2 w-2 rounded-full align-middle"
-                  style={{ background: lens?.accent ?? "#22d3ee" }}
+                  style={{ background: lens?.accent ?? COLORS.cyan }}
                 />
                 {lens?.name ?? lensId}
                 <span className="ml-2 text-sm font-normal text-dim">

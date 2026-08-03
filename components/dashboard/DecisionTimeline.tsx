@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { VERDICT_META, type VerdictKey } from "@/lib/brand";
+import { COLORS, VERDICT_META, withAlpha, type VerdictKey } from "@/lib/brand";
 import type { AssessmentRow, DailyCheckin, JournalEntry } from "@/types/database";
 
 interface TimelineEvent {
@@ -40,7 +40,7 @@ export function DecisionTimeline({
           date: a.completed_at ?? a.created_at,
           title: meta?.label ?? "Assessment",
           subtitle: a.overall_score !== null ? `Score: ${Math.round(a.overall_score)}` : undefined,
-          color: meta?.color ?? "#22d3ee",
+          color: meta?.color ?? COLORS.cyan,
         };
       }),
       ...journalEntries.slice(0, maxItems).map((j): TimelineEvent => ({
@@ -49,7 +49,7 @@ export function DecisionTimeline({
         date: j.created_at,
         title: j.title,
         subtitle: j.context ?? undefined,
-        color: "#34d399",
+        color: COLORS.emerald,
       })),
       ...checkins.slice(0, maxItems).map((c): TimelineEvent => ({
         id: `c-${c.id}`,
@@ -57,7 +57,7 @@ export function DecisionTimeline({
         date: c.created_at,
         title: "Daily Check-in",
         subtitle: `Mood: ${c.mood}/10`,
-        color: "#facc15",
+        color: COLORS.yellow,
       })),
     ];
 
@@ -85,7 +85,7 @@ export function DecisionTimeline({
       <div className="mt-5 relative">
         <div
           className="absolute left-[7px] top-2 bottom-2 w-px"
-          style={{ background: "linear-gradient(to bottom, rgba(148,163,184,0.3), transparent)" }}
+          style={{ background: `linear-gradient(to bottom, ${withAlpha(COLORS.dim, 0.3)}, transparent)` }}
         />
 
         <div className="space-y-4">

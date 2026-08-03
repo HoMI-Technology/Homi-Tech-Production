@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { COLORS } from "@/lib/brand";
+
 /**
  * Compact connect CTA for the Financial position section when no bank is
  * linked yet. Free tier sees the same card framed as a Plus feature — an
@@ -11,7 +13,7 @@ export function BankConnectCard({ plusRequired }: { plusRequired: boolean }) {
       <span
         aria-hidden
         className="absolute inset-x-0 top-0 h-px"
-        style={{ background: "linear-gradient(90deg, transparent, #22d3ee88, transparent)" }}
+        style={{ background: `linear-gradient(90deg, transparent, ${COLORS.cyan}88, transparent)` }}
       />
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="font-semibold text-light">See your real numbers here</h3>

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { localDateISO, formatLocalDateISO } from "@/lib/dates";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 import type { JournalEntry } from "@/types/database";
 
@@ -132,7 +133,7 @@ export default function OutcomesPage() {
       : "—";
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-12">
+    <PageFrame width="focus" density="spacious" role="personal">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl text-light">Outcomes</h1>
@@ -306,6 +307,6 @@ export default function OutcomesPage() {
           </div>
         </>
       )}
-    </div>
+    </PageFrame>
   );
 }

@@ -11,6 +11,11 @@ export const BRAND = {
   category: "Decision Readiness Intelligence™",
 } as const;
 
+/**
+ * Canonical brand palette — must match app/globals.css `@theme` exactly
+ * (--color-cyan … --color-dim). TSX/SVG/imperative code that cannot use a
+ * CSS `var(--color-*)` must reference these constants, never raw hex.
+ */
 export const COLORS = {
   cyan: "#22d3ee",
   emerald: "#34d399",
@@ -19,10 +24,25 @@ export const COLORS = {
   crimson: "#f24822",
   navy: "#0a1628",
   navyLight: "#0f172a",
-  slate: "#1e293b",
+  slate: "#1e293b", // legacy alias of slateSurface
+  slateSurface: "#1e293b",
+  slateHigh: "#334155",
+  ink: "#ffffff",
   light: "#e2e8f0",
   dim: "#94a3b8",
 } as const;
+
+/**
+ * Derive an rgba() string from a canonical 6-digit hex + alpha, so TSX style
+ * objects and SVG stops never hardcode the channel triplet.
+ * withAlpha(COLORS.cyan, 0.4) === "rgba(34, 211, 238, 0.4)"
+ */
+export function withAlpha(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
 
 export type VerdictKey = "READY" | "ALMOST_THERE" | "BUILD_FIRST" | "NOT_YET";
 

@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { COLORS } from "@/lib/brand";
+
 /**
  * Premium stat tile — eyebrow label, hero numeral, optional delta chip and
  * sparkline. Glass surface with a per-accent top hairline and hover lift.
@@ -9,7 +11,7 @@ export function StatTile({
   label,
   value,
   unit,
-  accent = "#22d3ee",
+  accent = COLORS.cyan,
   delta,
   deltaTone = "flat",
   footer,

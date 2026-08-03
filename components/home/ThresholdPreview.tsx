@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { CinematicCompass } from "./CinematicCompass";
+import { COLORS } from "@/lib/brand";
 
 /** Tweens a number toward its target — cinema, not snapping. */
 function useTweened(target: number, ms = 450): number {
@@ -46,28 +47,28 @@ const VERDICTS: Record<
 > = {
   READY: {
     label: "READY",
-    color: "#34d399",
+    color: COLORS.emerald,
     temperature: "Cool",
     message: "Your signals appear favorable. Move with clarity, not pressure.",
     engineKey: "READY",
   },
   ALMOST_THERE: {
     label: "ALMOST THERE",
-    color: "#facc15",
+    color: COLORS.yellow,
     temperature: "Warm",
     message: "You are close. One signal still needs attention.",
     engineKey: "ALMOST_THERE",
   },
   BUILD_FIRST: {
     label: "BUILD FIRST",
-    color: "#fab633",
+    color: COLORS.amber,
     temperature: "Warm+",
     message: "Build First is not failure. It is the map.",
     engineKey: "BUILD_FIRST",
   },
   DO_NOT_PROCEED: {
     label: "DO NOT PROCEED",
-    color: "#f24822",
+    color: COLORS.crimson,
     temperature: "Hot",
     message: "This is a protection signal. Slow down before pressure makes the decision for you.",
     engineKey: "NOT_YET",
@@ -75,9 +76,9 @@ const VERDICTS: Record<
 };
 
 const SIGNALS = [
-  { key: "financial" as const, name: "Financial Reality", color: "#22d3ee", ask: "Can you absorb this decision without destabilizing your foundation?" },
-  { key: "emotional" as const, name: "Emotional Truth", color: "#34d399", ask: "Are you choosing from clarity, or from pressure?" },
-  { key: "timing" as const, name: "Perfect Timing", color: "#facc15", ask: "Does this moment support the decision?" },
+  { key: "financial" as const, name: "Financial Reality", color: COLORS.cyan, ask: "Can you absorb this decision without destabilizing your foundation?" },
+  { key: "emotional" as const, name: "Emotional Truth", color: COLORS.emerald, ask: "Are you choosing from clarity, or from pressure?" },
+  { key: "timing" as const, name: "Perfect Timing", color: COLORS.yellow, ask: "Does this moment support the decision?" },
 ];
 
 function toVerdict(score: number): PreviewVerdict {
