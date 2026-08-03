@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { useRef, useState } from "react";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { Modal } from "./Modal";
 
 beforeEach(() => {
@@ -129,6 +129,25 @@ describe("Modal", () => {
     expect(document.activeElement).toBe(confirm);
   });
 
+  it("focus trap ignores a Tab already consumed by a higher layer (defaultPrevented)", () => {
+    render(<Harness />);
+    fireEvent.click(screen.getByRole("button", { name: "Open modal" }));
+    const confirm = screen.getByRole("button", { name: "Confirm" });
+    confirm.focus();
+
+    const consumed = new KeyboardEvent("keydown", {
+      key: "Tab",
+      bubbles: true,
+      cancelable: true,
+    });
+    consumed.preventDefault();
+    act(() => {
+      confirm.dispatchEvent(consumed);
+    });
+    // Without the guard the trap would wrap focus back to Cancel.
+    expect(document.activeElement).toBe(confirm);
+  });
+
   it("closes on Escape and returns focus to the trigger", () => {
     const onCloseSpy = vi.fn();
     render(<Harness onCloseSpy={onCloseSpy} />);
@@ -139,6 +158,26 @@ describe("Modal", () => {
     fireEvent.keyDown(document, { key: "Escape" });
     expect(onCloseSpy).toHaveBeenCalledTimes(1);
     expect(document.activeElement).toBe(trigger);
+  });
+
+  it("ignores an Escape already consumed by a higher layer (defaultPrevented)", () => {
+    // Stacking contract: a layer above the modal (e.g. CommandPalette) calls
+    // preventDefault on the Escape it handles — one layer closes per press.
+    const onCloseSpy = vi.fn();
+    render(<Harness onCloseSpy={onCloseSpy} />);
+    fireEvent.click(screen.getByRole("button", { name: "Open modal" }));
+
+    const consumed = new KeyboardEvent("keydown", { key: "Escape", cancelable: true });
+    consumed.preventDefault();
+    act(() => {
+      document.dispatchEvent(consumed);
+    });
+    expect(onCloseSpy).not.toHaveBeenCalled();
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+    // An unconsumed Escape still closes.
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(onCloseSpy).toHaveBeenCalledTimes(1);
   });
 
   it("returns focus to the trigger when closed from inside the dialog", () => {

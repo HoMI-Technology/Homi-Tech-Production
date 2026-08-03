@@ -7,7 +7,7 @@ import { dismissCookieConsent } from "./consent";
  *
  * The flow renders 45 canonical questions of three shapes (see
  * components/assessment/BankQuestionField.tsx):
- *   - single_choice → clickable cards (button[aria-pressed])
+ *   - single_choice → clickable radio cards ([role=radio][aria-checked])
  *   - number        → input[type=number] (valid when > 0)
  *   - slider        → input[type=range] (answered once interacted with)
  * plus pillar intros, a decision picker, two optional conflict checks
@@ -79,7 +79,7 @@ export async function completeFullAssessment(page: Page): Promise<void> {
     const slider = assessmentPane.locator('input[type="range"]').first();
     const number = assessmentPane.getByRole("spinbutton").first();
     const choiceCard = assessmentPane
-      .locator('button[aria-pressed="false"]:not([disabled])')
+      .locator('button[role="radio"][aria-checked="false"]:not([disabled])')
       .first();
 
     if (await slider.count()) {

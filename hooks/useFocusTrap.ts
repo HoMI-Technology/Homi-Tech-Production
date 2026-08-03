@@ -39,6 +39,9 @@ export function useFocusTrap(
   useEffect(() => {
     if (!active) return;
     function onKeyDown(e: KeyboardEvent) {
+      // A layer above this trap (e.g. a palette stacked over the modal) that
+      // already consumed the event owns it — never double-handle.
+      if (e.defaultPrevented) return;
       if (e.key !== "Tab") return;
       const container = ref.current;
       if (!container) return;

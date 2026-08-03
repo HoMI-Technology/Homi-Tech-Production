@@ -81,7 +81,9 @@ export function Modal({
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      // defaultPrevented = a higher layer (e.g. CommandPalette over this
+      // modal) already consumed this Escape — one layer closes per press.
+      if (e.key === "Escape" && !e.defaultPrevented) onClose();
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);

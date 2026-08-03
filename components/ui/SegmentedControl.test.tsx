@@ -88,6 +88,21 @@ describe("SegmentedControl", () => {
     expect(screen.getByRole("radio", { name: "Beta" })).toHaveAttribute("tabindex", "0");
   });
 
+  it("with the selected option disabled, the first enabled option is tabbable", () => {
+    // A disabled button cannot receive focus, so parking the roving tab stop
+    // on it would drop the whole group out of the tab order.
+    render(
+      <Harness
+        initial="b"
+        options={[OPTIONS[0], { ...OPTIONS[1], disabled: true }, OPTIONS[2]]}
+      />,
+    );
+    expect(screen.getByRole("radio", { name: "Beta" })).toHaveAttribute("aria-checked", "true");
+    expect(screen.getByRole("radio", { name: "Alpha" })).toHaveAttribute("tabindex", "0");
+    expect(screen.getByRole("radio", { name: "Beta" })).toHaveAttribute("tabindex", "-1");
+    expect(screen.getByRole("radio", { name: "Gamma" })).toHaveAttribute("tabindex", "-1");
+  });
+
   it("arrow keys move selection and focus, wrapping and skipping disabled options", () => {
     render(
       <Harness options={[OPTIONS[0], { ...OPTIONS[1], disabled: true }, OPTIONS[2]]} />,
@@ -153,7 +168,7 @@ describe("segmentedSelectionClasses", () => {
 });
 
 describe("SegmentedLinkNav", () => {
-  it("renders real links with aria-current on the active option only", () => {
+  it('renders real links with aria-current="page" on the active option only', () => {
     render(
       <SegmentedLinkNav
         ariaLabel="Date range"
@@ -166,7 +181,9 @@ describe("SegmentedLinkNav", () => {
     );
     expect(screen.getByRole("navigation", { name: "Date range" })).toBeInTheDocument();
     const active = screen.getByRole("link", { name: "7 days" });
-    expect(active).toHaveAttribute("aria-current", "true");
+    // "page" (not "true"): these links are URL-driven navigation, and
+    // aria-current="page" is the token screen readers announce as such.
+    expect(active).toHaveAttribute("aria-current", "page");
     expect(active).toHaveAttribute("href", "/admin/analytics?range=7d");
     expect(screen.getByRole("link", { name: "30 days" })).not.toHaveAttribute("aria-current");
   });
