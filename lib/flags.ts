@@ -21,3 +21,13 @@ export const agentOs = process.env.NEXT_PUBLIC_FF_AGENT_OS === "true";
  * No localStorage/cookie/query overrides, no remote config.
  */
 export const impactBus = process.env.NEXT_PUBLIC_FF_IMPACT_BUS === "true";
+
+/**
+ * Budget & Runway ledger surface: the Budget tab on /finance (manual local
+ * ledger, PR 2 of the plan ladder). Build-time, env-backed (same strict
+ * pattern as agentOs above): only the exact lowercase string "true" enables
+ * it. Default false everywhere; enabled per-branch on the PR Preview until
+ * the ladder's sync + readiness PRs land. No localStorage/cookie/query
+ * overrides, no remote config.
+ */
+export const budgetLedger = process.env.NEXT_PUBLIC_FF_BUDGET_LEDGER === "true";
