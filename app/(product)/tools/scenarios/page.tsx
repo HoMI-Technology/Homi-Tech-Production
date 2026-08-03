@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
+import { segmentedSelectionClasses } from "@/components/ui/SegmentedControl";
 import { getLens } from "@/lib/tools/registry";
 import { useCfm } from "@/hooks/use-cfm";
 import {
@@ -216,15 +217,14 @@ export default function ScenariosPage() {
                       </p>
                     )}
 
+                    {/* A genuine toggle (two scenarios selectable), so it keeps
+                        aria-pressed — not radio semantics — while sharing the
+                        canonical segmented selected style. */}
                     <button
                       type="button"
                       onClick={() => toggleSelect(scenario.id)}
                       aria-pressed={isSelected}
-                      className={`mt-4 w-full rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-                        isSelected
-                          ? "border-cyan/50 bg-cyan/10 text-cyan"
-                          : "border-white/10 text-dim hover:border-cyan/30 hover:text-cyan"
-                      }`}
+                      className={`mt-4 w-full rounded-lg px-3 py-2 text-sm font-medium ${segmentedSelectionClasses(isSelected)}`}
                     >
                       {isSelected ? "Selected for comparison" : "Compare this"}
                     </button>

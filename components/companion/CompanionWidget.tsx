@@ -22,6 +22,7 @@ import {
   type HomiPreset,
 } from "@/lib/advisor/identity";
 import { PERSONAS, type AdvisorPersona } from "@/lib/advisor/personas";
+import { SegmentedControl, accentFromBrandHex } from "@/components/ui/SegmentedControl";
 import {
   loadThreadMessages,
   saveThreadMessages,
@@ -415,26 +416,19 @@ export function CompanionWidget() {
             </button>
           </div>
 
-          <div className="flex flex-wrap gap-1.5 border-b border-slate-surface/60 px-3 py-2.5">
-            {PERSONAS.map((p) => {
-              const selected = p.key === persona;
-              return (
-                <button
-                  key={p.key}
-                  type="button"
-                  onClick={() => setPersona(p.key)}
-                  aria-pressed={selected}
-                  className="rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors"
-                  style={{
-                    borderColor: selected ? `${p.color}66` : "rgba(148,163,184,0.18)",
-                    background: selected ? `${p.color}14` : "transparent",
-                    color: selected ? p.color : "#94a3b8",
-                  }}
-                >
-                  {p.name}
-                </button>
-              );
-            })}
+          <div className="border-b border-slate-surface/60 px-3 py-2.5">
+            <SegmentedControl<AdvisorPersona>
+              ariaLabel="Companion persona"
+              options={PERSONAS.map((p) => ({
+                value: p.key,
+                label: p.name,
+                accent: accentFromBrandHex(p.color),
+              }))}
+              value={persona}
+              onChange={setPersona}
+              variant="compact"
+              className="flex flex-wrap gap-1.5"
+            />
           </div>
 
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">

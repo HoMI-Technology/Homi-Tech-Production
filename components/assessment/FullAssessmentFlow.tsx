@@ -204,43 +204,21 @@ export function FullAssessmentFlow() {
 
       {step.kind === "decision" && (
         <StepShell stepKey="decision" onNext={goNext} showBack={false}>
-          <div className="w-full">
-            <p className="mb-2 text-base font-medium text-light">What decision are you working through?</p>
-            <p className="mb-5 text-sm text-dim">
-              HōMI starts with home buying — {steps.filter((s) => s.kind === "question").length} questions from
-              the canonical bank. Other decision types are coming.
-            </p>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {(Object.keys(DECISION_TYPE_LABELS) as DecisionType[]).map((key) => {
-                const active = ACTIVE_DECISION_TYPES.includes(key);
-                const selected = decisionType === key;
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    disabled={!active}
-                    onClick={() => active && setDecisionType(key)}
-                    className={`glass rounded-xl border px-4 py-3 text-left transition-colors ${
-                      active ? "glass-hover cursor-pointer" : "cursor-not-allowed opacity-50"
-                    } ${selected ? "border-cyan" : "border-transparent"}`}
-                    style={selected ? { boxShadow: "0 0 0 1px rgba(34,211,238,0.4)" } : undefined}
-                    aria-pressed={selected}
-                  >
-                    <span className="flex items-center justify-between gap-2">
-                      <span className={`block text-sm font-semibold ${selected ? "text-cyan" : "text-light"}`}>
-                        {DECISION_TYPE_LABELS[key]}
-                      </span>
-                      {!active && (
-                        <span className="rounded-full bg-slate-surface px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-dim">
-                          Coming soon
-                        </span>
-                      )}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          <ChoiceCards<DecisionType>
+            label="What decision are you working through?"
+            hint={`HōMI starts with home buying — ${steps.filter((s) => s.kind === "question").length} questions from the canonical bank. Other decision types are coming.`}
+            value={decisionType}
+            onChange={setDecisionType}
+            options={(Object.keys(DECISION_TYPE_LABELS) as DecisionType[]).map((key) => {
+              const active = ACTIVE_DECISION_TYPES.includes(key);
+              return {
+                value: key,
+                label: DECISION_TYPE_LABELS[key],
+                disabled: !active,
+                badge: active ? undefined : "Coming soon",
+              };
+            })}
+          />
         </StepShell>
       )}
 

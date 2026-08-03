@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { sliderFillPercent } from "@/lib/assessment/format";
 import { Celebrate } from "@/components/ui/Celebrate";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Skeleton } from "@/components/ui/Skeleton";
 import type { DailyCheckin } from "@/types/database";
 
@@ -267,24 +268,28 @@ export default function DailyCheckinPage() {
               )}
 
               {step === 1 && (
-                <div role="group" aria-label="Unplanned spend today">
+                <div>
                   <p className="text-sm text-light">Any unplanned spend today?</p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {SPEND_OPTIONS.map((o) => (
-                      <Chip key={o.value} label={o.label} selected={spend === o.value} onClick={() => setSpend(o.value)} />
-                    ))}
-                  </div>
+                  <SegmentedControl
+                    ariaLabel="Unplanned spend today"
+                    options={SPEND_OPTIONS}
+                    value={spend}
+                    onChange={setSpend}
+                    className="mt-3 flex flex-wrap gap-2"
+                  />
                 </div>
               )}
 
               {step === 2 && (
-                <div role="group" aria-label="Today's money win">
+                <div>
                   <p className="text-sm text-light">What counted as a money win today?</p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {WIN_OPTIONS.map((o) => (
-                      <Chip key={o.value} label={o.label} selected={win === o.value} onClick={() => setWin(o.value)} />
-                    ))}
-                  </div>
+                  <SegmentedControl
+                    ariaLabel="Today's money win"
+                    options={WIN_OPTIONS}
+                    value={win}
+                    onChange={setWin}
+                    className="mt-3 flex flex-wrap gap-2"
+                  />
                 </div>
               )}
 
@@ -348,23 +353,6 @@ function CompletionScreen({ insight, streak }: { insight: string; streak: number
       )}
       <p className="text-xs text-dim">Come back tomorrow to keep your streak going.</p>
     </div>
-  );
-}
-
-function Chip({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={selected}
-      className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
-        selected
-          ? "border-cyan/60 bg-cyan/10 text-cyan"
-          : "border-slate-high/60 text-dim hover:border-cyan/30 hover:text-light"
-      }`}
-    >
-      {label}
-    </button>
   );
 }
 
