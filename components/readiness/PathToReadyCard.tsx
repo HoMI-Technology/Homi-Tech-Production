@@ -15,6 +15,8 @@ import {
   PATH_LEGAL_SHORT,
   HARD_STOP_ORDER,
   completePathStep,
+  completePathStepWithImpact,
+  completePathStepGuarded,
   financeSnapshotForPath,
   getFinanceSavedAtForPath,
   computeBindingProgress,
@@ -38,6 +40,7 @@ import {
   type ReadinessPath,
 } from "@/lib/readiness";
 import { hasSavedFinanceState } from "@/lib/finance/store";
+import { impactBus } from "@/lib/flags";
 import { PathPreview } from "./PathPreview";
 import { PathProgressHero } from "./PathProgressHero";
 
@@ -207,20 +210,24 @@ export function PathToReadyCard({
 
   const handleComplete = useCallback(
     (stepId: string) => {
-      const before = loadReadinessPath();
-      const wasFirstPending =
-        before?.steps.find((s) => (s.status ?? "pending") === "pending")?.id ===
-        stepId;
-      const next = completePathStep(stepId, "done");
-      if (next) {
-        setPath(next);
-        const step = next.steps.find((s) => s.id === stepId);
-        trackPathStepDone({
-          reasonCode: step?.reasonCode ?? "unknown",
-          evidence: "manual",
-          firstStep: wasFirstPending ? 1 : 0,
-        });
+      // Guarded transition either way; only the flag-on branch may publish a
+      // toast impact. Analytics fire once per real transition, and
+      // first-resolution truth (no step of any kind was done or skipped
+      // before) comes from the transition — not from "first pending step".
+      const result = impactBus
+        ? completePathStepWithImpact(stepId)
+        : completePathStepGuarded(stepId);
+      if (result.kind === "noop") {
+        if (result.path) setPath(result.path);
+        return;
       }
+      setPath(result.path);
+      trackPathStepDone({
+        surface: "results",
+        reasonCode: result.transition.reasonCode,
+        evidence: "manual",
+        firstStep: result.transition.wasFirstResolution ? 1 : 0,
+      });
     },
     [],
   );
@@ -384,7 +391,7 @@ export function PathToReadyCard({
             {!isOptional && (
               <span className="inline-flex items-center rounded-full border border-slate-surface/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-dim">
                 <span className="score-numeral mr-1 text-light">{completion}</span>
-                % steps
+                % resolved
               </span>
             )}
           </div>

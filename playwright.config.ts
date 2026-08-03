@@ -66,6 +66,10 @@ export default defineConfig({
       // pin it to the local server so the smoke suite never wanders to prod.
       NEXT_PUBLIC_SITE_URL: baseURL,
       NEXT_TELEMETRY_DISABLED: "1",
+      // Forward the flag explicitly (defaulting off) so the Next.js child
+      // process and the spec runner always agree on the Impact Bus state,
+      // regardless of how the suite was launched.
+      NEXT_PUBLIC_FF_IMPACT_BUS: process.env.NEXT_PUBLIC_FF_IMPACT_BUS ?? "false",
     },
   },
 });

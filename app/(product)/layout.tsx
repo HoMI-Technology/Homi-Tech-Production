@@ -2,7 +2,9 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SessionExpiredToast } from "@/components/layout/SessionExpiredToast";
+import { ImpactToast } from "@/components/readiness/ImpactToast";
 import { CompanionWidget } from "@/components/companion/CompanionWidget";
+import { impactBus } from "@/lib/flags";
 import { getCachedClient, getCachedUser } from "@/lib/supabase/server";
 import type { Profile } from "@/types/database";
 
@@ -60,6 +62,7 @@ export default async function ProductLayout({ children }: { children: React.Reac
       <SiteFooter />
       <CompanionWidget />
       {user && <SessionExpiredToast />}
+      {impactBus ? <ImpactToast /> : null}
     </>
   );
 }

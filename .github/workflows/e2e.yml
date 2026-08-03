@@ -87,7 +87,20 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run Playwright smoke suite
+      # Targeted flag-off contract first: with the Impact Bus disabled, Path
+      # completion must still work with no toast, no transport, no impact
+      # event. Cheap (one spec) and boots its own dev server via webServer.
+      - name: Impact Bus flag-off contract
+        env:
+          NEXT_PUBLIC_FF_IMPACT_BUS: "false"
+        run: npx playwright test e2e/impact-bus.e2e.ts --grep "@flag-off"
+
+      # Full suite runs with the Impact Bus enabled so the feature-on specs
+      # exercise the real toast/transport path; playwright.config.ts forwards
+      # the flag into the Next.js webServer child process.
+      - name: Run Playwright smoke suite (Impact Bus enabled)
+        env:
+          NEXT_PUBLIC_FF_IMPACT_BUS: "true"
         run: npx playwright test
 
       - name: Upload Playwright report + traces

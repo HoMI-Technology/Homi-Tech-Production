@@ -205,23 +205,26 @@ export function computeBindingProgress(
     };
   }
 
-  // Soft pillars / partner / reassess — completion-based if path present
+  // Soft pillars / partner / reassess — resolution-based if path present.
+  // Done and skipped both count as "resolved" for gate progress, but the
+  // user-facing detail keeps them distinct — skipped is not complete.
   if (path) {
-    const actionable = path.steps.filter((s) => s.reasonCode !== "REASSESS");
-    const done = actionable.filter(
-      (s) => (s.status ?? "pending") === "done" || (s.status ?? "pending") === "skipped",
-    ).length;
-    const total = Math.max(1, actionable.length);
-    const ratio = done / total;
+    const summary = summarizePathResolution(path);
+    const { done, skipped, total } = summary.actionable;
+    const resolved = done + skipped;
+    const ratio = total > 0 ? resolved / total : 0;
     return {
       code,
       label,
-      current: done,
-      target: total,
-      unit: "steps",
+      current: resolved,
+      target: Math.max(1, total),
+      unit: "steps resolved",
       ratio,
-      cleared: ratio >= 1,
-      detail: `${done} of ${total} path steps complete.`,
+      cleared: total > 0 && ratio >= 1,
+      detail:
+        skipped > 0
+          ? `${done} of ${total} protective steps done · ${skipped} skipped.`
+          : `${done} of ${Math.max(1, total)} protective steps done.`,
     };
   }
 
@@ -275,7 +278,62 @@ export function computePathFreshness(
   };
 }
 
-/** Path completion ratio excluding pure reassess-only lists. */
+/** Per-category step status counts. Done and skipped are distinct states. */
+export interface PathStatusCounts {
+  total: number;
+  done: number;
+  skipped: number;
+  pending: number;
+}
+
+/**
+ * Honest resolution summary for a Path.
+ * - Actionable = every step whose reasonCode is not REASSESS.
+ * - completedRatio counts done only; resolvedRatio counts done + skipped.
+ * - Zero actionable steps → both ratios are 0 (never vacuously "complete").
+ */
+export interface PathResolutionSummary {
+  actionable: PathStatusCounts;
+  reassessment: PathStatusCounts;
+  completedRatio: number;
+  resolvedRatio: number;
+}
+
+function countStatuses(steps: ReadinessPath["steps"]): PathStatusCounts {
+  let done = 0;
+  let skipped = 0;
+  let pending = 0;
+  for (const step of steps) {
+    const status = step.status ?? "pending";
+    if (status === "done") done += 1;
+    else if (status === "skipped") skipped += 1;
+    else pending += 1;
+  }
+  return { total: steps.length, done, skipped, pending };
+}
+
+export function summarizePathResolution(path: ReadinessPath): PathResolutionSummary {
+  const actionable = countStatuses(
+    path.steps.filter((s) => s.reasonCode !== "REASSESS"),
+  );
+  const reassessment = countStatuses(
+    path.steps.filter((s) => s.reasonCode === "REASSESS"),
+  );
+  return {
+    actionable,
+    reassessment,
+    completedRatio: actionable.total > 0 ? actionable.done / actionable.total : 0,
+    resolvedRatio:
+      actionable.total > 0
+        ? (actionable.done + actionable.skipped) / actionable.total
+        : 0,
+  };
+}
+
+/**
+ * Resolved ratio (done + skipped over non-REASSESS steps) — display it as
+ * "resolved", never "complete": skipped steps count toward this number.
+ */
 export function pathCompletionRatio(path: ReadinessPath): number {
   const steps = path.steps.filter((s) => s.reasonCode !== "REASSESS");
   if (steps.length === 0) {
