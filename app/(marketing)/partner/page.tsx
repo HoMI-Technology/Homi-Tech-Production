@@ -77,7 +77,7 @@ export default function PartnerPage() {
               ground.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/partner/portal" className="btn btn-primary">
+              <Link href="/partner/dashboard" className="btn btn-primary">
                 Open partner portal
               </Link>
               <Link href="/waitlist" className="btn btn-ghost">
@@ -159,7 +159,7 @@ export default function PartnerPage() {
               </p>
             </div>
             <div className="flex shrink-0 flex-wrap gap-3">
-              <Link href="/partner/portal" className="btn btn-primary">
+              <Link href="/partner/dashboard" className="btn btn-primary">
                 Open partner portal
               </Link>
               <Link href="/waitlist" className="btn btn-ghost">

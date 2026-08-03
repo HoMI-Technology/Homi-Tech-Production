@@ -53,13 +53,13 @@ describe("route-protection classification", () => {
     }
   });
 
-  it("gates only the /portal and /dashboard sub-paths of partially-protected routes", () => {
+  it("gates only the /dashboard sub-path of partially-protected routes", () => {
     expect(isProtectedPath("/partner")).toBe(false);
-    expect(isProtectedPath("/partner/portal")).toBe(true);
     expect(isProtectedPath("/partner/dashboard")).toBe(true);
     expect(isProtectedPath("/employee")).toBe(false);
-    expect(isProtectedPath("/employee/portal")).toBe(true);
     expect(isProtectedPath("/employee/dashboard")).toBe(true);
+    // Legacy /portal stubs are gone — next.config.ts 308s them to /dashboard
+    // before middleware runs, so the prefixes list no longer carries them.
     expect(isProtectedPath("/team")).toBe(true);
   });
 

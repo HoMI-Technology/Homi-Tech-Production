@@ -65,17 +65,17 @@ export const PROTECTED_PRODUCT_ROUTES = [
 
 /**
  * Product routes whose landing page is public but which expose a protected
- * `/portal` (and `/dashboard`) sub-path. The root stays reachable
- * (partner/employer marketing); only the nested product surfaces gate.
+ * `/dashboard` sub-path. The root stays reachable (partner/employer
+ * marketing); only the nested product surfaces gate. The legacy `/portal`
+ * stubs were removed — next.config.ts 308s them to `/dashboard` before the
+ * middleware runs, so only the destination needs gating here.
  */
 export const PARTIALLY_PROTECTED_PRODUCT_ROUTES = ["partner", "employee"] as const;
 
 /** URL prefixes that require an authenticated session. */
 export const PROTECTED_PREFIXES: string[] = [
   ...PROTECTED_PRODUCT_ROUTES.map((r) => `/${r}`),
-  "/partner/portal",
   "/partner/dashboard",
-  "/employee/portal",
   "/employee/dashboard",
 ];
 

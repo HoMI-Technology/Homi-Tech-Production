@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { agentOs } from "@/lib/flags";
 
 export interface AdminNavItem {
   href: string;
@@ -123,17 +124,24 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
         label: "Activity",
         icon: <path d="M3 11h3l2 6 4-12 2 6h3" />,
       },
-      {
-        href: "/agent-hub",
-        label: "Agent Hub",
-        icon: (
-          <>
-            <circle cx="10" cy="8" r="3" />
-            <path d="M4 17c1.5-2.5 3.5-3.5 6-3.5s4.5 1 6 3.5" />
-            <path d="M16 4l2 2-2 2M18 6h-3" />
-          </>
-        ),
-      },
+      // Agent Hub is an Agent OS surface — gated at the data level behind the
+      // same build-time flag the user chrome uses (lib/flags.ts → agentOs),
+      // matching how lib/layout/nav-catalog.ts filters flagged entries.
+      ...(agentOs
+        ? [
+            {
+              href: "/agent-hub",
+              label: "Agent Hub",
+              icon: (
+                <>
+                  <circle cx="10" cy="8" r="3" />
+                  <path d="M4 17c1.5-2.5 3.5-3.5 6-3.5s4.5 1 6 3.5" />
+                  <path d="M16 4l2 2-2 2M18 6h-3" />
+                </>
+              ),
+            },
+          ]
+        : []),
     ],
   },
 ];

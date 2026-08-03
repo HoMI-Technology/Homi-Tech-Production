@@ -59,7 +59,7 @@ export default function EmployeePage() {
               people up at night. Buying a home. Moving. Making a leap.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/employee/portal" className="btn btn-primary">
+              <Link href="/employee/dashboard" className="btn btn-primary">
                 Open my portal
               </Link>
               <Link href="/b2b" className="btn btn-ghost">
@@ -158,7 +158,7 @@ export default function EmployeePage() {
               </p>
             </div>
             <div className="flex shrink-0 flex-wrap gap-3">
-              <Link href="/employee/portal" className="btn btn-primary">
+              <Link href="/employee/dashboard" className="btn btn-primary">
                 Open my portal
               </Link>
               <Link href="/b2b" className="btn btn-ghost">

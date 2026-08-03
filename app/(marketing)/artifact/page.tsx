@@ -10,8 +10,10 @@ export const metadata: Metadata = {
 /**
  * Public but noindex test environment for exercising the Decision Companion
  * against a fixed mock context, without needing a real assessment or
- * signed-in session. Not linked from primary nav; reachable via the footer
- * "Companion Playground" link and direct URL.
+ * signed-in session. Deliberately unlinked: the old footer "Companion
+ * Playground" link was removed per AUDIT-2026-07-08 T2.8 (internal test
+ * environment, keep the route but not in public chrome) — reachable by
+ * direct URL only.
  */
 export default function ArtifactPage() {
   return (
