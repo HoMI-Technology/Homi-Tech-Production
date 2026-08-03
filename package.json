@@ -37,7 +37,6 @@
     "@vercel/speed-insights": "^2.0.0",
     "framer-motion": "^12.42.2",
     "next": "^15.5.22",
-    "next-intl": "^4.13.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-plaid-link": "^5.0.0",

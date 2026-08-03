@@ -62,8 +62,8 @@ describe("architecture feed canon", () => {
   it("buildArchitectureDocument derives stats from arrays", () => {
     const doc = buildArchitectureDocument({
       productRoutes: [
-        { path: "/", file: "app/[locale]/(marketing)/page.tsx" },
-        { path: "/tools/mortgage", file: "app/[locale]/(product)/tools/mortgage/page.tsx" },
+        { path: "/", file: "app/(marketing)/page.tsx" },
+        { path: "/tools/mortgage", file: "app/(product)/tools/mortgage/page.tsx" },
       ],
       apiRouteDirs: ["advisor", "scoring"],
       componentDirs: [{ name: "agents", count: 2, examples: ["AgentHubPanel"] }],

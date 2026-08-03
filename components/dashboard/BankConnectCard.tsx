@@ -1,4 +1,4 @@
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 
 /**
  * Compact connect CTA for the Financial position section when no bank is

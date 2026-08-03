@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "@/i18n/navigation";
+import { useRouter } from "next/navigation";
 import { campaignEmail } from "@/lib/email/templates";
 import type { CampaignAudience } from "@/types/database";
 

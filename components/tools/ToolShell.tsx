@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 
 /**
  * Shared operate chrome for every calculator page.

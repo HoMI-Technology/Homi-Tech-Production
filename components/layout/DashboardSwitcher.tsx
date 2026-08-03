@@ -1,6 +1,7 @@
 "use client";
 
-import { Link, usePathname } from "@/i18n/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";

@@ -11,9 +11,6 @@ export default defineConfig({
   test: {
     environment: "node",
     setupFiles: ["./vitest.setup.ts"],
-    // next-intl's ESM build imports "next/server" (extensionless); inline it so
-    // Vitest resolves it through its own resolver (middleware.test.ts).
-    server: { deps: { inline: ["next-intl"] } },
     exclude: [
       ...configDefaults.exclude,
       "**/__tests__/acceptance/**",

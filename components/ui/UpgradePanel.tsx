@@ -1,4 +1,4 @@
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 
 /** Shown when a signed-in user lacks the tier capability for a feature. */
 export function UpgradePanel({

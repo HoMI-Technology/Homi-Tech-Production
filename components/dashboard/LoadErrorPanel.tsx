@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "@/i18n/navigation";
+import { useRouter } from "next/navigation";
 
 /**
  * Distinct failed-to-load state. A transient query error must never wear the

@@ -10,7 +10,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import { track } from "@/lib/analytics";
 import { getLens, resolveCarryWrites, type LensChain } from "@/lib/tools/registry";
 import { saveToolsOverlayFields } from "@/lib/tools/cfm";

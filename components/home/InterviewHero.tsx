@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import { CinematicCompass, Particles } from "./CinematicCompass";
 import { track } from "@/lib/analytics";
 
@@ -27,12 +26,28 @@ interface Signals {
 
 type Temperature = "COOL" | "WARM" | "WARM_PLUS" | "HOT";
 
-/** Color stays code (design canon); label/copy come from messages.{en,es}. */
-const TEMPERATURE_META: Record<Temperature, { messageKey: string; color: string }> = {
-  COOL: { messageKey: "cool", color: "#34d399" },
-  WARM: { messageKey: "warm", color: "#facc15" },
-  WARM_PLUS: { messageKey: "warmPlus", color: "#fab633" },
-  HOT: { messageKey: "hot", color: "#f24822" },
+/** Color stays code (design canon), alongside the verdict label and copy. */
+const TEMPERATURE_META: Record<Temperature, { label: string; copy: string; color: string }> = {
+  COOL: {
+    label: "Running cool",
+    copy: "You’re running cool. Steady signals across all three. The full read confirms it in three minutes.",
+    color: "#34d399",
+  },
+  WARM: {
+    label: "Running warm",
+    copy: "You’re running warm. Close: one signal needs attention before you leap.",
+    color: "#facc15",
+  },
+  WARM_PLUS: {
+    label: "Running warm+",
+    copy: "You’re running warm+. Something needs building first. That is not a wall. It is a map.",
+    color: "#fab633",
+  },
+  HOT: {
+    label: "Running hot",
+    copy: "You’re running hot. This is a protection signal. Slow down before pressure makes the decision for you.",
+    color: "#f24822",
+  },
 };
 
 function computeTemperature(s: { financial: Signal; emotional: Signal; timing: Signal }): Temperature {
@@ -66,27 +81,50 @@ interface Question {
   chips: { label: string; value: Signal }[];
 }
 
-const QUESTION_META: { id: Question["id"]; ringColor: string; event: string }[] = [
-  { id: "financial", ringColor: "#22d3ee", event: "hero_q1_answered" },
-  { id: "emotional", ringColor: "#34d399", event: "hero_q2_answered" },
-  { id: "timing", ringColor: "#facc15", event: "hero_q3_answered" },
+const QUESTIONS: Question[] = [
+  {
+    id: "financial",
+    prompt: "If you lost your income tomorrow — how many months could you cover?",
+    ringColor: "#22d3ee",
+    announce: "Financial Reality signal set.",
+    event: "hero_q1_answered",
+    chips: [
+      { label: "Under a month", value: 0 },
+      { label: "1–3 months", value: 1 },
+      { label: "3–6 months", value: 2 },
+      { label: "6+ months", value: 3 },
+    ],
+  },
+  {
+    id: "emotional",
+    prompt: "How much of this decision is driven by what YOU want — versus pressure from around you?",
+    ringColor: "#34d399",
+    announce: "Emotional Truth signal set.",
+    event: "hero_q2_answered",
+    chips: [
+      { label: "All outside", value: 0 },
+      { label: "Mostly outside", value: 1 },
+      { label: "Mostly me", value: 2 },
+      { label: "From me", value: 3 },
+    ],
+  },
+  {
+    id: "timing",
+    prompt: "If you waited 12 months, what would likely change?",
+    ringColor: "#facc15",
+    announce: "Perfect Timing signal set.",
+    event: "hero_q3_answered",
+    chips: [
+      { label: "Everything’s blocked on now", value: 0 },
+      { label: "Prices might run away", value: 1 },
+      { label: "I’d save more, same goal", value: 2 },
+      { label: "Little — I’m choosing the moment", value: 3 },
+    ],
+  },
 ];
 
 export function InterviewHero() {
-  const t = useTranslations("home.hero");
-  const questions = useMemo<Question[]>(
-    () =>
-      QUESTION_META.map((meta) => ({
-        ...meta,
-        prompt: t(`questions.${meta.id}.prompt`),
-        announce: t(`questions.${meta.id}.announce`),
-        chips: (t.raw(`questions.${meta.id}.chips`) as string[]).map((label, value) => ({
-          label,
-          value: value as Signal,
-        })),
-      })),
-    [t],
-  );
+  const questions = QUESTIONS;
   const [signals, setSignals] = useState<Signals>({ financial: null, emotional: null, timing: null });
   const [reducedMotion, setReducedMotion] = useState(false);
   const [settled, setSettled] = useState(false);
@@ -231,18 +269,19 @@ export function InterviewHero() {
         {/* Thesis + interview */}
         <div className="order-2 flex flex-col items-center text-center lg:order-1 lg:items-start lg:text-left">
           <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-cyan/90">
-            {t("kicker")}
+            Decision Readiness Intelligence™
           </p>
 
           <h1
             className="mt-4 max-w-[14ch] font-display text-[clamp(2.1rem,5.2vw,3.75rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-light sm:max-w-none"
             style={{ textWrap: "balance" }}
           >
-            {t("h1")}
+            Know when you&rsquo;re ready.
           </h1>
 
           <p className="mt-3 max-w-[36ch] text-[0.9375rem] leading-relaxed text-dim sm:text-base lg:max-w-md">
-            {t("sub")}
+            A credit score estimates repayment risk. HōMI helps you evaluate readiness for the
+            decision itself.
           </p>
 
           {/* Semantic progress: which of 3 signals is active */}
@@ -293,7 +332,7 @@ export function InterviewHero() {
                     </button>
                   ))}
                 </div>
-                <p className="mt-4 text-xs text-dim/75">{t("note")}</p>
+                <p className="mt-4 text-xs text-dim/75">Your answers aren&rsquo;t stored or sent.</p>
               </div>
             )}
 
@@ -315,10 +354,10 @@ export function InterviewHero() {
                     }}
                     aria-hidden
                   />
-                  {t(`temps.${TEMPERATURE_META[temperature].messageKey}.label`)}
+                  {TEMPERATURE_META[temperature].label}
                 </span>
                 <p className="mt-3 max-w-md text-sm leading-relaxed text-light/95 sm:text-base">
-                  {t(`temps.${TEMPERATURE_META[temperature].messageKey}.copy`)}
+                  {TEMPERATURE_META[temperature].copy}
                 </p>
                 <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row lg:justify-start">
                   <Link
@@ -326,7 +365,7 @@ export function InterviewHero() {
                     className="btn btn-primary btn-glow px-8 py-3.5 text-base"
                     onClick={handleCtaClick}
                   >
-                    {t("cta")}
+                    Check my readiness
                     <svg
                       width="16"
                       height="16"
@@ -343,7 +382,7 @@ export function InterviewHero() {
                     href="#statement"
                     className="text-sm text-dim underline-offset-4 transition-colors hover:text-light hover:underline"
                   >
-                    {t("exploring")}
+                    Just exploring
                   </a>
                 </div>
               </div>

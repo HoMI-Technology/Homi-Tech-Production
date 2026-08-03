@@ -32,7 +32,7 @@ function pagePathFromFile(file: string): string | null {
   const rel = toPosix(path.relative(path.join(ROOT, "app"), file));
   if (!rel.endsWith("/page.tsx") && rel !== "page.tsx") return null;
   const withoutPage = rel.replace(/\/page\.tsx$/, "").replace(/^page\.tsx$/, "");
-  const parts = withoutPage.split("/").filter((p) => p && !p.startsWith("(") && p !== "[locale]");
+  const parts = withoutPage.split("/").filter((p) => p && !p.startsWith("("));
   if (parts.length === 0) return "/";
   return `/${parts.join("/")}`;
 }
