@@ -4,17 +4,22 @@ export interface TrinityPillarReading {
   value: number;
 }
 
-export interface TrinityGap {
+export interface TrinityGap<T extends TrinityPillarReading = TrinityPillarReading> {
   gap: number;
-  strong: TrinityPillarReading;
-  weak: TrinityPillarReading;
+  strong: T;
+  weak: T;
 }
 
-/** Alert when max−min > threshold (default 40). Boundary 40 → null. */
-export function computeTrinityGap(
-  pillars: TrinityPillarReading[],
+/**
+ * Alert when max−min > threshold (default 40). Boundary 40 → null.
+ *
+ * Generic so callers with richer pillar shapes (e.g. the dashboard's
+ * PillarReading with max/color/pct) get their own type back on strong/weak.
+ */
+export function computeTrinityGap<T extends TrinityPillarReading>(
+  pillars: T[],
   threshold = 40,
-): TrinityGap | null {
+): TrinityGap<T> | null {
   if (pillars.length < 3) return null;
   const values = pillars.map((p) => p.value);
   const max = Math.max(...values);

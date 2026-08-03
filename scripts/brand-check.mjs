@@ -1,6 +1,9 @@
-#!/usr/bin/env node
 /**
  * HōMI brand-check (extended)
+ *
+ * Invoked as `node scripts/brand-check.mjs` (package.json / CI) — no shebang:
+ * vite's SSR transform hoists imports above line 1, and a shebang stranded
+ * mid-file is a SyntaxError that breaks __tests__/brand-check.test.mjs.
  * ===========================
  *
  * Drop-in replacement for scripts/brand-check.mjs.

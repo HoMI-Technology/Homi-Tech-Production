@@ -1,6 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
 import { dismissCookieConsent } from "./helpers/consent";
-import { englishLocaleCookie, pinEnglishLocalePage } from "./helpers/locale";
 
 /**
  * Impact Bus (PR #127) — anonymous, seeded-localStorage flows only. No auth
@@ -106,7 +105,6 @@ function samplePath(steps: SeedStep[]) {
 }
 
 async function seedAndInstrument(page: Page, steps: SeedStep[]): Promise<void> {
-  await pinEnglishLocalePage(page);
   await page.addInitScript(
     ({ assessment, path, eventName }) => {
       // Seed once per browser session — init scripts re-run on every
@@ -134,10 +132,6 @@ async function seedAndInstrument(page: Page, steps: SeedStep[]): Promise<void> {
 
 async function gotoPath(page: Page, url = "/path"): Promise<void> {
   await page.goto(url);
-  if (page.url().includes("/es/")) {
-    await page.context().addCookies([englishLocaleCookie()]);
-    await page.reload();
-  }
   await dismissCookieConsent(page);
   await expect(page.getByRole("heading", { name: "Your path" })).toBeVisible({
     timeout: 20_000,
@@ -418,12 +412,14 @@ test.describe("Impact Bus @flag-on", () => {
     await expect(toast).not.toContainText(/Score|\+\d|readiness improved/i);
   });
 
+  // /es/demo is not a locale route anymore — i18n was removed in #125 and
+  // next.config.ts 308s (permanent: true) /es/:path* onto the unprefixed route. Visiting it
+  // proves the legacy alias still lands on the isolated demo surface.
   for (const demoUrl of ["/demo", "/es/demo"]) {
     test(`@flag-on P9/P10: ${demoUrl} never shows a real impact and clears transport`, async ({
       page,
     }) => {
       test.setTimeout(90_000);
-      await pinEnglishLocalePage(page);
       await page.addInitScript(
         ({ v1Key, legacyKey, impact }) => {
           // Freshly-stamped real impact waiting in the transport when the

@@ -21,7 +21,12 @@ import type {
  */
 
 let mockPathname = "/path";
-vi.mock("@/i18n/navigation", () => ({
+// Mock ONLY usePathname; every other next/navigation export stays real so the
+// component exercises the true import path (the @/i18n/navigation module this
+// mock used to target was deleted in #125 — a stale mock here would hide
+// exactly that class of break).
+vi.mock("next/navigation", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next/navigation")>()),
   usePathname: () => mockPathname,
 }));
 
@@ -279,8 +284,10 @@ describe("ImpactToast demo isolation", () => {
     },
   );
 
-  it("Spanish demo is the same route after locale normalization", () => {
-    // usePathname (next-intl) strips the /es prefix — /es/demo arrives as /demo.
+  it("legacy /es/demo lands on /demo after the next.config redirect", () => {
+    // i18n was removed in #125 — next.config.ts 308s (permanent: true) /es/:path* onto the
+    // unprefixed route, so a legacy /es/demo request reaches this component
+    // with pathname "/demo".
     mockPathname = "/demo";
     render(<ImpactToast />);
     dispatchImpact(impactFixture());
