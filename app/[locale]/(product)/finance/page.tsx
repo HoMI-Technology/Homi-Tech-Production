@@ -657,10 +657,7 @@ function ProjectionChart({ points }: { points: { month: number; cumulative: numb
 /* ═══════════════════════════════════════════ Debt ════════════════════════ */
 
 function DebtTab() {
-  const [debts, setDebts] = useState<Debt[]>([
-    { id: `debt-${crypto.randomUUID()}`, name: "Credit card", balance: 4500, apr: 22.9, minPayment: 120 },
-    { id: `debt-${crypto.randomUUID()}`, name: "Car loan", balance: 12000, apr: 6.5, minPayment: 280 },
-  ]);
+  const [debts, setDebts] = useState<Debt[]>([]);
   const [extra, setExtra] = useState(300);
 
   const validDebts = debts.filter((d) => d.balance > 0 && d.minPayment > 0);
@@ -690,7 +687,10 @@ function DebtTab() {
         </div>
 
         <div className="mt-4 space-y-3">
-          {debts.map((debt) => (
+          {debts.length === 0 ? (
+            <p className="text-sm text-dim">Add your debts to compare payoff strategies.</p>
+          ) : (
+            debts.map((debt) => (
             <div key={debt.id} className="grid grid-cols-2 gap-3 rounded-lg border border-slate-surface/60 p-3 sm:grid-cols-5">
               <input className="input sm:col-span-2" placeholder="Name" value={debt.name} onChange={(e) => updateDebt(debt.id, { name: e.target.value })} />
               <input className="input" type="number" placeholder="Balance" value={debt.balance || ""} onChange={(e) => updateDebt(debt.id, { balance: Number(e.target.value) })} />
@@ -704,7 +704,8 @@ function DebtTab() {
                 </button>
               </div>
             </div>
-          ))}
+          ))
+        )}
         </div>
 
         <div className="mt-5 max-w-xs">

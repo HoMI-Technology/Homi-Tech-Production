@@ -18,6 +18,7 @@ const state = vi.hoisted(() => ({
   item: null as Record<string, unknown> | null,
   itemUpdates: [] as Record<string, unknown>[],
   accountDeletes: [] as string[],
+  transactionDeletes: [] as string[],
   syncCalls: [] as Record<string, unknown>[],
   adminAvailable: true,
 }));
@@ -59,6 +60,16 @@ vi.mock("@/lib/supabase/admin", () => ({
             delete: () => ({
               eq: async (_col: string, id: string) => {
                 state.accountDeletes.push(id);
+                return { error: null };
+              },
+            }),
+          };
+        }
+        if (table === "plaid_transactions") {
+          return {
+            delete: () => ({
+              eq: async (_col: string, id: string) => {
+                state.transactionDeletes.push(id);
                 return { error: null };
               },
             }),
@@ -161,6 +172,7 @@ beforeEach(() => {
   state.item = { ...ITEM_ROW };
   state.itemUpdates = [];
   state.accountDeletes = [];
+  state.transactionDeletes = [];
   state.syncCalls = [];
   state.adminAvailable = true;
   clearWebhookKeyCache();
@@ -265,18 +277,20 @@ describe("POST /api/plaid/webhook — dispatch", () => {
     expect(state.itemUpdates).toEqual([{ status: "pending_disconnect" }]);
   });
 
-  it("marks revoked AND purges the item's accounts on USER_PERMISSION_REVOKED", async () => {
+  it("marks revoked AND purges the item's accounts and transactions on USER_PERMISSION_REVOKED", async () => {
     const res = await POST(webhookRequest(body("ITEM", "USER_PERMISSION_REVOKED")));
     expect(res.status).toBe(200);
     expect(state.itemUpdates).toEqual([{ status: "revoked" }]);
     expect(state.accountDeletes).toEqual(["item-row-uuid-1"]);
+    expect(state.transactionDeletes).toEqual(["item-row-uuid-1"]);
   });
 
-  it("also treats USER_ACCOUNT_REVOKED as a revocation", async () => {
+  it("also treats USER_ACCOUNT_REVOKED as a full revocation purge", async () => {
     const res = await POST(webhookRequest(body("ITEM", "USER_ACCOUNT_REVOKED")));
     expect(res.status).toBe(200);
     expect(state.itemUpdates).toEqual([{ status: "revoked" }]);
     expect(state.accountDeletes).toEqual(["item-row-uuid-1"]);
+    expect(state.transactionDeletes).toEqual(["item-row-uuid-1"]);
   });
 
   it("200s WEBHOOK_UPDATE_ACKNOWLEDGED as a no-op", async () => {
