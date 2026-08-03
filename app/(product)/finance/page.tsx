@@ -24,13 +24,29 @@ import {
 } from "@/lib/finance/store";
 import { compareStrategies, type Debt } from "@/lib/tools/debt";
 import { runMonteCarlo, type MonteCarloResult } from "@/lib/tools/montecarlo";
-import { formatCurrency, formatCompactCurrency, formatMonths, formatPercent } from "@/lib/tools/format";
+import {
+  formatCurrency,
+  formatCompactCurrency,
+  formatMonths,
+  formatPercent,
+} from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
 import { NumberField } from "@/components/ui/NumberField";
 import { PageFrame } from "@/components/operate/PageFrame";
 import { Tabs, TabPanel } from "@/components/ui/Tabs";
-import { BudgetTab } from "@/components/finance/BudgetTab";
+import dynamic from "next/dynamic";
 import { budgetLedger } from "@/lib/flags";
+
+// Statically imported flag-gated components are not reliably tree-shaken
+// (bundlers cannot always prove the module side-effect-free), so the Budget
+// tab loads through next/dynamic: with the flag inlined to false at build
+// time the import expression is dead code and the chunk is never referenced.
+const BudgetTab = budgetLedger
+  ? dynamic(() => import("@/components/finance/BudgetTab").then((m) => m.BudgetTab), {
+      ssr: false,
+      loading: () => null,
+    })
+  : null;
 import Link from "next/link";
 import {
   loadReadinessPath,
@@ -66,7 +82,6 @@ const TEMP_BG: Record<Temperature, string> = {
   amber: "bg-verdict-build",
   crimson: "bg-verdict-notyet",
 };
-
 
 export default function FinancePage() {
   const [state, setState] = useState<FinanceState>(DEFAULT_FINANCE_STATE);
@@ -129,7 +144,7 @@ export default function FinancePage() {
 
       <TabPanel idPrefix="finance" value={tab} className="mt-8">
         {tab === "overview" && <OverviewTab state={state} patch={patch} />}
-        {tab === "budget" && budgetLedger && <BudgetTab />}
+        {tab === "budget" && BudgetTab !== null && <BudgetTab />}
         {tab === "cashflow" && <CashFlowTab state={state} patch={patch} />}
         {tab === "debt" && <DebtTab />}
         {tab === "montecarlo" && <MonteCarloTab state={state} patch={patch} />}
@@ -174,9 +189,7 @@ function PathToReadyStrip() {
   if (!path) return null;
 
   const next =
-    path.steps.find(
-      (s) => s.reasonCode !== "REASSESS" && (s.status ?? "pending") === "pending",
-    ) ??
+    path.steps.find((s) => s.reasonCode !== "REASSESS" && (s.status ?? "pending") === "pending") ??
     path.steps.find((s) => (s.status ?? "pending") === "pending") ??
     path.steps[0] ??
     null;
@@ -200,9 +213,7 @@ function PathToReadyStrip() {
       : null,
   );
   const pct =
-    progress.ratio != null
-      ? Math.round(Math.min(1, Math.max(0, progress.ratio)) * 100)
-      : null;
+    progress.ratio != null ? Math.round(Math.min(1, Math.max(0, progress.ratio)) * 100) : null;
 
   return (
     <div className="glass flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
@@ -375,10 +386,10 @@ function OverviewTab({
             rate >= 20
               ? "A strong rate — most goals stay reachable on this pace."
               : rate >= 10
-              ? "A workable rate, but there's room to build faster."
-              : rate >= 0
-              ? "Thin margin. One surprise expense erases the surplus."
-              : "You're drawing down, not building up. This is the number to fix first."
+                ? "A workable rate, but there's room to build faster."
+                : rate >= 0
+                  ? "Thin margin. One surprise expense erases the surplus."
+                  : "You're drawing down, not building up. This is the number to fix first."
           }
         />
         <StatCard
@@ -389,12 +400,12 @@ function OverviewTab({
             !Number.isFinite(runway)
               ? "No monthly outflow recorded — add expenses for a real read."
               : runway >= 6
-              ? "Six-plus months covered. That's real protection against a job loss or emergency."
-              : runway >= 3
-              ? "A few months of cushion. Workable, but tight if income stops."
-              : runway >= 1
-              ? "Under three months. A single bad month could force hard choices."
-              : "Under one month of runway. This is the most urgent number on this page."
+                ? "Six-plus months covered. That's real protection against a job loss or emergency."
+                : runway >= 3
+                  ? "A few months of cushion. Workable, but tight if income stops."
+                  : runway >= 1
+                    ? "Under three months. A single bad month could force hard choices."
+                    : "Under one month of runway. This is the most urgent number on this page."
           }
         />
         <StatCard
@@ -405,10 +416,10 @@ function OverviewTab({
             dti <= 28
               ? "Well inside the protected zone lenders and HōMI both look for."
               : dti <= 36
-              ? "Manageable, but getting close to where flexibility narrows."
-              : dti <= 43
-              ? "Above the comfortable range. New debt would be a stretch, not a step."
-              : "Above the line most lenders treat as a hard stop. This needs attention before anything new."
+                ? "Manageable, but getting close to where flexibility narrows."
+                : dti <= 43
+                  ? "Above the comfortable range. New debt would be a stretch, not a step."
+                  : "Above the line most lenders treat as a hard stop. This needs attention before anything new."
           }
         />
       </div>
@@ -417,11 +428,31 @@ function OverviewTab({
         <p className="sm:col-span-2 lg:col-span-5 text-xs font-semibold uppercase tracking-widest text-dim">
           Inputs — every tab reads these
         </p>
-        <NumberField label="Monthly income" value={state.monthlyIncome} onChange={(v) => patch({ monthlyIncome: v ?? 0 })} />
-        <NumberField label="Monthly expenses" value={state.monthlyExpenses} onChange={(v) => patch({ monthlyExpenses: v ?? 0 })} />
-        <NumberField label="Liquid savings" value={state.liquidSavings} onChange={(v) => patch({ liquidSavings: v ?? 0 })} />
-        <NumberField label="Total debt" value={state.totalDebt} onChange={(v) => patch({ totalDebt: v ?? 0 })} />
-        <NumberField label="Monthly debt payments" value={state.monthlyDebtPayments} onChange={(v) => patch({ monthlyDebtPayments: v ?? 0 })} />
+        <NumberField
+          label="Monthly income"
+          value={state.monthlyIncome}
+          onChange={(v) => patch({ monthlyIncome: v ?? 0 })}
+        />
+        <NumberField
+          label="Monthly expenses"
+          value={state.monthlyExpenses}
+          onChange={(v) => patch({ monthlyExpenses: v ?? 0 })}
+        />
+        <NumberField
+          label="Liquid savings"
+          value={state.liquidSavings}
+          onChange={(v) => patch({ liquidSavings: v ?? 0 })}
+        />
+        <NumberField
+          label="Total debt"
+          value={state.totalDebt}
+          onChange={(v) => patch({ totalDebt: v ?? 0 })}
+        />
+        <NumberField
+          label="Monthly debt payments"
+          value={state.monthlyDebtPayments}
+          onChange={(v) => patch({ monthlyDebtPayments: v ?? 0 })}
+        />
       </div>
     </div>
   );
@@ -439,9 +470,13 @@ function StatCard({
   read: string;
 }) {
   return (
-    <div className={`glass glass-hover relative overflow-hidden border p-5 ${TEMP_BG[temperature]}`}>
+    <div
+      className={`glass glass-hover relative overflow-hidden border p-5 ${TEMP_BG[temperature]}`}
+    >
       <p className="text-xs font-semibold uppercase tracking-widest text-dim">{label}</p>
-      <p className={`score-numeral mt-2 text-2xl font-bold tracking-tight sm:text-3xl ${TEMP_TEXT[temperature]}`}>
+      <p
+        className={`score-numeral mt-2 text-2xl font-bold tracking-tight sm:text-3xl ${TEMP_TEXT[temperature]}`}
+      >
         {value}
       </p>
       <p className="mt-3 text-xs leading-relaxed text-dim">{read}</p>
@@ -463,7 +498,9 @@ function CashFlowTab({
 
   function updateCategory(id: string, patchC: Partial<ExpenseCategory>) {
     patch({
-      expenseCategories: state.expenseCategories.map((c) => (c.id === id ? { ...c, ...patchC } : c)),
+      expenseCategories: state.expenseCategories.map((c) =>
+        c.id === id ? { ...c, ...patchC } : c,
+      ),
     });
   }
   function addCategory() {
@@ -501,7 +538,10 @@ function CashFlowTab({
 
         <div className="mt-4 space-y-3">
           {state.expenseCategories.map((cat) => (
-            <div key={cat.id} className="grid grid-cols-3 gap-3 rounded-lg border border-slate-surface/60 p-3">
+            <div
+              key={cat.id}
+              className="grid grid-cols-3 gap-3 rounded-lg border border-slate-surface/60 p-3"
+            >
               <input
                 className="input col-span-2"
                 placeholder="Category name"
@@ -521,7 +561,14 @@ function CashFlowTab({
                   onClick={() => removeCategory(cat.id)}
                   aria-label={`Remove ${cat.name || "category"}`}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <path d="M6 6l12 12M18 6L6 18" />
                   </svg>
                 </button>
@@ -533,16 +580,26 @@ function CashFlowTab({
 
       <div className="glass p-6">
         <h2 className="font-semibold text-light">Income vs. expenses</h2>
-        <FlowBar income={state.monthlyIncome} expenses={totalExpenses} debt={state.monthlyDebtPayments} />
+        <FlowBar
+          income={state.monthlyIncome}
+          expenses={totalExpenses}
+          debt={state.monthlyDebtPayments}
+        />
         <p className="mt-4 text-sm text-dim">
-          Monthly surplus: <span className={`score-numeral font-semibold ${surplus >= 0 ? "text-emerald" : "text-crimson"}`}>{formatCurrency(surplus)}</span>
+          Monthly surplus:{" "}
+          <span
+            className={`score-numeral font-semibold ${surplus >= 0 ? "text-emerald" : "text-crimson"}`}
+          >
+            {formatCurrency(surplus)}
+          </span>
         </p>
       </div>
 
       <div className="glass p-6">
         <h2 className="font-semibold text-light">12-month surplus trend</h2>
         <p className="mt-1 text-xs text-dim">
-          Projects your current monthly surplus forward — a straight line, not a forecast of market returns.
+          Projects your current monthly surplus forward — a straight line, not a forecast of market
+          returns.
         </p>
         <ProjectionChart points={projection} />
       </div>
@@ -562,11 +619,41 @@ function FlowBar({ income, expenses, debt }: { income: number; expenses: number;
         <span>Income: {formatCurrency(income)}</span>
         <span>Expenses + debt: {formatCurrency(expenses + debt)}</span>
       </div>
-      <svg viewBox="0 0 400 32" width="100%" height="32" className="mt-2" role="img" aria-label="Income vs expenses flow bar">
+      <svg
+        viewBox="0 0 400 32"
+        width="100%"
+        height="32"
+        className="mt-2"
+        role="img"
+        aria-label="Income vs expenses flow bar"
+      >
         <rect x="0" y="0" width="400" height="32" rx="6" fill="rgba(51,65,85,0.6)" />
-        <rect x="0" y="0" width={4 * expensesPct} height="32" rx="6" fill="#f24822" opacity="0.85" />
-        <rect x={4 * expensesPct} y="0" width={4 * debtPct} height="32" fill="#fab633" opacity="0.85" />
-        <rect x={4 * (expensesPct + debtPct)} y="0" width={4 * remainingPct} height="32" rx="6" fill="#34d399" opacity="0.85" />
+        <rect
+          x="0"
+          y="0"
+          width={4 * expensesPct}
+          height="32"
+          rx="6"
+          fill="#f24822"
+          opacity="0.85"
+        />
+        <rect
+          x={4 * expensesPct}
+          y="0"
+          width={4 * debtPct}
+          height="32"
+          fill="#fab633"
+          opacity="0.85"
+        />
+        <rect
+          x={4 * (expensesPct + debtPct)}
+          y="0"
+          width={4 * remainingPct}
+          height="32"
+          rx="6"
+          fill="#34d399"
+          opacity="0.85"
+        />
       </svg>
       <div className="mt-2 flex gap-4 text-xs text-dim">
         <LegendDot color="#f24822" label="Expenses" />
@@ -605,8 +692,22 @@ function ProjectionChart({ points }: { points: { month: number; cumulative: numb
   const finalPositive = values[values.length - 1] >= 0;
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} className="mt-4" role="img" aria-label="12-month cumulative surplus projection">
-      <line x1={padding} x2={width - padding} y1={zeroY} y2={zeroY} stroke="rgba(148,163,184,0.3)" strokeDasharray="4 4" />
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      width="100%"
+      height={height}
+      className="mt-4"
+      role="img"
+      aria-label="12-month cumulative surplus projection"
+    >
+      <line
+        x1={padding}
+        x2={width - padding}
+        y1={zeroY}
+        y2={zeroY}
+        stroke="rgba(148,163,184,0.3)"
+        strokeDasharray="4 4"
+      />
       <polyline
         points={linePoints}
         fill="none"
@@ -616,7 +717,13 @@ function ProjectionChart({ points }: { points: { month: number; cumulative: numb
         strokeLinejoin="round"
       />
       {points.map((p) => (
-        <circle key={p.month} cx={scaleX(p.month)} cy={scaleY(p.cumulative)} r="2.5" fill={finalPositive ? "#34d399" : "#f24822"} />
+        <circle
+          key={p.month}
+          cx={scaleX(p.month)}
+          cy={scaleY(p.cumulative)}
+          r="2.5"
+          fill={finalPositive ? "#34d399" : "#f24822"}
+        />
       ))}
     </svg>
   );
@@ -638,7 +745,10 @@ function DebtTab() {
     setDebts((prev) => prev.map((d) => (d.id === id ? { ...d, ...patchD } : d)));
   }
   function addDebt() {
-    setDebts((prev) => [...prev, { id: `debt-${crypto.randomUUID()}`, name: "", balance: 0, apr: 0, minPayment: 0 }]);
+    setDebts((prev) => [
+      ...prev,
+      { id: `debt-${crypto.randomUUID()}`, name: "", balance: 0, apr: 0, minPayment: 0 },
+    ]);
   }
   function removeDebt(id: string) {
     setDebts((prev) => prev.filter((d) => d.id !== id));
@@ -659,53 +769,114 @@ function DebtTab() {
             <p className="text-sm text-dim">Add your debts to compare payoff strategies.</p>
           ) : (
             debts.map((debt) => (
-            <div key={debt.id} className="grid grid-cols-2 gap-3 rounded-lg border border-slate-surface/60 p-3 sm:grid-cols-5">
-              <input className="input sm:col-span-2" placeholder="Name" value={debt.name} onChange={(e) => updateDebt(debt.id, { name: e.target.value })} />
-              <input className="input" type="number" placeholder="Balance" value={debt.balance || ""} onChange={(e) => updateDebt(debt.id, { balance: Number(e.target.value) })} />
-              <input className="input" type="number" placeholder="APR %" value={debt.apr || ""} onChange={(e) => updateDebt(debt.id, { apr: Number(e.target.value) })} />
-              <div className="flex gap-2">
-                <input className="input" type="number" placeholder="Min payment" value={debt.minPayment || ""} onChange={(e) => updateDebt(debt.id, { minPayment: Number(e.target.value) })} />
-                <button className="btn btn-ghost !px-3" onClick={() => removeDebt(debt.id)} aria-label={`Remove ${debt.name || "debt"}`}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M6 6l12 12M18 6L6 18" />
-                  </svg>
-                </button>
+              <div
+                key={debt.id}
+                className="grid grid-cols-2 gap-3 rounded-lg border border-slate-surface/60 p-3 sm:grid-cols-5"
+              >
+                <input
+                  className="input sm:col-span-2"
+                  placeholder="Name"
+                  value={debt.name}
+                  onChange={(e) => updateDebt(debt.id, { name: e.target.value })}
+                />
+                <input
+                  className="input"
+                  type="number"
+                  placeholder="Balance"
+                  value={debt.balance || ""}
+                  onChange={(e) => updateDebt(debt.id, { balance: Number(e.target.value) })}
+                />
+                <input
+                  className="input"
+                  type="number"
+                  placeholder="APR %"
+                  value={debt.apr || ""}
+                  onChange={(e) => updateDebt(debt.id, { apr: Number(e.target.value) })}
+                />
+                <div className="flex gap-2">
+                  <input
+                    className="input"
+                    type="number"
+                    placeholder="Min payment"
+                    value={debt.minPayment || ""}
+                    onChange={(e) => updateDebt(debt.id, { minPayment: Number(e.target.value) })}
+                  />
+                  <button
+                    className="btn btn-ghost !px-3"
+                    onClick={() => removeDebt(debt.id)}
+                    aria-label={`Remove ${debt.name || "debt"}`}
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M6 6l12 12M18 6L6 18" />
+                    </svg>
+                  </button>
+                </div>
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
         </div>
 
         <div className="mt-5 max-w-xs">
           <label className="text-sm text-light">Extra monthly payment</label>
-          <input className="input mt-2" type="number" value={extra} onChange={(e) => setExtra(Number(e.target.value))} />
+          <input
+            className="input mt-2"
+            type="number"
+            value={extra}
+            onChange={(e) => setExtra(Number(e.target.value))}
+          />
         </div>
       </div>
 
       {comparison ? (
         <>
           <div className="grid gap-6 lg:grid-cols-2">
-            <DebtCurveCard title="Avalanche" subtitle="Highest interest rate first" months={comparison.avalanche.months} interest={comparison.avalanche.totalInterest} curve={comparison.avalanche.curve} color="#22d3ee" />
-            <DebtCurveCard title="Snowball" subtitle="Smallest balance first" months={comparison.snowball.months} interest={comparison.snowball.totalInterest} curve={comparison.snowball.curve} color="#facc15" />
+            <DebtCurveCard
+              title="Avalanche"
+              subtitle="Highest interest rate first"
+              months={comparison.avalanche.months}
+              interest={comparison.avalanche.totalInterest}
+              curve={comparison.avalanche.curve}
+              color="#22d3ee"
+            />
+            <DebtCurveCard
+              title="Snowball"
+              subtitle="Smallest balance first"
+              months={comparison.snowball.months}
+              interest={comparison.snowball.totalInterest}
+              curve={comparison.snowball.curve}
+              color="#facc15"
+            />
           </div>
           <div className="glass p-6">
             <h2 className="font-semibold text-light">What this means</h2>
             <p className="mt-2 text-sm leading-relaxed text-dim">
               {comparison.interestSaved > 0 ? (
                 <>
-                  Avalanche saves you {formatCurrency(comparison.interestSaved)} in interest compared to snowball.
-                  If you can stay motivated by the math, avalanche is the cheaper path. If seeing a balance hit
-                  zero keeps you going, snowball's small wins might get you to the finish line even if it costs
-                  a bit more.
+                  Avalanche saves you {formatCurrency(comparison.interestSaved)} in interest
+                  compared to snowball. If you can stay motivated by the math, avalanche is the
+                  cheaper path. If seeing a balance hit zero keeps you going, snowball's small wins
+                  might get you to the finish line even if it costs a bit more.
                 </>
               ) : (
-                <>Your debts are ordered similarly under both strategies here, so the difference is small either way.</>
+                <>
+                  Your debts are ordered similarly under both strategies here, so the difference is
+                  small either way.
+                </>
               )}
             </p>
           </div>
         </>
       ) : (
-        <p className="text-sm text-dim">Add at least one debt with a balance and minimum payment to see a comparison.</p>
+        <p className="text-sm text-dim">
+          Add at least one debt with a balance and minimum payment to see a comparison.
+        </p>
       )}
     </div>
   );
@@ -746,8 +917,22 @@ function DebtCurveCard({
     <div className="glass p-6">
       <h3 className="font-semibold text-light">{title}</h3>
       <p className="text-xs text-dim">{subtitle}</p>
-      <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} className="mt-4" role="img" aria-label={`${title} payoff curve`}>
-        <polyline points={points} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        width="100%"
+        height={height}
+        className="mt-4"
+        role="img"
+        aria-label={`${title} payoff curve`}
+      >
+        <polyline
+          points={points}
+          fill="none"
+          stroke={color}
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
       <div className="mt-4 grid grid-cols-2 gap-4">
         <div>
@@ -801,12 +986,46 @@ function MonteCarloTab({
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_1.3fr]">
       <div className="glass h-fit space-y-5 p-6">
-        <SliderField label="Down-payment target" value={state.downPaymentTarget} onChange={(v) => patch({ downPaymentTarget: v })} min={0} max={500000} step={5000} format="currency" />
-        <SliderField label="Time horizon (years)" value={state.monteCarloYears} onChange={(v) => patch({ monteCarloYears: v })} min={1} max={20} step={1} format="years" />
-        <SliderField label="Expected annual return" value={state.expectedReturnPct} onChange={(v) => patch({ expectedReturnPct: v })} min={0} max={12} step={0.5} format="percent" />
-        <SliderField label="Volatility (annual std dev)" value={state.volatilityPct} onChange={(v) => patch({ volatilityPct: v })} min={2} max={30} step={1} format="percent" />
+        <SliderField
+          label="Down-payment target"
+          value={state.downPaymentTarget}
+          onChange={(v) => patch({ downPaymentTarget: v })}
+          min={0}
+          max={500000}
+          step={5000}
+          format="currency"
+        />
+        <SliderField
+          label="Time horizon (years)"
+          value={state.monteCarloYears}
+          onChange={(v) => patch({ monteCarloYears: v })}
+          min={1}
+          max={20}
+          step={1}
+          format="years"
+        />
+        <SliderField
+          label="Expected annual return"
+          value={state.expectedReturnPct}
+          onChange={(v) => patch({ expectedReturnPct: v })}
+          min={0}
+          max={12}
+          step={0.5}
+          format="percent"
+        />
+        <SliderField
+          label="Volatility (annual std dev)"
+          value={state.volatilityPct}
+          onChange={(v) => patch({ volatilityPct: v })}
+          min={2}
+          max={30}
+          step={1}
+          format="percent"
+        />
         <p className="text-xs text-dim">
-          Monthly contribution is your current net cash flow: <span className="score-numeral text-cyan">{formatCurrency(monthlyContribution)}</span>. Improve it on the Overview tab.
+          Monthly contribution is your current net cash flow:{" "}
+          <span className="score-numeral text-cyan">{formatCurrency(monthlyContribution)}</span>.
+          Improve it on the Overview tab.
         </p>
       </div>
 
@@ -819,19 +1038,27 @@ function MonteCarloTab({
             </div>
 
             <div className="glass p-6">
-              <h2 className="font-semibold text-light">Outcome range after {state.monteCarloYears} years</h2>
+              <h2 className="font-semibold text-light">
+                Outcome range after {state.monteCarloYears} years
+              </h2>
               <div className="mt-4 grid grid-cols-3 gap-4 text-center">
                 <div>
                   <p className="text-xs text-dim">P10 (weak case)</p>
-                  <p className="score-numeral mt-1 text-lg font-bold text-crimson">{formatCurrency(result.finalP10)}</p>
+                  <p className="score-numeral mt-1 text-lg font-bold text-crimson">
+                    {formatCurrency(result.finalP10)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-dim">P50 (median)</p>
-                  <p className="score-numeral mt-1 text-lg font-bold text-light">{formatCurrency(result.finalP50)}</p>
+                  <p className="score-numeral mt-1 text-lg font-bold text-light">
+                    {formatCurrency(result.finalP50)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-dim">P90 (strong case)</p>
-                  <p className="score-numeral mt-1 text-lg font-bold text-emerald">{formatCurrency(result.finalP90)}</p>
+                  <p className="score-numeral mt-1 text-lg font-bold text-emerald">
+                    {formatCurrency(result.finalP90)}
+                  </p>
                 </div>
               </div>
             </div>
@@ -871,11 +1098,46 @@ function GoalGauge({ probability }: { probability: number }) {
 
   return (
     <div className="mt-2 flex flex-col items-center">
-      <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} role="img" aria-label={`Probability of reaching goal: ${Math.round(probability)}%`}>
-        <path d={arcPath(0, 0.4)} stroke="#f24822" strokeWidth="14" fill="none" opacity="0.55" strokeLinecap="round" />
-        <path d={arcPath(0.4, 0.7)} stroke="#facc15" strokeWidth="14" fill="none" opacity="0.55" strokeLinecap="round" />
-        <path d={arcPath(0.7, 1)} stroke="#34d399" strokeWidth="14" fill="none" opacity="0.55" strokeLinecap="round" />
-        <line x1={cx} y1={cy} x2={needleX} y2={needleY} stroke="#e2e8f0" strokeWidth="3" strokeLinecap="round" />
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        width="100%"
+        height={height}
+        role="img"
+        aria-label={`Probability of reaching goal: ${Math.round(probability)}%`}
+      >
+        <path
+          d={arcPath(0, 0.4)}
+          stroke="#f24822"
+          strokeWidth="14"
+          fill="none"
+          opacity="0.55"
+          strokeLinecap="round"
+        />
+        <path
+          d={arcPath(0.4, 0.7)}
+          stroke="#facc15"
+          strokeWidth="14"
+          fill="none"
+          opacity="0.55"
+          strokeLinecap="round"
+        />
+        <path
+          d={arcPath(0.7, 1)}
+          stroke="#34d399"
+          strokeWidth="14"
+          fill="none"
+          opacity="0.55"
+          strokeLinecap="round"
+        />
+        <line
+          x1={cx}
+          y1={cy}
+          x2={needleX}
+          y2={needleY}
+          stroke="#e2e8f0"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
         <circle cx={cx} cy={cy} r="6" fill="#e2e8f0" />
       </svg>
       <p className="score-numeral -mt-4 text-3xl font-bold" style={{ color }}>
@@ -905,13 +1167,37 @@ function BandChart({ result, target }: { result: MonteCarloResult; target: numbe
   const targetY = scaleY(target);
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} className="mt-4" role="img" aria-label="Monte Carlo P10-P90 savings band toward down-payment target">
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      width="100%"
+      height={height}
+      className="mt-4"
+      role="img"
+      aria-label="Monte Carlo P10-P90 savings band toward down-payment target"
+    >
       <polygon points={areaPoints} fill="#22d3ee" opacity="0.15" />
-      <polyline points={p50Points} fill="none" stroke="#22d3ee" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <polyline
+        points={p50Points}
+        fill="none"
+        stroke="#22d3ee"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
       {target > 0 && (
         <>
-          <line x1={padding} x2={width - padding} y1={targetY} y2={targetY} stroke="#facc15" strokeDasharray="6 4" strokeWidth="1.5" />
-          <text x={width - padding} y={targetY - 6} textAnchor="end" fontSize="11" fill="#facc15">Target</text>
+          <line
+            x1={padding}
+            x2={width - padding}
+            y1={targetY}
+            y2={targetY}
+            stroke="#facc15"
+            strokeDasharray="6 4"
+            strokeWidth="1.5"
+          />
+          <text x={width - padding} y={targetY - 6} textAnchor="end" fontSize="11" fill="#facc15">
+            Target
+          </text>
         </>
       )}
     </svg>
@@ -936,7 +1222,12 @@ function SliderField({
   format: "currency" | "percent" | "years";
 }) {
   const fill = sliderFillPercent(value, min, max);
-  const display = format === "currency" ? formatCurrency(value) : format === "percent" ? `${value}%` : `${value} yrs`;
+  const display =
+    format === "currency"
+      ? formatCurrency(value)
+      : format === "percent"
+        ? `${value}%`
+        : `${value} yrs`;
 
   return (
     <div>
@@ -975,7 +1266,9 @@ function NetWorthTab({
     patch({ assets: state.assets.map((a) => (a.id === id ? { ...a, ...patchA } : a)) });
   }
   function addAsset() {
-    patch({ assets: [...state.assets, { id: `asset-${crypto.randomUUID()}`, name: "", amount: 0 }] });
+    patch({
+      assets: [...state.assets, { id: `asset-${crypto.randomUUID()}`, name: "", amount: 0 }],
+    });
   }
   function removeAsset(id: string) {
     patch({ assets: state.assets.filter((a) => a.id !== id) });
@@ -985,7 +1278,12 @@ function NetWorthTab({
     patch({ liabilities: state.liabilities.map((l) => (l.id === id ? { ...l, ...patchL } : l)) });
   }
   function addLiability() {
-    patch({ liabilities: [...state.liabilities, { id: `liability-${crypto.randomUUID()}`, name: "", amount: 0 }] });
+    patch({
+      liabilities: [
+        ...state.liabilities,
+        { id: `liability-${crypto.randomUUID()}`, name: "", amount: 0 },
+      ],
+    });
   }
   function removeLiability(id: string) {
     patch({ liabilities: state.liabilities.filter((l) => l.id !== id) });
@@ -1012,7 +1310,14 @@ function NetWorthTab({
           </div>
           <div className="mt-4 space-y-3">
             {state.assets.map((a) => (
-              <EditableRow key={a.id} name={a.name} amount={a.amount} onName={(v) => updateAsset(a.id, { name: v })} onAmount={(v) => updateAsset(a.id, { amount: v })} onRemove={() => removeAsset(a.id)} />
+              <EditableRow
+                key={a.id}
+                name={a.name}
+                amount={a.amount}
+                onName={(v) => updateAsset(a.id, { name: v })}
+                onAmount={(v) => updateAsset(a.id, { amount: v })}
+                onRemove={() => removeAsset(a.id)}
+              />
             ))}
           </div>
         </div>
@@ -1026,7 +1331,14 @@ function NetWorthTab({
           </div>
           <div className="mt-4 space-y-3">
             {state.liabilities.map((l) => (
-              <EditableRow key={l.id} name={l.name} amount={l.amount} onName={(v) => updateLiability(l.id, { name: v })} onAmount={(v) => updateLiability(l.id, { amount: v })} onRemove={() => removeLiability(l.id)} />
+              <EditableRow
+                key={l.id}
+                name={l.name}
+                amount={l.amount}
+                onName={(v) => updateLiability(l.id, { name: v })}
+                onAmount={(v) => updateLiability(l.id, { amount: v })}
+                onRemove={() => removeLiability(l.id)}
+              />
             ))}
           </div>
         </div>
@@ -1034,7 +1346,9 @@ function NetWorthTab({
 
       <div className="glass p-6 text-center">
         <p className="text-xs uppercase tracking-wide text-dim">Net worth</p>
-        <p className={`score-numeral mt-2 text-4xl font-bold ${netWorth >= 0 ? "text-emerald" : "text-crimson"}`}>
+        <p
+          className={`score-numeral mt-2 text-4xl font-bold ${netWorth >= 0 ? "text-emerald" : "text-crimson"}`}
+        >
           {formatCompactCurrency(netWorth)}
         </p>
       </div>
@@ -1042,8 +1356,8 @@ function NetWorthTab({
       <div className="glass p-6">
         <h2 className="font-semibold text-light">24-month projection</h2>
         <p className="mt-1 text-xs text-dim">
-          Assumes your current monthly surplus ({formatCurrency(monthlyBuild)}) continues to build net worth at
-          a flat pace — a floor, not a forecast of investment growth.
+          Assumes your current monthly surplus ({formatCurrency(monthlyBuild)}) continues to build
+          net worth at a flat pace — a floor, not a forecast of investment growth.
         </p>
         <NetWorthProjectionChart points={projection} />
       </div>
@@ -1066,11 +1380,33 @@ function EditableRow({
 }) {
   return (
     <div className="grid grid-cols-3 gap-3 rounded-lg border border-slate-surface/60 p-3">
-      <input className="input col-span-2" placeholder="Name" value={name} onChange={(e) => onName(e.target.value)} />
+      <input
+        className="input col-span-2"
+        placeholder="Name"
+        value={name}
+        onChange={(e) => onName(e.target.value)}
+      />
       <div className="flex gap-2">
-        <input className="input" type="number" placeholder="Amount" value={amount || ""} onChange={(e) => onAmount(Number(e.target.value))} />
-        <button className="btn btn-ghost !px-3" onClick={onRemove} aria-label={`Remove ${name || "item"}`}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <input
+          className="input"
+          type="number"
+          placeholder="Amount"
+          value={amount || ""}
+          onChange={(e) => onAmount(Number(e.target.value))}
+        />
+        <button
+          className="btn btn-ghost !px-3"
+          onClick={onRemove}
+          aria-label={`Remove ${name || "item"}`}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M6 6l12 12M18 6L6 18" />
           </svg>
         </button>
@@ -1098,9 +1434,30 @@ function NetWorthProjectionChart({ points }: { points: { month: number; value: n
   const finalPositive = values[values.length - 1] >= 0;
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} className="mt-4" role="img" aria-label="24-month net worth projection">
-      <line x1={padding} x2={width - padding} y1={zeroY} y2={zeroY} stroke="rgba(148,163,184,0.3)" strokeDasharray="4 4" />
-      <polyline points={linePoints} fill="none" stroke={finalPositive ? "#34d399" : "#f24822"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      width="100%"
+      height={height}
+      className="mt-4"
+      role="img"
+      aria-label="24-month net worth projection"
+    >
+      <line
+        x1={padding}
+        x2={width - padding}
+        y1={zeroY}
+        y2={zeroY}
+        stroke="rgba(148,163,184,0.3)"
+        strokeDasharray="4 4"
+      />
+      <polyline
+        points={linePoints}
+        fill="none"
+        stroke={finalPositive ? "#34d399" : "#f24822"}
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

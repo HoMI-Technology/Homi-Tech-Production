@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  activeGoal,
   addManualTransaction,
+  archiveGoal,
+  elapsedFraction,
   emptyBudgetLedger,
   ensurePeriodFor,
   hasSavedBudgetLedger,
@@ -111,28 +114,52 @@ describe("addManualTransaction", () => {
     expect(() =>
       addManualTransaction(
         base,
-        { type: "expense", amountCents: 100, description: "x", categoryId: null, transactionDate: "2026-08-02" },
+        {
+          type: "expense",
+          amountCents: 100,
+          description: "x",
+          categoryId: null,
+          transactionDate: "2026-08-02",
+        },
         NOW,
       ),
     ).toThrow(/category/i);
     expect(() =>
       addManualTransaction(
         base,
-        { type: "transfer", amountCents: 100, description: "x", categoryId: "cat-other", transactionDate: "2026-08-02" },
+        {
+          type: "transfer",
+          amountCents: 100,
+          description: "x",
+          categoryId: "cat-other",
+          transactionDate: "2026-08-02",
+        },
         NOW,
       ),
     ).toThrow(/not categorized/i);
     expect(() =>
       addManualTransaction(
         base,
-        { type: "income", amountCents: 0, description: "x", categoryId: null, transactionDate: "2026-08-02" },
+        {
+          type: "income",
+          amountCents: 0,
+          description: "x",
+          categoryId: null,
+          transactionDate: "2026-08-02",
+        },
         NOW,
       ),
     ).toThrow(RangeError);
     expect(() =>
       addManualTransaction(
         base,
-        { type: "income", amountCents: 10.5, description: "x", categoryId: null, transactionDate: "2026-08-02" },
+        {
+          type: "income",
+          amountCents: 10.5,
+          description: "x",
+          categoryId: null,
+          transactionDate: "2026-08-02",
+        },
         NOW,
       ),
     ).toThrow(RangeError);
@@ -144,7 +171,13 @@ describe("softDeleteTransaction", () => {
     const { state, periodId } = withPeriod();
     let next = addManualTransaction(
       state,
-      { type: "income", amountCents: 500000, description: "Paycheck", categoryId: null, transactionDate: "2026-08-01" },
+      {
+        type: "income",
+        amountCents: 500000,
+        description: "Paycheck",
+        categoryId: null,
+        transactionDate: "2026-08-01",
+      },
       NOW,
     );
     const txId = next.transactions[0].id;
@@ -205,7 +238,9 @@ describe("upsertGoal", () => {
 
   it("rejects invalid amounts", () => {
     expect(() => upsertGoal(seeded(), { ...input, targetAmountCents: 0 }, NOW)).toThrow(RangeError);
-    expect(() => upsertGoal(seeded(), { ...input, currentAmountCents: -5 }, NOW)).toThrow(RangeError);
+    expect(() => upsertGoal(seeded(), { ...input, currentAmountCents: -5 }, NOW)).toThrow(
+      RangeError,
+    );
   });
 });
 
@@ -238,7 +273,13 @@ describe("storage layer", () => {
 
     const state = addManualTransaction(
       seeded(),
-      { type: "income", amountCents: 650000, description: "Paycheck", categoryId: "cat-payroll", transactionDate: "2026-08-01" },
+      {
+        type: "income",
+        amountCents: 650000,
+        description: "Paycheck",
+        categoryId: "cat-payroll",
+        transactionDate: "2026-08-01",
+      },
       NOW,
     );
     saveBudgetLedger(state);
@@ -250,11 +291,100 @@ describe("storage layer", () => {
     expect(loaded.categories.length).toBeGreaterThan(0);
   });
 
-  it("falls back to the empty seed on corrupted storage", () => {
+  it("falls back to the empty seed on corrupted storage, preserving a backup", () => {
     const backing = stubStorage();
     backing.set("homi:budget-ledger", "{not json");
     const loaded = loadBudgetLedger(NOW);
     expect(loaded.transactions).toEqual([]);
     expect(loaded.categories.length).toBeGreaterThan(0);
+    // The unreadable blob is moved aside, never destroyed.
+    expect(backing.get("homi:budget-ledger:corrupt-backup")).toBe("{not json");
+  });
+
+  it("drops rows that would crash the calculation layer, keeps usable ones", () => {
+    const backing = stubStorage();
+    const good = addManualTransaction(
+      seeded(),
+      {
+        type: "income",
+        amountCents: 100_00,
+        description: "ok",
+        categoryId: null,
+        transactionDate: "2026-08-01",
+      },
+      NOW,
+    ).transactions[0];
+    const poisoned = {
+      schemaVersion: 1,
+      categories: seedCategories(NOW),
+      transactions: [good, { ...good, id: "bad", amountCents: 10.5 }, "garbage"],
+      periods: [{ nope: true }],
+      allocations: [{ id: "a", budgetPeriodId: "p", categoryId: "c", plannedCents: NaN }],
+      goal: { id: "g", name: "broken", targetAmountCents: "lots" },
+    };
+    backing.set("homi:budget-ledger", JSON.stringify(poisoned));
+
+    const loaded = loadBudgetLedger(NOW);
+    expect(loaded.transactions).toHaveLength(1);
+    expect(loaded.transactions[0].id).toBe(good.id);
+    expect(loaded.periods).toEqual([]);
+    expect(loaded.allocations).toEqual([]);
+    expect(loaded.goal).toBeNull();
+    // The survivors must be safe to hand to summarizePeriod.
+    const { period } = ensurePeriodFor(loaded, "2026-08-03", NOW);
+    expect(summarizePeriod(loaded.transactions, period).incomeCents).toBe(100_00);
+  });
+
+  it("reports save failure instead of swallowing it (Safari private mode)", () => {
+    vi.stubGlobal("window", {
+      localStorage: {
+        getItem: () => null,
+        setItem: () => {
+          throw new DOMException("QuotaExceededError");
+        },
+        removeItem: () => undefined,
+      },
+    });
+    expect(saveBudgetLedger(seeded())).toBe(false);
+  });
+});
+
+describe("elapsedFraction", () => {
+  const AUGUST = { periodStart: "2026-08-01", periodEnd: "2026-08-31" };
+
+  it("is proportional within the month and clamped outside it", () => {
+    expect(elapsedFraction(AUGUST, "2026-08-01")).toBeCloseTo(1 / 31);
+    expect(elapsedFraction(AUGUST, "2026-08-31")).toBe(1);
+    expect(elapsedFraction(AUGUST, "2026-07-15")).toBe(0);
+    expect(elapsedFraction(AUGUST, "2026-09-01")).toBe(1);
+  });
+});
+
+describe("goal lifecycle", () => {
+  const input = {
+    name: "Down payment",
+    goalType: "home" as const,
+    targetAmountCents: 6_000_000,
+    currentAmountCents: 1_000_000,
+    plannedMonthlyContributionCents: 100_000,
+    targetDate: null,
+  };
+
+  it("archiveGoal hides the goal and a new upsert creates a fresh record", () => {
+    let state = upsertGoal(seeded(), input, NOW);
+    const firstId = state.goal!.id;
+    expect(activeGoal(state)!.id).toBe(firstId);
+
+    state = archiveGoal(state, NOW);
+    expect(activeGoal(state)).toBeNull();
+    expect(state.goal!.status).toBe("archived");
+
+    state = upsertGoal(state, { ...input, name: "New goal" }, NOW);
+    expect(activeGoal(state)!.name).toBe("New goal");
+    expect(activeGoal(state)!.id).not.toBe(firstId);
+  });
+
+  it("archiveGoal is a no-op without an active goal", () => {
+    expect(archiveGoal(seeded(), NOW)).toEqual(seeded());
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { MoneyField } from "@/components/ui/MoneyField";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
@@ -19,7 +19,11 @@ import type {
   TransactionType,
 } from "@/lib/finance/ledger";
 import {
+  activeGoal,
   addManualTransaction,
+  archiveGoal,
+  BUDGET_LEDGER_STORAGE_KEY,
+  elapsedFraction,
   ensurePeriodFor,
   hasSavedBudgetLedger,
   loadBudgetLedger,
@@ -33,11 +37,7 @@ import {
   type BudgetLedgerState,
   type GoalInput,
 } from "@/lib/finance/local-ledger";
-import {
-  centsToDollars,
-  dollarsToCents,
-  formatCentsUSD,
-} from "@/lib/finance/money";
+import { centsToDollars, dollarsToCents, formatCentsUSD } from "@/lib/finance/money";
 
 /* ------------------------------------------------------------------ */
 /* Shared bits                                                         */
@@ -79,44 +79,69 @@ function nowIso(): string {
 /* ------------------------------------------------------------------ */
 
 /**
- * Manual local budget: summary cards, plan-vs-actual category bars, a
- * transaction ledger, and one savings goal — all local-first (PR 2).
- * Server sync and imports arrive in later PRs; every number shown here is
- * derived by lib/finance/calculations from the user's own entries.
+ * Manual local budget: summary cards, plan-vs-actual category bars with
+ * month-pacing markers, a transaction ledger, and one savings goal — all
+ * local-first (PR 2). Server sync and imports arrive in later PRs; every
+ * number shown here is derived by lib/finance/calculations from the user's
+ * own entries.
  */
 export function BudgetTab() {
   const [ledger, setLedger] = useState<BudgetLedgerState | null>(null);
+  const [saveFailed, setSaveFailed] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [planOpen, setPlanOpen] = useState(false);
   const [goalOpen, setGoalOpen] = useState(false);
 
-  const today = useMemo(() => todayDateOnly(), []);
+  // Read fresh every render so a tab left open across midnight rolls forward;
+  // the effect below creates the new month's period when that happens.
+  const today = todayDateOnly();
+  const bounds = monthBoundsFor(today);
 
   useEffect(() => {
     const stamp = nowIso();
-    const loaded = loadBudgetLedger(stamp);
-    const ensured = ensurePeriodFor(loaded, todayDateOnly(), stamp);
+    setLedger(loadBudgetLedger(stamp));
+  }, []);
+
+  // Guarantee the current month's period exists — on first mount AND after a
+  // month rollover while the tab stays open (without this, the tab would go
+  // blank at midnight on the 1st).
+  useEffect(() => {
+    if (!ledger) return;
+    const has = ledger.periods.some(
+      (p) => p.periodStart === bounds.periodStart && p.periodEnd === bounds.periodEnd,
+    );
+    if (has) return;
+    const ensured = ensurePeriodFor(ledger, today, nowIso());
     setLedger(ensured.state);
-    // Only persist the auto-created period when the user already opted in —
-    // a first visit must not write seed data it would later present back.
-    if (ensured.state !== loaded && hasSavedBudgetLedger()) {
-      saveBudgetLedger(ensured.state);
+    // First visit stays unpersisted — seed data must never be written before
+    // the user records something real.
+    if (hasSavedBudgetLedger()) saveBudgetLedger(ensured.state);
+  }, [ledger, bounds.periodStart, bounds.periodEnd, today]);
+
+  // Cross-tab: localStorage `storage` events fire in OTHER tabs only, so a
+  // reload here cannot loop. Whole-state replace is safe because modal
+  // drafts live in their own component state (last write still wins).
+  useEffect(() => {
+    function onStorage(event: StorageEvent) {
+      if (event.key !== BUDGET_LEDGER_STORAGE_KEY) return;
+      setLedger(loadBudgetLedger(nowIso()));
     }
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   const commit = useCallback((next: BudgetLedgerState) => {
     setLedger(next);
-    saveBudgetLedger(next);
+    setSaveFailed(!saveBudgetLedger(next));
   }, []);
 
   if (!ledger) return null;
 
-  const bounds = monthBoundsFor(today);
   const period =
     ledger.periods.find(
       (p) => p.periodStart === bounds.periodStart && p.periodEnd === bounds.periodEnd,
     ) ?? null;
-  if (!period) return null;
+  if (!period) return null; // one render at most — the effect above fills it
 
   const totals = summarizePeriod(ledger.transactions, period);
   const rows = categoryActuals(
@@ -132,9 +157,22 @@ export function BudgetTab() {
         ? b.createdAt.localeCompare(a.createdAt)
         : b.transactionDate.localeCompare(a.transactionDate),
     );
+  const goal = activeGoal(ledger);
+  const pace = elapsedFraction(period, today);
+
+  // A negative net expense (refunds exceeded spending) is presented as a net
+  // credit, never as "negative spending" — the calculations-layer contract.
+  const netCredit = totals.netExpenseCents < 0;
 
   return (
     <div className="space-y-8">
+      {saveFailed && (
+        <div className="glass border border-crimson/40 p-4 text-sm text-light" role="alert">
+          This device is not storing your entries (private browsing or full storage). Everything
+          works for this session, but it will be gone when you leave.
+        </div>
+      )}
+
       <ConfidenceStrip
         label={monthLabel(period)}
         pendingCount={totals.pendingCount}
@@ -149,13 +187,15 @@ export function BudgetTab() {
           footer="Posted income this month"
         />
         <StatTile
-          label="Net expenses"
-          value={formatCentsUSD(totals.netExpenseCents)}
+          label={netCredit ? "Net credit" : "Net expenses"}
+          value={formatCentsUSD(Math.abs(totals.netExpenseCents))}
           accent={COLORS.amber}
           footer={
-            totals.refundCents > 0
-              ? `After ${formatCentsUSD(totals.refundCents)} in refunds`
-              : "Spending minus refunds"
+            netCredit
+              ? "Refunds exceeded spending this month"
+              : totals.refundCents > 0
+                ? `After ${formatCentsUSD(totals.refundCents)} in refunds`
+                : "Spending minus refunds"
           }
         />
         <StatTile
@@ -179,10 +219,11 @@ export function BudgetTab() {
       <PlanVsActual
         rows={rows}
         categoryNames={categoryNames}
+        pace={pace}
         onEditPlan={() => setPlanOpen(true)}
       />
 
-      <GoalCard goal={ledger.goal} today={today} onEdit={() => setGoalOpen(true)} />
+      <GoalCard goal={goal} today={today} onEdit={() => setGoalOpen(true)} />
 
       <TransactionsSection
         transactions={aliveTransactions}
@@ -192,9 +233,9 @@ export function BudgetTab() {
       />
 
       <p className="text-sm text-dim">
-        Manual entries only. Missing transactions are not zero spending — these
-        totals reflect what you have recorded, and a month in progress is not a
-        completed month.
+        Manual entries only, stored on this device until sync arrives. Missing transactions are not
+        zero spending — these totals reflect what you have recorded, and a month in progress is not
+        a completed month.
       </p>
 
       <AddTransactionModal
@@ -226,11 +267,19 @@ export function BudgetTab() {
       <GoalModal
         open={goalOpen}
         onClose={() => setGoalOpen(false)}
-        goal={ledger.goal}
+        goal={goal}
         onSave={(input) => {
           commit(upsertGoal(ledger, input, nowIso()));
           setGoalOpen(false);
         }}
+        onArchive={
+          goal
+            ? () => {
+                commit(archiveGoal(ledger, nowIso()));
+                setGoalOpen(false);
+              }
+            : undefined
+        }
       />
     </div>
   );
@@ -278,10 +327,13 @@ function ConfidenceStrip({
 function PlanVsActual({
   rows,
   categoryNames,
+  pace,
   onEditPlan,
 }: {
   rows: CategoryActual[];
   categoryNames: Map<string, string>;
+  /** Elapsed fraction of the month, for the pacing marker. */
+  pace: number;
   onEditPlan: () => void;
 }) {
   return (
@@ -298,40 +350,48 @@ function PlanVsActual({
 
       {rows.length === 0 ? (
         <p className="mt-4 text-dim">
-          Nothing planned or spent yet this month. Set category plans, then log
-          spending to see planned vs. actual here.
+          Nothing planned or spent yet this month. Set category plans, then log spending to see
+          planned vs. actual here.
         </p>
       ) : (
-        <ul className="mt-5 space-y-4">
-          {rows.map((row) => (
-            <CategoryBar
-              key={row.categoryId ?? "uncategorized"}
-              row={row}
-              name={
-                row.categoryId === null
-                  ? "Uncategorized"
-                  : categoryNames.get(row.categoryId) ?? "Unknown category"
-              }
-            />
-          ))}
-        </ul>
+        <>
+          <ul className="mt-5 space-y-4">
+            {rows.map((row) => (
+              <CategoryBar
+                key={row.categoryId ?? "uncategorized"}
+                row={row}
+                pace={pace}
+                name={
+                  row.categoryId === null
+                    ? "Uncategorized"
+                    : (categoryNames.get(row.categoryId) ?? "Unknown category")
+                }
+              />
+            ))}
+          </ul>
+          <p className="mt-4 text-xs text-dim">
+            The tick on each bar marks how far the month has gotten — spending past the tick is
+            ahead of pace, not necessarily over plan.
+          </p>
+        </>
       )}
     </section>
   );
 }
 
-function CategoryBar({ row, name }: { row: CategoryActual; name: string }) {
-  const over =
-    row.remainingCents !== null && row.remainingCents < 0;
+function CategoryBar({ row, name, pace }: { row: CategoryActual; name: string; pace: number }) {
+  const over = row.remainingCents !== null && row.remainingCents < 0;
+  const aheadOfPace = !over && row.utilization !== null && row.utilization > pace;
   const widthPct =
     row.utilization !== null
       ? Math.min(100, Math.round(row.utilization * 100))
       : row.actualCents > 0
         ? 100
         : 0;
+  // Red is reserved for genuinely over plan; ahead-of-pace only warms the bar.
   const barClass = over
     ? "bg-verdict-notyet"
-    : row.utilization !== null && row.utilization >= 0.85
+    : aheadOfPace
       ? "bg-verdict-almost"
       : "bg-verdict-ready";
 
@@ -339,9 +399,13 @@ function CategoryBar({ row, name }: { row: CategoryActual; name: string }) {
   if (row.plannedCents === null) {
     detail = `${formatCentsUSD(row.actualCents, { alwaysCents: true })} · no plan set`;
   } else if (over) {
-    detail = `${formatCentsUSD(row.actualCents, { alwaysCents: true })} of ${formatCentsUSD(row.plannedCents)} · over by ${formatCentsUSD(Math.abs(row.remainingCents ?? 0), { alwaysCents: true })}`;
+    detail = `${formatCentsUSD(row.actualCents, { alwaysCents: true })} of ${formatCentsUSD(
+      row.plannedCents,
+    )} · over by ${formatCentsUSD(Math.abs(row.remainingCents ?? 0), { alwaysCents: true })}`;
   } else {
-    detail = `${formatCentsUSD(row.actualCents, { alwaysCents: true })} of ${formatCentsUSD(row.plannedCents)} · ${formatCentsUSD(row.remainingCents ?? 0, { alwaysCents: true })} remaining`;
+    detail = `${formatCentsUSD(row.actualCents, { alwaysCents: true })} of ${formatCentsUSD(
+      row.plannedCents,
+    )} · ${formatCentsUSD(row.remainingCents ?? 0, { alwaysCents: true })} remaining`;
   }
 
   return (
@@ -351,7 +415,7 @@ function CategoryBar({ row, name }: { row: CategoryActual; name: string }) {
         <span className="text-sm text-dim">{detail}</span>
       </div>
       <div
-        className="mt-2 h-2 overflow-hidden rounded-full bg-white/10"
+        className="relative mt-2 h-2 overflow-hidden rounded-full bg-white/10"
         role="img"
         aria-label={`${name}: ${detail}`}
       >
@@ -359,6 +423,13 @@ function CategoryBar({ row, name }: { row: CategoryActual; name: string }) {
           className={`h-full rounded-full ${row.plannedCents === null ? "bg-white/25" : barClass}`}
           style={{ width: `${widthPct}%` }}
         />
+        {row.plannedCents !== null && pace > 0 && pace < 1 && (
+          <span
+            aria-hidden
+            className="absolute top-0 h-full w-px bg-white/50"
+            style={{ left: `${Math.round(pace * 100)}%` }}
+          />
+        )}
       </div>
     </li>
   );
@@ -383,9 +454,8 @@ function GoalCard({
         <p className="eyebrow">Savings goal</p>
         <h2 className="mt-1 font-display text-xl text-light">No goal yet</h2>
         <p className="mt-2 max-w-xl text-dim">
-          One goal, tracked honestly: a target, your current balance, and the
-          contribution you plan each month. A contribution is money you keep —
-          it is never counted as spending.
+          One goal, tracked honestly: a target, your current balance, and the contribution you plan
+          each month. A contribution is money you keep — it is never counted as spending.
         </p>
         <button className="btn btn-primary btn-sm mt-4" onClick={onEdit}>
           Set a savings goal
@@ -397,19 +467,18 @@ function GoalCard({
   const projection = projectGoal(goal, today);
   const pct =
     goal.targetAmountCents > 0
-      ? Math.min(
-          100,
-          Math.round((goal.currentAmountCents / goal.targetAmountCents) * 100),
-        )
+      ? Math.min(100, Math.round((goal.currentAmountCents / goal.targetAmountCents) * 100))
       : 0;
 
-  let pace: string;
+  let paceCopy: string;
   if (projection.remainingCents === 0) {
-    pace = "Target reached.";
+    paceCopy = "Target reached.";
   } else if (projection.monthsToTarget !== null) {
-    pace = `About ${projection.monthsToTarget} month${projection.monthsToTarget === 1 ? "" : "s"} to go at your planned ${formatCentsUSD(goal.plannedMonthlyContributionCents)}/mo.`;
+    paceCopy = `About ${projection.monthsToTarget} month${
+      projection.monthsToTarget === 1 ? "" : "s"
+    } to go at your planned ${formatCentsUSD(goal.plannedMonthlyContributionCents)}/mo.`;
   } else {
-    pace = "No planned contribution yet — add one to see a pace.";
+    paceCopy = "No planned contribution yet — add one to see a pace.";
   }
 
   return (
@@ -427,10 +496,7 @@ function GoalCard({
       <div className="mt-4 flex items-baseline justify-between gap-4">
         <span className="text-2xl text-light">
           {formatCentsUSD(goal.currentAmountCents)}
-          <span className="text-base text-dim">
-            {" "}
-            of {formatCentsUSD(goal.targetAmountCents)}
-          </span>
+          <span className="text-base text-dim"> of {formatCentsUSD(goal.targetAmountCents)}</span>
         </span>
         <span className="text-sm text-dim">{pct}%</span>
       </div>
@@ -439,20 +505,17 @@ function GoalCard({
         role="img"
         aria-label={`Goal progress: ${pct}%`}
       >
-        <div
-          className="h-full rounded-full bg-verdict-ready"
-          style={{ width: `${pct}%` }}
-        />
+        <div className="h-full rounded-full bg-verdict-ready" style={{ width: `${pct}%` }} />
       </div>
 
-      <p className="mt-3 text-sm text-dim">{pace}</p>
+      <p className="mt-3 text-sm text-dim">{paceCopy}</p>
       {projection.requiredMonthlyCents !== null &&
         projection.remainingCents > 0 &&
         goal.targetDate !== null && (
           <p className="mt-1 text-sm text-dim">
             Reaching it by {goal.targetDate} would take about{" "}
-            {formatCentsUSD(projection.requiredMonthlyCents)}/mo — something to
-            compare against your free cash.
+            {formatCentsUSD(projection.requiredMonthlyCents)}/mo — something to compare against your
+            free cash.
           </p>
         )}
     </section>
@@ -468,7 +531,7 @@ const TX_TAG: Record<TransactionType, string | null> = {
   expense: null,
   refund: "Refund",
   transfer: "Transfer · not spending",
-  adjustment: "Adjustment",
+  adjustment: "Adjustment · not counted",
 };
 
 function TransactionsSection({
@@ -498,9 +561,8 @@ function TransactionsSection({
 
       {transactions.length === 0 ? (
         <p className="mt-4 max-w-xl text-dim">
-          No transactions yet. Log income and spending as it happens — every
-          summary number on this tab is derived from these entries, nothing is
-          estimated for you.
+          No transactions yet. Log income and spending as it happens — every summary number on this
+          tab is derived from these entries, nothing is estimated for you.
         </p>
       ) : (
         <>
@@ -509,9 +571,7 @@ function TransactionsSection({
               <TransactionRow
                 key={tx.id}
                 tx={tx}
-                categoryName={
-                  tx.categoryId ? categoryNames.get(tx.categoryId) ?? null : null
-                }
+                categoryName={tx.categoryId ? (categoryNames.get(tx.categoryId) ?? null) : null}
                 onDelete={() => onDelete(tx.id)}
               />
             ))}
@@ -542,7 +602,8 @@ function TransactionRow({
       : tx.type === "expense"
         ? "text-light"
         : "text-dim";
-  const sign = tx.type === "income" || tx.type === "refund" ? "+" : tx.type === "expense" ? "−" : "";
+  const sign =
+    tx.type === "income" || tx.type === "refund" ? "+" : tx.type === "expense" ? "−" : "";
   const tag = TX_TAG[tx.type];
 
   return (
@@ -596,6 +657,18 @@ function AddTransactionModal({
   const [date, setDate] = useState(today);
   const [error, setError] = useState<string | null>(null);
 
+  // Reset on every open — a cancelled draft must never leak into the next
+  // entry (the modal stays mounted while closed).
+  useEffect(() => {
+    if (!open) return;
+    setType("expense");
+    setAmountDollars(null);
+    setDescription("");
+    setCategoryId("");
+    setDate(today);
+    setError(null);
+  }, [open, today]);
+
   const showsCategory = type === "expense" || type === "refund" || type === "income";
   const categoryType = type === "income" ? "income" : "expense";
   const categories = ledger.categories.filter(
@@ -627,10 +700,6 @@ function AddTransactionModal({
         categoryId: showsCategory && categoryId ? categoryId : null,
         transactionDate: date,
       });
-      setAmountDollars(null);
-      setDescription("");
-      setCategoryId("");
-      setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not save that entry.");
     }
@@ -651,6 +720,13 @@ function AddTransactionModal({
           ariaLabel="Transaction type"
         />
 
+        {(type === "transfer" || type === "adjustment") && (
+          <p className="text-sm text-dim">
+            Recorded for completeness — {type === "transfer" ? "transfers" : "adjustments"} are
+            never counted as income or spending.
+          </p>
+        )}
+
         <MoneyField
           label="Amount"
           value={amountDollars}
@@ -659,7 +735,10 @@ function AddTransactionModal({
         />
 
         <div>
-          <label htmlFor="budget-tx-description" className="mb-2 block text-base font-medium text-light">
+          <label
+            htmlFor="budget-tx-description"
+            className="mb-2 block text-base font-medium text-light"
+          >
             Description
           </label>
           <input
@@ -675,7 +754,10 @@ function AddTransactionModal({
 
         {showsCategory && (
           <div>
-            <label htmlFor="budget-tx-category" className="mb-2 block text-base font-medium text-light">
+            <label
+              htmlFor="budget-tx-category"
+              className="mb-2 block text-base font-medium text-light"
+            >
               Category{type === "expense" ? "" : " (optional)"}
             </label>
             <select
@@ -759,9 +841,7 @@ function EditPlanModal({
       next.set(c.id, allocation ? centsToDollars(allocation.plannedCents) : null);
     }
     setDraft(next);
-    setReserveDollars(
-      period.goalReserveCents > 0 ? centsToDollars(period.goalReserveCents) : null,
-    );
+    setReserveDollars(period.goalReserveCents > 0 ? centsToDollars(period.goalReserveCents) : null);
     // Rebuilding from the ledger on every open is the point; the category
     // list is derived from the same ledger snapshot.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -782,12 +862,10 @@ function EditPlanModal({
       label="Edit budget plan"
       panelClassName="glass w-full max-w-lg p-6 sm:p-8 max-h-[85vh] overflow-y-auto"
     >
-      <h2 className="font-display text-xl text-light">
-        Plan for {monthLabel(period)}
-      </h2>
+      <h2 className="font-display text-xl text-light">Plan for {monthLabel(period)}</h2>
       <p className="mt-2 text-sm text-dim">
-        Planned amounts per category. Leave a category empty for no plan —
-        spending there is shown as unplanned, not judged.
+        Planned amounts per category. Leave a category empty for no plan — spending there is shown
+        as unplanned, not judged.
       </p>
 
       <div className="mt-4 space-y-3">
@@ -831,11 +909,14 @@ function GoalModal({
   onClose,
   goal,
   onSave,
+  onArchive,
 }: {
   open: boolean;
   onClose: () => void;
   goal: SavingsGoal | null;
   onSave: (input: GoalInput) => void;
+  /** Present only when an active goal exists — the reversible way out. */
+  onArchive?: () => void;
 }) {
   const [name, setName] = useState("");
   const [goalType, setGoalType] = useState<SavingsGoal["goalType"]>("emergency_reserve");
@@ -851,9 +932,7 @@ function GoalModal({
     setGoalType(goal?.goalType ?? "emergency_reserve");
     setTargetDollars(goal ? centsToDollars(goal.targetAmountCents) : null);
     setCurrentDollars(goal ? centsToDollars(goal.currentAmountCents) : null);
-    setMonthlyDollars(
-      goal ? centsToDollars(goal.plannedMonthlyContributionCents) : null,
-    );
+    setMonthlyDollars(goal ? centsToDollars(goal.plannedMonthlyContributionCents) : null);
     setTargetDate(goal?.targetDate ?? "");
     setError(null);
   }, [open, goal]);
@@ -949,13 +1028,22 @@ function GoalModal({
 
         {error && <p className="text-sm text-crimson">{error}</p>}
 
-        <div className="flex justify-end gap-3">
-          <button className="btn btn-ghost btn-sm" onClick={onClose}>
-            Cancel
-          </button>
-          <button className="btn btn-primary btn-sm" onClick={save}>
-            Save goal
-          </button>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            {onArchive && (
+              <button className="btn btn-danger btn-sm" onClick={onArchive}>
+                Remove goal
+              </button>
+            )}
+          </div>
+          <div className="flex gap-3">
+            <button className="btn btn-ghost btn-sm" onClick={onClose}>
+              Cancel
+            </button>
+            <button className="btn btn-primary btn-sm" onClick={save}>
+              Save goal
+            </button>
+          </div>
         </div>
       </div>
     </Modal>
