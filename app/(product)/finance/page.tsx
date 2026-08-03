@@ -30,6 +30,8 @@ import { sliderFillPercent } from "@/lib/assessment/format";
 import { NumberField } from "@/components/ui/NumberField";
 import { PageFrame } from "@/components/operate/PageFrame";
 import { Tabs, TabPanel } from "@/components/ui/Tabs";
+import { BudgetTab } from "@/components/finance/BudgetTab";
+import { budgetLedger } from "@/lib/flags";
 import Link from "next/link";
 import {
   loadReadinessPath,
@@ -40,10 +42,12 @@ import {
   type ReadinessPath,
 } from "@/lib/readiness";
 
-type TabKey = "overview" | "cashflow" | "debt" | "montecarlo" | "networth";
+type TabKey = "overview" | "budget" | "cashflow" | "debt" | "montecarlo" | "networth";
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: "overview", label: "Overview" },
+  // Budget & Runway ledger (plan ladder PR 2) ships dark until the flag flips.
+  ...(budgetLedger ? [{ key: "budget" as const, label: "Budget" }] : []),
   { key: "cashflow", label: "Cash Flow" },
   { key: "debt", label: "Debt" },
   { key: "montecarlo", label: "Monte Carlo" },
@@ -126,6 +130,7 @@ export default function FinancePage() {
 
       <TabPanel idPrefix="finance" value={tab} className="mt-8">
         {tab === "overview" && <OverviewTab state={state} patch={patch} />}
+        {tab === "budget" && budgetLedger && <BudgetTab />}
         {tab === "cashflow" && <CashFlowTab state={state} patch={patch} />}
         {tab === "debt" && <DebtTab />}
         {tab === "montecarlo" && <MonteCarloTab state={state} patch={patch} />}
