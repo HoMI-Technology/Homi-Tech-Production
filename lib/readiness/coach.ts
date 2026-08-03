@@ -46,8 +46,8 @@ export function buildPathCoachPack(
       : freshness.isStale
         ? `Path coach: path may be stale. Binding was ${bindingLabel ?? "unset"}. Urge a regenerate or reassess before big moves.`
         : next
-          ? `Path coach weekly board: binding ${bindingLabel ?? "gaps"}; next step "${next.title}" (${next.href}); ${completionPct}% complete. Lead with this step. Never invent a READY verdict.`
-          : `Path coach: all steps closed (${completionPct}%). Point them to reassess on /assessment.`;
+          ? `Path coach weekly board: binding ${bindingLabel ?? "gaps"}; next step "${next.title}" (${next.href}); ${completionPct}% resolved. Lead with this step. Never invent a READY verdict.`
+          : `Path coach: all steps resolved (${completionPct}%). Point them to reassess on /assessment.`;
 
   const suggestedPrompts: string[] = [];
   if (next) {

@@ -132,15 +132,23 @@ describe("POST /api/agents", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("sentinel flags replies containing disallowed advice", async () => {
+  it("falls back to deterministic reply when sentinel flags model output", async () => {
     state.tier = "plus";
-    fetchMock = vi.fn(async () => anthropicOk("You should buy this house guaranteed."));
+    const modelReply = "You should buy this house guaranteed.";
+    fetchMock = vi.fn(async () => anthropicOk(modelReply));
     vi.stubGlobal("fetch", fetchMock);
 
     const res = await POST(req({ messages: [{ role: "user", content: "tell me what to do" }] }));
-    const body = (await res.json()) as { sentinel: { passed: boolean; flagged: boolean } };
-    expect(body.sentinel.flagged).toBe(true);
-    expect(body.sentinel.passed).toBe(false);
+    const body = (await res.json()) as {
+      reply: string;
+      source: string;
+      sentinel: { passed: boolean; flagged: boolean };
+    };
+    expect(body.source).toBe("fallback");
+    expect(body.reply).not.toContain(modelReply);
+    expect(body.reply.startsWith("Homie here.")).toBe(true);
+    expect(body.sentinel.flagged).toBe(false);
+    expect(body.sentinel.passed).toBe(true);
   });
 
   it("mode influences the lead agent", async () => {

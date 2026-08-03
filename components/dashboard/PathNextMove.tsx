@@ -1,13 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import { loadLocalResult } from "@/lib/assessment/storage";
+import { impactBus } from "@/lib/flags";
 import {
   loadReadinessPath,
   pullReadinessPath,
   ensurePathForVerdict,
-  completePathStep,
+  completePathStepWithImpact,
+  completePathStepGuarded,
   bindingConstraintLabel,
   derivePathHabitStage,
   pathPendingStepCount,
@@ -103,16 +105,24 @@ export function PathNextMove() {
     const nextStep =
       path.steps.find((s) => (s.status ?? "pending") === "pending") ?? null;
     if (!nextStep) return;
-    const wasFirst = !path.steps.some(
-      (s) =>
-        (s.status ?? "pending") === "done" || (s.status ?? "pending") === "skipped",
-    );
-    const updated = completePathStep(nextStep.id, "done");
-    if (updated) setPath(updated);
+
+    // Both branches run the same guarded pending → done transition against
+    // the authoritative store; only the flag-on branch can publish a toast
+    // impact. Done analytics fire solely on a real transition, with
+    // first-resolution truth taken from the transition itself.
+    const result = impactBus
+      ? completePathStepWithImpact(nextStep.id)
+      : completePathStepGuarded(nextStep.id);
+    if (result.kind === "noop") {
+      if (result.path) setPath(result.path);
+      return;
+    }
+    setPath(result.path);
     trackPathStepDone({
-      reasonCode: nextStep.reasonCode,
+      surface: "dashboard",
+      reasonCode: result.transition.reasonCode,
       evidence: "manual",
-      firstStep: wasFirst ? 1 : 0,
+      firstStep: result.transition.wasFirstResolution ? 1 : 0,
     });
   }, [path]);
 

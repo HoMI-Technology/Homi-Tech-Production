@@ -1,62 +1,37 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import createMiddleware from "next-intl/middleware";
 import { isProtectedPath } from "@/lib/auth/protected-routes";
-import { routing } from "@/i18n/routing";
 
 type CookieToSet = { name: string; value: string; options?: CookieOptions };
 
 /**
- * Locale routing (Module A — feat/i18n), composed WITH the auth gate below.
- * Negotiates `en` (unprefixed) vs `es` (/es/...), persists NEXT_LOCALE, and
- * internally rewrites unprefixed paths into app/[locale]/.
+ * Auth gate. Refreshes the Supabase session on every matched request and
+ * redirects unauthenticated traffic away from protected routes.
+ *
+ * This used to compose next-intl's locale router with the auth gate; the
+ * locale segment has been removed, so every path is now its own logical
+ * path and the response is always a plain `next()`. `/es/*` URLs are
+ * handled by a permanent redirect in next.config.ts, which runs before
+ * middleware.
  */
-const handleI18nRouting = createMiddleware(routing);
 
-/** Strip a leading /es so route classification sees the logical path. */
-const NON_DEFAULT_LOCALE_RE = /^\/es(?=\/|$)/;
-
-/**
- * Paths locale routing must NOT rewrite or redirect:
- *  · /api/*              — locale-independent route handlers (CSP report,
- *    webhooks, shares, …). Auth/session refresh below still applies.
- *  · /_vercel/*          — Speed Insights script + beacon, served same-origin.
- *  · /auth/callback      — OAuth/magic-link return; must stay put so the
- *    Supabase redirectTo URL matches exactly (query code/state preserved).
- *  · /auth/sign-out      — POST route handler; a locale redirect would add a
- *    pointless 307 hop to a mutating request.
- */
-function skipsLocaleRouting(path: string): boolean {
-  return (
-    path.startsWith("/api") ||
-    path.startsWith("/_vercel") ||
-    path === "/auth/callback" ||
-    path === "/auth/sign-out"
-  );
-}
-
-/** Locale-aware sign-in redirect: keeps Spanish users inside /es. */
+/** Sign-in redirect, preserving the attempted path for post-login return. */
 function redirectToSignIn(request: NextRequest, path: string): NextResponse {
-  const localePrefix = NON_DEFAULT_LOCALE_RE.test(path) ? "/es" : "";
   const redirect = request.nextUrl.clone();
-  redirect.pathname = `${localePrefix}/auth/sign-in`;
+  redirect.pathname = "/auth/sign-in";
   redirect.searchParams.set("next", path);
   return NextResponse.redirect(redirect);
 }
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  const logicalPath = path.replace(NON_DEFAULT_LOCALE_RE, "") || "/";
-  const isProtected = isProtectedPath(logicalPath);
+  const isProtected = isProtectedPath(path);
 
-  // Refreshed session cookies collected here get copied onto whichever
-  // response the locale router produces.
+  // Refreshed session cookies collected here get copied onto the response.
   const pendingCookies: CookieToSet[] = [];
 
   const finish = (): NextResponse => {
-    const response = skipsLocaleRouting(path)
-      ? NextResponse.next({ request })
-      : handleI18nRouting(request);
+    const response = NextResponse.next({ request });
     pendingCookies.forEach(({ name, value, options }) =>
       response.cookies.set(name, value, options),
     );
@@ -81,8 +56,8 @@ export async function middleware(request: NextRequest) {
         return request.cookies.getAll();
       },
       setAll(cookiesToSet: CookieToSet[]) {
-        // Mutating request.cookies first means the locale router's internal
-        // rewrite already forwards the refreshed session upstream.
+        // Mutating request.cookies first means `NextResponse.next({ request })`
+        // forwards the refreshed session upstream to the route handler.
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
         pendingCookies.push(...cookiesToSet);
       },

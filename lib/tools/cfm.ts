@@ -33,6 +33,7 @@ import {
   debtToIncome,
   type FinanceState,
 } from "@/lib/finance/store";
+import { createSyncedResource, type Stamped } from "@/lib/persistence";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -213,6 +214,24 @@ export function loadToolsOverlay(): ToolsOverlay {
   }
 }
 
+/** The local copy with its LWW stamp; legacy data without a stamp reads 0. */
+function loadStampedToolsOverlay(): Stamped<ToolsOverlay> | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(OVERLAY_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as ToolsOverlay;
+    const stampRaw = window.localStorage.getItem(OVERLAY_STAMP_KEY);
+    const updatedAt = stampRaw ? Number.parseInt(stampRaw, 10) : 0;
+    return {
+      value: parsed && typeof parsed === "object" ? parsed : {},
+      updatedAt: Number.isFinite(updatedAt) ? updatedAt : 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function hasSavedToolsOverlay(): boolean {
   if (typeof window === "undefined") return false;
   try {
@@ -235,23 +254,52 @@ export function toolsOverlaySavedAt(): string | null {
   }
 }
 
+/** Local write WITHOUT a sync push — the sync layer itself uses this. */
+function writeToolsOverlayLocal(stamped: Stamped<ToolsOverlay>): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(OVERLAY_KEY, JSON.stringify(stamped.value));
+    window.localStorage.setItem(OVERLAY_STAMP_KEY, String(stamped.updatedAt));
+  } catch {
+    // Storage unavailable (private browsing quota, etc.) — the lens still
+    // works for this session; nothing is persisted.
+  }
+}
+
+const toolsOverlaySync = createSyncedResource<ToolsOverlay>({
+  endpoint: "/api/tools/overlay",
+  loadLocal: loadStampedToolsOverlay,
+  saveLocal: writeToolsOverlayLocal,
+});
+
 /**
  * Merges fields into the overlay. Only call this in response to an explicit
  * user action ("update my numbers") — silent write-back would corrupt the
- * user's decision record. Local-first, synchronous; a cross-device sync
- * layer can mirror this later the same way lib/persistence.ts mirrors the
- * finance store.
+ * user's decision record. Local-first, synchronous; a background sync mirrors
+ * it to the database for signed-in users so the numbers follow them across
+ * devices. Anonymous visitors keep the old localStorage-only behavior.
  */
 export function saveToolsOverlayFields(fields: Partial<ToolsOverlay>): void {
   if (typeof window === "undefined") return;
   try {
     const merged: ToolsOverlay = { ...loadToolsOverlay(), ...fields };
-    window.localStorage.setItem(OVERLAY_KEY, JSON.stringify(merged));
-    window.localStorage.setItem(OVERLAY_STAMP_KEY, String(Date.now()));
+    const stamped: Stamped<ToolsOverlay> = { value: merged, updatedAt: Date.now() };
+    writeToolsOverlayLocal(stamped);
+    toolsOverlaySync.push(stamped);
   } catch {
-    // Storage unavailable (private browsing quota, etc.) — the lens still
-    // works for this session; nothing is persisted.
+    // Storage unavailable — ignore.
   }
+}
+
+/**
+ * Reconcile with the server copy (last-write-wins) and return the freshest
+ * overlay, hydrating localStorage with the winner. Anonymous and offline
+ * sessions reconcile to the local copy (empty object only when nothing stored
+ * anywhere) — callers fall back to loadToolsOverlay() / defaults either way.
+ */
+export async function pullToolsOverlay(): Promise<ToolsOverlay | null> {
+  const result = await toolsOverlaySync.pull();
+  return result?.value ?? null;
 }
 
 // ---------------------------------------------------------------------------

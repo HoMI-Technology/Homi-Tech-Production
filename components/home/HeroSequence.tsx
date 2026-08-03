@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { CinematicCompass, Particles } from "./CinematicCompass";
 import { Compass3D } from "./Compass3D";
@@ -139,11 +139,11 @@ export function HeroSequence() {
           </h1>
 
           <p className="mx-auto mt-7 max-w-md text-lg leading-relaxed text-dim lg:mx-0 sm:text-xl">
-            Credit scores look backward.{" "}
+            A credit score estimates repayment risk.{" "}
             <span className="font-semibold text-light">
-              HōMI measures readiness now
+              HōMI helps you evaluate readiness for the decision itself
             </span>{" "}
-            — Financial Reality, Emotional Truth, and Perfect Timing — before you leap.
+            — Financial Reality, Emotional Truth, and Perfect Timing — before you commit.
           </p>
 
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row lg:justify-start sm:justify-center">

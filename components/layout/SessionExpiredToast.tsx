@@ -1,6 +1,7 @@
 "use client";
 
-import { Link, usePathname } from "@/i18n/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 /**
@@ -51,7 +52,13 @@ export function SessionExpiredToast() {
   if (!visible) return null;
 
   return (
-    <div role="alert" className="fixed inset-x-0 bottom-6 z-50 flex justify-center px-4">
+    <div
+      role="alert"
+      // Priority signal: lower-priority fixed surfaces (ImpactToast) suppress
+      // themselves while any [data-priority-notice] element is in the DOM.
+      data-priority-notice="session-expired"
+      className="fixed inset-x-0 bottom-6 z-50 flex justify-center px-4"
+    >
       <div className="glass flex flex-wrap items-center gap-4 p-4 sm:flex-nowrap">
         <p className="text-sm text-light">Your session ended. Sign in to keep going.</p>
         <div className="flex items-center gap-2">

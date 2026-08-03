@@ -78,7 +78,7 @@ test.describe("score share links", () => {
       expect(token, "share response should return a /share/<token> URL").toBeTruthy();
 
       // OPEN — anonymous visitor sees the read-only score page.
-      const anon = await browser.newContext({ storageState: "e2e/.locale-en.json" });
+      const anon = await browser.newContext();
       let anonPage: Page | null = null;
       try {
         anonPage = await anon.newPage();
@@ -98,7 +98,7 @@ test.describe("score share links", () => {
       await expect(page.getByText(token!)).toHaveCount(0);
 
       // The public link is now dead — soft-revoked, not just hidden.
-      const dead = await browser.newContext({ storageState: "e2e/.locale-en.json" });
+      const dead = await browser.newContext();
       try {
         const deadPage = await dead.newPage();
         const deadRes = await deadPage.goto(`/share/${token}`);

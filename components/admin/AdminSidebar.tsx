@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Link, usePathname } from "@/i18n/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ADMIN_NAV_GROUPS } from "@/components/admin/admin-nav";
 
 function isAdminNavActive(pathname: string, href: string) {

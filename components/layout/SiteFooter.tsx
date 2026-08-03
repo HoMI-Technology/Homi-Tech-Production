@@ -1,5 +1,4 @@
-import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import { CopyrightYear } from "@/components/layout/CopyrightYear";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
@@ -7,57 +6,60 @@ import { LEGAL_DISCLAIMER } from "@/lib/brand";
 
 interface FooterLink {
   href: string;
-  key: string;
+  label: string;
 }
 
 interface FooterColumn {
   ns: string;
+  title: string;
   links: FooterLink[];
 }
 
 const COLUMNS: FooterColumn[] = [
   {
     ns: "product",
+    title: "Product",
     links: [
-      { href: "/assessment", key: "fullAssessment" },
-      { href: "/shadow-score", key: "shadowScore" },
-      { href: "/tools", key: "financeTools" },
-      { href: "/advisor", key: "decisionCompanion" },
-      { href: "/pricing", key: "pricing" },
+      { href: "/assessment", label: "Full Assessment" },
+      { href: "/shadow-score", label: "Shadow Score" },
+      { href: "/tools", label: "Finance Tools" },
+      { href: "/advisor", label: "Decision Companion" },
+      { href: "/pricing", label: "Pricing" },
     ],
   },
   {
     ns: "learn",
+    title: "Learn",
     links: [
-      { href: "/how-it-works", key: "howItWorks" },
-      { href: "/method", key: "method" },
-      { href: "/guides", key: "guides" },
-      { href: "/about", key: "about" },
+      { href: "/how-it-works", label: "How It Works" },
+      { href: "/method", label: "The Method" },
+      { href: "/guides", label: "Guides" },
+      { href: "/about", label: "About" },
     ],
   },
   {
     ns: "forTeams",
+    title: "For Teams",
     links: [
-      { href: "/b2b", key: "employers" },
-      { href: "/partner", key: "partners" },
-      { href: "/employee", key: "employee" },
+      { href: "/b2b", label: "Employers" },
+      { href: "/partner", label: "Partners" },
+      { href: "/employee", label: "Employee Benefit" },
     ],
   },
   {
     ns: "legal",
+    title: "Legal",
     links: [
-      { href: "/legal/privacy", key: "privacy" },
-      { href: "/legal/terms", key: "terms" },
-      { href: "/legal/disclaimer", key: "disclaimer" },
-      { href: "/legal/cookies", key: "cookies" },
-      { href: "mailto:support@homitechnology.com", key: "support" },
+      { href: "/legal/privacy", label: "Privacy" },
+      { href: "/legal/terms", label: "Terms" },
+      { href: "/legal/disclaimer", label: "Disclaimer" },
+      { href: "/legal/cookies", label: "Cookie policy" },
+      { href: "mailto:support@homitechnology.com", label: "Support" },
     ],
   },
 ];
 
 export function SiteFooter() {
-  const t = useTranslations("footer");
-
   return (
     <footer className="relative mt-20 border-t border-slate-surface/60 sm:mt-24">
       <div className="mx-auto max-w-6xl px-6 py-12 sm:py-16">
@@ -68,10 +70,10 @@ export function SiteFooter() {
               <Wordmark size="text-xl" />
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-dim">
-              {t("tagline")}
+              A Decision Companion. Financial Reality · Emotional Truth · Perfect Timing.
             </p>
             <p className="mt-3 text-sm font-medium text-light">
-              {t("motto")}
+              Know when you&rsquo;re ready. Move when it matters.
             </p>
             <a
               href="https://x.com/homi_tech"
@@ -86,16 +88,16 @@ export function SiteFooter() {
             </a>
           </div>
           {COLUMNS.map((col) => (
-            <nav key={col.ns} aria-label={t(`columns.${col.ns}.title`)}>
+            <nav key={col.ns} aria-label={col.title}>
               {/* Not a heading: pages end their own outlines at varying levels,
                   so a fixed h3 here trips heading-order on h1-only pages. The
                   nav's aria-label already names the group. */}
-              <p className="text-sm font-semibold text-light">{t(`columns.${col.ns}.title`)}</p>
+              <p className="text-sm font-semibold text-light">{col.title}</p>
               <ul className="mt-4 space-y-2.5">
                 {col.links.map((l) => (
                   <li key={l.href}>
                     <Link href={l.href} className="text-sm text-dim transition-colors hover:text-cyan">
-                      {t(`columns.${col.ns}.${l.key}`)}
+                      {l.label}
                     </Link>
                   </li>
                 ))}
@@ -106,14 +108,14 @@ export function SiteFooter() {
 
         <div className="hairline my-10" />
 
-        {/* Legal canon (lib/brand LEGAL_DISCLAIMER) stays English in every
-            locale — it is regulatory text, not marketing copy. */}
+        {/* Legal canon (lib/brand LEGAL_DISCLAIMER) is regulatory text, not
+            marketing copy — it is rendered verbatim. */}
         <p className="text-xs leading-relaxed text-dim/80">{LEGAL_DISCLAIMER}</p>
         <div className="mt-6 flex flex-col items-start justify-between gap-3 text-xs text-dim/70 sm:flex-row">
           <span>
-            © <CopyrightYear initial={new Date().getFullYear()} /> {t("rights")}
+            © <CopyrightYear initial={new Date().getFullYear()} /> HOMI TECHNOLOGIES LLC. All rights reserved.
           </span>
-          <span>{t("badge")}</span>
+          <span>Decision Readiness Intelligence™ | Educational Guidance Only | Not Financial Advice</span>
         </div>
       </div>
     </footer>

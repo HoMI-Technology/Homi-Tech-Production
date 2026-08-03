@@ -103,18 +103,31 @@ export function trackPathCalendarCommitted(props: {
   });
 }
 
+/** Manual-completion surfaces — narrow union, never free text. */
+export type PathStepDoneSurface = "dashboard" | "results" | "path_page";
+
+/**
+ * Emit only after an authoritative pending → done transition (never on bare
+ * clicks, never on no-ops). `firstStep` must come from the transition's
+ * wasFirstResolution — true only when no step of any category was done or
+ * skipped before this transition — so path_first_step_done fires exactly once
+ * per Path.
+ */
 export function trackPathStepDone(props: {
+  surface: PathStepDoneSurface;
   reasonCode: string;
   evidence: string;
   firstStep: number;
 }): void {
   track(PATH_FUNNEL_EVENTS.pathStepDone, {
+    surface: props.surface,
     reason_code: props.reasonCode,
     evidence: props.evidence,
     first_step: props.firstStep,
   });
   if (props.firstStep === 1) {
     track(PATH_FUNNEL_EVENTS.pathFirstStepDone, {
+      surface: props.surface,
       reason_code: props.reasonCode,
     });
   }

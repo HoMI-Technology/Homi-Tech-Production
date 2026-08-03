@@ -1,4 +1,4 @@
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 
 type EmptyStatePreset = "journal" | "calendar" | "dashboard" | "signals";

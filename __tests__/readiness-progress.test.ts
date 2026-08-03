@@ -6,8 +6,10 @@ import {
   computePathFreshness,
   setPathStepStatus,
   pathCompletionRatio,
+  summarizePathResolution,
   normalizeReadinessPath,
   ASSESSMENT_STALE_DAYS,
+  type ReadinessPath,
 } from "@/lib/readiness";
 
 const SAFE_BASE: AssessmentInputs = {
@@ -94,6 +96,34 @@ describe("step completion", () => {
     expect(pathCompletionRatio(next)).toBeGreaterThan(pathCompletionRatio(path));
   });
 
+  it("counts skipped as resolved but keeps the detail honest about it", () => {
+    const result = computeScore({
+      ...SAFE_BASE,
+      lifeStability: 4,
+      confidenceLevel: 4,
+      partnerAlignment: 3,
+      fomoLevel: 8,
+      savingsRate: 0.05,
+      downPaymentProgress: 0.3,
+    });
+    const path = buildReadinessPath(result, { idFactory: idFactory() });
+    // Only exercise the soft-pillar (completion-based) branch.
+    if (
+      !path.bindingConstraint ||
+      (path.bindingConstraint as string).startsWith("PILLAR_") === false
+    ) {
+      return;
+    }
+    const actionable = path.steps.filter((s) => s.reasonCode !== "REASSESS");
+    let next = setPathStepStatus(path, actionable[0].id, "done");
+    if (actionable[1]) next = setPathStepStatus(next, actionable[1].id, "skipped");
+    const progress = computeBindingProgress(next, null, null);
+    expect(progress.detail).not.toMatch(/steps complete/);
+    if (actionable[1]) {
+      expect(progress.detail).toContain("1 skipped");
+    }
+  });
+
   it("normalizeReadinessPath fills missing status for legacy paths", () => {
     const result = computeScore({ ...SAFE_BASE, emergencyFundMonths: 0.5 });
     const path = buildReadinessPath(result, { idFactory: idFactory() });
@@ -106,5 +136,100 @@ describe("step completion", () => {
     expect(normalized).not.toBeNull();
     expect(normalized!.steps.every((s) => s.status === "pending")).toBe(true);
     expect(normalized!.calendarCommittedAt).toBeNull();
+  });
+});
+
+describe("summarizePathResolution", () => {
+  function fixturePath(
+    statuses: Array<{ status?: "pending" | "done" | "skipped"; reassess?: boolean }>,
+    mode: ReadinessPath["mode"] = "build",
+  ): ReadinessPath {
+    const result = computeScore({ ...SAFE_BASE, emergencyFundMonths: 0.5 });
+    const base = buildReadinessPath(result, { idFactory: idFactory() });
+    return {
+      ...base,
+      mode,
+      steps: statuses.map((s, i) => ({
+        ...base.steps[0],
+        id: `fx-${i}`,
+        reasonCode: s.reassess ? "REASSESS" : "RUNWAY_UNDER_1_MONTH",
+        status: s.status ?? "pending",
+        completedAt: s.status === "done" ? new Date().toISOString() : null,
+      })),
+    };
+  }
+
+  it("splits actionable and reassessment counts with done/skipped/pending distinct", () => {
+    const summary = summarizePathResolution(
+      fixturePath([
+        { status: "done" },
+        { status: "skipped" },
+        { status: "pending" },
+        { status: "pending", reassess: true },
+        { status: "done", reassess: true },
+        { status: "skipped", reassess: true },
+      ]),
+    );
+    expect(summary.actionable).toEqual({ total: 3, done: 1, skipped: 1, pending: 1 });
+    expect(summary.reassessment).toEqual({ total: 3, done: 1, skipped: 1, pending: 1 });
+  });
+
+  it("completedRatio counts done only; resolvedRatio counts done + skipped", () => {
+    const summary = summarizePathResolution(
+      fixturePath([{ status: "done" }, { status: "skipped" }, { status: "pending" }, {}]),
+    );
+    expect(summary.completedRatio).toBeCloseTo(1 / 4);
+    expect(summary.resolvedRatio).toBeCloseTo(2 / 4);
+  });
+
+  it("keeps count consistency: total = done + skipped + pending", () => {
+    const summary = summarizePathResolution(
+      fixturePath([
+        { status: "done" },
+        { status: "skipped" },
+        {},
+        { reassess: true },
+      ]),
+    );
+    for (const bucket of [summary.actionable, summary.reassessment]) {
+      expect(bucket.total).toBe(bucket.done + bucket.skipped + bucket.pending);
+    }
+  });
+
+  it("zero-step path → both ratios 0, never NaN", () => {
+    const summary = summarizePathResolution(fixturePath([]));
+    expect(summary.completedRatio).toBe(0);
+    expect(summary.resolvedRatio).toBe(0);
+    expect(Number.isFinite(summary.completedRatio)).toBe(true);
+    expect(Number.isFinite(summary.resolvedRatio)).toBe(true);
+  });
+
+  it("reassessment-only path → ratios 0 (no vacuous all-complete)", () => {
+    const summary = summarizePathResolution(
+      fixturePath([{ status: "done", reassess: true }]),
+    );
+    expect(summary.actionable.total).toBe(0);
+    expect(summary.completedRatio).toBe(0);
+    expect(summary.resolvedRatio).toBe(0);
+  });
+
+  it("ready_optional maintenance path is summarized like any other", () => {
+    const summary = summarizePathResolution(
+      fixturePath([{ status: "done" }], "ready_optional"),
+    );
+    expect(summary.actionable.done).toBe(1);
+    expect(summary.completedRatio).toBe(1);
+  });
+
+  it("legacy missing statuses normalize to pending before summarizing", () => {
+    const path = fixturePath([{}, {}]);
+    const legacy = {
+      ...path,
+      steps: path.steps.map(({ status: _s, completedAt: _c, ...rest }) => rest),
+    };
+    const normalized = normalizeReadinessPath(legacy)!;
+    const summary = summarizePathResolution(normalized);
+    expect(summary.actionable.pending).toBe(2);
+    expect(summary.completedRatio).toBe(0);
   });
 });

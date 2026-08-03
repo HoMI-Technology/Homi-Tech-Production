@@ -9,7 +9,7 @@
 
 "use client";
 
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import type { ReadinessImpact } from "@/lib/tools/readiness-bands";
 
 function accent(impact: ReadinessImpact): string {

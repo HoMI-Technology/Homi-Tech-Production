@@ -1,4 +1,4 @@
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import type { AdminAccessDecision } from "@/lib/auth/admin";
 
 type Denied = Extract<AdminAccessDecision, { allow: false }>;

@@ -1,6 +1,5 @@
 import { expect, test } from "@playwright/test";
 import { dismissCookieConsent } from "./helpers/consent";
-import { englishLocaleCookie, pinEnglishLocalePage } from "./helpers/locale";
 
 /**
  * Path to Ready — seeded localStorage (no full assessment drive).
@@ -103,7 +102,6 @@ const SAMPLE_PATH = {
 test.describe("Path to Ready (seeded)", () => {
   test("path page shows binding progress and completes a step", async ({ page }) => {
     test.setTimeout(90_000);
-    await pinEnglishLocalePage(page);
 
     await page.addInitScript(
       ({ assessment, path }) => {
@@ -115,10 +113,6 @@ test.describe("Path to Ready (seeded)", () => {
     );
 
     await page.goto("/path");
-    if (page.url().includes("/es/")) {
-      await page.context().addCookies([englishLocaleCookie()]);
-      await page.reload();
-    }
     await dismissCookieConsent(page);
 
     await expect(page.getByRole("heading", { name: "Your path" })).toBeVisible({
@@ -156,7 +150,6 @@ test.describe("Path to Ready (seeded)", () => {
     page,
   }) => {
     test.setTimeout(90_000);
-    await pinEnglishLocalePage(page);
 
     await page.addInitScript(
       ({ assessment }) => {
@@ -167,10 +160,6 @@ test.describe("Path to Ready (seeded)", () => {
     );
 
     await page.goto("/results");
-    if (page.url().includes("/es/")) {
-      await page.context().addCookies([englishLocaleCookie()]);
-      await page.reload();
-    }
     await dismissCookieConsent(page);
 
     // Auto-path on results hydrate — no Generate click required.

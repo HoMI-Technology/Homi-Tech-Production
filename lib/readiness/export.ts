@@ -16,7 +16,7 @@ export function exportPathMarkdown(path: ReadinessPath): string {
     `- Mode: ${path.mode}`,
     `- Binding: ${bindingConstraintLabel(path.bindingConstraint)}`,
     `- Confidence: ${path.confidence}`,
-    `- Completion: ${Math.round(pathCompletionRatio(path) * 100)}%`,
+    `- Resolved: ${Math.round(pathCompletionRatio(path) * 100)}% (done + skipped)`,
     ``,
     `## Steps`,
     ``,

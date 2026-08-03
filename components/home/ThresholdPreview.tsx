@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import { CinematicCompass } from "./CinematicCompass";
 
 /** Tweens a number toward its target — cinema, not snapping. */
