@@ -50,7 +50,7 @@ Preview deployments therefore behave differently from production:
 
 | Variable | Effect on preview builds |
 |---|---|
-| `SUPABASE_SERVICE_ROLE_KEY` | Service-role paths dead — webhooks, crons, admin. `BUILD-BRIEF.md:116` calls this out explicitly as a thing to fix |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service-role paths dead — webhooks, crons, admin. `docs/archive/BUILD-BRIEF.md:116` calls this out explicitly as a thing to fix |
 | `RECEIPT_SIGNING_SECRET` | Unsigned receipts (see §1) |
 | `NEXT_PUBLIC_SITE_URL` | ✅ **fixed in code** — `lib/env.ts` now falls back to the deployment's own `VERCEL_URL` on preview builds, so a preview stays self-consistent. No env var needed |
 | `NEXT_PUBLIC_POSTHOG_KEY` / `_HOST` | No analytics from previews — probably intentional |

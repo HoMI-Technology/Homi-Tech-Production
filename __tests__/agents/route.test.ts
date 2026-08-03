@@ -43,7 +43,10 @@ vi.mock("@/lib/advisor/memory", () => ({
   persistCompanionExchange: async () => null,
 }));
 
-import { POST } from "@/app/api/agents/route";
+// The Agent OS flag is captured when lib/flags.ts is evaluated, so the env
+// must be set before the route module graph is imported (not in beforeEach).
+process.env.NEXT_PUBLIC_FF_AGENT_OS = "true";
+const { POST } = await import("@/app/api/agents/route");
 
 let fetchMock: ReturnType<typeof vi.fn>;
 
@@ -84,11 +87,19 @@ afterEach(() => {
 
 describe("POST /api/agents", () => {
   it("returns 503 when the feature flag is off", async () => {
-    process.env.NEXT_PUBLIC_FF_AGENT_OS = "false";
-    const res = await POST(req({ messages: [{ role: "user", content: "hi" }] }));
-    expect(res.status).toBe(503);
-    const body = (await res.json()) as { error: string; flag: string };
-    expect(body.flag).toBe("NEXT_PUBLIC_FF_AGENT_OS");
+    // Flag is a build-time constant — re-import the route with it stubbed off.
+    vi.resetModules();
+    vi.stubEnv("NEXT_PUBLIC_FF_AGENT_OS", "false");
+    try {
+      const { POST: postFlagOff } = await import("@/app/api/agents/route");
+      const res = await postFlagOff(req({ messages: [{ role: "user", content: "hi" }] }));
+      expect(res.status).toBe(503);
+      const body = (await res.json()) as { error: string; flag: string };
+      expect(body.flag).toBe("NEXT_PUBLIC_FF_AGENT_OS");
+    } finally {
+      vi.unstubAllEnvs();
+      vi.resetModules();
+    }
   });
 
   it("returns a structured response with agents, tools, sentinel, and receipt", async () => {

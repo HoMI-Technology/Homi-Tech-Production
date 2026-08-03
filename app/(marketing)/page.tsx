@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
-import { HeroSequence } from "@/components/home/HeroSequence";
 import { InterviewHero } from "@/components/home/InterviewHero";
 import { TimelineShift } from "@/components/home/TimelineShift";
 import { ThresholdPreview } from "@/components/home/ThresholdPreview";
@@ -13,7 +12,6 @@ import { Compass3D } from "@/components/home/Compass3D";
 import { Flashlight } from "@/components/home/Flashlight";
 import { AlignmentScene } from "@/components/home/AlignmentScene";
 import { StatementReveal } from "@/components/home/StatementReveal";
-import { heroVariant } from "@/lib/flags";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
 import { SITE_URL } from "@/lib/seo/site";
@@ -118,7 +116,7 @@ export default function MarketingHomePage() {
       <CinemaFX />
 
       {/* ── 1 · Opening scene — the first 8 seconds ─────────────── */}
-      {heroVariant === "interview" ? <InterviewHero /> : <HeroSequence />}
+      <InterviewHero />
 
       {/* ── 1b · Educational-only strip (quiet trust, not a second hero) ── */}
       <section className="border-t border-white/[0.04] px-6 py-5">

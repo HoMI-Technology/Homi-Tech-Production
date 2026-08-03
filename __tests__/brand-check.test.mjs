@@ -7,6 +7,7 @@ import {
   RULES,
   SUPPRESSION_REGISTRY,
   checkLine,
+  collectFiles,
   evaluateSuppression,
   isTestPath,
   run,
@@ -19,9 +20,10 @@ import {
  * Two layers:
  *   1. Unit — synthetic lines through checkLine(), one block per rule family,
  *      each with the positives it must catch and the near-misses it must not.
- *   2. Live-repo — asserts the exact file:line pairs from the brief are (or are
- *      not) reported when scanning the real tree. Skipped automatically if the
- *      repo is not present, so the unit layer still runs anywhere.
+ *   2. Live-repo — scans the real tree and asserts it is clean (the CI gate),
+ *      with a vacuity guard proving the scan set is non-empty and contains the
+ *      post-#125 page locations. Skipped automatically if the repo is not
+ *      present, so the unit layer still runs anywhere.
  *
  * Run against the repo with:
  *   npx vitest run brand-check.test.mjs
@@ -258,7 +260,7 @@ describe("N11–N12: credit-score replacement and framing", () => {
     expect(
       clean(
         "              replacing FICO. We&rsquo;re the layer before it — the one that asks whether",
-        "app/[locale]/(marketing)/method/page.tsx",
+        "app/(marketing)/method/page.tsx",
         "              Intelligence™ measures if you should trust yourself. We&rsquo;re not",
       ),
     ).toBe(true);
@@ -279,7 +281,7 @@ describe("N11–N12: credit-score replacement and framing", () => {
       [" * (0-1 ratios, 300-850 FICO range, 1-10 sliders).", "lib/validation/assessment.ts"],
       [
         '      <p className="mt-1 text-xs text-dim">FICO-style range, 300–850</p>',
-        "app/[locale]/(product)/credit/page.tsx",
+        "app/(product)/credit/page.tsx",
       ],
     ]) {
       expect(clean(line, file), line).toBe(true);
@@ -333,14 +335,14 @@ describe("N13–N14: live / real-time freshness", () => {
     for (const [line, file] of [
       [
         '      { name: "Supabase, Inc.", purpose: "Database, authentication, and real-time services" },',
-        "app/[locale]/(marketing)/legal/subprocessors/page.tsx",
+        "app/(marketing)/legal/subprocessors/page.tsx",
       ],
       [" * directional, not real-time. Any failure (missing project, bad key,", "lib/analytics/posthog.ts"],
       ['<p className="text-sm font-semibold text-light">Your share link is live</p>', "components/share/ShareShadowButton.tsx"],
       [" * and the browser supports push — so it stays invisible until push is live,", "components/settings/PushToggle.tsx"],
       [" * tell exactly which build is live.", "app/api/healthcheck/route.ts"],
       [" *   slider state is live UI state, not account data, so it never goes", "lib/tools/digest.ts"],
-      ['prompt: "Talk about your real timeline before you talk to any lender.",', "app/[locale]/(product)/couples/page.tsx"],
+      ['prompt: "Talk about your real timeline before you talk to any lender.",', "app/(product)/couples/page.tsx"],
       ["`tracked over real time, not wishful thinking.`", "lib/trinity/fallback.ts"],
     ]) {
       expect(clean(line, file), line).toBe(true);
@@ -364,7 +366,7 @@ describe("N15–N17: absolutes and whole-market claims", () => {
     expect(
       clean(
         '"Notes on why HōMI exists, the conflict of interest built into most home-buying advice",',
-        "app/[locale]/(marketing)/blog/page.tsx",
+        "app/(marketing)/blog/page.tsx",
       ),
     ).toBe(true);
   });
@@ -376,7 +378,7 @@ describe("N15–N17: absolutes and whole-market claims", () => {
 
   it("does NOT flag first-party policy commitments or user-directed prose", () => {
     expect(
-      clean("              {BRAND.display}, and we never will.", "app/[locale]/(marketing)/legal/cookies/page.tsx"),
+      clean("              {BRAND.display}, and we never will.", "app/(marketing)/legal/cookies/page.tsx"),
     ).toBe(true);
     expect(
       clean('"NOT YET means ... not that they never will be. "', "lib/advisor/fallback.ts"),
@@ -520,94 +522,57 @@ describe("scan scope", () => {
  * 10. Live repository
  * ================================================================== */
 
-const repoPresent = fs.existsSync(path.join(ROOT, "messages", "en.json"));
+/**
+ * PR #125 removed i18n: messages/*.json (the old presence sentinel AND the
+ * file that carried most live violations) was deleted, the [locale] segment
+ * folded into app/(marketing) + app/(product), and the formerly-flagged
+ * public claims ("the first platform", "Decision Intelligence OS", the
+ * NOT YET label slots, …) were corrected in the same PR. The live layer is
+ * therefore a cleanliness gate — identical to what `npm run brand-check`
+ * enforces in CI — plus a vacuity guard: the scan set must be non-empty and
+ * must contain the post-#125 locations of the pages that used to carry
+ * violations, so a future move/rename cannot silently shrink coverage.
+ */
+const repoPresent = fs.existsSync(path.join(ROOT, "app", "(marketing)", "page.tsx"));
 
 describe.runIf(repoPresent)("live repository scan", () => {
   const violations = run();
-  const keys = new Set(
-    violations.map((v) => `${path.relative(ROOT, v.file).split(path.sep).join("/")}:${v.line}`),
+  const keys = violations.map(
+    (v) =>
+      `${path.relative(ROOT, v.file).split(path.sep).join("/")}:${v.line}  [${v.rule}] ${v.message}`,
   );
 
-  it("catches every claim in REQUIRED NEW COVERAGE", () => {
-    for (const key of [
-      "messages/en.json:200", // History is static. Readiness is live.
-      "messages/en.json:207", // NOT YET in the verdict-spectrum aria label
-      "messages/en.json:263", // Zero conflict of interest. Finally.
-      "messages/en.json:269", // Nobody ever will.
-      "messages/en.json:277", // Every other platform profits when you say yes.
-      "messages/en.json:351", // ...zero conflict of interest.
-      "messages/es.json:263", // Cero conflicto de interés.
-      "messages/es.json:269", // Nadie lo hará jamás.
-      "app/[locale]/layout.tsx:29", // "the first platform" market claim
-      "app/[locale]/(marketing)/method/page.tsx:133", // Decision Intelligence OS
+  it("scans a non-empty tree that includes the post-#125 page locations", () => {
+    const files = new Set(
+      collectFiles().map((f) => path.relative(ROOT, f).split(path.sep).join("/")),
+    );
+    expect(files.size).toBeGreaterThan(50);
+    for (const sentinel of [
+      "app/layout.tsx",
+      "app/(marketing)/page.tsx",
+      "app/(marketing)/method/page.tsx",
+      "app/(marketing)/legal/subprocessors/page.tsx",
+      "app/(marketing)/legal/cookies/page.tsx",
+      "app/(product)/credit/page.tsx",
+      "app/(product)/onboarding/page.tsx",
+      "lib/scoring/engine.ts",
+      "lib/email/templates.ts",
+      "lib/architecture/compliance.ts",
     ]) {
-      expect(keys.has(key), key).toBe(true);
+      expect(files.has(sentinel), sentinel).toBe(true);
     }
   });
 
-  it("does not flag any MANDATORY NEGATIVE TEST site", () => {
-    for (const key of [
-      "lib/scoring/engine.ts:55",
-      "lib/scoring/engine.ts:271",
-      "lib/scoring/engine.ts:273",
-      "lib/scoring/engine.ts:280",
-      "lib/scoring/engine.ts:558",
-      "lib/validation/assessment.ts:13",
-      "app/[locale]/(product)/credit/page.tsx:237",
-      "app/[locale]/(marketing)/method/page.tsx:105",
-      "app/[locale]/(marketing)/method/page.tsx:106",
-      "app/[locale]/(marketing)/method/page.tsx:107",
-      "app/[locale]/(marketing)/method/page.tsx:108",
-      "app/[locale]/(marketing)/method/page.tsx:109",
-      "app/[locale]/(marketing)/method/page.tsx:110",
-      "app/[locale]/(marketing)/method/page.tsx:111",
-      "app/[locale]/(marketing)/legal/subprocessors/page.tsx:20",
-      "app/[locale]/(marketing)/legal/cookies/page.tsx:46",
-      "components/pwa/AppleSplashLinks.tsx:7",
-      "lib/entitlements.ts:71",
-      "messages/en.json:130",
-      "messages/en.json:138",
-      "app/api/twin/route.ts:32",
-      "components/agents/AgentHubPanel.tsx:47",
-      "lib/architecture/build.ts:250",
-      "messages/en.json:354",
-      "messages/en.json:355",
-      "components/learning/learning-data.ts:27",
-      "components/learning/learning-data.ts:196",
-      "components/learning/learning-data.ts:201",
-      "components/learning/learning-data.ts:211",
-      "lib/plaid/sync.ts:7",
-      "lib/supabase/admin.ts:5",
-    ]) {
-      expect(keys.has(key), key).toBe(false);
+  it("matches the CI gate — zero violations of any rule in the live tree", () => {
+    // Covers everything the old per-site lists covered and more: any FW/HEX/
+    // CONTRAST regression, any N18 suppression defect, any rule firing at a
+    // formerly carved-out site — each shows up here as a named file:line.
+    expect(keys).toEqual([]);
+  });
+
+  it("excludes the generated architecture feed from the scan set", () => {
+    for (const f of collectFiles()) {
+      expect(path.relative(ROOT, f)).not.toMatch(/architecture\.json$/);
     }
-  });
-
-  it("never reports a suppression defect (N18) in the repo as it stands", () => {
-    expect(violations.filter((v) => v.rule === "N18")).toEqual([]);
-  });
-
-  it("keeps the preserved rules clean — no new FW/HEX/CONTRAST regressions", () => {
-    expect(violations.filter((v) => ["FW", "HEX", "CONTRAST"].includes(v.rule))).toEqual([]);
-  });
-
-  it("excludes the generated architecture feed", () => {
-    for (const v of violations) {
-      expect(path.relative(ROOT, v.file)).not.toMatch(/architecture\.json$/);
-    }
-  });
-
-  it("reports only NOT YET label slots, never the enum or prose", () => {
-    const notYet = violations
-      .filter((v) => v.rule.startsWith("N6"))
-      .map((v) => `${path.relative(ROOT, v.file).split(path.sep).join("/")}:${v.line}`)
-      .sort();
-    expect(notYet).toEqual([
-      "app/[locale]/(marketing)/page.tsx:281",
-      "app/[locale]/(product)/onboarding/page.tsx:158",
-      "lib/email/templates.ts:23",
-      "messages/en.json:207",
-      "messages/es.json:207",
-    ]);
   });
 });

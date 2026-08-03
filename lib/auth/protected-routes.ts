@@ -2,14 +2,14 @@
  * Central route-protection classification (AUDIT/BUILD-BRIEF T3: "all
  * `(product)` protected except an explicit public list").
  *
- * Every route directory under `app/[locale]/(product)` MUST be classified here as
+ * Every route directory under `app/(product)` MUST be classified here as
  * public, protected, or partially-protected. `middleware.ts` reads
  * `PROTECTED_PREFIXES` to gate requests, and
  * `__tests__/route-protection.test.ts` asserts this classification stays
  * exhaustive — so a newly-added product route cannot silently ship
  * unprotected (the previous denylist missed nine of them).
  *
- * When adding a route under `app/[locale]/(product)`, add its directory name to one of
+ * When adding a route under `app/(product)`, add its directory name to one of
  * the lists below or the guard test fails.
  */
 

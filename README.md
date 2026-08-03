@@ -41,6 +41,10 @@ Then open [http://localhost:3000](http://localhost:3000).
 | `npm run lint` | Run `next lint` |
 | `npm run typecheck` | `tsc --noEmit` across the project |
 | `npm test` | Run the Vitest suite (`vitest run`) |
+| `npm run test:acceptance` | Independent acceptance suite (`vitest.acceptance.config.ts`) |
+| `npm run test:e2e` | Playwright E2E (needs `npx playwright install chromium`) |
+| `npm run brand-check` | Brand canon lint (spelling, colors, banned claims) |
+| `npm run architecture:check` | Verify `public/architecture.json` is in sync |
 
 ## Architecture overview
 
@@ -65,8 +69,7 @@ homi-production/
 
 ## Scoring canon
 
-The HōMI-Score is a deterministic 0–100 composite of three equally-weighted
-pillars:
+The HōMI-Score is a deterministic 0–100 weighted composite of three pillars:
 
 - **Financial Reality** — max 35 points
 - **Emotional Truth** — max 35 points
@@ -99,13 +102,17 @@ truth and `lib/scoring/weights.ts` is a C2-restricted trade-secret boundary.
 
 - **Hosting:** Vercel (Next.js 15, App Router).
 - **Database:** Supabase project, provisioned via the migrations in
-  `supabase/migrations/`. Apply them **in numeric order** — either through
-  the Supabase Dashboard SQL Editor or `supabase db push` via the CLI. See
-  `supabase/README.md` for the full walkthrough and RLS policy overview.
+  `supabase/migrations/` (numbered `00001`+ series plus timestamped
+  `20260802...` series). Against the existing live project, apply **single
+  files** as documented in `docs/ops/MIGRATIONS-SSOT.md` — do **not** run
+  `supabase db push` over the full history (the remote ledger predates the
+  rebuild and a replay would collide). See `supabase/README.md` for the RLS
+  policy overview.
 - Set all required environment variables in the Vercel project settings
   before the first deploy (see table below). Optional integrations can be
   left blank; the app disables the corresponding feature gracefully.
-- Run `npm run typecheck` and `npm test` in CI before every deploy.
+- CI gate (`.github/workflows/ci.yml`): `brand-check` → `architecture:check`
+  → `tsc --noEmit` → `vitest run` → `next build`.
 
 ## Environment variables
 

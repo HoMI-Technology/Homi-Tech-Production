@@ -1,12 +1,16 @@
 # HōMI — Vercel Production Build
 
-This folder is the complete source of the live deployment.
+This repo (GitHub: `HoMI-Technology/Homi-Tech-Production`, branch `main`) is the
+source of the live deployment.
 
 - Live URL: https://homitechnology.com (alias: homi-platform-homi-tech.vercel.app)
 - Vercel project: homi-platform (team: homi-tech, id: prj_LSgxv4XcVDWEQVvvMzmelruM7Xtb)
-- Supabase project: giyycykxkzfbowiapxpd (repo migrations **00001–00023** in
-  `supabase/migrations/`, applied in numeric order after history repair —
-  see `docs/MIGRATION-REPAIR.md`)
+- Supabase project: giyycykxkzfbowiapxpd. Migrations in `supabase/migrations/`
+  are the numbered **00001–00041** series (incl. `00020a` and two `00024_*`
+  files) plus the timestamped **20260802000001–20260802000003** series.
+  Apply state and single-file apply procedure: `docs/ops/MIGRATIONS-SSOT.md`
+  and `docs/ops/MIGRATION-DRIFT-2026-07-28.md`; history repair (done):
+  `docs/MIGRATION-REPAIR.md`.
 
 ## Run locally
 npm install
@@ -65,11 +69,12 @@ from `script-src` requires nonce middleware and is a planned follow-up.
 
 Do these **before** charging real cards. Code on `main` does not substitute.
 
-1. **DB backup**, then run `docs/MIGRATION-REPAIR.md` (phantom history →
-   `migration repair --status reverted` only — never hand-DELETE).
-2. Apply unapplied migrations **00001–00023** in order; verify
-   `webhook_events`, `advisor_usage`, `score_shares.revoked_at`,
-   `user_finance_state`, bank_sync / calibration tables exist.
+1. **DB backup** before any migration work. (Phantom-history repair is done —
+   see `docs/MIGRATION-REPAIR.md`; never hand-DELETE from the ledger.)
+2. Confirm migration apply state against `docs/ops/MIGRATION-DRIFT-2026-07-28.md`
+   / `docs/ops/MIGRATIONS-SSOT.md`; apply any newly-added migration as a
+   **single file** (no full-history `db push`). Note `00034` must NOT be
+   applied (superseded — see GO-LIVE-CHECKLIST §2).
 3. Vercel env on **Preview + Production**: `SUPABASE_SERVICE_ROLE_KEY`,
    `STRIPE_*`, `ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `UPSTASH_*`,
    `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN`, `CRON_SECRET`, PostHog keys.

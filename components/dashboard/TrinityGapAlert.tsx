@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { computeTrinityGap } from "@/lib/dashboard/trinity-gap";
 
 interface PillarReading {
   key: string;
@@ -14,22 +15,13 @@ interface TrinityGapAlertProps {
 }
 
 export function TrinityGapAlert({ pillars }: TrinityGapAlertProps) {
-  let maxGap = 0;
-  let gapPair: [PillarReading, PillarReading] | null = null;
+  // Shared, tested gap logic (lib/dashboard/trinity-gap.ts): alert only when
+  // max−min > 40; exactly 40 stays quiet. The previous inline pairwise scan
+  // computed the same maxGap/pair for the dashboard's 3-pillar input.
+  const trinityGap = computeTrinityGap(pillars);
+  if (!trinityGap) return null;
 
-  for (let i = 0; i < pillars.length; i++) {
-    for (let j = i + 1; j < pillars.length; j++) {
-      const gap = Math.abs(pillars[i].value - pillars[j].value);
-      if (gap > maxGap) {
-        maxGap = gap;
-        gapPair = [pillars[i], pillars[j]];
-      }
-    }
-  }
-
-  if (maxGap <= 40 || !gapPair) return null;
-
-  const [stronger, weaker] = gapPair[0].value >= gapPair[1].value ? gapPair : [gapPair[1], gapPair[0]];
+  const { gap: maxGap, strong: stronger, weak: weaker } = trinityGap;
 
   return (
     <div

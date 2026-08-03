@@ -40,7 +40,10 @@ vi.mock("@/lib/advisor/memory", () => ({
   persistCompanionExchange: async () => null,
 }));
 
-import { POST } from "@/app/api/agents/route";
+// The Agent OS flag is captured when lib/flags.ts is evaluated, so the env
+// must be set before the route module graph is imported (not in beforeEach).
+process.env.NEXT_PUBLIC_FF_AGENT_OS = "true";
+const { POST } = await import("@/app/api/agents/route");
 
 let fetchMock: ReturnType<typeof vi.fn>;
 

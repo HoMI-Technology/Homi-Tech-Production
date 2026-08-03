@@ -17,7 +17,8 @@ const DISMISS_MS = 10000;
  */
 function isAppSurface(pathname: string | null): boolean {
   if (!pathname) return false;
-  // Match /dashboard and /<locale>/dashboard (the i18n-prefixed variant).
+  // Match /dashboard (app/(product)/dashboard); the legacy /<locale>/dashboard
+  // prefix from the removed i18n routing is still tolerated for stale links.
   return /^\/(?:[a-z]{2}\/)?dashboard(?:\/|$)/.test(pathname);
 }
 

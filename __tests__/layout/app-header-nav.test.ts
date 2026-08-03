@@ -18,6 +18,28 @@ describe("AppHeader nav config", () => {
     expect(APP_MORE_NAV.find((i) => i.href === "/advisor")?.label).toBe("Companion");
   });
 
+  it("carries the deeper product surface (palette union) under More", () => {
+    const hrefs = APP_MORE_NAV.map((i) => i.href);
+    for (const href of [
+      "/path",
+      "/household",
+      "/tools/preflight",
+      "/scenarios",
+      "/plan",
+      "/simulator",
+      "/genome",
+      "/couples",
+    ]) {
+      expect(hrefs).toContain(href);
+    }
+  });
+
+  it("puts Results adjacent to Path to Ready", () => {
+    const hrefs = APP_MORE_NAV.map((i) => i.href);
+    expect(hrefs.indexOf("/results")).toBe(hrefs.indexOf("/path") + 1);
+    expect(APP_MORE_NAV.find((i) => i.href === "/results")?.label).toBe("Results");
+  });
+
   it("does not advertise Agents in PRIMARY unless the public FF is on", () => {
     const hrefs = APP_PRIMARY_NAV.map((i) => i.href);
     if (process.env.NEXT_PUBLIC_FF_AGENT_OS === "true") {

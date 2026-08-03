@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-// Outside NextIntlClientProvider in root layout — must use next/link, not i18n Link.
+// Rendered from the root layout (app/layout.tsx) — plain next/link (i18n routing removed).
 import Link from "next/link";
 import { CONSENT_KEY, readConsent, writeConsent } from "./consent-shared";
 

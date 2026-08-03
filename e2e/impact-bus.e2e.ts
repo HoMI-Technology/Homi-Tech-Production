@@ -412,7 +412,9 @@ test.describe("Impact Bus @flag-on", () => {
     await expect(toast).not.toContainText(/Score|\+\d|readiness improved/i);
   });
 
-  // /es/demo 301s to /demo after i18n removal (#125); still assert both entry points.
+  // /es/demo is not a locale route anymore — i18n was removed in #125 and
+  // next.config.ts 308s (permanent: true) /es/:path* onto the unprefixed route. Visiting it
+  // proves the legacy alias still lands on the isolated demo surface.
   for (const demoUrl of ["/demo", "/es/demo"]) {
     test(`@flag-on P9/P10: ${demoUrl} never shows a real impact and clears transport`, async ({
       page,

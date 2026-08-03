@@ -31,7 +31,11 @@ const AUTO_DISMISS_MS = 5_200;
 /** Floor on resume-after-pause so the toast never vanishes mid-glance. */
 const MIN_RESUME_MS = 400;
 
-/** Covers /demo and any nested demo path. /es/demo 301s to /demo (i18n removed). */
+/**
+ * Locale prefixes no longer exist (#125 removed i18n): next.config.ts 308s (permanent: true)
+ * /es/* onto the unprefixed route, so /demo is the only demo path usePathname
+ * can ever report.
+ */
 function isDemoRoute(pathname: string): boolean {
   return pathname === "/demo" || pathname.startsWith("/demo/");
 }

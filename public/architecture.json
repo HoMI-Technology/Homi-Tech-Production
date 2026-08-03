@@ -1,7 +1,7 @@
 {
   "_meta": {
     "version": "v1",
-    "generated": "2026-08-02",
+    "generated": "2026-08-03",
     "product": "HōMI",
     "full_name": "HOMI TECHNOLOGIES LLC — Decision Readiness Intelligence™",
     "domain": "homitechnology.com",
@@ -18,7 +18,7 @@
     "component_directories": 29,
     "lib_modules": 46,
     "db_tables": 37,
-    "migrations": 43,
+    "migrations": 46,
     "calculators": 14,
     "ai_agents": 7,
     "gaps": 3
@@ -957,7 +957,7 @@
   "component_directories": [
     {
       "name": "admin",
-      "count": 15,
+      "count": 12,
       "description": "admin UI module",
       "examples": [
         "admin-nav",
@@ -1094,14 +1094,14 @@
     },
     {
       "name": "home",
-      "count": 14,
+      "count": 12,
       "description": "home UI module",
       "examples": [
         "AlignmentScene",
         "CinemaFX",
         "CinematicCompass",
         "Compass3D",
-        "CompassExplainer"
+        "DecisionOrbit"
       ]
     },
     {
@@ -1110,10 +1110,10 @@
       "description": "layout UI module",
       "examples": [
         "AppHeader",
+        "ClientProviders.test",
         "ClientProviders",
         "CommandPalette",
-        "CopyrightYear",
-        "CSSLatentFeatures"
+        "CopyrightYear"
       ]
     },
     {
@@ -1159,13 +1159,14 @@
     },
     {
       "name": "readiness",
-      "count": 5,
+      "count": 7,
       "description": "readiness UI module",
       "examples": [
         "FirstStepNudge",
+        "ImpactToast.test",
+        "ImpactToast",
         "PathPreview",
-        "PathProgressHero",
-        "PathToReadyCard"
+        "PathProgressHero"
       ]
     },
     {
@@ -1178,11 +1179,10 @@
     },
     {
       "name": "seo",
-      "count": 2,
+      "count": 1,
       "description": "seo UI module",
       "examples": [
-        "JsonLd",
-        "StructuredData"
+        "JsonLd"
       ]
     },
     {

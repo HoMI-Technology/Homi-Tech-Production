@@ -63,6 +63,13 @@ describe("demo source boundaries", () => {
       "app/(product)/demo/page.tsx",
       "lib/demo/context.tsx",
     ]) {
+      // Existence guard: if the file moves again (as the demo page did when
+      // #125 removed the [locale] segment) this must FAIL loudly instead of
+      // silently asserting against nothing.
+      expect(
+        fs.existsSync(path.join(ROOT, rel)),
+        `${rel} does not exist — the file moved; update this boundary test`,
+      ).toBe(true);
       const demo = source(rel);
       expect(demo, rel).not.toMatch(/impact-bus|ImpactToast|homi:impact/);
     }

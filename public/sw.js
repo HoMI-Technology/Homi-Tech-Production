@@ -127,7 +127,8 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
-  // Never intercept API/auth (incl. locale-prefixed /es/auth/*).
+  // Never intercept API/auth. Auth lives at app/auth/* post-i18n removal;
+  // the legacy locale-prefixed /es/auth/* guard stays for stale clients.
   if (
     url.pathname.startsWith("/api/") ||
     url.pathname.startsWith("/auth/") ||

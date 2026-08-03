@@ -13,7 +13,7 @@ marking them **reverted** — bookkeeping only, no schema or data is touched.
   against any database (documentation-only assignment).
 - Project ref: `giyycykxkzfbowiapxpd` (production).
 - Tool: Supabase CLI `migration repair` — the only sanctioned mechanism
-  (BUILD-BRIEF §13). **Never hand-`DELETE` from
+  (BUILD-BRIEF §13, now `docs/archive/BUILD-BRIEF.md`). **Never hand-`DELETE` from
   `supabase_migrations.schema_migrations`.**
 - The actual schema is **clean** (audit-verified: exactly the 15 rebuild
   tables). We are repairing *history*, not the schema.
@@ -295,7 +295,7 @@ from this repo against production. New migrations should use fresh
 
 ## Appendix — audit context
 
-- AUDIT-2026-07-08 **T0.6** (failure mode, acceptance):
+- AUDIT-2026-07-08 (`docs/archive/AUDIT-2026-07-08.md`) **T0.6** (failure mode, acceptance):
   remote `schema_migrations` holds the prototype lineage *plus* ~35 rows
   future-dated 2026-08 → 2027-05; any future `db push`/`migration list`
   reconciliation sees ~90 migrations that don't exist locally. Acceptance:
