@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 
   const { data: invite } = await supabase
     .from("household_invites")
-    .select("id, household_id, status, expires_at")
+    .select("id, household_id, status, expires_at, email")
     .eq("token", parsed.data.token)
     .maybeSingle();
 
@@ -63,6 +63,18 @@ export async function POST(request: Request) {
   }
   if (new Date(invite.expires_at).getTime() < Date.now()) {
     return NextResponse.json({ error: "Invite expired." }, { status: 410 });
+  }
+  if (!user.email) {
+    return NextResponse.json(
+      { error: "Your account has no email address." },
+      { status: 403 },
+    );
+  }
+  if (invite.email.toLowerCase().trim() !== user.email.toLowerCase().trim()) {
+    return NextResponse.json(
+      { error: "Invite was sent to a different email address." },
+      { status: 403 },
+    );
   }
 
   const { error: joinErr } = await supabase.from("household_members").insert({
