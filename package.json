@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "analyze": "cross-env ANALYZE=true next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
@@ -17,6 +16,7 @@
     "brand-check": "node scripts/brand-check.mjs",
     "architecture:gen": "vitest run --config vitest.architecture.config.ts",
     "architecture:check": "node scripts/check-architecture.mjs",
+    "eval:companion": "npx tsx eval/companion-honesty/run.ts",
     "stripe-setup": "node scripts/stripe-setup.mjs",
     "stripe-verify": "node scripts/verify-stripe-prices.mjs",
     "stripe-verify-webhook": "node scripts/verify-stripe-webhook.mjs",

@@ -11,7 +11,7 @@ export const TOOL_ALIASES = {
 export type PoisonedToolPath = keyof typeof TOOL_ALIASES;
 export type CanonicalToolPath = (typeof TOOL_ALIASES)[PoisonedToolPath];
 
-/** Canonical calculator routes that exist under app/[locale]/(product)/tools. */
+/** Canonical calculator routes that exist under app/(product)/tools. */
 export const CANONICAL_TOOL_ROUTES = [
   "/tools/affordability",
   "/tools/apr-compare",

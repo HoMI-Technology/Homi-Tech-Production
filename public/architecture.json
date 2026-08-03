@@ -1,7 +1,7 @@
 {
   "_meta": {
     "version": "v1",
-    "generated": "2026-08-02",
+    "generated": "2026-08-03",
     "product": "HōMI",
     "full_name": "HOMI TECHNOLOGIES LLC — Decision Readiness Intelligence™",
     "domain": "homitechnology.com",
@@ -15,10 +15,10 @@
   "stats": {
     "product_routes": 99,
     "api_routes": 27,
-    "component_directories": 29,
+    "component_directories": 30,
     "lib_modules": 46,
     "db_tables": 37,
-    "migrations": 43,
+    "migrations": 46,
     "calculators": 14,
     "ai_agents": 7,
     "gaps": 3
@@ -957,7 +957,7 @@
   "component_directories": [
     {
       "name": "admin",
-      "count": 15,
+      "count": 12,
       "description": "admin UI module",
       "examples": [
         "admin-nav",
@@ -1094,26 +1094,26 @@
     },
     {
       "name": "home",
-      "count": 14,
+      "count": 12,
       "description": "home UI module",
       "examples": [
         "AlignmentScene",
         "CinemaFX",
         "CinematicCompass",
         "Compass3D",
-        "CompassExplainer"
+        "DecisionOrbit"
       ]
     },
     {
       "name": "layout",
-      "count": 17,
+      "count": 16,
       "description": "layout UI module",
       "examples": [
         "AppHeader",
         "ClientProviders",
         "CommandPalette",
         "CopyrightYear",
-        "CSSLatentFeatures"
+        "DashboardSwitcher"
       ]
     },
     {
@@ -1159,13 +1159,14 @@
     },
     {
       "name": "readiness",
-      "count": 5,
+      "count": 7,
       "description": "readiness UI module",
       "examples": [
         "FirstStepNudge",
+        "ImpactToast.test",
+        "ImpactToast",
         "PathPreview",
-        "PathProgressHero",
-        "PathToReadyCard"
+        "PathProgressHero"
       ]
     },
     {
@@ -1178,11 +1179,10 @@
     },
     {
       "name": "seo",
-      "count": 2,
+      "count": 1,
       "description": "seo UI module",
       "examples": [
-        "JsonLd",
-        "StructuredData"
+        "JsonLd"
       ]
     },
     {
@@ -1226,6 +1226,12 @@
         "LensField",
         "LensSynthesis"
       ]
+    },
+    {
+      "name": "trinity",
+      "count": 0,
+      "description": "trinity UI module",
+      "examples": []
     },
     {
       "name": "twin",

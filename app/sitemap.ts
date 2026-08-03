@@ -4,7 +4,7 @@ import { getAllPostSlugs } from "@/components/marketing/blog-data";
 import { getAllGuideSlugs } from "@/components/marketing/guides-data";
 import { getAllArticleSlugs } from "@/components/learning/learning-data";
 
-/** Tool slugs matching app/[locale]/(product)/tools subdirectories. */
+/** Tool slugs matching app/(product)/tools subdirectories. */
 const TOOL_SLUGS = [
   "affordability",
   "apr-compare",
