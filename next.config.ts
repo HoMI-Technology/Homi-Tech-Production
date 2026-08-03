@@ -80,8 +80,13 @@ const nextConfig: NextConfig = {
         // canonical route so these still resolve in one hop, not two.
         { source: `/es/tools/${from}`, destination: `/tools/${to}`, permanent: true },
       ]),
-      // One-hop /es variants of the wave-3 consolidations (must precede the
-      // /es/:path* catch-all below — redirects match in array order).
+      // One-hop /es variants of the wave-3 consolidations. Correct per Next.js
+      // array-order semantics, BUT observed on Vercel production (2026-08-03):
+      // /es/* requests are answered by an earlier routing phase where the
+      // /es/:path* catch-all wins, so these resolve in two hops there (same
+      // for the older /es tool aliases above). Harmless — both hops are 308s.
+      // Kept for self-hosted correctness; investigate routes-manifest.json if
+      // one-hop on Vercel ever matters.
       { source: "/es/tools/scenarios", destination: "/scenarios#saved", permanent: true },
       { source: "/es/couples", destination: "/household#couples", permanent: true },
       { source: "/es/family", destination: "/household#family", permanent: true },

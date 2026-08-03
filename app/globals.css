@@ -556,8 +556,11 @@ body {
   line-height: 1.25rem;
 }
 /* Touch devices keep the 44px effective target the old clamp provided;
-   36px density is a pointer-precision (desktop) affordance only. */
-@media (pointer: coarse) {
+   36px density is a pointer-precision (desktop) affordance only.
+   any-pointer catches hybrid Windows laptops whose PRIMARY pointer is a
+   fine trackpad but which also have a touchscreen (Lauke/CSS-Tricks:
+   interaction media features and incorrect assumptions). */
+@media (pointer: coarse), (any-pointer: coarse) {
   .btn-sm {
     min-height: 44px;
   }
@@ -575,7 +578,7 @@ body {
   font-size: 0.75rem;
   line-height: 1rem;
 }
-@media (pointer: coarse) {
+@media (pointer: coarse), (any-pointer: coarse) {
   .btn-xs {
     min-height: 44px;
   }

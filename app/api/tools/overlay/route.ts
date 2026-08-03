@@ -45,7 +45,7 @@ const putSchema = z.object({
   client_updated_at: z.number().int().min(0).max(4_102_444_800_000),
 });
 
-/** GET /api/tools/overlay â€” the caller's tools overlay, or null. */
+/** GET /api/tools/overlay — the caller's tools overlay, or null. */
 export async function GET(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`tools-overlay-read:${ip}`, { limit: 30, windowMs: 60_000 });
@@ -83,7 +83,7 @@ export async function GET(request: Request) {
   });
 }
 
-/** PUT /api/tools/overlay â€” LWW upsert of the caller's tools overlay. */
+/** PUT /api/tools/overlay — LWW upsert of the caller's tools overlay. */
 export async function PUT(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`tools-overlay-write:${ip}`, { limit: 30, windowMs: 60_000 });
