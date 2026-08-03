@@ -102,7 +102,7 @@ Tests cover:
 
 ## Audit History
 
-- **2026-07-08** — Full platform security audit (`AUDIT-2026-07-08.md`)
+- **2026-07-08** — Full platform security audit (`docs/archive/AUDIT-2026-07-08.md`)
   - CSP enforce/report-only split
   - Middleware fail-closed fix
   - Privilege-escalation guard (migration 00018)

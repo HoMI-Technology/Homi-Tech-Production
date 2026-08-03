@@ -1,7 +1,7 @@
 # HōMI Incident Runbook
 
 > Quick-reference playbook for common production incidents.
-> For strategic launch steps, see `LAUNCH.md`. For detailed loop verification, see `LAUNCH-RUNBOOK.md`.
+> For strategic launch steps, see `GO-LIVE-CHECKLIST.md` (repo root). For the launch-loops key-file map, see `docs/launch-shipped-map.md`.
 
 ---
 
@@ -54,7 +54,7 @@
 
 **Quick fix:** Apply the missing migration via Supabase SQL Editor. Every migration file has a `-- ROLLBACK:` block if you need to undo.
 
-**Kill switch:** Restore from the pre-migration backup (see `LAUNCH.md` §1.2).
+**Kill switch:** Restore from the pre-migration backup (see `GO-LIVE-CHECKLIST.md` §2 and `docs/ops/MIGRATIONS-SSOT.md`).
 
 ---
 
@@ -79,7 +79,7 @@
 **Symptoms:** Anthropic invoice unexpectedly high; LLM cost alerts firing.
 
 **Checklist (in order):**
-1. **Anthropic console** — set a workspace spend cap + alert (owner step in `LAUNCH.md` §2.4)
+1. **Anthropic console** — set a workspace spend cap + alert (owner step in `GO-LIVE-CHECKLIST.md` §5)
 2. **Upstash rate limiter** — is `UPSTASH_REDIS_REST_URL` set? Without it, limits are per-lambda fiction.
 3. **Daily demo budget** — the 5/day demo budget is server-authoritative; check if a partner key is being abused.
 

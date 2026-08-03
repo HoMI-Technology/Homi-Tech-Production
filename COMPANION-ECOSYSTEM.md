@@ -36,7 +36,7 @@ each phase ships independently.
   deliberately a few and not fifty) give people a starting point; each is
   renameable and maps to a persona default (`lib/advisor/identity.ts`). What the
   user never configures: the math, verdict bands, weights, or the no-advice floor.
-  (Canon per `COMPANION-INTELLIGENCE-AUDIT.md`.)
+  (Canon per `docs/archive/COMPANION-INTELLIGENCE-AUDIT.md`.)
 
 ## 2. What exists today (the seams)
 
@@ -198,7 +198,7 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   open business decision; every document stays consistent with today's educational,
   non-CRA posture until the founder decides otherwise.
 
-## 5. Non-negotiables (inherited from BUILD-BRIEF)
+## 5. Non-negotiables (inherited from BUILD-BRIEF §1 — now `AGENTS.md` "Product guardrails")
 
 - Scoring canon frozen: the Companion *reads* scores; it never computes or adjusts
   them. Scoring stays server-authoritative in `lib/scoring/engine.ts`.
@@ -230,5 +230,5 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
 
 *Provenance: the identity, confidence, memory, explainability, and sharing items
 above were adopted from the founder's strategy corpus — see
-`COMPANION-INTELLIGENCE-AUDIT.md` for the full audit, conflict matrix, and
-superseded directions.*
+`docs/archive/COMPANION-INTELLIGENCE-AUDIT.md` for the full audit, conflict
+matrix, and superseded directions.*

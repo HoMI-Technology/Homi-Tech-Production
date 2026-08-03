@@ -94,6 +94,34 @@ pwsh -File C:\Users\cody\ai-server\scripts\homi-ssot.ps1 pipeline -Task "..."
 ./scripts/homi-ssot.sh push "wip: message" # commit everything + push current branch, set upstream
 ```
 
+## Product guardrails (extracted from BUILD-BRIEF §1, 2026-08-03)
+
+The build brief now lives at `docs/archive/BUILD-BRIEF.md`; its §1 guardrails
+remain binding and are carried here. Violating any of these = stop and fix.
+
+1. **Scoring canon is frozen.** Pillars weight **35% Financial Reality /
+   35% Emotional Truth / 30% Perfect Timing**. Verdict thresholds are
+   **boundary-inclusive**: READY ≥ 80, ALMOST_THERE 65–79, BUILD_FIRST 50–64,
+   NOT_YET 0–49. There are **4 hard stops**. Never change these numbers. If any
+   UI shows a score/verdict pair that violates them, that is a bug. Never touch
+   `lib/scoring/*` — executable TypeScript there is the authority (see above).
+2. **Scoring stays server-authoritative.** The score is always recomputed
+   server-side (`lib/scoring/engine.ts` via `/api/assessments`). Never trust a
+   client-sent score. Never move scoring to the client.
+3. **Brand canon.** Spelling is exactly **HōMI** (capital H, ō = U+014D,
+   capital MI) in all user-visible text. Colors only: cyan `#22d3ee`, emerald
+   `#34d399`, yellow `#facc15`, amber `#fab633`, crimson `#f24822`, navy
+   `#0a1628`. Dark navy surfaces only — never light backgrounds. No banned
+   stale claims ("50/30/20", "73%", "70%"). `npm run brand-check` enforces this
+   in CI.
+4. **Security posture only strengthens.** RLS stays enabled + FORCEd on every
+   table. `SECURITY DEFINER` functions keep pinned `search_path`. Never delete
+   or relax an RLS policy. Never expose the service-role key to the client or
+   `NEXT_PUBLIC_`.
+5. **Add a test for every fix that has logic.** Especially: webhook
+   signature/idempotency/tier-mapping, share ownership, entitlements, and the
+   verdict-canon guard (`npm run test:acceptance`).
+
 ## Product notes
 
 - Next.js app (`homi-production`): `app/`, `components/`, `lib/`, `supabase/`

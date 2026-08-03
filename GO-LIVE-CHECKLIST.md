@@ -150,7 +150,8 @@ Hobby plan prohibits commercial use — upgrade before charging a single card.
   `NEXT_PUBLIC_POSTHOG_HOST` if not US cloud). The funnel events (assessment
   started/completed, verdict shown, checkout started/completed, share created/
   viewed) are already firing — they just need a sink. Optionally
-  `POSTHOG_PERSONAL_API_KEY` + `POSTHOG_PROJECT_ID` for the admin dashboard.
+  `POSTHOG_PERSONAL_API_KEY` (needs the "query" read scope) +
+  `POSTHOG_PROJECT_ID` for the admin dashboard.
 - **Sentry:** create a project → set **`SENTRY_DSN`** (server capture is wired).
 - **Anthropic:** set a workspace **spend cap + alert** — the last backstop on
   Companion LLM cost.
@@ -175,8 +176,10 @@ Hobby plan prohibits commercial use — upgrade before charging a single card.
   is set in **Production only** — Preview deployments return unsigned receipts.
 - **`EMAIL_UNSUBSCRIBE_SECRET`**, **`INTERNAL_API_SECRET`:** set to random 32-byte
   values (`openssl rand -base64 32`).
-- **Web push** (optional, powers outcome-survey push): `VAPID_PUBLIC_KEY` /
-  `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` + `NEXT_PUBLIC_VAPID_PUBLIC_KEY`.
+- **Web push** (optional, powers outcome-survey push): generate a key pair with
+  `npx web-push generate-vapid-keys`, then set `VAPID_PUBLIC_KEY` /
+  `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT=mailto:hello@homitechnology.com` +
+  `NEXT_PUBLIC_VAPID_PUBLIC_KEY`. All push code is inert until these are set.
 
 ---
 
@@ -196,6 +199,12 @@ connect UI stays gracefully disabled.
 - A `support@homitechnology.com` inbox.
 - Note the last-known-good Vercel deployment before each release (Instant
   Rollback is your undo).
+- Enable GitHub Advanced Security (CodeQL, secret scanning) and Dependabot.
+
+**Post-launch (no deadline):** marketing funnel analysis via PostHog; a customer
+support playbook; pre-register the outcome metrics for the 30/90/365-day survey
+moat (purchase completion, regret score, financial-stress delta) so the eventual
+cohort study is credible rather than retro-fitted.
 
 ---
 
