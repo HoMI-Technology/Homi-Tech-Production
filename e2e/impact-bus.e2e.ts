@@ -552,6 +552,9 @@ test.describe("Impact Bus @flag-on", () => {
       const toast = toastRegion(page);
       await expect(toast).toHaveCount(1);
       await expect(toast).toBeVisible();
+      // Pause the auto-dismiss timer (hover parity) so the geometry checks
+      // below can never race the 5.2s display window.
+      await toast.hover();
 
       // No horizontal overflow
       const overflow = await page.evaluate(
@@ -575,6 +578,29 @@ test.describe("Impact Bus @flag-on", () => {
           toastBox.y < launcherBox.y + launcherBox.height &&
           toastBox.y + toastBox.height > launcherBox.y;
         expect(intersects).toBe(false);
+      }
+
+      // Deferred 3.2/3.3 assertion: the toast and the Companion launcher are
+      // fixed overlays — their screen positions must not move when the page
+      // scrolls. Regression guard for the will-change containing-block bug
+      // (ClientProviders once held a permanent will-change:transform, which
+      // pinned un-portaled fixed descendants to the page instead of the
+      // viewport).
+      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+      await expect
+        .poll(() => page.evaluate(() => window.scrollY), { timeout: 10_000 })
+        .toBeGreaterThan(0);
+      const toastBoxAfterScroll = await toast.boundingBox();
+      const launcherBoxAfterScroll = await launcher.boundingBox();
+      expect(toastBoxAfterScroll).toBeTruthy();
+      expect(launcherBoxAfterScroll).toBeTruthy();
+      if (toastBox && toastBoxAfterScroll) {
+        expect(Math.abs(toastBoxAfterScroll.x - toastBox.x)).toBeLessThanOrEqual(1);
+        expect(Math.abs(toastBoxAfterScroll.y - toastBox.y)).toBeLessThanOrEqual(1);
+      }
+      if (launcherBox && launcherBoxAfterScroll) {
+        expect(Math.abs(launcherBoxAfterScroll.x - launcherBox.x)).toBeLessThanOrEqual(1);
+        expect(Math.abs(launcherBoxAfterScroll.y - launcherBox.y)).toBeLessThanOrEqual(1);
       }
     });
   });

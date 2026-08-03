@@ -408,7 +408,7 @@ function pillarSteps(
         title: "Household alignment session (budget ceiling + deal-breakers)",
         kind: "milestone",
         reasonCode: "PARTNER_ALIGNMENT",
-        href: "/couples",
+        href: "/household#couples",
         notes:
           "Partner alignment is a readiness input — not a formality. " +
           "Agree on max budget and non-negotiables before shopping. " +

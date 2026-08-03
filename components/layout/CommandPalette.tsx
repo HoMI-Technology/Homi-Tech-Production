@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
+import { useScrollLock } from "@/hooks/useScrollLock";
 import {
   PALETTE_CATALOG,
   type PaletteItem,
@@ -53,20 +55,23 @@ export function CommandPalette({
     setQuery("");
     setActive(0);
     const t = window.setTimeout(() => inputRef.current?.focus(), 0);
-    const prevOverflow = document.body.style.overflow;
-    // Prefer y-only lock when possible; overflow hidden matches prior behavior.
-    document.body.style.overflow = "hidden";
     return () => {
       window.clearTimeout(t);
-      document.body.style.overflow = prevOverflow;
       returnFocusRef.current?.focus?.();
     };
   }, [open]);
+
+  // Shared y-only body scroll lock (task 3.5) — replaces the local
+  // overflow:hidden toggle; x gets `clip` so position:sticky keeps working.
+  useScrollLock(open);
 
   useEffect(() => {
     setActive(0);
   }, [query]);
 
+  // Client-only portal target check; `open` is client-state-driven, so SSR
+  // never reaches the createPortal below anyway.
+  if (typeof document === "undefined") return null;
   if (!open) return null;
 
   function go(item: PaletteItem | undefined) {
@@ -93,8 +98,16 @@ export function CommandPalette({
     }
   }
 
-  return (
-    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Command palette">
+  // Portal to document.body (task 3.5): escapes the ClientProviders
+  // page-transition wrapper, whose transient will-change:transform makes it
+  // the containing block for fixed descendants.
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[var(--z-modal)]"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Command palette"
+    >
       <div
         className="absolute inset-0 bg-navy/70 backdrop-blur-sm"
         onClick={onClose}
@@ -148,6 +161,7 @@ export function CommandPalette({
           <kbd className="rounded border border-slate-high/60 px-1">esc</kbd> close
         </p>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

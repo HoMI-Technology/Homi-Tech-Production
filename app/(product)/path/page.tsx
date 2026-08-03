@@ -434,7 +434,7 @@ export default function PathPage() {
             Household readiness
           </p>
           <p className="mt-1 text-sm text-light">{partnerNote}</p>
-          <Link href="/couples" className="mt-2 inline-block text-sm text-cyan underline-offset-2 hover:underline">
+          <Link href="/household#couples" className="mt-2 inline-block text-sm text-cyan underline-offset-2 hover:underline">
             Open couples alignment
           </Link>
         </div>

@@ -124,7 +124,7 @@ export function SaveScenarioButton({
           Saved as <span className="font-semibold">{state.scenario.name}</span>.
           {state.note ? <span className="text-dim"> {state.note}</span> : null}
         </p>
-        <Link href="/tools/scenarios" className="mt-1 inline-block text-xs font-medium text-cyan hover:underline">
+        <Link href="/scenarios#saved" className="mt-1 inline-block text-xs font-medium text-cyan hover:underline">
           Open saved scenarios →
         </Link>
       </div>

@@ -77,7 +77,10 @@ export function WelcomeBanner() {
       // element itself (~0.33 CLS / ~4s LCP on every public route, breaking the
       // mobile Lighthouse budget). As a fixed toast it can neither shift layout
       // nor displace the page's real hero as the largest contentful paint.
-      className="glass glass-hover fixed inset-x-4 bottom-4 z-40 mx-auto max-w-xl overflow-hidden sm:left-auto sm:right-4 sm:mx-0"
+      //
+      // z tier: shares --z-nav (40) — the banner is ambient chrome that must
+      // sit below menus, overlays, modals, and toasts. Matches the prior z-40.
+      className="glass glass-hover fixed inset-x-4 bottom-4 z-[var(--z-nav)] mx-auto max-w-xl overflow-hidden sm:left-auto sm:right-4 sm:mx-0"
       role="dialog"
       aria-label="Welcome to HōMI"
       style={{

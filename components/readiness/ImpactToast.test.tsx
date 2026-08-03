@@ -3,6 +3,8 @@ import { StrictMode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { ImpactToast } from "./ImpactToast";
+import { ToastProvider } from "@/components/ui/ToastProvider";
+import { SessionExpiredToast } from "@/components/layout/SessionExpiredToast";
 import {
   IMPACT_EVENT_NAME,
   LAST_IMPACT_KEY,
@@ -16,8 +18,9 @@ import type {
 
 /**
  * ImpactToast contract: validated consume-once display, duplicate/replay
- * protection, hover/focus pause, demo isolation, and priority-notice
- * suppression (session/security beats Path progress).
+ * protection, hover/focus pause, demo isolation, and priority suppression via
+ * the unified toast system (session/security beats Path progress). ImpactToast
+ * renders through ToastProvider (task 3.2), so every test mounts inside it.
  */
 
 let mockPathname = "/path";
@@ -28,6 +31,24 @@ let mockPathname = "/path";
 vi.mock("next/navigation", async (importOriginal) => ({
   ...(await importOriginal<typeof import("next/navigation")>()),
   usePathname: () => mockPathname,
+}));
+
+// The priority-suppression cases mount the real SessionExpiredToast, which
+// renders next/link — stub it as a plain anchor (same as its own test file).
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+    ...rest
+  }: {
+    href: string;
+    children: React.ReactNode;
+    className?: string;
+  }) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
 }));
 
 const AUTO_DISMISS_MS = 5_200;
@@ -79,17 +100,16 @@ afterEach(() => {
   cleanup();
   vi.useRealTimers();
   window.sessionStorage.clear();
-  document.querySelectorAll("[data-priority-notice]").forEach((n) => n.remove());
 });
 
 describe("ImpactToast display", () => {
   it("is hidden initially", () => {
-    render(<ImpactToast />);
+    render(<ImpactToast />, { wrapper: ToastProvider });
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 
   it("displays a valid event with polite, atomic live-region semantics", () => {
-    render(<ImpactToast />);
+    render(<ImpactToast />, { wrapper: ToastProvider });
     dispatchImpact(impactFixture());
     const region = screen.getByRole("status");
     expect(region).toHaveAttribute("aria-live", "polite");
@@ -101,7 +121,7 @@ describe("ImpactToast display", () => {
   });
 
   it("never displays an invalid event payload", () => {
-    render(<ImpactToast />);
+    render(<ImpactToast />, { wrapper: ToastProvider });
     dispatchImpact({ v: 1, actionKind: "score_change", delta: 5 });
     dispatchImpact("garbage");
     dispatchImpact(null);
@@ -109,7 +129,7 @@ describe("ImpactToast display", () => {
   });
 
   it("portals to document.body so ancestor will-change wrappers cannot un-fix it", () => {
-    render(<ImpactToast />);
+    render(<ImpactToast />, { wrapper: ToastProvider });
     dispatchImpact(impactFixture());
     // Root ClientProviders historically kept a permanent will-change:transform
     // on its page-transition div (fixed 2026-08-03 to animate-time-only), which
@@ -119,7 +139,7 @@ describe("ImpactToast display", () => {
   });
 
   it("does not steal focus when it appears", () => {
-    render(<ImpactToast />);
+    render(<ImpactToast />, { wrapper: ToastProvider });
     const active = document.activeElement;
     dispatchImpact(impactFixture());
     expect(document.activeElement).toBe(active);
@@ -130,12 +150,12 @@ describe("ImpactToast display", () => {
       LAST_IMPACT_KEY,
       JSON.stringify(impactFixture({ impactId: "stored-1" })),
     );
-    const { unmount } = render(<ImpactToast />);
+    const { unmount } = render(<ImpactToast />, { wrapper: ToastProvider });
     expect(screen.getByRole("status")).toBeInTheDocument();
     expect(window.sessionStorage.getItem(LAST_IMPACT_KEY)).toBeNull();
 
     unmount();
-    render(<ImpactToast />);
+    render(<ImpactToast />, { wrapper: ToastProvider });
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 
@@ -146,13 +166,13 @@ describe("ImpactToast display", () => {
         impactFixture({ at: new Date(Date.now() - 60_000).toISOString() }),
       ),
     );
-    render(<ImpactToast />);
+    render(<ImpactToast />, { wrapper: ToastProvider });
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
     expect(window.sessionStorage.getItem(LAST_IMPACT_KEY)).toBeNull();
   });
 
   it("displays a duplicate impactId only once", () => {
-    render(<ImpactToast />);
+    render(<ImpactToast />, { wrapper: ToastProvider });
     const impact = impactFixture({ impactId: "dupe-1" });
     dispatchImpact(impact);
     act(() => {
@@ -172,13 +192,14 @@ describe("ImpactToast display", () => {
       <StrictMode>
         <ImpactToast />
       </StrictMode>,
+      { wrapper: ToastProvider },
     );
     expect(screen.getAllByRole("status")).toHaveLength(1);
     expect(window.sessionStorage.getItem(LAST_IMPACT_KEY)).toBeNull();
   });
 
   it("latest valid impact replaces the visible one and restarts the timer", () => {
-    render(<ImpactToast />);
+    render(<ImpactToast />, { wrapper: ToastProvider });
     dispatchImpact(impactFixture({ impactId: "a", stepTitle: "First step" }));
     act(() => {
       vi.advanceTimersByTime(AUTO_DISMISS_MS - 1_000);
@@ -203,7 +224,7 @@ describe("ImpactToast display", () => {
 describe("ImpactToast dismissal", () => {
   it("auto-dismisses after the display window and clears transport", () => {
     window.sessionStorage.setItem(LEGACY_LAST_IMPACT_KEY, "{}");
-    render(<ImpactToast />);
+    render(<ImpactToast />, { wrapper: ToastProvider });
     dispatchImpact(impactFixture());
     act(() => {
       vi.advanceTimersByTime(AUTO_DISMISS_MS + 1);
@@ -213,7 +234,7 @@ describe("ImpactToast dismissal", () => {
   });
 
   it("manual dismiss hides the toast and clears transport", () => {
-    render(<ImpactToast />);
+    render(<ImpactToast />, { wrapper: ToastProvider });
     dispatchImpact(impactFixture());
     window.sessionStorage.setItem(LAST_IMPACT_KEY, "{}");
     act(() => {
@@ -224,7 +245,7 @@ describe("ImpactToast dismissal", () => {
   });
 
   it("hover pauses auto-dismiss; leaving resumes it", () => {
-    render(<ImpactToast />);
+    render(<ImpactToast />, { wrapper: ToastProvider });
     dispatchImpact(impactFixture());
     const region = screen.getByRole("status");
     fireEvent.mouseEnter(region);
@@ -240,7 +261,7 @@ describe("ImpactToast dismissal", () => {
   });
 
   it("a focused dismiss button pauses the timer so it cannot vanish under focus", () => {
-    render(<ImpactToast />);
+    render(<ImpactToast />, { wrapper: ToastProvider });
     dispatchImpact(impactFixture());
     const dismiss = screen.getByRole("button", { name: "Dismiss Path progress" });
     act(() => {
@@ -253,7 +274,7 @@ describe("ImpactToast dismissal", () => {
   });
 
   it("cleans up its listener and timer on unmount", () => {
-    const { unmount } = render(<ImpactToast />);
+    const { unmount } = render(<ImpactToast />, { wrapper: ToastProvider });
     dispatchImpact(impactFixture());
     unmount();
     // Post-unmount events must not throw or resurrect state.
@@ -276,7 +297,7 @@ describe("ImpactToast demo isolation", () => {
         JSON.stringify(impactFixture()),
       );
       window.sessionStorage.setItem(LEGACY_LAST_IMPACT_KEY, "{}");
-      render(<ImpactToast />);
+      render(<ImpactToast />, { wrapper: ToastProvider });
       // Live impacts are ignored while in demo.
       dispatchImpact(impactFixture());
       expect(screen.queryByRole("status")).not.toBeInTheDocument();
@@ -290,13 +311,13 @@ describe("ImpactToast demo isolation", () => {
     // unprefixed route, so a legacy /es/demo request reaches this component
     // with pathname "/demo".
     mockPathname = "/demo";
-    render(<ImpactToast />);
+    render(<ImpactToast />, { wrapper: ToastProvider });
     dispatchImpact(impactFixture());
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 
   it("entering demo hides a visible toast and clears transport", () => {
-    const { rerender } = render(<ImpactToast />);
+    const { rerender } = render(<ImpactToast />, { wrapper: ToastProvider });
     dispatchImpact(impactFixture());
     expect(screen.getByRole("status")).toBeInTheDocument();
 
@@ -309,28 +330,54 @@ describe("ImpactToast demo isolation", () => {
 });
 
 describe("ImpactToast priority notices", () => {
-  function mountSessionNotice(): HTMLElement {
-    const notice = document.createElement("div");
-    notice.setAttribute("data-priority-notice", "session-expired");
-    document.body.appendChild(notice);
-    return notice;
+  // Real integration: the actual SessionExpiredToast (TOAST_PRIORITY.security)
+  // must outrank Path progress (TOAST_PRIORITY.base) through the toast
+  // system's priority model — the successor to the [data-priority-notice]
+  // DOM-attribute protocol. The session toast patches window.fetch on mount,
+  // so the 401 stub must be installed before render and restored after.
+  let realFetch: typeof fetch;
+
+  beforeEach(() => {
+    realFetch = window.fetch;
+    window.fetch = vi.fn(async () => new Response(null, { status: 401 }));
+  });
+
+  afterEach(() => {
+    window.fetch = realFetch;
+  });
+
+  function renderBothToasts() {
+    return render(
+      <>
+        <SessionExpiredToast />
+        <ImpactToast />
+      </>,
+      { wrapper: ToastProvider },
+    );
   }
 
-  it("suppresses display while a session notice is active", () => {
-    mountSessionNotice();
-    render(<ImpactToast />);
+  async function triggerSessionExpiry(): Promise<void> {
+    await act(async () => {
+      await window.fetch("/api/anything");
+    });
+  }
+
+  it("suppresses display while a session-expired notice is active", async () => {
+    renderBothToasts();
+    await triggerSessionExpiry();
+    expect(screen.getByRole("alert")).toBeInTheDocument();
+
     dispatchImpact(impactFixture());
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 
-  it("hides itself when a session notice appears mid-display", async () => {
-    render(<ImpactToast />);
+  it("hides itself when a session-expired notice appears mid-display", async () => {
+    renderBothToasts();
     dispatchImpact(impactFixture());
     expect(screen.getByRole("status")).toBeInTheDocument();
-    // MutationObserver callbacks are microtask-scheduled — async act flushes.
-    await act(async () => {
-      mountSessionNotice();
-    });
+
+    await triggerSessionExpiry();
+    expect(screen.getByRole("alert")).toBeInTheDocument();
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 });

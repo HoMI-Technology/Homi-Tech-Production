@@ -2,15 +2,27 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
 import { GUIDES } from "@/components/marketing/guides-data";
+import { LEARNING_ARTICLES } from "@/components/learning/learning-data";
+import { BLOG_POSTS } from "@/components/marketing/blog-data";
 
 export const metadata: Metadata = {
   title: "Guides",
   description:
-    "In-depth, honest guides on affordability, runway, credit, timing, and emotional readiness — written to be genuinely useful, not to sell you anything.",
+    "In-depth, honest guides on affordability, runway, credit, timing, and emotional readiness — plus the reasoning behind the method and notes on why HōMI exists.",
   alternates: { canonical: "/guides" },
 };
 
+function formatDate(date: string): string {
+  return new Date(date).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 export default function GuidesHubPage() {
+  const posts = [...BLOG_POSTS].sort((a, b) => (a.date < b.date ? 1 : -1));
+
   return (
     <>
       <section className="px-6 pb-16 pt-16 md:pt-24">
@@ -40,6 +52,84 @@ export default function GuidesHubPage() {
                 </Link>
               </Reveal>
             ))}
+          </div>
+        </section>
+      </Reveal>
+
+      <Reveal>
+        <section className="px-6 py-10">
+          <div className="mx-auto max-w-6xl">
+            <div className="mx-auto max-w-3xl text-center">
+              <h2 className="text-3xl font-black text-light md:text-4xl">Learning</h2>
+              <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-dim">
+                Guides are how. Learning is why. The reasoning behind the thresholds — the math,
+                the hard-stops, and the method — explained so you can check our work, not just
+                take our word for it.
+              </p>
+            </div>
+            <div className="mt-10 grid gap-6 md:grid-cols-2">
+              {LEARNING_ARTICLES.map((article, i) => (
+                <Reveal key={article.slug} delay={(i % 2) * 100}>
+                  <Link
+                    href={`/learning/${article.slug}`}
+                    className="glass glass-hover flex h-full flex-col p-8"
+                  >
+                    <h3 className="text-xl font-bold text-light">{article.title}</h3>
+                    <p className="mt-3 flex-1 text-sm leading-relaxed text-dim">
+                      {article.description}
+                    </p>
+                    <span className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-cyan">
+                      Read
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M7 4l6 6-6 6" />
+                      </svg>
+                    </span>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      </Reveal>
+
+      <Reveal>
+        <section className="px-6 py-10">
+          <div className="mx-auto max-w-6xl">
+            <div className="mx-auto max-w-3xl text-center">
+              <h2 className="text-3xl font-black text-light md:text-4xl">From the blog</h2>
+              <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-dim">
+                Notes on why HōMI exists, how the incentives around home-buying advice actually
+                work, and what we're building toward.
+              </p>
+            </div>
+            <div className="mt-10 grid gap-6 md:grid-cols-2">
+              {posts.map((post, i) => (
+                <Reveal key={post.slug} delay={(i % 2) * 100}>
+                  <Link
+                    href={`/blog/${post.slug}`}
+                    className="glass glass-hover flex h-full flex-col p-8"
+                  >
+                    <div className="flex items-center gap-2 text-xs text-dim">
+                      <span>{formatDate(post.date)}</span>
+                      <span aria-hidden="true">&middot;</span>
+                      <span>{post.readMinutes} min read</span>
+                    </div>
+                    <h3 className="mt-3 text-xl font-bold text-light">{post.title}</h3>
+                    <p className="mt-3 flex-1 text-sm leading-relaxed text-dim">
+                      {post.description}
+                    </p>
+                    <span className="mt-6 text-sm font-semibold text-cyan">Read the post &rarr;</span>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
           </div>
         </section>
       </Reveal>

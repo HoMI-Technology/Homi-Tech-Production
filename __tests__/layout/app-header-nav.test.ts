@@ -28,10 +28,13 @@ describe("AppHeader nav config", () => {
       "/plan",
       "/simulator",
       "/genome",
-      "/couples",
     ]) {
       expect(hrefs).toContain(href);
     }
+    // D3 household consolidation: /couples and /family merged into
+    // /household (#couples / #family tabs) — the routes no longer exist.
+    expect(hrefs).not.toContain("/couples");
+    expect(hrefs).not.toContain("/family");
   });
 
   it("puts Results adjacent to Path to Ready", () => {

@@ -35,7 +35,7 @@ const ACTIONS: Action[] = [
   { href: "/tools", label: "Tools", desc: "Calculators for the math", icon: "tools", nowDesc: "Your financial pillar is the one to work" },
   { href: "/signals", label: "Signals", desc: "The timing forces around you", icon: "signals", nowDesc: "Timing is your open question — read the signals" },
   { href: "/simulator", label: "Simulate your score", desc: "Test a move before you make it", icon: "simulator" },
-  { href: "/couples", label: "Couples", desc: "Check alignment with a partner", icon: "couples" },
+  { href: "/household#couples", label: "Couples", desc: "Check alignment with a partner", icon: "couples" },
   { href: "/genome", label: "Genome", desc: "Your decision psychology", icon: "genome" },
 ];
 

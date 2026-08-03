@@ -347,7 +347,7 @@ export function CompanionWidget() {
         aria-expanded={open}
         aria-controls="homi-companion-panel"
         aria-label={open ? "Close HōMI Companion" : "Open HōMI Companion"}
-        className="compass-glow fixed right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full border border-cyan/40 bg-navy-light/90 shadow-lg backdrop-blur transition-transform hover:scale-105 bottom-[max(1.5rem,env(safe-area-inset-bottom,0px))]"
+        className="compass-glow fixed right-6 z-[var(--z-menu)] flex h-14 w-14 items-center justify-center rounded-full border border-cyan/40 bg-navy-light/90 shadow-lg backdrop-blur transition-transform hover:scale-105 bottom-[max(1.5rem,env(safe-area-inset-bottom,0px))]"
       >
         <ThresholdCompass size={40} animated={!open} glow={false} verdict={undefined} />
       </button>
@@ -359,7 +359,7 @@ export function CompanionWidget() {
           role="dialog"
           aria-modal="true"
           aria-label="HōMI Companion"
-          className="glass fixed right-4 z-50 flex h-[min(70dvh,560px)] max-h-[calc(100dvh-env(safe-area-inset-top,0px)-8rem)] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl shadow-2xl bottom-[max(5.5rem,calc(env(safe-area-inset-bottom,0px)+4.5rem))] sm:right-6"
+          className="glass fixed right-4 z-[var(--z-overlay)] flex h-[min(70dvh,560px)] max-h-[calc(100dvh-env(safe-area-inset-top,0px)-8rem)] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl shadow-2xl bottom-[max(5.5rem,calc(env(safe-area-inset-bottom,0px)+4.5rem))] sm:right-6"
         >
           <div className="flex items-center justify-between border-b border-slate-surface/60 px-4 py-3">
             {editingName ? (
@@ -495,7 +495,7 @@ export function CompanionWidget() {
               <a
                 href={gateCta.href}
                 onClick={() => setOpen(false)}
-                className="btn btn-primary block w-full !py-2 text-center text-sm"
+                className="btn btn-primary btn-sm block w-full text-center"
               >
                 {gateCta.label}
               </a>
@@ -516,7 +516,7 @@ export function CompanionWidget() {
               type="button"
               onClick={() => sendMessage(input)}
               disabled={sending || !input.trim()}
-              className="btn btn-primary !px-3 !py-2 disabled:opacity-50"
+              className="btn btn-primary btn-sm !px-3 disabled:opacity-50"
               aria-label="Send message"
             >
               <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">

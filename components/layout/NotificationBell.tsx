@@ -149,7 +149,7 @@ export function NotificationBell() {
           ref={panelRef}
           role="dialog"
           aria-label="Notifications"
-          className="glass absolute right-0 top-full z-50 mt-2 w-[320px] max-w-[calc(100vw-2.5rem)] overflow-hidden rounded-2xl p-2 shadow-2xl"
+          className="glass absolute right-0 top-full z-[var(--z-menu)] mt-2 w-[320px] max-w-[calc(100vw-2.5rem)] overflow-hidden rounded-2xl p-2 shadow-2xl"
         >
           <div className="flex items-center justify-between px-2 py-1.5">
             <p className="text-xs font-semibold uppercase tracking-wide text-dim">Notifications</p>

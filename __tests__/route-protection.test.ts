@@ -78,7 +78,9 @@ describe("route-protection classification", () => {
       "credit",
       "finance",
       "genome",
-      "couples",
+      // "couples" and "family" merged into /household (D3) — household
+      // stays in PROTECTED_PRODUCT_ROUTES, asserted via the full-list test.
+      "household",
       "simulator",
     ]) {
       expect(isProtectedPath(`/${r}`)).toBe(true);

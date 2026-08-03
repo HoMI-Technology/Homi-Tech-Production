@@ -1,5 +1,5 @@
 import { fileURLToPath } from "node:url";
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 
 // Runs ONLY the independent acceptance suite (BUILD-BRIEF §9).
 // These are implementation-agnostic behavioural oracles. An agent must make
@@ -9,6 +9,7 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["**/__tests__/acceptance/**/*.test.ts"],
+    exclude: [...configDefaults.exclude, "**/.claude/**"],
   },
   resolve: {
     alias: {
