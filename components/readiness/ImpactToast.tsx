@@ -150,7 +150,12 @@ export function ImpactToast() {
       role="status"
       aria-live="polite"
       aria-atomic="true"
-      className="fixed inset-x-0 bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] z-40 flex justify-center px-4"
+      // Narrow viewports: the toast spans nearly full width, so it must sit
+      // above the Companion launcher (h-14 at bottom-6 right-6) — same
+      // clearance formula as the Companion panel. From sm up the centered
+      // max-w-md card cannot reach the right corner, so it returns to the
+      // session-toast baseline (and stays below its z-50).
+      className="fixed inset-x-0 bottom-[max(5.5rem,calc(env(safe-area-inset-bottom,0px)+4.5rem))] z-40 flex justify-center px-4 sm:bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}

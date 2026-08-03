@@ -235,10 +235,10 @@ test.describe("Impact Bus @flag-on", () => {
     ]);
     await gotoPath(page);
 
-    const scoreBefore = await page.getByText(/Score 42/).first().textContent();
     const assessmentBefore = await page.evaluate(() =>
       localStorage.getItem("homi:last-assessment"),
     );
+    await expect(page.getByText(/Score 42/).first()).toBeVisible();
 
     await page.getByRole("button", { name: "Mark done" }).first().click();
 
@@ -250,8 +250,11 @@ test.describe("Impact Bus @flag-on", () => {
     await expect(toast).toContainText("Reassess when your real inputs change.");
     await expect(toast).not.toContainText(/Path complete|locked in|Score|\+\d/);
 
-    // Score displayed and stored: exactly unchanged
-    expect(await page.getByText(/Score 42/).first().textContent()).toBe(scoreBefore);
+    // Score displayed and stored: exactly unchanged. (The header line also
+    // shows "% resolved", which legitimately moves — assert the score token,
+    // not the whole line.)
+    await expect(page.getByText(/Score 42/).first()).toBeVisible();
+    await expect(page.getByText(/Score (?!42\b)\d+/)).toHaveCount(0);
     expect(
       await page.evaluate(() => localStorage.getItem("homi:last-assessment")),
     ).toBe(assessmentBefore);
