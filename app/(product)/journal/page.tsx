@@ -412,7 +412,7 @@ export default function JournalPage() {
                       {deletingId === entry.id ? (
                         <>
                           <button
-                            className="btn !bg-crimson !px-3 !py-1.5 text-xs text-white"
+                            className="btn btn-danger !px-3 !py-1.5 text-xs"
                             onClick={() => handleDelete(entry.id)}
                           >
                             Confirm delete

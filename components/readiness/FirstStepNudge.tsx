@@ -62,11 +62,11 @@ export function FirstStepNudge() {
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         {next && (
-          <Link href={next.href} className="btn btn-primary !px-4 !py-2 text-sm">
+          <Link href={next.href} className="btn btn-primary btn-sm">
             Start step
           </Link>
         )}
-        <Link href="/path" className="btn btn-ghost !px-4 !py-2 text-sm">
+        <Link href="/path" className="btn btn-ghost btn-sm">
           Full path
         </Link>
       </div>

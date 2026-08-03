@@ -344,7 +344,7 @@ export function PathToReadyCard({
         <button
           type="button"
           onClick={handleGenerateAndSaveOptional}
-          className="btn btn-ghost shrink-0 !px-4 !py-2 text-sm"
+          className="btn btn-ghost shrink-0 btn-sm"
         >
           Add optional 90-day review
         </button>

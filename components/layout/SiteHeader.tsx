@@ -44,7 +44,7 @@ export function SiteHeader() {
           <Link href="/auth/sign-in" className="text-sm text-dim transition-colors hover:text-light">
             Sign in
           </Link>
-          <Link href="/shadow-score" className="btn btn-primary !px-4 !py-2 text-sm">
+          <Link href="/shadow-score" className="btn btn-primary btn-sm">
             Get your score
           </Link>
         </>

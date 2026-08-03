@@ -115,7 +115,7 @@ export function SecuritySection() {
                 type="button"
                 onClick={() => handleUnenroll(f.id)}
                 disabled={removingId === f.id}
-                className="btn !border !border-crimson/50 !bg-transparent !px-4 !py-2 !text-crimson text-sm hover:!bg-crimson/10 disabled:opacity-50"
+                className="btn btn-sm !border !border-crimson/50 !bg-transparent !text-crimson hover:!bg-crimson/10 disabled:opacity-50"
               >
                 {removingId === f.id ? "Removing…" : "Remove"}
               </button>
@@ -165,7 +165,7 @@ export function SecuritySection() {
         <button
           type="submit"
           disabled={pwSaving || pw.length === 0}
-          className="btn btn-primary !px-4 !py-2 text-sm disabled:opacity-50"
+          className="btn btn-primary btn-sm disabled:opacity-50"
         >
           {pwSaving ? "Updating…" : "Update password"}
         </button>

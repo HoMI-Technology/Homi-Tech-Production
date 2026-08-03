@@ -75,7 +75,7 @@ export default async function CalibrationPage() {
               really end up more satisfied than the people we asked to wait? We publish the answer either way.
             </p>
             <div className="mt-6">
-              <Link href="/outcomes" className="btn btn-ghost !px-4 !py-2 text-sm">
+              <Link href="/outcomes" className="btn btn-ghost btn-sm">
                 Record an outcome
               </Link>
             </div>

@@ -405,7 +405,7 @@ function FamilyPageInner() {
                           Edit
                         </button>
                         <button
-                          className="btn !bg-crimson !px-3 !py-1 text-xs text-white"
+                          className="btn btn-danger !px-3 !py-1 text-xs"
                           onClick={() => removeMember(i)}
                         >
                           Remove
@@ -488,7 +488,7 @@ function FamilyPageInner() {
                           Edit
                         </button>
                         <button
-                          className="btn !bg-crimson !px-3 !py-1 text-xs text-white"
+                          className="btn btn-danger !px-3 !py-1 text-xs"
                           onClick={() => removeGoal(i)}
                         >
                           Remove

@@ -28,7 +28,7 @@ function SectionShell({ children }: { children: React.ReactNode }) {
         title="Financial position"
         subtitle="Net worth, cash flow, and savings from your connected banks."
         action={
-          <Link href="/simulator" className="btn btn-ghost !px-4 !py-2 text-sm">
+          <Link href="/simulator" className="btn btn-ghost btn-sm">
             Simulate your score
           </Link>
         }
@@ -155,7 +155,7 @@ export async function FinancialPositionSection({
               Your bank is connected — net worth, cash flow, and savings appear here once the first
               sync completes.
             </p>
-            <Link href="/connections" className="btn btn-ghost mt-4 !px-4 !py-2 text-sm">
+            <Link href="/connections" className="btn btn-ghost mt-4 btn-sm">
               Check sync status
             </Link>
           </div>

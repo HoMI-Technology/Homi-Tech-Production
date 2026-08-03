@@ -175,13 +175,13 @@ export default function PreflightPage() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Link href="/path" className="btn btn-primary !px-4 !py-2 text-sm">
+            <Link href="/path" className="btn btn-primary btn-sm">
               Open Path to Ready
             </Link>
-            <Link href="/assessment" className="btn btn-ghost !px-4 !py-2 text-sm">
+            <Link href="/assessment" className="btn btn-ghost btn-sm">
               Full assessment
             </Link>
-            <Link href="/scenarios" className="btn btn-ghost !px-4 !py-2 text-sm">
+            <Link href="/scenarios" className="btn btn-ghost btn-sm">
               Scenario studio
             </Link>
           </div>

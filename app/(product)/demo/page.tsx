@@ -54,7 +54,7 @@ function DemoPageContent() {
             Everything below is a fixed example, not a live account. Nothing here is saved or shared.
           </p>
         </div>
-        <Link href="/shadow-score" className="btn btn-primary shrink-0 !px-4 !py-2 text-sm">
+        <Link href="/shadow-score" className="btn btn-primary shrink-0 btn-sm">
           Get your Shadow Score
         </Link>
       </div>

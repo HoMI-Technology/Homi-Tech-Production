@@ -58,7 +58,7 @@ export function ProfileSection({
         </div>
 
         <div className="flex items-center gap-3">
-          <button onClick={handleSave} disabled={saving} className="btn btn-primary !px-4 !py-2 text-sm disabled:opacity-60">
+          <button onClick={handleSave} disabled={saving} className="btn btn-primary btn-sm disabled:opacity-60">
             {saving ? "Saving…" : "Save changes"}
           </button>
           {status === "saved" && <span className="text-sm text-emerald">Saved.</span>}

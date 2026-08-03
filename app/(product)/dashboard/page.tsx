@@ -573,13 +573,13 @@ export default async function DashboardPage() {
                                 <div className="mt-3 flex flex-wrap gap-2">
                                   <Link
                                     href={nextMove.href}
-                                    className="btn btn-primary !px-3.5 !py-1.5 text-sm"
+                                    className="btn btn-primary btn-sm"
                                   >
                                     {nextMove.cta}
                                   </Link>
                                   <Link
                                     href={nextMove.secondary.href}
-                                    className="btn btn-ghost !px-3.5 !py-1.5 text-sm"
+                                    className="btn btn-ghost btn-sm"
                                   >
                                     {nextMove.secondary.label}
                                   </Link>

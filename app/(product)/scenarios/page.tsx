@@ -221,21 +221,21 @@ export default function ScenariosPage() {
             <div className="mt-3 flex flex-wrap gap-2">
               <button
                 type="button"
-                className="btn btn-primary !px-4 !py-2 text-sm"
+                className="btn btn-primary btn-sm"
                 onClick={() => fundScenario("wait-12")}
               >
                 Fund wait-12 path
               </button>
               <button
                 type="button"
-                className="btn btn-ghost !px-4 !py-2 text-sm"
+                className="btn btn-ghost btn-sm"
                 onClick={() => fundScenario("wait-24")}
               >
                 Fund wait-24 path
               </button>
               <button
                 type="button"
-                className="btn btn-ghost !px-4 !py-2 text-sm"
+                className="btn btn-ghost btn-sm"
                 onClick={() => fundScenario("buy-now")}
               >
                 Path for buy-now

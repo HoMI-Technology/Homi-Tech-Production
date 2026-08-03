@@ -30,7 +30,7 @@ export function CopyButton({
     <button
       type="button"
       onClick={handleCopy}
-      className={`btn btn-ghost !px-4 !py-2 text-sm ${className}`}
+      className={`btn btn-ghost btn-sm ${className}`}
       aria-live="polite"
     >
       {copied ? (

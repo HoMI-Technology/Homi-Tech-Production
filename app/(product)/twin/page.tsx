@@ -239,10 +239,10 @@ export default function TwinPage() {
                   {source === "model" ? "Written for you" : "A HōMI letter"}
                 </p>
                 <div className="flex gap-3">
-                  <button type="button" onClick={generateLetter} className="btn btn-ghost !px-4 !py-2 text-sm">
+                  <button type="button" onClick={generateLetter} className="btn btn-ghost btn-sm">
                     Regenerate
                   </button>
-                  <button type="button" onClick={handlePrint} className="btn btn-ghost !px-4 !py-2 text-sm">
+                  <button type="button" onClick={handlePrint} className="btn btn-ghost btn-sm">
                     Print
                   </button>
                 </div>

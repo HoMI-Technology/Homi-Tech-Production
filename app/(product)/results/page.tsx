@@ -156,7 +156,7 @@ export default function ResultsPage() {
               Six inputs, filled out with neutral assumptions. The full assessment gives you a precise read.
             </p>
           </div>
-          <Link href="/assessment" className="btn btn-primary shrink-0 !px-4 !py-2 text-sm">
+          <Link href="/assessment" className="btn btn-primary shrink-0 btn-sm">
             Take the full assessment
           </Link>
         </div>
@@ -195,10 +195,10 @@ export default function ResultsPage() {
                 from the binding constraint first.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <a href="#path-to-ready" className="btn btn-primary !px-4 !py-2 text-sm">
+                <a href="#path-to-ready" className="btn btn-primary btn-sm">
                   Continue Path to Ready
                 </a>
-                <Link href="/path" className="btn btn-ghost !px-4 !py-2 text-sm">
+                <Link href="/path" className="btn btn-ghost btn-sm">
                   Open full path
                 </Link>
               </div>
@@ -232,13 +232,13 @@ export default function ResultsPage() {
       />
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <Link href="/tools/preflight" className="btn btn-ghost !px-4 !py-2 text-sm">
+        <Link href="/tools/preflight" className="btn btn-ghost btn-sm">
           Decision Pre-Flight
         </Link>
-        <Link href="/scenarios" className="btn btn-ghost !px-4 !py-2 text-sm">
+        <Link href="/scenarios" className="btn btn-ghost btn-sm">
           Scenario studio
         </Link>
-        <Link href="/path" className="btn btn-ghost !px-4 !py-2 text-sm">
+        <Link href="/path" className="btn btn-ghost btn-sm">
           Full path
         </Link>
       </div>

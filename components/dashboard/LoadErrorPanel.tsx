@@ -29,7 +29,7 @@ export function LoadErrorPanel({
       <p className="mt-2 text-sm leading-relaxed text-dim">{body}</p>
       <button
         type="button"
-        className="btn btn-ghost mt-4 !px-4 !py-2 text-sm"
+        className="btn btn-ghost mt-4 btn-sm"
         disabled={busy}
         onClick={() => {
           setBusy(true);
