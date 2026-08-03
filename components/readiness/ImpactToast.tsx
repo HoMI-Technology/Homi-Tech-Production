@@ -16,6 +16,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { usePathname } from "@/i18n/navigation";
 import {
   IMPACT_EVENT_NAME,
@@ -145,7 +146,12 @@ export function ImpactToast() {
 
   const copy = pathImpactToastCopy(impact);
 
-  return (
+  // Portal to <body>: the root ClientProviders page-transition wrapper keeps a
+  // permanent will-change:transform, which turns it into the containing block
+  // for fixed descendants — position:fixed inside it pins to the page, not the
+  // viewport. Rendering only happens client-side (visible is event-driven), so
+  // document is always available here.
+  return createPortal(
     <div
       role="status"
       aria-live="polite"
@@ -175,6 +181,7 @@ export function ImpactToast() {
           Dismiss
         </button>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

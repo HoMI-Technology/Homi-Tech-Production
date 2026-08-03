@@ -103,6 +103,15 @@ describe("ImpactToast display", () => {
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 
+  it("portals to document.body so ancestor will-change wrappers cannot un-fix it", () => {
+    render(<ImpactToast />);
+    dispatchImpact(impactFixture());
+    // Root ClientProviders keeps a permanent will-change:transform on its
+    // page-transition div, which would become the containing block for any
+    // fixed descendant — the toast must escape that tree entirely.
+    expect(screen.getByRole("status").parentElement).toBe(document.body);
+  });
+
   it("does not steal focus when it appears", () => {
     render(<ImpactToast />);
     const active = document.activeElement;
