@@ -67,8 +67,8 @@ export default async function BlogPostPage({
       />
       <section className="px-6 pb-12 pt-16 md:pt-24">
         <div className="mx-auto max-w-3xl">
-          <Link href="/blog" className="text-sm text-dim transition-colors hover:text-cyan">
-            &larr; All posts
+          <Link href="/guides" className="text-sm text-dim transition-colors hover:text-cyan">
+            &larr; All guides &amp; posts
           </Link>
           <h1 className="mt-5 text-4xl font-black leading-tight text-light md:text-5xl">
             {post.title}

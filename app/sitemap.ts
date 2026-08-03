@@ -3,24 +3,19 @@ import { SITE_URL } from "@/lib/seo/site";
 import { getAllPostSlugs } from "@/components/marketing/blog-data";
 import { getAllGuideSlugs } from "@/components/marketing/guides-data";
 import { getAllArticleSlugs } from "@/components/learning/learning-data";
+import { LENSES } from "@/lib/tools/registry";
 
-/** Tool slugs matching app/(product)/tools subdirectories. */
-const TOOL_SLUGS = [
-  "affordability",
-  "apr-compare",
-  "blind-budget",
-  "debt-payoff",
-  "down-payment",
-  "fire",
-  "heloc",
-  "loan-programs",
-  "monte-carlo",
-  "mortgage",
-  "refinance",
-  "rent-vs-buy",
-  "roth-conversion",
-  "runway",
-];
+/**
+ * Tool slugs derived from the lens registry (the single declarative contract
+ * for every decision tool) — no hand-copied list to drift. Preflight is
+ * excluded here because it is listed separately as a static route
+ * (/tools/preflight) with its own priority.
+ */
+const TOOL_SLUGS = LENSES.map((lens) => lens.path)
+  .filter((path) => path.startsWith("/tools/"))
+  .map((path) => path.slice("/tools/".length))
+  .filter((slug) => slug !== "preflight")
+  .sort();
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = SITE_URL;
@@ -33,9 +28,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/method`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${base}/b2b`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${base}/partner`, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${base}/blog`, changeFrequency: "weekly", priority: 0.8 },
+    // Content hub consolidation (D5): /guides is THE hub. /blog and /learning
+    // index pages permanently redirect there and are delisted; their [slug]
+    // routes still render and stay in the dynamic sections below.
     { url: `${base}/guides`, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${base}/learning`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${base}/pricing`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${base}/status`, changeFrequency: "monthly", priority: 0.4 },
     { url: `${base}/tools`, changeFrequency: "monthly", priority: 0.8 },
