@@ -80,6 +80,13 @@ const nextConfig: NextConfig = {
         // canonical route so these still resolve in one hop, not two.
         { source: `/es/tools/${from}`, destination: `/tools/${to}`, permanent: true },
       ]),
+      // One-hop /es variants of the wave-3 consolidations (must precede the
+      // /es/:path* catch-all below — redirects match in array order).
+      { source: "/es/tools/scenarios", destination: "/scenarios#saved", permanent: true },
+      { source: "/es/couples", destination: "/household#couples", permanent: true },
+      { source: "/es/family", destination: "/household#family", permanent: true },
+      { source: "/es/blog", destination: "/guides", permanent: true },
+      { source: "/es/learning", destination: "/guides", permanent: true },
       // Spanish locale removed. Everything still pointing at /es folds onto
       // its unprefixed equivalent. Listed after the tool aliases so those win.
       { source: "/es", destination: "/", permanent: true },

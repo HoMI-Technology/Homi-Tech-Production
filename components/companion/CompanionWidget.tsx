@@ -347,7 +347,7 @@ export function CompanionWidget() {
         aria-expanded={open}
         aria-controls="homi-companion-panel"
         aria-label={open ? "Close HōMI Companion" : "Open HōMI Companion"}
-        className="compass-glow fixed right-6 z-[calc(var(--z-nav)-1)] flex h-14 w-14 items-center justify-center rounded-full border border-cyan/40 bg-navy-light/90 shadow-lg backdrop-blur transition-transform hover:scale-105 bottom-[max(1.5rem,env(safe-area-inset-bottom,0px))]"
+        className="compass-glow fixed right-6 z-[var(--z-menu)] flex h-14 w-14 items-center justify-center rounded-full border border-cyan/40 bg-navy-light/90 shadow-lg backdrop-blur transition-transform hover:scale-105 bottom-[max(1.5rem,env(safe-area-inset-bottom,0px))]"
       >
         <ThresholdCompass size={40} animated={!open} glow={false} verdict={undefined} />
       </button>
