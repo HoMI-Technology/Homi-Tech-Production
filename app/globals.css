@@ -547,6 +547,13 @@ body {
   font-size: 0.875rem;
   line-height: 1.25rem;
 }
+/* Touch devices keep the 44px effective target the old clamp provided;
+   36px density is a pointer-precision (desktop) affordance only. */
+@media (pointer: coarse) {
+  .btn-sm {
+    min-height: 44px;
+  }
+}
 /* Destructive actions — verdict crimson (#f24822, canon token), structured
    like .btn-primary. Replaces the `!bg-crimson !text-white` call-site hack. */
 .btn-danger {
