@@ -131,6 +131,9 @@ export default async function ReportCredentialPage({ params }: { params: Promise
         <Link href={`/report/${assessment.id}`} className="btn btn-ghost">
           Back to report
         </Link>
+        <Link href={`/report/${assessment.id}/path-certificate`} className="btn btn-ghost">
+          Path certificate
+        </Link>
       </div>
     </div>
   );

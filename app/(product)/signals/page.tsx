@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
 import { deriveSignals, type Signal, type SignalSeverity } from "@/lib/signals/engine";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { Skeleton } from "@/components/ui/Skeleton";
 import type { DailyCheckin } from "@/types/database";
 
@@ -57,7 +58,7 @@ export default function SignalsPage() {
   const signals: Signal[] = deriveSignals({ storedAssessment, recentCheckins });
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
+    <PageFrame width="content" density="spacious" role="personal">
       <h1 className="font-display text-3xl text-light">Signals</h1>
       <p className="mt-2 max-w-xl text-dim">
         A calm, proactive read on your readiness — not notifications that nag, just what's
@@ -98,6 +99,6 @@ export default function SignalsPage() {
           ))}
         </div>
       )}
-    </div>
+    </PageFrame>
   );
 }

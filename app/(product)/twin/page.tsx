@@ -7,6 +7,7 @@ import { PILLARS, VERDICT_META } from "@/lib/brand";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring";
 import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { TypedLetter } from "@/components/twin/TypedLetter";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 
@@ -140,7 +141,7 @@ export default function TwinPage() {
   const meta = VERDICT_META[stored.result.verdict];
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-12">
+    <PageFrame width="focus" density="spacious" role="personal">
       <h1 className="font-display text-3xl text-light">Temporal Twin</h1>
       <p className="mt-2 max-w-2xl text-dim">
         A letter from your future self. Grounded in your actual HōMI-Score, written from the other side
@@ -251,6 +252,6 @@ export default function TwinPage() {
           )}
         </div>
       </div>
-    </div>
+    </PageFrame>
   );
 }

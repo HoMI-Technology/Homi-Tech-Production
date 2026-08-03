@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { sliderFillPercent } from "@/lib/assessment/format";
 import { Celebrate } from "@/components/ui/Celebrate";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Skeleton } from "@/components/ui/Skeleton";
 import type { DailyCheckin } from "@/types/database";
@@ -205,7 +206,7 @@ export default function DailyCheckinPage() {
   const nextDisabled = (step === 1 && !spend) || (step === 2 && !win);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
+    <PageFrame width="content" density="spacious" role="personal">
       <h1 className="font-display text-3xl text-light">Daily Check-in</h1>
       <p className="mt-2 max-w-xl text-dim">Sixty seconds. A few honest picks. One snapshot of today.</p>
 
@@ -337,7 +338,7 @@ export default function DailyCheckinPage() {
           </div>
         </div>
       </div>
-    </div>
+    </PageFrame>
   );
 }
 

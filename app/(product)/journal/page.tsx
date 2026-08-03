@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { sliderFillPercent } from "@/lib/assessment/format";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { formatLocalDateISO, localDateISO } from "@/lib/dates";
 import type { JournalEntry } from "@/types/database";
@@ -194,7 +195,7 @@ export default function JournalPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10 sm:py-12">
+    <PageFrame width="content" density="spacious" role="personal">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="eyebrow">Operate · decisions</p>
@@ -450,6 +451,6 @@ export default function JournalPage() {
           ))
         )}
       </div>
-    </div>
+    </PageFrame>
   );
 }

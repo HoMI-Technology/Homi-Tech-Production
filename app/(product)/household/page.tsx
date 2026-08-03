@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Tabs, TabPanel, type TabItem } from "@/components/ui/Tabs";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { HouseholdJointPanel } from "@/components/household/HouseholdJointPanel";
 import { CouplesAlignmentPanel } from "@/components/household/CouplesAlignmentPanel";
 import { FamilyModePanel } from "@/components/household/FamilyModePanel";
@@ -29,7 +30,7 @@ export default function HouseholdPage() {
   const [mode, setMode] = useState<ModeKey>("household");
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
+    <PageFrame width="content" density="spacious" role="personal">
       <p className="eyebrow">Household readiness</p>
       <h1 className="mt-1 font-display text-3xl text-light">Household</h1>
       <p className="mt-2 max-w-2xl text-sm text-dim">
@@ -62,6 +63,6 @@ export default function HouseholdPage() {
           <FamilyModePanel />
         </TabPanel>
       )}
-    </div>
+    </PageFrame>
   );
 }

@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { VERDICT_META } from "@/lib/brand";
 import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 
 interface TrinityResult {
@@ -122,7 +123,7 @@ export default function TrinityPage() {
   const meta = VERDICT_META[stored.result.verdict];
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-12">
+    <PageFrame width="focus" density="spacious" role="personal">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl text-light">Trinity Engine</h1>
@@ -194,6 +195,6 @@ export default function TrinityPage() {
           )}
         </>
       )}
-    </div>
+    </PageFrame>
   );
 }

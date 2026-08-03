@@ -1,4 +1,5 @@
 import { Chat } from "@/components/advisor/Chat";
+import { PageFrame } from "@/components/operate/PageFrame";
 
 export const metadata = {
   title: "Decision Companion",
@@ -7,7 +8,7 @@ export const metadata = {
 
 export default function AdvisorPage() {
   return (
-    <div className="mx-auto max-w-3xl px-6 py-12">
+    <PageFrame width="narrow" density="spacious" role="personal">
       <div className="mb-6">
         <h1 className="font-display text-2xl font-semibold text-light sm:text-3xl">
           Talk it through
@@ -19,6 +20,6 @@ export default function AdvisorPage() {
       </div>
 
       <Chat />
-    </div>
+    </PageFrame>
   );
 }
