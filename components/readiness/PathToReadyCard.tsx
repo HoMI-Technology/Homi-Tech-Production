@@ -16,6 +16,7 @@ import {
   HARD_STOP_ORDER,
   completePathStep,
   completePathStepWithImpact,
+  completePathStepGuarded,
   financeSnapshotForPath,
   getFinanceSavedAtForPath,
   computeBindingProgress,
@@ -127,6 +128,7 @@ export function PathToReadyCard({
   useEffect(() => {
     let active = true;
     async function hydrate() {
+      // Activation: non-READY auto-generates a path on first results view.
       if (!isReadyCelebrate(result)) {
         trackPathOffered({
           source: "results_auto",
@@ -208,37 +210,24 @@ export function PathToReadyCard({
 
   const handleComplete = useCallback(
     (stepId: string) => {
-      const before = loadReadinessPath();
-      const wasFirstPending =
-        before?.steps.find((s) => (s.status ?? "pending") === "pending")?.id ===
-        stepId;
-
-      if (impactBus) {
-        const { path: next, impact } = completePathStepWithImpact(stepId, "done");
-        if (next) {
-          setPath(next);
-          if (impact && !impact.alreadyDone) {
-            const step = next.steps.find((s) => s.id === stepId);
-            trackPathStepDone({
-              reasonCode: step?.reasonCode ?? "unknown",
-              evidence: "manual",
-              firstStep: wasFirstPending ? 1 : 0,
-            });
-          }
-        }
+      // Guarded transition either way; only the flag-on branch may publish a
+      // toast impact. Analytics fire once per real transition, and
+      // first-resolution truth (no step of any kind was done or skipped
+      // before) comes from the transition — not from "first pending step".
+      const result = impactBus
+        ? completePathStepWithImpact(stepId)
+        : completePathStepGuarded(stepId);
+      if (result.kind === "noop") {
+        if (result.path) setPath(result.path);
         return;
       }
-
-      const next = completePathStep(stepId, "done");
-      if (next) {
-        setPath(next);
-        const step = next.steps.find((s) => s.id === stepId);
-        trackPathStepDone({
-          reasonCode: step?.reasonCode ?? "unknown",
-          evidence: "manual",
-          firstStep: wasFirstPending ? 1 : 0,
-        });
-      }
+      setPath(result.path);
+      trackPathStepDone({
+        surface: "results",
+        reasonCode: result.transition.reasonCode,
+        evidence: "manual",
+        firstStep: result.transition.wasFirstResolution ? 1 : 0,
+      });
     },
     [],
   );
@@ -269,18 +258,23 @@ export function PathToReadyCard({
     [path],
   );
 
+  /** One-click: save + server calendar commit for signed-in users. */
   const handleOneClickCommit = useCallback(async () => {
     if (!path) return;
     setCommitting(true);
     setError(null);
     setCommitMsg(null);
+
+    // Always persist locally first
     saveReadinessPath(path);
     trackPathSaved({ source: "results_manual", stepCount: path.steps.length });
+
     if (isAnonymous) {
       setCommitting(false);
       setCommitMsg("Path saved. Sign in to put it on your calendar.");
       return;
     }
+
     try {
       const res = await fetch("/api/readiness-path/commit-calendar", {
         method: "POST",
@@ -330,6 +324,7 @@ export function PathToReadyCard({
     );
   }
 
+  // ── READY band ────────────────────────────────────────────────────
   if (readyBand && !path) {
     return (
       <section
@@ -357,6 +352,7 @@ export function PathToReadyCard({
     );
   }
 
+  // ── Active / preview path ─────────────────────────────────────────
   if (path) {
     const conf = confidenceLabel(path.confidence);
     const isOptional = path.mode === "ready_optional";
@@ -372,6 +368,7 @@ export function PathToReadyCard({
           aria-hidden
           className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan/60 to-transparent"
         />
+
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="eyebrow">Path to Ready</p>
@@ -394,11 +391,12 @@ export function PathToReadyCard({
             {!isOptional && (
               <span className="inline-flex items-center rounded-full border border-slate-surface/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-dim">
                 <span className="score-numeral mr-1 text-light">{completion}</span>
-                % steps
+                % resolved
               </span>
             )}
           </div>
         </div>
+
         {freshness.isStale && (
           <div
             className="mt-4 rounded-lg border border-amber/40 bg-amber/10 px-4 py-3"
@@ -421,11 +419,13 @@ export function PathToReadyCard({
             </button>
           </div>
         )}
+
         {!isOptional && (
           <div className="mt-5">
             <PathProgressHero progress={progress} />
           </div>
         )}
+
         <div className="mt-5">
           <PathPreview
             steps={path.steps}
@@ -433,12 +433,18 @@ export function PathToReadyCard({
             onSkip={handleSkip}
           />
         </div>
+
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <button
             type="button"
             onClick={() => void handleOneClickCommit()}
             className="btn btn-primary !px-5 !py-2.5 text-sm"
             disabled={committing}
+            aria-label={
+              isAnonymous
+                ? "Save path and prepare calendar commit"
+                : "Save path and put milestones on calendar"
+            }
           >
             {committing
               ? "Committing…"
@@ -448,32 +454,54 @@ export function PathToReadyCard({
                   ? "Update calendar milestones"
                   : "Save & put on calendar"}
           </button>
+
           {isAnonymous && (
             <Link href={SIGN_IN_HREF} className="btn btn-emerald !px-5 !py-2.5 text-sm">
               Sign in for multi-device path
             </Link>
           )}
+
           <Link href="/path" className="btn btn-emerald !px-5 !py-2.5 text-sm">
             Open full path
           </Link>
+
           {!isAnonymous && path.calendarCommittedAt && (
             <Link href="/calendar" className="btn btn-ghost !px-5 !py-2.5 text-sm">
               Open calendar
             </Link>
           )}
-          <button type="button" onClick={handleSave} className="btn btn-ghost !px-5 !py-2.5 text-sm">
+
+          <button
+            type="button"
+            onClick={handleSave}
+            className="btn btn-ghost !px-5 !py-2.5 text-sm"
+          >
             Save only
           </button>
-          <button type="button" onClick={handleGenerate} className="btn btn-ghost !px-5 !py-2.5 text-sm">
+
+          <button
+            type="button"
+            onClick={handleGenerate}
+            className="btn btn-ghost !px-5 !py-2.5 text-sm"
+          >
             Regenerate
           </button>
-          <button type="button" onClick={() => handleExport("md")} className="btn btn-ghost !px-5 !py-2.5 text-sm">
+          <button
+            type="button"
+            onClick={() => handleExport("md")}
+            className="btn btn-ghost !px-5 !py-2.5 text-sm"
+          >
             Export Markdown
           </button>
-          <button type="button" onClick={() => handleExport("json")} className="btn btn-ghost !px-5 !py-2.5 text-sm">
+          <button
+            type="button"
+            onClick={() => handleExport("json")}
+            className="btn btn-ghost !px-5 !py-2.5 text-sm"
+          >
             Export JSON
           </button>
         </div>
+
         {commitMsg && (
           <p className="mt-3 text-sm text-emerald" role="status">
             {commitMsg}
@@ -484,7 +512,9 @@ export function PathToReadyCard({
             {error}
           </p>
         )}
+
         <PathPricingStrip />
+
         <p className="mt-5 text-xs leading-relaxed text-dim">
           {path.disclaimer || PATH_DISCLAIMER}
         </p>
@@ -493,6 +523,7 @@ export function PathToReadyCard({
     );
   }
 
+  // ── Build prompt ──────────────────────────────────────────────────
   const constraint = bindingConstraintLabel(softBindingCode(result));
   const conf = confidenceLabel(
     hasSavedFinanceState() ? "assessment_plus_finance" : "assessment_only",
@@ -516,6 +547,7 @@ export function PathToReadyCard({
         One binding constraint at a time — protection signal first, not a
         checklist wall. Educational readiness only.
       </p>
+
       <div className="mt-5 flex flex-wrap items-center gap-2">
         <span className="inline-flex items-center rounded-full border border-amber/40 bg-amber/10 px-2.5 py-1 text-xs font-medium text-amber">
           {constraint}
@@ -531,11 +563,17 @@ export function PathToReadyCard({
           </span>
         )}
       </div>
+
       <div className="mt-6">
-        <button type="button" onClick={handleGenerate} className="btn btn-primary">
+        <button
+          type="button"
+          onClick={handleGenerate}
+          className="btn btn-primary"
+        >
           Generate Path to Ready
         </button>
       </div>
+
       <p className="mt-5 text-xs leading-relaxed text-dim">{PATH_DISCLAIMER}</p>
       <p className="mt-2 text-xs leading-relaxed text-dim">{PATH_LEGAL_SHORT}</p>
     </section>
@@ -543,7 +581,9 @@ export function PathToReadyCard({
 }
 
 function PathPricingStrip() {
-  const [copy, setCopy] = useState<ReturnType<typeof pathPricingCopy> | null>(null);
+  const [copy, setCopy] = useState<ReturnType<typeof pathPricingCopy> | null>(
+    null,
+  );
   useEffect(() => {
     const a = exposePathPricing("results_path_card");
     setCopy(pathPricingCopy(a.variant));

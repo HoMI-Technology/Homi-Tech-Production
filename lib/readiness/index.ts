@@ -39,18 +39,35 @@ export {
 
 export {
   completePathStepWithImpact,
-  impactToastCopy,
-  type ScoreImpact,
+  completePathStepGuarded,
+  pathImpactToastCopy,
+  parsePathStepImpact,
+  isFreshPathImpact,
+  publishPathImpact,
+  consumeStoredPathImpact,
+  clearStoredPathImpact,
+  IMPACT_EVENT_NAME,
+  LAST_IMPACT_KEY,
+  LEGACY_LAST_IMPACT_KEY,
+  IMPACT_HYDRATE_TTL_MS,
+  type PathStepImpact,
+  type PathTransitionMeta,
+  type PathStepNoopReason,
+  type CompletePathStepWithImpactResult,
+  type CompletePathStepGuardedResult,
 } from "./impact-bus";
 
 export {
   computeBindingProgress,
   computePathFreshness,
   pathCompletionRatio,
+  summarizePathResolution,
   ASSESSMENT_STALE_DAYS,
   PATH_STALE_DAYS,
   type BindingProgress,
   type PathFreshness,
+  type PathStatusCounts,
+  type PathResolutionSummary,
 } from "./progress";
 
 export {
@@ -77,7 +94,7 @@ export {
 
 export {
   loadCouplesAlignment,
-  partnerGapNote,
+  partnerPathNote,
   partnerBlocksJointReady,
   type CouplesAlignmentSnapshot,
 } from "./partner";
@@ -118,6 +135,7 @@ export {
   trackPathStartStepClicked,
   trackPathReturnVisit,
   type PathFunnelSource,
+  type PathStepDoneSurface,
 } from "./analytics";
 
 export {

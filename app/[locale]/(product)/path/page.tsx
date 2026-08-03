@@ -15,6 +15,7 @@ import {
   generatePathFromResult,
   completePathStep,
   completePathStepWithImpact,
+  completePathStepGuarded,
   financeSnapshotForPath,
   getFinanceSavedAtForPath,
   computeBindingProgress,
@@ -36,6 +37,7 @@ import {
   pathHabitOncePerSession,
   trackPathPageViewed,
   trackPathHabitImpression,
+  trackPathStepDone,
   type ReadinessPath,
   type RecurringItem,
 } from "@/lib/readiness";
@@ -79,6 +81,7 @@ export default function PathPage() {
   useEffect(() => {
     let active = true;
     async function hydrate() {
+      // Auto-complete cleared gates from finance + assessment
       const reconciled = reconcilePathWithSignals();
       if (reconciled.completedStepIds.length > 0 && active) {
         setPath(reconciled.path);
@@ -136,6 +139,7 @@ export default function PathPage() {
     };
   }, []);
 
+  // Habit measurement: once per session when path page hydrates with a path.
   useEffect(() => {
     if (!hydrated || !path) return;
     if (!pathHabitOncePerSession("path_page_viewed")) return;
@@ -216,13 +220,22 @@ export default function PathPage() {
   }, []);
 
   const handleComplete = useCallback((stepId: string) => {
-    if (impactBus) {
-      const { path: next } = completePathStepWithImpact(stepId, "done");
-      if (next) setPath(next);
+    // Guarded transition either way; only the flag-on branch may publish a
+    // toast impact. Analytics observe the real transition, never the click.
+    const result = impactBus
+      ? completePathStepWithImpact(stepId)
+      : completePathStepGuarded(stepId);
+    if (result.kind === "noop") {
+      if (result.path) setPath(result.path);
       return;
     }
-    const next = completePathStep(stepId, "done");
-    if (next) setPath(next);
+    setPath(result.path);
+    trackPathStepDone({
+      surface: "path_page",
+      reasonCode: result.transition.reasonCode,
+      evidence: "manual",
+      firstStep: result.transition.wasFirstResolution ? 1 : 0,
+    });
   }, []);
 
   const handleSkip = useCallback((stepId: string) => {
@@ -375,7 +388,7 @@ export default function PathPage() {
           <p className="score-numeral text-sm text-dim">
             Score {path.score}
             {" · "}
-            {completion}% steps
+            {completion}% resolved
           </p>
         </div>
       </div>
