@@ -2,6 +2,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { SessionExpiredToast } from "./SessionExpiredToast";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/dashboard",
@@ -46,13 +47,13 @@ describe("SessionExpiredToast", () => {
 
   it("stays hidden until a request fails with 401", () => {
     stubFetch(200);
-    render(<SessionExpiredToast />);
+    render(<SessionExpiredToast />, { wrapper: ToastProvider });
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   it("appears when a same-origin /api request returns 401, linking back to the current page", async () => {
     stubFetch(401);
-    render(<SessionExpiredToast />);
+    render(<SessionExpiredToast />, { wrapper: ToastProvider });
     await window.fetch("/api/assessments");
 
     await waitFor(() => expect(screen.getByRole("alert")).toBeInTheDocument());
@@ -62,9 +63,22 @@ describe("SessionExpiredToast", () => {
     );
   });
 
+  it("portals to document.body so ancestor will-change wrappers cannot un-fix it", async () => {
+    // Pre-consolidation this component rendered fixed WITHOUT a portal and
+    // pinned to the page whenever an ancestor held will-change (see
+    // ClientProviders.test.tsx). The toast system portals every bottom-center
+    // wrapper as a direct child of document.body.
+    stubFetch(401);
+    render(<SessionExpiredToast />, { wrapper: ToastProvider });
+    await window.fetch("/api/assessments");
+
+    await waitFor(() => expect(screen.getByRole("alert")).toBeInTheDocument());
+    expect(screen.getByRole("alert").parentElement).toBe(document.body);
+  });
+
   it("ignores 401s from foreign origins", async () => {
     stubFetch(401);
-    render(<SessionExpiredToast />);
+    render(<SessionExpiredToast />, { wrapper: ToastProvider });
     await window.fetch("https://api.stripe.com/v1/prices");
 
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
@@ -72,7 +86,7 @@ describe("SessionExpiredToast", () => {
 
   it("ignores non-401 API failures", async () => {
     stubFetch(500);
-    render(<SessionExpiredToast />);
+    render(<SessionExpiredToast />, { wrapper: ToastProvider });
     await window.fetch("/api/assessments");
 
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
@@ -80,7 +94,7 @@ describe("SessionExpiredToast", () => {
 
   it("passes the response through untouched", async () => {
     stubFetch(401);
-    render(<SessionExpiredToast />);
+    render(<SessionExpiredToast />, { wrapper: ToastProvider });
     const res = await window.fetch("/api/assessments");
     expect(res.status).toBe(401);
   });
@@ -88,7 +102,7 @@ describe("SessionExpiredToast", () => {
   it("restores the original fetch on unmount", () => {
     stubFetch(200);
     const patched = window.fetch;
-    const { unmount } = render(<SessionExpiredToast />);
+    const { unmount } = render(<SessionExpiredToast />, { wrapper: ToastProvider });
     expect(window.fetch).not.toBe(patched);
     unmount();
     expect(window.fetch).toBe(patched);

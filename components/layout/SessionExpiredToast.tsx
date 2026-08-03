@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { TOAST_PRIORITY, useToastContext } from "@/components/ui/ToastProvider";
 
 /**
  * Session-expiry toast. Mounted only for signed-in users (the (product)
@@ -13,10 +14,17 @@ import { useEffect, useState } from "react";
  * response statuses; the patch never alters requests or responses and is
  * restored on unmount. Shows once per mount, offering a sign-in link that
  * returns to the current page via the sign-in page's `next` param.
+ *
+ * Presentation is delegated to the unified toast system (task 3.2):
+ * bottom-center, role="alert", persistent until dismissed, and
+ * TOAST_PRIORITY.security — the toast system suppresses lower-priority
+ * bottom-center toasts (ImpactToast's Path progress) while this is visible,
+ * replacing the old [data-priority-notice] DOM-attribute protocol.
  */
 export function SessionExpiredToast() {
   const [visible, setVisible] = useState(false);
   const pathname = usePathname();
+  const toast = useToastContext();
 
   useEffect(() => {
     const original = window.fetch;
@@ -49,35 +57,46 @@ export function SessionExpiredToast() {
     };
   }, []);
 
-  if (!visible) return null;
+  // Declarative sync into the toast system: while expired, exactly one
+  // persistent bottom-center alert exists. The cleanup retracts silently
+  // (pathname changes re-issue the toast with a fresh sign-in target;
+  // unmount removes it); a user dismissal flows back through onDismiss.
+  useEffect(() => {
+    if (!visible) return;
+    const id = toast.notify({
+      placement: "bottom-center",
+      role: "alert",
+      priority: TOAST_PRIORITY.security,
+      duration: null,
+      className: "glass flex flex-wrap items-center gap-4 p-4 sm:flex-nowrap",
+      onDismiss: () => setVisible(false),
+      content: (dismissToast) => (
+        <>
+          <p className="text-sm text-light">Your session ended. Sign in to keep going.</p>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/auth/sign-in?next=${encodeURIComponent(pathname)}`}
+              className="btn btn-primary btn-sm"
+            >
+              Sign in
+            </Link>
+            <button
+              type="button"
+              onClick={dismissToast}
+              aria-label="Dismiss"
+              className="btn btn-ghost btn-sm"
+            >
+              Dismiss
+            </button>
+          </div>
+        </>
+      ),
+    });
+    if (id === null) return;
+    return () => {
+      toast.dismiss(id, null);
+    };
+  }, [visible, pathname, toast]);
 
-  return (
-    <div
-      role="alert"
-      // Priority signal: lower-priority fixed surfaces (ImpactToast) suppress
-      // themselves while any [data-priority-notice] element is in the DOM.
-      data-priority-notice="session-expired"
-      className="fixed inset-x-0 bottom-6 z-50 flex justify-center px-4"
-    >
-      <div className="glass flex flex-wrap items-center gap-4 p-4 sm:flex-nowrap">
-        <p className="text-sm text-light">Your session ended. Sign in to keep going.</p>
-        <div className="flex items-center gap-2">
-          <Link
-            href={`/auth/sign-in?next=${encodeURIComponent(pathname)}`}
-            className="btn btn-primary !px-4 !py-2 text-sm"
-          >
-            Sign in
-          </Link>
-          <button
-            type="button"
-            onClick={() => setVisible(false)}
-            aria-label="Dismiss"
-            className="btn btn-ghost !px-3 !py-2 text-sm"
-          >
-            Dismiss
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  return null;
 }
