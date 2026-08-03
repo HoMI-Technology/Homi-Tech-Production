@@ -31,3 +31,12 @@ export const impactBus = process.env.NEXT_PUBLIC_FF_IMPACT_BUS === "true";
  * overrides, no remote config.
  */
 export const budgetLedger = process.env.NEXT_PUBLIC_FF_BUDGET_LEDGER === "true";
+
+/**
+ * Per-record Budget ledger sync (PR 4): pull/push against
+ * `/api/finance/transactions` + categories. Strict `"true"` only.
+ * Defaults off; enable on Preview once PR 3 schema is applied. Requires a
+ * signed-in session — anonymous users stay local-only.
+ */
+export const financeLedgerSync =
+  process.env.NEXT_PUBLIC_FF_FINANCE_LEDGER_SYNC === "true";
