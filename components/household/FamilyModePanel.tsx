@@ -9,6 +9,13 @@ import { FamilyHouseholdGate } from "@/components/entitlements/AdvancedToolGate"
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 import type { VerdictType } from "@/types/database";
 
+/**
+ * Family Mode — moved verbatim from app/(product)/family/page.tsx when
+ * /family merged into /household#family (D3 consolidation). All Supabase
+ * reads/writes (family_accounts CRUD, latest assessment, entitlement seat
+ * check) are unchanged.
+ */
+
 interface FamilyMember {
   name: string;
   relation: string;
@@ -45,15 +52,15 @@ function emptyGoal(): SharedGoal {
   return { title: "", target_date: "", done: false };
 }
 
-export default function FamilyPage() {
+export function FamilyModePanel() {
   return (
     <FamilyHouseholdGate>
-      <FamilyPageInner />
+      <FamilyModeInner />
     </FamilyHouseholdGate>
   );
 }
 
-function FamilyPageInner() {
+function FamilyModeInner() {
   const supabase = useMemo(() => createClient(), []);
 
   const [loading, setLoading] = useState(true);
@@ -270,7 +277,7 @@ function FamilyPageInner() {
 
   if (!checkedAuth || loading) {
     return (
-      <div className="field mx-auto max-w-6xl px-6 py-16">
+      <div className="max-w-2xl py-8">
         <ProductLoadingSkeleton label="Loading family mode" />
       </div>
     );
@@ -278,7 +285,7 @@ function FamilyPageInner() {
 
   if (!userId) {
     return (
-      <div className="field flex min-h-[70vh] items-center justify-center px-6">
+      <div className="flex min-h-[50vh] items-center justify-center">
         <div className="glass w-full max-w-md p-10 text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-surface">
             <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" className="text-cyan">
@@ -286,12 +293,12 @@ function FamilyPageInner() {
               <path d="M4 17c0-2.8 2.7-5 6-5s6 2.2 6 5" />
             </svg>
           </div>
-          <h1 className="mt-5 font-display text-2xl text-light">Sign in for Family Mode</h1>
+          <h2 className="mt-5 font-display text-2xl text-light">Sign in for Family Mode</h2>
           <p className="mt-3 text-sm leading-relaxed text-dim">
             Family Mode is where your household tracks readiness together. Sign in to create or view your household.
           </p>
           <div className="mt-8">
-            <Link href="/auth/sign-in?next=/family" className="btn btn-primary">
+            <Link href="/auth/sign-in?next=/household" className="btn btn-primary">
               Sign in
             </Link>
           </div>
@@ -301,9 +308,9 @@ function FamilyPageInner() {
   }
 
   return (
-    <div className="field mx-auto max-w-6xl px-6 py-12">
+    <div>
       <div>
-        <h1 className="font-display text-3xl text-light">Family Mode</h1>
+        <h2 className="font-display text-2xl text-light">Family Mode</h2>
         <p className="mt-2 max-w-2xl text-dim">
           A household readiness hub — track who's in, what you're working toward together, and where each of you
           stands.
@@ -318,7 +325,7 @@ function FamilyPageInner() {
 
       {!household ? (
         <div className="glass mt-8 p-10 text-center">
-          <h2 className="font-display text-xl text-light">Create your household</h2>
+          <h3 className="font-display text-xl text-light">Create your household</h3>
           <p className="mt-2 text-sm text-dim">
             Give it a name. You can add members and shared goals right after.
           </p>
@@ -340,7 +347,7 @@ function FamilyPageInner() {
             {/* Members */}
             <div className="glass p-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-light">{household.household_name} — members</h2>
+                <h3 className="text-lg font-semibold text-light">{household.household_name} — members</h3>
                 <button className="btn btn-ghost !px-3 !py-1.5 text-xs" onClick={startAddMember}>
                   + Add member
                 </button>
@@ -420,7 +427,7 @@ function FamilyPageInner() {
             {/* Shared goals */}
             <div className="glass p-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-light">Shared goals</h2>
+                <h3 className="text-lg font-semibold text-light">Shared goals</h3>
                 <button className="btn btn-ghost !px-3 !py-1.5 text-xs" onClick={startAddGoal}>
                   + Add goal
                 </button>
@@ -504,7 +511,7 @@ function FamilyPageInner() {
           <div className="space-y-6">
             {/* Household readiness card */}
             <div className="glass p-6 text-center">
-              <h2 className="text-lg font-semibold text-light">Your readiness</h2>
+              <h3 className="text-lg font-semibold text-light">Your readiness</h3>
               {latestAssessment && latestAssessment.overall_score !== null ? (
                 <div className="mt-4 flex flex-col items-center gap-4">
                   <ScoreRing value={Math.round(latestAssessment.overall_score)} color="#22d3ee" />
@@ -526,7 +533,7 @@ function FamilyPageInner() {
 
             {/* Invite guidance panel */}
             <div className="glass p-6">
-              <h2 className="text-lg font-semibold text-light">Inviting your household</h2>
+              <h3 className="text-lg font-semibold text-light">Inviting your household</h3>
               <p className="mt-3 text-sm leading-relaxed text-dim">
                 Family plan seats are managed in Pricing — each member gets their own private scores. You see what
                 they choose to share.

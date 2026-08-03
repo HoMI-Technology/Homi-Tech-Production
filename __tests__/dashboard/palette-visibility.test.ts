@@ -13,6 +13,10 @@ describe("visiblePaletteItems", () => {
     expect(hrefs).toContain("/household");
     expect(hrefs).toContain("/scenarios");
     expect(hrefs).toContain("/tools/preflight");
+    // D3 household consolidation: /couples and /family merged into
+    // /household — the standalone entries left the catalog.
+    expect(hrefs).not.toContain("/couples");
+    expect(hrefs).not.toContain("/family");
     expect(hrefs).not.toContain("/admin");
     expect(hrefs).not.toContain("/partner/dashboard");
     expect(hrefs).not.toContain("/employee/dashboard");

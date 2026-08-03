@@ -44,7 +44,7 @@ function injectPartnerStep(path: ReadinessPath): ReadinessPath {
     kind: "milestone",
     daysFromNow: 5,
     reasonCode: "PARTNER_ALIGNMENT",
-    href: "/couples",
+    href: "/household#couples",
     notes:
       `Couples alignment is ${couples?.overallPct ?? "low"}%` +
       (couples?.biggestGapTopic ? ` (gap: ${couples.biggestGapTopic})` : "") +

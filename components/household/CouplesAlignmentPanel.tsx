@@ -6,6 +6,11 @@ import { ScoreRing } from "@/components/ui/ScoreRing";
 import { sliderFillPercent } from "@/lib/assessment/format";
 import { CouplesModeGate } from "@/components/entitlements/AdvancedToolGate";
 
+/**
+ * Couples Alignment — moved verbatim from app/(product)/couples/page.tsx
+ * when /couples merged into /household#couples (D3 consolidation).
+ * STORAGE_KEY must stay "homi:couples" — lib/readiness/partner.ts reads it.
+ */
 const STORAGE_KEY = "homi:couples";
 
 interface Topic {
@@ -106,7 +111,7 @@ function tempFor(pct: number): { color: string; label: string; className: string
   return { color: "#f24822", label: "Significant gap", className: "bg-verdict-notyet" };
 }
 
-function CouplesPageInner() {
+function CouplesAlignmentInner() {
   const [hydrated, setHydrated] = useState(false);
   const [stored, setStored] = useState<StoredCouples | null>(null);
   const [phase, setPhase] = useState<"idle" | "partnerA" | "partnerB" | "results">("idle");
@@ -133,8 +138,8 @@ function CouplesPageInner() {
 
   if (!hydrated) {
     return (
-      <div className="mx-auto max-w-6xl px-6 py-12">
-        <h1 className="font-display text-3xl text-light">Couples Alignment</h1>
+      <div className="py-4">
+        <h2 className="font-display text-2xl text-light">Couples Alignment</h2>
       </div>
     );
   }
@@ -144,8 +149,8 @@ function CouplesPageInner() {
     const answers = isA ? partnerA : partnerB;
     const setAnswers = isA ? setPartnerA : setPartnerB;
     return (
-      <div className="mx-auto max-w-3xl px-6 py-12">
-        <h1 className="font-display text-3xl text-light">Couples Alignment</h1>
+      <div className="max-w-3xl">
+        <h2 className="font-display text-2xl text-light">Couples Alignment</h2>
         <p className="mt-2 text-dim">{isA ? "Partner A" : "Partner B"}: rate each topic on your own, honestly.</p>
 
         <div className="glass mt-8 space-y-6 p-8">
@@ -193,10 +198,10 @@ function CouplesPageInner() {
     const biggestGap = [...perTopic].sort((x, y) => x.pct - y.pct)[0];
 
     return (
-      <div className="mx-auto max-w-6xl px-6 py-12">
+      <div>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="font-display text-3xl text-light">Alignment Results</h1>
+            <h2 className="font-display text-2xl text-light">Alignment Results</h2>
             <p className="mt-2 text-dim">Taken {new Date(stored.completedAt).toLocaleDateString()}.</p>
             <p className="mt-2 text-sm text-dim">
               Path to Ready treats significant gaps as household readiness work —{" "}
@@ -250,8 +255,8 @@ function CouplesPageInner() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-12">
-      <h1 className="font-display text-3xl text-light">Couples Alignment</h1>
+    <div className="max-w-3xl">
+      <h2 className="font-display text-2xl text-light">Couples Alignment</h2>
       <p className="mt-3 text-dim">
         Two people, six topics, one honest picture of where you agree and where you don't yet. Partner A
         answers first, then Partner B, without seeing each other's answers.
@@ -263,10 +268,10 @@ function CouplesPageInner() {
   );
 }
 
-export default function CouplesPage() {
+export function CouplesAlignmentPanel() {
   return (
     <CouplesModeGate>
-      <CouplesPageInner />
+      <CouplesAlignmentInner />
     </CouplesModeGate>
   );
 }

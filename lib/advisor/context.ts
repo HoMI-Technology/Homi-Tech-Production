@@ -146,8 +146,7 @@ const SURFACE_LABELS: Array<[prefix: string, label: string]> = [
   ["/daily", "their daily check-in"],
   ["/signals", "their signals feed"],
   ["/calendar", "their decision calendar"],
-  ["/couples", "couples mode"],
-  ["/family", "family mode"],
+  ["/household", "the household hub (joint readiness, couples alignment, family mode)"],
   ["/goals", "their goals"],
 ];
 

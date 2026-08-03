@@ -342,7 +342,7 @@ describe("N13–N14: live / real-time freshness", () => {
       [" * and the browser supports push — so it stays invisible until push is live,", "components/settings/PushToggle.tsx"],
       [" * tell exactly which build is live.", "app/api/healthcheck/route.ts"],
       [" *   slider state is live UI state, not account data, so it never goes", "lib/tools/digest.ts"],
-      ['prompt: "Talk about your real timeline before you talk to any lender.",', "app/(product)/couples/page.tsx"],
+      ['prompt: "Talk about your real timeline before you talk to any lender.",', "components/household/CouplesAlignmentPanel.tsx"],
       ["`tracked over real time, not wishful thinking.`", "lib/trinity/fallback.ts"],
     ]) {
       expect(clean(line, file), line).toBe(true);
