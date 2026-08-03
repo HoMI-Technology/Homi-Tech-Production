@@ -38,6 +38,12 @@ export {
 } from "./store";
 
 export {
+  completePathStepWithImpact,
+  impactToastCopy,
+  type ScoreImpact,
+} from "./impact-bus";
+
+export {
   computeBindingProgress,
   computePathFreshness,
   pathCompletionRatio,
@@ -71,7 +77,7 @@ export {
 
 export {
   loadCouplesAlignment,
-  partnerPathNote,
+  partnerGapNote,
   partnerBlocksJointReady,
   type CouplesAlignmentSnapshot,
 } from "./partner";

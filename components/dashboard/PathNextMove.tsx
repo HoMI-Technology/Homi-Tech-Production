@@ -3,11 +3,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { loadLocalResult } from "@/lib/assessment/storage";
+import { impactBus } from "@/lib/flags";
 import {
   loadReadinessPath,
   pullReadinessPath,
   ensurePathForVerdict,
   completePathStep,
+  completePathStepWithImpact,
   bindingConstraintLabel,
   derivePathHabitStage,
   pathPendingStepCount,
@@ -107,6 +109,23 @@ export function PathNextMove() {
       (s) =>
         (s.status ?? "pending") === "done" || (s.status ?? "pending") === "skipped",
     );
+
+    if (impactBus) {
+      const { path: updated, impact } = completePathStepWithImpact(
+        nextStep.id,
+        "done",
+      );
+      if (updated) setPath(updated);
+      if (impact && !impact.alreadyDone) {
+        trackPathStepDone({
+          reasonCode: nextStep.reasonCode,
+          evidence: "manual",
+          firstStep: wasFirst ? 1 : 0,
+        });
+      }
+      return;
+    }
+
     const updated = completePathStep(nextStep.id, "done");
     if (updated) setPath(updated);
     trackPathStepDone({
