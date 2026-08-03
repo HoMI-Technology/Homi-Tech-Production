@@ -60,7 +60,7 @@ describe("ImpactToast source boundaries", () => {
 describe("demo source boundaries", () => {
   it("demo page and demo context never import Impact Bus code", () => {
     for (const rel of [
-      "app/[locale]/(product)/demo/page.tsx",
+      "app/(product)/demo/page.tsx",
       "lib/demo/context.tsx",
     ]) {
       const demo = source(rel);
