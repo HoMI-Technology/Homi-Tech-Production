@@ -21,7 +21,7 @@ import type {
  */
 
 let mockPathname = "/path";
-vi.mock("@/i18n/navigation", () => ({
+vi.mock("next/navigation", () => ({
   usePathname: () => mockPathname,
 }));
 

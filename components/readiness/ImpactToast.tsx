@@ -17,7 +17,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { usePathname } from "@/i18n/navigation";
+import { usePathname } from "next/navigation";
 import {
   IMPACT_EVENT_NAME,
   clearStoredPathImpact,
@@ -31,7 +31,7 @@ const AUTO_DISMISS_MS = 5_200;
 /** Floor on resume-after-pause so the toast never vanishes mid-glance. */
 const MIN_RESUME_MS = 400;
 
-/** usePathname is locale-normalized, so this covers /demo and /es/demo. */
+/** Covers /demo and any nested demo path. /es/demo 301s to /demo (i18n removed). */
 function isDemoRoute(pathname: string): boolean {
   return pathname === "/demo" || pathname.startsWith("/demo/");
 }
