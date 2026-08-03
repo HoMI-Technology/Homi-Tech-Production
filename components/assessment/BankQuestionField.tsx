@@ -2,7 +2,7 @@
 
 import type { Question, ResponseValue } from "@/lib/questions/bank";
 import { ChoiceCards } from "./ChoiceCards";
-import { NumberField } from "./NumberField";
+import { NumberField } from "@/components/ui/NumberField";
 import { SliderField } from "./SliderField";
 import { PILLARS } from "@/lib/brand";
 

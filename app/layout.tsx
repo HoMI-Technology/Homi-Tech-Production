@@ -12,7 +12,7 @@ import { AttributionCapture } from "@/components/analytics/AttributionCapture";
 import { SITE_URL } from "@/lib/seo/site";
 
 import { ClientProviders } from "@/components/layout/ClientProviders";
-import { UXErrorBoundary } from "@/components/layout/ErrorBoundary";
+import { ErrorBoundary as UXErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 
 export const metadata: Metadata = {
