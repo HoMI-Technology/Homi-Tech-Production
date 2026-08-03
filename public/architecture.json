@@ -15,7 +15,7 @@
   "stats": {
     "product_routes": 99,
     "api_routes": 27,
-    "component_directories": 30,
+    "component_directories": 29,
     "lib_modules": 46,
     "db_tables": 37,
     "migrations": 46,
@@ -1106,14 +1106,14 @@
     },
     {
       "name": "layout",
-      "count": 16,
+      "count": 17,
       "description": "layout UI module",
       "examples": [
         "AppHeader",
+        "ClientProviders.test",
         "ClientProviders",
         "CommandPalette",
-        "CopyrightYear",
-        "DashboardSwitcher"
+        "CopyrightYear"
       ]
     },
     {
@@ -1226,12 +1226,6 @@
         "LensField",
         "LensSynthesis"
       ]
-    },
-    {
-      "name": "trinity",
-      "count": 0,
-      "description": "trinity UI module",
-      "examples": []
     },
     {
       "name": "twin",

@@ -153,8 +153,9 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   never fabricate navigation to unknown or external destinations). Pre-loading is
   live for the highest-traffic hand-offs: /tools/runway and
   /tools/affordability open with the user's saved numbers via
-  `lib/tools/prefill.ts` (same defaults-leak gate as the spine; mount-only so
-  it never fights live edits). Remaining calculators adopt the same hook as
+  `hooks/use-lens-prefill.ts` (same defaults-leak gate as the spine; mount-only
+  so it never fights live edits; superseded the earlier `lib/tools/prefill.ts`
+  module, deleted 2026-08-03). Remaining calculators adopt the same hook as
   needed.
 - **Behavioral genome**: `behavioral_genome` informs *how* the mote talks (pace,
   framing), never *what* it claims.
