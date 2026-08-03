@@ -162,7 +162,7 @@ export function SaveScenarioButton({
           type="button"
           onClick={save}
           disabled={!name.trim() || state.kind === "saving"}
-          className="btn btn-primary !px-3 !py-2 text-sm disabled:opacity-50"
+          className="btn btn-primary btn-sm disabled:opacity-50"
         >
           {state.kind === "saving" ? "Saving…" : "Save"}
         </button>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { COLORS } from "@/lib/brand";
 import { runMonteCarlo, type MonteCarloResult } from "@/lib/tools/montecarlo";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { LensField } from "@/components/tools/LensField";
@@ -232,12 +233,12 @@ function BandChart({ result, target }: { result: MonteCarloResult; target: numbe
 
   return (
     <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} className="mt-4" role="img" aria-label="Monte Carlo P10-P90 savings band over time">
-      <polygon points={areaPoints} fill="#22d3ee" opacity="0.15" />
-      <polyline points={p50Points} fill="none" stroke="#22d3ee" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <polygon points={areaPoints} fill={COLORS.cyan} opacity="0.15" />
+      <polyline points={p50Points} fill="none" stroke={COLORS.cyan} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
       {target > 0 && (
         <>
-          <line x1={padding} x2={width - padding} y1={targetY} y2={targetY} stroke="#facc15" strokeDasharray="6 4" strokeWidth="1.5" />
-          <text x={width - padding} y={targetY - 6} textAnchor="end" fontSize="11" fill="#facc15">Target</text>
+          <line x1={padding} x2={width - padding} y1={targetY} y2={targetY} stroke={COLORS.yellow} strokeDasharray="6 4" strokeWidth="1.5" />
+          <text x={width - padding} y={targetY - 6} textAnchor="end" fontSize="11" fill={COLORS.yellow}>Target</text>
         </>
       )}
     </svg>

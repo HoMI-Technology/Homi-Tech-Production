@@ -59,7 +59,7 @@ export function PrivacySection() {
           </div>
           <button
             onClick={() => setShowDeleteModal(true)}
-            className="btn !border !border-crimson/50 !bg-transparent !text-crimson hover:!bg-crimson/10"
+            className="btn btn-danger-ghost"
           >
             Delete my account
           </button>

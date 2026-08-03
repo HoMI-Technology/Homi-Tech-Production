@@ -113,7 +113,7 @@ export function ShareLinksSection() {
                   type="button"
                   onClick={() => handleRevoke(link.id)}
                   disabled={revokingId === link.id}
-                  className="btn btn-sm !border !border-crimson/50 !bg-transparent !text-crimson hover:!bg-crimson/10 disabled:opacity-50"
+                  className="btn btn-sm btn-danger-ghost disabled:opacity-50"
                 >
                   {revokingId === link.id ? "Revoking…" : "Revoke"}
                 </button>

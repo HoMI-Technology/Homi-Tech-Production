@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { COLORS } from "@/lib/brand";
 
 export const alt = "HōMI — Decision Readiness Intelligence™";
 export const size = { width: 1200, height: 600 };
@@ -15,7 +16,7 @@ export default function TwitterImage() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(160deg, #0a1628 0%, #071120 55%, #040b16 100%)",
+          background: `linear-gradient(160deg, ${COLORS.navy} 0%, #071120 55%, #040b16 100%)`,
           position: "relative",
           overflow: "hidden",
         }}
@@ -61,7 +62,7 @@ export default function TwitterImage() {
               fontSize: 88,
               fontWeight: 800,
               letterSpacing: "-0.02em",
-              background: "linear-gradient(100deg, #e2e8f0 10%, #22d3ee 42%, #34d399 62%, #e2e8f0 92%)",
+              background: `linear-gradient(100deg, ${COLORS.light} 10%, ${COLORS.cyan} 42%, ${COLORS.emerald} 62%, ${COLORS.light} 92%)`,
               backgroundClip: "text",
               WebkitBackgroundClip: "text",
               color: "transparent",
@@ -76,7 +77,7 @@ export default function TwitterImage() {
             style={{
               fontSize: 34,
               fontWeight: 600,
-              color: "#e2e8f0",
+              color: COLORS.light,
               letterSpacing: "0.01em",
               lineHeight: 1.3,
               textAlign: "center",
@@ -90,7 +91,7 @@ export default function TwitterImage() {
           <div
             style={{
               fontSize: 22,
-              color: "#94a3b8",
+              color: COLORS.dim,
               lineHeight: 1.4,
               textAlign: "center",
               maxWidth: 700,
@@ -109,7 +110,7 @@ export default function TwitterImage() {
             left: 80,
             right: 80,
             height: 3,
-            background: "linear-gradient(90deg, transparent, #22d3ee, #34d399, transparent)",
+            background: `linear-gradient(90deg, transparent, ${COLORS.cyan}, ${COLORS.emerald}, transparent)`,
             borderRadius: 999,
           }}
         />

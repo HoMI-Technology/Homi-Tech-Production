@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { COLORS } from "@/lib/brand";
 import { comparePrograms } from "@/lib/tools/loanprograms";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { CalcField } from "@/components/tools/CalcField";
@@ -22,9 +23,9 @@ import { ToolShell } from "@/components/tools/ToolShell";
 const LENS = getLens("loan-programs")!;
 
 const PROGRAM_COLOR: Record<string, string> = {
-  conventional: "#22d3ee",
-  fha: "#facc15",
-  va: "#34d399",
+  conventional: COLORS.cyan,
+  fha: COLORS.yellow,
+  va: COLORS.emerald,
 };
 
 function LoanProgramsPageInner() {

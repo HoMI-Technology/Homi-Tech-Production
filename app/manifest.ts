@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 
+import { COLORS } from "@/lib/brand";
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
@@ -13,8 +15,8 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "en",
     dir: "ltr",
     categories: ["finance", "lifestyle", "productivity"],
-    background_color: "#0a1628",
-    theme_color: "#0a1628",
+    background_color: COLORS.navy,
+    theme_color: COLORS.navy,
     icons: [
       // Threshold Compass + HōMI wordmark lockup. The scalable SVG (compass
       // only) is deliberately omitted here so every installed-PWA surface

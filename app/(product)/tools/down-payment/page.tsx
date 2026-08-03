@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { COLORS } from "@/lib/brand";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
 import { LensField } from "@/components/tools/LensField";
 import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
@@ -155,9 +156,9 @@ export default function DownPaymentPage() {
           <div className="glass p-6">
             <h2 className="font-semibold text-light">Growth curve</h2>
             <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} className="mt-4" role="img" aria-label="Down payment savings growth curve">
-              <line x1={padding} x2={width - padding} y1={goalY} y2={goalY} stroke="#facc15" strokeDasharray="6 4" strokeWidth="1.5" />
-              <text x={width - padding} y={goalY - 6} textAnchor="end" fontSize="11" fill="#facc15">Goal</text>
-              <polyline points={linePoints} fill="none" stroke="#22d3ee" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <line x1={padding} x2={width - padding} y1={goalY} y2={goalY} stroke={COLORS.yellow} strokeDasharray="6 4" strokeWidth="1.5" />
+              <text x={width - padding} y={goalY - 6} textAnchor="end" fontSize="11" fill={COLORS.yellow}>Goal</text>
+              <polyline points={linePoints} fill="none" stroke={COLORS.cyan} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
 

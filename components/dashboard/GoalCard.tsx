@@ -140,7 +140,7 @@ export function GoalCard({
         </div>
         {goal && !editing && (
           <button
-            className="btn btn-ghost !px-3 !py-1.5 text-sm"
+            className="btn btn-ghost btn-xs text-sm"
             onClick={() => {
               setTargetAmount(goal.target_amount);
               setLabel(goal.label ?? "");

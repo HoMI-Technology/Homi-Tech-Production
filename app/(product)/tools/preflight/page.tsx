@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { COLORS } from "@/lib/brand";
 import { ToolShell, ToolResultHero } from "@/components/tools/ToolShell";
 import { MoneyField } from "@/components/ui/MoneyField";
 import { NumberField } from "@/components/ui/NumberField";
@@ -18,9 +19,9 @@ import {
 import { formatCurrency } from "@/lib/tools/format";
 
 function verdictColor(v: PreflightResult["verdict"]): string {
-  if (v === "DO_NOT_PROCEED") return "#f24822";
-  if (v === "WAIT") return "#fab633";
-  return "#34d399";
+  if (v === "DO_NOT_PROCEED") return COLORS.crimson;
+  if (v === "WAIT") return COLORS.amber;
+  return COLORS.emerald;
 }
 
 export default function PreflightPage() {

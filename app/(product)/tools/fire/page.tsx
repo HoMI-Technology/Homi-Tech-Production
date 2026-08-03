@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { COLORS } from "@/lib/brand";
 import { computeFireNumber, computeCoastFire } from "@/lib/tools/fire";
 import { formatCurrency } from "@/lib/tools/format";
 import { LensField } from "@/components/tools/LensField";
@@ -95,7 +96,7 @@ export default function FirePage() {
           <ToolResultHero
             label="Your FIRE number"
             value={formatCurrency(fireNumber)}
-            color="#34d399"
+            color={COLORS.emerald}
             footer={`At a ${swrPercent}% withdrawal rate on ${formatCurrency(annualExpenses)}/yr of expenses.`}
             badge={
               <span

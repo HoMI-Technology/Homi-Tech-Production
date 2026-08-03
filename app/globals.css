@@ -562,6 +562,24 @@ body {
     min-height: 44px;
   }
 }
+/* Extra-compact size — canonical form of the `!px-3 !py-1.5 text-sm|xs`
+   patch cluster (~30 call sites: finance, connections, journal, household
+   panels, CSV export, simulator, chat action chips). Same derivation
+   discipline as .btn-sm: min-height drops with the padding so the control
+   renders compact instead of clamped to 44px. Default type is text-xs
+   metrics; call sites that read at text-sm keep that utility (utilities
+   layer beats components layer, no !important needed). */
+.btn-xs {
+  min-height: 32px;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+@media (pointer: coarse) {
+  .btn-xs {
+    min-height: 44px;
+  }
+}
 /* Destructive actions — verdict crimson (#f24822, canon token), structured
    like .btn-primary. Replaces the `!bg-crimson !text-white` call-site hack. */
 .btn-danger {
@@ -576,6 +594,18 @@ body {
 .btn-danger:active:not(:disabled) {
   transform: translateY(1px) scale(0.985);
   box-shadow: 0 4px 14px -6px rgba(242, 72, 34, 0.45);
+}
+/* Destructive-but-quiet actions — crimson outline structured like .btn-ghost.
+   Replaces the `!border-crimson/50 !bg-transparent !text-crimson
+   hover:!bg-crimson/10` call-site hack (settings Privacy / Security /
+   ShareLinks sections). */
+.btn-danger-ghost {
+  background: transparent;
+  color: var(--color-crimson);
+  border: 1px solid rgba(242, 72, 34, 0.5);
+}
+.btn-danger-ghost:hover {
+  background: rgba(242, 72, 34, 0.1);
 }
 
 /* ── Reveal on scroll ──────────────────────────────────────────── */

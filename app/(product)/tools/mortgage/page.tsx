@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
+import { COLORS } from "@/lib/brand";
 import { fullPaymentBreakdown, amortizationSummary } from "@/lib/tools/mortgage";
 import { formatCurrency } from "@/lib/tools/format";
 import { track } from "@/lib/analytics";
@@ -165,13 +166,13 @@ function MortgagePageInner() {
           <ToolResultHero
             label="Total monthly payment"
             value={formatCurrency(breakdown.total)}
-            color="#22d3ee"
+            color={COLORS.cyan}
             footer={`Loan amount ${formatCurrency(loanAmount)} · principal, interest, taxes, insurance${breakdown.hoa > 0 ? ", HOA" : ""}`}
           >
             <div className="space-y-4">
-              <BarRow label="Principal &amp; interest" value={breakdown.principalAndInterest} max={maxBar} color="#22d3ee" />
-              <BarRow label="Taxes &amp; insurance (est.)" value={breakdown.taxesAndInsurance} max={maxBar} color="#facc15" />
-              {breakdown.hoa > 0 && <BarRow label="HOA" value={breakdown.hoa} max={maxBar} color="#34d399" />}
+              <BarRow label="Principal &amp; interest" value={breakdown.principalAndInterest} max={maxBar} color={COLORS.cyan} />
+              <BarRow label="Taxes &amp; insurance (est.)" value={breakdown.taxesAndInsurance} max={maxBar} color={COLORS.yellow} />
+              {breakdown.hoa > 0 && <BarRow label="HOA" value={breakdown.hoa} max={maxBar} color={COLORS.emerald} />}
             </div>
           </ToolResultHero>
 
@@ -200,7 +201,7 @@ function MortgagePageInner() {
             <h2 className="font-semibold text-light">Amortization summary</h2>
             <p className="mt-1 text-xs text-dim">Principal &amp; interest only, over the full {termYears}-year term.</p>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <ToolMetric label="Total interest paid" value={formatCurrency(amortization.totalInterestPaid)} accent="#fab633" />
+              <ToolMetric label="Total interest paid" value={formatCurrency(amortization.totalInterestPaid)} accent={COLORS.amber} />
               <ToolMetric label="Total paid (P&I)" value={formatCurrency(amortization.totalPaid)} />
             </div>
             <div className="hairline my-4" />

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { COLORS } from "@/lib/brand";
 import { createClient } from "@/lib/supabase/client";
 import { localDateISO, formatLocalDateISO } from "@/lib/dates";
 import { PageFrame } from "@/components/operate/PageFrame";
@@ -18,10 +19,10 @@ function emptyDraft(): OutcomeDraft {
 }
 
 function moodColor(mood: number | null): string {
-  if (mood === null) return "#94a3b8";
-  if (mood >= 8) return "#34d399";
-  if (mood >= 5) return "#facc15";
-  return "#f24822";
+  if (mood === null) return COLORS.dim;
+  if (mood >= 8) return COLORS.emerald;
+  if (mood >= 5) return COLORS.yellow;
+  return COLORS.crimson;
 }
 
 export default function OutcomesPage() {

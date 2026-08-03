@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { COLORS } from "@/lib/brand";
 import { helocAvailability, helocTiers } from "@/lib/tools/heloc";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { CalcField } from "@/components/tools/CalcField";
@@ -136,7 +137,7 @@ function HelocPageInner() {
                       <span className="score-numeral text-light">{formatCurrency(r.availableLine)}</span>
                     </div>
                     <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-surface">
-                      <div className="h-full rounded-full" style={{ width: `${pct}%`, background: active ? "#22d3ee" : "#334155" }} />
+                      <div className="h-full rounded-full" style={{ width: `${pct}%`, background: active ? COLORS.cyan : COLORS.slateHigh }} />
                     </div>
                   </div>
                 );

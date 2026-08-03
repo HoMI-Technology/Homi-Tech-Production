@@ -16,7 +16,7 @@ export function CsvExportButton({
   return (
     <button
       type="button"
-      className="btn btn-ghost !px-3 !py-1.5 text-xs"
+      className="btn btn-ghost btn-xs"
       onClick={() => downloadCSV(filename, headers, rows)}
     >
       {label}

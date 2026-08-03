@@ -15,7 +15,7 @@ import {
 } from "@/components/operate/OperateInstrument";
 import type { Profile } from "@/types/database";
 import type { VerdictKey } from "@/lib/brand";
-import { VERDICT_META } from "@/lib/brand";
+import { COLORS, VERDICT_META } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "Partner Dashboard | HōMI",
@@ -189,7 +189,7 @@ export default async function PartnerDashboardPage() {
 
   return (
     <PageFrame role="partner" density="compact">
-      <OperateInstrument tint="#22d3ee">
+      <OperateInstrument tint={COLORS.cyan}>
         <OperateHeroMeta
           title={
             <>
@@ -204,25 +204,25 @@ export default async function PartnerDashboardPage() {
               label: "Assessments",
               value: String(assessmentCount),
               footer: "Attributed to you",
-              color: "#22d3ee",
+              color: COLORS.cyan,
             },
             {
               label: "Avg score",
               value: avg !== null ? String(avg) : "—",
               footer: "Cohort",
-              color: "#facc15",
+              color: COLORS.yellow,
             },
             {
               label: "Ready",
               value: readyRate !== null ? `${readyRate}%` : String(readyCount),
               footer: "Verdict = READY",
-              color: "#34d399",
+              color: COLORS.emerald,
             },
             {
               label: "Roster",
               value: String(clients.length),
               footer: "Named partner_id only",
-              color: "#34d399",
+              color: COLORS.emerald,
             },
           ]}
         />

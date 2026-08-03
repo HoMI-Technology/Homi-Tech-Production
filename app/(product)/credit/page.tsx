@@ -9,6 +9,7 @@ import {
   CREDIT_HARD_STOP,
   type CreditState,
 } from "@/lib/credit/store";
+import { COLORS } from "@/lib/brand";
 import { ToolShell, ToolResultHero } from "@/components/tools/ToolShell";
 
 const HARD_STOP = CREDIT_HARD_STOP;
@@ -31,31 +32,31 @@ function bandFor(score: number): Band {
 const BAND_META: Record<Band, { label: string; color: string; explanation: string }> = {
   below: {
     label: "Below 620 — protection zone",
-    color: "#f24822",
+    color: COLORS.crimson,
     explanation:
       "Below 620, HōMI will tell you NOT YET. That's not a punishment — it's the line where waiting protects you. Lenders at this range typically charge the highest rates or decline outright, and a rejected application can cost you more points than the wait would. Building above 620 first changes the entire deal you'll be offered.",
   },
   fair: {
     label: "620–659 — fair, but costly",
-    color: "#fab633",
+    color: COLORS.amber,
     explanation:
       "You clear the hard stop, but you're still in a range where lenders charge a premium for risk. Approvals are possible here, but the rate difference between this band and the next one up can be worth tens of thousands of dollars over a loan's life. A few more months of on-time payments and lower utilization can move you meaningfully.",
   },
   good: {
     label: "660–699 — good",
-    color: "#facc15",
+    color: COLORS.yellow,
     explanation:
       "This is a genuinely workable range. Most mainstream lenders will approve you here, though the best rates usually start a tier higher. If you're not in a rush, closing the gap to 700 is worth the wait.",
   },
   verygood: {
     label: "700–739 — very good",
-    color: "#34d399",
+    color: COLORS.emerald,
     explanation:
       "You're in the range where lenders compete for your business. Rate offers get noticeably better here, and most conventional loan programs treat you as low-risk.",
   },
   excellent: {
     label: "740 and above — excellent",
-    color: "#22d3ee",
+    color: COLORS.cyan,
     explanation:
       "You qualify for the best rates most lenders offer. There's little practical benefit to waiting for a higher score before a major financial decision — your credit is not the constraint anymore.",
   },
@@ -204,11 +205,11 @@ function ScoreDial({ score }: { score: number }) {
   return (
     <div className="mt-2 flex flex-col items-center">
       <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} role="img" aria-label={`Credit score ${score}`}>
-        <path d={arcPath(min, HARD_STOP)} stroke="#f24822" strokeWidth="16" fill="none" opacity="0.6" strokeLinecap="round" />
-        <path d={arcPath(HARD_STOP, 660)} stroke="#fab633" strokeWidth="16" fill="none" opacity="0.6" />
-        <path d={arcPath(660, 700)} stroke="#facc15" strokeWidth="16" fill="none" opacity="0.6" />
-        <path d={arcPath(700, 740)} stroke="#34d399" strokeWidth="16" fill="none" opacity="0.6" />
-        <path d={arcPath(740, max)} stroke="#22d3ee" strokeWidth="16" fill="none" opacity="0.6" strokeLinecap="round" />
+        <path d={arcPath(min, HARD_STOP)} stroke={COLORS.crimson} strokeWidth="16" fill="none" opacity="0.6" strokeLinecap="round" />
+        <path d={arcPath(HARD_STOP, 660)} stroke={COLORS.amber} strokeWidth="16" fill="none" opacity="0.6" />
+        <path d={arcPath(660, 700)} stroke={COLORS.yellow} strokeWidth="16" fill="none" opacity="0.6" />
+        <path d={arcPath(700, 740)} stroke={COLORS.emerald} strokeWidth="16" fill="none" opacity="0.6" />
+        <path d={arcPath(740, max)} stroke={COLORS.cyan} strokeWidth="16" fill="none" opacity="0.6" strokeLinecap="round" />
 
         {markers.map((m) => {
           const a = angleFor(m);
@@ -220,16 +221,16 @@ function ScoreDial({ score }: { score: number }) {
           const ly = cy - (r + 26) * Math.sin(a);
           return (
             <g key={m}>
-              <line x1={x0} y1={y0} x2={x1} y2={y1} stroke={m === HARD_STOP ? "#f24822" : "#e2e8f0"} strokeWidth={m === HARD_STOP ? 3 : 2} />
-              <text x={lx} y={ly} textAnchor="middle" fontSize="11" fill={m === HARD_STOP ? "#f24822" : "#94a3b8"}>
+              <line x1={x0} y1={y0} x2={x1} y2={y1} stroke={m === HARD_STOP ? COLORS.crimson : COLORS.light} strokeWidth={m === HARD_STOP ? 3 : 2} />
+              <text x={lx} y={ly} textAnchor="middle" fontSize="11" fill={m === HARD_STOP ? COLORS.crimson : COLORS.dim}>
                 {m}
               </text>
             </g>
           );
         })}
 
-        <line x1={cx} y1={cy} x2={needleX} y2={needleY} stroke="#e2e8f0" strokeWidth="3" strokeLinecap="round" />
-        <circle cx={cx} cy={cy} r="7" fill="#e2e8f0" />
+        <line x1={cx} y1={cy} x2={needleX} y2={needleY} stroke={COLORS.light} strokeWidth="3" strokeLinecap="round" />
+        <circle cx={cx} cy={cy} r="7" fill={COLORS.light} />
       </svg>
       <p className="score-numeral -mt-4 text-4xl font-bold" style={{ color }}>
         {score}
@@ -244,7 +245,7 @@ function UtilizationGauge({ utilization }: { utilization: number }) {
   const height = 60;
   const barWidth = width - 40;
   const pct = Math.max(0, Math.min(100, utilization));
-  const color = pct <= 10 ? "#34d399" : pct <= 30 ? "#facc15" : pct <= 50 ? "#fab633" : "#f24822";
+  const color = pct <= 10 ? COLORS.emerald : pct <= 30 ? COLORS.yellow : pct <= 50 ? COLORS.amber : COLORS.crimson;
 
   const markerX = (v: number) => 20 + (v / 100) * barWidth;
 
@@ -253,10 +254,10 @@ function UtilizationGauge({ utilization }: { utilization: number }) {
       <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} role="img" aria-label={`Credit utilization ${pct}%`}>
         <rect x="20" y="22" width={barWidth} height="14" rx="7" fill="rgba(51,65,85,0.6)" />
         <rect x="20" y="22" width={(pct / 100) * barWidth} height="14" rx="7" fill={color} />
-        <line x1={markerX(10)} x2={markerX(10)} y1="14" y2="44" stroke="#34d399" strokeWidth="2" />
-        <text x={markerX(10)} y="10" textAnchor="middle" fontSize="10" fill="#34d399">10%</text>
-        <line x1={markerX(30)} x2={markerX(30)} y1="14" y2="44" stroke="#facc15" strokeWidth="2" />
-        <text x={markerX(30)} y="10" textAnchor="middle" fontSize="10" fill="#facc15">30%</text>
+        <line x1={markerX(10)} x2={markerX(10)} y1="14" y2="44" stroke={COLORS.emerald} strokeWidth="2" />
+        <text x={markerX(10)} y="10" textAnchor="middle" fontSize="10" fill={COLORS.emerald}>10%</text>
+        <line x1={markerX(30)} x2={markerX(30)} y1="14" y2="44" stroke={COLORS.yellow} strokeWidth="2" />
+        <text x={markerX(30)} y="10" textAnchor="middle" fontSize="10" fill={COLORS.yellow}>30%</text>
       </svg>
       <p className="mt-2 text-xs leading-relaxed text-dim">
         {pct <= 10

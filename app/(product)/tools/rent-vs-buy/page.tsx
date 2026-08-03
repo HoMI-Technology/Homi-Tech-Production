@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { COLORS } from "@/lib/brand";
 import { monthlyPayment } from "@/lib/tools/mortgage";
 import { formatCurrency } from "@/lib/tools/format";
 import { LensField } from "@/components/tools/LensField";
@@ -160,8 +161,8 @@ export default function RentVsBuyPage() {
           <div className="glass p-6">
             <h2 className="font-semibold text-light">Cumulative cost over {years} years</h2>
             <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} className="mt-4" role="img" aria-label="Rent vs buy cumulative cost chart">
-              <polyline points={rentPoints} fill="none" stroke="#facc15" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              <polyline points={buyPoints} fill="none" stroke="#22d3ee" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <polyline points={rentPoints} fill="none" stroke={COLORS.yellow} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <polyline points={buyPoints} fill="none" stroke={COLORS.cyan} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             <div className="mt-3 flex gap-6 text-xs text-dim">
               <span className="flex items-center gap-2"><span className="inline-block h-2 w-2 rounded-full bg-yellow" /> Renting (cumulative)</span>

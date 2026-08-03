@@ -15,7 +15,7 @@ import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { HeroScore } from "@/components/dashboard/HeroScore";
 import { canAccessEmployeeHub } from "@/lib/dashboard/employee-access";
 import { signInRedirect } from "@/lib/auth/signInRedirect";
-import { VERDICT_META, type VerdictKey } from "@/lib/brand";
+import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
 import type { AssessmentRow, Organization, Profile } from "@/types/database";
 
 export const metadata: Metadata = {
@@ -92,7 +92,7 @@ export default async function EmployeeDashboardPage() {
   const latest = assessments[0] ?? null;
   const verdict = (latest?.verdict as VerdictKey | null) ?? null;
   const verdictMeta = verdict ? VERDICT_META[verdict] : null;
-  const tint = verdictMeta?.color ?? "#22d3ee";
+  const tint = verdictMeta?.color ?? COLORS.cyan;
   const scorePct = latest?.overall_score != null ? Math.round(latest.overall_score) : null;
 
   return (
@@ -185,13 +185,13 @@ export default async function EmployeeDashboardPage() {
               label: "Assessments",
               value: String(assessments.length),
               footer: "Completed reads",
-              color: "#34d399",
+              color: COLORS.emerald,
             },
             {
               label: "Benefit",
               value: org?.name ? "Active" : "Linked",
               footer: "Employer-sponsored",
-              color: "#facc15",
+              color: COLORS.yellow,
             },
           ]}
         />
@@ -206,21 +206,21 @@ export default async function EmployeeDashboardPage() {
           <div className="dash-rail">
             <div className="dash-rail-cell">
               <p className="dash-rail-label">Financial</p>
-              <p className="dash-rail-value" style={{ color: "#22d3ee" }}>
+              <p className="dash-rail-value" style={{ color: COLORS.cyan }}>
                 {latest.financial_score != null ? Math.round(latest.financial_score) : "—"}
               </p>
               <p className="dash-rail-footer">Reality</p>
             </div>
             <div className="dash-rail-cell">
               <p className="dash-rail-label">Emotional</p>
-              <p className="dash-rail-value" style={{ color: "#34d399" }}>
+              <p className="dash-rail-value" style={{ color: COLORS.emerald }}>
                 {latest.emotional_score != null ? Math.round(latest.emotional_score) : "—"}
               </p>
               <p className="dash-rail-footer">Truth</p>
             </div>
             <div className="dash-rail-cell">
               <p className="dash-rail-label">Timing</p>
-              <p className="dash-rail-value" style={{ color: "#facc15" }}>
+              <p className="dash-rail-value" style={{ color: COLORS.yellow }}>
                 {latest.timing_score != null ? Math.round(latest.timing_score) : "—"}
               </p>
               <p className="dash-rail-footer">Perfect window</p>

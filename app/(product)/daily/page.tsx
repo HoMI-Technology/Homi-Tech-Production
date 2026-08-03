@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { COLORS } from "@/lib/brand";
 import { createClient } from "@/lib/supabase/client";
 import { sliderFillPercent } from "@/lib/assessment/format";
 import { Celebrate } from "@/components/ui/Celebrate";
@@ -383,7 +384,7 @@ function CountdownRing() {
         cy="28"
         r={radius}
         fill="none"
-        stroke="#22d3ee"
+        stroke={COLORS.cyan}
         strokeWidth="2"
         strokeLinecap="round"
         opacity="0.75"
@@ -467,9 +468,9 @@ function TrendChart({ checkins }: { checkins: DailyCheckin[] }) {
   return (
     <div>
       <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} className="mt-4" role="img" aria-label="14 day mood, stress, and pressure trend">
-        <polyline points={pointsFor("mood")} fill="none" stroke="#34d399" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-        <polyline points={pointsFor("financial_stress")} fill="none" stroke="#f24822" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
-        <polyline points={pointsFor("decision_pressure")} fill="none" stroke="#facc15" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
+        <polyline points={pointsFor("mood")} fill="none" stroke={COLORS.emerald} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <polyline points={pointsFor("financial_stress")} fill="none" stroke={COLORS.crimson} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
+        <polyline points={pointsFor("decision_pressure")} fill="none" stroke={COLORS.yellow} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
       </svg>
       <div className="mt-3 flex flex-wrap gap-4 text-xs text-dim">
         <span className="flex items-center gap-2"><span className="inline-block h-2 w-2 rounded-full bg-emerald" /> Mood</span>
