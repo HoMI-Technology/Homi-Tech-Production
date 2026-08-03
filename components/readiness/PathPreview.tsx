@@ -1,6 +1,6 @@
 "use client";
 
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import type { PathStep, PathStepStatus } from "@/lib/readiness";
 
 const KIND_CHIP: Record<PathStep["kind"], string> = {

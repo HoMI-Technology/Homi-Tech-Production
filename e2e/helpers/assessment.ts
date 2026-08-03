@@ -1,6 +1,5 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 import { dismissCookieConsent } from "./consent";
-import { englishLocaleCookie, pinEnglishLocalePage } from "./locale";
 
 /**
  * Drives the real full-assessment flow (/assessment → /results) the way a
@@ -47,8 +46,6 @@ async function setReactNumberInput(assessmentPane: Locator): Promise<void> {
 }
 
 export async function completeFullAssessment(page: Page): Promise<void> {
-  await pinEnglishLocalePage(page);
-
   // Clear drafts before the app reads them on mount.
   await page.addInitScript(() => {
     localStorage.removeItem("homi:assessment-draft");
@@ -56,14 +53,10 @@ export async function completeFullAssessment(page: Page): Promise<void> {
   });
 
   await page.goto("/assessment");
-  if (page.url().includes("/es/")) {
-    await page.context().addCookies([englishLocaleCookie()]);
-    await page.reload();
-  }
   await dismissCookieConsent(page);
 
   // Both ClientProviders and the product layout render id="main"; the inner one
-  // holds the assessment flow. .last() avoids the header locale switcher.
+  // holds the assessment flow, so .last() targets the flow rather than the shell.
   const assessmentPane = page.locator("main#main").last();
 
   await expect(assessmentPane.getByText(STEP_COUNTER)).toBeVisible({ timeout: 30_000 });
@@ -103,7 +96,7 @@ export async function completeFullAssessment(page: Page): Promise<void> {
     // Let step-enter CSS animation finish so onNext isn't dropped mid-transition.
     await page.waitForTimeout(STEP_ANIM_MS);
 
-    // Retry Continue once if the step counter doesn't advance (i18n/motion flake).
+    // Retry Continue once if the step counter doesn't advance (motion flake).
     await expect(async () => {
       if (await reviewHeading.isVisible()) return;
       await action.click();

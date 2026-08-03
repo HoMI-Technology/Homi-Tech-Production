@@ -1,7 +1,7 @@
 "use client";
 
-import { Link } from "@/i18n/navigation";
-import { usePathname } from "@/i18n/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { HeaderShell, isActivePath } from "@/components/layout/HeaderShell";
 import { NotificationBell } from "@/components/layout/NotificationBell";

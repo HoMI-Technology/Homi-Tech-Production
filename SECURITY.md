@@ -81,7 +81,6 @@ The following third-party dependencies process or transport sensitive informatio
 | `resend` | Transactional email | Email addresses, message content |
 | `@vercel/speed-insights` | Performance monitoring | Page-load telemetry (no PII) |
 | `@sentry/nextjs` | Error tracking | Stack traces, request context |
-| `next-intl` | Internationalization | Locale preferences |
 
 ### Webhook Security
 - **Stripe webhooks** verify signatures using `stripe.webhooks.constructEvent` with the `STRIPE_WEBHOOK_SECRET`

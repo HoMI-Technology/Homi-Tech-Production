@@ -10,7 +10,7 @@
 
 "use client";
 
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import { useCfm } from "@/hooks/use-cfm";
 import { formatCurrency } from "@/lib/tools/format";
 

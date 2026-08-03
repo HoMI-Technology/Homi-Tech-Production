@@ -14,10 +14,14 @@ const CONFIDENCE_LABEL: Record<SharePreview["confidence"], string> = {
 /**
  * "If you shared your readiness" — the institutional preview (blueprint
  * Phase 4, trust step). Shows the user exactly the summary a lender or agent
- * would see, before any sharing capability exists: band, confidence with its
- * reasons, per-source data quality, hard stops, and the disclaimer as part
- * of the product. Nothing here is shared or shareable yet — and the section
- * says so plainly.
+ * would see: band, confidence with its reasons, per-source data quality, hard
+ * stops, and the disclaimer as part of the product.
+ *
+ * Rendering this preview shares nothing. Sharing is a separate, explicit act
+ * via POST /api/shares, which mints a 30-day link the user creates themselves.
+ * Keep this copy in step with that route — an earlier version of this section
+ * told users sharing did not exist at all, which stopped being true when the
+ * route shipped.
  */
 export function SharePreviewSection() {
   const [preview, setPreview] = useState<SharePreview | null>(null);
@@ -32,9 +36,9 @@ export function SharePreviewSection() {
     <section className="glass p-6 sm:p-8">
       <h2 className="font-display text-xl font-semibold text-light">If you shared your readiness</h2>
       <p className="mt-1 text-sm text-dim">
-        A preview of the summary a lender or agent would see — sharing itself is not built yet, and
-        nothing leaves your account. When it arrives, it will be consent-first: your choice, scoped,
-        expiring, revocable.
+        A preview of the summary a lender or agent would see. Viewing this preview shares nothing — a
+        summary only leaves your account if you create a share link yourself, and those links expire
+        after 30 days.
       </p>
 
       {!hydrated ? (

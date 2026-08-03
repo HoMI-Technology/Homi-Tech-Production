@@ -20,7 +20,7 @@ const VERDICT_LABEL: Record<VerdictKey, string> = {
   READY: "READY",
   ALMOST_THERE: "ALMOST THERE",
   BUILD_FIRST: "BUILD FIRST",
-  NOT_YET: "NOT YET",
+  NOT_YET: "DO NOT PROCEED",
 };
 
 const VERDICT_LINE: Record<VerdictKey, string> = {

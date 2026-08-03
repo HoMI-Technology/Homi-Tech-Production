@@ -1,11 +1,5 @@
 import type { NextConfig } from "next";
-import createNextIntlPlugin from "next-intl/plugin";
 import { withSentryConfig } from "@sentry/nextjs";
-
-// next-intl plugin (Module A — feat/i18n): wires the per-request message
-// loader. It touches only i18n request config resolution — the CSP/headers
-// logic below is unchanged.
-const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 /**
  * Content Security Policy (AUDIT-2026-07-08 T1.5, enforce half).
@@ -79,10 +73,18 @@ const nextConfig: NextConfig = {
       ["home-equity", "heloc"],
       ["apr-comparison", "apr-compare"],
     ] as const;
-    return toolAliases.flatMap(([from, to]) => [
-      { source: `/tools/${from}`, destination: `/tools/${to}`, permanent: true },
-      { source: `/es/tools/${from}`, destination: `/es/tools/${to}`, permanent: true },
-    ]);
+    return [
+      ...toolAliases.flatMap(([from, to]) => [
+        { source: `/tools/${from}`, destination: `/tools/${to}`, permanent: true },
+        // Spanish was removed; fold the legacy /es alias straight onto the
+        // canonical route so these still resolve in one hop, not two.
+        { source: `/es/tools/${from}`, destination: `/tools/${to}`, permanent: true },
+      ]),
+      // Spanish locale removed. Everything still pointing at /es folds onto
+      // its unprefixed equivalent. Listed after the tool aliases so those win.
+      { source: "/es", destination: "/", permanent: true },
+      { source: "/es/:path*", destination: "/:path*", permanent: true },
+    ];
   },
   async headers() {
     return [
@@ -152,7 +154,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-const withIntl = withNextIntl(nextConfig);
 
 /**
  * Sentry source-map upload — opt-in, and inert until fully configured.
@@ -185,7 +186,7 @@ const sentryConfigured = Boolean(
 );
 
 export default sentryConfigured
-  ? withSentryConfig(withIntl, {
+  ? withSentryConfig(nextConfig, {
       org: process.env.SENTRY_ORG,
       project: process.env.SENTRY_PROJECT,
       authToken: process.env.SENTRY_AUTH_TOKEN,
@@ -197,4 +198,4 @@ export default sentryConfigured
       webpack: { treeshake: { removeDebugLogging: true } },
       telemetry: false,
     })
-  : withIntl;
+  : nextConfig;

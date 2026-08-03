@@ -74,7 +74,7 @@ test.describe("password reset", () => {
       await expect(page.getByRole("heading", { name: "Password updated" })).toBeVisible();
 
       // Prove the new credential works in a completely fresh context.
-      const fresh = await browser.newContext({ storageState: "e2e/.locale-en.json" });
+      const fresh = await browser.newContext();
       try {
         const freshPage = await fresh.newPage();
         await signInViaUi(freshPage, user.email, newPassword);

@@ -1,4 +1,4 @@
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 
 /** Shown instead of a portal dashboard when the signed-in user lacks the required role. */
 export function AccessPanel({

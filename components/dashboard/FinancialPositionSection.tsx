@@ -1,4 +1,4 @@
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import { getCachedClient } from "@/lib/supabase/server";
 import { getEntitlements } from "@/lib/entitlements";
 import { formatCurrency, formatCurrencyTile } from "@/lib/tools/format";

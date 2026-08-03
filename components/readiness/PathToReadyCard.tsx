@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import type { AssessmentResult } from "@/lib/scoring";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring";
 import {

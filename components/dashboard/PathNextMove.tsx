@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import { loadLocalResult } from "@/lib/assessment/storage";
 import { impactBus } from "@/lib/flags";
 import {

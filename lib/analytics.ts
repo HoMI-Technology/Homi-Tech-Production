@@ -9,6 +9,8 @@
  * Analytics toggle).
  */
 
+import { readConsent } from "@/components/consent/consent-shared";
+
 export interface AnalyticsEvent {
   event: string;
   props?: Record<string, string | number>;
@@ -40,10 +42,15 @@ export function pageSection(pathname: string): string {
 
 export function track(event: string, props?: Record<string, string | number>): void {
   if (typeof window === "undefined") return;
+  // The in-memory buffer stays unconditional: it never leaves the tab, holds
+  // no identifier, and is what local debugging and tests read.
   if (!window.__homiEvents) window.__homiEvents = [];
   window.__homiEvents.push({ event, props, ts: Date.now() });
-  // Forward to PostHog when its snippet is loaded (activated by
-  // NEXT_PUBLIC_POSTHOG_KEY via <AnalyticsScripts/>). No-op otherwise.
+  // Forwarding OFF the device requires consent. <AnalyticsScripts/> already
+  // refuses to load the SDK without it, so this is defense in depth: if a
+  // snippet ever reaches the page by another route, it still receives nothing
+  // until the visitor has opted in.
+  if (readConsent() !== "granted") return;
   try {
     window.posthog?.capture(event, props);
   } catch {
