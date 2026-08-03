@@ -61,7 +61,7 @@ export function SubscriptionSection({ tier }: { tier: SubscriptionTier }) {
         <button
           onClick={handleManageBilling}
           disabled={loading}
-          className="btn btn-ghost !px-4 !py-2 text-sm disabled:opacity-60"
+          className="btn btn-ghost btn-sm disabled:opacity-60"
         >
           {loading ? "Opening…" : "Manage billing"}
         </button>

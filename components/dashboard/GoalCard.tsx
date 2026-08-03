@@ -179,20 +179,20 @@ export function GoalCard({
             />
           </div>
           <div className="flex flex-wrap gap-2">
-            <button className="btn btn-primary !px-4 !py-2 text-sm" onClick={save} disabled={busy}>
+            <button className="btn btn-primary btn-sm" onClick={save} disabled={busy}>
               {busy ? "Saving…" : "Save goal"}
             </button>
             {goal && (
               <>
                 <button
-                  className="btn btn-ghost !px-4 !py-2 text-sm"
+                  className="btn btn-ghost btn-sm"
                   onClick={() => setEditing(false)}
                   disabled={busy}
                 >
                   Cancel
                 </button>
                 <button
-                  className="btn btn-ghost !px-4 !py-2 text-sm text-crimson"
+                  className="btn btn-ghost btn-sm text-crimson"
                   onClick={remove}
                   disabled={busy}
                 >

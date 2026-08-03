@@ -205,7 +205,7 @@ export default function OutcomesPage() {
                       </div>
                       {recordingId !== entry.id && (
                         <button
-                          className="btn btn-emerald !px-4 !py-2 text-sm"
+                          className="btn btn-emerald btn-sm"
                           onClick={() => {
                             setRecordingId(entry.id);
                             setDraft(emptyDraft());

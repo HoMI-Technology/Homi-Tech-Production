@@ -85,7 +85,7 @@ export function ShareScoreButton({ assessmentId }: { assessmentId?: string | nul
     return (
       <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
         <input readOnly value={url} className="input text-sm sm:w-72" onFocus={(e) => e.currentTarget.select()} />
-        <button onClick={handleCopy} className="btn btn-primary shrink-0 !px-4 !py-2 text-sm">
+        <button onClick={handleCopy} className="btn btn-primary shrink-0 btn-sm">
           {copied ? "Copied!" : "Copy link"}
         </button>
       </div>

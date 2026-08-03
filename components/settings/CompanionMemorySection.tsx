@@ -147,13 +147,13 @@ export function CompanionMemorySection() {
       <div className="mt-6 flex flex-wrap gap-3">
         {confirmingForget ? (
           <>
-            <button type="button" onClick={forgetConversation} className="btn btn-primary !px-4 !py-2 text-sm">
+            <button type="button" onClick={forgetConversation} className="btn btn-primary btn-sm">
               Yes, forget it
             </button>
             <button
               type="button"
               onClick={() => setConfirmingForget(false)}
-              className="btn btn-ghost !px-4 !py-2 text-sm"
+              className="btn btn-ghost btn-sm"
             >
               Keep it
             </button>
@@ -163,12 +163,12 @@ export function CompanionMemorySection() {
             type="button"
             onClick={() => setConfirmingForget(true)}
             disabled={thread.kind === "loading"}
-            className="btn btn-ghost !px-4 !py-2 text-sm disabled:opacity-50"
+            className="btn btn-ghost btn-sm disabled:opacity-50"
           >
             Forget this conversation
           </button>
         )}
-        <button type="button" onClick={resetIdentity} className="btn btn-ghost !px-4 !py-2 text-sm">
+        <button type="button" onClick={resetIdentity} className="btn btn-ghost btn-sm">
           Reset my HōMI
         </button>
       </div>

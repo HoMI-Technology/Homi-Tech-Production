@@ -83,7 +83,7 @@ export default function SettingsPage() {
               <p className="mt-1 text-sm text-dim">End your session on this device.</p>
             </div>
             <form action="/auth/sign-out" method="POST">
-              <button type="submit" className="btn btn-ghost !px-4 !py-2 text-sm">
+              <button type="submit" className="btn btn-ghost btn-sm">
                 Sign out
               </button>
             </form>

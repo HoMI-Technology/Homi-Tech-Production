@@ -36,14 +36,14 @@ Merge gate per PR: CI `verify` job (brand-check → architecture:check → tsc �
 |------|-------------|-----|---------|--------|
 | 2.1 | Nav parity: reconcile AppHeader-More vs CommandPalette from ONE catalog (`/path`,`/household`,`/scenarios`,`/tools/preflight` missing from palette; `/plan`,`/simulator`,`/genome`,`/couples` missing from header) [tdd:required] | Single source module feeds both; parity test asserts set equality (minus deliberate exceptions list) | Phase 0 | cc:Done [cb151e5] |
 | 2.2 | Expose `/results` (readiness verdict!) in AppHeader + palette | `/results` reachable from chrome; nav test passes | 2.1 | cc:Done [cb151e5] |
-| 2.3 | Kill portal stubs: point marketing `/partner` + `/employee` links at `/partner/dashboard` + `/employee/dashboard`; add permanent redirects in `next.config.ts`; delete stub pages; update `protected-routes.ts` | Old URLs 308-redirect; route-protection test updated | Phase 0 | cc:TODO |
-| 2.4 | Resolve `/analytics` orphan: fold into `/admin/marketing` (it's a strict subset) and delete, or move under `/admin` layout wall | No admin surface outside central protection list; route-protection test covers it | Phase 0 | cc:TODO |
+| 2.3 | Kill portal stubs: point marketing `/partner` + `/employee` links at `/partner/dashboard` + `/employee/dashboard`; add permanent redirects in `next.config.ts`; delete stub pages; update `protected-routes.ts` | Old URLs 308-redirect; route-protection test updated | Phase 0 | cc:Done [d0ed994] |
+| 2.4 | Resolve `/analytics` orphan: fold into `/admin/marketing` (it's a strict subset) and delete, or move under `/admin` layout wall | No admin surface outside central protection list; route-protection test covers it | Phase 0 | cc:Done [d0ed994] |
 | 2.5 | Scenario consolidation per decision sheet (D2): `/scenarios` vs `/tools/scenarios` vs `/decisions` | One canonical scenario surface + redirects; registry lists whatever remains under /tools | D2 | cc:TODO |
 | 2.6 | Household consolidation per decision sheet (D3): `/household` vs `/couples` vs `/family` | Agreed target structure live + redirects | D3 | cc:TODO |
 | 2.7 | Readiness output flow per decision sheet (D4): `/results`, `/path`, `/plan`, `/report/{id}` roles defined; orphaned `/report/{id}/path-certificate` linked or removed | Each surviving page reachable; no hard orphans | D4, 2.2 | cc:TODO |
 | 2.8 | Content hubs per decision sheet (D5): `/blog`, `/guides`, `/learning` — one hub in chrome, others merged/redirected | No sitemap-only content hubs | D5 | cc:TODO |
 | 2.9 | Sitemap from registry: derive `app/sitemap.ts` TOOL_SLUGS from `lib/tools/registry.ts`; add `/tools/scenarios` to registry if it survives D2 [tdd:required] | Sitemap test asserts registry parity | 2.5 | cc:TODO |
-| 2.10 | Small orphan triage: `/artifact` (delete or add footer link its docblock claims), legal trio in footer, `/status` in footer, `/demo` entry point, agent-hub gating consistency (admin rail unconditional vs flag) | Zero hard orphans; gating consistent | Phase 0 | cc:TODO |
+| 2.10 | Small orphan triage: `/artifact` (delete or add footer link its docblock claims), legal trio in footer, `/status` in footer, `/demo` entry point, agent-hub gating consistency (admin rail unconditional vs flag) | Zero hard orphans; gating consistent | Phase 0 | cc:Done [d0ed994] (/artifact stays direct-URL per AUDIT T2.8) |
 
 **PRs:** `feat/nav-single-catalog` (2.1–2.2), `chore/route-consolidation` (2.3–2.4, 2.10), then one PR per approved consolidation (2.5–2.9).
 
@@ -51,13 +51,13 @@ Merge gate per PR: CI `verify` job (brand-check → architecture:check → tsc �
 
 | Task | Description | DoD | Depends | Status |
 |------|-------------|-----|---------|--------|
-| 3.1 | Add `.btn-sm`/`.btn-lg`/`.btn-danger`/`.btn-block` to globals.css; migrate the 132 `!important` size patches (49 files) + `!bg-crimson` destructive hacks | grep `btn.*!p[xy]-` ≈ 0; brand-check green | Phase 0 | cc:TODO |
+| 3.1 | Add `.btn-sm`/`.btn-lg`/`.btn-danger`/`.btn-block` to globals.css; migrate the 132 `!important` size patches (49 files) + `!bg-crimson` destructive hacks | grep `btn.*!p[xy]-` ≈ 0; brand-check green | Phase 0 | cc:WIP [4bc69a2] (74/131 migrated; ~40 bespoke tiers + toast/finance skip-files cataloged; 36px height flagged for design review) |
 | 3.2 | Toast consolidation: extend `ui/ToastProvider` with `placement`/`priority`; migrate `ImpactToast` + `SessionExpiredToast` into it; delete `[data-priority-notice]` MutationObserver protocol [tdd:required] | One toast queue; impact-bus e2e green flag-on and flag-off | 0.1, 0.2 | cc:TODO |
 | 3.3 | Fix `ClientProviders.tsx` will-change containing-block bug (animate-time-only will-change) so `position:fixed` works for all overlays | CompanionWidget launcher + toasts pin to viewport on scroll (e2e assertion) | - | cc:Done [40fc4d1] (e2e proof rides with 3.2 in CI) |
-| 3.4 | Build `components/ui/Tabs.tsx` (tablist + roving tabindex, seeded from finance page) + `SegmentedControl.tsx`; migrate the 12 bespoke implementations; dedup ChoiceCards vs FullAssessmentFlow | All tab UIs use primitives; a11y roles correct; axe pass on migrated pages | Phase 0 | cc:TODO |
+| 3.4 | Build `components/ui/Tabs.tsx` (tablist + roving tabindex, seeded from finance page) + `SegmentedControl.tsx`; migrate the 12 bespoke implementations; dedup ChoiceCards vs FullAssessmentFlow | All tab UIs use primitives; a11y roles correct; axe pass on migrated pages | Phase 0 | cc:Done [d50848a] |
 | 3.5 | Build `components/ui/Modal.tsx` (portal, focus trap, Escape, scroll lock) + z-index token scale; fix DeleteAccountModal a11y first; migrate 7 modal implementations [tdd:required] | DeleteAccountModal has role=dialog/trap/Escape; z-index from tokens | 3.3 | cc:TODO |
 | 3.6 | Extend `operate/PageFrame` to personal surfaces (dashboard, finance, journal, family, path, daily, calendar, connections, results…); reconcile ToolShell | Hand-rolled `mx-auto max-w-*` shells ≈ 0 on product surfaces | Phase 2 | cc:TODO |
-| 3.7 | Dedups: ErrorBoundary ×2, Money/NumberField ×2, three byte-identical loading.tsx → shared, dashboard loading.tsx onto Skeleton | One implementation each; verify green | Phase 0 | cc:TODO |
+| 3.7 | Dedups: ErrorBoundary ×2, Money/NumberField ×2, three byte-identical loading.tsx → shared, dashboard loading.tsx onto Skeleton | One implementation each; verify green | Phase 0 | cc:Done [3dbfff2] (daily/loading + ProductLoadingSkeleton kept deliberately) |
 | 3.8 | Brand hex bridge: export canonical colors from `lib/brand`; thread through SVG/imperative components (~96 files, mechanical) | New hardcoded brand hex in TSX blocked by brand-check rule | 3.1 | cc:TODO |
 
 **PRs:** one per task (3.1 → 3.8 in order); each ≤ ~50 files, mechanical migrations split if larger.
@@ -87,6 +87,7 @@ Merge gate per PR: CI `verify` job (brand-check → architecture:check → tsc �
 |------|-------------|-----|---------|--------|
 | F.1 | Pre-existing acceptance failure: `__tests__/acceptance/shares-ownership.test.ts` "allows sharing an assessment the caller owns" fails on this branch AND in all three frozen `.claude/worktrees` snapshots (predates this work; not in CI verify gate). Diagnose and fix or document env dependency | Acceptance suite green locally or failure root-caused + documented | - | cc:TODO |
 | F.2 | Acceptance config sweeps `.claude/worktrees/**` duplicating every suite ×4 — exclude that dir in vitest.acceptance.config.ts (also mooted if 4.4 removes the worktrees) | Acceptance run contains no worktree duplicates | - | cc:TODO |
+| F.3 | Button follow-up tiers from 3.1 review: `.btn-danger-ghost` (crimson-outline pattern, 5 patches in settings), the `!px-3 !py-1.5` small tier (~25 sites), chat-send tier; SegmentedControl disabled+selected tabbable guard; SegmentedLinkNav aria-current="page" | Remaining `!p[xy]` patches < 10 repo-wide | 3.1 | cc:TODO |
 
 ## Decision Sheet (product calls only the owner can make — plan proceeds on approved defaults)
 

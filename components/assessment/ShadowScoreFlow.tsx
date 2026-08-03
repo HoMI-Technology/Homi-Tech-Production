@@ -25,8 +25,8 @@ import {
 } from "@/lib/assessment/types";
 import { StepShell } from "./StepShell";
 import { ProgressBar, type StepMeta } from "./ProgressBar";
-import { MoneyField } from "./MoneyField";
-import { NumberField } from "./NumberField";
+import { MoneyField } from "@/components/ui/MoneyField";
+import { NumberField } from "@/components/ui/NumberField";
 import { ChoiceCards } from "./ChoiceCards";
 import { SliderField } from "./SliderField";
 

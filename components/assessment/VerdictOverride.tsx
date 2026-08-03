@@ -83,7 +83,7 @@ export function VerdictOverride({
 
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className="btn btn-ghost !px-4 !py-2 text-sm">
+      <button type="button" onClick={() => setOpen(true)} className="btn btn-ghost btn-sm">
         I&rsquo;m deciding anyway
       </button>
     );
@@ -123,7 +123,7 @@ export function VerdictOverride({
           type="button"
           onClick={handleConfirm}
           disabled={(requiresAck && !checked) || submitting}
-          className="btn btn-primary !px-4 !py-2 text-sm disabled:opacity-50"
+          className="btn btn-primary btn-sm disabled:opacity-50"
         >
           {submitting ? "Recording…" : "Confirm — I'm deciding anyway"}
         </button>
@@ -133,7 +133,7 @@ export function VerdictOverride({
             setOpen(false);
             setChecked(false);
           }}
-          className="btn btn-ghost !px-4 !py-2 text-sm"
+          className="btn btn-ghost btn-sm"
         >
           Cancel
         </button>

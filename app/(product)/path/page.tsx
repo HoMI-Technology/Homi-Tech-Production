@@ -609,7 +609,7 @@ export default function PathPage() {
             <div className="mt-4 flex flex-wrap gap-2">
               <button
                 type="button"
-                className="btn btn-primary !px-4 !py-2 text-sm"
+                className="btn btn-primary btn-sm"
                 onClick={handleApplyTargets}
                 disabled={!funding.hasActionableDiff && !funding.downPaymentTarget}
               >
@@ -618,13 +618,13 @@ export default function PathPage() {
               {funding.liquidSavingsTarget != null && (
                 <button
                   type="button"
-                  className="btn btn-ghost !px-4 !py-2 text-sm"
+                  className="btn btn-ghost btn-sm"
                   onClick={handleApplySavingsFloor}
                 >
                   Record savings floor (if cash is real)
                 </button>
               )}
-              <Link href="/finance" className="btn btn-ghost !px-4 !py-2 text-sm">
+              <Link href="/finance" className="btn btn-ghost btn-sm">
                 Open finance
               </Link>
             </div>

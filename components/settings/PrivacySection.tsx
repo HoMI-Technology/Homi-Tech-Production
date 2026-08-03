@@ -44,7 +44,7 @@ export function PrivacySection() {
             <p className="text-sm font-medium text-light">Export my data</p>
             <p className="text-sm text-dim">Download everything HōMI has stored about you as JSON.</p>
           </div>
-          <button onClick={handleExport} disabled={exporting} className="btn btn-ghost !px-4 !py-2 text-sm disabled:opacity-60">
+          <button onClick={handleExport} disabled={exporting} className="btn btn-ghost btn-sm disabled:opacity-60">
             {exporting ? "Preparing…" : "Export my data"}
           </button>
         </div>

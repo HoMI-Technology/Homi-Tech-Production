@@ -35,6 +35,7 @@ const COLUMNS: FooterColumn[] = [
       { href: "/method", label: "The Method" },
       { href: "/guides", label: "Guides" },
       { href: "/about", label: "About" },
+      { href: "/status", label: "Status" },
     ],
   },
   {
@@ -54,6 +55,9 @@ const COLUMNS: FooterColumn[] = [
       { href: "/legal/terms", label: "Terms" },
       { href: "/legal/disclaimer", label: "Disclaimer" },
       { href: "/legal/cookies", label: "Cookie policy" },
+      { href: "/legal/acceptable-use", label: "Acceptable use" },
+      { href: "/legal/dmca", label: "DMCA" },
+      { href: "/legal/subprocessors", label: "Subprocessors" },
       { href: "mailto:support@homitechnology.com", label: "Support" },
     ],
   },

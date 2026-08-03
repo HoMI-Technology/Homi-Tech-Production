@@ -308,11 +308,11 @@ export default function HouseholdPage() {
               ))}
             </ul>
             <div className="mt-4 flex flex-wrap gap-2">
-              <button type="button" className="btn btn-primary !px-4 !py-2 text-sm" onClick={() => void syncMyScore()}>
+              <button type="button" className="btn btn-primary btn-sm" onClick={() => void syncMyScore()}>
                 Sync my assessment score
               </button>
               {!local && (
-                <Link href="/assessment" className="btn btn-ghost !px-4 !py-2 text-sm">
+                <Link href="/assessment" className="btn btn-ghost btn-sm">
                   Take assessment
                 </Link>
               )}
@@ -328,7 +328,7 @@ export default function HouseholdPage() {
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
             />
-            <button type="button" className="btn btn-ghost mt-3 !px-4 !py-2 text-sm" onClick={() => void sendInvite()}>
+            <button type="button" className="btn btn-ghost mt-3 btn-sm" onClick={() => void sendInvite()}>
               Create invite link
             </button>
             {inviteLink && (
@@ -352,7 +352,7 @@ export default function HouseholdPage() {
                 {dual.verdictAligned ? "verdicts aligned" : "verdicts differ"}
               </p>
               <p className="mt-4 text-xs text-dim">{DUAL_SCORE_DISCLAIMER}</p>
-              <Link href="/path" className="btn btn-primary mt-4 !px-4 !py-2 text-sm">
+              <Link href="/path" className="btn btn-primary mt-4 btn-sm">
                 Open Path to Ready
               </Link>
             </div>

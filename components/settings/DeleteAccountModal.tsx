@@ -68,7 +68,7 @@ export function DeleteAccountModal({ onClose }: { onClose: () => void }) {
           <button
             onClick={handleDelete}
             disabled={!canDelete || loading}
-            className="btn !bg-crimson !text-white disabled:opacity-50"
+            className="btn btn-danger disabled:opacity-50"
           >
             {loading ? "Deleting…" : "Delete my account"}
           </button>

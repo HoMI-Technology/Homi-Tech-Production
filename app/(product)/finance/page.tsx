@@ -27,6 +27,7 @@ import { runMonteCarlo, type MonteCarloResult } from "@/lib/tools/montecarlo";
 import { formatCurrency, formatCompactCurrency, formatMonths, formatPercent } from "@/lib/tools/format";
 import { sliderFillPercent } from "@/lib/assessment/format";
 import { NumberField } from "@/components/ui/NumberField";
+import { Tabs, TabPanel } from "@/components/ui/Tabs";
 import Link from "next/link";
 import {
   loadReadinessPath,
@@ -71,15 +72,14 @@ export default function FinancePage() {
   // never overwrite an edit already on screen.
   const dirtyRef = useRef(false);
 
-  // Load persisted state + initial tab from URL hash, once, after mount.
-  // Local renders immediately; the server copy reconciles in the background
-  // (last-write-wins — lib/persistence.ts). Persist-on-change stays disabled
-  // until the pull settles: hydrating defaults first and pulling second would
-  // stamp-and-push defaults over a user's real cross-device numbers.
+  // Load persisted state once, after mount. The initial tab comes from the
+  // URL hash via <Tabs hashSync> below. Local renders immediately; the
+  // server copy reconciles in the background (last-write-wins —
+  // lib/persistence.ts). Persist-on-change stays disabled until the pull
+  // settles: hydrating defaults first and pulling second would stamp-and-push
+  // defaults over a user's real cross-device numbers.
   useEffect(() => {
     setState(loadFinanceState());
-    const hash = window.location.hash.replace("#", "") as TabKey;
-    if (TABS.some((t) => t.key === hash)) setTab(hash);
     let cancelled = false;
     void pullFinanceState()
       .then((remote) => {
@@ -99,21 +99,6 @@ export default function FinancePage() {
     saveFinanceState(state);
   }, [state, hydrated]);
 
-  // Keep URL hash in sync with the active tab.
-  useEffect(() => {
-    if (!hydrated) return;
-    window.history.replaceState(null, "", `#${tab}`);
-  }, [tab, hydrated]);
-
-  useEffect(() => {
-    function onHashChange() {
-      const hash = window.location.hash.replace("#", "") as TabKey;
-      if (TABS.some((t) => t.key === hash)) setTab(hash);
-    }
-    window.addEventListener("hashchange", onHashChange);
-    return () => window.removeEventListener("hashchange", onHashChange);
-  }, []);
-
   const patch = useCallback((partial: Partial<FinanceState>) => {
     dirtyRef.current = true;
     setState((prev) => ({ ...prev, ...partial }));
@@ -127,46 +112,23 @@ export default function FinancePage() {
         Your personal-finance cockpit. Enter numbers once — every tab reads the same honest picture.
       </p>
 
-      <div
-        role="tablist"
-        aria-label="Finance sections"
-        className="mt-8 flex flex-wrap gap-1 border-b border-slate-surface/60 pb-px"
-      >
-        {TABS.map((t) => {
-          const selected = tab === t.key;
-          return (
-            <button
-              key={t.key}
-              type="button"
-              role="tab"
-              id={`finance-tab-${t.key}`}
-              aria-selected={selected}
-              aria-controls={`finance-panel-${t.key}`}
-              onClick={() => setTab(t.key)}
-              className={`rounded-t-lg px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan ${
-                selected
-                  ? "border-b-2 border-cyan bg-slate-surface/40 text-cyan"
-                  : "text-dim hover:text-light"
-              }`}
-            >
-              {t.label}
-            </button>
-          );
-        })}
-      </div>
-
-      <div
-        role="tabpanel"
-        id={`finance-panel-${tab}`}
-        aria-labelledby={`finance-tab-${tab}`}
+      <Tabs
+        tabs={TABS}
+        value={tab}
+        onChange={setTab}
+        idPrefix="finance"
+        ariaLabel="Finance sections"
+        hashSync
         className="mt-8"
-      >
+      />
+
+      <TabPanel idPrefix="finance" value={tab} className="mt-8">
         {tab === "overview" && <OverviewTab state={state} patch={patch} />}
         {tab === "cashflow" && <CashFlowTab state={state} patch={patch} />}
         {tab === "debt" && <DebtTab />}
         {tab === "montecarlo" && <MonteCarloTab state={state} patch={patch} />}
         {tab === "networth" && <NetWorthTab state={state} patch={patch} />}
-      </div>
+      </TabPanel>
     </div>
   );
 }

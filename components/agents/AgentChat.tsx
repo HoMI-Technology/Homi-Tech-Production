@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { buildCompanionContext } from "@/lib/advisor/context";
 import { loadIdentity } from "@/lib/advisor/identity";
 import {
@@ -198,22 +199,17 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
           )}
           {messages.length === 0 && <span className="text-xs font-bold uppercase tracking-wider text-dim">Agent OS</span>}
         </div>
-        <div className="flex gap-1">
-          {(Object.keys(MODE_LABELS) as AgentMode[]).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => onModeChange?.(m)}
-              className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
-                mode === m
-                  ? "bg-cyan/10 text-cyan"
-                  : "text-dim hover:bg-white/5 hover:text-light"
-              }`}
-            >
-              {MODE_LABELS[m]}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl<AgentMode>
+          ariaLabel="Agent mode"
+          options={(Object.keys(MODE_LABELS) as AgentMode[]).map((m) => ({
+            value: m,
+            label: MODE_LABELS[m],
+          }))}
+          value={mode}
+          onChange={(m) => onModeChange?.(m)}
+          variant="compact"
+          className="flex flex-wrap gap-1"
+        />
       </div>
 
       {/* Thread */}

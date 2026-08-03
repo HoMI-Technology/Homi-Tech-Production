@@ -57,7 +57,7 @@ export function AttentionStrip({
             </div>
           </div>
           {primary.href && primary.cta && (
-            <Link href={primary.href} className="btn btn-primary !px-4 !py-2 text-sm">
+            <Link href={primary.href} className="btn btn-primary btn-sm">
               {primary.cta}
             </Link>
           )}

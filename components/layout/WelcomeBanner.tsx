@@ -105,10 +105,10 @@ export function WelcomeBanner() {
             ready for it?&rdquo;
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <button onClick={dismiss} className="btn btn-primary !px-4 !py-2 text-sm">
+            <button onClick={dismiss} className="btn btn-primary btn-sm">
               Get started
             </button>
-            <button onClick={dismiss} className="btn btn-ghost !px-4 !py-2 text-sm">
+            <button onClick={dismiss} className="btn btn-ghost btn-sm">
               Dismiss
             </button>
           </div>

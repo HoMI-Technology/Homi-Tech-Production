@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Sparkline } from "@/components/ui/Sparkline";
+import { SegmentedLinkNav } from "@/components/ui/SegmentedControl";
 import { BarSeries } from "@/components/admin/BarSeries";
 import { FunnelSeries, type FunnelSeriesStep } from "@/components/admin/FunnelSeries";
 import { PageHeader } from "@/components/operate/PageHeader";
@@ -55,35 +55,12 @@ function formatPct(value: number | null): string {
 }
 
 function RangeToggle({ range }: { range: AnalyticsRange }) {
-  const options: { value: AnalyticsRange; label: string }[] = [
-    { value: "7d", label: "7 days" },
-    { value: "30d", label: "30 days" },
+  // Navigation, not tabs: real links with aria-current (URL-driven range).
+  const options: { value: AnalyticsRange; label: string; href: string }[] = [
+    { value: "7d", label: "7 days", href: "/admin/analytics?range=7d" },
+    { value: "30d", label: "30 days", href: "/admin/analytics?range=30d" },
   ];
-  return (
-    <div
-      role="group"
-      aria-label="Date range"
-      className="inline-flex items-center gap-0.5 rounded-lg border border-slate-surface/70 bg-navy-light/60 p-0.5"
-    >
-      {options.map((opt) => {
-        const active = range === opt.value;
-        return (
-          <Link
-            key={opt.value}
-            href={`/admin/analytics?range=${opt.value}`}
-            aria-current={active ? "true" : undefined}
-            className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${
-              active
-                ? "bg-slate-surface/80 text-cyan shadow-[inset_0_1px_0_rgba(226,232,240,0.06)]"
-                : "text-dim hover:text-light"
-            }`}
-          >
-            {opt.label}
-          </Link>
-        );
-      })}
-    </div>
-  );
+  return <SegmentedLinkNav options={options} value={range} ariaLabel="Date range" />;
 }
 
 function SetupState() {

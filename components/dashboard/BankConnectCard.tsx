@@ -27,19 +27,19 @@ export function BankConnectCard({ plusRequired }: { plusRequired: boolean }) {
       <div className="mt-4 flex flex-wrap gap-3">
         {plusRequired ? (
           <>
-            <Link href="/pricing" className="btn btn-primary !px-4 !py-2 text-sm">
+            <Link href="/pricing" className="btn btn-primary btn-sm">
               See plans
             </Link>
-            <Link href="/finance" className="btn btn-ghost !px-4 !py-2 text-sm">
+            <Link href="/finance" className="btn btn-ghost btn-sm">
               Enter numbers manually
             </Link>
           </>
         ) : (
           <>
-            <Link href="/connections" className="btn btn-primary !px-4 !py-2 text-sm">
+            <Link href="/connections" className="btn btn-primary btn-sm">
               Connect your bank
             </Link>
-            <Link href="/finance" className="btn btn-ghost !px-4 !py-2 text-sm">
+            <Link href="/finance" className="btn btn-ghost btn-sm">
               Enter numbers manually
             </Link>
           </>

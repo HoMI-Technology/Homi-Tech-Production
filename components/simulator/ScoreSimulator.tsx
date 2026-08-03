@@ -160,7 +160,7 @@ export function ScoreSimulator({
                 <div className="flex items-end gap-3">
                   <MoneyField label="Pay off debt" hint="Paid from liquid savings." value={payoffAmount} onChange={setPayoffAmount} />
                   <button
-                    className="btn btn-ghost mb-0.5 shrink-0 !px-4 !py-2 text-sm"
+                    className="btn btn-ghost mb-0.5 shrink-0 btn-sm"
                     onClick={() => {
                       if (payoffAmount && payoffAmount > 0) setLevers(applyDebtPayoff(levers, payoffAmount));
                     }}
@@ -175,7 +175,7 @@ export function ScoreSimulator({
                   <NumberField label="For how many months" min={1} max={120} value={planMonths} onChange={setPlanMonths} />
                 </div>
                 <button
-                  className="btn btn-ghost mt-3 !px-4 !py-2 text-sm"
+                  className="btn btn-ghost mt-3 btn-sm"
                   onClick={() => {
                     if (planPerMonth && planPerMonth > 0 && planMonths && planMonths > 0) {
                       setLevers(applySavingsPlan(levers, planPerMonth, planMonths));

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CinematicCompass } from "./CinematicCompass";
+import { SegmentedControl, type SegmentedAccent } from "@/components/ui/SegmentedControl";
 
 /**
  * Section 7 — the intelligence modes around the compass. Not chatbots,
@@ -12,7 +13,7 @@ import { CinematicCompass } from "./CinematicCompass";
 interface Mode {
   key: string;
   name: string;
-  color: string;
+  accent: SegmentedAccent;
   ring: "outer" | "middle" | "inner" | "center";
   role: string;
   insight: string;
@@ -22,7 +23,7 @@ const MODES: Mode[] = [
   {
     key: "homie",
     name: "Homie",
-    color: "#e2e8f0",
+    accent: "light",
     ring: "center",
     role: "Warm companion. No conversion pressure.",
     insight: "I'm not here to move you forward. I'm here to make sure you'll be okay.",
@@ -30,7 +31,7 @@ const MODES: Mode[] = [
   {
     key: "reality",
     name: "Reality Check",
-    color: "#22d3ee",
+    accent: "cyan",
     ring: "outer",
     role: "Financial truth-teller. No product advice.",
     insight: "The numbers may say yes. But readiness is bigger than math.",
@@ -38,7 +39,7 @@ const MODES: Mode[] = [
   {
     key: "gut",
     name: "Gut Check",
-    color: "#34d399",
+    accent: "emerald",
     ring: "middle",
     role: "Emotional truth-teller. Not therapy.",
     insight: "Your gut is part of the math here. Pressure is not the same as wanting it.",
@@ -46,7 +47,7 @@ const MODES: Mode[] = [
   {
     key: "timing",
     name: "Timing Advisor",
-    color: "#facc15",
+    accent: "yellow",
     ring: "inner",
     role: "Life-stage and timing context. No certainty claims.",
     insight: "Most people don't regret what they bought. They regret when they bought it.",
@@ -54,7 +55,7 @@ const MODES: Mode[] = [
   {
     key: "planner",
     name: "Finance Planner",
-    color: "#22d3ee",
+    accent: "cyan",
     ring: "outer",
     role: "Calculator-backed education. No product recommendations.",
     insight: "Here's where you actually stand — the math, shown honestly, nothing sold.",
@@ -62,7 +63,7 @@ const MODES: Mode[] = [
   {
     key: "guardrail",
     name: "Guardrail",
-    color: "#f24822",
+    accent: "crimson",
     ring: "center",
     role: "Safety, refusals, auditability. Cannot be bypassed.",
     insight: "Some lines exist to protect you. I hold them even when you push.",
@@ -81,27 +82,17 @@ export function Voices() {
   return (
     <div className="grid items-center gap-12 lg:grid-cols-2">
       <div className="order-2 flex flex-col gap-3 lg:order-1">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {MODES.map((mode) => {
-            const selected = mode.key === active.key;
-            return (
-              <button
-                key={mode.key}
-                type="button"
-                onClick={() => setActive(mode)}
-                aria-pressed={selected}
-                className="rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all duration-200"
-                style={{
-                  borderColor: selected ? `${mode.color}66` : "rgba(148,163,184,0.18)",
-                  background: selected ? `${mode.color}10` : "rgba(15,23,42,0.5)",
-                  color: selected ? mode.color : "#94a3b8",
-                }}
-              >
-                {mode.name}
-              </button>
-            );
-          })}
-        </div>
+        <SegmentedControl
+          ariaLabel="Companion modes"
+          options={MODES.map((m) => ({ value: m.key, label: m.name, accent: m.accent }))}
+          value={active.key}
+          onChange={(key) => {
+            const mode = MODES.find((m) => m.key === key);
+            if (mode) setActive(mode);
+          }}
+          variant="card"
+          className="grid grid-cols-2 gap-3 sm:grid-cols-3"
+        />
 
         <div className="glass mt-3 p-6" aria-live="polite">
           <p className="text-xs uppercase tracking-widest text-dim/70">{active.role}</p>

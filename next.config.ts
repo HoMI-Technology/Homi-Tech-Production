@@ -84,6 +84,15 @@ const nextConfig: NextConfig = {
       // its unprefixed equivalent. Listed after the tool aliases so those win.
       { source: "/es", destination: "/", permanent: true },
       { source: "/es/:path*", destination: "/:path*", permanent: true },
+      // Portals folded into role homes (operate program D2). The redirect()-only
+      // stub pages were deleted; bookmarks and legacy links resolve here.
+      { source: "/employee/portal", destination: "/employee/dashboard", permanent: true },
+      { source: "/employee/portal/:path*", destination: "/employee/dashboard", permanent: true },
+      { source: "/partner/portal", destination: "/partner/dashboard", permanent: true },
+      { source: "/partner/portal/:path*", destination: "/partner/dashboard", permanent: true },
+      // Orphaned admin-gated marketing analytics page removed; its content was a
+      // strict subset of /admin/analytics, whose layout wall gates arrivals.
+      { source: "/analytics", destination: "/admin/analytics", permanent: true },
     ];
   },
   async headers() {

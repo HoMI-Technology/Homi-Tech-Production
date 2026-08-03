@@ -538,6 +538,37 @@ body {
   transform: translateY(1px) scale(0.985);
   box-shadow: 0 4px 14px -6px rgba(52, 211, 153, 0.45);
 }
+/* Compact size — canonical form of the dominant per-call-site patch
+   (`!px-4 !py-2 text-sm`); min-height drops with the padding so the
+   control actually renders compact instead of being clamped to 44px. */
+.btn-sm {
+  min-height: 36px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+/* Touch devices keep the 44px effective target the old clamp provided;
+   36px density is a pointer-precision (desktop) affordance only. */
+@media (pointer: coarse) {
+  .btn-sm {
+    min-height: 44px;
+  }
+}
+/* Destructive actions — verdict crimson (#f24822, canon token), structured
+   like .btn-primary. Replaces the `!bg-crimson !text-white` call-site hack. */
+.btn-danger {
+  background: var(--color-crimson);
+  color: #ffffff;
+  box-shadow: 0 8px 24px -8px rgba(242, 72, 34, 0.5);
+}
+.btn-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 32px -8px rgba(242, 72, 34, 0.65), 0 0 0 1px rgba(242, 72, 34, 0.4);
+}
+.btn-danger:active:not(:disabled) {
+  transform: translateY(1px) scale(0.985);
+  box-shadow: 0 4px 14px -6px rgba(242, 72, 34, 0.45);
+}
 
 /* ── Reveal on scroll ──────────────────────────────────────────── */
 /* visibility keeps unrevealed content out of the keyboard tab order —

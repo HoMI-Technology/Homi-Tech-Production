@@ -119,13 +119,13 @@ export default async function PathCertificatePage({
       </p>
 
       <div className="mt-8 flex flex-wrap gap-3 print:hidden">
-        <Link href={`/report/${id}/credential`} className="btn btn-ghost !px-4 !py-2 text-sm">
+        <Link href={`/report/${id}/credential`} className="btn btn-ghost btn-sm">
           Classic credential
         </Link>
-        <Link href="/path" className="btn btn-primary !px-4 !py-2 text-sm">
+        <Link href="/path" className="btn btn-primary btn-sm">
           Open Path to Ready
         </Link>
-        <Link href="/household" className="btn btn-ghost !px-4 !py-2 text-sm">
+        <Link href="/household" className="btn btn-ghost btn-sm">
           Household dual score
         </Link>
       </div>

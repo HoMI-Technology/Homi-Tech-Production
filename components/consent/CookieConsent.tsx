@@ -73,13 +73,13 @@ export function CookieConsent() {
         <div className="flex shrink-0 gap-2">
           <button
             onClick={() => decide("denied")}
-            className="btn btn-ghost shrink-0 !px-4 !py-2 text-sm"
+            className="btn btn-ghost shrink-0 btn-sm"
           >
             Reject optional
           </button>
           <button
             onClick={() => decide("granted")}
-            className="btn btn-primary shrink-0 !px-4 !py-2 text-sm"
+            className="btn btn-primary shrink-0 btn-sm"
           >
             Accept optional
           </button>
