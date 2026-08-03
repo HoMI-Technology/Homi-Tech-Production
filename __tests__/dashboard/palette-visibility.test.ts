@@ -7,6 +7,12 @@ describe("visiblePaletteItems", () => {
     const hrefs = items.map((i) => i.href);
     expect(hrefs).toContain("/dashboard");
     expect(hrefs).toContain("/settings");
+    // Catalog-union entries shared with AppHeader More (PR: nav parity).
+    expect(hrefs).toContain("/path");
+    expect(hrefs).toContain("/results");
+    expect(hrefs).toContain("/household");
+    expect(hrefs).toContain("/scenarios");
+    expect(hrefs).toContain("/tools/preflight");
     expect(hrefs).not.toContain("/admin");
     expect(hrefs).not.toContain("/partner/dashboard");
     expect(hrefs).not.toContain("/employee/dashboard");

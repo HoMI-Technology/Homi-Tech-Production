@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { agentOs } from "@/lib/flags";
 import { hasAnthropic, env } from "@/lib/env";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
 import { createClient } from "@/lib/supabase/server";
@@ -223,7 +224,7 @@ function toolsSuggestedForAgents(agents: AgentId[]): string[] {
 
 export async function POST(request: Request) {
   // Feature flag: the entire Agent OS can be disabled while in development.
-  if (process.env.NEXT_PUBLIC_FF_AGENT_OS !== "true") {
+  if (!agentOs) {
     return NextResponse.json(
       { error: "Agent OS is not enabled.", flag: "NEXT_PUBLIC_FF_AGENT_OS" },
       { status: 503 },
