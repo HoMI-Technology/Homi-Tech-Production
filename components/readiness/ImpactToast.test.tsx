@@ -53,6 +53,10 @@ vi.mock("next/link", () => ({
 
 const AUTO_DISMISS_MS = 5_200;
 
+// The environment's genuine fetch, captured before any test patches it — the
+// outer afterEach asserts every test hands it back (see priority describe).
+const ORIGINAL_FETCH = window.fetch;
+
 function counts(done: number, skipped: number, pending: number): PathStatusCounts {
   return { total: done + skipped + pending, done, skipped, pending };
 }
@@ -100,6 +104,10 @@ afterEach(() => {
   cleanup();
   vi.useRealTimers();
   window.sessionStorage.clear();
+  // No test may leak a patched fetch past its own teardown (the priority
+  // describe patches it; SessionExpiredToast's unmount restores whatever it
+  // captured at mount, so unmount must happen before the stub is retired).
+  expect(window.fetch).toBe(ORIGINAL_FETCH);
 });
 
 describe("ImpactToast display", () => {
@@ -343,6 +351,12 @@ describe("ImpactToast priority notices", () => {
   });
 
   afterEach(() => {
+    // Unmount FIRST: SessionExpiredToast's effect cleanup restores the fetch
+    // it captured at mount (the 401 stub). If the outer afterEach's cleanup()
+    // ran after this hook restored realFetch, that unmount would re-install
+    // the stub and leak it past the test. cleanup() is idempotent, so the
+    // outer hook's call becomes a no-op.
+    cleanup();
     window.fetch = realFetch;
   });
 

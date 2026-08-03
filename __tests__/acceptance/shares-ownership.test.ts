@@ -4,10 +4,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
  * ACCEPTANCE — Share object-authorization / IDOR (BUILD-BRIEF §9, AUDIT H1)
  *
  * POST /api/shares must only let a user share an assessment they OWN.
- * Today it inserts body.assessmentId with no ownership check, so any signed-in
- * user can mint a public share link for anyone's assessment. This spec is red
- * against the current route and green once it verifies ownership (mirror the
- * pattern in app/api/assessments/override/route.ts) before inserting.
+ * Originally red against a route that inserted body.assessmentId with no
+ * ownership check (any signed-in user could mint a public share link for
+ * anyone's assessment); the route now verifies ownership before inserting
+ * (AUDIT T1.1, mirroring app/api/assessments/override/route.ts) and this spec
+ * proves that gate stays in place. The fixture also models the route's later
+ * entitlements share-cap queries (.is/.gt count builders) with zero active
+ * shares, so the cap never masks the ownership behaviour under test.
  */
 
 const USER_B = "user-b-uuid";
@@ -18,14 +21,18 @@ function chain(table: string) {
   const api: Record<string, unknown> = {};
   const self = () => api;
   Object.assign(api, {
-    select: self, eq: self, order: self, limit: self,
+    select: self, eq: self, order: self, limit: self, is: self, gt: self, delete: self,
     insert: (_row: unknown) => { calls.inserts.push({ table }); return api; },
-    // ownership lookup on assessments resolves owned/not-owned
+    // ownership lookup on assessments resolves owned/not-owned; the profiles
+    // lookup (entitlements) resolves null → free tier, maxActiveShares 3
     maybeSingle: async () => ({
       data: table === "assessments" ? (scenario.ownsAssessment ? { id: "assess-1" } : null) : null,
       error: null,
     }),
     single: async () => ({ data: { share_token: "tok_test" }, error: null }),
+    // The active-share-cap count queries `await` the builder chain directly;
+    // zero active shares keeps every tier under its cap.
+    then: (resolve: (value: unknown) => void) => resolve({ data: null, error: null, count: 0 }),
   });
   return api;
 }
