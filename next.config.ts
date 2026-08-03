@@ -93,6 +93,15 @@ const nextConfig: NextConfig = {
       // Orphaned admin-gated marketing analytics page removed; its content was a
       // strict subset of /admin/analytics, whose layout wall gates arrivals.
       { source: "/analytics", destination: "/admin/analytics", permanent: true },
+      // Wave-3 consolidations (Plans.md D2/D3/D5): Decision Lab saved scenarios
+      // merged into Scenario Studio; couples/family folded into /household as
+      // hash modes; blog/learning indexes folded into the /guides hub (their
+      // slug routes still render — deep links unaffected).
+      { source: "/tools/scenarios", destination: "/scenarios#saved", permanent: true },
+      { source: "/couples", destination: "/household#couples", permanent: true },
+      { source: "/family", destination: "/household#family", permanent: true },
+      { source: "/blog", destination: "/guides", permanent: true },
+      { source: "/learning", destination: "/guides", permanent: true },
     ];
   },
   async headers() {

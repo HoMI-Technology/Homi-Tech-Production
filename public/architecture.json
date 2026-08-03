@@ -13,9 +13,9 @@
     "authority": "Executable TypeScript in this repo wins over this document. Prefer lib/scoring, lib/brand, lib/agents/registry on conflict."
   },
   "stats": {
-    "product_routes": 96,
+    "product_routes": 93,
     "api_routes": 27,
-    "component_directories": 29,
+    "component_directories": 30,
     "lib_modules": 46,
     "db_tables": 37,
     "migrations": 46,
@@ -249,14 +249,6 @@
       "file": "app/(product)/connections/page.tsx"
     },
     {
-      "path": "/couples",
-      "name": "Couples",
-      "category": "Product",
-      "status": "complete",
-      "features": [],
-      "file": "app/(product)/couples/page.tsx"
-    },
-    {
       "path": "/credit",
       "name": "Credit",
       "category": "Dashboard",
@@ -311,14 +303,6 @@
       "status": "complete",
       "features": [],
       "file": "app/(product)/employee/dashboard/page.tsx"
-    },
-    {
-      "path": "/family",
-      "name": "Family",
-      "category": "Product",
-      "status": "complete",
-      "features": [],
-      "file": "app/(product)/family/page.tsx"
     },
     {
       "path": "/finance",
@@ -753,14 +737,6 @@
       "file": "app/(product)/tools/runway/page.tsx"
     },
     {
-      "path": "/tools/scenarios",
-      "name": "Scenarios",
-      "category": "Tools",
-      "status": "complete",
-      "features": [],
-      "file": "app/(product)/tools/scenarios/page.tsx"
-    },
-    {
       "path": "/trinity",
       "name": "Trinity",
       "category": "AI Companion",
@@ -1081,6 +1057,16 @@
       ]
     },
     {
+      "name": "household",
+      "count": 3,
+      "description": "household UI module",
+      "examples": [
+        "CouplesAlignmentPanel",
+        "FamilyModePanel",
+        "HouseholdJointPanel"
+      ]
+    },
+    {
       "name": "layout",
       "count": 16,
       "description": "layout UI module",
@@ -1193,7 +1179,7 @@
     },
     {
       "name": "tools",
-      "count": 11,
+      "count": 12,
       "description": "tools UI module",
       "examples": [
         "CalcField",
@@ -1213,7 +1199,7 @@
     },
     {
       "name": "ui",
-      "count": 24,
+      "count": 26,
       "description": "ui UI module",
       "examples": [
         "Celebrate",
