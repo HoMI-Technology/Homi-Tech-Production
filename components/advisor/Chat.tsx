@@ -187,7 +187,7 @@ export function Chat() {
                   key={prompt}
                   type="button"
                   onClick={() => sendMessage(prompt)}
-                  className="btn btn-ghost !px-3 !py-1.5 text-xs"
+                  className="btn btn-ghost btn-xs"
                 >
                   {prompt}
                 </button>
@@ -232,7 +232,7 @@ export function Chat() {
           type="button"
           onClick={() => sendMessage(input)}
           disabled={sending || !input.trim()}
-          className="btn btn-primary !px-4 !py-3 disabled:opacity-50"
+          className="btn btn-primary !px-4 disabled:opacity-50"
           aria-label="Send message"
         >
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">

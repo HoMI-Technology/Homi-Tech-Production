@@ -223,7 +223,7 @@ export function ArtifactPlayground() {
             type="button"
             onClick={() => sendMessage(input)}
             disabled={sending || !input.trim()}
-            className="btn btn-primary !px-3 !py-2 disabled:opacity-50"
+            className="btn btn-primary btn-sm disabled:opacity-50"
             aria-label="Send message"
           >
             <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">

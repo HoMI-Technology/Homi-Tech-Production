@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { COLORS } from "@/lib/brand";
 import { computeAffordability, paymentBreakdown, type AffordabilityInputs } from "@/lib/tools/mortgage";
 import { formatCurrency } from "@/lib/tools/format";
 import { LensField } from "@/components/tools/LensField";
@@ -20,9 +21,9 @@ import { ToolShell } from "@/components/tools/ToolShell";
 const LENS = getLens("affordability")!;
 
 const TIERS = [
-  { key: "protected" as const, label: "Protected", ratio: "28%", color: "#34d399", className: "bg-verdict-ready" },
-  { key: "stretch" as const, label: "Stretch", ratio: "33%", color: "#facc15", className: "bg-verdict-almost" },
-  { key: "redLine" as const, label: "Red Line", ratio: "36%", color: "#f24822", className: "bg-verdict-notyet" },
+  { key: "protected" as const, label: "Protected", ratio: "28%", color: COLORS.emerald, className: "bg-verdict-ready" },
+  { key: "stretch" as const, label: "Stretch", ratio: "33%", color: COLORS.yellow, className: "bg-verdict-almost" },
+  { key: "redLine" as const, label: "Red Line", ratio: "36%", color: COLORS.crimson, className: "bg-verdict-notyet" },
 ];
 
 export default function AffordabilityPage() {
@@ -152,8 +153,8 @@ export default function AffordabilityPage() {
             <h2 className="font-semibold text-light">Monthly payment breakdown</h2>
             <p className="mt-1 text-xs text-dim">At the Stretch tier price of {formatCurrency(result.stretch.maxPrice)}.</p>
             <div className="mt-5 space-y-4">
-              <BarRow label="Principal &amp; interest" value={stretchBreakdown.principalAndInterest} max={maxBar} color="#22d3ee" />
-              <BarRow label="Taxes &amp; insurance (est.)" value={stretchBreakdown.taxesAndInsurance} max={maxBar} color="#facc15" />
+              <BarRow label="Principal &amp; interest" value={stretchBreakdown.principalAndInterest} max={maxBar} color={COLORS.cyan} />
+              <BarRow label="Taxes &amp; insurance (est.)" value={stretchBreakdown.taxesAndInsurance} max={maxBar} color={COLORS.yellow} />
             </div>
             <div className="hairline my-4" />
             <div className="flex items-center justify-between">

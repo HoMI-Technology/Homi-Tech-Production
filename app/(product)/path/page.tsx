@@ -415,7 +415,7 @@ export default function PathPage() {
           </ul>
           <button
             type="button"
-            className="btn btn-ghost mt-3 !px-3 !py-1.5 text-sm"
+            className="btn btn-ghost mt-3 btn-xs text-sm"
             onClick={handleGenerate}
           >
             Regenerate from last assessment
@@ -553,7 +553,7 @@ export default function PathPage() {
           />
           <button
             type="button"
-            className="btn btn-ghost !px-3 !py-2 text-sm"
+            className="btn btn-ghost btn-sm"
             onClick={() => {
               if (!recurringName.trim() || recurringAmt <= 0) return;
               const item: RecurringItem = {

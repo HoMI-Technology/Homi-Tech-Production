@@ -134,7 +134,7 @@ export function NotificationBell() {
         aria-expanded={open}
         aria-controls="homi-notification-panel"
         aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"}
-        className="btn btn-ghost relative !p-2"
+        className="chrome-icon-btn relative"
       >
         <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6">
           <path d="M5 8a5 5 0 0 1 10 0c0 3.2 1 4.4 1.5 5H3.5C4 12.4 5 11.2 5 8Z" strokeLinecap="round" strokeLinejoin="round" />

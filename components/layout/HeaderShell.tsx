@@ -105,7 +105,7 @@ export function HeaderShell({
         <button
           ref={toggleRef}
           type="button"
-          className="btn btn-ghost ml-auto !p-2 lg:ml-0 lg:hidden"
+          className="chrome-icon-btn ml-auto lg:ml-0 lg:hidden"
           onClick={() => setOpen(!open)}
           aria-expanded={open}
           aria-controls={menuId}

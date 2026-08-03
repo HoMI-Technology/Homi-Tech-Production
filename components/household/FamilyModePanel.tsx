@@ -349,7 +349,7 @@ function FamilyModeInner() {
             <div className="glass p-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-light">{household.household_name} — members</h3>
-                <button className="btn btn-ghost !px-3 !py-1.5 text-xs" onClick={startAddMember}>
+                <button className="btn btn-ghost btn-xs" onClick={startAddMember}>
                   + Add member
                 </button>
               </div>
@@ -378,11 +378,11 @@ function FamilyModeInner() {
                     onChange={(e) => setMemberDraft({ ...memberDraft, readiness_note: e.target.value })}
                   />
                   <div className="flex gap-3">
-                    <button className="btn btn-emerald !px-3 !py-1.5 text-xs" onClick={saveMember}>
+                    <button className="btn btn-emerald btn-xs" onClick={saveMember}>
                       Save member
                     </button>
                     <button
-                      className="btn btn-ghost !px-3 !py-1.5 text-xs"
+                      className="btn btn-ghost btn-xs"
                       onClick={() => {
                         setShowMemberForm(false);
                         setEditingMemberIndex(null);
@@ -409,11 +409,11 @@ function FamilyModeInner() {
                         {m.readiness_note && <p className="mt-1 text-xs text-dim">{m.readiness_note}</p>}
                       </div>
                       <div className="flex gap-2">
-                        <button className="btn btn-ghost !px-3 !py-1 text-xs" onClick={() => startEditMember(i)}>
+                        <button className="btn btn-ghost btn-xs" onClick={() => startEditMember(i)}>
                           Edit
                         </button>
                         <button
-                          className="btn btn-danger !px-3 !py-1 text-xs"
+                          className="btn btn-danger btn-xs"
                           onClick={() => removeMember(i)}
                         >
                           Remove
@@ -429,7 +429,7 @@ function FamilyModeInner() {
             <div className="glass p-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-light">Shared goals</h3>
-                <button className="btn btn-ghost !px-3 !py-1.5 text-xs" onClick={startAddGoal}>
+                <button className="btn btn-ghost btn-xs" onClick={startAddGoal}>
                   + Add goal
                 </button>
               </div>
@@ -449,11 +449,11 @@ function FamilyModeInner() {
                     onChange={(e) => setGoalDraft({ ...goalDraft, target_date: e.target.value })}
                   />
                   <div className="flex gap-3">
-                    <button className="btn btn-emerald !px-3 !py-1.5 text-xs" onClick={saveGoal}>
+                    <button className="btn btn-emerald btn-xs" onClick={saveGoal}>
                       Save goal
                     </button>
                     <button
-                      className="btn btn-ghost !px-3 !py-1.5 text-xs"
+                      className="btn btn-ghost btn-xs"
                       onClick={() => {
                         setShowGoalForm(false);
                         setEditingGoalIndex(null);
@@ -492,11 +492,11 @@ function FamilyModeInner() {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <button className="btn btn-ghost !px-3 !py-1 text-xs" onClick={() => startEditGoal(i)}>
+                        <button className="btn btn-ghost btn-xs" onClick={() => startEditGoal(i)}>
                           Edit
                         </button>
                         <button
-                          className="btn btn-danger !px-3 !py-1 text-xs"
+                          className="btn btn-danger btn-xs"
                           onClick={() => removeGoal(i)}
                         >
                           Remove

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { COLORS } from "@/lib/brand";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
 import { LensField } from "@/components/tools/LensField";
 import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
@@ -14,10 +15,10 @@ import { ToolShell, ToolResultHero } from "@/components/tools/ToolShell";
 const LENS = getLens("runway")!;
 
 function temperature(months: number): { label: string; color: string; className: string } {
-  if (months >= 6) return { label: "Protected", color: "#34d399", className: "bg-verdict-ready" };
-  if (months >= 3) return { label: "Warm", color: "#facc15", className: "bg-verdict-almost" };
-  if (months >= 1) return { label: "Exposed", color: "#fab633", className: "bg-verdict-build" };
-  return { label: "Critical", color: "#f24822", className: "bg-verdict-notyet" };
+  if (months >= 6) return { label: "Protected", color: COLORS.emerald, className: "bg-verdict-ready" };
+  if (months >= 3) return { label: "Warm", color: COLORS.yellow, className: "bg-verdict-almost" };
+  if (months >= 1) return { label: "Exposed", color: COLORS.amber, className: "bg-verdict-build" };
+  return { label: "Critical", color: COLORS.crimson, className: "bg-verdict-notyet" };
 }
 
 export default function RunwayPage() {

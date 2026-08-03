@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { VERDICT_META } from "@/lib/brand";
+import { COLORS, VERDICT_META } from "@/lib/brand";
 import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { PageFrame } from "@/components/operate/PageFrame";
@@ -24,9 +24,9 @@ const COLUMNS: Array<{
   color: string;
   borderClass: string;
 }> = [
-  { key: "advocate", title: "The Advocate", subtitle: "The strongest case for moving forward", color: "#34d399", borderClass: "border-emerald/40" },
-  { key: "skeptic", title: "The Skeptic", subtitle: "The strongest case for waiting", color: "#f24822", borderClass: "border-crimson/40" },
-  { key: "arbiter", title: "The Arbiter", subtitle: "Synthesis, and what would change the answer", color: "#22d3ee", borderClass: "border-cyan/40" },
+  { key: "advocate", title: "The Advocate", subtitle: "The strongest case for moving forward", color: COLORS.emerald, borderClass: "border-emerald/40" },
+  { key: "skeptic", title: "The Skeptic", subtitle: "The strongest case for waiting", color: COLORS.crimson, borderClass: "border-crimson/40" },
+  { key: "arbiter", title: "The Arbiter", subtitle: "Synthesis, and what would change the answer", color: COLORS.cyan, borderClass: "border-cyan/40" },
 ];
 
 export default function TrinityPage() {

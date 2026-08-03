@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { COLORS } from "@/lib/brand";
 import dynamic from "next/dynamic";
 import type { LinkFlow } from "@/components/connections/PlaidLinkLauncher";
 
@@ -320,14 +321,14 @@ export default function ConnectionsPage() {
                   </p>
                   <div className="flex gap-2">
                     <button
-                      className="btn btn-ghost !px-3 !py-1.5 text-sm"
+                      className="btn btn-ghost btn-xs text-sm"
                       onClick={() => syncNow()}
                       disabled={busy !== null}
                     >
                       {busy === "sync:all" ? "Syncing…" : "Sync now"}
                     </button>
                     <button
-                      className="btn btn-primary !px-3 !py-1.5 text-sm"
+                      className="btn btn-primary btn-xs text-sm"
                       onClick={startConnect}
                       disabled={busy !== null || linkFlow !== null}
                     >
@@ -388,7 +389,7 @@ function ConnectionCard({
         <div className="flex flex-wrap gap-2">
           {needsAttention && (
             <button
-              className="btn btn-primary !px-3 !py-1.5 text-sm"
+              className="btn btn-primary btn-xs text-sm"
               onClick={onReconnect}
               disabled={busy !== null}
             >
@@ -397,7 +398,7 @@ function ConnectionCard({
           )}
           {item.status !== "revoked" && (
             <button
-              className="btn btn-ghost !px-3 !py-1.5 text-sm"
+              className="btn btn-ghost btn-xs text-sm"
               onClick={onSync}
               disabled={busy !== null}
             >
@@ -407,7 +408,7 @@ function ConnectionCard({
           {confirming ? (
             <span className="inline-flex items-center gap-2">
               <button
-                className="btn btn-ghost !px-3 !py-1.5 text-sm text-crimson"
+                className="btn btn-ghost btn-xs text-sm text-crimson"
                 onClick={() => {
                   setConfirming(false);
                   onDisconnect();
@@ -417,7 +418,7 @@ function ConnectionCard({
                 {busy === `disconnect:${item.id}` ? "Removing…" : "Confirm removal"}
               </button>
               <button
-                className="btn btn-ghost !px-3 !py-1.5 text-sm"
+                className="btn btn-ghost btn-xs text-sm"
                 onClick={() => setConfirming(false)}
                 disabled={busy !== null}
               >
@@ -426,7 +427,7 @@ function ConnectionCard({
             </span>
           ) : (
             <button
-              className="btn btn-ghost !px-3 !py-1.5 text-sm"
+              className="btn btn-ghost btn-xs text-sm"
               onClick={() => setConfirming(true)}
               disabled={busy !== null}
             >
@@ -472,7 +473,7 @@ function ComingSoonPanel() {
   return (
     <div className="glass p-8">
       <div className="flex items-center gap-3">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" strokeWidth="1.75">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={COLORS.cyan} strokeWidth="1.75">
           <rect x="3" y="10" width="18" height="10" rx="2" />
           <path d="M7 10V7a5 5 0 0 1 10 0v3" />
         </svg>

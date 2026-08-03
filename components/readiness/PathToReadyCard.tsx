@@ -412,7 +412,7 @@ export function PathToReadyCard({
             </ul>
             <button
               type="button"
-              className="btn btn-ghost mt-3 !px-3 !py-1.5 text-sm"
+              className="btn btn-ghost mt-3 btn-xs text-sm"
               onClick={handleGenerate}
             >
               Regenerate from this assessment
@@ -438,7 +438,7 @@ export function PathToReadyCard({
           <button
             type="button"
             onClick={() => void handleOneClickCommit()}
-            className="btn btn-primary !px-5 !py-2.5 text-sm"
+            className="btn btn-primary text-sm"
             disabled={committing}
             aria-label={
               isAnonymous
@@ -456,17 +456,17 @@ export function PathToReadyCard({
           </button>
 
           {isAnonymous && (
-            <Link href={SIGN_IN_HREF} className="btn btn-emerald !px-5 !py-2.5 text-sm">
+            <Link href={SIGN_IN_HREF} className="btn btn-emerald text-sm">
               Sign in for multi-device path
             </Link>
           )}
 
-          <Link href="/path" className="btn btn-emerald !px-5 !py-2.5 text-sm">
+          <Link href="/path" className="btn btn-emerald text-sm">
             Open full path
           </Link>
 
           {!isAnonymous && path.calendarCommittedAt && (
-            <Link href="/calendar" className="btn btn-ghost !px-5 !py-2.5 text-sm">
+            <Link href="/calendar" className="btn btn-ghost text-sm">
               Open calendar
             </Link>
           )}
@@ -474,7 +474,7 @@ export function PathToReadyCard({
           <button
             type="button"
             onClick={handleSave}
-            className="btn btn-ghost !px-5 !py-2.5 text-sm"
+            className="btn btn-ghost text-sm"
           >
             Save only
           </button>
@@ -482,21 +482,21 @@ export function PathToReadyCard({
           <button
             type="button"
             onClick={handleGenerate}
-            className="btn btn-ghost !px-5 !py-2.5 text-sm"
+            className="btn btn-ghost text-sm"
           >
             Regenerate
           </button>
           <button
             type="button"
             onClick={() => handleExport("md")}
-            className="btn btn-ghost !px-5 !py-2.5 text-sm"
+            className="btn btn-ghost text-sm"
           >
             Export Markdown
           </button>
           <button
             type="button"
             onClick={() => handleExport("json")}
-            className="btn btn-ghost !px-5 !py-2.5 text-sm"
+            className="btn btn-ghost text-sm"
           >
             Export JSON
           </button>

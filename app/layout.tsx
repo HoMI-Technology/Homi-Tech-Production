@@ -10,6 +10,7 @@ import { AnalyticsScripts } from "@/components/analytics/AnalyticsScripts";
 import { PageViewBeacon } from "@/components/analytics/PageViewBeacon";
 import { AttributionCapture } from "@/components/analytics/AttributionCapture";
 import { SITE_URL } from "@/lib/seo/site";
+import { COLORS } from "@/lib/brand";
 
 import { ClientProviders } from "@/components/layout/ClientProviders";
 import { ErrorBoundary as UXErrorBoundary } from "@/components/ui/ErrorBoundary";
@@ -67,7 +68,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a1628",
+  themeColor: COLORS.navy,
   width: "device-width",
   initialScale: 1,
   // Required for env(safe-area-inset-*) on notched iPhones / installed PWA.

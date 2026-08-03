@@ -409,171 +409,171 @@ export default function CalendarPage() {
   return (
     <PageFrame width="content" density="spacious" role="personal">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="font-display text-3xl text-light">Calendar</h1>
-            <p className="mt-2 max-w-xl text-dim">
-              Milestones, deadlines, and reviews worth tracking as your readiness changes.
-            </p>
-          </div>
-          <button
-            type="button"
-            className="btn btn-ghost shrink-0"
-            onClick={handleSuggestDefaults}
-            disabled={seeding}
-            aria-label="Suggest default milestone reviews"
-          >
-            {seeding ? "Adding..." : "Suggest default milestones"}
-          </button>
+        <div>
+          <h1 className="font-display text-3xl text-light">Calendar</h1>
+          <p className="mt-2 max-w-xl text-dim">
+            Milestones, deadlines, and reviews worth tracking as your readiness changes.
+          </p>
         </div>
+        <button
+          type="button"
+          className="btn btn-ghost shrink-0"
+          onClick={handleSuggestDefaults}
+          disabled={seeding}
+          aria-label="Suggest default milestone reviews"
+        >
+          {seeding ? "Adding..." : "Suggest default milestones"}
+        </button>
+      </div>
 
-        {activePath && (
-          <PathCommitBanner
-            path={activePath}
-            onRefresh={handleRefreshPathMilestones}
-            refreshing={pathCommitting}
-            showPathOnly={showPathOnly}
-            onTogglePathOnly={() => setShowPathOnly((v) => !v)}
-            committed={pathCommitted}
-          />
-        )}
+      {activePath && (
+        <PathCommitBanner
+          path={activePath}
+          onRefresh={handleRefreshPathMilestones}
+          refreshing={pathCommitting}
+          showPathOnly={showPathOnly}
+          onTogglePathOnly={() => setShowPathOnly((v) => !v)}
+          committed={pathCommitted}
+        />
+      )}
 
-        {error && (
-          <div className="mt-4 rounded-lg border border-crimson/30 bg-verdict-notyet px-4 py-3 text-sm text-light">
-            {error}
+      {error && (
+        <div className="mt-4 rounded-lg border border-crimson/30 bg-verdict-notyet px-4 py-3 text-sm text-light">
+          {error}
+        </div>
+      )}
+
+      <div className="mt-8 grid gap-8 lg:grid-cols-[1.6fr_1fr]">
+        <div className="glass p-6">
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              className="btn btn-ghost px-3"
+              onClick={() =>
+                setViewMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
+              }
+              aria-label="Previous month"
+            >
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75">
+                <path d="M12 4l-6 6 6 6" />
+              </svg>
+            </button>
+            <div className="flex items-center gap-3">
+              <h2 className="font-display text-xl text-light">
+                {viewMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+              </h2>
+              <button
+                type="button"
+                className="btn btn-ghost px-3 py-1 text-xs"
+                onClick={() => setViewMonth(startOfMonth(new Date()))}
+              >
+                Today
+              </button>
+            </div>
+            <button
+              type="button"
+              className="btn btn-ghost px-3"
+              onClick={() =>
+                setViewMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
+              }
+              aria-label="Next month"
+            >
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75">
+                <path d="M8 4l6 6-6 6" />
+              </svg>
+            </button>
           </div>
-        )}
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[1.6fr_1fr]">
-          <div className="glass p-6">
-            <div className="flex items-center justify-between">
-              <button
-                type="button"
-                className="btn btn-ghost px-3"
-                onClick={() =>
-                  setViewMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
-                }
-                aria-label="Previous month"
-              >
-                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75">
-                  <path d="M12 4l-6 6 6 6" />
-                </svg>
-              </button>
-              <div className="flex items-center gap-3">
-                <h2 className="font-display text-xl text-light">
-                  {viewMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-                </h2>
-                <button
-                  type="button"
-                  className="btn btn-ghost px-3 py-1 text-xs"
-                  onClick={() => setViewMonth(startOfMonth(new Date()))}
-                >
-                  Today
-                </button>
-              </div>
-              <button
-                type="button"
-                className="btn btn-ghost px-3"
-                onClick={() =>
-                  setViewMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
-                }
-                aria-label="Next month"
-              >
-                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75">
-                  <path d="M8 4l6 6-6 6" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="mt-6">
-              {loading ? (
-                <ProductLoadingSkeleton label="Loading calendar" rows={2} />
-              ) : (
-                <MonthGrid
-                  viewMonth={viewMonth}
-                  events={displayEvents}
-                  selectedDate={selectedDate}
-                  onSelectDate={setSelectedDate}
-                />
-              )}
-            </div>
-
-            {selectedDate && (
-              <div className="mt-8 border-t border-slate-high/40 pt-6">
-                <h3 className="font-semibold text-light">
-                  {formatLocalDateISO(selectedDate, "en-US", {
-                    weekday: "long",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </h3>
-
-                {selectedEvents.length > 0 && (
-                  <div className="mt-4 space-y-3">
-                    {selectedEvents.map((ev) => (
-                      <div
-                        key={ev.id}
-                        className="flex items-start justify-between gap-4 rounded-lg border border-slate-high/40 p-3"
-                      >
-                        <div className="flex items-start gap-3">
-                          <input
-                            type="checkbox"
-                            checked={ev.completed}
-                            onChange={() => handleToggleComplete(ev)}
-                            className="mt-1"
-                          />
-                          <div>
-                            <div className="flex flex-wrap items-center gap-2">
-                              <p
-                                className={`text-sm font-semibold ${
-                                  ev.completed ? "text-dim line-through" : "text-light"
-                                }`}
-                              >
-                                {ev.title}
-                              </p>
-                              {isPathCalendarEvent(ev.notes) && (
-                                <span className="rounded-full bg-cyan/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-cyan">
-                                  Path
-                                </span>
-                              )}
-                            </div>
-                            <p className={`mt-1 text-xs ${KIND_TEXT_CLASS[ev.kind]}`}>
-                              {KIND_LABEL[ev.kind]}
-                            </p>
-                            {ev.notes && (
-                              <p className="mt-1 whitespace-pre-line text-xs text-dim">
-                                {ev.notes.replace(/\n*<!--homi-path:[^>]+-->\s*$/, "").trim()}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(ev)}
-                          className="text-xs text-dim transition-colors hover:text-crimson"
-                          aria-label="Delete event"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="mt-6">
-                  <EventForm
-                    defaultDate={selectedDate}
-                    onSubmit={handleAddEvent}
-                    submitting={submitting}
-                  />
-                </div>
-              </div>
+          <div className="mt-6">
+            {loading ? (
+              <ProductLoadingSkeleton label="Loading calendar" rows={2} />
+            ) : (
+              <MonthGrid
+                viewMonth={viewMonth}
+                events={displayEvents}
+                selectedDate={selectedDate}
+                onSelectDate={setSelectedDate}
+              />
             )}
           </div>
 
-          <div className="space-y-6">
-            <UpcomingList events={displayEvents} onSelect={setSelectedDate} />
-          </div>
+          {selectedDate && (
+            <div className="mt-8 border-t border-slate-high/40 pt-6">
+              <h3 className="font-semibold text-light">
+                {formatLocalDateISO(selectedDate, "en-US", {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </h3>
+
+              {selectedEvents.length > 0 && (
+                <div className="mt-4 space-y-3">
+                  {selectedEvents.map((ev) => (
+                    <div
+                      key={ev.id}
+                      className="flex items-start justify-between gap-4 rounded-lg border border-slate-high/40 p-3"
+                    >
+                      <div className="flex items-start gap-3">
+                        <input
+                          type="checkbox"
+                          checked={ev.completed}
+                          onChange={() => handleToggleComplete(ev)}
+                          className="mt-1"
+                        />
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p
+                              className={`text-sm font-semibold ${
+                                ev.completed ? "text-dim line-through" : "text-light"
+                              }`}
+                            >
+                              {ev.title}
+                            </p>
+                            {isPathCalendarEvent(ev.notes) && (
+                              <span className="rounded-full bg-cyan/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-cyan">
+                                Path
+                              </span>
+                            )}
+                          </div>
+                          <p className={`mt-1 text-xs ${KIND_TEXT_CLASS[ev.kind]}`}>
+                            {KIND_LABEL[ev.kind]}
+                          </p>
+                          {ev.notes && (
+                            <p className="mt-1 whitespace-pre-line text-xs text-dim">
+                              {ev.notes.replace(/\n*<!--homi-path:[^>]+-->\s*$/, "").trim()}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(ev)}
+                        className="text-xs text-dim transition-colors hover:text-crimson"
+                        aria-label="Delete event"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="mt-6">
+                <EventForm
+                  defaultDate={selectedDate}
+                  onSubmit={handleAddEvent}
+                  submitting={submitting}
+                />
+              </div>
+            </div>
+          )}
         </div>
+
+        <div className="space-y-6">
+          <UpcomingList events={displayEvents} onSelect={setSelectedDate} />
+        </div>
+      </div>
     </PageFrame>
   );
 }

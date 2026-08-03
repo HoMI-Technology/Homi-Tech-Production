@@ -118,7 +118,7 @@ export function ScoreSimulator({
             <div className="flex items-center justify-between gap-3">
               <h2 className="font-semibold text-light">Your levers</h2>
               <button
-                className="btn btn-ghost !px-3 !py-1.5 text-sm"
+                className="btn btn-ghost btn-xs text-sm"
                 onClick={() => setLevers(leversOf(baseline))}
               >
                 Reset

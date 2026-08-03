@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { COLORS } from "@/lib/brand";
 import { compareStrategies, type Debt, type PayoffResult } from "@/lib/tools/debt";
 import { formatCurrency, formatMonths } from "@/lib/tools/format";
 import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
@@ -122,7 +123,7 @@ function DebtPayoffPageInner() {
       <div className="mt-8 glass p-6">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold text-light">Your debts</h2>
-          <button className="btn btn-ghost !px-3 !py-1.5 text-sm" onClick={addDebt}>
+          <button className="btn btn-ghost btn-xs text-sm" onClick={addDebt}>
             + Add debt
           </button>
         </div>
@@ -210,8 +211,8 @@ function DebtPayoffPageInner() {
             </div>
           )}
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
-            <StrategyCard title="Avalanche" subtitle="Highest interest rate first" result={comparison.avalanche} color="#22d3ee" />
-            <StrategyCard title="Snowball" subtitle="Smallest balance first" result={comparison.snowball} color="#facc15" />
+            <StrategyCard title="Avalanche" subtitle="Highest interest rate first" result={comparison.avalanche} color={COLORS.cyan} />
+            <StrategyCard title="Snowball" subtitle="Smallest balance first" result={comparison.snowball} color={COLORS.yellow} />
           </div>
         </>
       ) : (

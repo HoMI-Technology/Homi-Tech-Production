@@ -407,24 +407,24 @@ export default function JournalPage() {
                       <h3 className="mt-2 font-semibold text-light">{entry.title}</h3>
                     </div>
                     <div className="flex gap-2">
-                      <button className="btn btn-ghost !px-3 !py-1.5 text-xs" onClick={() => startEdit(entry)}>
+                      <button className="btn btn-ghost btn-xs" onClick={() => startEdit(entry)}>
                         Edit
                       </button>
                       {deletingId === entry.id ? (
                         <>
                           <button
-                            className="btn btn-danger !px-3 !py-1.5 text-xs"
+                            className="btn btn-danger btn-xs"
                             onClick={() => handleDelete(entry.id)}
                           >
                             Confirm delete
                           </button>
-                          <button className="btn btn-ghost !px-3 !py-1.5 text-xs" onClick={() => setDeletingId(null)}>
+                          <button className="btn btn-ghost btn-xs" onClick={() => setDeletingId(null)}>
                             Cancel
                           </button>
                         </>
                       ) : (
                         <button
-                          className="btn btn-ghost !px-3 !py-1.5 text-xs"
+                          className="btn btn-ghost btn-xs"
                           onClick={() => setDeletingId(entry.id)}
                         >
                           Delete

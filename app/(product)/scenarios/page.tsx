@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { COLORS } from "@/lib/brand";
 import {
   runScenarioStudio,
   scenarioInputsFromFinance,
@@ -28,18 +29,18 @@ const SCENARIO_META: Record<
   { color: string; borderClass: string; description: string }
 > = {
   "buy-now": {
-    color: "#22d3ee",
+    color: COLORS.cyan,
     borderClass: "border-cyan/40",
     description:
       "Buy today. Equity builds through amortization and appreciation, offset by costs.",
   },
   "wait-12": {
-    color: "#facc15",
+    color: COLORS.yellow,
     borderClass: "border-yellow/40",
     description: "Rent 12 more months while saving, then buy at the future price.",
   },
   "wait-24": {
-    color: "#f24822",
+    color: COLORS.crimson,
     borderClass: "border-crimson/40",
     description: "Rent 24 more months while saving, then buy at the future price.",
   },

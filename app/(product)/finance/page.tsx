@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { COLORS } from "@/lib/brand";
 import {
   DEFAULT_FINANCE_STATE,
   loadFinanceState,
@@ -244,13 +245,13 @@ function PathToReadyStrip() {
         </div>
       </div>
       <div className="flex shrink-0 flex-wrap gap-2 sm:flex-col sm:items-end">
-        <Link href="/calendar" className="btn btn-ghost !px-3 !py-1.5 text-sm">
+        <Link href="/calendar" className="btn btn-ghost btn-xs text-sm">
           Calendar
         </Link>
-        <Link href="/path" className="btn btn-ghost !px-3 !py-1.5 text-sm">
+        <Link href="/path" className="btn btn-ghost btn-xs text-sm">
           Path
         </Link>
-        <Link href="/results" className="btn btn-ghost !px-3 !py-1.5 text-sm">
+        <Link href="/results" className="btn btn-ghost btn-xs text-sm">
           Results
         </Link>
       </div>
@@ -286,7 +287,7 @@ function PathFundingPanel({
       <div className="mt-4 flex flex-wrap gap-2">
         <button
           type="button"
-          className="btn btn-primary !px-3 !py-1.5 text-sm"
+          className="btn btn-primary btn-xs text-sm"
           onClick={() => {
             const next = applyPathFunding(state, suggestion, "targets");
             onApplied(next);
@@ -297,7 +298,7 @@ function PathFundingPanel({
         {suggestion.liquidSavingsTarget != null && (
           <button
             type="button"
-            className="btn btn-ghost !px-3 !py-1.5 text-sm"
+            className="btn btn-ghost btn-xs text-sm"
             onClick={() => {
               const next = applyPathFunding(state, suggestion, "savings_floor");
               onApplied(next);
@@ -306,7 +307,7 @@ function PathFundingPanel({
             Record savings floor
           </button>
         )}
-        <Link href="/path" className="btn btn-ghost !px-3 !py-1.5 text-sm">
+        <Link href="/path" className="btn btn-ghost btn-xs text-sm">
           Open path
         </Link>
       </div>
@@ -489,7 +490,7 @@ function CashFlowTab({
       <div className="glass p-6">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold text-light">Expense categories</h2>
-          <button className="btn btn-ghost !px-3 !py-1.5 text-sm" onClick={addCategory}>
+          <button className="btn btn-ghost btn-xs text-sm" onClick={addCategory}>
             + Add category
           </button>
         </div>
@@ -559,14 +560,14 @@ function FlowBar({ income, expenses, debt }: { income: number; expenses: number;
       </div>
       <svg viewBox="0 0 400 32" width="100%" height="32" className="mt-2" role="img" aria-label="Income vs expenses flow bar">
         <rect x="0" y="0" width="400" height="32" rx="6" fill="rgba(51,65,85,0.6)" />
-        <rect x="0" y="0" width={4 * expensesPct} height="32" rx="6" fill="#f24822" opacity="0.85" />
-        <rect x={4 * expensesPct} y="0" width={4 * debtPct} height="32" fill="#fab633" opacity="0.85" />
-        <rect x={4 * (expensesPct + debtPct)} y="0" width={4 * remainingPct} height="32" rx="6" fill="#34d399" opacity="0.85" />
+        <rect x="0" y="0" width={4 * expensesPct} height="32" rx="6" fill={COLORS.crimson} opacity="0.85" />
+        <rect x={4 * expensesPct} y="0" width={4 * debtPct} height="32" fill={COLORS.amber} opacity="0.85" />
+        <rect x={4 * (expensesPct + debtPct)} y="0" width={4 * remainingPct} height="32" rx="6" fill={COLORS.emerald} opacity="0.85" />
       </svg>
       <div className="mt-2 flex gap-4 text-xs text-dim">
-        <LegendDot color="#f24822" label="Expenses" />
-        <LegendDot color="#fab633" label="Debt payments" />
-        <LegendDot color="#34d399" label="Surplus" />
+        <LegendDot color={COLORS.crimson} label="Expenses" />
+        <LegendDot color={COLORS.amber} label="Debt payments" />
+        <LegendDot color={COLORS.emerald} label="Surplus" />
       </div>
     </div>
   );
@@ -605,13 +606,13 @@ function ProjectionChart({ points }: { points: { month: number; cumulative: numb
       <polyline
         points={linePoints}
         fill="none"
-        stroke={finalPositive ? "#34d399" : "#f24822"}
+        stroke={finalPositive ? COLORS.emerald : COLORS.crimson}
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       {points.map((p) => (
-        <circle key={p.month} cx={scaleX(p.month)} cy={scaleY(p.cumulative)} r="2.5" fill={finalPositive ? "#34d399" : "#f24822"} />
+        <circle key={p.month} cx={scaleX(p.month)} cy={scaleY(p.cumulative)} r="2.5" fill={finalPositive ? COLORS.emerald : COLORS.crimson} />
       ))}
     </svg>
   );
@@ -644,7 +645,7 @@ function DebtTab() {
       <div className="glass p-6">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold text-light">Your debts</h2>
-          <button className="btn btn-ghost !px-3 !py-1.5 text-sm" onClick={addDebt}>
+          <button className="btn btn-ghost btn-xs text-sm" onClick={addDebt}>
             + Add debt
           </button>
         </div>
@@ -680,8 +681,8 @@ function DebtTab() {
       {comparison ? (
         <>
           <div className="grid gap-6 lg:grid-cols-2">
-            <DebtCurveCard title="Avalanche" subtitle="Highest interest rate first" months={comparison.avalanche.months} interest={comparison.avalanche.totalInterest} curve={comparison.avalanche.curve} color="#22d3ee" />
-            <DebtCurveCard title="Snowball" subtitle="Smallest balance first" months={comparison.snowball.months} interest={comparison.snowball.totalInterest} curve={comparison.snowball.curve} color="#facc15" />
+            <DebtCurveCard title="Avalanche" subtitle="Highest interest rate first" months={comparison.avalanche.months} interest={comparison.avalanche.totalInterest} curve={comparison.avalanche.curve} color={COLORS.cyan} />
+            <DebtCurveCard title="Snowball" subtitle="Smallest balance first" months={comparison.snowball.months} interest={comparison.snowball.totalInterest} curve={comparison.snowball.curve} color={COLORS.yellow} />
           </div>
           <div className="glass p-6">
             <h2 className="font-semibold text-light">What this means</h2>
@@ -852,7 +853,7 @@ function GoalGauge({ probability }: { probability: number }) {
   const angle = Math.PI * (1 - pct);
   const needleX = cx + r * Math.cos(angle);
   const needleY = cy - r * Math.sin(angle);
-  const color = probability >= 70 ? "#34d399" : probability >= 40 ? "#facc15" : "#f24822";
+  const color = probability >= 70 ? COLORS.emerald : probability >= 40 ? COLORS.yellow : COLORS.crimson;
 
   const arcPath = (startPct: number, endPct: number) => {
     const a0 = Math.PI * (1 - startPct);
@@ -867,11 +868,11 @@ function GoalGauge({ probability }: { probability: number }) {
   return (
     <div className="mt-2 flex flex-col items-center">
       <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} role="img" aria-label={`Probability of reaching goal: ${Math.round(probability)}%`}>
-        <path d={arcPath(0, 0.4)} stroke="#f24822" strokeWidth="14" fill="none" opacity="0.55" strokeLinecap="round" />
-        <path d={arcPath(0.4, 0.7)} stroke="#facc15" strokeWidth="14" fill="none" opacity="0.55" strokeLinecap="round" />
-        <path d={arcPath(0.7, 1)} stroke="#34d399" strokeWidth="14" fill="none" opacity="0.55" strokeLinecap="round" />
-        <line x1={cx} y1={cy} x2={needleX} y2={needleY} stroke="#e2e8f0" strokeWidth="3" strokeLinecap="round" />
-        <circle cx={cx} cy={cy} r="6" fill="#e2e8f0" />
+        <path d={arcPath(0, 0.4)} stroke={COLORS.crimson} strokeWidth="14" fill="none" opacity="0.55" strokeLinecap="round" />
+        <path d={arcPath(0.4, 0.7)} stroke={COLORS.yellow} strokeWidth="14" fill="none" opacity="0.55" strokeLinecap="round" />
+        <path d={arcPath(0.7, 1)} stroke={COLORS.emerald} strokeWidth="14" fill="none" opacity="0.55" strokeLinecap="round" />
+        <line x1={cx} y1={cy} x2={needleX} y2={needleY} stroke={COLORS.light} strokeWidth="3" strokeLinecap="round" />
+        <circle cx={cx} cy={cy} r="6" fill={COLORS.light} />
       </svg>
       <p className="score-numeral -mt-4 text-3xl font-bold" style={{ color }}>
         {Math.round(probability)}%
@@ -901,12 +902,12 @@ function BandChart({ result, target }: { result: MonteCarloResult; target: numbe
 
   return (
     <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} className="mt-4" role="img" aria-label="Monte Carlo P10-P90 savings band toward down-payment target">
-      <polygon points={areaPoints} fill="#22d3ee" opacity="0.15" />
-      <polyline points={p50Points} fill="none" stroke="#22d3ee" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <polygon points={areaPoints} fill={COLORS.cyan} opacity="0.15" />
+      <polyline points={p50Points} fill="none" stroke={COLORS.cyan} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
       {target > 0 && (
         <>
-          <line x1={padding} x2={width - padding} y1={targetY} y2={targetY} stroke="#facc15" strokeDasharray="6 4" strokeWidth="1.5" />
-          <text x={width - padding} y={targetY - 6} textAnchor="end" fontSize="11" fill="#facc15">Target</text>
+          <line x1={padding} x2={width - padding} y1={targetY} y2={targetY} stroke={COLORS.yellow} strokeDasharray="6 4" strokeWidth="1.5" />
+          <text x={width - padding} y={targetY - 6} textAnchor="end" fontSize="11" fill={COLORS.yellow}>Target</text>
         </>
       )}
     </svg>
@@ -1001,7 +1002,7 @@ function NetWorthTab({
         <div className="glass p-6">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-light">Assets</h2>
-            <button className="btn btn-ghost !px-3 !py-1.5 text-sm" onClick={addAsset}>
+            <button className="btn btn-ghost btn-xs text-sm" onClick={addAsset}>
               + Add asset
             </button>
           </div>
@@ -1015,7 +1016,7 @@ function NetWorthTab({
         <div className="glass p-6">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-light">Liabilities</h2>
-            <button className="btn btn-ghost !px-3 !py-1.5 text-sm" onClick={addLiability}>
+            <button className="btn btn-ghost btn-xs text-sm" onClick={addLiability}>
               + Add liability
             </button>
           </div>
@@ -1095,7 +1096,7 @@ function NetWorthProjectionChart({ points }: { points: { month: number; value: n
   return (
     <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} className="mt-4" role="img" aria-label="24-month net worth projection">
       <line x1={padding} x2={width - padding} y1={zeroY} y2={zeroY} stroke="rgba(148,163,184,0.3)" strokeDasharray="4 4" />
-      <polyline points={linePoints} fill="none" stroke={finalPositive ? "#34d399" : "#f24822"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <polyline points={linePoints} fill="none" stroke={finalPositive ? COLORS.emerald : COLORS.crimson} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

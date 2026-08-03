@@ -1,4 +1,5 @@
 import { Skeleton } from "@/components/ui/Skeleton";
+import { COLORS } from "@/lib/brand";
 
 /**
  * Dashboard skeleton — mirrors the operate instrument layout so first paint
@@ -10,7 +11,7 @@ export default function DashboardLoading() {
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:py-10">
         <div
           className="dash-instrument p-5 sm:p-7 lg:p-9"
-          style={{ ["--instrument-tint" as string]: "#22d3ee" }}
+          style={{ ["--instrument-tint" as string]: COLORS.cyan }}
         >
           <div className="dash-instrument-inner">
             <div className="mb-6 space-y-2 border-b border-white/10 pb-5">

@@ -150,6 +150,22 @@ const FORBIDDEN_WORDS = [
 
 const BANNED_HEXES = ["#fb923c", "#ef4444", "#64748b"];
 
+/**
+ * BRANDHEX — raw brand-palette hex literals in .ts/.tsx under app/ and
+ * components/. The canonical values live in lib/brand COLORS (mirroring the
+ * globals.css `@theme` block); TSX/TS must import them — `withAlpha()` for
+ * rgba derivations, `${COLORS.x}<aa>` for 8-digit forms — so a palette change
+ * can never fork between CSS and JS. Out of scope by construction:
+ *   - app/globals.css (extension gate: .css is not .ts/.tsx — it is the canon)
+ *   - lib/brand (path gate: lib/ is not under app/ or components/)
+ *   - test files (isTestPath, same guard the walker applies)
+ * Matches the 6-digit token and the 8-digit token+alpha form, any case.
+ */
+const BRAND_HEX_RE =
+  /#(?:22d3ee|34d399|facc15|fab633|f24822|0a1628|0f172a|1e293b|334155|e2e8f0|94a3b8)(?:[0-9a-f]{2})?\b/i;
+const BRAND_HEX_SCOPE_RE = /^(?:app|components)[\\/]/;
+const BRAND_HEX_EXTENSIONS = new Set([".ts", ".tsx"]);
+
 /** Patterns that tank WCAG AA on the navy canvas — prefer text-light / text-dim. */
 const WEAK_CONTRAST_PATTERNS = [
   {
@@ -559,6 +575,23 @@ export function checkLine(filePath, lineNumber, line, violations, prevLine = "")
     if (lowerLine.includes(hex)) {
       violations.push({ file: filePath, line: lineNumber, rule: "HEX", message: `Banned color ${hex}.` });
     }
+  }
+
+  // Brand-palette literals — see BRAND_HEX_RE. Scoped to runtime TS/TSX under
+  // app/ and components/; globals.css, lib/brand and tests are out of scope.
+  if (
+    BRAND_HEX_EXTENSIONS.has(ext) &&
+    BRAND_HEX_SCOPE_RE.test(relPath) &&
+    !isTestPath(filePath) &&
+    BRAND_HEX_RE.test(line)
+  ) {
+    violations.push({
+      file: filePath,
+      line: lineNumber,
+      rule: "BRANDHEX",
+      message:
+        "Raw brand-palette hex literal — import COLORS/withAlpha from @/lib/brand instead of hardcoding the value.",
+    });
   }
 
   // Contrast footguns — only flag in TSX/JSX (runtime UI), not CSS keyframes/docs.

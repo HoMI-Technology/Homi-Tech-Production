@@ -10,7 +10,7 @@ import {
   OperateHeroMeta,
   OperateInstrument,
 } from "@/components/operate/OperateInstrument";
-import { VERDICT_META, type VerdictKey } from "@/lib/brand";
+import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
 import type { AssessmentRow, Organization, Profile } from "@/types/database";
 
 export const metadata: Metadata = {
@@ -123,7 +123,7 @@ export default async function TeamDashboardPage() {
 
   return (
     <PageFrame role="team" density="compact">
-      <OperateInstrument tint="#34d399">
+      <OperateInstrument tint={COLORS.emerald}>
         <OperateHeroMeta
           title={
             <>
@@ -139,25 +139,25 @@ export default async function TeamDashboardPage() {
               label: "Members",
               value: String(memberIds.length),
               footer: "In organization",
-              color: "#22d3ee",
+              color: COLORS.cyan,
             },
             {
               label: "Assessments",
               value: String(assessments.length),
               footer: "Completed",
-              color: "#34d399",
+              color: COLORS.emerald,
             },
             {
               label: "Avg score",
               value: avg !== null ? String(avg) : "—",
               footer: "Cohort",
-              color: "#facc15",
+              color: COLORS.yellow,
             },
             {
               label: "Ready rate",
               value: readyRate,
               footer: "Verdict = READY",
-              color: "#34d399",
+              color: COLORS.emerald,
             },
           ]}
         />

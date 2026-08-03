@@ -89,6 +89,60 @@ describe("preserved: original rule set", () => {
 });
 
 /* ================================================================== *
+ * 1b. Brand-palette hex canon (BRANDHEX)
+ * ================================================================== */
+
+describe("BRANDHEX: raw brand-palette hexes must come from lib/brand", () => {
+  const PALETTE = [
+    "#22d3ee",
+    "#34d399",
+    "#facc15",
+    "#fab633",
+    "#f24822",
+    "#0a1628",
+    "#0f172a",
+    "#1e293b",
+    "#334155",
+    "#e2e8f0",
+    "#94a3b8",
+  ];
+
+  it("flags every canonical palette hex in app/ and components/ TS/TSX", () => {
+    for (const hex of PALETTE) {
+      expect(idsFor(`stroke="${hex}"`, "app/(product)/x/page.tsx"), hex).toContain("BRANDHEX");
+      expect(idsFor(`const accent = "${hex}";`, "components/x/Y.ts"), hex).toContain("BRANDHEX");
+    }
+  });
+
+  it("flags case variants and the 8-digit token+alpha form", () => {
+    expect(fires('color: "#22D3EE"', "BRANDHEX")).toBe(true);
+    expect(fires('textShadow: "0 0 40px #34d39955"', "BRANDHEX")).toBe(true);
+  });
+
+  it("does NOT flag non-palette hexes (OG gradient stops, banned-hex rule keeps its own id)", () => {
+    expect(fires('background: "#071120"', "BRANDHEX")).toBe(false);
+    expect(fires('background: "#040b16"', "BRANDHEX")).toBe(false);
+    // #64748b stays a HEX (banned-color) finding, not a BRANDHEX one.
+    expect(idsFor('color: "#64748b"', "app/x.ts")).not.toContain("BRANDHEX");
+  });
+
+  it("keeps globals.css, lib/, and test files out of scope", () => {
+    expect(fires("  --color-cyan: #22d3ee;", "BRANDHEX", "app/globals.css")).toBe(false);
+    expect(fires('  cyan: "#22d3ee",', "BRANDHEX", "lib/brand/index.ts")).toBe(false);
+    expect(fires('  NOT_YET: "#f24822",', "BRANDHEX", "lib/email/templates.ts")).toBe(false);
+    expect(
+      fires('expect(el).toHaveStyle("color: #22d3ee");', "BRANDHEX", "components/brand/Wordmark.test.tsx"),
+    ).toBe(false);
+  });
+
+  it("honors an explained brand-ok suppression like every other rule", () => {
+    expect(
+      clean('const CANON = "#22d3ee"; /* brand-ok: fixture documenting the canon value */', "app/x.tsx"),
+    ).toBe(true);
+  });
+});
+
+/* ================================================================== *
  * 2. Brand spelling variants (N1–N5b)
  * ================================================================== */
 

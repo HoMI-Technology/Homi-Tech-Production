@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { headers } from "next/headers";
 import type { Metadata } from "next";
 import { getCachedClient, getCachedUser } from "@/lib/supabase/server";
-import { PILLARS, VERDICT_META, type VerdictKey } from "@/lib/brand";
+import { COLORS, PILLARS, VERDICT_META, type VerdictKey } from "@/lib/brand";
 import {
   dashboardInsight,
   greetingForHour,
@@ -277,7 +277,7 @@ export default async function DashboardPage() {
               "--field-tint": `${verdictMeta.color}14`,
               "--instrument-tint": instrumentTint,
             } as React.CSSProperties)
-          : ({ ["--instrument-tint" as string]: "#22d3ee" } as React.CSSProperties)
+          : ({ ["--instrument-tint" as string]: COLORS.cyan } as React.CSSProperties)
       }
     >
       <script dangerouslySetInnerHTML={{ __html: ENTRANCE_BOOT_SCRIPT }} />

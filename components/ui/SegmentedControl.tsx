@@ -107,9 +107,12 @@ export function SegmentedControl<K extends string>({
 
   const selectedIndex = options.findIndex((o) => o.value === value);
   const firstEnabled = options.findIndex((o) => !o.disabled);
-  // Roving tabindex: the checked radio is tabbable; with nothing checked,
-  // the first enabled option is (native radio behavior).
-  const tabbableIndex = selectedIndex >= 0 ? selectedIndex : firstEnabled;
+  // Roving tabindex: the checked radio is tabbable; with nothing checked —
+  // or the checked option disabled (tabIndex can't rescue a disabled
+  // button, which would drop the whole group out of tab order) — the first
+  // enabled option is (native radio behavior).
+  const tabbableIndex =
+    selectedIndex >= 0 && !options[selectedIndex].disabled ? selectedIndex : firstEnabled;
 
   function move(from: number, dir: 1 | -1) {
     const n = options.length;
@@ -201,7 +204,7 @@ export function SegmentedLinkNav<K extends string>({
           <Link
             key={opt.value}
             href={opt.href}
-            aria-current={active ? "true" : undefined}
+            aria-current={active ? "page" : undefined}
             className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan ${
               active ? "bg-cyan/10 text-cyan" : "text-dim hover:text-light"
             }`}

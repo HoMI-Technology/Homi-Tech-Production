@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { COLORS } from "@/lib/brand";
 import {
   DEFAULT_SIMULATION_INPUTS,
   simulateAllScenarios,
@@ -14,17 +15,17 @@ import { PercentSlider } from "@/components/ui/PercentSlider";
 
 const SCENARIO_META: Record<string, { color: string; borderClass: string; description: string }> = {
   "buy-now": {
-    color: "#22d3ee",
+    color: COLORS.cyan,
     borderClass: "border-cyan/40",
     description: "Buy today. Equity builds through amortization and appreciation, offset by closing costs and maintenance.",
   },
   "wait-12": {
-    color: "#facc15",
+    color: COLORS.yellow,
     borderClass: "border-yellow/40",
     description: "Rent 12 more months while saving toward a larger down payment, then buy at the future price.",
   },
   "wait-24": {
-    color: "#f24822",
+    color: COLORS.crimson,
     borderClass: "border-crimson/40",
     description: "Rent 24 more months while saving toward a larger down payment, then buy at the future price.",
   },

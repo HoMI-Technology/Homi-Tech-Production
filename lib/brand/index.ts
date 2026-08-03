@@ -24,7 +24,6 @@ export const COLORS = {
   crimson: "#f24822",
   navy: "#0a1628",
   navyLight: "#0f172a",
-  slate: "#1e293b", // legacy alias of slateSurface
   slateSurface: "#1e293b",
   slateHigh: "#334155",
   ink: "#ffffff",
@@ -38,6 +37,16 @@ export const COLORS = {
  * withAlpha(COLORS.cyan, 0.4) === "rgba(34, 211, 238, 0.4)"
  */
 export function withAlpha(hex: string, alpha: number): string {
+  // Guard: only canonical 6-digit hex is a valid input. Shorthand (#fff),
+  // 8-digit (#22d3ee55), or non-hex strings would silently yield NaN channels.
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) {
+    throw new RangeError(
+      `withAlpha expects a 6-digit hex color (e.g. a COLORS token), got "${hex}".`,
+    );
+  }
+  if (!Number.isFinite(alpha) || alpha < 0 || alpha > 1) {
+    throw new RangeError(`withAlpha expects an alpha in [0, 1], got ${alpha}.`);
+  }
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);

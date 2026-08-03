@@ -29,9 +29,17 @@ describe("a11y — assessment forms have accessible labels", () => {
     expect(src).toContain("label={question.question_text}");
   });
 
-  it("ChoiceCards exposes aria-pressed for selected state", () => {
+  it("ChoiceCards exposes radiogroup/radio semantics with roving tabindex", () => {
     const src = readSource("components", "assessment", "ChoiceCards.tsx");
-    expect(src).toContain("aria-pressed={active}");
+    // Single-select grid = radio semantics, not independent toggle buttons.
+    expect(src).toContain('role="radiogroup"');
+    expect(src).toContain('role="radio"');
+    expect(src).toContain("aria-checked={active}");
+    // Roving tabindex: exactly one tab stop for the whole group.
+    expect(src).toContain("tabIndex={i === tabbableIndex ? 0 : -1}");
+    expect(src).not.toContain("aria-pressed");
+    // The group is named by the visible question label.
+    expect(src).toContain("aria-labelledby={labelId}");
   });
 });
 
