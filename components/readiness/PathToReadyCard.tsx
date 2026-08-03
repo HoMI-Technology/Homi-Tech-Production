@@ -15,6 +15,7 @@ import {
   PATH_LEGAL_SHORT,
   HARD_STOP_ORDER,
   completePathStep,
+  completePathStepWithImpact,
   financeSnapshotForPath,
   getFinanceSavedAtForPath,
   computeBindingProgress,
@@ -38,6 +39,7 @@ import {
   type ReadinessPath,
 } from "@/lib/readiness";
 import { hasSavedFinanceState } from "@/lib/finance/store";
+import { impactBus } from "@/lib/flags";
 import { PathPreview } from "./PathPreview";
 import { PathProgressHero } from "./PathProgressHero";
 
@@ -210,6 +212,23 @@ export function PathToReadyCard({
       const wasFirstPending =
         before?.steps.find((s) => (s.status ?? "pending") === "pending")?.id ===
         stepId;
+
+      if (impactBus) {
+        const { path: next, impact } = completePathStepWithImpact(stepId, "done");
+        if (next) {
+          setPath(next);
+          if (impact && !impact.alreadyDone) {
+            const step = next.steps.find((s) => s.id === stepId);
+            trackPathStepDone({
+              reasonCode: step?.reasonCode ?? "unknown",
+              evidence: "manual",
+              firstStep: wasFirstPending ? 1 : 0,
+            });
+          }
+        }
+        return;
+      }
+
       const next = completePathStep(stepId, "done");
       if (next) {
         setPath(next);
