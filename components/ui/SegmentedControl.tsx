@@ -3,6 +3,8 @@
 import { useRef } from "react";
 import Link from "next/link";
 
+import { COLORS } from "@/lib/brand";
+
 /**
  * Canonical single-select switcher — the one selected-state style for the
  * app's mode toggles (persona chips, agent modes, check-in picks, voices).
@@ -64,11 +66,11 @@ export function segmentedSelectionClasses(
  * color without inline style maps — anything off-token falls back to cyan.
  */
 const HEX_ACCENT: Record<string, SegmentedAccent> = {
-  "#22d3ee": "cyan",
-  "#34d399": "emerald",
-  "#facc15": "yellow",
-  "#e2e8f0": "light",
-  "#f24822": "crimson",
+  [COLORS.cyan]: "cyan",
+  [COLORS.emerald]: "emerald",
+  [COLORS.yellow]: "yellow",
+  [COLORS.light]: "light",
+  [COLORS.crimson]: "crimson",
 };
 
 export function accentFromBrandHex(hex: string): SegmentedAccent {

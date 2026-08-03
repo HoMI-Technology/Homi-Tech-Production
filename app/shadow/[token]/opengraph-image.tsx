@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { VERDICT_META, type VerdictKey } from "@/lib/brand";
+import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
 
 export const runtime = "nodejs";
 export const alt = "HōMI readiness journey card";
@@ -25,9 +25,9 @@ interface ShadowShareRow {
 }
 
 const PILLARS: Array<{ key: keyof ShadowShareRow; label: string; color: string }> = [
-  { key: "financial_pct", label: "FINANCIAL REALITY", color: "#22d3ee" },
-  { key: "emotional_pct", label: "EMOTIONAL TRUTH", color: "#34d399" },
-  { key: "timing_pct", label: "PERFECT TIMING", color: "#facc15" },
+  { key: "financial_pct", label: "FINANCIAL REALITY", color: COLORS.cyan },
+  { key: "emotional_pct", label: "EMOTIONAL TRUTH", color: COLORS.emerald },
+  { key: "timing_pct", label: "PERFECT TIMING", color: COLORS.yellow },
 ];
 
 export default async function Image({ params }: { params: Promise<{ token: string }> }) {
@@ -52,7 +52,7 @@ export default async function Image({ params }: { params: Promise<{ token: strin
       ? VERDICT_META[share.verdict].label
       : "BUILDING TOWARD READY"
     : "KNOW WHEN YOU'RE READY";
-  const headlineColor = share?.reveal_score ? VERDICT_META[share.verdict].color : "#e2e8f0";
+  const headlineColor = share?.reveal_score ? VERDICT_META[share.verdict].color : COLORS.light;
 
   return new ImageResponse(
     (
@@ -63,19 +63,19 @@ export default async function Image({ params }: { params: Promise<{ token: strin
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          backgroundColor: "#0a1628",
+          backgroundColor: COLORS.navy,
           padding: "64px 72px",
           fontFamily: "sans-serif",
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ display: "flex", fontSize: 44, fontWeight: 700 }}>
-            <span style={{ color: "#22d3ee" }}>H</span>
-            <span style={{ color: "#34d399" }}>ō</span>
-            <span style={{ color: "#facc15" }}>M</span>
-            <span style={{ color: "#22d3ee" }}>I</span>
+            <span style={{ color: COLORS.cyan }}>H</span>
+            <span style={{ color: COLORS.emerald }}>ō</span>
+            <span style={{ color: COLORS.yellow }}>M</span>
+            <span style={{ color: COLORS.cyan }}>I</span>
           </div>
-          <div style={{ display: "flex", color: "#94a3b8", fontSize: 22, letterSpacing: 4 }}>
+          <div style={{ display: "flex", color: COLORS.dim, fontSize: 22, letterSpacing: 4 }}>
             READINESS JOURNEY
           </div>
         </div>
@@ -94,7 +94,7 @@ export default async function Image({ params }: { params: Promise<{ token: strin
           >
             {headline}
             {share?.reveal_score ? (
-              <span style={{ color: "#ffffff", fontSize: 96 }}>{share.score}</span>
+              <span style={{ color: COLORS.ink, fontSize: 96 }}>{share.score}</span>
             ) : null}
           </div>
 
@@ -107,20 +107,20 @@ export default async function Image({ params }: { params: Promise<{ token: strin
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      color: "#94a3b8",
+                      color: COLORS.dim,
                       fontSize: 20,
                       letterSpacing: 3,
                     }}
                   >
                     <span>{pillar.label}</span>
-                    <span style={{ color: "#e2e8f0" }}>{share ? `${pct}%` : ""}</span>
+                    <span style={{ color: COLORS.light }}>{share ? `${pct}%` : ""}</span>
                   </div>
                   <div
                     style={{
                       display: "flex",
                       width: "100%",
                       height: 14,
-                      backgroundColor: "#1e293b",
+                      backgroundColor: COLORS.slateSurface,
                       borderRadius: 999,
                     }}
                   >
@@ -140,9 +140,9 @@ export default async function Image({ params }: { params: Promise<{ token: strin
           </div>
         </div>
 
-        <div style={{ display: "flex", justifyContent: "space-between", color: "#94a3b8", fontSize: 22 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", color: COLORS.dim, fontSize: 22 }}>
           <span>Not a lender. Not a pitch. An honest read.</span>
-          <span style={{ color: "#22d3ee" }}>homitechnology.com</span>
+          <span style={{ color: COLORS.cyan }}>homitechnology.com</span>
         </div>
       </div>
     ),

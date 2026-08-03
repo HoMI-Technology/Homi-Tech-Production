@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useCountUp } from "@/components/ui/count-up";
+import { COLORS, withAlpha } from "@/lib/brand";
 
 const KEY = "homi:rings-drawn";
 
@@ -16,7 +17,7 @@ export function PillarRing({
   value,
   max = 100,
   size = 120,
-  color = "#22d3ee",
+  color = COLORS.cyan,
   sublabel,
 }: {
   value: number;
@@ -75,7 +76,7 @@ export function PillarRing({
     <div ref={ref} className="inline-flex flex-col items-center gap-2">
       <div className="relative" style={{ width: size, height: size }}>
         <svg viewBox="0 0 128 128" width={size} height={size} aria-hidden="true">
-          <circle cx="64" cy="64" r={r} fill="none" stroke="rgba(51,65,85,0.6)" strokeWidth="8" />
+          <circle cx="64" cy="64" r={r} fill="none" stroke={withAlpha(COLORS.slateHigh, 0.6)} strokeWidth="8" />
           <circle
             cx="64"
             cy="64"

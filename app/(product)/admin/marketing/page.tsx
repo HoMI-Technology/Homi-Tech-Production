@@ -13,6 +13,7 @@ import {
   formatUsdFromCents,
   paidConversionPct,
 } from "@/lib/dashboard/revenue";
+import { COLORS } from "@/lib/brand";
 import type { SubscriptionTier } from "@/types/database";
 
 export const metadata: Metadata = {
@@ -21,10 +22,10 @@ export const metadata: Metadata = {
 };
 
 const TIER_COLORS: Record<SubscriptionTier, string> = {
-  free: "#94a3b8",
-  plus: "#22d3ee",
-  pro: "#facc15",
-  family: "#34d399",
+  free: COLORS.dim,
+  plus: COLORS.cyan,
+  pro: COLORS.yellow,
+  family: COLORS.emerald,
 };
 const TIER_ORDER: SubscriptionTier[] = ["free", "plus", "pro", "family"];
 
@@ -156,10 +157,10 @@ export default async function AdminMarketingPage() {
   }
 
   const funnel: FunnelStage[] = [
-    { label: "Waitlist signups", count: waitlistTotal, color: "#fab633" },
-    { label: "Accounts created", count: accountsTotal, color: "#22d3ee" },
-    { label: "Completed an assessment", count: assessedUsers, color: "#34d399" },
-    { label: "On a paid tier", count: paidTotal, color: "#facc15" },
+    { label: "Waitlist signups", count: waitlistTotal, color: COLORS.amber },
+    { label: "Accounts created", count: accountsTotal, color: COLORS.cyan },
+    { label: "Completed an assessment", count: assessedUsers, color: COLORS.emerald },
+    { label: "On a paid tier", count: paidTotal, color: COLORS.yellow },
   ];
 
   const totalTiered = TIER_ORDER.reduce((acc, t) => acc + tierCounts[t], 0);
@@ -190,19 +191,19 @@ export default async function AdminMarketingPage() {
               label: "Waitlist",
               value: waitlistTotal.toLocaleString(),
               footer: `${last7(waitlistSeries).toLocaleString()} in last 7 days`,
-              color: "#fab633",
+              color: COLORS.amber,
             },
             {
               label: "Accounts",
               value: accountsTotal.toLocaleString(),
               footer: `${last7(signupSeries).toLocaleString()} new in last 7 days`,
-              color: "#22d3ee",
+              color: COLORS.cyan,
             },
             {
               label: "Assessed",
               value: assessedUsers.toLocaleString(),
               footer: "Completed at least one",
-              color: "#34d399",
+              color: COLORS.emerald,
             },
             {
               label: "Paid",
@@ -211,7 +212,7 @@ export default async function AdminMarketingPage() {
                 accountsTotal > 0
                   ? `${Math.round((paidTotal / accountsTotal) * 100)}% of accounts`
                   : "Awaiting billing",
-              color: "#facc15",
+              color: COLORS.yellow,
             },
           ]}
         />
@@ -223,7 +224,7 @@ export default async function AdminMarketingPage() {
                 <Sparkline
                   id="mk-waitlist"
                   values={waitlistSeries.map((d) => d.count)}
-                  color="#fab633"
+                  color={COLORS.amber}
                 />
               </div>
             )}
@@ -233,7 +234,7 @@ export default async function AdminMarketingPage() {
                 <Sparkline
                   id="mk-signups"
                   values={signupSeries.map((d) => d.count)}
-                  color="#22d3ee"
+                  color={COLORS.cyan}
                 />
               </div>
             )}
@@ -336,7 +337,7 @@ export default async function AdminMarketingPage() {
               <BarSeries
                 id="mk-signups-30d"
                 counts={signupSeries}
-                color="#22d3ee"
+                color={COLORS.cyan}
                 height={150}
                 ariaLabel="Account signups over the last 30 days"
               />
@@ -352,7 +353,7 @@ export default async function AdminMarketingPage() {
               <BarSeries
                 id="mk-waitlist-30d"
                 counts={waitlistSeries}
-                color="#fab633"
+                color={COLORS.amber}
                 height={150}
                 ariaLabel="Waitlist signups over the last 30 days"
               />
@@ -384,7 +385,7 @@ export default async function AdminMarketingPage() {
                   <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-surface">
                     <div
                       className="h-full rounded-full"
-                      style={{ width: `${pct}%`, background: "linear-gradient(90deg, #22d3ee99, #22d3ee)" }}
+                      style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${COLORS.cyan}99, ${COLORS.cyan})` }}
                     />
                   </div>
                 </div>

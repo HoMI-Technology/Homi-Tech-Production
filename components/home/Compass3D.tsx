@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { CinematicCompass, type RingGlow } from "./CinematicCompass";
+import { COLORS, withAlpha } from "@/lib/brand";
 
 /**
  * The Threshold Compass as a dimensional object in space.
@@ -73,7 +74,7 @@ export function Compass3D({
         className="halo halo-breathe"
         style={{
           inset: "-14%",
-          background: "radial-gradient(circle, rgba(34,211,238,0.16), transparent 62%)",
+          background: `radial-gradient(circle, ${withAlpha(COLORS.cyan, 0.16)}, transparent 62%)`,
         }}
       />
       <div
@@ -81,7 +82,7 @@ export function Compass3D({
         className="halo halo-breathe"
         style={{
           inset: "6%",
-          background: "radial-gradient(circle, rgba(52,211,153,0.12), transparent 60%)",
+          background: `radial-gradient(circle, ${withAlpha(COLORS.emerald, 0.12)}, transparent 60%)`,
           animationDelay: "-3.5s",
         }}
       />
@@ -90,7 +91,7 @@ export function Compass3D({
         className="halo"
         style={{
           inset: "30%",
-          background: "radial-gradient(circle, rgba(250,204,21,0.14), transparent 65%)",
+          background: `radial-gradient(circle, ${withAlpha(COLORS.yellow, 0.14)}, transparent 65%)`,
         }}
       />
 

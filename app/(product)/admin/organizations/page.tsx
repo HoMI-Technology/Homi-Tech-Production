@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
+import { COLORS } from "@/lib/brand";
 import type { Organization } from "@/types/database";
 
 export const metadata: Metadata = {
@@ -69,19 +70,19 @@ export default async function AdminOrganizationsPage() {
               label: "Organizations",
               value: organizations.length.toLocaleString(),
               footer: "Employer + partner",
-              color: "#22d3ee",
+              color: COLORS.cyan,
             },
             {
               label: "Members",
               value: totalMembers.toLocaleString(),
               footer: "Across all orgs",
-              color: "#34d399",
+              color: COLORS.emerald,
             },
             {
               label: "Family",
               value: familyAccountsCount.toLocaleString(),
               footer: "Households",
-              color: "#facc15",
+              color: COLORS.yellow,
             },
           ]}
         />
@@ -118,9 +119,9 @@ export default async function AdminOrganizationsPage() {
                       <span
                         className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize"
                         style={{
-                          color: o.kind === "employer" ? "#22d3ee" : "#34d399",
-                          borderColor: o.kind === "employer" ? "#22d3ee59" : "#34d39959",
-                          background: o.kind === "employer" ? "#22d3ee1a" : "#34d3991a",
+                          color: o.kind === "employer" ? COLORS.cyan : COLORS.emerald,
+                          borderColor: o.kind === "employer" ? `${COLORS.cyan}59` : `${COLORS.emerald}59`,
+                          background: o.kind === "employer" ? `${COLORS.cyan}1a` : `${COLORS.emerald}1a`,
                         }}
                       >
                         {o.kind}

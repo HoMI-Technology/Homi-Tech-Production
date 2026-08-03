@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { anyNeedsAttention, syncedAgo, type ItemReading } from "@/lib/dashboard/financial-position";
+import { COLORS } from "@/lib/brand";
 
 /**
  * Connected-accounts tile — StatTile visual language plus per-item freshness
@@ -12,11 +13,11 @@ export function ConnectionsTile({ items, accountCount }: { items: ItemReading[];
       <span
         aria-hidden
         className="absolute inset-x-0 top-0 h-px"
-        style={{ background: "linear-gradient(90deg, transparent, #34d39988, transparent)" }}
+        style={{ background: `linear-gradient(90deg, transparent, ${COLORS.emerald}88, transparent)` }}
       />
       <p className="eyebrow">Connected accounts</p>
       <div className="mt-2 flex items-end justify-between gap-3">
-        <p className="score-numeral text-3xl font-bold leading-none text-light" style={{ textShadow: "0 0 28px #34d39944" }}>
+        <p className="score-numeral text-3xl font-bold leading-none text-light" style={{ textShadow: `0 0 28px ${COLORS.emerald}44` }}>
           {accountCount}
           <span className="ml-1 text-sm font-medium text-dim">
             {items.length === 1 ? "· 1 bank" : `· ${items.length} banks`}

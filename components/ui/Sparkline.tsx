@@ -1,10 +1,12 @@
+import { COLORS } from "@/lib/brand";
+
 /**
  * Server-safe SVG sparkline — a single-series trend whisper for stat tiles.
  * 2px line, soft gradient area, no axes, no labels (the tile carries the value).
  */
 export function Sparkline({
   values,
-  color = "#22d3ee",
+  color = COLORS.cyan,
   width = 120,
   height = 36,
   id,

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { BarSeries } from "@/components/admin/BarSeries";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
+import { COLORS } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "Activity | HōMI Admin",
@@ -32,7 +33,7 @@ function truncateId(id: string | null) {
   return id.length > 10 ? `${id.slice(0, 8)}…` : id;
 }
 
-const ACTION_COLORS = ["#22d3ee", "#34d399", "#facc15", "#fab633", "#f24822", "#94a3b8"];
+const ACTION_COLORS = [COLORS.cyan, COLORS.emerald, COLORS.yellow, COLORS.amber, COLORS.crimson, COLORS.dim];
 
 export default async function AdminActivityPage() {
   const supabase = await createClient();
@@ -112,19 +113,19 @@ export default async function AdminActivityPage() {
               label: "Recent rows",
               value: String(entries.length),
               footer: "Latest 100",
-              color: "#22d3ee",
+              color: COLORS.cyan,
             },
             {
               label: "14d actions",
               value: totalActions.toLocaleString(),
               footer: "In window",
-              color: "#34d399",
+              color: COLORS.emerald,
             },
             {
               label: "Action types",
               value: String(actionCounts.length),
               footer: "Top breakdown",
-              color: "#facc15",
+              color: COLORS.yellow,
             },
           ]}
         />
@@ -143,7 +144,7 @@ export default async function AdminActivityPage() {
               <BarSeries
                 id="activity-14d"
                 counts={dailyCounts}
-                color="#34d399"
+                color={COLORS.emerald}
                 height={160}
                 ariaLabel="Audit log activity over the last 14 days"
               />

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { COLORS } from "@/lib/brand";
 import { getCachedClient } from "@/lib/supabase/server";
 import { getEntitlements } from "@/lib/entitlements";
 import { formatCurrency, formatCurrencyTile } from "@/lib/tools/format";
@@ -119,7 +120,7 @@ export async function FinancialPositionSection({
             <StatTile
               label="Net worth"
               value={formatCurrencyTile(netWorth)}
-              accent="#22d3ee"
+              accent={COLORS.cyan}
               delta={
                 nwDelta
                   ? `${nwDelta.delta >= 0 ? "+" : "−"}${formatCurrency(Math.abs(nwDelta.delta))}`
@@ -129,21 +130,21 @@ export async function FinancialPositionSection({
               footer={nwDelta ? "vs. previous snapshot" : "From your synced balances"}
               spark={
                 netWorthSeries.length >= 2 ? (
-                  <Sparkline id="networth" values={netWorthSeries} color="#22d3ee" />
+                  <Sparkline id="networth" values={netWorthSeries} color={COLORS.cyan} />
                 ) : undefined
               }
             />
             <StatTile
               label="Cash flow · 30d"
               value={formatCurrencyTile(cashFlow)}
-              accent={cashFlow >= 0 ? "#34d399" : "#f24822"}
+              accent={cashFlow >= 0 ? COLORS.emerald : COLORS.crimson}
               footer="Based on recently synced activity"
             />
             <StatTile
               label="Savings rate"
               value={String(savingsRatePct)}
               unit="%"
-              accent="#facc15"
+              accent={COLORS.yellow}
               footer="Of synced income, last 30 days"
             />
             <ConnectionsTile items={bankItems} accountCount={accountsR.count ?? 0} />

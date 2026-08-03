@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
+import { COLORS, withAlpha } from "@/lib/brand";
+
 /**
  * Section 6 — "Not Yet Is Not No" as a visual moment. When the section
  * enters the viewport, the score card shifts from ALMOST THERE (72) to
@@ -34,7 +36,7 @@ export function VerdictShift() {
     return () => io.disconnect();
   }, []);
 
-  const color = shifted ? "#fab633" : "#facc15";
+  const color = shifted ? COLORS.amber : COLORS.yellow;
   const label = shifted ? "BUILD FIRST" : "ALMOST THERE";
   const temp = shifted ? "Warm+" : "Warm";
   const score = shifted ? 61 : 72;
@@ -46,7 +48,7 @@ export function VerdictShift() {
         className="glass mx-auto w-full max-w-md p-8 text-center"
         style={{
           borderColor: `${color}44`,
-          boxShadow: shifted ? "0 0 60px -20px rgba(250, 182, 51, 0.45)" : undefined,
+          boxShadow: shifted ? `0 0 60px -20px ${withAlpha(COLORS.amber, 0.45)}` : undefined,
           transition: "all 700ms cubic-bezier(0.16,1,0.3,1)",
         }}
         aria-live="polite"

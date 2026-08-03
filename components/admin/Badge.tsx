@@ -1,15 +1,17 @@
+import { COLORS } from "@/lib/brand";
+
 const ROLE_COLORS: Record<string, string> = {
-  admin: "#f24822",
-  partner: "#22d3ee",
-  employee: "#34d399",
-  user: "#94a3b8",
+  admin: COLORS.crimson,
+  partner: COLORS.cyan,
+  employee: COLORS.emerald,
+  user: COLORS.dim,
 };
 
 const TIER_COLORS: Record<string, string> = {
-  free: "#94a3b8",
-  plus: "#22d3ee",
-  pro: "#facc15",
-  family: "#34d399",
+  free: COLORS.dim,
+  plus: COLORS.cyan,
+  pro: COLORS.yellow,
+  family: COLORS.emerald,
 };
 
 function Badge({ label, color }: { label: string; color: string }) {
@@ -24,9 +26,9 @@ function Badge({ label, color }: { label: string; color: string }) {
 }
 
 export function RoleBadge({ role }: { role: string }) {
-  return <Badge label={role} color={ROLE_COLORS[role] ?? "#94a3b8"} />;
+  return <Badge label={role} color={ROLE_COLORS[role] ?? COLORS.dim} />;
 }
 
 export function TierBadge({ tier }: { tier: string }) {
-  return <Badge label={tier} color={TIER_COLORS[tier] ?? "#94a3b8"} />;
+  return <Badge label={tier} color={TIER_COLORS[tier] ?? COLORS.dim} />;
 }

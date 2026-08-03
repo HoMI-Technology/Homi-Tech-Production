@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { AdSpendForm } from "@/components/admin/AdSpendForm";
 import { CsvExportButton } from "@/components/admin/CsvExportButton";
+import { COLORS } from "@/lib/brand";
 import {
   channelConversion,
   deriveChannel,
@@ -140,25 +141,25 @@ export default async function AdminAdSpendPage() {
               label: "Total spend",
               value: formatUsdFromCents(totalSpend),
               footer: `${spendRows.length.toLocaleString()} logged lines`,
-              color: "#fab633",
+              color: COLORS.amber,
             },
             {
               label: "Blended CAC",
               value: fmtCacRoas(blendedCac, "usd"),
               footer: `${totalPaid.toLocaleString()} paid customers`,
-              color: "#22d3ee",
+              color: COLORS.cyan,
             },
             {
               label: "Blended ROAS",
               value: fmtCacRoas(blendedRoas, "x"),
               footer: "Revenue ÷ spend",
-              color: "#34d399",
+              color: COLORS.emerald,
             },
             {
               label: "Revenue (all-time)",
               value: formatUsdFromCents(totalRevenue),
               footer: "Succeeded payments",
-              color: "#facc15",
+              color: COLORS.yellow,
             },
           ]}
         />

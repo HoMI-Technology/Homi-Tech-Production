@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { CinematicCompass, Particles } from "./CinematicCompass";
 import { track } from "@/lib/analytics";
+import { COLORS, withAlpha } from "@/lib/brand";
 
 /**
  * InterviewHero — landing hook (PERSUADE).
@@ -31,22 +32,22 @@ const TEMPERATURE_META: Record<Temperature, { label: string; copy: string; color
   COOL: {
     label: "Running cool",
     copy: "You’re running cool. Steady signals across all three. The full read confirms it in three minutes.",
-    color: "#34d399",
+    color: COLORS.emerald,
   },
   WARM: {
     label: "Running warm",
     copy: "You’re running warm. Close: one signal needs attention before you leap.",
-    color: "#facc15",
+    color: COLORS.yellow,
   },
   WARM_PLUS: {
     label: "Running warm+",
     copy: "You’re running warm+. Something needs building first. That is not a wall. It is a map.",
-    color: "#fab633",
+    color: COLORS.amber,
   },
   HOT: {
     label: "Running hot",
     copy: "You’re running hot. This is a protection signal. Slow down before pressure makes the decision for you.",
-    color: "#f24822",
+    color: COLORS.crimson,
   },
 };
 
@@ -85,7 +86,7 @@ const QUESTIONS: Question[] = [
   {
     id: "financial",
     prompt: "If you lost your income tomorrow — how many months could you cover?",
-    ringColor: "#22d3ee",
+    ringColor: COLORS.cyan,
     announce: "Financial Reality signal set.",
     event: "hero_q1_answered",
     chips: [
@@ -98,7 +99,7 @@ const QUESTIONS: Question[] = [
   {
     id: "emotional",
     prompt: "How much of this decision is driven by what YOU want — versus pressure from around you?",
-    ringColor: "#34d399",
+    ringColor: COLORS.emerald,
     announce: "Emotional Truth signal set.",
     event: "hero_q2_answered",
     chips: [
@@ -111,7 +112,7 @@ const QUESTIONS: Question[] = [
   {
     id: "timing",
     prompt: "If you waited 12 months, what would likely change?",
-    ringColor: "#facc15",
+    ringColor: COLORS.yellow,
     announce: "Perfect Timing signal set.",
     event: "hero_q3_answered",
     chips: [
@@ -257,7 +258,7 @@ export function InterviewHero() {
               className="pointer-events-none absolute left-1/2 top-[72%] h-20 w-[220px] -translate-x-1/2 rounded-[50%] sm:w-[300px]"
               style={{
                 background:
-                  "radial-gradient(ellipse at center, rgba(34,211,238,0.32), rgba(52,211,153,0.12) 45%, transparent 75%)",
+                  `radial-gradient(ellipse at center, ${withAlpha(COLORS.cyan, 0.32)}, ${withAlpha(COLORS.emerald, 0.12)} 45%, transparent 75%)`,
                 opacity: floorPoolOpacity,
                 transition: "opacity 900ms ease",
                 filter: "blur(6px)",
@@ -299,7 +300,7 @@ export function InterviewHero() {
                       className="block h-1.5 rounded-full transition-all duration-300"
                       style={{
                         width: active ? "1.75rem" : "0.75rem",
-                        background: done || active ? q.ringColor : "rgba(148,163,184,0.28)",
+                        background: done || active ? q.ringColor : withAlpha(COLORS.dim, 0.28),
                         opacity: done || active ? 1 : 0.7,
                       }}
                       aria-current={active ? "step" : undefined}

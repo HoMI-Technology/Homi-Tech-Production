@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { COLORS, withAlpha } from "@/lib/brand";
 
 const STORAGE_KEY = "homi_welcomed";
 const DISMISS_MS = 10000;
@@ -84,14 +85,14 @@ export function WelcomeBanner() {
       role="dialog"
       aria-label="Welcome to HōMI"
       style={{
-        borderColor: "rgba(34, 211, 238, 0.25)",
-        boxShadow: "inset 0 1px 0 rgba(226, 232, 240, 0.07), 0 24px 48px -18px rgba(2, 6, 16, 0.7), 0 0 44px -18px rgba(34, 211, 238, 0.2)",
+        borderColor: withAlpha(COLORS.cyan, 0.25),
+        boxShadow: `inset 0 1px 0 ${withAlpha(COLORS.light, 0.07)}, 0 24px 48px -18px rgba(2, 6, 16, 0.7), 0 0 44px -18px ${withAlpha(COLORS.cyan, 0.2)}`,
       }}
     >
       <div className="flex items-start gap-4 px-6 py-5">
         <div
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-          style={{ background: "rgba(34, 211, 238, 0.12)" }}
+          style={{ background: withAlpha(COLORS.cyan, 0.12) }}
         >
           <svg className="h-5 w-5 text-cyan" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M10 2l6 2.5v4.5c0 5.05-3.41 9.76-8 10.5-4.59-1.08-6-4.36-6-8.5V4.5L10 2z" />

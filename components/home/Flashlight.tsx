@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { COLORS } from "@/lib/brand";
+
 /**
  * The flashlight — a room kept dark on purpose. The cursor is a torch;
  * only what the light touches can be read. The four truths hiding in
@@ -13,22 +15,22 @@ import { useEffect, useRef, useState } from "react";
 
 const TRUTHS = [
   {
-    color: "#22d3ee",
+    color: COLORS.cyan,
     title: "Nobody in the chain is paid to say wait",
     body: "Agents earn on the sale. Lenders earn on the loan. The moment you hesitate, everyone in the room loses money — except you.",
   },
   {
-    color: "#34d399",
+    color: COLORS.emerald,
     title: "The numbers can say yes while you drown",
     body: "Approval measures whether they get paid back. It has never once measured whether you'll be okay.",
   },
   {
-    color: "#facc15",
+    color: COLORS.yellow,
     title: "Timing failures look like money failures",
     body: "Most regret isn't about the decision. It's about the moment. Rushed timing is the most expensive thing you'll never see on a statement.",
   },
   {
-    color: "#f24822",
+    color: COLORS.crimson,
     title: "Pressure is designed to feel like readiness",
     body: "Deadlines, rising prices, someone else's offer. If the urgency is coming from outside you, it isn't readiness — it's marketing.",
   },

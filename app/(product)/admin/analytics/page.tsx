@@ -6,6 +6,7 @@ import { FunnelSeries, type FunnelSeriesStep } from "@/components/admin/FunnelSe
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { hasPostHogAnalytics, hasPostHog } from "@/lib/env";
+import { COLORS } from "@/lib/brand";
 import {
   getAnalyticsBundle,
   parseRange,
@@ -249,31 +250,31 @@ export default async function AdminAnalyticsPage({
                   label: "Visits",
                   value: bundle.overview.visits.toLocaleString(),
                   footer: `Sessions · last ${days}d`,
-                  color: "#22d3ee",
+                  color: COLORS.cyan,
                 },
                 {
                   label: "Uniques",
                   value: bundle.overview.uniques.toLocaleString(),
                   footer: "Distinct visitors",
-                  color: "#34d399",
+                  color: COLORS.emerald,
                 },
                 {
                   label: "Views",
                   value: bundle.overview.views.toLocaleString(),
                   footer: "Page views",
-                  color: "#facc15",
+                  color: COLORS.yellow,
                 },
                 {
                   label: "Avg session",
                   value: formatDuration(bundle.overview.avgSessionSeconds),
                   footer: "First to last event",
-                  color: "#fab633",
+                  color: COLORS.amber,
                 },
                 {
                   label: "Bounce",
                   value: formatPct(bundle.overview.bounceRatePct),
                   footer: "Single-page sessions",
-                  color: "#94a3b8",
+                  color: COLORS.dim,
                 },
               ]}
             />
@@ -282,7 +283,7 @@ export default async function AdminAnalyticsPage({
                 {uniquesDaily.length >= 2 && (
                   <div className="w-36">
                     <p className="mb-1 text-[0.625rem] uppercase tracking-wide text-dim">Uniques</p>
-                    <Sparkline id="admin-analytics-uniques" values={uniquesDaily} color="#34d399" />
+                    <Sparkline id="admin-analytics-uniques" values={uniquesDaily} color={COLORS.emerald} />
                   </div>
                 )}
                 {filledDaily.length >= 2 && (
@@ -291,7 +292,7 @@ export default async function AdminAnalyticsPage({
                     <Sparkline
                       id="admin-analytics-views"
                       values={filledDaily.map((d) => d.count)}
-                      color="#facc15"
+                      color={COLORS.yellow}
                     />
                   </div>
                 )}
@@ -314,7 +315,7 @@ export default async function AdminAnalyticsPage({
                   <BarSeries
                     id={`analytics-views-${range}`}
                     counts={filledDaily}
-                    color="#22d3ee"
+                    color={COLORS.cyan}
                     ariaLabel={`Page views over the last ${days} days`}
                   />
                 )}

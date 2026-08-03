@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { VERDICT_META, type VerdictKey } from "@/lib/brand";
+import { COLORS, VERDICT_META, withAlpha, type VerdictKey } from "@/lib/brand";
 
 export interface ScoreHistoryPoint {
   score: number;
@@ -83,7 +83,7 @@ export function ScoreHistory({ points }: { points: ScoreHistoryPoint[] }) {
                 x2={WIDTH - PAD_X}
                 y1={y}
                 y2={y}
-                stroke="rgba(148,163,184,0.15)"
+                stroke={withAlpha(COLORS.dim, 0.15)}
                 strokeDasharray="4 4"
               />
               <text
@@ -91,7 +91,7 @@ export function ScoreHistory({ points }: { points: ScoreHistoryPoint[] }) {
                 y={y - 4}
                 textAnchor="end"
                 fontSize="9"
-                fill="rgba(148,163,184,0.55)"
+                fill={withAlpha(COLORS.dim, 0.55)}
                 fontFamily="var(--font-sans)"
               >
                 {label} {mark}
@@ -104,7 +104,7 @@ export function ScoreHistory({ points }: { points: ScoreHistoryPoint[] }) {
           const x = xFor(i);
           const barHeight = Math.max(2, (p.score / 100) * chartHeight);
           const y = PAD_TOP + chartHeight - barHeight;
-          const color = VERDICT_META[p.verdict]?.color ?? "#22d3ee";
+          const color = VERDICT_META[p.verdict]?.color ?? COLORS.cyan;
           const isHover = hover === i;
           return (
             <g
@@ -135,7 +135,7 @@ export function ScoreHistory({ points }: { points: ScoreHistoryPoint[] }) {
                 y={y - 6}
                 textAnchor="middle"
                 fontSize="10"
-                fill={isHover ? "#e2e8f0" : "#94a3b8"}
+                fill={isHover ? COLORS.light : COLORS.dim}
                 fontFamily="var(--font-score)"
               >
                 {p.score}
@@ -150,7 +150,7 @@ export function ScoreHistory({ points }: { points: ScoreHistoryPoint[] }) {
           y={HEIGHT - 12}
           textAnchor="middle"
           fontSize="9"
-          fill="rgba(148,163,184,0.7)"
+          fill={withAlpha(COLORS.dim, 0.7)}
           fontFamily="var(--font-sans)"
         >
           {fmtDate(first.date)}
@@ -161,7 +161,7 @@ export function ScoreHistory({ points }: { points: ScoreHistoryPoint[] }) {
             y={HEIGHT - 12}
             textAnchor="middle"
             fontSize="9"
-            fill="rgba(148,163,184,0.7)"
+            fill={withAlpha(COLORS.dim, 0.7)}
             fontFamily="var(--font-sans)"
           >
             {fmtDate(last.date)}
@@ -182,19 +182,19 @@ export function ScoreHistory({ points }: { points: ScoreHistoryPoint[] }) {
                     width={132}
                     height={20}
                     rx={6}
-                    fill="rgba(15,23,42,0.95)"
-                    stroke="rgba(148,163,184,0.25)"
+                    fill={withAlpha(COLORS.navyLight, 0.95)}
+                    stroke={withAlpha(COLORS.dim, 0.25)}
                   />
                   <text
                     x={cx}
                     y={15.5}
                     textAnchor="middle"
                     fontSize="10"
-                    fill="#e2e8f0"
+                    fill={COLORS.light}
                     fontFamily="var(--font-sans)"
                   >
                     {fmtDate(hovered.date)} · {hovered.score} ·{" "}
-                    <tspan fill={meta?.color ?? "#22d3ee"}>{meta?.label ?? hovered.verdict}</tspan>
+                    <tspan fill={meta?.color ?? COLORS.cyan}>{meta?.label ?? hovered.verdict}</tspan>
                   </text>
                 </>
               );

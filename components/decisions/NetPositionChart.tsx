@@ -1,11 +1,12 @@
 "use client";
 
+import { COLORS } from "@/lib/brand";
 import type { ScenarioOutcome } from "@/lib/decisions/simulate";
 
 const SCENARIO_COLORS: Record<string, string> = {
-  "buy-now": "#22d3ee",
-  "wait-12": "#facc15",
-  "wait-24": "#f24822",
+  "buy-now": COLORS.cyan,
+  "wait-12": COLORS.yellow,
+  "wait-24": COLORS.crimson,
 };
 
 const WIDTH = 640;
@@ -60,12 +61,12 @@ export function NetPositionChart({ scenarios }: { scenarios: ScenarioOutcome[] }
             x2={WIDTH - PAD_RIGHT}
             y1={y(v)}
             y2={y(v)}
-            stroke="#334155"
+            stroke={COLORS.slateHigh}
             strokeWidth={1}
             strokeDasharray={v === 0 ? undefined : "4 4"}
             opacity={v === 0 ? 0.8 : 0.4}
           />
-          <text x={PAD_LEFT - 8} y={y(v) + 4} textAnchor="end" fontSize={11} fill="#94a3b8" fontFamily="var(--font-score)">
+          <text x={PAD_LEFT - 8} y={y(v) + 4} textAnchor="end" fontSize={11} fill={COLORS.dim} fontFamily="var(--font-score)">
             {formatCompact(v)}
           </text>
         </g>
@@ -73,18 +74,18 @@ export function NetPositionChart({ scenarios }: { scenarios: ScenarioOutcome[] }
 
       {/* Month axis labels */}
       {[0, 12, 24, 36, 48, 60].filter((m) => m <= maxMonth).map((m) => (
-        <text key={m} x={x(m)} y={HEIGHT - PAD_BOTTOM + 20} textAnchor="middle" fontSize={11} fill="#94a3b8">
+        <text key={m} x={x(m)} y={HEIGHT - PAD_BOTTOM + 20} textAnchor="middle" fontSize={11} fill={COLORS.dim}>
           {m === 0 ? "Now" : `${m}mo`}
         </text>
       ))}
 
       {/* Zero baseline emphasis */}
-      <line x1={PAD_LEFT} x2={WIDTH - PAD_RIGHT} y1={zeroY} y2={zeroY} stroke="#e2e8f0" strokeWidth={1} opacity={0.5} />
+      <line x1={PAD_LEFT} x2={WIDTH - PAD_RIGHT} y1={zeroY} y2={zeroY} stroke={COLORS.light} strokeWidth={1} opacity={0.5} />
 
       {/* Scenario lines */}
       {scenarios.map((s) => {
         const points = s.series.map((p) => `${x(p.month)},${y(p.netPosition)}`).join(" ");
-        const color = SCENARIO_COLORS[s.key] ?? "#22d3ee";
+        const color = SCENARIO_COLORS[s.key] ?? COLORS.cyan;
         return (
           <g key={s.key}>
             <polyline points={points} fill="none" stroke={color} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />

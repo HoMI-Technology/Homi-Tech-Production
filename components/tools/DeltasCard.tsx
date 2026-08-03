@@ -15,12 +15,13 @@ import { track } from "@/lib/analytics";
 import type { MetricDelta } from "@/lib/tools/deltas";
 import { worstDeltaTemperature } from "@/lib/tools/deltas";
 import type { Temperature } from "@/lib/finance/store";
+import { COLORS } from "@/lib/brand";
 
 const TEMP_COLOR: Record<Temperature, string> = {
-  emerald: "#34d399",
-  yellow: "#facc15",
-  amber: "#fab633",
-  crimson: "#f24822",
+  emerald: COLORS.emerald,
+  yellow: COLORS.yellow,
+  amber: COLORS.amber,
+  crimson: COLORS.crimson,
 };
 
 function formatValue(v: number, unit: MetricDelta["unit"]): string {

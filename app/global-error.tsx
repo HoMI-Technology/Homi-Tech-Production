@@ -10,6 +10,7 @@
 
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
+import { COLORS, withAlpha } from "@/lib/brand";
 import { motion } from "framer-motion";
 
 export default function GlobalError({
@@ -29,8 +30,8 @@ export default function GlobalError({
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "#0a1628",
-          color: "#e2e8f0",
+          background: COLORS.navy,
+          color: COLORS.light,
           fontFamily: "Inter, system-ui, sans-serif",
           textAlign: "center",
           padding: "24px",
@@ -52,7 +53,7 @@ export default function GlobalError({
             fontSize: 24,
             fontWeight: 800,
             marginTop: 24,
-            color: "#e2e8f0",
+            color: COLORS.light,
           }}
         >
           Something went wrong
@@ -63,7 +64,7 @@ export default function GlobalError({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.18, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           style={{
-            color: "#94a3b8",
+            color: COLORS.dim,
             maxWidth: 420,
             lineHeight: 1.6,
             marginTop: 12,
@@ -79,7 +80,7 @@ export default function GlobalError({
             animate={{ opacity: 0.6 }}
             transition={{ delay: 0.3 }}
             style={{
-              color: "#94a3b8",
+              color: COLORS.dim,
               opacity: 0.6,
               fontSize: 12,
               fontFamily: "monospace",
@@ -105,7 +106,7 @@ export default function GlobalError({
           <button
             onClick={reset}
             style={{
-              background: "linear-gradient(135deg, #22d3ee, #0ea5c4)",
+              background: `linear-gradient(135deg, ${COLORS.cyan}, #0ea5c4)`,
               color: "#04121c",
               border: "none",
               borderRadius: 12,
@@ -124,9 +125,9 @@ export default function GlobalError({
               alignItems: "center",
               justifyContent: "center",
               gap: "0.5rem",
-              background: "rgba(30, 41, 59, 0.5)",
-              color: "#e2e8f0",
-              border: "1px solid rgba(148, 163, 184, 0.2)",
+              background: withAlpha(COLORS.slateSurface, 0.5),
+              color: COLORS.light,
+              border: `1px solid ${withAlpha(COLORS.dim, 0.2)}`,
               borderRadius: 12,
               padding: "12px 24px",
               fontWeight: 600,

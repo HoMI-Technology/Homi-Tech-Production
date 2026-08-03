@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { COLORS, withAlpha } from "@/lib/brand";
+
 /**
  * Section 3 — the timeline that transforms. On entering the viewport:
  *   Pressure → Decision → Consequence
@@ -14,9 +16,9 @@ function Node({ label, accent, dim }: { label: string; accent?: string; dim?: bo
     <span
       className="rounded-full border px-4 py-2 text-sm font-medium whitespace-nowrap transition-all duration-500"
       style={{
-        borderColor: accent ? `${accent}66` : "rgba(148,163,184,0.25)",
-        background: accent ? `${accent}12` : "rgba(15,23,42,0.6)",
-        color: accent ?? (dim ? "#94a3b8" : "#e2e8f0"),
+        borderColor: accent ? `${accent}66` : withAlpha(COLORS.dim, 0.25),
+        background: accent ? `${accent}12` : withAlpha(COLORS.navyLight, 0.6),
+        color: accent ?? (dim ? COLORS.dim : COLORS.light),
       }}
     >
       {label}
@@ -68,7 +70,7 @@ export function TimelineShift() {
         <Arrow />
         <Node label="Decision" dim />
         <Arrow />
-        <Node label="Consequence" accent="#f24822" />
+        <Node label="Consequence" accent={COLORS.crimson} />
       </div>
 
       <div
@@ -81,9 +83,9 @@ export function TimelineShift() {
       >
         <Node label="Pressure" dim />
         <Arrow />
-        <Node label="HōMI" accent="#22d3ee" />
+        <Node label="HōMI" accent={COLORS.cyan} />
         <Arrow />
-        <Node label="Clarity" accent="#34d399" />
+        <Node label="Clarity" accent={COLORS.emerald} />
         <Arrow />
         <Node label="Decision" />
       </div>

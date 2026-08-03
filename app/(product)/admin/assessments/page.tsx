@@ -4,7 +4,7 @@ import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
 import type { AssessmentRow } from "@/types/database";
-import type { VerdictKey } from "@/lib/brand";
+import { COLORS, type VerdictKey } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "Assessments | Admin | HōMI",
@@ -64,25 +64,25 @@ export default async function AdminAssessmentsPage() {
               label: "Shown",
               value: String(assessments.length),
               footer: "Latest window",
-              color: "#22d3ee",
+              color: COLORS.cyan,
             },
             {
               label: "Completed",
               value: String(completed),
               footer: "With verdict",
-              color: "#34d399",
+              color: COLORS.emerald,
             },
             {
               label: "Avg score",
               value: avg !== null ? String(avg) : "—",
               footer: "In window",
-              color: "#facc15",
+              color: COLORS.yellow,
             },
             {
               label: "Shadow",
               value: String(shadows),
               footer: "Quick reads",
-              color: "#fab633",
+              color: COLORS.amber,
             },
           ]}
         />

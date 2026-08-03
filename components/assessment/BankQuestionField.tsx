@@ -4,7 +4,7 @@ import type { Question, ResponseValue } from "@/lib/questions/bank";
 import { ChoiceCards } from "./ChoiceCards";
 import { NumberField } from "@/components/ui/NumberField";
 import { SliderField } from "./SliderField";
-import { PILLARS } from "@/lib/brand";
+import { COLORS, PILLARS } from "@/lib/brand";
 
 function sliderConfig(question: Question): { min: number; max: number; lowLabel: string; highLabel: string } {
   const opts = question.options;
@@ -20,7 +20,7 @@ function sliderConfig(question: Question): { min: number; max: number; lowLabel:
 }
 
 function pillarColor(dimension: Question["dimension"]): string {
-  return PILLARS.find((p) => p.key === dimension)?.color ?? "#22d3ee";
+  return PILLARS.find((p) => p.key === dimension)?.color ?? COLORS.cyan;
 }
 
 export function BankQuestionField({

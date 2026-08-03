@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 
+import { COLORS, withAlpha } from "@/lib/brand";
+
 /**
  * Shared operate chrome for every calculator page.
  * Keeps hierarchy consistent: back link → eyebrow → title → thesis → body.
@@ -69,7 +71,7 @@ export function ToolResultHero({
         style={{
           background: color
             ? `radial-gradient(circle, ${color}33, transparent 70%)`
-            : "radial-gradient(circle, rgba(34,211,238,0.18), transparent 70%)",
+            : `radial-gradient(circle, ${withAlpha(COLORS.cyan, 0.18)}, transparent 70%)`,
         }}
       />
       <div className="relative">

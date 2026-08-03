@@ -15,7 +15,9 @@ export interface FunnelSeriesStep {
   occurrences: number;
 }
 
-const STEP_COLOR = "#22d3ee";
+import { COLORS } from "@/lib/brand";
+
+const STEP_COLOR = COLORS.cyan;
 
 export function FunnelSeries({ steps }: { steps: FunnelSeriesStep[] }) {
   const top = Math.max(1, ...steps.map((s) => s.users));

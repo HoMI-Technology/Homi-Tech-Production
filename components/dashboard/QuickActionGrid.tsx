@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { COLORS } from "@/lib/brand";
+
 const ICONS: Record<string, React.ReactNode> = {
   assessment: (
     <path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
@@ -46,7 +48,7 @@ function ActionIcon({ icon, size = 22 }: { icon: string; size?: number }) {
       height={size}
       viewBox="0 0 24 24"
       fill="none"
-      stroke="#22d3ee"
+      stroke={COLORS.cyan}
       strokeWidth="1.8"
       strokeLinecap="round"
       strokeLinejoin="round"

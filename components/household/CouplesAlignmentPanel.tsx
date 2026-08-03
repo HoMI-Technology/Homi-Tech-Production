@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ScoreRing } from "@/components/ui/ScoreRing";
+import { COLORS } from "@/lib/brand";
 import { sliderFillPercent } from "@/lib/assessment/format";
 import { CouplesModeGate } from "@/components/entitlements/AdvancedToolGate";
 
@@ -105,10 +106,10 @@ function alignmentPct(a: number, b: number): number {
 }
 
 function tempFor(pct: number): { color: string; label: string; className: string } {
-  if (pct >= 80) return { color: "#34d399", label: "Aligned", className: "bg-verdict-ready" };
-  if (pct >= 60) return { color: "#facc15", label: "Mostly aligned", className: "bg-verdict-almost" };
-  if (pct >= 40) return { color: "#fab633", label: "Divergent", className: "bg-verdict-build" };
-  return { color: "#f24822", label: "Significant gap", className: "bg-verdict-notyet" };
+  if (pct >= 80) return { color: COLORS.emerald, label: "Aligned", className: "bg-verdict-ready" };
+  if (pct >= 60) return { color: COLORS.yellow, label: "Mostly aligned", className: "bg-verdict-almost" };
+  if (pct >= 40) return { color: COLORS.amber, label: "Divergent", className: "bg-verdict-build" };
+  return { color: COLORS.crimson, label: "Significant gap", className: "bg-verdict-notyet" };
 }
 
 function CouplesAlignmentInner() {

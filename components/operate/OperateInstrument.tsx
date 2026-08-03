@@ -1,11 +1,13 @@
 import type { CSSProperties, ReactNode } from "react";
 
+import { COLORS } from "@/lib/brand";
+
 /**
  * Operate instrument shell — Direction A (Cockpit Linear).
  * Same visual language as personal /dashboard hero surface.
  */
 export function OperateInstrument({
-  tint = "#22d3ee",
+  tint = COLORS.cyan,
   children,
   className = "",
 }: {

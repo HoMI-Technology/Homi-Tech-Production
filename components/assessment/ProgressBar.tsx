@@ -1,4 +1,4 @@
-import { PILLARS } from "@/lib/brand";
+import { COLORS, PILLARS, withAlpha } from "@/lib/brand";
 
 export interface StepMeta {
   pillar: "financial" | "emotional" | "timing" | null;
@@ -16,8 +16,8 @@ export function ProgressBar({
   currentIndex: number;
 }) {
   const colorFor = (pillar: StepMeta["pillar"]) => {
-    if (!pillar) return "rgba(148,163,184,0.4)";
-    return PILLARS.find((p) => p.key === pillar)?.color ?? "rgba(148,163,184,0.4)";
+    if (!pillar) return withAlpha(COLORS.dim, 0.4);
+    return PILLARS.find((p) => p.key === pillar)?.color ?? withAlpha(COLORS.dim, 0.4);
   };
 
   return (

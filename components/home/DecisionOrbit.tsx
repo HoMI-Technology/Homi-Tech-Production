@@ -1,6 +1,7 @@
 "use client";
 
 import { CinematicCompass } from "./CinematicCompass";
+import { COLORS, withAlpha } from "@/lib/brand";
 
 /**
  * Section 10 — the platform vision as an orbital map: the compass at
@@ -45,10 +46,10 @@ export function DecisionOrbit() {
             style={{
               left: `${x}%`,
               top: `${y}%`,
-              borderColor: node.first ? "rgba(250,204,21,0.5)" : "rgba(148,163,184,0.25)",
-              background: node.first ? "rgba(250,204,21,0.08)" : "rgba(15,23,42,0.7)",
-              color: node.first ? "#facc15" : "#94a3b8",
-              boxShadow: node.first ? "0 0 24px -6px rgba(250,204,21,0.4)" : undefined,
+              borderColor: node.first ? withAlpha(COLORS.yellow, 0.5) : withAlpha(COLORS.dim, 0.25),
+              background: node.first ? withAlpha(COLORS.yellow, 0.08) : withAlpha(COLORS.navyLight, 0.7),
+              color: node.first ? COLORS.yellow : COLORS.dim,
+              boxShadow: node.first ? `0 0 24px -6px ${withAlpha(COLORS.yellow, 0.4)}` : undefined,
             }}
           >
             {node.first && (

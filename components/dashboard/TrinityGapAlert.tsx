@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { COLORS, withAlpha } from "@/lib/brand";
 import { computeTrinityGap } from "@/lib/dashboard/trinity-gap";
 
 interface PillarReading {
@@ -26,7 +27,7 @@ export function TrinityGapAlert({ pillars }: TrinityGapAlertProps) {
   return (
     <div
       className="relative overflow-hidden rounded-xl border border-amber/30 px-5 py-4"
-      style={{ background: "rgba(250, 182, 51, 0.08)" }}
+      style={{ background: withAlpha(COLORS.amber, 0.08) }}
     >
       <div className="flex items-start gap-3">
         <svg className="mt-0.5 h-5 w-5 shrink-0 text-amber" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">

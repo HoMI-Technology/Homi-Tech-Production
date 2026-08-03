@@ -1,3 +1,4 @@
+import { COLORS, withAlpha } from "@/lib/brand";
 import type { DailyCheckin } from "@/types/database";
 
 const WIDTH = 640;
@@ -83,8 +84,8 @@ export function DailyPulseStrip({ checkins }: { checkins: DailyCheckin[] }) {
       >
         <defs>
           <linearGradient id="pulse-mood" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#34d399" stopOpacity="0.22" />
-            <stop offset="100%" stopColor="#34d399" stopOpacity="0" />
+            <stop offset="0%" stopColor={COLORS.emerald} stopOpacity="0.22" />
+            <stop offset="100%" stopColor={COLORS.emerald} stopOpacity="0" />
           </linearGradient>
         </defs>
 
@@ -92,7 +93,7 @@ export function DailyPulseStrip({ checkins }: { checkins: DailyCheckin[] }) {
         <polyline
           points={moodLine}
           fill="none"
-          stroke="#34d399"
+          stroke={COLORS.emerald}
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -100,7 +101,7 @@ export function DailyPulseStrip({ checkins }: { checkins: DailyCheckin[] }) {
         <polyline
           points={stressLine}
           fill="none"
-          stroke="#f24822"
+          stroke={COLORS.crimson}
           strokeWidth="2.5"
           strokeDasharray="6 5"
           strokeLinecap="round"
@@ -109,17 +110,17 @@ export function DailyPulseStrip({ checkins }: { checkins: DailyCheckin[] }) {
         />
 
         {/* Endpoint markers + inline labels — legible without color. */}
-        <circle cx={moodEndX} cy={moodEndY} r="3" fill="#34d399" style={{ filter: "drop-shadow(0 0 4px #34d399)" }} />
-        <circle cx={stressEndX} cy={stressEndY} r="3" fill="#f24822" style={{ filter: "drop-shadow(0 0 4px #f24822)" }} />
-        <text x={moodEndX + 8} y={moodLabelY + 3.5} fontSize="10" fill="#34d399" fontFamily="var(--font-sans)">
+        <circle cx={moodEndX} cy={moodEndY} r="3" fill={COLORS.emerald} style={{ filter: `drop-shadow(0 0 4px ${COLORS.emerald})` }} />
+        <circle cx={stressEndX} cy={stressEndY} r="3" fill={COLORS.crimson} style={{ filter: `drop-shadow(0 0 4px ${COLORS.crimson})` }} />
+        <text x={moodEndX + 8} y={moodLabelY + 3.5} fontSize="10" fill={COLORS.emerald} fontFamily="var(--font-sans)">
           Mood
         </text>
-        <text x={stressEndX + 8} y={stressLabelY + 3.5} fontSize="10" fill="#f24822" fontFamily="var(--font-sans)">
+        <text x={stressEndX + 8} y={stressLabelY + 3.5} fontSize="10" fill={COLORS.crimson} fontFamily="var(--font-sans)">
           Stress
         </text>
 
         {/* Time context. */}
-        <text x={PAD_LEFT} y={HEIGHT - 8} fontSize="9" fill="rgba(148,163,184,0.7)" fontFamily="var(--font-sans)">
+        <text x={PAD_LEFT} y={HEIGHT - 8} fontSize="9" fill={withAlpha(COLORS.dim, 0.7)} fontFamily="var(--font-sans)">
           {fmtDate(tMin)}
         </text>
         {span > 0 && (
@@ -128,7 +129,7 @@ export function DailyPulseStrip({ checkins }: { checkins: DailyCheckin[] }) {
             y={HEIGHT - 8}
             textAnchor="end"
             fontSize="9"
-            fill="rgba(148,163,184,0.7)"
+            fill={withAlpha(COLORS.dim, 0.7)}
             fontFamily="var(--font-sans)"
           >
             {fmtDate(tMax)}
@@ -138,13 +139,13 @@ export function DailyPulseStrip({ checkins }: { checkins: DailyCheckin[] }) {
       <div className="mt-3 flex gap-6 text-xs text-dim">
         <span className="flex items-center gap-2">
           <svg width="18" height="6" aria-hidden="true">
-            <line x1="0" y1="3" x2="18" y2="3" stroke="#34d399" strokeWidth="2.5" strokeLinecap="round" />
+            <line x1="0" y1="3" x2="18" y2="3" stroke={COLORS.emerald} strokeWidth="2.5" strokeLinecap="round" />
           </svg>
           Mood
         </span>
         <span className="flex items-center gap-2">
           <svg width="18" height="6" aria-hidden="true">
-            <line x1="0" y1="3" x2="18" y2="3" stroke="#f24822" strokeWidth="2.5" strokeDasharray="5 4" strokeLinecap="round" />
+            <line x1="0" y1="3" x2="18" y2="3" stroke={COLORS.crimson} strokeWidth="2.5" strokeDasharray="5 4" strokeLinecap="round" />
           </svg>
           Financial stress
         </span>

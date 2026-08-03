@@ -1,8 +1,10 @@
+import { COLORS } from "@/lib/brand";
+
 const VERDICT_COLORS: Record<string, string> = {
-  READY: "#34d399",
-  ALMOST_THERE: "#facc15",
-  BUILD_FIRST: "#fab633",
-  NOT_YET: "#f24822",
+  READY: COLORS.emerald,
+  ALMOST_THERE: COLORS.yellow,
+  BUILD_FIRST: COLORS.amber,
+  NOT_YET: COLORS.crimson,
 };
 
 export function ThresholdCompass({
@@ -18,7 +20,7 @@ export function ThresholdCompass({
   glow?: boolean;
   className?: string;
 }) {
-  const pip = verdict ? VERDICT_COLORS[verdict] : "#facc15";
+  const pip = verdict ? VERDICT_COLORS[verdict] : COLORS.yellow;
   const unlocked = verdict === "READY";
 
   return (
@@ -41,30 +43,30 @@ export function ThresholdCompass({
       </defs>
 
       <g className={animated ? "ring-outer" : undefined} filter="url(#hc-glow)">
-        <circle cx="100" cy="100" r="85" stroke="#22d3ee" strokeWidth="2" fill="none" opacity="0.65" />
-        <circle cx="160.1" cy="39.9" r="3" fill="#22d3ee" />
-        <circle cx="160.1" cy="160.1" r="3" fill="#22d3ee" />
-        <circle cx="39.9" cy="160.1" r="3" fill="#22d3ee" />
-        <circle cx="39.9" cy="39.9" r="3" fill="#22d3ee" />
+        <circle cx="100" cy="100" r="85" stroke={COLORS.cyan} strokeWidth="2" fill="none" opacity="0.65" />
+        <circle cx="160.1" cy="39.9" r="3" fill={COLORS.cyan} />
+        <circle cx="160.1" cy="160.1" r="3" fill={COLORS.cyan} />
+        <circle cx="39.9" cy="160.1" r="3" fill={COLORS.cyan} />
+        <circle cx="39.9" cy="39.9" r="3" fill={COLORS.cyan} />
       </g>
 
       <g className={animated ? "ring-middle" : undefined} filter="url(#hc-glow)">
-        <circle cx="100" cy="100" r="60" stroke="#34d399" strokeWidth="2" fill="none" opacity="0.75" />
-        <circle cx="100" cy="40" r="2.5" fill="#34d399" />
-        <circle cx="160" cy="100" r="2.5" fill="#34d399" />
-        <circle cx="100" cy="160" r="2.5" fill="#34d399" />
-        <circle cx="40" cy="100" r="2.5" fill="#34d399" />
+        <circle cx="100" cy="100" r="60" stroke={COLORS.emerald} strokeWidth="2" fill="none" opacity="0.75" />
+        <circle cx="100" cy="40" r="2.5" fill={COLORS.emerald} />
+        <circle cx="160" cy="100" r="2.5" fill={COLORS.emerald} />
+        <circle cx="100" cy="160" r="2.5" fill={COLORS.emerald} />
+        <circle cx="40" cy="100" r="2.5" fill={COLORS.emerald} />
       </g>
 
       <g className={animated ? "ring-inner" : undefined} filter="url(#hc-glow)">
-        <circle cx="100" cy="100" r="35" stroke="#facc15" strokeWidth="2" fill="none" opacity="0.85" />
+        <circle cx="100" cy="100" r="35" stroke={COLORS.yellow} strokeWidth="2" fill="none" opacity="0.85" />
       </g>
 
       <g filter="url(#hc-glow)">
-        <circle cx="100" cy="96" r="5" fill="none" stroke={unlocked ? "#34d399" : "#facc15"} strokeWidth="2" />
-        <rect x="97" y="96" width="6" height="12" rx="2" fill="none" stroke={unlocked ? "#34d399" : "#facc15"} strokeWidth="2" />
+        <circle cx="100" cy="96" r="5" fill="none" stroke={unlocked ? COLORS.emerald : COLORS.yellow} strokeWidth="2" />
+        <rect x="97" y="96" width="6" height="12" rx="2" fill="none" stroke={unlocked ? COLORS.emerald : COLORS.yellow} strokeWidth="2" />
         <circle cx="100" cy="96" r="6" fill={pip} />
-        <rect x="97" y="96" width="6" height="12" fill={unlocked ? "#34d399" : "#facc15"} />
+        <rect x="97" y="96" width="6" height="12" fill={unlocked ? COLORS.emerald : COLORS.yellow} />
       </g>
     </svg>
   );

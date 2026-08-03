@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { COLORS } from "@/lib/brand";
 import { campaignEmail } from "@/lib/email/templates";
 import type { CampaignAudience } from "@/types/database";
 
@@ -47,7 +48,7 @@ export function CampaignComposer() {
     () =>
       campaignEmail(
         body.trim() ||
-          `<p style="margin:0;color:#94a3b8;">Start writing to preview the broadcast exactly as recipients will see it.</p>`,
+          `<p style="margin:0;color:${COLORS.dim};">Start writing to preview the broadcast exactly as recipients will see it.</p>`,
         PREVIEW_UNSUB,
       ).html,
     [body],

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { loadLocalResult } from "@/lib/assessment/storage";
+import { COLORS, withAlpha } from "@/lib/brand";
 import { impactBus } from "@/lib/flags";
 import {
   loadReadinessPath,
@@ -136,7 +137,7 @@ export function PathNextMove() {
     return (
       <div
         className="mt-5 rounded-xl border border-emerald/30 px-4 py-3 sm:px-5"
-        style={{ background: "rgba(52, 211, 153, 0.08)" }}
+        style={{ background: withAlpha(COLORS.emerald, 0.08) }}
         role="status"
       >
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -171,7 +172,7 @@ export function PathNextMove() {
     >
       <div
         className="dash-action-dock"
-        style={{ ["--instrument-tint" as string]: "#22d3ee" }}
+        style={{ ["--instrument-tint" as string]: COLORS.cyan }}
       >
         <div className="min-w-0">
           <p className="dash-action-dock-label">

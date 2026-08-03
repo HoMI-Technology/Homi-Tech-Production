@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { VERDICT_META, type VerdictKey } from "@/lib/brand";
+import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
 import { ShareViewPing } from "@/components/share/ShareViewPing";
 
 /**
@@ -56,9 +56,9 @@ const PILLAR_BARS: Array<{
   label: string;
   color: string;
 }> = [
-  { key: "financial_pct", label: "Financial Reality", color: "#22d3ee" },
-  { key: "emotional_pct", label: "Emotional Truth", color: "#34d399" },
-  { key: "timing_pct", label: "Perfect Timing", color: "#facc15" },
+  { key: "financial_pct", label: "Financial Reality", color: COLORS.cyan },
+  { key: "emotional_pct", label: "Emotional Truth", color: COLORS.emerald },
+  { key: "timing_pct", label: "Perfect Timing", color: COLORS.yellow },
 ];
 
 export default async function ShadowSharePage({
