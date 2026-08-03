@@ -37,7 +37,14 @@ import {
   type BudgetLedgerState,
   type GoalInput,
 } from "@/lib/finance/local-ledger";
+import {
+  markTransactionSynced,
+  pushManualTransaction,
+  pushSoftDeleteTransaction,
+  reconcileBudgetLedger,
+} from "@/lib/finance/ledger-sync";
 import { centsToDollars, dollarsToCents, formatCentsUSD } from "@/lib/finance/money";
+import { financeLedgerSync } from "@/lib/flags";
 
 /* ------------------------------------------------------------------ */
 /* Shared bits                                                         */
@@ -100,6 +107,15 @@ export function BudgetTab() {
   useEffect(() => {
     const stamp = nowIso();
     setLedger(loadBudgetLedger(stamp));
+    // PR 4: background pull/push when the sync flag is on; anonymous → no-op.
+    if (!financeLedgerSync) return;
+    let cancelled = false;
+    void reconcileBudgetLedger(stamp).then((next) => {
+      if (!cancelled && next) setLedger(next);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Guarantee the current month's period exists — on first mount AND after a
@@ -229,13 +245,19 @@ export function BudgetTab() {
         transactions={aliveTransactions}
         categoryNames={categoryNames}
         onAdd={() => setAddOpen(true)}
-        onDelete={(id) => commit(softDeleteTransaction(ledger, id, nowIso()))}
+        onDelete={(id) => {
+          const stamp = nowIso();
+          commit(softDeleteTransaction(ledger, id, stamp));
+          if (financeLedgerSync) {
+            void pushSoftDeleteTransaction(id);
+          }
+        }}
       />
 
       <p className="text-sm text-dim">
-        Manual entries only, stored on this device until sync arrives. Missing transactions are not
-        zero spending — these totals reflect what you have recorded, and a month in progress is not
-        a completed month.
+        {financeLedgerSync
+          ? "Manual entries sync to your account when signed in. Missing transactions are not zero spending — these totals reflect what you have recorded, and a month in progress is not a completed month."
+          : "Manual entries only, stored on this device until sync arrives. Missing transactions are not zero spending — these totals reflect what you have recorded, and a month in progress is not a completed month."}
       </p>
 
       <AddTransactionModal
@@ -244,8 +266,21 @@ export function BudgetTab() {
         ledger={ledger}
         today={today}
         onSubmit={(input) => {
-          commit(addManualTransaction(ledger, input, nowIso()));
+          const stamp = nowIso();
+          const next = addManualTransaction(ledger, input, stamp);
+          commit(next);
           setAddOpen(false);
+          if (financeLedgerSync) {
+            const created = next.transactions[next.transactions.length - 1];
+            if (created) {
+              void pushManualTransaction(created).then((result) => {
+                if (result === "ok") {
+                  const marked = markTransactionSynced(next, created.id);
+                  commit(marked);
+                }
+              });
+            }
+          }
         }}
       />
       <EditPlanModal
