@@ -1,8 +1,10 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useScrollLock } from "@/hooks/useScrollLock";
 import { getShortcutsForScope, formatShortcut, type ShortcutScope } from "@/lib/keyboard/shortcuts";
 
 export function ShortcutHelp() {
@@ -38,20 +40,21 @@ export function ShortcutHelp() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [open]);
 
-  useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => { document.body.style.overflow = ""; };
-  }, [open]);
+  // Shared y-only body scroll lock (task 3.5) — replaces the local
+  // overflow:hidden toggle, which also killed position:sticky pin stages.
+  useScrollLock(open);
 
   const shortcuts = getShortcutsForScope(scope);
   const globalShortcuts = shortcuts.filter((s) => s.scope === "global");
   const scopedShortcuts = shortcuts.filter((s) => s.scope !== "global");
 
-  return (
+  // Client-only portal to document.body (task 3.5): escapes the
+  // ClientProviders page-transition wrapper, whose transient
+  // will-change:transform turns it into the containing block for fixed
+  // descendants. `open` is client-state-driven, so SSR renders nothing.
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
@@ -59,11 +62,14 @@ export function ShortcutHelp() {
           animate={{ opacity: 1 }}
           exit={reducedMotion ? {} : { opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+          className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center p-4"
           onClick={() => setOpen(false)}
         >
           <div className="absolute inset-0 bg-navy/80 backdrop-blur-sm" />
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Keyboard shortcuts"
             initial={reducedMotion ? {} : { opacity: 0, scale: 0.96, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={reducedMotion ? {} : { opacity: 0, scale: 0.96, y: 10 }}
@@ -137,6 +143,7 @@ export function ShortcutHelp() {
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }
