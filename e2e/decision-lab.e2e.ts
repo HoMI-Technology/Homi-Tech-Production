@@ -7,8 +7,9 @@ import { dismissCookieConsent } from "./helpers/consent";
  * and honest scenario drift).
  *
  * Anonymous and local-only by design, like the CI-safe core of this suite:
- * `/tools` is a PUBLIC product route (lib/auth/protected-routes.ts), and the
- * Affordability + Scenarios lenses are ungated, so every assertion here runs
+ * `/tools` and `/scenarios` are PUBLIC product routes
+ * (lib/auth/protected-routes.ts), and the Affordability lens plus the
+ * saved-scenarios section of /scenarios are ungated, so every assertion here runs
  * without a session, secrets, or a live database — green on forks and in CI.
  *
  * State is seeded straight into the browser stores the app already reads
@@ -169,7 +170,8 @@ test.describe("Decision Lab — scenario staleness", () => {
       { key: SCENARIOS_KEY, value: scenario },
     );
 
-    await page.goto("/tools/scenarios");
+    // D2: saved scenarios live on the canonical /scenarios page (#saved section).
+    await page.goto("/scenarios#saved");
     await dismissCookieConsent(page);
 
     await expect(page.getByText("House at $420k")).toBeVisible();

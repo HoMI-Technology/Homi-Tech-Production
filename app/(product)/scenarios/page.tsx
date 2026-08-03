@@ -16,6 +16,7 @@ import {
 } from "@/lib/finance/store";
 import type { ScenarioKey, SimulationInputs } from "@/lib/decisions/simulate";
 import { NetPositionChart } from "@/components/decisions/NetPositionChart";
+import { SavedScenariosPanel } from "@/components/tools/SavedScenariosPanel";
 import { MoneyField } from "@/components/ui/MoneyField";
 import { PercentSlider } from "@/components/ui/PercentSlider";
 import { formatCurrency } from "@/lib/tools/format";
@@ -268,6 +269,13 @@ export default function ScenariosPage() {
 
           <p className="text-xs leading-relaxed text-dim">{SCENARIO_DISCLAIMER}</p>
         </div>
+      </div>
+
+      {/* D2: /tools/scenarios (Decision Lab saved scenarios) merged into the
+          canonical scenario surface. Deep link: /scenarios#saved. */}
+      <div className="hairline mt-14" />
+      <div className="mt-12">
+        <SavedScenariosPanel />
       </div>
     </div>
   );

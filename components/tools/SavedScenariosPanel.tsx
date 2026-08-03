@@ -44,11 +44,13 @@ function formatCell(value: number | null, unit: "currency" | "months" | "percent
 }
 
 /**
- * Saved scenarios — the comparison surface. Two futures, side by side,
- * evaluated deterministically against the numbers each was saved with.
- * Staleness is displayed, never silently refreshed.
+ * Saved scenarios — the comparison surface, now a section of the canonical
+ * /scenarios page (Decision D2: /tools/scenarios merged into Scenario
+ * Studio). Two futures, side by side, evaluated deterministically against
+ * the numbers each was saved with. Staleness is displayed, never silently
+ * refreshed. Deep-linkable as /scenarios#saved.
  */
-export default function ScenariosPage() {
+export function SavedScenariosPanel() {
   const { cfm, hydrated } = useCfm();
   const [scenarios, setScenarios] = useState<ToolScenario[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -80,6 +82,15 @@ export default function ScenariosPage() {
       cancelled = true;
     };
   }, []);
+
+  // Honor the /scenarios#saved deep link (the old /tools/scenarios redirect
+  // target) — the section mounts async, so scroll once content is ready.
+  useEffect(() => {
+    if (!hydrated || !loaded) return;
+    if (typeof window !== "undefined" && window.location.hash === "#saved") {
+      document.getElementById("saved")?.scrollIntoView();
+    }
+  }, [hydrated, loaded]);
 
   const byLens = useMemo(() => {
     const groups = new Map<string, ToolScenario[]>();
@@ -121,25 +132,23 @@ export default function ScenariosPage() {
     setSelected((prev) => prev.filter((x) => x !== scenario.id));
   }
 
-  if (!hydrated || !loaded) {
-    return (
-      <div className="mx-auto max-w-4xl px-6 py-10">
-        <p className="text-sm text-dim">Loading your saved futures…</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10 sm:py-12">
+    <section id="saved" aria-labelledby="saved-scenarios" className="scroll-mt-24">
       <p className="eyebrow">Decision Lab</p>
-      <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">Saved scenarios</h1>
+      <h2 id="saved-scenarios" className="mt-1 font-display text-2xl text-light md:text-3xl">
+        Saved scenarios
+      </h2>
       <p className="mt-2 max-w-2xl text-dim">
         Futures you named and kept. Pick two from the same tool to compare them — every number
         recomputed deterministically, evaluated against the numbers each was saved with.
       </p>
 
-      {scenarios.length === 0 && (
-        <div className="glass mt-10 p-8 text-center">
+      {(!hydrated || !loaded) && (
+        <p className="mt-6 text-sm text-dim">Loading your saved futures…</p>
+      )}
+
+      {hydrated && loaded && scenarios.length === 0 && (
+        <div className="glass mt-8 p-8 text-center">
           <p className="text-light">No saved futures yet.</p>
           <p className="mt-2 text-sm text-dim">
             Open a tool, set the numbers that matter, and hit <span className="text-light">Save as scenario</span>.
@@ -150,97 +159,98 @@ export default function ScenariosPage() {
         </div>
       )}
 
-      {[...byLens.entries()].map(([lensId, list]) => {
-        const lens = getLens(lensId);
-        return (
-          <section key={lensId} className="mt-10" aria-labelledby={`scenarios-${lensId}`}>
-            <h2 id={`scenarios-${lensId}`} className="font-display text-lg text-light">
-              <span
-                aria-hidden
-                className="mr-2 inline-block h-2 w-2 rounded-full align-middle"
-                style={{ background: lens?.accent ?? "#22d3ee" }}
-              />
-              {lens?.name ?? lensId}
-              <span className="ml-2 text-sm font-normal text-dim">
-                {list.length} saved
-              </span>
-            </h2>
+      {hydrated && loaded &&
+        [...byLens.entries()].map(([lensId, list]) => {
+          const lens = getLens(lensId);
+          return (
+            <section key={lensId} className="mt-10" aria-labelledby={`scenarios-${lensId}`}>
+              <h3 id={`scenarios-${lensId}`} className="font-display text-lg text-light">
+                <span
+                  aria-hidden
+                  className="mr-2 inline-block h-2 w-2 rounded-full align-middle"
+                  style={{ background: lens?.accent ?? "#22d3ee" }}
+                />
+                {lens?.name ?? lensId}
+                <span className="ml-2 text-sm font-normal text-dim">
+                  {list.length} saved
+                </span>
+              </h3>
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {list.map((scenario) => {
-                const drift = scenarioDrift(scenario, cfm);
-                const isSelected = selected.includes(scenario.id);
-                const evaluation = evaluateScenario(scenario);
-                return (
-                  <div
-                    key={scenario.id}
-                    className={`glass p-5 transition-colors ${isSelected ? "panel-focus" : ""}`}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="font-semibold text-light">{scenario.name}</p>
-                        <p className="mt-0.5 text-xs text-dim">
-                          {new Date(scenario.savedAt).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                          {scenario.origin === "local" ? " · this browser only" : ""}
-                        </p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {list.map((scenario) => {
+                  const drift = scenarioDrift(scenario, cfm);
+                  const isSelected = selected.includes(scenario.id);
+                  const evaluation = evaluateScenario(scenario);
+                  return (
+                    <div
+                      key={scenario.id}
+                      className={`glass p-5 transition-colors ${isSelected ? "panel-focus" : ""}`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="font-semibold text-light">{scenario.name}</p>
+                          <p className="mt-0.5 text-xs text-dim">
+                            {new Date(scenario.savedAt).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
+                            {scenario.origin === "local" ? " · this browser only" : ""}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => remove(scenario)}
+                          aria-label={`Delete ${scenario.name}`}
+                          className="rounded p-1 text-dim transition-colors hover:text-crimson"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M3 3l10 10M13 3L3 13" strokeLinecap="round" />
+                          </svg>
+                        </button>
                       </div>
+
+                      {evaluation.monthlyCost !== null && (
+                        <p className="score-numeral mt-3 text-xl font-bold text-cyan">
+                          {formatCurrency(evaluation.monthlyCost)}
+                          <span className="ml-1 text-xs font-normal text-dim">/mo</span>
+                        </p>
+                      )}
+
+                      {drift.length > 0 && (
+                        <p className="mt-3 rounded-lg border border-yellow/30 bg-yellow/5 p-2 text-xs leading-relaxed text-dim">
+                          Saved when your{" "}
+                          {drift
+                            .map((d) => `${d.label} was ${formatCurrency(d.from)}`)
+                            .join(" and ")}
+                          {" "}— it's since changed. Refresh it in the tool to re-anchor.
+                        </p>
+                      )}
+
+                      {/* A genuine toggle (two scenarios selectable), so it keeps
+                          aria-pressed — not radio semantics — while sharing the
+                          canonical segmented selected style. */}
                       <button
                         type="button"
-                        onClick={() => remove(scenario)}
-                        aria-label={`Delete ${scenario.name}`}
-                        className="rounded p-1 text-dim transition-colors hover:text-crimson"
+                        onClick={() => toggleSelect(scenario.id)}
+                        aria-pressed={isSelected}
+                        className={`mt-4 w-full rounded-lg px-3 py-2 text-sm font-medium ${segmentedSelectionClasses(isSelected)}`}
                       >
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M3 3l10 10M13 3L3 13" strokeLinecap="round" />
-                        </svg>
+                        {isSelected ? "Selected for comparison" : "Compare this"}
                       </button>
                     </div>
-
-                    {evaluation.monthlyCost !== null && (
-                      <p className="score-numeral mt-3 text-xl font-bold text-cyan">
-                        {formatCurrency(evaluation.monthlyCost)}
-                        <span className="ml-1 text-xs font-normal text-dim">/mo</span>
-                      </p>
-                    )}
-
-                    {drift.length > 0 && (
-                      <p className="mt-3 rounded-lg border border-yellow/30 bg-yellow/5 p-2 text-xs leading-relaxed text-dim">
-                        Saved when your{" "}
-                        {drift
-                          .map((d) => `${d.label} was ${formatCurrency(d.from)}`)
-                          .join(" and ")}
-                        {" "}— it's since changed. Refresh it in the tool to re-anchor.
-                      </p>
-                    )}
-
-                    {/* A genuine toggle (two scenarios selectable), so it keeps
-                        aria-pressed — not radio semantics — while sharing the
-                        canonical segmented selected style. */}
-                    <button
-                      type="button"
-                      onClick={() => toggleSelect(scenario.id)}
-                      aria-pressed={isSelected}
-                      className={`mt-4 w-full rounded-lg px-3 py-2 text-sm font-medium ${segmentedSelectionClasses(isSelected)}`}
-                    >
-                      {isSelected ? "Selected for comparison" : "Compare this"}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        );
-      })}
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })}
 
       {comparison && pair && (
         <section className="mt-10" aria-labelledby="scenario-comparison">
-          <h2 id="scenario-comparison" className="font-display text-lg text-light">
+          <h3 id="scenario-comparison" className="font-display text-lg text-light">
             {pair[0].name} <span className="text-dim">vs</span> {pair[1].name}
-          </h2>
+          </h3>
           <div className="glass mt-4 overflow-hidden p-0">
             <table className="w-full text-sm">
               <thead>
@@ -276,6 +286,6 @@ export default function ScenariosPage() {
           </p>
         </section>
       )}
-    </div>
+    </section>
   );
 }
