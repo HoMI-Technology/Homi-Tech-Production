@@ -3,6 +3,7 @@ import "@/app/globals.css";
 import { fraunces, inter, jetbrainsMono } from "@/app/fonts";
 import { CookieConsent } from "@/components/consent/CookieConsent";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/react";
 import { CONSENT_BOOT_SCRIPT } from "@/components/consent/consent-shared";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 import { AppleSplashLinks } from "@/components/pwa/AppleSplashLinks";
@@ -108,6 +109,7 @@ export default function RootLayout({
         <ServiceWorkerRegister />
         <AttributionCapture />
         {process.env.VERCEL === "1" && <SpeedInsights />}
+        {process.env.VERCEL === "1" && <Analytics />}
       </body>
     </html>
   );

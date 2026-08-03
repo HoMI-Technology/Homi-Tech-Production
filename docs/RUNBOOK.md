@@ -148,4 +148,4 @@
 | Rate limiting | Remove `UPSTASH_REDIS_REST_URL` |
 | PostHog analytics | Remove `NEXT_PUBLIC_POSTHOG_KEY` |
 | Web push | Remove `NEXT_PUBLIC_VAPID_PUBLIC_KEY` |
-| Receipt signing | Remove `RECEIPT_SIGNING_KEY` (receipts return unsigned) |
+| Receipt signing | Remove `RECEIPT_SIGNING_SECRET` (receipts return unsigned) |

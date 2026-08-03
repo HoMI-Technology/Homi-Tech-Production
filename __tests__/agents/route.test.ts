@@ -72,7 +72,7 @@ function req(body: unknown) {
 beforeEach(() => {
   process.env.NEXT_PUBLIC_FF_AGENT_OS = "true";
   process.env.ANTHROPIC_API_KEY = "test-key";
-  process.env.RECEIPT_SIGNING_KEY = "test-receipt-key";
+  process.env.RECEIPT_SIGNING_SECRET = "test-receipt-secret";
   state.user = { id: "u1" };
   state.tier = "free";
   state.role = null;
