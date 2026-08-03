@@ -14,6 +14,7 @@ import {
   saveReadinessPath,
   generatePathFromResult,
   completePathStep,
+  completePathStepWithImpact,
   financeSnapshotForPath,
   getFinanceSavedAtForPath,
   computeBindingProgress,
@@ -38,6 +39,7 @@ import {
   type ReadinessPath,
   type RecurringItem,
 } from "@/lib/readiness";
+import { impactBus } from "@/lib/flags";
 import {
   hasSavedFinanceState,
   loadFinanceState,
@@ -77,7 +79,6 @@ export default function PathPage() {
   useEffect(() => {
     let active = true;
     async function hydrate() {
-      // Auto-complete cleared gates from finance + assessment
       const reconciled = reconcilePathWithSignals();
       if (reconciled.completedStepIds.length > 0 && active) {
         setPath(reconciled.path);
@@ -135,7 +136,6 @@ export default function PathPage() {
     };
   }, []);
 
-  // Habit measurement: once per session when path page hydrates with a path.
   useEffect(() => {
     if (!hydrated || !path) return;
     if (!pathHabitOncePerSession("path_page_viewed")) return;
@@ -216,6 +216,11 @@ export default function PathPage() {
   }, []);
 
   const handleComplete = useCallback((stepId: string) => {
+    if (impactBus) {
+      const { path: next } = completePathStepWithImpact(stepId, "done");
+      if (next) setPath(next);
+      return;
+    }
     const next = completePathStep(stepId, "done");
     if (next) setPath(next);
   }, []);
