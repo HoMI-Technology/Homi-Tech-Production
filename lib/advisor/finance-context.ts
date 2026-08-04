@@ -122,7 +122,7 @@ function resolveCategoryName(
   return categories.find((c) => c.id === categoryId)?.name ?? "Uncategorized";
 }
 
-function currentOpenPeriod(
+export function currentOpenPeriod(
   state: BudgetLedgerState,
   nowDate: string,
   nowIso: string,
