@@ -46,6 +46,13 @@ Then open [http://localhost:3000](http://localhost:3000).
 | `npm run brand-check` | Brand canon lint (spelling, colors, banned claims) |
 | `npm run architecture:check` | Verify `public/architecture.json` is in sync |
 
+## Architecture & Design
+
+**Human-readable production architecture design document** (system, UI specs, integration plan, tradeoffs, diagrams):  
+[`docs/ARCHITECTURE-DESIGN.md`](./docs/ARCHITECTURE-DESIGN.md)
+
+**Machine-readable snapshot** (for agents): `public/architecture.json` (regenerate with `npm run architecture:gen`).
+
 ## Architecture overview
 
 ```

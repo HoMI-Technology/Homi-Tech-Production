@@ -127,7 +127,10 @@ remain binding and are carried here. Violating any of these = stop and fix.
 - Next.js app (`homi-production`): `app/`, `components/`, `lib/`, `supabase/`
 - Keep secrets out of git; use `.env.local` (gitignored)
 
-## Agent-scrapable architecture feed
+## Agent-scrapable architecture feed + Design Doc
+
+**Human-readable complete architecture design document** (full system architecture, detailed UI specs, integration plan with explicit tradeoffs, diagrams, risks & mitigations, evolution):  
+`docs/ARCHITECTURE-DESIGN.md` (in-repo, production baseline v1.0).
 
 Any agent can fetch the complete HōMI architecture snapshot:
 
@@ -144,7 +147,7 @@ npm run architecture:check
 ```
 
 **Authority:** executable TypeScript wins on conflict (`lib/scoring`,
-`lib/brand`, `lib/agents/registry`). The feed is a derived index.
+`lib/brand`, `lib/agents/registry`). The feed is a derived index. The DESIGN.md + ARCHITECTURE-DESIGN.md are the human contracts.
 
 **Consumption protocol (short):**
 
