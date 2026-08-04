@@ -3,6 +3,7 @@ import { COLORS } from "@/lib/brand";
 import { getCachedClient } from "@/lib/supabase/server";
 import { getEntitlements } from "@/lib/entitlements";
 import { formatCurrency, formatCurrencyTile } from "@/lib/tools/format";
+import { buildFinanceContextFromLedgerTables } from "@/lib/advisor/finance-context";
 import {
   netWorthDelta,
   netWorthTrend,
@@ -10,6 +11,7 @@ import {
   type ItemReading,
   type SnapshotReading,
 } from "@/lib/dashboard/financial-position";
+import { buildLedgerDashboardView } from "@/lib/dashboard/financial-position-ledger";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Sparkline } from "@/components/ui/Sparkline";
@@ -17,9 +19,9 @@ import { StatTile } from "@/components/ui/StatTile";
 import { Reveal } from "@/components/ui/Reveal";
 import { BankConnectCard } from "@/components/dashboard/BankConnectCard";
 import { ConnectionsTile } from "@/components/dashboard/ConnectionsTile";
-import { GoalCard, type GoalData } from "@/components/dashboard/GoalCard";
+import { GoalCard, type GoalData, type LedgerGoal } from "@/components/dashboard/GoalCard";
 import { LoadErrorPanel } from "@/components/dashboard/LoadErrorPanel";
-import type { Goal } from "@/types/database";
+import type { FinanceSavingsGoalRow, Goal } from "@/types/database";
 
 function SectionShell({ children }: { children: React.ReactNode }) {
   return (
@@ -55,7 +57,7 @@ export async function FinancialPositionSection({
 }) {
   const supabase = await getCachedClient();
 
-  const [snapshotsR, itemsR, accountsR, goalR] = await Promise.all([
+  const [snapshotsR, itemsR, accountsR, goalR, ledgerContext, ledgerGoalR] = await Promise.all([
     supabase
       .from("financial_snapshots")
       .select("net_worth, net_cash_flow, savings_rate, completed_at, state")
@@ -74,6 +76,16 @@ export async function FinancialPositionSection({
       .select("label, target_amount, target_date")
       .eq("user_id", userId)
       .eq("kind", "down_payment")
+      .maybeSingle(),
+    // Ledger-first path: if the user has saved budget/transaction data, derive
+    // the dashboard tiles from it instead of the Plaid snapshot.
+    buildFinanceContextFromLedgerTables(supabase),
+    supabase
+      .from("finance_savings_goals")
+      .select("name, target_amount_cents, current_amount_cents, target_date")
+      .eq("user_id", userId)
+      .eq("status", "active")
+      .eq("goal_type", "home")
       .maybeSingle(),
   ]);
 
@@ -105,31 +117,51 @@ export async function FinancialPositionSection({
         target_date: goalRow.target_date,
       }
     : null;
-  const goalSavings = latestSnapshot ? snapshotLiquidSavings(latestSnapshot.state) : null;
-  const netWorth = latestSnapshot ? Number(latestSnapshot.net_worth) : 0;
-  const cashFlow = latestSnapshot ? Number(latestSnapshot.net_cash_flow) : 0;
-  const savingsRatePct = latestSnapshot ? Math.round(Number(latestSnapshot.savings_rate) * 100) : 0;
+
+  const ledgerGoalRow = ledgerGoalR.data as
+    | Pick<FinanceSavingsGoalRow, "name" | "target_amount_cents" | "current_amount_cents" | "target_date">
+    | null;
+  const ledgerGoal: LedgerGoal | null = ledgerGoalRow
+    ? {
+        name: ledgerGoalRow.name,
+        targetAmount: Number(ledgerGoalRow.target_amount_cents) / 100,
+        currentAmount: Number(ledgerGoalRow.current_amount_cents) / 100,
+        targetDate: ledgerGoalRow.target_date,
+      }
+    : null;
+
+  const dashboardView = buildLedgerDashboardView(ledgerContext, latestSnapshot);
+  const hasLedger = dashboardView?.source === "ledger";
+
+  const netWorth = dashboardView?.kpis.netWorth ?? 0;
+  const cashFlow = dashboardView?.kpis.cashFlow ?? 0;
+  const savingsRatePct = dashboardView?.kpis.savingsRatePct ?? 0;
+  const goalSavings = ledgerGoal
+    ? ledgerGoal.currentAmount
+    : latestSnapshot
+      ? snapshotLiquidSavings(latestSnapshot.state)
+      : null;
 
   return (
     <Reveal delay={80}>
       <SectionShell>
-        {bankItems.length === 0 ? (
+        {bankItems.length === 0 && !hasLedger ? (
           <BankConnectCard plusRequired={!bankSyncEntitled} />
-        ) : latestSnapshot ? (
+        ) : dashboardView ? (
           <>
             <StatTile
               label="Net worth"
               value={formatCurrencyTile(netWorth)}
               accent={COLORS.cyan}
               delta={
-                nwDelta
+                !hasLedger && nwDelta
                   ? `${nwDelta.delta >= 0 ? "+" : "−"}${formatCurrency(Math.abs(nwDelta.delta))}`
                   : undefined
               }
-              deltaTone={nwDelta?.tone}
-              footer={nwDelta ? "vs. previous snapshot" : "From your synced balances"}
+              deltaTone={!hasLedger ? nwDelta?.tone : undefined}
+              footer={hasLedger ? "From your budget ledger" : "From your synced balances"}
               spark={
-                netWorthSeries.length >= 2 ? (
+                !hasLedger && netWorthSeries.length >= 2 ? (
                   <Sparkline id="networth" values={netWorthSeries} color={COLORS.cyan} />
                 ) : undefined
               }
@@ -138,14 +170,14 @@ export async function FinancialPositionSection({
               label="Cash flow · 30d"
               value={formatCurrencyTile(cashFlow)}
               accent={cashFlow >= 0 ? COLORS.emerald : COLORS.crimson}
-              footer="Based on recently synced activity"
+              footer={hasLedger ? "Based on your budget ledger" : "Based on recently synced activity"}
             />
             <StatTile
               label="Savings rate"
               value={String(savingsRatePct)}
               unit="%"
               accent={COLORS.yellow}
-              footer="Of synced income, last 30 days"
+              footer={hasLedger ? "Of budgeted income, last 30 days" : "Of synced income, last 30 days"}
             />
             <ConnectionsTile items={bankItems} accountCount={accountsR.count ?? 0} />
           </>
@@ -163,8 +195,9 @@ export async function FinancialPositionSection({
         )}
         <GoalCard
           goal={goal}
+          ledgerGoal={ledgerGoal}
           liquidSavings={goalSavings}
-          monthlyNetCashFlow={latestSnapshot ? cashFlow : null}
+          monthlyNetCashFlow={dashboardView ? cashFlow : null}
         />
       </SectionShell>
     </Reveal>

@@ -10,6 +10,11 @@ import {
   runwayMonths,
   financeSavedAt,
 } from "@/lib/finance/store";
+import {
+  hasSavedBudgetLedger,
+  loadBudgetLedger,
+} from "@/lib/finance/local-ledger";
+import { buildPathFinanceSnapshotFromLedger } from "@/lib/finance/readiness-snapshot";
 import { createSyncedResource, type Stamped } from "@/lib/persistence";
 import {
   buildReadinessPath,
@@ -135,6 +140,13 @@ export async function pullReadinessPath(): Promise<ReadinessPath | null> {
 }
 
 export function financeSnapshotForPath(): PathFinanceSnapshot | null {
+  if (hasSavedBudgetLedger()) {
+    const nowIso = new Date().toISOString();
+    const ledger = loadBudgetLedger(nowIso);
+    const snapshot = buildPathFinanceSnapshotFromLedger(ledger, nowIso.slice(0, 10));
+    if (snapshot) return snapshot;
+  }
+
   if (!hasSavedFinanceState()) return null;
   const state = loadFinanceState();
   const runway = runwayMonths(state);

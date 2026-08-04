@@ -155,7 +155,7 @@ function trailingIncomeCents(
   return { avgMonthlyCents: Math.round(total / months), monthsWithData: sums.size };
 }
 
-function monthlyIncomeCents(
+export function monthlyIncomeCents(
   state: BudgetLedgerState,
   period: BudgetPeriod,
   nowDate: string,
@@ -167,7 +167,7 @@ function monthlyIncomeCents(
   return { incomeCents: avgMonthlyCents, basis: "trailing_three_month_average" };
 }
 
-function debtPaymentsCents(
+export function debtPaymentsCents(
   transactions: BudgetLedgerState["transactions"],
   period: Pick<BudgetPeriod, "periodStart" | "periodEnd">,
 ): number {

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { createClient } from "@/lib/supabase/client";
 import type { AgentId } from "@/lib/agents/registry";
 
 export interface FinanceInsight {
@@ -48,25 +49,74 @@ function saveInsights(insights: FinanceInsight[]) {
 }
 
 /**
- * Ephemeral agent insights panel. Agents can suggest actions during chat;
- * users pin the ones they want to keep on their dashboard. Stored in
- * localStorage for now; Phase 3 will make them durable server-side.
+ * Agent insights panel. Signed-in users read durable insights from the server;
+ * anonymous or offline users fall back to localStorage. Dismissal is applied
+ * optimistically on the client and persisted server-side when authenticated.
  */
 export function AgentInsightsPanel({ insights: injected }: { insights?: FinanceInsight[] }) {
   const [insights, setInsights] = useState<FinanceInsight[]>(() => injected ?? loadInsights());
   const [mounted, setMounted] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    if (!injected) setInsights(loadInsights());
+    if (injected) {
+      setInsights(injected);
+      return;
+    }
+
+    let active = true;
+    async function load() {
+      let serverInsights: FinanceInsight[] | null = null;
+      try {
+        const supabase = createClient();
+        const { data } = await supabase.auth.getUser();
+        const isSignedIn = Boolean(data?.user);
+        if (!active) return;
+        setSignedIn(isSignedIn);
+
+        if (isSignedIn) {
+          const res = await fetch("/api/finance/insights");
+          if (res.ok) {
+            const body = (await res.json()) as { insights?: FinanceInsight[] };
+            serverInsights = body.insights ?? [];
+          }
+        }
+      } catch {
+        // Network or auth failure — fall back to localStorage.
+      }
+
+      if (!active) return;
+      const next = serverInsights ?? loadInsights();
+      setInsights(next);
+      if (serverInsights) saveInsights(serverInsights);
+    }
+
+    load();
+    return () => {
+      active = false;
+    };
   }, [injected]);
 
-  function dismiss(id: string) {
+  async function dismiss(id: string) {
     setInsights((prev) => {
       const next = prev.filter((i) => i.id !== id);
       saveInsights(next);
       return next;
     });
+
+    if (signedIn) {
+      try {
+        await fetch("/api/finance/insights", {
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ id }),
+        });
+      } catch {
+        // Leave localStorage in the dismissed state; the server copy will be
+        // reconciled on the next fetch or sync.
+      }
+    }
   }
 
   if (!mounted || insights.length === 0) return null;

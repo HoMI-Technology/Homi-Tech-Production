@@ -436,6 +436,22 @@ export interface FinanceMutationIdempotencyRow {
   created_at: string;
 }
 
+/** Durable agent insights — migration 20260804000001. */
+export interface FinanceInsightRow {
+  id: string;
+  user_id: string;
+  agent_id: string;
+  type: string;
+  title: string;
+  body: string;
+  severity: "emerald" | "yellow" | "amber" | "crimson" | null;
+  action_label: string | null;
+  action_href: string | null;
+  dismissed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 /** Raw Plaid tx mirror (migration 00024) — kept separate for re-sync fidelity.
  *  Amount signed per Plaid convention. Import path will produce FinanceTransactionRow (source=plaid).
  */

@@ -10,7 +10,17 @@
  */
 
 import type { MoneyCents } from "@/lib/finance/money";
+import { centsToDollars } from "@/lib/finance/money";
 import type { PeriodTotals } from "@/lib/finance/calculations";
+import { summarizePeriod, runwayFromOutflow } from "@/lib/finance/calculations";
+import type { BudgetLedgerState } from "@/lib/finance/local-ledger";
+import { activeGoal } from "@/lib/finance/local-ledger";
+import {
+  currentOpenPeriod,
+  monthlyIncomeCents,
+  debtPaymentsCents,
+} from "@/lib/advisor/finance-context";
+import type { PathFinanceSnapshot } from "@/lib/readiness/path";
 
 export type FinanceCompleteness = "low" | "medium" | "high";
 
@@ -134,5 +144,52 @@ export function buildReadinessSnapshot(input: {
 
     completeness: input.completeness,
     calculatedAt: input.calculatedAt,
+  };
+}
+
+/**
+ * Builds the compact finance snapshot the Path to Ready engine consumes.
+ *
+ * Returns `null` when the ledger has no real data yet (no transactions,
+ * periods, or active goal). Money is converted to whole USD at the boundary;
+ * the path engine should not receive cents.
+ */
+export function buildPathFinanceSnapshotFromLedger(
+  state: BudgetLedgerState,
+  nowDate: string,
+): PathFinanceSnapshot | null {
+  const hasAnyTransactions = state.transactions.length > 0;
+  const hasAnyPeriods = state.periods.length > 0;
+  const goal = activeGoal(state);
+  if (!goal && !hasAnyTransactions && !hasAnyPeriods) {
+    return null;
+  }
+
+  // currentOpenPeriod needs an ISO stamp when it creates a missing period.
+  // We synthesize one from the date-only input so the function stays pure.
+  const nowIso = `${nowDate}T00:00:00.000Z`;
+  const period = currentOpenPeriod(state, nowDate, nowIso);
+  const totals = summarizePeriod(state.transactions, period);
+  const { incomeCents } = monthlyIncomeCents(state, period, nowDate);
+
+  const debtPayments = debtPaymentsCents(state.transactions, period);
+  const monthlyExpensesCents = totals.netExpenseCents;
+  const liquidSavingsCents = goal?.goalType === "emergency_reserve" ? goal.currentAmountCents : 0;
+
+  const outflowCents = monthlyExpensesCents + debtPayments;
+  const runway = runwayFromOutflow(
+    liquidSavingsCents,
+    outflowCents,
+    "current_month_actual",
+  );
+
+  return {
+    monthlyIncome: centsToDollars(incomeCents),
+    netCashFlow: centsToDollars(totals.cashRemainingCents),
+    runwayMonths:
+      runway.months !== null ? Math.round(runway.months * 10) / 10 : null,
+    monthlyExpenses: centsToDollars(monthlyExpensesCents),
+    liquidSavings: centsToDollars(liquidSavingsCents),
+    monthlyDebtPayments: centsToDollars(debtPayments),
   };
 }

@@ -22,17 +22,28 @@ export interface GoalData {
   target_date: string | null;
 }
 
-type SavingsSource = "synced" | "manual" | null;
+/** Goal supplied from the v2 budget ledger (finance_savings_goals). */
+export interface LedgerGoal {
+  name: string;
+  targetAmount: number;
+  currentAmount: number;
+  targetDate: string | null;
+}
+
+type SavingsSource = "ledger" | "synced" | "manual" | null;
 
 export function GoalCard({
   goal: initialGoal,
+  ledgerGoal,
   liquidSavings,
   monthlyNetCashFlow,
 }: {
   goal: GoalData | null;
-  /** From the latest plaid_sync snapshot; null when no snapshot exists. */
+  /** Goal from the ledger; takes display precedence over the legacy goal. */
+  ledgerGoal?: LedgerGoal | null;
+  /** From the latest plaid_sync snapshot or the ledger goal balance; null when neither exists. */
   liquidSavings: number | null;
-  /** From the latest snapshot's net_cash_flow; null when no snapshot exists. */
+  /** From the latest snapshot's net_cash_flow or the ledger; null when no data exists. */
   monthlyNetCashFlow: number | null;
 }) {
   const [goal, setGoal] = useState<GoalData | null>(initialGoal);
@@ -43,9 +54,11 @@ export function GoalCard({
   const [note, setNote] = useState<string | null>(null);
   const [saved, setSaved] = useState<number | null>(liquidSavings);
   const [flow, setFlow] = useState<number | null>(monthlyNetCashFlow);
-  const [source, setSource] = useState<SavingsSource>(liquidSavings !== null ? "synced" : null);
+  const [source, setSource] = useState<SavingsSource>(
+    ledgerGoal ? "ledger" : liquidSavings !== null ? "synced" : null,
+  );
 
-  // Manual fallback — only when no synced snapshot supplied the numbers.
+  // Manual fallback — only when no synced snapshot or ledger goal supplied the numbers.
   // Local copy renders immediately; the background pull then adopts the
   // freshest cross-device copy (T2.6), so a goal set up on a laptop shows
   // real progress on a phone that never opened /finance.
@@ -72,6 +85,14 @@ export function GoalCard({
       cancelled = true;
     };
   }, [liquidSavings]);
+
+  const displayGoal: GoalData | null = ledgerGoal
+    ? {
+        label: ledgerGoal.name,
+        target_amount: ledgerGoal.targetAmount,
+        target_date: ledgerGoal.targetDate,
+      }
+    : goal;
 
   async function save() {
     if (targetAmount === null || targetAmount <= 0) {
@@ -119,10 +140,10 @@ export function GoalCard({
     setBusy(false);
   }
 
-  const progress = goal ? goalProgress(goal.target_amount, saved ?? 0) : null;
-  // Projection only when synced cash flow exists — manual numbers get the
+  const progress = displayGoal ? goalProgress(displayGoal.target_amount, saved ?? 0) : null;
+  // Projection only when real cash flow exists — manual numbers get the
   // pace line too, but labeled as manual. No data → no projection at all.
-  const projection = goal && saved !== null ? goalProjection(goal.target_amount, saved, flow) : null;
+  const projection = displayGoal && saved !== null ? goalProjection(displayGoal.target_amount, saved, flow) : null;
 
   return (
     <div className="glass glass-hover sweep relative overflow-hidden p-6">
@@ -134,8 +155,8 @@ export function GoalCard({
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="eyebrow">Down-payment goal</p>
-          {goal && !editing && (
-            <p className="mt-1 text-sm text-dim">{goal.label ?? "Your target, your pace."}</p>
+          {displayGoal && !editing && (
+            <p className="mt-1 text-sm text-dim">{displayGoal.label ?? "Your target, your pace."}</p>
           )}
         </div>
         {goal && !editing && (
@@ -158,9 +179,9 @@ export function GoalCard({
         </p>
       )}
 
-      {editing || !goal ? (
+      {editing || !displayGoal ? (
         <div className="mt-4 space-y-4">
-          {!goal && (
+          {!displayGoal && (
             <p className="text-sm leading-relaxed text-dim">
               Name the number you&apos;re saving toward and the dashboard tracks your progress against it.
             </p>
@@ -208,7 +229,7 @@ export function GoalCard({
           <div className="flex items-end justify-between gap-3">
             <p className="score-numeral text-2xl font-bold text-light">
               {formatCurrency(progress?.saved ?? 0)}
-              <span className="ml-1 text-sm font-medium text-dim">of {formatCurrency(goal.target_amount)}</span>
+              <span className="ml-1 text-sm font-medium text-dim">of {formatCurrency(displayGoal.target_amount)}</span>
             </p>
             <span className="score-numeral text-sm text-yellow">
               {Math.round((progress?.ratio ?? 0) * 100)}%
@@ -230,6 +251,7 @@ export function GoalCard({
             />
           </div>
           <p className="mt-3 text-xs leading-relaxed text-dim">
+            {source === "ledger" && "Savings read from your budget ledger."}
             {source === "synced" && "Savings read from your synced bank balances."}
             {source === "manual" && "Savings read from your manual Finance dashboard numbers."}
             {source === null &&
@@ -241,9 +263,11 @@ export function GoalCard({
             <p className="mt-2 text-sm text-light">
               At your current cash flow, target reached ~{projection.label}.
               <span className="ml-1 text-xs text-dim">
-                {source === "synced"
-                  ? "Pace based on recently synced activity."
-                  : "Pace based on your manual numbers."}
+                {source === "ledger"
+                  ? "Pace based on your budget ledger."
+                  : source === "synced"
+                    ? "Pace based on recently synced activity."
+                    : "Pace based on your manual numbers."}
               </span>
             </p>
           ) : null}
