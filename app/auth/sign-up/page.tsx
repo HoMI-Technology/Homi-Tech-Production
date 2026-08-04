@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { safeNext } from "@/lib/auth/safeNext";
+import { OAuthButtons } from "@/components/auth/OAuthButtons";
 
 function SignUpForm() {
   const router = useRouter();
@@ -162,6 +163,8 @@ function SignUpForm() {
           </button>
         </form>
       )}
+
+      <OAuthButtons next={next} />
 
       <div className="hairline my-6" />
 
