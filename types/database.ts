@@ -313,3 +313,145 @@ export interface PlaidAccount {
   iso_currency: string | null;
   updated_at: string;
 }
+
+/** Finance ledger (builds on migration 20260803000001_finance_ledger.sql).
+ *  Positive cents + semantic type (direction never encoded in sign).
+ *  transaction_date is date-only in user's budget frame (never derive months from timestamps).
+ *  Soft delete via deleted_at. Client supplies id (for local-first + idempotency).
+ */
+export type FinanceTransactionType =
+  | "income"
+  | "expense"
+  | "transfer"
+  | "refund"
+  | "adjustment";
+export type FinanceTransactionStatus = "posted" | "pending" | "voided";
+export type FinanceTransactionSource =
+  | "manual"
+  | "plaid"
+  | "recurring_rule"
+  | "migration";
+
+export interface FinanceTransactionRow {
+  id: string;
+  user_id: string;
+  type: FinanceTransactionType;
+  status: FinanceTransactionStatus;
+  /** bigint; PostgREST often surfaces as string for safety. */
+  amount_cents: number | string;
+  currency: "USD";
+  description: string;
+  merchant_name: string | null;
+  category_id: string | null;
+  account_id: string | null;
+  transaction_date: string; // YYYY-MM-DD
+  posted_at: string | null;
+  source: FinanceTransactionSource;
+  external_transaction_id: string | null;
+  recurring_rule_id: string | null;
+  transfer_group_id: string | null;
+  parent_transaction_id: string | null;
+  is_excluded_from_budget: boolean;
+  user_note: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export type FinanceCategoryType = "income" | "expense";
+export type CategoryEssentiality =
+  | "required"
+  | "important"
+  | "flexible"
+  | "unclassified";
+
+export interface FinanceCategoryRow {
+  id: string;
+  /** null = system default (shared, read-only for users). */
+  user_id: string | null;
+  name: string;
+  slug: string;
+  category_type: FinanceCategoryType;
+  essentiality: CategoryEssentiality;
+  parent_category_id: string | null;
+  is_system: boolean;
+  is_archived: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FinanceBudgetPeriodRow {
+  id: string;
+  user_id: string;
+  period_start: string; // YYYY-MM-DD inclusive
+  period_end: string;
+  expected_income_cents: number | string | null;
+  goal_reserve_cents: number | string;
+  status: "open" | "closed";
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FinanceBudgetAllocationRow {
+  id: string;
+  budget_period_id: string;
+  category_id: string;
+  planned_cents: number | string;
+  rollover_mode: "none" | "positive_only" | "full";
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FinanceSavingsGoalRow {
+  id: string;
+  user_id: string;
+  name: string;
+  goal_type:
+    | "emergency_reserve"
+    | "home"
+    | "vehicle"
+    | "education"
+    | "family"
+    | "travel"
+    | "custom";
+  target_amount_cents: number | string;
+  current_amount_cents: number | string;
+  target_date: string | null;
+  planned_monthly_contribution_cents: number | string;
+  linked_decision_id: string | null;
+  linked_account_id: string | null;
+  status: "active" | "paused" | "completed" | "archived";
+  created_at: string;
+  updated_at: string;
+}
+
+/** Per-user mutation idempotency ledger for authenticated finance ops (20260803). */
+export interface FinanceMutationIdempotencyRow {
+  user_id: string;
+  idempotency_key: string;
+  resource_type: "transaction" | "budget_period" | "savings_goal";
+  resource_id: string;
+  response_status: number;
+  response_body: Record<string, unknown>;
+  created_at: string;
+}
+
+/** Raw Plaid tx mirror (migration 00024) — kept separate for re-sync fidelity.
+ *  Amount signed per Plaid convention. Import path will produce FinanceTransactionRow (source=plaid).
+ */
+export interface PlaidTransactionRow {
+  id: string;
+  item_id: string;
+  user_id: string;
+  account_id: string | null;
+  transaction_id: string;
+  amount: number;
+  txn_date: string | null;
+  name: string | null;
+  merchant_name: string | null;
+  category: string | null;
+  pending: boolean;
+  iso_currency: string | null;
+  created_at: string;
+  updated_at: string;
+}

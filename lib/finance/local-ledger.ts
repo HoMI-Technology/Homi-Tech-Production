@@ -35,6 +35,7 @@ import {
   type TransactionType,
 } from "@/lib/finance/ledger";
 import { isValidCents, type MoneyCents } from "@/lib/finance/money";
+import { seedLedgerFromLegacyIfEmpty } from "@/lib/finance/migrate-from-legacy";
 
 export const BUDGET_LEDGER_STORAGE_KEY = "homi:budget-ledger";
 /** Unreadable blobs are moved here, never destroyed. */
@@ -211,7 +212,10 @@ export function loadBudgetLedger(nowIso: string): BudgetLedgerState {
   let raw: string | null = null;
   try {
     raw = window.localStorage.getItem(BUDGET_LEDGER_STORAGE_KEY);
-    if (!raw) return emptyBudgetLedger(nowIso);
+    if (!raw) {
+      const empty = emptyBudgetLedger(nowIso);
+      return seedLedgerFromLegacyIfEmpty(nowIso, empty);
+    }
     let parsed: unknown = JSON.parse(raw);
     if (!isRecord(parsed)) throw new Error("not an object");
 
@@ -232,7 +236,7 @@ export function loadBudgetLedger(nowIso: string): BudgetLedgerState {
             isRecord(c) && typeof c.id === "string" && typeof c.name === "string",
         )
       : [];
-    return {
+    const state: BudgetLedgerState = {
       schemaVersion: CURRENT_SCHEMA_VERSION,
       categories: categories.length > 0 ? categories : empty.categories,
       transactions: Array.isArray(p.transactions) ? p.transactions.filter(isUsableTransaction) : [],
@@ -240,13 +244,15 @@ export function loadBudgetLedger(nowIso: string): BudgetLedgerState {
       allocations: Array.isArray(p.allocations) ? p.allocations.filter(isUsableAllocation) : [],
       goal: isUsableGoal(p.goal) ? p.goal : null,
     };
+    return seedLedgerFromLegacyIfEmpty(nowIso, state);
   } catch {
     try {
       if (raw !== null) window.localStorage.setItem(CORRUPT_BACKUP_KEY, raw);
     } catch {
       // Backup is best-effort; the fallback below still applies.
     }
-    return emptyBudgetLedger(nowIso);
+    const empty = emptyBudgetLedger(nowIso);
+    return seedLedgerFromLegacyIfEmpty(nowIso, empty);
   }
 }
 

@@ -28,6 +28,7 @@ import type {
   AdvisorCreditContext,
   AdvisorFinanceContext,
 } from "@/lib/advisor/fallback";
+import { buildFinanceContextFromLedgerTables } from "@/lib/advisor/finance-context";
 import type { VerdictKey } from "@/lib/brand";
 
 /** Same plausibility rules as the client spine (lib/advisor/context.ts). */
@@ -99,6 +100,13 @@ async function assembleAssessment(supabase: SupabaseClient): Promise<AdvisorAsse
 }
 
 async function assembleFinance(supabase: SupabaseClient): Promise<AdvisorFinanceContext | null> {
+  try {
+    const ledgerCtx = await buildFinanceContextFromLedgerTables(supabase);
+    if (ledgerCtx) return ledgerCtx;
+  } catch {
+    // Degrade to legacy user_finance_state on any ledger failure.
+  }
+
   try {
     const { data, error } = await supabase
       .from("user_finance_state")

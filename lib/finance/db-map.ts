@@ -1,56 +1,23 @@
 /**
  * Snake_case ↔ domain mappers for finance_ledger tables (PR 3).
  * Keep pure — no I/O — so route tests can assert shape without a DB.
+ *
+ * Row types centralized in @/types/database.ts for cross-ledger unification
+ * (payments, plaid, email_sends, finance_*). See docs/finance-model-unification.md.
+ * Only mappers + cents helper live here.
  */
 
 import type {
+  FinanceCategoryRow,
+  FinanceTransactionRow,
+} from "@/types/database";
+import type {
   FinanceCategory,
   FinanceTransaction,
-  TransactionSource,
-  TransactionStatus,
-  TransactionType,
-  CategoryEssentiality,
 } from "@/lib/finance/ledger";
 import type { MoneyCents } from "@/lib/finance/money";
 
-export type FinanceTransactionRow = {
-  id: string;
-  user_id: string;
-  type: TransactionType;
-  status: TransactionStatus;
-  amount_cents: number | string;
-  currency: "USD";
-  description: string;
-  merchant_name: string | null;
-  category_id: string | null;
-  account_id: string | null;
-  transaction_date: string;
-  posted_at: string | null;
-  source: TransactionSource;
-  external_transaction_id: string | null;
-  recurring_rule_id: string | null;
-  transfer_group_id: string | null;
-  parent_transaction_id: string | null;
-  is_excluded_from_budget: boolean;
-  user_note: string | null;
-  created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
-};
-
-export type FinanceCategoryRow = {
-  id: string;
-  user_id: string | null;
-  name: string;
-  slug: string;
-  category_type: "income" | "expense";
-  essentiality: CategoryEssentiality;
-  parent_category_id: string | null;
-  is_system: boolean;
-  is_archived: boolean;
-  created_at: string;
-  updated_at: string;
-};
+export type { FinanceCategoryRow, FinanceTransactionRow };
 
 function cents(value: number | string): MoneyCents {
   return Number(value) as MoneyCents;

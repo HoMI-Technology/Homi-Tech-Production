@@ -68,6 +68,89 @@ const financeContextSchema = z.object({
   totalDebt: z.number().min(0).max(1_000_000_000),
   netWorth: z.number().min(-1_000_000_000).max(1_000_000_000),
   ageDays: z.number().min(0).max(36_500).nullish(),
+
+  // v2 ledger-backed dashboard fields (all optional during staged rollout)
+  topSpendingCategories: z
+    .array(
+      z.object({
+        name: z.string().max(80),
+        amount: z.number().min(0).max(10_000_000),
+        pctOfIncome: z.number().min(0).max(100),
+        trend: z.enum(["up", "down", "flat"]),
+      }),
+    )
+    .max(10)
+    .optional(),
+  incomeVsSpendingSeries: z
+    .array(
+      z.object({
+        month: z.string().max(7),
+        income: z.number().min(0).max(10_000_000),
+        spending: z.number().min(0).max(10_000_000),
+      }),
+    )
+    .max(6)
+    .optional(),
+  activeSignals: z
+    .array(
+      z.object({
+        id: z.string().max(40),
+        severity: z.enum(["emerald", "yellow", "amber", "crimson"]),
+        title: z.string().max(120),
+        body: z.string().max(500),
+      }),
+    )
+    .max(10)
+    .optional(),
+  nudges: z
+    .array(
+      z.object({
+        id: z.string().max(40),
+        type: z.string().max(40),
+        message: z.string().max(500),
+        action: z
+          .object({
+            label: z.string().max(60),
+            href: z.string().max(120),
+          })
+          .optional(),
+      }),
+    )
+    .max(10)
+    .optional(),
+  goals: z
+    .array(
+      z.object({
+        name: z.string().max(80),
+        target: z.number().min(0).max(1_000_000_000),
+        saved: z.number().min(0).max(1_000_000_000),
+        pct: z.number().min(0).max(100),
+        dueDate: z.string().max(10).optional(),
+      }),
+    )
+    .max(10)
+    .optional(),
+  recentTransactions: z
+    .array(
+      z.object({
+        date: z.string().max(10),
+        description: z.string().max(160),
+        amount: z.number().min(0).max(10_000_000),
+        category: z.string().max(80),
+        type: z.enum(["income", "expense"]),
+      }),
+    )
+    .max(20)
+    .optional(),
+  readinessInputs: z
+    .object({
+      dti: z.number().min(0).max(1000),
+      savingsRate: z.number().min(-1000).max(1000),
+      runwayMonths: z.number().min(0).max(1200),
+      downPaymentProgressPct: z.number().min(0).max(100),
+      creditScore: z.number().min(300).max(850).optional(),
+    })
+    .optional(),
 });
 
 /**

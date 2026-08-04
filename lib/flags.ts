@@ -23,16 +23,6 @@ export const agentOs = process.env.NEXT_PUBLIC_FF_AGENT_OS === "true";
 export const impactBus = process.env.NEXT_PUBLIC_FF_IMPACT_BUS === "true";
 
 /**
- * Budget & Runway ledger surface: the Budget tab on /finance (manual local
- * ledger, PR 2 of the plan ladder). Build-time, env-backed (same strict
- * pattern as agentOs above): only the exact lowercase string "true" enables
- * it. Default false everywhere; enabled per-branch on the PR Preview until
- * the ladder's sync + readiness PRs land. No localStorage/cookie/query
- * overrides, no remote config.
- */
-export const budgetLedger = process.env.NEXT_PUBLIC_FF_BUDGET_LEDGER === "true";
-
-/**
  * Per-record Budget ledger sync (PR 4): pull/push against
  * `/api/finance/transactions` + categories. Strict `"true"` only.
  * Defaults off; enable on Preview once PR 3 schema is applied. Requires a
@@ -40,3 +30,10 @@ export const budgetLedger = process.env.NEXT_PUBLIC_FF_BUDGET_LEDGER === "true";
  */
 export const financeLedgerSync =
   process.env.NEXT_PUBLIC_FF_FINANCE_LEDGER_SYNC === "true";
+
+/**
+ * Premium finance dashboard v2 (ledger-backed, agent-facing).
+ * Strict `"true"` only. Defaults off; enable on Preview for iteration.
+ * When true, `/finance` renders the new ledger-backed money cockpit.
+ */
+export const financeV2 = process.env.NEXT_PUBLIC_FF_FINANCE_V2 === "true";

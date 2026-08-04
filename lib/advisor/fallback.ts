@@ -25,11 +25,65 @@ export interface AdvisorAssessmentContext {
   previousScore?: number | null;
 }
 
+export interface SpendingCategorySnapshot {
+  name: string;
+  amount: number;
+  pctOfIncome: number;
+  trend: "up" | "down" | "flat";
+}
+
+export interface IncomeVsSpendingPoint {
+  month: string;
+  income: number;
+  spending: number;
+}
+
+export interface FinanceSignal {
+  id: string;
+  severity: "emerald" | "yellow" | "amber" | "crimson";
+  title: string;
+  body: string;
+}
+
+export interface FinanceNudge {
+  id: string;
+  type: string;
+  message: string;
+  action?: { label: string; href: string };
+}
+
+export interface FinanceGoalSnapshot {
+  name: string;
+  target: number;
+  saved: number;
+  pct: number;
+  dueDate?: string;
+}
+
+export interface RecentTransactionSnapshot {
+  date: string;
+  description: string;
+  amount: number;
+  category: string;
+  type: "income" | "expense";
+}
+
+export interface ReadinessInputsSnapshot {
+  dti: number;
+  savingsRate: number;
+  runwayMonths: number;
+  downPaymentProgressPct: number;
+  creditScore?: number;
+}
+
 /**
  * The user's live money picture, derived from the Finance Command dashboard
- * (lib/finance/store). Only ever built when the user has actually saved
- * finance data — never from the store's placeholder defaults. All figures
+ * (lib/finance/store or the transaction ledger). Only ever built when the user
+ * has actually saved finance data — never from placeholder defaults. All figures
  * are monthly USD unless noted.
+ *
+ * Expanded for the v2 ledger-backed dashboard so agents can see category-level
+ * spending, signals, goals, and recent transactions.
  */
 export interface AdvisorFinanceContext {
   monthlyIncome: number;
@@ -47,6 +101,22 @@ export interface AdvisorFinanceContext {
   netWorth: number;
   /** Days since the user last saved finance data; null when unknown. */
   ageDays?: number | null;
+
+  // --- v2 ledger-backed dashboard fields (all optional for gradual rollout) ---
+  /** Top spending categories by amount, capped for prompt size. */
+  topSpendingCategories?: SpendingCategorySnapshot[];
+  /** Last 6 months of income vs spending, monthly USD. */
+  incomeVsSpendingSeries?: IncomeVsSpendingPoint[];
+  /** Active actionable signals (DTI high, runway low, etc.). */
+  activeSignals?: FinanceSignal[];
+  /** Behavioral nudges tied to current signals. */
+  nudges?: FinanceNudge[];
+  /** Active savings goals with progress. */
+  goals?: FinanceGoalSnapshot[];
+  /** Recent high-signal transactions, capped for prompt size. */
+  recentTransactions?: RecentTransactionSnapshot[];
+  /** Readiness bridge inputs derived from the ledger. */
+  readinessInputs?: ReadinessInputsSnapshot;
 }
 
 /**

@@ -13,12 +13,15 @@ import {
   loadFinanceState,
   hasSavedFinanceState,
   financeSavedAt,
-  netCashFlow,
-  savingsRate,
-  runwayMonths,
-  debtToIncome,
-  totalNetWorth,
 } from "@/lib/finance/store";
+import {
+  hasSavedBudgetLedger,
+  loadBudgetLedger,
+} from "@/lib/finance/local-ledger";
+import {
+  buildFinanceContextFromLedger,
+  buildFinanceContextFromLegacy,
+} from "@/lib/advisor/finance-context";
 import { loadCreditState, hasSavedCreditState, creditSavedAt } from "@/lib/credit/store";
 import { buildScoreExplanation } from "@/lib/advisor/explain";
 import {
@@ -75,20 +78,13 @@ export function buildAssessmentContext(): AdvisorAssessmentContext | undefined {
  * store's placeholder defaults must never be quoted back as "your numbers".
  */
 export function buildFinanceContext(): AdvisorFinanceContext | undefined {
+  if (hasSavedBudgetLedger()) {
+    const ledger = loadBudgetLedger(new Date().toISOString());
+    const ctx = buildFinanceContextFromLedger(ledger, new Date().toISOString());
+    if (ctx) return ctx;
+  }
   if (!hasSavedFinanceState()) return undefined;
-  const state = loadFinanceState();
-  const runway = runwayMonths(state);
-  return {
-    monthlyIncome: Math.round(state.monthlyIncome),
-    netCashFlow: Math.round(netCashFlow(state)),
-    savingsRate: Math.round(savingsRate(state) * 10) / 10,
-    runwayMonths: Number.isFinite(runway) ? Math.round(runway * 10) / 10 : null,
-    dti: Math.round(debtToIncome(state) * 10) / 10,
-    liquidSavings: Math.round(state.liquidSavings),
-    totalDebt: Math.round(state.totalDebt),
-    netWorth: Math.round(totalNetWorth(state)),
-    ageDays: daysSince(financeSavedAt()),
-  };
+  return buildFinanceContextFromLegacy(loadFinanceState(), financeSavedAt());
 }
 
 /**
