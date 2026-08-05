@@ -3,7 +3,9 @@ import { AppHeader } from "@/components/layout/AppHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SessionExpiredToast } from "@/components/layout/SessionExpiredToast";
 import { ImpactToast } from "@/components/readiness/ImpactToast";
-import { CompanionWidget } from "@/components/companion/CompanionWidget";
+// CompanionHost (not CompanionWidget): interaction-gated panel so public
+// Lighthouse script budget stays green without removing Companion for E2E.
+import { CompanionHost } from "@/components/companion/CompanionHost";
 import { impactBus } from "@/lib/flags";
 import { getCachedClient, getCachedUser } from "@/lib/supabase/server";
 import type { Profile } from "@/types/database";
@@ -60,7 +62,9 @@ export default async function ProductLayout({ children }: { children: React.Reac
         {children}
       </main>
       <SiteFooter />
-      <CompanionWidget />
+      {/* Always mount the thin host for signed-out + signed-in. Heavy
+          CompanionWidget JS loads only on open / synthesis (see CompanionHost). */}
+      <CompanionHost />
       {user && <SessionExpiredToast />}
       {impactBus ? <ImpactToast /> : null}
     </>

@@ -10,6 +10,9 @@ on:
     paths:
       - "app/**"
       - "components/**"
+      - "hooks/**"
+      - "lib/**"
+      - "instrumentation*.ts"
       - "lighthouserc.json"
       - "lighthouse-budget.json"
   # Manual/API trigger — pushes from bot credentials (agent sessions) don't

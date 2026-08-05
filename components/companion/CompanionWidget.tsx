@@ -75,8 +75,12 @@ function HomiForm({ preset, size, glow = false }: { preset: HomiPreset; size: nu
  * product pages only) that opens a compact persona-aware chat panel. Not a
  * replacement for the full /advisor page (hidden there by design), just a
  * quick line to HōMI wherever the user happens to be in the product.
+ *
+ * Prefer mounting via CompanionHost so this module is not in the public
+ * initial script graph. `skipIdle` is set when the host already gated on
+ * user intent (click / synthesis / restored open).
  */
-export function CompanionWidget() {
+export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {}) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
@@ -90,19 +94,21 @@ export function CompanionWidget() {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [gateCta, setGateCta] = useState<{ href: string; label: string } | null>(null);
-  // LCP guard: the widget is never the largest paint and never above the fold,
-  // so we keep its markup + hydration cost off the critical path until the page
-  // is idle. This removed the launcher from the LCP path on the interactive
-  // (product) routes (mortgage/shadow-score) that were breaking the 2.5s budget.
-  const [idleReady, setIdleReady] = useState(false);
+  // LCP guard when mounted directly: keep markup off the critical path until
+  // idle. CompanionHost sets skipIdle after user intent so open is immediate.
+  const [idleReady, setIdleReady] = useState(skipIdle);
   const panelRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Defer first render until the browser is idle (falls back to a short timer
-  // where requestIdleCallback is unavailable, e.g. Safari). Reduced-motion and
-  // functionality are unchanged — only the timing of mount shifts.
+  // where requestIdleCallback is unavailable, e.g. Safari). Skipped when the
+  // host already confirmed user intent (skipIdle).
   useEffect(() => {
+    if (skipIdle) {
+      setIdleReady(true);
+      return;
+    }
     type IdleWindow = Window & {
       requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
     };
@@ -113,7 +119,7 @@ export function CompanionWidget() {
     }
     const t = window.setTimeout(() => setIdleReady(true), 1200);
     return () => window.clearTimeout(t);
-  }, []);
+  }, [skipIdle]);
 
   // Hydrate persisted state on mount (client only).
   useEffect(() => {
@@ -300,6 +306,9 @@ export function CompanionWidget() {
   // "What does this change for me?" — a lens button queues the message and
   // fires the event; the panel opens and sends it with the page's fresh
   // digest attached (picked up inside sendMessage).
+  //
+  // Also drain on hydrate: CompanionHost may load this module *after* the
+  // synthesis event already fired (interaction-gated import race).
   useEffect(() => {
     function handleSynthesis() {
       const pending = takePendingSynthesisMessage();
@@ -309,8 +318,11 @@ export function CompanionWidget() {
       sendMessageRef.current(pending);
     }
     window.addEventListener(SYNTHESIS_EVENT, handleSynthesis);
+    if (hydrated) {
+      handleSynthesis();
+    }
     return () => window.removeEventListener(SYNTHESIS_EVENT, handleSynthesis);
-  }, []);
+  }, [hydrated]);
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {

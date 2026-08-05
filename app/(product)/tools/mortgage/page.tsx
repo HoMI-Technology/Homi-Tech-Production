@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { COLORS } from "@/lib/brand";
 import { fullPaymentBreakdown, amortizationSummary } from "@/lib/tools/mortgage";
 import { formatCurrency } from "@/lib/tools/format";
@@ -14,14 +14,22 @@ import { ChainLinks } from "@/components/tools/ChainLinks";
 import { LensSynthesis } from "@/components/tools/LensSynthesis";
 import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
 import { ReadinessBand } from "@/components/tools/ReadinessBand";
-import { getLens } from "@/lib/tools/registry";
 import { saveToolsOverlayFields } from "@/lib/tools/cfm";
 import { computeHousingDeltas } from "@/lib/tools/deltas";
-import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readiness-bands";
+import type { ReadinessImpact } from "@/lib/tools/readiness-bands";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { useReadinessAnchors } from "@/hooks/use-readiness";
 
-const LENS = getLens("mortgage")!;
+// Outbound chain pitches only — do not import the full LENSES table here.
+// (useLensPrefill / LensSynthesis still touch the registry for seeds/coverage.)
+const MORTGAGE_CHAINS = [
+  { lensId: "rent-vs-buy", pitch: "Compare buying at this price against staying put", carry: ["price", "rate"] },
+  {
+    lensId: "affordability",
+    pitch: "Check this payment against your comfort tiers",
+    carry: ["rate", "termYears", "taxInsRate", "downPayment"],
+  },
+];
 
 function MortgagePageInner() {
   const [price, setPrice] = useState(400000);
@@ -33,6 +41,10 @@ function MortgagePageInner() {
 
   const [replaceRent, setReplaceRent] = useState(false);
   const [writeBackDone, setWriteBackDone] = useState(false);
+  // Lazy: readiness-bands → simulator → scoring. Only load when anchors exist
+  // (saved finance). Public LHCI has none, so the scoring chunk stays out of
+  // the §11 script budget on /tools/mortgage.
+  const [readiness, setReadiness] = useState<ReadinessImpact | null>(null);
 
   // Mount-only CFM prefill via the shared registry-driven hook. The per-key
   // dispatcher caps down payment at the seeded price so loanAmount can never
@@ -80,14 +92,25 @@ function MortgagePageInner() {
     });
   }, [finance, breakdown.total, replacedRentMonthly]);
 
-  // Phase 5: readiness impact of carrying this payment, magnitude only.
-  const readiness = useMemo(() => {
-    if (!readinessCtx) return null;
-    return readinessImpactForHousing(readinessCtx.baseline, readinessCtx.anchors, {
-      monthlyObligation: breakdown.total,
-      upfrontCost: downPayment,
-      replacedRentMonthly,
+  useEffect(() => {
+    if (!readinessCtx) {
+      setReadiness(null);
+      return;
+    }
+    let cancelled = false;
+    void import("@/lib/tools/readiness-bands").then(({ readinessImpactForHousing }) => {
+      if (cancelled) return;
+      setReadiness(
+        readinessImpactForHousing(readinessCtx.baseline, readinessCtx.anchors, {
+          monthlyObligation: breakdown.total,
+          upfrontCost: downPayment,
+          replacedRentMonthly,
+        }),
+      );
     });
+    return () => {
+      cancelled = true;
+    };
   }, [readinessCtx, breakdown.total, downPayment, replacedRentMonthly]);
 
   // The lens digest the Companion reads — every number precomputed here.
@@ -102,7 +125,9 @@ function MortgagePageInner() {
       },
       keyInputs: { price, downPayment, rate, termYears },
       deltas,
-      readiness: readiness ? toReadinessDigest(readiness) : undefined,
+      readiness: readiness
+        ? { band: readiness.band, direction: readiness.direction, hardStop: readiness.hardStop }
+        : undefined,
     }),
     [breakdown.total, price, downPayment, rate, termYears, deltas, readiness],
   );
@@ -224,12 +249,10 @@ function MortgagePageInner() {
             </p>
           </div>
 
-          {LENS.chains && (
-            <ChainLinks
-              chains={LENS.chains}
-              carryValues={{ price, downPayment, rate, termYears, taxInsRate, hoaMonthly }}
-            />
-          )}
+          <ChainLinks
+            chains={MORTGAGE_CHAINS}
+            carryValues={{ price, downPayment, rate, termYears, taxInsRate, hoaMonthly }}
+          />
         </div>
       </div>
     </ToolShell>
