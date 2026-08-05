@@ -10,8 +10,9 @@ import { dismissCookieConsent } from "./consent";
  *   - single_choice → clickable radio cards ([role=radio][aria-checked])
  *   - number        → input[type=number] (valid when > 0)
  *   - slider        → input[type=range] (answered once interacted with)
- * plus pillar intros, a decision picker, two optional conflict checks
- * (Continue/Skip), and a review step with the submit button.
+ * plus pillar intros, two optional conflict checks (Continue/Skip), and a
+ * review step with the submit button. The decision-type picker is omitted
+ * while only home_buying is in ACTIVE_DECISION_TYPES (auto-set).
  *
  * The helper is intentionally black-box: it detects the field shape per step
  * instead of hardcoding question ids, so question-bank edits don't break the
