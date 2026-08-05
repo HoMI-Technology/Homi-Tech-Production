@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { LazyMotion, AnimatePresence, m } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { ScrollProgress } from "./ScrollProgress";
 import { WelcomeBanner } from "./WelcomeBanner";
@@ -37,6 +37,18 @@ export const pageTransitionVariants = {
   exit: { opacity: 0, y: -8, scale: 0.998, willChange: "transform, opacity" },
 };
 
+/**
+ * LazyMotion feature loader — keeps the ~34kb preloaded `motion` component
+ * off the critical path. Initial shell uses the slim `m` component (~4.6kb);
+ * domAnimation (+~15kb) loads after first paint. Motion docs:
+ * https://motion.dev/docs/react-reduce-bundle-size
+ *
+ * Guarded by `__tests__/perf-bundle-guards.test.ts` — do not reintroduce
+ * `import { motion } from "framer-motion"` here.
+ */
+const loadMotionFeatures = () =>
+  import("./motion-features").then((mod) => mod.default);
+
 export function ClientProviders({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
@@ -50,14 +62,16 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  // Client: full UX layer active
+  // Client: full UX layer active.
+  // LazyMotion strict is intentionally off: Toast/Modal/finance still use the
+  // full `motion` API elsewhere. This path still uses slim `m` + async features.
   return (
-    <>
+    <LazyMotion features={loadMotionFeatures}>
       <ScrollProgress />
       <KeyboardShortcutsProvider />
 
       <AnimatePresence mode="wait" initial={false}>
-        <motion.div
+        <m.div
           key={pathname}
           data-testid="page-transition"
           variants={pageTransitionVariants}
@@ -68,8 +82,8 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
         >
           <WelcomeBanner />
           {children}
-        </motion.div>
+        </m.div>
       </AnimatePresence>
-    </>
+    </LazyMotion>
   );
 }
