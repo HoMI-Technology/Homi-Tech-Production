@@ -52,9 +52,13 @@ function stepMeta(steps: FlowStep[]): StepMeta[] {
   }));
 }
 
+const DEFAULT_DECISION_TYPE: DecisionType = ACTIVE_DECISION_TYPES[0] ?? "home_buying";
+
 export function FullAssessmentFlow() {
   const router = useRouter();
-  const [decisionType, setDecisionType] = useState<DecisionType>("home_buying");
+  // Launch honesty: when only one vertical is live, force it — never offer
+  // disabled "Coming soon" decision cards.
+  const [decisionType, setDecisionType] = useState<DecisionType>(DEFAULT_DECISION_TYPE);
   const steps = useMemo(() => buildAssessmentFlow(decisionType), [decisionType]);
 
   const [index, setIndex] = useState(0);
@@ -84,7 +88,13 @@ export function FullAssessmentFlow() {
 
   function handleResumeDraft() {
     if (resumeDraft) {
-      setDecisionType(resumeDraft.decisionType);
+      // Prefer the sole live type when the product is single-vertical; otherwise
+      // restore whatever the draft captured.
+      const restored =
+        ACTIVE_DECISION_TYPES.length === 1
+          ? DEFAULT_DECISION_TYPE
+          : resumeDraft.decisionType;
+      setDecisionType(restored);
       setResponses(resumeDraft.responses);
       setConflict(resumeDraft.conflict);
       setIndex(Math.min(resumeDraft.index, steps.length - 1));
@@ -96,6 +106,7 @@ export function FullAssessmentFlow() {
   function handleStartOver() {
     clearDraft();
     setResumeDraft(null);
+    setDecisionType(DEFAULT_DECISION_TYPE);
     setResponses({});
     setConflict(EMPTY_CONFLICT);
     setIndex(0);
@@ -206,18 +217,13 @@ export function FullAssessmentFlow() {
         <StepShell stepKey="decision" onNext={goNext} showBack={false}>
           <ChoiceCards<DecisionType>
             label="What decision are you working through?"
-            hint={`HōMI starts with home buying — ${steps.filter((s) => s.kind === "question").length} questions from the canonical bank. Other decision types are coming.`}
+            hint={`${steps.filter((s) => s.kind === "question").length} questions from the canonical bank for this decision.`}
             value={decisionType}
             onChange={setDecisionType}
-            options={(Object.keys(DECISION_TYPE_LABELS) as DecisionType[]).map((key) => {
-              const active = ACTIVE_DECISION_TYPES.includes(key);
-              return {
-                value: key,
-                label: DECISION_TYPE_LABELS[key],
-                disabled: !active,
-                badge: active ? undefined : "Coming soon",
-              };
-            })}
+            options={ACTIVE_DECISION_TYPES.map((key) => ({
+              value: key,
+              label: DECISION_TYPE_LABELS[key],
+            }))}
           />
         </StepShell>
       )}

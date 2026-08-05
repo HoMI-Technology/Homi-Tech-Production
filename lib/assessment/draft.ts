@@ -10,8 +10,12 @@ import type { ConflictResponses } from "@/lib/questions/to-inputs";
 
 export const DRAFT_KEY = "homi:assessment-draft";
 
-/** Bump when the draft envelope shape changes. */
-export const DRAFT_VERSION = 2;
+/**
+ * Bump when the draft envelope shape or flow index semantics change.
+ * v3: decision picker omitted when only one ACTIVE_DECISION_TYPES entry — old
+ * indices (which included a decision step at 0) are no longer valid.
+ */
+export const DRAFT_VERSION = 3;
 
 export interface AssessmentDraft {
   decisionType: DecisionType;

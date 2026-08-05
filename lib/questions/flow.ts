@@ -1,3 +1,4 @@
+import { ACTIVE_DECISION_TYPES } from "@/lib/assessment/types";
 import {
   DIMENSION_ORDER,
   getQuestionsByDimension,
@@ -41,12 +42,35 @@ export function getQuestionById(id: string): Question | undefined {
 }
 
 /**
- * Builds the ordered step list for a decision type from the canonical question
- * bank: decision picker → pillar intros → one step per bank question →
- * optional conflict checks → review.
+ * Whether the assessment flow should show a decision-type picker.
+ * With a single live vertical (launch: home buying only), skip the step and
+ * auto-set that type in the UI — never surface inactive "Coming soon" cards.
  */
-export function buildAssessmentFlow(decisionType: string): FlowStep[] {
-  const steps: FlowStep[] = [{ kind: "decision" }];
+export function shouldShowDecisionPicker(
+  activeTypes: readonly string[] = ACTIVE_DECISION_TYPES,
+): boolean {
+  return activeTypes.length !== 1;
+}
+
+/**
+ * Builds the ordered step list for a decision type from the canonical question
+ * bank: optional decision picker → pillar intros → one step per bank question →
+ * optional conflict checks → review.
+ *
+ * When only one decision type is active, the picker is omitted (caller forces
+ * that type). Pass `activeDecisionTypes` to override the product default
+ * (tests / multi-vertical previews).
+ */
+export function buildAssessmentFlow(
+  decisionType: string,
+  opts?: { activeDecisionTypes?: readonly string[] },
+): FlowStep[] {
+  const active = opts?.activeDecisionTypes ?? ACTIVE_DECISION_TYPES;
+  const steps: FlowStep[] = [];
+
+  if (shouldShowDecisionPicker(active)) {
+    steps.push({ kind: "decision" });
+  }
 
   for (const dimension of DIMENSION_ORDER) {
     const questions = getQuestionsByDimension(dimension, decisionType);
