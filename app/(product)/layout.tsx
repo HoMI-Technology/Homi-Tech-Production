@@ -60,7 +60,10 @@ export default async function ProductLayout({ children }: { children: React.Reac
         {children}
       </main>
       <SiteFooter />
-      <CompanionWidget />
+      {/* Companion ships advisor + digest + thread-store JS. Public
+          Lighthouse routes hit tools/shadow anonymously; keep that weight
+          off the §11 script budget. Signed-in free/paid still get the widget. */}
+      {user ? <CompanionWidget /> : null}
       {user && <SessionExpiredToast />}
       {impactBus ? <ImpactToast /> : null}
     </>
