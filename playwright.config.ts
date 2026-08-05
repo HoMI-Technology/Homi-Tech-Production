@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { resolveBrowserUse } from "./e2e/helpers/browser";
 
 /**
  * HōMI Playwright E2E smoke suite (AUDIT T3.5).
@@ -13,6 +14,11 @@ import { defineConfig, devices } from "@playwright/test";
  * Specs use the `*.e2e.ts` suffix on purpose: vitest's default include glob
  * (`*.{test,spec}.*`) never matches it, so the unit-test gate never picks
  * these specs up, and this suite never runs inside vitest.
+ *
+ * Browser: on local Windows, prefer system Chrome/Edge. Corporate Application
+ * Control blocks Playwright's bundled chrome-headless-shell (spawn UNKNOWN).
+ * CI keeps the bundled Chromium. Override with PLAYWRIGHT_CHANNEL,
+ * PLAYWRIGHT_CHROME_PATH, or PLAYWRIGHT_USE_BUNDLED=1.
  */
 
 // Load .env.local when present (Node >= 20.6 built-in — no dotenv dependency).
@@ -24,6 +30,7 @@ try {
 }
 
 const baseURL = process.env.E2E_BASE_URL ?? "http://localhost:3000";
+const browserUse = resolveBrowserUse();
 
 export default defineConfig({
   testDir: "./e2e",
@@ -53,23 +60,38 @@ export default defineConfig({
     // Dev mode compiles on demand — first navigation to a route can be slow.
     actionTimeout: 20_000,
     navigationTimeout: 60_000,
+    ...browserUse,
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
-  webServer: {
-    command: "npm run dev",
-    url: baseURL,
-    // Local runs reuse a dev server you already started; CI always boots fresh.
-    reuseExistingServer: !process.env.CI,
-    timeout: 180_000,
-    env: {
-      // Share links and the Stripe success redirect are built from SITE_URL —
-      // pin it to the local server so the smoke suite never wanders to prod.
-      NEXT_PUBLIC_SITE_URL: baseURL,
-      NEXT_TELEMETRY_DISABLED: "1",
-      // Forward the flag explicitly (defaulting off) so the Next.js child
-      // process and the spec runner always agree on the Impact Bus state,
-      // regardless of how the suite was launched.
-      NEXT_PUBLIC_FF_IMPACT_BUS: process.env.NEXT_PUBLIC_FF_IMPACT_BUS ?? "false",
+  projects: [
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        ...browserUse,
+      },
     },
-  },
+  ],
+  // Skip bootstrapping a local server when the suite targets a remote host
+  // (production / Preview smoke via E2E_BASE_URL).
+  webServer: /^https?:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/i.test(baseURL)
+    ? {
+        command: "npm run dev",
+        url: baseURL,
+        // Local runs reuse a dev server you already started; CI always boots fresh.
+        reuseExistingServer: !process.env.CI,
+        timeout: 180_000,
+        env: {
+          // Share links and the Stripe success redirect are built from SITE_URL —
+          // pin it to the local server so the smoke suite never wanders to prod.
+          NEXT_PUBLIC_SITE_URL: baseURL,
+          NEXT_TELEMETRY_DISABLED: "1",
+          // Forward the flag explicitly (defaulting off) so the Next.js child
+          // process and the spec runner always agree on the Impact Bus state,
+          // regardless of how the suite was launched.
+          NEXT_PUBLIC_FF_IMPACT_BUS: process.env.NEXT_PUBLIC_FF_IMPACT_BUS ?? "false",
+        },
+      }
+    : undefined,
 });
+
+
