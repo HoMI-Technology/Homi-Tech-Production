@@ -6,6 +6,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { PILLARS } from "@/lib/brand";
 import { computeScore } from "@/lib/scoring";
 import { saveLocalResult, loadLocalResult, attachServerId } from "@/lib/assessment/storage";
+import { recordSaveStatus, statusFromResponse } from "@/lib/assessment/save-status";
 import { saveDraft, loadDraft, clearDraft, type AssessmentDraft } from "@/lib/assessment/draft";
 import { track } from "@/lib/analytics";
 import {
@@ -147,18 +148,22 @@ export function FullAssessmentFlow() {
     saveLocalResult({ inputs, result, completedAt: new Date().toISOString(), kind: "full", previous });
     clearDraft();
 
+    recordSaveStatus("pending");
     fetch("/api/assessments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ inputs, kind: "full", decisionType }),
     })
       .then(async (res) => {
+        // 401 (anonymous) → "unauthenticated", 402 rescoring_locked →
+        // "locked", other non-OK → "failed"; /results surfaces the outcome.
+        recordSaveStatus(statusFromResponse(res.status));
         if (!res.ok) return;
         const data = (await res.json().catch(() => null)) as { id?: string } | null;
         if (data?.id) attachServerId(data.id);
       })
       .catch(() => {
-        // Anonymous users 401 here — fine, local result already saved.
+        recordSaveStatus("failed");
       });
 
     router.push("/results");
