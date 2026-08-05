@@ -8,6 +8,7 @@ import {
   type LocalReceipt,
 } from "@/lib/planner/receipts-local";
 import { VERDICT_META } from "@/lib/brand";
+import { CERTIFICATE_LEGAL } from "@/lib/readiness/legal";
 import { usePlannerScore } from "@/components/planner/hooks";
 import { PlanFooter, PlanSectionHeader, VerdictChip } from "./ui";
 
@@ -34,7 +35,7 @@ export default function PlanShare() {
           title="Export pack"
           caption="Set your decision profile and load numbers so a band-only receipt can be issued."
         />
-        <PlanFooter />
+        <PlanFooter lines={[CERTIFICATE_LEGAL]} />
       </section>
     );
   }
@@ -111,7 +112,7 @@ export default function PlanShare() {
         </p>
       </div>
 
-      <PlanFooter />
+      <PlanFooter lines={[CERTIFICATE_LEGAL]} />
     </section>
   );
 }

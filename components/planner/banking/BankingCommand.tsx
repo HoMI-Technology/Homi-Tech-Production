@@ -442,8 +442,8 @@ function BillCard({
           )}
           <CyanButton
             disabled={!resolvedPayFrom}
-            onClick={() => {
-              const result = payBillWithImpact(bill.id, resolvedPayFrom)
+            onClick={async () => {
+              const result = await payBillWithImpact(bill.id, resolvedPayFrom)
               setError(result.ok ? null : (result.error ?? 'Payment failed'))
             }}
           >

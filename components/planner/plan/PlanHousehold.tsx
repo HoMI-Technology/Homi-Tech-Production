@@ -7,6 +7,7 @@ import type { DualHouseholdScore } from "@/lib/household/dual-score";
 import { scoreHouseholdMemberAsync } from "@/lib/planner/score-bridge";
 import { usePlannerStore } from "@/lib/planner/store";
 import { NumberField } from "@/components/planner/ui/NumberField";
+import { HOUSEHOLD_LEGAL_SHORT } from "@/lib/readiness/legal";
 import { PlanFooter, PlanSectionHeader, PlanTile, VerdictChip } from "./ui";
 
 export default function PlanHousehold() {
@@ -272,7 +273,7 @@ export default function PlanHousehold() {
         </>
       )}
 
-      <PlanFooter />
+      <PlanFooter lines={[HOUSEHOLD_LEGAL_SHORT]} />
     </section>
   );
 }

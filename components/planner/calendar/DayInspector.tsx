@@ -85,8 +85,8 @@ export default function DayInspector({
     setPayError(null)
   }
 
-  const payNow = (bill: Bill) => {
-    const result = payBillWithImpact(bill.id, payFrom?.id)
+  const payNow = async (bill: Bill) => {
+    const result = await payBillWithImpact(bill.id, payFrom?.id)
     if (!result.ok) {
       setPayError(result.error ?? 'Payment failed')
       setFlash(null)
