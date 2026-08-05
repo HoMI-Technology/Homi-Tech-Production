@@ -30,6 +30,12 @@ describe("POST /api/checkout", () => {
   beforeEach(() => {
     vi.unstubAllEnvs();
     vi.unstubAllGlobals();
+    maybeSingle.mockReset();
+    maybeSingle.mockResolvedValue({ data: null });
+    getUser.mockReset();
+    getUser.mockResolvedValue({
+      data: { user: { id: "user_test_1", email: "user@example.com" } },
+    });
   });
 
   afterEach(() => {
@@ -106,5 +112,56 @@ describe("POST /api/checkout", () => {
     );
     const res = await POST(request({ tier: "plus" }));
     expect(res.status).toBe(502);
+  });
+
+  it("returns 409 already_subscribed when profile has an active paid tier", async () => {
+    vi.stubEnv("STRIPE_SECRET_KEY", "sk_test_x");
+    vi.stubEnv("STRIPE_PRICE_PLUS", "price_plus_123");
+    vi.stubEnv("STRIPE_PRICE_PRO", "price_pro_123");
+    vi.stubEnv("STRIPE_PRICE_FAMILY", "price_family_123");
+    maybeSingle.mockResolvedValueOnce({
+      data: {
+        stripe_customer_id: "cus_abc",
+        email: "user@example.com",
+        subscription_tier: "plus",
+        subscription_status: "active",
+      },
+    });
+
+    const res = await POST(request({ tier: "pro" }));
+    expect(res.status).toBe(409);
+    const body = await res.json();
+    expect(body.error).toBe("already_subscribed");
+    expect(body.action).toBe("portal");
+    expect(body.tier).toBe("plus");
+  });
+
+  it("allows Checkout after a cancelled paid tier", async () => {
+    vi.stubEnv("STRIPE_SECRET_KEY", "sk_test_x");
+    vi.stubEnv("STRIPE_PRICE_PLUS", "price_plus_123");
+    vi.stubEnv("STRIPE_PRICE_PRO", "price_pro_123");
+    vi.stubEnv("STRIPE_PRICE_FAMILY", "price_family_123");
+    maybeSingle.mockResolvedValueOnce({
+      data: {
+        stripe_customer_id: "cus_abc",
+        email: "user@example.com",
+        subscription_tier: "plus",
+        subscription_status: "cancelled",
+      },
+    });
+
+    const stripeFetch = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ url: "https://checkout.stripe.com/c/pay/again" }), {
+        status: 200,
+      }),
+    );
+    vi.stubGlobal("fetch", stripeFetch);
+
+    const res = await POST(request({ tier: "plus" }));
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({
+      configured: true,
+      url: "https://checkout.stripe.com/c/pay/again",
+    });
   });
 });
