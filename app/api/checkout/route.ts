@@ -11,6 +11,8 @@ export const runtime = "nodejs";
 
 const bodySchema = z.object({
   tier: z.enum(["plus", "pro", "family"]),
+  /** Where the user started — controls cancel_url. */
+  source: z.enum(["pricing", "subscription"]).optional(),
 });
 
 export async function POST(request: Request) {
@@ -56,19 +58,45 @@ export async function POST(request: Request) {
   if (!user) {
     return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   }
-  const clientReferenceId = user.id;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("stripe_customer_id, email")
+    .eq("id", user.id)
+    .maybeSingle();
 
   const siteUrl = env.NEXT_PUBLIC_SITE_URL;
+  const cancelPath =
+    parsed.data.source === "subscription" ? "/settings/subscription" : "/pricing";
   // hasStripe() above guarantees the key is present.
   const stripe = createStripeClient(env.STRIPE_SECRET_KEY as string);
+
+  const customerId = profile?.stripe_customer_id ?? undefined;
+  const customerEmail = user.email ?? profile?.email ?? undefined;
 
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${siteUrl}/dashboard?upgraded=1`,
-      cancel_url: `${siteUrl}/pricing`,
-      ...(clientReferenceId ? { client_reference_id: clientReferenceId } : {}),
+      success_url: `${siteUrl}/settings/subscription?upgraded=1`,
+      cancel_url: `${siteUrl}${cancelPath}`,
+      client_reference_id: user.id,
+      allow_promotion_codes: true,
+      ...(customerId
+        ? { customer: customerId }
+        : customerEmail
+          ? { customer_email: customerEmail }
+          : {}),
+      metadata: {
+        user_id: user.id,
+        tier: tier.key,
+      },
+      subscription_data: {
+        metadata: {
+          user_id: user.id,
+          tier: tier.key,
+        },
+      },
     });
 
     if (!session.url) {

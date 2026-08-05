@@ -57,7 +57,7 @@ export function PricingCheckoutButton({
       });
 
       if (res.status === 401) {
-        // Checkout requires a signed-in account — send them to sign-in and back.
+        // Checkout requires a signed-in account — send them to sign-in, then back to pricing.
         window.location.href = "/auth/sign-in?next=/pricing";
         return;
       }

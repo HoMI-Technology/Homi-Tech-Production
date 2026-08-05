@@ -34,7 +34,7 @@ function SignUpForm() {
           data: { full_name: fullName },
           emailRedirectTo:
             typeof window !== "undefined"
-              ? `${window.location.origin}/auth/callback?next=/onboarding`
+              ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
               : undefined,
         },
       });
@@ -42,7 +42,7 @@ function SignUpForm() {
         setError(signUpError.message);
         return;
       }
-      router.push("/onboarding");
+      router.push(next);
       router.refresh();
     } catch {
       setError("Something went wrong. Try again in a moment.");

@@ -13,8 +13,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
  * - Role-scoped dashboards (/partner/dashboard, /employee/dashboard, /team,
  *   /admin, /admin/analytics): reachable via palette + DashboardSwitcher only,
  *   gated by the visibleDashboards role rules.
- * - /settings: account surface; lives in the palette and the user menu, not
- *   product nav.
+ * - /settings and /settings/subscription: account surfaces; palette + user
+ *   menu, not product chrome.
  * - /shadow-score: quick-score lead-gen action; intentionally not chrome nav.
  * - /agent-hub: deep Agent OS surface; /agents (roster) is the chrome entry.
  */
@@ -25,6 +25,7 @@ const PALETTE_ONLY_HREFS = [
   "/admin",
   "/admin/analytics",
   "/settings",
+  "/settings/subscription",
   "/shadow-score",
   "/agent-hub",
 ];

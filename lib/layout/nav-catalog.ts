@@ -80,7 +80,15 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
   { href: "/team", label: "Team dashboard", group: "Roles", keywords: "organization b2b aggregate", surfaces: { palette: true } },
   { href: "/admin", label: "Admin", group: "Roles", keywords: "platform users waitlist", surfaces: { palette: true } },
   { href: "/admin/analytics", label: "Admin analytics", group: "Roles", keywords: "posthog funnel growth", surfaces: { palette: true } },
-  { href: "/settings", label: "Settings", group: "Navigate", keywords: "account profile billing subscription", surfaces: { palette: true } },
+  { href: "/settings", label: "Settings", group: "Navigate", keywords: "account profile privacy security", surfaces: { palette: true } },
+  {
+    href: "/settings/subscription",
+    label: "Subscription",
+    paletteLabel: "Manage subscription",
+    group: "Navigate",
+    keywords: "billing plan upgrade cancel stripe plus pro family pricing",
+    surfaces: { palette: true },
+  },
 ];
 
 export type NavLink = { href: string; label: string };

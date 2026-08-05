@@ -178,6 +178,13 @@ export function AppHeader({
                   >
                     Settings
                   </Link>
+                  <Link
+                    href="/settings/subscription"
+                    role="menuitem"
+                    className="chrome-menu-item"
+                  >
+                    Subscription
+                  </Link>
                   <form action="/auth/sign-out" method="post">
                     <button
                       type="submit"
@@ -225,6 +232,9 @@ export function AppHeader({
             <div className="hairline my-2" />
             <Link href="/settings" className="chrome-menu-item">
               Settings
+            </Link>
+            <Link href="/settings/subscription" className="chrome-menu-item">
+              Subscription
             </Link>
             <form action="/auth/sign-out" method="post">
               <button type="submit" className="chrome-menu-item w-full text-left">
