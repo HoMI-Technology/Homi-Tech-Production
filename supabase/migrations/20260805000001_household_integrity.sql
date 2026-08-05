@@ -13,6 +13,7 @@
 --   G-2 max two members / one partner (race-proof partial unique index)
 --   G-3 invite rows readable by owners only (not partners)
 -- =============================================================================
+
 create unique index if not exists household_members_one_per_user
   on household_members (user_id);
 
@@ -22,11 +23,11 @@ comment on index household_members_one_per_user is
   'breaks the household surface outright.';
 
 -- ---------------------------------------------------------------------------
--- G-2 (storage half) ΓÇö at most one partner per household
+-- G-2 (storage half) - at most one partner per household
 --
 -- This is the real cap. The count(*) test in household_join_allowed() races:
 -- two concurrent accepts can each observe one member and each insert. A
--- partial unique index cannot be raced ΓÇö the second insert fails on the index
+-- partial unique index cannot be raced - the second insert fails on the index
 -- no matter how the transactions interleave.
 --
 -- One partner + the owner leg's empty-household requirement = exactly two.
@@ -41,7 +42,7 @@ comment on index household_one_partner_per_household is
   'the count(*) clause in household_join_allowed() is not.';
 
 -- ---------------------------------------------------------------------------
--- G-2 ΓÇö cap membership at two (replaces the 00042 predicate)
+-- G-2 - cap membership at two (replaces the 00042 predicate)
 --
 -- Identical to 00042 except for the member-count clause on the partner leg.
 -- Restated in full rather than patched, so this file alone describes the
@@ -84,7 +85,7 @@ as $$
     -- household. The cap is what keeps the dual-score model honest: a third
     -- member would be dropped from the joint verdict without trace.
     --
-    -- The count below is a FAST PATH, not the guarantee ΓÇö it races under
+    -- The count below is a FAST PATH, not the guarantee - it races under
     -- concurrent accepts. household_one_partner_per_household is what actually
     -- holds the line. Do not remove the index on the strength of this clause.
     when 'partner' then
@@ -117,7 +118,7 @@ revoke all on function public.household_join_allowed(uuid, text) from public;
 grant execute on function public.household_join_allowed(uuid, text) to authenticated;
 
 -- ---------------------------------------------------------------------------
--- G-3 ΓÇö only the owner may read their household's invitations
+-- G-3 - only the owner may read their household's invitations
 --
 -- USING narrows from "any member" to "the owner". WITH CHECK is reproduced
 -- unchanged from 00039. 00042's household_invites_recipient_select still lets
@@ -146,7 +147,7 @@ create policy "household_invites_member_all"
   );
 
 -- =============================================================================
--- ROLLBACK ΓÇö restores G-1 and G-3.
+-- ROLLBACK - restores G-1 and G-3.
 --
 -- drop policy if exists "household_invites_member_all" on household_invites;
 -- create policy "household_invites_member_all"
