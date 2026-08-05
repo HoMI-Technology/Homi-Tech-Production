@@ -1,10 +1,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Checkout requires an authenticated session (T1.2 billing hardening).
-// Default mock: a signed-in user; individual tests can override to anonymous.
-const getUser = vi.fn().mockResolvedValue({ data: { user: { id: "user_test_1" } } });
+// Default mock: a signed-in user with no existing Stripe customer.
+const getUser = vi.fn().mockResolvedValue({
+  data: { user: { id: "user_test_1", email: "user@example.com" } },
+});
+const maybeSingle = vi.fn().mockResolvedValue({ data: null });
+const eq = vi.fn().mockReturnValue({ maybeSingle });
+const select = vi.fn().mockReturnValue({ eq });
+const from = vi.fn().mockReturnValue({ select });
 vi.mock("@/lib/supabase/server", () => ({
-  createClient: vi.fn().mockResolvedValue({ auth: { getUser: () => getUser() } }),
+  createClient: vi.fn().mockResolvedValue({
+    auth: { getUser: () => getUser() },
+    from: (...args: unknown[]) => from(...args),
+  }),
 }));
 
 import { POST } from "@/app/api/checkout/route";

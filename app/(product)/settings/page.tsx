@@ -63,7 +63,11 @@ export default function SettingsPage() {
         <div className="mt-10 flex flex-col gap-6">
           {userId && <ProfileSection userId={userId} email={email} initialFullName={profile?.full_name ?? ""} />}
 
-          <SubscriptionSection tier={profile?.subscription_tier ?? "free"} />
+          <SubscriptionSection
+            tier={profile?.subscription_tier ?? "free"}
+            status={profile?.subscription_status}
+            hasStripeCustomer={Boolean(profile?.stripe_customer_id)}
+          />
 
           {userId && <SecuritySection />}
 

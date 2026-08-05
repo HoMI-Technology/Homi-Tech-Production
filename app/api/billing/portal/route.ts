@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const returnUrl = `${env.NEXT_PUBLIC_SITE_URL}/settings`;
+    const returnUrl = `${env.NEXT_PUBLIC_SITE_URL}/settings/subscription`;
     const response = await fetch("https://api.stripe.com/v1/billing_portal/sessions", {
       method: "POST",
       headers: {
