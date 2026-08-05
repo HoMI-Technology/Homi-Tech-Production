@@ -4,10 +4,9 @@ import dynamic from "next/dynamic";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 
 /**
- * Budget Planner surface — closed-loop finance cockpit.
- * Classic dual-path tabs (Cash Flow / Debt / Monte Carlo / Net Worth)
- * were removed; ledger BudgetTab remains in the tree for PR4 bridge but
- * is no longer mounted here.
+ * Budget Planner surface — closed-loop finance cockpit (sole /finance UI).
+ * Classic dual-path tabs and legacy finance chrome were removed in #160.
+ * Transaction dual-write lands in lib/planner/ledger-bridge.ts.
  */
 const PlannerApp = dynamic(
   () =>

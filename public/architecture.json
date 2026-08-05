@@ -13,12 +13,12 @@
     "authority": "Executable TypeScript in this repo wins over this document. Prefer lib/scoring, lib/brand, lib/agents/registry on conflict."
   },
   "stats": {
-    "product_routes": 93,
-    "api_routes": 28,
-    "component_directories": 32,
-    "lib_modules": 46,
+    "product_routes": 94,
+    "api_routes": 27,
+    "component_directories": 33,
+    "lib_modules": 47,
     "db_tables": 37,
-    "migrations": 48,
+    "migrations": 51,
     "calculators": 14,
     "ai_agents": 7,
     "gaps": 3
@@ -553,6 +553,14 @@
       "file": "app/(product)/settings/page.tsx"
     },
     {
+      "path": "/settings/subscription",
+      "name": "Subscription",
+      "category": "Dashboard",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/settings/subscription/page.tsx"
+    },
+    {
       "path": "/shadow-score",
       "name": "Shadow Score",
       "category": "Assessment",
@@ -831,11 +839,6 @@
       "method": "GET/POST"
     },
     {
-      "path": "/api/goals",
-      "purpose": "Goal tracking",
-      "method": "GET/POST"
-    },
-    {
       "path": "/api/healthcheck",
       "purpose": "Health monitoring",
       "method": "GET"
@@ -917,11 +920,11 @@
       "count": 12,
       "description": "admin UI module",
       "examples": [
-        "AdSpendForm",
+        "admin-nav",
         "AdminAccessWall",
         "AdminSidebar",
-        "Badge",
-        "BarSeries"
+        "AdSpendForm",
+        "Badge"
       ]
     },
     {
@@ -1004,9 +1007,11 @@
     },
     {
       "name": "companion",
-      "count": 2,
+      "count": 4,
       "description": "companion UI module",
       "examples": [
+        "CompanionHost",
+        "CompanionTierBanner",
         "CompanionWidget",
         "MessageContent"
       ]
@@ -1024,8 +1029,8 @@
       "count": 2,
       "description": "consent UI module",
       "examples": [
-        "CookieConsent",
-        "consent-shared"
+        "consent-shared",
+        "CookieConsent"
       ]
     },
     {
@@ -1037,7 +1042,7 @@
         "ConnectionsTile",
         "DailyPulseStrip",
         "DecisionTimeline",
-        "Entrance"
+        "entrance-shared"
       ]
     },
     {
@@ -1059,14 +1064,14 @@
     },
     {
       "name": "finance",
-      "count": 11,
+      "count": 5,
       "description": "finance UI module",
       "examples": [
-        "AgentInsightsPanel",
-        "BudgetCalendar",
-        "BudgetTab",
-        "FinanceHero",
-        "NudgeRail"
+        "HardStopBanner",
+        "PillarBreakdown",
+        "readiness-types",
+        "ThresholdCompass",
+        "WarningsBanner"
       ]
     },
     {
@@ -1093,7 +1098,7 @@
     },
     {
       "name": "layout",
-      "count": 16,
+      "count": 17,
       "description": "layout UI module",
       "examples": [
         "AppHeader",
@@ -1117,10 +1122,10 @@
       "description": "marketing UI module",
       "examples": [
         "ArtifactPlayground",
+        "blog-data",
+        "guides-data",
         "PricingCheckoutButton",
-        "UnsubscribeConfirm",
-        "WaitlistForm",
-        "blog-data"
+        "UnsubscribeConfirm"
       ]
     },
     {
@@ -1133,6 +1138,18 @@
         "MetricRail",
         "OperateInstrument",
         "PageFrame"
+      ]
+    },
+    {
+      "name": "planner",
+      "count": 36,
+      "description": "planner UI module",
+      "examples": [
+        "banking-derive",
+        "BankingCommand",
+        "AgendaList",
+        "DayForms",
+        "DayInspector"
       ]
     },
     {
@@ -1158,9 +1175,11 @@
     },
     {
       "name": "results",
-      "count": 1,
+      "count": 3,
       "description": "results UI module",
       "examples": [
+        "SaveStatusBanner.test",
+        "SaveStatusBanner",
         "ScoreExplanation"
       ]
     },
@@ -1174,7 +1193,7 @@
     },
     {
       "name": "settings",
-      "count": 10,
+      "count": 11,
       "description": "settings UI module",
       "examples": [
         "CompanionMemorySection",
@@ -1224,14 +1243,14 @@
     },
     {
       "name": "ui",
-      "count": 30,
+      "count": 31,
       "description": "ui UI module",
       "examples": [
         "AnimatedNumber",
         "Celebrate",
         "ChartTooltip",
-        "DashboardLoadingSkeleton",
-        "EmptyState"
+        "count-up",
+        "DashboardLoadingSkeleton"
       ]
     }
   ],
@@ -1355,6 +1374,10 @@
     {
       "name": "plaid",
       "purpose": "plaid domain module"
+    },
+    {
+      "name": "planner",
+      "purpose": "planner domain module"
     },
     {
       "name": "push",

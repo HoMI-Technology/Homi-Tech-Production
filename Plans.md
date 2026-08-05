@@ -166,7 +166,7 @@ Production SSOT for scoring/path/tools. **No SPA score engine / WEIGHTS on clien
 | BP.1 | Shell PR: delete classic dual-path finance tabs; land `lib/planner/*` + score-bridge via `/api/scoring`; 5-tab PlannerApp at `/finance`; Overview CRUD; placeholders for Calendar/Banks/Wealth/Plan; nav label Budget Planner; `/planner` → `/finance` | brand-check · tsc · vitest · build green; no client WEIGHTS | - | cc:Done |
 | BP.2 | Full Calendar + Banks + closed-loop bill pay | planner tests + bill-pay impact | BP.1 | cc:Done |
 | BP.3 | Wealth + Plan Lab; delete superseded finance components (Wave B) | Plan path no-regen on complete; Wave B deleted | BP.2 | cc:Done |
-| BP.4 | Ledger bridge (hydrate + dual-write); BudgetTab kept for tests until full migration | dual-write + ledger hydrate on mount | BP.3 | cc:Done |
+| BP.4 | Ledger bridge (hydrate + dual-write); BudgetTab/orphans removed in audit | dual-write + ledger hydrate; no unmounted finance UI | BP.3 | cc:Done |
 
 ---
 
