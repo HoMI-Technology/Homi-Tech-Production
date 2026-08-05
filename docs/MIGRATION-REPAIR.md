@@ -291,6 +291,80 @@ canonical timestamps. Until that decision lands: **no `supabase db push`**
 from this repo against production. New migrations should use fresh
 `YYYYMMDDHHMMSS` timestamps that cannot collide with any §2 phantom.
 
+> This follow-up was executed in §8 by marking local `00001`–`00041` as
+> applied remotely via `scripts/mark-local-migrations-applied.mjs`.
+
+---
+
+## §8 — Mark local sequential migrations `00001`–`00041` as applied
+
+### Context
+
+During the finance-launch cleanup the remote migration history was squashed
+and renumbered. The live production schema already contains the content of
+`supabase/migrations/00001_*.sql` through `00041_*.sql`, but the remote
+`supabase_migrations.schema_migrations` table records that schema under the
+timestamped rebuild lineage (`20260706193938`… plus later timestamps). As a
+result, `supabase migration list` shows the local `00001`–`00041` files as
+**not applied remotely**. This is bookkeeping-only: we need to record the
+local version strings as applied without re-running their SQL.
+
+### Script
+
+`scripts/mark-local-migrations-applied.mjs` reads the local sequential
+migration files with pure numeric prefixes (`00001`…`00041`) and runs
+`supabase migration repair --status applied <version>` for each one. It does
+not need a service-role key — it relies on the already-authenticated Supabase
+CLI (`supabase login`).
+
+Run:
+
+```bash
+node scripts/mark-local-migrations-applied.mjs
+```
+
+Dry-run:
+
+```bash
+node scripts/mark-local-migrations-applied.mjs --dry-run
+```
+
+The script prints a summary of processed / marked-applied / failed versions
+and warns about any non-numeric filename prefixes (such as `00020a`) that
+must be handled outside the script.
+
+### Safety
+
+- This is a **bookkeeping-only** change: it inserts rows into
+  `supabase_migrations.schema_migrations` and does not touch schema or data.
+- Do **not** run `supabase db push` as part of this repair.
+- Once `00001`–`00041` are marked applied, `supabase db push` is safe for
+  future migrations (new migrations must continue to use `YYYYMMDDHHMMSS`
+  timestamps to avoid colliding with the repaired sequential range).
+
+### Verification
+
+```bash
+supabase migration list
+```
+
+Expected post-repair state:
+
+- `00001`–`00041` show as applied remotely.
+- The timestamped rebuild lineage (`20260706193938`… and the later
+  post-rebuild timestamps) remains untouched.
+- The dated local migrations
+  (`20260802000001_household_membership_authorization.sql`,
+  `20260802000002_org_assessment_deidentify.sql`,
+  `20260802000003_tools_overlay_sync.sql`,
+  `20260803000001_finance_ledger.sql`,
+  `20260804000001_finance_insights.sql`) remain as their own versions and
+  are not modified by this script.
+- `00020a_profiles_privilege_guard.sql` was renamed to
+  `20260804000002_profiles_privilege_guard.sql` (its content was already
+  applied; only the bookkeeping version string changed) and is marked
+  applied as `20260804000002`.
+
 ---
 
 ## Appendix — audit context

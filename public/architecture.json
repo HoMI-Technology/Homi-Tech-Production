@@ -1,7 +1,7 @@
 {
   "_meta": {
     "version": "v1",
-    "generated": "2026-08-03",
+    "generated": "2026-08-05",
     "product": "HōMI",
     "full_name": "HOMI TECHNOLOGIES LLC — Decision Readiness Intelligence™",
     "domain": "homitechnology.com",
@@ -14,11 +14,11 @@
   },
   "stats": {
     "product_routes": 93,
-    "api_routes": 27,
-    "component_directories": 30,
+    "api_routes": 28,
+    "component_directories": 32,
     "lib_modules": 46,
     "db_tables": 37,
-    "migrations": 46,
+    "migrations": 48,
     "calculators": 14,
     "ai_agents": 7,
     "gaps": 3
@@ -821,6 +821,11 @@
       "method": "POST"
     },
     {
+      "path": "/api/finance",
+      "purpose": "finance API",
+      "method": "GET/POST"
+    },
+    {
       "path": "/api/finance-state",
       "purpose": "Finance state sync",
       "method": "GET/POST"
@@ -912,11 +917,11 @@
       "count": 12,
       "description": "admin UI module",
       "examples": [
-        "admin-nav",
+        "AdSpendForm",
         "AdminAccessWall",
         "AdminSidebar",
-        "AdSpendForm",
-        "Badge"
+        "Badge",
+        "BarSeries"
       ]
     },
     {
@@ -949,14 +954,22 @@
     },
     {
       "name": "assessment",
-      "count": 14,
+      "count": 15,
       "description": "assessment UI module",
       "examples": [
         "BankQuestionField",
+        "ChoiceCards.test",
         "ChoiceCards",
         "CountUpScore",
-        "CredentialPrintButton",
-        "FullAssessmentFlow"
+        "CredentialPrintButton"
+      ]
+    },
+    {
+      "name": "auth",
+      "count": 1,
+      "description": "auth UI module",
+      "examples": [
+        "OAuthButtons"
       ]
     },
     {
@@ -1011,8 +1024,8 @@
       "count": 2,
       "description": "consent UI module",
       "examples": [
-        "consent-shared",
-        "CookieConsent"
+        "CookieConsent",
+        "consent-shared"
       ]
     },
     {
@@ -1024,7 +1037,7 @@
         "ConnectionsTile",
         "DailyPulseStrip",
         "DecisionTimeline",
-        "entrance-shared"
+        "Entrance"
       ]
     },
     {
@@ -1042,6 +1055,18 @@
       "examples": [
         "AdvancedToolGate",
         "EntitlementGate"
+      ]
+    },
+    {
+      "name": "finance",
+      "count": 11,
+      "description": "finance UI module",
+      "examples": [
+        "AgentInsightsPanel",
+        "BudgetCalendar",
+        "BudgetTab",
+        "FinanceHero",
+        "NudgeRail"
       ]
     },
     {
@@ -1092,10 +1117,10 @@
       "description": "marketing UI module",
       "examples": [
         "ArtifactPlayground",
-        "blog-data",
-        "guides-data",
         "PricingCheckoutButton",
-        "UnsubscribeConfirm"
+        "UnsubscribeConfirm",
+        "WaitlistForm",
+        "blog-data"
       ]
     },
     {
@@ -1199,14 +1224,14 @@
     },
     {
       "name": "ui",
-      "count": 26,
+      "count": 30,
       "description": "ui UI module",
       "examples": [
+        "AnimatedNumber",
         "Celebrate",
-        "count-up",
+        "ChartTooltip",
         "DashboardLoadingSkeleton",
-        "EmptyState",
-        "ErrorBoundary"
+        "EmptyState"
       ]
     }
   ],
@@ -1539,15 +1564,19 @@
       "description": "Finance dashboard persistence"
     },
     {
-      "name": "goals",
+      "name": "finance_savings_goals",
       "columns": [
         "id",
         "user_id",
-        "title"
+        "name",
+        "goal_type",
+        "target_amount_cents",
+        "current_amount_cents",
+        "status"
       ],
       "rls": true,
       "category": "user",
-      "description": "User goals"
+      "description": "Savings goals ledger (replaces legacy goals table)"
     },
     {
       "name": "advisor_conversations",

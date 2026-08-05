@@ -8,8 +8,8 @@
 
 ## 1. Executive Summary
 - **Legacy Standalone Surface (pre-2026 PRs):** Client-side + DB-backed monthly aggregates via `lib/finance/store.ts`. Used across dashboard, tools, advisor, readiness, scoring prep, Companion context. Backed by `/api/finance-state` + `user_finance_state` table (migration 00023).
-- **Ledger Work (ongoing PR ladder):** Transaction-level double-entry-style ledger (`lib/finance/ledger.ts` types + local impl + sync + calcs). Gated behind `budgetLedger` / `financeLedgerSync` flags. Local-first (localStorage), server sync (PR4), Plaid import planned (PR6). Tables in migration `20260803000001_finance_ledger.sql` (applied to prod).
-- **Current State:** Coexist. Legacy authoritative for most surfaces. Budget tab (new UI) uses ledger locally when flag on. No data migration path yet; summaries not derived from ledger in prod paths.
+- **Ledger Work (ongoing PR ladder):** Transaction-level double-entry-style ledger (`lib/finance/ledger.ts` types + local impl + sync + calcs). Gated behind the `budgetLedger` flag. Local-first (localStorage), server sync (PR4), Plaid import planned (PR6). Tables in migration `20260803000001_finance_ledger.sql` (applied to prod).
+- **Current State:** Coexist. Legacy authoritative for most surfaces. Budget tab (new UI) uses the ledger locally. No data migration path yet; summaries not derived from ledger in prod paths.
 - **Key Duplication Risk:** Two parallel finance models (snapshot vs. events). Legacy numbers are estimates; ledger is events (income/expense/transfer/refund/adjustment).
 - **Other Finance Surfaces:** Plaid (bank sync, separate `plaid_transactions` table + cashflow), Stripe (billing/subscriptions/payments ledger — distinct from user finance), scoring financial pillar (assessment-driven, not directly from store/ledger yet).
 - **Other Ledgers (non-user-finance):** payments (00032), email_sends (00027), ad_spend (00037), webhook_events, etc. — audit scoped to user finance + related.
@@ -53,8 +53,7 @@
   - `loadBudgetLedger()`, `saveBudgetLedger()`, `hasSavedBudgetLedger()`.
   - Pure mutators: `addManualTransaction()`, `softDeleteTransaction()`, `setPlannedAllocation()`, `setGoalReserve()`, `ensurePeriodFor()`, `upsertGoal()`, `archiveGoal()`, `newLedgerId()`, `seedCategories()`.
   - SSR-safe, defensive schema migration, versioned.
-- `ledger-sync.ts` (295 lines): Local <-> server sync (gated by flag).
-  - `financeLedgerSync` flag.
+- `ledger-sync.ts` (295 lines): Local <-> server sync.
   - `adoptServerCategoryIds()` (slug bridge for system cats), `mergeRemoteTransactions()` (LWW + soft-delete), pull/push helpers.
   - Category mapping for system slugs (`cat-housing` etc.).
 - `calculations.ts` (318 lines): Pure period math.
@@ -84,7 +83,7 @@
 - `app/(product)/finance/page.tsx` (1.3k lines): Main page. Uses legacy store heavily for most tabs. Conditionally dynamic-imports `BudgetTab` if `budgetLedger` flag. Tabs include "Budget" when enabled.
 - `components/finance/BudgetTab.tsx` (35k lines): Full budget UI.
   - State: local ledger.
-  - Features: periods, tx list/add/edit/delete, allocations, category bars, goal, summaries from calcs, sync hooks (if flag).
+  - Features: periods, tx list/add/edit/delete, allocations, category bars, goal, summaries from calcs, sync hooks.
   - Uses: calculations (summarizePeriod, categoryActuals), local-ledger mutators, ledger-sync, money formatters.
   - Modals for tx, goal, etc.
 
@@ -104,7 +103,6 @@
 
 **Flags (`lib/flags.ts`):**
 - `budgetLedger`: Controls Budget tab visibility + dynamic import (NEXT_PUBLIC_FF_BUDGET_LEDGER).
-- `financeLedgerSync`: Enables per-record pull/push (NEXT_PUBLIC_FF_FINANCE_LEDGER_SYNC).
 
 **Docs/Plans References:**
 - COMPANION-ECOSYSTEM.md, Plans.md, GO-LIVE-CHECKLIST.md, DEPLOY.md, MIGRATIONS-SSOT.md (notes migration applied 2026-08-03), docs/superpowers/specs/2026-07-27-path-to-ready-design.md (mentions tx ledger).

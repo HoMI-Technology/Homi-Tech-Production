@@ -19,9 +19,9 @@ import { StatTile } from "@/components/ui/StatTile";
 import { Reveal } from "@/components/ui/Reveal";
 import { BankConnectCard } from "@/components/dashboard/BankConnectCard";
 import { ConnectionsTile } from "@/components/dashboard/ConnectionsTile";
-import { GoalCard, type GoalData, type LedgerGoal } from "@/components/dashboard/GoalCard";
+import { GoalCard, type LedgerGoal } from "@/components/dashboard/GoalCard";
 import { LoadErrorPanel } from "@/components/dashboard/LoadErrorPanel";
-import type { FinanceSavingsGoalRow, Goal } from "@/types/database";
+import type { FinanceSavingsGoalRow } from "@/types/database";
 
 function SectionShell({ children }: { children: React.ReactNode }) {
   return (
@@ -57,7 +57,7 @@ export async function FinancialPositionSection({
 }) {
   const supabase = await getCachedClient();
 
-  const [snapshotsR, itemsR, accountsR, goalR, ledgerContext, ledgerGoalR] = await Promise.all([
+  const [snapshotsR, itemsR, accountsR, ledgerContext, ledgerGoalR] = await Promise.all([
     supabase
       .from("financial_snapshots")
       .select("net_worth, net_cash_flow, savings_rate, completed_at, state")
@@ -71,12 +71,6 @@ export async function FinancialPositionSection({
       .order("created_at", { ascending: true }),
     // RLS scopes plaid_accounts to the caller's items — a bare count is safe.
     supabase.from("plaid_accounts").select("id", { count: "exact", head: true }),
-    supabase
-      .from("goals")
-      .select("label, target_amount, target_date")
-      .eq("user_id", userId)
-      .eq("kind", "down_payment")
-      .maybeSingle(),
     // Ledger-first path: if the user has saved budget/transaction data, derive
     // the dashboard tiles from it instead of the Plaid snapshot.
     buildFinanceContextFromLedgerTables(supabase),
@@ -89,7 +83,7 @@ export async function FinancialPositionSection({
       .maybeSingle(),
   ]);
 
-  if (snapshotsR.error || itemsR.error || goalR.error) {
+  if (snapshotsR.error || itemsR.error) {
     return (
       <SectionShell>
         <div className="md:col-span-2 lg:col-span-3">
@@ -109,14 +103,6 @@ export async function FinancialPositionSection({
   const netWorthSeries = netWorthTrend(snapshots);
   const nwDelta = netWorthDelta(snapshots);
   const bankSyncEntitled = getEntitlements(subscriptionTier).bankSync;
-  const goalRow = goalR.data as Pick<Goal, "label" | "target_amount" | "target_date"> | null;
-  const goal: GoalData | null = goalRow
-    ? {
-        label: goalRow.label,
-        target_amount: Number(goalRow.target_amount),
-        target_date: goalRow.target_date,
-      }
-    : null;
 
   const ledgerGoalRow = ledgerGoalR.data as
     | Pick<FinanceSavingsGoalRow, "name" | "target_amount_cents" | "current_amount_cents" | "target_date">
@@ -124,8 +110,8 @@ export async function FinancialPositionSection({
   const ledgerGoal: LedgerGoal | null = ledgerGoalRow
     ? {
         name: ledgerGoalRow.name,
-        targetAmount: Number(ledgerGoalRow.target_amount_cents) / 100,
-        currentAmount: Number(ledgerGoalRow.current_amount_cents) / 100,
+        targetAmountCents: Number(ledgerGoalRow.target_amount_cents),
+        currentAmountCents: Number(ledgerGoalRow.current_amount_cents),
         targetDate: ledgerGoalRow.target_date,
       }
     : null;
@@ -137,7 +123,7 @@ export async function FinancialPositionSection({
   const cashFlow = dashboardView?.kpis.cashFlow ?? 0;
   const savingsRatePct = dashboardView?.kpis.savingsRatePct ?? 0;
   const goalSavings = ledgerGoal
-    ? ledgerGoal.currentAmount
+    ? ledgerGoal.currentAmountCents / 100
     : latestSnapshot
       ? snapshotLiquidSavings(latestSnapshot.state)
       : null;
@@ -194,7 +180,6 @@ export async function FinancialPositionSection({
           </div>
         )}
         <GoalCard
-          goal={goal}
           ledgerGoal={ledgerGoal}
           liquidSavings={goalSavings}
           monthlyNetCashFlow={dashboardView ? cashFlow : null}

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { randomBytes } from "node:crypto";
+import { mapPlaidCategoryToFinanceCategory } from "@/lib/plaid/sync";
 
 /**
  * Tests for lib/plaid/sync — the cursor discipline is where sync engines
@@ -176,6 +177,7 @@ function page(overrides: Record<string, unknown>) {
 
 let encryptToken: (t: string) => string;
 let syncItem: typeof import("@/lib/plaid/sync").syncItem;
+let syncItemToLedger: typeof import("@/lib/plaid/sync").syncItemToLedger;
 let PlaidSyncError: typeof import("@/lib/plaid/sync").PlaidSyncError;
 
 beforeEach(async () => {
@@ -183,7 +185,7 @@ beforeEach(async () => {
   vi.stubEnv("PLAID_SECRET", "secret_test");
   vi.stubEnv("PLAID_TOKEN_KEY", KEY);
   ({ encryptToken } = await import("@/lib/plaid/crypto"));
-  ({ syncItem, PlaidSyncError } = await import("@/lib/plaid/sync"));
+  ({ syncItem, syncItemToLedger, PlaidSyncError } = await import("@/lib/plaid/sync"));
 });
 
 afterEach(() => {
@@ -203,6 +205,120 @@ function makeItem(cursor: string | null) {
 
 function emptyCaptured(): Captured {
   return { itemUpdates: [], accountUpserts: [], snapshotInserts: [], txnUpserts: [] };
+}
+
+interface LedgerCaptured {
+  categoriesSelect: boolean;
+  existingSelects: { userId: string; ids: string[] }[];
+  inserts: Record<string, unknown>[][];
+  updates: { id: string; patch: Record<string, unknown> }[];
+  softDeletes: { userId: string; ids: string[] }[];
+}
+
+function emptyLedgerCaptured(): LedgerCaptured {
+  return {
+    categoriesSelect: false,
+    existingSelects: [],
+    inserts: [],
+    updates: [],
+    softDeletes: [],
+  };
+}
+
+/**
+ * Fake Supabase client scoped to the ledger writes performed by
+ * `syncItemToLedger`. It captures inserts, updates, soft-deletes, and the
+ * existing-row lookup so tests can assert behavior without a real DB.
+ */
+function fakeLedgerAdmin(captured: LedgerCaptured, fixtures: { categories: { id: string; slug: string }[]; existing: { id: string; external_transaction_id: string }[] }) {
+  return {
+    from: (table: string) => {
+      if (table === "finance_categories") {
+        return {
+          select: () => ({
+            eq: async () => {
+              captured.categoriesSelect = true;
+              return { data: fixtures.categories, error: null };
+            },
+          }),
+        };
+      }
+      if (table === "finance_transactions") {
+        return {
+          select: () => ({
+            eq: (col: string, val: unknown) => {
+              if (col === "user_id") {
+                const userId = String(val);
+                return {
+                  eq: () => ({
+                    in: (inCol: string, ids: string[]) => {
+                      captured.existingSelects.push({ userId, ids });
+                      const matches = fixtures.existing.filter((row) => ids.includes(row.external_transaction_id));
+                      return {
+                        is: async () => ({ data: matches, error: null }),
+                      };
+                    },
+                  }),
+                  in: () => ({
+                    is: async () => ({ data: [], error: null }),
+                  }),
+                };
+              }
+              if (col === "source") {
+                return {
+                  in: (inCol: string, ids: string[]) => ({
+                    is: async () => {
+                      captured.softDeletes.push({ userId: String(val), ids });
+                      return { error: null };
+                    },
+                  }),
+                };
+              }
+              return {
+                eq: () => ({
+                  in: () => ({
+                    is: async () => ({ data: [], error: null }),
+                  }),
+                }),
+              };
+            },
+          }),
+          insert: async (rows: Record<string, unknown>[]) => {
+            captured.inserts.push(rows);
+            return { error: null };
+          },
+          update: (patch: Record<string, unknown>) => ({
+            eq: (col?: string, val?: unknown) => {
+              if (col === "id" && typeof val === "string") {
+                captured.updates.push({ id: val, patch });
+                return Promise.resolve({ error: null });
+              }
+              if (col === "user_id") {
+                return {
+                  eq: () => ({
+                    in: (inCol: string, ids: string[]) => ({
+                      is: async () => {
+                        captured.softDeletes.push({ userId: String(val), ids });
+                        return { error: null };
+                      },
+                    }),
+                  }),
+                };
+              }
+              return {
+                eq: () => ({
+                  in: () => ({
+                    is: async () => ({ error: null }),
+                  }),
+                }),
+              };
+            },
+          }),
+        };
+      }
+      throw new Error(`unexpected table ${table}`);
+    },
+  };
 }
 
 describe("syncItem cursor discipline", () => {
@@ -465,5 +581,147 @@ describe("syncItem snapshot math", () => {
 
     const row = captured.snapshotInserts[0];
     expect(row.net_cash_flow).toBe(100); // ghost's 400 expense removed
+  });
+});
+
+describe("mapPlaidCategoryToFinanceCategory", () => {
+  it("maps known Plaid categories to system category ids", () => {
+    const slugToId = new Map([
+      ["dining", "cat-dining"],
+      ["housing", "cat-housing"],
+      ["other-income", "cat-other-income"],
+    ]);
+    expect(mapPlaidCategoryToFinanceCategory("FOOD_AND_DRINK", slugToId)).toBe("cat-dining");
+    expect(mapPlaidCategoryToFinanceCategory("HOUSING", slugToId)).toBe("cat-housing");
+    expect(mapPlaidCategoryToFinanceCategory("INCOME", slugToId)).toBe("cat-other-income");
+  });
+
+  it("returns null for unknown or missing categories", () => {
+    const slugToId = new Map([["dining", "cat-dining"]]);
+    expect(mapPlaidCategoryToFinanceCategory("UNKNOWN_CATEGORY", slugToId)).toBeNull();
+    expect(mapPlaidCategoryToFinanceCategory(null, slugToId)).toBeNull();
+    expect(mapPlaidCategoryToFinanceCategory(undefined, slugToId)).toBeNull();
+  });
+});
+
+describe("syncItemToLedger", () => {
+  const categories = [
+    { id: "cat-dining", slug: "dining" },
+    { id: "cat-other-income", slug: "other-income" },
+    { id: "cat-personal", slug: "personal" },
+  ];
+
+  function makeTxn(overrides: Record<string, unknown>) {
+    return {
+      transaction_id: "t-default",
+      amount: 1,
+      date: "2026-08-04",
+      name: "Transaction",
+      merchant_name: null,
+      personal_finance_category: { primary: null },
+      pending: false,
+      ...overrides,
+    };
+  }
+
+  it("inserts new rows and maps categories/amount signs", async () => {
+    const captured = emptyLedgerCaptured();
+    const admin = fakeLedgerAdmin(captured, { categories, existing: [] });
+
+    const effective = new Map([
+      ["t1", makeTxn({ transaction_id: "t1", amount: 12.34, name: "Lunch", merchant_name: "Cafe", personal_finance_category: { primary: "FOOD_AND_DRINK" } })],
+      ["t2", makeTxn({ transaction_id: "t2", amount: -100, name: "Paycheck", personal_finance_category: { primary: "INCOME" } })],
+    ]);
+
+    await syncItemToLedger(admin as never, { id: "item-1", user_id: "user-1" }, effective, new Set());
+
+    expect(captured.categoriesSelect).toBe(true);
+    expect(captured.existingSelects).toHaveLength(1);
+    expect(captured.existingSelects[0].ids).toEqual(["t1", "t2"]);
+    expect(captured.inserts).toHaveLength(1);
+    expect(captured.inserts[0]).toHaveLength(2);
+    expect(captured.updates).toHaveLength(0);
+    expect(captured.softDeletes).toHaveLength(0);
+
+    const [expenseRow, incomeRow] = captured.inserts[0];
+    expect(expenseRow.external_transaction_id).toBe("t1");
+    expect(expenseRow.type).toBe("expense");
+    expect(expenseRow.amount_cents).toBe(1234);
+    expect(expenseRow.category_id).toBe("cat-dining");
+    expect(expenseRow.merchant_name).toBe("Cafe");
+    expect(expenseRow.status).toBe("posted");
+
+    expect(incomeRow.external_transaction_id).toBe("t2");
+    expect(incomeRow.type).toBe("income");
+    expect(incomeRow.amount_cents).toBe(10000);
+    expect(incomeRow.category_id).toBe("cat-other-income");
+  });
+
+  it("updates existing rows by external_transaction_id", async () => {
+    const captured = emptyLedgerCaptured();
+    const admin = fakeLedgerAdmin(captured, {
+      categories,
+      existing: [{ id: "fin-1", external_transaction_id: "t1" }],
+    });
+
+    const effective = new Map([
+      ["t1", makeTxn({ transaction_id: "t1", amount: 55, name: "Updated lunch", personal_finance_category: { primary: "FOOD_AND_DRINK" } })],
+      ["t2", makeTxn({ transaction_id: "t2", amount: -25, name: "Refund", personal_finance_category: { primary: "INCOME" } })],
+    ]);
+
+    await syncItemToLedger(admin as never, { id: "item-1", user_id: "user-1" }, effective, new Set());
+
+    expect(captured.inserts).toHaveLength(1);
+    expect(captured.inserts[0]).toHaveLength(1);
+    expect(captured.inserts[0][0].external_transaction_id).toBe("t2");
+
+    expect(captured.updates).toHaveLength(1);
+    expect(captured.updates[0].id).toBe("fin-1");
+    expect(captured.updates[0].patch.external_transaction_id).toBe("t1");
+    expect(captured.updates[0].patch.amount_cents).toBe(5500);
+    expect(captured.updates[0].patch.type).toBe("expense");
+  });
+
+  it("soft-deletes removed ids", async () => {
+    const captured = emptyLedgerCaptured();
+    const admin = fakeLedgerAdmin(captured, { categories, existing: [] });
+
+    const effective = new Map([
+      ["keep", makeTxn({ transaction_id: "keep", amount: 10, name: "Keep me" })],
+    ]);
+
+    await syncItemToLedger(admin as never, { id: "item-1", user_id: "user-1" }, effective, new Set(["ghost"]));
+
+    expect(captured.softDeletes).toHaveLength(1);
+    expect(captured.softDeletes[0].userId).toBe("user-1");
+    expect(captured.softDeletes[0].ids).toEqual(["ghost"]);
+  });
+
+  it("marks pending transactions as pending with no posted_at", async () => {
+    const captured = emptyLedgerCaptured();
+    const admin = fakeLedgerAdmin(captured, { categories, existing: [] });
+
+    const effective = new Map([
+      ["pending", makeTxn({ transaction_id: "pending", amount: 9.99, pending: true })],
+    ]);
+
+    await syncItemToLedger(admin as never, { id: "item-1", user_id: "user-1" }, effective, new Set());
+
+    const row = captured.inserts[0][0];
+    expect(row.status).toBe("pending");
+    expect(row.posted_at).toBeNull();
+  });
+
+  it("maps unknown categories to null category_id", async () => {
+    const captured = emptyLedgerCaptured();
+    const admin = fakeLedgerAdmin(captured, { categories, existing: [] });
+
+    const effective = new Map([
+      ["t1", makeTxn({ transaction_id: "t1", amount: 5, personal_finance_category: { primary: "WEIRD_STUFF" } })],
+    ]);
+
+    await syncItemToLedger(admin as never, { id: "item-1", user_id: "user-1" }, effective, new Set());
+
+    expect(captured.inserts[0][0].category_id).toBeNull();
   });
 });

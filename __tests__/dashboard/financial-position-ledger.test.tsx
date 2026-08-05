@@ -78,8 +78,8 @@ describe("GoalCard with ledger goal", () => {
     const legacyGoal = { label: "Legacy down payment", target_amount: 50_000, target_date: null as string | null };
     const ledgerGoal = {
       name: "Ledger down payment",
-      targetAmount: 100_000,
-      currentAmount: 25_000,
+      targetAmountCents: 10_000_000,
+      currentAmountCents: 2_500_000,
       targetDate: "2028-01-01",
     };
 

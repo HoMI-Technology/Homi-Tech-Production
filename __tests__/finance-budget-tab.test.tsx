@@ -3,6 +3,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { BudgetTab } from "@/components/finance/BudgetTab";
 
+// Sync is unconditional in production, but jsdom cannot resolve relative
+// fetch URLs. Keep these tests focused on local UI behavior by stubbing
+// the network-facing sync helpers to no-ops.
+vi.mock("@/lib/finance/ledger-sync", () => ({
+  markTransactionSynced: vi.fn((state) => state),
+  pushManualTransaction: vi.fn().mockResolvedValue("ok"),
+  pushSoftDeleteTransaction: vi.fn().mockResolvedValue("ok"),
+  reconcileBudgetLedger: vi.fn().mockResolvedValue(null),
+}));
+
 /**
  * Component-level coverage for the Budget tab: empty states, the add →
  * list → soft-delete flow, draft reset between modal opens, and goal

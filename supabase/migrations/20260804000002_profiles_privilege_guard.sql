@@ -1,5 +1,5 @@
 -- =============================================================================
--- 00020_profiles_privilege_guard.sql — close the profiles self-service
+-- 20260804000002_profiles_privilege_guard.sql — close the profiles self-service
 -- privilege-escalation hole (flagged in PR #17's security note).
 --
 --   profiles_update_own (00004) allows an authenticated user to UPDATE their

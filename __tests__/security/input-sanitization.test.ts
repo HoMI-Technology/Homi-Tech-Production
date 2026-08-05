@@ -100,7 +100,7 @@ describe("API route Zod validation", () => {
     "app/api/email/route.ts",
     "app/api/assessments/route.ts",
     "app/api/waitlist/route.ts",
-    "app/api/goals/route.ts",
+    "app/api/finance/savings-goals/route.ts",
     "app/api/plaid/sync/route.ts",
   ];
 

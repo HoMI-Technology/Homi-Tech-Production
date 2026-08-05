@@ -9,15 +9,17 @@
 
 import type {
   FinanceCategoryRow,
+  FinanceSavingsGoalRow,
   FinanceTransactionRow,
 } from "@/types/database";
 import type {
   FinanceCategory,
   FinanceTransaction,
+  SavingsGoal,
 } from "@/lib/finance/ledger";
 import type { MoneyCents } from "@/lib/finance/money";
 
-export type { FinanceCategoryRow, FinanceTransactionRow };
+export type { FinanceCategoryRow, FinanceSavingsGoalRow, FinanceTransactionRow };
 
 function cents(value: number | string): MoneyCents {
   return Number(value) as MoneyCents;
@@ -61,6 +63,24 @@ export function rowToCategory(row: FinanceCategoryRow): FinanceCategory {
     parentCategoryId: row.parent_category_id,
     isSystem: row.is_system,
     isArchived: row.is_archived,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+export function rowToSavingsGoal(row: FinanceSavingsGoalRow): SavingsGoal {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    name: row.name,
+    goalType: row.goal_type,
+    targetAmountCents: cents(row.target_amount_cents),
+    currentAmountCents: cents(row.current_amount_cents),
+    targetDate: row.target_date,
+    plannedMonthlyContributionCents: cents(row.planned_monthly_contribution_cents),
+    linkedDecisionId: row.linked_decision_id,
+    linkedAccountId: row.linked_account_id,
+    status: row.status,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

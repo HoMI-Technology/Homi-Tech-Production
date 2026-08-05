@@ -25,8 +25,8 @@ export interface GoalData {
 /** Goal supplied from the v2 budget ledger (finance_savings_goals). */
 export interface LedgerGoal {
   name: string;
-  targetAmount: number;
-  currentAmount: number;
+  targetAmountCents: number;
+  currentAmountCents: number;
   targetDate: string | null;
 }
 
@@ -34,11 +34,11 @@ type SavingsSource = "ledger" | "synced" | "manual" | null;
 
 export function GoalCard({
   goal: initialGoal,
-  ledgerGoal,
+  ledgerGoal: initialLedgerGoal,
   liquidSavings,
   monthlyNetCashFlow,
 }: {
-  goal: GoalData | null;
+  goal?: GoalData | null;
   /** Goal from the ledger; takes display precedence over the legacy goal. */
   ledgerGoal?: LedgerGoal | null;
   /** From the latest plaid_sync snapshot or the ledger goal balance; null when neither exists. */
@@ -46,17 +46,27 @@ export function GoalCard({
   /** From the latest snapshot's net_cash_flow or the ledger; null when no data exists. */
   monthlyNetCashFlow: number | null;
 }) {
-  const [goal, setGoal] = useState<GoalData | null>(initialGoal);
+  const [legacyGoal, setLegacyGoal] = useState<GoalData | null>(initialGoal ?? null);
+  const [ledgerGoal, setLedgerGoal] = useState<LedgerGoal | null>(initialLedgerGoal ?? null);
   const [editing, setEditing] = useState(false);
-  const [targetAmount, setTargetAmount] = useState<number | null>(initialGoal?.target_amount ?? null);
-  const [label, setLabel] = useState(initialGoal?.label ?? "");
+  const [targetAmount, setTargetAmount] = useState<number | null>(null);
+  const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
   const [saved, setSaved] = useState<number | null>(liquidSavings);
   const [flow, setFlow] = useState<number | null>(monthlyNetCashFlow);
   const [source, setSource] = useState<SavingsSource>(
-    ledgerGoal ? "ledger" : liquidSavings !== null ? "synced" : null,
+    initialLedgerGoal ? "ledger" : liquidSavings !== null ? "synced" : null,
   );
+
+  // Sync server props when the parent re-renders.
+  useEffect(() => {
+    setLedgerGoal(initialLedgerGoal ?? null);
+  }, [initialLedgerGoal]);
+
+  useEffect(() => {
+    setSaved(liquidSavings);
+  }, [liquidSavings]);
 
   // Manual fallback — only when no synced snapshot or ledger goal supplied the numbers.
   // Local copy renders immediately; the background pull then adopts the
@@ -89,10 +99,24 @@ export function GoalCard({
   const displayGoal: GoalData | null = ledgerGoal
     ? {
         label: ledgerGoal.name,
-        target_amount: ledgerGoal.targetAmount,
+        target_amount: ledgerGoal.targetAmountCents / 100,
         target_date: ledgerGoal.targetDate,
       }
-    : goal;
+    : legacyGoal;
+
+  function startEditing() {
+    if (ledgerGoal) {
+      setTargetAmount(ledgerGoal.targetAmountCents / 100);
+      setName(ledgerGoal.name);
+    } else if (legacyGoal) {
+      setTargetAmount(legacyGoal.target_amount);
+      setName(legacyGoal.label ?? "");
+    } else {
+      setTargetAmount(null);
+      setName("");
+    }
+    setEditing(true);
+  }
 
   async function save() {
     if (targetAmount === null || targetAmount <= 0) {
@@ -102,16 +126,22 @@ export function GoalCard({
     setBusy(true);
     setNote(null);
     try {
-      const res = await fetch("/api/goals", {
+      const res = await fetch("/api/finance/savings-goals", {
         method: "PUT",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ target_amount: targetAmount, label: label.trim() || null }),
+        body: JSON.stringify({
+          name: name.trim() || "Down payment",
+          target_amount: targetAmount,
+          target_date: displayGoal?.target_date ?? null,
+          current_amount: ledgerGoal ? ledgerGoal.currentAmountCents / 100 : 0,
+        }),
       });
-      const data = (await res.json()) as { goal?: GoalData & { target_amount: number | string }; error?: string };
+      const data = (await res.json()) as { goal?: LedgerGoal; error?: string };
       if (!res.ok || !data.goal) {
         setNote(data.error ?? "Could not save your goal. Try again in a moment.");
       } else {
-        setGoal({ ...data.goal, target_amount: Number(data.goal.target_amount) });
+        setLedgerGoal(data.goal);
+        setLegacyGoal(null);
         setEditing(false);
       }
     } catch {
@@ -124,11 +154,12 @@ export function GoalCard({
     setBusy(true);
     setNote(null);
     try {
-      const res = await fetch("/api/goals", { method: "DELETE" });
+      const res = await fetch("/api/finance/savings-goals", { method: "DELETE" });
       if (res.ok) {
-        setGoal(null);
+        setLedgerGoal(null);
+        setLegacyGoal(null);
         setTargetAmount(null);
-        setLabel("");
+        setName("");
         setEditing(false);
       } else {
         const data = (await res.json()) as { error?: string };
@@ -140,10 +171,12 @@ export function GoalCard({
     setBusy(false);
   }
 
-  const progress = displayGoal ? goalProgress(displayGoal.target_amount, saved ?? 0) : null;
+  const targetAmountDollars = displayGoal?.target_amount ?? 0;
+  const progress = displayGoal ? goalProgress(targetAmountDollars, saved ?? 0) : null;
   // Projection only when real cash flow exists — manual numbers get the
   // pace line too, but labeled as manual. No data → no projection at all.
-  const projection = displayGoal && saved !== null ? goalProjection(displayGoal.target_amount, saved, flow) : null;
+  const projection =
+    displayGoal && saved !== null ? goalProjection(targetAmountDollars, saved, flow) : null;
 
   return (
     <div className="glass glass-hover sweep relative overflow-hidden p-6">
@@ -159,13 +192,11 @@ export function GoalCard({
             <p className="mt-1 text-sm text-dim">{displayGoal.label ?? "Your target, your pace."}</p>
           )}
         </div>
-        {goal && !editing && (
+        {displayGoal && !editing && (
           <button
             className="btn btn-ghost btn-xs text-sm"
             onClick={() => {
-              setTargetAmount(goal.target_amount);
-              setLabel(goal.label ?? "");
-              setEditing(true);
+              startEditing();
             }}
           >
             Edit
@@ -188,23 +219,23 @@ export function GoalCard({
           )}
           <MoneyField label="Target amount" value={targetAmount} onChange={setTargetAmount} onEnter={save} />
           <div>
-            <label htmlFor="goal-label" className="mb-2 block text-base font-medium text-light">
-              Label <span className="text-dim">(optional)</span>
+            <label htmlFor="goal-name" className="mb-2 block text-base font-medium text-light">
+              Name <span className="text-dim">(optional)</span>
             </label>
             <input
-              id="goal-label"
+              id="goal-name"
               className="input"
               maxLength={80}
               placeholder="e.g. 20% on a starter home"
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
           <div className="flex flex-wrap gap-2">
             <button className="btn btn-primary btn-sm" onClick={save} disabled={busy}>
               {busy ? "Saving…" : "Save goal"}
             </button>
-            {goal && (
+            {displayGoal && (
               <>
                 <button
                   className="btn btn-ghost btn-sm"

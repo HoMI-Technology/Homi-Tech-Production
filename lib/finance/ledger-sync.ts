@@ -2,8 +2,8 @@
  * Budget & Runway PR 4 — per-record local ↔ server sync for the manual ledger.
  *
  * Local-first: localStorage remains the synchronous UI source. This module
- * pulls/pushes in the background once the user is signed in and
- * `financeLedgerSync` is on. Server tables/APIs are PR 3
+ * pulls/pushes in the background once the user is signed in.
+ * Server tables/APIs are PR 3
  * (`/api/finance/transactions`, `/api/finance/categories`).
  *
  * Category bridge: local system categories use stable slug ids (`cat-housing`);
@@ -21,7 +21,6 @@ import {
   loadBudgetLedger,
   saveBudgetLedger,
 } from "@/lib/finance/local-ledger";
-import { financeLedgerSync } from "@/lib/flags";
 import type { MoneyCents } from "@/lib/finance/money";
 
 export type RemoteTransaction = FinanceTransaction;
@@ -155,12 +154,12 @@ async function fetchJson(
 
 /**
  * Pull categories + transactions, adopt server system category ids, LWW-merge
- * transactions, persist. No-op when the flag is off or the session is anonymous.
+ * transactions, persist. No-op when the session is anonymous.
  */
 export async function pullBudgetLedgerFromServer(
   nowIso: string,
 ): Promise<BudgetLedgerState | null> {
-  if (!financeLedgerSync || typeof window === "undefined") return null;
+  if (typeof window === "undefined") return null;
 
   const [catRes, txRes] = await Promise.all([
     fetchJson("/api/finance/categories"),
@@ -213,7 +212,7 @@ async function resolveCategoryIdForPush(
 export async function pushManualTransaction(
   tx: FinanceTransaction,
 ): Promise<"ok" | "auth" | "deferred" | "error"> {
-  if (!financeLedgerSync || typeof window === "undefined") return "ok";
+  if (typeof window === "undefined") return "ok";
 
   let categoryId = tx.categoryId;
   if (tx.type === "expense") {
@@ -244,7 +243,7 @@ export async function pushManualTransaction(
 export async function pushSoftDeleteTransaction(
   transactionId: string,
 ): Promise<"ok" | "auth" | "deferred" | "error"> {
-  if (!financeLedgerSync || typeof window === "undefined") return "ok";
+  if (typeof window === "undefined") return "ok";
   if (!/^[0-9a-f-]{36}$/i.test(transactionId)) return "error";
 
   const res = await fetchJson(`/api/finance/transactions/${transactionId}`, {
@@ -281,7 +280,6 @@ export function markTransactionSynced(
 export async function reconcileBudgetLedger(
   nowIso: string,
 ): Promise<BudgetLedgerState | null> {
-  if (!financeLedgerSync) return null;
   let state = (await pullBudgetLedgerFromServer(nowIso)) ?? loadBudgetLedger(nowIso);
 
   for (const tx of localPendingManualTransactions(state)) {

@@ -334,7 +334,11 @@ export async function syncItem(admin: SupabaseClient, item: SyncableItem): Promi
  * and soft-deletes any rows matching the Plaid-removed ids. System categories are
  * fetched once per sync and mapped by slug.
  */
-async function syncItemToLedger(
+/**
+ * Mirrors one sync window's effective Plaid transactions into `finance_transactions`
+ * and soft-deletes any rows matching the Plaid-removed ids. Exported for testing.
+ */
+export async function syncItemToLedger(
   admin: SupabaseClient,
   item: Pick<SyncableItem, "id" | "user_id">,
   effective: Map<string, PlaidTransaction>,

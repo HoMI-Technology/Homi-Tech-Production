@@ -52,7 +52,7 @@ export const ARCHITECTURE_DB_TABLES: ArchitectureDbTable[] = [
   { name: "credit_snapshots", columns: ["id", "user_id", "score"], rls: true, category: "user", description: "Self-reported / snapshot credit" },
   { name: "financial_snapshots", columns: ["id", "user_id"], rls: true, category: "user", description: "Periodic finance snapshots" },
   { name: "user_finance_state", columns: ["user_id", "payload"], rls: true, category: "user", description: "Finance dashboard persistence" },
-  { name: "goals", columns: ["id", "user_id", "title"], rls: true, category: "user", description: "User goals" },
+  { name: "finance_savings_goals", columns: ["id", "user_id", "name", "goal_type", "target_amount_cents", "current_amount_cents", "status"], rls: true, category: "user", description: "Savings goals ledger (replaces legacy goals table)" },
   { name: "advisor_conversations", columns: ["id", "user_id"], rls: true, category: "user", description: "Companion threads" },
   { name: "advisor_messages", columns: ["id", "conversation_id", "role"], rls: true, category: "user", description: "Companion messages" },
   { name: "advisor_usage", columns: ["user_id", "day", "count"], rls: true, category: "user", description: "Daily companion quota" },
