@@ -72,6 +72,29 @@ Merge gate per PR: CI `verify` job (brand-check → architecture:check → tsc �
 | 4.4 | Clean 3 stale `.claude/worktrees/` (household-authz, 124-rebase, authz-reconcile) after verifying no unmerged work; confirm `~/Desktop/kimi-workspace/Homi-Tech-Production` clone's ~22 uncommitted files are preserved elsewhere before ANY deletion | No second writable copies; nothing lost (user confirms) | user confirm | cc:Done (user approved rescue-then-delete; 4 worktrees removed clean, branches retained; the kimi-workspace clone was already deleted before this session — nothing to rescue) |
 | 4.5 | Owner-only launch items tracked (not agent work): Resend/DNS §1, Stripe env §3, Vercel Pro §4, observability §5, secrets §6 | GO-LIVE checklist boxes ticked by owner | - | cc:TODO |
 
+## Phase 5: Decision-vertical branching (assessment)
+
+Trigger: `lib/assessment/types.ts:11-16` — "No branching logic exists yet; this is purely a UI foundation."
+Constraint (AGENTS.md guardrail 1): scoring canon frozen, **never touch `lib/scoring/*`** — branching lives in the
+question bank (`decision_types` tags, already filtered by `buildAssessmentFlow`) and a per-vertical input-mapper
+layer feeding the same frozen engine. Evidence: bank.ts 45×`['home_buying']`; to-inputs.ts home-only;
+route.ts:107 hardcodes `decision_type: "home_buying"` on insert. Note: `journal_entries.decision_type` is a
+deliberately SEPARATE vocabulary (career/purchase/investment/life — journal/page.tsx) — do not "fix" it to canon.
+
+| Task | Description | DoD | Depends | Status |
+|------|-------------|-----|---------|--------|
+| 5.1 | Server-honest decision_type: POST `/api/assessments` accepts optional `decisionType` (extend `lib/validation/assessment.ts`), validated server-side against `ACTIVE_DECISION_TYPES` (allowlist, not client claim); persist it at route.ts:107 instead of the hardcode, defaulting `home_buying` when absent [tdd:required] | Inactive/unknown decisionType → 400; active type lands in `assessments.decision_type`; existing route tests green | - | cc:Done [3722a50] |
+| 5.2 | Thread picker value through submit: `FullAssessmentFlow` (and shadow submit path) sends `decisionType` in the payload [tdd:required] | Completed assessment row's decision_type equals picker value | 5.1 | cc:Done [3722a50] (full flow; shadow stays home default) |
+| 5.3 | Slug canon (rescoped): canon test asserting every decision-type literal in the ASSESSMENT domain (lib/assessment, lib/questions, components/assessment, app/api/assessments) ∈ `DecisionType`; journal vocabulary is separate by design and out of scope [tdd:required] | Canon test fails on foreign slug (mutation-checked); active set ⊆ canon asserted | - | cc:Done [3722a50] (mutation-checked) |
+| 5.4 | DB guard: migration adding CHECK on `assessments.decision_type` ∈ 5 canon slugs (posture strengthens; RLS untouched) [tdd:skip:migration-only] | Migration applies clean; foreign-slug insert rejected | 5.1 | cc:Done [3722a50] (authoring-only, pending approval gate) |
+| 5.5 | Mapper registry: refactor `lib/questions/to-inputs.ts` into per-vertical mapper dispatch keyed by `DecisionType` (home mapper behavior-identical; unmapped vertical rejected) [tdd:required] | Snapshot test: home fixture responses score identically pre/post refactor; `lib/scoring/*` diff = 0 | 5.1 | cc:TODO |
+| 5.6 | Car question bank per D7/D8/D9: author `car` financial questions (price, down payment, all-in monthly cost incl. insurance); tag decision-agnostic emotional/timing questions `['home_buying','car']`; seed-SQL parity [tdd:required] | `buildAssessmentFlow('car')` yields full 3-pillar flow; bank/seed parity test green | D7, D8, D9, 5.5 | cc:TODO |
+| 5.7 | Car input mapper → frozen `AssessmentInputs` (down payment % of car price; DTI incl. est. new payment; `monthlyHousingRatio` omitted — home-only guard per engine docblock) [tdd:required] | Car fixture → deterministic verdict; DTI>50% / runway<1mo / credit<620 hard stops fire; engine untouched | 5.5, 5.6 | cc:TODO |
+| 5.8 | Per-vertical copy: parameterize `PILLAR_INTRO` ("Fifteen questions…"), picker hint, results/insights home-specific strings | grep home-buying copy on car results path = 0; brand-check green | 5.6 | cc:TODO |
+| 5.9 | Activate: `ACTIVE_DECISION_TYPES += 'car'`; picker enables it; retire the types.ts:11-16 "no branching logic" comment; e2e full car assessment → verdict | Car e2e green in CI; home e2e unchanged | 5.1–5.8 | cc:TODO |
+
+**PRs:** `feat/decision-type-honest-persistence` (5.1–5.4), `refactor/vertical-mapper-registry` (5.5), `feat/vertical-car` (5.6–5.9, after D7–D9 sign-off).
+
 ## Carried threads (parallel, not blocked by phases)
 
 | Task | Description | DoD | Depends | Status |
@@ -102,3 +125,7 @@ Merge gate per PR: CI `verify` job (brand-check → architecture:check → tsc �
 - **D4 Readiness flow:** intended journey across `/results` → `/path` → `/plan` → `/report`? *(default: keep all four, define roles, chrome exposes results+path)*
 - **D5 Content:** one hub — `/guides` — with blog/learning folded in? *(default: yes)*
 - **D6 Money home:** does `/finance` absorb budget/runway tool outputs as THE money surface (aligns with Budget & Runway plan)? *(default: yes — already the plan doc's direction)*
+- **D7 First active vertical:** which decision type activates first? *(default: `car` — the only vertical whose finances map 1:1 onto the frozen engine inputs; career_change/education/starting_a_business need input semantics the scoring canon freezes → they stay "Coming soon" pending an ADR)*
+- **D8 Bank sharing:** tag decision-agnostic emotional/timing questions with multiple `decision_types` vs. duplicating rows per vertical? *(default: shared tags — DRY, stable ordering, one edit point)*
+- **D9 Car bank depth:** full 45-question parity with home vs. lean bank? *(default: lean ~24–30 — reuse emotional+timing pillars wholesale, ~8–10 car-specific financial questions; parity padding would invent filler)*
+
