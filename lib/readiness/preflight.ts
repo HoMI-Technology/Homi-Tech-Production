@@ -58,9 +58,8 @@ export interface PreflightResult {
   disclaimer: string;
 }
 
-export const PREFLIGHT_DISCLAIMER =
-  "Educational readiness check only — not a commitment to lend, credit approval, " +
-  "or financial advice. Re-run the full assessment before irreversible moves.";
+import { PREFLIGHT_DISCLAIMER } from "./preflight-copy";
+export { PREFLIGHT_DISCLAIMER };
 
 function cashFlow(
   income: number | null | undefined,

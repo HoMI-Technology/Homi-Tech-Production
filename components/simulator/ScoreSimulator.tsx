@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { MoneyField } from "@/components/ui/MoneyField";
 import { NumberField } from "@/components/ui/NumberField";
@@ -12,30 +12,24 @@ import { loadFinanceState } from "@/lib/finance/store";
 import {
   applyDebtPayoff,
   applySavingsPlan,
-  deriveAnchors,
-  rankLevers,
-  seedBaseline,
-  simulate,
   ESTIMATED_DEBT_PAYMENT_RATE,
+  leversOf,
+  seedBaseline,
   type AnchorAssessment,
+  type LeverImpact,
+  type SimulationOutcome,
   type SimulatorBaseline,
   type SimulatorLevers,
-} from "@/lib/simulator";
+} from "@/lib/simulator/public";
+import { fetchSimulatorBatch, SimulatorRequestError } from "@/lib/simulator/client";
 
 /**
  * Readiness-score simulator — adjust the four money levers and watch the
  * financial pillar (and only the financial pillar) move the composite
- * HōMI-Score, scored by the same canonical engine as the real assessment.
+ * HōMI-Score. Scores come from POST /api/simulator (server-authoritative).
  */
 
-function leversOf(baseline: SimulatorBaseline): SimulatorLevers {
-  return {
-    monthlyIncome: baseline.monthlyIncome,
-    monthlyExpenses: baseline.monthlyExpenses,
-    liquidSavings: baseline.liquidSavings,
-    totalDebt: baseline.totalDebt,
-  };
-}
+const DEBOUNCE_MS = 200;
 
 export function ScoreSimulator({
   snapshotState,
@@ -49,13 +43,25 @@ export function ScoreSimulator({
   const [baseline, setBaseline] = useState<SimulatorBaseline | null>(null);
   const [levers, setLevers] = useState<SimulatorLevers | null>(null);
 
+  const [current, setCurrent] = useState<SimulationOutcome | null>(null);
+  const [simulated, setSimulated] = useState<SimulationOutcome | null>(null);
+  const [impacts, setImpacts] = useState<LeverImpact[]>([]);
+  const [anchorsUi, setAnchorsUi] = useState<{
+    emotionalScore: number;
+    timingScore: number;
+    neutral: boolean;
+  } | null>(null);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   // Scenario shortcut inputs.
   const [payoffAmount, setPayoffAmount] = useState<number | null>(null);
   const [planPerMonth, setPlanPerMonth] = useState<number | null>(null);
   const [planMonths, setPlanMonths] = useState<number | null>(12);
 
+  const requestGen = useRef(0);
+
   // Seed after mount: snapshot (server) → localStorage finance → zeros.
-  // localStorage is only readable client-side, hence the effect.
   useEffect(() => {
     let manual = null;
     try {
@@ -68,23 +74,60 @@ export function ScoreSimulator({
     setLevers(leversOf(seeded));
   }, [snapshotState]);
 
-  const anchors = useMemo(() => deriveAnchors(anchorAssessment), [anchorAssessment]);
+  // Debounced batch score — one round-trip per settle, not per keystroke.
+  useEffect(() => {
+    if (!baseline || !levers) return;
 
-  const current = useMemo(
-    () => (baseline ? simulate(leversOf(baseline), baseline, anchors) : null),
-    [baseline, anchors],
-  );
-  const simulated = useMemo(
-    () => (baseline && levers ? simulate(levers, baseline, anchors) : null),
-    [baseline, levers, anchors],
-  );
-  const impacts = useMemo(
-    () => (baseline && levers ? rankLevers(levers, baseline, anchors) : []),
-    [baseline, levers, anchors],
-  );
+    const gen = ++requestGen.current;
+    setPending(true);
+    setError(null);
 
-  if (!baseline || !levers || !current || !simulated) {
+    const timer = window.setTimeout(() => {
+      void fetchSimulatorBatch({
+        baseline,
+        anchorAssessment,
+        levers,
+        include: {
+          current: true,
+          simulated: true,
+          rank: true,
+          anchors: true,
+        },
+      })
+        .then((res) => {
+          if (gen !== requestGen.current) return;
+          if (res.current) setCurrent(res.current);
+          if (res.simulated) setSimulated(res.simulated);
+          if (res.impacts) setImpacts(res.impacts);
+          if (res.anchors) setAnchorsUi(res.anchors);
+          setPending(false);
+        })
+        .catch((err: unknown) => {
+          if (gen !== requestGen.current) return;
+          const msg =
+            err instanceof SimulatorRequestError
+              ? err.message
+              : "Could not update the simulation.";
+          setError(msg);
+          setPending(false);
+        });
+    }, DEBOUNCE_MS);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [baseline, levers, anchorAssessment]);
+
+  if (!baseline || !levers) {
     return <div className="glass p-6 text-sm text-dim">Loading your numbers…</div>;
+  }
+
+  if (!current || !simulated) {
+    return (
+      <div className="glass p-6 text-sm text-dim">
+        {error ?? "Scoring your baseline…"}
+      </div>
+    );
   }
 
   const delta = simulated.compositeScore - current.compositeScore;
@@ -93,7 +136,8 @@ export function ScoreSimulator({
   const simulatedMeta = VERDICT_META[simulated.verdict];
   const crossed = current.verdict !== simulated.verdict;
   const topLever = impacts[0] ?? null;
-  const patch = (partial: Partial<SimulatorLevers>) => setLevers((prev) => (prev ? { ...prev, ...partial } : prev));
+  const patch = (partial: Partial<SimulatorLevers>) =>
+    setLevers((prev) => (prev ? { ...prev, ...partial } : prev));
 
   return (
     <div className="space-y-6">
@@ -111,18 +155,25 @@ export function ScoreSimulator({
         </div>
       )}
 
+      {error && (
+        <div className="glass border border-crimson/30 px-4 py-3 text-sm text-light">{error}</div>
+      )}
+
       <div className="grid gap-6 lg:grid-cols-[1fr_1.25fr]">
         {/* ── Levers ─────────────────────────────────────────── */}
         <div className="space-y-6">
           <div className="glass p-6">
             <div className="flex items-center justify-between gap-3">
               <h2 className="font-semibold text-light">Your levers</h2>
-              <button
-                className="btn btn-ghost btn-xs text-sm"
-                onClick={() => setLevers(leversOf(baseline))}
-              >
-                Reset
-              </button>
+              <div className="flex items-center gap-2">
+                {pending && <span className="text-xs text-dim">Updating…</span>}
+                <button
+                  className="btn btn-ghost btn-xs text-sm"
+                  onClick={() => setLevers(leversOf(baseline))}
+                >
+                  Reset
+                </button>
+              </div>
             </div>
             <p className="mt-1 text-xs text-dim">
               {baseline.source === "plaid_sync" && "Baseline from your latest bank sync."}
@@ -158,11 +209,17 @@ export function ScoreSimulator({
             <div className="mt-4 space-y-5">
               <div>
                 <div className="flex items-end gap-3">
-                  <MoneyField label="Pay off debt" hint="Paid from liquid savings." value={payoffAmount} onChange={setPayoffAmount} />
+                  <MoneyField
+                    label="Pay off debt"
+                    hint="Paid from liquid savings."
+                    value={payoffAmount}
+                    onChange={setPayoffAmount}
+                  />
                   <button
                     className="btn btn-ghost mb-0.5 shrink-0 btn-sm"
                     onClick={() => {
-                      if (payoffAmount && payoffAmount > 0) setLevers(applyDebtPayoff(levers, payoffAmount));
+                      if (payoffAmount && payoffAmount > 0)
+                        setLevers(applyDebtPayoff(levers, payoffAmount));
                     }}
                   >
                     Apply
@@ -172,7 +229,13 @@ export function ScoreSimulator({
               <div>
                 <div className="grid grid-cols-2 gap-3">
                   <MoneyField label="Save per month" value={planPerMonth} onChange={setPlanPerMonth} />
-                  <NumberField label="For how many months" min={1} max={120} value={planMonths} onChange={setPlanMonths} />
+                  <NumberField
+                    label="For how many months"
+                    min={1}
+                    max={120}
+                    value={planMonths}
+                    onChange={setPlanMonths}
+                  />
                 </div>
                 <button
                   className="btn btn-ghost mt-3 btn-sm"
@@ -190,7 +253,7 @@ export function ScoreSimulator({
         </div>
 
         {/* ── Readout ────────────────────────────────────────── */}
-        <div className="space-y-6">
+        <div className={`space-y-6 ${pending ? "opacity-80 transition-opacity" : ""}`}>
           <div className="glass sweep relative overflow-hidden p-8">
             <div className="flex flex-wrap items-center justify-center gap-8">
               <ScoreRing
@@ -257,7 +320,9 @@ export function ScoreSimulator({
               <p className="eyebrow">Biggest lever</p>
               <p className="mt-2 text-sm leading-relaxed text-light">
                 {topLever.label} moves your score by{" "}
-                <span className={`score-numeral font-semibold ${topLever.delta >= 0 ? "text-emerald" : "text-crimson"}`}>
+                <span
+                  className={`score-numeral font-semibold ${topLever.delta >= 0 ? "text-emerald" : "text-crimson"}`}
+                >
                   {topLever.delta >= 0 ? "+" : ""}
                   {topLever.delta}
                 </span>{" "}
@@ -269,9 +334,11 @@ export function ScoreSimulator({
 
           <div className="glass p-6 text-xs leading-relaxed text-dim">
             <p>
-              {anchors.neutral
-                ? "You haven't completed an assessment yet, so the emotional and timing pillars use neutral placeholders here. Only the financial pillar responds to these levers — take the full assessment for a real composite."
-                : `Only the financial pillar responds to these levers. Your emotional (${anchors.emotionalScore}/35) and timing (${anchors.timingScore}/30) pillars are held at your latest assessment values.`}
+              {!anchorsUi
+                ? "Loading pillar anchors…"
+                : anchorsUi.neutral
+                  ? "You haven't completed an assessment yet, so the emotional and timing pillars use neutral placeholders here. Only the financial pillar responds to these levers — take the full assessment for a real composite."
+                  : `Only the financial pillar responds to these levers. Your emotional (${anchorsUi.emotionalScore}/35) and timing (${anchorsUi.timingScore}/30) pillars are held at your latest assessment values.`}
             </p>
             {simulated.debtPaymentsEstimated && (
               <p className="mt-2">
@@ -285,8 +352,8 @@ export function ScoreSimulator({
               </p>
             )}
             <p className="mt-2">
-              Educational guidance only — this shows how your own numbers move your HōMI-Score. It is not
-              financial advice.
+              Educational guidance only — this shows how your own numbers move your HōMI-Score. It is
+              not financial advice.
             </p>
           </div>
         </div>

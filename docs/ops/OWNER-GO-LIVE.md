@@ -61,7 +61,6 @@ npm run stripe-verify
 
 - [ ] Rotate any password used in chat/smoke (e.g. `info@homitechnology.com`)  
 - [ ] Confirm service-role key never in client / `NEXT_PUBLIC_*`  
-- [ ] Close issue #144 when seats 1–3 are done  
 
 ---
 
@@ -77,9 +76,31 @@ npm run smoke:auth
 
 ---
 
+## 6. Close issue #144 (only after seats 1–3)
+
+**Do not close #144 until all three commercial seats below are true.**
+
+| Seat | Done when | Check |
+|------|-----------|--------|
+| 1. Vercel Pro | Production project on Pro plan | §1 above |
+| 2. Resend DNS | Domain verified; test email delivered | §2 above |
+| 3. Stripe | Test checkout upgrades tier; live keys + webhook ready before paid traffic | §3 above |
+
+When all three are checked:
+
+```powershell
+gh issue close 144 --comment "Owner go-live seats complete: Vercel Pro + Resend DNS verified + Stripe test/live path ready. See docs/ops/OWNER-GO-LIVE.md."
+```
+
+Agents must not auto-close #144 from product code merges alone.
+
+---
+
 ## Done when
 
 1. Email delivers from `hello@homitechnology.com`  
 2. Test checkout upgrades tier on Preview  
 3. Production on Vercel Pro  
 4. Live webhook configured (before marketing paid traffic)  
+5. Issue #144 closed only after 1–4 (or 1–3 minimum) are confirmed by the owner  
+

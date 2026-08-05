@@ -1,57 +1,27 @@
 /**
- * Readiness bands — Decision Lab Phase 5.
+ * Readiness bands — Decision Lab Phase 5 (server / test module).
  *
  * Answers "what would this move do to my readiness?" for a lens's
- * hypothetical, in magnitude language ONLY (small / moderate / large) —
- * the same bands the explainability engine uses for real score movement.
+ * hypothetical, in magnitude language ONLY (small / moderate / large).
  * The composite delta is computed by the canonical engine via
- * lib/simulator.ts; what leaves this module is the band and the direction,
- * never the number, never the weights (BUILD-BRIEF trade-secret rule).
- *
- * Honesty flags travel with every impact: neutral anchors (no assessment
- * yet) and estimated debt payments (Plaid baselines) are labeled wherever
- * the band renders.
+ * lib/simulator.ts — clients must call POST /api/simulator instead
+ * (Plans.md 6.4). Do not value-import this file from client components.
  */
 
+import { simulate, type SimulatorAnchors, type SimulatorBaseline } from "@/lib/simulator";
+import { compositeBand, type Direction } from "@/lib/advisor/explain";
 import {
-  simulate,
-  type SimulatorAnchors,
-  type SimulatorBaseline,
-} from "@/lib/simulator";
-import { compositeBand, type Direction, type MagnitudeBand } from "@/lib/advisor/explain";
+  buildReadinessLine,
+  type HousingImpactOptions,
+  type ReadinessImpact,
+} from "@/lib/tools/readiness-impact";
 
-export interface ReadinessImpact {
-  band: MagnitudeBand | null;
-  direction: Direction;
-  /** The hypothetical crosses a protective hard stop the baseline doesn't. */
-  hardStop: boolean;
-  /** Anchors came from neutral placeholders (no completed assessment). */
-  neutral: boolean;
-  /** Debt payments were estimated from the balance, not known. */
-  debtEstimated: boolean;
-  /** Number-free, weight-free sentence — CI-guarded to stay that way. */
-  line: string;
-}
-
-export interface HousingImpactOptions {
-  /** The new monthly housing obligation the lens computed. */
-  monthlyObligation: number;
-  /** Upfront cash leaving liquid savings (down payment, closing costs). */
-  upfrontCost?: number;
-  /** Current rent the obligation replaces, when the user says it does. */
-  replacedRentMonthly?: number;
-}
-
-function buildLine(direction: Direction, band: MagnitudeBand | null, hardStop: boolean): string {
-  if (hardStop) {
-    return "A move like this crosses one of your protective lines — the score simulator shows which one.";
-  }
-  if (direction === "flat") return "A move like this barely moves your readiness.";
-  const size = band === "large" ? "significantly" : band === "moderate" ? "moderately" : "slightly";
-  return direction === "down"
-    ? `A move like this would pull your readiness ${size} downward.`
-    : `A move like this would lift your readiness ${size}.`;
-}
+export type {
+  HousingImpactOptions,
+  ReadinessDigest,
+  ReadinessImpact,
+} from "@/lib/tools/readiness-impact";
+export { toReadinessDigest } from "@/lib/tools/readiness-impact";
 
 /**
  * Simulates a housing hypothetical against the user's baseline and returns
@@ -94,17 +64,6 @@ export function readinessImpactForHousing(
     hardStop,
     neutral: anchors.neutral,
     debtEstimated: hypo.debtPaymentsEstimated,
-    line: buildLine(direction, band, hardStop),
+    line: buildReadinessLine(direction, band, hardStop),
   };
-}
-
-/** The digest-safe shape: magnitude and direction only. */
-export interface ReadinessDigest {
-  band: MagnitudeBand | null;
-  direction: Direction;
-  hardStop: boolean;
-}
-
-export function toReadinessDigest(impact: ReadinessImpact): ReadinessDigest {
-  return { band: impact.band, direction: impact.direction, hardStop: impact.hardStop };
 }

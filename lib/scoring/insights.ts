@@ -1,5 +1,8 @@
+import "server-only";
+
 /**
  * Personalized insight + next-step generation.
+ * Server-only (Plans.md 6.5). Clients receive insights from /api/scoring.
  * Canonical behavior: name the strongest and weakest pillars with real
  * scores, and generate context-aware steps keyed off pillar weakness.
  * Voice: precision empathy, calm authority. Never shaming.

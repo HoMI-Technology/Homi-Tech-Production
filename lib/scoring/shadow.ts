@@ -1,5 +1,8 @@
+import "server-only";
+
 /**
  * Shadow Score — the 6-question quick read.
+ * Server-only (Plans.md 6.5). Shadow flow posts padded inputs to /api/scoring.
  * Canonical behavior: collect the six highest-signal inputs, fill the
  * remainder with neutral defaults, and run the full canonical engine.
  * Same math. Same thresholds. Just a faster read.

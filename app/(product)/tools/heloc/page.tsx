@@ -14,9 +14,9 @@ import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
 import { ReadinessBand } from "@/components/tools/ReadinessBand";
 import { getLens } from "@/lib/tools/registry";
 import { computeHousingDeltas } from "@/lib/tools/deltas";
-import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readiness-bands";
+import { toReadinessDigest } from "@/lib/tools/readiness-impact";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
-import { useReadinessAnchors } from "@/hooks/use-readiness";
+import { useHousingReadinessImpact } from "@/hooks/use-housing-readiness";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
 
@@ -35,7 +35,6 @@ function HelocPageInner() {
   }, []);
   const { prefilled, finance, hydrated, markAll } = useLensPrefill("heloc", apply);
   const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
-  const readinessCtx = useReadinessAnchors();
 
   const result = useMemo(
     () => helocAvailability({ homeValue, mortgageBalance, maxCltv: maxCltv / 100, rate }),
@@ -53,14 +52,11 @@ function HelocPageInner() {
     return computeHousingDeltas(finance, result.interestOnlyMonthly);
   }, [finance, result.availableLine, result.interestOnlyMonthly]);
 
-  // Phase 5: readiness impact of the full draw, magnitude only.
-  const readiness = useMemo(() => {
-    if (!readinessCtx || result.availableLine <= 0) return null;
-    return readinessImpactForHousing(readinessCtx.baseline, readinessCtx.anchors, {
-      monthlyObligation: result.interestOnlyMonthly,
-      upfrontCost: 0,
-    });
-  }, [readinessCtx, result.availableLine, result.interestOnlyMonthly]);
+  const readiness = useHousingReadinessImpact(
+    result.availableLine > 0
+      ? { monthlyObligation: result.interestOnlyMonthly, upfrontCost: 0 }
+      : null,
+  );
 
   // The lens digest the Companion reads — every number precomputed here.
   const digest = useMemo(

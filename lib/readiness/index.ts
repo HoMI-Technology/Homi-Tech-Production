@@ -78,14 +78,9 @@ export {
 
 export { buildPathCoachPack, type PathCoachPack } from "./coach";
 
-export {
-  runPreflight,
-  PREFLIGHT_DISCLAIMER,
-  type PreflightInput,
-  type PreflightResult,
-  type PreflightFinding,
-  type PreflightVerdict,
-} from "./preflight";
+// Preflight (runPreflight / PREFLIGHT_DISCLAIMER) is intentionally NOT
+// re-exported here — it value-imports the scoring engine (server-only, 6.5).
+// Import from @/lib/readiness/preflight or POST /api/simulator instead.
 
 export {
   autoCompletePathFromSignals,
