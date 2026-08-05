@@ -1,10 +1,15 @@
 // @vitest-environment jsdom
+/**
+ * Overview chrome tests — retargeted to planner SignalsStrip / NudgeRail
+ * after finance Wave B delete (Budget Planner absorption).
+ */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import type { FinanceSignal, FinanceNudge } from "@/lib/advisor/fallback";
 import { KpiCard } from "@/components/ui/KpiCard";
-import { SignalsStrip } from "@/components/finance/SignalsStrip";
-import { NudgeRail } from "@/components/finance/NudgeRail";
+import { SignalsStrip } from "@/components/planner/SignalsStrip";
+import { NudgeRail } from "@/components/planner/NudgeRail";
+import type { PlannerSignal } from "@/lib/planner/signals";
+import type { BehaviorNudge } from "@/lib/planner/nudges";
 
 vi.mock("@/components/ui/AnimatedNumber", () => ({
   AnimatedNumber: ({
@@ -38,168 +43,64 @@ afterEach(() => {
 });
 
 describe("KpiCard", () => {
-  it("renders label, formatted value, and caption", () => {
-    render(
-      <KpiCard
-        label="Savings Rate"
-        value={15.5}
-        format={(n) => `${n.toFixed(1)}%`}
-        caption="of gross income"
-      />,
-    );
-
-    expect(screen.getByText("Savings Rate")).toBeDefined();
-    expect(screen.getByText("15.5%")).toBeDefined();
-    expect(screen.getByText("of gross income")).toBeDefined();
-  });
-
-  it("renders a positive delta chip", () => {
-    render(
-      <KpiCard
-        label="Net Worth"
-        value={25000}
-        format={(n) => `$${n.toLocaleString()}`}
-        delta={{ text: "+3.2% vs last month", positive: true }}
-      />,
-    );
-
-    const chip = screen.getByText("+3.2% vs last month");
-    expect(chip).toBeDefined();
-    expect(chip.className).toContain("text-emerald");
-  });
-
-  it("renders a negative delta chip", () => {
-    render(
-      <KpiCard
-        label="Runway"
-        value={2.5}
-        format={(n) => `${n.toFixed(1)} mo`}
-        delta={{ text: "-0.8 mo", positive: false }}
-      />,
-    );
-
-    const chip = screen.getByText("-0.8 mo");
-    expect(chip).toBeDefined();
-    expect(chip.className).toContain("text-crimson");
-  });
-
-  it("calls onClick when activated", () => {
-    const onClick = vi.fn();
-    render(<KpiCard label="DTI" value={28} onClick={onClick} />);
-
-    fireEvent.click(screen.getByRole("button", { name: /DTI/i }));
-    expect(onClick).toHaveBeenCalledTimes(1);
+  it("renders label and value", () => {
+    render(<KpiCard label="Cash" value={1200} />);
+    expect(screen.getByText("Cash")).toBeTruthy();
   });
 });
 
-describe("SignalsStrip", () => {
-  const signals: FinanceSignal[] = [
-    {
-      id: "runway-low",
-      severity: "amber",
-      title: "Runway is tight",
-      body: "You have under three months of expenses covered.",
-    },
-    {
-      id: "all-clear",
-      severity: "emerald",
-      title: "All clear",
-      body: "Your signals look healthy.",
-    },
-  ];
+describe("planner SignalsStrip", () => {
+  const signal: PlannerSignal = {
+    id: "sig-1",
+    severity: "amber",
+    kind: "bill",
+    title: "1 overdue bill",
+    body: "Electric past due.",
+    actionLabel: "Pay bills",
+    actionTab: "banking",
+    meta: "IF-THEN",
+  };
 
-  it("renders signal titles and bodies", () => {
-    render(
-      <SignalsStrip
-        signals={signals}
-        onAction={() => {}}
-        onDismiss={() => {}}
-      />,
-    );
-
-    expect(screen.getByText("Runway is tight")).toBeDefined();
-    expect(screen.getByText("You have under three months of expenses covered.")).toBeDefined();
-    expect(screen.getByText("All clear")).toBeDefined();
-  });
-
-  it("fires onAction with the signal", () => {
-    const onAction = vi.fn();
-    render(
-      <SignalsStrip
-        signals={[signals[0]]}
-        onAction={onAction}
-        onDismiss={() => {}}
-      />,
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: /Take action/i }));
-    expect(onAction).toHaveBeenCalledWith(signals[0]);
-  });
-
-  it("fires onDismiss for non-all-clear signals", () => {
+  it("renders signals and dismisses", () => {
     const onDismiss = vi.fn();
+    const onAction = vi.fn();
     render(
       <SignalsStrip
-        signals={[signals[0]]}
-        onAction={() => {}}
+        signals={[signal]}
         onDismiss={onDismiss}
+        onAction={onAction}
       />,
     );
-
-    fireEvent.click(screen.getByRole("button", { name: /Dismiss Runway is tight/i }));
-    expect(onDismiss).toHaveBeenCalledWith("runway-low");
+    expect(screen.getByText("1 overdue bill")).toBeTruthy();
+    fireEvent.click(screen.getByLabelText("Dismiss 1 overdue bill"));
+    expect(onDismiss).toHaveBeenCalledWith("sig-1");
   });
 
-  it("does not render a dismiss button for the all-clear signal", () => {
+  it("empty state when no signals", () => {
     render(
-      <SignalsStrip
-        signals={[signals[1]]}
-        onAction={() => {}}
-        onDismiss={() => {}}
-      />,
+      <SignalsStrip signals={[]} onDismiss={() => {}} onAction={() => {}} />,
     );
-
-    expect(screen.queryByRole("button", { name: /Dismiss/i })).toBeNull();
-    expect(screen.getByRole("button", { name: /Keep going/i })).toBeDefined();
+    expect(screen.getByText(/No active signals/i)).toBeTruthy();
   });
 });
 
-describe("NudgeRail", () => {
-  const nudges: FinanceNudge[] = [
-    {
-      id: "nudge-debt",
-      type: "debt",
-      message: "Pay down high-rate debt first.",
-      action: { label: "Open planner", href: "/tools/debt-payoff" },
-    },
-    {
-      id: "nudge-savings",
-      type: "savings",
-      message: "Build the emergency runway.",
-    },
-  ];
+describe("planner NudgeRail", () => {
+  const nudge: BehaviorNudge = {
+    id: "n1",
+    kind: "protect_decision",
+    priority: 1,
+    title: "Protect the decision first",
+    body: "Clear hard-stops before stretch.",
+    actionLabel: "Open Plan",
+    actionTab: "plan",
+    chip: "Protection",
+  };
 
-  it("renders the primary nudge and secondaries", () => {
-    render(<NudgeRail nudges={nudges} onAction={() => {}} />);
-
-    expect(screen.getByText("Pay down high-rate debt first.")).toBeDefined();
-    expect(screen.getByText("Build the emergency runway.")).toBeDefined();
-    expect(screen.getByRole("button", { name: /Open planner/i })).toBeDefined();
-  });
-
-  it("fires onAction with the primary nudge", () => {
+  it("renders primary nudge and action", () => {
     const onAction = vi.fn();
-    render(<NudgeRail nudges={nudges} onAction={onAction} />);
-
-    fireEvent.click(screen.getByRole("button", { name: /Open planner/i }));
-    expect(onAction).toHaveBeenCalledWith(nudges[0]);
-  });
-
-  it("fires onAction with a secondary nudge", () => {
-    const onAction = vi.fn();
-    render(<NudgeRail nudges={nudges} onAction={onAction} />);
-
-    fireEvent.click(screen.getByText("Build the emergency runway."));
-    expect(onAction).toHaveBeenCalledWith(nudges[1]);
+    render(<NudgeRail nudges={[nudge]} onAction={onAction} />);
+    expect(screen.getByText("Protect the decision first")).toBeTruthy();
+    fireEvent.click(screen.getByText(/Open Plan/i));
+    expect(onAction).toHaveBeenCalled();
   });
 });

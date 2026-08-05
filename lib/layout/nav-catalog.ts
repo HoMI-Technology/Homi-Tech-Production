@@ -69,7 +69,7 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
   { href: "/genome", label: "Genome", group: "Navigate", keywords: "psychology profile", surfaces: { palette: false } },
 
   // ── Header MORE: money + life ──
-  { href: "/finance", label: "Finance", group: "Navigate", keywords: "budget money numbers", surfaces: { header: "more", palette: true } },
+  { href: "/finance", label: "Budget Planner", group: "Navigate", keywords: "budget money numbers planner finance", surfaces: { header: "more", palette: true } },
   // Launch-hidden life labs (routes exist; not in header More or palette)
   { href: "/calendar", label: "Calendar", group: "Navigate", keywords: "milestones dates", surfaces: { palette: false } },
   { href: "/daily", label: "Daily Check-in", paletteLabel: "Daily check-in", group: "Act", keywords: "mood stress pulse", surfaces: { palette: false } },

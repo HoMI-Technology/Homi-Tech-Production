@@ -156,6 +156,20 @@ in the client bundle. Blast radius (verified by grep, this session): flows ×2; 
 | F.14 | e2e vertical-activation hazard: `e2e/helpers/assessment.ts` picks `button[role="radio"][aria-checked="false"]:not([disabled])` — today that matches nothing on the decision step (home preselected, rest disabled), but the moment a second vertical activates it will CLICK that vertical and silently switch the whole e2e. Pin the decision type by accessible name before 5.9 | Helper selects decision type explicitly, parameterized; home e2e provably stays home | before 5.9 | cc:TODO |
 | F.15 | Insights render duality: `/results` + `/plan` RECOMPUTE generateKeyInsight/NextSteps client-side while `/report/[id]` (+print) renders the row's stored `insights` column — per-vertical copy must cover both paths, and stored copy already drifts from rendered whenever generators change | One documented source of truth per surface; 5.8 covers both paths | 5.8 | cc:TODO |
 
+## Phase BP: Budget Planner absorption (from dogfood SPA → `/finance`)
+
+Source: `~/Desktop/kimi-workspace/projects/homi-budget-planner` @ 5bc2379.  
+Production SSOT for scoring/path/tools. **No SPA score engine / WEIGHTS on client.**
+
+| Task | Description | DoD | Depends | Status |
+|------|-------------|-----|---------|--------|
+| BP.1 | Shell PR: delete classic dual-path finance tabs; land `lib/planner/*` + score-bridge via `/api/scoring`; 5-tab PlannerApp at `/finance`; Overview CRUD; placeholders for Calendar/Banks/Wealth/Plan; nav label Budget Planner; `/planner` → `/finance` | brand-check · tsc · vitest · build green; no client WEIGHTS | - | cc:Done |
+| BP.2 | Full Calendar + Banks + closed-loop bill pay | planner tests + bill-pay impact | BP.1 | cc:Done |
+| BP.3 | Wealth + Plan Lab; delete superseded finance components (Wave B) | Plan path no-regen on complete; Wave B deleted | BP.2 | cc:Done |
+| BP.4 | Ledger bridge (hydrate + dual-write); BudgetTab kept for tests until full migration | dual-write + ledger hydrate on mount | BP.3 | cc:Done |
+
+---
+
 ## Decision Sheet (product calls only the owner can make — plan proceeds on approved defaults)
 
 - **D1 Agent OS:** ship-on, keep flag-gated, or treat as dead subtree? *(default: keep flag-gated, hoist flag — task 1.3)*

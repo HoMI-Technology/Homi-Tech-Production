@@ -114,6 +114,8 @@ const nextConfig: NextConfig = {
       { source: "/family", destination: "/household#family", permanent: true },
       { source: "/blog", destination: "/guides", permanent: true },
       { source: "/learning", destination: "/guides", permanent: true },
+      // Dogfood SPA muscle memory → production Budget Planner at /finance.
+      { source: "/planner", destination: "/finance", permanent: true },
     ];
   },
   async headers() {
