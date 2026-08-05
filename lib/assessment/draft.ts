@@ -4,7 +4,7 @@
  * index so refresh / tab eviction does not lose progress.
  */
 
-import type { DecisionType } from "@/lib/assessment/types";
+import { ACTIVE_DECISION_TYPES, type DecisionType } from "@/lib/assessment/types";
 import type { ResponseValue } from "@/lib/questions/bank";
 import type { ConflictResponses } from "@/lib/questions/to-inputs";
 
@@ -73,6 +73,11 @@ export function loadDraft(maxStepIndex = 64): AssessmentDraft | null {
     if (!parsed || typeof parsed !== "object") return null;
     if (parsed.version !== DRAFT_VERSION) return null;
     if (!parsed.decisionType || typeof parsed.index !== "number") return null;
+    // A draft for a non-active vertical cannot be resumed: buildAssessmentFlow
+    // would yield zero questions and the server would 400 the submit. Its
+    // responses reference that vertical's question ids, so falling back to
+    // another vertical is meaningless — treat the draft as unresumable.
+    if (!(ACTIVE_DECISION_TYPES as string[]).includes(parsed.decisionType)) return null;
 
     const draft: AssessmentDraft = {
       decisionType: parsed.decisionType,
