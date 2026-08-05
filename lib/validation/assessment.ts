@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ACTIVE_DECISION_TYPES, type DecisionType } from "@/lib/assessment/types";
 
 /**
  * Shared assessment-inputs schema (T1.8b).
@@ -35,3 +36,13 @@ export const assessmentInputsSchema = z.object({
 });
 
 export type AssessmentInputsPayload = z.infer<typeof assessmentInputsSchema>;
+
+/**
+ * Server-side allowlist for assessments.decision_type. Built from
+ * ACTIVE_DECISION_TYPES — canon-but-inactive verticals ("Coming soon" in the
+ * picker) are rejected here too, so activation is a single-array change in
+ * lib/assessment/types.ts and never a client claim.
+ */
+export const activeDecisionTypeSchema = z.enum(
+  ACTIVE_DECISION_TYPES as [DecisionType, ...DecisionType[]],
+);
