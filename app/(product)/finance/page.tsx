@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   DEFAULT_FINANCE_STATE,
+  hasSavedFinanceState,
   loadFinanceState,
   pullFinanceState,
   saveFinanceState,
@@ -11,21 +12,26 @@ import {
 } from "@/lib/finance/store";
 import { PageFrame } from "@/components/operate/PageFrame";
 import { Tabs, TabPanel } from "@/components/ui/Tabs";
+import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 import dynamic from "next/dynamic";
+
+function TabLoading({ label }: { label: string }) {
+  return <ProductLoadingSkeleton label={label} rows={2} />;
+}
 
 const BudgetTab = dynamic(
   () => import("@/components/finance/BudgetTab").then((m) => m.BudgetTab),
-  { ssr: false, loading: () => null },
+  { ssr: false, loading: () => <TabLoading label="Loading budget" /> },
 );
 
 const BudgetCalendar = dynamic(
   () => import("@/components/finance/BudgetCalendar").then((m) => m.BudgetCalendar),
-  { ssr: false, loading: () => null },
+  { ssr: false, loading: () => <TabLoading label="Loading calendar" /> },
 );
 
 const PlanTab = dynamic(
   () => import("@/components/finance/PlanTab").then((m) => m.PlanTab),
-  { ssr: false, loading: () => null },
+  { ssr: false, loading: () => <TabLoading label="Loading plan" /> },
 );
 
 import { CashFlowTab } from "@/components/finance/legacy/CashFlowTab";
@@ -46,10 +52,11 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: "plan", label: "Plan" },
   { key: "budget", label: "Budget" },
   { key: "calendar", label: "Calendar" },
-  { key: "cashflow", label: "Cash Flow" },
-  { key: "debt", label: "Debt" },
-  { key: "montecarlo", label: "Monte Carlo" },
-  { key: "networth", label: "Net Worth" },
+  // Legacy localStorage cockpit — labels stay honest so dual-path is clear.
+  { key: "cashflow", label: "Cash Flow (classic)" },
+  { key: "debt", label: "Debt (classic)" },
+  { key: "montecarlo", label: "Monte Carlo (classic)" },
+  { key: "networth", label: "Net Worth (classic)" },
 ];
 
 const TEMP_TEXT: Record<Temperature, string> = {
@@ -142,6 +149,14 @@ function FinanceShell({
   patch: (p: Partial<FinanceState>) => void;
 }) {
   const dashboard = useFinanceDashboard();
+  // Classic tabs seed sample numbers until the user saves — surface that once.
+  const [sampleHint, setSampleHint] = useState(false);
+  useEffect(() => {
+    setSampleHint(!hasSavedFinanceState());
+  }, []);
+
+  const classicWithDefaults =
+    tab === "cashflow" || tab === "montecarlo" || tab === "networth";
 
   return (
     <div className="space-y-8">
@@ -160,6 +175,11 @@ function FinanceShell({
       )}
       {tab === "plan" && PlanTab !== null && <PlanTab />}
       {tab === "budget" && BudgetTab !== null && <BudgetTab />}
+      {classicWithDefaults && sampleHint && (
+        <p className="rounded-lg border border-line bg-slate-surface/40 px-4 py-3 text-sm text-dim">
+          Sample starting numbers — edit any field and they save on this device.
+        </p>
+      )}
       {tab === "cashflow" && <CashFlowTab state={state} patch={patch} />}
       {tab === "debt" && <DebtTab />}
       {tab === "montecarlo" && <MonteCarloTab state={state} patch={patch} />}
