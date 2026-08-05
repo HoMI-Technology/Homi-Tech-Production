@@ -5,7 +5,7 @@ import { getClientIp, rateLimit } from "@/lib/ratelimit";
 import { FINANCE_LEDGER_INFRA_MISSING } from "@/lib/finance/db-map";
 import { AGENTS, type AgentId } from "@/lib/agents/registry";
 import type { FinanceInsightRow } from "@/types/database";
-import type { FinanceInsight } from "@/components/finance/AgentInsightsPanel";
+import type { FinanceInsight } from "@/lib/finance/insights";
 
 export const runtime = "nodejs";
 
