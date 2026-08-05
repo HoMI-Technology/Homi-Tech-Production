@@ -54,24 +54,26 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
   { href: "/tools/preflight", label: "Pre-Flight", group: "Navigate", keywords: "checklist readiness before offer", surfaces: { header: "more", palette: true } },
   { href: "/scenarios", label: "Scenarios", group: "Navigate", keywords: "compare what if paths saved", surfaces: { header: "more", palette: true } },
   { href: "/plan", label: "Plan", group: "Navigate", keywords: "next steps path", surfaces: { header: "more", palette: true } },
-  { href: "/simulator", label: "Simulator", paletteLabel: "Simulate your score", group: "Act", keywords: "what if test move", surfaces: { header: "more", palette: true } },
+  // Launch-hidden lab surface — route still exists; chrome off until verified.
+  { href: "/simulator", label: "Simulator", paletteLabel: "Simulate your score", group: "Act", keywords: "what if test move", surfaces: { palette: false } },
 
   // ── Header MORE: journal + companion ──
   { href: "/journal", label: "Journal", group: "Navigate", keywords: "decisions log notes", surfaces: { header: "more", palette: true } },
   { href: "/advisor", label: "Companion", paletteLabel: "Talk to the Companion", group: "Act", keywords: "chat advisor ai talk", surfaces: { header: "more", palette: true } },
 
-  // ── Header MORE: insight surfaces ──
-  { href: "/decisions", label: "Decisions", group: "Navigate", keywords: "net position", surfaces: { header: "more", palette: true } },
-  { href: "/signals", label: "Signals", group: "Navigate", keywords: "timing market watch", surfaces: { header: "more", palette: true } },
-  { href: "/twin", label: "Future Twin", group: "Navigate", keywords: "letter future self", surfaces: { header: "more", palette: true } },
-  { href: "/trinity", label: "Trinity", group: "Navigate", keywords: "pillars balance", surfaces: { header: "more", palette: true } },
-  { href: "/genome", label: "Genome", group: "Navigate", keywords: "psychology profile", surfaces: { header: "more", palette: true } },
+  // ── Launch-hidden insight labs (routes exist; not in header More or palette) ──
+  { href: "/decisions", label: "Decisions", group: "Navigate", keywords: "net position", surfaces: { palette: false } },
+  { href: "/signals", label: "Signals", group: "Navigate", keywords: "timing market watch", surfaces: { palette: false } },
+  { href: "/twin", label: "Future Twin", group: "Navigate", keywords: "letter future self", surfaces: { palette: false } },
+  { href: "/trinity", label: "Trinity", group: "Navigate", keywords: "pillars balance", surfaces: { palette: false } },
+  { href: "/genome", label: "Genome", group: "Navigate", keywords: "psychology profile", surfaces: { palette: false } },
 
   // ── Header MORE: money + life ──
   { href: "/finance", label: "Finance", group: "Navigate", keywords: "budget money numbers", surfaces: { header: "more", palette: true } },
-  { href: "/calendar", label: "Calendar", group: "Navigate", keywords: "milestones dates", surfaces: { header: "more", palette: true } },
-  { href: "/daily", label: "Daily Check-in", paletteLabel: "Daily check-in", group: "Act", keywords: "mood stress pulse", surfaces: { header: "more", palette: true } },
-  { href: "/credit", label: "Credit", group: "Navigate", keywords: "score report", surfaces: { header: "more", palette: true } },
+  // Launch-hidden life labs (routes exist; not in header More or palette)
+  { href: "/calendar", label: "Calendar", group: "Navigate", keywords: "milestones dates", surfaces: { palette: false } },
+  { href: "/daily", label: "Daily Check-in", paletteLabel: "Daily check-in", group: "Act", keywords: "mood stress pulse", surfaces: { palette: false } },
+  { href: "/credit", label: "Credit", group: "Navigate", keywords: "score report", surfaces: { palette: false } },
   { href: "/connections", label: "Connections", group: "Navigate", keywords: "bank plaid sync accounts", surfaces: { header: "more", palette: true } },
 
   // ── Role dashboards + account (palette/switcher only — parity exceptions) ──

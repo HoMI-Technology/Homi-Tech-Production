@@ -18,18 +18,35 @@ describe("AppHeader nav config", () => {
     expect(APP_MORE_NAV.find((i) => i.href === "/advisor")?.label).toBe("Companion");
   });
 
-  it("carries the deeper product surface (palette union) under More", () => {
+  it("carries the launch product surface under More", () => {
     const hrefs = APP_MORE_NAV.map((i) => i.href);
     for (const href of [
       "/path",
+      "/results",
       "/household",
       "/tools/preflight",
       "/scenarios",
       "/plan",
-      "/simulator",
-      "/genome",
+      "/journal",
+      "/advisor",
+      "/finance",
+      "/connections",
     ]) {
       expect(hrefs).toContain(href);
+    }
+    // Incomplete lab surfaces stay off chrome for launch (routes still exist).
+    for (const href of [
+      "/simulator",
+      "/decisions",
+      "/signals",
+      "/twin",
+      "/trinity",
+      "/genome",
+      "/calendar",
+      "/daily",
+      "/credit",
+    ]) {
+      expect(hrefs).not.toContain(href);
     }
     // D3 household consolidation: /couples and /family merged into
     // /household (#couples / #family tabs) — the routes no longer exist.
