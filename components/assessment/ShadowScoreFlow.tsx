@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { computeShadowScore, type ShadowInputs } from "@/lib/scoring";
+import { fetchServerScore, ScoringRequestError } from "@/lib/scoring/client-score";
 import { saveLocalResult, loadLocalResult, attachServerId } from "@/lib/assessment/storage";
 import { recordSaveStatus, statusFromResponse } from "@/lib/assessment/save-status";
 import {
@@ -123,6 +123,7 @@ export function ShadowScoreFlow() {
   const [index, setIndex] = useState(0);
   const [form, setForm] = useState<ShadowForm>(INITIAL);
   const [submitting, setSubmitting] = useState(false);
+  const [scoreError, setScoreError] = useState<string | null>(null);
   const [prefillNoteVisible, setPrefillNoteVisible] = useState(false);
   const [resumeDraft, setResumeDraft] = useState<ShadowDraft | null>(null);
   const [draftReady, setDraftReady] = useState(false);
@@ -200,6 +201,7 @@ export function ShadowScoreFlow() {
 
   async function handleSubmit() {
     setSubmitting(true);
+    setScoreError(null);
     clearShadowDraft();
     const income = form.monthlyGrossIncome ?? 0;
     const debt = form.monthlyDebtPayments ?? 0;
@@ -208,17 +210,37 @@ export function ShadowScoreFlow() {
     const creditScore = form.creditBand ? CREDIT_BAND_MIDPOINT[form.creditBand] : 0;
     const timeHorizonMonths = form.timeHorizonChoice ? TIME_HORIZON_MONTHS[form.timeHorizonChoice] : 6;
 
-    const shadowInputs: ShadowInputs = {
+    // Same neutral padding as SHADOW_DEFAULTS (public defaults, not engine curves).
+    // Server runs computeScore; client never imports the engine (Plans.md 6.2).
+    const inputs = {
       debtToIncomeRatio,
+      downPaymentPercent: 0.1,
       emergencyFundMonths,
       creditScore,
+      lifeStability: 6,
       confidenceLevel: form.confidenceLevel,
+      partnerAlignment: null as number | null,
       fomoLevel: form.fomoLevel,
       timeHorizonMonths,
+      savingsRate: 0.1,
+      downPaymentProgress: 0.4,
     };
 
-    const result = computeShadowScore(shadowInputs);
+    let scored: Awaited<ReturnType<typeof fetchServerScore>>;
+    try {
+      scored = await fetchServerScore(inputs);
+    } catch (err) {
+      const message =
+        err instanceof ScoringRequestError
+          ? err.message
+          : "Scoring failed. Try again in a moment.";
+      setScoreError(message);
+      recordSaveStatus("failed");
+      setSubmitting(false);
+      return;
+    }
 
+    const { result } = scored;
     const prior = loadLocalResult();
     const previous = prior
       ? {
@@ -234,19 +256,7 @@ export function ShadowScoreFlow() {
       : undefined;
 
     saveLocalResult({
-      inputs: {
-        debtToIncomeRatio,
-        downPaymentPercent: 0.1,
-        emergencyFundMonths,
-        creditScore,
-        lifeStability: 6,
-        confidenceLevel: form.confidenceLevel,
-        partnerAlignment: null,
-        fomoLevel: form.fomoLevel,
-        timeHorizonMonths,
-        savingsRate: 0.1,
-        downPaymentProgress: 0.4,
-      },
+      inputs,
       result,
       completedAt: new Date().toISOString(),
       kind: "shadow",
@@ -258,19 +268,7 @@ export function ShadowScoreFlow() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        inputs: {
-          debtToIncomeRatio,
-          downPaymentPercent: 0.1,
-          emergencyFundMonths,
-          creditScore,
-          lifeStability: 6,
-          confidenceLevel: form.confidenceLevel,
-          partnerAlignment: null,
-          fomoLevel: form.fomoLevel,
-          timeHorizonMonths,
-          savingsRate: 0.1,
-          downPaymentProgress: 0.4,
-        },
+        inputs,
         kind: "shadow",
       }),
     })
@@ -452,6 +450,11 @@ export function ShadowScoreFlow() {
               label: TIME_HORIZON_LABELS[k],
             }))}
           />
+          {scoreError && (
+            <p className="mt-4 text-sm text-crimson" role="alert">
+              {scoreError}
+            </p>
+          )}
         </StepShell>
       )}
     </div>
