@@ -53,19 +53,14 @@ function loadEnvLocal() {
 }
 loadEnvLocal();
 
-const supabaseUrl =
-  process.env.NEXT_PUBLIC_SUPABASE_URL ||
-  process.env.SUPABASE_URL ||
-  `https://${PROJECT_REF}.supabase.co`;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!serviceRoleKey) {
-  console.error(
-    "[backfill] Missing SUPABASE_SERVICE_ROLE_KEY.\n" +
-      "Set it before running:\n" +
-      "  SUPABASE_SERVICE_ROLE_KEY=eyJ... node scripts/backfill-plaid-to-ledger.mjs",
+// IMPORTANT: Do not process.exit() at module load. This file is imported by
+// unit tests for pure mapping helpers; CLI-only env checks belong in main().
+function resolveSupabaseUrl() {
+  return (
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    process.env.SUPABASE_URL ||
+    `https://${PROJECT_REF}.supabase.co`
   );
-  process.exit(1);
 }
 
 // =============================================================================
@@ -329,6 +324,17 @@ export async function runBackfill(supabase, { dryRun = false, batchSize = DEFAUL
 // =============================================================================
 
 async function main() {
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceRoleKey) {
+    console.error(
+      "[backfill] Missing SUPABASE_SERVICE_ROLE_KEY.\n" +
+        "Set it before running:\n" +
+        "  SUPABASE_SERVICE_ROLE_KEY=eyJ... node scripts/backfill-plaid-to-ledger.mjs",
+    );
+    process.exit(1);
+  }
+
+  const supabaseUrl = resolveSupabaseUrl();
   const batchSize = parseBatchSize();
 
   if (DRY_RUN) {

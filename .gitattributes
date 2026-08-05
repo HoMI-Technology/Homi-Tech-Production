@@ -1,0 +1,2 @@
+# Keep Node CLI scripts LF so Vitest/Vite can load shebang files on Windows
+scripts/**/*.mjs text eol=lf
