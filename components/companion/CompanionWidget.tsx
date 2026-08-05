@@ -524,6 +524,9 @@ export function CompanionWidget() {
               </svg>
             </button>
           </div>
+          <p className="px-3 pb-2 text-center text-[10px] leading-snug text-dim/70">
+            Educational guidance only — not financial advice.
+          </p>
         </div>
       )}
     </>

@@ -196,6 +196,10 @@ export default function ResultsPage() {
             )}
           </div>
           <p className="mt-4 max-w-md text-base text-light">{meta.line}</p>
+          <p className="mt-3 max-w-md text-xs leading-relaxed text-dim/80">
+            Educational guidance only — not financial, legal, tax, mortgage, or
+            investment advice.
+          </p>
           {result.verdict !== "READY" && (
             <>
               <p className="mt-3 max-w-md text-sm text-dim">
