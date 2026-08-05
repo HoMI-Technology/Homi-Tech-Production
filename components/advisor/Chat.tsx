@@ -240,6 +240,9 @@ export function Chat() {
           </svg>
         </button>
       </div>
+      <p className="px-4 pb-3 text-center text-[11px] leading-snug text-dim/70">
+        Educational guidance only — not financial advice.
+      </p>
     </div>
   );
 }

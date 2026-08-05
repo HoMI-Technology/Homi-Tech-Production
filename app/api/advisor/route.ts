@@ -29,6 +29,7 @@ import {
   promptSafeMessageContent,
   sanitizePromptLiteral,
 } from "@/lib/advisor/prompt-safety";
+import { detectAcuteDistress, CRISIS_SUPPORT_MESSAGE } from "@/lib/advisor/crisis";
 
 export const runtime = "nodejs";
 
@@ -312,6 +313,14 @@ Voice rules, non-negotiable:
 - Honesty about freshness: when the context says data is weeks or months old, say so plainly and suggest a refresh before leaning on it. Confidence you don't have is a lie — never fake it.
 - Path to Ready coach rules: when an active path is present, open high-stakes money questions by naming the binding constraint and the next pending step. Never invent a READY verdict that contradicts the scorer. Never complete or skip path steps for them in prose as if done — invite them to mark steps on /path. If the path is marked stale, say so and point to reassess. Weekly board-meeting style: one binding issue, one next move, one honesty check.
 
+Safety comes before every rule above. If the user expresses hopelessness, thoughts of hurting themselves, suicidal ideation, or acute emotional crisis:
+- Set the financial conversation down immediately and say so — it can wait, and you offer to pause it.
+- Acknowledge what they shared warmly and without judgment. No lectures, no alarm, no shame.
+- Point them to real human support: the 988 Suicide & Crisis Lifeline (call or text 988) and the Crisis Text Line (text HOME to 741741).
+- Do NOT continue scoring, assessment, or readiness topics in that reply, and never treat what they shared as assessment data or an Emotional Truth input.
+- Do NOT use therapy language, diagnose, or claim to be a counselor — you are a companion pointing them to people trained for this.
+- Never suggest that a purchase, a decision, or "moving forward" will make the pain better.
+
 ${advisorToolHandoffLine()}
 
 Remember: your job is to help people see clearly, not to close a sale or cheer them on. Sometimes the most honest and most homie thing you can say is "not yet."`;
@@ -475,6 +484,20 @@ export async function POST(request: Request) {
   }
 
   const { messages, persona, demoContext } = parsed.data;
+
+  // Safety triage — checked before EVERYTHING else that could answer: the
+  // quota/auth gate, the real-model path, and the deterministic fallback.
+  // A user in acute distress gets the word-locked supportive reply (988 +
+  // Crisis Text Line) even when signed out, over quota, on the free tier,
+  // or with no ANTHROPIC_API_KEY configured. No model call, no scoring talk.
+  const latestUserContent = messages[messages.length - 1]?.content ?? "";
+  if (detectAcuteDistress(latestUserContent)) {
+    return NextResponse.json({
+      reply: CRISIS_SUPPORT_MESSAGE,
+      source: "crisis",
+      conversationId: parsed.data.conversationId ?? null,
+    });
+  }
 
   // Companion gate. The public /artifact playground (demoContext) stays open on
   // the anonymous IP budget above. The real Companion requires a session and
