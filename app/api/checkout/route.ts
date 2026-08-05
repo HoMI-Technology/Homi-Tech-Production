@@ -4,6 +4,7 @@ import { z } from "zod";
 import { env, hasStripe } from "@/lib/env";
 import { getTier } from "@/lib/stripe/tiers";
 import { createStripeClient } from "@/lib/stripe/server";
+import { hasActivePaidSubscription } from "@/lib/stripe/subscription-state";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
 
@@ -61,9 +62,23 @@ export async function POST(request: Request) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("stripe_customer_id, email")
+    .select("stripe_customer_id, email, subscription_tier, subscription_status")
     .eq("id", user.id)
     .maybeSingle();
+
+  if (hasActivePaidSubscription(profile?.subscription_tier, profile?.subscription_status)) {
+    return NextResponse.json(
+      {
+        error: "already_subscribed",
+        message:
+          "You already have an active HōMI plan. Use Manage billing to change or cancel it — starting Checkout again could double-charge.",
+        action: "portal",
+        tier: profile?.subscription_tier ?? null,
+        status: profile?.subscription_status ?? null,
+      },
+      { status: 409 },
+    );
+  }
 
   const siteUrl = env.NEXT_PUBLIC_SITE_URL;
   const cancelPath =

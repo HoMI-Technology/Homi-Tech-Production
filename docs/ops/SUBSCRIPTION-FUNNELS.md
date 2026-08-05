@@ -81,9 +81,14 @@ profiles.subscription_tier / status updated
 
 - `client_reference_id` = Supabase user id (webhook requires this)
 - Reuses `profiles.stripe_customer_id` when present; else pre-fills `customer_email`
-- Success → `/settings/subscription?upgraded=1`
+- Success → `/settings/subscription?upgraded=1` (hub **polls entitlements** until tier is paid or 30s timeout)
 - Cancel → `/pricing` or `/settings/subscription` depending on `source`
 - Promotion codes allowed
+- **409 `already_subscribed`** when `subscription_tier` is paid and status is active-like
+  (`active|trialing|cancelling|past_due|unpaid|incomplete`). Client must open
+  Customer Portal (or `/settings/subscription`), not a second Checkout.
+- Pricing CTAs: 409 → portal; `configured:false` → honest error (no fake waitlist);
+  other failures surface the server message
 
 ---
 

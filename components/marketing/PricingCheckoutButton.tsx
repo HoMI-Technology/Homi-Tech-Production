@@ -1,20 +1,57 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
+import Link from "next/link";
 import { track } from "@/lib/analytics";
 
 export type PricingTier = "plus" | "pro" | "family";
 
+type UiStatus =
+  | "idle"
+  | "loading"
+  | "error"
+  | "not_configured"
+  | "already_subscribed";
+
 interface CheckoutResponse {
   configured?: boolean;
   url?: string;
+  error?: string;
+  message?: string;
+  action?: string;
+}
+
+async function openBillingPortal(): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+  try {
+    const res = await fetch("/api/billing/portal", { method: "POST" });
+    const data = (await res.json().catch(() => ({}))) as {
+      configured?: boolean;
+      url?: string;
+      error?: string;
+    };
+    if (res.status === 401) {
+      return { ok: false, error: "sign_in" };
+    }
+    if (data.url) return { ok: true, url: data.url };
+    if (data.configured === false) {
+      return {
+        ok: false,
+        error: "Open Subscription in your account to manage your plan.",
+      };
+    }
+    return { ok: false, error: data.error ?? "Could not open billing." };
+  } catch {
+    return { ok: false, error: "Could not open billing." };
+  }
 }
 
 /**
- * Posts to /api/checkout with the selected tier. That route is owned by
- * another workstream — this component only calls it defensively. If the
- * endpoint is missing, unreachable, or reports { configured: false }, we
- * show an inline waitlist capture so the visitor is never dead-ended.
+ * Starts Stripe Checkout for a paid tier from the public pricing page.
+ *
+ * - 401 → sign-in and return to /pricing
+ * - 409 already_subscribed → Customer Portal (or /settings/subscription)
+ * - configured:false → honest "billing not configured" (not a fake waitlist)
+ * - other errors → surface server message
  */
 export function PricingCheckoutButton({
   tier,
@@ -25,52 +62,54 @@ export function PricingCheckoutButton({
   label: string;
   className?: string;
 }) {
-  const [status, setStatus] = useState<"idle" | "loading" | "unavailable" | "error">("idle");
-  const [email, setEmail] = useState("");
-  const [waitlistStatus, setWaitlistStatus] = useState<"idle" | "loading" | "success" | "error">(
-    "idle",
-  );
-
-  async function handleWaitlistSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setWaitlistStatus("loading");
-    try {
-      const res = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, interest: `pricing-${tier}` }),
-      });
-      setWaitlistStatus(res.ok ? "success" : "error");
-    } catch {
-      setWaitlistStatus("error");
-    }
-  }
+  const [status, setStatus] = useState<UiStatus>("idle");
+  const [detail, setDetail] = useState<string | null>(null);
 
   async function handleClick() {
     setStatus("loading");
-    track("checkout_started", { tier });
+    setDetail(null);
+    track("checkout_started", { tier, source: "pricing" });
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tier }),
+        body: JSON.stringify({ tier, source: "pricing" }),
       });
 
+      const data: CheckoutResponse = await res.json().catch(() => ({}));
+
       if (res.status === 401) {
-        // Checkout requires a signed-in account — send them to sign-in, then back to pricing.
         window.location.href = "/auth/sign-in?next=/pricing";
         return;
       }
 
-      if (!res.ok) {
-        setStatus("unavailable");
+      if (res.status === 409 || data.error === "already_subscribed") {
+        setStatus("already_subscribed");
+        const portal = await openBillingPortal();
+        if (portal.ok) {
+          window.location.href = portal.url;
+          return;
+        }
+        if (portal.error === "sign_in") {
+          window.location.href = "/auth/sign-in?next=/settings/subscription";
+          return;
+        }
+        setDetail(
+          data.message ??
+            "You already have a plan. Manage it from Subscription in your account.",
+        );
         return;
       }
 
-      const data: CheckoutResponse = await res.json().catch(() => ({}));
-
       if (data.configured === false) {
-        setStatus("unavailable");
+        setStatus("not_configured");
+        setDetail("Online checkout is not configured in this environment yet.");
+        return;
+      }
+
+      if (!res.ok) {
+        setStatus("error");
+        setDetail(data.error ?? data.message ?? "Checkout failed. Try again in a moment.");
         return;
       }
 
@@ -79,9 +118,11 @@ export function PricingCheckoutButton({
         return;
       }
 
-      setStatus("unavailable");
+      setStatus("error");
+      setDetail("Checkout did not return a payment link. Try again in a moment.");
     } catch {
       setStatus("error");
+      setDetail("Could not reach checkout. Check your connection and try again.");
     }
   }
 
@@ -95,38 +136,31 @@ export function PricingCheckoutButton({
       >
         {status === "loading" ? "One moment…" : label}
       </button>
-      {status === "unavailable" &&
-        (waitlistStatus === "success" ? (
-          <p className="text-center text-xs text-dim">
-            You&rsquo;re on the list. We&rsquo;ll tell you the moment billing opens.
-          </p>
-        ) : (
-          <form onSubmit={handleWaitlistSubmit} className="flex flex-col gap-2">
-            <p className="text-center text-xs text-dim">
-              Billing opens soon. Leave your email and we&rsquo;ll tell you the moment it does.
-            </p>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              aria-label="Email for the billing waitlist"
-              className="input"
-            />
-            <button type="submit" disabled={waitlistStatus === "loading"} className="btn btn-ghost">
-              {waitlistStatus === "loading" ? "Sending…" : "Notify me"}
-            </button>
-            {waitlistStatus === "error" && (
-              <p className="text-center text-xs text-dim">
-                Something didn&rsquo;t connect. Try again in a moment.
-              </p>
-            )}
-          </form>
-        ))}
-      {status === "error" && (
+
+      {status === "already_subscribed" && (
         <p className="text-center text-xs text-dim">
-          Something didn&rsquo;t connect. Try again in a moment.
+          {detail ?? "You already have an active plan."}{" "}
+          <Link href="/settings/subscription" className="text-cyan underline-offset-2 hover:underline">
+            Manage subscription
+          </Link>
+        </p>
+      )}
+
+      {status === "not_configured" && (
+        <p className="text-center text-xs text-dim">
+          {detail}{" "}
+          <a
+            href="mailto:hello@homitechnology.com"
+            className="text-cyan underline-offset-2 hover:underline"
+          >
+            Contact us
+          </a>
+        </p>
+      )}
+
+      {status === "error" && (
+        <p className="text-center text-xs text-dim" role="alert">
+          {detail}
         </p>
       )}
     </div>

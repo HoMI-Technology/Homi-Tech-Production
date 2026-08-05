@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { COLORS } from "@/lib/brand";
 import { TIERS, type TierKey } from "@/lib/stripe/tiers";
@@ -27,6 +27,7 @@ const STATUS_LABELS: Record<string, string> = {
   past_due: "Past due",
   cancelled: "Cancelled",
   canceled: "Cancelled",
+  cancelling: "Cancels at period end",
   incomplete: "Incomplete",
   unpaid: "Unpaid",
   free: "—",
@@ -35,16 +36,23 @@ const STATUS_LABELS: Record<string, string> = {
 
 const PAID_ORDER: TierKey[] = ["plus", "pro", "family"];
 
+const POLL_MS = 1500;
+const POLL_MAX_MS = 30_000;
+
 function statusTone(status: string): string {
   if (status === "active" || status === "trialing") return COLORS.emerald;
   if (status === "past_due" || status === "unpaid") return COLORS.crimson;
   return COLORS.dim;
 }
 
+function isPaidTier(t: string): t is TierKey {
+  return t === "plus" || t === "pro" || t === "family";
+}
+
 export function SubscriptionHub({
-  tier,
-  status,
-  hasStripeCustomer,
+  tier: initialTier,
+  status: initialStatus,
+  hasStripeCustomer: initialHasCustomer,
   upgraded,
 }: {
   tier: SubscriptionTier;
@@ -52,13 +60,70 @@ export function SubscriptionHub({
   hasStripeCustomer: boolean;
   upgraded?: boolean;
 }) {
+  const [tier, setTier] = useState<SubscriptionTier>(initialTier);
+  const [status, setStatus] = useState(initialStatus);
+  const [hasStripeCustomer, setHasStripeCustomer] = useState(initialHasCustomer);
   const [portalLoading, setPortalLoading] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<TierKey | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const [syncState, setSyncState] = useState<"idle" | "polling" | "synced" | "timeout">(
+    upgraded && initialTier === "free" ? "polling" : upgraded ? "synced" : "idle",
+  );
 
   const color = TIER_COLORS[tier] ?? TIER_COLORS.free;
   const statusColor = statusTone(status);
   const isPaid = tier !== "free";
+
+  const refreshFromEntitlements = useCallback(async (): Promise<boolean> => {
+    try {
+      const res = await fetch("/api/account/entitlements", { cache: "no-store" });
+      if (!res.ok) return false;
+      const data = (await res.json()) as { entitlements?: { tier?: string } };
+      const next = data.entitlements?.tier;
+      if (next && isPaidTier(next)) {
+        setTier(next);
+        setStatus((s) => (s === "free" || s === "" || s === "unknown" ? "active" : s));
+        setHasStripeCustomer(true);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  // After Checkout success (?upgraded=1), poll until webhook has written a paid tier.
+  useEffect(() => {
+    if (!upgraded) return;
+    if (isPaidTier(initialTier)) {
+      setSyncState("synced");
+      return;
+    }
+
+    let cancelled = false;
+    const started = Date.now();
+    setSyncState("polling");
+
+    async function tick() {
+      if (cancelled) return;
+      const ok = await refreshFromEntitlements();
+      if (cancelled) return;
+      if (ok) {
+        setSyncState("synced");
+        return;
+      }
+      if (Date.now() - started >= POLL_MAX_MS) {
+        setSyncState("timeout");
+        return;
+      }
+      window.setTimeout(tick, POLL_MS);
+    }
+
+    void tick();
+    return () => {
+      cancelled = true;
+    };
+  }, [upgraded, initialTier, refreshFromEntitlements]);
 
   async function openPortal() {
     setPortalLoading(true);
@@ -108,9 +173,16 @@ export function SubscriptionHub({
         configured?: boolean;
         url?: string;
         error?: string;
+        message?: string;
+        action?: string;
       };
+      if (res.status === 409 || data.error === "already_subscribed") {
+        setNote(data.message ?? "You already have an active plan. Opening billing…");
+        await openPortal();
+        return;
+      }
       if (!res.ok || data.configured === false || !data.url) {
-        setNote(data.error ?? "Checkout is unavailable right now. Try again in a moment.");
+        setNote(data.message ?? data.error ?? "Checkout is unavailable right now. Try again in a moment.");
         return;
       }
       window.location.href = data.url;
@@ -124,9 +196,11 @@ export function SubscriptionHub({
   function ctaFor(target: TierKey): { label: string; action: "checkout" | "portal" | "current" } {
     if (tier === target) return { label: "Current plan", action: "current" };
     if (isPaid && hasStripeCustomer) {
-      // Existing subscribers change plans / cancel in the portal (proration-safe).
       return {
-        label: PAID_ORDER.indexOf(target) > PAID_ORDER.indexOf(tier as TierKey) ? "Upgrade in billing" : "Change plan",
+        label:
+          PAID_ORDER.indexOf(target) > PAID_ORDER.indexOf(tier as TierKey)
+            ? "Upgrade in billing"
+            : "Change plan",
         action: "portal",
       };
     }
@@ -138,7 +212,23 @@ export function SubscriptionHub({
 
   return (
     <div className="flex flex-col gap-8">
-      {upgraded && (
+      {upgraded && syncState === "polling" && (
+        <div
+          className="rounded-xl border px-4 py-3 text-sm"
+          style={{
+            borderColor: `${COLORS.cyan}66`,
+            background: `${COLORS.cyan}14`,
+            color: COLORS.light,
+          }}
+          role="status"
+          aria-live="polite"
+        >
+          Payment received. Waiting for your plan to activate
+          <span className="text-dim"> (usually a few seconds)…</span>
+        </div>
+      )}
+
+      {upgraded && syncState === "synced" && (
         <div
           className="rounded-xl border px-4 py-3 text-sm"
           style={{
@@ -148,7 +238,39 @@ export function SubscriptionHub({
           }}
           role="status"
         >
-          You&rsquo;re upgraded. Stripe may take a few seconds to sync — refresh if your plan badge looks stale.
+          You&rsquo;re on <strong>{TIER_LABELS[tier]}</strong>. Your paid features are active.
+        </div>
+      )}
+
+      {upgraded && syncState === "timeout" && (
+        <div
+          className="rounded-xl border px-4 py-3 text-sm"
+          style={{
+            borderColor: `${COLORS.yellow}66`,
+            background: `${COLORS.yellow}14`,
+            color: COLORS.light,
+          }}
+          role="status"
+        >
+          Payment went through, but your plan badge hasn&rsquo;t updated yet. Wait a moment and{" "}
+          <button
+            type="button"
+            className="text-cyan underline-offset-2 hover:underline"
+            onClick={() => {
+              setSyncState("polling");
+              void (async () => {
+                const ok = await refreshFromEntitlements();
+                setSyncState(ok ? "synced" : "timeout");
+              })();
+            }}
+          >
+            refresh plan status
+          </button>
+          , or contact{" "}
+          <a className="text-cyan underline-offset-2 hover:underline" href="mailto:hello@homitechnology.com">
+            hello@homitechnology.com
+          </a>{" "}
+          with your account email.
         </div>
       )}
 
@@ -164,6 +286,9 @@ export function SubscriptionHub({
             style={{ color, borderColor: `${color}59`, background: `${color}1a` }}
           >
             {TIER_LABELS[tier] ?? tier}
+            {syncState === "polling" && (
+              <span className="ml-2 text-xs font-normal text-dim">updating…</span>
+            )}
           </span>
           <span
             className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium"
@@ -174,7 +299,7 @@ export function SubscriptionHub({
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3">
-          {isPaid && (
+          {(isPaid || hasStripeCustomer) && (
             <button
               type="button"
               onClick={openPortal}
@@ -268,12 +393,21 @@ export function SubscriptionHub({
       <section className="glass p-6 text-sm text-dim">
         <h2 className="font-display text-base font-semibold text-light">How billing works</h2>
         <ul className="mt-3 list-disc space-y-2 pl-5">
-          <li>Subscriptions are monthly. Cancel anytime in Manage billing — access lasts through the period you paid for.</li>
-          <li>Plan changes for existing subscribers go through Stripe&rsquo;s customer portal so payment method and proration stay correct.</li>
+          <li>
+            Subscriptions are monthly. Cancel anytime in Manage billing — access lasts through the
+            period you paid for.
+          </li>
+          <li>
+            Plan changes for existing subscribers go through Stripe&rsquo;s customer portal so payment
+            method and proration stay correct. Starting Checkout while already subscribed is blocked.
+          </li>
           <li>New paid plans open Stripe Checkout. You need a signed-in HōMI account first.</li>
           <li>
             Questions? Email{" "}
-            <a className="text-cyan underline-offset-2 hover:underline" href="mailto:hello@homitechnology.com">
+            <a
+              className="text-cyan underline-offset-2 hover:underline"
+              href="mailto:hello@homitechnology.com"
+            >
               hello@homitechnology.com
             </a>
             .
