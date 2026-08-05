@@ -30,6 +30,8 @@ describe("getEntitlements", () => {
     expect(free.advisorAccess).toBe(true);
     expect(free.advisorMessagesPerDay).toBeGreaterThan(0);
     expect(free.advisorMessagesPerDay).toBeLessThan(getEntitlements("plus").advisorMessagesPerDay);
+    // Free never spends on the real model — rule-based Companion only.
+    expect(free.advisorRealModel).toBe(false);
     // But the actual premium capabilities stay locked.
     expect(free.fullReport).toBe(false);
     expect(free.unlimitedRescoring).toBe(false);
@@ -42,6 +44,7 @@ describe("getEntitlements", () => {
   it("unlocks the Companion + full report at Plus (matches published Plus features)", () => {
     const plus = getEntitlements("plus");
     expect(plus.advisorAccess).toBe(true);
+    expect(plus.advisorRealModel).toBe(true);
     expect(plus.advisorMessagesPerDay).toBeGreaterThan(0);
     expect(plus.fullReport).toBe(true);
     expect(plus.unlimitedRescoring).toBe(true);
