@@ -4,7 +4,7 @@ import { z } from "zod";
 import { computeScore, generateKeyInsight, generateNextSteps } from "@/lib/scoring";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { assessmentInputsSchema } from "@/lib/validation/assessment";
+import { activeDecisionTypeSchema, assessmentInputsSchema } from "@/lib/validation/assessment";
 import { getUserEntitlements } from "@/lib/entitlements";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
 import {
@@ -19,6 +19,8 @@ import { captureServerEvent } from "@/lib/analytics/server";
 const bodySchema = z.object({
   inputs: assessmentInputsSchema,
   kind: z.enum(["full", "shadow"]),
+  // Optional for older clients / the home-only shadow flow; absent means home_buying.
+  decisionType: activeDecisionTypeSchema.optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -34,7 +36,7 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid assessment payload" }, { status: 400 });
     }
-    const { inputs, kind } = parsed.data;
+    const { inputs, kind, decisionType } = parsed.data;
 
     const supabase = await createClient();
     const {
@@ -104,7 +106,7 @@ export async function POST(req: NextRequest) {
         user_id: user.id,
         ...(attribution ? { attribution } : {}),
         ...(referralSource ? { referral_source: referralSource } : {}),
-        decision_type: "home_buying",
+        decision_type: decisionType ?? "home_buying",
         status: "completed",
         financial_score: result.financial.total,
         emotional_score: result.emotional.total,

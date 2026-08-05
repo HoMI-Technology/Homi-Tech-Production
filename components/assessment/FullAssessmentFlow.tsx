@@ -150,7 +150,7 @@ export function FullAssessmentFlow() {
     fetch("/api/assessments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ inputs, kind: "full" }),
+      body: JSON.stringify({ inputs, kind: "full", decisionType }),
     })
       .then(async (res) => {
         if (!res.ok) return;

@@ -101,4 +101,32 @@ describe("assessment draft persistence (bank flow v2)", () => {
     expect(clampDraftIndex(-3, 10)).toBe(0);
     expect(clampDraftIndex(99, 5)).toBe(5);
   });
+
+  it("invalidates a draft whose decisionType is canon but not active", () => {
+    // A resumed inactive vertical builds a zero-question flow and the server
+    // rejects its submit — the draft must be treated as unresumable instead.
+    const envelope = {
+      version: DRAFT_VERSION,
+      decisionType: "car",
+      responses: { fin_income: 6500 },
+      conflict: { referralSource: null, deadlineOrigin: null },
+      index: 4,
+      updatedAt: new Date().toISOString(),
+    };
+    window.localStorage.setItem(DRAFT_KEY, JSON.stringify(envelope));
+    expect(loadDraft()).toBeNull();
+  });
+
+  it("invalidates a draft with a foreign decisionType slug", () => {
+    const envelope = {
+      version: DRAFT_VERSION,
+      decisionType: "banana",
+      responses: { fin_income: 6500 },
+      conflict: { referralSource: null, deadlineOrigin: null },
+      index: 4,
+      updatedAt: new Date().toISOString(),
+    };
+    window.localStorage.setItem(DRAFT_KEY, JSON.stringify(envelope));
+    expect(loadDraft()).toBeNull();
+  });
 });
