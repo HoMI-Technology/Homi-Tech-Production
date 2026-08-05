@@ -23,6 +23,7 @@
 
 import { useCallback, useEffect, useState, type ComponentType } from "react";
 import { usePathname } from "next/navigation";
+import { COLORS } from "@/lib/brand";
 import { SYNTHESIS_EVENT } from "@/lib/tools/digest";
 
 /** Must stay in sync with CompanionWidget's OPEN_KEY. */
@@ -112,11 +113,17 @@ export function CompanionHost() {
       aria-label="Open HōMI Companion"
       className="compass-glow fixed right-6 z-[var(--z-menu)] flex h-14 w-14 items-center justify-center rounded-full border border-cyan/40 bg-navy-light/90 shadow-lg backdrop-blur transition-transform hover:scale-105 bottom-[max(1.5rem,env(safe-area-inset-bottom,0px))]"
     >
-      {/* Inline mark — no ThresholdCompass / brand chunk in the public shell. */}
+      {/* Inline mark — no ThresholdCompass in the public shell; COLORS only. */}
       <svg width="28" height="28" viewBox="0 0 40 40" aria-hidden="true">
-        <circle cx="20" cy="20" r="15" fill="none" stroke="#22d3ee" strokeWidth="1.5" opacity="0.7" />
-        <circle cx="20" cy="20" r="4" fill="#22d3ee" />
-        <path d="M20 6v6M20 28v6M6 20h6M28 20h6" stroke="#22d3ee" strokeWidth="1.5" strokeLinecap="round" opacity="0.85" />
+        <circle cx="20" cy="20" r="15" fill="none" stroke={COLORS.cyan} strokeWidth="1.5" opacity="0.7" />
+        <circle cx="20" cy="20" r="4" fill={COLORS.cyan} />
+        <path
+          d="M20 6v6M20 28v6M6 20h6M28 20h6"
+          stroke={COLORS.cyan}
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          opacity="0.85"
+        />
       </svg>
     </button>
   );
