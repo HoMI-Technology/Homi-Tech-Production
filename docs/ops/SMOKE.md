@@ -19,7 +19,9 @@ $env:SMOKE_PASSWORD = "YourPassword1"
 npm run smoke:auth
 ```
 
-That signs in, checks assessment honesty, opens Companion, opens finance.
+That signs in (system Chrome/Edge on Windows — not the SAC-blocked Playwright shell), checks assessment honesty, opens Companion, opens finance.
+
+If Chromium is still blocked: install Chrome, or set `$env:PLAYWRIGHT_CHANNEL = "msedge"`.
 
 ## Manual (no Playwright)
 
