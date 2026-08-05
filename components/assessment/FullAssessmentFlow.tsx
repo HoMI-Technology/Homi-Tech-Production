@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { PILLARS } from "@/lib/brand";
-import { computeScore } from "@/lib/scoring";
+import { fetchServerScore, ScoringRequestError } from "@/lib/scoring/client-score";
 import { saveLocalResult, loadLocalResult, attachServerId } from "@/lib/assessment/storage";
 import { recordSaveStatus, statusFromResponse } from "@/lib/assessment/save-status";
 import { saveDraft, loadDraft, clearDraft, type AssessmentDraft } from "@/lib/assessment/draft";
@@ -66,6 +66,7 @@ export function FullAssessmentFlow() {
   const [responses, setResponses] = useState<Record<string, ResponseValue>>({});
   const [conflict, setConflict] = useState<ConflictResponses>(EMPTY_CONFLICT);
   const [submitting, setSubmitting] = useState(false);
+  const [scoreError, setScoreError] = useState<string | null>(null);
 
   const [resumeDraft, setResumeDraft] = useState<AssessmentDraft | null>(null);
   const [draftReady, setDraftReady] = useState(false);
@@ -139,9 +140,26 @@ export function FullAssessmentFlow() {
 
   async function handleSubmit() {
     setSubmitting(true);
+    setScoreError(null);
     const inputs = bankResponsesToInputs(responses, conflict);
-    const result = computeScore(inputs);
 
+    // Server-authoritative score (Plans.md 6.2) — never computeScore on client.
+    let scored: Awaited<ReturnType<typeof fetchServerScore>>;
+    try {
+      scored = await fetchServerScore(inputs);
+    } catch (err) {
+      const message =
+        err instanceof ScoringRequestError
+          ? err.message
+          : "Scoring failed. Try again in a moment.";
+      setScoreError(message);
+      // F.12 channel: scoring failure is a failed save of the authoritative result.
+      recordSaveStatus("failed");
+      setSubmitting(false);
+      return;
+    }
+
+    const { result } = scored;
     const prior = loadLocalResult();
     const previous = prior
       ? {
@@ -312,6 +330,7 @@ export function FullAssessmentFlow() {
           onBack={goBack}
           onSubmit={handleSubmit}
           submitting={submitting}
+          scoreError={scoreError}
         />
       )}
     </div>
@@ -326,6 +345,7 @@ function ReviewStep({
   onBack,
   onSubmit,
   submitting,
+  scoreError,
 }: {
   steps: FlowStep[];
   responses: Record<string, ResponseValue>;
@@ -334,6 +354,7 @@ function ReviewStep({
   onBack: () => void;
   onSubmit: () => void;
   submitting: boolean;
+  scoreError: string | null;
 }) {
   const questionSteps = steps.filter((s): s is { kind: "question"; questionId: string } => s.kind === "question");
 
@@ -386,6 +407,12 @@ function ReviewStep({
             </div>
           ))}
         </div>
+
+        {scoreError && (
+          <p className="mt-6 text-sm text-crimson" role="alert">
+            {scoreError}
+          </p>
+        )}
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-between">
           <button type="button" onClick={onBack} className="btn btn-ghost">

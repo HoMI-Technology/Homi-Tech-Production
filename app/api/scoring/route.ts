@@ -1,10 +1,23 @@
 import { NextResponse } from "next/server";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
-import { computeScore, generateKeyInsight, generateNextSteps, type AssessmentInputs } from "@/lib/scoring";
+import {
+  computeScore,
+  generateKeyInsight,
+  generateNextSteps,
+  type AssessmentInputs,
+} from "@/lib/scoring";
 import { assessmentInputsSchema as inputsSchema } from "@/lib/validation/assessment";
 
 export const runtime = "nodejs";
 
+/**
+ * Server-authoritative score (Plans.md 6.2 / AGENTS scoring guardrail).
+ *
+ * Returns the full AssessmentResult (pillar sub-factors are public UI output)
+ * plus insight strings. Clients must not ship computeScore — they POST inputs
+ * here and display the response. Auth-free so the anonymous assessment funnel
+ * works; rate-limited by IP.
+ */
 export async function POST(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`scoring:${ip}`, { limit: 30, windowMs: 60_000 });
@@ -24,7 +37,10 @@ export async function POST(request: Request) {
 
   const parsed = inputsSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid assessment inputs.", issues: parsed.error.issues }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid assessment inputs.", issues: parsed.error.issues },
+      { status: 400 },
+    );
   }
 
   const inputs: AssessmentInputs = parsed.data;
@@ -35,9 +51,10 @@ export async function POST(request: Request) {
   return NextResponse.json({
     score: result.score,
     verdict: result.verdict,
-    financial: { total: result.financial.total },
-    emotional: { total: result.emotional.total },
-    timing: { total: result.timing.total },
+    // Full pillar breakdowns — UI score cards need sub-factors, not totals only.
+    financial: result.financial,
+    emotional: result.emotional,
+    timing: result.timing,
     warnings: result.warnings,
     hardStops: result.hardStops,
     keyInsight,
