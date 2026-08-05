@@ -5,6 +5,7 @@ import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { loadLocalResult } from "@/lib/assessment/storage";
 import { buildCompanionContext } from "@/lib/advisor/context";
 import { MessageContent } from "@/components/companion/MessageContent";
+import { CompanionTierBanner } from "@/components/companion/CompanionTierBanner";
 import { loadIdentity } from "@/lib/advisor/identity";
 import {
   loadThreadMessages,
@@ -166,6 +167,8 @@ export function Chat() {
 
   return (
     <div className="glass flex h-[70vh] min-h-[480px] flex-col overflow-hidden">
+      {/* Honest free vs paid Companion labeling (display only; server gates access). */}
+      <CompanionTierBanner />
       {/* Thread */}
       <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-5 sm:p-6">
         {messages.length === 0 && (

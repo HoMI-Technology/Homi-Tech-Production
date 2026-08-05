@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { buildCompanionContext } from "@/lib/advisor/context";
 import { MessageContent } from "@/components/companion/MessageContent";
+import { CompanionTierBanner } from "@/components/companion/CompanionTierBanner";
 import {
   consumeLensDigest,
   takePendingSynthesisMessage,
@@ -415,6 +416,9 @@ export function CompanionWidget() {
               </svg>
             </button>
           </div>
+
+          {/* Honest free vs paid Companion labeling (display only; server gates access). */}
+          <CompanionTierBanner compact />
 
           <div className="border-b border-slate-surface/60 px-3 py-2.5">
             <SegmentedControl<AdvisorPersona>
