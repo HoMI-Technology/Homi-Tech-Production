@@ -31,9 +31,4 @@ export const impactBus = process.env.NEXT_PUBLIC_FF_IMPACT_BUS === "true";
 export const financeLedgerSync =
   process.env.NEXT_PUBLIC_FF_FINANCE_LEDGER_SYNC === "true";
 
-/**
- * Premium finance dashboard v2 (ledger-backed, agent-facing).
- * Strict `"true"` only. Defaults off; enable on Preview for iteration.
- * When true, `/finance` renders the new ledger-backed money cockpit.
- */
-export const financeV2 = process.env.NEXT_PUBLIC_FF_FINANCE_V2 === "true";
+

@@ -12,27 +12,17 @@ import {
 import { PageFrame } from "@/components/operate/PageFrame";
 import { Tabs, TabPanel } from "@/components/ui/Tabs";
 import dynamic from "next/dynamic";
-import { financeV2 } from "@/lib/flags";
 
-// Statically imported flag-gated components are not reliably tree-shaken
-// (bundlers cannot always prove the module side-effect-free), so the Budget
-// tab loads through next/dynamic: with the flag inlined to false at build
-// time the import expression is dead code and the chunk is never referenced.
-const BudgetTab = financeV2
-  ? dynamic(() => import("@/components/finance/BudgetTab").then((m) => m.BudgetTab), {
-      ssr: false,
-      loading: () => null,
-    })
-  : null;
+const BudgetTab = dynamic(
+  () => import("@/components/finance/BudgetTab").then((m) => m.BudgetTab),
+  { ssr: false, loading: () => null },
+);
 
-const BudgetCalendar = financeV2
-  ? dynamic(() => import("@/components/finance/BudgetCalendar").then((m) => m.BudgetCalendar), {
-      ssr: false,
-      loading: () => null,
-    })
-  : null;
+const BudgetCalendar = dynamic(
+  () => import("@/components/finance/BudgetCalendar").then((m) => m.BudgetCalendar),
+  { ssr: false, loading: () => null },
+);
 
-import { OverviewTab } from "@/components/finance/legacy/OverviewTab";
 import { CashFlowTab } from "@/components/finance/legacy/CashFlowTab";
 import { DebtTab } from "@/components/finance/legacy/DebtTab";
 import { MonteCarloTab } from "@/components/finance/legacy/MonteCarloTab";
@@ -46,15 +36,7 @@ import { useFinanceDashboard } from "@/hooks/use-finance-dashboard";
 
 type TabKey = "overview" | "budget" | "cashflow" | "calendar" | "debt" | "montecarlo" | "networth";
 
-const LEGACY_TABS: { key: TabKey; label: string }[] = [
-  { key: "overview", label: "Overview" },
-  { key: "cashflow", label: "Cash Flow" },
-  { key: "debt", label: "Debt" },
-  { key: "montecarlo", label: "Monte Carlo" },
-  { key: "networth", label: "Net Worth" },
-];
-
-const V2_TABS: { key: TabKey; label: string }[] = [
+const TABS: { key: TabKey; label: string }[] = [
   { key: "overview", label: "Overview" },
   { key: "budget", label: "Budget" },
   { key: "calendar", label: "Calendar" },
@@ -128,7 +110,7 @@ export default function FinancePage() {
       </p>
 
       <Tabs
-        tabs={financeV2 ? V2_TABS : LEGACY_TABS}
+        tabs={TABS}
         value={tab}
         onChange={setTab}
         idPrefix="finance"
@@ -138,38 +120,13 @@ export default function FinancePage() {
       />
 
       <TabPanel idPrefix="finance" value={tab} className="mt-8">
-        {financeV2 ? (
-          <FinanceV2Shell tab={tab} state={state} patch={patch} />
-        ) : (
-          <LegacyShell tab={tab} state={state} patch={patch} />
-        )}
+        <FinanceShell tab={tab} state={state} patch={patch} />
       </TabPanel>
     </PageFrame>
   );
 }
 
-function LegacyShell({
-  tab,
-  state,
-  patch,
-}: {
-  tab: TabKey;
-  state: FinanceState;
-  patch: (p: Partial<FinanceState>) => void;
-}) {
-  return (
-    <>
-      {tab === "overview" && <OverviewTab state={state} patch={patch} />}
-      {tab === "budget" && BudgetTab !== null && <BudgetTab />}
-      {tab === "cashflow" && <CashFlowTab state={state} patch={patch} />}
-      {tab === "debt" && <DebtTab />}
-      {tab === "montecarlo" && <MonteCarloTab state={state} patch={patch} />}
-      {tab === "networth" && <NetWorthTab state={state} patch={patch} />}
-    </>
-  );
-}
-
-function FinanceV2Shell({
+function FinanceShell({
   tab,
   state,
   patch,

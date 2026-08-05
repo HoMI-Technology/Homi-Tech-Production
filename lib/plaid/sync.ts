@@ -118,6 +118,42 @@ const PAGE_SIZE = 500;
 const MAX_MUTATION_RESTARTS = 3;
 const CASH_FLOW_WINDOW_DAYS = 30;
 
+/** Maps Plaid `personal_finance_category.primary` values to finance ledger system category slugs. */
+const PLAID_CATEGORY_TO_SLUG: Record<string, string> = {
+  BANK_FEES: "other",
+  ENTERTAINMENT: "entertainment",
+  FOOD_AND_DRINK: "dining",
+  GENERAL_MERCHANDISE: "personal",
+  GENERAL_SERVICES: "personal",
+  GIFTS_AND_DONATIONS: "giving",
+  GOVERNMENT_AND_NON_PROFIT: "giving",
+  HOME_IMPROVEMENT: "housing",
+  HOUSING: "housing",
+  INSURANCE: "insurance",
+  LOAN_PAYMENTS: "debt-payments",
+  MEDICAL: "healthcare",
+  PERSONAL_CARE: "personal",
+  RENT_AND_UTILITIES: "utilities",
+  TRANSPORTATION: "transportation",
+  TRAVEL: "travel",
+  EDUCATION: "other",
+  INCOME: "other-income",
+};
+
+/**
+ * Returns the UUID of the closest system finance category for a Plaid primary
+ * category, or `null` when no good match exists.
+ */
+export function mapPlaidCategoryToFinanceCategory(
+  plaidCategory: string | null | undefined,
+  slugToId: Map<string, string>,
+): string | null {
+  if (!plaidCategory) return null;
+  const slug = PLAID_CATEGORY_TO_SLUG[plaidCategory];
+  if (!slug) return null;
+  return slugToId.get(slug) ?? null;
+}
+
 function round2(value: number): number {
   return Math.round(value * 100) / 100;
 }
@@ -264,6 +300,9 @@ export async function syncItem(admin: SupabaseClient, item: SyncableItem): Promi
     }
   }
 
+  // Mirror the effective Plaid window into the new finance ledger tables.
+  await syncItemToLedger(admin, item, effective, removedIds);
+
   const snapshotInserted = await recomputeSnapshot(admin, item.user_id);
 
   // Persist the cursor ONLY now — after has_more=false and all writes landed.
@@ -288,6 +327,122 @@ export async function syncItem(admin: SupabaseClient, item: SyncableItem): Promi
     accountsUpdated: accountsById.size,
     snapshotInserted,
   };
+}
+
+/**
+ * Mirrors one sync window's effective Plaid transactions into `finance_transactions`
+ * and soft-deletes any rows matching the Plaid-removed ids. System categories are
+ * fetched once per sync and mapped by slug.
+ */
+async function syncItemToLedger(
+  admin: SupabaseClient,
+  item: Pick<SyncableItem, "id" | "user_id">,
+  effective: Map<string, PlaidTransaction>,
+  removedIds: Set<string>,
+): Promise<void> {
+  const { data: categories, error: catError } = await admin
+    .from("finance_categories")
+    .select("id, slug")
+    .eq("is_system", true);
+  if (catError) {
+    throw new PlaidSyncError(`finance_categories lookup failed: ${catError.message}`);
+  }
+  const slugToId = new Map<string, string>(
+    (categories ?? []).map((c: { id: string; slug: string }) => [c.slug, c.id]),
+  );
+
+  const effectiveTxns = Array.from(effective.values());
+  const nowIso = new Date().toISOString();
+
+  // Load existing active finance_transactions to decide insert vs update.
+  // We do not use `.upsert({ onConflict })` because the dedupe index is partial.
+  const existingByExternal = new Map<string, { id: string }>();
+  if (effectiveTxns.length > 0) {
+    const externalIds = effectiveTxns.map((t) => t.transaction_id);
+    const { data: existing, error: existingError } = await admin
+      .from("finance_transactions")
+      .select("id, external_transaction_id")
+      .eq("user_id", item.user_id)
+      .eq("source", "plaid")
+      .in("external_transaction_id", externalIds)
+      .is("deleted_at", null);
+    if (existingError) {
+      throw new PlaidSyncError(`finance_transactions existing lookup failed: ${existingError.message}`);
+    }
+    for (const row of existing ?? []) {
+      if (row.external_transaction_id) {
+        existingByExternal.set(row.external_transaction_id, { id: row.id as string });
+      }
+    }
+  }
+
+  const toInsert: Record<string, unknown>[] = [];
+  const toUpdate: { id: string; patch: Record<string, unknown> }[] = [];
+
+  for (const txn of effectiveTxns) {
+    const isPending = txn.pending ?? false;
+    const amount = txn.amount;
+    const type = amount > 0 ? "expense" : "income";
+    const amountCents = Math.round(Math.abs(amount) * 100);
+    const description = (txn.name ?? txn.merchant_name ?? "Plaid transaction").toString().slice(0, 160);
+    const merchantName = txn.merchant_name ? String(txn.merchant_name).slice(0, 160) : null;
+    const categoryId = mapPlaidCategoryToFinanceCategory(txn.personal_finance_category?.primary, slugToId);
+    const txnDate = txn.date ?? txn.authorized_date ?? new Date().toISOString().slice(0, 10);
+
+    const patch = {
+      user_id: item.user_id,
+      source: "plaid",
+      external_transaction_id: txn.transaction_id,
+      status: isPending ? "pending" : "posted",
+      type,
+      amount_cents: amountCents,
+      currency: "USD",
+      transaction_date: txnDate,
+      posted_at: isPending ? null : nowIso,
+      description,
+      merchant_name: merchantName,
+      category_id: categoryId,
+      is_excluded_from_budget: false,
+      updated_at: nowIso,
+    };
+
+    const existing = existingByExternal.get(txn.transaction_id);
+    if (existing) {
+      toUpdate.push({ id: existing.id, patch });
+    } else {
+      toInsert.push({ id: crypto.randomUUID(), ...patch });
+    }
+  }
+
+  for (let i = 0; i < toInsert.length; i += PAGE_SIZE) {
+    const { error } = await admin.from("finance_transactions").insert(toInsert.slice(i, i + PAGE_SIZE));
+    if (error) {
+      throw new PlaidSyncError(`finance_transactions insert failed: ${error.message}`);
+    }
+  }
+
+  for (let i = 0; i < toUpdate.length; i += PAGE_SIZE) {
+    const batch = toUpdate.slice(i, i + PAGE_SIZE);
+    for (const { id, patch } of batch) {
+      const { error } = await admin.from("finance_transactions").update(patch).eq("id", id);
+      if (error) {
+        throw new PlaidSyncError(`finance_transactions update failed: ${error.message}`);
+      }
+    }
+  }
+
+  if (removedIds.size > 0) {
+    const { error } = await admin
+      .from("finance_transactions")
+      .update({ deleted_at: nowIso, updated_at: nowIso })
+      .eq("user_id", item.user_id)
+      .eq("source", "plaid")
+      .in("external_transaction_id", Array.from(removedIds))
+      .is("deleted_at", null);
+    if (error) {
+      throw new PlaidSyncError(`finance_transactions soft-delete failed: ${error.message}`);
+    }
+  }
 }
 
 /**

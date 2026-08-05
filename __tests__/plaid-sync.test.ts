@@ -105,6 +105,41 @@ function fakeAdmin(captured: Captured, fixtures: DbFixtures) {
           },
         };
       }
+      if (table === "finance_categories") {
+        return {
+          select: () => ({
+            eq: async () => ({ data: [], error: null }),
+          }),
+        };
+      }
+      if (table === "finance_transactions") {
+        return {
+          select: () => ({
+            eq: () => ({
+              eq: () => ({
+                in: () => ({
+                  is: async () => ({ data: [], error: null }),
+                }),
+              }),
+            }),
+          }),
+          insert: async () => ({ error: null }),
+          update: () => ({
+            eq: (col?: string, val?: unknown) => {
+              if (col === "id" && typeof val === "string") {
+                return Promise.resolve({ error: null });
+              }
+              return {
+                eq: () => ({
+                  in: () => ({
+                    is: async () => ({ error: null }),
+                  }),
+                }),
+              };
+            },
+          }),
+        };
+      }
       throw new Error(`unexpected table ${table}`);
     },
   };
