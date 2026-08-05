@@ -70,7 +70,7 @@ Merge gate per PR: CI `verify` job (brand-check → architecture:check → tsc �
 | 4.2 | Refresh README + DEPLOY (migration numbering, current route map); fix repo CLAUDE.md stale `Local:` path | Docs match repo state | 4.1 | cc:Done [6ae19e6] |
 | 4.3 | Wire `eval/companion-honesty` to `npm run eval:companion` | Script exists and runs | - | cc:Done [aaf2270] |
 | 4.4 | Clean 3 stale `.claude/worktrees/` (household-authz, 124-rebase, authz-reconcile) after verifying no unmerged work; confirm `~/Desktop/kimi-workspace/Homi-Tech-Production` clone's ~22 uncommitted files are preserved elsewhere before ANY deletion | No second writable copies; nothing lost (user confirms) | user confirm | cc:Done (user approved rescue-then-delete; 4 worktrees removed clean, branches retained; the kimi-workspace clone was already deleted before this session — nothing to rescue) |
-| 4.5 | Owner-only launch items tracked (not agent work): Resend/DNS §1, Stripe env §3, Vercel Pro §4, observability §5, secrets §6 | GO-LIVE checklist boxes ticked by owner | - | cc:TODO |
+| 4.5 | Owner-only launch items tracked (not agent work): Resend/DNS §1, Stripe env §3, Vercel Pro §4, observability §5, secrets §6 | GO-LIVE checklist boxes ticked by owner — see `docs/ops/OWNER-GO-LIVE.md` | - | cc:TODO |
 
 ## Phase 5: Decision-vertical branching (assessment)
 
@@ -105,8 +105,8 @@ deliberately SEPARATE vocabulary (career/purchase/investment/life — journal/pa
 | 5L.2 **CL-06** | Launch nav: hide incomplete More/palette product surfaces (genome, twin, trinity, signals, credit, daily, calendar, decisions; keep path/results/plan/finance/advisor/journal/household/scenarios/preflight/connections) | nav-catalog-parity green; HEADER_MORE is launch set only | - | cc:Done (feat/launch-product-honesty) |
 | 5L.3 **CL-09** | Companion free vs paid labeling aligned with entitlements (Chat + widget) | Free users see rule-based/limited copy; paid sees full; no over-promise | - | cc:Done (feat/launch-product-honesty) |
 | 5L.4 **CL-03** | Finance dual-path polish: real loading for dynamic tabs; demote or label legacy Cash Flow/Debt/MC/Net Worth as secondary if ledger is SoT | No blank-flash on Budget/Plan; tab labels honest | - | cc:Done (feat/launch-product-honesty) |
-| 5L.5 **CL-07/08** | Connections Plaid soft-sell if unconfigured; household familySeats enforced server-side | No false bank-sync promise; invite over-cap blocked | 5L.2 | cc:TODO |
-| 5L.6 | Signed-in L2 QA checklist (manual): finance, companion, subscription free+paid | Checklist results in findings | 5L.1–5L.4 | cc:TODO |
+| 5L.5 **CL-07/08** | Connections Plaid soft-sell if unconfigured; household familySeats enforced server-side | No false bank-sync promise; invite over-cap blocked | 5L.2 | cc:Done (feat/insights-storage-and-launch-cl0708) |
+| 5L.6 | Signed-in L2 QA checklist (manual): finance, companion, subscription free+paid | Checklist results in findings | 5L.1–5L.4 | cc:TODO (use npm run smoke:auth + OWNER-GO-LIVE) |
 
 **PRs:** `feat/launch-product-honesty` (#153).
 
@@ -123,7 +123,7 @@ in the client bundle. Blast radius (verified by grep, this session): flows ×2; 
 |------|-------------|-----|---------|--------|
 | 6.1 | Public seam: `lib/scoring/public.ts` exporting PILLAR_MAX_POINTS + scoreToVerdict (public 80/65/50 thresholds) + type re-exports; migrate all client value-import sites incl. dual-score [tdd:required] | Only flows/generators/simulator/preflight sites (6.2–6.4) still value-import non-public scoring; tsc green | - | cc:Done (#149) |
 | 6.2 | Flows → server scoring: extend /api/scoring to return the full AssessmentResult (sub-factor breakdowns are public UI output) + insights; both flows await it (shadow reuses its existing padded inputs); submitting state; scoring-call failure feeds the F.12 save-status channel [tdd:required] | Zero @/lib/scoring value imports in flows; anonymous flow works (route is auth-free); parity test: API result === engine result for same inputs | 6.1 | cc:Done (refactor/scoring-server-flows) |
-| 6.3 | Insights via storage (resolves F.15): StoredAssessment gains optional `insights`; flows persist API-returned insights; `mapAssessmentRowToStored` threads the DB `insights` column; /results + /plan render stored insights with one-shot /api/scoring backfill for legacy local payloads [tdd:required] | No generator imports outside server code; legacy localStorage payloads backfill, never crash | 6.2 | cc:TODO |
+| 6.3 | Insights via storage (resolves F.15): StoredAssessment gains optional `insights`; flows persist API-returned insights; `mapAssessmentRowToStored` threads the DB `insights` column; /results + /plan render stored insights with one-shot /api/scoring backfill for legacy local payloads [tdd:required] | No generator imports outside server code; legacy localStorage payloads backfill, never crash | 6.2 | cc:Done (feat/insights-storage-and-launch-cl0708) |
 | 6.4 | Simulator + preflight server-side: batch endpoint (baseline + all lever variations in ONE call — per-tick round-trips would blow the 30/min scoring rate limit); migrate ScoreSimulator, use-readiness.ts, readiness-bands.ts, preflight consumers; debounce + pending UI | Zero engine value-imports anywhere in the client module graph | 6.1 | cc:TODO |
 | 6.5 | Enforcement: `import "server-only"` in engine/insights/shadow/weights; vitest configs alias server-only → no-op stub; bundle proof: CI build + grep client chunks for an engine-only sentinel string absent | Poisoned modules unbuildable from client code; sentinel absent from client chunks; verify green | 6.2–6.4 | cc:TODO |
 

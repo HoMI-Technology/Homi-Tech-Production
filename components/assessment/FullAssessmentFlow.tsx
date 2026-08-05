@@ -159,7 +159,7 @@ export function FullAssessmentFlow() {
       return;
     }
 
-    const { result } = scored;
+    const { result, keyInsight, nextSteps } = scored;
     const prior = loadLocalResult();
     const previous = prior
       ? {
@@ -174,7 +174,14 @@ export function FullAssessmentFlow() {
         }
       : undefined;
 
-    saveLocalResult({ inputs, result, completedAt: new Date().toISOString(), kind: "full", previous });
+    saveLocalResult({
+      inputs,
+      result,
+      completedAt: new Date().toISOString(),
+      kind: "full",
+      previous,
+      insights: { keyInsight, nextSteps },
+    });
     clearDraft();
 
     recordSaveStatus("pending");

@@ -240,7 +240,7 @@ export function ShadowScoreFlow() {
       return;
     }
 
-    const { result } = scored;
+    const { result, keyInsight, nextSteps } = scored;
     const prior = loadLocalResult();
     const previous = prior
       ? {
@@ -261,6 +261,7 @@ export function ShadowScoreFlow() {
       completedAt: new Date().toISOString(),
       kind: "shadow",
       previous,
+      insights: { keyInsight, nextSteps },
     });
 
     recordSaveStatus("pending");

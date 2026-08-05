@@ -262,7 +262,7 @@ export default function ConnectionsPage() {
           <div className="glass p-6 text-sm text-dim">Checking bank connection status…</div>
         )}
 
-        {pageState === "unconfigured" && <ComingSoonPanel />}
+        {pageState === "unconfigured" && <UnconfiguredPanel />}
 
         {pageState === "signed-out" && (
           <div className="glass p-6">
@@ -469,7 +469,8 @@ function ConnectionCard({
   );
 }
 
-function ComingSoonPanel() {
+/** CL-07: honest soft-sell when Plaid env is not configured — never "coming soon" as a false promise. */
+function UnconfiguredPanel() {
   return (
     <div className="glass p-8">
       <div className="flex items-center gap-3">
@@ -477,17 +478,18 @@ function ComingSoonPanel() {
           <rect x="3" y="10" width="18" height="10" rx="2" />
           <path d="M7 10V7a5 5 0 0 1 10 0v3" />
         </svg>
-        <h2 className="font-display text-xl text-light">Bank sync is coming</h2>
+        <h2 className="font-display text-xl text-light">Bank sync is not available here</h2>
       </div>
       <p className="mt-4 max-w-xl text-sm leading-relaxed text-dim">
-        Direct bank connection is planned, so balance and transaction context can be read
-        from your accounts instead of typed in by hand. Here&apos;s what that would look like:
+        Live bank connection is not configured in this environment. HōMI does not pretend a connect button works when
+        it cannot. When bank sync is enabled, it is read-only, encrypted, and revocable — same posture as Plus+ plans
+        that include bank sync.
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <FeatureNote
           title="Read-only"
-          body="HōMI will only ever read balances and transaction history. It cannot move money, initiate payments, or change anything in your accounts."
+          body="HōMI only ever reads balances and transaction history. It cannot move money, initiate payments, or change anything in your accounts."
         />
         <FeatureNote
           title="Encrypted"
@@ -502,7 +504,7 @@ function ComingSoonPanel() {
       <div className="hairline my-6" />
 
       <p className="text-sm text-dim">
-        In the meantime, you can enter your numbers directly on the{" "}
+        Enter your numbers directly on the{" "}
         <a href="/finance" className="text-cyan underline underline-offset-2">
           Finance dashboard
         </a>{" "}
