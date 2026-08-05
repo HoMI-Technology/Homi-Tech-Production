@@ -95,6 +95,21 @@ deliberately SEPARATE vocabulary (career/purchase/investment/life — journal/pa
 
 **PRs:** `feat/decision-type-honest-persistence` (5.1–5.4), `refactor/vertical-mapper-registry` (5.5), `feat/vertical-car` (5.6–5.9, after D7–D9 sign-off).
 
+## Phase 5L: Launch product honesty (L1+L2 green chrome) — 2026-08-05
+
+**DoD for "100% working website":** L1 anonymous funnel green + L2 account surfaces coherent + chrome only advertises launch surfaces + pricing promises ⊆ entitlements. **Not** all 94 routes. **Not** Vercel Pro.
+
+| Task | Description | DoD | Depends | Status |
+|------|-------------|-----|---------|--------|
+| 5L.1 **CL-01** | Assessment decision-type honesty: only show active types (home_buying) or skip picker when single active; zero "Coming soon" badges on `/assessment` | No "Coming soon" in assessment UI; home_buying flow still works | - | cc:Done (feat/launch-product-honesty) |
+| 5L.2 **CL-06** | Launch nav: hide incomplete More/palette product surfaces (genome, twin, trinity, signals, credit, daily, calendar, decisions; keep path/results/plan/finance/advisor/journal/household/scenarios/preflight/connections) | nav-catalog-parity green; HEADER_MORE is launch set only | - | cc:Done (feat/launch-product-honesty) |
+| 5L.3 **CL-09** | Companion free vs paid labeling aligned with entitlements (Chat + widget) | Free users see rule-based/limited copy; paid sees full; no over-promise | - | cc:Done (feat/launch-product-honesty) |
+| 5L.4 **CL-03** | Finance dual-path polish: real loading for dynamic tabs; demote or label legacy Cash Flow/Debt/MC/Net Worth as secondary if ledger is SoT | No blank-flash on Budget/Plan; tab labels honest | - | cc:Done (feat/launch-product-honesty) |
+| 5L.5 **CL-07/08** | Connections Plaid soft-sell if unconfigured; household familySeats enforced server-side | No false bank-sync promise; invite over-cap blocked | 5L.2 | cc:TODO |
+| 5L.6 | Signed-in L2 QA checklist (manual): finance, companion, subscription free+paid | Checklist results in findings | 5L.1–5L.4 | cc:TODO |
+
+**PRs:** `feat/launch-product-honesty` (#153).
+
 ## Phase 6: Scoring server-only (founder-approved 2026-08-05 — trade-secret bright line)
 
 Client components value-import `computeScore`/`computeShadowScore`/insight generators — engine internals ship
@@ -106,7 +121,7 @@ in the client bundle. Blast radius (verified by grep, this session): flows ×2; 
 
 | Task | Description | DoD | Depends | Status |
 |------|-------------|-----|---------|--------|
-| 6.1 | Public seam: `lib/scoring/public.ts` exporting PILLAR_MAX_POINTS + scoreToVerdict (public 80/65/50 thresholds) + type re-exports; migrate all client value-import sites incl. dual-score [tdd:required] | Only flows/generators/simulator/preflight sites (6.2–6.4) still value-import non-public scoring; tsc green | - | cc:Done (this PR) |
+| 6.1 | Public seam: `lib/scoring/public.ts` exporting PILLAR_MAX_POINTS + scoreToVerdict (public 80/65/50 thresholds) + type re-exports; migrate all client value-import sites incl. dual-score [tdd:required] | Only flows/generators/simulator/preflight sites (6.2–6.4) still value-import non-public scoring; tsc green | - | cc:Done (#149) |
 | 6.2 | Flows → server scoring: extend /api/scoring to return the full AssessmentResult (sub-factor breakdowns are public UI output) + insights; both flows await it (shadow reuses its existing padded inputs); submitting state; scoring-call failure feeds the F.12 save-status channel [tdd:required] | Zero @/lib/scoring value imports in flows; anonymous flow works (route is auth-free); parity test: API result === engine result for same inputs | 6.1 | cc:TODO |
 | 6.3 | Insights via storage (resolves F.15): StoredAssessment gains optional `insights`; flows persist API-returned insights; `mapAssessmentRowToStored` threads the DB `insights` column; /results + /plan render stored insights with one-shot /api/scoring backfill for legacy local payloads [tdd:required] | No generator imports outside server code; legacy localStorage payloads backfill, never crash | 6.2 | cc:TODO |
 | 6.4 | Simulator + preflight server-side: batch endpoint (baseline + all lever variations in ONE call — per-tick round-trips would blow the 30/min scoring rate limit); migrate ScoreSimulator, use-readiness.ts, readiness-bands.ts, preflight consumers; debounce + pending UI | Zero engine value-imports anywhere in the client module graph | 6.1 | cc:TODO |
