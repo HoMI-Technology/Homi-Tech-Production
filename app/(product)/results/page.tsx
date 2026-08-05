@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { PILLARS, VERDICT_META } from "@/lib/brand";
-import { generateKeyInsight, generateNextSteps } from "@/lib/scoring";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
 import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
 import { mapAssessmentRowToStored } from "@/lib/assessment/remote";
@@ -11,6 +10,7 @@ import { pickResult } from "@/lib/assessment/resolveResult";
 import { createClient } from "@/lib/supabase/client";
 import { track } from "@/lib/analytics";
 import { deriveConflictSignals } from "@/lib/conflict/engine";
+import { useResultInsights } from "@/hooks/use-result-insights";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { ScoreRing } from "@/components/ui/ScoreRing";
@@ -89,17 +89,27 @@ export default function ResultsPage() {
     };
   }, []);
 
+  // Local result wins when it is newer or remote isn't signed in / doesn't
+  // exist; anonymous users always fall straight through to `stored` here
+  // since `remote` stays null for them.
+  const effective =
+    stored === undefined ? undefined : pickResult(stored ?? null, remote);
+
+  // Insights from storage / server backfill — never generateKeyInsight on client (6.3).
+  // Hook must run before every early return.
+  const { insights } = useResultInsights(effective ?? null);
+  const keyInsight = insights?.keyInsight ?? "";
+  const nextSteps = insights?.nextSteps ?? [];
+
   // Canonical funnel event: fire once per rendered verdict (occurrence +
   // verdict label only — never the score). Must live above the early returns.
   const trackedVerdict = useRef<string | null>(null);
   useEffect(() => {
-    if (stored === undefined) return;
-    const effectiveNow = pickResult(stored, remote);
-    if (!effectiveNow) return;
-    if (trackedVerdict.current === effectiveNow.result.verdict) return;
-    trackedVerdict.current = effectiveNow.result.verdict;
-    track("verdict_shown", { verdict: effectiveNow.result.verdict });
-  }, [stored, remote]);
+    if (!effective) return;
+    if (trackedVerdict.current === effective.result.verdict) return;
+    trackedVerdict.current = effective.result.verdict;
+    track("verdict_shown", { verdict: effective.result.verdict });
+  }, [effective]);
 
   if (stored === undefined) {
     return (
@@ -109,12 +119,7 @@ export default function ResultsPage() {
     );
   }
 
-  // Local result wins when it is newer or remote isn't signed in / doesn't
-  // exist; anonymous users always fall straight through to `stored` here
-  // since `remote` stays null for them.
-  const effective = pickResult(stored, remote);
-
-  if (effective === null) {
+  if (!effective) {
     // Signed-in users on a new device: don't flash "No results yet" before
     // we've had a chance to check the DB for a prior result.
     if (!remoteChecked) {
@@ -147,8 +152,6 @@ export default function ResultsPage() {
 
   const { result, kind } = effective;
   const meta = VERDICT_META[result.verdict];
-  const keyInsight = generateKeyInsight(result);
-  const nextSteps = generateNextSteps(result);
   const conflictSignals = deriveConflictSignals({
     fomoLevel: effective.inputs.fomoLevel,
     timeHorizonMonths: effective.inputs.timeHorizonMonths,

@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getClientIp, rateLimit } from "@/lib/ratelimit";
+import { getEntitlements } from "@/lib/entitlements";
 
 export const runtime = "nodejs";
 
@@ -54,7 +56,7 @@ export async function POST(request: Request) {
 
   const { data: invite } = await supabase
     .from("household_invites")
-    .select("id, household_id, status, expires_at, email")
+    .select("id, household_id, status, expires_at, email, invited_by")
     .eq("token", parsed.data.token)
     .maybeSingle();
 
@@ -74,6 +76,43 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "Invite was sent to a different email address." },
       { status: 403 },
+    );
+  }
+
+  // CL-08: seat cap at accept time from owner's plan (not the invitee's).
+  let seatLimit = 1;
+  const admin = createAdminClient();
+  if (admin && invite.invited_by) {
+    const { data: ownerProfile } = await admin
+      .from("profiles")
+      .select("subscription_tier")
+      .eq("id", invite.invited_by)
+      .maybeSingle();
+    const ownerEnt = getEntitlements(ownerProfile?.subscription_tier as string | null);
+    if (!ownerEnt.householdMode) {
+      return NextResponse.json(
+        {
+          error: "This household's owner no longer has Family household access.",
+          code: "household_locked",
+        },
+        { status: 402 },
+      );
+    }
+    seatLimit = ownerEnt.familySeats;
+  }
+
+  const { count: memberCount } = await supabase
+    .from("household_members")
+    .select("id", { count: "exact", head: true })
+    .eq("household_id", invite.household_id);
+
+  if ((memberCount ?? 0) >= seatLimit) {
+    return NextResponse.json(
+      {
+        error: "This household is full for the owner's plan.",
+        code: "family_seats_full",
+      },
+      { status: 402 },
     );
   }
 

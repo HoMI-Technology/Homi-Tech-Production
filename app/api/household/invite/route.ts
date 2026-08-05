@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getClientIp, rateLimit } from "@/lib/ratelimit";
 import { env } from "@/lib/env";
+import { getUserEntitlements } from "@/lib/entitlements";
 
 export const runtime = "nodejs";
 
@@ -51,6 +52,42 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "Only the household owner can invite." },
       { status: 403 },
+    );
+  }
+
+  // CL-08: server-side seat cap from entitlements (Family = 5; lower tiers = 1).
+  const { entitlements } = await getUserEntitlements(supabase);
+  if (!entitlements.householdMode) {
+    return NextResponse.json(
+      {
+        error: "Household invites are part of HōMI Family. Upgrade to invite members.",
+        code: "household_locked",
+      },
+      { status: 402 },
+    );
+  }
+
+  const { count: memberCount } = await supabase
+    .from("household_members")
+    .select("id", { count: "exact", head: true })
+    .eq("household_id", membership.household_id);
+
+  const { count: pendingCount } = await supabase
+    .from("household_invites")
+    .select("id", { count: "exact", head: true })
+    .eq("household_id", membership.household_id)
+    .eq("status", "pending");
+
+  const seatsUsed = (memberCount ?? 0) + (pendingCount ?? 0);
+  if (seatsUsed >= entitlements.familySeats) {
+    return NextResponse.json(
+      {
+        error: `This household is at the ${entitlements.familySeats}-seat limit for your plan.`,
+        code: "family_seats_full",
+        familySeats: entitlements.familySeats,
+        seatsUsed,
+      },
+      { status: 402 },
     );
   }
 

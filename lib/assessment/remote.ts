@@ -21,7 +21,18 @@ import type { StoredAssessment } from "./storage";
  * score or verdict.
  */
 export function mapAssessmentRowToStored(row: AssessmentRow): StoredAssessment | null {
-  const { overall_score, verdict, sub_scores, inputs, hard_stops, completed_at, created_at, is_shadow, id } = row;
+  const {
+    overall_score,
+    verdict,
+    sub_scores,
+    inputs,
+    hard_stops,
+    completed_at,
+    created_at,
+    is_shadow,
+    id,
+    insights,
+  } = row;
 
   if (overall_score === null || verdict === null || !sub_scores || !inputs) return null;
 
@@ -31,6 +42,17 @@ export function mapAssessmentRowToStored(row: AssessmentRow): StoredAssessment |
     timing?: TimingBreakdown;
   };
   if (!subScores.financial || !subScores.emotional || !subScores.timing) return null;
+
+  const rawInsights = insights as { keyInsight?: unknown; nextSteps?: unknown } | null;
+  const mappedInsights =
+    rawInsights &&
+    typeof rawInsights.keyInsight === "string" &&
+    Array.isArray(rawInsights.nextSteps)
+      ? {
+          keyInsight: rawInsights.keyInsight,
+          nextSteps: rawInsights.nextSteps.filter((s): s is string => typeof s === "string"),
+        }
+      : undefined;
 
   return {
     inputs: inputs as unknown as AssessmentInputs,
@@ -46,5 +68,6 @@ export function mapAssessmentRowToStored(row: AssessmentRow): StoredAssessment |
     completedAt: completed_at ?? created_at,
     kind: is_shadow ? "shadow" : "full",
     serverId: id,
+    ...(mappedInsights ? { insights: mappedInsights } : {}),
   };
 }

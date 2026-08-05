@@ -3,12 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { PILLARS } from "@/lib/brand";
-import { generateNextSteps } from "@/lib/scoring";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
 import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
 import { mapAssessmentRowToStored } from "@/lib/assessment/remote";
 import { pickResult } from "@/lib/assessment/resolveResult";
 import { createClient } from "@/lib/supabase/client";
+import { useResultInsights } from "@/hooks/use-result-insights";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 
@@ -91,13 +91,15 @@ export default function PlanPage() {
   // since `remote` stays null for them.
   const effective = stored === undefined ? undefined : pickResult(stored, remote);
 
+  // Insights from storage / server backfill — never generateNextSteps on client (6.3).
+  const { insights } = useResultInsights(effective ?? null);
+  const steps = insights?.nextSteps ?? [];
+
   const weakestPillar = useMemo(() => {
     if (!effective) return null;
     const pillars = PILLARS.map((p) => ({ ...p, pct: pillarPct(p.key, effective) }));
     return pillars.sort((a, b) => a.pct - b.pct)[0];
   }, [effective]);
-
-  const steps = useMemo(() => (effective ? generateNextSteps(effective.result) : []), [effective]);
 
   const retestDate = useMemo(() => {
     if (!effective) return null;

@@ -34,6 +34,12 @@ export interface PreviousScoreSnapshot {
   };
 }
 
+/** Server-generated insight strings (Plans.md 6.3) — never recompute on the client. */
+export interface StoredInsights {
+  keyInsight: string;
+  nextSteps: string[];
+}
+
 export interface StoredAssessment {
   inputs: AssessmentInputs;
   result: AssessmentResult;
@@ -45,6 +51,11 @@ export interface StoredAssessment {
   override?: StoredOverride;
   /** The score/verdict that was stored immediately before this result overwrote it, if any. */
   previous?: PreviousScoreSnapshot;
+  /**
+   * Insight copy produced with the score on the server (or backfilled via
+   * /api/scoring). Optional for pre-6.3 local payloads — UI must not crash.
+   */
+  insights?: StoredInsights;
 }
 
 /** Persists the last assessment result to localStorage. No-op on the server or on failure. */
