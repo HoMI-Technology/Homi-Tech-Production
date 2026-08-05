@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { computeScore, PILLAR_MAX_POINTS } from "@/lib/scoring";
+import { computeScore } from "@/lib/scoring";
+import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
 import { assessmentInputsSchema } from "@/lib/validation/assessment";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";

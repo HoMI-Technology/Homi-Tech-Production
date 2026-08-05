@@ -24,14 +24,14 @@
  *     through it. The UI must state that the other two pillars are held.
  */
 
+import { computeScore } from "@/lib/scoring";
 import {
-  computeScore,
   scoreToVerdict,
   type AssessmentInputs,
   type FinancialBreakdown,
   type HardStopReason,
   type Verdict,
-} from "@/lib/scoring";
+} from "@/lib/scoring/public";
 import type { FinanceState } from "@/lib/finance/store";
 
 // ---------------------------------------------------------------------------

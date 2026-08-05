@@ -12,7 +12,7 @@ import type {
   HardStopCode,
   Verdict,
 } from "@/lib/scoring/engine";
-import { PILLAR_MAX_POINTS } from "@/lib/scoring/weights";
+import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
 
 // ---------------------------------------------------------------------------
 // Types

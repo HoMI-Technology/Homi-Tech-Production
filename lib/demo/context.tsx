@@ -11,7 +11,7 @@
 
 import { createContext, useContext, useMemo } from "react";
 import type { VerdictKey } from "@/lib/brand";
-import { PILLAR_MAX_POINTS } from "@/lib/scoring";
+import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
 import type { DailyCheckin } from "@/types/database";
 
 export interface DemoScoreHistoryPoint {

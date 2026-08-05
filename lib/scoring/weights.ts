@@ -10,8 +10,7 @@ export const WEIGHTS = Object.freeze({
   timing: 0.3,
 });
 
-export const PILLAR_MAX_POINTS = Object.freeze({
-  financial: 35,
-  emotional: 35,
-  timing: 30,
-});
+// Display maxima are public output (rendered as "n / max" on every score
+// surface) and live in ./public — the client-safe seam. Re-exported here so
+// engine-side imports keep one source and zero duplicated literals.
+export { PILLAR_MAX_POINTS } from "./public";
