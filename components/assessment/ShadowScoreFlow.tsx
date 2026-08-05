@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { computeShadowScore, type ShadowInputs } from "@/lib/scoring";
 import { saveLocalResult, loadLocalResult, attachServerId } from "@/lib/assessment/storage";
+import { recordSaveStatus, statusFromResponse } from "@/lib/assessment/save-status";
 import {
   saveShadowDraft,
   loadShadowDraft,
@@ -252,6 +253,7 @@ export function ShadowScoreFlow() {
       previous,
     });
 
+    recordSaveStatus("pending");
     fetch("/api/assessments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -273,12 +275,13 @@ export function ShadowScoreFlow() {
       }),
     })
       .then(async (res) => {
+        recordSaveStatus(statusFromResponse(res.status));
         if (!res.ok) return;
         const data = (await res.json().catch(() => null)) as { id?: string } | null;
         if (data?.id) attachServerId(data.id);
       })
       .catch(() => {
-        // Anonymous 401 — fine.
+        recordSaveStatus("failed");
       });
 
     track("assessment_completed", { kind: "shadow" });

@@ -21,6 +21,7 @@ import { ShareShadowButton } from "@/components/share/ShareShadowButton";
 import { ScoreDeltaBadge } from "@/components/dashboard/ScoreDeltaBadge";
 import { ScoreExplanation } from "@/components/results/ScoreExplanation";
 import { VerdictOverride } from "@/components/assessment/VerdictOverride";
+import { SaveStatusBanner } from "@/components/results/SaveStatusBanner";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 import { PathToReadyCard } from "@/components/readiness";
 
@@ -156,6 +157,7 @@ export default function ResultsPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:py-16">
+      <SaveStatusBanner />
       {kind === "shadow" && (
         <div className="glass mb-8 flex flex-col items-start justify-between gap-4 border border-cyan/30 p-5 sm:flex-row sm:items-center">
           <div>
