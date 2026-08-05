@@ -23,6 +23,11 @@ const BudgetCalendar = dynamic(
   { ssr: false, loading: () => null },
 );
 
+const PlanTab = dynamic(
+  () => import("@/components/finance/PlanTab").then((m) => m.PlanTab),
+  { ssr: false, loading: () => null },
+);
+
 import { CashFlowTab } from "@/components/finance/legacy/CashFlowTab";
 import { DebtTab } from "@/components/finance/legacy/DebtTab";
 import { MonteCarloTab } from "@/components/finance/legacy/MonteCarloTab";
@@ -34,10 +39,11 @@ import { SpendDigestPanel } from "@/components/finance/SpendDigestPanel";
 import { AgentInsightsPanel } from "@/components/finance/AgentInsightsPanel";
 import { useFinanceDashboard } from "@/hooks/use-finance-dashboard";
 
-type TabKey = "overview" | "budget" | "cashflow" | "calendar" | "debt" | "montecarlo" | "networth";
+type TabKey = "overview" | "plan" | "budget" | "cashflow" | "calendar" | "debt" | "montecarlo" | "networth";
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: "overview", label: "Overview" },
+  { key: "plan", label: "Plan" },
   { key: "budget", label: "Budget" },
   { key: "calendar", label: "Calendar" },
   { key: "cashflow", label: "Cash Flow" },
@@ -152,6 +158,7 @@ function FinanceShell({
           <SpendDigestPanel />
         </div>
       )}
+      {tab === "plan" && PlanTab !== null && <PlanTab />}
       {tab === "budget" && BudgetTab !== null && <BudgetTab />}
       {tab === "cashflow" && <CashFlowTab state={state} patch={patch} />}
       {tab === "debt" && <DebtTab />}
