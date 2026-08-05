@@ -9,7 +9,7 @@ import {
   PARTNER_KEY_PREFIX,
   type ReceiptClaims,
 } from "@/lib/receipts";
-import { PILLAR_MAX_POINTS } from "@/lib/scoring";
+import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
 import type { VerdictKey } from "@/lib/brand";
 
 export const runtime = "nodejs";

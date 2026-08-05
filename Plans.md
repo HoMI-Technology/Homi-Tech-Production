@@ -95,6 +95,25 @@ deliberately SEPARATE vocabulary (career/purchase/investment/life — journal/pa
 
 **PRs:** `feat/decision-type-honest-persistence` (5.1–5.4), `refactor/vertical-mapper-registry` (5.5), `feat/vertical-car` (5.6–5.9, after D7–D9 sign-off).
 
+## Phase 6: Scoring server-only (founder-approved 2026-08-05 — trade-secret bright line)
+
+Client components value-import `computeScore`/`computeShadowScore`/insight generators — engine internals ship
+in the client bundle. Blast radius (verified by grep, this session): flows ×2; /results + /plan (generators);
+`lib/simulator.ts` (spreads via `hooks/use-readiness.ts` + `lib/tools/readiness-bands.ts`); `lib/readiness/preflight.ts`;
+`lib/household/dual-score.ts` (scoreToVerdict only); ~12 client sites value-import PILLAR_MAX_POINTS (public canon
+35/35/30 — the constant is public; the curves are not). `computeShadowScore` ≡ `computeScore(SHADOW_DEFAULTS+inputs)`
+(shadow.ts:20-30) and ShadowScoreFlow already builds identical padding — both flows can share /api/scoring.
+
+| Task | Description | DoD | Depends | Status |
+|------|-------------|-----|---------|--------|
+| 6.1 | Public seam: `lib/scoring/public.ts` exporting PILLAR_MAX_POINTS + scoreToVerdict (public 80/65/50 thresholds) + type re-exports; migrate all client value-import sites incl. dual-score [tdd:required] | Only flows/generators/simulator/preflight sites (6.2–6.4) still value-import non-public scoring; tsc green | - | cc:Done (this PR) |
+| 6.2 | Flows → server scoring: extend /api/scoring to return the full AssessmentResult (sub-factor breakdowns are public UI output) + insights; both flows await it (shadow reuses its existing padded inputs); submitting state; scoring-call failure feeds the F.12 save-status channel [tdd:required] | Zero @/lib/scoring value imports in flows; anonymous flow works (route is auth-free); parity test: API result === engine result for same inputs | 6.1 | cc:TODO |
+| 6.3 | Insights via storage (resolves F.15): StoredAssessment gains optional `insights`; flows persist API-returned insights; `mapAssessmentRowToStored` threads the DB `insights` column; /results + /plan render stored insights with one-shot /api/scoring backfill for legacy local payloads [tdd:required] | No generator imports outside server code; legacy localStorage payloads backfill, never crash | 6.2 | cc:TODO |
+| 6.4 | Simulator + preflight server-side: batch endpoint (baseline + all lever variations in ONE call — per-tick round-trips would blow the 30/min scoring rate limit); migrate ScoreSimulator, use-readiness.ts, readiness-bands.ts, preflight consumers; debounce + pending UI | Zero engine value-imports anywhere in the client module graph | 6.1 | cc:TODO |
+| 6.5 | Enforcement: `import "server-only"` in engine/insights/shadow/weights; vitest configs alias server-only → no-op stub; bundle proof: CI build + grep client chunks for an engine-only sentinel string absent | Poisoned modules unbuildable from client code; sentinel absent from client chunks; verify green | 6.2–6.4 | cc:TODO |
+
+**PRs:** `refactor/scoring-server-only` (6.1–6.3), then `refactor/simulator-server-scoring` (6.4), then enforcement rides with 6.5.
+
 ## Carried threads (parallel, not blocked by phases)
 
 | Task | Description | DoD | Depends | Status |

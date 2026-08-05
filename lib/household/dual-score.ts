@@ -9,7 +9,7 @@ import {
   type AssessmentResult,
   type HardStopReason,
   type Verdict,
-} from "@/lib/scoring";
+} from "@/lib/scoring/public";
 
 export interface DualMemberScore {
   label: string;

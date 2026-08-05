@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PILLARS, VERDICT_META } from "@/lib/brand";
-import { PILLAR_MAX_POINTS } from "@/lib/scoring";
+import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
 import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { PageFrame } from "@/components/operate/PageFrame";

@@ -8,7 +8,7 @@
  */
 
 import { loadLocalResult } from "@/lib/assessment/storage";
-import { PILLAR_MAX_POINTS } from "@/lib/scoring";
+import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
 import {
   loadFinanceState,
   hasSavedFinanceState,

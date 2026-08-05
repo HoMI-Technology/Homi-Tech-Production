@@ -13,7 +13,7 @@
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { PILLAR_MAX_POINTS } from "@/lib/scoring";
+import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
 import {
   DEFAULT_FINANCE_STATE,
   netCashFlow,

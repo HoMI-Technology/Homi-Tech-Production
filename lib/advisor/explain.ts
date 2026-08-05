@@ -8,7 +8,7 @@
  * ever drift apart.
  */
 
-import { PILLAR_MAX_POINTS } from "@/lib/scoring";
+import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
 import { findCrossedMilestone, type Milestone } from "@/lib/advisor/milestones";
 import type { StoredAssessment } from "@/lib/assessment/storage";
 
