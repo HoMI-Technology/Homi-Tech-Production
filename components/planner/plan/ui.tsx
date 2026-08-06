@@ -91,7 +91,8 @@ export function PlanTile({
 }
 
 /** Thin protective footer used across Plan sub-panels. */
-export function PlanFooter({ lines }: { lines: string[] }) {
+export function PlanFooter({ lines = [] }: { lines?: string[] }) {
+  if (lines.length === 0) return null
   return (
     <div className="mt-6 border-t border-white/[0.06] pt-3">
       {lines.map((line) => (

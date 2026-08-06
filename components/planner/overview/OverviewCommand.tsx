@@ -158,7 +158,7 @@ function Section({
   title?: string
   caption?: string
   aside?: ReactNode
-  children: ReactNode
+  children?: ReactNode
 }) {
   return (
     <section className="mt-10">
@@ -733,7 +733,7 @@ function ExportPack({
       `HōMI Readiness — ${Math.round(planner.score)}/100 · ${VERDICT_META[planner.verdict].label}`,
       `Pillars: Financial ${planner.pillarPct.financial}% · Emotional ${planner.pillarPct.emotional}% · Timing ${planner.pillarPct.timing}%`,
       planner.keyInsight,
-      ...nextSteps.slice(0, 3).map((s, i) => `${i + 1}. ${s}`),
+      ...planner.nextSteps.slice(0, 3).map((s, i) => `${i + 1}. ${s}`),
       EXPORT_LEGAL,
     ].join('\n')
     try {
@@ -821,7 +821,7 @@ function ExportPack({
             {planner.keyInsight}
           </p>
           <ol className="mt-3 space-y-1.5">
-            {nextSteps.slice(0, 3).map((step, i) => (
+            {planner.nextSteps.slice(0, 3).map((step, i) => (
               <li key={step} className="flex gap-2 text-xs leading-relaxed text-dim">
                 <span className="font-display font-medium tnum text-cyan">
                   {i + 1}.
