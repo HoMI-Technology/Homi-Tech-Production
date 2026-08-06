@@ -443,8 +443,9 @@ function BillCard({
           <CyanButton
             disabled={!resolvedPayFrom}
             onClick={() => {
-              const result = payBillWithImpact(bill.id, resolvedPayFrom)
-              setError(result.ok ? null : (result.error ?? 'Payment failed'))
+              void payBillWithImpact(bill.id, resolvedPayFrom).then((result) =>
+                setError(result.ok ? null : (result.error ?? 'Payment failed')),
+              )
             }}
           >
             Pay now

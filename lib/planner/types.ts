@@ -172,6 +172,19 @@ export interface DebtItem {
   minPayment: number;
 }
 
+/** Consolidation-loan terms the user models against their current debts. */
+export interface ConsolidationLoanConfig {
+  apr: number; // annual percentage on the new loan
+  termMonths: number; // fixed repayment term (e.g. 36 / 48 / 60)
+  feePct: number; // origination fee as % of balances financed
+}
+
+export const DEFAULT_CONSOLIDATION_LOAN: ConsolidationLoanConfig = {
+  apr: 12,
+  termMonths: 48,
+  feePct: 2,
+};
+
 export interface DailyCheckin {
   id: string;
   date: string;
@@ -281,6 +294,8 @@ export interface BudgetState {
   dismissedSignals: string[];
   toolsOverlay: {
     extraDebtPayment: number;
+    /** Consolidation-loan terms modeled in the Plan → Consolidate lab. */
+    consolidation: ConsolidationLoanConfig;
   };
   checkins: DailyCheckin[];
   lastImpact: ScoreImpactSnapshot | null;

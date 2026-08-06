@@ -35,6 +35,9 @@ vi.mock("@/components/planner/plan/PlanHousing", () => ({
 vi.mock("@/components/planner/plan/PlanDebt", () => ({
   default: () => <div>Debt</div>,
 }));
+vi.mock("@/components/planner/plan/PlanConsolidate", () => ({
+  default: () => <div>Consolidate</div>,
+}));
 vi.mock("@/components/planner/plan/PlanHousehold", () => ({
   default: () => <div>Household</div>,
 }));

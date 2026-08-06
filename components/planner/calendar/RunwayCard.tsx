@@ -102,8 +102,11 @@ export default function RunwayCard({
             data={data}
             margin={{ top: 4, right: 4, bottom: 0, left: 4 }}
             onClick={(s) => {
-              const iso = (s?.activePayload?.[0]?.payload as { dateISO?: string } | undefined)
-                ?.dateISO
+              const iso = (
+                s as
+                  | { activePayload?: Array<{ payload?: { dateISO?: string } }> }
+                  | undefined
+              )?.activePayload?.[0]?.payload?.dateISO
               if (iso) onJump(iso)
             }}
           >

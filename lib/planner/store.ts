@@ -32,6 +32,7 @@ import type {
   BrokerConnection,
   BrokerInstitution,
   BudgetState,
+  ConsolidationLoanConfig,
   DailyCheckin,
   DebtItem,
   Holding,
@@ -44,6 +45,7 @@ import type {
   ScoreImpactSnapshot,
   Transaction,
 } from "@/lib/planner/types";
+import { DEFAULT_CONSOLIDATION_LOAN } from "@/lib/planner/types";
 import {
   DEFAULT_GOAL,
   DEFAULT_HOUSEHOLD_PARTNER,
@@ -277,6 +279,7 @@ export interface PlannerStore extends BudgetState {
   setDebts: (debts: DebtItem[]) => void
   updateDebt: (id: string, patch: Partial<Omit<DebtItem, 'id'>>) => void
   setExtraDebtPayment: (n: number) => void
+  setConsolidationLoan: (patch: Partial<ConsolidationLoanConfig>) => void
   dismissSignal: (id: string) => void
   clearDismissedSignals: () => void
   setLastImpact: (impact: ScoreImpactSnapshot | null) => void
@@ -306,7 +309,10 @@ export const usePlannerStore = create<PlannerStore>()(
       householdPartner: { ...DEFAULT_HOUSEHOLD_PARTNER },
       debts: [],
       dismissedSignals: [],
-      toolsOverlay: { extraDebtPayment: 0 },
+      toolsOverlay: {
+        extraDebtPayment: 0,
+        consolidation: { ...DEFAULT_CONSOLIDATION_LOAN },
+      },
       checkins: [],
       lastImpact: null,
       _hasHydrated: false,
@@ -680,6 +686,17 @@ export const usePlannerStore = create<PlannerStore>()(
           },
         })),
 
+      setConsolidationLoan: (patch) =>
+        set((s) => ({
+          toolsOverlay: {
+            ...s.toolsOverlay,
+            consolidation: {
+              ...s.toolsOverlay.consolidation,
+              ...patch,
+            },
+          },
+        })),
+
       dismissSignal: (id) =>
         set((s) => ({
           dismissedSignals: s.dismissedSignals.includes(id)
@@ -744,7 +761,10 @@ export const usePlannerStore = create<PlannerStore>()(
           householdPartner: { ...DEFAULT_HOUSEHOLD_PARTNER },
           debts: [],
           dismissedSignals: [],
-          toolsOverlay: { extraDebtPayment: 0 },
+          toolsOverlay: {
+            extraDebtPayment: 0,
+            consolidation: { ...DEFAULT_CONSOLIDATION_LOAN },
+          },
           checkins: [],
           lastImpact: null,
         }),
@@ -822,6 +842,12 @@ export const usePlannerStore = create<PlannerStore>()(
                 current.toolsOverlay?.extraDebtPayment ??
                 0,
             ),
+            consolidation: {
+              ...DEFAULT_CONSOLIDATION_LOAN,
+              ...(current.toolsOverlay?.consolidation ?? {}),
+              ...((overlay as { consolidation?: Partial<ConsolidationLoanConfig> })
+                .consolidation ?? {}),
+            },
           },
           checkins: Array.isArray(p.checkins) ? p.checkins : current.checkins,
           lastImpact: p.lastImpact ?? current.lastImpact,

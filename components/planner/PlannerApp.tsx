@@ -12,7 +12,7 @@ import { hydratePlannerFromLedger } from "@/lib/planner/ledger-bridge";
 const OverviewCommand = dynamic(
   () =>
     import("@/components/planner/overview/OverviewCommand").then(
-      (m) => m.default ?? m.OverviewCommand,
+      (m) => m.default,
     ),
   {
     ssr: false,
