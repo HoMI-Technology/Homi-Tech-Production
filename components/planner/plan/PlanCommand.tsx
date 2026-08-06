@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   BookOpen,
+  Combine,
   Home,
   LineChart,
   Scale,
@@ -14,6 +15,7 @@ import type { LucideIcon } from 'lucide-react'
 import PlanPath from './PlanPath'
 import PlanHousing from './PlanHousing'
 import PlanDebt from './PlanDebt'
+import PlanConsolidate from './PlanConsolidate'
 import PlanHousehold from './PlanHousehold'
 import PlanModels from './PlanModels'
 import PlanShare from './PlanShare'
@@ -26,12 +28,20 @@ import PlanShare from './PlanShare'
 /* owns the outer five-tab pill nav.                                   */
 /* ------------------------------------------------------------------ */
 
-type PlanSubTab = 'path' | 'housing' | 'debt' | 'household' | 'models' | 'share'
+type PlanSubTab =
+  | 'path'
+  | 'housing'
+  | 'debt'
+  | 'consolidate'
+  | 'household'
+  | 'models'
+  | 'share'
 
 const SUB_TABS: Array<{ id: PlanSubTab; label: string; icon: LucideIcon }> = [
   { id: 'path', label: 'Path', icon: BookOpen },
   { id: 'housing', label: 'Housing', icon: Home },
   { id: 'debt', label: 'Debt', icon: Scale },
+  { id: 'consolidate', label: 'Consolidate', icon: Combine },
   { id: 'household', label: 'Household', icon: Users },
   { id: 'models', label: 'Models', icon: LineChart },
   { id: 'share', label: 'Share', icon: Sparkles },
@@ -91,6 +101,7 @@ export function PlanCommand() {
           {tab === 'path' && <PlanPath />}
           {tab === 'housing' && <PlanHousing />}
           {tab === 'debt' && <PlanDebt />}
+          {tab === 'consolidate' && <PlanConsolidate />}
           {tab === 'household' && <PlanHousehold />}
           {tab === 'models' && <PlanModels />}
           {tab === 'share' && <PlanShare />}

@@ -51,6 +51,8 @@ const HASH_ALIASES: Record<string, PlannerTabKey> = {
   cashflow: "overview",
   calendar: "calendar",
   debt: "plan",
+  consolidate: "plan",
+  consolidation: "plan",
   montecarlo: "plan",
   networth: "wealth",
   banking: "banking",

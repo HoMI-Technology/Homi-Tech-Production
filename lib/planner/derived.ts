@@ -23,6 +23,7 @@ import type {
   Temperature,
   Transaction,
 } from "./types"
+import { DEFAULT_CONSOLIDATION_LOAN } from "./types"
 
 /* ------------------------------------------------------------------ */
 /* ISO date helpers (the only keepers from reference format.ts)        */
@@ -650,6 +651,13 @@ export function buildDemoSeed(now: Date = new Date()): BudgetState {
     householdPartner: { ...DEFAULT_HOUSEHOLD_PARTNER },
     debts: [
       {
+        id: 'debt-demo-card',
+        name: 'Credit card',
+        balance: 8600,
+        apr: 23.9,
+        minPayment: 215,
+      },
+      {
         id: 'debt-demo-student',
         name: 'Student loan',
         balance: 18400,
@@ -665,7 +673,10 @@ export function buildDemoSeed(now: Date = new Date()): BudgetState {
       },
     ],
     dismissedSignals: [],
-    toolsOverlay: { extraDebtPayment: 0 },
+    toolsOverlay: {
+      extraDebtPayment: 0,
+      consolidation: { ...DEFAULT_CONSOLIDATION_LOAN },
+    },
     checkins: [],
     lastImpact: null,
   }
