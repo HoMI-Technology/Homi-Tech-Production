@@ -7,6 +7,10 @@
     "imagekit-api": {
       "type": "http",
       "url": "https://api-mcp.imagekit.io/mcp"
+    },
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp?project_ref=giyycykxkzfbowiapxpd&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching"
     }
   }
 }
