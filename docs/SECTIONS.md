@@ -10,13 +10,14 @@ rule that keeps each task inside one.
 > **The one rule:** _one Section per task._ An agent may **read** anything in
 > the repo, but may only **write** inside the Section named in the task, plus
 > any shared dependency the task explicitly declares. If it believes it must
-> edit **Section 0 (Scoring Core)** or **Section 8 (Platform)**, it stops and
-> asks first.
+> edit the **frozen core** (`lib/scoring/`, `lib/brand/`) or **Section 8
+> (Platform)**, it stops and asks first.
 
 Start every AI task by naming the Section and the boundary, e.g.:
 
-> _"Work only in **Section 4 — Finance**. Do not modify Scoring (Section 0) or
-> Platform (Section 8). If you think you must, stop and explain why."_
+> _"Work only in **Section 4 — Money**. Do not modify the scoring engine
+> (`lib/scoring/`) or Platform (Section 8). If you think you must, stop and
+> explain why."_
 
 Keep the task smaller than the Section — scope to one flow ("the Plaid reconnect
 handler"), not "improve finance." A whole Section is still ~100 files.
@@ -28,15 +29,25 @@ handler"), not "improve finance." A whole Section is still ~100 files.
 Each Section is the quartet of matching folders across the four trees. `app/`
 paths omit the `(product)` / `(marketing)` route-group prefix for brevity.
 
-### 0 · 🔒 Scoring Core — **FROZEN**
+### 0 · Assessment & Scoring — **frozen core inside**
 
-The scored assessment and its verdict. Governed by `AGENTS.md` guardrails #1–2:
-weights and thresholds are canon and never change; scoring is
-server-authoritative. **Read and call it; never edit it** without explicit
-human sign-off.
+The scored assessment and its verdict. Governed by `AGENTS.md` guardrails #1–2.
+Only **part** of this Section is frozen — read the split carefully, because
+getting it wrong stalls planned work in either direction:
+
+- **🔒 `lib/scoring/` is FROZEN.** Weights (35/35/30), thresholds (80/65/50)
+  and the four hard stops are canon; they never change, the engine is
+  server-authoritative, and it is trade secret (`server-only`). **Read and call
+  it; never edit it** without explicit human sign-off.
+- **The rest of the Section is ordinary work.** `lib/questions/`,
+  `lib/assessment/`, `lib/validation/` and the assessment/results UI are the
+  layers *around* the frozen engine, and Plans.md Phase 5 routes decision-vertical
+  branching straight through them — question-bank `decision_types` tags plus a
+  per-vertical input-mapper feeding the same untouched engine. Editing them is
+  expected; the guardrail they must satisfy is `lib/scoring/*` diff = 0.
 
 - **app:** `assessment/`, `results/`, `report/`, `api/scoring/`, `api/assessments/`
-- **lib:** `scoring/`, `assessment/`, `questions/`, `validation/`
+- **lib:** `scoring/` 🔒, `assessment/`, `questions/`, `validation/`
 - **components:** `assessment/`, `results/`
 
 ### 1 · Marketing / Public
@@ -70,16 +81,24 @@ The companion ecosystem — agent logic and the surfaces that render it.
 - **lib:** `agents/`, `advisor/`, `twin/`, `trinity/`, `genome/`, `conflict/`
 - **components:** `agents/`, `companion/`, `advisor/`, `twin/`
 
-### 4 · Finance / Integrations
+### 4 · Money / Finance / Integrations
 
-Money-in and money-out: Plaid, Stripe, credit, billing, and the webhooks that
-back them.
+Money-in and money-out: the Budget Planner cockpit, Plaid, Stripe, credit,
+billing, and the webhooks that back them.
+
+The **Budget Planner owns this Section's UI**. Per decision D6 the planner was
+absorbed as the single money surface (#160/#162), so `app/(product)/finance/page.tsx`
+is a three-line shim that renders `components/planner/PlannerApp` — its only
+route — and `lib/planner/ledger-bridge.ts` dual-writes into `lib/finance/ledger`.
+Planner and finance are one domain; a task touching `/finance` almost always
+means writing `components/planner/**`.
 
 - **app:** `finance/`, `credit/`, `connections/`, `api/finance/`,
   `api/finance-state/`, `api/plaid/`, `api/billing/`, `api/checkout/`,
   `api/webhooks/`
-- **lib:** `finance/`, `plaid/`, `credit/`, `stripe/`, `receipts/`
-- **components:** `finance/`, `connections/`
+- **lib:** `planner/`, `finance/`, `plaid/`, `credit/`, `stripe/`, `receipts/`
+- **components:** `planner/`, `finance/`, `connections/`
+- **tests:** `__tests__/planner/`, `__tests__/finance/`
 
 ### 5 · Planning / Decisions / Simulation
 
@@ -89,9 +108,12 @@ simulations, signals, and the calculator tools.
 - **app:** `plan/`, `decisions/`, `simulator/`, `scenarios/`, `path/`,
   `outcomes/`, `signals/`, `calibration/`, `shadow-score/`, `tools/`,
   `api/readiness-path/`, `api/tools/`
-- **lib:** `planner/`, `decisions/`, `simulator.ts`, `readiness/`, `outcomes/`,
+- **lib:** `decisions/`, `simulator.ts`, `readiness/`, `outcomes/`,
   `signals/`, `tools/`
-- **components:** `planner/`, `decisions/`, `simulator/`, `readiness/`, `tools/`
+- **components:** `decisions/`, `simulator/`, `readiness/`, `tools/`
+
+`planner/` used to sit here; it lives in Section 4 with the money surface it
+renders.
 
 ### 6 · Household / B2B / Org
 
@@ -137,6 +159,8 @@ agent never has to guess:
 
 | Folder | Owned by | Why |
 |--------|----------|-----|
+| `planner/` (Budget Planner) | **4 · Money** | `/finance` is its only route and `lib/finance/ledger` its data layer. |
+| `lib/questions/`, `lib/validation/` | **0 · Assessment** (editable) | The mapper/branching layer around the engine — not part of the frozen core. |
 | `tools/` (calculators) | **5 · Planning** | They feed decisions/plans, not the core score. |
 | `share/` + `shadow/` (link sharing) | **8 · Platform** | A generic mechanism reused by many features. |
 | `brand/` | **8 · Platform** (🔒) | Cross-cutting canon; brand-check enforces it everywhere. |
@@ -157,12 +181,12 @@ in doubt.
 
 | Section | `app/` | `lib/` | `components/` |
 |---------|--------|--------|----------------|
-| 0 Scoring 🔒 | assessment, results, report, api/scoring, api/assessments | scoring, assessment, questions, validation | assessment, results |
+| 0 Assessment | assessment, results, report, api/scoring, api/assessments | scoring 🔒, assessment, questions, validation | assessment, results |
 | 1 Marketing | (marketing)/*, api/waitlist, SEO root files | seo | marketing, home, seo, learning |
 | 2 Shell | dashboard, daily, journal, calendar, onboarding, demo, app-shell chrome | dashboard, layout, keyboard, demo | dashboard, layout, calendar, operate, pwa |
 | 3 Agents | agents, agent-hub, advisor, twin, trinity, genome, api/{agents,advisor,twin,trinity} | agents, advisor, twin, trinity, genome, conflict | agents, companion, advisor, twin |
-| 4 Finance | finance, credit, connections, api/{finance,finance-state,plaid,billing,checkout,webhooks} | finance, plaid, credit, stripe, receipts | finance, connections |
-| 5 Planning | plan, decisions, simulator, scenarios, path, outcomes, signals, calibration, shadow-score, tools, api/{readiness-path,tools} | planner, decisions, simulator.ts, readiness, outcomes, signals, tools | planner, decisions, simulator, readiness, tools |
+| 4 Money | finance, credit, connections, api/{finance,finance-state,plaid,billing,checkout,webhooks} | planner, finance, plaid, credit, stripe, receipts | planner, finance, connections |
+| 5 Planning | plan, decisions, simulator, scenarios, path, outcomes, signals, calibration, shadow-score, tools, api/{readiness-path,tools} | decisions, simulator.ts, readiness, outcomes, signals, tools | decisions, simulator, readiness, tools |
 | 6 Org | household, team, partner, employee, api/household | household | household, b2b |
 | 7 Access | auth/*, settings, admin, api/{account,admin} | auth, admin, entitlements.ts, flags.ts | auth, settings, admin, consent, entitlements |
 | 8 Platform 🔧 | middleware.ts, api/{healthcheck,cron,csp-report,email,push,unsubscribe,v1}, share, shadow, api/{shares,shadow-shares} | supabase, env.ts, email, push, notifications, analytics(.ts), audit.ts, attribution.ts, dates.ts, persistence.ts, ratelimit.ts, security.ts, architecture, brand 🔒 | ui, share, analytics, brand 🔒 |

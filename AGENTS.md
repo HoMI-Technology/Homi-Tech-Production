@@ -129,13 +129,19 @@ is the SSOT map that draws the boundaries. **The rule for every agent task:**
 
 > Read anything; **write only inside the one Section named in the task**, plus
 > any shared dependency the task explicitly declares. If you believe you must
-> edit **Section 0 (Scoring Core)** or **Section 8 (Platform)**, stop and ask.
+> edit the **frozen core** (`lib/scoring/`, `lib/brand/` — guardrails #1–3) or
+> **Section 8 (Platform)**, stop and ask.
 
 Name the Section and the boundary at the top of each task, and keep the task
 smaller than the Section. A task that needs to cross a boundary is the signal to
 split it into two. This is what stops an agent from wandering across the whole
 tree and overworking. See `docs/SECTIONS.md` for the full map and the
 directory-to-Section index.
+
+The freeze is narrower than the Section. `lib/questions/`, `lib/assessment/` and
+`lib/validation/` sit in Section 0 but are **editable** — decision-vertical
+branching is designed to run through them (Plans.md Phase 5) while the engine
+stays byte-identical. Only `lib/scoring/*` is untouchable.
 
 ## Product notes
 

@@ -17,14 +17,18 @@
 # the boundaries enforceable per-area. GitHub matches the LAST rule, so the
 # workflows rule below stays most-specific.
 #
-# Section 0 · Scoring Core (FROZEN — change only with explicit sign-off)
+# Section 0 · Assessment & Scoring
+# Only /lib/scoring/ is FROZEN (guardrail #1 — change with explicit sign-off).
+# The rest is the editable layer around the engine; vertical branching runs
+# through it (Plans.md Phase 5) while /lib/scoring stays byte-identical.
 /lib/scoring/            @HoMI-Technology
 /lib/questions/          @HoMI-Technology
 /lib/validation/         @HoMI-Technology
 /lib/assessment/         @HoMI-Technology
 # Section 3 · AI Agents / Companion
 /lib/agents/             @HoMI-Technology
-# Section 4 · Finance / Integrations
+# Section 4 · Money / Finance / Integrations
+/lib/planner/            @HoMI-Technology
 /lib/finance/            @HoMI-Technology
 /lib/plaid/              @HoMI-Technology
 /lib/stripe/             @HoMI-Technology
