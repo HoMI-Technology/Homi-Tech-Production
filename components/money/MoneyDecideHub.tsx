@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { COLORS, withAlpha } from "@/lib/brand";
 import { LENSES, type LensDefinition, type LensRing } from "@/lib/tools/registry";
 
 /**
@@ -20,7 +21,7 @@ const JOBS: {
     id: "housing",
     title: "Housing decision",
     subtitle: "What you can carry — not just what a lender will approve.",
-    accent: "#22d3ee",
+    accent: COLORS.cyan,
     ids: [
       "affordability",
       "mortgage",
@@ -36,21 +37,21 @@ const JOBS: {
     id: "stability",
     title: "Stability",
     subtitle: "Shock absorption before the leap.",
-    accent: "#34d399",
+    accent: COLORS.emerald,
     ids: ["runway", "debt-payoff", "blind-budget"],
   },
   {
     id: "horizon",
     title: "Horizon",
     subtitle: "Independence and path risk — educational, not advice.",
-    accent: "#facc15",
+    accent: COLORS.yellow,
     ids: ["fire", "monte-carlo", "roth-conversion"],
   },
   {
     id: "readiness",
     title: "Readiness probes",
     subtitle: "Same engine as the assessment — explore levers without a full retest.",
-    accent: "#22d3ee",
+    accent: COLORS.cyan,
     rings: ["readiness"],
   },
 ];
@@ -74,7 +75,7 @@ export function MoneyDecideHub() {
           aria-hidden
           className="pointer-events-none absolute -right-12 -top-16 h-48 w-48 rounded-full opacity-40"
           style={{
-            background: "radial-gradient(circle, rgba(34,211,238,0.2), transparent 70%)",
+            background: `radial-gradient(circle, ${withAlpha(COLORS.cyan, 0.2)}, transparent 70%)`,
           }}
         />
         <div className="relative max-w-2xl">
