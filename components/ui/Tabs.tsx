@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 /**
  * Canonical tab primitives — seeded from the finance cockpit's tablist
@@ -24,6 +24,8 @@ import { useEffect, useRef } from "react";
 export interface TabItem<K extends string = string> {
   key: K;
   label: string;
+  /** Optional leading icon (pill variant / dense chrome). */
+  icon?: ReactNode;
 }
 
 interface TabsProps<K extends string> {
@@ -36,6 +38,11 @@ interface TabsProps<K extends string> {
   /** Mirror the active tab into location.hash and read it back. */
   hashSync?: boolean;
   className?: string;
+  /**
+   * `underline` — classic product underline (default).
+   * `pill` — premium instrument rail (Budget Planner / Money Track).
+   */
+  variant?: "underline" | "pill";
 }
 
 export function Tabs<K extends string>({
@@ -46,6 +53,7 @@ export function Tabs<K extends string>({
   ariaLabel,
   hashSync = false,
   className = "",
+  variant = "underline",
 }: TabsProps<K>) {
   const buttonRefs = useRef(new Map<K, HTMLButtonElement>());
 
@@ -107,14 +115,23 @@ export function Tabs<K extends string>({
     buttonRefs.current.get(key)?.focus();
   }
 
+  const listClass =
+    variant === "pill"
+      ? `flex w-full max-w-full flex-wrap gap-1 rounded-2xl border border-white/[0.08] bg-slate-surface/40 p-1 sm:w-fit ${className}`.trim()
+      : `flex flex-wrap gap-1 border-b border-slate-surface/60 pb-px ${className}`.trim();
+
   return (
-    <div
-      role="tablist"
-      aria-label={ariaLabel}
-      className={`flex flex-wrap gap-1 border-b border-slate-surface/60 pb-px ${className}`.trim()}
-    >
+    <div role="tablist" aria-label={ariaLabel} className={listClass}>
       {tabs.map((t, i) => {
         const selected = value === t.key;
+        const baseFocus =
+          "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan";
+        const pillClass = selected
+          ? "bg-cyan/15 text-cyan shadow-[inset_0_0_0_1px_rgba(34,211,238,0.35)]"
+          : "text-dim hover:bg-white/[0.04] hover:text-light";
+        const underlineClass = selected
+          ? "border-b-2 border-cyan bg-slate-surface/40 text-cyan"
+          : "text-dim hover:text-light";
         return (
           <button
             key={t.key}
@@ -130,12 +147,17 @@ export function Tabs<K extends string>({
             tabIndex={selected ? 0 : -1}
             onClick={() => onChange(t.key)}
             onKeyDown={(e) => handleKeyDown(e, i)}
-            className={`rounded-t-lg px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan ${
-              selected
-                ? "border-b-2 border-cyan bg-slate-surface/40 text-cyan"
-                : "text-dim hover:text-light"
-            }`}
+            className={
+              variant === "pill"
+                ? `inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-colors ${baseFocus} ${pillClass}`
+                : `rounded-t-lg px-4 py-2.5 text-sm font-semibold transition-colors ${baseFocus} ${underlineClass}`
+            }
           >
+            {t.icon ? (
+              <span className="opacity-90" aria-hidden>
+                {t.icon}
+              </span>
+            ) : null}
             {t.label}
           </button>
         );

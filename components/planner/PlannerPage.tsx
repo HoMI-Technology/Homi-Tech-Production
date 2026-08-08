@@ -183,19 +183,31 @@ export function PlannerPage({
     holdings.length > 0;
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p className="eyebrow text-cyan">Decision Readiness Intelligence</p>
-          <h1 className="mt-1 font-display text-3xl italic text-light md:text-4xl">
+    <div className="relative space-y-7">
+      {/* Ambient brand aurora - product chrome, not marketing mesh */}
+      <div
+        className="pointer-events-none absolute -inset-x-4 -top-6 h-56 opacity-80 sm:-inset-x-8"
+        aria-hidden
+        style={{
+          background:
+            "radial-gradient(ellipse 70% 80% at 12% 0%, rgba(34,211,238,0.10), transparent 55%), radial-gradient(ellipse 50% 60% at 92% 20%, rgba(52,211,153,0.06), transparent 50%)",
+        }}
+      />
+
+      <header className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-[0.6875rem] font-bold uppercase tracking-[0.16em] text-cyan">
+            Decision Readiness Intelligence
+          </p>
+          <h1 className="mt-1.5 font-display text-[1.85rem] leading-[1.15] tracking-tight text-light sm:text-4xl">
             Budget Planner
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-dim">
-            Cash flow, banks, portfolio, Path to Ready, and decision models —
-            HōMI numbers for real choices, not a sales funnel.
+          <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-dim sm:text-[0.95rem]">
+            Cash flow, banks, portfolio, Path to Ready, and decision models.
+            HōMI numbers that protect choices - not a sales funnel.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="relative flex shrink-0 flex-wrap gap-2">
           {hasData ? (
             <button
               type="button"
@@ -208,7 +220,7 @@ export function PlannerPage({
                   clearWorkspace();
                 }
               }}
-              className="inline-flex items-center gap-2 rounded-lg border border-line bg-slate-surface/40 px-3 py-2 text-sm text-dim hover:text-light"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/[0.1] bg-navy/40 px-3.5 py-2.5 text-sm font-medium text-dim transition-colors hover:border-white/20 hover:text-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
             >
               <Trash2 className="h-4 w-4" aria-hidden />
               Clear data
@@ -237,7 +249,7 @@ export function PlannerPage({
                   });
                 }
               }}
-              className="inline-flex items-center gap-2 rounded-lg border border-cyan/40 bg-cyan/10 px-3 py-2 text-sm text-cyan hover:bg-cyan/20"
+              className="inline-flex items-center gap-2 rounded-xl bg-cyan/15 px-4 py-2.5 text-sm font-semibold text-cyan transition-colors hover:bg-cyan/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
             >
               <RotateCcw className="h-4 w-4" aria-hidden />
               Load sample numbers
@@ -246,35 +258,38 @@ export function PlannerPage({
         </div>
       </header>
 
-      <ReadinessHero
-        reality={reality}
-        portfolioValue={portfolio.marketValue}
-        netWorth={nw.netWorth}
-        billsOpen={upcomingBillsTotal(bills)}
-      />
+      <div className="relative space-y-5">
+        <ReadinessHero
+          reality={reality}
+          portfolioValue={portfolio.marketValue}
+          netWorth={nw.netWorth}
+          billsOpen={upcomingBillsTotal(bills)}
+        />
 
-      <SignalsStrip
-        signals={signals}
-        onDismiss={dismissSignal}
-        onAction={(s) => onTabChange(s.actionTab as PlannerTabKey)}
-      />
+        <SignalsStrip
+          signals={signals}
+          onDismiss={dismissSignal}
+          onAction={(s) => onTabChange(s.actionTab as PlannerTabKey)}
+        />
 
-      <NudgeRail
-        nudges={nudges}
-        onAction={(n) => onTabChange(n.actionTab as PlannerTabKey)}
-      />
+        <NudgeRail
+          nudges={nudges}
+          onAction={(n) => onTabChange(n.actionTab as PlannerTabKey)}
+        />
+      </div>
 
       <Tabs
-        tabs={TABS.map(({ key, label }) => ({ key, label }))}
+        tabs={TABS.map(({ key, label, icon }) => ({ key, label, icon }))}
         value={tab}
         onChange={onTabChange}
         idPrefix="finance"
         ariaLabel="Budget Planner sections"
         hashSync={false}
-        className="mt-2"
+        variant="pill"
+        className="relative"
       />
 
-      <TabPanel idPrefix="finance" value={tab} className="mt-6">
+      <TabPanel idPrefix="finance" value={tab} className="relative mt-5 min-h-[12rem]">
         {tab === "overview" && overview}
         {tab === "calendar" && calendar}
         {tab === "banking" && banking}

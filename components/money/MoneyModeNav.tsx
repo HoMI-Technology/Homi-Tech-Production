@@ -30,10 +30,10 @@ export function MoneyModeNav() {
   const active = modeFromPath(pathname);
 
   return (
-    <div className="mt-6 flex flex-wrap items-center gap-3">
+    <div className="mt-5 flex flex-wrap items-center gap-3">
       <nav
         aria-label="Money modes"
-        className="flex flex-1 flex-wrap gap-1 rounded-xl border border-line/80 bg-slate-surface/30 p-1"
+        className="flex flex-1 flex-wrap gap-1 rounded-2xl border border-white/[0.08] bg-slate-surface/40 p-1"
       >
         {PRIMARY.map((mode) => {
           const isActive = mode.id === active;
@@ -43,11 +43,11 @@ export function MoneyModeNav() {
               href={mode.href}
               aria-current={isActive ? "page" : undefined}
               className={[
-                "min-w-[4.5rem] flex-1 rounded-lg px-3 py-2.5 text-center text-sm font-semibold tracking-tight transition-colors",
+                "min-w-[4.5rem] flex-1 rounded-xl px-3 py-2.5 text-center text-sm font-semibold tracking-tight transition-colors",
                 "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan",
                 isActive
-                  ? "bg-navy-light/90 text-light shadow-[inset_0_0_0_1px_rgba(34,211,238,0.35)]"
-                  : "text-dim hover:bg-slate-surface/50 hover:text-light",
+                  ? "bg-cyan/15 text-cyan shadow-[inset_0_0_0_1px_rgba(34,211,238,0.35)]"
+                  : "text-dim hover:bg-white/[0.04] hover:text-light",
               ].join(" ")}
             >
               {mode.label}
@@ -59,11 +59,11 @@ export function MoneyModeNav() {
         href={SECONDARY.href}
         aria-current={active === "plan" ? "page" : undefined}
         className={[
-          "rounded-lg border px-3 py-2.5 text-sm font-semibold transition-colors",
+          "rounded-xl border px-3.5 py-2.5 text-sm font-semibold transition-colors",
           "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan",
           active === "plan"
             ? "border-cyan/40 bg-cyan/10 text-cyan"
-            : "border-line/80 text-dim hover:border-line hover:text-light",
+            : "border-white/[0.1] text-dim hover:border-white/20 hover:text-light",
         ].join(" ")}
       >
         {SECONDARY.label}

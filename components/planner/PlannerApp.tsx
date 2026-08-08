@@ -92,7 +92,11 @@ export function PlannerApp() {
         wealth={<WealthCommand />}
         plan={<PlanCommand />}
       />
-      <p className="mt-10 text-xs leading-relaxed text-dim">{LEGAL_DISCLAIMER}</p>
+      <footer className="mt-12 border-t border-white/[0.06] pt-6">
+        <p className="mx-auto max-w-3xl text-center text-xs leading-relaxed text-dim">
+          {LEGAL_DISCLAIMER}
+        </p>
+      </footer>
     </PageFrame>
   );
 }
