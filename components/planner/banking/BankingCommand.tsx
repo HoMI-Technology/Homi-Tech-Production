@@ -65,7 +65,7 @@ import {
 /* ------------------------------------------------------------------ */
 
 const inputCls =
-  'w-full rounded-xl border border-white/[0.08] bg-navyLight/80 px-3 py-2 text-sm text-light outline-none transition-colors focus:border-cyan/50'
+  'w-full rounded-xl border border-white/[0.08] bg-navy/70 px-3 py-2 text-sm text-light outline-none transition-colors placeholder:text-dim/60 focus:border-cyan/50'
 
 function Field({
   label,
@@ -710,13 +710,15 @@ export function BankingCommand() {
         <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
           <div>
             <div className="flex items-center gap-2 text-cyan">
-              <Landmark size={14} />
-              <span className="text-label !text-cyan">Banks &amp; bills</span>
+              <Landmark size={14} aria-hidden />
+              <span className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-cyan">
+                Banks &amp; bills
+              </span>
             </div>
-            <h2 className="mt-2 font-serif text-3xl italic text-light">
+            <h2 className="mt-2 font-display text-2xl tracking-tight text-light sm:text-3xl">
               Live cash command
             </h2>
-            <p className="mt-1 text-sm text-dim">
+            <p className="mt-1.5 text-sm leading-relaxed text-dim">
               Linked balances drive bill pay and closed-loop readiness.
             </p>
             <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
@@ -738,7 +740,7 @@ export function BankingCommand() {
               />
             </div>
           </div>
-          <div className="rounded-2xl border border-white/[0.06] bg-navyLight/60 p-4">
+          <div className="planner-tile p-4">
             <p className="flex items-start gap-2 text-xs leading-relaxed text-light/90">
               <span aria-hidden className="text-cyan">
                 ▤
@@ -999,7 +1001,7 @@ export function BankingCommand() {
             )}
             {(bills.length === 0 || allPaid) && (
               <div className="rounded-2xl border border-dashed border-white/[0.12] px-4 py-8 text-center">
-                <p className="font-serif text-lg italic text-light/90">
+                <p className="font-display text-lg tracking-tight text-light/90">
                   All bills paid — closed loop is clear.
                 </p>
                 {bills.length === 0 && (

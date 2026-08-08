@@ -55,19 +55,21 @@ export function PlanCommand() {
   return (
     <div className="flex flex-col gap-5">
       <header>
-        <p className="text-label text-cyan">PLAN LAB</p>
-        <h2 className="mt-1.5 font-serif text-[26px] italic leading-tight text-light sm:text-[30px]">
+        <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-cyan">
+          Plan lab
+        </p>
+        <h2 className="mt-1.5 font-display text-[1.5rem] leading-tight tracking-tight text-light sm:text-[1.75rem]">
           Decision readiness tools
         </h2>
         <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-dim">
-          Path, housing, debt, dual score, Monte Carlo — every move can pulse
+          Path, housing, debt, dual score, Monte Carlo - every move can pulse
           the HōMI-Score.
         </p>
       </header>
 
       <nav
         aria-label="Plan sections"
-        className="flex flex-wrap gap-1 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-1"
+        className="flex flex-wrap gap-1 rounded-2xl border border-white/[0.08] bg-slate-surface/40 p-1"
       >
         {SUB_TABS.map(({ id, label, icon: Icon }) => {
           const active = tab === id
@@ -77,13 +79,13 @@ export function PlanCommand() {
               type="button"
               onClick={() => setTab(id)}
               aria-pressed={active}
-              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-colors ${
+              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2.5 text-[13px] font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan ${
                 active
-                  ? 'bg-cyan/[0.12] text-cyan'
+                  ? 'bg-cyan/15 text-cyan shadow-[inset_0_0_0_1px_rgba(34,211,238,0.35)]'
                   : 'text-dim hover:bg-white/[0.04] hover:text-light'
               }`}
             >
-              <Icon size={14} />
+              <Icon size={14} aria-hidden />
               {label}
             </button>
           )

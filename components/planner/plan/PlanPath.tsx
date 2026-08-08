@@ -121,7 +121,7 @@ export default function PlanPath() {
           animate={{ opacity: 1, y: 0 }}
           className="mt-4 rounded-xl border border-emerald/25 bg-emerald/[0.08] px-4 py-3"
         >
-          <p className="font-serif text-[16px] italic text-emerald">
+          <p className="font-display text-[16px] tracking-tight text-emerald">
             Path steps complete — reassess when life moves
           </p>
           <p className="mt-1 text-[12px] leading-relaxed text-dim">

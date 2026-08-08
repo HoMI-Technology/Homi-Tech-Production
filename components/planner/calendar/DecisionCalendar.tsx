@@ -125,42 +125,46 @@ export default function DecisionCalendar() {
   }, [selectedISO])
 
   return (
-    <section className="rounded-2xl border border-cyan/[0.08] bg-gradient-to-br from-cyan/[0.05] via-transparent to-transparent p-4 sm:p-6">
+    <section className="card-chrome relative overflow-hidden p-4 sm:p-6">
+      <div
+        className="pointer-events-none absolute -right-12 -top-16 h-40 w-40 rounded-full bg-cyan/[0.08] blur-3xl"
+        aria-hidden
+      />
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="relative flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-start gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan/20 bg-cyan/10">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-cyan/25 bg-cyan/10 shadow-[inset_0_1px_0_rgba(34,211,238,0.2)]">
             <CalendarDays className="h-5 w-5 text-cyan" />
           </span>
           <div>
-            <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-cyan">
+            <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-cyan">
               Cash-flow instrument
             </p>
-            <h2 className="mt-0.5 font-serif text-2xl italic text-light sm:text-3xl">
+            <h2 className="mt-1 font-display text-2xl tracking-tight text-light sm:text-3xl">
               Decision calendar
             </h2>
-            <p className="mt-1 max-w-md text-xs leading-relaxed text-dim sm:text-sm">
-              Projected runway, bills, and ledger on one surface — pay,
+            <p className="mt-1.5 max-w-md text-xs leading-relaxed text-dim sm:text-sm">
+              Projected runway, bills, and ledger on one surface - pay,
               schedule, and plan without leaving the month.
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex rounded-xl border border-white/[0.08] bg-white/[0.02] p-1">
+          <div className="flex rounded-xl border border-white/[0.08] bg-slate-surface/40 p-1">
             {VIEW_PILLS.map((v) => (
               <button
                 key={v.key}
                 type="button"
                 onClick={() => setView(v.key)}
                 className={cn(
-                  'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
+                  "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan",
                   view === v.key
-                    ? 'bg-cyan/15 text-cyan'
-                    : 'text-dim hover:text-light',
+                    ? "bg-cyan/15 text-cyan shadow-[inset_0_0_0_1px_rgba(34,211,238,0.3)]"
+                    : "text-dim hover:text-light",
                 )}
               >
-                <v.icon className="h-3.5 w-3.5" />
+                <v.icon className="h-3.5 w-3.5" aria-hidden />
                 {v.label}
               </button>
             ))}
@@ -168,7 +172,7 @@ export default function DecisionCalendar() {
           <button
             type="button"
             onClick={jumpToday}
-            className="rounded-xl border border-white/[0.08] bg-white/[0.02] px-3.5 py-2 text-xs font-medium text-light transition-colors hover:border-cyan/40 hover:text-cyan"
+            className="rounded-xl border border-white/[0.1] bg-navy/40 px-3.5 py-2 text-xs font-semibold text-light transition-colors hover:border-cyan/40 hover:text-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
           >
             Today
           </button>
@@ -177,13 +181,13 @@ export default function DecisionCalendar() {
             onClick={() => setComfort((c) => !c)}
             aria-pressed={comfort}
             className={cn(
-              'flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-medium transition-colors',
+              "flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan",
               comfort
-                ? 'border-cyan/50 bg-cyan/10 text-cyan'
-                : 'border-white/[0.08] bg-white/[0.02] text-dim hover:text-light',
+                ? "border-cyan/50 bg-cyan/10 text-cyan"
+                : "border-white/[0.1] bg-navy/40 text-dim hover:text-light",
             )}
           >
-            <RotateCcw className="h-3.5 w-3.5" />
+            <RotateCcw className="h-3.5 w-3.5" aria-hidden />
             Comfort
           </button>
         </div>

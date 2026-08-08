@@ -94,15 +94,15 @@ export function BrokerPanel() {
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-cyan/20 bg-cyan/10 text-cyan">
-            <Briefcase size={16} />
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan/25 bg-cyan/10 text-cyan shadow-[inset_0_1px_0_rgba(34,211,238,0.2)]">
+            <Briefcase size={16} aria-hidden />
           </span>
           <div>
-            <h3 className="text-base font-semibold text-light">
+            <h3 className="font-display text-lg tracking-tight text-light">
               Brokerage feeds
             </h3>
             <p className="mt-0.5 max-w-md text-xs leading-relaxed text-dim">
-              Demo brokerage — production swaps in SnapTrade / Plaid
+              Demo brokerage - production swaps in SnapTrade / Plaid
               Investments.
             </p>
           </div>
@@ -204,7 +204,7 @@ export function BrokerPanel() {
         ))}
         {brokers.length === 0 && !pickerOpen && (
           <div className="rounded-2xl border border-dashed border-white/[0.12] px-4 py-8 text-center">
-            <p className="font-serif text-lg italic text-light/90">
+            <p className="font-display text-lg tracking-tight text-light/90">
               No broker linked — holdings stay manual until a feed connects.
             </p>
             <p className="mt-1 text-xs text-dim">

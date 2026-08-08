@@ -161,19 +161,19 @@ function Section({
   children?: ReactNode
 }) {
   return (
-    <section className="mt-10">
+    <section className="mt-9 sm:mt-11">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-label uppercase tracking-widest text-dim">
+        <div className="min-w-0">
+          <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-dim">
             {eyebrow}
           </p>
           {title && (
-            <h2 className="mt-1.5 font-serif text-2xl italic text-light">
+            <h2 className="mt-1.5 font-display text-xl tracking-tight text-light sm:text-2xl">
               {title}
             </h2>
           )}
           {caption && (
-            <p className="mt-1 max-w-xl text-xs leading-relaxed text-dim">
+            <p className="mt-1.5 max-w-xl text-xs leading-relaxed text-dim sm:text-[13px]">
               {caption}
             </p>
           )}
@@ -215,10 +215,10 @@ function SuggestedMove({
           transition={{ duration: 0.3, ease: 'easeOut' }}
           className="card-chrome card-hairline-top relative flex flex-col p-5 lg:col-span-2"
         >
-          <span className="w-fit rounded-full border border-cyan/35 bg-cyan/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-cyan">
+          <span className="w-fit rounded-full border border-cyan/35 bg-cyan/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-cyan">
             {NUDGE_KIND_LABEL[top.kind]}
           </span>
-          <h3 className="mt-3 font-serif text-2xl italic text-light">
+          <h3 className="mt-3 font-display text-2xl tracking-tight text-light">
             {top.title}
           </h3>
           <p className="mt-2 flex-1 text-sm leading-relaxed text-dim">
@@ -232,7 +232,7 @@ function SuggestedMove({
               onClick={() => onNavigateTab(top.actionTab)}
               className="mt-5 w-full rounded-xl bg-cyan px-4 py-2.5 text-sm font-semibold text-navy shadow-glow-cyan"
             >
-              {top.actionLabel} →
+              {top.actionLabel}
             </motion.button>
           )}
         </motion.article>
@@ -243,8 +243,8 @@ function SuggestedMove({
               key={nudge.id}
               className="card-chrome flex flex-1 flex-col p-4"
             >
-              <span className="w-fit rounded-full border border-white/[0.1] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-dim">
-                {NUDGE_KIND_LABEL[nudge.kind]} — {nudge.title}
+              <span className="w-fit rounded-full border border-white/[0.1] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-dim">
+                {NUDGE_KIND_LABEL[nudge.kind]} - {nudge.title}
               </span>
               <p className="mt-2 flex-1 text-xs leading-relaxed text-dim">
                 {nudge.body}

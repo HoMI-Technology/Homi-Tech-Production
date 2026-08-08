@@ -44,7 +44,7 @@ import {
 } from './wealth-derive'
 
 const inputCls =
-  'w-full rounded-xl border border-white/[0.08] bg-navyLight/80 px-3 py-2 text-sm text-light outline-none transition-colors focus:border-cyan/50'
+  'w-full rounded-xl border border-white/[0.08] bg-navy/70 px-3 py-2 text-sm text-light outline-none transition-colors placeholder:text-dim/60 focus:border-cyan/50'
 
 function Field({
   label,
@@ -383,15 +383,15 @@ export function PortfolioPanel() {
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-cyan/20 bg-cyan/10 text-cyan">
-            <LineChart size={16} />
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan/25 bg-cyan/10 text-cyan shadow-[inset_0_1px_0_rgba(34,211,238,0.2)]">
+            <LineChart size={16} aria-hidden />
           </span>
           <div>
-            <h3 className="text-base font-semibold text-light">
+            <h3 className="font-display text-lg tracking-tight text-light">
               Investment portfolio
             </h3>
             <p className="mt-0.5 max-w-md text-xs leading-relaxed text-dim">
-              Holdings, allocation, and unrealized gain — marked prices, not
+              Holdings, allocation, and unrealized gain - marked prices, not
               live market feeds.
             </p>
           </div>
@@ -516,7 +516,7 @@ export function PortfolioPanel() {
         )}
         {holdings.length === 0 && !formOpen && (
           <div className="rounded-2xl border border-dashed border-white/[0.12] px-4 py-8 text-center">
-            <p className="font-serif text-lg italic text-light/90">
+            <p className="font-display text-lg tracking-tight text-light/90">
               No holdings yet — add a position or link a broker.
             </p>
             <p className="mt-1 text-xs text-dim">

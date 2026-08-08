@@ -158,7 +158,7 @@ export default function PlanConsolidate() {
             />
             <div>
               <p className="text-label">BEST WAY OUT</p>
-              <p className="mt-1 font-serif text-[19px] italic leading-tight text-light">
+              <p className="mt-1 font-display text-[19px] italic leading-tight text-light">
                 {METHOD_COPY[recommendation.best]}
               </p>
               <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-dim">

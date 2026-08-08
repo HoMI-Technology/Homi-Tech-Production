@@ -106,7 +106,7 @@ export default function PlanHousing() {
         }
       />
 
-      <p className="mt-3 font-serif text-[16px] italic leading-snug text-light/90">
+      <p className="mt-3 font-display text-[16px] tracking-tight leading-snug text-light/90">
         {lens.headline}
       </p>
 

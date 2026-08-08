@@ -255,7 +255,9 @@ export function NetWorthPanel() {
             <Scale size={16} />
           </span>
           <div>
-            <h3 className="text-base font-semibold text-light">Net worth</h3>
+            <h3 className="font-display text-lg tracking-tight text-light">
+              Net worth
+            </h3>
             <p className="mt-0.5 max-w-md text-xs leading-relaxed text-dim">
               Cash + portfolio + other assets minus debts — same stack as HōMI
               Finance Command.
