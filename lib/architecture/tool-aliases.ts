@@ -37,6 +37,9 @@ export type CanonicalToolRoute = (typeof CANONICAL_TOOL_ROUTES)[number];
  */
 export const ADVISOR_TOOL_HANDOFF_PATHS: readonly string[] = [
   ...CANONICAL_TOOL_ROUTES,
+  "/money",
+  "/money/budget",
+  "/money/decide",
   "/finance",
   "/credit",
   "/assessment",
@@ -49,8 +52,9 @@ export function advisorToolHandoffLine(): string {
   const tools = CANONICAL_TOOL_ROUTES.join(", ");
   return (
     `Tool hand-offs: HōMI has real calculators you can point people to by path when they'd genuinely help — ` +
-    `${tools} — plus /finance (money dashboard), /credit (credit overview), /assessment (full assessment), ` +
-    `and /shadow-score (quick score). Mention a path only when it moves their actual question forward; ` +
-    `never more than one per reply, and never as a brush-off.`
+    `${tools} — plus /money (money picture), /money/budget (track), /money/decide (lens hub), ` +
+    `/credit (credit overview), /assessment (full assessment), and /shadow-score (quick score). ` +
+    `Mention a path only when it moves their actual question forward; never more than one per reply, ` +
+    `and never as a brush-off.`
   );
 }

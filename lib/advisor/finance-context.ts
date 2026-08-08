@@ -355,7 +355,7 @@ function buildNudges(signals: FinanceSignal[]): FinanceNudge[] {
       type: "spending",
       message:
         "You're going backwards each month. Pick the two biggest discretionary categories and pause them for 30 days — not forever, just long enough to stop the bleed.",
-      action: { label: "Review budget", href: "/finance" },
+      action: { label: "Review budget", href: "/money/budget" },
     });
   }
 

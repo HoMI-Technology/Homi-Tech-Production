@@ -34,7 +34,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/guides`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${base}/pricing`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${base}/status`, changeFrequency: "monthly", priority: 0.4 },
-    { url: `${base}/tools`, changeFrequency: "monthly", priority: 0.8 },
+    // Money Reality home (tools hub redirects here). Calculators stay under /tools/*.
+    { url: `${base}/money`, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${base}/money/decide`, changeFrequency: "monthly", priority: 0.75 },
     { url: `${base}/tools/preflight`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${base}/scenarios`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${base}/assessment`, changeFrequency: "monthly", priority: 0.7 },

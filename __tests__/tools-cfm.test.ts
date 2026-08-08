@@ -9,6 +9,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   buildCfm,
   deriveCfm,
+  deriveCfmFromLedger,
+  ledgerHasRealPicture,
   resolveCfmValue,
   cfmCoverage,
   loadToolsOverlay,
@@ -16,6 +18,12 @@ import {
   toolsOverlaySavedAt,
 } from "@/lib/tools/cfm";
 import { saveFinanceState, DEFAULT_FINANCE_STATE } from "@/lib/finance/store";
+import {
+  emptyBudgetLedger,
+  saveBudgetLedger,
+  addManualTransaction,
+  type BudgetLedgerState,
+} from "@/lib/finance/local-ledger";
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -34,6 +42,53 @@ describe("buildCfm", () => {
     // No overlay yet — lens fields are honestly missing, not invented.
     expect(cfm!.housing.targetPrice.source).toBe("missing");
     expect(cfm!.meta.savedAt).not.toBeNull();
+  });
+
+  it("prefers a real budget ledger over the legacy finance snapshot", () => {
+    saveFinanceState({ ...DEFAULT_FINANCE_STATE, monthlyIncome: 1000 });
+    const nowIso = "2026-08-08T12:00:00.000Z";
+    let ledger: BudgetLedgerState = emptyBudgetLedger(nowIso);
+    ledger = addManualTransaction(
+      ledger,
+      {
+        type: "income",
+        amountCents: 900_000,
+        description: "Paycheck",
+        categoryId: "cat-payroll",
+        transactionDate: "2026-08-01",
+      },
+      nowIso,
+    );
+    expect(saveBudgetLedger(ledger)).toBe(true);
+    expect(ledgerHasRealPicture(ledger)).toBe(true);
+
+    const cfm = buildCfm();
+    expect(cfm).not.toBeNull();
+    // $9,000 from ledger cents — not the $1,000 legacy snapshot.
+    expect(cfm!.core.monthlyIncome.value).toBe(9000);
+    expect(cfm!.core.monthlyIncome.source).toBe("self-reported");
+  });
+});
+
+describe("deriveCfmFromLedger", () => {
+  it("labels empty core fields missing and never invents debt", () => {
+    const nowIso = "2026-08-08T12:00:00.000Z";
+    let ledger = emptyBudgetLedger(nowIso);
+    ledger = addManualTransaction(
+      ledger,
+      {
+        type: "expense",
+        amountCents: 50_000,
+        description: "Groceries",
+        categoryId: "cat-groceries",
+        transactionDate: "2026-08-02",
+      },
+      nowIso,
+    );
+    const cfm = deriveCfmFromLedger(ledger, {}, nowIso, nowIso);
+    expect(cfm.core.monthlyExpenses.source).toBe("self-reported");
+    expect(cfm.core.monthlyExpenses.value).toBe(500);
+    expect(cfm.core.totalDebt.source).toBe("missing");
   });
 });
 

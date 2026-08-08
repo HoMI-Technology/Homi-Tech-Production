@@ -114,6 +114,11 @@ const nextConfig: NextConfig = {
       { source: "/family", destination: "/household#family", permanent: true },
       { source: "/blog", destination: "/guides", permanent: true },
       { source: "/learning", destination: "/guides", permanent: true },
+      // Money Reality unification (2026-08-08): finance + tools home → one surface.
+      // Individual /tools/* calculators stay live (public funnel + SEO).
+      { source: "/finance", destination: "/money", permanent: true },
+      { source: "/finance/:path*", destination: "/money", permanent: true },
+      { source: "/tools", destination: "/money/decide", permanent: true },
     ];
   },
   async headers() {

@@ -41,7 +41,9 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
   { href: "/dashboard", label: "Home", paletteLabel: "Dashboard", group: "Navigate", keywords: "home overview score", surfaces: { header: "primary", palette: true } },
   { href: "/agents", label: "Agents", paletteLabel: "AI Agents roster", group: "Act", keywords: "agent os ensemble homie scout", flag: "agentOs", surfaces: { header: "primary", palette: true } },
   { href: "/assessment", label: "Assess", paletteLabel: "Take the assessment", group: "Act", keywords: "readiness verdict full test measure", surfaces: { header: "primary", palette: true } },
-  { href: "/tools", label: "Tools", group: "Navigate", keywords: "calculators mortgage affordability money", surfaces: { header: "primary", palette: true } },
+  // Money Reality unification: one primary entry for picture + decision math.
+  // /tools stays public for the acquisition funnel; chrome points at /money.
+  { href: "/money", label: "Money", paletteLabel: "Money picture", group: "Navigate", keywords: "finance budget tools calculators mortgage affordability runway decide", surfaces: { header: "primary", palette: true } },
 
   // ── Palette-only quick actions (documented parity exceptions) ──
   { href: "/shadow-score", label: "Get a Shadow Score", group: "Act", keywords: "quick score fast read", surfaces: { palette: true } },
@@ -67,8 +69,10 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
   { href: "/trinity", label: "Trinity", group: "Navigate", keywords: "pillars balance", surfaces: { header: "more", palette: true } },
   { href: "/genome", label: "Genome", group: "Navigate", keywords: "psychology profile", surfaces: { header: "more", palette: true } },
 
-  // ── Header MORE: money + life ──
-  { href: "/finance", label: "Finance", group: "Navigate", keywords: "budget money numbers", surfaces: { header: "more", palette: true } },
+  // ── Header MORE: money modes + life ──
+  // Stand is primary (/money). Deep modes stay one click away under More.
+  { href: "/money/budget", label: "Budget", paletteLabel: "Money · Track", group: "Navigate", keywords: "budget ledger track transactions finance", surfaces: { header: "more", palette: true } },
+  { href: "/money/decide", label: "Decide", paletteLabel: "Money · Decide", group: "Navigate", keywords: "tools calculators lenses decision math", surfaces: { header: "more", palette: true } },
   { href: "/calendar", label: "Calendar", group: "Navigate", keywords: "milestones dates", surfaces: { header: "more", palette: true } },
   { href: "/daily", label: "Daily Check-in", paletteLabel: "Daily check-in", group: "Act", keywords: "mood stress pulse", surfaces: { header: "more", palette: true } },
   { href: "/credit", label: "Credit", group: "Navigate", keywords: "score report", surfaces: { header: "more", palette: true } },
