@@ -85,9 +85,9 @@ export function MoneyDecideHub() {
                   />
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-semibold text-light group-hover:text-cyan">{lens.name}</h3>
-                    {lens.gate === "plus" && (
+                    {lens.gate === "pro" && (
                       <span className="shrink-0 rounded-full border border-line px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-dim">
-                        Plus+
+                        Pro
                       </span>
                     )}
                   </div>

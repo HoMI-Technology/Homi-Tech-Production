@@ -7,14 +7,27 @@ import { COLORS, withAlpha } from "@/lib/brand";
  * Shared operate chrome for every calculator page.
  * Keeps hierarchy consistent: back link → eyebrow → title → thesis → body.
  * Do not invent per-tool page chrome — extend this shell instead.
+ *
+ * The back link defaults to the PUBLIC hub. All 15 lens pages are public
+ * (lib/auth/protected-routes.ts) and are indexed entry points from search, but
+ * this defaulted to /money/decide — which is auth-gated — so an anonymous
+ * visitor landing on /tools/runway and pressing back was bounced to a sign-in
+ * wall. A public surface must not route anonymous users into auth as its
+ * default affordance.
+ *
+ * Resolving this by session would mean a client-side auth check in a shell
+ * rendered by 15 "use client" pages, i.e. a hydration flash on every lens.
+ * /tools is reachable for everyone, so it is correct for both audiences;
+ * signed-in users still reach Money from primary chrome. Protected callers
+ * that want a different origin pass backHref explicitly (see /credit).
  */
 export function ToolShell({
   title,
   description,
   eyebrow = "Calculator",
   children,
-  backHref = "/money/decide",
-  backLabel = "Money · Decide",
+  backHref = "/tools",
+  backLabel = "All tools",
 }: {
   title: string;
   description: string;

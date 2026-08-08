@@ -102,7 +102,23 @@ export interface LensDefinition {
   desc: string;
   ring: LensRing;
   accent: string;
-  gate: "free" | "plus";
+  /**
+   * The tier that actually unlocks this lens — NOT a marketing label.
+   *
+   * "pro" means the lens page enforces the `advancedTools` capability
+   * (Pro+ per lib/entitlements.ts), either by wrapping AdvancedToolGate or by
+   * checking entitlements server-side. "free" means it enforces nothing.
+   *
+   * This previously read "free" | "plus" and was hand-maintained, so it drifted
+   * from what the pages do: 14 of 18 lenses declared the wrong tier — 8 badged
+   * "Plus+" while the wall was Pro, 5 badged paid while enforcing nothing, and
+   * the simulator badged free while gating on Pro. Badges built from this field
+   * were therefore promising access the tier did not grant.
+   *
+   * `__tests__/tools-gate-honesty.test.ts` reads each lens's page source and
+   * fails if this value disagrees with the enforcement actually present.
+   */
+  gate: "free" | "pro";
   inputs?: LensInputSpec[];
   chains?: LensChain[];
 }
@@ -145,7 +161,7 @@ export const LENSES: LensDefinition[] = [
     desc: "Move income, savings, and debt levers and watch readiness respond.",
     ring: "readiness",
     accent: "#22d3ee",
-    gate: "free",
+    gate: "pro",
   },
   {
     id: "preflight",
@@ -183,7 +199,7 @@ export const LENSES: LensDefinition[] = [
     desc: "Three honest comfort tiers — protected, stretch, and red line.",
     ring: "reality",
     accent: "#34d399",
-    gate: "plus",
+    gate: "free",
     inputs: [
       { key: "income", label: "Gross annual income", derive: annualIncome, fallback: 95000, min: 0, max: 500000, step: 1000, format: "currency" },
       { key: "debts", label: "Other monthly debts", cfmPath: "core.monthlyDebtPayments", fallback: 400, min: 0, max: 10000, step: 25, format: "currency" },
@@ -204,7 +220,7 @@ export const LENSES: LensDefinition[] = [
     desc: "Full monthly payment parts plus true cost over the life of the loan.",
     ring: "reality",
     accent: "#22d3ee",
-    gate: "plus",
+    gate: "pro",
     inputs: [
       { key: "price", label: "Home price", cfmPath: "housing.targetPrice", writeBack: "targetPrice", fallback: 400000, min: 100000, max: 1500000, step: 5000, format: "currency" },
       { key: "downPayment", label: "Down payment", cfmPath: "housing.downPaymentSaved", writeBack: "downPaymentSaved", fallback: 80000, min: 0, max: 1500000, step: 1000, format: "currency" },
@@ -225,7 +241,7 @@ export const LENSES: LensDefinition[] = [
     desc: "Five-year cost comparison where timing matters as much as math.",
     ring: "reality",
     accent: "#facc15",
-    gate: "plus",
+    gate: "free",
     inputs: [
       { key: "rent", label: "Monthly rent", cfmPath: "housing.currentRent", writeBack: "currentRent", fallback: 2200, min: 500, max: 8000, step: 50, format: "currency" },
       { key: "price", label: "Home price", cfmPath: "housing.targetPrice", writeBack: "targetPrice", fallback: 400000, min: 100000, max: 1500000, step: 5000, format: "currency" },
@@ -242,7 +258,7 @@ export const LENSES: LensDefinition[] = [
     desc: "How long it really takes at your actual savings rate.",
     ring: "reality",
     accent: "#22d3ee",
-    gate: "plus",
+    gate: "free",
     inputs: [
       { key: "price", label: "Target home price", cfmPath: "housing.targetPrice", writeBack: "targetPrice", fallback: 400000, min: 100000, max: 1500000, step: 5000, format: "currency" },
       { key: "saved", label: "Already saved", derive: downPaymentOrSavings, writeBack: "downPaymentSaved", fallback: 15000, min: 0, max: 200000, step: 500, format: "currency" },
@@ -259,7 +275,7 @@ export const LENSES: LensDefinition[] = [
     desc: "Borrowable equity after combined loan-to-value caps — not paper equity.",
     ring: "reality",
     accent: "#34d399",
-    gate: "plus",
+    gate: "pro",
     inputs: [
       { key: "homeValue", label: "Home value", cfmPath: "housing.homeValue", writeBack: "homeValue", fallback: 500000, min: 100000, max: 2000000, step: 5000, format: "currency" },
       { key: "mortgageBalance", label: "Mortgage balance", cfmPath: "housing.currentMortgageBalance", writeBack: "currentMortgageBalance", fallback: 280000, min: 0, max: 2000000, step: 5000, format: "currency" },
@@ -275,7 +291,7 @@ export const LENSES: LensDefinition[] = [
     desc: "When payment savings repay closing costs — and if you’ll still be there.",
     ring: "reality",
     accent: "#facc15",
-    gate: "plus",
+    gate: "pro",
     inputs: [
       { key: "balance", label: "Loan balance", cfmPath: "housing.currentMortgageBalance", writeBack: "currentMortgageBalance", fallback: 320000, min: 50000, max: 1500000, step: 5000, format: "currency" },
       { key: "currentRate", label: "Current rate", cfmPath: "housing.currentMortgageRatePct", writeBack: "currentMortgageRatePct", fallback: 7.5, min: 2, max: 12, step: 0.125, format: "percent" },
@@ -292,7 +308,7 @@ export const LENSES: LensDefinition[] = [
     desc: "Three offers ranked by cost-inclusive APR, not just the teaser rate.",
     ring: "reality",
     accent: "#22d3ee",
-    gate: "plus",
+    gate: "pro",
     inputs: [
       { key: "loan", label: "Loan amount", derive: loanFromOverlay, fallback: 400000, min: 50000, max: 1500000, step: 5000, format: "currency" },
       { key: "termYears", label: "Loan term", cfmPath: "housing.termYears", writeBack: "termYears", fallback: 30, min: 10, max: 30, step: 5, format: "years" },
@@ -308,7 +324,7 @@ export const LENSES: LensDefinition[] = [
     desc: "Conventional vs FHA vs VA after down payment, MI, and upfront fees.",
     ring: "reality",
     accent: "#34d399",
-    gate: "plus",
+    gate: "pro",
     inputs: [
       { key: "homePrice", label: "Home price", cfmPath: "housing.targetPrice", writeBack: "targetPrice", fallback: 400000, min: 100000, max: 1500000, step: 5000, format: "currency" },
       { key: "rate", label: "Interest rate", cfmPath: "housing.assumedRatePct", writeBack: "assumedRatePct", fallback: 6.5, min: 3, max: 10, step: 0.125, format: "percent" },
@@ -343,7 +359,7 @@ export const LENSES: LensDefinition[] = [
     desc: "Avalanche vs snowball side by side — interest cost, not slogans.",
     ring: "stability",
     accent: "#fab633",
-    gate: "plus",
+    gate: "pro",
     chains: [
       { lensId: "runway", pitch: "Watch runway grow as payments disappear", carry: [] },
     ],
@@ -355,7 +371,7 @@ export const LENSES: LensDefinition[] = [
     desc: "Plan honestly when exact numbers aren’t available yet.",
     ring: "stability",
     accent: "#facc15",
-    gate: "plus",
+    gate: "free",
     inputs: [
       { key: "incomeLow", label: "Monthly income (low)", derive: (cfm) => Math.round(cfm.core.monthlyIncome.value * 0.85), fallback: 4500, min: 0, max: 20000, step: 100, format: "currency" },
       { key: "incomeHigh", label: "Monthly income (high)", derive: (cfm) => Math.round(cfm.core.monthlyIncome.value * 1.15), fallback: 6000, min: 0, max: 20000, step: 100, format: "currency" },
@@ -374,7 +390,7 @@ export const LENSES: LensDefinition[] = [
     desc: "What you’d need invested to live on withdrawals — and coast progress.",
     ring: "timing",
     accent: "#34d399",
-    gate: "plus",
+    gate: "free",
     inputs: [
       { key: "annualExpenses", label: "Annual expenses", derive: (cfm) => monthlyOutflow(cfm) * 12, fallback: 48000, min: 12000, max: 200000, step: 1000, format: "currency" },
       { key: "currentSavings", label: "Current invested savings", derive: investedOrMissing, writeBack: "investedAssets", fallback: 85000, min: 0, max: 2000000, step: 1000, format: "currency" },
@@ -391,7 +407,7 @@ export const LENSES: LensDefinition[] = [
     desc: "1,000 simulated futures — markets don’t move in a straight line.",
     ring: "timing",
     accent: "#22d3ee",
-    gate: "plus",
+    gate: "pro",
     inputs: [
       { key: "currentSavings", label: "Current savings", derive: investedOrMissing, writeBack: "investedAssets", fallback: 20000, min: 0, max: 500000, step: 1000, format: "currency" },
       { key: "monthlyContribution", label: "Monthly contribution", derive: (cfm) => { const v = positiveCashFlow(cfm); return v !== undefined ? v : undefined; }, fallback: 600, min: 0, max: 10000, step: 50, format: "currency" },
@@ -409,7 +425,7 @@ export const LENSES: LensDefinition[] = [
     desc: "Tax cost today versus tax avoided later. Not a recommendation.",
     ring: "timing",
     accent: "#facc15",
-    gate: "plus",
+    gate: "pro",
     inputs: [
       { key: "currentBalance", label: "Current traditional balance", derive: investedOrMissing, writeBack: "investedAssets", fallback: 120000, min: 0, max: 1000000, step: 5000, format: "currency" },
     ],

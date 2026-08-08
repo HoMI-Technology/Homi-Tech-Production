@@ -76,7 +76,14 @@ export default function ToolsHubPage() {
                         background: `linear-gradient(90deg, transparent, ${lens.accent}88, transparent)`,
                       }}
                     />
-                    <h3 className="font-semibold text-light group-hover:text-cyan">{lens.name}</h3>
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="font-semibold text-light group-hover:text-cyan">{lens.name}</h3>
+                      {lens.gate === "pro" && (
+                        <span className="shrink-0 rounded-full border border-line px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-dim">
+                          Pro
+                        </span>
+                      )}
+                    </div>
                     <p className="mt-2 flex-1 text-sm leading-relaxed text-dim">{lens.desc}</p>
                     <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-cyan">
                       Open calculator
