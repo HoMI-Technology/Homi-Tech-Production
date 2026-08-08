@@ -19,42 +19,52 @@ export function NudgeRail({
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs uppercase tracking-wider text-dim">
-          ✦ Suggested move
+        <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-dim">
+          Suggested move
         </p>
-        <p className="text-xs text-dim">Protective nudges · not pressure tactics</p>
+        <p className="text-xs text-dim">Protective nudges · not pressure</p>
       </div>
-      <article className="rounded-xl border border-cyan/30 bg-cyan/5 p-4 sm:p-5">
-        {primary.chip && (
-          <p className="text-[10px] uppercase tracking-wide text-cyan">{primary.chip}</p>
-        )}
-        <h3 className="mt-1 font-display text-xl italic text-light">
+      <article className="relative overflow-hidden rounded-2xl border border-cyan/30 bg-gradient-to-br from-cyan/[0.12] via-cyan/[0.05] to-transparent p-5 shadow-[inset_0_1px_0_rgba(34,211,238,0.15)] sm:p-6">
+        <div
+          className="pointer-events-none absolute -right-8 -top-10 h-32 w-32 rounded-full bg-cyan/10 blur-2xl"
+          aria-hidden
+        />
+        {primary.chip ? (
+          <p className="relative text-[10px] font-bold uppercase tracking-[0.14em] text-cyan">
+            {primary.chip}
+          </p>
+        ) : null}
+        <h3 className="relative mt-1.5 font-display text-xl leading-snug tracking-tight text-light sm:text-2xl">
           {primary.title}
         </h3>
-        <p className="mt-2 text-sm text-dim">{primary.body}</p>
+        <p className="relative mt-2 max-w-2xl text-sm leading-relaxed text-dim">
+          {primary.body}
+        </p>
         <button
           type="button"
-          className="mt-4 w-full rounded-lg bg-cyan/20 py-2.5 text-sm font-medium text-cyan hover:bg-cyan/30 sm:w-auto sm:px-6"
+          className="relative mt-5 w-full rounded-xl bg-cyan/20 py-2.5 text-sm font-semibold text-cyan transition-colors hover:bg-cyan/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan sm:w-auto sm:px-7"
           onClick={() => onAction(primary)}
         >
-          {primary.actionLabel} →
+          {primary.actionLabel}
         </button>
       </article>
-      {secondary.length > 0 && (
+      {secondary.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2">
           {secondary.map((n) => (
             <article
               key={n.id}
-              className="rounded-xl border border-line bg-slate-surface/30 p-4"
+              className="rounded-2xl border border-white/[0.07] bg-slate-surface/30 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
             >
-              {n.chip && (
-                <p className="text-[10px] uppercase tracking-wide text-dim">{n.chip}</p>
-              )}
-              <h4 className="mt-1 text-sm font-medium text-light">{n.title}</h4>
-              <p className="mt-1 text-xs text-dim">{n.body}</p>
+              {n.chip ? (
+                <p className="text-[10px] font-bold uppercase tracking-wide text-dim">
+                  {n.chip}
+                </p>
+              ) : null}
+              <h4 className="mt-1 text-sm font-semibold text-light">{n.title}</h4>
+              <p className="mt-1.5 text-xs leading-relaxed text-dim">{n.body}</p>
               <button
                 type="button"
-                className="mt-2 text-xs text-cyan hover:underline"
+                className="mt-3 text-xs font-semibold text-cyan hover:text-cyan/80"
                 onClick={() => onAction(n)}
               >
                 {n.actionLabel}
@@ -62,7 +72,7 @@ export function NudgeRail({
             </article>
           ))}
         </div>
-      )}
+      ) : null}
     </section>
   );
 }

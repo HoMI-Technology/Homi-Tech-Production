@@ -116,24 +116,69 @@ export function ReadinessHero({
   const verdict: VerdictKey | null = score?.verdict ?? null;
   const meta = verdict ? VERDICT_META[verdict] : null;
 
+  const pillars = (
+    [
+      {
+        label: "Financial Reality",
+        short: "Financial",
+        pct: score?.pillarPct.financial ?? 0,
+        bar: "bg-cyan",
+        max: PILLAR_MAX_POINTS.financial,
+      },
+      {
+        label: "Emotional Truth",
+        short: "Emotional",
+        pct: score?.pillarPct.emotional ?? 0,
+        bar: "bg-emerald",
+        max: PILLAR_MAX_POINTS.emotional,
+      },
+      {
+        label: "Perfect Timing",
+        short: "Timing",
+        pct: score?.pillarPct.timing ?? 0,
+        bar: "bg-yellow",
+        max: PILLAR_MAX_POINTS.timing,
+      },
+    ] as const
+  );
+
   return (
-    <section className="glass rounded-xl border border-line p-5 sm:p-6">
-      <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+    <section className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-br from-slate-surface/55 via-navy-light/40 to-navy/60 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-7">
+      <div
+        className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-cyan/[0.07] blur-3xl"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -bottom-24 -left-10 h-48 w-48 rounded-full bg-emerald/[0.05] blur-3xl"
+        aria-hidden
+      />
+
+      <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-10">
         <div>
-          <p className="eyebrow text-cyan">HōMI-Score</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-[0.6875rem] font-bold uppercase tracking-[0.16em] text-cyan">
+              HōMI-Score
+            </p>
+            {completeness.canShowLiveScore && score ? (
+              <span className="rounded-full border border-white/10 bg-navy/50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-dim">
+                Live instrument
+              </span>
+            ) : null}
+          </div>
+
           {!completeness.canShowLiveScore ? (
-            <div className="mt-3 space-y-3">
-              <p className="font-display text-2xl italic text-light">
+            <div className="mt-4 space-y-4">
+              <p className="font-display text-2xl leading-snug tracking-tight text-light sm:text-3xl">
                 Set a decision profile for a live score
               </p>
-              <p className="text-sm text-dim">
-                Financial gauges below update from your numbers. Emotional Truth
-                and Timing need your profile so we never invent a credit band or
+              <p className="max-w-md text-sm leading-relaxed text-dim">
+                Financial gauges update from your numbers. Emotional Truth and
+                Timing need your profile so we never invent a credit band or
                 hard-stop.
               </p>
               <button
                 type="button"
-                className="rounded-lg bg-cyan/15 px-4 py-2 text-sm font-medium text-cyan hover:bg-cyan/25"
+                className="inline-flex rounded-xl bg-cyan/15 px-4 py-2.5 text-sm font-semibold text-cyan transition-colors hover:bg-cyan/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
                 onClick={() =>
                   setReadinessProfile({
                     profileComplete: true,
@@ -150,38 +195,40 @@ export function ReadinessHero({
               </button>
             </div>
           ) : scoring && !score ? (
-            <p className="mt-4 font-score text-5xl text-dim">…</p>
+            <p className="mt-6 font-score text-6xl tabular-nums text-dim/50">…</p>
           ) : score && meta ? (
             <>
-              <div className="mt-2 flex flex-wrap items-end gap-3">
-                <span className="font-score text-5xl tabular-nums text-light md:text-6xl">
+              <div className="mt-3 flex flex-wrap items-end gap-x-4 gap-y-2">
+                <span className="font-score text-6xl tabular-nums leading-none tracking-tight text-light md:text-7xl">
                   {score.score.toFixed(0)}
                 </span>
-                <span
-                  className={`rounded-full border px-3 py-1 text-xs font-medium ${meta.className}`}
-                >
-                  ✦ {meta.label}
-                </span>
+                <div className="mb-1.5 flex flex-col gap-1">
+                  <span
+                    className={`w-fit rounded-full border px-3 py-1 text-xs font-semibold tracking-wide ${meta.className}`}
+                  >
+                    {meta.label}
+                  </span>
+                  <span className="text-xs text-dim">of 100 · planner inputs</span>
+                </div>
               </div>
-              <p className="mt-1 text-sm text-dim">of 100 · live from your planner inputs</p>
-              <p className="mt-3 text-sm text-light/90">{score.keyInsight}</p>
-              <div className="mt-4 space-y-2">
-                {(
-                  [
-                    ["Financial", score.pillarPct.financial, PILLAR_MAX_POINTS.financial],
-                    ["Emotional", score.pillarPct.emotional, PILLAR_MAX_POINTS.emotional],
-                    ["Timing", score.pillarPct.timing, PILLAR_MAX_POINTS.timing],
-                  ] as const
-                ).map(([label, pct]) => (
-                  <div key={label}>
-                    <div className="mb-1 flex justify-between text-xs text-dim">
-                      <span>{label}</span>
-                      <span className="font-score">{pct}%</span>
+              <p className="mt-4 max-w-lg text-sm leading-relaxed text-light/90">
+                {score.keyInsight}
+              </p>
+              <div className="mt-6 space-y-3">
+                {pillars.map((p) => (
+                  <div key={p.short}>
+                    <div className="mb-1.5 flex justify-between text-xs">
+                      <span className="font-medium text-dim">{p.short}</span>
+                      <span className="font-score tabular-nums text-light/80">
+                        {p.pct}%
+                      </span>
                     </div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-slate-surface">
+                    <div className="h-2 overflow-hidden rounded-full bg-navy/80 ring-1 ring-white/[0.04]">
                       <div
-                        className="h-full rounded-full bg-cyan"
-                        style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
+                        className={`h-full rounded-full ${p.bar} transition-[width] duration-500 ease-out`}
+                        style={{
+                          width: `${Math.min(100, Math.max(0, p.pct))}%`,
+                        }}
                       />
                     </div>
                   </div>
@@ -189,13 +236,13 @@ export function ReadinessHero({
               </div>
             </>
           ) : (
-            <p className="mt-3 text-sm text-amber">
+            <p className="mt-4 text-sm text-amber">
               {scoreError ?? "Score unavailable. Try again in a moment."}
             </p>
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-2 sm:gap-3">
+        <div className="grid grid-cols-2 gap-2.5 content-start sm:gap-3">
           {[
             {
               label: "Cash flow",
@@ -230,7 +277,7 @@ export function ReadinessHero({
             {
               label: "Net worth",
               value: formatMoney(netWorth),
-              tone: "text-cyan",
+              tone: "text-light",
             },
             {
               label: "Bills open",
@@ -250,22 +297,24 @@ export function ReadinessHero({
           ].map((tile) => (
             <div
               key={tile.label}
-              className="rounded-lg border border-line/80 bg-navy/40 px-3 py-2"
+              className="rounded-xl border border-white/[0.06] bg-navy/55 px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-colors hover:border-cyan/20"
             >
-              <p className="text-[10px] uppercase tracking-wider text-dim">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-dim">
                 {tile.label}
               </p>
-              <p className={`font-score text-sm tabular-nums sm:text-base ${tile.tone}`}>
+              <p
+                className={`mt-1 font-score text-base tabular-nums tracking-tight sm:text-lg ${tile.tone}`}
+              >
                 {tile.value}
               </p>
             </div>
           ))}
         </div>
       </div>
-      <p className="mt-4 text-[11px] leading-relaxed text-dim">
-        Educational guidance only — not financial, legal, tax, or investment advice.
-        Live score is a planner instrument from your inputs; your official assessment
-        record lives on Results.
+      <p className="relative mt-6 border-t border-white/[0.06] pt-4 text-[11px] leading-relaxed text-dim">
+        Educational guidance only - not financial, legal, tax, or investment
+        advice. Live score is a planner instrument from your inputs; your
+        official assessment record lives on Results.
       </p>
     </section>
   );
