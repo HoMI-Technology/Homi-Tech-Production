@@ -6,6 +6,7 @@ import {
   waitlistConfirmation,
 } from "@/lib/email/templates";
 import { isUnsubscribed, listUnsubscribeHeaders } from "@/lib/email/unsubscribe";
+import { EMAIL_FROM } from "@/lib/email/from";
 import type { VerdictKey } from "@/lib/brand";
 
 export type EmailTemplate = "welcome" | "verdict" | "reassessment" | "outcome_survey" | "waitlist";
@@ -89,7 +90,7 @@ export async function sendTemplateEmail(options: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "HōMI <hello@homitechnology.com>",
+        from: EMAIL_FROM,
         to,
         subject: rendered.subject,
         html: rendered.html,
@@ -140,7 +141,7 @@ export async function deliverEmail(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "HōMI <hello@homitechnology.com>",
+        from: EMAIL_FROM,
         to,
         subject: rendered.subject,
         html: rendered.html,

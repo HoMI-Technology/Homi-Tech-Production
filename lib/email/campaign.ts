@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { campaignEmail } from "@/lib/email/templates";
 import { listUnsubscribeHeaders, unsubscribePageUrl } from "@/lib/email/unsubscribe";
+import { EMAIL_FROM } from "@/lib/email/from";
 
 /**
  * Broadcast campaign plumbing (Module C — /admin/email + /api/admin/campaigns).
@@ -174,7 +175,7 @@ async function sendBatch(
       },
       body: JSON.stringify(
         messages.map((m) => ({
-          from: "HōMI <hello@homitechnology.com>",
+          from: EMAIL_FROM,
           to: m.to,
           subject: m.subject,
           html: m.html,

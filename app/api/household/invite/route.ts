@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getClientIp, rateLimit } from "@/lib/ratelimit";
 import { env } from "@/lib/env";
 import { getUserEntitlements } from "@/lib/entitlements";
+import { EMAIL_FROM } from "@/lib/email/from";
 
 export const runtime = "nodejs";
 
@@ -126,7 +127,7 @@ export async function POST(request: Request) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            from: "HōMI <hello@homitechnology.com>",
+            from: EMAIL_FROM,
             to: invite.email,
             subject: "You're invited to a HōMI household",
             html: `<p>You've been invited to share Decision Readiness as a household on HōMI.</p>
