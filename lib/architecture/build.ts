@@ -124,7 +124,7 @@ function categorizePath(path: string): string {
   if (["/assessment", "/results", "/shadow-score", "/plan", "/report"].some((p) => path === p || path.startsWith(`${p}/`))) {
     return "Assessment";
   }
-  if (["/dashboard", "/settings", "/onboarding", "/finance", "/credit"].some((p) => path === p || path.startsWith(`${p}/`))) {
+  if (["/dashboard", "/settings", "/onboarding", "/money", "/credit"].some((p) => path === p || path.startsWith(`${p}/`))) {
     return "Dashboard";
   }
   if (["/", "/pricing", "/method", "/how-it-works", "/waitlist", "/learning", "/blog", "/guides", "/about"].includes(path)) {

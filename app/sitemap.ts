@@ -34,6 +34,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/guides`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${base}/pricing`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${base}/status`, changeFrequency: "monthly", priority: 0.4 },
+    // Money Reality (signed-in). Public tools hub remains crawlable.
+    { url: `${base}/money`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${base}/tools`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${base}/tools/preflight`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${base}/scenarios`, changeFrequency: "monthly", priority: 0.6 },

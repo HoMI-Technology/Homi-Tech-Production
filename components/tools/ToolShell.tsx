@@ -13,8 +13,8 @@ export function ToolShell({
   description,
   eyebrow = "Calculator",
   children,
-  backHref = "/tools",
-  backLabel = "All tools",
+  backHref = "/money/decide",
+  backLabel = "Money · Decide",
 }: {
   title: string;
   description: string;
@@ -35,7 +35,7 @@ export function ToolShell({
         {backLabel}
       </Link>
 
-      <p className="eyebrow mt-5">{eyebrow}</p>
+      <p className="eyebrow mt-5">{eyebrow === "Calculator" ? "Money · lens" : eyebrow}</p>
       <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">{title}</h1>
       <p className="mt-2 max-w-2xl text-dim">{description}</p>
 

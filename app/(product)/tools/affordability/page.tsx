@@ -17,6 +17,7 @@ import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readin
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { useReadinessAnchors } from "@/hooks/use-readiness";
 import { ToolShell } from "@/components/tools/ToolShell";
+import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 
 const LENS = getLens("affordability")!;
 
@@ -26,7 +27,7 @@ const TIERS = [
   { key: "redLine" as const, label: "Red Line", ratio: "36%", color: COLORS.crimson, className: "bg-verdict-notyet" },
 ];
 
-export default function AffordabilityPage() {
+function AffordabilityPageInner() {
   const [income, setIncome] = useState(95000);
   const [debts, setDebts] = useState(400);
   const [rate, setRate] = useState(6.5);
@@ -197,5 +198,13 @@ function BarRow({ label, value, max, color }: { label: string; value: number; ma
         <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
       </div>
     </div>
+  );
+}
+
+export default function AffordabilityPage() {
+  return (
+    <AdvancedToolGate>
+      <AffordabilityPageInner />
+    </AdvancedToolGate>
   );
 }

@@ -20,16 +20,22 @@ export default function ToolsHubPage() {
     <div className="mx-auto max-w-6xl px-6 py-10 sm:py-12">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="eyebrow">Decision math</p>
+          <p className="eyebrow">Decision math · public</p>
           <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">Tools</h1>
           <p className="mt-2 max-w-2xl text-dim">
             No hype, no black boxes — the math behind decisions that matter, laid out plainly.
-            {` ${LENSES.length} calculators,`} all wired to your saved numbers. Educational guidance only.
+            {` ${LENSES.length} calculators.`} Sign in to seed them from your Money picture.
+            Educational guidance only.
           </p>
         </div>
-        <Link href="/scenarios" className="text-sm font-medium text-cyan hover:underline">
-          Scenario studio →
-        </Link>
+        <div className="flex flex-col items-end gap-2">
+          <Link href="/money" className="text-sm font-medium text-cyan hover:underline">
+            Open Money picture →
+          </Link>
+          <Link href="/scenarios" className="text-sm font-medium text-dim hover:text-cyan hover:underline">
+            Scenario studio →
+          </Link>
+        </div>
       </div>
 
       <div className="mt-10 space-y-14">

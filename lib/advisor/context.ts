@@ -3,7 +3,7 @@
  * Used by the full-page Chat and the CompanionWidget so every Companion
  * surface stays in sync about what the Companion knows: the user's
  * assessment (score/verdict/pillars/hard stops), their live money picture
- * from the Finance Command dashboard, and which part of HōMI they're
+ * from the Money picture, and which part of HōMI they're
  * standing in right now.
  */
 
@@ -73,7 +73,7 @@ export function buildAssessmentContext(): AdvisorAssessmentContext | undefined {
 }
 
 /**
- * The user's money picture, derived from the Finance Command dashboard.
+ * The user's money picture, derived from the Money picture.
  * Returns undefined until the user has actually saved finance data — the
  * store's placeholder defaults must never be quoted back as "your numbers".
  */
@@ -121,7 +121,7 @@ const SURFACE_LABELS: Array<[prefix: string, label: string]> = [
   ["/tools/runway", "the runway calculator"],
   ["/tools/blind-budget", "the blind budget exercise"],
   ["/tools", "the financial tools hub"],
-  ["/finance", "the Finance Command dashboard"],
+  ["/money", "the Money picture"],
   ["/credit", "the credit overview"],
   ["/connections", "the bank connections page"],
   ["/genome", "their behavioral genome"],

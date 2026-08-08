@@ -38,6 +38,8 @@ import { isValidCents, type MoneyCents } from "@/lib/finance/money";
 import { seedLedgerFromLegacyIfEmpty } from "@/lib/finance/migrate-from-legacy";
 
 export const BUDGET_LEDGER_STORAGE_KEY = "homi:budget-ledger";
+/** ms-epoch of last successful local write — freshness for CFM / Stand. */
+export const BUDGET_LEDGER_STAMP_KEY = "homi:budget-ledger:updated-at";
 /** Unreadable blobs are moved here, never destroyed. */
 const CORRUPT_BACKUP_KEY = "homi:budget-ledger:corrupt-backup";
 
@@ -265,9 +267,32 @@ export function saveBudgetLedger(state: BudgetLedgerState): boolean {
   if (typeof window === "undefined") return false;
   try {
     window.localStorage.setItem(BUDGET_LEDGER_STORAGE_KEY, JSON.stringify(state));
+    window.localStorage.setItem(BUDGET_LEDGER_STAMP_KEY, String(Date.now()));
     return true;
   } catch {
     return false;
+  }
+}
+
+/**
+ * Phase-1 dual-write helper: call after saveBudgetLedger succeeds.
+ * Implemented in migrate-from-legacy to avoid circular imports.
+ */
+export type DualWriteLegacyFn = (state: BudgetLedgerState) => void;
+
+/**
+ * ISO timestamp of the last local ledger write, or null when never saved.
+ * Never uses "now" at read time — that would fake freshness.
+ */
+export function budgetLedgerSavedAt(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const stamp = window.localStorage.getItem(BUDGET_LEDGER_STAMP_KEY);
+    if (!stamp) return null;
+    const ms = Number.parseInt(stamp, 10);
+    return Number.isFinite(ms) && ms > 0 ? new Date(ms).toISOString() : null;
+  } catch {
+    return null;
   }
 }
 

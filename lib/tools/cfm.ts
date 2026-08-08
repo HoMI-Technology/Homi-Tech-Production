@@ -1,26 +1,25 @@
 /**
- * Canonical Financial Model (CFM) — Decision Lab Phase 1.
+ * Canonical Financial Model (CFM) — Money Reality spine.
  *
  * One shared, source-labeled view of the user's numbers that every lens
- * (calculator) reads from, instead of each page inventing its own slider
- * defaults. The CFM is a VIEW, not a second database: core money fields
- * derive from the finance store (lib/finance/store.ts) and lens-specific
- * fields live in a thin overlay record ("homi:tools-state") that lenses
- * write back to only when the user explicitly asks ("update my numbers").
+ * (calculator) reads from. The CFM is a VIEW, not a second database:
+ *
+ *   1. Budget ledger (cents) — preferred SoT when the user has real ledger data
+ *   2. Legacy finance snapshot (dollars) — fallback during dual-path migration
+ *   3. Decision overlay ("homi:tools-state") — price/rate/rent etc., write-back
+ *      only on explicit user action ("update my numbers")
  *
  * Honesty contract (same doctrine as the Companion context spine):
- * - The CFM exists only when the user has actually saved finance data
- *   (hasSavedFinanceState). Illustrative defaults are never presented as
- *   the user's numbers.
+ * - The CFM exists only when the user has actually saved money data.
+ *   Illustrative defaults are never presented as the user's numbers.
  * - Every field carries a source label:
- *     self-reported — entered on the finance dashboard
+ *     self-reported — entered on Money (ledger or legacy snapshot)
  *     lens-derived  — captured inside a tool, with the user's consent
  *     missing       — a first-class signal; never imputed
- * - Freshness travels with the model via financeSavedAt().
+ * - Freshness travels with the model via meta.savedAt.
  *
  * SSR-safe: all storage access is window-guarded, mirroring store.ts.
- * The pure derivation core (deriveCfm) takes plain objects so it can be
- * unit-tested without localStorage.
+ * Pure derivation cores take plain objects so they unit-test without storage.
  */
 
 import {
@@ -33,6 +32,16 @@ import {
   debtToIncome,
   type FinanceState,
 } from "@/lib/finance/store";
+import {
+  activeGoal,
+  budgetLedgerSavedAt,
+  hasSavedBudgetLedger,
+  loadBudgetLedger,
+  type BudgetLedgerState,
+} from "@/lib/finance/local-ledger";
+import { metricsFromLedger, type LiquidSource } from "@/lib/finance/metrics";
+import type { FinanceCompleteness } from "@/lib/finance/readiness-snapshot";
+import { centsToDollars } from "@/lib/finance/money";
 import { createSyncedResource, type Stamped } from "@/lib/persistence";
 
 // ---------------------------------------------------------------------------
@@ -97,8 +106,14 @@ export interface CanonicalFinancialModel {
     dtiPct: number;
   };
   meta: {
-    /** ISO timestamp of the underlying finance save, or null if unknown. */
+    /** ISO timestamp of the underlying money save — never "now" at read. */
     savedAt: string | null;
+    /** ledger preferred; legacy fallback during migration. */
+    source?: "ledger" | "legacy";
+    completeness?: FinanceCompleteness;
+    liquidSource?: LiquidSource;
+    /** True when debt service was observed; false means DTI is not trustworthy. */
+    hasDebtSignal?: boolean;
   };
 }
 
@@ -118,8 +133,20 @@ function overlayField(value: number | undefined): SourcedNumber {
 }
 
 /**
- * Builds the CFM from a finance state and a tools overlay. Pure — the
- * storage-reading wrapper is buildCfm().
+ * True when the ledger holds a real money picture (not just seeded categories).
+ * Pure — used by CFM honesty gates and Money Stand empty states.
+ */
+export function ledgerHasRealPicture(state: BudgetLedgerState): boolean {
+  return (
+    state.transactions.length > 0 ||
+    state.periods.length > 0 ||
+    activeGoal(state) !== null
+  );
+}
+
+/**
+ * Builds the CFM from a legacy finance snapshot and a tools overlay. Pure —
+ * storage-reading wrappers live in buildCfm().
  */
 export function deriveCfm(
   finance: FinanceState,
@@ -129,6 +156,8 @@ export function deriveCfm(
   const investedFromAssets = finance.assets
     .filter((a) => /retire|invest|brokerage|401|ira/i.test(a.name))
     .reduce((s, a) => s + a.amount, 0);
+
+  const ncf = netCashFlow(finance);
 
   return {
     core: {
@@ -155,19 +184,104 @@ export function deriveCfm(
         overlay.investedAssets ?? (investedFromAssets > 0 ? investedFromAssets : undefined),
       ),
       annualContribution: overlayField(
-        overlay.annualContribution ??
-          (netCashFlow(finance) > 0 ? Math.round(netCashFlow(finance) * 12) : undefined),
+        overlay.annualContribution ?? (ncf > 0 ? Math.round(ncf * 12) : undefined),
       ),
       expectedReturnPct: sourced(finance.expectedReturnPct, "self-reported"),
       volatilityPct: sourced(finance.volatilityPct, "self-reported"),
     },
     derived: {
-      netCashFlow: netCashFlow(finance),
+      netCashFlow: ncf,
       savingsRatePct: savingsRate(finance),
       runwayMonths: runwayMonths(finance),
       dtiPct: debtToIncome(finance),
     },
-    meta: { savedAt },
+    meta: {
+      savedAt,
+      source: "legacy",
+      completeness: "low",
+      liquidSource: finance.liquidSavings > 0 ? "legacy_snapshot" : "missing",
+      hasDebtSignal: finance.monthlyDebtPayments > 0 || finance.totalDebt > 0,
+    },
+  };
+}
+
+/**
+ * Builds the CFM from the budget ledger (Money Reality SoT). Pure.
+ * Named metrics come from lib/finance/metrics.ts so Stand and lenses agree.
+ * Missing ledger signals stay `missing` — never imputed as zero debt/DTI.
+ */
+export function deriveCfmFromLedger(
+  state: BudgetLedgerState,
+  overlay: ToolsOverlay,
+  nowIso: string,
+  savedAt: string | null,
+): CanonicalFinancialModel {
+  const metrics = metricsFromLedger(state, nowIso, savedAt);
+  const goal = activeGoal(state);
+  const s = metrics.surplus;
+
+  const monthlyIncome = s.incomeDollars > 0 ? s.incomeDollars : undefined;
+  const monthlyExpenses =
+    metrics.evidence.hasExpenses || s.expenseDollars > 0 ? s.expenseDollars : undefined;
+  // Only surface debt payments when we observed the debt category — else missing.
+  const monthlyDebtPayments = metrics.evidence.hasDebtSignal
+    ? s.debtPaymentDollars
+    : undefined;
+  const liquidSavings =
+    metrics.runway.liquidDollars !== null && metrics.runway.liquidDollars > 0
+      ? metrics.runway.liquidDollars
+      : undefined;
+
+  const ncf = s.dollars;
+  const homeGoalSeed =
+    goal?.goalType === "home" && goal.currentAmountCents > 0
+      ? centsToDollars(goal.currentAmountCents)
+      : undefined;
+
+  return {
+    core: {
+      monthlyIncome: sourced(monthlyIncome, "self-reported"),
+      monthlyExpenses: sourced(monthlyExpenses, "self-reported"),
+      monthlyDebtPayments: sourced(monthlyDebtPayments, "self-reported"),
+      liquidSavings: sourced(liquidSavings, "self-reported"),
+      // v1 ledger has no liability register — honest missing, not fake $0.
+      totalDebt: sourced(undefined, "self-reported"),
+    },
+    housing: {
+      targetPrice: overlayField(overlay.targetPrice),
+      downPaymentSaved: overlayField(overlay.downPaymentSaved ?? homeGoalSeed),
+      currentRent: overlayField(overlay.currentRent),
+      assumedRatePct: overlayField(overlay.assumedRatePct),
+      termYears: overlayField(overlay.termYears),
+      taxInsuranceRatePct: overlayField(overlay.taxInsuranceRatePct),
+      hoaMonthly: overlayField(overlay.hoaMonthly),
+      homeValue: overlayField(overlay.homeValue),
+      currentMortgageBalance: overlayField(overlay.currentMortgageBalance),
+      currentMortgageRatePct: overlayField(overlay.currentMortgageRatePct),
+    },
+    horizon: {
+      investedAssets: overlayField(overlay.investedAssets),
+      annualContribution: overlayField(
+        overlay.annualContribution ?? (ncf > 0 ? Math.round(ncf * 12) : undefined),
+      ),
+      expectedReturnPct: sourced(undefined, "self-reported"),
+      volatilityPct: sourced(undefined, "self-reported"),
+    },
+    derived: {
+      netCashFlow: ncf,
+      savingsRatePct: metrics.savingsRatePct ?? 0,
+      // null runway stays 0 for legacy numeric consumers; meta.liquidSource tells truth.
+      runwayMonths: metrics.runway.months ?? 0,
+      // null DTI stays 0 only when debt unknown — hasDebtSignal is the honesty gate.
+      dtiPct: metrics.dti.pct ?? 0,
+    },
+    meta: {
+      savedAt,
+      source: "ledger",
+      completeness: metrics.evidence.completeness,
+      liquidSource: metrics.evidence.liquidSource,
+      hasDebtSignal: metrics.evidence.hasDebtSignal,
+    },
   };
 }
 
@@ -308,12 +422,24 @@ export async function pullToolsOverlay(): Promise<ToolsOverlay | null> {
 
 /**
  * Builds the CFM from local storage, or null when the user has never saved
- * finance data. Null is the honesty gate: callers must fall back to
- * illustrative defaults and must not speak in the user's voice.
+ * money data. Prefers the budget ledger (Money Reality SoT); falls back to
+ * the legacy finance snapshot. Null is the honesty gate: callers must fall
+ * back to illustrative defaults and must not speak in the user's voice.
  */
 export function buildCfm(): CanonicalFinancialModel | null {
+  const overlay = loadToolsOverlay();
+  const nowIso = new Date().toISOString();
+
+  if (hasSavedBudgetLedger()) {
+    const ledger = loadBudgetLedger(nowIso);
+    if (ledgerHasRealPicture(ledger)) {
+      // Freshness from last write stamp — never Date.now() at read.
+      return deriveCfmFromLedger(ledger, overlay, nowIso, budgetLedgerSavedAt());
+    }
+  }
+
   if (!hasSavedFinanceState()) return null;
-  return deriveCfm(loadFinanceState(), loadToolsOverlay(), financeSavedAt());
+  return deriveCfm(loadFinanceState(), overlay, financeSavedAt());
 }
 
 /**
@@ -323,9 +449,10 @@ export function buildCfm(): CanonicalFinancialModel | null {
  * use this; anything user-facing should prefer buildCfm() and branch on null.
  */
 export function buildCfmOrDefaults(): { cfm: CanonicalFinancialModel; real: boolean } {
-  const real = hasSavedFinanceState();
+  const built = buildCfm();
+  if (built) return { cfm: built, real: true };
   return {
-    cfm: deriveCfm(loadFinanceState(), loadToolsOverlay(), real ? financeSavedAt() : null),
-    real,
+    cfm: deriveCfm(loadFinanceState(), loadToolsOverlay(), null),
+    real: false,
   };
 }

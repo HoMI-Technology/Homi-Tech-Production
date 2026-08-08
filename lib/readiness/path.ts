@@ -327,7 +327,7 @@ function cashFlowStep(daysFromNow: number, idFactory: () => string): PathStep {
     kind: "deadline",
     daysFromNow,
     reasonCode: "NEGATIVE_CASHFLOW",
-    href: "/finance",
+    href: "/money",
     notes:
       "Your saved finance picture shows more leaving than entering each month. " +
       "Path to Ready parks house-hunting milestones until monthly surplus is ≥ $0. " +
@@ -467,7 +467,7 @@ function pillarSteps(
         title: "Raise savings rate toward 15–20% of income",
         kind: "milestone",
         reasonCode: "PILLAR_TIMING",
-        href: "/finance",
+        href: "/money",
         notes:
           "Timing follows momentum. Savings rate is the lever that moves purchase readiness. " +
           PATH_DISCLAIMER,

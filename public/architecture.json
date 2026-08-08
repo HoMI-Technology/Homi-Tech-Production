@@ -1,7 +1,7 @@
 {
   "_meta": {
     "version": "v1",
-    "generated": "2026-08-05",
+    "generated": "2026-08-08",
     "product": "HōMI",
     "full_name": "HOMI TECHNOLOGIES LLC — Decision Readiness Intelligence™",
     "domain": "homitechnology.com",
@@ -13,9 +13,9 @@
     "authority": "Executable TypeScript in this repo wins over this document. Prefer lib/scoring, lib/brand, lib/agents/registry on conflict."
   },
   "stats": {
-    "product_routes": 94,
+    "product_routes": 98,
     "api_routes": 27,
-    "component_directories": 33,
+    "component_directories": 34,
     "lib_modules": 47,
     "db_tables": 37,
     "migrations": 51,
@@ -307,7 +307,7 @@
     {
       "path": "/finance",
       "name": "Finance",
-      "category": "Dashboard",
+      "category": "Product",
       "status": "complete",
       "features": [],
       "file": "app/(product)/finance/page.tsx"
@@ -439,6 +439,38 @@
       "status": "complete",
       "features": [],
       "file": "app/(marketing)/method/page.tsx"
+    },
+    {
+      "path": "/money",
+      "name": "Money",
+      "category": "Dashboard",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/money/page.tsx"
+    },
+    {
+      "path": "/money/budget",
+      "name": "Budget",
+      "category": "Dashboard",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/money/budget/page.tsx"
+    },
+    {
+      "path": "/money/decide",
+      "name": "Decide",
+      "category": "Dashboard",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/money/decide/page.tsx"
+    },
+    {
+      "path": "/money/plan",
+      "name": "Plan",
+      "category": "Dashboard",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/money/plan/page.tsx"
     },
     {
       "path": "/onboarding",
@@ -1129,6 +1161,17 @@
       ]
     },
     {
+      "name": "money",
+      "count": 4,
+      "description": "money UI module",
+      "examples": [
+        "MoneyDecideHub",
+        "MoneyModeNav",
+        "MoneyShell",
+        "MoneyStand"
+      ]
+    },
+    {
       "name": "operate",
       "count": 6,
       "description": "operate UI module",
@@ -1142,7 +1185,7 @@
     },
     {
       "name": "planner",
-      "count": 36,
+      "count": 37,
       "description": "planner UI module",
       "examples": [
         "banking-derive",

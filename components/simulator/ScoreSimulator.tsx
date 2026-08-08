@@ -104,7 +104,7 @@ export function ScoreSimulator({
             Connect a bank
           </Link>{" "}
           or fill in the{" "}
-          <Link href="/finance" className="text-cyan underline underline-offset-2">
+          <Link href="/money" className="text-cyan underline underline-offset-2">
             Finance dashboard
           </Link>{" "}
           for a real baseline, or just type your numbers below.
@@ -278,7 +278,7 @@ export function ScoreSimulator({
                 Monthly debt payments aren&apos;t in your synced data, so they&apos;re estimated at{" "}
                 {Math.round(ESTIMATED_DEBT_PAYMENT_RATE * 100)}% of your debt balance (
                 {formatCurrency(simulated.monthlyDebtPayments)}/mo). Enter actual payments on the{" "}
-                <Link href="/finance" className="text-cyan underline underline-offset-2">
+                <Link href="/money" className="text-cyan underline underline-offset-2">
                   Finance dashboard
                 </Link>{" "}
                 for a sharper read.

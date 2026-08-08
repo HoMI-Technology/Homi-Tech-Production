@@ -13,10 +13,11 @@ import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
 import { getLens } from "@/lib/tools/registry";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { ToolShell, ToolResultHero, ToolMetric } from "@/components/tools/ToolShell";
+import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 
 const LENS = getLens("fire")!;
 
-export default function FirePage() {
+function FirePageInner() {
   const [annualExpenses, setAnnualExpenses] = useState(48000);
   const [swrPercent, setSwrPercent] = useState(4);
   const [currentAge, setCurrentAge] = useState(32);
@@ -148,5 +149,13 @@ export default function FirePage() {
         </div>
       </div>
     </ToolShell>
+  );
+}
+
+export default function FirePage() {
+  return (
+    <AdvancedToolGate>
+      <FirePageInner />
+    </AdvancedToolGate>
   );
 }
