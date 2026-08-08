@@ -1,71 +1,15 @@
 import Link from "next/link";
 import { COLORS, withAlpha } from "@/lib/brand";
-import { LENSES, type LensDefinition, type LensRing } from "@/lib/tools/registry";
+import { DECIDE_JOBS, lensesForJob } from "@/lib/money/decide-jobs";
 
 /**
  * Decide hub — decision jobs, not a calculator mall.
  * Lenses still live at /tools/* (public funnel + SEO); this is the Money home for them.
+ *
+ * Job membership is derived from the lens registry in lib/money/decide-jobs.ts —
+ * never listed here. Hand-listing ids let a new lens ship to /tools while going
+ * missing from this hub; __tests__/money-decide-jobs.test.ts guards the partition.
  */
-
-type JobId = "housing" | "stability" | "horizon" | "readiness";
-
-const JOBS: {
-  id: JobId;
-  title: string;
-  subtitle: string;
-  accent: string;
-  rings?: LensRing[];
-  ids?: string[];
-}[] = [
-  {
-    id: "housing",
-    title: "Housing decision",
-    subtitle: "What you can carry — not just what a lender will approve.",
-    accent: COLORS.cyan,
-    ids: [
-      "affordability",
-      "mortgage",
-      "rent-vs-buy",
-      "down-payment",
-      "heloc",
-      "refinance",
-      "loan-programs",
-      "apr-compare",
-    ],
-  },
-  {
-    id: "stability",
-    title: "Stability",
-    subtitle: "Shock absorption before the leap.",
-    accent: COLORS.emerald,
-    ids: ["runway", "debt-payoff", "blind-budget"],
-  },
-  {
-    id: "horizon",
-    title: "Horizon",
-    subtitle: "Independence and path risk — educational, not advice.",
-    accent: COLORS.yellow,
-    ids: ["fire", "monte-carlo", "roth-conversion"],
-  },
-  {
-    id: "readiness",
-    title: "Readiness probes",
-    subtitle: "Same engine as the assessment — explore levers without a full retest.",
-    accent: COLORS.cyan,
-    rings: ["readiness"],
-  },
-];
-
-function lensesForJob(job: (typeof JOBS)[number]): LensDefinition[] {
-  if (job.ids) {
-    const byId = new Map(LENSES.map((l) => [l.id, l]));
-    return job.ids.map((id) => byId.get(id)).filter((l): l is LensDefinition => Boolean(l));
-  }
-  if (job.rings) {
-    return LENSES.filter((l) => job.rings!.includes(l.ring));
-  }
-  return [];
-}
 
 export function MoneyDecideHub() {
   return (
@@ -103,7 +47,7 @@ export function MoneyDecideHub() {
         </div>
       </div>
 
-      {JOBS.map((job) => {
+      {DECIDE_JOBS.map((job) => {
         const lenses = lensesForJob(job);
         if (lenses.length === 0) return null;
         return (
