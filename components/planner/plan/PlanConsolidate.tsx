@@ -106,7 +106,7 @@ export default function PlanConsolidate() {
 
   if (debts.length === 0) {
     return (
-      <section className="card-chrome card-hairline-top p-5 sm:p-6">
+      <section className="glass p-5 sm:p-6">
         <PlanSectionHeader
           eyebrow="CONSOLIDATE LAB"
           title="One loan, one payment"
@@ -134,7 +134,7 @@ export default function PlanConsolidate() {
   const eligible = recommendation?.consolidationEligible ?? false;
 
   return (
-    <section className="card-chrome card-hairline-top p-5 sm:p-6">
+    <section className="glass p-5 sm:p-6">
       <PlanSectionHeader
         eyebrow="CONSOLIDATE LAB"
         title="One loan, one payment"
@@ -321,10 +321,10 @@ export default function PlanConsolidate() {
                       </span>
                     )}
                   </span>
-                  <span className="text-right font-display text-[13px] text-light tnum">
+                  <span className="text-right text-[13px] text-light score-numeral">
                     {formatCurrency(m.totalPaid)}
                   </span>
-                  <span className="text-right text-[12px] text-dim tnum">
+                  <span className="text-right text-[12px] text-dim score-numeral">
                     {formatMonths(m.months)}
                   </span>
                 </div>

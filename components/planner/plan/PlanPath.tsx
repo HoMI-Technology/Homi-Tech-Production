@@ -52,7 +52,7 @@ export default function PlanPath() {
 
   if (!path) {
     return (
-      <section className="card-chrome card-hairline-top p-5 sm:p-6">
+      <section className="glass p-5 sm:p-6">
         <PlanSectionHeader
           eyebrow="PATH TO READY"
           title="Turn live numbers into sequenced moves"
@@ -75,7 +75,7 @@ export default function PlanPath() {
   const createdDate = path.createdAt.slice(0, 10)
 
   return (
-    <section className="card-chrome card-hairline-top p-5 sm:p-6">
+    <section className="glass p-5 sm:p-6">
       <PlanSectionHeader
         eyebrow="PATH TO READY"
         title="Turn live numbers into sequenced moves"

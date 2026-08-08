@@ -90,7 +90,7 @@ export default function PlanDebt() {
     setDebts(debts.filter((d) => d.id !== id))
 
   return (
-    <section className="card-chrome card-hairline-top p-5 sm:p-6">
+    <section className="glass p-5 sm:p-6">
       <PlanSectionHeader
         eyebrow="DEBT LAB"
         title="Avalanche vs snowball"

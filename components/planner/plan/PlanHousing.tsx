@@ -92,7 +92,7 @@ export default function PlanHousing() {
   const chip = VERDICT_CHIP[lens.verdict]
 
   return (
-    <section className="card-chrome card-hairline-top p-5 sm:p-6">
+    <section className="glass p-5 sm:p-6">
       <PlanSectionHeader
         eyebrow="HOUSING LENS"
         title="Rent vs buy"

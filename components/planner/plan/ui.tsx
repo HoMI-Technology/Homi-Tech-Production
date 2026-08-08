@@ -81,7 +81,7 @@ export function PlanTile({
     <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-3.5 py-3">
       <p className="text-label">{label}</p>
       <p
-        className={`mt-1.5 font-display text-[17px] font-semibold tracking-[-0.01em] tnum ${toneClass}`}
+        className={`mt-1.5 text-[17px] font-semibold tracking-[-0.01em] score-numeral ${toneClass}`}
       >
         {value}
       </p>

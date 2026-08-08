@@ -262,18 +262,18 @@ function HoldingRow({
       </div>
       <div className="flex shrink-0 items-center gap-2.5">
         <div className="text-right">
-          <p className="font-display text-base font-semibold tnum text-light">
+          <p className="text-base font-semibold score-numeral text-light">
             {formatCurrency(marketValue, { decimals: 2 })}
           </p>
           <p
-            className={`mt-0.5 inline-flex items-center gap-1 font-display text-xs tnum ${
+            className={`mt-0.5 inline-flex items-center gap-1 text-xs score-numeral ${
               up ? 'text-emerald' : 'text-crimson'
             }`}
           >
             {up ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
             {formatSignedGain(gain, gainPct)}
           </p>
-          <p className="mt-0.5 font-display text-xs tnum text-cyan">
+          <p className="mt-0.5 text-xs score-numeral text-cyan">
             Price {formatCurrency(holding.price, { decimals: 2 })}
           </p>
         </div>
@@ -341,10 +341,10 @@ function AllocationDonut({ holdings }: { holdings: Holding[] }) {
               style={{ backgroundColor: r.hex }}
             />
             <span className="text-light/90">{r.label}</span>
-            <span className="ml-auto font-display text-xs tnum text-dim">
+            <span className="ml-auto text-xs score-numeral text-dim">
               {formatPercent(r.weight, 0)}
             </span>
-            <span className="w-24 text-right font-display text-xs tnum text-light">
+            <span className="w-24 text-right text-xs score-numeral text-light">
               {formatCurrency(r.value)}
             </span>
           </div>
@@ -379,7 +379,7 @@ export function PortfolioPanel() {
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: 0.06, ease: 'easeOut' }}
-      className="card-chrome p-5 sm:p-6"
+      className="glass p-5 sm:p-6"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
@@ -429,20 +429,20 @@ export function PortfolioPanel() {
       <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
         <div className="rounded-xl border border-white/[0.06] bg-navyLight/60 px-3.5 py-3">
           <p className="text-label">Market value</p>
-          <p className="mt-1 font-display text-lg font-semibold tnum text-cyan">
+          <p className="mt-1 text-lg font-semibold score-numeral text-cyan">
             {formatCurrency(summary.marketValue, { decimals: 2 })}
           </p>
         </div>
         <div className="rounded-xl border border-white/[0.06] bg-navyLight/60 px-3.5 py-3">
           <p className="text-label">Cost basis</p>
-          <p className="mt-1 font-display text-lg font-semibold tnum text-light">
+          <p className="mt-1 text-lg font-semibold score-numeral text-light">
             {formatCurrency(summary.costBasis, { decimals: 2 })}
           </p>
         </div>
         <div className="rounded-xl border border-white/[0.06] bg-navyLight/60 px-3.5 py-3">
           <p className="text-label">Unrealized</p>
           <p
-            className={`mt-1 font-display text-lg font-semibold tnum ${
+            className={`mt-1 text-lg font-semibold score-numeral ${
               gainUp ? 'text-emerald' : 'text-crimson'
             }`}
           >

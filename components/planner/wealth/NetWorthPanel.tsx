@@ -183,7 +183,7 @@ function ItemRow({
       </div>
       <div className="flex shrink-0 items-center gap-1">
         <p
-          className={`font-display text-sm font-semibold tnum ${
+          className={`text-sm font-semibold score-numeral ${
             asset ? 'text-emerald' : 'text-yellow'
           }`}
         >
@@ -247,7 +247,7 @@ export function NetWorthPanel() {
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: 0.12, ease: 'easeOut' }}
-      className="card-chrome p-5 sm:p-6"
+      className="glass p-5 sm:p-6"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
@@ -281,7 +281,7 @@ export function NetWorthPanel() {
         <div>
           <p className="text-label">Total net worth</p>
           <p
-            className={`mt-1 font-display text-3xl font-bold tnum ${
+            className={`mt-1 text-3xl font-bold score-numeral ${
               netWorthUp ? 'text-emerald' : 'text-crimson'
             }`}
           >
@@ -292,7 +292,7 @@ export function NetWorthPanel() {
           <div className="rounded-xl border border-white/[0.06] bg-navyLight/60 px-3.5 py-2.5">
             <p className="text-label">Runway</p>
             <p
-              className={`mt-0.5 font-display text-sm font-semibold tnum ${
+              className={`mt-0.5 text-sm font-semibold score-numeral ${
                 reality.temps.runway === 'emerald'
                   ? 'text-emerald'
                   : reality.temps.runway === 'crimson'
@@ -306,7 +306,7 @@ export function NetWorthPanel() {
           <div className="rounded-xl border border-white/[0.06] bg-navyLight/60 px-3.5 py-2.5">
             <p className="text-label">DTI</p>
             <p
-              className={`mt-0.5 font-display text-sm font-semibold tnum ${
+              className={`mt-0.5 text-sm font-semibold score-numeral ${
                 reality.temps.dti === 'emerald'
                   ? 'text-emerald'
                   : reality.temps.dti === 'crimson'
@@ -323,7 +323,7 @@ export function NetWorthPanel() {
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         <div className="rounded-2xl border border-white/[0.06] bg-navyLight/50 p-4">
           <p className="text-label">Assets</p>
-          <p className="mt-1 font-display text-xl font-semibold tnum text-emerald">
+          <p className="mt-1 text-xl font-semibold score-numeral text-emerald">
             {formatCurrency(stack.assets, { decimals: 2 })}
           </p>
           <div className="mt-2.5 h-[6px] overflow-hidden rounded-full bg-white/[0.06]">
@@ -338,7 +338,7 @@ export function NetWorthPanel() {
             {stack.assetLines.map((line) => (
               <div key={line.label} className="flex items-center justify-between text-sm">
                 <span className="text-dim">{line.label}</span>
-                <span className="font-display text-xs tnum text-light">
+                <span className="text-xs score-numeral text-light">
                   {formatCurrency(line.value, { decimals: 2 })}
                 </span>
               </div>
@@ -347,7 +347,7 @@ export function NetWorthPanel() {
         </div>
         <div className="rounded-2xl border border-white/[0.06] bg-navyLight/50 p-4">
           <p className="text-label">Liabilities</p>
-          <p className="mt-1 font-display text-xl font-semibold tnum text-yellow">
+          <p className="mt-1 text-xl font-semibold score-numeral text-yellow">
             {formatCurrency(stack.liabilities, { decimals: 2 })}
           </p>
           <div className="mt-2.5 h-[6px] overflow-hidden rounded-full bg-white/[0.06]">
@@ -364,7 +364,7 @@ export function NetWorthPanel() {
             {stack.liabilityLines.map((line) => (
               <div key={line.label} className="flex items-center justify-between text-sm">
                 <span className="text-dim">{line.label}</span>
-                <span className="font-display text-xs tnum text-light">
+                <span className="text-xs score-numeral text-light">
                   {formatCurrency(line.value, { decimals: 2 })}
                 </span>
               </div>

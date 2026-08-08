@@ -42,7 +42,7 @@ export default function ChartTooltip({
               }}
             />
             <span className="text-xs text-dim">{item.name}</span>
-            <span className="ml-auto pl-4 font-score text-xs text-light">
+            <span className="ml-auto pl-4 score-numeral text-xs text-light">
               {typeof item.value === "number" ? f(item.value) : item.value}
             </span>
           </div>

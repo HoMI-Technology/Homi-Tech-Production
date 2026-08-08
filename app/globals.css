@@ -1216,6 +1216,20 @@ input[type="range"].homi-slider::-moz-range-track {
   color: rgba(34, 211, 238, 0.75);
 }
 
+/* Metric / field label — the neutral sibling of .eyebrow, for the caption
+   above a figure or form control. Arrived with the Budget Planner absorption
+   (components/planner) as an undefined class name whose stylesheet never came
+   across, so 51 call sites were rendering unstyled; defined here against canon
+   tokens rather than removed. Quieter tracking than .eyebrow and dim, not cyan,
+   so it recedes behind the value it labels. */
+.text-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-dim);
+}
+
 /* Premium data table — hairline rows, hover lift, recessive header */
 .table-premium {
   width: 100%;

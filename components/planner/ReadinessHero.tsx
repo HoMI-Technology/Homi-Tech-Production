@@ -150,11 +150,11 @@ export function ReadinessHero({
               </button>
             </div>
           ) : scoring && !score ? (
-            <p className="mt-4 font-score text-5xl text-dim">…</p>
+            <p className="mt-4 score-numeral text-5xl text-dim">…</p>
           ) : score && meta ? (
             <>
               <div className="mt-2 flex flex-wrap items-end gap-3">
-                <span className="font-score text-5xl tabular-nums text-light md:text-6xl">
+                <span className="score-numeral text-5xl tabular-nums text-light md:text-6xl">
                   {score.score.toFixed(0)}
                 </span>
                 <span
@@ -176,7 +176,7 @@ export function ReadinessHero({
                   <div key={label}>
                     <div className="mb-1 flex justify-between text-xs text-dim">
                       <span>{label}</span>
-                      <span className="font-score">{pct}%</span>
+                      <span className="score-numeral">{pct}%</span>
                     </div>
                     <div className="h-1.5 overflow-hidden rounded-full bg-slate-surface">
                       <div
@@ -255,7 +255,7 @@ export function ReadinessHero({
               <p className="text-[10px] uppercase tracking-wider text-dim">
                 {tile.label}
               </p>
-              <p className={`font-score text-sm tabular-nums sm:text-base ${tile.tone}`}>
+              <p className={`score-numeral text-sm tabular-nums sm:text-base ${tile.tone}`}>
                 {tile.value}
               </p>
             </div>

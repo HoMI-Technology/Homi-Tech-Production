@@ -150,7 +150,7 @@ export default function PlanModels() {
   return (
     <div className="flex flex-col gap-5">
       {/* ---- Monte Carlo ---- */}
-      <section className="card-chrome card-hairline-top p-5 sm:p-6">
+      <section className="glass p-5 sm:p-6">
         <PlanSectionHeader
           eyebrow="MONTE CARLO"
           title="Savings trajectory bands"
@@ -243,7 +243,7 @@ export default function PlanModels() {
       </section>
 
       {/* ---- Decision rehearsal ---- */}
-      <section className="card-chrome card-hairline-top p-5 sm:p-6">
+      <section className="glass p-5 sm:p-6">
         <PlanSectionHeader
           eyebrow="DECISION REHEARSAL"
           title="Buy now vs waiting"

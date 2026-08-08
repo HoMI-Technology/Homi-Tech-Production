@@ -51,7 +51,7 @@ export function ImpactToast({
           ×
         </button>
       </div>
-      <p className="mt-2 font-score text-2xl tabular-nums text-light">
+      <p className="mt-2 score-numeral text-2xl tabular-nums text-light">
         {impact.fromScore.toFixed(0)} → {impact.toScore.toFixed(0)}{" "}
         <span className="text-base text-dim">({delta})</span>
       </p>

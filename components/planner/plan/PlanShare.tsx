@@ -98,12 +98,12 @@ export default function PlanShare() {
         <p className="text-[10px] uppercase tracking-wider text-dim">
           HōMI readiness
         </p>
-        <p className="mt-1 font-score text-4xl text-light">
+        <p className="mt-1 score-numeral text-4xl text-light">
           {plannerScore.score.toFixed(0)}
         </p>
         <p className="text-sm text-cyan">{meta.label}</p>
         {receipt && (
-          <p className="mt-3 font-score text-xs text-dim">{receipt.token}</p>
+          <p className="mt-3 score-numeral text-xs text-dim">{receipt.token}</p>
         )}
         <p className="mt-3 text-[11px] text-dim">
           Educational only — not credit, lending, legal, tax, or investment

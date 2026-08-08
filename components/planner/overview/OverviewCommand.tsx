@@ -213,7 +213,7 @@ function SuggestedMove({
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="card-chrome card-hairline-top relative flex flex-col p-5 lg:col-span-2"
+          className="glass relative flex flex-col p-5 lg:col-span-2"
         >
           <span className="w-fit rounded-full border border-cyan/35 bg-cyan/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-cyan">
             {NUDGE_KIND_LABEL[top.kind]}
@@ -241,7 +241,7 @@ function SuggestedMove({
           {rest.slice(0, 2).map((nudge) => (
             <article
               key={nudge.id}
-              className="card-chrome flex flex-1 flex-col p-4"
+              className="glass flex flex-1 flex-col p-4"
             >
               <span className="w-fit rounded-full border border-white/[0.1] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-dim">
                 {NUDGE_KIND_LABEL[nudge.kind]} — {nudge.title}
@@ -282,7 +282,7 @@ function PathStrip({
   if (!path) {
     return (
       <section className="mt-6">
-        <div className="card-chrome flex flex-col items-start justify-between gap-4 p-5 sm:flex-row sm:items-center">
+        <div className="glass flex flex-col items-start justify-between gap-4 p-5 sm:flex-row sm:items-center">
           <div>
             <p className="text-label uppercase tracking-widest text-dim">
               Path habit · first move
@@ -314,7 +314,7 @@ function PathStrip({
   if (ratio >= 1) {
     return (
       <section className="mt-6">
-        <div className="card-chrome border-emerald/25 p-5">
+        <div className="glass border-emerald/25 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-label uppercase tracking-widest text-emerald">
               Path · optional maintenance {pct}%
@@ -411,7 +411,7 @@ function CashPathAndActions({
       caption="Cumulative ledger flow · last 30 days ending today"
     >
       <div className="grid gap-4 lg:grid-cols-5">
-        <div className="card-chrome p-5 lg:col-span-3">
+        <div className="glass p-5 lg:col-span-3">
           <div className="h-[220px] w-full text-cyan">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={spark} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
@@ -436,7 +436,7 @@ function CashPathAndActions({
               </ComposedChart>
             </ResponsiveContainer>
           </div>
-          <div className="mt-3 flex items-center justify-between font-display text-xs tnum">
+          <div className="mt-3 flex items-center justify-between text-xs score-numeral">
             <span className="text-dim">Start $0</span>
             <span className={now >= 0 ? 'text-emerald' : 'text-crimson'}>
               Now {fmtSignedUsd0(now)}
@@ -451,7 +451,7 @@ function CashPathAndActions({
                 key={tab}
                 type="button"
                 onClick={() => onNavigateTab?.(tab)}
-                className="card-chrome group flex flex-col items-start p-4 text-left transition-colors hover:border-cyan/25"
+                className="glass group flex flex-col items-start p-4 text-left transition-colors hover:border-cyan/25"
               >
                 <Icon size={16} className="text-cyan" />
                 <span className="mt-2 text-sm font-semibold text-light">
@@ -461,14 +461,14 @@ function CashPathAndActions({
               </button>
             ))}
           </div>
-          <div className="card-chrome flex-1 p-4">
+          <div className="glass flex-1 p-4">
             <p className="text-label uppercase tracking-widest text-dim">
               Next from score
             </p>
             <ol className="mt-2.5 space-y-2">
               {nextSteps.slice(0, 3).map((step, i) => (
                 <li key={step} className="flex gap-2 text-xs leading-relaxed text-dim">
-                  <span className="font-display font-medium tnum text-cyan">
+                  <span className="font-medium score-numeral text-cyan">
                     {i + 1}.
                   </span>
                   {step}
@@ -539,8 +539,8 @@ function StartHonest({
     >
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => (
-          <div key={card.n} className="card-chrome flex flex-col p-4">
-            <span className="font-display text-sm font-semibold tnum text-cyan">
+          <div key={card.n} className="glass flex flex-col p-4">
+            <span className="text-sm font-semibold score-numeral text-cyan">
               {card.n} · {card.title}
             </span>
             <p className="mt-2 flex-1 text-xs leading-relaxed text-dim">
@@ -601,7 +601,7 @@ function DailyCheckin() {
       title="Financial stress"
       caption="Slope, level, volatility, and streaks — not a single bad day. Protective, not judgmental."
     >
-      <div className="card-chrome p-5">
+      <div className="glass p-5">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {tiles.map((tile) => (
             <div
@@ -609,7 +609,7 @@ function DailyCheckin() {
               className="rounded-xl border border-white/[0.06] bg-navyLight/60 px-4 py-3"
             >
               <p className="text-label">{tile.label}</p>
-              <p className="mt-1.5 font-display text-lg font-semibold tnum text-light">
+              <p className="mt-1.5 text-lg font-semibold score-numeral text-light">
                 {tile.value}
               </p>
             </div>
@@ -627,7 +627,7 @@ function DailyCheckin() {
         <div className="mt-3">
           <div className="flex items-center justify-between text-[11px] text-dim">
             <span>1 calm</span>
-            <span className="font-display font-medium tnum text-cyan">
+            <span className="font-medium score-numeral text-cyan">
               Today · {value}/10
             </span>
             <span>10 crisis</span>
@@ -752,7 +752,7 @@ function ExportPack({
       caption="Score, pillars, next steps, and a band-only receipt — shareable artifact."
     >
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="card-chrome flex flex-col justify-center gap-3 p-5">
+        <div className="glass flex flex-col justify-center gap-3 p-5">
           <motion.button
             type="button"
             whileHover={{ scale: 1.01 }}
@@ -776,12 +776,12 @@ function ExportPack({
           <p className="text-[11px] leading-relaxed text-dim">{EXPORT_LEGAL}</p>
         </div>
 
-        <div className="card-chrome card-hairline-top relative p-5">
+        <div className="glass relative p-5">
           <div className="flex items-baseline justify-between">
             <p className="text-label uppercase tracking-widest text-cyan">
               HōMI Readiness
             </p>
-            <p className="font-display text-[11px] tnum text-dim">
+            <p className="text-[11px] score-numeral text-dim">
               NW {fmtUsd0(nw.netWorth)} · Runway {runwayLabel}
             </p>
           </div>
@@ -811,7 +811,7 @@ function ExportPack({
                     style={{ width: `${planner.pillarPct[key]}%` }}
                   />
                 </div>
-                <span className="font-display text-[11px] tnum text-dim">
+                <span className="text-[11px] score-numeral text-dim">
                   {planner.pillarPct[key]}%
                 </span>
               </div>
@@ -823,7 +823,7 @@ function ExportPack({
           <ol className="mt-3 space-y-1.5">
             {planner.nextSteps.slice(0, 3).map((step, i) => (
               <li key={step} className="flex gap-2 text-xs leading-relaxed text-dim">
-                <span className="font-display font-medium tnum text-cyan">
+                <span className="font-medium score-numeral text-cyan">
                   {i + 1}.
                 </span>
                 {step}
@@ -832,7 +832,7 @@ function ExportPack({
           </ol>
           <div className="mt-4 border-t border-white/[0.06] pt-3">
             {receiptToken ? (
-              <p className="break-all font-display text-[11px] tnum text-cyan">
+              <p className="break-all text-[11px] score-numeral text-cyan">
                 {receiptToken}
               </p>
             ) : (
@@ -918,7 +918,7 @@ function FinancialReality() {
         {gauges.map((gauge) => {
           const band = BAND_BY_TEMP[gauge.temp]
           return (
-            <div key={gauge.label} className="card-chrome p-4">
+            <div key={gauge.label} className="glass p-4">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-label">{gauge.label}</span>
                 <span
@@ -927,7 +927,7 @@ function FinancialReality() {
                   {band.label}
                 </span>
               </div>
-              <p className="mt-2.5 font-display text-xl font-semibold tnum text-light">
+              <p className="mt-2.5 text-xl font-semibold score-numeral text-light">
                 {gauge.value}
               </p>
               <p className="mt-1 text-[11px] leading-relaxed text-dim">
@@ -938,7 +938,7 @@ function FinancialReality() {
         })}
       </div>
 
-      <div className="card-chrome mt-4 space-y-4 p-5">
+      <div className="glass mt-4 space-y-4 p-5">
         {pillarRows.map(({ key, label }) => {
           const pillar = planner.result.pillars[key]
           const pct = Math.round((pillar.total / pillar.max) * 100)
@@ -949,7 +949,7 @@ function FinancialReality() {
             <div key={key}>
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <span className="text-label">{label}</span>
-                <span className="font-display text-xs font-medium tnum text-dim">
+                <span className="text-xs font-medium score-numeral text-dim">
                   {pillar.total}/{pillar.max}
                 </span>
               </div>
@@ -994,7 +994,7 @@ function SpendDigestSection({
       aside={
         <div className="rounded-xl border border-white/[0.06] bg-navyLight/60 px-4 py-3">
           <p className="text-label">LAST 7 DAYS</p>
-          <p className="mt-1 font-display text-lg font-semibold tnum text-light">
+          <p className="mt-1 text-lg font-semibold score-numeral text-light">
             {fmtUsd0(digest.totalSpend)}
           </p>
           <p
@@ -1015,7 +1015,7 @@ function SpendDigestSection({
       }
     >
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="card-chrome p-5">
+        <div className="glass p-5">
           <p className="text-label uppercase tracking-widest text-dim">
             Top categories
           </p>
@@ -1029,7 +1029,7 @@ function SpendDigestSection({
                     <span className="font-medium text-light">
                       {CATEGORY_LABEL[cat.category as CategoryId] ?? cat.category}
                     </span>
-                    <span className="font-display tnum text-dim">
+                    <span className="score-numeral text-dim">
                       {fmtUsd0(cat.amount)}{' '}
                       <span
                         className={
@@ -1063,7 +1063,7 @@ function SpendDigestSection({
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="card-chrome grid flex-1 grid-cols-2 gap-4 p-5">
+          <div className="glass grid flex-1 grid-cols-2 gap-4 p-5">
             <div>
               <p className="text-label uppercase tracking-widest text-crimson">
                 Rising
@@ -1075,7 +1075,7 @@ function SpendDigestSection({
                   {digest.rising.map((c) => (
                     <li key={c.category} className="text-xs text-dim">
                       {CATEGORY_LABEL[c.category as CategoryId] ?? c.category}{' '}
-                      <span className="font-display tnum text-crimson">
+                      <span className="score-numeral text-crimson">
                         +{fmtUsd0(c.delta)}
                       </span>
                     </li>
@@ -1094,7 +1094,7 @@ function SpendDigestSection({
                   {digest.falling.map((c) => (
                     <li key={c.category} className="text-xs text-dim">
                       {CATEGORY_LABEL[c.category as CategoryId] ?? c.category}{' '}
-                      <span className="font-display tnum text-emerald">
+                      <span className="score-numeral text-emerald">
                         −{fmtUsd0(Math.abs(c.delta))}
                       </span>
                     </li>
@@ -1104,7 +1104,7 @@ function SpendDigestSection({
             </div>
           </div>
 
-          <div className="card-chrome p-5">
+          <div className="glass p-5">
             <p className="text-label uppercase tracking-widest text-dim">
               Readiness receipt
             </p>
@@ -1113,7 +1113,7 @@ function SpendDigestSection({
               identity (demo).
             </p>
             {receiptToken ? (
-              <p className="mt-2 break-all font-display text-[11px] tnum text-cyan">
+              <p className="mt-2 break-all text-[11px] score-numeral text-cyan">
                 {receiptToken}
               </p>
             ) : (
@@ -1170,7 +1170,7 @@ function AddTransactionCard() {
   }
 
   return (
-    <div className="card-chrome p-5">
+    <div className="glass p-5">
       <div className="flex items-center justify-between gap-2">
         <div className="flex rounded-xl border border-white/[0.08] p-0.5">
           {(['expense', 'income'] as const).map((t) => (
@@ -1205,7 +1205,7 @@ function AddTransactionCard() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="0.00"
-              className="w-full bg-transparent px-2 py-2 font-display text-sm tnum text-light placeholder:text-dim/60"
+              className="w-full bg-transparent px-2 py-2 text-sm score-numeral text-light placeholder:text-dim/60"
             />
           </div>
         </label>
@@ -1215,7 +1215,7 @@ function AddTransactionCard() {
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="mt-1.5 w-full rounded-xl border border-white/[0.08] bg-navyLight/60 px-3 py-2 font-display text-sm tnum text-light"
+            className="mt-1.5 w-full rounded-xl border border-white/[0.08] bg-navyLight/60 px-3 py-2 text-sm score-numeral text-light"
           />
         </label>
         <label className="block">
@@ -1284,7 +1284,7 @@ function SavingsGoalCard() {
   }
 
   return (
-    <div className="card-chrome p-5">
+    <div className="glass p-5">
       <div className="flex items-center justify-between gap-2">
         <p className="text-sm font-semibold text-light">{savingsGoal.name}</p>
         <button
@@ -1321,7 +1321,7 @@ function SavingsGoalCard() {
                 step="0.01"
                 value={current}
                 onChange={(e) => setCurrent(e.target.value)}
-                className="mt-1.5 w-full rounded-xl border border-white/[0.08] bg-navyLight/60 px-3 py-2 font-display text-sm tnum text-light"
+                className="mt-1.5 w-full rounded-xl border border-white/[0.08] bg-navyLight/60 px-3 py-2 text-sm score-numeral text-light"
               />
             </label>
             <label className="block">
@@ -1332,7 +1332,7 @@ function SavingsGoalCard() {
                 step="0.01"
                 value={target}
                 onChange={(e) => setTarget(e.target.value)}
-                className="mt-1.5 w-full rounded-xl border border-white/[0.08] bg-navyLight/60 px-3 py-2 font-display text-sm tnum text-light"
+                className="mt-1.5 w-full rounded-xl border border-white/[0.08] bg-navyLight/60 px-3 py-2 text-sm score-numeral text-light"
               />
             </label>
           </div>
@@ -1365,7 +1365,7 @@ function SavingsGoalCard() {
             />
           </div>
           <div className="mt-2 flex items-center justify-between text-xs">
-            <span className="font-display font-medium tnum text-cyan">
+            <span className="font-medium score-numeral text-cyan">
               {pct}% complete
             </span>
             <span className="text-dim">
@@ -1391,12 +1391,12 @@ function SpendingDonut() {
     <Section
       eyebrow="Spending by category"
       aside={
-        <span className="font-display text-xl font-semibold tnum text-light">
+        <span className="text-xl font-semibold score-numeral text-light">
           {fmtUsd0(summary.expenses)}
         </span>
       }
     >
-      <div className="card-chrome p-5">
+      <div className="glass p-5">
         {data.length === 0 ? (
           <p className="py-8 text-center text-sm text-dim">
             Add an expense to see the breakdown.
@@ -1451,10 +1451,10 @@ function SpendingDonut() {
                       {CATEGORY_LABEL[entry.category as CategoryId] ??
                         entry.category}
                     </span>
-                    <span className="font-display text-xs tnum text-dim">
+                    <span className="text-xs score-numeral text-dim">
                       {fmtUsd0(entry.amount)}
                     </span>
-                    <span className="w-9 text-right font-display text-xs tnum text-dim">
+                    <span className="w-9 text-right text-xs score-numeral text-dim">
                       {pct}%
                     </span>
                   </li>
@@ -1509,14 +1509,14 @@ function TransactionRow({ tx }: { tx: Transaction }) {
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             aria-label="Amount"
-            className="rounded-lg border border-white/[0.08] bg-navy px-2.5 py-1.5 font-display text-sm tnum text-light"
+            className="rounded-lg border border-white/[0.08] bg-navy px-2.5 py-1.5 text-sm score-numeral text-light"
           />
           <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
             aria-label="Date"
-            className="rounded-lg border border-white/[0.08] bg-navy px-2.5 py-1.5 font-display text-sm tnum text-light"
+            className="rounded-lg border border-white/[0.08] bg-navy px-2.5 py-1.5 text-sm score-numeral text-light"
           />
           <select
             value={category}
@@ -1584,7 +1584,7 @@ function TransactionRow({ tx }: { tx: Transaction }) {
         </p>
       </div>
       <span
-        className={`font-display text-sm font-semibold tnum ${
+        className={`text-sm font-semibold score-numeral ${
           expense ? 'text-crimson' : 'text-emerald'
         }`}
       >
@@ -1646,7 +1646,7 @@ function TransactionsCard() {
         </div>
       }
     >
-      <div className="card-chrome p-2 sm:p-3">
+      <div className="glass p-2 sm:p-3">
         {filtered.length === 0 ? (
           <p className="py-10 text-center text-sm text-dim">
             No transactions yet. Add income or an expense to get started.

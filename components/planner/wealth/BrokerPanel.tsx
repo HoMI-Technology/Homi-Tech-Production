@@ -51,7 +51,7 @@ function BrokerRow({
           {holdingsCount === 1 ? '' : 's'} · {formatSyncStamp(broker.lastSyncedAt)}
         </p>
       </div>
-      <p className="shrink-0 font-display text-sm font-semibold tnum text-cyan">
+      <p className="shrink-0 text-sm font-semibold score-numeral text-cyan">
         {formatCurrency(broker.marketValue, { decimals: 2 })}
       </p>
       <button
@@ -90,7 +90,7 @@ export function BrokerPanel() {
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      className="card-chrome p-5 sm:p-6"
+      className="glass p-5 sm:p-6"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
@@ -135,19 +135,19 @@ export function BrokerPanel() {
       <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
         <div>
           <p className="text-label">Portfolio MV</p>
-          <p className="mt-0.5 font-display text-base font-semibold tnum text-cyan">
+          <p className="mt-0.5 text-base font-semibold score-numeral text-cyan">
             {formatCurrency(portfolioMv, { decimals: 2 })}
           </p>
         </div>
         <div>
           <p className="text-label">Linked brokers</p>
-          <p className="mt-0.5 font-display text-base font-semibold tnum text-light">
+          <p className="mt-0.5 text-base font-semibold score-numeral text-light">
             {brokers.length}
           </p>
         </div>
         <div>
           <p className="text-label">Last sync</p>
-          <p className="mt-0.5 font-display text-base font-semibold tnum text-light">
+          <p className="mt-0.5 text-base font-semibold score-numeral text-light">
             {formatSyncStamp(lastBrokerSyncAt)}
           </p>
         </div>

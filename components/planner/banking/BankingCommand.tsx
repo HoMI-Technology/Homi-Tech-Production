@@ -150,7 +150,7 @@ function StatTile({
   return (
     <div className="rounded-xl border border-white/[0.06] bg-navyLight/60 px-3.5 py-3">
       <p className="text-label">{label}</p>
-      <p className={`mt-1 font-display text-lg font-semibold tnum ${toneCls}`}>
+      <p className={`mt-1 text-lg font-semibold score-numeral ${toneCls}`}>
         {value}
       </p>
       {caption && <p className="mt-0.5 text-[11px] text-dim">{caption}</p>}
@@ -416,7 +416,7 @@ function BillCard({
           <p className="mt-1 text-xs text-dim">{meta}</p>
         </div>
         <p
-          className={`shrink-0 font-display text-base font-semibold tnum ${
+          className={`shrink-0 text-base font-semibold score-numeral ${
             bill.status === 'overdue' ? 'text-crimson' : 'text-light'
           }`}
         >
@@ -644,7 +644,7 @@ function AccountRow({
         </p>
       </div>
       <div className="shrink-0 text-right">
-        <p className="font-display text-sm font-semibold tnum text-light">
+        <p className="text-sm font-semibold score-numeral text-light">
           {formatCurrency(account.balance, { decimals: 2 })}
         </p>
         <p className="mt-0.5 text-[11px] text-dim">
@@ -705,7 +705,7 @@ export function BankingCommand() {
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="card-chrome card-hairline-top p-5 sm:p-6"
+        className="glass p-5 sm:p-6"
       >
         <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
           <div>
@@ -747,13 +747,13 @@ export function BankingCommand() {
             </p>
             <div className="mt-3 flex items-center justify-between gap-2">
               <span className="text-label">EOM projected</span>
-              <span className="font-display text-sm font-semibold tnum text-cyan">
+              <span className="text-sm font-semibold score-numeral text-cyan">
                 {formatCurrency(eom, { decimals: 2 })}
               </span>
             </div>
             <div className="mt-2 flex items-center justify-between gap-2">
               <span className="text-label">Last sync</span>
-              <span className="font-display text-xs tnum text-dim">
+              <span className="text-xs score-numeral text-dim">
                 {formatSyncLong(lastBankSyncAt)}
               </span>
             </div>
@@ -784,7 +784,7 @@ export function BankingCommand() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.06, ease: 'easeOut' }}
-          className="card-chrome p-5 sm:p-6"
+          className="glass p-5 sm:p-6"
         >
           <CardHeader
             icon={<Landmark size={16} />}
@@ -877,7 +877,7 @@ export function BankingCommand() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.12, ease: 'easeOut' }}
-          className="card-chrome p-5 sm:p-6"
+          className="glass p-5 sm:p-6"
         >
           <CardHeader
             icon={<Wallet size={16} />}
