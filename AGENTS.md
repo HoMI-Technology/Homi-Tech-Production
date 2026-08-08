@@ -122,6 +122,21 @@ remain binding and are carried here. Violating any of these = stop and fix.
    signature/idempotency/tier-mapping, share ownership, entitlements, and the
    verdict-canon guard (`npm run test:acceptance`).
 
+## Scoped work — one Section per task
+
+The build is vertically sliced by domain. [`docs/SECTIONS.md`](docs/SECTIONS.md)
+is the SSOT map that draws the boundaries. **The rule for every agent task:**
+
+> Read anything; **write only inside the one Section named in the task**, plus
+> any shared dependency the task explicitly declares. If you believe you must
+> edit **Section 0 (Scoring Core)** or **Section 8 (Platform)**, stop and ask.
+
+Name the Section and the boundary at the top of each task, and keep the task
+smaller than the Section. A task that needs to cross a boundary is the signal to
+split it into two. This is what stops an agent from wandering across the whole
+tree and overworking. See `docs/SECTIONS.md` for the full map and the
+directory-to-Section index.
+
 ## Product notes
 
 - Next.js app (`homi-production`): `app/`, `components/`, `lib/`, `supabase/`

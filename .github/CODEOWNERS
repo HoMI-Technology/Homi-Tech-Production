@@ -7,6 +7,40 @@
 # These rules only take effect once "Require review from Code Owners" is
 # enabled in branch protection for `main` (Settings → Branches → main).
 
+# ---------------------------------------------------------------------------
+# Section ownership (see docs/SECTIONS.md)
+#
+# These blocks mirror the Section Map so a PR that sprawls across Sections
+# shows multiple owning lines — a fast visual signal that a task "overworked"
+# beyond its Section. Today every Section resolves to @HoMI-Technology; swap in
+# per-Section teams (e.g. @HoMI-Technology/finance) as they are created to make
+# the boundaries enforceable per-area. GitHub matches the LAST rule, so the
+# workflows rule below stays most-specific.
+#
+# Section 0 · Scoring Core (FROZEN — change only with explicit sign-off)
+/lib/scoring/            @HoMI-Technology
+/lib/questions/          @HoMI-Technology
+/lib/validation/         @HoMI-Technology
+/lib/assessment/         @HoMI-Technology
+# Section 3 · AI Agents / Companion
+/lib/agents/             @HoMI-Technology
+# Section 4 · Finance / Integrations
+/lib/finance/            @HoMI-Technology
+/lib/plaid/              @HoMI-Technology
+/lib/stripe/             @HoMI-Technology
+/app/api/webhooks/       @HoMI-Technology
+# Section 7 · Auth / Account / Admin / Access
+/lib/auth/               @HoMI-Technology
+/lib/entitlements.ts     @HoMI-Technology
+/app/auth/               @HoMI-Technology
+# Section 8 · Platform / Shared (touch deliberately)
+/lib/supabase/           @HoMI-Technology
+/lib/security.ts         @HoMI-Technology
+/lib/brand/              @HoMI-Technology
+/middleware.ts           @HoMI-Technology
+/supabase/               @HoMI-Technology
+# ---------------------------------------------------------------------------
+
 # GitHub Actions workflow definitions. Changes here can silently multiply
 # billed Actions minutes, disable a required check, or remove the concurrency
 # guards that cancel superseded runs — so they always need an owner's review.
