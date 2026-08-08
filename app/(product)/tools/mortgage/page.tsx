@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { COLORS } from "@/lib/brand";
 import { fullPaymentBreakdown, amortizationSummary } from "@/lib/tools/mortgage";
 import { formatCurrency } from "@/lib/tools/format";
@@ -16,9 +16,8 @@ import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
 import { ReadinessBand } from "@/components/tools/ReadinessBand";
 import { saveToolsOverlayFields } from "@/lib/tools/cfm";
 import { computeHousingDeltas } from "@/lib/tools/deltas";
-import type { ReadinessImpact } from "@/lib/tools/readiness-bands";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
-import { useReadinessAnchors } from "@/hooks/use-readiness";
+import { useHousingReadinessImpact } from "@/hooks/use-housing-readiness";
 
 // Outbound chain pitches only — do not import the full LENSES table here.
 // (useLensPrefill / LensSynthesis still touch the registry for seeds/coverage.)
@@ -41,10 +40,6 @@ function MortgagePageInner() {
 
   const [replaceRent, setReplaceRent] = useState(false);
   const [writeBackDone, setWriteBackDone] = useState(false);
-  // Lazy: readiness-bands → simulator → scoring. Only load when anchors exist
-  // (saved finance). Public LHCI has none, so the scoring chunk stays out of
-  // the §11 script budget on /tools/mortgage.
-  const [readiness, setReadiness] = useState<ReadinessImpact | null>(null);
 
   // Mount-only CFM prefill via the shared registry-driven hook. The per-key
   // dispatcher caps down payment at the seeded price so loanAmount can never
@@ -61,7 +56,6 @@ function MortgagePageInner() {
     else if (key === "hoaMonthly") setHoaMonthly(v);
   }, []);
   const { prefilled, finance, overlay, hydrated, markAll } = useLensPrefill("mortgage", apply);
-  const readinessCtx = useReadinessAnchors();
 
   const loanAmount = Math.max(0, price - downPayment);
 
@@ -92,26 +86,12 @@ function MortgagePageInner() {
     });
   }, [finance, breakdown.total, replacedRentMonthly]);
 
-  useEffect(() => {
-    if (!readinessCtx) {
-      setReadiness(null);
-      return;
-    }
-    let cancelled = false;
-    void import("@/lib/tools/readiness-bands").then(({ readinessImpactForHousing }) => {
-      if (cancelled) return;
-      setReadiness(
-        readinessImpactForHousing(readinessCtx.baseline, readinessCtx.anchors, {
-          monthlyObligation: breakdown.total,
-          upfrontCost: downPayment,
-          replacedRentMonthly,
-        }),
-      );
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [readinessCtx, breakdown.total, downPayment, replacedRentMonthly]);
+  // 6.4: server batch — engine stays off the client / Lighthouse budget.
+  const readiness = useHousingReadinessImpact({
+    monthlyObligation: breakdown.total,
+    upfrontCost: downPayment,
+    replacedRentMonthly,
+  });
 
   // The lens digest the Companion reads — every number precomputed here.
   const digest = useMemo(

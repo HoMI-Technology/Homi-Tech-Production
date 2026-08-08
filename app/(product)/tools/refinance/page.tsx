@@ -13,9 +13,9 @@ import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
 import { ReadinessBand } from "@/components/tools/ReadinessBand";
 import { getLens } from "@/lib/tools/registry";
 import { computeReplacementDeltas } from "@/lib/tools/deltas";
-import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readiness-bands";
+import { toReadinessDigest } from "@/lib/tools/readiness-impact";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
-import { useReadinessAnchors } from "@/hooks/use-readiness";
+import { useHousingReadinessImpact } from "@/hooks/use-housing-readiness";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
 
@@ -37,7 +37,6 @@ function RefinancePageInner() {
   }, []);
   const { prefilled, finance, hydrated, markAll } = useLensPrefill("refinance", apply);
   const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
-  const readinessCtx = useReadinessAnchors();
 
   const r = useMemo(
     () => analyzeRefinance({ balance, currentRate, currentTermYears, newRate, newTermYears, closingCosts }),
@@ -54,16 +53,12 @@ function RefinancePageInner() {
     });
   }, [finance, r.newMonthly, r.currentMonthly]);
 
-  // Phase 5: readiness impact of the swap, magnitude only. The current
-  // payment flows through the same replaced-obligation channel rent uses.
-  const readiness = useMemo(() => {
-    if (!readinessCtx) return null;
-    return readinessImpactForHousing(readinessCtx.baseline, readinessCtx.anchors, {
-      monthlyObligation: r.newMonthly,
-      upfrontCost: closingCosts,
-      replacedRentMonthly: r.currentMonthly,
-    });
-  }, [readinessCtx, r.newMonthly, r.currentMonthly, closingCosts]);
+  // Phase 5 / 6.4: readiness impact of the swap via server batch.
+  const readiness = useHousingReadinessImpact({
+    monthlyObligation: r.newMonthly,
+    upfrontCost: closingCosts,
+    replacedRentMonthly: r.currentMonthly,
+  });
 
   // The lens digest the Companion reads — every number precomputed here.
   const digest = useMemo(

@@ -11,7 +11,7 @@
 
 import Link from "next/link";
 import { COLORS } from "@/lib/brand";
-import type { ReadinessImpact } from "@/lib/tools/readiness-bands";
+import type { ReadinessImpact } from "@/lib/tools/readiness-impact";
 
 function accent(impact: ReadinessImpact): string {
   if (impact.hardStop) return COLORS.crimson;

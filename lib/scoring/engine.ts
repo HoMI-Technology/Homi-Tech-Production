@@ -1,6 +1,14 @@
+import "server-only";
+
 /**
  * HōMI-Score Canonical Scoring Engine
  * ====================================
+ *
+ * Server-only (Plans.md 6.5). Client code must use POST /api/scoring or
+ * /api/simulator — never value-import this module.
+ *
+ * Bundle-proof sentinel string — must never appear in client chunks:
+ * HOMI_SCORING_ENGINE_V1_SERVER_ONLY
  *
  * The mathematical heart of HōMI. Produces a deterministic 0-100 score
  * from three equally-weighted pillars:
@@ -167,6 +175,12 @@ export interface HardStopReason {
 // ---------------------------------------------------------------------------
 
 import { PILLAR_MAX_POINTS } from './weights';
+
+/**
+ * Unique string only the engine module contains. CI greps client chunks
+ * after `next build` to prove this never ships to the browser (6.5).
+ */
+export const SCORING_ENGINE_SENTINEL = "HOMI_SCORING_ENGINE_V1_SERVER_ONLY" as const;
 
 /**
  * Maximum points per pillar — sourced from the trade-secret boundary.

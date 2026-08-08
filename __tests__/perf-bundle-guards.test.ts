@@ -74,11 +74,20 @@ describe("perf bundle guards (Lighthouse §11 + E2E coexistence)", () => {
     }
   });
 
-  it("useReadinessAnchors dynamic-imports simulator (scoring stays off cold tools)", () => {
+  it("useReadinessAnchors seeds from public simulator only (engine stays off cold tools)", () => {
     const code = codeOnly(src("hooks/use-readiness.ts"));
-    expect(code).toMatch(/import\s*\(\s*["']@\/lib\/simulator["']\s*\)/);
-    expect(code).not.toMatch(
-      /import\s*\{[^}]*seedBaseline[^}]*\}\s*from\s*["']@\/lib\/simulator["']/,
-    );
+    expect(code).toMatch(/from\s+["']@\/lib\/simulator\/public["']/);
+    expect(code).toMatch(/seedBaseline/);
+    // Must not pull the engine-backed simulator module (static or dynamic).
+    expect(code).not.toMatch(/["']@\/lib\/simulator["']/);
+    expect(code).not.toMatch(/["']@\/lib\/scoring["']/);
+  });
+
+  it("housing readiness uses the batch API, not readiness-bands on the client", () => {
+    const code = codeOnly(src("hooks/use-housing-readiness.ts"));
+    expect(code).toMatch(/fetchSimulatorBatch/);
+    expect(code).not.toMatch(/["']@\/lib\/tools\/readiness-bands["']/);
+    expect(code).not.toMatch(/["']@\/lib\/simulator["']/);
   });
 });
+

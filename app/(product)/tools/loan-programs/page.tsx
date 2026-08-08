@@ -14,9 +14,9 @@ import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
 import { ReadinessBand } from "@/components/tools/ReadinessBand";
 import { getLens } from "@/lib/tools/registry";
 import { computeHousingDeltas } from "@/lib/tools/deltas";
-import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readiness-bands";
+import { toReadinessDigest } from "@/lib/tools/readiness-impact";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
-import { useReadinessAnchors } from "@/hooks/use-readiness";
+import { useHousingReadinessImpact } from "@/hooks/use-housing-readiness";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
 
@@ -43,7 +43,6 @@ function LoanProgramsPageInner() {
   }, []);
   const { prefilled, finance, hydrated, markAll } = useLensPrefill("loan-programs", apply);
   const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
-  const readinessCtx = useReadinessAnchors();
 
   const downPayment = Math.round((downPct / 100) * homePrice);
   const results = useMemo(
@@ -59,14 +58,10 @@ function LoanProgramsPageInner() {
     return computeHousingDeltas(finance, cheapest.monthlyTotal);
   }, [finance, cheapest.monthlyTotal]);
 
-  // Phase 5: readiness impact of the cheapest program, magnitude only.
-  const readiness = useMemo(() => {
-    if (!readinessCtx) return null;
-    return readinessImpactForHousing(readinessCtx.baseline, readinessCtx.anchors, {
-      monthlyObligation: cheapest.monthlyTotal,
-      upfrontCost: downPayment,
-    });
-  }, [readinessCtx, cheapest.monthlyTotal, downPayment]);
+  const readiness = useHousingReadinessImpact({
+    monthlyObligation: cheapest.monthlyTotal,
+    upfrontCost: downPayment,
+  });
 
   // The lens digest the Companion reads — every number precomputed here.
   const digest = useMemo(

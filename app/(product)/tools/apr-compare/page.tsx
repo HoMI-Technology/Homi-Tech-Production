@@ -13,9 +13,9 @@ import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
 import { ReadinessBand } from "@/components/tools/ReadinessBand";
 import { getLens } from "@/lib/tools/registry";
 import { computeHousingDeltas } from "@/lib/tools/deltas";
-import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readiness-bands";
+import { toReadinessDigest } from "@/lib/tools/readiness-impact";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
-import { useReadinessAnchors } from "@/hooks/use-readiness";
+import { useHousingReadinessImpact } from "@/hooks/use-housing-readiness";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
 
@@ -39,7 +39,6 @@ function AprComparePageInner() {
   }, []);
   const { prefilled, finance, hydrated, markAll } = useLensPrefill("apr-compare", apply);
   const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
-  const readinessCtx = useReadinessAnchors();
 
   const results = useMemo(() => compareOffers(loan, termYears, offers), [loan, termYears, offers]);
   const best = useMemo(() => bestOfferIndex(results), [results]);
@@ -52,14 +51,11 @@ function AprComparePageInner() {
     return computeHousingDeltas(finance, winning.monthly);
   }, [finance, winning]);
 
-  // Phase 5: readiness impact of the winning offer, magnitude only.
-  const readiness = useMemo(() => {
-    if (!readinessCtx || !winning) return null;
-    return readinessImpactForHousing(readinessCtx.baseline, readinessCtx.anchors, {
-      monthlyObligation: winning.monthly,
-      upfrontCost: winning.upfrontCost,
-    });
-  }, [readinessCtx, winning]);
+  const readiness = useHousingReadinessImpact(
+    winning
+      ? { monthlyObligation: winning.monthly, upfrontCost: winning.upfrontCost }
+      : null,
+  );
 
   // The lens digest the Companion reads — every number precomputed here.
   const digest = useMemo(

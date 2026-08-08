@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { computeScore, type AssessmentInputs } from "@/lib/scoring";
-import { runPreflight } from "@/lib/readiness";
+import { runPreflight } from "@/lib/readiness/preflight";
 
 const SAFE: AssessmentInputs = {
   debtToIncomeRatio: 0.25,

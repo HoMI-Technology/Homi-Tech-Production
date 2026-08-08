@@ -1,24 +1,24 @@
 /**
- * useReadinessAnchors — loads the simulator baseline + anchors for the
- * readiness band. Mount-only, SSR-safe. Null when the user has no saved
- * finance state (the band shows nothing rather than a verdict on air).
+ * useReadinessAnchors — loads the simulator baseline + raw anchor assessment
+ * for POST /api/simulator housing bands (Plans.md 6.4).
  *
- * The simulator (and the scoring engine it wraps) is dynamic-imported only
- * when finance state exists. Public Lighthouse routes never have that state,
- * so this keeps the §11 script budget from shipping ~scoring into every
- * tools page that merely *can* show a readiness band.
+ * Seeds pure baseline client-side (no engine). Server derives anchors and
+ * scores. Public Lighthouse routes never have saved finance, so this stays
+ * off the §11 script budget.
  */
 
 "use client";
 
 import { useEffect, useState } from "react";
-import type { SimulatorAnchors, SimulatorBaseline } from "@/lib/simulator";
+import type { AnchorAssessment, SimulatorBaseline } from "@/lib/simulator/public";
+import { seedBaseline } from "@/lib/simulator/public";
 import { hasSavedFinanceState, loadFinanceState } from "@/lib/finance/store";
 import { loadLocalResult } from "@/lib/assessment/storage";
 
 export interface ReadinessContext {
   baseline: SimulatorBaseline;
-  anchors: SimulatorAnchors;
+  /** Latest local assessment (or null) — server derives held pillars. */
+  anchorAssessment: AnchorAssessment | null;
 }
 
 export function useReadinessAnchors(): ReadinessContext | null {
@@ -26,25 +26,16 @@ export function useReadinessAnchors(): ReadinessContext | null {
 
   useEffect(() => {
     if (!hasSavedFinanceState()) return;
-    let cancelled = false;
-    void import("@/lib/simulator").then(({ seedBaseline, deriveAnchors }) => {
-      if (cancelled) return;
-      const baseline = seedBaseline(null, loadFinanceState());
-      const stored = loadLocalResult();
-      const anchors = deriveAnchors(
-        stored
-          ? {
-              emotional_score: stored.result.emotional.total,
-              timing_score: stored.result.timing.total,
-              inputs: stored.inputs as unknown as Record<string, unknown>,
-            }
-          : null,
-      );
-      setCtx({ baseline, anchors });
-    });
-    return () => {
-      cancelled = true;
-    };
+    const baseline = seedBaseline(null, loadFinanceState());
+    const stored = loadLocalResult();
+    const anchorAssessment: AnchorAssessment | null = stored
+      ? {
+          emotional_score: stored.result.emotional.total,
+          timing_score: stored.result.timing.total,
+          inputs: stored.inputs as unknown as Record<string, unknown>,
+        }
+      : null;
+    setCtx({ baseline, anchorAssessment });
   }, []);
 
   return ctx;
