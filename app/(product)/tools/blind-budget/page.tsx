@@ -9,8 +9,9 @@ import { LensSynthesis } from "@/components/tools/LensSynthesis";
 import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { ToolShell } from "@/components/tools/ToolShell";
+import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 
-export default function BlindBudgetPage() {
+function BlindBudgetPageInner() {
   const [incomeLow, setIncomeLow] = useState(4500);
   const [incomeHigh, setIncomeHigh] = useState(6000);
   const [fixedCostsLow, setFixedCostsLow] = useState(2200);
@@ -201,5 +202,13 @@ function RangeField({
         />
       </div>
     </div>
+  );
+}
+
+export default function BlindBudgetPage() {
+  return (
+    <AdvancedToolGate>
+      <BlindBudgetPageInner />
+    </AdvancedToolGate>
   );
 }

@@ -6,12 +6,15 @@ import { ActionDock, OperateInstrument } from "@/components/operate/OperateInstr
 import { MetricRail } from "@/components/operate/MetricRail";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { useFinanceDashboard } from "@/hooks/use-finance-dashboard";
+import { useCfm } from "@/hooks/use-cfm";
 import { COLORS } from "@/lib/brand";
 import {
-  cashFlowTemperature,
-  runwayTemperature,
-  type Temperature,
-} from "@/lib/finance/store";
+  completenessLabel,
+  PERIOD_SURPLUS_FORMULA,
+  PERIOD_SURPLUS_LABEL,
+} from "@/lib/finance/metrics";
+import type { FinanceCompleteness } from "@/lib/finance/readiness-snapshot";
+import type { Temperature } from "@/lib/finance/store";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 
 const TEMP_COLOR: Record<Temperature, string> = {
@@ -28,51 +31,67 @@ const TEMP_WORD: Record<Temperature, string> = {
   crimson: "At risk",
 };
 
-const COMPLETE_LABEL = {
-  empty: "No picture yet",
-  partial: "Partial picture",
-  ready: "Live picture",
-} as const;
+const GRADE_COLOR: Record<FinanceCompleteness, string> = {
+  high: COLORS.emerald,
+  medium: COLORS.yellow,
+  low: COLORS.amber,
+};
 
 /**
- * Stand mode — ultra-premium OPERATE instrument.
- * One dominant free-cash numeral, slim rail, next-move dock.
- * Completeness is first-class (never silent certainty).
+ * Stand mode — OPERATE instrument with honesty gates.
+ * Completeness comes from CFM meta (gradeCompleteness), not a naive KPI heuristic.
  */
 export function MoneyStand() {
   const { kpis, temperatures, goals, ready, loading, signals, nudges } =
     useFinanceDashboard();
+  const { cfm, hydrated: cfmHydrated } = useCfm();
 
-  const cashTemp = ready
-    ? temperatures.cashFlow
-    : cashFlowTemperature(0, 0);
-  const runwayTemp =
-    ready && kpis.runwayMonths != null
-      ? temperatures.runway
-      : runwayTemperature(0);
+  const completeness: FinanceCompleteness =
+    cfm?.meta.completeness ?? (ready ? "low" : "low");
+  const chipLabel = !ready
+    ? "No picture yet"
+    : completenessLabel(completeness);
+  const chipColor = !ready ? COLORS.dim : GRADE_COLOR[completeness];
+
+  const cashTemp = ready ? temperatures.cashFlow : "amber";
+  const runwayTemp = ready && kpis.runwayMonths != null ? temperatures.runway : "amber";
   const tint = ready ? TEMP_COLOR[cashTemp] : COLORS.cyan;
-
-  const completeness = useMemo(() => {
-    if (!ready) return "empty" as const;
-    if (kpis.monthlyIncome <= 0 && kpis.liquidSavings <= 0) return "partial" as const;
-    return "ready" as const;
-  }, [ready, kpis.monthlyIncome, kpis.liquidSavings]);
 
   const goal = goals[0];
   const goalGap =
     goal && goal.target > goal.saved ? goal.target - goal.saved : null;
 
+  const liquidNote =
+    cfm?.meta.liquidSource === "emergency_goal"
+      ? "Emergency goal balance"
+      : cfm?.meta.liquidSource === "goal_proxy"
+        ? "Goal balance (proxy — not full liquid)"
+        : cfm?.meta.liquidSource === "legacy_snapshot"
+          ? "Legacy snapshot"
+          : "Liquid not recorded";
+
+  const debtHonest = cfm?.meta.hasDebtSignal === true;
+  const asOf = cfm?.meta.savedAt;
+  const asOfLabel = useMemo(() => {
+    if (!asOf) return ready ? "Age unknown" : null;
+    const days = Math.floor((Date.now() - new Date(asOf).getTime()) / 86_400_000);
+    if (!Number.isFinite(days) || days < 0) return "Age unknown";
+    if (days === 0) return "Updated today";
+    if (days === 1) return "Updated yesterday";
+    return `Updated ${days}d ago`;
+  }, [asOf, ready]);
+
   const primaryAction = !ready
     ? { label: "Build your picture", href: "/money/budget" }
-    : completeness === "partial"
-      ? { label: "Add income & flows", href: "/money/budget" }
+    : completeness === "low"
+      ? { label: "Strengthen picture", href: "/money/budget" }
       : { label: "Stress a decision", href: "/money/decide" };
 
   const secondaryAction = ready
     ? { label: "Open Path", href: "/path" }
     : { label: "Connect bank", href: "/connections" };
 
-  if (loading) {
+  if (loading || !cfmHydrated) {
     return (
       <div className="space-y-6" aria-busy="true">
         <div className="h-56 animate-pulse rounded-2xl bg-slate-surface/40" />
@@ -89,22 +108,20 @@ export function MoneyStand() {
             <div className="flex flex-wrap items-center gap-2">
               <span
                 className="inline-flex items-center gap-1.5 rounded-full border border-line/70 px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-dim"
-                title="How complete your money picture is"
+                title="How complete your money evidence is"
               >
                 <span
                   aria-hidden
                   className="size-1.5 rounded-full"
-                  style={{
-                    backgroundColor:
-                      completeness === "ready"
-                        ? COLORS.emerald
-                        : completeness === "partial"
-                          ? COLORS.yellow
-                          : COLORS.dim,
-                  }}
+                  style={{ backgroundColor: chipColor }}
                 />
-                {COMPLETE_LABEL[completeness]}
+                {chipLabel}
               </span>
+              {asOfLabel && (
+                <span className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-dim/80">
+                  {asOfLabel}
+                </span>
+              )}
               {ready && (
                 <span
                   className="text-[0.65rem] font-semibold uppercase tracking-[0.12em]"
@@ -117,7 +134,7 @@ export function MoneyStand() {
 
             <div className="dash-hero-meta mt-3">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-dim">
-                Free cash this period
+                {PERIOD_SURPLUS_LABEL}
               </p>
               <AnimatedNumber
                 value={ready ? kpis.netCashFlow : 0}
@@ -128,7 +145,7 @@ export function MoneyStand() {
               />
               <p className="mt-2 max-w-xl text-sm text-dim">
                 {ready
-                  ? "Income minus expenses and debt service — the room you have before a decision."
+                  ? PERIOD_SURPLUS_FORMULA
                   : "Add income or connect a bank. Lenses stay illustrative until your picture exists."}
               </p>
             </div>
@@ -156,8 +173,10 @@ export function MoneyStand() {
             />
             <MiniTile
               label="DTI"
-              value={ready ? formatPercent(kpis.dti) : "—"}
-              accent={COLORS.yellow}
+              value={
+                ready && debtHonest ? formatPercent(kpis.dti) : ready ? "Unknown" : "—"
+              }
+              accent={debtHonest ? COLORS.yellow : COLORS.dim}
             />
           </div>
         </div>
@@ -168,31 +187,43 @@ export function MoneyStand() {
           {
             label: "Liquid / goal balance",
             value: ready ? formatCurrency(kpis.liquidSavings) : "—",
-            footer: goal ? goal.name : "Set a goal in Track",
+            footer: liquidNote,
             color: COLORS.cyan,
           },
           {
             label: "Goal gap",
             value:
               goalGap != null ? formatCurrency(goalGap) : ready ? "On track" : "—",
-            footer: goal ? "To target" : "No active goal",
+            footer: goal ? goal.name : "Set a goal in Track",
             color: goalGap != null && goalGap > 0 ? COLORS.amber : COLORS.emerald,
           },
           {
-            label: "Net worth signal",
-            value: ready ? formatCurrency(kpis.netWorth) : "—",
-            footer: "Liquid − known debt",
-            color: COLORS.light,
+            label: "Debt signal",
+            value: debtHonest ? formatCurrency(kpis.totalDebt || 0) : "Not recorded",
+            footer: debtHonest
+              ? "Debt payments categorized"
+              : "Categorize debt payments for honest DTI",
+            color: debtHonest ? COLORS.light : COLORS.dim,
           },
         ]}
       />
+
+      {ready && completeness === "low" && (
+        <p
+          className="rounded-xl border border-yellow/40 bg-yellow/5 px-4 py-3 text-sm text-dim"
+          role="status"
+        >
+          Thin evidence — treat every number as a draft. Add more months, categorize
+          spending, or connect a bank before acting on a big decision.
+        </p>
+      )}
 
       <ActionDock
         kicker="Next move"
         title={
           !ready
             ? "Start with your real numbers — not illustrative defaults."
-            : completeness === "partial"
+            : completeness === "low"
               ? "Your picture is thin. More data means honest readiness language."
               : signals[0]?.title ??
                 nudges[0]?.message ??

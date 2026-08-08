@@ -89,6 +89,9 @@ describe("deriveCfmFromLedger", () => {
     expect(cfm.core.monthlyExpenses.source).toBe("self-reported");
     expect(cfm.core.monthlyExpenses.value).toBe(500);
     expect(cfm.core.totalDebt.source).toBe("missing");
+    expect(cfm.meta.hasDebtSignal).toBe(false);
+    expect(cfm.meta.completeness).toBe("low");
+    expect(cfm.meta.source).toBe("ledger");
   });
 });
 

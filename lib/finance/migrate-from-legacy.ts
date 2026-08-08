@@ -8,9 +8,11 @@
  */
 
 import type { FinanceCategory } from "@/lib/finance/ledger";
-import { dollarsToCents } from "@/lib/finance/money";
-import type { FinanceState } from "@/lib/finance/store";
+import { centsToDollars, dollarsToCents } from "@/lib/finance/money";
+import { DEFAULT_FINANCE_STATE, type FinanceState } from "@/lib/finance/store";
+import { metricsFromLedger } from "@/lib/finance/metrics";
 import {
+  activeGoal,
   addManualTransaction,
   BUDGET_LEDGER_STORAGE_KEY,
   emptyBudgetLedger,
@@ -171,6 +173,48 @@ function hasUserCreatedData(state: BudgetLedgerState): boolean {
   return (
     state.transactions.length > 0 || state.periods.length > 0 || state.goal !== null
   );
+}
+
+/**
+ * Phase-1 dual-write: project ledger monthly aggregates back to legacy
+ * FinanceState so old readers stay coherent until kill date (see
+ * docs/ops/MONEY-LEDGER-MIGRATION.md). Never invents precision — uses period
+ * metrics only.
+ */
+export function projectLedgerToLegacySnapshot(
+  state: BudgetLedgerState,
+  nowIso: string,
+): FinanceState {
+  const m = metricsFromLedger(state, nowIso, null);
+  const goal = activeGoal(state);
+  return {
+    ...DEFAULT_FINANCE_STATE,
+    monthlyIncome: m.surplus.incomeDollars,
+    monthlyExpenses: m.surplus.expenseDollars,
+    liquidSavings: m.runway.liquidDollars ?? 0,
+    totalDebt: 0,
+    monthlyDebtPayments: m.surplus.debtPaymentDollars,
+    downPaymentTarget:
+      goal?.goalType === "home" ? centsToDollars(goal.targetAmountCents) : 0,
+    assets: [],
+    liabilities: [],
+  };
+}
+
+/**
+ * After a successful ledger save, mirror aggregates into legacy FinanceState.
+ * Kill after 2026-09-15 (docs/ops/MONEY-LEDGER-MIGRATION.md).
+ */
+export function dualWriteLegacyFromLedger(state: BudgetLedgerState): void {
+  if (typeof window === "undefined") return;
+  try {
+    // Dynamic import of store write avoids hard cycle at module init.
+    void import("@/lib/finance/store").then(({ saveFinanceState }) => {
+      saveFinanceState(projectLedgerToLegacySnapshot(state, new Date().toISOString()));
+    });
+  } catch {
+    // Best-effort dual-write.
+  }
 }
 
 /**

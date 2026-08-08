@@ -114,7 +114,7 @@ function healthyNudge(): FinanceNudge {
     type: "goal",
     message:
       "Your key signals are in a good range. This is a great time to lock in a small auto-transfer toward your next goal so the rhythm stays automatic.",
-    action: { label: "Review goals", href: "/finance" },
+    action: { label: "Review goals", href: "/money" },
   };
 }
 

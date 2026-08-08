@@ -36,7 +36,7 @@ export function SavedNumbersStrip() {
           These are illustrative numbers. Add yours and every calculator here starts from your
           reality instead.
         </p>
-        <Link href="/finance" className="text-sm font-medium text-cyan hover:underline">
+        <Link href="/money/budget" className="text-sm font-medium text-cyan hover:underline">
           Add my numbers →
         </Link>
       </div>
@@ -54,8 +54,8 @@ export function SavedNumbersStrip() {
         <span className="text-light">{formatCurrency(cfm.core.monthlyDebtPayments.value)}/mo</span> debt
         {age ? <span className="text-dim/70"> · {age}</span> : null}
       </p>
-      <Link href="/finance" className="text-sm font-medium text-cyan hover:underline">
-        Edit →
+      <Link href="/money/budget" className="text-sm font-medium text-cyan hover:underline">
+        Edit in Money →
       </Link>
     </div>
   );

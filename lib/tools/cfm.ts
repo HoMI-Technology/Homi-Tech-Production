@@ -34,16 +34,13 @@ import {
 } from "@/lib/finance/store";
 import {
   activeGoal,
+  budgetLedgerSavedAt,
   hasSavedBudgetLedger,
   loadBudgetLedger,
   type BudgetLedgerState,
 } from "@/lib/finance/local-ledger";
-import {
-  currentOpenPeriod,
-  debtPaymentsCents,
-  monthlyIncomeCents,
-} from "@/lib/advisor/finance-context";
-import { summarizePeriod, runwayFromOutflow } from "@/lib/finance/calculations";
+import { metricsFromLedger, type LiquidSource } from "@/lib/finance/metrics";
+import type { FinanceCompleteness } from "@/lib/finance/readiness-snapshot";
 import { centsToDollars } from "@/lib/finance/money";
 import { createSyncedResource, type Stamped } from "@/lib/persistence";
 
@@ -109,8 +106,14 @@ export interface CanonicalFinancialModel {
     dtiPct: number;
   };
   meta: {
-    /** ISO timestamp of the underlying finance save, or null if unknown. */
+    /** ISO timestamp of the underlying money save — never "now" at read. */
     savedAt: string | null;
+    /** ledger preferred; legacy fallback during migration. */
+    source?: "ledger" | "legacy";
+    completeness?: FinanceCompleteness;
+    liquidSource?: LiquidSource;
+    /** True when debt service was observed; false means DTI is not trustworthy. */
+    hasDebtSignal?: boolean;
   };
 }
 
@@ -192,15 +195,20 @@ export function deriveCfm(
       runwayMonths: runwayMonths(finance),
       dtiPct: debtToIncome(finance),
     },
-    meta: { savedAt },
+    meta: {
+      savedAt,
+      source: "legacy",
+      completeness: "low",
+      liquidSource: finance.liquidSavings > 0 ? "legacy_snapshot" : "missing",
+      hasDebtSignal: finance.monthlyDebtPayments > 0 || finance.totalDebt > 0,
+    },
   };
 }
 
 /**
  * Builds the CFM from the budget ledger (Money Reality SoT). Pure.
- * Amounts are converted to whole dollars at the CFM boundary so existing
- * lenses keep their dollar-scale math. Missing ledger signals stay `missing`
- * — never imputed as zero.
+ * Named metrics come from lib/finance/metrics.ts so Stand and lenses agree.
+ * Missing ledger signals stay `missing` — never imputed as zero debt/DTI.
  */
 export function deriveCfmFromLedger(
   state: BudgetLedgerState,
@@ -208,52 +216,23 @@ export function deriveCfmFromLedger(
   nowIso: string,
   savedAt: string | null,
 ): CanonicalFinancialModel {
-  const nowDate = nowIso.slice(0, 10);
-  const period = currentOpenPeriod(state, nowDate, nowIso);
-  const totals = summarizePeriod(state.transactions, period);
-  // Decision math prefers this period's actuals (or explicit expected income).
-  // Trailing 3-month averages dilute single-month ledgers and mis-seed lenses.
-  const { incomeCents: modeledIncome, basis: incomeBasis } = monthlyIncomeCents(
-    state,
-    period,
-    nowDate,
-  );
-  const incomeCents =
-    incomeBasis === "period_expected"
-      ? modeledIncome
-      : totals.incomeCents > 0
-        ? totals.incomeCents
-        : modeledIncome;
-  const debtCents = debtPaymentsCents(state.transactions, period);
+  const metrics = metricsFromLedger(state, nowIso, savedAt);
   const goal = activeGoal(state);
+  const s = metrics.surplus;
 
-  const monthlyIncome = incomeCents > 0 ? centsToDollars(incomeCents) : undefined;
+  const monthlyIncome = s.incomeDollars > 0 ? s.incomeDollars : undefined;
   const monthlyExpenses =
-    totals.netExpenseCents !== 0 || totals.grossExpenseCents > 0
-      ? centsToDollars(Math.max(0, totals.netExpenseCents))
-      : undefined;
-  const monthlyDebtPayments = debtCents > 0 ? centsToDollars(debtCents) : undefined;
+    metrics.evidence.hasExpenses || s.expenseDollars > 0 ? s.expenseDollars : undefined;
+  // Only surface debt payments when we observed the debt category — else missing.
+  const monthlyDebtPayments = metrics.evidence.hasDebtSignal
+    ? s.debtPaymentDollars
+    : undefined;
   const liquidSavings =
-    goal && goal.currentAmountCents > 0 ? centsToDollars(goal.currentAmountCents) : undefined;
+    metrics.runway.liquidDollars !== null && metrics.runway.liquidDollars > 0
+      ? metrics.runway.liquidDollars
+      : undefined;
 
-  const incomeDollars = monthlyIncome ?? 0;
-  const expenseDollars = monthlyExpenses ?? 0;
-  const debtPayDollars = monthlyDebtPayments ?? 0;
-  const savingsDollars = liquidSavings ?? 0;
-  const ncf = incomeDollars - expenseDollars - debtPayDollars;
-  const outflow = expenseDollars + debtPayDollars;
-  const outflowCents = Math.round(outflow * 100);
-  const runway =
-    goal && goal.currentAmountCents > 0 && outflowCents > 0
-      ? runwayFromOutflow(goal.currentAmountCents, outflowCents, "current_month_actual")
-      : { months: null as number | null };
-  const dtiPct =
-    incomeDollars > 0 && monthlyDebtPayments !== undefined
-      ? (debtPayDollars / incomeDollars) * 100
-      : 0;
-  const savingsRatePct = incomeDollars > 0 ? (ncf / incomeDollars) * 100 : 0;
-
-  // Home goal current balance can seed down-payment overlay when overlay empty.
+  const ncf = s.dollars;
   const homeGoalSeed =
     goal?.goalType === "home" && goal.currentAmountCents > 0
       ? centsToDollars(goal.currentAmountCents)
@@ -290,16 +269,19 @@ export function deriveCfmFromLedger(
     },
     derived: {
       netCashFlow: ncf,
-      savingsRatePct,
-      runwayMonths:
-        runway.months !== null && runway.months !== undefined
-          ? Math.round(runway.months * 10) / 10
-          : outflow > 0 && savingsDollars > 0
-            ? Math.round((savingsDollars / outflow) * 10) / 10
-            : 0,
-      dtiPct,
+      savingsRatePct: metrics.savingsRatePct ?? 0,
+      // null runway stays 0 for legacy numeric consumers; meta.liquidSource tells truth.
+      runwayMonths: metrics.runway.months ?? 0,
+      // null DTI stays 0 only when debt unknown — hasDebtSignal is the honesty gate.
+      dtiPct: metrics.dti.pct ?? 0,
     },
-    meta: { savedAt },
+    meta: {
+      savedAt,
+      source: "ledger",
+      completeness: metrics.evidence.completeness,
+      liquidSource: metrics.evidence.liquidSource,
+      hasDebtSignal: metrics.evidence.hasDebtSignal,
+    },
   };
 }
 
@@ -451,7 +433,8 @@ export function buildCfm(): CanonicalFinancialModel | null {
   if (hasSavedBudgetLedger()) {
     const ledger = loadBudgetLedger(nowIso);
     if (ledgerHasRealPicture(ledger)) {
-      return deriveCfmFromLedger(ledger, overlay, nowIso, nowIso);
+      // Freshness from last write stamp — never Date.now() at read.
+      return deriveCfmFromLedger(ledger, overlay, nowIso, budgetLedgerSavedAt());
     }
   }
 

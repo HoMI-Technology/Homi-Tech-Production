@@ -1,7 +1,7 @@
 {
   "_meta": {
     "version": "v1",
-    "generated": "2026-08-05",
+    "generated": "2026-08-08",
     "product": "HōMI",
     "full_name": "HOMI TECHNOLOGIES LLC — Decision Readiness Intelligence™",
     "domain": "homitechnology.com",
@@ -13,12 +13,12 @@
     "authority": "Executable TypeScript in this repo wins over this document. Prefer lib/scoring, lib/brand, lib/agents/registry on conflict."
   },
   "stats": {
-    "product_routes": 93,
-    "api_routes": 28,
-    "component_directories": 32,
+    "product_routes": 98,
+    "api_routes": 27,
+    "component_directories": 33,
     "lib_modules": 46,
     "db_tables": 37,
-    "migrations": 48,
+    "migrations": 49,
     "calculators": 14,
     "ai_agents": 7,
     "gaps": 3
@@ -307,7 +307,7 @@
     {
       "path": "/finance",
       "name": "Finance",
-      "category": "Dashboard",
+      "category": "Product",
       "status": "complete",
       "features": [],
       "file": "app/(product)/finance/page.tsx"
@@ -441,6 +441,38 @@
       "file": "app/(marketing)/method/page.tsx"
     },
     {
+      "path": "/money",
+      "name": "Money",
+      "category": "Dashboard",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/money/page.tsx"
+    },
+    {
+      "path": "/money/budget",
+      "name": "Budget",
+      "category": "Dashboard",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/money/budget/page.tsx"
+    },
+    {
+      "path": "/money/decide",
+      "name": "Decide",
+      "category": "Dashboard",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/money/decide/page.tsx"
+    },
+    {
+      "path": "/money/plan",
+      "name": "Plan",
+      "category": "Dashboard",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/money/plan/page.tsx"
+    },
+    {
       "path": "/onboarding",
       "name": "Onboarding",
       "category": "Dashboard",
@@ -551,6 +583,14 @@
       "status": "complete",
       "features": [],
       "file": "app/(product)/settings/page.tsx"
+    },
+    {
+      "path": "/settings/subscription",
+      "name": "Subscription",
+      "category": "Dashboard",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/settings/subscription/page.tsx"
     },
     {
       "path": "/shadow-score",
@@ -831,11 +871,6 @@
       "method": "GET/POST"
     },
     {
-      "path": "/api/goals",
-      "purpose": "Goal tracking",
-      "method": "GET/POST"
-    },
-    {
       "path": "/api/healthcheck",
       "purpose": "Health monitoring",
       "method": "GET"
@@ -917,11 +952,11 @@
       "count": 12,
       "description": "admin UI module",
       "examples": [
-        "AdSpendForm",
+        "admin-nav",
         "AdminAccessWall",
         "AdminSidebar",
-        "Badge",
-        "BarSeries"
+        "AdSpendForm",
+        "Badge"
       ]
     },
     {
@@ -1024,8 +1059,8 @@
       "count": 2,
       "description": "consent UI module",
       "examples": [
-        "CookieConsent",
-        "consent-shared"
+        "consent-shared",
+        "CookieConsent"
       ]
     },
     {
@@ -1037,7 +1072,7 @@
         "ConnectionsTile",
         "DailyPulseStrip",
         "DecisionTimeline",
-        "Entrance"
+        "entrance-shared"
       ]
     },
     {
@@ -1059,14 +1094,14 @@
     },
     {
       "name": "finance",
-      "count": 11,
+      "count": 17,
       "description": "finance UI module",
       "examples": [
         "AgentInsightsPanel",
         "BudgetCalendar",
         "BudgetTab",
         "FinanceHero",
-        "NudgeRail"
+        "HardStopBanner"
       ]
     },
     {
@@ -1117,10 +1152,21 @@
       "description": "marketing UI module",
       "examples": [
         "ArtifactPlayground",
+        "blog-data",
+        "guides-data",
         "PricingCheckoutButton",
-        "UnsubscribeConfirm",
-        "WaitlistForm",
-        "blog-data"
+        "UnsubscribeConfirm"
+      ]
+    },
+    {
+      "name": "money",
+      "count": 4,
+      "description": "money UI module",
+      "examples": [
+        "MoneyDecideHub",
+        "MoneyModeNav",
+        "MoneyShell",
+        "MoneyStand"
       ]
     },
     {
@@ -1174,7 +1220,7 @@
     },
     {
       "name": "settings",
-      "count": 10,
+      "count": 11,
       "description": "settings UI module",
       "examples": [
         "CompanionMemorySection",
@@ -1224,14 +1270,14 @@
     },
     {
       "name": "ui",
-      "count": 30,
+      "count": 31,
       "description": "ui UI module",
       "examples": [
         "AnimatedNumber",
         "Celebrate",
         "ChartTooltip",
-        "DashboardLoadingSkeleton",
-        "EmptyState"
+        "count-up",
+        "DashboardLoadingSkeleton"
       ]
     }
   ],

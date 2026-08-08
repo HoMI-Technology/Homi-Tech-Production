@@ -4,18 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 /**
- * Money Reality mode switcher — Stand · Track · Decide (+ Plan as secondary).
- * OPERATE contract: one segmented control, not an 8-tab cockpit.
+ * Money Reality secondary nav — instrument-first.
+ * Stand is the home; Track / Decide are peer actions; Plan is secondary.
  */
 
 export type MoneyMode = "stand" | "track" | "plan" | "decide";
 
-const MODES: { id: MoneyMode; href: string; label: string; hint: string }[] = [
-  { id: "stand", href: "/money", label: "Stand", hint: "Am I okay?" },
-  { id: "track", href: "/money/budget", label: "Track", hint: "Budget & flows" },
-  { id: "plan", href: "/money/plan", label: "Plan", hint: "Build path" },
-  { id: "decide", href: "/money/decide", label: "Decide", hint: "Decision math" },
+const PRIMARY: { id: MoneyMode; href: string; label: string }[] = [
+  { id: "stand", href: "/money", label: "Stand" },
+  { id: "track", href: "/money/budget", label: "Track" },
+  { id: "decide", href: "/money/decide", label: "Decide" },
 ];
+
+const SECONDARY = { id: "plan" as const, href: "/money/plan", label: "Plan" };
 
 function modeFromPath(pathname: string): MoneyMode {
   if (pathname.startsWith("/money/budget")) return "track";
@@ -29,30 +30,44 @@ export function MoneyModeNav() {
   const active = modeFromPath(pathname);
 
   return (
-    <nav
-      aria-label="Money modes"
-      className="mt-6 flex flex-wrap gap-1 rounded-xl border border-line/80 bg-slate-surface/30 p-1"
-    >
-      {MODES.map((mode) => {
-        const isActive = mode.id === active;
-        return (
-          <Link
-            key={mode.id}
-            href={mode.href}
-            aria-current={isActive ? "page" : undefined}
-            className={[
-              "min-w-[4.5rem] flex-1 rounded-lg px-3 py-2.5 text-center transition-colors",
-              "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan",
-              isActive
-                ? "bg-navy-light/90 text-light shadow-[inset_0_0_0_1px_rgba(34,211,238,0.35)]"
-                : "text-dim hover:bg-slate-surface/50 hover:text-light",
-            ].join(" ")}
-          >
-            <span className="block text-sm font-semibold tracking-tight">{mode.label}</span>
-            <span className="mt-0.5 block text-[0.65rem] leading-tight text-dim/80">{mode.hint}</span>
-          </Link>
-        );
-      })}
-    </nav>
+    <div className="mt-6 flex flex-wrap items-center gap-3">
+      <nav
+        aria-label="Money modes"
+        className="flex flex-1 flex-wrap gap-1 rounded-xl border border-line/80 bg-slate-surface/30 p-1"
+      >
+        {PRIMARY.map((mode) => {
+          const isActive = mode.id === active;
+          return (
+            <Link
+              key={mode.id}
+              href={mode.href}
+              aria-current={isActive ? "page" : undefined}
+              className={[
+                "min-w-[4.5rem] flex-1 rounded-lg px-3 py-2.5 text-center text-sm font-semibold tracking-tight transition-colors",
+                "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan",
+                isActive
+                  ? "bg-navy-light/90 text-light shadow-[inset_0_0_0_1px_rgba(34,211,238,0.35)]"
+                  : "text-dim hover:bg-slate-surface/50 hover:text-light",
+              ].join(" ")}
+            >
+              {mode.label}
+            </Link>
+          );
+        })}
+      </nav>
+      <Link
+        href={SECONDARY.href}
+        aria-current={active === "plan" ? "page" : undefined}
+        className={[
+          "rounded-lg border px-3 py-2.5 text-sm font-semibold transition-colors",
+          "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan",
+          active === "plan"
+            ? "border-cyan/40 bg-cyan/10 text-cyan"
+            : "border-line/80 text-dim hover:border-line hover:text-light",
+        ].join(" ")}
+      >
+        {SECONDARY.label}
+      </Link>
+    </div>
   );
 }

@@ -32,7 +32,7 @@ export function BankConnectCard({ plusRequired }: { plusRequired: boolean }) {
             <Link href="/pricing" className="btn btn-primary btn-sm">
               See plans
             </Link>
-            <Link href="/finance" className="btn btn-ghost btn-sm">
+            <Link href="/money" className="btn btn-ghost btn-sm">
               Enter numbers manually
             </Link>
           </>
@@ -41,7 +41,7 @@ export function BankConnectCard({ plusRequired }: { plusRequired: boolean }) {
             <Link href="/connections" className="btn btn-primary btn-sm">
               Connect your bank
             </Link>
-            <Link href="/finance" className="btn btn-ghost btn-sm">
+            <Link href="/money" className="btn btn-ghost btn-sm">
               Enter numbers manually
             </Link>
           </>

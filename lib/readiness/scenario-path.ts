@@ -102,7 +102,7 @@ export function generatePathFromScenario(opts: {
         kind: "deadline",
         daysFromNow: 14,
         reasonCode: "PILLAR_FINANCIAL",
-        href: "/finance",
+        href: "/money",
         notes:
           "Path funding is intentional — record the transfer in Finance Command. " +
           PATH_DISCLAIMER,

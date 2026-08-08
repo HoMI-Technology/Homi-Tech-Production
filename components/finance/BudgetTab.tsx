@@ -37,6 +37,7 @@ import {
   type BudgetLedgerState,
   type GoalInput,
 } from "@/lib/finance/local-ledger";
+import { dualWriteLegacyFromLedger } from "@/lib/finance/migrate-from-legacy";
 import {
   markTransactionSynced,
   pushManualTransaction,
@@ -146,7 +147,9 @@ export function BudgetTab() {
 
   const commit = useCallback((next: BudgetLedgerState) => {
     setLedger(next);
-    setSaveFailed(!saveBudgetLedger(next));
+    const ok = saveBudgetLedger(next);
+    setSaveFailed(!ok);
+    if (ok) dualWriteLegacyFromLedger(next);
   }, []);
 
   if (!ledger) return null;

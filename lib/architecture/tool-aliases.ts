@@ -40,7 +40,6 @@ export const ADVISOR_TOOL_HANDOFF_PATHS: readonly string[] = [
   "/money",
   "/money/budget",
   "/money/decide",
-  "/finance",
   "/credit",
   "/assessment",
   "/shadow-score",

@@ -114,11 +114,11 @@ const nextConfig: NextConfig = {
       { source: "/family", destination: "/household#family", permanent: true },
       { source: "/blog", destination: "/guides", permanent: true },
       { source: "/learning", destination: "/guides", permanent: true },
-      // Money Reality unification (2026-08-08): finance + tools home → one surface.
-      // Individual /tools/* calculators stay live (public funnel + SEO).
+      // Money Reality: signed-in finance cockpit consolidates at /money.
+      // Public /tools hub stays public (SEO + try-before-signup). Do NOT 301
+      // /tools → /money/decide (protected) — that kills the acquisition funnel.
       { source: "/finance", destination: "/money", permanent: true },
       { source: "/finance/:path*", destination: "/money", permanent: true },
-      { source: "/tools", destination: "/money/decide", permanent: true },
     ];
   },
   async headers() {
