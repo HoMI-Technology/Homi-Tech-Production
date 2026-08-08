@@ -100,7 +100,7 @@ describe("buildReadinessPath", () => {
     });
     expect(path.confidence).toBe("assessment_plus_finance");
     expect(path.steps[0].reasonCode).toBe("NEGATIVE_CASHFLOW");
-    expect(path.steps[0].href).toBe("/finance");
+    expect(path.steps[0].href).toBe("/money");
   });
 
   it("assessment_only confidence when no finance snapshot", () => {

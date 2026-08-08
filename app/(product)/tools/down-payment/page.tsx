@@ -12,7 +12,6 @@ import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
 import { getLens } from "@/lib/tools/registry";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { ToolShell } from "@/components/tools/ToolShell";
-import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import type { LensDigestInput } from "@/lib/tools/digest";
 
 const LENS = getLens("down-payment")!;
@@ -39,7 +38,7 @@ function simulateGrowth(saved: number, monthly: number, apy: number, goal: numbe
   return { points, monthsToGoal };
 }
 
-function DownPaymentPageInner() {
+export default function DownPaymentPage() {
   const [price, setPrice] = useState(400000);
   const [targetPct, setTargetPct] = useState(20);
   const [saved, setSaved] = useState(15000);
@@ -170,10 +169,3 @@ function DownPaymentPageInner() {
   );
 }
 
-export default function DownPaymentPage() {
-  return (
-    <AdvancedToolGate>
-      <DownPaymentPageInner />
-    </AdvancedToolGate>
-  );
-}

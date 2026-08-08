@@ -6,7 +6,7 @@ describe("AppHeader nav config", () => {
   it("keeps PRIMARY ruthlessly short with Home first", () => {
     expect(APP_PRIMARY_NAV[0]).toEqual({ href: "/dashboard", label: "Home" });
     expect(APP_PRIMARY_NAV.map((i) => i.href)).toContain("/assessment");
-    expect(APP_PRIMARY_NAV.map((i) => i.href)).toContain("/tools");
+    expect(APP_PRIMARY_NAV.map((i) => i.href)).toContain("/money");
     // Journal lives under More so the product bar stays one line.
     expect(APP_PRIMARY_NAV.map((i) => i.href)).not.toContain("/journal");
     expect(APP_PRIMARY_NAV.length).toBeLessThanOrEqual(4);
@@ -29,7 +29,8 @@ describe("AppHeader nav config", () => {
       "/plan",
       "/journal",
       "/advisor",
-      "/finance",
+      "/money/budget",
+      "/money/decide",
       "/connections",
     ]) {
       expect(hrefs).toContain(href);

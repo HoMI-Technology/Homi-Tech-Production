@@ -18,7 +18,6 @@ import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readin
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { useReadinessAnchors } from "@/hooks/use-readiness";
 import { ToolShell } from "@/components/tools/ToolShell";
-import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 
 const LENS = getLens("rent-vs-buy")!;
 
@@ -57,7 +56,7 @@ function simulate(rent: number, price: number, rate: number, appreciation: numbe
   return results;
 }
 
-function RentVsBuyPageInner() {
+export default function RentVsBuyPage() {
   const [rent, setRent] = useState(2200);
   const [price, setPrice] = useState(400000);
   const [rate, setRate] = useState(6.5);
@@ -209,10 +208,3 @@ function RentVsBuyPageInner() {
   );
 }
 
-export default function RentVsBuyPage() {
-  return (
-    <AdvancedToolGate>
-      <RentVsBuyPageInner />
-    </AdvancedToolGate>
-  );
-}

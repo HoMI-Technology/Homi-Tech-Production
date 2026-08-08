@@ -108,7 +108,7 @@ describe("buildSurfaceContext", () => {
   it("maps known routes to human labels, most specific prefix first", () => {
     expect(buildSurfaceContext("/tools/mortgage")).toBe("the mortgage calculator");
     expect(buildSurfaceContext("/tools")).toBe("the financial tools hub");
-    expect(buildSurfaceContext("/finance")).toBe("the Finance Command dashboard");
+    expect(buildSurfaceContext("/money")).toBe("the Money picture");
   });
 
   it("returns undefined for unknown or missing routes", () => {
@@ -162,7 +162,7 @@ describe("buildPathContext", () => {
             kind: "milestone",
             daysFromNow: 5,
             reasonCode: "NEGATIVE_CASHFLOW",
-            href: "/finance",
+            href: "/money",
             notes: "Educational",
             fundingTarget: null,
             fundingLabel: null,
@@ -173,23 +173,23 @@ describe("buildPathContext", () => {
       }),
     );
     expect(buildPathContext()?.nextStepTitle).toBe("Stabilize cash flow");
-    expect(buildPathContext()?.nextStepHref).toBe("/finance");
+    expect(buildPathContext()?.nextStepHref).toBe("/money");
   });
 });
 
 describe("buildCompanionContext", () => {
   it("assembles assessment, finance, and surface without leaking defaults", () => {
-    const ctx = buildCompanionContext("/finance");
+    const ctx = buildCompanionContext("/money");
     // Nothing saved: no assessment, no finance, no path — but the surface is known.
     expect(ctx.assessment).toBeUndefined();
     expect(ctx.finance).toBeUndefined();
     expect(ctx.path).toBeUndefined();
-    expect(ctx.surface).toBe("the Finance Command dashboard");
+    expect(ctx.surface).toBe("the Money picture");
   });
 
   it("includes path when localStorage has a readiness path", () => {
     saveReadinessPath(samplePath({ confidence: "assessment_plus_finance" }));
-    const ctx = buildCompanionContext("/finance");
+    const ctx = buildCompanionContext("/money");
     expect(ctx.path).toBeDefined();
     expect(ctx.path?.confidence).toBe("assessment_plus_finance");
     expect(ctx.path?.stepCount).toBe(2);
