@@ -223,41 +223,18 @@ export function debtToIncome(state: FinanceState): number {
   return (state.monthlyDebtPayments / state.monthlyIncome) * 100;
 }
 
-export type Temperature = "emerald" | "yellow" | "amber" | "crimson";
-
-/** DTI temperature per canon: <=28% emerald, <=36% yellow, <=43% amber, >43% crimson. */
-export function dtiTemperature(dti: number): Temperature {
-  if (dti <= 28) return "emerald";
-  if (dti <= 36) return "yellow";
-  if (dti <= 43) return "amber";
-  return "crimson";
-}
-
-/** Savings-rate temperature: higher is better. */
-export function savingsRateTemperature(rate: number): Temperature {
-  if (rate >= 20) return "emerald";
-  if (rate >= 10) return "yellow";
-  if (rate >= 0) return "amber";
-  return "crimson";
-}
-
-/** Runway temperature: months of liquid savings covering outflow. */
-export function runwayTemperature(months: number): Temperature {
-  if (!Number.isFinite(months) || months >= 6) return "emerald";
-  if (months >= 3) return "yellow";
-  if (months >= 1) return "amber";
-  return "crimson";
-}
-
-/** Net-cash-flow temperature: positive vs. negative surplus. */
-export function cashFlowTemperature(flow: number, income: number): Temperature {
-  if (income <= 0) return "amber";
-  const ratio = flow / income;
-  if (ratio >= 0.15) return "emerald";
-  if (ratio >= 0.05) return "yellow";
-  if (ratio >= 0) return "amber";
-  return "crimson";
-}
+/**
+ * Temperature gauges now live in lib/finance/temperature.ts — they are pure
+ * threshold functions and belong to neither store. Re-exported here so this
+ * module's public surface is unchanged for existing importers.
+ */
+export type { Temperature } from "./temperature";
+export {
+  dtiTemperature,
+  savingsRateTemperature,
+  runwayTemperature,
+  cashFlowTemperature,
+} from "./temperature";
 
 export function totalNetWorth(state: FinanceState): number {
   const assets = state.assets.reduce((s, a) => s + a.amount, 0);

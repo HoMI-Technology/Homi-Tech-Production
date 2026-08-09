@@ -24,6 +24,12 @@ import type {
   Transaction,
 } from "./types";
 import { DEFAULT_CONSOLIDATION_LOAN } from "./types";
+import {
+  dtiTemperature,
+  savingsRateTemperature,
+  runwayTemperature,
+  cashFlowTemperature,
+} from "@/lib/finance/temperature";
 
 /* ------------------------------------------------------------------ */
 /* ISO date helpers (the only keepers from reference format.ts)        */
@@ -182,42 +188,15 @@ export function totalNetWorth(accounts: BankAccount[], holdings: Holding[], item
 }
 
 /* ------------------------------------------------------------------ */
-/* Temperature gauges — percent-scale inputs, canon gauge lines        */
+/* Temperature gauges — canon gauge lines, defined once                */
 /* ------------------------------------------------------------------ */
 
-/** DTI: ≤28% emerald · ≤36% yellow · ≤43% amber · >43% crimson */
-export function dtiTemperature(dti: number): Temperature {
-  if (dti <= 28) return "emerald";
-  if (dti <= 36) return "yellow";
-  if (dti <= 43) return "amber";
-  return "crimson";
-}
-
-/** Savings rate: ≥20% emerald · ≥10% yellow · ≥0% amber · <0% crimson */
-export function savingsRateTemperature(rate: number): Temperature {
-  if (rate >= 20) return "emerald";
-  if (rate >= 10) return "yellow";
-  if (rate >= 0) return "amber";
-  return "crimson";
-}
-
-/** Runway: ≥6mo emerald · ≥3 yellow · ≥1 amber · <1 crimson */
-export function runwayTemperature(months: number): Temperature {
-  if (!Number.isFinite(months) || months >= 6) return "emerald";
-  if (months >= 3) return "yellow";
-  if (months >= 1) return "amber";
-  return "crimson";
-}
-
-/** Cash-flow ratio (flow/income): ≥15% emerald · ≥5% yellow · ≥0% amber · <0 crimson */
-export function cashFlowTemperature(flow: number, income: number): Temperature {
-  if (income <= 0) return "amber";
-  const ratio = flow / income;
-  if (ratio >= 0.15) return "emerald";
-  if (ratio >= 0.05) return "yellow";
-  if (ratio >= 0) return "amber";
-  return "crimson";
-}
+/**
+ * These were a byte-identical copy of the set in lib/finance/store.ts. They
+ * now come from lib/finance/temperature.ts and are re-exported here so this
+ * module's public surface is unchanged.
+ */
+export { dtiTemperature, savingsRateTemperature, runwayTemperature, cashFlowTemperature };
 
 /* ------------------------------------------------------------------ */
 /* Financial reality — the live gauge pack                             */

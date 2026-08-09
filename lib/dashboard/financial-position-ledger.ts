@@ -10,7 +10,8 @@ import type { AdvisorFinanceContext } from "@/lib/advisor/fallback";
 import type { SnapshotReading } from "@/lib/dashboard/financial-position";
 
 export interface DashboardKpis {
-  netWorth: number;
+  /** Null when no source can compute it — the tile renders "unknown", not $0. */
+  netWorth: number | null;
   cashFlow: number;
   savingsRatePct: number;
 }
@@ -23,15 +24,23 @@ export interface LedgerDashboardView {
 
 export function ledgerDashboardKpis(context: AdvisorFinanceContext): DashboardKpis {
   return {
-    netWorth: Math.round(context.netWorth),
+    netWorth: context.netWorth === null ? null : Math.round(context.netWorth),
     cashFlow: Math.round(context.netCashFlow),
     savingsRatePct: Math.round(context.savingsRate),
   };
 }
 
 /**
- * Builds the dashboard's four KPIs, preferring the ledger when it has real
- * data and falling back to the most recent Plaid financial snapshot.
+ * Builds the dashboard's KPIs, preferring the ledger when it has real data and
+ * falling back to the most recent Plaid financial snapshot.
+ *
+ * The fallback is per-field, not all-or-nothing. Cash flow and savings rate are
+ * transaction-derived, so the ledger is the better source whenever it exists.
+ * Net worth is not: the v1 ledger has no liability type and reports null, so a
+ * Plaid snapshot — which carries a real net_worth — fills that one field. The
+ * user keeps the accurate figure they already had instead of losing it to the
+ * newer-but-blinder source.
+ *
  * Returns null only when neither source is available.
  */
 export function buildLedgerDashboardView(
@@ -39,7 +48,11 @@ export function buildLedgerDashboardView(
   latestSnapshot: SnapshotReading | null,
 ): LedgerDashboardView | null {
   if (ledgerContext) {
-    return { source: "ledger", kpis: ledgerDashboardKpis(ledgerContext) };
+    const kpis = ledgerDashboardKpis(ledgerContext);
+    if (kpis.netWorth === null && latestSnapshot) {
+      kpis.netWorth = Number(latestSnapshot.net_worth);
+    }
+    return { source: "ledger", kpis };
   }
 
   if (latestSnapshot) {

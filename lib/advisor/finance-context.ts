@@ -378,8 +378,15 @@ export function buildFinanceContextFromLedger(
 
   const liquidSavingsCents = goal?.goalType === "emergency_reserve" ? goal.currentAmountCents : 0;
   const liquidSavings = roundCents(liquidSavingsCents);
-  const totalDebt = 0; // v1 ledger has no liability transaction type
-  const netWorth = liquidSavings - totalDebt;
+  /**
+   * The v1 ledger has no liability transaction type, so it cannot know what the
+   * user owes — and without liabilities there is no net worth to report either.
+   * These stay null ("unknown") rather than 0: the Companion renders them into
+   * its prompt and the dashboard renders netWorth into the "Net worth" tile, so
+   * a zero here becomes a confident false statement on both surfaces.
+   */
+  const totalDebt = null;
+  const netWorth = null;
 
   const runwayResult = runwayFromOutflow(
     liquidSavingsCents,

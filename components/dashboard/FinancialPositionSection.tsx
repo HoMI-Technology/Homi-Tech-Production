@@ -120,7 +120,13 @@ export async function FinancialPositionSection({
   const dashboardView = buildLedgerDashboardView(ledgerContext, latestSnapshot);
   const hasLedger = dashboardView?.source === "ledger";
 
-  const netWorth = dashboardView?.kpis.netWorth ?? 0;
+  /**
+   * Null means no source could compute it. The v1 ledger has no liability type,
+   * so any figure we can show came from synced balances — which is also what
+   * makes the delta and sparkline meaningful.
+   */
+  const netWorth = dashboardView?.kpis.netWorth ?? null;
+  const netWorthKnown = netWorth !== null;
   const cashFlow = dashboardView?.kpis.cashFlow ?? 0;
   const savingsRatePct = dashboardView?.kpis.savingsRatePct ?? 0;
   const goalSavings = ledgerGoal
@@ -138,17 +144,21 @@ export async function FinancialPositionSection({
           <>
             <StatTile
               label="Net worth"
-              value={formatCurrencyTile(netWorth)}
+              value={netWorthKnown ? formatCurrencyTile(netWorth) : "—"}
               accent={COLORS.cyan}
               delta={
-                !hasLedger && nwDelta
+                netWorthKnown && nwDelta
                   ? `${nwDelta.delta >= 0 ? "+" : "−"}${formatCurrency(Math.abs(nwDelta.delta))}`
                   : undefined
               }
-              deltaTone={!hasLedger ? nwDelta?.tone : undefined}
-              footer={hasLedger ? "From your budget ledger" : "From your synced balances"}
+              deltaTone={netWorthKnown ? nwDelta?.tone : undefined}
+              footer={
+                netWorthKnown
+                  ? "From your synced balances"
+                  : "Connect accounts to see what you own and owe"
+              }
               spark={
-                !hasLedger && netWorthSeries.length >= 2 ? (
+                netWorthKnown && netWorthSeries.length >= 2 ? (
                   <Sparkline id="networth" values={netWorthSeries} color={COLORS.cyan} />
                 ) : undefined
               }

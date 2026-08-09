@@ -96,9 +96,17 @@ export interface AdvisorFinanceContext {
   /** Debt-to-income ratio as a percentage. */
   dti: number;
   liquidSavings: number;
-  totalDebt: number;
-  /** Assets minus liabilities from the Net Worth tab. */
-  netWorth: number;
+  /**
+   * What the user owes. Null when the source cannot know — the v1 ledger has
+   * no liability transaction type, so it reports unknown rather than zero.
+   */
+  totalDebt: number | null;
+  /**
+   * Assets minus liabilities. Null when the source cannot compute it (see
+   * totalDebt). Consumers must render "unknown" rather than a figure — this
+   * value reaches both the Companion prompt and the dashboard's Net worth tile.
+   */
+  netWorth: number | null;
   /** Days since the user last saved finance data; null when unknown. */
   ageDays?: number | null;
 

@@ -40,6 +40,13 @@ describe("ledgerDashboardKpis", () => {
     expect(kpis.cashFlow).toBe(2_000);
     expect(kpis.savingsRatePct).toBe(22);
   });
+
+  it("passes an unknown net worth through as null rather than coercing to 0", () => {
+    const kpis = ledgerDashboardKpis(makeContext({ netWorth: null, totalDebt: null }));
+
+    expect(kpis.netWorth).toBeNull();
+    expect(kpis.cashFlow).toBe(1_500);
+  });
 });
 
 describe("buildLedgerDashboardView", () => {
@@ -62,6 +69,31 @@ describe("buildLedgerDashboardView", () => {
     expect(view!.kpis.netWorth).toBe(42_500);
     expect(view!.kpis.cashFlow).toBe(1_200);
     expect(view!.kpis.savingsRatePct).toBe(22);
+  });
+
+  /**
+   * The v1 ledger has no liability type, so it reports net worth as unknown.
+   * Falling back per-field keeps the accurate synced figure the user already
+   * had, instead of losing it to the newer-but-blinder source.
+   */
+  it("fills net worth from the Plaid snapshot when the ledger cannot compute it", () => {
+    const ctx = makeContext({ netWorth: null, totalDebt: null, netCashFlow: 2_500 });
+    const view = buildLedgerDashboardView(ctx, PLAID_SNAPSHOT);
+
+    expect(view!.source).toBe("ledger");
+    expect(view!.kpis.netWorth).toBe(42_500);
+    // Cash flow and savings rate stay ledger-derived — only net worth falls back.
+    expect(view!.kpis.cashFlow).toBe(2_500);
+    expect(view!.kpis.savingsRatePct).toBe(19);
+  });
+
+  it("leaves net worth unknown when neither the ledger nor a snapshot can supply it", () => {
+    const ctx = makeContext({ netWorth: null, totalDebt: null });
+    const view = buildLedgerDashboardView(ctx, null);
+
+    expect(view!.source).toBe("ledger");
+    expect(view!.kpis.netWorth).toBeNull();
+    expect(view!.kpis.cashFlow).toBe(1_500);
   });
 
   it("returns null when neither ledger nor snapshot exists", () => {

@@ -141,7 +141,9 @@ describe("buildFinanceContextFromLedger", () => {
     expect(ctx).toBeDefined();
     expect(ctx!.monthlyIncome).toBe(8000);
     expect(ctx!.liquidSavings).toBe(10000);
-    expect(ctx!.netWorth).toBe(10000);
+    // Net worth stays unknown even with a funded reserve — $10k saved says
+    // nothing about what this user owes, and the v1 ledger cannot see debt.
+    expect(ctx!.netWorth).toBeNull();
     expect(ctx!.goals).toHaveLength(1);
     expect(ctx!.goals![0].pct).toBe(50);
   });
@@ -422,6 +424,33 @@ describe("signal generation", () => {
     expect(ctx!.readinessInputs!.downPaymentProgressPct).toBe(25);
     // liquidSavings stays 0 because the goal is not an emergency reserve.
     expect(ctx!.liquidSavings).toBe(0);
+  });
+
+  /**
+   * The v1 ledger has no liability transaction type, so it cannot know what a
+   * user owes. Reporting 0 would state a fact we do not have — the Companion
+   * renders these straight into its prompt ("total debt $0, net worth $0") and
+   * the dashboard renders netWorth into the "Net worth" tile. Null means
+   * "unknown", and every consumer must degrade rather than print a figure.
+   */
+  it("reports debt and net worth as unknown, not zero, while the ledger has no liabilities", () => {
+    let { state } = withPeriod();
+    state = upsertGoal(
+      state,
+      {
+        name: "Down payment",
+        goalType: "home",
+        targetAmountCents: 100_000_00,
+        currentAmountCents: 25_000_00,
+        plannedMonthlyContributionCents: 1_000_00,
+        targetDate: null,
+      },
+      NOW,
+    );
+
+    const ctx = buildFinanceContextFromLedger(state, NOW);
+    expect(ctx!.totalDebt).toBeNull();
+    expect(ctx!.netWorth).toBeNull();
   });
 
   it("ignores deleted and non-posted transactions", () => {
