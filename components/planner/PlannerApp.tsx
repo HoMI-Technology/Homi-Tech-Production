@@ -28,14 +28,10 @@ const WealthCommand = dynamic(() => import("@/components/planner/wealth/WealthCo
   ssr: false,
   loading: () => <ProductLoadingSkeleton label="Loading wealth" rows={3} />,
 });
-const PlanCommand = dynamic(() => import("@/components/planner/plan/PlanCommand"), {
-  ssr: false,
-  loading: () => <ProductLoadingSkeleton label="Loading plan" rows={3} />,
-});
 
 /**
- * @param embedded - When true (Money · Track), skip outer PageFrame so MoneyShell
- *   owns the page chrome. Avoids stacked frames / duplicate "Money" headers.
+ * @param embedded - When true (Money · Track), skip outer PageFrame and forward
+ *   embedded chrome to PlannerPage so MoneyShell owns the only page h1.
  */
 export function PlannerApp({ embedded = false }: { embedded?: boolean }) {
   const hasHydrated = usePlannerStore((s) => s._hasHydrated);
@@ -64,24 +60,25 @@ export function PlannerApp({ embedded = false }: { embedded?: boolean }) {
     };
   }, [setHasHydrated]);
 
-  const body = !ready && !hasHydrated ? (
-    <ProductLoadingSkeleton label="Loading Budget Planner" rows={4} />
-  ) : (
-    <>
-      <PlannerPage
-        overview={<OverviewCommand />}
-        calendar={<DecisionCalendar />}
-        banking={<BankingCommand />}
-        wealth={<WealthCommand />}
-        plan={<PlanCommand />}
-      />
-      <footer className="mt-12 border-t border-white/[0.06] pt-6">
-        <p className="mx-auto max-w-3xl text-center text-xs leading-relaxed text-dim">
-          {LEGAL_DISCLAIMER}
-        </p>
-      </footer>
-    </>
-  );
+  const body =
+    !ready && !hasHydrated ? (
+      <ProductLoadingSkeleton label="Loading Budget Planner" rows={4} />
+    ) : (
+      <>
+        <PlannerPage
+          embedded={embedded}
+          overview={<OverviewCommand />}
+          calendar={<DecisionCalendar />}
+          banking={<BankingCommand />}
+          wealth={<WealthCommand />}
+        />
+        <footer className="mt-12 border-t border-white/[0.06] pt-6">
+          <p className="mx-auto max-w-3xl text-center text-xs leading-relaxed text-dim">
+            {LEGAL_DISCLAIMER}
+          </p>
+        </footer>
+      </>
+    );
 
   if (embedded) {
     return <div className="min-w-0">{body}</div>;

@@ -27,12 +27,12 @@ function SectionShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="mt-10">
       <SectionHeader
-        eyebrow="Money"
+        eyebrow="Connected banks"
         title="Financial position"
-        subtitle="Net worth, cash flow, and savings from your connected banks."
+        subtitle="Net worth, cash flow, and savings from Plaid/ledger (not the on-device Track store)."
         action={
-          <Link href="/simulator" className="btn btn-ghost btn-sm">
-            Simulate your score
+          <Link href="/money" className="btn btn-ghost btn-sm">
+            Open Money
           </Link>
         }
       />

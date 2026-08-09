@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { COLORS } from "@/lib/brand";
+import { NAV_CATALOG } from "@/lib/layout/nav-catalog";
 
 const ICONS: Record<string, React.ReactNode> = {
   assessment: <path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />,
@@ -12,18 +13,13 @@ const ICONS: Record<string, React.ReactNode> = {
   journal: (
     <path d="M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
   ),
-  tools: (
-    <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.4-3.4a4 4 0 01-5.6 5.6L6 21l-3-3 9.5-9.5a4 4 0 015.6-5.6z" />
+  money: (
+    <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
   ),
-  simulator: <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6" />,
   couples: (
     <path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.5l-1-.9a5.5 5.5 0 10-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 000-7.8z" />
   ),
-  genome: (
-    <path d="M12 2a5 5 0 015 5c0 2-1 3-2 4s-1 2 0 3 2 2 2 4a5 5 0 01-10 0c0-2 1-3 2-4s1-2 0-3-2-2-2-4a5 5 0 015-5z" />
-  ),
-  daily: <path d="M12 3a9 9 0 109 9 9 9 0 00-9-9zM12 7v5l3 3" />,
-  signals: <path d="M2 12h4l3-8 4 16 3-8h6" />,
+  path: <path d="M4 19l4-4 4 2 8-10" />,
 };
 
 interface Action {
@@ -31,72 +27,88 @@ interface Action {
   label: string;
   desc: string;
   icon: string;
-  /** Sharper phrasing shown when the action is surfaced as "now". */
   nowDesc?: string;
 }
 
-const ACTIONS: Action[] = [
-  {
-    href: "/daily",
-    label: "Daily check-in",
-    desc: "60 seconds of honesty",
-    icon: "daily",
-    nowDesc: "You haven't checked in today",
-  },
-  {
-    href: "/assessment",
-    label: "Assessment",
+/** Copy + icons keyed by catalog href — never invent launch-hidden routes here. */
+const ACTION_COPY: Record<string, { desc: string; icon: string; nowDesc?: string }> = {
+  "/assessment": {
     desc: "Full 3-pillar readiness check",
     icon: "assessment",
     nowDesc: "Get your full verdict — ~10 minutes",
   },
-  {
-    href: "/shadow-score",
-    label: "Shadow Score",
+  "/shadow-score": {
     desc: "A quick, lighter read",
     icon: "shadow",
     nowDesc: "A first score in about 2 minutes",
   },
-  { href: "/plan", label: "Plan", desc: "Your personalized next steps", icon: "plan" },
-  {
-    href: "/advisor",
-    label: "Companion",
+  "/money": {
+    desc: "Picture · track · decide — one finance surface",
+    icon: "money",
+    nowDesc: "Your financial pillar is the one to work — open Money",
+  },
+  "/plan": {
+    desc: "Personalized next steps from your verdict",
+    icon: "plan",
+  },
+  "/path": {
+    desc: "Binding-constraint path from your verdict",
+    icon: "path",
+  },
+  "/advisor": {
     desc: "Talk it through",
     icon: "advisor",
     nowDesc: "Your emotional pillar wants a conversation",
   },
-  { href: "/journal", label: "Journal", desc: "Log the decisions you're making", icon: "journal" },
-  {
-    href: "/money",
-    label: "Money",
-    desc: "Picture · track · decide — one finance surface",
-    icon: "tools",
-    nowDesc: "Your financial pillar is the one to work — open Money",
+  "/journal": {
+    desc: "Log the decisions you're making",
+    icon: "journal",
   },
-  // /money/decide stays a valid contextual href (featured "Now") but is not a
-  // second All-instruments peer of Money — mode nav owns Track/Decide/Plan.
-
-  {
-    href: "/signals",
-    label: "Signals",
-    desc: "The timing forces around you",
-    icon: "signals",
-    nowDesc: "Timing is your open question — read the signals",
-  },
-  {
-    href: "/simulator",
-    label: "Simulate your score",
-    desc: "Test a move before you make it",
-    icon: "simulator",
-  },
-  {
-    href: "/household#couples",
-    label: "Couples",
-    desc: "Check alignment with a partner",
+  "/household": {
+    desc: "Shared readiness, couples, family",
     icon: "couples",
   },
-  { href: "/genome", label: "Genome", desc: "Your decision psychology", icon: "genome" },
-];
+};
+
+/**
+ * Dashboard instrument grid — only routes that are allowed in chrome or
+ * explicit palette lead-gen. Launch-hidden catalog entries (palette: false
+ * with no header surface) are never listed.
+ */
+function buildActions(): Action[] {
+  const byHref = new Map(NAV_CATALOG.map((e) => [e.href, e]));
+  const order = [
+    "/money",
+    "/assessment",
+    "/shadow-score",
+    "/path",
+    "/plan",
+    "/journal",
+    "/advisor",
+    "/household",
+  ];
+
+  const out: Action[] = [];
+  for (const href of order) {
+    const entry = byHref.get(href);
+    const copy = ACTION_COPY[href];
+    if (!entry || !copy) continue;
+    // Skip launch-hidden (no header, palette false)
+    const hidden =
+      !entry.surfaces.header && entry.surfaces.palette === false;
+    if (hidden) continue;
+    out.push({
+      href,
+      label: entry.paletteLabel ?? entry.label,
+      desc: copy.desc,
+      icon: copy.icon,
+      nowDesc: copy.nowDesc,
+    });
+  }
+  return out;
+}
+
+const ACTIONS = buildActions();
 
 function ActionIcon({ icon, size = 22 }: { icon: string; size?: number }) {
   return (
@@ -111,16 +123,14 @@ function ActionIcon({ icon, size = 22 }: { icon: string; size?: number }) {
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      {ICONS[icon]}
+      {ICONS[icon] ?? ICONS.money}
     </svg>
   );
 }
 
 /**
  * Quick actions, curated: the three most relevant instruments for the user's
- * current state lead ("For you right now", computed server-side by
- * lib/dashboard/context-actions), with the full grid demoted below. Curation
- * is the premium tell — nine equal links is a team that couldn't decide.
+ * current state lead, with the full grid demoted below.
  */
 export function QuickActionGrid({
   journalCount,
@@ -129,11 +139,11 @@ export function QuickActionGrid({
   journalCount: number;
   featured?: string[];
 }) {
-  // Resolve featured hrefs: Money modes collapse to the Money instrument card
-  // so "Now" can deep-link /money/decide without inventing a second tile.
   const resolveAction = (href: string): Action | undefined => {
     const direct = ACTIONS.find((a) => a.href === href);
     if (direct) return direct;
+    // Contextual actions may deep-link Money modes or launch-hidden /daily —
+    // collapse Money modes to Money card; skip true launch-hidden unless copied.
     if (href === "/money/decide" || href === "/money/budget" || href === "/money/plan") {
       const money = ACTIONS.find((a) => a.href === "/money");
       if (!money) return undefined;
@@ -146,6 +156,32 @@ export function QuickActionGrid({
             : money.nowDesc,
       };
     }
+    if (href === "/daily") {
+      return {
+        href: "/daily",
+        label: "Daily check-in",
+        desc: "60 seconds of honesty",
+        icon: "plan",
+        nowDesc: "You haven't checked in today",
+      };
+    }
+    if (href === "/signals") {
+      return {
+        href: "/signals",
+        label: "Signals",
+        desc: "Timing forces around you",
+        icon: "path",
+        nowDesc: "Timing is your open question",
+      };
+    }
+    if (href === "/simulator") {
+      return {
+        href: "/simulator",
+        label: "Simulate your score",
+        desc: "Test a move before you make it",
+        icon: "assessment",
+      };
+    }
     return undefined;
   };
 
@@ -153,7 +189,6 @@ export function QuickActionGrid({
     .map((href) => resolveAction(href))
     .filter((a): a is Action => Boolean(a));
   const featuredHrefs = new Set(featuredActions.map((a) => a.href));
-  // Hide Money from "All instruments" when a Money-mode deep link is featured
   const rest = ACTIONS.filter((a) => {
     if (featuredHrefs.has(a.href)) return false;
     if (

@@ -107,14 +107,20 @@ const INCOME_CATEGORIES: IncomeCategory[] = ["salary", "freelance", "investments
  * Displayed as "resolved", never "complete".
  */
 function pathProgressRatio(path: PathSnapshot): number {
-  const steps = path.steps.filter((s) => s.reasonCode !== "REASSESS");
+  const allSteps = Array.isArray(path.steps) ? path.steps : [];
+  const steps = allSteps.filter((s) => s.reasonCode !== "REASSESS");
   if (steps.length === 0) {
-    if (path.steps.length === 0) return 1;
-    const done = path.steps.filter((s) => s.status !== "pending").length;
-    return done / path.steps.length;
+    if (allSteps.length === 0) return 1;
+    const done = allSteps.filter((s) => s.status !== "pending").length;
+    return done / allSteps.length;
   }
   const done = steps.filter((s) => s.status !== "pending").length;
   return done / steps.length;
+}
+
+function verdictLabel(verdict: string | undefined | null): string {
+  if (!verdict) return "—";
+  return VERDICT_META[verdict as keyof typeof VERDICT_META]?.label ?? String(verdict);
 }
 
 /** Short subscore labels for the pillar breakdown captions. */
@@ -291,7 +297,7 @@ function PathStrip({ onNavigateTab }: { onNavigateTab?: (tab: SignalTab) => void
             )}
           </div>
           <p className="mt-2 text-xs text-dim">
-            Binding: {VERDICT_META[path.verdict].label} — optional review only
+            Binding: {verdictLabel(path.verdict)} — optional review only
           </p>
           <h3 className="mt-2 font-serif text-xl italic text-light">
             Path steps complete — reassess when life moves
@@ -301,8 +307,9 @@ function PathStrip({ onNavigateTab }: { onNavigateTab?: (tab: SignalTab) => void
     );
   }
 
-  const total = path.steps.filter((s) => s.reasonCode !== "REASSESS").length;
-  const done = path.steps.filter(
+  const allSteps = Array.isArray(path.steps) ? path.steps : [];
+  const total = allSteps.filter((s) => s.reasonCode !== "REASSESS").length;
+  const done = allSteps.filter(
     (s) => s.reasonCode !== "REASSESS" && s.status !== "pending",
   ).length;
 
@@ -311,7 +318,7 @@ function PathStrip({ onNavigateTab }: { onNavigateTab?: (tab: SignalTab) => void
       <div className="rounded-2xl border border-emerald/25 bg-emerald/[0.07] p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm font-medium text-emerald">
-            Path: {VERDICT_META[path.verdict].label} band — {done} of {total} steps resolved
+            Path: {verdictLabel(path.verdict)} band — {done} of {total} steps resolved
           </p>
           {onNavigateTab && (
             <button
@@ -644,7 +651,13 @@ function ExportPack({
   receiptToken: string | null;
   onIssueReceipt: () => void;
 }) {
+  // Hooks must run unconditionally — score loads async; early-return before
+  // useState/usePlannerReality crashed the route once planner became non-null
+  // ("Something slipped" error boundary on /money/budget).
   const planner = usePlannerScore();
+  const { reality, nw } = usePlannerReality();
+  const [copied, setCopied] = useState(false);
+
   if (!planner) {
     return (
       <Section
@@ -654,16 +667,16 @@ function ExportPack({
       />
     );
   }
-  const { reality, nw } = usePlannerReality();
-  const [copied, setCopied] = useState(false);
 
   const runwayLabel = Number.isFinite(reality.runwayMonths)
     ? `${reality.runwayMonths.toFixed(1)} mo`
     : "∞";
 
+  const verdictLabel = VERDICT_META[planner.verdict]?.label ?? planner.verdict;
+
   const copySummary = async () => {
     const lines = [
-      `HōMI Readiness — ${Math.round(planner.score)}/100 · ${VERDICT_META[planner.verdict].label}`,
+      `HōMI Readiness — ${Math.round(planner.score)}/100 · ${verdictLabel}`,
       `Pillars: Financial ${planner.pillarPct.financial}% · Emotional ${planner.pillarPct.emotional}% · Timing ${planner.pillarPct.timing}%`,
       planner.keyInsight,
       ...planner.nextSteps.slice(0, 3).map((s, i) => `${i + 1}. ${s}`),
@@ -719,7 +732,7 @@ function ExportPack({
           <div className="mt-3 flex items-end gap-3">
             <span className="text-hero-number text-light">{Math.round(planner.score)}</span>
             <span className="pb-1.5 font-serif text-lg italic text-emerald">
-              {VERDICT_META[planner.verdict].label}
+              {verdictLabel}
             </span>
           </div>
           <div className="mt-4 space-y-2">
@@ -837,7 +850,7 @@ function FinancialReality() {
     >
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {gauges.map((gauge) => {
-          const band = BAND_BY_TEMP[gauge.temp];
+          const band = BAND_BY_TEMP[gauge.temp] ?? BAND_BY_TEMP.amber;
           return (
             <div key={gauge.label} className="card-chrome p-4">
               <div className="flex items-center justify-between gap-2">
@@ -859,9 +872,12 @@ function FinancialReality() {
 
       <div className="card-chrome mt-4 space-y-4 p-5">
         {pillarRows.map(({ key, label }) => {
-          const pillar = planner.result.pillars[key];
+          const pillar = planner.result?.pillars?.[key];
+          if (!pillar || !Number.isFinite(pillar.total) || !Number.isFinite(pillar.max) || pillar.max <= 0) {
+            return null;
+          }
           const pct = Math.round((pillar.total / pillar.max) * 100);
-          const caption = pillar.factors
+          const caption = (pillar.factors ?? [])
             .map((f) => `${FACTOR_SHORT[f.key] ?? f.label} ${f.pts}/${f.max}`)
             .join(" · ");
           return (
