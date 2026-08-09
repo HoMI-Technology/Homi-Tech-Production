@@ -25,7 +25,10 @@ export async function GET(request: Request) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: "Sign in to load your Companion history.", code: "auth_required" }, { status: 401 });
+    return NextResponse.json(
+      { error: "Sign in to load your Companion history.", code: "auth_required" },
+      { status: 401 },
+    );
   }
 
   const thread = await loadCompanionThread(supabase);
@@ -55,7 +58,10 @@ export async function DELETE(request: Request) {
 
   const forgotten = await forgetCompanionThread(supabase, user.id);
   if (!forgotten) {
-    return NextResponse.json({ error: "Couldn't forget the conversation. Try again." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Couldn't forget the conversation. Try again." },
+      { status: 500 },
+    );
   }
   return NextResponse.json({ forgotten: true });
 }

@@ -24,12 +24,7 @@ function OAuthButton({
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      className="btn btn-ghost w-full"
-      aria-label={label}
-    >
+    <button type="button" onClick={handleClick} className="btn btn-ghost w-full" aria-label={label}>
       {icon}
       {label}
     </button>
@@ -61,7 +56,14 @@ function GoogleIcon() {
 
 function AppleIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" className="mr-2" fill="currentColor">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 18 18"
+      aria-hidden="true"
+      className="mr-2"
+      fill="currentColor"
+    >
       <path d="M12.55 4.85c-.55.64-1.43.72-2.08.17-.64-.55-.72-1.43-.17-2.08.55-.64 1.43-.72 2.08-.17.64.55.72 1.43.17 2.08z" />
       <path d="M11.35 6.1c-.85-.05-1.55.45-2.05.45-.55 0-1.25-.45-2-.45-1.6 0-3.2 1.35-3.2 3.85 0 2.25 1.45 4.9 3.35 4.9.75 0 1.3-.5 2.05-.5.75 0 1.25.5 2.05.5 1.85 0 3.1-2.7 3.1-4.9 0-.25-.05-.5-.1-.75-1.15-.4-1.95-1.5-1.95-2.75 0-.95.55-1.75 1.3-2.15-.55-.75-1.45-1.1-2.35-1.05-.15.05-.3.1-.4.15-.35.15-.7.3-1.1.3-.45 0-.9-.15-1.3-.35.3-.15.65-.25 1-.25.85 0 1.6.45 2.05 1.1.45-.65 1.2-1.1 2.05-1.1.35 0 .7.1 1 .25-.5.4-.85 1-.85 1.7 0 1.25.8 2.35 1.95 2.75-.05.25-.1.5-.1.75 0 .3.05.6.15.9-.25.1-.5.15-.75.15z" />
     </svg>
@@ -79,10 +81,20 @@ export function OAuthButtons({ next }: { next: string }) {
       <div className="hairline my-6" />
       <div className="space-y-3">
         {showGoogle && (
-          <OAuthButton provider="google" label="Continue with Google" icon={<GoogleIcon />} next={next} />
+          <OAuthButton
+            provider="google"
+            label="Continue with Google"
+            icon={<GoogleIcon />}
+            next={next}
+          />
         )}
         {showApple && (
-          <OAuthButton provider="apple" label="Continue with Apple" icon={<AppleIcon />} next={next} />
+          <OAuthButton
+            provider="apple"
+            label="Continue with Apple"
+            icon={<AppleIcon />}
+            next={next}
+          />
         )}
       </div>
     </>

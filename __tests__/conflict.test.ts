@@ -40,28 +40,48 @@ describe("deriveConflictSignals", () => {
   });
 
   it("fires COMMISSION_EXPOSURE for an agent referral", () => {
-    const signals = deriveConflictSignals({ fomoLevel: 1, timeHorizonMonths: 12, referralSource: "agent" });
+    const signals = deriveConflictSignals({
+      fomoLevel: 1,
+      timeHorizonMonths: 12,
+      referralSource: "agent",
+    });
     expect(signals.some((s) => s.code === "COMMISSION_EXPOSURE")).toBe(true);
   });
 
   it("fires COMMISSION_EXPOSURE for a lender referral", () => {
-    const signals = deriveConflictSignals({ fomoLevel: 1, timeHorizonMonths: 12, referralSource: "lender" });
+    const signals = deriveConflictSignals({
+      fomoLevel: 1,
+      timeHorizonMonths: 12,
+      referralSource: "lender",
+    });
     expect(signals.some((s) => s.code === "COMMISSION_EXPOSURE")).toBe(true);
   });
 
   it("does not fire COMMISSION_EXPOSURE for self or family referral", () => {
-    const signals = deriveConflictSignals({ fomoLevel: 1, timeHorizonMonths: 12, referralSource: "family" });
+    const signals = deriveConflictSignals({
+      fomoLevel: 1,
+      timeHorizonMonths: 12,
+      referralSource: "family",
+    });
     expect(signals.some((s) => s.code === "COMMISSION_EXPOSURE")).toBe(false);
   });
 
   it("fires EXTERNAL_DEADLINE when the deadline origin is external", () => {
-    const signals = deriveConflictSignals({ fomoLevel: 1, timeHorizonMonths: 12, deadlineOrigin: "external" });
+    const signals = deriveConflictSignals({
+      fomoLevel: 1,
+      timeHorizonMonths: 12,
+      deadlineOrigin: "external",
+    });
     expect(signals.some((s) => s.code === "EXTERNAL_DEADLINE")).toBe(true);
     expect(signals.find((s) => s.code === "EXTERNAL_DEADLINE")?.severity).toBe("info");
   });
 
   it("does not fire EXTERNAL_DEADLINE when there is no real deadline", () => {
-    const signals = deriveConflictSignals({ fomoLevel: 1, timeHorizonMonths: 12, deadlineOrigin: "none" });
+    const signals = deriveConflictSignals({
+      fomoLevel: 1,
+      timeHorizonMonths: 12,
+      deadlineOrigin: "none",
+    });
     expect(signals.some((s) => s.code === "EXTERNAL_DEADLINE")).toBe(false);
   });
 

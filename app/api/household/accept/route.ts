@@ -67,10 +67,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invite expired." }, { status: 410 });
   }
   if (!user.email) {
-    return NextResponse.json(
-      { error: "Your account has no email address." },
-      { status: 403 },
-    );
+    return NextResponse.json({ error: "Your account has no email address." }, { status: 403 });
   }
   if (invite.email.toLowerCase().trim() !== user.email.toLowerCase().trim()) {
     return NextResponse.json(
@@ -126,10 +123,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Could not join household." }, { status: 500 });
   }
 
-  await supabase
-    .from("household_invites")
-    .update({ status: "accepted" })
-    .eq("id", invite.id);
+  await supabase.from("household_invites").update({ status: "accepted" }).eq("id", invite.id);
 
   return NextResponse.json({ ok: true, household_id: invite.household_id });
 }

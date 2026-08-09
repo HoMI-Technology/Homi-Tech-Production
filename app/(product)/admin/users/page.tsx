@@ -13,7 +13,11 @@ export const metadata: Metadata = {
 
 function formatDate(value: string) {
   try {
-    return new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    return new Date(value).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   } catch {
     return "—";
   }
@@ -40,11 +44,7 @@ export default async function AdminUsersPage() {
 
   return (
     <div>
-      <PageHeader
-        eyebrow="Admin"
-        title="Users"
-        description="Read-only directory of accounts."
-      />
+      <PageHeader eyebrow="Admin" title="Users" description="Read-only directory of accounts." />
 
       <div className="mt-6">
         <MetricRail

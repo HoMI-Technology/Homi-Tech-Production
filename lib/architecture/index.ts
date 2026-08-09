@@ -1,7 +1,11 @@
 export type { ArchitectureDocument, ArchitectureGap, ArchitectureCalculator } from "./types";
 export { ARCHITECTURE_CALCULATORS } from "./calculators";
 export { ARCHITECTURE_GAPS } from "./gaps";
-export { ARCHITECTURE_BRAND, ARCHITECTURE_COMPLIANCE, ARCHITECTURE_FORBIDDEN_PHRASES } from "./compliance";
+export {
+  ARCHITECTURE_BRAND,
+  ARCHITECTURE_COMPLIANCE,
+  ARCHITECTURE_FORBIDDEN_PHRASES,
+} from "./compliance";
 export {
   TOOL_ALIASES,
   CANONICAL_TOOL_ROUTES,

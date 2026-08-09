@@ -95,7 +95,10 @@ export async function GET() {
   if (error) {
     const correlationId = crypto.randomUUID();
     console.error(`[campaigns:${correlationId}] list failed`, error);
-    return NextResponse.json({ error: "Failed to load campaigns.", correlationId }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to load campaigns.", correlationId },
+      { status: 500 },
+    );
   }
 
   const rows = (campaigns as Campaign[] | null) ?? [];
@@ -105,15 +108,22 @@ export async function GET() {
     const { data: sends } = await service
       .from("campaign_sends")
       .select("campaign_id, status")
-      .in("campaign_id", rows.map((c) => c.id));
-    for (const row of (sends as { campaign_id: string; status: CampaignSendStatus }[] | null) ?? []) {
+      .in(
+        "campaign_id",
+        rows.map((c) => c.id),
+      );
+    for (const row of (sends as { campaign_id: string; status: CampaignSendStatus }[] | null) ??
+      []) {
       const bucket = (counts[row.campaign_id] ??= { sent: 0, failed: 0, suppressed: 0 });
       bucket[row.status] = (bucket[row.status] ?? 0) + 1;
     }
   }
 
   return NextResponse.json({
-    campaigns: rows.map((c) => ({ ...c, send_counts: counts[c.id] ?? { sent: 0, failed: 0, suppressed: 0 } })),
+    campaigns: rows.map((c) => ({
+      ...c,
+      send_counts: counts[c.id] ?? { sent: 0, failed: 0, suppressed: 0 },
+    })),
   });
 }
 
@@ -123,7 +133,10 @@ export async function POST(request: Request) {
 
   const { allowed } = await rateLimit(`campaigns:${gate.user.id}`, { limit: 30, windowMs: 60_000 });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a minute." },
+      { status: 429 },
+    );
   }
 
   const svc = serviceOr503();
@@ -174,7 +187,10 @@ export async function POST(request: Request) {
       if (error) {
         const correlationId = crypto.randomUUID();
         console.error(`[campaigns:${correlationId}] update failed`, error);
-        return NextResponse.json({ error: "Failed to save campaign.", correlationId }, { status: 500 });
+        return NextResponse.json(
+          { error: "Failed to save campaign.", correlationId },
+          { status: 500 },
+        );
       }
       if (!data) {
         return NextResponse.json({ error: "Campaign not found or already sent." }, { status: 409 });
@@ -190,7 +206,10 @@ export async function POST(request: Request) {
     if (error || !data) {
       const correlationId = crypto.randomUUID();
       console.error(`[campaigns:${correlationId}] insert failed`, error);
-      return NextResponse.json({ error: "Failed to save campaign.", correlationId }, { status: 500 });
+      return NextResponse.json(
+        { error: "Failed to save campaign.", correlationId },
+        { status: 500 },
+      );
     }
     return NextResponse.json({ ok: true, campaignId: data.id });
   }
@@ -217,7 +236,10 @@ export async function POST(request: Request) {
   }
 
   const revertToDraft = () =>
-    service.from("campaigns").update({ status: "draft", updated_at: new Date().toISOString() }).eq("id", body.campaignId);
+    service
+      .from("campaigns")
+      .update({ status: "draft", updated_at: new Date().toISOString() })
+      .eq("id", body.campaignId);
 
   const resolved = await resolveAudienceRecipients(service, campaign.audience);
 
@@ -249,9 +271,10 @@ export async function POST(request: Request) {
       status: "suppressed",
     }));
     for (let i = 0; i < suppressedRows.length; i += LEDGER_CHUNK) {
-      await service
-        .from("campaign_sends")
-        .upsert(suppressedRows.slice(i, i + LEDGER_CHUNK), { onConflict: "campaign_id,email", ignoreDuplicates: true });
+      await service.from("campaign_sends").upsert(suppressedRows.slice(i, i + LEDGER_CHUNK), {
+        onConflict: "campaign_id,email",
+        ignoreDuplicates: true,
+      });
     }
 
     const outcome = await sendCampaignEmails({
@@ -262,13 +285,25 @@ export async function POST(request: Request) {
 
     const now = new Date().toISOString();
     const resultRows = [
-      ...outcome.sent.map((email) => ({ campaign_id: body.campaignId, email, status: "sent", sent_at: now })),
-      ...outcome.failed.map((f) => ({ campaign_id: body.campaignId, email: f.email, status: "failed", error: f.error, sent_at: now })),
+      ...outcome.sent.map((email) => ({
+        campaign_id: body.campaignId,
+        email,
+        status: "sent",
+        sent_at: now,
+      })),
+      ...outcome.failed.map((f) => ({
+        campaign_id: body.campaignId,
+        email: f.email,
+        status: "failed",
+        error: f.error,
+        sent_at: now,
+      })),
     ];
     for (let i = 0; i < resultRows.length; i += LEDGER_CHUNK) {
-      await service
-        .from("campaign_sends")
-        .upsert(resultRows.slice(i, i + LEDGER_CHUNK), { onConflict: "campaign_id,email", ignoreDuplicates: true });
+      await service.from("campaign_sends").upsert(resultRows.slice(i, i + LEDGER_CHUNK), {
+        onConflict: "campaign_id,email",
+        ignoreDuplicates: true,
+      });
     }
 
     await service
@@ -315,7 +350,11 @@ export async function POST(request: Request) {
     if (sentRows && sentRows.length > 0) {
       await service
         .from("campaigns")
-        .update({ status: "sent", sent_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+        .update({
+          status: "sent",
+          sent_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
         .eq("id", body.campaignId);
     } else {
       await revertToDraft();

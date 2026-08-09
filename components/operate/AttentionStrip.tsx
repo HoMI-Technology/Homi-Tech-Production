@@ -51,9 +51,7 @@ export function AttentionStrip({
             />
             <div className="min-w-0">
               <p className="font-semibold text-light">{primary.title}</p>
-              {primary.detail && (
-                <p className="mt-1 text-sm text-dim">{primary.detail}</p>
-              )}
+              {primary.detail && <p className="mt-1 text-sm text-dim">{primary.detail}</p>}
             </div>
           </div>
           {primary.href && primary.cta && (

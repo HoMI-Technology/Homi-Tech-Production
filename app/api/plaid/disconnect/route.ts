@@ -27,7 +27,10 @@ export async function POST(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`plaid-disconnect:${ip}`, { limit: 10, windowMs: 60_000 });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a minute." },
+      { status: 429 },
+    );
   }
 
   const supabase = await createClient();
@@ -103,7 +106,10 @@ export async function POST(request: Request) {
   const { error: deleteError } = await admin.from("plaid_items").delete().eq("id", item.id);
   if (deleteError) {
     const correlationId = crypto.randomUUID();
-    console.error(`[plaid/disconnect:${correlationId}] plaid_items delete failed`, deleteError.message);
+    console.error(
+      `[plaid/disconnect:${correlationId}] plaid_items delete failed`,
+      deleteError.message,
+    );
     return NextResponse.json(
       { error: "Could not remove the bank connection.", correlationId },
       { status: 500 },

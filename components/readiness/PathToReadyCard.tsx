@@ -56,9 +56,10 @@ function isReadyCelebrate(result: AssessmentResult): boolean {
   return result.verdict === "READY" && result.hardStops.length === 0;
 }
 
-function confidenceLabel(
-  confidence: ReadinessPath["confidence"],
-): { text: string; className: string } {
+function confidenceLabel(confidence: ReadinessPath["confidence"]): {
+  text: string;
+  className: string;
+} {
   if (confidence === "assessment_plus_finance") {
     return {
       text: "Assessment + finance",
@@ -208,29 +209,24 @@ export function PathToReadyCard({
     trackPathSaved({ source: "results_manual", stepCount: next.steps.length });
   }, [result, assessmentCompletedAt]);
 
-  const handleComplete = useCallback(
-    (stepId: string) => {
-      // Guarded transition either way; only the flag-on branch may publish a
-      // toast impact. Analytics fire once per real transition, and
-      // first-resolution truth (no step of any kind was done or skipped
-      // before) comes from the transition — not from "first pending step".
-      const result = impactBus
-        ? completePathStepWithImpact(stepId)
-        : completePathStepGuarded(stepId);
-      if (result.kind === "noop") {
-        if (result.path) setPath(result.path);
-        return;
-      }
-      setPath(result.path);
-      trackPathStepDone({
-        surface: "results",
-        reasonCode: result.transition.reasonCode,
-        evidence: "manual",
-        firstStep: result.transition.wasFirstResolution ? 1 : 0,
-      });
-    },
-    [],
-  );
+  const handleComplete = useCallback((stepId: string) => {
+    // Guarded transition either way; only the flag-on branch may publish a
+    // toast impact. Analytics fire once per real transition, and
+    // first-resolution truth (no step of any kind was done or skipped
+    // before) comes from the transition — not from "first pending step".
+    const result = impactBus ? completePathStepWithImpact(stepId) : completePathStepGuarded(stepId);
+    if (result.kind === "noop") {
+      if (result.path) setPath(result.path);
+      return;
+    }
+    setPath(result.path);
+    trackPathStepDone({
+      surface: "results",
+      reasonCode: result.transition.reasonCode,
+      evidence: "manual",
+      firstStep: result.transition.wasFirstResolution ? 1 : 0,
+    });
+  }, []);
 
   const handleSkip = useCallback((stepId: string) => {
     const next = completePathStep(stepId, "skipped");
@@ -337,8 +333,7 @@ export function PathToReadyCard({
             READY band — no forced homework.
           </p>
           <p className="mt-1 text-sm text-dim">
-            Protection signals are clear. Optional maintenance keeps the band
-            honest.
+            Protection signals are clear. Optional maintenance keeps the band honest.
           </p>
         </div>
         <button
@@ -376,8 +371,7 @@ export function PathToReadyCard({
               {isOptional ? "Optional maintenance" : "Your sequenced path"}
             </h2>
             <p className="mt-1 text-sm text-dim">
-              Score{" "}
-              <span className="score-numeral text-light">{path.score}</span>
+              Score <span className="score-numeral text-light">{path.score}</span>
               {" · "}
               {path.verdict === "NOT_YET" ? "DO NOT PROCEED" : path.verdict.replace("_", " ")}
             </p>
@@ -390,8 +384,7 @@ export function PathToReadyCard({
             </span>
             {!isOptional && (
               <span className="inline-flex items-center rounded-full border border-slate-surface/80 px-2.5 py-1 text-3xs font-semibold uppercase tracking-wide text-dim">
-                <span className="score-numeral mr-1 text-light">{completion}</span>
-                % resolved
+                <span className="score-numeral mr-1 text-light">{completion}</span>% resolved
               </span>
             )}
           </div>
@@ -427,11 +420,7 @@ export function PathToReadyCard({
         )}
 
         <div className="mt-5">
-          <PathPreview
-            steps={path.steps}
-            onComplete={handleComplete}
-            onSkip={handleSkip}
-          />
+          <PathPreview steps={path.steps} onComplete={handleComplete} onSkip={handleSkip} />
         </div>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -471,19 +460,11 @@ export function PathToReadyCard({
             </Link>
           )}
 
-          <button
-            type="button"
-            onClick={handleSave}
-            className="btn btn-ghost text-sm"
-          >
+          <button type="button" onClick={handleSave} className="btn btn-ghost text-sm">
             Save only
           </button>
 
-          <button
-            type="button"
-            onClick={handleGenerate}
-            className="btn btn-ghost text-sm"
-          >
+          <button type="button" onClick={handleGenerate} className="btn btn-ghost text-sm">
             Regenerate
           </button>
           <button
@@ -544,8 +525,8 @@ export function PathToReadyCard({
         Turn this verdict into sequenced moves
       </h2>
       <p className="mt-2 max-w-xl text-sm leading-relaxed text-dim">
-        One binding constraint at a time — protection signal first, not a
-        checklist wall. Educational readiness only.
+        One binding constraint at a time — protection signal first, not a checklist wall.
+        Educational readiness only.
       </p>
 
       <div className="mt-5 flex flex-wrap items-center gap-2">
@@ -565,11 +546,7 @@ export function PathToReadyCard({
       </div>
 
       <div className="mt-6">
-        <button
-          type="button"
-          onClick={handleGenerate}
-          className="btn btn-primary"
-        >
+        <button type="button" onClick={handleGenerate} className="btn btn-primary">
           Generate Path to Ready
         </button>
       </div>
@@ -581,9 +558,7 @@ export function PathToReadyCard({
 }
 
 function PathPricingStrip() {
-  const [copy, setCopy] = useState<ReturnType<typeof pathPricingCopy> | null>(
-    null,
-  );
+  const [copy, setCopy] = useState<ReturnType<typeof pathPricingCopy> | null>(null);
   useEffect(() => {
     const a = exposePathPricing("results_path_card");
     setCopy(pathPricingCopy(a.variant));
@@ -591,11 +566,12 @@ function PathPricingStrip() {
   if (!copy) return null;
   return (
     <div className="mt-5 rounded-xl border border-slate-surface/70 bg-navy/30 p-4">
-      <p className="text-xs font-semibold uppercase tracking-wide text-cyan">
-        {copy.headline}
-      </p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-cyan">{copy.headline}</p>
       <p className="mt-1 text-sm text-dim">{copy.body}</p>
-      <Link href={copy.href} className="mt-2 inline-block text-sm font-semibold text-cyan underline-offset-2 hover:underline">
+      <Link
+        href={copy.href}
+        className="mt-2 inline-block text-sm font-semibold text-cyan underline-offset-2 hover:underline"
+      >
         {copy.cta}
       </Link>
     </div>

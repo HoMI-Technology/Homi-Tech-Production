@@ -25,12 +25,10 @@ export default function ErrorBoundary({
       <ThresholdCompass size={140} animated={false} />
       <h1 className="mt-8 type-h2">Something slipped.</h1>
       <p className="mt-3 max-w-md text-dim">
-        Not you — us. Your data is safe, and nothing was lost. Try again, or head back
-        to steady ground.
+        Not you — us. Your data is safe, and nothing was lost. Try again, or head back to steady
+        ground.
       </p>
-      {error.digest && (
-        <p className="score-numeral mt-2 text-xs text-dim/60">ref {error.digest}</p>
-      )}
+      {error.digest && <p className="score-numeral mt-2 text-xs text-dim/60">ref {error.digest}</p>}
       <div className="mt-8 flex gap-3">
         <button onClick={reset} className="btn btn-primary">
           Try again

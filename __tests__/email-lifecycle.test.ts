@@ -56,9 +56,15 @@ describe("planReassessmentNudges", () => {
   });
 
   it("stops nudging after the 14-day grace window (ledger owns dedupe inside it)", () => {
-    expect(planReassessmentNudges([row({ id: "a", completed_at: daysAgo(29) })], NOW)).toHaveLength(0);
-    expect(planReassessmentNudges([row({ id: "b", completed_at: daysAgo(43) })], NOW)).toHaveLength(1);
-    expect(planReassessmentNudges([row({ id: "c", completed_at: daysAgo(44) })], NOW)).toHaveLength(0);
+    expect(planReassessmentNudges([row({ id: "a", completed_at: daysAgo(29) })], NOW)).toHaveLength(
+      0,
+    );
+    expect(planReassessmentNudges([row({ id: "b", completed_at: daysAgo(43) })], NOW)).toHaveLength(
+      1,
+    );
+    expect(planReassessmentNudges([row({ id: "c", completed_at: daysAgo(44) })], NOW)).toHaveLength(
+      0,
+    );
   });
 });
 
@@ -78,7 +84,10 @@ describe("planOutcomeSurveys", () => {
   });
 
   it("excludes shadow assessments from the outcome dataset", () => {
-    const sends = planOutcomeSurveys([row({ id: "s", is_shadow: true, completed_at: daysAgo(30) })], NOW);
+    const sends = planOutcomeSurveys(
+      [row({ id: "s", is_shadow: true, completed_at: daysAgo(30) })],
+      NOW,
+    );
     expect(sends).toHaveLength(0);
   });
 

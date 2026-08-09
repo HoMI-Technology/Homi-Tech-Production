@@ -45,7 +45,10 @@ export function ReadinessBand({ impact }: { impact: ReadinessImpact }) {
           The full picture needs your real anchors.
         </p>
       )}
-      <Link href="/simulator" className="mt-3 inline-block text-xs font-medium text-cyan hover:underline">
+      <Link
+        href="/simulator"
+        className="mt-3 inline-block text-xs font-medium text-cyan hover:underline"
+      >
         Explore the levers in the Score Simulator →
       </Link>
     </div>

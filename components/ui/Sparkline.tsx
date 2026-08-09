@@ -61,7 +61,13 @@ export function Sparkline({
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx={lastX} cy={lastY} r="2.5" fill={color} style={{ filter: `drop-shadow(0 0 4px ${color})` }} />
+      <circle
+        cx={lastX}
+        cy={lastY}
+        r="2.5"
+        fill={color}
+        style={{ filter: `drop-shadow(0 0 4px ${color})` }}
+      />
     </svg>
   );
 }

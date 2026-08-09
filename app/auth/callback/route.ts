@@ -33,8 +33,7 @@ export async function GET(request: Request) {
       const attribution = readAttributionCookie(request.headers.get("cookie"));
       const email = user.email;
       const userId = user.id;
-      const name =
-        (user.user_metadata?.full_name as string | undefined)?.split(" ")[0] || "there";
+      const name = (user.user_metadata?.full_name as string | undefined)?.split(" ")[0] || "there";
       after(async () => {
         try {
           const service = createAdminClient();

@@ -91,7 +91,13 @@ function simulate(debts: Debt[], extraMonthly: number, order: (d: Debt[]) => Deb
       pool -= pay;
     }
 
-    curve.push({ month, totalBalance: Math.max(0, working.reduce((s, d) => s + d.balance, 0)) });
+    curve.push({
+      month,
+      totalBalance: Math.max(
+        0,
+        working.reduce((s, d) => s + d.balance, 0),
+      ),
+    });
   }
 
   return {
@@ -194,7 +200,15 @@ export function simulateConsolidation(
   const curve: PayoffPoint[] = [{ month: 0, totalBalance: financedAmount }];
 
   if (financedAmount <= 0.005) {
-    return { months: 0, totalInterest: 0, totalPaid: 0, curve, financedAmount, originationFee, monthlyPayment };
+    return {
+      months: 0,
+      totalInterest: 0,
+      totalPaid: 0,
+      curve,
+      financedAmount,
+      originationFee,
+      monthlyPayment,
+    };
   }
 
   const monthlyRate = loan.apr / 100 / 12;
@@ -287,10 +301,7 @@ export function recommendPayoff(
     },
   ];
 
-  const bestStrategyPaid = Math.min(
-    comparison.avalanche.totalPaid,
-    comparison.snowball.totalPaid,
-  );
+  const bestStrategyPaid = Math.min(comparison.avalanche.totalPaid, comparison.snowball.totalPaid);
   let consolidationEligible = false;
 
   if (loan && totalBalance(debts) > 0 && loan.termMonths > 0) {

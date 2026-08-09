@@ -232,7 +232,10 @@ async function fetchPlaidTransactionBatch(supabase, from, to) {
  * Runs the backfill against the provided Supabase service-role client.
  * Exported so the mapping/dedupe logic can be unit-tested in isolation.
  */
-export async function runBackfill(supabase, { dryRun = false, batchSize = DEFAULT_BATCH_SIZE } = {}) {
+export async function runBackfill(
+  supabase,
+  { dryRun = false, batchSize = DEFAULT_BATCH_SIZE } = {},
+) {
   const nowIso = new Date().toISOString();
   const slugToId = await fetchSystemCategories(supabase);
 
@@ -254,12 +257,11 @@ export async function runBackfill(supabase, { dryRun = false, batchSize = DEFAUL
     if (rows.length === 0) break;
 
     readTotal += rows.length;
-    const { toInsert, skippedExisting: batchExisting, skippedZero: batchZero } = buildFinanceRows(
-      rows,
-      existingExternalIds,
-      slugToId,
-      nowIso,
-    );
+    const {
+      toInsert,
+      skippedExisting: batchExisting,
+      skippedZero: batchZero,
+    } = buildFinanceRows(rows, existingExternalIds, slugToId, nowIso);
     skippedExisting += batchExisting;
     skippedZero += batchZero;
 

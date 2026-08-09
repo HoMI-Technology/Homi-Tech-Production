@@ -319,18 +319,9 @@ export interface PlaidAccount {
  *  transaction_date is date-only in user's budget frame (never derive months from timestamps).
  *  Soft delete via deleted_at. Client supplies id (for local-first + idempotency).
  */
-export type FinanceTransactionType =
-  | "income"
-  | "expense"
-  | "transfer"
-  | "refund"
-  | "adjustment";
+export type FinanceTransactionType = "income" | "expense" | "transfer" | "refund" | "adjustment";
 export type FinanceTransactionStatus = "posted" | "pending" | "voided";
-export type FinanceTransactionSource =
-  | "manual"
-  | "plaid"
-  | "recurring_rule"
-  | "migration";
+export type FinanceTransactionSource = "manual" | "plaid" | "recurring_rule" | "migration";
 
 export interface FinanceTransactionRow {
   id: string;
@@ -359,11 +350,7 @@ export interface FinanceTransactionRow {
 }
 
 export type FinanceCategoryType = "income" | "expense";
-export type CategoryEssentiality =
-  | "required"
-  | "important"
-  | "flexible"
-  | "unclassified";
+export type CategoryEssentiality = "required" | "important" | "flexible" | "unclassified";
 
 export interface FinanceCategoryRow {
   id: string;

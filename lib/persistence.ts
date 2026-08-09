@@ -137,9 +137,11 @@ export function createSyncedResource<T>(config: SyncedResourceConfig<T>): Synced
         return;
       }
       if (res.ok) {
-        const body = (await res.json().catch(() => null)) as
-          | { stale?: boolean; state?: T; client_updated_at?: number }
-          | null;
+        const body = (await res.json().catch(() => null)) as {
+          stale?: boolean;
+          state?: T;
+          client_updated_at?: number;
+        } | null;
         // A newer copy exists remotely (another device won the race) — adopt
         // it locally so the next read tells the truth.
         if (body?.stale && body.state != null && typeof body.client_updated_at === "number") {

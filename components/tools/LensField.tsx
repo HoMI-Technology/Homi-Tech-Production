@@ -35,7 +35,11 @@ export function LensField({
 }) {
   const fill = sliderFillPercent(value, min, max);
   const display =
-    format === "currency" ? formatCurrency(value) : format === "percent" ? `${value}%` : `${value} yrs`;
+    format === "currency"
+      ? formatCurrency(value)
+      : format === "percent"
+        ? `${value}%`
+        : `${value} yrs`;
 
   return (
     <div className={source === "yours" ? "border-l-2 border-cyan/60 pl-3" : ""}>

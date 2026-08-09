@@ -17,7 +17,11 @@ import type { AssessmentRow, Profile } from "@/types/database";
  * next steps, just the holder's name, score, verdict, and a short
  * "guardrails applied" attestation. Same auth/ownership rules as the report.
  */
-export default async function ReportCredentialPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ReportCredentialPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
 
   const supabase = await createClient();
@@ -62,27 +66,38 @@ export default async function ReportCredentialPage({ params }: { params: Promise
 
   const verdict = assessment.verdict ?? "NOT_YET";
   const meta = VERDICT_META[verdict];
-  const completedAt = assessment.completed_at ? new Date(assessment.completed_at) : new Date(assessment.created_at);
+  const completedAt = assessment.completed_at
+    ? new Date(assessment.completed_at)
+    : new Date(assessment.created_at);
   const holderName = profile?.full_name || "HōMI Member";
   const certId = `CERT-${assessment.id.replace(/-/g, "").slice(0, 12)}`;
 
   const share = shareData as { share_token: string; expires_at: string | null } | null;
-  const shareStillValid = share && (!share.expires_at || new Date(share.expires_at).getTime() > Date.now());
-  const shareUrl = shareStillValid ? `${env.NEXT_PUBLIC_SITE_URL}/share/${share.share_token}` : null;
+  const shareStillValid =
+    share && (!share.expires_at || new Date(share.expires_at).getTime() > Date.now());
+  const shareUrl = shareStillValid
+    ? `${env.NEXT_PUBLIC_SITE_URL}/share/${share.share_token}`
+    : null;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16 print:max-w-full print:px-8 print:py-8">
       <div className="flex items-center justify-between border-b border-slate-surface/60 pb-6 print:border-black/20">
         <div className="flex items-center gap-3">
           <Wordmark size="text-2xl" />
-          <span className="text-sm text-dim print:text-black/60">Decision Readiness Credential</span>
+          <span className="text-sm text-dim print:text-black/60">
+            Decision Readiness Credential
+          </span>
         </div>
         <CredentialPrintButton />
       </div>
 
       <div className="glass mt-8 flex flex-col items-center gap-6 border border-cyan/20 p-8 text-center print:border print:border-black/20 print:bg-transparent sm:p-12">
-        <p className="text-xs uppercase tracking-[0.2em] text-dim print:text-black/60">This certifies that</p>
-        <h1 className="font-display text-2xl font-semibold text-light print:text-black sm:text-3xl">{holderName}</h1>
+        <p className="text-xs uppercase tracking-[0.2em] text-dim print:text-black/60">
+          This certifies that
+        </p>
+        <h1 className="font-display text-2xl font-semibold text-light print:text-black sm:text-3xl">
+          {holderName}
+        </h1>
         <p className="max-w-md text-sm leading-relaxed text-dim print:text-black/70">
           completed a HōMI Decision Readiness assessment and received the following honest read.
         </p>
@@ -91,21 +106,29 @@ export default async function ReportCredentialPage({ params }: { params: Promise
           <span className="score-numeral text-6xl font-bold text-light print:text-black">
             {assessment.overall_score ?? "—"}
           </span>
-          <p className="text-xs uppercase tracking-widest text-dim print:text-black/60">HōMI-Score out of 100</p>
+          <p className="text-xs uppercase tracking-widest text-dim print:text-black/60">
+            HōMI-Score out of 100
+          </p>
           <VerdictBadge verdict={verdict} size="lg" />
           <p className="mt-1 max-w-sm text-sm text-light print:text-black">{meta.line}</p>
         </div>
 
         <div className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs text-dim print:text-black/60">
           <span>
-            {completedAt.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+            {completedAt.toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })}
           </span>
           <span className="font-mono">{certId}</span>
         </div>
       </div>
 
       <div className="mt-10">
-        <h2 className="font-display text-lg font-semibold text-light print:text-black">Guardrails applied</h2>
+        <h2 className="font-display text-lg font-semibold text-light print:text-black">
+          Guardrails applied
+        </h2>
         <ul className="mt-4 flex flex-col gap-3">
           <GuardrailLine text="Deterministic scoring — computed by code, not improvised." />
           <GuardrailLine text="Hard-stop protections evaluated." />
@@ -124,7 +147,9 @@ export default async function ReportCredentialPage({ params }: { params: Promise
         <p className="font-mono text-xs text-dim/80 print:text-black/60">
           Score computed by deterministic code · Verdict bands 80/65/50 published
         </p>
-        <p className="mt-4 text-xs leading-relaxed text-dim/80 print:text-black/60">{LEGAL_DISCLAIMER}</p>
+        <p className="mt-4 text-xs leading-relaxed text-dim/80 print:text-black/60">
+          {LEGAL_DISCLAIMER}
+        </p>
       </div>
 
       <div className="mt-8 flex flex-wrap items-center gap-4 print:hidden">

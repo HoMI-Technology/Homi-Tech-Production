@@ -35,7 +35,11 @@ function saveProgress(progress: Record<string, boolean>) {
 
 function pillarPct(key: "financial" | "emotional" | "timing", stored: StoredAssessment): number {
   const total =
-    key === "financial" ? stored.result.financial.total : key === "emotional" ? stored.result.emotional.total : stored.result.timing.total;
+    key === "financial"
+      ? stored.result.financial.total
+      : key === "emotional"
+        ? stored.result.emotional.total
+        : stored.result.timing.total;
   return Math.round((total / PILLAR_MAX_POINTS[key]) * 100);
 }
 
@@ -160,8 +164,12 @@ export default function PlanPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:py-16">
       <div className="text-center">
-        <p className="text-sm font-semibold uppercase tracking-widest text-cyan">Your transformation path</p>
-        <h1 className="mt-2 font-display text-3xl font-semibold text-light sm:text-4xl">This is the map, not the failure.</h1>
+        <p className="text-sm font-semibold uppercase tracking-widest text-cyan">
+          Your transformation path
+        </p>
+        <h1 className="mt-2 font-display text-3xl font-semibold text-light sm:text-4xl">
+          This is the map, not the failure.
+        </h1>
         {weakestPillar && (
           <p className="mx-auto mt-4 max-w-lg text-base text-dim">
             <span className="font-semibold" style={{ color: weakestPillar.color }}>
@@ -183,7 +191,11 @@ export default function PlanPage() {
           <div className="text-right">
             <p className="text-sm text-dim">Projected re-test date</p>
             <p className="mt-1 text-base font-medium text-light">
-              {retestDate.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+              {retestDate.toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
             </p>
           </div>
         )}
@@ -206,14 +218,27 @@ export default function PlanPage() {
                 }`}
               >
                 {checked && (
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#04150e" strokeWidth="2.5">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                    stroke="#04150e"
+                    strokeWidth="2.5"
+                  >
                     <path d="M2.5 7l3 3 6-6" />
                   </svg>
                 )}
               </span>
               <div className="flex flex-col">
-                <span className="text-xs font-semibold uppercase tracking-wide text-dim">Milestone {i + 1}</span>
-                <span className={`mt-1 text-base ${checked ? "text-dim line-through" : "text-light"}`}>{step}</span>
+                <span className="text-xs font-semibold uppercase tracking-wide text-dim">
+                  Milestone {i + 1}
+                </span>
+                <span
+                  className={`mt-1 text-base ${checked ? "text-dim line-through" : "text-light"}`}
+                >
+                  {step}
+                </span>
               </div>
             </button>
           );
@@ -221,7 +246,10 @@ export default function PlanPage() {
       </div>
 
       <div className="mt-12 flex flex-col items-center gap-4 border-t border-slate-surface/60 pt-10 sm:flex-row sm:justify-center">
-        <Link href={effective.kind === "shadow" ? "/assessment" : "/shadow-score"} className="btn btn-primary">
+        <Link
+          href={effective.kind === "shadow" ? "/assessment" : "/shadow-score"}
+          className="btn btn-primary"
+        >
           Re-take the assessment
         </Link>
         <Link href="/results" className="btn btn-ghost">

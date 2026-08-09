@@ -107,11 +107,7 @@ export function ScoreHistory({ points }: { points: ScoreHistoryPoint[] }) {
           const color = VERDICT_META[p.verdict]?.color ?? COLORS.cyan;
           const isHover = hover === i;
           return (
-            <g
-              key={i}
-              onMouseEnter={() => setHover(i)}
-              style={{ cursor: "default" }}
-            >
+            <g key={i} onMouseEnter={() => setHover(i)} style={{ cursor: "default" }}>
               {/* Invisible hit area the full column height — hover shouldn't demand pixel aim. */}
               <rect
                 x={x - BAR_GAP / 2}
@@ -194,7 +190,9 @@ export function ScoreHistory({ points }: { points: ScoreHistoryPoint[] }) {
                     fontFamily="var(--font-sans)"
                   >
                     {fmtDate(hovered.date)} · {hovered.score} ·{" "}
-                    <tspan fill={meta?.color ?? COLORS.cyan}>{meta?.label ?? hovered.verdict}</tspan>
+                    <tspan fill={meta?.color ?? COLORS.cyan}>
+                      {meta?.label ?? hovered.verdict}
+                    </tspan>
                   </text>
                 </>
               );

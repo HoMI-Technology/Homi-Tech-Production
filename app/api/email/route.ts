@@ -22,7 +22,10 @@ export async function POST(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`email:${ip}`, { limit: 10, windowMs: 60_000 });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a minute." },
+      { status: 429 },
+    );
   }
 
   let json: unknown;
@@ -34,7 +37,10 @@ export async function POST(request: Request) {
 
   const parsed = bodySchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: "template and a valid `to` email are required." }, { status: 400 });
+    return NextResponse.json(
+      { error: "template and a valid `to` email are required." },
+      { status: 400 },
+    );
   }
 
   const { template, to, params } = parsed.data;

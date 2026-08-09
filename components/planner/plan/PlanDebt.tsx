@@ -1,9 +1,8 @@
 "use client";
 
-
 import { COLORS } from "@/lib/brand";
-import { useMemo } from 'react'
-import { Plus, Trash2 } from 'lucide-react'
+import { useMemo } from "react";
+import { Plus, Trash2 } from "lucide-react";
 import {
   CartesianGrid,
   Legend,
@@ -13,16 +12,16 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from 'recharts'
-import { compareStrategies } from '@/lib/tools/debt'
-import type { DebtItem } from '@/lib/planner/types'
-import { formatCurrency, formatMonths } from '@/lib/tools/format'
-import { usePlannerStore } from "@/lib/planner/store"
-import { TEMP_HEX } from "@/lib/planner/palette"
-import ChartTooltip from "@/components/planner/ui/ChartTooltip"
-import { NumberField } from "@/components/planner/ui/NumberField"
-import EmptyState from "@/components/planner/ui/EmptyState"
-import { PlanFooter, PlanSectionHeader, PlanTile } from './ui'
+} from "recharts";
+import { compareStrategies } from "@/lib/tools/debt";
+import type { DebtItem } from "@/lib/planner/types";
+import { formatCurrency, formatMonths } from "@/lib/tools/format";
+import { usePlannerStore } from "@/lib/planner/store";
+import { TEMP_HEX } from "@/lib/planner/palette";
+import ChartTooltip from "@/components/planner/ui/ChartTooltip";
+import { NumberField } from "@/components/planner/ui/NumberField";
+import EmptyState from "@/components/planner/ui/EmptyState";
+import { PlanFooter, PlanSectionHeader, PlanTile } from "./ui";
 
 /* ------------------------------------------------------------------ */
 /* Debt sub-tab — avalanche vs snowball (spec §7).                     */
@@ -32,62 +31,61 @@ import { PlanFooter, PlanSectionHeader, PlanTile } from './ui'
 /* setExtraDebtPayment) — edits re-run the comparison live.            */
 /* ------------------------------------------------------------------ */
 
-const CYAN = COLORS.cyan
+const CYAN = COLORS.cyan;
 
 export default function PlanDebt() {
-  const debts = usePlannerStore((s) => s.debts)
-  const extra = usePlannerStore((s) => s.toolsOverlay.extraDebtPayment)
-  const setDebts = usePlannerStore((s) => s.setDebts)
-  const updateDebt = usePlannerStore((s) => s.updateDebt)
-  const setExtraDebtPayment = usePlannerStore((s) => s.setExtraDebtPayment)
+  const debts = usePlannerStore((s) => s.debts);
+  const extra = usePlannerStore((s) => s.toolsOverlay.extraDebtPayment);
+  const setDebts = usePlannerStore((s) => s.setDebts);
+  const updateDebt = usePlannerStore((s) => s.updateDebt);
+  const setExtraDebtPayment = usePlannerStore((s) => s.setExtraDebtPayment);
 
   const comparison = useMemo(
     () => (debts.length > 0 ? compareStrategies(debts, extra) : null),
     [debts, extra],
-  )
+  );
 
   const chartData = useMemo(() => {
-    if (!comparison) return []
-    const av = comparison.avalanche.curve
-    const sn = comparison.snowball.curve
-    const months = Math.max(av.length, sn.length)
-    const rows: Array<{ month: number; avalanche: number; snowball: number }> = []
-    const stride = Math.max(1, Math.floor(months / 120))
+    if (!comparison) return [];
+    const av = comparison.avalanche.curve;
+    const sn = comparison.snowball.curve;
+    const months = Math.max(av.length, sn.length);
+    const rows: Array<{ month: number; avalanche: number; snowball: number }> = [];
+    const stride = Math.max(1, Math.floor(months / 120));
     for (let i = 0; i < months; i += stride) {
       rows.push({
         month: av[i]?.month ?? sn[i]?.month ?? i,
         avalanche: Math.round(av[i]?.totalBalance ?? 0),
         snowball: Math.round(sn[i]?.totalBalance ?? 0),
-      })
+      });
     }
-    const lastAv = av[av.length - 1]
-    const lastSn = sn[sn.length - 1]
+    const lastAv = av[av.length - 1];
+    const lastSn = sn[sn.length - 1];
     if (lastAv && rows[rows.length - 1]?.month !== lastAv.month) {
       rows.push({
         month: lastAv.month,
         avalanche: Math.round(lastAv.totalBalance),
         snowball: Math.round(lastSn?.totalBalance ?? 0),
-      })
+      });
     }
-    return rows
-  }, [comparison])
+    return rows;
+  }, [comparison]);
 
-  const avalancheOrder = [...debts].sort((a, b) => b.apr - a.apr)
-  const snowballOrder = [...debts].sort((a, b) => a.balance - b.balance)
+  const avalancheOrder = [...debts].sort((a, b) => b.apr - a.apr);
+  const snowballOrder = [...debts].sort((a, b) => a.balance - b.balance);
 
   const addDebt = () => {
     const debt: DebtItem = {
-      id: `debt_${typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : Date.now()}`,
-      name: 'New debt',
+      id: `debt_${typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : Date.now()}`,
+      name: "New debt",
       balance: 1000,
       apr: 10,
       minPayment: 50,
-    }
-    setDebts([...debts, debt])
-  }
+    };
+    setDebts([...debts, debt]);
+  };
 
-  const removeDebt = (id: string) =>
-    setDebts(debts.filter((d) => d.id !== id))
+  const removeDebt = (id: string) => setDebts(debts.filter((d) => d.id !== id));
 
   return (
     <section className="card-chrome card-hairline-top p-5 sm:p-6">
@@ -150,7 +148,7 @@ export default function PlanDebt() {
                 />
                 <Tooltip
                   content={<ChartTooltip format={(n) => formatCurrency(n)} />}
-                  cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                  cursor={{ stroke: "rgba(255,255,255,0.12)" }}
                 />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Line
@@ -179,7 +177,7 @@ export default function PlanDebt() {
               <ol className="mt-2 flex flex-col gap-1">
                 {avalancheOrder.map((d, i) => (
                   <li key={d.id} className="text-xs text-dim">
-                    <span className="font-display text-light">{i + 1}.</span> {d.name}{' '}
+                    <span className="font-display text-light">{i + 1}.</span> {d.name}{" "}
                     <span className="font-display text-emerald">{d.apr}%</span>
                   </li>
                 ))}
@@ -190,10 +188,8 @@ export default function PlanDebt() {
               <ol className="mt-2 flex flex-col gap-1">
                 {snowballOrder.map((d, i) => (
                   <li key={d.id} className="text-xs text-dim">
-                    <span className="font-display text-light">{i + 1}.</span> {d.name}{' '}
-                    <span className="font-display text-cyan">
-                      {formatCurrency(d.balance)}
-                    </span>
+                    <span className="font-display text-light">{i + 1}.</span> {d.name}{" "}
+                    <span className="font-display text-cyan">{formatCurrency(d.balance)}</span>
                   </li>
                 ))}
               </ol>
@@ -277,10 +273,10 @@ export default function PlanDebt() {
 
       <PlanFooter
         lines={[
-          'Both strategies pay every minimum each month; the extra plus freed minimums attack the front of the order.',
-          'Educational estimates only — not financial advice.',
+          "Both strategies pay every minimum each month; the extra plus freed minimums attack the front of the order.",
+          "Educational estimates only — not financial advice.",
         ]}
       />
     </section>
-  )
+  );
 }

@@ -13,10 +13,7 @@ import {
   projectGoal,
   isInPeriod,
 } from "@/lib/finance/calculations";
-import {
-  gradeCompleteness,
-  buildReadinessSnapshot,
-} from "@/lib/finance/readiness-snapshot";
+import { gradeCompleteness, buildReadinessSnapshot } from "@/lib/finance/readiness-snapshot";
 import type { FinanceTransaction } from "@/lib/finance/ledger";
 
 const AUGUST = {
@@ -117,10 +114,7 @@ describe("summarizePeriod", () => {
 
   it("nets refunds against gross spending", () => {
     const totals = summarizePeriod(
-      [
-        tx({ amountCents: 100_00 }),
-        tx({ type: "refund", amountCents: 30_00 }),
-      ],
+      [tx({ amountCents: 100_00 }), tx({ type: "refund", amountCents: 30_00 })],
       AUGUST,
     );
     expect(totals.grossExpenseCents).toBe(100_00);
@@ -198,14 +192,10 @@ describe("summarizePeriod", () => {
 
 describe("categoryActuals", () => {
   it("joins actuals against plans, keeping zero-spend planned rows", () => {
-    const rows = categoryActuals(
-      [tx({ categoryId: "cat-food", amountCents: 72_000 })],
-      AUGUST,
-      [
-        { categoryId: "cat-food", plannedCents: 65_000 },
-        { categoryId: "cat-housing", plannedCents: 180_000 },
-      ],
-    );
+    const rows = categoryActuals([tx({ categoryId: "cat-food", amountCents: 72_000 })], AUGUST, [
+      { categoryId: "cat-food", plannedCents: 65_000 },
+      { categoryId: "cat-housing", plannedCents: 180_000 },
+    ]);
     const food = rows.find((r) => r.categoryId === "cat-food");
     const housing = rows.find((r) => r.categoryId === "cat-housing");
     expect(food?.remainingCents).toBe(-7_000);
@@ -215,11 +205,9 @@ describe("categoryActuals", () => {
   });
 
   it("returns null utilization for a zero-planned category with spending", () => {
-    const rows = categoryActuals(
-      [tx({ categoryId: "cat-dining", amountCents: 5_000 })],
-      AUGUST,
-      [{ categoryId: "cat-dining", plannedCents: 0 }],
-    );
+    const rows = categoryActuals([tx({ categoryId: "cat-dining", amountCents: 5_000 })], AUGUST, [
+      { categoryId: "cat-dining", plannedCents: 0 },
+    ]);
     expect(rows[0].utilization).toBeNull();
     expect(rows[0].remainingCents).toBe(-5_000);
   });

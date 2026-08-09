@@ -128,9 +128,7 @@ export default function PlanConsolidate() {
   }
 
   const savedVsCurrent =
-    consolidation && strategyBest
-      ? strategyBest.totalPaid - consolidation.totalPaid
-      : 0;
+    consolidation && strategyBest ? strategyBest.totalPaid - consolidation.totalPaid : 0;
   const eligible = recommendation?.consolidationEligible ?? false;
 
   return (
@@ -145,9 +143,7 @@ export default function PlanConsolidate() {
       {recommendation && (
         <div
           className={`mt-5 rounded-2xl border px-4 py-4 ${
-            eligible
-              ? "border-emerald/30 bg-emerald/[0.06]"
-              : "border-cyan/25 bg-cyan/[0.05]"
+            eligible ? "border-emerald/30 bg-emerald/[0.06]" : "border-cyan/25 bg-cyan/[0.05]"
           }`}
         >
           <div className="flex items-start gap-3">
@@ -166,8 +162,8 @@ export default function PlanConsolidate() {
               </p>
               {recommendation.savingsVsWorst > 0 && (
                 <p className="mt-2 text-xs font-semibold text-emerald">
-                  Saves {formatCurrency(recommendation.savingsVsWorst)} vs. the
-                  costliest option on the board.
+                  Saves {formatCurrency(recommendation.savingsVsWorst)} vs. the costliest option on
+                  the board.
                 </p>
               )}
             </div>
@@ -245,8 +241,7 @@ export default function PlanConsolidate() {
         </span>
         <ArrowRight size={15} className="text-dim" aria-hidden />
         <span className="text-dim">
-          1 loan ·{" "}
-          <span className="font-display text-cyan">{loan.apr}%</span> ·{" "}
+          1 loan · <span className="font-display text-cyan">{loan.apr}%</span> ·{" "}
           <span className="font-display text-light">
             {formatCurrency(consolidation?.monthlyPayment ?? 0)}/mo
           </span>
@@ -324,9 +319,7 @@ export default function PlanConsolidate() {
                   <span className="text-right font-display text-sm text-light tnum">
                     {formatCurrency(m.totalPaid)}
                   </span>
-                  <span className="text-right text-xs text-dim tnum">
-                    {formatMonths(m.months)}
-                  </span>
+                  <span className="text-right text-xs text-dim tnum">{formatMonths(m.months)}</span>
                 </div>
               );
             })}

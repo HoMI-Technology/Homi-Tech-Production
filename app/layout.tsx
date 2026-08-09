@@ -40,15 +40,28 @@ export const metadata: Metadata = {
       "Readiness, not eligibility. Decision Readiness Intelligence™ across Financial Reality, Emotional Truth, and Perfect Timing.",
     siteName: "HōMI",
     type: "website",
-    images: [{ url: "/og-v2.png", width: 1200, height: 630, alt: "The HōMI Threshold Compass above the HōMI wordmark — Decision Readiness Intelligence™. Know When You're Ready." }],
+    images: [
+      {
+        url: "/og-v2.png",
+        width: 1200,
+        height: 630,
+        alt: "The HōMI Threshold Compass above the HōMI wordmark — Decision Readiness Intelligence™. Know When You're Ready.",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     site: "@homi_tech",
     creator: "@homi_tech",
     title: "HōMI · Decision Readiness Intelligence™",
-    description: "A credit score estimates repayment risk. HōMI helps you evaluate readiness for the decision itself.",
-    images: [{ url: "/og-v2.png", alt: "The HōMI Threshold Compass above the HōMI wordmark — Decision Readiness Intelligence™. Know When You're Ready." }],
+    description:
+      "A credit score estimates repayment risk. HōMI helps you evaluate readiness for the decision itself.",
+    images: [
+      {
+        url: "/og-v2.png",
+        alt: "The HōMI Threshold Compass above the HōMI wordmark — Decision Readiness Intelligence™. Know When You're Ready.",
+      },
+    ],
   },
   icons: {
     icon: [
@@ -76,11 +89,7 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
@@ -99,7 +108,10 @@ export default function RootLayout({
           Skip to content
         </a>
         <ToastProvider>
-          <UXErrorBoundary name="client-providers" fallback={<div id="main-fallback">{children}</div>}>
+          <UXErrorBoundary
+            name="client-providers"
+            fallback={<div id="main-fallback">{children}</div>}
+          >
             <ClientProviders>{children}</ClientProviders>
           </UXErrorBoundary>
         </ToastProvider>

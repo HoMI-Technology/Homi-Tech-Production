@@ -15,9 +15,7 @@ function src(rel: string): string {
 }
 
 function codeOnly(source: string): string {
-  return source
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/(^|[^:])\/\/.*$/gm, "$1");
+  return source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
 }
 
 describe("server-only enforcement (6.5)", () => {
@@ -39,7 +37,11 @@ describe("server-only enforcement (6.5)", () => {
   });
 
   it("public + client-score stay free of server-only and computeScore", () => {
-    for (const rel of ["lib/scoring/public.ts", "lib/scoring/client-score.ts", "lib/simulator/public.ts"]) {
+    for (const rel of [
+      "lib/scoring/public.ts",
+      "lib/scoring/client-score.ts",
+      "lib/simulator/public.ts",
+    ]) {
       const code = codeOnly(src(rel));
       expect(code, rel).not.toMatch(/import\s+["']server-only["']/);
       expect(code, rel).not.toMatch(/\bcomputeScore\b/);

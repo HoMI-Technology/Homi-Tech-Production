@@ -18,12 +18,13 @@ export interface AutoCompleteResult {
   reasons: string[];
 }
 
-function hardStopCleared(
-  result: AssessmentResult | null,
-  code: PathReasonCode,
-): boolean {
+function hardStopCleared(result: AssessmentResult | null, code: PathReasonCode): boolean {
   if (!result) return false;
-  if (!["RUNWAY_UNDER_1_MONTH", "DTI_OVER_50", "HOUSING_RATIO_OVER_45", "CREDIT_UNDER_620"].includes(code)) {
+  if (
+    !["RUNWAY_UNDER_1_MONTH", "DTI_OVER_50", "HOUSING_RATIO_OVER_45", "CREDIT_UNDER_620"].includes(
+      code,
+    )
+  ) {
     return false;
   }
   return !result.hardStops.some((h) => h.code === code);

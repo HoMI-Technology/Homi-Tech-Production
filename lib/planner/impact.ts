@@ -7,12 +7,7 @@ import { PILLARS, VERDICT_META, type VerdictKey } from "@/lib/brand";
 import type { ScoreResult } from "@/lib/planner/score-result";
 import type { ScoreImpactSnapshot } from "@/lib/planner/types";
 
-export type ImpactActionKind =
-  | "bill_paid"
-  | "path_done"
-  | "path_skipped"
-  | "checkin"
-  | "generic";
+export type ImpactActionKind = "bill_paid" | "path_done" | "path_skipped" | "checkin" | "generic";
 
 export interface ScoreImpact {
   id: string;
@@ -63,17 +58,13 @@ function pillarNarrative(
   after: ScoreResult,
 ): { deltas: ScoreImpact["pillarDeltas"]; line: string | null } {
   const deltas = {
-    financial: round1(
-      after.pillars.financial.total - before.pillars.financial.total,
-    ),
-    emotional: round1(
-      after.pillars.emotional.total - before.pillars.emotional.total,
-    ),
+    financial: round1(after.pillars.financial.total - before.pillars.financial.total),
+    emotional: round1(after.pillars.emotional.total - before.pillars.emotional.total),
     timing: round1(after.pillars.timing.total - before.pillars.timing.total),
   };
-  const ranked: Array<[string, number]> = (
-    ["financial", "emotional", "timing"] as PillarKey[]
-  ).map((key) => [pillarLabel(key), deltas[key]]);
+  const ranked: Array<[string, number]> = (["financial", "emotional", "timing"] as PillarKey[]).map(
+    (key) => [pillarLabel(key), deltas[key]],
+  );
   ranked.sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
 
   const top = ranked[0];
@@ -105,10 +96,7 @@ export function buildScoreImpact(
   for (const c of afterCodes) if (!beforeCodes.has(c)) hardStopsAdded++;
 
   const actionKind = classifyAction(reason);
-  const { deltas: pillarDeltas, line: pillarLine } = pillarNarrative(
-    before,
-    after,
-  );
+  const { deltas: pillarDeltas, line: pillarLine } = pillarNarrative(before, after);
   const fromV = VERDICT_META[before.verdict];
   const toV = VERDICT_META[after.verdict];
   const verdictShift = before.verdict !== after.verdict;
@@ -170,36 +158,26 @@ export function buildScoreImpact(
   }
   if (pillarLine) parts.push(pillarLine);
   if (hardStopsCleared > 0) {
-    parts.push(
-      `Cleared ${hardStopsCleared} hard-stop${hardStopsCleared > 1 ? "s" : ""}.`,
-    );
+    parts.push(`Cleared ${hardStopsCleared} hard-stop${hardStopsCleared > 1 ? "s" : ""}.`);
   }
   if (hardStopsAdded > 0) {
     const added = after.hardStops.find((h) => !beforeCodes.has(h.code));
-    parts.push(
-      added
-        ? `New stop: ${added.message}`
-        : `${hardStopsAdded} new hard-stop(s).`,
-    );
+    parts.push(added ? `New stop: ${added.message}` : `${hardStopsAdded} new hard-stop(s).`);
   }
 
   let nextHint: string;
   if (hardStopsAdded > 0) {
     nextHint = "Open Plan and face the binding constraint before new stretch.";
   } else if (hardStopsCleared > 0) {
-    nextHint =
-      "Don't rush the win — regenerate Path and take the next pending step.";
+    nextHint = "Don't rush the win — regenerate Path and take the next pending step.";
   } else if (actionKind === "bill_paid" && after.hardStops.length === 0) {
-    nextHint =
-      "If Path is open, mark the related step done to lock the loop.";
+    nextHint = "If Path is open, mark the related step done to lock the loop.";
   } else if (actionKind === "path_done") {
     nextHint = "Glance at signals — the next binding step should now lead.";
   } else if (actionKind === "checkin" && delta < 0) {
-    nextHint =
-      "Name the driver in one sentence, then act on a bill or Path step.";
+    nextHint = "Name the driver in one sentence, then act on a bill or Path step.";
   } else if (delta > 0.5) {
-    nextHint =
-      "Reinforce the same class of action — don't stack ten new habits.";
+    nextHint = "Reinforce the same class of action — don't stack ten new habits.";
   } else {
     nextHint = "Check signals for the single highest-leverage next move.";
   }

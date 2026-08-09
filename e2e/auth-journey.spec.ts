@@ -27,6 +27,8 @@ test.describe("authenticated funnel", () => {
     await page.getByRole("button", { name: /sign in/i }).click();
     await page.waitForURL(/\/dashboard/, { timeout: 15_000 });
     await page.goto("/results");
-    await expect(page.getByText(/READY|ALMOST|BUILD FIRST|NOT YET|No results yet/i).first()).toBeVisible();
+    await expect(
+      page.getByText(/READY|ALMOST|BUILD FIRST|NOT YET|No results yet/i).first(),
+    ).toBeVisible();
   });
 });

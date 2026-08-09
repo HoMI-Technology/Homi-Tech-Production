@@ -135,7 +135,9 @@ describe("PUT /api/tools/overlay", () => {
 
   it("answers stale with the newer copy instead of clobbering it", async () => {
     state.row = { state: VALID_OVERLAY, client_updated_at: "900" };
-    const res = await PUT(putRequest({ state: { ...VALID_OVERLAY, targetPrice: 1 }, client_updated_at: 200 }));
+    const res = await PUT(
+      putRequest({ state: { ...VALID_OVERLAY, targetPrice: 1 }, client_updated_at: 200 }),
+    );
     const body = await res.json();
     expect(body.stale).toBe(true);
     expect(body.state).toEqual(VALID_OVERLAY);

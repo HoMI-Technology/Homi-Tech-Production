@@ -15,10 +15,7 @@ export type FlowStep =
   | { kind: "conflict-deadline" }
   | { kind: "review" };
 
-const PILLAR_INTRO: Record<
-  Dimension,
-  { question: string; description: string }
-> = {
+const PILLAR_INTRO: Record<Dimension, { question: string; description: string }> = {
   financial: {
     question: "Can you afford it?",
     description:

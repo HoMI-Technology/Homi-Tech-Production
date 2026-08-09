@@ -9,11 +9,7 @@ import { ChainLinks } from "@/components/tools/ChainLinks";
 import { LensSynthesis } from "@/components/tools/LensSynthesis";
 import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
 import { getLens } from "@/lib/tools/registry";
-import {
-  loadFinanceState,
-  hasSavedFinanceState,
-  netCashFlow,
-} from "@/lib/finance/store";
+import { loadFinanceState, hasSavedFinanceState, netCashFlow } from "@/lib/finance/store";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
 
@@ -96,7 +92,11 @@ function DebtPayoffPageInner() {
               value: Math.round(Math.max(0, comparison.interestSaved)),
               unit: "currency" as const,
             },
-            keyInputs: { extra, debtCount: validDebts.length, totalBalance: Math.round(totalBalance) },
+            keyInputs: {
+              extra,
+              debtCount: validDebts.length,
+              totalBalance: Math.round(totalBalance),
+            },
             deltas: null,
           }
         : null,
@@ -130,14 +130,17 @@ function DebtPayoffPageInner() {
 
         {balancesSeeded && (
           <p className="mt-3 rounded-lg border border-cyan/20 bg-cyan/5 p-3 text-xs leading-relaxed text-dim">
-            Balances loaded from your finance dashboard. Rates and minimum payments aren&apos;t stored
-            there — add them to each row to see your comparison.
+            Balances loaded from your finance dashboard. Rates and minimum payments aren&apos;t
+            stored there — add them to each row to see your comparison.
           </p>
         )}
 
         <div className="mt-4 space-y-3">
           {debts.map((debt) => (
-            <div key={debt.id} className="grid grid-cols-2 gap-3 rounded-lg border border-slate-surface/60 p-3 sm:grid-cols-5">
+            <div
+              key={debt.id}
+              className="grid grid-cols-2 gap-3 rounded-lg border border-slate-surface/60 p-3 sm:grid-cols-5"
+            >
               <input
                 className="input sm:col-span-2"
                 placeholder="Name"
@@ -171,7 +174,14 @@ function DebtPayoffPageInner() {
                   onClick={() => removeDebt(debt.id)}
                   aria-label={`Remove ${debt.name || "debt"}`}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <path d="M6 6l12 12M18 6L6 18" />
                   </svg>
                 </button>
@@ -211,12 +221,24 @@ function DebtPayoffPageInner() {
             </div>
           )}
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
-            <StrategyCard title="Avalanche" subtitle="Highest interest rate first" result={comparison.avalanche} color={COLORS.cyan} />
-            <StrategyCard title="Snowball" subtitle="Smallest balance first" result={comparison.snowball} color={COLORS.yellow} />
+            <StrategyCard
+              title="Avalanche"
+              subtitle="Highest interest rate first"
+              result={comparison.avalanche}
+              color={COLORS.cyan}
+            />
+            <StrategyCard
+              title="Snowball"
+              subtitle="Smallest balance first"
+              result={comparison.snowball}
+              color={COLORS.yellow}
+            />
           </div>
         </>
       ) : (
-        <p className="mt-8 text-sm text-dim">Add at least one debt with a balance and minimum payment to see a comparison.</p>
+        <p className="mt-8 text-sm text-dim">
+          Add at least one debt with a balance and minimum payment to see a comparison.
+        </p>
       )}
 
       {comparison && (
@@ -225,13 +247,16 @@ function DebtPayoffPageInner() {
           <p className="mt-2 text-sm leading-relaxed text-dim">
             {comparison.interestSaved > 0 ? (
               <>
-                Avalanche saves you {formatCurrency(comparison.interestSaved)} in interest compared to
-                snowball. If you can stay motivated by the math, avalanche is the cheaper path. If seeing a
-                balance hit zero keeps you going, snowball's small wins might get you to the finish line
-                even if it costs a bit more.
+                Avalanche saves you {formatCurrency(comparison.interestSaved)} in interest compared
+                to snowball. If you can stay motivated by the math, avalanche is the cheaper path.
+                If seeing a balance hit zero keeps you going, snowball's small wins might get you to
+                the finish line even if it costs a bit more.
               </>
             ) : (
-              <>Your debts are ordered similarly under both strategies here, so the difference is small either way.</>
+              <>
+                Your debts are ordered similarly under both strategies here, so the difference is
+                small either way.
+              </>
             )}
           </p>
         </div>
@@ -246,7 +271,17 @@ function DebtPayoffPageInner() {
   );
 }
 
-function StrategyCard({ title, subtitle, result, color }: { title: string; subtitle: string; result: PayoffResult; color: string }) {
+function StrategyCard({
+  title,
+  subtitle,
+  result,
+  color,
+}: {
+  title: string;
+  subtitle: string;
+  result: PayoffResult;
+  color: string;
+}) {
   const width = 480;
   const height = 160;
   const padding = 16;
@@ -272,18 +307,36 @@ function StrategyCard({ title, subtitle, result, color }: { title: string; subti
         </div>
       </div>
 
-      <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} className="mt-4" role="img" aria-label={`${title} payoff curve`}>
-        <polyline points={points} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        width="100%"
+        height={height}
+        className="mt-4"
+        role="img"
+        aria-label={`${title} payoff curve`}
+      >
+        <polyline
+          points={points}
+          fill="none"
+          stroke={color}
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
 
       <div className="mt-4 grid grid-cols-2 gap-4">
         <div>
           <p className="text-xs text-dim">Time to freedom</p>
-          <p className="score-numeral text-lg font-bold text-light">{formatMonths(result.months)}</p>
+          <p className="score-numeral text-lg font-bold text-light">
+            {formatMonths(result.months)}
+          </p>
         </div>
         <div>
           <p className="text-xs text-dim">Total interest paid</p>
-          <p className="score-numeral text-lg font-bold text-light">{formatCurrency(result.totalInterest)}</p>
+          <p className="score-numeral text-lg font-bold text-light">
+            {formatCurrency(result.totalInterest)}
+          </p>
         </div>
       </div>
     </div>

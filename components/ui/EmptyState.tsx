@@ -75,7 +75,9 @@ export function EmptyState({
       <ThresholdCompass size={56} animated={false} glow={false} />
       <div>
         <h2 className="font-display text-xl text-light">{resolvedTitle}</h2>
-        {resolvedBody && <p className="mt-3 max-w-md text-sm leading-relaxed text-dim">{resolvedBody}</p>}
+        {resolvedBody && (
+          <p className="mt-3 max-w-md text-sm leading-relaxed text-dim">{resolvedBody}</p>
+        )}
       </div>
       {resolvedHref && resolvedLabel && (
         <div className="mt-2 flex flex-wrap items-center justify-center gap-3">

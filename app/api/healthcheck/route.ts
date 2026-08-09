@@ -36,10 +36,7 @@ export async function GET() {
       database,
       latencyMs: Date.now() - startedAt,
       time: new Date().toISOString(),
-      version:
-        process.env.VERCEL_GIT_COMMIT_SHA ??
-        process.env.NEXT_PUBLIC_COMMIT_SHA ??
-        "dev",
+      version: process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.NEXT_PUBLIC_COMMIT_SHA ?? "dev",
     },
     { status: healthy ? 200 : 503 },
   );

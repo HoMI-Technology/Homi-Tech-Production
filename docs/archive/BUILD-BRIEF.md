@@ -1,12 +1,12 @@
 # HōMI — Master Build Brief (for an autonomous coding agent)
 
-You are a staff-level full-stack engineer finishing and hardening a production Next.js app to a "billion-dollar company" bar. Read this entire file and `AUDIT-2026-07-08.md` before writing any code. The audit is the source of truth for *what* is wrong; this brief is *how* to execute.
+You are a staff-level full-stack engineer finishing and hardening a production Next.js app to a "billion-dollar company" bar. Read this entire file and `AUDIT-2026-07-08.md` before writing any code. The audit is the source of truth for _what_ is wrong; this brief is _how_ to execute.
 
 ---
 
 ## 0. Context
 
-- **Product:** HōMI — "Decision Readiness Intelligence." Tells people *if* they're ready for a big decision (starting with homebuying), not *how*. Scores readiness across three pillars and returns a verdict + a build-first path.
+- **Product:** HōMI — "Decision Readiness Intelligence." Tells people _if_ they're ready for a big decision (starting with homebuying), not _how_. Scores readiness across three pillars and returns a verdict + a build-first path.
 - **Stack:** Next.js 15 (App Router) · React 19 · TypeScript (strict) · Tailwind v4 · Supabase (`@supabase/ssr`) · Stripe · deployed on Vercel.
 - **Repo:** `github.com/HoMI-Technology/Homi-Tech-Production` (branch `main`). Live at `homitechnology.com`.
 - **Baseline (verified 2026-07-08):** `tsc --noEmit` clean; `vitest run` 84/84 pass; app deploys. Do not regress this.
@@ -49,24 +49,27 @@ List anything you're blocked on at the end of each tier; never invent secret val
 ## 3. THE WORK — execute in order, Tier 0 → 3. Each item: file evidence → change → acceptance test.
 
 ### TIER 0 — Process & business rails
-- **Entitlements (`lib/entitlements.ts`).** Today `subscription_tier` is read only as a badge (`settings`, `admin/users`) and gates nothing. Create `getEntitlements(tier)` → capabilities (`advisorMessagesPerDay`, `fullReport`, `familySeats`, `partnerSharing`). Enforce **server-side** in API routes and server components. Gate 2–3 genuinely premium capabilities (advisor depth, full report/credential export, family mode). *Accept: a free-tier request to a gated API returns 402/403 in an integration test.*
-- **Observability.** Add Sentry (client+server), PostHog events (`assessment_started/completed`, `verdict_shown{verdict}`, `override_recorded`, `checkout_started/completed`, `share_created`), `@vercel/analytics`. Healthcheck (`app/api/healthcheck/route.ts`): return **503** when `database:"error"`; replace hardcoded `version:"1.0.0"` with `VERCEL_GIT_COMMIT_SHA`. *Accept: a thrown prod error appears in Sentry with a commit SHA.*
-- **Password recovery.** None exists (zero `resetPasswordForEmail`). Build `/auth/forgot-password` + `/auth/reset-password` (recovery-session `updateUser`), link from sign-in, and a password-change control in settings Security. *Accept: full reset round-trip on the prod domain.*
-- **Migration history repair.** Remote `supabase_migrations.schema_migrations` holds ~90 phantom prototype rows (some future-dated to 2027). Keep only `20260706193938 … 20260707224634`; mark the rest reverted. Schema itself is already correct (15 tables). *Accept: local `supabase migration list` ≡ remote.*
+
+- **Entitlements (`lib/entitlements.ts`).** Today `subscription_tier` is read only as a badge (`settings`, `admin/users`) and gates nothing. Create `getEntitlements(tier)` → capabilities (`advisorMessagesPerDay`, `fullReport`, `familySeats`, `partnerSharing`). Enforce **server-side** in API routes and server components. Gate 2–3 genuinely premium capabilities (advisor depth, full report/credential export, family mode). _Accept: a free-tier request to a gated API returns 402/403 in an integration test._
+- **Observability.** Add Sentry (client+server), PostHog events (`assessment_started/completed`, `verdict_shown{verdict}`, `override_recorded`, `checkout_started/completed`, `share_created`), `@vercel/analytics`. Healthcheck (`app/api/healthcheck/route.ts`): return **503** when `database:"error"`; replace hardcoded `version:"1.0.0"` with `VERCEL_GIT_COMMIT_SHA`. _Accept: a thrown prod error appears in Sentry with a commit SHA._
+- **Password recovery.** None exists (zero `resetPasswordForEmail`). Build `/auth/forgot-password` + `/auth/reset-password` (recovery-session `updateUser`), link from sign-in, and a password-change control in settings Security. _Accept: full reset round-trip on the prod domain._
+- **Migration history repair.** Remote `supabase_migrations.schema_migrations` holds ~90 phantom prototype rows (some future-dated to 2027). Keep only `20260706193938 … 20260707224634`; mark the rest reverted. Schema itself is already correct (15 tables). _Accept: local `supabase migration list` ≡ remote._
 
 ### TIER 1 — Security & money
-- **Shares IDOR (`app/api/shares/route.ts`).** It inserts `body.assessmentId` with no ownership check → any user can mint a public share link for anyone's assessment. **Mirror the exact pattern already in `app/api/assessments/override/route.ts` (lines ~51–60):** select the assessment `.eq("id", assessmentId).eq("user_id", user.id)`, 404 if not owned. Also tighten the RLS insert policy with an EXISTS subquery. *Accept: cross-user share attempt returns 404 in a test.*
-- **Billing state machine (`app/api/webhooks/stripe/route.ts`).** Adopt the official `stripe` SDK (keep raw-body). Handle `customer.subscription.updated` (propagate downgrade/`past_due`/`cancel_at_period_end`) and `invoice.payment_failed`. Add an idempotency store (`webhook_events(event_id UNIQUE)`, insert-first). Return **500** on transient DB failure so Stripe retries (currently swallows to 200 → paid-but-unprovisioned users). Require auth in `/api/checkout` (block anonymous checkout). Enforce tier via `lookup_key`, drop the hardcoded-cents fallback. *Accept: replayed event processes once; simulated DB failure → retry → provisioned; test-clock downgrade lands in the profile.*
-- **Share revocation.** Add `DELETE /api/shares/:id`, an "Active share links" list in settings with revoke, and a `revoked_at` check inside `get_shared_assessment`. *Accept: revoked link returns nothing.*
-- **LLM endpoints (`/api/advisor`, `/api/twin`, `/api/trinity`).** Currently unauthenticated with a per-lambda in-memory limiter → ~$60/hr/IP spend exposure. Require auth; enforce a per-user daily message quota (tie to entitlements); keep the `/artifact` demo on a tight anonymous budget. *Accept: one IP cannot exceed the quota; unauth request is rejected.*
-- **Rate limiting → Redis.** Replace `lib/ratelimit.ts` (in-memory Map, useless across serverless instances) with Upstash Redis behind the same `rateLimit()` signature. Apply to **every mutating route** (`/api/assessments`, `/api/shares`, `/api/checkout`, `/api/billing/portal`, `/api/account/*`, `/api/plaid/*`). *Accept: limit holds across concurrent invocations.*
+
+- **Shares IDOR (`app/api/shares/route.ts`).** It inserts `body.assessmentId` with no ownership check → any user can mint a public share link for anyone's assessment. **Mirror the exact pattern already in `app/api/assessments/override/route.ts` (lines ~51–60):** select the assessment `.eq("id", assessmentId).eq("user_id", user.id)`, 404 if not owned. Also tighten the RLS insert policy with an EXISTS subquery. _Accept: cross-user share attempt returns 404 in a test._
+- **Billing state machine (`app/api/webhooks/stripe/route.ts`).** Adopt the official `stripe` SDK (keep raw-body). Handle `customer.subscription.updated` (propagate downgrade/`past_due`/`cancel_at_period_end`) and `invoice.payment_failed`. Add an idempotency store (`webhook_events(event_id UNIQUE)`, insert-first). Return **500** on transient DB failure so Stripe retries (currently swallows to 200 → paid-but-unprovisioned users). Require auth in `/api/checkout` (block anonymous checkout). Enforce tier via `lookup_key`, drop the hardcoded-cents fallback. _Accept: replayed event processes once; simulated DB failure → retry → provisioned; test-clock downgrade lands in the profile._
+- **Share revocation.** Add `DELETE /api/shares/:id`, an "Active share links" list in settings with revoke, and a `revoked_at` check inside `get_shared_assessment`. _Accept: revoked link returns nothing._
+- **LLM endpoints (`/api/advisor`, `/api/twin`, `/api/trinity`).** Currently unauthenticated with a per-lambda in-memory limiter → ~$60/hr/IP spend exposure. Require auth; enforce a per-user daily message quota (tie to entitlements); keep the `/artifact` demo on a tight anonymous budget. _Accept: one IP cannot exceed the quota; unauth request is rejected._
+- **Rate limiting → Redis.** Replace `lib/ratelimit.ts` (in-memory Map, useless across serverless instances) with Upstash Redis behind the same `rateLimit()` signature. Apply to **every mutating route** (`/api/assessments`, `/api/shares`, `/api/checkout`, `/api/billing/portal`, `/api/account/*`, `/api/plaid/*`). _Accept: limit holds across concurrent invocations._
 - **CSP.** No `Content-Security-Policy` today. Add report-only first (`default-src 'self'; connect-src 'self' https://*.supabase.co https://api.anthropic.com; script-src 'self' 'unsafe-inline'`), then enforce.
 - **Error leakage.** Stop returning raw `error.message`/upstream bodies (`/api/assessments`, `/api/checkout`, `/api/assessments/override`, `/api/email`, `/api/plaid/exchange`). Log server-side, return generic message + correlation id.
 - **Minor:** waitlist email enumeration → uniform `{ok:true}`; consolidate the two divergent assessment zod schemas (`/api/scoring` vs `/api/assessments`) into `lib/validation/assessment.ts`.
 
 ### TIER 2 — Product integrity + PREMIUM REDESIGN (see §4)
+
 - **Auth-aware app shell.** `app/(product)/layout.tsx` reuses the marketing header (always "Sign in", never links to dashboard/settings). Build a session-reading shell with a user menu + product nav so the **8 orphaned routes** (`/trinity /twin /decisions /signals /credit /calendar /family /connections`) are reachable. Highest-leverage item.
-- **Assessment draft persistence.** `components/assessment/FullAssessmentFlow.tsx` holds answers in `useState` with zero persistence → refresh/back/tab-eviction wipes progress. Persist `{version, form, index, updatedAt}` to localStorage on change; "Resume where you left off"; clear on submit. *Accept: kill the tab at step 15, reopen, resume.*
+- **Assessment draft persistence.** `components/assessment/FullAssessmentFlow.tsx` holds answers in `useState` with zero persistence → refresh/back/tab-eviction wipes progress. Persist `{version, form, index, updatedAt}` to localStorage on change; "Resume where you left off"; clear on submit. _Accept: kill the tab at step 15, reopen, resume._
 - **DB-back `/results` and `/plan`.** Both read only localStorage → a signed-in user on a new device sees "No results yet." Fall back to the latest DB assessment when signed in.
 - **Landing verdict fix + canon guard.** Fix the live 82/"ALMOST THERE" card. Add a unit test asserting every hardcoded marketing score/verdict pair satisfies `scoreToVerdict()`.
 - **Question bank decision.** `lib/questions/bank.ts` (45 canonical Qs, mirrored in DB) is imported by zero runtime files; the live flow is 13 hardcoded steps. **Wire the bank into the flow** (dynamic render from the bank; enables A/B + multi-decision platform) — preferred — or delete it. Do not ship a "45-question assessment" that renders 13.
@@ -76,6 +79,7 @@ List anything you're blocked on at the end of each tier; never invent secret val
 - **Remove `/artifact`** (internal playground) from the public footer.
 
 ### TIER 3 — Growth & hygiene
+
 - Canonical URLs + 308 redirects (apex/www/vercel.app serve duplicate content; no canonical). JSON-LD (Organization + WebSite on landing, FAQPage on method, Article on blog/guides). Consolidate `middleware.ts` `PROTECTED_PREFIXES` (misses family/calendar/outcomes/connections/finance/results/twin/trinity/decisions/signals/credit) → "all `(product)` protected except an explicit public list." Add `outcome_surveys.assessment_id` FK index. Extract duplicated `MoneyField`/`NumberField`/`PercentSlider` into `components/ui`; replace finance's module-scope `let nextExpenseId = 1` with `crypto.randomUUID()`. Integration + Playwright E2E (signup→confirm, assessment→verdict, checkout test-mode→tier, share create→open→revoke, password reset), CI-gated.
 
 ---
@@ -85,6 +89,7 @@ List anything you're blocked on at the end of each tier; never invent secret val
 The design system already exists and is excellent — it just stops at the marketing pages. **Propagate it inward; do not invent a new language.** Reuse the tokens/classes in `app/globals.css`: `.glass`, `.glass-hover`, `.tilt-3d`, `.sweep`, aurora/text-shine, compass rings (`.ring-outer/middle/inner`, canon durations 20s/15s/10s), `.halo`, `.spectrum-bar`, `.score-numeral`, fonts (Fraunces display / Inter / JetBrains Mono for numerals). Honor `prefers-reduced-motion` (already scaffolded).
 
 Apply to **every `(product)` surface**:
+
 - **Dashboard:** readiness hero (compass + score-numeral), three pillar gauges (radial), verdict chip + build-path, score-over-time trend against the READY=80 line, check-in streak. Glass cards, hairline dividers, ambient bloom.
 - **All 11 tools** (`app/(product)/tools/*`: mortgage, affordability, roth-conversion, monte-carlo, rent-vs-buy, down-payment, debt-payoff, runway, fire, blind-budget): consistent glass card frame, JetBrains-Mono result numerals, animated result reveals, shared input primitives, a premium tool-index grid.
 - **Every other product page** (results, plan, twin, trinity, signals, journal, daily, decisions, finance, genome, credit, couples, calendar, family, settings, advisor): same card system, empty states with the compass motif, consistent headers.
@@ -107,14 +112,14 @@ Do NOT treat all work as equivalent. Three lanes, three gates:
 
 - **Foundation (serial — blocks everything):** Step 0 below, then design tokens + shared UI primitives, the auth-aware shell, and the `lib/entitlements.ts` skeleton. One branch at a time; each merges before the next starts.
 - **Volume / low-risk (parallel OK):** premium redesign of pages & tools, SEO/JSON-LD, component de-duplication, Tier 3 hygiene. Gate = CI green + §11 budgets + a visual diff.
-- **Critical / low-volume (never merge on your own say-so):** shares IDOR, Stripe state machine, entitlement *enforcement*, LLM auth/quota, rate-limit→Redis, CSP, ALL migrations. Gate = CI green + the independent acceptance tests in §9 pass + human review + (for billing) a Stripe **test-mode** proof. If those acceptance tests are not yet present in the repo, STOP and request them before implementing — do not write your own substitute and mark the item done.
+- **Critical / low-volume (never merge on your own say-so):** shares IDOR, Stripe state machine, entitlement _enforcement_, LLM auth/quota, rate-limit→Redis, CSP, ALL migrations. Gate = CI green + the independent acceptance tests in §9 pass + human review + (for billing) a Stripe **test-mode** proof. If those acceptance tests are not yet present in the repo, STOP and request them before implementing — do not write your own substitute and mark the item done.
 
 ## 7. STEP 0 — do this before any feature work (own branch `chore/foundation`)
 
 1. **Lockfile:** run `npm install` once and **commit `package-lock.json`**. Builds are currently non-reproducible (no lockfile). After this, CI uses `npm ci`.
 2. **CI:** the workflow at `.github/workflows/ci.yml` must be the required status check on `main` (Settings → Branches → protect `main` → require the `verify` check + require PR review). A red CI must make merge impossible.
-3. **Preview secrets:** confirm with the owner that server-only env vars (STRIPE_*, SUPABASE_SERVICE_ROLE_KEY, ANTHROPIC_API_KEY, RESEND_API_KEY, UPSTASH_*, SENTRY_*) are added to Vercel's **Preview** scope, not only Production — otherwise Tier 1 branches can't be tested on their preview URLs.
-Merge Step 0 before anything else.
+3. **Preview secrets:** confirm with the owner that server-only env vars (STRIPE*\*, SUPABASE_SERVICE_ROLE_KEY, ANTHROPIC_API_KEY, RESEND_API_KEY, UPSTASH*\_, SENTRY\_\_) are added to Vercel's **Preview** scope, not only Production — otherwise Tier 1 branches can't be tested on their preview URLs.
+   Merge Step 0 before anything else.
 
 ## 8. FILE-OWNERSHIP & MERGE ORDER (prevents parallel-branch collisions)
 
@@ -151,6 +156,7 @@ Per redesigned route, the preview must hold: Lighthouse **Performance ≥ 90 (mo
 ## 12. PR / COMMIT TEMPLATE (so output is reviewable at volume)
 
 Conventional commits (`fix(api): enforce share ownership`). Every PR body:
+
 ```
 ## Item        <BUILD-BRIEF/AUDIT reference>
 ## Summary     <what changed, 2–3 lines>
@@ -166,9 +172,8 @@ Conventional commits (`fix(api): enforce share ownership`). Every PR body:
 ## 13. PRODUCTION & DATABASE SAFETY (there is no staging DB — treat prod as fragile)
 
 - **Migrations run against the live Supabase project.** Before any migration: take a backup/`db dump`. Prefer a **Supabase branch** or a throwaway staging project to dry-run; if unavailable, review the SQL with a human before it runs.
-- **Expand/contract only.** Add columns nullable → backfill → constrain in a *later* migration. Never drop/rename a column in the same step that code starts depending on it. Every migration ships with a tested rollback.
+- **Expand/contract only.** Add columns nullable → backfill → constrain in a _later_ migration. Never drop/rename a column in the same step that code starts depending on it. Every migration ships with a tested rollback.
 - **Migration-history repair** uses `supabase migration repair --status reverted` for the phantom versions — do **not** hand-`DELETE` from `supabase_migrations.schema_migrations`.
 - **Stripe:** build and prove the entire webhook/checkout flow in **test mode** (test keys + test clocks) first. Switch to live keys only after §9 passes.
 - **Rollback:** each merge to `main` = one Vercel production deploy. If prod breaks, use Vercel **Instant Rollback** to the previous good deployment immediately, then diagnose on a branch. Keep the last-known-good deployment id noted in the PR.
 - **Preflight:** before starting, confirm the environment: `node -v` (22), `npm -v`, `npx supabase --version`, and network reach to registry/Supabase/Stripe. Report any missing capability instead of working around it.
-

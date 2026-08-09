@@ -18,7 +18,10 @@ export async function GET(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`finance-cat-read:${ip}`, { limit: 60, windowMs: 60_000 });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a minute." },
+      { status: 429 },
+    );
   }
 
   const supabase = await createClient();

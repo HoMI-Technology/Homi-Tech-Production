@@ -55,97 +55,102 @@ export default async function Image({ params }: { params: Promise<{ token: strin
   const headlineColor = share?.reveal_score ? VERDICT_META[share.verdict].color : COLORS.light;
 
   return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          backgroundColor: COLORS.navy,
-          padding: "64px 72px",
-          fontFamily: "sans-serif",
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div style={{ display: "flex", fontSize: 44, fontWeight: 700 }}>
-            <span style={{ color: COLORS.cyan }}>H</span>
-            <span style={{ color: COLORS.emerald }}>ō</span>
-            <span style={{ color: COLORS.yellow }}>M</span>
-            <span style={{ color: COLORS.cyan }}>I</span>
-          </div>
-          <div style={{ display: "flex", color: COLORS.dim, fontSize: 22, letterSpacing: 4 }}>
-            READINESS JOURNEY
-          </div>
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        backgroundColor: COLORS.navy,
+        padding: "64px 72px",
+        fontFamily: "sans-serif",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ display: "flex", fontSize: 44, fontWeight: 700 }}>
+          <span style={{ color: COLORS.cyan }}>H</span>
+          <span style={{ color: COLORS.emerald }}>ō</span>
+          <span style={{ color: COLORS.yellow }}>M</span>
+          <span style={{ color: COLORS.cyan }}>I</span>
         </div>
-
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "baseline",
-              gap: 28,
-              color: headlineColor,
-              fontSize: 64,
-              fontWeight: 700,
-              letterSpacing: 2,
-            }}
-          >
-            {headline}
-            {share?.reveal_score ? (
-              <span style={{ color: COLORS.ink, fontSize: 96 }}>{share.score}</span>
-            ) : null}
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", marginTop: 44, gap: 26 }}>
-            {PILLARS.map((pillar) => {
-              const pct = share ? Number(share[pillar.key]) : 62;
-              return (
-                <div key={pillar.label} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      color: COLORS.dim,
-                      fontSize: 20,
-                      letterSpacing: 3,
-                    }}
-                  >
-                    <span>{pillar.label}</span>
-                    <span style={{ color: COLORS.light }}>{share ? `${pct}%` : ""}</span>
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      width: "100%",
-                      height: 14,
-                      backgroundColor: COLORS.slateSurface,
-                      borderRadius: 999,
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        width: `${pct}%`,
-                        height: 14,
-                        backgroundColor: pillar.color,
-                        borderRadius: 999,
-                      }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div style={{ display: "flex", justifyContent: "space-between", color: COLORS.dim, fontSize: 22 }}>
-          <span>Not a lender. Not a pitch. An honest read.</span>
-          <span style={{ color: COLORS.cyan }}>homitechnology.com</span>
+        <div style={{ display: "flex", color: COLORS.dim, fontSize: 22, letterSpacing: 4 }}>
+          READINESS JOURNEY
         </div>
       </div>
-    ),
+
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "baseline",
+            gap: 28,
+            color: headlineColor,
+            fontSize: 64,
+            fontWeight: 700,
+            letterSpacing: 2,
+          }}
+        >
+          {headline}
+          {share?.reveal_score ? (
+            <span style={{ color: COLORS.ink, fontSize: 96 }}>{share.score}</span>
+          ) : null}
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", marginTop: 44, gap: 26 }}>
+          {PILLARS.map((pillar) => {
+            const pct = share ? Number(share[pillar.key]) : 62;
+            return (
+              <div key={pillar.label} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    color: COLORS.dim,
+                    fontSize: 20,
+                    letterSpacing: 3,
+                  }}
+                >
+                  <span>{pillar.label}</span>
+                  <span style={{ color: COLORS.light }}>{share ? `${pct}%` : ""}</span>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    width: "100%",
+                    height: 14,
+                    backgroundColor: COLORS.slateSurface,
+                    borderRadius: 999,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      width: `${pct}%`,
+                      height: 14,
+                      backgroundColor: pillar.color,
+                      borderRadius: 999,
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          color: COLORS.dim,
+          fontSize: 22,
+        }}
+      >
+        <span>Not a lender. Not a pitch. An honest read.</span>
+        <span style={{ color: COLORS.cyan }}>homitechnology.com</span>
+      </div>
+    </div>,
     size,
   );
 }

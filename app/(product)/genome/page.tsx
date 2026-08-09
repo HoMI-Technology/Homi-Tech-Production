@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DIMENSIONS, QUESTIONS, scoreGenome, type DimensionScore, type GenomeAnswers } from "@/lib/genome/dimensions";
+import {
+  DIMENSIONS,
+  QUESTIONS,
+  scoreGenome,
+  type DimensionScore,
+  type GenomeAnswers,
+} from "@/lib/genome/dimensions";
 import { PageFrame } from "@/components/operate/PageFrame";
 import { RadarChart } from "@/components/tools/RadarChart";
 import { sliderFillPercent } from "@/lib/assessment/format";
@@ -132,8 +138,8 @@ export default function GenomePage() {
           <div>
             <h1 className="font-display text-3xl text-light">Your Behavioral Genome</h1>
             <p className="mt-2 text-dim">
-              Taken {new Date(stored.completedAt).toLocaleDateString()}. Your decision psychology across 9
-              dimensions.
+              Taken {new Date(stored.completedAt).toLocaleDateString()}. Your decision psychology
+              across 9 dimensions.
             </p>
           </div>
           <button className="btn btn-ghost" onClick={startOver}>
@@ -177,9 +183,10 @@ export default function GenomePage() {
     <PageFrame width="narrow" density="spacious" role="personal">
       <h1 className="font-display text-3xl text-light">Behavioral Genome</h1>
       <p className="mt-3 text-dim">
-        Nine dimensions of decision psychology — loss aversion, time perception, confidence calibration,
-        volatility tolerance, regret asymmetry, narrative dependence, social reference, outcome
-        attribution, and agency perception. Eighteen quick questions, about five minutes, honest results.
+        Nine dimensions of decision psychology — loss aversion, time perception, confidence
+        calibration, volatility tolerance, regret asymmetry, narrative dependence, social reference,
+        outcome attribution, and agency perception. Eighteen quick questions, about five minutes,
+        honest results.
       </p>
       <button className="btn btn-primary mt-8" onClick={startOver}>
         Start

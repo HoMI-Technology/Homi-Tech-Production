@@ -64,7 +64,9 @@ export function summarizeCashFlow(
  * VERIFIED_WINDOW_DAYS. Null when the user has no linked bank, no settled
  * transactions in the window, or on any error.
  */
-export async function getVerifiedCashFlow(supabase: SupabaseClient): Promise<VerifiedCashFlow | null> {
+export async function getVerifiedCashFlow(
+  supabase: SupabaseClient,
+): Promise<VerifiedCashFlow | null> {
   try {
     const cutoffDate = new Date(Date.now() - VERIFIED_WINDOW_DAYS * 24 * 60 * 60 * 1000)
       .toISOString()

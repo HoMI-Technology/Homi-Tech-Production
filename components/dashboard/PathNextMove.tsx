@@ -43,15 +43,8 @@ export function PathNextMove() {
       if (!current) {
         const assessment = loadLocalResult();
         const result = assessment?.result;
-        if (
-          result &&
-          !(result.verdict === "READY" && (result.hardStops?.length ?? 0) === 0)
-        ) {
-          const auto = ensurePathForVerdict(
-            result,
-            assessment?.completedAt ?? null,
-            false,
-          );
+        if (result && !(result.verdict === "READY" && (result.hardStops?.length ?? 0) === 0)) {
+          const auto = ensurePathForVerdict(result, assessment?.completedAt ?? null, false);
           if (auto) {
             current = auto;
             if (pathHabitOncePerSession("path_generated:dashboard")) {
@@ -103,8 +96,7 @@ export function PathNextMove() {
 
   const handleMarkDone = useCallback(() => {
     if (!path) return;
-    const nextStep =
-      path.steps.find((s) => (s.status ?? "pending") === "pending") ?? null;
+    const nextStep = path.steps.find((s) => (s.status ?? "pending") === "pending") ?? null;
     if (!nextStep) return;
 
     // Both branches run the same guarded pending → done transition against
@@ -141,9 +133,7 @@ export function PathNextMove() {
         role="status"
       >
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-sm font-medium text-emerald">
-            Last path: READY — optional review
-          </p>
+          <p className="text-sm font-medium text-emerald">Last path: READY — optional review</p>
           <Link
             href="/results"
             className="text-sm font-medium text-emerald/90 underline-offset-2 hover:underline"
@@ -156,24 +146,15 @@ export function PathNextMove() {
   }
 
   const nextStep =
-    path.steps.find((s) => (s.status ?? "pending") === "pending") ??
-    path.steps[0] ??
-    null;
+    path.steps.find((s) => (s.status ?? "pending") === "pending") ?? path.steps[0] ?? null;
   const constraint = bindingConstraintLabel(path.bindingConstraint);
   const stage = derivePathHabitStage(path);
   const pending = pathPendingStepCount(path);
   const firstPending = stage === "path_pending_first";
 
   return (
-    <div
-      className="mt-5"
-      data-path-habit-stage={stage}
-      aria-label="Path to Ready next move"
-    >
-      <div
-        className="dash-action-dock"
-        style={{ ["--instrument-tint" as string]: COLORS.cyan }}
-      >
+    <div className="mt-5" data-path-habit-stage={stage} aria-label="Path to Ready next move">
+      <div className="dash-action-dock" style={{ ["--instrument-tint" as string]: COLORS.cyan }}>
         <div className="min-w-0">
           <p className="dash-action-dock-label">
             {firstPending ? "Path habit · first move" : "Path to Ready"}
@@ -196,11 +177,7 @@ export function PathNextMove() {
         <div className="dash-action-dock-actions flex flex-wrap gap-2.5">
           {nextStep && stage !== "path_complete" ? (
             <>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={handleMarkDone}
-              >
+              <button type="button" className="btn btn-primary" onClick={handleMarkDone}>
                 Mark done
               </button>
               <Link

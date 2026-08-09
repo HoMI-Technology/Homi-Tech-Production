@@ -2,7 +2,7 @@
 
 **Branch:** `feat/decision-os-coherence`  
 **Target:** `main`  
-**Type:** `feat` + `fix` + `security`  
+**Type:** `feat` + `fix` + `security`
 
 ## Summary
 

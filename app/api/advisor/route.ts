@@ -480,7 +480,10 @@ export async function POST(request: Request) {
 
   const parsed = bodySchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid request body.", issues: parsed.error.issues }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body.", issues: parsed.error.issues },
+      { status: 400 },
+    );
   }
 
   const { messages, persona, demoContext } = parsed.data;
@@ -548,17 +551,26 @@ export async function POST(request: Request) {
   // deterministic answer built from the same precomputed digest the model
   // would read — so free tier, quota exhaustion, and Anthropic outages all
   // produce the same numbers a paid answer would, never a contradiction.
-  const synthesisRequested = lastUserMessage.trim().toLowerCase().startsWith("what does this change");
+  const synthesisRequested = lastUserMessage
+    .trim()
+    .toLowerCase()
+    .startsWith("what does this change");
   function deterministicReply(): string {
     if (lensDigest && synthesisRequested) return buildLensSynthesisFallback(lensDigest);
-    return buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
+    return buildPersonaFallbackReply({
+      message: lastUserMessage,
+      assessment,
+      persona: activePersona,
+    });
   }
 
   // Single exit: persist the exchange to the user's server thread (best-effort,
   // signed-in only, never for demo mode) and reply with the conversation id so
   // the client can echo it back on the next message.
   async function respond(reply: string, source: "model" | "fallback") {
-    let conversationId = demoContext ? null : (parsed.success ? parsed.data.conversationId : null) ?? null;
+    let conversationId = demoContext
+      ? null
+      : ((parsed.success ? parsed.data.conversationId : null) ?? null);
     if (supabase && gateUserId) {
       const persisted = await persistCompanionExchange(supabase, {
         userId: gateUserId,
@@ -625,7 +637,10 @@ export async function POST(request: Request) {
     if (!response.ok) {
       // Surface a bad/expired key (or upstream outage) in logs — a silent
       // fallback here is indistinguishable from the normal $0 path otherwise.
-      console.error("[advisor] model call failed", { status: response.status, reason: "non_200_response" });
+      console.error("[advisor] model call failed", {
+        status: response.status,
+        reason: "non_200_response",
+      });
       return respond(deterministicReply(), "fallback");
     }
 

@@ -31,7 +31,10 @@ async function handler(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`plaid-link-token:${ip}`, { limit: 10, windowMs: 60_000 });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a minute." },
+      { status: 429 },
+    );
   }
 
   const credentials = getPlaidCredentials();

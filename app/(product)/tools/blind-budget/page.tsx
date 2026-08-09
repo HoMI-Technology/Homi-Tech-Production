@@ -31,7 +31,15 @@ export default function BlindBudgetPage() {
   useLensPrefill("blind-budget", apply);
 
   const result = useMemo(
-    () => computeBlindBudget({ incomeLow, incomeHigh, fixedCostsLow, fixedCostsHigh, savingsLow, savingsHigh }),
+    () =>
+      computeBlindBudget({
+        incomeLow,
+        incomeHigh,
+        fixedCostsLow,
+        fixedCostsHigh,
+        savingsLow,
+        savingsHigh,
+      }),
     [incomeLow, incomeHigh, fixedCostsLow, fixedCostsHigh, savingsLow, savingsHigh],
   );
 
@@ -96,7 +104,14 @@ export default function BlindBudgetPage() {
           <div className="hairline" />
           <SaveScenarioButton
             lensId="blind-budget"
-            getInputs={() => ({ incomeLow, incomeHigh, fixedCostsLow, fixedCostsHigh, savingsLow, savingsHigh })}
+            getInputs={() => ({
+              incomeLow,
+              incomeHigh,
+              fixedCostsLow,
+              fixedCostsHigh,
+              savingsLow,
+              savingsHigh,
+            })}
           />
         </div>
 
@@ -106,14 +121,18 @@ export default function BlindBudgetPage() {
             <p className="score-numeral mt-2 text-3xl font-bold text-yellow">
               {formatCurrency(result.safeToSpendLow)} – {formatCurrency(result.safeToSpendHigh)}
             </p>
-            <p className="mt-2 text-xs text-dim">per month, across your worst case to your best case</p>
+            <p className="mt-2 text-xs text-dim">
+              per month, across your worst case to your best case
+            </p>
           </div>
 
           <LensSynthesis digest={digest} />
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">Runway band</h2>
-            <p className="mt-1 text-xs text-dim">How long your savings hold up against your fixed costs.</p>
+            <p className="mt-1 text-xs text-dim">
+              How long your savings hold up against your fixed costs.
+            </p>
             <p className="score-numeral mt-4 text-2xl font-bold text-light">
               {formatMonths(result.runwayLowMonths)} – {formatMonths(result.runwayHighMonths)}
             </p>
@@ -122,11 +141,11 @@ export default function BlindBudgetPage() {
           <div className="glass p-6">
             <h2 className="font-semibold text-light">What this means</h2>
             <p className="mt-2 text-sm leading-relaxed text-dim">
-              The low end of each band pairs your least income with your highest costs — the honest worst
-              case. The high end pairs your most income with your lowest costs — the honest best case. If
-              you can live inside the low end of the safe-to-spend band, you're covered no matter which
-              reality turns out to be true. Narrowing your ranges over time, not guessing a fake precise
-              number today, is how this band gets smaller.
+              The low end of each band pairs your least income with your highest costs — the honest
+              worst case. The high end pairs your most income with your lowest costs — the honest
+              best case. If you can live inside the low end of the safe-to-spend band, you're
+              covered no matter which reality turns out to be true. Narrowing your ranges over time,
+              not guessing a fake precise number today, is how this band gets smaller.
             </p>
           </div>
         </div>
@@ -203,4 +222,3 @@ function RangeField({
     </div>
   );
 }
-

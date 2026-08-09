@@ -12,13 +12,13 @@
 
 Ordered habit funnel (also on **Admin → Analytics**):
 
-| Event | Meaning |
-|-------|---------|
-| `path_generated` | Path created (auto or manual) |
-| `path_habit_impression` | Habit surface shown (dashboard / results / path) |
-| `path_page_viewed` | `/path` opened |
-| `path_start_step_clicked` | User started a step tool |
-| `path_first_step_done` | First pending step marked done |
+| Event                     | Meaning                                          |
+| ------------------------- | ------------------------------------------------ |
+| `path_generated`          | Path created (auto or manual)                    |
+| `path_habit_impression`   | Habit surface shown (dashboard / results / path) |
+| `path_page_viewed`        | `/path` opened                                   |
+| `path_start_step_clicked` | User started a step tool                         |
+| `path_first_step_done`    | First pending step marked done                   |
 
 Related: `path_return_visit`, `path_step_done`, `path_calendar_committed`, `verdict_shown`.
 
@@ -26,11 +26,11 @@ Props are enums/counts only (stage, surface, reason_code, verdict key). No score
 
 ## Operator SLOs
 
-| Metric | Target |
-|--------|--------|
-| Path activation | ≥95% of non-READY result views get a path (auto-path) |
+| Metric           | Target                                                          |
+| ---------------- | --------------------------------------------------------------- |
+| Path activation  | ≥95% of non-READY result views get a path (auto-path)           |
 | Habit impression | Dashboard shows PathNextMove when local assessment is non-READY |
-| First step | Track ratio `path_first_step_done / path_generated` (7d) |
+| First step       | Track ratio `path_first_step_done / path_generated` (7d)        |
 
 ## Env
 

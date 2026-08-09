@@ -43,7 +43,14 @@ export function StepShell({
       <div className="mt-6 flex items-center justify-between gap-4">
         {showBack && onBack ? (
           <button type="button" onClick={onBack} className="btn btn-ghost">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M10 3L5 8l5 5" />
             </svg>
             Back
@@ -51,9 +58,21 @@ export function StepShell({
         ) : (
           <span />
         )}
-        <button type="button" onClick={onNext} disabled={nextDisabled} className="btn btn-primary disabled:opacity-40 disabled:cursor-not-allowed">
+        <button
+          type="button"
+          onClick={onNext}
+          disabled={nextDisabled}
+          className="btn btn-primary disabled:opacity-40 disabled:cursor-not-allowed"
+        >
           {nextLabel}
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M6 3l5 5-5 5" />
           </svg>
         </button>

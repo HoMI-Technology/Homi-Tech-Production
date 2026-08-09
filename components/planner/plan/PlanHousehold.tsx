@@ -54,48 +54,30 @@ export default function PlanHousehold() {
           warnings: r.warnings,
           financial: {
             debtToIncome:
-              r.pillars.financial.factors.find((f) => f.key === "debtToIncome")
-                ?.pts ?? 0,
-            downPayment:
-              r.pillars.financial.factors.find((f) => f.key === "downPayment")
-                ?.pts ?? 0,
+              r.pillars.financial.factors.find((f) => f.key === "debtToIncome")?.pts ?? 0,
+            downPayment: r.pillars.financial.factors.find((f) => f.key === "downPayment")?.pts ?? 0,
             emergencyFund:
-              r.pillars.financial.factors.find((f) => f.key === "emergencyFund")
-                ?.pts ?? 0,
+              r.pillars.financial.factors.find((f) => f.key === "emergencyFund")?.pts ?? 0,
             creditHealth:
-              r.pillars.financial.factors.find((f) => f.key === "creditHealth")
-                ?.pts ?? 0,
+              r.pillars.financial.factors.find((f) => f.key === "creditHealth")?.pts ?? 0,
             total: r.pillars.financial.total,
           },
           emotional: {
             lifeStability:
-              r.pillars.emotional.factors.find((f) => f.key === "lifeStability")
-                ?.pts ?? 0,
+              r.pillars.emotional.factors.find((f) => f.key === "lifeStability")?.pts ?? 0,
             confidenceLevel:
-              r.pillars.emotional.factors.find(
-                (f) => f.key === "confidenceLevel",
-              )?.pts ?? 0,
+              r.pillars.emotional.factors.find((f) => f.key === "confidenceLevel")?.pts ?? 0,
             partnerAlignment:
-              r.pillars.emotional.factors.find(
-                (f) => f.key === "partnerAlignment",
-              )?.pts ?? 0,
-            fomoCheck:
-              r.pillars.emotional.factors.find((f) => f.key === "fomoCheck")
-                ?.pts ?? 0,
+              r.pillars.emotional.factors.find((f) => f.key === "partnerAlignment")?.pts ?? 0,
+            fomoCheck: r.pillars.emotional.factors.find((f) => f.key === "fomoCheck")?.pts ?? 0,
             total: r.pillars.emotional.total,
             singleRedistribution: false,
           },
           timing: {
-            timeHorizon:
-              r.pillars.timing.factors.find((f) => f.key === "timeHorizon")
-                ?.pts ?? 0,
-            savingsRate:
-              r.pillars.timing.factors.find((f) => f.key === "savingsRate")
-                ?.pts ?? 0,
+            timeHorizon: r.pillars.timing.factors.find((f) => f.key === "timeHorizon")?.pts ?? 0,
+            savingsRate: r.pillars.timing.factors.find((f) => f.key === "savingsRate")?.pts ?? 0,
             downPaymentProgress:
-              r.pillars.timing.factors.find(
-                (f) => f.key === "downPaymentProgress",
-              )?.pts ?? 0,
+              r.pillars.timing.factors.find((f) => f.key === "downPaymentProgress")?.pts ?? 0,
             total: r.pillars.timing.total,
           },
         });
@@ -140,13 +122,11 @@ export default function PlanHousehold() {
       <div className="mt-5 flex items-center justify-between rounded-xl border border-line bg-navy/30 px-3.5 py-3">
         <div>
           <p className="text-sm font-semibold text-light">
-            {partner.enabled
-              ? "Partner scoring is on"
-              : "Fly solo or score together?"}
+            {partner.enabled ? "Partner scoring is on" : "Fly solo or score together?"}
           </p>
           <p className="mt-0.5 text-xs text-dim">
-            Align with your partner on one number — a shared max housing payment
-            or runway target beats a full budget debate.
+            Align with your partner on one number — a shared max housing payment or runway target
+            beats a full budget debate.
           </p>
         </div>
         <button
@@ -182,27 +162,21 @@ export default function PlanHousehold() {
             <PlanTile
               label="JOINT (MIN)"
               value={String(dual?.jointScore ?? "—")}
-              tone={
-                dual && dual.jointHardStops.length > 0 ? "crimson" : "cyan"
-              }
+              tone={dual && dual.jointHardStops.length > 0 ? "crimson" : "cyan"}
               hint="Weaker member leads"
             />
             <PlanTile
               label="SCORE GAP"
               value={String(dual?.scoreGap ?? "—")}
               tone={dual && dual.scoreGap >= 15 ? "amber" : "default"}
-              hint={
-                dual?.verdictAligned ? "Same verdict band" : "Verdicts differ"
-              }
+              hint={dual?.verdictAligned ? "Same verdict band" : "Verdicts differ"}
             />
           </div>
 
           {dual && (
             <div className="mt-4 flex flex-wrap items-center gap-2.5">
               <VerdictChip verdict={dual.memberA.verdict} />
-              <span className="text-2xs uppercase tracking-[0.12em] text-dim">
-                joint
-              </span>
+              <span className="text-2xs uppercase tracking-[0.12em] text-dim">joint</span>
               <VerdictChip verdict={dual.jointVerdict} />
             </div>
           )}

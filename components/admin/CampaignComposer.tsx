@@ -56,7 +56,9 @@ export function CampaignComposer() {
 
   const canReview = name.trim() !== "" && subject.trim() !== "" && body.trim() !== "" && !busy;
 
-  async function post(payload: Record<string, unknown>): Promise<{ ok: boolean; data: Record<string, unknown> }> {
+  async function post(
+    payload: Record<string, unknown>,
+  ): Promise<{ ok: boolean; data: Record<string, unknown> }> {
     const res = await fetch("/api/admin/campaigns", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -157,7 +159,9 @@ export function CampaignComposer() {
     <div className="mt-4 grid gap-6 lg:grid-cols-2">
       <div className="flex flex-col gap-4">
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium uppercase tracking-wide text-dim">Campaign name</span>
+          <span className="text-xs font-medium uppercase tracking-wide text-dim">
+            Campaign name
+          </span>
           <input
             className="input"
             value={name}
@@ -212,12 +216,15 @@ export function CampaignComposer() {
             placeholder={'<p style="margin:0 0 16px 0;">Hi there,</p>'}
           />
           <span className="text-2xs text-dim">
-            Admin-authored HTML, wrapped in the standard HōMI email shell with an unsubscribe footer.
+            Admin-authored HTML, wrapped in the standard HōMI email shell with an unsubscribe
+            footer.
           </span>
         </label>
 
         {error && (
-          <p className="rounded-lg border border-crimson/30 bg-crimson/10 px-4 py-3 text-sm text-crimson">{error}</p>
+          <p className="rounded-lg border border-crimson/30 bg-crimson/10 px-4 py-3 text-sm text-crimson">
+            {error}
+          </p>
         )}
 
         {phase === "done" && summary && (
@@ -226,7 +233,9 @@ export function CampaignComposer() {
             <p className="mt-1 text-dim">
               {summary.sent.toLocaleString()} delivered
               {summary.failed > 0 ? ` · ${summary.failed.toLocaleString()} failed` : ""}
-              {summary.suppressed > 0 ? ` · ${summary.suppressed.toLocaleString()} suppressed (unsubscribed)` : ""}
+              {summary.suppressed > 0
+                ? ` · ${summary.suppressed.toLocaleString()} suppressed (unsubscribed)`
+                : ""}
             </p>
           </div>
         )}
@@ -234,17 +243,25 @@ export function CampaignComposer() {
         {phase === "confirming" && count ? (
           <div className="rounded-lg border border-cyan/30 bg-slate-surface/60 px-4 py-4">
             <p className="text-sm text-light">
-              Ready to send to <span className="score-numeral font-semibold text-cyan">{count.sendable.toLocaleString()}</span>{" "}
+              Ready to send to{" "}
+              <span className="score-numeral font-semibold text-cyan">
+                {count.sendable.toLocaleString()}
+              </span>{" "}
               recipient{count.sendable === 1 ? "" : "s"}.
             </p>
             {count.suppressed > 0 && (
               <p className="mt-1 text-xs text-dim">
-                {count.suppressed.toLocaleString()} address{count.suppressed === 1 ? "" : "es"} on this audience opted out and
-                will be skipped.
+                {count.suppressed.toLocaleString()} address{count.suppressed === 1 ? "" : "es"} on
+                this audience opted out and will be skipped.
               </p>
             )}
             <div className="mt-4 flex flex-wrap gap-3">
-              <button type="button" className="btn btn-primary" onClick={handleSend} disabled={busy || count.sendable === 0}>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleSend}
+                disabled={busy || count.sendable === 0}
+              >
                 Confirm and send
               </button>
               <button
@@ -264,7 +281,12 @@ export function CampaignComposer() {
           <p className="text-sm text-dim">Sending… this can take a moment for large audiences.</p>
         ) : (
           <div className="flex flex-wrap gap-3">
-            <button type="button" className="btn btn-primary" onClick={handleReview} disabled={!canReview}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleReview}
+              disabled={!canReview}
+            >
               Review recipients
             </button>
             <button
@@ -307,7 +329,8 @@ export function CampaignComposer() {
           />
         </div>
         <p className="mt-2 text-2xs text-dim">
-          The unsubscribe link is a placeholder in preview; each recipient gets a working one-click opt-out.
+          The unsubscribe link is a placeholder in preview; each recipient gets a working one-click
+          opt-out.
         </p>
       </div>
     </div>

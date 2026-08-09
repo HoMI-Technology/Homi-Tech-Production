@@ -28,12 +28,7 @@ import { deriveBehaviorNudges } from "@/lib/planner/nudges";
 import { analyzeStress } from "@/lib/planner/stress";
 import { getLastScoreResult } from "@/lib/planner/score-bridge";
 
-export type PlannerTabKey =
-  | "overview"
-  | "calendar"
-  | "banking"
-  | "wealth"
-  | "plan";
+export type PlannerTabKey = "overview" | "calendar" | "banking" | "wealth" | "plan";
 
 const TABS: { key: PlannerTabKey; label: string; icon: ReactNode }[] = [
   { key: "overview", label: "Overview", icon: <LayoutDashboard className="h-4 w-4" /> },
@@ -109,10 +104,7 @@ export function PlannerPage({
     () => financialReality(transactions, accounts, bills),
     [transactions, accounts, bills],
   );
-  const portfolio = useMemo(
-    () => summarizePortfolio(holdings),
-    [holdings],
-  );
+  const portfolio = useMemo(() => summarizePortfolio(holdings), [holdings]);
   const nw = useMemo(
     () => totalNetWorth(accounts, holdings, netWorthItems),
     [accounts, holdings, netWorthItems],
@@ -126,9 +118,7 @@ export function PlannerPage({
         income: reality.income,
         cashFlow: reality.cashFlow,
         savingsRate: reality.savingsRate,
-        runwayMonths: Number.isFinite(reality.runwayMonths)
-          ? reality.runwayMonths
-          : 99,
+        runwayMonths: Number.isFinite(reality.runwayMonths) ? reality.runwayMonths : 99,
         dti: reality.dti,
         bills,
         path,
@@ -158,29 +148,16 @@ export function PlannerPage({
         path,
         stress,
         cashFlow: reality.cashFlow,
-        runwayMonths: Number.isFinite(reality.runwayMonths)
-          ? reality.runwayMonths
-          : 99,
+        runwayMonths: Number.isFinite(reality.runwayMonths) ? reality.runwayMonths : 99,
         savingsRate: reality.savingsRate,
         lastScoreDelta: lastImpact?.delta ?? null,
         partnerAlignment: readinessProfile.partnerAlignment,
       }).slice(0, 3),
-    [
-      assessment,
-      bills,
-      path,
-      stress,
-      reality,
-      lastImpact,
-      readinessProfile.partnerAlignment,
-    ],
+    [assessment, bills, path, stress, reality, lastImpact, readinessProfile.partnerAlignment],
   );
 
   const hasData =
-    transactions.length > 0 ||
-    accounts.length > 0 ||
-    bills.length > 0 ||
-    holdings.length > 0;
+    transactions.length > 0 || accounts.length > 0 || bills.length > 0 || holdings.length > 0;
 
   return (
     <div className="relative space-y-7">
@@ -199,12 +176,10 @@ export function PlannerPage({
           <p className="text-2xs font-bold uppercase tracking-[0.16em] text-cyan">
             Decision Readiness Intelligence
           </p>
-          <h1 className="mt-1.5 type-h2 font-medium tracking-tight">
-            Budget Planner
-          </h1>
+          <h1 className="mt-1.5 type-h2 font-medium tracking-tight">Budget Planner</h1>
           <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-dim sm:text-base">
-            Cash flow, banks, portfolio, Path to Ready, and decision models.
-            HōMI numbers that protect choices - not a sales funnel.
+            Cash flow, banks, portfolio, Path to Ready, and decision models. HōMI numbers that
+            protect choices - not a sales funnel.
           </p>
         </div>
         <div className="relative flex shrink-0 flex-wrap gap-2">
@@ -230,9 +205,7 @@ export function PlannerPage({
               type="button"
               onClick={() => {
                 if (
-                  window.confirm(
-                    "Load sample numbers for education only? Not your real money.",
-                  )
+                  window.confirm("Load sample numbers for education only? Not your real money.")
                 ) {
                   resetDemo();
                   // Demo seed is educational; mark profile complete so live score can run.
@@ -272,10 +245,7 @@ export function PlannerPage({
           onAction={(s) => onTabChange(s.actionTab as PlannerTabKey)}
         />
 
-        <NudgeRail
-          nudges={nudges}
-          onAction={(n) => onTabChange(n.actionTab as PlannerTabKey)}
-        />
+        <NudgeRail nudges={nudges} onAction={(n) => onTabChange(n.actionTab as PlannerTabKey)} />
       </div>
 
       <Tabs

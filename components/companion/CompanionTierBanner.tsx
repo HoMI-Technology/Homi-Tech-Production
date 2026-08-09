@@ -3,14 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getEntitlements } from "@/lib/entitlements";
-import {
-  companionTierCopy,
-  type CompanionTierCopy,
-} from "@/lib/advisor/companion-tier-copy";
+import { companionTierCopy, type CompanionTierCopy } from "@/lib/advisor/companion-tier-copy";
 
-type LoadState =
-  | { status: "loading" }
-  | { status: "ready"; copy: CompanionTierCopy };
+type LoadState = { status: "loading" } | { status: "ready"; copy: CompanionTierCopy };
 
 /**
  * Honest free vs paid Companion label. Reads `/api/account/entitlements`

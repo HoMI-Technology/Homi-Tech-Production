@@ -35,7 +35,8 @@ const TOPICS: Topic[] = [
     label: "Price comfort",
     lowLabel: "Conservative",
     highLabel: "Stretch",
-    prompt: "Agree on a number that lets you both sleep at night, not just the number you're approved for.",
+    prompt:
+      "Agree on a number that lets you both sleep at night, not just the number you're approved for.",
   },
   {
     key: "location",
@@ -107,7 +108,8 @@ function alignmentPct(a: number, b: number): number {
 
 function tempFor(pct: number): { color: string; label: string; className: string } {
   if (pct >= 80) return { color: COLORS.emerald, label: "Aligned", className: "bg-verdict-ready" };
-  if (pct >= 60) return { color: COLORS.yellow, label: "Mostly aligned", className: "bg-verdict-almost" };
+  if (pct >= 60)
+    return { color: COLORS.yellow, label: "Mostly aligned", className: "bg-verdict-almost" };
   if (pct >= 40) return { color: COLORS.amber, label: "Divergent", className: "bg-verdict-build" };
   return { color: COLORS.crimson, label: "Significant gap", className: "bg-verdict-notyet" };
 }
@@ -152,7 +154,9 @@ function CouplesAlignmentInner() {
     return (
       <div className="max-w-3xl">
         <h2 className="font-display text-2xl text-light">Couples Alignment</h2>
-        <p className="mt-2 text-dim">{isA ? "Partner A" : "Partner B"}: rate each topic on your own, honestly.</p>
+        <p className="mt-2 text-dim">
+          {isA ? "Partner A" : "Partner B"}: rate each topic on your own, honestly.
+        </p>
 
         <div className="glass mt-8 space-y-6 p-8">
           {TOPICS.map((topic) => (
@@ -203,7 +207,9 @@ function CouplesAlignmentInner() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="font-display text-2xl text-light">Alignment Results</h2>
-            <p className="mt-2 text-dim">Taken {new Date(stored.completedAt).toLocaleDateString()}.</p>
+            <p className="mt-2 text-dim">
+              Taken {new Date(stored.completedAt).toLocaleDateString()}.
+            </p>
             <p className="mt-2 text-sm text-dim">
               Path to Ready treats significant gaps as household readiness work —{" "}
               <Link href="/path" className="text-cyan underline-offset-2 hover:underline">
@@ -218,10 +224,19 @@ function CouplesAlignmentInner() {
         </div>
 
         <div className="glass mt-8 flex flex-col items-center gap-4 p-8">
-          <ScoreRing value={overall} max={100} size={180} color={tempFor(overall).color} label="Overall alignment" />
+          <ScoreRing
+            value={overall}
+            max={100}
+            size={180}
+            color={tempFor(overall).color}
+            label="Overall alignment"
+          />
         </div>
 
-        <div className="glass mt-6 border p-6" style={{ borderColor: `${tempFor(biggestGap.pct).color}55` }}>
+        <div
+          className="glass mt-6 border p-6"
+          style={{ borderColor: `${tempFor(biggestGap.pct).color}55` }}
+        >
           <p className="text-sm font-semibold" style={{ color: tempFor(biggestGap.pct).color }}>
             Biggest gap: {biggestGap.topic.label}
           </p>
@@ -246,7 +261,9 @@ function CouplesAlignmentInner() {
                   <span>A: {a}/10</span>
                   <span>B: {b}/10</span>
                 </div>
-                {pct < 60 && <p className="mt-3 text-xs leading-relaxed text-dim">{topic.prompt}</p>}
+                {pct < 60 && (
+                  <p className="mt-3 text-xs leading-relaxed text-dim">{topic.prompt}</p>
+                )}
               </div>
             );
           })}
@@ -259,8 +276,8 @@ function CouplesAlignmentInner() {
     <div className="max-w-3xl">
       <h2 className="font-display text-2xl text-light">Couples Alignment</h2>
       <p className="mt-3 text-dim">
-        Two people, six topics, one honest picture of where you agree and where you don't yet. Partner A
-        answers first, then Partner B, without seeing each other's answers.
+        Two people, six topics, one honest picture of where you agree and where you don't yet.
+        Partner A answers first, then Partner B, without seeing each other's answers.
       </p>
       <button className="btn btn-primary mt-8" onClick={startOver}>
         Start

@@ -14,7 +14,12 @@ export type TimeHorizonChoice = "lt3" | "3to6" | "6to12" | "12plus";
  * yet; this is purely a UI foundation and a value stored alongside the
  * assessment's decision_type column.
  */
-export type DecisionType = "home_buying" | "car" | "career_change" | "education" | "starting_a_business";
+export type DecisionType =
+  | "home_buying"
+  | "car"
+  | "career_change"
+  | "education"
+  | "starting_a_business";
 
 export const DECISION_TYPE_LABELS: Record<DecisionType, string> = {
   home_buying: "Buying a home",

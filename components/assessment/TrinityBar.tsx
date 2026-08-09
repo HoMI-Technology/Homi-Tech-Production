@@ -38,7 +38,15 @@ const TIMING = PILLARS.find((p) => p.key === "timing")!;
  * flex segments whose widths are trinityShares(...), color-matched to
  * PILLARS. Labels below show the raw score/max per pillar.
  */
-export function TrinityBar({ financial, emotional, timing }: { financial: number; emotional: number; timing: number }) {
+export function TrinityBar({
+  financial,
+  emotional,
+  timing,
+}: {
+  financial: number;
+  emotional: number;
+  timing: number;
+}) {
   const shares = trinityShares(financial, emotional, timing, {
     financial: FINANCIAL.max,
     emotional: EMOTIONAL.max,
@@ -46,9 +54,30 @@ export function TrinityBar({ financial, emotional, timing }: { financial: number
   });
 
   const segments = [
-    { key: "financial", name: FINANCIAL.name, color: FINANCIAL.color, share: shares.financial, score: financial, max: FINANCIAL.max },
-    { key: "emotional", name: EMOTIONAL.name, color: EMOTIONAL.color, share: shares.emotional, score: emotional, max: EMOTIONAL.max },
-    { key: "timing", name: TIMING.name, color: TIMING.color, share: shares.timing, score: timing, max: TIMING.max },
+    {
+      key: "financial",
+      name: FINANCIAL.name,
+      color: FINANCIAL.color,
+      share: shares.financial,
+      score: financial,
+      max: FINANCIAL.max,
+    },
+    {
+      key: "emotional",
+      name: EMOTIONAL.name,
+      color: EMOTIONAL.color,
+      share: shares.emotional,
+      score: emotional,
+      max: EMOTIONAL.max,
+    },
+    {
+      key: "timing",
+      name: TIMING.name,
+      color: TIMING.color,
+      share: shares.timing,
+      score: timing,
+      max: TIMING.max,
+    },
   ];
 
   return (
@@ -59,7 +88,11 @@ export function TrinityBar({ financial, emotional, timing }: { financial: number
         aria-label={`Relative pillar strength: ${segments.map((s) => `${s.name} ${Math.round(s.share)}%`).join(", ")}`}
       >
         {segments.map((seg) => (
-          <div key={seg.key} className="h-full" style={{ width: `${seg.share}%`, backgroundColor: seg.color }} />
+          <div
+            key={seg.key}
+            className="h-full"
+            style={{ width: `${seg.share}%`, backgroundColor: seg.color }}
+          />
         ))}
       </div>
       <div className="mt-3 grid grid-cols-3 gap-2 text-center">

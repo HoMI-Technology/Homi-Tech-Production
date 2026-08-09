@@ -10,7 +10,9 @@ import { completeFullAssessment, VERDICT_BADGE } from "./helpers/assessment";
  * the app handles by design). Only the dev server is needed.
  */
 test.describe("assessment → verdict (anonymous)", () => {
-  test("completing the full assessment lands on /results with a canon verdict", async ({ page }) => {
+  test("completing the full assessment lands on /results with a canon verdict", async ({
+    page,
+  }) => {
     // ~49 steps on a dev server that compiles routes on first hit.
     test.setTimeout(240_000);
 

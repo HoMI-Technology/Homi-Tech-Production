@@ -110,7 +110,16 @@ function Keyhole({ unlocked }: { unlocked: boolean }) {
       }}
     >
       <circle cx={100} cy={96} r={12} stroke={color} strokeWidth={2} fill="none" />
-      <rect x={94} y={104} width={12} height={16} rx={2} stroke={color} strokeWidth={2} fill="none" />
+      <rect
+        x={94}
+        y={104}
+        width={12}
+        height={16}
+        rx={2}
+        stroke={color}
+        strokeWidth={2}
+        fill="none"
+      />
       <circle cx={100} cy={96} r={5} fill={color} />
       <rect x={97} y={96} width={6} height={12} fill={color} />
     </g>
@@ -157,9 +166,7 @@ export function ThresholdCompass({ result }: { result: AssessmentResult }) {
       `}</style>
 
       <div className="flex w-full items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-widest text-dim">
-          HōMI-Score
-        </span>
+        <span className="text-xs font-semibold uppercase tracking-widest text-dim">HōMI-Score</span>
         <span className="text-xs font-semibold uppercase tracking-widest text-dim">
           35 · 35 · 30
         </span>

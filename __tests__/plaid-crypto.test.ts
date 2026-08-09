@@ -26,9 +26,7 @@ describe("plaid token crypto (AES-256-GCM)", () => {
     expect(version).toBe("v1");
     expect(Buffer.from(nonceB64, "base64").length).toBe(12);
     // payload = ciphertext + 16-byte GCM auth tag
-    expect(Buffer.from(payloadB64, "base64").length).toBe(
-      Buffer.byteLength(TOKEN, "utf8") + 16,
-    );
+    expect(Buffer.from(payloadB64, "base64").length).toBe(Buffer.byteLength(TOKEN, "utf8") + 16);
   });
 
   it("uses a distinct nonce per call (same plaintext, different ciphertext)", () => {

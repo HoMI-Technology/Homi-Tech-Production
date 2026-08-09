@@ -48,7 +48,7 @@ vi.mock("@/lib/supabase/server", () => ({
           return {
             select: () => ({
               single: async () => ({
-                data: state.insertError ? null : state.inserted ?? payload,
+                data: state.insertError ? null : (state.inserted ?? payload),
                 error: state.insertError,
               }),
             }),
@@ -169,7 +169,9 @@ describe("GET /api/finance/insights", () => {
 describe("POST /api/finance/insights", () => {
   it("401s anonymous callers", async () => {
     state.user = null;
-    const res = await POST(req("POST", { title: "x", body: "y", agentId: "analyst", type: "signal" }));
+    const res = await POST(
+      req("POST", { title: "x", body: "y", agentId: "analyst", type: "signal" }),
+    );
     expect(res.status).toBe(401);
   });
 
@@ -255,7 +257,10 @@ describe("PATCH /api/finance/insights", () => {
   });
 
   it("dismisses the caller's insight", async () => {
-    state.updated = row({ id: "11111111-1111-4111-8111-111111111111", dismissed_at: "2026-08-04T13:00:00.000Z" });
+    state.updated = row({
+      id: "11111111-1111-4111-8111-111111111111",
+      dismissed_at: "2026-08-04T13:00:00.000Z",
+    });
 
     const res = await PATCH(req("PATCH", { id: "11111111-1111-4111-8111-111111111111" }));
     expect(res.status).toBe(200);

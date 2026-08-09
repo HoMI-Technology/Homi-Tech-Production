@@ -94,19 +94,22 @@ export function WelcomeBanner() {
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
           style={{ background: withAlpha(COLORS.cyan, 0.12) }}
         >
-          <svg className="h-5 w-5 text-cyan" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <svg
+            className="h-5 w-5 text-cyan"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          >
             <path d="M10 2l6 2.5v4.5c0 5.05-3.41 9.76-8 10.5-4.59-1.08-6-4.36-6-8.5V4.5L10 2z" />
             <path d="M7.5 10l1.8 1.8L12.8 8" />
           </svg>
         </div>
         <div className="flex-1">
-          <p className="font-semibold text-light">
-            Welcome to HōMI — your decision companion
-          </p>
+          <p className="font-semibold text-light">Welcome to HōMI — your decision companion</p>
           <p className="mt-1 text-sm leading-relaxed text-dim">
-            Measure your readiness across Financial Reality, Emotional Truth, and
-            Perfect Timing. Not &ldquo;can you afford it?&rdquo; — &ldquo;are you
-            ready for it?&rdquo;
+            Measure your readiness across Financial Reality, Emotional Truth, and Perfect Timing.
+            Not &ldquo;can you afford it?&rdquo; — &ldquo;are you ready for it?&rdquo;
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <button onClick={dismiss} className="btn btn-primary btn-sm">
@@ -122,7 +125,13 @@ export function WelcomeBanner() {
           className="shrink-0 rounded-lg p-1.5 text-dim transition-colors hover:text-light"
           aria-label="Dismiss welcome banner"
         >
-          <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            className="h-4 w-4"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M2 2l12 12M14 2L2 14" />
           </svg>
         </button>

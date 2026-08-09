@@ -51,9 +51,7 @@ export default async function LearningArticlePage({
           <Link href="/guides" className="text-sm text-dim transition-colors hover:text-cyan">
             &larr; All guides &amp; learning
           </Link>
-          <h1 className="mt-5 type-h1">
-            {article.title}
-          </h1>
+          <h1 className="mt-5 type-h1">{article.title}</h1>
           <p className="mt-5 text-lg leading-relaxed text-dim">{article.description}</p>
         </div>
       </section>
@@ -63,9 +61,7 @@ export default async function LearningArticlePage({
           <div className="mx-auto max-w-3xl space-y-12">
             {article.sections.map((section) => (
               <div key={section.heading}>
-                <h2 className="type-h2">
-                  {section.heading}
-                </h2>
+                <h2 className="type-h2">{section.heading}</h2>
                 <div className="mt-4 space-y-4">
                   {section.paragraphs.map((p, idx) => (
                     <p key={idx} className="text-lg leading-relaxed text-dim">
@@ -112,7 +108,15 @@ export default async function LearningArticlePage({
                   >
                     <h3 className="type-h4">{a.title}</h3>
                     <p className="mt-2 flex-1 text-sm text-dim">{a.description}</p>
-                    <span className="mt-4 text-sm font-semibold text-cyan">Read <span aria-hidden className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1">&rarr;</span></span>
+                    <span className="mt-4 text-sm font-semibold text-cyan">
+                      Read{" "}
+                      <span
+                        aria-hidden
+                        className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1"
+                      >
+                        &rarr;
+                      </span>
+                    </span>
                   </Link>
                 ))}
               </div>

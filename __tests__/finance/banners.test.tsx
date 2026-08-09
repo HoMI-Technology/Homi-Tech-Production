@@ -77,11 +77,7 @@ describe("HardStopBanner", () => {
     );
 
     expect(screen.getByText("A red line, not a rejection.")).toBeDefined();
-    expect(
-      screen.getByText(
-        /Your debt-to-income ratio is above 50%/,
-      ),
-    ).toBeDefined();
+    expect(screen.getByText(/Your debt-to-income ratio is above 50%/)).toBeDefined();
   });
 
   it("renders nothing when there are no hard stops", () => {
@@ -94,21 +90,20 @@ describe("WarningsBanner", () => {
   it("renders warning messages when present", () => {
     render(
       <WarningsBanner
-        result={makeResult([], [
-          {
-            code: "FOMO_WARNING",
-            message:
-              "All emotional indicators are at their optimal values. Take a moment to honestly reassess.",
-          },
-        ])}
+        result={makeResult(
+          [],
+          [
+            {
+              code: "FOMO_WARNING",
+              message:
+                "All emotional indicators are at their optimal values. Take a moment to honestly reassess.",
+            },
+          ],
+        )}
       />,
     );
 
-    expect(
-      screen.getByText(
-        /All emotional indicators are at their optimal values/,
-      ),
-    ).toBeDefined();
+    expect(screen.getByText(/All emotional indicators are at their optimal values/)).toBeDefined();
   });
 
   it("renders nothing when there are no warnings", () => {

@@ -322,7 +322,7 @@ describe("PILLAR_MAX_POINTS canon", () => {
     expect(PILLAR_MAX_POINTS.emotional).toBe(35);
     expect(PILLAR_MAX_POINTS.timing).toBe(30);
     expect(
-      PILLAR_MAX_POINTS.financial + PILLAR_MAX_POINTS.emotional + PILLAR_MAX_POINTS.timing
+      PILLAR_MAX_POINTS.financial + PILLAR_MAX_POINTS.emotional + PILLAR_MAX_POINTS.timing,
     ).toBe(100);
   });
 });

@@ -71,7 +71,9 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
   };
   const insights = (assessment.insights ?? {}) as { keyInsight?: string; nextSteps?: string[] };
   const hardStops = (assessment.hard_stops ?? []) as { code: string; message: string }[];
-  const completedAt = assessment.completed_at ? new Date(assessment.completed_at) : new Date(assessment.created_at);
+  const completedAt = assessment.completed_at
+    ? new Date(assessment.completed_at)
+    : new Date(assessment.created_at);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:py-16 print:max-w-full print:px-8 print:py-8">
@@ -86,12 +88,18 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
       <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="text-sm text-dim print:text-black/60">
-            {completedAt.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+            {completedAt.toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })}
           </p>
           <p className="score-numeral mt-2 text-5xl font-bold text-light print:text-black">
             {assessment.overall_score ?? "—"}
           </p>
-          <p className="text-sm uppercase tracking-widest text-dim print:text-black/60">HōMI-Score out of 100</p>
+          <p className="text-sm uppercase tracking-widest text-dim print:text-black/60">
+            HōMI-Score out of 100
+          </p>
         </div>
         <VerdictBadge verdict={verdict} size="lg" />
       </div>
@@ -100,10 +108,15 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
 
       {hardStops.length > 0 && (
         <div className="mt-8">
-          <h2 className="font-display text-lg font-semibold text-light print:text-black">Protection signals</h2>
+          <h2 className="font-display text-lg font-semibold text-light print:text-black">
+            Protection signals
+          </h2>
           <div className="mt-3 flex flex-col gap-3">
             {hardStops.map((stop) => (
-              <div key={stop.code} className="glass border border-crimson/50 p-4 print:border print:border-black/20 print:bg-transparent">
+              <div
+                key={stop.code}
+                className="glass border border-crimson/50 p-4 print:border print:border-black/20 print:bg-transparent"
+              >
                 <p className="text-sm text-light print:text-black">{stop.message}</p>
               </div>
             ))}
@@ -112,7 +125,9 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
       )}
 
       <div className="mt-10">
-        <h2 className="font-display text-lg font-semibold text-light print:text-black">Pillar breakdown</h2>
+        <h2 className="font-display text-lg font-semibold text-light print:text-black">
+          Pillar breakdown
+        </h2>
         <table className="mt-4 w-full border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-slate-surface/60 print:border-black/30">
@@ -124,12 +139,16 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
           <tbody>
             <tr className="border-b border-slate-surface/40 print:border-black/10">
               <td className="py-2 font-medium text-light print:text-black">{FINANCIAL.name}</td>
-              <td className="py-2 text-light print:text-black">{assessment.financial_score ?? "—"}</td>
+              <td className="py-2 text-light print:text-black">
+                {assessment.financial_score ?? "—"}
+              </td>
               <td className="py-2 text-dim print:text-black/60">{PILLAR_MAX_POINTS.financial}</td>
             </tr>
             <tr className="border-b border-slate-surface/40 print:border-black/10">
               <td className="py-2 font-medium text-light print:text-black">{EMOTIONAL.name}</td>
-              <td className="py-2 text-light print:text-black">{assessment.emotional_score ?? "—"}</td>
+              <td className="py-2 text-light print:text-black">
+                {assessment.emotional_score ?? "—"}
+              </td>
               <td className="py-2 text-dim print:text-black/60">{PILLAR_MAX_POINTS.emotional}</td>
             </tr>
             <tr>
@@ -143,7 +162,9 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
 
       <div className="mt-10 print:hidden">
         <h2 className="font-display text-lg font-semibold text-light">Relative strength</h2>
-        <p className="mt-1 text-xs text-dim">How your three pillars compare to each other, not just to their own max.</p>
+        <p className="mt-1 text-xs text-dim">
+          How your three pillars compare to each other, not just to their own max.
+        </p>
         <div className="mt-4">
           <TrinityBar
             financial={assessment.financial_score ?? 0}
@@ -161,22 +182,26 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
           {subScores.emotional && (
             <SubScoreList title="Emotional Truth" scores={subScores.emotional} />
           )}
-          {subScores.timing && (
-            <SubScoreList title="Perfect Timing" scores={subScores.timing} />
-          )}
+          {subScores.timing && <SubScoreList title="Perfect Timing" scores={subScores.timing} />}
         </div>
       )}
 
       {insights.keyInsight && (
         <div className="mt-10">
-          <h2 className="font-display text-lg font-semibold text-light print:text-black">Key insight</h2>
-          <p className="mt-3 text-base leading-relaxed text-light print:text-black">{insights.keyInsight}</p>
+          <h2 className="font-display text-lg font-semibold text-light print:text-black">
+            Key insight
+          </h2>
+          <p className="mt-3 text-base leading-relaxed text-light print:text-black">
+            {insights.keyInsight}
+          </p>
         </div>
       )}
 
       {insights.nextSteps && insights.nextSteps.length > 0 && (
         <div className="mt-10">
-          <h2 className="font-display text-lg font-semibold text-light print:text-black">Next steps</h2>
+          <h2 className="font-display text-lg font-semibold text-light print:text-black">
+            Next steps
+          </h2>
           <ol className="mt-3 flex flex-col gap-2">
             {insights.nextSteps.map((step, i) => (
               <li key={i} className="flex gap-3 text-base text-light print:text-black">
@@ -189,7 +214,9 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
       )}
 
       <div className="mt-12 border-t border-slate-surface/60 pt-6 print:border-black/20">
-        <p className="text-xs leading-relaxed text-dim/80 print:text-black/60">{LEGAL_DISCLAIMER}</p>
+        <p className="text-xs leading-relaxed text-dim/80 print:text-black/60">
+          {LEGAL_DISCLAIMER}
+        </p>
       </div>
 
       <div className="mt-8 flex flex-wrap items-center gap-4 print:hidden">
@@ -214,7 +241,9 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
 }
 
 function SubScoreList({ title, scores }: { title: string; scores: Record<string, number> }) {
-  const entries = Object.entries(scores).filter(([key]) => key !== "total" && key !== "singleRedistribution");
+  const entries = Object.entries(scores).filter(
+    ([key]) => key !== "total" && key !== "singleRedistribution",
+  );
   return (
     <div>
       <h3 className="text-sm font-semibold text-light print:text-black">{title}</h3>

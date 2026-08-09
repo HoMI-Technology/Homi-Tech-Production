@@ -13,9 +13,7 @@ import { getUserEntitlements } from "@/lib/entitlements";
  *  - Neither RPC applied → fail open (product stays up; IP limiter is the floor).
  *  - Other DB errors → fail closed with 503.
  */
-export type CompanionGate =
-  | { ok: true; userId: string }
-  | { ok: false; response: NextResponse };
+export type CompanionGate = { ok: true; userId: string } | { ok: false; response: NextResponse };
 
 /** Postgres/PostgREST codes that mean "the usage infra isn't there yet". */
 const INFRA_MISSING_CODES = new Set([
@@ -61,7 +59,11 @@ export async function gateCompanion(supabase: SupabaseClient): Promise<Companion
     return {
       ok: false,
       response: NextResponse.json(
-        { error: "Couldn't reach your Companion. Try again in a moment.", code: "gate_error", correlationId },
+        {
+          error: "Couldn't reach your Companion. Try again in a moment.",
+          code: "gate_error",
+          correlationId,
+        },
         { status: 503 },
       ),
     };

@@ -192,12 +192,16 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
       {/* Header: mode switcher + live agent attribution */}
       <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
         <div className="flex items-center gap-2">
-          {messages.length > 0 && messages[messages.length - 1].role === "assistant" && messages[messages.length - 1].agent && (
-            <span className="text-xs font-bold uppercase tracking-wider text-cyan">
-              {messages[messages.length - 1].agent}
-            </span>
+          {messages.length > 0 &&
+            messages[messages.length - 1].role === "assistant" &&
+            messages[messages.length - 1].agent && (
+              <span className="text-xs font-bold uppercase tracking-wider text-cyan">
+                {messages[messages.length - 1].agent}
+              </span>
+            )}
+          {messages.length === 0 && (
+            <span className="text-xs font-bold uppercase tracking-wider text-dim">Agent OS</span>
           )}
-          {messages.length === 0 && <span className="text-xs font-bold uppercase tracking-wider text-dim">Agent OS</span>}
         </div>
         <SegmentedControl<AgentMode>
           ariaLabel="Agent mode"
@@ -255,7 +259,9 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
               <div className="max-w-[80%]">
                 {m.agent && (
                   <div className="mb-1 flex items-center gap-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-cyan">{m.agent}</span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-cyan">
+                      {m.agent}
+                    </span>
                     {m.tools && m.tools.length > 0 && (
                       <span className="text-3xs text-dim">{m.tools.join(", ")}</span>
                     )}
@@ -294,14 +300,19 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
           className="btn btn-primary !px-4 disabled:opacity-50"
           aria-label="Send message"
         >
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M3 10h14M11 4l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
       </div>
-      {error && (
-        <p className="px-4 pb-3 text-center text-xs text-crimson">{error}</p>
-      )}
+      {error && <p className="px-4 pb-3 text-center text-xs text-crimson">{error}</p>}
     </div>
   );
 }

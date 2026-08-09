@@ -31,9 +31,7 @@ describe("signInRedirect", () => {
 
   it("redirects to /auth/sign-in with the return path in `next`", async () => {
     await expect(signInRedirect("/partner/dashboard")).rejects.toThrow("NEXT_REDIRECT");
-    expect(redirect).toHaveBeenCalledWith(
-      "/auth/sign-in?next=%2Fpartner%2Fdashboard",
-    );
+    expect(redirect).toHaveBeenCalledWith("/auth/sign-in?next=%2Fpartner%2Fdashboard");
   });
 
   it("normalizes the return path before encoding it", async () => {
@@ -43,13 +41,10 @@ describe("signInRedirect", () => {
 
   it("encodes query strings in the return path so `next` survives the round trip", async () => {
     await expect(signInRedirect("/report/abc?tab=print")).rejects.toThrow("NEXT_REDIRECT");
-    expect(redirect).toHaveBeenCalledWith(
-      "/auth/sign-in?next=%2Freport%2Fabc%3Ftab%3Dprint",
+    expect(redirect).toHaveBeenCalledWith("/auth/sign-in?next=%2Freport%2Fabc%3Ftab%3Dprint");
+    const next = new URL(redirect.mock.calls[0][0], "https://homitechnology.com").searchParams.get(
+      "next",
     );
-    const next = new URL(
-      redirect.mock.calls[0][0],
-      "https://homitechnology.com",
-    ).searchParams.get("next");
     expect(next).toBe("/report/abc?tab=print");
   });
 });

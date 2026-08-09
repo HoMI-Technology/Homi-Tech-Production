@@ -173,7 +173,11 @@ export interface LeverImpact {
  */
 export function applyDebtPayoff(levers: SimulatorLevers, amount: number): SimulatorLevers {
   const paid = Math.max(0, Math.min(amount, levers.totalDebt, levers.liquidSavings));
-  return { ...levers, totalDebt: levers.totalDebt - paid, liquidSavings: levers.liquidSavings - paid };
+  return {
+    ...levers,
+    totalDebt: levers.totalDebt - paid,
+    liquidSavings: levers.liquidSavings - paid,
+  };
 }
 
 /** "Save $Y/mo for N months" — adds the plan's total to liquid savings. */

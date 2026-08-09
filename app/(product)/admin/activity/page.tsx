@@ -33,7 +33,14 @@ function truncateId(id: string | null) {
   return id.length > 10 ? `${id.slice(0, 8)}…` : id;
 }
 
-const ACTION_COLORS = [COLORS.cyan, COLORS.emerald, COLORS.yellow, COLORS.amber, COLORS.crimson, COLORS.dim];
+const ACTION_COLORS = [
+  COLORS.cyan,
+  COLORS.emerald,
+  COLORS.yellow,
+  COLORS.amber,
+  COLORS.crimson,
+  COLORS.dim,
+];
 
 export default async function AdminActivityPage() {
   const supabase = await createClient();
@@ -159,7 +166,9 @@ export default async function AdminActivityPage() {
           </div>
           <div className="mt-5 space-y-4">
             {actionCounts.length === 0 ? (
-              <p className="py-6 text-center text-sm text-dim">No actions recorded in the last 14 days.</p>
+              <p className="py-6 text-center text-sm text-dim">
+                No actions recorded in the last 14 days.
+              </p>
             ) : (
               actionCounts.map((a, i) => {
                 const pct = totalActions > 0 ? Math.round((a.count / totalActions) * 100) : 0;
@@ -182,7 +191,10 @@ export default async function AdminActivityPage() {
                     <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-surface">
                       <div
                         className="h-full rounded-full"
-                        style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${color}99, ${color})` }}
+                        style={{
+                          width: `${pct}%`,
+                          background: `linear-gradient(90deg, ${color}99, ${color})`,
+                        }}
                       />
                     </div>
                   </div>

@@ -18,7 +18,9 @@ export function BankConnectCard({ plusRequired }: { plusRequired: boolean }) {
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="font-semibold text-light">See your real numbers here</h3>
         {plusRequired && (
-          <span className="rounded-full border border-cyan/40 px-2.5 py-0.5 text-xs text-cyan">Plus feature</span>
+          <span className="rounded-full border border-cyan/40 px-2.5 py-0.5 text-xs text-cyan">
+            Plus feature
+          </span>
         )}
       </div>
       <p className="mt-2 max-w-xl text-sm leading-relaxed text-dim">

@@ -80,7 +80,8 @@ export default async function AdminOverviewPage() {
       .eq("status", "completed")
       .not("overall_score", "is", null)
       .limit(2000);
-    const rows = (data as { overall_score: number | null; verdict: VerdictKey | null }[] | null) ?? [];
+    const rows =
+      (data as { overall_score: number | null; verdict: VerdictKey | null }[] | null) ?? [];
     if (rows.length > 0) {
       const sum = rows.reduce((acc, r) => acc + (r.overall_score ?? 0), 0);
       avgScore = Math.round(sum / rows.length);
@@ -293,10 +294,13 @@ export default async function AdminOverviewPage() {
           </div>
           {revenue30dCents === 0 && (
             <p className="mt-4 text-sm text-dim">
-              No succeeded payments in the last 30 days yet. New Checkout and
-              invoice events land here once the Stripe webhook is delivering
-              <span className="font-mono text-xs text-light"> checkout.session.completed </span>
-              / <span className="font-mono text-xs text-light">invoice.payment_succeeded</span>.
+              No succeeded payments in the last 30 days yet. New Checkout and invoice events land
+              here once the Stripe webhook is delivering
+              <span className="font-mono text-xs text-light">
+                {" "}
+                checkout.session.completed{" "}
+              </span>/{" "}
+              <span className="font-mono text-xs text-light">invoice.payment_succeeded</span>.
             </p>
           )}
         </div>
@@ -310,7 +314,12 @@ export default async function AdminOverviewPage() {
             {dailyCounts.length === 0 ? (
               <p className="py-10 text-center text-sm text-dim">No assessment activity yet.</p>
             ) : (
-              <BarSeries id="assessments-30d" counts={dailyCounts} color={COLORS.cyan} ariaLabel="Assessments completed over the last 30 days" />
+              <BarSeries
+                id="assessments-30d"
+                counts={dailyCounts}
+                color={COLORS.cyan}
+                ariaLabel="Assessments completed over the last 30 days"
+              />
             )}
           </div>
         </div>
@@ -329,7 +338,11 @@ export default async function AdminOverviewPage() {
                   <div key={k}>
                     <div className="flex items-center justify-between text-sm">
                       <span className="flex items-center gap-2 font-semibold text-light">
-                        <span aria-hidden className="inline-block h-2 w-2 rounded-full" style={{ background: meta.color, boxShadow: `0 0 8px ${meta.color}` }} />
+                        <span
+                          aria-hidden
+                          className="inline-block h-2 w-2 rounded-full"
+                          style={{ background: meta.color, boxShadow: `0 0 8px ${meta.color}` }}
+                        />
                         {meta.label}
                       </span>
                       <span className="score-numeral text-dim">
@@ -339,7 +352,10 @@ export default async function AdminOverviewPage() {
                     <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-surface">
                       <div
                         className="h-full rounded-full"
-                        style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${meta.color}99, ${meta.color})` }}
+                        style={{
+                          width: `${pct}%`,
+                          background: `linear-gradient(90deg, ${meta.color}99, ${meta.color})`,
+                        }}
                       />
                     </div>
                   </div>

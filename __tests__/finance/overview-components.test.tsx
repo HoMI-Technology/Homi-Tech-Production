@@ -12,13 +12,9 @@ import type { PlannerSignal } from "@/lib/planner/signals";
 import type { BehaviorNudge } from "@/lib/planner/nudges";
 
 vi.mock("@/components/ui/AnimatedNumber", () => ({
-  AnimatedNumber: ({
-    value,
-    format,
-  }: {
-    value: number;
-    format?: (n: number) => string;
-  }) => <span>{format ? format(value) : value}</span>,
+  AnimatedNumber: ({ value, format }: { value: number; format?: (n: number) => string }) => (
+    <span>{format ? format(value) : value}</span>
+  ),
 }));
 
 beforeEach(() => {
@@ -64,22 +60,14 @@ describe("planner SignalsStrip", () => {
   it("renders signals and dismisses", () => {
     const onDismiss = vi.fn();
     const onAction = vi.fn();
-    render(
-      <SignalsStrip
-        signals={[signal]}
-        onDismiss={onDismiss}
-        onAction={onAction}
-      />,
-    );
+    render(<SignalsStrip signals={[signal]} onDismiss={onDismiss} onAction={onAction} />);
     expect(screen.getByText("1 overdue bill")).toBeTruthy();
     fireEvent.click(screen.getByLabelText("Dismiss 1 overdue bill"));
     expect(onDismiss).toHaveBeenCalledWith("sig-1");
   });
 
   it("empty state when no signals", () => {
-    render(
-      <SignalsStrip signals={[]} onDismiss={() => {}} onAction={() => {}} />,
-    );
+    render(<SignalsStrip signals={[]} onDismiss={() => {}} onAction={() => {}} />);
     expect(screen.getByText(/No active signals/i)).toBeTruthy();
   });
 });

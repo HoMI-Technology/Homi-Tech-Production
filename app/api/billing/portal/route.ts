@@ -12,7 +12,10 @@ export async function POST(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`billing-portal:${ip}`, { limit: 10, windowMs: 60_000 });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a moment." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a moment." },
+      { status: 429 },
+    );
   }
 
   const supabase = await createClient();
@@ -50,16 +53,25 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-      return NextResponse.json({ configured: true, error: "Could not create a billing session." }, { status: 502 });
+      return NextResponse.json(
+        { configured: true, error: "Could not create a billing session." },
+        { status: 502 },
+      );
     }
 
     const session = (await response.json()) as { url?: string };
     if (!session.url) {
-      return NextResponse.json({ configured: true, error: "Billing session had no URL." }, { status: 502 });
+      return NextResponse.json(
+        { configured: true, error: "Billing session had no URL." },
+        { status: 502 },
+      );
     }
 
     return NextResponse.json({ configured: true, url: session.url });
   } catch {
-    return NextResponse.json({ configured: true, error: "Billing portal request failed." }, { status: 502 });
+    return NextResponse.json(
+      { configured: true, error: "Billing portal request failed." },
+      { status: 502 },
+    );
   }
 }

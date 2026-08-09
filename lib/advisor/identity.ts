@@ -92,7 +92,10 @@ export const DEFAULT_IDENTITY: HomiIdentity = { name: DEFAULT_IDENTITY_NAME, pre
  * fall back to the default rather than storing an empty identity.
  */
 export function sanitizeIdentityName(raw: string): string | null {
-  const cleaned = raw.replace(/[\r\n\t]+/g, " ").replace(/\s{2,}/g, " ").trim();
+  const cleaned = raw
+    .replace(/[\r\n\t]+/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
   if (!cleaned) return null;
   return cleaned.slice(0, IDENTITY_NAME_MAX);
 }

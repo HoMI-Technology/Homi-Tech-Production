@@ -66,11 +66,7 @@ export default async function TeamDashboardPage() {
 
   let org: Organization | null = null;
   if (orgId) {
-    const { data } = await supabase
-      .from("organizations")
-      .select("*")
-      .eq("id", orgId)
-      .maybeSingle();
+    const { data } = await supabase.from("organizations").select("*").eq("id", orgId).maybeSingle();
     org = (data as Organization | null) ?? null;
   }
 
@@ -98,9 +94,7 @@ export default async function TeamDashboardPage() {
     assessments = (data as typeof assessments | null) ?? [];
   }
 
-  const scores = assessments
-    .map((a) => a.overall_score)
-    .filter((s): s is number => s != null);
+  const scores = assessments.map((a) => a.overall_score).filter((s): s is number => s != null);
   const avg =
     scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
 
@@ -127,8 +121,7 @@ export default async function TeamDashboardPage() {
         <OperateHeroMeta
           title={
             <>
-              {org?.name ?? "Organization"}{" "}
-              <span className="text-aurora">readiness</span>
+              {org?.name ?? "Organization"} <span className="text-aurora">readiness</span>
             </>
           }
           description="Aggregate cohort view only. Individuals are not listed."
@@ -185,8 +178,7 @@ export default async function TeamDashboardPage() {
           {(Object.keys(verdictCounts) as VerdictKey[]).map((k) => {
             const meta = VERDICT_META[k];
             const count = verdictCounts[k];
-            const pct =
-              assessments.length > 0 ? Math.round((count / assessments.length) * 100) : 0;
+            const pct = assessments.length > 0 ? Math.round((count / assessments.length) * 100) : 0;
             return (
               <div key={k}>
                 <div className="flex items-center justify-between text-sm">

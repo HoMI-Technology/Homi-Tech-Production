@@ -27,7 +27,10 @@ export async function PATCH(request: Request, ctx: RouteCtx) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`finance-tx-write:${ip}`, { limit: 30, windowMs: 60_000 });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a minute." },
+      { status: 429 },
+    );
   }
 
   const { id } = await ctx.params;
@@ -114,8 +117,7 @@ export async function PATCH(request: Request, ctx: RouteCtx) {
 
   // Re-validate expense/transfer category rules against the post-patch type.
   const nextType = row.type;
-  const nextCategory =
-    fields.categoryId !== undefined ? fields.categoryId : row.category_id;
+  const nextCategory = fields.categoryId !== undefined ? fields.categoryId : row.category_id;
   if (nextType === "expense" && nextCategory === null) {
     return NextResponse.json(
       { error: "Expense transactions require a category." },
@@ -123,10 +125,7 @@ export async function PATCH(request: Request, ctx: RouteCtx) {
     );
   }
   if (nextType === "transfer" && nextCategory !== null) {
-    return NextResponse.json(
-      { error: "Transfers are not categorized spending." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Transfers are not categorized spending." }, { status: 400 });
   }
 
   const { data: updated, error: updateError } = await supabase
@@ -156,7 +155,10 @@ export async function DELETE(request: Request, ctx: RouteCtx) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`finance-tx-write:${ip}`, { limit: 30, windowMs: 60_000 });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a minute." },
+      { status: 429 },
+    );
   }
 
   const { id } = await ctx.params;

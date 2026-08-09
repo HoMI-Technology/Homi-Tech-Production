@@ -7,11 +7,7 @@
  * Spec: docs/superpowers/specs/2026-07-27-path-to-ready-design.md
  */
 
-import type {
-  AssessmentResult,
-  HardStopCode,
-  Verdict,
-} from "@/lib/scoring/engine";
+import type { AssessmentResult, HardStopCode, Verdict } from "@/lib/scoring/engine";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
 
 // ---------------------------------------------------------------------------
@@ -148,16 +144,13 @@ export function normalizeReadinessPath(raw: unknown): ReadinessPath | null {
       reasonCode: (step.reasonCode as PathReasonCode) ?? "REASSESS",
       href: typeof step.href === "string" ? step.href : "/results",
       notes: typeof step.notes === "string" ? step.notes : "",
-      fundingTarget:
-        typeof step.fundingTarget === "number" ? step.fundingTarget : null,
-      fundingLabel:
-        typeof step.fundingLabel === "string" ? step.fundingLabel : null,
+      fundingTarget: typeof step.fundingTarget === "number" ? step.fundingTarget : null,
+      fundingLabel: typeof step.fundingLabel === "string" ? step.fundingLabel : null,
       status:
         step.status === "done" || step.status === "skipped" || step.status === "pending"
           ? step.status
           : "pending",
-      completedAt:
-        typeof step.completedAt === "string" ? step.completedAt : null,
+      completedAt: typeof step.completedAt === "string" ? step.completedAt : null,
     };
   });
   return {
@@ -170,14 +163,11 @@ export function normalizeReadinessPath(raw: unknown): ReadinessPath | null {
     score: typeof p.score === "number" ? p.score : 0,
     bindingConstraint: (p.bindingConstraint as PathReasonCode | null) ?? null,
     confidence:
-      p.confidence === "assessment_plus_finance"
-        ? "assessment_plus_finance"
-        : "assessment_only",
+      p.confidence === "assessment_plus_finance" ? "assessment_plus_finance" : "assessment_only",
     disclaimer: typeof p.disclaimer === "string" ? p.disclaimer : PATH_DISCLAIMER,
     steps,
     mode: p.mode === "ready_optional" ? "ready_optional" : "build",
-    calendarCommittedAt:
-      typeof p.calendarCommittedAt === "string" ? p.calendarCommittedAt : null,
+    calendarCommittedAt: typeof p.calendarCommittedAt === "string" ? p.calendarCommittedAt : null,
   };
 }
 
@@ -219,9 +209,7 @@ function pillarPcts(result: AssessmentResult): {
   };
 }
 
-function weakestPillar(
-  result: AssessmentResult,
-): "financial" | "emotional" | "timing" {
+function weakestPillar(result: AssessmentResult): "financial" | "emotional" | "timing" {
   const p = pillarPcts(result);
   const ranked: Array<["financial" | "emotional" | "timing", number]> = [
     ["financial", p.financial],
@@ -334,7 +322,7 @@ function cashFlowStep(daysFromNow: number, idFactory: () => string): PathStep {
       PATH_DISCLAIMER,
     fundingTarget: null,
     fundingLabel: null,
-        ...pendingFields(),
+    ...pendingFields(),
   };
 }
 
@@ -530,9 +518,7 @@ export function buildReadinessPath(
 ): ReadinessPath {
   const idFactory = options.idFactory ?? defaultId;
   const finance = options.finance ?? null;
-  const confidence: PathConfidence = finance
-    ? "assessment_plus_finance"
-    : "assessment_only";
+  const confidence: PathConfidence = finance ? "assessment_plus_finance" : "assessment_only";
   const createdAt = (options.now ?? new Date()).toISOString();
   const pathId = idFactory();
 
@@ -605,10 +591,7 @@ export function buildReadinessPath(
 
   const reassessDay = Math.min(
     90,
-    Math.max(
-      30,
-      (capped[capped.length - 1]?.daysFromNow ?? 14) + 21,
-    ),
+    Math.max(30, (capped[capped.length - 1]?.daysFromNow ?? 14) + 21),
   );
   capped.push(reassessStep(reassessDay, idFactory));
 
@@ -655,10 +638,7 @@ export function buildReadinessPath(
 // ---------------------------------------------------------------------------
 
 /** Encode path provenance into calendar event notes. */
-export function formatPathEventNotes(
-  path: ReadinessPath,
-  step: PathStep,
-): string {
+export function formatPathEventNotes(path: ReadinessPath, step: PathStep): string {
   const marker = `${PATH_MARKER_PREFIX}${path.id}:${step.id}${PATH_MARKER_SUFFIX}`;
   return [
     `HōMI Path · ${step.reasonCode}`,
@@ -690,10 +670,7 @@ export function isPathCalendarEvent(notes: string | null | undefined): boolean {
 }
 
 /** Local calendar date offset helper (pure; uses local Y/M/D arithmetic). */
-export function pathStepEventDate(
-  step: PathStep,
-  from: Date = new Date(),
-): string {
+export function pathStepEventDate(step: PathStep, from: Date = new Date()): string {
   const d = new Date(from.getFullYear(), from.getMonth(), from.getDate());
   d.setDate(d.getDate() + step.daysFromNow);
   const y = d.getFullYear();

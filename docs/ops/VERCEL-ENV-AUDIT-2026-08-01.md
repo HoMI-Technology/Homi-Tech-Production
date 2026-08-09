@@ -9,7 +9,7 @@ carry them.
 ## Headline
 
 Nothing is missing that blocks launch, and **all five Stripe variables were
-already set** in Production *and* Preview two weeks ago — §3's env step was
+already set** in Production _and_ Preview two weeks ago — §3's env step was
 done before today. What the diff exposes instead is drift: one variable set
 under a dead name, several server secrets absent from Preview, and 20 variables
 in Production that no code reads.
@@ -32,14 +32,14 @@ Failure mode is silent: no error, receipts simply aren't signed.
 
 Grouped by whether it matters for launch.
 
-| Variable | Consequence | Checklist |
-|---|---|---|
-| `SENTRY_DSN` | Sentry never initialises — no error capture in production | §5 |
-| `POSTHOG_PERSONAL_API_KEY`, `POSTHOG_PROJECT_ID` | `/admin/analytics` renders a setup guide instead of the dashboard | §5 |
-| `EMAIL_UNSUBSCRIBE_SECRET` | **Degrades safely** — falls back to `INTERNAL_API_SECRET`, which is set. Unsubscribe links work | §6 |
-| `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | Web push inert; outcome-survey nudges are email-only | §6 |
-| `PLAID_CLIENT_ID`, `PLAID_SECRET`, `PLAID_ENV`, `PLAID_TOKEN_KEY` | Bank sync disabled | §7 (🟢, not launch-critical) |
-| `NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED` | "Continue with Google" button hidden | intentional |
+| Variable                                                             | Consequence                                                                                     | Checklist                    |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------- |
+| `SENTRY_DSN`                                                         | Sentry never initialises — no error capture in production                                       | §5                           |
+| `POSTHOG_PERSONAL_API_KEY`, `POSTHOG_PROJECT_ID`                     | `/admin/analytics` renders a setup guide instead of the dashboard                               | §5                           |
+| `EMAIL_UNSUBSCRIBE_SECRET`                                           | **Degrades safely** — falls back to `INTERNAL_API_SECRET`, which is set. Unsubscribe links work | §6                           |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | Web push inert; outcome-survey nudges are email-only                                            | §6                           |
+| `PLAID_CLIENT_ID`, `PLAID_SECRET`, `PLAID_ENV`, `PLAID_TOKEN_KEY`    | Bank sync disabled                                                                              | §7 (🟢, not launch-critical) |
+| `NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED`                                   | "Continue with Google" button hidden                                                            | intentional                  |
 
 `E2E_*`, `LHCI_*`, `ARCHITECTURE_WRITE`, `GEMINI_API_KEY`, `GOOGLE_API_KEY` are
 local/CI-only and correctly absent from the project settings.
@@ -48,13 +48,13 @@ local/CI-only and correctly absent from the project settings.
 
 Preview deployments therefore behave differently from production:
 
-| Variable | Effect on preview builds |
-|---|---|
-| `SUPABASE_SERVICE_ROLE_KEY` | Service-role paths dead — webhooks, crons, admin. `docs/archive/BUILD-BRIEF.md:116` calls this out explicitly as a thing to fix |
-| `RECEIPT_SIGNING_SECRET` | Unsigned receipts (see §1) |
-| `NEXT_PUBLIC_SITE_URL` | ✅ **fixed in code** — `lib/env.ts` now falls back to the deployment's own `VERCEL_URL` on preview builds, so a preview stays self-consistent. No env var needed |
-| `NEXT_PUBLIC_POSTHOG_KEY` / `_HOST` | No analytics from previews — probably intentional |
-| `ADMIN_EMAILS`, `ADMIN_REQUIRE_MFA` | Admin hardening off on previews — probably intentional |
+| Variable                            | Effect on preview builds                                                                                                                                         |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUPABASE_SERVICE_ROLE_KEY`         | Service-role paths dead — webhooks, crons, admin. `docs/archive/BUILD-BRIEF.md:116` calls this out explicitly as a thing to fix                                  |
+| `RECEIPT_SIGNING_SECRET`            | Unsigned receipts (see §1)                                                                                                                                       |
+| `NEXT_PUBLIC_SITE_URL`              | ✅ **fixed in code** — `lib/env.ts` now falls back to the deployment's own `VERCEL_URL` on preview builds, so a preview stays self-consistent. No env var needed |
+| `NEXT_PUBLIC_POSTHOG_KEY` / `_HOST` | No analytics from previews — probably intentional                                                                                                                |
+| `ADMIN_EMAILS`, `ADMIN_REQUIRE_MFA` | Admin hardening off on previews — probably intentional                                                                                                           |
 
 The first three are worth fixing. The rest are defensible as-is.
 
@@ -68,8 +68,6 @@ Before removing, each was checked against `next.config.ts`, `middleware.ts`,
 `vercel.json`, `instrumentation.ts`, the Sentry configs and every CI workflow —
 none was referenced outside the `process.env` scan.
 
-
-
 Dead configuration. Each is a small maintenance tax and, for the credentials, an
 unnecessary exposure surface.
 
@@ -77,7 +75,7 @@ unnecessary exposure surface.
 
 - **`OPENAI_API_KEY`** — a live third-party credential sitting in Production that
   no code path reads. The codebase uses `ANTHROPIC_API_KEY`. Remove from Vercel
-  *and* revoke it at OpenAI; deleting the variable alone leaves the key valid.
+  _and_ revoke it at OpenAI; deleting the variable alone leaves the key valid.
 
 **Legacy `DATABASE_*` duplicates of the `SUPABASE_*` variables** — the app reads
 only the `SUPABASE_*` / `NEXT_PUBLIC_SUPABASE_*` names:
@@ -121,7 +119,7 @@ Two false positives to expect on a re-run:
 - **`X`** — `lib/env.ts:11` mentions `process.env.X` inside a doc comment.
 - **`NEXT_PUBLIC_VERCEL_ENV` / `NEXT_PUBLIC_VERCEL_URL`** — read by `lib/env.ts`
   for the preview-origin fallback, and they will always show as "missing"
-  because Vercel injects them as *system* variables rather than project
+  because Vercel injects them as _system_ variables rather than project
   settings. Do not add them by hand.
 
   A caveat on those two: the `NEXT_PUBLIC_` mirrors only exist when

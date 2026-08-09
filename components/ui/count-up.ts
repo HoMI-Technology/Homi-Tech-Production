@@ -20,7 +20,11 @@ const OVERSHOOT = 2;
  */
 export function useCountUp(
   value: number,
-  { durationMs = 2000, delayMs = 0, play = true }: { durationMs?: number; delayMs?: number; play?: boolean } = {},
+  {
+    durationMs = 2000,
+    delayMs = 0,
+    play = true,
+  }: { durationMs?: number; delayMs?: number; play?: boolean } = {},
 ): number {
   const [display, setDisplay] = useState(value);
   const startRef = useRef<number | null>(null);
@@ -52,7 +56,8 @@ export function useCountUp(
 
       const phase2Elapsed = elapsed - phase1Duration;
       const progress = Math.min(1, phase2Elapsed / phase2Duration);
-      const eased = progress < 0.5 ? 4 * Math.pow(progress, 3) : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      const eased =
+        progress < 0.5 ? 4 * Math.pow(progress, 3) : 1 - Math.pow(-2 * progress + 2, 3) / 2;
       const current = overshootValue - (overshootValue - value) * eased;
       setDisplay(Math.round(current * 10) / 10);
 

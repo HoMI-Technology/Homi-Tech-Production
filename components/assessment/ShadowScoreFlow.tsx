@@ -177,8 +177,7 @@ export function ShadowScoreFlow() {
     if (signals) {
       setForm({
         ...INITIAL,
-        emergencyFundChoice:
-          FINANCIAL_TO_EMERGENCY_FUND_CHOICE[signals.financial] ?? null,
+        emergencyFundChoice: FINANCIAL_TO_EMERGENCY_FUND_CHOICE[signals.financial] ?? null,
         fomoLevel: EMOTIONAL_TO_FOMO_LEVEL[signals.emotional] ?? 5,
         timeHorizonChoice: TIMING_TO_TIME_HORIZON_CHOICE[signals.timing] ?? null,
       });
@@ -206,9 +205,13 @@ export function ShadowScoreFlow() {
     const income = form.monthlyGrossIncome ?? 0;
     const debt = form.monthlyDebtPayments ?? 0;
     const debtToIncomeRatio = income > 0 ? debt / income : 0;
-    const emergencyFundMonths = form.emergencyFundChoice ? EMERGENCY_FUND_MONTHS[form.emergencyFundChoice] : 0;
+    const emergencyFundMonths = form.emergencyFundChoice
+      ? EMERGENCY_FUND_MONTHS[form.emergencyFundChoice]
+      : 0;
     const creditScore = form.creditBand ? CREDIT_BAND_MIDPOINT[form.creditBand] : 0;
-    const timeHorizonMonths = form.timeHorizonChoice ? TIME_HORIZON_MONTHS[form.timeHorizonChoice] : 6;
+    const timeHorizonMonths = form.timeHorizonChoice
+      ? TIME_HORIZON_MONTHS[form.timeHorizonChoice]
+      : 6;
 
     // Same neutral padding as SHADOW_DEFAULTS (public defaults, not engine curves).
     // Server runs computeScore; client never imports the engine (Plans.md 6.2).
@@ -231,9 +234,7 @@ export function ShadowScoreFlow() {
       scored = await fetchServerScore(inputs);
     } catch (err) {
       const message =
-        err instanceof ScoringRequestError
-          ? err.message
-          : "Scoring failed. Try again in a moment.";
+        err instanceof ScoringRequestError ? err.message : "Scoring failed. Try again in a moment.";
       setScoreError(message);
       recordSaveStatus("failed");
       setSubmitting(false);
@@ -308,7 +309,8 @@ export function ShadowScoreFlow() {
         <p className="text-sm font-semibold uppercase tracking-widest text-cyan">Shadow Score</p>
         <h1 className="mt-2 font-display text-3xl font-semibold text-light">The 90-second read</h1>
         <p className="mx-auto mt-2 max-w-md text-sm text-dim">
-          Six questions. HōMI fills the rest with neutral assumptions. For your full, precise HōMI-Score,{" "}
+          Six questions. HōMI fills the rest with neutral assumptions. For your full, precise
+          HōMI-Score,{" "}
           <Link href="/assessment" className="text-cyan underline underline-offset-2">
             take the complete assessment
           </Link>
@@ -320,7 +322,9 @@ export function ShadowScoreFlow() {
         <div className="glass mb-6 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-light">
             <span className="font-semibold text-cyan">Resume where you left off?</span>{" "}
-            <span className="text-dim">You have an in-progress Shadow Score saved on this device.</span>
+            <span className="text-dim">
+              You have an in-progress Shadow Score saved on this device.
+            </span>
           </p>
           <div className="flex shrink-0 items-center gap-3">
             <button type="button" onClick={handleStartOver} className="btn btn-ghost text-sm">
@@ -336,7 +340,8 @@ export function ShadowScoreFlow() {
       {prefillNoteVisible && !resumeDraft && (
         <div className="glass mb-8 flex items-start justify-between gap-4 !rounded-xl px-5 py-4">
           <p className="text-sm leading-relaxed text-dim">
-            <span className="font-semibold text-cyan">We kept your three answers.</span> Adjust anything.
+            <span className="font-semibold text-cyan">We kept your three answers.</span> Adjust
+            anything.
           </p>
           <button
             type="button"
@@ -344,7 +349,15 @@ export function ShadowScoreFlow() {
             aria-label="Dismiss"
             className="shrink-0 text-dim hover:text-light"
           >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden
+            >
               <path d="M3 3l10 10M13 3L3 13" />
             </svg>
           </button>
@@ -359,7 +372,13 @@ export function ShadowScoreFlow() {
       </div>
 
       {stepId === "income-debt" && (
-        <StepShell stepKey="income-debt" onBack={goBack} onNext={goNext} nextDisabled={nextDisabled} showBack={index > 0}>
+        <StepShell
+          stepKey="income-debt"
+          onBack={goBack}
+          onNext={goNext}
+          nextDisabled={nextDisabled}
+          showBack={index > 0}
+        >
           <div className="flex flex-col gap-6">
             <MoneyField
               label="Monthly gross income"
@@ -381,7 +400,12 @@ export function ShadowScoreFlow() {
       )}
 
       {stepId === "emergency-fund" && (
-        <StepShell stepKey="emergency-fund" onBack={goBack} onNext={goNext} nextDisabled={nextDisabled}>
+        <StepShell
+          stepKey="emergency-fund"
+          onBack={goBack}
+          onNext={goNext}
+          nextDisabled={nextDisabled}
+        >
           <ChoiceCards<EmergencyFundChoice>
             label="How many months of expenses do you have saved?"
             value={form.emergencyFundChoice}
@@ -395,7 +419,12 @@ export function ShadowScoreFlow() {
       )}
 
       {stepId === "credit-band" && (
-        <StepShell stepKey="credit-band" onBack={goBack} onNext={goNext} nextDisabled={nextDisabled}>
+        <StepShell
+          stepKey="credit-band"
+          onBack={goBack}
+          onNext={goNext}
+          nextDisabled={nextDisabled}
+        >
           <ChoiceCards<CreditBand>
             label="Where does your credit score fall?"
             value={form.creditBand}

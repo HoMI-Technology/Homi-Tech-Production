@@ -30,7 +30,13 @@ export function TrinityGapAlert({ pillars }: TrinityGapAlertProps) {
       style={{ background: withAlpha(COLORS.amber, 0.08) }}
     >
       <div className="flex items-start gap-3">
-        <svg className="mt-0.5 h-5 w-5 shrink-0 text-amber" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <svg
+          className="mt-0.5 h-5 w-5 shrink-0 text-amber"
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        >
           <path d="M10 2v8m0 4h.01" strokeLinecap="round" />
           <circle cx="10" cy="10" r="8" />
         </svg>
@@ -40,12 +46,21 @@ export function TrinityGapAlert({ pillars }: TrinityGapAlertProps) {
           </p>
           <p className="mt-1 text-sm text-dim">
             Your {stronger.name.toLowerCase()} ({stronger.value}/{stronger.max}) is significantly
-            ahead of {weaker.name.toLowerCase()} ({weaker.value}/{weaker.max}). This imbalance
-            can distort your overall readiness signal.
+            ahead of {weaker.name.toLowerCase()} ({weaker.value}/{weaker.max}). This imbalance can
+            distort your overall readiness signal.
           </p>
-          <Link href="/trinity" className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-amber hover:underline">
+          <Link
+            href="/trinity"
+            className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-amber hover:underline"
+          >
             Rebalance your trinity
-            <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              className="h-3.5 w-3.5"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M2 8h11m0 0L9 4m4 4l-4 4" />
             </svg>
           </Link>

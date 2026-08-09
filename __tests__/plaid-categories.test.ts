@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  analyzeTransactionCategories,
-  categorySignalsForPath,
-} from "@/lib/plaid/categories";
+import { analyzeTransactionCategories, categorySignalsForPath } from "@/lib/plaid/categories";
 
 describe("analyzeTransactionCategories", () => {
   it("detects subscription-like recurring outflows", () => {

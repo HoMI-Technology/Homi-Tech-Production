@@ -49,7 +49,8 @@ import type {
 
 export const metadata: Metadata = {
   title: "Dashboard | HōMI",
-  description: "Your decision readiness at a glance — score history, daily pulse, and quick actions.",
+  description:
+    "Your decision readiness at a glance — score history, daily pulse, and quick actions.",
 };
 
 function firstName(profile: Profile | null, fallbackEmail: string | null): string {
@@ -80,7 +81,13 @@ function toReading(row: AssessmentRow | null): AssessmentReading | null {
 /** Curated next step per weakest pillar — honest guidance, no invented numbers. */
 const NEXT_MOVES: Record<
   (typeof PILLARS)[number]["key"],
-  { title: string; body: string; href: string; cta: string; secondary: { href: string; label: string } }
+  {
+    title: string;
+    body: string;
+    href: string;
+    cta: string;
+    secondary: { href: string; label: string };
+  }
 > = {
   financial: {
     title: "Strengthen your financial reality",
@@ -154,11 +161,7 @@ export default async function DashboardPage() {
             .limit(1)
         : Promise.resolve({ data: [] as OutcomeSurvey[], error: null }),
       user
-        ? supabase
-            .from("behavioral_genome")
-            .select("*")
-            .eq("user_id", user.id)
-            .maybeSingle()
+        ? supabase.from("behavioral_genome").select("*").eq("user_id", user.id).maybeSingle()
         : Promise.resolve({ data: null as BehavioralGenome | null, error: null }),
       user
         ? supabase
@@ -168,7 +171,10 @@ export default async function DashboardPage() {
             .order("created_at", { ascending: false })
             .limit(8)
         : Promise.resolve({
-            data: [] as Pick<JournalEntry, "id" | "title" | "context" | "decision_date" | "created_at">[],
+            data: [] as Pick<
+              JournalEntry,
+              "id" | "title" | "context" | "decision_date" | "created_at"
+            >[],
             error: null,
           }),
     ]);
@@ -187,10 +193,9 @@ export default async function DashboardPage() {
   const dueSurvey: OutcomeSurvey | null = surveysR.data?.[0] ?? null;
   const genome = (genomeR.data as BehavioralGenome | null) ?? null;
   const journalEntries =
-    (journalEntriesR.data as Pick<
-      JournalEntry,
-      "id" | "title" | "context" | "decision_date" | "created_at"
-    >[] | null) ?? [];
+    (journalEntriesR.data as
+      | Pick<JournalEntry, "id" | "title" | "context" | "decision_date" | "created_at">[]
+      | null) ?? [];
 
   const name = firstName(profile, user?.email ?? null);
   const greeting = greetingForHour(hourInTimezone(timeZone));
@@ -213,7 +218,10 @@ export default async function DashboardPage() {
     }));
 
   const scoreDelta =
-    latest && previousAssessment && latest.overall_score !== null && previousAssessment.overall_score !== null
+    latest &&
+    previousAssessment &&
+    latest.overall_score !== null &&
+    previousAssessment.overall_score !== null
       ? {
           current: Math.round(latest.overall_score),
           previous: Math.round(previousAssessment.overall_score),
@@ -238,7 +246,9 @@ export default async function DashboardPage() {
 
   // Check-ins in the last 7 days — a real cadence number, not an invented streak.
   const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  const checkinsThisWeek = checkinRows.filter((c) => new Date(c.created_at).getTime() >= weekAgo).length;
+  const checkinsThisWeek = checkinRows.filter(
+    (c) => new Date(c.created_at).getTime() >= weekAgo,
+  ).length;
 
   // One true sentence about where the user stands (rule-based, never invented).
   const insight = dashboardInsight({
@@ -291,7 +301,11 @@ export default async function DashboardPage() {
             style={{ ["--instrument-tint" as string]: instrumentTint }}
           >
             {latest && (
-              <VerdictCelebrate assessmentId={latest.id} improved={improved} label={verdictMeta.label} />
+              <VerdictCelebrate
+                assessmentId={latest.id}
+                improved={improved}
+                label={verdictMeta.label}
+              />
             )}
             <div className="dash-instrument-inner p-5 sm:p-7 lg:p-9">
               <div className="dash-hero-meta">
@@ -352,10 +366,16 @@ export default async function DashboardPage() {
                           <span className="absolute -translate-x-1/2" style={{ left: "12%" }}>
                             Not yet
                           </span>
-                          <span className="absolute hidden -translate-x-1/2 sm:block" style={{ left: "42%" }}>
+                          <span
+                            className="absolute hidden -translate-x-1/2 sm:block"
+                            style={{ left: "42%" }}
+                          >
                             Build
                           </span>
-                          <span className="absolute hidden -translate-x-1/2 sm:block" style={{ left: "68%" }}>
+                          <span
+                            className="absolute hidden -translate-x-1/2 sm:block"
+                            style={{ left: "68%" }}
+                          >
                             Almost
                           </span>
                           <span className="absolute -translate-x-1/2" style={{ left: "92%" }}>
@@ -366,7 +386,8 @@ export default async function DashboardPage() {
 
                       {showNudge && (
                         <p className="mt-4 rounded-lg border border-amber/35 bg-verdict-build/90 px-4 py-2.5 text-sm text-light">
-                          It has been {since} days since your last assessment. Life changes - consider a retest.
+                          It has been {since} days since your last assessment. Life changes -
+                          consider a retest.
                         </p>
                       )}
                     </div>
@@ -465,7 +486,10 @@ export default async function DashboardPage() {
             </div>
 
             {/* Metric strip - no kicker, sits under instrument */}
-            <div className="dash-stage mt-5" style={{ "--stage-delay": "100ms" } as React.CSSProperties}>
+            <div
+              className="dash-stage mt-5"
+              style={{ "--stage-delay": "100ms" } as React.CSSProperties}
+            >
               <div className="dash-rail">
                 <div className="dash-rail-cell">
                   <p className="dash-rail-label">Verdict held</p>
@@ -517,7 +541,8 @@ export default async function DashboardPage() {
                     <div className="dash-section-head">
                       <h2>Softest lever first</h2>
                       <p>
-                        Financial Reality, Emotional Truth, Perfect Timing. The weak ring owns your next move.
+                        Financial Reality, Emotional Truth, Perfect Timing. The weak ring owns your
+                        next move.
                       </p>
                     </div>
                     <div className="grid gap-3 lg:grid-cols-12">
@@ -569,12 +594,11 @@ export default async function DashboardPage() {
                                 <p className="text-3xs font-bold uppercase tracking-[0.12em] text-cyan">
                                   Why this pillar
                                 </p>
-                                <p className="mt-1.5 text-sm leading-relaxed text-dim">{nextMove.body}</p>
+                                <p className="mt-1.5 text-sm leading-relaxed text-dim">
+                                  {nextMove.body}
+                                </p>
                                 <div className="mt-3 flex flex-wrap gap-2">
-                                  <Link
-                                    href={nextMove.href}
-                                    className="btn btn-primary btn-sm"
-                                  >
+                                  <Link href={nextMove.href} className="btn btn-primary btn-sm">
                                     {nextMove.cta}
                                   </Link>
                                   <Link
@@ -683,7 +707,9 @@ export default async function DashboardPage() {
                   </div>
                   <div className="dash-side-metric">
                     <span className="dash-side-metric-label">Pulse · 7d</span>
-                    <span className="dash-side-metric-value text-emerald">{checkinsThisWeek}/7</span>
+                    <span className="dash-side-metric-value text-emerald">
+                      {checkinsThisWeek}/7
+                    </span>
                   </div>
                   <div className="dash-side-metric">
                     <span className="dash-side-metric-label">Journal</span>

@@ -1,10 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  bindingConstraintLabel,
-  type ReadinessPath,
-} from "@/lib/readiness";
+import { bindingConstraintLabel, type ReadinessPath } from "@/lib/readiness";
 
 export function PathCommitBanner({
   path,
@@ -51,8 +48,7 @@ export function PathCommitBanner({
             </p>
           )}
           <p className="mt-2 text-xs leading-relaxed text-dim">
-            Protective milestones from your latest readiness path — not a judgment,
-            a plan.
+            Protective milestones from your latest readiness path — not a judgment, a plan.
           </p>
         </div>
 
@@ -69,11 +65,7 @@ export function PathCommitBanner({
                 {refreshing ? "Updating…" : "Refresh path milestones"}
               </button>
             )}
-            <Link
-              href="/results"
-              className="btn btn-ghost"
-              aria-label="Back to assessment results"
-            >
+            <Link href="/results" className="btn btn-ghost" aria-label="Back to assessment results">
               View results
             </Link>
           </div>

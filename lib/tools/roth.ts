@@ -34,7 +34,10 @@ export interface RothConversionResult {
 
 export function computeRothConversion(inputs: RothConversionInputs): RothConversionResult {
   const taxCostToday = Math.max(0, inputs.convertAmount) * (inputs.marginalRateNowPercent / 100);
-  const growthFactor = Math.pow(1 + inputs.expectedGrowthPercent / 100, Math.max(0, inputs.yearsToHorizon));
+  const growthFactor = Math.pow(
+    1 + inputs.expectedGrowthPercent / 100,
+    Math.max(0, inputs.yearsToHorizon),
+  );
   const futureValueAtHorizon = Math.max(0, inputs.convertAmount) * growthFactor;
   const taxAvoidedAtHorizon = futureValueAtHorizon * (inputs.expectedRateRetirementPercent / 100);
   const netEducationalBenefit = taxAvoidedAtHorizon - taxCostToday;

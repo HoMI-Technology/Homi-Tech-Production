@@ -24,8 +24,9 @@ vi.mock("@/lib/supabase/server", () => ({
   })),
 }));
 
-const fetchMock = vi.fn(async (..._args: unknown[]) =>
-  new Response(JSON.stringify({ url: "https://checkout.stripe.com/x" }), { status: 200 }),
+const fetchMock = vi.fn(
+  async (..._args: unknown[]) =>
+    new Response(JSON.stringify({ url: "https://checkout.stripe.com/x" }), { status: 200 }),
 );
 
 beforeEach(() => {
