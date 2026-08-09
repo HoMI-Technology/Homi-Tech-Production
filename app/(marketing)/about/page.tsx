@@ -15,7 +15,7 @@ export default function AboutPage() {
     <>
       <section className="px-6 pb-16 pt-16 md:pt-24">
         <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-4xl font-black text-light md:text-5xl">About HōMI</h1>
+          <h1 className="type-h1">About HōMI</h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-dim">
             A Decision Companion. Built to help you examine one question: will you be okay?
           </p>
@@ -25,7 +25,7 @@ export default function AboutPage() {
       <Reveal>
         <section className="px-6 py-16">
           <div className="mx-auto max-w-3xl space-y-6 text-lg leading-relaxed text-dim">
-            <h2 className="font-display text-2xl font-bold text-light">Our mission</h2>
+            <h2 className="type-h2">Our mission</h2>
             <p>
               We imagine a world where readiness precedes action. Decisions are timed with
               clarity, not pressure. HōMI is Decision Readiness Intelligence™ &mdash; a
@@ -46,7 +46,7 @@ export default function AboutPage() {
         <section className="px-6 py-16">
           <div className="mx-auto max-w-3xl">
             <div className="glass p-10 md:p-14">
-              <h2 className="font-display text-2xl font-bold text-light">
+              <h2 className="type-h2">
                 We&rsquo;re Not Competing — We&rsquo;re Creating
               </h2>
               <p className="mt-5 leading-relaxed text-dim">
@@ -69,7 +69,7 @@ export default function AboutPage() {
       <Reveal>
         <section className="px-6 py-16">
           <div className="mx-auto max-w-3xl">
-            <h2 className="font-display text-2xl font-bold text-light">A note from the founder</h2>
+            <h2 className="type-h2">A note from the founder</h2>
             <div className="glass mt-6 p-10 md:p-14">
               <p className="font-display text-xl leading-relaxed text-light">
                 &ldquo;I built HōMI because I&rsquo;ve seen what happens when people mistake
@@ -89,7 +89,7 @@ export default function AboutPage() {
       <Reveal>
         <section className="px-6 py-16">
           <div className="mx-auto max-w-3xl">
-            <h2 className="text-center font-display text-2xl font-bold text-light">
+            <h2 className="text-center type-h2">
               What HōMI is not
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-center text-dim">
@@ -123,7 +123,7 @@ export default function AboutPage() {
         <section className="px-6 py-16">
           <div className="mx-auto max-w-3xl">
             <div className="glass p-8">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-dim">
+              <h2 className="type-kicker text-dim">
                 Legal entity
               </h2>
               <p className="mt-3 text-light">{BRAND.legalEntity}</p>
@@ -150,7 +150,7 @@ export default function AboutPage() {
       <Reveal>
         <section className="px-6 py-20 text-center">
           <div className="mx-auto max-w-2xl">
-            <h2 className="text-3xl font-black text-light md:text-4xl">
+            <h2 className="type-h1">
               Read the philosophy behind the product.
             </h2>
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">

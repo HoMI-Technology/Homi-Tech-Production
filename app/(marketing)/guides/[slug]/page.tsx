@@ -48,7 +48,7 @@ export default async function GuidePage({
           <Link href="/guides" className="text-sm text-dim transition-colors hover:text-cyan">
             &larr; All guides
           </Link>
-          <h1 className="mt-5 text-4xl font-black leading-tight text-light md:text-5xl">
+          <h1 className="mt-5 type-h1">
             {guide.title}
           </h1>
           <p className="mt-5 text-lg leading-relaxed text-dim">{guide.description}</p>
@@ -60,7 +60,7 @@ export default async function GuidePage({
           <div className="mx-auto max-w-3xl space-y-12">
             {guide.sections.map((section) => (
               <div key={section.heading}>
-                <h2 className="font-display text-2xl font-bold text-light">
+                <h2 className="type-h2">
                   {section.heading}
                 </h2>
                 <div className="mt-4 space-y-4">
@@ -82,7 +82,7 @@ export default async function GuidePage({
             <div className="hairline" />
             <div className="mt-10 flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:text-left">
               <div>
-                <h2 className="text-xl font-bold text-light">See where you stand.</h2>
+                <h2 className="type-h3">See where you stand.</h2>
                 <p className="mt-2 text-sm text-dim">
                   Ninety seconds tells you the truth about your readiness today.
                 </p>
@@ -99,7 +99,7 @@ export default async function GuidePage({
         <Reveal>
           <section className="px-6 py-16">
             <div className="mx-auto max-w-6xl">
-              <h2 className="text-2xl font-bold text-light">More guides</h2>
+              <h2 className="type-h2">More guides</h2>
               <div className="mt-8 grid gap-6 md:grid-cols-3">
                 {otherGuides.map((g) => (
                   <Link
@@ -107,7 +107,7 @@ export default async function GuidePage({
                     href={`/guides/${g.slug}`}
                     className="glass glass-hover flex flex-col p-6"
                   >
-                    <h3 className="font-semibold text-light">{g.title}</h3>
+                    <h3 className="type-h4">{g.title}</h3>
                     <p className="mt-2 flex-1 text-sm text-dim">{g.description}</p>
                     <span className="mt-4 text-sm font-semibold text-cyan">Read &rarr;</span>
                   </Link>

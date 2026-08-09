@@ -269,18 +269,18 @@ export function InterviewHero() {
 
         {/* Thesis + interview */}
         <div className="order-2 flex flex-col items-center text-center lg:order-1 lg:items-start lg:text-left">
-          <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-cyan/90">
+          <p className="type-kicker text-cyan/90">
             Decision Readiness Intelligence™
           </p>
 
           <h1
-            className="mt-4 max-w-[14ch] font-display text-[clamp(2.1rem,5.2vw,3.75rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-light sm:max-w-none"
+            className="type-display mt-4 max-w-[14ch] sm:max-w-none"
             style={{ textWrap: "balance" }}
           >
             Know when you&rsquo;re ready.
           </h1>
 
-          <p className="mt-3 max-w-[36ch] text-[0.9375rem] leading-relaxed text-dim sm:text-base lg:max-w-md">
+          <p className="mt-3 max-w-[36ch] text-sm leading-relaxed text-dim sm:text-base lg:max-w-md">
             A credit score estimates repayment risk. HōMI helps you evaluate readiness for the
             decision itself.
           </p>
@@ -314,7 +314,7 @@ export function InterviewHero() {
           <div className="relative mt-6 flex min-h-[200px] w-full max-w-xl flex-col items-center justify-center lg:items-start">
             {!(hydrated && settled) && showQuestions && activeQuestion && (
               <div key={activeQuestion.id} className="w-full">
-                <p className="font-display text-lg leading-snug text-light sm:text-xl lg:text-[1.35rem]">
+                <p className="font-display text-lg leading-snug text-light sm:text-xl">
                   {activeQuestion.prompt}
                 </p>
                 <div

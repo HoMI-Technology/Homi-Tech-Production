@@ -112,7 +112,7 @@ export default function PricingPage() {
     <>
       <section className="px-6 pb-16 pt-16 md:pt-24">
         <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-4xl font-black text-light md:text-5xl">Pricing</h1>
+          <h1 className="type-h1">Pricing</h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-dim">
             Our revenue comes from subscriptions, not transactions.
           </p>
@@ -137,7 +137,7 @@ export default function PricingPage() {
                       Most complete
                     </span>
                   )}
-                  <h2 className="text-xl font-bold text-light">{copy.name}</h2>
+                  <h2 className="type-h3">{copy.name}</h2>
                   <p className="mt-1 text-sm text-dim">{copy.description}</p>
                   <div className="mt-5 flex items-baseline gap-1">
                     <span className="score-numeral text-4xl font-bold text-light">
@@ -197,13 +197,13 @@ export default function PricingPage() {
       <Reveal>
         <section className="px-6 py-16">
           <div className="mx-auto max-w-3xl">
-            <h2 className="text-center text-3xl font-black text-light md:text-4xl">
+            <h2 className="text-center type-h2">
               Questions
             </h2>
             <div className="mt-10 space-y-4">
               {FAQS.map((item) => (
                 <div key={item.q} className="glass p-6">
-                  <h3 className="font-semibold text-light">{item.q}</h3>
+                  <h3 className="type-h4">{item.q}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-dim">{item.a}</p>
                 </div>
               ))}
@@ -215,7 +215,7 @@ export default function PricingPage() {
       <Reveal>
         <section className="px-6 py-20 text-center">
           <div className="mx-auto max-w-2xl">
-            <h2 className="text-3xl font-black text-light md:text-4xl">
+            <h2 className="type-h1">
               Start with the free score.
             </h2>
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">

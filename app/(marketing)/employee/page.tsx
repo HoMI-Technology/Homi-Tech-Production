@@ -47,10 +47,10 @@ export default function EmployeePage() {
       <section className="mx-auto max-w-6xl px-6 pt-20 pb-16 md:pt-28">
         <div className="grid items-center gap-12 md:grid-cols-2">
           <Reveal>
-            <p className="text-sm font-semibold uppercase tracking-widest text-emerald">
+            <p className="type-kicker text-emerald">
               Employee Benefit
             </p>
-            <h1 className="mt-4 font-display text-4xl leading-tight text-light md:text-5xl">
+            <h1 className="mt-4 type-h1">
               The benefit that tells your people the truth.
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-dim">
@@ -75,13 +75,13 @@ export default function EmployeePage() {
 
       <section className="mx-auto max-w-6xl px-6 py-16">
         <Reveal>
-          <h2 className="font-display text-2xl text-light md:text-3xl">What changes for your team</h2>
+          <h2 className="type-h2">What changes for your team</h2>
         </Reveal>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {OUTCOMES.map((o, i) => (
             <Reveal key={o.title} delay={i * 90}>
               <div className="glass glass-hover h-full p-6">
-                <h3 className="text-lg font-semibold text-light">{o.title}</h3>
+                <h3 className="type-h4">{o.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-dim">{o.body}</p>
               </div>
             </Reveal>
@@ -93,10 +93,10 @@ export default function EmployeePage() {
         <Reveal>
           <div className="glass grid gap-8 p-10 md:grid-cols-[1.1fr_1fr] md:items-center">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-widest text-cyan">
+              <p className="type-kicker text-cyan">
                 Our privacy promise
               </p>
-              <h2 className="mt-3 font-display text-2xl text-light md:text-3xl">
+              <h2 className="mt-3 type-h2">
                 Your employer never sees your individual results. Ever.
               </h2>
               <p className="mt-4 leading-relaxed text-dim">
@@ -132,13 +132,13 @@ export default function EmployeePage() {
 
       <section className="mx-auto max-w-6xl px-6 py-16">
         <Reveal>
-          <h2 className="font-display text-2xl text-light md:text-3xl">Wellness tips</h2>
+          <h2 className="type-h2">Wellness tips</h2>
         </Reveal>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {TIPS.map((t, i) => (
             <Reveal key={t.title} delay={i * 90}>
               <div className="glass glass-hover h-full p-6">
-                <h3 className="text-lg font-semibold text-light">{t.title}</h3>
+                <h3 className="type-h4">{t.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-dim">{t.body}</p>
               </div>
             </Reveal>
@@ -150,7 +150,7 @@ export default function EmployeePage() {
         <Reveal>
           <div className="glass flex flex-col items-start gap-6 p-10 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="font-display text-2xl text-light md:text-3xl">
+              <h2 className="type-h2">
                 Your readiness, on your terms.
               </h2>
               <p className="mt-2 max-w-lg text-dim">

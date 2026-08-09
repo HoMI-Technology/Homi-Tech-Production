@@ -92,7 +92,7 @@ export function AlignmentScene() {
       <div className="flex flex-col gap-12 px-6 py-24">
         {STEPS.map((s) => (
           <div key={s.title} className="mx-auto max-w-2xl text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color: s.color }}>
+            <p className="type-kicker" style={{ color: s.color }}>
               {s.kicker}
             </p>
             <h3 className="mt-3 font-display text-4xl font-semibold text-light">{s.title}</h3>
@@ -157,7 +157,7 @@ export function AlignmentScene() {
                 }}
                 aria-hidden={i !== step}
               >
-                <p className="text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color: s.color }}>
+                <p className="type-kicker" style={{ color: s.color }}>
                   {s.kicker}
                 </p>
                 <h3 className="mt-3 font-display text-3xl font-semibold leading-tight text-light sm:mt-4 sm:text-4xl xl:text-6xl">

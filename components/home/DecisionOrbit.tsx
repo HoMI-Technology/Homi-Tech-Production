@@ -56,7 +56,7 @@ export function DecisionOrbit() {
               <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-yellow align-middle" />
             )}
             {node.label}
-            {node.first && <span className="ml-1.5 text-[10px] uppercase tracking-wider opacity-70">first threshold</span>}
+            {node.first && <span className="ml-1.5 text-xs uppercase tracking-wider opacity-70">first threshold</span>}
           </span>
         );
       })}

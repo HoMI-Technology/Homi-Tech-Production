@@ -74,10 +74,10 @@ export function Flashlight() {
 
       {/* Always-visible invitation */}
       <div className="px-8 pt-10 text-center sm:px-12">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-cyan">
+        <p className="type-kicker text-cyan">
           The dark room
         </p>
-        <h3 className="mt-4 font-display text-3xl font-semibold text-light sm:text-4xl">
+        <h3 className="mt-4 type-h2">
           Four truths the industry keeps in the dark.
         </h3>
         <p className="mt-3 text-sm text-dim">
