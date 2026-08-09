@@ -81,7 +81,7 @@ export default function WeekStrip({
             >
               <span
                 className={cn(
-                  'text-[9px] font-medium uppercase tracking-[0.16em]',
+                  'text-3xs font-medium uppercase tracking-[0.16em]',
                   day.isToday ? 'text-cyan' : 'text-dim',
                 )}
               >
@@ -101,7 +101,7 @@ export default function WeekStrip({
               </span>
               <span
                 className={cn(
-                  'mt-1 font-display text-[9px] tabular-nums sm:text-[10px]',
+                  'mt-1 font-display text-3xs tabular-nums sm:text-3xs',
                   rollup.impact === 0
                     ? 'text-dim/70'
                     : rollup.impact > 0
@@ -115,7 +115,7 @@ export default function WeekStrip({
                 {dueBills.slice(0, 2).map((b) => (
                   <span
                     key={b.id}
-                    className="flex max-w-full items-center justify-between gap-1 truncate rounded bg-yellow/15 px-1 py-0.5 text-[9px] font-medium leading-tight text-yellow"
+                    className="flex max-w-full items-center justify-between gap-1 truncate rounded bg-yellow/15 px-1 py-0.5 text-3xs font-medium leading-tight text-yellow"
                   >
                     <span className="truncate">{b.name.charAt(0)}…</span>
                     <span className="shrink-0 font-display tabular-nums">
@@ -129,7 +129,7 @@ export default function WeekStrip({
         })}
       </div>
 
-      <div className="mt-4 text-right text-[11px] text-dim/70">
+      <div className="mt-4 text-right text-2xs text-dim/70">
         M month · W week · A agenda · arrows move · T today
       </div>
     </div>

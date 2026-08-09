@@ -122,7 +122,7 @@ export default async function EmployeeDashboardPage() {
                 <ThresholdCompass size={148} verdict={verdict ?? undefined} />
               </div>
               <div className="min-w-0 text-center lg:text-left">
-                <p className="text-[0.625rem] font-bold uppercase tracking-[0.16em] text-dim">
+                <p className="text-3xs font-bold uppercase tracking-[0.16em] text-dim">
                   Private HōMI-Score
                 </p>
                 <div className="mt-1.5 flex flex-wrap items-end justify-center gap-3 lg:justify-start">

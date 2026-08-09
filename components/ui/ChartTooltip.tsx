@@ -27,7 +27,7 @@ export function ChartTooltip({
   return (
     <div className="rounded-xl border border-slate-surface/60 bg-navy-light/95 px-3 py-2 shadow-xl backdrop-blur">
       {label !== undefined && label !== "" && (
-        <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-dim">
+        <p className="mb-1.5 text-2xs font-semibold uppercase tracking-widest text-dim">
           {String(label)}
         </p>
       )}

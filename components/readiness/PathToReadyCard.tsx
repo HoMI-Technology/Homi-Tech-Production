@@ -384,12 +384,12 @@ export function PathToReadyCard({
           </div>
           <div className="flex flex-wrap gap-2">
             <span
-              className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${conf.className}`}
+              className={`inline-flex items-center rounded-full border px-2.5 py-1 text-3xs font-semibold uppercase tracking-wide ${conf.className}`}
             >
               {conf.text}
             </span>
             {!isOptional && (
-              <span className="inline-flex items-center rounded-full border border-slate-surface/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-dim">
+              <span className="inline-flex items-center rounded-full border border-slate-surface/80 px-2.5 py-1 text-3xs font-semibold uppercase tracking-wide text-dim">
                 <span className="score-numeral mr-1 text-light">{completion}</span>
                 % resolved
               </span>
@@ -553,12 +553,12 @@ export function PathToReadyCard({
           {constraint}
         </span>
         <span
-          className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${conf.className}`}
+          className={`inline-flex items-center rounded-full border px-2.5 py-1 text-3xs font-semibold uppercase tracking-wide ${conf.className}`}
         >
           {conf.text}
         </span>
         {result.hardStops.length > 0 && (
-          <span className="inline-flex items-center rounded-full border border-crimson/40 bg-crimson/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-crimson">
+          <span className="inline-flex items-center rounded-full border border-crimson/40 bg-crimson/10 px-2.5 py-1 text-3xs font-semibold uppercase tracking-wide text-crimson">
             Protection signal
           </span>
         )}

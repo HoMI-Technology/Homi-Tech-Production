@@ -204,7 +204,7 @@ function SuggestedMove({
         <p className="text-label uppercase tracking-widest text-cyan">
           ✦ Suggested move
         </p>
-        <p className="text-[11px] text-dim">
+        <p className="text-2xs text-dim">
           Protective nudges · not pressure tactics
         </p>
       </div>
@@ -215,7 +215,7 @@ function SuggestedMove({
           transition={{ duration: 0.3, ease: 'easeOut' }}
           className="card-chrome card-hairline-top relative flex flex-col p-5 lg:col-span-2"
         >
-          <span className="w-fit rounded-full border border-cyan/35 bg-cyan/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-cyan">
+          <span className="w-fit rounded-full border border-cyan/35 bg-cyan/10 px-2 py-0.5 text-3xs font-semibold uppercase tracking-wider text-cyan">
             {NUDGE_KIND_LABEL[top.kind]}
           </span>
           <h3 className="mt-3 font-serif text-2xl italic text-light">
@@ -243,7 +243,7 @@ function SuggestedMove({
               key={nudge.id}
               className="card-chrome flex flex-1 flex-col p-4"
             >
-              <span className="w-fit rounded-full border border-white/[0.1] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-dim">
+              <span className="w-fit rounded-full border border-white/[0.1] px-2 py-0.5 text-3xs font-semibold uppercase tracking-wider text-dim">
                 {NUDGE_KIND_LABEL[nudge.kind]} — {nudge.title}
               </span>
               <p className="mt-2 flex-1 text-xs leading-relaxed text-dim">
@@ -457,7 +457,7 @@ function CashPathAndActions({
                 <span className="mt-2 text-sm font-semibold text-light">
                   {label}
                 </span>
-                <span className="mt-0.5 text-[11px] text-dim">{hint}</span>
+                <span className="mt-0.5 text-2xs text-dim">{hint}</span>
               </button>
             ))}
           </div>
@@ -625,7 +625,7 @@ function DailyCheckin() {
         </p>
 
         <div className="mt-3">
-          <div className="flex items-center justify-between text-[11px] text-dim">
+          <div className="flex items-center justify-between text-2xs text-dim">
             <span>1 calm</span>
             <span className="font-display font-medium tnum text-cyan">
               Today · {value}/10
@@ -687,7 +687,7 @@ function DailyCheckin() {
               ))}
             </div>
           )}
-          <p className="mt-2 text-[11px] text-dim">
+          <p className="mt-2 text-2xs text-dim">
             Last {stress.sampleSize} days · amber bars ≥7 · signals fire on
             slope, streaks, spikes &amp; volatility
           </p>
@@ -773,7 +773,7 @@ function ExportPack({
             <Printer size={15} />
             Print / PDF
           </motion.button>
-          <p className="text-[11px] leading-relaxed text-dim">{EXPORT_LEGAL}</p>
+          <p className="text-2xs leading-relaxed text-dim">{EXPORT_LEGAL}</p>
         </div>
 
         <div className="card-chrome card-hairline-top relative p-5">
@@ -781,7 +781,7 @@ function ExportPack({
             <p className="text-label uppercase tracking-widest text-cyan">
               HōMI Readiness
             </p>
-            <p className="font-display text-[11px] tnum text-dim">
+            <p className="font-display text-2xs tnum text-dim">
               NW {fmtUsd0(nw.netWorth)} · Runway {runwayLabel}
             </p>
           </div>
@@ -802,7 +802,7 @@ function ExportPack({
               ] as Array<[PillarKey, string]>
             ).map(([key, label]) => (
               <div key={key} className="flex items-center gap-3">
-                <span className="w-20 text-[10px] font-semibold uppercase tracking-wider text-dim">
+                <span className="w-20 text-3xs font-semibold uppercase tracking-wider text-dim">
                   {label}
                 </span>
                 <div className="h-[4px] flex-1 overflow-hidden rounded-full bg-white/[0.06]">
@@ -811,7 +811,7 @@ function ExportPack({
                     style={{ width: `${planner.pillarPct[key]}%` }}
                   />
                 </div>
-                <span className="font-display text-[11px] tnum text-dim">
+                <span className="font-display text-2xs tnum text-dim">
                   {planner.pillarPct[key]}%
                 </span>
               </div>
@@ -832,7 +832,7 @@ function ExportPack({
           </ol>
           <div className="mt-4 border-t border-white/[0.06] pt-3">
             {receiptToken ? (
-              <p className="break-all font-display text-[11px] tnum text-cyan">
+              <p className="break-all font-display text-2xs tnum text-cyan">
                 {receiptToken}
               </p>
             ) : (
@@ -922,7 +922,7 @@ function FinancialReality() {
               <div className="flex items-center justify-between gap-2">
                 <span className="text-label">{gauge.label}</span>
                 <span
-                  className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${band.className}`}
+                  className={`rounded-full border px-2 py-0.5 text-3xs font-semibold ${band.className}`}
                 >
                   {band.label}
                 </span>
@@ -930,7 +930,7 @@ function FinancialReality() {
               <p className="mt-2.5 font-display text-xl font-semibold tnum text-light">
                 {gauge.value}
               </p>
-              <p className="mt-1 text-[11px] leading-relaxed text-dim">
+              <p className="mt-1 text-2xs leading-relaxed text-dim">
                 {gauge.caption}
               </p>
             </div>
@@ -961,7 +961,7 @@ function FinancialReality() {
                   className="h-full rounded-full bg-cyan"
                 />
               </div>
-              <p className="mt-1.5 text-[11px] text-dim">{caption}</p>
+              <p className="mt-1.5 text-2xs text-dim">{caption}</p>
             </div>
           )
         })}
@@ -998,7 +998,7 @@ function SpendDigestSection({
             {fmtUsd0(digest.totalSpend)}
           </p>
           <p
-            className={`mt-0.5 inline-flex items-center gap-1 text-[11px] font-semibold ${
+            className={`mt-0.5 inline-flex items-center gap-1 text-2xs font-semibold ${
               digest.deltaPct == null
                 ? 'text-dim'
                 : up
@@ -1113,7 +1113,7 @@ function SpendDigestSection({
               identity (demo).
             </p>
             {receiptToken ? (
-              <p className="mt-2 break-all font-display text-[11px] tnum text-cyan">
+              <p className="mt-2 break-all font-display text-2xs tnum text-cyan">
                 {receiptToken}
               </p>
             ) : (
@@ -1188,7 +1188,7 @@ function AddTransactionCard() {
             </button>
           ))}
         </div>
-        <span className="rounded-full border border-white/[0.1] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-dim">
+        <span className="rounded-full border border-white/[0.1] px-2.5 py-0.5 text-3xs font-semibold uppercase tracking-wider text-dim">
           Local save
         </span>
       </div>
@@ -1576,7 +1576,7 @@ function TransactionRow({ tx }: { tx: Transaction }) {
         <p className="truncate text-sm font-medium text-light">
           {tx.note ?? CATEGORY_LABEL[tx.category]}
         </p>
-        <p className="mt-0.5 flex items-center gap-2 text-[11px] text-dim">
+        <p className="mt-0.5 flex items-center gap-2 text-2xs text-dim">
           <span className="rounded-full border border-white/[0.08] px-1.5 py-px">
             {CATEGORY_LABEL[tx.category]}
           </span>

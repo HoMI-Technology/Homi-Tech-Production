@@ -211,7 +211,7 @@ export function CampaignComposer() {
             }}
             placeholder={'<p style="margin:0 0 16px 0;">Hi there,</p>'}
           />
-          <span className="text-[11px] text-dim">
+          <span className="text-2xs text-dim">
             Admin-authored HTML, wrapped in the standard HōMI email shell with an unsubscribe footer.
           </span>
         </label>
@@ -306,7 +306,7 @@ export function CampaignComposer() {
             className="h-[480px] w-full bg-navy"
           />
         </div>
-        <p className="mt-2 text-[11px] text-dim">
+        <p className="mt-2 text-2xs text-dim">
           The unsubscribe link is a placeholder in preview; each recipient gets a working one-click opt-out.
         </p>
       </div>

@@ -141,7 +141,7 @@ export function MoneyStand() {
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-line/70 px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-dim">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-line/70 px-2.5 py-0.5 text-2xs font-semibold uppercase tracking-[0.12em] text-dim">
                 <span
                   aria-hidden
                   className="size-1.5 rounded-full"
@@ -150,13 +150,13 @@ export function MoneyStand() {
                 {chipLabel}
               </span>
               {asOfLabel && (
-                <span className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-dim/80">
+                <span className="text-2xs font-semibold uppercase tracking-[0.12em] text-dim/80">
                   {asOfLabel}
                 </span>
               )}
               {ready && (
                 <span
-                  className="text-[0.65rem] font-semibold uppercase tracking-[0.12em]"
+                  className="text-2xs font-semibold uppercase tracking-[0.12em]"
                   style={{ color: TEMP_COLOR[cashTemp] }}
                 >
                   {TEMP_WORD[cashTemp]} cash flow
@@ -282,7 +282,7 @@ function MiniTile({
 }) {
   return (
     <div className="rounded-xl border border-line/60 bg-navy/40 px-3 py-3">
-      <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-dim">
+      <p className="text-2xs font-semibold uppercase tracking-[0.12em] text-dim">
         {label}
       </p>
       <p className="score-numeral mt-1 text-lg font-semibold text-light" style={{ color: accent }}>

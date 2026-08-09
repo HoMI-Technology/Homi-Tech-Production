@@ -340,7 +340,7 @@ export function InterviewHero() {
             {hydrated && (settled || allAnswered) && temperature && (
               <div className="stage-item is-on flex w-full flex-col items-center lg:items-start">
                 <span
-                  className="inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[0.6875rem] font-bold uppercase tracking-[0.12em]"
+                  className="inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-2xs font-bold uppercase tracking-[0.12em]"
                   style={{
                     color: TEMPERATURE_META[temperature].color,
                     borderColor: `${TEMPERATURE_META[temperature].color}55`,

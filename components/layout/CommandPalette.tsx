@@ -147,7 +147,7 @@ export function CommandPalette({
                 onClick={() => go(item)}
               >
                 <span>{item.label}</span>
-                <span className="ml-auto text-[0.6875rem] uppercase tracking-wider text-dim">
+                <span className="ml-auto text-2xs uppercase tracking-wider text-dim">
                   {item.group}
                 </span>
               </button>
@@ -155,7 +155,7 @@ export function CommandPalette({
           ))}
         </ul>
         <div className="hairline" />
-        <p className="px-4 py-2.5 text-[0.6875rem] text-dim">
+        <p className="px-4 py-2.5 text-2xs text-dim">
           <kbd className="rounded border border-slate-high/60 px-1">↑↓</kbd> navigate ·{" "}
           <kbd className="rounded border border-slate-high/60 px-1">↵</kbd> open ·{" "}
           <kbd className="rounded border border-slate-high/60 px-1">esc</kbd> close

@@ -23,7 +23,7 @@ export default function ErrorBoundary({
   return (
     <main className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
       <ThresholdCompass size={140} animated={false} />
-      <h1 className="mt-8 text-3xl font-black text-light">Something slipped.</h1>
+      <h1 className="mt-8 type-h2">Something slipped.</h1>
       <p className="mt-3 max-w-md text-dim">
         Not you — us. Your data is safe, and nothing was lost. Try again, or head back
         to steady ground.

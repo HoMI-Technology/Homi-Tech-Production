@@ -257,7 +257,7 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
                   <div className="mb-1 flex items-center gap-2">
                     <span className="text-xs font-bold uppercase tracking-wider text-cyan">{m.agent}</span>
                     {m.tools && m.tools.length > 0 && (
-                      <span className="text-[10px] text-dim">{m.tools.join(", ")}</span>
+                      <span className="text-3xs text-dim">{m.tools.join(", ")}</span>
                     )}
                   </div>
                 )}
@@ -265,7 +265,7 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
                   {m.content}
                 </div>
                 {m.receipt && (
-                  <div className="mt-1 font-mono text-[10px] text-dim/60">Receipt: {m.receipt}</div>
+                  <div className="mt-1 font-mono text-3xs text-dim/60">Receipt: {m.receipt}</div>
                 )}
               </div>
             </div>

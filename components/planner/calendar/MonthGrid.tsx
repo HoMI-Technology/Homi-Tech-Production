@@ -108,7 +108,7 @@ export default function MonthGrid({
         {WEEKDAY_HEADERS.map((d) => (
           <span
             key={d}
-            className="text-center text-[10px] font-medium uppercase tracking-[0.18em] text-dim"
+            className="text-center text-3xs font-medium uppercase tracking-[0.18em] text-dim"
           >
             <span className="hidden sm:inline">{d}</span>
             <span className="sm:hidden">{d.charAt(0)}</span>
@@ -139,7 +139,7 @@ export default function MonthGrid({
       </div>
 
       {/* Legend + keyboard hint */}
-      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-dim">
+      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-2xs text-dim">
         <span className="flex items-center gap-1.5">
           <EventDot kind="overdue" /> Overdue
         </span>
@@ -217,7 +217,7 @@ function DayCell({
       <span className="flex items-start justify-between">
         <span
           className={cn(
-            'flex h-5 w-5 items-center justify-center rounded-full font-display text-[11px] tabular-nums sm:h-6 sm:w-6 sm:text-xs',
+            'flex h-5 w-5 items-center justify-center rounded-full font-display text-2xs tabular-nums sm:h-6 sm:w-6 sm:text-xs',
             day.isToday ? 'bg-cyan text-navy font-semibold' : 'text-light/80',
           )}
         >
@@ -229,7 +229,7 @@ function DayCell({
       {net !== 0 && (filter === 'all' || filter === 'income' || filter === 'spend') && (
         <span
           className={cn(
-            'mt-0.5 hidden font-display text-[10px] tabular-nums sm:block',
+            'mt-0.5 hidden font-display text-3xs tabular-nums sm:block',
             net > 0 ? 'text-emerald/80' : 'text-dim',
           )}
         >
@@ -244,7 +244,7 @@ function DayCell({
             <span
               key={b.id}
               className={cn(
-                'max-w-full truncate rounded px-1 py-0.5 text-[9px] font-medium leading-tight',
+                'max-w-full truncate rounded px-1 py-0.5 text-3xs font-medium leading-tight',
                 cellChipClass(billState(b, today)),
               )}
             >
@@ -252,7 +252,7 @@ function DayCell({
             </span>
           ))}
           {dueBills.length > 2 && (
-            <span className="px-1 text-[9px] text-dim">+{dueBills.length - 2}</span>
+            <span className="px-1 text-3xs text-dim">+{dueBills.length - 2}</span>
           )}
         </span>
       )}

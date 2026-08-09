@@ -291,7 +291,7 @@ export default async function PartnerDashboardPage() {
                         <td className="text-sm text-light">
                           {client?.full_name || "Client"}
                           {a.is_shadow && (
-                            <span className="ml-2 text-[0.625rem] uppercase text-dim">Shadow</span>
+                            <span className="ml-2 text-3xs uppercase text-dim">Shadow</span>
                           )}
                         </td>
                         <td className="score-numeral text-dim">

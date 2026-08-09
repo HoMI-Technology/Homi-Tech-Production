@@ -471,7 +471,7 @@ export function NetWorthPanel() {
         </div>
       </div>
 
-      <p className="mt-5 flex items-start gap-2 border-t border-white/[0.06] pt-4 text-[11px] leading-relaxed text-dim">
+      <p className="mt-5 flex items-start gap-2 border-t border-white/[0.06] pt-4 text-2xs leading-relaxed text-dim">
         <Scale size={13} className="mt-0.5 shrink-0" />
         Bank cash and portfolio market value roll in automatically. Credit card
         balances on linked accounts count as liabilities.

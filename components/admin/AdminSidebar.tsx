@@ -18,7 +18,7 @@ export function AdminSidebar() {
     <nav aria-label="Admin" className="flex flex-col gap-5">
       {ADMIN_NAV_GROUPS.map((group) => (
         <div key={group.label}>
-          <p className="eyebrow px-3 !text-[0.625rem] !text-dim/80">{group.label}</p>
+          <p className="eyebrow px-3 !text-3xs !text-dim/80">{group.label}</p>
           <div className="mt-1.5 flex flex-col gap-0.5">
             {group.items.map((item) => {
               const active = isAdminNavActive(pathname, item.href);

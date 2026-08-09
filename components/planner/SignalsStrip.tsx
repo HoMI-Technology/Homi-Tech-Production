@@ -30,7 +30,7 @@ export function SignalsStrip({
   if (signals.length === 0) {
     return (
       <section className="rounded-2xl border border-white/[0.06] bg-slate-surface/25 px-4 py-3.5 backdrop-blur-sm">
-        <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-dim">
+        <p className="text-2xs font-bold uppercase tracking-[0.14em] text-dim">
           Always-on signals
         </p>
         <p className="mt-1.5 text-sm text-dim">
@@ -43,7 +43,7 @@ export function SignalsStrip({
   return (
     <section>
       <div className="mb-2.5 flex items-center justify-between gap-2">
-        <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-dim">
+        <p className="text-2xs font-bold uppercase tracking-[0.14em] text-dim">
           Always-on signals
         </p>
         <p className="text-xs text-dim">
@@ -64,7 +64,7 @@ export function SignalsStrip({
                     aria-hidden
                   />
                   {s.meta ? (
-                    <p className="truncate text-[10px] font-semibold uppercase tracking-wide text-dim">
+                    <p className="truncate text-3xs font-semibold uppercase tracking-wide text-dim">
                       {s.meta}
                     </p>
                   ) : null}

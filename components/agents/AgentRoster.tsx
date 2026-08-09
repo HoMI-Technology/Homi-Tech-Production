@@ -51,7 +51,7 @@ export function AgentRoster() {
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-light">{a.name}</span>
                 {primary === a.id && (
-                  <span className="rounded bg-emerald/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-emerald">
+                  <span className="rounded bg-emerald/10 px-1.5 py-0.5 text-3xs font-bold uppercase text-emerald">
                     Primary
                   </span>
                 )}

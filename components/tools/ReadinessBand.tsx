@@ -28,7 +28,7 @@ export function ReadinessBand({ impact }: { impact: ReadinessImpact }) {
         <h2 className="text-sm font-semibold text-light">Readiness impact</h2>
         {impact.band && (
           <span
-            className="rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+            className="rounded-full border px-2.5 py-0.5 text-3xs font-semibold uppercase tracking-wide"
             style={{ borderColor: `${color}55`, color }}
           >
             {impact.band} shift {impact.direction === "down" ? "down" : "up"}

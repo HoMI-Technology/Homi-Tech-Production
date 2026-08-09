@@ -87,11 +87,11 @@ export default function AgendaList({
                 </span>
                 <span className="ml-auto flex items-center gap-2">
                   {d.billsTotal > 0 && (
-                    <span className="rounded-full bg-yellow/10 px-2 py-0.5 font-display text-[10px] tabular-nums text-yellow">
+                    <span className="rounded-full bg-yellow/10 px-2 py-0.5 font-display text-3xs tabular-nums text-yellow">
                       Bills {money2(d.billsTotal)}
                     </span>
                   )}
-                  <span className="text-[11px] text-dim">
+                  <span className="text-2xs text-dim">
                     {d.offsetDays === 0 ? 'Today' : `In ${d.offsetDays}d`}
                   </span>
                 </span>

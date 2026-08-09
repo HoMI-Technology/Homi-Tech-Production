@@ -99,14 +99,14 @@ export default function PlanHousing() {
         caption="CFM-backed monthly and 5-year view. Magnitude only — not a buy recommendation."
         right={
           <span
-            className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${chip.className}`}
+            className={`inline-flex items-center rounded-full border px-3 py-1 text-2xs font-semibold uppercase tracking-[0.12em] ${chip.className}`}
           >
             {chip.label}
           </span>
         }
       />
 
-      <p className="mt-3 font-serif text-[16px] italic leading-snug text-light/90">
+      <p className="mt-3 font-serif text-base italic leading-snug text-light/90">
         {lens.headline}
       </p>
 
@@ -149,7 +149,7 @@ export default function PlanHousing() {
         />
       </div>
 
-      <p className="mt-4 text-[13px] text-dim">
+      <p className="mt-4 text-sm text-dim">
         Rough cash/equity break-even ~{' '}
         <span className="font-display font-semibold text-light">
           {lens.breakEvenYears != null ? lens.breakEvenYears : '30+'} years
@@ -167,7 +167,7 @@ export default function PlanHousing() {
           {lens.notes.map((note) => (
             <li
               key={note}
-              className="flex items-start gap-2.5 rounded-xl border border-amber/20 bg-amber/[0.05] px-3.5 py-2.5 text-[12px] leading-relaxed text-light/90"
+              className="flex items-start gap-2.5 rounded-xl border border-amber/20 bg-amber/[0.05] px-3.5 py-2.5 text-xs leading-relaxed text-light/90"
             >
               <Scale size={13} className="mt-0.5 shrink-0 text-amber" />
               {note}

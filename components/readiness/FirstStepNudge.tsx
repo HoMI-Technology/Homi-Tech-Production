@@ -50,7 +50,7 @@ export function FirstStepNudge() {
       role="status"
       aria-label="First path step nudge"
     >
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-cyan">
+      <p className="text-3xs font-semibold uppercase tracking-widest text-cyan">
         First move
       </p>
       <p className="mt-1 font-display text-lg text-light">

@@ -66,6 +66,14 @@
    * as body text on navy (~3.8:1, fails AA).
    */
 
+  /* Operate micro-type steps — the canon 10/11px labels (.eyebrow,
+     .dash-rail-label, table headers) as utilities, so call sites write
+     text-3xs / text-2xs instead of arbitrary text-[10px] values. */
+  --text-3xs: 0.625rem;
+  --text-3xs--line-height: 0.875rem;
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+
   --font-sans: "Inter Omacron", var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: "Fraunces Omacron", var(--font-fraunces), Georgia, serif;
   --font-score: var(--font-jbm), ui-monospace, monospace;

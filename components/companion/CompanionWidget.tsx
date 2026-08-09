@@ -464,7 +464,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
                     >
                       <HomiForm preset={p} size={28} />
                       <span className="text-sm font-semibold text-light">{p.name}</span>
-                      <span className="text-[11px] leading-snug text-dim">{p.role}</span>
+                      <span className="text-2xs leading-snug text-dim">{p.role}</span>
                     </button>
                   ))}
                 </div>
@@ -540,7 +540,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
               </svg>
             </button>
           </div>
-          <p className="px-3 pb-2 text-center text-[10px] leading-snug text-dim/70">
+          <p className="px-3 pb-2 text-center text-3xs leading-snug text-dim/70">
             Educational guidance only — not financial advice.
           </p>
         </div>

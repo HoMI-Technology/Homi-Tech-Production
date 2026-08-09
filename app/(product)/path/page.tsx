@@ -581,7 +581,7 @@ export default function PathPage() {
 
       {coach && (
         <div className="glass mt-6 border border-cyan/20 p-5">
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-cyan">
+          <p className="text-3xs font-semibold uppercase tracking-widest text-cyan">
             Companion board meeting
           </p>
           <p className="mt-2 text-sm leading-relaxed text-light">

@@ -186,7 +186,7 @@ export default function ResultsPage() {
           <ThresholdCompass size={220} verdict={result.verdict} />
         </div>
         <div className="flex flex-col items-center md:items-start">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-dim">
+          <p className="text-3xs font-semibold uppercase tracking-[0.25em] text-dim">
             Decision readiness
           </p>
           <CountUpScore value={result.score} />

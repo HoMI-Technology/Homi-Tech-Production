@@ -139,12 +139,12 @@ export default function PlanHousehold() {
 
       <div className="mt-5 flex items-center justify-between rounded-xl border border-line bg-navy/30 px-3.5 py-3">
         <div>
-          <p className="text-[13px] font-semibold text-light">
+          <p className="text-sm font-semibold text-light">
             {partner.enabled
               ? "Partner scoring is on"
               : "Fly solo or score together?"}
           </p>
-          <p className="mt-0.5 text-[12px] text-dim">
+          <p className="mt-0.5 text-xs text-dim">
             Align with your partner on one number — a shared max housing payment
             or runway target beats a full budget debate.
           </p>
@@ -200,7 +200,7 @@ export default function PlanHousehold() {
           {dual && (
             <div className="mt-4 flex flex-wrap items-center gap-2.5">
               <VerdictChip verdict={dual.memberA.verdict} />
-              <span className="text-[11px] uppercase tracking-[0.12em] text-dim">
+              <span className="text-2xs uppercase tracking-[0.12em] text-dim">
                 joint
               </span>
               <VerdictChip verdict={dual.jointVerdict} />
@@ -212,7 +212,7 @@ export default function PlanHousehold() {
               {dual.jointHardStops.map((hs) => (
                 <li
                   key={hs.code}
-                  className="rounded-xl border border-crimson/25 bg-crimson/10 px-3.5 py-2.5 text-[12px] leading-relaxed text-light/90"
+                  className="rounded-xl border border-crimson/25 bg-crimson/10 px-3.5 py-2.5 text-xs leading-relaxed text-light/90"
                 >
                   {hs.message}
                 </li>
@@ -221,7 +221,7 @@ export default function PlanHousehold() {
           )}
 
           {dual && (
-            <p className="mt-4 font-display text-[15px] italic leading-snug text-light/90">
+            <p className="mt-4 font-display text-sm italic leading-snug text-light/90">
               {dual.summary}
             </p>
           )}
@@ -232,7 +232,7 @@ export default function PlanHousehold() {
               <input
                 value={partner.label}
                 onChange={(e) => setHouseholdPartner({ label: e.target.value })}
-                className="rounded-xl border border-line bg-navy/40 px-3 py-2 text-[13px] text-light outline-none focus:border-cyan/40"
+                className="rounded-xl border border-line bg-navy/40 px-3 py-2 text-sm text-light outline-none focus:border-cyan/40"
               />
             </label>
             <NumberField

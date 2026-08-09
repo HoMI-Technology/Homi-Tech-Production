@@ -314,7 +314,7 @@ export default async function DashboardPage() {
                     </div>
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-[0.625rem] font-bold uppercase tracking-[0.16em] text-dim">
+                        <p className="text-3xs font-bold uppercase tracking-[0.16em] text-dim">
                           HōMI-Score
                         </p>
                         {scoreDelta && (
@@ -348,7 +348,7 @@ export default async function DashboardPage() {
                             }}
                           />
                         </div>
-                        <div className="relative mt-2 h-4 text-[0.6rem] font-medium uppercase tracking-wide text-dim">
+                        <div className="relative mt-2 h-4 text-3xs font-medium uppercase tracking-wide text-dim">
                           <span className="absolute -translate-x-1/2" style={{ left: "12%" }}>
                             Not yet
                           </span>
@@ -548,7 +548,7 @@ export default async function DashboardPage() {
                                 <p className="mt-0.5 text-xs text-dim">{pillar.question}</p>
                               </div>
                               {isFocus && (
-                                <span className="chip !border-cyan/40 !bg-cyan/10 !text-[0.625rem] !text-cyan">
+                                <span className="chip !border-cyan/40 !bg-cyan/10 !text-3xs !text-cyan">
                                   Focus
                                 </span>
                               )}
@@ -566,7 +566,7 @@ export default async function DashboardPage() {
                             </div>
                             {isFocus && nextMove && (
                               <div className="mt-4 border-t border-white/10 pt-3">
-                                <p className="text-[0.625rem] font-bold uppercase tracking-[0.12em] text-cyan">
+                                <p className="text-3xs font-bold uppercase tracking-[0.12em] text-cyan">
                                   Why this pillar
                                 </p>
                                 <p className="mt-1.5 text-sm leading-relaxed text-dim">{nextMove.body}</p>

@@ -53,7 +53,7 @@ export function CalcField({
         <label className="text-sm text-light">{label}</label>
         <span className="flex items-center gap-2">
           {source === "yours" && (
-            <span className="rounded-full border border-cyan/40 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-cyan">
+            <span className="rounded-full border border-cyan/40 px-2 py-0.5 text-3xs font-medium uppercase tracking-wide text-cyan">
               your numbers
             </span>
           )}

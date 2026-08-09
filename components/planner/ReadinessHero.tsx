@@ -156,11 +156,11 @@ export function ReadinessHero({
       <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-10">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-[0.6875rem] font-bold uppercase tracking-[0.16em] text-cyan">
+            <p className="text-2xs font-bold uppercase tracking-[0.16em] text-cyan">
               HōMI-Score
             </p>
             {completeness.canShowLiveScore && score ? (
-              <span className="rounded-full border border-white/10 bg-navy/50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-dim">
+              <span className="rounded-full border border-white/10 bg-navy/50 px-2 py-0.5 text-3xs font-medium uppercase tracking-wide text-dim">
                 Live instrument
               </span>
             ) : null}
@@ -299,7 +299,7 @@ export function ReadinessHero({
               key={tile.label}
               className="rounded-xl border border-white/[0.06] bg-navy/55 px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-colors hover:border-cyan/20"
             >
-              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-dim">
+              <p className="text-3xs font-semibold uppercase tracking-[0.12em] text-dim">
                 {tile.label}
               </p>
               <p
@@ -311,7 +311,7 @@ export function ReadinessHero({
           ))}
         </div>
       </div>
-      <p className="relative mt-6 border-t border-white/[0.06] pt-4 text-[11px] leading-relaxed text-dim">
+      <p className="relative mt-6 border-t border-white/[0.06] pt-4 text-2xs leading-relaxed text-dim">
         Educational guidance only - not financial, legal, tax, or investment
         advice. Live score is a planner instrument from your inputs; your
         official assessment record lives on Results.

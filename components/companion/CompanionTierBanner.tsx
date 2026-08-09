@@ -86,7 +86,7 @@ export function CompanionTierBanner({ compact = false }: { compact?: boolean }) 
       data-companion-tier={copy.kind}
       className={
         compact
-          ? "flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-slate-surface/60 px-3 py-1.5 text-[11px] leading-snug"
+          ? "flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-slate-surface/60 px-3 py-1.5 text-2xs leading-snug"
           : "flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-slate-surface/60 px-4 py-2 text-xs leading-snug sm:px-5"
       }
     >

@@ -109,7 +109,7 @@ export default function DecisionsPage() {
                       {s.label}
                     </p>
                     {isBest && (
-                      <span className="rounded-full bg-slate-surface px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald">
+                      <span className="rounded-full bg-slate-surface px-2 py-0.5 text-3xs font-semibold uppercase tracking-wide text-emerald">
                         Best on paper
                       </span>
                     )}

@@ -153,7 +153,7 @@ function StatTile({
       <p className={`mt-1 font-display text-lg font-semibold tnum ${toneCls}`}>
         {value}
       </p>
-      {caption && <p className="mt-0.5 text-[11px] text-dim">{caption}</p>}
+      {caption && <p className="mt-0.5 text-2xs text-dim">{caption}</p>}
     </div>
   )
 }
@@ -403,12 +403,12 @@ function BillCard({
               {bill.name}
             </p>
             <span
-              className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold tracking-wide ${CHIP_TONE[bill.status]}`}
+              className={`rounded-full border px-2 py-0.5 text-3xs font-semibold tracking-wide ${CHIP_TONE[bill.status]}`}
             >
               {BILL_STATUS_CHIP[bill.status]}
             </span>
             {bill.autopay && !paid && (
-              <span className="rounded-full border border-cyan/30 bg-cyan/10 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-cyan">
+              <span className="rounded-full border border-cyan/30 bg-cyan/10 px-2 py-0.5 text-3xs font-semibold tracking-wide text-cyan">
                 AUTOPAY
               </span>
             )}
@@ -600,7 +600,7 @@ function ConnectBankForm({
           />
         </Field>
       </div>
-      <p className="mt-3 text-[11px] leading-relaxed text-dim">
+      <p className="mt-3 text-2xs leading-relaxed text-dim">
         Demo open-banking — production swaps in Plaid / MX credentials.
       </p>
       <div className="mt-4 flex justify-end gap-2">
@@ -647,7 +647,7 @@ function AccountRow({
         <p className="font-display text-sm font-semibold tnum text-light">
           {formatCurrency(account.balance, { decimals: 2 })}
         </p>
-        <p className="mt-0.5 text-[11px] text-dim">
+        <p className="mt-0.5 text-2xs text-dim">
           {formatCurrency(account.available, { decimals: 2 })} avail.
         </p>
       </div>
@@ -767,11 +767,11 @@ export function BankingCommand() {
                 }`}
               />
             </div>
-            <p className="mt-3 text-[11px] leading-relaxed text-dim">
+            <p className="mt-3 text-2xs leading-relaxed text-dim">
               Balances you enter drive bill pay. Open banking can replace entry
               when connected.
             </p>
-            <p className="mt-1 text-[11px] leading-relaxed text-dim">
+            <p className="mt-1 text-2xs leading-relaxed text-dim">
               Demo open-banking — production swaps in Plaid / MX credentials.
             </p>
           </div>

@@ -19,7 +19,7 @@ export function NudgeRail({
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-dim">
+        <p className="text-2xs font-bold uppercase tracking-[0.14em] text-dim">
           Suggested move
         </p>
         <p className="text-xs text-dim">Protective nudges · not pressure</p>
@@ -30,7 +30,7 @@ export function NudgeRail({
           aria-hidden
         />
         {primary.chip ? (
-          <p className="relative text-[10px] font-bold uppercase tracking-[0.14em] text-cyan">
+          <p className="relative text-3xs font-bold uppercase tracking-[0.14em] text-cyan">
             {primary.chip}
           </p>
         ) : null}
@@ -56,7 +56,7 @@ export function NudgeRail({
               className="rounded-2xl border border-white/[0.07] bg-slate-surface/30 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
             >
               {n.chip ? (
-                <p className="text-[10px] font-bold uppercase tracking-wide text-dim">
+                <p className="text-3xs font-bold uppercase tracking-wide text-dim">
                   {n.chip}
                 </p>
               ) : null}

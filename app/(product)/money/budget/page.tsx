@@ -25,7 +25,7 @@ export default function MoneyBudgetPage() {
   return (
     <>
       <PageFrame width="content" density="compact" role="personal">
-        <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-dim">
+        <p className="text-2xs font-bold uppercase tracking-[0.14em] text-dim">
           Operate · reality · track
         </p>
         <h1 className="mt-1 font-display text-2xl tracking-tight text-light md:text-3xl">

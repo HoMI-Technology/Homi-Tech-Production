@@ -37,7 +37,7 @@ function BrokerRow({
       className="flex items-center gap-3 rounded-2xl border border-white/[0.06] bg-navyLight/50 p-3.5"
     >
       <span
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-display text-[10px] font-bold text-navy"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-display text-3xs font-bold text-navy"
         style={{ backgroundColor: meta.color }}
       >
         {meta.short}
@@ -171,21 +171,21 @@ export function BrokerPanel() {
                 className="flex items-center gap-2.5 rounded-xl border border-white/[0.08] px-3 py-2.5 text-left text-sm text-light transition-colors hover:border-cyan/40 hover:bg-cyan/[0.06] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <span
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg font-display text-[9px] font-bold text-navy"
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg font-display text-3xs font-bold text-navy"
                   style={{ backgroundColor: b.color }}
                 >
                   {b.short}
                 </span>
                 {b.label}
                 {linkedIds.has(b.id) && (
-                  <span className="ml-auto text-[10px] uppercase tracking-wide text-dim">
+                  <span className="ml-auto text-3xs uppercase tracking-wide text-dim">
                     linked
                   </span>
                 )}
               </button>
             ))}
           </div>
-          <p className="mt-3 text-[11px] leading-relaxed text-dim">
+          <p className="mt-3 text-2xs leading-relaxed text-dim">
             Demo brokerage — production swaps in SnapTrade / Plaid Investments.
           </p>
         </div>

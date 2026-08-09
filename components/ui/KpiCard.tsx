@@ -93,7 +93,7 @@ export function KpiCard({
       {caption && <p className="mt-1 text-xs text-dim">{caption}</p>}
       {delta && (
         <span
-          className={`mt-2 inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+          className={`mt-2 inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-semibold ${
             delta.positive
               ? "bg-emerald/10 text-emerald"
               : "bg-crimson/10 text-crimson"

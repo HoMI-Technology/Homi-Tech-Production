@@ -35,7 +35,7 @@ export function ImpactToast({
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="text-[10px] uppercase tracking-wider text-cyan">
+          <p className="text-3xs uppercase tracking-wider text-cyan">
             Closed loop · {impact.actionKind ?? "update"}
           </p>
           <p className="mt-1 text-sm font-medium text-light">

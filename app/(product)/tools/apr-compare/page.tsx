@@ -129,7 +129,7 @@ function AprComparePageInner() {
               <div key={i} className={`glass p-5 ${i === best ? "panel-focus" : ""}`}>
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold text-light">{r.label}</p>
-                  {i === best && <span className="chip !text-[0.6875rem] !text-emerald">Lowest APR</span>}
+                  {i === best && <span className="chip !text-2xs !text-emerald">Lowest APR</span>}
                 </div>
                 <p className="eyebrow mt-3">True APR</p>
                 <p className="score-numeral text-2xl font-bold text-cyan">{formatPercent(r.apr, 3)}</p>

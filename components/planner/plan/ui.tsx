@@ -18,7 +18,7 @@ export function VerdictChip({ verdict }: { verdict: VerdictKey }) {
   const c = verdictClasses(verdict)
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${c.border} ${c.bg} ${c.text}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-2xs font-semibold uppercase tracking-[0.12em] ${c.border} ${c.bg} ${c.text}`}
     >
       ✦ {VERDICT_META[verdict].label}
     </span>
@@ -41,11 +41,11 @@ export function PlanSectionHeader({
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div>
         <p className="text-label text-cyan">{eyebrow}</p>
-        <h3 className="mt-1.5 font-serif text-[22px] italic leading-tight text-light">
+        <h3 className="mt-1.5 font-serif text-xl italic leading-tight text-light">
           {title}
         </h3>
         {caption && (
-          <p className="mt-1.5 max-w-xl text-[13px] leading-relaxed text-dim">
+          <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-dim">
             {caption}
           </p>
         )}
@@ -81,11 +81,11 @@ export function PlanTile({
     <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-3.5 py-3">
       <p className="text-label">{label}</p>
       <p
-        className={`mt-1.5 font-display text-[17px] font-semibold tracking-[-0.01em] tnum ${toneClass}`}
+        className={`mt-1.5 font-display text-lg font-semibold tracking-[-0.01em] tnum ${toneClass}`}
       >
         {value}
       </p>
-      {hint && <p className="mt-1 text-[11px] leading-snug text-dim">{hint}</p>}
+      {hint && <p className="mt-1 text-2xs leading-snug text-dim">{hint}</p>}
     </div>
   )
 }
@@ -96,7 +96,7 @@ export function PlanFooter({ lines = [] }: { lines?: string[] }) {
   return (
     <div className="mt-6 border-t border-white/[0.06] pt-3">
       {lines.map((line) => (
-        <p key={line} className="mt-0.5 text-[11px] leading-relaxed text-dim/70">
+        <p key={line} className="mt-0.5 text-2xs leading-relaxed text-dim/70">
           {line}
         </p>
       ))}

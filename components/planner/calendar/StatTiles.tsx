@@ -74,7 +74,7 @@ export default function StatTiles({
         >
           <div className="flex items-center gap-1.5 text-dim">
             <t.icon className="h-3.5 w-3.5" />
-            <span className="text-[10px] font-medium uppercase tracking-[0.18em]">
+            <span className="text-3xs font-medium uppercase tracking-[0.18em]">
               {t.label}
             </span>
           </div>
@@ -86,7 +86,7 @@ export default function StatTiles({
           >
             {t.value}
           </p>
-          <p className="mt-0.5 text-[11px] text-dim">{t.sub}</p>
+          <p className="mt-0.5 text-2xs text-dim">{t.sub}</p>
           {t.label === 'Bills open' && (
             <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/[0.06]">
               <div

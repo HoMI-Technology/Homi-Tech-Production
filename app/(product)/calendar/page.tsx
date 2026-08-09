@@ -531,7 +531,7 @@ export default function CalendarPage() {
                               {ev.title}
                             </p>
                             {isPathCalendarEvent(ev.notes) && (
-                              <span className="rounded-full bg-cyan/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-cyan">
+                              <span className="rounded-full bg-cyan/15 px-1.5 py-0.5 text-3xs font-medium uppercase tracking-wide text-cyan">
                                 Path
                               </span>
                             )}

@@ -14,9 +14,9 @@ export const SUBCARD =
   'rounded-xl border border-white/[0.06] bg-white/[0.02]'
 
 export const EYEBROW =
-  'text-[10px] font-medium uppercase tracking-[0.22em] text-cyan'
+  'text-3xs font-medium uppercase tracking-[0.22em] text-cyan'
 export const EYEBROW_DIM =
-  'text-[10px] font-medium uppercase tracking-[0.22em] text-dim'
+  'text-3xs font-medium uppercase tracking-[0.22em] text-dim'
 
 export function SectionCard({
   eyebrow,
@@ -37,7 +37,7 @@ export function SectionCard({
         {icon}
         <span className={EYEBROW_DIM}>{eyebrow}</span>
         {count != null && (
-          <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.04] px-1.5 font-display text-[10px] tabular-nums text-dim">
+          <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.04] px-1.5 font-display text-3xs tabular-nums text-dim">
             {count}
           </span>
         )}
@@ -61,7 +61,7 @@ export function BillStateChip({ state }: { state: BillVisualState }) {
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em]',
+        'inline-flex items-center rounded-full border px-2 py-0.5 text-3xs font-semibold uppercase tracking-[0.14em]',
         STATE_CHIP_CLASS[state],
       )}
     >
@@ -97,7 +97,7 @@ export const INPUT_CLASS =
 export const SELECT_CLASS =
   'w-full appearance-none rounded-lg border border-white/[0.08] bg-slate px-3 py-2 text-sm text-light outline-none transition-colors focus:border-cyan/50'
 
-export const FIELD_LABEL = 'mb-1 block text-[10px] font-medium uppercase tracking-[0.18em] text-dim'
+export const FIELD_LABEL = 'mb-1 block text-3xs font-medium uppercase tracking-[0.18em] text-dim'
 
 /* Expense categories for the add-bill / log-spend selects. */
 export const EXPENSE_CATEGORIES: ExpenseCategory[] = [

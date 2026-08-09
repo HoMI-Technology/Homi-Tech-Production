@@ -159,7 +159,7 @@ export default function PlanModels() {
             <button
               type="button"
               onClick={() => setSeed(Math.floor(Math.random() * 1_000_000))}
-              className="flex items-center gap-1.5 rounded-xl border border-cyan/30 px-3 py-1.5 text-[12px] font-semibold text-cyan transition-colors hover:bg-cyan/[0.08]"
+              className="flex items-center gap-1.5 rounded-xl border border-cyan/30 px-3 py-1.5 text-xs font-semibold text-cyan transition-colors hover:bg-cyan/[0.08]"
             >
               <Dices size={13} />
               Re-roll seed
@@ -262,7 +262,7 @@ export default function PlanModels() {
           ))}
         </div>
 
-        <p className="mt-4 text-[13px] text-dim">
+        <p className="mt-4 text-sm text-dim">
           Best at month 60:{' '}
           <span className="font-semibold text-light">{studio.bestLabel}</span>
           {' · '}spread{' '}
@@ -301,7 +301,7 @@ export default function PlanModels() {
           </ResponsiveContainer>
         </div>
 
-        <p className="mt-4 rounded-xl border border-cyan/20 bg-cyan/[0.05] px-3.5 py-2.5 text-[12px] leading-relaxed text-light/90">
+        <p className="mt-4 rounded-xl border border-cyan/20 bg-cyan/[0.05] px-3.5 py-2.5 text-xs leading-relaxed text-light/90">
           {studio.readinessNote}
         </p>
 

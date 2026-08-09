@@ -89,7 +89,7 @@ export function QuickActionGrid({
             >
               <div className="flex items-center justify-between">
                 <ActionIcon icon={action.icon} />
-                <span className="chip !text-[0.6875rem]">Now</span>
+                <span className="chip !text-2xs">Now</span>
               </div>
               <div>
                 <span className="font-semibold text-light">{action.label}</span>

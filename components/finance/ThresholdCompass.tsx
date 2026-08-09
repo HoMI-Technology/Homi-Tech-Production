@@ -204,7 +204,7 @@ export function ThresholdCompass({ result }: { result: AssessmentResult }) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.2 }}
-          className="mt-3 flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em]"
+          className="mt-3 flex items-center gap-1.5 rounded-full px-3 py-1 text-2xs font-semibold uppercase tracking-[0.12em]"
           style={{ backgroundColor: withAlpha(color, 0.1), color }}
         >
           <PulseDot color={color} size={5} />
@@ -219,7 +219,7 @@ export function ThresholdCompass({ result }: { result: AssessmentResult }) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="mt-2 text-center font-display text-[17px] italic text-dim"
+          className="mt-2 text-center font-display text-lg italic text-dim"
         >
           {meta.line}
         </motion.p>

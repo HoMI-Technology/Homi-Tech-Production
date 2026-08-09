@@ -41,7 +41,7 @@ export function FunnelSeries({ steps }: { steps: FunnelSeriesStep[] }) {
               <span className="flex min-w-0 items-center gap-2">
                 <span className="score-numeral shrink-0 text-xs text-dim">{String(i + 1).padStart(2, "0")}</span>
                 <span className="truncate font-semibold text-light">{step.label}</span>
-                <span className="hidden truncate font-mono text-[11px] text-dim/70 sm:inline">{step.event}</span>
+                <span className="hidden truncate font-mono text-2xs text-dim/70 sm:inline">{step.event}</span>
               </span>
               <span className="score-numeral shrink-0 text-dim">
                 {step.users.toLocaleString()}
@@ -59,7 +59,7 @@ export function FunnelSeries({ steps }: { steps: FunnelSeriesStep[] }) {
               />
             </div>
             {conversion !== null && (
-              <p className="mt-1 text-right text-[11px] text-dim">
+              <p className="mt-1 text-right text-2xs text-dim">
                 {conversion}% from previous step
               </p>
             )}

@@ -196,13 +196,13 @@ export function PlannerPage({
 
       <header className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
-          <p className="text-[0.6875rem] font-bold uppercase tracking-[0.16em] text-cyan">
+          <p className="text-2xs font-bold uppercase tracking-[0.16em] text-cyan">
             Decision Readiness Intelligence
           </p>
-          <h1 className="mt-1.5 font-display text-[1.85rem] leading-[1.15] tracking-tight text-light sm:text-4xl">
+          <h1 className="mt-1.5 type-h2 font-medium tracking-tight">
             Budget Planner
           </h1>
-          <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-dim sm:text-[0.95rem]">
+          <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-dim sm:text-base">
             Cash flow, banks, portfolio, Path to Ready, and decision models.
             HōMI numbers that protect choices - not a sales funnel.
           </p>

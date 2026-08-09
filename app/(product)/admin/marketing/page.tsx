@@ -220,7 +220,7 @@ export default async function AdminMarketingPage() {
           <div className="mt-3 flex flex-wrap justify-end gap-6">
             {waitlistSeries.length >= 2 && (
               <div className="w-36">
-                <p className="mb-1 text-[0.625rem] uppercase tracking-wide text-dim">Waitlist</p>
+                <p className="mb-1 text-3xs uppercase tracking-wide text-dim">Waitlist</p>
                 <Sparkline
                   id="mk-waitlist"
                   values={waitlistSeries.map((d) => d.count)}
@@ -230,7 +230,7 @@ export default async function AdminMarketingPage() {
             )}
             {signupSeries.length >= 2 && (
               <div className="w-36">
-                <p className="mb-1 text-[0.625rem] uppercase tracking-wide text-dim">Signups</p>
+                <p className="mb-1 text-3xs uppercase tracking-wide text-dim">Signups</p>
                 <Sparkline
                   id="mk-signups"
                   values={signupSeries.map((d) => d.count)}

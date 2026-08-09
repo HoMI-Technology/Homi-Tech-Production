@@ -133,7 +133,7 @@ export default function DecisionCalendar() {
             <CalendarDays className="h-5 w-5 text-cyan" />
           </span>
           <div>
-            <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-cyan">
+            <p className="text-3xs font-medium uppercase tracking-[0.24em] text-cyan">
               Cash-flow instrument
             </p>
             <h2 className="mt-0.5 font-serif text-2xl italic text-light sm:text-3xl">

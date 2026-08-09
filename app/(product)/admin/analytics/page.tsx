@@ -282,13 +282,13 @@ export default async function AdminAnalyticsPage({
               <div className="mt-3 flex flex-wrap justify-end gap-6">
                 {uniquesDaily.length >= 2 && (
                   <div className="w-36">
-                    <p className="mb-1 text-[0.625rem] uppercase tracking-wide text-dim">Uniques</p>
+                    <p className="mb-1 text-3xs uppercase tracking-wide text-dim">Uniques</p>
                     <Sparkline id="admin-analytics-uniques" values={uniquesDaily} color={COLORS.emerald} />
                   </div>
                 )}
                 {filledDaily.length >= 2 && (
                   <div className="w-36">
-                    <p className="mb-1 text-[0.625rem] uppercase tracking-wide text-dim">Views</p>
+                    <p className="mb-1 text-3xs uppercase tracking-wide text-dim">Views</p>
                     <Sparkline
                       id="admin-analytics-views"
                       values={filledDaily.map((d) => d.count)}

@@ -190,7 +190,7 @@ export default function ScenariosPage() {
                       {s.label}
                     </p>
                     {isBest && (
-                      <span className="text-[10px] font-semibold uppercase tracking-wide text-emerald">
+                      <span className="text-3xs font-semibold uppercase tracking-wide text-emerald">
                         Best net @ 5y
                       </span>
                     )}

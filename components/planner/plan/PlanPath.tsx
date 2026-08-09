@@ -83,24 +83,24 @@ export default function PlanPath() {
       />
 
       <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2">
-        <p className="font-display text-[13px] text-dim">
+        <p className="font-display text-sm text-dim">
           Score at generation{' '}
           <span className="font-semibold text-light">{path.score}</span>
           <span className="text-dim/70"> of 100</span>
         </p>
-        <p className="text-[13px] text-dim">
+        <p className="text-sm text-dim">
           Binding:{' '}
           <span className="font-semibold text-light">
             {bindingConstraintLabel(path.bindingConstraint)}
           </span>
         </p>
-        <p className="font-display text-[13px] text-dim">
+        <p className="font-display text-sm text-dim">
           {pct}% resolved
         </p>
       </div>
 
       {path.mode === 'ready_optional' && (
-        <p className="mt-3 rounded-xl border border-emerald/25 bg-emerald/[0.08] px-3.5 py-2.5 text-[13px] text-emerald">
+        <p className="mt-3 rounded-xl border border-emerald/25 bg-emerald/[0.08] px-3.5 py-2.5 text-sm text-emerald">
           Path: READY band — optional maintenance only
         </p>
       )}
@@ -121,10 +121,10 @@ export default function PlanPath() {
           animate={{ opacity: 1, y: 0 }}
           className="mt-4 rounded-xl border border-emerald/25 bg-emerald/[0.08] px-4 py-3"
         >
-          <p className="font-serif text-[16px] italic text-emerald">
+          <p className="font-serif text-base italic text-emerald">
             Path steps complete — reassess when life moves
           </p>
-          <p className="mt-1 text-[12px] leading-relaxed text-dim">
+          <p className="mt-1 text-xs leading-relaxed text-dim">
             Protective homework on this path is clear. Reassess when life
             inputs change — not yet is not no.
           </p>
@@ -163,10 +163,10 @@ export default function PlanPath() {
                     <Icon size={13} />
                   </span>
                   <div className="min-w-0">
-                    <p className="text-[14px] font-semibold leading-snug text-light">
+                    <p className="text-sm font-semibold leading-snug text-light">
                       {step.title}
                     </p>
-                    <p className="mt-1 font-display text-[11px] uppercase tracking-[0.08em] text-dim">
+                    <p className="mt-1 font-display text-2xs uppercase tracking-[0.08em] text-dim">
                       {step.kind} · due {addDaysISO(createdDate, step.daysFromNow)}
                       {step.completedAt &&
                         ` · ${step.status} ${step.completedAt.slice(0, 10)}`}
@@ -174,7 +174,7 @@ export default function PlanPath() {
                   </div>
                 </div>
                 <span
-                  className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] ${
+                  className={`shrink-0 rounded-full px-2.5 py-0.5 text-3xs font-semibold uppercase tracking-[0.12em] ${
                     pending
                       ? 'bg-white/[0.06] text-dim'
                       : step.status === 'done'
@@ -198,12 +198,12 @@ export default function PlanPath() {
                 </span>
               </div>
 
-              <p className="mt-2.5 text-[12px] leading-relaxed text-dim">
+              <p className="mt-2.5 text-xs leading-relaxed text-dim">
                 {step.notes}
               </p>
 
               {step.fundingTarget != null && (
-                <p className="mt-2 text-[12px] text-dim">
+                <p className="mt-2 text-xs text-dim">
                   {step.fundingLabel ?? 'Funding target'}:{' '}
                   <span className="font-display font-semibold text-cyan">
                     ${step.fundingTarget.toLocaleString('en-US')}
@@ -216,7 +216,7 @@ export default function PlanPath() {
                   <button
                     type="button"
                     onClick={() => completePathStepWithImpact(step.id, 'done')}
-                    className="rounded-lg bg-cyan px-3 py-1.5 text-[12px] font-semibold text-navy transition-colors hover:bg-cyan/90"
+                    className="rounded-lg bg-cyan px-3 py-1.5 text-xs font-semibold text-navy transition-colors hover:bg-cyan/90"
                   >
                     Mark done
                   </button>
@@ -225,7 +225,7 @@ export default function PlanPath() {
                     onClick={() =>
                       completePathStepWithImpact(step.id, 'skipped')
                     }
-                    className="rounded-lg border border-white/[0.08] px-3 py-1.5 text-[12px] font-semibold text-dim transition-colors hover:text-light"
+                    className="rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs font-semibold text-dim transition-colors hover:text-light"
                   >
                     Skip honestly
                   </button>
@@ -240,7 +240,7 @@ export default function PlanPath() {
         <button
           type="button"
           onClick={regeneratePath}
-          className="flex items-center gap-2 rounded-xl bg-cyan px-4 py-2 text-[13px] font-semibold text-navy shadow-glow-cyan transition-colors hover:bg-cyan/90"
+          className="flex items-center gap-2 rounded-xl bg-cyan px-4 py-2 text-sm font-semibold text-navy shadow-glow-cyan transition-colors hover:bg-cyan/90"
         >
           <RotateCcw size={14} />
           Rebuild my path
@@ -248,12 +248,12 @@ export default function PlanPath() {
         <button
           type="button"
           onClick={clearPath}
-          className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] px-3.5 py-2 text-[12px] font-semibold text-dim transition-colors hover:text-light"
+          className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] px-3.5 py-2 text-xs font-semibold text-dim transition-colors hover:text-light"
         >
           <Trash2 size={13} />
           Clear path
         </button>
-        <p className="w-full text-[11px] leading-relaxed text-dim/80 sm:w-auto sm:flex-1">
+        <p className="w-full text-2xs leading-relaxed text-dim/80 sm:w-auto sm:flex-1">
           Fresh numbers, fresh sequence — rebuilding never counts against you.
         </p>
       </div>

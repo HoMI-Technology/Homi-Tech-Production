@@ -125,7 +125,7 @@ function LoanProgramsPageInner() {
                 <span aria-hidden className="absolute inset-x-0 top-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${color}88, transparent)` }} />
                 <div className="flex items-center justify-between">
                   <h2 className="font-semibold text-light">{r.label}</h2>
-                  {isCheapest && <span className="chip !text-[0.6875rem]">Lowest monthly</span>}
+                  {isCheapest && <span className="chip !text-2xs">Lowest monthly</span>}
                 </div>
                 <p className="eyebrow mt-4">Monthly total</p>
                 <p className="score-numeral text-2xl font-bold" style={{ color }}>{formatCurrency(r.monthlyTotal)}</p>

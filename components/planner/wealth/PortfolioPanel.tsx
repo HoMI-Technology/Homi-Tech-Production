@@ -246,10 +246,10 @@ function HoldingRow({
           <span className="font-display text-sm font-semibold text-cyan">
             {holding.symbol}
           </span>
-          <span className="rounded-full border border-white/[0.1] bg-white/[0.06] px-2 py-0.5 text-[10px] font-semibold tracking-wide text-dim">
+          <span className="rounded-full border border-white/[0.1] bg-white/[0.06] px-2 py-0.5 text-3xs font-semibold tracking-wide text-dim">
             {ASSET_CLASS_CHIP[holding.assetClass]}
           </span>
-          <span className="rounded-full border border-cyan/20 bg-cyan/[0.06] px-2 py-0.5 text-[10px] font-semibold tracking-wide text-cyan/80">
+          <span className="rounded-full border border-cyan/20 bg-cyan/[0.06] px-2 py-0.5 text-3xs font-semibold tracking-wide text-cyan/80">
             {ACCOUNT_KIND_LABEL[holding.accountKind]}
           </span>
         </div>

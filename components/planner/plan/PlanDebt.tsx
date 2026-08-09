@@ -178,7 +178,7 @@ export default function PlanDebt() {
               <p className="text-label">AVALANCHE ORDER</p>
               <ol className="mt-2 flex flex-col gap-1">
                 {avalancheOrder.map((d, i) => (
-                  <li key={d.id} className="text-[12px] text-dim">
+                  <li key={d.id} className="text-xs text-dim">
                     <span className="font-display text-light">{i + 1}.</span> {d.name}{' '}
                     <span className="font-display text-emerald">{d.apr}%</span>
                   </li>
@@ -189,7 +189,7 @@ export default function PlanDebt() {
               <p className="text-label">SNOWBALL ORDER</p>
               <ol className="mt-2 flex flex-col gap-1">
                 {snowballOrder.map((d, i) => (
-                  <li key={d.id} className="text-[12px] text-dim">
+                  <li key={d.id} className="text-xs text-dim">
                     <span className="font-display text-light">{i + 1}.</span> {d.name}{' '}
                     <span className="font-display text-cyan">
                       {formatCurrency(d.balance)}
@@ -217,7 +217,7 @@ export default function PlanDebt() {
               <button
                 type="button"
                 onClick={addDebt}
-                className="flex items-center gap-1.5 rounded-lg border border-cyan/30 px-2.5 py-1 text-[11px] font-semibold text-cyan transition-colors hover:bg-cyan/[0.08]"
+                className="flex items-center gap-1.5 rounded-lg border border-cyan/30 px-2.5 py-1 text-2xs font-semibold text-cyan transition-colors hover:bg-cyan/[0.08]"
               >
                 <Plus size={12} /> Add debt
               </button>
@@ -233,7 +233,7 @@ export default function PlanDebt() {
                     <input
                       value={d.name}
                       onChange={(e) => updateDebt(d.id, { name: e.target.value })}
-                      className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1.5 text-[13px] text-light outline-none focus:border-cyan/40"
+                      className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1.5 text-sm text-light outline-none focus:border-cyan/40"
                     />
                   </label>
                   <NumberField

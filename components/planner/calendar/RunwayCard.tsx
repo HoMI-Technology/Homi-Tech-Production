@@ -57,7 +57,7 @@ export function FilterChips({
             )}
           >
             <span>{f.label}</span>
-            <span className="font-display text-[10px] tabular-nums">{counts[f.key]}</span>
+            <span className="font-display text-3xs tabular-nums">{counts[f.key]}</span>
           </button>
         )
       })}
@@ -137,7 +137,7 @@ export default function RunwayCard({
         </ResponsiveContainer>
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-dim">
+      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-2xs text-dim">
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-0.5 w-4 rounded bg-cyan" />
           Projected cash

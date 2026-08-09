@@ -158,14 +158,14 @@ export default function PlanConsolidate() {
             />
             <div>
               <p className="text-label">BEST WAY OUT</p>
-              <p className="mt-1 font-serif text-[19px] italic leading-tight text-light">
+              <p className="mt-1 font-serif text-lg italic leading-tight text-light">
                 {METHOD_COPY[recommendation.best]}
               </p>
-              <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-dim">
+              <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-dim">
                 {recommendation.reason}
               </p>
               {recommendation.savingsVsWorst > 0 && (
-                <p className="mt-2 text-[12px] font-semibold text-emerald">
+                <p className="mt-2 text-xs font-semibold text-emerald">
                   Saves {formatCurrency(recommendation.savingsVsWorst)} vs. the
                   costliest option on the board.
                 </p>
@@ -237,7 +237,7 @@ export default function PlanConsolidate() {
       </div>
 
       {/* Before → after summary line. */}
-      <div className="mt-4 flex flex-wrap items-center gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3.5 py-3 text-[13px]">
+      <div className="mt-4 flex flex-wrap items-center gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3.5 py-3 text-sm">
         <span className="text-dim">
           {debts.length} debt{debts.length === 1 ? "" : "s"} ·{" "}
           <span className="font-display text-light">{formatCurrency(balance)}</span> at{" "}
@@ -312,26 +312,26 @@ export default function PlanConsolidate() {
                       : "border-white/[0.06] bg-white/[0.02]"
                   }`}
                 >
-                  <span className="font-display text-[13px] text-dim">{i + 1}</span>
-                  <span className="text-[13px] text-light">
+                  <span className="font-display text-sm text-dim">{i + 1}</span>
+                  <span className="text-sm text-light">
                     {m.label}
                     {isBest && (
-                      <span className="ml-2 rounded-full bg-emerald/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald">
+                      <span className="ml-2 rounded-full bg-emerald/15 px-2 py-0.5 text-3xs font-semibold uppercase tracking-wide text-emerald">
                         Best
                       </span>
                     )}
                   </span>
-                  <span className="text-right font-display text-[13px] text-light tnum">
+                  <span className="text-right font-display text-sm text-light tnum">
                     {formatCurrency(m.totalPaid)}
                   </span>
-                  <span className="text-right text-[12px] text-dim tnum">
+                  <span className="text-right text-xs text-dim tnum">
                     {formatMonths(m.months)}
                   </span>
                 </div>
               );
             })}
           </div>
-          <div className="mt-2 grid grid-cols-[auto_1.4fr_1fr_1fr] gap-3 px-3.5 text-[10px] uppercase tracking-wide text-dim/70">
+          <div className="mt-2 grid grid-cols-[auto_1.4fr_1fr_1fr] gap-3 px-3.5 text-3xs uppercase tracking-wide text-dim/70">
             <span />
             <span>Method</span>
             <span className="text-right">Total paid</span>

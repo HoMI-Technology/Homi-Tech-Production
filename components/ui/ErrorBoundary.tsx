@@ -77,7 +77,7 @@ function ErrorFallback({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-8 text-3xl font-black text-light"
+          className="mt-8 type-h2"
         >
           Something went wrong
         </motion.h1>

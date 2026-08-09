@@ -28,7 +28,7 @@ export function PathProgressHero({ progress }: { progress: BindingProgress }) {
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-dim">
+          <p className="text-3xs font-semibold uppercase tracking-widest text-dim">
             Binding constraint
           </p>
           <p className="mt-1 font-display text-lg text-light sm:text-xl">
@@ -36,7 +36,7 @@ export function PathProgressHero({ progress }: { progress: BindingProgress }) {
           </p>
         </div>
         <span
-          className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${chipClass}`}
+          className={`inline-flex items-center rounded-full border px-2.5 py-1 text-3xs font-semibold uppercase tracking-wide ${chipClass}`}
         >
           {progress.cleared ? "Gate clear" : "Gate open"}
         </span>

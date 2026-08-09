@@ -56,10 +56,10 @@ export function PlanCommand() {
     <div className="flex flex-col gap-5">
       <header>
         <p className="text-label text-cyan">PLAN LAB</p>
-        <h2 className="mt-1.5 font-serif text-[26px] italic leading-tight text-light sm:text-[30px]">
+        <h2 className="mt-1.5 font-serif text-2xl italic leading-tight text-light sm:text-3xl">
           Decision readiness tools
         </h2>
-        <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-dim">
+        <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-dim">
           Path, housing, debt, dual score, Monte Carlo — every move can pulse
           the HōMI-Score.
         </p>
@@ -77,7 +77,7 @@ export function PlanCommand() {
               type="button"
               onClick={() => setTab(id)}
               aria-pressed={active}
-              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-colors ${
+              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors ${
                 active
                   ? 'bg-cyan/[0.12] text-cyan'
                   : 'text-dim hover:bg-white/[0.04] hover:text-light'

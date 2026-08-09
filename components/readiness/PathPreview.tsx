@@ -51,15 +51,15 @@ export function PathPreview({
                 {compact ? "→" : i + 1}
               </span>
               <span
-                className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${KIND_CHIP[step.kind]}`}
+                className={`inline-flex rounded-full border px-2 py-0.5 text-3xs font-semibold uppercase tracking-wide ${KIND_CHIP[step.kind]}`}
               >
                 {step.kind}
               </span>
-              <span className="text-[10px] font-semibold uppercase tracking-wide text-dim">
+              <span className="text-3xs font-semibold uppercase tracking-wide text-dim">
                 {dayLabel(step.daysFromNow)}
               </span>
               {status !== "pending" && (
-                <span className="text-[10px] font-semibold uppercase tracking-wide text-emerald">
+                <span className="text-3xs font-semibold uppercase tracking-wide text-emerald">
                   {status}
                 </span>
               )}

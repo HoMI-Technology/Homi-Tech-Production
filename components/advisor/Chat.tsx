@@ -243,7 +243,7 @@ export function Chat() {
           </svg>
         </button>
       </div>
-      <p className="px-4 pb-3 text-center text-[11px] leading-snug text-dim/70">
+      <p className="px-4 pb-3 text-center text-2xs leading-snug text-dim/70">
         Educational guidance only — not financial advice.
       </p>
     </div>

@@ -32,12 +32,12 @@ export function PageHeader({
     <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-dim">
+          <p className="text-2xs font-bold uppercase tracking-[0.14em] text-dim">
             {eyebrow}
           </p>
           {badge}
         </div>
-        <h1 className="mt-1 font-display text-[1.75rem] leading-tight tracking-tight text-light sm:text-3xl md:text-4xl">
+        <h1 className="mt-1 type-h2 font-medium tracking-tight">
           {title}
         </h1>
         {description && (

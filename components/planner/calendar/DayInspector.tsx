@@ -102,7 +102,7 @@ export default function DayInspector({
       <div className={cn(CARD, 'p-4')}>
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-dim">
+            <p className="text-3xs font-medium uppercase tracking-[0.22em] text-dim">
               Selected day
             </p>
             <h3 className="mt-1 font-serif text-2xl italic text-light">
@@ -110,29 +110,29 @@ export default function DayInspector({
             </h3>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {daysAway === 0 && (
-                <span className="rounded-full bg-emerald/20 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-emerald">
+                <span className="rounded-full bg-emerald/20 px-2 py-0.5 text-3xs font-semibold uppercase tracking-[0.14em] text-emerald">
                   Today
                 </span>
               )}
               {daysAway > 0 && (
-                <span className="rounded-full border border-cyan/40 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-cyan">
+                <span className="rounded-full border border-cyan/40 px-2 py-0.5 text-3xs font-semibold uppercase tracking-[0.14em] text-cyan">
                   In {daysAway}d
                 </span>
               )}
               {daysAway < 0 && (
-                <span className="rounded-full border border-white/[0.1] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-dim">
+                <span className="rounded-full border border-white/[0.1] px-2 py-0.5 text-3xs font-semibold uppercase tracking-[0.14em] text-dim">
                   {-daysAway}d ago
                 </span>
               )}
               {weekend && (
-                <span className="rounded-full border border-emerald/30 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-emerald/80">
+                <span className="rounded-full border border-emerald/30 px-2 py-0.5 text-3xs font-semibold uppercase tracking-[0.14em] text-emerald/80">
                   Weekend
                 </span>
               )}
             </div>
           </div>
           <div className="text-right">
-            <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-dim">
+            <p className="text-3xs font-medium uppercase tracking-[0.22em] text-dim">
               Day impact
             </p>
             <p
@@ -144,7 +144,7 @@ export default function DayInspector({
               {rollup.impact < 0 ? '-' : '+'}
               {money2(Math.abs(rollup.impact))}
             </p>
-            <p className="mt-0.5 font-display text-[11px] tabular-nums text-dim">
+            <p className="mt-0.5 font-display text-2xs tabular-nums text-dim">
               Proj {money2(proj)}
             </p>
           </div>
@@ -153,7 +153,7 @@ export default function DayInspector({
         {/* IN / OUT / BILLS tiles */}
         <div className="mt-4 grid grid-cols-3 gap-2">
           <div className={cn(SUBCARD, 'p-2.5')}>
-            <p className="flex items-center gap-1 text-[9px] font-medium uppercase tracking-[0.14em] text-dim">
+            <p className="flex items-center gap-1 text-3xs font-medium uppercase tracking-[0.14em] text-dim">
               <ArrowDownLeft className="h-3 w-3" /> In
             </p>
             <p className="mt-1 font-display text-sm tabular-nums text-emerald">
@@ -161,7 +161,7 @@ export default function DayInspector({
             </p>
           </div>
           <div className={cn(SUBCARD, 'p-2.5')}>
-            <p className="flex items-center gap-1 text-[9px] font-medium uppercase tracking-[0.14em] text-dim">
+            <p className="flex items-center gap-1 text-3xs font-medium uppercase tracking-[0.14em] text-dim">
               <ArrowUpRight className="h-3 w-3" /> Out
             </p>
             <p className="mt-1 font-display text-sm tabular-nums text-light">
@@ -169,7 +169,7 @@ export default function DayInspector({
             </p>
           </div>
           <div className={cn(SUBCARD, 'p-2.5')}>
-            <p className="flex items-center gap-1 text-[9px] font-medium uppercase tracking-[0.14em] text-dim">
+            <p className="flex items-center gap-1 text-3xs font-medium uppercase tracking-[0.14em] text-dim">
               <Receipt className="h-3 w-3" /> Bills
             </p>
             <p className="mt-1 font-display text-sm tabular-nums text-yellow">
@@ -180,7 +180,7 @@ export default function DayInspector({
 
         {/* Day pressure */}
         <div className="mt-4">
-          <div className="flex items-center justify-between text-[10px] font-medium uppercase tracking-[0.18em] text-dim">
+          <div className="flex items-center justify-between text-3xs font-medium uppercase tracking-[0.18em] text-dim">
             <span>Day pressure</span>
             <span className="font-display tabular-nums">{money2(rollup.pressure)}</span>
           </div>
@@ -272,7 +272,7 @@ export default function DayInspector({
                     {money2(b.amount)}
                   </span>
                 </div>
-                <p className="mt-1 text-[11px] text-dim">
+                <p className="mt-1 text-2xs text-dim">
                   {categoryLabel(b.category)} · {b.autopay ? 'Autopay' : 'Manual'} · {b.frequency}
                 </p>
                 {state !== 'paid' && (
@@ -314,7 +314,7 @@ export default function DayInspector({
                 <EventDot kind={t.type === 'income' ? 'income' : 'spend'} className="shrink-0" />
                 <div className="min-w-0">
                   <p className="truncate text-sm text-light">{t.note ?? categoryLabel(t.category)}</p>
-                  <p className="text-[11px] text-dim">
+                  <p className="text-2xs text-dim">
                     {categoryLabel(t.category)} · {t.source ?? 'manual'}
                   </p>
                 </div>
@@ -345,7 +345,7 @@ export default function DayInspector({
             <div key={u.bill.id} className="flex items-center gap-2">
               <div className="min-w-0">
                 <p className="truncate text-sm text-light">{u.bill.name}</p>
-                <p className="text-[11px] text-dim">
+                <p className="text-2xs text-dim">
                   {shortDateLabel(u.bill.dueDate)} · {u.label}
                 </p>
               </div>
