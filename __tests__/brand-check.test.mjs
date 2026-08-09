@@ -446,6 +446,35 @@ describe("N15–N17: absolutes and whole-market claims", () => {
 });
 
 /* ================================================================== *
+ * 7b. Type-scale drift (N19–N20)
+ * ================================================================== */
+
+describe("N19–N20: type-scale drift", () => {
+  it("flags font-black anywhere in a class string", () => {
+    expect(fires('<h1 className="text-4xl font-black text-light">', "N19")).toBe(true);
+    expect(fires('const cls = "mt-8 font-black tracking-tight";', "N19")).toBe(true);
+  });
+
+  it("does not flag on-scale weights", () => {
+    expect(clean('<h2 className="type-h2 font-semibold">', "app/x.tsx")).toBe(true);
+    expect(clean('<p className="font-bold text-light">', "app/x.tsx")).toBe(true);
+  });
+
+  it("flags arbitrary text sizes in px, rem, and clamp form, with or without variants", () => {
+    expect(fires('<p className="text-[15px] text-dim">', "N20")).toBe(true);
+    expect(fires('<p className="sm:text-[1.35rem]">', "N20")).toBe(true);
+    expect(fires('<h1 className="text-[clamp(2.1rem,5.2vw,3.75rem)]">', "N20")).toBe(true);
+  });
+
+  it("does not flag arbitrary text colors or scale utilities", () => {
+    expect(clean('<p className="text-[#111827]">', "app/x.tsx")).toBe(true);
+    expect(clean('<p className="text-[var(--tone)]">', "app/x.tsx")).toBe(true);
+    expect(clean('<p className="text-3xs uppercase">', "app/x.tsx")).toBe(true);
+    expect(clean('<p className="text-2xs tracking-widest">', "app/x.tsx")).toBe(true);
+  });
+});
+
+/* ================================================================== *
  * 8. Suppression model
  * ================================================================== */
 

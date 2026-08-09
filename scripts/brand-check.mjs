@@ -508,6 +508,29 @@ const RULES = [
     message:
       "Unsubstantiated whole-market competitor claim (\"every other platform …\") — narrow it to a named, documented comparison.",
   },
+
+  /* --- Type-scale drift (N19–N20) ------------------------------------ *
+   * The strict type scale (app/globals.css "Marketing type scale") is the
+   * only source of text sizes. These rules keep the two drift vectors that
+   * were cleaned out of the tree from creeping back in. N18 is taken by the
+   * suppression self-policing rule above. */
+  {
+    id: "N19",
+    cs: true,
+    re: /\bfont-black\b/,
+    message:
+      "font-black (weight 900) is off the type scale — headings use type-h1/type-h2 (Fraunces 600) or font-semibold. The HōMI wordmark carries its 900 weight via inline style in components/brand/Wordmark.tsx.",
+  },
+  {
+    id: "N20",
+    cs: true,
+    // Arbitrary text SIZES only: text-[15px], sm:text-[1.35rem], text-[clamp(…)].
+    // Arbitrary text COLORS (text-[#0a1628], text-[var(--x)]) are not sizes and
+    // are governed by the color rules, not this one.
+    re: /\btext-\[(?:[0-9.]+(?:px|rem|em|vw|vh|%)|clamp\([^\]]*\))\]/,
+    message:
+      "Arbitrary text size (text-[…]) is off the type scale — snap to a scale step (text-3xs … text-3xl, or a type-* class from app/globals.css).",
+  },
 ];
 
 /* ------------------------------------------------------------------ *
