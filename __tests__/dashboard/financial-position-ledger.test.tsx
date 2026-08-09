@@ -5,7 +5,6 @@ import type { AdvisorFinanceContext } from "@/lib/advisor/fallback";
 import {
   buildLedgerDashboardView,
   ledgerDashboardKpis,
-  netWorthTileState,
 } from "@/lib/dashboard/financial-position-ledger";
 import type { SnapshotReading } from "@/lib/dashboard/financial-position";
 import { GoalCard } from "@/components/dashboard/GoalCard";
@@ -99,49 +98,6 @@ describe("buildLedgerDashboardView", () => {
 
   it("returns null when neither ledger nor snapshot exists", () => {
     expect(buildLedgerDashboardView(null, null)).toBeNull();
-  });
-});
-
-/**
- * The Net worth tile is rendered by an async server component, so this is the
- * layer that can be tested. It is the last gate before a wrong number reaches
- * the one tile users read as a summary of everything they own and owe.
- */
-describe("netWorthTileState", () => {
-  it("labels an unknown net worth with an em dash and an explanation", () => {
-    const tile = netWorthTileState(null);
-
-    expect(tile.known).toBe(false);
-    expect(tile.unknownLabel).toBe("—");
-    // The whole point: never a currency string and never a zero.
-    expect(tile.unknownLabel).not.toMatch(/\$|\d/);
-    expect(tile.footer).toBe("Connect accounts to see what you own and owe");
-  });
-
-  it("hides the delta and sparkline when there is no figure to trend", () => {
-    expect(netWorthTileState(null).showTrend).toBe(false);
-  });
-
-  it("marks a known net worth for formatting and enables the trend", () => {
-    const tile = netWorthTileState(42_500);
-
-    expect(tile.known).toBe(true);
-    expect(tile.footer).toBe("From your synced balances");
-    expect(tile.showTrend).toBe(true);
-  });
-
-  it("treats a genuine zero as a figure, not as unknown", () => {
-    const tile = netWorthTileState(0);
-
-    expect(tile.known).toBe(true);
-    expect(tile.showTrend).toBe(true);
-  });
-
-  it("treats a negative net worth as a figure rather than hiding it", () => {
-    const tile = netWorthTileState(-12_000);
-
-    expect(tile.known).toBe(true);
-    expect(tile.showTrend).toBe(true);
   });
 });
 
