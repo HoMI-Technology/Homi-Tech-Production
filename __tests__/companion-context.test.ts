@@ -107,7 +107,8 @@ describe("buildFinanceContext", () => {
 describe("buildSurfaceContext", () => {
   it("maps known routes to human labels, most specific prefix first", () => {
     expect(buildSurfaceContext("/tools/mortgage")).toBe("the mortgage calculator");
-    expect(buildSurfaceContext("/tools")).toBe("the financial tools hub");
+    expect(buildSurfaceContext("/tools")).toBe("the public calculators hub");
+    expect(buildSurfaceContext("/money/decide")).toBe("Money · Decide");
     expect(buildSurfaceContext("/money")).toBe("the Money picture");
   });
 

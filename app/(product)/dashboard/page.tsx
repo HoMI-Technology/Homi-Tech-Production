@@ -91,10 +91,10 @@ const NEXT_MOVES: Record<
 > = {
   financial: {
     title: "Strengthen your financial reality",
-    body: "Your numbers are the softest of the three pillars right now. Run them honestly — the calculators show exactly which lever moves your score.",
-    href: "/tools",
-    cta: "Open the finance tools",
-    secondary: { href: "/plan", label: "See your plan" },
+    body: "Your numbers are the softest of the three pillars right now. Open Money — stress the decision against your real picture, not a calculator mall.",
+    href: "/money/decide",
+    cta: "Open Money · Decide",
+    secondary: { href: "/money", label: "See your money picture" },
   },
   emotional: {
     title: "Get honest about the want",

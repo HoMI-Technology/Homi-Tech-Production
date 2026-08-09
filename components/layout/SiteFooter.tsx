@@ -22,7 +22,7 @@ const COLUMNS: FooterColumn[] = [
     links: [
       { href: "/assessment", label: "Full Assessment" },
       { href: "/shadow-score", label: "Shadow Score" },
-      { href: "/tools", label: "Finance Tools" },
+      { href: "/money", label: "Money" },
       { href: "/advisor", label: "Decision Companion" },
       { href: "/pricing", label: "Pricing" },
     ],

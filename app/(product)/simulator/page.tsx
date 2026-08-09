@@ -62,8 +62,8 @@ export default async function SimulatorPage() {
       eyebrow="What-if instrument"
       title="Simulate your score"
       description="Move the levers — income, expenses, savings, debt — and watch your readiness respond. Same engine, same thresholds as the real assessment; every figure comes from your own numbers."
-      backHref="/tools"
-      backLabel="All tools"
+      backHref="/money/decide"
+      backLabel="Money · Decide"
     >
       <ScoreSimulator snapshotState={snapshotState} anchorAssessment={anchorAssessment} />
     </ToolShell>

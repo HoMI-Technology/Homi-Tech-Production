@@ -87,7 +87,7 @@ function pressureSignal(storedAssessment: StoredAssessment): Signal | null {
       title: "External pressure is running high",
       body: "You reported a high level of outside pressure or FOMO. Pressure that isn't yours is one of the more reliable predictors of a decision you'll second-guess later — worth talking through before it does the deciding for you.",
       actionLabel: "Talk it through",
-      actionHref: "/tools",
+      actionHref: "/advisor",
     };
   }
   return null;
