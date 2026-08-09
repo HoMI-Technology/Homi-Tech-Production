@@ -56,16 +56,12 @@ export function loadCouplesAlignment(): CouplesAlignmentSnapshot | null {
       }));
     if (perTopic.length === 0) return null;
 
-    const overallPct = Math.round(
-      perTopic.reduce((s, t) => s + t.pct, 0) / perTopic.length,
-    );
+    const overallPct = Math.round(perTopic.reduce((s, t) => s + t.pct, 0) / perTopic.length);
     const biggest = [...perTopic].sort((a, b) => a.pct - b.pct)[0];
 
     return {
       overallPct,
-      biggestGapTopic: biggest
-        ? TOPIC_LABELS[biggest.key] ?? biggest.key
-        : null,
+      biggestGapTopic: biggest ? (TOPIC_LABELS[biggest.key] ?? biggest.key) : null,
       completedAt: stored.completedAt,
       label: labelFor(overallPct),
     };
@@ -87,9 +83,7 @@ export function partnerPathNote(snapshot: CouplesAlignmentSnapshot | null): stri
 }
 
 /** True when partner work should block a clean READY narrative. */
-export function partnerBlocksJointReady(
-  snapshot: CouplesAlignmentSnapshot | null,
-): boolean {
+export function partnerBlocksJointReady(snapshot: CouplesAlignmentSnapshot | null): boolean {
   if (!snapshot) return false;
   return snapshot.overallPct < 60;
 }

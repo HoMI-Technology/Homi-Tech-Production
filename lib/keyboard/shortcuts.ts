@@ -63,18 +63,18 @@ const GLOBAL_SHORTCUTS: ShortcutDef[] = [
   {
     key: "t",
     scope: "global",
-    description: "Open tools",
+    description: "Open Money",
     action: () => {
-      window.location.href = "/tools";
+      window.location.href = "/money";
     },
   },
   {
     key: "1",
     ctrl: true,
     scope: "global",
-    description: "Go to financial tools",
+    description: "Go to Money · Decide",
     action: () => {
-      window.location.href = "/tools";
+      window.location.href = "/money/decide";
     },
   },
   {

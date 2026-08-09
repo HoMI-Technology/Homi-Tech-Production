@@ -49,8 +49,8 @@ export default function ForgotPasswordPage() {
 
       {sent ? (
         <div className="mt-6 rounded-xl border border-cyan/30 bg-cyan/10 p-4 text-sm text-light">
-          If an account exists for <span className="font-medium">{email}</span>, a reset link is on its
-          way. It expires in an hour — check your spam folder if you don&apos;t see it.
+          If an account exists for <span className="font-medium">{email}</span>, a reset link is on
+          its way. It expires in an hour — check your spam folder if you don&apos;t see it.
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -77,7 +77,11 @@ export default function ForgotPasswordPage() {
             </p>
           )}
 
-          <button type="submit" disabled={loading} className="btn btn-primary w-full disabled:opacity-60">
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn btn-primary w-full disabled:opacity-60"
+          >
             {loading ? "Sending…" : "Send reset link"}
           </button>
         </form>

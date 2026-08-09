@@ -21,8 +21,17 @@ function chain(table: string) {
   const api: Record<string, unknown> = {};
   const self = () => api;
   Object.assign(api, {
-    select: self, eq: self, order: self, limit: self, is: self, gt: self, delete: self,
-    insert: (_row: unknown) => { calls.inserts.push({ table }); return api; },
+    select: self,
+    eq: self,
+    order: self,
+    limit: self,
+    is: self,
+    gt: self,
+    delete: self,
+    insert: (_row: unknown) => {
+      calls.inserts.push({ table });
+      return api;
+    },
     // ownership lookup on assessments resolves owned/not-owned; the profiles
     // lookup (entitlements) resolves null → free tier, maxActiveShares 3
     maybeSingle: async () => ({
@@ -54,7 +63,9 @@ async function callShares(assessmentId: string) {
   return POST(req);
 }
 
-beforeEach(() => { calls.inserts = []; });
+beforeEach(() => {
+  calls.inserts = [];
+});
 
 describe("POST /api/shares — object authorization", () => {
   it("rejects sharing an assessment the caller does not own (no row created)", async () => {

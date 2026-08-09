@@ -22,7 +22,7 @@ const COLUMNS: FooterColumn[] = [
     links: [
       { href: "/assessment", label: "Full Assessment" },
       { href: "/shadow-score", label: "Shadow Score" },
-      { href: "/tools", label: "Finance Tools" },
+      { href: "/money", label: "Money" },
       { href: "/advisor", label: "Decision Companion" },
       { href: "/pricing", label: "Pricing" },
     ],
@@ -86,7 +86,13 @@ export function SiteFooter() {
               aria-label="HōMI on X (opens in a new tab)"
               className="mt-4 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-surface/60 text-dim transition-colors hover:border-cyan/40 hover:text-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
             >
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="currentColor"
+                aria-hidden="true"
+              >
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
               </svg>
             </a>
@@ -100,7 +106,10 @@ export function SiteFooter() {
               <ul className="mt-4 space-y-2.5">
                 {col.links.map((l) => (
                   <li key={l.href}>
-                    <Link href={l.href} className="text-sm text-dim transition-colors hover:text-cyan">
+                    <Link
+                      href={l.href}
+                      className="text-sm text-dim transition-colors hover:text-cyan"
+                    >
                       {l.label}
                     </Link>
                   </li>
@@ -117,9 +126,12 @@ export function SiteFooter() {
         <p className="text-xs leading-relaxed text-dim/80">{LEGAL_DISCLAIMER}</p>
         <div className="mt-6 flex flex-col items-start justify-between gap-3 text-xs text-dim/70 sm:flex-row">
           <span>
-            © <CopyrightYear initial={new Date().getFullYear()} /> HOMI TECHNOLOGIES LLC. All rights reserved.
+            © <CopyrightYear initial={new Date().getFullYear()} /> HOMI TECHNOLOGIES LLC. All rights
+            reserved.
           </span>
-          <span>Decision Readiness Intelligence™ | Educational Guidance Only | Not Financial Advice</span>
+          <span>
+            Decision Readiness Intelligence™ | Educational Guidance Only | Not Financial Advice
+          </span>
         </div>
       </div>
     </footer>

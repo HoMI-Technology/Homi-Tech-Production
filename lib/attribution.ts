@@ -31,7 +31,10 @@ const FIELD_MAX = 100;
 /** Keep channel identifiers boring: trim, cap, drop anything non-token-ish. */
 function sanitize(value: string | null | undefined): string | undefined {
   if (!value) return undefined;
-  const cleaned = value.trim().slice(0, FIELD_MAX).replace(/[^\w\-.:/ ]/g, "");
+  const cleaned = value
+    .trim()
+    .slice(0, FIELD_MAX)
+    .replace(/[^\w\-.:/ ]/g, "");
   return cleaned.length > 0 ? cleaned : undefined;
 }
 
@@ -57,9 +60,7 @@ export function buildAttribution(
 }
 
 /** Parses + revalidates the snapshot out of a raw Cookie header. */
-export function readAttributionCookie(
-  cookieHeader: string | null,
-): AttributionSnapshot | null {
+export function readAttributionCookie(cookieHeader: string | null): AttributionSnapshot | null {
   if (!cookieHeader) return null;
   const match = cookieHeader
     .split(";")

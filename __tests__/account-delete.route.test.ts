@@ -83,7 +83,11 @@ describe("POST /api/account/delete", () => {
     mockAdminDeleteUser.mockResolvedValue({ error: null });
 
     const res = await POST(request());
-    const json = (await res.json()) as { ok?: boolean; authUserRemoved?: boolean; plaidItemsRevoked?: number };
+    const json = (await res.json()) as {
+      ok?: boolean;
+      authUserRemoved?: boolean;
+      plaidItemsRevoked?: number;
+    };
 
     expect(res.status).toBe(200);
     expect(json).toMatchObject({ ok: true, authUserRemoved: true, plaidItemsRevoked: 2 });

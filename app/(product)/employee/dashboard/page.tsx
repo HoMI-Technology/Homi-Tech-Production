@@ -122,12 +122,16 @@ export default async function EmployeeDashboardPage() {
                 <ThresholdCompass size={148} verdict={verdict ?? undefined} />
               </div>
               <div className="min-w-0 text-center lg:text-left">
-                <p className="text-[0.625rem] font-bold uppercase tracking-[0.16em] text-dim">
+                <p className="text-3xs font-bold uppercase tracking-[0.16em] text-dim">
                   Private HōMI-Score
                 </p>
                 <div className="mt-1.5 flex flex-wrap items-end justify-center gap-3 lg:justify-start">
                   <HeroScore value={scorePct ?? 0} color={tint} />
-                  {verdict && <div className="mb-1.5"><VerdictBadge verdict={verdict} size="lg" /></div>}
+                  {verdict && (
+                    <div className="mb-1.5">
+                      <VerdictBadge verdict={verdict} size="lg" />
+                    </div>
+                  )}
                 </div>
                 <p className="mt-2.5 max-w-xl text-sm text-light/90">{verdictMeta.line}</p>
               </div>
@@ -232,7 +236,7 @@ export default async function EmployeeDashboardPage() {
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
         {[
           { href: "/assessment", title: "Assessment", body: "Three-pillar readiness read" },
-          { href: "/tools", title: "Tools", body: "Calculators for money decisions" },
+          { href: "/money", title: "Money", body: "Picture, track, and decision math" },
           { href: "/advisor", title: "Companion", body: "Private coaching chat" },
           { href: "/journal", title: "Journal", body: "Log decisions as you make them" },
           { href: "/daily", title: "Daily pulse", body: "Mood and stress check-in" },

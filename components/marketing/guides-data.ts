@@ -80,7 +80,7 @@ export const GUIDES: Guide[] = [
           "A separate ratio worth tracking closely is your total monthly housing cost — principal, interest, taxes, insurance, and HOA dues — as a share of gross monthly income. Once that crosses roughly 45%, the math stops being about comfort and starts being about risk. One bad month at that ratio doesn't dent your budget. It threatens the roof over your head.",
           "This is one of the few lines HōMI treats as non-negotiable. Cross it, and the verdict is NOT YET regardless of how strong the rest of the picture looks, because no amount of emotional readiness offsets a housing payment that leaves no room to breathe.",
         ],
-       },
+      },
       {
         heading: "What down payment and emergency fund actually protect",
         paragraphs: [
@@ -142,7 +142,7 @@ export const GUIDES: Guide[] = [
         heading: "Your gut is part of the math here",
         paragraphs: [
           "Emotional Truth carries equal weight to Financial Reality in the HōMI-Score, and that surprises people the first time they see it. It shouldn't. Confidence, alignment, and pressure predict whether someone regrets a major decision at least as reliably as debt-to-income ratios predict whether they can make the payment.",
-          "Most financial tools treat feelings as noise to filter out before getting to the \"real\" numbers. HōMI treats them as their own category of signal, measured with the same seriousness as the spreadsheet, because a financially sound decision made for the wrong emotional reasons still produces regret.",
+          'Most financial tools treat feelings as noise to filter out before getting to the "real" numbers. HōMI treats them as their own category of signal, measured with the same seriousness as the spreadsheet, because a financially sound decision made for the wrong emotional reasons still produces regret.',
         ],
       },
       {
@@ -233,7 +233,7 @@ export const GUIDES: Guide[] = [
       {
         heading: "Why market-timing anxiety makes decisions worse, not better",
         paragraphs: [
-          "Trying to time the market usually manufactures the exact pressure that undermines good decisions. \"Rates might go up next month\" and \"prices might never be this low again\" are both framings designed to create urgency, and urgency is the enemy of the emotional-truth pillar specifically. A decision made to beat a headline is a decision made on someone else's clock.",
+          'Trying to time the market usually manufactures the exact pressure that undermines good decisions. "Rates might go up next month" and "prices might never be this low again" are both framings designed to create urgency, and urgency is the enemy of the emotional-truth pillar specifically. A decision made to beat a headline is a decision made on someone else\'s clock.',
           "This doesn't mean market conditions are irrelevant — they affect what you can afford and what a given number of dollars will get you. It means the market shouldn't be the deciding factor when your own readiness isn't there yet, and it shouldn't be the excuse for rushing when it is.",
         ],
       },

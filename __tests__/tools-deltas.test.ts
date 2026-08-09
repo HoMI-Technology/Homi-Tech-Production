@@ -120,10 +120,13 @@ describe("computeReplacementDeltas", () => {
 
   it("returns null on missing income or nonsensical payments", () => {
     expect(
-      computeReplacementDeltas({ ...BASE, monthlyIncome: 0 }, {
-        newPaymentMonthly: 1900,
-        replacedPaymentMonthly: 2200,
-      }),
+      computeReplacementDeltas(
+        { ...BASE, monthlyIncome: 0 },
+        {
+          newPaymentMonthly: 1900,
+          replacedPaymentMonthly: 2200,
+        },
+      ),
     ).toBeNull();
     expect(
       computeReplacementDeltas(BASE, { newPaymentMonthly: -1, replacedPaymentMonthly: 2200 }),

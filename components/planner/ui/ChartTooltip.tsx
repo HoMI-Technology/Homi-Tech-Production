@@ -27,9 +27,7 @@ export default function ChartTooltip({
   return (
     <div className="rounded-xl border border-line bg-navy/95 px-3 py-2 shadow-xl backdrop-blur">
       {label !== undefined && label !== "" && (
-        <p className="mb-1.5 text-xs uppercase tracking-wide text-dim">
-          {String(label)}
-        </p>
+        <p className="mb-1.5 text-xs uppercase tracking-wide text-dim">{String(label)}</p>
       )}
       <div className="flex flex-col gap-1">
         {payload.map((item, i) => (
@@ -37,8 +35,7 @@ export default function ChartTooltip({
             <span
               className="h-2 w-2 shrink-0 rounded-full"
               style={{
-                backgroundColor:
-                  item.color ?? item.payload?.fill ?? COLORS.dim,
+                backgroundColor: item.color ?? item.payload?.fill ?? COLORS.dim,
               }}
             />
             <span className="text-xs text-dim">{item.name}</span>

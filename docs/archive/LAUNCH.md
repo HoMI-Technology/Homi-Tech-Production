@@ -26,6 +26,7 @@ This document is the single source of truth for taking HōMI from "code complete
 **Why blocks:** Supabase's built-in email sender is throttled to a few/hour. Users cannot sign up without this. Also gates the entire retention loop (welcome / verdict / reassessment / outcome-survey emails) that is already coded and waiting.
 
 **Steps:**
+
 1. Go to https://resend.com → Add domain `homitechnology.com`
 2. Publish DNS records (SPF + DKIM) from Resend dashboard → wait for "Verified"
 3. Create Resend API key → Set `RESEND_API_KEY` in Vercel (Production + Preview)
@@ -49,6 +50,7 @@ This document is the single source of truth for taking HōMI from "code complete
 **Why blocks:** Merging code does not touch the database. Several shipped features (attribution columns, `partner_codes`, `shadow_shares`, `partner_api_keys`, `receipt_verifications`, the advisor monthly-quota RPC, dashboard/campaign tables) need their migrations run against the live Supabase project, or those routes error at runtime.
 
 **Steps:**
+
 1. Take Supabase backup (Dashboard → Database → Backups)
 2. Apply migrations in `supabase/migrations/` in numeric order from `00001` through `00033`
    - Via Supabase SQL Editor (paste each file) OR
@@ -65,6 +67,7 @@ This document is the single source of truth for taking HōMI from "code complete
 **Why blocks:** Billing is fully coded and idempotent but has never processed a live charge. Cannot process payments without live keys.
 
 **Steps:**
+
 1. `npm run stripe-setup` (or Stripe Dashboard) → Create 3 products with lookup keys:
    - `homi_plus_monthly`
    - `homi_pro_monthly`
@@ -128,6 +131,7 @@ This document is the single source of truth for taking HōMI from "code complete
 ```bash
 npx web-push generate-vapid-keys
 ```
+
 - Set `NEXT_PUBLIC_VAPID_PUBLIC_KEY`
 - Set `VAPID_PRIVATE_KEY`
 - Set `VAPID_SUBJECT=mailto:hello@homitechnology.com`
@@ -161,40 +165,40 @@ npx web-push generate-vapid-keys
 
 All required and optional env vars are documented in `.env.example`. Key vars for launch:
 
-| Variable | Required for launch | Phase |
-|---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes | 0 |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | 0 |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes | 0 |
-| `NEXT_PUBLIC_SITE_URL` | Yes | 0 |
-| `RESEND_API_KEY` | Yes | 1.1 |
-| `STRIPE_SECRET_KEY` | Yes | 1.3 |
-| `STRIPE_WEBHOOK_SECRET` | Yes | 1.3 |
-| `STRIPE_PRICE_PLUS/PRO/FAMILY` | Yes | 1.3 |
-| `NEXT_PUBLIC_POSTHOG_KEY` | No (Week 1) | 2.2 |
-| `POSTHOG_PERSONAL_API_KEY` | No (Week 1) | 2.2 |
-| `SENTRY_DSN` | No (Week 1) | 2.3 |
-| `UPSTASH_REDIS_REST_URL` | No (Week 1) | 2.5 |
-| `UPSTASH_REDIS_REST_TOKEN` | No (Week 1) | 2.5 |
-| `CRON_SECRET` | No (Week 1) | 2.5 |
-| `RECEIPT_SIGNING_KEY` | No (Week 1) | 2.5 |
-| `EMAIL_UNSUBSCRIBE_SECRET` | No (Week 1) | 2.5 |
-| `INTERNAL_API_SECRET` | No (Week 1) | 2.5 |
-| `ANTHROPIC_API_KEY` | No (degrades gracefully) | — |
-| `PLAID_*` | No (Plus-gated) | 4 |
-| `NEXT_PUBLIC_VAPID_*` | No (optional) | 2.6 |
+| Variable                        | Required for launch      | Phase |
+| ------------------------------- | ------------------------ | ----- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Yes                      | 0     |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes                      | 0     |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Yes                      | 0     |
+| `NEXT_PUBLIC_SITE_URL`          | Yes                      | 0     |
+| `RESEND_API_KEY`                | Yes                      | 1.1   |
+| `STRIPE_SECRET_KEY`             | Yes                      | 1.3   |
+| `STRIPE_WEBHOOK_SECRET`         | Yes                      | 1.3   |
+| `STRIPE_PRICE_PLUS/PRO/FAMILY`  | Yes                      | 1.3   |
+| `NEXT_PUBLIC_POSTHOG_KEY`       | No (Week 1)              | 2.2   |
+| `POSTHOG_PERSONAL_API_KEY`      | No (Week 1)              | 2.2   |
+| `SENTRY_DSN`                    | No (Week 1)              | 2.3   |
+| `UPSTASH_REDIS_REST_URL`        | No (Week 1)              | 2.5   |
+| `UPSTASH_REDIS_REST_TOKEN`      | No (Week 1)              | 2.5   |
+| `CRON_SECRET`                   | No (Week 1)              | 2.5   |
+| `RECEIPT_SIGNING_KEY`           | No (Week 1)              | 2.5   |
+| `EMAIL_UNSUBSCRIBE_SECRET`      | No (Week 1)              | 2.5   |
+| `INTERNAL_API_SECRET`           | No (Week 1)              | 2.5   |
+| `ANTHROPIC_API_KEY`             | No (degrades gracefully) | —     |
+| `PLAID_*`                       | No (Plus-gated)          | 4     |
+| `NEXT_PUBLIC_VAPID_*`           | No (optional)            | 2.6   |
 
 ---
 
 ## Related Documents
 
-| Document | Purpose |
-|---|---|
-| `GO-LIVE-CHECKLIST.md` | Original scattered checklist (superseded by this file) |
-| `LAUNCH-RUNBOOK.md` | Detailed runbook covering loops, merge order, verification steps |
-| `docs/RUNBOOK.md` | Incident response playbook (common outages + quick fixes) |
-| `BUILD-BRIEF.md` | Engineering spec and architecture decisions |
-| `AUDIT-2026-07-08.md` | Pre-launch security/performance audit |
-| `DEPLOY.md` | Deployment procedures |
-| `supabase/README.md` | Migration apply order + RLS policy overview |
-| `.env.example` | Complete environment variable reference |
+| Document               | Purpose                                                          |
+| ---------------------- | ---------------------------------------------------------------- |
+| `GO-LIVE-CHECKLIST.md` | Original scattered checklist (superseded by this file)           |
+| `LAUNCH-RUNBOOK.md`    | Detailed runbook covering loops, merge order, verification steps |
+| `docs/RUNBOOK.md`      | Incident response playbook (common outages + quick fixes)        |
+| `BUILD-BRIEF.md`       | Engineering spec and architecture decisions                      |
+| `AUDIT-2026-07-08.md`  | Pre-launch security/performance audit                            |
+| `DEPLOY.md`            | Deployment procedures                                            |
+| `supabase/README.md`   | Migration apply order + RLS policy overview                      |
+| `.env.example`         | Complete environment variable reference                          |

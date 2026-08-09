@@ -35,7 +35,11 @@ export function VerdictCelebrate({
 
   return (
     <div className="pointer-events-none absolute right-6 top-6 z-10">
-      <Celebrate active={active} label={`Verdict improved — ${label}.`} onDone={() => setActive(false)} />
+      <Celebrate
+        active={active}
+        label={`Verdict improved — ${label}.`}
+        onDone={() => setActive(false)}
+      />
     </div>
   );
 }

@@ -8,12 +8,12 @@
 
 **What we measured 2026-08-05:**
 
-| Check | Result |
-|-------|--------|
-| Root SPF | `v=spf1 include:_spf.google.com ~all` (Google only) |
-| DMARC | Present: `p=quarantine` |
-| MX | Google Workspace (keep for human mail) |
-| `resend._domainkey` | **Missing** |
+| Check                     | Result                                                |
+| ------------------------- | ----------------------------------------------------- |
+| Root SPF                  | `v=spf1 include:_spf.google.com ~all` (Google only)   |
+| DMARC                     | Present: `p=quarantine`                               |
+| MX                        | Google Workspace (keep for human mail)                |
+| `resend._domainkey`       | **Missing**                                           |
 | `send.homitechnology.com` | Points at **Amazon SES** (old path — not Resend root) |
 
 ---
@@ -34,35 +34,41 @@ Use root domain verification so `hello@homitechnology.com` works without a code 
 
 1. GoDaddy → **My Products** → Domains → `homitechnology.com` → **DNS** / **Manage DNS**.
 
-2. **DKIM (from Resend)**  
-   - Usually a **CNAME**: name like `resend._domainkey` (or whatever Resend shows)  
-   - Value: the Resend target (ends in something like `resend.com` or similar)  
-   - TTL: 1 hour / default  
+2. **DKIM (from Resend)**
+   - Usually a **CNAME**: name like `resend._domainkey` (or whatever Resend shows)
+   - Value: the Resend target (ends in something like `resend.com` or similar)
+   - TTL: 1 hour / default
    - **Do not** put a trailing period unless GoDaddy requires it.
 
 3. **SPF — merge into the single existing TXT** (only one SPF record is allowed).  
    **Current:**
+
    ```
    v=spf1 include:_spf.google.com ~all
    ```
+
    **After Resend (typical):**
+
    ```
    v=spf1 include:_spf.google.com include:amazonses.com ~all
    ```
-   Resend’s UI may show `include:amazonses.com` or a Resend-specific include — **use the exact include string from the Resend domain page**.  
-   - Edit the **existing** SPF TXT on `@` / root.  
-   - Do **not** add a second `v=spf1` TXT.  
-   - Keep Google first so Workspace keeps working.  
+
+   Resend’s UI may show `include:amazonses.com` or a Resend-specific include — **use the exact include string from the Resend domain page**.
+   - Edit the **existing** SPF TXT on `@` / root.
+   - Do **not** add a second `v=spf1` TXT.
+   - Keep Google first so Workspace keeps working.
    - Keep `~all` (soft fail) until mail is proven; tighten to `-all` later if you want.
 
-4. **Return-path / MX (only if Resend shows them)**  
-   - Often on a subdomain like `send` or `bounces`.  
+4. **Return-path / MX (only if Resend shows them)**
+   - Often on a subdomain like `send` or `bounces`.
    - You already have `send.homitechnology.com` → SES. If Resend wants different MX/TXT on `send`, **replace or align** with Resend’s values so they don’t fight. Prefer whatever Resend’s domain page shows for this account.
 
 5. **DMARC** — already present:
+
    ```
    v=DMARC1; p=quarantine; adkim=r; aspf=r; rua=mailto:dmarc_rua@onsecureserver.net;
    ```
+
    Leave as-is for now. After verification, optionally add a Resend-aware `rua` later.
 
 6. Save DNS. Wait 5–30 minutes (sometimes up to 48h).
@@ -102,9 +108,9 @@ In Vercel → `homi-platform` → Settings → Environment Variables:
 
 ### F. Prove it (15 minutes)
 
-1. **Product mail:** sign up a throwaway Gmail/Outlook address on https://homitechnology.com → confirmation arrives.  
-2. Complete an assessment → verdict / lifecycle email (if triggered) arrives.  
-3. In Resend → **Emails** / logs → delivery status **Delivered**.  
+1. **Product mail:** sign up a throwaway Gmail/Outlook address on https://homitechnology.com → confirmation arrives.
+2. Complete an assessment → verdict / lifecycle email (if triggered) arrives.
+3. In Resend → **Emails** / logs → delivery status **Delivered**.
 4. Check spam once; if spam, wait for domain warm-up and confirm SPF/DKIM aligned (mail-tester.com optional).
 
 ---
@@ -113,8 +119,8 @@ In Vercel → `homi-platform` → Settings → Environment Variables:
 
 Resend recommends a subdomain (e.g. `mail.homitechnology.com`) for reputation isolation. That would require:
 
-1. Verify `mail.homitechnology.com` in Resend.  
-2. Change code From to e.g. `HoMI <hello@mail.homitechnology.com>` in `lib/email/send.ts` + `campaign.ts` + invite route.  
+1. Verify `mail.homitechnology.com` in Resend.
+2. Change code From to e.g. `HoMI <hello@mail.homitechnology.com>` in `lib/email/send.ts` + `campaign.ts` + invite route.
 3. Supabase SMTP sender to match.
 
 **Not required for launch** if root domain verifies cleanly.
@@ -123,21 +129,21 @@ Resend recommends a subdomain (e.g. `mail.homitechnology.com`) for reputation is
 
 ## Common failures
 
-| Symptom | Likely cause |
-|---------|----------------|
-| Resend 403 / domain not verified | DKIM missing or wrong SPF |
-| Supabase confirm never arrives | Auth still on built-in mail or wrong SMTP password |
-| Gmail spam | SPF incomplete (Google-only) or no DKIM |
-| “Two SPF records” failure | Second `v=spf1` TXT — merge into one |
-| Workspace stops sending | SPF dropped `include:_spf.google.com` |
+| Symptom                          | Likely cause                                       |
+| -------------------------------- | -------------------------------------------------- |
+| Resend 403 / domain not verified | DKIM missing or wrong SPF                          |
+| Supabase confirm never arrives   | Auth still on built-in mail or wrong SMTP password |
+| Gmail spam                       | SPF incomplete (Google-only) or no DKIM            |
+| “Two SPF records” failure        | Second `v=spf1` TXT — merge into one               |
+| Workspace stops sending          | SPF dropped `include:_spf.google.com`              |
 
 ---
 
 ## Checklist
 
-- [ ] Domain `homitechnology.com` **Verified** in Resend  
-- [ ] Root SPF includes Google **and** Resend’s include  
-- [ ] DKIM CNAME present and verified  
-- [ ] Supabase custom SMTP enabled + Site URL correct  
-- [ ] Throwaway signup confirmation received  
-- [ ] Resend log shows Delivered  
+- [ ] Domain `homitechnology.com` **Verified** in Resend
+- [ ] Root SPF includes Google **and** Resend’s include
+- [ ] DKIM CNAME present and verified
+- [ ] Supabase custom SMTP enabled + Site URL correct
+- [ ] Throwaway signup confirmation received
+- [ ] Resend log shows Delivered

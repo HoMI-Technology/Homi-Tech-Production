@@ -36,8 +36,18 @@ describe("findCrossedMilestone", () => {
 
   it("speaks in canon voice: no emoji, no exclamation points", () => {
     for (const [prev, curr] of [
-      [39, 40], [49, 50], [59, 60], [69, 70], [79, 80], [89, 90],
-      [40, 39], [50, 49], [60, 59], [70, 69], [80, 79], [90, 89],
+      [39, 40],
+      [49, 50],
+      [59, 60],
+      [69, 70],
+      [79, 80],
+      [89, 90],
+      [40, 39],
+      [50, 49],
+      [60, 59],
+      [70, 69],
+      [80, 79],
+      [90, 89],
     ]) {
       const line = findCrossedMilestone(prev, curr)?.line ?? "";
       expect(line.length).toBeGreaterThan(0);

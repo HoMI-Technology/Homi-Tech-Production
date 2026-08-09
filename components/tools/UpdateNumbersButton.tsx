@@ -38,8 +38,8 @@ export function UpdateNumbersButton({
         {done ? "Saved — future tools start here" : "Update my numbers from this tool"}
       </button>
       <p className="text-xs leading-relaxed text-dim/70">
-        Saves these as your planning numbers so the other tools — and your HōMI — start from the same
-        place. Nothing here changes your assessment.
+        Saves these as your planning numbers so the other tools — and your HōMI — start from the
+        same place. Nothing here changes your assessment.
       </p>
     </>
   );

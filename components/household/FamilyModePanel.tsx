@@ -156,7 +156,9 @@ function FamilyModeInner() {
     setHousehold(data as FamilyAccountRow);
   }
 
-  async function persistHousehold(patch: Partial<Pick<FamilyAccountRow, "members" | "shared_goals" | "household_name">>) {
+  async function persistHousehold(
+    patch: Partial<Pick<FamilyAccountRow, "members" | "shared_goals" | "household_name">>,
+  ) {
     if (!household) return;
     const prev = household;
     const next = { ...household, ...patch };
@@ -270,7 +272,9 @@ function FamilyModeInner() {
 
   async function toggleGoalDone(index: number) {
     if (!household) return;
-    const shared_goals = household.shared_goals.map((g, i) => (i === index ? { ...g, done: !g.done } : g));
+    const shared_goals = household.shared_goals.map((g, i) =>
+      i === index ? { ...g, done: !g.done } : g,
+    );
     await persistHousehold({ shared_goals });
   }
 
@@ -289,14 +293,23 @@ function FamilyModeInner() {
       <div className="flex min-h-[50vh] items-center justify-center">
         <div className="glass w-full max-w-md p-10 text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-surface">
-            <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" className="text-cyan">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              className="text-cyan"
+            >
               <circle cx="10" cy="7" r="3" />
               <path d="M4 17c0-2.8 2.7-5 6-5s6 2.2 6 5" />
             </svg>
           </div>
           <h2 className="mt-5 font-display text-2xl text-light">Sign in for Family Mode</h2>
           <p className="mt-3 text-sm leading-relaxed text-dim">
-            Family Mode is where your household tracks readiness together. Sign in to create or view your household.
+            Family Mode is where your household tracks readiness together. Sign in to create or view
+            your household.
           </p>
           <div className="mt-8">
             <Link href="/auth/sign-in?next=/household" className="btn btn-primary">
@@ -313,8 +326,8 @@ function FamilyModeInner() {
       <div>
         <h2 className="font-display text-2xl text-light">Family Mode</h2>
         <p className="mt-2 max-w-2xl text-dim">
-          A household readiness hub — track who's in, what you're working toward together, and where each of you
-          stands.
+          A household readiness hub — track who's in, what you're working toward together, and where
+          each of you stands.
         </p>
       </div>
 
@@ -337,7 +350,11 @@ function FamilyModeInner() {
               value={householdNameDraft}
               onChange={(e) => setHouseholdNameDraft(e.target.value)}
             />
-            <button className="btn btn-primary shrink-0" onClick={handleCreateHousehold} disabled={creating}>
+            <button
+              className="btn btn-primary shrink-0"
+              onClick={handleCreateHousehold}
+              disabled={creating}
+            >
               {creating ? "Creating..." : "Create household"}
             </button>
           </div>
@@ -348,7 +365,9 @@ function FamilyModeInner() {
             {/* Members */}
             <div className="glass p-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-light">{household.household_name} — members</h3>
+                <h3 className="text-lg font-semibold text-light">
+                  {household.household_name} — members
+                </h3>
                 <button className="btn btn-ghost btn-xs" onClick={startAddMember}>
                   + Add member
                 </button>
@@ -375,7 +394,9 @@ function FamilyModeInner() {
                     rows={2}
                     placeholder="Readiness note (optional) — how they're feeling about this decision"
                     value={memberDraft.readiness_note}
-                    onChange={(e) => setMemberDraft({ ...memberDraft, readiness_note: e.target.value })}
+                    onChange={(e) =>
+                      setMemberDraft({ ...memberDraft, readiness_note: e.target.value })
+                    }
                   />
                   <div className="flex gap-3">
                     <button className="btn btn-emerald btn-xs" onClick={saveMember}>
@@ -401,21 +422,23 @@ function FamilyModeInner() {
                   </p>
                 ) : (
                   household.members.map((m, i) => (
-                    <div key={`${m.name}-${i}`} className="flex flex-wrap items-start justify-between gap-3 py-3">
+                    <div
+                      key={`${m.name}-${i}`}
+                      className="flex flex-wrap items-start justify-between gap-3 py-3"
+                    >
                       <div>
                         <p className="text-sm font-medium text-light">
                           {m.name} {m.relation && <span className="text-dim">· {m.relation}</span>}
                         </p>
-                        {m.readiness_note && <p className="mt-1 text-xs text-dim">{m.readiness_note}</p>}
+                        {m.readiness_note && (
+                          <p className="mt-1 text-xs text-dim">{m.readiness_note}</p>
+                        )}
                       </div>
                       <div className="flex gap-2">
                         <button className="btn btn-ghost btn-xs" onClick={() => startEditMember(i)}>
                           Edit
                         </button>
-                        <button
-                          className="btn btn-danger btn-xs"
-                          onClick={() => removeMember(i)}
-                        >
+                        <button className="btn btn-danger btn-xs" onClick={() => removeMember(i)}>
                           Remove
                         </button>
                       </div>
@@ -472,7 +495,10 @@ function FamilyModeInner() {
                   </p>
                 ) : (
                   household.shared_goals.map((g, i) => (
-                    <div key={`${g.title}-${i}`} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                    <div
+                      key={`${g.title}-${i}`}
+                      className="flex flex-wrap items-center justify-between gap-3 py-3"
+                    >
                       <div className="flex items-center gap-3">
                         <input
                           type="checkbox"
@@ -481,7 +507,9 @@ function FamilyModeInner() {
                           className="h-4 w-4 accent-emerald-400"
                         />
                         <div>
-                          <p className={`text-sm font-medium ${g.done ? "text-dim line-through" : "text-light"}`}>
+                          <p
+                            className={`text-sm font-medium ${g.done ? "text-dim line-through" : "text-light"}`}
+                          >
                             {g.title}
                           </p>
                           {g.target_date && (
@@ -495,10 +523,7 @@ function FamilyModeInner() {
                         <button className="btn btn-ghost btn-xs" onClick={() => startEditGoal(i)}>
                           Edit
                         </button>
-                        <button
-                          className="btn btn-danger btn-xs"
-                          onClick={() => removeGoal(i)}
-                        >
+                        <button className="btn btn-danger btn-xs" onClick={() => removeGoal(i)}>
                           Remove
                         </button>
                       </div>
@@ -515,7 +540,10 @@ function FamilyModeInner() {
               <h3 className="text-lg font-semibold text-light">Your readiness</h3>
               {latestAssessment && latestAssessment.overall_score !== null ? (
                 <div className="mt-4 flex flex-col items-center gap-4">
-                  <ScoreRing value={Math.round(latestAssessment.overall_score)} color={COLORS.cyan} />
+                  <ScoreRing
+                    value={Math.round(latestAssessment.overall_score)}
+                    color={COLORS.cyan}
+                  />
                   {latestAssessment.verdict && <VerdictBadge verdict={latestAssessment.verdict} />}
                 </div>
               ) : (
@@ -527,8 +555,9 @@ function FamilyModeInner() {
                 </div>
               )}
               <p className="mt-5 text-xs leading-relaxed text-dim">
-                This is your own score. Each adult in the household should take their own assessment — readiness
-                isn't shared, it's personal. What you see here is only what you choose to show.
+                This is your own score. Each adult in the household should take their own assessment
+                — readiness isn't shared, it's personal. What you see here is only what you choose
+                to show.
               </p>
             </div>
 
@@ -536,8 +565,8 @@ function FamilyModeInner() {
             <div className="glass p-6">
               <h3 className="text-lg font-semibold text-light">Inviting your household</h3>
               <p className="mt-3 text-sm leading-relaxed text-dim">
-                Family plan seats are managed in Pricing — each member gets their own private scores. You see what
-                they choose to share.
+                Family plan seats are managed in Pricing — each member gets their own private
+                scores. You see what they choose to share.
               </p>
               <Link href="/pricing" className="btn btn-ghost mt-4">
                 View Pricing

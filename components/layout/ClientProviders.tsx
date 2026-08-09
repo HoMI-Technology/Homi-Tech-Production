@@ -46,8 +46,7 @@ export const pageTransitionVariants = {
  * Guarded by `__tests__/perf-bundle-guards.test.ts` — do not reintroduce
  * `import { motion } from "framer-motion"` here.
  */
-const loadMotionFeatures = () =>
-  import("./motion-features").then((mod) => mod.default);
+const loadMotionFeatures = () => import("./motion-features").then((mod) => mod.default);
 
 export function ClientProviders({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

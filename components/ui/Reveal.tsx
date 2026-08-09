@@ -56,7 +56,11 @@ export function Reveal({
   }, []);
 
   return (
-    <div ref={ref} className={className} style={delay ? { transitionDelay: `${delay}ms` } : undefined}>
+    <div
+      ref={ref}
+      className={className}
+      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
+    >
       {children}
     </div>
   );

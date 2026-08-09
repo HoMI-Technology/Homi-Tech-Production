@@ -64,7 +64,8 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     surfaces: { header: "primary", palette: true },
   },
   // Money Reality: one primary entry for picture + decision math.
-  // /tools stays public for acquisition; chrome points at /money.
+  // Public /tools hub stays crawlable for acquisition; signed-in chrome
+  // (dashboard, keyboard, contextual actions) points at /money + /money/decide.
   {
     href: "/money",
     label: "Money",
@@ -129,9 +130,11 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
   },
   {
     href: "/plan",
-    label: "Plan",
+    // Not "Plan" — Money · Plan (/money/plan) and Track's Plan tab own that word.
+    label: "Readiness plan",
+    paletteLabel: "Readiness plan",
     group: "Navigate",
-    keywords: "next steps path",
+    keywords: "next steps path readiness plan",
     surfaces: { header: "more", palette: true },
   },
   // Launch-hidden lab surface - route still exists; chrome off until verified.
@@ -198,22 +201,31 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     surfaces: { palette: false },
   },
 
-  // Money Reality deep modes + life
+  // Money Reality deep modes — palette only. Header More must not re-list
+  // Track/Decide as peer tabs when primary already has Money + in-page modes.
   {
     href: "/money/budget",
     label: "Budget",
-    paletteLabel: "Money Track",
+    paletteLabel: "Money · Track",
     group: "Navigate",
     keywords: "budget ledger track planner finance",
-    surfaces: { header: "more", palette: true },
+    surfaces: { palette: true },
   },
   {
     href: "/money/decide",
     label: "Decide",
-    paletteLabel: "Money Decide",
+    paletteLabel: "Money · Decide",
     group: "Navigate",
     keywords: "tools calculators lenses decision math",
-    surfaces: { header: "more", palette: true },
+    surfaces: { palette: true },
+  },
+  {
+    href: "/money/plan",
+    label: "Money plan",
+    paletteLabel: "Money · Plan",
+    group: "Navigate",
+    keywords: "housing debt household money plan",
+    surfaces: { palette: true },
   },
   // Launch-hidden life labs
   {
@@ -327,11 +339,9 @@ export const HEADER_MORE_NAV: NavLink[] = NAV_CATALOG.filter(
  * Full palette catalog including flag-gated entries - the palette filters
  * those at lookup time (visiblePaletteItems), matching prior behavior.
  */
-export const PALETTE_SOURCE = NAV_CATALOG.filter((e) => e.surfaces.palette).map(
-  (e) => ({
-    href: e.href,
-    label: e.paletteLabel ?? e.label,
-    group: e.group as string,
-    keywords: e.keywords,
-  }),
-);
+export const PALETTE_SOURCE = NAV_CATALOG.filter((e) => e.surfaces.palette).map((e) => ({
+  href: e.href,
+  label: e.paletteLabel ?? e.label,
+  group: e.group as string,
+  keywords: e.keywords,
+}));

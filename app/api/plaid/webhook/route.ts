@@ -52,7 +52,9 @@ export async function POST(request: Request) {
     bodySha256 = sha256Hex(rawBody);
   } else {
     if (!credentials) {
-      console.error(`[plaid/webhook:${correlationId}] delivery received but Plaid is not configured`);
+      console.error(
+        `[plaid/webhook:${correlationId}] delivery received but Plaid is not configured`,
+      );
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
     const verification = await verifyPlaidWebhook(
@@ -85,7 +87,9 @@ export async function POST(request: Request) {
     // Same contract as the Stripe webhook: missing service role is a
     // configuration error. Acking with 200 would silence Plaid redelivery
     // while item status never updates.
-    console.error(`[plaid/webhook:${correlationId}] SUPABASE_SERVICE_ROLE_KEY missing — cannot process`);
+    console.error(
+      `[plaid/webhook:${correlationId}] SUPABASE_SERVICE_ROLE_KEY missing — cannot process`,
+    );
     return NextResponse.json(
       { error: "Server misconfigured; webhook will retry." },
       { status: 500 },
@@ -105,7 +109,10 @@ export async function POST(request: Request) {
     if (insertError.code === "23505") {
       return NextResponse.json({ received: true, processed: false, duplicate: true });
     }
-    console.error(`[plaid/webhook:${correlationId}] webhook_events insert failed`, insertError.message);
+    console.error(
+      `[plaid/webhook:${correlationId}] webhook_events insert failed`,
+      insertError.message,
+    );
     return NextResponse.json({ error: "Could not record webhook event." }, { status: 500 });
   }
 
@@ -182,9 +189,15 @@ export async function POST(request: Request) {
               txnError.message,
             );
           }
-          const { error: accountError } = await admin.from("plaid_accounts").delete().eq("item_id", item.id);
+          const { error: accountError } = await admin
+            .from("plaid_accounts")
+            .delete()
+            .eq("item_id", item.id);
           if (accountError) {
-            console.error(`[plaid/webhook:${correlationId}] account purge failed`, accountError.message);
+            console.error(
+              `[plaid/webhook:${correlationId}] account purge failed`,
+              accountError.message,
+            );
           }
           return ack();
         }

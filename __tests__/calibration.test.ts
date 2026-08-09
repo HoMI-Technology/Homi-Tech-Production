@@ -19,7 +19,12 @@ describe("calibration shaping", () => {
   it("coerces string counts from the RPC into numbers", () => {
     const rows = shapeCalibration([
       // Supabase returns bigint counts as strings.
-      { verdict: "READY", response_count: "12" as unknown as number, avg_satisfaction: "4.2" as unknown as number, positive_rate: "0.8" as unknown as number },
+      {
+        verdict: "READY",
+        response_count: "12" as unknown as number,
+        avg_satisfaction: "4.2" as unknown as number,
+        positive_rate: "0.8" as unknown as number,
+      },
     ]);
     expect(rows[0].response_count).toBe(12);
     expect(rows[0].avg_satisfaction).toBeCloseTo(4.2);

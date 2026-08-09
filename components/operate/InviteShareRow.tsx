@@ -21,11 +21,7 @@ export function InviteShareRow({
       >
         {url}
       </code>
-      <CopyButton
-        value={url}
-        label={copyLabel}
-        className="!min-h-11 w-full shrink-0 sm:w-auto"
-      />
+      <CopyButton value={url} label={copyLabel} className="!min-h-11 w-full shrink-0 sm:w-auto" />
     </div>
   );
 }

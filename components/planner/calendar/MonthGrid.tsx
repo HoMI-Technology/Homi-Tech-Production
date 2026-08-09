@@ -2,11 +2,11 @@
 
 /* Decision calendar — the SUN–SAT month grid. */
 
-import { useMemo } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { cn } from "@/lib/planner/cn"
-import type { Bill, Transaction } from '@/lib/planner/types'
-import type { CalendarDay, CalendarFilter, MonthRef } from '@/lib/planner/calendar'
+import { useMemo } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/planner/cn";
+import type { Bill, Transaction } from "@/lib/planner/types";
+import type { CalendarDay, CalendarFilter, MonthRef } from "@/lib/planner/calendar";
 import {
   WEEKDAY_HEADERS,
   billState,
@@ -17,26 +17,26 @@ import {
   openBillsDueOn,
   pressureRatio,
   signedMoney2,
-} from '@/lib/planner/calendar'
-import type { DotKind } from './shared'
-import { EventDot } from './shared'
+} from "@/lib/planner/calendar";
+import type { DotKind } from "./shared";
+import { EventDot } from "./shared";
 
 /** Crimson cell-tint buckets by pressure ratio (token classes only). */
 function pressureTint(ratio: number): string {
-  if (ratio >= 0.66) return 'bg-crimson/[0.14]'
-  if (ratio >= 0.33) return 'bg-crimson/[0.08]'
-  if (ratio > 0) return 'bg-crimson/[0.04]'
-  return ''
+  if (ratio >= 0.66) return "bg-crimson/[0.14]";
+  if (ratio >= 0.33) return "bg-crimson/[0.08]";
+  if (ratio > 0) return "bg-crimson/[0.04]";
+  return "";
 }
 
 function cellChipClass(state: ReturnType<typeof billState>): string {
   switch (state) {
-    case 'paid':
-      return 'bg-emerald/15 text-emerald'
-    case 'overdue':
-      return 'bg-crimson/15 text-crimson'
+    case "paid":
+      return "bg-emerald/15 text-emerald";
+    case "overdue":
+      return "bg-crimson/15 text-crimson";
     default:
-      return 'bg-yellow/15 text-yellow'
+      return "bg-yellow/15 text-yellow";
   }
 }
 
@@ -51,34 +51,31 @@ export default function MonthGrid({
   onSelect,
   onShiftMonth,
 }: {
-  month: MonthRef
-  today: string
-  selectedISO: string
-  bills: Bill[]
-  transactions: Transaction[]
-  filter: CalendarFilter
-  comfort: boolean
-  onSelect: (dateISO: string) => void
-  onShiftMonth: (delta: number) => void
+  month: MonthRef;
+  today: string;
+  selectedISO: string;
+  bills: Bill[];
+  transactions: Transaction[];
+  filter: CalendarFilter;
+  comfort: boolean;
+  onSelect: (dateISO: string) => void;
+  onShiftMonth: (delta: number) => void;
 }) {
-  const weeks = useMemo(
-    () => buildMonthGrid(month.year, month.month, today),
-    [month, today],
-  )
+  const weeks = useMemo(() => buildMonthGrid(month.year, month.month, today), [month, today]);
   const maxPressure = useMemo(
     () => monthPressureMax(month, bills, transactions),
     [month, bills, transactions],
-  )
+  );
 
   const rollups = useMemo(() => {
-    const map = new Map<string, ReturnType<typeof dayRollup>>()
+    const map = new Map<string, ReturnType<typeof dayRollup>>();
     for (const week of weeks) {
       for (const day of week) {
-        map.set(day.dateISO, dayRollup(day.dateISO, bills, transactions))
+        map.set(day.dateISO, dayRollup(day.dateISO, bills, transactions));
       }
     }
-    return map
-  }, [weeks, bills, transactions])
+    return map;
+  }, [weeks, bills, transactions]);
 
   return (
     <div className="min-w-0 flex-1">
@@ -108,7 +105,7 @@ export default function MonthGrid({
         {WEEKDAY_HEADERS.map((d) => (
           <span
             key={d}
-            className="text-center text-[10px] font-medium uppercase tracking-[0.18em] text-dim"
+            className="text-center text-3xs font-medium uppercase tracking-[0.18em] text-dim"
           >
             <span className="hidden sm:inline">{d}</span>
             <span className="sm:hidden">{d.charAt(0)}</span>
@@ -139,7 +136,7 @@ export default function MonthGrid({
       </div>
 
       {/* Legend + keyboard hint */}
-      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-dim">
+      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-2xs text-dim">
         <span className="flex items-center gap-1.5">
           <EventDot kind="overdue" /> Overdue
         </span>
@@ -157,7 +154,7 @@ export default function MonthGrid({
         </span>
       </div>
     </div>
-  )
+  );
 }
 
 function DayCell({
@@ -171,54 +168,59 @@ function DayCell({
   comfort,
   onSelect,
 }: {
-  day: CalendarDay
-  rollup: ReturnType<typeof dayRollup>
-  bills: Bill[]
-  today: string
-  selected: boolean
-  maxPressure: number
-  filter: CalendarFilter
-  comfort: boolean
-  onSelect: (dateISO: string) => void
+  day: CalendarDay;
+  rollup: ReturnType<typeof dayRollup>;
+  bills: Bill[];
+  today: string;
+  selected: boolean;
+  maxPressure: number;
+  filter: CalendarFilter;
+  comfort: boolean;
+  onSelect: (dateISO: string) => void;
 }) {
-  const dueBills = openBillsDueOn(day.dateISO, bills)
-  const ratio = pressureRatio(rollup.pressure, maxPressure)
+  const dueBills = openBillsDueOn(day.dateISO, bills);
+  const ratio = pressureRatio(rollup.pressure, maxPressure);
 
-  const dots: DotKind[] = []
-  if (dueBills.some((b) => billState(b, today) === 'overdue')) dots.push('overdue')
-  if (dueBills.some((b) => {
-    const s = billState(b, today)
-    return s !== 'overdue' && s !== 'paid'
-  })) dots.push('bill')
-  if (rollup.out > 0) dots.push('spend')
-  if (rollup.in > 0 || dueBills.some((b) => billState(b, today) === 'paid')) {
-    dots.push('income')
+  const dots: DotKind[] = [];
+  if (dueBills.some((b) => billState(b, today) === "overdue")) dots.push("overdue");
+  if (
+    dueBills.some((b) => {
+      const s = billState(b, today);
+      return s !== "overdue" && s !== "paid";
+    })
+  )
+    dots.push("bill");
+  if (rollup.out > 0) dots.push("spend");
+  if (rollup.in > 0 || dueBills.some((b) => billState(b, today) === "paid")) {
+    dots.push("income");
   }
 
-  const showBills = filter === 'all' || filter === 'bills'
-  const net = rollup.in - rollup.out
+  const showBills = filter === "all" || filter === "bills";
+  const net = rollup.in - rollup.out;
 
   return (
     <button
       type="button"
       onClick={() => onSelect(day.dateISO)}
       className={cn(
-        'flex min-w-0 flex-col rounded-xl border text-left transition-colors',
-        comfort ? 'min-h-[64px] p-1.5 sm:min-h-[76px]' : 'min-h-[72px] p-1.5 sm:min-h-[96px] sm:p-2',
-        day.inMonth ? 'border-white/[0.05] bg-white/[0.015]' : 'border-transparent opacity-40',
+        "flex min-w-0 flex-col rounded-xl border text-left transition-colors",
+        comfort
+          ? "min-h-[64px] p-1.5 sm:min-h-[76px]"
+          : "min-h-[72px] p-1.5 sm:min-h-[96px] sm:p-2",
+        day.inMonth ? "border-white/[0.05] bg-white/[0.015]" : "border-transparent opacity-40",
         day.inMonth && pressureTint(ratio),
         selected
-          ? 'border-cyan/60 bg-cyan/[0.06]'
+          ? "border-cyan/60 bg-cyan/[0.06]"
           : day.isToday
-            ? 'border-cyan/30 bg-cyan/[0.04]'
-            : 'hover:border-white/[0.12]',
+            ? "border-cyan/30 bg-cyan/[0.04]"
+            : "hover:border-white/[0.12]",
       )}
     >
       <span className="flex items-start justify-between">
         <span
           className={cn(
-            'flex h-5 w-5 items-center justify-center rounded-full font-display text-[11px] tabular-nums sm:h-6 sm:w-6 sm:text-xs',
-            day.isToday ? 'bg-cyan text-navy font-semibold' : 'text-light/80',
+            "flex h-5 w-5 items-center justify-center rounded-full font-display text-2xs tabular-nums sm:h-6 sm:w-6 sm:text-xs",
+            day.isToday ? "bg-cyan text-navy font-semibold" : "text-light/80",
           )}
         >
           {day.day}
@@ -226,14 +228,14 @@ function DayCell({
       </span>
 
       {/* Ledger aggregate (desktop only) */}
-      {net !== 0 && (filter === 'all' || filter === 'income' || filter === 'spend') && (
+      {net !== 0 && (filter === "all" || filter === "income" || filter === "spend") && (
         <span
           className={cn(
-            'mt-0.5 hidden font-display text-[10px] tabular-nums sm:block',
-            net > 0 ? 'text-emerald/80' : 'text-dim',
+            "mt-0.5 hidden font-display text-3xs tabular-nums sm:block",
+            net > 0 ? "text-emerald/80" : "text-dim",
           )}
         >
-          {signedMoney2(net).replace('.00', '')}
+          {signedMoney2(net).replace(".00", "")}
         </span>
       )}
 
@@ -244,7 +246,7 @@ function DayCell({
             <span
               key={b.id}
               className={cn(
-                'max-w-full truncate rounded px-1 py-0.5 text-[9px] font-medium leading-tight',
+                "max-w-full truncate rounded px-1 py-0.5 text-3xs font-medium leading-tight",
                 cellChipClass(billState(b, today)),
               )}
             >
@@ -252,7 +254,7 @@ function DayCell({
             </span>
           ))}
           {dueBills.length > 2 && (
-            <span className="px-1 text-[9px] text-dim">+{dueBills.length - 2}</span>
+            <span className="px-1 text-3xs text-dim">+{dueBills.length - 2}</span>
           )}
         </span>
       )}
@@ -266,5 +268,5 @@ function DayCell({
         </span>
       )}
     </button>
-  )
+  );
 }

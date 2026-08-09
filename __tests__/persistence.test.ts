@@ -11,11 +11,19 @@ describe("reconcile (LWW)", () => {
   });
 
   it("local-only wins and seeds the server", () => {
-    expect(reconcile(local, null)).toEqual({ winner: "local", value: "local", shouldPushLocal: true });
+    expect(reconcile(local, null)).toEqual({
+      winner: "local",
+      value: "local",
+      shouldPushLocal: true,
+    });
   });
 
   it("remote-only wins without a push", () => {
-    expect(reconcile(null, remote)).toEqual({ winner: "remote", value: "remote", shouldPushLocal: false });
+    expect(reconcile(null, remote)).toEqual({
+      winner: "remote",
+      value: "remote",
+      shouldPushLocal: false,
+    });
   });
 
   it("newer local wins and pushes", () => {

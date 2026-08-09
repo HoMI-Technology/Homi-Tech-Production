@@ -49,9 +49,7 @@ describe("derivePathHabitStage", () => {
   });
 
   it("returns ready_optional for optional mode", () => {
-    expect(derivePathHabitStage(samplePath({ mode: "ready_optional" }))).toBe(
-      "ready_optional",
-    );
+    expect(derivePathHabitStage(samplePath({ mode: "ready_optional" }))).toBe("ready_optional");
   });
 
   it("returns path_pending_first when nothing done", () => {
@@ -61,23 +59,23 @@ describe("derivePathHabitStage", () => {
   });
 
   it("returns path_in_progress when partial", () => {
-    expect(
-      derivePathHabitStage(samplePath({ stepStatuses: ["done", "pending"] })),
-    ).toBe("path_in_progress");
+    expect(derivePathHabitStage(samplePath({ stepStatuses: ["done", "pending"] }))).toBe(
+      "path_in_progress",
+    );
   });
 
   it("returns path_complete when all done", () => {
-    expect(
-      derivePathHabitStage(samplePath({ stepStatuses: ["done", "skipped"] })),
-    ).toBe("path_complete");
+    expect(derivePathHabitStage(samplePath({ stepStatuses: ["done", "skipped"] }))).toBe(
+      "path_complete",
+    );
   });
 });
 
 describe("pathPendingStepCount / isPathReturnVisit", () => {
   it("counts pending steps", () => {
-    expect(
-      pathPendingStepCount(samplePath({ stepStatuses: ["done", "pending", "pending"] })),
-    ).toBe(2);
+    expect(pathPendingStepCount(samplePath({ stepStatuses: ["done", "pending", "pending"] }))).toBe(
+      2,
+    );
   });
 
   it("detects return visit after min days on incomplete path", () => {

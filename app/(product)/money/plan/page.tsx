@@ -16,17 +16,10 @@ const PlanCommand = dynamic(
  * Money · Plan — planner plan command surface.
  */
 export default function MoneyPlanPage() {
+  // PlanCommand owns its PLAN LAB header — do not stack a second h2 here.
   return (
     <MoneyShell>
-      <div className="space-y-4">
-        <div>
-          <h2 className="font-display text-xl text-light">Plan</h2>
-          <p className="mt-1 max-w-2xl text-sm text-dim">
-            Build path, housing, debt, and household plan modules — educational guidance only.
-          </p>
-        </div>
-        <PlanCommand />
-      </div>
+      <PlanCommand />
     </MoneyShell>
   );
 }

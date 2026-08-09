@@ -12,7 +12,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
       <ThresholdCompass size={96} glow className="mb-6" />
 
-      <main id="main" className="glass w-full max-w-md p-8">{children}</main>
+      <main id="main" className="glass w-full max-w-md p-8">
+        {children}
+      </main>
 
       <p className="mx-auto mt-8 max-w-md text-center text-xs leading-relaxed text-dim/70">
         {LEGAL_DISCLAIMER}

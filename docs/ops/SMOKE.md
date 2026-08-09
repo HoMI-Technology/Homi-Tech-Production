@@ -10,7 +10,7 @@ Hits production: routes, health, scoring.
 
 ## Signed-in (2 vars only)
 
-1. Create an account once at https://homitechnology.com/auth/sign-up  
+1. Create an account once at https://homitechnology.com/auth/sign-up
 2. Then:
 
 ```powershell

@@ -1,5 +1,8 @@
+import "server-only";
+
 /**
  * Personalized insight + next-step generation.
+ * Server-only (Plans.md 6.5). Clients receive insights from /api/scoring.
  * Canonical behavior: name the strongest and weakest pillars with real
  * scores, and generate context-aware steps keyed off pillar weakness.
  * Voice: precision empathy, calm authority. Never shaming.
@@ -87,43 +90,66 @@ export function generateNextSteps(result: AssessmentResult): string[] {
   for (const stop of result.hardStops) {
     switch (stop.code) {
       case "DTI_OVER_50":
-        steps.push("Bring your debt-to-income ratio below 43% before anything else — pay down the highest-rate balance first.");
+        steps.push(
+          "Bring your debt-to-income ratio below 43% before anything else — pay down the highest-rate balance first.",
+        );
         break;
       case "HOUSING_RATIO_OVER_45":
-        steps.push("Re-scope the target home so the monthly payment stays under 36% of your gross income.");
+        steps.push(
+          "Re-scope the target home so the monthly payment stays under 36% of your gross income.",
+        );
         break;
       case "RUNWAY_UNDER_1_MONTH":
-        steps.push("Build at least one month of expenses in cash before any other move. Runway comes first.");
+        steps.push(
+          "Build at least one month of expenses in cash before any other move. Runway comes first.",
+        );
         break;
       case "CREDIT_UNDER_620":
-        steps.push("Rebuild credit above 660: on-time payments and lower utilization move this fastest.");
+        steps.push(
+          "Rebuild credit above 660: on-time payments and lower utilization move this fastest.",
+        );
         break;
     }
   }
 
   if (fPct < 60) {
     if (f.emergencyFund < 5) steps.push("Build your emergency fund to 3–6 months of expenses.");
-    if (f.debtToIncome < 7) steps.push("Reduce monthly debt payments until your DTI sits at or below 36%.");
-    if (f.downPayment < 7) steps.push("Grow the down payment toward 10–20% — every point cuts your monthly cost.");
-    if (f.creditHealth < 5) steps.push("Push your credit score above 700 to unlock materially better pricing.");
+    if (f.debtToIncome < 7)
+      steps.push("Reduce monthly debt payments until your DTI sits at or below 36%.");
+    if (f.downPayment < 7)
+      steps.push("Grow the down payment toward 10–20% — every point cuts your monthly cost.");
+    if (f.creditHealth < 5)
+      steps.push("Push your credit score above 700 to unlock materially better pricing.");
   } else if (fPct < 80) {
-    if (f.emergencyFund < 8) steps.push("Top the emergency fund up to a full 6 months — that's where READY lives.");
-    if (f.creditHealth < 7) steps.push("A credit score above 740 earns the best tier. You're close.");
+    if (f.emergencyFund < 8)
+      steps.push("Top the emergency fund up to a full 6 months — that's where READY lives.");
+    if (f.creditHealth < 7)
+      steps.push("A credit score above 740 earns the best tier. You're close.");
   }
 
   if (ePct < 60) {
-    steps.push("Sit with the emotional side honestly: write down why now, and who is applying the pressure.");
-    if (e.fomoCheck < 4) steps.push("The urgency you feel is external, not internal. Give the decision 30 quiet days.");
+    steps.push(
+      "Sit with the emotional side honestly: write down why now, and who is applying the pressure.",
+    );
+    if (e.fomoCheck < 4)
+      steps.push(
+        "The urgency you feel is external, not internal. Give the decision 30 quiet days.",
+      );
     if (!e.singleRedistribution && e.partnerAlignment < 5)
-      steps.push("Get truly aligned with your partner before moving — misalignment compounds after closing.");
+      steps.push(
+        "Get truly aligned with your partner before moving — misalignment compounds after closing.",
+      );
   } else if (ePct < 80 && e.fomoCheck < 6) {
     steps.push("Notice the pressure sources around you — cooling them buys back clarity.");
   }
 
   if (tPct < 60) {
-    if (t.savingsRate < 7) steps.push("Raise your savings rate toward 20% of income — timing follows momentum.");
-    if (t.downPaymentProgress < 7) steps.push("Set a monthly auto-transfer toward the down-payment goal and track progress.");
-    if (t.timeHorizon < 7) steps.push("Extend your timeline past 6 months. Rushed timing is the most expensive kind.");
+    if (t.savingsRate < 7)
+      steps.push("Raise your savings rate toward 20% of income — timing follows momentum.");
+    if (t.downPaymentProgress < 7)
+      steps.push("Set a monthly auto-transfer toward the down-payment goal and track progress.");
+    if (t.timeHorizon < 7)
+      steps.push("Extend your timeline past 6 months. Rushed timing is the most expensive kind.");
   } else if (tPct < 80 && t.downPaymentProgress < 10) {
     steps.push("You're past the halfway mark on the down payment — hold the pace.");
   }

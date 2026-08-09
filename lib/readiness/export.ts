@@ -28,9 +28,7 @@ export function exportPathMarkdown(path: ReadinessPath): string {
       `- Status: ${s.status ?? "pending"}`,
       `- When: +${s.daysFromNow}d`,
       `- Open: ${s.href}`,
-      s.fundingTarget != null
-        ? `- Funding: $${s.fundingTarget} ${s.fundingLabel ?? ""}`
-        : "",
+      s.fundingTarget != null ? `- Funding: $${s.fundingTarget} ${s.fundingLabel ?? ""}` : "",
       ``,
       s.notes,
       ``,
@@ -52,11 +50,7 @@ export function exportPathJson(path: ReadinessPath): string {
   );
 }
 
-export function downloadTextFile(
-  filename: string,
-  content: string,
-  mime: string,
-): void {
+export function downloadTextFile(filename: string, content: string, mime: string): void {
   if (typeof window === "undefined") return;
   const blob = new Blob([content], { type: mime });
   const url = URL.createObjectURL(blob);

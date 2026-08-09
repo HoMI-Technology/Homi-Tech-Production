@@ -121,7 +121,10 @@ const getCachedProjectId = unstable_cache(resolveProjectId, ["posthog-project-id
 });
 
 /** Run one HogQL statement. Returns rows mapped to column-name records, or null on any failure. */
-async function runHogQL(projectId: string, query: string): Promise<Record<string, unknown>[] | null> {
+async function runHogQL(
+  projectId: string,
+  query: string,
+): Promise<Record<string, unknown>[] | null> {
   const personalKey = env.POSTHOG_PERSONAL_API_KEY;
   if (!personalKey) return null;
   try {
@@ -166,9 +169,7 @@ function toNumber(value: unknown): number | null {
  * Overview cards + daily trend + funnel for a range. Null when any query
  * fails so the page can show one honest error note rather than half-data.
  */
-export async function getAnalyticsBundle(
-  range: AnalyticsRange,
-): Promise<{
+export async function getAnalyticsBundle(range: AnalyticsRange): Promise<{
   overview: OverviewMetrics;
   daily: DailyPoint[];
   funnel: FunnelStep[];

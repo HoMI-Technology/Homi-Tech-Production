@@ -197,9 +197,7 @@ async function migrateUser(
       userCategoryBySlug.set(cat.slug, cat);
     }
 
-    const expenseCategories = Array.isArray(state.expenseCategories)
-      ? state.expenseCategories
-      : [];
+    const expenseCategories = Array.isArray(state.expenseCategories) ? state.expenseCategories : [];
 
     const unmatched = [];
     const categoryMappings = [];
@@ -250,9 +248,7 @@ async function migrateUser(
           `expense_mappings=${categoryMappings.length}`,
       );
     } else {
-      const { error: bpError } = await supabase
-        .from("finance_budget_periods")
-        .insert(budgetPeriod);
+      const { error: bpError } = await supabase.from("finance_budget_periods").insert(budgetPeriod);
       if (bpError) throw new Error(`budget_period insert failed: ${bpError.message}`);
 
       if (newUserCategories.length > 0) {
@@ -328,9 +324,7 @@ async function migrateUser(
           `${transactions.filter((t) => t.type === "expense").length} expense)`,
       );
     } else if (transactions.length > 0) {
-      const { error: txError } = await supabase
-        .from("finance_transactions")
-        .insert(transactions);
+      const { error: txError } = await supabase.from("finance_transactions").insert(transactions);
       if (txError) throw new Error(`transaction insert failed: ${txError.message}`);
     }
 
@@ -360,9 +354,7 @@ async function migrateUser(
             `target_cents=${targetCents} current_cents=${currentCents}`,
         );
       } else {
-        const { error: sgError } = await supabase
-          .from("finance_savings_goals")
-          .insert(savingsGoal);
+        const { error: sgError } = await supabase.from("finance_savings_goals").insert(savingsGoal);
         if (sgError) throw new Error(`savings goal insert failed: ${sgError.message}`);
         savingsGoalResult = savingsGoal;
       }
@@ -385,14 +377,10 @@ async function migrateUser(
 
 async function main() {
   const now = new Date();
-  const periodStart = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
-  )
+  const periodStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
     .toISOString()
     .slice(0, 10);
-  const periodEnd = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0),
-  )
+  const periodEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0))
     .toISOString()
     .slice(0, 10);
 

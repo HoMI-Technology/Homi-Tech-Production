@@ -65,9 +65,12 @@ const financeContextSchema = z.object({
   savingsRate: z.number().min(-1000).max(1000),
   runwayMonths: z.number().min(0).max(1200).nullable(),
   dti: z.number().min(0).max(1000),
-  liquidSavings: z.number().min(0).max(1_000_000_000),
-  totalDebt: z.number().min(0).max(1_000_000_000),
-  netWorth: z.number().min(-1_000_000_000).max(1_000_000_000),
+  // Nullable: the v1 ledger sees goal balances, not accounts, so cash on hand
+  // is unknown rather than zero when there is no emergency-reserve goal.
+  liquidSavings: z.number().min(0).max(1_000_000_000).nullable(),
+  // Nullable: the v1 ledger has no liability type and reports these as unknown.
+  totalDebt: z.number().min(0).max(1_000_000_000).nullable(),
+  netWorth: z.number().min(-1_000_000_000).max(1_000_000_000).nullable(),
   ageDays: z.number().min(0).max(36_500).nullish(),
 
   // v2 ledger-backed dashboard fields (all optional during staged rollout)
@@ -147,7 +150,8 @@ const financeContextSchema = z.object({
     .object({
       dti: z.number().min(0).max(1000),
       savingsRate: z.number().min(-1000).max(1000),
-      runwayMonths: z.number().min(0).max(1200),
+      // Nullable: unknown runway must not be flattened to 0 on the way in.
+      runwayMonths: z.number().min(0).max(1200).nullable(),
       downPaymentProgressPct: z.number().min(0).max(100),
       creditScore: z.number().min(300).max(850).optional(),
     })
@@ -396,9 +400,15 @@ function buildContextNote(
         : "Live money picture from their Finance Command dashboard (self-reported, monthly USD):",
       `income $${finance.monthlyIncome}, net cash flow $${finance.netCashFlow}, savings rate ${finance.savingsRate}%,`,
       finance.runwayMonths === null
-        ? "runway not computable (no outflow entered),"
+        ? "runway not computable from what is known — do not state or estimate it,"
         : `runway ${finance.runwayMonths} months,`,
-      `DTI ${finance.dti}%, liquid savings $${finance.liquidSavings}, total debt $${finance.totalDebt}, net worth $${finance.netWorth}.`,
+      `DTI ${finance.dti}%,`,
+      finance.liquidSavings === null
+        ? "liquid savings unknown — no account with balances is connected; do not state or estimate a figure,"
+        : `liquid savings $${finance.liquidSavings},`,
+      finance.totalDebt === null || finance.netWorth === null
+        ? "debt and net worth are unknown — no account with liabilities is connected. Do not state or estimate either figure; say you cannot see it yet."
+        : `total debt $${finance.totalDebt}, net worth $${finance.netWorth}.`,
     );
   }
 
@@ -480,7 +490,10 @@ export async function POST(request: Request) {
 
   const parsed = bodySchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid request body.", issues: parsed.error.issues }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body.", issues: parsed.error.issues },
+      { status: 400 },
+    );
   }
 
   const { messages, persona, demoContext } = parsed.data;
@@ -548,17 +561,26 @@ export async function POST(request: Request) {
   // deterministic answer built from the same precomputed digest the model
   // would read — so free tier, quota exhaustion, and Anthropic outages all
   // produce the same numbers a paid answer would, never a contradiction.
-  const synthesisRequested = lastUserMessage.trim().toLowerCase().startsWith("what does this change");
+  const synthesisRequested = lastUserMessage
+    .trim()
+    .toLowerCase()
+    .startsWith("what does this change");
   function deterministicReply(): string {
     if (lensDigest && synthesisRequested) return buildLensSynthesisFallback(lensDigest);
-    return buildPersonaFallbackReply({ message: lastUserMessage, assessment, persona: activePersona });
+    return buildPersonaFallbackReply({
+      message: lastUserMessage,
+      assessment,
+      persona: activePersona,
+    });
   }
 
   // Single exit: persist the exchange to the user's server thread (best-effort,
   // signed-in only, never for demo mode) and reply with the conversation id so
   // the client can echo it back on the next message.
   async function respond(reply: string, source: "model" | "fallback") {
-    let conversationId = demoContext ? null : (parsed.success ? parsed.data.conversationId : null) ?? null;
+    let conversationId = demoContext
+      ? null
+      : ((parsed.success ? parsed.data.conversationId : null) ?? null);
     if (supabase && gateUserId) {
       const persisted = await persistCompanionExchange(supabase, {
         userId: gateUserId,
@@ -625,7 +647,10 @@ export async function POST(request: Request) {
     if (!response.ok) {
       // Surface a bad/expired key (or upstream outage) in logs — a silent
       // fallback here is indistinguishable from the normal $0 path otherwise.
-      console.error("[advisor] model call failed", { status: response.status, reason: "non_200_response" });
+      console.error("[advisor] model call failed", {
+        status: response.status,
+        reason: "non_200_response",
+      });
       return respond(deterministicReply(), "fallback");
     }
 

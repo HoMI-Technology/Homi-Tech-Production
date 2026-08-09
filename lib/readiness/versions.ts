@@ -35,10 +35,7 @@ export function loadPathHistory(): PathVersionRecord[] {
 function saveHistory(records: PathVersionRecord[]): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(
-      HISTORY_KEY,
-      JSON.stringify(records.slice(0, MAX_VERSIONS)),
-    );
+    window.localStorage.setItem(HISTORY_KEY, JSON.stringify(records.slice(0, MAX_VERSIONS)));
   } catch {
     /* quota */
   }

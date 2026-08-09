@@ -103,11 +103,15 @@ async function main() {
   if (failures) {
     console.error(`[verify-stripe-webhook] ${failures} problem(s).`);
     if (missing.includes("customer.subscription.deleted")) {
-      console.error("  customer.subscription.deleted is missing — cancellations will NOT downgrade.");
+      console.error(
+        "  customer.subscription.deleted is missing — cancellations will NOT downgrade.",
+      );
     }
     process.exit(1);
   }
-  console.log("[verify-stripe-webhook] Endpoint is enabled and subscribes to all four handled events.");
+  console.log(
+    "[verify-stripe-webhook] Endpoint is enabled and subscribes to all four handled events.",
+  );
 }
 
 main().catch((err) => {

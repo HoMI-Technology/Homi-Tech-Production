@@ -11,15 +11,13 @@ const GOOD_KEY = "homi_live_" + "b".repeat(32);
 
 interface Scenario {
   keyRow: { id: string; revoked_at: string | null } | null;
-  share:
-    | {
-        id: string;
-        expires_at: string | null;
-        revoked_at: string | null;
-        created_at: string;
-        assessment: Record<string, unknown> | null;
-      }
-    | null;
+  share: {
+    id: string;
+    expires_at: string | null;
+    revoked_at: string | null;
+    created_at: string;
+    assessment: Record<string, unknown> | null;
+  } | null;
 }
 
 let scenario: Scenario;
@@ -30,12 +28,16 @@ vi.mock("@/lib/supabase/admin", () => ({
     from: (table: string) => {
       if (table === "partner_api_keys") {
         return {
-          select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: scenario.keyRow, error: null }) }) }),
+          select: () => ({
+            eq: () => ({ maybeSingle: async () => ({ data: scenario.keyRow, error: null }) }),
+          }),
         };
       }
       if (table === "score_shares") {
         return {
-          select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: scenario.share, error: null }) }) }),
+          select: () => ({
+            eq: () => ({ maybeSingle: async () => ({ data: scenario.share, error: null }) }),
+          }),
         };
       }
       // receipt_verifications

@@ -51,7 +51,7 @@ export function AgentRoster() {
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-light">{a.name}</span>
                 {primary === a.id && (
-                  <span className="rounded bg-emerald/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-emerald">
+                  <span className="rounded bg-emerald/10 px-1.5 py-0.5 text-3xs font-bold uppercase text-emerald">
                     Primary
                   </span>
                 )}
@@ -126,8 +126,8 @@ export function AgentRoster() {
             <div className="mt-4 rounded-xl border border-crimson/20 bg-crimson/5 p-4">
               <h3 className="text-sm font-bold text-crimson">Always Active</h3>
               <p className="mt-1 text-xs leading-relaxed text-crimson/80">
-                Sentinel operates independently of all other agents. It monitors every
-                interaction for safety, bias, and compliance. Cannot be disabled or bypassed.
+                Sentinel operates independently of all other agents. It monitors every interaction
+                for safety, bias, and compliance. Cannot be disabled or bypassed.
               </p>
             </div>
           )}

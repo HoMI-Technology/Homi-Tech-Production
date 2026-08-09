@@ -29,9 +29,7 @@ function src(rel: string): string {
 
 // Strip block and line comments so docs examples do not false-positive.
 function codeOnly(source: string): string {
-  return source
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/(^|[^:])\/\/.*$/gm, "$1");
+  return source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
 }
 
 describe("perf bundle guards (Lighthouse §11 + E2E coexistence)", () => {
@@ -69,16 +67,29 @@ describe("perf bundle guards (Lighthouse §11 + E2E coexistence)", () => {
     // Named import of the preloaded `motion` component (~34kb).
     const namedImports = [...code.matchAll(/import\s*\{([^}]+)\}\s*from\s*["']framer-motion["']/g)];
     for (const match of namedImports) {
-      const names = match[1].split(",").map((s) => s.trim().split(/\s+as\s+/)[0].trim());
+      const names = match[1].split(",").map((s) =>
+        s
+          .trim()
+          .split(/\s+as\s+/)[0]
+          .trim(),
+      );
       expect(names, `unexpected motion import: ${match[0]}`).not.toContain("motion");
     }
   });
 
-  it("useReadinessAnchors dynamic-imports simulator (scoring stays off cold tools)", () => {
+  it("useReadinessAnchors seeds from public simulator only (engine stays off cold tools)", () => {
     const code = codeOnly(src("hooks/use-readiness.ts"));
-    expect(code).toMatch(/import\s*\(\s*["']@\/lib\/simulator["']\s*\)/);
-    expect(code).not.toMatch(
-      /import\s*\{[^}]*seedBaseline[^}]*\}\s*from\s*["']@\/lib\/simulator["']/,
-    );
+    expect(code).toMatch(/from\s+["']@\/lib\/simulator\/public["']/);
+    expect(code).toMatch(/seedBaseline/);
+    // Must not pull the engine-backed simulator module (static or dynamic).
+    expect(code).not.toMatch(/["']@\/lib\/simulator["']/);
+    expect(code).not.toMatch(/["']@\/lib\/scoring["']/);
+  });
+
+  it("housing readiness uses the batch API, not readiness-bands on the client", () => {
+    const code = codeOnly(src("hooks/use-housing-readiness.ts"));
+    expect(code).toMatch(/fetchSimulatorBatch/);
+    expect(code).not.toMatch(/["']@\/lib\/tools\/readiness-bands["']/);
+    expect(code).not.toMatch(/["']@\/lib\/simulator["']/);
   });
 });

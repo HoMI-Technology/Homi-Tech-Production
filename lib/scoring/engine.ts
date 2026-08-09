@@ -1,6 +1,14 @@
+import "server-only";
+
 /**
  * HōMI-Score Canonical Scoring Engine
  * ====================================
+ *
+ * Server-only (Plans.md 6.5). Client code must use POST /api/scoring or
+ * /api/simulator — never value-import this module.
+ *
+ * Bundle-proof sentinel string — must never appear in client chunks:
+ * HOMI_SCORING_ENGINE_V1_SERVER_ONLY
  *
  * The mathematical heart of HōMI. Produces a deterministic 0-100 score
  * from three equally-weighted pillars:
@@ -41,7 +49,7 @@
 // self-contained and testable in isolation.
 
 /** Verdict tiers produced by the scoring engine. */
-export type Verdict = 'READY' | 'ALMOST_THERE' | 'BUILD_FIRST' | 'NOT_YET';
+export type Verdict = "READY" | "ALMOST_THERE" | "BUILD_FIRST" | "NOT_YET";
 
 /** Raw inputs collected from the assessment flow. */
 export interface AssessmentInputs {
@@ -100,28 +108,28 @@ export interface AssessmentInputs {
 
 /** Breakdown of points earned in each sub-factor. */
 export interface FinancialBreakdown {
-  debtToIncome: number;     // max 10
-  downPayment: number;      // max 10
-  emergencyFund: number;    // max 8
-  creditHealth: number;     // max 7
-  total: number;            // max 35
+  debtToIncome: number; // max 10
+  downPayment: number; // max 10
+  emergencyFund: number; // max 8
+  creditHealth: number; // max 7
+  total: number; // max 35
 }
 
 export interface EmotionalBreakdown {
-  lifeStability: number;    // max 9
-  confidenceLevel: number;  // max 9
+  lifeStability: number; // max 9
+  confidenceLevel: number; // max 9
   partnerAlignment: number; // max 9 (redistributed if single)
-  fomoCheck: number;        // max 8
-  total: number;            // max 35
+  fomoCheck: number; // max 8
+  total: number; // max 35
   /** True when partnerAlignment was null and points were redistributed. */
   singleRedistribution: boolean;
 }
 
 export interface TimingBreakdown {
-  timeHorizon: number;          // max 10
-  savingsRate: number;          // max 10
-  downPaymentProgress: number;  // max 10
-  total: number;                // max 30
+  timeHorizon: number; // max 10
+  savingsRate: number; // max 10
+  downPaymentProgress: number; // max 10
+  total: number; // max 30
 }
 
 /** Complete output of the scoring engine. */
@@ -151,10 +159,10 @@ export interface ScoringWarning {
 
 /** Catastrophic-condition flags that force a verdict downgrade to NOT_YET. */
 export type HardStopCode =
-  | 'DTI_OVER_50'
-  | 'HOUSING_RATIO_OVER_45'
-  | 'RUNWAY_UNDER_1_MONTH'
-  | 'CREDIT_UNDER_620';
+  | "DTI_OVER_50"
+  | "HOUSING_RATIO_OVER_45"
+  | "RUNWAY_UNDER_1_MONTH"
+  | "CREDIT_UNDER_620";
 
 export interface HardStopReason {
   code: HardStopCode;
@@ -166,7 +174,13 @@ export interface HardStopReason {
 // Constants
 // ---------------------------------------------------------------------------
 
-import { PILLAR_MAX_POINTS } from './weights';
+import { PILLAR_MAX_POINTS } from "./weights";
+
+/**
+ * Unique string only the engine module contains. CI greps client chunks
+ * after `next build` to prove this never ships to the browser (6.5).
+ */
+export const SCORING_ENGINE_SENTINEL = "HOMI_SCORING_ENGINE_V1_SERVER_ONLY" as const;
 
 /**
  * Maximum points per pillar — sourced from the trade-secret boundary.
@@ -408,15 +422,15 @@ function computeEmotional(inputs: AssessmentInputs): EmotionalBreakdown {
     // Distribute remainder to maintain total = PARTNER_MAX
     let remainder = PARTNER_MAX - (bonusLife + bonusConfidence + bonusFomo);
     const fractionals = [
-      { key: 'life' as const, frac: rawBonusLife - bonusLife },
-      { key: 'confidence' as const, frac: rawBonusConfidence - bonusConfidence },
-      { key: 'fomo' as const, frac: rawBonusFomo - bonusFomo },
+      { key: "life" as const, frac: rawBonusLife - bonusLife },
+      { key: "confidence" as const, frac: rawBonusConfidence - bonusConfidence },
+      { key: "fomo" as const, frac: rawBonusFomo - bonusFomo },
     ].sort((a, b) => b.frac - a.frac);
 
     for (const item of fractionals) {
       if (remainder <= 0) break;
-      if (item.key === 'life') bonusLife++;
-      else if (item.key === 'confidence') bonusConfidence++;
+      if (item.key === "life") bonusLife++;
+      else if (item.key === "confidence") bonusConfidence++;
       else bonusFomo++;
       remainder--;
     }
@@ -528,10 +542,10 @@ function computeTiming(inputs: AssessmentInputs): TimingBreakdown {
  * Boundary values are included in the higher tier (e.g. 80 = READY).
  */
 function deriveVerdict(score: number): Verdict {
-  if (score >= THRESHOLD_READY) return 'READY';
-  if (score >= THRESHOLD_ALMOST) return 'ALMOST_THERE';
-  if (score >= THRESHOLD_BUILD) return 'BUILD_FIRST';
-  return 'NOT_YET';
+  if (score >= THRESHOLD_READY) return "READY";
+  if (score >= THRESHOLD_ALMOST) return "ALMOST_THERE";
+  if (score >= THRESHOLD_BUILD) return "BUILD_FIRST";
+  return "NOT_YET";
 }
 
 /**
@@ -565,36 +579,33 @@ function detectHardStops(inputs: AssessmentInputs): HardStopReason[] {
 
   if (inputs.debtToIncomeRatio > 0.5) {
     reasons.push({
-      code: 'DTI_OVER_50',
+      code: "DTI_OVER_50",
       message:
-        'Your debt-to-income ratio is above 50%. Buying right now would leave almost no margin for surprises.',
+        "Your debt-to-income ratio is above 50%. Buying right now would leave almost no margin for surprises.",
     });
   }
 
-  if (
-    typeof inputs.monthlyHousingRatio === 'number' &&
-    inputs.monthlyHousingRatio > 0.45
-  ) {
+  if (typeof inputs.monthlyHousingRatio === "number" && inputs.monthlyHousingRatio > 0.45) {
     reasons.push({
-      code: 'HOUSING_RATIO_OVER_45',
+      code: "HOUSING_RATIO_OVER_45",
       message:
-        'The home you are considering would consume more than 45% of your monthly income. That is the line where one bad month becomes a crisis.',
+        "The home you are considering would consume more than 45% of your monthly income. That is the line where one bad month becomes a crisis.",
     });
   }
 
   if (inputs.emergencyFundMonths < 1) {
     reasons.push({
-      code: 'RUNWAY_UNDER_1_MONTH',
+      code: "RUNWAY_UNDER_1_MONTH",
       message:
-        'You have less than one month of expenses set aside. Owning a home means owning the surprises that come with it — you need runway first.',
+        "You have less than one month of expenses set aside. Owning a home means owning the surprises that come with it — you need runway first.",
     });
   }
 
   if (inputs.creditScore < 620) {
     reasons.push({
-      code: 'CREDIT_UNDER_620',
+      code: "CREDIT_UNDER_620",
       message:
-        'Your credit score is below 620. Lenders will price this as high-risk, and the interest cost alone could undo the purchase. Build credit first; you protect yourself by waiting.',
+        "Your credit score is below 620. Lenders will price this as high-risk, and the interest cost alone could undo the purchase. Build credit first; you protect yourself by waiting.",
     });
   }
 
@@ -620,21 +631,21 @@ function detectWarnings(inputs: AssessmentInputs): ScoringWarning[] {
 
   if (allMaxed) {
     warnings.push({
-      code: 'FOMO_WARNING',
+      code: "FOMO_WARNING",
       message:
-        'All emotional indicators are at their optimal values. ' +
-        'Take a moment to honestly reassess — buying a home is one of the biggest ' +
-        'decisions you will make, and honesty here protects you.',
+        "All emotional indicators are at their optimal values. " +
+        "Take a moment to honestly reassess — buying a home is one of the biggest " +
+        "decisions you will make, and honesty here protects you.",
     });
   }
 
   // Very high FOMO combined with short timeline
   if (inputs.fomoLevel >= 8 && inputs.timeHorizonMonths < 3) {
     warnings.push({
-      code: 'PRESSURE_RUSH',
+      code: "PRESSURE_RUSH",
       message:
-        'High external pressure combined with a very short timeline. ' +
-        'Consider whether you are being rushed into a decision.',
+        "High external pressure combined with a very short timeline. " +
+        "Consider whether you are being rushed into a decision.",
     });
   }
 
@@ -690,7 +701,7 @@ export function computeScore(inputs: AssessmentInputs): AssessmentResult {
   const baseVerdict = deriveVerdict(score);
   // Hard-stops force a downgrade to NOT_YET. The numeric score is preserved
   // so the UI can still show "65, but with red-line conditions" honestly.
-  const verdict: Verdict = hardStops.length > 0 ? 'NOT_YET' : baseVerdict;
+  const verdict: Verdict = hardStops.length > 0 ? "NOT_YET" : baseVerdict;
   const warnings = detectWarnings(inputs);
 
   return {

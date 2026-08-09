@@ -44,14 +44,22 @@ const SEEDED_FINANCE = {
 
 /** Seed saved finance state before the app mounts (partial — merged over
  *  DEFAULT_FINANCE_STATE by loadFinanceState). */
-async function seedFinance(page: Page, finance: Record<string, number> = SEEDED_FINANCE): Promise<void> {
+async function seedFinance(
+  page: Page,
+  finance: Record<string, number> = SEEDED_FINANCE,
+): Promise<void> {
   await page.addInitScript(
     (args: { key: string; stampKey: string; savedKey: string; value: Record<string, number> }) => {
       localStorage.setItem(args.key, JSON.stringify(args.value));
       localStorage.setItem(args.stampKey, String(Date.now()));
       localStorage.setItem(args.savedKey, new Date().toISOString());
     },
-    { key: FINANCE_KEY, stampKey: FINANCE_STAMP_KEY, savedKey: FINANCE_SAVED_AT_KEY, value: finance },
+    {
+      key: FINANCE_KEY,
+      stampKey: FINANCE_STAMP_KEY,
+      savedKey: FINANCE_SAVED_AT_KEY,
+      value: finance,
+    },
   );
 }
 
@@ -75,7 +83,9 @@ test.describe("Decision Lab — saved numbers vs illustrative", () => {
     await expect(page.getByText("your numbers", { exact: true })).toHaveCount(0);
   });
 
-  test("saved finance → 'built on your numbers', and seeded fields are tagged", async ({ page }) => {
+  test("saved finance → 'built on your numbers', and seeded fields are tagged", async ({
+    page,
+  }) => {
     await seedFinance(page);
     await page.goto("/tools/affordability");
     await dismissCookieConsent(page);
@@ -114,7 +124,9 @@ test.describe("Decision Lab — synthesis hand-off", () => {
 });
 
 test.describe("Decision Lab — readiness band", () => {
-  test("renders magnitude language only (no digits), with the honest no-assessment note", async ({ page }) => {
+  test("renders magnitude language only (no digits), with the honest no-assessment note", async ({
+    page,
+  }) => {
     await seedFinance(page);
     await page.goto("/tools/affordability");
     await dismissCookieConsent(page);
@@ -152,7 +164,14 @@ test.describe("Decision Lab — scenario staleness", () => {
       id: "e2e-decision-lab-1",
       name: "House at $420k",
       lensId: "mortgage",
-      inputs: { price: 420000, downPayment: 84000, rate: 6.5, termYears: 30, taxInsRate: 1.5, hoaMonthly: 0 },
+      inputs: {
+        price: 420000,
+        downPayment: 84000,
+        rate: 6.5,
+        termYears: 30,
+        taxInsRate: 1.5,
+        hoaMonthly: 0,
+      },
       cfmSnapshot: {
         monthlyIncome: 6000,
         monthlyExpenses: 3000,
@@ -166,7 +185,8 @@ test.describe("Decision Lab — scenario staleness", () => {
 
     await seedFinance(page); // income 7200; other fields match the snapshot
     await page.addInitScript(
-      (args: { key: string; value: unknown }) => localStorage.setItem(args.key, JSON.stringify([args.value])),
+      (args: { key: string; value: unknown }) =>
+        localStorage.setItem(args.key, JSON.stringify([args.value])),
       { key: SCENARIOS_KEY, value: scenario },
     );
 

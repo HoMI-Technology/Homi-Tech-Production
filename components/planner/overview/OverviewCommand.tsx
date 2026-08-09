@@ -8,9 +8,9 @@
 /* — mutations only via store actions / closed-loop wrappers.          */
 /* ------------------------------------------------------------------ */
 
-import { useMemo, useState } from 'react'
-import type { ReactNode } from 'react'
-import { motion } from 'framer-motion'
+import { useMemo, useState } from "react";
+import type { ReactNode } from "react";
+import { motion } from "framer-motion";
 import {
   ArrowDownLeft,
   ArrowRight,
@@ -27,7 +27,7 @@ import {
   Receipt,
   Trash2,
   X,
-} from 'lucide-react'
+} from "lucide-react";
 import {
   Bar,
   Cell,
@@ -38,28 +38,26 @@ import {
   ResponsiveContainer,
   XAxis,
   YAxis,
-} from 'recharts'
-import { TEMP_HEX } from "@/lib/planner/palette"
-import { usePlannerStore } from "@/lib/planner/store"
-import { VERDICT_META } from "@/lib/brand"
-import type { PillarKey } from "@/lib/planner/score-result"
-import {
-  addCheckinWithImpact,
-} from '@/lib/planner/closed-loop'
-import { buildCashflowSpark, buildSpendDigest } from '@/lib/planner/digest'
-import { summarize, todayISO } from '@/lib/planner/derived'
-import { analyzeStress } from '@/lib/planner/stress'
-import { NUDGE_KIND_LABEL } from '@/lib/planner/nudges'
-import type { SignalTab } from '@/lib/planner/signals'
-import { PLANNER_CATEGORY_HEX } from '@/lib/planner/types'
+} from "recharts";
+import { TEMP_HEX } from "@/lib/planner/palette";
+import { usePlannerStore } from "@/lib/planner/store";
+import { VERDICT_META } from "@/lib/brand";
+import type { PillarKey } from "@/lib/planner/score-result";
+import { addCheckinWithImpact } from "@/lib/planner/closed-loop";
+import { buildCashflowSpark, buildSpendDigest } from "@/lib/planner/digest";
+import { summarize, todayISO } from "@/lib/planner/derived";
+import { analyzeStress } from "@/lib/planner/stress";
+import { NUDGE_KIND_LABEL } from "@/lib/planner/nudges";
+import type { SignalTab } from "@/lib/planner/signals";
+import { PLANNER_CATEGORY_HEX } from "@/lib/planner/types";
 import type {
   CategoryId,
   ExpenseCategory,
   IncomeCategory,
   PathSnapshot,
   Transaction,
-} from '@/lib/planner/types'
-import { downloadReceipt, issueReceipt } from "@/lib/planner/receipts-local"
+} from "@/lib/planner/types";
+import { downloadReceipt, issueReceipt } from "@/lib/planner/receipts-local";
 import {
   fmtDayShort,
   fmtSignedUsd0,
@@ -69,44 +67,39 @@ import {
   usePlannerReality,
   usePlannerScore,
   useBehaviorNudges,
-} from "@/components/planner/hooks"
+} from "@/components/planner/hooks";
 
 /* ------------------------------------------------------------------ */
 /* Local view helpers                                                  */
 /* ------------------------------------------------------------------ */
 
 const CATEGORY_LABEL: Record<CategoryId, string> = {
-  housing: 'Housing',
-  food: 'Food',
-  transport: 'Transport',
-  utilities: 'Utilities',
-  health: 'Health',
-  entertainment: 'Entertainment',
-  shopping: 'Shopping',
-  debt: 'Debt',
-  other: 'Other',
-  salary: 'Salary',
-  freelance: 'Freelance',
-  investments: 'Investments',
-}
+  housing: "Housing",
+  food: "Food",
+  transport: "Transport",
+  utilities: "Utilities",
+  health: "Health",
+  entertainment: "Entertainment",
+  shopping: "Shopping",
+  debt: "Debt",
+  other: "Other",
+  salary: "Salary",
+  freelance: "Freelance",
+  investments: "Investments",
+};
 
 const EXPENSE_CATEGORIES: ExpenseCategory[] = [
-  'food',
-  'housing',
-  'transport',
-  'utilities',
-  'health',
-  'entertainment',
-  'shopping',
-  'debt',
-  'other',
-]
-const INCOME_CATEGORIES: IncomeCategory[] = [
-  'salary',
-  'freelance',
-  'investments',
-  'other',
-]
+  "food",
+  "housing",
+  "transport",
+  "utilities",
+  "health",
+  "entertainment",
+  "shopping",
+  "debt",
+  "other",
+];
+const INCOME_CATEGORIES: IncomeCategory[] = ["salary", "freelance", "investments", "other"];
 
 /**
  * Resolved ratio (done + skipped over non-REASSESS steps) — mirrors the
@@ -114,38 +107,44 @@ const INCOME_CATEGORIES: IncomeCategory[] = [
  * Displayed as "resolved", never "complete".
  */
 function pathProgressRatio(path: PathSnapshot): number {
-  const steps = path.steps.filter((s) => s.reasonCode !== 'REASSESS')
+  const allSteps = Array.isArray(path.steps) ? path.steps : [];
+  const steps = allSteps.filter((s) => s.reasonCode !== "REASSESS");
   if (steps.length === 0) {
-    if (path.steps.length === 0) return 1
-    const done = path.steps.filter((s) => s.status !== 'pending').length
-    return done / path.steps.length
+    if (allSteps.length === 0) return 1;
+    const done = allSteps.filter((s) => s.status !== "pending").length;
+    return done / allSteps.length;
   }
-  const done = steps.filter((s) => s.status !== 'pending').length
-  return done / steps.length
+  const done = steps.filter((s) => s.status !== "pending").length;
+  return done / steps.length;
+}
+
+function verdictLabel(verdict: string | undefined | null): string {
+  if (!verdict) return "—";
+  return VERDICT_META[verdict as keyof typeof VERDICT_META]?.label ?? String(verdict);
 }
 
 /** Short subscore labels for the pillar breakdown captions. */
 const FACTOR_SHORT: Record<string, string> = {
-  dti: 'DTI',
-  downPayment: 'Down',
-  emergencyFund: 'Fund',
-  credit: 'Credit',
-  lifeStability: 'Stability',
-  confidence: 'Confidence',
-  partnerAlignment: 'Partner',
-  fomo: 'FOMO check',
-  timeHorizon: 'Horizon',
-  savingsRate: 'Save',
-  downPaymentProgress: 'DP progress',
-}
+  dti: "DTI",
+  downPayment: "Down",
+  emergencyFund: "Fund",
+  credit: "Credit",
+  lifeStability: "Stability",
+  confidence: "Confidence",
+  partnerAlignment: "Partner",
+  fomo: "FOMO check",
+  timeHorizon: "Horizon",
+  savingsRate: "Save",
+  downPaymentProgress: "DP progress",
+};
 
-type Band = 'STRONG' | 'WATCH' | 'TIGHT'
+type Band = "STRONG" | "WATCH" | "TIGHT";
 const BAND_BY_TEMP: Record<string, { label: Band; className: string }> = {
-  emerald: { label: 'STRONG', className: 'border-emerald/35 bg-emerald/10 text-emerald' },
-  yellow: { label: 'WATCH', className: 'border-amber/35 bg-amber/10 text-amber' },
-  amber: { label: 'TIGHT', className: 'border-yellow/40 bg-yellow/10 text-yellow' },
-  crimson: { label: 'TIGHT', className: 'border-crimson/40 bg-crimson/10 text-crimson' },
-}
+  emerald: { label: "STRONG", className: "border-emerald/35 bg-emerald/10 text-emerald" },
+  yellow: { label: "WATCH", className: "border-amber/35 bg-amber/10 text-amber" },
+  amber: { label: "TIGHT", className: "border-yellow/40 bg-yellow/10 text-yellow" },
+  crimson: { label: "TIGHT", className: "border-crimson/40 bg-crimson/10 text-crimson" },
+};
 
 function Section({
   eyebrow,
@@ -154,76 +153,54 @@ function Section({
   aside,
   children,
 }: {
-  eyebrow: string
-  title?: string
-  caption?: string
-  aside?: ReactNode
-  children?: ReactNode
+  eyebrow: string;
+  title?: string;
+  caption?: string;
+  aside?: ReactNode;
+  children?: ReactNode;
 }) {
   return (
-    <section className="mt-9 sm:mt-11">
+    <section className="mt-10">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-dim">
-            {eyebrow}
-          </p>
-          {title && (
-            <h2 className="mt-1.5 font-display text-xl tracking-tight text-light sm:text-2xl">
-              {title}
-            </h2>
-          )}
-          {caption && (
-            <p className="mt-1.5 max-w-xl text-xs leading-relaxed text-dim sm:text-[13px]">
-              {caption}
-            </p>
-          )}
+        <div>
+          <p className="text-label uppercase tracking-widest text-dim">{eyebrow}</p>
+          {title && <h2 className="mt-1.5 font-serif text-2xl italic text-light">{title}</h2>}
+          {caption && <p className="mt-1 max-w-xl text-xs leading-relaxed text-dim">{caption}</p>}
         </div>
         {aside}
       </div>
       <div className="mt-4">{children}</div>
     </section>
-  )
+  );
 }
 
 /* ------------------------------------------------------------------ */
 /* 1 — Suggested move                                                  */
 /* ------------------------------------------------------------------ */
 
-function SuggestedMove({
-  onNavigateTab,
-}: {
-  onNavigateTab?: (tab: SignalTab) => void
-}) {
-  const nudges = useBehaviorNudges()
-  if (nudges.length === 0) return null
-  const [top, ...rest] = nudges
+function SuggestedMove({ onNavigateTab }: { onNavigateTab?: (tab: SignalTab) => void }) {
+  const nudges = useBehaviorNudges();
+  if (nudges.length === 0) return null;
+  const [top, ...rest] = nudges;
 
   return (
     <section className="mt-10">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p className="text-label uppercase tracking-widest text-cyan">
-          ✦ Suggested move
-        </p>
-        <p className="text-[11px] text-dim">
-          Protective nudges · not pressure tactics
-        </p>
+        <p className="text-label uppercase tracking-widest text-cyan">✦ Suggested move</p>
+        <p className="text-2xs text-dim">Protective nudges · not pressure tactics</p>
       </div>
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
         <motion.article
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
           className="card-chrome card-hairline-top relative flex flex-col p-5 lg:col-span-2"
         >
-          <span className="w-fit rounded-full border border-cyan/35 bg-cyan/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-cyan">
+          <span className="w-fit rounded-full border border-cyan/35 bg-cyan/10 px-2 py-0.5 text-3xs font-semibold uppercase tracking-wider text-cyan">
             {NUDGE_KIND_LABEL[top.kind]}
           </span>
-          <h3 className="mt-3 font-display text-2xl tracking-tight text-light">
-            {top.title}
-          </h3>
-          <p className="mt-2 flex-1 text-sm leading-relaxed text-dim">
-            {top.body}
-          </p>
+          <h3 className="mt-3 font-serif text-2xl italic text-light">{top.title}</h3>
+          <p className="mt-2 flex-1 text-sm leading-relaxed text-dim">{top.body}</p>
           {onNavigateTab && (
             <motion.button
               type="button"
@@ -232,23 +209,18 @@ function SuggestedMove({
               onClick={() => onNavigateTab(top.actionTab)}
               className="mt-5 w-full rounded-xl bg-cyan px-4 py-2.5 text-sm font-semibold text-navy shadow-glow-cyan"
             >
-              {top.actionLabel}
+              {top.actionLabel} →
             </motion.button>
           )}
         </motion.article>
 
         <div className="flex flex-col gap-4">
           {rest.slice(0, 2).map((nudge) => (
-            <article
-              key={nudge.id}
-              className="card-chrome flex flex-1 flex-col p-4"
-            >
-              <span className="w-fit rounded-full border border-white/[0.1] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-dim">
-                {NUDGE_KIND_LABEL[nudge.kind]} - {nudge.title}
+            <article key={nudge.id} className="card-chrome flex flex-1 flex-col p-4">
+              <span className="w-fit rounded-full border border-white/[0.1] px-2 py-0.5 text-3xs font-semibold uppercase tracking-wider text-dim">
+                {NUDGE_KIND_LABEL[nudge.kind]} — {nudge.title}
               </span>
-              <p className="mt-2 flex-1 text-xs leading-relaxed text-dim">
-                {nudge.body}
-              </p>
+              <p className="mt-2 flex-1 text-xs leading-relaxed text-dim">{nudge.body}</p>
               {onNavigateTab && (
                 <button
                   type="button"
@@ -264,29 +236,23 @@ function SuggestedMove({
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 /* ------------------------------------------------------------------ */
 /* 2 — Path strip                                                      */
 /* ------------------------------------------------------------------ */
 
-function PathStrip({
-  onNavigateTab,
-}: {
-  onNavigateTab?: (tab: SignalTab) => void
-}) {
-  const path = usePlannerStore((s) => s.path)
-  const regeneratePath = usePlannerStore((s) => s.regeneratePath)
+function PathStrip({ onNavigateTab }: { onNavigateTab?: (tab: SignalTab) => void }) {
+  const path = usePlannerStore((s) => s.path);
+  const regeneratePath = usePlannerStore((s) => s.regeneratePath);
 
   if (!path) {
     return (
       <section className="mt-6">
         <div className="card-chrome flex flex-col items-start justify-between gap-4 p-5 sm:flex-row sm:items-center">
           <div>
-            <p className="text-label uppercase tracking-widest text-dim">
-              Path habit · first move
-            </p>
+            <p className="text-label uppercase tracking-widest text-dim">Path habit · first move</p>
             <h3 className="mt-1.5 font-serif text-xl italic text-light">
               Generate a protective sequence from live numbers
             </h3>
@@ -305,11 +271,11 @@ function PathStrip({
           </motion.button>
         </div>
       </section>
-    )
+    );
   }
 
-  const ratio = pathProgressRatio(path)
-  const pct = Math.round(ratio * 100)
+  const ratio = pathProgressRatio(path);
+  const pct = Math.round(ratio * 100);
 
   if (ratio >= 1) {
     return (
@@ -322,7 +288,7 @@ function PathStrip({
             {onNavigateTab && (
               <button
                 type="button"
-                onClick={() => onNavigateTab('plan')}
+                onClick={() => onNavigateTab("plan")}
                 className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan transition-opacity hover:opacity-80"
               >
                 Full path
@@ -331,33 +297,33 @@ function PathStrip({
             )}
           </div>
           <p className="mt-2 text-xs text-dim">
-            Binding: {VERDICT_META[path.verdict].label} — optional review only
+            Binding: {verdictLabel(path.verdict)} — optional review only
           </p>
           <h3 className="mt-2 font-serif text-xl italic text-light">
             Path steps complete — reassess when life moves
           </h3>
         </div>
       </section>
-    )
+    );
   }
 
-  const total = path.steps.filter((s) => s.reasonCode !== 'REASSESS').length
-  const done = path.steps.filter(
-    (s) => s.reasonCode !== 'REASSESS' && s.status !== 'pending',
-  ).length
+  const allSteps = Array.isArray(path.steps) ? path.steps : [];
+  const total = allSteps.filter((s) => s.reasonCode !== "REASSESS").length;
+  const done = allSteps.filter(
+    (s) => s.reasonCode !== "REASSESS" && s.status !== "pending",
+  ).length;
 
   return (
     <section className="mt-6">
       <div className="rounded-2xl border border-emerald/25 bg-emerald/[0.07] p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm font-medium text-emerald">
-            Path: {VERDICT_META[path.verdict].label} band — {done} of {total}{' '}
-            steps resolved
+            Path: {verdictLabel(path.verdict)} band — {done} of {total} steps resolved
           </p>
           {onNavigateTab && (
             <button
               type="button"
-              onClick={() => onNavigateTab('plan')}
+              onClick={() => onNavigateTab("plan")}
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan transition-opacity hover:opacity-80"
             >
               Open Plan
@@ -369,13 +335,13 @@ function PathStrip({
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${pct}%` }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
             className="h-full rounded-full bg-emerald shadow-glow-emerald"
           />
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -383,27 +349,23 @@ function PathStrip({
 /* ------------------------------------------------------------------ */
 
 const QUICK_ACTIONS: Array<{
-  tab: SignalTab
-  label: string
-  hint: string
-  icon: typeof CalendarDays
+  tab: SignalTab;
+  label: string;
+  hint: string;
+  icon: typeof CalendarDays;
 }> = [
-  { tab: 'calendar', label: 'Calendar', hint: 'Bills & runway', icon: CalendarDays },
-  { tab: 'plan', label: 'Plan', hint: 'Path & models', icon: Compass },
-  { tab: 'banking', label: 'Banks', hint: 'Pay bills', icon: Landmark },
-  { tab: 'wealth', label: 'Wealth', hint: 'Portfolio', icon: LineChart },
-]
+  { tab: "calendar", label: "Calendar", hint: "Bills & runway", icon: CalendarDays },
+  { tab: "plan", label: "Plan", hint: "Path & models", icon: Compass },
+  { tab: "banking", label: "Banks", hint: "Pay bills", icon: Landmark },
+  { tab: "wealth", label: "Wealth", hint: "Portfolio", icon: LineChart },
+];
 
-function CashPathAndActions({
-  onNavigateTab,
-}: {
-  onNavigateTab?: (tab: SignalTab) => void
-}) {
-  const transactions = usePlannerStore((s) => s.transactions)
-  const planner = usePlannerScore()
-  const nextSteps = planner?.nextSteps ?? []
-  const spark = useMemo(() => buildCashflowSpark(transactions, 30), [transactions])
-  const now = spark.length > 0 ? spark[spark.length - 1].cumulative : 0
+function CashPathAndActions({ onNavigateTab }: { onNavigateTab?: (tab: SignalTab) => void }) {
+  const transactions = usePlannerStore((s) => s.transactions);
+  const planner = usePlannerScore();
+  const nextSteps = planner?.nextSteps ?? [];
+  const spark = useMemo(() => buildCashflowSpark(transactions, 30), [transactions]);
+  const now = spark.length > 0 ? spark[spark.length - 1].cumulative : 0;
 
   return (
     <Section
@@ -416,7 +378,7 @@ function CashPathAndActions({
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={spark} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
                 <XAxis dataKey="date" hide />
-                <YAxis hide domain={['dataMin', 'auto']} />
+                <YAxis hide domain={["dataMin", "auto"]} />
                 <Bar dataKey="net" radius={[3, 3, 0, 0]}>
                   {spark.map((point) => (
                     <Cell
@@ -438,7 +400,7 @@ function CashPathAndActions({
           </div>
           <div className="mt-3 flex items-center justify-between font-display text-xs tnum">
             <span className="text-dim">Start $0</span>
-            <span className={now >= 0 ? 'text-emerald' : 'text-crimson'}>
+            <span className={now >= 0 ? "text-emerald" : "text-crimson"}>
               Now {fmtSignedUsd0(now)}
             </span>
           </div>
@@ -454,23 +416,17 @@ function CashPathAndActions({
                 className="card-chrome group flex flex-col items-start p-4 text-left transition-colors hover:border-cyan/25"
               >
                 <Icon size={16} className="text-cyan" />
-                <span className="mt-2 text-sm font-semibold text-light">
-                  {label}
-                </span>
-                <span className="mt-0.5 text-[11px] text-dim">{hint}</span>
+                <span className="mt-2 text-sm font-semibold text-light">{label}</span>
+                <span className="mt-0.5 text-2xs text-dim">{hint}</span>
               </button>
             ))}
           </div>
           <div className="card-chrome flex-1 p-4">
-            <p className="text-label uppercase tracking-widest text-dim">
-              Next from score
-            </p>
+            <p className="text-label uppercase tracking-widest text-dim">Next from score</p>
             <ol className="mt-2.5 space-y-2">
               {nextSteps.slice(0, 3).map((step, i) => (
                 <li key={step} className="flex gap-2 text-xs leading-relaxed text-dim">
-                  <span className="font-display font-medium tnum text-cyan">
-                    {i + 1}.
-                  </span>
+                  <span className="font-display font-medium tnum text-cyan">{i + 1}.</span>
                   {step}
                 </li>
               ))}
@@ -479,57 +435,53 @@ function CashPathAndActions({
         </div>
       </div>
     </Section>
-  )
+  );
 }
 
 /* ------------------------------------------------------------------ */
 /* 4 — START HONEST (empty state only)                                 */
 /* ------------------------------------------------------------------ */
 
-function StartHonest({
-  onNavigateTab,
-}: {
-  onNavigateTab?: (tab: SignalTab) => void
-}) {
-  const isEmpty = usePlannerIsEmpty()
-  if (!isEmpty) return null
+function StartHonest({ onNavigateTab }: { onNavigateTab?: (tab: SignalTab) => void }) {
+  const isEmpty = usePlannerIsEmpty();
+  if (!isEmpty) return null;
 
   const cards: Array<{
-    n: number
-    title: string
-    body: string
-    cta: string
-    tab: SignalTab | null
+    n: number;
+    title: string;
+    body: string;
+    cta: string;
+    tab: SignalTab | null;
   }> = [
     {
       n: 1,
-      title: 'Accounts',
-      body: 'Add checking and savings balances you trust.',
-      cta: 'Open Banks',
-      tab: 'banking',
+      title: "Accounts",
+      body: "Add checking and savings balances you trust.",
+      cta: "Open Banks",
+      tab: "banking",
     },
     {
       n: 2,
-      title: 'Ledger',
-      body: 'Record income and expenses so cash flow is true.',
-      cta: 'Stay on Overview',
+      title: "Ledger",
+      body: "Record income and expenses so cash flow is true.",
+      cta: "Stay on Overview",
       tab: null,
     },
     {
       n: 3,
-      title: 'Bills',
-      body: 'Schedule obligations; pay them to close the loop.',
-      cta: 'Open Banks',
-      tab: 'banking',
+      title: "Bills",
+      body: "Schedule obligations; pay them to close the loop.",
+      cta: "Open Banks",
+      tab: "banking",
     },
     {
       n: 4,
-      title: 'Path',
-      body: 'Generate protective steps from live runway, DTI, and cash.',
-      cta: 'Open Plan',
-      tab: 'plan',
+      title: "Path",
+      body: "Generate protective steps from live runway, DTI, and cash.",
+      cta: "Open Plan",
+      tab: "plan",
     },
-  ]
+  ];
 
   return (
     <Section
@@ -543,9 +495,7 @@ function StartHonest({
             <span className="font-display text-sm font-semibold tnum text-cyan">
               {card.n} · {card.title}
             </span>
-            <p className="mt-2 flex-1 text-xs leading-relaxed text-dim">
-              {card.body}
-            </p>
+            <p className="mt-2 flex-1 text-xs leading-relaxed text-dim">{card.body}</p>
             {card.tab && onNavigateTab ? (
               <button
                 type="button"
@@ -556,15 +506,13 @@ function StartHonest({
                 <ArrowRight size={12} />
               </button>
             ) : (
-              <span className="mt-3 text-xs font-medium text-dim">
-                {card.cta}
-              </span>
+              <span className="mt-3 text-xs font-medium text-dim">{card.cta}</span>
             )}
           </div>
         ))}
       </div>
     </Section>
-  )
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -572,28 +520,25 @@ function StartHonest({
 /* ------------------------------------------------------------------ */
 
 function DailyCheckin() {
-  const checkins = usePlannerStore((s) => s.checkins)
-  const stress = useMemo(() => analyzeStress(checkins), [checkins])
-  const [value, setValue] = useState(5)
-  const [note, setNote] = useState('')
+  const checkins = usePlannerStore((s) => s.checkins);
+  const stress = useMemo(() => analyzeStress(checkins), [checkins]);
+  const [value, setValue] = useState(5);
+  const [note, setNote] = useState("");
 
   const recent = useMemo(
-    () =>
-      [...checkins]
-        .sort((a, b) => a.date.localeCompare(b.date))
-        .slice(-7),
+    () => [...checkins].sort((a, b) => a.date.localeCompare(b.date)).slice(-7),
     [checkins],
-  )
+  );
 
   const tiles = [
-    { label: 'INDEX', value: String(stress.index) },
+    { label: "INDEX", value: String(stress.index) },
     {
-      label: 'SLOPE',
-      value: `${stress.slope >= 0 ? '+' : ''}${stress.slope.toFixed(2)}`,
+      label: "SLOPE",
+      value: `${stress.slope >= 0 ? "+" : ""}${stress.slope.toFixed(2)}`,
     },
-    { label: 'MEAN', value: stress.mean.toFixed(1) },
-    { label: 'VOL', value: stress.volatility.toFixed(1) },
-  ]
+    { label: "MEAN", value: stress.mean.toFixed(1) },
+    { label: "VOL", value: stress.volatility.toFixed(1) },
+  ];
 
   return (
     <Section
@@ -617,19 +562,16 @@ function DailyCheckin() {
         </div>
 
         <p className="mt-4 text-xs leading-relaxed text-dim">
-          One honest score a day is enough. No judgment — just a signal when
-          the pattern changes.
+          One honest score a day is enough. No judgment — just a signal when the pattern changes.
         </p>
         <p className="mt-3 text-sm font-medium text-light">
           Log today&apos;s financial stress (1 calm · 10 overwhelmed).
         </p>
 
         <div className="mt-3">
-          <div className="flex items-center justify-between text-[11px] text-dim">
+          <div className="flex items-center justify-between text-2xs text-dim">
             <span>1 calm</span>
-            <span className="font-display font-medium tnum text-cyan">
-              Today · {value}/10
-            </span>
+            <span className="font-display font-medium tnum text-cyan">Today · {value}/10</span>
             <span>10 crisis</span>
           </div>
           <input
@@ -657,8 +599,8 @@ function DailyCheckin() {
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => {
-            addCheckinWithImpact(value, note || undefined)
-            setNote('')
+            addCheckinWithImpact(value, note || undefined);
+            setNote("");
           }}
           className="mt-4 rounded-xl bg-cyan px-5 py-2.5 text-sm font-semibold text-navy shadow-glow-cyan"
         >
@@ -678,23 +620,21 @@ function DailyCheckin() {
                   style={{
                     height: `${8 + c.financialStress * 2.4}px`,
                     backgroundColor:
-                      c.financialStress >= 7
-                        ? TEMP_HEX.amber
-                        : PLANNER_CATEGORY_HEX.freelance,
+                      c.financialStress >= 7 ? TEMP_HEX.amber : PLANNER_CATEGORY_HEX.freelance,
                     opacity: 0.85,
                   }}
                 />
               ))}
             </div>
           )}
-          <p className="mt-2 text-[11px] text-dim">
-            Last {stress.sampleSize} days · amber bars ≥7 · signals fire on
-            slope, streaks, spikes &amp; volatility
+          <p className="mt-2 text-2xs text-dim">
+            Last {stress.sampleSize} days · amber bars ≥7 · signals fire on slope, streaks, spikes
+            &amp; volatility
           </p>
         </div>
       </div>
     </Section>
-  )
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -702,16 +642,22 @@ function DailyCheckin() {
 /* ------------------------------------------------------------------ */
 
 const EXPORT_LEGAL =
-  'Educational only — not credit, lending, legal, tax, or investment advice. Band-only receipt · no underlying financials.'
+  "Educational only — not credit, lending, legal, tax, or investment advice. Band-only receipt · no underlying financials.";
 
 function ExportPack({
   receiptToken,
   onIssueReceipt,
 }: {
-  receiptToken: string | null
-  onIssueReceipt: () => void
+  receiptToken: string | null;
+  onIssueReceipt: () => void;
 }) {
-  const planner = usePlannerScore()
+  // Hooks must run unconditionally — score loads async; early-return before
+  // useState/usePlannerReality crashed the route once planner became non-null
+  // ("Something slipped" error boundary on /money/budget).
+  const planner = usePlannerScore();
+  const { reality, nw } = usePlannerReality();
+  const [copied, setCopied] = useState(false);
+
   if (!planner) {
     return (
       <Section
@@ -719,31 +665,31 @@ function ExportPack({
         title="Share readiness"
         caption="Set a decision profile to issue a band-only receipt."
       />
-    )
+    );
   }
-  const { reality, nw } = usePlannerReality()
-  const [copied, setCopied] = useState(false)
 
   const runwayLabel = Number.isFinite(reality.runwayMonths)
     ? `${reality.runwayMonths.toFixed(1)} mo`
-    : '∞'
+    : "∞";
+
+  const verdictLabel = VERDICT_META[planner.verdict]?.label ?? planner.verdict;
 
   const copySummary = async () => {
     const lines = [
-      `HōMI Readiness — ${Math.round(planner.score)}/100 · ${VERDICT_META[planner.verdict].label}`,
+      `HōMI Readiness — ${Math.round(planner.score)}/100 · ${verdictLabel}`,
       `Pillars: Financial ${planner.pillarPct.financial}% · Emotional ${planner.pillarPct.emotional}% · Timing ${planner.pillarPct.timing}%`,
       planner.keyInsight,
       ...planner.nextSteps.slice(0, 3).map((s, i) => `${i + 1}. ${s}`),
       EXPORT_LEGAL,
-    ].join('\n')
+    ].join("\n");
     try {
-      await navigator.clipboard.writeText(lines)
-      setCopied(true)
-      window.setTimeout(() => setCopied(false), 2000)
+      await navigator.clipboard.writeText(lines);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
     } catch {
       // Clipboard unavailable (permissions) — leave the button state honest.
     }
-  }
+  };
 
   return (
     <Section
@@ -761,7 +707,7 @@ function ExportPack({
             className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/[0.1] bg-slate/60 px-4 py-2.5 text-sm font-semibold text-light transition-colors hover:border-cyan/30"
           >
             {copied ? <Check size={15} className="text-emerald" /> : <Copy size={15} />}
-            {copied ? 'Copied' : 'Copy summary'}
+            {copied ? "Copied" : "Copy summary"}
           </motion.button>
           <motion.button
             type="button"
@@ -773,36 +719,32 @@ function ExportPack({
             <Printer size={15} />
             Print / PDF
           </motion.button>
-          <p className="text-[11px] leading-relaxed text-dim">{EXPORT_LEGAL}</p>
+          <p className="text-2xs leading-relaxed text-dim">{EXPORT_LEGAL}</p>
         </div>
 
         <div className="card-chrome card-hairline-top relative p-5">
           <div className="flex items-baseline justify-between">
-            <p className="text-label uppercase tracking-widest text-cyan">
-              HōMI Readiness
-            </p>
-            <p className="font-display text-[11px] tnum text-dim">
+            <p className="text-label uppercase tracking-widest text-cyan">HōMI Readiness</p>
+            <p className="font-display text-2xs tnum text-dim">
               NW {fmtUsd0(nw.netWorth)} · Runway {runwayLabel}
             </p>
           </div>
           <div className="mt-3 flex items-end gap-3">
-            <span className="text-hero-number text-light">
-              {Math.round(planner.score)}
-            </span>
+            <span className="text-hero-number text-light">{Math.round(planner.score)}</span>
             <span className="pb-1.5 font-serif text-lg italic text-emerald">
-              {VERDICT_META[planner.verdict].label}
+              {verdictLabel}
             </span>
           </div>
           <div className="mt-4 space-y-2">
             {(
               [
-                ['financial', 'FINANCIAL'],
-                ['emotional', 'EMOTIONAL'],
-                ['timing', 'TIMING'],
+                ["financial", "FINANCIAL"],
+                ["emotional", "EMOTIONAL"],
+                ["timing", "TIMING"],
               ] as Array<[PillarKey, string]>
             ).map(([key, label]) => (
               <div key={key} className="flex items-center gap-3">
-                <span className="w-20 text-[10px] font-semibold uppercase tracking-wider text-dim">
+                <span className="w-20 text-3xs font-semibold uppercase tracking-wider text-dim">
                   {label}
                 </span>
                 <div className="h-[4px] flex-1 overflow-hidden rounded-full bg-white/[0.06]">
@@ -811,30 +753,24 @@ function ExportPack({
                     style={{ width: `${planner.pillarPct[key]}%` }}
                   />
                 </div>
-                <span className="font-display text-[11px] tnum text-dim">
+                <span className="font-display text-2xs tnum text-dim">
                   {planner.pillarPct[key]}%
                 </span>
               </div>
             ))}
           </div>
-          <p className="mt-4 text-xs leading-relaxed text-dim">
-            {planner.keyInsight}
-          </p>
+          <p className="mt-4 text-xs leading-relaxed text-dim">{planner.keyInsight}</p>
           <ol className="mt-3 space-y-1.5">
             {planner.nextSteps.slice(0, 3).map((step, i) => (
               <li key={step} className="flex gap-2 text-xs leading-relaxed text-dim">
-                <span className="font-display font-medium tnum text-cyan">
-                  {i + 1}.
-                </span>
+                <span className="font-display font-medium tnum text-cyan">{i + 1}.</span>
                 {step}
               </li>
             ))}
           </ol>
           <div className="mt-4 border-t border-white/[0.06] pt-3">
             {receiptToken ? (
-              <p className="break-all font-display text-[11px] tnum text-cyan">
-                {receiptToken}
-              </p>
+              <p className="break-all font-display text-2xs tnum text-cyan">{receiptToken}</p>
             ) : (
               <button
                 type="button"
@@ -849,7 +785,7 @@ function ExportPack({
         </div>
       </div>
     </Section>
-  )
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -857,8 +793,8 @@ function ExportPack({
 /* ------------------------------------------------------------------ */
 
 function FinancialReality() {
-  const { reality } = usePlannerReality()
-  const planner = usePlannerScore()
+  const { reality } = usePlannerReality();
+  const planner = usePlannerScore();
   if (!planner) {
     return (
       <Section
@@ -870,43 +806,41 @@ function FinancialReality() {
           Cash gauges still update from ledger numbers; pillars need a live score.
         </p>
       </Section>
-    )
+    );
   }
 
   const gauges = [
     {
-      label: 'RUNWAY',
-      value: Number.isFinite(reality.runwayMonths)
-        ? `${reality.runwayMonths.toFixed(1)} mo`
-        : '∞',
-      caption: 'Liquid cash ÷ monthly outflow',
+      label: "RUNWAY",
+      value: Number.isFinite(reality.runwayMonths) ? `${reality.runwayMonths.toFixed(1)} mo` : "∞",
+      caption: "Liquid cash ÷ monthly outflow",
       temp: reality.temps.runway,
     },
     {
-      label: 'DEBT-TO-INCOME',
+      label: "DEBT-TO-INCOME",
       value: `${Math.round(reality.dti)}%`,
-      caption: 'Debt payments ÷ income (≤28% emerald)',
+      caption: "Debt payments ÷ income (≤28% emerald)",
       temp: reality.temps.dti,
     },
     {
-      label: 'SAVINGS RATE',
+      label: "SAVINGS RATE",
       value: `${Math.round(reality.savingsRate)}%`,
-      caption: 'Cash flow as % of income (≥20% emerald)',
+      caption: "Cash flow as % of income (≥20% emerald)",
       temp: reality.temps.savingsRate,
     },
     {
-      label: 'CASH FLOW',
+      label: "CASH FLOW",
       value: fmtUsd0(reality.cashFlow),
-      caption: 'Income minus expenses this period',
+      caption: "Income minus expenses this period",
       temp: reality.temps.cashFlow,
     },
-  ]
+  ];
 
   const pillarRows: Array<{ key: PillarKey; label: string }> = [
-    { key: 'financial', label: 'FINANCIAL REALITY' },
-    { key: 'emotional', label: 'EMOTIONAL TRUTH' },
-    { key: 'timing', label: 'PERFECT TIMING' },
-  ]
+    { key: "financial", label: "FINANCIAL REALITY" },
+    { key: "emotional", label: "EMOTIONAL TRUTH" },
+    { key: "timing", label: "PERFECT TIMING" },
+  ];
 
   return (
     <Section
@@ -916,13 +850,13 @@ function FinancialReality() {
     >
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {gauges.map((gauge) => {
-          const band = BAND_BY_TEMP[gauge.temp]
+          const band = BAND_BY_TEMP[gauge.temp] ?? BAND_BY_TEMP.amber;
           return (
             <div key={gauge.label} className="card-chrome p-4">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-label">{gauge.label}</span>
                 <span
-                  className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${band.className}`}
+                  className={`rounded-full border px-2 py-0.5 text-3xs font-semibold ${band.className}`}
                 >
                   {band.label}
                 </span>
@@ -930,21 +864,22 @@ function FinancialReality() {
               <p className="mt-2.5 font-display text-xl font-semibold tnum text-light">
                 {gauge.value}
               </p>
-              <p className="mt-1 text-[11px] leading-relaxed text-dim">
-                {gauge.caption}
-              </p>
+              <p className="mt-1 text-2xs leading-relaxed text-dim">{gauge.caption}</p>
             </div>
-          )
+          );
         })}
       </div>
 
       <div className="card-chrome mt-4 space-y-4 p-5">
         {pillarRows.map(({ key, label }) => {
-          const pillar = planner.result.pillars[key]
-          const pct = Math.round((pillar.total / pillar.max) * 100)
-          const caption = pillar.factors
+          const pillar = planner.result?.pillars?.[key];
+          if (!pillar || !Number.isFinite(pillar.total) || !Number.isFinite(pillar.max) || pillar.max <= 0) {
+            return null;
+          }
+          const pct = Math.round((pillar.total / pillar.max) * 100);
+          const caption = (pillar.factors ?? [])
             .map((f) => `${FACTOR_SHORT[f.key] ?? f.label} ${f.pts}/${f.max}`)
-            .join(' · ')
+            .join(" · ");
           return (
             <div key={key}>
               <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -957,17 +892,17 @@ function FinancialReality() {
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${Math.min(100, pct)}%` }}
-                  transition={{ duration: 0.6, ease: 'easeOut' }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
                   className="h-full rounded-full bg-cyan"
                 />
               </div>
-              <p className="mt-1.5 text-[11px] text-dim">{caption}</p>
+              <p className="mt-1.5 text-2xs text-dim">{caption}</p>
             </div>
-          )
+          );
         })}
       </div>
     </Section>
-  )
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -978,13 +913,13 @@ function SpendDigestSection({
   receiptToken,
   onIssueReceipt,
 }: {
-  receiptToken: string | null
-  onIssueReceipt: () => void
+  receiptToken: string | null;
+  onIssueReceipt: () => void;
 }) {
-  const transactions = usePlannerStore((s) => s.transactions)
-  const digest = useMemo(() => buildSpendDigest(transactions), [transactions])
-  const maxCat = Math.max(1, ...digest.topCategories.map((c) => c.amount))
-  const up = (digest.deltaPct ?? 0) >= 0
+  const transactions = usePlannerStore((s) => s.transactions);
+  const digest = useMemo(() => buildSpendDigest(transactions), [transactions]);
+  const maxCat = Math.max(1, ...digest.topCategories.map((c) => c.amount));
+  const up = (digest.deltaPct ?? 0) >= 0;
 
   return (
     <Section
@@ -998,27 +933,21 @@ function SpendDigestSection({
             {fmtUsd0(digest.totalSpend)}
           </p>
           <p
-            className={`mt-0.5 inline-flex items-center gap-1 text-[11px] font-semibold ${
-              digest.deltaPct == null
-                ? 'text-dim'
-                : up
-                  ? 'text-crimson'
-                  : 'text-emerald'
+            className={`mt-0.5 inline-flex items-center gap-1 text-2xs font-semibold ${
+              digest.deltaPct == null ? "text-dim" : up ? "text-crimson" : "text-emerald"
             }`}
           >
-            {digest.deltaPct != null && (up ? '↗' : '↘')}
+            {digest.deltaPct != null && (up ? "↗" : "↘")}
             {digest.deltaPct == null
-              ? 'no prior week'
-              : `${up ? '+' : '−'}${Math.abs(digest.deltaPct).toFixed(0)}% vs prior`}
+              ? "no prior week"
+              : `${up ? "+" : "−"}${Math.abs(digest.deltaPct).toFixed(0)}% vs prior`}
           </p>
         </div>
       }
     >
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="card-chrome p-5">
-          <p className="text-label uppercase tracking-widest text-dim">
-            Top categories
-          </p>
+          <p className="text-label uppercase tracking-widest text-dim">Top categories</p>
           {digest.topCategories.length === 0 ? (
             <p className="mt-3 text-xs text-dim">No expenses in range.</p>
           ) : (
@@ -1030,17 +959,17 @@ function SpendDigestSection({
                       {CATEGORY_LABEL[cat.category as CategoryId] ?? cat.category}
                     </span>
                     <span className="font-display tnum text-dim">
-                      {fmtUsd0(cat.amount)}{' '}
+                      {fmtUsd0(cat.amount)}{" "}
                       <span
                         className={
                           cat.delta > 0
-                            ? 'text-crimson'
+                            ? "text-crimson"
                             : cat.delta < 0
-                              ? 'text-emerald'
-                              : 'text-dim'
+                              ? "text-emerald"
+                              : "text-dim"
                         }
                       >
-                        ({cat.delta >= 0 ? '+' : '−'}
+                        ({cat.delta >= 0 ? "+" : "−"}
                         {fmtUsd0(Math.abs(cat.delta))})
                       </span>
                     </span>
@@ -1065,35 +994,29 @@ function SpendDigestSection({
         <div className="flex flex-col gap-4">
           <div className="card-chrome grid flex-1 grid-cols-2 gap-4 p-5">
             <div>
-              <p className="text-label uppercase tracking-widest text-crimson">
-                Rising
-              </p>
+              <p className="text-label uppercase tracking-widest text-crimson">Rising</p>
               {digest.rising.length === 0 ? (
                 <p className="mt-2 text-xs text-dim">Up None</p>
               ) : (
                 <ul className="mt-2 space-y-1.5">
                   {digest.rising.map((c) => (
                     <li key={c.category} className="text-xs text-dim">
-                      {CATEGORY_LABEL[c.category as CategoryId] ?? c.category}{' '}
-                      <span className="font-display tnum text-crimson">
-                        +{fmtUsd0(c.delta)}
-                      </span>
+                      {CATEGORY_LABEL[c.category as CategoryId] ?? c.category}{" "}
+                      <span className="font-display tnum text-crimson">+{fmtUsd0(c.delta)}</span>
                     </li>
                   ))}
                 </ul>
               )}
             </div>
             <div>
-              <p className="text-label uppercase tracking-widest text-emerald">
-                Falling
-              </p>
+              <p className="text-label uppercase tracking-widest text-emerald">Falling</p>
               {digest.falling.length === 0 ? (
                 <p className="mt-2 text-xs text-dim">Down None</p>
               ) : (
                 <ul className="mt-2 space-y-1.5">
                   {digest.falling.map((c) => (
                     <li key={c.category} className="text-xs text-dim">
-                      {CATEGORY_LABEL[c.category as CategoryId] ?? c.category}{' '}
+                      {CATEGORY_LABEL[c.category as CategoryId] ?? c.category}{" "}
                       <span className="font-display tnum text-emerald">
                         −{fmtUsd0(Math.abs(c.delta))}
                       </span>
@@ -1105,17 +1028,12 @@ function SpendDigestSection({
           </div>
 
           <div className="card-chrome p-5">
-            <p className="text-label uppercase tracking-widest text-dim">
-              Readiness receipt
-            </p>
+            <p className="text-label uppercase tracking-widest text-dim">Readiness receipt</p>
             <p className="mt-1.5 text-xs leading-relaxed text-dim">
-              Band-only share token — verdict + coarse pillars. No balances, no
-              identity (demo).
+              Band-only share token — verdict + coarse pillars. No balances, no identity (demo).
             </p>
             {receiptToken ? (
-              <p className="mt-2 break-all font-display text-[11px] tnum text-cyan">
-                {receiptToken}
-              </p>
+              <p className="mt-2 break-all font-display text-2xs tnum text-cyan">{receiptToken}</p>
             ) : (
               <motion.button
                 type="button"
@@ -1132,7 +1050,7 @@ function SpendDigestSection({
         </div>
       </div>
     </Section>
-  )
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -1140,55 +1058,53 @@ function SpendDigestSection({
 /* ------------------------------------------------------------------ */
 
 function AddTransactionCard() {
-  const addTransaction = usePlannerStore((s) => s.addTransaction)
-  const [type, setType] = useState<'expense' | 'income'>('expense')
-  const [amount, setAmount] = useState('')
-  const [date, setDate] = useState(todayISO())
-  const [category, setCategory] = useState<CategoryId>('food')
-  const [note, setNote] = useState('')
+  const addTransaction = usePlannerStore((s) => s.addTransaction);
+  const [type, setType] = useState<"expense" | "income">("expense");
+  const [amount, setAmount] = useState("");
+  const [date, setDate] = useState(todayISO());
+  const [category, setCategory] = useState<CategoryId>("food");
+  const [note, setNote] = useState("");
 
-  const categories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES
+  const categories = type === "expense" ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
 
-  const switchType = (next: 'expense' | 'income') => {
-    setType(next)
-    setCategory(next === 'expense' ? 'food' : 'salary')
-  }
+  const switchType = (next: "expense" | "income") => {
+    setType(next);
+    setCategory(next === "expense" ? "food" : "salary");
+  };
 
   const submit = () => {
-    const value = Number.parseFloat(amount)
-    if (!Number.isFinite(value) || value <= 0 || !date) return
+    const value = Number.parseFloat(amount);
+    if (!Number.isFinite(value) || value <= 0 || !date) return;
     addTransaction({
       type,
       amount: Math.round(value * 100) / 100,
       category,
       note: note.trim() || undefined,
       date,
-      source: 'manual',
-    })
-    setAmount('')
-    setNote('')
-  }
+      source: "manual",
+    });
+    setAmount("");
+    setNote("");
+  };
 
   return (
     <div className="card-chrome p-5">
       <div className="flex items-center justify-between gap-2">
         <div className="flex rounded-xl border border-white/[0.08] p-0.5">
-          {(['expense', 'income'] as const).map((t) => (
+          {(["expense", "income"] as const).map((t) => (
             <button
               key={t}
               type="button"
               onClick={() => switchType(t)}
               className={`rounded-lg px-4 py-1.5 text-xs font-semibold capitalize transition-colors ${
-                type === t
-                  ? 'bg-cyan/15 text-cyan'
-                  : 'text-dim hover:text-light'
+                type === t ? "bg-cyan/15 text-cyan" : "text-dim hover:text-light"
               }`}
             >
               {t}
             </button>
           ))}
         </div>
-        <span className="rounded-full border border-white/[0.1] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-dim">
+        <span className="rounded-full border border-white/[0.1] px-2.5 py-0.5 text-3xs font-semibold uppercase tracking-wider text-dim">
           Local save
         </span>
       </div>
@@ -1255,33 +1171,32 @@ function AddTransactionCard() {
         Add {type}
       </motion.button>
     </div>
-  )
+  );
 }
 
 function SavingsGoalCard() {
-  const savingsGoal = usePlannerStore((s) => s.savingsGoal)
-  const setSavingsGoal = usePlannerStore((s) => s.setSavingsGoal)
-  const [editing, setEditing] = useState(false)
-  const [name, setName] = useState(savingsGoal.name)
-  const [target, setTarget] = useState(String(savingsGoal.target))
-  const [current, setCurrent] = useState(String(savingsGoal.current))
+  const savingsGoal = usePlannerStore((s) => s.savingsGoal);
+  const setSavingsGoal = usePlannerStore((s) => s.setSavingsGoal);
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState(savingsGoal.name);
+  const [target, setTarget] = useState(String(savingsGoal.target));
+  const [current, setCurrent] = useState(String(savingsGoal.current));
 
   const pct =
     savingsGoal.target > 0
       ? Math.min(100, Math.round((savingsGoal.current / savingsGoal.target) * 100))
-      : 0
-  const toGo = Math.max(0, savingsGoal.target - savingsGoal.current)
-  const reached =
-    savingsGoal.target <= 0 || savingsGoal.current >= savingsGoal.target
+      : 0;
+  const toGo = Math.max(0, savingsGoal.target - savingsGoal.current);
+  const reached = savingsGoal.target <= 0 || savingsGoal.current >= savingsGoal.target;
 
   const save = () => {
     setSavingsGoal({
       name: name.trim() || savingsGoal.name,
       target: Math.max(0, Number.parseFloat(target) || 0),
       current: Math.max(0, Number.parseFloat(current) || 0),
-    })
-    setEditing(false)
-  }
+    });
+    setEditing(false);
+  };
 
   return (
     <div className="card-chrome p-5">
@@ -1290,14 +1205,14 @@ function SavingsGoalCard() {
         <button
           type="button"
           onClick={() => {
-            setName(savingsGoal.name)
-            setTarget(String(savingsGoal.target))
-            setCurrent(String(savingsGoal.current))
-            setEditing((v) => !v)
+            setName(savingsGoal.name);
+            setTarget(String(savingsGoal.target));
+            setCurrent(String(savingsGoal.current));
+            setEditing((v) => !v);
           }}
           className="text-xs font-semibold text-cyan transition-opacity hover:opacity-80"
         >
-          {editing ? 'Cancel' : 'Edit'}
+          {editing ? "Cancel" : "Edit"}
         </button>
       </div>
 
@@ -1349,33 +1264,25 @@ function SavingsGoalCard() {
       ) : (
         <>
           <div className="mt-4 flex items-baseline gap-2">
-            <span className="text-kpi text-light">
-              {fmtUsd0(savingsGoal.current)}
-            </span>
-            <span className="text-sm text-dim">
-              of {fmtUsd0(savingsGoal.target)}
-            </span>
+            <span className="text-kpi text-light">{fmtUsd0(savingsGoal.current)}</span>
+            <span className="text-sm text-dim">of {fmtUsd0(savingsGoal.target)}</span>
           </div>
           <div className="mt-3 h-[8px] overflow-hidden rounded-full bg-white/[0.06]">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${pct}%` }}
-              transition={{ duration: 0.6, ease: 'easeOut' }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
               className="h-full rounded-full bg-gradient-to-r from-cyan to-emerald shadow-glow-emerald"
             />
           </div>
           <div className="mt-2 flex items-center justify-between text-xs">
-            <span className="font-display font-medium tnum text-cyan">
-              {pct}% complete
-            </span>
-            <span className="text-dim">
-              {reached ? 'Goal reached' : `${fmtUsd0(toGo)} to go`}
-            </span>
+            <span className="font-display font-medium tnum text-cyan">{pct}% complete</span>
+            <span className="text-dim">{reached ? "Goal reached" : `${fmtUsd0(toGo)} to go`}</span>
           </div>
         </>
       )}
     </div>
-  )
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -1383,9 +1290,9 @@ function SavingsGoalCard() {
 /* ------------------------------------------------------------------ */
 
 function SpendingDonut() {
-  const transactions = usePlannerStore((s) => s.transactions)
-  const summary = useMemo(() => summarize(transactions), [transactions])
-  const data = summary.categoryBreakdown
+  const transactions = usePlannerStore((s) => s.transactions);
+  const summary = useMemo(() => summarize(transactions), [transactions]);
+  const data = summary.categoryBreakdown;
 
   return (
     <Section
@@ -1398,9 +1305,7 @@ function SpendingDonut() {
     >
       <div className="card-chrome p-5">
         {data.length === 0 ? (
-          <p className="py-8 text-center text-sm text-dim">
-            Add an expense to see the breakdown.
-          </p>
+          <p className="py-8 text-center text-sm text-dim">Add an expense to see the breakdown.</p>
         ) : (
           <div className="grid items-center gap-6 sm:grid-cols-2">
             <div className="mx-auto h-[220px] w-full max-w-[260px]">
@@ -1431,14 +1336,9 @@ function SpendingDonut() {
             <ul className="space-y-2">
               {data.map((entry) => {
                 const pct =
-                  summary.expenses > 0
-                    ? Math.round((entry.amount / summary.expenses) * 100)
-                    : 0
+                  summary.expenses > 0 ? Math.round((entry.amount / summary.expenses) * 100) : 0;
                 return (
-                  <li
-                    key={entry.category}
-                    className="flex items-center gap-2.5 text-sm"
-                  >
+                  <li key={entry.category} className="flex items-center gap-2.5 text-sm">
                     <span
                       className="h-2.5 w-2.5 shrink-0 rounded-full"
                       style={{
@@ -1448,8 +1348,7 @@ function SpendingDonut() {
                       }}
                     />
                     <span className="flex-1 text-light">
-                      {CATEGORY_LABEL[entry.category as CategoryId] ??
-                        entry.category}
+                      {CATEGORY_LABEL[entry.category as CategoryId] ?? entry.category}
                     </span>
                     <span className="font-display text-xs tnum text-dim">
                       {fmtUsd0(entry.amount)}
@@ -1458,45 +1357,45 @@ function SpendingDonut() {
                       {pct}%
                     </span>
                   </li>
-                )
+                );
               })}
             </ul>
           </div>
         )}
       </div>
     </Section>
-  )
+  );
 }
 
 /* ------------------------------------------------------------------ */
 /* 11 — Transactions                                                   */
 /* ------------------------------------------------------------------ */
 
-type TxFilter = 'all' | 'income' | 'expense'
+type TxFilter = "all" | "income" | "expense";
 
 function TransactionRow({ tx }: { tx: Transaction }) {
-  const updateTransaction = usePlannerStore((s) => s.updateTransaction)
-  const deleteTransaction = usePlannerStore((s) => s.deleteTransaction)
-  const [editing, setEditing] = useState(false)
-  const [amount, setAmount] = useState(String(tx.amount))
-  const [note, setNote] = useState(tx.note ?? '')
-  const [date, setDate] = useState(tx.date)
-  const [category, setCategory] = useState<CategoryId>(tx.category)
+  const updateTransaction = usePlannerStore((s) => s.updateTransaction);
+  const deleteTransaction = usePlannerStore((s) => s.deleteTransaction);
+  const [editing, setEditing] = useState(false);
+  const [amount, setAmount] = useState(String(tx.amount));
+  const [note, setNote] = useState(tx.note ?? "");
+  const [date, setDate] = useState(tx.date);
+  const [category, setCategory] = useState<CategoryId>(tx.category);
 
-  const expense = tx.type === 'expense'
-  const categories = expense ? EXPENSE_CATEGORIES : INCOME_CATEGORIES
+  const expense = tx.type === "expense";
+  const categories = expense ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
 
   const save = () => {
-    const value = Number.parseFloat(amount)
-    if (!Number.isFinite(value) || value <= 0 || !date) return
+    const value = Number.parseFloat(amount);
+    if (!Number.isFinite(value) || value <= 0 || !date) return;
     updateTransaction(tx.id, {
       amount: Math.round(value * 100) / 100,
       note: note.trim() || undefined,
       date,
       category,
-    })
-    setEditing(false)
-  }
+    });
+    setEditing(false);
+  };
 
   if (editing) {
     return (
@@ -1558,7 +1457,7 @@ function TransactionRow({ tx }: { tx: Transaction }) {
           </button>
         </div>
       </li>
-    )
+    );
   }
 
   return (
@@ -1566,8 +1465,8 @@ function TransactionRow({ tx }: { tx: Transaction }) {
       <span
         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${
           expense
-            ? 'border-crimson/25 bg-crimson/10 text-crimson'
-            : 'border-emerald/25 bg-emerald/10 text-emerald'
+            ? "border-crimson/25 bg-crimson/10 text-crimson"
+            : "border-emerald/25 bg-emerald/10 text-emerald"
         }`}
       >
         {expense ? <ArrowUpRight size={14} /> : <ArrowDownLeft size={14} />}
@@ -1576,7 +1475,7 @@ function TransactionRow({ tx }: { tx: Transaction }) {
         <p className="truncate text-sm font-medium text-light">
           {tx.note ?? CATEGORY_LABEL[tx.category]}
         </p>
-        <p className="mt-0.5 flex items-center gap-2 text-[11px] text-dim">
+        <p className="mt-0.5 flex items-center gap-2 text-2xs text-dim">
           <span className="rounded-full border border-white/[0.08] px-1.5 py-px">
             {CATEGORY_LABEL[tx.category]}
           </span>
@@ -1585,21 +1484,21 @@ function TransactionRow({ tx }: { tx: Transaction }) {
       </div>
       <span
         className={`font-display text-sm font-semibold tnum ${
-          expense ? 'text-crimson' : 'text-emerald'
+          expense ? "text-crimson" : "text-emerald"
         }`}
       >
-        {expense ? '−' : '+'}
+        {expense ? "−" : "+"}
         {fmtUsd2(tx.amount)}
       </span>
       <span className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
         <button
           type="button"
           onClick={() => {
-            setAmount(String(tx.amount))
-            setNote(tx.note ?? '')
-            setDate(tx.date)
-            setCategory(tx.category)
-            setEditing(true)
+            setAmount(String(tx.amount));
+            setNote(tx.note ?? "");
+            setDate(tx.date);
+            setCategory(tx.category);
+            setEditing(true);
           }}
           aria-label={`Edit ${tx.note ?? CATEGORY_LABEL[tx.category]}`}
           className="rounded-md p-1.5 text-dim transition-colors hover:bg-white/[0.06] hover:text-cyan"
@@ -1616,14 +1515,13 @@ function TransactionRow({ tx }: { tx: Transaction }) {
         </button>
       </span>
     </li>
-  )
+  );
 }
 
 function TransactionsCard() {
-  const transactions = usePlannerStore((s) => s.transactions)
-  const [filter, setFilter] = useState<TxFilter>('all')
-  const filtered =
-    filter === 'all' ? transactions : transactions.filter((t) => t.type === filter)
+  const transactions = usePlannerStore((s) => s.transactions);
+  const [filter, setFilter] = useState<TxFilter>("all");
+  const filtered = filter === "all" ? transactions : transactions.filter((t) => t.type === filter);
 
   return (
     <Section
@@ -1631,13 +1529,13 @@ function TransactionsCard() {
       caption="Edit or delete any entry — balances update live"
       aside={
         <div className="flex rounded-xl border border-white/[0.08] p-0.5">
-          {(['all', 'income', 'expense'] as const).map((f) => (
+          {(["all", "income", "expense"] as const).map((f) => (
             <button
               key={f}
               type="button"
               onClick={() => setFilter(f)}
               className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold capitalize transition-colors ${
-                filter === f ? 'bg-cyan/15 text-cyan' : 'text-dim hover:text-light'
+                filter === f ? "bg-cyan/15 text-cyan" : "text-dim hover:text-light"
               }`}
             >
               {f}
@@ -1660,7 +1558,7 @@ function TransactionsCard() {
         )}
       </div>
     </Section>
-  )
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -1670,20 +1568,20 @@ function TransactionsCard() {
 export default function OverviewCommand({
   onNavigateTab,
 }: {
-  onNavigateTab?: (tab: SignalTab) => void
+  onNavigateTab?: (tab: SignalTab) => void;
 }) {
-  const planner = usePlannerScore()
-  const [receiptToken, setReceiptToken] = useState<string | null>(null)
+  const planner = usePlannerScore();
+  const [receiptToken, setReceiptToken] = useState<string | null>(null);
 
   const onIssueReceipt = () => {
-    if (!planner) return
+    if (!planner) return;
     const receipt = issueReceipt({
       score: planner.score,
       verdict: planner.verdict,
-    })
-    setReceiptToken(receipt.token)
-    downloadReceipt(receipt)
-  }
+    });
+    setReceiptToken(receipt.token);
+    downloadReceipt(receipt);
+  };
 
   return (
     <div>
@@ -1694,10 +1592,7 @@ export default function OverviewCommand({
       <DailyCheckin />
       <ExportPack receiptToken={receiptToken} onIssueReceipt={onIssueReceipt} />
       <FinancialReality />
-      <SpendDigestSection
-        receiptToken={receiptToken}
-        onIssueReceipt={onIssueReceipt}
-      />
+      <SpendDigestSection receiptToken={receiptToken} onIssueReceipt={onIssueReceipt} />
       <div className="mt-10 grid items-start gap-4 lg:grid-cols-2">
         <AddTransactionCard />
         <SavingsGoalCard />
@@ -1705,5 +1600,5 @@ export default function OverviewCommand({
       <SpendingDonut />
       <TransactionsCard />
     </div>
-  )
+  );
 }

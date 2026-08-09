@@ -120,7 +120,9 @@ describe("getClientIp", () => {
   });
 
   it("falls back to x-real-ip, then 'unknown'", () => {
-    expect(getClientIp(new Request("http://x", { headers: { "x-real-ip": "9.9.9.9" } }))).toBe("9.9.9.9");
+    expect(getClientIp(new Request("http://x", { headers: { "x-real-ip": "9.9.9.9" } }))).toBe(
+      "9.9.9.9",
+    );
     expect(getClientIp(new Request("http://x"))).toBe("unknown");
   });
 });

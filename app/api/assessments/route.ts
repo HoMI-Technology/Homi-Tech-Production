@@ -28,7 +28,10 @@ export async function POST(req: NextRequest) {
     const ip = getClientIp(req);
     const { allowed } = await rateLimit(`assessments-write:${ip}`, { limit: 20, windowMs: 60_000 });
     if (!allowed) {
-      return NextResponse.json({ error: "Too many requests. Try again in a moment." }, { status: 429 });
+      return NextResponse.json(
+        { error: "Too many requests. Try again in a moment." },
+        { status: 429 },
+      );
     }
 
     const json = await req.json();
@@ -61,7 +64,8 @@ export async function POST(req: NextRequest) {
       if ((count ?? 0) >= 1) {
         return NextResponse.json(
           {
-            error: "Your free plan includes one full assessment. Upgrade to re-score as your numbers change.",
+            error:
+              "Your free plan includes one full assessment. Upgrade to re-score as your numbers change.",
             code: "rescoring_locked",
           },
           { status: 402 },
@@ -144,7 +148,8 @@ export async function POST(req: NextRequest) {
         await supabase.from("assessments").delete().eq("id", data.id).eq("user_id", user.id);
         return NextResponse.json(
           {
-            error: "Your free plan includes one full assessment. Upgrade to re-score as your numbers change.",
+            error:
+              "Your free plan includes one full assessment. Upgrade to re-score as your numbers change.",
             code: "rescoring_locked",
           },
           { status: 402 },

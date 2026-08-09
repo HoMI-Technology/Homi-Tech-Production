@@ -1,7 +1,10 @@
+import "server-only";
+
 /**
  * HōMI trade-secret boundary — single source of truth for pillar weights.
- * C2 RESTRICTED. Never expose these values through public APIs.
+ * Server-only (Plans.md 6.5). C2 RESTRICTED. Never expose through public APIs.
  * Do not duplicate these numeric literals anywhere else in the codebase.
+ * Display maxima for UI live in ./public (client-safe).
  */
 
 export const WEIGHTS = Object.freeze({

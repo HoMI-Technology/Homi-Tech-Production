@@ -39,7 +39,9 @@ export interface CompanionThread {
  * order. Returns null when the user has no server-side thread yet (or on any
  * error — the client falls back to its local copy).
  */
-export async function loadCompanionThread(supabase: SupabaseClient): Promise<CompanionThread | null> {
+export async function loadCompanionThread(
+  supabase: SupabaseClient,
+): Promise<CompanionThread | null> {
   try {
     const { data: convo, error } = await supabase
       .from("advisor_conversations")
@@ -59,8 +61,9 @@ export async function loadCompanionThread(supabase: SupabaseClient): Promise<Com
 
     const messages = (rows ?? [])
       .reverse()
-      .filter((r): r is { role: "user" | "assistant"; content: string; created_at: string } =>
-        (r.role === "user" || r.role === "assistant") && typeof r.content === "string",
+      .filter(
+        (r): r is { role: "user" | "assistant"; content: string; created_at: string } =>
+          (r.role === "user" || r.role === "assistant") && typeof r.content === "string",
       )
       .map((r) => ({ role: r.role, content: r.content }));
 
@@ -155,7 +158,10 @@ export async function persistCompanionExchange(
  * (messages cascade). RLS plus the explicit user_id filter mean this can only
  * ever remove the caller's own thread. Returns whether the delete succeeded.
  */
-export async function forgetCompanionThread(supabase: SupabaseClient, userId: string): Promise<boolean> {
+export async function forgetCompanionThread(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<boolean> {
   try {
     const { error } = await supabase.from("advisor_conversations").delete().eq("user_id", userId);
     return !error;

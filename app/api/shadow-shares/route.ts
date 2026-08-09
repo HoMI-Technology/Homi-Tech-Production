@@ -57,10 +57,7 @@ export async function POST(request: Request) {
 
   const service = createAdminClient();
   if (!service) {
-    return NextResponse.json(
-      { error: "Sharing is not available right now." },
-      { status: 503 },
-    );
+    return NextResponse.json({ error: "Sharing is not available right now." }, { status: 503 });
   }
 
   const result = computeScore(parsed.data.inputs);

@@ -42,7 +42,10 @@ export async function POST(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`plaid-exchange:${ip}`, { limit: 10, windowMs: 60_000 });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a minute." },
+      { status: 429 },
+    );
   }
 
   const credentials = getPlaidCredentials();
@@ -104,7 +107,11 @@ export async function POST(request: Request) {
     let institutionName: string | null = null;
     let accounts: PlaidAccountPayload[] = [];
     try {
-      const itemRes = await plaidFetch("/item/get", { access_token: data.access_token }, credentials);
+      const itemRes = await plaidFetch(
+        "/item/get",
+        { access_token: data.access_token },
+        credentials,
+      );
       if (itemRes.ok) {
         const itemData = (await itemRes.json()) as {
           item?: { institution_id?: string | null; institution_name?: string | null };
@@ -112,7 +119,11 @@ export async function POST(request: Request) {
         institutionId = itemData.item?.institution_id ?? null;
         institutionName = itemData.item?.institution_name ?? null;
       }
-      const accountsRes = await plaidFetch("/accounts/get", { access_token: data.access_token }, credentials);
+      const accountsRes = await plaidFetch(
+        "/accounts/get",
+        { access_token: data.access_token },
+        credentials,
+      );
       if (accountsRes.ok) {
         const accountsData = (await accountsRes.json()) as { accounts?: PlaidAccountPayload[] };
         accounts = accountsData.accounts ?? [];
@@ -124,7 +135,9 @@ export async function POST(request: Request) {
     const admin = createAdminClient();
     if (!admin) {
       const correlationId = crypto.randomUUID();
-      console.error(`[plaid/exchange:${correlationId}] SUPABASE_SERVICE_ROLE_KEY missing — cannot store connection`);
+      console.error(
+        `[plaid/exchange:${correlationId}] SUPABASE_SERVICE_ROLE_KEY missing — cannot store connection`,
+      );
       return NextResponse.json(
         { error: "Bank connections are not available right now.", correlationId },
         { status: 503 },
@@ -185,7 +198,10 @@ export async function POST(request: Request) {
 
     if (itemError || !itemRow) {
       const correlationId = crypto.randomUUID();
-      console.error(`[plaid/exchange:${correlationId}] plaid_items upsert failed`, itemError?.message);
+      console.error(
+        `[plaid/exchange:${correlationId}] plaid_items upsert failed`,
+        itemError?.message,
+      );
       return NextResponse.json(
         { error: "Could not save the bank connection.", correlationId },
         { status: 500 },
@@ -210,7 +226,10 @@ export async function POST(request: Request) {
       if (accountsError) {
         // The item (and token) are saved; accounts refresh on the next sync.
         const correlationId = crypto.randomUUID();
-        console.error(`[plaid/exchange:${correlationId}] plaid_accounts upsert failed`, accountsError.message);
+        console.error(
+          `[plaid/exchange:${correlationId}] plaid_accounts upsert failed`,
+          accountsError.message,
+        );
       }
     }
 

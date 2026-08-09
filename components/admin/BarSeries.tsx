@@ -62,7 +62,14 @@ export function BarSeries({
                   fill={`url(#${gradId})`}
                 />
               ) : (
-                <rect x={x} y={baseY - 2} width={Math.max(barWidth, 1)} height={2} rx={1} fill={COLORS.slateHigh} />
+                <rect
+                  x={x}
+                  y={baseY - 2}
+                  width={Math.max(barWidth, 1)}
+                  height={2}
+                  rx={1}
+                  fill={COLORS.slateHigh}
+                />
               )}
             </g>
           );
@@ -76,7 +83,7 @@ export function BarSeries({
           strokeWidth={1}
         />
       </svg>
-      <div className="mt-2 flex justify-between text-[11px] text-dim">
+      <div className="mt-2 flex justify-between text-2xs text-dim">
         <span>{counts[0]?.date}</span>
         <span>{counts[counts.length - 1]?.date}</span>
       </div>

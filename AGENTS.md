@@ -4,13 +4,13 @@
 
 **Read and follow:** [`docs/OPERATORS-MANUAL.md`](docs/OPERATORS-MANUAL.md)
 
-| Command | Purpose |
-|---------|---------|
-| `homi doctor` | Machine + auth + secrets + noise health check |
+| Command                        | Purpose                                           |
+| ------------------------------ | ------------------------------------------------- |
+| `homi doctor`                  | Machine + auth + secrets + noise health check     |
 | `homi ssot status\|pull\|push` | Windows 1:1 GitHub sync (`scripts/homi-ssot.ps1`) |
-| `homi secrets` | E2E / LHCI GitHub secrets present? |
-| `homi hygiene` | Open PR policy report |
-| `homi manual` | Open the Operators Manual |
+| `homi secrets`                 | E2E / LHCI GitHub secrets present?                |
+| `homi hygiene`                 | Open PR policy report                             |
+| `homi manual`                  | Open the Operators Manual                         |
 
 Do **not** invent a parallel ops process. Point the user at the manual section + command.
 
@@ -69,12 +69,12 @@ through GitHub, never through a copy.
 
 ## Who may write
 
-| Writer | May write product tree? |
-|--------|-------------------------|
-| Claude, Cursor, Codex, Kimi, Grok (in this repo cwd) | Yes, with leases / human review |
-| EVO multi-ai-pipeline `-WorkDir` = this root | Yes |
-| Agy (Antigravity) | **No** product writes — playground only; consult/read ok |
-| Local Ollama models | Assist only; human or primary desk applies patches here |
+| Writer                                               | May write product tree?                                  |
+| ---------------------------------------------------- | -------------------------------------------------------- |
+| Claude, Cursor, Codex, Kimi, Grok (in this repo cwd) | Yes, with leases / human review                          |
+| EVO multi-ai-pipeline `-WorkDir` = this root         | Yes                                                      |
+| Agy (Antigravity)                                    | **No** product writes — playground only; consult/read ok |
+| Local Ollama models                                  | Assist only; human or primary desk applies patches here  |
 
 ## Commands
 
@@ -121,6 +121,21 @@ remain binding and are carried here. Violating any of these = stop and fix.
 5. **Add a test for every fix that has logic.** Especially: webhook
    signature/idempotency/tier-mapping, share ownership, entitlements, and the
    verdict-canon guard (`npm run test:acceptance`).
+
+## Scoped work — one Section per task
+
+The build is vertically sliced by domain. [`docs/SECTIONS.md`](docs/SECTIONS.md)
+is the SSOT map that draws the boundaries. **The rule for every agent task:**
+
+> Read anything; **write only inside the one Section named in the task**, plus
+> any shared dependency the task explicitly declares. If you believe you must
+> edit **Section 0 (Scoring Core)** or **Section 8 (Platform)**, stop and ask.
+
+Name the Section and the boundary at the top of each task, and keep the task
+smaller than the Section. A task that needs to cross a boundary is the signal to
+split it into two. This is what stops an agent from wandering across the whole
+tree and overworking. See `docs/SECTIONS.md` for the full map and the
+directory-to-Section index.
 
 ## Product notes
 
@@ -180,7 +195,7 @@ so you should not need to install them manually.
   (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
   `SUPABASE_SERVICE_ROLE_KEY`), copy them into `.env.local` so the dev server
   reads them reliably. **Gotcha:** a dev server launched inside a `tmux` session
-  that was created *before* the secrets were injected keeps the stale env and
+  that was created _before_ the secrets were injected keeps the stale env and
   logs in fail with "Something went wrong"; writing the values into `.env.local`
   (which Next always loads) sidesteps this — or recreate the tmux server. The
   authenticated Supabase MCP server can apply migrations / query the DB directly.

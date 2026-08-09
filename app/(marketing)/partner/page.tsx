@@ -64,17 +64,12 @@ export default function PartnerPage() {
       <section className="mx-auto max-w-6xl px-6 pt-20 pb-16 md:pt-28">
         <div className="grid items-center gap-12 md:grid-cols-2">
           <Reveal>
-            <p className="text-sm font-semibold uppercase tracking-widest text-cyan">
-              For Partners
-            </p>
-            <h1 className="mt-4 font-display text-4xl leading-tight text-light md:text-5xl">
-              Help your clients arrive prepared, not pressured.
-            </h1>
+            <p className="type-kicker text-cyan">For Partners</p>
+            <h1 className="mt-4 type-h1">Help your clients arrive prepared, not pressured.</h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-dim">
-              HōMI doesn&rsquo;t sell mortgages, funds, or renovations. It tells your
-              clients the truth about their readiness — Financial Reality,
-              Emotional Truth, Perfect Timing — so your advice lands on solid
-              ground.
+              HōMI doesn&rsquo;t sell mortgages, funds, or renovations. It tells your clients the
+              truth about their readiness — Financial Reality, Emotional Truth, Perfect Timing — so
+              your advice lands on solid ground.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/partner/dashboard" className="btn btn-primary">
@@ -93,19 +88,16 @@ export default function PartnerPage() {
 
       <section className="mx-auto max-w-6xl px-6 py-16">
         <Reveal>
-          <h2 className="font-display text-2xl text-light md:text-3xl">
-            Referral, without the incentive to bend the verdict
-          </h2>
+          <h2 className="type-h2">Referral, without the incentive to bend the verdict</h2>
           <p className="mt-3 max-w-2xl text-dim">
-            Most partner programs pay for the outcome they want. Ours doesn&rsquo;t
-            have one.
+            Most partner programs pay for the outcome they want. Ours doesn&rsquo;t have one.
           </p>
         </Reveal>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {PRINCIPLES.map((p, i) => (
             <Reveal key={p.title} delay={i * 90}>
               <div className="glass glass-hover h-full p-6">
-                <h3 className="text-lg font-semibold text-light">{p.title}</h3>
+                <h3 className="type-h4">{p.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-dim">{p.body}</p>
               </div>
             </Reveal>
@@ -115,14 +107,14 @@ export default function PartnerPage() {
 
       <section className="mx-auto max-w-6xl px-6 py-16">
         <Reveal>
-          <h2 className="font-display text-2xl text-light md:text-3xl">How it works</h2>
+          <h2 className="type-h2">How it works</h2>
         </Reveal>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {STEPS.map((s, i) => (
             <Reveal key={s.n} delay={i * 90}>
               <div className="glass h-full p-6">
                 <span className="score-numeral text-3xl font-bold text-cyan">{s.n}</span>
-                <h3 className="mt-3 text-lg font-semibold text-light">{s.title}</h3>
+                <h3 className="mt-3 type-h4">{s.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-dim">{s.body}</p>
               </div>
             </Reveal>
@@ -132,13 +124,13 @@ export default function PartnerPage() {
 
       <section className="mx-auto max-w-6xl px-6 py-16">
         <Reveal>
-          <h2 className="font-display text-2xl text-light md:text-3xl">Built for your practice</h2>
+          <h2 className="type-h2">Built for your practice</h2>
         </Reveal>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {WHO.map((w, i) => (
             <Reveal key={w.title} delay={i * 90}>
               <div className="glass glass-hover h-full p-6">
-                <h3 className="text-lg font-semibold text-light">{w.title}</h3>
+                <h3 className="type-h4">{w.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-dim">{w.body}</p>
               </div>
             </Reveal>
@@ -150,12 +142,10 @@ export default function PartnerPage() {
         <Reveal>
           <div className="glass flex flex-col items-start gap-6 p-10 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="font-display text-2xl text-light md:text-3xl">
-                Bring HōMI into your next conversation.
-              </h2>
+              <h2 className="type-h2">Bring HōMI into your next conversation.</h2>
               <p className="mt-2 max-w-lg text-dim">
-                Partner access is free to set up. No commission structure to
-                negotiate, no per-conversion fee.
+                Partner access is free to set up. No commission structure to negotiate, no
+                per-conversion fee.
               </p>
             </div>
             <div className="flex shrink-0 flex-wrap gap-3">

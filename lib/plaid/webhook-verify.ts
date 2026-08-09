@@ -15,7 +15,13 @@
  * logs only; the route must answer a bare 401 without detail.
  */
 
-import { createHash, createPublicKey, timingSafeEqual, verify as verifySignature, type KeyObject } from "node:crypto";
+import {
+  createHash,
+  createPublicKey,
+  timingSafeEqual,
+  verify as verifySignature,
+  type KeyObject,
+} from "node:crypto";
 import { plaidFetch, type PlaidCredentials } from "@/lib/plaid/client";
 
 const MAX_TOKEN_AGE_SECONDS = 5 * 60;
@@ -29,9 +35,7 @@ export function clearWebhookKeyCache(): void {
   keyCache.clear();
 }
 
-export type WebhookVerification =
-  | { ok: true; bodySha256: string }
-  | { ok: false; reason: string };
+export type WebhookVerification = { ok: true; bodySha256: string } | { ok: false; reason: string };
 
 /** SHA-256 of a raw string body, lowercase hex. */
 export function sha256Hex(raw: string): string {

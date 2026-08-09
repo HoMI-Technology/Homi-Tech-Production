@@ -15,7 +15,13 @@ const KIND_LABEL: Record<OutcomeSurveyKind, string> = {
  * completed_at null). Purely informational follow-up — never affects any
  * assessment's score or verdict.
  */
-export function OutcomeSurveyPrompt({ surveyId, kind }: { surveyId: string; kind: OutcomeSurveyKind }) {
+export function OutcomeSurveyPrompt({
+  surveyId,
+  kind,
+}: {
+  surveyId: string;
+  kind: OutcomeSurveyKind;
+}) {
   const [satisfaction, setSatisfaction] = useState<number | null>(null);
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
@@ -30,7 +36,11 @@ export function OutcomeSurveyPrompt({ surveyId, kind }: { surveyId: string; kind
       const supabase = createClient();
       const { error: updateError } = await supabase
         .from("outcome_surveys")
-        .update({ satisfaction, notes: note.trim() || null, completed_at: new Date().toISOString() })
+        .update({
+          satisfaction,
+          notes: note.trim() || null,
+          completed_at: new Date().toISOString(),
+        })
         .eq("id", surveyId);
       if (updateError) {
         setError("Could not save that. Try again.");
@@ -47,7 +57,9 @@ export function OutcomeSurveyPrompt({ surveyId, kind }: { surveyId: string; kind
   if (done) {
     return (
       <div className="glass mt-8 p-6 sm:p-8">
-        <p className="text-sm text-emerald">Thanks — recorded honestly. HōMI will check in again down the line.</p>
+        <p className="text-sm text-emerald">
+          Thanks — recorded honestly. HōMI will check in again down the line.
+        </p>
       </div>
     );
   }
@@ -67,7 +79,9 @@ export function OutcomeSurveyPrompt({ surveyId, kind }: { surveyId: string; kind
             onClick={() => setSatisfaction(n)}
             aria-pressed={satisfaction === n}
             className={`flex h-10 w-10 items-center justify-center rounded-full border text-sm font-semibold transition-colors ${
-              satisfaction === n ? "border-cyan bg-cyan/10 text-cyan" : "border-slate-surface/60 text-dim"
+              satisfaction === n
+                ? "border-cyan bg-cyan/10 text-cyan"
+                : "border-slate-surface/60 text-dim"
             }`}
           >
             {n}

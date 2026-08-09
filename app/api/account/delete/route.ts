@@ -27,7 +27,10 @@ export async function POST(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`account-delete:${ip}`, { limit: 5, windowMs: 60_000 });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a moment." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a moment." },
+      { status: 429 },
+    );
   }
 
   const supabase = await createServerClient();
@@ -70,7 +73,11 @@ export async function POST(request: Request) {
         );
       }
 
-      return NextResponse.json({ ok: true, authUserRemoved: true, plaidItemsRevoked: plaid.revoked });
+      return NextResponse.json({
+        ok: true,
+        authUserRemoved: true,
+        plaidItemsRevoked: plaid.revoked,
+      });
     } catch {
       return NextResponse.json(
         { error: "Account deletion failed. Nothing was removed — try again or contact support." },
@@ -98,7 +105,6 @@ export async function POST(request: Request) {
   return NextResponse.json({
     ok: true,
     authUserRemoved: false,
-    note:
-      "Your data has been erased. Your sign-in credential could not be removed automatically — contact support to finish removing it, and re-link any bank accounts you reconnect in future.",
+    note: "Your data has been erased. Your sign-in credential could not be removed automatically — contact support to finish removing it, and re-link any bank accounts you reconnect in future.",
   });
 }

@@ -12,7 +12,14 @@ interface PercentSliderProps {
 }
 
 /** A % suffixed range slider with a live value readout. */
-export function PercentSlider({ label, value, onChange, min = 0, max = 12, step = 0.1 }: PercentSliderProps) {
+export function PercentSlider({
+  label,
+  value,
+  onChange,
+  min = 0,
+  max = 12,
+  step = 0.1,
+}: PercentSliderProps) {
   return (
     <label className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between">

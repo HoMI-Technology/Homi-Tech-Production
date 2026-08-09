@@ -71,7 +71,8 @@ export interface RecentTransactionSnapshot {
 export interface ReadinessInputsSnapshot {
   dti: number;
   savingsRate: number;
-  runwayMonths: number;
+  /** Null when the source cannot compute runway — never coerce to 0. */
+  runwayMonths: number | null;
   downPaymentProgressPct: number;
   creditScore?: number;
 }
@@ -95,10 +96,23 @@ export interface AdvisorFinanceContext {
   runwayMonths: number | null;
   /** Debt-to-income ratio as a percentage. */
   dti: number;
-  liquidSavings: number;
-  totalDebt: number;
-  /** Assets minus liabilities from the Net Worth tab. */
-  netWorth: number;
+  /**
+   * Cash on hand. Null when the source cannot know it — the v1 ledger sees goal
+   * balances, not accounts, so a user with no emergency-reserve goal is unknown
+   * rather than broke.
+   */
+  liquidSavings: number | null;
+  /**
+   * What the user owes. Null when the source cannot know — the v1 ledger has
+   * no liability transaction type, so it reports unknown rather than zero.
+   */
+  totalDebt: number | null;
+  /**
+   * Assets minus liabilities. Null when the source cannot compute it (see
+   * totalDebt). Consumers must render "unknown" rather than a figure — this
+   * value reaches both the Companion prompt and the dashboard's Net worth tile.
+   */
+  netWorth: number | null;
   /** Days since the user last saved finance data; null when unknown. */
   ageDays?: number | null;
 
@@ -142,11 +156,12 @@ function weakestPillar(pillars: AdvisorAssessmentContext["pillars"]): {
   name: string;
   value: number;
 } {
-  const entries: Array<{ key: "financial" | "emotional" | "timing"; name: string; value: number }> = [
-    { key: "financial", name: "Financial Reality", value: pillars.financial },
-    { key: "emotional", name: "Emotional Truth", value: pillars.emotional },
-    { key: "timing", name: "Perfect Timing", value: pillars.timing },
-  ];
+  const entries: Array<{ key: "financial" | "emotional" | "timing"; name: string; value: number }> =
+    [
+      { key: "financial", name: "Financial Reality", value: pillars.financial },
+      { key: "emotional", name: "Emotional Truth", value: pillars.emotional },
+      { key: "timing", name: "Perfect Timing", value: pillars.timing },
+    ];
   return entries.sort((a, b) => a.value - b.value)[0];
 }
 
@@ -155,11 +170,12 @@ function strongestPillar(pillars: AdvisorAssessmentContext["pillars"]): {
   name: string;
   value: number;
 } {
-  const entries: Array<{ key: "financial" | "emotional" | "timing"; name: string; value: number }> = [
-    { key: "financial", name: "Financial Reality", value: pillars.financial },
-    { key: "emotional", name: "Emotional Truth", value: pillars.emotional },
-    { key: "timing", name: "Perfect Timing", value: pillars.timing },
-  ];
+  const entries: Array<{ key: "financial" | "emotional" | "timing"; name: string; value: number }> =
+    [
+      { key: "financial", name: "Financial Reality", value: pillars.financial },
+      { key: "emotional", name: "Emotional Truth", value: pillars.emotional },
+      { key: "timing", name: "Perfect Timing", value: pillars.timing },
+    ];
   return entries.sort((a, b) => b.value - a.value)[0];
 }
 
@@ -212,9 +228,12 @@ function readinessQuestion(ctx: AdvisorAssessmentContext): string {
 function weakestPillarQuestion(ctx: AdvisorAssessmentContext): string {
   const weak = weakestPillar(ctx.pillars);
   const byKey: Record<string, string> = {
-    financial: "That's the money math — debt load, down payment, emergency runway, credit. It's the most fixable pillar, honestly. Small, boring, consistent moves close this gap faster than people expect.",
-    emotional: "That's the honesty pillar — are you actually settled on this, or is someone or something pushing you? Numbers can't fix this one. Only time and honest reflection can.",
-    timing: "That's your runway and pace — how long until you're actually ready to act, and whether your savings are moving fast enough to get there. This one responds to patience more than effort.",
+    financial:
+      "That's the money math — debt load, down payment, emergency runway, credit. It's the most fixable pillar, honestly. Small, boring, consistent moves close this gap faster than people expect.",
+    emotional:
+      "That's the honesty pillar — are you actually settled on this, or is someone or something pushing you? Numbers can't fix this one. Only time and honest reflection can.",
+    timing:
+      "That's your runway and pace — how long until you're actually ready to act, and whether your savings are moving fast enough to get there. This one responds to patience more than effort.",
   };
   return (
     `${weak.name} is your weakest signal, at ${weak.value}/100. ${byKey[weak.key]} ` +
@@ -381,7 +400,17 @@ export function buildFallbackReply(input: FallbackInput): string {
     return pressureFomo(assessment);
   }
 
-  if (has(m, "mortgage rate", "interest rate", "which lender", "which bank", "recommend a", "best loan")) {
+  if (
+    has(
+      m,
+      "mortgage rate",
+      "interest rate",
+      "which lender",
+      "which bank",
+      "recommend a",
+      "best loan",
+    )
+  ) {
     return (
       "I can't recommend specific lenders, products, or rates — that crosses into financial advice, and that's not what I'm here for. " +
       "What I can help with is whether YOU are ready to be shopping for that rate in the first place. Want me to walk through your numbers instead?"
@@ -429,11 +458,14 @@ function timingAdvisorLeadIn(assessment?: AdvisorAssessmentContext | null): stri
 
 function financePlannerLeadIn(message: string): string {
   const m = message.toLowerCase();
-  if (has(m, "rent", "buy")) return "Pull up the Rent vs. Buy calculator alongside this — the math will sharpen what I'm about to say. ";
-  if (has(m, "afford", "price", "housing payment")) return "Run this through the Affordability calculator for exact numbers — here's the shape of it: ";
+  if (has(m, "rent", "buy"))
+    return "Pull up the Rent vs. Buy calculator alongside this — the math will sharpen what I'm about to say. ";
+  if (has(m, "afford", "price", "housing payment"))
+    return "Run this through the Affordability calculator for exact numbers — here's the shape of it: ";
   if (has(m, "runway", "emergency", "savings"))
     return "Check the Emergency Runway calculator for your precise number — here's the general read: ";
-  if (has(m, "fire", "retire")) return "The FIRE calculator will give you an exact target — for now: ";
+  if (has(m, "fire", "retire"))
+    return "The FIRE calculator will give you an exact target — for now: ";
   return "Calculator-backed, not guesswork: ";
 }
 

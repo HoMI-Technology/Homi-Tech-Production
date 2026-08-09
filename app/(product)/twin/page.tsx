@@ -85,7 +85,10 @@ export default function TwinPage() {
             : "Something went wrong generating your letter. Please try again.";
         setError(message);
         if (res.status === 401) {
-          setGateCta({ href: `/auth/sign-in?next=${encodeURIComponent(pathname)}`, label: "Sign in" });
+          setGateCta({
+            href: `/auth/sign-in?next=${encodeURIComponent(pathname)}`,
+            label: "Sign in",
+          });
         } else if (res.status === 402) {
           setGateCta({ href: "/pricing", label: "See plans" });
         }
@@ -144,15 +147,18 @@ export default function TwinPage() {
     <PageFrame width="focus" density="spacious" role="personal">
       <h1 className="font-display text-3xl text-light">Temporal Twin</h1>
       <p className="mt-2 max-w-2xl text-dim">
-        A letter from your future self. Grounded in your actual HōMI-Score, written from the other side
-        of this decision — {horizon === "retirement" ? "retirement" : `${horizon} years`} from now.
+        A letter from your future self. Grounded in your actual HōMI-Score, written from the other
+        side of this decision — {horizon === "retirement" ? "retirement" : `${horizon} years`} from
+        now.
       </p>
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[320px_1fr]">
         {/* Controls */}
         <div className="glass flex flex-col gap-6 p-6">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-dim">Your current read</p>
+            <p className="text-sm font-semibold uppercase tracking-wide text-dim">
+              Your current read
+            </p>
             <div className="mt-3 flex items-center gap-3">
               <ThresholdCompass size={56} verdict={stored.result.verdict} glow={false} />
               <div>
@@ -200,7 +206,12 @@ export default function TwinPage() {
             />
           </div>
 
-          <button type="button" onClick={generateLetter} disabled={loading} className="btn btn-primary w-full">
+          <button
+            type="button"
+            onClick={generateLetter}
+            disabled={loading}
+            className="btn btn-primary w-full"
+          >
             {loading ? "Writing your letter…" : letter ? "Regenerate" : "Write my letter"}
           </button>
 
@@ -218,7 +229,8 @@ export default function TwinPage() {
             <div className="flex h-full min-h-[360px] flex-col items-center justify-center gap-3 text-center">
               <ThresholdCompass size={72} verdict={stored.result.verdict} />
               <p className="max-w-sm text-sm text-dim">
-                Pick a horizon and write your letter. Your future self is waiting to tell you how this went.
+                Pick a horizon and write your letter. Your future self is waiting to tell you how
+                this went.
               </p>
             </div>
           )}

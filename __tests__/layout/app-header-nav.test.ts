@@ -29,12 +29,15 @@ describe("AppHeader nav config", () => {
       "/plan",
       "/journal",
       "/advisor",
-      "/money/budget",
-      "/money/decide",
       "/connections",
     ]) {
       expect(hrefs).toContain(href);
     }
+    // Money modes live under primary Money + MoneyModeNav — not More peers.
+    for (const href of ["/money/budget", "/money/decide", "/money/plan"]) {
+      expect(hrefs).not.toContain(href);
+    }
+    expect(APP_MORE_NAV.find((i) => i.href === "/plan")?.label).toBe("Readiness plan");
     // Incomplete lab surfaces stay off chrome for launch (routes still exist).
     for (const href of [
       "/simulator",

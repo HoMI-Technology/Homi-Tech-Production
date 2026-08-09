@@ -9,26 +9,15 @@
 
 import { loadLocalResult } from "@/lib/assessment/storage";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
-import {
-  loadFinanceState,
-  hasSavedFinanceState,
-  financeSavedAt,
-} from "@/lib/finance/store";
-import {
-  hasSavedBudgetLedger,
-  loadBudgetLedger,
-} from "@/lib/finance/local-ledger";
+import { loadFinanceState, hasSavedFinanceState, financeSavedAt } from "@/lib/finance/store";
+import { hasSavedBudgetLedger, loadBudgetLedger } from "@/lib/finance/local-ledger";
 import {
   buildFinanceContextFromLedger,
   buildFinanceContextFromLegacy,
 } from "@/lib/advisor/finance-context";
 import { loadCreditState, hasSavedCreditState, creditSavedAt } from "@/lib/credit/store";
 import { buildScoreExplanation } from "@/lib/advisor/explain";
-import {
-  loadReadinessPath,
-  getFinanceSavedAtForPath,
-  buildPathCoachPack,
-} from "@/lib/readiness";
+import { loadReadinessPath, getFinanceSavedAtForPath, buildPathCoachPack } from "@/lib/readiness";
 import type {
   AdvisorAssessmentContext,
   AdvisorCreditContext,
@@ -120,7 +109,11 @@ const SURFACE_LABELS: Array<[prefix: string, label: string]> = [
   ["/tools/roth-conversion", "the Roth conversion explorer"],
   ["/tools/runway", "the runway calculator"],
   ["/tools/blind-budget", "the blind budget exercise"],
-  ["/tools", "the financial tools hub"],
+  ["/tools/preflight", "Decision Pre-Flight"],
+  ["/tools", "the public calculators hub"],
+  ["/money/decide", "Money · Decide"],
+  ["/money/budget", "Money · Track"],
+  ["/money/plan", "Money · Plan"],
   ["/money", "the Money picture"],
   ["/credit", "the credit overview"],
   ["/connections", "the bank connections page"],
@@ -131,7 +124,6 @@ const SURFACE_LABELS: Array<[prefix: string, label: string]> = [
   ["/results", "their assessment results"],
   ["/report", "their readiness report"],
   ["/path", "their Path to Ready"],
-  ["/tools/preflight", "Decision Pre-Flight"],
   ["/scenarios", "the scenario studio"],
   ["/plan", "their readiness plan"],
   ["/simulator", "the scenario simulator"],

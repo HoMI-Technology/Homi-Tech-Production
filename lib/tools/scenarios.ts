@@ -164,10 +164,7 @@ export function scenarioMonthlyObligation(scenario: ToolScenario): number | null
 
 /** The right delta shape per lens: refinance scenarios swap an obligation;
  * everything else with a monthly cost adds one. */
-function deltasForScenario(
-  scenario: ToolScenario,
-  finance: FinanceState,
-): MetricDelta[] | null {
+function deltasForScenario(scenario: ToolScenario, finance: FinanceState): MetricDelta[] | null {
   if (scenario.lensId === "refinance") {
     const payments = refinancePayments(scenario.inputs);
     if (!payments) return null;
@@ -270,9 +267,10 @@ function persistLocal(scenarios: ToolScenario[]): void {
 /** Local save honors the anonymous cap: at the cap, the oldest is replaced
  * (the user explicitly chose to save a new one; nothing is silently lost —
  * the button reports the replacement). */
-export function saveLocalScenario(
-  scenario: Omit<ToolScenario, "id" | "savedAt" | "origin">,
-): { scenario: ToolScenario; replaced: ToolScenario | null } {
+export function saveLocalScenario(scenario: Omit<ToolScenario, "id" | "savedAt" | "origin">): {
+  scenario: ToolScenario;
+  replaced: ToolScenario | null;
+} {
   const existing = loadLocalScenarios();
   const full: ToolScenario = {
     ...scenario,

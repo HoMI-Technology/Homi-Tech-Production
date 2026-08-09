@@ -92,10 +92,7 @@ describe("SegmentedControl", () => {
     // A disabled button cannot receive focus, so parking the roving tab stop
     // on it would drop the whole group out of the tab order.
     render(
-      <Harness
-        initial="b"
-        options={[OPTIONS[0], { ...OPTIONS[1], disabled: true }, OPTIONS[2]]}
-      />,
+      <Harness initial="b" options={[OPTIONS[0], { ...OPTIONS[1], disabled: true }, OPTIONS[2]]} />,
     );
     expect(screen.getByRole("radio", { name: "Beta" })).toHaveAttribute("aria-checked", "true");
     expect(screen.getByRole("radio", { name: "Alpha" })).toHaveAttribute("tabindex", "0");
@@ -104,9 +101,7 @@ describe("SegmentedControl", () => {
   });
 
   it("arrow keys move selection and focus, wrapping and skipping disabled options", () => {
-    render(
-      <Harness options={[OPTIONS[0], { ...OPTIONS[1], disabled: true }, OPTIONS[2]]} />,
-    );
+    render(<Harness options={[OPTIONS[0], { ...OPTIONS[1], disabled: true }, OPTIONS[2]]} />);
     const alpha = screen.getByRole("radio", { name: "Alpha" });
 
     // Beta is disabled — ArrowRight skips straight to Gamma.

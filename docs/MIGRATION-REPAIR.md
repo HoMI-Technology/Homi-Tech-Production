@@ -16,7 +16,7 @@ marking them **reverted** — bookkeeping only, no schema or data is touched.
   (BUILD-BRIEF §13, now `docs/archive/BUILD-BRIEF.md`). **Never hand-`DELETE` from
   `supabase_migrations.schema_migrations`.**
 - The actual schema is **clean** (audit-verified: exactly the 15 rebuild
-  tables). We are repairing *history*, not the schema.
+  tables). We are repairing _history_, not the schema.
 
 ---
 
@@ -107,7 +107,7 @@ proceeding.
 
 ### Group D — future-dated phantoms (29 rows)
 
-Sort *after* the July 2026 rebuild; audit notes names like `cms_schema`,
+Sort _after_ the July 2026 rebuild; audit notes names like `cms_schema`,
 `document_extractions`, `email_jobs`, `mirror_*`:
 
 ```
@@ -127,12 +127,12 @@ Sort *after* the July 2026 rebuild; audit notes names like `cms_schema`,
 
 ### KEEP — do not touch
 
-| Remote version(s) | What it is |
-|---|---|
-| `20260706193938` … `20260707224634` | The `homi_` rebuild lineage (the audit recorded ~11 rows; capture the exact versions from the before-snapshot) |
-| `20260710201356`, `20260710201454`, `20260710201517`, `20260710201539` | Post-rebuild migrations |
-| `20260713230022`, `20260713230110`, `20260713230120`, `20260713230134`, `20260713230146` | Post-rebuild migrations |
-| `20260715222040`, `20260715222102`, `20260716030824`, `20260716152806`, `20260716170320` | Post-rebuild migrations |
+| Remote version(s)                                                                        | What it is                                                                                                     |
+| ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `20260706193938` … `20260707224634`                                                      | The `homi_` rebuild lineage (the audit recorded ~11 rows; capture the exact versions from the before-snapshot) |
+| `20260710201356`, `20260710201454`, `20260710201517`, `20260710201539`                   | Post-rebuild migrations                                                                                        |
+| `20260713230022`, `20260713230110`, `20260713230120`, `20260713230134`, `20260713230146` | Post-rebuild migrations                                                                                        |
+| `20260715222040`, `20260715222102`, `20260716030824`, `20260716152806`, `20260716170320` | Post-rebuild migrations                                                                                        |
 
 ### Reconciliation against `supabase/migrations/` (as of branch `main` @ `5d778de`)
 
@@ -144,14 +144,14 @@ revocation, webhook events, email unsubscribes, bank sync, goals, profile
 email prefs, profiles privilege guard). **There are zero timestamped local
 files.**
 
-| Remote row(s) | Local file match? | Disposition |
-|---|---|---|
-| Phantom `00001`–`00020` (prototype `create_*`) | ⚠️ **Version-string collision, different content.** Local `00001_*.sql`–`00020_*.sql` contain the *rebuild* schema, not the prototype `create_*` lineage the remote rows recorded. | Mark remote rows reverted (§4). Then resolve numbering per §7 — do **not** `db push` until that decision is made. |
-| Phantom `00021`–`00035`, `000061`–`000111` | No local files | Mark reverted. |
-| Phantom timestamped `20260417024013`…`20260609211844` | No local files | Mark reverted. |
-| Phantom future-dated `20260801000001`…`20270502000003` | No local files | Mark reverted. |
-| **KEEP** `20260706193938`–`20260707224634` | ❌ **Remote-only — no local file.** Legit-looking. | **Human confirmation gate:** verify these are the applied rebuild rows (the audit confirmed the live schema is exactly the 15 rebuild tables, which supports KEEP). Do not revert. |
-| **KEEP** the 14 post-rebuild versions above | ❌ **Remote-only — no local file.** Legit-looking. | **Human confirmation gate:** confirm each against the before-snapshot names/descriptions. Do not revert. |
+| Remote row(s)                                          | Local file match?                                                                                                                                                                  | Disposition                                                                                                                                                                        |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Phantom `00001`–`00020` (prototype `create_*`)         | ⚠️ **Version-string collision, different content.** Local `00001_*.sql`–`00020_*.sql` contain the _rebuild_ schema, not the prototype `create_*` lineage the remote rows recorded. | Mark remote rows reverted (§4). Then resolve numbering per §7 — do **not** `db push` until that decision is made.                                                                  |
+| Phantom `00021`–`00035`, `000061`–`000111`             | No local files                                                                                                                                                                     | Mark reverted.                                                                                                                                                                     |
+| Phantom timestamped `20260417024013`…`20260609211844`  | No local files                                                                                                                                                                     | Mark reverted.                                                                                                                                                                     |
+| Phantom future-dated `20260801000001`…`20270502000003` | No local files                                                                                                                                                                     | Mark reverted.                                                                                                                                                                     |
+| **KEEP** `20260706193938`–`20260707224634`             | ❌ **Remote-only — no local file.** Legit-looking.                                                                                                                                 | **Human confirmation gate:** verify these are the applied rebuild rows (the audit confirmed the live schema is exactly the 15 rebuild tables, which supports KEEP). Do not revert. |
+| **KEEP** the 14 post-rebuild versions above            | ❌ **Remote-only — no local file.** Legit-looking.                                                                                                                                 | **Human confirmation gate:** confirm each against the before-snapshot names/descriptions. Do not revert.                                                                           |
 
 > **Blocking confirmation required before §4:** every KEEP row is remote-only.
 > A human must confirm, from the before-snapshot, that the KEEP set is exactly
@@ -219,7 +219,7 @@ supabase migration list
 
 - **Gate 1:** no phantom version from §2 appears as applied remotely.
 - **Gate 2 (audit acceptance, `local ≡ remote`):** see §7 — after repair,
-  local files `00001`–`00020` will legitimately show as *not recorded* on the
+  local files `00001`–`00020` will legitimately show as _not recorded_ on the
   remote, and the remote KEEP timestamps have no local files. That residual,
   exactly matching §3's table and nothing else, is the expected end-state of
   **this** runbook; full unification is the §7 follow-up. Anything beyond
@@ -370,7 +370,7 @@ Expected post-repair state:
 ## Appendix — audit context
 
 - AUDIT-2026-07-08 (`docs/archive/AUDIT-2026-07-08.md`) **T0.6** (failure mode, acceptance):
-  remote `schema_migrations` holds the prototype lineage *plus* ~35 rows
+  remote `schema_migrations` holds the prototype lineage _plus_ ~35 rows
   future-dated 2026-08 → 2027-05; any future `db push`/`migration list`
   reconciliation sees ~90 migrations that don't exist locally. Acceptance:
   `supabase migration list` local ≡ remote (see §5/§7 for the two-step path

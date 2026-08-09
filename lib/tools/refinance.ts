@@ -42,14 +42,22 @@ function lifetimeInterest(balance: number, rate: number, years: number): number 
 }
 
 export function analyzeRefinance(inputs: RefinanceInputs): RefinanceResult {
-  const currentMonthly = monthlyPayment(inputs.balance, inputs.currentRate, inputs.currentTermYears);
+  const currentMonthly = monthlyPayment(
+    inputs.balance,
+    inputs.currentRate,
+    inputs.currentTermYears,
+  );
   const newMonthly = monthlyPayment(inputs.balance, inputs.newRate, inputs.newTermYears);
   const monthlySavings = currentMonthly - newMonthly;
 
   const breakEvenMonths =
     monthlySavings > 0 ? Math.ceil(inputs.closingCosts / monthlySavings) : null;
 
-  const currentLifetimeInterest = lifetimeInterest(inputs.balance, inputs.currentRate, inputs.currentTermYears);
+  const currentLifetimeInterest = lifetimeInterest(
+    inputs.balance,
+    inputs.currentRate,
+    inputs.currentTermYears,
+  );
   const newLifetimeInterest = lifetimeInterest(inputs.balance, inputs.newRate, inputs.newTermYears);
 
   return {

@@ -48,7 +48,7 @@ function stepMeta(steps: FlowStep[]): StepMeta[] {
       s.kind === "intro"
         ? s.dimension
         : s.kind === "question"
-          ? getQuestionById(s.questionId)?.dimension ?? null
+          ? (getQuestionById(s.questionId)?.dimension ?? null)
           : null,
   }));
 }
@@ -93,9 +93,7 @@ export function FullAssessmentFlow() {
       // Prefer the sole live type when the product is single-vertical; otherwise
       // restore whatever the draft captured.
       const restored =
-        ACTIVE_DECISION_TYPES.length === 1
-          ? DEFAULT_DECISION_TYPE
-          : resumeDraft.decisionType;
+        ACTIVE_DECISION_TYPES.length === 1 ? DEFAULT_DECISION_TYPE : resumeDraft.decisionType;
       setDecisionType(restored);
       setResponses(resumeDraft.responses);
       setConflict(resumeDraft.conflict);
@@ -118,9 +116,7 @@ export function FullAssessmentFlow() {
   const step = steps[index];
   const progressSteps = useMemo(() => stepMeta(steps), [steps]);
   usePageTitle(
-    draftReady
-      ? `Assessment · Step ${index + 1} of ${steps.length} · HōMI`
-      : "Assessment · HōMI",
+    draftReady ? `Assessment · Step ${index + 1} of ${steps.length} · HōMI` : "Assessment · HōMI",
   );
 
   function setResponse(questionId: string, value: ResponseValue) {
@@ -149,9 +145,7 @@ export function FullAssessmentFlow() {
       scored = await fetchServerScore(inputs);
     } catch (err) {
       const message =
-        err instanceof ScoringRequestError
-          ? err.message
-          : "Scoring failed. Try again in a moment.";
+        err instanceof ScoringRequestError ? err.message : "Scoring failed. Try again in a moment.";
       setScoreError(message);
       // F.12 channel: scoring failure is a failed save of the authoritative result.
       recordSaveStatus("failed");
@@ -223,7 +217,9 @@ export function FullAssessmentFlow() {
         <div className="glass mb-6 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-light">
             <span className="font-semibold text-cyan">Resume where you left off?</span>{" "}
-            <span className="text-dim">You have an in-progress assessment saved on this device.</span>
+            <span className="text-dim">
+              You have an in-progress assessment saved on this device.
+            </span>
           </p>
           <div className="flex shrink-0 items-center gap-3">
             <button type="button" onClick={handleStartOver} className="btn btn-ghost text-sm">
@@ -259,7 +255,12 @@ export function FullAssessmentFlow() {
       )}
 
       {step.kind === "intro" && pillarMeta && (
-        <StepShell stepKey={`intro-${step.dimension}`} onNext={goNext} showBack={index > 0} onBack={goBack}>
+        <StepShell
+          stepKey={`intro-${step.dimension}`}
+          onNext={goNext}
+          showBack={index > 0}
+          onBack={goBack}
+        >
           <PillarIntro
             color={pillarMeta.color}
             name={pillarMeta.name}
@@ -269,24 +270,25 @@ export function FullAssessmentFlow() {
         </StepShell>
       )}
 
-      {step.kind === "question" && (() => {
-        const question = getQuestionById(step.questionId);
-        if (!question) return null;
-        return (
-          <StepShell
-            stepKey={step.questionId}
-            onBack={goBack}
-            onNext={goNext}
-            nextDisabled={nextDisabled}
-          >
-            <BankQuestionField
-              question={question}
-              value={responses[step.questionId]}
-              onChange={(v) => setResponse(step.questionId, v)}
-            />
-          </StepShell>
-        );
-      })()}
+      {step.kind === "question" &&
+        (() => {
+          const question = getQuestionById(step.questionId);
+          if (!question) return null;
+          return (
+            <StepShell
+              stepKey={step.questionId}
+              onBack={goBack}
+              onNext={goNext}
+              nextDisabled={nextDisabled}
+            >
+              <BankQuestionField
+                question={question}
+                value={responses[step.questionId]}
+                onChange={(v) => setResponse(step.questionId, v)}
+              />
+            </StepShell>
+          );
+        })()}
 
       {step.kind === "conflict-referral" && (
         <StepShell
@@ -363,7 +365,9 @@ function ReviewStep({
   submitting: boolean;
   scoreError: string | null;
 }) {
-  const questionSteps = steps.filter((s): s is { kind: "question"; questionId: string } => s.kind === "question");
+  const questionSteps = steps.filter(
+    (s): s is { kind: "question"; questionId: string } => s.kind === "question",
+  );
 
   const rows = questionSteps.map((s) => {
     const q = getQuestionById(s.questionId)!;
@@ -392,7 +396,8 @@ function ReviewStep({
       <div className="glass p-6 sm:p-10">
         <h2 className="font-display text-2xl font-semibold text-light">Review your answers</h2>
         <p className="mt-2 text-sm text-dim">
-          {questionSteps.length} questions from the canonical bank. Edit anything before you see your score.
+          {questionSteps.length} questions from the canonical bank. Edit anything before you see
+          your score.
         </p>
 
         <div className="mt-6 max-h-[50vh] divide-y divide-slate-surface/60 overflow-y-auto">
@@ -425,7 +430,12 @@ function ReviewStep({
           <button type="button" onClick={onBack} className="btn btn-ghost">
             Back
           </button>
-          <button type="button" onClick={onSubmit} disabled={submitting} className="btn btn-primary">
+          <button
+            type="button"
+            onClick={onSubmit}
+            disabled={submitting}
+            className="btn btn-primary"
+          >
             {submitting ? "Computing…" : "See my HōMI-Score"}
           </button>
         </div>

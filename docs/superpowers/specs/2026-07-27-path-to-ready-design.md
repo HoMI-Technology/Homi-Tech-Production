@@ -11,11 +11,11 @@ Turn assessment verdicts (esp. `NOT_YET` / `BUILD_FIRST` / hard-stops) into a **
 
 ## Non-goals (v1)
 
-- Transaction ledger / categorization product  
-- Bill negotiation or cancel concierge  
-- New scoring math  
-- DB migration for paths (v1 = localStorage + calendar notes marker)  
-- Auto-complete from Plaid  
+- Transaction ledger / categorization product
+- Bill negotiation or cancel concierge
+- New scoring math
+- DB migration for paths (v1 = localStorage + calendar notes marker)
+- Auto-complete from Plaid
 
 ## Architecture
 
@@ -39,9 +39,14 @@ Companion context path block
 type PathStepKind = "milestone" | "deadline" | "review";
 type PathReasonCode =
   | HardStopCode
-  | "PILLAR_FINANCIAL" | "PILLAR_EMOTIONAL" | "PILLAR_TIMING"
-  | "NEGATIVE_CASHFLOW" | "PARTNER_ALIGNMENT" | "REASSESS"
-  | "MAINTENANCE" | "READY_CELEBRATE";
+  | "PILLAR_FINANCIAL"
+  | "PILLAR_EMOTIONAL"
+  | "PILLAR_TIMING"
+  | "NEGATIVE_CASHFLOW"
+  | "PARTNER_ALIGNMENT"
+  | "REASSESS"
+  | "MAINTENANCE"
+  | "READY_CELEBRATE";
 
 interface PathStep {
   id: string;
@@ -86,48 +91,48 @@ interface ReadinessPath {
 
 - Notes field:  
   `HōMI Path · <reasonCode>\n\n<notes>\n\n<!--homi-path:<pathId>:<stepId>-->`
-- Title = step.title  
-- kind = step.kind mapped to CalendarEventKind  
-- event_date = localDateISO + daysFromNow  
+- Title = step.title
+- kind = step.kind mapped to CalendarEventKind
+- event_date = localDateISO + daysFromNow
 
 ## Homi UI standards
 
-- Tokens only (navy, cyan, emerald, yellow, crimson, glass, Fraunces/Inter/JetBrains)  
-- VerdictBadge / existing glass cards  
-- OPERATE: one primary next move, not KPI walls  
-- Protective copy — never shaming  
-- Educational disclaimer near housing language  
-- `prefers-reduced-motion` safe (no new scroll-jack)  
-- brand-check + typecheck must pass  
+- Tokens only (navy, cyan, emerald, yellow, crimson, glass, Fraunces/Inter/JetBrains)
+- VerdictBadge / existing glass cards
+- OPERATE: one primary next move, not KPI walls
+- Protective copy — never shaming
+- Educational disclaimer near housing language
+- `prefers-reduced-motion` safe (no new scroll-jack)
+- brand-check + typecheck must pass
 
 ## Files
 
-| Path | Owner |
-|------|--------|
-| `lib/readiness/path.ts` | Core |
-| `lib/readiness/store.ts` | Core |
-| `lib/readiness/index.ts` | Core |
-| `__tests__/readiness-path.test.ts` | Core |
-| `components/readiness/PathToReadyCard.tsx` | Results agent |
-| `components/readiness/PathPreview.tsx` | Results agent |
-| `app/.../results/page.tsx` | Results agent (wire only) |
-| `app/.../calendar/page.tsx` | Calendar agent |
-| `app/.../finance/page.tsx` | Finance agent (chips only) |
-| `lib/advisor/context.ts` | Companion agent |
-| `__tests__/companion-context.test.ts` | Companion agent (extend) |
+| Path                                       | Owner                      |
+| ------------------------------------------ | -------------------------- |
+| `lib/readiness/path.ts`                    | Core                       |
+| `lib/readiness/store.ts`                   | Core                       |
+| `lib/readiness/index.ts`                   | Core                       |
+| `__tests__/readiness-path.test.ts`         | Core                       |
+| `components/readiness/PathToReadyCard.tsx` | Results agent              |
+| `components/readiness/PathPreview.tsx`     | Results agent              |
+| `app/.../results/page.tsx`                 | Results agent (wire only)  |
+| `app/.../calendar/page.tsx`                | Calendar agent             |
+| `app/.../finance/page.tsx`                 | Finance agent (chips only) |
+| `lib/advisor/context.ts`                   | Companion agent            |
+| `__tests__/companion-context.test.ts`      | Companion agent (extend)   |
 
 ## Tests required
 
-- READY → no forced steps / mode ready_optional  
-- Each hard-stop produces ordered primary step + href  
-- Negative cash flow gate  
-- Unsaved finance → confidence assessment_only  
-- Cap 7 steps; first ≤7 days  
-- Notes marker round-trip helpers  
+- READY → no forced steps / mode ready_optional
+- Each hard-stop produces ordered primary step + href
+- Negative cash flow gate
+- Unsaved finance → confidence assessment_only
+- Cap 7 steps; first ≤7 days
+- Notes marker round-trip helpers
 
 ## Success (code)
 
-- vitest green for readiness tests  
-- typecheck green  
-- brand-check green  
-- No new off-token colors  
+- vitest green for readiness tests
+- typecheck green
+- brand-check green
+- No new off-token colors

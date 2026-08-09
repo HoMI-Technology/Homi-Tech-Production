@@ -10,45 +10,30 @@ import { PlannerPage } from "@/components/planner/PlannerPage";
 import { hydratePlannerFromLedger } from "@/lib/planner/ledger-bridge";
 
 const OverviewCommand = dynamic(
-  () =>
-    import("@/components/planner/overview/OverviewCommand").then(
-      (m) => m.default,
-    ),
+  () => import("@/components/planner/overview/OverviewCommand").then((m) => m.default),
   {
     ssr: false,
     loading: () => <ProductLoadingSkeleton label="Loading overview" rows={3} />,
   },
 );
-const DecisionCalendar = dynamic(
-  () => import("@/components/planner/calendar/DecisionCalendar"),
-  {
-    ssr: false,
-    loading: () => <ProductLoadingSkeleton label="Loading calendar" rows={3} />,
-  },
-);
-const BankingCommand = dynamic(
-  () => import("@/components/planner/banking/BankingCommand"),
-  {
-    ssr: false,
-    loading: () => <ProductLoadingSkeleton label="Loading banks" rows={3} />,
-  },
-);
-const WealthCommand = dynamic(
-  () => import("@/components/planner/wealth/WealthCommand"),
-  {
-    ssr: false,
-    loading: () => <ProductLoadingSkeleton label="Loading wealth" rows={3} />,
-  },
-);
-const PlanCommand = dynamic(
-  () => import("@/components/planner/plan/PlanCommand"),
-  {
-    ssr: false,
-    loading: () => <ProductLoadingSkeleton label="Loading plan" rows={3} />,
-  },
-);
+const DecisionCalendar = dynamic(() => import("@/components/planner/calendar/DecisionCalendar"), {
+  ssr: false,
+  loading: () => <ProductLoadingSkeleton label="Loading calendar" rows={3} />,
+});
+const BankingCommand = dynamic(() => import("@/components/planner/banking/BankingCommand"), {
+  ssr: false,
+  loading: () => <ProductLoadingSkeleton label="Loading banks" rows={3} />,
+});
+const WealthCommand = dynamic(() => import("@/components/planner/wealth/WealthCommand"), {
+  ssr: false,
+  loading: () => <ProductLoadingSkeleton label="Loading wealth" rows={3} />,
+});
 
-export function PlannerApp() {
+/**
+ * @param embedded - When true (Money · Track), skip outer PageFrame and forward
+ *   embedded chrome to PlannerPage so MoneyShell owns the only page h1.
+ */
+export function PlannerApp({ embedded = false }: { embedded?: boolean }) {
   const hasHydrated = usePlannerStore((s) => s._hasHydrated);
   const setHasHydrated = usePlannerStore((s) => s.setHasHydrated);
   const [ready, setReady] = useState(false);
@@ -75,28 +60,33 @@ export function PlannerApp() {
     };
   }, [setHasHydrated]);
 
-  if (!ready && !hasHydrated) {
-    return (
-      <PageFrame width="content" density="spacious" role="personal">
-        <ProductLoadingSkeleton label="Loading Budget Planner" rows={4} />
-      </PageFrame>
+  const body =
+    !ready && !hasHydrated ? (
+      <ProductLoadingSkeleton label="Loading Budget Planner" rows={4} />
+    ) : (
+      <>
+        <PlannerPage
+          embedded={embedded}
+          overview={<OverviewCommand />}
+          calendar={<DecisionCalendar />}
+          banking={<BankingCommand />}
+          wealth={<WealthCommand />}
+        />
+        <footer className="mt-12 border-t border-white/[0.06] pt-6">
+          <p className="mx-auto max-w-3xl text-center text-xs leading-relaxed text-dim">
+            {LEGAL_DISCLAIMER}
+          </p>
+        </footer>
+      </>
     );
+
+  if (embedded) {
+    return <div className="min-w-0">{body}</div>;
   }
 
   return (
     <PageFrame width="content" density="spacious" role="personal">
-      <PlannerPage
-        overview={<OverviewCommand />}
-        calendar={<DecisionCalendar />}
-        banking={<BankingCommand />}
-        wealth={<WealthCommand />}
-        plan={<PlanCommand />}
-      />
-      <footer className="mt-12 border-t border-white/[0.06] pt-6">
-        <p className="mx-auto max-w-3xl text-center text-xs leading-relaxed text-dim">
-          {LEGAL_DISCLAIMER}
-        </p>
-      </footer>
+      {body}
     </PageFrame>
   );
 }

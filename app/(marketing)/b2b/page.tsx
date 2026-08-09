@@ -14,11 +14,10 @@ export default function B2BPage() {
     <>
       <section className="px-6 pb-16 pt-16 md:pt-24">
         <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-4xl font-black text-light md:text-5xl">HōMI for teams</h1>
+          <h1 className="type-h1">HōMI for teams</h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-dim">
-            The financial-wellness benefit that measures readiness, not just account
-            balances. Give your people the one honest voice in a sea of things trying to
-            sell them something.
+            The financial-wellness benefit that measures readiness, not just account balances. Give
+            your people the one honest voice in a sea of things trying to sell them something.
           </p>
         </div>
       </section>
@@ -27,9 +26,7 @@ export default function B2BPage() {
         <section className="px-6 py-16">
           <div className="mx-auto max-w-4xl">
             <div className="glass p-10 md:p-14">
-              <h2 className="font-display text-2xl font-bold text-light">
-                Outcomes, not transactions
-              </h2>
+              <h2 className="type-h2">Outcomes, not transactions</h2>
               <p className="mt-5 leading-relaxed text-dim">
                 Most financial-wellness benefits are measured by engagement: logins, clicks,
                 accounts opened. HōMI measures something different — whether your people are
@@ -37,10 +34,9 @@ export default function B2BPage() {
                 Readiness is the outcome. Transactions are not the goal.
               </p>
               <p className="mt-5 leading-relaxed text-dim">
-                A team that understands its own readiness makes fewer decisions it regrets.
-                Fewer regretted decisions means less financial stress carried into the
-                workday — and that shows up in retention, focus, and trust in the benefits
-                you offer.
+                A team that understands its own readiness makes fewer decisions it regrets. Fewer
+                regretted decisions means less financial stress carried into the workday — and that
+                shows up in retention, focus, and trust in the benefits you offer.
               </p>
             </div>
           </div>
@@ -50,30 +46,28 @@ export default function B2BPage() {
       <Reveal>
         <section className="px-6 py-16">
           <div className="mx-auto max-w-6xl">
-            <h2 className="text-center text-3xl font-black text-light md:text-4xl">
-              What your people get
-            </h2>
+            <h2 className="text-center type-h2">What your people get</h2>
             <div className="mt-12 grid gap-6 md:grid-cols-3">
               <div className="glass glass-hover p-8">
-                <h3 className="text-lg font-bold text-light">A private readiness score</h3>
+                <h3 className="type-h4">A private readiness score</h3>
                 <p className="mt-3 text-sm leading-relaxed text-dim">
-                  Individual results stay individual. Employers see participation and
-                  aggregate trends — never a single person&rsquo;s answers.
+                  Individual results stay individual. Employers see participation and aggregate
+                  trends — never a single person&rsquo;s answers.
                 </p>
               </div>
               <div className="glass glass-hover p-8">
-                <h3 className="text-lg font-bold text-light">A Decision Companion</h3>
+                <h3 className="type-h4">A Decision Companion</h3>
                 <p className="mt-3 text-sm leading-relaxed text-dim">
-                  Conversations that help employees see their own situation clearly before a
-                  major purchase, a career change, or a move.
+                  Conversations that help employees see their own situation clearly before a major
+                  purchase, a career change, or a move.
                 </p>
               </div>
               <div className="glass glass-hover p-8">
-                <h3 className="text-lg font-bold text-light">No transaction pressure</h3>
+                <h3 className="type-h4">No transaction pressure</h3>
                 <p className="mt-3 text-sm leading-relaxed text-dim">
-                  HōMI does not take commissions or referral fees, and it has no product to
-                  push. The benefit works for your employees because nothing HōMI earns
-                  depends on what they decide.
+                  HōMI does not take commissions or referral fees, and it has no product to push.
+                  The benefit works for your employees because nothing HōMI earns depends on what
+                  they decide.
                 </p>
               </div>
             </div>
@@ -84,30 +78,44 @@ export default function B2BPage() {
       <Reveal>
         <section className="px-6 py-16">
           <div className="mx-auto max-w-4xl text-center">
-            <h2 className="text-3xl font-black text-light md:text-4xl">
-              Already exploring a rollout?
-            </h2>
+            <h2 className="type-h2">Already exploring a rollout?</h2>
             <p className="mx-auto mt-4 max-w-xl text-dim">
-              Whether you&rsquo;re a benefits partner or an employee looking into what your
-              company offers, here&rsquo;s where to go next.
+              Whether you&rsquo;re a benefits partner or an employee looking into what your company
+              offers, here&rsquo;s where to go next.
             </p>
             <div className="mt-10 grid gap-6 sm:grid-cols-2">
-              <Link href="/partner" className="glass glass-hover flex flex-col p-8 text-left">
-                <h3 className="text-lg font-bold text-light">For partners</h3>
+              <Link href="/partner" className="group glass glass-hover flex flex-col p-8 text-left">
+                <h3 className="type-h4">For partners</h3>
                 <p className="mt-3 flex-1 text-sm leading-relaxed text-dim">
                   Bring HōMI to your benefits platform or your client roster.
                 </p>
-                <span className="mt-5 text-sm font-semibold text-cyan">Learn more &rarr;</span>
+                <span className="mt-5 text-sm font-semibold text-cyan">
+                  Learn more{" "}
+                  <span
+                    aria-hidden
+                    className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1"
+                  >
+                    &rarr;
+                  </span>
+                </span>
               </Link>
               <Link
                 href="/employee"
-                className="glass glass-hover flex flex-col p-8 text-left"
+                className="group glass glass-hover flex flex-col p-8 text-left"
               >
-                <h3 className="text-lg font-bold text-light">For employees</h3>
+                <h3 className="type-h4">For employees</h3>
                 <p className="mt-3 flex-1 text-sm leading-relaxed text-dim">
                   See what the benefit includes if your employer offers HōMI.
                 </p>
-                <span className="mt-5 text-sm font-semibold text-cyan">Learn more &rarr;</span>
+                <span className="mt-5 text-sm font-semibold text-cyan">
+                  Learn more{" "}
+                  <span
+                    aria-hidden
+                    className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1"
+                  >
+                    &rarr;
+                  </span>
+                </span>
               </Link>
             </div>
           </div>
@@ -117,9 +125,7 @@ export default function B2BPage() {
       <Reveal>
         <section className="px-6 py-20 text-center">
           <div className="mx-auto max-w-2xl">
-            <h2 className="text-3xl font-black text-light md:text-4xl">
-              Bring readiness to your team.
-            </h2>
+            <h2 className="type-h1">Bring readiness to your team.</h2>
             <p className="mt-4 text-dim">
               Tell us a bit about your organization and we&rsquo;ll follow up with next steps.
             </p>

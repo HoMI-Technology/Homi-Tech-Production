@@ -43,7 +43,15 @@ export function ThresholdCompass({
       </defs>
 
       <g className={animated ? "ring-outer" : undefined} filter="url(#hc-glow)">
-        <circle cx="100" cy="100" r="85" stroke={COLORS.cyan} strokeWidth="2" fill="none" opacity="0.65" />
+        <circle
+          cx="100"
+          cy="100"
+          r="85"
+          stroke={COLORS.cyan}
+          strokeWidth="2"
+          fill="none"
+          opacity="0.65"
+        />
         <circle cx="160.1" cy="39.9" r="3" fill={COLORS.cyan} />
         <circle cx="160.1" cy="160.1" r="3" fill={COLORS.cyan} />
         <circle cx="39.9" cy="160.1" r="3" fill={COLORS.cyan} />
@@ -51,7 +59,15 @@ export function ThresholdCompass({
       </g>
 
       <g className={animated ? "ring-middle" : undefined} filter="url(#hc-glow)">
-        <circle cx="100" cy="100" r="60" stroke={COLORS.emerald} strokeWidth="2" fill="none" opacity="0.75" />
+        <circle
+          cx="100"
+          cy="100"
+          r="60"
+          stroke={COLORS.emerald}
+          strokeWidth="2"
+          fill="none"
+          opacity="0.75"
+        />
         <circle cx="100" cy="40" r="2.5" fill={COLORS.emerald} />
         <circle cx="160" cy="100" r="2.5" fill={COLORS.emerald} />
         <circle cx="100" cy="160" r="2.5" fill={COLORS.emerald} />
@@ -59,14 +75,44 @@ export function ThresholdCompass({
       </g>
 
       <g className={animated ? "ring-inner" : undefined} filter="url(#hc-glow)">
-        <circle cx="100" cy="100" r="35" stroke={COLORS.yellow} strokeWidth="2" fill="none" opacity="0.85" />
+        <circle
+          cx="100"
+          cy="100"
+          r="35"
+          stroke={COLORS.yellow}
+          strokeWidth="2"
+          fill="none"
+          opacity="0.85"
+        />
       </g>
 
       <g filter="url(#hc-glow)">
-        <circle cx="100" cy="96" r="5" fill="none" stroke={unlocked ? COLORS.emerald : COLORS.yellow} strokeWidth="2" />
-        <rect x="97" y="96" width="6" height="12" rx="2" fill="none" stroke={unlocked ? COLORS.emerald : COLORS.yellow} strokeWidth="2" />
+        <circle
+          cx="100"
+          cy="96"
+          r="5"
+          fill="none"
+          stroke={unlocked ? COLORS.emerald : COLORS.yellow}
+          strokeWidth="2"
+        />
+        <rect
+          x="97"
+          y="96"
+          width="6"
+          height="12"
+          rx="2"
+          fill="none"
+          stroke={unlocked ? COLORS.emerald : COLORS.yellow}
+          strokeWidth="2"
+        />
         <circle cx="100" cy="96" r="6" fill={pip} />
-        <rect x="97" y="96" width="6" height="12" fill={unlocked ? COLORS.emerald : COLORS.yellow} />
+        <rect
+          x="97"
+          y="96"
+          width="6"
+          height="12"
+          fill={unlocked ? COLORS.emerald : COLORS.yellow}
+        />
       </g>
     </svg>
   );

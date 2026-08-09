@@ -29,7 +29,13 @@ export function RadarChart({ data, size = 420 }: { data: RadarDatum[]; size?: nu
   const dataPath = dataPoints.map((p) => `${p.x},${p.y}`).join(" ");
 
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} width="100%" height={size} role="img" aria-label="Behavioral genome radar chart across 9 dimensions">
+    <svg
+      viewBox={`0 0 ${size} ${size}`}
+      width="100%"
+      height={size}
+      role="img"
+      aria-label="Behavioral genome radar chart across 9 dimensions"
+    >
       {/* Grid rings */}
       {rings.map((ratio) => {
         const ringPoints = data.map((_, i) => pointFor(i, ratio));
@@ -61,7 +67,13 @@ export function RadarChart({ data, size = 420 }: { data: RadarDatum[]; size?: nu
       })}
 
       {/* Data polygon */}
-      <polygon points={dataPath} fill={COLORS.cyan} fillOpacity="0.22" stroke={COLORS.cyan} strokeWidth="2" />
+      <polygon
+        points={dataPath}
+        fill={COLORS.cyan}
+        fillOpacity="0.22"
+        stroke={COLORS.cyan}
+        strokeWidth="2"
+      />
       {dataPoints.map((p, i) => (
         <circle key={i} cx={p.x} cy={p.y} r="3.5" fill={COLORS.cyan} />
       ))}

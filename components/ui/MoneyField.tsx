@@ -30,7 +30,9 @@ export function MoneyField({
       </label>
       {hint && <p className="mb-2 text-sm text-dim">{hint}</p>}
       <div className="relative">
-        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-dim">$</span>
+        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-dim">
+          $
+        </span>
         <input
           id={id}
           type="text"

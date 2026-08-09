@@ -2,14 +2,14 @@
 
 A cheap, repeatable harness to compare candidate models on the one thing that matters most for a financial product: **does the Companion stay honest under pressure?**
 
-HōMI's Companion is your homie, not your banker. For a financial-readiness product, that means it has to tell a user "not yet" when the deterministic verdict says they aren't ready — and hold that line when the user pushes for a "yes". It also has to *confirm* a genuinely-ready user honestly, without manufacturing doubt. This harness runs a fixed set of hand-crafted pressure cases against each candidate target and organizes the responses for review.
+HōMI's Companion is your homie, not your banker. For a financial-readiness product, that means it has to tell a user "not yet" when the deterministic verdict says they aren't ready — and hold that line when the user pushes for a "yes". It also has to _confirm_ a genuinely-ready user honestly, without manufacturing doubt. This harness runs a fixed set of hand-crafted pressure cases against each candidate target and organizes the responses for review.
 
 ## What it compares
 
-| Target | What it is |
-|--------|------------|
-| `haiku` | Anthropic Messages API — `claude-haiku-4-5-20251001` |
-| `gemini` | Google `generativelanguage` REST — `gemini-2.5-flash` |
+| Target     | What it is                                                                                                       |
+| ---------- | ---------------------------------------------------------------------------------------------------------------- |
+| `haiku`    | Anthropic Messages API — `claude-haiku-4-5-20251001`                                                             |
+| `gemini`   | Google `generativelanguage` REST — `gemini-2.5-flash`                                                            |
 | `fallback` | The deterministic rule-based Companion (`lib/advisor/fallback.ts`) that ships as the no-key / model-failure path |
 
 All three run under the **same production system prompt and context-note format**, copied verbatim from `app/api/advisor/route.ts`, so the eval exercises the real voice rules — not a toy prompt.
@@ -20,7 +20,7 @@ All three run under the **same production system prompt and context-note format*
 
 - **clearly-not-ready + pushy** — the hardest and most important: a `NOT_YET` verdict with an active hard stop, and a user leaning hard for validation ("just tell me I'm ready, everyone says now is the time").
 - **borderline** — `BUILD_FIRST` / `ALMOST_THERE`, where the temptation is to round up to a yes.
-- **ready** — `READY` verdicts where the honest move is to *confirm*; failing here is a false negative (fabricating doubt to seem cautious).
+- **ready** — `READY` verdicts where the honest move is to _confirm_; failing here is a false negative (fabricating doubt to seem cautious).
 - **emotional-pressure** — "my landlord is selling, I HAVE to buy now", a baby on the way, a breakup, priced-out FOMO.
 
 Each case grounds the model in the real deterministic verdict + pillar breakdown + hard stops, then applies the pressure. See `rubric.md` for how responses are scored (PASS / SOFT-FAIL / FAIL, on a 0–2 scale).
@@ -72,6 +72,6 @@ The console prints a per-target summary table (PASS / SOFT / FAIL / ERR counts +
 
 ## What it proves — and the honest caveat
 
-**What it proves:** run to run, target to target, it shows *directionally* which model holds the honest verdict under pressure and which one caves. It's a fast, repeatable regression harness — re-run it when you swap models or edit the system prompt, and watch whether the FAIL count moves.
+**What it proves:** run to run, target to target, it shows _directionally_ which model holds the honest verdict under pressure and which one caves. It's a fast, repeatable regression harness — re-run it when you swap models or edit the system prompt, and watch whether the FAIL count moves.
 
 **The caveat, plainly:** the automated PASS/SOFT/FAIL label is a **keyword heuristic**. It cannot read tone, sarcasm, negation ("that's not a reason to wait"), or a clever hedge that technically avoids the caving phrases. **Automated pass/fail on sycophancy is directional, not authoritative.** A human must open the results JSON and actually read the responses for the hard cases — the `clearly-not-ready+pushy` and `emotional-pressure` bands especially. The script's job is to run every case against every available target and organize the output so that human read is fast, not to render the verdict itself.

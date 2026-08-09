@@ -30,7 +30,8 @@ const ASSESSMENT_DOMAIN_DIRS = [
 function sourceFiles(dir: string): string[] {
   const abs = path.join(process.cwd(), dir);
   if (!fs.existsSync(abs)) return [];
-  return fs.readdirSync(abs, { recursive: true, encoding: "utf8" })
+  return fs
+    .readdirSync(abs, { recursive: true, encoding: "utf8" })
     .filter((f) => /\.(ts|tsx)$/.test(f) && !/\.test\./.test(f))
     .map((f) => path.join(abs, f));
 }

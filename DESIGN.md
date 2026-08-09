@@ -11,14 +11,14 @@ Marketing already speaks HōMI (navy, cyan/emerald/yellow temperature, glass, co
 
 ## Brand lock (immutable without an explicit brand project)
 
-| Token | Value / source |
-|-------|----------------|
-| Surfaces | Navy `#0a1628`, navy-light `#0f172a`, slate-surface `#1e293b` |
-| Accents | Cyan `#22d3ee`, emerald `#34d399`, yellow `#facc15` |
-| Verdicts | amber `#fab633` (BUILD FIRST), crimson `#f24822` (DO NOT PROCEED) |
-| Text | light `#e2e8f0`, dim `#94a3b8` |
-| Type | Fraunces display · Inter body · JetBrains Mono / `.score-numeral` for data |
-| Materials | `.glass`, `.hairline`, compass rings, ambient bloom as atmosphere |
+| Token        | Value / source                                                                   |
+| ------------ | -------------------------------------------------------------------------------- |
+| Surfaces     | Navy `#0a1628`, navy-light `#0f172a`, slate-surface `#1e293b`                    |
+| Accents      | Cyan `#22d3ee`, emerald `#34d399`, yellow `#facc15`                              |
+| Verdicts     | amber `#fab633` (BUILD FIRST), crimson `#f24822` (DO NOT PROCEED)                |
+| Text         | light `#e2e8f0`, dim `#94a3b8`                                                   |
+| Type         | Fraunces display · Inter body · JetBrains Mono / `.score-numeral` for data       |
+| Materials    | `.glass`, `.hairline`, compass rings, ambient bloom as atmosphere                |
 | Verdict enum | `READY` · `ALMOST_THERE` · `BUILD_FIRST` · `NOT_YET` (label: **DO NOT PROCEED**) |
 
 Never introduce Anthropic / Linear-beige / purple-SaaS palettes. Never apply the Anthropic `brand-guidelines` skill to this product.
@@ -55,12 +55,12 @@ Never introduce Anthropic / Linear-beige / purple-SaaS palettes. Never apply the
 
 ## Skills (use as advisors, not co-authors)
 
-| Phase | Allowed |
-|-------|---------|
-| Chrome | `redesign-existing-projects`, `web-design-guidelines`, design-review |
-| Dashboard | redesign-existing + this contract’s OPERATE rules |
-| Hook | `cro` / `copywriting`, then **one of** `frontend-design` **or** `design-taste-frontend` |
-| Always after paint | brand-check, typecheck, reduced-motion smoke |
+| Phase              | Allowed                                                                                 |
+| ------------------ | --------------------------------------------------------------------------------------- |
+| Chrome             | `redesign-existing-projects`, `web-design-guidelines`, design-review                    |
+| Dashboard          | redesign-existing + this contract’s OPERATE rules                                       |
+| Hook               | `cro` / `copywriting`, then **one of** `frontend-design` **or** `design-taste-frontend` |
+| Always after paint | brand-check, typecheck, reduced-motion smoke                                            |
 
 **Forbidden stack:** multiple aesthetic skills on one PR · `brand-guidelines` (Anthropic) · unconstrained high-end on `/dashboard`.
 
@@ -85,10 +85,10 @@ HeaderShell        → shared fixed glass bar + mobile panel behavior
 
 ## Phased work
 
-1. **Chrome + formatting** — shell geometry, a11y, footer rhythm  
-2. **Dashboard operate** — hero above supporting stats; pillar hierarchy  
-3. **Landing hook** — thesis + single primary CTA, on-token craft  
-4. **Tools** — `ToolShell` / `ToolGrid` / `ToolResultHero` in `components/tools/ToolShell.tsx`; hub groups by job; every calculator uses shared chrome + mono results  
-5. **Finance / journal / credit** — metrics before inputs (finance); ToolShell + score hero (credit); eyebrow + entry density (journal)  
+1. **Chrome + formatting** — shell geometry, a11y, footer rhythm
+2. **Dashboard operate** — hero above supporting stats; pillar hierarchy
+3. **Landing hook** — thesis + single primary CTA, on-token craft
+4. **Tools** — `ToolShell` / `ToolGrid` / `ToolResultHero` in `components/tools/ToolShell.tsx`; hub groups by job; every calculator uses shared chrome + mono results
+5. **Finance / journal / credit** — metrics before inputs (finance); ToolShell + score hero (credit); eyebrow + entry density (journal)
 
 Secondary product pages should keep matching operate hierarchy when touched.

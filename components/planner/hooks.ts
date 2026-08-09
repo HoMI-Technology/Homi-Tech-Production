@@ -13,10 +13,7 @@ import {
   totalNetWorth,
   upcomingBillsTotal,
 } from "@/lib/planner/derived";
-import {
-  scoreFromBudgetAsync,
-  type PlannerScore,
-} from "@/lib/planner/score-bridge";
+import { scoreFromBudgetAsync, type PlannerScore } from "@/lib/planner/score-bridge";
 import { usePlannerStore } from "@/lib/planner/store";
 import { deriveBehaviorNudges } from "@/lib/planner/nudges";
 import { analyzeStress } from "@/lib/planner/stress";
@@ -79,15 +76,7 @@ export function usePlannerScore(): PlannerScore | null {
     return () => {
       cancelled = true;
     };
-  }, [
-    transactions,
-    accounts,
-    bills,
-    holdings,
-    netWorthItems,
-    savingsGoal,
-    readinessProfile,
-  ]);
+  }, [transactions, accounts, bills, holdings, netWorthItems, savingsGoal, readinessProfile]);
 
   return score;
 }
@@ -113,9 +102,7 @@ export function usePlannerIsEmpty(): boolean {
   const transactions = usePlannerStore((s) => s.transactions);
   const accounts = usePlannerStore((s) => s.accounts);
   const bills = usePlannerStore((s) => s.bills);
-  return (
-    transactions.length === 0 && accounts.length === 0 && bills.length === 0
-  );
+  return transactions.length === 0 && accounts.length === 0 && bills.length === 0;
 }
 
 /** Ranked protective nudges from live planner state. */
@@ -137,21 +124,11 @@ export function useBehaviorNudges() {
         path,
         stress,
         cashFlow: reality.cashFlow,
-        runwayMonths: Number.isFinite(reality.runwayMonths)
-          ? reality.runwayMonths
-          : 99,
+        runwayMonths: Number.isFinite(reality.runwayMonths) ? reality.runwayMonths : 99,
         savingsRate: reality.savingsRate,
         lastScoreDelta: lastImpact?.delta ?? null,
         partnerAlignment: readinessProfile.partnerAlignment,
       }).slice(0, 3),
-    [
-      assessment,
-      bills,
-      path,
-      stress,
-      reality,
-      lastImpact,
-      readinessProfile.partnerAlignment,
-    ],
+    [assessment, bills, path, stress, reality, lastImpact, readinessProfile.partnerAlignment],
   );
 }

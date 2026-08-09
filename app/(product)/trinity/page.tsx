@@ -24,9 +24,27 @@ const COLUMNS: Array<{
   color: string;
   borderClass: string;
 }> = [
-  { key: "advocate", title: "The Advocate", subtitle: "The strongest case for moving forward", color: COLORS.emerald, borderClass: "border-emerald/40" },
-  { key: "skeptic", title: "The Skeptic", subtitle: "The strongest case for waiting", color: COLORS.crimson, borderClass: "border-crimson/40" },
-  { key: "arbiter", title: "The Arbiter", subtitle: "Synthesis, and what would change the answer", color: COLORS.cyan, borderClass: "border-cyan/40" },
+  {
+    key: "advocate",
+    title: "The Advocate",
+    subtitle: "The strongest case for moving forward",
+    color: COLORS.emerald,
+    borderClass: "border-emerald/40",
+  },
+  {
+    key: "skeptic",
+    title: "The Skeptic",
+    subtitle: "The strongest case for waiting",
+    color: COLORS.crimson,
+    borderClass: "border-crimson/40",
+  },
+  {
+    key: "arbiter",
+    title: "The Arbiter",
+    subtitle: "Synthesis, and what would change the answer",
+    color: COLORS.cyan,
+    borderClass: "border-cyan/40",
+  },
 ];
 
 export default function TrinityPage() {
@@ -73,7 +91,10 @@ export default function TrinityPage() {
             : "Something went wrong running the Trinity. Please try again.";
         setError(message);
         if (res.status === 401) {
-          setGateCta({ href: `/auth/sign-in?next=${encodeURIComponent(pathname)}`, label: "Sign in" });
+          setGateCta({
+            href: `/auth/sign-in?next=${encodeURIComponent(pathname)}`,
+            label: "Sign in",
+          });
         } else if (res.status === 402) {
           setGateCta({ href: "/pricing", label: "See plans" });
         }
@@ -146,8 +167,8 @@ export default function TrinityPage() {
       {!trinity && (
         <div className="glass mt-8 flex flex-col items-center gap-4 p-10 text-center">
           <p className="max-w-md text-sm text-dim">
-            Run the Trinity to see the strongest honest case for moving forward, the strongest honest
-            case for waiting, and a synthesis of both grounded in your real numbers.
+            Run the Trinity to see the strongest honest case for moving forward, the strongest
+            honest case for waiting, and a synthesis of both grounded in your real numbers.
           </p>
           <button type="button" onClick={runTrinity} disabled={loading} className="btn btn-primary">
             {loading ? "Convening the Trinity…" : "Run the Trinity"}
@@ -165,8 +186,14 @@ export default function TrinityPage() {
         <>
           <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
             {COLUMNS.map((col) => (
-              <div key={col.key} className={`glass border ${col.borderClass} flex flex-col gap-3 p-6`}>
-                <p className="text-sm font-semibold uppercase tracking-wide" style={{ color: col.color }}>
+              <div
+                key={col.key}
+                className={`glass border ${col.borderClass} flex flex-col gap-3 p-6`}
+              >
+                <p
+                  className="text-sm font-semibold uppercase tracking-wide"
+                  style={{ color: col.color }}
+                >
                   {col.title}
                 </p>
                 <p className="text-xs text-dim">{col.subtitle}</p>

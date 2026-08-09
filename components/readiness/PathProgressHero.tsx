@@ -7,9 +7,7 @@ import type { BindingProgress } from "@/lib/readiness";
  */
 export function PathProgressHero({ progress }: { progress: BindingProgress }) {
   const pct =
-    progress.ratio != null
-      ? Math.round(Math.min(1, Math.max(0, progress.ratio)) * 100)
-      : null;
+    progress.ratio != null ? Math.round(Math.min(1, Math.max(0, progress.ratio)) * 100) : null;
 
   const barColor = progress.cleared
     ? "bg-emerald"
@@ -28,15 +26,13 @@ export function PathProgressHero({ progress }: { progress: BindingProgress }) {
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-dim">
+          <p className="text-3xs font-semibold uppercase tracking-widest text-dim">
             Binding constraint
           </p>
-          <p className="mt-1 font-display text-lg text-light sm:text-xl">
-            {progress.label}
-          </p>
+          <p className="mt-1 font-display text-lg text-light sm:text-xl">{progress.label}</p>
         </div>
         <span
-          className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${chipClass}`}
+          className={`inline-flex items-center rounded-full border px-2.5 py-1 text-3xs font-semibold uppercase tracking-wide ${chipClass}`}
         >
           {progress.cleared ? "Gate clear" : "Gate open"}
         </span>
@@ -51,13 +47,9 @@ export function PathProgressHero({ progress }: { progress: BindingProgress }) {
             </p>
             {progress.current != null && progress.target != null && (
               <p className="text-xs text-dim">
-                <span className="score-numeral text-sm text-light">
-                  {progress.current}
-                </span>
+                <span className="score-numeral text-sm text-light">{progress.current}</span>
                 {" / "}
-                <span className="score-numeral text-sm text-light">
-                  {progress.target}
-                </span>
+                <span className="score-numeral text-sm text-light">{progress.target}</span>
                 {progress.unit ? ` ${progress.unit}` : ""}
               </p>
             )}

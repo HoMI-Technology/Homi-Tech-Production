@@ -135,7 +135,9 @@ describe("POST /api/advisor — crisis short-circuit", () => {
 
   it("anonymous demoContext caller still gets the crisis reply", async () => {
     state.user = null;
-    const res = await POST(req({ messages: [{ role: "user", content: DISTRESS }], demoContext: true }));
+    const res = await POST(
+      req({ messages: [{ role: "user", content: DISTRESS }], demoContext: true }),
+    );
     const body = (await res.json()) as { reply: string; source: string };
     expect(body.source).toBe("crisis");
     expect(body.reply).toBe(CRISIS_SUPPORT_MESSAGE);
@@ -143,7 +145,9 @@ describe("POST /api/advisor — crisis short-circuit", () => {
   });
 
   it("ordinary money questions do not trip the gate", async () => {
-    const res = await POST(req({ messages: [{ role: "user", content: "am I ready to buy a home?" }] }));
+    const res = await POST(
+      req({ messages: [{ role: "user", content: "am I ready to buy a home?" }] }),
+    );
     const body = (await res.json()) as { source: string };
     expect(body.source).not.toBe("crisis");
   });

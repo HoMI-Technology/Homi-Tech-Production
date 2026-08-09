@@ -146,9 +146,7 @@ test.describe("Path to Ready (seeded)", () => {
     expect(stored?.steps?.[0]?.status).toBe("done");
   });
 
-  test("results surface auto-generates Path to Ready for non-ready verdict", async ({
-    page,
-  }) => {
+  test("results surface auto-generates Path to Ready for non-ready verdict", async ({ page }) => {
     test.setTimeout(90_000);
 
     await page.addInitScript(
@@ -169,8 +167,8 @@ test.describe("Path to Ready (seeded)", () => {
     await expect(
       page.getByText(/Your sequenced path|Binding constraint|runway/i).first(),
     ).toBeVisible({ timeout: 15_000 });
-    await expect(
-      page.getByRole("link", { name: /Open full path/i }).first(),
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("link", { name: /Open full path/i }).first()).toBeVisible({
+      timeout: 10_000,
+    });
   });
 });

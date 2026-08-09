@@ -38,7 +38,11 @@ export interface ScoreDelta {
  * Computes the display badge for score movement vs. a previous assessment.
  * Pure function — no formatting library dependency beyond Intl.DateTimeFormat.
  */
-export function formatScoreDelta(current: number, previous: number, previousDate: string): ScoreDelta {
+export function formatScoreDelta(
+  current: number,
+  previous: number,
+  previousDate: string,
+): ScoreDelta {
   const diff = Math.round(current) - Math.round(previous);
   const date = new Date(previousDate);
   const dateLabel = Number.isNaN(date.getTime())

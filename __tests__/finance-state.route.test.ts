@@ -134,7 +134,9 @@ describe("PUT /api/finance-state", () => {
 
   it("answers stale with the newer copy instead of clobbering it", async () => {
     state.row = { state: VALID_STATE, client_updated_at: "900" };
-    const res = await PUT(putRequest({ state: { ...VALID_STATE, monthlyIncome: 1 }, client_updated_at: 200 }));
+    const res = await PUT(
+      putRequest({ state: { ...VALID_STATE, monthlyIncome: 1 }, client_updated_at: 200 }),
+    );
     const body = await res.json();
     expect(body.stale).toBe(true);
     expect(body.state).toEqual(VALID_STATE);

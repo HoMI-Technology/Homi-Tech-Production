@@ -10,11 +10,20 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { FinanceState } from "@/lib/finance/store";
 import { centsToDollars } from "@/lib/finance/money";
 import type { BudgetPeriod, SavingsGoal } from "@/lib/finance/ledger";
+import { activeGoal, type BudgetLedgerState } from "@/lib/finance/local-ledger";
 import {
-  activeGoal,
-  ensurePeriodFor,
-  type BudgetLedgerState,
-} from "@/lib/finance/local-ledger";
+  currentOpenPeriod,
+  debtPaymentsCents,
+  isAlive,
+  isBudgetExpense,
+  isBudgetIncome,
+  monthFromDate,
+  monthlyIncomeCents,
+  previousMonths,
+} from "@/lib/finance/ledger-period";
+// Re-exported for existing importers; the definitions now live in the finance
+// layer so lib/finance/metrics.ts no longer has to reach into the advisor.
+export { currentOpenPeriod, monthlyIncomeCents, debtPaymentsCents };
 import {
   categoryActuals,
   isInPeriod,
@@ -37,10 +46,7 @@ import {
   type FinanceTransactionRow,
   type FinanceCategoryRow,
 } from "@/lib/finance/db-map";
-import type {
-  FinanceBudgetPeriodRow,
-  FinanceSavingsGoalRow,
-} from "@/types/database";
+import type { FinanceBudgetPeriodRow, FinanceSavingsGoalRow } from "@/types/database";
 
 /* -------------------------------------------------------------------------- */
 /* Legacy store conversion                                                    */
@@ -75,41 +81,6 @@ export function buildFinanceContextFromLegacy(
 /* Ledger conversion                                                          */
 /* -------------------------------------------------------------------------- */
 
-function monthFromDate(dateOnly: string): string {
-  return dateOnly.slice(0, 7);
-}
-
-function previousMonths(nowDate: string, count: number): string[] {
-  const [y, m] = nowDate.split("-").map(Number);
-  const months: string[] = [];
-  for (let i = 0; i < count; i += 1) {
-    const total = y * 12 + (m - 1) - i;
-    const yy = Math.floor(total / 12);
-    const mm = (total % 12) + 1;
-    months.push(`${yy}-${String(mm).padStart(2, "0")}`);
-  }
-  return months;
-}
-
-function isAlive(tx: { deletedAt: string | null; status: string }): boolean {
-  return tx.deletedAt === null && tx.status !== "voided";
-}
-
-function isBudgetIncome(tx: { type: string; status: string; deletedAt: string | null }): boolean {
-  return tx.type === "income" && tx.status === "posted" && isAlive(tx);
-}
-
-function isBudgetExpense(tx: {
-  type: string;
-  status: string;
-  deletedAt: string | null;
-  isExcludedFromBudget: boolean;
-}): boolean {
-  return (
-    tx.type === "expense" && tx.status === "posted" && !tx.isExcludedFromBudget && isAlive(tx)
-  );
-}
-
 function roundCents(cents: number): number {
   return Math.round(centsToDollars(cents));
 }
@@ -121,68 +92,6 @@ function resolveCategoryName(
   if (categoryId === null) return "Uncategorized";
   return categories.find((c) => c.id === categoryId)?.name ?? "Uncategorized";
 }
-
-export function currentOpenPeriod(
-  state: BudgetLedgerState,
-  nowDate: string,
-  nowIso: string,
-): BudgetPeriod {
-  const existing = state.periods.find(
-    (p) => p.periodStart <= nowDate && p.periodEnd >= nowDate && p.status === "open",
-  );
-  if (existing) return existing;
-  const { period } = ensurePeriodFor(state, nowDate, nowIso);
-  return period;
-}
-
-function trailingIncomeCents(
-  transactions: BudgetLedgerState["transactions"],
-  nowDate: string,
-  months: number,
-): { avgMonthlyCents: number; monthsWithData: number } {
-  const targetMonths = previousMonths(nowDate, months);
-  const sums = new Map<string, number>();
-  for (const tx of transactions) {
-    if (!isBudgetIncome(tx)) continue;
-    const month = monthFromDate(tx.transactionDate);
-    if (!targetMonths.includes(month)) continue;
-    sums.set(month, (sums.get(month) ?? 0) + tx.amountCents);
-  }
-  let total = 0;
-  for (const month of targetMonths) {
-    total += sums.get(month) ?? 0;
-  }
-  return { avgMonthlyCents: Math.round(total / months), monthsWithData: sums.size };
-}
-
-export function monthlyIncomeCents(
-  state: BudgetLedgerState,
-  period: BudgetPeriod,
-  nowDate: string,
-): { incomeCents: number; basis: "period_expected" | "trailing_three_month_average" } {
-  if (period.expectedIncomeCents !== null && period.expectedIncomeCents > 0) {
-    return { incomeCents: period.expectedIncomeCents, basis: "period_expected" };
-  }
-  const { avgMonthlyCents } = trailingIncomeCents(state.transactions, nowDate, 3);
-  return { incomeCents: avgMonthlyCents, basis: "trailing_three_month_average" };
-}
-
-export function debtPaymentsCents(
-  transactions: BudgetLedgerState["transactions"],
-  period: Pick<BudgetPeriod, "periodStart" | "periodEnd">,
-): number {
-  // V1 ledger has no dedicated liability type, so the canonical "debt-payments"
-  // expense category is the closest honest signal for monthly debt service.
-  return transactions
-    .filter(
-      (tx) =>
-        isBudgetExpense(tx) &&
-        tx.categoryId === "cat-debt-payments" &&
-        isInPeriod(tx, period),
-    )
-    .reduce((sum, tx) => sum + tx.amountCents, 0);
-}
-
 function incomeVsSpendingSeries(
   transactions: BudgetLedgerState["transactions"],
   nowDate: string,
@@ -200,7 +109,12 @@ function incomeVsSpendingSeries(
       incomeByMonth.set(month, (incomeByMonth.get(month) ?? 0) + tx.amountCents);
     } else if (isBudgetExpense(tx)) {
       expenseByMonth.set(month, (expenseByMonth.get(month) ?? 0) + tx.amountCents);
-    } else if (tx.type === "refund" && tx.status === "posted" && !tx.isExcludedFromBudget && isAlive(tx)) {
+    } else if (
+      tx.type === "refund" &&
+      tx.status === "posted" &&
+      !tx.isExcludedFromBudget &&
+      isAlive(tx)
+    ) {
       refundByMonth.set(month, (refundByMonth.get(month) ?? 0) + tx.amountCents);
     }
   }
@@ -212,7 +126,9 @@ function incomeVsSpendingSeries(
       month,
       income: Math.round(centsToDollars(incomeByMonth.get(month) ?? 0)),
       spending: Math.round(
-        centsToDollars(Math.max(0, (expenseByMonth.get(month) ?? 0) - (refundByMonth.get(month) ?? 0))),
+        centsToDollars(
+          Math.max(0, (expenseByMonth.get(month) ?? 0) - (refundByMonth.get(month) ?? 0)),
+        ),
       ),
     }));
 }
@@ -236,16 +152,11 @@ function topSpendingCategories(
     }));
 }
 
-function recentTransactions(
-  state: BudgetLedgerState,
-  cap = 20,
-): RecentTransactionSnapshot[] {
+function recentTransactions(state: BudgetLedgerState, cap = 20): RecentTransactionSnapshot[] {
   return state.transactions
     .filter(
       (tx) =>
-        (tx.type === "income" || tx.type === "expense") &&
-        tx.status === "posted" &&
-        isAlive(tx),
+        (tx.type === "income" || tx.type === "expense") && tx.status === "posted" && isAlive(tx),
     )
     .sort((a, b) => {
       if (a.transactionDate !== b.transactionDate) {
@@ -383,26 +294,48 @@ export function buildFinanceContextFromLedger(
   const netCashFlow = roundCents(totals.incomeCents - totals.netExpenseCents);
 
   const savingsRate =
-    incomeCents > 0
-      ? Math.round((totals.goalReserveCents / incomeCents) * 1000) / 10
-      : 0;
+    incomeCents > 0 ? Math.round((totals.goalReserveCents / incomeCents) * 1000) / 10 : 0;
 
-  const liquidSavingsCents = goal?.goalType === "emergency_reserve" ? goal.currentAmountCents : 0;
-  const liquidSavings = roundCents(liquidSavingsCents);
-  const totalDebt = 0; // v1 ledger has no liability transaction type
-  const netWorth = liquidSavings - totalDebt;
+  /**
+   * The v1 ledger knows goal balances, not the user's liquid position. With no
+   * emergency-reserve goal it simply does not know how much cash they hold, and
+   * 0 is not the same as unknown: it divides into monthly outflow to produce a
+   * runway of exactly 0 months, which trips the crimson "Emergency runway is
+   * below 3 months" signal and is read verbatim into the Companion's prompt.
+   * Someone with $25k in a house fund would be told they have nothing.
+   *
+   * Counting non-reserve goals instead was considered and rejected — earmarked
+   * money is not emergency runway, and overstating it is the opposite error.
+   */
+  const liquidSavingsCents =
+    goal?.goalType === "emergency_reserve" ? goal.currentAmountCents : null;
+  const liquidSavings = liquidSavingsCents === null ? null : roundCents(liquidSavingsCents);
+  /**
+   * The v1 ledger has no liability transaction type, so it cannot know what the
+   * user owes — and without liabilities there is no net worth to report either.
+   * These stay null ("unknown") rather than 0: the Companion renders them into
+   * its prompt and the dashboard renders netWorth into the "Net worth" tile, so
+   * a zero here becomes a confident false statement on both surfaces.
+   */
+  const totalDebt = null;
+  const netWorth = null;
 
-  const runwayResult = runwayFromOutflow(
-    liquidSavingsCents,
-    totals.netExpenseCents,
-    "current_month_actual",
-  );
+  const runwayResult =
+    liquidSavingsCents === null
+      ? null
+      : runwayFromOutflow(liquidSavingsCents, totals.netExpenseCents, "current_month_actual");
   const runwayMonths =
-    runwayResult.months !== null ? Math.round(runwayResult.months * 10) / 10 : null;
+    runwayResult && runwayResult.months !== null ? Math.round(runwayResult.months * 10) / 10 : null;
 
   const dti = monthlyIncome > 0 ? Math.round((debtPayments / incomeCents) * 1000) / 10 : 0;
 
-  const activeSignals = buildSignals({ dti, savingsRate, runwayMonths, netCashFlow, monthlyIncome });
+  const activeSignals = buildSignals({
+    dti,
+    savingsRate,
+    runwayMonths,
+    netCashFlow,
+    monthlyIncome,
+  });
   const nudges = buildNudges(activeSignals);
 
   const series = incomeVsSpendingSeries(state.transactions, nowDate, 6);
@@ -432,7 +365,8 @@ export function buildFinanceContextFromLedger(
     readinessInputs: {
       dti,
       savingsRate,
-      runwayMonths: runwayMonths ?? 0,
+      // Not `?? 0` — that reintroduces the false zero this whole path avoids.
+      runwayMonths,
       downPaymentProgressPct,
     },
   };
@@ -488,9 +422,7 @@ export async function buildFinanceContextFromLedgerTables(
     if (goalError?.code && FINANCE_LEDGER_INFRA_MISSING.has(goalError.code)) return null;
 
     const hasAnyData =
-      (txRows && txRows.length > 0) ||
-      (periodRows && periodRows.length > 0) ||
-      goalRows;
+      (txRows && txRows.length > 0) || (periodRows && periodRows.length > 0) || goalRows;
     if (!hasAnyData) return null;
 
     const state: BudgetLedgerState = {

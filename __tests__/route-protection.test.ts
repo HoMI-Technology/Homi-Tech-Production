@@ -76,7 +76,7 @@ describe("route-protection classification", () => {
       "decisions",
       "signals",
       "credit",
-      "finance",
+      // "finance" removed — /finance 308s to /money/budget; dir deleted
       "genome",
       // "couples" and "family" merged into /household (D3) — household
       // stays in PROTECTED_PRODUCT_ROUTES, asserted via the full-list test.

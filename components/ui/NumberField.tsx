@@ -51,9 +51,7 @@ export function NumberField({
           }
         }}
       />
-      {bandHint && (
-        <p className="mt-2 text-sm font-medium text-cyan">{bandHint}</p>
-      )}
+      {bandHint && <p className="mt-2 text-sm font-medium text-cyan">{bandHint}</p>}
     </div>
   );
 }

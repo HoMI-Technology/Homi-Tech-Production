@@ -36,18 +36,10 @@ describe("planner calendar pure helpers", () => {
       autopay: false,
     };
     expect(billState({ ...base, status: "paid" }, "2026-08-01")).toBe("paid");
-    expect(
-      billState(
-        { ...base, status: "overdue", dueDate: "2026-07-01" },
-        "2026-08-01",
-      ),
-    ).toBe("overdue");
-    expect(
-      billState(
-        { ...base, status: "due", dueDate: "2026-08-01" },
-        "2026-08-01",
-      ),
-    ).toBe("due");
+    expect(billState({ ...base, status: "overdue", dueDate: "2026-07-01" }, "2026-08-01")).toBe(
+      "overdue",
+    );
+    expect(billState({ ...base, status: "due", dueDate: "2026-08-01" }, "2026-08-01")).toBe("due");
   });
 
   it("toISO pads month and day", () => {

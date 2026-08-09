@@ -6,26 +6,38 @@ describe("contextualActionHrefs", () => {
   it("leads first-run users to the shortest path to a score", () => {
     expect(
       contextualActionHrefs({ hasAssessment: false, weakestPillar: null, checkedInToday: false }),
-    ).toEqual(["/shadow-score", "/assessment", "/tools"]);
+    ).toEqual(["/shadow-score", "/assessment", "/money"]);
   });
 
   it("surfaces check-in, weakest-pillar instrument, then a filler", () => {
     expect(
-      contextualActionHrefs({ hasAssessment: true, weakestPillar: "emotional", checkedInToday: false }),
+      contextualActionHrefs({
+        hasAssessment: true,
+        weakestPillar: "emotional",
+        checkedInToday: false,
+      }),
     ).toEqual(["/daily", "/advisor", "/simulator"]);
   });
 
   it("routes each pillar to its instrument", () => {
     expect(
-      contextualActionHrefs({ hasAssessment: true, weakestPillar: "financial", checkedInToday: true }),
-    ).toEqual(["/tools", "/simulator", "/journal"]);
+      contextualActionHrefs({
+        hasAssessment: true,
+        weakestPillar: "financial",
+        checkedInToday: true,
+      }),
+    ).toEqual(["/money/decide", "/simulator", "/journal"]);
     expect(
       contextualActionHrefs({ hasAssessment: true, weakestPillar: "timing", checkedInToday: true }),
     ).toEqual(["/signals", "/simulator", "/journal"]);
   });
 
   it("always returns exactly three unique hrefs", () => {
-    const result = contextualActionHrefs({ hasAssessment: true, weakestPillar: null, checkedInToday: true });
+    const result = contextualActionHrefs({
+      hasAssessment: true,
+      weakestPillar: null,
+      checkedInToday: true,
+    });
     expect(result).toHaveLength(3);
     expect(new Set(result).size).toBe(3);
   });

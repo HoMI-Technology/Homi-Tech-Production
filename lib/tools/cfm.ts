@@ -137,11 +137,7 @@ function overlayField(value: number | undefined): SourcedNumber {
  * Pure — used by CFM honesty gates and Money Stand empty states.
  */
 export function ledgerHasRealPicture(state: BudgetLedgerState): boolean {
-  return (
-    state.transactions.length > 0 ||
-    state.periods.length > 0 ||
-    activeGoal(state) !== null
-  );
+  return state.transactions.length > 0 || state.periods.length > 0 || activeGoal(state) !== null;
 }
 
 /**
@@ -224,9 +220,7 @@ export function deriveCfmFromLedger(
   const monthlyExpenses =
     metrics.evidence.hasExpenses || s.expenseDollars > 0 ? s.expenseDollars : undefined;
   // Only surface debt payments when we observed the debt category — else missing.
-  const monthlyDebtPayments = metrics.evidence.hasDebtSignal
-    ? s.debtPaymentDollars
-    : undefined;
+  const monthlyDebtPayments = metrics.evidence.hasDebtSignal ? s.debtPaymentDollars : undefined;
   const liquidSavings =
     metrics.runway.liquidDollars !== null && metrics.runway.liquidDollars > 0
       ? metrics.runway.liquidDollars
@@ -286,13 +280,16 @@ export function deriveCfmFromLedger(
 }
 
 /** Dot-path resolver, e.g. "housing.targetPrice" → SourcedNumber. */
-export function resolveCfmValue(
-  cfm: CanonicalFinancialModel,
-  path: string,
-): SourcedNumber {
+export function resolveCfmValue(cfm: CanonicalFinancialModel, path: string): SourcedNumber {
   const [group, key] = path.split(".");
   const bucket =
-    group === "core" ? cfm.core : group === "housing" ? cfm.housing : group === "horizon" ? cfm.horizon : null;
+    group === "core"
+      ? cfm.core
+      : group === "housing"
+        ? cfm.housing
+        : group === "horizon"
+          ? cfm.horizon
+          : null;
   if (!bucket || !key) return { value: 0, source: "missing" };
   const field = (bucket as Record<string, SourcedNumber>)[key];
   return field ?? { value: 0, source: "missing" };

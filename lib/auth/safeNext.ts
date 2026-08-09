@@ -9,7 +9,12 @@ export function safeNext(next: string | null | undefined, fallback = "/dashboard
   // Must be a rooted path.
   if (!next.startsWith("/")) return fallback;
   // Reject protocol-relative ("//evil.com") and backslash-escaped variants.
-  if (next.startsWith("//") || next.startsWith("/\\") || next.startsWith("/%2f") || next.startsWith("/%5c")) {
+  if (
+    next.startsWith("//") ||
+    next.startsWith("/\\") ||
+    next.startsWith("/%2f") ||
+    next.startsWith("/%5c")
+  ) {
     return fallback;
   }
   // Reject control chars. (Scheme-injected values like "javascript:..." or

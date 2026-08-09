@@ -61,9 +61,7 @@ export function StatementReveal() {
         {LINE_2.map((w) => word(w))}
         {(() => {
           const on = i < lit;
-          return (
-            <span className={`sword ${on ? "lit" : ""} text-aurora`}>if.</span>
-          );
+          return <span className={`sword ${on ? "lit" : ""} text-aurora`}>if.</span>;
         })()}
       </h2>
     </div>

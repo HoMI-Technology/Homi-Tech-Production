@@ -21,10 +21,7 @@ import {
   type PathFinanceSnapshot as CanonPathFinance,
 } from "@/lib/readiness/path";
 import type { AssessmentResult } from "@/lib/scoring/public";
-import {
-  getLastAssessmentResult,
-  scoreFromBudgetAsync,
-} from "@/lib/planner/score-bridge";
+import { getLastAssessmentResult, scoreFromBudgetAsync } from "@/lib/planner/score-bridge";
 import type {
   AddAccountInput,
   BankAccount,
@@ -57,23 +54,23 @@ import {
 } from "@/lib/planner/derived";
 import { dualWriteAddTransaction, dualWriteDeleteTransaction } from "@/lib/planner/ledger-bridge";
 
-function uid(prefix = 'id'): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return `${prefix}_${crypto.randomUUID()}`
+function uid(prefix = "id"): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return `${prefix}_${crypto.randomUUID()}`;
   }
-  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 }
 
 /* Broker display labels — static metadata only (the reference brokers.ts
  * colors are not ported; broker accents come from brand tokens). */
 const BROKER_LABELS: Record<BrokerInstitution, string> = {
-  fidelity: 'Fidelity',
-  vanguard: 'Vanguard',
-  schwab: 'Charles Schwab',
-  etrade: 'E*TRADE',
-  robinhood: 'Robinhood',
-  other: 'Other broker',
-}
+  fidelity: "Fidelity",
+  vanguard: "Vanguard",
+  schwab: "Charles Schwab",
+  etrade: "E*TRADE",
+  robinhood: "Robinhood",
+  other: "Other broker",
+};
 
 /* ------------------------------------------------------------------ */
 /* Persistence — versioned-envelope hardening (store/budget.tsx        */
@@ -87,91 +84,102 @@ const BROKER_LABELS: Record<BrokerInstitution, string> = {
 /* initial state — never destroyed.                                    */
 /* ------------------------------------------------------------------ */
 
-export const PLANNER_STORAGE_KEY = 'homi-planner-v1'
-export const PLANNER_CORRUPT_BACKUP_KEY = 'homi-planner-v1-corrupt'
-export const PLANNER_SCHEMA_VERSION = 1
+export const PLANNER_STORAGE_KEY = "homi-planner-v1";
+export const PLANNER_CORRUPT_BACKUP_KEY = "homi-planner-v1-corrupt";
+export const PLANNER_SCHEMA_VERSION = 1;
 
 type PlannerEnvelope = {
-  v: number
-  savedAt: string
-  data: unknown
-}
+  v: number;
+  savedAt: string;
+  data: unknown;
+};
 
 /**
  * Forward-only migration chain keyed by the version being upgraded FROM.
  * Version 1 is current, so the map is empty; a future v2 adds
  * `1: (data) => ...`.
  */
-const PLANNER_MIGRATIONS: Record<number, (data: unknown) => unknown> = {}
+const PLANNER_MIGRATIONS: Record<number, (data: unknown) => unknown> = {};
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null
+  return typeof value === "object" && value !== null;
+}
+
+const VALID_VERDICTS = new Set(["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"]);
+
+/** Drop corrupt path snapshots so Overview never crashes on rehydrate. */
+function sanitizePersistedPath(path: unknown): PathSnapshot | null {
+  if (path === null || path === undefined) return null;
+  if (!isRecord(path)) return null;
+  if (!Array.isArray(path.steps)) return null;
+  if (typeof path.verdict !== "string" || !VALID_VERDICTS.has(path.verdict)) return null;
+  return path as unknown as PathSnapshot;
 }
 
 /* Numeric hardening at action boundaries (Sprint 0, F3): reject or strip
    non-finite amounts so NaN/±Infinity can never enter persisted state. */
-const isFiniteNumber = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v)
+const isFiniteNumber = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
 
 function stripNonFinite<T extends object>(patch: T, keys: readonly (keyof T)[]): T {
-  const out = { ...patch }
+  const out = { ...patch };
   for (const k of keys) {
-    if (k in out && !isFiniteNumber(out[k])) delete out[k]
+    if (k in out && !isFiniteNumber(out[k])) delete out[k];
   }
-  return out
+  return out;
 }
 
 const envelopeStorage: StateStorage = {
   getItem: (name) => {
-    if (typeof window === 'undefined') return null
-    let raw: string | null = null
+    if (typeof window === "undefined") return null;
+    let raw: string | null = null;
     try {
-      raw = window.localStorage.getItem(name)
-      if (!raw) return null
-      const parsed: unknown = JSON.parse(raw)
-      if (!isRecord(parsed)) throw new Error('not an object')
+      raw = window.localStorage.getItem(name);
+      if (!raw) return null;
+      const parsed: unknown = JSON.parse(raw);
+      if (!isRecord(parsed)) throw new Error("not an object");
 
-      let data: unknown
-      if (typeof parsed.v === 'number' && 'data' in parsed) {
+      let data: unknown;
+      if (typeof parsed.v === "number" && "data" in parsed) {
         // Versioned envelope — walk the forward-only chain.
-        let version = parsed.v
-        let migrated = parsed.data
+        let version = parsed.v;
+        let migrated = parsed.data;
         while (version < PLANNER_SCHEMA_VERSION) {
-          const migrate = PLANNER_MIGRATIONS[version]
-          if (!migrate) break // unknown ancient shape — merge guards decide
-          migrated = migrate(migrated)
-          version += 1
+          const migrate = PLANNER_MIGRATIONS[version];
+          if (!migrate) break; // unknown ancient shape — merge guards decide
+          migrated = migrate(migrated);
+          version += 1;
         }
-        data = migrated
+        data = migrated;
       } else {
         // Legacy bare zustand blob ({ state, version }) loads as-is.
-        data = parsed
+        data = parsed;
       }
-      return JSON.stringify(data)
+      return JSON.stringify(data);
     } catch {
       try {
         if (raw !== null) {
-          window.localStorage.setItem(PLANNER_CORRUPT_BACKUP_KEY, raw)
+          window.localStorage.setItem(PLANNER_CORRUPT_BACKUP_KEY, raw);
         }
       } catch {
         // Backup is best-effort; the default-state fallback still applies.
       }
-      return null
+      return null;
     }
   },
   setItem: (name, value) => {
-    if (typeof window === 'undefined') return
+    if (typeof window === "undefined") return;
     const envelope: PlannerEnvelope = {
       v: PLANNER_SCHEMA_VERSION,
       savedAt: new Date().toISOString(),
       data: JSON.parse(value),
-    }
-    window.localStorage.setItem(name, JSON.stringify(envelope))
+    };
+    window.localStorage.setItem(name, JSON.stringify(envelope));
   },
   removeItem: (name) => {
-    if (typeof window === 'undefined') return
-    window.localStorage.removeItem(name)
+    if (typeof window === "undefined") return;
+    window.localStorage.removeItem(name);
   },
-}
+};
 
 /* ------------------------------------------------------------------ */
 /* Path adapter — canon lib/path.ts binding-constraint engine → the    */
@@ -187,9 +195,9 @@ const envelopeStorage: StateStorage = {
 
 export interface BuildPlannerPathOptions {
   /** Injected for tests. */
-  now?: Date
+  now?: Date;
   /** Injected for tests (defaults to uid). */
-  idFactory?: () => string
+  idFactory?: () => string;
 }
 
 /**
@@ -205,14 +213,11 @@ export function buildPlannerPathSnapshot(
   // Canon finance contract — only passed when real finance data exists,
   // so an empty workspace keeps confidence 'assessment_only'.
   const finance = buildPathFinanceSnapshot(state);
-  const hasFinanceData =
-    state.transactions.length > 0 || state.accounts.length > 0;
+  const hasFinanceData = state.transactions.length > 0 || state.accounts.length > 0;
   const canonFinance: CanonPathFinance | undefined = hasFinanceData
     ? {
         netCashFlow: finance.cashFlow,
-        runwayMonths: Number.isFinite(finance.runwayMonths)
-          ? finance.runwayMonths
-          : null,
+        runwayMonths: Number.isFinite(finance.runwayMonths) ? finance.runwayMonths : null,
         monthlyExpenses: finance.expenses,
         liquidSavings: finance.liquidCash,
         monthlyDebtPayments: finance.debtPayments,
@@ -246,48 +251,48 @@ export function buildPlannerPathSnapshot(
 /* ------------------------------------------------------------------ */
 
 export interface PlannerStore extends BudgetState {
-  _hasHydrated: boolean
-  setHasHydrated: (v: boolean) => void
-  addTransaction: (input: Omit<Transaction, 'id'>) => void
-  updateTransaction: (id: string, patch: Partial<Omit<Transaction, 'id'>>) => void
-  deleteTransaction: (id: string) => void
-  setSavingsGoal: (goal: Partial<SavingsGoal>) => void
-  addAccount: (input: AddAccountInput) => void
-  connectBank: (input: AddAccountInput) => Promise<void>
-  disconnectAccount: (accountId: string) => void
-  syncBanks: () => Promise<void>
-  addBill: (input: Omit<Bill, 'id' | 'status' | 'paidAt'>) => void
-  updateBill: (id: string, patch: Partial<Omit<Bill, 'id'>>) => void
-  deleteBill: (id: string) => void
-  payBill: (billId: string, accountId?: string) => { ok: boolean; error?: string }
-  scheduleBill: (billId: string) => void
-  addHolding: (input: Omit<Holding, 'id'>) => void
-  updateHolding: (id: string, patch: Partial<Omit<Holding, 'id'>>) => void
-  deleteHolding: (id: string) => void
-  markPrices: () => void
-  addNetWorthItem: (input: Omit<NetWorthItem, 'id'>) => void
-  updateNetWorthItem: (id: string, patch: Partial<Omit<NetWorthItem, 'id'>>) => void
-  deleteNetWorthItem: (id: string) => void
-  connectBroker: (institution: BrokerInstitution) => Promise<void>
-  disconnectBroker: (brokerId: string) => void
-  syncBrokers: () => Promise<void>
-  regeneratePath: () => Promise<void>
-  completePathStep: (stepId: string, status?: PathStepStatus) => void
-  clearPath: () => void
-  setReadinessProfile: (patch: Partial<ReadinessProfile>) => void
-  setHouseholdPartner: (patch: Partial<HouseholdPartner>) => void
-  setDebts: (debts: DebtItem[]) => void
-  updateDebt: (id: string, patch: Partial<Omit<DebtItem, 'id'>>) => void
-  setExtraDebtPayment: (n: number) => void
-  setConsolidationLoan: (patch: Partial<ConsolidationLoanConfig>) => void
-  dismissSignal: (id: string) => void
-  clearDismissedSignals: () => void
-  setLastImpact: (impact: ScoreImpactSnapshot | null) => void
-  clearLastImpact: () => void
-  addCheckin: (financialStress: number, note?: string) => void
+  _hasHydrated: boolean;
+  setHasHydrated: (v: boolean) => void;
+  addTransaction: (input: Omit<Transaction, "id">) => void;
+  updateTransaction: (id: string, patch: Partial<Omit<Transaction, "id">>) => void;
+  deleteTransaction: (id: string) => void;
+  setSavingsGoal: (goal: Partial<SavingsGoal>) => void;
+  addAccount: (input: AddAccountInput) => void;
+  connectBank: (input: AddAccountInput) => Promise<void>;
+  disconnectAccount: (accountId: string) => void;
+  syncBanks: () => Promise<void>;
+  addBill: (input: Omit<Bill, "id" | "status" | "paidAt">) => void;
+  updateBill: (id: string, patch: Partial<Omit<Bill, "id">>) => void;
+  deleteBill: (id: string) => void;
+  payBill: (billId: string, accountId?: string) => { ok: boolean; error?: string };
+  scheduleBill: (billId: string) => void;
+  addHolding: (input: Omit<Holding, "id">) => void;
+  updateHolding: (id: string, patch: Partial<Omit<Holding, "id">>) => void;
+  deleteHolding: (id: string) => void;
+  markPrices: () => void;
+  addNetWorthItem: (input: Omit<NetWorthItem, "id">) => void;
+  updateNetWorthItem: (id: string, patch: Partial<Omit<NetWorthItem, "id">>) => void;
+  deleteNetWorthItem: (id: string) => void;
+  connectBroker: (institution: BrokerInstitution) => Promise<void>;
+  disconnectBroker: (brokerId: string) => void;
+  syncBrokers: () => Promise<void>;
+  regeneratePath: () => Promise<void>;
+  completePathStep: (stepId: string, status?: PathStepStatus) => void;
+  clearPath: () => void;
+  setReadinessProfile: (patch: Partial<ReadinessProfile>) => void;
+  setHouseholdPartner: (patch: Partial<HouseholdPartner>) => void;
+  setDebts: (debts: DebtItem[]) => void;
+  updateDebt: (id: string, patch: Partial<Omit<DebtItem, "id">>) => void;
+  setExtraDebtPayment: (n: number) => void;
+  setConsolidationLoan: (patch: Partial<ConsolidationLoanConfig>) => void;
+  dismissSignal: (id: string) => void;
+  clearDismissedSignals: () => void;
+  setLastImpact: (impact: ScoreImpactSnapshot | null) => void;
+  clearLastImpact: () => void;
+  addCheckin: (financialStress: number, note?: string) => void;
   /** Restore the full demo workspace (the "Reset demo" button). */
-  resetDemo: () => void
-  clearWorkspace: () => void
+  resetDemo: () => void;
+  clearWorkspace: () => void;
 }
 
 export const usePlannerStore = create<PlannerStore>()(
@@ -297,12 +302,12 @@ export const usePlannerStore = create<PlannerStore>()(
       savingsGoal: { ...DEFAULT_GOAL },
       accounts: [],
       bills: [],
-      bankLinkStatus: 'disconnected' as const,
+      bankLinkStatus: "disconnected" as const,
       lastBankSyncAt: null,
       holdings: [],
       netWorthItems: [],
       brokers: [],
-      brokerLinkStatus: 'disconnected' as const,
+      brokerLinkStatus: "disconnected" as const,
       lastBrokerSyncAt: null,
       path: null,
       readinessProfile: { ...DEFAULT_READINESS_PROFILE },
@@ -319,195 +324,190 @@ export const usePlannerStore = create<PlannerStore>()(
       setHasHydrated: (v) => set({ _hasHydrated: v }),
 
       addTransaction: (input) => {
-        if (!isFiniteNumber(input.amount)) return
-        const id = uid("tx")
-        const tx = { ...input, id }
+        if (!isFiniteNumber(input.amount)) return;
+        const id = uid("tx");
+        const tx = { ...input, id };
         set((s) => ({
           transactions: [tx, ...s.transactions],
-        }))
-        dualWriteAddTransaction(tx)
+        }));
+        dualWriteAddTransaction(tx);
       },
 
       updateTransaction: (id, patch) => {
-        const clean = stripNonFinite(patch, ['amount'])
+        const clean = stripNonFinite(patch, ["amount"]);
         set((s) => ({
-          transactions: s.transactions.map((t) =>
-            t.id === id ? { ...t, ...clean } : t,
-          ),
-        }))
+          transactions: s.transactions.map((t) => (t.id === id ? { ...t, ...clean } : t)),
+        }));
+        // Re-sync to ledger: delete old row + write updated projection.
+        const next = get().transactions.find((t) => t.id === id);
+        if (next) {
+          dualWriteDeleteTransaction(id);
+          dualWriteAddTransaction(next);
+        }
       },
 
       deleteTransaction: (id) => {
         set((s) => ({
           transactions: s.transactions.filter((t) => t.id !== id),
-        }))
-        dualWriteDeleteTransaction(id)
+        }));
+        dualWriteDeleteTransaction(id);
       },
 
       setSavingsGoal: (goal) =>
         set((s) => ({
-          savingsGoal: { ...s.savingsGoal, ...stripNonFinite(goal, ['target', 'current']) },
+          savingsGoal: { ...s.savingsGoal, ...stripNonFinite(goal, ["target", "current"]) },
         })),
 
       connectBank: async (input) => {
-        get().addAccount(input)
+        get().addAccount(input);
       },
 
       addAccount: (input) => {
-        const now = new Date().toISOString()
-        const balance = Math.max(0, Number(input.balance) || 0)
+        const now = new Date().toISOString();
+        const balance = Math.max(0, Number(input.balance) || 0);
         const available =
-          input.available != null
-            ? Math.max(0, Number(input.available) || 0)
-            : balance
-        const maskDigits = String(input.mask ?? '')
-          .replace(/\D/g, '')
-          .slice(-4)
+          input.available != null ? Math.max(0, Number(input.available) || 0) : balance;
+        const maskDigits = String(input.mask ?? "")
+          .replace(/\D/g, "")
+          .slice(-4);
         const acct: BankAccount = {
-          id: uid('acct'),
+          id: uid("acct"),
           institution: input.institution,
-          name: input.name.trim() || 'Account',
+          name: input.name.trim() || "Account",
           type: input.type,
-          mask: maskDigits || '0000',
+          mask: maskDigits || "0000",
           balance,
           available,
-          currency: 'USD',
+          currency: "USD",
           lastSyncedAt: now,
-          status: 'linked',
-        }
+          status: "linked",
+        };
         set((s) => ({
           accounts: [...s.accounts, acct],
-          bankLinkStatus: 'linked',
+          bankLinkStatus: "linked",
           lastBankSyncAt: now,
-        }))
+        }));
       },
 
       disconnectAccount: (accountId) =>
         set((s) => {
-          const accounts = s.accounts.filter((a) => a.id !== accountId)
+          const accounts = s.accounts.filter((a) => a.id !== accountId);
           return {
             accounts,
-            bankLinkStatus: accounts.length ? 'linked' : 'disconnected',
-          }
+            bankLinkStatus: accounts.length ? "linked" : "disconnected",
+          };
         }),
 
       syncBanks: async () => {
-        if (!get().accounts.length) return
-        set({ bankLinkStatus: 'connecting' })
-        await new Promise((r) => setTimeout(r, 200))
-        const now = new Date().toISOString()
+        if (!get().accounts.length) return;
+        set({ bankLinkStatus: "connecting" });
+        await new Promise((r) => setTimeout(r, 200));
+        const now = new Date().toISOString();
         set((s) => ({
           accounts: s.accounts.map((a) => ({
             ...a,
             lastSyncedAt: now,
-            status: 'linked' as const,
+            status: "linked" as const,
           })),
-          bankLinkStatus: 'linked',
+          bankLinkStatus: "linked",
           lastBankSyncAt: now,
-        }))
+        }));
       },
 
       addBill: (input) => {
-        if (!isFiniteNumber(input.amount)) return
-        const due = daysUntil(input.dueDate)
-        let status: Bill['status'] = 'upcoming'
-        if (due < 0) status = 'overdue'
-        else if (due === 0) status = 'due'
-        else if (input.autopay) status = 'scheduled'
+        if (!isFiniteNumber(input.amount)) return;
+        const due = daysUntil(input.dueDate);
+        let status: Bill["status"] = "upcoming";
+        if (due < 0) status = "overdue";
+        else if (due === 0) status = "due";
+        else if (input.autopay) status = "scheduled";
         set((s) => ({
-          bills: [{ ...input, id: uid('bill'), status }, ...s.bills],
-        }))
+          bills: [{ ...input, id: uid("bill"), status }, ...s.bills],
+        }));
       },
 
       updateBill: (id, patch) =>
         set((s) => ({
           bills: s.bills.map((b) => {
-            if (b.id !== id) return b
-            const next = { ...b, ...stripNonFinite(patch, ['amount']) }
-            if (patch.dueDate && next.status !== 'paid') {
-              const due = daysUntil(next.dueDate)
-              if (due < 0) next.status = 'overdue'
-              else if (due === 0) next.status = 'due'
-              else if (next.autopay) next.status = 'scheduled'
-              else next.status = 'upcoming'
+            if (b.id !== id) return b;
+            const next = { ...b, ...stripNonFinite(patch, ["amount"]) };
+            if (patch.dueDate && next.status !== "paid") {
+              const due = daysUntil(next.dueDate);
+              if (due < 0) next.status = "overdue";
+              else if (due === 0) next.status = "due";
+              else if (next.autopay) next.status = "scheduled";
+              else next.status = "upcoming";
             }
-            return next
+            return next;
           }),
         })),
 
-      deleteBill: (id) =>
-        set((s) => ({ bills: s.bills.filter((b) => b.id !== id) })),
+      deleteBill: (id) => set((s) => ({ bills: s.bills.filter((b) => b.id !== id) })),
 
       payBill: (billId, accountId) => {
-        const s = get()
-        const bill = s.bills.find((b) => b.id === billId)
-        if (!bill) return { ok: false, error: 'Bill not found' }
-        if (bill.status === 'paid') return { ok: false, error: 'Already paid' }
-        const acctId = accountId ?? bill.accountId
-        const acct = s.accounts.find((a) => a.id === acctId)
-        if (!acct) return { ok: false, error: 'Select a pay-from account' }
-        if (acct.type !== 'credit' && acct.balance < bill.amount) {
-          return { ok: false, error: 'Insufficient balance' }
+        const s = get();
+        const bill = s.bills.find((b) => b.id === billId);
+        if (!bill) return { ok: false, error: "Bill not found" };
+        if (bill.status === "paid") return { ok: false, error: "Already paid" };
+        const acctId = accountId ?? bill.accountId;
+        const acct = s.accounts.find((a) => a.id === acctId);
+        if (!acct) return { ok: false, error: "Select a pay-from account" };
+        if (acct.type !== "credit" && acct.balance < bill.amount) {
+          return { ok: false, error: "Insufficient balance" };
         }
-        const now = new Date().toISOString()
+        const now = new Date().toISOString();
         const tx: Transaction = {
-          id: uid('tx'),
-          type: 'expense',
+          id: uid("tx"),
+          type: "expense",
           amount: bill.amount,
           category: bill.category,
           note: `Paid · ${bill.name}`,
           date: todayISO(),
           accountId: acct.id,
           billId: bill.id,
-          source: 'bill-pay',
-        }
+          source: "bill-pay",
+        };
         set({
           bills: s.bills.map((b) =>
-            b.id === billId
-              ? { ...b, status: 'paid' as const, paidAt: now }
-              : b,
+            b.id === billId ? { ...b, status: "paid" as const, paidAt: now } : b,
           ),
           accounts: s.accounts.map((a) => {
-            if (a.id !== acct.id) return a
-            if (a.type === 'credit') {
+            if (a.id !== acct.id) return a;
+            if (a.type === "credit") {
               return {
                 ...a,
                 balance: Number((a.balance - bill.amount).toFixed(2)),
-              }
+              };
             }
             return {
               ...a,
               balance: Number((a.balance - bill.amount).toFixed(2)),
-              available: Number(
-                Math.max(0, (a.available ?? a.balance) - bill.amount).toFixed(2),
-              ),
-            }
+              available: Number(Math.max(0, (a.available ?? a.balance) - bill.amount).toFixed(2)),
+            };
           }),
           transactions: [tx, ...s.transactions],
-        })
-        dualWriteAddTransaction(tx)
-        return { ok: true }
+        });
+        dualWriteAddTransaction(tx);
+        return { ok: true };
       },
 
       scheduleBill: (billId) =>
         set((s) => ({
           bills: s.bills.map((b) =>
-            b.id === billId && b.status !== 'paid'
-              ? { ...b, status: 'scheduled' as const, autopay: true }
+            b.id === billId && b.status !== "paid"
+              ? { ...b, status: "scheduled" as const, autopay: true }
               : b,
           ),
         })),
 
       addHolding: (input) =>
         set((s) => ({
-          holdings: [{ ...input, id: uid('hold') }, ...s.holdings],
+          holdings: [{ ...input, id: uid("hold") }, ...s.holdings],
         })),
 
       updateHolding: (id, patch) =>
         set((s) => ({
-          holdings: s.holdings.map((h) =>
-            h.id === id ? { ...h, ...patch } : h,
-          ),
+          holdings: s.holdings.map((h) => (h.id === id ? { ...h, ...patch } : h)),
         })),
 
       deleteHolding: (id) =>
@@ -516,25 +516,20 @@ export const usePlannerStore = create<PlannerStore>()(
         })),
 
       markPrices: () => {
-        const asOf = todayISO()
+        const asOf = todayISO();
         set((s) => ({
           holdings: s.holdings.map((h) => ({ ...h, asOf })),
-        }))
+        }));
       },
 
       addNetWorthItem: (input) =>
         set((s) => ({
-          netWorthItems: [
-            { ...input, id: uid('nw') },
-            ...s.netWorthItems,
-          ],
+          netWorthItems: [{ ...input, id: uid("nw") }, ...s.netWorthItems],
         })),
 
       updateNetWorthItem: (id, patch) =>
         set((s) => ({
-          netWorthItems: s.netWorthItems.map((i) =>
-            i.id === id ? { ...i, ...patch } : i,
-          ),
+          netWorthItems: s.netWorthItems.map((i) => (i.id === id ? { ...i, ...patch } : i)),
         })),
 
       deleteNetWorthItem: (id) =>
@@ -543,74 +538,68 @@ export const usePlannerStore = create<PlannerStore>()(
         })),
 
       connectBroker: async (institution) => {
-        set({ brokerLinkStatus: 'connecting' })
-        await new Promise((r) => setTimeout(r, 200))
-        const now = new Date().toISOString()
+        set({ brokerLinkStatus: "connecting" });
+        await new Promise((r) => setTimeout(r, 200));
+        const now = new Date().toISOString();
         const broker: BrokerConnection = {
-          id: uid('broker'),
+          id: uid("broker"),
           institution,
           name: BROKER_LABELS[institution],
-          mask: '0000',
-          status: 'linked',
+          mask: "0000",
+          status: "linked",
           lastSyncedAt: now,
           marketValue: 0,
-        }
+        };
         set((s) => ({
           brokers: [...s.brokers, broker],
-          brokerLinkStatus: 'linked' as const,
+          brokerLinkStatus: "linked" as const,
           lastBrokerSyncAt: now,
-        }))
+        }));
       },
 
       disconnectBroker: (brokerId) =>
         set((s) => {
-          const broker = s.brokers.find((b) => b.id === brokerId)
-          const brokers = s.brokers.filter((b) => b.id !== brokerId)
+          const broker = s.brokers.find((b) => b.id === brokerId);
+          const brokers = s.brokers.filter((b) => b.id !== brokerId);
           const holdings = broker
             ? s.holdings.filter(
-                (h) =>
-                  !(h.source === 'broker' && h.brokerId === broker.institution),
+                (h) => !(h.source === "broker" && h.brokerId === broker.institution),
               )
-            : s.holdings
+            : s.holdings;
           return {
             brokers,
             holdings,
-            brokerLinkStatus: brokers.length ? 'linked' : 'disconnected',
-          }
+            brokerLinkStatus: brokers.length ? "linked" : "disconnected",
+          };
         }),
 
       syncBrokers: async () => {
-        if (!get().brokers.length) return
-        set({ brokerLinkStatus: 'connecting' })
-        await new Promise((r) => setTimeout(r, 200))
-        const now = new Date().toISOString()
-        const asOf = todayISO()
+        if (!get().brokers.length) return;
+        set({ brokerLinkStatus: "connecting" });
+        await new Promise((r) => setTimeout(r, 200));
+        const now = new Date().toISOString();
+        const asOf = todayISO();
 
         set((s) => {
-          const holdings = s.holdings.map((h) => ({ ...h, asOf }))
+          const holdings = s.holdings.map((h) => ({ ...h, asOf }));
           const brokers = s.brokers.map((b) => {
-            const tagged = holdings.filter(
-              (h) => h.brokerId === b.institution,
-            )
-            const value = tagged.reduce(
-              (sum, h) => sum + h.shares * h.price,
-              0,
-            )
+            const tagged = holdings.filter((h) => h.brokerId === b.institution);
+            const value = tagged.reduce((sum, h) => sum + h.shares * h.price, 0);
             return {
               ...b,
               lastSyncedAt: now,
-              status: 'linked' as const,
+              status: "linked" as const,
               marketValue: Number(value.toFixed(2)),
-            }
-          })
+            };
+          });
 
           return {
             holdings,
             brokers,
-            brokerLinkStatus: 'linked',
+            brokerLinkStatus: "linked",
             lastBrokerSyncAt: now,
-          }
-        })
+          };
+        });
       },
 
       regeneratePath: async () => {
@@ -637,10 +626,10 @@ export const usePlannerStore = create<PlannerStore>()(
         set({ path: buildPlannerPathSnapshot(get(), assessment) });
       },
 
-      completePathStep: (stepId, status = 'done') => {
-        const s = get()
-        if (!s.path) return
-        const now = new Date().toISOString()
+      completePathStep: (stepId, status = "done") => {
+        const s = get();
+        if (!s.path) return;
+        const now = new Date().toISOString();
         // Same semantics as canon setPathStepStatus: pending clears the
         // completion stamp, done/skipped stamp it.
         set({
@@ -651,12 +640,12 @@ export const usePlannerStore = create<PlannerStore>()(
                 ? {
                     ...step,
                     status,
-                    completedAt: status === 'pending' ? null : now,
+                    completedAt: status === "pending" ? null : now,
                   }
                 : step,
             ),
           },
-        })
+        });
       },
 
       clearPath: () => set({ path: null }),
@@ -710,18 +699,18 @@ export const usePlannerStore = create<PlannerStore>()(
       clearLastImpact: () => set({ lastImpact: null }),
 
       addCheckin: (financialStress, note) => {
-        const stress = Math.min(10, Math.max(1, Math.round(financialStress)))
-        const date = todayISO()
+        const stress = Math.min(10, Math.max(1, Math.round(financialStress)));
+        const date = todayISO();
         const entry: DailyCheckin = {
-          id: uid('check'),
+          id: uid("check"),
           date,
           financialStress: stress,
           note: note?.trim() || undefined,
           createdAt: new Date().toISOString(),
-        }
+        };
         set((s) => {
           // one check-in per day — replace same date
-          const rest = s.checkins.filter((c) => c.date !== date)
+          const rest = s.checkins.filter((c) => c.date !== date);
           return {
             checkins: [entry, ...rest].slice(0, 60),
             // mild FOMO/pressure nudge from rising stress
@@ -729,16 +718,11 @@ export const usePlannerStore = create<PlannerStore>()(
               ...s.readinessProfile,
               fomoLevel: Math.min(
                 10,
-                Math.max(
-                  1,
-                  Math.round(
-                    s.readinessProfile.fomoLevel * 0.6 + stress * 0.4,
-                  ),
-                ),
+                Math.max(1, Math.round(s.readinessProfile.fomoLevel * 0.6 + stress * 0.4)),
               ),
             },
-          }
-        })
+          };
+        });
       },
 
       resetDemo: () => set(buildDemoSeed(new Date())),
@@ -749,12 +733,12 @@ export const usePlannerStore = create<PlannerStore>()(
           savingsGoal: { ...DEFAULT_GOAL },
           accounts: [],
           bills: [],
-          bankLinkStatus: 'disconnected',
+          bankLinkStatus: "disconnected",
           lastBankSyncAt: null,
           holdings: [],
           netWorthItems: [],
           brokers: [],
-          brokerLinkStatus: 'disconnected',
+          brokerLinkStatus: "disconnected",
           lastBrokerSyncAt: null,
           path: null,
           readinessProfile: { ...DEFAULT_READINESS_PROFILE },
@@ -795,33 +779,24 @@ export const usePlannerStore = create<PlannerStore>()(
         lastImpact: s.lastImpact,
       }),
       merge: (persisted: unknown, current: PlannerStore) => {
-        const p = (persisted ?? {}) as Partial<BudgetState>
+        const p = (persisted ?? {}) as Partial<BudgetState>;
         const profile =
-          p.readinessProfile && typeof p.readinessProfile === 'object'
-            ? p.readinessProfile
-            : {}
+          p.readinessProfile && typeof p.readinessProfile === "object" ? p.readinessProfile : {};
         const partner =
-          p.householdPartner && typeof p.householdPartner === 'object'
-            ? p.householdPartner
-            : {}
-        const overlay =
-          p.toolsOverlay && typeof p.toolsOverlay === 'object'
-            ? p.toolsOverlay
-            : {}
+          p.householdPartner && typeof p.householdPartner === "object" ? p.householdPartner : {};
+        const overlay = p.toolsOverlay && typeof p.toolsOverlay === "object" ? p.toolsOverlay : {};
         return {
           ...current,
           ...p,
-          transactions: Array.isArray(p.transactions)
-            ? p.transactions
-            : current.transactions,
+          transactions: Array.isArray(p.transactions) ? p.transactions : current.transactions,
           accounts: Array.isArray(p.accounts) ? p.accounts : current.accounts,
           bills: Array.isArray(p.bills) ? p.bills : current.bills,
           holdings: Array.isArray(p.holdings) ? p.holdings : current.holdings,
-          netWorthItems: Array.isArray(p.netWorthItems)
-            ? p.netWorthItems
-            : current.netWorthItems,
+          netWorthItems: Array.isArray(p.netWorthItems) ? p.netWorthItems : current.netWorthItems,
           brokers: Array.isArray(p.brokers) ? p.brokers : current.brokers,
-          path: p.path ?? current.path,
+          // Corrupt / partial path blobs crash Overview PathStrip
+          // (path.steps.filter / VERDICT_META[path.verdict]). Drop bad paths.
+          path: sanitizePersistedPath(p.path !== undefined ? p.path : current.path),
           readinessProfile: {
             ...DEFAULT_READINESS_PROFILE,
             ...current.readinessProfile,
@@ -845,20 +820,20 @@ export const usePlannerStore = create<PlannerStore>()(
             consolidation: {
               ...DEFAULT_CONSOLIDATION_LOAN,
               ...(current.toolsOverlay?.consolidation ?? {}),
-              ...((overlay as { consolidation?: Partial<ConsolidationLoanConfig> })
-                .consolidation ?? {}),
+              ...((overlay as { consolidation?: Partial<ConsolidationLoanConfig> }).consolidation ??
+                {}),
             },
           },
           checkins: Array.isArray(p.checkins) ? p.checkins : current.checkins,
           lastImpact: p.lastImpact ?? current.lastImpact,
-        }
+        };
       },
       onRehydrateStorage: () => (state: PlannerStore | undefined) => {
         // Runs after both successful and failed rehydration — a corrupt blob
         // already fell back to initial state via envelopeStorage, so the UI
         // must never hang waiting for hydration either way.
-        state?.setHasHydrated(true)
+        state?.setHasHydrated(true);
       },
     },
   ),
-)
+);

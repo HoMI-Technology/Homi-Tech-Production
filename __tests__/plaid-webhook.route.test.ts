@@ -96,7 +96,12 @@ import { POST } from "@/app/api/plaid/webhook/route";
 
 const { privateKey, publicKey } = generateKeyPairSync("ec", { namedCurve: "P-256" });
 const KID = "test-kid-1";
-const JWK = { ...(publicKey.export({ format: "jwk" }) as Record<string, unknown>), kid: KID, alg: "ES256", use: "sig" };
+const JWK = {
+  ...(publicKey.export({ format: "jwk" }) as Record<string, unknown>),
+  kid: KID,
+  alg: "ES256",
+  use: "sig",
+};
 
 function b64url(value: Record<string, unknown>): string {
   return Buffer.from(JSON.stringify(value), "utf8").toString("base64url");
@@ -158,7 +163,11 @@ const ITEM_ROW = {
   status: "healthy",
 };
 
-function body(webhookType: string, webhookCode: string, extra: Record<string, unknown> = {}): string {
+function body(
+  webhookType: string,
+  webhookCode: string,
+  extra: Record<string, unknown> = {},
+): string {
   return JSON.stringify({
     webhook_type: webhookType,
     webhook_code: webhookCode,
@@ -335,7 +344,9 @@ describe("POST /api/plaid/webhook — dispatch", () => {
 
   it("still 200s when the shared sync throws (work retried on next delivery)", async () => {
     const { syncItem } = await import("@/lib/plaid/sync");
-    (syncItem as unknown as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("plaid down"));
+    (syncItem as unknown as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+      new Error("plaid down"),
+    );
     const res = await POST(webhookRequest(body("TRANSACTIONS", "SYNC_UPDATES_AVAILABLE")));
     expect(res.status).toBe(200);
     const resBody = (await res.json()) as { processed?: boolean };

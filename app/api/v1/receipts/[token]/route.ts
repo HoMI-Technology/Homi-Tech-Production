@@ -51,10 +51,7 @@ interface ShareJoinRow {
   } | null;
 }
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ token: string }> },
-) {
+export async function GET(request: Request, { params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
 
   const ip = getClientIp(request);

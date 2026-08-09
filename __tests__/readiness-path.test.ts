@@ -40,9 +40,14 @@ describe("buildReadinessPath", () => {
     expect(path.mode).toBe("ready_optional");
     expect(path.bindingConstraint).toBe("READY_CELEBRATE");
     expect(path.steps.length).toBeLessThanOrEqual(2);
-    expect(path.steps.every((s) => s.reasonCode === "MAINTENANCE" || s.reasonCode === "READY_CELEBRATE" || s.daysFromNow >= 30)).toBe(
-      true,
-    );
+    expect(
+      path.steps.every(
+        (s) =>
+          s.reasonCode === "MAINTENANCE" ||
+          s.reasonCode === "READY_CELEBRATE" ||
+          s.daysFromNow >= 30,
+      ),
+    ).toBe(true);
   });
 
   it("orders RUNWAY hard-stop as binding constraint first", () => {

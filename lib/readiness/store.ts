@@ -10,10 +10,7 @@ import {
   runwayMonths,
   financeSavedAt,
 } from "@/lib/finance/store";
-import {
-  hasSavedBudgetLedger,
-  loadBudgetLedger,
-} from "@/lib/finance/local-ledger";
+import { hasSavedBudgetLedger, loadBudgetLedger } from "@/lib/finance/local-ledger";
 import { buildPathFinanceSnapshotFromLedger } from "@/lib/finance/readiness-snapshot";
 import { createSyncedResource, type Stamped } from "@/lib/persistence";
 import {
@@ -27,10 +24,7 @@ import {
   type ReadinessPath,
 } from "./path";
 import { loadLocalResult } from "@/lib/assessment/storage";
-import {
-  loadCouplesAlignment,
-  partnerBlocksJointReady,
-} from "./partner";
+import { loadCouplesAlignment, partnerBlocksJointReady } from "./partner";
 import { evidenceBasedAutoComplete } from "./evidence";
 import { archivePathVersion } from "./versions";
 
@@ -193,12 +187,11 @@ export function reconcilePathWithSignals(
   const path = loadReadinessPath();
   if (!path) return { path: null, completedStepIds: [], reasons: [] };
   const assessment = result ?? loadLocalResult()?.result ?? null;
-  const { path: next, completedStepIds, reasons } = evidenceBasedAutoComplete(
-    path,
-    assessment,
-    financeSnapshotForPath(),
-    categories,
-  );
+  const {
+    path: next,
+    completedStepIds,
+    reasons,
+  } = evidenceBasedAutoComplete(path, assessment, financeSnapshotForPath(), categories);
   if (completedStepIds.length > 0) {
     saveReadinessPath(next);
   }

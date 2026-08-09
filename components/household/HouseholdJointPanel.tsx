@@ -174,9 +174,7 @@ export function HouseholdJointPanel() {
 
   const dual: DualHouseholdScore | null = useMemo(() => {
     if (members.length < 2) return null;
-    const withScores = members.filter(
-      (m) => m.last_score != null && m.last_verdict != null,
-    );
+    const withScores = members.filter((m) => m.last_score != null && m.last_verdict != null);
     if (withScores.length < 2) return null;
 
     const toResult = (m: Member): AssessmentResult => ({
@@ -233,8 +231,8 @@ export function HouseholdJointPanel() {
         <div className="glass p-8">
           <h2 className="font-display text-2xl text-light">Household</h2>
           <p className="mt-3 text-sm text-dim">
-            Apply migration <code className="text-cyan">00039_households</code>{" "}
-            to enable dual-user accounts.
+            Apply migration <code className="text-cyan">00039_households</code> to enable dual-user
+            accounts.
           </p>
         </div>
       </div>
@@ -245,8 +243,8 @@ export function HouseholdJointPanel() {
     <div className="max-w-3xl">
       <h2 className="font-display text-2xl text-light">Dual-user household</h2>
       <p className="mt-2 max-w-xl text-sm text-dim">
-        Two people, two assessments, one joint score = the weaker readiness —
-        never an average that hides a hard-stop. Not a shared bank login.
+        Two people, two assessments, one joint score = the weaker readiness — never an average that
+        hides a hard-stop. Not a shared bank login.
       </p>
 
       {inviteToken && !household && (
@@ -258,7 +256,11 @@ export function HouseholdJointPanel() {
             onChange={(e) => setAcceptName(e.target.value)}
             placeholder="Your display name"
           />
-          <button type="button" className="btn btn-primary mt-3" onClick={() => void acceptInvite()}>
+          <button
+            type="button"
+            className="btn btn-primary mt-3"
+            onClick={() => void acceptInvite()}
+          >
             Join household
           </button>
         </div>
@@ -272,7 +274,11 @@ export function HouseholdJointPanel() {
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-          <button type="button" className="btn btn-primary mt-3" onClick={() => void createHousehold()}>
+          <button
+            type="button"
+            className="btn btn-primary mt-3"
+            onClick={() => void createHousehold()}
+          >
             Create household
           </button>
         </div>
@@ -295,8 +301,7 @@ export function HouseholdJointPanel() {
                     </p>
                     {m.last_score != null ? (
                       <p className="text-xs text-dim">
-                        Score{" "}
-                        <span className="score-numeral text-light">{m.last_score}</span>
+                        Score <span className="score-numeral text-light">{m.last_score}</span>
                       </p>
                     ) : (
                       <p className="text-xs text-dim">No score synced yet</p>
@@ -309,7 +314,11 @@ export function HouseholdJointPanel() {
               ))}
             </ul>
             <div className="mt-4 flex flex-wrap gap-2">
-              <button type="button" className="btn btn-primary btn-sm" onClick={() => void syncMyScore()}>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={() => void syncMyScore()}
+              >
                 Sync my assessment score
               </button>
               {!local && (
@@ -329,20 +338,21 @@ export function HouseholdJointPanel() {
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
             />
-            <button type="button" className="btn btn-ghost mt-3 btn-sm" onClick={() => void sendInvite()}>
+            <button
+              type="button"
+              className="btn btn-ghost mt-3 btn-sm"
+              onClick={() => void sendInvite()}
+            >
               Create invite link
             </button>
-            {inviteLink && (
-              <p className="mt-3 break-all text-xs text-cyan">{inviteLink}</p>
-            )}
+            {inviteLink && <p className="mt-3 break-all text-xs text-cyan">{inviteLink}</p>}
           </div>
 
           {dual && (
             <div className="glass mt-6 border border-cyan/30 p-6">
               <p className="eyebrow">Joint readiness</p>
               <p className="mt-1 font-display text-2xl text-light">
-                Joint score{" "}
-                <span className="score-numeral text-cyan">{dual.jointScore}</span>
+                Joint score <span className="score-numeral text-cyan">{dual.jointScore}</span>
               </p>
               <div className="mt-2">
                 <VerdictBadge verdict={dual.jointVerdict as VerdictKey} size="md" />

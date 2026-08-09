@@ -55,7 +55,10 @@ export function GenomeWidget({ scores }: GenomeWidgetProps) {
               <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-slate-surface">
                 <div
                   className="h-full rounded-full transition-all"
-                  style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${dim.color}66, ${dim.color})` }}
+                  style={{
+                    width: `${pct}%`,
+                    background: `linear-gradient(90deg, ${dim.color}66, ${dim.color})`,
+                  }}
                 />
               </div>
               <p className="mt-0.5 text-xs text-dim/70">{dim.description}</p>

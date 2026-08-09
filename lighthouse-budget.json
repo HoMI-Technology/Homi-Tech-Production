@@ -8,8 +8,6 @@
       { "resourceType": "font", "budget": 200 },
       { "resourceType": "total", "budget": 1600 }
     ],
-    "resourceCounts": [
-      { "resourceType": "third-party", "budget": 12 }
-    ]
+    "resourceCounts": [{ "resourceType": "third-party", "budget": 12 }]
   }
 ]

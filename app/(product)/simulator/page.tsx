@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ScoreSimulator } from "@/components/simulator/ScoreSimulator";
 import { UpgradePanel } from "@/components/ui/UpgradePanel";
 import { getUserEntitlements } from "@/lib/entitlements";
-import type { AnchorAssessment } from "@/lib/simulator";
+import type { AnchorAssessment } from "@/lib/simulator/public";
 import { ToolShell } from "@/components/tools/ToolShell";
 
 export const metadata: Metadata = {
@@ -13,10 +13,9 @@ export const metadata: Metadata = {
 };
 
 /**
- * Readiness-score simulator. The server side only gathers the seeds: the
- * latest financial snapshot (bank-synced baseline) and the latest completed
- * assessment (the held emotional/timing anchors). All math runs client-side
- * in lib/simulator.ts on top of the canonical scoring engine.
+ * Readiness-score simulator. This RSC gathers seeds (latest snapshot +
+ * assessment anchors). ScoreSimulator seeds levers client-side and scores
+ * via POST /api/simulator (Plans.md 6.4) — the engine never ships to the client.
  */
 export default async function SimulatorPage() {
   const supabase = await createClient();
@@ -63,8 +62,8 @@ export default async function SimulatorPage() {
       eyebrow="What-if instrument"
       title="Simulate your score"
       description="Move the levers — income, expenses, savings, debt — and watch your readiness respond. Same engine, same thresholds as the real assessment; every figure comes from your own numbers."
-      backHref="/tools"
-      backLabel="All tools"
+      backHref="/money/decide"
+      backLabel="Money · Decide"
     >
       <ScoreSimulator snapshotState={snapshotState} anchorAssessment={anchorAssessment} />
     </ToolShell>

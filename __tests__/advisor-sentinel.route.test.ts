@@ -80,7 +80,9 @@ afterEach(() => {
 
 describe("POST /api/advisor — Sentinel output guardrail", () => {
   it("returns model reply when Sentinel does not flag it", async () => {
-    fetchMock = vi.fn(async () => anthropicReply("I can walk through your numbers, but I won't tell you to buy."));
+    fetchMock = vi.fn(async () =>
+      anthropicReply("I can walk through your numbers, but I won't tell you to buy."),
+    );
     vi.stubGlobal("fetch", fetchMock);
 
     const res = await POST(req({ messages: [{ role: "user", content: "am I ready?" }] }));
@@ -110,7 +112,9 @@ describe("POST /api/advisor — Sentinel output guardrail", () => {
   });
 
   it("falls back to deterministic reply when model recommends an action", async () => {
-    fetchMock = vi.fn(async () => anthropicReply("I recommend that you sign the offer this weekend."));
+    fetchMock = vi.fn(async () =>
+      anthropicReply("I recommend that you sign the offer this weekend."),
+    );
     vi.stubGlobal("fetch", fetchMock);
 
     const res = await POST(req({ messages: [{ role: "user", content: "am I ready?" }] }));

@@ -81,7 +81,9 @@ export function ShortcutHelp() {
               <div>
                 <p className="eyebrow">Keyboard shortcuts</p>
                 <p className="mt-1 text-sm text-dim">
-                  Press <kbd className="rounded bg-slate-surface px-1.5 py-0.5 text-xs text-light">?</kbd> anytime to toggle
+                  Press{" "}
+                  <kbd className="rounded bg-slate-surface px-1.5 py-0.5 text-xs text-light">?</kbd>{" "}
+                  anytime to toggle
                 </p>
               </div>
               <button
@@ -89,7 +91,13 @@ export function ShortcutHelp() {
                 className="rounded-lg p-2 text-dim transition-colors hover:text-light"
                 aria-label="Close shortcuts"
               >
-                <svg className="h-5 w-5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg
+                  className="h-5 w-5"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <path d="M2 2l12 12M14 2L2 14" />
                 </svg>
               </button>

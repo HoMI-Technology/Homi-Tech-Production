@@ -58,9 +58,8 @@ export interface PreflightResult {
   disclaimer: string;
 }
 
-export const PREFLIGHT_DISCLAIMER =
-  "Educational readiness check only — not a commitment to lend, credit approval, " +
-  "or financial advice. Re-run the full assessment before irreversible moves.";
+import { PREFLIGHT_DISCLAIMER } from "./preflight-copy";
+export { PREFLIGHT_DISCLAIMER };
 
 function cashFlow(
   income: number | null | undefined,
@@ -118,11 +117,7 @@ export function runPreflight(input: PreflightInput): PreflightResult {
     }
   }
 
-  const flow = cashFlow(
-    input.monthlyIncome,
-    input.monthlyExpenses,
-    input.monthlyDebtPayments,
-  );
+  const flow = cashFlow(input.monthlyIncome, input.monthlyExpenses, input.monthlyDebtPayments);
   if (flow != null && flow < 0) {
     findings.push({
       signal: "NEGATIVE_CASHFLOW",
@@ -153,11 +148,7 @@ export function runPreflight(input: PreflightInput): PreflightResult {
     });
   }
 
-  if (
-    input.monthlyIncome != null &&
-    input.monthlyIncome > 0 &&
-    input.monthlyDebtPayments != null
-  ) {
+  if (input.monthlyIncome != null && input.monthlyIncome > 0 && input.monthlyDebtPayments != null) {
     const dti = (input.monthlyDebtPayments / input.monthlyIncome) * 100;
     if (dti > 50) {
       findings.push({
@@ -190,7 +181,8 @@ export function runPreflight(input: PreflightInput): PreflightResult {
       signal: "PARTNER_GAP",
       severity: "warn",
       title: "Partner alignment is low",
-      detail: "Household disagreement on a big purchase is a readiness gap, not a scheduling issue.",
+      detail:
+        "Household disagreement on a big purchase is a readiness gap, not a scheduling issue.",
     });
   }
 
@@ -212,7 +204,11 @@ export function runPreflight(input: PreflightInput): PreflightResult {
   if (hasBlock || assessmentVerdict === "NOT_YET") {
     verdict = "DO_NOT_PROCEED";
     badge = "DO NOT PROCEED";
-  } else if (hasWarn || assessmentVerdict === "BUILD_FIRST" || assessmentVerdict === "ALMOST_THERE") {
+  } else if (
+    hasWarn ||
+    assessmentVerdict === "BUILD_FIRST" ||
+    assessmentVerdict === "ALMOST_THERE"
+  ) {
     verdict = "WAIT";
     badge = "WAIT / BUILD FIRST";
   } else {

@@ -219,9 +219,7 @@ test.describe("Impact Bus @flag-off contract", () => {
 test.describe("Impact Bus @flag-on", () => {
   test.skip(!IMPACT_BUS_ON, "requires NEXT_PUBLIC_FF_IMPACT_BUS=true");
 
-  test("@flag-on P1/P5: completion shows one honest toast, score untouched", async ({
-    page,
-  }) => {
+  test("@flag-on P1/P5: completion shows one honest toast, score untouched", async ({ page }) => {
     test.setTimeout(90_000);
     await seedAndInstrument(page, [
       { id: "s1", title: "Stabilize emergency runway", reasonCode: "RUNWAY_UNDER_1_MONTH" },
@@ -249,9 +247,9 @@ test.describe("Impact Bus @flag-on", () => {
     // not the whole line.)
     await expect(page.getByText(/Score 42/).first()).toBeVisible();
     await expect(page.getByText(/Score (?!42\b)\d+/)).toHaveCount(0);
-    expect(
-      await page.evaluate(() => localStorage.getItem("homi:last-assessment")),
-    ).toBe(assessmentBefore);
+    expect(await page.evaluate(() => localStorage.getItem("homi:last-assessment"))).toBe(
+      assessmentBefore,
+    );
 
     // One transition, one impact event, one done + one first-step analytics
     expect(await storedStepStatus(page, "s1")).toBe("done");
@@ -263,9 +261,7 @@ test.describe("Impact Bus @flag-on", () => {
     expect(await sessionKey(page, LAST_IMPACT_KEY)).toBeNull();
   });
 
-  test("@flag-on P2/P12: no duplicate transition, no replay on navigation", async ({
-    page,
-  }) => {
+  test("@flag-on P2/P12: no duplicate transition, no replay on navigation", async ({ page }) => {
     test.setTimeout(90_000);
     await seedAndInstrument(page, [
       { id: "s1", title: "Stabilize emergency runway", reasonCode: "RUNWAY_UNDER_1_MONTH" },
@@ -299,9 +295,7 @@ test.describe("Impact Bus @flag-on", () => {
     expect(completedAtAfter).toBe(completedAt);
   });
 
-  test("@flag-on P3: skip produces no toast, no impact, no done analytics", async ({
-    page,
-  }) => {
+  test("@flag-on P3: skip produces no toast, no impact, no done analytics", async ({ page }) => {
     test.setTimeout(90_000);
     await seedAndInstrument(page, [
       { id: "s1", title: "Stabilize emergency runway", reasonCode: "RUNWAY_UNDER_1_MONTH" },
@@ -318,9 +312,7 @@ test.describe("Impact Bus @flag-on", () => {
     expect(await analyticsCount(page, "path_first_step_done")).toBe(0);
   });
 
-  test("@flag-on P4: intermediate completion names the next actionable step", async ({
-    page,
-  }) => {
+  test("@flag-on P4: intermediate completion names the next actionable step", async ({ page }) => {
     test.setTimeout(90_000);
     await seedAndInstrument(page, [
       { id: "s1", title: "Stabilize emergency runway", reasonCode: "RUNWAY_UNDER_1_MONTH" },
@@ -389,9 +381,7 @@ test.describe("Impact Bus @flag-on", () => {
     expect(await analyticsCount(page, "path_step_done")).toBe(1);
   });
 
-  test("@flag-on P8: finishing the last step yields Path-steps-complete copy", async ({
-    page,
-  }) => {
+  test("@flag-on P8: finishing the last step yields Path-steps-complete copy", async ({ page }) => {
     test.setTimeout(90_000);
     await seedAndInstrument(page, [
       {
@@ -502,9 +492,7 @@ test.describe("Impact Bus @flag-on", () => {
     await expect(page.getByRole("heading", { name: "Your path" })).toBeVisible();
   });
 
-  test("@flag-on P13: rapid sequential completions — latest impact wins", async ({
-    page,
-  }) => {
+  test("@flag-on P13: rapid sequential completions — latest impact wins", async ({ page }) => {
     test.setTimeout(90_000);
     await seedAndInstrument(page, [
       { id: "s1", title: "Stabilize emergency runway", reasonCode: "RUNWAY_UNDER_1_MONTH" },
@@ -565,10 +553,7 @@ test.describe("Impact Bus @flag-on", () => {
       // Companion launcher stays usable (not fully covered by the toast)
       const launcher = page.getByRole("button", { name: "Open HōMI Companion" });
       await expect(launcher).toBeVisible();
-      const [toastBox, launcherBox] = [
-        await toast.boundingBox(),
-        await launcher.boundingBox(),
-      ];
+      const [toastBox, launcherBox] = [await toast.boundingBox(), await launcher.boundingBox()];
       expect(toastBox).toBeTruthy();
       expect(launcherBox).toBeTruthy();
       if (toastBox && launcherBox) {

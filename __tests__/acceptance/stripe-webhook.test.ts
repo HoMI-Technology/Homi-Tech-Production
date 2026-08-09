@@ -39,7 +39,9 @@ vi.mock("@supabase/supabase-js", () => ({
       const builder: Record<string, unknown> = {};
       const then = () => builder;
       Object.assign(builder, {
-        select: then, eq: then, maybeSingle: async () => ({ data: null, error: null }),
+        select: then,
+        eq: then,
+        maybeSingle: async () => ({ data: null, error: null }),
         update(obj: Record<string, unknown>) {
           // returns a thenable resolved after .eq(); model supabase semantics:
           // errors are RETURNED, not thrown.
@@ -82,9 +84,10 @@ beforeEach(() => {
   state.profileUpdates = [];
   state.seenEventIds = new Set();
   state.failProfileUpdate = false;
-  vi.stubGlobal("fetch", vi.fn(async () =>
-    new Response(JSON.stringify(priceLineItems), { status: 200 }),
-  ));
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => new Response(JSON.stringify(priceLineItems), { status: 200 })),
+  );
 });
 
 function sign(body: string): string {
@@ -107,7 +110,14 @@ async function deliver(event: unknown, opts: { badSig?: boolean } = {}) {
 const checkoutEvent = {
   id: "evt_checkout_1",
   type: "checkout.session.completed",
-  data: { object: { id: "cs_test_1", client_reference_id: "user-a", customer: "cus_1", subscription: "sub_1" } },
+  data: {
+    object: {
+      id: "cs_test_1",
+      client_reference_id: "user-a",
+      customer: "cus_1",
+      subscription: "sub_1",
+    },
+  },
 };
 
 describe("POST /api/webhooks/stripe", () => {
@@ -132,8 +142,13 @@ describe("POST /api/webhooks/stripe", () => {
     const res = await deliver({
       id: "evt_sub_upd_1",
       type: "customer.subscription.updated",
-      data: { object: { customer: "cus_1", status: "past_due",
-        items: { data: [{ price: { lookup_key: "homi_plus_monthly", unit_amount: 999 } }] } } },
+      data: {
+        object: {
+          customer: "cus_1",
+          status: "past_due",
+          items: { data: [{ price: { lookup_key: "homi_plus_monthly", unit_amount: 999 } }] },
+        },
+      },
     });
     expect(res.status).toBeLessThan(300);
     expect(state.profileUpdates.length).toBeGreaterThanOrEqual(1);

@@ -12,11 +12,7 @@ import type {
   FinanceSavingsGoalRow,
   FinanceTransactionRow,
 } from "@/types/database";
-import type {
-  FinanceCategory,
-  FinanceTransaction,
-  SavingsGoal,
-} from "@/lib/finance/ledger";
+import type { FinanceCategory, FinanceTransaction, SavingsGoal } from "@/lib/finance/ledger";
 import type { MoneyCents } from "@/lib/finance/money";
 
 export type { FinanceCategoryRow, FinanceSavingsGoalRow, FinanceTransactionRow };

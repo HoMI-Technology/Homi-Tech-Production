@@ -60,7 +60,10 @@ async function fetchSessionPrice(sessionId: string): Promise<SessionPriceResult>
 // deliver `checkout.session.completed` without a separately-subscribed
 // `payment_intent.succeeded`, so we ledger from both Checkout and invoice
 // success as well as the PI/charge events.
-async function recordPayment(supabase: NonNullable<ReturnType<typeof getServiceClient>>, event: Stripe.Event) {
+async function recordPayment(
+  supabase: NonNullable<ReturnType<typeof getServiceClient>>,
+  event: Stripe.Event,
+) {
   let paymentIntentId: string | undefined;
   let amount: number | undefined;
   let currency = "usd";
@@ -73,7 +76,11 @@ async function recordPayment(supabase: NonNullable<ReturnType<typeof getServiceC
     const session = event.data.object as Stripe.Checkout.Session;
     const pi = session.payment_intent;
     paymentIntentId =
-      typeof pi === "string" ? pi : pi && typeof pi === "object" && "id" in pi ? String(pi.id) : undefined;
+      typeof pi === "string"
+        ? pi
+        : pi && typeof pi === "object" && "id" in pi
+          ? String(pi.id)
+          : undefined;
     // Do NOT invent a synthetic `checkout_${session.id}` key. Subscription
     // checkouts often omit payment_intent here and later deliver the same
     // money via invoice.payment_succeeded / payment_intent.succeeded with a
@@ -83,9 +90,10 @@ async function recordPayment(supabase: NonNullable<ReturnType<typeof getServiceC
     userId = session.client_reference_id ?? null;
     customerId = typeof session.customer === "string" ? session.customer : null;
     description = "Checkout completed";
-    status = session.payment_status === "paid" || session.payment_status === "no_payment_required"
-      ? "succeeded"
-      : "pending";
+    status =
+      session.payment_status === "paid" || session.payment_status === "no_payment_required"
+        ? "succeeded"
+        : "pending";
   } else if (event.type === "invoice.payment_succeeded") {
     // Stripe API ≥2025 moved PI off the Invoice top-level; webhook payloads
     // may still carry `payment_intent` as a string, so read it defensively.
@@ -94,7 +102,11 @@ async function recordPayment(supabase: NonNullable<ReturnType<typeof getServiceC
     };
     const pi = invoice.payment_intent;
     paymentIntentId =
-      typeof pi === "string" ? pi : pi && typeof pi === "object" && "id" in pi ? String(pi.id) : undefined;
+      typeof pi === "string"
+        ? pi
+        : pi && typeof pi === "object" && "id" in pi
+          ? String(pi.id)
+          : undefined;
     // Invoice-only fallback is safe: renewals won't also emit a Checkout
     // session with a conflicting synthetic key.
     if (!paymentIntentId && invoice.id) {
@@ -103,9 +115,8 @@ async function recordPayment(supabase: NonNullable<ReturnType<typeof getServiceC
     amount = invoice.amount_paid ?? undefined;
     currency = invoice.currency ?? "usd";
     customerId = typeof invoice.customer === "string" ? invoice.customer : null;
-    description = invoice.billing_reason === "subscription_create"
-      ? "Subscription started"
-      : "Invoice paid";
+    description =
+      invoice.billing_reason === "subscription_create" ? "Subscription started" : "Invoice paid";
     status = "succeeded";
   } else if (event.type === "payment_intent.succeeded" || event.type === "payment_intent.created") {
     const pi = event.data.object as Stripe.PaymentIntent;
@@ -116,17 +127,15 @@ async function recordPayment(supabase: NonNullable<ReturnType<typeof getServiceC
     status = event.type === "payment_intent.succeeded" ? "succeeded" : "pending";
   } else if (event.type === "charge.succeeded") {
     const charge = event.data.object as Stripe.Charge;
-    paymentIntentId = typeof charge.payment_intent === "string"
-      ? charge.payment_intent
-      : charge.payment_intent?.id;
+    paymentIntentId =
+      typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id;
     amount = charge.amount;
     currency = charge.currency;
     customerId = typeof charge.customer === "string" ? charge.customer : null;
   } else if (event.type === "charge.refunded") {
     const charge = event.data.object as Stripe.Charge;
-    paymentIntentId = typeof charge.payment_intent === "string"
-      ? charge.payment_intent
-      : charge.payment_intent?.id;
+    paymentIntentId =
+      typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id;
     // Prefer the original charge amount so the ledger row stays findable;
     // status flips to refunded so admin revenue excludes it.
     amount = charge.amount_refunded > 0 ? charge.amount_refunded : charge.amount;
@@ -183,7 +192,9 @@ async function handleCheckoutCompleted(event: Stripe.Event) {
   const userId = session.client_reference_id;
   const customerId = session.customer;
   if (!userId) {
-    console.warn("[stripe webhook] checkout.session.completed with no client_reference_id — skipping.");
+    console.warn(
+      "[stripe webhook] checkout.session.completed with no client_reference_id — skipping.",
+    );
     return;
   }
 
@@ -194,7 +205,9 @@ async function handleCheckoutCompleted(event: Stripe.Event) {
   }
 
   if (!session.id) {
-    console.error("[stripe webhook] checkout.session.completed with no session id — cannot resolve tier.");
+    console.error(
+      "[stripe webhook] checkout.session.completed with no session id — cannot resolve tier.",
+    );
     return;
   }
 
@@ -220,7 +233,9 @@ async function handleCheckoutCompleted(event: Stripe.Event) {
 
   const { error } = await supabase.from("profiles").update(patch).eq("id", userId);
   if (error) {
-    throw new TransientDbError(`profiles.update (checkout.session.completed) failed: ${error.message}`);
+    throw new TransientDbError(
+      `profiles.update (checkout.session.completed) failed: ${error.message}`,
+    );
   }
 
   captureServerEvent("checkout_completed", userId, tier ? { tier } : undefined);
@@ -231,7 +246,9 @@ async function handleSubscriptionUpdated(event: Stripe.Event) {
     customer?: string | null;
     status?: string | null;
     cancel_at_period_end?: boolean | null;
-    items?: { data?: Array<{ price?: { lookup_key?: string | null; unit_amount?: number | null } }> };
+    items?: {
+      data?: Array<{ price?: { lookup_key?: string | null; unit_amount?: number | null } }>;
+    };
   };
 
   const customerId = subscription.customer;
@@ -250,9 +267,14 @@ async function handleSubscriptionUpdated(event: Stripe.Event) {
   const patch: Record<string, unknown> = { subscription_status: status };
   if (tier) patch.subscription_tier = tier;
 
-  const { error } = await supabase.from("profiles").update(patch).eq("stripe_customer_id", customerId);
+  const { error } = await supabase
+    .from("profiles")
+    .update(patch)
+    .eq("stripe_customer_id", customerId);
   if (error) {
-    throw new TransientDbError(`profiles.update (customer.subscription.updated) failed: ${error.message}`);
+    throw new TransientDbError(
+      `profiles.update (customer.subscription.updated) failed: ${error.message}`,
+    );
   }
 }
 
@@ -272,7 +294,9 @@ async function handleSubscriptionDeleted(event: Stripe.Event) {
     .update({ subscription_tier: "free", subscription_status: "cancelled" })
     .eq("stripe_customer_id", customerId);
   if (error) {
-    throw new TransientDbError(`profiles.update (customer.subscription.deleted) failed: ${error.message}`);
+    throw new TransientDbError(
+      `profiles.update (customer.subscription.deleted) failed: ${error.message}`,
+    );
   }
 }
 

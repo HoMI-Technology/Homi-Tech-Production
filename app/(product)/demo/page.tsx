@@ -13,7 +13,11 @@ import { track } from "@/lib/analytics";
 
 const QUICK_ACTIONS = [
   { href: "/assessment", label: "Full Assessment", desc: "The real, precise 3-pillar read." },
-  { href: "/tools", label: "Finance Tools", desc: "Affordability, runway, and mortgage calculators." },
+  {
+    href: "/money",
+    label: "Money",
+    desc: "Your picture, budget track, and decision math.",
+  },
   { href: "/journal", label: "Decision Journal", desc: "Log a decision before you make it." },
   { href: "/daily", label: "Daily Check-in", desc: "A 60-second mood and stress pulse." },
 ];
@@ -50,9 +54,12 @@ function DemoPageContent() {
       {/* Demo banner */}
       <div className="glass flex flex-col items-start justify-between gap-4 border border-cyan/30 p-5 sm:flex-row sm:items-center">
         <div>
-          <p className="text-sm font-semibold text-cyan">Demo data — your real read takes 3 minutes</p>
+          <p className="text-sm font-semibold text-cyan">
+            Demo data — your real read takes 3 minutes
+          </p>
           <p className="mt-1 text-sm text-dim">
-            Everything below is a fixed example, not a live account. Nothing here is saved or shared.
+            Everything below is a fixed example, not a live account. Nothing here is saved or
+            shared.
           </p>
         </div>
         <Link href="/shadow-score" className="btn btn-primary shrink-0 btn-sm">
@@ -105,7 +112,10 @@ function DemoPageContent() {
               </div>
               <p className="mt-1 text-xs text-dim">{pillar.question}</p>
               <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-slate-surface">
-                <div className="h-full rounded-full" style={{ width: `${pct}%`, background: pillar.color }} />
+                <div
+                  className="h-full rounded-full"
+                  style={{ width: `${pct}%`, background: pillar.color }}
+                />
               </div>
             </div>
           );
@@ -119,7 +129,9 @@ function DemoPageContent() {
           <p className="mt-1 text-sm text-dim">
             A while back you decided to move forward. No judgment either way — how has it gone?
           </p>
-          <p className="mt-4 text-xs text-dim">Example only — this survey is not interactive in the demo.</p>
+          <p className="mt-4 text-xs text-dim">
+            Example only — this survey is not interactive in the demo.
+          </p>
         </div>
       )}
 
@@ -153,7 +165,11 @@ function DemoPageContent() {
         <h2 className="mb-4 text-lg font-semibold text-light">Try it for real</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {QUICK_ACTIONS.map((action) => (
-            <Link key={action.href} href={action.href} className="glass glass-hover flex flex-col gap-2 p-5">
+            <Link
+              key={action.href}
+              href={action.href}
+              className="glass glass-hover flex flex-col gap-2 p-5"
+            >
               <span className="font-semibold text-light">{action.label}</span>
               <p className="text-xs text-dim">{action.desc}</p>
             </Link>

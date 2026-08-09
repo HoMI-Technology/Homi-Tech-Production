@@ -112,11 +112,13 @@ export function ChoiceCards<T extends string>({
               } ${active ? "border-cyan ring-1 ring-cyan/40" : "border-transparent"}`}
             >
               <span className="flex items-center justify-between gap-2">
-                <span className={`block text-sm font-semibold ${active ? "text-cyan" : "text-light"}`}>
+                <span
+                  className={`block text-sm font-semibold ${active ? "text-cyan" : "text-light"}`}
+                >
                   {opt.label}
                 </span>
                 {opt.badge && (
-                  <span className="rounded-full bg-slate-surface px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-dim">
+                  <span className="rounded-full bg-slate-surface px-2 py-0.5 text-3xs font-medium uppercase tracking-wide text-dim">
                     {opt.badge}
                   </span>
                 )}

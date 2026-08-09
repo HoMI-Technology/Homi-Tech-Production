@@ -21,7 +21,15 @@ export function AccessPanel({
     <div className="mx-auto flex min-h-[60vh] max-w-2xl items-center px-6 py-20">
       <div className="glass w-full p-10 text-center">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-surface">
-          <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" className="text-cyan">
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            className="text-cyan"
+          >
             <rect x="4" y="9" width="12" height="8" rx="1.5" />
             <path d="M6.5 9V6.5a3.5 3.5 0 0 1 7 0V9" />
           </svg>

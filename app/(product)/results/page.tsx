@@ -92,8 +92,7 @@ export default function ResultsPage() {
   // Local result wins when it is newer or remote isn't signed in / doesn't
   // exist; anonymous users always fall straight through to `stored` here
   // since `remote` stays null for them.
-  const effective =
-    stored === undefined ? undefined : pickResult(stored ?? null, remote);
+  const effective = stored === undefined ? undefined : pickResult(stored ?? null, remote);
 
   // Insights from storage / server backfill — never generateKeyInsight on client (6.3).
   // Hook must run before every early return.
@@ -135,7 +134,8 @@ export default function ResultsPage() {
           <ThresholdCompass size={96} verdict="ALMOST_THERE" className="mx-auto" />
           <h1 className="mt-6 font-display text-2xl font-semibold text-light">No results yet</h1>
           <p className="mt-3 text-sm text-dim">
-            You haven&rsquo;t taken an assessment yet. Start with the 90-second Shadow Score to see where you stand.
+            You haven&rsquo;t taken an assessment yet. Start with the 90-second Shadow Score to see
+            where you stand.
           </p>
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link href="/shadow-score" className="btn btn-primary">
@@ -167,7 +167,8 @@ export default function ResultsPage() {
           <div>
             <p className="text-sm font-semibold text-cyan">This is your Shadow Score</p>
             <p className="mt-1 text-sm text-dim">
-              Six inputs, filled out with neutral assumptions. The full assessment gives you a precise read.
+              Six inputs, filled out with neutral assumptions. The full assessment gives you a
+              precise read.
             </p>
           </div>
           <Link href="/assessment" className="btn btn-primary shrink-0 btn-sm">
@@ -186,7 +187,7 @@ export default function ResultsPage() {
           <ThresholdCompass size={220} verdict={result.verdict} />
         </div>
         <div className="flex flex-col items-center md:items-start">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-dim">
+          <p className="text-3xs font-semibold uppercase tracking-[0.25em] text-dim">
             Decision readiness
           </p>
           <CountUpScore value={result.score} />
@@ -203,14 +204,13 @@ export default function ResultsPage() {
           </div>
           <p className="mt-4 max-w-md text-base text-light">{meta.line}</p>
           <p className="mt-3 max-w-md text-xs leading-relaxed text-dim/80">
-            Educational guidance only — not financial, legal, tax, mortgage, or
-            investment advice.
+            Educational guidance only — not financial, legal, tax, mortgage, or investment advice.
           </p>
           {result.verdict !== "READY" && (
             <>
               <p className="mt-3 max-w-md text-sm text-dim">
-                Not a judgment — a protective map. Your Path to Ready is built
-                from the binding constraint first.
+                Not a judgment — a protective map. Your Path to Ready is built from the binding
+                constraint first.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <a href="#path-to-ready" className="btn btn-primary btn-sm">
@@ -269,10 +269,30 @@ export default function ResultsPage() {
           value={result.financial.total}
           max={PILLAR_MAX_POINTS.financial}
         >
-          <SubFactorBar label="Debt-to-income" value={result.financial.debtToIncome} max={10} color={FINANCIAL.color} />
-          <SubFactorBar label="Down payment" value={result.financial.downPayment} max={10} color={FINANCIAL.color} />
-          <SubFactorBar label="Emergency fund" value={result.financial.emergencyFund} max={8} color={FINANCIAL.color} />
-          <SubFactorBar label="Credit health" value={result.financial.creditHealth} max={7} color={FINANCIAL.color} />
+          <SubFactorBar
+            label="Debt-to-income"
+            value={result.financial.debtToIncome}
+            max={10}
+            color={FINANCIAL.color}
+          />
+          <SubFactorBar
+            label="Down payment"
+            value={result.financial.downPayment}
+            max={10}
+            color={FINANCIAL.color}
+          />
+          <SubFactorBar
+            label="Emergency fund"
+            value={result.financial.emergencyFund}
+            max={8}
+            color={FINANCIAL.color}
+          />
+          <SubFactorBar
+            label="Credit health"
+            value={result.financial.creditHealth}
+            max={7}
+            color={FINANCIAL.color}
+          />
         </PillarCard>
 
         <PillarCard
@@ -281,12 +301,32 @@ export default function ResultsPage() {
           value={result.emotional.total}
           max={PILLAR_MAX_POINTS.emotional}
         >
-          <SubFactorBar label="Life stability" value={result.emotional.lifeStability} max={9} color={EMOTIONAL.color} />
-          <SubFactorBar label="Confidence" value={result.emotional.confidenceLevel} max={9} color={EMOTIONAL.color} />
+          <SubFactorBar
+            label="Life stability"
+            value={result.emotional.lifeStability}
+            max={9}
+            color={EMOTIONAL.color}
+          />
+          <SubFactorBar
+            label="Confidence"
+            value={result.emotional.confidenceLevel}
+            max={9}
+            color={EMOTIONAL.color}
+          />
           {!result.emotional.singleRedistribution && (
-            <SubFactorBar label="Partner alignment" value={result.emotional.partnerAlignment} max={9} color={EMOTIONAL.color} />
+            <SubFactorBar
+              label="Partner alignment"
+              value={result.emotional.partnerAlignment}
+              max={9}
+              color={EMOTIONAL.color}
+            />
           )}
-          <SubFactorBar label="Pressure check" value={result.emotional.fomoCheck} max={8} color={EMOTIONAL.color} />
+          <SubFactorBar
+            label="Pressure check"
+            value={result.emotional.fomoCheck}
+            max={8}
+            color={EMOTIONAL.color}
+          />
         </PillarCard>
 
         <PillarCard
@@ -295,9 +335,24 @@ export default function ResultsPage() {
           value={result.timing.total}
           max={PILLAR_MAX_POINTS.timing}
         >
-          <SubFactorBar label="Time horizon" value={result.timing.timeHorizon} max={10} color={TIMING.color} />
-          <SubFactorBar label="Savings rate" value={result.timing.savingsRate} max={10} color={TIMING.color} />
-          <SubFactorBar label="Down payment progress" value={result.timing.downPaymentProgress} max={10} color={TIMING.color} />
+          <SubFactorBar
+            label="Time horizon"
+            value={result.timing.timeHorizon}
+            max={10}
+            color={TIMING.color}
+          />
+          <SubFactorBar
+            label="Savings rate"
+            value={result.timing.savingsRate}
+            max={10}
+            color={TIMING.color}
+          />
+          <SubFactorBar
+            label="Down payment progress"
+            value={result.timing.downPaymentProgress}
+            max={10}
+            color={TIMING.color}
+          />
         </PillarCard>
       </div>
 

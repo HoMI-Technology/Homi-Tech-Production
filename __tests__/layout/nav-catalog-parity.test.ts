@@ -28,6 +28,10 @@ const PALETTE_ONLY_HREFS = [
   "/settings/subscription",
   "/shadow-score",
   "/agent-hub",
+  // Money modes: primary Money + MoneyModeNav; not duplicated in More
+  "/money/budget",
+  "/money/decide",
+  "/money/plan",
 ];
 
 /** Import both surfaces with the Agent OS flag ON so gated entries count. */
@@ -47,9 +51,7 @@ afterEach(() => {
 describe("nav catalog parity", () => {
   it("palette product entries equal AppHeader primary+More minus documented exceptions", async () => {
     const { nav, palette } = await loadSurfaces("true");
-    const headerHrefs = [...nav.APP_PRIMARY_NAV, ...nav.APP_MORE_NAV]
-      .map((i) => i.href)
-      .sort();
+    const headerHrefs = [...nav.APP_PRIMARY_NAV, ...nav.APP_MORE_NAV].map((i) => i.href).sort();
     const paletteProductHrefs = palette.PALETTE_CATALOG.map((i) => i.href)
       .filter((href) => !PALETTE_ONLY_HREFS.includes(href))
       .sort();
@@ -82,17 +84,13 @@ describe("nav catalog parity", () => {
   it("agent surfaces are gated by the agentOs flag on both surfaces", async () => {
     const off = await loadSurfaces("false");
     expect(off.nav.APP_PRIMARY_NAV.map((i) => i.href)).not.toContain("/agents");
-    const offVisible = off.palette
-      .visiblePaletteItems({ role: "user" })
-      .map((i) => i.href);
+    const offVisible = off.palette.visiblePaletteItems({ role: "user" }).map((i) => i.href);
     expect(offVisible).not.toContain("/agents");
     expect(offVisible).not.toContain("/agent-hub");
 
     const on = await loadSurfaces("true");
     expect(on.nav.APP_PRIMARY_NAV.map((i) => i.href)).toContain("/agents");
-    const onVisible = on.palette
-      .visiblePaletteItems({ role: "user" })
-      .map((i) => i.href);
+    const onVisible = on.palette.visiblePaletteItems({ role: "user" }).map((i) => i.href);
     expect(onVisible).toContain("/agents");
     expect(onVisible).toContain("/agent-hub");
   });

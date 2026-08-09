@@ -152,15 +152,20 @@ export function SavedScenariosPanel() {
         <div className="glass mt-8 p-8 text-center">
           <p className="text-light">No saved futures yet.</p>
           <p className="mt-2 text-sm text-dim">
-            Open a tool, set the numbers that matter, and hit <span className="text-light">Save as scenario</span>.
+            Open a tool, set the numbers that matter, and hit{" "}
+            <span className="text-light">Save as scenario</span>.
           </p>
-          <Link href="/tools" className="mt-4 inline-block text-sm font-medium text-cyan hover:underline">
-            Open the tools →
+          <Link
+            href="/money/decide"
+            className="mt-4 inline-block text-sm font-medium text-cyan hover:underline"
+          >
+            Open Money · Decide →
           </Link>
         </div>
       )}
 
-      {hydrated && loaded &&
+      {hydrated &&
+        loaded &&
         [...byLens.entries()].map(([lensId, list]) => {
           const lens = getLens(lensId);
           return (
@@ -172,9 +177,7 @@ export function SavedScenariosPanel() {
                   style={{ background: lens?.accent ?? COLORS.cyan }}
                 />
                 {lens?.name ?? lensId}
-                <span className="ml-2 text-sm font-normal text-dim">
-                  {list.length} saved
-                </span>
+                <span className="ml-2 text-sm font-normal text-dim">{list.length} saved</span>
               </h3>
 
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -205,7 +208,14 @@ export function SavedScenariosPanel() {
                           aria-label={`Delete ${scenario.name}`}
                           className="rounded p-1 text-dim transition-colors hover:text-crimson"
                         >
-                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
                             <path d="M3 3l10 10M13 3L3 13" strokeLinecap="round" />
                           </svg>
                         </button>
@@ -223,8 +233,8 @@ export function SavedScenariosPanel() {
                           Saved when your{" "}
                           {drift
                             .map((d) => `${d.label} was ${formatCurrency(d.from)}`)
-                            .join(" and ")}
-                          {" "}— it's since changed. Refresh it in the tool to re-anchor.
+                            .join(" and ")}{" "}
+                          — it's since changed. Refresh it in the tool to re-anchor.
                         </p>
                       )}
 
@@ -282,8 +292,8 @@ export function SavedScenariosPanel() {
             </table>
           </div>
           <p className="mt-3 text-xs leading-relaxed text-dim/70">
-            Each scenario is evaluated against the numbers it was saved with — drift is shown on
-            the cards above, never blended in silently. Educational math, not advice.
+            Each scenario is evaluated against the numbers it was saved with — drift is shown on the
+            cards above, never blended in silently. Educational math, not advice.
           </p>
         </section>
       )}

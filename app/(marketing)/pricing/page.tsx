@@ -112,7 +112,7 @@ export default function PricingPage() {
     <>
       <section className="px-6 pb-16 pt-16 md:pt-24">
         <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-4xl font-black text-light md:text-5xl">Pricing</h1>
+          <h1 className="type-h1">Pricing</h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-dim">
             Our revenue comes from subscriptions, not transactions.
           </p>
@@ -120,63 +120,63 @@ export default function PricingPage() {
       </section>
 
       <Reveal>
-        <section className="px-6 py-10">
+        <section className="px-6 py-16">
           <div className="mx-auto grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {TIERS.map((tier, i) => {
               const copy = TIER_COPY[tier.id];
               const features = copy.features;
               return (
                 <Reveal key={tier.id} delay={(i % 4) * 80}>
-                <div
-                  className={`glass glass-hover flex h-full flex-col p-6 sm:p-8 ${
-                    tier.highlight ? "border-cyan/40" : ""
-                  }`}
-                >
-                  {tier.highlight && (
-                    <span className="mb-4 inline-block w-fit rounded-full border border-cyan/40 px-3 py-1 text-xs font-semibold text-cyan">
-                      Most complete
-                    </span>
-                  )}
-                  <h2 className="text-xl font-bold text-light">{copy.name}</h2>
-                  <p className="mt-1 text-sm text-dim">{copy.description}</p>
-                  <div className="mt-5 flex items-baseline gap-1">
-                    <span className="score-numeral text-4xl font-bold text-light">
-                      {tier.price}
-                    </span>
-                    {tier.cadence && <span className="text-sm text-dim">{tier.cadence}</span>}
-                  </div>
-
-                  <ul className="mt-6 flex-1 space-y-3">
-                    {features.map((f) => (
-                      <li key={f} className="flex items-start gap-2.5 text-sm text-dim">
-                        <svg
-                          className="mt-0.5 h-4 w-4 shrink-0 text-emerald"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <path d="M4 10l4 4 8-8" />
-                        </svg>
-                        <span>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="mt-8">
-                    {tier.id === "free" ? (
-                      <Link href="/shadow-score" className="btn btn-ghost w-full">
-                        Get your Shadow Score
-                      </Link>
-                    ) : (
-                      <PricingCheckoutButton
-                        tier={tier.id as "plus" | "pro" | "family"}
-                        label={copy.cta}
-                        className="w-full"
-                      />
+                  <div
+                    className={`glass glass-hover flex h-full flex-col p-6 sm:p-8 ${
+                      tier.highlight ? "border-cyan/40" : ""
+                    }`}
+                  >
+                    {tier.highlight && (
+                      <span className="mb-4 inline-block w-fit rounded-full border border-cyan/40 px-3 py-1 text-xs font-semibold text-cyan">
+                        Most complete
+                      </span>
                     )}
+                    <h2 className="type-h3">{copy.name}</h2>
+                    <p className="mt-1 text-sm text-dim">{copy.description}</p>
+                    <div className="mt-5 flex items-baseline gap-1">
+                      <span className="score-numeral text-4xl font-bold text-light">
+                        {tier.price}
+                      </span>
+                      {tier.cadence && <span className="text-sm text-dim">{tier.cadence}</span>}
+                    </div>
+
+                    <ul className="mt-6 flex-1 space-y-3">
+                      {features.map((f) => (
+                        <li key={f} className="flex items-start gap-2.5 text-sm text-dim">
+                          <svg
+                            className="mt-0.5 h-4 w-4 shrink-0 text-emerald"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path d="M4 10l4 4 8-8" />
+                          </svg>
+                          <span>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div className="mt-8">
+                      {tier.id === "free" ? (
+                        <Link href="/shadow-score" className="btn btn-ghost w-full">
+                          Get your Shadow Score
+                        </Link>
+                      ) : (
+                        <PricingCheckoutButton
+                          tier={tier.id as "plus" | "pro" | "family"}
+                          label={copy.cta}
+                          className="w-full"
+                        />
+                      )}
+                    </div>
                   </div>
-                </div>
                 </Reveal>
               );
             })}
@@ -188,7 +188,8 @@ export default function PricingPage() {
         <section className="px-6 py-16">
           <div className="mx-auto max-w-3xl text-center">
             <p className="font-display text-xl text-light">
-              No commissions. No referral fees. Your subscription price doesn&rsquo;t change based on what you decide.
+              No commissions. No referral fees. Your subscription price doesn&rsquo;t change based
+              on what you decide.
             </p>
           </div>
         </section>
@@ -197,13 +198,11 @@ export default function PricingPage() {
       <Reveal>
         <section className="px-6 py-16">
           <div className="mx-auto max-w-3xl">
-            <h2 className="text-center text-3xl font-black text-light md:text-4xl">
-              Questions
-            </h2>
+            <h2 className="text-center type-h2">Questions</h2>
             <div className="mt-10 space-y-4">
               {FAQS.map((item) => (
                 <div key={item.q} className="glass p-6">
-                  <h3 className="font-semibold text-light">{item.q}</h3>
+                  <h3 className="type-h4">{item.q}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-dim">{item.a}</p>
                 </div>
               ))}
@@ -215,9 +214,7 @@ export default function PricingPage() {
       <Reveal>
         <section className="px-6 py-20 text-center">
           <div className="mx-auto max-w-2xl">
-            <h2 className="text-3xl font-black text-light md:text-4xl">
-              Start with the free score.
-            </h2>
+            <h2 className="type-h1">Start with the free score.</h2>
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link href="/shadow-score" className="btn btn-primary">
                 Get your score &mdash; 90 seconds

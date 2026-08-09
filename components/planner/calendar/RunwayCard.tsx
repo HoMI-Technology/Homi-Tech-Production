@@ -1,68 +1,56 @@
 "use client";
 
-
 import { COLORS } from "@/lib/brand";
 /* Decision calendar — PROJECTED CASH RUNWAY card + filter chip rail. */
 
-import { useMemo } from 'react'
-import {
-  Area,
-  Bar,
-  ComposedChart,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-} from 'recharts'
-import { cn } from "@/lib/planner/cn"
-import type {
-  CalendarFilter,
-  FilterCounts,
-  RunwaySeries,
-} from '@/lib/planner/calendar'
-import { money2, monthLabel } from '@/lib/planner/calendar'
-import { CARD, EYEBROW_DIM } from './shared'
+import { useMemo } from "react";
+import { Area, Bar, ComposedChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
+import { cn } from "@/lib/planner/cn";
+import type { CalendarFilter, FilterCounts, RunwaySeries } from "@/lib/planner/calendar";
+import { money2, monthLabel } from "@/lib/planner/calendar";
+import { CARD, EYEBROW_DIM } from "./shared";
 
-const CYAN = COLORS.cyan
+const CYAN = COLORS.cyan;
 
 const FILTERS: { key: CalendarFilter; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'bills', label: 'Bills' },
-  { key: 'income', label: 'Income' },
-  { key: 'spend', label: 'Spend' },
-]
+  { key: "all", label: "All" },
+  { key: "bills", label: "Bills" },
+  { key: "income", label: "Income" },
+  { key: "spend", label: "Spend" },
+];
 
 export function FilterChips({
   counts,
   active,
   onSelect,
 }: {
-  counts: FilterCounts
-  active: CalendarFilter
-  onSelect: (f: CalendarFilter) => void
+  counts: FilterCounts;
+  active: CalendarFilter;
+  onSelect: (f: CalendarFilter) => void;
 }) {
   return (
     <div className="flex flex-wrap gap-2 xl:w-[150px] xl:flex-col">
       {FILTERS.map((f) => {
-        const isActive = active === f.key
+        const isActive = active === f.key;
         return (
           <button
             key={f.key}
             type="button"
             onClick={() => onSelect(f.key)}
             className={cn(
-              'flex items-center justify-between gap-3 rounded-full border px-3.5 py-1.5 text-xs transition-colors xl:rounded-lg',
+              "flex items-center justify-between gap-3 rounded-full border px-3.5 py-1.5 text-xs transition-colors xl:rounded-lg",
               isActive
-                ? 'border-cyan/50 bg-cyan/15 text-cyan'
-                : 'border-white/[0.08] bg-white/[0.02] text-dim hover:text-light',
+                ? "border-cyan/50 bg-cyan/15 text-cyan"
+                : "border-white/[0.08] bg-white/[0.02] text-dim hover:text-light",
             )}
           >
             <span>{f.label}</span>
-            <span className="font-display text-[10px] tabular-nums">{counts[f.key]}</span>
+            <span className="font-display text-3xs tabular-nums">{counts[f.key]}</span>
           </button>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
 export default function RunwayCard({
@@ -70,23 +58,21 @@ export default function RunwayCard({
   cashNow,
   onJump,
 }: {
-  series: RunwaySeries
-  cashNow: number
-  onJump: (dateISO: string) => void
+  series: RunwaySeries;
+  cashNow: number;
+  onJump: (dateISO: string) => void;
 }) {
   const data = useMemo(
     () => series.points.map((p) => ({ day: p.day, cash: p.cash, net: p.net, dateISO: p.dateISO })),
     [series],
-  )
+  );
 
   return (
-    <div className={cn(CARD, 'min-w-0 flex-1 p-4')}>
+    <div className={cn(CARD, "min-w-0 flex-1 p-4")}>
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
           <p className={EYEBROW_DIM}>Projected cash runway</p>
-          <h3 className="mt-1 font-serif text-lg italic text-light">
-            {monthLabel(series.month)}
-          </h3>
+          <h3 className="mt-1 font-serif text-lg italic text-light">{monthLabel(series.month)}</h3>
         </div>
         <div className="text-right">
           <p className={EYEBROW_DIM}>Bank cash now</p>
@@ -103,11 +89,9 @@ export default function RunwayCard({
             margin={{ top: 4, right: 4, bottom: 0, left: 4 }}
             onClick={(s) => {
               const iso = (
-                s as
-                  | { activePayload?: Array<{ payload?: { dateISO?: string } }> }
-                  | undefined
-              )?.activePayload?.[0]?.payload?.dateISO
-              if (iso) onJump(iso)
+                s as { activePayload?: Array<{ payload?: { dateISO?: string } }> } | undefined
+              )?.activePayload?.[0]?.payload?.dateISO;
+              if (iso) onJump(iso);
             }}
           >
             <defs>
@@ -137,7 +121,7 @@ export default function RunwayCard({
         </ResponsiveContainer>
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-dim">
+      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-2xs text-dim">
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-0.5 w-4 rounded bg-cyan" />
           Projected cash
@@ -146,10 +130,8 @@ export default function RunwayCard({
           <span className="inline-block h-2 w-2 rounded-[2px] bg-cyan/50" />
           Daily net
         </span>
-        <span className="text-dim/70">
-          Click a bar to jump · arrows navigate · T today
-        </span>
+        <span className="text-dim/70">Click a bar to jump · arrows navigate · T today</span>
       </div>
     </div>
-  )
+  );
 }

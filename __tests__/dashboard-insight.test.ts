@@ -93,8 +93,18 @@ describe("dashboardInsight", () => {
   it("never invents a driver when pillar movement contradicts the direction", () => {
     // Score up but the biggest pillar move is negative → no driver clause.
     const insight = dashboardInsight({
-      latest: reading({ overall_score: 64, financial_score: 10, emotional_score: 22, timing_score: 18 }),
-      previous: reading({ overall_score: 60, financial_score: 25, emotional_score: 22, timing_score: 18 }),
+      latest: reading({
+        overall_score: 64,
+        financial_score: 10,
+        emotional_score: 22,
+        timing_score: 18,
+      }),
+      previous: reading({
+        overall_score: 60,
+        financial_score: 25,
+        emotional_score: 22,
+        timing_score: 18,
+      }),
       checkinsThisWeek: 0,
     });
     expect(insight).toContain("up 4");

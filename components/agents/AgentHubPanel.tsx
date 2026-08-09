@@ -126,7 +126,9 @@ export function AgentHubPanel({ initialDoc }: { initialDoc: ArchitectureDocument
           className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full opacity-30 blur-3xl"
           style={{ background: `radial-gradient(circle, ${COLORS.cyan}55, transparent 70%)` }}
         />
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan">Agent Feed URL</p>
+        <p className="text-2xs font-semibold uppercase tracking-[0.2em] text-cyan">
+          Agent Feed URL
+        </p>
         <h2 className="mt-2 font-display text-2xl font-semibold text-light sm:text-3xl">
           Machine-readable architecture
         </h2>
@@ -149,7 +151,7 @@ export function AgentHubPanel({ initialDoc }: { initialDoc: ArchitectureDocument
           {FEED_CATEGORIES.map((key) => (
             <span
               key={key}
-              className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 font-mono text-[10px] text-dim"
+              className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 font-mono text-3xs text-dim"
             >
               {key}
             </span>
@@ -163,8 +165,11 @@ export function AgentHubPanel({ initialDoc }: { initialDoc: ArchitectureDocument
               ["Agents", doc.stats.ai_agents],
               ["Gaps", doc.stats.gaps],
             ].map(([label, value]) => (
-              <div key={label as string} className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
-                <dt className="text-[10px] uppercase tracking-wider text-dim">{label}</dt>
+              <div
+                key={label as string}
+                className="rounded-xl border border-white/5 bg-black/20 px-4 py-3"
+              >
+                <dt className="text-3xs uppercase tracking-wider text-dim">{label}</dt>
                 <dd className="mt-1 font-display text-2xl font-semibold text-light">{value}</dd>
               </div>
             ))}
@@ -174,7 +179,9 @@ export function AgentHubPanel({ initialDoc }: { initialDoc: ArchitectureDocument
 
       {/* Prompt builder */}
       <section className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 sm:p-8">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald">Prompt Builder</p>
+        <p className="text-2xs font-semibold uppercase tracking-[0.2em] text-emerald">
+          Prompt Builder
+        </p>
         <h3 className="mt-2 font-display text-xl font-semibold text-light">Scoped agent brief</h3>
         <div className="mt-4 flex flex-wrap gap-2">
           {(["claude", "cursor", "copilot"] as PromptTarget[]).map((t) => (
@@ -224,8 +231,10 @@ export function AgentHubPanel({ initialDoc }: { initialDoc: ArchitectureDocument
       {/* Exports + agent levels */}
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-yellow">Exports</p>
-          <h3 className="mt-2 font-display text-xl font-semibold text-light">Download context packs</h3>
+          <p className="text-2xs font-semibold uppercase tracking-[0.2em] text-yellow">Exports</p>
+          <h3 className="mt-2 font-display text-xl font-semibold text-light">
+            Download context packs
+          </h3>
           <div className="mt-5 grid gap-3">
             <ExportButton
               title="architecture.json"
@@ -233,7 +242,11 @@ export function AgentHubPanel({ initialDoc }: { initialDoc: ArchitectureDocument
               disabled={!doc}
               onClick={() =>
                 doc &&
-                downloadText("architecture.json", `${JSON.stringify(doc, null, 2)}\n`, "application/json")
+                downloadText(
+                  "architecture.json",
+                  `${JSON.stringify(doc, null, 2)}\n`,
+                  "application/json",
+                )
               }
             />
             <ExportButton
@@ -245,14 +258,20 @@ export function AgentHubPanel({ initialDoc }: { initialDoc: ArchitectureDocument
               title="Markdown summary"
               subtitle="Stats, agents, gaps, tools"
               disabled={!doc}
-              onClick={() => doc && downloadText("homi-architecture.md", toMarkdown(doc), "text/markdown")}
+              onClick={() =>
+                doc && downloadText("homi-architecture.md", toMarkdown(doc), "text/markdown")
+              }
             />
           </div>
         </section>
 
         <section className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-amber">Registry levels</p>
-          <h3 className="mt-2 font-display text-xl font-semibold text-light">Unlock ladder (SSOT)</h3>
+          <p className="text-2xs font-semibold uppercase tracking-[0.2em] text-amber">
+            Registry levels
+          </p>
+          <h3 className="mt-2 font-display text-xl font-semibold text-light">
+            Unlock ladder (SSOT)
+          </h3>
           <ul className="mt-5 space-y-2">
             {AGENTS.map((a) => (
               <li
@@ -273,7 +292,9 @@ export function AgentHubPanel({ initialDoc }: { initialDoc: ArchitectureDocument
 
       {/* Curl recipes */}
       <section className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-6 font-mono text-xs text-dim">
-        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-light">Agent recipes</p>
+        <p className="mb-3 text-2xs font-semibold uppercase tracking-[0.2em] text-light">
+          Agent recipes
+        </p>
         <p className="whitespace-pre-wrap">{`curl -s ${url} | jq '.gaps'\ncurl -s ${url} | jq '.calculators'\ncurl -s ${url} | jq '.ai_agents'`}</p>
       </section>
     </div>

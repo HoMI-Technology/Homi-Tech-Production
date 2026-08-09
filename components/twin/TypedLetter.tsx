@@ -7,7 +7,13 @@ import { useEffect, useState } from "react";
  * paragraph's characters progressively. Respects prefers-reduced-motion by
  * rendering full text immediately (checked once on mount).
  */
-export function TypedLetter({ paragraphs, speedMs = 8 }: { paragraphs: string[]; speedMs?: number }) {
+export function TypedLetter({
+  paragraphs,
+  speedMs = 8,
+}: {
+  paragraphs: string[];
+  speedMs?: number;
+}) {
   const fullText = paragraphs.join("\n\n");
   const [shown, setShown] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -42,7 +48,10 @@ export function TypedLetter({ paragraphs, speedMs = 8 }: { paragraphs: string[];
         <p key={i} className="text-base leading-loose text-light">
           {p}
           {isDone === false && i === visibleParagraphs.length - 1 && (
-            <span className="ml-0.5 inline-block h-4 w-[2px] animate-pulse bg-cyan align-middle" aria-hidden="true" />
+            <span
+              className="ml-0.5 inline-block h-4 w-[2px] animate-pulse bg-cyan align-middle"
+              aria-hidden="true"
+            />
           )}
         </p>
       ))}

@@ -111,11 +111,14 @@ describe("API route Zod validation", () => {
     expect(source).toContain("z.object");
   });
 
-  it.each(routesToCheck)("%s uses safeParse (not parse) to avoid throwing on bad input", (routePath) => {
-    const fullPath = path.join(ROOT, routePath);
-    const source = fs.readFileSync(fullPath, "utf8");
-    expect(source).toContain(".safeParse(");
-  });
+  it.each(routesToCheck)(
+    "%s uses safeParse (not parse) to avoid throwing on bad input",
+    (routePath) => {
+      const fullPath = path.join(ROOT, routePath);
+      const source = fs.readFileSync(fullPath, "utf8");
+      expect(source).toContain(".safeParse(");
+    },
+  );
 
   it("checkout route restricts tier to known enum values", () => {
     const source = fs.readFileSync(path.join(ROOT, "app/api/checkout/route.ts"), "utf8");

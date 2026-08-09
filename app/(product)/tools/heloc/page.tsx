@@ -14,9 +14,9 @@ import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
 import { ReadinessBand } from "@/components/tools/ReadinessBand";
 import { getLens } from "@/lib/tools/registry";
 import { computeHousingDeltas } from "@/lib/tools/deltas";
-import { readinessImpactForHousing, toReadinessDigest } from "@/lib/tools/readiness-bands";
+import { toReadinessDigest } from "@/lib/tools/readiness-impact";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
-import { useReadinessAnchors } from "@/hooks/use-readiness";
+import { useHousingReadinessImpact } from "@/hooks/use-housing-readiness";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
 
@@ -35,7 +35,6 @@ function HelocPageInner() {
   }, []);
   const { prefilled, finance, hydrated, markAll } = useLensPrefill("heloc", apply);
   const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
-  const readinessCtx = useReadinessAnchors();
 
   const result = useMemo(
     () => helocAvailability({ homeValue, mortgageBalance, maxCltv: maxCltv / 100, rate }),
@@ -53,14 +52,11 @@ function HelocPageInner() {
     return computeHousingDeltas(finance, result.interestOnlyMonthly);
   }, [finance, result.availableLine, result.interestOnlyMonthly]);
 
-  // Phase 5: readiness impact of the full draw, magnitude only.
-  const readiness = useMemo(() => {
-    if (!readinessCtx || result.availableLine <= 0) return null;
-    return readinessImpactForHousing(readinessCtx.baseline, readinessCtx.anchors, {
-      monthlyObligation: result.interestOnlyMonthly,
-      upfrontCost: 0,
-    });
-  }, [readinessCtx, result.availableLine, result.interestOnlyMonthly]);
+  const readiness = useHousingReadinessImpact(
+    result.availableLine > 0
+      ? { monthlyObligation: result.interestOnlyMonthly, upfrontCost: 0 }
+      : null,
+  );
 
   // The lens digest the Companion reads — every number precomputed here.
   const digest = useMemo(
@@ -88,10 +84,44 @@ function HelocPageInner() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
-          <CalcField label="Home value" value={homeValue} onChange={setHomeValue} min={100000} max={2000000} step={5000} format="currency" source={sourceFor("homeValue")} />
-          <CalcField label="Mortgage balance" value={mortgageBalance} onChange={setMortgageBalance} min={0} max={homeValue} step={5000} format="currency" source={sourceFor("mortgageBalance")} />
-          <CalcField label="Lender max CLTV" value={maxCltv} onChange={setMaxCltv} min={70} max={90} step={5} format="percent" />
-          <CalcField label="Line rate (variable)" value={rate} onChange={setRate} min={4} max={14} step={0.25} format="percent" />
+          <CalcField
+            label="Home value"
+            value={homeValue}
+            onChange={setHomeValue}
+            min={100000}
+            max={2000000}
+            step={5000}
+            format="currency"
+            source={sourceFor("homeValue")}
+          />
+          <CalcField
+            label="Mortgage balance"
+            value={mortgageBalance}
+            onChange={setMortgageBalance}
+            min={0}
+            max={homeValue}
+            step={5000}
+            format="currency"
+            source={sourceFor("mortgageBalance")}
+          />
+          <CalcField
+            label="Lender max CLTV"
+            value={maxCltv}
+            onChange={setMaxCltv}
+            min={70}
+            max={90}
+            step={5}
+            format="percent"
+          />
+          <CalcField
+            label="Line rate (variable)"
+            value={rate}
+            onChange={setRate}
+            min={4}
+            max={14}
+            step={0.25}
+            format="percent"
+          />
 
           <div className="hairline" />
           <UpdateNumbersButton
@@ -109,13 +139,21 @@ function HelocPageInner() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <p className="text-xs text-dim">Your equity</p>
-                <p className="score-numeral mt-1 text-2xl font-bold text-emerald">{formatCurrency(result.equity)}</p>
-                <p className="mt-1 text-xs text-dim">{formatPercent(result.equityPct * 100)} of your home</p>
+                <p className="score-numeral mt-1 text-2xl font-bold text-emerald">
+                  {formatCurrency(result.equity)}
+                </p>
+                <p className="mt-1 text-xs text-dim">
+                  {formatPercent(result.equityPct * 100)} of your home
+                </p>
               </div>
               <div>
                 <p className="text-xs text-dim">Available line at {maxCltv}% CLTV</p>
-                <p className="score-numeral mt-1 text-2xl font-bold text-cyan">{formatCurrency(result.availableLine)}</p>
-                <p className="mt-1 text-xs text-dim">≈ {formatCurrency(result.interestOnlyMonthly)}/mo interest-only if fully drawn</p>
+                <p className="score-numeral mt-1 text-2xl font-bold text-cyan">
+                  {formatCurrency(result.availableLine)}
+                </p>
+                <p className="mt-1 text-xs text-dim">
+                  ≈ {formatCurrency(result.interestOnlyMonthly)}/mo interest-only if fully drawn
+                </p>
               </div>
             </div>
           </div>
@@ -124,7 +162,9 @@ function HelocPageInner() {
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">What each CLTV tier unlocks</h2>
-            <p className="mt-1 text-xs text-dim">Lenders cap combined debt at a share of your home&rsquo;s value.</p>
+            <p className="mt-1 text-xs text-dim">
+              Lenders cap combined debt at a share of your home&rsquo;s value.
+            </p>
             <div className="mt-5 space-y-4">
               {tiers.map(({ cltv, result: r }) => {
                 const maxLine = Math.max(...tiers.map((t) => t.result.availableLine), 1);
@@ -133,11 +173,21 @@ function HelocPageInner() {
                 return (
                   <div key={cltv}>
                     <div className="flex items-center justify-between text-sm">
-                      <span className={active ? "font-semibold text-cyan" : "text-dim"}>{Math.round(cltv * 100)}% CLTV</span>
-                      <span className="score-numeral text-light">{formatCurrency(r.availableLine)}</span>
+                      <span className={active ? "font-semibold text-cyan" : "text-dim"}>
+                        {Math.round(cltv * 100)}% CLTV
+                      </span>
+                      <span className="score-numeral text-light">
+                        {formatCurrency(r.availableLine)}
+                      </span>
                     </div>
                     <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-surface">
-                      <div className="h-full rounded-full" style={{ width: `${pct}%`, background: active ? COLORS.cyan : COLORS.slateHigh }} />
+                      <div
+                        className="h-full rounded-full"
+                        style={{
+                          width: `${pct}%`,
+                          background: active ? COLORS.cyan : COLORS.slateHigh,
+                        }}
+                      />
                     </div>
                   </div>
                 );
@@ -151,11 +201,12 @@ function HelocPageInner() {
           <div className="glass p-6">
             <h2 className="font-semibold text-light">What this means</h2>
             <p className="mt-2 text-sm leading-relaxed text-dim">
-              Your equity and your <em>borrowable</em> equity are different numbers. The lender caps total
-              debt against the home at a combined loan-to-value ratio, so the line you can actually open is
-              your home&rsquo;s value times that cap, minus what you still owe. A HELOC rate is usually
-              variable — the interest-only figure above will move with rates, and drawing the full line puts
-              your home on the hook. This is educational math, not a lending offer.
+              Your equity and your <em>borrowable</em> equity are different numbers. The lender caps
+              total debt against the home at a combined loan-to-value ratio, so the line you can
+              actually open is your home&rsquo;s value times that cap, minus what you still owe. A
+              HELOC rate is usually variable — the interest-only figure above will move with rates,
+              and drawing the full line puts your home on the hook. This is educational math, not a
+              lending offer.
             </p>
           </div>
 

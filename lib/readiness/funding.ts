@@ -20,10 +20,7 @@ export interface PathFundingSuggestion {
 
 function pendingFundingSteps(path: ReadinessPath): PathStep[] {
   return path.steps.filter(
-    (s) =>
-      (s.status ?? "pending") === "pending" &&
-      s.fundingTarget != null &&
-      s.fundingTarget > 0,
+    (s) => (s.status ?? "pending") === "pending" && s.fundingTarget != null && s.fundingTarget > 0,
   );
 }
 
@@ -41,10 +38,7 @@ export function deriveFundingFromPath(
 
   for (const step of pendingFundingSteps(path)) {
     const target = step.fundingTarget as number;
-    if (
-      step.reasonCode === "RUNWAY_UNDER_1_MONTH" ||
-      /runway|emergency/i.test(step.title)
-    ) {
+    if (step.reasonCode === "RUNWAY_UNDER_1_MONTH" || /runway|emergency/i.test(step.title)) {
       const absolute = Math.round(finance.liquidSavings + target);
       if (liquidSavingsTarget == null || absolute > liquidSavingsTarget) {
         liquidSavingsTarget = absolute;
@@ -68,17 +62,13 @@ export function deriveFundingFromPath(
       if (liquidSavingsTarget == null || absolute > liquidSavingsTarget) {
         liquidSavingsTarget = absolute;
       }
-      lines.push(
-        `${step.title}: savings target ~$${absolute.toLocaleString("en-US")}.`,
-      );
+      lines.push(`${step.title}: savings target ~$${absolute.toLocaleString("en-US")}.`);
     }
   }
 
   const hasActionableDiff =
-    (liquidSavingsTarget != null &&
-      liquidSavingsTarget > finance.liquidSavings + 1) ||
-    (downPaymentTarget != null &&
-      Math.abs(downPaymentTarget - finance.downPaymentTarget) > 1);
+    (liquidSavingsTarget != null && liquidSavingsTarget > finance.liquidSavings + 1) ||
+    (downPaymentTarget != null && Math.abs(downPaymentTarget - finance.downPaymentTarget) > 1);
 
   return {
     liquidSavingsTarget,
@@ -118,9 +108,7 @@ export function applyPathFunding(
     const cash = next.assets.find((a) => /cash|saving/i.test(a.name));
     if (cash) {
       next.assets = next.assets.map((a) =>
-        a.id === cash.id
-          ? { ...a, amount: suggestion.liquidSavingsTarget! }
-          : a,
+        a.id === cash.id ? { ...a, amount: suggestion.liquidSavingsTarget! } : a,
       );
     }
   }

@@ -141,7 +141,9 @@ describe("buildFinanceContextFromLedger", () => {
     expect(ctx).toBeDefined();
     expect(ctx!.monthlyIncome).toBe(8000);
     expect(ctx!.liquidSavings).toBe(10000);
-    expect(ctx!.netWorth).toBe(10000);
+    // Net worth stays unknown even with a funded reserve — $10k saved says
+    // nothing about what this user owes, and the v1 ledger cannot see debt.
+    expect(ctx!.netWorth).toBeNull();
     expect(ctx!.goals).toHaveLength(1);
     expect(ctx!.goals![0].pct).toBe(50);
   });
@@ -420,8 +422,94 @@ describe("signal generation", () => {
 
     const ctx = buildFinanceContextFromLedger(state, NOW);
     expect(ctx!.readinessInputs!.downPaymentProgressPct).toBe(25);
-    // liquidSavings stays 0 because the goal is not an emergency reserve.
-    expect(ctx!.liquidSavings).toBe(0);
+    // liquidSavings is unknown, not 0 — a home goal says nothing about cash on
+    // hand, and 0 would be a claim the ledger cannot support.
+    expect(ctx!.liquidSavings).toBeNull();
+  });
+
+  /**
+   * The v1 ledger has no liability transaction type, so it cannot know what a
+   * user owes. Reporting 0 would state a fact we do not have — the Companion
+   * renders these straight into its prompt ("total debt $0, net worth $0") and
+   * the dashboard renders netWorth into the "Net worth" tile. Null means
+   * "unknown", and every consumer must degrade rather than print a figure.
+   */
+  /**
+   * The v1 ledger knows goal balances, not the user's liquid position. Treating
+   * "no emergency_reserve goal" as $0 liquid does not just under-report — it
+   * divides into monthly outflow to produce a runway of exactly 0 months, which
+   * trips the crimson "Emergency runway is below 3 months" signal and is read
+   * verbatim into the Companion's prompt. A home saver with $25k put away gets
+   * told they have nothing. Unknown must stay unknown.
+   */
+  /** A month with real spending, so runway actually divides into an outflow. */
+  function spendingLedger(goalType: "home" | "emergency_reserve", savedCents: number) {
+    let { state, periodId } = withPeriod();
+    state = setGoalReserve(state, periodId, 500_00, NOW);
+    state = addManualTransaction(
+      state,
+      {
+        type: "expense",
+        amountCents: 2_000_00,
+        description: "Rent",
+        categoryId: "cat-housing",
+        transactionDate: TODAY,
+      },
+      NOW,
+    );
+    state = upsertGoal(
+      state,
+      {
+        name: goalType === "home" ? "Down payment" : "Emergency reserve",
+        goalType,
+        targetAmountCents: 100_000_00,
+        currentAmountCents: savedCents,
+        plannedMonthlyContributionCents: 1_000_00,
+        targetDate: null,
+      },
+      NOW,
+    );
+    return state;
+  }
+
+  it("reports liquid savings and runway as unknown when the ledger cannot see them", () => {
+    const ctx = buildFinanceContextFromLedger(spendingLedger("home", 25_000_00), NOW);
+
+    expect(ctx!.liquidSavings).toBeNull();
+    expect(ctx!.runwayMonths).toBeNull();
+  });
+
+  it("raises no runway alarm on a picture it cannot see", () => {
+    const ctx = buildFinanceContextFromLedger(spendingLedger("home", 25_000_00), NOW);
+
+    expect(ctx!.activeSignals!.some((s) => s.id === "runway-low")).toBe(false);
+  });
+
+  it("still reports liquid savings and runway from a funded emergency reserve", () => {
+    const ctx = buildFinanceContextFromLedger(spendingLedger("emergency_reserve", 10_000_00), NOW);
+
+    expect(ctx!.liquidSavings).toBe(10000);
+    expect(ctx!.runwayMonths).toBe(5);
+  });
+
+  it("reports debt and net worth as unknown, not zero, while the ledger has no liabilities", () => {
+    let { state } = withPeriod();
+    state = upsertGoal(
+      state,
+      {
+        name: "Down payment",
+        goalType: "home",
+        targetAmountCents: 100_000_00,
+        currentAmountCents: 25_000_00,
+        plannedMonthlyContributionCents: 1_000_00,
+        targetDate: null,
+      },
+      NOW,
+    );
+
+    const ctx = buildFinanceContextFromLedger(state, NOW);
+    expect(ctx!.totalDebt).toBeNull();
+    expect(ctx!.netWorth).toBeNull();
   });
 
   it("ignores deleted and non-posted transactions", () => {

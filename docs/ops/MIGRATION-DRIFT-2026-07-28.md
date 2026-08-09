@@ -28,11 +28,11 @@ by `00040_profile_email_lock.sql` (written, not yet applied).
 false conclusions in three distinct ways:
 
 1. **Pre-rebuild residue.** Everything before `20260706193938
-   reset_public_schema_for_production_rebuild` belongs to the *old* app
+reset_public_schema_for_production_rebuild` belongs to the _old_ app
    (`ai_memory`, `decision_journal`, `family_mode`, …). Those objects were dropped by
    the reset, but the ledger rows survive.
 2. **Future-dated stale rows.** Versions like `20260801000001` and `20270502000003`
-   sort *after* the reset but were applied *before* it. They describe objects that no
+   sort _after_ the reset but were applied _before_ it. They describe objects that no
    longer exist.
 3. **Double-entry.** Several files were recorded under both a short version and a
    timestamp version — e.g. `00036` **and** `20260727172301 00036_tool_scenarios`;
@@ -45,14 +45,14 @@ Local files also don't map 1:1 by name: `00017_bank_sync` is `bank_sync`,
 
 ## Verified state
 
-| Range | Status | Evidence probed |
-|---|---|---|
-| `00001`–`00010` | ✅ applied | enums, core tables, indexes, RLS, triggers, question bank, `calendar_events`, share RPC, `outcome_surveys` |
-| `00011`–`00015` | ✅ applied | `score_shares.created_by`, `score_shares_owner_all`, `advisor_usage`, `score_shares.revoked_at`, `webhook_events` (+ forced RLS) |
-| `00016`–`00025` | ✅ applied | `email_unsubscribes`, `plaid_items`, `goals`, profile email-pref cols, `profiles_column_grants`, `profiles_privilege_guard`, readiness calibration, outcome-survey ownership, `user_finance_state`, `plaid_transactions`, `push_subscriptions`, `profiles_delete_own` |
-| `00026`–`00033` | ✅ applied | `assessments.attribution`, `email_sends`, `shadow_shares`, `partner_api_keys`, `receipt_verifications`, `try_consume_advisor_message_v2`, `partner_codes`, full `00032` set (`payments`, `profiles.employer_id`/`organization_id`, `assessments.referral_source`/`organization_id`, `behavioral_genome.assessment_id`, both partner/org select policies), `campaigns` |
-| `00034` | ⚠ **not applied — and must not be** | see below |
-| `00035`–`00039` | ✅ applied | `partner_code_stats` + `partner_recent_assessments` both carry the `referral_source` branch; `tool_scenarios`, `ad_spend`, `user_readiness_path`, `households` |
+| Range           | Status                              | Evidence probed                                                                                                                                                                                                                                                                                                                                                       |
+| --------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `00001`–`00010` | ✅ applied                          | enums, core tables, indexes, RLS, triggers, question bank, `calendar_events`, share RPC, `outcome_surveys`                                                                                                                                                                                                                                                            |
+| `00011`–`00015` | ✅ applied                          | `score_shares.created_by`, `score_shares_owner_all`, `advisor_usage`, `score_shares.revoked_at`, `webhook_events` (+ forced RLS)                                                                                                                                                                                                                                      |
+| `00016`–`00025` | ✅ applied                          | `email_unsubscribes`, `plaid_items`, `goals`, profile email-pref cols, `profiles_column_grants`, `profiles_privilege_guard`, readiness calibration, outcome-survey ownership, `user_finance_state`, `plaid_transactions`, `push_subscriptions`, `profiles_delete_own`                                                                                                 |
+| `00026`–`00033` | ✅ applied                          | `assessments.attribution`, `email_sends`, `shadow_shares`, `partner_api_keys`, `receipt_verifications`, `try_consume_advisor_message_v2`, `partner_codes`, full `00032` set (`payments`, `profiles.employer_id`/`organization_id`, `assessments.referral_source`/`organization_id`, `behavioral_genome.assessment_id`, both partner/org select policies), `campaigns` |
+| `00034`         | ⚠ **not applied — and must not be** | see below                                                                                                                                                                                                                                                                                                                                                             |
+| `00035`–`00039` | ✅ applied                          | `partner_code_stats` + `partner_recent_assessments` both carry the `referral_source` branch; `tool_scenarios`, `ad_spend`, `user_readiness_path`, `households`                                                                                                                                                                                                        |
 
 ### Probe corrections
 
@@ -76,14 +76,14 @@ the pre-`00020a` world and is no longer accurate:
   assessment-ownership `exists(...)` clause.
 
 **Genuine delta: the `email` column.** The live guard doesn't lock it, and
-`profiles.email` is a *send target* — `lib/email/campaign.ts:107` and both cron
+`profiles.email` is a _send target_ — `lib/email/campaign.ts:107` and both cron
 routes (`reassessment`, `outcome-surveys`) select it to address outbound mail.
 `profiles_update_own` imposes no column restriction, so a user could point their own
 `profiles.email` at an address they don't control and have the platform deliver
 there. Moderate severity; a mail-relay/misdelivery vector rather than privilege
 escalation.
 
-**Fix:** `00040_profile_email_lock.sql` — `create or replace` on the *existing*
+**Fix:** `00040_profile_email_lock.sql` — `create or replace` on the _existing_
 guard function adding the `email` clause. No second trigger. Verified by grep that no
 application code updates or upserts `profiles.email`, so nothing legitimate breaks;
 `service_role` and `is_admin()` callers remain exempt.
@@ -115,7 +115,7 @@ application code updates or upserts `profiles.email`, so nothing legitimate brea
 trusting the apply — turned up the real defect.
 
 **`guard_profiles_privileged_columns()` is `SECURITY DEFINER`, owned by `postgres`.**
-Inside a `SECURITY DEFINER` function, `current_user` is the *function owner*, not
+Inside a `SECURITY DEFINER` function, `current_user` is the _function owner_, not
 the caller. The body opens with:
 
 ```sql
@@ -133,9 +133,9 @@ path and changed nothing observable.
 Transaction-scoped probe against production, ended with `ROLLBACK` — as role
 `authenticated` with `request.jwt.claims.sub` set to the row's own id:
 
-| Attempt | Result |
-|---|---|
-| `update profiles set email = 'guard-probe@example.invalid'` | **NOT BLOCKED** — 1 row |
+| Attempt                                                      | Result                  |
+| ------------------------------------------------------------ | ----------------------- |
+| `update profiles set email = 'guard-probe@example.invalid'`  | **NOT BLOCKED** — 1 row |
 | `update profiles set stripe_customer_id = 'cus_guard_probe'` | **NOT BLOCKED** — 1 row |
 
 `profiles_update_own` imposes no column restriction, so the same path allows
@@ -149,8 +149,8 @@ The `00034` analysis above says the escalation hole "is already closed by the li
 `profiles_privilege_guard` trigger from `00020a`." **That is wrong.** The trigger
 exists, is `BEFORE UPDATE`, is enabled (`tgenabled = 'O'`), and its body matches
 the repo file exactly — every check this audit ran passed. But object existence
-and body equality do not imply enforcement. Probing *objects* was the right
-correction to probing *versions*; it is still not enough. **Probe behaviour.**
+and body equality do not imply enforcement. Probing _objects_ was the right
+correction to probing _versions_; it is still not enough. **Probe behaviour.**
 
 `00034` remains superseded — it would install a duplicate trigger, and its own
 service-context test (`auth.uid() is null`) is weaker, not stronger.
@@ -165,27 +165,27 @@ which is what the allowlist was always meant to test. `is_admin()` stays
 
 Verified before apply, transaction-scoped and rolled back:
 
-| Path | Result |
-|---|---|
-| `authenticated` → `email` | blocked, `42501` |
-| `authenticated` → `stripe_customer_id` | blocked, `42501` |
-| `authenticated` → `full_name` (benign) | allowed, 1 row |
-| `service_role` → `email` (cron/webhook) | allowed, 1 row |
-| admin self → `subscription_tier` | allowed, 1 row |
-| admin self → `email` | allowed, 1 row |
+| Path                                    | Result           |
+| --------------------------------------- | ---------------- |
+| `authenticated` → `email`               | blocked, `42501` |
+| `authenticated` → `stripe_customer_id`  | blocked, `42501` |
+| `authenticated` → `full_name` (benign)  | allowed, 1 row   |
+| `service_role` → `email` (cron/webhook) | allowed, 1 row   |
+| admin self → `subscription_tier`        | allowed, 1 row   |
+| admin self → `email`                    | allowed, 1 row   |
 
 **Status: APPLIED 2026-08-01.** Post-apply verification against production —
 again transaction-scoped and rolled back — confirms enforcement is live:
 
-| Attempt (as `authenticated`, own row) | Result |
-|---|---|
-| `role = 'admin'` (escalation) | blocked, `42501` |
-| `email` (mail redirect) | blocked, `42501` |
-| `stripe_customer_id` | blocked, `42501` |
-| `subscription_tier = 'plus'` (paid self-grant) | blocked, `42501` |
-| `full_name` (benign) | allowed, 1 row |
-| admin → own `subscription_tier` (product UI) | allowed, 1 row |
-| `service_role` → `email` + `subscription_status` | allowed, 1 row |
+| Attempt (as `authenticated`, own row)            | Result           |
+| ------------------------------------------------ | ---------------- |
+| `role = 'admin'` (escalation)                    | blocked, `42501` |
+| `email` (mail redirect)                          | blocked, `42501` |
+| `stripe_customer_id`                             | blocked, `42501` |
+| `subscription_tier = 'plus'` (paid self-grant)   | blocked, `42501` |
+| `full_name` (benign)                             | allowed, 1 row   |
+| admin → own `subscription_tier` (product UI)     | allowed, 1 row   |
+| `service_role` → `email` + `subscription_status` | allowed, 1 row   |
 
 `pg_proc.prosecdef` is now `false` for the function; the `email` clause is
 present. Supabase security advisors show no new findings, and the guard has
@@ -193,7 +193,7 @@ dropped off the `SECURITY DEFINER`-executable warning lists.
 
 ### Audit any other `SECURITY DEFINER` trigger the same way
 
-Any trigger function that is `SECURITY DEFINER` *and* gates on `current_user` has
+Any trigger function that is `SECURITY DEFINER` _and_ gates on `current_user` has
 this bug by construction. Sweep for it:
 
 ```sql

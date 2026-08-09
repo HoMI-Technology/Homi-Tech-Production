@@ -8,7 +8,9 @@ import { NotificationBell } from "@/components/layout/NotificationBell";
 const NAV = [
   { href: "/how-it-works", label: "How It Works" },
   { href: "/assessment", label: "Assessment" },
-  { href: "/tools", label: "Tools" },
+  // Public acquisition catalog (Money Reality design: hub stays crawlable).
+  // Signed-in chrome uses Money — see nav-catalog + QuickActionGrid.
+  { href: "/tools", label: "Calculators" },
   { href: "/guides", label: "Guides" },
   { href: "/pricing", label: "Pricing" },
   { href: "/b2b", label: "For Teams" },
@@ -41,7 +43,10 @@ export function SiteHeader() {
       right={
         <>
           <NotificationBell />
-          <Link href="/auth/sign-in" className="text-sm text-dim transition-colors hover:text-light">
+          <Link
+            href="/auth/sign-in"
+            className="text-sm text-dim transition-colors hover:text-light"
+          >
             Sign in
           </Link>
           <Link href="/shadow-score" className="btn btn-primary btn-sm">
@@ -56,7 +61,11 @@ export function SiteHeader() {
             <NotificationBell />
           </div>
           {NAV.map((item) => (
-            <Link key={item.href} href={item.href} className="rounded-lg px-3 py-2 text-sm text-light hover:bg-slate-surface">
+            <Link
+              key={item.href}
+              href={item.href}
+              className="rounded-lg px-3 py-2 text-sm text-light hover:bg-slate-surface"
+            >
               {item.label}
             </Link>
           ))}

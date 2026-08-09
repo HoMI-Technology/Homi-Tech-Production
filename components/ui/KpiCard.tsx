@@ -93,19 +93,37 @@ export function KpiCard({
       {caption && <p className="mt-1 text-xs text-dim">{caption}</p>}
       {delta && (
         <span
-          className={`mt-2 inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-            delta.positive
-              ? "bg-emerald/10 text-emerald"
-              : "bg-crimson/10 text-crimson"
+          className={`mt-2 inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-semibold ${
+            delta.positive ? "bg-emerald/10 text-emerald" : "bg-crimson/10 text-crimson"
           }`}
         >
           {delta.positive ? (
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
               <path d="M7 17L17 7" />
               <path d="M7 7h10v10" />
             </svg>
           ) : (
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
               <path d="M7 7l10 10" />
               <path d="M17 7v10H7" />
             </svg>
@@ -151,9 +169,16 @@ function Sparkline({ values, color }: { values: number[]; color: string }) {
   const range = max - min || 1;
   const w = 100;
   const h = 26;
-  const pts = values.map((v, i) => `${(i / (values.length - 1)) * w},${h - 3 - ((v - min) / range) * (h - 6)}`);
+  const pts = values.map(
+    (v, i) => `${(i / (values.length - 1)) * w},${h - 3 - ((v - min) / range) * (h - 6)}`,
+  );
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="h-[26px] w-full" preserveAspectRatio="none" aria-hidden>
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      className="h-[26px] w-full"
+      preserveAspectRatio="none"
+      aria-hidden
+    >
       <polyline
         points={pts.join(" ")}
         fill="none"

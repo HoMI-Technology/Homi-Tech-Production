@@ -26,7 +26,12 @@ export default function manifest(): MetadataRoute.Manifest {
       { src: "/icon-512-v2.png", sizes: "512x512", type: "image/png", purpose: "any" },
       // Full-bleed variant with the lockup pulled into the maskable safe zone
       // so Android's adaptive-icon mask (circle/squircle) never crops it.
-      { src: "/icon-512-maskable-v2.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      {
+        src: "/icon-512-maskable-v2.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "maskable",
+      },
     ],
     shortcuts: [
       {
@@ -36,9 +41,9 @@ export default function manifest(): MetadataRoute.Manifest {
         icons: [{ src: "/icon-192-v2.png", sizes: "192x192", type: "image/png" }],
       },
       {
-        name: "Tools",
-        url: "/tools",
-        description: "Readiness calculators and tools",
+        name: "Money",
+        url: "/money",
+        description: "Your money picture, track, and decision math",
         icons: [{ src: "/icon-192-v2.png", sizes: "192x192", type: "image/png" }],
       },
     ],

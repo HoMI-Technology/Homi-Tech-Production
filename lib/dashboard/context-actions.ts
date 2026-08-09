@@ -15,7 +15,8 @@ export interface ContextActionInput {
 
 /** The instrument that works each pillar (mirrors NEXT_MOVES routing). */
 const PILLAR_TOOL: Record<PillarKey, string> = {
-  financial: "/tools",
+  // Money Reality: signed-in financial work happens in Decide, not the public hub.
+  financial: "/money/decide",
   emotional: "/advisor",
   timing: "/signals",
 };
@@ -25,8 +26,8 @@ const FILLERS = ["/simulator", "/journal", "/plan"];
 /** Exactly three hrefs, most-relevant first, deduped. */
 export function contextualActionHrefs(input: ContextActionInput): string[] {
   if (!input.hasAssessment) {
-    // Shortest path to a first score leads; depth second.
-    return ["/shadow-score", "/assessment", "/tools"];
+    // Shortest path to a first score leads; Money picture third (not public tools mall).
+    return ["/shadow-score", "/assessment", "/money"];
   }
   const out: string[] = [];
   if (!input.checkedInToday) out.push("/daily");

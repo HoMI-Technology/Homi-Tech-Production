@@ -3,16 +3,16 @@
 AUDIT T3.5 — the test pyramid's top floor. Five critical paths, driven against
 a real dev server:
 
-| # | Path | Spec | Runs without secrets? |
-|---|------|------|-----------------------|
-| 1 | signup → email-confirm | `auth-signup.e2e.ts` | render smoke only — live round trip is gated |
-| 2 | assessment → verdict | `assessment-verdict.e2e.ts` | **yes, fully** (public anonymous flow) |
-| 3 | checkout (test mode) → tier granted | `checkout.e2e.ts` | pricing render only — purchase is gated |
-| 4 | share create → open → revoke | `share.e2e.ts` | 404 smoke only — round trip is gated |
-| 5 | password reset | `password-reset.e2e.ts` | UI-state tests yes — live round trip is gated |
+| #   | Path                                | Spec                        | Runs without secrets?                         |
+| --- | ----------------------------------- | --------------------------- | --------------------------------------------- |
+| 1   | signup → email-confirm              | `auth-signup.e2e.ts`        | render smoke only — live round trip is gated  |
+| 2   | assessment → verdict                | `assessment-verdict.e2e.ts` | **yes, fully** (public anonymous flow)        |
+| 3   | checkout (test mode) → tier granted | `checkout.e2e.ts`           | pricing render only — purchase is gated       |
+| 4   | share create → open → revoke        | `share.e2e.ts`              | 404 smoke only — round trip is gated          |
+| 5   | password reset                      | `password-reset.e2e.ts`     | UI-state tests yes — live round trip is gated |
 
 **Design rule:** specs that need a live Supabase project or Stripe test keys
-*skip themselves with a clear message* when their env is absent. CI never goes
+_skip themselves with a clear message_ when their env is absent. CI never goes
 red on forks or missing secrets; a fully-configured environment runs
 everything.
 
@@ -41,16 +41,16 @@ unprefixed vars (it inherits the shell env Playwright runs in, plus
 `.env.local`). In GitHub Actions the workflow maps the same secrets to both
 names.
 
-| Variable | Needed for | Who reads it |
-|----------|-----------|--------------|
-| `E2E_BASE_URL` | optional override (default `http://localhost:3000`) | Playwright |
-| `E2E_SUPABASE_URL` (or `NEXT_PUBLIC_SUPABASE_URL`) | all live specs | specs (admin client) |
-| `E2E_SUPABASE_SERVICE_ROLE_KEY` | all live specs (user factory, cleanup, tier/share assertions) | specs |
-| `SUPABASE_SERVICE_ROLE_KEY` | live checkout (webhook → profile update) | dev server |
-| `E2E_STRIPE_SECRET_KEY` (**must be `sk_test_*`**) | live checkout | specs |
-| `E2E_STRIPE_WEBHOOK_SECRET` (**must be `whsec_*`**) | live checkout (synthetic webhook signature) | specs |
-| `STRIPE_SECRET_KEY` + `STRIPE_PRICE_PLUS` | live checkout (real session creation) | dev server |
-| `STRIPE_WEBHOOK_SECRET` | live checkout (webhook verification) | dev server |
+| Variable                                            | Needed for                                                    | Who reads it         |
+| --------------------------------------------------- | ------------------------------------------------------------- | -------------------- |
+| `E2E_BASE_URL`                                      | optional override (default `http://localhost:3000`)           | Playwright           |
+| `E2E_SUPABASE_URL` (or `NEXT_PUBLIC_SUPABASE_URL`)  | all live specs                                                | specs (admin client) |
+| `E2E_SUPABASE_SERVICE_ROLE_KEY`                     | all live specs (user factory, cleanup, tier/share assertions) | specs                |
+| `SUPABASE_SERVICE_ROLE_KEY`                         | live checkout (webhook → profile update)                      | dev server           |
+| `E2E_STRIPE_SECRET_KEY` (**must be `sk_test_*`**)   | live checkout                                                 | specs                |
+| `E2E_STRIPE_WEBHOOK_SECRET` (**must be `whsec_*`**) | live checkout (synthetic webhook signature)                   | specs                |
+| `STRIPE_SECRET_KEY` + `STRIPE_PRICE_PLUS`           | live checkout (real session creation)                         | dev server           |
+| `STRIPE_WEBHOOK_SECRET`                             | live checkout (webhook verification)                          | dev server           |
 
 The suite **refuses live Stripe keys on purpose** (`sk_live_*` → skip). This
 is a test-mode-only path.

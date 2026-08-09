@@ -74,12 +74,14 @@ export const DEMO_DATA: DemoData = {
     {
       title: "Considering an offer on the Maple St. condo",
       decision_type: "home_buying",
-      context: "Two bedrooms, walkable to work. Weighing it against waiting another year to save more.",
+      context:
+        "Two bedrooms, walkable to work. Weighing it against waiting another year to save more.",
     },
     {
       title: "Whether to take the relocation package",
       decision_type: "career",
-      context: "New role in a lower cost-of-living city — would change the runway math significantly.",
+      context:
+        "New role in a lower cost-of-living city — would change the runway math significantly.",
     },
   ],
   outcomeSurveyDue: true,

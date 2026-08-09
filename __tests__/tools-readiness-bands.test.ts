@@ -12,7 +12,11 @@
 
 import { describe, expect, it } from "vitest";
 import { readinessImpactForHousing } from "@/lib/tools/readiness-bands";
-import { buildLensDigestNote, buildLensSynthesisFallback, type LensDigest } from "@/lib/tools/digest";
+import {
+  buildLensDigestNote,
+  buildLensSynthesisFallback,
+  type LensDigest,
+} from "@/lib/tools/digest";
 import { compositeBand } from "@/lib/advisor/explain";
 import { seedBaseline, deriveAnchors } from "@/lib/simulator";
 import { DEFAULT_FINANCE_STATE } from "@/lib/finance/store";

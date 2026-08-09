@@ -49,9 +49,11 @@ export function SavedNumbersStrip() {
     <div className="glass mb-6 flex flex-wrap items-center justify-between gap-3 border-l-2 border-cyan/60 p-4">
       <p className="text-sm text-dim">
         Built on your numbers —{" "}
-        <span className="text-light">{formatCurrency(cfm.core.monthlyIncome.value)}/mo</span> income ·{" "}
-        <span className="text-light">{formatCurrency(cfm.core.liquidSavings.value)}</span> savings ·{" "}
-        <span className="text-light">{formatCurrency(cfm.core.monthlyDebtPayments.value)}/mo</span> debt
+        <span className="text-light">{formatCurrency(cfm.core.monthlyIncome.value)}/mo</span> income
+        · <span className="text-light">{formatCurrency(cfm.core.liquidSavings.value)}</span> savings
+        ·{" "}
+        <span className="text-light">{formatCurrency(cfm.core.monthlyDebtPayments.value)}/mo</span>{" "}
+        debt
         {age ? <span className="text-dim/70"> · {age}</span> : null}
       </p>
       <Link href="/money/budget" className="text-sm font-medium text-cyan hover:underline">
