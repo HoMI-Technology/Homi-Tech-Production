@@ -42,13 +42,13 @@ export default function GuidesHubPage() {
               <Reveal key={guide.slug} delay={(i % 2) * 100}>
                 <Link
                   href={`/guides/${guide.slug}`}
-                  className="glass glass-hover flex h-full flex-col p-8"
+                  className="group glass glass-hover flex h-full flex-col p-8"
                 >
                   <h2 className="type-h3">{guide.title}</h2>
                   <p className="mt-3 flex-1 text-sm leading-relaxed text-dim">
                     {guide.description}
                   </p>
-                  <span className="mt-6 text-sm font-semibold text-cyan">Read the guide &rarr;</span>
+                  <span className="mt-6 text-sm font-semibold text-cyan">Read the guide <span aria-hidden className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1">&rarr;</span></span>
                 </Link>
               </Reveal>
             ))}
@@ -72,7 +72,7 @@ export default function GuidesHubPage() {
                 <Reveal key={article.slug} delay={(i % 2) * 100}>
                   <Link
                     href={`/learning/${article.slug}`}
-                    className="glass glass-hover flex h-full flex-col p-8"
+                    className="group glass glass-hover flex h-full flex-col p-8"
                   >
                     <h3 className="type-h3">{article.title}</h3>
                     <p className="mt-3 flex-1 text-sm leading-relaxed text-dim">
@@ -81,6 +81,7 @@ export default function GuidesHubPage() {
                     <span className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-cyan">
                       Read
                       <svg
+                        className="transition-transform duration-200 ease-out group-hover:translate-x-0.5"
                         width="14"
                         height="14"
                         viewBox="0 0 20 20"
@@ -114,7 +115,7 @@ export default function GuidesHubPage() {
                 <Reveal key={post.slug} delay={(i % 2) * 100}>
                   <Link
                     href={`/blog/${post.slug}`}
-                    className="glass glass-hover flex h-full flex-col p-8"
+                    className="group glass glass-hover flex h-full flex-col p-8"
                   >
                     <div className="flex items-center gap-2 text-xs text-dim">
                       <span>{formatDate(post.date)}</span>
@@ -125,7 +126,7 @@ export default function GuidesHubPage() {
                     <p className="mt-3 flex-1 text-sm leading-relaxed text-dim">
                       {post.description}
                     </p>
-                    <span className="mt-6 text-sm font-semibold text-cyan">Read the post &rarr;</span>
+                    <span className="mt-6 text-sm font-semibold text-cyan">Read the post <span aria-hidden className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1">&rarr;</span></span>
                   </Link>
                 </Reveal>
               ))}

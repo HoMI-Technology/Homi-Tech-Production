@@ -134,12 +134,12 @@ export default async function BlogPostPage({
                   <Link
                     key={p.slug}
                     href={`/blog/${p.slug}`}
-                    className="glass glass-hover flex flex-col p-6"
+                    className="group glass glass-hover flex flex-col p-6"
                   >
                     <span className="text-xs text-dim">{formatDate(p.date)}</span>
                     <h3 className="mt-2 type-h4">{p.title}</h3>
                     <p className="mt-2 flex-1 text-sm text-dim">{p.description}</p>
-                    <span className="mt-4 text-sm font-semibold text-cyan">Read &rarr;</span>
+                    <span className="mt-4 text-sm font-semibold text-cyan">Read <span aria-hidden className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1">&rarr;</span></span>
                   </Link>
                 ))}
               </div>

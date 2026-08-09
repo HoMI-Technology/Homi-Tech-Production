@@ -92,22 +92,22 @@ export default function B2BPage() {
               company offers, here&rsquo;s where to go next.
             </p>
             <div className="mt-10 grid gap-6 sm:grid-cols-2">
-              <Link href="/partner" className="glass glass-hover flex flex-col p-8 text-left">
+              <Link href="/partner" className="group glass glass-hover flex flex-col p-8 text-left">
                 <h3 className="type-h4">For partners</h3>
                 <p className="mt-3 flex-1 text-sm leading-relaxed text-dim">
                   Bring HōMI to your benefits platform or your client roster.
                 </p>
-                <span className="mt-5 text-sm font-semibold text-cyan">Learn more &rarr;</span>
+                <span className="mt-5 text-sm font-semibold text-cyan">Learn more <span aria-hidden className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1">&rarr;</span></span>
               </Link>
               <Link
                 href="/employee"
-                className="glass glass-hover flex flex-col p-8 text-left"
+                className="group glass glass-hover flex flex-col p-8 text-left"
               >
                 <h3 className="type-h4">For employees</h3>
                 <p className="mt-3 flex-1 text-sm leading-relaxed text-dim">
                   See what the benefit includes if your employer offers HōMI.
                 </p>
-                <span className="mt-5 text-sm font-semibold text-cyan">Learn more &rarr;</span>
+                <span className="mt-5 text-sm font-semibold text-cyan">Learn more <span aria-hidden className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1">&rarr;</span></span>
               </Link>
             </div>
           </div>

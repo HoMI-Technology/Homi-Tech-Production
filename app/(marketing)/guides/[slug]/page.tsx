@@ -105,11 +105,11 @@ export default async function GuidePage({
                   <Link
                     key={g.slug}
                     href={`/guides/${g.slug}`}
-                    className="glass glass-hover flex flex-col p-6"
+                    className="group glass glass-hover flex flex-col p-6"
                   >
                     <h3 className="type-h4">{g.title}</h3>
                     <p className="mt-2 flex-1 text-sm text-dim">{g.description}</p>
-                    <span className="mt-4 text-sm font-semibold text-cyan">Read &rarr;</span>
+                    <span className="mt-4 text-sm font-semibold text-cyan">Read <span aria-hidden className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1">&rarr;</span></span>
                   </Link>
                 ))}
               </div>
