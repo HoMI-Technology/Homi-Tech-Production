@@ -886,6 +886,20 @@ input[type="range"].homi-slider::-moz-range-track {
   box-shadow: 0 0 24px -4px rgba(52, 211, 153, 0.3);
 }
 
+/* Decision-orbit node chips — positioned on the orbit by --x/--y.
+   On narrow viewports the 3/9-o'clock chips would center past the
+   container edge and clip at 375px, so their anchor is clamped inside
+   the box; desktop positions are untouched. */
+.orbit-node {
+  left: var(--x);
+  top: var(--y);
+}
+@media (max-width: 640px) {
+  .orbit-node {
+    left: clamp(2.75rem, var(--x), calc(100% - 2.75rem));
+  }
+}
+
 /* Section vignette — soft teal ambience behind key sections */
 .vignette {
   position: relative;
