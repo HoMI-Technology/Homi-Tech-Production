@@ -139,16 +139,16 @@ export default function MarketingHomePage() {
 
       {/* ── 3 · The outdated score (taste: no kicker, less glass shout) ── */}
       <Reveal>
-        <section className="px-6 py-20 sm:py-24">
+        <section className="px-6 py-24">
           <div className="mx-auto max-w-5xl">
-            <h2 className="mx-auto max-w-2xl text-center font-display text-3xl font-semibold leading-tight tracking-tight text-light sm:text-5xl">
+            <h2 className="mx-auto max-w-2xl text-center type-display">
               A credit score tells institutions if they may trust your history.
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-center text-base text-dim sm:text-lg">
               HōMI helps you know if you can trust the decision.
             </p>
 
-            <blockquote className="mx-auto mt-10 max-w-2xl border-l-2 border-cyan/50 pl-5 font-display text-xl leading-relaxed text-light sm:text-2xl">
+            <blockquote className="mx-auto mt-10 max-w-2xl border-l-2 border-cyan/50 pl-5 font-display text-xl leading-relaxed text-light">
               &ldquo;Most people don&rsquo;t regret what they bought. They regret when they bought it.&rdquo;
             </blockquote>
 
@@ -157,7 +157,7 @@ export default function MarketingHomePage() {
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-dim">
                   Credit score
                 </p>
-                <ul className="mt-5 space-y-3 text-[15px] text-dim">
+                <ul className="mt-5 space-y-3 text-base text-dim">
                   {scoreLeft.map((item) => (
                     <li key={item} className="flex items-start gap-3">
                       <Dash /> <span>{item}</span>
@@ -171,7 +171,7 @@ export default function MarketingHomePage() {
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan">
                   HōMI Score™
                 </p>
-                <ul className="mt-5 space-y-3 text-[15px] text-light">
+                <ul className="mt-5 space-y-3 text-base text-light">
                   {scoreRight.map((item) => (
                     <li key={item} className="flex items-start gap-3">
                       <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-cyan" aria-hidden />
@@ -194,7 +194,7 @@ export default function MarketingHomePage() {
         <section className="px-6 py-24">
           <div className="mx-auto max-w-4xl">
             <Kicker>The human problem</Kicker>
-            <h2 className="mt-5 text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
+            <h2 className="mt-5 text-center type-display">
               Everyone asks the wrong question.
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-center text-dim">
@@ -238,7 +238,7 @@ export default function MarketingHomePage() {
         <section className="px-6 py-24">
           <div className="mx-auto max-w-4xl text-center">
             <Kicker>The category, drawn</Kicker>
-            <h2 className="mt-5 font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
+            <h2 className="mt-5 type-display">
               Most systems arrive after you decide.
             </h2>
             <p className="mt-4 text-lg text-dim">HōMI enters before the commitment.</p>
@@ -255,7 +255,7 @@ export default function MarketingHomePage() {
           <div className="mx-auto grid max-w-5xl items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
             <div>
               <KickerLeft>Decision companion</KickerLeft>
-              <h2 className="mt-4 font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
+              <h2 className="mt-4 type-display">
                 Your Decision Companion
               </h2>
               <p className="mt-5 max-w-xl text-lg leading-relaxed text-dim">
@@ -292,7 +292,7 @@ export default function MarketingHomePage() {
         <section className="px-6 py-24">
           <div className="mx-auto max-w-6xl">
             <Kicker>Threshold preview</Kicker>
-            <h2 className="mx-auto mt-5 max-w-2xl text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
+            <h2 className="mx-auto mt-5 max-w-2xl text-center type-display">
               Your readiness can change as your circumstances change.
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-center text-dim">
@@ -310,7 +310,7 @@ export default function MarketingHomePage() {
         <section className="px-6 py-24">
           <div className="mx-auto max-w-4xl">
             <Kicker color={COLORS.emerald}>The verdict spectrum</Kicker>
-            <h2 className="mt-5 text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
+            <h2 className="mt-5 text-center type-display">
               Four verdicts. Zero judgment.
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-center text-dim">
@@ -349,7 +349,7 @@ export default function MarketingHomePage() {
         <section className="px-6 py-24">
           <div className="mx-auto max-w-6xl">
             <Kicker>The companion layer</Kicker>
-            <h2 className="mt-5 text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
+            <h2 className="mt-5 text-center type-display">
               One companion. Six ways of telling the truth.
             </h2>
             <div className="mt-14">
@@ -364,7 +364,7 @@ export default function MarketingHomePage() {
         <section className="px-6 py-24">
           <div className="mx-auto max-w-3xl">
             <Kicker color={COLORS.amber}>After your verdict</Kicker>
-            <h2 className="mt-5 text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
+            <h2 className="mt-5 text-center type-display">
               Your Build First path.
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-center text-dim">
@@ -400,7 +400,7 @@ export default function MarketingHomePage() {
         <section className="px-6 py-24">
           <div className="mx-auto max-w-5xl">
             <Kicker color={COLORS.amber}>Platform vision · Preview</Kicker>
-            <h2 className="mx-auto mt-5 max-w-2xl text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
+            <h2 className="mx-auto mt-5 max-w-2xl text-center type-display">
               Permissioned Readiness Summary
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-center text-dim">
@@ -410,7 +410,7 @@ export default function MarketingHomePage() {
             <div className="glass tilt-3d sweep mx-auto mt-12 max-w-lg p-8">
               <div className="flex items-center justify-between">
                 <span className="text-xs uppercase tracking-widest text-dim">Readiness summary</span>
-                <span className="rounded-full border border-emerald/40 bg-emerald/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald">
+                <span className="rounded-full border border-emerald/40 bg-emerald/10 px-2.5 py-0.5 text-xs font-semibold text-emerald">
                   Consumer-authorized
                 </span>
               </div>
@@ -445,7 +445,7 @@ export default function MarketingHomePage() {
         <section className="px-6 py-24">
           <div className="mx-auto max-w-3xl text-center">
             <Kicker>The wedge</Kicker>
-            <h2 className="mt-5 font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
+            <h2 className="mt-5 type-display">
               Home is the first threshold.
               <span className="block text-dim">Not the whole company.</span>
             </h2>
@@ -460,7 +460,7 @@ export default function MarketingHomePage() {
         <section className="px-6 py-24">
           <div className="mx-auto max-w-5xl">
             <Kicker>Platform vision</Kicker>
-            <h2 className="mx-auto mt-5 max-w-2xl text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
+            <h2 className="mx-auto mt-5 max-w-2xl text-center type-display">
               A different question than the one a lender asks.
               <span className="text-aurora"> It is about readiness.</span>
             </h2>
@@ -479,10 +479,10 @@ export default function MarketingHomePage() {
         <section className="px-6 py-24">
           <div className="mx-auto max-w-5xl">
             <Kicker color={COLORS.emerald}>Why you can trust the answer</Kicker>
-            <h2 className="mt-5 text-center font-display text-4xl font-semibold leading-tight text-light sm:text-6xl">
+            <h2 className="mt-5 text-center type-display">
               Designed without transaction pressure.
             </h2>
-            <p className="text-center font-display text-3xl sm:text-4xl text-light mt-8">
+            <p className="mt-8 text-center type-h2">
               Built to say <span className="text-aurora">not yet</span>.
             </p>
             <div className="mt-12 grid gap-6 sm:grid-cols-3">
@@ -527,13 +527,13 @@ export default function MarketingHomePage() {
                   `linear-gradient(${withAlpha(COLORS.navy, 0.85)}, ${withAlpha(COLORS.navy, 0.85)}) padding-box, linear-gradient(120deg, ${withAlpha(COLORS.yellow, 0.55)}, ${withAlpha(COLORS.emerald, 0.55)}) border-box`,
               }}
             >
-              <h2 className="font-display text-4xl font-semibold leading-tight text-light sm:text-5xl">
+              <h2 className="type-display">
                 Not yet is not <span className="text-emerald">no</span>.
               </h2>
               <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-dim">
                 It means you have time to build. And HōMI will show you exactly what to build first. Before the next major decision, know where you stand.
               </p>
-              <div className="mt-9 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+              <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <Link href="/shadow-score" className="btn btn-primary btn-glow px-9 py-4 text-base">
                   Start Your Free Assessment
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
@@ -554,7 +554,7 @@ export default function MarketingHomePage() {
 
 function Kicker({ children, color = COLORS.cyan }: { children: React.ReactNode; color?: string }) {
   return (
-    <p className="text-center text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color }}>
+    <p className="text-center type-kicker" style={{ color }}>
       {children}
     </p>
   );
@@ -562,7 +562,7 @@ function Kicker({ children, color = COLORS.cyan }: { children: React.ReactNode; 
 
 function KickerLeft({ children, color = COLORS.cyan }: { children: React.ReactNode; color?: string }) {
   return (
-    <p className="text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color }}>
+    <p className="type-kicker" style={{ color }}>
       {children}
     </p>
   );
@@ -636,7 +636,7 @@ function Row({ k, v, accent }: { k: string; v: string; accent?: string }) {
 function Proof({ title, body }: { title: string; body: string }) {
   return (
     <div className="glass glass-hover p-7">
-      <h3 className="text-lg font-bold text-light">{title}</h3>
+      <h3 className="type-h4">{title}</h3>
       <p className="mt-3 text-sm leading-relaxed text-dim">{body}</p>
     </div>
   );

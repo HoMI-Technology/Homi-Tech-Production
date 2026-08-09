@@ -13,12 +13,12 @@ export default function PrivacyPage() {
   return (
     <section className="px-6 py-16 md:py-24">
       <div className="mx-auto max-w-3xl">
-        <h1 className="text-4xl font-black text-light">Privacy Policy</h1>
+        <h1 className="type-h1">Privacy Policy</h1>
         <p className="mt-3 text-sm text-dim">Last updated: July 2026</p>
 
         <div className="mt-10 space-y-10 text-dim">
           <div>
-            <h2 className="text-xl font-bold text-light">1. Who we are</h2>
+            <h2 className="type-h3">1. Who we are</h2>
             <p className="mt-3 leading-relaxed">
               {BRAND.display} is a product of {BRAND.legalEntity} (&ldquo;{BRAND.display}
               ,&rdquo; &ldquo;we,&rdquo; &ldquo;us&rdquo;). This policy explains what data we
@@ -28,7 +28,7 @@ export default function PrivacyPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">2. Data we collect</h2>
+            <h2 className="type-h3">2. Data we collect</h2>
             <ul className="mt-3 list-disc space-y-2 pl-5 leading-relaxed">
               <li>
                 Account information: name, email address, and authentication details when
@@ -55,7 +55,7 @@ export default function PrivacyPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">3. Where your data lives</h2>
+            <h2 className="type-h3">3. Where your data lives</h2>
             <p className="mt-3 leading-relaxed">
               Account and assessment data is stored using Supabase, a hosted database and
               authentication provider, with row-level security applied so that your data is
@@ -66,7 +66,7 @@ export default function PrivacyPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">4. What we do with your data</h2>
+            <h2 className="type-h3">4. What we do with your data</h2>
             <p className="mt-3 leading-relaxed">
               We use your data to calculate your HōMI-Score, generate your readiness report
               and transformation plan, power Decision Companion conversations, operate your
@@ -77,7 +77,7 @@ export default function PrivacyPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">5. We do not sell your data</h2>
+            <h2 className="type-h3">5. We do not sell your data</h2>
             <p className="mt-3 leading-relaxed">
               {BRAND.display} does not sell, rent, or trade your personal or financial data
               to third parties for their marketing purposes. Full stop. Any service
@@ -88,7 +88,7 @@ export default function PrivacyPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">6. Your rights</h2>
+            <h2 className="type-h3">6. Your rights</h2>
             <p className="mt-3 leading-relaxed">
               Depending on where you live, you may have rights under the General Data
               Protection Regulation (GDPR), the California Consumer Privacy Act (CCPA), or
@@ -101,7 +101,7 @@ export default function PrivacyPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">7. Data retention</h2>
+            <h2 className="type-h3">7. Data retention</h2>
             <p className="mt-3 leading-relaxed">
               We retain account and assessment data for as long as your account is active.
               If you delete your account, we will delete or anonymize your personal data
@@ -111,7 +111,7 @@ export default function PrivacyPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">8. Children</h2>
+            <h2 className="type-h3">8. Children</h2>
             <p className="mt-3 leading-relaxed">
               {BRAND.display} is not directed to children under 18, and we do not knowingly
               collect data from anyone under that age.
@@ -119,7 +119,7 @@ export default function PrivacyPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">9. Changes to this policy</h2>
+            <h2 className="type-h3">9. Changes to this policy</h2>
             <p className="mt-3 leading-relaxed">
               We may update this policy as the product evolves. Material changes will be
               reflected on this page with an updated date above.
@@ -127,7 +127,7 @@ export default function PrivacyPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">10. Contact</h2>
+            <h2 className="type-h3">10. Contact</h2>
             <p className="mt-3 leading-relaxed">
               Questions about this policy or your data can be sent to {BRAND.legalEntity}{" "}
               through our support channels. See also our{" "}

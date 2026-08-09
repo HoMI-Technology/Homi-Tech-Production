@@ -48,12 +48,12 @@ export default function SubprocessorsPage() {
   return (
     <section className="px-6 py-16 md:py-24">
       <div className="mx-auto max-w-3xl">
-        <h1 className="text-4xl font-black text-light">Subprocessors</h1>
+        <h1 className="type-h1">Subprocessors</h1>
         <p className="mt-3 text-sm text-dim">Last updated: July 2026</p>
 
         <div className="mt-10 space-y-10 text-dim">
           <div>
-            <h2 className="text-xl font-bold text-light">Overview</h2>
+            <h2 className="type-h3">Overview</h2>
             <p className="mt-3 leading-relaxed">
               {BRAND.legalEntity} uses third-party service providers
               (&ldquo;Subprocessors&rdquo;) to help deliver our Services. This page lists the
@@ -67,7 +67,7 @@ export default function SubprocessorsPage() {
 
           {SUBPROCESSORS.map((group) => (
             <div key={group.category}>
-              <h2 className="text-xl font-bold text-light">{group.category}</h2>
+              <h2 className="type-h3">{group.category}</h2>
               <ul className="mt-3 space-y-2 leading-relaxed">
                 {group.vendors.map((v) => (
                   <li key={v.name}>

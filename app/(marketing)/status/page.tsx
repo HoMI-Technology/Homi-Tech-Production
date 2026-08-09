@@ -16,7 +16,7 @@ export default function StatusPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
       <p className="eyebrow">Reliability</p>
-      <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">
+      <h1 className="mt-1 type-h2">
         System status
       </h1>
       <p className="mt-3 text-dim">
@@ -65,7 +65,7 @@ export default function StatusPage() {
       </div>
 
       <div className="glass mt-10 p-6">
-        <h2 className="font-display text-xl text-light">SLOs (product targets)</h2>
+        <h2 className="type-h3">SLOs (product targets)</h2>
         <ul className="mt-3 list-inside list-disc space-y-2 text-sm text-dim">
           <li>
             <span className="text-light">Availability:</span> marketing + assessment
@@ -130,12 +130,12 @@ function StatusCard({
   return (
     <div className={`glass border p-5 ${color.split(" ")[1]}`}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-display text-lg text-light">{name}</h2>
-        <span className={`text-[10px] font-semibold uppercase tracking-wide ${color.split(" ")[0]}`}>
+        <h2 className="type-h4">{name}</h2>
+        <span className={`text-xs font-semibold uppercase tracking-wide ${color.split(" ")[0]}`}>
           {label}
         </span>
       </div>
-      <p className="mt-1 text-[10px] uppercase tracking-wide text-dim">{level}</p>
+      <p className="mt-1 text-xs uppercase tracking-wide text-dim">{level}</p>
       <p className="mt-2 text-sm text-dim">{detail}</p>
     </div>
   );

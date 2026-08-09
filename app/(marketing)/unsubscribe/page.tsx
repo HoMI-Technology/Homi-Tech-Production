@@ -18,7 +18,7 @@ export default async function UnsubscribePage({
   return (
     <section className="px-6 py-24">
       <div className="glass mx-auto max-w-md p-8 text-center">
-        <h1 className="font-display text-2xl text-light">Email preferences</h1>
+        <h1 className="type-h2">Email preferences</h1>
         {e && t ? (
           <UnsubscribeConfirm email={e} token={t} />
         ) : (

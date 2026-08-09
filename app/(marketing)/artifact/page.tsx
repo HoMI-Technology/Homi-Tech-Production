@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 export default function ArtifactPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="font-display text-3xl text-light">Connected companion — test environment</h1>
+      <h1 className="type-h2">Connected companion — test environment</h1>
       <p className="mt-2 max-w-2xl text-dim">
         A fixed mock context on the left, the live Decision Companion on the right. Nothing here is saved.
       </p>

@@ -13,12 +13,12 @@ export default function TermsPage() {
   return (
     <section className="px-6 py-16 md:py-24">
       <div className="mx-auto max-w-3xl">
-        <h1 className="text-4xl font-black text-light">Terms of Service</h1>
+        <h1 className="type-h1">Terms of Service</h1>
         <p className="mt-3 text-sm text-dim">Last updated: July 2026</p>
 
         <div className="mt-10 space-y-10 text-dim">
           <div>
-            <h2 className="text-xl font-bold text-light">1. Agreement</h2>
+            <h2 className="type-h3">1. Agreement</h2>
             <p className="mt-3 leading-relaxed">
               These Terms of Service govern your use of {BRAND.display}, a product of{" "}
               {BRAND.legalEntity}. By creating an account or using our assessment, Decision
@@ -28,7 +28,7 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">2. Educational guidance only</h2>
+            <h2 className="type-h3">2. Educational guidance only</h2>
             <p className="mt-3 leading-relaxed">
               {BRAND.display} provides educational guidance only. It does not provide
               financial, legal, tax, mortgage, real estate, or investment advice. Your
@@ -49,7 +49,7 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">3. Accounts</h2>
+            <h2 className="type-h3">3. Accounts</h2>
             <p className="mt-3 leading-relaxed">
               You&rsquo;re responsible for maintaining the confidentiality of your account
               credentials and for all activity under your account. Provide accurate
@@ -59,7 +59,7 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">4. Subscriptions and billing</h2>
+            <h2 className="type-h3">4. Subscriptions and billing</h2>
             <p className="mt-3 leading-relaxed">
               Paid tiers (Plus, Pro, Family) are billed on a recurring basis at the rate
               displayed at the time of purchase. Subscriptions renew automatically until
@@ -74,7 +74,7 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">5. Acceptable use</h2>
+            <h2 className="type-h3">5. Acceptable use</h2>
             <p className="mt-3 leading-relaxed">
               Don&rsquo;t use {BRAND.display} to misrepresent your identity, attempt to
               reverse-engineer the scoring methodology, scrape or resell our content, or
@@ -83,7 +83,7 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">6. Intellectual property</h2>
+            <h2 className="type-h3">6. Intellectual property</h2>
             <p className="mt-3 leading-relaxed">
               The HōMI name, wordmark, Threshold Compass, Decision Readiness Intelligence™,
               scoring methodology, and related content are the property of{" "}
@@ -93,7 +93,7 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">7. Limitation of liability</h2>
+            <h2 className="type-h3">7. Limitation of liability</h2>
             <p className="mt-3 leading-relaxed">
               {BRAND.display} is provided &ldquo;as is&rdquo; without warranties of any
               kind. To the fullest extent permitted by law, {BRAND.legalEntity} is not liable
@@ -105,7 +105,7 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">8. Termination</h2>
+            <h2 className="type-h3">8. Termination</h2>
             <p className="mt-3 leading-relaxed">
               You may stop using {BRAND.display} and close your account at any time. We may
               suspend or terminate access to the service for violations of these terms, with
@@ -114,7 +114,7 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">9. Changes to these terms</h2>
+            <h2 className="type-h3">9. Changes to these terms</h2>
             <p className="mt-3 leading-relaxed">
               We may update these terms as the product evolves. Continued use of the service
               after a material change constitutes acceptance of the updated terms.
@@ -122,7 +122,7 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">10. Contact</h2>
+            <h2 className="type-h3">10. Contact</h2>
             <p className="mt-3 leading-relaxed">
               Questions about these terms can be directed to {BRAND.legalEntity} at{" "}
               <a href="mailto:support@homitechnology.com" className="text-cyan hover:underline">

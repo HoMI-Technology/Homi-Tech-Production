@@ -15,7 +15,7 @@ export default function WaitlistPage() {
     <section className="px-6 py-20 md:py-28">
       <div className="mx-auto flex max-w-lg flex-col items-center text-center">
         <ThresholdCompass size={140} className="compass-float" />
-        <h1 className="mt-8 text-3xl font-black text-light md:text-4xl">
+        <h1 className="mt-8 type-h1">
           We&rsquo;ll tell you when it&rsquo;s your turn.
         </h1>
         <p className="mt-4 text-dim">

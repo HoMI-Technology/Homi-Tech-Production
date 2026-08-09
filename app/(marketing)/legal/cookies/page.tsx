@@ -12,12 +12,12 @@ export default function CookiesPage() {
   return (
     <section className="px-6 py-16 md:py-24">
       <div className="mx-auto max-w-3xl">
-        <h1 className="text-4xl font-black text-light">Cookie Policy</h1>
+        <h1 className="type-h1">Cookie Policy</h1>
         <p className="mt-3 text-sm text-dim">Last updated: July 2026</p>
 
         <div className="mt-10 space-y-10 text-dim">
           <div>
-            <h2 className="text-xl font-bold text-light">1. The short version</h2>
+            <h2 className="type-h3">1. The short version</h2>
             <p className="mt-3 leading-relaxed">
               {BRAND.display} uses one essential cookie to keep you signed in. That is the whole list.
               We do not use advertising cookies, analytics trackers, cross-site pixels, or any third-party
@@ -26,7 +26,7 @@ export default function CookiesPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">2. The one cookie we set</h2>
+            <h2 className="type-h3">2. The one cookie we set</h2>
             <ul className="mt-3 list-disc space-y-2 pl-5 leading-relaxed">
               <li>
                 <span className="font-medium text-light">Supabase auth session cookie.</span> Set when you
@@ -38,7 +38,7 @@ export default function CookiesPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">3. Zero trackers, zero ad tech</h2>
+            <h2 className="type-h3">3. Zero trackers, zero ad tech</h2>
             <p className="mt-3 leading-relaxed">
               We do not run Google Analytics, Meta Pixel, ad-network tags, cross-site tracking scripts, or
               any fingerprinting technology. We do not build advertising profiles from your activity on
@@ -48,7 +48,7 @@ export default function CookiesPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">4. What lives in your browser storage</h2>
+            <h2 className="type-h3">4. What lives in your browser storage</h2>
             <p className="mt-3 leading-relaxed">
               Beyond that one cookie, {BRAND.display} uses your browser&rsquo;s local and session storage —
               not cookies — to keep the product fast and to let anonymous visitors use it before creating an
@@ -74,7 +74,7 @@ export default function CookiesPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">5. Managing or clearing this data</h2>
+            <h2 className="type-h3">5. Managing or clearing this data</h2>
             <p className="mt-3 leading-relaxed">
               You can clear local and session storage at any time from your browser&rsquo;s settings, which
               will remove any locally saved assessment drafts. Clearing the Supabase session cookie will sign
@@ -87,7 +87,7 @@ export default function CookiesPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">6. Changes to this policy</h2>
+            <h2 className="type-h3">6. Changes to this policy</h2>
             <p className="mt-3 leading-relaxed">
               If what we store changes, this page will change with it. Material changes will be reflected
               here with an updated date above.
@@ -95,7 +95,7 @@ export default function CookiesPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-light">7. Contact</h2>
+            <h2 className="type-h3">7. Contact</h2>
             <p className="mt-3 leading-relaxed">
               Questions about this policy can be sent to {BRAND.legalEntity} through our support channels.
               See also our{" "}

@@ -80,7 +80,7 @@ export default function HowItWorksPage() {
     <>
       <section className="px-6 pb-16 pt-16 md:pt-24">
         <div className="mx-auto max-w-4xl text-center">
-          <h1 className="text-4xl font-black text-light md:text-5xl">How HōMI works</h1>
+          <h1 className="type-h1">How HōMI works</h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-dim">
             200+ signals. 3 dimensions. 1 score. Here is exactly how we get from your
             answers to an honest verdict — no trade secrets, just the shape of the method.
@@ -111,7 +111,7 @@ export default function HowItWorksPage() {
             ].map((s) => (
               <div key={s.step} className="glass glass-hover p-8">
                 <span className="score-numeral text-sm text-dim">{s.step}</span>
-                <h2 className="mt-3 text-2xl font-bold text-light">{s.title}</h2>
+                <h2 className="mt-3 type-h3">{s.title}</h2>
                 <p className="mt-3 text-sm leading-relaxed text-dim">{s.copy}</p>
               </div>
             ))}
@@ -123,7 +123,7 @@ export default function HowItWorksPage() {
       <Reveal>
         <section className="px-6 py-16">
           <div className="mx-auto max-w-6xl">
-            <h2 className="text-center text-3xl font-black text-light md:text-4xl">
+            <h2 className="text-center type-h2">
               Inside the three pillars
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-center text-dim">
@@ -136,7 +136,7 @@ export default function HowItWorksPage() {
               {PILLARS.map((pillar) => (
                 <div key={pillar.key} className="glass p-8 md:p-10">
                   <div className="flex flex-wrap items-baseline justify-between gap-3">
-                    <h3 className="text-2xl font-bold text-light">{pillar.name}</h3>
+                    <h3 className="type-h3">{pillar.name}</h3>
                     <span className="text-lg" style={{ color: pillar.color }}>
                       {pillar.question}
                     </span>
@@ -163,7 +163,7 @@ export default function HowItWorksPage() {
         <section className="px-6 py-16">
           <div className="mx-auto max-w-4xl">
             <div className="glass p-10 md:p-14">
-              <h2 className="text-3xl font-black text-light md:text-4xl">
+              <h2 className="type-h2">
                 Red lines that protect you
               </h2>
               <p className="mt-4 leading-relaxed text-dim">
@@ -221,7 +221,7 @@ export default function HowItWorksPage() {
       <Reveal>
         <section className="px-6 py-16">
           <div className="mx-auto max-w-6xl">
-            <h2 className="text-center text-3xl font-black text-light md:text-4xl">
+            <h2 className="text-center type-h2">
               The verdict tiers
             </h2>
             <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -259,7 +259,7 @@ export default function HowItWorksPage() {
       <Reveal>
         <section className="px-6 py-20 text-center">
           <div className="mx-auto max-w-2xl">
-            <h2 className="text-3xl font-black text-light md:text-4xl">
+            <h2 className="type-h1">
               See where you stand.
             </h2>
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">

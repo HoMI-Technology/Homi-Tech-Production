@@ -70,7 +70,7 @@ export default async function BlogPostPage({
           <Link href="/guides" className="text-sm text-dim transition-colors hover:text-cyan">
             &larr; All guides &amp; posts
           </Link>
-          <h1 className="mt-5 text-4xl font-black leading-tight text-light md:text-5xl">
+          <h1 className="mt-5 type-h1">
             {post.title}
           </h1>
           <div className="mt-4 flex items-center gap-2 text-sm text-dim">
@@ -83,12 +83,12 @@ export default async function BlogPostPage({
       </section>
 
       <Reveal>
-        <section className="px-6 py-8">
+        <section className="px-6 py-16">
           <div className="mx-auto max-w-3xl space-y-12">
             {post.sections.map((section, idx) => (
               <div key={section.heading ?? idx}>
                 {section.heading && (
-                  <h2 className="font-display text-2xl font-bold text-light">
+                  <h2 className="type-h2">
                     {section.heading}
                   </h2>
                 )}
@@ -111,7 +111,7 @@ export default async function BlogPostPage({
             <div className="hairline" />
             <div className="mt-10 flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:text-left">
               <div>
-                <h2 className="text-xl font-bold text-light">See where you stand.</h2>
+                <h2 className="type-h3">See where you stand.</h2>
                 <p className="mt-2 text-sm text-dim">
                   Ninety seconds tells you the truth about your readiness today.
                 </p>
@@ -128,18 +128,18 @@ export default async function BlogPostPage({
         <Reveal>
           <section className="px-6 py-16">
             <div className="mx-auto max-w-6xl">
-              <h2 className="text-2xl font-bold text-light">More from the blog</h2>
+              <h2 className="type-h2">More from the blog</h2>
               <div className="mt-8 grid gap-6 md:grid-cols-3">
                 {otherPosts.map((p) => (
                   <Link
                     key={p.slug}
                     href={`/blog/${p.slug}`}
-                    className="glass glass-hover flex flex-col p-6"
+                    className="group glass glass-hover flex flex-col p-6"
                   >
                     <span className="text-xs text-dim">{formatDate(p.date)}</span>
-                    <h3 className="mt-2 font-semibold text-light">{p.title}</h3>
+                    <h3 className="mt-2 type-h4">{p.title}</h3>
                     <p className="mt-2 flex-1 text-sm text-dim">{p.description}</p>
-                    <span className="mt-4 text-sm font-semibold text-cyan">Read &rarr;</span>
+                    <span className="mt-4 text-sm font-semibold text-cyan">Read <span aria-hidden className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1">&rarr;</span></span>
                   </Link>
                 ))}
               </div>

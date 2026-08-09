@@ -93,7 +93,7 @@ export function VerdictShift() {
 
       {/* The idea */}
       <div>
-        <h2 className="text-3xl font-black leading-tight text-light sm:text-4xl">
+        <h2 className="type-h2">
           Not yet is not no.
         </h2>
         <p className="mt-4 max-w-md text-lg leading-relaxed text-dim">

@@ -459,6 +459,69 @@ body {
   letter-spacing: -0.03em;
 }
 
+/* ── Marketing type scale (strict) ─────────────────────────────────
+   One scale, nine steps — every marketing heading and body size maps
+   to exactly one step. Fraunces (font-display) carries the display
+   steps per brand canon; tracking tightens as size grows and
+   line-height loosens as size shrinks.
+
+     display  36→60px  Fraunces 600  landing section statements
+     h1       36→48px  Fraunces 600  page titles + end-of-page CTAs
+     h2       28→36px  Fraunces 600  section headings
+     h3       20px     Inter 600     card / panel / tier titles
+     h4       18px     Inter 600     minor card titles
+     lede     18px     text-lg leading-relaxed   intro under a title
+     body     16px     text-base                 prose
+     small    14px     text-sm                   supporting copy
+     kicker   11px     Inter 600     uppercase overline, 0.3em tracked
+
+   These live in @layer components so a call-site utility (text-dim,
+   text-center, mt-*) still wins where a surface needs it. */
+.type-display {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 1.35rem + 4vw, 3.75rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--color-light);
+}
+.type-h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 1.9rem + 1.6vw, 3rem);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--color-light);
+}
+.type-h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 1.55rem + 0.9vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.18;
+  letter-spacing: -0.015em;
+  color: var(--color-light);
+}
+.type-h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--color-light);
+}
+.type-h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--color-light);
+}
+.type-kicker {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
 /* ── Compass rotation (linear only, canon durations) ───────────── */
 @keyframes spin-cw { to { transform: rotate(360deg); } }
 @keyframes spin-ccw { to { transform: rotate(-360deg); } }
@@ -617,9 +680,10 @@ body {
    reveal (no transition on visibility), so the opacity fade is unaffected. */
 .reveal {
   opacity: 0;
-  transform: translateY(24px);
+  transform: translateY(16px);
   visibility: hidden;
-  transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1), transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  /* 300ms, decelerating, no overshoot — reveals read as settling, not arriving. */
+  transition: opacity 300ms cubic-bezier(0.16, 1, 0.3, 1), transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .reveal.is-visible {
   opacity: 1;
@@ -820,6 +884,20 @@ input[type="range"].homi-slider::-moz-range-track {
     #34d399 100%
   );
   box-shadow: 0 0 24px -4px rgba(52, 211, 153, 0.3);
+}
+
+/* Decision-orbit node chips — positioned on the orbit by --x/--y.
+   On narrow viewports the 3/9-o'clock chips would center past the
+   container edge and clip at 375px, so their anchor is clamped inside
+   the box; desktop positions are untouched. */
+.orbit-node {
+  left: var(--x);
+  top: var(--y);
+}
+@media (max-width: 640px) {
+  .orbit-node {
+    left: clamp(2.75rem, var(--x), calc(100% - 2.75rem));
+  }
 }
 
 /* Section vignette — soft teal ambience behind key sections */

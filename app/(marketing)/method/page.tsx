@@ -14,7 +14,7 @@ export default function MethodPage() {
     <>
       <section className="px-6 pb-16 pt-16 md:pt-24">
         <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-4xl font-black text-light md:text-5xl">The method</h1>
+          <h1 className="type-h1">The method</h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-dim">
             Every financial system optimizes outcomes after decisions. HōMI optimizes the
             moment before.
@@ -25,7 +25,7 @@ export default function MethodPage() {
       <Reveal>
         <section className="px-6 py-16">
           <div className="mx-auto max-w-3xl space-y-6 text-lg leading-relaxed text-dim">
-            <h2 className="font-display text-2xl font-bold text-light">
+            <h2 className="type-h2">
               Readiness before action
             </h2>
             <p>
@@ -47,7 +47,7 @@ export default function MethodPage() {
       <Reveal>
         <section className="px-6 py-16">
           <div className="mx-auto max-w-3xl space-y-6 text-lg leading-relaxed text-dim">
-            <h2 className="font-display text-2xl font-bold text-light">
+            <h2 className="type-h2">
               The temperature metaphor
             </h2>
             <p>
@@ -71,7 +71,7 @@ export default function MethodPage() {
       <Reveal>
         <section className="px-6 py-16">
           <div className="mx-auto max-w-3xl space-y-6 text-lg leading-relaxed text-dim">
-            <h2 className="font-display text-2xl font-bold text-light">
+            <h2 className="type-h2">
               Why emotional truth counts as much as the math
             </h2>
             <p>
@@ -94,7 +94,7 @@ export default function MethodPage() {
       <Reveal>
         <section className="px-6 py-16">
           <div className="mx-auto max-w-3xl space-y-6 text-lg leading-relaxed text-dim">
-            <h2 className="font-display text-2xl font-bold text-light">
+            <h2 className="type-h2">
               The moment before everything changes
             </h2>
             <p>
@@ -117,7 +117,7 @@ export default function MethodPage() {
         <section className="px-6 py-16">
           <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
             <div className="glass p-8">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-dim">
+              <h3 className="type-kicker text-dim">
                 Mission
               </h3>
               <p className="mt-4 font-display text-xl leading-snug text-light">
@@ -126,7 +126,7 @@ export default function MethodPage() {
               </p>
             </div>
             <div className="glass p-8">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-dim">
+              <h3 className="type-kicker text-dim">
                 Vision
               </h3>
               <p className="mt-4 font-display text-xl leading-snug text-light">
@@ -141,7 +141,7 @@ export default function MethodPage() {
       <Reveal>
         <section className="px-6 py-20 text-center">
           <div className="mx-auto max-w-2xl">
-            <h2 className="text-3xl font-black text-light md:text-4xl">
+            <h2 className="type-h1">
               See the method in practice.
             </h2>
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
