@@ -124,7 +124,8 @@ export async function FinancialPositionSection({
   const hasLedger = dashboardView?.source === "ledger";
 
   /** Display decision lives in netWorthTileState so the unknown branch is tested. */
-  const netWorthTile = netWorthTileState(dashboardView?.kpis.netWorth ?? null);
+  const netWorth = dashboardView?.kpis.netWorth ?? null;
+  const netWorthTile = netWorthTileState(netWorth);
   const cashFlow = dashboardView?.kpis.cashFlow ?? 0;
   const savingsRatePct = dashboardView?.kpis.savingsRatePct ?? 0;
   const goalSavings = ledgerGoal
@@ -142,7 +143,7 @@ export async function FinancialPositionSection({
           <>
             <StatTile
               label="Net worth"
-              value={netWorthTile.value}
+              value={netWorth === null ? netWorthTile.unknownLabel : formatCurrencyTile(netWorth)}
               accent={COLORS.cyan}
               delta={
                 netWorthTile.showTrend && nwDelta

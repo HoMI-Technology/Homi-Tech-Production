@@ -8,7 +8,6 @@
 
 import type { AdvisorFinanceContext } from "@/lib/advisor/fallback";
 import type { SnapshotReading } from "@/lib/dashboard/financial-position";
-import { formatCurrencyTile } from "@/lib/tools/format";
 
 export interface DashboardKpis {
   /** Null when no source can compute it — the tile renders "unknown", not $0. */
@@ -24,8 +23,10 @@ export interface LedgerDashboardView {
 }
 
 export interface NetWorthTileState {
-  /** What the tile prints. An em dash when no source can supply a figure. */
-  value: string;
+  /** True when a figure exists and the caller should format it for display. */
+  known: boolean;
+  /** Printed verbatim when `known` is false — never a currency string or a zero. */
+  unknownLabel: string;
   footer: string;
   /**
    * Whether the delta and sparkline should render. Both describe movement in a
@@ -43,18 +44,24 @@ export interface NetWorthTileState {
  * The v1 ledger has no liability type, so it reports net worth as unknown and
  * the tile must say so rather than print $0 — a confident wrong number on the
  * one tile a user reads as a summary of everything they own and owe.
+ *
+ * Deliberately does not format: importing the currency helper here pulled
+ * lib/tools/format into a shared chunk and pushed /tools/mortgage over its
+ * §11 script budget. The caller formats; this decides.
  */
 export function netWorthTileState(netWorth: number | null): NetWorthTileState {
   if (netWorth === null) {
     return {
-      value: "—",
+      known: false,
+      unknownLabel: "—",
       footer: "Connect accounts to see what you own and owe",
       showTrend: false,
     };
   }
 
   return {
-    value: formatCurrencyTile(netWorth),
+    known: true,
+    unknownLabel: "—",
     footer: "From your synced balances",
     showTrend: true,
   };

@@ -108,11 +108,13 @@ describe("buildLedgerDashboardView", () => {
  * the one tile users read as a summary of everything they own and owe.
  */
 describe("netWorthTileState", () => {
-  it("prints an em dash and an explanation when net worth is unknown", () => {
+  it("labels an unknown net worth with an em dash and an explanation", () => {
     const tile = netWorthTileState(null);
 
-    expect(tile.value).toBe("—");
-    expect(tile.value).not.toMatch(/\$|0/);
+    expect(tile.known).toBe(false);
+    expect(tile.unknownLabel).toBe("—");
+    // The whole point: never a currency string and never a zero.
+    expect(tile.unknownLabel).not.toMatch(/\$|\d/);
     expect(tile.footer).toBe("Connect accounts to see what you own and owe");
   });
 
@@ -120,10 +122,10 @@ describe("netWorthTileState", () => {
     expect(netWorthTileState(null).showTrend).toBe(false);
   });
 
-  it("formats a known net worth and enables the trend", () => {
+  it("marks a known net worth for formatting and enables the trend", () => {
     const tile = netWorthTileState(42_500);
 
-    expect(tile.value).toBe("$42,500");
+    expect(tile.known).toBe(true);
     expect(tile.footer).toBe("From your synced balances");
     expect(tile.showTrend).toBe(true);
   });
@@ -131,12 +133,15 @@ describe("netWorthTileState", () => {
   it("treats a genuine zero as a figure, not as unknown", () => {
     const tile = netWorthTileState(0);
 
-    expect(tile.value).toBe("$0");
+    expect(tile.known).toBe(true);
     expect(tile.showTrend).toBe(true);
   });
 
-  it("formats a negative net worth rather than hiding it", () => {
-    expect(netWorthTileState(-12_000).value).toBe("-$12,000");
+  it("treats a negative net worth as a figure rather than hiding it", () => {
+    const tile = netWorthTileState(-12_000);
+
+    expect(tile.known).toBe(true);
+    expect(tile.showTrend).toBe(true);
   });
 });
 
