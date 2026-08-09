@@ -11,7 +11,10 @@ import {
   type ItemReading,
   type SnapshotReading,
 } from "@/lib/dashboard/financial-position";
-import { buildLedgerDashboardView } from "@/lib/dashboard/financial-position-ledger";
+import {
+  buildLedgerDashboardView,
+  netWorthTileState,
+} from "@/lib/dashboard/financial-position-ledger";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Sparkline } from "@/components/ui/Sparkline";
@@ -120,13 +123,8 @@ export async function FinancialPositionSection({
   const dashboardView = buildLedgerDashboardView(ledgerContext, latestSnapshot);
   const hasLedger = dashboardView?.source === "ledger";
 
-  /**
-   * Null means no source could compute it. The v1 ledger has no liability type,
-   * so any figure we can show came from synced balances — which is also what
-   * makes the delta and sparkline meaningful.
-   */
-  const netWorth = dashboardView?.kpis.netWorth ?? null;
-  const netWorthKnown = netWorth !== null;
+  /** Display decision lives in netWorthTileState so the unknown branch is tested. */
+  const netWorthTile = netWorthTileState(dashboardView?.kpis.netWorth ?? null);
   const cashFlow = dashboardView?.kpis.cashFlow ?? 0;
   const savingsRatePct = dashboardView?.kpis.savingsRatePct ?? 0;
   const goalSavings = ledgerGoal
@@ -144,21 +142,17 @@ export async function FinancialPositionSection({
           <>
             <StatTile
               label="Net worth"
-              value={netWorthKnown ? formatCurrencyTile(netWorth) : "—"}
+              value={netWorthTile.value}
               accent={COLORS.cyan}
               delta={
-                netWorthKnown && nwDelta
+                netWorthTile.showTrend && nwDelta
                   ? `${nwDelta.delta >= 0 ? "+" : "−"}${formatCurrency(Math.abs(nwDelta.delta))}`
                   : undefined
               }
-              deltaTone={netWorthKnown ? nwDelta?.tone : undefined}
-              footer={
-                netWorthKnown
-                  ? "From your synced balances"
-                  : "Connect accounts to see what you own and owe"
-              }
+              deltaTone={netWorthTile.showTrend ? nwDelta?.tone : undefined}
+              footer={netWorthTile.footer}
               spark={
-                netWorthKnown && netWorthSeries.length >= 2 ? (
+                netWorthTile.showTrend && netWorthSeries.length >= 2 ? (
                   <Sparkline id="networth" values={netWorthSeries} color={COLORS.cyan} />
                 ) : undefined
               }

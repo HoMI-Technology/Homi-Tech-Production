@@ -5,6 +5,7 @@ import type { AdvisorFinanceContext } from "@/lib/advisor/fallback";
 import {
   buildLedgerDashboardView,
   ledgerDashboardKpis,
+  netWorthTileState,
 } from "@/lib/dashboard/financial-position-ledger";
 import type { SnapshotReading } from "@/lib/dashboard/financial-position";
 import { GoalCard } from "@/components/dashboard/GoalCard";
@@ -98,6 +99,44 @@ describe("buildLedgerDashboardView", () => {
 
   it("returns null when neither ledger nor snapshot exists", () => {
     expect(buildLedgerDashboardView(null, null)).toBeNull();
+  });
+});
+
+/**
+ * The Net worth tile is rendered by an async server component, so this is the
+ * layer that can be tested. It is the last gate before a wrong number reaches
+ * the one tile users read as a summary of everything they own and owe.
+ */
+describe("netWorthTileState", () => {
+  it("prints an em dash and an explanation when net worth is unknown", () => {
+    const tile = netWorthTileState(null);
+
+    expect(tile.value).toBe("—");
+    expect(tile.value).not.toMatch(/\$|0/);
+    expect(tile.footer).toBe("Connect accounts to see what you own and owe");
+  });
+
+  it("hides the delta and sparkline when there is no figure to trend", () => {
+    expect(netWorthTileState(null).showTrend).toBe(false);
+  });
+
+  it("formats a known net worth and enables the trend", () => {
+    const tile = netWorthTileState(42_500);
+
+    expect(tile.value).toBe("$42,500");
+    expect(tile.footer).toBe("From your synced balances");
+    expect(tile.showTrend).toBe(true);
+  });
+
+  it("treats a genuine zero as a figure, not as unknown", () => {
+    const tile = netWorthTileState(0);
+
+    expect(tile.value).toBe("$0");
+    expect(tile.showTrend).toBe(true);
+  });
+
+  it("formats a negative net worth rather than hiding it", () => {
+    expect(netWorthTileState(-12_000).value).toBe("-$12,000");
   });
 });
 
