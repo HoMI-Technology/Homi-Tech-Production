@@ -7,12 +7,7 @@
 /* ------------------------------------------------------------------ */
 
 import type { VerdictKey } from "@/lib/brand";
-import type {
-  PathMode,
-  PathReasonCode,
-  PathStepKind,
-  PathStepStatus,
-} from "@/lib/readiness/path";
+import type { PathMode, PathReasonCode, PathStepKind, PathStepStatus } from "@/lib/readiness/path";
 import { COLORS } from "@/lib/brand";
 
 export type { PathMode, PathReasonCode, PathStepKind, PathStepStatus };
@@ -55,13 +50,7 @@ export interface SavingsGoal {
   current: number;
 }
 
-export type BankInstitution =
-  | "chase"
-  | "bofa"
-  | "wells"
-  | "capitalone"
-  | "ally"
-  | "other";
+export type BankInstitution = "chase" | "bofa" | "wells" | "capitalone" | "ally" | "other";
 
 export type BankAccountType = "checking" | "savings" | "credit" | "other";
 
@@ -82,13 +71,7 @@ export interface BankAccount {
 
 export type BillStatus = "upcoming" | "due" | "overdue" | "scheduled" | "paid";
 
-export type BillFrequency =
-  | "weekly"
-  | "biweekly"
-  | "monthly"
-  | "quarterly"
-  | "yearly"
-  | "once";
+export type BillFrequency = "weekly" | "biweekly" | "monthly" | "quarterly" | "yearly" | "once";
 
 export interface Bill {
   id: string;
@@ -105,14 +88,7 @@ export interface Bill {
   paidAt?: string | null;
 }
 
-export type AssetClass =
-  | "stock"
-  | "etf"
-  | "mutual"
-  | "bond"
-  | "crypto"
-  | "cash"
-  | "other";
+export type AssetClass = "stock" | "etf" | "mutual" | "bond" | "crypto" | "cash" | "other";
 
 export type HoldingAccountKind =
   | "brokerage"

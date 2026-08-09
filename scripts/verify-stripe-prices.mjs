@@ -70,7 +70,9 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`[verify-stripe-prices] mode: ${EXPECT_LIVE ? "LIVE" : "test"}  tiers: ${tiers.length}\n`);
+  console.log(
+    `[verify-stripe-prices] mode: ${EXPECT_LIVE ? "LIVE" : "test"}  tiers: ${tiers.length}\n`,
+  );
 
   let failures = 0;
   for (const tier of tiers) {
@@ -88,7 +90,8 @@ async function main() {
       problems.push(`amount $${actualUsd.toFixed(2)} != tiers.ts $${tier.expectedUsd.toFixed(2)}`);
     }
     if (price.currency !== "usd") problems.push(`currency ${price.currency}`);
-    if (price.recurring?.interval !== "month") problems.push(`interval ${price.recurring?.interval}`);
+    if (price.recurring?.interval !== "month")
+      problems.push(`interval ${price.recurring?.interval}`);
     if (price.livemode !== EXPECT_LIVE) {
       problems.push(`livemode ${price.livemode} but key is ${EXPECT_LIVE ? "live" : "test"}`);
     }
@@ -97,14 +100,20 @@ async function main() {
       console.log(`  FAIL  ${tier.lookupKey.padEnd(22)} ${problems.join("; ")}  (${price.id})`);
       failures++;
     } else {
-      console.log(`  ok    ${tier.lookupKey.padEnd(22)} $${actualUsd.toFixed(2)}/mo usd  ${price.id}`);
+      console.log(
+        `  ok    ${tier.lookupKey.padEnd(22)} $${actualUsd.toFixed(2)}/mo usd  ${price.id}`,
+      );
     }
   }
 
   console.log("");
   if (failures) {
-    console.error(`[verify-stripe-prices] ${failures} mismatch(es). Fix in the Stripe Dashboard before launch.`);
-    console.error("Prices are immutable in Stripe — create a new price and update the lookup_key, do not edit.");
+    console.error(
+      `[verify-stripe-prices] ${failures} mismatch(es). Fix in the Stripe Dashboard before launch.`,
+    );
+    console.error(
+      "Prices are immutable in Stripe — create a new price and update the lookup_key, do not edit.",
+    );
     process.exit(1);
   }
   console.log("[verify-stripe-prices] All prices match lib/stripe/tiers.ts.");

@@ -49,10 +49,7 @@ export async function POST(request: Request) {
   };
   if (parsed.data.displayName) patch.display_name = parsed.data.displayName;
 
-  const { error } = await supabase
-    .from("household_members")
-    .update(patch)
-    .eq("user_id", user.id);
+  const { error } = await supabase.from("household_members").update(patch).eq("user_id", user.id);
 
   if (error) {
     return NextResponse.json({ error: "Could not sync score." }, { status: 500 });

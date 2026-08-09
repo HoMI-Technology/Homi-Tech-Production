@@ -39,7 +39,10 @@ function shortLabel(dateStr: string) {
 }
 
 /** Bucket created_at rows into a 30-day daily series. */
-function dailySeries(rows: { created_at: string }[], since: Date): { date: string; count: number }[] {
+function dailySeries(
+  rows: { created_at: string }[],
+  since: Date,
+): { date: string; count: number }[] {
   const buckets = new Map<string, number>();
   for (let i = 0; i < 30; i++) {
     const d = new Date(since);
@@ -100,10 +103,7 @@ export default async function AdminMarketingPage() {
   }
 
   try {
-    const { data } = await supabase
-      .from("profiles")
-      .select("subscription_tier, role")
-      .limit(10000);
+    const { data } = await supabase.from("profiles").select("subscription_tier, role").limit(10000);
     const rows = (data as { subscription_tier: SubscriptionTier; role: string }[] | null) ?? [];
     // Exclude admins: create-admin comps them to the 'family' tier via the
     // entitlements bypass, so counting them would inflate tier mix and MRR.
@@ -264,14 +264,16 @@ export default async function AdminMarketingPage() {
           <div>
             <p className="text-xs text-dim">Paid conversion</p>
             <p className="score-numeral mt-1 text-3xl text-light">{conversionPct}%</p>
-            <p className="mt-1 text-xs text-dim">{paidTotal.toLocaleString()} of {accountsTotal.toLocaleString()} accounts</p>
+            <p className="mt-1 text-xs text-dim">
+              {paidTotal.toLocaleString()} of {accountsTotal.toLocaleString()} accounts
+            </p>
           </div>
         </div>
         {mrrCents === 0 && (
           <p className="mt-4 text-sm text-dim">
-            No paid subscriptions yet. MRR is estimated from tier list prices
-            (Plus {formatUsdFromCents(999)}, Pro {formatUsdFromCents(2499)}, Family {formatUsdFromCents(3999)} / mo)
-            and fills in as accounts upgrade.
+            No paid subscriptions yet. MRR is estimated from tier list prices (Plus{" "}
+            {formatUsdFromCents(999)}, Pro {formatUsdFromCents(2499)}, Family{" "}
+            {formatUsdFromCents(3999)} / mo) and fills in as accounts upgrade.
           </p>
         )}
       </div>
@@ -316,7 +318,10 @@ export default async function AdminMarketingPage() {
                     <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-surface">
                       <div
                         className="h-full rounded-full"
-                        style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${color}99, ${color})` }}
+                        style={{
+                          width: `${pct}%`,
+                          background: `linear-gradient(90deg, ${color}99, ${color})`,
+                        }}
                       />
                     </div>
                   </div>
@@ -385,7 +390,10 @@ export default async function AdminMarketingPage() {
                   <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-surface">
                     <div
                       className="h-full rounded-full"
-                      style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${COLORS.cyan}99, ${COLORS.cyan})` }}
+                      style={{
+                        width: `${pct}%`,
+                        background: `linear-gradient(90deg, ${COLORS.cyan}99, ${COLORS.cyan})`,
+                      }}
                     />
                   </div>
                 </div>

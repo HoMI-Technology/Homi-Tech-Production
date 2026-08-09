@@ -5,7 +5,7 @@ Everything code-side for the launch loops is **done and merged to `main`**
 lifecycle email loop + outcome surveys, and the double-send fix). What remains
 is **owner-only**: steps that need your accounts, credentials, DNS, or a
 payment method. No engineer can do these without your logins. They're ordered
-by *what breaks first* under real traffic.
+by _what breaks first_ under real traffic.
 
 Legend: 🔴 hard launch blocker · 🟠 needed within week one · 🟢 do-soon.
 
@@ -37,7 +37,7 @@ and `app/api/household/invite/route.ts`. The verified Resend domain **must** be
    enable custom SMTP: host `smtp.resend.com`, port `465`, username **`resend`**
    (the literal word — not your email), password = **the same Resend API key**.
    Sender `hello@homitechnology.com`, sender name `HōMI`.
-   *This is a separate path from step 2:* Supabase sends the auth mail
+   _This is a separate path from step 2:_ Supabase sends the auth mail
    (confirmation, magic link, password reset) over SMTP, while the app sends
    product mail over the API. Both must be configured — doing only one leaves
    either signups or the retention loop broken.
@@ -49,7 +49,7 @@ and `app/api/household/invite/route.ts`. The verified Resend domain **must** be
    protection" (HaveIBeenPwned)**. This is the one item here that shows up in
    `get_advisors`, so it can be confirmed externally once flipped.
 
-*Verify:* sign up a throwaway address on the live site → confirmation arrives;
+_Verify:_ sign up a throwaway address on the live site → confirmation arrives;
 complete an assessment → verdict email arrives.
 
 ---
@@ -71,7 +71,7 @@ single files as documented in `docs/ops/MIGRATIONS-SSOT.md`.
 
 Verifying `00040` uncovered that the guard it extends **had never enforced
 anything**. `guard_profiles_privileged_columns()` was `SECURITY DEFINER` owned by
-`postgres`; inside such a function `current_user` is the *owner*, and the body's
+`postgres`; inside such a function `current_user` is the _owner_, and the body's
 first branch exempts `postgres`. So it returned `new` for every caller — the
 trigger fired on every UPDATE and waved it through.
 
@@ -98,7 +98,7 @@ write, assert `42501`.
 ⚠ `00034_profile_field_locks.sql` must **not** be applied — it would install a
 duplicate trigger and its service-context test (`auth.uid() is null`) is weaker
 than the allowlist. Note its header's "escalation hole is open" claim turned out to
-be *accurate*, though for a different reason than it states. See the drift report.
+be _accurate_, though for a different reason than it states. See the drift report.
 
 ---
 
@@ -216,7 +216,7 @@ The mobile Lighthouse check reports **LCP ~3.7s** on `/`, `/shadow-score`,
 - **CLS is now fixed** (0.33 → ~0.00) and the off-message welcome toast no longer
   covers the funnel.
 - The **observed** LCP is **195–958ms** — real users get a fast page. The ~3.7s
-  is Lighthouse's *Lantern simulation* estimate, which models these
+  is Lighthouse's _Lantern simulation_ estimate, which models these
   dynamically-rendered App-Router routes' largest paint as gated behind the JS/
   RSC chain on simulated slow-4G.
 - It does **not** block merges (the `verify` check is the required one; this

@@ -22,8 +22,12 @@ type ThreadState =
 export function CompanionMemorySection() {
   const [identityName, setIdentityName] = useState(DEFAULT_IDENTITY.name);
   const [presetRole, setPresetRole] = useState("");
-  const [assessmentLine, setAssessmentLine] = useState("Nothing yet — no assessment on this device.");
-  const [financeLine, setFinanceLine] = useState("Nothing yet — no saved money picture on this device.");
+  const [assessmentLine, setAssessmentLine] = useState(
+    "Nothing yet — no assessment on this device.",
+  );
+  const [financeLine, setFinanceLine] = useState(
+    "Nothing yet — no saved money picture on this device.",
+  );
   const [thread, setThread] = useState<ThreadState>({ kind: "loading" });
   const [confirmingForget, setConfirmingForget] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
@@ -92,7 +96,9 @@ export function CompanionMemorySection() {
       setNotice("Forgotten. Your next conversation starts clean.");
       track("companion_thread_forgotten");
     } else {
-      setNotice("Couldn't reach the server — local copies were cleared, but the server thread remains. Try again.");
+      setNotice(
+        "Couldn't reach the server — local copies were cleared, but the server thread remains. Try again.",
+      );
     }
   }
 
@@ -100,7 +106,9 @@ export function CompanionMemorySection() {
     clearIdentity();
     setIdentityName(DEFAULT_IDENTITY.name);
     setPresetRole(getPreset(DEFAULT_IDENTITY.preset).role);
-    setNotice("Identity reset. The Companion will ask you to choose your HōMI next time you open it.");
+    setNotice(
+      "Identity reset. The Companion will ask you to choose your HōMI next time you open it.",
+    );
     track("companion_identity_reset");
   }
 
@@ -117,15 +125,16 @@ export function CompanionMemorySection() {
     <section className="glass p-6 sm:p-8">
       <h2 className="font-display text-xl font-semibold text-light">What HōMI remembers</h2>
       <p className="mt-1 text-sm text-dim">
-        Everything your Companion knows, stated plainly. Only facts you gave it — nothing inferred behind
-        your back — and all of it yours to erase.
+        Everything your Companion knows, stated plainly. Only facts you gave it — nothing inferred
+        behind your back — and all of it yours to erase.
       </p>
 
       <dl className="mt-6 space-y-4 text-sm">
         <div>
           <dt className="font-semibold text-light">Your HōMI</dt>
           <dd className="mt-0.5 text-dim">
-            {identityName === DEFAULT_IDENTITY.name ? "HōMI (the classic)" : identityName} — {presetRole || "your companion."}
+            {identityName === DEFAULT_IDENTITY.name ? "HōMI (the classic)" : identityName} —{" "}
+            {presetRole || "your companion."}
           </dd>
         </div>
         <div>

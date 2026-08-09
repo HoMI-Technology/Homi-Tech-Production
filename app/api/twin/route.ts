@@ -41,14 +41,21 @@ Voice rules (non-negotiable):
 
 Output plain prose only: a short salutation-style opening line, then the letter body in flowing paragraphs. No markdown, no headers, no bullet points.`;
 
-function buildContextNote(horizon: Horizon, assessment: TwinAssessmentContext, fear: string | undefined): string {
+function buildContextNote(
+  horizon: Horizon,
+  assessment: TwinAssessmentContext,
+  fear: string | undefined,
+): string {
   const meta = VERDICT_META[assessment.verdict];
   const horizonWord = horizon === "retirement" ? "retirement" : `${horizon} years from now`;
   const hardStopNote =
     assessment.hardStops.length > 0
       ? ` Active protective hard-stops at the time: ${assessment.hardStops.join("; ")}.`
       : "";
-  const fearNote = fear && fear.trim() ? ` The present-day self named this fear about the decision: "${fear.trim()}".` : "";
+  const fearNote =
+    fear && fear.trim()
+      ? ` The present-day self named this fear about the decision: "${fear.trim()}".`
+      : "";
   return (
     `Writing horizon: ${horizonWord}. HōMI-Score: ${assessment.score}/100. Verdict: ${meta.label} (${meta.line}). ` +
     `Weakest pillar: ${assessment.weakestPillar.name} at ${assessment.weakestPillar.pct}%.${hardStopNote}${fearNote}`
@@ -76,7 +83,10 @@ export async function POST(request: Request) {
 
   const parsed = bodySchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid request body.", issues: parsed.error.issues }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body.", issues: parsed.error.issues },
+      { status: 400 },
+    );
   }
 
   // Companion gate: this is an LLM endpoint (AUDIT T1.3). Require a session and
@@ -120,7 +130,10 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-      console.error("[twin] model call failed", { status: response.status, reason: "non_200_response" });
+      console.error("[twin] model call failed", {
+        status: response.status,
+        reason: "non_200_response",
+      });
       const letter = buildFallbackLetter({ horizon, fear, assessment });
       return NextResponse.json({ letter, source: "fallback" });
     }
@@ -147,8 +160,12 @@ export async function POST(request: Request) {
 
     // Model returns plain prose; split into paragraphs for rendering,
     // treating the first line as the salutation if it reads like one.
-    const lines = text.split(/\n+/).map((l) => l.trim()).filter(Boolean);
-    const salutation = lines[0] && lines[0].length < 90 ? lines[0] : "A letter from your future self";
+    const lines = text
+      .split(/\n+/)
+      .map((l) => l.trim())
+      .filter(Boolean);
+    const salutation =
+      lines[0] && lines[0].length < 90 ? lines[0] : "A letter from your future self";
     const paragraphs = lines[0] && lines[0].length < 90 ? lines.slice(1) : lines;
 
     return NextResponse.json({

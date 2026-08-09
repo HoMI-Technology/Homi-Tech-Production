@@ -77,9 +77,7 @@ describe("assessment flows do not import the engine (6.2 source guard)", () => {
     ]) {
       // Strip comments so docs that name computeScore don't false-fail.
       const raw = readFileSync(join(process.cwd(), rel), "utf8");
-      const src = raw
-        .replace(/\/\*[\s\S]*?\*\//g, "")
-        .replace(/(^|[^:])\/\/.*$/gm, "$1");
+      const src = raw.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
       expect(src).not.toMatch(/from\s+["']@\/lib\/scoring["']/);
       expect(src).not.toMatch(/\bcomputeScore\b/);
       expect(src).not.toMatch(/\bcomputeShadowScore\b/);
@@ -104,11 +102,12 @@ describe("fetchServerScore client helper", () => {
     };
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () =>
-        new Response(JSON.stringify(payload), {
-          status: 200,
-          headers: { "content-type": "application/json" },
-        }),
+      vi.fn(
+        async () =>
+          new Response(JSON.stringify(payload), {
+            status: 200,
+            headers: { "content-type": "application/json" },
+          }),
       ),
     );
     const { fetchServerScore } = await import("@/lib/scoring/client-score");

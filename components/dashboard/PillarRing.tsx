@@ -52,9 +52,7 @@ export function PillarRing({
               // best effort
             }
             // Double-rAF: let the zero-state paint before the sweep target lands.
-            requestAnimationFrame(() =>
-              requestAnimationFrame(() => setPhase("drawing")),
-            );
+            requestAnimationFrame(() => requestAnimationFrame(() => setPhase("drawing")));
           }
         }
       },
@@ -76,7 +74,14 @@ export function PillarRing({
     <div ref={ref} className="inline-flex flex-col items-center gap-2">
       <div className="relative" style={{ width: size, height: size }}>
         <svg viewBox="0 0 128 128" width={size} height={size} aria-hidden="true">
-          <circle cx="64" cy="64" r={r} fill="none" stroke={withAlpha(COLORS.slateHigh, 0.6)} strokeWidth="8" />
+          <circle
+            cx="64"
+            cy="64"
+            r={r}
+            fill="none"
+            stroke={withAlpha(COLORS.slateHigh, 0.6)}
+            strokeWidth="8"
+          />
           <circle
             cx="64"
             cy="64"
@@ -94,7 +99,11 @@ export function PillarRing({
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span aria-hidden className="score-numeral font-bold text-light" style={{ fontSize: size * 0.24 }}>
+          <span
+            aria-hidden
+            className="score-numeral font-bold text-light"
+            style={{ fontSize: size * 0.24 }}
+          >
             {phase === "drawing" ? Math.round(displayed) : value}
           </span>
           {sublabel && (

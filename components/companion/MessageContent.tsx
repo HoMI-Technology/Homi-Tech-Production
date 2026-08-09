@@ -10,7 +10,8 @@ import { Fragment } from "react";
  * becomes a link, so model output can't fabricate navigation to arbitrary
  * or external destinations.
  */
-const INTERNAL_PATH = /(\/(?:tools\/[a-z-]+|assessment|shadow-score|finance|credit|results|plan|simulator|advisor|connections|dashboard))(?=[\s.,;:!?)]|$)/g;
+const INTERNAL_PATH =
+  /(\/(?:tools\/[a-z-]+|assessment|shadow-score|finance|credit|results|plan|simulator|advisor|connections|dashboard))(?=[\s.,;:!?)]|$)/g;
 
 export function MessageContent({ text }: { text: string }) {
   const segments = text.split(INTERNAL_PATH);
@@ -18,7 +19,11 @@ export function MessageContent({ text }: { text: string }) {
     <>
       {segments.map((segment, i) =>
         i % 2 === 1 ? (
-          <Link key={i} href={segment} className="text-cyan underline underline-offset-2 hover:opacity-80">
+          <Link
+            key={i}
+            href={segment}
+            className="text-cyan underline underline-offset-2 hover:opacity-80"
+          >
             {segment}
           </Link>
         ) : (

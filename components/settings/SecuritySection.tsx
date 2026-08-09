@@ -88,7 +88,9 @@ export function SecuritySection() {
     }
   }
 
-  const leftoverFactors = factors.filter((f) => f.status === "verified" || f.status === "unverified");
+  const leftoverFactors = factors.filter(
+    (f) => f.status === "verified" || f.status === "unverified",
+  );
 
   return (
     <section className="glass p-6 sm:p-8">

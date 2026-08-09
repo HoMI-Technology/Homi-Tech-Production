@@ -2,11 +2,7 @@
 
 import { useState } from "react";
 import { ClipboardCopy, Download, Printer } from "lucide-react";
-import {
-  downloadReceipt,
-  issueReceipt,
-  type LocalReceipt,
-} from "@/lib/planner/receipts-local";
+import { downloadReceipt, issueReceipt, type LocalReceipt } from "@/lib/planner/receipts-local";
 import { VERDICT_META } from "@/lib/brand";
 import { usePlannerScore } from "@/components/planner/hooks";
 import { PlanFooter, PlanSectionHeader, VerdictChip } from "./ui";
@@ -95,19 +91,13 @@ export default function PlanShare() {
       </div>
 
       <div className="mt-6 rounded-xl border border-line bg-navy/40 p-4">
-        <p className="text-3xs uppercase tracking-wider text-dim">
-          HōMI readiness
-        </p>
-        <p className="mt-1 font-score text-4xl text-light">
-          {plannerScore.score.toFixed(0)}
-        </p>
+        <p className="text-3xs uppercase tracking-wider text-dim">HōMI readiness</p>
+        <p className="mt-1 font-score text-4xl text-light">{plannerScore.score.toFixed(0)}</p>
         <p className="text-sm text-cyan">{meta.label}</p>
-        {receipt && (
-          <p className="mt-3 font-score text-xs text-dim">{receipt.token}</p>
-        )}
+        {receipt && <p className="mt-3 font-score text-xs text-dim">{receipt.token}</p>}
         <p className="mt-3 text-2xs text-dim">
-          Educational only — not credit, lending, legal, tax, or investment
-          advice. Band-only receipt · no underlying financials.
+          Educational only — not credit, lending, legal, tax, or investment advice. Band-only
+          receipt · no underlying financials.
         </p>
       </div>
 

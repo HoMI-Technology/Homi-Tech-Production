@@ -39,11 +39,11 @@ overlay (`homi:tools-state`) written back **only on explicit user action**.
 Every field carries a source label, extending the Companion spine's honesty
 doctrine into the tools:
 
-| Source | Meaning |
-| --- | --- |
-| `self-reported` | Entered on the finance dashboard |
-| `lens-derived` | Captured inside a tool, with consent |
-| `missing` | First-class signal — never imputed |
+| Source          | Meaning                              |
+| --------------- | ------------------------------------ |
+| `self-reported` | Entered on the finance dashboard     |
+| `lens-derived`  | Captured inside a tool, with consent |
+| `missing`       | First-class signal — never imputed   |
 
 The CFM exists only when `hasSavedFinanceState()` is true. Illustrative defaults
 are never presented as the user's numbers.
@@ -92,12 +92,14 @@ recomputes them (canon: AI explains, code calculates).
 ## Phases
 
 ### Phase 1 — CFM + registry + all lenses ✅
+
 - [x] CFM, deltas engine, registry with full input contracts, shared
       components, `useCfm` / `useLensPrefill` hooks
 - [x] All 14 lenses refactored onto the pattern (mortgage = reference)
 - [x] Hub rendered from the registry (hardcoded GROUPS deleted)
 
 ### Phase 2 — Chains everywhere + instrumentation ✅
+
 - [x] `lens_prefilled` (useLensPrefill + mortgage's inline reference prefill)
 - [x] `lens_delta_viewed` (DeltasCard, once per mount, with lens + worst
       temperature attribution)
@@ -107,6 +109,7 @@ recomputes them (canon: AI explains, code calculates).
 - Success metric to watch: chain follow-through >15%.
 
 ### Phase 3 — Companion lens digest + synthesis ✅
+
 - [x] `lib/tools/digest.ts` — sessionStorage transport, page-scoped, 30-minute
       staleness guard, `cfmCoverage` honesty dial (<50% = illustrative voice)
 - [x] `buildLensDigestNote` prompt block: read-don't-compute, worst news first,
@@ -123,6 +126,7 @@ recomputes them (canon: AI explains, code calculates).
       tripwire against prompt bloat.
 
 ### Phase 4 — Scenarios ✅
+
 - [x] `supabase/migrations/00036_tool_scenarios.sql` — RLS owner-scoped.
       **Must be applied before server sync works; degrades to browser-only
       honestly until then.**
@@ -136,6 +140,7 @@ recomputes them (canon: AI explains, code calculates).
       saves deterministic aggregates (count, total, weighted APR).
 
 ### Phase 5 — Readiness bands in lenses ✅
+
 - [x] `lib/simulator.ts` — additive `SimulateOptions.extraDebtService`, counted
       once in both DTI numerator and outflow
 - [x] `compositeBand` thresholds shared with the explainability engine; CI
@@ -147,6 +152,7 @@ recomputes them (canon: AI explains, code calculates).
       no band by design — a plan is not a payment.
 
 ### Debt-payoff itemized CFM mapping ✅
+
 - [x] Rows seed from finance-dashboard liabilities: real names and balances;
       apr/minPayment deliberately left at zero (needs-your-input) because the
       dashboard doesn't store them. An honesty banner says exactly which

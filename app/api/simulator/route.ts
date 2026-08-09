@@ -118,10 +118,7 @@ export async function POST(request: Request) {
   const { baseline, anchorAssessment, levers, include, preflight } = parsed.data;
 
   if (!baseline && !preflight) {
-    return NextResponse.json(
-      { error: "Provide baseline and/or preflight." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Provide baseline and/or preflight." }, { status: 400 });
   }
 
   const response: Record<string, unknown> = {};

@@ -33,7 +33,11 @@ export default function SettingsPage() {
           setUserId(user.id);
           setEmail(user.email ?? "");
         }
-        const { data: profileData } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .maybeSingle();
         if (active) setProfile((profileData as Profile) ?? null);
       } catch {
         // Leave defaults — sections handle missing data gracefully.
@@ -61,7 +65,13 @@ export default function SettingsPage() {
         </div>
       ) : (
         <div className="mt-10 flex flex-col gap-6">
-          {userId && <ProfileSection userId={userId} email={email} initialFullName={profile?.full_name ?? ""} />}
+          {userId && (
+            <ProfileSection
+              userId={userId}
+              email={email}
+              initialFullName={profile?.full_name ?? ""}
+            />
+          )}
 
           <SubscriptionSection
             tier={profile?.subscription_tier ?? "free"}

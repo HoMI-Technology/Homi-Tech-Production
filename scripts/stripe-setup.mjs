@@ -43,9 +43,24 @@ const WEBHOOK_EVENTS = [
 
 /** HōMI tiers — must match lib/stripe/tiers.ts exactly (lookup_key, price). */
 const TIER_DEFS = [
-  { name: "HōMI Plus", lookupKey: "homi_plus_monthly", unitAmountCents: 999, priceEnvVar: "STRIPE_PRICE_PLUS" },
-  { name: "HōMI Pro", lookupKey: "homi_pro_monthly", unitAmountCents: 2499, priceEnvVar: "STRIPE_PRICE_PRO" },
-  { name: "HōMI Family", lookupKey: "homi_family_monthly", unitAmountCents: 3999, priceEnvVar: "STRIPE_PRICE_FAMILY" },
+  {
+    name: "HōMI Plus",
+    lookupKey: "homi_plus_monthly",
+    unitAmountCents: 999,
+    priceEnvVar: "STRIPE_PRICE_PLUS",
+  },
+  {
+    name: "HōMI Pro",
+    lookupKey: "homi_pro_monthly",
+    unitAmountCents: 2499,
+    priceEnvVar: "STRIPE_PRICE_PRO",
+  },
+  {
+    name: "HōMI Family",
+    lookupKey: "homi_family_monthly",
+    unitAmountCents: 3999,
+    priceEnvVar: "STRIPE_PRICE_FAMILY",
+  },
 ];
 
 async function stripeGet(path, params = {}) {
@@ -104,7 +119,9 @@ async function ensurePrice(def, productId) {
     "recurring[interval]": "month",
     lookup_key: def.lookupKey,
   });
-  console.log(`  created price "${def.lookupKey}" -> ${created.id} ($${(def.unitAmountCents / 100).toFixed(2)}/mo)`);
+  console.log(
+    `  created price "${def.lookupKey}" -> ${created.id} ($${(def.unitAmountCents / 100).toFixed(2)}/mo)`,
+  );
   return created;
 }
 
@@ -123,14 +140,18 @@ async function main() {
   console.log("=".repeat(78));
   console.log("Summary — product/price IDs:");
   for (const r of results) {
-    console.log(`  ${r.name.padEnd(14)} product=${r.productId}  price=${r.priceId}  lookup_key=${r.lookupKey}`);
+    console.log(
+      `  ${r.name.padEnd(14)} product=${r.productId}  price=${r.priceId}  lookup_key=${r.lookupKey}`,
+    );
   }
 
   console.log("\nWebhook endpoint to register in the Stripe Dashboard");
   console.log("(Developers -> Webhooks -> Add endpoint):");
   console.log(`  URL:    ${WEBHOOK_URL}`);
   console.log(`  Events: ${WEBHOOK_EVENTS.join(", ")}`);
-  console.log("  After creating it, copy the \"Signing secret\" (whsec_...) into STRIPE_WEBHOOK_SECRET.");
+  console.log(
+    '  After creating it, copy the "Signing secret" (whsec_...) into STRIPE_WEBHOOK_SECRET.',
+  );
 
   console.log("\nEnv vars to set (Vercel Production + Preview, and .env.local for dev):");
   console.log("  STRIPE_SECRET_KEY        (already used to run this script)");

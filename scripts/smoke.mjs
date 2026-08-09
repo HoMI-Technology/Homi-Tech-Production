@@ -16,10 +16,11 @@
 import { spawnSync } from "node:child_process";
 
 const mode = (process.argv[2] ?? "public").toLowerCase();
-const base = (process.env.SMOKE_BASE_URL ?? process.env.E2E_BASE_URL ?? "https://homitechnology.com").replace(
-  /\/$/,
-  "",
-);
+const base = (
+  process.env.SMOKE_BASE_URL ??
+  process.env.E2E_BASE_URL ??
+  "https://homitechnology.com"
+).replace(/\/$/, "");
 const email = process.env.SMOKE_EMAIL ?? process.env.E2E_TEST_EMAIL ?? "";
 const password = process.env.SMOKE_PASSWORD ?? process.env.E2E_TEST_PASSWORD ?? "";
 

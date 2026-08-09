@@ -17,7 +17,10 @@ const BASE_INPUTS: AssessmentInputs = {
   downPaymentProgress: 0.85,
 };
 
-function makeStored(completedAt: string, overrides: Partial<StoredAssessment> = {}): StoredAssessment {
+function makeStored(
+  completedAt: string,
+  overrides: Partial<StoredAssessment> = {},
+): StoredAssessment {
   return {
     inputs: BASE_INPUTS,
     result: computeScore(BASE_INPUTS),

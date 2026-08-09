@@ -33,7 +33,10 @@ async function signIn(page: import("@playwright/test").Page) {
 test.describe.configure({ mode: "serial" });
 
 test.describe("signed-in smoke (easy)", () => {
-  test.skip(!email || !password, "Set SMOKE_EMAIL + SMOKE_PASSWORD (or E2E_TEST_*), then: npm run smoke:auth");
+  test.skip(
+    !email || !password,
+    "Set SMOKE_EMAIL + SMOKE_PASSWORD (or E2E_TEST_*), then: npm run smoke:auth",
+  );
 
   test("1) sign in reaches a product surface", async ({ page }) => {
     await signIn(page);

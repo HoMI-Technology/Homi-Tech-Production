@@ -17,7 +17,8 @@ export function FunnelBars({ stages }: { stages: FunnelStage[] }) {
         const prev = i > 0 ? stages[i - 1].count : null;
         // Stages aren't strictly nested (accounts can exist without a waitlist
         // entry), so only show conversion when it reads as a true rate.
-        const rawConversion = prev !== null && prev > 0 ? Math.round((stage.count / prev) * 100) : null;
+        const rawConversion =
+          prev !== null && prev > 0 ? Math.round((stage.count / prev) * 100) : null;
         const conversion = rawConversion !== null && rawConversion <= 100 ? rawConversion : null;
         const widthPct = Math.max(2, Math.round((stage.count / max) * 100));
         return (

@@ -61,7 +61,8 @@ export function NotificationsSection() {
     <section className="glass p-6 sm:p-8">
       <h2 className="font-display text-xl font-semibold text-light">Notifications</h2>
       <p className="mt-1 text-sm text-dim">
-        Email reminders about check-ins, plan progress, and when it&apos;s time to reassess your readiness.
+        Email reminders about check-ins, plan progress, and when it&apos;s time to reassess your
+        readiness.
       </p>
 
       <div className="mt-6 flex items-center justify-between">

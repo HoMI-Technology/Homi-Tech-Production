@@ -29,7 +29,9 @@ async function loadShare(token: string): Promise<ShadowShareRow | null> {
   if (!service) return null;
   const { data } = await service
     .from("shadow_shares")
-    .select("token, score, verdict, financial_pct, emotional_pct, timing_pct, reveal_score, expires_at")
+    .select(
+      "token, score, verdict, financial_pct, emotional_pct, timing_pct, reveal_score, expires_at",
+    )
     .eq("token", token)
     .gt("expires_at", new Date().toISOString())
     .maybeSingle();
@@ -61,11 +63,7 @@ const PILLAR_BARS: Array<{
   { key: "timing_pct", label: "Perfect Timing", color: COLORS.yellow },
 ];
 
-export default async function ShadowSharePage({
-  params,
-}: {
-  params: Promise<{ token: string }>;
-}) {
+export default async function ShadowSharePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
   const share = await loadShare(token);
 
@@ -77,8 +75,8 @@ export default async function ShadowSharePage({
             This journey card has expired
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-dim">
-            Share links live for 30 days. The readiness behind them keeps moving — get your
-            own honest read in 90 seconds.
+            Share links live for 30 days. The readiness behind them keeps moving — get your own
+            honest read in 90 seconds.
           </p>
           <Link href="/shadow-score" className="btn btn-primary mt-6 inline-block">
             Get your Shadow Score
@@ -134,8 +132,8 @@ export default async function ShadowSharePage({
           </div>
 
           <p className="mt-8 text-sm leading-relaxed text-dim">
-            Three pillars. One honest verdict. No sales pitch — HōMI tells people{" "}
-            <em>if</em> they&rsquo;re ready for a big decision, not just how to finance it.
+            Three pillars. One honest verdict. No sales pitch — HōMI tells people <em>if</em>{" "}
+            they&rsquo;re ready for a big decision, not just how to finance it.
           </p>
 
           <Link

@@ -42,9 +42,7 @@ export default async function AdminAssessmentsPage() {
   }
 
   const completed = assessments.filter((a) => a.verdict !== null).length;
-  const scores = assessments
-    .map((a) => a.overall_score)
-    .filter((s): s is number => s != null);
+  const scores = assessments.map((a) => a.overall_score).filter((s): s is number => s != null);
   const avg =
     scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
   const shadows = assessments.filter((a) => a.is_shadow).length;
@@ -111,7 +109,9 @@ export default async function AdminAssessmentsPage() {
                     {a.verdict ? (
                       <VerdictBadge verdict={a.verdict as VerdictKey} size="sm" />
                     ) : (
-                      <span className="chip !border-slate-high/50 !text-xs !text-dim">In progress</span>
+                      <span className="chip !border-slate-high/50 !text-xs !text-dim">
+                        In progress
+                      </span>
                     )}
                   </td>
                   <td>
@@ -123,7 +123,9 @@ export default async function AdminAssessmentsPage() {
                   </td>
                   <td>
                     {Array.isArray(a.hard_stops) && a.hard_stops.length > 0 ? (
-                      <span className="score-numeral text-sm font-semibold text-crimson">{a.hard_stops.length}</span>
+                      <span className="score-numeral text-sm font-semibold text-crimson">
+                        {a.hard_stops.length}
+                      </span>
                     ) : (
                       <span className="text-dim">0</span>
                     )}

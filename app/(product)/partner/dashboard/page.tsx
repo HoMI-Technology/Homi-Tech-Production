@@ -103,11 +103,10 @@ export default async function PartnerDashboardPage() {
     is_shadow: boolean | null;
   };
 
-  let attributed: BookRow[] =
-    ((referredRows as BookRow[] | null) ?? []).map((r) => ({
-      ...r,
-      verdict: (r.verdict as VerdictKey | null) ?? null,
-    }));
+  let attributed: BookRow[] = ((referredRows as BookRow[] | null) ?? []).map((r) => ({
+    ...r,
+    verdict: (r.verdict as VerdictKey | null) ?? null,
+  }));
 
   // Fallback: portal RPC if denorm empty but code exists (pre-I0 traffic).
   let rpcCount: number | null = null;
@@ -159,12 +158,9 @@ export default async function PartnerDashboardPage() {
     .eq("partner_id", user.id)
     .order("created_at", { ascending: false })
     .limit(50);
-  const clients =
-    (clientRows as Pick<Profile, "id" | "full_name" | "created_at">[] | null) ?? [];
+  const clients = (clientRows as Pick<Profile, "id" | "full_name" | "created_at">[] | null) ?? [];
 
-  const scores = attributed
-    .map((a) => a.overall_score)
-    .filter((s): s is number => s != null);
+  const scores = attributed.map((a) => a.overall_score).filter((s): s is number => s != null);
   const avgFromRows =
     scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
   const avg = avgFromRows ?? rpcAvg;
@@ -233,7 +229,9 @@ export default async function PartnerDashboardPage() {
           {inviteUrl ? (
             <InviteShareRow url={inviteUrl} />
           ) : (
-            <p className="text-sm text-dim">Could not mint an invite code. Refresh or contact support.</p>
+            <p className="text-sm text-dim">
+              Could not mint an invite code. Refresh or contact support.
+            </p>
           )}
         </ActionDock>
       </OperateInstrument>
@@ -283,9 +281,7 @@ export default async function PartnerDashboardPage() {
                 </thead>
                 <tbody>
                   {attributed.slice(0, 20).map((a) => {
-                    const client = a.user_id
-                      ? clients.find((c) => c.id === a.user_id)
-                      : undefined;
+                    const client = a.user_id ? clients.find((c) => c.id === a.user_id) : undefined;
                     return (
                       <tr key={a.id}>
                         <td className="text-sm text-light">

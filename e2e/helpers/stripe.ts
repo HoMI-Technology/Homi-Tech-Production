@@ -62,7 +62,11 @@ export async function stripeApiGet<T>(path: string, secretKey: string): Promise<
 }
 
 /** Minimal POST (form-encoded, per Stripe's API convention). Best-effort cleanup helper. */
-export async function stripeApiPost<T>(path: string, secretKey: string, body?: URLSearchParams): Promise<T> {
+export async function stripeApiPost<T>(
+  path: string,
+  secretKey: string,
+  body?: URLSearchParams,
+): Promise<T> {
   const res = await fetch(`https://api.stripe.com/v1${path}`, {
     method: "POST",
     headers: {

@@ -50,7 +50,10 @@ export async function GET(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`tools-overlay-read:${ip}`, { limit: 30, windowMs: 60_000 });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a minute." },
+      { status: 429 },
+    );
   }
 
   const supabase = await createClient();
@@ -73,7 +76,10 @@ export async function GET(request: Request) {
     }
     const correlationId = crypto.randomUUID();
     console.error(`[tools-overlay:get:${correlationId}]`, error.message);
-    return NextResponse.json({ error: "Could not load your tools overlay.", correlationId }, { status: 500 });
+    return NextResponse.json(
+      { error: "Could not load your tools overlay.", correlationId },
+      { status: 500 },
+    );
   }
 
   if (!data) return NextResponse.json({ state: null });
@@ -88,7 +94,10 @@ export async function PUT(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`tools-overlay-write:${ip}`, { limit: 30, windowMs: 60_000 });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a minute." },
+      { status: 429 },
+    );
   }
 
   const supabase = await createClient();
@@ -121,7 +130,10 @@ export async function PUT(request: Request) {
   if (readError && !(readError.code && INFRA_MISSING_CODES.has(readError.code))) {
     const correlationId = crypto.randomUUID();
     console.error(`[tools-overlay:put-read:${correlationId}]`, readError.message);
-    return NextResponse.json({ error: "Could not save your tools overlay.", correlationId }, { status: 500 });
+    return NextResponse.json(
+      { error: "Could not save your tools overlay.", correlationId },
+      { status: 500 },
+    );
   }
 
   if (existing && Number(existing.client_updated_at) > parsed.data.client_updated_at) {
@@ -147,7 +159,10 @@ export async function PUT(request: Request) {
     }
     const correlationId = crypto.randomUUID();
     console.error(`[tools-overlay:put:${correlationId}]`, error.message);
-    return NextResponse.json({ error: "Could not save your tools overlay.", correlationId }, { status: 500 });
+    return NextResponse.json(
+      { error: "Could not save your tools overlay.", correlationId },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ ok: true });

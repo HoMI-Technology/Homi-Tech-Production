@@ -33,7 +33,10 @@ export default function FirePage() {
   const { prefilled, markAll } = useLensPrefill("fire", apply);
   const sourceFor = (key: string) => (prefilled.has(key) ? "yours" : "illustrative");
 
-  const fireNumber = useMemo(() => computeFireNumber(annualExpenses, swrPercent), [annualExpenses, swrPercent]);
+  const fireNumber = useMemo(
+    () => computeFireNumber(annualExpenses, swrPercent),
+    [annualExpenses, swrPercent],
+  );
 
   const coast = useMemo(
     () =>
@@ -59,7 +62,13 @@ export default function FirePage() {
         value: Math.round(fireNumber),
         unit: "currency" as const,
       },
-      keyInputs: { annualExpenses, swrPercent, currentSavings, expectedReturnPercent, retirementAge },
+      keyInputs: {
+        annualExpenses,
+        swrPercent,
+        currentSavings,
+        expectedReturnPercent,
+        retirementAge,
+      },
       deltas: null,
     }),
     [fireNumber, annualExpenses, swrPercent, currentSavings, expectedReturnPercent, retirementAge],
@@ -74,12 +83,63 @@ export default function FirePage() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
-          <LensField label="Annual expenses" value={annualExpenses} onChange={setAnnualExpenses} min={12000} max={200000} step={1000} format="currency" source={sourceFor("annualExpenses")} />
-          <LensField label="Safe withdrawal rate" value={swrPercent} onChange={setSwrPercent} min={3} max={5} step={0.1} format="percent" />
-          <LensField label="Current age" value={currentAge} onChange={setCurrentAge} min={18} max={70} step={1} format="years" />
-          <LensField label="Target retirement age" value={retirementAge} onChange={setRetirementAge} min={currentAge} max={80} step={1} format="years" />
-          <LensField label="Current invested savings" value={currentSavings} onChange={setCurrentSavings} min={0} max={2000000} step={1000} format="currency" source={sourceFor("currentSavings")} />
-          <LensField label="Expected annual return" value={expectedReturnPercent} onChange={setExpectedReturnPercent} min={2} max={12} step={0.5} format="percent" source={sourceFor("expectedReturnPercent")} />
+          <LensField
+            label="Annual expenses"
+            value={annualExpenses}
+            onChange={setAnnualExpenses}
+            min={12000}
+            max={200000}
+            step={1000}
+            format="currency"
+            source={sourceFor("annualExpenses")}
+          />
+          <LensField
+            label="Safe withdrawal rate"
+            value={swrPercent}
+            onChange={setSwrPercent}
+            min={3}
+            max={5}
+            step={0.1}
+            format="percent"
+          />
+          <LensField
+            label="Current age"
+            value={currentAge}
+            onChange={setCurrentAge}
+            min={18}
+            max={70}
+            step={1}
+            format="years"
+          />
+          <LensField
+            label="Target retirement age"
+            value={retirementAge}
+            onChange={setRetirementAge}
+            min={currentAge}
+            max={80}
+            step={1}
+            format="years"
+          />
+          <LensField
+            label="Current invested savings"
+            value={currentSavings}
+            onChange={setCurrentSavings}
+            min={0}
+            max={2000000}
+            step={1000}
+            format="currency"
+            source={sourceFor("currentSavings")}
+          />
+          <LensField
+            label="Expected annual return"
+            value={expectedReturnPercent}
+            onChange={setExpectedReturnPercent}
+            min={2}
+            max={12}
+            step={0.5}
+            format="percent"
+            source={sourceFor("expectedReturnPercent")}
+          />
 
           <div className="hairline" />
           <UpdateNumbersButton
@@ -88,7 +148,14 @@ export default function FirePage() {
           />
           <SaveScenarioButton
             lensId="fire"
-            getInputs={() => ({ annualExpenses, swrPercent, currentAge, retirementAge, currentSavings, expectedReturnPercent })}
+            getInputs={() => ({
+              annualExpenses,
+              swrPercent,
+              currentAge,
+              retirementAge,
+              currentSavings,
+              expectedReturnPercent,
+            })}
           />
         </div>
 
@@ -116,10 +183,14 @@ export default function FirePage() {
           <div className="glass p-6">
             <h2 className="font-semibold text-light">Coast-FIRE</h2>
             <p className="mt-1 text-xs text-dim">
-              What today&apos;s savings alone — with no more contributions — could grow into by {retirementAge}.
+              What today&apos;s savings alone — with no more contributions — could grow into by{" "}
+              {retirementAge}.
             </p>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <ToolMetric label="Needed today to coast" value={formatCurrency(coast.coastFireNumberNeededNow)} />
+              <ToolMetric
+                label="Needed today to coast"
+                value={formatCurrency(coast.coastFireNumberNeededNow)}
+              />
               <ToolMetric
                 label={`Projected at ${retirementAge}`}
                 value={formatCurrency(coast.projectedAtRetirement)}
@@ -127,7 +198,8 @@ export default function FirePage() {
             </div>
             {coast.coastFireAge !== null && (
               <p className="mt-4 text-sm text-dim">
-                At this return rate, today&apos;s savings alone would reach your FIRE number around age{" "}
+                At this return rate, today&apos;s savings alone would reach your FIRE number around
+                age{" "}
                 <span className="score-numeral text-light">{coast.coastFireAge.toFixed(1)}</span>.
               </p>
             )}
@@ -136,11 +208,11 @@ export default function FirePage() {
           <div className="glass p-6">
             <h2 className="font-semibold text-light">What this means</h2>
             <p className="mt-2 text-sm leading-relaxed text-dim">
-              The FIRE number is a target, not a deadline — it assumes your expenses and the withdrawal
-              rate you chose hold roughly steady, which real life rarely does exactly. Coast-FIRE is not
-              "you can stop saving" — it's "if you stopped today, time and growth alone would likely get
-              you there by your target age." Whether to actually stop contributing is a different, more
-              personal question than the math above.
+              The FIRE number is a target, not a deadline — it assumes your expenses and the
+              withdrawal rate you chose hold roughly steady, which real life rarely does exactly.
+              Coast-FIRE is not "you can stop saving" — it's "if you stopped today, time and growth
+              alone would likely get you there by your target age." Whether to actually stop
+              contributing is a different, more personal question than the math above.
             </p>
           </div>
 
@@ -150,4 +222,3 @@ export default function FirePage() {
     </ToolShell>
   );
 }
-

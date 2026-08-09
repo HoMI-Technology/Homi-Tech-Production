@@ -45,7 +45,9 @@ export function clampDraftIndex(index: number, maxIndexInclusive: number): numbe
   return Math.min(Math.max(0, Math.floor(index)), max);
 }
 
-export function draftLooksStarted(draft: Pick<AssessmentDraft, "responses" | "conflict" | "index">): boolean {
+export function draftLooksStarted(
+  draft: Pick<AssessmentDraft, "responses" | "conflict" | "index">,
+): boolean {
   if (draft.index > 0) return true;
   if (draft.conflict.referralSource || draft.conflict.deadlineOrigin) return true;
   return Object.keys(draft.responses).length > 0;

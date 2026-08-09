@@ -29,8 +29,10 @@ export function computeBlindBudget(inputs: BlindBudgetInputs): BlindBudgetResult
   const safeToSpendLow = Math.max(0, inputs.incomeLow - inputs.fixedCostsHigh);
   const safeToSpendHigh = Math.max(0, inputs.incomeHigh - inputs.fixedCostsLow);
 
-  const runwayLowMonths = inputs.fixedCostsHigh > 0 ? Math.max(0, inputs.savingsLow) / inputs.fixedCostsHigh : 0;
-  const runwayHighMonths = inputs.fixedCostsLow > 0 ? Math.max(0, inputs.savingsHigh) / inputs.fixedCostsLow : 0;
+  const runwayLowMonths =
+    inputs.fixedCostsHigh > 0 ? Math.max(0, inputs.savingsLow) / inputs.fixedCostsHigh : 0;
+  const runwayHighMonths =
+    inputs.fixedCostsLow > 0 ? Math.max(0, inputs.savingsHigh) / inputs.fixedCostsLow : 0;
 
   return { safeToSpendLow, safeToSpendHigh, runwayLowMonths, runwayHighMonths };
 }

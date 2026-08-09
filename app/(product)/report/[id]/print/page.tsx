@@ -66,7 +66,9 @@ export default async function ReportPrintPage({
   };
   const insights = (assessment.insights ?? {}) as { keyInsight?: string; nextSteps?: string[] };
   const hardStops = (assessment.hard_stops ?? []) as { code: string; message: string }[];
-  const completedAt = assessment.completed_at ? new Date(assessment.completed_at) : new Date(assessment.created_at);
+  const completedAt = assessment.completed_at
+    ? new Date(assessment.completed_at)
+    : new Date(assessment.created_at);
 
   return (
     <div className="min-h-screen bg-white text-[#111827]">
@@ -79,20 +81,31 @@ export default async function ReportPrintPage({
             <span className="text-sm text-black/60">Decision Readiness Report</span>
           </div>
           <span className="text-xs text-black/50">
-            {completedAt.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+            {completedAt.toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })}
           </span>
         </div>
 
         <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-5xl font-bold" style={{ fontFamily: "var(--font-score, monospace)" }}>
+            <p
+              className="text-5xl font-bold"
+              style={{ fontFamily: "var(--font-score, monospace)" }}
+            >
               {assessment.overall_score ?? "—"}
             </p>
             <p className="text-sm uppercase tracking-widest text-black/60">HōMI-Score out of 100</p>
           </div>
           <span
             className="rounded-full border px-4 py-1.5 text-sm font-semibold"
-            style={{ borderColor: `${meta.color}80`, color: meta.color, background: `${meta.color}14` }}
+            style={{
+              borderColor: `${meta.color}80`,
+              color: meta.color,
+              background: `${meta.color}14`,
+            }}
           >
             {meta.label}
           </span>
@@ -145,8 +158,12 @@ export default async function ReportPrintPage({
 
         {(subScores.financial || subScores.emotional || subScores.timing) && (
           <div className="mt-10 flex flex-col gap-6">
-            {subScores.financial && <SubScoreList title="Financial Reality" scores={subScores.financial} />}
-            {subScores.emotional && <SubScoreList title="Emotional Truth" scores={subScores.emotional} />}
+            {subScores.financial && (
+              <SubScoreList title="Financial Reality" scores={subScores.financial} />
+            )}
+            {subScores.emotional && (
+              <SubScoreList title="Emotional Truth" scores={subScores.emotional} />
+            )}
             {subScores.timing && <SubScoreList title="Perfect Timing" scores={subScores.timing} />}
           </div>
         )}
@@ -181,7 +198,9 @@ export default async function ReportPrintPage({
 }
 
 function SubScoreList({ title, scores }: { title: string; scores: Record<string, number> }) {
-  const entries = Object.entries(scores).filter(([key]) => key !== "total" && key !== "singleRedistribution");
+  const entries = Object.entries(scores).filter(
+    ([key]) => key !== "total" && key !== "singleRedistribution",
+  );
   return (
     <div>
       <h3 className="text-sm font-semibold">{title}</h3>

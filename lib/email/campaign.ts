@@ -42,7 +42,10 @@ export interface AudiencePartition {
  * split against the opt-out set. Kept side-effect free so the vitest suite can
  * pin the exact contract the API route relies on.
  */
-export function partitionByUnsubscribe(emails: string[], unsubscribed: Set<string>): AudiencePartition {
+export function partitionByUnsubscribe(
+  emails: string[],
+  unsubscribed: Set<string>,
+): AudiencePartition {
   const seen = new Set<string>();
   const sendable: string[] = [];
   const suppressed: string[] = [];
@@ -191,7 +194,10 @@ async function sendBatch(
     return { ok: true };
   } catch (err) {
     const correlationId = crypto.randomUUID();
-    console.error(`[campaign:${correlationId}] batch failed:`, err instanceof Error ? err.message : "unknown");
+    console.error(
+      `[campaign:${correlationId}] batch failed:`,
+      err instanceof Error ? err.message : "unknown",
+    );
     return { ok: false, error: "provider_error (network)" };
   }
 }

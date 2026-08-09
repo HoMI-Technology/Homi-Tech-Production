@@ -57,7 +57,9 @@ export function CalcField({
               your numbers
             </span>
           )}
-          <span className="score-numeral text-sm text-cyan transition-colors duration-200">{display}</span>
+          <span className="score-numeral text-sm text-cyan transition-colors duration-200">
+            {display}
+          </span>
         </span>
       </div>
       <input

@@ -93,8 +93,8 @@ export function VerdictOverride({
     <div className="glass w-full max-w-lg border border-slate-surface/60 p-5 text-left">
       <h3 className="font-display text-lg font-semibold text-light">You can always decide.</h3>
       <p className="mt-2 text-sm text-dim">
-        We just want you to see it clearly. HōMI keeps the honest read either way — and will check in on
-        how it goes.
+        We just want you to see it clearly. HōMI keeps the honest read either way — and will check
+        in on how it goes.
       </p>
 
       {requiresAck && (

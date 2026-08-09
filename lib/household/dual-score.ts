@@ -65,12 +65,9 @@ export function computeDualHouseholdScore(
   }
   const jointHardStops = Array.from(hardMap.values());
   // Hard-stops or either member NOT_YET force joint NOT_YET
-  const eitherNotYet =
-    a.result.verdict === "NOT_YET" || b.result.verdict === "NOT_YET";
+  const eitherNotYet = a.result.verdict === "NOT_YET" || b.result.verdict === "NOT_YET";
   const jointVerdict: Verdict =
-    jointHardStops.length > 0 || eitherNotYet
-      ? "NOT_YET"
-      : scoreToVerdict(jointScore);
+    jointHardStops.length > 0 || eitherNotYet ? "NOT_YET" : scoreToVerdict(jointScore);
 
   const scoreGap = Math.abs(a.result.score - b.result.score);
   const verdictAligned = a.result.verdict === b.result.verdict;
@@ -85,8 +82,7 @@ export function computeDualHouseholdScore(
       `Verdicts differ (${a.label}: ${a.result.verdict}, ${b.label}: ${b.result.verdict}). ` +
       `Joint score ${jointScore} follows the weaker readiness.`;
   } else if (scoreGap >= 15) {
-    summary =
-      `Same verdict band but a ${scoreGap.toFixed(0)}-point gap — align timeline and funding before stretching.`;
+    summary = `Same verdict band but a ${scoreGap.toFixed(0)}-point gap — align timeline and funding before stretching.`;
   } else {
     summary = `Household readiness aligned around ${jointVerdict} (joint ${jointScore}).`;
   }

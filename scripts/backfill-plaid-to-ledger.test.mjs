@@ -55,32 +55,60 @@ describe("mapPlaidRowToFinanceTransaction", () => {
   const nowIso = "2026-08-04T12:00:00.000Z";
 
   it("maps positive Plaid amounts to expenses and negative to income", () => {
-    const expense = mapPlaidRowToFinanceTransaction(makePlaidRow({ amount: 12.34 }), categories, nowIso);
+    const expense = mapPlaidRowToFinanceTransaction(
+      makePlaidRow({ amount: 12.34 }),
+      categories,
+      nowIso,
+    );
     expect(expense.type).toBe("expense");
     expect(expense.amount_cents).toBe(1234);
 
-    const income = mapPlaidRowToFinanceTransaction(makePlaidRow({ amount: -100 }), categories, nowIso);
+    const income = mapPlaidRowToFinanceTransaction(
+      makePlaidRow({ amount: -100 }),
+      categories,
+      nowIso,
+    );
     expect(income.type).toBe("income");
     expect(income.amount_cents).toBe(10000);
   });
 
   it("maps categories and falls back to null for unknowns", () => {
-    const known = mapPlaidRowToFinanceTransaction(makePlaidRow({ category: "FOOD_AND_DRINK" }), categories, nowIso);
+    const known = mapPlaidRowToFinanceTransaction(
+      makePlaidRow({ category: "FOOD_AND_DRINK" }),
+      categories,
+      nowIso,
+    );
     expect(known.category_id).toBe("cat-dining");
 
-    const unknown = mapPlaidRowToFinanceTransaction(makePlaidRow({ category: "ALIENS" }), categories, nowIso);
+    const unknown = mapPlaidRowToFinanceTransaction(
+      makePlaidRow({ category: "ALIENS" }),
+      categories,
+      nowIso,
+    );
     expect(unknown.category_id).toBeNull();
 
-    const missing = mapPlaidRowToFinanceTransaction(makePlaidRow({ category: null }), categories, nowIso);
+    const missing = mapPlaidRowToFinanceTransaction(
+      makePlaidRow({ category: null }),
+      categories,
+      nowIso,
+    );
     expect(missing.category_id).toBeNull();
   });
 
   it("marks pending rows and clears posted_at", () => {
-    const pending = mapPlaidRowToFinanceTransaction(makePlaidRow({ pending: true }), categories, nowIso);
+    const pending = mapPlaidRowToFinanceTransaction(
+      makePlaidRow({ pending: true }),
+      categories,
+      nowIso,
+    );
     expect(pending.status).toBe("pending");
     expect(pending.posted_at).toBeNull();
 
-    const posted = mapPlaidRowToFinanceTransaction(makePlaidRow({ pending: false }), categories, nowIso);
+    const posted = mapPlaidRowToFinanceTransaction(
+      makePlaidRow({ pending: false }),
+      categories,
+      nowIso,
+    );
     expect(posted.status).toBe("posted");
     expect(posted.posted_at).toBe(nowIso);
   });
@@ -104,21 +132,33 @@ describe("mapPlaidRowToFinanceTransaction", () => {
     );
     expect(fromMerchant.description).toBe("Merchant");
 
-    const defaultDesc = mapPlaidRowToFinanceTransaction(makePlaidRow({ name: null, merchant_name: null }), categories, nowIso);
+    const defaultDesc = mapPlaidRowToFinanceTransaction(
+      makePlaidRow({ name: null, merchant_name: null }),
+      categories,
+      nowIso,
+    );
     expect(defaultDesc.description).toBe("Plaid transaction");
   });
 
   it("falls back transaction_date to today when txn_date is missing", () => {
-    const row = mapPlaidRowToFinanceTransaction(makePlaidRow({ txn_date: null }), categories, nowIso);
+    const row = mapPlaidRowToFinanceTransaction(
+      makePlaidRow({ txn_date: null }),
+      categories,
+      nowIso,
+    );
     expect(row.transaction_date).toBe("2026-08-04");
   });
 
   it("returns null for zero-amount rows", () => {
-    expect(mapPlaidRowToFinanceTransaction(makePlaidRow({ amount: 0 }), categories, nowIso)).toBeNull();
+    expect(
+      mapPlaidRowToFinanceTransaction(makePlaidRow({ amount: 0 }), categories, nowIso),
+    ).toBeNull();
   });
 
   it("throws for non-numeric amounts", () => {
-    expect(() => mapPlaidRowToFinanceTransaction(makePlaidRow({ amount: "bad" }), categories, nowIso)).toThrow();
+    expect(() =>
+      mapPlaidRowToFinanceTransaction(makePlaidRow({ amount: "bad" }), categories, nowIso),
+    ).toThrow();
   });
 });
 
@@ -127,8 +167,16 @@ describe("buildFinanceRows", () => {
 
   it("dedupes rows already present in the ledger", () => {
     const existing = new Set(["tx-1"]);
-    const rows = [makePlaidRow({ transaction_id: "tx-1" }), makePlaidRow({ transaction_id: "tx-2" })];
-    const { toInsert, skippedExisting, skippedZero } = buildFinanceRows(rows, existing, categories, nowIso);
+    const rows = [
+      makePlaidRow({ transaction_id: "tx-1" }),
+      makePlaidRow({ transaction_id: "tx-2" }),
+    ];
+    const { toInsert, skippedExisting, skippedZero } = buildFinanceRows(
+      rows,
+      existing,
+      categories,
+      nowIso,
+    );
 
     expect(toInsert).toHaveLength(1);
     expect(toInsert[0].external_transaction_id).toBe("tx-2");
@@ -137,8 +185,16 @@ describe("buildFinanceRows", () => {
   });
 
   it("skips zero-amount rows", () => {
-    const rows = [makePlaidRow({ transaction_id: "tx-1", amount: 0 }), makePlaidRow({ transaction_id: "tx-2", amount: 5 })];
-    const { toInsert, skippedExisting, skippedZero } = buildFinanceRows(rows, new Set(), categories, nowIso);
+    const rows = [
+      makePlaidRow({ transaction_id: "tx-1", amount: 0 }),
+      makePlaidRow({ transaction_id: "tx-2", amount: 5 }),
+    ];
+    const { toInsert, skippedExisting, skippedZero } = buildFinanceRows(
+      rows,
+      new Set(),
+      categories,
+      nowIso,
+    );
 
     expect(toInsert).toHaveLength(1);
     expect(toInsert[0].external_transaction_id).toBe("tx-2");
@@ -197,7 +253,9 @@ function fakeSupabase({ categories = [], existingIds = new Set(), plaidRows = []
         }
         if (table === "finance_transactions" && query.select === "external_transaction_id") {
           state.existingSelects += 1;
-          const data = Array.from(existingIds).map((external_transaction_id) => ({ external_transaction_id }));
+          const data = Array.from(existingIds).map((external_transaction_id) => ({
+            external_transaction_id,
+          }));
           return resolve({ data, error: null });
         }
         if (table === "plaid_transactions") {
@@ -226,9 +284,7 @@ describe("runBackfill", () => {
       makePlaidRow({ transaction_id: "new-2" }),
     ];
     const { from, state } = fakeSupabase({
-      categories: [
-        { id: "cat-dining", slug: "dining" },
-      ],
+      categories: [{ id: "cat-dining", slug: "dining" }],
       existingIds: new Set(["old-1"]),
       plaidRows,
     });

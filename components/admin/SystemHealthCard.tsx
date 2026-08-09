@@ -28,7 +28,8 @@ export function SystemHealthCard() {
         if (cancelled) return;
         setClientMs(ms);
         setPayload(body);
-        const healthy = res.ok && (body.ok === true || body.database === "ok" || body.status === "healthy");
+        const healthy =
+          res.ok && (body.ok === true || body.database === "ok" || body.status === "healthy");
         setState(healthy ? "ok" : "error");
       } catch {
         if (!cancelled) setState("error");

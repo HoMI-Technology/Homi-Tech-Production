@@ -31,8 +31,7 @@ export default function PlaidLinkLauncher({
     token: flow.token,
     // react-plaid-link v5 widened public_token to `string | null` — flows that
     // hand back no token have nothing to exchange, so treat them as an exit.
-    onSuccess: (publicToken) =>
-      publicToken === null ? onExit() : onSuccess(publicToken, flow),
+    onSuccess: (publicToken) => (publicToken === null ? onExit() : onSuccess(publicToken, flow)),
     onExit: () => onExit(),
   });
 

@@ -88,8 +88,7 @@ function diffObligation(
       to: round1(toRunway),
       fromTemperature: runwayTemperature(fromRunway),
       toTemperature: runwayTemperature(toRunway),
-      improved:
-        toRunway > fromRunway ? true : toRunway < fromRunway ? false : null,
+      improved: toRunway > fromRunway ? true : toRunway < fromRunway ? false : null,
     },
     {
       metric: "dti",

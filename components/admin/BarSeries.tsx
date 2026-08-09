@@ -62,7 +62,14 @@ export function BarSeries({
                   fill={`url(#${gradId})`}
                 />
               ) : (
-                <rect x={x} y={baseY - 2} width={Math.max(barWidth, 1)} height={2} rx={1} fill={COLORS.slateHigh} />
+                <rect
+                  x={x}
+                  y={baseY - 2}
+                  width={Math.max(barWidth, 1)}
+                  height={2}
+                  rx={1}
+                  fill={COLORS.slateHigh}
+                />
               )}
             </g>
           );

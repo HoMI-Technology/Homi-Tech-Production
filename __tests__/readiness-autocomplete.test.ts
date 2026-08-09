@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { computeScore, type AssessmentInputs } from "@/lib/scoring";
-import {
-  autoCompletePathFromSignals,
-  buildReadinessPath,
-} from "@/lib/readiness";
+import { autoCompletePathFromSignals, buildReadinessPath } from "@/lib/readiness";
 
 const SAFE: AssessmentInputs = {
   debtToIncomeRatio: 0.25,
@@ -30,18 +27,14 @@ describe("autoCompletePathFromSignals", () => {
     const runwayStep = path.steps.find((s) => s.reasonCode === "RUNWAY_UNDER_1_MONTH");
     expect(runwayStep).toBeTruthy();
 
-    const { path: next, completedStepIds } = autoCompletePathFromSignals(
-      path,
-      blocked,
-      {
-        netCashFlow: 500,
-        runwayMonths: 2.5,
-        monthlyExpenses: 3000,
-        liquidSavings: 8000,
-        monthlyDebtPayments: 200,
-        monthlyIncome: 7000,
-      },
-    );
+    const { path: next, completedStepIds } = autoCompletePathFromSignals(path, blocked, {
+      netCashFlow: 500,
+      runwayMonths: 2.5,
+      monthlyExpenses: 3000,
+      liquidSavings: 8000,
+      monthlyDebtPayments: 200,
+      monthlyIncome: 7000,
+    });
     expect(completedStepIds).toContain(runwayStep!.id);
     expect(next.steps.find((s) => s.id === runwayStep!.id)?.status).toBe("done");
   });

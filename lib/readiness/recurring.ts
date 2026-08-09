@@ -39,10 +39,7 @@ export function loadRecurringCapacity(): RecurringCapacityState {
           typeof i.amount === "number" &&
           Number.isFinite(i.amount),
       ),
-      updatedAt:
-        typeof parsed.updatedAt === "string"
-          ? parsed.updatedAt
-          : new Date().toISOString(),
+      updatedAt: typeof parsed.updatedAt === "string" ? parsed.updatedAt : new Date().toISOString(),
     };
   } catch {
     return { items: [], updatedAt: new Date(0).toISOString() };
@@ -82,10 +79,7 @@ export function capacityAfterRecurring(
   return monthlyIncome - monthlyExpenses - monthlyDebtPayments - recurringTotal;
 }
 
-export function recurringDragRatio(
-  monthlyIncome: number,
-  recurringTotal: number,
-): number | null {
+export function recurringDragRatio(monthlyIncome: number, recurringTotal: number): number | null {
   if (monthlyIncome <= 0) return null;
   return Math.min(1, Math.max(0, recurringTotal / monthlyIncome));
 }

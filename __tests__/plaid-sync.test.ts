@@ -230,7 +230,13 @@ function emptyLedgerCaptured(): LedgerCaptured {
  * `syncItemToLedger`. It captures inserts, updates, soft-deletes, and the
  * existing-row lookup so tests can assert behavior without a real DB.
  */
-function fakeLedgerAdmin(captured: LedgerCaptured, fixtures: { categories: { id: string; slug: string }[]; existing: { id: string; external_transaction_id: string }[] }) {
+function fakeLedgerAdmin(
+  captured: LedgerCaptured,
+  fixtures: {
+    categories: { id: string; slug: string }[];
+    existing: { id: string; external_transaction_id: string }[];
+  },
+) {
   return {
     from: (table: string) => {
       if (table === "finance_categories") {
@@ -253,7 +259,9 @@ function fakeLedgerAdmin(captured: LedgerCaptured, fixtures: { categories: { id:
                   eq: () => ({
                     in: (inCol: string, ids: string[]) => {
                       captured.existingSelects.push({ userId, ids });
-                      const matches = fixtures.existing.filter((row) => ids.includes(row.external_transaction_id));
+                      const matches = fixtures.existing.filter((row) =>
+                        ids.includes(row.external_transaction_id),
+                      );
                       return {
                         is: async () => ({ data: matches, error: null }),
                       };
@@ -384,7 +392,11 @@ describe("syncItem cursor discipline", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const captured = emptyCaptured();
-    const admin = fakeAdmin(captured, { userItemIds: ["item-row-1"], accounts: [], latestSnapshot: null });
+    const admin = fakeAdmin(captured, {
+      userItemIds: ["item-row-1"],
+      accounts: [],
+      latestSnapshot: null,
+    });
     await syncItem(admin as never, makeItem("orig-cursor"));
 
     expect(syncRequests[0].cursor).toBe("orig-cursor");
@@ -409,7 +421,11 @@ describe("syncItem cursor discipline", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const captured = emptyCaptured();
-    const admin = fakeAdmin(captured, { userItemIds: ["item-row-1"], accounts: [], latestSnapshot: null });
+    const admin = fakeAdmin(captured, {
+      userItemIds: ["item-row-1"],
+      accounts: [],
+      latestSnapshot: null,
+    });
     const outcome = await syncItem(admin as never, makeItem("orig"));
 
     expect(syncRequests.map((r) => r.cursor)).toEqual(["orig", "c1", "orig", "c1b"]);
@@ -427,7 +443,11 @@ describe("syncItem cursor discipline", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const captured = emptyCaptured();
-    const admin = fakeAdmin(captured, { userItemIds: ["item-row-1"], accounts: [], latestSnapshot: null });
+    const admin = fakeAdmin(captured, {
+      userItemIds: ["item-row-1"],
+      accounts: [],
+      latestSnapshot: null,
+    });
     const outcome = await syncItem(admin as never, makeItem(null));
     expect(outcome.added).toBe(1);
   });
@@ -439,9 +459,15 @@ describe("syncItem cursor discipline", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const captured = emptyCaptured();
-    const admin = fakeAdmin(captured, { userItemIds: ["item-row-1"], accounts: [], latestSnapshot: null });
+    const admin = fakeAdmin(captured, {
+      userItemIds: ["item-row-1"],
+      accounts: [],
+      latestSnapshot: null,
+    });
 
-    await expect(syncItem(admin as never, makeItem("keep-me"))).rejects.toBeInstanceOf(PlaidSyncError);
+    await expect(syncItem(admin as never, makeItem("keep-me"))).rejects.toBeInstanceOf(
+      PlaidSyncError,
+    );
 
     expect(captured.itemUpdates).toHaveLength(1);
     expect(captured.itemUpdates[0].patch).toEqual({ status: "login_required" });
@@ -543,7 +569,11 @@ describe("syncItem snapshot math", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const captured = emptyCaptured();
-    const admin = fakeAdmin(captured, { userItemIds: ["item-row-1"], accounts, latestSnapshot: null });
+    const admin = fakeAdmin(captured, {
+      userItemIds: ["item-row-1"],
+      accounts,
+      latestSnapshot: null,
+    });
     await syncItem(admin as never, makeItem(null));
 
     const row = captured.snapshotInserts[0];
@@ -576,7 +606,11 @@ describe("syncItem snapshot math", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const captured = emptyCaptured();
-    const admin = fakeAdmin(captured, { userItemIds: ["item-row-1"], accounts, latestSnapshot: null });
+    const admin = fakeAdmin(captured, {
+      userItemIds: ["item-row-1"],
+      accounts,
+      latestSnapshot: null,
+    });
     await syncItem(admin as never, makeItem(null));
 
     const row = captured.snapshotInserts[0];
@@ -629,11 +663,33 @@ describe("syncItemToLedger", () => {
     const admin = fakeLedgerAdmin(captured, { categories, existing: [] });
 
     const effective = new Map([
-      ["t1", makeTxn({ transaction_id: "t1", amount: 12.34, name: "Lunch", merchant_name: "Cafe", personal_finance_category: { primary: "FOOD_AND_DRINK" } })],
-      ["t2", makeTxn({ transaction_id: "t2", amount: -100, name: "Paycheck", personal_finance_category: { primary: "INCOME" } })],
+      [
+        "t1",
+        makeTxn({
+          transaction_id: "t1",
+          amount: 12.34,
+          name: "Lunch",
+          merchant_name: "Cafe",
+          personal_finance_category: { primary: "FOOD_AND_DRINK" },
+        }),
+      ],
+      [
+        "t2",
+        makeTxn({
+          transaction_id: "t2",
+          amount: -100,
+          name: "Paycheck",
+          personal_finance_category: { primary: "INCOME" },
+        }),
+      ],
     ]);
 
-    await syncItemToLedger(admin as never, { id: "item-1", user_id: "user-1" }, effective, new Set());
+    await syncItemToLedger(
+      admin as never,
+      { id: "item-1", user_id: "user-1" },
+      effective,
+      new Set(),
+    );
 
     expect(captured.categoriesSelect).toBe(true);
     expect(captured.existingSelects).toHaveLength(1);
@@ -665,11 +721,32 @@ describe("syncItemToLedger", () => {
     });
 
     const effective = new Map([
-      ["t1", makeTxn({ transaction_id: "t1", amount: 55, name: "Updated lunch", personal_finance_category: { primary: "FOOD_AND_DRINK" } })],
-      ["t2", makeTxn({ transaction_id: "t2", amount: -25, name: "Refund", personal_finance_category: { primary: "INCOME" } })],
+      [
+        "t1",
+        makeTxn({
+          transaction_id: "t1",
+          amount: 55,
+          name: "Updated lunch",
+          personal_finance_category: { primary: "FOOD_AND_DRINK" },
+        }),
+      ],
+      [
+        "t2",
+        makeTxn({
+          transaction_id: "t2",
+          amount: -25,
+          name: "Refund",
+          personal_finance_category: { primary: "INCOME" },
+        }),
+      ],
     ]);
 
-    await syncItemToLedger(admin as never, { id: "item-1", user_id: "user-1" }, effective, new Set());
+    await syncItemToLedger(
+      admin as never,
+      { id: "item-1", user_id: "user-1" },
+      effective,
+      new Set(),
+    );
 
     expect(captured.inserts).toHaveLength(1);
     expect(captured.inserts[0]).toHaveLength(1);
@@ -690,7 +767,12 @@ describe("syncItemToLedger", () => {
       ["keep", makeTxn({ transaction_id: "keep", amount: 10, name: "Keep me" })],
     ]);
 
-    await syncItemToLedger(admin as never, { id: "item-1", user_id: "user-1" }, effective, new Set(["ghost"]));
+    await syncItemToLedger(
+      admin as never,
+      { id: "item-1", user_id: "user-1" },
+      effective,
+      new Set(["ghost"]),
+    );
 
     expect(captured.softDeletes).toHaveLength(1);
     expect(captured.softDeletes[0].userId).toBe("user-1");
@@ -705,7 +787,12 @@ describe("syncItemToLedger", () => {
       ["pending", makeTxn({ transaction_id: "pending", amount: 9.99, pending: true })],
     ]);
 
-    await syncItemToLedger(admin as never, { id: "item-1", user_id: "user-1" }, effective, new Set());
+    await syncItemToLedger(
+      admin as never,
+      { id: "item-1", user_id: "user-1" },
+      effective,
+      new Set(),
+    );
 
     const row = captured.inserts[0][0];
     expect(row.status).toBe("pending");
@@ -717,10 +804,22 @@ describe("syncItemToLedger", () => {
     const admin = fakeLedgerAdmin(captured, { categories, existing: [] });
 
     const effective = new Map([
-      ["t1", makeTxn({ transaction_id: "t1", amount: 5, personal_finance_category: { primary: "WEIRD_STUFF" } })],
+      [
+        "t1",
+        makeTxn({
+          transaction_id: "t1",
+          amount: 5,
+          personal_finance_category: { primary: "WEIRD_STUFF" },
+        }),
+      ],
     ]);
 
-    await syncItemToLedger(admin as never, { id: "item-1", user_id: "user-1" }, effective, new Set());
+    await syncItemToLedger(
+      admin as never,
+      { id: "item-1", user_id: "user-1" },
+      effective,
+      new Set(),
+    );
 
     expect(captured.inserts[0][0].category_id).toBeNull();
   });

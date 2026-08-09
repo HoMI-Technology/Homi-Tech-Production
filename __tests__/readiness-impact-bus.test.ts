@@ -1,10 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PathStep, ReadinessPath } from "@/lib/readiness/path";
-import type {
-  PathResolutionSummary,
-  PathStatusCounts,
-} from "@/lib/readiness/progress";
+import type { PathResolutionSummary, PathStatusCounts } from "@/lib/readiness/progress";
 
 /**
  * Impact Bus domain + transport contract (PR #127).
@@ -75,11 +72,7 @@ function storedPath(): ReadinessPath {
   return JSON.parse(window.localStorage.getItem(PATH_KEY) ?? "null") as ReadinessPath;
 }
 
-function counts(
-  done: number,
-  skipped: number,
-  pending: number,
-): PathStatusCounts {
+function counts(done: number, skipped: number, pending: number): PathStatusCounts {
   return { total: done + skipped + pending, done, skipped, pending };
 }
 
@@ -92,9 +85,7 @@ function summary(
     reassessment,
     completedRatio: actionable.total > 0 ? actionable.done / actionable.total : 0,
     resolvedRatio:
-      actionable.total > 0
-        ? (actionable.done + actionable.skipped) / actionable.total
-        : 0,
+      actionable.total > 0 ? (actionable.done + actionable.skipped) / actionable.total : 0,
   };
 }
 
@@ -161,9 +152,7 @@ describe("completePathStepWithImpact — transitions", () => {
 
   it("already done → noop:already_done, no second completedAt, no transport", () => {
     const doneAt = "2026-08-01T10:00:00.000Z";
-    seedPath(
-      makePath([makeStep({ id: "s1", status: "done", completedAt: doneAt })]),
-    );
+    seedPath(makePath([makeStep({ id: "s1", status: "done", completedAt: doneAt })]));
     const listener = vi.fn();
     window.addEventListener(bus.IMPACT_EVENT_NAME, listener);
     const result = bus.completePathStepWithImpact("s1");
@@ -221,9 +210,7 @@ describe("completePathStepWithImpact — transitions", () => {
 
     // Transport: stored + dispatched
     expect(listener).toHaveBeenCalledTimes(1);
-    const stored = JSON.parse(
-      window.sessionStorage.getItem(bus.LAST_IMPACT_KEY) ?? "null",
-    );
+    const stored = JSON.parse(window.sessionStorage.getItem(bus.LAST_IMPACT_KEY) ?? "null");
     expect(stored?.impactId).toBe(impact.impactId);
   });
 
@@ -273,9 +260,7 @@ describe("completePathStepWithImpact — transitions", () => {
   });
 
   it("a prior skip (any category) means later completions are not first resolutions", () => {
-    seedPath(
-      makePath([makeStep({ id: "s1", status: "skipped" }), makeStep({ id: "s2" })]),
-    );
+    seedPath(makePath([makeStep({ id: "s1", status: "skipped" }), makeStep({ id: "s2" })]));
     const result = bus.completePathStepWithImpact("s2");
     expect(result.kind).toBe("completed_notified");
     if (result.kind === "noop") return;
@@ -287,9 +272,7 @@ describe("completePathStepWithImpact — transitions", () => {
     seedPath(makePath([makeStep({ id: "s1" })], { id: "path-A" }));
     const result = bus.completePathStepWithImpact("s1");
     if (result.kind !== "completed_notified") throw new Error("expected impact");
-    expect(result.impact.impactId).toBe(
-      "path_step:path-A:s1:2026-08-03T12:00:00.000Z",
-    );
+    expect(result.impact.impactId).toBe("path_step:path-A:s1:2026-08-03T12:00:00.000Z");
   });
 
   it("separate Paths with the same step id produce different impact ids", () => {
@@ -367,7 +350,12 @@ describe("parsePathStepImpact", () => {
     ["oversized title", validImpact({ stepTitle: "t".repeat(300) })],
     ["non-string title", validImpact({ stepTitle: 42 as never })],
     ["missing summaries", validImpact({ before: undefined as never })],
-    ["counts as array", validImpact({ after: { ...summary(counts(1, 0, 1), counts(0, 0, 1)), actionable: [1, 0, 1] as never } })],
+    [
+      "counts as array",
+      validImpact({
+        after: { ...summary(counts(1, 0, 1), counts(0, 0, 1)), actionable: [1, 0, 1] as never },
+      }),
+    ],
     [
       "negative count",
       validImpact({
@@ -519,11 +507,9 @@ describe("transport", () => {
   it("storage set failure still dispatches the event", () => {
     const listener = vi.fn();
     window.addEventListener(bus.IMPACT_EVENT_NAME, listener);
-    const spy = vi
-      .spyOn(Storage.prototype, "setItem")
-      .mockImplementation(() => {
-        throw new Error("denied");
-      });
+    const spy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("denied");
+    });
     bus.publishPathImpact(bus.parsePathStepImpact(validImpact())!);
     spy.mockRestore();
     window.removeEventListener(bus.IMPACT_EVENT_NAME, listener);
@@ -531,32 +517,26 @@ describe("transport", () => {
   });
 
   it("storage get failure fails safely", () => {
-    const spy = vi
-      .spyOn(Storage.prototype, "getItem")
-      .mockImplementation(() => {
-        throw new Error("denied");
-      });
+    const spy = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("denied");
+    });
     expect(bus.consumeStoredPathImpact()).toBeNull();
     spy.mockRestore();
   });
 
   it("storage remove failure does not crash", () => {
-    const spy = vi
-      .spyOn(Storage.prototype, "removeItem")
-      .mockImplementation(() => {
-        throw new Error("denied");
-      });
+    const spy = vi.spyOn(Storage.prototype, "removeItem").mockImplementation(() => {
+      throw new Error("denied");
+    });
     expect(() => bus.clearStoredPathImpact()).not.toThrow();
     spy.mockRestore();
   });
 
   it("event dispatch failure never undoes the Path completion", () => {
     seedPath(makePath([makeStep({ id: "s1" })]));
-    const spy = vi
-      .spyOn(window, "dispatchEvent")
-      .mockImplementation(() => {
-        throw new Error("dispatch blocked");
-      });
+    const spy = vi.spyOn(window, "dispatchEvent").mockImplementation(() => {
+      throw new Error("dispatch blocked");
+    });
     const result = bus.completePathStepWithImpact("s1");
     spy.mockRestore();
     expect(result.kind).toBe("completed_notified");
@@ -606,9 +586,7 @@ describe("pathImpactToastCopy", () => {
 
   it("intermediate completion with skips: calm secondary clause", () => {
     const copy = bus.pathImpactToastCopy(
-      bus.parsePathStepImpact(
-        validImpact({ after: summary(counts(1, 1, 1), counts(0, 0, 1)) }),
-      )!,
+      bus.parsePathStepImpact(validImpact({ after: summary(counts(1, 1, 1), counts(0, 0, 1)) }))!,
     );
     expect(copy.title).toBe("Step marked complete");
     expect(copy.body).toContain("1 skipped.");
@@ -617,9 +595,7 @@ describe("pathImpactToastCopy", () => {
 
   it("all actionable done, reassessment pending: protective-steps copy, no Path-complete claim", () => {
     const copy = bus.pathImpactToastCopy(
-      bus.parsePathStepImpact(
-        validImpact({ after: summary(counts(2, 0, 0), counts(0, 0, 1)) }),
-      )!,
+      bus.parsePathStepImpact(validImpact({ after: summary(counts(2, 0, 0), counts(0, 0, 1)) }))!,
     );
     expect(copy.title).toBe("Protective steps complete");
     expect(copy.body).toContain("Reassess when your real inputs change.");
@@ -629,9 +605,7 @@ describe("pathImpactToastCopy", () => {
 
   it("resolved with skips: Path reviewed, done and skipped stay distinct", () => {
     const copy = bus.pathImpactToastCopy(
-      bus.parsePathStepImpact(
-        validImpact({ after: summary(counts(1, 1, 0), counts(0, 0, 1)) }),
-      )!,
+      bus.parsePathStepImpact(validImpact({ after: summary(counts(1, 1, 0), counts(0, 0, 1)) }))!,
     );
     expect(copy.title).toBe("Path reviewed");
     expect(copy.body).toContain("1 complete · 1 skipped.");
@@ -642,9 +616,7 @@ describe("pathImpactToastCopy", () => {
 
   it("every step done: Path steps complete, no score implication", () => {
     const copy = bus.pathImpactToastCopy(
-      bus.parsePathStepImpact(
-        validImpact({ after: summary(counts(2, 0, 0), counts(1, 0, 0)) }),
-      )!,
+      bus.parsePathStepImpact(validImpact({ after: summary(counts(2, 0, 0), counts(1, 0, 0)) }))!,
     );
     expect(copy.title).toBe("Path steps complete");
     expectClean(copy);
@@ -652,9 +624,7 @@ describe("pathImpactToastCopy", () => {
 
   it("skipped reassessment never yields an all-complete claim", () => {
     const copy = bus.pathImpactToastCopy(
-      bus.parsePathStepImpact(
-        validImpact({ after: summary(counts(2, 0, 0), counts(0, 1, 0)) }),
-      )!,
+      bus.parsePathStepImpact(validImpact({ after: summary(counts(2, 0, 0), counts(0, 1, 0)) }))!,
     );
     expect(copy.title).toBe("Protective steps complete");
     expect(copy.title).not.toMatch(/path steps complete/i);

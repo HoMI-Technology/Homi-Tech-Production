@@ -9,9 +9,9 @@
 /* usePlannerStore directly.                                            */
 /* ------------------------------------------------------------------ */
 
-import BrokerPanel from './BrokerPanel'
-import NetWorthPanel from './NetWorthPanel'
-import PortfolioPanel from './PortfolioPanel'
+import BrokerPanel from "./BrokerPanel";
+import NetWorthPanel from "./NetWorthPanel";
+import PortfolioPanel from "./PortfolioPanel";
 
 export function WealthCommand() {
   return (
@@ -20,7 +20,7 @@ export function WealthCommand() {
       <PortfolioPanel />
       <NetWorthPanel />
     </div>
-  )
+  );
 }
 
-export default WealthCommand
+export default WealthCommand;

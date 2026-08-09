@@ -116,7 +116,8 @@ export function ImpactToast() {
       priority: TOAST_PRIORITY.base,
       duration: AUTO_DISMISS_MS,
       pauseOnHover: true,
-      className: "glass flex max-w-md flex-wrap items-start gap-3 border-emerald/35 p-4 sm:flex-nowrap",
+      className:
+        "glass flex max-w-md flex-wrap items-start gap-3 border-emerald/35 p-4 sm:flex-nowrap",
       onDismiss: (reason) => {
         hide();
         // Suppression by a session notice only hides Path progress — the

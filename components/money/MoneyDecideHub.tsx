@@ -86,8 +86,8 @@ export function MoneyDecideHub() {
             Stress the decision against your real numbers
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-dim sm:text-base">
-            Every calculator seeds from your Money picture when you have one. Missing data
-            stays missing — never invented. AI explains; the math is deterministic.
+            Every calculator seeds from your Money picture when you have one. Missing data stays
+            missing — never invented. AI explains; the math is deterministic.
           </p>
           <div className="mt-5 flex flex-wrap gap-2.5">
             <Link href="/money/budget" className="btn btn-ghost btn-sm">

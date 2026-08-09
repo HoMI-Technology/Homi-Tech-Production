@@ -48,20 +48,14 @@ const SLUG_TO_CATEGORY: Record<string, Transaction["category"]> = {
   investments: "investments",
 };
 
-function categoryIdForSlug(
-  ledger: BudgetLedgerState,
-  slug: string,
-): string | null {
+function categoryIdForSlug(ledger: BudgetLedgerState, slug: string): string | null {
   const cat = ledger.categories.find(
     (c) => c.slug === slug || c.slug === `cat-${slug}` || c.name.toLowerCase() === slug,
   );
   return cat?.id ?? null;
 }
 
-function slugForCategoryId(
-  ledger: BudgetLedgerState,
-  categoryId: string | null,
-): string | null {
+function slugForCategoryId(ledger: BudgetLedgerState, categoryId: string | null): string | null {
   if (!categoryId) return null;
   const cat = ledger.categories.find((c) => c.id === categoryId);
   return cat?.slug ?? null;
@@ -74,8 +68,7 @@ export function ledgerTxToPlanner(
   if (tx.deletedAt) return null;
   if (tx.type !== "income" && tx.type !== "expense") return null;
   const slug = slugForCategoryId(ledger, tx.categoryId);
-  let category: Transaction["category"] =
-    tx.type === "income" ? "salary" : "other";
+  let category: Transaction["category"] = tx.type === "income" ? "salary" : "other";
   if (slug) {
     const key = slug.replace(/^cat-/, "");
     category = SLUG_TO_CATEGORY[key] ?? category;
@@ -143,8 +136,7 @@ export function dualWriteDeleteTransaction(plannerTxId: string): void {
     let ledger = loadBudgetLedger(now);
     const id = plannerTxId.replace(/^tx_/, "");
     const existing = ledger.transactions.find(
-      (t) =>
-        t.id === id || t.id === plannerTxId || `tx_${t.id}` === plannerTxId,
+      (t) => t.id === id || t.id === plannerTxId || `tx_${t.id}` === plannerTxId,
     );
     if (!existing || existing.deletedAt) return;
     ledger = softDeleteTransaction(ledger, existing.id, nowIso);

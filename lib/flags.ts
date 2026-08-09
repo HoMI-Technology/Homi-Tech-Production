@@ -21,5 +21,3 @@ export const agentOs = process.env.NEXT_PUBLIC_FF_AGENT_OS === "true";
  * No localStorage/cookie/query overrides, no remote config.
  */
 export const impactBus = process.env.NEXT_PUBLIC_FF_IMPACT_BUS === "true";
-
-

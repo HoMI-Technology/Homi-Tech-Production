@@ -15,8 +15,14 @@ import { scoreToVerdict } from "@/lib/scoring/engine";
 
 describe("scoreToVerdict — canonical boundaries", () => {
   const cases: Array<[number, string]> = [
-    [100, "READY"], [80, "READY"], [79, "ALMOST_THERE"], [65, "ALMOST_THERE"],
-    [64, "BUILD_FIRST"], [50, "BUILD_FIRST"], [49, "NOT_YET"], [0, "NOT_YET"],
+    [100, "READY"],
+    [80, "READY"],
+    [79, "ALMOST_THERE"],
+    [65, "ALMOST_THERE"],
+    [64, "BUILD_FIRST"],
+    [50, "BUILD_FIRST"],
+    [49, "NOT_YET"],
+    [0, "NOT_YET"],
   ];
   it.each(cases)("score %i => %s", (score, verdict) => {
     expect(scoreToVerdict(score)).toBe(verdict);
@@ -24,7 +30,7 @@ describe("scoreToVerdict — canonical boundaries", () => {
 });
 
 const LABEL_TO_VERDICT: Record<string, string> = {
-  "READY": "READY",
+  READY: "READY",
   "ALMOST THERE": "ALMOST_THERE",
   "BUILD FIRST": "BUILD_FIRST",
   "NOT YET": "NOT_YET",

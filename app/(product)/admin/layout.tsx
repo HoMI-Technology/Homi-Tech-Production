@@ -21,11 +21,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   let profile: Profile | null = null;
   if (user) {
     try {
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .maybeSingle();
+      const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
       profile = (data as Profile | null) ?? null;
     } catch {
       profile = null;

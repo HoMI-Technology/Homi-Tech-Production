@@ -44,8 +44,7 @@ export function visibleDashboards(ctx: SwitcherContext): DashboardLink[] {
   const hasEmployer = Boolean(ctx.employerId) || Boolean(ctx.orgMember);
   const hasOrganization = Boolean(ctx.organizationId) || Boolean(ctx.orgMember);
   // Role "employee" may lack employer_id mid-onboarding but still belongs on the hub.
-  const employeeEligible =
-    role === "employee" || hasEmployer || isAdmin;
+  const employeeEligible = role === "employee" || hasEmployer || isAdmin;
 
   return ALL_DASHBOARDS.filter((d) => {
     if (isAdmin) return true;

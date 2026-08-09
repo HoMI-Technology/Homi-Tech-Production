@@ -22,35 +22,35 @@ import type {
   SavingsGoal,
   Temperature,
   Transaction,
-} from "./types"
-import { DEFAULT_CONSOLIDATION_LOAN } from "./types"
+} from "./types";
+import { DEFAULT_CONSOLIDATION_LOAN } from "./types";
 
 /* ------------------------------------------------------------------ */
 /* ISO date helpers (the only keepers from reference format.ts)        */
 /* ------------------------------------------------------------------ */
 
 function toISODate(d: Date): string {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 /** Today in the user's local calendar as YYYY-MM-DD — never UTC-derived. */
 export function todayISO(): string {
-  return toISODate(new Date())
+  return toISODate(new Date());
 }
 
 export function addDaysISO(iso: string, days: number): string {
-  const d = new Date(`${iso}T12:00:00`)
-  d.setDate(d.getDate() + days)
-  return toISODate(d)
+  const d = new Date(`${iso}T12:00:00`);
+  d.setDate(d.getDate() + days);
+  return toISODate(d);
 }
 
 export function daysUntil(iso: string, from = todayISO()): number {
-  const a = new Date(`${from}T12:00:00`).getTime()
-  const b = new Date(`${iso}T12:00:00`).getTime()
-  return Math.round((b - a) / 86_400_000)
+  const a = new Date(`${from}T12:00:00`).getTime();
+  const b = new Date(`${iso}T12:00:00`).getTime();
+  return Math.round((b - a) / 86_400_000);
 }
 
 /* ------------------------------------------------------------------ */
@@ -58,43 +58,39 @@ export function daysUntil(iso: string, from = todayISO()): number {
 /* ------------------------------------------------------------------ */
 
 export function summarize(transactions: Transaction[]) {
-  let income = 0
-  let expenses = 0
-  const byCategory = new Map<string, number>()
+  let income = 0;
+  let expenses = 0;
+  const byCategory = new Map<string, number>();
 
   for (const tx of transactions) {
-    if (tx.type === 'income') {
-      income += tx.amount
+    if (tx.type === "income") {
+      income += tx.amount;
     } else {
-      expenses += tx.amount
-      byCategory.set(tx.category, (byCategory.get(tx.category) ?? 0) + tx.amount)
+      expenses += tx.amount;
+      byCategory.set(tx.category, (byCategory.get(tx.category) ?? 0) + tx.amount);
     }
   }
 
-  const remaining = income - expenses
-  const savingsRate = income > 0 ? (remaining / income) * 100 : 0
+  const remaining = income - expenses;
+  const savingsRate = income > 0 ? (remaining / income) * 100 : 0;
 
   const categoryBreakdown = [...byCategory.entries()]
     .map(([category, amount]) => ({ category, amount }))
-    .sort((a, b) => b.amount - a.amount)
+    .sort((a, b) => b.amount - a.amount);
 
-  return { income, expenses, remaining, savingsRate, categoryBreakdown }
+  return { income, expenses, remaining, savingsRate, categoryBreakdown };
 }
 
 export function summarizeAccounts(accounts: BankAccount[]) {
-  const cash = accounts
-    .filter((a) => a.type !== 'credit')
-    .reduce((s, a) => s + a.balance, 0)
+  const cash = accounts.filter((a) => a.type !== "credit").reduce((s, a) => s + a.balance, 0);
   const credit = accounts
-    .filter((a) => a.type === 'credit')
-    .reduce((s, a) => s + Math.abs(Math.min(0, a.balance)), 0)
-  return { cash, credit, count: accounts.length }
+    .filter((a) => a.type === "credit")
+    .reduce((s, a) => s + Math.abs(Math.min(0, a.balance)), 0);
+  return { cash, credit, count: accounts.length };
 }
 
 export function upcomingBillsTotal(bills: Bill[]) {
-  return bills
-    .filter((b) => b.status !== 'paid')
-    .reduce((s, b) => s + b.amount, 0)
+  return bills.filter((b) => b.status !== "paid").reduce((s, b) => s + b.amount, 0);
 }
 
 /* ------------------------------------------------------------------ */
@@ -102,39 +98,39 @@ export function upcomingBillsTotal(bills: Bill[]) {
 /* ------------------------------------------------------------------ */
 
 export function holdingMarketValue(h: Holding): number {
-  return h.shares * h.price
+  return h.shares * h.price;
 }
 
 export function holdingCost(h: Holding): number {
-  return h.shares * h.costBasis
+  return h.shares * h.costBasis;
 }
 
 export function holdingGain(h: Holding): number {
-  return holdingMarketValue(h) - holdingCost(h)
+  return holdingMarketValue(h) - holdingCost(h);
 }
 
 export function holdingGainPct(h: Holding): number {
-  const cost = holdingCost(h)
-  if (cost <= 0) return 0
-  return (holdingGain(h) / cost) * 100
+  const cost = holdingCost(h);
+  if (cost <= 0) return 0;
+  return (holdingGain(h) / cost) * 100;
 }
 
 export function summarizePortfolio(holdings: Holding[]) {
-  let marketValue = 0
-  let costBasis = 0
-  const byClass = new Map<AssetClass, number>()
-  const byAccount = new Map<HoldingAccountKind, number>()
+  let marketValue = 0;
+  let costBasis = 0;
+  const byClass = new Map<AssetClass, number>();
+  const byAccount = new Map<HoldingAccountKind, number>();
 
   for (const h of holdings) {
-    const mv = holdingMarketValue(h)
-    marketValue += mv
-    costBasis += holdingCost(h)
-    byClass.set(h.assetClass, (byClass.get(h.assetClass) ?? 0) + mv)
-    byAccount.set(h.accountKind, (byAccount.get(h.accountKind) ?? 0) + mv)
+    const mv = holdingMarketValue(h);
+    marketValue += mv;
+    costBasis += holdingCost(h);
+    byClass.set(h.assetClass, (byClass.get(h.assetClass) ?? 0) + mv);
+    byAccount.set(h.accountKind, (byAccount.get(h.accountKind) ?? 0) + mv);
   }
 
-  const gain = marketValue - costBasis
-  const gainPct = costBasis > 0 ? (gain / costBasis) * 100 : 0
+  const gain = marketValue - costBasis;
+  const gainPct = costBasis > 0 ? (gain / costBasis) * 100 : 0;
 
   const allocation = [...byClass.entries()]
     .map(([assetClass, value]) => ({
@@ -142,7 +138,7 @@ export function summarizePortfolio(holdings: Holding[]) {
       value,
       weight: marketValue > 0 ? (value / marketValue) * 100 : 0,
     }))
-    .sort((a, b) => b.value - a.value)
+    .sort((a, b) => b.value - a.value);
 
   const byAccountKind = [...byAccount.entries()]
     .map(([accountKind, value]) => ({
@@ -150,7 +146,7 @@ export function summarizePortfolio(holdings: Holding[]) {
       value,
       weight: marketValue > 0 ? (value / marketValue) * 100 : 0,
     }))
-    .sort((a, b) => b.value - a.value)
+    .sort((a, b) => b.value - a.value);
 
   return {
     marketValue,
@@ -160,26 +156,18 @@ export function summarizePortfolio(holdings: Holding[]) {
     count: holdings.length,
     allocation,
     byAccountKind,
-  }
+  };
 }
 
-export function totalNetWorth(
-  accounts: BankAccount[],
-  holdings: Holding[],
-  items: NetWorthItem[],
-) {
-  const { cash, credit } = summarizeAccounts(accounts)
-  const portfolio = summarizePortfolio(holdings).marketValue
-  const otherAssets = items
-    .filter((i) => i.kind === 'asset')
-    .reduce((s, i) => s + i.amount, 0)
-  const liabilities = items
-    .filter((i) => i.kind === 'liability')
-    .reduce((s, i) => s + i.amount, 0)
+export function totalNetWorth(accounts: BankAccount[], holdings: Holding[], items: NetWorthItem[]) {
+  const { cash, credit } = summarizeAccounts(accounts);
+  const portfolio = summarizePortfolio(holdings).marketValue;
+  const otherAssets = items.filter((i) => i.kind === "asset").reduce((s, i) => s + i.amount, 0);
+  const liabilities = items.filter((i) => i.kind === "liability").reduce((s, i) => s + i.amount, 0);
 
-  const assets = cash + portfolio + otherAssets
-  const totalLiabilities = liabilities + credit
-  const netWorth = assets - totalLiabilities
+  const assets = cash + portfolio + otherAssets;
+  const totalLiabilities = liabilities + credit;
+  const netWorth = assets - totalLiabilities;
 
   return {
     cash,
@@ -190,7 +178,7 @@ export function totalNetWorth(
     credit,
     manualLiabilities: liabilities,
     netWorth,
-  }
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -199,36 +187,36 @@ export function totalNetWorth(
 
 /** DTI: ≤28% emerald · ≤36% yellow · ≤43% amber · >43% crimson */
 export function dtiTemperature(dti: number): Temperature {
-  if (dti <= 28) return 'emerald'
-  if (dti <= 36) return 'yellow'
-  if (dti <= 43) return 'amber'
-  return 'crimson'
+  if (dti <= 28) return "emerald";
+  if (dti <= 36) return "yellow";
+  if (dti <= 43) return "amber";
+  return "crimson";
 }
 
 /** Savings rate: ≥20% emerald · ≥10% yellow · ≥0% amber · <0% crimson */
 export function savingsRateTemperature(rate: number): Temperature {
-  if (rate >= 20) return 'emerald'
-  if (rate >= 10) return 'yellow'
-  if (rate >= 0) return 'amber'
-  return 'crimson'
+  if (rate >= 20) return "emerald";
+  if (rate >= 10) return "yellow";
+  if (rate >= 0) return "amber";
+  return "crimson";
 }
 
 /** Runway: ≥6mo emerald · ≥3 yellow · ≥1 amber · <1 crimson */
 export function runwayTemperature(months: number): Temperature {
-  if (!Number.isFinite(months) || months >= 6) return 'emerald'
-  if (months >= 3) return 'yellow'
-  if (months >= 1) return 'amber'
-  return 'crimson'
+  if (!Number.isFinite(months) || months >= 6) return "emerald";
+  if (months >= 3) return "yellow";
+  if (months >= 1) return "amber";
+  return "crimson";
 }
 
 /** Cash-flow ratio (flow/income): ≥15% emerald · ≥5% yellow · ≥0% amber · <0 crimson */
 export function cashFlowTemperature(flow: number, income: number): Temperature {
-  if (income <= 0) return 'amber'
-  const ratio = flow / income
-  if (ratio >= 0.15) return 'emerald'
-  if (ratio >= 0.05) return 'yellow'
-  if (ratio >= 0) return 'amber'
-  return 'crimson'
+  if (income <= 0) return "amber";
+  const ratio = flow / income;
+  if (ratio >= 0.15) return "emerald";
+  if (ratio >= 0.05) return "yellow";
+  if (ratio >= 0) return "amber";
+  return "crimson";
 }
 
 /* ------------------------------------------------------------------ */
@@ -240,20 +228,20 @@ export function financialReality(
   accounts: BankAccount[],
   bills: Bill[],
 ) {
-  const { income, expenses, remaining, savingsRate } = summarize(transactions)
-  const { cash } = summarizeAccounts(accounts)
+  const { income, expenses, remaining, savingsRate } = summarize(transactions);
+  const { cash } = summarizeAccounts(accounts);
 
   const monthlyDebtPayments = bills
-    .filter((b) => b.category === 'debt' && b.status !== 'paid')
-    .reduce((s, b) => s + b.amount, 0)
+    .filter((b) => b.category === "debt" && b.status !== "paid")
+    .reduce((s, b) => s + b.amount, 0);
   const debtFromTx = transactions
-    .filter((t) => t.type === 'expense' && t.category === 'debt')
-    .reduce((s, t) => s + t.amount, 0)
-  const debtPayments = Math.max(monthlyDebtPayments, debtFromTx)
+    .filter((t) => t.type === "expense" && t.category === "debt")
+    .reduce((s, t) => s + t.amount, 0);
+  const debtPayments = Math.max(monthlyDebtPayments, debtFromTx);
 
-  const outflow = expenses > 0 ? expenses : upcomingBillsTotal(bills)
-  const runwayMonths = outflow > 0 ? cash / outflow : Infinity
-  const dti = income > 0 ? (debtPayments / income) * 100 : 0
+  const outflow = expenses > 0 ? expenses : upcomingBillsTotal(bills);
+  const runwayMonths = outflow > 0 ? cash / outflow : Infinity;
+  const dti = income > 0 ? (debtPayments / income) * 100 : 0;
 
   return {
     income,
@@ -270,7 +258,7 @@ export function financialReality(
       runway: runwayTemperature(runwayMonths),
       dti: dtiTemperature(dti),
     },
-  }
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -279,31 +267,31 @@ export function financialReality(
 /* ------------------------------------------------------------------ */
 
 export interface PathFinanceSnapshot {
-  income: number
-  expenses: number
-  cashFlow: number
-  savingsRate: number
-  runwayMonths: number
-  dti: number
-  liquidCash: number
-  debtPayments: number
-  portfolioValue: number
-  netWorth: number
-  savingsGoalTarget: number
-  savingsGoalCurrent: number
+  income: number;
+  expenses: number;
+  cashFlow: number;
+  savingsRate: number;
+  runwayMonths: number;
+  dti: number;
+  liquidCash: number;
+  debtPayments: number;
+  portfolioValue: number;
+  netWorth: number;
+  savingsGoalTarget: number;
+  savingsGoalCurrent: number;
 }
 
 export function buildPathFinanceSnapshot(s: {
-  transactions: Transaction[]
-  accounts: BankAccount[]
-  bills: Bill[]
-  holdings: Holding[]
-  netWorthItems: NetWorthItem[]
-  savingsGoal: SavingsGoal
+  transactions: Transaction[];
+  accounts: BankAccount[];
+  bills: Bill[];
+  holdings: Holding[];
+  netWorthItems: NetWorthItem[];
+  savingsGoal: SavingsGoal;
 }): PathFinanceSnapshot {
-  const reality = financialReality(s.transactions, s.accounts, s.bills)
-  const portfolio = summarizePortfolio(s.holdings)
-  const nw = totalNetWorth(s.accounts, s.holdings, s.netWorthItems)
+  const reality = financialReality(s.transactions, s.accounts, s.bills);
+  const portfolio = summarizePortfolio(s.holdings);
+  const nw = totalNetWorth(s.accounts, s.holdings, s.netWorthItems);
   return {
     income: reality.income,
     expenses: reality.expenses,
@@ -317,7 +305,7 @@ export function buildPathFinanceSnapshot(s: {
     netWorth: nw.netWorth,
     savingsGoalTarget: s.savingsGoal.target,
     savingsGoalCurrent: s.savingsGoal.current,
-  }
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -331,10 +319,10 @@ export function buildPathFinanceSnapshot(s: {
 /* ------------------------------------------------------------------ */
 
 export const DEFAULT_GOAL: SavingsGoal = {
-  name: 'Emergency fund',
+  name: "Emergency fund",
   target: 0,
   current: 0,
-}
+};
 
 /**
  * Neutral empty profile — never invent a credit score that trips hard-stops.
@@ -357,9 +345,9 @@ export const DEFAULT_READINESS_PROFILE: BudgetState["readinessProfile"] = {
   profileComplete: false,
 };
 
-export const DEFAULT_HOUSEHOLD_PARTNER: BudgetState['householdPartner'] = {
+export const DEFAULT_HOUSEHOLD_PARTNER: BudgetState["householdPartner"] = {
   enabled: false,
-  label: 'Partner',
+  label: "Partner",
   creditScore: 0,
   lifeStability: 5,
   confidenceLevel: 5,
@@ -367,58 +355,58 @@ export const DEFAULT_HOUSEHOLD_PARTNER: BudgetState['householdPartner'] = {
   timeHorizonMonths: 12,
   incomeShare: 0.5,
   partnerAlignment: 5,
-}
+};
 
 function billStatusFor(dueDate: string, autopay: boolean, today: string): BillStatus {
-  const due = daysUntil(dueDate, today)
-  if (due < 0) return 'overdue'
-  if (due === 0) return 'due'
-  return autopay ? 'scheduled' : 'upcoming'
+  const due = daysUntil(dueDate, today);
+  if (due < 0) return "overdue";
+  if (due === 0) return "due";
+  return autopay ? "scheduled" : "upcoming";
 }
 
 export function buildDemoSeed(now: Date = new Date()): BudgetState {
-  const today = toISODate(now)
-  const day = (offset: number) => addDaysISO(today, offset)
-  const syncedAt = now.toISOString()
+  const today = toISODate(now);
+  const day = (offset: number) => addDaysISO(today, offset);
+  const syncedAt = now.toISOString();
 
   const accounts: BankAccount[] = [
     {
-      id: 'acct-demo-checking',
-      institution: 'chase',
-      name: 'Total Checking',
-      type: 'checking',
-      mask: '4821',
+      id: "acct-demo-checking",
+      institution: "chase",
+      name: "Total Checking",
+      type: "checking",
+      mask: "4821",
       balance: 4280.42,
       available: 4120.0,
-      currency: 'USD',
+      currency: "USD",
       lastSyncedAt: syncedAt,
-      status: 'linked',
+      status: "linked",
     },
     {
-      id: 'acct-demo-savings',
-      institution: 'chase',
-      name: 'Savings',
-      type: 'savings',
-      mask: '9033',
+      id: "acct-demo-savings",
+      institution: "chase",
+      name: "Savings",
+      type: "savings",
+      mask: "9033",
       balance: 11240.18,
       available: 11240.18,
-      currency: 'USD',
+      currency: "USD",
       lastSyncedAt: syncedAt,
-      status: 'linked',
+      status: "linked",
     },
     {
-      id: 'acct-demo-ally',
-      institution: 'ally',
-      name: 'Online Savings',
-      type: 'savings',
-      mask: '7710',
+      id: "acct-demo-ally",
+      institution: "ally",
+      name: "Online Savings",
+      type: "savings",
+      mask: "7710",
       balance: 3200.0,
       available: 3200.0,
-      currency: 'USD',
+      currency: "USD",
       lastSyncedAt: syncedAt,
-      status: 'linked',
+      status: "linked",
     },
-  ]
+  ];
 
   const bill = (
     id: string,
@@ -426,10 +414,10 @@ export function buildDemoSeed(now: Date = new Date()): BudgetState {
     amount: number,
     category: ExpenseCategory,
     dueOffset: number,
-    opts: { autopay?: boolean; source?: 'manual' | 'bank'; accountId?: string } = {},
+    opts: { autopay?: boolean; source?: "manual" | "bank"; accountId?: string } = {},
   ): Bill => {
-    const dueDate = day(dueOffset)
-    const autopay = opts.autopay ?? false
+    const dueDate = day(dueOffset);
+    const autopay = opts.autopay ?? false;
     return {
       id,
       name,
@@ -437,47 +425,47 @@ export function buildDemoSeed(now: Date = new Date()): BudgetState {
       category,
       dueDate,
       status: billStatusFor(dueDate, autopay, today),
-      frequency: 'monthly',
+      frequency: "monthly",
       accountId: opts.accountId,
       autopay,
-      source: opts.source ?? 'manual',
+      source: opts.source ?? "manual",
       paidAt: null,
-    }
-  }
+    };
+  };
 
   const bills: Bill[] = [
-    bill('bill-demo-teco', 'TECO electric', 112.4, 'utilities', 0, {
+    bill("bill-demo-teco", "TECO electric", 112.4, "utilities", 0, {
       autopay: true,
-      source: 'bank',
-      accountId: 'acct-demo-checking',
+      source: "bank",
+      accountId: "acct-demo-checking",
     }),
-    bill('bill-demo-rent', 'Apartment rent', 1850, 'housing', 3, {
-      accountId: 'acct-demo-checking',
+    bill("bill-demo-rent", "Apartment rent", 1850, "housing", 3, {
+      accountId: "acct-demo-checking",
     }),
-    bill('bill-demo-spectrum', 'Spectrum internet', 79.99, 'utilities', 5, {
+    bill("bill-demo-spectrum", "Spectrum internet", 79.99, "utilities", 5, {
       autopay: true,
-      source: 'bank',
-      accountId: 'acct-demo-checking',
+      source: "bank",
+      accountId: "acct-demo-checking",
     }),
-    bill('bill-demo-netflix', 'Netflix', 15.49, 'entertainment', 8, {
+    bill("bill-demo-netflix", "Netflix", 15.49, "entertainment", 8, {
       autopay: true,
-      source: 'bank',
-      accountId: 'acct-demo-checking',
+      source: "bank",
+      accountId: "acct-demo-checking",
     }),
-    bill('bill-demo-student-loan', 'Student loan', 220, 'debt', 12, {
-      accountId: 'acct-demo-checking',
+    bill("bill-demo-student-loan", "Student loan", 220, "debt", 12, {
+      accountId: "acct-demo-checking",
     }),
-    bill('bill-demo-mobile', 'Mobile plan', 68, 'utilities', 18, {
+    bill("bill-demo-mobile", "Mobile plan", 68, "utilities", 18, {
       autopay: true,
-      source: 'bank',
-      accountId: 'acct-demo-ally',
+      source: "bank",
+      accountId: "acct-demo-ally",
     }),
-  ]
+  ];
 
   const tx = (
     id: string,
     note: string,
-    type: Transaction['type'],
+    type: Transaction["type"],
     amount: number,
     category: CategoryId,
     dayOffset: number,
@@ -488,149 +476,149 @@ export function buildDemoSeed(now: Date = new Date()): BudgetState {
     category,
     note,
     date: day(dayOffset),
-    source: 'manual',
-  })
+    source: "manual",
+  });
 
   const transactions: Transaction[] = [
-    tx('tx-demo-01', 'Coffee runs', 'expense', 42, 'food', -1),
-    tx('tx-demo-02', 'Groceries midweek', 'expense', 178, 'food', -2),
-    tx('tx-demo-03', 'Student loan', 'expense', 220, 'debt', -3),
-    tx('tx-demo-04', 'Rent', 'expense', 1850, 'housing', -4),
-    tx('tx-demo-05', 'Groceries', 'expense', 312, 'food', -4),
-    tx('tx-demo-06', 'Biweekly paycheck', 'income', 6200, 'salary', -5),
-    tx('tx-demo-07', 'Fuel + transit', 'expense', 86, 'transport', -6),
-    tx('tx-demo-08', 'Electric + internet', 'expense', 148, 'utilities', -7),
-    tx('tx-demo-09', 'Consulting weekend', 'income', 450, 'freelance', -8),
-    tx('tx-demo-10', 'Streaming + dinner out', 'expense', 64, 'entertainment', -9),
-    tx('tx-demo-11', 'Household essentials', 'expense', 119, 'shopping', -10),
-    tx('tx-demo-12', 'Pharmacy', 'expense', 48, 'health', -11),
-    tx('tx-demo-13', 'Groceries prior', 'expense', 248, 'food', -12),
-    tx('tx-demo-14', 'Amazon haul', 'expense', 210, 'shopping', -13),
-    tx('tx-demo-15', 'Concert tickets', 'expense', 92, 'entertainment', -14),
-  ]
+    tx("tx-demo-01", "Coffee runs", "expense", 42, "food", -1),
+    tx("tx-demo-02", "Groceries midweek", "expense", 178, "food", -2),
+    tx("tx-demo-03", "Student loan", "expense", 220, "debt", -3),
+    tx("tx-demo-04", "Rent", "expense", 1850, "housing", -4),
+    tx("tx-demo-05", "Groceries", "expense", 312, "food", -4),
+    tx("tx-demo-06", "Biweekly paycheck", "income", 6200, "salary", -5),
+    tx("tx-demo-07", "Fuel + transit", "expense", 86, "transport", -6),
+    tx("tx-demo-08", "Electric + internet", "expense", 148, "utilities", -7),
+    tx("tx-demo-09", "Consulting weekend", "income", 450, "freelance", -8),
+    tx("tx-demo-10", "Streaming + dinner out", "expense", 64, "entertainment", -9),
+    tx("tx-demo-11", "Household essentials", "expense", 119, "shopping", -10),
+    tx("tx-demo-12", "Pharmacy", "expense", 48, "health", -11),
+    tx("tx-demo-13", "Groceries prior", "expense", 248, "food", -12),
+    tx("tx-demo-14", "Amazon haul", "expense", 210, "shopping", -13),
+    tx("tx-demo-15", "Concert tickets", "expense", 92, "entertainment", -14),
+  ];
 
-  const asOf = day(-1)
+  const asOf = day(-1);
   const holdings: Holding[] = [
     {
-      id: 'hold-demo-fxaix',
-      symbol: 'FXAIX',
-      name: 'Fidelity 500 Index',
-      assetClass: 'mutual',
-      accountKind: 'traditional_401k',
+      id: "hold-demo-fxaix",
+      symbol: "FXAIX",
+      name: "Fidelity 500 Index",
+      assetClass: "mutual",
+      accountKind: "traditional_401k",
       shares: 120.5,
       costBasis: 145.0,
       price: 198.6,
       asOf,
-      source: 'broker',
-      brokerId: 'fidelity',
+      source: "broker",
+      brokerId: "fidelity",
     },
     {
-      id: 'hold-demo-vti',
-      symbol: 'VTI',
-      name: 'Vanguard Total Stock Market ETF',
-      assetClass: 'etf',
-      accountKind: 'brokerage',
+      id: "hold-demo-vti",
+      symbol: "VTI",
+      name: "Vanguard Total Stock Market ETF",
+      assetClass: "etf",
+      accountKind: "brokerage",
       shares: 42.5,
       costBasis: 198.4,
       price: 268.15,
       asOf,
-      source: 'manual',
+      source: "manual",
     },
     {
-      id: 'hold-demo-voo',
-      symbol: 'VOO',
-      name: 'Vanguard S&P 500 ETF',
-      assetClass: 'etf',
-      accountKind: 'roth',
+      id: "hold-demo-voo",
+      symbol: "VOO",
+      name: "Vanguard S&P 500 ETF",
+      assetClass: "etf",
+      accountKind: "roth",
       shares: 18.2,
       costBasis: 380.0,
       price: 512.4,
       asOf,
-      source: 'manual',
+      source: "manual",
     },
     {
-      id: 'hold-demo-bnd',
-      symbol: 'BND',
-      name: 'Vanguard Total Bond Market ETF',
-      assetClass: 'bond',
-      accountKind: 'brokerage',
+      id: "hold-demo-bnd",
+      symbol: "BND",
+      name: "Vanguard Total Bond Market ETF",
+      assetClass: "bond",
+      accountKind: "brokerage",
       shares: 80,
       costBasis: 74.2,
       price: 72.95,
       asOf,
-      source: 'manual',
+      source: "manual",
     },
     {
-      id: 'hold-demo-vxus',
-      symbol: 'VXUS',
-      name: 'Vanguard Total International Stock',
-      assetClass: 'etf',
-      accountKind: 'brokerage',
+      id: "hold-demo-vxus",
+      symbol: "VXUS",
+      name: "Vanguard Total International Stock",
+      assetClass: "etf",
+      accountKind: "brokerage",
       shares: 65,
       costBasis: 52.1,
       price: 61.8,
       asOf,
-      source: 'manual',
+      source: "manual",
     },
     {
-      id: 'hold-demo-aapl',
-      symbol: 'AAPL',
-      name: 'Apple Inc.',
-      assetClass: 'stock',
-      accountKind: 'brokerage',
+      id: "hold-demo-aapl",
+      symbol: "AAPL",
+      name: "Apple Inc.",
+      assetClass: "stock",
+      accountKind: "brokerage",
       shares: 12,
       costBasis: 172.5,
       price: 214.3,
       asOf,
-      source: 'manual',
+      source: "manual",
     },
-  ]
+  ];
 
   const netWorthItems: NetWorthItem[] = [
     {
-      id: 'nw-demo-vehicle',
-      kind: 'asset',
-      name: 'Vehicle (KBB mid)',
+      id: "nw-demo-vehicle",
+      kind: "asset",
+      name: "Vehicle (KBB mid)",
       amount: 18500,
-      note: '2019 Honda CR-V',
+      note: "2019 Honda CR-V",
     },
-    { id: 'nw-demo-hsa', kind: 'asset', name: 'HSA cash reserve', amount: 2400 },
+    { id: "nw-demo-hsa", kind: "asset", name: "HSA cash reserve", amount: 2400 },
     {
-      id: 'nw-demo-student-loan',
-      kind: 'liability',
-      name: 'Student loan balance',
+      id: "nw-demo-student-loan",
+      kind: "liability",
+      name: "Student loan balance",
       amount: 18400,
-      note: 'Federal Direct',
+      note: "Federal Direct",
     },
     {
-      id: 'nw-demo-auto-loan',
-      kind: 'liability',
-      name: 'Auto loan remaining',
+      id: "nw-demo-auto-loan",
+      kind: "liability",
+      name: "Auto loan remaining",
       amount: 6200,
     },
-  ]
+  ];
 
   return {
     transactions,
-    savingsGoal: { name: 'Emergency fund', target: 12000, current: 4800 },
+    savingsGoal: { name: "Emergency fund", target: 12000, current: 4800 },
     accounts,
     bills,
-    bankLinkStatus: 'linked',
+    bankLinkStatus: "linked",
     lastBankSyncAt: syncedAt,
     holdings,
     netWorthItems,
     brokers: [
       {
-        id: 'broker-demo-fidelity',
-        institution: 'fidelity',
-        name: 'Fidelity · Workplace 401(k)',
-        mask: '4412',
-        status: 'linked',
+        id: "broker-demo-fidelity",
+        institution: "fidelity",
+        name: "Fidelity · Workplace 401(k)",
+        mask: "4412",
+        status: "linked",
         lastSyncedAt: syncedAt,
         marketValue: Number((120.5 * 198.6).toFixed(2)),
       },
     ],
-    brokerLinkStatus: 'linked',
+    brokerLinkStatus: "linked",
     lastBrokerSyncAt: syncedAt,
     path: null,
     readinessProfile: {
@@ -651,22 +639,22 @@ export function buildDemoSeed(now: Date = new Date()): BudgetState {
     householdPartner: { ...DEFAULT_HOUSEHOLD_PARTNER },
     debts: [
       {
-        id: 'debt-demo-card',
-        name: 'Credit card',
+        id: "debt-demo-card",
+        name: "Credit card",
         balance: 8600,
         apr: 23.9,
         minPayment: 215,
       },
       {
-        id: 'debt-demo-student',
-        name: 'Student loan',
+        id: "debt-demo-student",
+        name: "Student loan",
         balance: 18400,
         apr: 5.5,
         minPayment: 220,
       },
       {
-        id: 'debt-demo-auto',
-        name: 'Auto loan',
+        id: "debt-demo-auto",
+        name: "Auto loan",
         balance: 6200,
         apr: 6.9,
         minPayment: 200,
@@ -679,5 +667,5 @@ export function buildDemoSeed(now: Date = new Date()): BudgetState {
     },
     checkins: [],
     lastImpact: null,
-  }
+  };
 }

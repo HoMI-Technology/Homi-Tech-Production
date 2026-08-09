@@ -70,11 +70,7 @@ export {
   type PathResolutionSummary,
 } from "./progress";
 
-export {
-  deriveFundingFromPath,
-  applyPathFunding,
-  type PathFundingSuggestion,
-} from "./funding";
+export { deriveFundingFromPath, applyPathFunding, type PathFundingSuggestion } from "./funding";
 
 export { buildPathCoachPack, type PathCoachPack } from "./coach";
 
@@ -82,10 +78,7 @@ export { buildPathCoachPack, type PathCoachPack } from "./coach";
 // re-exported here — it value-imports the scoring engine (server-only, 6.5).
 // Import from @/lib/readiness/preflight or POST /api/simulator instead.
 
-export {
-  autoCompletePathFromSignals,
-  type AutoCompleteResult,
-} from "./autocomplete";
+export { autoCompletePathFromSignals, type AutoCompleteResult } from "./autocomplete";
 
 export {
   loadCouplesAlignment,
@@ -166,11 +159,7 @@ export {
   type PathVersionRecord,
 } from "./versions";
 
-export {
-  exportPathMarkdown,
-  exportPathJson,
-  downloadTextFile,
-} from "./export";
+export { exportPathMarkdown, exportPathJson, downloadTextFile } from "./export";
 
 export {
   getPathPricingAssignment,

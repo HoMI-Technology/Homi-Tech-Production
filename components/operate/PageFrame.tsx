@@ -42,18 +42,10 @@ export function PageFrame({
             ? "max-w-3xl"
             : "max-w-7xl";
   const py =
-    density === "compact"
-      ? "py-6 sm:py-8"
-      : density === "spacious"
-        ? "py-12"
-        : "py-8 sm:py-10";
+    density === "compact" ? "py-6 sm:py-8" : density === "spacious" ? "py-12" : "py-8 sm:py-10";
 
   return (
-    <div
-      className={`field ${className}`.trim()}
-      data-operate-role={role}
-      data-density={density}
-    >
+    <div className={`field ${className}`.trim()} data-operate-role={role} data-density={density}>
       <div className={`mx-auto ${max} px-4 sm:px-6 ${py}`}>{children}</div>
     </div>
   );

@@ -1,7 +1,7 @@
 # Money ledger migration — dual-write kill plan
 
 **Status:** Active (2026-08-08)  
-**Owner:** Product eng  
+**Owner:** Product eng
 
 ## Goal
 
@@ -10,12 +10,12 @@ Legacy `homi:finance` (`FinanceState`) is read-only fallback until kill date.
 
 ## Phases
 
-| Phase | Behavior | Exit criteria |
-|-------|----------|---------------|
-| **0** (now) | CFM prefers ledger when real picture; else legacy | metrics module live |
-| **1** dual-write | `saveBudgetLedger` also projects a legacy snapshot for old clients | 14 days no legacy-only users in analytics |
-| **2** read ledger only | `buildCfm` ignores legacy if ledger key exists (even empty after explicit user clear) | CFM tests green |
-| **3** kill | Stop writing `homi:finance`; remove Finance page body | Kill date + 30 days redirects only |
+| Phase                  | Behavior                                                                              | Exit criteria                             |
+| ---------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------- |
+| **0** (now)            | CFM prefers ledger when real picture; else legacy                                     | metrics module live                       |
+| **1** dual-write       | `saveBudgetLedger` also projects a legacy snapshot for old clients                    | 14 days no legacy-only users in analytics |
+| **2** read ledger only | `buildCfm` ignores legacy if ledger key exists (even empty after explicit user clear) | CFM tests green                           |
+| **3** kill             | Stop writing `homi:finance`; remove Finance page body                                 | Kill date + 30 days redirects only        |
 
 ## Kill date (target)
 
@@ -34,6 +34,6 @@ Do **not** reverse dual-write (legacy write → ledger) after user has real tran
 
 ## Observability
 
-- `lens_prefilled.source` = ledger | legacy  
-- `cfm_source` (optional)  
+- `lens_prefilled.source` = ledger | legacy
+- `cfm_source` (optional)
 - Count of `hasSavedFinanceState && !hasSavedBudgetLedger`

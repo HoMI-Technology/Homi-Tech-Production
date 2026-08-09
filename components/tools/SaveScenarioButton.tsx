@@ -13,11 +13,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { track } from "@/lib/analytics";
 import { useCfm } from "@/hooks/use-cfm";
-import {
-  saveLocalScenario,
-  snapshotFromCfm,
-  type ToolScenario,
-} from "@/lib/tools/scenarios";
+import { saveLocalScenario, snapshotFromCfm, type ToolScenario } from "@/lib/tools/scenarios";
 
 type SaveState =
   | { kind: "idle" }
@@ -71,13 +67,20 @@ export function SaveScenarioButton({
 
       if (res.status === 401) {
         // Anonymous: local store, honestly labeled.
-        const { scenario, replaced } = saveLocalScenario({ name: trimmed, lensId, inputs, cfmSnapshot });
+        const { scenario, replaced } = saveLocalScenario({
+          name: trimmed,
+          lensId,
+          inputs,
+          cfmSnapshot,
+        });
         track("scenario_saved", { lens: lensId, origin: "local" });
         setState({
           kind: "saved",
           scenario,
           server: false,
-          note: replaced ? "Saved in this browser — it replaced your previous local scenario." : "Saved in this browser only.",
+          note: replaced
+            ? "Saved in this browser — it replaced your previous local scenario."
+            : "Saved in this browser only.",
         });
         return;
       }
@@ -124,7 +127,10 @@ export function SaveScenarioButton({
           Saved as <span className="font-semibold">{state.scenario.name}</span>.
           {state.note ? <span className="text-dim"> {state.note}</span> : null}
         </p>
-        <Link href="/scenarios#saved" className="mt-1 inline-block text-xs font-medium text-cyan hover:underline">
+        <Link
+          href="/scenarios#saved"
+          className="mt-1 inline-block text-xs font-medium text-cyan hover:underline"
+        >
           Open saved scenarios →
         </Link>
       </div>
@@ -135,7 +141,10 @@ export function SaveScenarioButton({
     return (
       <div className="rounded-lg border border-yellow/40 bg-yellow/5 p-3 text-sm">
         <p className="text-dim">{state.message}</p>
-        <Link href="/pricing" className="mt-1 inline-block text-xs font-medium text-cyan hover:underline">
+        <Link
+          href="/pricing"
+          className="mt-1 inline-block text-xs font-medium text-cyan hover:underline"
+        >
           See plans →
         </Link>
       </div>

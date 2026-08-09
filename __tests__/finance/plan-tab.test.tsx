@@ -50,9 +50,7 @@ vi.mock("@/components/planner/plan/PlanShare", () => ({
 
 describe("PlanCommand", () => {
   it("renders Plan Lab chrome", async () => {
-    const { default: PlanCommand } = await import(
-      "@/components/planner/plan/PlanCommand"
-    );
+    const { default: PlanCommand } = await import("@/components/planner/plan/PlanCommand");
     render(<PlanCommand />);
     expect(screen.getByTestId("plan-path")).toBeTruthy();
   });

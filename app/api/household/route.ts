@@ -51,9 +51,7 @@ export async function GET(request: Request) {
 
   const { data: members } = await supabase
     .from("household_members")
-    .select(
-      "user_id, role, display_name, last_score, last_verdict, last_assessment_at, joined_at",
-    )
+    .select("user_id, role, display_name, last_score, last_verdict, last_assessment_at, joined_at")
     .eq("household_id", membership.household_id);
 
   return NextResponse.json({
@@ -105,10 +103,7 @@ export async function POST(request: Request) {
     .eq("user_id", user.id)
     .maybeSingle();
   if (existing) {
-    return NextResponse.json(
-      { error: "You already belong to a household." },
-      { status: 409 },
-    );
+    return NextResponse.json({ error: "You already belong to a household." }, { status: 409 });
   }
 
   const name = parsed.data.name ?? "Our household";
@@ -120,10 +115,7 @@ export async function POST(request: Request) {
 
   if (hhErr || !hh) {
     if (hhErr?.code && INFRA.has(hhErr.code)) {
-      return NextResponse.json(
-        { error: "Household tables not migrated yet." },
-        { status: 503 },
-      );
+      return NextResponse.json({ error: "Household tables not migrated yet." }, { status: 503 });
     }
     return NextResponse.json({ error: "Could not create household." }, { status: 500 });
   }

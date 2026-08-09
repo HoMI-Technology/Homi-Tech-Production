@@ -26,7 +26,9 @@ describe("housing legal copy", () => {
   });
 
   it("states not a commitment to lend", () => {
-    expect(HOUSING_READINESS_DISCLAIMER.toLowerCase()).toMatch(/not a commitment to lend|not.*lender/);
+    expect(HOUSING_READINESS_DISCLAIMER.toLowerCase()).toMatch(
+      /not a commitment to lend|not.*lender/,
+    );
     expect(PATH_DISCLAIMER.toLowerCase()).toMatch(/not a commitment to lend/);
   });
 });

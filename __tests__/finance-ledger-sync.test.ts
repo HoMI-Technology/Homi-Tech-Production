@@ -70,9 +70,7 @@ describe("systemCategorySlugMap / adoptServerCategoryIds", () => {
       },
     ];
     const adopted = adoptServerCategoryIds(local, remoteCats);
-    expect(adopted.transactions[0]?.categoryId).toBe(
-      "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-    );
+    expect(adopted.transactions[0]?.categoryId).toBe("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
     expect(systemCategorySlugMap(adopted.categories).get("housing")).toBe(
       "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
     );

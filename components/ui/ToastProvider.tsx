@@ -140,9 +140,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         return null;
       }
       // …and a higher-priority arrival displaces visible lower-priority toasts.
-      const outranked = current.filter(
-        (t) => t.placement === placement && t.priority < priority,
-      );
+      const outranked = current.filter((t) => t.placement === placement && t.priority < priority);
       const id = generateToastId();
       const item: ToastItem = {
         id,

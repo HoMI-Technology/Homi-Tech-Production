@@ -41,7 +41,9 @@ describe("getEntitlements — capability matrix", () => {
   it("paid tiers unlock, monotonically", async () => {
     const mod = await load();
     if (!mod) return expect.fail("lib/entitlements.ts missing");
-    const [free, plus, pro, family] = (["free", "plus", "pro", "family"] as const).map(mod.getEntitlements);
+    const [free, plus, pro, family] = (["free", "plus", "pro", "family"] as const).map(
+      mod.getEntitlements,
+    );
     expect(pro.fullReport).toBe(true);
     expect(pro.advancedTools).toBe(true);
     expect(family.familySeats).toBeGreaterThanOrEqual(5);

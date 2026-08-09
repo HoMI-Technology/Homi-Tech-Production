@@ -67,9 +67,11 @@ export function missingLiveStripeVars(): string[] {
   const secretKey = process.env.E2E_STRIPE_SECRET_KEY ?? "";
   const webhookSecret = process.env.E2E_STRIPE_WEBHOOK_SECRET ?? "";
   if (!secretKey) missing.push("E2E_STRIPE_SECRET_KEY");
-  else if (!secretKey.startsWith("sk_test_")) missing.push("E2E_STRIPE_SECRET_KEY (must be sk_test_*)");
+  else if (!secretKey.startsWith("sk_test_"))
+    missing.push("E2E_STRIPE_SECRET_KEY (must be sk_test_*)");
   if (!webhookSecret) missing.push("E2E_STRIPE_WEBHOOK_SECRET");
-  else if (!webhookSecret.startsWith("whsec_")) missing.push("E2E_STRIPE_WEBHOOK_SECRET (must be whsec_*)");
+  else if (!webhookSecret.startsWith("whsec_"))
+    missing.push("E2E_STRIPE_WEBHOOK_SECRET (must be whsec_*)");
   return missing;
 }
 

@@ -25,8 +25,8 @@ export default function DmcaPage() {
             </p>
             <p className="mt-3 leading-relaxed">
               If you believe that your copyrighted work has been copied in a way that constitutes
-              copyright infringement and is accessible via our Services, please notify our designated
-              copyright agent.
+              copyright infringement and is accessible via our Services, please notify our
+              designated copyright agent.
             </p>
           </div>
 
@@ -61,9 +61,9 @@ export default function DmcaPage() {
           <div>
             <h2 className="type-h3">4. Counter-Notification</h2>
             <p className="mt-3 leading-relaxed">
-              If you believe your content was removed in error, you may submit a counter-notification
-              containing your contact information, identification of the removed material, and a
-              statement under penalty of perjury.
+              If you believe your content was removed in error, you may submit a
+              counter-notification containing your contact information, identification of the
+              removed material, and a statement under penalty of perjury.
             </p>
           </div>
 

@@ -32,7 +32,10 @@ export default function ToolsHubPage() {
           <Link href="/money" className="text-sm font-medium text-cyan hover:underline">
             Open Money picture →
           </Link>
-          <Link href="/scenarios" className="text-sm font-medium text-dim hover:text-cyan hover:underline">
+          <Link
+            href="/scenarios"
+            className="text-sm font-medium text-dim hover:text-cyan hover:underline"
+          >
             Scenario studio →
           </Link>
         </div>
@@ -90,7 +93,11 @@ export default function ToolsHubPage() {
                         aria-hidden
                         className="transition-transform group-hover:translate-x-0.5"
                       >
-                        <path d="M2 8h11m0 0L9 4m4 4l-4 4" strokeLinecap="round" strokeLinejoin="round" />
+                        <path
+                          d="M2 8h11m0 0L9 4m4 4l-4 4"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
                       </svg>
                     </span>
                   </Link>
@@ -102,8 +109,8 @@ export default function ToolsHubPage() {
       </div>
 
       <p className="mt-14 max-w-2xl text-xs leading-relaxed text-dim/70">
-        HōMI tools are educational. They do not provide financial, tax, mortgage, or investment advice.
-        Confirm critical numbers with qualified professionals before you act.
+        HōMI tools are educational. They do not provide financial, tax, mortgage, or investment
+        advice. Confirm critical numbers with qualified professionals before you act.
       </p>
     </div>
   );

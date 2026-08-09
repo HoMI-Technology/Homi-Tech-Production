@@ -76,7 +76,11 @@ export function ArtifactPlayground() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { id: makeId(), role: "assistant", content: "Connection dropped on my end. Try that again in a moment." },
+        {
+          id: makeId(),
+          role: "assistant",
+          content: "Connection dropped on my end. Try that again in a moment.",
+        },
       ]);
     } finally {
       setSending(false);
@@ -111,22 +115,43 @@ export function ArtifactPlayground() {
           <div className="mt-5 flex flex-col gap-5">
             <div>
               <div className="flex items-center gap-3">
-                <span className="score-numeral text-3xl font-bold text-light">{DEMO_DATA.score}</span>
-                <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: meta.color }}>
+                <span className="score-numeral text-3xl font-bold text-light">
+                  {DEMO_DATA.score}
+                </span>
+                <span
+                  className="text-xs font-semibold uppercase tracking-wide"
+                  style={{ color: meta.color }}
+                >
                   {meta.label}
                 </span>
               </div>
-              <p className="mt-1 text-xs text-dim">HōMI-Score out of 100 · streak {DEMO_DATA.streak}</p>
+              <p className="mt-1 text-xs text-dim">
+                HōMI-Score out of 100 · streak {DEMO_DATA.streak}
+              </p>
             </div>
 
             <div className="flex flex-col gap-2">
-              <PillarRow label="Financial Reality" value={DEMO_DATA.pillars.financial} max={DEMO_DATA.pillarMax.financial} />
-              <PillarRow label="Emotional Truth" value={DEMO_DATA.pillars.emotional} max={DEMO_DATA.pillarMax.emotional} />
-              <PillarRow label="Perfect Timing" value={DEMO_DATA.pillars.timing} max={DEMO_DATA.pillarMax.timing} />
+              <PillarRow
+                label="Financial Reality"
+                value={DEMO_DATA.pillars.financial}
+                max={DEMO_DATA.pillarMax.financial}
+              />
+              <PillarRow
+                label="Emotional Truth"
+                value={DEMO_DATA.pillars.emotional}
+                max={DEMO_DATA.pillarMax.emotional}
+              />
+              <PillarRow
+                label="Perfect Timing"
+                value={DEMO_DATA.pillars.timing}
+                max={DEMO_DATA.pillarMax.timing}
+              />
             </div>
 
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-dim">Mock decisions</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-dim">
+                Mock decisions
+              </p>
               <div className="mt-2 flex flex-col gap-3">
                 {DEMO_DATA.journalEntries.map((entry) => (
                   <div key={entry.title} className="rounded-lg border border-slate-surface/60 p-3">
@@ -162,8 +187,8 @@ export function ArtifactPlayground() {
             <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
               <p className="text-xs text-dim">{activePersona.role}</p>
               <p className="max-w-[280px] text-sm text-light">
-                Ask anything, in {activePersona.name.toLowerCase()} mode — the mock context above is what the
-                Companion sees.
+                Ask anything, in {activePersona.name.toLowerCase()} mode — the mock context above is
+                what the Companion sees.
               </p>
             </div>
           )}
@@ -226,7 +251,14 @@ export function ArtifactPlayground() {
             className="btn btn-primary btn-sm disabled:opacity-50"
             aria-label="Send message"
           >
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M3 10h14M11 4l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>

@@ -164,9 +164,7 @@ describe("POST /api/agents", () => {
 
   it("mode influences the lead agent", async () => {
     state.tier = "plus";
-    const res = await POST(
-      req({ messages: [{ role: "user", content: "hi" }], mode: "plan" }),
-    );
+    const res = await POST(req({ messages: [{ role: "user", content: "hi" }], mode: "plan" }));
     const body = (await res.json()) as { routed_agents: string[] };
     expect(body.routed_agents).toContain("architect");
   });

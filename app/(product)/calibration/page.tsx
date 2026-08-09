@@ -50,7 +50,10 @@ export default async function CalibrationPage() {
         <div className="glass panel-focus mt-8 p-8">
           <p className="eyebrow">How outcomes track with the verdict</p>
           <div className="mt-3 flex flex-wrap items-end gap-x-4 gap-y-2">
-            <span className="score-numeral text-5xl font-bold text-emerald" style={{ textShadow: `0 0 40px ${COLORS.emerald}55` }}>
+            <span
+              className="score-numeral text-5xl font-bold text-emerald"
+              style={{ textShadow: `0 0 40px ${COLORS.emerald}55` }}
+            >
               {dividend.deltaPct >= 0 ? "+" : ""}
               {Math.round(dividend.deltaPct)}%
             </span>
@@ -58,22 +61,23 @@ export default async function CalibrationPage() {
           </div>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-dim">
             Members the compass cleared as <span className="text-emerald">READY</span> reported{" "}
-            {dividend.readyAvg.toFixed(1)}/5 satisfaction with how their decision turned out — versus{" "}
-            {dividend.waitedAvg.toFixed(1)}/5 among those it told to wait. That&rsquo;s an{" "}
-            <em>association</em>, not proof of cause: people who are ready differ in many ways from people
-            who aren&rsquo;t, and this is self-reported. We show it because a working readiness signal
-            should line up with real outcomes — and we&rsquo;ll show it just as plainly if it ever
-            doesn&rsquo;t.
+            {dividend.readyAvg.toFixed(1)}/5 satisfaction with how their decision turned out —
+            versus {dividend.waitedAvg.toFixed(1)}/5 among those it told to wait. That&rsquo;s an{" "}
+            <em>association</em>, not proof of cause: people who are ready differ in many ways from
+            people who aren&rsquo;t, and this is self-reported. We show it because a working
+            readiness signal should line up with real outcomes — and we&rsquo;ll show it just as
+            plainly if it ever doesn&rsquo;t.
           </p>
         </div>
       ) : (
         <div className="glass mt-8 p-8">
           <p className="eyebrow">The network is still learning</p>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-dim">
-            Calibration needs completed outcomes to report against. As members reach their 30-, 90-, and
-            365-day check-ins and tell us how their decision actually turned out, this page fills in — and
-            the honest test begins: do the people we cleared as <span className="text-emerald">READY</span>{" "}
-            really end up more satisfied than the people we asked to wait? We publish the answer either way.
+            Calibration needs completed outcomes to report against. As members reach their 30-, 90-,
+            and 365-day check-ins and tell us how their decision actually turned out, this page
+            fills in — and the honest test begins: do the people we cleared as{" "}
+            <span className="text-emerald">READY</span> really end up more satisfied than the people
+            we asked to wait? We publish the answer either way.
           </p>
           <div className="mt-6">
             <Link href="/outcomes" className="btn btn-ghost btn-sm">
@@ -99,14 +103,18 @@ export default async function CalibrationPage() {
               <div key={r.verdict}>
                 <div className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
                   <span className="flex items-center gap-2 font-semibold text-light">
-                    <span aria-hidden className="inline-block h-2 w-2 rounded-full" style={{ background: color, boxShadow: `0 0 8px ${color}` }} />
+                    <span
+                      aria-hidden
+                      className="inline-block h-2 w-2 rounded-full"
+                      style={{ background: color, boxShadow: `0 0 8px ${color}` }}
+                    />
                     {verdictLabel(r.verdict)}
                   </span>
                   <span className="score-numeral text-dim">
                     {hasData ? (
                       <>
-                        {r.avg_satisfaction.toFixed(1)}/5 avg · {Math.round(r.positive_rate * 100)}% positive ·{" "}
-                        {r.response_count.toLocaleString()} reported
+                        {r.avg_satisfaction.toFixed(1)}/5 avg · {Math.round(r.positive_rate * 100)}%
+                        positive · {r.response_count.toLocaleString()} reported
                       </>
                     ) : (
                       "not enough reported yet"
@@ -131,7 +139,12 @@ export default async function CalibrationPage() {
 
       {/* Method note */}
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
-        <StatTile label="Total outcomes" value={total.toLocaleString()} accent={COLORS.cyan} footer="30/90/365-day check-ins" />
+        <StatTile
+          label="Total outcomes"
+          value={total.toLocaleString()}
+          accent={COLORS.cyan}
+          footer="30/90/365-day check-ins"
+        />
         <StatTile
           label="READY satisfaction"
           value={dividend ? `${dividend.readyAvg.toFixed(1)}` : "—"}
@@ -149,10 +162,11 @@ export default async function CalibrationPage() {
       </div>
 
       <p className="mt-8 max-w-3xl text-xs leading-relaxed text-dim">
-        Calibration is computed from anonymized, aggregated outcome surveys — never individual records,
-        and no cohort with fewer than five reported outcomes is ever shown. These are associations
-        between the verdict you received and later self-reported satisfaction, not proof that the verdict
-        caused the outcome. Educational evidence about decision readiness, not financial advice.
+        Calibration is computed from anonymized, aggregated outcome surveys — never individual
+        records, and no cohort with fewer than five reported outcomes is ever shown. These are
+        associations between the verdict you received and later self-reported satisfaction, not
+        proof that the verdict caused the outcome. Educational evidence about decision readiness,
+        not financial advice.
       </p>
     </PageFrame>
   );

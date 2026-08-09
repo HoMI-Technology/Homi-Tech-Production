@@ -29,7 +29,9 @@ export function ScoreExplanation({ stored }: { stored: StoredAssessment }) {
       {explanation.milestone && (
         <p
           className="mt-3 border-l-2 pl-3 text-sm font-medium text-light"
-          style={{ borderColor: explanation.milestone.direction === "up" ? COLORS.emerald : COLORS.yellow }}
+          style={{
+            borderColor: explanation.milestone.direction === "up" ? COLORS.emerald : COLORS.yellow,
+          }}
         >
           {explanation.milestone.line}
         </p>

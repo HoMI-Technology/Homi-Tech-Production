@@ -47,10 +47,7 @@ export interface AffordabilityTier {
  * Solved by binary search since taxInsuranceRate is a function of price,
  * making the closed form awkward with the amortization formula.
  */
-export function maxPriceForRatio(
-  inputs: AffordabilityInputs,
-  ratio: number,
-): AffordabilityTier {
+export function maxPriceForRatio(inputs: AffordabilityInputs, ratio: number): AffordabilityTier {
   const monthlyIncome = inputs.annualIncome / 12;
   const maxMonthlyHousing = monthlyIncome * ratio;
 

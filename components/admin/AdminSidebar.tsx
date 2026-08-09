@@ -40,7 +40,14 @@ export function AdminSidebar() {
                       style={{ boxShadow: `0 0 10px ${withAlpha(COLORS.cyan, 0.8)}` }}
                     />
                   )}
-                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                  >
                     {item.icon}
                   </svg>
                   {item.label}

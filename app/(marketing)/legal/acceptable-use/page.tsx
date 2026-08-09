@@ -34,7 +34,9 @@ export default function AcceptableUsePage() {
               <li>Violate any applicable law, regulation, or ordinance</li>
               <li>Infringe on the intellectual property rights of others</li>
               <li>Distribute malware, viruses, or other harmful code</li>
-              <li>Attempt to gain unauthorized access to our systems or other users&rsquo; accounts</li>
+              <li>
+                Attempt to gain unauthorized access to our systems or other users&rsquo; accounts
+              </li>
               <li>Conduct denial-of-service attacks or other disruptive activities</li>
               <li>Scrape, crawl, or otherwise collect data without authorization</li>
             </ul>

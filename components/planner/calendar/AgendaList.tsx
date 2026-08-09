@@ -2,18 +2,13 @@
 
 /* Decision calendar — the agenda list ("Next 21 / 28 days"). */
 
-import { useMemo } from 'react'
-import { List, Receipt } from 'lucide-react'
-import { cn } from "@/lib/planner/cn"
-import type { Bill, Transaction } from '@/lib/planner/types'
-import type { CalendarFilter } from '@/lib/planner/calendar'
-import {
-  billState,
-  buildAgendaDays,
-  dayHeaderLabel,
-  money2,
-} from '@/lib/planner/calendar'
-import { BillStateChip, EventDot } from './shared'
+import { useMemo } from "react";
+import { List, Receipt } from "lucide-react";
+import { cn } from "@/lib/planner/cn";
+import type { Bill, Transaction } from "@/lib/planner/types";
+import type { CalendarFilter } from "@/lib/planner/calendar";
+import { billState, buildAgendaDays, dayHeaderLabel, money2 } from "@/lib/planner/calendar";
+import { BillStateChip, EventDot } from "./shared";
 
 export default function AgendaList({
   today,
@@ -24,33 +19,33 @@ export default function AgendaList({
   comfort,
   onSelect,
 }: {
-  today: string
-  selectedISO: string
-  bills: Bill[]
-  transactions: Transaction[]
-  filter: CalendarFilter
-  comfort: boolean
-  onSelect: (dateISO: string) => void
+  today: string;
+  selectedISO: string;
+  bills: Bill[];
+  transactions: Transaction[];
+  filter: CalendarFilter;
+  comfort: boolean;
+  onSelect: (dateISO: string) => void;
 }) {
-  const count = comfort ? 28 : 21
+  const count = comfort ? 28 : 21;
   const days = useMemo(
     () => buildAgendaDays(bills, transactions, today, count),
     [bills, transactions, today, count],
-  )
+  );
 
   const visible = days.filter((d) => {
     switch (filter) {
-      case 'bills':
-        return d.bills.length > 0
-      case 'income':
-        return d.rollup.in > 0
-      case 'spend':
-        return d.rollup.out > 0
-      case 'all':
+      case "bills":
+        return d.bills.length > 0;
+      case "income":
+        return d.rollup.in > 0;
+      case "spend":
+        return d.rollup.out > 0;
+      case "all":
       default:
-        return true
+        return true;
     }
-  })
+  });
 
   return (
     <div className="min-w-0 flex-1">
@@ -67,24 +62,22 @@ export default function AgendaList({
 
       <div className="flex flex-col gap-2">
         {visible.map((d) => {
-          const selected = d.dateISO === selectedISO
+          const selected = d.dateISO === selectedISO;
           return (
             <button
               key={d.dateISO}
               type="button"
               onClick={() => onSelect(d.dateISO)}
               className={cn(
-                'w-full rounded-xl border p-3 text-left transition-colors',
+                "w-full rounded-xl border p-3 text-left transition-colors",
                 selected
-                  ? 'border-cyan/60 bg-cyan/[0.07]'
-                  : 'border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12]',
+                  ? "border-cyan/60 bg-cyan/[0.07]"
+                  : "border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12]",
               )}
             >
               <span className="flex items-center gap-2">
                 <EventDot kind="spend" className="shrink-0" />
-                <span className="text-sm font-medium text-light">
-                  {dayHeaderLabel(d.dateISO)}
-                </span>
+                <span className="text-sm font-medium text-light">{dayHeaderLabel(d.dateISO)}</span>
                 <span className="ml-auto flex items-center gap-2">
                   {d.billsTotal > 0 && (
                     <span className="rounded-full bg-yellow/10 px-2 py-0.5 font-display text-3xs tabular-nums text-yellow">
@@ -92,12 +85,12 @@ export default function AgendaList({
                     </span>
                   )}
                   <span className="text-2xs text-dim">
-                    {d.offsetDays === 0 ? 'Today' : `In ${d.offsetDays}d`}
+                    {d.offsetDays === 0 ? "Today" : `In ${d.offsetDays}d`}
                   </span>
                 </span>
               </span>
 
-              {(filter === 'all' || filter === 'bills') &&
+              {(filter === "all" || filter === "bills") &&
                 d.bills.map((b) => (
                   <span
                     key={b.id}
@@ -112,35 +105,31 @@ export default function AgendaList({
                   </span>
                 ))}
 
-              {(filter === 'income' || filter === 'spend') &&
+              {(filter === "income" || filter === "spend") &&
                 d.rollup.txItems
-                  .filter((t) =>
-                    filter === 'income' ? t.type === 'income' : t.type === 'expense',
-                  )
+                  .filter((t) => (filter === "income" ? t.type === "income" : t.type === "expense"))
                   .map((t) => (
                     <span
                       key={t.id}
                       className="mt-2 flex items-center gap-2 border-t border-white/[0.05] pt-2"
                     >
-                      <EventDot kind={t.type === 'income' ? 'income' : 'spend'} />
-                      <span className="truncate text-sm text-light/90">
-                        {t.note ?? t.category}
-                      </span>
+                      <EventDot kind={t.type === "income" ? "income" : "spend"} />
+                      <span className="truncate text-sm text-light/90">{t.note ?? t.category}</span>
                       <span
                         className={cn(
-                          'ml-auto font-display text-sm tabular-nums',
-                          t.type === 'income' ? 'text-emerald' : 'text-crimson',
+                          "ml-auto font-display text-sm tabular-nums",
+                          t.type === "income" ? "text-emerald" : "text-crimson",
                         )}
                       >
-                        {t.type === 'income' ? '+' : '-'}
+                        {t.type === "income" ? "+" : "-"}
                         {money2(t.amount)}
                       </span>
                     </span>
                   ))}
             </button>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }

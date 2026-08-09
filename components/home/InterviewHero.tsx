@@ -51,7 +51,11 @@ const TEMPERATURE_META: Record<Temperature, { label: string; copy: string; color
   },
 };
 
-function computeTemperature(s: { financial: Signal; emotional: Signal; timing: Signal }): Temperature {
+function computeTemperature(s: {
+  financial: Signal;
+  emotional: Signal;
+  timing: Signal;
+}): Temperature {
   const values = [s.financial, s.emotional, s.timing];
   const sum = values[0] + values[1] + values[2];
   const hasZero = values.includes(0);
@@ -98,7 +102,8 @@ const QUESTIONS: Question[] = [
   },
   {
     id: "emotional",
-    prompt: "How much of this decision is driven by what YOU want — versus pressure from around you?",
+    prompt:
+      "How much of this decision is driven by what YOU want — versus pressure from around you?",
     ringColor: COLORS.emerald,
     announce: "Emotional Truth signal set.",
     event: "hero_q2_answered",
@@ -126,7 +131,11 @@ const QUESTIONS: Question[] = [
 
 export function InterviewHero() {
   const questions = QUESTIONS;
-  const [signals, setSignals] = useState<Signals>({ financial: null, emotional: null, timing: null });
+  const [signals, setSignals] = useState<Signals>({
+    financial: null,
+    emotional: null,
+    timing: null,
+  });
   const [reducedMotion, setReducedMotion] = useState(false);
   const [settled, setSettled] = useState(false);
   const [hydrated, setHydrated] = useState(false);
@@ -159,8 +168,11 @@ export function InterviewHero() {
     setHydrated(true);
   }, []);
 
-  const answeredCount = [signals.financial, signals.emotional, signals.timing].filter((v) => v !== null).length;
-  const allAnswered = signals.financial !== null && signals.emotional !== null && signals.timing !== null;
+  const answeredCount = [signals.financial, signals.emotional, signals.timing].filter(
+    (v) => v !== null,
+  ).length;
+  const allAnswered =
+    signals.financial !== null && signals.emotional !== null && signals.timing !== null;
 
   const temperature = useMemo(() => {
     if (!allAnswered) return null;
@@ -251,14 +263,18 @@ export function InterviewHero() {
               style={{ width: "78%", height: "78%", left: "11%", top: "6%" }}
             />
             <div className="compass-float relative w-[200px] sm:w-[280px] lg:w-[320px]">
-              <CinematicCompass responsive glow={glow} materialized keyholePulse={answeredCount > 0} />
+              <CinematicCompass
+                responsive
+                glow={glow}
+                materialized
+                keyholePulse={answeredCount > 0}
+              />
             </div>
             <div
               aria-hidden
               className="pointer-events-none absolute left-1/2 top-[72%] h-20 w-[220px] -translate-x-1/2 rounded-[50%] sm:w-[300px]"
               style={{
-                background:
-                  `radial-gradient(ellipse at center, ${withAlpha(COLORS.cyan, 0.32)}, ${withAlpha(COLORS.emerald, 0.12)} 45%, transparent 75%)`,
+                background: `radial-gradient(ellipse at center, ${withAlpha(COLORS.cyan, 0.32)}, ${withAlpha(COLORS.emerald, 0.12)} 45%, transparent 75%)`,
                 opacity: floorPoolOpacity,
                 transition: "opacity 900ms ease",
                 filter: "blur(6px)",
@@ -269,9 +285,7 @@ export function InterviewHero() {
 
         {/* Thesis + interview */}
         <div className="order-2 flex flex-col items-center text-center lg:order-1 lg:items-start lg:text-left">
-          <p className="type-kicker text-cyan/90">
-            Decision Readiness Intelligence™
-          </p>
+          <p className="type-kicker text-cyan/90">Decision Readiness Intelligence™</p>
 
           <h1
             className="type-display mt-4 max-w-[14ch] sm:max-w-none"
@@ -333,7 +347,9 @@ export function InterviewHero() {
                     </button>
                   ))}
                 </div>
-                <p className="mt-4 text-xs text-dim/75">Your answers aren&rsquo;t stored or sent.</p>
+                <p className="mt-4 text-xs text-dim/75">
+                  Your answers aren&rsquo;t stored or sent.
+                </p>
               </div>
             )}
 

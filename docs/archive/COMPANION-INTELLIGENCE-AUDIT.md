@@ -6,13 +6,13 @@ reconciled against the shipped codebase (this repo) and the companion ecosystem 
 
 **Audited artifacts:**
 
-| # | File | Type | Lines/pages |
-|---|---|---|---|
-| 1 | `Ho_MI_Companion_Intelligence_Strategy_ChatGPT.md` | Strategy doc | 1,671 lines |
-| 2 | `HoMI_Master_Roadmap_Bootstrap_to_Production.md` | Roadmap (dated 2026-04-25) | 635 lines |
-| 3 | `HoMI_Companion_Architecture_Claude.md` | Architecture Brief v2 | 498 lines |
-| 4 | `homi_companions_v2.html` | Character-based prototype | 1,338 lines |
-| 5 | `homi50characterconcepts.pdf` | Screenshot export | 4 pages |
+| #   | File                                               | Type                       | Lines/pages |
+| --- | -------------------------------------------------- | -------------------------- | ----------- |
+| 1   | `Ho_MI_Companion_Intelligence_Strategy_ChatGPT.md` | Strategy doc               | 1,671 lines |
+| 2   | `HoMI_Master_Roadmap_Bootstrap_to_Production.md`   | Roadmap (dated 2026-04-25) | 635 lines   |
+| 3   | `HoMI_Companion_Architecture_Claude.md`            | Architecture Brief v2      | 498 lines   |
+| 4   | `homi_companions_v2.html`                          | Character-based prototype  | 1,338 lines |
+| 5   | `homi50characterconcepts.pdf`                      | Screenshot export          | 4 pages     |
 
 ---
 
@@ -30,7 +30,7 @@ any of the documents acknowledge: deterministic server-authoritative scoring, AI
 with hard no-advice guardrails, server-side quota gates, deterministic fallbacks, and (as of
 PR #19) a cross-surface context spine.
 
-**Canon decision (founder, 2026-07-16):** intelligence-first core, *plus* each user gets to
+**Canon decision (founder, 2026-07-16):** intelligence-first core, _plus_ each user gets to
 pick/create their own HōMI — "HōMI like homie, a friend." Personal identity (name, style,
 tone) is a first-class feature implemented as **configuration inside the brand-voice
 envelope**, not a fixed character roster. This resolves the corpus's central conflict: the
@@ -49,6 +49,7 @@ classes, latency budgets, missing-data handling, B2B partner model, metrics syst
 failure-mode catalog, ten operating principles, canonical state/response/report contracts.
 
 **Sound and genuinely missing from the repo (adopted into the blueprint):**
+
 - Data-state taxonomy: verified / self-reported / estimated / stale / missing / conflicting / revoked (§6).
 - Confidence travels with every readiness claim (§11).
 - Canonical `CompanionReadinessState` object as the single context backbone (§20).
@@ -61,16 +62,17 @@ failure-mode catalog, ten operating principles, canonical state/response/report 
 
 **Already satisfied by the shipped repo** (the doc treats these as future work; they are done):
 
-| Doc requirement | Shipped implementation |
-|---|---|
-| Deterministic, auditable score; no LLM scoring | `lib/scoring/engine.ts`, weights contained in `lib/scoring/weights.ts` |
-| AI explains, never advises; refusal rules | `app/api/advisor/route.ts` system prompt (no financial/legal/tax/mortgage/investment advice) |
-| Chat grounded in structured state | `lib/advisor/context.ts` context spine (assessment + finance + surface) |
-| Server-authoritative gating | `lib/advisor/quota.ts` (`gateCompanion()`), `lib/entitlements.ts` |
-| Graceful AI-outage behavior | `lib/advisor/fallback.ts` deterministic persona fallback |
-| Dashboard never waits on live AI (§5) | AI surfaces are opt-in chat/letter/analysis; dashboards render structured state |
+| Doc requirement                                | Shipped implementation                                                                       |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Deterministic, auditable score; no LLM scoring | `lib/scoring/engine.ts`, weights contained in `lib/scoring/weights.ts`                       |
+| AI explains, never advises; refusal rules      | `app/api/advisor/route.ts` system prompt (no financial/legal/tax/mortgage/investment advice) |
+| Chat grounded in structured state              | `lib/advisor/context.ts` context spine (assessment + finance + surface)                      |
+| Server-authoritative gating                    | `lib/advisor/quota.ts` (`gateCompanion()`), `lib/entitlements.ts`                            |
+| Graceful AI-outage behavior                    | `lib/advisor/fallback.ts` deterministic persona fallback                                     |
+| Dashboard never waits on live AI (§5)          | AI surfaces are opt-in chat/letter/analysis; dashboards render structured state              |
 
 **Carve-outs:**
+
 - **A — Identity.** §16/§24 say "configuration, not character creation." The founder's canon
   decision overrides the anti-personality absolutism: naming and shaping your own HōMI is IN,
   as the warmth layer on top of the intelligence layer. The doc itself permits "optional
@@ -90,15 +92,15 @@ workstreams, hiring plan, capital gates, and a risk register.
 
 **Why superseded:** it describes a build that did not happen as written. Divergences from reality:
 
-| Roadmap assumption | Actual shipped state |
-|---|---|
-| Repo `HōMI_Dev_Master`, later split | `Homi-Tech-Production-`, single Next.js 15 app |
-| Separate scoring service in `apps/scoring/` | `lib/scoring/` inside the app (server-only, weights contained) |
-| mem0 + pgvector relationship memory | No vector memory; threads in sessionStorage/localStorage (see T2.6) |
-| Inngest queues, AWS KMS, mTLS, VPC isolation | Vercel + Supabase; AES-256-GCM token encryption in `lib/plaid/crypto.ts` |
-| Auth provider open (Clerk vs Supabase) | Supabase Auth, shipped |
-| "Sonnet 4.6 / Opus 4.7 / Haiku 4.5" routing | `claude-sonnet-4-5`, single model, direct fetch |
-| Week-2 real Plaid build | Plaid shipped (`lib/plaid/`, migration 00017), transactions table still pending |
+| Roadmap assumption                           | Actual shipped state                                                            |
+| -------------------------------------------- | ------------------------------------------------------------------------------- |
+| Repo `HōMI_Dev_Master`, later split          | `Homi-Tech-Production-`, single Next.js 15 app                                  |
+| Separate scoring service in `apps/scoring/`  | `lib/scoring/` inside the app (server-only, weights contained)                  |
+| mem0 + pgvector relationship memory          | No vector memory; threads in sessionStorage/localStorage (see T2.6)             |
+| Inngest queues, AWS KMS, mTLS, VPC isolation | Vercel + Supabase; AES-256-GCM token encryption in `lib/plaid/crypto.ts`        |
+| Auth provider open (Clerk vs Supabase)       | Supabase Auth, shipped                                                          |
+| "Sonnet 4.6 / Opus 4.7 / Haiku 4.5" routing  | `claude-sonnet-4-5`, single model, direct fetch                                 |
+| Week-2 real Plaid build                      | Plaid shipped (`lib/plaid/`, migration 00017), transactions table still pending |
 
 **Salvaged into the record (as strategy, not commitments):** stage-gate discipline
 (metrics-gated progression, go/no-go matrices); the risk register (FCRA classification,
@@ -107,7 +109,7 @@ absorbing the wedge); cost-discipline and brand-stewardship cross-cuts; retentio
 (D14 ≥30%).
 
 **Flag:** the roadmap assumes "Architect Path A (CRA-grade)." The shipped legal posture
-(`README.md`, `/legal/disclaimer`) is explicitly *not* a lender, RIA, credit bureau, broker, or
+(`README.md`, `/legal/disclaimer`) is explicitly _not_ a lender, RIA, credit bureau, broker, or
 bank — educational only (Operate-B). CRA registration is an open founder-level business
 decision with real operational burden. No repo document should assume it has been made.
 
@@ -119,6 +121,7 @@ event model, latency budgets, adversarial-robustness measures, unit economics at
 §7's companion-as-identity-configuration design.
 
 **Adopted principles:**
+
 - **P1 trade-secret containment as structure:** "no LLM ever sees the formula in a system
   prompt." The repo already complies — the advisor prompt receives score/verdict/pillar
   percentages and derived finance metrics, never weights. Now codified as a blueprint
@@ -149,12 +152,13 @@ response banks, a simulated score slider, milestone toasts, and a conversation-c
 
 **Why superseded:** both strategy documents explicitly reject the fixed-character direction,
 and the shipped `/api/advisor` (real model, real user context, persona system, deterministic
-fallback) already outclasses the canned-response engine. Notably, the roster's *emotional
-jobs* survived into production: grounding (Steady) → Gut Check, analytical (Clarity) → Reality
+fallback) already outclasses the canned-response engine. Notably, the roster's _emotional
+jobs_ survived into production: grounding (Steady) → Gut Check, analytical (Clarity) → Reality
 Check, reflective (Horizon) → the homie/timing register in `lib/advisor/personas.ts`. The
 animals died; the archetypes shipped.
 
 **Harvested for the blueprint (as future UX, re-voiced to canon):**
+
 1. **Milestone moments** — marking score-threshold crossings inside the Companion surface.
 2. **Context bar** — one ambient line stating what the conversation has covered.
 3. **Personality pacing** — reply cadence as part of identity configuration (maps to Brief §7.1).
@@ -166,33 +170,34 @@ prohibit both. Harvested mechanics must be re-voiced before use.
 
 **Finding:** this is not a concepts document. It is a 4-page screenshot export (dated
 2025-10-18) of the claude.ai "HŌMI: Build-to-Launch Command Center" project page: chat history,
-project file inventory, and the Ω-Mentor CTO project instructions. The only file *content*
+project file inventory, and the Ω-Mentor CTO project instructions. The only file _content_
 captured is the first ~80 lines of CSS from `homi-50-character-concepts.html`, repeated on
 every page. **The actual 50 character concepts are not in this PDF.**
 
 **Actions:**
+
 - Recorded as historical evidence of the character-era exploration.
 - If the 50 concepts are wanted as a style palette for the "create your HōMI" feature, the
   source file `homi-50-character-concepts.html` needs to be provided — it was never uploaded.
 - The screenshot also reveals other un-audited project files that may be worth reconciling
   later: `homi-complete-30-concepts.html`, `homi-companion-selection.html`, `Competitive
-  Intelligence and Twitter Growth`, `Alpha AI Companion Analysis`,
+Intelligence and Twitter Growth`, `Alpha AI Companion Analysis`,
   `HOMI-Brand-Strategy-and-Growth-OS.docx`, `HŌMI Brand Headquarters`, `HŌMI roadmap`.
 
 ---
 
 ## 3. Cross-document conflict matrix
 
-| Axis | Strategy (1) | Arch Brief (3) | Roadmap (2) | Prototypes (4/5) | Shipped repo | **Canon resolution** |
-|---|---|---|---|---|---|---|
-| Identity | Configuration, not character | Identity config, "deeply personal" | Name your Companion | Fixed animal roster | 5 personas, unnamed | **User-created HōMI** (name/style/tone config); roster superseded |
-| Who scores | Deterministic; AI never | Deterministic black box | Deterministic + ML overlay under MRM | Demo slider | Deterministic, canon frozen | Canon frozen; ML overlay far-future, MRM-gated |
-| Confidence / data states | First-class, 7 states | Confidence, no imputation | Confidence calc W3 | Absent | **Absent** | **Adopt — the biggest genuine gap** |
-| Memory | Permissioned, inspectable | mem0/pgvector, user-editable | mem0 + pgvector | Session-only | Split sessionStorage/localStorage (T2.6) | Inspectable memory on existing Supabase tables, not mem0 |
-| Architecture | Compose around existing app | 5 microservices | Monorepo w/ services | Single HTML | Single Next.js app | Stay single-app; service split is a scale trigger, documented not scheduled |
-| B2B | Phase 2–3, consent-based | Institutional API + FCRA | Design partners mo. 7–12 | Absent | Absent | Blueprint Phase 4+; preview feature first |
-| Legal posture | Not a lender/RIA/bureau | Path A recommended | Architect-A / Operate-B | n/a | Operate-B disclaimers shipped | **Stay Operate-B in all docs; Path A = open decision** |
-| Models | n/a | Sonnet 4.6 / Opus 4.7 | Sonnet 4.6 | n/a | claude-sonnet-4-5 | Aspirational refs noted; docs pin nothing unreleased |
+| Axis                     | Strategy (1)                 | Arch Brief (3)                     | Roadmap (2)                          | Prototypes (4/5)    | Shipped repo                             | **Canon resolution**                                                        |
+| ------------------------ | ---------------------------- | ---------------------------------- | ------------------------------------ | ------------------- | ---------------------------------------- | --------------------------------------------------------------------------- |
+| Identity                 | Configuration, not character | Identity config, "deeply personal" | Name your Companion                  | Fixed animal roster | 5 personas, unnamed                      | **User-created HōMI** (name/style/tone config); roster superseded           |
+| Who scores               | Deterministic; AI never      | Deterministic black box            | Deterministic + ML overlay under MRM | Demo slider         | Deterministic, canon frozen              | Canon frozen; ML overlay far-future, MRM-gated                              |
+| Confidence / data states | First-class, 7 states        | Confidence, no imputation          | Confidence calc W3                   | Absent              | **Absent**                               | **Adopt — the biggest genuine gap**                                         |
+| Memory                   | Permissioned, inspectable    | mem0/pgvector, user-editable       | mem0 + pgvector                      | Session-only        | Split sessionStorage/localStorage (T2.6) | Inspectable memory on existing Supabase tables, not mem0                    |
+| Architecture             | Compose around existing app  | 5 microservices                    | Monorepo w/ services                 | Single HTML         | Single Next.js app                       | Stay single-app; service split is a scale trigger, documented not scheduled |
+| B2B                      | Phase 2–3, consent-based     | Institutional API + FCRA           | Design partners mo. 7–12             | Absent              | Absent                                   | Blueprint Phase 4+; preview feature first                                   |
+| Legal posture            | Not a lender/RIA/bureau      | Path A recommended                 | Architect-A / Operate-B              | n/a                 | Operate-B disclaimers shipped            | **Stay Operate-B in all docs; Path A = open decision**                      |
+| Models                   | n/a                          | Sonnet 4.6 / Opus 4.7              | Sonnet 4.6                           | n/a                 | claude-sonnet-4-5                        | Aspirational refs noted; docs pin nothing unreleased                        |
 
 ---
 
@@ -228,7 +233,7 @@ every page. **The actual 50 character concepts are not in this PDF.**
 ## 6. Gaps and requests
 
 1. `homi-50-character-concepts.html` was never provided (the PDF is a screenshot of a page
-   *listing* it). Re-upload if the concepts should feed the identity-creation style palette.
+   _listing_ it). Re-upload if the concepts should feed the identity-creation style palette.
 2. The other project files listed in §2.5 remain un-audited.
 3. The strategy corpus predates the shipped finance/surface context spine; none of the
    documents account for it. This audit and the updated blueprint are now the reconciliation

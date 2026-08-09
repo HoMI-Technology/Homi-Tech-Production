@@ -102,10 +102,9 @@ function plaidResponses(): typeof fetch {
   return vi.fn(async (input: RequestInfo | URL) => {
     const url = String(input);
     if (url.endsWith("/item/public_token/exchange")) {
-      return new Response(
-        JSON.stringify({ access_token: RAW_TOKEN, item_id: "item-plaid-abc" }),
-        { status: 200 },
-      );
+      return new Response(JSON.stringify({ access_token: RAW_TOKEN, item_id: "item-plaid-abc" }), {
+        status: 200,
+      });
     }
     if (url.endsWith("/item/get")) {
       return new Response(

@@ -28,7 +28,9 @@ describe("GET /auth/callback — open-redirect guard", () => {
   });
 
   it("sanitizes next on the code-exchange path too", async () => {
-    const res = await GET(new Request("http://localhost/auth/callback?code=abc123&next=//evil.com"));
+    const res = await GET(
+      new Request("http://localhost/auth/callback?code=abc123&next=//evil.com"),
+    );
     const location = res.headers.get("location") ?? "";
     expect(location).toBe("http://localhost/dashboard");
     expect(location).not.toContain("evil.com");

@@ -123,13 +123,18 @@ describe("GET /api/finance/savings-goals", () => {
     };
     const res = await GET(req("GET"));
     expect(res.status).toBe(200);
-    const body = (await res.json()) as { goal: { targetAmountCents: number; currentAmountCents: number } };
+    const body = (await res.json()) as {
+      goal: { targetAmountCents: number; currentAmountCents: number };
+    };
     expect(body.goal.targetAmountCents).toBe(6000000);
     expect(body.goal.currentAmountCents).toBe(1200000);
   });
 
   it("degrades to null while the ledger migration is not applied yet", async () => {
-    state.selectError = { code: "42P01", message: 'relation "finance_savings_goals" does not exist' };
+    state.selectError = {
+      code: "42P01",
+      message: 'relation "finance_savings_goals" does not exist',
+    };
     const res = await GET(req("GET"));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ goal: null });
@@ -256,7 +261,10 @@ describe("DELETE /api/finance/savings-goals", () => {
   });
 
   it("stays idempotent while the ledger migration is not applied yet", async () => {
-    state.deleteError = { code: "42P01", message: 'relation "finance_savings_goals" does not exist' };
+    state.deleteError = {
+      code: "42P01",
+      message: 'relation "finance_savings_goals" does not exist',
+    };
     const res = await DELETE(req("DELETE"));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });

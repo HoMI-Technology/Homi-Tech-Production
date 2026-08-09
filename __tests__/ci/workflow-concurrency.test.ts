@@ -111,7 +111,9 @@ function render(raw: unknown, ctx: Ctx): Value {
   if (typeof raw !== "string") return raw as Value;
   const whole = raw.match(/^\$\{\{(.+)\}\}$/s);
   if (whole) return evaluate(whole[1], ctx);
-  return raw.replace(/\$\{\{(.+?)\}\}/gs, (_m, inner: string) => String(evaluate(inner, ctx) ?? ""));
+  return raw.replace(/\$\{\{(.+?)\}\}/gs, (_m, inner: string) =>
+    String(evaluate(inner, ctx) ?? ""),
+  );
 }
 
 // --- Event contexts ------------------------------------------------------

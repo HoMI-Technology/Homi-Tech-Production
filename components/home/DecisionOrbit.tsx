@@ -43,20 +43,32 @@ export function DecisionOrbit() {
           <span
             key={node.label}
             className="orbit-node absolute -translate-x-1/2 -translate-y-1/2 rounded-full border px-3 py-1.5 text-xs font-medium whitespace-nowrap backdrop-blur-sm"
-            style={{
-              "--x": `${x}%`,
-              "--y": `${y}%`,
-              borderColor: node.first ? withAlpha(COLORS.yellow, 0.5) : withAlpha(COLORS.dim, 0.25),
-              background: node.first ? withAlpha(COLORS.yellow, 0.08) : withAlpha(COLORS.navyLight, 0.7),
-              color: node.first ? COLORS.yellow : COLORS.dim,
-              boxShadow: node.first ? `0 0 24px -6px ${withAlpha(COLORS.yellow, 0.4)}` : undefined,
-            } as React.CSSProperties}
+            style={
+              {
+                "--x": `${x}%`,
+                "--y": `${y}%`,
+                borderColor: node.first
+                  ? withAlpha(COLORS.yellow, 0.5)
+                  : withAlpha(COLORS.dim, 0.25),
+                background: node.first
+                  ? withAlpha(COLORS.yellow, 0.08)
+                  : withAlpha(COLORS.navyLight, 0.7),
+                color: node.first ? COLORS.yellow : COLORS.dim,
+                boxShadow: node.first
+                  ? `0 0 24px -6px ${withAlpha(COLORS.yellow, 0.4)}`
+                  : undefined,
+              } as React.CSSProperties
+            }
           >
             {node.first && (
               <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-yellow align-middle" />
             )}
             {node.label}
-            {node.first && <span className="ml-1.5 text-xs uppercase tracking-wider opacity-70">first threshold</span>}
+            {node.first && (
+              <span className="ml-1.5 text-xs uppercase tracking-wider opacity-70">
+                first threshold
+              </span>
+            )}
           </span>
         );
       })}

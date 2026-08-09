@@ -15,7 +15,8 @@ import { ToolShell, ToolResultHero } from "@/components/tools/ToolShell";
 const LENS = getLens("runway")!;
 
 function temperature(months: number): { label: string; color: string; className: string } {
-  if (months >= 6) return { label: "Protected", color: COLORS.emerald, className: "bg-verdict-ready" };
+  if (months >= 6)
+    return { label: "Protected", color: COLORS.emerald, className: "bg-verdict-ready" };
   if (months >= 3) return { label: "Warm", color: COLORS.yellow, className: "bg-verdict-almost" };
   if (months >= 1) return { label: "Exposed", color: COLORS.amber, className: "bg-verdict-build" };
   return { label: "Critical", color: COLORS.crimson, className: "bg-verdict-notyet" };
@@ -64,14 +65,29 @@ export default function RunwayPage() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
-          <LensField label="Monthly essential expenses" value={expenses} onChange={setExpenses} min={0} max={20000} step={50} format="currency" source={sourceFor("expenses")} />
-          <LensField label="Liquid savings" value={savings} onChange={setSavings} min={0} max={200000} step={500} format="currency" source={sourceFor("savings")} />
+          <LensField
+            label="Monthly essential expenses"
+            value={expenses}
+            onChange={setExpenses}
+            min={0}
+            max={20000}
+            step={50}
+            format="currency"
+            source={sourceFor("expenses")}
+          />
+          <LensField
+            label="Liquid savings"
+            value={savings}
+            onChange={setSavings}
+            min={0}
+            max={200000}
+            step={500}
+            format="currency"
+            source={sourceFor("savings")}
+          />
 
           <div className="hairline" />
-          <SaveScenarioButton
-            lensId="runway"
-            getInputs={() => ({ expenses, savings })}
-          />
+          <SaveScenarioButton lensId="runway" getInputs={() => ({ expenses, savings })} />
         </div>
 
         <div className="space-y-6">
@@ -112,9 +128,11 @@ export default function RunwayPage() {
             <p className="mt-2 text-sm leading-relaxed text-dim">
               {months >= 6 &&
                 "Six months or more of runway means most shocks — a job loss, a medical bill, a major repair — won't force a bad decision. This is a strong position to make any move from."}
-              {months >= 3 && months < 6 &&
+              {months >= 3 &&
+                months < 6 &&
                 "Three to six months gives you real but limited protection. It's workable, but building this toward six months first will remove a lot of pressure from every other decision."}
-              {months >= 1 && months < 3 &&
+              {months >= 1 &&
+                months < 3 &&
                 "One to three months of runway is thin. A single unexpected expense could force a decision you wouldn't otherwise make. Building runway before taking on new financial commitments protects you."}
               {months < 1 &&
                 "Under one month of runway is a red-line condition. This is the moment to pause on any new financial commitment — buying, investing, or otherwise — and build a buffer first. That is not failure. That is protection."}

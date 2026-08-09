@@ -11,13 +11,21 @@ describe("contextualActionHrefs", () => {
 
   it("surfaces check-in, weakest-pillar instrument, then a filler", () => {
     expect(
-      contextualActionHrefs({ hasAssessment: true, weakestPillar: "emotional", checkedInToday: false }),
+      contextualActionHrefs({
+        hasAssessment: true,
+        weakestPillar: "emotional",
+        checkedInToday: false,
+      }),
     ).toEqual(["/daily", "/advisor", "/simulator"]);
   });
 
   it("routes each pillar to its instrument", () => {
     expect(
-      contextualActionHrefs({ hasAssessment: true, weakestPillar: "financial", checkedInToday: true }),
+      contextualActionHrefs({
+        hasAssessment: true,
+        weakestPillar: "financial",
+        checkedInToday: true,
+      }),
     ).toEqual(["/tools", "/simulator", "/journal"]);
     expect(
       contextualActionHrefs({ hasAssessment: true, weakestPillar: "timing", checkedInToday: true }),
@@ -25,7 +33,11 @@ describe("contextualActionHrefs", () => {
   });
 
   it("always returns exactly three unique hrefs", () => {
-    const result = contextualActionHrefs({ hasAssessment: true, weakestPillar: null, checkedInToday: true });
+    const result = contextualActionHrefs({
+      hasAssessment: true,
+      weakestPillar: null,
+      checkedInToday: true,
+    });
     expect(result).toHaveLength(3);
     expect(new Set(result).size).toBe(3);
   });

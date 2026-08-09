@@ -6,7 +6,13 @@ export const ARCHITECTURE_CALCULATORS: ArchitectureCalculator[] = [
     id: "affordability",
     name: "Affordability Calculator",
     route: "/tools/affordability",
-    inputs: ["Gross monthly income", "Monthly debt payments", "Down payment amount", "Interest rate", "Loan term"],
+    inputs: [
+      "Gross monthly income",
+      "Monthly debt payments",
+      "Down payment amount",
+      "Interest rate",
+      "Loan term",
+    ],
     outputs: ["Max home price", "Monthly payment (P&I)", "Recommended home price band"],
   },
   {
@@ -20,14 +26,26 @@ export const ARCHITECTURE_CALCULATORS: ArchitectureCalculator[] = [
     id: "down-payment",
     name: "Down Payment Goal",
     route: "/tools/down-payment",
-    inputs: ["Target home price", "Down payment percent", "Current savings", "Monthly contribution"],
+    inputs: [
+      "Target home price",
+      "Down payment percent",
+      "Current savings",
+      "Monthly contribution",
+    ],
     outputs: ["Target amount", "Months to goal", "Projected date"],
   },
   {
     id: "monte-carlo",
     name: "Monte Carlo Projection",
     route: "/tools/monte-carlo",
-    inputs: ["Starting capital", "Monthly contribution", "Expected return", "Volatility", "Years", "Simulations"],
+    inputs: [
+      "Starting capital",
+      "Monthly contribution",
+      "Expected return",
+      "Volatility",
+      "Years",
+      "Simulations",
+    ],
     outputs: ["Percentile bands", "Probability of goal", "Median path"],
   },
   {

@@ -146,10 +146,7 @@ export default function CalendarPage() {
       const existingStepIds = new Set(
         existing
           .map((ev) => parsePathMarker(ev.notes))
-          .filter(
-            (m): m is { pathId: string; stepId: string } =>
-              m != null && m.pathId === path.id,
-          )
+          .filter((m): m is { pathId: string; stepId: string } => m != null && m.pathId === path.id)
           .map((m) => m.stepId),
       );
 
@@ -302,9 +299,7 @@ export default function CalendarPage() {
 
   async function handleToggleComplete(ev: CalendarEvent) {
     const nextCompleted = !ev.completed;
-    setEvents((prev) =>
-      prev.map((e) => (e.id === ev.id ? { ...e, completed: nextCompleted } : e)),
-    );
+    setEvents((prev) => prev.map((e) => (e.id === ev.id ? { ...e, completed: nextCompleted } : e)));
 
     const { error: updateError } = await supabase
       .from("calendar_events")
@@ -454,7 +449,14 @@ export default function CalendarPage() {
               }
               aria-label="Previous month"
             >
-              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+              >
                 <path d="M12 4l-6 6 6 6" />
               </svg>
             </button>
@@ -478,7 +480,14 @@ export default function CalendarPage() {
               }
               aria-label="Next month"
             >
-              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+              >
                 <path d="M8 4l6 6-6 6" />
               </svg>
             </button>

@@ -88,9 +88,7 @@ export const DEFAULT_FINANCE_STATE: FinanceState = {
     { id: "asset-cash", name: "Cash & savings", amount: 18000 },
     { id: "asset-retirement", name: "Retirement accounts", amount: 32000 },
   ],
-  liabilities: [
-    { id: "liability-debt", name: "Credit cards & loans", amount: 22000 },
-  ],
+  liabilities: [{ id: "liability-debt", name: "Credit cards & loans", amount: 22000 }],
 };
 
 /**
@@ -131,10 +129,7 @@ function writeLocal(stamped: Stamped<FinanceState>): void {
     // Stamp 0 means "legacy data of unknown age" — writing it as 1970 would
     // make the Companion claim the numbers are decades old.
     if (stamped.updatedAt > 0) {
-      window.localStorage.setItem(
-        SAVED_AT_KEY,
-        new Date(stamped.updatedAt).toISOString(),
-      );
+      window.localStorage.setItem(SAVED_AT_KEY, new Date(stamped.updatedAt).toISOString());
     }
   } catch {
     // Storage may be unavailable (private browsing quota, etc). Fail silently —

@@ -33,7 +33,9 @@ test("mortgage tool page renders (budget-tracked route)", async ({ page }) => {
   await expect(page.locator("h1, h2").first()).toBeVisible();
 });
 
-test("an unknown shadow share token shows the expired-card invite, not a crash", async ({ page }) => {
+test("an unknown shadow share token shows the expired-card invite, not a crash", async ({
+  page,
+}) => {
   await page.goto(`/shadow/${"f".repeat(32)}`);
   await expect(page.getByText(/expired|get your shadow score/i).first()).toBeVisible();
 });

@@ -42,8 +42,7 @@ export const DIMENSIONS: GenomeDimension[] = [
   {
     key: "loss_aversion",
     name: "Loss Aversion",
-    description:
-      "How much more a potential loss weighs on you compared to an equivalent gain.",
+    description: "How much more a potential loss weighs on you compared to an equivalent gain.",
     lowMeaning: "You weigh losses and gains fairly evenly — you can act without over-hedging.",
     highMeaning:
       "Losses feel far heavier than equivalent gains, which can freeze you at the exact moment a decision needs a clear yes or no.",
@@ -88,7 +87,8 @@ export const DIMENSIONS: GenomeDimension[] = [
   {
     key: "narrative_dependence",
     name: "Narrative Dependence",
-    description: "How much a compelling story (versus the underlying numbers) drives your decisions.",
+    description:
+      "How much a compelling story (versus the underlying numbers) drives your decisions.",
     lowMeaning: "You anchor to numbers first and treat the story as context, not evidence.",
     highMeaning:
       "A good story — a hot market, a friend's success, a compelling pitch — can outweigh what the numbers actually say.",
@@ -106,7 +106,8 @@ export const DIMENSIONS: GenomeDimension[] = [
   {
     key: "outcome_attribution",
     name: "Outcome Attribution",
-    description: "Whether you attribute outcomes to your own decisions or to external circumstances.",
+    description:
+      "Whether you attribute outcomes to your own decisions or to external circumstances.",
     lowMeaning: "You attribute outcomes mostly to circumstances outside your control.",
     highMeaning:
       "You attribute outcomes mostly to your own choices, for better and worse — useful for learning, risky if it produces overconfidence after a lucky win.",
@@ -117,7 +118,8 @@ export const DIMENSIONS: GenomeDimension[] = [
     name: "Agency Perception",
     description: "How much control you feel you have over a major decision's outcome.",
     lowMeaning: "You feel decisions largely happen to you — the market, the timing, other people.",
-    highMeaning: "You feel strong personal agency — that your choices meaningfully shape the outcome.",
+    highMeaning:
+      "You feel strong personal agency — that your choices meaningfully shape the outcome.",
     skew: "Low agency can produce passivity or waiting for a 'sign'; very high agency can understate real external risk factors outside your control.",
   },
 ];
@@ -169,7 +171,8 @@ export const QUESTIONS: GenomeQuestion[] = [
   {
     id: "cc_2",
     dimensionKey: "confidence_calibration",
-    prompt: "Looking back, my confidence at the time usually matched how things actually turned out.",
+    prompt:
+      "Looking back, my confidence at the time usually matched how things actually turned out.",
     reversed: true,
     leftLabel: "Disagree",
     rightLabel: "Agree",
@@ -203,7 +206,8 @@ export const QUESTIONS: GenomeQuestion[] = [
   {
     id: "ra_2",
     dimensionKey: "regret_asymmetry",
-    prompt: "The fear of making the wrong call weighs on me more than the fear of missing a chance.",
+    prompt:
+      "The fear of making the wrong call weighs on me more than the fear of missing a chance.",
     reversed: false,
     leftLabel: "Disagree",
     rightLabel: "Agree",
@@ -212,7 +216,8 @@ export const QUESTIONS: GenomeQuestion[] = [
   {
     id: "nd_1",
     dimensionKey: "narrative_dependence",
-    prompt: "A compelling story about where things are headed can change my mind faster than a spreadsheet.",
+    prompt:
+      "A compelling story about where things are headed can change my mind faster than a spreadsheet.",
     reversed: false,
     leftLabel: "Disagree",
     rightLabel: "Agree",

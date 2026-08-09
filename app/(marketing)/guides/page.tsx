@@ -29,8 +29,8 @@ export default function GuidesHubPage() {
         <div className="mx-auto max-w-3xl text-center">
           <h1 className="type-h1">Guides</h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-dim">
-            Know your financial truth before every major decision. These are written to be
-            genuinely useful — not to sell you anything.
+            Know your financial truth before every major decision. These are written to be genuinely
+            useful — not to sell you anything.
           </p>
         </div>
       </section>
@@ -48,7 +48,15 @@ export default function GuidesHubPage() {
                   <p className="mt-3 flex-1 text-sm leading-relaxed text-dim">
                     {guide.description}
                   </p>
-                  <span className="mt-6 text-sm font-semibold text-cyan">Read the guide <span aria-hidden className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1">&rarr;</span></span>
+                  <span className="mt-6 text-sm font-semibold text-cyan">
+                    Read the guide{" "}
+                    <span
+                      aria-hidden
+                      className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1"
+                    >
+                      &rarr;
+                    </span>
+                  </span>
                 </Link>
               </Reveal>
             ))}
@@ -62,9 +70,9 @@ export default function GuidesHubPage() {
             <div className="mx-auto max-w-3xl text-center">
               <h2 className="type-h2">Learning</h2>
               <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-dim">
-                Guides are how. Learning is why. The reasoning behind the thresholds — the math,
-                the hard-stops, and the method — explained so you can check our work, not just
-                take our word for it.
+                Guides are how. Learning is why. The reasoning behind the thresholds — the math, the
+                hard-stops, and the method — explained so you can check our work, not just take our
+                word for it.
               </p>
             </div>
             <div className="mt-10 grid gap-6 md:grid-cols-2">
@@ -126,7 +134,15 @@ export default function GuidesHubPage() {
                     <p className="mt-3 flex-1 text-sm leading-relaxed text-dim">
                       {post.description}
                     </p>
-                    <span className="mt-6 text-sm font-semibold text-cyan">Read the post <span aria-hidden className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1">&rarr;</span></span>
+                    <span className="mt-6 text-sm font-semibold text-cyan">
+                      Read the post{" "}
+                      <span
+                        aria-hidden
+                        className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1"
+                      >
+                        &rarr;
+                      </span>
+                    </span>
                   </Link>
                 </Reveal>
               ))}
@@ -138,9 +154,7 @@ export default function GuidesHubPage() {
       <Reveal>
         <section className="px-6 py-20 text-center">
           <div className="mx-auto max-w-2xl">
-            <h2 className="type-h1">
-              Ready to see your own number?
-            </h2>
+            <h2 className="type-h1">Ready to see your own number?</h2>
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link href="/shadow-score" className="btn btn-primary">
                 Get your score — 90 seconds

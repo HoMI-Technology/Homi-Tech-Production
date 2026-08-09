@@ -75,7 +75,10 @@ export function NotificationBell() {
               .limit(1),
           ]);
           dueSurvey = Boolean(surveys && surveys.length > 0);
-          lastCheckinDate = checkins && checkins.length > 0 ? (checkins[0] as { created_at: string }).created_at : null;
+          lastCheckinDate =
+            checkins && checkins.length > 0
+              ? (checkins[0] as { created_at: string }).created_at
+              : null;
         }
       } catch {
         // Not fatal — the bell still shows what it can derive locally.
@@ -136,11 +139,27 @@ export function NotificationBell() {
         aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"}
         className="chrome-icon-btn relative"
       >
-        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6">
-          <path d="M5 8a5 5 0 0 1 10 0c0 3.2 1 4.4 1.5 5H3.5C4 12.4 5 11.2 5 8Z" strokeLinecap="round" strokeLinejoin="round" />
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+        >
+          <path
+            d="M5 8a5 5 0 0 1 10 0c0 3.2 1 4.4 1.5 5H3.5C4 12.4 5 11.2 5 8Z"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
           <path d="M8.2 15.5a1.8 1.8 0 0 0 3.6 0" strokeLinecap="round" />
         </svg>
-        {unread > 0 && <span aria-hidden="true" className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-cyan" />}
+        {unread > 0 && (
+          <span
+            aria-hidden="true"
+            className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-cyan"
+          />
+        )}
       </button>
 
       {open && (

@@ -43,7 +43,9 @@ function dueOutcomeSurveyNotification(dueSurvey: boolean): NotificationItem | nu
 }
 
 /** Rule 2 — the stored assessment is more than 30 days old. Mirrors staleAssessmentSignal in lib/signals/engine.ts. */
-function staleAssessmentNotification(storedAssessment: StoredAssessment | null): NotificationItem | null {
+function staleAssessmentNotification(
+  storedAssessment: StoredAssessment | null,
+): NotificationItem | null {
   if (!storedAssessment) return null;
   const completedAt = new Date(storedAssessment.completedAt).getTime();
   if (Number.isNaN(completedAt)) return null;
@@ -77,7 +79,9 @@ function streakEncouragementNotification(lastCheckinDate: string | null): Notifi
 }
 
 /** Rule 4 — a pointer back to a READY result. */
-function readyCelebrationNotification(storedAssessment: StoredAssessment | null): NotificationItem | null {
+function readyCelebrationNotification(
+  storedAssessment: StoredAssessment | null,
+): NotificationItem | null {
   if (!storedAssessment) return null;
   if (storedAssessment.result.verdict !== "READY") return null;
   return {

@@ -89,9 +89,30 @@ let userCounter = 0;
 
 function makeItems(userId: string) {
   return [
-    { id: ITEM_A, user_id: userId, item_id: "plaid-a", access_token_ct: "ct", transactions_cursor: null, status: "healthy" },
-    { id: ITEM_B, user_id: userId, item_id: "plaid-b", access_token_ct: "ct", transactions_cursor: "c", status: "healthy" },
-    { id: FOREIGN, user_id: "someone-else", item_id: "plaid-x", access_token_ct: "ct", transactions_cursor: null, status: "healthy" },
+    {
+      id: ITEM_A,
+      user_id: userId,
+      item_id: "plaid-a",
+      access_token_ct: "ct",
+      transactions_cursor: null,
+      status: "healthy",
+    },
+    {
+      id: ITEM_B,
+      user_id: userId,
+      item_id: "plaid-b",
+      access_token_ct: "ct",
+      transactions_cursor: "c",
+      status: "healthy",
+    },
+    {
+      id: FOREIGN,
+      user_id: "someone-else",
+      item_id: "plaid-x",
+      access_token_ct: "ct",
+      transactions_cursor: null,
+      status: "healthy",
+    },
   ];
 }
 
@@ -161,7 +182,10 @@ describe("POST /api/plaid/sync", () => {
       item.id === ITEM_A ? { ...item, status: "revoked" } : item,
     );
     const res = await POST(req());
-    const body = (await res.json()) as { ok: boolean; results: { item_id: string; ok: boolean; error?: string }[] };
+    const body = (await res.json()) as {
+      ok: boolean;
+      results: { item_id: string; ok: boolean; error?: string }[];
+    };
     expect(body.ok).toBe(false);
     const revoked = body.results.find((r) => r.item_id === ITEM_A);
     expect(revoked?.ok).toBe(false);

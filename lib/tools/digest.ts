@@ -162,7 +162,10 @@ export function buildLensDigestNote(lens: LensDigest): string {
 
   if (lens.deltas && lens.deltas.length > 0) {
     const rendered = lens.deltas
-      .map((d) => `${d.label} ${formatDigestValue(d.from, d.unit)} → ${formatDigestValue(d.to, d.unit)}`)
+      .map(
+        (d) =>
+          `${d.label} ${formatDigestValue(d.from, d.unit)} → ${formatDigestValue(d.to, d.unit)}`,
+      )
       .join("; ");
     parts.push(`Impact on their saved numbers (precomputed): ${rendered}.`);
     const worst = lens.deltas.reduce(
@@ -175,7 +178,9 @@ export function buildLensDigestNote(lens: LensDigest): string {
       );
     }
   } else {
-    parts.push("No impact deltas — the user has no saved finance numbers, so nothing here is personalized yet.");
+    parts.push(
+      "No impact deltas — the user has no saved finance numbers, so nothing here is personalized yet.",
+    );
   }
 
   if (lens.readiness) parts.push(readinessNote(lens.readiness));

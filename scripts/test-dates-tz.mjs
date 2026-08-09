@@ -13,16 +13,12 @@ const ZONES = ["UTC", "America/Los_Angeles", "Pacific/Auckland"];
 let failed = false;
 for (const tz of ZONES) {
   console.log(`\n▶ dates under TZ=${tz}`);
-  const result = spawnSync(
-    "npx",
-    ["vitest", "run", "__tests__/dates.test.ts"],
-    {
-      cwd: ROOT,
-      env: { ...process.env, TZ: tz },
-      stdio: "inherit",
-      shell: false,
-    },
-  );
+  const result = spawnSync("npx", ["vitest", "run", "__tests__/dates.test.ts"], {
+    cwd: ROOT,
+    env: { ...process.env, TZ: tz },
+    stdio: "inherit",
+    shell: false,
+  });
   if (result.status !== 0) {
     failed = true;
     console.error(`dates TZ=${tz} FAILED`);

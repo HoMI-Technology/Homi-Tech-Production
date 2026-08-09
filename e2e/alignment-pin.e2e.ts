@@ -78,9 +78,7 @@ test.describe("AlignmentScene pinned scroll", () => {
     { width: 1024, height: 768, name: "laptop-1024" },
     { width: 390, height: 844, name: "mobile-390" },
   ] as const) {
-    test(`keeps stage sticky and advances all four steps @ ${viewport.name}`, async ({
-      page,
-    }) => {
+    test(`keeps stage sticky and advances all four steps @ ${viewport.name}`, async ({ page }) => {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
       await page.emulateMedia({ reducedMotion: "no-preference" });
       await page.addInitScript(() => {
@@ -96,7 +94,10 @@ test.describe("AlignmentScene pinned scroll", () => {
       // Dismiss cookie banner if present so it does not eat viewport height.
       const consent = page.getByRole("button", { name: /accept|agree|got it|allow/i });
       if (await consent.count()) {
-        await consent.first().click().catch(() => undefined);
+        await consent
+          .first()
+          .click()
+          .catch(() => undefined);
         await page.waitForTimeout(100);
       }
 

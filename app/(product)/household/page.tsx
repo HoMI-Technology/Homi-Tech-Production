@@ -34,8 +34,8 @@ export default function HouseholdPage() {
       <p className="eyebrow">Household readiness</p>
       <h1 className="mt-1 font-display text-3xl text-light">Household</h1>
       <p className="mt-2 max-w-2xl text-sm text-dim">
-        The people in your decision — joint readiness, couples alignment, and
-        family mode, in one place.
+        The people in your decision — joint readiness, couples alignment, and family mode, in one
+        place.
       </p>
 
       <Tabs

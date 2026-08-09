@@ -114,7 +114,7 @@ describe("ToastProvider priority scoping", () => {
     expect(onDismiss).not.toHaveBeenCalled();
   });
 
-  it("a higher-priority arrival displaces the visible lower-priority toast with reason \"suppressed\"", () => {
+  it('a higher-priority arrival displaces the visible lower-priority toast with reason "suppressed"', () => {
     renderProvider();
     const onDismiss = vi.fn();
     act(() => {
@@ -207,7 +207,7 @@ describe("ToastProvider dismiss", () => {
     expect(onDismiss).not.toHaveBeenCalled();
   });
 
-  it("dismiss(id) defaults to the \"manual\" reason", () => {
+  it('dismiss(id) defaults to the "manual" reason', () => {
     renderProvider();
     const onDismiss = vi.fn();
     let id: string | null = null;

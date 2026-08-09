@@ -46,10 +46,7 @@ export type GenomeKey = DimensionKey;
  * Resolve 0–100 score from behavioral_genome.scores.
  * Accepts DimensionScore[] or flat Record<key, number>.
  */
-export function scoreFromGenomePayload(
-  scores: unknown,
-  key: DimensionKey | string,
-): number | null {
+export function scoreFromGenomePayload(scores: unknown, key: DimensionKey | string): number | null {
   if (scores == null) return null;
   if (Array.isArray(scores)) {
     const hit = scores.find(

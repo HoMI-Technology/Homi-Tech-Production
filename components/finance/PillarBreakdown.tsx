@@ -60,7 +60,12 @@ export function PillarBreakdown({ result }: { result: AssessmentResult }) {
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${frac * 100}%` }}
-                  transition={{ type: "spring", stiffness: 120, damping: 26, delay: 0.1 + i * 0.06 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 120,
+                    damping: 26,
+                    delay: 0.1 + i * 0.06,
+                  }}
                   className="h-full rounded-full"
                   style={{
                     backgroundColor: color,
@@ -105,7 +110,10 @@ export function PillarBreakdown({ result }: { result: AssessmentResult }) {
 
                 return (
                   <div key={key}>
-                    <p className="text-xs font-semibold uppercase tracking-widest" style={{ color }}>
+                    <p
+                      className="text-xs font-semibold uppercase tracking-widest"
+                      style={{ color }}
+                    >
                       {meta.name}
                     </p>
                     <div className="mt-2.5 flex flex-col gap-2.5">
@@ -113,7 +121,9 @@ export function PillarBreakdown({ result }: { result: AssessmentResult }) {
                         const frac = f.max > 0 ? f.pts / f.max : 0;
                         return (
                           <div key={f.key} className="flex items-center gap-3">
-                            <span className="w-32 shrink-0 truncate text-xs text-dim">{f.label}</span>
+                            <span className="w-32 shrink-0 truncate text-xs text-dim">
+                              {f.label}
+                            </span>
                             <div className="h-[3px] flex-1 overflow-hidden rounded-full bg-white/[0.06]">
                               <motion.div
                                 initial={{ width: 0 }}

@@ -75,7 +75,11 @@ describe("GoalCard with ledger goal", () => {
   });
 
   it("renders the ledger goal instead of the legacy goal", () => {
-    const legacyGoal = { label: "Legacy down payment", target_amount: 50_000, target_date: null as string | null };
+    const legacyGoal = {
+      label: "Legacy down payment",
+      target_amount: 50_000,
+      target_date: null as string | null,
+    };
     const ledgerGoal = {
       name: "Ledger down payment",
       targetAmountCents: 10_000_000,
@@ -99,11 +103,13 @@ describe("GoalCard with ledger goal", () => {
   });
 
   it("still renders the legacy goal when no ledger goal is supplied", () => {
-    const legacyGoal = { label: "Legacy down payment", target_amount: 60_000, target_date: null as string | null };
+    const legacyGoal = {
+      label: "Legacy down payment",
+      target_amount: 60_000,
+      target_date: null as string | null,
+    };
 
-    render(
-      <GoalCard goal={legacyGoal} liquidSavings={12_000} monthlyNetCashFlow={800} />,
-    );
+    render(<GoalCard goal={legacyGoal} liquidSavings={12_000} monthlyNetCashFlow={800} />);
 
     expect(screen.getByText("Legacy down payment")).toBeInTheDocument();
     expect(screen.getByText(/\$60,000/)).toBeInTheDocument();

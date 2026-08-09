@@ -56,10 +56,7 @@ describe("web app manifest", () => {
   });
 
   it("references iOS splash images that all exist in /public/splash", () => {
-    const source = fs.readFileSync(
-      path.join(ROOT, "components/pwa/AppleSplashLinks.tsx"),
-      "utf8",
-    );
+    const source = fs.readFileSync(path.join(ROOT, "components/pwa/AppleSplashLinks.tsx"), "utf8");
     const devices = [...source.matchAll(/device: "([^"]+)"/g)].map((m) => m[1]);
     expect(devices.length).toBeGreaterThan(0);
     for (const device of devices) {

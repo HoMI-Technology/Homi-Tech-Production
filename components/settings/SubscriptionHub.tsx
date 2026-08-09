@@ -182,7 +182,9 @@ export function SubscriptionHub({
         return;
       }
       if (!res.ok || data.configured === false || !data.url) {
-        setNote(data.message ?? data.error ?? "Checkout is unavailable right now. Try again in a moment.");
+        setNote(
+          data.message ?? data.error ?? "Checkout is unavailable right now. Try again in a moment.",
+        );
         return;
       }
       window.location.href = data.url;
@@ -267,7 +269,10 @@ export function SubscriptionHub({
             refresh plan status
           </button>
           , or contact{" "}
-          <a className="text-cyan underline-offset-2 hover:underline" href="mailto:hello@homitechnology.com">
+          <a
+            className="text-cyan underline-offset-2 hover:underline"
+            href="mailto:hello@homitechnology.com"
+          >
             hello@homitechnology.com
           </a>{" "}
           with your account email.
@@ -292,7 +297,11 @@ export function SubscriptionHub({
           </span>
           <span
             className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium"
-            style={{ color: statusColor, borderColor: `${statusColor}59`, background: `${statusColor}1a` }}
+            style={{
+              color: statusColor,
+              borderColor: `${statusColor}59`,
+              background: `${statusColor}1a`,
+            }}
           >
             {STATUS_LABELS[status] ?? status ?? "—"}
           </span>
@@ -344,9 +353,7 @@ export function SubscriptionHub({
               >
                 <div className="flex items-baseline justify-between gap-2">
                   <h3 className="text-lg font-bold text-light">{plan.name.replace("HōMI ", "")}</h3>
-                  {isCurrent && (
-                    <span className="text-xs font-semibold text-cyan">Current</span>
-                  )}
+                  {isCurrent && <span className="text-xs font-semibold text-cyan">Current</span>}
                 </div>
                 <p className="mt-2 score-numeral text-3xl font-bold text-light">
                   ${plan.priceMonthlyUsd}
@@ -398,8 +405,9 @@ export function SubscriptionHub({
             period you paid for.
           </li>
           <li>
-            Plan changes for existing subscribers go through Stripe&rsquo;s customer portal so payment
-            method and proration stay correct. Starting Checkout while already subscribed is blocked.
+            Plan changes for existing subscribers go through Stripe&rsquo;s customer portal so
+            payment method and proration stay correct. Starting Checkout while already subscribed is
+            blocked.
           </li>
           <li>New paid plans open Stripe Checkout. You need a signed-in HōMI account first.</li>
           <li>

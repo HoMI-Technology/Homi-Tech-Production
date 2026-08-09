@@ -102,18 +102,14 @@ export function Voices() {
         </div>
 
         <p className="mt-2 text-sm leading-relaxed text-dim/80">
-          Readiness is not one voice. It is the moment your numbers, your gut, and your
-          timing finally tell the same truth.
+          Readiness is not one voice. It is the moment your numbers, your gut, and your timing
+          finally tell the same truth.
         </p>
       </div>
 
       <div className="order-1 flex justify-center lg:order-2">
         <div className="compass-float">
-          <CinematicCompass
-            size={320}
-            glow={glow}
-            keyholePulse={active.ring === "center"}
-          />
+          <CinematicCompass size={320} glow={glow} keyholePulse={active.ring === "center"} />
         </div>
       </div>
     </div>
