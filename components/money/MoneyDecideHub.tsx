@@ -165,16 +165,13 @@ export function MoneyDecideHub() {
   const activeCard = cards.find((c) => c.id === active) ?? cards[0];
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 pb-16 pt-6 sm:px-6">
-      <header className="mb-6">
-        <p className="eyebrow text-dim">HōMI lens suite</p>
-        <h1 className="type-h1 mt-1.5">Decide</h1>
-        <p className="type-lede mt-2 max-w-xl font-display italic text-dim">
-          Honest calculators on the canonical math, pre-filled from your money picture. Explore the
-          levers before you sign, bid, or stretch.
-        </p>
-      </header>
-
+    <div>
+      {/* No page header or lede here. MoneyShell already renders the eyebrow,
+       * the h1 and the Stand/Track/Plan/Decide nav, PageFrame already supplies
+       * the max-w-6xl container and spacing, and each panel restates its own
+       * lens description. Adding any of it back stacks two headers, nests two
+       * containers, and stacks three blocks of prose ahead of the lenses — the
+       * exact thing #173 cleaned up. Cards come first. */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
         {cards.map((tool, i) => {
           const Icon = ICONS[tool.id as PanelId];
