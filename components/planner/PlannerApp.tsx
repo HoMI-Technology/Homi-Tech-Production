@@ -33,7 +33,11 @@ const PlanCommand = dynamic(() => import("@/components/planner/plan/PlanCommand"
   loading: () => <ProductLoadingSkeleton label="Loading plan" rows={3} />,
 });
 
-export function PlannerApp() {
+/**
+ * @param embedded - When true (Money · Track), skip outer PageFrame so MoneyShell
+ *   owns the page chrome. Avoids stacked frames / duplicate "Money" headers.
+ */
+export function PlannerApp({ embedded = false }: { embedded?: boolean }) {
   const hasHydrated = usePlannerStore((s) => s._hasHydrated);
   const setHasHydrated = usePlannerStore((s) => s.setHasHydrated);
   const [ready, setReady] = useState(false);
@@ -60,16 +64,10 @@ export function PlannerApp() {
     };
   }, [setHasHydrated]);
 
-  if (!ready && !hasHydrated) {
-    return (
-      <PageFrame width="content" density="spacious" role="personal">
-        <ProductLoadingSkeleton label="Loading Budget Planner" rows={4} />
-      </PageFrame>
-    );
-  }
-
-  return (
-    <PageFrame width="content" density="spacious" role="personal">
+  const body = !ready && !hasHydrated ? (
+    <ProductLoadingSkeleton label="Loading Budget Planner" rows={4} />
+  ) : (
+    <>
       <PlannerPage
         overview={<OverviewCommand />}
         calendar={<DecisionCalendar />}
@@ -82,6 +80,16 @@ export function PlannerApp() {
           {LEGAL_DISCLAIMER}
         </p>
       </footer>
+    </>
+  );
+
+  if (embedded) {
+    return <div className="min-w-0">{body}</div>;
+  }
+
+  return (
+    <PageFrame width="content" density="spacious" role="personal">
+      {body}
     </PageFrame>
   );
 }
