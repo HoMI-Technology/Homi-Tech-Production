@@ -14,9 +14,9 @@ import { track } from "@/lib/analytics";
 const QUICK_ACTIONS = [
   { href: "/assessment", label: "Full Assessment", desc: "The real, precise 3-pillar read." },
   {
-    href: "/tools",
-    label: "Finance Tools",
-    desc: "Affordability, runway, and mortgage calculators.",
+    href: "/money",
+    label: "Money",
+    desc: "Your picture, budget track, and decision math.",
   },
   { href: "/journal", label: "Decision Journal", desc: "Log a decision before you make it." },
   { href: "/daily", label: "Daily Check-in", desc: "A 60-second mood and stress pulse." },

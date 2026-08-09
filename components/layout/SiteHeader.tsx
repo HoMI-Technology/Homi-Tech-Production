@@ -8,7 +8,9 @@ import { NotificationBell } from "@/components/layout/NotificationBell";
 const NAV = [
   { href: "/how-it-works", label: "How It Works" },
   { href: "/assessment", label: "Assessment" },
-  { href: "/tools", label: "Tools" },
+  // Public acquisition catalog (Money Reality design: hub stays crawlable).
+  // Signed-in chrome uses Money — see nav-catalog + QuickActionGrid.
+  { href: "/tools", label: "Calculators" },
   { href: "/guides", label: "Guides" },
   { href: "/pricing", label: "Pricing" },
   { href: "/b2b", label: "For Teams" },

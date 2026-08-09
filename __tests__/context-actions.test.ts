@@ -6,7 +6,7 @@ describe("contextualActionHrefs", () => {
   it("leads first-run users to the shortest path to a score", () => {
     expect(
       contextualActionHrefs({ hasAssessment: false, weakestPillar: null, checkedInToday: false }),
-    ).toEqual(["/shadow-score", "/assessment", "/tools"]);
+    ).toEqual(["/shadow-score", "/assessment", "/money"]);
   });
 
   it("surfaces check-in, weakest-pillar instrument, then a filler", () => {
@@ -26,7 +26,7 @@ describe("contextualActionHrefs", () => {
         weakestPillar: "financial",
         checkedInToday: true,
       }),
-    ).toEqual(["/tools", "/simulator", "/journal"]);
+    ).toEqual(["/money/decide", "/simulator", "/journal"]);
     expect(
       contextualActionHrefs({ hasAssessment: true, weakestPillar: "timing", checkedInToday: true }),
     ).toEqual(["/signals", "/simulator", "/journal"]);

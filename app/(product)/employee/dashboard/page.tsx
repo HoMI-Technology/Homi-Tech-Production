@@ -236,7 +236,7 @@ export default async function EmployeeDashboardPage() {
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
         {[
           { href: "/assessment", title: "Assessment", body: "Three-pillar readiness read" },
-          { href: "/tools", title: "Tools", body: "Calculators for money decisions" },
+          { href: "/money", title: "Money", body: "Picture, track, and decision math" },
           { href: "/advisor", title: "Companion", body: "Private coaching chat" },
           { href: "/journal", title: "Journal", body: "Log decisions as you make them" },
           { href: "/daily", title: "Daily pulse", body: "Mood and stress check-in" },

@@ -64,7 +64,8 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     surfaces: { header: "primary", palette: true },
   },
   // Money Reality: one primary entry for picture + decision math.
-  // /tools stays public for acquisition; chrome points at /money.
+  // Public /tools hub stays crawlable for acquisition; signed-in chrome
+  // (dashboard, keyboard, contextual actions) points at /money + /money/decide.
   {
     href: "/money",
     label: "Money",

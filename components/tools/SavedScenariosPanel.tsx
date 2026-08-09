@@ -156,10 +156,10 @@ export function SavedScenariosPanel() {
             <span className="text-light">Save as scenario</span>.
           </p>
           <Link
-            href="/tools"
+            href="/money/decide"
             className="mt-4 inline-block text-sm font-medium text-cyan hover:underline"
           >
-            Open the tools →
+            Open Money · Decide →
           </Link>
         </div>
       )}
