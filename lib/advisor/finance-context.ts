@@ -376,8 +376,20 @@ export function buildFinanceContextFromLedger(
   const savingsRate =
     incomeCents > 0 ? Math.round((totals.goalReserveCents / incomeCents) * 1000) / 10 : 0;
 
-  const liquidSavingsCents = goal?.goalType === "emergency_reserve" ? goal.currentAmountCents : 0;
-  const liquidSavings = roundCents(liquidSavingsCents);
+  /**
+   * The v1 ledger knows goal balances, not the user's liquid position. With no
+   * emergency-reserve goal it simply does not know how much cash they hold, and
+   * 0 is not the same as unknown: it divides into monthly outflow to produce a
+   * runway of exactly 0 months, which trips the crimson "Emergency runway is
+   * below 3 months" signal and is read verbatim into the Companion's prompt.
+   * Someone with $25k in a house fund would be told they have nothing.
+   *
+   * Counting non-reserve goals instead was considered and rejected — earmarked
+   * money is not emergency runway, and overstating it is the opposite error.
+   */
+  const liquidSavingsCents =
+    goal?.goalType === "emergency_reserve" ? goal.currentAmountCents : null;
+  const liquidSavings = liquidSavingsCents === null ? null : roundCents(liquidSavingsCents);
   /**
    * The v1 ledger has no liability transaction type, so it cannot know what the
    * user owes — and without liabilities there is no net worth to report either.
@@ -388,13 +400,12 @@ export function buildFinanceContextFromLedger(
   const totalDebt = null;
   const netWorth = null;
 
-  const runwayResult = runwayFromOutflow(
-    liquidSavingsCents,
-    totals.netExpenseCents,
-    "current_month_actual",
-  );
+  const runwayResult =
+    liquidSavingsCents === null
+      ? null
+      : runwayFromOutflow(liquidSavingsCents, totals.netExpenseCents, "current_month_actual");
   const runwayMonths =
-    runwayResult.months !== null ? Math.round(runwayResult.months * 10) / 10 : null;
+    runwayResult && runwayResult.months !== null ? Math.round(runwayResult.months * 10) / 10 : null;
 
   const dti = monthlyIncome > 0 ? Math.round((debtPayments / incomeCents) * 1000) / 10 : 0;
 
@@ -434,7 +445,8 @@ export function buildFinanceContextFromLedger(
     readinessInputs: {
       dti,
       savingsRate,
-      runwayMonths: runwayMonths ?? 0,
+      // Not `?? 0` — that reintroduces the false zero this whole path avoids.
+      runwayMonths,
       downPaymentProgressPct,
     },
   };

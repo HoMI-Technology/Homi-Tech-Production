@@ -71,7 +71,8 @@ export interface RecentTransactionSnapshot {
 export interface ReadinessInputsSnapshot {
   dti: number;
   savingsRate: number;
-  runwayMonths: number;
+  /** Null when the source cannot compute runway — never coerce to 0. */
+  runwayMonths: number | null;
   downPaymentProgressPct: number;
   creditScore?: number;
 }
@@ -95,7 +96,12 @@ export interface AdvisorFinanceContext {
   runwayMonths: number | null;
   /** Debt-to-income ratio as a percentage. */
   dti: number;
-  liquidSavings: number;
+  /**
+   * Cash on hand. Null when the source cannot know it — the v1 ledger sees goal
+   * balances, not accounts, so a user with no emergency-reserve goal is unknown
+   * rather than broke.
+   */
+  liquidSavings: number | null;
   /**
    * What the user owes. Null when the source cannot know — the v1 ledger has
    * no liability transaction type, so it reports unknown rather than zero.
