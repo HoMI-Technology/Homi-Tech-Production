@@ -66,8 +66,9 @@ const financeContextSchema = z.object({
   runwayMonths: z.number().min(0).max(1200).nullable(),
   dti: z.number().min(0).max(1000),
   liquidSavings: z.number().min(0).max(1_000_000_000),
-  totalDebt: z.number().min(0).max(1_000_000_000),
-  netWorth: z.number().min(-1_000_000_000).max(1_000_000_000),
+  // Nullable: the v1 ledger has no liability type and reports these as unknown.
+  totalDebt: z.number().min(0).max(1_000_000_000).nullable(),
+  netWorth: z.number().min(-1_000_000_000).max(1_000_000_000).nullable(),
   ageDays: z.number().min(0).max(36_500).nullish(),
 
   // v2 ledger-backed dashboard fields (all optional during staged rollout)
@@ -398,7 +399,10 @@ function buildContextNote(
       finance.runwayMonths === null
         ? "runway not computable (no outflow entered),"
         : `runway ${finance.runwayMonths} months,`,
-      `DTI ${finance.dti}%, liquid savings $${finance.liquidSavings}, total debt $${finance.totalDebt}, net worth $${finance.netWorth}.`,
+      `DTI ${finance.dti}%, liquid savings $${finance.liquidSavings},`,
+      finance.totalDebt === null || finance.netWorth === null
+        ? "debt and net worth are unknown — no account with liabilities is connected. Do not state or estimate either figure; say you cannot see it yet."
+        : `total debt $${finance.totalDebt}, net worth $${finance.netWorth}.`,
     );
   }
 
