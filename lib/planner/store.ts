@@ -338,6 +338,12 @@ export const usePlannerStore = create<PlannerStore>()(
         set((s) => ({
           transactions: s.transactions.map((t) => (t.id === id ? { ...t, ...clean } : t)),
         }));
+        // Re-sync to ledger: delete old row + write updated projection.
+        const next = get().transactions.find((t) => t.id === id);
+        if (next) {
+          dualWriteDeleteTransaction(id);
+          dualWriteAddTransaction(next);
+        }
       },
 
       deleteTransaction: (id) => {
