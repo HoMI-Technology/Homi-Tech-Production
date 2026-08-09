@@ -1,20 +1,20 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
 
 import { COLORS, withAlpha } from "@/lib/brand";
+import { ToolBackLink } from "@/components/tools/ToolBackLink";
 
 /**
  * Shared operate chrome for every calculator page.
- * Keeps hierarchy consistent: back link → eyebrow → title → thesis → body.
- * Do not invent per-tool page chrome — extend this shell instead.
+ * Default back target is the **public** hub so anonymous SEO traffic is never
+ * auth-walled. Decide arrivals pass `?from=money` (or an explicit backHref).
  */
 export function ToolShell({
   title,
   description,
   eyebrow = "Calculator",
   children,
-  backHref = "/money/decide",
-  backLabel = "Money · Decide",
+  backHref,
+  backLabel,
 }: {
   title: string;
   description: string;
@@ -25,23 +25,7 @@ export function ToolShell({
 }) {
   return (
     <div className="mx-auto max-w-6xl px-6 py-10 sm:py-12">
-      <Link
-        href={backHref}
-        className="inline-flex items-center gap-1.5 text-sm text-dim transition-colors hover:text-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
-      >
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 16 16"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          aria-hidden
-        >
-          <path d="M10 3L5 8l5 5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        {backLabel}
-      </Link>
+      <ToolBackLink backHref={backHref} backLabel={backLabel} />
 
       <p className="eyebrow mt-5">{eyebrow === "Calculator" ? "Money · lens" : eyebrow}</p>
       <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">{title}</h1>

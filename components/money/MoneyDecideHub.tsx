@@ -129,7 +129,7 @@ export function MoneyDecideHub() {
               {lenses.map((lens) => (
                 <Link
                   key={lens.id}
-                  href={lens.path}
+                  href={`${lens.path}${lens.path.includes("?") ? "&" : "?"}from=money`}
                   className="glass glass-hover group relative flex flex-col overflow-hidden p-6 transition-transform duration-200 hover:-translate-y-0.5"
                 >
                   <span

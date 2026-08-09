@@ -302,8 +302,10 @@ export function ReadinessHero({
         </div>
       </div>
       <p className="relative mt-6 border-t border-white/[0.06] pt-4 text-2xs leading-relaxed text-dim">
-        Educational guidance only - not financial, legal, tax, or investment advice. Live score is a
-        planner instrument from your inputs; your official assessment record lives on Results.
+        Metrics above read the <span className="text-light">on-device Track planner store</span>{" "}
+        (transactions, accounts, bills) — not the Stand ledger and not Plaid bank position. Educational
+        guidance only — not financial, legal, tax, or investment advice. Live score is a planner
+        instrument; your official assessment record lives on Results.
       </p>
     </section>
   );

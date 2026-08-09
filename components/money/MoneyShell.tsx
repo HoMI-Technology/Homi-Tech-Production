@@ -1,3 +1,5 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { PageFrame } from "@/components/operate/PageFrame";
 import { MoneyModeNav } from "@/components/money/MoneyModeNav";
@@ -5,6 +7,8 @@ import { MoneyModeNav } from "@/components/money/MoneyModeNav";
 /**
  * Shared chrome for every Money Reality surface.
  * Mode nav is the product spine: Stand · Track · Plan · Decide.
+ * Client boundary: used from client money routes (/money/budget) and server
+ * money home — client-safe so Track can embed PlannerApp without RSC mismatch.
  */
 export function MoneyShell({
   children,

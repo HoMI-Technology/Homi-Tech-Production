@@ -105,6 +105,17 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
+const VALID_VERDICTS = new Set(["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"]);
+
+/** Drop corrupt path snapshots so Overview never crashes on rehydrate. */
+function sanitizePersistedPath(path: unknown): PathSnapshot | null {
+  if (path === null || path === undefined) return null;
+  if (!isRecord(path)) return null;
+  if (!Array.isArray(path.steps)) return null;
+  if (typeof path.verdict !== "string" || !VALID_VERDICTS.has(path.verdict)) return null;
+  return path as unknown as PathSnapshot;
+}
+
 /* Numeric hardening at action boundaries (Sprint 0, F3): reject or strip
    non-finite amounts so NaN/±Infinity can never enter persisted state. */
 const isFiniteNumber = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
@@ -777,7 +788,9 @@ export const usePlannerStore = create<PlannerStore>()(
           holdings: Array.isArray(p.holdings) ? p.holdings : current.holdings,
           netWorthItems: Array.isArray(p.netWorthItems) ? p.netWorthItems : current.netWorthItems,
           brokers: Array.isArray(p.brokers) ? p.brokers : current.brokers,
-          path: p.path ?? current.path,
+          // Corrupt / partial path blobs crash Overview PathStrip
+          // (path.steps.filter / VERDICT_META[path.verdict]). Drop bad paths.
+          path: sanitizePersistedPath(p.path !== undefined ? p.path : current.path),
           readinessProfile: {
             ...DEFAULT_READINESS_PROFILE,
             ...current.readinessProfile,

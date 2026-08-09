@@ -168,8 +168,8 @@ export function MoneyStand() {
               />
               <p className="mt-2 max-w-xl text-sm text-dim">
                 {ready
-                  ? PERIOD_SURPLUS_FORMULA
-                  : "Add income in Budget Planner or connect a bank. Lenses stay illustrative until your picture exists."}
+                  ? `${PERIOD_SURPLUS_FORMULA} Source: on-device budget ledger (not Track planner accounts).`
+                  : "Add income in Track or connect a bank. Lenses stay illustrative until your picture exists."}
               </p>
             </div>
           </div>
