@@ -69,17 +69,13 @@ const ACTIONS: Action[] = [
   {
     href: "/money",
     label: "Money",
-    desc: "Your picture, track, and decision math",
+    desc: "Picture · track · decide — one finance surface",
     icon: "tools",
     nowDesc: "Your financial pillar is the one to work — open Money",
   },
-  {
-    href: "/money/decide",
-    label: "Decide",
-    desc: "Stress a decision against your numbers",
-    icon: "tools",
-    nowDesc: "Your financial pillar is the one to work",
-  },
+  // /money/decide stays a valid contextual href (featured "Now") but is not a
+  // second All-instruments peer of Money — mode nav owns Track/Decide/Plan.
+
   {
     href: "/signals",
     label: "Signals",
@@ -133,10 +129,41 @@ export function QuickActionGrid({
   journalCount: number;
   featured?: string[];
 }) {
+  // Resolve featured hrefs: Money modes collapse to the Money instrument card
+  // so "Now" can deep-link /money/decide without inventing a second tile.
+  const resolveAction = (href: string): Action | undefined => {
+    const direct = ACTIONS.find((a) => a.href === href);
+    if (direct) return direct;
+    if (href === "/money/decide" || href === "/money/budget" || href === "/money/plan") {
+      const money = ACTIONS.find((a) => a.href === "/money");
+      if (!money) return undefined;
+      return {
+        ...money,
+        href,
+        nowDesc:
+          href === "/money/decide"
+            ? "Your financial pillar is the one to work — open Decide"
+            : money.nowDesc,
+      };
+    }
+    return undefined;
+  };
+
   const featuredActions = featured
-    .map((href) => ACTIONS.find((a) => a.href === href))
+    .map((href) => resolveAction(href))
     .filter((a): a is Action => Boolean(a));
-  const rest = ACTIONS.filter((a) => !featured.includes(a.href));
+  const featuredHrefs = new Set(featuredActions.map((a) => a.href));
+  // Hide Money from "All instruments" when a Money-mode deep link is featured
+  const rest = ACTIONS.filter((a) => {
+    if (featuredHrefs.has(a.href)) return false;
+    if (
+      a.href === "/money" &&
+      featured.some((h) => h === "/money" || h.startsWith("/money/"))
+    ) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <div>

@@ -28,6 +28,10 @@ const PALETTE_ONLY_HREFS = [
   "/settings/subscription",
   "/shadow-score",
   "/agent-hub",
+  // Money modes: primary Money + MoneyModeNav; not duplicated in More
+  "/money/budget",
+  "/money/decide",
+  "/money/plan",
 ];
 
 /** Import both surfaces with the Agent OS flag ON so gated entries count. */

@@ -35,7 +35,9 @@ const TABS: { key: PlannerTabKey; label: string; icon: ReactNode }[] = [
   { key: "calendar", label: "Calendar", icon: <CalendarDays className="h-4 w-4" /> },
   { key: "banking", label: "Banks & bills", icon: <Landmark className="h-4 w-4" /> },
   { key: "wealth", label: "Wealth", icon: <LineChart className="h-4 w-4" /> },
-  { key: "plan", label: "Plan", icon: <Compass className="h-4 w-4" /> },
+  // Label is "Build path" not "Plan" — avoids colliding with Money · Plan mode
+  // and header "Readiness plan" (/plan).
+  { key: "plan", label: "Build path", icon: <Compass className="h-4 w-4" /> },
 ];
 
 /** Map legacy finance hashes → planner tabs (bookmarks). */
