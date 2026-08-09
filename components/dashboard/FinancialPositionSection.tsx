@@ -104,9 +104,10 @@ export async function FinancialPositionSection({
   const nwDelta = netWorthDelta(snapshots);
   const bankSyncEntitled = getEntitlements(subscriptionTier).bankSync;
 
-  const ledgerGoalRow = ledgerGoalR.data as
-    | Pick<FinanceSavingsGoalRow, "name" | "target_amount_cents" | "current_amount_cents" | "target_date">
-    | null;
+  const ledgerGoalRow = ledgerGoalR.data as Pick<
+    FinanceSavingsGoalRow,
+    "name" | "target_amount_cents" | "current_amount_cents" | "target_date"
+  > | null;
   const ledgerGoal: LedgerGoal | null = ledgerGoalRow
     ? {
         name: ledgerGoalRow.name,
@@ -156,14 +157,18 @@ export async function FinancialPositionSection({
               label="Cash flow · 30d"
               value={formatCurrencyTile(cashFlow)}
               accent={cashFlow >= 0 ? COLORS.emerald : COLORS.crimson}
-              footer={hasLedger ? "Based on your budget ledger" : "Based on recently synced activity"}
+              footer={
+                hasLedger ? "Based on your budget ledger" : "Based on recently synced activity"
+              }
             />
             <StatTile
               label="Savings rate"
               value={String(savingsRatePct)}
               unit="%"
               accent={COLORS.yellow}
-              footer={hasLedger ? "Of budgeted income, last 30 days" : "Of synced income, last 30 days"}
+              footer={
+                hasLedger ? "Of budgeted income, last 30 days" : "Of synced income, last 30 days"
+              }
             />
             <ConnectionsTile items={bankItems} accountCount={accountsR.count ?? 0} />
           </>

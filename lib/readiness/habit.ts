@@ -12,17 +12,10 @@ export type PathHabitStage =
   | "path_complete"
   | "ready_optional";
 
-export type PathHabitSurface =
-  | "dashboard"
-  | "results"
-  | "path_page"
-  | "finance"
-  | "unknown";
+export type PathHabitSurface = "dashboard" | "results" | "path_page" | "finance" | "unknown";
 
 /** Coarse stage for funnel dashboards — no free text. */
-export function derivePathHabitStage(
-  path: ReadinessPath | null | undefined,
-): PathHabitStage {
+export function derivePathHabitStage(path: ReadinessPath | null | undefined): PathHabitStage {
   if (!path) return "no_path";
   if (path.mode === "ready_optional") return "ready_optional";
   const steps = path.steps ?? [];

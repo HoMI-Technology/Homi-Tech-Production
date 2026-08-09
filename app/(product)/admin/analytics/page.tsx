@@ -74,9 +74,8 @@ function SetupState() {
           Client-side tracking already fires when{" "}
           <span className="font-mono text-xs text-light">NEXT_PUBLIC_POSTHOG_KEY</span> is set —
           this dashboard is the missing half. In PostHog, open{" "}
-          <span className="text-light">Settings → Personal API keys</span> and create a key with
-          the <span className="font-mono text-cyan">query</span> read scope (project-scoped is
-          fine).
+          <span className="text-light">Settings → Personal API keys</span> and create a key with the{" "}
+          <span className="font-mono text-cyan">query</span> read scope (project-scoped is fine).
         </>
       ),
     },
@@ -84,11 +83,16 @@ function SetupState() {
       title: "Add it to your environment",
       body: (
         <>
-          Set <span className="rounded bg-slate-surface px-1.5 py-0.5 font-mono text-xs text-cyan">POSTHOG_PERSONAL_API_KEY</span>{" "}
+          Set{" "}
+          <span className="rounded bg-slate-surface px-1.5 py-0.5 font-mono text-xs text-cyan">
+            POSTHOG_PERSONAL_API_KEY
+          </span>{" "}
           in <span className="font-mono text-xs text-light">.env.local</span> and your hosting
-          provider (Vercel → Project → Settings → Environment Variables). Redeploy after saving.
-          The project id is auto-detected; set{" "}
-          <span className="rounded bg-slate-surface px-1.5 py-0.5 font-mono text-xs text-cyan">POSTHOG_PROJECT_ID</span>{" "}
+          provider (Vercel → Project → Settings → Environment Variables). Redeploy after saving. The
+          project id is auto-detected; set{" "}
+          <span className="rounded bg-slate-surface px-1.5 py-0.5 font-mono text-xs text-cyan">
+            POSTHOG_PROJECT_ID
+          </span>{" "}
           only to pin a specific project.
         </>
       ),
@@ -99,7 +103,9 @@ function SetupState() {
             title: "Enable event capture",
             body: (
               <>
-                <span className="rounded bg-slate-surface px-1.5 py-0.5 font-mono text-xs text-cyan">NEXT_PUBLIC_POSTHOG_KEY</span>{" "}
+                <span className="rounded bg-slate-surface px-1.5 py-0.5 font-mono text-xs text-cyan">
+                  NEXT_PUBLIC_POSTHOG_KEY
+                </span>{" "}
                 is not set, so no events are flowing yet. Add it (and optionally{" "}
                 <span className="font-mono text-xs text-light">NEXT_PUBLIC_POSTHOG_HOST</span>) —
                 the snippet and server capture activate automatically.
@@ -112,7 +118,9 @@ function SetupState() {
             title: "Capture is already live",
             body: (
               <>
-                <span className="rounded bg-slate-surface px-1.5 py-0.5 font-mono text-xs text-cyan">NEXT_PUBLIC_POSTHOG_KEY</span>{" "}
+                <span className="rounded bg-slate-surface px-1.5 py-0.5 font-mono text-xs text-cyan">
+                  NEXT_PUBLIC_POSTHOG_KEY
+                </span>{" "}
                 is set — page views and product events are already reaching PostHog. Only the
                 personal API key above is needed for this admin view to query them.
               </>
@@ -123,8 +131,8 @@ function SetupState() {
       title: "Redeploy and come back",
       body: (
         <>
-          Metrics are queried server-side via HogQL and cached for 5 minutes. Traffic cards fill
-          in as soon as <span className="font-mono text-xs text-light">page_viewed</span> events
+          Metrics are queried server-side via HogQL and cached for 5 minutes. Traffic cards fill in
+          as soon as <span className="font-mono text-xs text-light">page_viewed</span> events
           arrive; the funnel uses the product events already wired across the app.
         </>
       ),
@@ -134,14 +142,24 @@ function SetupState() {
   return (
     <div className="glass mt-8 p-8 md:p-10">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-surface">
-        <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" className="text-cyan">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          className="text-cyan"
+        >
           <path d="M3 16.5v-5M8 16.5V8M13 16.5v-3M18 16.5V4" strokeLinecap="round" />
         </svg>
       </div>
-      <h2 className="mt-5 text-center font-display text-xl text-light">Connect PostHog to see analytics</h2>
+      <h2 className="mt-5 text-center font-display text-xl text-light">
+        Connect PostHog to see analytics
+      </h2>
       <p className="mx-auto mt-2 max-w-lg text-center text-sm leading-relaxed text-dim">
-        The dashboard is ready — it queries your PostHog project server-side and never exposes
-        the key to the browser. A few one-time setup steps remain.
+        The dashboard is ready — it queries your PostHog project server-side and never exposes the
+        key to the browser. A few one-time setup steps remain.
       </p>
       <ol className="mx-auto mt-8 max-w-xl space-y-5">
         {steps.map((step, i) => (
@@ -164,17 +182,28 @@ function ErrorNote() {
   return (
     <div className="glass mt-8 p-8 md:p-10">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-surface">
-        <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" className="text-amber">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          className="text-amber"
+        >
           <path d="M10 3l8 14H2l8-14z" strokeLinejoin="round" />
           <path d="M10 8.5v3.5M10 14.8h.01" strokeLinecap="round" />
         </svg>
       </div>
-      <h2 className="mt-5 text-center font-display text-xl text-light">PostHog isn&apos;t answering</h2>
+      <h2 className="mt-5 text-center font-display text-xl text-light">
+        PostHog isn&apos;t answering
+      </h2>
       <p className="mx-auto mt-2 max-w-lg text-center text-sm leading-relaxed text-dim">
         The query API call failed. Confirm the personal API key has the{" "}
         <span className="font-mono text-cyan">query</span> scope, that it belongs to the same
-        PostHog project as <span className="font-mono text-xs text-light">NEXT_PUBLIC_POSTHOG_KEY</span>,
-        and that the host is reachable. Details are in the server logs under{" "}
+        PostHog project as{" "}
+        <span className="font-mono text-xs text-light">NEXT_PUBLIC_POSTHOG_KEY</span>, and that the
+        host is reachable. Details are in the server logs under{" "}
         <span className="font-mono text-xs text-light">[posthog-analytics]</span>.
       </p>
     </div>
@@ -217,14 +246,12 @@ export default async function AdminAnalyticsPage({
     users: s.users,
     occurrences: s.occurrences,
   }));
-  const pathHabitSteps: FunnelSeriesStep[] = (bundle?.pathHabitFunnel ?? []).map(
-    (s) => ({
-      label: FUNNEL_LABELS[s.event] ?? s.event,
-      event: s.event,
-      users: s.users,
-      occurrences: s.occurrences,
-    }),
-  );
+  const pathHabitSteps: FunnelSeriesStep[] = (bundle?.pathHabitFunnel ?? []).map((s) => ({
+    label: FUNNEL_LABELS[s.event] ?? s.event,
+    event: s.event,
+    users: s.users,
+    occurrences: s.occurrences,
+  }));
 
   return (
     <div>
@@ -283,7 +310,11 @@ export default async function AdminAnalyticsPage({
                 {uniquesDaily.length >= 2 && (
                   <div className="w-36">
                     <p className="mb-1 text-3xs uppercase tracking-wide text-dim">Uniques</p>
-                    <Sparkline id="admin-analytics-uniques" values={uniquesDaily} color={COLORS.emerald} />
+                    <Sparkline
+                      id="admin-analytics-uniques"
+                      values={uniquesDaily}
+                      color={COLORS.emerald}
+                    />
                   </div>
                 )}
                 {filledDaily.length >= 2 && (
@@ -336,8 +367,8 @@ export default async function AdminAnalyticsPage({
               <div className="dash-section-head">
                 <h2>Path habit (NOT_YET activation)</h2>
                 <p>
-                  Generated → shown → opened → start step → first step done.
-                  North star for protective path adoption.
+                  Generated → shown → opened → start step → first step done. North star for
+                  protective path adoption.
                 </p>
               </div>
               <div className="mt-5">

@@ -67,8 +67,7 @@ export function Modal({
   // when `open` flips true and restored by the cleanup when it flips false.
   useEffect(() => {
     if (!open) return;
-    const previous =
-      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const panel = panelRef.current;
     const target =
       initialFocusRef?.current ?? (panel ? getFocusable(panel)[0] : undefined) ?? panel;

@@ -194,7 +194,10 @@ export function bankResponsesToInputs(
   const creditScore = creditChoiceToScore(str(responses.fin_credit_score) ?? "");
 
   const confidenceLevel = sliderValue(responses.emo_confidence);
-  const lifeStability = sliderValue(responses.emo_lifestyle_ready, sliderValue(responses.emo_clarity));
+  const lifeStability = sliderValue(
+    responses.emo_lifestyle_ready,
+    sliderValue(responses.emo_clarity),
+  );
 
   const partnerAlignment = partnerChoiceToScale(str(responses.emo_partner_alignment) ?? "solo");
   const fomoLevel = fomoChoiceToScale(str(responses.emo_fomo) ?? "mixed");

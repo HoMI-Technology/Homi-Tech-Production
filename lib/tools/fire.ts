@@ -56,5 +56,12 @@ export function computeCoastFire(inputs: CoastFireInputs): CoastFireResult {
     }
   }
 
-  return { fireNumber, yearsToRetirement, coastFireNumberNeededNow, isCoastFire, projectedAtRetirement, coastFireAge };
+  return {
+    fireNumber,
+    yearsToRetirement,
+    coastFireNumberNeededNow,
+    isCoastFire,
+    projectedAtRetirement,
+    coastFireAge,
+  };
 }

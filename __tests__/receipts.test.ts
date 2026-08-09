@@ -63,7 +63,10 @@ describe("receipt signing", () => {
 
   it("rejects a tampered claim (verdict upgraded in a screenshot)", () => {
     const signed = signReceipt(CLAIMS);
-    const tampered = { ...signed, claims: { ...signed.claims, verdict: "READY" as const, scoreBand: "high" as const } };
+    const tampered = {
+      ...signed,
+      claims: { ...signed.claims, verdict: "READY" as const, scoreBand: "high" as const },
+    };
     // Same claims still verify...
     expect(verifyReceiptSignature(tampered)).toBe(true);
     // ...but flipping a signed field breaks the signature.

@@ -12,7 +12,10 @@ export function CountUpScore({ value, durationMs = 2000 }: { value: number; dura
   const display = useCountUp(value, { durationMs });
 
   return (
-    <span className="score-numeral font-bold text-light" style={{ fontSize: "clamp(72px, 14vw, 128px)", lineHeight: 1 }}>
+    <span
+      className="score-numeral font-bold text-light"
+      style={{ fontSize: "clamp(72px, 14vw, 128px)", lineHeight: 1 }}
+    >
       {display}
     </span>
   );

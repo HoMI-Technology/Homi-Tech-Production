@@ -6,7 +6,12 @@ import { NumberField } from "@/components/ui/NumberField";
 import { SliderField } from "./SliderField";
 import { COLORS, PILLARS } from "@/lib/brand";
 
-function sliderConfig(question: Question): { min: number; max: number; lowLabel: string; highLabel: string } {
+function sliderConfig(question: Question): {
+  min: number;
+  max: number;
+  lowLabel: string;
+  highLabel: string;
+} {
   const opts = question.options;
   if (opts && "min" in opts) {
     return {
@@ -92,7 +97,10 @@ export function isQuestionAnswered(question: Question, value: ResponseValue | un
 }
 
 /** Human-readable summary for the review step. */
-export function formatResponseForReview(question: Question, value: ResponseValue | undefined): string {
+export function formatResponseForReview(
+  question: Question,
+  value: ResponseValue | undefined,
+): string {
   if (value === undefined) return "—";
 
   if (question.question_type === "number") {

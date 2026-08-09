@@ -29,7 +29,15 @@ export function ToolShell({
         href={backHref}
         className="inline-flex items-center gap-1.5 text-sm text-dim transition-colors hover:text-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
       >
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          aria-hidden
+        >
           <path d="M10 3L5 8l5 5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
         {backLabel}
@@ -93,13 +101,7 @@ export function ToolResultHero({
 }
 
 /** Two-column operate layout: inputs left, results right. */
-export function ToolGrid({
-  inputs,
-  results,
-}: {
-  inputs: ReactNode;
-  results: ReactNode;
-}) {
+export function ToolGrid({ inputs, results }: { inputs: ReactNode; results: ReactNode }) {
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
       <div className="glass space-y-5 p-6">{inputs}</div>

@@ -146,8 +146,7 @@ export function outcomeSurveyEmail(
   name: string,
   daysSince: number,
 ): { subject: string; html: string } {
-  const horizon =
-    daysSince >= 300 ? "a year" : daysSince >= 80 ? "three months" : "a month";
+  const horizon = daysSince >= 300 ? "a year" : daysSince >= 80 ? "three months" : "a month";
   const body = `
     <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">Hi ${name},</p>
     <p style="margin:0 0 16px 0;">
@@ -284,7 +283,10 @@ export function startAssessmentEmail(name: string): { subject: string; html: str
 }
 
 /** Results follow-up: highlight the weakest pillar. */
-export function dimensionFocusEmail(name: string, dimension: PillarKey): { subject: string; html: string } {
+export function dimensionFocusEmail(
+  name: string,
+  dimension: PillarKey,
+): { subject: string; html: string } {
   const label = PILLAR_LABEL[dimension];
   const color = VERDICT_COLOR.NOT_YET;
   const body = `
@@ -328,7 +330,10 @@ export function progressCheckinEmail(name: string): { subject: string; html: str
 }
 
 /** Transformation: a pillar crossed the READY threshold. */
-export function milestoneEmail(name: string, dimension: PillarKey): { subject: string; html: string } {
+export function milestoneEmail(
+  name: string,
+  dimension: PillarKey,
+): { subject: string; html: string } {
   const label = PILLAR_LABEL[dimension];
   const body = `
     <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">🏆 ${name}, that's a milestone.</p>

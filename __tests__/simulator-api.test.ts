@@ -173,7 +173,9 @@ describe("client graph guards (6.4)", () => {
       expect(src, rel).not.toMatch(/\bsimulate\b\s*\(/);
     }
 
-    const sim = strip(readFileSync(join(process.cwd(), "components/simulator/ScoreSimulator.tsx"), "utf8"));
+    const sim = strip(
+      readFileSync(join(process.cwd(), "components/simulator/ScoreSimulator.tsx"), "utf8"),
+    );
     expect(sim).toMatch(/fetchSimulatorBatch/);
     expect(sim).toMatch(/@\/lib\/simulator\/public/);
   });

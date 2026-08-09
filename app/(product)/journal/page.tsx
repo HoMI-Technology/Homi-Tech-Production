@@ -245,7 +245,9 @@ export default function JournalPage() {
               <select
                 className="input mt-2"
                 value={draft.decision_type}
-                onChange={(e) => setDraft({ ...draft, decision_type: e.target.value as DecisionType })}
+                onChange={(e) =>
+                  setDraft({ ...draft, decision_type: e.target.value as DecisionType })
+                }
               >
                 {DECISION_TYPES.map((t) => (
                   <option key={t.value} value={t.value}>
@@ -337,7 +339,10 @@ export default function JournalPage() {
                       className="input"
                       value={editDraft.decision_type}
                       onChange={(e) =>
-                        setEditDraft({ ...editDraft, decision_type: e.target.value as DecisionType })
+                        setEditDraft({
+                          ...editDraft,
+                          decision_type: e.target.value as DecisionType,
+                        })
                       }
                     >
                       {DECISION_TYPES.map((t) => (
@@ -357,7 +362,9 @@ export default function JournalPage() {
                     className="input"
                     rows={2}
                     value={editDraft.expected_impact}
-                    onChange={(e) => setEditDraft({ ...editDraft, expected_impact: e.target.value })}
+                    onChange={(e) =>
+                      setEditDraft({ ...editDraft, expected_impact: e.target.value })
+                    }
                   />
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
@@ -371,15 +378,21 @@ export default function JournalPage() {
                         min={1}
                         max={10}
                         value={editDraft.mood}
-                        onChange={(e) => setEditDraft({ ...editDraft, mood: Number(e.target.value) })}
-                        style={{ ["--fill" as string]: `${sliderFillPercent(editDraft.mood, 1, 10)}%` }}
+                        onChange={(e) =>
+                          setEditDraft({ ...editDraft, mood: Number(e.target.value) })
+                        }
+                        style={{
+                          ["--fill" as string]: `${sliderFillPercent(editDraft.mood, 1, 10)}%`,
+                        }}
                       />
                     </div>
                     <input
                       type="date"
                       className="input self-end"
                       value={editDraft.decision_date}
-                      onChange={(e) => setEditDraft({ ...editDraft, decision_date: e.target.value })}
+                      onChange={(e) =>
+                        setEditDraft({ ...editDraft, decision_date: e.target.value })
+                      }
                     />
                   </div>
                   <div className="flex gap-3">
@@ -402,7 +415,8 @@ export default function JournalPage() {
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <span className="rounded-full bg-slate-surface px-2.5 py-0.5 text-xs text-dim">
-                        {DECISION_TYPES.find((t) => t.value === entry.decision_type)?.label ?? entry.decision_type}
+                        {DECISION_TYPES.find((t) => t.value === entry.decision_type)?.label ??
+                          entry.decision_type}
                       </span>
                       <h3 className="mt-2 font-semibold text-light">{entry.title}</h3>
                     </div>
@@ -418,7 +432,10 @@ export default function JournalPage() {
                           >
                             Confirm delete
                           </button>
-                          <button className="btn btn-ghost btn-xs" onClick={() => setDeletingId(null)}>
+                          <button
+                            className="btn btn-ghost btn-xs"
+                            onClick={() => setDeletingId(null)}
+                          >
                             Cancel
                           </button>
                         </>

@@ -131,13 +131,20 @@ describe("BRANDHEX: raw brand-palette hexes must come from lib/brand", () => {
     expect(fires('  cyan: "#22d3ee",', "BRANDHEX", "lib/brand/index.ts")).toBe(false);
     expect(fires('  NOT_YET: "#f24822",', "BRANDHEX", "lib/email/templates.ts")).toBe(false);
     expect(
-      fires('expect(el).toHaveStyle("color: #22d3ee");', "BRANDHEX", "components/brand/Wordmark.test.tsx"),
+      fires(
+        'expect(el).toHaveStyle("color: #22d3ee");',
+        "BRANDHEX",
+        "components/brand/Wordmark.test.tsx",
+      ),
     ).toBe(false);
   });
 
   it("honors an explained brand-ok suppression like every other rule", () => {
     expect(
-      clean('const CANON = "#22d3ee"; /* brand-ok: fixture documenting the canon value */', "app/x.tsx"),
+      clean(
+        'const CANON = "#22d3ee"; /* brand-ok: fixture documenting the canon value */',
+        "app/x.tsx",
+      ),
     ).toBe(true);
   });
 });
@@ -196,7 +203,11 @@ describe("N6: NOT YET is a label problem, not an enum problem", () => {
   it("flags NOT YET in a label / aria slot", () => {
     expect(fires('<SpectrumChip label="NOT YET" range="0-49" />', "N6")).toBe(true);
     expect(
-      fires('  "aria": "Verdict spectrum from NOT YET (hot) through BUILD FIRST"', "N6", "messages/en.json"),
+      fires(
+        '  "aria": "Verdict spectrum from NOT YET (hot) through BUILD FIRST"',
+        "N6",
+        "messages/en.json",
+      ),
     ).toBe(true);
     expect(fires('  alt: "NOT YET badge"', "N6")).toBe(true);
   });
@@ -214,12 +225,16 @@ describe("N6: NOT YET is a label problem, not an enum problem", () => {
     expect(clean("const key: VerdictKey = NOT_YET;", "lib/x.ts")).toBe(true);
     expect(clean('  NOT_YET: "#f24822",', "lib/email/templates.ts")).toBe(true);
     expect(clean('  NOT_YET: "DO NOT PROCEED",', "lib/brand/index.ts")).toBe(true);
-    expect(clean('z.enum(["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"])', "lib/x.ts")).toBe(true);
+    expect(clean('z.enum(["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"])', "lib/x.ts")).toBe(
+      true,
+    );
   });
 
   it("NEVER flags warm prose (73 live occurrences), upper or lower case", () => {
     expect(clean("Not yet is not no. It is clarity. It is protection.")).toBe(true);
-    expect(clean("- Calm, radically honest, protective. NOT YET is protection, not failure.")).toBe(true);
+    expect(clean("- Calm, radically honest, protective. NOT YET is protection, not failure.")).toBe(
+      true,
+    );
     expect(clean("If HōMI ever tells you NOT YET, that is not a door closing.")).toBe(true);
     expect(
       clean(
@@ -228,7 +243,10 @@ describe("N6: NOT YET is a label problem, not an enum problem", () => {
       ),
     ).toBe(true);
     expect(
-      clean('    heading: "Why NOT YET isn\'t a rejection",', "components/learning/learning-data.ts"),
+      clean(
+        '    heading: "Why NOT YET isn\'t a rejection",',
+        "components/learning/learning-data.ts",
+      ),
     ).toBe(true);
   });
 });
@@ -244,7 +262,9 @@ describe("N7–N10: exclusivity and market-first claims", () => {
   });
 
   it("flags 'the first platform' and friends", () => {
-    expect(fires("HōMI is the first platform that measures your true readiness.", "N7b")).toBe(true);
+    expect(fires("HōMI is the first platform that measures your true readiness.", "N7b")).toBe(
+      true,
+    );
     expect(fires("the first decision-readiness company", "N7b")).toBe(true);
   });
 
@@ -260,7 +280,9 @@ describe("N7–N10: exclusivity and market-first claims", () => {
 
   it("flags 'first-ever platform' but not 'first-ever sync'", () => {
     expect(fires("the first-ever readiness platform", "N7d")).toBe(true);
-    expect(clean(" *     entirely on first-ever sync), count 500.", "lib/plaid/sync.ts")).toBe(true);
+    expect(clean(" *     entirely on first-ever sync), count 500.", "lib/plaid/sync.ts")).toBe(
+      true,
+    );
   });
 
   it("flags 'the only platform' but not the 14 internal 'the only ...' phrasings", () => {
@@ -279,13 +301,28 @@ describe("N7–N10: exclusivity and market-first claims", () => {
 
   it("flags market superlatives but not 'Unmatched devices'", () => {
     expect(fires("<p>Unmatched accuracy across every lender.</p>", "N9")).toBe(true);
-    expect(clean(" * Unmatched devices fall back to the manifest background_color splash.", "components/pwa/AppleSplashLinks.tsx")).toBe(true);
+    expect(
+      clean(
+        " * Unmatched devices fall back to the manifest background_color splash.",
+        "components/pwa/AppleSplashLinks.tsx",
+      ),
+    ).toBe(true);
   });
 
   it("flags market-exclusivity but not internal tier names", () => {
     expect(fires("<p>Industry-exclusive readiness data.</p>", "N9b")).toBe(true);
-    expect(clean(" * public funnel tool pages, only Pro-exclusive advanced tooling surfaces.", "lib/entitlements.ts")).toBe(true);
-    expect(clean(" * be imported from client components; use it exclusively inside API routes", "lib/supabase/admin.ts")).toBe(true);
+    expect(
+      clean(
+        " * public funnel tool pages, only Pro-exclusive advanced tooling surfaces.",
+        "lib/entitlements.ts",
+      ),
+    ).toBe(true);
+    expect(
+      clean(
+        " * be imported from client components; use it exclusively inside API routes",
+        "lib/supabase/admin.ts",
+      ),
+    ).toBe(true);
   });
 
   it("flags the Decision Intelligence OS category claim", () => {
@@ -343,9 +380,15 @@ describe("N11–N12: credit-score replacement and framing", () => {
   });
 
   it("flags 'history is static' / 'credit scores are outdated' framing", () => {
-    expect(fires('  "title": "History is static. Readiness is live.",', "N12", "messages/en.json")).toBe(true);
     expect(
-      fires('  "title": "El historial es estático. La preparación es viva.",', "N12", "messages/es.json"),
+      fires('  "title": "History is static. Readiness is live.",', "N12", "messages/en.json"),
+    ).toBe(true);
+    expect(
+      fires(
+        '  "title": "El historial es estático. La preparación es viva.",',
+        "N12",
+        "messages/es.json",
+      ),
     ).toBe(true);
     expect(fires("<p>Credit scores are outdated.</p>", "N12")).toBe(true);
     expect(fires("<p>Credit scores are years behind.</p>", "N12b")).toBe(true);
@@ -374,9 +417,9 @@ describe("N11–N12: credit-score replacement and framing", () => {
 
 describe("N13–N14: live / real-time freshness", () => {
   it("flags 'readiness is live'", () => {
-    expect(fires('  "title": "History is static. Readiness is live.",', "N13", "messages/en.json")).toBe(
-      true,
-    );
+    expect(
+      fires('  "title": "History is static. Readiness is live.",', "N13", "messages/en.json"),
+    ).toBe(true);
     expect(fires('  "title": "La preparación es viva.",', "N13", "messages/es.json")).toBe(true);
   });
 
@@ -391,12 +434,27 @@ describe("N13–N14: live / real-time freshness", () => {
         '      { name: "Supabase, Inc.", purpose: "Database, authentication, and real-time services" },',
         "app/(marketing)/legal/subprocessors/page.tsx",
       ],
-      [" * directional, not real-time. Any failure (missing project, bad key,", "lib/analytics/posthog.ts"],
-      ['<p className="text-sm font-semibold text-light">Your share link is live</p>', "components/share/ShareShadowButton.tsx"],
-      [" * and the browser supports push — so it stays invisible until push is live,", "components/settings/PushToggle.tsx"],
+      [
+        " * directional, not real-time. Any failure (missing project, bad key,",
+        "lib/analytics/posthog.ts",
+      ],
+      [
+        '<p className="text-sm font-semibold text-light">Your share link is live</p>',
+        "components/share/ShareShadowButton.tsx",
+      ],
+      [
+        " * and the browser supports push — so it stays invisible until push is live,",
+        "components/settings/PushToggle.tsx",
+      ],
       [" * tell exactly which build is live.", "app/api/healthcheck/route.ts"],
-      [" *   slider state is live UI state, not account data, so it never goes", "lib/tools/digest.ts"],
-      ['prompt: "Talk about your real timeline before you talk to any lender.",', "components/household/CouplesAlignmentPanel.tsx"],
+      [
+        " *   slider state is live UI state, not account data, so it never goes",
+        "lib/tools/digest.ts",
+      ],
+      [
+        'prompt: "Talk about your real timeline before you talk to any lender.",',
+        "components/household/CouplesAlignmentPanel.tsx",
+      ],
       ["`tracked over real time, not wishful thinking.`", "lib/trinity/fallback.ts"],
     ]) {
       expect(clean(line, file), line).toBe(true);
@@ -410,13 +468,22 @@ describe("N13–N14: live / real-time freshness", () => {
 
 describe("N15–N17: absolutes and whole-market claims", () => {
   it("flags zero/no conflict of interest, EN and ES", () => {
-    expect(fires('  "title": "Zero conflict of interest. Finally.",', "N15", "messages/en.json")).toBe(true);
-    expect(fires('  "title": "Cero conflicto de interés. Por fin.",', "N15", "messages/es.json")).toBe(true);
+    expect(
+      fires('  "title": "Zero conflict of interest. Finally.",', "N15", "messages/en.json"),
+    ).toBe(true);
+    expect(
+      fires('  "title": "Cero conflicto de interés. Por fin.",', "N15", "messages/es.json"),
+    ).toBe(true);
     expect(fires("That’s the whole point of zero conflict of interest.", "N15")).toBe(true);
   });
 
   it("does NOT flag conflict-of-interest as a topic word", () => {
-    expect(clean('title: "The Conflict of Interest Nobody Talks About",', "components/marketing/blog-data.ts")).toBe(true);
+    expect(
+      clean(
+        'title: "The Conflict of Interest Nobody Talks About",',
+        "components/marketing/blog-data.ts",
+      ),
+    ).toBe(true);
     expect(
       clean(
         '"Notes on why HōMI exists, the conflict of interest built into most home-buying advice",',
@@ -426,13 +493,18 @@ describe("N15–N17: absolutes and whole-market claims", () => {
   });
 
   it("flags perpetual third-party guarantees", () => {
-    expect(fires('"Nobody at HōMI earns a cent when you transact. Nobody ever will."', "N16")).toBe(true);
+    expect(fires('"Nobody at HōMI earns a cent when you transact. Nobody ever will."', "N16")).toBe(
+      true,
+    );
     expect(fires('"Nadie en HōMI gana un centavo. Nadie lo hará jamás."', "N16")).toBe(true);
   });
 
   it("does NOT flag first-party policy commitments or user-directed prose", () => {
     expect(
-      clean("              {BRAND.display}, and we never will.", "app/(marketing)/legal/cookies/page.tsx"),
+      clean(
+        "              {BRAND.display}, and we never will.",
+        "app/(marketing)/legal/cookies/page.tsx",
+      ),
     ).toBe(true);
     expect(
       clean('"NOT YET means ... not that they never will be. "', "lib/advisor/fallback.ts"),
@@ -487,8 +559,12 @@ describe("suppression model", () => {
   });
 
   it("honors `/* brand-ok: <reason> */` in a comment anywhere in the tree", () => {
-    expect(clean('const re = /guaranteed/i; /* brand-ok: guardrail negative example */', "lib/x.ts")).toBe(true);
-    expect(clean("// dream home /* brand-ok: copy fixture for the denylist test */", "lib/x.ts")).toBe(true);
+    expect(
+      clean("const re = /guaranteed/i; /* brand-ok: guardrail negative example */", "lib/x.ts"),
+    ).toBe(true);
+    expect(
+      clean("// dream home /* brand-ok: copy fixture for the denylist test */", "lib/x.ts"),
+    ).toBe(true);
   });
 
   it("accepts the em-dash reason form already used in the repo", () => {
@@ -503,7 +579,9 @@ describe("suppression model", () => {
   it("honors bare `/* brand-ok */` only inside registry paths", () => {
     expect(clean('  "AI-powered", /* brand-ok */', "lib/architecture/compliance.ts")).toBe(true);
     expect(clean('  "dream home", /* brand-ok */', "lib/architecture/compliance.ts")).toBe(true);
-    expect(clean("  // F9: Pre-approval status /* brand-ok */", "lib/questions/bank.ts")).toBe(true);
+    expect(clean("  // F9: Pre-approval status /* brand-ok */", "lib/questions/bank.ts")).toBe(
+      true,
+    );
 
     const ids = idsFor('  "AI-powered", /* brand-ok */', "lib/marketing/copy.ts");
     expect(ids).toContain("FW");
@@ -516,12 +594,18 @@ describe("suppression model", () => {
         '- Brand is "HōMI" (with a macron over the o). Never write "Homi" or "HOMI" in prose. /* brand-ok */',
         "app/api/twin/route.ts",
       ],
-      ["  /\\bguaranteed\\b/i, /* brand-ok — negative example used by Sentinel guardrail */", "lib/agents/registry.ts"],
       [
-        "  'Never say \"you should,\" \"guaranteed,\" \"approved,\" \"qualified,\" or \"recommend.\"', /* brand-ok — negative example used by Sentinel guardrail */",
+        "  /\\bguaranteed\\b/i, /* brand-ok — negative example used by Sentinel guardrail */",
         "lib/agents/registry.ts",
       ],
-      ['    repo: "github.com/HoMI-Technology/Homi-Tech-Production", /* brand-ok — GitHub org slug */', "lib/architecture/build.ts"],
+      [
+        '  \'Never say "you should," "guaranteed," "approved," "qualified," or "recommend."\', /* brand-ok — negative example used by Sentinel guardrail */',
+        "lib/agents/registry.ts",
+      ],
+      [
+        '    repo: "github.com/HoMI-Technology/Homi-Tech-Production", /* brand-ok — GitHub org slug */',
+        "lib/architecture/build.ts",
+      ],
       ['  "Guaranteed", /* brand-ok */', "lib/architecture/compliance.ts"],
       ['  "Skip the advisor", /* brand-ok */', "lib/architecture/compliance.ts"],
       ['  "Bank-level security", /* brand-ok */', "lib/architecture/compliance.ts"],
@@ -586,7 +670,9 @@ describe("scan scope", () => {
 
   it("keeps the Sentinel guardrail negative fixtures out of the report", () => {
     // These lines WOULD trip FW/HEX if they were ever scanned.
-    expect(idsFor('const routed = routeAgents("should I buy this house guaranteed?");')).toContain("FW");
+    expect(idsFor('const routed = routeAgents("should I buy this house guaranteed?");')).toContain(
+      "FW",
+    );
     // …but their files are excluded by path, so they never reach checkLine().
     expect(isTestPath(path.join(ROOT, "__tests__/agents/registry.test.ts"))).toBe(true);
   });

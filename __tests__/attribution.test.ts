@@ -52,7 +52,9 @@ describe("attribution cookie roundtrip", () => {
 
   it("rejects malformed cookie values instead of throwing", () => {
     expect(readAttributionCookie(`${ATTRIBUTION_COOKIE}=%7Bnot-json`)).toBeNull();
-    expect(readAttributionCookie(`${ATTRIBUTION_COOKIE}=${encodeURIComponent('"just a string"')}`)).toBeNull();
+    expect(
+      readAttributionCookie(`${ATTRIBUTION_COOKIE}=${encodeURIComponent('"just a string"')}`),
+    ).toBeNull();
     expect(readAttributionCookie(null)).toBeNull();
     expect(readAttributionCookie("unrelated=1")).toBeNull();
   });
@@ -78,13 +80,9 @@ describe("partner invite referral denorm", () => {
 
   it("resolves partner_user_id from code map without inventing roster links", () => {
     const map = new Map([["ptr_a1b2c3d4", "partner-uuid-1"]]);
-    const snap = buildAttribution(
-      new URLSearchParams("ref=ptr_a1b2c3d4"),
-      "/shadow-score",
-      NOW,
-    );
+    const snap = buildAttribution(new URLSearchParams("ref=ptr_a1b2c3d4"), "/shadow-score", NOW);
     expect(resolvePartnerReferralSource(snap, map)).toBe("partner-uuid-1");
-    expect(resolvePartnerReferralSource(snap, { "ptr_a1b2c3d4": "partner-uuid-1" })).toBe(
+    expect(resolvePartnerReferralSource(snap, { ptr_a1b2c3d4: "partner-uuid-1" })).toBe(
       "partner-uuid-1",
     );
     expect(resolvePartnerReferralSource(null, map)).toBeNull();

@@ -7,8 +7,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const ROOTS = ["lib/planner", "components/planner"];
-const FORBIDDEN =
-  /from\s+["']@\/lib\/scoring\/(engine|weights|insights|shadow)["']/;
+const FORBIDDEN = /from\s+["']@\/lib\/scoring\/(engine|weights|insights|shadow)["']/;
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const name of readdirSync(dir)) {

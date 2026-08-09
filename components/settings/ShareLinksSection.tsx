@@ -83,8 +83,8 @@ export function ShareLinksSection() {
     <section className="glass p-6 sm:p-8">
       <h2 className="font-display text-xl font-semibold text-light">Share links</h2>
       <p className="mt-1 text-sm text-dim">
-        Anyone with an active link below can view that read-only score. Revoke a link at any time to cut off
-        access — this does not affect your HōMI-Score.
+        Anyone with an active link below can view that read-only score. Revoke a link at any time to
+        cut off access — this does not affect your HōMI-Score.
       </p>
 
       {loading ? (
@@ -99,9 +99,13 @@ export function ShareLinksSection() {
               {idx > 0 && <div className="hairline mb-3" />}
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="score-numeral break-all text-sm font-medium text-light">{link.share_token}</p>
+                  <p className="score-numeral break-all text-sm font-medium text-light">
+                    {link.share_token}
+                  </p>
                   <p className="text-sm text-dim">
-                    {link.expires_at ? `Expires ${new Date(link.expires_at).toLocaleDateString()}` : "No expiration"}
+                    {link.expires_at
+                      ? `Expires ${new Date(link.expires_at).toLocaleDateString()}`
+                      : "No expiration"}
                     {verifyCounts[link.id] ? (
                       <span className="ml-2 text-emerald">
                         · Verified by a partner {verifyCounts[link.id]}×

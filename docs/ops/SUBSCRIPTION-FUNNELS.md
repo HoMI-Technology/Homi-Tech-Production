@@ -61,14 +61,14 @@ profiles.subscription_tier / status updated
 
 ## Pages & APIs
 
-| Surface | Path | Auth | Role |
-|---------|------|------|------|
-| Public pricing | `/pricing` | public | Start paid CTAs |
-| Subscription hub | `/settings/subscription` | **required** | View plan, upgrade, manage |
-| Settings summary | `/settings` | required | Badge + links into hub |
-| Checkout API | `POST /api/checkout` | required | Creates Checkout session |
-| Portal API | `POST /api/billing/portal` | required + `stripe_customer_id` | Customer Portal session |
-| Webhook | `POST /api/webhooks/stripe` | Stripe sig | Tier sync |
+| Surface          | Path                        | Auth                            | Role                       |
+| ---------------- | --------------------------- | ------------------------------- | -------------------------- |
+| Public pricing   | `/pricing`                  | public                          | Start paid CTAs            |
+| Subscription hub | `/settings/subscription`    | **required**                    | View plan, upgrade, manage |
+| Settings summary | `/settings`                 | required                        | Badge + links into hub     |
+| Checkout API     | `POST /api/checkout`        | required                        | Creates Checkout session   |
+| Portal API       | `POST /api/billing/portal`  | required + `stripe_customer_id` | Customer Portal session    |
+| Webhook          | `POST /api/webhooks/stripe` | Stripe sig                      | Tier sync                  |
 
 ### Account chrome
 
@@ -106,19 +106,19 @@ Enables plan updates (proration), cancel at period end, payment method update, i
 
 ## Gaps intentionally not built
 
-| Item | Why |
-|------|-----|
-| Annual plans | Product only ships monthly today |
-| In-app payment form | Stripe Checkout / Portal own PCI |
+| Item                                   | Why                               |
+| -------------------------------------- | --------------------------------- |
+| Annual plans                           | Product only ships monthly today  |
+| In-app payment form                    | Stripe Checkout / Portal own PCI  |
 | Family member seat UI beyond household | Separate household invite product |
-| B2B partner/employee “subscribe” | Different commercial motion |
+| B2B partner/employee “subscribe”       | Different commercial motion       |
 
 ---
 
 ## QA checklist
 
-- [ ] Anonymous on `/pricing` → Start Plus → lands on sign-in → after login checkout works  
-- [ ] Free user on `/settings/subscription` → Start Pro → Checkout → success banner  
-- [ ] Paid user → Manage billing → change to Family → webhook updates tier  
-- [ ] Paid user → cancel in portal → period end / free after delete webhook  
-- [ ] `npm run stripe-verify` + `stripe-verify-webhook` green on live  
+- [ ] Anonymous on `/pricing` → Start Plus → lands on sign-in → after login checkout works
+- [ ] Free user on `/settings/subscription` → Start Pro → Checkout → success banner
+- [ ] Paid user → Manage billing → change to Family → webhook updates tier
+- [ ] Paid user → cancel in portal → period end / free after delete webhook
+- [ ] `npm run stripe-verify` + `stripe-verify-webhook` green on live

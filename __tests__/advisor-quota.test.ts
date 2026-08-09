@@ -35,7 +35,9 @@ function client(rpc: RpcScript, userId: string | null = "u1"): SupabaseClient {
     __calls: calls,
     auth: { getUser: async () => ({ data: { user: userId ? { id: userId } : null } }) },
     from: () => ({
-      select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: { subscription_tier: "plus" } }) }) }),
+      select: () => ({
+        eq: () => ({ maybeSingle: async () => ({ data: { subscription_tier: "plus" } }) }),
+      }),
     }),
     rpc: async (fn: string) => {
       calls.push(fn);
@@ -58,12 +60,17 @@ describe("gateCompanion", () => {
     const c = client({ try_consume_advisor_message_v2: () => ({ data: true, error: null }) });
     const gate = await gateCompanion(c);
     expect(gate.ok).toBe(true);
-    expect((c as unknown as { __calls: string[] }).__calls).toContain("try_consume_advisor_message_v2");
+    expect((c as unknown as { __calls: string[] }).__calls).toContain(
+      "try_consume_advisor_message_v2",
+    );
   });
 
   it("falls back to v1 when v2 is not applied", async () => {
     const c = client({
-      try_consume_advisor_message_v2: () => ({ data: null, error: { code: "PGRST202", message: "no fn" } }),
+      try_consume_advisor_message_v2: () => ({
+        data: null,
+        error: { code: "PGRST202", message: "no fn" },
+      }),
       try_consume_advisor_message: () => ({ data: true, error: null }),
     });
     const gate = await gateCompanion(c);
@@ -82,8 +89,14 @@ describe("gateCompanion", () => {
 
   it("fails open when NEITHER RPC is applied (mid-migration safety)", async () => {
     const c = client({
-      try_consume_advisor_message_v2: () => ({ data: null, error: { code: "42883", message: "no v2" } }),
-      try_consume_advisor_message: () => ({ data: null, error: { code: "42883", message: "no v1" } }),
+      try_consume_advisor_message_v2: () => ({
+        data: null,
+        error: { code: "42883", message: "no v2" },
+      }),
+      try_consume_advisor_message: () => ({
+        data: null,
+        error: { code: "42883", message: "no v1" },
+      }),
     });
     const gate = await gateCompanion(c);
     expect(gate.ok).toBe(true);

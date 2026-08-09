@@ -8,9 +8,9 @@ Check off as you go. Source docs linked.
 
 ## 1. Vercel Pro (before real card volume)
 
-- [ ] Vercel → project **homi-platform** → Settings → Billing / Plan  
-- [ ] Upgrade to **Pro** (Hobby is fine for Preview-only testing)  
-- [ ] Confirm production domain still points at the project  
+- [ ] Vercel → project **homi-platform** → Settings → Billing / Plan
+- [ ] Upgrade to **Pro** (Hobby is fine for Preview-only testing)
+- [ ] Confirm production domain still points at the project
 
 ---
 
@@ -18,12 +18,12 @@ Check off as you go. Source docs linked.
 
 Full detail: [`EMAIL-RESEND-DNS.md`](./EMAIL-RESEND-DNS.md)
 
-- [ ] Resend → Domains → add **homitechnology.com**  
-- [ ] Add **DKIM** (+ SPF include Resend) in GoDaddy exactly as Resend shows  
-- [ ] Wait for Resend “Verified”  
-- [ ] Keep Google MX for human mail; do not replace Workspace MX with Resend  
-- [ ] Confirm `RESEND_API_KEY` is set on Vercel **Production**  
-- [ ] Send a test (sign-up or password reset) and open the message  
+- [ ] Resend → Domains → add **homitechnology.com**
+- [ ] Add **DKIM** (+ SPF include Resend) in GoDaddy exactly as Resend shows
+- [ ] Wait for Resend “Verified”
+- [ ] Keep Google MX for human mail; do not replace Workspace MX with Resend
+- [ ] Confirm `RESEND_API_KEY` is set on Vercel **Production**
+- [ ] Send a test (sign-up or password reset) and open the message
 
 **From address in code:** `HōMI <hello@homitechnology.com>` (must match verified domain).
 
@@ -35,12 +35,12 @@ Full detail: [`STRIPE-TEST-CHECKOUT.md`](./STRIPE-TEST-CHECKOUT.md)
 
 ### 3a. Test mode (safe)
 
-- [ ] Stripe → **Test mode** ON  
-- [ ] Prices with lookup keys: `homi_plus_monthly` ($9.99), `homi_pro_monthly` ($24.99), `homi_family_monthly` ($39.99)  
-- [ ] Vercel **Preview** env: `STRIPE_SECRET_KEY` (sk_test), `STRIPE_WEBHOOK_SECRET`, price IDs  
-- [ ] Webhook to Preview URL `/api/webhooks/stripe` (or `stripe listen` locally)  
-- [ ] Browser: Preview → sign in → Pricing → Plus → card `4242 4242 4242 4242`  
-- [ ] Confirm profile tier becomes `plus` after return  
+- [ ] Stripe → **Test mode** ON
+- [ ] Prices with lookup keys: `homi_plus_monthly` ($9.99), `homi_pro_monthly` ($24.99), `homi_family_monthly` ($39.99)
+- [ ] Vercel **Preview** env: `STRIPE_SECRET_KEY` (sk_test), `STRIPE_WEBHOOK_SECRET`, price IDs
+- [ ] Webhook to Preview URL `/api/webhooks/stripe` (or `stripe listen` locally)
+- [ ] Browser: Preview → sign in → Pricing → Plus → card `4242 4242 4242 4242`
+- [ ] Confirm profile tier becomes `plus` after return
 
 ```powershell
 # Optional machine check (paste test secret in shell only)
@@ -50,17 +50,17 @@ npm run stripe-verify
 
 ### 3b. Live mode (after Pro + successful test)
 
-- [ ] Stripe **Live** prices with same lookup_keys  
-- [ ] Vercel **Production**: live `STRIPE_*` + webhook `https://homitechnology.com/api/webhooks/stripe`  
-- [ ] Events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`  
-- [ ] Optional tiny live charge + cancel/refund  
+- [ ] Stripe **Live** prices with same lookup_keys
+- [ ] Vercel **Production**: live `STRIPE_*` + webhook `https://homitechnology.com/api/webhooks/stripe`
+- [ ] Events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`
+- [ ] Optional tiny live charge + cancel/refund
 
 ---
 
 ## 4. Security hygiene
 
-- [ ] Rotate any password used in chat/smoke (e.g. `info@homitechnology.com`)  
-- [ ] Confirm service-role key never in client / `NEXT_PUBLIC_*`  
+- [ ] Rotate any password used in chat/smoke (e.g. `info@homitechnology.com`)
+- [ ] Confirm service-role key never in client / `NEXT_PUBLIC_*`
 
 ---
 
@@ -80,11 +80,11 @@ npm run smoke:auth
 
 **Do not close #144 until all three commercial seats below are true.**
 
-| Seat | Done when | Check |
-|------|-----------|--------|
-| 1. Vercel Pro | Production project on Pro plan | §1 above |
-| 2. Resend DNS | Domain verified; test email delivered | §2 above |
-| 3. Stripe | Test checkout upgrades tier; live keys + webhook ready before paid traffic | §3 above |
+| Seat          | Done when                                                                  | Check    |
+| ------------- | -------------------------------------------------------------------------- | -------- |
+| 1. Vercel Pro | Production project on Pro plan                                             | §1 above |
+| 2. Resend DNS | Domain verified; test email delivered                                      | §2 above |
+| 3. Stripe     | Test checkout upgrades tier; live keys + webhook ready before paid traffic | §3 above |
 
 When all three are checked:
 
@@ -98,9 +98,8 @@ Agents must not auto-close #144 from product code merges alone.
 
 ## Done when
 
-1. Email delivers from `hello@homitechnology.com`  
-2. Test checkout upgrades tier on Preview  
-3. Production on Vercel Pro  
-4. Live webhook configured (before marketing paid traffic)  
-5. Issue #144 closed only after 1–4 (or 1–3 minimum) are confirmed by the owner  
-
+1. Email delivers from `hello@homitechnology.com`
+2. Test checkout upgrades tier on Preview
+3. Production on Vercel Pro
+4. Live webhook configured (before marketing paid traffic)
+5. Issue #144 closed only after 1–4 (or 1–3 minimum) are confirmed by the owner

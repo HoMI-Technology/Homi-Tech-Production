@@ -7,11 +7,7 @@ import {
   WIDGET_THREAD_STAMP_KEY,
   clearLocalThreads,
 } from "@/lib/advisor/thread-keys";
-import type {
-  AdvisorThread,
-  ThreadMessage,
-  ThreadSurface,
-} from "@/lib/advisor/thread-store";
+import type { AdvisorThread, ThreadMessage, ThreadSurface } from "@/lib/advisor/thread-store";
 
 /**
  * Advisor thread store — the audit T2.6 "advisor thread" half. What matters:
@@ -132,12 +128,17 @@ describe("pullAdvisorThread (LWW reconcile via /api/advisor/history)", () => {
 
     const thread = await store.pullAdvisorThread("chat");
     expect(thread?.conversationId).toBe("convo-9");
-    expect(thread?.messages.map((m) => m.content)).toEqual(["hi from my phone", "hi — same conversation."]);
+    expect(thread?.messages.map((m) => m.content)).toEqual([
+      "hi from my phone",
+      "hi — same conversation.",
+    ]);
     expect(thread?.messages.every((m) => typeof m.id === "string" && m.id.length > 0)).toBe(true);
 
     // Local hydration keeps the legacy array shape so a later anonymous
     // session renders the same thread.
-    const stored = JSON.parse(String(window.localStorage.getItem(CHAT_THREAD_KEY))) as AdvisorThread["messages"];
+    const stored = JSON.parse(
+      String(window.localStorage.getItem(CHAT_THREAD_KEY)),
+    ) as AdvisorThread["messages"];
     expect(stored.map((m) => m.content)).toEqual(["hi from my phone", "hi — same conversation."]);
     expect(Number(window.localStorage.getItem(CHAT_THREAD_STAMP_KEY))).toBe(localStamp + 60_000);
   });

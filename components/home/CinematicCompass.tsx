@@ -91,7 +91,14 @@ export function CinematicCompass({
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
-        <linearGradient id="cc-comet" x1="100" y1="15" x2="57.5" y2="26.4" gradientUnits="userSpaceOnUse">
+        <linearGradient
+          id="cc-comet"
+          x1="100"
+          y1="15"
+          x2="57.5"
+          y2="26.4"
+          gradientUnits="userSpaceOnUse"
+        >
           <stop offset="0%" stopColor={COLORS.cyan} stopOpacity="0.9" />
           <stop offset="100%" stopColor={COLORS.cyan} stopOpacity="0" />
         </linearGradient>
@@ -99,77 +106,156 @@ export function CinematicCompass({
 
       {/* Instrument gradations — precision ticks + ghost rings */}
       {layer !== "keyhole" && (
-      <g className={`ring-materialize ${visible >= 1 ? "is-on" : ""}`} aria-hidden>
-        <circle cx="100" cy="100" r="79" stroke={COLORS.light} strokeWidth="3" fill="none" opacity="0.06" strokeDasharray="1 7.27" />
-        <circle cx="100" cy="100" r="72.5" stroke={COLORS.cyan} strokeWidth="0.5" fill="none" opacity="0.10" />
-        <circle cx="100" cy="100" r="47.5" stroke={COLORS.emerald} strokeWidth="0.5" fill="none" opacity="0.10" />
-      </g>
+        <g className={`ring-materialize ${visible >= 1 ? "is-on" : ""}`} aria-hidden>
+          <circle
+            cx="100"
+            cy="100"
+            r="79"
+            stroke={COLORS.light}
+            strokeWidth="3"
+            fill="none"
+            opacity="0.06"
+            strokeDasharray="1 7.27"
+          />
+          <circle
+            cx="100"
+            cy="100"
+            r="72.5"
+            stroke={COLORS.cyan}
+            strokeWidth="0.5"
+            fill="none"
+            opacity="0.10"
+          />
+          <circle
+            cx="100"
+            cy="100"
+            r="47.5"
+            stroke={COLORS.emerald}
+            strokeWidth="0.5"
+            fill="none"
+            opacity="0.10"
+          />
+        </g>
       )}
 
       {/* Comet — a bright grain of light tracing the outer ring */}
       {layer !== "keyhole" && (
-      <g className={`comet-orbit ring-materialize ${visible >= 1 ? "is-on" : ""}`} aria-hidden>
-        <path
-          d="M 100 15 A 85 85 0 0 0 57.5 26.4"
-          stroke="url(#cc-comet)"
-          strokeWidth="2"
-          strokeLinecap="round"
-          fill="none"
-        />
-        <circle cx="100" cy="15" r="2.6" fill={COLORS.light} style={{ filter: `drop-shadow(0 0 6px ${COLORS.cyan}) drop-shadow(0 0 14px ${COLORS.cyan})` }} />
-      </g>
+        <g className={`comet-orbit ring-materialize ${visible >= 1 ? "is-on" : ""}`} aria-hidden>
+          <path
+            d="M 100 15 A 85 85 0 0 0 57.5 26.4"
+            stroke="url(#cc-comet)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            fill="none"
+          />
+          <circle
+            cx="100"
+            cy="15"
+            r="2.6"
+            fill={COLORS.light}
+            style={{
+              filter: `drop-shadow(0 0 6px ${COLORS.cyan}) drop-shadow(0 0 14px ${COLORS.cyan})`,
+            }}
+          />
+        </g>
       )}
 
       {/* Outer — Financial Reality, cyan, 20s CW */}
       {layer !== "keyhole" && (
-      <g
-        className={`ring-outer ring-materialize ${visible >= 1 ? "is-on" : ""}`}
-        filter="url(#cc-glow)"
-        style={{ transition: "opacity 1200ms ease" }}
-      >
-        <circle cx="100" cy="100" r="85" stroke={COLORS.cyan} strokeWidth="2" fill="none" opacity={o} />
-        <circle cx="160.1" cy="39.9" r="3" fill={COLORS.cyan} opacity={Math.min(1, o + 0.3)} />
-        <circle cx="160.1" cy="160.1" r="3" fill={COLORS.cyan} opacity={Math.min(1, o + 0.3)} />
-        <circle cx="39.9" cy="160.1" r="3" fill={COLORS.cyan} opacity={Math.min(1, o + 0.3)} />
-        <circle cx="39.9" cy="39.9" r="3" fill={COLORS.cyan} opacity={Math.min(1, o + 0.3)} />
-      </g>
+        <g
+          className={`ring-outer ring-materialize ${visible >= 1 ? "is-on" : ""}`}
+          filter="url(#cc-glow)"
+          style={{ transition: "opacity 1200ms ease" }}
+        >
+          <circle
+            cx="100"
+            cy="100"
+            r="85"
+            stroke={COLORS.cyan}
+            strokeWidth="2"
+            fill="none"
+            opacity={o}
+          />
+          <circle cx="160.1" cy="39.9" r="3" fill={COLORS.cyan} opacity={Math.min(1, o + 0.3)} />
+          <circle cx="160.1" cy="160.1" r="3" fill={COLORS.cyan} opacity={Math.min(1, o + 0.3)} />
+          <circle cx="39.9" cy="160.1" r="3" fill={COLORS.cyan} opacity={Math.min(1, o + 0.3)} />
+          <circle cx="39.9" cy="39.9" r="3" fill={COLORS.cyan} opacity={Math.min(1, o + 0.3)} />
+        </g>
       )}
 
       {/* Middle — Emotional Truth, emerald, 15s CCW */}
       {layer !== "keyhole" && (
-      <g
-        className={`ring-middle ring-materialize ${visible >= 2 ? "is-on" : ""}`}
-        filter="url(#cc-glow)"
-      >
-        <circle cx="100" cy="100" r="60" stroke={COLORS.emerald} strokeWidth="2" fill="none" opacity={m} />
-        <circle cx="100" cy="40" r="2.5" fill={COLORS.emerald} opacity={Math.min(1, m + 0.3)} />
-        <circle cx="160" cy="100" r="2.5" fill={COLORS.emerald} opacity={Math.min(1, m + 0.3)} />
-        <circle cx="100" cy="160" r="2.5" fill={COLORS.emerald} opacity={Math.min(1, m + 0.3)} />
-        <circle cx="40" cy="100" r="2.5" fill={COLORS.emerald} opacity={Math.min(1, m + 0.3)} />
-      </g>
+        <g
+          className={`ring-middle ring-materialize ${visible >= 2 ? "is-on" : ""}`}
+          filter="url(#cc-glow)"
+        >
+          <circle
+            cx="100"
+            cy="100"
+            r="60"
+            stroke={COLORS.emerald}
+            strokeWidth="2"
+            fill="none"
+            opacity={m}
+          />
+          <circle cx="100" cy="40" r="2.5" fill={COLORS.emerald} opacity={Math.min(1, m + 0.3)} />
+          <circle cx="160" cy="100" r="2.5" fill={COLORS.emerald} opacity={Math.min(1, m + 0.3)} />
+          <circle cx="100" cy="160" r="2.5" fill={COLORS.emerald} opacity={Math.min(1, m + 0.3)} />
+          <circle cx="40" cy="100" r="2.5" fill={COLORS.emerald} opacity={Math.min(1, m + 0.3)} />
+        </g>
       )}
 
       {/* Inner — Perfect Timing, yellow, 10s CW */}
       {layer !== "keyhole" && (
-      <g
-        className={`ring-inner ring-materialize ${visible >= 3 ? "is-on" : ""}`}
-        filter="url(#cc-glow)"
-      >
-        <circle cx="100" cy="100" r="35" stroke={COLORS.yellow} strokeWidth="2" fill="none" opacity={i} />
-      </g>
+        <g
+          className={`ring-inner ring-materialize ${visible >= 3 ? "is-on" : ""}`}
+          filter="url(#cc-glow)"
+        >
+          <circle
+            cx="100"
+            cy="100"
+            r="35"
+            stroke={COLORS.yellow}
+            strokeWidth="2"
+            fill="none"
+            opacity={i}
+          />
+        </g>
       )}
 
       {/* Keyhole — the user at the threshold */}
       {layer !== "rings" && (
-      <g
-        filter="url(#cc-glow)"
-        className={`ring-materialize ${visible >= 3 ? "is-on" : ""} ${keyholePulse ? "keyhole-pulse" : ""}`}
-      >
-        <circle cx="100" cy="96" r="12" fill="none" stroke={unlocked ? COLORS.emerald : COLORS.yellow} strokeWidth="2" />
-        <rect x="94" y="104" width="12" height="16" rx="2" fill="none" stroke={unlocked ? COLORS.emerald : COLORS.yellow} strokeWidth="2" />
-        <circle cx="100" cy="96" r="6" fill={pip} />
-        <rect x="97" y="96" width="6" height="12" fill={unlocked ? COLORS.emerald : COLORS.yellow} />
-      </g>
+        <g
+          filter="url(#cc-glow)"
+          className={`ring-materialize ${visible >= 3 ? "is-on" : ""} ${keyholePulse ? "keyhole-pulse" : ""}`}
+        >
+          <circle
+            cx="100"
+            cy="96"
+            r="12"
+            fill="none"
+            stroke={unlocked ? COLORS.emerald : COLORS.yellow}
+            strokeWidth="2"
+          />
+          <rect
+            x="94"
+            y="104"
+            width="12"
+            height="16"
+            rx="2"
+            fill="none"
+            stroke={unlocked ? COLORS.emerald : COLORS.yellow}
+            strokeWidth="2"
+          />
+          <circle cx="100" cy="96" r="6" fill={pip} />
+          <rect
+            x="97"
+            y="96"
+            width="6"
+            height="12"
+            fill={unlocked ? COLORS.emerald : COLORS.yellow}
+          />
+        </g>
       )}
     </svg>
   );
@@ -215,7 +301,11 @@ export function ParallaxLayer({
   }, [strength]);
 
   return (
-    <div ref={ref} className={className} style={{ transition: "transform 400ms cubic-bezier(0.16,1,0.3,1)" }}>
+    <div
+      ref={ref}
+      className={className}
+      style={{ transition: "transform 400ms cubic-bezier(0.16,1,0.3,1)" }}
+    >
       {children}
     </div>
   );
@@ -224,12 +314,60 @@ export function ParallaxLayer({
 /** A handful of slow atmospheric particles. Deterministic positions. */
 export function Particles() {
   const dots = [
-    { left: "12%", top: "22%", size: 3, color: withAlpha(COLORS.cyan, 0.5), dx: 24, dy: -18, dur: 16 },
-    { left: "82%", top: "18%", size: 2, color: withAlpha(COLORS.emerald, 0.45), dx: -18, dy: 22, dur: 19 },
-    { left: "70%", top: "68%", size: 3, color: withAlpha(COLORS.yellow, 0.35), dx: 16, dy: -26, dur: 14 },
-    { left: "22%", top: "72%", size: 2, color: withAlpha(COLORS.cyan, 0.4), dx: -22, dy: -14, dur: 21 },
-    { left: "48%", top: "12%", size: 2, color: withAlpha(COLORS.light, 0.3), dx: 12, dy: 20, dur: 17 },
-    { left: "90%", top: "48%", size: 2, color: withAlpha(COLORS.cyan, 0.35), dx: -14, dy: -20, dur: 15 },
+    {
+      left: "12%",
+      top: "22%",
+      size: 3,
+      color: withAlpha(COLORS.cyan, 0.5),
+      dx: 24,
+      dy: -18,
+      dur: 16,
+    },
+    {
+      left: "82%",
+      top: "18%",
+      size: 2,
+      color: withAlpha(COLORS.emerald, 0.45),
+      dx: -18,
+      dy: 22,
+      dur: 19,
+    },
+    {
+      left: "70%",
+      top: "68%",
+      size: 3,
+      color: withAlpha(COLORS.yellow, 0.35),
+      dx: 16,
+      dy: -26,
+      dur: 14,
+    },
+    {
+      left: "22%",
+      top: "72%",
+      size: 2,
+      color: withAlpha(COLORS.cyan, 0.4),
+      dx: -22,
+      dy: -14,
+      dur: 21,
+    },
+    {
+      left: "48%",
+      top: "12%",
+      size: 2,
+      color: withAlpha(COLORS.light, 0.3),
+      dx: 12,
+      dy: 20,
+      dur: 17,
+    },
+    {
+      left: "90%",
+      top: "48%",
+      size: 2,
+      color: withAlpha(COLORS.cyan, 0.35),
+      dx: -14,
+      dy: -20,
+      dur: 15,
+    },
   ];
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 -z-[1]">

@@ -110,14 +110,24 @@ describe("deriveCfm", () => {
 
   it("derives annual contribution from positive net cash flow only", () => {
     const positive = deriveCfm(
-      { ...DEFAULT_FINANCE_STATE, monthlyIncome: 8000, monthlyExpenses: 5000, monthlyDebtPayments: 1000 },
+      {
+        ...DEFAULT_FINANCE_STATE,
+        monthlyIncome: 8000,
+        monthlyExpenses: 5000,
+        monthlyDebtPayments: 1000,
+      },
       {},
       null,
     );
     expect(positive.horizon.annualContribution.value).toBe(24000);
 
     const negative = deriveCfm(
-      { ...DEFAULT_FINANCE_STATE, monthlyIncome: 3000, monthlyExpenses: 5000, monthlyDebtPayments: 1000 },
+      {
+        ...DEFAULT_FINANCE_STATE,
+        monthlyIncome: 3000,
+        monthlyExpenses: 5000,
+        monthlyDebtPayments: 1000,
+      },
       {},
       null,
     );

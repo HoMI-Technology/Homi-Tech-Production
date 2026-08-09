@@ -102,7 +102,12 @@ describe("Modal", () => {
       return (
         <>
           <button onClick={() => setOpen(true)}>Open modal</button>
-          <Modal open={open} onClose={() => setOpen(false)} label="Example" initialFocusRef={confirmRef}>
+          <Modal
+            open={open}
+            onClose={() => setOpen(false)}
+            label="Example"
+            initialFocusRef={confirmRef}
+          >
             <button>Cancel</button>
             <button ref={confirmRef}>Confirm</button>
           </Modal>

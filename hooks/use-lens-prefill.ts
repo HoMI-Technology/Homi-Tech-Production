@@ -10,16 +10,10 @@
 
 import { useEffect, useState } from "react";
 import { track } from "@/lib/analytics";
-import {
-  buildCfm,
-  type CanonicalFinancialModel,
-} from "@/lib/tools/cfm";
+import { buildCfm, type CanonicalFinancialModel } from "@/lib/tools/cfm";
 import { getLens, resolveLensSeeds } from "@/lib/tools/registry";
 import { useCfm } from "@/hooks/use-cfm";
-import {
-  DEFAULT_FINANCE_STATE,
-  type FinanceState,
-} from "@/lib/finance/store";
+import { DEFAULT_FINANCE_STATE, type FinanceState } from "@/lib/finance/store";
 
 export interface LensPrefillState {
   /** Input keys seeded from the CFM — pass to fields as source="yours". */

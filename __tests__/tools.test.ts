@@ -133,7 +133,10 @@ describe("tools/roth — conversion education math", () => {
       yearsToHorizon: 20,
       expectedGrowthPercent: 7,
     });
-    expect(result.netEducationalBenefit).toBeCloseTo(result.taxAvoidedAtHorizon - result.taxCostToday, 6);
+    expect(result.netEducationalBenefit).toBeCloseTo(
+      result.taxAvoidedAtHorizon - result.taxCostToday,
+      6,
+    );
     // A lower rate now than expected in retirement should show a positive benefit here.
     expect(result.netEducationalBenefit).toBeGreaterThan(0);
   });

@@ -30,17 +30,10 @@ export const SCENARIO_DISCLAIMER =
   "Educational model only — not a forecast, appraisal, or lending decision. " +
   "Net position is a simplified 5-year illustration.";
 
-export function runScenarioStudio(
-  input: ScenarioStudioInput,
-  months = 60,
-): ScenarioStudioResult {
+export function runScenarioStudio(input: ScenarioStudioInput, months = 60): ScenarioStudioResult {
   const scenarios = simulateAllScenarios(input, months);
-  const best = scenarios.reduce((a, b) =>
-    b.netPositionAt60 > a.netPositionAt60 ? b : a,
-  );
-  const worst = scenarios.reduce((a, b) =>
-    b.netPositionAt60 < a.netPositionAt60 ? b : a,
-  );
+  const best = scenarios.reduce((a, b) => (b.netPositionAt60 > a.netPositionAt60 ? b : a));
+  const worst = scenarios.reduce((a, b) => (b.netPositionAt60 < a.netPositionAt60 ? b : a));
   const spreadAt60 = best.netPositionAt60 - worst.netPositionAt60;
 
   let readinessNote =
@@ -53,8 +46,7 @@ export function runScenarioStudio(
     readinessNote =
       "BUILD FIRST: use the wait scenarios as time to fund runway and alignment — not as permission to stretch.";
   } else if (input.readinessVerdict === "READY") {
-    readinessNote =
-      "READY band on last assessment — still re-check Path to Ready if inputs moved.";
+    readinessNote = "READY band on last assessment — still re-check Path to Ready if inputs moved.";
   }
 
   return {
@@ -76,18 +68,12 @@ export function scenarioInputsFromFinance(opts: {
 }): SimulationInputs {
   const surplus =
     opts.monthlyIncome != null && opts.monthlyExpenses != null
-      ? Math.max(
-          0,
-          opts.monthlyIncome -
-            opts.monthlyExpenses -
-            (opts.monthlyDebtPayments ?? 0),
-        )
+      ? Math.max(0, opts.monthlyIncome - opts.monthlyExpenses - (opts.monthlyDebtPayments ?? 0))
       : DEFAULT_SIMULATION_INPUTS.monthlySavings;
 
   return {
     ...DEFAULT_SIMULATION_INPUTS,
-    downPaymentSaved:
-      opts.liquidSavings ?? DEFAULT_SIMULATION_INPUTS.downPaymentSaved,
+    downPaymentSaved: opts.liquidSavings ?? DEFAULT_SIMULATION_INPUTS.downPaymentSaved,
     monthlySavings: surplus || DEFAULT_SIMULATION_INPUTS.monthlySavings,
     homePrice: Math.max(
       DEFAULT_SIMULATION_INPUTS.homePrice,

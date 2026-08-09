@@ -19,9 +19,9 @@ export const FOCUSABLE_SELECTOR = [
 
 /** Focusable descendants of `container`, in DOM order. */
 export function getFocusable(container: HTMLElement): HTMLElement[] {
-  return Array.from(
-    container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
-  ).filter((el) => el.getAttribute("aria-hidden") !== "true");
+  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+    (el) => el.getAttribute("aria-hidden") !== "true",
+  );
 }
 
 /**
@@ -32,10 +32,7 @@ export function getFocusable(container: HTMLElement): HTMLElement[] {
  * the panel entirely) is redirected back inside. Escape handling and focus
  * return stay with the caller (see components/ui/Modal.tsx).
  */
-export function useFocusTrap(
-  ref: RefObject<HTMLElement | null>,
-  active: boolean,
-): void {
+export function useFocusTrap(ref: RefObject<HTMLElement | null>, active: boolean): void {
   useEffect(() => {
     if (!active) return;
     function onKeyDown(e: KeyboardEvent) {

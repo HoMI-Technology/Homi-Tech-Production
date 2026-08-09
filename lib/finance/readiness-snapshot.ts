@@ -69,10 +69,7 @@ export interface FinanceReadinessSnapshot {
 export function gradeCompleteness(
   evidence: Pick<
     FinanceEvidenceSummary,
-    | "monthsWithData"
-    | "uncategorizedCount"
-    | "expectedRecurringItemsMissing"
-    | "sourceMode"
+    "monthsWithData" | "uncategorizedCount" | "expectedRecurringItemsMissing" | "sourceMode"
   >,
 ): FinanceCompleteness {
   if (
@@ -83,10 +80,7 @@ export function gradeCompleteness(
   ) {
     return "high";
   }
-  if (
-    evidence.monthsWithData >= 2 &&
-    evidence.expectedRecurringItemsMissing === 0
-  ) {
+  if (evidence.monthsWithData >= 2 && evidence.expectedRecurringItemsMissing === 0) {
     return "medium";
   }
   return "low";
@@ -129,9 +123,7 @@ export function buildReadinessSnapshot(input: {
     cashRemainingCents: totals.cashRemainingCents,
     freeCashCents: totals.freeCashCents,
 
-    savingsRatePct: hasIncome
-      ? (totals.cashRemainingCents / totals.incomeCents) * 100
-      : null,
+    savingsRatePct: hasIncome ? (totals.cashRemainingCents / totals.incomeCents) * 100 : null,
     runwayMonths: input.runwayMonths,
     debtToIncomePct:
       hasIncome && input.monthlyDebtPaymentsCents !== null
@@ -177,17 +169,12 @@ export function buildPathFinanceSnapshotFromLedger(
   const liquidSavingsCents = goal?.goalType === "emergency_reserve" ? goal.currentAmountCents : 0;
 
   const outflowCents = monthlyExpensesCents + debtPayments;
-  const runway = runwayFromOutflow(
-    liquidSavingsCents,
-    outflowCents,
-    "current_month_actual",
-  );
+  const runway = runwayFromOutflow(liquidSavingsCents, outflowCents, "current_month_actual");
 
   return {
     monthlyIncome: centsToDollars(incomeCents),
     netCashFlow: centsToDollars(totals.cashRemainingCents),
-    runwayMonths:
-      runway.months !== null ? Math.round(runway.months * 10) / 10 : null,
+    runwayMonths: runway.months !== null ? Math.round(runway.months * 10) / 10 : null,
     monthlyExpenses: centsToDollars(monthlyExpensesCents),
     liquidSavings: centsToDollars(liquidSavingsCents),
     monthlyDebtPayments: centsToDollars(debtPayments),

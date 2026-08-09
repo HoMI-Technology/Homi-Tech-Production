@@ -64,18 +64,12 @@ export function PathPreview({
                 </span>
               )}
             </div>
-            <p className="mt-2 font-display text-base font-semibold text-light">
-              {step.title}
-            </p>
-            {!compact && (
-              <p className="mt-1 text-sm leading-relaxed text-dim">{step.notes}</p>
-            )}
+            <p className="mt-2 font-display text-base font-semibold text-light">{step.title}</p>
+            {!compact && <p className="mt-1 text-sm leading-relaxed text-dim">{step.notes}</p>}
             {step.fundingTarget != null && step.fundingTarget > 0 && (
               <p className="mt-2 text-xs text-cyan">
                 {step.fundingLabel ?? "Target"}:{" "}
-                <span className="score-numeral">
-                  ${step.fundingTarget.toLocaleString("en-US")}
-                </span>
+                <span className="score-numeral">${step.fundingTarget.toLocaleString("en-US")}</span>
               </p>
             )}
             <div className="mt-3 flex flex-wrap gap-2">

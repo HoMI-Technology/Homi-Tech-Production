@@ -2,27 +2,21 @@
 
 /* Decision calendar — DayInspector inline forms (add bill / log spend). */
 
-import { useState } from 'react'
-import { cn } from "@/lib/planner/cn"
-import { usePlannerStore } from "@/lib/planner/store"
-import type { ExpenseCategory } from '@/lib/planner/types'
-import { categoryLabel, shortDateLabel } from '@/lib/planner/calendar'
-import {
-  EXPENSE_CATEGORIES,
-  FIELD_LABEL,
-  INPUT_CLASS,
-  SELECT_CLASS,
-  SUBCARD,
-} from './shared'
+import { useState } from "react";
+import { cn } from "@/lib/planner/cn";
+import { usePlannerStore } from "@/lib/planner/store";
+import type { ExpenseCategory } from "@/lib/planner/types";
+import { categoryLabel, shortDateLabel } from "@/lib/planner/calendar";
+import { EXPENSE_CATEGORIES, FIELD_LABEL, INPUT_CLASS, SELECT_CLASS, SUBCARD } from "./shared";
 
 function CategorySelect({
   value,
   onChange,
   defaultValue,
 }: {
-  value: ExpenseCategory | ''
-  onChange: (c: ExpenseCategory) => void
-  defaultValue: ExpenseCategory
+  value: ExpenseCategory | "";
+  onChange: (c: ExpenseCategory) => void;
+  defaultValue: ExpenseCategory;
 }) {
   return (
     <select
@@ -36,25 +30,19 @@ function CategorySelect({
         </option>
       ))}
     </select>
-  )
+  );
 }
 
-function AmountInput({
-  value,
-  onChange,
-}: {
-  value: string
-  onChange: (v: string) => void
-}) {
+function AmountInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
     <input
-      className={cn(INPUT_CLASS, 'font-display tabular-nums')}
+      className={cn(INPUT_CLASS, "font-display tabular-nums")}
       inputMode="decimal"
       placeholder="0.00"
       value={value}
-      onChange={(e) => onChange(e.target.value.replace(/[^0-9.]/g, ''))}
+      onChange={(e) => onChange(e.target.value.replace(/[^0-9.]/g, ""))}
     />
-  )
+  );
 }
 
 export function AddBillForm({
@@ -62,36 +50,38 @@ export function AddBillForm({
   accountId,
   onSaved,
 }: {
-  dateISO: string
-  accountId?: string
-  onSaved: () => void
+  dateISO: string;
+  accountId?: string;
+  onSaved: () => void;
 }) {
-  const addBill = usePlannerStore((s) => s.addBill)
-  const [name, setName] = useState('')
-  const [amount, setAmount] = useState('')
-  const [category, setCategory] = useState<ExpenseCategory>('utilities')
-  const parsed = Number(amount)
+  const addBill = usePlannerStore((s) => s.addBill);
+  const [name, setName] = useState("");
+  const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState<ExpenseCategory>("utilities");
+  const parsed = Number(amount);
 
   const save = () => {
-    if (!name.trim() || !(parsed > 0)) return
+    if (!name.trim() || !(parsed > 0)) return;
     addBill({
       name: name.trim(),
       amount: Number(parsed.toFixed(2)),
       category,
       dueDate: dateISO,
-      frequency: 'monthly',
+      frequency: "monthly",
       autopay: false,
-      source: 'manual',
+      source: "manual",
       accountId,
-    })
-    setName('')
-    setAmount('')
-    onSaved()
-  }
+    });
+    setName("");
+    setAmount("");
+    onSaved();
+  };
 
   return (
-    <div className={cn(SUBCARD, 'mt-3 p-3')}>
-      <label className={FIELD_LABEL} htmlFor="cal-bill-name">Name</label>
+    <div className={cn(SUBCARD, "mt-3 p-3")}>
+      <label className={FIELD_LABEL} htmlFor="cal-bill-name">
+        Name
+      </label>
       <input
         id="cal-bill-name"
         className={INPUT_CLASS}
@@ -101,11 +91,15 @@ export function AddBillForm({
       />
       <div className="mt-3 grid grid-cols-2 gap-3">
         <div>
-          <label className={FIELD_LABEL} htmlFor="cal-bill-amount">Amount</label>
+          <label className={FIELD_LABEL} htmlFor="cal-bill-amount">
+            Amount
+          </label>
           <AmountInput value={amount} onChange={setAmount} />
         </div>
         <div>
-          <label className={FIELD_LABEL} htmlFor="cal-bill-category">Category</label>
+          <label className={FIELD_LABEL} htmlFor="cal-bill-category">
+            Category
+          </label>
           <CategorySelect value={category} onChange={setCategory} defaultValue="utilities" />
         </div>
       </div>
@@ -118,7 +112,7 @@ export function AddBillForm({
         Save bill on {shortDateLabel(dateISO)}
       </button>
     </div>
-  )
+  );
 }
 
 export function LogSpendForm({
@@ -126,35 +120,37 @@ export function LogSpendForm({
   accountId,
   onSaved,
 }: {
-  dateISO: string
-  accountId?: string
-  onSaved: () => void
+  dateISO: string;
+  accountId?: string;
+  onSaved: () => void;
 }) {
-  const addTransaction = usePlannerStore((s) => s.addTransaction)
-  const [note, setNote] = useState('')
-  const [amount, setAmount] = useState('')
-  const [category, setCategory] = useState<ExpenseCategory>('food')
-  const parsed = Number(amount)
+  const addTransaction = usePlannerStore((s) => s.addTransaction);
+  const [note, setNote] = useState("");
+  const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState<ExpenseCategory>("food");
+  const parsed = Number(amount);
 
   const save = () => {
-    if (!(parsed > 0)) return
+    if (!(parsed > 0)) return;
     addTransaction({
-      type: 'expense',
+      type: "expense",
       amount: Number(parsed.toFixed(2)),
       category,
       note: note.trim() || categoryLabel(category),
       date: dateISO,
-      source: 'manual',
+      source: "manual",
       accountId,
-    })
-    setNote('')
-    setAmount('')
-    onSaved()
-  }
+    });
+    setNote("");
+    setAmount("");
+    onSaved();
+  };
 
   return (
-    <div className={cn(SUBCARD, 'mt-3 p-3')}>
-      <label className={FIELD_LABEL} htmlFor="cal-spend-note">Note</label>
+    <div className={cn(SUBCARD, "mt-3 p-3")}>
+      <label className={FIELD_LABEL} htmlFor="cal-spend-note">
+        Note
+      </label>
       <input
         id="cal-spend-note"
         className={INPUT_CLASS}
@@ -164,11 +160,15 @@ export function LogSpendForm({
       />
       <div className="mt-3 grid grid-cols-2 gap-3">
         <div>
-          <label className={FIELD_LABEL} htmlFor="cal-spend-amount">Amount</label>
+          <label className={FIELD_LABEL} htmlFor="cal-spend-amount">
+            Amount
+          </label>
           <AmountInput value={amount} onChange={setAmount} />
         </div>
         <div>
-          <label className={FIELD_LABEL} htmlFor="cal-spend-category">Category</label>
+          <label className={FIELD_LABEL} htmlFor="cal-spend-category">
+            Category
+          </label>
           <CategorySelect value={category} onChange={setCategory} defaultValue="food" />
         </div>
       </div>
@@ -181,5 +181,5 @@ export function LogSpendForm({
         Log spend on {shortDateLabel(dateISO)}
       </button>
     </div>
-  )
+  );
 }

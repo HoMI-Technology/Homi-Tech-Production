@@ -183,13 +183,17 @@ export function GoalCard({
       <span
         aria-hidden
         className="absolute inset-x-0 top-0 h-px"
-        style={{ background: `linear-gradient(90deg, transparent, ${COLORS.yellow}88, transparent)` }}
+        style={{
+          background: `linear-gradient(90deg, transparent, ${COLORS.yellow}88, transparent)`,
+        }}
       />
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="eyebrow">Down-payment goal</p>
           {displayGoal && !editing && (
-            <p className="mt-1 text-sm text-dim">{displayGoal.label ?? "Your target, your pace."}</p>
+            <p className="mt-1 text-sm text-dim">
+              {displayGoal.label ?? "Your target, your pace."}
+            </p>
           )}
         </div>
         {displayGoal && !editing && (
@@ -214,10 +218,16 @@ export function GoalCard({
         <div className="mt-4 space-y-4">
           {!displayGoal && (
             <p className="text-sm leading-relaxed text-dim">
-              Name the number you&apos;re saving toward and the dashboard tracks your progress against it.
+              Name the number you&apos;re saving toward and the dashboard tracks your progress
+              against it.
             </p>
           )}
-          <MoneyField label="Target amount" value={targetAmount} onChange={setTargetAmount} onEnter={save} />
+          <MoneyField
+            label="Target amount"
+            value={targetAmount}
+            onChange={setTargetAmount}
+            onEnter={save}
+          />
           <div>
             <label htmlFor="goal-name" className="mb-2 block text-base font-medium text-light">
               Name <span className="text-dim">(optional)</span>
@@ -260,7 +270,9 @@ export function GoalCard({
           <div className="flex items-end justify-between gap-3">
             <p className="score-numeral text-2xl font-bold text-light">
               {formatCurrency(progress?.saved ?? 0)}
-              <span className="ml-1 text-sm font-medium text-dim">of {formatCurrency(displayGoal.target_amount)}</span>
+              <span className="ml-1 text-sm font-medium text-dim">
+                of {formatCurrency(displayGoal.target_amount)}
+              </span>
             </p>
             <span className="score-numeral text-sm text-yellow">
               {Math.round((progress?.ratio ?? 0) * 100)}%
@@ -289,7 +301,9 @@ export function GoalCard({
               "No savings figure yet — connect a bank or enter your numbers on the Finance dashboard."}
           </p>
           {progress && progress.remaining === 0 ? (
-            <p className="mt-2 text-sm text-emerald">Target reached. Recheck your readiness when you&apos;re set.</p>
+            <p className="mt-2 text-sm text-emerald">
+              Target reached. Recheck your readiness when you&apos;re set.
+            </p>
           ) : projection ? (
             <p className="mt-2 text-sm text-light">
               At your current cash flow, target reached ~{projection.label}.

@@ -8,16 +8,9 @@
  * can never drift; this module keeps the runtime role/flag filtering.
  */
 
-import {
-  visibleDashboards,
-  type SwitcherContext,
-} from "@/lib/dashboard/switcher-visibility";
+import { visibleDashboards, type SwitcherContext } from "@/lib/dashboard/switcher-visibility";
 import { agentOs } from "@/lib/flags";
-import {
-  AGENT_OS_GATED_HREFS,
-  PALETTE_SOURCE,
-  ROLE_SCOPED_HREFS,
-} from "@/lib/layout/nav-catalog";
+import { AGENT_OS_GATED_HREFS, PALETTE_SOURCE, ROLE_SCOPED_HREFS } from "@/lib/layout/nav-catalog";
 
 export type PaletteItem = {
   href: string;

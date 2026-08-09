@@ -105,9 +105,11 @@ describe("POST /api/plaid/link-token", () => {
   });
 
   it("creates a link token with the real user id for a plus user", async () => {
-    const plaidFetch = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ link_token: "link-sandbox-token-1" }), { status: 200 }),
-    );
+    const plaidFetch = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(JSON.stringify({ link_token: "link-sandbox-token-1" }), { status: 200 }),
+      );
     vi.stubGlobal("fetch", plaidFetch);
 
     const res = await POST(req());
@@ -123,9 +125,11 @@ describe("POST /api/plaid/link-token", () => {
 
   it("creates an update-mode token bound to an OWNED item's access token (no products array)", async () => {
     state.itemRow = { id: ITEM_UUID, access_token_ct: encryptToken(RAW_TOKEN) };
-    const plaidFetch = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ link_token: "link-update-token-1" }), { status: 200 }),
-    );
+    const plaidFetch = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(JSON.stringify({ link_token: "link-update-token-1" }), { status: 200 }),
+      );
     vi.stubGlobal("fetch", plaidFetch);
 
     const res = await POST(req({ item_id: ITEM_UUID }));

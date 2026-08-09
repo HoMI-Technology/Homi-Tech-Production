@@ -2,7 +2,7 @@
 
 /* Decision calendar — the SELECTED DAY inspector rail. */
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState } from "react";
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -13,11 +13,11 @@ import {
   Plus,
   Receipt,
   X,
-} from 'lucide-react'
-import { cn } from "@/lib/planner/cn"
-import { usePlannerStore } from "@/lib/planner/store"
-import { payBillWithImpact } from '@/lib/planner/closed-loop'
-import { daysUntil } from '@/lib/planner/derived'
+} from "lucide-react";
+import { cn } from "@/lib/planner/cn";
+import { usePlannerStore } from "@/lib/planner/store";
+import { payBillWithImpact } from "@/lib/planner/closed-loop";
+import { daysUntil } from "@/lib/planner/derived";
 import {
   billState,
   buildUpcoming,
@@ -31,10 +31,18 @@ import {
   pressureRatio,
   projectedCashOn,
   shortDateLabel,
-} from '@/lib/planner/calendar'
-import type { Bill, Transaction } from '@/lib/planner/types'
-import { BillStateChip, CARD, EventDot, FIELD_LABEL, SELECT_CLASS, SectionCard, SUBCARD } from './shared'
-import { AddBillForm, LogSpendForm } from './DayForms'
+} from "@/lib/planner/calendar";
+import type { Bill, Transaction } from "@/lib/planner/types";
+import {
+  BillStateChip,
+  CARD,
+  EventDot,
+  FIELD_LABEL,
+  SELECT_CLASS,
+  SectionCard,
+  SUBCARD,
+} from "./shared";
+import { AddBillForm, LogSpendForm } from "./DayForms";
 
 export default function DayInspector({
   selectedISO,
@@ -43,63 +51,63 @@ export default function DayInspector({
   transactions,
   cashNow,
 }: {
-  selectedISO: string
-  today: string
-  bills: Bill[]
-  transactions: Transaction[]
-  cashNow: number
+  selectedISO: string;
+  today: string;
+  bills: Bill[];
+  transactions: Transaction[];
+  cashNow: number;
 }) {
-  const accounts = usePlannerStore((s) => s.accounts)
-  const scheduleBill = usePlannerStore((s) => s.scheduleBill)
-  const [payFromId, setPayFromId] = useState<string | null>(null)
-  const [openForm, setOpenForm] = useState<'bill' | 'spend' | null>(null)
-  const [flash, setFlash] = useState<string | null>(null)
-  const [payError, setPayError] = useState<string | null>(null)
+  const accounts = usePlannerStore((s) => s.accounts);
+  const scheduleBill = usePlannerStore((s) => s.scheduleBill);
+  const [payFromId, setPayFromId] = useState<string | null>(null);
+  const [openForm, setOpenForm] = useState<"bill" | "spend" | null>(null);
+  const [flash, setFlash] = useState<string | null>(null);
+  const [payError, setPayError] = useState<string | null>(null);
 
   const rollup = useMemo(
     () => dayRollup(selectedISO, bills, transactions),
     [selectedISO, bills, transactions],
-  )
-  const proj = projectedCashOn(selectedISO, cashNow, bills)
+  );
+  const proj = projectedCashOn(selectedISO, cashNow, bills);
   const maxPressure = useMemo(
     () => monthPressureMax(monthOfISO(selectedISO), bills, transactions),
     [selectedISO, bills, transactions],
-  )
-  const pressure = pressureRatio(rollup.pressure, maxPressure)
-  const upcoming = useMemo(() => buildUpcoming(bills, today), [bills, today])
+  );
+  const pressure = pressureRatio(rollup.pressure, maxPressure);
+  const upcoming = useMemo(() => buildUpcoming(bills, today), [bills, today]);
 
   const payFrom =
     accounts.find((a) => a.id === payFromId) ??
-    accounts.find((a) => a.type !== 'credit') ??
-    accounts[0]
+    accounts.find((a) => a.type !== "credit") ??
+    accounts[0];
 
-  const daysAway = daysUntil(selectedISO, today)
-  const weekend = isWeekendISO(selectedISO)
+  const daysAway = daysUntil(selectedISO, today);
+  const weekend = isWeekendISO(selectedISO);
 
-  const toggleForm = (form: 'bill' | 'spend') => {
-    setOpenForm((cur) => (cur === form ? null : form))
-    setFlash(null)
-  }
+  const toggleForm = (form: "bill" | "spend") => {
+    setOpenForm((cur) => (cur === form ? null : form));
+    setFlash(null);
+  };
   const savedFlash = (msg: string) => {
-    setFlash(msg)
-    setPayError(null)
-  }
+    setFlash(msg);
+    setPayError(null);
+  };
 
   const payNow = async (bill: Bill) => {
-    const result = await payBillWithImpact(bill.id, payFrom?.id)
+    const result = await payBillWithImpact(bill.id, payFrom?.id);
     if (!result.ok) {
-      setPayError(result.error ?? 'Payment failed')
-      setFlash(null)
+      setPayError(result.error ?? "Payment failed");
+      setFlash(null);
     } else {
-      setPayError(null)
-      setFlash(`✓ ${bill.name} paid. Ledger, cash & readiness updated.`)
+      setPayError(null);
+      setFlash(`✓ ${bill.name} paid. Ledger, cash & readiness updated.`);
     }
-  }
+  };
 
   return (
     <div className="flex w-full flex-col gap-4 xl:w-[360px] xl:shrink-0">
       {/* Header card */}
-      <div className={cn(CARD, 'p-4')}>
+      <div className={cn(CARD, "p-4")}>
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-3xs font-medium uppercase tracking-[0.22em] text-dim">
@@ -132,16 +140,14 @@ export default function DayInspector({
             </div>
           </div>
           <div className="text-right">
-            <p className="text-3xs font-medium uppercase tracking-[0.22em] text-dim">
-              Day impact
-            </p>
+            <p className="text-3xs font-medium uppercase tracking-[0.22em] text-dim">Day impact</p>
             <p
               className={cn(
-                'mt-1 font-display text-2xl font-semibold tabular-nums',
-                rollup.impact < 0 ? 'text-crimson' : 'text-emerald',
+                "mt-1 font-display text-2xl font-semibold tabular-nums",
+                rollup.impact < 0 ? "text-crimson" : "text-emerald",
               )}
             >
-              {rollup.impact < 0 ? '-' : '+'}
+              {rollup.impact < 0 ? "-" : "+"}
               {money2(Math.abs(rollup.impact))}
             </p>
             <p className="mt-0.5 font-display text-2xs tabular-nums text-dim">
@@ -152,7 +158,7 @@ export default function DayInspector({
 
         {/* IN / OUT / BILLS tiles */}
         <div className="mt-4 grid grid-cols-3 gap-2">
-          <div className={cn(SUBCARD, 'p-2.5')}>
+          <div className={cn(SUBCARD, "p-2.5")}>
             <p className="flex items-center gap-1 text-3xs font-medium uppercase tracking-[0.14em] text-dim">
               <ArrowDownLeft className="h-3 w-3" /> In
             </p>
@@ -160,7 +166,7 @@ export default function DayInspector({
               {money2(rollup.in)}
             </p>
           </div>
-          <div className={cn(SUBCARD, 'p-2.5')}>
+          <div className={cn(SUBCARD, "p-2.5")}>
             <p className="flex items-center gap-1 text-3xs font-medium uppercase tracking-[0.14em] text-dim">
               <ArrowUpRight className="h-3 w-3" /> Out
             </p>
@@ -168,7 +174,7 @@ export default function DayInspector({
               {money2(rollup.out)}
             </p>
           </div>
-          <div className={cn(SUBCARD, 'p-2.5')}>
+          <div className={cn(SUBCARD, "p-2.5")}>
             <p className="flex items-center gap-1 text-3xs font-medium uppercase tracking-[0.14em] text-dim">
               <Receipt className="h-3 w-3" /> Bills
             </p>
@@ -194,11 +200,13 @@ export default function DayInspector({
 
         {/* Pay from */}
         <div className="mt-4">
-          <label className={FIELD_LABEL} htmlFor="cal-pay-from">Pay from</label>
+          <label className={FIELD_LABEL} htmlFor="cal-pay-from">
+            Pay from
+          </label>
           <select
             id="cal-pay-from"
             className={SELECT_CLASS}
-            value={payFrom?.id ?? ''}
+            value={payFrom?.id ?? ""}
             onChange={(e) => setPayFromId(e.target.value)}
           >
             {accounts.length === 0 && <option value="">No accounts yet</option>}
@@ -214,39 +222,39 @@ export default function DayInspector({
         <div className="mt-3 flex gap-2">
           <button
             type="button"
-            onClick={() => toggleForm('bill')}
+            onClick={() => toggleForm("bill")}
             className={cn(
-              'flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-semibold transition-colors',
-              openForm === 'bill'
-                ? 'border border-cyan/50 bg-cyan/10 text-cyan'
-                : 'bg-cyan text-navy',
+              "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-semibold transition-colors",
+              openForm === "bill"
+                ? "border border-cyan/50 bg-cyan/10 text-cyan"
+                : "bg-cyan text-navy",
             )}
           >
-            {openForm === 'bill' ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-            {openForm === 'bill' ? 'Close' : 'Add bill'}
+            {openForm === "bill" ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+            {openForm === "bill" ? "Close" : "Add bill"}
           </button>
           <button
             type="button"
-            onClick={() => toggleForm('spend')}
+            onClick={() => toggleForm("spend")}
             className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-white/[0.1] py-2.5 text-sm font-medium text-light transition-colors hover:border-white/[0.2]"
           >
-            {openForm === 'spend' ? <X className="h-4 w-4" /> : <CreditCard className="h-4 w-4" />}
-            {openForm === 'spend' ? 'Close' : 'Log spend'}
+            {openForm === "spend" ? <X className="h-4 w-4" /> : <CreditCard className="h-4 w-4" />}
+            {openForm === "spend" ? "Close" : "Log spend"}
           </button>
         </div>
 
-        {openForm === 'bill' && (
+        {openForm === "bill" && (
           <AddBillForm
             dateISO={selectedISO}
             accountId={payFrom?.id}
-            onSaved={() => savedFlash('✓ Bill saved on this day.')}
+            onSaved={() => savedFlash("✓ Bill saved on this day.")}
           />
         )}
-        {openForm === 'spend' && (
+        {openForm === "spend" && (
           <LogSpendForm
             dateISO={selectedISO}
             accountId={payFrom?.id}
-            onSaved={() => savedFlash('✓ Expense logged on this day.')}
+            onSaved={() => savedFlash("✓ Expense logged on this day.")}
           />
         )}
         {flash && <p className="mt-3 text-xs font-medium text-emerald">{flash}</p>}
@@ -254,7 +262,11 @@ export default function DayInspector({
       </div>
 
       {/* Bills on this day */}
-      <SectionCard eyebrow="Bills" count={rollup.billItems.length} icon={<Receipt className="h-3.5 w-3.5 text-dim" />}>
+      <SectionCard
+        eyebrow="Bills"
+        count={rollup.billItems.length}
+        icon={<Receipt className="h-3.5 w-3.5 text-dim" />}
+      >
         {rollup.billItems.length === 0 && (
           <p className="rounded-lg border border-dashed border-white/[0.1] px-3 py-4 text-center text-xs text-dim">
             No bills due on this day.
@@ -262,9 +274,9 @@ export default function DayInspector({
         )}
         <div className="flex flex-col gap-2">
           {rollup.billItems.map((b) => {
-            const state = billState(b, today)
+            const state = billState(b, today);
             return (
-              <div key={b.id} className={cn(SUBCARD, 'p-3')}>
+              <div key={b.id} className={cn(SUBCARD, "p-3")}>
                 <div className="flex items-center gap-2">
                   <span className="truncate text-sm font-medium text-light">{b.name}</span>
                   <BillStateChip state={state} />
@@ -273,9 +285,9 @@ export default function DayInspector({
                   </span>
                 </div>
                 <p className="mt-1 text-2xs text-dim">
-                  {categoryLabel(b.category)} · {b.autopay ? 'Autopay' : 'Manual'} · {b.frequency}
+                  {categoryLabel(b.category)} · {b.autopay ? "Autopay" : "Manual"} · {b.frequency}
                 </p>
-                {state !== 'paid' && (
+                {state !== "paid" && (
                   <div className="mt-2.5 flex gap-2">
                     <button
                       type="button"
@@ -284,7 +296,7 @@ export default function DayInspector({
                     >
                       <CreditCard className="h-3.5 w-3.5" /> Pay now
                     </button>
-                    {state !== 'scheduled' && (
+                    {state !== "scheduled" && (
                       <button
                         type="button"
                         onClick={() => scheduleBill(b.id)}
@@ -296,13 +308,17 @@ export default function DayInspector({
                   </div>
                 )}
               </div>
-            )
+            );
           })}
         </div>
       </SectionCard>
 
       {/* Ledger on this day */}
-      <SectionCard eyebrow="Ledger" count={rollup.txItems.length} icon={<CircleDot className="h-3.5 w-3.5 text-dim" />}>
+      <SectionCard
+        eyebrow="Ledger"
+        count={rollup.txItems.length}
+        icon={<CircleDot className="h-3.5 w-3.5 text-dim" />}
+      >
         {rollup.txItems.length === 0 ? (
           <p className="rounded-lg border border-dashed border-white/[0.1] px-3 py-5 text-center text-xs text-dim">
             No ledger entries on this day
@@ -311,20 +327,22 @@ export default function DayInspector({
           <div className="flex flex-col gap-2">
             {rollup.txItems.map((t: Transaction) => (
               <div key={t.id} className="flex items-center gap-2.5 py-1">
-                <EventDot kind={t.type === 'income' ? 'income' : 'spend'} className="shrink-0" />
+                <EventDot kind={t.type === "income" ? "income" : "spend"} className="shrink-0" />
                 <div className="min-w-0">
-                  <p className="truncate text-sm text-light">{t.note ?? categoryLabel(t.category)}</p>
+                  <p className="truncate text-sm text-light">
+                    {t.note ?? categoryLabel(t.category)}
+                  </p>
                   <p className="text-2xs text-dim">
-                    {categoryLabel(t.category)} · {t.source ?? 'manual'}
+                    {categoryLabel(t.category)} · {t.source ?? "manual"}
                   </p>
                 </div>
                 <span
                   className={cn(
-                    'ml-auto font-display text-sm tabular-nums',
-                    t.type === 'income' ? 'text-emerald' : 'text-crimson',
+                    "ml-auto font-display text-sm tabular-nums",
+                    t.type === "income" ? "text-emerald" : "text-crimson",
                   )}
                 >
-                  {t.type === 'income' ? '+' : '-'}
+                  {t.type === "income" ? "+" : "-"}
                   {money2(t.amount)}
                 </span>
               </div>
@@ -334,7 +352,11 @@ export default function DayInspector({
       </SectionCard>
 
       {/* Upcoming bills */}
-      <SectionCard eyebrow="Upcoming" count={upcoming.length} icon={<CalendarPlus className="h-3.5 w-3.5 text-dim" />}>
+      <SectionCard
+        eyebrow="Upcoming"
+        count={upcoming.length}
+        icon={<CalendarPlus className="h-3.5 w-3.5 text-dim" />}
+      >
         {upcoming.length === 0 && (
           <p className="rounded-lg border border-dashed border-white/[0.1] px-3 py-4 text-center text-xs text-dim">
             No open bills — closed loop is clear.
@@ -357,5 +379,5 @@ export default function DayInspector({
         </div>
       </SectionCard>
     </div>
-  )
+  );
 }

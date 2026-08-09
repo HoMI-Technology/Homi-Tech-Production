@@ -88,11 +88,7 @@ export function computeBindingProgress(
       ? !hardStopPresent(result, "RUNWAY_UNDER_1_MONTH")
       : current != null && current >= target;
     const ratio =
-      current != null && target > 0
-        ? Math.min(1, Math.max(0, current / target))
-        : cleared
-          ? 1
-          : 0;
+      current != null && target > 0 ? Math.min(1, Math.max(0, current / target)) : cleared ? 1 : 0;
     return {
       code,
       label,
@@ -116,16 +112,10 @@ export function computeBindingProgress(
         ? (finance.monthlyDebtPayments / finance.monthlyIncome) * 100
         : null;
     const target = 50;
-    const cleared = result
-      ? !hardStopPresent(result, "DTI_OVER_50")
-      : dti != null && dti <= target;
+    const cleared = result ? !hardStopPresent(result, "DTI_OVER_50") : dti != null && dti <= target;
     // Progress: lower DTI is better — map 80%+ → 0, 50% → 1
     const ratio =
-      dti != null
-        ? Math.min(1, Math.max(0, (80 - dti) / (80 - target)))
-        : cleared
-          ? 1
-          : 0;
+      dti != null ? Math.min(1, Math.max(0, (80 - dti) / (80 - target))) : cleared ? 1 : 0;
     return {
       code,
       label,
@@ -144,9 +134,7 @@ export function computeBindingProgress(
   }
 
   if (code === "HOUSING_RATIO_OVER_45") {
-    const cleared = result
-      ? !hardStopPresent(result, "HOUSING_RATIO_OVER_45")
-      : false;
+    const cleared = result ? !hardStopPresent(result, "HOUSING_RATIO_OVER_45") : false;
     return {
       code,
       label,
@@ -162,9 +150,7 @@ export function computeBindingProgress(
   }
 
   if (code === "CREDIT_UNDER_620") {
-    const cleared = result
-      ? !hardStopPresent(result, "CREDIT_UNDER_620")
-      : false;
+    const cleared = result ? !hardStopPresent(result, "CREDIT_UNDER_620") : false;
     return {
       code,
       label,
@@ -259,9 +245,7 @@ export function computePathFreshness(
     );
   }
   if (pathAgeDays != null && pathAgeDays > PATH_STALE_DAYS) {
-    reasons.push(
-      `This path is ${pathAgeDays} days old — regenerate from a fresh assessment.`,
-    );
+    reasons.push(`This path is ${pathAgeDays} days old — regenerate from a fresh assessment.`);
   }
   if (financeAgeDays != null && financeAgeDays > ASSESSMENT_STALE_DAYS) {
     reasons.push(
@@ -313,20 +297,14 @@ function countStatuses(steps: ReadinessPath["steps"]): PathStatusCounts {
 }
 
 export function summarizePathResolution(path: ReadinessPath): PathResolutionSummary {
-  const actionable = countStatuses(
-    path.steps.filter((s) => s.reasonCode !== "REASSESS"),
-  );
-  const reassessment = countStatuses(
-    path.steps.filter((s) => s.reasonCode === "REASSESS"),
-  );
+  const actionable = countStatuses(path.steps.filter((s) => s.reasonCode !== "REASSESS"));
+  const reassessment = countStatuses(path.steps.filter((s) => s.reasonCode === "REASSESS"));
   return {
     actionable,
     reassessment,
     completedRatio: actionable.total > 0 ? actionable.done / actionable.total : 0,
     resolvedRatio:
-      actionable.total > 0
-        ? (actionable.done + actionable.skipped) / actionable.total
-        : 0,
+      actionable.total > 0 ? (actionable.done + actionable.skipped) / actionable.total : 0,
   };
 }
 

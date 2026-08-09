@@ -16,10 +16,7 @@ interface TimelineEvent {
 interface DecisionTimelineProps {
   assessments: AssessmentRow[];
   checkins: DailyCheckin[];
-  journalEntries: Pick<
-    JournalEntry,
-    "id" | "title" | "context" | "decision_date" | "created_at"
-  >[];
+  journalEntries: Pick<JournalEntry, "id" | "title" | "context" | "decision_date" | "created_at">[];
   maxItems?: number;
 }
 
@@ -43,22 +40,26 @@ export function DecisionTimeline({
           color: meta?.color ?? COLORS.cyan,
         };
       }),
-      ...journalEntries.slice(0, maxItems).map((j): TimelineEvent => ({
-        id: `j-${j.id}`,
-        type: "journal",
-        date: j.created_at,
-        title: j.title,
-        subtitle: j.context ?? undefined,
-        color: COLORS.emerald,
-      })),
-      ...checkins.slice(0, maxItems).map((c): TimelineEvent => ({
-        id: `c-${c.id}`,
-        type: "checkin",
-        date: c.created_at,
-        title: "Daily Check-in",
-        subtitle: `Mood: ${c.mood}/10`,
-        color: COLORS.yellow,
-      })),
+      ...journalEntries.slice(0, maxItems).map(
+        (j): TimelineEvent => ({
+          id: `j-${j.id}`,
+          type: "journal",
+          date: j.created_at,
+          title: j.title,
+          subtitle: j.context ?? undefined,
+          color: COLORS.emerald,
+        }),
+      ),
+      ...checkins.slice(0, maxItems).map(
+        (c): TimelineEvent => ({
+          id: `c-${c.id}`,
+          type: "checkin",
+          date: c.created_at,
+          title: "Daily Check-in",
+          subtitle: `Mood: ${c.mood}/10`,
+          color: COLORS.yellow,
+        }),
+      ),
     ];
 
     mapped.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -85,7 +86,9 @@ export function DecisionTimeline({
       <div className="mt-5 relative">
         <div
           className="absolute left-[7px] top-2 bottom-2 w-px"
-          style={{ background: `linear-gradient(to bottom, ${withAlpha(COLORS.dim, 0.3)}, transparent)` }}
+          style={{
+            background: `linear-gradient(to bottom, ${withAlpha(COLORS.dim, 0.3)}, transparent)`,
+          }}
         />
 
         <div className="space-y-4">
@@ -103,7 +106,10 @@ export function DecisionTimeline({
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm font-medium text-light">{event.title}</span>
                   <span className="text-xs text-dim/60">
-                    {new Date(event.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    {new Date(event.date).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    })}
                   </span>
                 </div>
                 {event.subtitle && (

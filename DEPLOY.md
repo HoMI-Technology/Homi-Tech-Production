@@ -13,20 +13,23 @@ source of the live deployment.
   `docs/MIGRATION-REPAIR.md`.
 
 ## Run locally
+
 npm install
-cp .env.example .env.local   # fill in Supabase (and any optional) values
-npm run dev        # http://localhost:3000
+cp .env.example .env.local # fill in Supabase (and any optional) values
+npm run dev # http://localhost:3000
 
 ## Verify
+
 npm run typecheck && npm test && npm run brand-check
 
 ## Deploy
-npx vercel deploy --prod --yes --token <YOUR_VERCEL_TOKEN>
+
+npx vercel deploy --prod --yes --token <YOUR*VERCEL_TOKEN>
 (No env file is committed — `.gitignore` excludes `.env*`. All vars are set
 in Vercel → Project → Settings → Environment Variables: the client-safe
 NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / NEXT_PUBLIC_SITE_URL
-plus server-only keys — SUPABASE_SERVICE_ROLE_KEY, ANTHROPIC_API_KEY, STRIPE_*,
-RESEND_API_KEY, PLAID_*, and the optional integrations listed in `.env.example`.)
+plus server-only keys — SUPABASE_SERVICE_ROLE_KEY, ANTHROPIC_API_KEY, STRIPE*_,
+RESEND*API_KEY, PLAID*_, and the optional integrations listed in `.env.example`.)
 
 ## Performance measurement (one-time setup)
 

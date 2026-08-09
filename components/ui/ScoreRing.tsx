@@ -27,7 +27,14 @@ export function ScoreRing({
     <div className="inline-flex flex-col items-center gap-2">
       <div className="relative" style={{ width: size, height: size }}>
         <svg viewBox="0 0 128 128" width={size} height={size}>
-          <circle cx="64" cy="64" r={r} fill="none" stroke={withAlpha(COLORS.slateHigh, 0.6)} strokeWidth="8" />
+          <circle
+            cx="64"
+            cy="64"
+            r={r}
+            fill="none"
+            stroke={withAlpha(COLORS.slateHigh, 0.6)}
+            strokeWidth="8"
+          />
           <circle
             cx="64"
             cy="64"
@@ -38,7 +45,10 @@ export function ScoreRing({
             strokeLinecap="round"
             strokeDasharray={`${dash} ${c - dash}`}
             transform="rotate(-90 64 64)"
-            style={{ filter: `drop-shadow(0 0 10px ${color}66)`, transition: "stroke-dasharray 900ms cubic-bezier(0.16,1,0.3,1)" }}
+            style={{
+              filter: `drop-shadow(0 0 10px ${color}66)`,
+              transition: "stroke-dasharray 900ms cubic-bezier(0.16,1,0.3,1)",
+            }}
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">

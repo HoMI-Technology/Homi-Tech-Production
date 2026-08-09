@@ -105,9 +105,7 @@ export function mergeRemoteTransactions(
 }
 
 /** Local manual rows not yet known to the server (heuristic: userId still local). */
-export function localPendingManualTransactions(
-  state: BudgetLedgerState,
-): FinanceTransaction[] {
+export function localPendingManualTransactions(state: BudgetLedgerState): FinanceTransaction[] {
   return state.transactions.filter(
     (tx) =>
       tx.source === "manual" &&
@@ -170,12 +168,11 @@ export async function pullBudgetLedgerFromServer(
   // Deferred / missing tables: keep local only.
   if (!catRes.ok || !txRes.ok) return null;
 
-  const remoteCategories =
-    ((catRes.body as { categories?: FinanceCategory[] } | null)?.categories ??
-      []) as FinanceCategory[];
-  const remoteTx =
-    ((txRes.body as { transactions?: FinanceTransaction[]; deferred?: boolean } | null)
-      ?.transactions ?? []) as FinanceTransaction[];
+  const remoteCategories = ((catRes.body as { categories?: FinanceCategory[] } | null)
+    ?.categories ?? []) as FinanceCategory[];
+  const remoteTx = ((
+    txRes.body as { transactions?: FinanceTransaction[]; deferred?: boolean } | null
+  )?.transactions ?? []) as FinanceTransaction[];
   if ((txRes.body as { deferred?: boolean } | null)?.deferred) return null;
 
   let local = loadBudgetLedger(nowIso);
@@ -190,18 +187,15 @@ export async function pullBudgetLedgerFromServer(
  * Resolve a local system category id (`cat-housing`) to the server UUID via
  * a fresh categories GET. Returns the input unchanged when already a UUID.
  */
-async function resolveCategoryIdForPush(
-  categoryId: string | null,
-): Promise<string | null> {
+async function resolveCategoryIdForPush(categoryId: string | null): Promise<string | null> {
   if (!categoryId) return null;
   if (/^[0-9a-f-]{36}$/i.test(categoryId)) return categoryId;
   const slug = categoryId.startsWith("cat-") ? categoryId.slice(4) : null;
   if (!slug) return null;
   const catRes = await fetchJson("/api/finance/categories");
   if (!catRes.ok) return null;
-  const remote =
-    ((catRes.body as { categories?: FinanceCategory[] } | null)?.categories ??
-      []) as FinanceCategory[];
+  const remote = ((catRes.body as { categories?: FinanceCategory[] } | null)?.categories ??
+    []) as FinanceCategory[];
   return systemCategorySlugMap(remote).get(slug) ?? null;
 }
 
@@ -277,9 +271,7 @@ export function markTransactionSynced(
  * Best-effort: pull, then push any still-local manual rows. Safe to call on
  * Budget tab mount; failures leave local state intact.
  */
-export async function reconcileBudgetLedger(
-  nowIso: string,
-): Promise<BudgetLedgerState | null> {
+export async function reconcileBudgetLedger(nowIso: string): Promise<BudgetLedgerState | null> {
   let state = (await pullBudgetLedgerFromServer(nowIso)) ?? loadBudgetLedger(nowIso);
 
   for (const tx of localPendingManualTransactions(state)) {

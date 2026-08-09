@@ -28,15 +28,15 @@ npx supabase migration repair 00038 --status applied --linked
 
 ## Current Path / household migrations
 
-| File | Purpose |
-|------|---------|
-| `00036_tool_scenarios.sql` | Decision Lab saved scenarios |
-| `00037_ad_spend.sql` | Admin ad spend |
-| `00038_user_readiness_path.sql` | Path to Ready LWW JSON |
-| `00039_households.sql` | Dual-user household + invites |
-| `00040_profile_email_lock.sql` | Adds `email` to the profiles privileged-column guard Ã¢â‚¬â€ applied 2026-08-01 |
-| `00041_profile_guard_security_invoker.sql` | Makes that guard actually enforce (`security invoker`) Ã¢â‚¬â€ applied 2026-08-01 |
-| `20260803000001_finance_ledger.sql` | Budget & Runway PR 3 Ã¢â‚¬â€ `finance_*` tables + FORCE RLS + system categories + mutation idempotency. **Applied to production 2026-08-03** (single-file via `supabase db query --linked`; repair `20260803000001` applied). 6 tables FORCE RLS, 22 policies, 21 system categories. |
+| File                                       | Purpose                                                                                                                                                                                                                                                                              |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `00036_tool_scenarios.sql`                 | Decision Lab saved scenarios                                                                                                                                                                                                                                                         |
+| `00037_ad_spend.sql`                       | Admin ad spend                                                                                                                                                                                                                                                                       |
+| `00038_user_readiness_path.sql`            | Path to Ready LWW JSON                                                                                                                                                                                                                                                               |
+| `00039_households.sql`                     | Dual-user household + invites                                                                                                                                                                                                                                                        |
+| `00040_profile_email_lock.sql`             | Adds `email` to the profiles privileged-column guard Ã¢â‚¬â€ applied 2026-08-01                                                                                                                                                                                                      |
+| `00041_profile_guard_security_invoker.sql` | Makes that guard actually enforce (`security invoker`) Ã¢â‚¬â€ applied 2026-08-01                                                                                                                                                                                                    |
+| `20260803000001_finance_ledger.sql`        | Budget & Runway PR 3 Ã¢â‚¬â€ `finance_*` tables + FORCE RLS + system categories + mutation idempotency. **Applied to production 2026-08-03** (single-file via `supabase db query --linked`; repair `20260803000001` applied). 6 tables FORCE RLS, 22 policies, 21 system categories. |
 
 ## Drift status
 
@@ -63,10 +63,10 @@ Known id collision: `00024` is used twice (`plaid_transactions`,
 
 ## After schema change
 
-1. Update `types/database.ts` if needed  
-2. `npx tsc --noEmit` + unit tests  
-3. Document the new file in this table  
-4. Apply to production before relying on APIs in prod  
+1. Update `types/database.ts` if needed
+2. `npx tsc --noEmit` + unit tests
+3. Document the new file in this table
+4. Apply to production before relying on APIs in prod
 
 ## CI
 
@@ -74,8 +74,7 @@ Schema is not applied by GitHub Actions (no DB credentials in CI). Application c
 
 ## Household integrity
 
-| File | Status | Notes |
-|------|--------|-------|
-| `20260802000001_household_membership_authorization.sql` | **Applied to production 2026-08-05** (was already on remote ledger; policies verified: invite-based insert + recipient select) | Closes self-join + invitee RLS defects from 00039. |
-| `20260805000001_household_integrity.sql` | **Applied to production 2026-08-05** via `supabase db query --linked` + `migration repair 20260805000001 applied` | Pre-check: 0 multi-membership, 0 households. Post-check: indexes + `household_join_allowed` (has count cap) + owner-scoped invite policy. No separate staging project exists; applied to prod after empty-table pre-check. |
-
+| File                                                    | Status                                                                                                                         | Notes                                                                                                                                                                                                                      |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `20260802000001_household_membership_authorization.sql` | **Applied to production 2026-08-05** (was already on remote ledger; policies verified: invite-based insert + recipient select) | Closes self-join + invitee RLS defects from 00039.                                                                                                                                                                         |
+| `20260805000001_household_integrity.sql`                | **Applied to production 2026-08-05** via `supabase db query --linked` + `migration repair 20260805000001 applied`              | Pre-check: 0 multi-membership, 0 households. Post-check: indexes + `household_join_allowed` (has count cap) + owner-scoped invite policy. No separate staging project exists; applied to prod after empty-table pre-check. |

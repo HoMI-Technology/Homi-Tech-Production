@@ -10,43 +10,28 @@ import { PlannerPage } from "@/components/planner/PlannerPage";
 import { hydratePlannerFromLedger } from "@/lib/planner/ledger-bridge";
 
 const OverviewCommand = dynamic(
-  () =>
-    import("@/components/planner/overview/OverviewCommand").then(
-      (m) => m.default,
-    ),
+  () => import("@/components/planner/overview/OverviewCommand").then((m) => m.default),
   {
     ssr: false,
     loading: () => <ProductLoadingSkeleton label="Loading overview" rows={3} />,
   },
 );
-const DecisionCalendar = dynamic(
-  () => import("@/components/planner/calendar/DecisionCalendar"),
-  {
-    ssr: false,
-    loading: () => <ProductLoadingSkeleton label="Loading calendar" rows={3} />,
-  },
-);
-const BankingCommand = dynamic(
-  () => import("@/components/planner/banking/BankingCommand"),
-  {
-    ssr: false,
-    loading: () => <ProductLoadingSkeleton label="Loading banks" rows={3} />,
-  },
-);
-const WealthCommand = dynamic(
-  () => import("@/components/planner/wealth/WealthCommand"),
-  {
-    ssr: false,
-    loading: () => <ProductLoadingSkeleton label="Loading wealth" rows={3} />,
-  },
-);
-const PlanCommand = dynamic(
-  () => import("@/components/planner/plan/PlanCommand"),
-  {
-    ssr: false,
-    loading: () => <ProductLoadingSkeleton label="Loading plan" rows={3} />,
-  },
-);
+const DecisionCalendar = dynamic(() => import("@/components/planner/calendar/DecisionCalendar"), {
+  ssr: false,
+  loading: () => <ProductLoadingSkeleton label="Loading calendar" rows={3} />,
+});
+const BankingCommand = dynamic(() => import("@/components/planner/banking/BankingCommand"), {
+  ssr: false,
+  loading: () => <ProductLoadingSkeleton label="Loading banks" rows={3} />,
+});
+const WealthCommand = dynamic(() => import("@/components/planner/wealth/WealthCommand"), {
+  ssr: false,
+  loading: () => <ProductLoadingSkeleton label="Loading wealth" rows={3} />,
+});
+const PlanCommand = dynamic(() => import("@/components/planner/plan/PlanCommand"), {
+  ssr: false,
+  loading: () => <ProductLoadingSkeleton label="Loading plan" rows={3} />,
+});
 
 export function PlannerApp() {
   const hasHydrated = usePlannerStore((s) => s._hasHydrated);

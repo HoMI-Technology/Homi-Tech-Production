@@ -17,11 +17,7 @@ import { track } from "@/lib/analytics";
 import { useCfm } from "@/hooks/use-cfm";
 import { cfmCoverage } from "@/lib/tools/cfm";
 import { getLens, lensCoveragePaths } from "@/lib/tools/registry";
-import {
-  publishLensDigest,
-  requestLensSynthesis,
-  type LensDigestInput,
-} from "@/lib/tools/digest";
+import { publishLensDigest, requestLensSynthesis, type LensDigestInput } from "@/lib/tools/digest";
 
 export function LensSynthesis({ digest }: { digest: LensDigestInput }) {
   const { cfm, hydrated } = useCfm();

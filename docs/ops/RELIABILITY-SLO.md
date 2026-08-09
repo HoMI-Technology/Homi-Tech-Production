@@ -2,13 +2,13 @@
 
 ## Product SLOs
 
-| Service | Target | Measurement |
-|---------|--------|-------------|
-| Assessment scoring | 99.9% success when app responds 200 | client errors / scoring calls |
-| Marketing + assess routes | 99.5% availability | uptime / Vercel |
-| Path UI usable offline of DB | Always for generate/local | manual + e2e |
-| Path/household API 5xx | <1% of authed requests (7d) | server logs / APM |
-| Companion without inventing scores | 100% of sampled evals | red-team prompts |
+| Service                            | Target                              | Measurement                   |
+| ---------------------------------- | ----------------------------------- | ----------------------------- |
+| Assessment scoring                 | 99.9% success when app responds 200 | client errors / scoring calls |
+| Marketing + assess routes          | 99.5% availability                  | uptime / Vercel               |
+| Path UI usable offline of DB       | Always for generate/local           | manual + e2e                  |
+| Path/household API 5xx             | <1% of authed requests (7d)         | server logs / APM             |
+| Companion without inventing scores | 100% of sampled evals               | red-team prompts              |
 
 ## Error budget
 
@@ -17,12 +17,12 @@
 
 ## Public surfaces
 
-- `/status` — human-readable posture  
-- `/api/healthcheck` — machine probe  
-- `/architecture.json` — agent-scrapable product map (`npm run architecture:gen`)  
+- `/status` — human-readable posture
+- `/api/healthcheck` — machine probe
+- `/architecture.json` — agent-scrapable product map (`npm run architecture:gen`)
 
 ## Ownership
 
-- Core readiness: scoring + path engine  
-- Money truth: finance + Plaid  
+- Core readiness: scoring + path engine
+- Money truth: finance + Plaid
 - Platform: CI, migrations SSOT (`docs/ops/MIGRATIONS-SSOT.md`)

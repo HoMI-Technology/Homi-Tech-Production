@@ -86,7 +86,9 @@ export function MonthGrid({
             >
               <span
                 className={`text-sm ${
-                  isToday ? "flex h-5 w-5 items-center justify-center rounded-full bg-cyan text-navy" : "text-light"
+                  isToday
+                    ? "flex h-5 w-5 items-center justify-center rounded-full bg-cyan text-navy"
+                    : "text-light"
                 } ${inMonth ? "" : "text-dim"}`}
               >
                 {day.getDate()}

@@ -10,10 +10,7 @@ import {
   type PathStepStatus,
   type ReadinessPath,
 } from "./path";
-import {
-  autoCompletePathFromSignals,
-  type CategoryAutoSignals,
-} from "./autocomplete";
+import { autoCompletePathFromSignals, type CategoryAutoSignals } from "./autocomplete";
 
 export type EvidenceKind =
   | "manual"
@@ -42,9 +39,7 @@ export function completeStepWithEvidence(
     steps: next.steps.map((s) => {
       if (s.id !== stepId) return s;
       const stamp = `[evidence:${evidence.kind}] ${evidence.detail} @ ${evidence.at}`;
-      const notes = s.notes.includes("[evidence:")
-        ? s.notes
-        : `${s.notes}\n\n${stamp}`;
+      const notes = s.notes.includes("[evidence:") ? s.notes : `${s.notes}\n\n${stamp}`;
       return {
         ...s,
         notes,
@@ -63,13 +58,7 @@ export function evidenceBasedAutoComplete(
   categories?: CategoryAutoSignals | null,
   now: Date = new Date(),
 ): { path: ReadinessPath; completedStepIds: string[]; reasons: string[] } {
-  const base = autoCompletePathFromSignals(
-    path,
-    result,
-    finance,
-    now,
-    categories,
-  );
+  const base = autoCompletePathFromSignals(path, result, finance, now, categories);
   if (base.completedStepIds.length === 0) return base;
 
   let next = base.path;
@@ -88,8 +77,7 @@ export function evidenceBasedAutoComplete(
       ...next,
       steps: next.steps.map((s) => {
         if (s.id !== id) return s;
-        const detail =
-          base.reasons.find((r) => r.startsWith(s.title)) ?? reason;
+        const detail = base.reasons.find((r) => r.startsWith(s.title)) ?? reason;
         const stamp = `[evidence:${kind}] ${detail} @ ${now.toISOString()}`;
         return {
           ...s,

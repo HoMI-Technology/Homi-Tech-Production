@@ -40,13 +40,9 @@ export function DashboardSwitcher({
   });
 
   const activeHref =
-    visible.length > 0
-      ? (activeDashboardHref(pathname, visible) ?? visible[0].href)
-      : null;
+    visible.length > 0 ? (activeDashboardHref(pathname, visible) ?? visible[0].href) : null;
   const activeDashboard =
-    visible.length > 0
-      ? (visible.find((d) => d.href === activeHref) ?? visible[0])
-      : null;
+    visible.length > 0 ? (visible.find((d) => d.href === activeHref) ?? visible[0]) : null;
 
   useEffect(() => {
     setOpen(false);

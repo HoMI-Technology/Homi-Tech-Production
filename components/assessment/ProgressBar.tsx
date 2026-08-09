@@ -8,13 +8,7 @@ export interface StepMeta {
  * Pillar-colored segmented progress bar. Segments are grouped by pillar
  * (or neutral for intro/review steps) with the completed portion filled.
  */
-export function ProgressBar({
-  steps,
-  currentIndex,
-}: {
-  steps: StepMeta[];
-  currentIndex: number;
-}) {
+export function ProgressBar({ steps, currentIndex }: { steps: StepMeta[]; currentIndex: number }) {
   const colorFor = (pillar: StepMeta["pillar"]) => {
     if (!pillar) return withAlpha(COLORS.dim, 0.4);
     return PILLARS.find((p) => p.key === pillar)?.color ?? withAlpha(COLORS.dim, 0.4);

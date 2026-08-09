@@ -13,12 +13,10 @@ export default function AgentsPage() {
     <PageFrame width="content" density="spacious" role="personal">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-display text-3xl font-semibold text-light sm:text-4xl">
-            AI Agents
-          </h1>
+          <h1 className="font-display text-3xl font-semibold text-light sm:text-4xl">AI Agents</h1>
           <p className="mt-2 max-w-2xl text-sm text-dim">
-            A team of specialists for your decision readiness. Homie coordinates; the others
-            bring their own lens. Sentinel watches every exchange for safety.
+            A team of specialists for your decision readiness. Homie coordinates; the others bring
+            their own lens. Sentinel watches every exchange for safety.
           </p>
         </div>
         <Link

@@ -127,7 +127,11 @@ export default async function EmployeeDashboardPage() {
                 </p>
                 <div className="mt-1.5 flex flex-wrap items-end justify-center gap-3 lg:justify-start">
                   <HeroScore value={scorePct ?? 0} color={tint} />
-                  {verdict && <div className="mb-1.5"><VerdictBadge verdict={verdict} size="lg" /></div>}
+                  {verdict && (
+                    <div className="mb-1.5">
+                      <VerdictBadge verdict={verdict} size="lg" />
+                    </div>
+                  )}
                 </div>
                 <p className="mt-2.5 max-w-xl text-sm text-light/90">{verdictMeta.line}</p>
               </div>

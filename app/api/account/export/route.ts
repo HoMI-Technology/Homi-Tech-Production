@@ -7,7 +7,10 @@ export async function GET(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`account-export:${ip}`, { limit: 5, windowMs: 60_000 });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a moment." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a moment." },
+      { status: 429 },
+    );
   }
 
   const supabase = await createClient();

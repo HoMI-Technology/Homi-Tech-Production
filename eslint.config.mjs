@@ -93,5 +93,5 @@ export default tseslint.config(
       "*.min.js",
       "public/**",
     ],
-  }
+  },
 );

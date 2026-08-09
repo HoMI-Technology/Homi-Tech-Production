@@ -115,7 +115,15 @@ export function CompanionHost() {
     >
       {/* Inline mark — no ThresholdCompass in the public shell; COLORS only. */}
       <svg width="28" height="28" viewBox="0 0 40 40" aria-hidden="true">
-        <circle cx="20" cy="20" r="15" fill="none" stroke={COLORS.cyan} strokeWidth="1.5" opacity="0.7" />
+        <circle
+          cx="20"
+          cy="20"
+          r="15"
+          fill="none"
+          stroke={COLORS.cyan}
+          strokeWidth="1.5"
+          opacity="0.7"
+        />
         <circle cx="20" cy="20" r="4" fill={COLORS.cyan} />
         <path
           d="M20 6v6M20 28v6M6 20h6M28 20h6"

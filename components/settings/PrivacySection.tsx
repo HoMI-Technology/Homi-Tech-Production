@@ -42,9 +42,15 @@ export function PrivacySection() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-sm font-medium text-light">Export my data</p>
-            <p className="text-sm text-dim">Download everything HōMI has stored about you as JSON.</p>
+            <p className="text-sm text-dim">
+              Download everything HōMI has stored about you as JSON.
+            </p>
           </div>
-          <button onClick={handleExport} disabled={exporting} className="btn btn-ghost btn-sm disabled:opacity-60">
+          <button
+            onClick={handleExport}
+            disabled={exporting}
+            className="btn btn-ghost btn-sm disabled:opacity-60"
+          >
             {exporting ? "Preparing…" : "Export my data"}
           </button>
         </div>
@@ -55,12 +61,11 @@ export function PrivacySection() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-sm font-medium text-light">Delete my account</p>
-            <p className="text-sm text-dim">Permanently remove your account and all associated data.</p>
+            <p className="text-sm text-dim">
+              Permanently remove your account and all associated data.
+            </p>
           </div>
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            className="btn btn-danger-ghost"
-          >
+          <button onClick={() => setShowDeleteModal(true)} className="btn btn-danger-ghost">
             Delete my account
           </button>
         </div>

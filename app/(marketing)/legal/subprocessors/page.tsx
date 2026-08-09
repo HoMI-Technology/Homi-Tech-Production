@@ -31,7 +31,10 @@ const SUBPROCESSORS: { category: string; vendors: { name: string; purpose: strin
     category: "Analytics and Observability",
     vendors: [
       { name: "PostHog, Inc.", purpose: "Product analytics and event tracking" },
-      { name: "Functional Software, Inc. (Sentry)", purpose: "Error tracking and performance monitoring" },
+      {
+        name: "Functional Software, Inc. (Sentry)",
+        purpose: "Error tracking and performance monitoring",
+      },
     ],
   },
   {
@@ -55,9 +58,9 @@ export default function SubprocessorsPage() {
           <div>
             <h2 className="type-h3">Overview</h2>
             <p className="mt-3 leading-relaxed">
-              {BRAND.legalEntity} uses third-party service providers
-              (&ldquo;Subprocessors&rdquo;) to help deliver our Services. This page lists the
-              Subprocessors we use and the purpose of each.
+              {BRAND.legalEntity} uses third-party service providers (&ldquo;Subprocessors&rdquo;)
+              to help deliver our Services. This page lists the Subprocessors we use and the purpose
+              of each.
             </p>
             <p className="mt-3 leading-relaxed">
               We will notify users of material changes to our Subprocessor list via email at least

@@ -9,26 +9,15 @@
 
 import { loadLocalResult } from "@/lib/assessment/storage";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
-import {
-  loadFinanceState,
-  hasSavedFinanceState,
-  financeSavedAt,
-} from "@/lib/finance/store";
-import {
-  hasSavedBudgetLedger,
-  loadBudgetLedger,
-} from "@/lib/finance/local-ledger";
+import { loadFinanceState, hasSavedFinanceState, financeSavedAt } from "@/lib/finance/store";
+import { hasSavedBudgetLedger, loadBudgetLedger } from "@/lib/finance/local-ledger";
 import {
   buildFinanceContextFromLedger,
   buildFinanceContextFromLegacy,
 } from "@/lib/advisor/finance-context";
 import { loadCreditState, hasSavedCreditState, creditSavedAt } from "@/lib/credit/store";
 import { buildScoreExplanation } from "@/lib/advisor/explain";
-import {
-  loadReadinessPath,
-  getFinanceSavedAtForPath,
-  buildPathCoachPack,
-} from "@/lib/readiness";
+import { loadReadinessPath, getFinanceSavedAtForPath, buildPathCoachPack } from "@/lib/readiness";
 import type {
   AdvisorAssessmentContext,
   AdvisorCreditContext,

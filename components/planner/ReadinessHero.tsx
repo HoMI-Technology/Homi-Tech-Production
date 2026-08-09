@@ -9,10 +9,7 @@ import {
   type PlannerScore,
 } from "@/lib/planner/score-bridge";
 import { usePlannerStore } from "@/lib/planner/store";
-import {
-  financialReality as financialRealityFn,
-  upcomingBillsTotal,
-} from "@/lib/planner/derived";
+import { financialReality as financialRealityFn, upcomingBillsTotal } from "@/lib/planner/derived";
 
 type Reality = ReturnType<typeof financialRealityFn>;
 
@@ -116,31 +113,29 @@ export function ReadinessHero({
   const verdict: VerdictKey | null = score?.verdict ?? null;
   const meta = verdict ? VERDICT_META[verdict] : null;
 
-  const pillars = (
-    [
-      {
-        label: "Financial Reality",
-        short: "Financial",
-        pct: score?.pillarPct.financial ?? 0,
-        bar: "bg-cyan",
-        max: PILLAR_MAX_POINTS.financial,
-      },
-      {
-        label: "Emotional Truth",
-        short: "Emotional",
-        pct: score?.pillarPct.emotional ?? 0,
-        bar: "bg-emerald",
-        max: PILLAR_MAX_POINTS.emotional,
-      },
-      {
-        label: "Perfect Timing",
-        short: "Timing",
-        pct: score?.pillarPct.timing ?? 0,
-        bar: "bg-yellow",
-        max: PILLAR_MAX_POINTS.timing,
-      },
-    ] as const
-  );
+  const pillars = [
+    {
+      label: "Financial Reality",
+      short: "Financial",
+      pct: score?.pillarPct.financial ?? 0,
+      bar: "bg-cyan",
+      max: PILLAR_MAX_POINTS.financial,
+    },
+    {
+      label: "Emotional Truth",
+      short: "Emotional",
+      pct: score?.pillarPct.emotional ?? 0,
+      bar: "bg-emerald",
+      max: PILLAR_MAX_POINTS.emotional,
+    },
+    {
+      label: "Perfect Timing",
+      short: "Timing",
+      pct: score?.pillarPct.timing ?? 0,
+      bar: "bg-yellow",
+      max: PILLAR_MAX_POINTS.timing,
+    },
+  ] as const;
 
   return (
     <section className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-br from-slate-surface/55 via-navy-light/40 to-navy/60 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-7">
@@ -156,9 +151,7 @@ export function ReadinessHero({
       <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-10">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-2xs font-bold uppercase tracking-[0.16em] text-cyan">
-              HōMI-Score
-            </p>
+            <p className="text-2xs font-bold uppercase tracking-[0.16em] text-cyan">HōMI-Score</p>
             {completeness.canShowLiveScore && score ? (
               <span className="rounded-full border border-white/10 bg-navy/50 px-2 py-0.5 text-3xs font-medium uppercase tracking-wide text-dim">
                 Live instrument
@@ -172,9 +165,8 @@ export function ReadinessHero({
                 Set a decision profile for a live score
               </p>
               <p className="max-w-md text-sm leading-relaxed text-dim">
-                Financial gauges update from your numbers. Emotional Truth and
-                Timing need your profile so we never invent a credit band or
-                hard-stop.
+                Financial gauges update from your numbers. Emotional Truth and Timing need your
+                profile so we never invent a credit band or hard-stop.
               </p>
               <button
                 type="button"
@@ -219,9 +211,7 @@ export function ReadinessHero({
                   <div key={p.short}>
                     <div className="mb-1.5 flex justify-between text-xs">
                       <span className="font-medium text-dim">{p.short}</span>
-                      <span className="font-score tabular-nums text-light/80">
-                        {p.pct}%
-                      </span>
+                      <span className="font-score tabular-nums text-light/80">{p.pct}%</span>
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-navy/80 ring-1 ring-white/[0.04]">
                       <div
@@ -312,9 +302,8 @@ export function ReadinessHero({
         </div>
       </div>
       <p className="relative mt-6 border-t border-white/[0.06] pt-4 text-2xs leading-relaxed text-dim">
-        Educational guidance only - not financial, legal, tax, or investment
-        advice. Live score is a planner instrument from your inputs; your
-        official assessment record lives on Results.
+        Educational guidance only - not financial, legal, tax, or investment advice. Live score is a
+        planner instrument from your inputs; your official assessment record lives on Results.
       </p>
     </section>
   );

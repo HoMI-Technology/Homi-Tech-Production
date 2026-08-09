@@ -249,7 +249,10 @@ export async function POST(request: Request) {
 
   const parsed = bodySchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid request body.", issues: parsed.error.issues }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body.", issues: parsed.error.issues },
+      { status: 400 },
+    );
   }
 
   const { messages, mode, demoContext } = parsed.data;
@@ -285,7 +288,7 @@ export async function POST(request: Request) {
   async function respond(reply: string, source: "model" | "fallback") {
     let conversationId = demoContext
       ? null
-      : (parsed.success ? parsed.data.conversationId : null) ?? null;
+      : ((parsed.success ? parsed.data.conversationId : null) ?? null);
     if (supabase && gateUserId) {
       const persisted = await persistCompanionExchange(supabase, {
         userId: gateUserId,
@@ -340,7 +343,10 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-      console.error("[agents] model call failed", { status: response.status, reason: "non_200_response" });
+      console.error("[agents] model call failed", {
+        status: response.status,
+        reason: "non_200_response",
+      });
       const reply = buildAgentFallbackReply(lastUserMessage, leadAgent, assessment);
       return respond(reply, "fallback");
     }

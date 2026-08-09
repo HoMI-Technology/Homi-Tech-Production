@@ -122,7 +122,10 @@ export interface RenderedEmail {
 
 export type DeliverResult =
   | { ok: true; skipped?: undefined }
-  | { ok: false; skipped: "unconfigured" | "unsubscribed" | "duplicate" | "provider_error" | "no_ledger" };
+  | {
+      ok: false;
+      skipped: "unconfigured" | "unsubscribed" | "duplicate" | "provider_error" | "no_ledger";
+    };
 
 export async function deliverEmail(
   to: string,
@@ -156,7 +159,10 @@ export async function deliverEmail(
     return { ok: true };
   } catch (err) {
     const correlationId = crypto.randomUUID();
-    console.error(`[email:${correlationId}] send failed:`, err instanceof Error ? err.message : "unknown");
+    console.error(
+      `[email:${correlationId}] send failed:`,
+      err instanceof Error ? err.message : "unknown",
+    );
     return { ok: false, skipped: "provider_error" };
   }
 }
@@ -185,7 +191,11 @@ export async function sendLifecycleEmail(args: LifecycleEmailArgs): Promise<Deli
   if (claimError) {
     if (claimError.code === "23505") return { ok: false, skipped: "duplicate" };
     const correlationId = crypto.randomUUID();
-    console.error(`[email-ledger:${correlationId}] claim failed:`, claimError.code, claimError.message);
+    console.error(
+      `[email-ledger:${correlationId}] claim failed:`,
+      claimError.code,
+      claimError.message,
+    );
     return { ok: false, skipped: "no_ledger" };
   }
 

@@ -82,8 +82,7 @@ function SignInForm() {
 
       {magicSent ? (
         <div className="mt-6 rounded-xl border border-cyan/30 bg-cyan/10 p-4 text-sm text-light">
-          Check your inbox. We sent a sign-in link to{" "}
-          <span className="font-medium">{email}</span>.
+          Check your inbox. We sent a sign-in link to <span className="font-medium">{email}</span>.
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -130,7 +129,11 @@ function SignInForm() {
             </p>
           )}
 
-          <button type="submit" disabled={loading} className="btn btn-primary w-full disabled:opacity-60">
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn btn-primary w-full disabled:opacity-60"
+          >
             {loading ? "Signing in…" : "Sign in"}
           </button>
 

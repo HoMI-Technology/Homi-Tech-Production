@@ -55,11 +55,15 @@ export interface ServerCompanionState {
 
 const VERDICTS: VerdictKey[] = ["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"];
 
-async function assembleAssessment(supabase: SupabaseClient): Promise<AdvisorAssessmentContext | null> {
+async function assembleAssessment(
+  supabase: SupabaseClient,
+): Promise<AdvisorAssessmentContext | null> {
   try {
     const { data, error } = await supabase
       .from("assessments")
-      .select("overall_score, verdict, financial_score, emotional_score, timing_score, hard_stops, completed_at")
+      .select(
+        "overall_score, verdict, financial_score, emotional_score, timing_score, hard_stops, completed_at",
+      )
       .eq("status", "completed")
       .order("completed_at", { ascending: false })
       .limit(2);
@@ -114,7 +118,10 @@ async function assembleFinance(supabase: SupabaseClient): Promise<AdvisorFinance
       .maybeSingle();
     if (error || !data?.state) return null;
 
-    const state: FinanceState = { ...DEFAULT_FINANCE_STATE, ...(data.state as Partial<FinanceState>) };
+    const state: FinanceState = {
+      ...DEFAULT_FINANCE_STATE,
+      ...(data.state as Partial<FinanceState>),
+    };
     const runway = runwayMonths(state);
     const stamp = Number(data.client_updated_at);
     return {
@@ -160,7 +167,9 @@ async function assembleCredit(supabase: SupabaseClient): Promise<AdvisorCreditCo
  * blocks load concurrently and degrade independently; returns null only
  * when nothing at all is available server-side.
  */
-export async function assembleServerContext(supabase: SupabaseClient): Promise<ServerCompanionState | null> {
+export async function assembleServerContext(
+  supabase: SupabaseClient,
+): Promise<ServerCompanionState | null> {
   try {
     const [assessment, finance, credit] = await Promise.all([
       assembleAssessment(supabase),

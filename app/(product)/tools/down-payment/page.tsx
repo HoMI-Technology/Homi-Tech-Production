@@ -21,7 +21,12 @@ interface GrowthPoint {
   saved: number;
 }
 
-function simulateGrowth(saved: number, monthly: number, apy: number, goal: number): { points: GrowthPoint[]; monthsToGoal: number | null } {
+function simulateGrowth(
+  saved: number,
+  monthly: number,
+  apy: number,
+  goal: number,
+): { points: GrowthPoint[]; monthsToGoal: number | null } {
   const monthlyRate = apy / 100 / 12;
   const points: GrowthPoint[] = [{ month: 0, saved }];
   let balance = saved;
@@ -113,11 +118,54 @@ export default function DownPaymentPage() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
-          <LensField label="Target home price" value={price} onChange={setPrice} min={100000} max={1500000} step={5000} format="currency" source={sourceFor("price")} />
-          <LensField label="Target down payment %" value={targetPct} onChange={setTargetPct} min={3} max={30} step={1} format="percent" />
-          <LensField label="Already saved" value={saved} onChange={setSaved} min={0} max={goal * 1.5 || 200000} step={500} format="currency" source={sourceFor("saved")} />
-          <LensField label="Monthly contribution" value={monthly} onChange={setMonthly} min={0} max={10000} step={50} format="currency" source={sourceFor("monthly")} />
-          <LensField label="Savings APY" value={apy} onChange={setApy} min={0} max={10} step={0.1} format="percent" />
+          <LensField
+            label="Target home price"
+            value={price}
+            onChange={setPrice}
+            min={100000}
+            max={1500000}
+            step={5000}
+            format="currency"
+            source={sourceFor("price")}
+          />
+          <LensField
+            label="Target down payment %"
+            value={targetPct}
+            onChange={setTargetPct}
+            min={3}
+            max={30}
+            step={1}
+            format="percent"
+          />
+          <LensField
+            label="Already saved"
+            value={saved}
+            onChange={setSaved}
+            min={0}
+            max={goal * 1.5 || 200000}
+            step={500}
+            format="currency"
+            source={sourceFor("saved")}
+          />
+          <LensField
+            label="Monthly contribution"
+            value={monthly}
+            onChange={setMonthly}
+            min={0}
+            max={10000}
+            step={50}
+            format="currency"
+            source={sourceFor("monthly")}
+          />
+          <LensField
+            label="Savings APY"
+            value={apy}
+            onChange={setApy}
+            min={0}
+            max={10}
+            step={0.1}
+            format="percent"
+          />
 
           <div className="hairline" />
           <UpdateNumbersButton
@@ -135,11 +183,15 @@ export default function DownPaymentPage() {
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
                 <p className="text-xs text-dim">Goal</p>
-                <p className="score-numeral mt-1 text-lg font-bold text-light">{formatCurrency(goal)}</p>
+                <p className="score-numeral mt-1 text-lg font-bold text-light">
+                  {formatCurrency(goal)}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-dim">Remaining</p>
-                <p className="score-numeral mt-1 text-lg font-bold text-light">{formatCurrency(remaining)}</p>
+                <p className="score-numeral mt-1 text-lg font-bold text-light">
+                  {formatCurrency(remaining)}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-dim">Time to goal</p>
@@ -148,17 +200,49 @@ export default function DownPaymentPage() {
                 </p>
               </div>
             </div>
-            {targetDate && <p className="mt-3 text-center text-sm text-dim">Estimated: {targetDate}</p>}
+            {targetDate && (
+              <p className="mt-3 text-center text-sm text-dim">Estimated: {targetDate}</p>
+            )}
           </div>
 
           <LensSynthesis digest={digest} />
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">Growth curve</h2>
-            <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} className="mt-4" role="img" aria-label="Down payment savings growth curve">
-              <line x1={padding} x2={width - padding} y1={goalY} y2={goalY} stroke={COLORS.yellow} strokeDasharray="6 4" strokeWidth="1.5" />
-              <text x={width - padding} y={goalY - 6} textAnchor="end" fontSize="11" fill={COLORS.yellow}>Goal</text>
-              <polyline points={linePoints} fill="none" stroke={COLORS.cyan} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            <svg
+              viewBox={`0 0 ${width} ${height}`}
+              width="100%"
+              height={height}
+              className="mt-4"
+              role="img"
+              aria-label="Down payment savings growth curve"
+            >
+              <line
+                x1={padding}
+                x2={width - padding}
+                y1={goalY}
+                y2={goalY}
+                stroke={COLORS.yellow}
+                strokeDasharray="6 4"
+                strokeWidth="1.5"
+              />
+              <text
+                x={width - padding}
+                y={goalY - 6}
+                textAnchor="end"
+                fontSize="11"
+                fill={COLORS.yellow}
+              >
+                Goal
+              </text>
+              <polyline
+                points={linePoints}
+                fill="none"
+                stroke={COLORS.cyan}
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </div>
 
@@ -168,4 +252,3 @@ export default function DownPaymentPage() {
     </ToolShell>
   );
 }
-

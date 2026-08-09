@@ -36,10 +36,7 @@ export function HardStopBanner({ result }: { result: AssessmentResult }) {
             </div>
             <ul className="mt-3 flex flex-col gap-2">
               {result.hardStops.map((stop) => (
-                <li
-                  key={stop.code}
-                  className="flex gap-2.5 text-sm leading-relaxed text-light/90"
-                >
+                <li key={stop.code} className="flex gap-2.5 text-sm leading-relaxed text-light/90">
                   <span
                     className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full"
                     style={{ background: COLORS.crimson }}

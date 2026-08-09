@@ -69,12 +69,8 @@ if (allFiles.length === 0) {
   process.exit(0);
 }
 
-console.log(
-  `[mark-local-migrations-applied] ${DRY_RUN ? "DRY RUN — no writes" : "LIVE RUN"}`,
-);
-console.log(
-  `[mark-local-migrations-applied] will mark ${allFiles.length} version(s) as applied`,
-);
+console.log(`[mark-local-migrations-applied] ${DRY_RUN ? "DRY RUN — no writes" : "LIVE RUN"}`);
+console.log(`[mark-local-migrations-applied] will mark ${allFiles.length} version(s) as applied`);
 
 if (nonNumericFiles.length > 0) {
   console.log(
@@ -102,9 +98,7 @@ for (const m of allFiles) {
     applied++;
   } catch (err) {
     const stderr = err.stderr?.toString() ?? err.message;
-    console.error(
-      `[mark-local-migrations-applied] FAILED ${m.version}: ${stderr.trim()}`,
-    );
+    console.error(`[mark-local-migrations-applied] FAILED ${m.version}: ${stderr.trim()}`);
     failed++;
   }
 }
@@ -122,7 +116,5 @@ if (DRY_RUN) {
     "\n[mark-local-migrations-applied] dry-run complete. Rerun without --dry-run to write.",
   );
 } else {
-  console.log(
-    "\n[mark-local-migrations-applied] done. Verify with: supabase migration list",
-  );
+  console.log("\n[mark-local-migrations-applied] done. Verify with: supabase migration list");
 }

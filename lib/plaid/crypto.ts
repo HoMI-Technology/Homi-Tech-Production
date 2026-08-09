@@ -23,8 +23,8 @@ function getKey(): Buffer {
   const raw = process.env.PLAID_TOKEN_KEY;
   if (!raw) {
     throw new Error(
-      '[HōMI plaid] Missing PLAID_TOKEN_KEY. Set it to a base64-encoded 32-byte key ' +
-        '(e.g. `openssl rand -base64 32`) before storing bank connections.',
+      "[HōMI plaid] Missing PLAID_TOKEN_KEY. Set it to a base64-encoded 32-byte key " +
+        "(e.g. `openssl rand -base64 32`) before storing bank connections.",
     );
   }
   const key = Buffer.from(raw, "base64");

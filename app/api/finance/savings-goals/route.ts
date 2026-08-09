@@ -40,9 +40,15 @@ function serverError(scope: string, message: string) {
 /** GET /api/finance/savings-goals — the caller's active savings goal, or null. */
 export async function GET(request: Request) {
   const ip = getClientIp(request);
-  const { allowed } = await rateLimit(`finance-savings-goals-read:${ip}`, { limit: 30, windowMs: 60_000 });
+  const { allowed } = await rateLimit(`finance-savings-goals-read:${ip}`, {
+    limit: 30,
+    windowMs: 60_000,
+  });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a minute." },
+      { status: 429 },
+    );
   }
 
   const supabase = await createClient();
@@ -66,7 +72,10 @@ export async function GET(request: Request) {
     }
     const correlationId = crypto.randomUUID();
     console.error(`[finance-savings-goals:get:${correlationId}]`, error.message);
-    return NextResponse.json({ error: "Could not load your goal.", correlationId }, { status: 500 });
+    return NextResponse.json(
+      { error: "Could not load your goal.", correlationId },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ goal: data ? rowToSavingsGoal(data as FinanceSavingsGoalRow) : null });
@@ -75,9 +84,15 @@ export async function GET(request: Request) {
 /** PUT /api/finance/savings-goals — creates or replaces the caller's active goal. */
 export async function PUT(request: Request) {
   const ip = getClientIp(request);
-  const { allowed } = await rateLimit(`finance-savings-goals-write:${ip}`, { limit: 20, windowMs: 60_000 });
+  const { allowed } = await rateLimit(`finance-savings-goals-write:${ip}`, {
+    limit: 20,
+    windowMs: 60_000,
+  });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a minute." },
+      { status: 429 },
+    );
   }
 
   const supabase = await createClient();
@@ -165,9 +180,15 @@ export async function PUT(request: Request) {
 /** DELETE /api/finance/savings-goals — archives the caller's active goal. Idempotent. */
 export async function DELETE(request: Request) {
   const ip = getClientIp(request);
-  const { allowed } = await rateLimit(`finance-savings-goals-write:${ip}`, { limit: 20, windowMs: 60_000 });
+  const { allowed } = await rateLimit(`finance-savings-goals-write:${ip}`, {
+    limit: 20,
+    windowMs: 60_000,
+  });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a minute." },
+      { status: 429 },
+    );
   }
 
   const supabase = await createClient();

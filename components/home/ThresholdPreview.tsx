@@ -10,7 +10,10 @@ function useTweened(target: number, ms = 450): number {
   const [value, setValue] = useState(target);
   const raf = useRef(0);
   useEffect(() => {
-    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
       setValue(target);
       return;
     }
@@ -43,7 +46,13 @@ type PreviewVerdict = "READY" | "ALMOST_THERE" | "BUILD_FIRST" | "DO_NOT_PROCEED
 
 const VERDICTS: Record<
   PreviewVerdict,
-  { label: string; color: string; temperature: string; message: string; engineKey: "READY" | "ALMOST_THERE" | "BUILD_FIRST" | "NOT_YET" }
+  {
+    label: string;
+    color: string;
+    temperature: string;
+    message: string;
+    engineKey: "READY" | "ALMOST_THERE" | "BUILD_FIRST" | "NOT_YET";
+  }
 > = {
   READY: {
     label: "READY",
@@ -76,9 +85,24 @@ const VERDICTS: Record<
 };
 
 const SIGNALS = [
-  { key: "financial" as const, name: "Financial Reality", color: COLORS.cyan, ask: "Can you absorb this decision without destabilizing your foundation?" },
-  { key: "emotional" as const, name: "Emotional Truth", color: COLORS.emerald, ask: "Are you choosing from clarity, or from pressure?" },
-  { key: "timing" as const, name: "Perfect Timing", color: COLORS.yellow, ask: "Does this moment support the decision?" },
+  {
+    key: "financial" as const,
+    name: "Financial Reality",
+    color: COLORS.cyan,
+    ask: "Can you absorb this decision without destabilizing your foundation?",
+  },
+  {
+    key: "emotional" as const,
+    name: "Emotional Truth",
+    color: COLORS.emerald,
+    ask: "Are you choosing from clarity, or from pressure?",
+  },
+  {
+    key: "timing" as const,
+    name: "Perfect Timing",
+    color: COLORS.yellow,
+    ask: "Does this moment support the decision?",
+  },
 ];
 
 function toVerdict(score: number): PreviewVerdict {
@@ -134,11 +158,16 @@ export function ThresholdPreview() {
               transition: "all 400ms ease",
             }}
           >
-            <span className="inline-block h-2 w-2 rounded-full" style={{ background: verdict.color, boxShadow: `0 0 8px ${verdict.color}` }} />
+            <span
+              className="inline-block h-2 w-2 rounded-full"
+              style={{ background: verdict.color, boxShadow: `0 0 8px ${verdict.color}` }}
+            />
             {verdict.label}
             <span className="font-normal opacity-70">· {verdict.temperature}</span>
           </span>
-          <p className="mx-auto mt-4 max-w-xs text-sm leading-relaxed text-dim">{verdict.message}</p>
+          <p className="mx-auto mt-4 max-w-xs text-sm leading-relaxed text-dim">
+            {verdict.message}
+          </p>
         </div>
       </div>
 
@@ -148,7 +177,10 @@ export function ThresholdPreview() {
           <div key={s.key}>
             <div className="mb-2 flex items-baseline justify-between">
               <label htmlFor={`tp-${s.key}`} className="text-sm font-semibold text-light">
-                <span className="mr-2 inline-block h-2 w-2 rounded-full align-middle" style={{ background: s.color }} />
+                <span
+                  className="mr-2 inline-block h-2 w-2 rounded-full align-middle"
+                  style={{ background: s.color }}
+                />
                 {s.name}
               </label>
               <span className="score-numeral text-sm text-dim">{values[s.key]}</span>
@@ -184,8 +216,8 @@ export function ThresholdPreview() {
                 Not yet is not no.
               </p>
               <p className="mt-1 text-dim">
-                Readiness path: strengthen {weakest.name} before crossing the threshold.
-                This is the part we build first.
+                Readiness path: strengthen {weakest.name} before crossing the threshold. This is the
+                part we build first.
               </p>
             </>
           ) : verdictKey === "ALMOST_THERE" ? (
@@ -195,8 +227,8 @@ export function ThresholdPreview() {
             </p>
           ) : (
             <p className="text-dim">
-              <span className="font-semibold text-emerald">All three rings align.</span>{" "}
-              When they truly align, your compass becomes a key.
+              <span className="font-semibold text-emerald">All three rings align.</span> When they
+              truly align, your compass becomes a key.
             </p>
           )}
         </div>
@@ -206,8 +238,8 @@ export function ThresholdPreview() {
             Check my readiness
           </Link>
           <p className="text-xs text-dim/70">
-            This preview uses illustrative signals only — no scoring internals. Your real
-            HōMI-Score comes from the full assessment.
+            This preview uses illustrative signals only — no scoring internals. Your real HōMI-Score
+            comes from the full assessment.
           </p>
         </div>
       </div>

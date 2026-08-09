@@ -33,18 +33,18 @@ Then open [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Start the Next.js dev server |
-| `npm run build` | Production build |
-| `npm run start` | Serve the production build |
-| `npm run lint` | Run `next lint` |
-| `npm run typecheck` | `tsc --noEmit` across the project |
-| `npm test` | Run the Vitest suite (`vitest run`) |
-| `npm run test:acceptance` | Independent acceptance suite (`vitest.acceptance.config.ts`) |
-| `npm run test:e2e` | Playwright E2E (needs `npx playwright install chromium`) |
-| `npm run brand-check` | Brand canon lint (spelling, colors, banned claims) |
-| `npm run architecture:check` | Verify `public/architecture.json` is in sync |
+| Command                      | Description                                                  |
+| ---------------------------- | ------------------------------------------------------------ |
+| `npm run dev`                | Start the Next.js dev server                                 |
+| `npm run build`              | Production build                                             |
+| `npm run start`              | Serve the production build                                   |
+| `npm run lint`               | Run `next lint`                                              |
+| `npm run typecheck`          | `tsc --noEmit` across the project                            |
+| `npm test`                   | Run the Vitest suite (`vitest run`)                          |
+| `npm run test:acceptance`    | Independent acceptance suite (`vitest.acceptance.config.ts`) |
+| `npm run test:e2e`           | Playwright E2E (needs `npx playwright install chromium`)     |
+| `npm run brand-check`        | Brand canon lint (spelling, colors, banned claims)           |
+| `npm run architecture:check` | Verify `public/architecture.json` is in sync                 |
 
 ## Architecture & Design
 
@@ -84,12 +84,12 @@ The HōMI-Score is a deterministic 0–100 weighted composite of three pillars:
 
 Verdict thresholds (boundary inclusive on the higher tier):
 
-| Score | Verdict |
-|---|---|
-| ≥ 80 | READY |
+| Score | Verdict      |
+| ----- | ------------ |
+| ≥ 80  | READY        |
 | 65–79 | ALMOST THERE |
-| 50–64 | BUILD FIRST |
-| < 50 | NOT YET |
+| 50–64 | BUILD FIRST  |
+| < 50  | NOT YET      |
 
 Four **hard stops** override the numeric verdict to protect the user,
 regardless of score:
@@ -123,25 +123,25 @@ truth and `lib/scoring/weights.ts` is a C2-restricted trade-secret boundary.
 
 ## Environment variables
 
-| Variable | Required | Purpose |
-|---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anon/publishable key (client-side) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Supabase service role key (server-side only) |
-| `ANTHROPIC_API_KEY` | No | Enables the AI advisor; falls back gracefully when absent |
-| `STRIPE_SECRET_KEY` | No | Enables billing |
-| `STRIPE_WEBHOOK_SECRET` | No | Verifies Stripe webhook signatures |
-| `STRIPE_PRICE_PLUS` | No | Stripe price ID for the Plus tier |
-| `STRIPE_PRICE_PRO` | No | Stripe price ID for the Pro tier |
-| `STRIPE_PRICE_FAMILY` | No | Stripe price ID for the Family tier |
-| `PLAID_CLIENT_ID` | No | Enables bank sync |
-| `PLAID_SECRET` | No | Plaid API secret |
-| `PLAID_ENV` | No | Plaid environment (`sandbox`, `development`, `production`) |
-| `RESEND_API_KEY` | No | Enables transactional email |
-| `SENTRY_DSN` | No | Enables server-side Sentry error capture; SDK stays fully uninitialized when absent |
-| `UPSTASH_REDIS_REST_URL` | No | Redis-backed rate limiting shared across serverless instances; in-memory fallback when absent |
-| `UPSTASH_REDIS_REST_TOKEN` | No | Upstash REST token (pairs with the URL above) |
-| `NEXT_PUBLIC_SITE_URL` | Yes | Canonical site URL used for metadata, sitemaps, and redirects |
+| Variable                        | Required | Purpose                                                                                       |
+| ------------------------------- | -------- | --------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Yes      | Supabase project URL                                                                          |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes      | Supabase anon/publishable key (client-side)                                                   |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Yes      | Supabase service role key (server-side only)                                                  |
+| `ANTHROPIC_API_KEY`             | No       | Enables the AI advisor; falls back gracefully when absent                                     |
+| `STRIPE_SECRET_KEY`             | No       | Enables billing                                                                               |
+| `STRIPE_WEBHOOK_SECRET`         | No       | Verifies Stripe webhook signatures                                                            |
+| `STRIPE_PRICE_PLUS`             | No       | Stripe price ID for the Plus tier                                                             |
+| `STRIPE_PRICE_PRO`              | No       | Stripe price ID for the Pro tier                                                              |
+| `STRIPE_PRICE_FAMILY`           | No       | Stripe price ID for the Family tier                                                           |
+| `PLAID_CLIENT_ID`               | No       | Enables bank sync                                                                             |
+| `PLAID_SECRET`                  | No       | Plaid API secret                                                                              |
+| `PLAID_ENV`                     | No       | Plaid environment (`sandbox`, `development`, `production`)                                    |
+| `RESEND_API_KEY`                | No       | Enables transactional email                                                                   |
+| `SENTRY_DSN`                    | No       | Enables server-side Sentry error capture; SDK stays fully uninitialized when absent           |
+| `UPSTASH_REDIS_REST_URL`        | No       | Redis-backed rate limiting shared across serverless instances; in-memory fallback when absent |
+| `UPSTASH_REDIS_REST_TOKEN`      | No       | Upstash REST token (pairs with the URL above)                                                 |
+| `NEXT_PUBLIC_SITE_URL`          | Yes      | Canonical site URL used for metadata, sitemaps, and redirects                                 |
 
 ---
 

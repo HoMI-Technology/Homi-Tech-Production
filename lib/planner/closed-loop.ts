@@ -4,11 +4,7 @@
 /* NEVER regenerate path on step completion.                           */
 /* ------------------------------------------------------------------ */
 
-import {
-  buildScoreImpact,
-  impactToSnapshot,
-  type ScoreImpact,
-} from "@/lib/planner/impact";
+import { buildScoreImpact, impactToSnapshot, type ScoreImpact } from "@/lib/planner/impact";
 import {
   nextScoreSeq,
   scoreResultFromBudget,
@@ -51,14 +47,9 @@ function pathProgressRatio(path: PathSnapshot): number {
   return done / steps.length;
 }
 
-function nextPendingTitle(
-  path: PathSnapshot | null,
-  completedId: string,
-): string {
+function nextPendingTitle(path: PathSnapshot | null, completedId: string): string {
   if (!path) return "Open Plan when you want the next protective step.";
-  const next = path.steps.find(
-    (s) => s.id !== completedId && s.status === "pending",
-  );
+  const next = path.steps.find((s) => s.id !== completedId && s.status === "pending");
   if (!next) {
     return "Path steps complete. Reassess when life inputs change — not yet is not no.";
   }
@@ -74,8 +65,7 @@ export async function withScoreImpact(
   const before = await snapshotScore();
 
   const result = action();
-  const failed =
-    result && typeof result === "object" && "ok" in result && result.ok === false;
+  const failed = result && typeof result === "object" && "ok" in result && result.ok === false;
   if (failed) {
     return {
       ok: false,
@@ -106,11 +96,9 @@ export async function withScoreImpact(
 }
 
 export async function payBillWithImpact(billId: string, accountId?: string) {
-  return withScoreImpact(
-    "Bill paid",
-    () => usePlannerStore.getState().payBill(billId, accountId),
-    { regeneratePath: true },
-  );
+  return withScoreImpact("Bill paid", () => usePlannerStore.getState().payBill(billId, accountId), {
+    regeneratePath: true,
+  });
 }
 
 export async function completePathStepWithImpact(
@@ -142,8 +130,7 @@ export async function completePathStepWithImpact(
     return { ok: true, impact: null };
   }
 
-  const reason =
-    status === "done" ? "Path step completed" : "Path step skipped";
+  const reason = status === "done" ? "Path step completed" : "Path step skipped";
   let impact = buildScoreImpact(before, after, reason);
 
   impact = {

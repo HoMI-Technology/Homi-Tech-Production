@@ -59,9 +59,7 @@ module.exports = async (browser, context) => {
   } catch (err) {
     // Surface the on-page error message when sign-in failed — "check your
     // credentials" beats a bare timeout in CI logs.
-    const formError = await page
-      .$eval('[role="alert"]', (el) => el.textContent)
-      .catch(() => null);
+    const formError = await page.$eval('[role="alert"]', (el) => el.textContent).catch(() => null);
     throw new Error(
       `lhci-login failed${formError ? ` — sign-in page said: "${formError.trim()}"` : ""} (${err.message})`,
     );

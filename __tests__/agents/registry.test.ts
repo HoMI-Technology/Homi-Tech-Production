@@ -25,7 +25,15 @@ describe("lib/agents/registry", () => {
     });
 
     it("uses only brand-canon colors", () => {
-      const brandColors = new Set(["#22d3ee", "#34d399", "#facc15", "#fab633", "#f24822", "#a78bfa", "#ef4444"]);
+      const brandColors = new Set([
+        "#22d3ee",
+        "#34d399",
+        "#facc15",
+        "#fab633",
+        "#f24822",
+        "#a78bfa",
+        "#ef4444",
+      ]);
       for (const agent of AGENTS) {
         expect(brandColors.has(agent.color)).toBe(true);
       }

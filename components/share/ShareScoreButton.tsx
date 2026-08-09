@@ -84,7 +84,12 @@ export function ShareScoreButton({ assessmentId }: { assessmentId?: string | nul
   if (url) {
     return (
       <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
-        <input readOnly value={url} className="input text-sm sm:w-72" onFocus={(e) => e.currentTarget.select()} />
+        <input
+          readOnly
+          value={url}
+          className="input text-sm sm:w-72"
+          onFocus={(e) => e.currentTarget.select()}
+        />
         <button onClick={handleCopy} className="btn btn-primary shrink-0 btn-sm">
           {copied ? "Copied!" : "Copy link"}
         </button>
@@ -94,7 +99,11 @@ export function ShareScoreButton({ assessmentId }: { assessmentId?: string | nul
 
   return (
     <div className="flex flex-col items-start gap-2">
-      <button onClick={handleShare} disabled={loading} className="btn btn-ghost disabled:opacity-60">
+      <button
+        onClick={handleShare}
+        disabled={loading}
+        className="btn btn-ghost disabled:opacity-60"
+      >
         {loading ? "Creating link…" : "Share your score"}
       </button>
       {error && (

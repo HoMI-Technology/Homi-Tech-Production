@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_FINANCE_STATE, type FinanceState } from "@/lib/finance/store";
-import {
-  applyPathFunding,
-  deriveFundingFromPath,
-  type ReadinessPath,
-} from "@/lib/readiness";
+import { applyPathFunding, deriveFundingFromPath, type ReadinessPath } from "@/lib/readiness";
 
 function pathWithRunwayGap(gap: number): ReadinessPath {
   return {

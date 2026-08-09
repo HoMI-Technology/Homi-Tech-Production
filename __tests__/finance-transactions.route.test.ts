@@ -56,7 +56,7 @@ vi.mock("@/lib/supabase/server", () => ({
             return {
               select: () => ({
                 single: async () => ({
-                  data: state.insertError ? null : state.inserted ?? payload,
+                  data: state.insertError ? null : (state.inserted ?? payload),
                   error: state.insertError,
                 }),
               }),

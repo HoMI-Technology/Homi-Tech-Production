@@ -64,17 +64,12 @@ export default function PartnerPage() {
       <section className="mx-auto max-w-6xl px-6 pt-20 pb-16 md:pt-28">
         <div className="grid items-center gap-12 md:grid-cols-2">
           <Reveal>
-            <p className="type-kicker text-cyan">
-              For Partners
-            </p>
-            <h1 className="mt-4 type-h1">
-              Help your clients arrive prepared, not pressured.
-            </h1>
+            <p className="type-kicker text-cyan">For Partners</p>
+            <h1 className="mt-4 type-h1">Help your clients arrive prepared, not pressured.</h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-dim">
-              HōMI doesn&rsquo;t sell mortgages, funds, or renovations. It tells your
-              clients the truth about their readiness — Financial Reality,
-              Emotional Truth, Perfect Timing — so your advice lands on solid
-              ground.
+              HōMI doesn&rsquo;t sell mortgages, funds, or renovations. It tells your clients the
+              truth about their readiness — Financial Reality, Emotional Truth, Perfect Timing — so
+              your advice lands on solid ground.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/partner/dashboard" className="btn btn-primary">
@@ -93,12 +88,9 @@ export default function PartnerPage() {
 
       <section className="mx-auto max-w-6xl px-6 py-16">
         <Reveal>
-          <h2 className="type-h2">
-            Referral, without the incentive to bend the verdict
-          </h2>
+          <h2 className="type-h2">Referral, without the incentive to bend the verdict</h2>
           <p className="mt-3 max-w-2xl text-dim">
-            Most partner programs pay for the outcome they want. Ours doesn&rsquo;t
-            have one.
+            Most partner programs pay for the outcome they want. Ours doesn&rsquo;t have one.
           </p>
         </Reveal>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
@@ -150,12 +142,10 @@ export default function PartnerPage() {
         <Reveal>
           <div className="glass flex flex-col items-start gap-6 p-10 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="type-h2">
-                Bring HōMI into your next conversation.
-              </h2>
+              <h2 className="type-h2">Bring HōMI into your next conversation.</h2>
               <p className="mt-2 max-w-lg text-dim">
-                Partner access is free to set up. No commission structure to
-                negotiate, no per-conversion fee.
+                Partner access is free to set up. No commission structure to negotiate, no
+                per-conversion fee.
               </p>
             </div>
             <div className="flex shrink-0 flex-wrap gap-3">

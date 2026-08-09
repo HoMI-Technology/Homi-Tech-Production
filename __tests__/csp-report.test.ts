@@ -7,7 +7,10 @@ async function post(body: unknown, contentType = "application/csp-report") {
   return POST(
     new Request("https://homitechnology.com/api/csp-report", {
       method: "POST",
-      headers: { "content-type": contentType, "x-forwarded-for": `10.0.0.${Math.floor(Math.random() * 200)}` },
+      headers: {
+        "content-type": contentType,
+        "x-forwarded-for": `10.0.0.${Math.floor(Math.random() * 200)}`,
+      },
       body: typeof body === "string" ? body : JSON.stringify(body),
     }),
   );
@@ -23,7 +26,12 @@ describe("POST /api/csp-report", () => {
 
   it("accepts a Reporting API payload with 204", async () => {
     const res = await post(
-      [{ type: "csp-violation", body: { effectiveDirective: "img-src", blockedURL: "https://x.example" } }],
+      [
+        {
+          type: "csp-violation",
+          body: { effectiveDirective: "img-src", blockedURL: "https://x.example" },
+        },
+      ],
       "application/reports+json",
     );
     expect(res.status).toBe(204);

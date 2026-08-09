@@ -23,13 +23,13 @@ each phase ships independently.
   integration inherits these rules unchanged.
 - **The go-to for anything financial.** When a user wonders about their money —
   cash flow, debt, runway, credit, affordability, timing — the shortest path to an
-  honest answer is the Companion. That requires the Companion to *know* what the app
+  honest answer is the Companion. That requires the Companion to _know_ what the app
   knows: assessment, finance dashboard, credit, goals, bank data, behavioral genome.
 - **Protection first.** The mote never becomes a sales funnel. Upgrade nudges stay
   truthful 402s from the server-authoritative gate (`lib/advisor/quota.ts`), never
   fake scarcity.
 - **Your HōMI.** Every user names and shapes their own HōMI. Identity is
-  *configuration inside the brand-voice envelope* — a name, a visual accent within
+  _configuration inside the brand-voice envelope_ — a name, a visual accent within
   brand canon, tone/pacing/depth/focus settings — never a way to opt out of the
   voice rules. A few curated starter HōMIs (the classic compass plus Steady,
   Clarity, and Horizon — the prototype archetypes re-voiced as brand-color forms,
@@ -40,16 +40,16 @@ each phase ships independently.
 
 ## 2. What exists today (the seams)
 
-| Piece | Where | Role |
-| --- | --- | --- |
-| Floating widget | `components/companion/CompanionWidget.tsx`, mounted in `app/(product)/layout.tsx` | The mote's physical form in the product |
-| Full-page chat | `app/(product)/advisor/page.tsx` + `components/advisor/Chat.tsx` | Deep-conversation surface |
-| Brain | `app/api/advisor/route.ts` (Anthropic, deterministic fallback) | One endpoint, one voice |
-| Personas | `lib/advisor/personas.ts` — homie, reality, gut, timing, planner | Modes of the same friend |
-| Context spine | `lib/advisor/context.ts` | What the Companion knows about *this user, right now* |
-| Gate | `lib/advisor/quota.ts` + `lib/entitlements.ts` | Tiered daily message quota, server-authoritative |
-| Siblings | `/api/twin`, `/api/trinity` | Same gate, same guardrails, different formats |
-| Public taste | `/artifact` playground (`demoContext`) | Anonymous demo on fixed mock context |
+| Piece           | Where                                                                             | Role                                                  |
+| --------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| Floating widget | `components/companion/CompanionWidget.tsx`, mounted in `app/(product)/layout.tsx` | The mote's physical form in the product               |
+| Full-page chat  | `app/(product)/advisor/page.tsx` + `components/advisor/Chat.tsx`                  | Deep-conversation surface                             |
+| Brain           | `app/api/advisor/route.ts` (Anthropic, deterministic fallback)                    | One endpoint, one voice                               |
+| Personas        | `lib/advisor/personas.ts` — homie, reality, gut, timing, planner                  | Modes of the same friend                              |
+| Context spine   | `lib/advisor/context.ts`                                                          | What the Companion knows about _this user, right now_ |
+| Gate            | `lib/advisor/quota.ts` + `lib/entitlements.ts`                                    | Tiered daily message quota, server-authoritative      |
+| Siblings        | `/api/twin`, `/api/trinity`                                                       | Same gate, same guardrails, different formats         |
+| Public taste    | `/artifact` playground (`demoContext`)                                            | Anonymous demo on fixed mock context                  |
 
 ## 3. Architecture principle: the context spine
 
@@ -82,6 +82,7 @@ Three hard rules for the spine:
 ## 4. Phased roadmap
 
 ### Phase 1 — The mote knows money (this change)
+
 The Companion stops being assessment-only and becomes financially aware everywhere:
 
 - `lib/finance/store.ts` gains `hasSavedFinanceState()` so placeholder defaults can
@@ -97,9 +98,10 @@ The Companion stops being assessment-only and becomes financially aware everywhe
 - Both surfaces (widget + full-page chat) send the full context.
 
 Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask it
-"can I afford this?" and it answers with *your* runway and DTI, not generics.
+"can I afford this?" and it answers with _your_ runway and DTI, not generics.
 
 ### Phase 2 — One memory, one identity
+
 - **Unified thread persistence** (audit T2.6) — SHIPPED: signed-in users get one
   server thread on the existing `advisor_conversations` / `advisor_messages`
   tables (`lib/advisor/memory.ts`, `/api/advisor/history`). The widget and the
@@ -131,6 +133,7 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   no hidden inferences.
 
 ### Phase 3 — The go-to for anything financial
+
 - **Plaid-aware context** — SHIPPED: the transactions table exists (migration
   00024, `plaid_transactions`, RLS owner-scoped, service-role writes only); the
   sync engine persists every window and computes 30-day cash flow from the full
@@ -157,8 +160,8 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   so it never fights live edits; superseded the earlier `lib/tools/prefill.ts`
   module, deleted 2026-08-03). Remaining calculators adopt the same hook as
   needed.
-- **Behavioral genome**: `behavioral_genome` informs *how* the mote talks (pace,
-  framing), never *what* it claims.
+- **Behavioral genome**: `behavioral_genome` informs _how_ the mote talks (pace,
+  framing), never _what_ it claims.
 - **Explainability view** — SHIPPED: the "why did this change" card on /results
   (`components/results/ScoreExplanation.tsx`) built from `lib/advisor/explain.ts` —
   score movement and per-pillar deltas in magnitude bands (small / moderate /
@@ -175,6 +178,7 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
   hype — a CI test enforces it). The ambient context bar remains future UX.
 
 ### Phase 4 — The mote reaches out (carefully)
+
 - **Signals, not spam**: surface proactive nudges inside `/signals` and `/daily`
   ("your runway crossed 3 months — that's a yellow-to-emerald move") generated by
   the same voice. Opt-in, in-app first; email digests only through the existing
@@ -201,7 +205,7 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
 
 ## 5. Non-negotiables (inherited from BUILD-BRIEF §1 — now `AGENTS.md` "Product guardrails")
 
-- Scoring canon frozen: the Companion *reads* scores; it never computes or adjusts
+- Scoring canon frozen: the Companion _reads_ scores; it never computes or adjusts
   them. Scoring stays server-authoritative in `lib/scoring/engine.ts`.
 - Brand canon: it is always **HōMI Companion** — HōMI like homie.
 - No financial, legal, tax, mortgage, or investment advice. Ever. Every phase above
@@ -229,7 +233,7 @@ Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask
 
 ---
 
-*Provenance: the identity, confidence, memory, explainability, and sharing items
+_Provenance: the identity, confidence, memory, explainability, and sharing items
 above were adopted from the founder's strategy corpus — see
 `docs/archive/COMPANION-INTELLIGENCE-AUDIT.md` for the full audit, conflict
-matrix, and superseded directions.*
+matrix, and superseded directions._

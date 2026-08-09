@@ -55,7 +55,8 @@ export function deriveConflictSignals(x: ConflictInputs): ConflictSignal[] {
       code: "MANUFACTURED_URGENCY",
       severity: "protect",
       title: "Manufactured urgency",
-      message: "Short timeline plus outside pressure is how rushed decisions happen. Slow the clock.",
+      message:
+        "Short timeline plus outside pressure is how rushed decisions happen. Slow the clock.",
     });
   }
 

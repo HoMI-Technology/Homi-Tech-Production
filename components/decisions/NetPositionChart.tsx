@@ -66,21 +66,45 @@ export function NetPositionChart({ scenarios }: { scenarios: ScenarioOutcome[] }
             strokeDasharray={v === 0 ? undefined : "4 4"}
             opacity={v === 0 ? 0.8 : 0.4}
           />
-          <text x={PAD_LEFT - 8} y={y(v) + 4} textAnchor="end" fontSize={11} fill={COLORS.dim} fontFamily="var(--font-score)">
+          <text
+            x={PAD_LEFT - 8}
+            y={y(v) + 4}
+            textAnchor="end"
+            fontSize={11}
+            fill={COLORS.dim}
+            fontFamily="var(--font-score)"
+          >
             {formatCompact(v)}
           </text>
         </g>
       ))}
 
       {/* Month axis labels */}
-      {[0, 12, 24, 36, 48, 60].filter((m) => m <= maxMonth).map((m) => (
-        <text key={m} x={x(m)} y={HEIGHT - PAD_BOTTOM + 20} textAnchor="middle" fontSize={11} fill={COLORS.dim}>
-          {m === 0 ? "Now" : `${m}mo`}
-        </text>
-      ))}
+      {[0, 12, 24, 36, 48, 60]
+        .filter((m) => m <= maxMonth)
+        .map((m) => (
+          <text
+            key={m}
+            x={x(m)}
+            y={HEIGHT - PAD_BOTTOM + 20}
+            textAnchor="middle"
+            fontSize={11}
+            fill={COLORS.dim}
+          >
+            {m === 0 ? "Now" : `${m}mo`}
+          </text>
+        ))}
 
       {/* Zero baseline emphasis */}
-      <line x1={PAD_LEFT} x2={WIDTH - PAD_RIGHT} y1={zeroY} y2={zeroY} stroke={COLORS.light} strokeWidth={1} opacity={0.5} />
+      <line
+        x1={PAD_LEFT}
+        x2={WIDTH - PAD_RIGHT}
+        y1={zeroY}
+        y2={zeroY}
+        stroke={COLORS.light}
+        strokeWidth={1}
+        opacity={0.5}
+      />
 
       {/* Scenario lines */}
       {scenarios.map((s) => {
@@ -88,8 +112,20 @@ export function NetPositionChart({ scenarios }: { scenarios: ScenarioOutcome[] }
         const color = SCENARIO_COLORS[s.key] ?? COLORS.cyan;
         return (
           <g key={s.key}>
-            <polyline points={points} fill="none" stroke={color} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
-            <circle cx={x(s.series[s.series.length - 1].month)} cy={y(s.series[s.series.length - 1].netPosition)} r={4} fill={color} />
+            <polyline
+              points={points}
+              fill="none"
+              stroke={color}
+              strokeWidth={2.5}
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
+            <circle
+              cx={x(s.series[s.series.length - 1].month)}
+              cy={y(s.series[s.series.length - 1].netPosition)}
+              r={4}
+              fill={color}
+            />
           </g>
         );
       })}

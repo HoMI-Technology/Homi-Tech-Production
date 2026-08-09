@@ -63,8 +63,8 @@ export function ShareShadowButton({ inputs }: { inputs: AssessmentInputs }) {
         <>
           <p className="text-sm font-semibold text-light">Share your readiness journey</p>
           <p className="mt-1 text-xs leading-relaxed text-dim">
-            Creates a link with your three pillars and direction — no names, no numbers you
-            typed, nothing to sign up for. Expires in 30 days.
+            Creates a link with your three pillars and direction — no names, no numbers you typed,
+            nothing to sign up for. Expires in 30 days.
           </p>
           <label className="mt-3 flex items-start gap-2 text-xs text-dim">
             <input

@@ -24,7 +24,10 @@ export async function POST(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`checkout:${ip}`, { limit: 10, windowMs: 60_000 });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a moment." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a moment." },
+      { status: 429 },
+    );
   }
 
   let json: unknown;
@@ -81,8 +84,7 @@ export async function POST(request: Request) {
   }
 
   const siteUrl = env.NEXT_PUBLIC_SITE_URL;
-  const cancelPath =
-    parsed.data.source === "subscription" ? "/settings/subscription" : "/pricing";
+  const cancelPath = parsed.data.source === "subscription" ? "/settings/subscription" : "/pricing";
   // hasStripe() above guarantees the key is present.
   const stripe = createStripeClient(env.STRIPE_SECRET_KEY as string);
 

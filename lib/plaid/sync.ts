@@ -371,7 +371,9 @@ export async function syncItemToLedger(
       .in("external_transaction_id", externalIds)
       .is("deleted_at", null);
     if (existingError) {
-      throw new PlaidSyncError(`finance_transactions existing lookup failed: ${existingError.message}`);
+      throw new PlaidSyncError(
+        `finance_transactions existing lookup failed: ${existingError.message}`,
+      );
     }
     for (const row of existing ?? []) {
       if (row.external_transaction_id) {
@@ -388,9 +390,14 @@ export async function syncItemToLedger(
     const amount = txn.amount;
     const type = amount > 0 ? "expense" : "income";
     const amountCents = Math.round(Math.abs(amount) * 100);
-    const description = (txn.name ?? txn.merchant_name ?? "Plaid transaction").toString().slice(0, 160);
+    const description = (txn.name ?? txn.merchant_name ?? "Plaid transaction")
+      .toString()
+      .slice(0, 160);
     const merchantName = txn.merchant_name ? String(txn.merchant_name).slice(0, 160) : null;
-    const categoryId = mapPlaidCategoryToFinanceCategory(txn.personal_finance_category?.primary, slugToId);
+    const categoryId = mapPlaidCategoryToFinanceCategory(
+      txn.personal_finance_category?.primary,
+      slugToId,
+    );
     const txnDate = txn.date ?? txn.authorized_date ?? new Date().toISOString().slice(0, 10);
 
     const patch = {
@@ -419,7 +426,9 @@ export async function syncItemToLedger(
   }
 
   for (let i = 0; i < toInsert.length; i += PAGE_SIZE) {
-    const { error } = await admin.from("finance_transactions").insert(toInsert.slice(i, i + PAGE_SIZE));
+    const { error } = await admin
+      .from("finance_transactions")
+      .insert(toInsert.slice(i, i + PAGE_SIZE));
     if (error) {
       throw new PlaidSyncError(`finance_transactions insert failed: ${error.message}`);
     }

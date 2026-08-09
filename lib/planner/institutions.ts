@@ -12,30 +12,30 @@
 /* that palette lives in TEMP_HEX.                                     */
 /* ------------------------------------------------------------------ */
 
-import type { BankInstitution } from './types'
+import type { BankInstitution } from "./types";
 
-export type { BankInstitution }
+export type { BankInstitution };
 
 export interface InstitutionMeta {
-  id: BankInstitution
-  label: string
-  short: string
-  accent: string
+  id: BankInstitution;
+  label: string;
+  short: string;
+  accent: string;
 }
 
 export const INSTITUTIONS: InstitutionMeta[] = [
-  { id: 'chase', label: 'Chase', short: 'CH', accent: '#22d3ee' },
-  { id: 'bofa', label: 'Bank of America', short: 'BA', accent: '#e11d48' },
-  { id: 'wells', label: 'Wells Fargo', short: 'WF', accent: '#facc15' },
-  { id: 'capitalone', label: 'Capital One', short: 'C1', accent: '#f24822' },
-  { id: 'ally', label: 'Ally Bank', short: 'AL', accent: '#22d3ee' },
-  { id: 'other', label: 'Other bank', short: 'BK', accent: '#94a3b8' },
-]
+  { id: "chase", label: "Chase", short: "CH", accent: "#22d3ee" },
+  { id: "bofa", label: "Bank of America", short: "BA", accent: "#e11d48" },
+  { id: "wells", label: "Wells Fargo", short: "WF", accent: "#facc15" },
+  { id: "capitalone", label: "Capital One", short: "C1", accent: "#f24822" },
+  { id: "ally", label: "Ally Bank", short: "AL", accent: "#22d3ee" },
+  { id: "other", label: "Other bank", short: "BK", accent: "#94a3b8" },
+];
 
 export function institutionLabel(id: BankInstitution): string {
-  return INSTITUTIONS.find((i) => i.id === id)?.label ?? id
+  return INSTITUTIONS.find((i) => i.id === id)?.label ?? id;
 }
 
 export function institutionMeta(id: BankInstitution): InstitutionMeta {
-  return INSTITUTIONS.find((i) => i.id === id) ?? INSTITUTIONS[INSTITUTIONS.length - 1]!
+  return INSTITUTIONS.find((i) => i.id === id) ?? INSTITUTIONS[INSTITUTIONS.length - 1]!;
 }

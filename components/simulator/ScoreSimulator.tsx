@@ -105,9 +105,7 @@ export function ScoreSimulator({
         .catch((err: unknown) => {
           if (gen !== requestGen.current) return;
           const msg =
-            err instanceof SimulatorRequestError
-              ? err.message
-              : "Could not update the simulation.";
+            err instanceof SimulatorRequestError ? err.message : "Could not update the simulation.";
           setError(msg);
           setPending(false);
         });
@@ -123,11 +121,7 @@ export function ScoreSimulator({
   }
 
   if (!current || !simulated) {
-    return (
-      <div className="glass p-6 text-sm text-dim">
-        {error ?? "Scoring your baseline…"}
-      </div>
-    );
+    return <div className="glass p-6 text-sm text-dim">{error ?? "Scoring your baseline…"}</div>;
   }
 
   const delta = simulated.compositeScore - current.compositeScore;
@@ -228,7 +222,11 @@ export function ScoreSimulator({
               </div>
               <div>
                 <div className="grid grid-cols-2 gap-3">
-                  <MoneyField label="Save per month" value={planPerMonth} onChange={setPlanPerMonth} />
+                  <MoneyField
+                    label="Save per month"
+                    value={planPerMonth}
+                    onChange={setPlanPerMonth}
+                  />
                   <NumberField
                     label="For how many months"
                     min={1}
@@ -352,8 +350,8 @@ export function ScoreSimulator({
               </p>
             )}
             <p className="mt-2">
-              Educational guidance only — this shows how your own numbers move your HōMI-Score. It is
-              not financial advice.
+              Educational guidance only — this shows how your own numbers move your HōMI-Score. It
+              is not financial advice.
             </p>
           </div>
         </div>

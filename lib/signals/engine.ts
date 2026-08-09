@@ -42,7 +42,8 @@ function hardStopSignal(storedAssessment: StoredAssessment): Signal | null {
   const hardStops = storedAssessment.result.hardStops;
   if (hardStops.length === 0) return null;
   const first = hardStops[0];
-  const countLabel = hardStops.length === 1 ? "One hard-stop is" : `${hardStops.length} hard-stops are`;
+  const countLabel =
+    hardStops.length === 1 ? "One hard-stop is" : `${hardStops.length} hard-stops are`;
   return {
     id: "hard-stop-active",
     severity: "crimson",
@@ -108,7 +109,12 @@ function conflictSignalsFrom(storedAssessment: StoredAssessment): Signal[] {
   const { fomoLevel, timeHorizonMonths, referralSource, deadlineOrigin } = storedAssessment.inputs;
   if (referralSource === undefined && deadlineOrigin === undefined) return [];
 
-  return deriveConflictSignals({ fomoLevel, timeHorizonMonths, referralSource, deadlineOrigin }).map((signal) => ({
+  return deriveConflictSignals({
+    fomoLevel,
+    timeHorizonMonths,
+    referralSource,
+    deadlineOrigin,
+  }).map((signal) => ({
     id: `conflict-${signal.code.toLowerCase()}`,
     severity: CONFLICT_SEVERITY_MAP[signal.severity],
     title: signal.title,
@@ -169,7 +175,8 @@ function staleAssessmentSignal(storedAssessment: StoredAssessment): Signal | nul
 function allClearSignal(storedAssessment: StoredAssessment): Signal | null {
   const noHardStops = storedAssessment.result.hardStops.length === 0;
   const goodVerdict =
-    storedAssessment.result.verdict === "READY" || storedAssessment.result.verdict === "ALMOST_THERE";
+    storedAssessment.result.verdict === "READY" ||
+    storedAssessment.result.verdict === "ALMOST_THERE";
   if (noHardStops && goodVerdict) {
     return {
       id: "all-clear",

@@ -35,14 +35,28 @@ export function CopyButton({
     >
       {copied ? (
         <>
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M4 10.5l4 4 8-9" />
           </svg>
           {copiedLabel}
         </>
       ) : (
         <>
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <rect x="7" y="7" width="10" height="10" rx="1.5" />
             <path d="M4 13V4.5A1.5 1.5 0 0 1 5.5 3H13" />
           </svg>

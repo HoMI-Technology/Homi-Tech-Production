@@ -31,9 +31,7 @@ export function NumberField({
           onChange={(e) => onChange(Number(e.target.value))}
           className="w-full bg-transparent font-score text-sm font-medium text-light outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
-        {suffix && (
-          <span className="shrink-0 font-score text-sm text-dim">{suffix}</span>
-        )}
+        {suffix && <span className="shrink-0 font-score text-sm text-dim">{suffix}</span>}
       </span>
     </label>
   );

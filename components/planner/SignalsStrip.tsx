@@ -30,12 +30,8 @@ export function SignalsStrip({
   if (signals.length === 0) {
     return (
       <section className="rounded-2xl border border-white/[0.06] bg-slate-surface/25 px-4 py-3.5 backdrop-blur-sm">
-        <p className="text-2xs font-bold uppercase tracking-[0.14em] text-dim">
-          Always-on signals
-        </p>
-        <p className="mt-1.5 text-sm text-dim">
-          No active signals - keep numbers honest.
-        </p>
+        <p className="text-2xs font-bold uppercase tracking-[0.14em] text-dim">Always-on signals</p>
+        <p className="mt-1.5 text-sm text-dim">No active signals - keep numbers honest.</p>
       </section>
     );
   }
@@ -43,12 +39,8 @@ export function SignalsStrip({
   return (
     <section>
       <div className="mb-2.5 flex items-center justify-between gap-2">
-        <p className="text-2xs font-bold uppercase tracking-[0.14em] text-dim">
-          Always-on signals
-        </p>
-        <p className="text-xs text-dim">
-          {signals.length} active · stress · cash · path
-        </p>
+        <p className="text-2xs font-bold uppercase tracking-[0.14em] text-dim">Always-on signals</p>
+        <p className="text-xs text-dim">{signals.length} active · stress · cash · path</p>
       </div>
       <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-1 [scrollbar-width:thin]">
         {signals.map((s) => (
@@ -69,9 +61,7 @@ export function SignalsStrip({
                     </p>
                   ) : null}
                 </div>
-                <h3 className="mt-1 text-sm font-semibold leading-snug text-light">
-                  {s.title}
-                </h3>
+                <h3 className="mt-1 text-sm font-semibold leading-snug text-light">{s.title}</h3>
               </div>
               <button
                 type="button"

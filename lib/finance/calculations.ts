@@ -35,10 +35,7 @@ export function isInPeriod(
   tx: Pick<FinanceTransaction, "transactionDate">,
   period: Pick<BudgetPeriod, "periodStart" | "periodEnd">,
 ): boolean {
-  return (
-    tx.transactionDate >= period.periodStart &&
-    tx.transactionDate <= period.periodEnd
-  );
+  return tx.transactionDate >= period.periodStart && tx.transactionDate <= period.periodEnd;
 }
 
 type CountableTx = Pick<
@@ -53,29 +50,17 @@ function isAlive(tx: CountableTx): boolean {
 
 /** Posted income counts toward the period's income. */
 export function countsAsIncome(tx: CountableTx): boolean {
-  return (
-    tx.type === "income" && tx.status === "posted" && isAlive(tx)
-  );
+  return tx.type === "income" && tx.status === "posted" && isAlive(tx);
 }
 
 /** Posted, non-excluded expenses count toward spending. */
 export function countsAsSpending(tx: CountableTx): boolean {
-  return (
-    tx.type === "expense" &&
-    tx.status === "posted" &&
-    !tx.isExcludedFromBudget &&
-    isAlive(tx)
-  );
+  return tx.type === "expense" && tx.status === "posted" && !tx.isExcludedFromBudget && isAlive(tx);
 }
 
 /** Posted, non-excluded refunds reduce net spending. */
 export function countsAsRefund(tx: CountableTx): boolean {
-  return (
-    tx.type === "refund" &&
-    tx.status === "posted" &&
-    !tx.isExcludedFromBudget &&
-    isAlive(tx)
-  );
+  return tx.type === "refund" && tx.status === "posted" && !tx.isExcludedFromBudget && isAlive(tx);
 }
 
 /* ------------------------------------------------------------------ */
@@ -110,15 +95,9 @@ export function summarizePeriod(
 ): PeriodTotals {
   const inPeriod = transactions.filter((tx) => isInPeriod(tx, period));
 
-  const incomeCents = sumCents(
-    inPeriod.filter(countsAsIncome).map((tx) => tx.amountCents),
-  );
-  const grossExpenseCents = sumCents(
-    inPeriod.filter(countsAsSpending).map((tx) => tx.amountCents),
-  );
-  const refundCents = sumCents(
-    inPeriod.filter(countsAsRefund).map((tx) => tx.amountCents),
-  );
+  const incomeCents = sumCents(inPeriod.filter(countsAsIncome).map((tx) => tx.amountCents));
+  const grossExpenseCents = sumCents(inPeriod.filter(countsAsSpending).map((tx) => tx.amountCents));
+  const refundCents = sumCents(inPeriod.filter(countsAsRefund).map((tx) => tx.amountCents));
 
   const netExpenseCents = grossExpenseCents - refundCents;
   const cashRemainingCents = incomeCents - netExpenseCents;
@@ -128,8 +107,7 @@ export function summarizePeriod(
     (tx) => tx.status === "pending" && tx.deletedAt === null,
   ).length;
   const uncategorizedCount = inPeriod.filter(
-    (tx) =>
-      (countsAsSpending(tx) || countsAsRefund(tx)) && tx.categoryId === null,
+    (tx) => (countsAsSpending(tx) || countsAsRefund(tx)) && tx.categoryId === null,
   ).length;
 
   return {
@@ -171,10 +149,7 @@ export interface CategoryActual {
 export function categoryActuals(
   transactions: readonly FinanceTransaction[],
   period: Pick<BudgetPeriod, "periodStart" | "periodEnd">,
-  allocations: readonly Pick<
-    BudgetCategoryAllocation,
-    "categoryId" | "plannedCents"
-  >[],
+  allocations: readonly Pick<BudgetCategoryAllocation, "categoryId" | "plannedCents">[],
 ): CategoryActual[] {
   const actualByCategory = new Map<string | null, number>();
 
@@ -184,18 +159,14 @@ export function categoryActuals(
     if (countsAsSpending(tx)) signed = tx.amountCents;
     else if (countsAsRefund(tx)) signed = -tx.amountCents;
     else continue;
-    actualByCategory.set(
-      tx.categoryId,
-      (actualByCategory.get(tx.categoryId) ?? 0) + signed,
-    );
+    actualByCategory.set(tx.categoryId, (actualByCategory.get(tx.categoryId) ?? 0) + signed);
   }
 
   const plannedByCategory = new Map<string, number>();
   for (const allocation of allocations) {
     plannedByCategory.set(
       allocation.categoryId,
-      (plannedByCategory.get(allocation.categoryId) ?? 0) +
-        allocation.plannedCents,
+      (plannedByCategory.get(allocation.categoryId) ?? 0) + allocation.plannedCents,
     );
   }
 
@@ -207,17 +178,13 @@ export function categoryActuals(
   const rows: CategoryActual[] = [];
   for (const categoryId of categoryIds) {
     const actualCents = actualByCategory.get(categoryId) ?? 0;
-    const plannedCents =
-      categoryId !== null ? plannedByCategory.get(categoryId) ?? null : null;
+    const plannedCents = categoryId !== null ? (plannedByCategory.get(categoryId) ?? null) : null;
     rows.push({
       categoryId,
       actualCents,
       plannedCents,
       remainingCents: plannedCents !== null ? plannedCents - actualCents : null,
-      utilization:
-        plannedCents !== null && plannedCents > 0
-          ? actualCents / plannedCents
-          : null,
+      utilization: plannedCents !== null && plannedCents > 0 ? actualCents / plannedCents : null,
     });
   }
 
@@ -252,8 +219,7 @@ export function runwayFromOutflow(
   basis: RunwayBasis,
 ): RunwayResult {
   return {
-    months:
-      monthlyOutflowCents > 0 ? liquidSavingsCents / monthlyOutflowCents : null,
+    months: monthlyOutflowCents > 0 ? liquidSavingsCents / monthlyOutflowCents : null,
     basis,
     monthlyOutflowCents,
   };
@@ -289,18 +255,13 @@ export function projectGoal(
   },
   fromDate: string,
 ): GoalProjection {
-  const remainingCents = Math.max(
-    0,
-    goal.targetAmountCents - goal.currentAmountCents,
-  );
+  const remainingCents = Math.max(0, goal.targetAmountCents - goal.currentAmountCents);
 
   let monthsToTarget: number | null;
   if (remainingCents === 0) {
     monthsToTarget = 0;
   } else if (goal.plannedMonthlyContributionCents > 0) {
-    monthsToTarget = Math.ceil(
-      remainingCents / goal.plannedMonthlyContributionCents,
-    );
+    monthsToTarget = Math.ceil(remainingCents / goal.plannedMonthlyContributionCents);
   } else {
     monthsToTarget = null;
   }
@@ -308,8 +269,7 @@ export function projectGoal(
   let requiredMonthlyCents: MoneyCents | null = null;
   if (goal.targetDate !== null && remainingCents > 0) {
     const months = monthsBetween(fromDate, goal.targetDate);
-    requiredMonthlyCents =
-      months > 0 ? Math.ceil(remainingCents / months) : null;
+    requiredMonthlyCents = months > 0 ? Math.ceil(remainingCents / months) : null;
   } else if (remainingCents === 0) {
     requiredMonthlyCents = 0;
   }

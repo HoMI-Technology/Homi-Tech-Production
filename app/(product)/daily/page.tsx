@@ -105,7 +105,12 @@ function buildInsight(spend: string | null, win: string | null): string {
   return `${spendLine}, ${winLine}.`;
 }
 
-const STEP_TITLES = ["Mood, stress, pressure", "Unplanned spend today", "Today's money win", "Anything else?"];
+const STEP_TITLES = [
+  "Mood, stress, pressure",
+  "Unplanned spend today",
+  "Today's money win",
+  "Anything else?",
+];
 const TOTAL_STEPS = STEP_TITLES.length;
 
 export default function DailyCheckinPage() {
@@ -209,7 +214,9 @@ export default function DailyCheckinPage() {
   return (
     <PageFrame width="content" density="spacious" role="personal">
       <h1 className="font-display text-3xl text-light">Daily Check-in</h1>
-      <p className="mt-2 max-w-xl text-dim">Sixty seconds. A few honest picks. One snapshot of today.</p>
+      <p className="mt-2 max-w-xl text-dim">
+        Sixty seconds. A few honest picks. One snapshot of today.
+      </p>
 
       {error && (
         <div className="mt-4 rounded-lg border border-crimson/30 bg-verdict-notyet px-4 py-3 text-sm text-light">
@@ -246,7 +253,9 @@ export default function DailyCheckinPage() {
                 <Stat label="Financial stress" value={todayCheckin.financial_stress} />
                 <Stat label="Decision pressure" value={todayCheckin.decision_pressure} />
               </div>
-              {todayCheckin.note && <p className="mt-4 text-sm text-dim">&ldquo;{todayCheckin.note}&rdquo;</p>}
+              {todayCheckin.note && (
+                <p className="mt-4 text-sm text-dim">&ldquo;{todayCheckin.note}&rdquo;</p>
+              )}
               <p className="mt-4 text-xs text-dim">Come back tomorrow to keep your streak going.</p>
             </div>
           ) : (
@@ -263,9 +272,27 @@ export default function DailyCheckinPage() {
 
               {step === 0 && (
                 <div className="space-y-5">
-                  <SliderField label="Mood" value={mood} onChange={setMood} lowLabel="Rough" highLabel="Great" />
-                  <SliderField label="Financial stress" value={stress} onChange={setStress} lowLabel="Calm" highLabel="Overwhelmed" />
-                  <SliderField label="Decision pressure" value={pressure} onChange={setPressure} lowLabel="None" highLabel="Intense" />
+                  <SliderField
+                    label="Mood"
+                    value={mood}
+                    onChange={setMood}
+                    lowLabel="Rough"
+                    highLabel="Great"
+                  />
+                  <SliderField
+                    label="Financial stress"
+                    value={stress}
+                    onChange={setStress}
+                    lowLabel="Calm"
+                    highLabel="Overwhelmed"
+                  />
+                  <SliderField
+                    label="Decision pressure"
+                    value={pressure}
+                    onChange={setPressure}
+                    lowLabel="None"
+                    highLabel="Intense"
+                  />
                 </div>
               )}
 
@@ -377,8 +404,22 @@ function CountdownRing() {
   const circumference = 2 * Math.PI * radius;
 
   return (
-    <svg viewBox="0 0 56 56" width={40} height={40} className="shrink-0" role="img" aria-label="A calm sixty second pacing ring for this check-in">
-      <circle cx="28" cy="28" r={radius} fill="none" stroke="rgba(148,163,184,0.18)" strokeWidth="2" />
+    <svg
+      viewBox="0 0 56 56"
+      width={40}
+      height={40}
+      className="shrink-0"
+      role="img"
+      aria-label="A calm sixty second pacing ring for this check-in"
+    >
+      <circle
+        cx="28"
+        cy="28"
+        r={radius}
+        fill="none"
+        stroke="rgba(148,163,184,0.18)"
+        strokeWidth="2"
+      />
       <circle
         cx="28"
         cy="28"
@@ -459,7 +500,9 @@ function TrendChart({ checkins }: { checkins: DailyCheckin[] }) {
   const pointsFor = (key: "mood" | "financial_stress" | "decision_pressure") =>
     ordered
       .map((c, i) => {
-        const x = padding + (ordered.length === 1 ? chartWidth / 2 : (i / (ordered.length - 1)) * chartWidth);
+        const x =
+          padding +
+          (ordered.length === 1 ? chartWidth / 2 : (i / (ordered.length - 1)) * chartWidth);
         const y = padding + chartHeight - (c[key] / 10) * chartHeight;
         return `${x},${y}`;
       })
@@ -467,15 +510,51 @@ function TrendChart({ checkins }: { checkins: DailyCheckin[] }) {
 
   return (
     <div>
-      <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} className="mt-4" role="img" aria-label="14 day mood, stress, and pressure trend">
-        <polyline points={pointsFor("mood")} fill="none" stroke={COLORS.emerald} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-        <polyline points={pointsFor("financial_stress")} fill="none" stroke={COLORS.crimson} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
-        <polyline points={pointsFor("decision_pressure")} fill="none" stroke={COLORS.yellow} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        width="100%"
+        height={height}
+        className="mt-4"
+        role="img"
+        aria-label="14 day mood, stress, and pressure trend"
+      >
+        <polyline
+          points={pointsFor("mood")}
+          fill="none"
+          stroke={COLORS.emerald}
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <polyline
+          points={pointsFor("financial_stress")}
+          fill="none"
+          stroke={COLORS.crimson}
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="0.85"
+        />
+        <polyline
+          points={pointsFor("decision_pressure")}
+          fill="none"
+          stroke={COLORS.yellow}
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="0.85"
+        />
       </svg>
       <div className="mt-3 flex flex-wrap gap-4 text-xs text-dim">
-        <span className="flex items-center gap-2"><span className="inline-block h-2 w-2 rounded-full bg-emerald" /> Mood</span>
-        <span className="flex items-center gap-2"><span className="inline-block h-2 w-2 rounded-full bg-crimson" /> Financial stress</span>
-        <span className="flex items-center gap-2"><span className="inline-block h-2 w-2 rounded-full bg-yellow" /> Decision pressure</span>
+        <span className="flex items-center gap-2">
+          <span className="inline-block h-2 w-2 rounded-full bg-emerald" /> Mood
+        </span>
+        <span className="flex items-center gap-2">
+          <span className="inline-block h-2 w-2 rounded-full bg-crimson" /> Financial stress
+        </span>
+        <span className="flex items-center gap-2">
+          <span className="inline-block h-2 w-2 rounded-full bg-yellow" /> Decision pressure
+        </span>
       </div>
     </div>
   );

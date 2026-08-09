@@ -112,7 +112,15 @@ export function AppHeader({
                 }`}
               >
                 More
-                <svg width="11" height="11" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden>
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  aria-hidden
+                >
                   <path d="M5 8l5 5 5-5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
@@ -145,7 +153,15 @@ export function AppHeader({
               aria-label="Jump to…"
               title={`Jump to… (${shortcutLabel})`}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                aria-hidden
+              >
                 <circle cx="11" cy="11" r="7" />
                 <path d="M20 20l-3.5-3.5" strokeLinecap="round" />
               </svg>
@@ -171,18 +187,10 @@ export function AppHeader({
                     </p>
                   )}
                   <div className="hairline my-1" />
-                  <Link
-                    href="/settings"
-                    role="menuitem"
-                    className="chrome-menu-item"
-                  >
+                  <Link href="/settings" role="menuitem" className="chrome-menu-item">
                     Settings
                   </Link>
-                  <Link
-                    href="/settings/subscription"
-                    role="menuitem"
-                    className="chrome-menu-item"
-                  >
+                  <Link href="/settings/subscription" role="menuitem" className="chrome-menu-item">
                     Subscription
                   </Link>
                   <form action="/auth/sign-out" method="post">

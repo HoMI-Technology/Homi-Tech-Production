@@ -201,7 +201,7 @@ export default function ConnectionsPage() {
       setNote(
         res.ok && data.ok
           ? "Bank disconnected and its data removed from HōMI."
-          : data.error ?? "Could not disconnect. Try again in a moment.",
+          : (data.error ?? "Could not disconnect. Try again in a moment."),
       );
     } catch {
       setNote("Could not disconnect. Try again in a moment.");
@@ -245,8 +245,8 @@ export default function ConnectionsPage() {
     <div className="mx-auto max-w-4xl px-6 py-12">
       <h1 className="font-display text-3xl text-light">Bank Connections</h1>
       <p className="mt-2 max-w-2xl text-dim">
-        Connect your accounts for real balance and transaction context, or enter your numbers manually — HōMI
-        works either way.
+        Connect your accounts for real balance and transaction context, or enter your numbers
+        manually — HōMI works either way.
       </p>
 
       {linkFlow && (
@@ -281,7 +281,8 @@ export default function ConnectionsPage() {
           <div className="glass border bg-verdict-notyet p-6">
             <h2 className="font-semibold text-light">Couldn&apos;t reach bank connections</h2>
             <p className="mt-2 text-sm text-dim">
-              Something went wrong checking connection status. You can still enter your numbers manually on the{" "}
+              Something went wrong checking connection status. You can still enter your numbers
+              manually on the{" "}
               <a href="/finance" className="text-cyan underline underline-offset-2">
                 Finance dashboard
               </a>
@@ -293,7 +294,10 @@ export default function ConnectionsPage() {
         {pageState === "ready" && (
           <div className="space-y-6">
             {note && (
-              <div className="glass border border-slate-surface/60 px-5 py-3 text-sm text-light" role="status">
+              <div
+                className="glass border border-slate-surface/60 px-5 py-3 text-sm text-light"
+                role="status"
+              >
                 {note}
               </div>
             )}
@@ -302,8 +306,8 @@ export default function ConnectionsPage() {
               <div className="glass p-6">
                 <h2 className="font-semibold text-light">Connect a bank</h2>
                 <p className="mt-2 max-w-xl text-sm leading-relaxed text-dim">
-                  Read-only balance and transaction context. Encrypted in transit and at rest. Revocable at
-                  any time — HōMI never initiates transfers or has spending access.
+                  Read-only balance and transaction context. Encrypted in transit and at rest.
+                  Revocable at any time — HōMI never initiates transfers or has spending access.
                 </p>
                 <button
                   className="btn btn-primary mt-4"
@@ -439,8 +443,8 @@ function ConnectionCard({
 
       {confirming && (
         <p className="mt-3 text-xs leading-relaxed text-dim">
-          Disconnecting removes this bank and its account data from HōMI and revokes our access. You can
-          reconnect any time.
+          Disconnecting removes this bank and its account data from HōMI and revokes our access. You
+          can reconnect any time.
         </p>
       )}
 
@@ -453,7 +457,7 @@ function ConnectionCard({
             >
               <span className="text-light">{account.name}</span>
               <span className="score-numeral text-dim">
-                {account.mask ? `•••• ${account.mask}` : account.subtype ?? account.type}
+                {account.mask ? `•••• ${account.mask}` : (account.subtype ?? account.type)}
               </span>
             </li>
           ))}
@@ -474,16 +478,23 @@ function UnconfiguredPanel() {
   return (
     <div className="glass p-8">
       <div className="flex items-center gap-3">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={COLORS.cyan} strokeWidth="1.75">
+        <svg
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={COLORS.cyan}
+          strokeWidth="1.75"
+        >
           <rect x="3" y="10" width="18" height="10" rx="2" />
           <path d="M7 10V7a5 5 0 0 1 10 0v3" />
         </svg>
         <h2 className="font-display text-xl text-light">Bank sync is not available here</h2>
       </div>
       <p className="mt-4 max-w-xl text-sm leading-relaxed text-dim">
-        Live bank connection is not configured in this environment. HōMI does not pretend a connect button works when
-        it cannot. When bank sync is enabled, it is read-only, encrypted, and revocable — same posture as Plus+ plans
-        that include bank sync.
+        Live bank connection is not configured in this environment. HōMI does not pretend a connect
+        button works when it cannot. When bank sync is enabled, it is read-only, encrypted, and
+        revocable — same posture as Plus+ plans that include bank sync.
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">

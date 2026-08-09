@@ -54,7 +54,10 @@ test.describe("score share links", () => {
       let assessmentId: string | null = null;
       try {
         await expect
-          .poll(async () => readServerAssessmentId(page), { timeout: 15_000, intervals: [500, 1_000, 2_000] })
+          .poll(async () => readServerAssessmentId(page), {
+            timeout: 15_000,
+            intervals: [500, 1_000, 2_000],
+          })
           .not.toBeNull();
         assessmentId = await readServerAssessmentId(page);
       } catch {

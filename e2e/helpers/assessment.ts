@@ -36,10 +36,7 @@ async function setReactNumberInput(assessmentPane: Locator): Promise<void> {
   await expect(field).toBeVisible({ timeout: 15_000 });
   await field.evaluate((el) => {
     const input = el as HTMLInputElement;
-    const proto = Object.getOwnPropertyDescriptor(
-      window.HTMLInputElement.prototype,
-      "value",
-    );
+    const proto = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value");
     proto?.set?.call(input, "5000");
     input.dispatchEvent(new Event("input", { bubbles: true }));
     input.dispatchEvent(new Event("change", { bubbles: true }));

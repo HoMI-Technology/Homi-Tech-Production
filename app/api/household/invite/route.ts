@@ -49,10 +49,7 @@ export async function POST(request: Request) {
     .maybeSingle();
 
   if (!membership || membership.role !== "owner") {
-    return NextResponse.json(
-      { error: "Only the household owner can invite." },
-      { status: 403 },
-    );
+    return NextResponse.json({ error: "Only the household owner can invite." }, { status: 403 });
   }
 
   // CL-08: server-side seat cap from entitlements (Family = 5; lower tiers = 1).

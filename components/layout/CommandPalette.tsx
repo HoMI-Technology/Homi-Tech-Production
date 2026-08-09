@@ -86,9 +86,7 @@ export function CommandPalette({
       setActive((a) => (results.length === 0 ? 0 : (a + 1) % results.length));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setActive((a) =>
-        results.length === 0 ? 0 : (a - 1 + results.length) % results.length,
-      );
+      setActive((a) => (results.length === 0 ? 0 : (a - 1 + results.length) % results.length));
     } else if (e.key === "Enter") {
       e.preventDefault();
       go(results[active]);
@@ -129,7 +127,12 @@ export function CommandPalette({
           onKeyDown={onKeyDown}
         />
         <div className="hairline" />
-        <ul id="palette-list" role="listbox" aria-label="Results" className="max-h-[320px] overflow-y-auto p-2">
+        <ul
+          id="palette-list"
+          role="listbox"
+          aria-label="Results"
+          className="max-h-[320px] overflow-y-auto p-2"
+        >
           {results.length === 0 && (
             <li className="px-3 py-6 text-center text-sm text-dim">
               Nothing matches &ldquo;{query}&rdquo;.

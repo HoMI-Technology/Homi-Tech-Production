@@ -106,7 +106,12 @@ describe("assembleServerContext", () => {
       },
     });
     const state = await assembleServerContext(supabase);
-    expect(state?.credit).toEqual({ score: 705, utilization: 22, onTimeStreakMonths: 18, ageDays: 0 });
+    expect(state?.credit).toEqual({
+      score: 705,
+      utilization: 22,
+      onTimeStreakMonths: 18,
+      ageDays: 0,
+    });
   });
 
   it("returns null when nothing exists server-side — the route falls back to client context", async () => {
@@ -127,7 +132,11 @@ describe("assembleServerContext", () => {
     expect(state?.finance).toBeNull();
     expect(state?.credit?.score).toBe(640);
 
-    const exploding = { from: () => { throw new Error("boom"); } } as unknown as SupabaseClient;
+    const exploding = {
+      from: () => {
+        throw new Error("boom");
+      },
+    } as unknown as SupabaseClient;
     expect(await assembleServerContext(exploding)).toBeNull();
   });
 

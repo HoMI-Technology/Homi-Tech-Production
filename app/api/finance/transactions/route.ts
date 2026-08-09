@@ -25,7 +25,10 @@ export async function GET(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`finance-tx-read:${ip}`, { limit: 60, windowMs: 60_000 });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a minute." },
+      { status: 429 },
+    );
   }
 
   const supabase = await createClient();
@@ -73,8 +76,7 @@ export async function GET(request: Request) {
 
   const rows = (data ?? []) as FinanceTransactionRow[];
   const transactions = rows.map(rowToTransaction);
-  const nextCursor =
-    rows.length === limit ? rows[rows.length - 1]?.updated_at ?? null : null;
+  const nextCursor = rows.length === limit ? (rows[rows.length - 1]?.updated_at ?? null) : null;
 
   return NextResponse.json({ transactions, nextCursor });
 }
@@ -83,7 +85,10 @@ export async function POST(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`finance-tx-write:${ip}`, { limit: 30, windowMs: 60_000 });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a minute." },
+      { status: 429 },
+    );
   }
 
   const supabase = await createClient();
