@@ -15,7 +15,7 @@ import {
   currentOpenPeriod,
   monthlyIncomeCents,
   debtPaymentsCents,
-} from "@/lib/advisor/finance-context";
+} from "@/lib/finance/ledger-period";
 import { centsToDollars, type MoneyCents } from "@/lib/finance/money";
 import { gradeCompleteness, type FinanceCompleteness } from "@/lib/finance/readiness-snapshot";
 import type { FinanceState } from "@/lib/finance/store";
