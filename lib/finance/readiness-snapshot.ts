@@ -19,7 +19,7 @@ import {
   currentOpenPeriod,
   monthlyIncomeCents,
   debtPaymentsCents,
-} from "@/lib/advisor/finance-context";
+} from "@/lib/finance/ledger-period";
 import type { PathFinanceSnapshot } from "@/lib/readiness/path";
 
 export type FinanceCompleteness = "low" | "medium" | "high";
