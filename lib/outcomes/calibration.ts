@@ -44,7 +44,13 @@ export function totalResponses(rows: CalibrationRow[]): number {
 export function readinessDividend(
   rows: CalibrationRow[],
   minCohort = 5,
-): { readyAvg: number; waitedAvg: number; deltaPct: number; readyPositive: number; waitedPositive: number } | null {
+): {
+  readyAvg: number;
+  waitedAvg: number;
+  deltaPct: number;
+  readyPositive: number;
+  waitedPositive: number;
+} | null {
   const ready = rows.find((r) => r.verdict === "READY");
   const waited = rows.filter((r) => r.verdict === "NOT_YET" || r.verdict === "BUILD_FIRST");
   const waitedCount = waited.reduce((s, r) => s + r.response_count, 0);

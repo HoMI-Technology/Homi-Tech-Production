@@ -24,6 +24,7 @@ HōMI is a full-stack, privacy-first platform that helps individuals (and househ
 It returns a single deterministic verdict (`READY` / `ALMOST_THERE` / `BUILD_FIRST` / `NOT_YET`) with protective **hard stops** that force `NOT_YET` regardless of numeric score when catastrophic conditions exist (DTI >50%, housing >45% gross, emergency runway <1mo, credit <620).
 
 **Key Differentiators:**
+
 - Server-authoritative scoring and entitlements (never trust client).
 - Brand-locked, high-density "operate" UI (cockpit) vs. cinematic "persuade" marketing.
 - Multi-agent AI Companion ("the mote") with strict no-advice guardrails, tiered quotas, and context spine.
@@ -32,12 +33,14 @@ It returns a single deterministic verdict (`READY` / `ALMOST_THERE` / `BUILD_FIR
 - Auditability: architecture feed, brand-check, acceptance tests, ADR trail.
 
 **Scale & Team Context (2026):**
+
 - Early production (Vercel + Supabase primary).
 - Solo founder + AI agent-augmented development (Claude/Codex/Kimi/Grok/Hermes workflows).
 - Target: individual consumers + B2B (partners, employers, households).
 - Constraints: LLM cost control, liability avoidance (no financial/legal advice), regulatory sensitivity around credit/finance data, Vercel/Supabase economics, rapid iteration with strong guardrails.
 
 **Non-Negotiables (from BUILD-BRIEF / AGENTS.md / DESIGN.md):**
+
 - Scoring canon frozen (weights in `lib/scoring/weights.ts` C2 boundary; thresholds boundary-inclusive).
 - Brand canon (exact spelling **HōMI**, palette, verdict labels, no banned claims).
 - RLS + `SECURITY DEFINER` + pinned `search_path`.
@@ -49,6 +52,7 @@ It returns a single deterministic verdict (`READY` / `ALMOST_THERE` / `BUILD_FIR
 ## 2. Goals, Constraints & Non-Functional Requirements
 
 ### Functional Goals
+
 - Deliver honest, actionable readiness signal + next-step map.
 - Enable safe exploration via tools/calculators that prefill from real user data (CFM spine).
 - Provide persistent Companion that knows the user's full context (assessment + finance + goals) without ever giving advice.
@@ -56,20 +60,22 @@ It returns a single deterministic verdict (`READY` / `ALMOST_THERE` / `BUILD_FIR
 - Tiered monetization that gates advanced AI / tools / household without breaking core free experience.
 
 ### Non-Functional Requirements (Production-Ready)
-| Category       | Requirement                                      | Target / Measurement                  |
-|----------------|--------------------------------------------------|---------------------------------------|
-| **Correctness**| Deterministic scoring; hard stops always win    | 100% test coverage on engine + gates |
-| **Security**   | RLS on all user data; no secrets in client; webhook sig verify | SOC2-ready posture; zero client keys |
-| **Privacy**    | User owns data; minimal PII; Plaid token server-side | RLS + audit_log; data export path |
-| **Performance**| <3s LCP marketing; interactive tools <200ms feedback | Lighthouse ≥90; budget in lighthouse-budget.json |
-| **Reliability**| Graceful degrade; idempotent webhooks; quota backstops | 99.5%+ uptime; Sentry + healthcheck |
-| **Cost**       | LLM spend bounded (daily + monthly caps)        | Per-tier quotas + monthly ceiling    |
-| **Accessibility** | WCAG AA; reduced-motion; keyboard + screenreader | Skip links, aria, brand-check + manual |
-| **Observability** | Errors, product events, verdict analytics       | Sentry + PostHog (uniform taxonomy)  |
-| **Maintainability** | SSOT registries; architecture feed; pure modules | `npm run architecture:check`; typecheck |
-| **Scalability** | Supabase row limits + Vercel edge; sharded? later | Horizontal via serverless; monitor   |
+
+| Category            | Requirement                                                    | Target / Measurement                             |
+| ------------------- | -------------------------------------------------------------- | ------------------------------------------------ |
+| **Correctness**     | Deterministic scoring; hard stops always win                   | 100% test coverage on engine + gates             |
+| **Security**        | RLS on all user data; no secrets in client; webhook sig verify | SOC2-ready posture; zero client keys             |
+| **Privacy**         | User owns data; minimal PII; Plaid token server-side           | RLS + audit_log; data export path                |
+| **Performance**     | <3s LCP marketing; interactive tools <200ms feedback           | Lighthouse ≥90; budget in lighthouse-budget.json |
+| **Reliability**     | Graceful degrade; idempotent webhooks; quota backstops         | 99.5%+ uptime; Sentry + healthcheck              |
+| **Cost**            | LLM spend bounded (daily + monthly caps)                       | Per-tier quotas + monthly ceiling                |
+| **Accessibility**   | WCAG AA; reduced-motion; keyboard + screenreader               | Skip links, aria, brand-check + manual           |
+| **Observability**   | Errors, product events, verdict analytics                      | Sentry + PostHog (uniform taxonomy)              |
+| **Maintainability** | SSOT registries; architecture feed; pure modules               | `npm run architecture:check`; typecheck          |
+| **Scalability**     | Supabase row limits + Vercel edge; sharded? later              | Horizontal via serverless; monitor               |
 
 **Constraints:**
+
 - Next.js 15 App Router + React 19 (colocation wins).
 - Node 22, npm only (legacy-peer-deps).
 - Optional envs degrade: no Stripe → no checkout; no Anthropic → rule-based fallback.
@@ -81,6 +87,7 @@ It returns a single deterministic verdict (`READY` / `ALMOST_THERE` / `BUILD_FIR
 ## 3. Core Entities & Domain Model
 
 **Primary Entities (from DB + code):**
+
 - `profiles` (id, email, subscription_tier, role, employer_id, organization_id, ...)
 - `assessments` (user_id, score, verdict, pillars JSON, hard_stops, inputs snapshot)
 - `checkins` (daily mood/pulse)
@@ -100,6 +107,7 @@ It returns a single deterministic verdict (`READY` / `ALMOST_THERE` / `BUILD_FIR
 **Relationships:** Strong user ownership via RLS. Assessments link to shares/outcomes. Plaid → finance state. Orgs for B2B scoping.
 
 **Derived / Transient:**
+
 - HōMI-Score + verdict (computed server-side)
 - Companion context spine (assessment + finance + surface + goals)
 - CFM (Canonical Financial Model) overlay for tool prefill
@@ -109,9 +117,11 @@ It returns a single deterministic verdict (`READY` / `ALMOST_THERE` / `BUILD_FIR
 ## 4. High-Level Architecture Options & Tradeoffs
 
 ### Option A: Current Hybrid Full-Stack Next.js + Supabase (Recommended / As-Built)
+
 **Description:** Single Next.js 15 app (App Router) handling marketing + product surfaces. Supabase for Auth + Postgres (RLS) + edge functions/RPCs where needed. Server components for data/auth shells. Client components + hooks for interactive (assessment, Plaid Link, chat, tools). Pure TS scoring engine. Optional third-party via server proxies.
 
 **Pros:**
+
 - Colocation of UI + API + logic → fast iteration.
 - Server components reduce client JS + improve SEO/perf for marketing.
 - Supabase RLS + Auth is "batteries-included" and matches security posture perfectly.
@@ -120,6 +130,7 @@ It returns a single deterministic verdict (`READY` / `ALMOST_THERE` / `BUILD_FIR
 - Graceful degradation built-in.
 
 **Cons / Tradeoffs:**
+
 - Vendor lock (Supabase schema + Vercel functions).
 - Scaling limits on free/cheap tiers (row counts, function invocations, AI spend).
 - Monolith: harder to extract B2B API later (mitigated by clear lib boundaries).
@@ -128,6 +139,7 @@ It returns a single deterministic verdict (`READY` / `ALMOST_THERE` / `BUILD_FIR
 **Why chosen:** Matches team size (solo + agents), speed-to-production, and "protection first" requirements. Boring + proven for this domain.
 
 ### Option B: Microservices / Separate API + SPA Frontend
+
 **Description:** Next.js (or Vite) SPA for frontend only + dedicated API (Node/Go + custom Postgres or Supabase backend service) + separate auth service.
 
 **Pros:** Independent scaling, team boundaries, easier B2B public API, language choice per service.
@@ -137,6 +149,7 @@ It returns a single deterministic verdict (`READY` / `ALMOST_THERE` / `BUILD_FIR
 **Tradeoff Summary:** 3-5x dev/ops cost for marginal benefit until user count justifies (>>10k MAU + heavy B2B).
 
 ### Option C: Heavier Client + Edge DB (e.g. SQLite/WASM or Firebase)
+
 **Description:** More computation client-side + Firebase/Supabase-lite or local-first.
 
 **Pros:** Offline potential, lower backend cost initially.
@@ -146,6 +159,7 @@ It returns a single deterministic verdict (`READY` / `ALMOST_THERE` / `BUILD_FIR
 **Rejected outright** due to core product invariants.
 
 ### Option D: AI-First / Agent-Native (Future Exploration)
+
 Emerging: Orchestrate more via multi-agent workflows (e.g. using the existing Agent OS + external orchestrators). Current is hybrid (registry + single backend endpoint + specialist prompts). Future may evolve toward more declarative agent graphs while keeping human-visible surfaces stable.
 
 **Tradeoff:** Higher flexibility vs. auditability and guardrail drift risk. Mitigate with sentinel + receipt HMAC.
@@ -153,6 +167,7 @@ Emerging: Orchestrate more via multi-agent workflows (e.g. using the existing Ag
 **Recommendation:** Stay with Option A for 2026-2027. Re-evaluate at clear inflection (e.g. need for public partner API surface or >5k concurrent).
 
 **Module Boundaries (enforced in current):**
+
 - `lib/scoring/` — pure, self-contained, testable. No DB, no UI.
 - `lib/brand/` + `lib/stripe/tiers.ts` + `lib/entitlements.ts` — immutable canon.
 - `lib/agents/registry.ts` + `lib/advisor/*` — agent meta + context spine.
@@ -216,6 +231,7 @@ flowchart TB
 ```
 
 **Data Flow Summary:**
+
 1. Anonymous user → Marketing → Assessment collection (client form state) → POST `/api/assessments` (or scoring route).
 2. Server: validate inputs (Zod) → run `scoringEngine(AssessmentInputs)` (pure) → apply hard stops → persist to `assessments` (RLS).
 3. Results page (server-fetched for owner) renders verdict hero + pillar breakdown + recommended tools/path.
@@ -231,18 +247,20 @@ flowchart TB
 **Source of Truth:** `DESIGN.md` (immutable contract) + `lib/brand/*` + `app/globals.css` + `npm run brand-check`.
 
 ### 6.1 Global Design System
+
 - **Palette (exact, no approximations):**
   - Surfaces: Navy `#0a1628`, Navy-light `#0f172a`, Slate-surface `#1e293b`
   - Accents: Cyan `#22d3ee`, Emerald `#34d399`, Yellow `#facc15`
   - Verdicts: Amber `#fab633` (BUILD FIRST), Crimson `#f24822` (DO NOT PROCEED)
   - Text: Light `#e2e8f0`, Dim `#94a3b8`, Ink white
 - **Typography:** Fraunces (display/hero), Inter (body), JetBrains Mono (numerals, scores, code). `.score-numeral` for data.
-- **Materials:** `.glass` (translucent cards), `.hairline` borders, subtle compass rings / ambient bloom (atmosphere only). Controlled contrast — glass is *under* text, not substrate for busy content.
+- **Materials:** `.glass` (translucent cards), `.hairline` borders, subtle compass rings / ambient bloom (atmosphere only). Controlled contrast — glass is _under_ text, not substrate for busy content.
 - **Motion:** Framer-motion limited. Honor `prefers-reduced-motion`. No GSAP/scroll-jack/marquee on chrome or dashboards. Micro-transitions on verdict changes, sliders, tool results only.
 - **Density:** Operate mode = high information density (cockpit), not marketing whitespace.
 - **Verdict Vocabulary (per ADR 001):** Enum `NOT_YET` (stored); public badge **DO NOT PROCEED**. Never change without migration ADR.
 
 ### 6.2 Shell & Navigation (Dual-Shell Intentional)
+
 - **Marketing Shell:** `SiteHeader` + `SiteFooter`. Persuade mode. One primary CTA above fold.
 - **Product Shell:** `AppHeader` (signed-in) or `SiteHeader` (public product pages). `HeaderShell` shared fixed glass bar.
   - Height: `--nav-height` ~60px + safe-area.
@@ -252,6 +270,7 @@ flowchart TB
 - **Layout ownership:** `(marketing)/layout` vs `(product)/layout` (dynamic based on session).
 
 **Product Chrome Primitives (from `components/operate/` and `components/layout/`):**
+
 - `PageFrame`, `PageHeader`
 - `OperateInstrument` (hero score/verdict container)
 - `MetricRail` (slim secondary metrics)
@@ -259,13 +278,16 @@ flowchart TB
 - `InstrumentFold` or equivalent for progressive disclosure
 
 ### 6.3 Mode-Specific Rules
+
 **PERSUADE (marketing, assessment entry, results "moment", share pages):**
+
 - Hero = thesis about decision readiness (not feature grid).
 - Boldness in one place (compass + score/verdict).
 - Sample scores must exactly match canon (e.g., 76 → ALMOST THERE).
 - Cinematic elements (Compass3D, CinemaFX, DecisionOrbit, etc.) but usable without motion.
 
 **OPERATE (dashboard, tools results, finance, journal, admin, advisor):**
+
 - Dominant readiness numeral + verdict chip (personal) or book/cohort pulse (partner/admin).
 - Secondary modules recessive.
 - Tabular / mono numbers for scores and money.
@@ -274,6 +296,7 @@ flowchart TB
 - Tools: `ToolShell` / `ToolGrid` / `ToolResultHero`; hub groups by ring/job (readiness/reality/stability/timing).
 
 ### 6.4 Key Screens / Component Specs
+
 - **Landing (`app/(marketing)/page.tsx`):** Cinematic private decision room. InterviewHero or equivalent. ThresholdPreview, VerdictShift, Voices, AlignmentScene. Single primary CTA. Accurate sample verdicts.
 - **Assessment:** 45-question flow (sliders dominant, choices, numbers). Progress, pillar grouping. Client state + server submit. Validation mirrors bank.
 - **Results / Path / Plan:** Hero score + verdict (full meta: color, line, bg). Pillar breakdown (detailed on paid). Recommended next lenses from registry. Share button (generates token). Hard stops surfaced explicitly.
@@ -285,12 +308,14 @@ flowchart TB
 - **Mobile:** Single-line chrome; vertical scroll lock only where specified; full touch targets.
 
 **Component Hierarchy (reuse first):**
+
 - `components/ui/` — low-level (buttons, inputs, modals, Reveal, etc.)
 - `components/operate/` — product-specific primitives
 - Feature folders (assessment/, tools/, advisor/, dashboard/, etc.)
 - Always check `component-reuse` patterns before new.
 
 **Definition of Done (any UI change):**
+
 - Brand-check + typecheck pass.
 - No off-token colors/fonts.
 - Dual shell correct.
@@ -305,19 +330,20 @@ flowchart TB
 
 ### 7.1 Core Platform Integrations
 
-| Integration | Purpose | Client Exposure | Server Role | Tradeoffs & Notes | Status |
-|-------------|---------|-----------------|-------------|-------------------|--------|
-| **Supabase** | Auth, Postgres (RLS), profiles, all user data, RPCs (shares, quotas) | Anon key (public), SSR client | Full; service role only server | RLS is the security model. Easy, fast. Lock-in + pricing at scale. Realtime optional for live features. | Production (core) |
-| **Stripe** | Checkout, Billing Portal, subscriptions, webhooks | None (no Stripe.js on core) | Raw fetch or SDK server-only; idempotent webhook table | Webhook sig verify critical. Price IDs in env. Graceful no-Stripe mode. Cost of failed payments. | Production |
-| **Plaid** | Bank linking & tx sync for verified finance data | Link SDK (cdn allowed in CSP) | Token exchange, sync, storage | Real per-item cost → gated to paid tiers. Sandbox vs prod. Data freshness/confidence labels. | Production (bankSync entitlement) |
-| **Anthropic** | AI Companion (advisor, twin, trinity, agents) | None | Full prompts + context spine + model call | Primary cost driver. Cheap model for paid; fallback deterministic for free. Quotas + monthly cap. Strict system lines + Sentinel. | Production (tiered) |
-| **Resend** | Transactional email (shares, welcome, campaigns) | None | Server | Simple, reliable. Unsub handling. | Production |
-| **Web Push** | Notifications (calendar, nudges?) | Service worker registration | Subscription storage + send | Privacy + permission UX. Optional. | Partial |
-| **Vercel** | Hosting, Analytics, Speed Insights, env | Analytics snippet | Build/deploy | Edge runtime constraints (some Node libs). | Production |
-| **Sentry** | Error tracking (client/server/edge) | DSN | Source maps etc. | Sampling for volume. | Production |
-| **PostHog** (inferred) | Product analytics | Snippet (CSP) | Events | Uniform taxonomy per BUILD-BRIEF needed (gap). | Partial instrumentation |
+| Integration            | Purpose                                                              | Client Exposure               | Server Role                                            | Tradeoffs & Notes                                                                                                                 | Status                            |
+| ---------------------- | -------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| **Supabase**           | Auth, Postgres (RLS), profiles, all user data, RPCs (shares, quotas) | Anon key (public), SSR client | Full; service role only server                         | RLS is the security model. Easy, fast. Lock-in + pricing at scale. Realtime optional for live features.                           | Production (core)                 |
+| **Stripe**             | Checkout, Billing Portal, subscriptions, webhooks                    | None (no Stripe.js on core)   | Raw fetch or SDK server-only; idempotent webhook table | Webhook sig verify critical. Price IDs in env. Graceful no-Stripe mode. Cost of failed payments.                                  | Production                        |
+| **Plaid**              | Bank linking & tx sync for verified finance data                     | Link SDK (cdn allowed in CSP) | Token exchange, sync, storage                          | Real per-item cost → gated to paid tiers. Sandbox vs prod. Data freshness/confidence labels.                                      | Production (bankSync entitlement) |
+| **Anthropic**          | AI Companion (advisor, twin, trinity, agents)                        | None                          | Full prompts + context spine + model call              | Primary cost driver. Cheap model for paid; fallback deterministic for free. Quotas + monthly cap. Strict system lines + Sentinel. | Production (tiered)               |
+| **Resend**             | Transactional email (shares, welcome, campaigns)                     | None                          | Server                                                 | Simple, reliable. Unsub handling.                                                                                                 | Production                        |
+| **Web Push**           | Notifications (calendar, nudges?)                                    | Service worker registration   | Subscription storage + send                            | Privacy + permission UX. Optional.                                                                                                | Partial                           |
+| **Vercel**             | Hosting, Analytics, Speed Insights, env                              | Analytics snippet             | Build/deploy                                           | Edge runtime constraints (some Node libs).                                                                                        | Production                        |
+| **Sentry**             | Error tracking (client/server/edge)                                  | DSN                           | Source maps etc.                                       | Sampling for volume.                                                                                                              | Production                        |
+| **PostHog** (inferred) | Product analytics                                                    | Snippet (CSP)                 | Events                                                 | Uniform taxonomy per BUILD-BRIEF needed (gap).                                                                                    | Partial instrumentation           |
 
 **Key Patterns (non-negotiable):**
+
 - All privileged calls: `getUserEntitlements(supabase)` → `requireCapability(...)` → 401/402.
 - Webhooks: store `webhook_events` for idempotency + replay.
 - Context for AI: always via single `buildCompanionContext()` spine. Client context = convenience/fallback; server authoritative where possible.
@@ -327,29 +353,34 @@ flowchart TB
 ### 7.2 Phased Integration Roadmap (Current + Near-Term)
 
 **Phase 0 — Stabilize (done in recent reorg):**
+
 - Dead code removal, nav consolidation, typecheck green, architecture feed live.
 - Entitlements layer + server gates.
 - Tool registry unification.
 
 **Phase 1 — Awareness & Polish (in progress / next):**
+
 - Full finance context in Companion spine.
-- Uniform PostHog events (assessment_*, verdict_*, checkout_*, companion_*).
+- Uniform PostHog events (assessment*\*, verdict*\_, checkout\_\_, companion\_\*).
 - Expand E2E coverage (money, auth, share flows).
 - Plaid sync reliability + confidence labels.
 
 **Phase 2 — Household + Advanced Surfaces:**
+
 - Family seats full (shared assessments, joint verdicts, family dashboard).
 - Advanced tools gated properly behind `advancedTools`.
 - Couples mode.
 - Scenario saving/comparison (maxScenarios).
 
 **Phase 3 — B2B & Extensibility:**
+
 - Partner API keys / org scoping / de-id.
 - Admin tools maturity.
 - Public partner surfaces (careful with advice liability).
 - Agent OS maturation (more routing, receipts).
 
 **Phase 4+ — Outcomes, Learning, Scale:**
+
 - Full outcome tracking loop (post-decision surveys → score calibration).
 - Behavioral genome usage in Companion/insights.
 - Multi-decision type support (beyond home_buying tags).
@@ -357,6 +388,7 @@ flowchart TB
 - Data export + deletion (compliance).
 
 **Integration Tradeoff Decisions Made:**
+
 - Plaid cost vs. value of "verified" data: gated, not free.
 - Real AI vs. fallback: free gets real taste (5/day) to hook, but bounded cost.
 - Stripe vs. custom billing: Stripe for compliance + portal; webhooks for truth.
@@ -365,6 +397,7 @@ flowchart TB
 - Webhook raw-fetch in some e2e (to avoid SDK in tests).
 
 **Degradation Matrix:**
+
 - No Stripe: pricing page shows, checkout disabled, tiers stay free.
 - No Anthropic: advisor still works with deterministic logic + "educational only" copy.
 - No Plaid: manual finance entry + snapshots only.
@@ -375,6 +408,7 @@ flowchart TB
 ## 8. Data & API Architecture
 
 ### API Surface (selected)
+
 - `/api/assessments` — create/score/retrieve (server compute)
 - `/api/advisor`, `/api/twin`, `/api/trinity` — AI surfaces (shared gate + context)
 - `/api/agents` — Agent OS entry
@@ -388,7 +422,9 @@ flowchart TB
 All routes use Zod for request/response where possible. Server-authoritative.
 
 ### Scoring Engine Contract (lib/scoring/engine.ts)
+
 Pure function:
+
 ```ts
 interface AssessmentInputs { ... }  // 10+ fields across pillars
 function computeScore(inputs: AssessmentInputs): {
@@ -399,11 +435,13 @@ function computeScore(inputs: AssessmentInputs): {
   // insights, subscores etc. (internal)
 }
 ```
+
 Hard stops override verdict to NOT_YET but numeric score remains visible (protective transparency).
 
 Weights and detailed tables are executable-only (not reproduced in docs).
 
 ### Database Notes
+
 - 46+ migrations (ordered, timestamped).
 - RLS enabled + FORCED on every user table.
 - RPCs for atomic operations (share creation, quota decrement).
@@ -416,6 +454,7 @@ Weights and detailed tables are executable-only (not reproduced in docs).
 ## 9. Security, Compliance & Risk Mitigation
 
 **Security Posture:**
+
 - RLS is the perimeter (not app code).
 - No `NEXT_PUBLIC_SUPABASE_SERVICE_ROLE`.
 - Stripe/Plaid/Anthropic keys server-only.
@@ -425,6 +464,7 @@ Weights and detailed tables are executable-only (not reproduced in docs).
 - Admin bypass limited and audited.
 
 **Compliance / Liability:**
+
 - Explicit positioning: educational + readiness only. Never advice.
 - Sentinel agent + prompt boundaries + UI disclaimers.
 - Hard stops protect user (and company).
@@ -432,6 +472,7 @@ Weights and detailed tables are executable-only (not reproduced in docs).
 - See `SECURITY.md`, `COMPANION-ECOSYSTEM.md`, ADRs.
 
 **Risks & Mitigations (from skill template + project):**
+
 - **LLM spend explosion:** Daily + monthly ceilings + cheap model + fallback + admin finite override.
 - **Scoring / brand drift:** Executable TS + CI gates (architecture:check, brand-check, acceptance tests) + frozen canon.
 - **Data breach / privacy:** RLS + minimal collection + Plaid token hygiene + export/deletion paths.
@@ -443,6 +484,7 @@ Weights and detailed tables are executable-only (not reproduced in docs).
 - **B2B scaling / org leakage:** Role + org_id scoping in queries + de-id migrations.
 
 **Observability:**
+
 - Sentry (errors + performance).
 - Structured logs on critical paths (scoring, webhooks, AI calls).
 - Product events (plan uniform capture).
@@ -453,6 +495,7 @@ Weights and detailed tables are executable-only (not reproduced in docs).
 ## 10. Testing, CI/CD, Deployment & Operations
 
 **Testing Layers:**
+
 - Unit/Vitest: scoring engine (pure), entitlements, brand, registries, lib modules. Isolated configs.
 - Acceptance: `vitest.acceptance.config.ts` — canon invariants (verdict boundaries, hard stops, tier mapping).
 - E2E: Playwright — core funnels (assessment, checkout gated, shares). Needs real secrets for full.
@@ -461,24 +504,28 @@ Weights and detailed tables are executable-only (not reproduced in docs).
 - Lighthouse budgets.
 
 **CI/CD:**
+
 - GitHub Actions (verify job gates merges).
 - Vercel Git integration for Preview + Prod.
 - Secrets management via `homi` tools + doctor.
 - SSOT sync between machines via Git (never copy folders).
 
 **Deployment:**
+
 - Main branch → Vercel prod.
 - PR previews.
 - Migrations: apply carefully (see docs); never push until repair complete historically.
 - Env promotion via scripts.
 
 **Operations (see OPERATORS-MANUAL.md, RUNBOOK.md, DEPLOY.md):**
+
 - `homi doctor`, ssot, hygiene.
 - Architecture feed consumption protocol for agents.
 - Go-live checklist.
 - Incident: Sentry triage + logs.
 
 **Release Hygiene:**
+
 - One PR per stream.
 - Pull before work; push (or PR) before switching.
 - Dead code + orphan triage ongoing.
@@ -488,14 +535,17 @@ Weights and detailed tables are executable-only (not reproduced in docs).
 ## 11. Gaps, Technical Debt & Evolution
 
 **Known Verified Gaps (from architecture feed):**
+
 1. E2E coverage incomplete for full matrix (esp. money/auth/share).
 2. PostHog instrumentation not uniform.
 3. Verdict vocabulary dual-stable (policy decision — document only).
 
 **Recent Debt Cleared (reorg):**
+
 - i18n remnants, dead components, duplicate logic (trinity-gap), stale paths, nav parity, route consolidation.
 
 **Future Evolution Priorities (high impact):**
+
 - Outcome loop closure (for scoring calibration).
 - Deeper agent orchestration + receipts.
 - B2B partner portal + API surface.
@@ -507,6 +557,7 @@ Weights and detailed tables are executable-only (not reproduced in docs).
 **ADR Trail:** See `docs/adr/`. Key: 001-verdict-vocabulary.
 
 **How to Update This Doc:**
+
 - After major structural change: update sections + regenerate architecture.json.
 - Use `npm run architecture:gen && npm run architecture:check`.
 - PR must keep executable authority note.
@@ -516,6 +567,7 @@ Weights and detailed tables are executable-only (not reproduced in docs).
 ## 12. Appendices
 
 ### A. Key Commands
+
 ```bash
 npm run dev
 npm run typecheck
@@ -528,6 +580,7 @@ npm run build
 ```
 
 ### B. Registries (SSOT)
+
 - Tools/Lenses: `lib/tools/registry.ts`
 - Agents: `lib/agents/registry.ts`
 - Brand + Verdicts: `lib/brand/index.ts`
@@ -536,6 +589,7 @@ npm run build
 - Questions: `lib/questions/bank.ts`
 
 ### C. References
+
 - `DESIGN.md` (UI contract)
 - `AGENTS.md` (agent instructions + canon)
 - `README.md`
@@ -547,10 +601,11 @@ npm run build
 - `next.config.ts` (CSP, rewrites, architecture.json serve)
 
 ### D. Consumption for Agents / External
+
 Fetch `https://homitechnology.com/architecture.json`. Prefer routes from feed, real agent levels, gaps as hints. Verify executable code.
 
 ---
 
 **This document is living but frozen at a high level.** Major changes require ADR + update to this doc + architecture feed regeneration. Executable code remains the final authority.
 
-*Produced following production-ready standards with explicit tradeoffs, per architecture-design discipline.*
+_Produced following production-ready standards with explicit tradeoffs, per architecture-design discipline._

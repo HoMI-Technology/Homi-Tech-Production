@@ -12,7 +12,11 @@ export const metadata: Metadata = {
 
 function formatDate(value: string) {
   try {
-    return new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    return new Date(value).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   } catch {
     return "—";
   }
@@ -107,7 +111,9 @@ export default async function AdminWaitlistPage() {
                 <tr key={e.id}>
                   <td>{e.email}</td>
                   <td className="text-dim">
-                    {e.interested_in && e.interested_in.length > 0 ? e.interested_in.join(", ") : "—"}
+                    {e.interested_in && e.interested_in.length > 0
+                      ? e.interested_in.join(", ")
+                      : "—"}
                   </td>
                   <td>
                     <span className="chip !text-xs capitalize">{e.status}</span>

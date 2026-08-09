@@ -93,12 +93,46 @@ describe("GET /api/plaid/accounts", () => {
 
   it("returns items with their accounts nested, straight from the database", async () => {
     state.items = [
-      { id: "item-1", institution_name: "First Test Bank", status: "healthy", last_successful_sync: "2026-07-14T12:00:00Z" },
-      { id: "item-2", institution_name: "Second Credit Union", status: "login_required", last_successful_sync: null },
+      {
+        id: "item-1",
+        institution_name: "First Test Bank",
+        status: "healthy",
+        last_successful_sync: "2026-07-14T12:00:00Z",
+      },
+      {
+        id: "item-2",
+        institution_name: "Second Credit Union",
+        status: "login_required",
+        last_successful_sync: null,
+      },
     ];
     state.accounts = [
-      { id: "a1", item_id: "item-1", account_id: "acc_1", name: "Checking", mask: "1234", type: "depository", subtype: "checking", current_balance: 1500.25, available_balance: 1400.5, iso_currency: "USD", updated_at: "2026-07-14T12:00:00Z" },
-      { id: "a2", item_id: "item-1", account_id: "acc_2", name: "Savings", mask: "5678", type: "depository", subtype: "savings", current_balance: 9000, available_balance: 9000, iso_currency: "USD", updated_at: "2026-07-14T12:00:00Z" },
+      {
+        id: "a1",
+        item_id: "item-1",
+        account_id: "acc_1",
+        name: "Checking",
+        mask: "1234",
+        type: "depository",
+        subtype: "checking",
+        current_balance: 1500.25,
+        available_balance: 1400.5,
+        iso_currency: "USD",
+        updated_at: "2026-07-14T12:00:00Z",
+      },
+      {
+        id: "a2",
+        item_id: "item-1",
+        account_id: "acc_2",
+        name: "Savings",
+        mask: "5678",
+        type: "depository",
+        subtype: "savings",
+        current_balance: 9000,
+        available_balance: 9000,
+        iso_currency: "USD",
+        updated_at: "2026-07-14T12:00:00Z",
+      },
     ];
 
     // No Plaid API call should ever happen in this route.
@@ -107,7 +141,10 @@ describe("GET /api/plaid/accounts", () => {
 
     const res = await GET(req());
     expect(res.status).toBe(200);
-    const body = (await res.json()) as { configured: boolean; items: { id: string; accounts: unknown[] }[] };
+    const body = (await res.json()) as {
+      configured: boolean;
+      items: { id: string; accounts: unknown[] }[];
+    };
     expect(body.configured).toBe(true);
     expect(body.items).toHaveLength(2);
     expect(body.items[0]).toEqual({
@@ -116,8 +153,30 @@ describe("GET /api/plaid/accounts", () => {
       status: "healthy",
       last_successful_sync: "2026-07-14T12:00:00Z",
       accounts: [
-        { id: "a1", account_id: "acc_1", name: "Checking", mask: "1234", type: "depository", subtype: "checking", current_balance: 1500.25, available_balance: 1400.5, iso_currency: "USD", updated_at: "2026-07-14T12:00:00Z" },
-        { id: "a2", account_id: "acc_2", name: "Savings", mask: "5678", type: "depository", subtype: "savings", current_balance: 9000, available_balance: 9000, iso_currency: "USD", updated_at: "2026-07-14T12:00:00Z" },
+        {
+          id: "a1",
+          account_id: "acc_1",
+          name: "Checking",
+          mask: "1234",
+          type: "depository",
+          subtype: "checking",
+          current_balance: 1500.25,
+          available_balance: 1400.5,
+          iso_currency: "USD",
+          updated_at: "2026-07-14T12:00:00Z",
+        },
+        {
+          id: "a2",
+          account_id: "acc_2",
+          name: "Savings",
+          mask: "5678",
+          type: "depository",
+          subtype: "savings",
+          current_balance: 9000,
+          available_balance: 9000,
+          iso_currency: "USD",
+          updated_at: "2026-07-14T12:00:00Z",
+        },
       ],
     });
     expect(body.items[1].accounts).toEqual([]);

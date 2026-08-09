@@ -184,12 +184,7 @@ describe("summarizePathResolution", () => {
 
   it("keeps count consistency: total = done + skipped + pending", () => {
     const summary = summarizePathResolution(
-      fixturePath([
-        { status: "done" },
-        { status: "skipped" },
-        {},
-        { reassess: true },
-      ]),
+      fixturePath([{ status: "done" }, { status: "skipped" }, {}, { reassess: true }]),
     );
     for (const bucket of [summary.actionable, summary.reassessment]) {
       expect(bucket.total).toBe(bucket.done + bucket.skipped + bucket.pending);
@@ -205,18 +200,14 @@ describe("summarizePathResolution", () => {
   });
 
   it("reassessment-only path → ratios 0 (no vacuous all-complete)", () => {
-    const summary = summarizePathResolution(
-      fixturePath([{ status: "done", reassess: true }]),
-    );
+    const summary = summarizePathResolution(fixturePath([{ status: "done", reassess: true }]));
     expect(summary.actionable.total).toBe(0);
     expect(summary.completedRatio).toBe(0);
     expect(summary.resolvedRatio).toBe(0);
   });
 
   it("ready_optional maintenance path is summarized like any other", () => {
-    const summary = summarizePathResolution(
-      fixturePath([{ status: "done" }], "ready_optional"),
-    );
+    const summary = summarizePathResolution(fixturePath([{ status: "done" }], "ready_optional"));
     expect(summary.actionable.done).toBe(1);
     expect(summary.completedRatio).toBe(1);
   });

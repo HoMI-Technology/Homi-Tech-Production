@@ -39,7 +39,10 @@ export function StatTile({
       />
       <p className="eyebrow">{label}</p>
       <div className="mt-2 flex items-end justify-between gap-3">
-        <p className="score-numeral text-3xl font-bold leading-none text-light" style={{ textShadow: `0 0 28px ${accent}44` }}>
+        <p
+          className="score-numeral text-3xl font-bold leading-none text-light"
+          style={{ textShadow: `0 0 28px ${accent}44` }}
+        >
           {value}
           {unit && <span className="ml-1 text-sm font-medium text-dim">{unit}</span>}
         </p>

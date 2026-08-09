@@ -75,7 +75,9 @@ export default function OutcomesPage() {
     const prevEntries = entries;
     setEntries((prev) =>
       prev.map((e) =>
-        e.id === id ? { ...e, actual_impact: draft.actual_impact, outcome_date: draft.outcome_date } : e,
+        e.id === id
+          ? { ...e, actual_impact: draft.actual_impact, outcome_date: draft.outcome_date }
+          : e,
       ),
     );
     setRecordingId(null);
@@ -106,10 +108,12 @@ export default function OutcomesPage() {
     return (
       <div className="mx-auto max-w-xl px-6 py-24 text-center">
         <div className="glass p-10">
-          <h1 className="font-display text-2xl font-semibold text-light">Sign in to see your outcomes</h1>
+          <h1 className="font-display text-2xl font-semibold text-light">
+            Sign in to see your outcomes
+          </h1>
           <p className="mt-3 text-sm text-dim">
-            Outcomes tracks how your logged decisions actually played out — you&rsquo;ll need an account
-            to see it.
+            Outcomes tracks how your logged decisions actually played out — you&rsquo;ll need an
+            account to see it.
           </p>
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link href="/auth/sign-in?next=/outcomes" className="btn btn-primary">
@@ -129,7 +133,8 @@ export default function OutcomesPage() {
   const avgMood =
     entries.filter((e) => e.mood !== null).length > 0
       ? (
-          entries.reduce((sum, e) => sum + (e.mood ?? 0), 0) / entries.filter((e) => e.mood !== null).length
+          entries.reduce((sum, e) => sum + (e.mood ?? 0), 0) /
+          entries.filter((e) => e.mood !== null).length
         ).toFixed(1)
       : "—";
 
@@ -139,8 +144,8 @@ export default function OutcomesPage() {
         <div>
           <h1 className="font-display text-3xl text-light">Outcomes</h1>
           <p className="mt-2 max-w-xl text-dim">
-            How your logged decisions actually played out — the honest follow-through on the Decision
-            Journal.
+            How your logged decisions actually played out — the honest follow-through on the
+            Decision Journal.
           </p>
         </div>
         <div className="flex gap-3">
@@ -180,7 +185,9 @@ export default function OutcomesPage() {
       ) : entries.length === 0 ? (
         <div className="glass mt-8 p-10 text-center">
           <p className="text-light">No decisions logged yet.</p>
-          <p className="mt-1 text-sm text-dim">Start in the Decision Journal — your future self will thank you.</p>
+          <p className="mt-1 text-sm text-dim">
+            Start in the Decision Journal — your future self will thank you.
+          </p>
           <Link href="/journal" className="btn btn-primary mt-6 inline-flex">
             Go to Journal
           </Link>
@@ -191,7 +198,9 @@ export default function OutcomesPage() {
           <div className="mt-10">
             <h2 className="font-display text-xl font-semibold text-light">Open decisions</h2>
             {openDecisions.length === 0 ? (
-              <p className="mt-3 text-sm text-dim">Nothing open — every logged decision has an outcome recorded.</p>
+              <p className="mt-3 text-sm text-dim">
+                Nothing open — every logged decision has an outcome recorded.
+              </p>
             ) : (
               <div className="mt-4 space-y-4">
                 {openDecisions.map((entry) => (
@@ -246,7 +255,10 @@ export default function OutcomesPage() {
                           />
                         </div>
                         <div className="flex gap-3">
-                          <button className="btn btn-emerald" onClick={() => handleRecordOutcome(entry.id)}>
+                          <button
+                            className="btn btn-emerald"
+                            onClick={() => handleRecordOutcome(entry.id)}
+                          >
                             Save outcome
                           </button>
                           <button className="btn btn-ghost" onClick={() => setRecordingId(null)}>
@@ -298,8 +310,12 @@ export default function OutcomesPage() {
                       )}
                     </div>
                     <div className="mt-3 flex items-center gap-4 text-xs text-dim">
-                      {entry.decision_date && <span>Decided {formatLocalDateISO(entry.decision_date)}</span>}
-                      {entry.outcome_date && <span>Outcome {formatLocalDateISO(entry.outcome_date)}</span>}
+                      {entry.decision_date && (
+                        <span>Decided {formatLocalDateISO(entry.decision_date)}</span>
+                      )}
+                      {entry.outcome_date && (
+                        <span>Outcome {formatLocalDateISO(entry.outcome_date)}</span>
+                      )}
                     </div>
                   </div>
                 ))}

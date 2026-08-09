@@ -24,7 +24,8 @@ export function DailyPulseStrip({ checkins }: { checkins: DailyCheckin[] }) {
   if (checkins.length === 0) {
     return (
       <p className="text-sm text-dim">
-        No check-ins yet. A 60-second daily check-in builds a picture of how you&rsquo;re really doing.
+        No check-ins yet. A 60-second daily check-in builds a picture of how you&rsquo;re really
+        doing.
       </p>
     );
   }
@@ -110,17 +111,47 @@ export function DailyPulseStrip({ checkins }: { checkins: DailyCheckin[] }) {
         />
 
         {/* Endpoint markers + inline labels — legible without color. */}
-        <circle cx={moodEndX} cy={moodEndY} r="3" fill={COLORS.emerald} style={{ filter: `drop-shadow(0 0 4px ${COLORS.emerald})` }} />
-        <circle cx={stressEndX} cy={stressEndY} r="3" fill={COLORS.crimson} style={{ filter: `drop-shadow(0 0 4px ${COLORS.crimson})` }} />
-        <text x={moodEndX + 8} y={moodLabelY + 3.5} fontSize="10" fill={COLORS.emerald} fontFamily="var(--font-sans)">
+        <circle
+          cx={moodEndX}
+          cy={moodEndY}
+          r="3"
+          fill={COLORS.emerald}
+          style={{ filter: `drop-shadow(0 0 4px ${COLORS.emerald})` }}
+        />
+        <circle
+          cx={stressEndX}
+          cy={stressEndY}
+          r="3"
+          fill={COLORS.crimson}
+          style={{ filter: `drop-shadow(0 0 4px ${COLORS.crimson})` }}
+        />
+        <text
+          x={moodEndX + 8}
+          y={moodLabelY + 3.5}
+          fontSize="10"
+          fill={COLORS.emerald}
+          fontFamily="var(--font-sans)"
+        >
           Mood
         </text>
-        <text x={stressEndX + 8} y={stressLabelY + 3.5} fontSize="10" fill={COLORS.crimson} fontFamily="var(--font-sans)">
+        <text
+          x={stressEndX + 8}
+          y={stressLabelY + 3.5}
+          fontSize="10"
+          fill={COLORS.crimson}
+          fontFamily="var(--font-sans)"
+        >
           Stress
         </text>
 
         {/* Time context. */}
-        <text x={PAD_LEFT} y={HEIGHT - 8} fontSize="9" fill={withAlpha(COLORS.dim, 0.7)} fontFamily="var(--font-sans)">
+        <text
+          x={PAD_LEFT}
+          y={HEIGHT - 8}
+          fontSize="9"
+          fill={withAlpha(COLORS.dim, 0.7)}
+          fontFamily="var(--font-sans)"
+        >
           {fmtDate(tMin)}
         </text>
         {span > 0 && (
@@ -139,13 +170,30 @@ export function DailyPulseStrip({ checkins }: { checkins: DailyCheckin[] }) {
       <div className="mt-3 flex gap-6 text-xs text-dim">
         <span className="flex items-center gap-2">
           <svg width="18" height="6" aria-hidden="true">
-            <line x1="0" y1="3" x2="18" y2="3" stroke={COLORS.emerald} strokeWidth="2.5" strokeLinecap="round" />
+            <line
+              x1="0"
+              y1="3"
+              x2="18"
+              y2="3"
+              stroke={COLORS.emerald}
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            />
           </svg>
           Mood
         </span>
         <span className="flex items-center gap-2">
           <svg width="18" height="6" aria-hidden="true">
-            <line x1="0" y1="3" x2="18" y2="3" stroke={COLORS.crimson} strokeWidth="2.5" strokeDasharray="5 4" strokeLinecap="round" />
+            <line
+              x1="0"
+              y1="3"
+              x2="18"
+              y2="3"
+              stroke={COLORS.crimson}
+              strokeWidth="2.5"
+              strokeDasharray="5 4"
+              strokeLinecap="round"
+            />
           </svg>
           Financial stress
         </span>

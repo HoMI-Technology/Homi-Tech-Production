@@ -10,21 +10,14 @@
 
 import type { BudgetLedgerState } from "@/lib/finance/local-ledger";
 import { activeGoal } from "@/lib/finance/local-ledger";
-import {
-  summarizePeriod,
-  runwayFromOutflow,
-  type PeriodTotals,
-} from "@/lib/finance/calculations";
+import { summarizePeriod, runwayFromOutflow, type PeriodTotals } from "@/lib/finance/calculations";
 import {
   currentOpenPeriod,
   monthlyIncomeCents,
   debtPaymentsCents,
 } from "@/lib/advisor/finance-context";
 import { centsToDollars, type MoneyCents } from "@/lib/finance/money";
-import {
-  gradeCompleteness,
-  type FinanceCompleteness,
-} from "@/lib/finance/readiness-snapshot";
+import { gradeCompleteness, type FinanceCompleteness } from "@/lib/finance/readiness-snapshot";
 import type { FinanceState } from "@/lib/finance/store";
 import {
   netCashFlow as legacyNetCashFlow,
@@ -37,11 +30,7 @@ import {
 // Types
 // ---------------------------------------------------------------------------
 
-export type LiquidSource =
-  | "emergency_goal"
-  | "goal_proxy"
-  | "legacy_snapshot"
-  | "missing";
+export type LiquidSource = "emergency_goal" | "goal_proxy" | "legacy_snapshot" | "missing";
 
 export type MoneyMetricSource = "ledger" | "legacy";
 
@@ -155,11 +144,7 @@ export function defineDti(input: {
   incomeCents: MoneyCents | null;
   debtPaymentsCents: MoneyCents | null;
 }): DtiMetric {
-  if (
-    input.incomeCents === null ||
-    input.incomeCents <= 0 ||
-    input.debtPaymentsCents === null
-  ) {
+  if (input.incomeCents === null || input.incomeCents <= 0 || input.debtPaymentsCents === null) {
     return {
       pct: null,
       incomeDollars:
@@ -167,9 +152,7 @@ export function defineDti(input: {
           ? centsToDollars(input.incomeCents)
           : null,
       debtPaymentDollars:
-        input.debtPaymentsCents !== null
-          ? centsToDollars(input.debtPaymentsCents)
-          : null,
+        input.debtPaymentsCents !== null ? centsToDollars(input.debtPaymentsCents) : null,
     };
   }
   return {
@@ -240,9 +223,7 @@ export function metricsFromLedger(
   const debtPay = debtPaymentsCents(state.transactions, period);
   const hasDebtCategory = state.transactions.some(
     (tx) =>
-      tx.deletedAt === null &&
-      tx.status === "posted" &&
-      tx.categoryId === "cat-debt-payments",
+      tx.deletedAt === null && tx.status === "posted" && tx.categoryId === "cat-debt-payments",
   );
 
   const surplus = definePeriodSurplus({
@@ -317,10 +298,7 @@ export function metricsFromLedger(
 /**
  * Legacy FinanceState → named metrics (migration fallback only).
  */
-export function metricsFromLegacy(
-  finance: FinanceState,
-  asOf: string | null,
-): NamedMoneyMetrics {
+export function metricsFromLegacy(finance: FinanceState, asOf: string | null): NamedMoneyMetrics {
   const surplusDollars = legacyNetCashFlow(finance);
   const surplus: PeriodSurplus = {
     dollars: surplusDollars,
@@ -342,9 +320,7 @@ export function metricsFromLegacy(
     debtPaymentDollars: finance.monthlyDebtPayments,
   };
   const hasData =
-    finance.monthlyIncome > 0 ||
-    finance.monthlyExpenses > 0 ||
-    finance.liquidSavings > 0;
+    finance.monthlyIncome > 0 || finance.monthlyExpenses > 0 || finance.liquidSavings > 0;
 
   return {
     source: "legacy",

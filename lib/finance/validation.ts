@@ -12,11 +12,7 @@ import { z } from "zod";
 import { MAX_MONEY_CENTS } from "@/lib/finance/money";
 
 /** Positive integer cents within the storage ceiling. */
-export const moneyCentsSchema = z
-  .number()
-  .int()
-  .positive()
-  .max(MAX_MONEY_CENTS);
+export const moneyCentsSchema = z.number().int().positive().max(MAX_MONEY_CENTS);
 
 const dateOnlySchema = z.iso.date();
 
@@ -76,10 +72,9 @@ export const transactionUpdateSchema = z
     isExcludedFromBudget: z.boolean().optional(),
     userNote: z.string().trim().max(500).nullable().optional(),
   })
-  .refine(
-    (value) => Object.keys(value).length > 1,
-    { message: "Update must change at least one field." },
-  );
+  .refine((value) => Object.keys(value).length > 1, {
+    message: "Update must change at least one field.",
+  });
 
 export type TransactionUpdateInput = z.infer<typeof transactionUpdateSchema>;
 
@@ -118,11 +113,7 @@ export const savingsGoalUpsertSchema = z.object({
   targetAmountCents: moneyCentsSchema,
   currentAmountCents: z.number().int().min(0).max(MAX_MONEY_CENTS),
   targetDate: dateOnlySchema.nullable(),
-  plannedMonthlyContributionCents: z
-    .number()
-    .int()
-    .min(0)
-    .max(MAX_MONEY_CENTS),
+  plannedMonthlyContributionCents: z.number().int().min(0).max(MAX_MONEY_CENTS),
   linkedDecisionId: z.uuid().nullable().optional(),
   status: z.enum(["active", "paused", "completed", "archived"]),
 });

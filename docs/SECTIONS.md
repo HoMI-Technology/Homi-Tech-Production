@@ -135,15 +135,15 @@ it is never a side-effect of a feature task — it is its own, declared task.
 A few folders could sit in more than one Section. These are the decisions, so an
 agent never has to guess:
 
-| Folder | Owned by | Why |
-|--------|----------|-----|
-| `tools/` (calculators) | **5 · Planning** | They feed decisions/plans, not the core score. |
-| `share/` + `shadow/` (link sharing) | **8 · Platform** | A generic mechanism reused by many features. |
-| `brand/` | **8 · Platform** (🔒) | Cross-cutting canon; brand-check enforces it everywhere. |
-| `ui/` | **8 · Platform** | The shared primitive library used by every Section. |
-| `entitlements.ts` / `flags.ts` | **7 · Access** | Gate access; live with auth, not platform infra. |
-| `onboarding/` | **2 · Shell** | Entry into the product surface, not part of auth. |
-| `conflict/` | **3 · Agents** | Resolves competing agent guidance. |
+| Folder                              | Owned by              | Why                                                      |
+| ----------------------------------- | --------------------- | -------------------------------------------------------- |
+| `tools/` (calculators)              | **5 · Planning**      | They feed decisions/plans, not the core score.           |
+| `share/` + `shadow/` (link sharing) | **8 · Platform**      | A generic mechanism reused by many features.             |
+| `brand/`                            | **8 · Platform** (🔒) | Cross-cutting canon; brand-check enforces it everywhere. |
+| `ui/`                               | **8 · Platform**      | The shared primitive library used by every Section.      |
+| `entitlements.ts` / `flags.ts`      | **7 · Access**        | Gate access; live with auth, not platform infra.         |
+| `onboarding/`                       | **2 · Shell**         | Entry into the product surface, not part of auth.        |
+| `conflict/`                         | **3 · Agents**        | Resolves competing agent guidance.                       |
 
 If a task genuinely needs to cross one of these lines, that's the signal to
 **split it into two tasks**, one per Section.
@@ -155,17 +155,17 @@ If a task genuinely needs to cross one of these lines, that's the signal to
 Every top-level source folder, resolved to exactly one Section. Grep this when
 in doubt.
 
-| Section | `app/` | `lib/` | `components/` |
-|---------|--------|--------|----------------|
-| 0 Scoring 🔒 | assessment, results, report, api/scoring, api/assessments | scoring, assessment, questions, validation | assessment, results |
-| 1 Marketing | (marketing)/*, api/waitlist, SEO root files | seo | marketing, home, seo, learning |
-| 2 Shell | dashboard, daily, journal, calendar, onboarding, demo, app-shell chrome | dashboard, layout, keyboard, demo | dashboard, layout, calendar, operate, pwa |
-| 3 Agents | agents, agent-hub, advisor, twin, trinity, genome, api/{agents,advisor,twin,trinity} | agents, advisor, twin, trinity, genome, conflict | agents, companion, advisor, twin |
-| 4 Finance | finance, credit, connections, api/{finance,finance-state,plaid,billing,checkout,webhooks} | finance, plaid, credit, stripe, receipts | finance, connections |
-| 5 Planning | plan, decisions, simulator, scenarios, path, outcomes, signals, calibration, shadow-score, tools, api/{readiness-path,tools} | planner, decisions, simulator.ts, readiness, outcomes, signals, tools | planner, decisions, simulator, readiness, tools |
-| 6 Org | household, team, partner, employee, api/household | household | household, b2b |
-| 7 Access | auth/*, settings, admin, api/{account,admin} | auth, admin, entitlements.ts, flags.ts | auth, settings, admin, consent, entitlements |
-| 8 Platform 🔧 | middleware.ts, api/{healthcheck,cron,csp-report,email,push,unsubscribe,v1}, share, shadow, api/{shares,shadow-shares} | supabase, env.ts, email, push, notifications, analytics(.ts), audit.ts, attribution.ts, dates.ts, persistence.ts, ratelimit.ts, security.ts, architecture, brand 🔒 | ui, share, analytics, brand 🔒 |
+| Section       | `app/`                                                                                                                       | `lib/`                                                                                                                                                              | `components/`                                   |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| 0 Scoring 🔒  | assessment, results, report, api/scoring, api/assessments                                                                    | scoring, assessment, questions, validation                                                                                                                          | assessment, results                             |
+| 1 Marketing   | (marketing)/\*, api/waitlist, SEO root files                                                                                 | seo                                                                                                                                                                 | marketing, home, seo, learning                  |
+| 2 Shell       | dashboard, daily, journal, calendar, onboarding, demo, app-shell chrome                                                      | dashboard, layout, keyboard, demo                                                                                                                                   | dashboard, layout, calendar, operate, pwa       |
+| 3 Agents      | agents, agent-hub, advisor, twin, trinity, genome, api/{agents,advisor,twin,trinity}                                         | agents, advisor, twin, trinity, genome, conflict                                                                                                                    | agents, companion, advisor, twin                |
+| 4 Finance     | finance, credit, connections, api/{finance,finance-state,plaid,billing,checkout,webhooks}                                    | finance, plaid, credit, stripe, receipts                                                                                                                            | finance, connections                            |
+| 5 Planning    | plan, decisions, simulator, scenarios, path, outcomes, signals, calibration, shadow-score, tools, api/{readiness-path,tools} | planner, decisions, simulator.ts, readiness, outcomes, signals, tools                                                                                               | planner, decisions, simulator, readiness, tools |
+| 6 Org         | household, team, partner, employee, api/household                                                                            | household                                                                                                                                                           | household, b2b                                  |
+| 7 Access      | auth/\*, settings, admin, api/{account,admin}                                                                                | auth, admin, entitlements.ts, flags.ts                                                                                                                              | auth, settings, admin, consent, entitlements    |
+| 8 Platform 🔧 | middleware.ts, api/{healthcheck,cron,csp-report,email,push,unsubscribe,v1}, share, shadow, api/{shares,shadow-shares}        | supabase, env.ts, email, push, notifications, analytics(.ts), audit.ts, attribution.ts, dates.ts, persistence.ts, ratelimit.ts, security.ts, architecture, brand 🔒 | ui, share, analytics, brand 🔒                  |
 
 _Authority note (from `AGENTS.md`): executable TypeScript wins on conflict.
 This map is a routing index for **where work goes**, not a redefinition of what

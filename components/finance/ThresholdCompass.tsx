@@ -110,7 +110,16 @@ function Keyhole({ unlocked }: { unlocked: boolean }) {
       }}
     >
       <circle cx={100} cy={96} r={12} stroke={color} strokeWidth={2} fill="none" />
-      <rect x={94} y={104} width={12} height={16} rx={2} stroke={color} strokeWidth={2} fill="none" />
+      <rect
+        x={94}
+        y={104}
+        width={12}
+        height={16}
+        rx={2}
+        stroke={color}
+        strokeWidth={2}
+        fill="none"
+      />
       <circle cx={100} cy={96} r={5} fill={color} />
       <rect x={97} y={96} width={6} height={12} fill={color} />
     </g>
@@ -157,9 +166,7 @@ export function ThresholdCompass({ result }: { result: AssessmentResult }) {
       `}</style>
 
       <div className="flex w-full items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-widest text-dim">
-          HōMI-Score
-        </span>
+        <span className="text-xs font-semibold uppercase tracking-widest text-dim">HōMI-Score</span>
         <span className="text-xs font-semibold uppercase tracking-widest text-dim">
           35 · 35 · 30
         </span>
@@ -204,7 +211,7 @@ export function ThresholdCompass({ result }: { result: AssessmentResult }) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.2 }}
-          className="mt-3 flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em]"
+          className="mt-3 flex items-center gap-1.5 rounded-full px-3 py-1 text-2xs font-semibold uppercase tracking-[0.12em]"
           style={{ backgroundColor: withAlpha(color, 0.1), color }}
         >
           <PulseDot color={color} size={5} />
@@ -219,7 +226,7 @@ export function ThresholdCompass({ result }: { result: AssessmentResult }) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="mt-2 text-center font-display text-[17px] italic text-dim"
+          className="mt-2 text-center font-display text-lg italic text-dim"
         >
           {meta.line}
         </motion.p>

@@ -9,10 +9,7 @@ import { getUserEntitlements } from "@/lib/entitlements";
 
 export const runtime = "nodejs";
 
-export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!id || id.length > 40) {
     return NextResponse.json({ error: "Invalid scenario id." }, { status: 400 });

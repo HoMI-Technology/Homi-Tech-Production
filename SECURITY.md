@@ -5,8 +5,8 @@ This document outlines the security posture of the **HōMI — Decision Readines
 ## Supported Versions
 
 | Version | Branch | Supported |
-|---------|--------|-----------|
-| 1.x     | `main` | ✅ Active  |
+| ------- | ------ | --------- |
+| 1.x     | `main` | ✅ Active |
 
 Only the latest deployed production version receives security updates. Older release branches are not maintained.
 
@@ -18,6 +18,7 @@ We take security seriously. If you discover a vulnerability, please report it **
 - **Fallback:** Contact us through the support channel listed on [homitechnology.com](https://homitechnology.com)
 
 Please include:
+
 - A clear description of the issue
 - Steps to reproduce (if applicable)
 - Potential impact assessment
@@ -28,6 +29,7 @@ We aim to acknowledge reports within **48 hours** and provide a timeline for res
 ## Responsible Disclosure
 
 We ask that you:
+
 - Do not publicly disclose the vulnerability until we have released a fix
 - Do not access, modify, or delete data belonging to other users
 - Provide us reasonable time to remediate before publishing any findings
@@ -37,6 +39,7 @@ We ask that you:
 The following controls are implemented in the HōMI production stack:
 
 ### Content Security Policy (CSP)
+
 - Enforced via `Content-Security-Policy` header on production builds
 - Report-only mode everywhere for ongoing violation monitoring
 - `default-src 'self'` as the restrictive baseline
@@ -46,6 +49,7 @@ The following controls are implemented in the HōMI production stack:
 - No `unsafe-eval` in script-src
 
 ### Transport & Headers
+
 - **HSTS** (`Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`)
 - **X-Frame-Options: DENY**
 - **X-Content-Type-Options: nosniff**
@@ -54,17 +58,20 @@ The following controls are implemented in the HōMI production stack:
 - `poweredByHeader: false` in Next.js config
 
 ### Authentication & Authorization
+
 - **Supabase Auth** with SSR session management via `@supabase/ssr`
 - Middleware **fail-closed**: protected routes redirect to sign-in when auth cannot be verified
 - **RLS (Row Level Security)** enforced on all tenant-scoped tables via Supabase migrations
 - Privilege-escalation guards (BEFORE UPDATE triggers) protecting `role`, `subscription_tier`, `subscription_status`, `stripe_customer_id`
 
 ### Input Validation
+
 - **Zod** schemas validate all API route bodies (checkout, assessments, webhooks, email, etc.)
 - Scoring engine clamps numeric inputs to safe ranges
 - Open-redirect protection: `next` query params validated to same-origin relative paths only
 
 ### Secrets & Environment
+
 - `lib/env.ts` provides typed, lazy-validated environment access
 - Required vars throw on first use (not at import time)
 - Optional integrations (Stripe, Anthropic, PostHog) degrade gracefully when absent
@@ -74,15 +81,16 @@ The following controls are implemented in the HōMI production stack:
 
 The following third-party dependencies process or transport sensitive information:
 
-| Dependency | Purpose | Sensitive Data |
-|------------|---------|----------------|
-| `@supabase/supabase-js` / `@supabase/ssr` | Database, Auth, Storage | User PII, auth tokens, session cookies |
-| `stripe` | Payments, subscriptions, billing portal | Payment methods, subscription tiers, customer IDs |
-| `resend` | Transactional email | Email addresses, message content |
-| `@vercel/speed-insights` | Performance monitoring | Page-load telemetry (no PII) |
-| `@sentry/nextjs` | Error tracking | Stack traces, request context |
+| Dependency                                | Purpose                                 | Sensitive Data                                    |
+| ----------------------------------------- | --------------------------------------- | ------------------------------------------------- |
+| `@supabase/supabase-js` / `@supabase/ssr` | Database, Auth, Storage                 | User PII, auth tokens, session cookies            |
+| `stripe`                                  | Payments, subscriptions, billing portal | Payment methods, subscription tiers, customer IDs |
+| `resend`                                  | Transactional email                     | Email addresses, message content                  |
+| `@vercel/speed-insights`                  | Performance monitoring                  | Page-load telemetry (no PII)                      |
+| `@sentry/nextjs`                          | Error tracking                          | Stack traces, request context                     |
 
 ### Webhook Security
+
 - **Stripe webhooks** verify signatures using `stripe.webhooks.constructEvent` with the `STRIPE_WEBHOOK_SECRET`
 - **Plaid webhooks** verify JWT tokens (production only; dev escape hatch documented)
 - **Internal API routes** (`/api/email`, `/api/cron/*`) guard with `x-homi-internal` or `Authorization: Bearer` + `CRON_SECRET`
@@ -91,10 +99,12 @@ The following third-party dependencies process or transport sensitive informatio
 ## Security Testing
 
 Security-specific tests live in `__tests__/security/` and are run:
+
 - On every Pull Request (via `.github/workflows/security-scan.yml`)
 - Weekly via automated cron schedule
 
 Tests cover:
+
 - CSP policy assertions
 - Environment validation
 - Input sanitization (Zod schemas, scoring engine clamp behavior)

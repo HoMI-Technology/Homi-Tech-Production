@@ -10,10 +10,7 @@ import {
   scoreFromBudgetAsync,
   ScoringRequestError,
 } from "@/lib/planner/score-bridge";
-import {
-  DEFAULT_GOAL,
-  DEFAULT_READINESS_PROFILE,
-} from "@/lib/planner/derived";
+import { DEFAULT_GOAL, DEFAULT_READINESS_PROFILE } from "@/lib/planner/derived";
 import type { ScoreBridgeInput } from "@/lib/planner/score-bridge";
 
 vi.mock("@/lib/scoring/client-score", () => ({

@@ -34,11 +34,13 @@ export function SharePreviewSection() {
 
   return (
     <section className="glass p-6 sm:p-8">
-      <h2 className="font-display text-xl font-semibold text-light">If you shared your readiness</h2>
+      <h2 className="font-display text-xl font-semibold text-light">
+        If you shared your readiness
+      </h2>
       <p className="mt-1 text-sm text-dim">
-        A preview of the summary a lender or agent would see. Viewing this preview shares nothing — a
-        summary only leaves your account if you create a share link yourself, and those links expire
-        after 30 days.
+        A preview of the summary a lender or agent would see. Viewing this preview shares nothing —
+        a summary only leaves your account if you create a share link yourself, and those links
+        expire after 30 days.
       </p>
 
       {!hydrated ? (
@@ -85,7 +87,9 @@ export function SharePreviewSection() {
             </div>
           )}
 
-          <p className="border-t border-slate-surface/60 pt-4 text-xs text-dim">{preview.disclaimer}</p>
+          <p className="border-t border-slate-surface/60 pt-4 text-xs text-dim">
+            {preview.disclaimer}
+          </p>
         </div>
       )}
     </section>

@@ -9,15 +9,13 @@ describe("sanitizePosthogHost", () => {
   });
 
   it("strips inline comments pasted from .env.example notes", () => {
-    expect(
-      sanitizePosthogHost("https://us.i.posthog.com   # Or https://eu.i.posthog.com"),
-    ).toBe("https://us.i.posthog.com");
+    expect(sanitizePosthogHost("https://us.i.posthog.com   # Or https://eu.i.posthog.com")).toBe(
+      "https://us.i.posthog.com",
+    );
   });
 
   it("trims trailing slashes", () => {
-    expect(sanitizePosthogHost("https://eu.i.posthog.com/")).toBe(
-      "https://eu.i.posthog.com",
-    );
+    expect(sanitizePosthogHost("https://eu.i.posthog.com/")).toBe("https://eu.i.posthog.com");
   });
 
   it("returns fallback when the value is only a comment", () => {

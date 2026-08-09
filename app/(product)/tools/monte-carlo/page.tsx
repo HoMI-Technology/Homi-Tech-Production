@@ -100,18 +100,94 @@ function MonteCarloPageInner() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr] lg:gap-8">
         <div className="glass space-y-5 p-6">
-          <LensField label="Current savings" value={currentSavings} onChange={setCurrentSavings} min={0} max={500000} step={1000} format="currency" source={sourceFor("currentSavings")} />
-          <LensField label="Monthly contribution" value={monthlyContribution} onChange={setMonthlyContribution} min={0} max={10000} step={50} format="currency" source={sourceFor("monthlyContribution")} />
-          <LensField label="Time horizon (years)" value={years} onChange={setYears} min={1} max={40} step={1} format="years" />
-          <LensField label="Expected annual return" value={expectedReturn} onChange={setExpectedReturn} min={0} max={12} step={0.5} format="percent" source={sourceFor("expectedReturn")} />
-          <LensField label="Volatility (annual std dev)" value={volatility} onChange={setVolatility} min={2} max={30} step={1} format="percent" source={sourceFor("volatility")} />
-          <LensField label="Target amount" value={targetAmount} onChange={setTargetAmount} min={0} max={1000000} step={5000} format="currency" />
+          <LensField
+            label="Current savings"
+            value={currentSavings}
+            onChange={setCurrentSavings}
+            min={0}
+            max={500000}
+            step={1000}
+            format="currency"
+            source={sourceFor("currentSavings")}
+          />
+          <LensField
+            label="Monthly contribution"
+            value={monthlyContribution}
+            onChange={setMonthlyContribution}
+            min={0}
+            max={10000}
+            step={50}
+            format="currency"
+            source={sourceFor("monthlyContribution")}
+          />
+          <LensField
+            label="Time horizon (years)"
+            value={years}
+            onChange={setYears}
+            min={1}
+            max={40}
+            step={1}
+            format="years"
+          />
+          <LensField
+            label="Expected annual return"
+            value={expectedReturn}
+            onChange={setExpectedReturn}
+            min={0}
+            max={12}
+            step={0.5}
+            format="percent"
+            source={sourceFor("expectedReturn")}
+          />
+          <LensField
+            label="Volatility (annual std dev)"
+            value={volatility}
+            onChange={setVolatility}
+            min={2}
+            max={30}
+            step={1}
+            format="percent"
+            source={sourceFor("volatility")}
+          />
+          <LensField
+            label="Target amount"
+            value={targetAmount}
+            onChange={setTargetAmount}
+            min={0}
+            max={1000000}
+            step={5000}
+            format="currency"
+          />
 
           <div className="hairline" />
 
-          <LensField label="Job loss probability (per year)" value={jobLossProb} onChange={setJobLossProb} min={0} max={20} step={1} format="percent" />
-          <LensField label="Maintenance/emergency shock probability (per year)" value={maintenanceShock} onChange={setMaintenanceShock} min={0} max={30} step={1} format="percent" />
-          <LensField label="Income growth (annual)" value={incomeGrowth} onChange={setIncomeGrowth} min={0} max={8} step={0.5} format="percent" />
+          <LensField
+            label="Job loss probability (per year)"
+            value={jobLossProb}
+            onChange={setJobLossProb}
+            min={0}
+            max={20}
+            step={1}
+            format="percent"
+          />
+          <LensField
+            label="Maintenance/emergency shock probability (per year)"
+            value={maintenanceShock}
+            onChange={setMaintenanceShock}
+            min={0}
+            max={30}
+            step={1}
+            format="percent"
+          />
+          <LensField
+            label="Income growth (annual)"
+            value={incomeGrowth}
+            onChange={setIncomeGrowth}
+            min={0}
+            max={8}
+            step={0.5}
+            format="percent"
+          />
 
           <div className="hairline" />
           <UpdateNumbersButton
@@ -145,21 +221,29 @@ function MonteCarloPageInner() {
                 <div className="mt-4 grid grid-cols-3 gap-4 text-center">
                   <div>
                     <p className="text-xs text-dim">P10 (weak case)</p>
-                    <p className="score-numeral mt-1 text-lg font-bold text-crimson">{formatCurrency(result.finalP10)}</p>
+                    <p className="score-numeral mt-1 text-lg font-bold text-crimson">
+                      {formatCurrency(result.finalP10)}
+                    </p>
                   </div>
                   <div>
                     <p className="text-xs text-dim">P50 (median)</p>
-                    <p className="score-numeral mt-1 text-lg font-bold text-light">{formatCurrency(result.finalP50)}</p>
+                    <p className="score-numeral mt-1 text-lg font-bold text-light">
+                      {formatCurrency(result.finalP50)}
+                    </p>
                   </div>
                   <div>
                     <p className="text-xs text-dim">P90 (strong case)</p>
-                    <p className="score-numeral mt-1 text-lg font-bold text-emerald">{formatCurrency(result.finalP90)}</p>
+                    <p className="score-numeral mt-1 text-lg font-bold text-emerald">
+                      {formatCurrency(result.finalP90)}
+                    </p>
                   </div>
                 </div>
                 {result.probabilityOfTarget !== null && (
                   <p className="mt-4 text-center text-sm text-dim">
                     Probability of reaching {formatCurrency(targetAmount)}:{" "}
-                    <span className="font-semibold text-cyan">{formatPercent(result.probabilityOfTarget)}</span>
+                    <span className="font-semibold text-cyan">
+                      {formatPercent(result.probabilityOfTarget)}
+                    </span>
                   </p>
                 )}
               </div>
@@ -171,12 +255,16 @@ function MonteCarloPageInner() {
                 <div className="mt-4 grid grid-cols-2 gap-4 text-center">
                   <div>
                     <p className="text-xs text-dim">Survival rate</p>
-                    <p className="score-numeral mt-1 text-lg font-bold text-emerald">{formatPercent(result.survivalRate)}</p>
+                    <p className="score-numeral mt-1 text-lg font-bold text-emerald">
+                      {formatPercent(result.survivalRate)}
+                    </p>
                     <p className="mt-1 text-xs text-dim">Balance never broke</p>
                   </div>
                   <div>
                     <p className="text-xs text-dim">Distress rate</p>
-                    <p className="score-numeral mt-1 text-lg font-bold text-amber">{formatPercent(result.distressRate)}</p>
+                    <p className="score-numeral mt-1 text-lg font-bold text-amber">
+                      {formatPercent(result.distressRate)}
+                    </p>
                     <p className="mt-1 text-xs text-dim">Ever below 1 month of expenses</p>
                   </div>
                 </div>
@@ -190,9 +278,10 @@ function MonteCarloPageInner() {
               <div className="glass p-6">
                 <h2 className="font-semibold text-light">What this means</h2>
                 <p className="mt-2 text-sm leading-relaxed text-dim">
-                  The gap between P10 and P90 is the honest uncertainty in any market-based plan. If your
-                  target only works in the P90 case, the plan is riding on a strong market, not on your
-                  savings discipline. A plan that still works around P50 is a plan you can trust.
+                  The gap between P10 and P90 is the honest uncertainty in any market-based plan. If
+                  your target only works in the P90 case, the plan is riding on a strong market, not
+                  on your savings discipline. A plan that still works around P50 is a plan you can
+                  trust.
                 </p>
               </div>
 
@@ -232,13 +321,43 @@ function BandChart({ result, target }: { result: MonteCarloResult; target: numbe
   const targetY = scaleY(target);
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} className="mt-4" role="img" aria-label="Monte Carlo P10-P90 savings band over time">
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      width="100%"
+      height={height}
+      className="mt-4"
+      role="img"
+      aria-label="Monte Carlo P10-P90 savings band over time"
+    >
       <polygon points={areaPoints} fill={COLORS.cyan} opacity="0.15" />
-      <polyline points={p50Points} fill="none" stroke={COLORS.cyan} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <polyline
+        points={p50Points}
+        fill="none"
+        stroke={COLORS.cyan}
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
       {target > 0 && (
         <>
-          <line x1={padding} x2={width - padding} y1={targetY} y2={targetY} stroke={COLORS.yellow} strokeDasharray="6 4" strokeWidth="1.5" />
-          <text x={width - padding} y={targetY - 6} textAnchor="end" fontSize="11" fill={COLORS.yellow}>Target</text>
+          <line
+            x1={padding}
+            x2={width - padding}
+            y1={targetY}
+            y2={targetY}
+            stroke={COLORS.yellow}
+            strokeDasharray="6 4"
+            strokeWidth="1.5"
+          />
+          <text
+            x={width - padding}
+            y={targetY - 6}
+            textAnchor="end"
+            fontSize="11"
+            fill={COLORS.yellow}
+          >
+            Target
+          </text>
         </>
       )}
     </svg>

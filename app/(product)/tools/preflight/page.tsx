@@ -8,10 +8,7 @@ import { MoneyField } from "@/components/ui/MoneyField";
 import { NumberField } from "@/components/ui/NumberField";
 import { PREFLIGHT_DISCLAIMER } from "@/lib/readiness/preflight-copy";
 import { loadLocalResult } from "@/lib/assessment/storage";
-import {
-  hasSavedFinanceState,
-  loadFinanceState,
-} from "@/lib/finance/store";
+import { hasSavedFinanceState, loadFinanceState } from "@/lib/finance/store";
 import { formatCurrency } from "@/lib/tools/format";
 import { fetchSimulatorBatch, SimulatorRequestError } from "@/lib/simulator/client";
 
@@ -37,10 +34,7 @@ const DEBOUNCE_MS = 250;
 
 export default function PreflightPage() {
   const stored = useMemo(() => loadLocalResult(), []);
-  const finance = useMemo(
-    () => (hasSavedFinanceState() ? loadFinanceState() : null),
-    [],
-  );
+  const finance = useMemo(() => (hasSavedFinanceState() ? loadFinanceState() : null), []);
 
   const [decisionLabel, setDecisionLabel] = useState("Home purchase");
   const [income, setIncome] = useState(finance?.monthlyIncome ?? 6500);
@@ -62,7 +56,7 @@ export default function PreflightPage() {
     const timer = window.setTimeout(() => {
       void fetchSimulatorBatch({
         preflight: {
-          assessmentResult: useAssessment ? stored?.result ?? null : null,
+          assessmentResult: useAssessment ? (stored?.result ?? null) : null,
           monthlyIncome: income,
           monthlyExpenses: expenses,
           monthlyDebtPayments: debtPay,
@@ -87,9 +81,7 @@ export default function PreflightPage() {
         .catch((err: unknown) => {
           if (cancelled) return;
           setError(
-            err instanceof SimulatorRequestError
-              ? err.message
-              : "Could not run pre-flight.",
+            err instanceof SimulatorRequestError ? err.message : "Could not run pre-flight.",
           );
           setPending(false);
         });
@@ -98,17 +90,7 @@ export default function PreflightPage() {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [
-    useAssessment,
-    stored,
-    income,
-    expenses,
-    debtPay,
-    liquid,
-    pressure,
-    partner,
-    decisionLabel,
-  ]);
+  }, [useAssessment, stored, income, expenses, debtPay, liquid, pressure, partner, decisionLabel]);
 
   return (
     <ToolShell
@@ -139,11 +121,7 @@ export default function PreflightPage() {
             {!stored && " (none saved)"}
           </label>
 
-          <MoneyField
-            label="Monthly income"
-            value={income}
-            onChange={(v) => setIncome(v ?? 0)}
-          />
+          <MoneyField label="Monthly income" value={income} onChange={(v) => setIncome(v ?? 0)} />
           <MoneyField
             label="Monthly expenses"
             value={expenses}
@@ -154,11 +132,7 @@ export default function PreflightPage() {
             value={debtPay}
             onChange={(v) => setDebtPay(v ?? 0)}
           />
-          <MoneyField
-            label="Liquid savings"
-            value={liquid}
-            onChange={(v) => setLiquid(v ?? 0)}
-          />
+          <MoneyField label="Liquid savings" value={liquid} onChange={(v) => setLiquid(v ?? 0)} />
           <NumberField
             label="External pressure (1–10)"
             value={pressure}
@@ -177,7 +151,9 @@ export default function PreflightPage() {
 
         <div className="space-y-4">
           {error && (
-            <div className="glass border border-crimson/30 px-4 py-3 text-sm text-light">{error}</div>
+            <div className="glass border border-crimson/30 px-4 py-3 text-sm text-light">
+              {error}
+            </div>
           )}
           {!result ? (
             <div className="glass p-6 text-sm text-dim">
@@ -248,8 +224,7 @@ export default function PreflightPage() {
 
           <p className="text-xs leading-relaxed text-dim">{PREFLIGHT_DISCLAIMER}</p>
           <p className="text-xs text-dim">
-            Cash snapshot: surplus{" "}
-            {formatCurrency(income - expenses - debtPay)} / mo · savings{" "}
+            Cash snapshot: surplus {formatCurrency(income - expenses - debtPay)} / mo · savings{" "}
             {formatCurrency(liquid)}.
           </p>
         </div>

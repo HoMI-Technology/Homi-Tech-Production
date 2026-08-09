@@ -49,7 +49,9 @@ export default async function AdminOrganizationsPage() {
   }
 
   try {
-    const { count } = await supabase.from("family_accounts").select("*", { count: "exact", head: true });
+    const { count } = await supabase
+      .from("family_accounts")
+      .select("*", { count: "exact", head: true });
     familyAccountsCount = count ?? 0;
   } catch {
     familyAccountsCount = 0;
@@ -120,8 +122,10 @@ export default async function AdminOrganizationsPage() {
                         className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize"
                         style={{
                           color: o.kind === "employer" ? COLORS.cyan : COLORS.emerald,
-                          borderColor: o.kind === "employer" ? `${COLORS.cyan}59` : `${COLORS.emerald}59`,
-                          background: o.kind === "employer" ? `${COLORS.cyan}1a` : `${COLORS.emerald}1a`,
+                          borderColor:
+                            o.kind === "employer" ? `${COLORS.cyan}59` : `${COLORS.emerald}59`,
+                          background:
+                            o.kind === "employer" ? `${COLORS.cyan}1a` : `${COLORS.emerald}1a`,
                         }}
                       >
                         {o.kind}

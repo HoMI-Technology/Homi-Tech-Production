@@ -20,11 +20,7 @@ import {
   type NamedMoneyMetrics,
 } from "@/lib/finance/metrics";
 import type { FinanceCompleteness } from "@/lib/finance/readiness-snapshot";
-import {
-  cashFlowTemperature,
-  runwayTemperature,
-  type Temperature,
-} from "@/lib/finance/store";
+import { cashFlowTemperature, runwayTemperature, type Temperature } from "@/lib/finance/store";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 
 const TEMP_COLOR: Record<Temperature, string> = {
@@ -66,11 +62,7 @@ export function MoneyStand() {
     const ledger = loadBudgetLedger(nowIso);
     const m = metricsFromLedger(ledger, nowIso, budgetLedgerSavedAt());
     // No real picture yet
-    if (
-      !m.evidence.hasIncome &&
-      !m.evidence.hasExpenses &&
-      m.evidence.monthsWithData === 0
-    ) {
+    if (!m.evidence.hasIncome && !m.evidence.hasExpenses && m.evidence.monthsWithData === 0) {
       setMetrics(null);
     } else {
       setMetrics(m);
@@ -93,8 +85,7 @@ export function MoneyStand() {
   const debtHonest = metrics?.evidence.hasDebtSignal === true;
 
   const cashTemp = ready ? cashFlowTemperature(surplus, income) : "amber";
-  const runwayTemp =
-    ready && runwayMonths != null ? runwayTemperature(runwayMonths) : "amber";
+  const runwayTemp = ready && runwayMonths != null ? runwayTemperature(runwayMonths) : "amber";
   const tint = ready ? TEMP_COLOR[cashTemp] : COLORS.cyan;
 
   const liquidNote =
@@ -141,7 +132,7 @@ export function MoneyStand() {
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-line/70 px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-dim">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-line/70 px-2.5 py-0.5 text-2xs font-semibold uppercase tracking-[0.12em] text-dim">
                 <span
                   aria-hidden
                   className="size-1.5 rounded-full"
@@ -150,13 +141,13 @@ export function MoneyStand() {
                 {chipLabel}
               </span>
               {asOfLabel && (
-                <span className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-dim/80">
+                <span className="text-2xs font-semibold uppercase tracking-[0.12em] text-dim/80">
                   {asOfLabel}
                 </span>
               )}
               {ready && (
                 <span
-                  className="text-[0.65rem] font-semibold uppercase tracking-[0.12em]"
+                  className="text-2xs font-semibold uppercase tracking-[0.12em]"
                   style={{ color: TEMP_COLOR[cashTemp] }}
                 >
                   {TEMP_WORD[cashTemp]} cash flow
@@ -184,7 +175,11 @@ export function MoneyStand() {
           </div>
 
           <div className="grid w-full max-w-sm grid-cols-2 gap-3 sm:max-w-md">
-            <MiniTile label="Income" value={ready ? formatCurrency(income) : "—"} accent={COLORS.cyan} />
+            <MiniTile
+              label="Income"
+              value={ready ? formatCurrency(income) : "—"}
+              accent={COLORS.cyan}
+            />
             <MiniTile
               label="Runway"
               value={ready && runwayMonths != null ? `${runwayMonths.toFixed(1)} mo` : "—"}
@@ -197,7 +192,9 @@ export function MoneyStand() {
             />
             <MiniTile
               label="DTI"
-              value={ready && debtHonest && dti != null ? formatPercent(dti) : ready ? "Unknown" : "—"}
+              value={
+                ready && debtHonest && dti != null ? formatPercent(dti) : ready ? "Unknown" : "—"
+              }
               accent={debtHonest ? COLORS.yellow : COLORS.dim}
             />
           </div>
@@ -234,8 +231,8 @@ export function MoneyStand() {
           className="rounded-xl border border-yellow/40 bg-yellow/5 px-4 py-3 text-sm text-dim"
           role="status"
         >
-          Thin evidence — treat every number as a draft. Add more months, categorize
-          spending, or connect a bank before acting on a big decision.
+          Thin evidence — treat every number as a draft. Add more months, categorize spending, or
+          connect a bank before acting on a big decision.
         </p>
       )}
 
@@ -263,28 +260,17 @@ export function MoneyStand() {
       </ActionDock>
 
       <p className="max-w-2xl text-xs leading-relaxed text-dim/70">
-        HōMI Money is educational. It does not provide financial, tax, mortgage, or
-        investment advice. Confirm critical numbers with qualified professionals before
-        you act.
+        HōMI Money is educational. It does not provide financial, tax, mortgage, or investment
+        advice. Confirm critical numbers with qualified professionals before you act.
       </p>
     </div>
   );
 }
 
-function MiniTile({
-  label,
-  value,
-  accent,
-}: {
-  label: string;
-  value: string;
-  accent: string;
-}) {
+function MiniTile({ label, value, accent }: { label: string; value: string; accent: string }) {
   return (
     <div className="rounded-xl border border-line/60 bg-navy/40 px-3 py-3">
-      <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-dim">
-        {label}
-      </p>
+      <p className="text-2xs font-semibold uppercase tracking-[0.12em] text-dim">{label}</p>
       <p className="score-numeral mt-1 text-lg font-semibold text-light" style={{ color: accent }}>
         {value}
       </p>

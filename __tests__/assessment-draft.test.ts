@@ -85,9 +85,13 @@ describe("assessment draft persistence (bank flow v2)", () => {
       conflict: { referralSource: null, deadlineOrigin: null },
       index: 0,
     });
-    expect(draftLooksStarted({ responses: {}, conflict: { referralSource: null, deadlineOrigin: null }, index: 0 })).toBe(
-      false,
-    );
+    expect(
+      draftLooksStarted({
+        responses: {},
+        conflict: { referralSource: null, deadlineOrigin: null },
+        index: 0,
+      }),
+    ).toBe(false);
     expect(loadDraft()).toBeNull();
   });
 

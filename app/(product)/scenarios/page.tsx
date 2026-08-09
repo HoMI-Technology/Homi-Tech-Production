@@ -11,10 +11,7 @@ import {
   SCENARIO_DISCLAIMER,
 } from "@/lib/readiness";
 import { loadLocalResult } from "@/lib/assessment/storage";
-import {
-  hasSavedFinanceState,
-  loadFinanceState,
-} from "@/lib/finance/store";
+import { hasSavedFinanceState, loadFinanceState } from "@/lib/finance/store";
 import type { ScenarioKey, SimulationInputs } from "@/lib/decisions/simulate";
 import { NetPositionChart } from "@/components/decisions/NetPositionChart";
 import { PageFrame } from "@/components/operate/PageFrame";
@@ -24,15 +21,11 @@ import { PercentSlider } from "@/components/ui/PercentSlider";
 import { formatCurrency } from "@/lib/tools/format";
 import { track } from "@/lib/analytics";
 
-const SCENARIO_META: Record<
-  string,
-  { color: string; borderClass: string; description: string }
-> = {
+const SCENARIO_META: Record<string, { color: string; borderClass: string; description: string }> = {
   "buy-now": {
     color: COLORS.cyan,
     borderClass: "border-cyan/40",
-    description:
-      "Buy today. Equity builds through amortization and appreciation, offset by costs.",
+    description: "Buy today. Equity builds through amortization and appreciation, offset by costs.",
   },
   "wait-12": {
     color: COLORS.yellow,
@@ -63,10 +56,7 @@ export default function ScenariosPage() {
   const [inputs, setInputs] = useState<SimulationInputs>(seeded);
   const [pathMsg, setPathMsg] = useState<string | null>(null);
 
-  function update<K extends keyof SimulationInputs>(
-    key: K,
-    value: SimulationInputs[K],
-  ) {
+  function update<K extends keyof SimulationInputs>(key: K, value: SimulationInputs[K]) {
     setInputs((prev) => ({ ...prev, [key]: value }));
   }
 
@@ -98,12 +88,10 @@ export default function ScenariosPage() {
   return (
     <PageFrame width="focus" density="spacious" role="personal">
       <p className="eyebrow">Path · Scenario studio</p>
-      <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">
-        Buy now vs wait
-      </h1>
+      <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">Buy now vs wait</h1>
       <p className="mt-2 max-w-2xl text-dim">
-        Five-year net-position illustration with readiness honesty. Better math
-        never overrides DO NOT PROCEED hard-stops.
+        Five-year net-position illustration with readiness honesty. Better math never overrides DO
+        NOT PROCEED hard-stops.
       </p>
 
       {stored && (
@@ -119,8 +107,7 @@ export default function ScenariosPage() {
                 : stored.result.verdict.replace(/_/g, " ")}
             </span>
             {" · "}
-            score{" "}
-            <span className="score-numeral">{stored.result.score}</span>
+            score <span className="score-numeral">{stored.result.score}</span>
           </p>
           <p className="mt-2 text-sm text-dim">{studio.readinessNote}</p>
         </div>
@@ -128,9 +115,7 @@ export default function ScenariosPage() {
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[340px_1fr]">
         <div className="glass flex flex-col gap-5 p-6">
-          <p className="text-sm font-semibold uppercase tracking-wide text-dim">
-            Your numbers
-          </p>
+          <p className="text-sm font-semibold uppercase tracking-wide text-dim">Your numbers</p>
           <MoneyField
             label="Home price"
             value={inputs.homePrice}
@@ -190,7 +175,7 @@ export default function ScenariosPage() {
                       {s.label}
                     </p>
                     {isBest && (
-                      <span className="text-[10px] font-semibold uppercase tracking-wide text-emerald">
+                      <span className="text-3xs font-semibold uppercase tracking-wide text-emerald">
                         Best net @ 5y
                       </span>
                     )}
@@ -207,9 +192,7 @@ export default function ScenariosPage() {
           <div className="glass p-5">
             <p className="text-sm text-dim">
               Spread between best and worst at 60 months:{" "}
-              <span className="score-numeral text-light">
-                {formatCurrency(studio.spreadAt60)}
-              </span>
+              <span className="score-numeral text-light">{formatCurrency(studio.spreadAt60)}</span>
             </p>
             <div className="mt-4">
               <NetPositionChart scenarios={studio.scenarios} />

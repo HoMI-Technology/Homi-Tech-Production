@@ -27,7 +27,12 @@ export function SaveStatusBanner() {
     return subscribeSaveStatus(setStatus);
   }, []);
 
-  if (!status || status.outcome === "saved" || status.outcome === "pending" || status.outcome === "unauthenticated") {
+  if (
+    !status ||
+    status.outcome === "saved" ||
+    status.outcome === "pending" ||
+    status.outcome === "unauthenticated"
+  ) {
     return null;
   }
 
@@ -55,7 +60,10 @@ export function SaveStatusBanner() {
 
   if (status.outcome === "locked") {
     return (
-      <div className="glass mb-6 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between" role="status">
+      <div
+        className="glass mb-6 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
+        role="status"
+      >
         <p className="text-sm text-light">
           <span className="font-semibold text-cyan">Saved on this device only.</span>{" "}
           <span className="text-dim">
@@ -71,7 +79,10 @@ export function SaveStatusBanner() {
   }
 
   return (
-    <div className="glass mb-6 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between" role="status">
+    <div
+      className="glass mb-6 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
+      role="status"
+    >
       <p className="text-sm text-light">
         <span className="font-semibold text-cyan">Saved on this device</span>{" "}
         <span className="text-dim">— but we couldn&apos;t save this result to your account.</span>

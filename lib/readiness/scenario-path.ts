@@ -5,11 +5,7 @@
 
 import type { AssessmentResult, Verdict } from "@/lib/scoring";
 import type { ScenarioKey, SimulationInputs } from "@/lib/decisions/simulate";
-import {
-  PATH_DISCLAIMER,
-  type PathStep,
-  type ReadinessPath,
-} from "./path";
+import { PATH_DISCLAIMER, type PathStep, type ReadinessPath } from "./path";
 import { runScenarioStudio } from "./scenario";
 
 function id(): string {
@@ -19,9 +15,7 @@ function id(): string {
   return `sp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-function step(
-  partial: Omit<PathStep, "id" | "status" | "completedAt">,
-): PathStep {
+function step(partial: Omit<PathStep, "id" | "status" | "completedAt">): PathStep {
   return {
     ...partial,
     id: id(),
@@ -45,17 +39,11 @@ export function generatePathFromScenario(opts: {
     readinessVerdict: opts.assessmentResult?.verdict ?? null,
     readinessScore: opts.assessmentResult?.score ?? null,
   });
-  const chosen =
-    studio.scenarios.find((s) => s.key === scenarioKey) ?? studio.scenarios[1];
+  const chosen = studio.scenarios.find((s) => s.key === scenarioKey) ?? studio.scenarios[1];
   const months = scenarioKey === "wait-24" ? 24 : scenarioKey === "wait-12" ? 12 : 0;
-  const gap = Math.max(
-    0,
-    opts.inputs.homePrice * 0.2 - opts.inputs.downPaymentSaved,
-  );
+  const gap = Math.max(0, opts.inputs.homePrice * 0.2 - opts.inputs.downPaymentSaved);
   const monthlyNeeded =
-    months > 0
-      ? Math.ceil(gap / months)
-      : Math.max(opts.inputs.monthlySavings, 0);
+    months > 0 ? Math.ceil(gap / months) : Math.max(opts.inputs.monthlySavings, 0);
 
   const verdict: Verdict = opts.assessmentResult?.verdict ?? "BUILD_FIRST";
   const score = opts.assessmentResult?.score ?? 55;
@@ -72,8 +60,7 @@ export function generatePathFromScenario(opts: {
         reasonCode: "RUNWAY_UNDER_1_MONTH",
         href: "/tools/runway",
         notes:
-          "Protective gate blocks purchase timing. Stabilize cash buffer first. " +
-          PATH_DISCLAIMER,
+          "Protective gate blocks purchase timing. Stabilize cash buffer first. " + PATH_DISCLAIMER,
         fundingTarget: null,
         fundingLabel: null,
       }),

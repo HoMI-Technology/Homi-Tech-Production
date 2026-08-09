@@ -10,11 +10,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { FinanceState } from "@/lib/finance/store";
 import { centsToDollars } from "@/lib/finance/money";
 import type { BudgetPeriod, SavingsGoal } from "@/lib/finance/ledger";
-import {
-  activeGoal,
-  ensurePeriodFor,
-  type BudgetLedgerState,
-} from "@/lib/finance/local-ledger";
+import { activeGoal, ensurePeriodFor, type BudgetLedgerState } from "@/lib/finance/local-ledger";
 import {
   categoryActuals,
   isInPeriod,
@@ -37,10 +33,7 @@ import {
   type FinanceTransactionRow,
   type FinanceCategoryRow,
 } from "@/lib/finance/db-map";
-import type {
-  FinanceBudgetPeriodRow,
-  FinanceSavingsGoalRow,
-} from "@/types/database";
+import type { FinanceBudgetPeriodRow, FinanceSavingsGoalRow } from "@/types/database";
 
 /* -------------------------------------------------------------------------- */
 /* Legacy store conversion                                                    */
@@ -105,9 +98,7 @@ function isBudgetExpense(tx: {
   deletedAt: string | null;
   isExcludedFromBudget: boolean;
 }): boolean {
-  return (
-    tx.type === "expense" && tx.status === "posted" && !tx.isExcludedFromBudget && isAlive(tx)
-  );
+  return tx.type === "expense" && tx.status === "posted" && !tx.isExcludedFromBudget && isAlive(tx);
 }
 
 function roundCents(cents: number): number {
@@ -176,9 +167,7 @@ export function debtPaymentsCents(
   return transactions
     .filter(
       (tx) =>
-        isBudgetExpense(tx) &&
-        tx.categoryId === "cat-debt-payments" &&
-        isInPeriod(tx, period),
+        isBudgetExpense(tx) && tx.categoryId === "cat-debt-payments" && isInPeriod(tx, period),
     )
     .reduce((sum, tx) => sum + tx.amountCents, 0);
 }
@@ -200,7 +189,12 @@ function incomeVsSpendingSeries(
       incomeByMonth.set(month, (incomeByMonth.get(month) ?? 0) + tx.amountCents);
     } else if (isBudgetExpense(tx)) {
       expenseByMonth.set(month, (expenseByMonth.get(month) ?? 0) + tx.amountCents);
-    } else if (tx.type === "refund" && tx.status === "posted" && !tx.isExcludedFromBudget && isAlive(tx)) {
+    } else if (
+      tx.type === "refund" &&
+      tx.status === "posted" &&
+      !tx.isExcludedFromBudget &&
+      isAlive(tx)
+    ) {
       refundByMonth.set(month, (refundByMonth.get(month) ?? 0) + tx.amountCents);
     }
   }
@@ -212,7 +206,9 @@ function incomeVsSpendingSeries(
       month,
       income: Math.round(centsToDollars(incomeByMonth.get(month) ?? 0)),
       spending: Math.round(
-        centsToDollars(Math.max(0, (expenseByMonth.get(month) ?? 0) - (refundByMonth.get(month) ?? 0))),
+        centsToDollars(
+          Math.max(0, (expenseByMonth.get(month) ?? 0) - (refundByMonth.get(month) ?? 0)),
+        ),
       ),
     }));
 }
@@ -236,16 +232,11 @@ function topSpendingCategories(
     }));
 }
 
-function recentTransactions(
-  state: BudgetLedgerState,
-  cap = 20,
-): RecentTransactionSnapshot[] {
+function recentTransactions(state: BudgetLedgerState, cap = 20): RecentTransactionSnapshot[] {
   return state.transactions
     .filter(
       (tx) =>
-        (tx.type === "income" || tx.type === "expense") &&
-        tx.status === "posted" &&
-        isAlive(tx),
+        (tx.type === "income" || tx.type === "expense") && tx.status === "posted" && isAlive(tx),
     )
     .sort((a, b) => {
       if (a.transactionDate !== b.transactionDate) {
@@ -383,9 +374,7 @@ export function buildFinanceContextFromLedger(
   const netCashFlow = roundCents(totals.incomeCents - totals.netExpenseCents);
 
   const savingsRate =
-    incomeCents > 0
-      ? Math.round((totals.goalReserveCents / incomeCents) * 1000) / 10
-      : 0;
+    incomeCents > 0 ? Math.round((totals.goalReserveCents / incomeCents) * 1000) / 10 : 0;
 
   const liquidSavingsCents = goal?.goalType === "emergency_reserve" ? goal.currentAmountCents : 0;
   const liquidSavings = roundCents(liquidSavingsCents);
@@ -402,7 +391,13 @@ export function buildFinanceContextFromLedger(
 
   const dti = monthlyIncome > 0 ? Math.round((debtPayments / incomeCents) * 1000) / 10 : 0;
 
-  const activeSignals = buildSignals({ dti, savingsRate, runwayMonths, netCashFlow, monthlyIncome });
+  const activeSignals = buildSignals({
+    dti,
+    savingsRate,
+    runwayMonths,
+    netCashFlow,
+    monthlyIncome,
+  });
   const nudges = buildNudges(activeSignals);
 
   const series = incomeVsSpendingSeries(state.transactions, nowDate, 6);
@@ -488,9 +483,7 @@ export async function buildFinanceContextFromLedgerTables(
     if (goalError?.code && FINANCE_LEDGER_INFRA_MISSING.has(goalError.code)) return null;
 
     const hasAnyData =
-      (txRows && txRows.length > 0) ||
-      (periodRows && periodRows.length > 0) ||
-      goalRows;
+      (txRows && txRows.length > 0) || (periodRows && periodRows.length > 0) || goalRows;
     if (!hasAnyData) return null;
 
     const state: BudgetLedgerState = {

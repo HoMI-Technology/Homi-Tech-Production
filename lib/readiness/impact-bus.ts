@@ -24,12 +24,7 @@ import {
   type PathResolutionSummary,
   type PathStatusCounts,
 } from "./progress";
-import type {
-  PathMode,
-  PathReasonCode,
-  PathStep,
-  ReadinessPath,
-} from "./path";
+import type { PathMode, PathReasonCode, PathStep, ReadinessPath } from "./path";
 
 // ---------------------------------------------------------------------------
 // Transport constants
@@ -82,11 +77,7 @@ export interface PathStepImpact {
   after: PathResolutionSummary;
 }
 
-export type PathStepNoopReason =
-  | "no_path"
-  | "step_not_found"
-  | "already_done"
-  | "already_skipped";
+export type PathStepNoopReason = "no_path" | "step_not_found" | "already_done" | "already_skipped";
 
 export interface PathStepNoop {
   kind: "noop";
@@ -168,10 +159,7 @@ function boundedOptionalTitle(value: unknown): string | undefined | null {
 
 function isCount(value: unknown): value is number {
   return (
-    typeof value === "number" &&
-    Number.isInteger(value) &&
-    value >= 0 &&
-    value <= MAX_STEP_COUNT
+    typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= MAX_STEP_COUNT
   );
 }
 
@@ -201,12 +189,9 @@ function parseSummary(raw: unknown): PathResolutionSummary | null {
   const actionable = parseCounts(s.actionable);
   const reassessment = parseCounts(s.reassessment);
   if (!actionable || !reassessment) return null;
-  const expectedCompleted =
-    actionable.total > 0 ? actionable.done / actionable.total : 0;
+  const expectedCompleted = actionable.total > 0 ? actionable.done / actionable.total : 0;
   const expectedResolved =
-    actionable.total > 0
-      ? (actionable.done + actionable.skipped) / actionable.total
-      : 0;
+    actionable.total > 0 ? (actionable.done + actionable.skipped) / actionable.total : 0;
   if (!ratioMatches(s.completedRatio, expectedCompleted)) return null;
   if (!ratioMatches(s.resolvedRatio, expectedResolved)) return null;
   return {
@@ -270,10 +255,7 @@ export function parsePathStepImpact(raw: unknown): PathStepImpact | null {
 }
 
 /** Fresh = stamped within the hydrate TTL and at most slightly future-dated. */
-export function isFreshPathImpact(
-  impact: PathStepImpact,
-  nowMs: number = Date.now(),
-): boolean {
+export function isFreshPathImpact(impact: PathStepImpact, nowMs: number = Date.now()): boolean {
   const age = nowMs - Date.parse(impact.at);
   return age >= -FUTURE_SKEW_TOLERANCE_MS && age < IMPACT_HYDRATE_TTL_MS;
 }
@@ -378,9 +360,7 @@ function runPathStepTransition(stepId: string): InternalTransition | PathStepNoo
   }
 
   const before = summarizePathResolution(beforePath);
-  const wasFirstResolution = beforePath.steps.every(
-    (s) => (s.status ?? "pending") === "pending",
-  );
+  const wasFirstResolution = beforePath.steps.every((s) => (s.status ?? "pending") === "pending");
 
   const afterPath = completePathStep(stepId, "done");
   if (!afterPath) {
@@ -416,9 +396,7 @@ function runPathStepTransition(stepId: string): InternalTransition | PathStepNoo
  * storage write and no event, while the guarded transition semantics stay
  * identical (see completePathStepGuarded).
  */
-export function completePathStepWithImpact(
-  stepId: string,
-): CompletePathStepWithImpactResult {
+export function completePathStepWithImpact(stepId: string): CompletePathStepWithImpactResult {
   const t = runPathStepTransition(stepId);
   if (t.kind === "noop") return t;
 
@@ -449,12 +427,8 @@ export function completePathStepWithImpact(
     stepId: t.step.id,
     reasonCode: t.step.reasonCode,
     stepTitle: truncateTitle(t.step.title),
-    ...(nextActionable
-      ? { nextActionableTitle: truncateTitle(nextActionable.title) }
-      : {}),
-    ...(pendingReassess
-      ? { reassessmentTitle: truncateTitle(pendingReassess.title) }
-      : {}),
+    ...(nextActionable ? { nextActionableTitle: truncateTitle(nextActionable.title) } : {}),
+    ...(pendingReassess ? { reassessmentTitle: truncateTitle(pendingReassess.title) } : {}),
     before: t.before,
     after: t.after,
   };
@@ -513,9 +487,7 @@ export function pathImpactToastCopy(impact: PathStepImpact): {
   }
 
   if (a.pending > 0) {
-    const nextBit = impact.nextActionableTitle
-      ? ` Next: ${impact.nextActionableTitle}.`
-      : "";
+    const nextBit = impact.nextActionableTitle ? ` Next: ${impact.nextActionableTitle}.` : "";
     const skippedBit = a.skipped > 0 ? ` ${a.skipped} skipped.` : "";
     return {
       title: "Step marked complete",
@@ -524,8 +496,7 @@ export function pathImpactToastCopy(impact: PathStepImpact): {
   }
 
   if (a.skipped > 0) {
-    const reassessBit =
-      r.pending > 0 ? " Reassess when your real inputs change." : "";
+    const reassessBit = r.pending > 0 ? " Reassess when your real inputs change." : "";
     return {
       title: "Path reviewed",
       body: `${a.done} complete · ${a.skipped} skipped. Revisit skipped steps before treating the Path as complete.${reassessBit}`,

@@ -14,7 +14,11 @@ export const metadata: Metadata = {
 function formatDate(value: string | null) {
   if (!value) return "—";
   try {
-    return new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    return new Date(value).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   } catch {
     return "—";
   }
@@ -44,14 +48,21 @@ export default async function AdminEmailPage() {
         const { data: sends } = await service
           .from("campaign_sends")
           .select("campaign_id, status")
-          .in("campaign_id", rows.map((c) => c.id));
-        for (const row of (sends as { campaign_id: string; status: CampaignSendStatus }[] | null) ?? []) {
+          .in(
+            "campaign_id",
+            rows.map((c) => c.id),
+          );
+        for (const row of (sends as { campaign_id: string; status: CampaignSendStatus }[] | null) ??
+          []) {
           const bucket = (counts[row.campaign_id] ??= { sent: 0, failed: 0, suppressed: 0 });
           bucket[row.status] = (bucket[row.status] ?? 0) + 1;
         }
       }
 
-      campaigns = rows.map((c) => ({ ...c, send_counts: counts[c.id] ?? { sent: 0, failed: 0, suppressed: 0 } }));
+      campaigns = rows.map((c) => ({
+        ...c,
+        send_counts: counts[c.id] ?? { sent: 0, failed: 0, suppressed: 0 },
+      }));
     } catch {
       campaigns = [];
     }
@@ -103,7 +114,8 @@ export default async function AdminEmailPage() {
       {!service && (
         <div className="glass mt-6 p-6">
           <p className="text-sm text-dim">
-            Supabase service role is not configured, so campaigns can&apos;t be loaded or sent from this environment.
+            Supabase service role is not configured, so campaigns can&apos;t be loaded or sent from
+            this environment.
           </p>
         </div>
       )}
@@ -146,7 +158,9 @@ export default async function AdminEmailPage() {
                         <span className="chip !text-xs capitalize">{c.audience}</span>
                       </td>
                       <td>
-                        <span className={`text-xs font-semibold uppercase tracking-wide ${STATUS_STYLE[c.status]}`}>
+                        <span
+                          className={`text-xs font-semibold uppercase tracking-wide ${STATUS_STYLE[c.status]}`}
+                        >
                           {c.status}
                         </span>
                       </td>
@@ -155,7 +169,9 @@ export default async function AdminEmailPage() {
                         {c.status === "sent" ? (
                           <>
                             {c.send_counts.sent.toLocaleString()} sent
-                            {c.send_counts.failed > 0 ? ` · ${c.send_counts.failed.toLocaleString()} failed` : ""}
+                            {c.send_counts.failed > 0
+                              ? ` · ${c.send_counts.failed.toLocaleString()} failed`
+                              : ""}
                             {c.send_counts.suppressed > 0
                               ? ` · ${c.send_counts.suppressed.toLocaleString()} suppressed`
                               : ""}

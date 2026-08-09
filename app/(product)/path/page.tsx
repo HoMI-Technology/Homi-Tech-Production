@@ -42,11 +42,7 @@ import {
   type RecurringItem,
 } from "@/lib/readiness";
 import { impactBus } from "@/lib/flags";
-import {
-  hasSavedFinanceState,
-  loadFinanceState,
-  saveFinanceState,
-} from "@/lib/finance/store";
+import { hasSavedFinanceState, loadFinanceState, saveFinanceState } from "@/lib/finance/store";
 import { track } from "@/lib/analytics";
 import type { VerdictKey } from "@/lib/brand";
 import { formatCurrency } from "@/lib/tools/format";
@@ -164,14 +160,10 @@ export default function PathPage() {
   }, [hydrated, path]);
 
   const assessment = useMemo(() => loadLocalResult(), [path?.id, hydrated]);
-  const financeSnap = useMemo(
-    () => financeSnapshotForPath(),
-    [path?.id, fundingMsg, hydrated],
-  );
+  const financeSnap = useMemo(() => financeSnapshotForPath(), [path?.id, fundingMsg, hydrated]);
 
   const progress = useMemo(
-    () =>
-      computeBindingProgress(path, assessment?.result ?? null, financeSnap),
+    () => computeBindingProgress(path, assessment?.result ?? null, financeSnap),
     [path, assessment, financeSnap],
   );
 
@@ -229,9 +221,7 @@ export default function PathPage() {
   const handleComplete = useCallback((stepId: string) => {
     // Guarded transition either way; only the flag-on branch may publish a
     // toast impact. Analytics observe the real transition, never the click.
-    const result = impactBus
-      ? completePathStepWithImpact(stepId)
-      : completePathStepGuarded(stepId);
+    const result = impactBus ? completePathStepWithImpact(stepId) : completePathStepGuarded(stepId);
     if (result.kind === "noop") {
       if (result.path) setPath(result.path);
       return;
@@ -270,15 +260,9 @@ export default function PathPage() {
       setFundingMsg("No runway funding gap on pending steps.");
       return;
     }
-    const next = applyPathFunding(
-      loadFinanceState(),
-      suggestion,
-      "savings_floor",
-    );
+    const next = applyPathFunding(loadFinanceState(), suggestion, "savings_floor");
     saveFinanceState(next);
-    setFundingMsg(
-      "Liquid savings updated to the path floor — only do this if that cash is real.",
-    );
+    setFundingMsg("Liquid savings updated to the path floor — only do this if that cash is real.");
     track("path_funding_applied", { mode: "savings_floor" });
   }, [path]);
 
@@ -338,20 +322,14 @@ export default function PathPage() {
         <div className="glass p-10 text-center">
           <ThresholdCompass size={96} verdict="BUILD_FIRST" className="mx-auto" />
           <p className="eyebrow mt-6">Path to Ready</p>
-          <h1 className="mt-2 font-display text-3xl text-light">
-            No active path yet
-          </h1>
+          <h1 className="mt-2 font-display text-3xl text-light">No active path yet</h1>
           <p className="mt-3 text-sm leading-relaxed text-dim">
-            Path turns a readiness verdict into a binding-constraint sequence —
-            not a budget ledger. Educational only.
+            Path turns a readiness verdict into a binding-constraint sequence — not a budget ledger.
+            Educational only.
           </p>
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             {hasAssessment ? (
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={handleGenerate}
-              >
+              <button type="button" className="btn btn-primary" onClick={handleGenerate}>
                 Generate from last assessment
               </button>
             ) : (
@@ -382,12 +360,10 @@ export default function PathPage() {
       <p className="eyebrow">Operate · Path to Ready</p>
       <div className="mt-2 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl text-light md:text-4xl">
-            Your path
-          </h1>
+          <h1 className="font-display text-3xl text-light md:text-4xl">Your path</h1>
           <p className="mt-2 max-w-xl text-sm text-dim">
-            Binding constraint first. Complete steps. Reassess when the gate
-            clears — never invent readiness.
+            Binding constraint first. Complete steps. Reassess when the gate clears — never invent
+            readiness.
           </p>
         </div>
         <div className="flex flex-col items-end gap-2">
@@ -401,10 +377,7 @@ export default function PathPage() {
       </div>
 
       {freshness.isStale && (
-        <div
-          className="mt-6 rounded-xl border border-amber/40 bg-amber/10 px-4 py-3"
-          role="status"
-        >
+        <div className="mt-6 rounded-xl border border-amber/40 bg-amber/10 px-4 py-3" role="status">
           <p className="text-xs font-semibold uppercase tracking-wide text-amber">
             Path may be stale
           </p>
@@ -441,7 +414,10 @@ export default function PathPage() {
             Household readiness
           </p>
           <p className="mt-1 text-sm text-light">{partnerNote}</p>
-          <Link href="/household#couples" className="mt-2 inline-block text-sm text-cyan underline-offset-2 hover:underline">
+          <Link
+            href="/household#couples"
+            className="mt-2 inline-block text-sm text-cyan underline-offset-2 hover:underline"
+          >
             Open couples alignment
           </Link>
         </div>
@@ -454,15 +430,11 @@ export default function PathPage() {
           </p>
           <p className="mt-1 text-sm text-light">
             Last {verified.windowDays}d linked cashflow: net{" "}
-            <span className="score-numeral">
-              {formatCurrency(verified.netCashFlow)}
-            </span>
-            {" · "}in {formatCurrency(verified.income)} · out{" "}
-            {formatCurrency(verified.expenses)}
+            <span className="score-numeral">{formatCurrency(verified.netCashFlow)}</span>
+            {" · "}in {formatCurrency(verified.income)} · out {formatCurrency(verified.expenses)}
           </p>
           <p className="mt-1 text-xs text-dim">
-            VERIFIED block only — self-reported finance may disagree. Path still
-            educational.
+            VERIFIED block only — self-reported finance may disagree. Path still educational.
           </p>
         </div>
       )}
@@ -473,22 +445,16 @@ export default function PathPage() {
             Subscription-like capacity drag
           </p>
           <p className="mt-1 text-sm text-light">
-            ~{" "}
-            <span className="score-numeral">
-              {formatCurrency(subs.subscriptionDragMonthly)}
-            </span>
+            ~ <span className="score-numeral">{formatCurrency(subs.subscriptionDragMonthly)}</span>
             /mo recurring (category heuristic from linked bank)
           </p>
           <ul className="mt-2 max-h-32 space-y-1 overflow-y-auto text-xs text-dim">
             {subs.recurring.slice(0, 8).map((r) => (
               <li key={r.name + r.category} className="flex justify-between gap-2">
                 <span>
-                  {r.name}{" "}
-                  <span className="text-dim/80">({r.category})</span>
+                  {r.name} <span className="text-dim/80">({r.category})</span>
                 </span>
-                <span className="score-numeral">
-                  {formatCurrency(r.monthlyEstimate)}
-                </span>
+                <span className="score-numeral">{formatCurrency(r.monthlyEstimate)}</span>
               </li>
             ))}
           </ul>
@@ -514,24 +480,18 @@ export default function PathPage() {
             {recurring.items.map((item) => (
               <li key={item.id} className="flex justify-between gap-2">
                 <span>{item.name}</span>
-                <span className="score-numeral text-dim">
-                  {formatCurrency(item.amount)}
-                </span>
+                <span className="score-numeral text-dim">{formatCurrency(item.amount)}</span>
               </li>
             ))}
           </ul>
         )}
         <p className="mt-2 text-sm text-dim">
           Total fixed:{" "}
-          <span className="score-numeral text-light">
-            {formatCurrency(recurringTotal)}
-          </span>
+          <span className="score-numeral text-light">{formatCurrency(recurringTotal)}</span>
           {capacity != null && (
             <>
               {" · "}capacity after drag{" "}
-              <span
-                className={`score-numeral ${capacity < 0 ? "text-crimson" : "text-emerald"}`}
-              >
+              <span className={`score-numeral ${capacity < 0 ? "text-crimson" : "text-emerald"}`}>
                 {formatCurrency(capacity)}
               </span>
             </>
@@ -581,12 +541,10 @@ export default function PathPage() {
 
       {coach && (
         <div className="glass mt-6 border border-cyan/20 p-5">
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-cyan">
+          <p className="text-3xs font-semibold uppercase tracking-widest text-cyan">
             Companion board meeting
           </p>
-          <p className="mt-2 text-sm leading-relaxed text-light">
-            {coach.boardMeetingLine}
-          </p>
+          <p className="mt-2 text-sm leading-relaxed text-light">{coach.boardMeetingLine}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             {coach.suggestedPrompts.map((prompt) => (
               <Link
@@ -604,9 +562,7 @@ export default function PathPage() {
       {funding && funding.lines.length > 0 && (
         <div className="glass mt-6 border border-emerald/20 p-5">
           <p className="eyebrow text-emerald">Finance coupling</p>
-          <p className="mt-1 font-display text-lg text-light">
-            Path funding targets
-          </p>
+          <p className="mt-1 font-display text-lg text-light">Path funding targets</p>
           <ul className="mt-3 list-inside list-disc text-sm text-dim">
             {funding.lines.map((line) => (
               <li key={line}>{line}</li>
@@ -657,11 +613,7 @@ export default function PathPage() {
           Mark steps done as you clear protection signals — not as busywork.
         </p>
         <div className="mt-4">
-          <PathPreview
-            steps={path.steps}
-            onComplete={handleComplete}
-            onSkip={handleSkip}
-          />
+          <PathPreview steps={path.steps} onComplete={handleComplete} onSkip={handleSkip} />
         </div>
       </div>
 
@@ -705,9 +657,7 @@ export default function PathPage() {
         </p>
       )}
 
-      <p className="mt-8 text-xs leading-relaxed text-dim">
-        {path.disclaimer || PATH_DISCLAIMER}
-      </p>
+      <p className="mt-8 text-xs leading-relaxed text-dim">{path.disclaimer || PATH_DISCLAIMER}</p>
     </div>
   );
 }

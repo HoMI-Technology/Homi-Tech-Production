@@ -12,8 +12,8 @@
 /* No required props — reads usePlannerStore directly.                  */
 /* ------------------------------------------------------------------ */
 
-import { useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
+import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import {
   AlertTriangle,
   CalendarClock,
@@ -25,15 +25,12 @@ import {
   RefreshCw,
   Unlink,
   Wallet,
-} from 'lucide-react'
-import ConfirmDialog from "@/components/planner/ui/ConfirmDialog"
-import EmptyState from "@/components/planner/ui/EmptyState"
-import { payBillWithImpact } from '@/lib/planner/closed-loop'
-import { summarizeAccounts, todayISO } from '@/lib/planner/derived'
-import {
-  INSTITUTIONS,
-  institutionMeta,
-} from '@/lib/planner/institutions'
+} from "lucide-react";
+import ConfirmDialog from "@/components/planner/ui/ConfirmDialog";
+import EmptyState from "@/components/planner/ui/EmptyState";
+import { payBillWithImpact } from "@/lib/planner/closed-loop";
+import { summarizeAccounts, todayISO } from "@/lib/planner/derived";
+import { INSTITUTIONS, institutionMeta } from "@/lib/planner/institutions";
 import type {
   AddAccountInput,
   BankAccount,
@@ -42,9 +39,9 @@ import type {
   Bill,
   BillFrequency,
   ExpenseCategory,
-} from '@/lib/planner/types'
-import { formatCurrency } from '@/lib/tools/format'
-import { usePlannerStore } from "@/lib/planner/store"
+} from "@/lib/planner/types";
+import { formatCurrency } from "@/lib/tools/format";
+import { usePlannerStore } from "@/lib/planner/store";
 import {
   BILL_STATUS_CHIP,
   EXPENSE_CATEGORY_IDS,
@@ -58,40 +55,34 @@ import {
   formatSyncStamp,
   payFromOptions,
   sortBillsForPay,
-} from './banking-derive'
+} from "./banking-derive";
 
 /* ------------------------------------------------------------------ */
 /* Shared atoms                                                        */
 /* ------------------------------------------------------------------ */
 
 const inputCls =
-  'w-full rounded-xl border border-white/[0.08] bg-navyLight/80 px-3 py-2 text-sm text-light outline-none transition-colors focus:border-cyan/50'
+  "w-full rounded-xl border border-white/[0.08] bg-navyLight/80 px-3 py-2 text-sm text-light outline-none transition-colors focus:border-cyan/50";
 
-function Field({
-  label,
-  children,
-}: {
-  label: string
-  children: React.ReactNode
-}) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
       <span className="text-label">{label}</span>
       <div className="mt-1.5">{children}</div>
     </label>
-  )
+  );
 }
 
 function CyanButton({
   children,
   onClick,
-  type = 'button',
+  type = "button",
   disabled = false,
 }: {
-  children: React.ReactNode
-  onClick?: () => void
-  type?: 'button' | 'submit'
-  disabled?: boolean
+  children: React.ReactNode;
+  onClick?: () => void;
+  type?: "button" | "submit";
+  disabled?: boolean;
 }) {
   return (
     <motion.button
@@ -104,7 +95,7 @@ function CyanButton({
     >
       {children}
     </motion.button>
-  )
+  );
 }
 
 function GhostButton({
@@ -112,9 +103,9 @@ function GhostButton({
   onClick,
   disabled = false,
 }: {
-  children: React.ReactNode
-  onClick?: () => void
-  disabled?: boolean
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
 }) {
   return (
     <button
@@ -125,37 +116,35 @@ function GhostButton({
     >
       {children}
     </button>
-  )
+  );
 }
 
 function StatTile({
   label,
   value,
-  tone = 'light',
+  tone = "light",
   caption,
 }: {
-  label: string
-  value: string
-  tone?: 'light' | 'cyan' | 'emerald' | 'gold' | 'crimson' | 'dim'
-  caption?: string
+  label: string;
+  value: string;
+  tone?: "light" | "cyan" | "emerald" | "gold" | "crimson" | "dim";
+  caption?: string;
 }) {
   const toneCls = {
-    light: 'text-light',
-    cyan: 'text-cyan',
-    emerald: 'text-emerald',
-    gold: 'text-yellow',
-    crimson: 'text-crimson',
-    dim: 'text-dim',
-  }[tone]
+    light: "text-light",
+    cyan: "text-cyan",
+    emerald: "text-emerald",
+    gold: "text-yellow",
+    crimson: "text-crimson",
+    dim: "text-dim",
+  }[tone];
   return (
     <div className="rounded-xl border border-white/[0.06] bg-navyLight/60 px-3.5 py-3">
       <p className="text-label">{label}</p>
-      <p className={`mt-1 font-display text-lg font-semibold tnum ${toneCls}`}>
-        {value}
-      </p>
-      {caption && <p className="mt-0.5 text-[11px] text-dim">{caption}</p>}
+      <p className={`mt-1 font-display text-lg font-semibold tnum ${toneCls}`}>{value}</p>
+      {caption && <p className="mt-0.5 text-2xs text-dim">{caption}</p>}
     </div>
-  )
+  );
 }
 
 function CardHeader({
@@ -164,10 +153,10 @@ function CardHeader({
   caption,
   actions,
 }: {
-  icon: React.ReactNode
-  title: string
-  caption: string
-  actions?: React.ReactNode
+  icon: React.ReactNode;
+  title: string;
+  caption: string;
+  actions?: React.ReactNode;
 }) {
   return (
     <div className="flex flex-wrap items-start justify-between gap-3">
@@ -177,14 +166,12 @@ function CardHeader({
         </span>
         <div>
           <h3 className="text-base font-semibold text-light">{title}</h3>
-          <p className="mt-0.5 max-w-md text-xs leading-relaxed text-dim">
-            {caption}
-          </p>
+          <p className="mt-0.5 max-w-md text-xs leading-relaxed text-dim">{caption}</p>
         </div>
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
     </div>
-  )
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -192,34 +179,34 @@ function CardHeader({
 /* ------------------------------------------------------------------ */
 
 const BILL_FREQUENCIES: BillFrequency[] = [
-  'monthly',
-  'weekly',
-  'biweekly',
-  'quarterly',
-  'yearly',
-  'once',
-]
+  "monthly",
+  "weekly",
+  "biweekly",
+  "quarterly",
+  "yearly",
+  "once",
+];
 
 interface BillFormState {
-  name: string
-  amount: string
-  category: ExpenseCategory
-  dueDate: string
-  frequency: BillFrequency
-  autopay: boolean
-  accountId: string
+  name: string;
+  amount: string;
+  category: ExpenseCategory;
+  dueDate: string;
+  frequency: BillFrequency;
+  autopay: boolean;
+  accountId: string;
 }
 
 function billFormFrom(bill: Bill | null, fallbackAccountId?: string): BillFormState {
   return {
-    name: bill?.name ?? '',
-    amount: bill ? String(bill.amount) : '',
-    category: bill?.category ?? 'utilities',
+    name: bill?.name ?? "",
+    amount: bill ? String(bill.amount) : "",
+    category: bill?.category ?? "utilities",
     dueDate: bill?.dueDate ?? todayISO(),
-    frequency: bill?.frequency ?? 'monthly',
+    frequency: bill?.frequency ?? "monthly",
     autopay: bill?.autopay ?? false,
-    accountId: bill?.accountId ?? fallbackAccountId ?? '',
-  }
+    accountId: bill?.accountId ?? fallbackAccountId ?? "",
+  };
 }
 
 function BillForm({
@@ -229,24 +216,25 @@ function BillForm({
   onSubmit,
   onCancel,
 }: {
-  initial: BillFormState
-  accounts: BankAccount[]
-  submitLabel: string
-  onSubmit: (form: BillFormState) => void
-  onCancel: () => void
+  initial: BillFormState;
+  accounts: BankAccount[];
+  submitLabel: string;
+  onSubmit: (form: BillFormState) => void;
+  onCancel: () => void;
 }) {
-  const [form, setForm] = useState(initial)
+  const [form, setForm] = useState(initial);
   const set = <K extends keyof BillFormState>(key: K, value: BillFormState[K]) =>
-    setForm((f) => ({ ...f, [key]: value }))
-  const amount = Number(form.amount)
-  const valid = form.name.trim().length > 0 && Number.isFinite(amount) && amount > 0 && form.dueDate.length > 0
+    setForm((f) => ({ ...f, [key]: value }));
+  const amount = Number(form.amount);
+  const valid =
+    form.name.trim().length > 0 && Number.isFinite(amount) && amount > 0 && form.dueDate.length > 0;
 
   return (
     <form
       className="mt-4 rounded-2xl border border-cyan/15 bg-navyLight/70 p-4"
       onSubmit={(e) => {
-        e.preventDefault()
-        if (valid) onSubmit(form)
+        e.preventDefault();
+        if (valid) onSubmit(form);
       }}
     >
       <div className="grid gap-3 sm:grid-cols-2">
@@ -255,7 +243,7 @@ function BillForm({
             className={inputCls}
             placeholder="e.g. Car payment"
             value={form.name}
-            onChange={(e) => set('name', e.target.value)}
+            onChange={(e) => set("name", e.target.value)}
           />
         </Field>
         <Field label="Amount">
@@ -264,14 +252,14 @@ function BillForm({
             inputMode="decimal"
             placeholder="0.00"
             value={form.amount}
-            onChange={(e) => set('amount', e.target.value)}
+            onChange={(e) => set("amount", e.target.value)}
           />
         </Field>
         <Field label="Category">
           <select
             className={inputCls}
             value={form.category}
-            onChange={(e) => set('category', e.target.value as ExpenseCategory)}
+            onChange={(e) => set("category", e.target.value as ExpenseCategory)}
           >
             {EXPENSE_CATEGORY_IDS.map((c) => (
               <option key={c} value={c}>
@@ -285,14 +273,14 @@ function BillForm({
             type="date"
             className={inputCls}
             value={form.dueDate}
-            onChange={(e) => set('dueDate', e.target.value)}
+            onChange={(e) => set("dueDate", e.target.value)}
           />
         </Field>
         <Field label="Frequency">
           <select
             className={inputCls}
             value={form.frequency}
-            onChange={(e) => set('frequency', e.target.value as BillFrequency)}
+            onChange={(e) => set("frequency", e.target.value as BillFrequency)}
           >
             {BILL_FREQUENCIES.map((f) => (
               <option key={f} value={f}>
@@ -305,7 +293,7 @@ function BillForm({
           <select
             className={inputCls}
             value={form.accountId}
-            onChange={(e) => set('accountId', e.target.value)}
+            onChange={(e) => set("accountId", e.target.value)}
           >
             <option value="">Pick at pay time</option>
             {accounts.map((a) => (
@@ -320,7 +308,7 @@ function BillForm({
         <input
           type="checkbox"
           checked={form.autopay}
-          onChange={(e) => set('autopay', e.target.checked)}
+          onChange={(e) => set("autopay", e.target.checked)}
           className="h-4 w-4 accent-cyan"
         />
         Autopay — mark scheduled
@@ -332,20 +320,20 @@ function BillForm({
         </CyanButton>
       </div>
     </form>
-  )
+  );
 }
 
 /* ------------------------------------------------------------------ */
 /* Bill card                                                           */
 /* ------------------------------------------------------------------ */
 
-const CHIP_TONE: Record<Bill['status'], string> = {
-  overdue: 'border-crimson/30 bg-crimson/10 text-crimson',
-  due: 'border-yellow/30 bg-yellow/10 text-yellow',
-  upcoming: 'border-cyan/30 bg-cyan/10 text-cyan',
-  scheduled: 'border-white/[0.1] bg-white/[0.06] text-dim',
-  paid: 'border-emerald/30 bg-emerald/10 text-emerald',
-}
+const CHIP_TONE: Record<Bill["status"], string> = {
+  overdue: "border-crimson/30 bg-crimson/10 text-crimson",
+  due: "border-yellow/30 bg-yellow/10 text-yellow",
+  upcoming: "border-cyan/30 bg-cyan/10 text-cyan",
+  scheduled: "border-white/[0.1] bg-white/[0.06] text-dim",
+  paid: "border-emerald/30 bg-emerald/10 text-emerald",
+};
 
 function BillCard({
   bill,
@@ -353,62 +341,58 @@ function BillCard({
   onEdit,
   onRemove,
 }: {
-  bill: Bill
-  accounts: BankAccount[]
-  onEdit: () => void
-  onRemove: () => void
+  bill: Bill;
+  accounts: BankAccount[];
+  onEdit: () => void;
+  onRemove: () => void;
 }) {
-  const scheduleBill = usePlannerStore((s) => s.scheduleBill)
-  const options = useMemo(() => payFromOptions(accounts), [accounts])
+  const scheduleBill = usePlannerStore((s) => s.scheduleBill);
+  const options = useMemo(() => payFromOptions(accounts), [accounts]);
   const [payFromId, setPayFromId] = useState<string | undefined>(() =>
     defaultPayFromId(bill, accounts),
-  )
-  const [error, setError] = useState<string | null>(null)
+  );
+  const [error, setError] = useState<string | null>(null);
 
   const resolvedPayFrom =
     payFromId && options.some((a) => a.id === payFromId)
       ? payFromId
-      : defaultPayFromId(bill, accounts)
-  const payAccount = accounts.find((a) => a.id === bill.accountId)
-  const paid = bill.status === 'paid'
+      : defaultPayFromId(bill, accounts);
+  const payAccount = accounts.find((a) => a.id === bill.accountId);
+  const paid = bill.status === "paid";
 
   const meta = [
     EXPENSE_CATEGORY_LABEL[bill.category],
     `due ${formatDay(bill.dueDate)}`,
     dueRelativeLabel(bill),
-    payAccount
-      ? `${institutionMeta(payAccount.institution).label} ••${payAccount.mask}`
-      : null,
-    bill.source === 'bank' ? 'From bank' : null,
+    payAccount ? `${institutionMeta(payAccount.institution).label} ••${payAccount.mask}` : null,
+    bill.source === "bank" ? "From bank" : null,
   ]
     .filter(Boolean)
-    .join(' · ')
+    .join(" · ");
 
   return (
     <motion.div
       layout
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, ease: 'easeOut' }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
       className={`rounded-2xl border p-4 ${
-        bill.status === 'overdue'
-          ? 'border-crimson/25 bg-crimson/[0.04]'
-          : 'border-white/[0.06] bg-navyLight/50'
+        bill.status === "overdue"
+          ? "border-crimson/25 bg-crimson/[0.04]"
+          : "border-white/[0.06] bg-navyLight/50"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="truncate text-sm font-semibold text-light">
-              {bill.name}
-            </p>
+            <p className="truncate text-sm font-semibold text-light">{bill.name}</p>
             <span
-              className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold tracking-wide ${CHIP_TONE[bill.status]}`}
+              className={`rounded-full border px-2 py-0.5 text-3xs font-semibold tracking-wide ${CHIP_TONE[bill.status]}`}
             >
               {BILL_STATUS_CHIP[bill.status]}
             </span>
             {bill.autopay && !paid && (
-              <span className="rounded-full border border-cyan/30 bg-cyan/10 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-cyan">
+              <span className="rounded-full border border-cyan/30 bg-cyan/10 px-2 py-0.5 text-3xs font-semibold tracking-wide text-cyan">
                 AUTOPAY
               </span>
             )}
@@ -417,7 +401,7 @@ function BillCard({
         </div>
         <p
           className={`shrink-0 font-display text-base font-semibold tnum ${
-            bill.status === 'overdue' ? 'text-crimson' : 'text-light'
+            bill.status === "overdue" ? "text-crimson" : "text-light"
           }`}
         >
           {formatCurrency(bill.amount, { decimals: 2 })}
@@ -430,7 +414,7 @@ function BillCard({
             <select
               aria-label="Pay from account"
               className="min-w-0 flex-1 rounded-xl border border-white/[0.08] bg-navyLight/80 px-3 py-2 text-xs text-light outline-none focus:border-cyan/50 sm:flex-none sm:min-w-[180px]"
-              value={resolvedPayFrom ?? ''}
+              value={resolvedPayFrom ?? ""}
               onChange={(e) => setPayFromId(e.target.value)}
             >
               {options.map((a) => (
@@ -444,17 +428,17 @@ function BillCard({
             disabled={!resolvedPayFrom}
             onClick={() => {
               void payBillWithImpact(bill.id, resolvedPayFrom).then((result) =>
-                setError(result.ok ? null : (result.error ?? 'Payment failed')),
-              )
+                setError(result.ok ? null : (result.error ?? "Payment failed")),
+              );
             }}
           >
             Pay now
           </CyanButton>
-          {bill.status !== 'scheduled' && (
+          {bill.status !== "scheduled" && (
             <GhostButton
               onClick={() => {
-                scheduleBill(bill.id)
-                setError(null)
+                scheduleBill(bill.id);
+                setError(null);
               }}
             >
               <CalendarClock size={14} />
@@ -500,50 +484,44 @@ function BillCard({
         </p>
       )}
     </motion.div>
-  )
+  );
 }
 
 /* ------------------------------------------------------------------ */
 /* Linked accounts card                                                */
 /* ------------------------------------------------------------------ */
 
-const ACCOUNT_TYPES: BankAccountType[] = ['checking', 'savings', 'credit', 'other']
+const ACCOUNT_TYPES: BankAccountType[] = ["checking", "savings", "credit", "other"];
 
-function ConnectBankForm({
-  onDone,
-  onCancel,
-}: {
-  onDone: () => void
-  onCancel: () => void
-}) {
-  const connectBank = usePlannerStore((s) => s.connectBank)
-  const [institution, setInstitution] = useState<BankInstitution>('chase')
-  const [name, setName] = useState('')
-  const [type, setType] = useState<BankAccountType>('checking')
-  const [balance, setBalance] = useState('')
-  const [mask, setMask] = useState('')
-  const [busy, setBusy] = useState(false)
+function ConnectBankForm({ onDone, onCancel }: { onDone: () => void; onCancel: () => void }) {
+  const connectBank = usePlannerStore((s) => s.connectBank);
+  const [institution, setInstitution] = useState<BankInstitution>("chase");
+  const [name, setName] = useState("");
+  const [type, setType] = useState<BankAccountType>("checking");
+  const [balance, setBalance] = useState("");
+  const [mask, setMask] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  const amount = Number(balance)
-  const valid = Number.isFinite(amount) && amount >= 0 && balance.trim() !== ''
+  const amount = Number(balance);
+  const valid = Number.isFinite(amount) && amount >= 0 && balance.trim() !== "";
 
   return (
     <form
       className="mt-4 rounded-2xl border border-cyan/15 bg-navyLight/70 p-4"
       onSubmit={async (e) => {
-        e.preventDefault()
-        if (!valid || busy) return
-        setBusy(true)
+        e.preventDefault();
+        if (!valid || busy) return;
+        setBusy(true);
         const input: AddAccountInput = {
           institution,
           name: name.trim() || `${institutionMeta(institution).label} ${type}`,
           type,
           balance: amount,
           mask: mask || undefined,
-        }
-        await connectBank(input)
-        setBusy(false)
-        onDone()
+        };
+        await connectBank(input);
+        setBusy(false);
+        onDone();
       }}
     >
       <div className="grid gap-3 sm:grid-cols-2">
@@ -600,33 +578,27 @@ function ConnectBankForm({
           />
         </Field>
       </div>
-      <p className="mt-3 text-[11px] leading-relaxed text-dim">
+      <p className="mt-3 text-2xs leading-relaxed text-dim">
         Demo open-banking — production swaps in Plaid / MX credentials.
       </p>
       <div className="mt-4 flex justify-end gap-2">
         <GhostButton onClick={onCancel}>Cancel</GhostButton>
         <CyanButton type="submit" disabled={!valid || busy}>
-          {busy ? 'Linking…' : 'Link account'}
+          {busy ? "Linking…" : "Link account"}
         </CyanButton>
       </div>
     </form>
-  )
+  );
 }
 
-function AccountRow({
-  account,
-  onDisconnect,
-}: {
-  account: BankAccount
-  onDisconnect: () => void
-}) {
-  const meta = institutionMeta(account.institution)
+function AccountRow({ account, onDisconnect }: { account: BankAccount; onDisconnect: () => void }) {
+  const meta = institutionMeta(account.institution);
   return (
     <motion.div
       layout
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, ease: 'easeOut' }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
       className="flex items-center gap-3 rounded-2xl border border-white/[0.06] bg-navyLight/50 p-3.5"
     >
       <span
@@ -636,9 +608,7 @@ function AccountRow({
         {meta.short}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-light">
-          {account.name}
-        </p>
+        <p className="truncate text-sm font-semibold text-light">{account.name}</p>
         <p className="mt-0.5 text-xs text-dim">
           {meta.label} · {account.type} · ••••{account.mask}
         </p>
@@ -647,7 +617,7 @@ function AccountRow({
         <p className="font-display text-sm font-semibold tnum text-light">
           {formatCurrency(account.balance, { decimals: 2 })}
         </p>
-        <p className="mt-0.5 text-[11px] text-dim">
+        <p className="mt-0.5 text-2xs text-dim">
           {formatCurrency(account.available, { decimals: 2 })} avail.
         </p>
       </div>
@@ -661,7 +631,7 @@ function AccountRow({
         <Unlink size={15} />
       </button>
     </motion.div>
-  )
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -669,34 +639,34 @@ function AccountRow({
 /* ------------------------------------------------------------------ */
 
 export function BankingCommand() {
-  const accounts = usePlannerStore((s) => s.accounts)
-  const bills = usePlannerStore((s) => s.bills)
-  const bankLinkStatus = usePlannerStore((s) => s.bankLinkStatus)
-  const lastBankSyncAt = usePlannerStore((s) => s.lastBankSyncAt)
-  const lastImpact = usePlannerStore((s) => s.lastImpact)
-  const syncBanks = usePlannerStore((s) => s.syncBanks)
-  const disconnectAccount = usePlannerStore((s) => s.disconnectAccount)
-  const addBill = usePlannerStore((s) => s.addBill)
-  const updateBill = usePlannerStore((s) => s.updateBill)
-  const deleteBill = usePlannerStore((s) => s.deleteBill)
+  const accounts = usePlannerStore((s) => s.accounts);
+  const bills = usePlannerStore((s) => s.bills);
+  const bankLinkStatus = usePlannerStore((s) => s.bankLinkStatus);
+  const lastBankSyncAt = usePlannerStore((s) => s.lastBankSyncAt);
+  const lastImpact = usePlannerStore((s) => s.lastImpact);
+  const syncBanks = usePlannerStore((s) => s.syncBanks);
+  const disconnectAccount = usePlannerStore((s) => s.disconnectAccount);
+  const addBill = usePlannerStore((s) => s.addBill);
+  const updateBill = usePlannerStore((s) => s.updateBill);
+  const deleteBill = usePlannerStore((s) => s.deleteBill);
 
-  const [connectOpen, setConnectOpen] = useState(false)
-  const [accountAdded, setAccountAdded] = useState(false)
-  const [confirmAccount, setConfirmAccount] = useState<BankAccount | null>(null)
-  const [billFormOpen, setBillFormOpen] = useState(false)
-  const [editingBill, setEditingBill] = useState<Bill | null>(null)
-  const [confirmBill, setConfirmBill] = useState<Bill | null>(null)
-  const [bannerDismissed, setBannerDismissed] = useState<string | null>(null)
+  const [connectOpen, setConnectOpen] = useState(false);
+  const [accountAdded, setAccountAdded] = useState(false);
+  const [confirmAccount, setConfirmAccount] = useState<BankAccount | null>(null);
+  const [billFormOpen, setBillFormOpen] = useState(false);
+  const [editingBill, setEditingBill] = useState<Bill | null>(null);
+  const [confirmBill, setConfirmBill] = useState<Bill | null>(null);
+  const [bannerDismissed, setBannerDismissed] = useState<string | null>(null);
 
-  const { cash, credit } = summarizeAccounts(accounts)
-  const tiles = billTiles(bills)
-  const eom = eomProjection(accounts, bills)
-  const orderedBills = useMemo(() => sortBillsForPay(bills), [bills])
-  const connecting = bankLinkStatus === 'connecting'
-  const allPaid = bills.length > 0 && tiles.openCount === 0
+  const { cash, credit } = summarizeAccounts(accounts);
+  const tiles = billTiles(bills);
+  const eom = eomProjection(accounts, bills);
+  const orderedBills = useMemo(() => sortBillsForPay(bills), [bills]);
+  const connecting = bankLinkStatus === "connecting";
+  const allPaid = bills.length > 0 && tiles.openCount === 0;
 
   const showPaidBanner =
-    lastImpact?.actionKind === 'bill_paid' && bannerDismissed !== lastImpact.id
+    lastImpact?.actionKind === "bill_paid" && bannerDismissed !== lastImpact.id;
 
   return (
     <div className="flex flex-col gap-5">
@@ -704,7 +674,7 @@ export function BankingCommand() {
       <motion.section
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: 'easeOut' }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
         className="card-chrome card-hairline-top p-5 sm:p-6"
       >
         <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
@@ -713,18 +683,12 @@ export function BankingCommand() {
               <Landmark size={14} />
               <span className="text-label !text-cyan">Banks &amp; bills</span>
             </div>
-            <h2 className="mt-2 font-serif text-3xl italic text-light">
-              Live cash command
-            </h2>
+            <h2 className="mt-2 font-serif text-3xl italic text-light">Live cash command</h2>
             <p className="mt-1 text-sm text-dim">
               Linked balances drive bill pay and closed-loop readiness.
             </p>
             <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-              <StatTile
-                label="Cash"
-                value={formatCurrency(cash, { decimals: 2 })}
-                tone="cyan"
-              />
+              <StatTile label="Cash" value={formatCurrency(cash, { decimals: 2 })} tone="cyan" />
               <StatTile label="Accounts" value={String(accounts.length)} />
               <StatTile
                 label="Bills open"
@@ -734,7 +698,7 @@ export function BankingCommand() {
               <StatTile
                 label="Overdue"
                 value={String(tiles.overdue)}
-                tone={tiles.overdue > 0 ? 'crimson' : 'dim'}
+                tone={tiles.overdue > 0 ? "crimson" : "dim"}
               />
             </div>
           </div>
@@ -760,18 +724,17 @@ export function BankingCommand() {
             <div className="mt-3 h-[4px] overflow-hidden rounded-full bg-white/[0.06]">
               <motion.div
                 initial={{ width: 0 }}
-                animate={{ width: '100%' }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
+                animate={{ width: "100%" }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
                 className={`h-full rounded-full bg-cyan shadow-glow-cyan ${
-                  connecting ? 'animate-pulse-dot' : ''
+                  connecting ? "animate-pulse-dot" : ""
                 }`}
               />
             </div>
-            <p className="mt-3 text-[11px] leading-relaxed text-dim">
-              Balances you enter drive bill pay. Open banking can replace entry
-              when connected.
+            <p className="mt-3 text-2xs leading-relaxed text-dim">
+              Balances you enter drive bill pay. Open banking can replace entry when connected.
             </p>
-            <p className="mt-1 text-[11px] leading-relaxed text-dim">
+            <p className="mt-1 text-2xs leading-relaxed text-dim">
               Demo open-banking — production swaps in Plaid / MX credentials.
             </p>
           </div>
@@ -783,34 +746,28 @@ export function BankingCommand() {
         <motion.section
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.06, ease: 'easeOut' }}
+          transition={{ duration: 0.35, delay: 0.06, ease: "easeOut" }}
           className="card-chrome p-5 sm:p-6"
         >
           <CardHeader
             icon={<Landmark size={16} />}
-            title={accounts.length ? 'Linked accounts' : 'Accounts — Cash you control'}
+            title={accounts.length ? "Linked accounts" : "Accounts — Cash you control"}
             caption={
               accounts.length
-                ? 'Pull live balances for bill pay. Demo open-banking flow — swap in Plaid / MX / Finicity for production credentials.'
-                : 'Add balances you trust. They drive bill pay, runway, and the closed loop — educational readiness only.'
+                ? "Pull live balances for bill pay. Demo open-banking flow — swap in Plaid / MX / Finicity for production credentials."
+                : "Add balances you trust. They drive bill pay, runway, and the closed loop — educational readiness only."
             }
             actions={
               <>
                 {accounts.length > 0 && (
-                  <GhostButton
-                    disabled={connecting}
-                    onClick={() => void syncBanks()}
-                  >
-                    <RefreshCw
-                      size={14}
-                      className={connecting ? 'animate-spin' : ''}
-                    />
-                    {connecting ? 'Syncing…' : 'Sync now'}
+                  <GhostButton disabled={connecting} onClick={() => void syncBanks()}>
+                    <RefreshCw size={14} className={connecting ? "animate-spin" : ""} />
+                    {connecting ? "Syncing…" : "Sync now"}
                   </GhostButton>
                 )}
                 <CyanButton onClick={() => setConnectOpen((v) => !v)}>
                   <Link2 size={14} />
-                  {accounts.length ? 'Link bank' : 'Add account'}
+                  {accounts.length ? "Link bank" : "Add account"}
                 </CyanButton>
               </>
             }
@@ -828,18 +785,15 @@ export function BankingCommand() {
                 value={formatCurrency(credit, { decimals: 2 })}
                 tone="gold"
               />
-              <StatTile
-                label="Last sync"
-                value={formatSyncStamp(lastBankSyncAt)}
-              />
+              <StatTile label="Last sync" value={formatSyncStamp(lastBankSyncAt)} />
             </div>
           )}
 
           {connectOpen && (
             <ConnectBankForm
               onDone={() => {
-                setConnectOpen(false)
-                setAccountAdded(true)
+                setConnectOpen(false);
+                setAccountAdded(true);
               }}
               onCancel={() => setConnectOpen(false)}
             />
@@ -853,11 +807,7 @@ export function BankingCommand() {
 
           <div className="mt-4 flex flex-col gap-2.5">
             {accounts.map((a) => (
-              <AccountRow
-                key={a.id}
-                account={a}
-                onDisconnect={() => setConfirmAccount(a)}
-              />
+              <AccountRow key={a.id} account={a} onDisconnect={() => setConfirmAccount(a)} />
             ))}
             {accounts.length === 0 && !connectOpen && (
               <EmptyState
@@ -876,7 +826,7 @@ export function BankingCommand() {
         <motion.section
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.12, ease: 'easeOut' }}
+          transition={{ duration: 0.35, delay: 0.12, ease: "easeOut" }}
           className="card-chrome p-5 sm:p-6"
         >
           <CardHeader
@@ -886,8 +836,8 @@ export function BankingCommand() {
             actions={
               <CyanButton
                 onClick={() => {
-                  setEditingBill(null)
-                  setBillFormOpen((v) => !v)
+                  setEditingBill(null);
+                  setBillFormOpen((v) => !v);
                 }}
               >
                 <Plus size={14} />
@@ -900,21 +850,19 @@ export function BankingCommand() {
             <StatTile
               label="Open"
               value={formatCurrency(tiles.openTotal)}
-              caption={`${tiles.openCount} bill${tiles.openCount === 1 ? '' : 's'}`}
+              caption={`${tiles.openCount} bill${tiles.openCount === 1 ? "" : "s"}`}
             />
             <StatTile
               label="Due today"
               value={String(tiles.dueToday)}
-              tone={tiles.dueToday > 0 ? 'gold' : 'dim'}
+              tone={tiles.dueToday > 0 ? "gold" : "dim"}
             />
             <StatTile
               label="Overdue"
               value={String(tiles.overdue)}
-              tone={tiles.overdue > 0 ? 'crimson' : 'dim'}
+              tone={tiles.overdue > 0 ? "crimson" : "dim"}
               caption={
-                tiles.overdue > 0
-                  ? formatCurrency(tiles.overdueTotal, { decimals: 2 })
-                  : undefined
+                tiles.overdue > 0 ? formatCurrency(tiles.overdueTotal, { decimals: 2 }) : undefined
               }
             />
           </div>
@@ -954,9 +902,9 @@ export function BankingCommand() {
                   frequency: form.frequency,
                   autopay: form.autopay,
                   accountId: form.accountId || undefined,
-                  source: 'manual',
-                })
-                setBillFormOpen(false)
+                  source: "manual",
+                });
+                setBillFormOpen(false);
               }}
               onCancel={() => setBillFormOpen(false)}
             />
@@ -979,8 +927,8 @@ export function BankingCommand() {
                       frequency: form.frequency,
                       autopay: form.autopay,
                       accountId: form.accountId || undefined,
-                    })
-                    setEditingBill(null)
+                    });
+                    setEditingBill(null);
                   }}
                   onCancel={() => setEditingBill(null)}
                 />
@@ -990,8 +938,8 @@ export function BankingCommand() {
                   bill={bill}
                   accounts={accounts}
                   onEdit={() => {
-                    setBillFormOpen(false)
-                    setEditingBill(bill)
+                    setBillFormOpen(false);
+                    setEditingBill(bill);
                   }}
                   onRemove={() => setConfirmBill(bill)}
                 />
@@ -1019,11 +967,11 @@ export function BankingCommand() {
         body={
           confirmAccount
             ? `${confirmAccount.name} (${institutionMeta(confirmAccount.institution).label} ••••${confirmAccount.mask}) will be removed. Bills already paid from it stay in your ledger.`
-            : ''
+            : ""
         }
         confirmLabel="Disconnect"
         onConfirm={() => {
-          if (confirmAccount) disconnectAccount(confirmAccount.id)
+          if (confirmAccount) disconnectAccount(confirmAccount.id);
         }}
         onClose={() => setConfirmAccount(null)}
       />
@@ -1033,16 +981,16 @@ export function BankingCommand() {
         body={
           confirmBill
             ? `${confirmBill.name} (${formatCurrency(confirmBill.amount, { decimals: 2 })}, due ${formatDay(confirmBill.dueDate)}) will be removed. Payments already made stay in your ledger.`
-            : ''
+            : ""
         }
         confirmLabel="Remove"
         onConfirm={() => {
-          if (confirmBill) deleteBill(confirmBill.id)
+          if (confirmBill) deleteBill(confirmBill.id);
         }}
         onClose={() => setConfirmBill(null)}
       />
     </div>
-  )
+  );
 }
 
-export default BankingCommand
+export default BankingCommand;

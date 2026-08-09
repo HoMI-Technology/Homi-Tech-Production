@@ -210,14 +210,28 @@ describe("simulate", () => {
 
 describe("scenario shortcuts", () => {
   it("pays debt from savings and never pays more than debt or savings allow", () => {
-    const levers = { monthlyIncome: 5000, monthlyExpenses: 3000, liquidSavings: 5000, totalDebt: 3000 };
-    expect(applyDebtPayoff(levers, 10000)).toEqual({ ...levers, liquidSavings: 2000, totalDebt: 0 });
+    const levers = {
+      monthlyIncome: 5000,
+      monthlyExpenses: 3000,
+      liquidSavings: 5000,
+      totalDebt: 3000,
+    };
+    expect(applyDebtPayoff(levers, 10000)).toEqual({
+      ...levers,
+      liquidSavings: 2000,
+      totalDebt: 0,
+    });
     const thin = { ...levers, liquidSavings: 1000 };
     expect(applyDebtPayoff(thin, 2000)).toEqual({ ...thin, liquidSavings: 0, totalDebt: 2000 });
   });
 
   it("adds a savings plan's total to liquid savings", () => {
-    const levers = { monthlyIncome: 5000, monthlyExpenses: 3000, liquidSavings: 5000, totalDebt: 3000 };
+    const levers = {
+      monthlyIncome: 5000,
+      monthlyExpenses: 3000,
+      liquidSavings: 5000,
+      totalDebt: 3000,
+    };
     expect(applySavingsPlan(levers, 500, 12).liquidSavings).toBe(11000);
     expect(applySavingsPlan(levers, -500, 12).liquidSavings).toBe(5000);
   });

@@ -80,19 +80,13 @@ export async function POST(request: Request) {
   if (fetchError) {
     const correlationId = crypto.randomUUID();
     console.error(`[readiness-path-commit:fetch:${correlationId}]`, fetchError.message);
-    return NextResponse.json(
-      { error: "Could not read calendar.", correlationId },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Could not read calendar.", correlationId }, { status: 500 });
   }
 
   const existingStepIds = new Set(
     (existing ?? [])
       .map((ev) => parsePathMarker(ev.notes as string | null))
-      .filter(
-        (m): m is { pathId: string; stepId: string } =>
-          m != null && m.pathId === path.id,
-      )
+      .filter((m): m is { pathId: string; stepId: string } => m != null && m.pathId === path.id)
       .map((m) => m.stepId),
   );
 
@@ -116,10 +110,7 @@ export async function POST(request: Request) {
 
     if (insertError) {
       if (insertError.code && INFRA_MISSING_CODES.has(insertError.code)) {
-        return NextResponse.json(
-          { error: "Calendar is not available yet." },
-          { status: 503 },
-        );
+        return NextResponse.json({ error: "Calendar is not available yet." }, { status: 503 });
       }
       const correlationId = crypto.randomUUID();
       console.error(`[readiness-path-commit:insert:${correlationId}]`, insertError.message);

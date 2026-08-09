@@ -53,7 +53,15 @@ const FOCUSABLE_SELECTOR =
  * The HōMI's visual form: the threshold compass for the classic, a glowing
  * brand-color orb for the others. Abstract on purpose — no mascots.
  */
-function HomiForm({ preset, size, glow = false }: { preset: HomiPreset; size: number; glow?: boolean }) {
+function HomiForm({
+  preset,
+  size,
+  glow = false,
+}: {
+  preset: HomiPreset;
+  size: number;
+  glow?: boolean;
+}) {
   if (preset.form === "compass") {
     return <ThresholdCompass size={size} animated={false} glow={glow} verdict={undefined} />;
   }
@@ -116,7 +124,8 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
     const w = window as IdleWindow;
     if (typeof w.requestIdleCallback === "function") {
       const id = w.requestIdleCallback(() => setIdleReady(true), { timeout: 3000 });
-      return () => (w as unknown as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback?.(id);
+      return () =>
+        (w as unknown as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback?.(id);
     }
     const t = window.setTimeout(() => setIdleReady(true), 1200);
     return () => window.clearTimeout(t);
@@ -274,7 +283,10 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
             : "Something interrupted that thought. Try asking again in a moment.";
         setMessages((prev) => [...prev, { id: makeId(), role: "assistant", content: msg }]);
         if (res.status === 401) {
-          setGateCta({ href: `/auth/sign-in?next=${encodeURIComponent(pathname)}`, label: "Sign in" });
+          setGateCta({
+            href: `/auth/sign-in?next=${encodeURIComponent(pathname)}`,
+            label: "Sign in",
+          });
         } else if (res.status === 402) {
           setGateCta({ href: "/pricing", label: "See plans" });
         }
@@ -292,7 +304,11 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { id: makeId(), role: "assistant", content: "Connection dropped on my end. Try that again in a moment." },
+        {
+          id: makeId(),
+          role: "assistant",
+          content: "Connection dropped on my end. Try that again in a moment.",
+        },
       ]);
     } finally {
       setSending(false);
@@ -334,11 +350,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
 
   // Full chat lives on /advisor already — don't double up the surface there.
   // Ops console: keep Companion off admin so attention work stays uncluttered.
-  if (
-    pathname === "/advisor" ||
-    pathname === "/admin" ||
-    pathname.startsWith("/admin/")
-  ) {
+  if (pathname === "/advisor" || pathname === "/admin" || pathname.startsWith("/admin/")) {
     return null;
   }
   if (!idleReady) return null;
@@ -423,7 +435,14 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
               aria-label="Close HōMI Companion"
               className="rounded-full p-1.5 text-dim transition-colors hover:text-light"
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <path d="M3 3l10 10M13 3L3 13" strokeLinecap="round" />
               </svg>
             </button>
@@ -452,7 +471,9 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
               <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
                 <div>
                   <p className="font-display text-sm font-semibold text-light">Choose your HōMI</p>
-                  <p className="mt-1 text-xs text-dim">A starting point, not a box. Rename it any time.</p>
+                  <p className="mt-1 text-xs text-dim">
+                    A starting point, not a box. Rename it any time.
+                  </p>
                 </div>
                 <div className="grid w-full grid-cols-2 gap-2">
                   {HOMI_PRESETS.map((p) => (
@@ -464,7 +485,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
                     >
                       <HomiForm preset={p} size={28} />
                       <span className="text-sm font-semibold text-light">{p.name}</span>
-                      <span className="text-[11px] leading-snug text-dim">{p.role}</span>
+                      <span className="text-2xs leading-snug text-dim">{p.role}</span>
                     </button>
                   ))}
                 </div>
@@ -535,12 +556,19 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
               className="btn btn-primary btn-sm !px-3 disabled:opacity-50"
               aria-label="Send message"
             >
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <path d="M3 10h14M11 4l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
           </div>
-          <p className="px-3 pb-2 text-center text-[10px] leading-snug text-dim/70">
+          <p className="px-3 pb-2 text-center text-3xs leading-snug text-dim/70">
             Educational guidance only — not financial advice.
           </p>
         </div>

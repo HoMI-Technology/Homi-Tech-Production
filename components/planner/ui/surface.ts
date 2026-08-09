@@ -24,8 +24,7 @@ export const PLANNER_TAB_ACTIVE =
   "bg-cyan/15 text-cyan shadow-[inset_0_0_0_1px_rgba(34,211,238,0.35)]";
 
 /** Idle pill tab. */
-export const PLANNER_TAB_IDLE =
-  "text-dim hover:bg-white/[0.04] hover:text-light";
+export const PLANNER_TAB_IDLE = "text-dim hover:bg-white/[0.04] hover:text-light";
 
 /** Primary cyan CTA (load sample / suggested move). */
 export const PLANNER_CTA =

@@ -34,8 +34,11 @@ const sdkMocks = vi.hoisted(() => {
     StripeSignatureVerificationError,
   };
 });
-const { constructEvent, listLineItems, StripeSignatureVerificationError: FakeSignatureVerificationError } =
-  sdkMocks;
+const {
+  constructEvent,
+  listLineItems,
+  StripeSignatureVerificationError: FakeSignatureVerificationError,
+} = sdkMocks;
 
 vi.mock("stripe", () => {
   const StripeMock = Object.assign(
@@ -216,7 +219,9 @@ describe("POST /api/webhooks/stripe — signature failures -> 400", () => {
 
   it("rejects a signature computed over a tampered body", async () => {
     constructEvent.mockImplementation(() => {
-      throw new FakeSignatureVerificationError("No signatures found matching the expected signature for payload");
+      throw new FakeSignatureVerificationError(
+        "No signatures found matching the expected signature for payload",
+      );
     });
     const res = await POST(request(JSON.stringify(checkoutEvent)));
     expect(res.status).toBe(400);

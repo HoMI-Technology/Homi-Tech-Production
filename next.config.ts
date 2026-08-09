@@ -117,7 +117,8 @@ const nextConfig: NextConfig = {
       // Dogfood SPA + Money Reality consolidations
       { source: "/planner", destination: "/money/budget", permanent: true },
       { source: "/finance", destination: "/money/budget", permanent: true },
-      { source: "/finance/:path*", destination: "/money/budget", permanent: true },    ];
+      { source: "/finance/:path*", destination: "/money/budget", permanent: true },
+    ];
   },
   async headers() {
     return [
@@ -125,9 +126,7 @@ const nextConfig: NextConfig = {
         // Fonts never change in place (a regenerated file gets a new name),
         // so let browsers and the CDN cache them for a year.
         source: "/fonts/:path*",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-        ],
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
       // PWA control plane: never pin stale SW/manifest/offline via CDN HTTP cache.
       {
@@ -139,15 +138,11 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/offline.html",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
-        ],
+        headers: [{ key: "Cache-Control", value: "public, max-age=0, must-revalidate" }],
       },
       {
         source: "/manifest.webmanifest",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
-        ],
+        headers: [{ key: "Cache-Control", value: "public, max-age=0, must-revalidate" }],
       },
       {
         source: "/architecture.json",
@@ -186,7 +181,6 @@ const nextConfig: NextConfig = {
     ];
   },
 };
-
 
 /**
  * Sentry source-map upload — opt-in, and inert until fully configured.

@@ -49,7 +49,10 @@ function LoanProgramsPageInner() {
     () => comparePrograms({ homePrice, downPayment, rate, termYears, firstTimeUse }),
     [homePrice, downPayment, rate, termYears, firstTimeUse],
   );
-  const cheapest = results.reduce((best, r) => (r.monthlyTotal < best.monthlyTotal ? r : best), results[0]);
+  const cheapest = results.reduce(
+    (best, r) => (r.monthlyTotal < best.monthlyTotal ? r : best),
+    results[0],
+  );
 
   // Deterministic impact of carrying the CHEAPEST program's payment —
   // cheapest is decided by code, so the frame is honest.
@@ -89,11 +92,46 @@ function LoanProgramsPageInner() {
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.6fr]">
         <div className="glass space-y-5 p-6">
-          <CalcField label="Home price" value={homePrice} onChange={setHomePrice} min={100000} max={1500000} step={5000} format="currency" source={sourceFor("homePrice")} />
-          <CalcField label="Down payment" value={downPct} onChange={setDownPct} min={0} max={25} step={0.5} format="percent" />
+          <CalcField
+            label="Home price"
+            value={homePrice}
+            onChange={setHomePrice}
+            min={100000}
+            max={1500000}
+            step={5000}
+            format="currency"
+            source={sourceFor("homePrice")}
+          />
+          <CalcField
+            label="Down payment"
+            value={downPct}
+            onChange={setDownPct}
+            min={0}
+            max={25}
+            step={0.5}
+            format="percent"
+          />
           <p className="-mt-2 text-xs text-dim">{formatCurrency(downPayment)} down</p>
-          <CalcField label="Interest rate" value={rate} onChange={setRate} min={3} max={10} step={0.125} format="percent" source={sourceFor("rate")} />
-          <CalcField label="Loan term" value={termYears} onChange={setTermYears} min={15} max={30} step={5} format="years" source={sourceFor("termYears")} />
+          <CalcField
+            label="Interest rate"
+            value={rate}
+            onChange={setRate}
+            min={3}
+            max={10}
+            step={0.125}
+            format="percent"
+            source={sourceFor("rate")}
+          />
+          <CalcField
+            label="Loan term"
+            value={termYears}
+            onChange={setTermYears}
+            min={15}
+            max={30}
+            step={5}
+            format="years"
+            source={sourceFor("termYears")}
+          />
           <div className="flex items-center justify-between pt-1">
             <label className="text-sm text-light">First-time VA use</label>
             <button
@@ -112,7 +150,13 @@ function LoanProgramsPageInner() {
           />
           <SaveScenarioButton
             lensId="loan-programs"
-            getInputs={() => ({ homePrice, downPct, rate, termYears, firstTimeUse: firstTimeUse ? 1 : 0 })}
+            getInputs={() => ({
+              homePrice,
+              downPct,
+              rate,
+              termYears,
+              firstTimeUse: firstTimeUse ? 1 : 0,
+            })}
           />
         </div>
 
@@ -121,20 +165,54 @@ function LoanProgramsPageInner() {
             const color = PROGRAM_COLOR[r.program];
             const isCheapest = r.program === cheapest.program;
             return (
-              <div key={r.program} className={`glass sweep relative overflow-hidden p-5 ${isCheapest ? "panel-focus" : ""}`}>
-                <span aria-hidden className="absolute inset-x-0 top-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${color}88, transparent)` }} />
+              <div
+                key={r.program}
+                className={`glass sweep relative overflow-hidden p-5 ${isCheapest ? "panel-focus" : ""}`}
+              >
+                <span
+                  aria-hidden
+                  className="absolute inset-x-0 top-0 h-px"
+                  style={{
+                    background: `linear-gradient(90deg, transparent, ${color}88, transparent)`,
+                  }}
+                />
                 <div className="flex items-center justify-between">
                   <h2 className="font-semibold text-light">{r.label}</h2>
-                  {isCheapest && <span className="chip !text-[0.6875rem]">Lowest monthly</span>}
+                  {isCheapest && <span className="chip !text-2xs">Lowest monthly</span>}
                 </div>
                 <p className="eyebrow mt-4">Monthly total</p>
-                <p className="score-numeral text-2xl font-bold" style={{ color }}>{formatCurrency(r.monthlyTotal)}</p>
+                <p className="score-numeral text-2xl font-bold" style={{ color }}>
+                  {formatCurrency(r.monthlyTotal)}
+                </p>
                 <div className="mt-4 space-y-2 text-xs text-dim">
-                  <div className="flex justify-between"><span>Principal &amp; interest</span><span className="score-numeral text-light">{formatCurrency(r.principalAndInterest)}</span></div>
-                  <div className="flex justify-between"><span>Mortgage insurance</span><span className="score-numeral text-light">{r.monthlyInsurance > 0 ? formatCurrency(r.monthlyInsurance) : "None"}</span></div>
-                  <div className="flex justify-between"><span>LTV</span><span className="score-numeral text-light">{formatPercent(r.ltv * 100)}</span></div>
-                  <div className="flex justify-between"><span>Financed upfront fee</span><span className="score-numeral text-light">{r.upfrontFeeFinanced > 0 ? formatCurrency(r.upfrontFeeFinanced) : "None"}</span></div>
-                  <div className="flex justify-between"><span>MI removable</span><span className="score-numeral text-light">{r.insuranceRemovable ? "Yes" : "Life of loan"}</span></div>
+                  <div className="flex justify-between">
+                    <span>Principal &amp; interest</span>
+                    <span className="score-numeral text-light">
+                      {formatCurrency(r.principalAndInterest)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Mortgage insurance</span>
+                    <span className="score-numeral text-light">
+                      {r.monthlyInsurance > 0 ? formatCurrency(r.monthlyInsurance) : "None"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>LTV</span>
+                    <span className="score-numeral text-light">{formatPercent(r.ltv * 100)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Financed upfront fee</span>
+                    <span className="score-numeral text-light">
+                      {r.upfrontFeeFinanced > 0 ? formatCurrency(r.upfrontFeeFinanced) : "None"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>MI removable</span>
+                    <span className="score-numeral text-light">
+                      {r.insuranceRemovable ? "Yes" : "Life of loan"}
+                    </span>
+                  </div>
                 </div>
                 <p className="mt-4 text-xs leading-relaxed text-dim">{r.note}</p>
               </div>
@@ -156,10 +234,10 @@ function LoanProgramsPageInner() {
       )}
 
       <p className="mt-8 max-w-3xl text-xs leading-relaxed text-dim">
-        Program rules (minimum down, MIP/PMI rates, VA funding fee) follow standard 2026 guidelines and are
-        educational estimates — eligibility, credit tier, and lender overlays change the real numbers. VA
-        loans require eligibility; FHA MIP is life-of-loan at low down payments, which is why the cheapest
-        month-one option isn&rsquo;t always the cheapest over time.
+        Program rules (minimum down, MIP/PMI rates, VA funding fee) follow standard 2026 guidelines
+        and are educational estimates — eligibility, credit tier, and lender overlays change the
+        real numbers. VA loans require eligibility; FHA MIP is life-of-loan at low down payments,
+        which is why the cheapest month-one option isn&rsquo;t always the cheapest over time.
       </p>
     </ToolShell>
   );

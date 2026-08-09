@@ -92,7 +92,11 @@ export function HeaderShell({
       style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
       <div className="chrome-bar mx-auto flex h-[var(--nav-height)] max-w-7xl items-center gap-3 px-4 sm:gap-4 sm:px-6 lg:gap-6">
-        <Link href={logoHref} className="flex shrink-0 items-center gap-2" aria-label={logoAriaLabel}>
+        <Link
+          href={logoHref}
+          className="flex shrink-0 items-center gap-2"
+          aria-label={logoAriaLabel}
+        >
           <Wordmark size="text-2xl" />
         </Link>
 
@@ -111,7 +115,15 @@ export function HeaderShell({
           aria-controls={menuId}
           aria-label={open ? "Close menu" : "Open menu"}
         >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            aria-hidden
+          >
             {open ? <path d="M4 4l12 12M16 4L4 16" /> : <path d="M3 5h14M3 10h14M3 15h14" />}
           </svg>
         </button>

@@ -122,8 +122,11 @@ export default function MarketingHomePage() {
       {/* ── 1b · Educational-only strip (quiet trust, not a second hero) ── */}
       <section className="border-t border-white/[0.04] px-6 py-5">
         <p className="mx-auto max-w-3xl text-center text-xs leading-relaxed text-dim sm:text-sm">
-          <span className="font-medium text-emerald/90">Educational only &mdash; not financial advice.</span>{" "}
-          HōMI provides educational guidance only. Consider consulting qualified professionals before making legal, tax, mortgage, investment, or real estate decisions.
+          <span className="font-medium text-emerald/90">
+            Educational only &mdash; not financial advice.
+          </span>{" "}
+          HōMI provides educational guidance only. Consider consulting qualified professionals
+          before making legal, tax, mortgage, investment, or real estate decisions.
         </p>
       </section>
 
@@ -149,7 +152,8 @@ export default function MarketingHomePage() {
             </p>
 
             <blockquote className="mx-auto mt-10 max-w-2xl border-l-2 border-cyan/50 pl-5 font-display text-xl leading-relaxed text-light">
-              &ldquo;Most people don&rsquo;t regret what they bought. They regret when they bought it.&rdquo;
+              &ldquo;Most people don&rsquo;t regret what they bought. They regret when they bought
+              it.&rdquo;
             </blockquote>
 
             <div className="mt-12 grid gap-4 md:grid-cols-2 md:gap-6">
@@ -165,9 +169,7 @@ export default function MarketingHomePage() {
                   ))}
                 </ul>
               </div>
-              <div
-                className="rounded-2xl border border-cyan/25 bg-cyan/[0.04] p-6 sm:p-8"
-              >
+              <div className="rounded-2xl border border-cyan/25 bg-cyan/[0.04] p-6 sm:p-8">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan">
                   HōMI Score™
                 </p>
@@ -194,9 +196,7 @@ export default function MarketingHomePage() {
         <section className="px-6 py-24">
           <div className="mx-auto max-w-4xl">
             <Kicker>The human problem</Kicker>
-            <h2 className="mt-5 text-center type-display">
-              Everyone asks the wrong question.
-            </h2>
+            <h2 className="mt-5 text-center type-display">Everyone asks the wrong question.</h2>
             <p className="mx-auto mt-4 max-w-xl text-center text-dim">
               Major decisions are pressure, timing, and alignment problems &mdash; not just math.
             </p>
@@ -207,12 +207,19 @@ export default function MarketingHomePage() {
                   <tr className="border-b border-slate-high/50 bg-navy-light/60 text-xs uppercase tracking-widest text-dim">
                     <th className="px-6 py-4 font-semibold">System</th>
                     <th className="px-6 py-4 font-semibold">Question it asks</th>
-                    <th className="hidden px-6 py-4 font-semibold sm:table-cell">What gets missed</th>
+                    <th className="hidden px-6 py-4 font-semibold sm:table-cell">
+                      What gets missed
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {wrongRows.map((row) => (
-                    <WrongRow key={row.system} system={row.system} asks={row.asks} missed={row.missed} />
+                    <WrongRow
+                      key={row.system}
+                      system={row.system}
+                      asks={row.asks}
+                      missed={row.missed}
+                    />
                   ))}
                   <tr className="border-l-2 border-cyan bg-cyan/5">
                     <td className="px-6 py-5 font-bold">
@@ -238,9 +245,7 @@ export default function MarketingHomePage() {
         <section className="px-6 py-24">
           <div className="mx-auto max-w-4xl text-center">
             <Kicker>The category, drawn</Kicker>
-            <h2 className="mt-5 type-display">
-              Most systems arrive after you decide.
-            </h2>
+            <h2 className="mt-5 type-display">Most systems arrive after you decide.</h2>
             <p className="mt-4 text-lg text-dim">HōMI enters before the commitment.</p>
             <div className="mt-14">
               <TimelineShift />
@@ -255,15 +260,13 @@ export default function MarketingHomePage() {
           <div className="mx-auto grid max-w-5xl items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
             <div>
               <KickerLeft>Decision companion</KickerLeft>
-              <h2 className="mt-4 type-display">
-                Your Decision Companion
-              </h2>
+              <h2 className="mt-4 type-display">Your Decision Companion</h2>
               <p className="mt-5 max-w-xl text-lg leading-relaxed text-dim">
-                HōMI evaluates readiness across Financial Reality, Emotional Truth, and Perfect Timing &mdash; then gives you a clear verdict and a build-first path when you&rsquo;re not there yet.
+                HōMI evaluates readiness across Financial Reality, Emotional Truth, and Perfect
+                Timing &mdash; then gives you a clear verdict and a build-first path when
+                you&rsquo;re not there yet.
               </p>
-              <p className="mt-4 font-semibold text-cyan">
-                Readiness, not eligibility.
-              </p>
+              <p className="mt-4 font-semibold text-cyan">Readiness, not eligibility.</p>
               <p className="mt-3 text-sm italic text-dim/80">
                 We measure readiness, not affordability. We validate emotions, not suppress them.
               </p>
@@ -296,7 +299,8 @@ export default function MarketingHomePage() {
               Your readiness can change as your circumstances change.
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-center text-dim">
-              Update your information and HōMI recalculates the readiness picture using the information available in your assessment.
+              Update your information and HōMI recalculates the readiness picture using the
+              information available in your assessment.
             </p>
             <div className="mt-14">
               <ThresholdPreview />
@@ -310,9 +314,7 @@ export default function MarketingHomePage() {
         <section className="px-6 py-24">
           <div className="mx-auto max-w-4xl">
             <Kicker color={COLORS.emerald}>The verdict spectrum</Kicker>
-            <h2 className="mt-5 text-center type-display">
-              Four verdicts. Zero judgment.
-            </h2>
+            <h2 className="mt-5 text-center type-display">Four verdicts. Zero judgment.</h2>
             <p className="mx-auto mt-4 max-w-xl text-center text-dim">
               Cool means clear. Hot means stop. HōMI never blurs the line to make you feel better.
             </p>
@@ -326,9 +328,19 @@ export default function MarketingHomePage() {
               <div className="mt-6 flex flex-wrap justify-center gap-3">
                 {/* Verdict badge labels — public form; storage enum stays NOT_YET. */}
                 <SpectrumChip color={COLORS.emerald} label="READY" range="80–100" temp="Cool" />
-                <SpectrumChip color={COLORS.yellow} label="ALMOST THERE" range="65–79" temp="Warm" />
+                <SpectrumChip
+                  color={COLORS.yellow}
+                  label="ALMOST THERE"
+                  range="65–79"
+                  temp="Warm"
+                />
                 <SpectrumChip color={COLORS.amber} label="BUILD FIRST" range="50–64" temp="Warm+" />
-                <SpectrumChip color={COLORS.crimson} label="DO NOT PROCEED" range="0–49" temp="Hot" />
+                <SpectrumChip
+                  color={COLORS.crimson}
+                  label="DO NOT PROCEED"
+                  range="0–49"
+                  temp="Hot"
+                />
               </div>
             </div>
           </div>
@@ -364,9 +376,7 @@ export default function MarketingHomePage() {
         <section className="px-6 py-24">
           <div className="mx-auto max-w-3xl">
             <Kicker color={COLORS.amber}>After your verdict</Kicker>
-            <h2 className="mt-5 text-center type-display">
-              Your Build First path.
-            </h2>
+            <h2 className="mt-5 text-center type-display">Your Build First path.</h2>
             <p className="mx-auto mt-4 max-w-xl text-center text-dim">
               When you&rsquo;re not ready yet, HōMI shows what to build first.
             </p>
@@ -374,8 +384,12 @@ export default function MarketingHomePage() {
             <div className="glass mt-12 p-8" style={{ borderColor: withAlpha(COLORS.amber, 0.3) }}>
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-widest text-amber">Sample verdict</p>
-                  <p className="mt-0.5 text-xs text-dim/70">Illustration only &mdash; not your score</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-amber">
+                    Sample verdict
+                  </p>
+                  <p className="mt-0.5 text-xs text-dim/70">
+                    Illustration only &mdash; not your score
+                  </p>
                 </div>
                 <div className="text-right">
                   {/* Canon-checked pair (landing-canon tests): 52 → BUILD FIRST. */}
@@ -384,7 +398,9 @@ export default function MarketingHomePage() {
                 </div>
               </div>
               <div className="hairline my-6" />
-              <p className="text-sm font-semibold text-light">Build first &mdash; prioritized actions</p>
+              <p className="text-sm font-semibold text-light">
+                Build first &mdash; prioritized actions
+              </p>
               <ol className="mt-4 space-y-3">
                 {buildSteps.map((step, i) => (
                   <BuildStep key={step} n={`0${i + 1}`} text={step} />
@@ -404,12 +420,15 @@ export default function MarketingHomePage() {
               Permissioned Readiness Summary
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-center text-dim">
-              Businesses do not need another way to rush people forward. They need a clearer signal before pressure becomes regret.
+              Businesses do not need another way to rush people forward. They need a clearer signal
+              before pressure becomes regret.
             </p>
 
             <div className="glass tilt-3d sweep mx-auto mt-12 max-w-lg p-8">
               <div className="flex items-center justify-between">
-                <span className="text-xs uppercase tracking-widest text-dim">Readiness summary</span>
+                <span className="text-xs uppercase tracking-widest text-dim">
+                  Readiness summary
+                </span>
                 <span className="rounded-full border border-emerald/40 bg-emerald/10 px-2.5 py-0.5 text-xs font-semibold text-emerald">
                   Consumer-authorized
                 </span>
@@ -433,7 +452,8 @@ export default function MarketingHomePage() {
               </div>
               <div className="hairline my-5" />
               <p className="text-xs leading-relaxed text-dim/70">
-                Pre-application clarity, shared only with the consumer&rsquo;s permission. Educational guidance only.
+                Pre-application clarity, shared only with the consumer&rsquo;s permission.
+                Educational guidance only.
               </p>
             </div>
           </div>
@@ -450,7 +470,9 @@ export default function MarketingHomePage() {
               <span className="block text-dim">Not the whole company.</span>
             </h2>
             <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-dim">
-              Homebuying is where HōMI begins because it is emotional, expensive, high-pressure, and often mistimed. It is the hardest room to be honest in &mdash; so that is where the honest voice starts.
+              Homebuying is where HōMI begins because it is emotional, expensive, high-pressure, and
+              often mistimed. It is the hardest room to be honest in &mdash; so that is where the
+              honest voice starts.
             </p>
           </div>
         </section>
@@ -468,7 +490,8 @@ export default function MarketingHomePage() {
               <DecisionOrbit />
             </div>
             <p className="mx-auto mt-12 max-w-xl text-center text-dim">
-              The credit score became infrastructure for lender risk. HōMI is building infrastructure for consumer readiness.
+              The credit score became infrastructure for lender risk. HōMI is building
+              infrastructure for consumer readiness.
             </p>
           </div>
         </section>
@@ -494,7 +517,8 @@ export default function MarketingHomePage() {
               HōMI provides educational decision-readiness guidance only.
             </p>
             <p className="mt-8 text-center font-display text-xl text-light">
-              &ldquo;The friend who says: I love you, but you&rsquo;re not ready yet &mdash; and then helps you get there.&rdquo;
+              &ldquo;The friend who says: I love you, but you&rsquo;re not ready yet &mdash; and
+              then helps you get there.&rdquo;
             </p>
             <p className="mt-4 text-center text-xs uppercase tracking-widest text-dim/70">
               &mdash; HOMI TECHNOLOGIES LLC
@@ -523,20 +547,28 @@ export default function MarketingHomePage() {
               className="mt-12 w-full rounded-3xl p-10 sm:p-14"
               style={{
                 border: "1px solid transparent",
-                background:
-                  `linear-gradient(${withAlpha(COLORS.navy, 0.85)}, ${withAlpha(COLORS.navy, 0.85)}) padding-box, linear-gradient(120deg, ${withAlpha(COLORS.yellow, 0.55)}, ${withAlpha(COLORS.emerald, 0.55)}) border-box`,
+                background: `linear-gradient(${withAlpha(COLORS.navy, 0.85)}, ${withAlpha(COLORS.navy, 0.85)}) padding-box, linear-gradient(120deg, ${withAlpha(COLORS.yellow, 0.55)}, ${withAlpha(COLORS.emerald, 0.55)}) border-box`,
               }}
             >
               <h2 className="type-display">
                 Not yet is not <span className="text-emerald">no</span>.
               </h2>
               <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-dim">
-                It means you have time to build. And HōMI will show you exactly what to build first. Before the next major decision, know where you stand.
+                It means you have time to build. And HōMI will show you exactly what to build first.
+                Before the next major decision, know where you stand.
               </p>
               <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <Link href="/shadow-score" className="btn btn-primary btn-glow px-9 py-4 text-base">
                   Start Your Free Assessment
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    aria-hidden
+                  >
                     <path d="M2 8h11m0 0L9 4m4 4l-4 4" />
                   </svg>
                 </Link>
@@ -560,7 +592,13 @@ function Kicker({ children, color = COLORS.cyan }: { children: React.ReactNode; 
   );
 }
 
-function KickerLeft({ children, color = COLORS.cyan }: { children: React.ReactNode; color?: string }) {
+function KickerLeft({
+  children,
+  color = COLORS.cyan,
+}: {
+  children: React.ReactNode;
+  color?: string;
+}) {
   return (
     <p className="type-kicker" style={{ color }}>
       {children}
@@ -578,13 +616,26 @@ function WrongRow({ system, asks, missed }: { system: string; asks: string; miss
   );
 }
 
-function SpectrumChip({ color, label, range, temp }: { color: string; label: string; range: string; temp: string }) {
+function SpectrumChip({
+  color,
+  label,
+  range,
+  temp,
+}: {
+  color: string;
+  label: string;
+  range: string;
+  temp: string;
+}) {
   return (
     <span
       className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold tracking-wide"
       style={{ color, borderColor: `${color}55`, background: `${color}10` }}
     >
-      <span className="inline-block h-2 w-2 rounded-full" style={{ background: color, boxShadow: `0 0 8px ${color}` }} />
+      <span
+        className="inline-block h-2 w-2 rounded-full"
+        style={{ background: color, boxShadow: `0 0 8px ${color}` }}
+      />
       {label}
       <span className="score-numeral font-medium opacity-80">{range}</span>
       <span className="font-normal opacity-60">· {temp}</span>
@@ -595,8 +646,17 @@ function SpectrumChip({ color, label, range, temp }: { color: string; label: str
 function BuildStep({ n, text }: { n: string; text: string }) {
   return (
     <li className="flex items-start gap-3 text-sm text-light">
-      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-amber/50" aria-hidden>
-        <svg className="h-3 w-3 text-amber" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <span
+        className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-amber/50"
+        aria-hidden
+      >
+        <svg
+          className="h-3 w-3 text-amber"
+          viewBox="0 0 12 12"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        >
           <path d="M2.5 6l2.5 2.5L9.5 4" />
         </svg>
       </span>

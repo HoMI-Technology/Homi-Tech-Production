@@ -1,9 +1,7 @@
 export function formatCSV(headers: string[], rows: Record<string, string>[]): string {
   return [
     headers.join(","),
-    ...rows.map((r) =>
-      headers.map((h) => `"${(r[h] ?? "").replace(/"/g, '""')}"`).join(","),
-    ),
+    ...rows.map((r) => headers.map((h) => `"${(r[h] ?? "").replace(/"/g, '""')}"`).join(",")),
   ].join("\n");
 }
 

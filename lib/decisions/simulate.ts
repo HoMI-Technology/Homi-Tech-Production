@@ -50,12 +50,18 @@ function monthlyPayment(principal: number, annualRatePct: number, termMonths: nu
 }
 
 /** Remaining loan balance after `monthsElapsed` payments. */
-function remainingBalance(principal: number, annualRatePct: number, termMonths: number, monthsElapsed: number): number {
+function remainingBalance(
+  principal: number,
+  annualRatePct: number,
+  termMonths: number,
+  monthsElapsed: number,
+): number {
   const r = annualRatePct / 100 / 12;
   if (r === 0) return Math.max(principal - (principal / termMonths) * monthsElapsed, 0);
   const payment = monthlyPayment(principal, annualRatePct, termMonths);
   const balance =
-    principal * Math.pow(1 + r, monthsElapsed) - payment * ((Math.pow(1 + r, monthsElapsed) - 1) / r);
+    principal * Math.pow(1 + r, monthsElapsed) -
+    payment * ((Math.pow(1 + r, monthsElapsed) - 1) / r);
   return Math.max(balance, 0);
 }
 
@@ -98,8 +104,13 @@ function simulateBuyNow(inputs: SimulationInputs, months: number): MonthPoint[] 
  *     (rent is a real cost already incurred, so it remains a permanent drag
  *     on net position, same as buy-now's closing costs).
  */
-function simulateWait(inputs: SimulationInputs, waitMonths: number, totalMonths: number): MonthPoint[] {
-  const { homePrice, downPaymentSaved, monthlySavings, rent, rate, appreciation, rentIncrease } = inputs;
+function simulateWait(
+  inputs: SimulationInputs,
+  waitMonths: number,
+  totalMonths: number,
+): MonthPoint[] {
+  const { homePrice, downPaymentSaved, monthlySavings, rent, rate, appreciation, rentIncrease } =
+    inputs;
   const monthlyAppreciation = appreciation / 100 / 12;
   const monthlyRentIncrease = rentIncrease / 100 / 12;
 
@@ -129,7 +140,12 @@ function simulateWait(inputs: SimulationInputs, waitMonths: number, totalMonths:
     } else {
       const monthsSincePurchase = m - waitMonths;
       const homeValue = priceAtPurchase * Math.pow(1 + monthlyAppreciation, monthsSincePurchase);
-      const balance = remainingBalance(loanPrincipalAtPurchase, rate, LOAN_TERM_MONTHS, monthsSincePurchase);
+      const balance = remainingBalance(
+        loanPrincipalAtPurchase,
+        rate,
+        LOAN_TERM_MONTHS,
+        monthsSincePurchase,
+      );
       const equity = homeValue - balance;
       const cumulativeMaintenance = monthlyMaintenance * monthsSincePurchase;
       const netPosition = equity - closingCostsAtPurchase - cumulativeMaintenance - cumulativeRent;
@@ -146,16 +162,24 @@ const SCENARIO_LABELS: Record<ScenarioKey, string> = {
 };
 
 /** Simulates a single scenario over `months` (default 60 = 5 years). */
-export function simulateScenario(key: ScenarioKey, inputs: SimulationInputs, months = 60): ScenarioOutcome {
+export function simulateScenario(
+  key: ScenarioKey,
+  inputs: SimulationInputs,
+  months = 60,
+): ScenarioOutcome {
   const series =
-    key === "buy-now" ? simulateBuyNow(inputs, months) : simulateWait(inputs, key === "wait-12" ? 12 : 24, months);
+    key === "buy-now"
+      ? simulateBuyNow(inputs, months)
+      : simulateWait(inputs, key === "wait-12" ? 12 : 24, months);
   const netPositionAt60 = series[series.length - 1]?.netPosition ?? 0;
   return { key, label: SCENARIO_LABELS[key], netPositionAt60, series };
 }
 
 /** Simulates all three scenarios at once for side-by-side comparison. */
 export function simulateAllScenarios(inputs: SimulationInputs, months = 60): ScenarioOutcome[] {
-  return (["buy-now", "wait-12", "wait-24"] as ScenarioKey[]).map((key) => simulateScenario(key, inputs, months));
+  return (["buy-now", "wait-12", "wait-24"] as ScenarioKey[]).map((key) =>
+    simulateScenario(key, inputs, months),
+  );
 }
 
 export const DEFAULT_SIMULATION_INPUTS: SimulationInputs = {

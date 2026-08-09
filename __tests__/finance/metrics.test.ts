@@ -26,9 +26,7 @@ describe("definePeriodSurplus", () => {
 
 describe("defineDti", () => {
   it("returns null when debt is unknown — never invent 0% DTI", () => {
-    expect(
-      defineDti({ incomeCents: 900_000, debtPaymentsCents: null }).pct,
-    ).toBeNull();
+    expect(defineDti({ incomeCents: 900_000, debtPaymentsCents: null }).pct).toBeNull();
   });
 
   it("computes pct when both known", () => {

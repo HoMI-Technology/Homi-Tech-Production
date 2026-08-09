@@ -18,7 +18,13 @@ const SAVE_STATUS_EVENT = "homi:assessment-save-status";
 
 export type SaveOutcome = "pending" | "saved" | "unauthenticated" | "locked" | "failed";
 
-const OUTCOMES: readonly SaveOutcome[] = ["pending", "saved", "unauthenticated", "locked", "failed"];
+const OUTCOMES: readonly SaveOutcome[] = [
+  "pending",
+  "saved",
+  "unauthenticated",
+  "locked",
+  "failed",
+];
 
 export interface AssessmentSaveStatus {
   outcome: SaveOutcome;
@@ -52,7 +58,10 @@ export function loadSaveStatus(): AssessmentSaveStatus | null {
     const parsed = JSON.parse(raw) as Partial<AssessmentSaveStatus> | null;
     if (!parsed || typeof parsed !== "object") return null;
     if (!OUTCOMES.includes(parsed.outcome as SaveOutcome)) return null;
-    return { outcome: parsed.outcome as SaveOutcome, at: typeof parsed.at === "string" ? parsed.at : "" };
+    return {
+      outcome: parsed.outcome as SaveOutcome,
+      at: typeof parsed.at === "string" ? parsed.at : "",
+    };
   } catch {
     return null;
   }

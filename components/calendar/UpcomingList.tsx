@@ -46,7 +46,7 @@ export function UpcomingList({
               <div className="flex items-start justify-between gap-2">
                 <span className="text-sm font-semibold text-light">{ev.title}</span>
                 {isPathCalendarEvent(ev.notes) && (
-                  <span className="shrink-0 rounded-full bg-cyan/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-cyan">
+                  <span className="shrink-0 rounded-full bg-cyan/15 px-1.5 py-0.5 text-3xs font-medium uppercase tracking-wide text-cyan">
                     Path
                   </span>
                 )}

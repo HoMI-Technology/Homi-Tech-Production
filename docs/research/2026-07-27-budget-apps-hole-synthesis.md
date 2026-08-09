@@ -15,24 +15,24 @@
 
 ## Framework application
 
-| Step | Finding |
-|------|---------|
-| **1. Observe friction** | Categorization hell, sync breaks, bill-neg fees, YNAB guilt, “I track but still can’t decide” |
-| **2. Spot gaps** | No DO NOT PROCEED / readiness gate; no path-to-ready calendar; life decisions ≠ ledgers |
-| **3. Quantify demand** | Post-Mint paid ~$100/yr apps; Rocket 10M+ members; people already pay for *weaker* rear-view tools |
-| **4. Build the plug** | **Path to Ready** — verdict → calendar milestones → finance targets → reassess (not another Mint) |
-| **5. Test fast** | Compose existing scoring + finance temps + calendar seed + companion context |
+| Step                    | Finding                                                                                            |
+| ----------------------- | -------------------------------------------------------------------------------------------------- |
+| **1. Observe friction** | Categorization hell, sync breaks, bill-neg fees, YNAB guilt, “I track but still can’t decide”      |
+| **2. Spot gaps**        | No DO NOT PROCEED / readiness gate; no path-to-ready calendar; life decisions ≠ ledgers            |
+| **3. Quantify demand**  | Post-Mint paid ~$100/yr apps; Rocket 10M+ members; people already pay for _weaker_ rear-view tools |
+| **4. Build the plug**   | **Path to Ready** — verdict → calendar milestones → finance targets → reassess (not another Mint)  |
+| **5. Test fast**        | Compose existing scoring + finance temps + calendar seed + companion context                       |
 
 ---
 
 ## Competitive summary
 
-| Cluster | Products | Job |
-|---------|----------|-----|
-| Bill / sub killers | Rocket Money | Cancel waste, negotiate bills |
-| Zero-based discipline | YNAB, Goodbudget, Actual | Give every dollar a job |
-| Premium hubs | Monarch, Copilot, Simplifi, Origin | Full picture / couples |
-| Wealth | Empower | Net worth + retirement + AUM funnel |
+| Cluster               | Products                           | Job                                 |
+| --------------------- | ---------------------------------- | ----------------------------------- |
+| Bill / sub killers    | Rocket Money                       | Cancel waste, negotiate bills       |
+| Zero-based discipline | YNAB, Goodbudget, Actual           | Give every dollar a job             |
+| Premium hubs          | Monarch, Copilot, Simplifi, Origin | Full picture / couples              |
+| Wealth                | Empower                            | Net worth + retirement + AUM funnel |
 
 **Shared holes:** decision engines, bank-sync tax, true household OS, income volatility, closed-loop action beyond cancel Netflix.
 
@@ -42,14 +42,14 @@
 
 ## Homi surface (build-on, not rebuild)
 
-| Exists | Gap |
-|--------|-----|
-| `/finance` cockpit + `user_finance_state` sync | Debt tab not in FinanceState; no Plaid → manual merge |
-| `/calendar` milestones (kinds only) | No amounts, no finance link, seeds are generic |
-| Plaid full backend (encrypted tokens, txns, snapshots) | No txn UI / recurring detection UI |
-| Assessment → DO NOT PROCEED | No auto path after verdict |
-| Companion finance + VERIFIED cashflow | Path/milestones not in context yet |
-| Tools grid | Partial finance prefill only |
+| Exists                                                 | Gap                                                   |
+| ------------------------------------------------------ | ----------------------------------------------------- |
+| `/finance` cockpit + `user_finance_state` sync         | Debt tab not in FinanceState; no Plaid → manual merge |
+| `/calendar` milestones (kinds only)                    | No amounts, no finance link, seeds are generic        |
+| Plaid full backend (encrypted tokens, txns, snapshots) | No txn UI / recurring detection UI                    |
+| Assessment → DO NOT PROCEED                            | No auto path after verdict                            |
+| Companion finance + VERIFIED cashflow                  | Path/milestones not in context yet                    |
+| Tools grid                                             | Partial finance prefill only                          |
 
 ---
 

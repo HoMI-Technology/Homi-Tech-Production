@@ -54,7 +54,10 @@ export function VerdictShift() {
         aria-live="polite"
       >
         <p className="text-xs uppercase tracking-[0.25em] text-dim">HōMI-Score</p>
-        <p className="score-numeral mt-2 text-7xl font-bold text-light" style={{ transition: "all 500ms ease" }}>
+        <p
+          className="score-numeral mt-2 text-7xl font-bold text-light"
+          style={{ transition: "all 500ms ease" }}
+        >
           {score}
         </p>
         <span
@@ -66,7 +69,10 @@ export function VerdictShift() {
             transition: "all 500ms ease",
           }}
         >
-          <span className="inline-block h-2 w-2 rounded-full" style={{ background: color, boxShadow: `0 0 8px ${color}` }} />
+          <span
+            className="inline-block h-2 w-2 rounded-full"
+            style={{ background: color, boxShadow: `0 0 8px ${color}` }}
+          />
           {label}
           <span className="font-normal opacity-70">· {temp}</span>
         </span>
@@ -93,12 +99,10 @@ export function VerdictShift() {
 
       {/* The idea */}
       <div>
-        <h2 className="type-h2">
-          Not yet is not no.
-        </h2>
+        <h2 className="type-h2">Not yet is not no.</h2>
         <p className="mt-4 max-w-md text-lg leading-relaxed text-dim">
-          It is clarity. It is protection. The most valuable answer HōMI gives is often
-          NOT YET — and when it arrives, it arrives with a map, not a door in your face.
+          It is clarity. It is protection. The most valuable answer HōMI gives is often NOT YET —
+          and when it arrives, it arrives with a map, not a door in your face.
         </p>
         <p className="mt-4 max-w-md font-display text-xl text-light">
           Build First is not failure. It is the map.

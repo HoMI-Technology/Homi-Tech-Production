@@ -61,7 +61,8 @@ function pillarBand(absNormalizedPct: number): MagnitudeBand {
 function movementLine(name: string, direction: Direction, band: MagnitudeBand | null): string {
   if (direction === "flat") return `${name} held steady.`;
   const verb = direction === "up" ? "improved" : "slipped";
-  const size = band === "large" ? "a large move" : band === "moderate" ? "a moderate move" : "a small move";
+  const size =
+    band === "large" ? "a large move" : band === "moderate" ? "a moderate move" : "a small move";
   return `${name} ${verb} — ${size}.`;
 }
 

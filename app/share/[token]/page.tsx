@@ -52,7 +52,9 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
 
             <div>
               <p className="score-numeral text-6xl font-bold text-light">{row.overall_score}</p>
-              <p className="mt-1 text-sm uppercase tracking-widest text-dim">HōMI-Score out of 100</p>
+              <p className="mt-1 text-sm uppercase tracking-widest text-dim">
+                HōMI-Score out of 100
+              </p>
             </div>
 
             <VerdictBadge verdict={row.verdict} size="lg" />
@@ -93,7 +95,8 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
           <div className="mt-12 flex flex-col items-center gap-4 border-t border-slate-surface/60 pt-10 text-center">
             <h2 className="font-display text-2xl font-semibold text-light">Know before you leap</h2>
             <p className="max-w-md text-sm text-dim">
-              HōMI measures readiness across Financial Reality, Emotional Truth, and Perfect Timing — not just whether you can afford it.
+              HōMI measures readiness across Financial Reality, Emotional Truth, and Perfect Timing
+              — not just whether you can afford it.
             </p>
             <Link href="/shadow-score" className="btn btn-primary">
               Get your own score

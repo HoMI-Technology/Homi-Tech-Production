@@ -38,11 +38,7 @@ function formatDate(date: string): string {
   });
 }
 
-export default async function BlogPostPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = getPost(slug);
 
@@ -70,9 +66,7 @@ export default async function BlogPostPage({
           <Link href="/guides" className="text-sm text-dim transition-colors hover:text-cyan">
             &larr; All guides &amp; posts
           </Link>
-          <h1 className="mt-5 type-h1">
-            {post.title}
-          </h1>
+          <h1 className="mt-5 type-h1">{post.title}</h1>
           <div className="mt-4 flex items-center gap-2 text-sm text-dim">
             <span>{formatDate(post.date)}</span>
             <span aria-hidden="true">&middot;</span>
@@ -87,11 +81,7 @@ export default async function BlogPostPage({
           <div className="mx-auto max-w-3xl space-y-12">
             {post.sections.map((section, idx) => (
               <div key={section.heading ?? idx}>
-                {section.heading && (
-                  <h2 className="type-h2">
-                    {section.heading}
-                  </h2>
-                )}
+                {section.heading && <h2 className="type-h2">{section.heading}</h2>}
                 <div className={`space-y-4 ${section.heading ? "mt-4" : ""}`}>
                   {section.paragraphs.map((p, pIdx) => (
                     <p key={pIdx} className="text-lg leading-relaxed text-dim">
@@ -139,7 +129,15 @@ export default async function BlogPostPage({
                     <span className="text-xs text-dim">{formatDate(p.date)}</span>
                     <h3 className="mt-2 type-h4">{p.title}</h3>
                     <p className="mt-2 flex-1 text-sm text-dim">{p.description}</p>
-                    <span className="mt-4 text-sm font-semibold text-cyan">Read <span aria-hidden className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1">&rarr;</span></span>
+                    <span className="mt-4 text-sm font-semibold text-cyan">
+                      Read{" "}
+                      <span
+                        aria-hidden
+                        className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1"
+                      >
+                        &rarr;
+                      </span>
+                    </span>
                   </Link>
                 ))}
               </div>

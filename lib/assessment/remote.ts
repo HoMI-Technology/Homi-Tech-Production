@@ -6,7 +6,13 @@
  * only reshapes already-computed, already-persisted values.
  */
 
-import type { AssessmentInputs, FinancialBreakdown, EmotionalBreakdown, TimingBreakdown, HardStopReason } from "@/lib/scoring";
+import type {
+  AssessmentInputs,
+  FinancialBreakdown,
+  EmotionalBreakdown,
+  TimingBreakdown,
+  HardStopReason,
+} from "@/lib/scoring";
 import type { AssessmentRow } from "@/types/database";
 import type { StoredAssessment } from "./storage";
 
@@ -63,7 +69,7 @@ export function mapAssessmentRowToStored(row: AssessmentRow): StoredAssessment |
       emotional: subScores.emotional,
       timing: subScores.timing,
       warnings: [],
-      hardStops: ((hard_stops as unknown as HardStopReason[] | null) ?? []),
+      hardStops: (hard_stops as unknown as HardStopReason[] | null) ?? [],
     },
     completedAt: completed_at ?? created_at,
     kind: is_shadow ? "shadow" : "full",

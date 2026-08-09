@@ -6,12 +6,7 @@ import { track } from "@/lib/analytics";
 
 export type PricingTier = "plus" | "pro" | "family";
 
-type UiStatus =
-  | "idle"
-  | "loading"
-  | "error"
-  | "not_configured"
-  | "already_subscribed";
+type UiStatus = "idle" | "loading" | "error" | "not_configured" | "already_subscribed";
 
 interface CheckoutResponse {
   configured?: boolean;
@@ -21,7 +16,9 @@ interface CheckoutResponse {
   action?: string;
 }
 
-async function openBillingPortal(): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+async function openBillingPortal(): Promise<
+  { ok: true; url: string } | { ok: false; error: string }
+> {
   try {
     const res = await fetch("/api/billing/portal", { method: "POST" });
     const data = (await res.json().catch(() => ({}))) as {
@@ -95,8 +92,7 @@ export function PricingCheckoutButton({
           return;
         }
         setDetail(
-          data.message ??
-            "You already have a plan. Manage it from Subscription in your account.",
+          data.message ?? "You already have a plan. Manage it from Subscription in your account.",
         );
         return;
       }
@@ -140,7 +136,10 @@ export function PricingCheckoutButton({
       {status === "already_subscribed" && (
         <p className="text-center text-xs text-dim">
           {detail ?? "You already have an active plan."}{" "}
-          <Link href="/settings/subscription" className="text-cyan underline-offset-2 hover:underline">
+          <Link
+            href="/settings/subscription"
+            className="text-cyan underline-offset-2 hover:underline"
+          >
             Manage subscription
           </Link>
         </p>

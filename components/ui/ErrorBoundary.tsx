@@ -33,7 +33,7 @@ export class ErrorBoundary extends Component<Props, State> {
     console.error(
       `[ErrorBoundary${this.props.name ? `:${this.props.name}` : ""}]`,
       error,
-      errorInfo
+      errorInfo,
     );
   }
 
@@ -56,13 +56,7 @@ export class ErrorBoundary extends Component<Props, State> {
  * Standalone fallback UI rendered when the boundary catches an error.
  * Uses the HōMI brand palette, compass iconography, and calm copy.
  */
-function ErrorFallback({
-  error,
-  onReset,
-}: {
-  error?: Error;
-  onReset: () => void;
-}) {
+function ErrorFallback({ error, onReset }: { error?: Error; onReset: () => void }) {
   return (
     <AnimatePresence>
       <motion.main
@@ -77,7 +71,7 @@ function ErrorFallback({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-8 text-3xl font-black text-light"
+          className="mt-8 type-h2"
         >
           Something went wrong
         </motion.h1>
@@ -88,8 +82,8 @@ function ErrorFallback({
           transition={{ delay: 0.18, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className="mt-3 max-w-md text-dim"
         >
-          Not you — us. Your data is safe, and nothing was lost. Try again, or
-          let us know if the issue persists.
+          Not you — us. Your data is safe, and nothing was lost. Try again, or let us know if the
+          issue persists.
         </motion.p>
 
         {error?.message && (

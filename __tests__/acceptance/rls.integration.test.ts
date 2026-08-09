@@ -10,8 +10,11 @@ import { describe, it, expect } from "vitest";
  * Behaviour: with User B's JWT, selecting User A's assessments/profiles rows
  * returns ZERO rows.
  */
-const enabled = process.env.RUN_RLS_IT === "1"
-  && !!process.env.SUPABASE_URL && !!process.env.USER_A_JWT && !!process.env.USER_B_JWT;
+const enabled =
+  process.env.RUN_RLS_IT === "1" &&
+  !!process.env.SUPABASE_URL &&
+  !!process.env.USER_A_JWT &&
+  !!process.env.USER_B_JWT;
 
 describe.skipIf(!enabled)("RLS cross-tenant isolation", () => {
   it("User B cannot read User A's assessments", async () => {

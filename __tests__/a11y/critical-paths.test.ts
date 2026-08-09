@@ -55,7 +55,7 @@ describe("a11y — heading hierarchy on verdict page", () => {
 });
 
 describe("a11y — navigation has aria-current", () => {
-  it("AppHeader marks active route with aria-current=\"page\"", () => {
+  it('AppHeader marks active route with aria-current="page"', () => {
     const src = readSource("components", "layout", "AppHeader.tsx");
     expect(src).toContain('aria-current={active ? "page" : undefined}');
   });
@@ -69,19 +69,19 @@ describe("a11y — buttons have explicit type", () => {
     expect(typed.length).toBe(buttons.length);
   });
 
-  it("HeaderShell toggle declares type=\"button\"", () => {
+  it('HeaderShell toggle declares type="button"', () => {
     const src = readSource("components", "layout", "HeaderShell.tsx");
     expect(src).toContain('type="button"');
   });
 
-  it("ChoiceCards buttons declare type=\"button\"", () => {
+  it('ChoiceCards buttons declare type="button"', () => {
     const src = readSource("components", "assessment", "ChoiceCards.tsx");
     const buttonCount = (src.match(/<button\b/g) || []).length;
     const typedCount = (src.match(/type="button"/g) || []).length;
     expect(typedCount).toBe(buttonCount);
   });
 
-  it("StepShell nav buttons declare type=\"button\"", () => {
+  it('StepShell nav buttons declare type="button"', () => {
     const src = readSource("components", "assessment", "StepShell.tsx");
     const buttonCount = (src.match(/<button\b/g) || []).length;
     const typedCount = (src.match(/type="button"/g) || []).length;

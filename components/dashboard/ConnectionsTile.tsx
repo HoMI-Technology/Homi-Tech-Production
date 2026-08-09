@@ -6,18 +6,29 @@ import { COLORS } from "@/lib/brand";
  * Connected-accounts tile — StatTile visual language plus per-item freshness
  * and an attention chip when any connection needs the user. Server-safe.
  */
-export function ConnectionsTile({ items, accountCount }: { items: ItemReading[]; accountCount: number }) {
+export function ConnectionsTile({
+  items,
+  accountCount,
+}: {
+  items: ItemReading[];
+  accountCount: number;
+}) {
   const attention = anyNeedsAttention(items);
   return (
     <div className="glass glass-hover sweep relative overflow-hidden p-5">
       <span
         aria-hidden
         className="absolute inset-x-0 top-0 h-px"
-        style={{ background: `linear-gradient(90deg, transparent, ${COLORS.emerald}88, transparent)` }}
+        style={{
+          background: `linear-gradient(90deg, transparent, ${COLORS.emerald}88, transparent)`,
+        }}
       />
       <p className="eyebrow">Connected accounts</p>
       <div className="mt-2 flex items-end justify-between gap-3">
-        <p className="score-numeral text-3xl font-bold leading-none text-light" style={{ textShadow: `0 0 28px ${COLORS.emerald}44` }}>
+        <p
+          className="score-numeral text-3xl font-bold leading-none text-light"
+          style={{ textShadow: `0 0 28px ${COLORS.emerald}44` }}
+        >
           {accountCount}
           <span className="ml-1 text-sm font-medium text-dim">
             {items.length === 1 ? "· 1 bank" : `· ${items.length} banks`}

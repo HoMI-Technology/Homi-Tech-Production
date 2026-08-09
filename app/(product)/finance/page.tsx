@@ -9,8 +9,7 @@ import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
  * Transaction dual-write lands in lib/planner/ledger-bridge.ts.
  */
 const PlannerApp = dynamic(
-  () =>
-    import("@/components/planner/PlannerApp").then((m) => m.PlannerApp),
+  () => import("@/components/planner/PlannerApp").then((m) => m.PlannerApp),
   {
     ssr: false,
     loading: () => (

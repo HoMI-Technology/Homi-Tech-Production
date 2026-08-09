@@ -15,11 +15,7 @@ import type { AssessmentRow, Profile } from "@/types/database";
  * Partner/B2B packaging: readiness certificate that also points to Path posture.
  * Plus+ fullReport gate — same as credential.
  */
-export default async function PathCertificatePage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function PathCertificatePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
   const {
@@ -63,9 +59,7 @@ export default async function PathCertificatePage({
       <div className="flex items-center justify-between border-b border-slate-surface/60 pb-6 print:border-black/20">
         <div className="flex items-center gap-3">
           <Wordmark size="text-2xl" />
-          <span className="text-sm text-dim print:text-black/60">
-            Path to Ready Certificate
-          </span>
+          <span className="text-sm text-dim print:text-black/60">Path to Ready Certificate</span>
         </div>
         <CredentialPrintButton />
       </div>
@@ -74,24 +68,19 @@ export default async function PathCertificatePage({
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-dim">
           Decision readiness posture
         </p>
-        <h1 className="mt-3 font-display text-3xl text-light print:text-black">
-          {holderName}
-        </h1>
+        <h1 className="mt-3 font-display text-3xl text-light print:text-black">{holderName}</h1>
         <p className="mt-2 score-numeral text-5xl text-cyan print:text-black">
           {assessment.overall_score ?? "—"}
         </p>
         <div className="mt-4 flex justify-center">
           <VerdictBadge verdict={verdict} size="lg" />
         </div>
-        <p className="mx-auto mt-4 max-w-md text-sm text-dim print:text-black/70">
-          {meta.line}
-        </p>
+        <p className="mx-auto mt-4 max-w-md text-sm text-dim print:text-black/70">{meta.line}</p>
       </div>
 
       <div className="glass mt-10 space-y-3 p-6 print:border print:border-black/20 print:bg-white">
         <p className="text-sm text-light print:text-black">
-          <span className="text-dim print:text-black/60">Certificate ID:</span>{" "}
-          {certId}
+          <span className="text-dim print:text-black/60">Certificate ID:</span> {certId}
         </p>
         <p className="text-sm text-light print:text-black">
           <span className="text-dim print:text-black/60">Assessment date:</span>{" "}
@@ -102,9 +91,9 @@ export default async function PathCertificatePage({
           })}
         </p>
         <p className="text-sm text-light print:text-black">
-          <span className="text-dim print:text-black/60">Product path:</span>{" "}
-          Path to Ready is the sequenced protective plan after this verdict.
-          Partners may review educational posture — not underwriting.
+          <span className="text-dim print:text-black/60">Product path:</span> Path to Ready is the
+          sequenced protective plan after this verdict. Partners may review educational posture —
+          not underwriting.
         </p>
       </div>
 

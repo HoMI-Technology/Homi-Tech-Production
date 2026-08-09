@@ -238,12 +238,19 @@ export function Chat() {
           className="btn btn-primary !px-4 disabled:opacity-50"
           aria-label="Send message"
         >
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M3 10h14M11 4l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
       </div>
-      <p className="px-4 pb-3 text-center text-[11px] leading-snug text-dim/70">
+      <p className="px-4 pb-3 text-center text-2xs leading-snug text-dim/70">
         Educational guidance only — not financial advice.
       </p>
     </div>

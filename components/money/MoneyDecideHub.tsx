@@ -86,8 +86,8 @@ export function MoneyDecideHub() {
             Stress the decision against your real numbers
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-dim sm:text-base">
-            Every calculator seeds from your Money picture when you have one. Missing data
-            stays missing — never invented. AI explains; the math is deterministic.
+            Every calculator seeds from your Money picture when you have one. Missing data stays
+            missing — never invented. AI explains; the math is deterministic.
           </p>
           <div className="mt-5 flex flex-wrap gap-2.5">
             <Link href="/money/budget" className="btn btn-ghost btn-sm">
@@ -142,7 +142,7 @@ export function MoneyDecideHub() {
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-semibold text-light group-hover:text-cyan">{lens.name}</h3>
                     {lens.gate === "plus" && (
-                      <span className="shrink-0 rounded-full border border-line px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-dim">
+                      <span className="shrink-0 rounded-full border border-line px-2 py-0.5 text-3xs font-semibold uppercase tracking-wider text-dim">
                         Plus+
                       </span>
                     )}

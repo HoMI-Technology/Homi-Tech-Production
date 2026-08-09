@@ -1,9 +1,8 @@
 "use client";
 
-
 import { COLORS } from "@/lib/brand";
-import { useMemo, useState } from 'react'
-import { Dices } from 'lucide-react'
+import { useMemo, useState } from "react";
+import { Dices } from "lucide-react";
 import {
   CartesianGrid,
   Legend,
@@ -13,18 +12,18 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from 'recharts'
-import { runMonteCarlo } from '@/lib/tools/montecarlo'
-import { runScenarioStudio, SCENARIO_DISCLAIMER } from "@/lib/readiness/scenario"
-import type { SimulationInputs } from "@/lib/decisions/simulate"
-import { financialReality } from "@/lib/planner/derived"
-import { getLastScoreResult } from "@/lib/planner/score-bridge"
-import { formatCurrency, formatPercent } from '@/lib/tools/format'
-import { usePlannerStore } from "@/lib/planner/store"
-import { TEMP_HEX } from "@/lib/planner/palette"
-import ChartTooltip from "@/components/planner/ui/ChartTooltip"
-import { NumberField } from "@/components/planner/ui/NumberField"
-import { PlanFooter, PlanSectionHeader, PlanTile } from './ui'
+} from "recharts";
+import { runMonteCarlo } from "@/lib/tools/montecarlo";
+import { runScenarioStudio, SCENARIO_DISCLAIMER } from "@/lib/readiness/scenario";
+import type { SimulationInputs } from "@/lib/decisions/simulate";
+import { financialReality } from "@/lib/planner/derived";
+import { getLastScoreResult } from "@/lib/planner/score-bridge";
+import { formatCurrency, formatPercent } from "@/lib/tools/format";
+import { usePlannerStore } from "@/lib/planner/store";
+import { TEMP_HEX } from "@/lib/planner/palette";
+import ChartTooltip from "@/components/planner/ui/ChartTooltip";
+import { NumberField } from "@/components/planner/ui/NumberField";
+import { PlanFooter, PlanSectionHeader, PlanTile } from "./ui";
 
 /* ------------------------------------------------------------------ */
 /* Models sub-tab — Monte Carlo + decision rehearsal (spec §7).        */
@@ -41,38 +40,38 @@ import { PlanFooter, PlanSectionHeader, PlanTile } from './ui'
 /* increase are the canon defaults — labeled.                          */
 /* ------------------------------------------------------------------ */
 
-const MC_RUNS = 10000
+const MC_RUNS = 10000;
 
-const CYAN = COLORS.cyan
+const CYAN = COLORS.cyan;
 
 export default function PlanModels() {
-  const transactions = usePlannerStore((s) => s.transactions)
-  const accounts = usePlannerStore((s) => s.accounts)
-  const bills = usePlannerStore((s) => s.bills)
-  const holdings = usePlannerStore((s) => s.holdings)
-  const netWorthItems = usePlannerStore((s) => s.netWorthItems)
-  const savingsGoal = usePlannerStore((s) => s.savingsGoal)
-  const readinessProfile = usePlannerStore((s) => s.readinessProfile)
-  const debts = usePlannerStore((s) => s.debts)
+  const transactions = usePlannerStore((s) => s.transactions);
+  const accounts = usePlannerStore((s) => s.accounts);
+  const bills = usePlannerStore((s) => s.bills);
+  const holdings = usePlannerStore((s) => s.holdings);
+  const netWorthItems = usePlannerStore((s) => s.netWorthItems);
+  const savingsGoal = usePlannerStore((s) => s.savingsGoal);
+  const readinessProfile = usePlannerStore((s) => s.readinessProfile);
+  const debts = usePlannerStore((s) => s.debts);
 
   const finance = useMemo(
     () => financialReality(transactions, accounts, bills),
     [transactions, accounts, bills],
-  )
+  );
 
   /* ---- Monte Carlo assumptions (user-editable, seeded from the ledger) ---- */
-  const [mcSavings, setMcSavings] = useState(() => Math.round(finance.liquidCash))
+  const [mcSavings, setMcSavings] = useState(() => Math.round(finance.liquidCash));
   const [mcContribution, setMcContribution] = useState(() =>
     Math.max(0, Math.round(finance.cashFlow)),
-  )
-  const [mcYears, setMcYears] = useState(5)
-  const [mcReturn, setMcReturn] = useState(7)
-  const [mcVolatility, setMcVolatility] = useState(12)
-  const [mcTarget, setMcTarget] = useState(() => savingsGoal.target)
-  const [mcJobLoss, setMcJobLoss] = useState(5)
-  const [mcShock, setMcShock] = useState(10)
-  const [mcIncomeGrowth, setMcIncomeGrowth] = useState(2)
-  const [seed, setSeed] = useState(42)
+  );
+  const [mcYears, setMcYears] = useState(5);
+  const [mcReturn, setMcReturn] = useState(7);
+  const [mcVolatility, setMcVolatility] = useState(12);
+  const [mcTarget, setMcTarget] = useState(() => savingsGoal.target);
+  const [mcJobLoss, setMcJobLoss] = useState(5);
+  const [mcShock, setMcShock] = useState(10);
+  const [mcIncomeGrowth, setMcIncomeGrowth] = useState(2);
+  const [seed, setSeed] = useState(42);
 
   const mc = useMemo(
     () =>
@@ -103,7 +102,7 @@ export default function PlanModels() {
       mcIncomeGrowth,
       finance.expenses,
     ],
-  )
+  );
 
   /* ---- Decision rehearsal ---- */
   const rehearsalInputs: SimulationInputs = useMemo(
@@ -117,35 +116,35 @@ export default function PlanModels() {
       rentIncrease: 4,
     }),
     [readinessProfile, finance.cashFlow],
-  )
+  );
 
-  const lastScore = getLastScoreResult()
+  const lastScore = getLastScoreResult();
   const studio = useMemo(() => {
     return runScenarioStudio({
       ...rehearsalInputs,
       readinessVerdict: lastScore?.verdict ?? null,
       readinessScore: lastScore?.score ?? null,
-    })
-  }, [rehearsalInputs, lastScore?.verdict, lastScore?.score])
+    });
+  }, [rehearsalInputs, lastScore?.verdict, lastScore?.score]);
 
   const rehearsalChart = useMemo(() => {
-    const [buyNow, wait12, wait24] = studio.scenarios
+    const [buyNow, wait12, wait24] = studio.scenarios;
     const rows: Array<{
-      month: number
-      buyNow: number
-      wait12: number
-      wait24: number
-    }> = []
+      month: number;
+      buyNow: number;
+      wait12: number;
+      wait24: number;
+    }> = [];
     for (let m = 0; m <= 60; m += 3) {
       rows.push({
         month: m,
         buyNow: buyNow?.series[m]?.netPosition ?? 0,
         wait12: wait12?.series[m]?.netPosition ?? 0,
         wait24: wait24?.series[m]?.netPosition ?? 0,
-      })
+      });
     }
-    return rows
-  }, [studio])
+    return rows;
+  }, [studio]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -154,12 +153,12 @@ export default function PlanModels() {
         <PlanSectionHeader
           eyebrow="MONTE CARLO"
           title="Savings trajectory bands"
-          caption={`${MC_RUNS.toLocaleString('en-US')} seeded runs — reproducible, never a forecast. Bands are P10 / P50 / P90 of simulated outcomes.`}
+          caption={`${MC_RUNS.toLocaleString("en-US")} seeded runs — reproducible, never a forecast. Bands are P10 / P50 / P90 of simulated outcomes.`}
           right={
             <button
               type="button"
               onClick={() => setSeed(Math.floor(Math.random() * 1_000_000))}
-              className="flex items-center gap-1.5 rounded-xl border border-cyan/30 px-3 py-1.5 text-[12px] font-semibold text-cyan transition-colors hover:bg-cyan/[0.08]"
+              className="flex items-center gap-1.5 rounded-xl border border-cyan/30 px-3 py-1.5 text-xs font-semibold text-cyan transition-colors hover:bg-cyan/[0.08]"
             >
               <Dices size={13} />
               Re-roll seed
@@ -187,7 +186,7 @@ export default function PlanModels() {
           <PlanTile
             label="DISTRESS"
             value={formatPercent(mc.distressRate, 0)}
-            tone={mc.distressRate > 25 ? 'amber' : 'default'}
+            tone={mc.distressRate > 25 ? "amber" : "default"}
             hint="Runs below one month of expenses"
           />
         </div>
@@ -212,32 +211,116 @@ export default function PlanModels() {
               />
               <Tooltip
                 content={<ChartTooltip format={(n) => formatCurrency(n)} />}
-                cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                cursor={{ stroke: "rgba(255,255,255,0.12)" }}
               />
               <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Line type="monotone" dataKey="p90" stroke={CYAN} strokeWidth={1.5} dot={false} name="P90" />
-              <Line type="monotone" dataKey="p50" stroke={TEMP_HEX.emerald} strokeWidth={2} dot={false} name="P50" />
-              <Line type="monotone" dataKey="p10" stroke={TEMP_HEX.amber} strokeWidth={1.5} dot={false} name="P10" />
+              <Line
+                type="monotone"
+                dataKey="p90"
+                stroke={CYAN}
+                strokeWidth={1.5}
+                dot={false}
+                name="P90"
+              />
+              <Line
+                type="monotone"
+                dataKey="p50"
+                stroke={TEMP_HEX.emerald}
+                strokeWidth={2}
+                dot={false}
+                name="P50"
+              />
+              <Line
+                type="monotone"
+                dataKey="p10"
+                stroke={TEMP_HEX.amber}
+                strokeWidth={1.5}
+                dot={false}
+                name="P10"
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
         <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <NumberField label="CURRENT SAVINGS" prefix="$" value={mcSavings} onChange={setMcSavings} step={500} min={0} />
-          <NumberField label="MONTHLY CONTRIBUTION" prefix="$" value={mcContribution} onChange={setMcContribution} step={50} min={0} />
-          <NumberField label="YEARS" suffix="yr" value={mcYears} onChange={setMcYears} step={1} min={1} />
-          <NumberField label="TARGET (0 = NONE)" prefix="$" value={mcTarget} onChange={setMcTarget} step={1000} min={0} />
-          <NumberField label="EXPECTED RETURN % / YR" suffix="%" value={mcReturn} onChange={setMcReturn} step={0.5} min={0} />
-          <NumberField label="VOLATILITY % / YR" suffix="%" value={mcVolatility} onChange={setMcVolatility} step={1} min={0} />
-          <NumberField label="JOB-LOSS PROB % / YR" suffix="%" value={mcJobLoss} onChange={setMcJobLoss} step={1} min={0} />
-          <NumberField label="SHOCK PROB % / YR" suffix="%" value={mcShock} onChange={setMcShock} step={1} min={0} />
-          <NumberField label="INCOME GROWTH % / YR" suffix="%" value={mcIncomeGrowth} onChange={setMcIncomeGrowth} step={0.5} min={0} />
+          <NumberField
+            label="CURRENT SAVINGS"
+            prefix="$"
+            value={mcSavings}
+            onChange={setMcSavings}
+            step={500}
+            min={0}
+          />
+          <NumberField
+            label="MONTHLY CONTRIBUTION"
+            prefix="$"
+            value={mcContribution}
+            onChange={setMcContribution}
+            step={50}
+            min={0}
+          />
+          <NumberField
+            label="YEARS"
+            suffix="yr"
+            value={mcYears}
+            onChange={setMcYears}
+            step={1}
+            min={1}
+          />
+          <NumberField
+            label="TARGET (0 = NONE)"
+            prefix="$"
+            value={mcTarget}
+            onChange={setMcTarget}
+            step={1000}
+            min={0}
+          />
+          <NumberField
+            label="EXPECTED RETURN % / YR"
+            suffix="%"
+            value={mcReturn}
+            onChange={setMcReturn}
+            step={0.5}
+            min={0}
+          />
+          <NumberField
+            label="VOLATILITY % / YR"
+            suffix="%"
+            value={mcVolatility}
+            onChange={setMcVolatility}
+            step={1}
+            min={0}
+          />
+          <NumberField
+            label="JOB-LOSS PROB % / YR"
+            suffix="%"
+            value={mcJobLoss}
+            onChange={setMcJobLoss}
+            step={1}
+            min={0}
+          />
+          <NumberField
+            label="SHOCK PROB % / YR"
+            suffix="%"
+            value={mcShock}
+            onChange={setMcShock}
+            step={1}
+            min={0}
+          />
+          <NumberField
+            label="INCOME GROWTH % / YR"
+            suffix="%"
+            value={mcIncomeGrowth}
+            onChange={setMcIncomeGrowth}
+            step={0.5}
+            min={0}
+          />
         </div>
 
         <PlanFooter
           lines={[
-            'Savings and contribution pre-fill from your live ledger. Return, volatility, and shock rates are assumptions you set — edit them to stress the model.',
-            `${MC_RUNS.toLocaleString('en-US')} runs · seed ${seed}. Educational simulation only — not a projection of your actual returns.`,
+            "Savings and contribution pre-fill from your live ledger. Return, volatility, and shock rates are assumptions you set — edit them to stress the model.",
+            `${MC_RUNS.toLocaleString("en-US")} runs · seed ${seed}. Educational simulation only — not a projection of your actual returns.`,
           ]}
         />
       </section>
@@ -255,17 +338,16 @@ export default function PlanModels() {
             <PlanTile
               key={s.key}
               label={s.label.toUpperCase()}
-              value={`${s.netPositionAt60 < 0 ? '-' : '+'}${formatCurrency(Math.abs(s.netPositionAt60))}`}
-              tone={s.netPositionAt60 >= 0 ? 'emerald' : 'crimson'}
-              hint={s.key === studio.bestKey ? 'Best net position in this model' : undefined}
+              value={`${s.netPositionAt60 < 0 ? "-" : "+"}${formatCurrency(Math.abs(s.netPositionAt60))}`}
+              tone={s.netPositionAt60 >= 0 ? "emerald" : "crimson"}
+              hint={s.key === studio.bestKey ? "Best net position in this model" : undefined}
             />
           ))}
         </div>
 
-        <p className="mt-4 text-[13px] text-dim">
-          Best at month 60:{' '}
-          <span className="font-semibold text-light">{studio.bestLabel}</span>
-          {' · '}spread{' '}
+        <p className="mt-4 text-sm text-dim">
+          Best at month 60: <span className="font-semibold text-light">{studio.bestLabel}</span>
+          {" · "}spread{" "}
           <span className="font-display font-semibold text-light">
             {formatCurrency(studio.spreadAt60)}
           </span>
@@ -291,17 +373,38 @@ export default function PlanModels() {
               />
               <Tooltip
                 content={<ChartTooltip format={(n) => formatCurrency(n)} />}
-                cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                cursor={{ stroke: "rgba(255,255,255,0.12)" }}
               />
               <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Line type="monotone" dataKey="buyNow" stroke={TEMP_HEX.emerald} strokeWidth={2} dot={false} name="Buy the home" />
-              <Line type="monotone" dataKey="wait12" stroke={CYAN} strokeWidth={2} dot={false} name="Wait 12 months" />
-              <Line type="monotone" dataKey="wait24" stroke={TEMP_HEX.amber} strokeWidth={2} dot={false} name="Wait 24 months" />
+              <Line
+                type="monotone"
+                dataKey="buyNow"
+                stroke={TEMP_HEX.emerald}
+                strokeWidth={2}
+                dot={false}
+                name="Buy the home"
+              />
+              <Line
+                type="monotone"
+                dataKey="wait12"
+                stroke={CYAN}
+                strokeWidth={2}
+                dot={false}
+                name="Wait 12 months"
+              />
+              <Line
+                type="monotone"
+                dataKey="wait24"
+                stroke={TEMP_HEX.amber}
+                strokeWidth={2}
+                dot={false}
+                name="Wait 24 months"
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        <p className="mt-4 rounded-xl border border-cyan/20 bg-cyan/[0.05] px-3.5 py-2.5 text-[12px] leading-relaxed text-light/90">
+        <p className="mt-4 rounded-xl border border-cyan/20 bg-cyan/[0.05] px-3.5 py-2.5 text-xs leading-relaxed text-light/90">
           {studio.readinessNote}
         </p>
 
@@ -313,5 +416,5 @@ export default function PlanModels() {
         />
       </section>
     </div>
-  )
+  );
 }

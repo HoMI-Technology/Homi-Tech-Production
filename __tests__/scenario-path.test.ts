@@ -15,12 +15,8 @@ describe("generatePathFromScenario", () => {
     });
     expect(path.mode).toBe("build");
     expect(path.steps.length).toBeGreaterThan(1);
-    expect(
-      path.steps.some((s) => /wait|down payment|fund/i.test(s.title)),
-    ).toBe(true);
-    expect(path.steps.some((s) => s.fundingTarget != null && s.fundingTarget > 0)).toBe(
-      true,
-    );
+    expect(path.steps.some((s) => /wait|down payment|fund/i.test(s.title))).toBe(true);
+    expect(path.steps.some((s) => s.fundingTarget != null && s.fundingTarget > 0)).toBe(true);
   });
 
   it("buy-now path points at preflight", () => {

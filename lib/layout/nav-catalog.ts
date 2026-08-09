@@ -327,11 +327,9 @@ export const HEADER_MORE_NAV: NavLink[] = NAV_CATALOG.filter(
  * Full palette catalog including flag-gated entries - the palette filters
  * those at lookup time (visiblePaletteItems), matching prior behavior.
  */
-export const PALETTE_SOURCE = NAV_CATALOG.filter((e) => e.surfaces.palette).map(
-  (e) => ({
-    href: e.href,
-    label: e.paletteLabel ?? e.label,
-    group: e.group as string,
-    keywords: e.keywords,
-  }),
-);
+export const PALETTE_SOURCE = NAV_CATALOG.filter((e) => e.surfaces.palette).map((e) => ({
+  href: e.href,
+  label: e.paletteLabel ?? e.label,
+  group: e.group as string,
+  keywords: e.keywords,
+}));

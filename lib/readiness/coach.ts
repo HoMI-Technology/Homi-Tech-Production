@@ -3,10 +3,7 @@
  * Pure; never invents verdicts or numbers not on the path.
  */
 
-import {
-  bindingConstraintLabel,
-  type ReadinessPath,
-} from "./path";
+import { bindingConstraintLabel, type ReadinessPath } from "./path";
 import { computePathFreshness, pathCompletionRatio } from "./progress";
 
 export interface PathCoachPack {
@@ -32,8 +29,7 @@ export function buildPathCoachPack(
   const completed = path.steps.filter(
     (s) => (s.status ?? "pending") === "done" || (s.status ?? "pending") === "skipped",
   );
-  const next =
-    pending.find((s) => s.reasonCode !== "REASSESS") ?? pending[0] ?? null;
+  const next = pending.find((s) => s.reasonCode !== "REASSESS") ?? pending[0] ?? null;
   const freshness = computePathFreshness(path, opts);
   const completionPct = Math.round(pathCompletionRatio(path) * 100);
   const bindingLabel = path.bindingConstraint

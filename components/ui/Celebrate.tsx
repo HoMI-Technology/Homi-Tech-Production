@@ -59,7 +59,9 @@ export function Celebrate({
 
   return (
     <div aria-live="polite" className="flex flex-col items-center gap-3 text-center">
-      <div className={`celebrate-ring keyhole-glint inline-flex rounded-full ${lit ? "is-active" : ""}`}>
+      <div
+        className={`celebrate-ring keyhole-glint inline-flex rounded-full ${lit ? "is-active" : ""}`}
+      >
         <ThresholdCompass size={64} verdict="READY" glow animated />
       </div>
       {label && <p className="max-w-xs text-sm text-emerald">{label}</p>}

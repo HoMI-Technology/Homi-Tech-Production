@@ -104,11 +104,9 @@ export function analyzeTransactionCategories(
     const sorted = [...v.amounts].sort((a, b) => a - b);
     const mid = sorted[Math.floor(sorted.length / 2)];
     const mean = v.amounts.reduce((s, x) => s + x, 0) / v.amounts.length;
-    const variance =
-      v.amounts.reduce((s, x) => s + (x - mean) ** 2, 0) / v.amounts.length;
+    const variance = v.amounts.reduce((s, x) => s + (x - mean) ** 2, 0) / v.amounts.length;
     const cv = mean > 0 ? Math.sqrt(variance) / mean : 1;
-    const subscriptionLike =
-      v.amounts.length >= 2 && cv < 0.25 && mid >= 3 && mid <= 500;
+    const subscriptionLike = v.amounts.length >= 2 && cv < 0.25 && mid >= 3 && mid <= 500;
     const monthlyEstimate = round2(
       mid * Math.min(v.amounts.length, 3) * monthFactor(windowDays) * (30 / 30),
     );
@@ -129,9 +127,7 @@ export function analyzeTransactionCategories(
   recurring.sort((a, b) => b.monthlyEstimate - a.monthlyEstimate);
 
   const subscriptionDragMonthly = round2(
-    recurring
-      .filter((r) => r.subscriptionLike)
-      .reduce((s, r) => s + r.monthlyEstimate, 0),
+    recurring.filter((r) => r.subscriptionLike).reduce((s, r) => s + r.monthlyEstimate, 0),
   );
 
   return {
@@ -151,9 +147,7 @@ export async function getCategoryIntelligence(
   windowDays = CATEGORY_WINDOW_DAYS,
 ): Promise<CategoryIntelligence | null> {
   try {
-    const cutoff = new Date(Date.now() - windowDays * 86_400_000)
-      .toISOString()
-      .slice(0, 10);
+    const cutoff = new Date(Date.now() - windowDays * 86_400_000).toISOString().slice(0, 10);
     const { data, error } = await supabase
       .from("plaid_transactions")
       .select("amount, pending, name, merchant_name, category")
@@ -190,9 +184,7 @@ export function categorySignalsForPath(intel: CategoryIntelligence | null): {
     (c) => c.includes("loan") || c.includes("payment") || c.includes("credit"),
   );
   const diningHeavy = intel.categories.some(
-    (c) =>
-      /food|restaurant|dining|coffee/i.test(c.category) &&
-      c.monthlyEstimate > 400,
+    (c) => /food|restaurant|dining|coffee/i.test(c.category) && c.monthlyEstimate > 400,
   );
   if (intel.subscriptionDragMonthly >= 50) {
     notes.push(

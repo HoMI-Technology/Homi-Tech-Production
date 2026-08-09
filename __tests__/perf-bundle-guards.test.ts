@@ -29,9 +29,7 @@ function src(rel: string): string {
 
 // Strip block and line comments so docs examples do not false-positive.
 function codeOnly(source: string): string {
-  return source
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/(^|[^:])\/\/.*$/gm, "$1");
+  return source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
 }
 
 describe("perf bundle guards (Lighthouse §11 + E2E coexistence)", () => {
@@ -69,7 +67,12 @@ describe("perf bundle guards (Lighthouse §11 + E2E coexistence)", () => {
     // Named import of the preloaded `motion` component (~34kb).
     const namedImports = [...code.matchAll(/import\s*\{([^}]+)\}\s*from\s*["']framer-motion["']/g)];
     for (const match of namedImports) {
-      const names = match[1].split(",").map((s) => s.trim().split(/\s+as\s+/)[0].trim());
+      const names = match[1].split(",").map((s) =>
+        s
+          .trim()
+          .split(/\s+as\s+/)[0]
+          .trim(),
+      );
       expect(names, `unexpected motion import: ${match[0]}`).not.toContain("motion");
     }
   });
@@ -90,4 +93,3 @@ describe("perf bundle guards (Lighthouse §11 + E2E coexistence)", () => {
     expect(code).not.toMatch(/["']@\/lib\/simulator["']/);
   });
 });
-

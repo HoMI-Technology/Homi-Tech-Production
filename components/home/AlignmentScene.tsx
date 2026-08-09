@@ -152,7 +152,12 @@ export function AlignmentScene() {
                 className="pin-step absolute inset-0 flex flex-col justify-center"
                 style={{
                   opacity: i === step ? 1 : 0,
-                  transform: i === step ? "translateY(0)" : i < step ? "translateY(-16px)" : "translateY(16px)",
+                  transform:
+                    i === step
+                      ? "translateY(0)"
+                      : i < step
+                        ? "translateY(-16px)"
+                        : "translateY(16px)",
                   pointerEvents: i === step ? "auto" : "none",
                 }}
                 aria-hidden={i !== step}
@@ -172,7 +177,10 @@ export function AlignmentScene() {
         </div>
 
         {/* Progress ticks — four-dot indicator synced to visible step */}
-        <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-2 sm:bottom-8" aria-hidden>
+        <div
+          className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-2 sm:bottom-8"
+          aria-hidden
+        >
           {STEPS.map((s, i) => (
             <span
               key={i}

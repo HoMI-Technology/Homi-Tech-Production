@@ -6,14 +6,15 @@
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import {
-  buildArchitectureDocument,
-  serializeArchitectureDocument,
-} from "@/lib/architecture";
+import { buildArchitectureDocument, serializeArchitectureDocument } from "@/lib/architecture";
 
 const ROOT = process.cwd();
 
-function walkFiles(dir: string, predicate: (name: string) => boolean, acc: string[] = []): string[] {
+function walkFiles(
+  dir: string,
+  predicate: (name: string) => boolean,
+  acc: string[] = [],
+): string[] {
   if (!existsSync(dir)) return acc;
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     if (entry.name.startsWith(".") || entry.name === "node_modules") continue;
@@ -64,7 +65,9 @@ function scanComponentDirs(): Array<{ name: string; count: number; examples: str
   return readdirSync(componentsRoot, { withFileTypes: true })
     .filter((d) => d.isDirectory())
     .map((d) => {
-      const files = walkFiles(path.join(componentsRoot, d.name), (n) => /\.(tsx|ts|jsx|js)$/.test(n));
+      const files = walkFiles(path.join(componentsRoot, d.name), (n) =>
+        /\.(tsx|ts|jsx|js)$/.test(n),
+      );
       const examples = files
         .map((f) => path.basename(f, path.extname(f)))
         .filter((n) => n !== "index")
@@ -82,7 +85,10 @@ function scanLibModules(): Array<{ name: string; purpose: string }> {
     if (entry.isDirectory()) {
       modules.push({ name: entry.name, purpose: `${entry.name} domain module` });
     } else if (/\.(ts|tsx)$/.test(entry.name)) {
-      modules.push({ name: entry.name.replace(/\.(ts|tsx)$/, ""), purpose: `${entry.name} helper` });
+      modules.push({
+        name: entry.name.replace(/\.(ts|tsx)$/, ""),
+        purpose: `${entry.name} helper`,
+      });
     }
   }
   return modules.sort((a, b) => a.name.localeCompare(b.name));
@@ -121,6 +127,10 @@ describe("architecture.json generation", () => {
     writeFileSync(outPath, payload, "utf8");
 
     expect(statSync(outPath).size).toBeGreaterThan(1000);
-    expect(JSON.parse(readFileSync(outPath, "utf8")).ai_agents.find((a: { id: string }) => a.id === "oracle").level).toBe(10);
+    expect(
+      JSON.parse(readFileSync(outPath, "utf8")).ai_agents.find(
+        (a: { id: string }) => a.id === "oracle",
+      ).level,
+    ).toBe(10);
   });
 });

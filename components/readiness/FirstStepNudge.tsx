@@ -41,8 +41,7 @@ export function FirstStepNudge() {
   }, []);
 
   if (!show || !path) return null;
-  const next =
-    path.steps.find((s) => (s.status ?? "pending") === "pending") ?? path.steps[0];
+  const next = path.steps.find((s) => (s.status ?? "pending") === "pending") ?? path.steps[0];
 
   return (
     <div
@@ -50,9 +49,7 @@ export function FirstStepNudge() {
       role="status"
       aria-label="First path step nudge"
     >
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-cyan">
-        First move
-      </p>
+      <p className="text-3xs font-semibold uppercase tracking-widest text-cyan">First move</p>
       <p className="mt-1 font-display text-lg text-light">
         Your path is waiting — start the binding step
       </p>

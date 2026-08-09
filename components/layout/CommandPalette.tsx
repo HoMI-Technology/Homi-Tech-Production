@@ -86,9 +86,7 @@ export function CommandPalette({
       setActive((a) => (results.length === 0 ? 0 : (a + 1) % results.length));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setActive((a) =>
-        results.length === 0 ? 0 : (a - 1 + results.length) % results.length,
-      );
+      setActive((a) => (results.length === 0 ? 0 : (a - 1 + results.length) % results.length));
     } else if (e.key === "Enter") {
       e.preventDefault();
       go(results[active]);
@@ -129,7 +127,12 @@ export function CommandPalette({
           onKeyDown={onKeyDown}
         />
         <div className="hairline" />
-        <ul id="palette-list" role="listbox" aria-label="Results" className="max-h-[320px] overflow-y-auto p-2">
+        <ul
+          id="palette-list"
+          role="listbox"
+          aria-label="Results"
+          className="max-h-[320px] overflow-y-auto p-2"
+        >
           {results.length === 0 && (
             <li className="px-3 py-6 text-center text-sm text-dim">
               Nothing matches &ldquo;{query}&rdquo;.
@@ -147,7 +150,7 @@ export function CommandPalette({
                 onClick={() => go(item)}
               >
                 <span>{item.label}</span>
-                <span className="ml-auto text-[0.6875rem] uppercase tracking-wider text-dim">
+                <span className="ml-auto text-2xs uppercase tracking-wider text-dim">
                   {item.group}
                 </span>
               </button>
@@ -155,7 +158,7 @@ export function CommandPalette({
           ))}
         </ul>
         <div className="hairline" />
-        <p className="px-4 py-2.5 text-[0.6875rem] text-dim">
+        <p className="px-4 py-2.5 text-2xs text-dim">
           <kbd className="rounded border border-slate-high/60 px-1">↑↓</kbd> navigate ·{" "}
           <kbd className="rounded border border-slate-high/60 px-1">↵</kbd> open ·{" "}
           <kbd className="rounded border border-slate-high/60 px-1">esc</kbd> close

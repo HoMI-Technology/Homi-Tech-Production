@@ -15,17 +15,17 @@ loop that is the only path from "readiness opinion" to a defensible
 
 ## 0. What shipped on this branch
 
-| System | What it does | Key files |
-|---|---|---|
-| **Attribution** | First-touch `?ref`/`utm_*` → cookie → stamped on profile + every assessment; per-partner invite codes; partner portal stats now real | `lib/attribution.ts`, `components/analytics/AttributionCapture.tsx`, migrations `00019`, `00024` |
-| **Funnel events** | The 5 canonical events wired (client) + `checkout_completed`/`assessment_completed` captured server-side (blocker-proof) | `lib/analytics/server.ts`, results/pricing/webhook/assessment routes |
-| **Lifecycle email** | Welcome (signup), verdict (assessment), 30-day nudge + day-30/90/365 outcome surveys (cron); idempotency ledger | `lib/email/send.ts`, `lib/email/lifecycle.ts`, `app/api/cron/lifecycle`, migration `00020` |
-| **Shadow share loop** | Anonymous journey cards + dynamic OG unfurl; the viral exit for the top-of-funnel | `app/api/shadow-shares`, `app/shadow/[token]`, migration `00021` |
-| **Receipt API (B2B v1)** | Partner-key-authenticated, signed, consumer-authorized readiness receipts + consumer-visible audit | `lib/receipts`, `app/api/v1/receipts/[token]`, migration `00022` |
-| **Advisor economics** | Monthly spend ceiling, 5/day demo budget, server-authoritative (un-forgeable) context | `lib/advisor/quota.ts`, `lib/advisor/server-context.ts`, migration `00023` |
-| **CSP** | Real violation collector + enforcement-ready allowlist (won't break Plaid/PostHog) | `app/api/csp-report`, `next.config.ts` |
-| **Perf** | Companion widget deferred off the LCP critical path | `components/companion/CompanionWidget.tsx` |
-| **E2E** | Playwright smoke over the anonymous funnel | `e2e/`, `playwright.config.ts`, `.github/workflows/e2e.yml` |
+| System                   | What it does                                                                                                                         | Key files                                                                                        |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| **Attribution**          | First-touch `?ref`/`utm_*` → cookie → stamped on profile + every assessment; per-partner invite codes; partner portal stats now real | `lib/attribution.ts`, `components/analytics/AttributionCapture.tsx`, migrations `00019`, `00024` |
+| **Funnel events**        | The 5 canonical events wired (client) + `checkout_completed`/`assessment_completed` captured server-side (blocker-proof)             | `lib/analytics/server.ts`, results/pricing/webhook/assessment routes                             |
+| **Lifecycle email**      | Welcome (signup), verdict (assessment), 30-day nudge + day-30/90/365 outcome surveys (cron); idempotency ledger                      | `lib/email/send.ts`, `lib/email/lifecycle.ts`, `app/api/cron/lifecycle`, migration `00020`       |
+| **Shadow share loop**    | Anonymous journey cards + dynamic OG unfurl; the viral exit for the top-of-funnel                                                    | `app/api/shadow-shares`, `app/shadow/[token]`, migration `00021`                                 |
+| **Receipt API (B2B v1)** | Partner-key-authenticated, signed, consumer-authorized readiness receipts + consumer-visible audit                                   | `lib/receipts`, `app/api/v1/receipts/[token]`, migration `00022`                                 |
+| **Advisor economics**    | Monthly spend ceiling, 5/day demo budget, server-authoritative (un-forgeable) context                                                | `lib/advisor/quota.ts`, `lib/advisor/server-context.ts`, migration `00023`                       |
+| **CSP**                  | Real violation collector + enforcement-ready allowlist (won't break Plaid/PostHog)                                                   | `app/api/csp-report`, `next.config.ts`                                                           |
+| **Perf**                 | Companion widget deferred off the LCP critical path                                                                                  | `components/companion/CompanionWidget.tsx`                                                       |
+| **E2E**                  | Playwright smoke over the anonymous funnel                                                                                           | `e2e/`, `playwright.config.ts`, `.github/workflows/e2e.yml`                                      |
 
 All additive and expand-only. Scoring canon untouched. 342 unit tests green
 (+53), tsc clean, brand-check clean.
@@ -37,31 +37,31 @@ All additive and expand-only. Scoring canon untouched. 342 unit tests green
 Ordered by **what breaks first** under real traffic. Items 1–3 are hard
 launch blockers.
 
-| # | Task | Why it blocks launch | Effort |
-|---|---|---|---|
-| 1 | **Resend: verify `homitechnology.com` (SPF/DKIM) + set Supabase custom SMTP** | Supabase's built-in SMTP caps at a few emails/hour — signup confirmations die on day one of marketing. Also lights up the entire lifecycle-email loop (§2). | ~1 hr + DNS |
-| 2 | **Stripe: create 3 products w/ `lookup_key`s, register webhook, test-clock proof, then live keys** | Billing is code-complete but has never processed a live lifecycle. Prove it in test mode first (`npm run stripe-setup` scaffolds the products). | 2–3 hrs |
-| 3 | **Vercel: upgrade to Pro** | Hobby prohibits commercial use — ToS violation the moment a card is charged. | 15 min |
-| 4 | **Upstash Redis + env vars** | PR #10's cross-instance rate limiting is inert without it; until then limits are per-lambda fiction. | 20 min |
-| 5 | **Sentry DSN + PostHog key** (`NEXT_PUBLIC_POSTHOG_KEY`) | You cannot run a launch you can't observe. The funnel events (§0) sink nowhere without the PostHog key. | 30 min |
-| 6 | **Anthropic workspace spend cap + alert** | Last backstop on advisor spend; discovery channel today is the invoice. | 10 min |
-| 7 | **Supabase: HIBP toggle, Site-URL/redirect allowlist, confirm migration-history repair (T0.6)** | Quiet correctness. | 30 min |
-| 8 | **GitHub: require the `verify` CI check on `main`** | A red build must be unmergeable. | 10 min |
-| 9 | **Uptime monitor on `/api/healthcheck`** | It now 503s honestly (done) — but nothing is listening. | 15 min |
-| 10 | **Plaid production application** | Weeks of lead time + security questionnaire. Start now even though bank sync is Plus-gated. | 1–2 hrs + lead |
-| 11 | **support@ inbox + this runbook's §5 pinned** | Solo-founder launches die on ops chaos, not code. | 1 hr |
+| #   | Task                                                                                               | Why it blocks launch                                                                                                                                        | Effort         |
+| --- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
+| 1   | **Resend: verify `homitechnology.com` (SPF/DKIM) + set Supabase custom SMTP**                      | Supabase's built-in SMTP caps at a few emails/hour — signup confirmations die on day one of marketing. Also lights up the entire lifecycle-email loop (§2). | ~1 hr + DNS    |
+| 2   | **Stripe: create 3 products w/ `lookup_key`s, register webhook, test-clock proof, then live keys** | Billing is code-complete but has never processed a live lifecycle. Prove it in test mode first (`npm run stripe-setup` scaffolds the products).             | 2–3 hrs        |
+| 3   | **Vercel: upgrade to Pro**                                                                         | Hobby prohibits commercial use — ToS violation the moment a card is charged.                                                                                | 15 min         |
+| 4   | **Upstash Redis + env vars**                                                                       | PR #10's cross-instance rate limiting is inert without it; until then limits are per-lambda fiction.                                                        | 20 min         |
+| 5   | **Sentry DSN + PostHog key** (`NEXT_PUBLIC_POSTHOG_KEY`)                                           | You cannot run a launch you can't observe. The funnel events (§0) sink nowhere without the PostHog key.                                                     | 30 min         |
+| 6   | **Anthropic workspace spend cap + alert**                                                          | Last backstop on advisor spend; discovery channel today is the invoice.                                                                                     | 10 min         |
+| 7   | **Supabase: HIBP toggle, Site-URL/redirect allowlist, confirm migration-history repair (T0.6)**    | Quiet correctness.                                                                                                                                          | 30 min         |
+| 8   | **GitHub: require the `verify` CI check on `main`**                                                | A red build must be unmergeable.                                                                                                                            | 10 min         |
+| 9   | **Uptime monitor on `/api/healthcheck`**                                                           | It now 503s honestly (done) — but nothing is listening.                                                                                                     | 15 min         |
+| 10  | **Plaid production application**                                                                   | Weeks of lead time + security questionnaire. Start now even though bank sync is Plus-gated.                                                                 | 1–2 hrs + lead |
+| 11  | **support@ inbox + this runbook's §5 pinned**                                                      | Solo-founder launches die on ops chaos, not code.                                                                                                           | 1 hr           |
 
 ### New environment variables introduced on this branch
 
 Add to Vercel **Preview + Production** (all degrade gracefully when absent):
 
-| Var | Purpose | Absent behavior |
-|---|---|---|
-| `CRON_SECRET` | Bearer auth for `/api/cron/lifecycle` | Cron route 401s (fails closed) — no sends |
-| `RECEIPT_SIGNING_SECRET` | HMAC signing of readiness receipts | Receipts returned unsigned (`signature: null`) |
-| `NEXT_PUBLIC_POSTHOG_KEY` | Client + server funnel capture | Events no-op |
-| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog ingest host (optional) | Defaults to `us.i.posthog.com` |
-| `E2E_TEST_EMAIL` / `E2E_TEST_PASSWORD` | Seeded account for authed E2E | Auth E2E self-skips |
+| Var                                    | Purpose                               | Absent behavior                                |
+| -------------------------------------- | ------------------------------------- | ---------------------------------------------- |
+| `CRON_SECRET`                          | Bearer auth for `/api/cron/lifecycle` | Cron route 401s (fails closed) — no sends      |
+| `RECEIPT_SIGNING_SECRET`               | HMAC signing of readiness receipts    | Receipts returned unsigned (`signature: null`) |
+| `NEXT_PUBLIC_POSTHOG_KEY`              | Client + server funnel capture        | Events no-op                                   |
+| `NEXT_PUBLIC_POSTHOG_HOST`             | PostHog ingest host (optional)        | Defaults to `us.i.posthog.com`                 |
+| `E2E_TEST_EMAIL` / `E2E_TEST_PASSWORD` | Seeded account for authed E2E         | Auth E2E self-skips                            |
 
 Also required for the cron + email + receipt features (already in the app):
 `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `EMAIL_UNSUBSCRIBE_SECRET`.

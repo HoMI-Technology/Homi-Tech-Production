@@ -47,10 +47,7 @@ function ensureConfigured(): boolean {
  * caller can prune dead subscriptions (`gone: true`) without a try/catch.
  * Returns `{ ok: false, gone: false }` when push isn't configured.
  */
-export async function sendPush(
-  sub: StoredSubscription,
-  payload: PushPayload,
-): Promise<PushResult> {
+export async function sendPush(sub: StoredSubscription, payload: PushPayload): Promise<PushResult> {
   if (!ensureConfigured()) return { ok: false, gone: false };
 
   try {

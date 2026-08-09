@@ -30,8 +30,10 @@ function horizonLabel(horizon: Horizon): string {
 }
 
 function horizonSignature(horizon: Horizon): string {
-  if (horizon === "5") return "Five years is short enough that I remember this exact moment like it was last week.";
-  if (horizon === "10") return "Ten years does something strange to memory — long enough to change everything, short enough that I still recognize your handwriting in the choices you're about to make.";
+  if (horizon === "5")
+    return "Five years is short enough that I remember this exact moment like it was last week.";
+  if (horizon === "10")
+    return "Ten years does something strange to memory — long enough to change everything, short enough that I still recognize your handwriting in the choices you're about to make.";
   return "I'm writing from the other side of the working years, where the decisions stop being about growth and start being about what you get to keep.";
 }
 
@@ -98,12 +100,13 @@ function notYetBody(ctx: TwinAssessmentContext, horizon: Horizon): string {
   );
 }
 
-const BODY_BUILDERS: Record<VerdictKey, (ctx: TwinAssessmentContext, horizon: Horizon) => string> = {
-  READY: readyBody,
-  ALMOST_THERE: almostBody,
-  BUILD_FIRST: buildFirstBody,
-  NOT_YET: notYetBody,
-};
+const BODY_BUILDERS: Record<VerdictKey, (ctx: TwinAssessmentContext, horizon: Horizon) => string> =
+  {
+    READY: readyBody,
+    ALMOST_THERE: almostBody,
+    BUILD_FIRST: buildFirstBody,
+    NOT_YET: notYetBody,
+  };
 
 function askLine(verdict: VerdictKey, horizon: Horizon): string {
   const asks: Record<VerdictKey, string> = {

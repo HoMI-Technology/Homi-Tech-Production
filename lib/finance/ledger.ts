@@ -20,18 +20,9 @@ import type { MoneyCents } from "@/lib/finance/money";
  * no honest way to record corrections. Five types keep the arithmetic
  * truthful.
  */
-export type TransactionType =
-  | "income"
-  | "expense"
-  | "transfer"
-  | "refund"
-  | "adjustment";
+export type TransactionType = "income" | "expense" | "transfer" | "refund" | "adjustment";
 
-export type TransactionSource =
-  | "manual"
-  | "plaid"
-  | "recurring_rule"
-  | "migration";
+export type TransactionSource = "manual" | "plaid" | "recurring_rule" | "migration";
 
 /** Plaid transactions arrive pending before posting; only posted rows count. */
 export type TransactionStatus = "posted" | "pending" | "voided";
@@ -81,11 +72,7 @@ export interface FinanceTransaction {
  * not get to decide that a user's childcare or family-support payment is
  * "discretionary". The user may reclassify any category.
  */
-export type CategoryEssentiality =
-  | "required"
-  | "important"
-  | "flexible"
-  | "unclassified";
+export type CategoryEssentiality = "required" | "important" | "flexible" | "unclassified";
 
 export interface FinanceCategory {
   id: string;
@@ -146,14 +133,7 @@ export interface SavingsGoal {
   userId: string;
 
   name: string;
-  goalType:
-    | "emergency_reserve"
-    | "home"
-    | "vehicle"
-    | "education"
-    | "family"
-    | "travel"
-    | "custom";
+  goalType: "emergency_reserve" | "home" | "vehicle" | "education" | "family" | "travel" | "custom";
 
   targetAmountCents: MoneyCents;
   currentAmountCents: MoneyCents;
@@ -185,13 +165,7 @@ export interface RecurringTransactionRule {
   description: string;
   categoryId: string | null;
 
-  cadence:
-    | "weekly"
-    | "biweekly"
-    | "semimonthly"
-    | "monthly"
-    | "quarterly"
-    | "annual";
+  cadence: "weekly" | "biweekly" | "semimonthly" | "monthly" | "quarterly" | "annual";
 
   startDate: string;
   nextOccurrenceDate: string;

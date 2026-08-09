@@ -59,7 +59,10 @@ export async function POST(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`scenarios:${ip}`, { limit: 30, windowMs: 60_000 });
   if (!allowed) {
-    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a minute." },
+      { status: 429 },
+    );
   }
 
   let json: unknown;
@@ -71,7 +74,10 @@ export async function POST(request: Request) {
 
   const parsed = createSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid scenario.", issues: parsed.error.issues }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid scenario.", issues: parsed.error.issues },
+      { status: 400 },
+    );
   }
 
   const supabase = await createClient();

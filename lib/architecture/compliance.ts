@@ -6,18 +6,18 @@ import type { ArchitectureBrand, ArchitectureCompliance } from "./types";
  * Listed with brand-ok so brand-check does not flag the denylist itself.
  */
 export const ARCHITECTURE_FORBIDDEN_PHRASES = [
-  "Guaranteed", /* brand-ok */
-  "You qualify", /* brand-ok */
-  "Skip the advisor", /* brand-ok */
-  "Bank-level security", /* brand-ok */
-  "replaces your credit score", /* brand-ok */
-  "This is financial advice", /* brand-ok */
-  "Our AI knows best", /* brand-ok */
-  "AI-powered", /* brand-ok */
-  "revolutionary", /* brand-ok */
-  "game-changing", /* brand-ok */
-  "dream home", /* brand-ok */
-  "pre-approval", /* brand-ok */
+  "Guaranteed" /* brand-ok */,
+  "You qualify" /* brand-ok */,
+  "Skip the advisor" /* brand-ok */,
+  "Bank-level security" /* brand-ok */,
+  "replaces your credit score" /* brand-ok */,
+  "This is financial advice" /* brand-ok */,
+  "Our AI knows best" /* brand-ok */,
+  "AI-powered" /* brand-ok */,
+  "revolutionary" /* brand-ok */,
+  "game-changing" /* brand-ok */,
+  "dream home" /* brand-ok */,
+  "pre-approval" /* brand-ok */,
 ] as const;
 
 export const ARCHITECTURE_BRAND: ArchitectureBrand = {
@@ -29,7 +29,7 @@ export const ARCHITECTURE_BRAND: ArchitectureBrand = {
   positioning: {
     is: ["educational readiness layer", "decision companion"],
     is_not: ["lender", "broker", "credit bureau", "advisor", "real estate agent"],
-    never_say: "HōMI replaces your credit score or professional advice", /* brand-ok */
+    never_say: "HōMI replaces your credit score or professional advice" /* brand-ok */,
     always_say: "HōMI is an educational readiness layer, not a replacement for professional advice",
   },
 };

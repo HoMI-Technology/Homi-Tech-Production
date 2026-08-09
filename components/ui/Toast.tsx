@@ -103,18 +103,18 @@ function ToastIcon({ variant }: { variant: ToastVariant }) {
   if (variant === "error") {
     return (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-        <path d="M6 6L14 14M14 6L6 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path
+          d="M6 6L14 14M14 6L6 14"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
       </svg>
     );
   }
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path
-        d="M10 6V10M10 14H10.01"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
+      <path d="M10 6V10M10 14H10.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="2" />
     </svg>
   );
@@ -176,7 +176,12 @@ export function Toast({
         className="ml-auto shrink-0 rounded-md p-1 text-dim/70 transition-colors hover:bg-slate-surface hover:text-light"
       >
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-          <path d="M3 3L11 11M11 3L3 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          <path
+            d="M3 3L11 11M11 3L3 11"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
         </svg>
       </button>
     </motion.div>

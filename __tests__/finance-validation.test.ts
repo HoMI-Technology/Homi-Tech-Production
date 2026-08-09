@@ -76,8 +76,7 @@ describe("transactionCreateSchema", () => {
 
   it("rejects short idempotency keys and malformed dates", () => {
     expect(
-      transactionCreateSchema.safeParse({ ...validCreate, idempotencyKey: "short" })
-        .success,
+      transactionCreateSchema.safeParse({ ...validCreate, idempotencyKey: "short" }).success,
     ).toBe(false);
     expect(
       transactionCreateSchema.safeParse({
@@ -103,9 +102,7 @@ describe("transactionUpdateSchema", () => {
   });
 
   it("rejects a missing concurrency stamp", () => {
-    expect(
-      transactionUpdateSchema.safeParse({ amountCents: 15_210 }).success,
-    ).toBe(false);
+    expect(transactionUpdateSchema.safeParse({ amountCents: 15_210 }).success).toBe(false);
   });
 });
 

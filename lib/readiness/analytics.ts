@@ -83,20 +83,14 @@ export function trackPathGenerated(props: {
   });
 }
 
-export function trackPathSaved(props: {
-  source: PathFunnelSource;
-  stepCount: number;
-}): void {
+export function trackPathSaved(props: { source: PathFunnelSource; stepCount: number }): void {
   track(PATH_FUNNEL_EVENTS.pathSaved, {
     source: props.source,
     step_count: props.stepCount,
   });
 }
 
-export function trackPathCalendarCommitted(props: {
-  inserted: number;
-  verdict: string;
-}): void {
+export function trackPathCalendarCommitted(props: { inserted: number; verdict: string }): void {
   track(PATH_FUNNEL_EVENTS.pathCalendarCommitted, {
     inserted: props.inserted,
     verdict: props.verdict,
@@ -143,10 +137,7 @@ export function trackPathExported(props: { format: string }): void {
   track(PATH_FUNNEL_EVENTS.pathExported, { format: props.format });
 }
 
-export function trackPathPricingExposure(props: {
-  experiment: string;
-  variant: string;
-}): void {
+export function trackPathPricingExposure(props: { experiment: string; variant: string }): void {
   track(PATH_FUNNEL_EVENTS.pathPricingExposure, {
     experiment: props.experiment,
     variant: props.variant,
@@ -191,10 +182,7 @@ export function trackPathStartStepClicked(props: {
 }
 
 /** Incomplete path revisited after ≥1 day. */
-export function trackPathReturnVisit(props: {
-  stage: PathHabitStage;
-  ageDays: number;
-}): void {
+export function trackPathReturnVisit(props: { stage: PathHabitStage; ageDays: number }): void {
   track(PATH_FUNNEL_EVENTS.pathReturnVisit, {
     stage: props.stage,
     age_days: props.ageDays,

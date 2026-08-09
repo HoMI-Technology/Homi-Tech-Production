@@ -70,8 +70,8 @@ export default function GlobalError({
             marginTop: 12,
           }}
         >
-          Not you — us. Your data is safe. Try again in a moment, or reach out
-          if the problem keeps happening.
+          Not you — us. Your data is safe. Try again in a moment, or reach out if the problem keeps
+          happening.
         </motion.p>
 
         {error.digest && (

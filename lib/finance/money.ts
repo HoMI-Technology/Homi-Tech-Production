@@ -21,10 +21,7 @@ export const MAX_MONEY_CENTS = 10_000_000_000;
 
 /** True when the value is usable as stored cents (integer, safe, in range). */
 export function isValidCents(value: number): value is MoneyCents {
-  return (
-    Number.isSafeInteger(value) &&
-    Math.abs(value) <= MAX_MONEY_CENTS
-  );
+  return Number.isSafeInteger(value) && Math.abs(value) <= MAX_MONEY_CENTS;
 }
 
 /**
@@ -71,10 +68,7 @@ export function sumCents(values: readonly MoneyCents[]): MoneyCents {
  * amounts drop the cents by default because the Budget & Runway summary
  * cards use large whole numerals; pass `alwaysCents` for tabular rows.
  */
-export function formatCentsUSD(
-  cents: MoneyCents,
-  options: { alwaysCents?: boolean } = {},
-): string {
+export function formatCentsUSD(cents: MoneyCents, options: { alwaysCents?: boolean } = {}): string {
   const negative = cents < 0;
   const abs = Math.abs(cents);
   const wholeDollars = abs % 100 === 0 && !options.alwaysCents;

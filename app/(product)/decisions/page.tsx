@@ -17,17 +17,20 @@ const SCENARIO_META: Record<string, { color: string; borderClass: string; descri
   "buy-now": {
     color: COLORS.cyan,
     borderClass: "border-cyan/40",
-    description: "Buy today. Equity builds through amortization and appreciation, offset by closing costs and maintenance.",
+    description:
+      "Buy today. Equity builds through amortization and appreciation, offset by closing costs and maintenance.",
   },
   "wait-12": {
     color: COLORS.yellow,
     borderClass: "border-yellow/40",
-    description: "Rent 12 more months while saving toward a larger down payment, then buy at the future price.",
+    description:
+      "Rent 12 more months while saving toward a larger down payment, then buy at the future price.",
   },
   "wait-24": {
     color: COLORS.crimson,
     borderClass: "border-crimson/40",
-    description: "Rent 24 more months while saving toward a larger down payment, then buy at the future price.",
+    description:
+      "Rent 24 more months while saving toward a larger down payment, then buy at the future price.",
   },
 };
 
@@ -64,7 +67,11 @@ export default function DecisionsPage() {
         {/* Inputs */}
         <div className="glass flex flex-col gap-5 p-6">
           <p className="text-sm font-semibold uppercase tracking-wide text-dim">Your numbers</p>
-          <MoneyField label="Home price" value={inputs.homePrice} onChange={(v) => update("homePrice", v ?? 0)} />
+          <MoneyField
+            label="Home price"
+            value={inputs.homePrice}
+            onChange={(v) => update("homePrice", v ?? 0)}
+          />
           <MoneyField
             label="Down payment saved"
             value={inputs.downPaymentSaved}
@@ -75,11 +82,21 @@ export default function DecisionsPage() {
             value={inputs.monthlySavings}
             onChange={(v) => update("monthlySavings", v ?? 0)}
           />
-          <MoneyField label="Current monthly rent" value={inputs.rent} onChange={(v) => update("rent", v ?? 0)} />
+          <MoneyField
+            label="Current monthly rent"
+            value={inputs.rent}
+            onChange={(v) => update("rent", v ?? 0)}
+          />
 
           <div className="hairline" />
 
-          <PercentSlider label="Expected mortgage rate" value={inputs.rate} onChange={(v) => update("rate", v)} min={2} max={10} />
+          <PercentSlider
+            label="Expected mortgage rate"
+            value={inputs.rate}
+            onChange={(v) => update("rate", v)}
+            min={2}
+            max={10}
+          />
           <PercentSlider
             label="Expected annual appreciation"
             value={inputs.appreciation}
@@ -103,13 +120,16 @@ export default function DecisionsPage() {
               const meta = SCENARIO_META[s.key];
               const isBest = s.key === best.key;
               return (
-                <div key={s.key} className={`glass border ${meta.borderClass} flex flex-col gap-3 p-5`}>
+                <div
+                  key={s.key}
+                  className={`glass border ${meta.borderClass} flex flex-col gap-3 p-5`}
+                >
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-semibold" style={{ color: meta.color }}>
                       {s.label}
                     </p>
                     {isBest && (
-                      <span className="rounded-full bg-slate-surface px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald">
+                      <span className="rounded-full bg-slate-surface px-2 py-0.5 text-3xs font-semibold uppercase tracking-wide text-emerald">
                         Best on paper
                       </span>
                     )}
@@ -126,7 +146,9 @@ export default function DecisionsPage() {
           </div>
 
           <div className="glass p-6">
-            <p className="text-sm font-semibold uppercase tracking-wide text-dim">Net position over 60 months</p>
+            <p className="text-sm font-semibold uppercase tracking-wide text-dim">
+              Net position over 60 months
+            </p>
             <div className="mt-4">
               <NetPositionChart scenarios={scenarios} />
             </div>
@@ -144,13 +166,15 @@ export default function DecisionsPage() {
           </div>
 
           <div className="glass p-6">
-            <h2 className="font-display text-xl font-semibold text-light">An honest interpretation</h2>
+            <h2 className="font-display text-xl font-semibold text-light">
+              An honest interpretation
+            </h2>
             <p className="mt-3 text-base leading-relaxed text-light">
               The math is one ring. Emotional truth and timing are the others — the cheapest path on
               paper is not automatically the right one. This simulation assumes steady rates,
               consistent savings discipline, and a market that behaves the way you told it to. Real
-              life rarely holds still that long. Use this to understand the shape of the trade-off, not
-              to outsource the decision itself.
+              life rarely holds still that long. Use this to understand the shape of the trade-off,
+              not to outsource the decision itself.
             </p>
           </div>
         </div>

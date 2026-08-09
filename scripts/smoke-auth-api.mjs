@@ -16,10 +16,7 @@ function loadEnvLocal() {
     if (!m) continue;
     const k = m[1].trim();
     let v = m[2].trim();
-    if (
-      (v.startsWith('"') && v.endsWith('"')) ||
-      (v.startsWith("'") && v.endsWith("'"))
-    ) {
+    if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
       v = v.slice(1, -1);
     }
     out[k] = v;
@@ -29,7 +26,8 @@ function loadEnvLocal() {
 
 const fileEnv = loadEnvLocal();
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL || fileEnv.NEXT_PUBLIC_SUPABASE_URL || "";
-const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || fileEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+const anon =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || fileEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
 function ok(m) {
   console.log(`  ✓ ${m}`);
@@ -104,9 +102,7 @@ async function main() {
     );
     const rows = await res.json();
     if (res.ok && Array.isArray(rows) && rows[0]) {
-      ok(
-        `profile  tier=${rows[0].subscription_tier ?? "null"} role=${rows[0].role ?? "null"}`,
-      );
+      ok(`profile  tier=${rows[0].subscription_tier ?? "null"} role=${rows[0].role ?? "null"}`);
     } else {
       bad("profile", `${res.status} ${JSON.stringify(rows).slice(0, 160)}`);
       failed++;
@@ -139,7 +135,9 @@ async function main() {
     failed++;
   }
 
-  console.log(failed === 0 ? "\nSigned-in API smoke: PASS\n" : `\nSigned-in API smoke: FAIL (${failed})\n`);
+  console.log(
+    failed === 0 ? "\nSigned-in API smoke: PASS\n" : `\nSigned-in API smoke: FAIL (${failed})\n`,
+  );
   console.log(
     "Note: full UI click-through needs a browser. This PC blocks Playwright Chromium (SAC).\n" +
       "Auth + profile + assessments above prove the account works against live Supabase.\n",

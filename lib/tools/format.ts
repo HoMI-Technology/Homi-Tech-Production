@@ -30,7 +30,9 @@ export function formatCompactCurrency(value: number, opts: { minDecimals?: numbe
  */
 export function formatCurrencyTile(value: number): string {
   if (!Number.isFinite(value)) return "$0";
-  return Math.abs(value) >= 100_000 ? formatCompactCurrency(value, { minDecimals: 1 }) : formatCurrency(value);
+  return Math.abs(value) >= 100_000
+    ? formatCompactCurrency(value, { minDecimals: 1 })
+    : formatCurrency(value);
 }
 
 export function formatPercent(value: number, decimals = 1): string {

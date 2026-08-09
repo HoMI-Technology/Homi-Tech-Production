@@ -105,10 +105,7 @@ function findSystemCategory(
  * - Each expense category becomes a posted expense transaction.
  * - A savings goal is created when a down-payment target or liquid savings exist.
  */
-export function migrateLegacyToLedger(
-  legacy: FinanceState,
-  nowIso: string,
-): BudgetLedgerState {
+export function migrateLegacyToLedger(legacy: FinanceState, nowIso: string): BudgetLedgerState {
   const today = todayDateOnly(new Date(nowIso));
   let state = emptyBudgetLedger(nowIso);
   const { state: withPeriod, period } = ensurePeriodFor(state, today, nowIso);
@@ -117,9 +114,7 @@ export function migrateLegacyToLedger(
   state = {
     ...state,
     periods: state.periods.map((p) =>
-      p.id === period.id
-        ? { ...p, expectedIncomeCents: dollarsToCents(legacy.monthlyIncome) }
-        : p,
+      p.id === period.id ? { ...p, expectedIncomeCents: dollarsToCents(legacy.monthlyIncome) } : p,
     ),
   };
 
@@ -170,9 +165,7 @@ export function migrateLegacyToLedger(
 }
 
 function hasUserCreatedData(state: BudgetLedgerState): boolean {
-  return (
-    state.transactions.length > 0 || state.periods.length > 0 || state.goal !== null
-  );
+  return state.transactions.length > 0 || state.periods.length > 0 || state.goal !== null;
 }
 
 /**
@@ -194,8 +187,7 @@ export function projectLedgerToLegacySnapshot(
     liquidSavings: m.runway.liquidDollars ?? 0,
     totalDebt: 0,
     monthlyDebtPayments: m.surplus.debtPaymentDollars,
-    downPaymentTarget:
-      goal?.goalType === "home" ? centsToDollars(goal.targetAmountCents) : 0,
+    downPaymentTarget: goal?.goalType === "home" ? centsToDollars(goal.targetAmountCents) : 0,
     assets: [],
     liabilities: [],
   };

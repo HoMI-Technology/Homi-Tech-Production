@@ -66,9 +66,7 @@ describe("ChoiceCards", () => {
   });
 
   it("with nothing selected, the first enabled card is tabbable", () => {
-    render(
-      <Harness options={[{ ...OPTIONS[0], disabled: true }, OPTIONS[1], OPTIONS[2]]} />,
-    );
+    render(<Harness options={[{ ...OPTIONS[0], disabled: true }, OPTIONS[1], OPTIONS[2]]} />);
     expect(screen.getByRole("radio", { name: /Buy/ })).toHaveAttribute("tabindex", "-1");
     expect(screen.getByRole("radio", { name: "Rent" })).toHaveAttribute("tabindex", "0");
   });

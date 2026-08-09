@@ -127,11 +127,15 @@ export default function CreditPage() {
             badge={
               <span
                 className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                  isHardStop ? "border-crimson/40 bg-verdict-notyet text-crimson" : "border-slate-surface/60 text-light"
+                  isHardStop
+                    ? "border-crimson/40 bg-verdict-notyet text-crimson"
+                    : "border-slate-surface/60 text-light"
                 }`}
                 style={{ color: meta.color, borderColor: `${meta.color}55` }}
               >
-                {isHardStop ? "DO NOT PROCEED zone" : meta.label.split("—")[0]?.trim() ?? meta.label}
+                {isHardStop
+                  ? "DO NOT PROCEED zone"
+                  : (meta.label.split("—")[0]?.trim() ?? meta.label)}
               </span>
             }
             footer={meta.explanation}
@@ -204,12 +208,50 @@ function ScoreDial({ score }: { score: number }) {
 
   return (
     <div className="mt-2 flex flex-col items-center">
-      <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} role="img" aria-label={`Credit score ${score}`}>
-        <path d={arcPath(min, HARD_STOP)} stroke={COLORS.crimson} strokeWidth="16" fill="none" opacity="0.6" strokeLinecap="round" />
-        <path d={arcPath(HARD_STOP, 660)} stroke={COLORS.amber} strokeWidth="16" fill="none" opacity="0.6" />
-        <path d={arcPath(660, 700)} stroke={COLORS.yellow} strokeWidth="16" fill="none" opacity="0.6" />
-        <path d={arcPath(700, 740)} stroke={COLORS.emerald} strokeWidth="16" fill="none" opacity="0.6" />
-        <path d={arcPath(740, max)} stroke={COLORS.cyan} strokeWidth="16" fill="none" opacity="0.6" strokeLinecap="round" />
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        width="100%"
+        height={height}
+        role="img"
+        aria-label={`Credit score ${score}`}
+      >
+        <path
+          d={arcPath(min, HARD_STOP)}
+          stroke={COLORS.crimson}
+          strokeWidth="16"
+          fill="none"
+          opacity="0.6"
+          strokeLinecap="round"
+        />
+        <path
+          d={arcPath(HARD_STOP, 660)}
+          stroke={COLORS.amber}
+          strokeWidth="16"
+          fill="none"
+          opacity="0.6"
+        />
+        <path
+          d={arcPath(660, 700)}
+          stroke={COLORS.yellow}
+          strokeWidth="16"
+          fill="none"
+          opacity="0.6"
+        />
+        <path
+          d={arcPath(700, 740)}
+          stroke={COLORS.emerald}
+          strokeWidth="16"
+          fill="none"
+          opacity="0.6"
+        />
+        <path
+          d={arcPath(740, max)}
+          stroke={COLORS.cyan}
+          strokeWidth="16"
+          fill="none"
+          opacity="0.6"
+          strokeLinecap="round"
+        />
 
         {markers.map((m) => {
           const a = angleFor(m);
@@ -221,15 +263,36 @@ function ScoreDial({ score }: { score: number }) {
           const ly = cy - (r + 26) * Math.sin(a);
           return (
             <g key={m}>
-              <line x1={x0} y1={y0} x2={x1} y2={y1} stroke={m === HARD_STOP ? COLORS.crimson : COLORS.light} strokeWidth={m === HARD_STOP ? 3 : 2} />
-              <text x={lx} y={ly} textAnchor="middle" fontSize="11" fill={m === HARD_STOP ? COLORS.crimson : COLORS.dim}>
+              <line
+                x1={x0}
+                y1={y0}
+                x2={x1}
+                y2={y1}
+                stroke={m === HARD_STOP ? COLORS.crimson : COLORS.light}
+                strokeWidth={m === HARD_STOP ? 3 : 2}
+              />
+              <text
+                x={lx}
+                y={ly}
+                textAnchor="middle"
+                fontSize="11"
+                fill={m === HARD_STOP ? COLORS.crimson : COLORS.dim}
+              >
                 {m}
               </text>
             </g>
           );
         })}
 
-        <line x1={cx} y1={cy} x2={needleX} y2={needleY} stroke={COLORS.light} strokeWidth="3" strokeLinecap="round" />
+        <line
+          x1={cx}
+          y1={cy}
+          x2={needleX}
+          y2={needleY}
+          stroke={COLORS.light}
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
         <circle cx={cx} cy={cy} r="7" fill={COLORS.light} />
       </svg>
       <p className="score-numeral -mt-4 text-4xl font-bold" style={{ color }}>
@@ -245,28 +308,59 @@ function UtilizationGauge({ utilization }: { utilization: number }) {
   const height = 60;
   const barWidth = width - 40;
   const pct = Math.max(0, Math.min(100, utilization));
-  const color = pct <= 10 ? COLORS.emerald : pct <= 30 ? COLORS.yellow : pct <= 50 ? COLORS.amber : COLORS.crimson;
+  const color =
+    pct <= 10
+      ? COLORS.emerald
+      : pct <= 30
+        ? COLORS.yellow
+        : pct <= 50
+          ? COLORS.amber
+          : COLORS.crimson;
 
   const markerX = (v: number) => 20 + (v / 100) * barWidth;
 
   return (
     <div className="mt-4">
-      <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} role="img" aria-label={`Credit utilization ${pct}%`}>
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        width="100%"
+        height={height}
+        role="img"
+        aria-label={`Credit utilization ${pct}%`}
+      >
         <rect x="20" y="22" width={barWidth} height="14" rx="7" fill="rgba(51,65,85,0.6)" />
         <rect x="20" y="22" width={(pct / 100) * barWidth} height="14" rx="7" fill={color} />
-        <line x1={markerX(10)} x2={markerX(10)} y1="14" y2="44" stroke={COLORS.emerald} strokeWidth="2" />
-        <text x={markerX(10)} y="10" textAnchor="middle" fontSize="10" fill={COLORS.emerald}>10%</text>
-        <line x1={markerX(30)} x2={markerX(30)} y1="14" y2="44" stroke={COLORS.yellow} strokeWidth="2" />
-        <text x={markerX(30)} y="10" textAnchor="middle" fontSize="10" fill={COLORS.yellow}>30%</text>
+        <line
+          x1={markerX(10)}
+          x2={markerX(10)}
+          y1="14"
+          y2="44"
+          stroke={COLORS.emerald}
+          strokeWidth="2"
+        />
+        <text x={markerX(10)} y="10" textAnchor="middle" fontSize="10" fill={COLORS.emerald}>
+          10%
+        </text>
+        <line
+          x1={markerX(30)}
+          x2={markerX(30)}
+          y1="14"
+          y2="44"
+          stroke={COLORS.yellow}
+          strokeWidth="2"
+        />
+        <text x={markerX(30)} y="10" textAnchor="middle" fontSize="10" fill={COLORS.yellow}>
+          30%
+        </text>
       </svg>
       <p className="mt-2 text-xs leading-relaxed text-dim">
         {pct <= 10
           ? "Under 10% is the ideal range — this signals low reliance on credit and helps your score the most."
           : pct <= 30
-          ? "Under 30% is generally considered safe, though getting below 10% helps further."
-          : pct <= 50
-          ? "Above 30% utilization typically starts to weigh on your score. Paying this down is one of the fastest levers you have."
-          : "High utilization is one of the biggest drags on a credit score. Bringing this down is usually the single highest-leverage action available."}
+            ? "Under 30% is generally considered safe, though getting below 10% helps further."
+            : pct <= 50
+              ? "Above 30% utilization typically starts to weigh on your score. Paying this down is one of the fastest levers you have."
+              : "High utilization is one of the biggest drags on a credit score. Bringing this down is usually the single highest-leverage action available."}
       </p>
     </div>
   );
@@ -276,28 +370,48 @@ function ActionList({ state }: { state: CreditState }) {
   const items: string[] = [];
 
   if (state.score < HARD_STOP) {
-    items.push("Your score is below HōMI's 620 hard stop for major financial decisions. Focus on utilization and on-time payments before applying for new credit.");
+    items.push(
+      "Your score is below HōMI's 620 hard stop for major financial decisions. Focus on utilization and on-time payments before applying for new credit.",
+    );
   }
   if (state.utilization > 30) {
-    items.push(`Utilization is ${state.utilization}% — paying balances down toward 30% (and ideally 10%) is the fastest way to move your score.`);
+    items.push(
+      `Utilization is ${state.utilization}% — paying balances down toward 30% (and ideally 10%) is the fastest way to move your score.`,
+    );
   }
   if (state.onTimeStreakMonths < 12) {
-    items.push("Payment history is the single largest factor in most scoring models. Keep every payment on time — automate it if that helps.");
+    items.push(
+      "Payment history is the single largest factor in most scoring models. Keep every payment on time — automate it if that helps.",
+    );
   } else {
-    items.push(`You have a ${state.onTimeStreakMonths}-month on-time streak. Protect it — a single late payment can undo months of progress.`);
+    items.push(
+      `You have a ${state.onTimeStreakMonths}-month on-time streak. Protect it — a single late payment can undo months of progress.`,
+    );
   }
   if (state.score >= HARD_STOP && state.score < 700) {
-    items.push("You're clear of the hard stop but not yet in the range with the best rates. Closing the gap to 700 is worth the wait if your timeline allows it.");
+    items.push(
+      "You're clear of the hard stop but not yet in the range with the best rates. Closing the gap to 700 is worth the wait if your timeline allows it.",
+    );
   }
   if (state.score >= 740) {
-    items.push("Your credit is in excellent shape. It is very unlikely to be the limiting factor in any near-term financial decision.");
+    items.push(
+      "Your credit is in excellent shape. It is very unlikely to be the limiting factor in any near-term financial decision.",
+    );
   }
 
   return (
     <ul className="mt-4 space-y-3">
       {items.map((item, i) => (
         <li key={i} className="flex gap-3 text-sm text-dim">
-          <svg className="mt-0.5 shrink-0 text-cyan" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            className="mt-0.5 shrink-0 text-cyan"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M5 12l5 5L20 7" />
           </svg>
           <span className="leading-relaxed">{item}</span>

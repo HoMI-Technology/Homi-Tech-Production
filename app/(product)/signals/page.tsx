@@ -61,8 +61,8 @@ export default function SignalsPage() {
     <PageFrame width="content" density="spacious" role="personal">
       <h1 className="font-display text-3xl text-light">Signals</h1>
       <p className="mt-2 max-w-xl text-dim">
-        A calm, proactive read on your readiness — not notifications that nag, just what's
-        actually worth your attention right now.
+        A calm, proactive read on your readiness — not notifications that nag, just what's actually
+        worth your attention right now.
       </p>
 
       {loading ? (
@@ -80,14 +80,17 @@ export default function SignalsPage() {
         <div className="mt-8 glass p-10 text-center">
           <h2 className="font-display text-xl text-light">Nothing to flag right now</h2>
           <p className="mt-3 text-sm leading-relaxed text-dim">
-            Your last assessment doesn't show anything urgent. Check back after your next
-            check-in or the next time something in your numbers changes.
+            Your last assessment doesn't show anything urgent. Check back after your next check-in
+            or the next time something in your numbers changes.
           </p>
         </div>
       ) : (
         <div className="mt-8 space-y-4">
           {signals.map((signal) => (
-            <div key={signal.id} className={`rounded-lg border p-6 ${SEVERITY_CLASS[signal.severity]}`}>
+            <div
+              key={signal.id}
+              className={`rounded-lg border p-6 ${SEVERITY_CLASS[signal.severity]}`}
+            >
               <h2 className="font-semibold text-light">{signal.title}</h2>
               <p className="mt-2 text-sm leading-relaxed text-dim">{signal.body}</p>
               <div className="mt-4">

@@ -29,8 +29,7 @@ function loadEnvLocal() {
 }
 loadEnvLocal();
 
-const supabaseAnonKey =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 
 if (!supabaseAnonKey) {
   console.error("Missing NEXT_PUBLIC_SUPABASE_ANON_KEY (env or .env.local)");
@@ -43,9 +42,7 @@ if (!email || !password) {
 }
 
 function base64urlEncode(str) {
-  return Buffer.from(str)
-    .toString("base64url")
-    .replace(/=+$/, "");
+  return Buffer.from(str).toString("base64url").replace(/=+$/, "");
 }
 
 async function signIn() {
@@ -59,7 +56,9 @@ async function signIn() {
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error(`sign-in failed: ${data.error_description || data.error || res.statusText} (${res.status})`);
+    throw new Error(
+      `sign-in failed: ${data.error_description || data.error || res.statusText} (${res.status})`,
+    );
   }
   return data;
 }
@@ -166,7 +165,9 @@ async function main() {
   const portalRes = await fetchAuthed("/api/billing/portal", { method: "POST" });
   console.log(`[smoke] /api/billing/portal -> ${portalRes.status}`);
   const portalBody = await portalRes.json().catch(() => ({}));
-  console.log(`[smoke] portal configured: ${portalBody.configured}, url: ${portalBody.url || "n/a"}`);
+  console.log(
+    `[smoke] portal configured: ${portalBody.configured}, url: ${portalBody.url || "n/a"}`,
+  );
 
   console.log("[smoke] POST /api/checkout (test mode)...");
   const checkoutRes = await fetchAuthed("/api/checkout", {
@@ -176,7 +177,9 @@ async function main() {
   });
   console.log(`[smoke] /api/checkout -> ${checkoutRes.status}`);
   const checkoutBody = await checkoutRes.json().catch(() => ({}));
-  console.log(`[smoke] checkout configured: ${checkoutBody.configured}, url: ${checkoutBody.url ? "(present)" : "n/a"}`);
+  console.log(
+    `[smoke] checkout configured: ${checkoutBody.configured}, url: ${checkoutBody.url ? "(present)" : "n/a"}`,
+  );
   if (!checkoutRes.ok && checkoutBody.error) {
     console.log(`[smoke] checkout error: ${checkoutBody.error}`);
   }

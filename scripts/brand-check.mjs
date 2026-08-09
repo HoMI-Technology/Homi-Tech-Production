@@ -122,7 +122,8 @@ const EXCLUDED_FILES = new Set([path.join(ROOT, "public", "architecture.json")])
  * spelling), so brand-check adds nothing there. Net coverage change: zero
  * findings lost, one class of false positives permanently prevented.
  */
-const TEST_PATH_RE = /(?:^|[\\/])(?:__tests__|__mocks__|__fixtures__|e2e|test-results)[\\/]|\.(?:test|spec|e2e)\.[jt]sx?$/;
+const TEST_PATH_RE =
+  /(?:^|[\\/])(?:__tests__|__mocks__|__fixtures__|e2e|test-results)[\\/]|\.(?:test|spec|e2e)\.[jt]sx?$/;
 
 function isTestPath(fullPath) {
   return TEST_PATH_RE.test(path.relative(ROOT, fullPath));
@@ -175,7 +176,8 @@ const WEAK_CONTRAST_PATTERNS = [
   },
   {
     re: /text-\[#64748b\]|color:\s*["']?#64748b/i,
-    message: "Banned weak text color #64748b (~3.8:1 on navy) — use text-dim (#94a3b8) or text-light.",
+    message:
+      "Banned weak text color #64748b (~3.8:1 on navy) — use text-dim (#94a3b8) or text-light.",
   },
   {
     // Explicit text opacity dims on JSX style objects for copy elements.
@@ -283,7 +285,8 @@ function evaluateSuppression(line, relPath, ext) {
   if (!SUPPRESSION_IN_COMMENT.test(line)) {
     return {
       suppressed: false,
-      defect: "brand-ok must appear inside a comment (e.g. `/* brand-ok: <reason> */`), not in a value.",
+      defect:
+        "brand-ok must appear inside a comment (e.g. `/* brand-ok: <reason> */`), not in a value.",
     };
   }
 
@@ -303,7 +306,8 @@ function evaluateSuppression(line, relPath, ext) {
  * ------------------------------------------------------------------ */
 
 /** Words that negate a claim when they appear just before it. */
-const NEGATION_RE = /\b(?:not|never|no|n[o’']t|without|isn|aren|won|doesn|don|nunca|sin|tampoco)\b[^.!?]{0,45}$/i;
+const NEGATION_RE =
+  /\b(?:not|never|no|n[o’']t|without|isn|aren|won|doesn|don|nunca|sin|tampoco)\b[^.!?]{0,45}$/i;
 
 /**
  * Some claim phrases are legitimate when negated ("We're not replacing FICO").
@@ -407,7 +411,8 @@ const RULES = [
   {
     id: "N7",
     re: /\bworld'?s\s+(?:first|only|leading|best)\b|\bprimer[ao]\s+del\s+mundo\b/,
-    message: 'Unsupported market-primacy claim ("world\'s first/only/leading") — no substantiation exists.',
+    message:
+      'Unsupported market-primacy claim ("world\'s first/only/leading") — no substantiation exists.',
   },
   {
     id: "N7b",
@@ -428,7 +433,8 @@ const RULES = [
   {
     id: "N8",
     re: /\bthe only\s+(?:\w+[- ])?(?:platform|company|product|tool|service|app|score|system|voice)\b|\b(?:la única|el único)\s+(?:plataforma|empresa|producto|herramienta|puntuación)\b/,
-    message: 'Unsupported exclusivity claim ("the only <platform/company/…>") — cannot be substantiated.',
+    message:
+      'Unsupported exclusivity claim ("the only <platform/company/…>") — cannot be substantiated.',
   },
   {
     id: "N9",
@@ -506,7 +512,30 @@ const RULES = [
     id: "N17",
     re: /\bevery other\s+(?:\w+\s+){0,1}(?:platform|company|app|tool|service|product|marketplace)s?\b|\btodas las dem[áa]s\s+(?:plataformas|empresas|aplicaciones|herramientas)\b/,
     message:
-      "Unsubstantiated whole-market competitor claim (\"every other platform …\") — narrow it to a named, documented comparison.",
+      'Unsubstantiated whole-market competitor claim ("every other platform …") — narrow it to a named, documented comparison.',
+  },
+
+  /* --- Type-scale drift (N19–N20) ------------------------------------ *
+   * The strict type scale (app/globals.css "Marketing type scale") is the
+   * only source of text sizes. These rules keep the two drift vectors that
+   * were cleaned out of the tree from creeping back in. N18 is taken by the
+   * suppression self-policing rule above. */
+  {
+    id: "N19",
+    cs: true,
+    re: /\bfont-black\b/,
+    message:
+      "font-black (weight 900) is off the type scale — headings use type-h1/type-h2 (Fraunces 600) or font-semibold. The HōMI wordmark carries its 900 weight via inline style in components/brand/Wordmark.tsx.",
+  },
+  {
+    id: "N20",
+    cs: true,
+    // Arbitrary text SIZES only: text-[15px], sm:text-[1.35rem], text-[clamp(…)].
+    // Arbitrary text COLORS (text-[#0a1628], text-[var(--x)]) are not sizes and
+    // are governed by the color rules, not this one.
+    re: /\btext-\[(?:[0-9.]+(?:px|rem|em|vw|vh|%)|clamp\([^\]]*\))\]/,
+    message:
+      "Arbitrary text size (text-[…]) is off the type scale — snap to a scale step (text-3xs … text-3xl, or a type-* class from app/globals.css).",
   },
 ];
 
@@ -566,14 +595,24 @@ export function checkLine(filePath, lineNumber, line, violations, prevLine = "")
   // --- preserved original checks ---
   for (const { word, re } of FORBIDDEN_WORD_PATTERNS) {
     if (re.test(line)) {
-      violations.push({ file: filePath, line: lineNumber, rule: "FW", message: `Forbidden word "${word}".` });
+      violations.push({
+        file: filePath,
+        line: lineNumber,
+        rule: "FW",
+        message: `Forbidden word "${word}".`,
+      });
     }
   }
 
   const lowerLine = line.toLowerCase();
   for (const hex of BANNED_HEXES) {
     if (lowerLine.includes(hex)) {
-      violations.push({ file: filePath, line: lineNumber, rule: "HEX", message: `Banned color ${hex}.` });
+      violations.push({
+        file: filePath,
+        line: lineNumber,
+        rule: "HEX",
+        message: `Banned color ${hex}.`,
+      });
     }
   }
 
@@ -606,7 +645,9 @@ export function checkLine(filePath, lineNumber, line, violations, prevLine = "")
 
 export function checkContent(filePath, content, violations) {
   const lines = content.split("\n");
-  lines.forEach((line, idx) => checkLine(filePath, idx + 1, line, violations, idx > 0 ? lines[idx - 1] : ""));
+  lines.forEach((line, idx) =>
+    checkLine(filePath, idx + 1, line, violations, idx > 0 ? lines[idx - 1] : ""),
+  );
 }
 
 export function collectFiles() {

@@ -10,32 +10,26 @@
 /* 5.2 mo · DTI 3%.                                                     */
 /* ------------------------------------------------------------------ */
 
-import { useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
-import { Pencil, Plus, Scale, Trash2 } from 'lucide-react'
-import ConfirmDialog from "@/components/planner/ui/ConfirmDialog"
-import { financialReality } from '@/lib/planner/derived'
-import type { NetWorthItem, NetWorthKind } from '@/lib/planner/types'
-import { formatCurrency, formatPercent } from '@/lib/tools/format'
-import { usePlannerStore } from "@/lib/planner/store"
-import { netWorthStack } from './wealth-derive'
+import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import { Pencil, Plus, Scale, Trash2 } from "lucide-react";
+import ConfirmDialog from "@/components/planner/ui/ConfirmDialog";
+import { financialReality } from "@/lib/planner/derived";
+import type { NetWorthItem, NetWorthKind } from "@/lib/planner/types";
+import { formatCurrency, formatPercent } from "@/lib/tools/format";
+import { usePlannerStore } from "@/lib/planner/store";
+import { netWorthStack } from "./wealth-derive";
 
 const inputCls =
-  'w-full rounded-xl border border-white/[0.08] bg-navyLight/80 px-3 py-2 text-sm text-light outline-none transition-colors focus:border-cyan/50'
+  "w-full rounded-xl border border-white/[0.08] bg-navyLight/80 px-3 py-2 text-sm text-light outline-none transition-colors focus:border-cyan/50";
 
-function Field({
-  label,
-  children,
-}: {
-  label: string
-  children: React.ReactNode
-}) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
       <span className="text-label">{label}</span>
       <div className="mt-1.5">{children}</div>
     </label>
-  )
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -43,19 +37,19 @@ function Field({
 /* ------------------------------------------------------------------ */
 
 interface ItemFormState {
-  kind: NetWorthKind
-  name: string
-  amount: string
-  note: string
+  kind: NetWorthKind;
+  name: string;
+  amount: string;
+  note: string;
 }
 
 function itemFormFrom(item: NetWorthItem | null): ItemFormState {
   return {
-    kind: item?.kind ?? 'asset',
-    name: item?.name ?? '',
-    amount: item ? String(item.amount) : '',
-    note: item?.note ?? '',
-  }
+    kind: item?.kind ?? "asset",
+    name: item?.name ?? "",
+    amount: item ? String(item.amount) : "",
+    note: item?.note ?? "",
+  };
 }
 
 function ItemForm({
@@ -64,41 +58,40 @@ function ItemForm({
   onSubmit,
   onCancel,
 }: {
-  initial: ItemFormState
-  submitLabel: string
-  onSubmit: (form: ItemFormState) => void
-  onCancel: () => void
+  initial: ItemFormState;
+  submitLabel: string;
+  onSubmit: (form: ItemFormState) => void;
+  onCancel: () => void;
 }) {
-  const [form, setForm] = useState(initial)
-  const amount = Number(form.amount)
-  const valid =
-    form.name.trim().length > 0 && Number.isFinite(amount) && amount >= 0
+  const [form, setForm] = useState(initial);
+  const amount = Number(form.amount);
+  const valid = form.name.trim().length > 0 && Number.isFinite(amount) && amount >= 0;
 
   return (
     <form
       className="mt-4 rounded-2xl border border-cyan/15 bg-navyLight/70 p-4"
       onSubmit={(e) => {
-        e.preventDefault()
-        if (valid) onSubmit(form)
+        e.preventDefault();
+        if (valid) onSubmit(form);
       }}
     >
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Kind">
           <div className="flex gap-2">
-            {(['asset', 'liability'] as NetWorthKind[]).map((k) => (
+            {(["asset", "liability"] as NetWorthKind[]).map((k) => (
               <button
                 key={k}
                 type="button"
                 onClick={() => setForm((f) => ({ ...f, kind: k }))}
                 className={`flex-1 rounded-xl border px-3 py-2 text-sm font-medium capitalize transition-colors ${
                   form.kind === k
-                    ? k === 'asset'
-                      ? 'border-emerald/40 bg-emerald/10 text-emerald'
-                      : 'border-yellow/40 bg-yellow/10 text-yellow'
-                    : 'border-white/[0.08] text-dim hover:bg-white/[0.06] hover:text-light'
+                    ? k === "asset"
+                      ? "border-emerald/40 bg-emerald/10 text-emerald"
+                      : "border-yellow/40 bg-yellow/10 text-yellow"
+                    : "border-white/[0.08] text-dim hover:bg-white/[0.06] hover:text-light"
                 }`}
               >
-                {k === 'asset' ? 'Asset' : 'Debt'}
+                {k === "asset" ? "Asset" : "Debt"}
               </button>
             ))}
           </div>
@@ -106,22 +99,18 @@ function ItemForm({
         <Field label="Name">
           <input
             className={inputCls}
-            placeholder={
-              form.kind === 'asset' ? 'e.g. Home equity' : 'e.g. Auto loan'
-            }
+            placeholder={form.kind === "asset" ? "e.g. Home equity" : "e.g. Auto loan"}
             value={form.name}
             onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
           />
         </Field>
-        <Field label={form.kind === 'asset' ? 'Value' : 'Balance'}>
+        <Field label={form.kind === "asset" ? "Value" : "Balance"}>
           <input
             className={inputCls}
             inputMode="decimal"
             placeholder="0.00"
             value={form.amount}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, amount: e.target.value }))
-            }
+            onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))}
           />
         </Field>
         <Field label="Note (optional)">
@@ -152,7 +141,7 @@ function ItemForm({
         </motion.button>
       </div>
     </form>
-  )
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -164,17 +153,17 @@ function ItemRow({
   onEdit,
   onDelete,
 }: {
-  item: NetWorthItem
-  onEdit: () => void
-  onDelete: () => void
+  item: NetWorthItem;
+  onEdit: () => void;
+  onDelete: () => void;
 }) {
-  const asset = item.kind === 'asset'
+  const asset = item.kind === "asset";
   return (
     <motion.div
       layout
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, ease: 'easeOut' }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
       className="flex items-center justify-between gap-3 rounded-2xl border border-white/[0.06] bg-navyLight/50 p-3.5"
     >
       <div className="min-w-0">
@@ -184,7 +173,7 @@ function ItemRow({
       <div className="flex shrink-0 items-center gap-1">
         <p
           className={`font-display text-sm font-semibold tnum ${
-            asset ? 'text-emerald' : 'text-yellow'
+            asset ? "text-emerald" : "text-yellow"
           }`}
         >
           {formatCurrency(item.amount, { decimals: 2 })}
@@ -207,7 +196,7 @@ function ItemRow({
         </button>
       </div>
     </motion.div>
-  )
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -215,38 +204,38 @@ function ItemRow({
 /* ------------------------------------------------------------------ */
 
 export function NetWorthPanel() {
-  const accounts = usePlannerStore((s) => s.accounts)
-  const holdings = usePlannerStore((s) => s.holdings)
-  const netWorthItems = usePlannerStore((s) => s.netWorthItems)
-  const transactions = usePlannerStore((s) => s.transactions)
-  const bills = usePlannerStore((s) => s.bills)
-  const addNetWorthItem = usePlannerStore((s) => s.addNetWorthItem)
-  const updateNetWorthItem = usePlannerStore((s) => s.updateNetWorthItem)
-  const deleteNetWorthItem = usePlannerStore((s) => s.deleteNetWorthItem)
+  const accounts = usePlannerStore((s) => s.accounts);
+  const holdings = usePlannerStore((s) => s.holdings);
+  const netWorthItems = usePlannerStore((s) => s.netWorthItems);
+  const transactions = usePlannerStore((s) => s.transactions);
+  const bills = usePlannerStore((s) => s.bills);
+  const addNetWorthItem = usePlannerStore((s) => s.addNetWorthItem);
+  const updateNetWorthItem = usePlannerStore((s) => s.updateNetWorthItem);
+  const deleteNetWorthItem = usePlannerStore((s) => s.deleteNetWorthItem);
 
-  const [formOpen, setFormOpen] = useState(false)
-  const [editing, setEditing] = useState<NetWorthItem | null>(null)
-  const [confirmDelete, setConfirmDelete] = useState<NetWorthItem | null>(null)
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<NetWorthItem | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<NetWorthItem | null>(null);
 
   const stack = useMemo(
     () => netWorthStack(accounts, holdings, netWorthItems),
     [accounts, holdings, netWorthItems],
-  )
+  );
   const reality = useMemo(
     () => financialReality(transactions, accounts, bills),
     [transactions, accounts, bills],
-  )
+  );
 
   const runwayLabel = Number.isFinite(reality.runwayMonths)
     ? `${reality.runwayMonths.toFixed(1)} mo`
-    : '∞'
-  const netWorthUp = stack.netWorth >= 0
+    : "∞";
+  const netWorthUp = stack.netWorth >= 0;
 
   return (
     <motion.section
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: 0.12, ease: 'easeOut' }}
+      transition={{ duration: 0.35, delay: 0.12, ease: "easeOut" }}
       className="card-chrome p-5 sm:p-6"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -257,8 +246,7 @@ export function NetWorthPanel() {
           <div>
             <h3 className="text-base font-semibold text-light">Net worth</h3>
             <p className="mt-0.5 max-w-md text-xs leading-relaxed text-dim">
-              Cash + portfolio + other assets minus debts — same stack as HōMI
-              Finance Command.
+              Cash + portfolio + other assets minus debts — same stack as HōMI Finance Command.
             </p>
           </div>
         </div>
@@ -267,8 +255,8 @@ export function NetWorthPanel() {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
           onClick={() => {
-            setEditing(null)
-            setFormOpen((v) => !v)
+            setEditing(null);
+            setFormOpen((v) => !v);
           }}
           className="inline-flex items-center gap-1.5 rounded-xl bg-cyan px-4 py-2 text-sm font-semibold text-navy shadow-glow-cyan"
         >
@@ -282,7 +270,7 @@ export function NetWorthPanel() {
           <p className="text-label">Total net worth</p>
           <p
             className={`mt-1 font-display text-3xl font-bold tnum ${
-              netWorthUp ? 'text-emerald' : 'text-crimson'
+              netWorthUp ? "text-emerald" : "text-crimson"
             }`}
           >
             {formatCurrency(stack.netWorth, { decimals: 2 })}
@@ -293,11 +281,11 @@ export function NetWorthPanel() {
             <p className="text-label">Runway</p>
             <p
               className={`mt-0.5 font-display text-sm font-semibold tnum ${
-                reality.temps.runway === 'emerald'
-                  ? 'text-emerald'
-                  : reality.temps.runway === 'crimson'
-                    ? 'text-crimson'
-                    : 'text-yellow'
+                reality.temps.runway === "emerald"
+                  ? "text-emerald"
+                  : reality.temps.runway === "crimson"
+                    ? "text-crimson"
+                    : "text-yellow"
               }`}
             >
               {runwayLabel}
@@ -307,11 +295,11 @@ export function NetWorthPanel() {
             <p className="text-label">DTI</p>
             <p
               className={`mt-0.5 font-display text-sm font-semibold tnum ${
-                reality.temps.dti === 'emerald'
-                  ? 'text-emerald'
-                  : reality.temps.dti === 'crimson'
-                    ? 'text-crimson'
-                    : 'text-yellow'
+                reality.temps.dti === "emerald"
+                  ? "text-emerald"
+                  : reality.temps.dti === "crimson"
+                    ? "text-crimson"
+                    : "text-yellow"
               }`}
             >
               {formatPercent(reality.dti, 0)}
@@ -330,7 +318,7 @@ export function NetWorthPanel() {
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${Math.round(stack.assetsFraction * 100)}%` }}
-              transition={{ duration: 0.7, ease: 'easeOut' }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
               className="h-full rounded-full bg-emerald shadow-glow-emerald"
             />
           </div>
@@ -356,7 +344,7 @@ export function NetWorthPanel() {
               animate={{
                 width: `${Math.round((1 - stack.assetsFraction) * 100)}%`,
               }}
-              transition={{ duration: 0.7, ease: 'easeOut' }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
               className="h-full rounded-full bg-yellow"
             />
           </div>
@@ -383,8 +371,8 @@ export function NetWorthPanel() {
               name: form.name.trim(),
               amount: Number(form.amount),
               note: form.note.trim() || undefined,
-            })
-            setFormOpen(false)
+            });
+            setFormOpen(false);
           }}
           onCancel={() => setFormOpen(false)}
         />
@@ -406,8 +394,8 @@ export function NetWorthPanel() {
                       name: form.name.trim(),
                       amount: Number(form.amount),
                       note: form.note.trim() || undefined,
-                    })
-                    setEditing(null)
+                    });
+                    setEditing(null);
                   }}
                   onCancel={() => setEditing(null)}
                 />
@@ -416,8 +404,8 @@ export function NetWorthPanel() {
                   key={item.id}
                   item={item}
                   onEdit={() => {
-                    setFormOpen(false)
-                    setEditing(item)
+                    setFormOpen(false);
+                    setEditing(item);
                   }}
                   onDelete={() => setConfirmDelete(item)}
                 />
@@ -445,8 +433,8 @@ export function NetWorthPanel() {
                       name: form.name.trim(),
                       amount: Number(form.amount),
                       note: form.note.trim() || undefined,
-                    })
-                    setEditing(null)
+                    });
+                    setEditing(null);
                   }}
                   onCancel={() => setEditing(null)}
                 />
@@ -455,8 +443,8 @@ export function NetWorthPanel() {
                   key={item.id}
                   item={item}
                   onEdit={() => {
-                    setFormOpen(false)
-                    setEditing(item)
+                    setFormOpen(false);
+                    setEditing(item);
                   }}
                   onDelete={() => setConfirmDelete(item)}
                 />
@@ -471,28 +459,28 @@ export function NetWorthPanel() {
         </div>
       </div>
 
-      <p className="mt-5 flex items-start gap-2 border-t border-white/[0.06] pt-4 text-[11px] leading-relaxed text-dim">
+      <p className="mt-5 flex items-start gap-2 border-t border-white/[0.06] pt-4 text-2xs leading-relaxed text-dim">
         <Scale size={13} className="mt-0.5 shrink-0" />
-        Bank cash and portfolio market value roll in automatically. Credit card
-        balances on linked accounts count as liabilities.
+        Bank cash and portfolio market value roll in automatically. Credit card balances on linked
+        accounts count as liabilities.
       </p>
 
       <ConfirmDialog
         open={confirmDelete !== null}
-        title={confirmDelete?.kind === 'asset' ? 'Remove asset?' : 'Remove debt?'}
+        title={confirmDelete?.kind === "asset" ? "Remove asset?" : "Remove debt?"}
         body={
           confirmDelete
             ? `${confirmDelete.name} (${formatCurrency(confirmDelete.amount, { decimals: 2 })}) will be removed from the net-worth stack. Totals update live.`
-            : ''
+            : ""
         }
         confirmLabel="Remove"
         onConfirm={() => {
-          if (confirmDelete) deleteNetWorthItem(confirmDelete.id)
+          if (confirmDelete) deleteNetWorthItem(confirmDelete.id);
         }}
         onClose={() => setConfirmDelete(null)}
       />
     </motion.section>
-  )
+  );
 }
 
-export default NetWorthPanel
+export default NetWorthPanel;

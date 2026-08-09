@@ -195,9 +195,7 @@ export function getAdminEntitlements(storedTier?: string | null): Entitlements {
 }
 
 /** Result of a capability check — a discriminated union for ergonomic routing. */
-export type CapabilityCheck =
-  | { ok: true }
-  | { ok: false; status: 401 | 402; error: string };
+export type CapabilityCheck = { ok: true } | { ok: false; status: 401 | 402; error: string };
 
 /**
  * Gate a request on a boolean capability. Returns a ready-to-serialize failure

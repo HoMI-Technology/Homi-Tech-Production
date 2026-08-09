@@ -2,10 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getClientIp, rateLimit } from "@/lib/ratelimit";
 import { getVerifiedCashFlow } from "@/lib/plaid/cashflow";
-import {
-  getCategoryIntelligence,
-  categorySignalsForPath,
-} from "@/lib/plaid/categories";
+import { getCategoryIntelligence, categorySignalsForPath } from "@/lib/plaid/categories";
 
 export const runtime = "nodejs";
 

@@ -20,10 +20,7 @@ export default function OnboardingPage() {
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
-        await supabase
-          .from("profiles")
-          .update({ onboarding_completed: true })
-          .eq("id", user.id);
+        await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", user.id);
 
         // If they took an assessment before creating the account, save it
         // to their profile now — the moment they'd otherwise lose it.
@@ -95,8 +92,8 @@ function StepWhatIsHomi() {
       </h1>
       <p className="mt-3 text-sm leading-relaxed text-dim">
         Not a lender. Not a bank. Not a chatbot that tells you what you want to hear. HōMI is your
-        homie — the one honest voice in the room when you&rsquo;re about to make one of the
-        biggest decisions of your life.
+        homie — the one honest voice in the room when you&rsquo;re about to make one of the biggest
+        decisions of your life.
       </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
@@ -142,7 +139,9 @@ function StepWhatToExpect() {
           <span className="mt-0.5 text-yellow">●</span>
           <div>
             <p className="text-sm font-semibold text-light">ALMOST THERE</p>
-            <p className="text-xs text-dim">You&rsquo;ve nearly cooled down. One or two things first.</p>
+            <p className="text-xs text-dim">
+              You&rsquo;ve nearly cooled down. One or two things first.
+            </p>
           </div>
         </li>
         <li className="flex items-start gap-3 rounded-xl border border-verdict-build/30 bg-verdict-build/10 p-4">
@@ -172,10 +171,18 @@ function StepWhatToExpect() {
   );
 }
 
-function StepWhereToStart({ saving, onFinish }: { saving: boolean; onFinish: () => Promise<void> }) {
+function StepWhereToStart({
+  saving,
+  onFinish,
+}: {
+  saving: boolean;
+  onFinish: () => Promise<void>;
+}) {
   return (
     <div>
-      <h1 className="font-display text-2xl font-semibold text-light">Where do you want to start?</h1>
+      <h1 className="font-display text-2xl font-semibold text-light">
+        Where do you want to start?
+      </h1>
       <p className="mt-3 text-sm leading-relaxed text-dim">
         Take the full assessment for your complete read, or get a fast Shadow Score in under two
         minutes. Either way, HōMI meets you where you are.

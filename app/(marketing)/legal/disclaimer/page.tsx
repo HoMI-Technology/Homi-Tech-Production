@@ -25,10 +25,10 @@ export default function DisclaimerPage() {
             <h2 className="type-h3">Educational guidance only</h2>
             <p className="mt-3 leading-relaxed">
               Everything {BRAND.display} produces &mdash; your HōMI-Score, your verdict, your
-              readiness report, your transformation plan, and any conversation with the
-              Decision Companion &mdash; is educational guidance. None of it is financial,
-              legal, tax, mortgage, real estate, or investment advice, and none of it should
-              be treated as a recommendation to buy, sell, borrow, refinance, or invest.
+              readiness report, your transformation plan, and any conversation with the Decision
+              Companion &mdash; is educational guidance. None of it is financial, legal, tax,
+              mortgage, real estate, or investment advice, and none of it should be treated as a
+              recommendation to buy, sell, borrow, refinance, or invest.
             </p>
           </div>
 
@@ -48,24 +48,23 @@ export default function DisclaimerPage() {
           <div>
             <h2 className="type-h3">The verdict is not a guarantee</h2>
             <p className="mt-3 leading-relaxed">
-              A READY verdict does not guarantee loan approval, favorable financing terms,
-              or a positive outcome from any decision you make. A NOT YET or BUILD FIRST
-              verdict does not mean a decision is impossible &mdash; it means our
-              methodology identified factors worth addressing first. In all cases, the
-              verdict reflects the inputs you provided and the methodology applied to them;
-              it does not account for every fact of your individual circumstances, and it is
-              not a substitute for advice from a licensed professional.
+              A READY verdict does not guarantee loan approval, favorable financing terms, or a
+              positive outcome from any decision you make. A NOT YET or BUILD FIRST verdict does not
+              mean a decision is impossible &mdash; it means our methodology identified factors
+              worth addressing first. In all cases, the verdict reflects the inputs you provided and
+              the methodology applied to them; it does not account for every fact of your individual
+              circumstances, and it is not a substitute for advice from a licensed professional.
             </p>
           </div>
 
           <div>
             <h2 className="type-h3">You make the decision</h2>
             <p className="mt-3 leading-relaxed">
-              {BRAND.display} is built to give you clarity, not to make the decision for
-              you. You are solely responsible for any financial, legal, or personal decision
-              you make, whether or not it aligns with your HōMI-Score or verdict. We
-              encourage you to consult a licensed financial advisor, mortgage professional,
-              attorney, or tax professional for advice specific to your situation.
+              {BRAND.display} is built to give you clarity, not to make the decision for you. You
+              are solely responsible for any financial, legal, or personal decision you make,
+              whether or not it aligns with your HōMI-Score or verdict. We encourage you to consult
+              a licensed financial advisor, mortgage professional, attorney, or tax professional for
+              advice specific to your situation.
             </p>
           </div>
 

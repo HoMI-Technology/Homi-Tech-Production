@@ -79,7 +79,10 @@ interface FromCall {
   eq?: [string, string];
 }
 
-function makeService(tables: Record<string, string[]>): { service: SupabaseClient; calls: FromCall[] } {
+function makeService(tables: Record<string, string[]>): {
+  service: SupabaseClient;
+  calls: FromCall[];
+} {
   const calls: FromCall[] = [];
   const rows = (table: string) => (tables[table] ?? []).map((email) => ({ email }));
 

@@ -122,12 +122,16 @@ export default async function EmployeeDashboardPage() {
                 <ThresholdCompass size={148} verdict={verdict ?? undefined} />
               </div>
               <div className="min-w-0 text-center lg:text-left">
-                <p className="text-[0.625rem] font-bold uppercase tracking-[0.16em] text-dim">
+                <p className="text-3xs font-bold uppercase tracking-[0.16em] text-dim">
                   Private HōMI-Score
                 </p>
                 <div className="mt-1.5 flex flex-wrap items-end justify-center gap-3 lg:justify-start">
                   <HeroScore value={scorePct ?? 0} color={tint} />
-                  {verdict && <div className="mb-1.5"><VerdictBadge verdict={verdict} size="lg" /></div>}
+                  {verdict && (
+                    <div className="mb-1.5">
+                      <VerdictBadge verdict={verdict} size="lg" />
+                    </div>
+                  )}
                 </div>
                 <p className="mt-2.5 max-w-xl text-sm text-light/90">{verdictMeta.line}</p>
               </div>

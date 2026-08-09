@@ -26,7 +26,12 @@ export default function manifest(): MetadataRoute.Manifest {
       { src: "/icon-512-v2.png", sizes: "512x512", type: "image/png", purpose: "any" },
       // Full-bleed variant with the lockup pulled into the maskable safe zone
       // so Android's adaptive-icon mask (circle/squircle) never crops it.
-      { src: "/icon-512-maskable-v2.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      {
+        src: "/icon-512-maskable-v2.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "maskable",
+      },
     ],
     shortcuts: [
       {

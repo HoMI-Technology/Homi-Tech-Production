@@ -11,10 +11,7 @@ import {
   LEGACY_LAST_IMPACT_KEY,
 } from "@/lib/readiness/impact-bus";
 import type { PathStepImpact } from "@/lib/readiness/impact-bus";
-import type {
-  PathResolutionSummary,
-  PathStatusCounts,
-} from "@/lib/readiness/progress";
+import type { PathResolutionSummary, PathStatusCounts } from "@/lib/readiness/progress";
 
 /**
  * ImpactToast contract: validated consume-once display, duplicate/replay
@@ -123,9 +120,7 @@ describe("ImpactToast display", () => {
     expect(region).toHaveAttribute("aria-live", "polite");
     expect(region).toHaveAttribute("aria-atomic", "true");
     expect(screen.getByText("Step marked complete")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Dismiss Path progress" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Dismiss Path progress" })).toBeInTheDocument();
   });
 
   it("never displays an invalid event payload", () => {
@@ -170,9 +165,7 @@ describe("ImpactToast display", () => {
   it("ignores a stale stored impact", () => {
     window.sessionStorage.setItem(
       LAST_IMPACT_KEY,
-      JSON.stringify(
-        impactFixture({ at: new Date(Date.now() - 60_000).toISOString() }),
-      ),
+      JSON.stringify(impactFixture({ at: new Date(Date.now() - 60_000).toISOString() })),
     );
     render(<ImpactToast />, { wrapper: ToastProvider });
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
@@ -287,9 +280,7 @@ describe("ImpactToast dismissal", () => {
     unmount();
     // Post-unmount events must not throw or resurrect state.
     expect(() =>
-      window.dispatchEvent(
-        new CustomEvent(IMPACT_EVENT_NAME, { detail: impactFixture() }),
-      ),
+      window.dispatchEvent(new CustomEvent(IMPACT_EVENT_NAME, { detail: impactFixture() })),
     ).not.toThrow();
     expect(vi.getTimerCount()).toBe(0);
   });
@@ -300,10 +291,7 @@ describe("ImpactToast demo isolation", () => {
     "renders null on %s, never attaches the listener, and clears both keys",
     (route) => {
       mockPathname = route;
-      window.sessionStorage.setItem(
-        LAST_IMPACT_KEY,
-        JSON.stringify(impactFixture()),
-      );
+      window.sessionStorage.setItem(LAST_IMPACT_KEY, JSON.stringify(impactFixture()));
       window.sessionStorage.setItem(LEGACY_LAST_IMPACT_KEY, "{}");
       render(<ImpactToast />, { wrapper: ToastProvider });
       // Live impacts are ignored while in demo.

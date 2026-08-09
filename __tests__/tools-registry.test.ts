@@ -6,7 +6,14 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { LENSES, RING_ORDER, getLens, lensCoveragePaths, resolveCarryWrites, resolveLensSeeds } from "@/lib/tools/registry";
+import {
+  LENSES,
+  RING_ORDER,
+  getLens,
+  lensCoveragePaths,
+  resolveCarryWrites,
+  resolveLensSeeds,
+} from "@/lib/tools/registry";
 import { deriveCfm } from "@/lib/tools/cfm";
 import { DEFAULT_FINANCE_STATE } from "@/lib/finance/store";
 
@@ -118,7 +125,11 @@ describe("resolveCarryWrites", () => {
   it("maps carried values to the target lens's write-back fields", () => {
     const rentVsBuy = getLens("rent-vs-buy")!;
     const chain = { lensId: "rent-vs-buy", pitch: "Compare", carry: ["price", "rate"] };
-    const written = resolveCarryWrites(chain, { price: 450000, rate: 6.5, termYears: 30, hoaMonthly: 150 }, rentVsBuy);
+    const written = resolveCarryWrites(
+      chain,
+      { price: 450000, rate: 6.5, termYears: 30, hoaMonthly: 150 },
+      rentVsBuy,
+    );
     expect(written).toEqual({
       targetPrice: 450000,
       assumedRatePct: 6.5,

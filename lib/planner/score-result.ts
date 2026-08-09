@@ -3,11 +3,7 @@
  * Lives in lib/ (not components/) so score-bridge stays free of UI imports.
  */
 
-import type {
-  AssessmentResult,
-  HardStopReason,
-  ScoringWarning,
-} from "@/lib/scoring/public";
+import type { AssessmentResult, HardStopReason, ScoringWarning } from "@/lib/scoring/public";
 import type { VerdictKey } from "@/lib/brand";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
 
@@ -47,10 +43,7 @@ const FINANCIAL_FACTORS: {
 ];
 
 const EMOTIONAL_FACTORS: {
-  key: keyof Omit<
-    AssessmentResult["emotional"],
-    "total" | "singleRedistribution"
-  >;
+  key: keyof Omit<AssessmentResult["emotional"], "total" | "singleRedistribution">;
   label: string;
   max: number;
 }[] = [

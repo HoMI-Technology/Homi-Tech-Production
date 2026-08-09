@@ -102,7 +102,8 @@ describe("share preview", () => {
 });
 
 describe("tool hand-off link allowlist", () => {
-  const INTERNAL_PATH = /(\/(?:tools\/[a-z-]+|assessment|shadow-score|finance|credit|results|plan|simulator|advisor|connections|dashboard))(?=[\s.,;:!?)]|$)/g;
+  const INTERNAL_PATH =
+    /(\/(?:tools\/[a-z-]+|assessment|shadow-score|finance|credit|results|plan|simulator|advisor|connections|dashboard))(?=[\s.,;:!?)]|$)/g;
 
   function linkedPaths(text: string): string[] {
     return Array.from(text.matchAll(INTERNAL_PATH), (m) => m[1]);
@@ -110,7 +111,10 @@ describe("tool hand-off link allowlist", () => {
 
   it("links known product routes", () => {
     expect(linkedPaths("Run your numbers at /tools/debt-payoff.")).toEqual(["/tools/debt-payoff"]);
-    expect(linkedPaths("Start at /shadow-score, then /finance.")).toEqual(["/shadow-score", "/finance"]);
+    expect(linkedPaths("Start at /shadow-score, then /finance.")).toEqual([
+      "/shadow-score",
+      "/finance",
+    ]);
   });
 
   it("never links unknown or external-looking paths", () => {

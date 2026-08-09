@@ -22,9 +22,9 @@ test.describe("Path stack smoke (public)", () => {
     await expect(page.getByRole("heading", { name: /Pre-Flight/i })).toBeVisible({
       timeout: 20_000,
     });
-    await expect(
-      page.getByText(/DO NOT PROCEED|WAIT|PROCEED WITH CARE/i).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/DO NOT PROCEED|WAIT|PROCEED WITH CARE/i).first()).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   test("path page empty state offers assessment or generate", async ({ page }) => {

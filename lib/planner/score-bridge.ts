@@ -13,10 +13,7 @@ import {
 } from "@/lib/scoring/client-score";
 import type { AssessmentInputs, AssessmentResult } from "@/lib/scoring/public";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
-import {
-  toScoreResult,
-  type ScoreResult,
-} from "@/lib/planner/score-result";
+import { toScoreResult, type ScoreResult } from "@/lib/planner/score-result";
 import type {
   BankAccount,
   Bill,
@@ -92,18 +89,12 @@ export function buildAssessmentInputs(
   );
   const p = safeProfile(input.readinessProfile);
   const income = reality.income * (overrides?.incomeMultiplier ?? 1);
-  const dtiRatio =
-    income > 0 ? reality.debtPayments / income : reality.dti / 100;
+  const dtiRatio = income > 0 ? reality.debtPayments / income : reality.dti / 100;
 
   const downNeeded = p.targetHomePrice * 0.2;
   const dpProgress =
-    downNeeded > 0
-      ? Math.min(1, p.downPaymentSaved / downNeeded)
-      : p.downPaymentSaved > 0
-        ? 1
-        : 0;
-  const downPaymentPercent =
-    p.targetHomePrice > 0 ? p.downPaymentSaved / p.targetHomePrice : 0;
+    downNeeded > 0 ? Math.min(1, p.downPaymentSaved / downNeeded) : p.downPaymentSaved > 0 ? 1 : 0;
+  const downPaymentPercent = p.targetHomePrice > 0 ? p.downPaymentSaved / p.targetHomePrice : 0;
 
   const housingPayment = estimateHousingPayment({
     targetPrice: p.targetHomePrice,
@@ -113,8 +104,7 @@ export function buildAssessmentInputs(
     taxInsuranceRatePct: p.taxInsuranceRatePct,
     hoaMonthly: p.hoaMonthly,
   });
-  const monthlyHousingRatio =
-    income > 0 ? housingPayment / income : undefined;
+  const monthlyHousingRatio = income > 0 ? housingPayment / income : undefined;
 
   const runway = Number.isFinite(reality.runwayMonths)
     ? reality.runwayMonths
@@ -129,15 +119,12 @@ export function buildAssessmentInputs(
     lifeStability: overrides?.lifeStability ?? p.lifeStability,
     confidenceLevel: overrides?.confidenceLevel ?? p.confidenceLevel,
     partnerAlignment:
-      overrides?.partnerAlignment !== undefined
-        ? overrides.partnerAlignment
-        : p.partnerAlignment,
+      overrides?.partnerAlignment !== undefined ? overrides.partnerAlignment : p.partnerAlignment,
     fomoLevel: overrides?.fomoLevel ?? p.fomoLevel,
     timeHorizonMonths: overrides?.timeHorizonMonths ?? p.timeHorizonMonths,
     savingsRate: overrides?.savingsRate ?? reality.savingsRate / 100,
     downPaymentProgress: overrides?.downPaymentProgress ?? dpProgress,
-    monthlyHousingRatio:
-      overrides?.monthlyHousingRatio ?? monthlyHousingRatio,
+    monthlyHousingRatio: overrides?.monthlyHousingRatio ?? monthlyHousingRatio,
   };
 }
 
@@ -172,10 +159,7 @@ export function bridgeCompleteness(input: ScoreBridgeInput): {
 /* ------------------------------------------------------------------ */
 
 const CACHE_TTL_MS = 45_000;
-const cache = new Map<
-  string,
-  { at: number; payload: ServerScorePayload }
->();
+const cache = new Map<string, { at: number; payload: ServerScorePayload }>();
 const inflight = new Map<string, Promise<ServerScorePayload>>();
 
 let lastAssessment: AssessmentResult | null = null;
@@ -243,15 +227,9 @@ export function toPlannerScore(
     score: result.score,
     verdict: result.verdict,
     pillarPct: {
-      financial: Math.round(
-        (result.pillars.financial.total / PILLAR_MAX_POINTS.financial) * 100,
-      ),
-      emotional: Math.round(
-        (result.pillars.emotional.total / PILLAR_MAX_POINTS.emotional) * 100,
-      ),
-      timing: Math.round(
-        (result.pillars.timing.total / PILLAR_MAX_POINTS.timing) * 100,
-      ),
+      financial: Math.round((result.pillars.financial.total / PILLAR_MAX_POINTS.financial) * 100),
+      emotional: Math.round((result.pillars.emotional.total / PILLAR_MAX_POINTS.emotional) * 100),
+      timing: Math.round((result.pillars.timing.total / PILLAR_MAX_POINTS.timing) * 100),
     },
     hardStops: result.hardStops,
     warnings: result.warnings,
@@ -267,15 +245,10 @@ export function toPlannerScore(
  * Async server-authoritative score. Money mutations should still commit
  * if this rejects (429 / network) — callers must not invent scores.
  */
-export async function scoreFromBudgetAsync(
-  input: ScoreBridgeInput,
-): Promise<PlannerScore> {
+export async function scoreFromBudgetAsync(input: ScoreBridgeInput): Promise<PlannerScore> {
   const completeness = bridgeCompleteness(input);
   if (!completeness.canShowLiveScore) {
-    throw new ScoringRequestError(
-      "Set your decision profile before a live HōMI-Score.",
-      400,
-    );
+    throw new ScoringRequestError("Set your decision profile before a live HōMI-Score.", 400);
   }
   const inputs = buildAssessmentInputs(input);
   const payload = await fetchServerScoreCached(inputs);
@@ -283,9 +256,7 @@ export async function scoreFromBudgetAsync(
 }
 
 /** For closed-loop deltas — returns ScoreResult shape only. */
-export async function scoreResultFromBudget(
-  input: ScoreBridgeInput,
-): Promise<ScoreResult> {
+export async function scoreResultFromBudget(input: ScoreBridgeInput): Promise<ScoreResult> {
   const planner = await scoreFromBudgetAsync(input);
   return planner.result;
 }
@@ -322,11 +293,7 @@ export async function scoreHouseholdMemberAsync(
 
 export function wealthSnapshot(input: ScoreBridgeInput) {
   const portfolio = summarizePortfolio(input.holdings ?? []);
-  const nw = totalNetWorth(
-    input.accounts ?? [],
-    input.holdings ?? [],
-    input.netWorthItems ?? [],
-  );
+  const nw = totalNetWorth(input.accounts ?? [], input.holdings ?? [], input.netWorthItems ?? []);
   return { portfolio, nw };
 }
 

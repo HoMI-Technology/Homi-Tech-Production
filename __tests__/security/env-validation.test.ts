@@ -30,7 +30,9 @@ describe("env.ts — required variables", () => {
 
   it("throws a descriptive error when NEXT_PUBLIC_SUPABASE_ANON_KEY is missing", () => {
     delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    expect(() => env.NEXT_PUBLIC_SUPABASE_ANON_KEY).toThrow(/Missing required environment variable/);
+    expect(() => env.NEXT_PUBLIC_SUPABASE_ANON_KEY).toThrow(
+      /Missing required environment variable/,
+    );
     expect(() => env.NEXT_PUBLIC_SUPABASE_ANON_KEY).toThrow("NEXT_PUBLIC_SUPABASE_ANON_KEY");
   });
 
@@ -85,7 +87,8 @@ describe("env.ts — optional variables", () => {
   });
 
   it("strips inline comments from NEXT_PUBLIC_POSTHOG_HOST", () => {
-    process.env.NEXT_PUBLIC_POSTHOG_HOST = "https://us.i.posthog.com  # EU: https://eu.i.posthog.com";
+    process.env.NEXT_PUBLIC_POSTHOG_HOST =
+      "https://us.i.posthog.com  # EU: https://eu.i.posthog.com";
     expect(env.NEXT_PUBLIC_POSTHOG_HOST).toBe("https://us.i.posthog.com");
   });
 });

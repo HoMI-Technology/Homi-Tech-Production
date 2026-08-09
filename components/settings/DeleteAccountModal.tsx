@@ -59,7 +59,8 @@ export function DeleteAccountModal({ onClose }: { onClose: () => void }) {
         Delete your account
       </h2>
       <p className="mt-2 text-sm text-dim">
-        This permanently removes your assessments, journal entries, check-ins, and share links. This cannot be undone.
+        This permanently removes your assessments, journal entries, check-ins, and share links. This
+        cannot be undone.
       </p>
 
       <p className="mt-4 text-sm text-dim">

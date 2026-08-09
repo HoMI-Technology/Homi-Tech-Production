@@ -66,9 +66,7 @@ const { count, error } = await supabase
 
 if (error) fail(`question_bank query: ${error.message}`);
 if (count !== 45) {
-  console.warn(
-    `[verify-supabase] WARN: expected 45 question_bank rows, got ${count ?? "?"}`,
-  );
+  console.warn(`[verify-supabase] WARN: expected 45 question_bank rows, got ${count ?? "?"}`);
 } else {
   console.log("[verify-supabase] OK: question_bank reachable (45 rows)");
 }
@@ -82,9 +80,7 @@ if (profileError) {
 } else if (!profileData || profileData.length === 0) {
   console.log("[verify-supabase] OK: profiles blocked for anon (RLS) — empty result");
 } else {
-  console.warn(
-    "[verify-supabase] WARN: anon can read profiles — review RLS if unexpected",
-  );
+  console.warn("[verify-supabase] WARN: anon can read profiles — review RLS if unexpected");
 }
 
 const tier1 = {
@@ -115,4 +111,6 @@ if (!tier2.serviceRoleKey) {
   process.exit(0);
 }
 
-console.log("\n[verify-supabase] Tier 2 service role present — run npm run create-admin if needed.");
+console.log(
+  "\n[verify-supabase] Tier 2 service role present — run npm run create-admin if needed.",
+);

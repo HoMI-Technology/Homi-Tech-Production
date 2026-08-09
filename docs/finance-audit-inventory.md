@@ -7,6 +7,7 @@
 **No other finance code projects found** (skills only for external FMP market data; templates in .grok are non-code).
 
 ## 1. Executive Summary
+
 - **Legacy Standalone Surface (pre-2026 PRs):** Client-side + DB-backed monthly aggregates via `lib/finance/store.ts`. Used across dashboard, tools, advisor, readiness, scoring prep, Companion context. Backed by `/api/finance-state` + `user_finance_state` table (migration 00023).
 - **Ledger Work (ongoing PR ladder):** Transaction-level double-entry-style ledger (`lib/finance/ledger.ts` types + local impl + sync + calcs). Gated behind the `budgetLedger` flag. Local-first (localStorage), server sync (PR4), Plaid import planned (PR6). Tables in migration `20260803000001_finance_ledger.sql` (applied to prod).
 - **Current State:** Coexist. Legacy authoritative for most surfaces. Budget tab (new UI) uses the ledger locally. No data migration path yet; summaries not derived from ledger in prod paths.
@@ -17,7 +18,9 @@
 ## 2. Detailed Inventory
 
 ### 2.1 Core Legacy Standalone Surface
+
 **Location:** `lib/finance/store.ts` (271 lines)
+
 - `FinanceState`: monthlyIncome/Expenses, liquidSavings, totalDebt, monthlyDebtPayments, expenseCategories[], downPaymentTarget, monteCarlo params, assets[], liabilities[].
 - `DEFAULT_FINANCE_STATE` (illustrative numbers).
 - `loadFinanceState()`, `saveFinanceState()`, `hasSavedFinanceState()`, `pullFinanceState()`, `writeLocal()`.
@@ -33,7 +36,9 @@
 - Notes: Still primary; "your numbers" guard via `hasSavedFinanceState()` to avoid quoting defaults to users.
 
 ### 2.2 New Ledger System (Budget & Runway)
+
 **PR Ladder (from comments/docs):**
+
 - PR1: Domain types + calcs + validation + migration schema.
 - PR2: Local-first UI (manual tx + budgets).
 - PR3: Server schema/RLS (done).
@@ -41,6 +46,7 @@
 - PR6+: Plaid import, recurring, goals V2, full integration.
 
 **Core Files (`lib/finance/`):**
+
 - `ledger.ts` (242 lines): Types only.
   - `FinanceTransaction`: 5 types (income/expense/transfer/refund/adjustment), sources (manual/plaid/recurring_rule/migration), status (posted/pending/voided), amountCents, dates (date-only), soft-delete, transferGroup/parent, isExcludedFromBudget.
   - `FinanceCategory` (system + user; essentiality: required/important/flexible/unclassified; 4-state).
@@ -73,6 +79,7 @@
 - Other: `local-ledger.ts` also has UI helpers (todayDateOnly, monthBoundsFor, elapsedFraction).
 
 **API Surface (`app/api/finance/`):**
+
 - `categories/route.ts`: GET (system + user cats; archived included).
 - `transactions/route.ts`: GET (paginated, cursor on updated_at), POST (manual create + idempotency via `finance_mutation_idempotency`).
 - `transactions/[id]/route.ts`: PATCH (optimistic via expectedUpdatedAt), DELETE (soft-delete + voided).
@@ -80,6 +87,7 @@
 - Rate limiting, auth, infra-missing graceful.
 
 **UI:**
+
 - `app/(product)/finance/page.tsx` (1.3k lines): Main page. Uses legacy store heavily for most tabs. Conditionally dynamic-imports `BudgetTab` if `budgetLedger` flag. Tabs include "Budget" when enabled.
 - `components/finance/BudgetTab.tsx` (35k lines): Full budget UI.
   - State: local ledger.
@@ -88,50 +96,59 @@
   - Modals for tx, goal, etc.
 
 **Migration (Schema + RLS only):**
+
 - `supabase/migrations/20260803000001_finance_ledger.sql` (~489 lines shown; full defines tables + policies).
   - Tables: `finance_categories`, `finance_transactions`, `finance_budget_periods`, `finance_budget_allocations`, `finance_savings_goals`, `finance_recurring_rules`, `finance_mutation_idempotency`.
   - FORCE RLS, owner policies, system cat sharing, triggers, indexes, checks (e.g., system vs user rows).
   - Notes: "Mirrors lib/finance/ledger.ts". Apply single-file only. System categories seeded.
 
 **Types/DB:**
-- `types/database.ts`: Legacy `UserFinanceStateRow`; partial plaid; no full new finance_* yet (or not reflected).
+
+- `types/database.ts`: Legacy `UserFinanceStateRow`; partial plaid; no full new finance\_\* yet (or not reflected).
 - Other migrations: `00024_plaid_transactions.sql` (older, separate).
 
 **Tests:**
+
 - `finance-*.test.*`: budget-tab, calculations, ledger-sync, local-ledger, state.route, transactions.route, validation.
 - Plaid tests separate.
 
 **Flags (`lib/flags.ts`):**
+
 - `budgetLedger`: Controls Budget tab visibility + dynamic import (NEXT_PUBLIC_FF_BUDGET_LEDGER).
 
 **Docs/Plans References:**
+
 - COMPANION-ECOSYSTEM.md, Plans.md, GO-LIVE-CHECKLIST.md, DEPLOY.md, MIGRATIONS-SSOT.md (notes migration applied 2026-08-03), docs/superpowers/specs/2026-07-27-path-to-ready-design.md (mentions tx ledger).
 
 ### 2.3 Plaid Bank Integration (Related, Not Yet Ledger-Native)
+
 - `lib/plaid/`: client.ts, sync.ts (main), cashflow.ts, categories.ts, crypto.ts (token encrypt), remove.ts, webhook-verify.ts.
 - API: `app/api/plaid/` (accounts, cashflow-summary, disconnect, exchange, link-token, sync, webhook).
 - DB: `plaid_items`, `plaid_transactions` (older migration 00024; RLS).
 - Usage: Connections page, dashboard, advisor (verified cashflow), simulator (prefers plaid snapshot), lib/readiness/evidence.ts.
 - Current: Summarizes to legacy-like or separate verified cashflow. Ledger has `source: "plaid"` slots but no import code yet (PR6).
-- Tests: Many plaid-*.test.ts.
+- Tests: Many plaid-\*.test.ts.
 
 **Key Distinction:** Plaid populates raw txs; ledger will consume for budget (future).
 
 ### 2.4 Stripe / Billing / Payments (Separate Surface)
+
 - `lib/stripe/`: server.ts, tiers.ts.
 - API: `app/api/checkout/route.ts`, `app/api/billing/portal/route.ts`, `app/api/webhooks/stripe/route.ts` (large, signature verify, idempotency).
-- DB: payments ledger (00032), profiles stripe_* fields.
-- Scripts: stripe-setup.mjs, verify-*.mjs.
+- DB: payments ledger (00032), profiles stripe\_\* fields.
+- Scripts: stripe-setup.mjs, verify-\*.mjs.
 - Consumers: entitlements, admin, checkout E2E, cron.
 - Distinct "payments ledger" — not user personal finance.
 
 ### 2.5 Scoring / Assessment Financial Pillar
+
 - `lib/scoring/engine.ts`, weights.ts, insights.ts.
 - `computeFinancial()`: DTI, downPayment, emergencyFund, creditHealth (from AssessmentInputs, not directly store/ledger).
 - 35% weight. Inputs collected in assessment flow; may prefill from finance state in future/elsewhere.
 - No direct ledger tie yet.
 
 ### 2.6 Other Finance-Related
+
 - `lib/tools/`: cfm.ts (cashflow model?), deltas.ts, scenarios.ts, blindbudget.ts?, refinance.ts, montecarlo (in finance page), debt.ts, format.ts.
 - `lib/readiness/`: funding.ts, impact-bus.ts (explicitly avoids some finance), store.ts, evidence.ts (plaid + finance).
 - `lib/advisor/`: context building uses finance state.
@@ -142,6 +159,7 @@
 - Docs: Research on budget apps, launch maps, etc.
 
 ### 2.7 Cross-Cutting / Infra
+
 - Rate limit, auth (Supabase), RLS everywhere.
 - Idempotency patterns (multiple ledgers).
 - Graceful degradation on missing migrations ("deferred").
@@ -149,19 +167,22 @@
 - Brand/guardrails: No changes to scoring; financial reality pillar frozen.
 
 ### 2.8 External / Non-Core
+
 - `.hermes/skills/RobinBeraud/hermes-skills/finance/fmp/`: FMP API for stocks/crypto/forex (market data, not personal finance/ledger).
-- `.grok/bundled/skills/pptx/templates/`: Many finance-themed deck templates (e.g. finance_*.js) — content gen, not runtime code.
+- `.grok/bundled/skills/pptx/templates/`: Many finance-themed deck templates (e.g. finance\_\*.js) — content gen, not runtime code.
 - No other repos/code in /Users/cody matching (searched home; only clones/docs).
 
 ## 3. Removal / Integration Map
 
 ### 3.1 Current Parallel State (Risk)
+
 - Legacy surface drives most UX, Companion, tools, readiness funding, advisor.
 - Ledger: New Budget tab only (flag-gated); local data not surfaced elsewhere.
 - No overlap handling: User can have both; numbers diverge.
 - Plaid feeds verified cashflow (old table) but not ledger txs.
 
 ### 3.2 Proposed Integration Phases (Staged Migration)
+
 1. **Foundation (Current/PRs 1-4):** Complete local + sync for manual. Wire Budget tab. Expose ledger summaries internally (e.g. via readiness-snapshot already stubbed).
 2. **Data Bridge (Next):**
    - Add one-time migration: Import legacy FinanceState aggregates as "adjustment" or seed txs/periods (or keep legacy as "estimated" view).
@@ -191,6 +212,7 @@
    - Brand: exact HōMI spelling, colors.
 
 ### 3.3 Specific Removal Candidates (Post-Integration)
+
 - `lib/finance/store.ts` (core legacy; keep minimal bridge?).
 - `app/api/finance-state/route.ts` + migration 00023.
 - Duplicate legacy calcs (cfm.ts, deltas.ts derivations) if superseded by calculations.ts.
@@ -200,6 +222,7 @@
 - Docs referencing "manual finance numbers" as primary.
 
 ### 3.4 Integration Touchpoints (Where Ledger Must Feed)
+
 - `lib/advisor/*` context builders.
 - `lib/readiness/*` (funding, impact, path).
 - `lib/simulator.ts`, tools (scenarios, cfm?).
@@ -210,6 +233,7 @@
 - Architecture feed / public/architecture.json (update if new surfaces).
 
 ### 3.5 Risks / Gotchas
+
 - Data loss on switch: Plan explicit migration script + user opt-in.
 - Category ID drift: local slug vs server UUID (sync already handles for system).
 - Cents vs float: money.ts bridge; legacy uses floats.
@@ -221,6 +245,7 @@
 - Other ledgers: Do not confuse user-finance with payments/email.
 
 ### 3.6 Recommendations
+
 - Run `npm run architecture:check` + full test suite post-changes.
 - Update types/database.ts with new tables (generate?).
 - Add migration for legacy -> ledger data (one-way).
@@ -230,11 +255,13 @@
 - For Plaid: Prioritize ledger population over old cashflow for budget features.
 
 ## 4. Files Touched by This Audit
+
 - Created: `docs/finance-audit-inventory.md` (this file).
 - No modifications to source (read-only audit).
 - Greps/reads performed on ~50+ files (exhaustive via search_files + read_file + terminal find/ls on lib/app/supabase/components/tests).
 
 ## 5. Issues Encountered
+
 - Search timeouts on broad home-dir greps (mitigated by path-limiting to /code/Homi... and globs).
 - Duplicate clone discovered (Documents/...); per rules, did not audit/edit it.
 - Some APIs (periods/goals) appear incomplete (no routes, full UI local); noted as PR status.

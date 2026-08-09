@@ -74,12 +74,8 @@ export function Flashlight() {
 
       {/* Always-visible invitation */}
       <div className="px-8 pt-10 text-center sm:px-12">
-        <p className="type-kicker text-cyan">
-          The dark room
-        </p>
-        <h3 className="mt-4 type-h2">
-          Four truths the industry keeps in the dark.
-        </h3>
+        <p className="type-kicker text-cyan">The dark room</p>
+        <h3 className="mt-4 type-h2">Four truths the industry keeps in the dark.</h3>
         <p className="mt-3 text-sm text-dim">
           {torchOff ? "Lights on — read them all." : "Move your light across the room."}
         </p>

@@ -53,10 +53,15 @@ function buildContextNote(assessment: TrinityAssessmentContext): string {
   );
 }
 
-function tryParseTrinityJson(text: string): { advocate: string; skeptic: string; arbiter: string; alignment: string } | null {
+function tryParseTrinityJson(
+  text: string,
+): { advocate: string; skeptic: string; arbiter: string; alignment: string } | null {
   try {
     // Strip potential markdown code fences defensively.
-    const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
+    const cleaned = text
+      .replace(/^```(?:json)?\s*/i, "")
+      .replace(/```\s*$/i, "")
+      .trim();
     const parsed = JSON.parse(cleaned) as Record<string, unknown>;
     if (
       typeof parsed.advocate === "string" &&
@@ -102,7 +107,10 @@ export async function POST(request: Request) {
 
   const parsed = bodySchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid request body.", issues: parsed.error.issues }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body.", issues: parsed.error.issues },
+      { status: 400 },
+    );
   }
 
   // Companion gate: this is an LLM endpoint (AUDIT T1.3). Require a session and
@@ -138,14 +146,18 @@ export async function POST(request: Request) {
         messages: [
           {
             role: "user",
-            content: "Run the Trinity now. Respond with only the JSON object, following all rules exactly.",
+            content:
+              "Run the Trinity now. Respond with only the JSON object, following all rules exactly.",
           },
         ],
       }),
     });
 
     if (!response.ok) {
-      console.error("[trinity] model call failed", { status: response.status, reason: "non_200_response" });
+      console.error("[trinity] model call failed", {
+        status: response.status,
+        reason: "non_200_response",
+      });
       const trinity = buildFallbackTrinity(assessment);
       return NextResponse.json({ trinity, source: "fallback" });
     }

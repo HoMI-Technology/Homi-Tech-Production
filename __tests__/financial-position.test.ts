@@ -14,9 +14,27 @@ import {
 
 /** Query order: completed_at descending — newest first, like the dashboard. */
 const SNAPSHOTS: SnapshotReading[] = [
-  { net_worth: 42000, net_cash_flow: 800, savings_rate: 0.16, completed_at: "2026-07-14T12:00:00Z", state: null },
-  { net_worth: "40500", net_cash_flow: 650, savings_rate: 0.13, completed_at: "2026-07-01T12:00:00Z", state: null },
-  { net_worth: 41000, net_cash_flow: 700, savings_rate: 0.14, completed_at: "2026-06-15T12:00:00Z", state: null },
+  {
+    net_worth: 42000,
+    net_cash_flow: 800,
+    savings_rate: 0.16,
+    completed_at: "2026-07-14T12:00:00Z",
+    state: null,
+  },
+  {
+    net_worth: "40500",
+    net_cash_flow: 650,
+    savings_rate: 0.13,
+    completed_at: "2026-07-01T12:00:00Z",
+    state: null,
+  },
+  {
+    net_worth: 41000,
+    net_cash_flow: 700,
+    savings_rate: 0.14,
+    completed_at: "2026-06-15T12:00:00Z",
+    state: null,
+  },
 ];
 
 const NOW = new Date("2026-07-15T12:00:00Z").getTime();
@@ -67,8 +85,18 @@ describe("syncedAgo", () => {
 
 describe("attention + latest sync", () => {
   const items: ItemReading[] = [
-    { id: "i1", institution_name: "First Bank", status: "healthy", last_successful_sync: "2026-07-15T10:00:00Z" },
-    { id: "i2", institution_name: "Credit Union", status: "login_required", last_successful_sync: "2026-07-10T10:00:00Z" },
+    {
+      id: "i1",
+      institution_name: "First Bank",
+      status: "healthy",
+      last_successful_sync: "2026-07-15T10:00:00Z",
+    },
+    {
+      id: "i2",
+      institution_name: "Credit Union",
+      status: "login_required",
+      last_successful_sync: "2026-07-10T10:00:00Z",
+    },
   ];
 
   it("flags attention when any item is not healthy", () => {

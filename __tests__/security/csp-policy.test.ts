@@ -100,7 +100,9 @@ describe("CSP — security headers companion", () => {
   });
 
   it("sends Referrer-Policy: strict-origin-when-cross-origin", () => {
-    expect(NEXT_CONFIG).toContain('key: "Referrer-Policy", value: "strict-origin-when-cross-origin"');
+    expect(NEXT_CONFIG).toContain(
+      'key: "Referrer-Policy", value: "strict-origin-when-cross-origin"',
+    );
   });
 
   it("sends Permissions-Policy restricting camera, microphone, geolocation", () => {

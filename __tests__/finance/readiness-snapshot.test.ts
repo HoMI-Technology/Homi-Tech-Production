@@ -113,12 +113,24 @@ describe("buildPathFinanceSnapshotFromLedger", () => {
     // June income: $9,000; July income: $6,000; no August income.
     state = addManualTransaction(
       state,
-      { type: "income", amountCents: 900_000, description: "Payroll", categoryId: "cat-payroll", transactionDate: "2026-06-15" },
+      {
+        type: "income",
+        amountCents: 900_000,
+        description: "Payroll",
+        categoryId: "cat-payroll",
+        transactionDate: "2026-06-15",
+      },
       NOW_ISO,
     );
     state = addManualTransaction(
       state,
-      { type: "income", amountCents: 600_000, description: "Payroll", categoryId: "cat-payroll", transactionDate: "2026-07-15" },
+      {
+        type: "income",
+        amountCents: 600_000,
+        description: "Payroll",
+        categoryId: "cat-payroll",
+        transactionDate: "2026-07-15",
+      },
       NOW_ISO,
     );
 

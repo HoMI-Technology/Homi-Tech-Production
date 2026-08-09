@@ -58,11 +58,17 @@ export function ProfileSection({
         </div>
 
         <div className="flex items-center gap-3">
-          <button onClick={handleSave} disabled={saving} className="btn btn-primary btn-sm disabled:opacity-60">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="btn btn-primary btn-sm disabled:opacity-60"
+          >
             {saving ? "Saving…" : "Save changes"}
           </button>
           {status === "saved" && <span className="text-sm text-emerald">Saved.</span>}
-          {status === "error" && <span className="text-sm text-crimson">Could not save. Try again.</span>}
+          {status === "error" && (
+            <span className="text-sm text-crimson">Could not save. Try again.</span>
+          )}
         </div>
       </div>
     </section>
