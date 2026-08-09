@@ -1,178 +1,255 @@
-import Link from "next/link";
-import { COLORS, withAlpha } from "@/lib/brand";
-import { LENSES, type LensDefinition, type LensRing } from "@/lib/tools/registry";
-
 /**
- * Decide hub — decision jobs, not a calculator mall.
- * Lenses still live at /tools/* (public funnel + SEO); this is the Money home for them.
+ * Money · Decide — the lens suite.
+ *
+ * Ported from the local planner build's Tools surface: a flat card grid where
+ * selecting a lens expands it *inline*, pre-filled from the money picture,
+ * rather than navigating away. The previous version here was a hub of links
+ * out to /tools/*; those URLs still exist for the public funnel (a spec
+ * non-goal to remove them) and the lenses without an inline panel yet are
+ * linked at the foot of this page so no capability is lost.
+ *
+ * Animation is enter-only. `AnimatePresence mode="wait"` wedges under rAF
+ * throttling in background tabs, which strands the panel mid-transition.
  */
 
-type JobId = "housing" | "stability" | "horizon" | "readiness";
+"use client";
 
-const JOBS: {
-  id: JobId;
-  title: string;
-  subtitle: string;
-  accent: string;
-  rings?: LensRing[];
-  ids?: string[];
-}[] = [
-  {
-    id: "housing",
-    title: "Housing decision",
-    subtitle: "What you can carry — not just what a lender will approve.",
-    accent: COLORS.cyan,
-    ids: [
-      "affordability",
-      "mortgage",
-      "rent-vs-buy",
-      "down-payment",
-      "heloc",
-      "refinance",
-      "loan-programs",
-      "apr-compare",
-    ],
-  },
-  {
-    id: "stability",
-    title: "Stability",
-    subtitle: "Shock absorption before the leap.",
-    accent: COLORS.emerald,
-    ids: ["runway", "debt-payoff", "blind-budget"],
-  },
-  {
-    id: "horizon",
-    title: "Horizon",
-    subtitle: "Independence and path risk — educational, not advice.",
-    accent: COLORS.yellow,
-    ids: ["fire", "monte-carlo", "roth-conversion"],
-  },
-  {
-    id: "readiness",
-    title: "Readiness probes",
-    subtitle: "Same engine as the assessment — explore levers without a full retest.",
-    accent: COLORS.cyan,
-    rings: ["readiness"],
-  },
-];
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import {
+  ChevronRight,
+  Home,
+  Scale,
+  RefreshCw,
+  Landmark,
+  Layers,
+  Flame,
+  Activity,
+  Target,
+  Wallet,
+  PiggyBank,
+  Receipt,
+  TrendingUp,
+  Timer,
+  EyeOff,
+} from "lucide-react";
+import { COLORS } from "@/lib/brand";
+import { LENSES } from "@/lib/tools/registry";
+import { useLedgerSeeds } from "@/components/tools/seeds";
+import {
+  AffordabilityPanel,
+  AprPanel,
+  HelocPanel,
+  LoanProgramsPanel,
+  RefinancePanel,
+} from "@/components/tools/HousingPanels";
+import { BlindBudgetPanel, DebtPayoffPanel } from "@/components/tools/StabilityPanels";
+import { FirePanel, MonteCarloPanel, RothPanel } from "@/components/tools/TimingPanels";
+import {
+  ClosingCostPanel,
+  DownPaymentPanel,
+  RentVsBuyPanel,
+  RunwayPanel,
+} from "@/components/tools/Pass1Panels";
+import type { LedgerSeeds } from "@/components/tools/seeds";
 
-function lensesForJob(job: (typeof JOBS)[number]): LensDefinition[] {
-  if (job.ids) {
-    const byId = new Map(LENSES.map((l) => [l.id, l]));
-    return job.ids.map((id) => byId.get(id)).filter((l): l is LensDefinition => Boolean(l));
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
+/** The lenses that render inline here. Order matches the local build. */
+const PANEL_IDS = [
+  "affordability",
+  "apr-compare",
+  "refinance",
+  "heloc",
+  "loan-programs",
+  "debt-payoff",
+  "monte-carlo",
+  "fire",
+  "roth-conversion",
+  "blind-budget",
+  "runway",
+  "down-payment",
+  "rent-vs-buy",
+  "closing-cost",
+] as const;
+
+type PanelId = (typeof PANEL_IDS)[number];
+
+const ICONS: Record<PanelId, typeof Home> = {
+  affordability: Home,
+  "apr-compare": Scale,
+  refinance: RefreshCw,
+  heloc: Landmark,
+  "loan-programs": Layers,
+  "debt-payoff": Flame,
+  "monte-carlo": Activity,
+  fire: Target,
+  "roth-conversion": Wallet,
+  "blind-budget": EyeOff,
+  runway: Timer,
+  "down-payment": PiggyBank,
+  "rent-vs-buy": TrendingUp,
+  "closing-cost": Receipt,
+};
+
+/**
+ * Closing cost has no /tools route in this repo, so its card copy lives here.
+ * Every other card reads from the lens registry — one source of truth.
+ */
+const CLOSING_COST = {
+  id: "closing-cost",
+  name: "Closing Cost Range",
+  desc: "Illustrative 2%–5% band of purchase price — not a lender quote.",
+  accent: COLORS.amber,
+};
+
+function ActivePanel({ id, seeds, desc }: { id: PanelId; seeds: LedgerSeeds; desc: string }) {
+  switch (id) {
+    case "affordability":
+      return <AffordabilityPanel seeds={seeds} desc={desc} />;
+    case "apr-compare":
+      return <AprPanel seeds={seeds} desc={desc} />;
+    case "refinance":
+      return <RefinancePanel seeds={seeds} desc={desc} />;
+    case "heloc":
+      return <HelocPanel seeds={seeds} desc={desc} />;
+    case "loan-programs":
+      return <LoanProgramsPanel seeds={seeds} desc={desc} />;
+    case "debt-payoff":
+      return <DebtPayoffPanel seeds={seeds} desc={desc} />;
+    case "monte-carlo":
+      return <MonteCarloPanel seeds={seeds} desc={desc} />;
+    case "fire":
+      return <FirePanel seeds={seeds} desc={desc} />;
+    case "roth-conversion":
+      return <RothPanel seeds={seeds} desc={desc} />;
+    case "blind-budget":
+      return <BlindBudgetPanel seeds={seeds} desc={desc} />;
+    case "runway":
+      return <RunwayPanel seeds={seeds} desc={desc} />;
+    case "down-payment":
+      return <DownPaymentPanel seeds={seeds} desc={desc} />;
+    case "rent-vs-buy":
+      return <RentVsBuyPanel seeds={seeds} desc={desc} />;
+    case "closing-cost":
+      return <ClosingCostPanel seeds={seeds} desc={desc} />;
   }
-  if (job.rings) {
-    return LENSES.filter((l) => job.rings!.includes(l.ring));
-  }
-  return [];
 }
 
 export function MoneyDecideHub() {
+  const { seeds } = useLedgerSeeds();
+  const [active, setActive] = useState<PanelId>("affordability");
+
+  const cards = useMemo(
+    () =>
+      PANEL_IDS.map((id) => {
+        if (id === "closing-cost") return CLOSING_COST;
+        const lens = LENSES.find((l) => l.id === id);
+        return {
+          id,
+          name: lens?.name ?? id,
+          desc: lens?.desc ?? "",
+          accent: lens?.accent ?? COLORS.cyan,
+        };
+      }),
+    [],
+  );
+
+  /** Lenses that still live only as their own page. */
+  const linkedLenses = useMemo(
+    () => LENSES.filter((l) => !PANEL_IDS.includes(l.id as PanelId)),
+    [],
+  );
+
+  const activeCard = cards.find((c) => c.id === active) ?? cards[0];
+
   return (
-    <div className="space-y-12">
-      <div className="glass relative overflow-hidden p-6 sm:p-8">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-12 -top-16 h-48 w-48 rounded-full opacity-40"
-          style={{
-            background: `radial-gradient(circle, ${withAlpha(COLORS.cyan, 0.2)}, transparent 70%)`,
-          }}
-        />
-        <div className="relative max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan">
-            One picture · many lenses
-          </p>
-          <h2 className="mt-2 font-display text-2xl text-light sm:text-3xl">
-            Stress the decision against your real numbers
-          </h2>
-          <p className="mt-2 text-sm leading-relaxed text-dim sm:text-base">
-            Every calculator seeds from your Money picture when you have one. Missing data stays
-            missing — never invented. AI explains; the math is deterministic.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-2.5">
-            <Link href="/money/budget" className="btn btn-ghost btn-sm">
-              Fix picture
-            </Link>
-            <Link href="/scenarios" className="btn btn-ghost btn-sm">
-              Scenario studio
-            </Link>
-            <Link href="/path" className="btn btn-ghost btn-sm">
-              Path to Ready
-            </Link>
-          </div>
-        </div>
+    <div className="mx-auto w-full max-w-6xl px-4 pb-16 pt-6 sm:px-6">
+      <header className="mb-6">
+        <p className="eyebrow text-dim">HōMI lens suite</p>
+        <h1 className="type-h1 mt-1.5">Decide</h1>
+        <p className="type-lede mt-2 max-w-xl font-display italic text-dim">
+          Honest calculators on the canonical math, pre-filled from your money picture. Explore the
+          levers before you sign, bid, or stretch.
+        </p>
+      </header>
+
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
+        {cards.map((tool, i) => {
+          const Icon = ICONS[tool.id as PanelId];
+          const selected = tool.id === active;
+          return (
+            <motion.button
+              key={tool.id}
+              type="button"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: i * 0.03, ease: EASE }}
+              onClick={() => setActive(tool.id as PanelId)}
+              aria-pressed={selected}
+              className="group flex flex-col rounded-2xl border p-4 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
+              style={{
+                borderColor: selected ? `${tool.accent}59` : "rgba(255,255,255,0.06)",
+                backgroundColor: selected ? `${tool.accent}0d` : "rgba(30,41,59,0.6)",
+              }}
+            >
+              <span className="flex items-center justify-between">
+                <span
+                  className="flex h-8 w-8 items-center justify-center rounded-xl"
+                  style={{ backgroundColor: `${tool.accent}1a`, color: tool.accent }}
+                >
+                  <Icon size={15} aria-hidden />
+                </span>
+                <ChevronRight
+                  size={14}
+                  aria-hidden
+                  className="text-dim transition-transform group-hover:translate-x-0.5"
+                  style={selected ? { color: tool.accent, transform: "rotate(90deg)" } : undefined}
+                />
+              </span>
+              <span className="mt-3 text-sm font-bold text-light">{tool.name}</span>
+              <span className="mt-1 text-xs leading-snug text-dim">{tool.desc}</span>
+            </motion.button>
+          );
+        })}
       </div>
 
-      {JOBS.map((job) => {
-        const lenses = lensesForJob(job);
-        if (lenses.length === 0) return null;
-        return (
-          <section key={job.id} aria-labelledby={`job-${job.id}`}>
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <h2 id={`job-${job.id}`} className="font-display text-xl text-light">
-                  <span
-                    aria-hidden
-                    className="mr-2 inline-block h-2 w-2 rounded-full align-middle"
-                    style={{ background: job.accent }}
-                  />
-                  {job.title}
-                </h2>
-                <p className="mt-1 max-w-xl text-sm text-dim">{job.subtitle}</p>
-              </div>
-              <span className="score-numeral text-xs text-dim/70">
-                {lenses.length} lens{lenses.length === 1 ? "" : "es"}
-              </span>
-            </div>
+      <div className="mt-5">
+        {/* Keyed so switching lenses remounts and replays the enter animation. */}
+        <motion.div
+          key={active}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.18, ease: EASE }}
+        >
+          <ActivePanel id={active} seeds={seeds} desc={activeCard.desc} />
+        </motion.div>
+      </div>
 
-            <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {lenses.map((lens) => (
-                <Link
-                  key={lens.id}
-                  href={`${lens.path}${lens.path.includes("?") ? "&" : "?"}from=money`}
-                  className="glass glass-hover group relative flex flex-col overflow-hidden p-6 transition-transform duration-200 hover:-translate-y-0.5"
-                >
-                  <span
-                    aria-hidden
-                    className="absolute inset-x-0 top-0 h-px"
-                    style={{
-                      background: `linear-gradient(90deg, transparent, ${lens.accent}88, transparent)`,
-                    }}
-                  />
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-semibold text-light group-hover:text-cyan">{lens.name}</h3>
-                    {lens.gate === "plus" && (
-                      <span className="shrink-0 rounded-full border border-line px-2 py-0.5 text-3xs font-semibold uppercase tracking-wider text-dim">
-                        Plus+
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-dim">{lens.desc}</p>
-                  <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-cyan">
-                    Open lens
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      aria-hidden
-                      className="transition-transform group-hover:translate-x-0.5"
-                    >
-                      <path
-                        d="M2 8h11m0 0L9 4m4 4l-4 4"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </section>
-        );
-      })}
+      {linkedLenses.length > 0 && (
+        <section className="mt-10" aria-labelledby="decide-more">
+          <h2 id="decide-more" className="eyebrow text-dim">
+            More lenses
+          </h2>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {linkedLenses.map((lens) => (
+              <Link
+                key={lens.id}
+                href={lens.path}
+                className="rounded-xl border border-white/[0.08] bg-white/[0.02] px-3 py-2 text-sm text-dim transition-colors hover:border-cyan/30 hover:text-light"
+              >
+                {lens.name}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <p className="mt-10 max-w-2xl text-xs leading-relaxed text-dim/70">
+        HōMI lenses are educational. They do not provide financial, tax, mortgage, or investment
+        advice. Confirm critical numbers with qualified professionals before you act.
+      </p>
     </div>
   );
 }
