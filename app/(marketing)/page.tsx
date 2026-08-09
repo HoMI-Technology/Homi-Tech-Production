@@ -139,7 +139,7 @@ export default function MarketingHomePage() {
 
       {/* ── 3 · The outdated score (taste: no kicker, less glass shout) ── */}
       <Reveal>
-        <section className="px-6 py-20 sm:py-24">
+        <section className="px-6 py-24">
           <div className="mx-auto max-w-5xl">
             <h2 className="mx-auto max-w-2xl text-center type-display">
               A credit score tells institutions if they may trust your history.
@@ -533,7 +533,7 @@ export default function MarketingHomePage() {
               <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-dim">
                 It means you have time to build. And HōMI will show you exactly what to build first. Before the next major decision, know where you stand.
               </p>
-              <div className="mt-9 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+              <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <Link href="/shadow-score" className="btn btn-primary btn-glow px-9 py-4 text-base">
                   Start Your Free Assessment
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>

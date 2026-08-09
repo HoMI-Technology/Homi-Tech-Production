@@ -36,7 +36,7 @@ export default function GuidesHubPage() {
       </section>
 
       <Reveal>
-        <section className="px-6 py-10">
+        <section className="px-6 py-16">
           <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2">
             {GUIDES.map((guide, i) => (
               <Reveal key={guide.slug} delay={(i % 2) * 100}>
@@ -57,7 +57,7 @@ export default function GuidesHubPage() {
       </Reveal>
 
       <Reveal>
-        <section className="px-6 py-10">
+        <section className="px-6 py-16">
           <div className="mx-auto max-w-6xl">
             <div className="mx-auto max-w-3xl text-center">
               <h2 className="type-h2">Learning</h2>
@@ -100,7 +100,7 @@ export default function GuidesHubPage() {
       </Reveal>
 
       <Reveal>
-        <section className="px-6 py-10">
+        <section className="px-6 py-16">
           <div className="mx-auto max-w-6xl">
             <div className="mx-auto max-w-3xl text-center">
               <h2 className="type-h2">From the blog</h2>

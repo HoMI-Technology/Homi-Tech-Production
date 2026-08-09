@@ -56,7 +56,7 @@ export default async function GuidePage({
       </section>
 
       <Reveal>
-        <section className="px-6 py-8">
+        <section className="px-6 py-16">
           <div className="mx-auto max-w-3xl space-y-12">
             {guide.sections.map((section) => (
               <div key={section.heading}>

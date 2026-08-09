@@ -120,7 +120,7 @@ export default function PricingPage() {
       </section>
 
       <Reveal>
-        <section className="px-6 py-10">
+        <section className="px-6 py-16">
           <div className="mx-auto grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {TIERS.map((tier, i) => {
               const copy = TIER_COPY[tier.id];

@@ -83,7 +83,7 @@ export default async function BlogPostPage({
       </section>
 
       <Reveal>
-        <section className="px-6 py-8">
+        <section className="px-6 py-16">
           <div className="mx-auto max-w-3xl space-y-12">
             {post.sections.map((section, idx) => (
               <div key={section.heading ?? idx}>
