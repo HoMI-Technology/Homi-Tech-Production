@@ -1,9 +1,29 @@
 # Finance Code Audit: Inventory + Removal/Integration Map
 
+> ## ⚠️ STALE — do not act on this document without re-verifying
+>
+> **Superseded 2026-08-10.** The audit below is a snapshot of 2026-08-04. The finance
+> surface was restructured after it was written, so several of its central claims are
+> now false. Corrections verified against `main` on 2026-08-10:
+>
+> | Audit says                                                     | Reality on 2026-08-10                                                                       |
+> | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+> | `app/(product)/finance/page.tsx` is the main page (1.3k lines) | **Deleted.** The surface is `app/(product)/money/{page,budget,decide,plan}`                 |
+> | `components/finance/BudgetTab.tsx` holds the budget UI         | **Deleted.** Replaced by `components/money/*` (4 files) + `components/planner/*` (41 files) |
+> | Budget tab is gated behind the `budgetLedger` flag             | **Flag retired** in `0d82e4a`. `lib/flags.ts` now exports only `agentOs` and `impactBus`    |
+> | No API routes for periods/allocations/goals                    | `app/api/finance/savings-goals/` and `app/api/finance/insights/` now exist                  |
+> | Paths under `/Users/cody/...`                                  | Wrong machine. Working copy is `~/Desktop/HoMI_Tech_Github_Build`                           |
+>
+> **Still accurate:** the legacy/ledger coexistence problem is real and unresolved.
+> `lib/finance/store.ts`, `app/api/finance-state/route.ts`, and migration `00023` are all
+> still present alongside the ledger tables, so §3 (the removal/integration map) remains
+> the useful part of this document. §2's file inventory does not.
+>
+> Anything here that names a file should be checked with `git ls-files` before you rely on it.
+
 **Audit Date:** 2026-08-04 (subagent task)
 **Focus:** Current standalone surface (legacy finance snapshot / monthly estimates) vs. ledger work (transaction-level budget & runway).
-**Scope:** Exhaustive search/grep/file reads in `/Users/cody/code/Homi-Tech-Production` (authoritative local clone). Note: duplicate clone exists at `/Users/cody/Documents/kimi/workspace/homi-tech-production` (drifted per AGENTS.md; ignored for primary audit).
-**Workspace:** /Users/cody
+**Scope:** Exhaustive search/grep/file reads on the authoring machine's clone (paths below are that machine's, not this one).
 **No other finance code projects found** (skills only for external FMP market data; templates in .grok are non-code).
 
 ## 1. Executive Summary
@@ -83,13 +103,16 @@
 - `categories/route.ts`: GET (system + user cats; archived included).
 - `transactions/route.ts`: GET (paginated, cursor on updated_at), POST (manual create + idempotency via `finance_mutation_idempotency`).
 - `transactions/[id]/route.ts`: PATCH (optimistic via expectedUpdatedAt), DELETE (soft-delete + voided).
-- Notes: No routes yet for periods/allocations/goals/recurring (local-only in UI for PR2). All handle "deferred" for missing migration.
+- `savings-goals/route.ts`, `insights/route.ts`: added after this audit (2026-08-10 verification).
+- Notes: ~~No routes yet for periods/allocations/goals/recurring~~ — goals and insights now have
+  routes; periods/allocations/recurring remain local-only. All handle "deferred" for missing migration.
 - Rate limiting, auth, infra-missing graceful.
 
-**UI:**
+**UI:** _(both files below were deleted after this audit — see the staleness banner at the top;
+the current surface is `app/(product)/money/*` + `components/money/*` + `components/planner/*`)_
 
-- `app/(product)/finance/page.tsx` (1.3k lines): Main page. Uses legacy store heavily for most tabs. Conditionally dynamic-imports `BudgetTab` if `budgetLedger` flag. Tabs include "Budget" when enabled.
-- `components/finance/BudgetTab.tsx` (35k lines): Full budget UI.
+- ~~`app/(product)/finance/page.tsx` (1.3k lines)~~: Main page. Uses legacy store heavily for most tabs. Conditionally dynamic-imports `BudgetTab` if `budgetLedger` flag. Tabs include "Budget" when enabled.
+- ~~`components/finance/BudgetTab.tsx`~~ (35 KB): Full budget UI.
   - State: local ledger.
   - Features: periods, tx list/add/edit/delete, allocations, category bars, goal, summaries from calcs, sync hooks.
   - Uses: calculations (summarizePeriod, categoryActuals), local-ledger mutators, ledger-sync, money formatters.
@@ -114,7 +137,9 @@
 
 **Flags (`lib/flags.ts`):**
 
-- `budgetLedger`: Controls Budget tab visibility + dynamic import (NEXT_PUBLIC_FF_BUDGET_LEDGER).
+- ~~`budgetLedger`: Controls Budget tab visibility + dynamic import (NEXT_PUBLIC_FF_BUDGET_LEDGER).~~
+  **Retired in `0d82e4a`** — the Money surface ships ungated. `lib/flags.ts` exports only
+  `agentOs` and `impactBus` as of 2026-08-10.
 
 **Docs/Plans References:**
 
