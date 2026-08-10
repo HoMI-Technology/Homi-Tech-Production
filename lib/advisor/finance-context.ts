@@ -10,7 +10,16 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { FinanceState } from "@/lib/finance/store";
 import { centsToDollars } from "@/lib/finance/money";
 import type { BudgetPeriod, SavingsGoal } from "@/lib/finance/ledger";
-import { activeGoal, type BudgetLedgerState } from "@/lib/finance/local-ledger";
+import {
+  activeGoal,
+  CURRENT_SCHEMA_VERSION,
+  type BudgetLedgerState,
+} from "@/lib/finance/local-ledger";
+import {
+  activeGoals as activeGoalList,
+  downPaymentProgress,
+  liquidSavingsCents as liquidSavingsFromGoals,
+} from "@/lib/finance/goal-semantics";
 import {
   currentOpenPeriod,
   debtPaymentsCents,
@@ -307,8 +316,7 @@ export function buildFinanceContextFromLedger(
    * Counting non-reserve goals instead was considered and rejected — earmarked
    * money is not emergency runway, and overstating it is the opposite error.
    */
-  const liquidSavingsCents =
-    goal?.goalType === "emergency_reserve" ? goal.currentAmountCents : null;
+  const liquidSavingsCents = liquidSavingsFromGoals(state.goals);
   const liquidSavings = liquidSavingsCents === null ? null : roundCents(liquidSavingsCents);
   /**
    * The v1 ledger has no liability transaction type, so it cannot know what the
@@ -342,10 +350,8 @@ export function buildFinanceContextFromLedger(
   const categories = topSpendingCategories(state, period, incomeCents || totals.incomeCents, 10);
   const transactions = recentTransactions(state, 20);
 
-  const downPaymentProgressPct =
-    goal?.goalType === "home" && goal.targetAmountCents > 0
-      ? Math.min(100, Math.round((goal.currentAmountCents / goal.targetAmountCents) * 1000) / 10)
-      : 0;
+  // Aggregated across every active home goal — see lib/finance/goal-semantics.ts.
+  const downPaymentProgressPct = downPaymentProgress(state.goals)?.pct ?? 0;
 
   return {
     monthlyIncome,
@@ -360,7 +366,7 @@ export function buildFinanceContextFromLedger(
     incomeVsSpendingSeries: series,
     activeSignals,
     nudges,
-    goals: goal ? [goalSnapshot(goal)] : [],
+    goals: activeGoalList(state.goals).map(goalSnapshot),
     recentTransactions: transactions,
     readinessInputs: {
       dti,
@@ -412,8 +418,8 @@ export async function buildFinanceContextFromLedgerTables(
           "id, user_id, name, goal_type, target_amount_cents, current_amount_cents, target_date, planned_monthly_contribution_cents, linked_decision_id, linked_account_id, status, created_at, updated_at",
         )
         .eq("status", "active")
-        .limit(1)
-        .maybeSingle(),
+        .order("created_at", { ascending: true })
+        .limit(50),
     ]);
 
     if (txError?.code && FINANCE_LEDGER_INFRA_MISSING.has(txError.code)) return null;
@@ -426,7 +432,7 @@ export async function buildFinanceContextFromLedgerTables(
     if (!hasAnyData) return null;
 
     const state: BudgetLedgerState = {
-      schemaVersion: 1,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
       transactions: ((txRows ?? []) as FinanceTransactionRow[]).map(rowToTransaction),
       categories: ((catRows ?? []) as FinanceCategoryRow[]).map(rowToCategory),
       periods: ((periodRows ?? []) as FinanceBudgetPeriodRow[]).map((r) => ({
@@ -444,23 +450,21 @@ export async function buildFinanceContextFromLedgerTables(
         updatedAt: r.updated_at,
       })),
       allocations: [],
-      goal: goalRows
-        ? {
-            id: goalRows.id,
-            userId: goalRows.user_id,
-            name: goalRows.name,
-            goalType: goalRows.goal_type,
-            targetAmountCents: Number(goalRows.target_amount_cents),
-            currentAmountCents: Number(goalRows.current_amount_cents),
-            targetDate: goalRows.target_date,
-            plannedMonthlyContributionCents: Number(goalRows.planned_monthly_contribution_cents),
-            linkedDecisionId: goalRows.linked_decision_id,
-            linkedAccountId: goalRows.linked_account_id,
-            status: goalRows.status,
-            createdAt: goalRows.created_at,
-            updatedAt: goalRows.updated_at,
-          }
-        : null,
+      goals: ((goalRows ?? []) as FinanceSavingsGoalRow[]).map((r) => ({
+        id: r.id,
+        userId: r.user_id,
+        name: r.name,
+        goalType: r.goal_type,
+        targetAmountCents: Number(r.target_amount_cents),
+        currentAmountCents: Number(r.current_amount_cents),
+        targetDate: r.target_date,
+        plannedMonthlyContributionCents: Number(r.planned_monthly_contribution_cents),
+        linkedDecisionId: r.linked_decision_id,
+        linkedAccountId: r.linked_account_id,
+        status: r.status,
+        createdAt: r.created_at,
+        updatedAt: r.updated_at,
+      })),
     };
 
     return buildFinanceContextFromLedger(state, nowIso) ?? null;

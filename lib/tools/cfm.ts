@@ -42,6 +42,7 @@ import {
 import { metricsFromLedger, type LiquidSource } from "@/lib/finance/metrics";
 import type { FinanceCompleteness } from "@/lib/finance/readiness-snapshot";
 import { centsToDollars } from "@/lib/finance/money";
+import { downPaymentProgress } from "@/lib/finance/goal-semantics";
 import { createSyncedResource, type Stamped } from "@/lib/persistence";
 
 // ---------------------------------------------------------------------------
@@ -228,8 +229,9 @@ export function deriveCfmFromLedger(
 
   const ncf = s.dollars;
   const homeGoalSeed =
-    goal?.goalType === "home" && goal.currentAmountCents > 0
-      ? centsToDollars(goal.currentAmountCents)
+    // Summed across every active home goal — two house pots are one deposit.
+    (downPaymentProgress(state.goals)?.savedCents ?? 0) > 0
+      ? centsToDollars(downPaymentProgress(state.goals)!.savedCents)
       : undefined;
 
   return {

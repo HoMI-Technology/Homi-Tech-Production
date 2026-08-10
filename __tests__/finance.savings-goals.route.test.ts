@@ -2,8 +2,12 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 
 /**
  * Route tests for /api/finance/savings-goals — the finance ledger savings goal
- * CRUD. Ownership is RLS-shaped: user_id always comes from the session (never
- * the body) and there is at most one active goal per user.
+ * CRUD. Ownership is RLS-shaped: user_id always comes from the session, never
+ * the body.
+ *
+ * GET returns a list. PUT still writes a single goal (the multi-goal write path
+ * is the client ledger's job today) and keeps `goal` in the response alongside
+ * `goals` so clients written against the one-goal shape keep working.
  */
 
 type GoalRow = Record<string, unknown>;
@@ -29,6 +33,13 @@ vi.mock("@/lib/supabase/server", () => ({
         select: () => ({
           eq: () => ({
             eq: () => ({
+              // Multi-goal read: .order(...).limit(...) resolves to a list.
+              order: () => ({
+                limit: async () => ({
+                  data: state.goal ? [state.goal] : [],
+                  error: state.selectError,
+                }),
+              }),
               maybeSingle: async () => ({ data: state.goal, error: state.selectError }),
             }),
             maybeSingle: async () => ({ data: state.goal, error: state.selectError }),
@@ -104,7 +115,7 @@ describe("GET /api/finance/savings-goals", () => {
   it("returns null when no active goal is set", async () => {
     const res = await GET(req("GET"));
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ goal: null });
+    expect(await res.json()).toEqual({ goals: [], goal: null });
   });
 
   it("returns the caller's active goal in cents", async () => {
@@ -137,7 +148,7 @@ describe("GET /api/finance/savings-goals", () => {
     };
     const res = await GET(req("GET"));
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ goal: null });
+    expect(await res.json()).toEqual({ goals: [], goal: null });
   });
 
   it("500s with a correlation id on an unexpected database error", async () => {

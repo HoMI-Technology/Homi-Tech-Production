@@ -226,14 +226,30 @@ describe("upsertGoal", () => {
     targetDate: null,
   };
 
-  it("creates then updates the single goal, keeping its id", () => {
+  it("updates in place when given the goal's id", () => {
     let state = upsertGoal(seeded(), input, NOW);
-    expect(state.goal).toMatchObject({ name: "Emergency reserve", status: "active" });
-    const id = state.goal!.id;
+    expect(state.goals[0]).toMatchObject({ name: "Emergency reserve", status: "active" });
+    const id = state.goals[0]!.id;
 
-    state = upsertGoal(state, { ...input, currentAmountCents: 300_000 }, NOW);
-    expect(state.goal!.id).toBe(id);
-    expect(state.goal!.currentAmountCents).toBe(300_000);
+    state = upsertGoal(state, { ...input, id, currentAmountCents: 300_000 }, NOW);
+    expect(state.goals).toHaveLength(1);
+    expect(state.goals[0]!.id).toBe(id);
+    expect(state.goals[0]!.currentAmountCents).toBe(300_000);
+  });
+
+  /**
+   * The contract change from the one-goal model: without an id there is no
+   * "the" goal to update, so a second call adds a second goal rather than
+   * silently overwriting the first. Callers that mean "edit this one" must say
+   * which one.
+   */
+  it("creates a second goal when no id is given", () => {
+    let state = upsertGoal(seeded(), input, NOW);
+    state = upsertGoal(state, { ...input, name: "House deposit", goalType: "home" }, NOW);
+
+    expect(state.goals).toHaveLength(2);
+    expect(state.goals.map((g) => g.name)).toEqual(["Emergency reserve", "House deposit"]);
+    expect(new Set(state.goals.map((g) => g.id)).size).toBe(2);
   });
 
   it("rejects invalid amounts", () => {
@@ -320,7 +336,7 @@ describe("storage layer", () => {
       transactions: [good, { ...good, id: "bad", amountCents: 10.5 }, "garbage"],
       periods: [{ nope: true }],
       allocations: [{ id: "a", budgetPeriodId: "p", categoryId: "c", plannedCents: NaN }],
-      goal: { id: "g", name: "broken", targetAmountCents: "lots" },
+      goals: [{ id: "g", name: "broken", targetAmountCents: "lots" }],
     };
     backing.set("homi:budget-ledger", JSON.stringify(poisoned));
 
@@ -329,7 +345,7 @@ describe("storage layer", () => {
     expect(loaded.transactions[0].id).toBe(good.id);
     expect(loaded.periods).toEqual([]);
     expect(loaded.allocations).toEqual([]);
-    expect(loaded.goal).toBeNull();
+    expect(loaded.goals).toHaveLength(0);
     // The survivors must be safe to hand to summarizePeriod.
     const { period } = ensurePeriodFor(loaded, "2026-08-03", NOW);
     expect(summarizePeriod(loaded.transactions, period).incomeCents).toBe(100_00);
@@ -372,12 +388,12 @@ describe("goal lifecycle", () => {
 
   it("archiveGoal hides the goal and a new upsert creates a fresh record", () => {
     let state = upsertGoal(seeded(), input, NOW);
-    const firstId = state.goal!.id;
+    const firstId = state.goals[0]!.id;
     expect(activeGoal(state)!.id).toBe(firstId);
 
     state = archiveGoal(state, NOW);
     expect(activeGoal(state)).toBeNull();
-    expect(state.goal!.status).toBe("archived");
+    expect(state.goals[0]!.status).toBe("archived");
 
     state = upsertGoal(state, { ...input, name: "New goal" }, NOW);
     expect(activeGoal(state)!.name).toBe("New goal");

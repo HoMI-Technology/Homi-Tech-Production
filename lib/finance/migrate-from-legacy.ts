@@ -165,7 +165,7 @@ export function migrateLegacyToLedger(legacy: FinanceState, nowIso: string): Bud
 }
 
 function hasUserCreatedData(state: BudgetLedgerState): boolean {
-  return state.transactions.length > 0 || state.periods.length > 0 || state.goal !== null;
+  return state.transactions.length > 0 || state.periods.length > 0 || state.goals.length > 0;
 }
 
 /**
@@ -247,7 +247,8 @@ function loadBudgetLedgerForMigration(nowIso: string): BudgetLedgerState {
       transactions: Array.isArray(p.transactions) ? p.transactions : [],
       periods: Array.isArray(p.periods) ? p.periods : [],
       allocations: Array.isArray(p.allocations) ? p.allocations : [],
-      goal: p.goal ?? null,
+      // Tolerates both shapes: a v1 blob still carries `goal`, v2 carries `goals`.
+      goals: Array.isArray(p.goals) ? p.goals : p.goal ? [p.goal] : [],
     } as BudgetLedgerState;
   } catch {
     return emptyBudgetLedger(nowIso);

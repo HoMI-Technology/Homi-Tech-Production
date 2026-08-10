@@ -124,7 +124,7 @@ describe("migrateLegacyToLedger", () => {
     const food = expenseTxs.find((t: FinanceTransaction) => t.categoryId === "cat-groceries");
     expect(food).toMatchObject({ amountCents: 65_000, description: "Food" });
 
-    expect(state.goal).toMatchObject({
+    expect(state.goals[0]).toMatchObject({
       name: "Down payment",
       goalType: "home",
       targetAmountCents: 6_000_000,
@@ -151,7 +151,7 @@ describe("migrateLegacyToLedger", () => {
       liquidSavings: 5000,
     };
     const state = migrateLegacyToLedger(legacy, NOW);
-    expect(state.goal).toMatchObject({
+    expect(state.goals[0]).toMatchObject({
       name: "Emergency reserve",
       goalType: "emergency_reserve",
       targetAmountCents: 500_000,
@@ -166,7 +166,7 @@ describe("migrateLegacyToLedger", () => {
       liquidSavings: 0,
     };
     const state = migrateLegacyToLedger(legacy, NOW);
-    expect(state.goal).toBeNull();
+    expect(state.goals).toHaveLength(0);
   });
 });
 
@@ -181,7 +181,7 @@ describe("seedLedgerFromLegacyIfEmpty / loadBudgetLedger integration", () => {
 
     const loaded = loadBudgetLedger(NOW);
     expect(loaded.transactions.length).toBeGreaterThan(0);
-    expect(loaded.goal).not.toBeNull();
+    expect(loaded.goals.length).toBeGreaterThan(0);
 
     const persisted = backing.get(BUDGET_LEDGER_STORAGE_KEY);
     expect(persisted).toBeDefined();
@@ -225,7 +225,7 @@ describe("seedLedgerFromLegacyIfEmpty / loadBudgetLedger integration", () => {
       ],
       periods: [],
       allocations: [],
-      goal: null,
+      goals: [],
     };
     backing.set(BUDGET_LEDGER_STORAGE_KEY, JSON.stringify(existingLedger));
 
@@ -244,26 +244,28 @@ describe("seedLedgerFromLegacyIfEmpty / loadBudgetLedger integration", () => {
       transactions: [],
       periods: [],
       allocations: [],
-      goal: {
-        id: "existing-goal",
-        userId: "local",
-        name: "Existing",
-        goalType: "custom",
-        targetAmountCents: 1_000_000,
-        currentAmountCents: 0,
-        targetDate: null,
-        plannedMonthlyContributionCents: 0,
-        linkedDecisionId: null,
-        linkedAccountId: null,
-        status: "active",
-        createdAt: NOW,
-        updatedAt: NOW,
-      },
+      goals: [
+        {
+          id: "existing-goal",
+          userId: "local",
+          name: "Existing",
+          goalType: "custom",
+          targetAmountCents: 1_000_000,
+          currentAmountCents: 0,
+          targetDate: null,
+          plannedMonthlyContributionCents: 0,
+          linkedDecisionId: null,
+          linkedAccountId: null,
+          status: "active",
+          createdAt: NOW,
+          updatedAt: NOW,
+        },
+      ],
     };
     backing.set(BUDGET_LEDGER_STORAGE_KEY, JSON.stringify(existingLedger));
 
     const loaded = loadBudgetLedger(NOW);
-    expect(loaded.goal?.id).toBe("existing-goal");
+    expect(loaded.goals[0]?.id).toBe("existing-goal");
     expect(loaded.transactions).toHaveLength(0);
   });
 
@@ -272,7 +274,7 @@ describe("seedLedgerFromLegacyIfEmpty / loadBudgetLedger integration", () => {
     const loaded = loadBudgetLedger(NOW);
     expect(loaded.transactions).toHaveLength(0);
     expect(loaded.periods).toHaveLength(0);
-    expect(loaded.goal).toBeNull();
+    expect(loaded.goals).toHaveLength(0);
   });
 
   it("is SSR-safe without a window", () => {
@@ -280,7 +282,7 @@ describe("seedLedgerFromLegacyIfEmpty / loadBudgetLedger integration", () => {
       expect.objectContaining({
         transactions: [],
         periods: [],
-        goal: null,
+        goals: [],
       }),
     );
   });

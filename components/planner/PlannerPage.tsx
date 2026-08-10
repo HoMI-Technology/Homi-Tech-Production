@@ -8,6 +8,8 @@ import {
   Landmark,
   LayoutDashboard,
   LineChart,
+  ListOrdered,
+  Target,
   RotateCcw,
   Trash2,
 } from "lucide-react";
@@ -29,11 +31,14 @@ import { analyzeStress } from "@/lib/planner/stress";
 import { getLastScoreResult } from "@/lib/planner/score-bridge";
 
 /** Section keys for the Track workspace. "plan" is not a tab — it routes to Money · Plan. */
-export type PlannerTabKey = "overview" | "calendar" | "banking" | "wealth" | "plan";
+export type PlannerTabKey =
+  "overview" | "calendar" | "transactions" | "goals" | "banking" | "wealth" | "plan";
 
 const SECTION_TABS: { key: Exclude<PlannerTabKey, "plan">; label: string; icon: ReactNode }[] = [
   { key: "overview", label: "Overview", icon: <LayoutDashboard className="h-4 w-4" /> },
   { key: "calendar", label: "Calendar", icon: <CalendarDays className="h-4 w-4" /> },
+  { key: "transactions", label: "Transactions", icon: <ListOrdered className="h-4 w-4" /> },
+  { key: "goals", label: "Goals", icon: <Target className="h-4 w-4" /> },
   { key: "banking", label: "Banks & bills", icon: <Landmark className="h-4 w-4" /> },
   { key: "wealth", label: "Wealth", icon: <LineChart className="h-4 w-4" /> },
 ];
@@ -47,6 +52,9 @@ const HASH_ALIASES: Record<string, Exclude<PlannerTabKey, "plan">> = {
   budget: "overview",
   cashflow: "overview",
   calendar: "calendar",
+  transactions: "transactions",
+  goals: "goals",
+  ledger: "transactions",
   networth: "wealth",
   banking: "banking",
   wealth: "wealth",
@@ -66,12 +74,16 @@ function tabFromHash(): Exclude<PlannerTabKey, "plan"> {
 export function PlannerPage({
   overview,
   calendar,
+  transactionsPanel,
+  goalsPanel,
   banking,
   wealth,
   embedded = false,
 }: {
   overview: ReactNode;
   calendar: ReactNode;
+  transactionsPanel: ReactNode;
+  goalsPanel: ReactNode;
   banking: ReactNode;
   wealth: ReactNode;
   /** When true (Money · Track), skip the Budget Planner h1 — MoneyShell owns chrome. */
@@ -292,6 +304,8 @@ export function PlannerPage({
       <TabPanel idPrefix="finance" value={tab} className="relative mt-5 min-h-[12rem]">
         {tab === "overview" && overview}
         {tab === "calendar" && calendar}
+        {tab === "transactions" && transactionsPanel}
+        {tab === "goals" && goalsPanel}
         {tab === "banking" && banking}
         {tab === "wealth" && wealth}
       </TabPanel>

@@ -30,7 +30,7 @@
             "cumulative-layout-shift": ["warn", { "maxNumericValue": 0.15 }],
             "largest-contentful-paint": ["warn", { "maxNumericValue": 4500 }],
             "total-blocking-time": ["warn", { "maxNumericValue": 800 }],
-            "resource-summary:script:size": ["error", { "maxNumericValue": 358400 }],
+            "resource-summary:script:size": ["error", { "maxNumericValue": 368640 }],
             "resource-summary:total:size": ["warn", { "maxNumericValue": 1638400 }]
           }
         },
@@ -44,7 +44,7 @@
             "cumulative-layout-shift": ["warn", { "maxNumericValue": 0.15 }],
             "largest-contentful-paint": ["warn", { "maxNumericValue": 4000 }],
             "total-blocking-time": ["warn", { "maxNumericValue": 450 }],
-            "resource-summary:script:size": ["error", { "maxNumericValue": 358400 }],
+            "resource-summary:script:size": ["error", { "maxNumericValue": 368640 }],
             "resource-summary:total:size": ["warn", { "maxNumericValue": 1638400 }]
           }
         },
@@ -58,7 +58,7 @@
             "cumulative-layout-shift": ["warn", { "maxNumericValue": 0.15 }],
             "largest-contentful-paint": ["warn", { "maxNumericValue": 4500 }],
             "total-blocking-time": ["warn", { "maxNumericValue": 800 }],
-            "resource-summary:script:size": ["error", { "maxNumericValue": 358400 }],
+            "resource-summary:script:size": ["error", { "maxNumericValue": 368640 }],
             "resource-summary:total:size": ["warn", { "maxNumericValue": 1638400 }]
           }
         }

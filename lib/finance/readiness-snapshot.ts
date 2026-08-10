@@ -15,6 +15,7 @@ import type { PeriodTotals } from "@/lib/finance/calculations";
 import { summarizePeriod, runwayFromOutflow } from "@/lib/finance/calculations";
 import type { BudgetLedgerState } from "@/lib/finance/local-ledger";
 import { activeGoal } from "@/lib/finance/local-ledger";
+import { liquidSavingsCents as liquidSavingsFromGoals } from "@/lib/finance/goal-semantics";
 import {
   currentOpenPeriod,
   monthlyIncomeCents,
@@ -166,7 +167,14 @@ export function buildPathFinanceSnapshotFromLedger(
 
   const debtPayments = debtPaymentsCents(state.transactions, period);
   const monthlyExpensesCents = totals.netExpenseCents;
-  const liquidSavingsCents = goal?.goalType === "emergency_reserve" ? goal.currentAmountCents : 0;
+  /**
+   * Was `: 0` when there was no emergency-reserve goal, while the advisor path
+   * returned null for the same condition — the same question answered two ways,
+   * one of them a false claim. Both now ask goal-semantics. Zero here still
+   * means "known to be nothing left"; unknown collapses to 0 only at this
+   * snapshot's numeric boundary, and completeness carries the truth.
+   */
+  const liquidSavingsCents = liquidSavingsFromGoals(state.goals) ?? 0;
 
   const outflowCents = monthlyExpensesCents + debtPayments;
   const runway = runwayFromOutflow(liquidSavingsCents, outflowCents, "current_month_actual");
