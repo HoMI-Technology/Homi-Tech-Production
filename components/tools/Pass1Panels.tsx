@@ -41,10 +41,10 @@ function runwayLabel(months: number): string {
 
 export function RunwayPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string }) {
   const [liquid, setLiquid] = useState(
-    seeds.liquidSavings > 0 ? Math.round(seeds.liquidSavings) : 12000,
+    seeds.liquidSavings > 0 ? Math.round(seeds.liquidSavings) : 0,
   );
   const [outflow, setOutflow] = useState(
-    seeds.monthlyOutflow > 0 ? Math.round(seeds.monthlyOutflow) : 3500,
+    seeds.monthlyOutflow > 0 ? Math.round(seeds.monthlyOutflow) : 0,
   );
 
   const months = useMemo(() => computeRunwayMonths(liquid, outflow), [liquid, outflow]);
@@ -94,12 +94,12 @@ export function RunwayPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string 
 }
 
 export function DownPaymentPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string }) {
-  const [price, setPrice] = useState(425000);
+  const [price, setPrice] = useState(0);
   const [percent, setPercent] = useState(20);
   const [saved, setSaved] = useState(
     seeds.downPaymentSaved !== undefined ? Math.round(seeds.downPaymentSaved) : 18000,
   );
-  const [monthly, setMonthly] = useState(1200);
+  const [monthly, setMonthly] = useState(0);
 
   const plan = useMemo(
     () =>
@@ -204,8 +204,8 @@ export function DownPaymentPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: st
 }
 
 export function ClosingCostPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string }) {
-  const [price, setPrice] = useState(425000);
-  const [extra, setExtra] = useState(1500);
+  const [price, setPrice] = useState(0);
+  const [extra, setExtra] = useState(0);
   void seeds;
 
   const est = useMemo(
@@ -259,16 +259,16 @@ export function ClosingCostPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: st
 }
 
 export function RentVsBuyPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string }) {
-  const [price, setPrice] = useState(425000);
+  const [price, setPrice] = useState(0);
   const [down, setDown] = useState(
     seeds.downPaymentSaved !== undefined ? Math.round(seeds.downPaymentSaved) : 38000,
   );
   const [rate, setRate] = useState(6.5);
-  const [rent, setRent] = useState(1850);
+  const [rent, setRent] = useState(0);
   const [income, setIncome] = useState(
-    seeds.monthlyIncome > 0 ? Math.round(seeds.monthlyIncome) : 6500,
+    seeds.monthlyIncome > 0 ? Math.round(seeds.monthlyIncome) : 0,
   );
-  const [hoa, setHoa] = useState(45);
+  const [hoa, setHoa] = useState(0);
   const [term, setTerm] = useState(30);
 
   const result = useMemo(

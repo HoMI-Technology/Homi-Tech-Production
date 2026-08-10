@@ -35,11 +35,15 @@ export function SeededChip() {
   );
 }
 
-/** Shown when the panel is running on illustrative defaults instead. */
-export function IllustrativeChip() {
+/**
+ * Shown when there is no saved money picture. The fields start empty rather
+ * than pre-filled with invented figures, so this says what to do, not what the
+ * numbers supposedly are.
+ */
+export function EmptyChip() {
   return (
     <span className="eyebrow inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-dim">
-      Illustrative numbers
+      Enter your numbers
     </span>
   );
 }
@@ -141,7 +145,7 @@ export function ToolPanel({
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="font-display text-base italic text-dim">{desc}</p>
-        {seeded ? <SeededChip /> : <IllustrativeChip />}
+        {seeded ? <SeededChip /> : <EmptyChip />}
       </div>
       <div className="mt-5">{children}</div>
       <div className="mt-6 border-t border-white/[0.06] pt-3">
