@@ -30,9 +30,7 @@ import type { LedgerSeeds } from "@/components/tools/seeds";
 /* ------------------------------------------------------------------ */
 
 export function AffordabilityPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string }) {
-  const [annualIncome, setAnnualIncome] = useState(
-    seeds.annualIncome > 0 ? seeds.annualIncome : 95000,
-  );
+  const [annualIncome, setAnnualIncome] = useState(seeds.annualIncome > 0 ? seeds.annualIncome : 0);
   const [monthlyDebts, setMonthlyDebts] = useState(seeds.monthlyDebts);
   const [rate, setRate] = useState(6.5);
   const [termYears, setTermYears] = useState(30);
@@ -164,7 +162,7 @@ const DEFAULT_OFFERS: OfferDraft[] = [
 
 export function AprPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string }) {
   void seeds;
-  const [loan, setLoan] = useState(400000);
+  const [loan, setLoan] = useState(0);
   const [termYears, setTermYears] = useState(30);
   const [offers, setOffers] = useState<OfferDraft[]>(DEFAULT_OFFERS);
 
@@ -286,12 +284,12 @@ export function AprPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string }) 
 
 export function RefinancePanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string }) {
   void seeds;
-  const [balance, setBalance] = useState(320000);
+  const [balance, setBalance] = useState(0);
   const [currentRate, setCurrentRate] = useState(7.5);
   const [currentTermYears, setCurrentTermYears] = useState(25);
   const [newRate, setNewRate] = useState(6.0);
   const [newTermYears, setNewTermYears] = useState(30);
-  const [closingCosts, setClosingCosts] = useState(6000);
+  const [closingCosts, setClosingCosts] = useState(0);
 
   const r = useMemo(
     () =>
@@ -403,8 +401,8 @@ export function RefinancePanel({ seeds, desc }: { seeds: LedgerSeeds; desc: stri
 
 export function HelocPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string }) {
   void seeds;
-  const [homeValue, setHomeValue] = useState(500000);
-  const [mortgageBalance, setMortgageBalance] = useState(280000);
+  const [homeValue, setHomeValue] = useState(0);
+  const [mortgageBalance, setMortgageBalance] = useState(0);
   const [rate, setRate] = useState(8.5);
 
   const tiers = useMemo(
@@ -505,7 +503,7 @@ export function HelocPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string }
 /* ------------------------------------------------------------------ */
 
 export function LoanProgramsPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string }) {
-  const [homePrice, setHomePrice] = useState(400000);
+  const [homePrice, setHomePrice] = useState(0);
   const [downPayment, setDownPayment] = useState(seeds.downPaymentSaved ?? 80000);
   const [rate, setRate] = useState(6.5);
   const [termYears, setTermYears] = useState(30);

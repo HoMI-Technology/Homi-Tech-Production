@@ -45,15 +45,15 @@ const MC_SEED = 42;
 
 export function MonteCarloPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string }) {
   const [currentSavings, setCurrentSavings] = useState(
-    seeds.invested > 0 ? Math.round(seeds.invested) : 20000,
+    seeds.invested > 0 ? Math.round(seeds.invested) : 0,
   );
   const [monthlyContribution, setMonthlyContribution] = useState(
-    seeds.monthlyCashFlow > 0 ? Math.round(seeds.monthlyCashFlow) : 600,
+    seeds.monthlyCashFlow > 0 ? Math.round(seeds.monthlyCashFlow) : 0,
   );
   const [years, setYears] = useState(20);
   const [expectedReturn, setExpectedReturn] = useState(7);
   const [volatility, setVolatility] = useState(15);
-  const [targetAmount, setTargetAmount] = useState(500000);
+  const [targetAmount, setTargetAmount] = useState(0);
 
   /* Seeded simulation — identical inputs always produce identical bands.
    * Memoized on the inputs alone so re-renders never re-roll the dice. */
@@ -264,7 +264,7 @@ export function FirePanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string })
   const [currentAge, setCurrentAge] = useState(30);
   const [retirementAge, setRetirementAge] = useState(60);
   const [currentSavings, setCurrentSavings] = useState(
-    seeds.invested > 0 ? Math.round(seeds.invested) : 85000,
+    seeds.invested > 0 ? Math.round(seeds.invested) : 0,
   );
   const [expectedReturn, setExpectedReturn] = useState(7);
 
@@ -370,9 +370,9 @@ export function FirePanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string })
 
 export function RothPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string }) {
   const [currentBalance, setCurrentBalance] = useState(
-    seeds.invested > 0 ? Math.round(seeds.invested) : 120000,
+    seeds.invested > 0 ? Math.round(seeds.invested) : 0,
   );
-  const [convertAmount, setConvertAmount] = useState(25000);
+  const [convertAmount, setConvertAmount] = useState(0);
   const [rateNow, setRateNow] = useState(24);
   const [rateRetirement, setRateRetirement] = useState(22);
   const [yearsToHorizon, setYearsToHorizon] = useState(25);

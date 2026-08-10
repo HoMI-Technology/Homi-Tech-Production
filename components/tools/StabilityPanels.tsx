@@ -25,7 +25,7 @@ import type { LedgerSeeds } from "@/components/tools/seeds";
 function defaultDebts(seeds: LedgerSeeds): Debt[] {
   // Seed the working set from the ledger's total debt, split across three
   // typical balances (the ledger tracks aggregate debt, not per-account).
-  const total = seeds.totalDebt > 0 ? seeds.totalDebt : 18400;
+  const total = seeds.totalDebt > 0 ? seeds.totalDebt : 0;
   return [
     {
       id: "d-card",
@@ -54,7 +54,7 @@ function defaultDebts(seeds: LedgerSeeds): Debt[] {
 export function DebtPayoffPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string }) {
   const [debts, setDebts] = useState<Debt[]>(() => defaultDebts(seeds));
   const [extraMonthly, setExtraMonthly] = useState(
-    seeds.monthlyCashFlow > 0 ? Math.round(seeds.monthlyCashFlow) : 300,
+    seeds.monthlyCashFlow > 0 ? Math.round(seeds.monthlyCashFlow) : 0,
   );
 
   const comparison = useMemo(() => compareStrategies(debts, extraMonthly), [debts, extraMonthly]);
@@ -151,9 +151,9 @@ export function DebtPayoffPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: str
 /* ------------------------------------------------------------------ */
 
 export function BlindBudgetPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string }) {
-  const income = seeds.monthlyIncome > 0 ? seeds.monthlyIncome : 5200;
-  const outflow = seeds.monthlyOutflow > 0 ? seeds.monthlyOutflow : 2600;
-  const savings = seeds.liquidSavings > 0 ? seeds.liquidSavings : 8000;
+  const income = seeds.monthlyIncome > 0 ? seeds.monthlyIncome : 0;
+  const outflow = seeds.monthlyOutflow > 0 ? seeds.monthlyOutflow : 0;
+  const savings = seeds.liquidSavings > 0 ? seeds.liquidSavings : 0;
 
   const [incomeLow, setIncomeLow] = useState(Math.round(income * 0.85));
   const [incomeHigh, setIncomeHigh] = useState(Math.round(income * 1.15));

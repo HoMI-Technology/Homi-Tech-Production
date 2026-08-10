@@ -47,19 +47,28 @@ export interface SeedState {
 }
 
 /**
- * Illustrative defaults for a signed-out or empty state. Deliberately round
- * numbers so they never read as somebody's real figures.
+ * Empty until there is real data.
+ *
+ * These were illustrative figures — $90k income, $18k saved — shown whenever a
+ * user had no money picture. Even labelled as illustrative, a lens pre-filled
+ * with somebody else's numbers reads as a statement about *your* money, and a
+ * calculator that starts from an invented salary quietly anchors every answer
+ * it gives.
+ *
+ * Zero is the honest start. The inputs stay editable, so a signed-out visitor
+ * types their own numbers and gets real math on them; nothing is ever displayed
+ * as theirs that they did not enter or connect.
  */
-const DEFAULT_SEEDS: LedgerSeeds = {
-  annualIncome: 90_000,
-  monthlyIncome: 7_500,
-  monthlyDebts: 450,
-  totalDebt: 18_000,
-  monthlyOutflow: 4_200,
-  liquidSavings: 18_000,
+const EMPTY_SEEDS: LedgerSeeds = {
+  annualIncome: 0,
+  monthlyIncome: 0,
+  monthlyDebts: 0,
+  totalDebt: 0,
+  monthlyOutflow: 0,
+  liquidSavings: 0,
   downPaymentSaved: undefined,
-  monthlyCashFlow: 900,
-  invested: 25_000,
+  monthlyCashFlow: 0,
+  invested: 0,
 };
 
 export function useLedgerSeeds(): SeedState {
@@ -67,7 +76,7 @@ export function useLedgerSeeds(): SeedState {
 
   return useMemo(() => {
     if (!cfm) {
-      return { seeds: DEFAULT_SEEDS, hydrated, seeded: false };
+      return { seeds: EMPTY_SEEDS, hydrated, seeded: false };
     }
 
     const monthlyIncome = cfm.core.monthlyIncome.value;
