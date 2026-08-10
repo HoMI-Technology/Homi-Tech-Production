@@ -9,7 +9,10 @@
  */
 
 import type { BudgetLedgerState } from "@/lib/finance/local-ledger";
-import { activeGoal } from "@/lib/finance/local-ledger";
+import {
+  liquidSavingsCents as liquidSavingsFromGoals,
+  primaryGoal,
+} from "@/lib/finance/goal-semantics";
 import { summarizePeriod, runwayFromOutflow, type PeriodTotals } from "@/lib/finance/calculations";
 import {
   currentOpenPeriod,
@@ -184,15 +187,19 @@ function resolveLiquidFromLedger(state: BudgetLedgerState): {
   cents: MoneyCents | null;
   source: LiquidSource;
 } {
-  const goal = activeGoal(state);
-  if (!goal || goal.currentAmountCents <= 0) {
+  // Reserves are real liquid cash and sum across goals; anything else is a
+  // proxy at best, so it stays labelled as one rather than being added in.
+  const reserveCents = liquidSavingsFromGoals(state.goals);
+  if (reserveCents !== null && reserveCents > 0) {
+    return { cents: reserveCents, source: "emergency_goal" };
+  }
+
+  const proxy = primaryGoal(state.goals);
+  if (!proxy || proxy.currentAmountCents <= 0) {
     return { cents: null, source: "missing" };
   }
-  if (goal.goalType === "emergency_reserve") {
-    return { cents: goal.currentAmountCents, source: "emergency_goal" };
-  }
   // Other goals are a proxy only — never silent "liquid cash".
-  return { cents: goal.currentAmountCents, source: "goal_proxy" };
+  return { cents: proxy.currentAmountCents, source: "goal_proxy" };
 }
 
 /**

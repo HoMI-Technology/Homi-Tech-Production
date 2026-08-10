@@ -35,6 +35,7 @@ import {
   type TransactionType,
 } from "@/lib/finance/ledger";
 import { isValidCents, type MoneyCents } from "@/lib/finance/money";
+import { primaryGoal } from "@/lib/finance/goal-semantics";
 import { seedLedgerFromLegacyIfEmpty } from "@/lib/finance/migrate-from-legacy";
 
 export const BUDGET_LEDGER_STORAGE_KEY = "homi:budget-ledger";
@@ -43,7 +44,11 @@ export const BUDGET_LEDGER_STAMP_KEY = "homi:budget-ledger:updated-at";
 /** Unreadable blobs are moved here, never destroyed. */
 const CORRUPT_BACKUP_KEY = "homi:budget-ledger:corrupt-backup";
 
-export const CURRENT_SCHEMA_VERSION = 1;
+/**
+ * 2 — goals became a list. V1 stored a single `goal`; the migration below lifts
+ * it into `goals` so no saved ledger loses its goal.
+ */
+export const CURRENT_SCHEMA_VERSION = 2;
 
 /** userId for records created before sign-in; rewritten when sync adopts them. */
 export const LOCAL_USER_ID = "local";
@@ -54,8 +59,13 @@ export interface BudgetLedgerState {
   transactions: FinanceTransaction[];
   periods: BudgetPeriod[];
   allocations: BudgetCategoryAllocation[];
-  /** V1: at most one goal; a non-active status reads as "no goal" in the UI. */
-  goal: SavingsGoal | null;
+  /**
+   * All goals the user has, active or not. A goal whose status is not "active"
+   * reads as archived in the UI but keeps its history. Order is creation order;
+   * callers that need "the" goal of a kind should ask goal-semantics.ts rather
+   * than picking an index, so the rule lives in one place.
+   */
+  goals: SavingsGoal[];
 }
 
 export function newLedgerId(): string {
@@ -108,7 +118,7 @@ export function emptyBudgetLedger(nowIso: string): BudgetLedgerState {
     transactions: [],
     periods: [],
     allocations: [],
-    goal: null,
+    goals: [],
   };
 }
 
@@ -186,11 +196,31 @@ function isUsableGoal(g: unknown): g is SavingsGoal {
 
 /**
  * Forward-only migration chain keyed by the version being upgraded FROM
- * (the Zustand-persist pattern). Version 1 is current, so the map is empty;
- * a future v2 adds `1: (state) => ...`.
+ * (the Zustand-persist pattern). A future v3 adds `2: (state) => ...`.
  */
 const MIGRATIONS: Record<number, (persisted: Record<string, unknown>) => Record<string, unknown>> =
-  {};
+  {
+    /**
+     * 1 → 2: single `goal` becomes a `goals` list.
+     *
+     * Lifts an existing goal into the list rather than dropping it — a saved
+     * ledger's goal is real money the user has set aside, and silently losing it
+     * would be the worst possible outcome of a schema bump. A null goal migrates
+     * to an empty list, not a list containing null.
+     */
+    1: (persisted) => {
+      const { goal, ...rest } = persisted as { goal?: unknown } & Record<string, unknown>;
+      // A v1-stamped blob that already carries `goals` keeps them. Never discard
+      // goals that are already in the list shape just because the stamp is old —
+      // the stamp is the least trustworthy thing in the envelope.
+      const existing = Array.isArray(rest.goals) ? rest.goals : null;
+      return {
+        ...rest,
+        schemaVersion: 2,
+        goals: existing ?? (isRecord(goal) ? [goal] : []),
+      };
+    },
+  };
 
 /** Whether the user has saved any real ledger data (vs. the empty seed). */
 export function hasSavedBudgetLedger(): boolean {
@@ -244,7 +274,7 @@ export function loadBudgetLedger(nowIso: string): BudgetLedgerState {
       transactions: Array.isArray(p.transactions) ? p.transactions.filter(isUsableTransaction) : [],
       periods: Array.isArray(p.periods) ? p.periods.filter(isUsablePeriod) : [],
       allocations: Array.isArray(p.allocations) ? p.allocations.filter(isUsableAllocation) : [],
-      goal: isUsableGoal(p.goal) ? p.goal : null,
+      goals: Array.isArray(p.goals) ? p.goals.filter(isUsableGoal) : [],
     };
     return seedLedgerFromLegacyIfEmpty(nowIso, state);
   } catch {
@@ -511,19 +541,31 @@ export interface GoalInput {
   targetDate: string | null;
 }
 
-/** The goal the UI should show — a non-active goal reads as "no goal". */
-export function activeGoal(state: BudgetLedgerState): SavingsGoal | null {
-  return state.goal && state.goal.status === "active" ? state.goal : null;
+/** Every goal still counting toward the present picture. */
+export function listActiveGoals(state: BudgetLedgerState): SavingsGoal[] {
+  return state.goals.filter((g) => g.status === "active");
 }
 
 /**
- * Creates or updates the single v1 goal. An archived goal is replaced by a
- * fresh record (new id) rather than resurrected, so its history stays
- * meaningful to the future sync layer.
+ * The single goal a not-yet-multi-goal surface should show.
+ *
+ * Kept so callers written against the one-goal model keep working, but it now
+ * defers to goal-semantics.primaryGoal rather than "the" goal — with several
+ * goals the emergency reserve wins, because it is the one that governs runway.
+ * New code that can show more than one should use listActiveGoals.
+ */
+export function activeGoal(state: BudgetLedgerState): SavingsGoal | null {
+  return primaryGoal(state.goals);
+}
+
+/**
+ * Creates or updates a goal. Passing an `id` updates that goal; omitting it
+ * creates one. An archived goal is never resurrected — a fresh record is
+ * created instead, so its history stays meaningful to the sync layer.
  */
 export function upsertGoal(
   state: BudgetLedgerState,
-  input: GoalInput,
+  input: GoalInput & { id?: string },
   nowIso: string,
 ): BudgetLedgerState {
   if (!isValidCents(input.targetAmountCents) || input.targetAmountCents <= 0) {
@@ -538,42 +580,54 @@ export function upsertGoal(
   ) {
     throw new RangeError(`Invalid planned contribution: ${input.plannedMonthlyContributionCents}`);
   }
-  const existing = activeGoal(state);
-  const goal: SavingsGoal = existing
-    ? {
-        ...existing,
-        ...input,
-        name: input.name.trim(),
-        updatedAt: nowIso,
-      }
-    : {
-        id: newLedgerId(),
-        userId: LOCAL_USER_ID,
-        name: input.name.trim(),
-        goalType: input.goalType,
-        targetAmountCents: input.targetAmountCents,
-        currentAmountCents: input.currentAmountCents,
-        targetDate: input.targetDate,
-        plannedMonthlyContributionCents: input.plannedMonthlyContributionCents,
-        linkedDecisionId: null,
-        linkedAccountId: null,
-        status: "active",
-        createdAt: nowIso,
-        updatedAt: nowIso,
-      };
-  return { ...state, goal };
+  const { id, ...fields } = input;
+  const existing = id ? state.goals.find((g) => g.id === id && g.status === "active") : undefined;
+
+  if (existing) {
+    return {
+      ...state,
+      goals: state.goals.map((g) =>
+        g.id === existing.id ? { ...g, ...fields, name: fields.name.trim(), updatedAt: nowIso } : g,
+      ),
+    };
+  }
+
+  const goal: SavingsGoal = {
+    id: newLedgerId(),
+    userId: LOCAL_USER_ID,
+    name: fields.name.trim(),
+    goalType: fields.goalType,
+    targetAmountCents: fields.targetAmountCents,
+    currentAmountCents: fields.currentAmountCents,
+    targetDate: fields.targetDate,
+    plannedMonthlyContributionCents: fields.plannedMonthlyContributionCents,
+    linkedDecisionId: null,
+    linkedAccountId: null,
+    status: "active",
+    createdAt: nowIso,
+    updatedAt: nowIso,
+  };
+  return { ...state, goals: [...state.goals, goal] };
 }
 
 /**
- * Archives the active goal — the reversible exit from the one-goal model.
- * The record is kept (status "archived"), not deleted; the UI then reads
- * "no goal" via activeGoal().
+ * Archives a goal — the reversible way to remove one. The record is kept
+ * (status "archived"), never deleted, so its history survives. Omitting the id
+ * archives the primary goal, preserving the old single-goal call shape.
  */
-export function archiveGoal(state: BudgetLedgerState, nowIso: string): BudgetLedgerState {
-  const existing = activeGoal(state);
-  if (!existing) return state;
+export function archiveGoal(
+  state: BudgetLedgerState,
+  nowIso: string,
+  goalId?: string,
+): BudgetLedgerState {
+  const target = goalId
+    ? (state.goals.find((g) => g.id === goalId && g.status === "active") ?? null)
+    : primaryGoal(state.goals);
+  if (!target) return state;
   return {
     ...state,
-    goal: { ...existing, status: "archived", updatedAt: nowIso },
+    goals: state.goals.map((g) =>
+      g.id === target.id ? { ...g, status: "archived", updatedAt: nowIso } : g,
+    ),
   };
 }
