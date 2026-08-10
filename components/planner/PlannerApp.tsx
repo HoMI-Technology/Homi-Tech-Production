@@ -30,6 +30,13 @@ const TransactionsCommand = dynamic(
     loading: () => <ProductLoadingSkeleton label="Loading transactions" rows={3} />,
   },
 );
+const GoalsCommand = dynamic(
+  () => import("@/components/planner/goals/GoalsCommand").then((m) => m.GoalsCommand),
+  {
+    ssr: false,
+    loading: () => <ProductLoadingSkeleton label="Loading goals" rows={3} />,
+  },
+);
 const BankingCommand = dynamic(() => import("@/components/planner/banking/BankingCommand"), {
   ssr: false,
   loading: () => <ProductLoadingSkeleton label="Loading banks" rows={3} />,
@@ -80,6 +87,7 @@ export function PlannerApp({ embedded = false }: { embedded?: boolean }) {
           overview={<OverviewCommand />}
           calendar={<DecisionCalendar />}
           transactionsPanel={<TransactionsCommand />}
+          goalsPanel={<GoalsCommand />}
           banking={<BankingCommand />}
           wealth={<WealthCommand />}
         />
