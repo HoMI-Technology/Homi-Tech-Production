@@ -7,6 +7,9 @@ import type { FinanceSavingsGoalRow } from "@/types/database";
 
 export const runtime = "nodejs";
 
+/** Cap on goals returned — a sane upper bound, not a product limit. */
+const MAX_GOALS = 50;
+
 const SELECT_COLS =
   "id, user_id, name, goal_type, target_amount_cents, current_amount_cents, target_date, planned_monthly_contribution_cents, linked_decision_id, linked_account_id, status, created_at, updated_at";
 
@@ -64,21 +67,25 @@ export async function GET(request: Request) {
     .select(SELECT_COLS)
     .eq("user_id", user.id)
     .eq("status", "active")
-    .maybeSingle();
+    .order("created_at", { ascending: true })
+    .limit(MAX_GOALS);
 
   if (error) {
     if (error.code && FINANCE_LEDGER_INFRA_MISSING.has(error.code)) {
-      return NextResponse.json({ goal: null });
+      return NextResponse.json({ goals: [], goal: null });
     }
     const correlationId = crypto.randomUUID();
     console.error(`[finance-savings-goals:get:${correlationId}]`, error.message);
     return NextResponse.json(
-      { error: "Could not load your goal.", correlationId },
+      { error: "Could not load your goals.", correlationId },
       { status: 500 },
     );
   }
 
-  return NextResponse.json({ goal: data ? rowToSavingsGoal(data as FinanceSavingsGoalRow) : null });
+  const goals = ((data ?? []) as FinanceSavingsGoalRow[]).map(rowToSavingsGoal);
+  // `goal` is kept for clients written against the single-goal response and
+  // will be dropped once none remain; it is the first goal, not "the" goal.
+  return NextResponse.json({ goals, goal: goals[0] ?? null });
 }
 
 /** PUT /api/finance/savings-goals — creates or replaces the caller's active goal. */

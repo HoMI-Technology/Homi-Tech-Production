@@ -26,7 +26,7 @@ function augustPeriod(expectedIncomeCents: number | null) {
   };
 }
 
-function emergencyGoal(currentAmountCents: number): BudgetLedgerState["goal"] {
+function emergencyGoal(currentAmountCents: number): BudgetLedgerState["goals"][number] {
   return {
     id: "goal-1",
     userId: "local",
@@ -59,7 +59,7 @@ function stubStorage(): Map<string, string> {
 describe("buildPathFinanceSnapshotFromLedger", () => {
   it("uses the current period's expected income when set", () => {
     let state = emptyBudgetLedger(NOW_ISO);
-    state = { ...state, periods: [augustPeriod(800_000)], goal: emergencyGoal(12_000_000) };
+    state = { ...state, periods: [augustPeriod(800_000)], goals: [emergencyGoal(12_000_000)] };
 
     state = addManualTransaction(
       state,

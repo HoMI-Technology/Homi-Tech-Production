@@ -5,11 +5,7 @@ import {
   syncPlannerWithLedger,
   dualWriteAddTransaction,
 } from "@/lib/planner/ledger-bridge";
-import {
-  emptyBudgetLedger,
-  saveBudgetLedger,
-  loadBudgetLedger,
-} from "@/lib/finance/local-ledger";
+import { emptyBudgetLedger, saveBudgetLedger, loadBudgetLedger } from "@/lib/finance/local-ledger";
 import { usePlannerStore } from "@/lib/planner/store";
 import type { FinanceTransaction } from "@/lib/finance/ledger";
 
@@ -43,7 +39,9 @@ describe("ledger-bridge", () => {
   it("maps ledger income/expense into planner transactions", () => {
     const now = new Date().toISOString();
     const ledger = emptyBudgetLedger(now);
-    const expenseCat = ledger.categories.find((c) => c.slug === "housing" || c.id === "cat-housing");
+    const expenseCat = ledger.categories.find(
+      (c) => c.slug === "housing" || c.id === "cat-housing",
+    );
     const tx: FinanceTransaction = {
       id: "abc123",
       userId: "local",
@@ -201,21 +199,23 @@ describe("ledger-bridge", () => {
     let ledger = emptyBudgetLedger(now);
     ledger = {
       ...ledger,
-      goal: {
-        id: "goal1",
-        userId: "local",
-        name: "Emergency",
-        goalType: "emergency_reserve",
-        targetAmountCents: 10_000_00,
-        currentAmountCents: 6_000_00,
-        targetDate: null,
-        plannedMonthlyContributionCents: 0,
-        linkedDecisionId: null,
-        linkedAccountId: null,
-        status: "active",
-        createdAt: now,
-        updatedAt: now,
-      },
+      goals: [
+        {
+          id: "goal1",
+          userId: "local",
+          name: "Emergency",
+          goalType: "emergency_reserve",
+          targetAmountCents: 10_000_00,
+          currentAmountCents: 6_000_00,
+          targetDate: null,
+          plannedMonthlyContributionCents: 0,
+          linkedDecisionId: null,
+          linkedAccountId: null,
+          status: "active",
+          createdAt: now,
+          updatedAt: now,
+        },
+      ],
       transactions: [
         {
           id: "e1",
