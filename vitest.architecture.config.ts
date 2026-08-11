@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
 // See vitest.config.ts — ambient NODE_ENV=production breaks React/test hatches.
-process.env.NODE_ENV = "test";
+(process.env as { NODE_ENV?: string }).NODE_ENV = "test";
 
 /** Isolated config so architecture:gen can write public/architecture.json. */
 export default defineConfig({

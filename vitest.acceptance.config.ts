@@ -2,7 +2,7 @@ import { fileURLToPath } from "node:url";
 import { configDefaults, defineConfig } from "vitest/config";
 
 // See vitest.config.ts — ambient NODE_ENV=production breaks React/test hatches.
-process.env.NODE_ENV = "test";
+(process.env as { NODE_ENV?: string }).NODE_ENV = "test";
 
 // Runs ONLY the independent acceptance suite (BUILD-BRIEF §9).
 // These are implementation-agnostic behavioural oracles. An agent must make

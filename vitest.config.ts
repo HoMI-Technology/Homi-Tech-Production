@@ -10,7 +10,8 @@ import { defineConfig, configDefaults } from "vitest/config";
 // `NODE_ENV=test` script prefix — keeps the fix cross-platform on Windows.
 // This runs when the config module is evaluated, long before any test worker
 // is spawned or any test file imports React; forked workers inherit it.
-process.env.NODE_ENV = "test";
+// Cast because Next declares NODE_ENV as a readonly literal union.
+(process.env as { NODE_ENV?: string }).NODE_ENV = "test";
 
 /**
  * Vitest 4 recovery (PR #98). JSX transforms via @vitejs/plugin-react
