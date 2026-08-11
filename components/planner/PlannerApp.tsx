@@ -8,6 +8,7 @@ import { LEGAL_DISCLAIMER } from "@/lib/brand";
 import { usePlannerStore } from "@/lib/planner/store";
 import { PlannerPage } from "@/components/planner/PlannerPage";
 import { hydratePlannerFromLedger } from "@/lib/planner/ledger-bridge";
+import { useLedgerServerSync } from "@/lib/planner/use-ledger-sync";
 
 const OverviewCommand = dynamic(
   () => import("@/components/planner/overview/OverviewCommand").then((m) => m.default),
@@ -76,6 +77,10 @@ export function PlannerApp({ embedded = false }: { embedded?: boolean }) {
       window.clearTimeout(t);
     };
   }, [setHasHydrated]);
+
+  // Local hydration first, then reconcile with the server. Ordering matters:
+  // pushing before the local ledger is loaded would send an empty ledger.
+  useLedgerServerSync(ready);
 
   const body =
     !ready && !hasHydrated ? (
