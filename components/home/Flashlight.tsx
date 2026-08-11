@@ -67,6 +67,7 @@ export function Flashlight() {
   return (
     <div
       ref={zoneRef}
+      data-cinema="torch"
       className={`torch-zone overflow-hidden rounded-3xl border border-slate-high/30 ${torchOff ? "torch-off" : ""}`}
       style={{ background: "#040b16" }}
     >

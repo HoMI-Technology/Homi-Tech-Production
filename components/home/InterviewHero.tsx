@@ -2,15 +2,16 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { CinematicCompass, Particles } from "./CinematicCompass";
+import { Particles } from "./CinematicCompass";
+import { Compass3D } from "./Compass3D";
 import { track } from "@/lib/analytics";
 import { COLORS, withAlpha } from "@/lib/brand";
 
 /**
  * InterviewHero — landing hook (PERSUADE).
- * Redesign-preserve under DESIGN.md: navy/cyan/Fraunces brand lock, compass
- * instrument, 3-signal interview. Taste pass: fit the fold, asymmetric split
- * at lg+, no decorative kicker dots, one clear primary path, quieter chrome.
+ * Ultra-premium film pass: Compass3D gyro instrument, reactive ring glow,
+ * one-shot beam climax on temperature, lit magnetic CTA → /shadow-score.
+ * DESIGN.md: navy/cyan/Fraunces, boldness in the instrument, PRM-safe.
  *
  * SEO/AT: h1 is in the DOM from first paint at full contrast.
  */
@@ -140,7 +141,12 @@ export function InterviewHero() {
   const [settled, setSettled] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [announcement, setAnnouncement] = useState("");
+  const [beamGo, setBeamGo] = useState(false);
+  const [ctaLit, setCtaLit] = useState(false);
   const doneFlagSet = useRef(false);
+  const climaxFired = useRef(false);
+  /** True when this visit restored a prior completion — no beam replay. */
+  const restoredDone = useRef(false);
 
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -163,7 +169,12 @@ export function InterviewHero() {
       } catch {
         // ignore
       }
-      if (done) setSettled(true);
+      if (done) {
+        restoredDone.current = true;
+        climaxFired.current = true;
+        setSettled(true);
+        setCtaLit(true);
+      }
     }
     setHydrated(true);
   }, []);
@@ -191,6 +202,17 @@ export function InterviewHero() {
         sessionStorage.setItem(SESSION_DONE_KEY, "1");
       } catch {
         // ignore
+      }
+    }
+    // Cinema climax — once when user finishes interview this visit (not restore)
+    if (allAnswered && temperature && !climaxFired.current) {
+      climaxFired.current = true;
+      setCtaLit(true);
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!reduced && !restoredDone.current) {
+        setBeamGo(true);
+        const t = window.setTimeout(() => setBeamGo(false), 2800);
+        return () => window.clearTimeout(t);
       }
     }
   }, [allAnswered, temperature]);
@@ -237,7 +259,7 @@ export function InterviewHero() {
   const showQuestions = !settled;
 
   function handleCtaClick() {
-    track("hero_cta_click");
+    track("hero_cta_click", { src: "hero" });
   }
 
   // reducedMotion is read so returning visitors with PRM still hydrate settled state;
@@ -245,37 +267,49 @@ export function InterviewHero() {
   void reducedMotion;
 
   return (
-    <section className="hero-deep hero-field relative flex min-h-[100dvh] flex-col justify-center overflow-hidden px-5 pb-12 pt-20 sm:px-6 sm:pb-14 sm:pt-20 lg:pt-24">
+    <section
+      data-cinema="hero"
+      className="hero-deep hero-field relative flex min-h-[100dvh] flex-col justify-center overflow-hidden px-5 pb-12 pt-20 sm:px-6 sm:pb-14 sm:pt-20 lg:pt-24"
+    >
       <Particles />
       <div className="aurora-band" aria-hidden />
+      {/* One-shot celebration beam on first temperature resolve */}
+      <div className={`beam ${beamGo ? "go" : ""}`} aria-hidden />
 
       <div className="sr-only" role="status" aria-live="polite">
         {announcement}
       </div>
 
       <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:text-left">
-        {/* Instrument — mobile first (visual anchor), desktop right */}
+        {/* Instrument — gyro 3D (no float fight); mobile first, desktop right */}
         <div className="order-1 flex justify-center lg:order-2 lg:justify-end">
           <div className="relative flex w-full max-w-[320px] flex-col items-center sm:max-w-[380px]">
             <div
               aria-hidden
               className="horizon"
-              style={{ width: "78%", height: "78%", left: "11%", top: "6%" }}
+              style={{
+                width: "70%",
+                height: "70%",
+                left: "15%",
+                top: "8%",
+                opacity: 0.72,
+              }}
             />
-            <div className="compass-float relative w-[200px] sm:w-[280px] lg:w-[320px]">
-              <CinematicCompass
-                responsive
+            <div className="relative aspect-square w-[200px] sm:w-[280px] lg:w-[320px]">
+              <Compass3D
+                size={0}
+                className="h-full w-full"
                 glow={glow}
-                materialized
                 keyholePulse={answeredCount > 0}
+                maxTilt={ctaLit || settled ? 6 : 10}
               />
             </div>
             <div
               aria-hidden
               className="pointer-events-none absolute left-1/2 top-[72%] h-20 w-[220px] -translate-x-1/2 rounded-[50%] sm:w-[300px]"
               style={{
-                background: `radial-gradient(ellipse at center, ${withAlpha(COLORS.cyan, 0.32)}, ${withAlpha(COLORS.emerald, 0.12)} 45%, transparent 75%)`,
-                opacity: floorPoolOpacity,
+                background: `radial-gradient(ellipse at center, ${withAlpha(COLORS.cyan, 0.28)}, ${withAlpha(COLORS.emerald, 0.1)} 45%, transparent 75%)`,
+                opacity: floorPoolOpacity * 0.85,
                 transition: "opacity 900ms ease",
                 filter: "blur(6px)",
               }}
@@ -378,11 +412,11 @@ export function InterviewHero() {
                 </p>
                 <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row lg:justify-start">
                   <Link
-                    href="/shadow-score"
-                    className="btn btn-primary btn-glow px-8 py-3.5 text-base"
+                    href="/shadow-score?src=hero"
+                    className={`btn btn-primary btn-glow magnetic px-8 py-3.5 text-base ${ctaLit ? "is-lit" : ""}`}
                     onClick={handleCtaClick}
                   >
-                    Check my readiness
+                    Check My Readiness
                     <svg
                       width="16"
                       height="16"
