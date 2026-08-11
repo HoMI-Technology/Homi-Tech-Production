@@ -154,8 +154,13 @@ export async function GET(request: Request) {
 /**
  * PUT /api/finance/savings-goals — creates or updates one goal.
  *
- * With `id`, writes that goal. Without, writes the caller's oldest active goal
- * of this `goal_type`, or creates one when they have none of that type.
+ * With `id`, upserts that goal: updates the caller's row of that id, or creates
+ * it under that id when they have none. Client-chosen ids are how the sync
+ * layer keeps a goal's identity stable across devices, so the id has to survive
+ * the round trip.
+ *
+ * Without `id`, writes the caller's oldest active goal of this `goal_type`, or
+ * creates one when they have none of that type.
  */
 export async function PUT(request: Request) {
   const ip = getClientIp(request);
@@ -215,7 +220,7 @@ export async function PUT(request: Request) {
     status: "active" as const,
   };
 
-  let result;
+  let result = null;
   if (targetId) {
     const { data, error } = await supabase
       .from("finance_savings_goals")
@@ -224,22 +229,38 @@ export async function PUT(request: Request) {
       .eq("user_id", user.id)
       .select(SELECT_COLS)
       .single();
+
+    // An id the caller named that matches no row of theirs falls through to an
+    // insert *under that id*, because this is how a client creates a goal it
+    // has already given an id to — the sync layer needs the id it chose to
+    // survive the round trip. That is not the duplicate risk the unnamed path
+    // has: the id is the identity, so a retry updates the row it just created
+    // rather than making a second one.
     if (error || !data) {
-      // An id the caller named that resolves to no row of theirs is a missing
-      // goal, not a server fault — never a licence to insert a duplicate.
-      if (input.id) {
-        return NextResponse.json({ error: "That goal no longer exists." }, { status: 404 });
-      }
-      return serverError("put", error?.message ?? "update returned no row");
+      if (!input.id) return serverError("put", error?.message ?? "update returned no row");
+    } else {
+      result = data;
     }
-    result = data;
-  } else {
+  }
+
+  if (!result) {
     const { data, error } = await supabase
       .from("finance_savings_goals")
-      .insert({ ...base, created_at: nowIso, updated_at: nowIso })
+      .insert({
+        ...base,
+        ...(input.id ? { id: input.id } : {}),
+        created_at: nowIso,
+        updated_at: nowIso,
+      })
       .select(SELECT_COLS)
       .single();
     if (error || !data) {
+      // The id exists and is not this caller's. Never a leak — user_id comes
+      // from the session and the update above was scoped to it — but the
+      // caller must pick another id rather than be told it succeeded.
+      if (error?.code === "23505") {
+        return NextResponse.json({ error: "That goal id is already taken." }, { status: 409 });
+      }
       return serverError("put", error?.message ?? "insert returned no row");
     }
     result = data;

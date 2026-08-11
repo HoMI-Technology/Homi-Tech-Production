@@ -18,7 +18,7 @@ const state = vi.hoisted(() => ({
   goals: [] as GoalRow[],
   selectError: null as { code?: string; message: string } | null,
   updateError: null as { message: string } | null,
-  insertError: null as { message: string } | null,
+  insertError: null as { code?: string; message: string } | null,
   updateReturnsNoRow: false,
   updateCalls: [] as { filters: [string, unknown][]; payload: Record<string, unknown> }[],
   insertCalls: [] as Record<string, unknown>[],
@@ -296,17 +296,47 @@ describe("PUT /api/finance/savings-goals", () => {
     expect(filters).toContainEqual(["user_id", "user-1"]);
   });
 
-  /** Someone else's id must not become an insert — that is how duplicates breed. */
-  it("404s a named goal that is not the caller's, without inserting", async () => {
+  /**
+   * A client-chosen id that the caller has no row for is a create under that
+   * id — the sync layer needs the id it picked to survive the round trip.
+   */
+  it("creates under a named id the caller does not have yet", async () => {
     state.updateReturnsNoRow = true;
     const res = await PUT(
       req("PUT", {
         id: "33333333-3333-4333-8333-333333333333",
+        name: "New goal",
+        target_amount: 1000,
+      }),
+    );
+    expect(res.status).toBe(200);
+    expect(state.insertCalls).toHaveLength(1);
+    expect(state.insertCalls[0]).toMatchObject({
+      id: "33333333-3333-4333-8333-333333333333",
+      user_id: "user-1",
+    });
+  });
+
+  /** An id that belongs to someone else must fail loudly, not report success. */
+  it("409s when the named id is already taken", async () => {
+    state.updateReturnsNoRow = true;
+    state.insertError = { code: "23505", message: "duplicate key" };
+    const res = await PUT(
+      req("PUT", {
+        id: "44444444-4444-4444-8444-444444444444",
         name: "Theirs",
         target_amount: 1000,
       }),
     );
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(409);
+  });
+
+  /** The unnamed path still must not insert when a goal of that type exists. */
+  it("never inserts on a failed update when no id was named", async () => {
+    state.goals = [goalRow({ id: "existing" })];
+    state.updateReturnsNoRow = true;
+    const res = await PUT(req("PUT", { name: "Updated", target_amount: 1000 }));
+    expect(res.status).toBe(500);
     expect(state.insertCalls).toHaveLength(0);
   });
 
