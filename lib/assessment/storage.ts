@@ -6,6 +6,7 @@
 
 import type { AssessmentInputs, AssessmentResult } from "@/lib/scoring";
 import type { VerdictKey } from "@/lib/brand";
+import type { DecisionType } from "@/lib/assessment/types";
 
 const STORAGE_KEY = "homi:last-assessment";
 
@@ -45,6 +46,8 @@ export interface StoredAssessment {
   result: AssessmentResult;
   completedAt: string;
   kind: AssessmentKind;
+  /** Decision vertical that produced this result — required for honest retry/replay. */
+  decisionType?: DecisionType;
   /** Server-side assessments.id, attached once the background save resolves (signed-in users only). */
   serverId?: string;
   /** Present once the user has confirmed "I'm deciding anyway" for this result. */

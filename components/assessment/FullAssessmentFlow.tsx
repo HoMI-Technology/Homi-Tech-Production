@@ -137,7 +137,7 @@ export function FullAssessmentFlow() {
   async function handleSubmit() {
     setSubmitting(true);
     setScoreError(null);
-    const inputs = bankResponsesToInputs(responses, conflict);
+    const inputs = bankResponsesToInputs(responses, conflict, decisionType);
 
     // Server-authoritative score (Plans.md 6.2) — never computeScore on client.
     let scored: Awaited<ReturnType<typeof fetchServerScore>>;
@@ -173,6 +173,7 @@ export function FullAssessmentFlow() {
       result,
       completedAt: new Date().toISOString(),
       kind: "full",
+      decisionType,
       previous,
       insights: { keyInsight, nextSteps },
     });
@@ -183,6 +184,7 @@ export function FullAssessmentFlow() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ inputs, kind: "full", decisionType }),
+      keepalive: true,
     })
       .then(async (res) => {
         // 401 (anonymous) → "unauthenticated", 402 rescoring_locked →

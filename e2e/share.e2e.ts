@@ -46,7 +46,8 @@ test.describe("score share links", () => {
       await signInViaUi(page, user.email, user.password);
 
       // A real completed assessment, saved server-side for this user.
-      await completeFullAssessment(page);
+      // F.14: pin home so activation of another vertical cannot steal the e2e path.
+      await completeFullAssessment(page, { decisionType: "home_buying" });
 
       // The app attaches the server id to the local result once the
       // background POST /api/assessments resolves — poll for it, then fall

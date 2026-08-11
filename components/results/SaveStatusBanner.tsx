@@ -44,7 +44,13 @@ export function SaveStatusBanner() {
       const res = await fetch("/api/assessments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ inputs: stored.inputs, kind: stored.kind }),
+        body: JSON.stringify({
+          inputs: stored.inputs,
+          kind: stored.kind,
+          // F.12 residual: retry must not silently default non-home verticals to home_buying.
+          ...(stored.decisionType ? { decisionType: stored.decisionType } : {}),
+        }),
+        keepalive: true,
       });
       recordSaveStatus(statusFromResponse(res.status));
       if (res.ok) {

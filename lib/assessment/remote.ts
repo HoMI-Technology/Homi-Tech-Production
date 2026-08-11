@@ -15,6 +15,12 @@ import type {
 } from "@/lib/scoring";
 import type { AssessmentRow } from "@/types/database";
 import type { StoredAssessment } from "./storage";
+import { DECISION_TYPE_LABELS, type DecisionType } from "@/lib/assessment/types";
+
+function asDecisionType(value: string | null | undefined): DecisionType | undefined {
+  if (!value) return undefined;
+  return value in DECISION_TYPE_LABELS ? (value as DecisionType) : undefined;
+}
 
 /**
  * Converts an `assessments` table row into a `StoredAssessment`.
@@ -38,6 +44,7 @@ export function mapAssessmentRowToStored(row: AssessmentRow): StoredAssessment |
     is_shadow,
     id,
     insights,
+    decision_type,
   } = row;
 
   if (overall_score === null || verdict === null || !sub_scores || !inputs) return null;
@@ -60,6 +67,8 @@ export function mapAssessmentRowToStored(row: AssessmentRow): StoredAssessment |
         }
       : undefined;
 
+  const decisionType = asDecisionType(decision_type);
+
   return {
     inputs: inputs as unknown as AssessmentInputs,
     result: {
@@ -74,6 +83,7 @@ export function mapAssessmentRowToStored(row: AssessmentRow): StoredAssessment |
     completedAt: completed_at ?? created_at,
     kind: is_shadow ? "shadow" : "full",
     serverId: id,
+    ...(decisionType ? { decisionType } : {}),
     ...(mappedInsights ? { insights: mappedInsights } : {}),
   };
 }
