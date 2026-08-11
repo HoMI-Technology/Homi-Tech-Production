@@ -26,6 +26,25 @@ import type { MoneyCents } from "@/lib/finance/money";
 export type RemoteTransaction = FinanceTransaction;
 export type RemoteCategory = FinanceCategory;
 
+/**
+ * `userId` doubles as the per-row sync marker. A row still carrying
+ * LOCAL_USER_ID has never reached the server; after a successful create push we
+ * stamp it, and after a successful delete push we stamp it again so the delete
+ * is not replayed on every reconcile.
+ *
+ * The marker lives on the row rather than in a side list so it is written by
+ * the same saveBudgetLedger call as the data it describes. A separate list
+ * could survive a write the ledger did not and then lie about what the server
+ * holds.
+ */
+export const SYNCED_USER_ID = "server";
+export const SYNCED_DELETED_USER_ID = "server-deleted";
+
+/** True while a row has never been accepted by the server. */
+function isLocalOnly(tx: FinanceTransaction): boolean {
+  return tx.userId === LOCAL_USER_ID || tx.userId === "local";
+}
+
 /** Pure: index system categories by slug (server or local). */
 export function systemCategorySlugMap(
   categories: ReadonlyArray<FinanceCategory>,
@@ -104,13 +123,23 @@ export function mergeRemoteTransactions(
   return [...byId.values()];
 }
 
-/** Local manual rows not yet known to the server (heuristic: userId still local). */
+/** Local manual rows not yet known to the server. */
 export function localPendingManualTransactions(state: BudgetLedgerState): FinanceTransaction[] {
   return state.transactions.filter(
-    (tx) =>
-      tx.source === "manual" &&
-      tx.deletedAt === null &&
-      (tx.userId === LOCAL_USER_ID || tx.userId === "local"),
+    (tx) => tx.source === "manual" && tx.deletedAt === null && isLocalOnly(tx),
+  );
+}
+
+/**
+ * Rows deleted here that the server still believes are live.
+ *
+ * A row deleted before it ever synced is skipped: the server never had it, so
+ * there is nothing to retract. Without that check every discarded draft would
+ * generate a DELETE for an id the server has never seen.
+ */
+export function localPendingDeletions(state: BudgetLedgerState): FinanceTransaction[] {
+  return state.transactions.filter(
+    (tx) => tx.deletedAt !== null && !isLocalOnly(tx) && tx.userId !== SYNCED_DELETED_USER_ID,
   );
 }
 
@@ -141,6 +170,13 @@ export function toPushCreateBody(tx: FinanceTransaction): PushCreateBody {
   };
 }
 
+/**
+ * `exists` means the server already holds this id (409 on create, or a delete
+ * of something already gone). It is a success for sync purposes — the row is
+ * where we want it — and must be distinguished from `error`, which is retried.
+ */
+export type PushResult = "ok" | "exists" | "auth" | "deferred" | "error";
+
 async function fetchJson(
   input: RequestInfo,
   init?: RequestInit,
@@ -159,9 +195,12 @@ export async function pullBudgetLedgerFromServer(
 ): Promise<BudgetLedgerState | null> {
   if (typeof window === "undefined") return null;
 
+  // includeDeleted: a delete on another device is a tombstone, not an absence.
+  // Without it the row is simply missing from the page and the LWW merge keeps
+  // the live local copy forever, so deletions never converge.
   const [catRes, txRes] = await Promise.all([
     fetchJson("/api/finance/categories"),
-    fetchJson("/api/finance/transactions?limit=100"),
+    fetchJson("/api/finance/transactions?limit=100&includeDeleted=1"),
   ]);
 
   if (catRes.status === 401 || txRes.status === 401) return null;
@@ -175,9 +214,17 @@ export async function pullBudgetLedgerFromServer(
   )?.transactions ?? []) as FinanceTransaction[];
   if ((txRes.body as { deferred?: boolean } | null)?.deferred) return null;
 
+  // A remote row that already carries deletedAt is retracted server-side, so
+  // stamp it as delete-synced on the way in. Otherwise it lands locally as a
+  // deleted row the server "still believes is live" and we re-push its DELETE
+  // on every reconcile, forever.
+  const normalizedRemote = remoteTx.map((tx) =>
+    tx.deletedAt !== null ? { ...tx, userId: SYNCED_DELETED_USER_ID } : tx,
+  );
+
   let local = loadBudgetLedger(nowIso);
   local = adoptServerCategoryIds(local, remoteCategories);
-  const mergedTx = mergeRemoteTransactions(local.transactions, remoteTx);
+  const mergedTx = mergeRemoteTransactions(local.transactions, normalizedRemote);
   const next: BudgetLedgerState = { ...local, transactions: mergedTx };
   saveBudgetLedger(next);
   return next;
@@ -203,9 +250,7 @@ async function resolveCategoryIdForPush(categoryId: string | null): Promise<stri
  * Push a single local manual transaction. Maps `cat-*` system category ids to
  * server UUIDs by slug when needed. Returns status for the caller.
  */
-export async function pushManualTransaction(
-  tx: FinanceTransaction,
-): Promise<"ok" | "auth" | "deferred" | "error"> {
+export async function pushManualTransaction(tx: FinanceTransaction): Promise<PushResult> {
   if (typeof window === "undefined") return "ok";
 
   let categoryId = tx.categoryId;
@@ -229,14 +274,13 @@ export async function pushManualTransaction(
 
   if (res.status === 401) return "auth";
   if (res.status === 202) return "deferred";
+  if (res.status === 409) return "exists";
   if (res.status === 201 || res.status === 200) return "ok";
   return "error";
 }
 
 /** Soft-delete on the server (idempotent). */
-export async function pushSoftDeleteTransaction(
-  transactionId: string,
-): Promise<"ok" | "auth" | "deferred" | "error"> {
+export async function pushSoftDeleteTransaction(transactionId: string): Promise<PushResult> {
   if (typeof window === "undefined") return "ok";
   if (!/^[0-9a-f-]{36}$/i.test(transactionId)) return "error";
 
@@ -246,6 +290,8 @@ export async function pushSoftDeleteTransaction(
   });
   if (res.status === 401) return "auth";
   if (res.status === 202) return "deferred";
+  // Already gone is the state we were asking for.
+  if (res.status === 404 || res.status === 410) return "exists";
   if (res.ok) return "ok";
   return "error";
 }
@@ -257,7 +303,7 @@ export async function pushSoftDeleteTransaction(
 export function markTransactionSynced(
   state: BudgetLedgerState,
   transactionId: string,
-  serverUserId = "server",
+  serverUserId: string = SYNCED_USER_ID,
 ): BudgetLedgerState {
   return {
     ...state,
@@ -267,19 +313,44 @@ export function markTransactionSynced(
   };
 }
 
+/** After a delete reaches the server, so reconcile stops replaying it. */
+export function markTransactionDeleteSynced(
+  state: BudgetLedgerState,
+  transactionId: string,
+): BudgetLedgerState {
+  return markTransactionSynced(state, transactionId, SYNCED_DELETED_USER_ID);
+}
+
 /**
- * Best-effort: pull, then push any still-local manual rows. Safe to call on
- * Budget tab mount; failures leave local state intact.
+ * Pull, push new rows, then push deletions. Safe to call on Track mount;
+ * failures leave local state intact, and local stays the synchronous SoT
+ * throughout — nothing here blocks the UI.
+ *
+ * `auth` and `deferred` stop the pass rather than continuing: both mean every
+ * remaining request would fail the same way, and a signed-out user with fifty
+ * pending rows should not fire fifty doomed requests. The rows keep their
+ * markers and go out on the next reconcile.
  */
 export async function reconcileBudgetLedger(nowIso: string): Promise<BudgetLedgerState | null> {
   let state = (await pullBudgetLedgerFromServer(nowIso)) ?? loadBudgetLedger(nowIso);
 
   for (const tx of localPendingManualTransactions(state)) {
     const result = await pushManualTransaction(tx);
-    if (result === "ok") {
+    if (result === "auth" || result === "deferred") return state;
+    if (result === "ok" || result === "exists") {
       state = markTransactionSynced(state, tx.id);
       saveBudgetLedger(state);
     }
   }
+
+  for (const tx of localPendingDeletions(state)) {
+    const result = await pushSoftDeleteTransaction(tx.id);
+    if (result === "auth" || result === "deferred") return state;
+    if (result === "ok" || result === "exists") {
+      state = markTransactionDeleteSynced(state, tx.id);
+      saveBudgetLedger(state);
+    }
+  }
+
   return state;
 }
