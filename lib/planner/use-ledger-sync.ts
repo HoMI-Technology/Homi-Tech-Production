@@ -25,6 +25,7 @@
 
 import { useEffect, useRef } from "react";
 import { reconcileBudgetLedger } from "@/lib/finance/ledger-sync";
+import { reconcileGoals } from "@/lib/finance/goal-sync";
 import { syncPlannerWithLedger } from "@/lib/planner/ledger-bridge";
 
 export type LedgerSyncOutcome = "synced" | "skipped" | "failed";
@@ -43,6 +44,10 @@ export async function runLedgerServerSync(
   try {
     const next = await reconcileBudgetLedger(nowIso);
     if (!next) return "skipped";
+    // Goals after transactions, and sequentially: both passes read and write
+    // the same ledger blob, so overlapping them would let one overwrite the
+    // other's markers with a stale copy.
+    await reconcileGoals(nowIso);
     syncPlannerWithLedger();
     return "synced";
   } catch {
