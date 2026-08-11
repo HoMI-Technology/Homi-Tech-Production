@@ -11,7 +11,61 @@ Legend: 🔴 hard launch blocker · 🟠 needed within week one · 🟢 do-soon.
 
 ---
 
-## 1. 🔴 Email deliverability — Resend domain + Supabase SMTP
+## ⏱ STATUS — externally verified 2026-08-11
+
+**Only two items remain before HōMI can take a paying customer.** Everything else
+below was confirmed done by direct inspection of the live dashboards, not by
+reading this file. Re-verify before trusting; dashboards change.
+
+### 🔴 Remaining — both are owner-only, ~20 minutes total
+
+1. **Vercel is still on the Hobby plan** (§4). The badge on the `homi-platform`
+   project reads "Hobby." Hobby **prohibits commercial use** and live Stripe
+   subscriptions are wired, so the first paying customer puts the project in
+   breach and at risk of suspension. Usage already sat at **1h29m of the 4h
+   monthly CPU allowance with near-zero traffic** — real traffic exhausts it.
+   _Upgrade before sending anyone to the site._
+2. **Supabase leaked-password protection is disabled** (§1.5). One toggle:
+   Authentication → Policies → enable HaveIBeenPwned. Confirmable externally via
+   `get_advisors` — it is the only auth item that still reports.
+
+### ✅ Verified done (2026-08-11)
+
+| Item                   | Evidence                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------ |
+| Resend domain (§1)     | `homitechnology.com` **Verified**, us-east-1, added ~2026-07-19                |
+| DNS (§1)               | DKIM `resend._domainkey`, bounce MX `send.` → SES, SPF, DMARC `p=quarantine`   |
+| Email actually sending | Real **Delivered** sends: "Welcome to HōMI", "Reset your password"             |
+| Supabase SMTP (§1.3)   | Proven by the delivered auth mail — Supabase sends those, not the app          |
+| Stripe activation (§3) | Account status: **no active tasks**; Payments + Payouts + ACH + Link active    |
+| Stripe products (§3)   | Plus $9.99 / Pro $24.99 / Family $39.99, all active                            |
+| Stripe env vars (§3)   | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_{PLUS,PRO,FAMILY}` |
+| Observability (§5)     | PostHog (key/host/project/API) + Sentry (DSN/org/project/auth token) all set   |
+| `CRON_SECRET` (§6)     | Present in Production and Preview — crons are **not** silently dead            |
+| Deploy integrity       | `/api/healthcheck` version matched `main` tip exactly; DB ok                   |
+
+### 🟡 Noted, not blocking
+
+- Supabase advisors flag 6 `SECURITY DEFINER` functions as anon-callable
+  (`get_org_assessment_summary`, `partner_code_stats`, `partner_recent_assessments`,
+  …). **All three inspected have internal `auth.uid()` / membership guards** — anon
+  gets an empty result. The lint fires only because Postgres grants EXECUTE to
+  PUBLIC by default and the migrations never revoked it. Tidy when convenient;
+  do not treat as a leak.
+- The 7 "RLS enabled, no policy" notices are the intended pattern for
+  service-role-only tables (`webhook_events`, `campaign_sends`, …): RLS on with no
+  policy denies everyone. Not a finding.
+- Still unverified because it needs a real card: an end-to-end live checkout.
+  Stripe shows **zero payments** to date.
+
+---
+
+## 1. ✅ Email deliverability — DONE (verified 2026-08-11)
+
+_Domain Verified in Resend, DNS correct, and real mail confirmed **Delivered** —
+both product mail (welcome) and Supabase auth mail (password reset), which proves
+steps 1–4 below. **Step 1.5 (leaked-password protection) is the exception and is
+still open.** Keep the rest for reference / re-setup._
 
 **Why first:** Supabase's built-in email sender is throttled to a few messages
 per hour. The moment marketing drives signups, confirmation emails silently
@@ -102,7 +156,11 @@ be _accurate_, though for a different reason than it states. See the drift repor
 
 ---
 
-## 3. 🟠 Stripe — account verified, env vars remain (was 🔴)
+## 3. ✅ Stripe — DONE (verified 2026-08-11)
+
+_Account fully activated (Payments, Payouts, ACH, Link — no outstanding tasks), all
+three products live at the canon prices, and all five env vars present in Production
+and Preview. Untested only in the sense that no live card has been charged yet._
 
 **Why:** billing is fully coded and idempotent but has never processed a live
 charge.
@@ -137,14 +195,22 @@ STRIPE_PRICE_FAMILY=price_1TucnIJ1m2RNwf57R4hoO06T
 
 ---
 
-## 4. 🟠 Vercel Pro
+## 4. 🔴 Vercel Pro — STILL OPEN (verified 2026-08-11)
 
 Hobby plan prohibits commercial use — upgrade before charging a single card.
 15 minutes, Vercel billing.
 
+**Confirmed still on Hobby on 2026-08-11.** Promoted 🟠 → 🔴: this is no longer a
+week-one item, it is the last hard blocker. Live Stripe subscriptions are already
+wired, so the first payment lands the project in breach of Vercel's terms. Usage
+was at 1h29m of the 4h monthly CPU allowance on effectively no traffic.
+
 ---
 
-## 5. 🟠 Observability — you can't market blind
+## 5. ✅ Observability — DONE (verified 2026-08-11)
+
+_All keys below are set in Vercel Production + Preview. Remaining sub-items are the
+Anthropic spend cap and the uptime monitor, neither of which is externally checkable._
 
 - **PostHog:** create a project → set **`NEXT_PUBLIC_POSTHOG_KEY`** (+
   `NEXT_PUBLIC_POSTHOG_HOST` if not US cloud). The funnel events (assessment
@@ -164,9 +230,10 @@ Hobby plan prohibits commercial use — upgrade before charging a single card.
 
 - **Upstash Redis:** create a DB → **`UPSTASH_REDIS_REST_URL`** +
   **`UPSTASH_REDIS_REST_TOKEN`**. Until set, rate limits are per-lambda only.
-- **`CRON_SECRET`:** set it (Vercel Cron sends it as a Bearer token; the cron
-  routes fail closed without it, so the reassessment + outcome-survey emails
-  won't run until it's present).
+- **`CRON_SECRET`:** ✅ **set** (verified 2026-08-11 — present in Production and
+  Preview). Vercel Cron sends it as a Bearer token; the cron routes fail closed
+  without it, so the reassessment + outcome-survey emails would not run. They can.
+  Upstash and the remaining secrets in this section were **not** re-verified.
 - **`RECEIPT_SIGNING_SECRET`:** set it so partner receipts are signed (unsigned
   otherwise). Mint partner keys with `node scripts/mint-partner-key.mjs "<Org>"`.
   ⚠ The name is `..._SECRET`. `RECEIPT_SIGNING_KEY` is the old name, is read by
@@ -231,6 +298,12 @@ or make the landing hero lighter, or point LHCI at a Vercel preview with real
 
 ## The one-line priority
 
-**§1 (email) → §2 (migrations) → §3 (Stripe) unblock "have users who can sign
-up, get emails, and pay."** Everything else is week-one hardening. When §1–§3
-are done, you can start marketing.
+~~**§1 (email) → §2 (migrations) → §3 (Stripe)**~~ — **all three are done as of
+2026-08-11.**
+
+**The list is now two items: upgrade Vercel off Hobby (§4), and flip Supabase
+leaked-password protection (§1.5).** Both are owner-only, roughly 20 minutes
+together. Nothing else stands between HōMI and a paying customer.
+
+Do §4 _before_ the first customer, not after — charging a card on a Hobby plan
+breaches Vercel's non-commercial terms.
