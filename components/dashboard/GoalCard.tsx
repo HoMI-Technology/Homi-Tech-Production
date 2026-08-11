@@ -24,6 +24,13 @@ export interface GoalData {
 
 /** Goal supplied from the v2 budget ledger (finance_savings_goals). */
 export interface LedgerGoal {
+  /**
+   * Which goal this card is editing. Since #184 a user can hold several active
+   * goals, so save and remove name their row rather than letting the server
+   * infer it — an inferred write is how a down-payment edit reaches somebody's
+   * emergency reserve. Optional because the response shape predates the id.
+   */
+  id?: string;
   name: string;
   targetAmountCents: number;
   currentAmountCents: number;
@@ -130,7 +137,9 @@ export function GoalCard({
         method: "PUT",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
+          id: ledgerGoal?.id ?? null,
           name: name.trim() || "Down payment",
+          goal_type: "home",
           target_amount: targetAmount,
           target_date: displayGoal?.target_date ?? null,
           current_amount: ledgerGoal ? ledgerGoal.currentAmountCents / 100 : 0,
@@ -154,7 +163,11 @@ export function GoalCard({
     setBusy(true);
     setNote(null);
     try {
-      const res = await fetch("/api/finance/savings-goals", { method: "DELETE" });
+      // Name the goal being removed. Without an id the server falls back to the
+      // oldest active home goal, which is this card's goal in the common case
+      // but not a guarantee worth relying on once several exist.
+      const query = ledgerGoal?.id ? `?id=${encodeURIComponent(ledgerGoal.id)}` : "?goal_type=home";
+      const res = await fetch(`/api/finance/savings-goals${query}`, { method: "DELETE" });
       if (res.ok) {
         setLedgerGoal(null);
         setLegacyGoal(null);

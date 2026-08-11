@@ -74,13 +74,17 @@ export async function FinancialPositionSection({
     // Ledger-first path: if the user has saved budget/transaction data, derive
     // the dashboard tiles from it instead of the Plaid snapshot.
     buildFinanceContextFromLedgerTables(supabase),
+    // Oldest active home goal. `.maybeSingle()` errored the moment #184 allowed
+    // a second one, and the error read as "no goal" — the card vanished for
+    // anyone saving for a deposit and a reserve at the same time.
     supabase
       .from("finance_savings_goals")
-      .select("name, target_amount_cents, current_amount_cents, target_date")
+      .select("id, name, target_amount_cents, current_amount_cents, target_date")
       .eq("user_id", userId)
       .eq("status", "active")
       .eq("goal_type", "home")
-      .maybeSingle(),
+      .order("created_at", { ascending: true })
+      .limit(1),
   ]);
 
   if (snapshotsR.error || itemsR.error) {
@@ -104,12 +108,20 @@ export async function FinancialPositionSection({
   const nwDelta = netWorthDelta(snapshots);
   const bankSyncEntitled = getEntitlements(subscriptionTier).bankSync;
 
-  const ledgerGoalRow = ledgerGoalR.data as Pick<
-    FinanceSavingsGoalRow,
-    "name" | "target_amount_cents" | "current_amount_cents" | "target_date"
-  > | null;
+  const ledgerGoalRow =
+    ((
+      ledgerGoalR.data as
+        | Pick<
+            FinanceSavingsGoalRow,
+            "id" | "name" | "target_amount_cents" | "current_amount_cents" | "target_date"
+          >[]
+        | null
+    )?.[0] ??
+      null) ||
+    null;
   const ledgerGoal: LedgerGoal | null = ledgerGoalRow
     ? {
+        id: ledgerGoalRow.id,
         name: ledgerGoalRow.name,
         targetAmountCents: Number(ledgerGoalRow.target_amount_cents),
         currentAmountCents: Number(ledgerGoalRow.current_amount_cents),

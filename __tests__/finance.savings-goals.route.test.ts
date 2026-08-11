@@ -1,28 +1,84 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
 /**
- * Route tests for /api/finance/savings-goals — the finance ledger savings goal
- * CRUD. Ownership is RLS-shaped: user_id always comes from the session, never
- * the body.
+ * Route tests for /api/finance/savings-goals. Ownership is RLS-shaped: user_id
+ * always comes from the session, never the body.
  *
- * GET returns a list. PUT still writes a single goal (the multi-goal write path
- * is the client ledger's job today) and keeps `goal` in the response alongside
- * `goals` so clients written against the one-goal shape keep working.
+ * The cases that matter most here are the multi-goal ones. #184 dropped the
+ * unique index that guaranteed one active goal per user, and this route was
+ * written assuming it: PUT resolved "the" goal with .maybeSingle() and inserted
+ * a duplicate when that errored, and DELETE archived every active row. Both are
+ * pinned below so neither can come back.
  */
 
 type GoalRow = Record<string, unknown>;
 
 const state = vi.hoisted(() => ({
   user: null as { id: string } | null,
-  goal: null as GoalRow | null,
+  goals: [] as GoalRow[],
   selectError: null as { code?: string; message: string } | null,
   updateError: null as { message: string } | null,
   insertError: null as { message: string } | null,
-  deleteError: null as { code?: string; message: string } | null,
-  updateCalls: [] as { id: string; payload: Record<string, unknown> }[],
+  updateReturnsNoRow: false,
+  updateCalls: [] as { filters: [string, unknown][]; payload: Record<string, unknown> }[],
   insertCalls: [] as Record<string, unknown>[],
-  deleteFilters: [] as [string, unknown][],
 }));
+
+/**
+ * A chainable stand-in for the PostgREST builder. eq/order collect and return
+ * self; limit resolves to the filtered list; single/maybeSingle resolve one
+ * row; and it is thenable so a bare `await update().eq().eq()` works the way
+ * DELETE uses it.
+ */
+function makeBuilder(kind: "select" | "update", payload?: Record<string, unknown>) {
+  const filters: [string, unknown][] = [];
+
+  const matching = (): GoalRow[] =>
+    state.goals.filter((row) => filters.every(([col, val]) => row[col] === val));
+
+  const listResult = () => ({
+    data: state.selectError ? null : matching(),
+    error: state.selectError,
+  });
+
+  const writeResult = () => {
+    if (state.updateError) return { data: null, error: state.updateError };
+    if (state.updateReturnsNoRow) return { data: null, error: { message: "no rows" } };
+    const id = (filters.find(([c]) => c === "id")?.[1] as string) ?? "goal-1";
+    return { data: { id, ...payload }, error: null };
+  };
+
+  const builder = {
+    eq(col: string, val: unknown) {
+      filters.push([col, val]);
+      if (kind === "update") {
+        const call = state.updateCalls[state.updateCalls.length - 1];
+        if (call) call.filters = filters;
+      }
+      return builder;
+    },
+    order() {
+      return builder;
+    },
+    limit: async () => listResult(),
+    select() {
+      return builder;
+    },
+    single: async () => (kind === "select" ? listResult() : writeResult()),
+    maybeSingle: async () => ({
+      data: state.selectError ? null : (matching()[0] ?? null),
+      error: state.selectError,
+    }),
+    // DELETE awaits the update chain directly.
+    then(resolve: (v: unknown) => unknown, reject?: (e: unknown) => unknown) {
+      return Promise.resolve({ error: state.updateError ?? state.selectError ?? null }).then(
+        resolve,
+        reject,
+      );
+    },
+  };
+  return builder;
+}
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({
@@ -30,35 +86,10 @@ vi.mock("@/lib/supabase/server", () => ({
     from: (table: string) => {
       if (table !== "finance_savings_goals") throw new Error(`unexpected table ${table}`);
       return {
-        select: () => ({
-          eq: () => ({
-            eq: () => ({
-              // Multi-goal read: .order(...).limit(...) resolves to a list.
-              order: () => ({
-                limit: async () => ({
-                  data: state.goal ? [state.goal] : [],
-                  error: state.selectError,
-                }),
-              }),
-              maybeSingle: async () => ({ data: state.goal, error: state.selectError }),
-            }),
-            maybeSingle: async () => ({ data: state.goal, error: state.selectError }),
-          }),
-        }),
+        select: () => makeBuilder("select"),
         update: (payload: Record<string, unknown>) => {
-          state.updateCalls.push({ id: String(state.goal?.id ?? "new-id"), payload });
-          return {
-            eq: () => ({
-              eq: () => ({
-                select: () => ({
-                  single: async () =>
-                    state.updateError
-                      ? { data: null, error: state.updateError }
-                      : { data: { id: "goal-1", ...payload }, error: null },
-                }),
-              }),
-            }),
-          };
+          state.updateCalls.push({ filters: [], payload });
+          return makeBuilder("update", payload);
         },
         insert: (payload: Record<string, unknown>) => {
           state.insertCalls.push(payload);
@@ -67,7 +98,7 @@ vi.mock("@/lib/supabase/server", () => ({
               single: async () =>
                 state.insertError
                   ? { data: null, error: state.insertError }
-                  : { data: { id: "goal-1", ...payload }, error: null },
+                  : { data: { id: "goal-new", ...payload }, error: null },
             }),
           };
         },
@@ -83,9 +114,9 @@ import { GET, PUT, DELETE } from "@/app/api/finance/savings-goals/route";
 
 let requestCount = 0;
 
-function req(method: string, body?: unknown): Request {
+function req(method: string, body?: unknown, query = ""): Request {
   requestCount += 1;
-  return new Request("http://localhost/api/finance/savings-goals", {
+  return new Request(`http://localhost/api/finance/savings-goals${query}`, {
     method,
     // Distinct IP per request so the per-IP limiter never trips across tests.
     headers: { "x-forwarded-for": `10.4.0.${requestCount}`, "content-type": "application/json" },
@@ -93,55 +124,65 @@ function req(method: string, body?: unknown): Request {
   });
 }
 
+function goalRow(over: GoalRow = {}): GoalRow {
+  return {
+    id: "goal-1",
+    user_id: "user-1",
+    name: "Down payment",
+    goal_type: "home",
+    target_amount_cents: 6000000,
+    current_amount_cents: 1200000,
+    target_date: "2027-06-01",
+    planned_monthly_contribution_cents: 0,
+    status: "active",
+    created_at: "2024-01-01T00:00:00Z",
+    updated_at: "2024-01-01T00:00:00Z",
+    ...over,
+  };
+}
+
 beforeEach(() => {
   state.user = { id: "user-1" };
-  state.goal = null;
+  state.goals = [];
   state.selectError = null;
   state.updateError = null;
   state.insertError = null;
-  state.deleteError = null;
+  state.updateReturnsNoRow = false;
   state.updateCalls = [];
   state.insertCalls = [];
-  state.deleteFilters = [];
 });
 
 describe("GET /api/finance/savings-goals", () => {
   it("401s an anonymous request", async () => {
     state.user = null;
-    const res = await GET(req("GET"));
-    expect(res.status).toBe(401);
+    expect((await GET(req("GET"))).status).toBe(401);
   });
 
-  it("returns null when no active goal is set", async () => {
+  it("returns an empty list when no active goal is set", async () => {
     const res = await GET(req("GET"));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ goals: [], goal: null });
   });
 
-  it("returns the caller's active goal in cents", async () => {
-    state.goal = {
-      id: "goal-1",
-      user_id: "user-1",
-      name: "Down payment",
-      goal_type: "home",
-      target_amount_cents: 6000000,
-      current_amount_cents: 1200000,
-      target_date: "2027-06-01",
-      planned_monthly_contribution_cents: 0,
-      status: "active",
-      created_at: "2024-01-01T00:00:00Z",
-      updated_at: "2024-01-01T00:00:00Z",
-    };
+  it("returns the caller's active goals in cents", async () => {
+    state.goals = [goalRow()];
     const res = await GET(req("GET"));
-    expect(res.status).toBe(200);
     const body = (await res.json()) as {
+      goals: unknown[];
       goal: { targetAmountCents: number; currentAmountCents: number };
     };
+    expect(body.goals).toHaveLength(1);
     expect(body.goal.targetAmountCents).toBe(6000000);
     expect(body.goal.currentAmountCents).toBe(1200000);
   });
 
-  it("degrades to null while the ledger migration is not applied yet", async () => {
+  it("returns every active goal, not just the first", async () => {
+    state.goals = [goalRow(), goalRow({ id: "goal-2", goal_type: "emergency_reserve" })];
+    const res = await GET(req("GET"));
+    expect(((await res.json()) as { goals: unknown[] }).goals).toHaveLength(2);
+  });
+
+  it("degrades to empty while the ledger migration is not applied yet", async () => {
     state.selectError = {
       code: "42P01",
       message: 'relation "finance_savings_goals" does not exist',
@@ -186,11 +227,16 @@ describe("PUT /api/finance/savings-goals", () => {
       { target_amount: "60000" },
       { name: "", target_amount: 60000 },
     ]) {
-      const res = await PUT(req("PUT", body));
-      expect(res.status).toBe(400);
+      expect((await PUT(req("PUT", body))).status).toBe(400);
     }
     expect(state.insertCalls).toHaveLength(0);
     expect(state.updateCalls).toHaveLength(0);
+  });
+
+  it("rejects a goal_type outside the database constraint", async () => {
+    const res = await PUT(req("PUT", { name: "x", target_amount: 100, goal_type: "yacht" }));
+    expect(res.status).toBe(400);
+    expect(state.insertCalls).toHaveLength(0);
   });
 
   it("inserts a new active goal when none exists", async () => {
@@ -198,42 +244,92 @@ describe("PUT /api/finance/savings-goals", () => {
     expect(res.status).toBe(200);
     expect(state.insertCalls).toHaveLength(1);
     expect(state.updateCalls).toHaveLength(0);
-    const call = state.insertCalls[0];
-    expect(call).toMatchObject({
+    expect(state.insertCalls[0]).toMatchObject({
       user_id: "user-1",
       name: "20% down",
       goal_type: "home",
       target_amount_cents: 6000000,
-      current_amount_cents: 0,
-      target_date: null,
-      planned_monthly_contribution_cents: 0,
       status: "active",
     });
-    expect(call).not.toHaveProperty("user_id", "attacker-1");
     const body = (await res.json()) as { goal: { targetAmountCents: number } };
     expect(body.goal.targetAmountCents).toBe(6000000);
   });
 
   it("updates the existing active goal instead of inserting a second one", async () => {
-    state.goal = { id: "existing-goal" };
+    state.goals = [goalRow({ id: "existing-goal" })];
     const res = await PUT(req("PUT", { name: "Updated", target_amount: 80000 }));
     expect(res.status).toBe(200);
     expect(state.insertCalls).toHaveLength(0);
     expect(state.updateCalls).toHaveLength(1);
-    const call = state.updateCalls[0];
-    expect(call.id).toBe("existing-goal");
-    expect(call.payload).toMatchObject({
+    expect(state.updateCalls[0]?.payload).toMatchObject({
       user_id: "user-1",
       name: "Updated",
       target_amount_cents: 8000000,
       status: "active",
     });
-    const body = (await res.json()) as { goal: { targetAmountCents: number } };
-    expect(body.goal.targetAmountCents).toBe(8000000);
+  });
+
+  /**
+   * The regression #184 opened: .maybeSingle() errors on two rows, the error
+   * was destructured away, and the route inserted a third goal every save.
+   */
+  it("updates rather than duplicating when the user already holds two goals", async () => {
+    state.goals = [goalRow({ id: "goal-a" }), goalRow({ id: "goal-b" })];
+    const res = await PUT(req("PUT", { name: "Updated", target_amount: 70000 }));
+    expect(res.status).toBe(200);
+    expect(state.insertCalls).toHaveLength(0);
+    expect(state.updateCalls).toHaveLength(1);
+  });
+
+  it("writes the goal the caller names", async () => {
+    state.goals = [goalRow({ id: "goal-a" }), goalRow({ id: "goal-b" })];
+    const res = await PUT(
+      req("PUT", {
+        id: "22222222-2222-4222-8222-222222222222",
+        name: "Named",
+        target_amount: 90000,
+      }),
+    );
+    expect(res.status).toBe(200);
+    const filters = state.updateCalls[0]?.filters ?? [];
+    expect(filters).toContainEqual(["id", "22222222-2222-4222-8222-222222222222"]);
+    expect(filters).toContainEqual(["user_id", "user-1"]);
+  });
+
+  /** Someone else's id must not become an insert — that is how duplicates breed. */
+  it("404s a named goal that is not the caller's, without inserting", async () => {
+    state.updateReturnsNoRow = true;
+    const res = await PUT(
+      req("PUT", {
+        id: "33333333-3333-4333-8333-333333333333",
+        name: "Theirs",
+        target_amount: 1000,
+      }),
+    );
+    expect(res.status).toBe(404);
+    expect(state.insertCalls).toHaveLength(0);
+  });
+
+  /**
+   * The core separation: saving a down payment must never reach the emergency
+   * reserve, and vice versa.
+   */
+  it("creates a reserve alongside a home goal rather than overwriting it", async () => {
+    state.goals = [goalRow({ id: "home-goal", goal_type: "home" })];
+    const res = await PUT(
+      req("PUT", {
+        name: "Emergency reserve",
+        goal_type: "emergency_reserve",
+        target_amount: 9000,
+      }),
+    );
+    expect(res.status).toBe(200);
+    expect(state.updateCalls).toHaveLength(0);
+    expect(state.insertCalls[0]).toMatchObject({ goal_type: "emergency_reserve" });
   });
 
   it("converts optional dollars fields to cents", async () => {
-    const res = await PUT(
+    await PUT(
       req("PUT", {
         name: "Down payment",
         target_amount: 50000,
@@ -242,15 +338,14 @@ describe("PUT /api/finance/savings-goals", () => {
         planned_monthly_contribution: 1000,
       }),
     );
-    expect(res.status).toBe(200);
     const call = state.insertCalls[0];
-    expect(call.target_amount_cents).toBe(5000000);
-    expect(call.current_amount_cents).toBe(123456);
-    expect(call.planned_monthly_contribution_cents).toBe(100000);
-    expect(call.target_date).toBe("2027-01-01");
+    expect(call?.target_amount_cents).toBe(5000000);
+    expect(call?.current_amount_cents).toBe(123456);
+    expect(call?.planned_monthly_contribution_cents).toBe(100000);
+    expect(call?.target_date).toBe("2027-01-01");
   });
 
-  it("500s with a correlation id when the upsert fails", async () => {
+  it("500s with a correlation id when the insert fails", async () => {
     state.insertError = { message: "boom" };
     const res = await PUT(req("PUT", { name: "Down payment", target_amount: 60000 }));
     expect(res.status).toBe(500);
@@ -261,18 +356,54 @@ describe("PUT /api/finance/savings-goals", () => {
 describe("DELETE /api/finance/savings-goals", () => {
   it("401s an anonymous request", async () => {
     state.user = null;
-    const res = await DELETE(req("DELETE"));
-    expect(res.status).toBe(401);
+    expect((await DELETE(req("DELETE"))).status).toBe(401);
   });
 
-  it("archives the caller's active goal", async () => {
+  it("archives only the goal named in the query", async () => {
+    state.goals = [goalRow({ id: "goal-a" }), goalRow({ id: "goal-b" })];
+    const res = await DELETE(req("DELETE", undefined, "?id=goal-b"));
+    expect(res.status).toBe(200);
+    expect(state.updateCalls).toHaveLength(1);
+    expect(state.updateCalls[0]?.payload).toMatchObject({ status: "archived" });
+    expect(state.updateCalls[0]?.filters).toContainEqual(["id", "goal-b"]);
+  });
+
+  /**
+   * The data-loss shape: the old DELETE filtered on user_id + status only, so
+   * removing a down-payment goal archived the emergency reserve too. Every
+   * archive must be scoped to a single id.
+   */
+  it("archives one row, never the whole active set", async () => {
+    state.goals = [
+      goalRow({ id: "home-goal", goal_type: "home" }),
+      goalRow({ id: "reserve-goal", goal_type: "emergency_reserve" }),
+    ];
+    const res = await DELETE(req("DELETE"));
+    expect(res.status).toBe(200);
+    expect(state.updateCalls).toHaveLength(1);
+    const filters = state.updateCalls[0]?.filters ?? [];
+    expect(filters.some(([col]) => col === "id")).toBe(true);
+    expect(filters).toContainEqual(["id", "home-goal"]);
+  });
+
+  it("scopes the untyped fallback to the requested goal type", async () => {
+    state.goals = [
+      goalRow({ id: "home-goal", goal_type: "home" }),
+      goalRow({ id: "reserve-goal", goal_type: "emergency_reserve" }),
+    ];
+    await DELETE(req("DELETE", undefined, "?goal_type=emergency_reserve"));
+    expect(state.updateCalls[0]?.filters).toContainEqual(["id", "reserve-goal"]);
+  });
+
+  it("is a no-op when there is nothing to archive", async () => {
     const res = await DELETE(req("DELETE"));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
+    expect(state.updateCalls).toHaveLength(0);
   });
 
   it("stays idempotent while the ledger migration is not applied yet", async () => {
-    state.deleteError = {
+    state.selectError = {
       code: "42P01",
       message: 'relation "finance_savings_goals" does not exist',
     };
