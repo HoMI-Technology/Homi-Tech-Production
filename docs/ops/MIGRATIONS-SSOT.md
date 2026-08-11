@@ -58,8 +58,11 @@ DEFINER` functions gating on `current_user` returned zero rows.
 Lesson for future audits: object existence Ã¢â€°Â  enforcement. Probe behaviour, in a
 transaction you roll back.
 
-Known id collision: `00024` is used twice (`plaid_transactions`,
-`push_and_survey_notifications`). Both applied. Never reuse `00024`.
+Previously `00024` was used twice (`plaid_transactions`,
+`push_and_survey_notifications`). Both were applied to production. The push
+migration file was renamed to `20260720142717_push_and_survey_notifications.sql`
+to match the remote ledger version and leave `00024` unique for
+`plaid_transactions`. Never reuse `00024`.
 
 ## After schema change
 

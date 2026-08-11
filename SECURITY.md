@@ -100,8 +100,12 @@ The following third-party dependencies process or transport sensitive informatio
 
 Security-specific tests live in `__tests__/security/` and are run:
 
-- On every Pull Request (via `.github/workflows/security-scan.yml`)
-- Weekly via automated cron schedule
+- On every Pull Request and push to `main` / feature branches, as part of the
+  `verify` job in `.github/workflows/ci.yml` (`vitest run` picks up
+  `__tests__/security/*.test.ts`)
+- There is **no** separate `security-scan.yml` workflow today. Dependabot
+  handles dependency updates (`.github/dependabot.yml`). Code scanning and
+  secret scanning are not enabled on this private repository yet.
 
 Tests cover:
 
