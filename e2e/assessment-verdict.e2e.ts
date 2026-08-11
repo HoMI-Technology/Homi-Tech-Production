@@ -16,7 +16,8 @@ test.describe("assessment → verdict (anonymous)", () => {
     // ~49 steps on a dev server that compiles routes on first hit.
     test.setTimeout(240_000);
 
-    await completeFullAssessment(page);
+    // F.14: pin home so activation of another vertical cannot steal the e2e path.
+    await completeFullAssessment(page, { decisionType: "home_buying" });
 
     await expect(page).toHaveURL(/\/results$/);
     await expect(page.getByText("HōMI-Score out of 100")).toBeVisible();

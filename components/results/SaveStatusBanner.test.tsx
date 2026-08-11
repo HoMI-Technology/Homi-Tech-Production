@@ -12,6 +12,7 @@ const sampleStored = () =>
     result: { score: 70, verdict: "ALMOST_THERE" },
     completedAt: new Date().toISOString(),
     kind: "full",
+    decisionType: "home_buying",
   }) as unknown as Parameters<typeof saveLocalResult>[0];
 
 describe("SaveStatusBanner", () => {
@@ -73,6 +74,7 @@ describe("SaveStatusBanner", () => {
     const body = JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string);
     expect(body.kind).toBe("full");
     expect(body.inputs).toBeTruthy();
+    expect(body.decisionType).toBe("home_buying");
     // Banner clears itself once the retry saves, and the server id is attached.
     await waitFor(() => {
       expect(screen.queryByRole("button", { name: /try again/i })).not.toBeInTheDocument();
@@ -86,4 +88,29 @@ describe("SaveStatusBanner", () => {
     recordSaveStatus("failed");
     expect(await screen.findByText(/couldn't save/i)).toBeInTheDocument();
   });
+
+  it("omits decisionType when the stored result predates the field (legacy local payload)", async () => {
+    saveLocalResult({
+      inputs: { debtToIncomeRatio: 0.2 },
+      result: { score: 70, verdict: "ALMOST_THERE" },
+      completedAt: new Date().toISOString(),
+      kind: "full",
+    } as unknown as Parameters<typeof saveLocalResult>[0]);
+    recordSaveStatus("failed");
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ id: "srv-legacy" }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SaveStatusBanner />);
+    await userEvent.click(await screen.findByRole("button", { name: /try again/i }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    const body = JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string);
+    expect(body.kind).toBe("full");
+    expect(body).not.toHaveProperty("decisionType");
+  });
+
 });

@@ -1,11 +1,30 @@
 import type { AssessmentInputs } from "@/lib/scoring";
+import type {
+  DeadlineOriginChoice,
+  DecisionType,
+  ReferralSourceChoice,
+} from "@/lib/assessment/types";
 import type { ResponseValue } from "@/lib/questions/bank";
-import type { DeadlineOriginChoice, ReferralSourceChoice } from "@/lib/assessment/types";
 
 export interface ConflictResponses {
   referralSource: ReferralSourceChoice | null;
   deadlineOrigin: DeadlineOriginChoice | null;
 }
+
+export class UnmappedDecisionTypeError extends Error {
+  readonly decisionType: string;
+
+  constructor(decisionType: string) {
+    super(`No input mapper registered for decision type: ${decisionType}`);
+    this.name = "UnmappedDecisionTypeError";
+    this.decisionType = decisionType;
+  }
+}
+
+type VerticalMapper = (
+  responses: Record<string, ResponseValue>,
+  conflict: ConflictResponses,
+) => AssessmentInputs;
 
 function num(value: ResponseValue | undefined): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
@@ -173,10 +192,10 @@ function urgencyToDeadlineOrigin(urgency: number): DeadlineOriginChoice | undefi
 }
 
 /**
- * Maps canonical question-bank responses (+ optional conflict fields) into the
- * AssessmentInputs shape consumed by the frozen scoring engine.
+ * Home-buying vertical mapper. Behavior-identical to the pre-5.5 monolithic
+ * `bankResponsesToInputs` — feeds the frozen AssessmentInputs shape.
  */
-export function bankResponsesToInputs(
+export function mapHomeBuyingResponses(
   responses: Record<string, ResponseValue>,
   conflict: ConflictResponses,
 ): AssessmentInputs {
@@ -230,4 +249,31 @@ export function bankResponsesToInputs(
     referralSource: conflict.referralSource ?? undefined,
     deadlineOrigin: conflict.deadlineOrigin ?? deadlineFromUrgency,
   };
+}
+
+/**
+ * Per-vertical mapper registry (Plans.md 5.5). Only registered verticals can
+ * produce AssessmentInputs — unmapped / inactive types hard-reject so they
+ * never silently fall through to home or emit zeroed inputs.
+ */
+const MAPPERS: Partial<Record<DecisionType, VerticalMapper>> = {
+  home_buying: mapHomeBuyingResponses,
+  // car / career_change / education / starting_a_business: registered in 5.7+
+};
+
+/**
+ * Maps canonical question-bank responses (+ optional conflict fields) into the
+ * AssessmentInputs shape consumed by the frozen scoring engine, dispatched by
+ * decision vertical.
+ */
+export function bankResponsesToInputs(
+  responses: Record<string, ResponseValue>,
+  conflict: ConflictResponses,
+  decisionType: DecisionType,
+): AssessmentInputs {
+  const mapper = MAPPERS[decisionType];
+  if (!mapper) {
+    throw new UnmappedDecisionTypeError(decisionType);
+  }
+  return mapper(responses, conflict);
 }
