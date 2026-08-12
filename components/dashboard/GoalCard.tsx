@@ -281,13 +281,13 @@ export function GoalCard({
       ) : (
         <div className="mt-4">
           <div className="flex items-end justify-between gap-3">
-            <p className="score-numeral text-2xl font-bold text-light">
+            <p className="num-money score-numeral text-2xl font-bold text-light">
               {formatCurrency(progress?.saved ?? 0)}
-              <span className="ml-1 text-sm font-medium text-dim">
+              <span className="num-money ml-1 text-sm font-medium text-dim">
                 of {formatCurrency(displayGoal.target_amount)}
               </span>
             </p>
-            <span className="score-numeral text-sm text-yellow">
+            <span className="num score-numeral text-sm text-yellow">
               {Math.round((progress?.ratio ?? 0) * 100)}%
             </span>
           </div>

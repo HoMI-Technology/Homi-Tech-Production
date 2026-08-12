@@ -250,7 +250,7 @@ export function TransactionsCommand() {
                 <td className="px-3 py-2.5 text-light">{t.note ?? "—"}</td>
                 <td className="px-3 py-2.5 text-dim">{categoryLabel(t.category)}</td>
                 <td
-                  className="score-numeral px-3 py-2.5 text-right"
+                  className="num-money score-numeral px-3 py-2.5 text-right"
                   style={{ color: t.type === "income" ? COLORS.emerald : COLORS.light }}
                 >
                   {t.type === "income" ? "+" : "−"}
@@ -299,7 +299,7 @@ function Tile({ label, value, accent }: { label: string; value: string; accent?:
     <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-3.5 py-3">
       <p className="eyebrow text-dim">{label}</p>
       <p
-        className="score-numeral mt-1.5 text-lg text-light"
+        className="num score-numeral mt-1.5 text-lg text-light"
         style={accent ? { color: accent } : undefined}
       >
         {value}

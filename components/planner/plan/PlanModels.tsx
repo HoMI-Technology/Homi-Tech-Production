@@ -348,7 +348,7 @@ export default function PlanModels() {
         <p className="mt-4 text-sm text-dim">
           Best at month 60: <span className="font-semibold text-light">{studio.bestLabel}</span>
           {" · "}spread{" "}
-          <span className="font-display font-semibold text-light">
+          <span className="num-money font-display font-semibold text-light">
             {formatCurrency(studio.spreadAt60)}
           </span>
         </p>

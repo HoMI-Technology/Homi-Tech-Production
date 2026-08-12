@@ -254,9 +254,9 @@ function GoalCardRow({
             {GOAL_TYPES.find((t) => t.value === goal.goalType)?.label ?? goal.goalType}
           </p>
         </div>
-        <p className="score-numeral text-sm text-light">
+        <p className="num-money score-numeral text-sm text-light">
           {formatCurrency(centsToDollars(goal.currentAmountCents))}
-          <span className="text-dim">
+          <span className="num-money text-dim">
             {" / "}
             {formatCurrency(centsToDollars(goal.targetAmountCents))}
           </span>
@@ -271,12 +271,12 @@ function GoalCardRow({
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-dim">
-        <span className="score-numeral">{pct}% funded</span>
+        <span className="num score-numeral">{pct}% funded</span>
         {funded ? (
           <span style={{ color: COLORS.emerald }}>Funded</span>
         ) : projection.monthsToTarget !== null ? (
           <span>
-            <span className="score-numeral">{projection.monthsToTarget}</span> month
+            <span className="num score-numeral">{projection.monthsToTarget}</span> month
             {projection.monthsToTarget === 1 ? "" : "s"} at the planned pace
           </span>
         ) : (
@@ -425,7 +425,7 @@ function NumberInput({ value, onChange }: { value: number; onChange: (v: number)
         step={100}
         value={Number.isFinite(value) ? value : 0}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="score-numeral w-full bg-transparent text-sm text-light outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+        className="num-money score-numeral w-full bg-transparent text-sm text-light outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
       />
     </span>
   );
@@ -446,7 +446,7 @@ function Tile({
     <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-3.5 py-3">
       <p className="eyebrow text-dim">{label}</p>
       <p
-        className="score-numeral mt-1.5 text-lg text-light"
+        className="num score-numeral mt-1.5 text-lg text-light"
         style={accent ? { color: accent } : undefined}
       >
         {value}

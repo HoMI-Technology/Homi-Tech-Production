@@ -1,32 +1,41 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { PageFrame } from "@/components/operate/PageFrame";
-import { MoneyModeNav } from "@/components/money/MoneyModeNav";
+import { MoneyModeRail } from "@/components/money/MoneyModeRail";
+import { MoneyPicturePanel } from "@/components/money/MoneyPicturePanel";
 
 /**
- * Shared chrome for every Money Reality surface.
- * Mode nav is the product spine: Stand · Track · Plan · Decide.
- * Client boundary: used from client money routes (/money/budget) and server
- * money home — client-safe so Track can embed PlannerApp without RSC mismatch.
+ * Money Reality instrument shell — dual-panel layout.
+ *
+ * Left (280px): MoneyPicturePanel — persistent financial picture, always
+ * visible regardless of the active mode. Reads local ledger; never writes.
+ *
+ * Center (40px): MoneyModeRail — vertical S/T/D/P mode switcher.
+ *
+ * Right (flex): the active mode's content (Stand / Track / Decide / Plan).
+ *
+ * On mobile (<lg) the layout collapses: picture panel goes full-width above,
+ * mode rail becomes a horizontal strip, content follows below.
+ *
+ * Client boundary: needed because MoneyModeRail + MoneyPicturePanel both
+ * read from the browser (pathname + localStorage). PlannerApp (Track) is
+ * dynamically imported with ssr:false, which is safe inside a client module.
  */
-export function MoneyShell({
-  children,
-  width = "content",
-}: {
-  children: ReactNode;
-  width?: "content" | "default" | "full";
-}) {
+export function MoneyShell({ children }: { children: ReactNode }) {
   return (
-    <PageFrame width={width} density="spacious" role="personal">
-      <p className="eyebrow">Operate · reality</p>
-      <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">Money</h1>
-      <p className="mt-2 max-w-2xl text-dim">
-        One honest picture of your finances — then the math behind decisions that matter.
-        Educational guidance only.
-      </p>
-      <MoneyModeNav />
-      <div className="mt-8">{children}</div>
-    </PageFrame>
+    <div className="money-instrument-shell">
+      {/* Left: persistent financial picture */}
+      <aside className="money-picture-col" aria-label="Financial picture">
+        <MoneyPicturePanel />
+      </aside>
+
+      {/* Center: vertical mode rail */}
+      <MoneyModeRail />
+
+      {/* Right: mode content */}
+      <div className="money-content-col">
+        {children}
+      </div>
+    </div>
   );
 }

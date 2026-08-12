@@ -39,7 +39,7 @@ export function ChartTooltip({
               style={{ backgroundColor: item.color ?? item.payload?.fill ?? COLORS.dim }}
             />
             <span className="text-xs text-dim">{item.name}</span>
-            <span className="score-numeral ml-auto pl-4 text-xs text-light">
+            <span className="num score-numeral ml-auto pl-4 text-xs text-light">
               {typeof item.value === "number" ? f(item.value) : item.value}
             </span>
           </div>

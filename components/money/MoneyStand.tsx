@@ -272,7 +272,10 @@ function MiniTile({ label, value, accent }: { label: string; value: string; acce
   return (
     <div className="rounded-xl border border-line/60 bg-navy/40 px-3 py-3">
       <p className="text-2xs font-semibold uppercase tracking-[0.12em] text-dim">{label}</p>
-      <p className="score-numeral mt-1 text-lg font-semibold text-light" style={{ color: accent }}>
+      <p
+        className="score-numeral num mt-1 text-lg font-semibold text-light"
+        style={{ color: accent }}
+      >
         {value}
       </p>
     </div>

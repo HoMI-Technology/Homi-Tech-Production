@@ -236,13 +236,13 @@ export default function PlanConsolidate() {
       <div className="mt-4 flex flex-wrap items-center gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3.5 py-3 text-sm">
         <span className="text-dim">
           {debts.length} debt{debts.length === 1 ? "" : "s"} ·{" "}
-          <span className="font-display text-light">{formatCurrency(balance)}</span> at{" "}
-          <span className="font-display text-amber">{blendedApr}%</span> blended
+          <span className="num-money font-display text-light">{formatCurrency(balance)}</span> at{" "}
+          <span className="num font-display text-amber">{blendedApr}%</span> blended
         </span>
         <ArrowRight size={15} className="text-dim" aria-hidden />
         <span className="text-dim">
-          1 loan · <span className="font-display text-cyan">{loan.apr}%</span> ·{" "}
-          <span className="font-display text-light">
+          1 loan · <span className="num font-display text-cyan">{loan.apr}%</span> ·{" "}
+          <span className="num-money font-display text-light">
             {formatCurrency(consolidation?.monthlyPayment ?? 0)}/mo
           </span>
         </span>
@@ -316,10 +316,12 @@ export default function PlanConsolidate() {
                       </span>
                     )}
                   </span>
-                  <span className="text-right font-display text-sm text-light tnum">
+                  <span className="num-money text-right font-display text-sm text-light tnum">
                     {formatCurrency(m.totalPaid)}
                   </span>
-                  <span className="text-right text-xs text-dim tnum">{formatMonths(m.months)}</span>
+                  <span className="num text-right text-xs text-dim tnum">
+                    {formatMonths(m.months)}
+                  </span>
                 </div>
               );
             })}

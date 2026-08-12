@@ -3,10 +3,16 @@
 import { useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
+import { cn } from "@/lib/planner/cn";
+
 /**
  * Spring-animated counter. Re-tweens whenever `value` changes; counts up from
  * 0 on first mount. Default formatter is a plain locale number — callers that
  * need currency or percentage should pass their own `format`.
+ *
+ * Always renders with `.num`: a counter that re-tweens every frame MUST have
+ * tabular figures or the glyph widths shift under it and the number visibly
+ * jitters as it counts. Callers can still override face/size via `className`.
  */
 export function AnimatedNumber({
   value,
@@ -27,5 +33,5 @@ export function AnimatedNumber({
     motionValue.set(value);
   }, [value, motionValue]);
 
-  return <motion.span className={className}>{text}</motion.span>;
+  return <motion.span className={cn("num", className)}>{text}</motion.span>;
 }

@@ -262,7 +262,7 @@ export function ScoreSimulator({
                 sublabel="of 100"
               />
               <div className="text-center">
-                <p className={`score-numeral text-4xl font-bold ${deltaTone}`}>
+                <p className={`num score-numeral text-4xl font-bold ${deltaTone}`}>
                   {delta >= 0 ? "+" : ""}
                   {delta}
                 </p>
@@ -323,7 +323,7 @@ export function ScoreSimulator({
               <p className="mt-2 text-sm leading-relaxed text-light">
                 {topLever.label} moves your score by{" "}
                 <span
-                  className={`score-numeral font-semibold ${topLever.delta >= 0 ? "text-emerald" : "text-crimson"}`}
+                  className={`num score-numeral font-semibold ${topLever.delta >= 0 ? "text-emerald" : "text-crimson"}`}
                 >
                   {topLever.delta >= 0 ? "+" : ""}
                   {topLever.delta}
@@ -368,7 +368,7 @@ function Readout({ label, value, detail }: { label: string; value: string; detai
   return (
     <div className="glass p-5">
       <p className="eyebrow">{label}</p>
-      <p className="score-numeral mt-2 text-2xl font-bold text-light">{value}</p>
+      <p className="num score-numeral mt-2 text-2xl font-bold text-light">{value}</p>
       <p className="mt-1 text-xs text-dim">{detail}</p>
     </div>
   );

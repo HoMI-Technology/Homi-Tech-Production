@@ -140,12 +140,12 @@ export default function PlanHousing() {
 
       <p className="mt-4 text-sm text-dim">
         Rough cash/equity break-even ~{" "}
-        <span className="font-display font-semibold text-light">
+        <span className="num font-display font-semibold text-light">
           {lens.breakEvenYears != null ? lens.breakEvenYears : "30+"} years
         </span>
         {" · "}gap to 20% down{" "}
         <span
-          className={`font-display font-semibold ${lens.downPaymentGap > 0 ? "text-amber" : "text-emerald"}`}
+          className={`num-money font-display font-semibold ${lens.downPaymentGap > 0 ? "text-amber" : "text-emerald"}`}
         >
           {formatCurrency(lens.downPaymentGap)}
         </span>

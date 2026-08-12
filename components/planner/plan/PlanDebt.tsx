@@ -178,7 +178,7 @@ export default function PlanDebt() {
                 {avalancheOrder.map((d, i) => (
                   <li key={d.id} className="text-xs text-dim">
                     <span className="font-display text-light">{i + 1}.</span> {d.name}{" "}
-                    <span className="font-display text-emerald">{d.apr}%</span>
+                    <span className="num font-display text-emerald">{d.apr}%</span>
                   </li>
                 ))}
               </ol>
@@ -189,7 +189,9 @@ export default function PlanDebt() {
                 {snowballOrder.map((d, i) => (
                   <li key={d.id} className="text-xs text-dim">
                     <span className="font-display text-light">{i + 1}.</span> {d.name}{" "}
-                    <span className="font-display text-cyan">{formatCurrency(d.balance)}</span>
+                    <span className="num-money font-display text-cyan">
+                      {formatCurrency(d.balance)}
+                    </span>
                   </li>
                 ))}
               </ol>

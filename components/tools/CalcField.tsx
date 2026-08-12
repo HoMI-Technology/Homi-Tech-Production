@@ -57,7 +57,7 @@ export function CalcField({
               your numbers
             </span>
           )}
-          <span className="score-numeral text-sm text-cyan transition-colors duration-200">
+          <span className="num score-numeral text-sm text-cyan transition-colors duration-200">
             {display}
           </span>
         </span>
@@ -96,7 +96,7 @@ export function CalcBar({
     <div>
       <div className="flex items-center justify-between text-sm">
         <span className="text-dim">{label}</span>
-        <span className="score-numeral text-light">{display}</span>
+        <span className="num score-numeral text-light">{display}</span>
       </div>
       <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-surface">
         <div

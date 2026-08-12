@@ -17,7 +17,7 @@ export function MetricRail({ cells }: { cells: MetricCell[] }) {
       {cells.map((cell) => (
         <div key={cell.label} className="dash-rail-cell">
           <p className="dash-rail-label">{cell.label}</p>
-          <p className="dash-rail-value" style={cell.color ? { color: cell.color } : undefined}>
+          <p className="dash-rail-value num" style={cell.color ? { color: cell.color } : undefined}>
             {cell.value}
           </p>
           {cell.footer != null && <p className="dash-rail-footer">{cell.footer}</p>}

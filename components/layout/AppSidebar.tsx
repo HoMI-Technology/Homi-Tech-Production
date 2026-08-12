@@ -25,6 +25,13 @@ import {
 } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { CommandPalette } from "@/components/layout/CommandPalette";
+import {
+  SidebarDecisionState,
+  SidebarPulseStrip,
+  useLatestVerdict,
+  useVerdictAccent,
+  type LatestVerdict,
+} from "@/components/layout/SidebarDecisionState";
 import { isActivePath } from "@/components/layout/HeaderShell";
 import { APP_MORE_NAV, APP_PRIMARY_NAV } from "@/lib/layout/app-nav";
 import type { NavLink } from "@/lib/layout/nav-catalog";
@@ -43,12 +50,53 @@ import type { SwitcherContext } from "@/lib/dashboard/switcher-visibility";
  * __tests__/layout/nav-catalog-parity.test.ts keeps covering this surface.
  * Palette-only entries (settings, role dashboards, money modes) intentionally
  * stay out of the rail and remain reachable via ⌘K.
+ *
+ * The rail is grouped by decision journey (measure → understand → act →
+ * reflect) rather than by header slot. That is a *labeling* change only: the
+ * rendered entry set is still exactly APP_PRIMARY_NAV + APP_MORE_NAV, which is
+ * what parity covers.
  */
 
-const GROUPS: readonly { label: string; items: readonly NavLink[] }[] = [
-  { label: "Navigate", items: APP_PRIMARY_NAV },
-  { label: "More", items: APP_MORE_NAV },
+/**
+ * Journey grouping. Hrefs, not entries — labels and flag-gating still come
+ * from the catalog so this list can never fork the copy.
+ */
+const JOURNEY_ORDER: readonly { label: string; hrefs: readonly string[] }[] = [
+  { label: "Measure", hrefs: ["/dashboard", "/assessment", "/results"] },
+  { label: "Understand", hrefs: ["/path", "/plan", "/scenarios", "/tools/preflight"] },
+  // /agents is header-primary whenever the Agent OS flag is on; it belongs to
+  // the acting half of the journey, next to Money and the household surfaces.
+  { label: "Act", hrefs: ["/money", "/agents", "/household", "/connections"] },
+  { label: "Reflect", hrefs: ["/advisor", "/journal"] },
 ];
+
+/**
+ * Project the flag-filtered header set onto the journey order. Anything the
+ * catalog adds later that JOURNEY_ORDER does not name still renders, under a
+ * trailing "More" group — regrouping must never silently drop a destination.
+ */
+function buildGroups(
+  source: readonly NavLink[],
+): readonly { label: string; items: readonly NavLink[] }[] {
+  const remaining = new Map(source.map((item) => [item.href, item]));
+  const groups: { label: string; items: NavLink[] }[] = [];
+
+  for (const { label, hrefs } of JOURNEY_ORDER) {
+    const items: NavLink[] = [];
+    for (const href of hrefs) {
+      const item = remaining.get(href);
+      if (!item) continue;
+      items.push(item);
+      remaining.delete(href);
+    }
+    if (items.length > 0) groups.push({ label, items });
+  }
+  if (remaining.size > 0) groups.push({ label: "More", items: [...remaining.values()] });
+
+  return groups;
+}
+
+const GROUPS = buildGroups([...APP_PRIMARY_NAV, ...APP_MORE_NAV]);
 
 /** href → glyph. Anything unmapped falls back to the neutral grid mark. */
 const ICONS: Record<string, LucideIcon> = {
@@ -96,15 +144,19 @@ function NavItem({
     >
       {active && (
         <>
+          {/* Active fill + edge pill key to the current verdict — see
+              useVerdictAccent; :root in globals.css holds the cyan default. */}
           <motion.span
             layoutId={pillId}
             transition={PILL_SPRING}
             aria-hidden
-            className="absolute inset-0 rounded-lg bg-white/[0.06]"
+            className="absolute inset-0 rounded-lg"
+            style={{ background: "var(--sidebar-verdict-tint)" }}
           />
           <span
             aria-hidden
-            className="absolute left-0 top-1/2 h-5 w-[2px] -translate-y-1/2 rounded-full bg-cyan"
+            className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full"
+            style={{ background: "var(--sidebar-verdict-color)" }}
           />
         </>
       )}
@@ -193,6 +245,10 @@ export function AppSidebar({
   const [open, setOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [shortcutLabel, setShortcutLabel] = useState("⌘K");
+
+  // One read, one accent publication — the rail and drawer share the result.
+  const decisionState: LatestVerdict | null = useLatestVerdict();
+  useVerdictAccent(decisionState);
 
   const roleContext: SwitcherContext = { role, employerId, organizationId };
 
@@ -301,7 +357,9 @@ export function AppSidebar({
           <span className="max-xl:hidden">Jump to…</span>
           <kbd className="ml-auto chrome-kbd max-xl:hidden">{shortcutLabel}</kbd>
         </button>
+        <SidebarDecisionState state={decisionState} expanded={false} />
         <SidebarNav pathname={pathname} pillId="nav-pill" expanded={false} />
+        <SidebarPulseStrip state={decisionState} expanded={false} />
         <SidebarFooter email={email} expanded={false} />
       </aside>
 
@@ -344,7 +402,9 @@ export function AppSidebar({
                   <X aria-hidden className="size-5" strokeWidth={1.75} />
                 </button>
               </div>
+              <SidebarDecisionState state={decisionState} expanded />
               <SidebarNav pathname={pathname} pillId="nav-pill-drawer" expanded />
+              <SidebarPulseStrip state={decisionState} expanded />
               <SidebarFooter email={email} expanded />
             </motion.aside>
           </>

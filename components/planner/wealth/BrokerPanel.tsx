@@ -49,7 +49,7 @@ function BrokerRow({
           {holdingsCount === 1 ? "" : "s"} · {formatSyncStamp(broker.lastSyncedAt)}
         </p>
       </div>
-      <p className="shrink-0 font-display text-sm font-semibold tnum text-cyan">
+      <p className="num-money shrink-0 font-display text-sm font-semibold tnum text-cyan">
         {formatCurrency(broker.marketValue, { decimals: 2 })}
       </p>
       <button
@@ -128,13 +128,13 @@ export function BrokerPanel() {
       <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
         <div>
           <p className="text-label">Portfolio MV</p>
-          <p className="mt-0.5 font-display text-base font-semibold tnum text-cyan">
+          <p className="num-money mt-0.5 font-display text-base font-semibold tnum text-cyan">
             {formatCurrency(portfolioMv, { decimals: 2 })}
           </p>
         </div>
         <div>
           <p className="text-label">Linked brokers</p>
-          <p className="mt-0.5 font-display text-base font-semibold tnum text-light">
+          <p className="num mt-0.5 font-display text-base font-semibold tnum text-light">
             {brokers.length}
           </p>
         </div>

@@ -245,18 +245,18 @@ function HoldingRow({
       </div>
       <div className="flex shrink-0 items-center gap-2.5">
         <div className="text-right">
-          <p className="font-display text-base font-semibold tnum text-light">
+          <p className="num-money font-display text-base font-semibold tnum text-light">
             {formatCurrency(marketValue, { decimals: 2 })}
           </p>
           <p
-            className={`mt-0.5 inline-flex items-center gap-1 font-display text-xs tnum ${
+            className={`num-money mt-0.5 inline-flex items-center gap-1 font-display text-xs tnum ${
               up ? "text-emerald" : "text-crimson"
             }`}
           >
             {up ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
             {formatSignedGain(gain, gainPct)}
           </p>
-          <p className="mt-0.5 font-display text-xs tnum text-cyan">
+          <p className="num-money mt-0.5 font-display text-xs tnum text-cyan">
             Price {formatCurrency(holding.price, { decimals: 2 })}
           </p>
         </div>
@@ -320,10 +320,10 @@ function AllocationDonut({ holdings }: { holdings: Holding[] }) {
               style={{ backgroundColor: r.hex }}
             />
             <span className="text-light/90">{r.label}</span>
-            <span className="ml-auto font-display text-xs tnum text-dim">
+            <span className="num ml-auto font-display text-xs tnum text-dim">
               {formatPercent(r.weight, 0)}
             </span>
-            <span className="w-24 text-right font-display text-xs tnum text-light">
+            <span className="num-money w-24 text-right font-display text-xs tnum text-light">
               {formatCurrency(r.value)}
             </span>
           </div>
@@ -405,20 +405,20 @@ export function PortfolioPanel() {
       <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
         <div className="rounded-xl border border-white/[0.06] bg-navyLight/60 px-3.5 py-3">
           <p className="text-label">Market value</p>
-          <p className="mt-1 font-display text-lg font-semibold tnum text-cyan">
+          <p className="num-money mt-1 font-display text-lg font-semibold tnum text-cyan">
             {formatCurrency(summary.marketValue, { decimals: 2 })}
           </p>
         </div>
         <div className="rounded-xl border border-white/[0.06] bg-navyLight/60 px-3.5 py-3">
           <p className="text-label">Cost basis</p>
-          <p className="mt-1 font-display text-lg font-semibold tnum text-light">
+          <p className="num-money mt-1 font-display text-lg font-semibold tnum text-light">
             {formatCurrency(summary.costBasis, { decimals: 2 })}
           </p>
         </div>
         <div className="rounded-xl border border-white/[0.06] bg-navyLight/60 px-3.5 py-3">
           <p className="text-label">Unrealized</p>
           <p
-            className={`mt-1 font-display text-lg font-semibold tnum ${
+            className={`num-money mt-1 font-display text-lg font-semibold tnum ${
               gainUp ? "text-emerald" : "text-crimson"
             }`}
           >

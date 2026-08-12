@@ -18,7 +18,7 @@ const PlannerApp = dynamic(
 
 export default function MoneyBudgetPage() {
   return (
-    <MoneyShell width="content">
+    <MoneyShell>
       <PlannerApp embedded />
     </MoneyShell>
   );

@@ -172,7 +172,7 @@ function ItemRow({
       </div>
       <div className="flex shrink-0 items-center gap-1">
         <p
-          className={`font-display text-sm font-semibold tnum ${
+          className={`num-money font-display text-sm font-semibold tnum ${
             asset ? "text-emerald" : "text-yellow"
           }`}
         >
@@ -271,7 +271,7 @@ export function NetWorthPanel() {
         <div>
           <p className="text-label">Total net worth</p>
           <p
-            className={`mt-1 font-display text-3xl font-bold tnum ${
+            className={`num-money mt-1 font-display text-3xl font-bold tnum ${
               netWorthUp ? "text-emerald" : "text-crimson"
             }`}
           >
@@ -282,7 +282,7 @@ export function NetWorthPanel() {
           <div className="rounded-xl border border-white/[0.06] bg-navyLight/60 px-3.5 py-2.5">
             <p className="text-label">Runway</p>
             <p
-              className={`mt-0.5 font-display text-sm font-semibold tnum ${
+              className={`num mt-0.5 font-display text-sm font-semibold tnum ${
                 reality.temps.runway === "emerald"
                   ? "text-emerald"
                   : reality.temps.runway === "crimson"
@@ -296,7 +296,7 @@ export function NetWorthPanel() {
           <div className="rounded-xl border border-white/[0.06] bg-navyLight/60 px-3.5 py-2.5">
             <p className="text-label">DTI</p>
             <p
-              className={`mt-0.5 font-display text-sm font-semibold tnum ${
+              className={`num mt-0.5 font-display text-sm font-semibold tnum ${
                 reality.temps.dti === "emerald"
                   ? "text-emerald"
                   : reality.temps.dti === "crimson"
@@ -313,7 +313,7 @@ export function NetWorthPanel() {
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         <div className="rounded-2xl border border-white/[0.06] bg-navyLight/50 p-4">
           <p className="text-label">Assets</p>
-          <p className="mt-1 font-display text-xl font-semibold tnum text-emerald">
+          <p className="num-money mt-1 font-display text-xl font-semibold tnum text-emerald">
             {formatCurrency(stack.assets, { decimals: 2 })}
           </p>
           <div className="mt-2.5 h-[6px] overflow-hidden rounded-full bg-white/[0.06]">
@@ -328,7 +328,7 @@ export function NetWorthPanel() {
             {stack.assetLines.map((line) => (
               <div key={line.label} className="flex items-center justify-between text-sm">
                 <span className="text-dim">{line.label}</span>
-                <span className="font-display text-xs tnum text-light">
+                <span className="num-money font-display text-xs tnum text-light">
                   {formatCurrency(line.value, { decimals: 2 })}
                 </span>
               </div>
@@ -337,7 +337,7 @@ export function NetWorthPanel() {
         </div>
         <div className="rounded-2xl border border-white/[0.06] bg-navyLight/50 p-4">
           <p className="text-label">Liabilities</p>
-          <p className="mt-1 font-display text-xl font-semibold tnum text-yellow">
+          <p className="num-money mt-1 font-display text-xl font-semibold tnum text-yellow">
             {formatCurrency(stack.liabilities, { decimals: 2 })}
           </p>
           <div className="mt-2.5 h-[6px] overflow-hidden rounded-full bg-white/[0.06]">
@@ -354,7 +354,7 @@ export function NetWorthPanel() {
             {stack.liabilityLines.map((line) => (
               <div key={line.label} className="flex items-center justify-between text-sm">
                 <span className="text-dim">{line.label}</span>
-                <span className="font-display text-xs tnum text-light">
+                <span className="num-money font-display text-xs tnum text-light">
                   {formatCurrency(line.value, { decimals: 2 })}
                 </span>
               </div>

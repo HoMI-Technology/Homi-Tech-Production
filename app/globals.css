@@ -106,6 +106,12 @@
   --z-overlay: 80;
   --z-modal: 90;
   --z-toast: 100;
+  /* Sidebar verdict accent — neutral defaults. AppSidebar overwrites both on
+     the root element once a cached verdict exists (components/layout/
+     SidebarDecisionState.tsx → useVerdictAccent), and removes them again when
+     there is none, so the signed-out/never-assessed rail stays canon cyan. */
+  --sidebar-verdict-color: var(--color-cyan);
+  --sidebar-verdict-tint: rgba(255, 255, 255, 0.06);
 }
 
 /* ── Product chrome (AppHeader / HeaderShell) ────────────────────
@@ -468,12 +474,112 @@ body {
     padding: 1rem 0.75rem 0.25rem;
   }
 
+  /* ── Sidebar decision state (persistent score + verdict) ──────────
+     Rendered by components/layout/SidebarDecisionState.tsx. The drawer
+     instance carries --expanded and keeps the full treatment at every
+     width; the desktop instance collapses to the 72px rail below xl
+     (see the media query after this layer). */
+  .sidebar-state-block {
+    flex-shrink: 0;
+    margin: 0.5rem 0.75rem 0.25rem;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(34, 211, 238, 0.12);
+    background: rgba(34, 211, 238, 0.03);
+  }
+  .sidebar-state-badge {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 0.125rem 0.4rem;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+  .sidebar-score-hero {
+    font-family: var(--font-score);
+    font-variant-numeric: tabular-nums;
+    /* 48px — prominent, but it must still clear the 248px rail. */
+    font-size: 3rem;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    font-weight: 400;
+    margin-top: 0.25rem;
+  }
+  .sidebar-state-meta {
+    font-size: 0.5625rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(148, 163, 184, 0.6);
+    margin-top: 0.25rem;
+  }
+  .sidebar-state-empty {
+    font-size: 0.6875rem;
+    color: rgba(148, 163, 184, 0.65);
+  }
+
+  /* ── Sidebar system pulse strip ── */
+  .sidebar-pulse-strip {
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: rgba(34, 211, 238, 0.06);
+    border-top: 1px solid rgba(34, 211, 238, 0.08);
+    border-bottom: 1px solid rgba(34, 211, 238, 0.08);
+    margin: 0 0 0.5rem;
+  }
+  .sidebar-pulse-cell {
+    background: rgba(10, 22, 40, 0.9);
+    padding: 0.5rem 0.5rem 0.4rem;
+    text-align: center;
+  }
+  .sidebar-pulse-label {
+    display: block;
+    font-size: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(148, 163, 184, 0.5);
+  }
+  .sidebar-pulse-value {
+    display: block;
+    font-family: var(--font-score);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.8125rem;
+    color: var(--color-light);
+    margin-top: 0.1rem;
+  }
+
+  /* 72px icon rail (lg → xl). Only the non-expanded instance collapses; the
+     mobile drawer is 248px wide at every width it renders at, so it opts out
+     via --expanded. All that survives here is the verdict edge + the number —
+     48px would not fit inside 72px minus gutters. */
+  @media (max-width: 1279.98px) {
+    .sidebar-state-block:not(.sidebar-state-block--expanded) {
+      margin-inline: 0.5rem;
+      padding: 0.4rem 0.25rem;
+      text-align: center;
+      border-left: 3px solid var(--sidebar-verdict-color);
+      border-radius: 0.5rem;
+    }
+    .sidebar-state-block:not(.sidebar-state-block--expanded) .sidebar-score-hero {
+      font-size: 1.375rem;
+      letter-spacing: -0.02em;
+      margin-top: 0;
+    }
+  }
+
   /* ── Glass panels (premium glassmorphism, inner edge glow) ─────── */
   .glass {
     background: linear-gradient(160deg, rgba(15, 23, 42, 0.82), rgba(15, 23, 42, 0.62));
     backdrop-filter: blur(18px) saturate(1.25);
     -webkit-backdrop-filter: blur(18px) saturate(1.25);
-    border: 1px solid rgba(148, 163, 184, 0.14);
+    /* Cyan hairline, not slate — the panel edge reads as instrument
+     chrome. Deliberately NOT !important: call sites that set a
+     semantic border (border-crimson/50 on a stop condition,
+     border-emerald/35 on a cleared one) must still win. */
+    border: 1px solid rgba(34, 211, 238, 0.14);
     box-shadow:
       inset 0 1px 0 rgba(226, 232, 240, 0.07),
       0 24px 48px -18px rgba(2, 6, 16, 0.7);
@@ -520,6 +626,73 @@ body {
     font-family: var(--font-score);
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.03em;
+  }
+
+  /* ── Numeric typography — every number reads as instrument data ───
+   .num is the general marker: scores, counts, percentages, metric
+   values. .num-money is the same face with tighter tracking for
+   currency, where the leading glyph and the grouping separators add
+   optical width. Both are tabular + slashed-zero so a column of
+   figures aligns on the decimal and 0 never reads as O.
+
+   These sit in @layer components, so a call-site utility (text-lg,
+   font-semibold, text-dim) still wins wherever a surface needs it. */
+  .num {
+    font-family: var(--font-score);
+    font-variant-numeric: tabular-nums slashed-zero;
+    font-feature-settings:
+      "tnum" 1,
+      "zero" 1;
+    letter-spacing: -0.02em;
+  }
+  .num-money {
+    font-family: var(--font-score);
+    font-variant-numeric: tabular-nums slashed-zero;
+    font-feature-settings:
+      "tnum" 1,
+      "zero" 1;
+    letter-spacing: -0.025em;
+  }
+  /* Data surfaces that already carry the score face inherit tabular
+   figures without needing .num stamped at every call site. */
+  .dash-rail-value,
+  .dash-side-metric-value,
+  .dash-rail-cell,
+  [data-surface="money"] {
+    font-variant-numeric: tabular-nums slashed-zero;
+    font-feature-settings:
+      "tnum" 1,
+      "zero" 1;
+  }
+
+  /* ── Dense data rows ──────────────────────────────────────────────
+   Label left, figure right, aligned on the baseline so a stack of
+   rows scans as a single column of numbers. The hairline rule is the
+   same cyan as the instrument panels, at a fraction of the alpha —
+   present enough to separate rows, faint enough not to stripe. */
+  .data-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid rgba(34, 211, 238, 0.05);
+    gap: 1rem;
+  }
+  .data-row:last-child {
+    border-bottom: none;
+  }
+  .data-row-label {
+    font-size: 0.6875rem;
+    color: var(--color-dim);
+    font-weight: 500;
+  }
+  .data-row-value {
+    font-family: var(--font-score);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.9375rem;
+    color: var(--color-light);
+    letter-spacing: -0.02em;
+    text-align: right;
   }
 
   /* ── Marketing type scale (strict) ─────────────────────────────────
@@ -1675,7 +1848,7 @@ body {
     position: relative;
     overflow: hidden;
     border-radius: 1.25rem;
-    border: 1px solid rgba(148, 163, 184, 0.14);
+    border: 1px solid rgba(34, 211, 238, 0.16);
     background: linear-gradient(
       155deg,
       rgba(15, 23, 42, 0.98) 0%,
@@ -2063,6 +2236,116 @@ body {
    Budget Planner instrument surfaces — ultra-premium operate chrome
    Used by Overview / Calendar / Banks / Wealth / Plan tabs.
    ═══════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════
+   Money Reality — dual-panel instrument shell
+   Left: persistent picture (280px) · Center: mode rail (40px) · Right: content
+   ═══════════════════════════════════════════════════════════════════ */
+.money-instrument-shell {
+  display: flex;
+  min-height: calc(100dvh - 56px); /* clear the mobile top bar */
+  overflow: hidden;
+}
+.money-picture-col {
+  width: 280px;
+  flex-shrink: 0;
+  border-right: 1px solid rgba(34, 211, 238, 0.08);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.money-picture-panel-inner {
+  padding: 1.25rem 1rem 1.5rem;
+}
+/* Vertical mode rail — S / T / D / P */
+.money-mode-rail {
+  width: 40px;
+  flex-shrink: 0;
+  border-right: 1px solid rgba(34, 211, 238, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 1.25rem;
+  gap: 2px;
+  background: rgba(10, 22, 40, 0.4);
+}
+.money-mode-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  font-family: var(--font-score);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-dim);
+  text-decoration: none;
+  transition: background 150ms ease, color 150ms ease;
+}
+.money-mode-btn:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-light);
+}
+.money-mode-btn[data-active="true"] {
+  color: var(--color-cyan);
+}
+.money-mode-btn[data-active="true"]::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: 20%;
+  bottom: 20%;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--color-cyan);
+}
+.money-content-col {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+/* Mobile collapse — picture full-width top, rail horizontal, content below */
+@media (max-width: 1023px) {
+  .money-instrument-shell {
+    flex-direction: column;
+    min-height: unset;
+  }
+  .money-picture-col {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(34, 211, 238, 0.08);
+  }
+  .money-mode-rail {
+    width: 100%;
+    height: 40px;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 0 1rem;
+    border-right: none;
+    border-bottom: 1px solid rgba(34, 211, 238, 0.06);
+    gap: 4px;
+  }
+  .money-mode-btn {
+    width: auto;
+    height: 36px;
+    padding: 0 0.75rem;
+    font-size: 0.75rem;
+  }
+  .money-mode-btn[data-active="true"]::before {
+    left: 20%;
+    right: 20%;
+    top: auto;
+    bottom: -4px;
+    width: auto;
+    height: 3px;
+    border-radius: 2px 2px 0 0;
+  }
+  .money-content-col {
+    overflow-y: unset;
+  }
+}
+
 .card-chrome {
   border-radius: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
