@@ -35,6 +35,7 @@ Executable palette + copy in [`lib/brand/index.ts`](lib/brand/index.ts) and CSS 
 - Spelling in user-visible prose: **HōMI** (capital H, ō = U+014D, capital MI). Repo/org slugs may use HoMI / Homi (brand-check carves that out).
 - Dark navy surfaces only — never light backgrounds.
 - Accents: cyan `#22d3ee` · emerald `#34d399` · yellow `#facc15`.
+- CTA-only (from existing `.btn-primary`, not general accents): cyanDeep `#0ea5c4` · ctaInk `#04121c`.
 - Verdict colors: amber `#fab633` (BUILD FIRST) · crimson `#f24822` (DO NOT PROCEED badge).
 - Type: Fraunces display · Inter body · JetBrains Mono / `.score-numeral` for data. Wordmark is Inter 900 (not Fraunces).
 - Verdict enum: `READY` · `ALMOST_THERE` · `BUILD_FIRST` · `NOT_YET` (badge label: **DO NOT PROCEED**).

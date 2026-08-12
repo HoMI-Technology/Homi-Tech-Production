@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CopyrightYear } from "@/components/layout/CopyrightYear";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
-import { LEGAL_DISCLAIMER } from "@/lib/brand";
+import { LEGAL_DISCLAIMER, TAGLINES } from "@/lib/brand";
 
 interface FooterLink {
   href: string;
@@ -76,9 +76,7 @@ export function SiteFooter() {
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-dim">
               A Decision Companion. Financial Reality · Emotional Truth · Perfect Timing.
             </p>
-            <p className="mt-3 text-sm font-medium text-light">
-              Know when you&rsquo;re ready. Move when it matters.
-            </p>
+            <p className="mt-3 text-sm font-medium text-light">{TAGLINES.primary}</p>
             <a
               href="https://x.com/homi_tech"
               target="_blank"

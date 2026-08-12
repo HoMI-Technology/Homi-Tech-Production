@@ -163,7 +163,7 @@ const BANNED_HEXES = ["#fb923c", "#ef4444", "#64748b"];
  * Matches the 6-digit token and the 8-digit token+alpha form, any case.
  */
 const BRAND_HEX_RE =
-  /#(?:22d3ee|34d399|facc15|fab633|f24822|0a1628|0f172a|1e293b|334155|e2e8f0|94a3b8)(?:[0-9a-f]{2})?\b/i;
+  /#(?:22d3ee|0ea5c4|34d399|facc15|fab633|f24822|0a1628|0f172a|1e293b|334155|e2e8f0|94a3b8|04121c)(?:[0-9a-f]{2})?\b/i;
 const BRAND_HEX_SCOPE_RE = /^(?:app|components)[\\/]/;
 const BRAND_HEX_EXTENSIONS = new Set([".ts", ".tsx"]);
 
