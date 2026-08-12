@@ -168,3 +168,20 @@ export {
   type PathPricingVariant,
   type PathPricingAssignment,
 } from "./pricing-experiment";
+
+export {
+  computeDataQualityConfidence,
+  displayedScoreFromRaw,
+  ageDaysFromIso,
+  BAND_FACTOR,
+  FINANCE_STALE_DAYS,
+  type DataQualityBand,
+  type DataQualityInput,
+  type DataQualityGap,
+  type DataQualityConfidence,
+} from "./confidence";
+
+export {
+  collectDataQualityInput,
+  buildClientDataQuality,
+} from "./collect-data-quality";
