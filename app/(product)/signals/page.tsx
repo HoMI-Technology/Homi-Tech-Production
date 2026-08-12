@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
+import { useLatestAssessment } from "@/hooks/use-latest-assessment";
 import { deriveSignals, type Signal, type SignalSeverity } from "@/lib/signals/engine";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageFrame } from "@/components/operate/PageFrame";
@@ -20,13 +20,9 @@ const SEVERITY_CLASS: Record<SignalSeverity, string> = {
 
 export default function SignalsPage() {
   const supabase = useMemo(() => createClient(), []);
-  const [storedAssessment, setStoredAssessment] = useState<StoredAssessment | null>(null);
+  const { assessment: storedAssessment } = useLatestAssessment();
   const [recentCheckins, setRecentCheckins] = useState<DailyCheckin[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setStoredAssessment(loadLocalResult());
-  }, []);
 
   useEffect(() => {
     let active = true;
@@ -55,7 +51,11 @@ export default function SignalsPage() {
     };
   }, [supabase]);
 
-  const signals: Signal[] = deriveSignals({ storedAssessment, recentCheckins });
+  const assessmentReady = storedAssessment !== undefined;
+  const signals: Signal[] = deriveSignals({
+    storedAssessment: storedAssessment ?? null,
+    recentCheckins,
+  });
 
   return (
     <PageFrame width="content" density="spacious" role="personal">
@@ -65,7 +65,7 @@ export default function SignalsPage() {
         worth your attention right now.
       </p>
 
-      {loading ? (
+      {loading || !assessmentReady ? (
         <div className="mt-8 glass space-y-4 p-6" aria-busy="true" aria-label="Loading signals">
           <Skeleton className="h-4 w-32" />
           <Skeleton className="h-8 w-48" />

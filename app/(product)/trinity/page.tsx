@@ -2,10 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { COLORS, VERDICT_META } from "@/lib/brand";
-import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
+import { useLatestAssessment } from "@/hooks/use-latest-assessment";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { PageFrame } from "@/components/operate/PageFrame";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
@@ -49,15 +48,11 @@ const COLUMNS: Array<{
 
 export default function TrinityPage() {
   const pathname = usePathname();
-  const [stored, setStored] = useState<StoredAssessment | null | undefined>(undefined);
+  const { assessment: stored } = useLatestAssessment();
   const [trinity, setTrinity] = useState<TrinityResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [gateCta, setGateCta] = useState<{ href: string; label: string } | null>(null);
-
-  useEffect(() => {
-    setStored(loadLocalResult());
-  }, []);
 
   async function runTrinity() {
     if (!stored) return;

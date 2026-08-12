@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PILLARS, VERDICT_META } from "@/lib/brand";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
-import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
+import type { StoredAssessment } from "@/lib/assessment/storage";
+import { useLatestAssessment } from "@/hooks/use-latest-assessment";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { PageFrame } from "@/components/operate/PageFrame";
 import { TypedLetter } from "@/components/twin/TypedLetter";
@@ -39,7 +40,7 @@ function weakestPillar(result: StoredAssessment["result"]): { name: string; pct:
 
 export default function TwinPage() {
   const pathname = usePathname();
-  const [stored, setStored] = useState<StoredAssessment | null | undefined>(undefined);
+  const { assessment: stored } = useLatestAssessment();
   const [horizon, setHorizon] = useState<Horizon>("10");
   const [fear, setFear] = useState("");
   const [letter, setLetter] = useState<TwinLetter | null>(null);
@@ -48,10 +49,6 @@ export default function TwinPage() {
   const [error, setError] = useState<string | null>(null);
   const [gateCta, setGateCta] = useState<{ href: string; label: string } | null>(null);
   const [letterKey, setLetterKey] = useState(0);
-
-  useEffect(() => {
-    setStored(loadLocalResult());
-  }, []);
 
   const weak = useMemo(() => (stored ? weakestPillar(stored.result) : null), [stored]);
 

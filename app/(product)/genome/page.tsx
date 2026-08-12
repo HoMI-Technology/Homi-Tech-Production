@@ -1,24 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  DIMENSIONS,
-  QUESTIONS,
-  scoreGenome,
-  type DimensionScore,
-  type GenomeAnswers,
-} from "@/lib/genome/dimensions";
+import { DIMENSIONS, QUESTIONS, scoreGenome, type GenomeAnswers } from "@/lib/genome/dimensions";
 import { PageFrame } from "@/components/operate/PageFrame";
 import { RadarChart } from "@/components/tools/RadarChart";
 import { sliderFillPercent } from "@/lib/assessment/format";
+import { createClient } from "@/lib/supabase/client";
+import {
+  loadRemoteGenome,
+  saveRemoteGenome,
+  type StoredGenome,
+} from "@/lib/genome/persist";
 
 const STORAGE_KEY = "homi:genome";
-
-interface StoredGenome {
-  answers: GenomeAnswers;
-  scores: DimensionScore[];
-  completedAt: string;
-}
 
 function loadStored(): StoredGenome | null {
   if (typeof window === "undefined") return null;
@@ -46,11 +40,52 @@ export default function GenomePage() {
   const [taking, setTaking] = useState(false);
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<GenomeAnswers>({});
+  const [remoteId, setRemoteId] = useState<string | null>(null);
 
   useEffect(() => {
-    setStored(loadStored());
-    setHydrated(true);
+    let active = true;
+    async function hydrate(): Promise<void> {
+      const local = loadStored();
+      if (active && local) setStored(local);
+      try {
+        const supabase = createClient();
+        const { data } = await supabase.auth.getUser();
+        if (!data.user) {
+          if (active) setHydrated(true);
+          return;
+        }
+        const remote = await loadRemoteGenome(supabase, data.user.id);
+        if (!active) return;
+        setRemoteId(remote.row?.id ?? null);
+        if (remote.stored) {
+          setStored(remote.stored);
+          saveStored(remote.stored);
+        } else if (local) {
+          const id = await saveRemoteGenome(supabase, data.user.id, local, null);
+          if (active) setRemoteId(id);
+        }
+      } catch {
+        // Stay on the local copy — production write is best-effort.
+      }
+      if (active) setHydrated(true);
+    }
+    void hydrate();
+    return () => {
+      active = false;
+    };
   }, []);
+
+  async function persistRemote(result: StoredGenome): Promise<void> {
+    try {
+      const supabase = createClient();
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) return;
+      const id = await saveRemoteGenome(supabase, data.user.id, result, remoteId);
+      if (id) setRemoteId(id);
+    } catch {
+      // Local copy remains the fallback.
+    }
+  }
 
   function startOver() {
     setAnswers({});
@@ -70,6 +105,7 @@ export default function GenomePage() {
       saveStored(result);
       setStored(result);
       setTaking(false);
+      void persistRemote(result);
     }
   }
 
