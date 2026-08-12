@@ -8,11 +8,9 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { PageFrame } from "@/components/operate/PageFrame";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { InviteShareRow } from "@/components/operate/InviteShareRow";
-import {
-  ActionDock,
-  OperateHeroMeta,
-  OperateInstrument,
-} from "@/components/operate/OperateInstrument";
+import { ActionDock } from "@/components/operate/ActionDock";
+import { OperateHeroMeta } from "@/components/operate/OperateHeroMeta";
+import { OperateInstrument } from "@/components/operate/OperateInstrument";
 import type { Profile } from "@/types/database";
 import type { VerdictKey } from "@/lib/brand";
 import { COLORS, VERDICT_META } from "@/lib/brand";

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, type CSSProperties } from "react";
 import { headers } from "next/headers";
 import type { Metadata } from "next";
 import { getCachedClient, getCachedUser } from "@/lib/supabase/server";
@@ -17,7 +17,6 @@ import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Reveal } from "@/components/ui/Reveal";
-import { Sparkline } from "@/components/ui/Sparkline";
 import { ScoreHistory, type ScoreHistoryPoint } from "@/components/dashboard/ScoreHistory";
 import { ScoreDeltaBadge } from "@/components/dashboard/ScoreDeltaBadge";
 import { DailyPulseStrip } from "@/components/dashboard/DailyPulseStrip";
@@ -38,6 +37,11 @@ import { genomeScoresMap } from "@/lib/genome/constants";
 import { TrinityGapAlert } from "@/components/dashboard/TrinityGapAlert";
 import { DecisionTimeline } from "@/components/dashboard/DecisionTimeline";
 import { PathNextMove } from "@/components/dashboard/PathNextMove";
+import { PageFrame } from "@/components/operate/PageFrame";
+import { MetricRail } from "@/components/operate/MetricRail";
+import { ActionDock } from "@/components/operate/ActionDock";
+import { OperateHeroMeta } from "@/components/operate/OperateHeroMeta";
+import { OperateInstrument } from "@/components/operate/OperateInstrument";
 import type {
   AssessmentRow,
   BehavioralGenome,
@@ -277,261 +281,262 @@ export default async function DashboardPage() {
   const instrumentTint = verdictMeta.color;
   const scorePct = latest?.overall_score != null ? Math.round(latest.overall_score) : 0;
 
+  const fieldStyle = (
+    verdict
+      ? {
+          "--field-tint": `${verdictMeta.color}14`,
+          "--instrument-tint": instrumentTint,
+        }
+      : { ["--instrument-tint" as string]: COLORS.cyan }
+  ) as CSSProperties;
+
+  const dockTitle = showNudge
+    ? "Re-measure your readiness"
+    : pathIsDefaultHabit
+      ? "Work the binding constraint on your path"
+      : nextMove
+        ? nextMove.title
+        : "Open your plan";
+
   return (
-    <div
+    <PageFrame
       id="dash-root"
-      className="field"
-      style={
-        verdict
-          ? ({
-              "--field-tint": `${verdictMeta.color}14`,
-              "--instrument-tint": instrumentTint,
-            } as React.CSSProperties)
-          : ({ ["--instrument-tint" as string]: COLORS.cyan } as React.CSSProperties)
-      }
+      role="personal"
+      density="compact"
+      style={fieldStyle}
     >
       <script dangerouslySetInnerHTML={{ __html: ENTRANCE_BOOT_SCRIPT }} />
       <EntranceConductor containerId="dash-root" />
 
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:py-10">
-        {/* ── Single fold instrument: greeting + score + next move ── */}
-        <div className="dash-stage">
-          <div
-            className="dash-instrument"
-            style={{ ["--instrument-tint" as string]: instrumentTint }}
-          >
-            {latest && (
-              <VerdictCelebrate
-                assessmentId={latest.id}
-                improved={improved}
-                label={verdictMeta.label}
-              />
-            )}
-            <div className="dash-instrument-inner p-5 sm:p-7 lg:p-9">
-              <div className="dash-hero-meta">
-                <h1>
-                  {greeting}, <span className="text-aurora">{name}</span>
-                </h1>
-                <p>{subtitle}</p>
-              </div>
+      {/* ── Single fold instrument: greeting + score + next move ── */}
+      <div className="dash-stage">
+        <OperateInstrument tint={instrumentTint}>
+          {latest && (
+            <VerdictCelebrate
+              assessmentId={latest.id}
+              improved={improved}
+              label={verdictMeta.label}
+            />
+          )}
+          <OperateHeroMeta
+            title={
+              <>
+                {greeting}, <span className="text-aurora">{name}</span>
+              </>
+            }
+            description={subtitle}
+          />
 
-              {assessmentsFailed ? (
-                <LoadErrorPanel
-                  title="Your readiness didn't load"
-                  body="Your assessments are safe - this is a loading hiccup on our side, not a change in your data."
-                />
-              ) : latest ? (
-                <>
-                  <div className="grid items-center gap-7 lg:grid-cols-[minmax(0,188px)_1fr] lg:gap-10">
-                    <div className="flex justify-center lg:justify-start">
-                      <ThresholdCompass size={176} verdict={verdict ?? undefined} />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-3xs font-bold uppercase tracking-[0.16em] text-dim">
-                          HōMI-Score
-                        </p>
-                        {scoreDelta && (
-                          <ScoreDeltaBadge
-                            current={scoreDelta.current}
-                            previous={scoreDelta.previous}
-                            previousDate={scoreDelta.previousDate}
-                          />
-                        )}
-                      </div>
-                      <div className="mt-1.5 flex flex-wrap items-end gap-3 sm:gap-4">
-                        <HeroScore value={scorePct} color={instrumentTint} />
-                        {verdict && (
-                          <div className="mb-1.5">
-                            <VerdictBadge verdict={verdict} size="lg" />
-                          </div>
-                        )}
-                      </div>
-                      <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-light/90">
-                        {verdictMeta.line}
-                      </p>
-
-                      <div className="mt-5 max-w-lg">
-                        <div className="dash-spectrum">
-                          <span
-                            aria-hidden
-                            className="dash-spectrum-marker"
-                            style={{
-                              left: `${Math.max(3, Math.min(97, scorePct))}%`,
-                              ["--instrument-tint" as string]: instrumentTint,
-                            }}
-                          />
-                        </div>
-                        <div className="relative mt-2 h-4 text-3xs font-medium uppercase tracking-wide text-dim">
-                          <span className="absolute -translate-x-1/2" style={{ left: "12%" }}>
-                            Not yet
-                          </span>
-                          <span
-                            className="absolute hidden -translate-x-1/2 sm:block"
-                            style={{ left: "42%" }}
-                          >
-                            Build
-                          </span>
-                          <span
-                            className="absolute hidden -translate-x-1/2 sm:block"
-                            style={{ left: "68%" }}
-                          >
-                            Almost
-                          </span>
-                          <span className="absolute -translate-x-1/2" style={{ left: "92%" }}>
-                            Ready
-                          </span>
-                        </div>
-                      </div>
-
-                      {showNudge && (
-                        <p className="mt-4 rounded-lg border border-amber/35 bg-verdict-build/90 px-4 py-2.5 text-sm text-light">
-                          It has been {since} days since your last assessment. Life changes -
-                          consider a retest.
-                        </p>
-                      )}
-                    </div>
+          {assessmentsFailed ? (
+            <LoadErrorPanel
+              title="Your readiness didn't load"
+              body="Your assessments are safe - this is a loading hiccup on our side, not a change in your data."
+            />
+          ) : latest ? (
+            <>
+              <div className="grid items-center gap-7 lg:grid-cols-[minmax(0,188px)_1fr] lg:gap-10">
+                <div className="flex justify-center lg:justify-start">
+                  <ThresholdCompass size={176} verdict={verdict ?? undefined} />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-3xs font-bold uppercase tracking-[0.16em] text-dim">
+                      HōMI-Score
+                    </p>
+                    {scoreDelta && (
+                      <ScoreDeltaBadge
+                        current={scoreDelta.current}
+                        previous={scoreDelta.previous}
+                        previousDate={scoreDelta.previousDate}
+                      />
+                    )}
                   </div>
-
-                  <div className="dash-action-dock">
-                    <div className="min-w-0">
-                      <p className="dash-action-dock-label">Next move</p>
-                      <p className="dash-action-dock-title">
-                        {showNudge
-                          ? "Re-measure your readiness"
-                          : pathIsDefaultHabit
-                            ? "Work the binding constraint on your path"
-                            : nextMove
-                              ? nextMove.title
-                              : "Open your plan"}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap gap-2.5">
-                      {showNudge ? (
-                        <>
-                          <Link href="/assessment" className="btn btn-primary">
-                            Retake assessment
-                          </Link>
-                          {pathIsDefaultHabit ? (
-                            <Link href="/path" className="btn btn-ghost">
-                              Open path
-                            </Link>
-                          ) : nextMove ? (
-                            <Link href={nextMove.href} className="btn btn-ghost">
-                              {nextMove.cta}
-                            </Link>
-                          ) : (
-                            <Link href="/plan" className="btn btn-ghost">
-                              View plan
-                            </Link>
-                          )}
-                        </>
-                      ) : pathIsDefaultHabit ? (
-                        <>
-                          <Link href="/path" className="btn btn-primary">
-                            Open Path to Ready
-                          </Link>
-                          {nextMove ? (
-                            <Link href={nextMove.href} className="btn btn-ghost">
-                              {nextMove.cta}
-                            </Link>
-                          ) : (
-                            <Link href="/plan" className="btn btn-ghost">
-                              View plan
-                            </Link>
-                          )}
-                        </>
-                      ) : nextMove ? (
-                        <>
-                          <Link href={nextMove.href} className="btn btn-primary">
-                            {nextMove.cta}
-                          </Link>
-                          <Link href="/plan" className="btn btn-ghost">
-                            View plan
-                          </Link>
-                        </>
-                      ) : (
-                        <>
-                          <Link href="/plan" className="btn btn-primary">
-                            View plan
-                          </Link>
-                          <Link href="/assessment" className="btn btn-ghost">
-                            Retake
-                          </Link>
-                        </>
-                      )}
-                    </div>
+                  <div className="mt-1.5 flex flex-wrap items-end gap-3 sm:gap-4">
+                    <HeroScore value={scorePct} color={instrumentTint} />
+                    {verdict && (
+                      <div className="mb-1.5">
+                        <VerdictBadge verdict={verdict} size="lg" />
+                      </div>
+                    )}
                   </div>
-                </>
-              ) : (
-                <EmptyState preset="dashboard" />
-              )}
-            </div>
-          </div>
-        </div>
+                  <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-light/90">
+                    {verdictMeta.line}
+                  </p>
 
-        {/* Path to Ready next-move island (localStorage) — null when no path */}
-        <PathNextMove />
-
-        {latest && dueSurvey && (
-          <div className="mt-5">
-            <OutcomeSurveyPrompt surveyId={dueSurvey.id} kind={dueSurvey.kind} />
-          </div>
-        )}
-
-        {latest && (
-          <>
-            <div className="mt-5">
-              <TrinityGapAlert pillars={pillarReadings} />
-            </div>
-
-            {/* Metric strip - no kicker, sits under instrument */}
-            <div
-              className="dash-stage mt-5"
-              style={{ "--stage-delay": "100ms" } as React.CSSProperties}
-            >
-              <div className="dash-rail">
-                <div className="dash-rail-cell">
-                  <p className="dash-rail-label">Verdict held</p>
-                  <p className="dash-rail-value" style={{ color: instrumentTint }}>
-                    {heldDays !== null ? heldDays : "—"}
-                    {heldDays !== null && (
-                      <span className="ml-1 text-sm font-normal text-dim">
-                        {heldDays === 1 ? "day" : "days"}
+                  <div className="mt-5 max-w-lg">
+                    <div className="dash-spectrum">
+                      <span
+                        aria-hidden
+                        className="dash-spectrum-marker"
+                        style={{
+                          left: `${Math.max(3, Math.min(97, scorePct))}%`,
+                          ["--instrument-tint" as string]: instrumentTint,
+                        }}
+                      />
+                    </div>
+                    <div className="relative mt-2 h-4 text-3xs font-medium uppercase tracking-wide text-dim">
+                      <span className="absolute -translate-x-1/2" style={{ left: "12%" }}>
+                        Not yet
                       </span>
-                    )}
-                  </p>
-                  <p className="dash-rail-footer">{verdictMeta.label}</p>
-                </div>
-                <div className="dash-rail-cell">
-                  <p className="dash-rail-label">Strongest</p>
-                  <p className="dash-rail-value" style={{ color: strongest?.color }}>
-                    {strongest ? strongest.value : "—"}
-                    {strongest && (
-                      <span className="ml-1 text-sm font-normal text-dim">/{strongest.max}</span>
-                    )}
-                  </p>
-                  <p className="dash-rail-footer">{strongest?.name ?? "—"}</p>
-                </div>
-                <div className="dash-rail-cell">
-                  <p className="dash-rail-label">Check-ins · 7d</p>
-                  <p className="dash-rail-value text-emerald">
-                    {checkinsThisWeek}
-                    <span className="ml-1 text-sm font-normal text-dim">/7</span>
-                  </p>
-                  <p className="dash-rail-footer">
-                    {checkinRows.length > 0
-                      ? `${checkinRows.length} in last 14`
-                      : "Start a daily pulse"}
-                  </p>
-                </div>
-                <div className="dash-rail-cell">
-                  <p className="dash-rail-label">Journal</p>
-                  <p className="dash-rail-value text-yellow">{journalCount}</p>
-                  <p className="dash-rail-footer">Decisions logged</p>
+                      <span
+                        className="absolute hidden -translate-x-1/2 sm:block"
+                        style={{ left: "42%" }}
+                      >
+                        Build
+                      </span>
+                      <span
+                        className="absolute hidden -translate-x-1/2 sm:block"
+                        style={{ left: "68%" }}
+                      >
+                        Almost
+                      </span>
+                      <span className="absolute -translate-x-1/2" style={{ left: "92%" }}>
+                        Ready
+                      </span>
+                    </div>
+                  </div>
+
+                  {showNudge && (
+                    <p className="mt-4 rounded-lg border border-amber/35 bg-verdict-build/90 px-4 py-2.5 text-sm text-light">
+                      It has been {since} days since your last assessment. Life changes -
+                      consider a retest.
+                    </p>
+                  )}
                 </div>
               </div>
-            </div>
+
+              <ActionDock kicker="Next move" title={dockTitle}>
+                {showNudge ? (
+                  <>
+                    <Link href="/assessment" className="btn btn-primary">
+                      Retake assessment
+                    </Link>
+                    {pathIsDefaultHabit ? (
+                      <Link href="/path" className="btn btn-ghost">
+                        Open path
+                      </Link>
+                    ) : nextMove ? (
+                      <Link href={nextMove.href} className="btn btn-ghost">
+                        {nextMove.cta}
+                      </Link>
+                    ) : (
+                      <Link href="/plan" className="btn btn-ghost">
+                        View plan
+                      </Link>
+                    )}
+                  </>
+                ) : pathIsDefaultHabit ? (
+                  <>
+                    <Link href="/path" className="btn btn-primary">
+                      Open Path to Ready
+                    </Link>
+                    {nextMove ? (
+                      <Link href={nextMove.href} className="btn btn-ghost">
+                        {nextMove.cta}
+                      </Link>
+                    ) : (
+                      <Link href="/plan" className="btn btn-ghost">
+                        View plan
+                      </Link>
+                    )}
+                  </>
+                ) : nextMove ? (
+                  <>
+                    <Link href={nextMove.href} className="btn btn-primary">
+                      {nextMove.cta}
+                    </Link>
+                    <Link href="/plan" className="btn btn-ghost">
+                      View plan
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/plan" className="btn btn-primary">
+                      View plan
+                    </Link>
+                    <Link href="/assessment" className="btn btn-ghost">
+                      Retake
+                    </Link>
+                  </>
+                )}
+              </ActionDock>
+            </>
+          ) : (
+            <EmptyState preset="dashboard" />
+          )}
+        </OperateInstrument>
+      </div>
+
+      {/* Path to Ready next-move island (localStorage) — null when no path */}
+      <PathNextMove />
+
+      {latest && dueSurvey && (
+        <div className="mt-5">
+          <OutcomeSurveyPrompt surveyId={dueSurvey.id} kind={dueSurvey.kind} />
+        </div>
+      )}
+
+      {latest && (
+        <>
+          <div className="mt-5">
+            <TrinityGapAlert pillars={pillarReadings} />
+          </div>
+
+          {/* Metric strip - no kicker, sits under instrument */}
+          <div className="dash-stage mt-5" style={{ "--stage-delay": "100ms" } as CSSProperties}>
+            <MetricRail
+              cells={[
+                {
+                  label: "Verdict held",
+                  value: (
+                    <>
+                      {heldDays !== null ? heldDays : "—"}
+                      {heldDays !== null && (
+                        <span className="ml-1 text-sm font-normal text-dim">
+                          {heldDays === 1 ? "day" : "days"}
+                        </span>
+                      )}
+                    </>
+                  ),
+                  footer: verdictMeta.label,
+                  color: instrumentTint,
+                },
+                {
+                  label: "Strongest",
+                  value: (
+                    <>
+                      {strongest ? strongest.value : "—"}
+                      {strongest && (
+                        <span className="ml-1 text-sm font-normal text-dim">/{strongest.max}</span>
+                      )}
+                    </>
+                  ),
+                  footer: strongest?.name ?? "—",
+                  color: strongest?.color,
+                },
+                {
+                  label: "Check-ins · 7d",
+                  value: (
+                    <>
+                      {checkinsThisWeek}
+                      <span className="ml-1 text-sm font-normal text-dim">/7</span>
+                    </>
+                  ),
+                  footer:
+                    checkinRows.length > 0
+                      ? `${checkinRows.length} in last 14`
+                      : "Start a daily pulse",
+                  color: COLORS.emerald,
+                },
+                {
+                  label: "Journal",
+                  value: journalCount,
+                  footer: "Decisions logged",
+                  color: COLORS.yellow,
+                },
+              ]}
+            />
+          </div>
 
             {/* Body: pillars + history main, pulse/actions side */}
             <div className="dash-body-grid mt-8">
@@ -719,20 +724,19 @@ export default async function DashboardPage() {
               </aside>
             </div>
 
-            <Reveal delay={80}>
-              <div className="mt-10 mb-2">
-                <div className="dash-section-head">
-                  <h2>Quick actions</h2>
-                  {featured.length > 0 && (
-                    <p>The instruments that matter for your current state, first.</p>
-                  )}
-                </div>
-                <QuickActionGrid journalCount={journalCount} featured={featured} />
+          <Reveal delay={80}>
+            <div className="mt-10 mb-2">
+              <div className="dash-section-head">
+                <h2>Quick actions</h2>
+                {featured.length > 0 && (
+                  <p>The instruments that matter for your current state, first.</p>
+                )}
               </div>
-            </Reveal>
-          </>
-        )}
-      </div>
-    </div>
+              <QuickActionGrid journalCount={journalCount} featured={featured} />
+            </div>
+          </Reveal>
+        </>
+      )}
+    </PageFrame>
   );
 }

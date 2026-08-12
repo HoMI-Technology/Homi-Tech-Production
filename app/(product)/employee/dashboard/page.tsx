@@ -6,11 +6,9 @@ import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageFrame } from "@/components/operate/PageFrame";
 import { MetricRail } from "@/components/operate/MetricRail";
-import {
-  ActionDock,
-  OperateHeroMeta,
-  OperateInstrument,
-} from "@/components/operate/OperateInstrument";
+import { ActionDock } from "@/components/operate/ActionDock";
+import { OperateHeroMeta } from "@/components/operate/OperateHeroMeta";
+import { OperateInstrument } from "@/components/operate/OperateInstrument";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { HeroScore } from "@/components/dashboard/HeroScore";
 import { canAccessEmployeeHub } from "@/lib/dashboard/employee-access";

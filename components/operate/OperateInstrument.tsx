@@ -5,6 +5,13 @@ import { COLORS } from "@/lib/brand";
 /**
  * Operate instrument shell — Direction A (Cockpit Linear).
  * Same visual language as personal /dashboard hero surface.
+ *
+ * Peer primitives live beside this file:
+ * - `OperateHeroMeta`
+ * - `ActionDock`
+ * - `MetricRail`
+ *
+ * Re-exports below are temporary for one release — prefer direct imports.
  */
 export function OperateInstrument({
   tint = COLORS.cyan,
@@ -25,37 +32,5 @@ export function OperateInstrument({
   );
 }
 
-export function OperateHeroMeta({
-  title,
-  description,
-}: {
-  title: ReactNode;
-  description?: ReactNode;
-}) {
-  return (
-    <div className="dash-hero-meta">
-      <h1>{title}</h1>
-      {description != null && <p>{description}</p>}
-    </div>
-  );
-}
-
-export function ActionDock({
-  kicker = "Next move",
-  title,
-  children,
-}: {
-  kicker?: string;
-  title: string;
-  children?: ReactNode;
-}) {
-  return (
-    <div className="dash-action-dock">
-      <div className="min-w-0">
-        <p className="dash-action-dock-label">{kicker}</p>
-        <p className="dash-action-dock-title">{title}</p>
-      </div>
-      {children != null && <div className="dash-action-dock-actions">{children}</div>}
-    </div>
-  );
-}
+export { ActionDock } from "@/components/operate/ActionDock";
+export { OperateHeroMeta } from "@/components/operate/OperateHeroMeta";

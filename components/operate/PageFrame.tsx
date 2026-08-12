@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 export type OperateDensity = "comfortable" | "compact" | "spacious";
 export type OperateWidth = "default" | "narrow" | "full" | "content" | "focus";
@@ -24,12 +24,16 @@ export function PageFrame({
   role,
   children,
   className = "",
+  id,
+  style,
 }: {
   density?: OperateDensity;
   width?: OperateWidth;
   role?: OperateRole;
   children: ReactNode;
   className?: string;
+  id?: string;
+  style?: CSSProperties;
 }) {
   const max =
     width === "full"
@@ -45,7 +49,13 @@ export function PageFrame({
     density === "compact" ? "py-6 sm:py-8" : density === "spacious" ? "py-12" : "py-8 sm:py-10";
 
   return (
-    <div className={`field ${className}`.trim()} data-operate-role={role} data-density={density}>
+    <div
+      id={id}
+      className={`field ${className}`.trim()}
+      data-operate-role={role}
+      data-density={density}
+      style={style}
+    >
       <div className={`mx-auto ${max} px-4 sm:px-6 ${py}`}>{children}</div>
     </div>
   );
