@@ -6,9 +6,19 @@
 
 import type { AssessmentInputs, AssessmentResult } from "@/lib/scoring";
 import type { VerdictKey } from "@/lib/brand";
-import type { DecisionType } from "@/lib/assessment/types";
+import { DECISION_TYPE_LABELS, type DecisionType } from "@/lib/assessment/types";
 
 const STORAGE_KEY = "homi:last-assessment";
+
+/**
+ * Sidebar mirror key. The canonical constant is LATEST_VERDICT_KEY in
+ * components/layout/SidebarDecisionState.tsx; it is repeated as a literal here
+ * on purpose — that module is "use client", and importing one of its exports
+ * into this storage layer would hand any server render path a client reference
+ * proxy instead of a string. __tests__/assessment-storage.test.ts pins the two
+ * spellings together so they cannot drift.
+ */
+const SIDEBAR_VERDICT_KEY = "homi-latest-verdict";
 
 export type AssessmentKind = "full" | "shadow";
 
@@ -61,6 +71,43 @@ export interface StoredAssessment {
   insights?: StoredInsights;
 }
 
+/**
+ * Mirrors the verdict + score of a stored assessment onto the sidebar's key so
+ * the signed-in rail (components/layout/SidebarDecisionState.tsx, read-only by
+ * construction) reflects the latest result. This is the canonical write path:
+ * every save route — full assessment, shadow score, onboarding replay — goes
+ * through saveLocalResult and therefore through here.
+ *
+ * Its own try/catch on purpose, separate from the full-payload write: the
+ * mirror is a few dozen bytes and can still land when the whole assessment blob
+ * trips a storage quota.
+ */
+export function writeSidebarVerdict(data: StoredAssessment): void {
+  if (typeof window === "undefined") return;
+  try {
+    const { verdict, score } = data.result;
+    // NaN would stringify to null and leave the reader on a stale payload.
+    if (!verdict || !Number.isFinite(score)) return;
+    window.localStorage.setItem(
+      SIDEBAR_VERDICT_KEY,
+      JSON.stringify({
+        verdict,
+        score: Math.round(score),
+        // 0 = held as of today. This surface only knows about the result it is
+        // saving; the dashboard derives the real streak from server history
+        // (lib/dashboard/insight verdictHeldDays).
+        heldDays: 0,
+        // The reader renders this string verbatim, so mirror the label, never
+        // the enum — "HOME_BUYING" in the rail eyebrow is not shippable.
+        decisionType: data.decisionType ? DECISION_TYPE_LABELS[data.decisionType] : null,
+      }),
+    );
+  } catch {
+    // Storage full, disabled, or private mode — the sidebar degrades to its
+    // "Assess to begin" empty state. Never fatal.
+  }
+}
+
 /** Persists the last assessment result to localStorage. No-op on the server or on failure. */
 export function saveLocalResult(data: StoredAssessment): void {
   if (typeof window === "undefined") return;
@@ -69,6 +116,7 @@ export function saveLocalResult(data: StoredAssessment): void {
   } catch {
     // Storage full, disabled, or private mode — fail silently. Not fatal.
   }
+  writeSidebarVerdict(data);
 }
 
 /** Loads the last assessment result from localStorage. Returns null on the server, absence, or parse failure. */

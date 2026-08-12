@@ -74,26 +74,25 @@ const nextConfig: NextConfig = {
       ["apr-comparison", "apr-compare"],
     ] as const;
     return [
-      ...toolAliases.flatMap(([from, to]) => [
-        { source: `/tools/${from}`, destination: `/tools/${to}`, permanent: true },
-        // Spanish was removed; fold the legacy /es alias straight onto the
-        // canonical route so these still resolve in one hop, not two.
-        { source: `/es/tools/${from}`, destination: `/tools/${to}`, permanent: true },
-      ]),
-      // One-hop /es variants of the wave-3 consolidations. Correct per Next.js
-      // array-order semantics, BUT observed on Vercel production (2026-08-03):
-      // /es/* requests are answered by an earlier routing phase where the
-      // /es/:path* catch-all wins, so these resolve in two hops there (same
-      // for the older /es tool aliases above). Harmless — both hops are 308s.
-      // Kept for self-hosted correctness; investigate routes-manifest.json if
-      // one-hop on Vercel ever matters.
-      { source: "/es/tools/scenarios", destination: "/scenarios#saved", permanent: true },
-      { source: "/es/couples", destination: "/household#couples", permanent: true },
-      { source: "/es/family", destination: "/household#family", permanent: true },
-      { source: "/es/blog", destination: "/guides", permanent: true },
-      { source: "/es/learning", destination: "/guides", permanent: true },
-      // Spanish locale removed. Everything still pointing at /es folds onto
-      // its unprefixed equivalent. Listed after the tool aliases so those win.
+      ...toolAliases.map(([from, to]) => ({
+        source: `/tools/${from}`,
+        destination: `/tools/${to}`,
+        permanent: true,
+      })),
+      // Spanish locale removed (#125). Everything still pointing at /es folds
+      // onto its unprefixed equivalent, which then takes the canonical alias
+      // above (or a consolidation rule below) on its second hop.
+      //
+      // F.7 — the per-route one-hop /es variants that used to sit here
+      // (/es/tools/:alias, /es/tools/scenarios, /es/couples, /es/family,
+      // /es/blog, /es/learning) are deliberately gone. They were correct per
+      // Next.js array-order semantics but provably dead on Vercel production
+      // (verified live 2026-08-03): /es/* is answered by an earlier routing
+      // phase where the /es/:path* catch-all always wins, so those rules never
+      // matched and every legacy /es URL already resolved in two 308s. Dead
+      // rules only invite the assumption that /es is one-hop somewhere.
+      // Two hops is cosmetically suboptimal and functionally correct — the
+      // final destination and status code are identical either way.
       { source: "/es", destination: "/", permanent: true },
       { source: "/es/:path*", destination: "/:path*", permanent: true },
       // Portals folded into role homes (operate program D2). The redirect()-only

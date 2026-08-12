@@ -102,6 +102,7 @@ describe("POST /api/household/accept", () => {
     state.user = null;
     const res = await POST(postRequest({ token: TOKEN }));
     expect(res.status).toBe(401);
+    expect(res.headers.get("x-request-id")).toBeTruthy();
   });
 
   it("400s malformed bodies", async () => {

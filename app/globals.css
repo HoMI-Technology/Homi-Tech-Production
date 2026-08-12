@@ -2236,10 +2236,33 @@ body {
    Budget Planner instrument surfaces — ultra-premium operate chrome
    Used by Overview / Calendar / Banks / Wealth / Plan tabs.
    ═══════════════════════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════════════════════
-   Money Reality — dual-panel instrument shell
-   Left: persistent picture (280px) · Center: mode rail (40px) · Right: content
-   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Assessment focus shell — full-bleed ritual, no sidebar ─────── */
+.assessment-focus-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-navy);
+}
+.assessment-focus-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  height: 52px;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(34, 211, 238, 0.08);
+}
+.assessment-focus-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 5rem;
+}
+
 .money-instrument-shell {
   display: flex;
   min-height: calc(100dvh - 56px); /* clear the mobile top bar */

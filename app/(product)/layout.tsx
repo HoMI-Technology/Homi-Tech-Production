@@ -1,5 +1,4 @@
-import { SiteHeader } from "@/components/layout/SiteHeader";
-import { AppSidebar } from "@/components/layout/AppSidebar";
+import { ProductLayoutRouter } from "@/components/layout/ProductLayoutRouter";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SessionExpiredToast } from "@/components/layout/SessionExpiredToast";
 import { ImpactToast } from "@/components/readiness/ImpactToast";
@@ -12,12 +11,15 @@ import type { Profile } from "@/types/database";
 
 /**
  * Auth-aware product shell (AUDIT T2.1). Reads the session server-side and
- * renders the signed-in AppHeader (product nav + user menu, making every route
- * reachable) or the marketing SiteHeader for anonymous visitors on public
- * product pages (tools, shadow-score). Reading cookies here makes the (product)
- * group dynamically rendered — an intentional tradeoff: the tools are
- * client-computed anyway, and a correct, flicker-free shell matters more than
- * static caching of these interactive pages.
+ * hands the result to ProductLayoutRouter, which picks the chrome: signed-in
+ * sidebar, marketing SiteHeader for anonymous visitors on public product pages
+ * (tools, shadow-score), or the full-bleed assessment shell. That split exists
+ * because the shell now depends on the pathname and this layout is a server
+ * component; the router is a thin client wrapper that adds no state.
+ *
+ * Reading cookies here makes the (product) group dynamically rendered — an
+ * intentional tradeoff: the tools are client-computed anyway, and a correct,
+ * flicker-free shell matters more than static caching of these interactive pages.
  */
 export default async function ProductLayout({ children }: { children: React.ReactNode }) {
   const user = await getCachedUser();
@@ -49,35 +51,17 @@ export default async function ProductLayout({ children }: { children: React.Reac
         Skip to content
       </a>
 
-      {/* Atmospheric layers — behind everything */}
-      <div aria-hidden className="app-aurora" />
-      <div aria-hidden className="app-noise" />
-
-      {user ? (
-        <AppSidebar
-          email={user.email ?? null}
-          role={role}
-          employerId={employerId}
-          organizationId={organizationId}
-        />
-      ) : (
-        <SiteHeader />
-      )}
-
-      <main
-        id="main"
-        className={
-          user
-            ? "relative z-10 min-h-dvh pt-14 lg:pt-0 lg:pl-[72px] xl:pl-[248px]"
-            : "main-under-nav min-h-dvh"
-        }
+      <ProductLayoutRouter
+        user={!!user}
+        email={user?.email ?? null}
+        role={role}
+        employerId={employerId}
+        organizationId={organizationId}
       >
         {children}
-      </main>
+      </ProductLayoutRouter>
 
       <SiteFooter />
-      {/* Always mount the thin host for signed-out + signed-in. Heavy
-          CompanionWidget JS loads only on open / synthesis (see CompanionHost). */}
       <CompanionHost />
       {user && <SessionExpiredToast />}
       {impactBus ? <ImpactToast /> : null}

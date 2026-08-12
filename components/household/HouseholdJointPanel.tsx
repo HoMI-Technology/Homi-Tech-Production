@@ -250,11 +250,15 @@ export function HouseholdJointPanel() {
       {inviteToken && !household && (
         <div className="glass mt-6 border border-cyan/30 p-5">
           <p className="font-display text-lg text-light">Accept invite</p>
+          <label htmlFor="household-accept-name" className="mt-3 block text-sm text-light">
+            Your display name
+          </label>
           <input
-            className="mt-3 w-full rounded-lg border border-slate-surface/80 bg-navy/40 px-3 py-2 text-sm text-light"
+            id="household-accept-name"
+            className="input mt-1"
             value={acceptName}
             onChange={(e) => setAcceptName(e.target.value)}
-            placeholder="Your display name"
+            autoComplete="nickname"
           />
           <button
             type="button"
@@ -269,10 +273,15 @@ export function HouseholdJointPanel() {
       {!household && !inviteToken && (
         <div className="glass mt-6 p-6">
           <p className="text-sm text-dim">Create a household, then invite your partner.</p>
+          <label htmlFor="household-name" className="mt-3 block text-sm text-light">
+            Household name
+          </label>
           <input
-            className="mt-3 w-full rounded-lg border border-slate-surface/80 bg-navy/40 px-3 py-2 text-sm text-light"
+            id="household-name"
+            className="input mt-1"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            autoComplete="organization"
           />
           <button
             type="button"
@@ -331,12 +340,17 @@ export function HouseholdJointPanel() {
 
           <div className="glass mt-4 p-6">
             <p className="eyebrow">Invite partner</p>
+            <label htmlFor="household-invite-email" className="mt-2 block text-sm text-light">
+              Partner email
+            </label>
             <input
+              id="household-invite-email"
               type="email"
-              className="mt-2 w-full rounded-lg border border-slate-surface/80 bg-navy/40 px-3 py-2 text-sm text-light"
+              className="input mt-1"
               placeholder="partner@email.com"
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
+              autoComplete="email"
             />
             <button
               type="button"
@@ -380,6 +394,14 @@ export function HouseholdJointPanel() {
         <p className="mt-4 text-sm text-crimson" role="alert">
           {error}
         </p>
+      )}
+      {error === "Sign in to manage a household." && (
+        <Link
+          href="/auth/sign-in?next=/household"
+          className="btn btn-primary mt-3 btn-sm"
+        >
+          Sign in
+        </Link>
       )}
     </div>
   );
