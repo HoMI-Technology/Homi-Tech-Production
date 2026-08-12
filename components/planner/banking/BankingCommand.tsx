@@ -13,6 +13,7 @@
 /* ------------------------------------------------------------------ */
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   AlertTriangle,
@@ -579,7 +580,8 @@ function ConnectBankForm({ onDone, onCancel }: { onDone: () => void; onCancel: (
         </Field>
       </div>
       <p className="mt-3 text-2xs leading-relaxed text-dim">
-        Demo open-banking — production swaps in Plaid / MX credentials.
+        Demo self-entry for local planner balances. For real bank linking, use Connect bank →
+        /connections (Plaid).
       </p>
       <div className="mt-4 flex justify-end gap-2">
         <GhostButton onClick={onCancel}>Cancel</GhostButton>
@@ -732,10 +734,11 @@ export function BankingCommand() {
               />
             </div>
             <p className="mt-3 text-2xs leading-relaxed text-dim">
-              Balances you enter drive bill pay. Open banking can replace entry when connected.
+              Balances you enter drive bill pay. Connect bank opens real Plaid linking — demo
+              self-entry stays local to this planner.
             </p>
             <p className="mt-1 text-2xs leading-relaxed text-dim">
-              Demo open-banking — production swaps in Plaid / MX credentials.
+              Demo self-entry here; production credentials live on /connections.
             </p>
           </div>
         </div>
@@ -754,8 +757,8 @@ export function BankingCommand() {
             title={accounts.length ? "Linked accounts" : "Accounts — Cash you control"}
             caption={
               accounts.length
-                ? "Pull live balances for bill pay. Demo open-banking flow — swap in Plaid / MX / Finicity for production credentials."
-                : "Add balances you trust. They drive bill pay, runway, and the closed loop — educational readiness only."
+                ? "Demo self-entry stays here for local planner balances. Connect bank opens the real Plaid path on /connections — no invented money."
+                : "Add balances you trust for this demo. Connect bank opens real Plaid linking on /connections — educational readiness only."
             }
             actions={
               <>
@@ -765,6 +768,12 @@ export function BankingCommand() {
                     {connecting ? "Syncing…" : "Sync now"}
                   </GhostButton>
                 )}
+                <Link
+                  href="/connections"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-white/[0.08] px-3 py-2 text-sm text-dim transition-colors hover:bg-white/[0.06] hover:text-light"
+                >
+                  Connect bank
+                </Link>
                 <CyanButton onClick={() => setConnectOpen((v) => !v)}>
                   <Link2 size={14} />
                   {accounts.length ? "Link bank" : "Add account"}
