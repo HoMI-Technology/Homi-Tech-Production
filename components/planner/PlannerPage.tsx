@@ -19,6 +19,7 @@ import { ReadinessHero } from "@/components/planner/ReadinessHero";
 import { SignalsStrip } from "@/components/planner/SignalsStrip";
 import { NudgeRail } from "@/components/planner/NudgeRail";
 import { ImpactToast } from "@/components/planner/ImpactToast";
+import ConfirmDialog from "@/components/planner/ui/ConfirmDialog";
 import {
   financialReality,
   summarizePortfolio,
@@ -91,6 +92,8 @@ export function PlannerPage({
 }) {
   const router = useRouter();
   const [tab, setTab] = useState<Exclude<PlannerTabKey, "plan">>("overview");
+  const [confirmClearOpen, setConfirmClearOpen] = useState(false);
+  const [confirmSampleOpen, setConfirmSampleOpen] = useState(false);
   const clearWorkspace = usePlannerStore((s) => s.clearWorkspace);
   const resetDemo = usePlannerStore((s) => s.resetDemo);
   const transactions = usePlannerStore((s) => s.transactions);
@@ -190,20 +193,27 @@ export function PlannerPage({
   const hasData =
     transactions.length > 0 || accounts.length > 0 || bills.length > 0 || holdings.length > 0;
 
+  const loadSampleNumbers = useCallback(() => {
+    resetDemo();
+    usePlannerStore.getState().setReadinessProfile({
+      profileComplete: true,
+      creditScore: 720,
+      lifeStability: 7,
+      confidenceLevel: 7,
+      partnerAlignment: 7,
+      fomoLevel: 3,
+      timeHorizonMonths: 18,
+      targetHomePrice: 425_000,
+      downPaymentSaved: 38_000,
+    });
+  }, [resetDemo]);
+
   const toolbar = (
     <div className="relative flex shrink-0 flex-wrap gap-2">
       {hasData ? (
         <button
           type="button"
-          onClick={() => {
-            if (
-              window.confirm(
-                "Clear planner data on this device? This does not delete your ledger or assessment history.",
-              )
-            ) {
-              clearWorkspace();
-            }
-          }}
+          onClick={() => setConfirmClearOpen(true)}
           className="inline-flex items-center gap-2 rounded-xl border border-white/[0.1] bg-navy/40 px-3.5 py-2.5 text-sm font-medium text-dim transition-colors hover:border-white/20 hover:text-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
         >
           <Trash2 className="h-4 w-4" aria-hidden />
@@ -212,22 +222,7 @@ export function PlannerPage({
       ) : (
         <button
           type="button"
-          onClick={() => {
-            if (window.confirm("Load sample numbers for education only? Not your real money.")) {
-              resetDemo();
-              usePlannerStore.getState().setReadinessProfile({
-                profileComplete: true,
-                creditScore: 720,
-                lifeStability: 7,
-                confidenceLevel: 7,
-                partnerAlignment: 7,
-                fomoLevel: 3,
-                timeHorizonMonths: 18,
-                targetHomePrice: 425_000,
-                downPaymentSaved: 38_000,
-              });
-            }
-          }}
+          onClick={() => setConfirmSampleOpen(true)}
           className="inline-flex items-center gap-2 rounded-xl bg-cyan/15 px-4 py-2.5 text-sm font-semibold text-cyan transition-colors hover:bg-cyan/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
         >
           <RotateCcw className="h-4 w-4" aria-hidden />
@@ -311,6 +306,24 @@ export function PlannerPage({
       </TabPanel>
 
       <ImpactToast impact={lastImpact} onDismiss={clearLastImpact} />
+
+      <ConfirmDialog
+        open={confirmClearOpen}
+        title="Clear your planner data?"
+        body="This clears the on-device planner workspace. It does not delete your ledger or assessment history."
+        confirmLabel="Clear data"
+        onConfirm={clearWorkspace}
+        onClose={() => setConfirmClearOpen(false)}
+      />
+      <ConfirmDialog
+        open={confirmSampleOpen}
+        title="Load sample numbers?"
+        body="Education only — not your real money. Sample figures help you learn the workspace before you enter yours."
+        confirmLabel="Load sample"
+        tone="accent"
+        onConfirm={loadSampleNumbers}
+        onClose={() => setConfirmSampleOpen(false)}
+      />
     </div>
   );
 }

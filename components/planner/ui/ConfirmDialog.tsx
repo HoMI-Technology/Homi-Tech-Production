@@ -4,12 +4,13 @@ import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle } from "lucide-react";
 
-/** Destructive confirm dialog for planner mutations. */
+/** Confirm dialog for planner mutations (destructive clear / load sample / delete). */
 export default function ConfirmDialog({
   open,
   title,
   body,
   confirmLabel = "Delete",
+  tone = "danger",
   onConfirm,
   onClose,
 }: {
@@ -17,6 +18,8 @@ export default function ConfirmDialog({
   title: string;
   body: string;
   confirmLabel?: string;
+  /** `danger` = crimson destructive; `accent` = cyan for non-destructive confirms. */
+  tone?: "danger" | "accent";
   onConfirm: () => void;
   onClose: () => void;
 }) {
@@ -53,8 +56,17 @@ export default function ConfirmDialog({
             aria-modal="true"
             aria-labelledby="planner-confirm-title"
           >
-            <div className="flex h-11 w-11 items-center justify-center rounded-full border border-crimson/30 bg-crimson/10">
-              <AlertTriangle size={20} className="text-crimson" />
+            <div
+              className={`flex h-11 w-11 items-center justify-center rounded-full border ${
+                tone === "accent"
+                  ? "border-cyan/30 bg-cyan/10"
+                  : "border-crimson/30 bg-crimson/10"
+              }`}
+            >
+              <AlertTriangle
+                size={20}
+                className={tone === "accent" ? "text-cyan" : "text-crimson"}
+              />
             </div>
             <h3 id="planner-confirm-title" className="mt-4 font-display text-xl text-light">
               {title}
@@ -74,7 +86,11 @@ export default function ConfirmDialog({
                   onConfirm();
                   onClose();
                 }}
-                className="rounded-xl bg-crimson px-4 py-2 text-sm font-semibold text-white"
+                className={
+                  tone === "accent"
+                    ? "rounded-xl bg-cyan px-4 py-2 text-sm font-semibold text-navy"
+                    : "rounded-xl bg-crimson px-4 py-2 text-sm font-semibold text-white"
+                }
               >
                 {confirmLabel}
               </button>

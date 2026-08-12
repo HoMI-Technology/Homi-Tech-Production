@@ -27,9 +27,19 @@ export default function EmptyState({
     >
       {illustration && (
         <div
-          className={`rounded-full border border-dashed border-line bg-slate-surface/40 ${compact ? "h-16 w-16" : "h-24 w-24"}`}
+          className={`relative flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-dashed border-line bg-slate-surface/40 ${compact ? "h-16 w-16 p-2" : "h-24 w-24 p-3"}`}
           aria-hidden
-        />
+        >
+          <div
+            className={`w-full rounded-sm border border-dashed border-line/80 ${compact ? "h-1.5" : "h-2"}`}
+          />
+          <div
+            className={`w-3/4 self-start rounded-sm border border-dashed border-line/60 ${compact ? "h-1.5" : "h-2"}`}
+          />
+          <div
+            className={`w-1/2 self-start rounded-sm border border-dashed border-line/40 ${compact ? "h-1.5" : "h-2"}`}
+          />
+        </div>
       )}
       <p
         className={`font-display italic text-light/90 ${compact ? "mt-3 text-lg" : "mt-5 text-xl"}`}
