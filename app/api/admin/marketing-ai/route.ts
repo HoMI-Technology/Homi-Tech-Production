@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getClientIp, rateLimit } from "@/lib/ratelimit";
@@ -11,12 +11,16 @@ import {
   buildDripStepPrompt,
   buildImageBriefPrompt,
   buildInsightPrompt,
+  buildMorningBriefPrompt,
   buildPostPrompt,
   buildRepurposePrompt,
+  buildRewritePrompt,
   buildScorecardSummaryPrompt,
+  buildWeekPlanPrompt,
   defaultHashtags,
   fitToLimit,
   isCompetitorTag,
+  modelForAction,
   platformMeta,
   slugifyCampaign,
   stripNeverSay,
@@ -26,9 +30,12 @@ import {
   templateDripSequence,
   templateImageBrief,
   templateInsight,
+  templateMorningBrief,
   templatePost,
   templateRepurpose,
+  templateRewrite,
   templateScorecardSummary,
+  templateWeekPlan,
   type AnalyticsSummary,
   type CompetitorAnalysis,
   type CompetitorPost,
@@ -39,6 +46,7 @@ import {
   type GeneratedPost,
   type HookStyle,
   type ImageBrief,
+  type MorningBriefInput,
   type PostTone,
   type ScorecardSummaryInput,
   type SocialPlatform,
@@ -61,7 +69,6 @@ export const runtime = "nodejs";
  * cached response honest.
  */
 
-const MODEL = "claude-haiku-4-5-20251001";
 const UPSTREAM_TIMEOUT_MS = 20_000;
 
 async function requireAdmin(): Promise<{ user: User } | { response: NextResponse }> {
@@ -192,6 +199,31 @@ const competitorAnalysisSchema = z.object({
     .max(50),
 });
 
+const morningBriefSchema = z.object({
+  action: z.literal("morning_brief"),
+  metrics: z.object({
+    uniqueActivated7d: z.number().int().min(0).max(10_000_000),
+    completions7d: z.number().int().min(0).max(10_000_000),
+    accountsLast7: z.number().int().min(0).max(10_000_000),
+    cohortRate7d: z.number().int().min(0).max(100).nullable(),
+    waitlistTotal: z.number().int().min(0).max(10_000_000),
+    pendingApprovals: z.number().int().min(0).max(10_000),
+    resendConfigured: z.boolean(),
+    topChannel: z.string().trim().max(60),
+  }),
+});
+
+const weekPlanSchema = z.object({
+  action: z.literal("week_plan"),
+});
+
+const rewriteSchema = z.object({
+  action: z.literal("rewrite_from_feedback"),
+  original: z.string().trim().min(3).max(4000),
+  feedback: z.string().trim().min(1).max(500),
+  platform: platformSchema,
+});
+
 const bodySchema = z.discriminatedUnion("action", [
   generatePostSchema,
   audienceInsightSchema,
@@ -202,6 +234,9 @@ const bodySchema = z.discriminatedUnion("action", [
   analyticsSummarySchema,
   dripSequenceSchema,
   competitorAnalysisSchema,
+  morningBriefSchema,
+  weekPlanSchema,
+  rewriteSchema,
 ]);
 
 /**
@@ -251,9 +286,11 @@ async function callModel(
   maxTokens: number,
   actorId: string,
   action: string,
-): Promise<string | null> {
-  if (!hasAnthropic()) return null;
+): Promise<{ text: string | null; model: string; usage?: { input?: number; output?: number } }> {
+  const model = modelForAction(action);
+  if (!hasAnthropic()) return { text: null, model };
 
+  const started = Date.now();
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -263,7 +300,7 @@ async function callModel(
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: MODEL,
+        model,
         max_tokens: maxTokens,
         system: AGENCY_SYSTEM_PROMPT,
         messages: [{ role: "user", content: prompt }],
@@ -272,10 +309,8 @@ async function callModel(
     });
 
     if (!response.ok) {
-      // A bad or expired key looks exactly like the normal $0 template path
-      // from the client's side, so it has to be visible in logs.
-      console.error("[marketing-ai] model call failed", { status: response.status, action });
-      return null;
+      console.error("[marketing-ai] model call failed", { status: response.status, action, model });
+      return { text: null, model };
     }
 
     const data = (await response.json()) as {
@@ -283,22 +318,45 @@ async function callModel(
       usage?: { input_tokens?: number; output_tokens?: number };
     };
 
+    const text = data.content?.find((block) => block.type === "text")?.text?.trim() ?? null;
     console.log("[marketing-ai:cost]", {
       surface: "admin_marketing",
       action,
-      model: MODEL,
+      model,
       input_tokens: data.usage?.input_tokens,
       output_tokens: data.usage?.output_tokens,
+      latency_ms: Date.now() - started,
       userId: actorId,
     });
 
-    return data.content?.find((block) => block.type === "text")?.text?.trim() ?? null;
+    // Best-effort run ledger (P3) — never fails the request.
+    try {
+      const supabase = await createClient();
+      await supabase.from("marketing_agent_runs").insert({
+        action,
+        agent_id: action,
+        model,
+        source: text ? "model" : "error",
+        input_tokens: data.usage?.input_tokens ?? null,
+        output_tokens: data.usage?.output_tokens ?? null,
+        latency_ms: Date.now() - started,
+        actor_id: actorId,
+      });
+    } catch {
+      /* ignore */
+    }
+
+    return {
+      text,
+      model,
+      usage: { input: data.usage?.input_tokens, output: data.usage?.output_tokens },
+    };
   } catch (err) {
     console.error("[marketing-ai] model call threw", {
       action,
       reason: err instanceof Error ? err.message : "unknown",
     });
-    return null;
+    return { text: null, model };
   }
 }
 
@@ -351,6 +409,12 @@ export async function POST(request: Request) {
       return NextResponse.json(await dripSequence(body, gate.user.id));
     case "competitor_analysis":
       return NextResponse.json(await competitorAnalysis(body.posts, gate.user.id));
+    case "morning_brief":
+      return NextResponse.json(await morningBrief(body.metrics, gate.user.id));
+    case "week_plan":
+      return NextResponse.json(await weekPlan(gate.user.id));
+    case "rewrite_from_feedback":
+      return NextResponse.json(await rewriteFromFeedback(body, gate.user.id));
   }
 
   // Unreachable: bodySchema is a discriminated union over exactly these actions.
@@ -370,7 +434,7 @@ async function generatePost(
 ): Promise<GeneratedPost & { source: "model" | "template"; flagged: string[] }> {
   const fallback = { ...templatePost(body), source: "template" as const, flagged: [] as string[] };
 
-  const raw = await callModel(buildPostPrompt(body), 1400, actorId, "generate_post");
+  const { text: raw } = await callModel(buildPostPrompt(body), 1400, actorId, "generate_post");
   if (!raw) return fallback;
 
   const parsed = extractJson(raw);
@@ -407,7 +471,7 @@ async function audienceInsight(
     flagged: [] as string[],
   };
 
-  const raw = await callModel(buildInsightPrompt(body), 500, actorId, "audience_insight");
+  const { text: raw } = await callModel(buildInsightPrompt(body), 500, actorId, "audience_insight");
   if (!raw) return fallback;
 
   const insight = asString(extractJson(raw)?.insight);
@@ -434,7 +498,7 @@ async function caption(
     flagged: [] as string[],
   };
 
-  const raw = await callModel(buildCaptionPrompt(body), 900, actorId, "caption");
+  const { text: raw } = await callModel(buildCaptionPrompt(body), 900, actorId, "caption");
   if (!raw) return fallback;
 
   const parsed = extractJson(raw);
@@ -484,7 +548,7 @@ async function scorecardSummary(
     flagged: [] as string[],
   };
 
-  const raw = await callModel(buildScorecardSummaryPrompt(metrics), 400, actorId, "scorecard_summary");
+  const { text: raw } = await callModel(buildScorecardSummaryPrompt(metrics), 400, actorId, "scorecard_summary");
   if (!raw) return fallback;
 
   const summary = asString(extractJson(raw)?.summary);
@@ -508,7 +572,7 @@ async function repurpose(
     flagged: [] as string[],
   };
 
-  const raw = await callModel(buildRepurposePrompt(input), 900, actorId, "repurpose");
+  const { text: raw } = await callModel(buildRepurposePrompt(input), 900, actorId, "repurpose");
   if (!raw) return fallback;
 
   const parsed = extractJson(raw);
@@ -547,7 +611,7 @@ async function imageBrief(
     flagged: [] as string[],
   };
 
-  const raw = await callModel(buildImageBriefPrompt(input), 700, actorId, "image_brief");
+  const { text: raw } = await callModel(buildImageBriefPrompt(input), 700, actorId, "image_brief");
   if (!raw) return fallback;
 
   const parsed = extractJson(raw);
@@ -577,7 +641,7 @@ async function analyticsSummary(
     flagged: [] as string[],
   };
 
-  const raw = await callModel(buildAnalyticsPrompt(topPosts), 900, actorId, "analytics_summary");
+  const { text: raw } = await callModel(buildAnalyticsPrompt(topPosts), 900, actorId, "analytics_summary");
   if (!raw) return fallback;
 
   const parsed = extractJson(raw);
@@ -626,7 +690,7 @@ async function dripSequence(
 
   const generated = await Promise.all(
     targets.map(async (index) => {
-      const raw = await callModel(
+      const { text: raw } = await callModel(
         buildDripStepPrompt({
           preset: body.preset,
           step: steps[index]!,
@@ -686,7 +750,7 @@ async function competitorAnalysis(
     flagged: [] as string[],
   };
 
-  const raw = await callModel(buildCompetitorPrompt(posts), 1000, actorId, "competitor_analysis");
+  const { text: raw } = await callModel(buildCompetitorPrompt(posts), 1000, actorId, "competitor_analysis");
   if (!raw) return fallback;
 
   const parsed = extractJson(raw);
@@ -701,5 +765,121 @@ async function competitorAnalysis(
     recommendations,
     source: "model",
     flagged: [...new Set(flagged)],
+  };
+}
+
+async function morningBrief(
+  metrics: MorningBriefInput,
+  actorId: string,
+): Promise<{
+  brief: string;
+  decision: string;
+  decision_href: string;
+  source: "model" | "template";
+  flagged: string[];
+  model: string;
+}> {
+  const fallback = {
+    ...templateMorningBrief(metrics),
+    source: "template" as const,
+    flagged: [] as string[],
+    model: modelForAction("morning_brief"),
+  };
+
+  const { text: raw, model } = await callModel(
+    buildMorningBriefPrompt(metrics),
+    500,
+    actorId,
+    "morning_brief",
+  );
+  if (!raw) return fallback;
+
+  const parsed = extractJson(raw);
+  const brief = asString(parsed?.brief);
+  const decision = asString(parsed?.decision);
+  if (!brief || !decision) return fallback;
+
+  const checkedBrief = stripNeverSay(brief);
+  const checkedDecision = stripNeverSay(decision);
+  if (!checkedBrief.clean || !checkedDecision.clean) return fallback;
+
+  return {
+    brief: checkedBrief.clean,
+    decision: checkedDecision.clean,
+    decision_href: asString(parsed?.decision_href) || "#approval-queue",
+    source: "model",
+    flagged: [...new Set([...checkedBrief.flagged, ...checkedDecision.flagged])],
+    model,
+  };
+}
+
+async function weekPlan(actorId: string): Promise<{
+  slots: Array<{ day: string; theme: string; topic: string; campaign: string; platform: string }>;
+  source: "model" | "template";
+  flagged: string[];
+  model: string;
+}> {
+  const fallback = {
+    ...templateWeekPlan(),
+    source: "template" as const,
+    flagged: [] as string[],
+    model: modelForAction("week_plan"),
+  };
+
+  const { text: raw, model } = await callModel(buildWeekPlanPrompt(), 1200, actorId, "week_plan");
+  if (!raw) return fallback;
+
+  const parsed = extractJson(raw);
+  const slotsRaw = parsed?.slots;
+  if (!Array.isArray(slotsRaw) || slotsRaw.length === 0) return fallback;
+
+  const slots = slotsRaw
+    .slice(0, 7)
+    .map((s) => {
+      if (!s || typeof s !== "object") return null;
+      const row = s as Record<string, unknown>;
+      const topic = stripNeverSay(asString(row.topic));
+      if (!topic.clean) return null;
+      return {
+        day: asString(row.day) || "Mon",
+        theme: asString(row.theme) || "Product / Path",
+        topic: topic.clean,
+        campaign: slugifyCampaign(asString(row.campaign) || asString(row.topic) || "week_slot"),
+        platform: asString(row.platform) || "linkedin",
+      };
+    })
+    .filter((s): s is NonNullable<typeof s> => Boolean(s));
+
+  if (slots.length === 0) return fallback;
+  return { slots, source: "model", flagged: [], model };
+}
+
+async function rewriteFromFeedback(
+  body: { original: string; feedback: string; platform: SocialPlatform },
+  actorId: string,
+): Promise<{ copy: string; hashtags: string[]; source: "model" | "template"; flagged: string[]; model: string }> {
+  const fallback = {
+    ...templateRewrite(body),
+    source: "template" as const,
+    flagged: [] as string[],
+    model: modelForAction("rewrite_from_feedback"),
+  };
+
+  const { text: raw, model } = await callModel(buildRewritePrompt(body), 1200, actorId, "rewrite_from_feedback");
+  if (!raw) return fallback;
+
+  const parsed = extractJson(raw);
+  const copy = asString(parsed?.copy);
+  if (!copy) return fallback;
+
+  const checked = stripNeverSay(copy);
+  if (!checked.clean) return fallback;
+
+  return {
+    copy: fitToLimit(checked.clean, platformMeta(body.platform).limit),
+    hashtags: asHashtags(parsed?.hashtags, body.platform),
+    source: "model",
+    flagged: checked.flagged,
+    model,
   };
 }

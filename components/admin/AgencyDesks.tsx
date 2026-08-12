@@ -23,19 +23,23 @@ const TABS: DeskTab[] = [
 ];
 
 /**
- * Tabbed agent desks — only one heavy desk mounts content at a time via CSS
- * (all panels stay mounted for state, inactive ones are hidden).
- * Hash deep-links: #desk-content etc.
+ * Tabbed agent desks — lazy-mount: only the active desk mounts children (P2).
+ * Hash deep-links: #desk-content etc. Default follows pending queue when set.
  */
 export function AgencyDesks({
   panels,
+  defaultDesk = "desk-content",
 }: {
   panels: Record<string, ReactNode>;
+  /** Prefer oldest pending desk when queue non-empty. */
+  defaultDesk?: string;
 }) {
-  const [active, setActive] = useState("desk-content");
+  const [active, setActive] = useState(defaultDesk);
+  const [mounted, setMounted] = useState<Record<string, boolean>>({ [defaultDesk]: true });
 
   const select = useCallback((id: string) => {
     setActive(id);
+    setMounted((prev) => (prev[id] ? prev : { ...prev, [id]: true }));
     if (typeof window !== "undefined") {
       window.history.replaceState(null, "", `#${id}`);
     }
@@ -44,7 +48,10 @@ export function AgencyDesks({
   useEffect(() => {
     const applyHash = () => {
       const hash = window.location.hash.replace(/^#/, "");
-      if (hash && TABS.some((t) => t.id === hash)) setActive(hash);
+      if (hash && TABS.some((t) => t.id === hash)) {
+        setActive(hash);
+        setMounted((prev) => (prev[hash] ? prev : { ...prev, [hash]: true }));
+      }
     };
     applyHash();
     window.addEventListener("hashchange", applyHash);
@@ -59,15 +66,15 @@ export function AgencyDesks({
           Work the desk. Approve before it ships.
         </h2>
         <p className="mt-1 max-w-2xl text-sm text-dim">
-          Each tab is an agent seat. AI drafts stay claim-stripped. You are CEO — publish only what
-          you would put your name on.
+          Each tab is an agent seat. Desks mount on demand. AI drafts stay claim-stripped. You are
+          CEO — publish only what you would put your name on.
         </p>
       </div>
 
       <div
         role="tablist"
         aria-label="Agency desks"
-        className="flex gap-1 overflow-x-auto pb-2 scrollbar-thin"
+        className="flex gap-1 overflow-x-auto pb-2"
       >
         {TABS.map((tab) => {
           const isActive = active === tab.id;
@@ -101,9 +108,11 @@ export function AgencyDesks({
           hidden={active !== tab.id}
           className="mt-4 scroll-mt-[calc(var(--nav-offset)+3.5rem)]"
         >
-          {panels[tab.id] ?? (
-            <p className="glass p-8 text-center text-sm text-dim">Desk not configured.</p>
-          )}
+          {mounted[tab.id]
+            ? (panels[tab.id] ?? (
+                <p className="glass p-8 text-center text-sm text-dim">Desk not configured.</p>
+              ))
+            : null}
         </div>
       ))}
     </section>

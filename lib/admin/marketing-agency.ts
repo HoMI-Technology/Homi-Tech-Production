@@ -1,5 +1,5 @@
-/**
- * Marketing agency suite for /admin/marketing — prompts, platform metadata,
+﻿/**
+ * Marketing agency suite for /admin/marketing â€” prompts, platform metadata,
  * the claim-law guardrail, and deterministic copy templates.
  *
  * Pure and dependency-free on purpose: no env access, no side effects, no Node
@@ -132,12 +132,12 @@ export const HOOK_STYLES: { key: HookStyle; label: string; brief: string }[] = [
  * ------------------------------------------------------------------ */
 
 /**
- * Prohibition registry — the exact phrases HōMI refuses to publish.
+ * Prohibition registry â€” the exact phrases HÅMI refuses to publish.
  *
  * Used twice: injected into the model system prompt as a denylist, and matched
  * against every completion (server-side, then again client-side) so a bad
  * generation never reaches the clipboard. Matching is case-insensitive and
- * tolerant of hyphen/space variants — see stripNeverSay.
+ * tolerant of hyphen/space variants â€” see stripNeverSay.
  *
  * The per-line brand-ok comments below are required because this array holds
  * the banned strings verbatim; that is the whole point of a denylist.
@@ -168,7 +168,7 @@ export const NEVER_SAY_PHRASES: string[] = [
 export const PREFERRED_PHRASES: string[] = [
   "readiness signal",
   "decision ready",
-  "afford ≠ ready",
+  "afford â‰  ready",
   "not yet is not no",
   "Build First",
   "educational guidance only",
@@ -181,7 +181,7 @@ function escapeRegExp(value: string): string {
 }
 
 /**
- * Word-boundary matcher that also catches spacing variants — "pre approved"
+ * Word-boundary matcher that also catches spacing variants â€” "pre approved"
  * and "pre-approved" are the same prohibited claim. escapeRegExp leaves "-"
  * alone (it is literal outside a character class), so the separator collapse
  * below sees the raw hyphens.
@@ -242,10 +242,10 @@ export function isClaimClean(text: string): boolean {
  * enforces it.
  */
 export const AGENCY_SYSTEM_PROMPT = [
-  "You are the in-house marketing copywriter for HōMI.",
+  "You are the in-house marketing copywriter for HÅMI.",
   "",
-  "WHAT HōMI IS",
-  "- A decision readiness platform for major purchase commitments — home first, then car.",
+  "WHAT HÅMI IS",
+  "- A decision readiness platform for major purchase commitments â€” home first, then car.",
   "- It turns scattered financial signals into one readiness verdict and a Build First path.",
   "- It is educational guidance only. It is not a lender, not a broker, not a credit bureau,",
   "  and it does not give advice about what someone should buy.",
@@ -282,10 +282,10 @@ export function buildPostPrompt(input: {
   const persona = input.persona?.trim();
 
   return [
-    `Write one ${meta.label} post for HōMI.`,
+    `Write one ${meta.label} post for HÅMI.`,
     "",
     `TOPIC: ${input.topic}`,
-    `TONE: ${tone.label} — ${tone.brief}`,
+    `TONE: ${tone.label} â€” ${tone.brief}`,
     ...(persona
       ? [
           `Write for this specific ICP persona: ${persona}. Address their specific anxiety.`,
@@ -323,7 +323,7 @@ export function buildInsightPrompt(input: {
     `WAITLIST INTERESTS: ${interests}`,
     "",
     "Write 2-3 sentences for the founder running growth. Say what the numbers mean for what",
-    "to publish next week — a specific message or channel decision, not a summary of the data.",
+    "to publish next week â€” a specific message or channel decision, not a summary of the data.",
     "If the counts are too small to support a conclusion, say so plainly and name what to",
     "collect first. Never claim causation from these counts.",
     "",
@@ -341,14 +341,14 @@ export function buildCaptionPrompt(input: {
   const style = HOOK_STYLES.find((h) => h.key === input.hookStyle) ?? HOOK_STYLES[0]!;
   const visual = input.imageDescription?.trim()
     ? `THE VISUAL: ${input.imageDescription.trim()}`
-    : "THE VISUAL: not described — write copy that stands on its own.";
+    : "THE VISUAL: not described â€” write copy that stands on its own.";
 
   return [
-    `Write one ${meta.label} caption for HōMI.`,
+    `Write one ${meta.label} caption for HÅMI.`,
     "",
     `KEY MESSAGE: ${input.idea}`,
     visual,
-    `HOOK STYLE: ${style.label} — ${style.brief}`,
+    `HOOK STYLE: ${style.label} â€” ${style.brief}`,
     `PLATFORM BRIEF: ${meta.brief}`,
     `HARD CEILING: ${meta.limit} characters for hook plus body combined.`,
     "",
@@ -396,21 +396,21 @@ export function fitToLimit(text: string, limit: number): string {
   if (text.length <= limit) return text;
   const cut = text.slice(0, limit - 1);
   const lastBreak = Math.max(cut.lastIndexOf(" "), cut.lastIndexOf("\n"));
-  return `${(lastBreak > limit * 0.6 ? cut.slice(0, lastBreak) : cut).trimEnd()}…`;
+  return `${(lastBreak > limit * 0.6 ? cut.slice(0, lastBreak) : cut).trimEnd()}â€¦`;
 }
 
 const TONE_TEMPLATES: Record<PostTone, (topic: string) => string[]> = {
   educational: (topic) => [
     `Affordability math answers one question about ${topic}: what fits on paper.`,
     "",
-    "It does not answer the one people actually lose sleep over — what happens the month after.",
+    "It does not answer the one people actually lose sleep over â€” what happens the month after.",
     "",
     "Three checks worth running first:",
     "1. What your cushion looks like 30 days after, not on the day of.",
     "2. Which single expense would hurt most if it moved 20%.",
     "3. What you would have to stop doing to keep the payment comfortable.",
     "",
-    "That gap has a name. Afford ≠ ready.",
+    "That gap has a name. Afford â‰  ready.",
   ],
   story: (topic) => [
     `Someone told me they had been researching ${topic} for eleven months.`,
@@ -424,11 +424,11 @@ const TONE_TEMPLATES: Record<PostTone, (topic: string) => string[]> = {
   authority: (topic) => [
     `The hardest part of ${topic} is not the number. It is knowing whether the number is survivable.`,
     "",
-    "Every tool in this category answers the same question — how much can you carry.",
+    "Every tool in this category answers the same question â€” how much can you carry.",
     "",
     "Almost nothing answers the question underneath it: what does your life look like after you commit, and what would have to be true for that to feel steady?",
     "",
-    "That is the layer HōMI works on. Educational guidance only, and a Build First path when the answer is not yet.",
+    "That is the layer HÅMI works on. Educational guidance only, and a Build First path when the answer is not yet.",
   ],
   hook: (topic) => [
     `You can afford ${topic} and still not be ready for it.`,
@@ -446,7 +446,7 @@ const TONE_TEMPLATES: Record<PostTone, (topic: string) => string[]> = {
     "",
     "Not what a calculator says. What would actually let you stop second-guessing the decision.",
     "",
-    "I am collecting answers — they keep pointing at the same missing signal.",
+    "I am collecting answers â€” they keep pointing at the same missing signal.",
   ],
 };
 
@@ -494,8 +494,8 @@ export function templateInsight(input: {
   if (verdictTotal > 0) {
     parts.push(
       readyPct >= 40
-        ? `${readyPct}% of completed assessments scored READY — this audience is close to a decision, so lead with urgency and next steps rather than education.`
-        : `Only ${readyPct}% scored READY, so most of this audience is still building — lead with the Build First path and treat "not yet" as the message, not a failure state.`,
+        ? `${readyPct}% of completed assessments scored READY â€” this audience is close to a decision, so lead with urgency and next steps rather than education.`
+        : `Only ${readyPct}% scored READY, so most of this audience is still building â€” lead with the Build First path and treat "not yet" as the message, not a failure state.`,
     );
   }
   if (topChannel) {
@@ -504,7 +504,7 @@ export function templateInsight(input: {
     );
   }
   if (topInterest) {
-    parts.push(`Demand is concentrated in ${topInterest.interest} — make that the next content hub.`);
+    parts.push(`Demand is concentrated in ${topInterest.interest} â€” make that the next content hub.`);
   }
 
   return { insight: parts.join(" ") };
@@ -530,13 +530,13 @@ export function templateCaption(input: {
   const idea = input.idea.trim() || "a major purchase decision";
   const hook = stripNeverSay(HOOK_TEMPLATES[input.hookStyle](idea)).clean;
 
-  // Blank strings are paragraph breaks, not empties — do not filter them out.
+  // Blank strings are paragraph breaks, not empties â€” do not filter them out.
   const paragraphs = [
     `${idea.charAt(0).toUpperCase()}${idea.slice(1)}.`,
     "",
-    "Affordability is arithmetic. Readiness is what your life looks like after you commit — the cushion, the month-after, the thing that goes wrong anyway.",
+    "Affordability is arithmetic. Readiness is what your life looks like after you commit â€” the cushion, the month-after, the thing that goes wrong anyway.",
     "",
-    "HōMI reads the signals you already have and gives you one readiness verdict plus the path to close the gap. Educational guidance only — not a lender, not a credit score substitute.",
+    "HÅMI reads the signals you already have and gives you one readiness verdict plus the path to close the gap. Educational guidance only â€” not a lender, not a credit score substitute.",
   ];
   const visual = input.imageDescription?.trim();
   if (visual) paragraphs.push("", `(${visual})`);
@@ -561,7 +561,7 @@ export const CALENDAR_SLOTS = ["morning", "afternoon"] as const;
 
 export type CalendarDay = (typeof CALENDAR_DAYS)[number];
 export type CalendarSlot = (typeof CALENDAR_SLOTS)[number];
-/** One post per (day, slot) — the key doubles as the entry's identity. */
+/** One post per (day, slot) â€” the key doubles as the entry's identity. */
 export type CalendarKey = `${CalendarDay}:${CalendarSlot}`;
 
 export type CalendarEntry = {
@@ -621,7 +621,7 @@ export function seedCalendarFromEngine(
   return board;
 }
 
-/** Defensive read of the localStorage payload — any malformed entry is dropped. */
+/** Defensive read of the localStorage payload â€” any malformed entry is dropped. */
 export function parseStoredCalendar(raw: string | null): CalendarBoard | null {
   if (!raw) return null;
   let parsed: unknown;
@@ -654,7 +654,7 @@ export function parseStoredCalendar(raw: string | null): CalendarBoard | null {
   return board;
 }
 
-/** One post per line, newline-separated — the calendar's copyable export. */
+/** One post per line, newline-separated â€” the calendar's copyable export. */
 export function calendarToText(board: CalendarBoard): string {
   const lines: string[] = [];
   for (const day of CALENDAR_DAYS) {
@@ -663,7 +663,7 @@ export function calendarToText(board: CalendarBoard): string {
       if (!entry) continue;
       const oneLine = entry.copy.replace(/\s*\n+\s*/g, " ").trim();
       lines.push(
-        `${day} · ${slotLabel(slot)} · ${platformMeta(entry.platform).label} · ${entry.tone} · ${entry.campaign} — ${oneLine}`,
+        `${day} Â· ${slotLabel(slot)} Â· ${platformMeta(entry.platform).label} Â· ${entry.tone} Â· ${entry.campaign} â€” ${oneLine}`,
       );
     }
   }
@@ -699,7 +699,7 @@ export type CalendarAddDetail = {
 };
 
 /* ================================================================== *
- * TIER-2 EXTENSION — personas, repurpose, scorecard, image brief,    *
+ * TIER-2 EXTENSION â€” personas, repurpose, scorecard, image brief,    *
  * drip sequences, analytics, competitor intel, post performance,      *
  * theme calendar, webhook publisher.                                  *
  * ================================================================== */
@@ -720,7 +720,7 @@ export type PersonaKey =
  * ICP slices the copy can be aimed at. `description` is what reaches the model
  * verbatim, so it is written as a brief rather than as a label.
  *
- * "all" carries an empty description on purpose — an empty brief is how the
+ * "all" carries an empty description on purpose â€” an empty brief is how the
  * caller says "general ICP", and the prompt builder omits the persona block
  * entirely rather than telling the model to write for nobody in particular.
  */
@@ -761,7 +761,7 @@ export function personaMeta(key: PersonaKey): { key: PersonaKey; label: string; 
 /** The brief handed to generate_post. Empty string means "no persona". */
 export function personaBrief(key: PersonaKey): string {
   const meta = personaMeta(key);
-  return meta.description ? `${meta.label} — ${meta.description}` : "";
+  return meta.description ? `${meta.label} â€” ${meta.description}` : "";
 }
 
 /* ------------------------------------------------------------------ *
@@ -775,7 +775,7 @@ export function buildRepurposePrompt(input: {
   const meta = platformMeta(input.targetPlatform);
 
   // AGENCY_SYSTEM_PROMPT is passed as the `system` parameter by the route, not
-  // spread in here — it is a string, and spreading a string into an array would
+  // spread in here â€” it is a string, and spreading a string into an array would
   // yield one element per character.
   return [
     `Adapt this LinkedIn post for ${meta.label}.`,
@@ -783,10 +783,10 @@ export function buildRepurposePrompt(input: {
     "SOURCE POST:",
     input.sourceCopy,
     "",
-    `HARD CEILING: ${meta.limit} characters. Respect it — do not go one character over.`,
+    `HARD CEILING: ${meta.limit} characters. Respect it â€” do not go one character over.`,
     `PLATFORM BRIEF: ${meta.brief}`,
     "Keep the core message. Adjust format for platform norms. Strip never-say words.",
-    "This is a rewrite, not a summary — it should read as if written for this platform first.",
+    "This is a rewrite, not a summary â€” it should read as if written for this platform first.",
     "",
     "Return this JSON object:",
     "{",
@@ -800,7 +800,7 @@ export function buildRepurposePrompt(input: {
 /**
  * Deterministic repurpose: fit the source to the target ceiling.
  *
- * Honest about what it is — a trim, not a rewrite. The badge on the panel says
+ * Honest about what it is â€” a trim, not a rewrite. The badge on the panel says
  * "Template" so the operator knows to edit before posting.
  */
 export function templateRepurpose(input: {
@@ -862,7 +862,7 @@ export function performanceTotals(rows: PostPerformanceRow[]): PerformanceTotals
 }
 
 /**
- * The row to highlight — most attributed completions wins, because completions
+ * The row to highlight â€” most attributed completions wins, because completions
  * are the north star and impressions are not. Null when nothing has completions
  * yet, so the badge never crowns a row for scoring zero.
  */
@@ -881,7 +881,7 @@ export function bestPerformingId(rows: PostPerformanceRow[]): string | null {
 
 export type ScorecardMetrics = {
   /**
-   * Unique users with ≥1 completed assessment in the last 7 days (north star).
+   * Unique users with â‰¥1 completed assessment in the last 7 days (north star).
    * Not raw completion-event count.
    */
   activationsLast7: number;
@@ -901,12 +901,12 @@ export type ScorecardMetrics = {
   channels: { label: string; count: number }[];
 };
 
-/** Whole dollars, thousands-separated — the scorecard has no room for cents. */
+/** Whole dollars, thousands-separated â€” the scorecard has no room for cents. */
 export function formatUsdWhole(cents: number): string {
   return `$${Math.round(cents / 100).toLocaleString("en-US")}`;
 }
 
-/** "Aug 12, 2026" — the week-ending stamp in the scorecard heading. */
+/** "Aug 12, 2026" â€” the week-ending stamp in the scorecard heading. */
 export function weekEndingLabel(date: Date): string {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
@@ -915,21 +915,21 @@ export function weekEndingLabel(date: Date): string {
  * The exact markdown the founder pastes into the Sunday scoreboard.
  *
  * Three channel lines are always printed, padded with an em dash, so the shape
- * of the scorecard does not change week to week — a missing line reads as a
+ * of the scorecard does not change week to week â€” a missing line reads as a
  * formatting bug, a dash reads as "no third channel yet".
  */
 export function buildScorecardMarkdown(metrics: ScorecardMetrics, weekEnding: Date): string {
   const rate =
     metrics.activationRate7d !== null
       ? `${metrics.activationRate7d}% of new accounts (cohort)`
-      : "— (n under 5 or no new accounts)";
+      : "â€” (n under 5 or no new accounts)";
   const channels = [0, 1, 2].map((i) => {
     const row = metrics.channels[i];
-    return `${i + 1}. ${row ? `${row.label} — ${row.count.toLocaleString()}` : "—"}`;
+    return `${i + 1}. ${row ? `${row.label} â€” ${row.count.toLocaleString()}` : "â€”"}`;
   });
 
   return [
-    `## HōMI Weekly Scorecard — WEEK ending ${weekEndingLabel(weekEnding)}`,
+    `## HÅMI Weekly Scorecard â€” WEEK ending ${weekEndingLabel(weekEnding)}`,
     "",
     "### North Star",
     `- Unique activated users (7d): ${metrics.activationsLast7.toLocaleString()}`,
@@ -970,7 +970,7 @@ export type ScorecardSummaryInput = {
 
 export function buildScorecardSummaryPrompt(input: ScorecardSummaryInput): string {
   return [
-    "You are the founder's weekly marketing analyst. Given these HōMI metrics, write 2-3",
+    "You are the founder's weekly marketing analyst. Given these HÅMI metrics, write 2-3",
     "sentences of honest, actionable insight. No hype. Recommend one content priority for",
     "next week. If the numbers are too small to support a conclusion, say that plainly.",
     "",
@@ -991,15 +991,15 @@ export function templateScorecardSummary(input: ScorecardSummaryInput): { summar
   if (input.activationsLast7 === 0 && input.accountsLast7 === 0 && input.waitlistLast7 === 0) {
     return {
       summary:
-        "Nothing moved this week — no new accounts, activations or waitlist signups. That is a distribution problem, not a product one. Publish the three-post slate with tagged links so next Sunday has channel truth to read.",
+        "Nothing moved this week â€” no new accounts, activations or waitlist signups. That is a distribution problem, not a product one. Publish the three-post slate with tagged links so next Sunday has channel truth to read.",
     };
   }
 
   const parts: string[] = [];
   parts.push(
     rate === null
-      ? `${input.activationsLast7} activations against no new accounts — the activations came from people who signed up earlier, so the top of the funnel is what to work on.`
-      : `${input.activationsLast7} activations from ${input.accountsLast7} new accounts (${rate}%) — ${
+      ? `${input.activationsLast7} activations against no new accounts â€” the activations came from people who signed up earlier, so the top of the funnel is what to work on.`
+      : `${input.activationsLast7} activations from ${input.accountsLast7} new accounts (${rate}%) â€” ${
           rate >= 40
             ? "the path is converting, so the constraint is traffic, not friction."
             : "more than half of new accounts never finish, so walk the path yourself before adding reach."
@@ -1008,14 +1008,14 @@ export function templateScorecardSummary(input: ScorecardSummaryInput): { summar
   if (input.topChannel) {
     parts.push(
       input.topChannel === "direct"
-        ? "Most signups are landing as direct, which means the links are not tagged — stamp every founder post with UTMs before drawing any channel conclusion."
+        ? "Most signups are landing as direct, which means the links are not tagged â€” stamp every founder post with UTMs before drawing any channel conclusion."
         : `${input.topChannel} is carrying the week; keep the cadence there rather than opening a second surface.`,
     );
   }
   parts.push(
     input.waitlistLast7 > input.accountsLast7
-      ? "Waitlist is outpacing accounts — next week's priority is the founder-story post that converts interest into a completed assessment."
-      : "Next week's priority: one Build First post that shows the path a “not yet” verdict opens.",
+      ? "Waitlist is outpacing accounts â€” next week's priority is the founder-story post that converts interest into a completed assessment."
+      : "Next week's priority: one Build First post that shows the path a â€œnot yetâ€ verdict opens.",
   );
 
   return { summary: parts.join(" ") };
@@ -1042,10 +1042,10 @@ export function buildImageBriefPrompt(input: {
     `BODY: ${input.captionBody}`,
     "",
     "Output three things:",
-    "1) A Canva description — what to put on the graphic: text, layout, feel. Two sentences.",
-    "2) An image-generation prompt (photorealistic or illustrated) that matches the HōMI dark",
+    "1) A Canva description â€” what to put on the graphic: text, layout, feel. Two sentences.",
+    "2) An image-generation prompt (photorealistic or illustrated) that matches the HÅMI dark",
     "   navy aesthetic. No faces unless the post requires one. No text rendered in the image.",
-    "3) Style notes — colour mood and one composition tip.",
+    "3) Style notes â€” colour mood and one composition tip.",
     "",
     "BRAND: dark navy background, cyan / emerald / yellow accents, generous negative space,",
     "calm and precise rather than loud. Never a stock-photo handshake.",
@@ -1070,13 +1070,13 @@ export function templateImageBrief(input: {
   platform: SocialPlatform;
 }): ImageBrief {
   const meta = platformMeta(input.platform);
-  const hook = stripNeverSay(input.captionHook.trim()).clean || "Afford ≠ ready";
+  const hook = stripNeverSay(input.captionHook.trim()).clean || "Afford â‰  ready";
 
   return {
     canva_prompt: [
-      `${meta.label} graphic on a dark navy canvas with the hook — “${fitToLimit(hook, 90)}” —`,
+      `${meta.label} graphic on a dark navy canvas with the hook â€” â€œ${fitToLimit(hook, 90)}â€ â€”`,
       "set left-aligned in the upper third, large, with a thin cyan rule beneath it and a lot of",
-      "empty space below. Bottom-left: the HōMI wordmark and the line “educational guidance only”",
+      "empty space below. Bottom-left: the HÅMI wordmark and the line â€œeducational guidance onlyâ€",
       "at a quarter of the hook's size, in dim grey.",
     ].join(" "),
     midjourney_prompt: [
@@ -1086,7 +1086,7 @@ export function templateImageBrief(input: {
       "no logos, square 1:1 --style raw",
     ].join(" "),
     style_notes:
-      "Cool base with one warm accent — navy ground, cyan for the signal, yellow used once and only once. Compose to the left third so the hook has room; keep the subject small in frame rather than centred and cropped.",
+      "Cool base with one warm accent â€” navy ground, cyan for the signal, yellow used once and only once. Compose to the left third so the hook has room; keep the subject small in frame rather than centred and cropped.",
   };
 }
 
@@ -1148,7 +1148,7 @@ export const DRIP_PRESETS: {
   {
     key: "custom",
     label: "Custom",
-    audience: "the HōMI ICP",
+    audience: "the HÅMI ICP",
     steps: [{ name: "Step 1", delayDays: 0 }],
   },
 ];
@@ -1173,14 +1173,14 @@ export function buildDripStepPrompt(input: {
   const interest = input.audienceInterest?.trim();
 
   return [
-    `Write email step ${input.index + 1} of ${input.total} in a "${preset.label}" sequence for HōMI Technology.`,
+    `Write email step ${input.index + 1} of ${input.total} in a "${preset.label}" sequence for HÅMI Technology.`,
     "",
     `STEP NAME: ${input.step.name}`,
     `DELAY: ${input.step.delayDays} days after the previous email.`,
     `AUDIENCE: ${preset.audience}.`,
     ...(interest ? [`WHAT THEY SAID THEY WANT: ${interest}.`] : []),
     "",
-    "Tone: educational, warm, no hype. Educational guidance only — HōMI is not a lender and",
+    "Tone: educational, warm, no hype. Educational guidance only â€” HÅMI is not a lender and",
     "does not tell anyone what to buy.",
     "Subject line: 6-8 words, curiosity-driven, no colon-stacking, no emoji.",
     "Body: 3-4 short paragraphs, plain text, one clear call to action at the end.",
@@ -1198,11 +1198,11 @@ const DRIP_BODY_TEMPLATES: Record<DripPresetKey, (step: DripStepInput, index: nu
     [
       index === 0
         ? "You are on the list. Here is what that actually gets you."
-        : `Following on from ${step.name.toLowerCase()} — one idea worth sitting with.`,
+        : `Following on from ${step.name.toLowerCase()} â€” one idea worth sitting with.`,
       "",
       "Most tools answer how much you can carry. Almost nothing answers the question underneath it: what does your month look like after you commit, and would that feel steady?",
       "",
-      "HōMI reads the signals you already have and returns one readiness verdict plus the path to close the gap. Educational guidance only — not a lender, not a credit score substitute.",
+      "HÅMI reads the signals you already have and returns one readiness verdict plus the path to close the gap. Educational guidance only â€” not a lender, not a credit score substitute.",
       "",
       "When you are ready, the readiness path takes about eight minutes.",
     ].join("\n"),
@@ -1212,11 +1212,11 @@ const DRIP_BODY_TEMPLATES: Record<DripPresetKey, (step: DripStepInput, index: nu
         ? "You started the readiness path and stopped. That is worth a minute of honesty."
         : "Still here whenever you want to pick it back up.",
       "",
-      "People usually stop at the same place — the question that asks what happens the month after. It is uncomfortable because it is the real one.",
+      "People usually stop at the same place â€” the question that asks what happens the month after. It is uncomfortable because it is the real one.",
       "",
-      "You do not have to like the answer to benefit from having it. A “not yet” is a map with a date on it, not a rejection.",
+      "You do not have to like the answer to benefit from having it. A â€œnot yetâ€ is a map with a date on it, not a rejection.",
       "",
-      "Pick up where you left off — nothing you entered was lost.",
+      "Pick up where you left off â€” nothing you entered was lost.",
     ].join("\n"),
   assessment_nurture: (_step, index) =>
     [
@@ -1226,7 +1226,7 @@ const DRIP_BODY_TEMPLATES: Record<DripPresetKey, (step: DripStepInput, index: nu
       "",
       "A verdict is a snapshot of three things at once: the money, the timing, and how you actually feel about the commitment. Any one of them can be the thing holding the score down.",
       "",
-      "The path underneath it is ordered by leverage — the first item moves the number most. Work it in that order rather than all at once.",
+      "The path underneath it is ordered by leverage â€” the first item moves the number most. Work it in that order rather than all at once.",
       "",
       "Open your path and take the first item this week.",
     ].join("\n"),
@@ -1234,9 +1234,9 @@ const DRIP_BODY_TEMPLATES: Record<DripPresetKey, (step: DripStepInput, index: nu
     [
       `${step.name}.`,
       "",
-      "Affordability is arithmetic. Readiness is what your life looks like after you commit — the cushion, the month-after, the thing that goes wrong anyway.",
+      "Affordability is arithmetic. Readiness is what your life looks like after you commit â€” the cushion, the month-after, the thing that goes wrong anyway.",
       "",
-      "HōMI turns the signals you already have into one readiness verdict and a Build First path. Educational guidance only.",
+      "HÅMI turns the signals you already have into one readiness verdict and a Build First path. Educational guidance only.",
       "",
       "Take the readiness path when you have eight minutes.",
     ].join("\n"),
@@ -1247,7 +1247,7 @@ const DRIP_SUBJECT_TEMPLATES: Record<DripPresetKey, string[]> = {
     "What being on this list actually gets you",
     "Afford and ready are different questions",
     "The month after is the real test",
-    "A “not yet” with a date on it",
+    "A â€œnot yetâ€ with a date on it",
   ],
   reengagement: [
     "You stopped at the honest question",
@@ -1289,7 +1289,7 @@ export type AnalyticsSummary = { summary: string; recommended_hooks: string[]; c
 /**
  * RFC4180-ish CSV reader: quoted fields, embedded commas and newlines, and
  * doubled quotes as an escaped quote. Written by hand rather than pulled in as
- * a dependency because this parses exactly one known export shape — but it does
+ * a dependency because this parses exactly one known export shape â€” but it does
  * have to handle quotes, since LinkedIn post titles routinely contain commas.
  */
 export function parseCsv(text: string): string[][] {
@@ -1335,7 +1335,7 @@ export function parseCsv(text: string): string[][] {
     .filter((r) => r.some((cell) => cell !== ""));
 }
 
-/** "1,234" → 1234, "1.23%" → 1.23, anything unreadable → 0. */
+/** "1,234" â†’ 1234, "1.23%" â†’ 1.23, anything unreadable â†’ 0. */
 function parseNumeric(raw: string | undefined): number {
   if (!raw) return 0;
   const value = Number.parseFloat(raw.replace(/[,\s%$]/g, ""));
@@ -1365,7 +1365,7 @@ export function parseLinkedInAnalytics(text: string): AnalyticsPost[] {
   };
   const titleAt = at((h) => h.includes("title") || h === "post", 0);
   const dateAt = at((h) => h.includes("published") || h.includes("date"), 1);
-  // "Unique impressions" is a different metric — never let it win this lookup.
+  // "Unique impressions" is a different metric â€” never let it win this lookup.
   const impressionsAt = at((h) => h.includes("impressions") && !h.includes("unique"), 2);
   const clicksAt = at((h) => h.includes("click") && !h.includes("through") && !h.includes("ctr"), 4);
   const ctrAt = at(
@@ -1414,14 +1414,14 @@ export function buildAnalyticsPrompt(topPosts: {
   const table = topPosts
     .map(
       (p, i) =>
-        `${i + 1}. "${p.title}" — ${p.impressions} impressions, ${p.clicks} clicks, ${p.ctr}% CTR`,
+        `${i + 1}. "${p.title}" â€” ${p.impressions} impressions, ${p.clicks} clicks, ${p.ctr}% CTR`,
     )
     .join("\n");
 
   return [
-    "You are a LinkedIn content analyst for HōMI Technology.",
+    "You are a LinkedIn content analyst for HÅMI Technology.",
     "Given these top performing posts, identify:",
-    "1) What hooks and angles are working — read impressions and CTR together, not separately.",
+    "1) What hooks and angles are working â€” read impressions and CTR together, not separately.",
     "2) What content gaps exist.",
     "3) Recommend 3 specific post angles for next month.",
     "Be specific. Reference the actual post titles.",
@@ -1442,7 +1442,7 @@ export function templateAnalyticsSummary(posts: AnalyticsPost[]): AnalyticsSumma
   if (posts.length === 0) {
     return {
       summary:
-        "No rows parsed from that export. Paste the CSV including its header row — the table starts at the line naming “Post title”.",
+        "No rows parsed from that export. Paste the CSV including its header row â€” the table starts at the line naming â€œPost titleâ€.",
       recommended_hooks: [],
       content_gaps: [],
     };
@@ -1457,7 +1457,7 @@ export function templateAnalyticsSummary(posts: AnalyticsPost[]): AnalyticsSumma
   const lead = byImpressions
     .map(
       (p) =>
-        `“${fitToLimit(p.title, 60)}” at ${p.impressions.toLocaleString()} (${share(p.impressions)} of all reach)`,
+        `â€œ${fitToLimit(p.title, 60)}â€ at ${p.impressions.toLocaleString()} (${share(p.impressions)} of all reach)`,
     )
     .join("; ");
 
@@ -1469,13 +1469,13 @@ export function templateAnalyticsSummary(posts: AnalyticsPost[]): AnalyticsSumma
     summary: [
       `${posts.length} posts parsed, ${totalImpressions.toLocaleString()} impressions total. Reach leaders: ${lead}.`,
       divergent && ctrWinner
-        ? `Reach and intent are pulling apart — “${fitToLimit(ctrWinner.title, 60)}” converts best at ${ctrWinner.ctr}% CTR despite less reach, which is the angle worth repeating.`
-        : "Reach and click-through agree on the same post, so the top angle is doing both jobs — repeat its structure before testing a new one.",
+        ? `Reach and intent are pulling apart â€” â€œ${fitToLimit(ctrWinner.title, 60)}â€ converts best at ${ctrWinner.ctr}% CTR despite less reach, which is the angle worth repeating.`
+        : "Reach and click-through agree on the same post, so the top angle is doing both jobs â€” repeat its structure before testing a new one.",
     ].join(" "),
     recommended_hooks: byCtr.map((p) => fitToLimit(p.title, 90)),
     content_gaps: [
       "No post in this export addresses the month-after question directly.",
-      "Build First — what a “not yet” verdict actually unlocks — is missing from the top set.",
+      "Build First â€” what a â€œnot yetâ€ verdict actually unlocks â€” is missing from the top set.",
     ],
   };
 }
@@ -1520,8 +1520,8 @@ export function isCompetitorTag(value: unknown): value is CompetitorTag {
 /**
  * Defensive read of the hand-kept log.
  *
- * An entry with no id or no hook is unrenderable — the id is the React key and
- * the hook is the only column worth reading — so those rows are dropped. An
+ * An entry with no id or no hook is unrenderable â€” the id is the React key and
+ * the hook is the only column worth reading â€” so those rows are dropped. An
  * unknown tag is not fatal in the same way, so it is dropped from the row rather
  * than taking the row with it.
  */
@@ -1565,24 +1565,24 @@ export function buildCompetitorPrompt(
   posts: { account: string; hook: string; tags: string[]; impressions?: number }[],
 ): string {
   // AGENCY_SYSTEM_PROMPT is passed as the `system` parameter by the route, not
-  // spread in here — it is a string, and spreading a string into an array would
+  // spread in here â€” it is a string, and spreading a string into an array would
   // yield one element per character.
   const lines = posts.map(
     (p) =>
-      `- [${p.account || "unattributed"}] "${p.hook}" — tags: ${p.tags.join(", ") || "none"}${
-        p.impressions ? ` — ~${p.impressions} impressions` : ""
+      `- [${p.account || "unattributed"}] "${p.hook}" â€” tags: ${p.tags.join(", ") || "none"}${
+        p.impressions ? ` â€” ~${p.impressions} impressions` : ""
       }`,
   );
 
   return [
-    "You are a competitive content analyst for HōMI in the decision-readiness space.",
+    "You are a competitive content analyst for HÅMI in the decision-readiness space.",
     "",
     "COMPETITOR POSTS LOGGED BY HAND:",
     ...(lines.length > 0 ? lines : ["(none logged)"]),
     "",
-    "Say what is working for them, which angles HōMI can own that they are not claiming, and",
-    "three specific post angles that differentiate rather than imitate. HōMI is not a lender",
-    "and does not compete on rates — an angle that requires either is not usable.",
+    "Say what is working for them, which angles HÅMI can own that they are not claiming, and",
+    "three specific post angles that differentiate rather than imitate. HÅMI is not a lender",
+    "and does not compete on rates â€” an angle that requires either is not usable.",
     "",
     "Return this JSON object:",
     "{",
@@ -1595,14 +1595,14 @@ export function buildCompetitorPrompt(
 
 /** What each tag means when it shows up repeatedly in the log. */
 const COMPETITOR_TAG_PATTERNS: Record<CompetitorTag, string> = {
-  housing: "Housing-market commentary — inventory, prices, when to move",
+  housing: "Housing-market commentary â€” inventory, prices, when to move",
   rates: "Rate and affordability anxiety is what they lead with",
   readiness: "Readiness language, though usually stopping at the number behind it",
-  emotional: "Emotional framing — how the decision feels, not what it costs",
+  emotional: "Emotional framing â€” how the decision feels, not what it costs",
   data: "Charts and data posts, credibility built on the numbers",
   story: "Personal story hooks rather than a data-only open",
   tips: "Checklist and how-to formats, written to be saved",
-  fear: "Loss framing — what you give up by waiting",
+  fear: "Loss framing â€” what you give up by waiting",
 };
 
 /**
@@ -1623,7 +1623,7 @@ export function templateCompetitorAnalysis(posts: CompetitorPost[]): CompetitorA
   let patterns: string[];
   if (posts.length === 0) {
     patterns = [
-      "Nothing logged yet — paste five hooks from the accounts you watch and the pattern shows up on its own.",
+      "Nothing logged yet â€” paste five hooks from the accounts you watch and the pattern shows up on its own.",
     ];
   } else if (ranked.length === 0) {
     patterns = [
@@ -1637,13 +1637,13 @@ export function templateCompetitorAnalysis(posts: CompetitorPost[]): CompetitorA
     patterns,
     gaps: [
       counts.has("readiness")
-        ? "Someone logged here is already using decision readiness language — read those posts closely and say what the verdict actually rests on, which they do not."
-        : "Nobody logged here is claiming decision readiness — the gap between what someone can afford and whether they are ready for it is open ground.",
+        ? "Someone logged here is already using decision readiness language â€” read those posts closely and say what the verdict actually rests on, which they do not."
+        : "Nobody logged here is claiming decision readiness â€” the gap between what someone can afford and whether they are ready for it is open ground.",
       "The month after the purchase. Their posts stop at the closing; the anxiety starts after it.",
       '"Not yet" as a real answer with a date on it, rather than a softer way of saying no.',
     ],
     recommendations: [
-      "Afford ≠ ready — name the distinction nobody else in this feed is making.",
+      "Afford â‰  ready â€” name the distinction nobody else in this feed is making.",
       "What a readiness verdict rests on, and what it deliberately does not claim.",
       "The month after: what your budget actually looks like thirty days past the commitment.",
     ],
@@ -1689,7 +1689,7 @@ export const THEME_WEEKS: ThemeWeek[] = [
   {
     week: 3,
     label: "Social Proof / Insight",
-    description: "Data, an insight, or a real user moment — evidence rather than assertion.",
+    description: "Data, an insight, or a real user moment â€” evidence rather than assertion.",
     colorKey: "emerald",
     tone: "authority",
     studioCampaign: "social_proof",
@@ -1697,7 +1697,7 @@ export const THEME_WEEKS: ThemeWeek[] = [
   {
     week: 4,
     label: "Product / Path",
-    description: "Show what HōMI does, concretely. The path, the verdict, the next move.",
+    description: "Show what HÅMI does, concretely. The path, the verdict, the next move.",
     colorKey: "yellow",
     tone: "educational",
     studioCampaign: "product_path",
@@ -1705,7 +1705,7 @@ export const THEME_WEEKS: ThemeWeek[] = [
 ];
 
 /**
- * Days 1-7 are week one, 8-14 week two, and so on — deliberately not tied to
+ * Days 1-7 are week one, 8-14 week two, and so on â€” deliberately not tied to
  * which weekday the month starts on, so a theme never splits across a row.
  */
 export function themeForDayOfMonth(dayOfMonth: number): ThemeWeek {
@@ -1730,7 +1730,7 @@ export function daysInMonth(year: number, month: number): number {
  *
  * Not a weekday-aligned grid: the theme rotation is what the rows represent, so
  * padding the first row to the calendar weekday would put week one's theme on
- * blank cells. The final row is short rather than null-padded — a caller
+ * blank cells. The final row is short rather than null-padded â€” a caller
  * mapping over it gets real days and nothing else.
  */
 export function monthWeekRows(year: number, month: number): number[][] {
@@ -1776,7 +1776,7 @@ export function themeMonthExport(year: number, month: number): string {
   for (let day = 1; day <= daysInMonth(year, month); day += 1) {
     if (!isPostingDay(year, month, day)) continue;
     const theme = themeForDayOfMonth(day);
-    lines.push(`${themeDayKey(year, month, day)} — ${theme.label} — ${theme.studioCampaign}`);
+    lines.push(`${themeDayKey(year, month, day)} â€” ${theme.label} â€” ${theme.studioCampaign}`);
   }
   return lines.join("\n");
 }
@@ -1795,7 +1795,7 @@ export type WebhookPayload = {
   utm_link: string;
   utm_campaign: string;
   hashtags: string[];
-  /** Always null: HōMI composes, the downstream tool schedules. */
+  /** Always null: HÅMI composes, the downstream tool schedules. */
   scheduled_for: null;
   source: "homi-marketing-studio";
 };
@@ -1813,7 +1813,7 @@ export function buildWebhookPayload(post: {
 /**
  * https only. Draft copy leaves the browser on this URL, so plain http (or a
  * javascript:/data: URL pasted by accident) is refused rather than warned about.
- * Trimmed first — a URL pasted with trailing whitespace is a typo, not a
+ * Trimmed first â€” a URL pasted with trailing whitespace is a typo, not a
  * different protocol.
  */
 export function isValidWebhookUrl(url: string): boolean {
@@ -1823,3 +1823,165 @@ export function isValidWebhookUrl(url: string): boolean {
     return false;
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * Morning brief / week plan / rewrite (Agency OS P1)
+ * ------------------------------------------------------------------ */
+
+export type MorningBriefInput = {
+  uniqueActivated7d: number;
+  completions7d: number;
+  accountsLast7: number;
+  cohortRate7d: number | null;
+  waitlistTotal: number;
+  pendingApprovals: number;
+  resendConfigured: boolean;
+  topChannel: string;
+};
+
+export function buildMorningBriefPrompt(input: MorningBriefInput): string {
+  return [
+    "Write a CEO morning brief for HÅMI marketing. HARD RULES:",
+    "- Exactly 3 short sentences maximum.",
+    "- Name exactly ONE decision for the CEO today with a clear action.",
+    "- If nothing moved (all zeros / empty queue), say \"Nothing moved\" â€” do not invent narrative.",
+    "- Educational tone only. Never use: approved, pre-approved, pre-qualified, guaranteed, lender, credit score replacement.", // brand-ok: enumerating prohibited claim words for LLM instruction // brand-ok: claim-law denylist for model prompts
+    "",
+    "METRICS:",
+    `unique_activated_7d=${input.uniqueActivated7d}`,
+    `completions_7d=${input.completions7d}`,
+    `new_accounts_7d=${input.accountsLast7}`,
+    `cohort_rate=${input.cohortRate7d ?? "n/a"}`,
+    `waitlist_total=${input.waitlistTotal}`,
+    `pending_approvals=${input.pendingApprovals}`,
+    `resend_configured=${input.resendConfigured}`,
+    `top_channel=${input.topChannel || "unknown"}`,
+    "",
+    'Return JSON: { "brief": "three sentences max", "decision": "one concrete CEO action", "decision_href": "#desk-content" }',
+  ].join("\n");
+}
+
+export function templateMorningBrief(input: MorningBriefInput): {
+  brief: string;
+  decision: string;
+  decision_href: string;
+} {
+  const quiet =
+    input.uniqueActivated7d === 0 &&
+    input.accountsLast7 === 0 &&
+    input.pendingApprovals === 0 &&
+    input.waitlistTotal === 0;
+
+  if (quiet) {
+    return {
+      brief: "Nothing moved. No new activations, signups, or pending approvals in the last quiet window.",
+      decision: "Open Content desk and draft one founder post with a UTM link.",
+      decision_href: "#desk-content",
+    };
+  }
+
+  if (!input.resendConfigured) {
+    return {
+      brief: `Resend is blocked while ${input.uniqueActivated7d} unique users activated and ${input.pendingApprovals} items wait in the queue.`,
+      decision: "Fix Resend (Email desk) before loading any drip â€” sends cannot leave the building.",
+      decision_href: "#desk-email",
+    };
+  }
+
+  if (input.pendingApprovals > 0) {
+    return {
+      brief: `${input.pendingApprovals} draft(s) need CEO eyes. ${input.uniqueActivated7d} unique activated (7d); ${input.completions7d} completions.`,
+      decision: "Clear the approval queue â€” approve, edit with feedback, or reject each draft.",
+      decision_href: "#approval-queue",
+    };
+  }
+
+  if (input.accountsLast7 > 0 && input.uniqueActivated7d === 0) {
+    return {
+      brief: `${input.accountsLast7} new accounts and zero unique activations (7d) â€” path friction is the story, not content volume.`,
+      decision: "Walk the assessment path yourself, then fix the first drop-off before more traffic.",
+      decision_href: "/assessment",
+    };
+  }
+
+  const rate =
+    input.cohortRate7d !== null ? `${input.cohortRate7d}% cohort activation` : "cohort rate n/a (small n)";
+  return {
+    brief: `${input.uniqueActivated7d} unique activated users (7d), ${input.completions7d} completions, ${rate}. Top channel: ${input.topChannel || "direct/unknown"}.`,
+    decision: "Draft this week's Mon post from the engine slate and queue it for approval.",
+    decision_href: "#desk-content",
+  };
+}
+
+export type WeekSlotDraft = {
+  day: string;
+  theme: string;
+  topic: string;
+  campaign: string;
+  platform: SocialPlatform;
+};
+
+export function buildWeekPlanPrompt(): string {
+  return [
+    "Draft a 7-slot content week for HÅMI (Decision Companion). Mon/Wed/Fri are required posting days; include optional Tue/Thu.",
+    "Themes rotate: Founder Story, ICP Pain, Social Proof, Product/Path, Affordâ‰ Ready, Not yet, What HÅMI isn't.",
+    "Educational only. Never lender/approval language.",
+    'Return JSON: { "slots": [ { "day": "Mon", "theme": "...", "topic": "one sentence topic", "campaign": "utm_slug", "platform": "linkedin" } ] }',
+    "Exactly 5â€“7 slots. campaign must be snake_case.",
+  ].join("\n");
+}
+
+export function templateWeekPlan(): { slots: WeekSlotDraft[] } {
+  return {
+    slots: [
+      { day: "Mon", theme: "Founder Story", topic: "Why credit answers the wrong question", campaign: "w_founder_why", platform: "linkedin" },
+      { day: "Tue", theme: "ICP Pain", topic: "Afford â‰  ready â€” the anxiety under the pre-approval letter", campaign: "w_afford_ready", platform: "linkedin" }, // brand-ok: post topic quoting industry term to contrast against HÅMI positioning // brand-ok: topic names the banned phrase as the anxiety, not a claim
+      { day: "Wed", theme: "Product / Path", topic: "What a Build First verdict actually unlocks", campaign: "w_build_first", platform: "linkedin" },
+      { day: "Thu", theme: "Social Proof / Insight", topic: "Three questions before you escalate the commitment", campaign: "w_three_q", platform: "linkedin" },
+      { day: "Fri", theme: "What HÅMI isn't", topic: "Not a lender. Not a credit score. A Decision Companion.", campaign: "w_what_isnt", platform: "linkedin" },
+    ],
+  };
+}
+
+export function buildRewritePrompt(input: {
+  original: string;
+  feedback: string;
+  platform: SocialPlatform;
+}): string {
+  return [
+    `Rewrite this ${input.platform} post using the CEO feedback. Keep educational claim-law clean.`,
+    "Never use: approved, pre-approved, pre-qualified, guaranteed, our lenders, credit score replacement.", // brand-ok: enumerating prohibited claim words for LLM instruction // brand-ok: claim-law denylist for rewrite prompts
+    "",
+    "ORIGINAL:",
+    input.original,
+    "",
+    "FEEDBACK:",
+    input.feedback,
+    "",
+    'Return JSON: { "copy": "...", "hashtags": ["#..."] }',
+  ].join("\n");
+}
+
+export function templateRewrite(input: {
+  original: string;
+  feedback: string;
+  platform: SocialPlatform;
+}): { copy: string; hashtags: string[] } {
+  const note = input.feedback.trim() ? ` (${input.feedback.trim().slice(0, 80)})` : "";
+  const base = stripNeverSay(input.original).clean || input.original;
+  return {
+    copy: fitToLimit(
+      `${base}\n\nâ€” Revised for clarity${note}. Educational guidance only. Not a lender.`,
+      PLATFORM_LIMITS[input.platform],
+    ),
+    hashtags: defaultHashtags(input.platform),
+  };
+}
+
+/** Per-action model tiering (P3). */
+export function modelForAction(action: string): string {
+  const premium = new Set(["morning_brief", "week_plan", "scorecard_summary", "audience_insight"]);
+  if (premium.has(action)) return "claude-sonnet-4-20250514";
+  return "claude-haiku-4-5-20251001";
+}
+

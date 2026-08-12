@@ -11,7 +11,10 @@ import { MarketingTodayStrip } from "@/components/admin/MarketingTodayStrip";
 import { ActivationInstrument } from "@/components/admin/ActivationInstrument";
 import { AgencyControlTower } from "@/components/admin/AgencyControlTower";
 import { AgencyDesks } from "@/components/admin/AgencyDesks";
+import { ApprovalQueue } from "@/components/admin/ApprovalQueue";
+import { MorningBrief } from "@/components/admin/MorningBrief";
 import { UtmLinkBuilder } from "@/components/admin/UtmLinkBuilder";
+import type { MarketingAssetRow } from "@/lib/admin/agency-approvals";
 import { AudienceInsights } from "@/components/admin/AudienceInsights";
 import { SocialContentStudio } from "@/components/admin/SocialContentStudio";
 import { PostCaptionWriter } from "@/components/admin/PostCaptionWriter";
@@ -45,7 +48,6 @@ import {
   CLAIM_PREFER,
   ENGINE_WEEK_POSTS,
   LIBRARY_SECTIONS,
-  QUICK_ACTIONS,
 } from "@/lib/admin/marketing-command";
 import {
   MARKETING_SAMPLE_CAP,
@@ -172,6 +174,7 @@ export default async function AdminMarketingPage() {
   let campaigns: Campaign[] = [];
   let waitlistLast7 = 0;
   let everCompletedUserIds = new Set<string>();
+  let pendingAssets: MarketingAssetRow[] = [];
 
   try {
     const { count } = await supabase.from("waitlist").select("*", { count: "exact", head: true });
@@ -319,6 +322,42 @@ export default async function AdminMarketingPage() {
     }
   }
 
+  // Pending CEO queue (admin RLS via user client).
+  try {
+    const { data } = await supabase
+      .from("marketing_assets")
+      .select("*")
+      .in("status", ["draft", "in_review"])
+      .order("created_at", { ascending: false })
+      .limit(40);
+    pendingAssets = (data as MarketingAssetRow[] | null) ?? [];
+  } catch {
+    pendingAssets = [];
+  }
+
+  // Prefer SQL aggregates when migration is applied (P2/P3).
+  try {
+    const { data: series } = await supabase.rpc("marketing_activation_series", { p_days: 30 });
+    if (Array.isArray(series) && series.length > 0) {
+      activationSeries = series.map(
+        (row: { day: string; unique_users: number | string }) => {
+          const d = new Date(`${row.day}T00:00:00Z`);
+          return {
+            date: d.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              timeZone: "UTC",
+            }),
+            count: Number(row.unique_users) || 0,
+          };
+        },
+      );
+      metricsCapped = false;
+    }
+  } catch {
+    /* RPC missing until migration applied — keep JS series */
+  }
+
   const resendConfigured = Boolean(process.env.RESEND_API_KEY);
   const cohortRate7d = cohortActivationRatePct(cohortActivated7d, accountsLast7, MIN_COHORT_N);
   const cohortRateSuppressed = accountsLast7 > 0 && accountsLast7 < MIN_COHORT_N;
@@ -457,7 +496,22 @@ export default async function AdminMarketingPage() {
         secondaryAction={{ label: "Content desk", href: "#desk-content", variant: "ghost" }}
       />
 
-      {/* CEO attention */}
+      {/* First viewport: decide — brief + queue + north star */}
+      <MorningBrief
+        metrics={{
+          uniqueActivated7d,
+          completions7d,
+          accountsLast7,
+          cohortRate7d,
+          waitlistTotal,
+          pendingApprovals: pendingAssets.length,
+          resendConfigured,
+          topChannel: channels[0]?.key ?? "direct",
+        }}
+      />
+
+      <ApprovalQueue initialAssets={pendingAssets} />
+
       <MarketingTodayStrip primary={attention[0]} />
       {attention.length > 1 && (
         <div className="mt-4">
@@ -465,24 +519,56 @@ export default async function AdminMarketingPage() {
         </div>
       )}
 
-      {/* CEO control tower — agent fleet */}
-      <AgencyControlTower
-        signals={{
-          aiEnabled,
-          resendConfigured,
-          uniqueActivated7d,
-          accountsLast7,
-          waitlistTotal,
-          campaignDrafts,
-          campaignSent,
-          metricsCapped,
-        }}
-        uniqueActivated7d={uniqueActivated7d}
-        completions7d={completions7d}
-        cohortLine={cohortLine}
-      />
+      <div className="mt-6">
+        <MetricRail
+          cells={[
+            {
+              label: "Activated (7d)",
+              value: uniqueActivated7d.toLocaleString(),
+              footer: `${completions7d.toLocaleString()} completions`,
+              color: COLORS.emerald,
+            },
+            {
+              label: "Waitlist",
+              value: waitlistTotal.toLocaleString(),
+              footer: `${waitlistLast7.toLocaleString()} new · 7d`,
+              color: COLORS.amber,
+            },
+            {
+              label: "Paid",
+              value: paidTotal.toLocaleString(),
+              footer:
+                accountActivatePct !== null
+                  ? `${accountActivatePct}% activated · ${conversionPct}% paid`
+                  : "Tier mix below",
+              color: COLORS.yellow,
+            },
+          ]}
+        />
+      </div>
 
-      {/* Activation instrument — weekly engine + UTM */}
+      {/* Collapsible fleet — expand when you need the full board */}
+      <details className="glass mt-6 p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-light">
+          Agent fleet board · {pendingAssets.length} pending · {cohortLine}
+        </summary>
+        <AgencyControlTower
+          signals={{
+            aiEnabled,
+            resendConfigured,
+            uniqueActivated7d,
+            accountsLast7,
+            waitlistTotal,
+            campaignDrafts,
+            campaignSent,
+            metricsCapped,
+          }}
+          uniqueActivated7d={uniqueActivated7d}
+          completions7d={completions7d}
+          cohortLine={cohortLine}
+        />
+      </details>
+
       <ActivationInstrument
         uniqueActivated7d={uniqueActivated7d}
         completions7d={completions7d}
@@ -494,57 +580,9 @@ export default async function AdminMarketingPage() {
         utmSlot={<UtmLinkBuilder />}
       />
 
-      <div className="mt-6">
-        <MetricRail
-          cells={[
-            {
-              label: "Waitlist",
-              value: waitlistTotal.toLocaleString(),
-              footer: `${waitlistLast7.toLocaleString()} new · 7d`,
-              color: COLORS.amber,
-            },
-            {
-              label: "Accounts",
-              value: accountsTotal.toLocaleString(),
-              footer: `${accountsLast7.toLocaleString()} new · 7d`,
-              color: COLORS.cyan,
-            },
-            {
-              label: "Paid",
-              value: paidTotal.toLocaleString(),
-              footer:
-                accountActivatePct !== null
-                  ? `${accountActivatePct}% activated · ${conversionPct}% paid`
-                  : "Tier mix in Owned",
-              color: COLORS.yellow,
-            },
-          ]}
-        />
-      </div>
-
-      {/* Quick ops links */}
-      <div className="mt-6 flex flex-wrap gap-2">
-        {QUICK_ACTIONS.map((a) =>
-          a.external ? (
-            <a
-              key={a.href}
-              href={a.href}
-              target="_blank"
-              rel="noreferrer"
-              className="btn btn-ghost btn-sm"
-            >
-              {a.label}
-            </a>
-          ) : (
-            <Link key={a.href} href={a.href} className="btn btn-ghost btn-sm">
-              {a.label}
-            </Link>
-          ),
-        )}
-      </div>
-
-      {/* Full agent desks */}
+      {/* Full agent desks (lazy) */}
       <AgencyDesks
+        defaultDesk={pendingAssets.length > 0 ? "desk-content" : "desk-content"}
         panels={{
           "desk-strategy": (
             <div className="space-y-6">

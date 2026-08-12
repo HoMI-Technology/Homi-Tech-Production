@@ -84,6 +84,9 @@ export function SocialContentStudio() {
   const [repurposed, setRepurposed] = useState<RepurposedPost[]>([]);
   const [repurposing, setRepurposing] = useState(false);
   const [copiedTarget, setCopiedTarget] = useState<SocialPlatform | null>(null);
+  const [assetId, setAssetId] = useState<string | null>(null);
+  const [queueBusy, setQueueBusy] = useState(false);
+  const [queueMsg, setQueueMsg] = useState<string | null>(null);
 
   const meta = platformMeta(platform);
   const link = buildUtmUrl({
@@ -142,6 +145,8 @@ export function SocialContentStudio() {
     setCopied("none");
     // A new post invalidates whatever the last one was repurposed into.
     setRepurposed([]);
+    setAssetId(null);
+    setQueueMsg(null);
 
     try {
       const response = await fetch("/api/admin/marketing-ai", {
@@ -199,6 +204,44 @@ export function SocialContentStudio() {
       setLoading(false);
     }
   }, [platform, tone, topic, persona]);
+
+  const queueForApproval = useCallback(async () => {
+    if (!copy.trim()) return;
+    setQueueBusy(true);
+    setQueueMsg(null);
+    try {
+      const res = await fetch("/api/admin/marketing-assets", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          kind: "post",
+          platform,
+          title: topic.slice(0, 120) || "Founder post",
+          body: copy,
+          source: source ?? "human",
+          flagged,
+          agent_id: "content",
+          meta: {
+            hashtags,
+            utm_link: link,
+            utm_campaign: campaign,
+            tone,
+          },
+        }),
+      });
+      const data = (await res.json()) as { asset?: { id: string }; error?: string };
+      if (!res.ok || !data.asset) {
+        setQueueMsg(data.error ?? "Could not queue draft.");
+        return;
+      }
+      setAssetId(data.asset.id);
+      setQueueMsg("Queued for CEO approval.");
+    } catch {
+      setQueueMsg("Network error queuing draft.");
+    } finally {
+      setQueueBusy(false);
+    }
+  }, [copy, platform, topic, source, flagged, hashtags, link, campaign, tone]);
 
   /**
    * Adapt the LinkedIn post to the other three surfaces in one pass.
@@ -525,10 +568,19 @@ export function SocialContentStudio() {
             >
               {copied === "sent" ? "Added" : "Send to calendar"}
             </button>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={() => void queueForApproval()}
+              disabled={!copy || queueBusy}
+            >
+              {queueBusy ? "Queuing…" : assetId ? "Re-queue draft" : "Queue for CEO approval"}
+            </button>
           </div>
+          {queueMsg && <p className="mt-2 text-xs text-cyan">{queueMsg}</p>}
         </div>
 
-        {/* Publish + log. Both only make sense once there is a post. */}
+        {/* Publish only after queue + approve (server-gated). */}
         {copy && (
           <div className="mt-3 flex flex-wrap items-start justify-between gap-3 border-t border-white/5 pt-3">
             <WebhookPublishButtons
@@ -537,6 +589,7 @@ export function SocialContentStudio() {
               utmLink={link}
               utmCampaign={campaign || "founder_post"}
               hashtags={hashtags}
+              assetId={assetId}
             />
             <a
               href={`/admin/marketing?log_campaign=${encodeURIComponent(campaign || "founder_post")}`}

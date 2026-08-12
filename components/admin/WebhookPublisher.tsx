@@ -30,12 +30,8 @@ function readWebhook(target: WebhookTarget): string {
 }
 
 /**
- * POST the payload to an operator-configured webhook.
- *
- * No server proxy: Buffer and Make webhook endpoints are CORS-enabled, and
- * routing draft copy through HōMI's own server would mean storing a third-party
- * secret URL server-side for no gain. isValidWebhookUrl keeps the target to
- * https so a mistyped or hostile URL cannot exfiltrate in the clear.
+ * Test-only direct webhook POST (settings panel). Real publish must go through
+ * /api/admin/marketing-publish with an approved assetId.
  */
 async function postToWebhook(url: string, payload: unknown): Promise<string | null> {
   if (!isValidWebhookUrl(url)) return "That webhook URL is not a valid https address.";
@@ -58,6 +54,8 @@ export type WebhookPublishButtonsProps = {
   utmLink: string;
   utmCampaign: string;
   hashtags: string[];
+  /** When set, publish is server-gated (must be CEO-approved). */
+  assetId?: string | null;
 };
 
 /**
@@ -73,6 +71,7 @@ export function WebhookPublishButtons({
   utmLink,
   utmCampaign,
   hashtags,
+  assetId,
 }: WebhookPublishButtonsProps) {
   const [sent, setSent] = useState<WebhookTarget | null>(null);
   const [busy, setBusy] = useState<WebhookTarget | null>(null);
@@ -81,24 +80,35 @@ export function WebhookPublishButtons({
   async function send(target: WebhookTarget) {
     const url = readWebhook(target);
     if (!url) {
-      setError(`No ${TARGET_LABELS[target]} webhook saved yet — set one in Publish webhooks below.`);
+      setError(`No ${TARGET_LABELS[target]} webhook saved yet — set one in Publish desk.`);
+      return;
+    }
+
+    if (!assetId) {
+      setError("Queue and approve this draft first — publish is server-gated (CEO eyes).");
       return;
     }
 
     setBusy(target);
     setError(null);
-    const failure = await postToWebhook(
-      url,
-      buildWebhookPayload({ platform, copy, utm_link: utmLink, utm_campaign: utmCampaign, hashtags }),
-    );
-    setBusy(null);
-
-    if (failure) {
-      setError(failure);
-      return;
+    try {
+      const res = await fetch("/api/admin/marketing-publish", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ assetId, webhookUrl: url, target }),
+      });
+      const data = (await res.json()) as { error?: string };
+      setBusy(null);
+      if (!res.ok) {
+        setError(data.error ?? `Publish failed (${res.status}).`);
+        return;
+      }
+      setSent(target);
+      window.setTimeout(() => setSent(null), 3000);
+    } catch {
+      setBusy(null);
+      setError("Publish network error.");
     }
-    setSent(target);
-    window.setTimeout(() => setSent(null), 3000);
   }
 
   return (
@@ -112,7 +122,12 @@ export function WebhookPublishButtons({
               sent === target ? "btn btn-sm border border-emerald/40 text-emerald" : "btn btn-ghost btn-sm"
             }
             onClick={() => void send(target)}
-            disabled={!copy || busy !== null}
+            disabled={!copy || busy !== null || !assetId}
+            title={
+              assetId
+                ? `Publish approved asset via ${TARGET_LABELS[target]}`
+                : "Approve in the CEO queue before publishing"
+            }
           >
             {sent === target
               ? `Sent to ${TARGET_LABELS[target]}`
@@ -122,6 +137,11 @@ export function WebhookPublishButtons({
           </button>
         ))}
       </div>
+      {!assetId && (
+        <p className="text-3xs text-dim">
+          Publish disabled until this draft is queued and approved (CEO eyes).
+        </p>
+      )}
       {error && (
         <p role="alert" className="text-xs text-crimson">
           {error}
