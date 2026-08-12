@@ -334,9 +334,9 @@ export default async function DashboardPage() {
             />
           ) : latest ? (
             <>
-              <div className="grid items-center gap-7 lg:grid-cols-[minmax(0,188px)_1fr] lg:gap-10">
+              <div className="grid items-center gap-7 lg:grid-cols-[minmax(0,140px)_1fr] lg:gap-10">
                 <div className="flex justify-center lg:justify-start">
-                  <ThresholdCompass size={176} verdict={verdict ?? undefined} />
+                  <ThresholdCompass size={128} verdict={verdict ?? undefined} />
                 </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">

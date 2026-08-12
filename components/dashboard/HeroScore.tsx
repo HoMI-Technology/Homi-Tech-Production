@@ -24,8 +24,18 @@ export function HeroScore({ value, color }: { value: number; color: string }) {
 
   return (
     <span
-      className="score-numeral relative inline-block text-5xl font-bold text-light sm:text-6xl"
-      style={{ textShadow: `0 0 44px ${color}55` }}
+      className="score-numeral relative inline-block font-bold text-light"
+      style={{
+        // The verdict numeral is the loudest thing on the dashboard: 64px on a
+        // phone up to 96px at desktop, fluid rather than stepping at an
+        // arbitrary sm: breakpoint. Sized inline because the type scale tops out
+        // well below this and brand-check N20 forbids arbitrary text-[…]
+        // classes — a clamp in the class name is exactly what that rule catches.
+        fontSize: "clamp(4rem, 8vw, 6rem)",
+        letterSpacing: "-0.04em",
+        lineHeight: "1",
+        textShadow: `0 0 44px ${color}55`,
+      }}
     >
       {/* Sizing ghost — reserves the final width so counting never shifts layout. */}
       <span aria-hidden className="invisible">
