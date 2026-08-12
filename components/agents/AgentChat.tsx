@@ -10,6 +10,7 @@ import {
   saveThreadMessages,
   pullAdvisorThread,
 } from "@/lib/advisor/thread-store";
+import { fetchLatestStoredAssessment } from "@/lib/assessment/latest";
 import type { AgentId, AgentMode } from "@/lib/agents/registry";
 
 type Role = "user" | "assistant";
@@ -83,7 +84,9 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
 
   useEffect(() => {
     setMessages(loadThreadMessages("chat"));
-    setHasAssessment(Boolean(buildCompanionContext().assessment));
+    void fetchLatestStoredAssessment().then((latest) => {
+      setHasAssessment(Boolean(latest ?? buildCompanionContext().assessment));
+    });
 
     let cancelled = false;
     void pullAdvisorThread("chat").then((thread) => {
@@ -120,7 +123,8 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
     setSending(true);
 
     try {
-      const { assessment, finance, whatChanged } = buildCompanionContext();
+      const latest = await fetchLatestStoredAssessment();
+      const { assessment, finance, whatChanged } = buildCompanionContext(undefined, latest);
       const res = await fetch("/api/agents", {
         method: "POST",
         headers: { "content-type": "application/json" },
