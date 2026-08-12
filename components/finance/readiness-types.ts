@@ -1,4 +1,4 @@
-import type { AssessmentResult } from "@/lib/scoring/engine";
+import type { AssessmentResult } from "@/lib/scoring/public";
 import type { VerdictKey } from "@/lib/brand";
 
 export type PillarKey = "financial" | "emotional" | "timing";

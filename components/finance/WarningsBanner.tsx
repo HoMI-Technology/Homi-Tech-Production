@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { TriangleAlert } from "lucide-react";
 import { COLORS } from "@/lib/brand";
-import type { AssessmentResult } from "@/lib/scoring/engine";
+import type { AssessmentResult } from "@/lib/scoring/public";
 
 /**
  * Warnings banner — amber, slim, canon protective tone.
