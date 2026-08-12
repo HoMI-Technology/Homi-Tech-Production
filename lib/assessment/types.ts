@@ -9,10 +9,10 @@ export type EmergencyFundChoice = "lt1" | "1to3" | "3to6" | "6plus";
 export type TimeHorizonChoice = "lt3" | "3to6" | "6to12" | "12plus";
 
 /**
- * Decision-type foundation. Only "home_buying" is active today — the rest
- * are placeholders for future decision verticals. No branching logic exists
- * yet; this is purely a UI foundation and a value stored alongside the
- * assessment's decision_type column.
+ * Decision-type foundation. Car vertical active. Home buying + car are
+ * production-enabled; the remaining slugs are placeholders for future
+ * verticals. Branching runs off this value through the question bank, the
+ * mapper registry, and per-vertical copy. See Plans.md 5.9.
  */
 export type DecisionType =
   | "home_buying"
@@ -29,7 +29,12 @@ export const DECISION_TYPE_LABELS: Record<DecisionType, string> = {
   starting_a_business: "Starting a business",
 };
 
-export const ACTIVE_DECISION_TYPES: DecisionType[] = ["home_buying"];
+/**
+ * CLIENT allowlist: what the picker offers. Phase 2 of the 5.9 ParallelChange —
+ * SERVER_ACTIVE_DECISION_TYPES already accepts "car", so this cannot out-run
+ * the server. Invariant asserted in __tests__/decision-type-canon.test.ts.
+ */
+export const ACTIVE_DECISION_TYPES: DecisionType[] = ["home_buying", "car"];
 
 /** Who brought this decision to the user. Optional, skippable, never scored. */
 export type ReferralSourceChoice = "me" | "family" | "agent" | "lender";
