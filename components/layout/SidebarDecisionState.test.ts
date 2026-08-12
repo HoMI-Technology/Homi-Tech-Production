@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { parseLatestVerdict } from "@/components/layout/SidebarDecisionState";
+import { footerChipModel, parseLatestVerdict } from "@/components/layout/SidebarDecisionState";
+import { VERDICT_META } from "@/lib/brand";
 
 /**
  * The sidebar decision block reads a user-writable localStorage blob and wraps
@@ -60,5 +61,48 @@ describe("parseLatestVerdict", () => {
     ["a NaN score", JSON.stringify({ verdict: "READY", score: null })],
   ])("returns null for %s", (_label, raw) => {
     expect(parseLatestVerdict(raw)).toBeNull();
+  });
+});
+
+/**
+ * The footer chip is a link, and at rail width its label is not painted — so
+ * the two things that must hold are where it points and what it announces.
+ */
+describe("footerChipModel", () => {
+  it("points at /results and announces score + verdict", () => {
+    const chip = footerChipModel({
+      verdict: "BUILD_FIRST",
+      score: 61,
+      heldDays: 12,
+      decisionType: "Home Buying",
+    });
+    expect(chip).toEqual({
+      href: "/results",
+      color: VERDICT_META.BUILD_FIRST.color,
+      score: "61",
+      label: VERDICT_META.BUILD_FIRST.label,
+      meta: "Held 12d",
+      ariaLabel: `Readiness score 61, ${VERDICT_META.BUILD_FIRST.label}. View results.`,
+    });
+  });
+
+  it("drops the meta line when the hold is unknown", () => {
+    const chip = footerChipModel({
+      verdict: "READY",
+      score: 88,
+      heldDays: null,
+      decisionType: null,
+    });
+    expect(chip.meta).toBeNull();
+    expect(chip.href).toBe("/results");
+  });
+
+  it("routes the empty state to /assessment with no pinned color", () => {
+    const chip = footerChipModel(null);
+    expect(chip.href).toBe("/assessment");
+    expect(chip.color).toBeNull();
+    expect(chip.score).toBe("—");
+    // The accessible name must not read as a score of zero.
+    expect(chip.ariaLabel).toMatch(/no readiness score yet/i);
   });
 });

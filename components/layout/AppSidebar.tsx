@@ -28,6 +28,7 @@ import { CommandPalette } from "@/components/layout/CommandPalette";
 import {
   SidebarDecisionState,
   SidebarPulseStrip,
+  footerChipModel,
   useLatestVerdict,
   useVerdictAccent,
   type LatestVerdict,
@@ -199,30 +200,76 @@ function SidebarNav({
   );
 }
 
-function SidebarFooter({ email, expanded }: { email: string | null; expanded: boolean }) {
+/**
+ * Bottom-of-rail readiness chip — the last thing the eye lands on before it
+ * leaves the sidebar. It restates the header block's verdict + score at the
+ * point of exit and links straight back to /results (or to /assessment when
+ * nothing is cached).
+ *
+ * Collapsed to the 72px rail it degrades to the centered number alone; the link
+ * carries an explicit aria-label so the verdict is still announced when the
+ * label is not painted.
+ */
+function SidebarScoreChip({ state, expanded }: { state: LatestVerdict | null; expanded: boolean }) {
+  const chip = footerChipModel(state);
+  const color = chip.color ?? undefined;
+
   return (
-    <div className={`border-t border-white/5 px-3 py-3 ${expanded ? "" : "max-xl:hidden"}`}>
+    <Link
+      href={chip.href}
+      aria-label={chip.ariaLabel}
+      className={`sidebar-footer-chip ${expanded ? "sidebar-footer-chip--expanded" : ""}`}
+    >
+      <span aria-hidden className="num sidebar-footer-score" style={{ color }}>
+        {chip.score}
+      </span>
+      <span aria-hidden className={`sidebar-footer-text ${expanded ? "" : "max-xl:hidden"}`}>
+        <span className="sidebar-footer-label" style={{ color }}>
+          {chip.label}
+        </span>
+        {chip.meta && <span className="sidebar-footer-meta">{chip.meta}</span>}
+      </span>
+    </Link>
+  );
+}
+
+function SidebarFooter({
+  email,
+  decisionState,
+  expanded,
+}: {
+  email: string | null;
+  decisionState: LatestVerdict | null;
+  expanded: boolean;
+}) {
+  // Labels go screen-reader-only (not display:none) on the rail so the icon
+  // rows keep an accessible name without a title-attribute fallback.
+  const labelHidden = expanded ? "" : "max-xl:sr-only";
+  const row = `flex items-center gap-3 rounded-lg px-3 py-1.5 text-sm font-medium text-dim transition-colors hover:bg-white/[0.04] hover:text-light ${
+    expanded ? "min-h-11" : "min-h-10 max-xl:justify-center max-xl:px-2 xl:min-h-11"
+  }`;
+
+  return (
+    <div className={`border-t border-white/5 px-3 py-2.5 ${expanded ? "" : "max-xl:px-2"}`}>
+      <SidebarScoreChip state={decisionState} expanded={expanded} />
       {email && (
-        <p className="truncate px-3 pb-2 text-2xs text-dim" title={email}>
+        <p
+          className={`truncate px-3 pb-1.5 text-2xs text-dim ${expanded ? "" : "max-xl:hidden"}`}
+          title={email}
+        >
           {email}
         </p>
       )}
-      <Link
-        href="/settings"
-        className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-dim transition-colors hover:bg-white/[0.04] hover:text-light"
-      >
+      <Link href="/settings" title="Settings" className={row}>
         <Settings aria-hidden className="size-[18px] shrink-0" strokeWidth={1.75} />
-        <span className="truncate">Settings</span>
+        <span className={`truncate ${labelHidden}`}>Settings</span>
       </Link>
       {/* Sign-out lived in the AppHeader account menu; without it the signed-in
           shell would have no logout affordance at all. */}
       <form action="/auth/sign-out" method="post">
-        <button
-          type="submit"
-          className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium text-dim transition-colors hover:bg-white/[0.04] hover:text-light"
-        >
+        <button type="submit" title="Sign out" className={`w-full text-left ${row}`}>
           <X aria-hidden className="size-[18px] shrink-0" strokeWidth={1.75} />
-          <span className="truncate">Sign out</span>
+          <span className={`truncate ${labelHidden}`}>Sign out</span>
         </button>
       </form>
     </div>
@@ -360,7 +407,7 @@ export function AppSidebar({
         <SidebarDecisionState state={decisionState} expanded={false} />
         <SidebarNav pathname={pathname} pillId="nav-pill" expanded={false} />
         <SidebarPulseStrip state={decisionState} expanded={false} />
-        <SidebarFooter email={email} expanded={false} />
+        <SidebarFooter email={email} decisionState={decisionState} expanded={false} />
       </aside>
 
       {/* Mobile drawer */}
@@ -405,7 +452,7 @@ export function AppSidebar({
               <SidebarDecisionState state={decisionState} expanded />
               <SidebarNav pathname={pathname} pillId="nav-pill-drawer" expanded />
               <SidebarPulseStrip state={decisionState} expanded />
-              <SidebarFooter email={email} expanded />
+              <SidebarFooter email={email} decisionState={decisionState} expanded />
             </motion.aside>
           </>
         )}

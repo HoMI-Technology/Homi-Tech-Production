@@ -122,6 +122,54 @@ export function useVerdictAccent(state: LatestVerdict | null): void {
   }, [state]);
 }
 
+/**
+ * Presentation model for the sidebar *footer* readiness chip.
+ *
+ * Lives here, beside the verdict parsing, rather than inside AppSidebar's JSX:
+ * the routing target and the announced name are the two things worth pinning in
+ * a test, and doing that here costs no shell mount (AppSidebar drags in
+ * usePathname + framer-motion).
+ */
+export type FooterChipModel = {
+  /** /results once there is something to show, /assessment before that. */
+  href: string;
+  /** Verdict color, or null in the empty state — the chip then inherits the
+   *  --sidebar-verdict-color default published by :root. */
+  color: string | null;
+  /** Score glyph. An em dash when nothing has been assessed yet. */
+  score: string;
+  label: string;
+  /** Dim second line, or null when there is nothing to add. */
+  meta: string | null;
+  /** Accessible name for the link — the chip's own text is decorative, and at
+   *  rail width most of it is not painted at all. */
+  ariaLabel: string;
+};
+
+export function footerChipModel(state: LatestVerdict | null): FooterChipModel {
+  const meta = state ? VERDICT_META[state.verdict] : null;
+
+  if (!state || !meta) {
+    return {
+      href: "/assessment",
+      color: null,
+      score: "—",
+      label: "Assess",
+      meta: "No score yet",
+      ariaLabel: "No readiness score yet — start an assessment",
+    };
+  }
+
+  return {
+    href: "/results",
+    color: meta.color,
+    score: String(state.score),
+    label: meta.label,
+    meta: state.heldDays === null ? null : `Held ${state.heldDays}d`,
+    ariaLabel: `Readiness score ${state.score}, ${meta.label}. View results.`,
+  };
+}
+
 /** Sidebar header block: verdict pill, score hero, decision + hold eyebrow. */
 export function SidebarDecisionState({
   state,
