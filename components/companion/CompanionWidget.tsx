@@ -581,7 +581,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
               type="button"
               onClick={() => sendMessage(input)}
               disabled={sending || !input.trim()}
-              className="btn btn-primary btn-sm !px-3 disabled:opacity-50"
+              className="btn btn-primary btn-sm px-3 disabled:opacity-50"
               aria-label="Send message"
             >
               <svg
