@@ -180,9 +180,87 @@ export default async function AdminMarketingPage() {
       <PageHeader
         eyebrow="Admin"
         title="Marketing"
-        description="Acquisition funnel, signup momentum, and demand from live platform data."
+        description="Acquisition funnel plus the marketing source of truth (assets, GTM OS, launch kit)."
         primaryAction={{ label: "Waitlist", href: "/admin/waitlist", variant: "ghost" }}
+        secondaryAction={{
+          label: "Asset library",
+          href: "/marketing/README.md",
+          variant: "ghost",
+        }}
       />
+
+      <div className="glass mt-6 p-6">
+        <SectionHeader
+          eyebrow="Source of truth"
+          title="Marketing library"
+          subtitle="Canonical files live in public/marketing/ (GitHub + live site). Desktop kits are working copies only."
+        />
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            {
+              label: "GTM OS (7 pillars)",
+              href: "/marketing/README.md",
+              hint: "Activation · email · founder channel · claim law · weekly ritual",
+            },
+            {
+              label: "Weekly scoreboard",
+              href: "/marketing/gtm/WEEKLY-SCOREBOARD.md",
+              hint: "Fill every Sunday — activations are the score",
+            },
+            {
+              label: "Launch day checklist",
+              href: "/marketing/gtm/LAUNCH_DAY.md",
+              hint: "Exact files + post order for launch",
+            },
+            {
+              label: "Avatars & covers",
+              href: "/marketing/brand/avatars/homi-threshold-compass-avatar-512.png",
+              hint: "Profile 512 · covers under /marketing/brand/covers/",
+            },
+            {
+              label: "Live product screens",
+              href: "/marketing/screenshots/live/homi_live_01_home.png",
+              hint: "Production captures for PH + press",
+            },
+            {
+              label: "Demo video (60s)",
+              href: "/marketing/launch/demo-video/HOMI-Demo-60s.mp4",
+              hint: "Problem → pillars → what we’re not → CTA",
+            },
+            {
+              label: "Press kit + PDFs",
+              href: "/marketing/launch/press-kit/pdf/HOMI-One-Pager-Partners-Investors.pdf",
+              hint: "One-pager · FAQ · logos · screens",
+            },
+            {
+              label: "Launch emails (4)",
+              href: "/marketing/launch/emails/01-teaser.md",
+              hint: "Teaser · live · how to start · what we aren’t",
+            },
+            {
+              label: "Product Hunt gallery",
+              href: "/marketing/launch/product-hunt/gallery-live/homi_ph_live_01_home.png",
+              hint: "Live-UI gallery preferred over abstract-only",
+            },
+          ].map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              target="_blank"
+              rel="noreferrer"
+              className="glass-hover block rounded-lg border border-white/5 p-4 transition-colors"
+            >
+              <p className="text-sm font-medium text-light">{item.label}</p>
+              <p className="mt-1 text-xs text-dim">{item.hint}</p>
+              <p className="mt-2 font-mono text-3xs text-cyan/80">public/marketing/…</p>
+            </a>
+          ))}
+        </div>
+        <p className="mt-4 text-xs text-dim">
+          North star: <span className="text-emerald">activations</span> (completed readiness path) —
+          not followers. Claim law: never approved / guaranteed / credit-score replacement.
+        </p>
+      </div>
 
       <div className="mt-6">
         <MetricRail

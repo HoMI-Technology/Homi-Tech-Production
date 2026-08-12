@@ -21,6 +21,14 @@ Do **not** invent a parallel ops process. Point the user at the manual section +
 - **Default branch:** `main`
 - **Never** treat Desktop `HoMI Tech` dumps, zips, or other clones as product truth.
 
+### Marketing assets & GTM (canonical)
+
+- **Path:** `public/marketing/` (served at `/marketing/…` on the live site)
+- **Admin hub:** `/admin/marketing` (funnel metrics + library links)
+- **Index:** `public/marketing/README.md`
+- **GTM OS (7 pillars):** `public/marketing/gtm/`
+- All new marketing assets (social, press, emails, demo, screenshots) land **here** and are committed to GitHub. Desktop `homi-social-kit` is a working mirror only.
+
 ## 1:1 rule (local ↔ GitHub)
 
 1. Before work: `git pull --ff-only` on `main` (or `homi-ssot.ps1 pull`).

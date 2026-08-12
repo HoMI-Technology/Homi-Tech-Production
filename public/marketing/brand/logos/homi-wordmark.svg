@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" role="img" aria-label="HōMI wordmark">
+  <title>HōMI Wordmark</title>
+  <desc>The HōMI wordmark with canonical colors: H cyan, o-macron emerald, M yellow, I cyan</desc>
+  <text x="4" y="38" font-family="Inter, system-ui, sans-serif" font-weight="900" font-size="42" letter-spacing="-2">
+    <tspan fill="#22d3ee">H</tspan><tspan fill="#34d399">ō</tspan><tspan fill="#facc15">M</tspan><tspan fill="#22d3ee">I</tspan>
+  </text>
+</svg>
