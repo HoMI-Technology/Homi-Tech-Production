@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { Sparkline } from "@/components/ui/Sparkline";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { BarSeries } from "@/components/admin/BarSeries";
 import { FunnelBars, type FunnelStage } from "@/components/admin/FunnelBars";
 import { RankedBars } from "@/components/admin/RankedBars";
 import { MarketingLibrary } from "@/components/admin/MarketingLibrary";
+import { MarketingTodayStrip } from "@/components/admin/MarketingTodayStrip";
+import { ActivationInstrument } from "@/components/admin/ActivationInstrument";
 import { UtmLinkBuilder } from "@/components/admin/UtmLinkBuilder";
 import { AudienceInsights } from "@/components/admin/AudienceInsights";
 import { SocialContentStudio } from "@/components/admin/SocialContentStudio";
@@ -35,9 +36,7 @@ import {
   CLAIM_PREFER,
   ENGINE_WEEK_POSTS,
   LIBRARY_SECTIONS,
-  MARKETING_LOCK,
   QUICK_ACTIONS,
-  buildUtmUrl,
 } from "@/lib/admin/marketing-command";
 import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
 import { hasAnthropic } from "@/lib/env";
@@ -392,71 +391,39 @@ export default async function AdminMarketingPage() {
     });
   }
 
-  const linkedInAssessment = buildUtmUrl({
-    path: "/assessment",
-    source: "linkedin",
-    medium: "social",
-    campaign: "command_center",
-  });
-
-  return (
+return (
     <div>
       <PageHeader
         eyebrow="Growth · Command center"
         title="Marketing"
-        description="One place to run HōMI growth: north-star activations, funnel, email OS, GTM engine, assets, and claim law."
+        description="Post the slate, tag links, load email — then prove activations. This is the weekly growth cockpit."
         primaryAction={{ label: "Email", href: "/admin/email", variant: "primary" }}
         secondaryAction={{ label: "Waitlist", href: "/admin/waitlist", variant: "ghost" }}
       />
 
-      {/* Mission lock */}
-      <div className="glass mt-6 border border-cyan/15 p-5">
-        <p className="text-3xs font-semibold uppercase tracking-wide text-cyan">Mission lock</p>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <p className="text-xs text-dim">Primary channel (90d)</p>
-            <p className="mt-0.5 text-sm font-semibold text-light">{MARKETING_LOCK.channel}</p>
-          </div>
-          <div>
-            <p className="text-xs text-dim">North star</p>
-            <p className="mt-0.5 text-sm font-semibold text-emerald">{MARKETING_LOCK.northStar}</p>
-          </div>
-          <div>
-            <p className="text-xs text-dim">PH this quarter</p>
-            <p className="mt-0.5 text-sm font-semibold text-light">{MARKETING_LOCK.phThisQuarter}</p>
-          </div>
-          <div>
-            <p className="text-xs text-dim">GTM hours / week</p>
-            <p className="mt-0.5 text-sm font-semibold text-light">{MARKETING_LOCK.hoursPerWeek}</p>
-          </div>
+      {/* 1. Today strip — primary attention + Engine · Proof · Email · Scoreboard */}
+      <MarketingTodayStrip primary={attention[0]} />
+
+      {/* 2. Secondary attention only (never re-list primary) */}
+      {attention.length > 1 && (
+        <div className="mt-4">
+          <AttentionStrip items={attention.slice(1)} title="Also needs attention" />
         </div>
-        <p className="mt-4 text-xs leading-relaxed text-dim">
-          <span className="text-light">ICP:</span> {MARKETING_LOCK.icp}
-          <span className="mx-2 text-white/20">|</span>
-          <span className="text-light">Anti-ICP:</span> {MARKETING_LOCK.antiIcp}
-        </p>
-        <p className="mt-2 text-xs text-dim">
-          {MARKETING_LOCK.claimOneLiner} · Pricing: {MARKETING_LOCK.pricing}
-        </p>
-      </div>
+      )}
 
-      <div className="mt-6">
-        <AttentionStrip items={attention} title="Needs attention" />
-      </div>
+      {/* 3. Activation Instrument — north star + engine + UTM */}
+      <ActivationInstrument
+        activationsLast7={activationsLast7}
+        accountsLast7={accountsLast7}
+        activationRate7d={activationRate7d}
+        activationSeries={activationSeries}
+        utmSlot={<UtmLinkBuilder />}
+      />
 
-      {/* North-star metrics */}
+      {/* 4. MetricRail — Waitlist · Accounts · Paid only (no activations) */}
       <div className="mt-6">
         <MetricRail
           cells={[
-            {
-              label: "Activations (7d)",
-              value: activationsLast7.toLocaleString(),
-              footer:
-                activationRate7d !== null
-                  ? `${activationRate7d}% of new accounts (7d)`
-                  : "Completed readiness path",
-              color: COLORS.emerald,
-            },
             {
               label: "Waitlist",
               value: waitlistTotal.toLocaleString(),
@@ -474,51 +441,15 @@ export default async function AdminMarketingPage() {
               value: paidTotal.toLocaleString(),
               footer:
                 accountActivatePct !== null
-                  ? `${accountActivatePct}% accounts activated · ${conversionPct}% paid`
-                  : "Tier mix below",
+                  ? `${accountActivatePct}% activated · ${conversionPct}% paid`
+                  : "Tier mix in Owned",
               color: COLORS.yellow,
             },
           ]}
         />
-        {(activationSeries.length >= 2 ||
-          waitlistSeries.length >= 2 ||
-          signupSeries.length >= 2) && (
-          <div className="mt-3 flex flex-wrap justify-end gap-6">
-            {activationSeries.length >= 2 && (
-              <div className="w-36">
-                <p className="mb-1 text-3xs uppercase tracking-wide text-dim">Activations</p>
-                <Sparkline
-                  id="mk-activations"
-                  values={activationSeries.map((d) => d.count)}
-                  color={COLORS.emerald}
-                />
-              </div>
-            )}
-            {waitlistSeries.length >= 2 && (
-              <div className="w-36">
-                <p className="mb-1 text-3xs uppercase tracking-wide text-dim">Waitlist</p>
-                <Sparkline
-                  id="mk-waitlist"
-                  values={waitlistSeries.map((d) => d.count)}
-                  color={COLORS.amber}
-                />
-              </div>
-            )}
-            {signupSeries.length >= 2 && (
-              <div className="w-36">
-                <p className="mb-1 text-3xs uppercase tracking-wide text-dim">Signups</p>
-                <Sparkline
-                  id="mk-signups"
-                  values={signupSeries.map((d) => d.count)}
-                  color={COLORS.cyan}
-                />
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
-      {/* Quick actions */}
+      {/* 5. Quick actions */}
       <div className="mt-8">
         <SectionHeader
           eyebrow="Command"
@@ -552,477 +483,436 @@ export default async function AdminMarketingPage() {
         </div>
       </div>
 
-      {/* Agency suite — read the audience, then write against it. Each panel is
-          its own client island; the page stays a server component. */}
-      <AudienceInsights
-        verdictCounts={verdictCounts}
-        channelRows={channelRows}
-        interestCounts={interestCounts}
-        aiEnabled={hasAnthropic()}
-      />
-      <SocialContentStudio />
-      <PostCaptionWriter />
-      <ContentCalendar enginePosts={ENGINE_WEEK_POSTS} />
+      {/* 6. Proof — always expanded */}
+      <section
+        id="proof"
+        className="mt-10 scroll-mt-[calc(var(--nav-offset)+3.5rem)]"
+        aria-label="Proof"
+      >
+        <SectionHeader
+          eyebrow="Prove"
+          title="Activations & attribution"
+          subtitle="Numbers that decide whether this week’s work created readiness completions."
+        />
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <div className="glass panel-focus p-6">
+            <SectionHeader
+              eyebrow="North star"
+              title="Activations — last 30 days"
+              subtitle="Completed assessments per day. Followers are not the score."
+            />
+            <div className="mt-4">
+              {activationSeries.length === 0 ? (
+                <p className="py-10 text-center text-sm text-dim">
+                  No activations in the last 30 days.
+                </p>
+              ) : (
+                <BarSeries
+                  id="mk-activations-30d"
+                  counts={activationSeries}
+                  color={COLORS.emerald}
+                  height={150}
+                  ariaLabel="Completed assessments over the last 30 days"
+                />
+              )}
+            </div>
+            <p className="mt-3 text-xs text-dim">
+              Drop-off proxy (7d): {accountsLast7.toLocaleString()} accounts →{" "}
+              {activationsLast7.toLocaleString()} activations
+              {activationRate7d !== null ? ` (${activationRate7d}%)` : ""}.
+            </p>
+          </div>
 
-      {/* Engine this week + UTM */}
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <div className="glass p-6">
-          <SectionHeader
-            eyebrow="Engine"
-            title="This week’s LinkedIn slate"
-            subtitle="Default Week 1 posts. Full calendar in ENGINE-2-WEEKS."
-          />
-          <ul className="mt-5 space-y-3">
-            {ENGINE_WEEK_POSTS.map((p) => (
-              <li
-                key={p.campaign}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-white/5 px-3 py-2.5"
+          <div className="glass p-6">
+            <SectionHeader
+              eyebrow="Attribution"
+              title="Source of last 10 activations"
+              subtitle="First-touch snapshot on the assessment row."
+            />
+            <div className="mt-4 overflow-x-auto">
+              {last10Activations.length === 0 ? (
+                <p className="py-10 text-center text-sm text-dim">No completed assessments yet.</p>
+              ) : (
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-white/10 text-3xs uppercase tracking-wide text-dim">
+                      <th className="pb-2 pr-3 font-medium">When (UTC)</th>
+                      <th className="pb-2 pr-3 font-medium">Channel</th>
+                      <th className="pb-2 font-medium">Detail</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {last10Activations.map((row, i) => (
+                      <tr key={`${row.when}-${i}`} className="border-b border-white/5">
+                        <td className="py-2 pr-3 text-light">{row.when}</td>
+                        <td className="py-2 pr-3 font-mono text-xs text-cyan">{row.channel}</td>
+                        <td className="py-2 text-xs text-dim">{row.source}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+            <Link
+              href="/admin/attribution"
+              className="mt-4 inline-block text-sm text-cyan hover:underline"
+            >
+              Full attribution dashboard →
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-3">
+          <div className="glass p-6 lg:col-span-1">
+            <SectionHeader
+              eyebrow="Funnel"
+              title="Lifetime stages"
+              subtitle="Waitlist → account → activation → paid."
+            />
+            <div className="mt-5">
+              <FunnelBars stages={funnel} />
+            </div>
+          </div>
+          <div className="glass p-6">
+            <SectionHeader
+              eyebrow="Channels"
+              title="Signup sources"
+              subtitle="First-touch on profiles (includes direct)."
+            />
+            <div className="mt-5">
+              <RankedBars rows={channelRows} emptyLabel="No channel data yet." />
+            </div>
+          </div>
+          <div className="glass p-6">
+            <SectionHeader
+              eyebrow="Outcomes"
+              title="Verdict mix"
+              subtitle="Completed assessments by verdict."
+            />
+            <div className="mt-5">
+              <RankedBars rows={verdictRows} emptyLabel="No verdicts yet." />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. Owned — email + revenue + demand */}
+      <section
+        id="owned"
+        className="mt-10 scroll-mt-[calc(var(--nav-offset)+3.5rem)]"
+        aria-label="Owned audience"
+      >
+        <SectionHeader
+          eyebrow="Own"
+          title="Email & demand"
+          subtitle="Resend + admin campaigns. Launch sequence lives under public/marketing/launch/emails/."
+        />
+
+        <div className="glass mt-6 p-6">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <SectionHeader
+              eyebrow="Owned audience"
+              title="Email OS"
+              subtitle="Load launch 01–04 as drafts. Do not blast a cold list."
+            />
+            <div className="flex flex-wrap gap-2">
+              <span
+                className={`rounded-full border px-2.5 py-1 text-3xs font-semibold uppercase tracking-wide ${
+                  resendConfigured
+                    ? "border-emerald/40 bg-emerald/10 text-emerald"
+                    : "border-crimson/40 bg-crimson/10 text-light"
+                }`}
               >
-                <div>
-                  <p className="text-sm font-medium text-light">
-                    <span className="text-cyan">{p.day}</span> · {p.title}
-                  </p>
-                  <p className="mt-0.5 font-mono text-3xs text-dim">{p.campaign}</p>
-                </div>
-                <div className="flex gap-2">
-                  <a href={p.asset} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
-                    Asset
-                  </a>
-                  <a
-                    href={buildUtmUrl({
-                      path: "/assessment",
-                      source: "linkedin",
-                      medium: "social",
-                      campaign: p.campaign,
-                    })}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="btn btn-ghost btn-sm"
-                  >
-                    UTM link
-                  </a>
-                </div>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <a
-              href="/marketing/gtm/ENGINE-2-WEEKS.md"
-              target="_blank"
-              rel="noreferrer"
-              className="btn btn-ghost btn-sm"
-            >
-              Full 2-week runbook
-            </a>
-            <a
-              href="/marketing/gtm/weeks/WEEK-1-SCOREBOARD.md"
-              target="_blank"
-              rel="noreferrer"
-              className="btn btn-ghost btn-sm"
-            >
-              Week 1 scoreboard
-            </a>
-            <a
-              href="/marketing/content/copy/CAPTIONS.md"
-              target="_blank"
-              rel="noreferrer"
-              className="btn btn-ghost btn-sm"
-            >
-              Captions
-            </a>
+                Resend {resendConfigured ? "key set" : "not configured"}
+              </span>
+              <Link href="/admin/email" className="btn btn-primary btn-sm">
+                Open composer
+              </Link>
+            </div>
           </div>
-          <p className="mt-4 text-xs text-dim">
-            Daily: ~10 ICP comments (help first). Sunday: copy activations + last 10 sources into the
-            scoreboard.
-          </p>
-        </div>
-
-        <div id="utm-builder" className="glass p-6">
-          <SectionHeader
-            eyebrow="Attribution"
-            title="UTM link builder"
-            subtitle="Stamp every public link so channel truth is real."
-          />
-          <div className="mt-5">
-            <UtmLinkBuilder />
-          </div>
-          <p className="mt-4 text-xs text-dim">
-            Quick LinkedIn default:{" "}
-            <a href={linkedInAssessment} className="font-mono text-cyan hover:underline">
-              assessment?utm_source=linkedin…
-            </a>
-          </p>
-        </div>
-      </div>
-
-      {/* Activations + sources */}
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <div className="glass panel-focus p-6">
-          <SectionHeader
-            eyebrow="North star"
-            title="Activations — last 30 days"
-            subtitle="Completed assessments per day. Followers are not the score."
-          />
-          <div className="mt-4">
-            {activationSeries.length === 0 ? (
-              <p className="py-10 text-center text-sm text-dim">
-                No activations in the last 30 days.
+          <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <div>
+              <p className="text-xs text-dim">Campaigns</p>
+              <p className="score-numeral mt-1 text-2xl text-light">{campaigns.length}</p>
+            </div>
+            <div>
+              <p className="text-xs text-dim">Drafts</p>
+              <p className="score-numeral mt-1 text-2xl text-light">{campaignDrafts}</p>
+            </div>
+            <div>
+              <p className="text-xs text-dim">Sent</p>
+              <p className="score-numeral mt-1 text-2xl text-light">{campaignSent}</p>
+            </div>
+            <div>
+              <p className="text-xs text-dim">Waitlist</p>
+              <p className="score-numeral mt-1 text-2xl text-light">
+                {waitlistTotal.toLocaleString()}
               </p>
-            ) : (
-              <BarSeries
-                id="mk-activations-30d"
-                counts={activationSeries}
-                color={COLORS.emerald}
-                height={150}
-                ariaLabel="Completed assessments over the last 30 days"
-              />
-            )}
+            </div>
           </div>
-          <p className="mt-3 text-xs text-dim">
-            Drop-off proxy (7d): {accountsLast7.toLocaleString()} accounts →{" "}
-            {activationsLast7.toLocaleString()} activations
-            {activationRate7d !== null ? ` (${activationRate7d}%)` : ""}.
-          </p>
-        </div>
-
-        <div className="glass p-6">
-          <SectionHeader
-            eyebrow="Attribution"
-            title="Source of last 10 activations"
-            subtitle="First-touch snapshot on the assessment row."
-          />
-          <div className="mt-4 overflow-x-auto">
-            {last10Activations.length === 0 ? (
-              <p className="py-10 text-center text-sm text-dim">No completed assessments yet.</p>
-            ) : (
+          {campaigns.length === 0 ? (
+            <p className="mt-5 text-sm text-dim">
+              No campaigns yet. Create four drafts from launch emails 01–04.{" "}
+              <a
+                href="/marketing/launch/emails/README.md"
+                target="_blank"
+                rel="noreferrer"
+                className="text-cyan hover:underline"
+              >
+                Load path →
+              </a>
+            </p>
+          ) : (
+            <div className="mt-5 overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-white/10 text-3xs uppercase tracking-wide text-dim">
-                    <th className="pb-2 pr-3 font-medium">When (UTC)</th>
-                    <th className="pb-2 pr-3 font-medium">Channel</th>
-                    <th className="pb-2 font-medium">Detail</th>
+                    <th className="pb-2 pr-3 font-medium">Name</th>
+                    <th className="pb-2 pr-3 font-medium">Status</th>
+                    <th className="pb-2 pr-3 font-medium">Audience</th>
+                    <th className="pb-2 font-medium">Recipients</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {last10Activations.map((row, i) => (
-                    <tr key={`${row.when}-${i}`} className="border-b border-white/5">
-                      <td className="py-2 pr-3 text-light">{row.when}</td>
-                      <td className="py-2 pr-3 font-mono text-xs text-cyan">{row.channel}</td>
-                      <td className="py-2 text-xs text-dim">{row.source}</td>
+                  {campaigns.slice(0, 8).map((c) => (
+                    <tr key={c.id} className="border-b border-white/5">
+                      <td className="py-2 pr-3 text-light">{c.name || c.subject}</td>
+                      <td className="py-2 pr-3 font-mono text-xs text-cyan">{c.status}</td>
+                      <td className="py-2 pr-3 text-xs text-dim">{c.audience}</td>
+                      <td className="py-2 text-xs text-dim">{c.recipient_count}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            )}
-          </div>
-          <Link href="/admin/attribution" className="mt-4 inline-block text-sm text-cyan hover:underline">
-            Full attribution dashboard →
-          </Link>
+            </div>
+          )}
         </div>
-      </div>
 
-      {/* Funnel · channels · verdicts */}
-      <div className="mt-8 grid gap-6 lg:grid-cols-3">
-        <div className="glass p-6 lg:col-span-1">
+        <div className="glass mt-6 p-6">
           <SectionHeader
-            eyebrow="Funnel"
-            title="Lifetime stages"
-            subtitle="Waitlist → account → activation → paid."
+            eyebrow="Revenue"
+            title="Recurring revenue"
+            subtitle="List-price MRR proxy from active paid tiers (admin comps excluded)."
           />
-          <div className="mt-5">
-            <FunnelBars stages={funnel} />
+          <div className="mt-5 grid grid-cols-2 gap-6 sm:grid-cols-4">
+            <div>
+              <p className="text-xs text-dim">MRR (est.)</p>
+              <p className="score-numeral mt-1 text-3xl text-light">{formatUsdFromCents(mrrCents)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-dim">ARR run-rate</p>
+              <p className="score-numeral mt-1 text-3xl text-light">{formatUsdFromCents(arr)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-dim">ARPU / payer</p>
+              <p className="score-numeral mt-1 text-3xl text-light">{formatUsdFromCents(arpu)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-dim">Paid conversion</p>
+              <p className="score-numeral mt-1 text-3xl text-light">{conversionPct}%</p>
+              <p className="mt-1 text-xs text-dim">
+                {paidTotal.toLocaleString()} of {accountsTotal.toLocaleString()} accounts
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="glass p-6">
-          <SectionHeader
-            eyebrow="Channels"
-            title="Signup sources"
-            subtitle="First-touch on profiles (includes direct)."
-          />
-          <div className="mt-5">
-            <RankedBars rows={channelRows} emptyLabel="No channel data yet." />
-          </div>
-        </div>
-        <div className="glass p-6">
-          <SectionHeader
-            eyebrow="Outcomes"
-            title="Verdict mix"
-            subtitle="Completed assessments by verdict."
-          />
-          <div className="mt-5">
-            <RankedBars rows={verdictRows} emptyLabel="No verdicts yet." />
-          </div>
-        </div>
-      </div>
-
-      {/* Email OS */}
-      <div className="glass mt-8 p-6">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <SectionHeader
-            eyebrow="Owned audience"
-            title="Email OS"
-            subtitle="Resend + admin campaigns. Launch sequence lives in public/marketing/launch/emails/."
-          />
-          <div className="flex flex-wrap gap-2">
-            <span
-              className={`rounded-full border px-2.5 py-1 text-3xs font-semibold uppercase tracking-wide ${
-                resendConfigured
-                  ? "border-emerald/40 bg-emerald/10 text-emerald"
-                  : "border-crimson/40 bg-crimson/10 text-light"
-              }`}
-            >
-              Resend {resendConfigured ? "key set" : "not configured"}
-            </span>
-            <Link href="/admin/email" className="btn btn-primary btn-sm">
-              Open composer
-            </Link>
-          </div>
-        </div>
-        <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div>
-            <p className="text-xs text-dim">Campaigns</p>
-            <p className="score-numeral mt-1 text-2xl text-light">{campaigns.length}</p>
-          </div>
-          <div>
-            <p className="text-xs text-dim">Drafts</p>
-            <p className="score-numeral mt-1 text-2xl text-light">{campaignDrafts}</p>
-          </div>
-          <div>
-            <p className="text-xs text-dim">Sent</p>
-            <p className="score-numeral mt-1 text-2xl text-light">{campaignSent}</p>
-          </div>
-          <div>
-            <p className="text-xs text-dim">Waitlist</p>
-            <p className="score-numeral mt-1 text-2xl text-light">{waitlistTotal.toLocaleString()}</p>
-          </div>
-        </div>
-        {campaigns.length === 0 ? (
-          <p className="mt-5 text-sm text-dim">
-            No campaigns yet. Create four drafts from launch emails 01–04 — do not blast an empty or
-            cold list.{" "}
-            <a
-              href="/marketing/launch/emails/README.md"
-              target="_blank"
-              rel="noreferrer"
-              className="text-cyan hover:underline"
-            >
-              Load path →
-            </a>
-          </p>
-        ) : (
-          <div className="mt-5 overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-white/10 text-3xs uppercase tracking-wide text-dim">
-                  <th className="pb-2 pr-3 font-medium">Name</th>
-                  <th className="pb-2 pr-3 font-medium">Status</th>
-                  <th className="pb-2 pr-3 font-medium">Audience</th>
-                  <th className="pb-2 font-medium">Recipients</th>
-                </tr>
-              </thead>
-              <tbody>
-                {campaigns.slice(0, 8).map((c) => (
-                  <tr key={c.id} className="border-b border-white/5">
-                    <td className="py-2 pr-3 text-light">{c.name || c.subject}</td>
-                    <td className="py-2 pr-3 font-mono text-xs text-cyan">{c.status}</td>
-                    <td className="py-2 pr-3 text-xs text-dim">{c.audience}</td>
-                    <td className="py-2 text-xs text-dim">{c.recipient_count}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Revenue */}
-      <div className="glass mt-8 p-6">
-        <SectionHeader
-          eyebrow="Revenue"
-          title="Recurring revenue"
-          subtitle="List-price MRR proxy from active paid tiers (admin comps excluded)."
-        />
-        <div className="mt-5 grid grid-cols-2 gap-6 sm:grid-cols-4">
-          <div>
-            <p className="text-xs text-dim">MRR (est.)</p>
-            <p className="score-numeral mt-1 text-3xl text-light">{formatUsdFromCents(mrrCents)}</p>
-          </div>
-          <div>
-            <p className="text-xs text-dim">ARR run-rate</p>
-            <p className="score-numeral mt-1 text-3xl text-light">{formatUsdFromCents(arr)}</p>
-          </div>
-          <div>
-            <p className="text-xs text-dim">ARPU / payer</p>
-            <p className="score-numeral mt-1 text-3xl text-light">{formatUsdFromCents(arpu)}</p>
-          </div>
-          <div>
-            <p className="text-xs text-dim">Paid conversion</p>
-            <p className="score-numeral mt-1 text-3xl text-light">{conversionPct}%</p>
-            <p className="mt-1 text-xs text-dim">
-              {paidTotal.toLocaleString()} of {accountsTotal.toLocaleString()} accounts
-            </p>
-          </div>
-        </div>
-        <div className="mt-6 grid gap-6 lg:grid-cols-2">
-          <div>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-dim">Tier mix</p>
-            {totalTiered === 0 ? (
-              <p className="text-sm text-dim">No accounts yet.</p>
-            ) : (
-              <div className="space-y-3">
-                {TIER_ORDER.map((tier) => {
-                  const count = tierCounts[tier];
-                  const pct = totalTiered > 0 ? Math.round((count / totalTiered) * 100) : 0;
-                  const color = TIER_COLORS[tier];
-                  return (
-                    <div key={tier}>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="flex items-center gap-2 font-semibold capitalize text-light">
-                          <span
-                            aria-hidden
-                            className="inline-block h-2 w-2 rounded-full"
-                            style={{ background: color, boxShadow: `0 0 8px ${color}` }}
+          <div className="mt-6 grid gap-6 lg:grid-cols-2">
+            <div>
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-dim">Tier mix</p>
+              {totalTiered === 0 ? (
+                <p className="text-sm text-dim">No accounts yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {TIER_ORDER.map((tier) => {
+                    const count = tierCounts[tier];
+                    const pct = totalTiered > 0 ? Math.round((count / totalTiered) * 100) : 0;
+                    const color = TIER_COLORS[tier];
+                    return (
+                      <div key={tier}>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="flex items-center gap-2 font-semibold capitalize text-light">
+                            <span
+                              aria-hidden
+                              className="inline-block h-2 w-2 rounded-full"
+                              style={{ background: color, boxShadow: `0 0 8px ${color}` }}
+                            />
+                            {tier}
+                          </span>
+                          <span className="score-numeral text-dim">
+                            {count.toLocaleString()} · {pct}%
+                          </span>
+                        </div>
+                        <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-surface">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${pct}%`,
+                              background: `linear-gradient(90deg, ${color}99, ${color})`,
+                            }}
                           />
-                          {tier}
-                        </span>
-                        <span className="score-numeral text-dim">
-                          {count.toLocaleString()} · {pct}%
-                        </span>
+                        </div>
                       </div>
-                      <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-surface">
-                        <div
-                          className="h-full rounded-full"
-                          style={{
-                            width: `${pct}%`,
-                            background: `linear-gradient(90deg, ${color}99, ${color})`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-          <div>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-dim">
-              Momentum (30d)
-            </p>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <p className="mb-1 text-3xs text-dim">Signups</p>
-                {signupSeries.length === 0 ? (
-                  <p className="text-xs text-dim">—</p>
-                ) : (
-                  <BarSeries
-                    id="mk-signups-30d"
-                    counts={signupSeries}
-                    color={COLORS.cyan}
-                    height={100}
-                    ariaLabel="Account signups last 30 days"
-                  />
-                )}
-              </div>
-              <div>
-                <p className="mb-1 text-3xs text-dim">Waitlist</p>
-                {waitlistSeries.length === 0 ? (
-                  <p className="text-xs text-dim">—</p>
-                ) : (
-                  <BarSeries
-                    id="mk-waitlist-30d"
-                    counts={waitlistSeries}
-                    color={COLORS.amber}
-                    height={100}
-                    ariaLabel="Waitlist last 30 days"
-                  />
-                )}
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            <div>
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-dim">
+                Momentum (30d)
+              </p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p className="mb-1 text-3xs text-dim">Signups</p>
+                  {signupSeries.length === 0 ? (
+                    <p className="text-xs text-dim">—</p>
+                  ) : (
+                    <BarSeries
+                      id="mk-signups-30d"
+                      counts={signupSeries}
+                      color={COLORS.cyan}
+                      height={100}
+                      ariaLabel="Account signups last 30 days"
+                    />
+                  )}
+                </div>
+                <div>
+                  <p className="mb-1 text-3xs text-dim">Waitlist</p>
+                  {waitlistSeries.length === 0 ? (
+                    <p className="text-xs text-dim">—</p>
+                  ) : (
+                    <BarSeries
+                      id="mk-waitlist-30d"
+                      counts={waitlistSeries}
+                      color={COLORS.amber}
+                      height={100}
+                      ariaLabel="Waitlist last 30 days"
+                    />
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Demand */}
-      <div className="glass mt-8 p-6">
-        <SectionHeader
-          eyebrow="Demand"
-          title="What the waitlist wants"
-          subtitle="Interest areas at signup — content backlog fuel."
-        />
-        <div className="mt-5 max-w-2xl">
-          <RankedBars
-            rows={interestCounts.map((i) => ({ label: i.interest, count: i.count }))}
-            total={totalInterest || undefined}
-            emptyLabel="No interest tags captured yet."
-          />
-        </div>
-      </div>
-
-      {/* Claim law */}
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <div className="glass border border-crimson/20 p-6">
+        <div className="glass mt-6 p-6">
           <SectionHeader
-            eyebrow="Claim law"
-            title="Never say"
-            subtitle="Marketing, product UI, support, PH, ads — no exceptions under growth pressure."
+            eyebrow="Demand"
+            title="What the waitlist wants"
+            subtitle="Interest areas at signup — content backlog fuel."
           />
-          <ul className="mt-4 space-y-2 text-sm text-dim">
-            {CLAIM_NEVER_SAY.map((line) => (
-              <li key={line} className="flex gap-2">
-                <span className="text-crimson" aria-hidden>
-                  ×
-                </span>
-                <span>{line}</span>
-              </li>
-            ))}
-          </ul>
-          <a
-            href="/marketing/gtm/SUPPORT-ARE-YOU-A-LENDER.md"
-            target="_blank"
-            rel="noreferrer"
-            className="mt-5 inline-block text-sm text-cyan hover:underline"
-          >
-            “Are you a lender?” script →
-          </a>
+          <div className="mt-5 max-w-2xl">
+            <RankedBars
+              rows={interestCounts.map((i) => ({ label: i.interest, count: i.count }))}
+              total={totalInterest || undefined}
+              emptyLabel="No interest tags captured yet."
+            />
+          </div>
         </div>
-        <div className="glass border border-emerald/20 p-6">
-          <SectionHeader
-            eyebrow="Claim law"
-            title="Always prefer"
-            subtitle="Language that stays educational and decision-ready."
-          />
-          <ul className="mt-4 space-y-2 text-sm text-dim">
-            {CLAIM_PREFER.map((line) => (
-              <li key={line} className="flex gap-2">
-                <span className="text-emerald" aria-hidden>
-                  ✓
-                </span>
-                <span>{line}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-5 text-xs text-dim">{MARKETING_LOCK.claimOneLiner}</p>
-        </div>
-      </div>
+      </section>
 
-      {/* Asset library */}
-      <div className="glass mt-8 p-6">
+      {/* 8. Agency suite AFTER proof (PR1: still expanded) */}
+      <section
+        id="create"
+        className="mt-10 scroll-mt-[calc(var(--nav-offset)+3.5rem)]"
+        aria-label="Create"
+      >
         <SectionHeader
-          eyebrow="Source of truth"
-          title="Marketing library"
-          subtitle="Canonical under public/marketing/ (GitHub + live). Desktop kits are working copies only."
+          eyebrow="Create"
+          title="Agency suite"
+          subtitle="Audience insights, social studio, captions, content calendar — after you can prove activations."
         />
-        <div className="mt-6">
-          <MarketingLibrary sections={LIBRARY_SECTIONS} />
+        <div className="mt-6 space-y-6">
+          <AudienceInsights
+            verdictCounts={verdictCounts}
+            channelRows={channelRows}
+            interestCounts={interestCounts}
+            aiEnabled={hasAnthropic()}
+          />
+          <SocialContentStudio />
+          <PostCaptionWriter />
+          <ContentCalendar enginePosts={ENGINE_WEEK_POSTS} />
         </div>
-        <p className="mt-6 text-xs text-dim">
-          Full index:{" "}
-          <a href="/marketing/README.md" target="_blank" rel="noreferrer" className="text-cyan">
-            /marketing/README.md
-          </a>
-          . Do not ship more graphics until engine Week 1–2 scoreboards are filled.
-        </p>
-      </div>
+      </section>
+
+      {/* 9. Claim law */}
+      <section
+        id="claim"
+        className="mt-10 scroll-mt-[calc(var(--nav-offset)+3.5rem)]"
+        aria-label="Claim law"
+      >
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="glass border border-crimson/20 p-6">
+            <SectionHeader
+              eyebrow="Claim law"
+              title="Never say"
+              subtitle="Marketing, product UI, support, PH, ads — no exceptions under growth pressure."
+            />
+            <ul className="mt-4 space-y-2 text-sm text-dim">
+              {CLAIM_NEVER_SAY.map((line) => (
+                <li key={line} className="flex gap-2">
+                  <span className="text-crimson" aria-hidden>
+                    ×
+                  </span>
+                  <span>{line}</span>
+                </li>
+              ))}
+            </ul>
+            <a
+              href="/marketing/gtm/SUPPORT-ARE-YOU-A-LENDER.md"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-5 inline-block text-sm text-cyan hover:underline"
+            >
+              “Are you a lender?” script →
+            </a>
+          </div>
+          <div className="glass border border-emerald/20 p-6">
+            <SectionHeader
+              eyebrow="Claim law"
+              title="Always prefer"
+              subtitle="Language that stays educational and decision-ready."
+            />
+            <ul className="mt-4 space-y-2 text-sm text-dim">
+              {CLAIM_PREFER.map((line) => (
+                <li key={line} className="flex gap-2">
+                  <span className="text-emerald" aria-hidden>
+                    ✓
+                  </span>
+                  <span>{line}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-5 text-xs text-dim">
+              Educational guidance only. Not a lender. Not a credit score replacement.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 10. Library */}
+      <section
+        id="library"
+        className="mt-10 scroll-mt-[calc(var(--nav-offset)+3.5rem)]"
+        aria-label="Marketing library"
+      >
+        <div className="glass p-6">
+          <SectionHeader
+            eyebrow="Source of truth"
+            title="Marketing library"
+            subtitle="Canonical under public/marketing/ (GitHub + live). Desktop kits are working copies only."
+          />
+          <div className="mt-6">
+            <MarketingLibrary sections={LIBRARY_SECTIONS} />
+          </div>
+          <p className="mt-6 text-xs text-dim">
+            Full index:{" "}
+            <a href="/marketing/README.md" target="_blank" rel="noreferrer" className="text-cyan">
+              /marketing/README.md
+            </a>
+            . Do not ship more graphics until engine Week 1–2 scoreboards are filled.
+          </p>
+        </div>
+      </section>
     </div>
   );
 }

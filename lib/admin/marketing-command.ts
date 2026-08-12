@@ -375,3 +375,64 @@ export function buildUtmUrl(opts: {
   u.searchParams.set("utm_campaign", opts.campaign);
   return u.toString();
 }
+
+/** Canonical Today strip secondaries (PR1+). Claim/Library/Create never appear here. */
+export type TodayCta = {
+  label: string;
+  href: string;
+  external?: boolean;
+};
+
+const TODAY_SECONDARIES_DEFAULT: TodayCta[] = [
+  { label: "Engine", href: "#engine" },
+  { label: "Proof", href: "#proof" },
+  { label: "Email", href: "/admin/email" },
+  {
+    label: "Scoreboard",
+    href: "/marketing/gtm/weeks/WEEK-1-SCOREBOARD.md",
+    external: true,
+  },
+];
+
+const TODAY_SECONDARIES_SUNDAY: TodayCta[] = [
+  {
+    label: "Scoreboard",
+    href: "/marketing/gtm/weeks/WEEK-1-SCOREBOARD.md",
+    external: true,
+  },
+  { label: "Engine", href: "#engine" },
+  { label: "Proof", href: "#proof" },
+  { label: "Email", href: "/admin/email" },
+];
+
+/**
+ * True when the current weekday in America/New_York is Sunday.
+ * Independent of engine week-id strings (PR1 Sunday bias).
+ */
+export function isSundayInNy(now: Date = new Date()): boolean {
+  const weekday = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    weekday: "short",
+  }).format(now);
+  return weekday === "Sun";
+}
+
+/**
+ * Secondary Today CTAs. On Sunday (NY), Scoreboard is first.
+ * When primary attention CTA is already Scoreboard, omit the Scoreboard secondary.
+ */
+export function todaySecondaryCtas(opts?: {
+  now?: Date;
+  primaryIsScoreboard?: boolean;
+}): TodayCta[] {
+  const base = isSundayInNy(opts?.now) ? TODAY_SECONDARIES_SUNDAY : TODAY_SECONDARIES_DEFAULT;
+  if (!opts?.primaryIsScoreboard) return base;
+  return base.filter((c) => c.label !== "Scoreboard");
+}
+
+/** Truncate mission chip / claim line for instrument calm. */
+export function truncateLabel(text: string, max: number): string {
+  const t = text.trim();
+  if (t.length <= max) return t;
+  return `${t.slice(0, Math.max(0, max - 1)).trimEnd()}…`;
+}
