@@ -19,6 +19,7 @@ import { categoryLabel } from "@/lib/planner/calendar";
 import { formatCurrency } from "@/lib/tools/format";
 import { COLORS } from "@/lib/brand";
 import type { CategoryId, TransactionType } from "@/lib/planner/types";
+import EmptyState from "@/components/planner/ui/EmptyState";
 import {
   DEFAULT_FILTER,
   filterTransactions,
@@ -271,11 +272,22 @@ export function TransactionsCommand() {
         </table>
 
         {rows.length === 0 && (
-          <p className="px-3 py-8 text-center text-sm text-dim">
-            {filtered
-              ? "Nothing matches those filters."
-              : "No transactions yet — add one from the header."}
-          </p>
+          <EmptyState
+            compact
+            illustration={!filtered}
+            line={
+              filtered
+                ? "Nothing matches those filters."
+                : "No transactions yet — your ledger starts empty."
+            }
+            caption={
+              filtered
+                ? "Clear filters to see every entry again."
+                : "Add a real income or expense. Sample numbers are for education only."
+            }
+            actionLabel={filtered ? "Clear filters" : undefined}
+            onAction={filtered ? () => setFilter(DEFAULT_FILTER) : undefined}
+          />
         )}
       </div>
     </section>

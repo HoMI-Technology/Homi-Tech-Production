@@ -68,6 +68,7 @@ import {
   usePlannerScore,
   useBehaviorNudges,
 } from "@/components/planner/hooks";
+import EmptyState from "@/components/planner/ui/EmptyState";
 
 /* ------------------------------------------------------------------ */
 /* Local view helpers                                                  */
@@ -446,36 +447,31 @@ function StartHonest({ onNavigateTab }: { onNavigateTab?: (tab: SignalTab) => vo
   const isEmpty = usePlannerIsEmpty();
   if (!isEmpty) return null;
 
-  const cards: Array<{
-    n: number;
+  const steps: Array<{
     title: string;
     body: string;
     cta: string;
     tab: SignalTab | null;
   }> = [
     {
-      n: 1,
       title: "Accounts",
       body: "Add checking and savings balances you trust.",
       cta: "Open Banks",
       tab: "banking",
     },
     {
-      n: 2,
       title: "Ledger",
       body: "Record income and expenses so cash flow is true.",
-      cta: "Stay on Overview",
+      cta: "Add below",
       tab: null,
     },
     {
-      n: 3,
       title: "Bills",
       body: "Schedule obligations; pay them to close the loop.",
       cta: "Open Banks",
       tab: "banking",
     },
     {
-      n: 4,
       title: "Path",
       body: "Generate protective steps from live runway, DTI, and cash.",
       cta: "Open Plan",
@@ -487,30 +483,41 @@ function StartHonest({ onNavigateTab }: { onNavigateTab?: (tab: SignalTab) => vo
     <Section
       eyebrow="Start honest"
       title="Add real numbers — no sample data"
-      caption="HōMI scores what you enter. Link cash, log spend, schedule bills, then generate Path to Ready. Educational guidance only — not advice or a lending decision."
+      caption="HōMI scores what you enter. Educational guidance only — not advice or a lending decision."
     >
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {cards.map((card) => (
-          <div key={card.n} className="card-chrome flex flex-col p-4">
-            <span className="font-display text-sm font-semibold tnum text-cyan">
-              {card.n} · {card.title}
-            </span>
-            <p className="mt-2 flex-1 text-xs leading-relaxed text-dim">{card.body}</p>
-            {card.tab && onNavigateTab ? (
+      <div className="card-chrome px-4 py-2 sm:px-6">
+        <EmptyState
+          illustration
+          line="Your ledger is empty — start with cash you trust."
+          caption="Link balances, log spend, schedule bills, then generate Path to Ready. No invented money."
+          actionLabel={onNavigateTab ? "Open Banks" : undefined}
+          onAction={onNavigateTab ? () => onNavigateTab("banking") : undefined}
+        />
+      </div>
+      <ol className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {steps.map((step, i) => (
+          <li key={step.title} className="border-t border-white/[0.06] pt-3">
+            <p className="font-display text-sm font-semibold text-cyan">
+              <span className="tnum">{i + 1}</span>
+              <span className="text-dim"> · </span>
+              {step.title}
+            </p>
+            <p className="mt-1.5 text-xs leading-relaxed text-dim">{step.body}</p>
+            {step.tab && onNavigateTab ? (
               <button
                 type="button"
-                onClick={() => onNavigateTab(card.tab as SignalTab)}
-                className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-cyan transition-opacity hover:opacity-80"
+                onClick={() => onNavigateTab(step.tab as SignalTab)}
+                className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-cyan transition-opacity hover:opacity-80"
               >
-                {card.cta}
+                {step.cta}
                 <ArrowRight size={12} />
               </button>
             ) : (
-              <span className="mt-3 text-xs font-medium text-dim">{card.cta}</span>
+              <span className="mt-2 inline-block text-xs font-medium text-dim">{step.cta}</span>
             )}
-          </div>
+          </li>
         ))}
-      </div>
+      </ol>
     </Section>
   );
 }
@@ -1546,9 +1553,20 @@ function TransactionsCard() {
     >
       <div className="card-chrome p-2 sm:p-3">
         {filtered.length === 0 ? (
-          <p className="py-10 text-center text-sm text-dim">
-            No transactions yet. Add income or an expense to get started.
-          </p>
+          <EmptyState
+            compact
+            illustration={transactions.length === 0}
+            line={
+              transactions.length === 0
+                ? "No transactions yet — add income or an expense."
+                : "Nothing in this filter."
+            }
+            caption={
+              transactions.length === 0
+                ? "Real entries only. Cash flow stays honest when the ledger is yours."
+                : "Try All, or switch Income / Expense."
+            }
+          />
         ) : (
           <ul className="divide-y divide-white/[0.04]">
             {filtered.map((tx) => (
