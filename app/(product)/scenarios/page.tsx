@@ -10,7 +10,7 @@ import {
   saveReadinessPath,
   SCENARIO_DISCLAIMER,
 } from "@/lib/readiness";
-import { loadLocalResult } from "@/lib/assessment/storage";
+import { useLatestAssessment } from "@/hooks/use-latest-assessment";
 import { hasSavedFinanceState, loadFinanceState } from "@/lib/finance/store";
 import type { ScenarioKey, SimulationInputs } from "@/lib/decisions/simulate";
 import { NetPositionChart } from "@/components/decisions/NetPositionChart";
@@ -40,7 +40,7 @@ const SCENARIO_META: Record<string, { color: string; borderClass: string; descri
 };
 
 export default function ScenariosPage() {
-  const stored = useMemo(() => loadLocalResult(), []);
+  const { assessment: stored } = useLatestAssessment();
   const seeded = useMemo(() => {
     if (!hasSavedFinanceState()) return scenarioInputsFromFinance({});
     const f = loadFinanceState();
@@ -61,12 +61,12 @@ export default function ScenariosPage() {
   }
 
   function fundScenario(scenarioKey: ScenarioKey) {
-    const stored = loadLocalResult();
+    const current = stored;
     const path = generatePathFromScenario({
       inputs,
       scenarioKey,
-      assessmentResult: stored?.result ?? null,
-      assessmentCompletedAt: stored?.completedAt ?? null,
+      assessmentResult: current?.result ?? null,
+      assessmentCompletedAt: current?.completedAt ?? null,
     });
     saveReadinessPath(path);
     setPathMsg(

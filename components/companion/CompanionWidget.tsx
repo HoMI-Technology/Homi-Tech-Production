@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { buildCompanionContext } from "@/lib/advisor/context";
+import { fetchLatestStoredAssessment } from "@/lib/assessment/latest";
 import { MessageContent } from "@/components/companion/MessageContent";
 import { CompanionTierBanner } from "@/components/companion/CompanionTierBanner";
 import {
@@ -266,8 +267,9 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
     setSending(true);
 
     try {
+      const latest = await fetchLatestStoredAssessment();
       const { assessment, finance, credit, surface, whatChanged, path } =
-        buildCompanionContext(pathname);
+        buildCompanionContext(pathname, latest);
       // Decision Lab Phase 3: if a lens on this page has published a fresh
       // digest, the Companion reads its precomputed numbers — it never
       // recomputes them. Page-scoped and staleness-guarded at consume.

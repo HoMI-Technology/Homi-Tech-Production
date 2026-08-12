@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { loadLocalResult } from "@/lib/assessment/storage";
+import { fetchLatestStoredAssessment } from "@/lib/assessment/latest";
 import { COLORS, withAlpha } from "@/lib/brand";
 import { impactBus } from "@/lib/flags";
 import {
@@ -41,7 +41,7 @@ export function PathNextMove() {
 
       // Habit activation: non-READY assessment without a path → generate.
       if (!current) {
-        const assessment = loadLocalResult();
+        const assessment = await fetchLatestStoredAssessment();
         const result = assessment?.result;
         if (result && !(result.verdict === "READY" && (result.hardStops?.length ?? 0) === 0)) {
           const auto = ensurePathForVerdict(result, assessment?.completedAt ?? null, false);

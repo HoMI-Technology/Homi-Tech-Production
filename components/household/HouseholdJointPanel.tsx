@@ -4,7 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
-import { loadLocalResult } from "@/lib/assessment/storage";
+import { useLatestAssessment } from "@/hooks/use-latest-assessment";
+import { fetchLatestStoredAssessment } from "@/lib/assessment/latest";
 import {
   computeDualHouseholdScore,
   DUAL_SCORE_DISCLAIMER,
@@ -44,7 +45,7 @@ export function HouseholdJointPanel() {
   const [msg, setMsg] = useState<string | null>(null);
   const [acceptName, setAcceptName] = useState("Partner B");
 
-  const local = useMemo(() => loadLocalResult(), [msg, household?.id]);
+  const { assessment: local } = useLatestAssessment();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -101,7 +102,7 @@ export function HouseholdJointPanel() {
   }
 
   async function syncMyScore() {
-    const stored = loadLocalResult();
+    const stored = await fetchLatestStoredAssessment();
     if (!stored) {
       setMsg("Take an assessment first, then sync your score.");
       return;

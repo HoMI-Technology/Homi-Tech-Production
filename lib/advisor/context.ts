@@ -7,7 +7,7 @@
  * standing in right now.
  */
 
-import { loadLocalResult } from "@/lib/assessment/storage";
+import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
 import { loadFinanceState, hasSavedFinanceState, financeSavedAt } from "@/lib/finance/store";
 import { hasSavedBudgetLedger, loadBudgetLedger } from "@/lib/finance/local-ledger";
@@ -43,8 +43,10 @@ function daysSince(iso: string | null | undefined): number | null {
   return days;
 }
 
-export function buildAssessmentContext(): AdvisorAssessmentContext | undefined {
-  const stored = loadLocalResult();
+export function buildAssessmentContext(
+  storedOverride?: StoredAssessment | null,
+): AdvisorAssessmentContext | undefined {
+  const stored = storedOverride ?? loadLocalResult();
   if (!stored) return undefined;
   const { result } = stored;
   return {
@@ -149,8 +151,8 @@ export function buildSurfaceContext(pathname: string | null | undefined): string
  * and the view can never tell different stories. Undefined when there's no
  * previous assessment to compare against.
  */
-export function buildWhatChanged(): string | undefined {
-  const stored = loadLocalResult();
+export function buildWhatChanged(storedOverride?: StoredAssessment | null): string | undefined {
+  const stored = storedOverride ?? loadLocalResult();
   if (!stored) return undefined;
   return buildScoreExplanation(stored)?.companionLine;
 }
@@ -212,13 +214,16 @@ export interface CompanionContext {
 }
 
 /** Everything the Companion knows about this user and this moment. */
-export function buildCompanionContext(pathname?: string | null): CompanionContext {
+export function buildCompanionContext(
+  pathname?: string | null,
+  storedOverride?: StoredAssessment | null,
+): CompanionContext {
   return {
-    assessment: buildAssessmentContext(),
+    assessment: buildAssessmentContext(storedOverride),
     finance: buildFinanceContext(),
     credit: buildCreditContext(),
     surface: buildSurfaceContext(pathname),
-    whatChanged: buildWhatChanged(),
+    whatChanged: buildWhatChanged(storedOverride),
     path: buildPathContext(),
   };
 }

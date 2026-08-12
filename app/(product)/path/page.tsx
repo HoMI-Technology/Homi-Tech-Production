@@ -7,7 +7,7 @@ import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { PathPreview } from "@/components/readiness/PathPreview";
 import { PathProgressHero } from "@/components/readiness/PathProgressHero";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
-import { loadLocalResult } from "@/lib/assessment/storage";
+import { useLatestAssessment } from "@/hooks/use-latest-assessment";
 import {
   loadReadinessPath,
   pullReadinessPath,
@@ -59,6 +59,7 @@ import { formatCurrency } from "@/lib/tools/format";
  * Don't duplicate one surface's job on another — link across instead.
  */
 export default function PathPage() {
+  const { assessment: latestAssessment } = useLatestAssessment();
   const [path, setPath] = useState<ReadinessPath | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [fundingMsg, setFundingMsg] = useState<string | null>(null);
@@ -159,7 +160,7 @@ export default function PathPage() {
     });
   }, [hydrated, path]);
 
-  const assessment = useMemo(() => loadLocalResult(), [path?.id, hydrated]);
+  const assessment = latestAssessment ?? null;
   const financeSnap = useMemo(() => financeSnapshotForPath(), [path?.id, fundingMsg, hydrated]);
 
   const progress = useMemo(
@@ -206,7 +207,7 @@ export default function PathPage() {
   }, [path, fundingMsg]);
 
   const handleGenerate = useCallback(() => {
-    const stored = loadLocalResult();
+    const stored = latestAssessment;
     if (!stored) {
       setError("Take an assessment first — Path is built from your readiness score.");
       return;
@@ -216,7 +217,7 @@ export default function PathPage() {
     setPath(next);
     setError(null);
     track("path_generated", { verdict: next.verdict, surface: "path_page" });
-  }, []);
+  }, [latestAssessment]);
 
   const handleComplete = useCallback((stepId: string) => {
     // Guarded transition either way; only the flag-on branch may publish a
@@ -316,7 +317,7 @@ export default function PathPage() {
   }
 
   if (!path) {
-    const hasAssessment = !!loadLocalResult();
+    const hasAssessment = !!latestAssessment;
     return (
       <div className="mx-auto max-w-2xl px-6 py-16">
         <div className="glass p-10 text-center">

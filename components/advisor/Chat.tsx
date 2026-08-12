@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
-import { loadLocalResult } from "@/lib/assessment/storage";
+import { fetchLatestStoredAssessment } from "@/lib/assessment/latest";
 import { buildCompanionContext } from "@/lib/advisor/context";
 import { MessageContent } from "@/components/companion/MessageContent";
 import { CompanionTierBanner } from "@/components/companion/CompanionTierBanner";
@@ -64,7 +64,9 @@ export function Chat() {
 
   useEffect(() => {
     setMessages(loadThreadMessages("chat"));
-    setHasAssessment(Boolean(loadLocalResult()));
+    void fetchLatestStoredAssessment().then((latest) => {
+      setHasAssessment(Boolean(latest));
+    });
 
     // `?q=` opener (Money picture panel → "Ask Homie"). Read off window rather
     // than useSearchParams: the latter forces a Suspense boundary / CSR bailout
@@ -113,7 +115,11 @@ export function Chat() {
     setSending(true);
 
     try {
-      const { assessment, finance, credit, whatChanged, path } = buildCompanionContext();
+      const latest = await fetchLatestStoredAssessment();
+      const { assessment, finance, credit, whatChanged, path } = buildCompanionContext(
+        undefined,
+        latest,
+      );
       const res = await fetch("/api/advisor", {
         method: "POST",
         headers: { "content-type": "application/json" },

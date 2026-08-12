@@ -7,7 +7,7 @@ import { ToolShell, ToolResultHero } from "@/components/tools/ToolShell";
 import { MoneyField } from "@/components/ui/MoneyField";
 import { NumberField } from "@/components/ui/NumberField";
 import { PREFLIGHT_DISCLAIMER } from "@/lib/readiness/preflight-copy";
-import { loadLocalResult } from "@/lib/assessment/storage";
+import { useLatestAssessment } from "@/hooks/use-latest-assessment";
 import { hasSavedFinanceState, loadFinanceState } from "@/lib/finance/store";
 import { formatCurrency } from "@/lib/tools/format";
 import { fetchSimulatorBatch, SimulatorRequestError } from "@/lib/simulator/client";
@@ -33,7 +33,7 @@ function verdictColor(v: PreflightView["verdict"]): string {
 const DEBOUNCE_MS = 250;
 
 export default function PreflightPage() {
-  const stored = useMemo(() => loadLocalResult(), []);
+  const { assessment: stored } = useLatestAssessment();
   const finance = useMemo(() => (hasSavedFinanceState() ? loadFinanceState() : null), []);
 
   const [decisionLabel, setDecisionLabel] = useState("Home purchase");
@@ -44,6 +44,13 @@ export default function PreflightPage() {
   const [pressure, setPressure] = useState(stored?.inputs.fomoLevel ?? 5);
   const [partner, setPartner] = useState(stored?.inputs.partnerAlignment ?? 7);
   const [useAssessment, setUseAssessment] = useState(!!stored);
+
+  useEffect(() => {
+    if (!stored) return;
+    setPressure(stored.inputs.fomoLevel ?? 5);
+    setPartner(stored.inputs.partnerAlignment ?? 7);
+    setUseAssessment(true);
+  }, [stored]);
 
   const [result, setResult] = useState<PreflightView | null>(null);
   const [pending, setPending] = useState(false);

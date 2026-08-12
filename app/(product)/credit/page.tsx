@@ -5,10 +5,13 @@ import { sliderFillPercent } from "@/lib/assessment/format";
 import {
   loadCreditState,
   saveCreditState,
+  hasSavedCreditState,
   DEFAULT_CREDIT_STATE,
   CREDIT_HARD_STOP,
   type CreditState,
 } from "@/lib/credit/store";
+import { loadRemoteCredit, saveRemoteCredit } from "@/lib/credit/persist";
+import { createClient } from "@/lib/supabase/client";
 import { COLORS } from "@/lib/brand";
 import { ToolShell, ToolResultHero } from "@/components/tools/ToolShell";
 
@@ -65,16 +68,57 @@ const BAND_META: Record<Band, { label: string; color: string; explanation: strin
 export default function CreditPage() {
   const [state, setState] = useState<CreditState>(DEFAULT_CREDIT_STATE);
   const [hydrated, setHydrated] = useState(false);
+  const [remoteId, setRemoteId] = useState<string | null>(null);
 
   useEffect(() => {
-    setState(loadCreditState());
-    setHydrated(true);
+    let active = true;
+    async function hydrate(): Promise<void> {
+      const local = loadCreditState();
+      if (active) setState(local);
+      try {
+        const supabase = createClient();
+        const { data } = await supabase.auth.getUser();
+        if (data.user) {
+          const remote = await loadRemoteCredit(supabase, data.user.id);
+          if (!active) return;
+          setRemoteId(remote.row?.id ?? null);
+          if (remote.state) {
+            setState(remote.state);
+            saveCreditState(remote.state);
+          } else if (hasSavedCreditState()) {
+            const id = await saveRemoteCredit(supabase, data.user.id, local, null);
+            if (active) setRemoteId(id);
+          }
+        }
+      } catch {
+        // Local copy remains.
+      }
+      if (active) setHydrated(true);
+    }
+    void hydrate();
+    return () => {
+      active = false;
+    };
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
     saveCreditState(state);
-  }, [state, hydrated]);
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        try {
+          const supabase = createClient();
+          const { data } = await supabase.auth.getUser();
+          if (!data.user) return;
+          const id = await saveRemoteCredit(supabase, data.user.id, state, remoteId);
+          if (id) setRemoteId(id);
+        } catch {
+          // Best-effort production write.
+        }
+      })();
+    }, 800);
+    return () => window.clearTimeout(timer);
+  }, [state, hydrated, remoteId]);
 
   const band = bandFor(state.score);
   const meta = BAND_META[band];

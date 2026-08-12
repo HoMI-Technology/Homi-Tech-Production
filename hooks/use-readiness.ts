@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import type { AnchorAssessment, SimulatorBaseline } from "@/lib/simulator/public";
 import { seedBaseline } from "@/lib/simulator/public";
 import { hasSavedFinanceState, loadFinanceState } from "@/lib/finance/store";
-import { loadLocalResult } from "@/lib/assessment/storage";
+import { fetchLatestStoredAssessment } from "@/lib/assessment/latest";
 
 export interface ReadinessContext {
   baseline: SimulatorBaseline;
@@ -26,16 +26,22 @@ export function useReadinessAnchors(): ReadinessContext | null {
 
   useEffect(() => {
     if (!hasSavedFinanceState()) return;
-    const baseline = seedBaseline(null, loadFinanceState());
-    const stored = loadLocalResult();
-    const anchorAssessment: AnchorAssessment | null = stored
-      ? {
-          emotional_score: stored.result.emotional.total,
-          timing_score: stored.result.timing.total,
-          inputs: stored.inputs as unknown as Record<string, unknown>,
-        }
-      : null;
-    setCtx({ baseline, anchorAssessment });
+    let active = true;
+    void (async () => {
+      const baseline = seedBaseline(null, loadFinanceState());
+      const stored = await fetchLatestStoredAssessment();
+      const anchorAssessment: AnchorAssessment | null = stored
+        ? {
+            emotional_score: stored.result.emotional.total,
+            timing_score: stored.result.timing.total,
+            inputs: stored.inputs as unknown as Record<string, unknown>,
+          }
+        : null;
+      if (active) setCtx({ baseline, anchorAssessment });
+    })();
+    return () => {
+      active = false;
+    };
   }, []);
 
   return ctx;
