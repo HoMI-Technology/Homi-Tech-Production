@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ShieldAlert } from "lucide-react";
 import { COLORS, withAlpha } from "@/lib/brand";
-import type { AssessmentResult } from "@/lib/scoring/engine";
+import type { AssessmentResult } from "@/lib/scoring/public";
 
 /**
  * Hard-stop crimson banner — only rendered while hardStops.length > 0.

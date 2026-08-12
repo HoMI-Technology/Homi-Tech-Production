@@ -6,7 +6,7 @@ import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { PulseDot } from "@/components/ui/PulseDot";
 import { COLORS, VERDICT_META } from "@/lib/brand";
 import { withAlpha } from "@/lib/brand";
-import type { AssessmentResult } from "@/lib/scoring/engine";
+import type { AssessmentResult } from "@/lib/scoring/public";
 import type { PillarKey } from "./readiness-types";
 
 const CYAN = COLORS.cyan;
