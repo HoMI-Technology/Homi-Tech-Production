@@ -28,6 +28,7 @@ import { HeroScore } from "@/components/dashboard/HeroScore";
 import { PillarRing } from "@/components/dashboard/PillarRing";
 import { LoadErrorPanel } from "@/components/dashboard/LoadErrorPanel";
 import { VerdictCelebrate } from "@/components/dashboard/VerdictCelebrate";
+import { SidebarVerdictSync } from "@/components/dashboard/SidebarVerdictSync";
 import {
   FinancialPositionSection,
   FinancialPositionSkeleton,
@@ -307,6 +308,11 @@ export default async function DashboardPage() {
     >
       <script dangerouslySetInnerHTML={{ __html: ENTRANCE_BOOT_SCRIPT }} />
       <EntranceConductor containerId="dash-root" />
+      <SidebarVerdictSync
+        verdict={verdict}
+        score={latest?.overall_score ?? null}
+        decisionType={latest?.decision_type ?? null}
+      />
 
       {/* ── Single fold instrument: greeting + score + next move ── */}
       <div className="dash-stage">

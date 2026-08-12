@@ -2265,7 +2265,10 @@ body {
 
 .money-instrument-shell {
   display: flex;
-  min-height: calc(100dvh - 56px); /* clear the mobile top bar */
+  /* Fills the viewport: the sidebar offset lives on `main`, and the 56px top
+     bar only exists below lg — where the mobile rule below drops min-height
+     entirely. Subtracting it here left dead space on desktop. */
+  min-height: 100dvh;
   overflow: hidden;
 }
 .money-picture-col {
