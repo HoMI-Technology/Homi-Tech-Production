@@ -5,7 +5,7 @@
 **Product:** HōMI — Decision Companion / Decision Readiness Intelligence™  
 **Site:** https://homitechnology.com  
 **Doctrine:** Blow up through **trust + activation + owned audience**, not through approval theater or FOMO.  
-**Status:** Draft v1 — fill bracketed decisions; review monthly.
+**Status:** v1.1 — founder decisions locked 2026-08-12; see `EXECUTION-STATUS.md`.
 
 **Source of truth:** `public/marketing/` in Homi-Tech-Production (this tree).  
 **Live:** https://homitechnology.com/marketing/  
@@ -26,20 +26,22 @@ Ultra-premium 7 pillars (same folder):
 
 ---
 
-## 1. Founder decisions (fill these)
+## 1. Founder decisions (locked 2026-08-12)
 
-| Decision | Your answer | Default if blank |
-|----------|-------------|------------------|
-| **Primary ICP (one sentence)** | ________________ | People facing a major financial commitment who feel “maybe I can afford it but I’m not sure I’ll be okay.” |
-| **Anti-ICP (who we refuse to optimize for)** | ________________ | Rate shoppers, “get me approved,” people wanting HōMI to replace a lender or credit score |
-| **Primary public channel (90 days)** | ________________ | LinkedIn founder profile (authority) *or* X founder (speed) — pick **one** |
-| **Secondary channel only** | ________________ | Email list (owned) — always on |
-| **North-star metric (90 days)** | ________________ | **Weekly activated users** (completed readiness path) |
-| **Secondary metrics** | ________________ | Engaged emails; source of last 10 activations |
-| **Hours/week for GTM** | ________________ | 10–12 hrs (recommended) |
-| **PH goal this quarter?** | Yes / No | Only if engaged list ≥ ~400 and product activation is stable |
-| **Press email** | ________________ | Required before press kit send |
-| **Pricing line for one-pager** | ________________ | Do not invent; add when real |
+> Locked so the OS is runnable. Override only with an explicit founder edit + date.
+
+| Decision | Answer | Notes |
+|----------|--------|-------|
+| **Primary ICP (one sentence)** | People facing a major financial commitment (home-buying wedge first) who feel “maybe I can afford it — but I’m not sure I’ll be okay after.” | Decision readiness seekers, not rate shoppers |
+| **Anti-ICP (who we refuse to optimize for)** | Rate shoppers; “get me approved / pre-qualified”; people who want HōMI as a lender, broker, or credit-score replacement | Claim-law hard reject |
+| **Primary public channel (90 days)** | **LinkedIn founder profile** (Chike “Wally” Wali) | Matches content calendar fuel; company Page is reshare only |
+| **Secondary channel only** | **Owned email list** (waitlist + accounts) | Always on; never “another social” as primary |
+| **North-star metric (90 days)** | **Weekly activated users** (completed Decision Readiness assessment) | Vanity is fuel only |
+| **Secondary metrics** | Engaged emails (clicked or replied, 30d); source of last 10 activations | Admin: `/admin/marketing` + `/admin/attribution` |
+| **Hours/week for GTM** | **10–12 hrs** | ~5–7 hrs LinkedIn pillar + rest email / users / product friction |
+| **PH goal this quarter?** | **No** | Gate: ~400 engaged emails + stable activation; revisit after engine weeks |
+| **Press email** | **hello@homitechnology.com** (interim) | Same from-address as Resend transactional; add dedicated `press@` later if needed |
+| **Pricing line for one-pager** | Free Decision Readiness path · **Plus $9.99** · **Pro $24.99** · **Family $39.99** / month | SHIPPED Stripe tiers (`lib/stripe/tiers.ts`) |
 
 ---
 
@@ -275,4 +277,5 @@ Desktop `homi-social-kit` is a working mirror only — **commit here**.
 
 ## 13. Change log
 
+- v1.1 (2026-08-12) — Locked §1 founder decisions; linked execution status, support script, admin weekly activations.
 - v1 (2026-08-12) — Initial Solo GTM OS from research + HōMI CANON + existing kit inventory.

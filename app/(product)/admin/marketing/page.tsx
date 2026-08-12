@@ -13,8 +13,41 @@ import {
   formatUsdFromCents,
   paidConversionPct,
 } from "@/lib/dashboard/revenue";
+import {
+  deriveChannel,
+  dimension,
+  isAttributed,
+  type AttributionLike,
+} from "@/lib/dashboard/attribution";
 import { COLORS } from "@/lib/brand";
 import type { SubscriptionTier } from "@/types/database";
+
+type ActivationRow = {
+  id: string;
+  user_id: string | null;
+  completed_at: string | null;
+  created_at: string;
+  attribution: AttributionLike;
+};
+
+function activationTimestamp(row: ActivationRow): Date {
+  return new Date(row.completed_at ?? row.created_at);
+}
+
+function formatActivationSource(attr: AttributionLike): string {
+  if (!isAttributed(attr)) return "direct / unknown";
+  const source = dimension(attr, "utm_source");
+  const medium = dimension(attr, "utm_medium");
+  const campaign = dimension(attr, "utm_campaign");
+  const ref = dimension(attr, "ref");
+  const channel = deriveChannel(attr);
+  const parts = [channel];
+  if (source && source !== channel) parts.push(source);
+  if (medium) parts.push(medium);
+  if (campaign) parts.push(campaign);
+  if (ref && !source) parts.push(`ref:${ref}`);
+  return parts.join(" · ");
+}
 
 export const metadata: Metadata = {
   title: "Marketing | Admin | HōMI",
@@ -73,6 +106,14 @@ export default async function AdminMarketingPage() {
   let paidTotal = 0;
   let signupSeries: { date: string; count: number }[] = [];
   let waitlistSeries: { date: string; count: number }[] = [];
+  let activationSeries: { date: string; count: number }[] = [];
+  let activationsLast7 = 0;
+  let accountsLast7 = 0;
+  let last10Activations: {
+    when: string;
+    channel: string;
+    source: string;
+  }[] = [];
   let tierCounts: Record<SubscriptionTier, number> = { free: 0, plus: 0, pro: 0, family: 0 };
   let interestCounts: { interest: string; count: number }[] = [];
 
@@ -93,13 +134,43 @@ export default async function AdminMarketingPage() {
   try {
     const { data } = await supabase
       .from("assessments")
-      .select("user_id")
+      .select("id, user_id, completed_at, created_at, attribution")
       .eq("status", "completed")
+      .order("created_at", { ascending: false })
       .limit(10000);
-    const rows = (data as { user_id: string | null }[] | null) ?? [];
+    const rows = ((data as ActivationRow[] | null) ?? []).slice().sort((a, b) => {
+      return activationTimestamp(b).getTime() - activationTimestamp(a).getTime();
+    });
     assessedUsers = new Set(rows.map((r) => r.user_id).filter(Boolean)).size;
+
+    // Weekly + 30d activation momentum (north-star)
+    const weekAgo = new Date();
+    weekAgo.setUTCDate(weekAgo.getUTCDate() - 7);
+    const recentForSeries = rows.filter((r) => activationTimestamp(r) >= since);
+    activationsLast7 = rows.filter((r) => activationTimestamp(r) >= weekAgo).length;
+    activationSeries = dailySeries(
+      recentForSeries.map((r) => ({ created_at: activationTimestamp(r).toISOString() })),
+      since,
+    );
+
+    last10Activations = rows.slice(0, 10).map((r) => {
+      const when = activationTimestamp(r);
+      return {
+        when: when.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          timeZone: "UTC",
+        }),
+        channel: deriveChannel(r.attribution),
+        source: formatActivationSource(r.attribution),
+      };
+    });
   } catch {
     assessedUsers = 0;
+    activationSeries = [];
+    activationsLast7 = 0;
+    last10Activations = [];
   }
 
   try {
@@ -125,9 +196,12 @@ export default async function AdminMarketingPage() {
       .select("created_at")
       .gte("created_at", since.toISOString())
       .limit(10000);
-    signupSeries = dailySeries((data as { created_at: string }[] | null) ?? [], since);
+    const signupRows = (data as { created_at: string }[] | null) ?? [];
+    signupSeries = dailySeries(signupRows, since);
+    accountsLast7 = last7(signupSeries);
   } catch {
     signupSeries = [];
+    accountsLast7 = 0;
   }
 
   try {
@@ -156,6 +230,9 @@ export default async function AdminMarketingPage() {
     interestCounts = [];
   }
 
+  const activationRate7d =
+    accountsLast7 > 0 ? Math.round((activationsLast7 / accountsLast7) * 100) : null;
+
   const funnel: FunnelStage[] = [
     { label: "Waitlist signups", count: waitlistTotal, color: COLORS.amber },
     { label: "Accounts created", count: accountsTotal, color: COLORS.cyan },
@@ -183,8 +260,8 @@ export default async function AdminMarketingPage() {
         description="Acquisition funnel plus the marketing source of truth (assets, GTM OS, launch kit)."
         primaryAction={{ label: "Waitlist", href: "/admin/waitlist", variant: "ghost" }}
         secondaryAction={{
-          label: "Asset library",
-          href: "/marketing/README.md",
+          label: "Attribution",
+          href: "/admin/attribution",
           variant: "ghost",
         }}
       />
@@ -224,12 +301,12 @@ export default async function AdminMarketingPage() {
             },
             {
               label: "Demo video (60s)",
-              href: "/marketing/launch/demo-video/HOMI-Demo-60s.mp4",
-              hint: "Problem → pillars → what we’re not → CTA",
+              href: "/marketing/launch/demo-video/HOMI-Demo-60s.mp4", // brand-ok: asset filename on disk, not user-visible text
+              hint: "Problem → pillars → what we're not → CTA",
             },
             {
               label: "Press kit + PDFs",
-              href: "/marketing/launch/press-kit/pdf/HOMI-One-Pager-Partners-Investors.pdf",
+              href: "/marketing/launch/press-kit/pdf/HOMI-One-Pager-Partners-Investors.pdf", // brand-ok: asset filename on disk, not user-visible text
               hint: "One-pager · FAQ · logos · screens",
             },
             {
@@ -238,9 +315,19 @@ export default async function AdminMarketingPage() {
               hint: "Teaser · live · how to start · what we aren’t",
             },
             {
+              label: "Execution status",
+              href: "/marketing/gtm/EXECUTION-STATUS.md",
+              hint: "7 workstreams · what is shipped vs ops TODO",
+            },
+            {
               label: "Product Hunt gallery",
               href: "/marketing/launch/product-hunt/gallery-live/homi_ph_live_01_home.png",
               hint: "Live-UI gallery preferred over abstract-only",
+            },
+            {
+              label: "Email campaigns",
+              href: "/admin/email",
+              hint: "Load sequence 01–04 as drafts · Resend send",
             },
           ].map((item) => (
             <a
@@ -258,6 +345,7 @@ export default async function AdminMarketingPage() {
         </div>
         <p className="mt-4 text-xs text-dim">
           North star: <span className="text-emerald">activations</span> (completed readiness path) —
+          {/* brand-ok: meta-reference to a forbidden claim — this line is the prohibition, not the claim */}
           not followers. Claim law: never approved / guaranteed / credit-score replacement.
         </p>
       </div>
@@ -265,6 +353,15 @@ export default async function AdminMarketingPage() {
       <div className="mt-6">
         <MetricRail
           cells={[
+            {
+              label: "Activations (7d)",
+              value: activationsLast7.toLocaleString(),
+              footer:
+                activationRate7d !== null
+                  ? `${activationRate7d}% of new accounts (7d)`
+                  : "North-star · completed readiness path",
+              color: COLORS.emerald,
+            },
             {
               label: "Waitlist",
               value: waitlistTotal.toLocaleString(),
@@ -274,28 +371,32 @@ export default async function AdminMarketingPage() {
             {
               label: "Accounts",
               value: accountsTotal.toLocaleString(),
-              footer: `${last7(signupSeries).toLocaleString()} new in last 7 days`,
+              footer: `${accountsLast7.toLocaleString()} new in last 7 days`,
               color: COLORS.cyan,
             },
             {
-              label: "Assessed",
+              label: "Assessed (all-time)",
               value: assessedUsers.toLocaleString(),
-              footer: "Completed at least one",
-              color: COLORS.emerald,
-            },
-            {
-              label: "Paid",
-              value: paidTotal.toLocaleString(),
               footer:
                 accountsTotal > 0
-                  ? `${Math.round((paidTotal / accountsTotal) * 100)}% of accounts`
-                  : "Awaiting billing",
+                  ? `${Math.round((assessedUsers / accountsTotal) * 100)}% of accounts`
+                  : "Completed at least one",
               color: COLORS.yellow,
             },
           ]}
         />
-        {(waitlistSeries.length >= 2 || signupSeries.length >= 2) && (
+        {(activationSeries.length >= 2 || waitlistSeries.length >= 2 || signupSeries.length >= 2) && (
           <div className="mt-3 flex flex-wrap justify-end gap-6">
+            {activationSeries.length >= 2 && (
+              <div className="w-36">
+                <p className="mb-1 text-3xs uppercase tracking-wide text-dim">Activations</p>
+                <Sparkline
+                  id="mk-activations"
+                  values={activationSeries.map((d) => d.count)}
+                  color={COLORS.emerald}
+                />
+              </div>
+            )}
             {waitlistSeries.length >= 2 && (
               <div className="w-36">
                 <p className="mb-1 text-3xs uppercase tracking-wide text-dim">Waitlist</p>
@@ -318,6 +419,72 @@ export default async function AdminMarketingPage() {
             )}
           </div>
         )}
+      </div>
+
+      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+        <div className="glass p-6">
+          <SectionHeader
+            eyebrow="North star"
+            title="Activations — last 30 days"
+            subtitle="Completed assessments per day. This is the score — not followers."
+          />
+          <div className="mt-4">
+            {activationSeries.length === 0 ? (
+              <p className="py-10 text-center text-sm text-dim">No activations in the last 30 days.</p>
+            ) : (
+              <BarSeries
+                id="mk-activations-30d"
+                counts={activationSeries}
+                color={COLORS.emerald}
+                height={150}
+                ariaLabel="Completed assessments over the last 30 days"
+              />
+            )}
+          </div>
+          <p className="mt-3 text-xs text-dim">
+            Drop-off proxy (7d): {accountsLast7.toLocaleString()} new accounts →{" "}
+            {activationsLast7.toLocaleString()} activations
+            {activationRate7d !== null ? ` (${activationRate7d}%)` : ""}. Visit-level funnel lives in
+            product analytics when PostHog is configured.
+          </p>
+        </div>
+
+        <div className="glass p-6">
+          <SectionHeader
+            eyebrow="Attribution"
+            title="Source of last 10 activations"
+            subtitle="First-touch UTM / ref from assessment snapshot. Full rollups → Attribution admin."
+          />
+          <div className="mt-4 overflow-x-auto">
+            {last10Activations.length === 0 ? (
+              <p className="py-10 text-center text-sm text-dim">No completed assessments yet.</p>
+            ) : (
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b border-white/10 text-3xs uppercase tracking-wide text-dim">
+                    <th className="pb-2 pr-3 font-medium">When (UTC)</th>
+                    <th className="pb-2 pr-3 font-medium">Channel</th>
+                    <th className="pb-2 font-medium">Source detail</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {last10Activations.map((row, i) => (
+                    <tr key={`${row.when}-${i}`} className="border-b border-white/5">
+                      <td className="py-2 pr-3 text-light">{row.when}</td>
+                      <td className="py-2 pr-3 font-mono text-xs text-cyan">{row.channel}</td>
+                      <td className="py-2 text-xs text-dim">{row.source}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+          <p className="mt-3 text-xs text-dim">
+            Share links with{" "}
+            <span className="font-mono text-light">?utm_source=linkedin&utm_medium=social</span> (or{" "}
+            <span className="font-mono text-light">?ref=</span>) so this table is not all “direct”.
+          </p>
+        </div>
       </div>
 
       <div className="glass mt-8 p-6">

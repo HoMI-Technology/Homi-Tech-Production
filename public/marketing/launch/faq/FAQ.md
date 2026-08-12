@@ -41,7 +41,9 @@ People facing meaningful financial decisions who want calm clarity before a hard
 Anyone seeking a loan offer, rate shopping from HōMI, or a guarantee. We don’t do that.
 
 ### How do you make money?
-[ADD accurate pricing model when publishing — e.g. subscription tiers. Do not invent.]
+Subscription tiers (educational product — not lending fees; zero affiliate):  
+**Free** Decision Readiness path · **Plus $9.99** · **Pro $24.99** · **Family $39.99** per month.  
+See https://homitechnology.com/pricing
 
 ### Is my data safe?
 We take privacy and security seriously. See the site privacy policy. (Avoid “bank-level / military-grade” claims.)

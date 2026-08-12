@@ -24,8 +24,10 @@
 | 7 | **Run the OS weekly** | [`gtm/07-WEEKLY-OS.md`](./gtm/07-WEEKLY-OS.md) |
 
 **Master OS:** [`gtm/HOMI-SOLO-GTM-OS.md`](./gtm/HOMI-SOLO-GTM-OS.md)  
+**Execution status (7 workstreams):** [`gtm/EXECUTION-STATUS.md`](./gtm/EXECUTION-STATUS.md)  
 **Launch day checklist:** [`gtm/LAUNCH_DAY.md`](./gtm/LAUNCH_DAY.md)  
-**Weekly scoreboard:** [`gtm/WEEKLY-SCOREBOARD.md`](./gtm/WEEKLY-SCOREBOARD.md)
+**Weekly scoreboard:** [`gtm/WEEKLY-SCOREBOARD.md`](./gtm/WEEKLY-SCOREBOARD.md)  
+**Support — “Are you a lender?”:** [`gtm/SUPPORT-ARE-YOU-A-LENDER.md`](./gtm/SUPPORT-ARE-YOU-A-LENDER.md)
 
 ---
 

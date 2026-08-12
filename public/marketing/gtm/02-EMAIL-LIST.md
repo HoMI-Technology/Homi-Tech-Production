@@ -31,3 +31,6 @@ Algorithms are rented. **Email is owned land.**
 
 ## Admin
 Waitlist totals: `/admin/marketing` · `/admin/waitlist` · `/admin/email`
+
+## Load path (product)
+See [`../launch/emails/README.md`](../launch/emails/README.md) — paste 01–04 into `/admin/email` drafts; Resend must be domain-verified.

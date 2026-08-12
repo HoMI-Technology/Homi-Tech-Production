@@ -3,8 +3,10 @@
 ## Principle
 Solo founders die of **channel sprawl**. Pick **one** public surface for 90 days. Use the kit as fuel — do not invent a new visual system weekly.
 
-## Decision (fill)
-**Primary channel this quarter:** [ ] LinkedIn founder  [ ] X founder  [ ] Other: ________
+## Decision (locked 2026-08-12)
+**Primary channel this quarter:** [x] LinkedIn founder  [ ] X founder  [ ] Other: ________
+
+**Rule:** Company Page may reshare. Do not run IG/TikTok/YouTube as primary until LinkedIn produces activations or 90 days + kill criteria.
 
 ## Cadence (default)
 | Frequency | What |

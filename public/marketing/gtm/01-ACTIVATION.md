@@ -12,8 +12,14 @@ Visit → Waitlist/Signup → Account → Assessment completed (ACTIVATION) → 
 ```
 Admin mirror: `/admin/marketing` funnel (Waitlist → Accounts → Completed assessment → Paid).
 
+**Live north-star widgets (2026-08-12):**
+- Metric: **Activations (7d)** on `/admin/marketing`
+- Chart: Activations — last 30 days
+- Table: Source of last 10 activations (first-touch UTM/ref)
+- Full channels: `/admin/attribution`
+
 ## North-star
-**Weekly activated users** (count of new users who completed an assessment that week).
+**Weekly activated users** (count of completed assessments that week — not all-time uniques only).
 
 ## Secondary (never primary)
 - Waitlist signups  
