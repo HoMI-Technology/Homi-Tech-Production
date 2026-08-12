@@ -13,7 +13,13 @@ import { UtmLinkBuilder } from "@/components/admin/UtmLinkBuilder";
 import { AudienceInsights } from "@/components/admin/AudienceInsights";
 import { SocialContentStudio } from "@/components/admin/SocialContentStudio";
 import { PostCaptionWriter } from "@/components/admin/PostCaptionWriter";
-import { ContentCalendar } from "@/components/admin/ContentCalendar";
+import { SundayScorecard } from "@/components/admin/SundayScorecard";
+import { ThemeCalendar } from "@/components/admin/ThemeCalendar";
+import { PostPerformanceTracker } from "@/components/admin/PostPerformanceTracker";
+import { LinkedInAnalyticsImport } from "@/components/admin/LinkedInAnalyticsImport";
+import { CompetitorPulse } from "@/components/admin/CompetitorPulse";
+import { EmailDripBuilder } from "@/components/admin/EmailDripBuilder";
+import { WebhookPublisher } from "@/components/admin/WebhookPublisher";
 import { AttentionStrip, type AttentionItem } from "@/components/operate/AttentionStrip";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
@@ -34,10 +40,22 @@ import {
 import {
   CLAIM_NEVER_SAY,
   CLAIM_PREFER,
-  ENGINE_WEEK_POSTS,
   LIBRARY_SECTIONS,
   QUICK_ACTIONS,
 } from "@/lib/admin/marketing-command";
+import {
+  MARKETING_SAMPLE_CAP,
+  MIN_COHORT_N,
+  cohortActivatedCount,
+  cohortActivationRatePct,
+  completionEventsInWindow,
+  completionTimestamp,
+  dailyUniqueActivatedSeries,
+  isAtSampleCap,
+  sortBySeverity,
+  uniqueActivatedUsers,
+  uniqueEverActivated,
+} from "@/lib/admin/marketing-metrics";
 import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
 import { hasAnthropic } from "@/lib/env";
 import type { Campaign, SubscriptionTier } from "@/types/database";
@@ -50,10 +68,6 @@ type ActivationRow = {
   attribution: AttributionLike;
   verdict: string | null;
 };
-
-function activationTimestamp(row: ActivationRow): Date {
-  return new Date(row.completed_at ?? row.created_at);
-}
 
 function formatActivationSource(attr: AttributionLike): string {
   if (!isAttributed(attr)) return "direct / unknown";
@@ -70,21 +84,6 @@ function formatActivationSource(attr: AttributionLike): string {
   return parts.join(" · ");
 }
 
-export const metadata: Metadata = {
-  title: "Marketing command center | Admin | HōMI",
-  description:
-    "North-star activations, funnel, email OS, GTM engine, asset library, and claim law.",
-};
-
-const TIER_COLORS: Record<SubscriptionTier, string> = {
-  free: COLORS.dim,
-  plus: COLORS.cyan,
-  pro: COLORS.yellow,
-  family: COLORS.emerald,
-};
-const TIER_ORDER: SubscriptionTier[] = ["free", "plus", "pro", "family"];
-const VERDICT_KEYS: VerdictKey[] = ["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"];
-
 function dayKey(d: Date) {
   return d.toISOString().slice(0, 10);
 }
@@ -94,6 +93,7 @@ function shortLabel(dateStr: string) {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 }
 
+/** Bucket created_at rows into a 30-day daily series (signups / waitlist). */
 function dailySeries(
   rows: { created_at: string }[],
   since: Date,
@@ -115,6 +115,21 @@ function last7(series: { count: number }[]): number {
   return series.slice(-7).reduce((acc, d) => acc + d.count, 0);
 }
 
+export const metadata: Metadata = {
+  title: "Marketing command center | Admin | HōMI",
+  description:
+    "North-star activations, funnel, email OS, GTM engine, asset library, and claim law.",
+};
+
+const TIER_COLORS: Record<SubscriptionTier, string> = {
+  free: COLORS.dim,
+  plus: COLORS.cyan,
+  pro: COLORS.yellow,
+  family: COLORS.emerald,
+};
+const TIER_ORDER: SubscriptionTier[] = ["free", "plus", "pro", "family"];
+const VERDICT_KEYS: VerdictKey[] = ["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"];
+
 export default async function AdminMarketingPage() {
   const supabase = await createClient();
   const service = createAdminClient();
@@ -133,8 +148,13 @@ export default async function AdminMarketingPage() {
   let signupSeries: { date: string; count: number }[] = [];
   let waitlistSeries: { date: string; count: number }[] = [];
   let activationSeries: { date: string; count: number }[] = [];
-  let activationsLast7 = 0;
+  /** Unique users activated in last 7d (north star). */
+  let uniqueActivated7d = 0;
+  /** Completion events in last 7d (can exceed unique). */
+  let completions7d = 0;
   let accountsLast7 = 0;
+  let cohortActivated7d = 0;
+  let metricsCapped = false;
   let last10Activations: { when: string; channel: string; source: string }[] = [];
   let tierCounts: Record<SubscriptionTier, number> = { free: 0, plus: 0, pro: 0, family: 0 };
   let interestCounts: { interest: string; count: number }[] = [];
@@ -147,6 +167,7 @@ export default async function AdminMarketingPage() {
   };
   let campaigns: Campaign[] = [];
   let waitlistLast7 = 0;
+  let everCompletedUserIds = new Set<string>();
 
   try {
     const { count } = await supabase.from("waitlist").select("*", { count: "exact", head: true });
@@ -168,21 +189,22 @@ export default async function AdminMarketingPage() {
       .select("id, user_id, completed_at, created_at, attribution, verdict")
       .eq("status", "completed")
       .order("created_at", { ascending: false })
-      .limit(10000);
+      .limit(MARKETING_SAMPLE_CAP);
     const rows = ((data as ActivationRow[] | null) ?? []).slice().sort((a, b) => {
-      return activationTimestamp(b).getTime() - activationTimestamp(a).getTime();
+      return completionTimestamp(b).getTime() - completionTimestamp(a).getTime();
     });
-    assessedUsers = new Set(rows.map((r) => r.user_id).filter(Boolean)).size;
+    if (isAtSampleCap(rows.length)) metricsCapped = true;
 
-    const recentForSeries = rows.filter((r) => activationTimestamp(r) >= since);
-    activationsLast7 = rows.filter((r) => activationTimestamp(r) >= weekAgo).length;
-    activationSeries = dailySeries(
-      recentForSeries.map((r) => ({ created_at: activationTimestamp(r).toISOString() })),
-      since,
+    assessedUsers = uniqueEverActivated(rows);
+    everCompletedUserIds = new Set(
+      rows.map((r) => r.user_id).filter((id): id is string => Boolean(id)),
     );
+    uniqueActivated7d = uniqueActivatedUsers(rows, weekAgo).size;
+    completions7d = completionEventsInWindow(rows, weekAgo);
+    activationSeries = dailyUniqueActivatedSeries(rows, since, 30);
 
     last10Activations = rows.slice(0, 10).map((r) => {
-      const when = activationTimestamp(r);
+      const when = completionTimestamp(r);
       return {
         when: when.toLocaleDateString("en-US", {
           month: "short",
@@ -203,21 +225,24 @@ export default async function AdminMarketingPage() {
   } catch {
     assessedUsers = 0;
     activationSeries = [];
-    activationsLast7 = 0;
+    uniqueActivated7d = 0;
+    completions7d = 0;
     last10Activations = [];
+    everCompletedUserIds = new Set();
   }
 
   try {
     const { data } = await supabase
       .from("profiles")
       .select("subscription_tier, role, attribution")
-      .limit(10000);
+      .limit(MARKETING_SAMPLE_CAP);
     const rows =
       (data as {
         subscription_tier: SubscriptionTier;
         role: string;
         attribution: AttributionLike;
       }[] | null) ?? [];
+    if (isAtSampleCap(rows.length)) metricsCapped = true;
     tierCounts = rows.reduce(
       (acc, r) => {
         if (r.role !== "admin" && r.subscription_tier in acc) acc[r.subscription_tier] += 1;
@@ -235,15 +260,18 @@ export default async function AdminMarketingPage() {
   try {
     const { data } = await supabase
       .from("profiles")
-      .select("created_at")
+      .select("id, created_at")
       .gte("created_at", since.toISOString())
-      .limit(10000);
-    const signupRows = (data as { created_at: string }[] | null) ?? [];
+      .limit(MARKETING_SAMPLE_CAP);
+    const signupRows = (data as { id: string; created_at: string }[] | null) ?? [];
+    if (isAtSampleCap(signupRows.length)) metricsCapped = true;
     signupSeries = dailySeries(signupRows, since);
-    accountsLast7 = last7(signupSeries);
+    accountsLast7 = signupRows.filter((r) => new Date(r.created_at) >= weekAgo).length;
+    cohortActivated7d = cohortActivatedCount(signupRows, everCompletedUserIds, weekAgo);
   } catch {
     signupSeries = [];
     accountsLast7 = 0;
+    cohortActivated7d = 0;
   }
 
   try {
@@ -288,8 +316,11 @@ export default async function AdminMarketingPage() {
   }
 
   const resendConfigured = Boolean(process.env.RESEND_API_KEY);
-  const activationRate7d =
-    accountsLast7 > 0 ? Math.round((activationsLast7 / accountsLast7) * 100) : null;
+  const cohortRate7d = cohortActivationRatePct(cohortActivated7d, accountsLast7, MIN_COHORT_N);
+  const cohortRateSuppressed = accountsLast7 > 0 && accountsLast7 < MIN_COHORT_N;
+  /** Alias for scorecard / AI: unique activated users (not completion events). */
+  const activationsLast7 = uniqueActivated7d;
+  const activationRate7d = cohortRate7d;
   const accountActivatePct =
     accountsTotal > 0 ? Math.round((assessedUsers / accountsTotal) * 100) : null;
 
@@ -309,7 +340,11 @@ export default async function AdminMarketingPage() {
   const funnel: FunnelStage[] = [
     { label: "Waitlist signups", count: waitlistTotal, color: COLORS.amber },
     { label: "Accounts created", count: accountsTotal, color: COLORS.cyan },
-    { label: "Completed an assessment", count: assessedUsers, color: COLORS.emerald },
+    {
+      label: "Unique users who completed",
+      count: assessedUsers,
+      color: COLORS.emerald,
+    },
     { label: "On a paid tier", count: paidTotal, color: COLORS.yellow },
   ];
 
@@ -328,10 +363,10 @@ export default async function AdminMarketingPage() {
     last10Activations.filter((r) => r.channel === "direct").length >=
       Math.ceil(last10Activations.length * 0.7);
 
-  // Attention: ops signals only — not vanity.
-  const attention: AttentionItem[] = [];
+  // Attention: ops signals only — not vanity. Sorted critical → ok before render.
+  const attentionRaw: AttentionItem[] = [];
   if (!resendConfigured) {
-    attention.push({
+    attentionRaw.push({
       id: "resend",
       severity: "critical",
       title: "Resend not configured",
@@ -340,8 +375,18 @@ export default async function AdminMarketingPage() {
       cta: "Email OS",
     });
   }
+  if (metricsCapped) {
+    attentionRaw.push({
+      id: "sample-cap",
+      severity: "warn",
+      title: "Metrics sample capped",
+      detail: `At least one query hit the ${MARKETING_SAMPLE_CAP.toLocaleString()}-row cap — numbers may undercount. Move to server-side aggregates soon.`,
+      href: "#proof",
+      cta: "See proof",
+    });
+  }
   if (waitlistTotal > 0 && campaignDrafts === 0 && campaignSent === 0) {
-    attention.push({
+    attentionRaw.push({
       id: "email-drafts",
       severity: "warn",
       title: "No email campaigns loaded",
@@ -350,18 +395,18 @@ export default async function AdminMarketingPage() {
       cta: "Compose",
     });
   }
-  if (accountsLast7 > 0 && activationsLast7 === 0) {
-    attention.push({
+  if (accountsLast7 > 0 && uniqueActivated7d === 0) {
+    attentionRaw.push({
       id: "activation-zero",
       severity: "warn",
       title: "Signups without activations (7d)",
-      detail: `${accountsLast7} new accounts, 0 completed assessments — fix path friction first.`,
+      detail: `${accountsLast7} new accounts, 0 unique users completed a readiness path — fix path friction first.`,
       href: "/assessment",
       cta: "Walk path",
     });
   }
   if (directHeavy) {
-    attention.push({
+    attentionRaw.push({
       id: "utm",
       severity: "info",
       title: "Most activations lack UTM",
@@ -371,7 +416,7 @@ export default async function AdminMarketingPage() {
     });
   }
   if (waitlistTotal === 0 && accountsTotal === 0) {
-    attention.push({
+    attentionRaw.push({
       id: "cold-start",
       severity: "info",
       title: "Cold start — run founder setup",
@@ -380,16 +425,17 @@ export default async function AdminMarketingPage() {
       cta: "Open setup",
     });
   }
-  if (attention.length === 0) {
-    attention.push({
+  if (attentionRaw.length === 0) {
+    attentionRaw.push({
       id: "ok",
       severity: "ok",
       title: "Command center healthy",
-      detail: "North star is activations. Fill the Sunday scoreboard from these numbers.",
+      detail: "North star is unique activated users. Fill the Sunday scoreboard from these numbers.",
       href: "/marketing/gtm/weeks/WEEK-1-SCOREBOARD.md",
       cta: "Scoreboard",
     });
   }
+  const attention = sortBySeverity(attentionRaw);
 
 return (
     <div>
@@ -413,9 +459,12 @@ return (
 
       {/* 3. Activation Instrument — north star + engine + UTM */}
       <ActivationInstrument
-        activationsLast7={activationsLast7}
+        uniqueActivated7d={uniqueActivated7d}
+        completions7d={completions7d}
         accountsLast7={accountsLast7}
-        activationRate7d={activationRate7d}
+        cohortActivated7d={cohortActivated7d}
+        cohortRate7d={cohortRate7d}
+        cohortRateSuppressed={cohortRateSuppressed}
         activationSeries={activationSeries}
         utmSlot={<UtmLinkBuilder />}
       />
@@ -448,6 +497,21 @@ return (
           ]}
         />
       </div>
+
+      {/* 4b. Sunday scorecard — the same numbers, as pasteable markdown. */}
+      <SundayScorecard
+        activationsLast7={activationsLast7}
+        accountsLast7={accountsLast7}
+        waitlistLast7={waitlistLast7}
+        waitlistTotal={waitlistTotal}
+        accountsTotal={accountsTotal}
+        assessedUsers={assessedUsers}
+        paidTotal={paidTotal}
+        mrrCents={mrrCents}
+        activationRate7d={activationRate7d}
+        channels={channels.slice(0, 3).map((c) => ({ label: c.key, count: c.count }))}
+        aiEnabled={hasAnthropic()}
+      />
 
       {/* 5. Quick actions */}
       <div className="mt-8">
@@ -498,8 +562,8 @@ return (
           <div className="glass panel-focus p-6">
             <SectionHeader
               eyebrow="North star"
-              title="Activations — last 30 days"
-              subtitle="Completed assessments per day. Followers are not the score."
+              title="Unique activated users — last 30 days"
+              subtitle="Distinct users who completed a readiness path that day. Not completion spam."
             />
             <div className="mt-4">
               {activationSeries.length === 0 ? (
@@ -512,14 +576,20 @@ return (
                   counts={activationSeries}
                   color={COLORS.emerald}
                   height={150}
-                  ariaLabel="Completed assessments over the last 30 days"
+                  ariaLabel="Unique activated users over the last 30 days"
                 />
               )}
             </div>
             <p className="mt-3 text-xs text-dim">
-              Drop-off proxy (7d): {accountsLast7.toLocaleString()} accounts →{" "}
-              {activationsLast7.toLocaleString()} activations
-              {activationRate7d !== null ? ` (${activationRate7d}%)` : ""}.
+              7d: {uniqueActivated7d.toLocaleString()} unique activated ·{" "}
+              {completions7d.toLocaleString()} completions · cohort{" "}
+              {cohortActivated7d.toLocaleString()}/{accountsLast7.toLocaleString()} new accounts
+              {cohortRate7d !== null
+                ? ` (${cohortRate7d}%)`
+                : cohortRateSuppressed
+                  ? " (rate hidden — n under 5)"
+                  : ""}
+              {metricsCapped ? " · sample capped" : ""}.
             </p>
           </div>
 
@@ -625,6 +695,9 @@ return (
               >
                 Resend {resendConfigured ? "key set" : "not configured"}
               </span>
+              <a href="#drip-builder" className="btn btn-ghost btn-sm">
+                Build drip sequence →
+              </a>
               <Link href="/admin/email" className="btn btn-primary btn-sm">
                 Open composer
               </Link>
@@ -687,6 +760,10 @@ return (
             </div>
           )}
         </div>
+
+        {/* Drafts the sequence the Email OS card sends. Deliberately below it:
+            the composer is the destination, this is the drafting table. */}
+        <EmailDripBuilder />
 
         <div className="glass mt-6 p-6">
           <SectionHeader
@@ -830,7 +907,13 @@ return (
           />
           <SocialContentStudio />
           <PostCaptionWriter />
-          <ContentCalendar enginePosts={ENGINE_WEEK_POSTS} />
+          {/* The 30-day themed plan supersedes the 7-day board: a week of slots
+              is a to-do list, a month of themes is a content strategy.
+              components/admin/ContentCalendar.tsx is retained but unmounted. */}
+          <ThemeCalendar />
+          <PostPerformanceTracker />
+          <LinkedInAnalyticsImport />
+          <CompetitorPulse />
         </div>
       </section>
 
@@ -913,6 +996,9 @@ return (
           </p>
         </div>
       </section>
+
+      {/* 11. Publish webhook settings — configuration, so it sits at the foot. */}
+      <WebhookPublisher />
     </div>
   );
 }

@@ -2,23 +2,51 @@ import { describe, expect, it } from "vitest";
 import {
   AGENCY_SYSTEM_PROMPT,
   CALENDAR_STORAGE_KEY,
+  COMPETITOR_LOG_MAX,
+  DRIP_PRESETS,
   NEVER_SAY_PHRASES,
+  PERSONAS,
   PLATFORMS,
   PLATFORM_LIMITS,
+  THEME_WEEKS,
+  bestPerformingId,
+  buildPostPrompt,
+  buildScorecardMarkdown,
   calendarKey,
   calendarToText,
+  daysInMonth,
   defaultHashtags,
   fitToLimit,
   isClaimClean,
+  isPostingDay,
+  isValidWebhookUrl,
+  monthWeekRows,
+  parseCsv,
+  parseLinkedInAnalytics,
   parseStoredCalendar,
+  parseStoredCompetitorLog,
+  parseStoredThemeNotes,
+  performanceTotals,
+  personaBrief,
   platformMeta,
+  postSnippet,
   seedCalendarFromEngine,
   slugifyCampaign,
   stripNeverSay,
+  templateAnalyticsSummary,
   templateCaption,
+  templateCompetitorAnalysis,
+  templateDripSequence,
+  templateImageBrief,
   templateInsight,
   templatePost,
+  templateRepurpose,
+  templateScorecardSummary,
+  themeForDayOfMonth,
+  themeMonthExport,
+  topPostsBy,
   type CalendarBoard,
+  type PostPerformanceRow,
   type PostTone,
   type SocialPlatform,
 } from "@/lib/admin/marketing-agency";
@@ -311,5 +339,469 @@ describe("content calendar", () => {
 
   it("exports nothing for an empty week", () => {
     expect(calendarToText({})).toBe("");
+  });
+});
+
+/* ================================================================== *
+ * Tier 2
+ * ================================================================== */
+
+describe("personas", () => {
+  it("treats the general ICP as no persona at all", () => {
+    expect(personaBrief("all")).toBe("");
+  });
+
+  it("hands the model a label plus the anxiety, not just a label", () => {
+    const brief = personaBrief("self_employed");
+    expect(brief).toContain("Self-employed buyer");
+    expect(brief).toContain("variable income");
+  });
+
+  it("keeps every persona description usable as prompt prose", () => {
+    for (const persona of PERSONAS.slice(1)) {
+      expect(persona.description.length).toBeGreaterThan(10);
+    }
+  });
+
+  it("injects the persona into the post prompt only when one is set", () => {
+    const base = { platform: "linkedin" as const, tone: "story" as const, topic: "a first home" };
+    expect(buildPostPrompt(base)).not.toContain("ICP persona");
+    expect(buildPostPrompt({ ...base, persona: personaBrief("first_time") })).toContain(
+      "First-time buyer",
+    );
+  });
+
+  it("names the persona in template output rather than pretending to target", () => {
+    const post = templatePost({
+      platform: "linkedin",
+      tone: "hook",
+      topic: "a first home",
+      persona: personaBrief("recently_divorced"),
+    });
+    expect(post.copy).toContain("Written for:");
+    expect(isClaimClean(post.copy)).toBe(true);
+  });
+});
+
+describe("templateRepurpose", () => {
+  it("never exceeds the target platform ceiling", () => {
+    const source = "This is a LinkedIn post. ".repeat(200);
+    for (const platform of PLATFORMS) {
+      const post = templateRepurpose({ sourceCopy: source, targetPlatform: platform.key });
+      expect(post.copy.length).toBeLessThanOrEqual(platform.limit);
+    }
+  });
+
+  it("strips claim-law phrasing carried over from the source", () => {
+    const post = templateRepurpose({
+      sourceCopy: "You are pre-approved and ready.",
+      targetPlatform: "x",
+    });
+    expect(isClaimClean(post.copy)).toBe(true);
+  });
+});
+
+describe("buildScorecardMarkdown", () => {
+  const metrics = {
+    activationsLast7: 12,
+    accountsLast7: 30,
+    waitlistLast7: 8,
+    waitlistTotal: 140,
+    accountsTotal: 320,
+    assessedUsers: 95,
+    paidTotal: 7,
+    mrrCents: 13_900,
+    activationRate7d: 40,
+    channels: [
+      { label: "linkedin", count: 22 },
+      { label: "direct", count: 9 },
+    ],
+  };
+
+  it("carries every documented heading", () => {
+    const md = buildScorecardMarkdown(metrics, new Date(Date.UTC(2026, 7, 16)));
+    for (const heading of [
+      "### North Star",
+      "### Pipeline",
+      "### Revenue",
+      "### Top channels this week",
+      "### Wins this week",
+      "### Blockers",
+      "### Next week focus",
+    ]) {
+      expect(md).toContain(heading);
+    }
+    expect(md).toContain("## HōMI Weekly Scorecard — WEEK ending");
+  });
+
+  it("prints the numbers it was given", () => {
+    const md = buildScorecardMarkdown(metrics, new Date(Date.UTC(2026, 7, 16)));
+    expect(md).toContain("- Unique activated users (7d): 12");
+    expect(md).toContain("- Cohort activation rate: 40% of new accounts (cohort)");
+    expect(md).toContain("- MRR (est.): $139");
+    expect(md).toContain("1. linkedin — 22");
+  });
+
+  it("always prints three channel lines so the shape never shifts", () => {
+    const md = buildScorecardMarkdown({ ...metrics, channels: [] }, new Date(Date.UTC(2026, 7, 16)));
+    expect(md).toContain("1. —");
+    expect(md).toContain("2. —");
+    expect(md).toContain("3. —");
+  });
+
+  it("says em dash rather than a fake percentage with no accounts to divide by", () => {
+    const md = buildScorecardMarkdown(
+      { ...metrics, activationRate7d: null },
+      new Date(Date.UTC(2026, 7, 16)),
+    );
+    expect(md).toContain("- Cohort activation rate: — (n under 5 or no new accounts)");
+  });
+});
+
+describe("templateScorecardSummary", () => {
+  it("names a dead week as a distribution problem", () => {
+    const { summary } = templateScorecardSummary({
+      activationsLast7: 0,
+      accountsLast7: 0,
+      waitlistLast7: 0,
+      mrrCents: 0,
+      topChannel: "",
+    });
+    expect(summary).toContain("distribution problem");
+  });
+
+  it("calls out untagged links when direct leads", () => {
+    const { summary } = templateScorecardSummary({
+      activationsLast7: 4,
+      accountsLast7: 10,
+      waitlistLast7: 2,
+      mrrCents: 0,
+      topChannel: "direct",
+    });
+    expect(summary).toContain("UTM");
+  });
+
+  it("is claim-clean", () => {
+    const { summary } = templateScorecardSummary({
+      activationsLast7: 9,
+      accountsLast7: 10,
+      waitlistLast7: 40,
+      mrrCents: 5000,
+      topChannel: "linkedin",
+    });
+    expect(isClaimClean(summary)).toBe(true);
+  });
+});
+
+describe("templateImageBrief", () => {
+  it("produces both briefs and stays claim-clean", () => {
+    const brief = templateImageBrief({
+      captionHook: "You can afford it and still not be ready",
+      captionBody: "Affordability is arithmetic.",
+      platform: "instagram",
+    });
+    expect(brief.canva_prompt.length).toBeGreaterThan(40);
+    expect(brief.midjourney_prompt).toContain("navy");
+    expect(brief.style_notes.length).toBeGreaterThan(20);
+    expect(isClaimClean(`${brief.canva_prompt} ${brief.midjourney_prompt}`)).toBe(true);
+  });
+
+  it("falls back to a usable hook when the caption is empty", () => {
+    const brief = templateImageBrief({ captionHook: "  ", captionBody: "", platform: "linkedin" });
+    expect(brief.canva_prompt).toContain("Afford ≠ ready");
+  });
+});
+
+describe("parseCsv", () => {
+  it("keeps commas inside quoted fields", () => {
+    expect(parseCsv('a,"b,c",d')).toEqual([["a", "b,c", "d"]]);
+  });
+
+  it("unescapes doubled quotes", () => {
+    expect(parseCsv('"say ""hi""",2')).toEqual([['say "hi"', "2"]]);
+  });
+
+  it("survives CRLF and drops blank rows", () => {
+    expect(parseCsv("a,b\r\n\r\nc,d\r\n")).toEqual([
+      ["a", "b"],
+      ["c", "d"],
+    ]);
+  });
+
+  it("returns nothing for empty input", () => {
+    expect(parseCsv("")).toEqual([]);
+  });
+});
+
+describe("parseLinkedInAnalytics", () => {
+  const csv = [
+    '"LinkedIn post analytics export"',
+    "Post title,Published date,Impressions,Unique impressions,Clicks,Likes,Comments,Shares,CTR,Engagement rate",
+    '"Afford, not ready",2026-07-01,"1,200",1000,60,10,2,1,5.00%,7.2%',
+    '"The month after",2026-07-08,800,700,80,5,1,0,10.00%,9.1%',
+  ].join("\n");
+
+  it("skips the metadata block and locates columns by header", () => {
+    const posts = parseLinkedInAnalytics(csv);
+    expect(posts).toHaveLength(2);
+    expect(posts[0]).toMatchObject({
+      title: "Afford, not ready",
+      date: "2026-07-01",
+      impressions: 1200,
+      clicks: 60,
+      ctr: 5,
+    });
+  });
+
+  it("prefers the impressions column over unique impressions", () => {
+    expect(parseLinkedInAnalytics(csv)[0]?.impressions).toBe(1200);
+  });
+
+  it("derives CTR when the export omits it", () => {
+    const noCtr = [
+      "Post title,Published date,Impressions,Unique impressions,Clicks",
+      "Hook test,2026-07-01,1000,900,50",
+    ].join("\n");
+    expect(parseLinkedInAnalytics(noCtr)[0]?.ctr).toBe(5);
+  });
+
+  it("reads a fractional CTR as a percentage", () => {
+    const fractional = [
+      "Post title,Published date,Impressions,Unique impressions,Clicks,Likes,Comments,Shares,CTR",
+      "Hook test,2026-07-01,1000,900,50,0,0,0,0.05",
+    ].join("\n");
+    expect(parseLinkedInAnalytics(fractional)[0]?.ctr).toBe(5);
+  });
+
+  it("drops rows with no reach and no clicks", () => {
+    const withEmpty = [
+      "Post title,Published date,Impressions,Unique impressions,Clicks",
+      "Real post,2026-07-01,10,9,1",
+      "Empty post,2026-07-02,0,0,0",
+    ].join("\n");
+    expect(parseLinkedInAnalytics(withEmpty)).toHaveLength(1);
+  });
+
+  it("returns nothing rather than throwing on junk", () => {
+    expect(parseLinkedInAnalytics("")).toEqual([]);
+    expect(parseLinkedInAnalytics("not a csv at all")).toEqual([]);
+  });
+
+  it("ranks by the requested key", () => {
+    const posts = parseLinkedInAnalytics(csv);
+    expect(topPostsBy(posts, "impressions")[0]?.title).toBe("Afford, not ready");
+    expect(topPostsBy(posts, "ctr")[0]?.title).toBe("The month after");
+    expect(topPostsBy(posts, "clicks", 1)).toHaveLength(1);
+  });
+});
+
+describe("templateAnalyticsSummary", () => {
+  it("says what to paste when nothing parsed", () => {
+    expect(templateAnalyticsSummary([]).summary).toContain("Post title");
+  });
+
+  it("reports reach share and names the CTR winner when they diverge", () => {
+    const summary = templateAnalyticsSummary([
+      { title: "Wide reach", date: "", impressions: 900, clicks: 9, ctr: 1 },
+      { title: "High intent", date: "", impressions: 100, clicks: 20, ctr: 20 },
+    ]);
+    expect(summary.summary).toContain("2 posts parsed");
+    expect(summary.summary).toContain("90%");
+    expect(summary.summary).toContain("High intent");
+    expect(summary.recommended_hooks[0]).toBe("High intent");
+  });
+});
+
+describe("drip sequences", () => {
+  it("gives every preset at least one step and a stated audience", () => {
+    for (const preset of DRIP_PRESETS) {
+      expect(preset.steps.length).toBeGreaterThan(0);
+      expect(preset.audience.length).toBeGreaterThan(5);
+    }
+  });
+
+  it("fills the launch preset with four claim-clean emails", () => {
+    const steps = templateDripSequence({
+      preset: "launch",
+      steps: DRIP_PRESETS[0]!.steps,
+    });
+    expect(steps).toHaveLength(4);
+    for (const step of steps) {
+      expect(step.subject.length).toBeGreaterThan(5);
+      expect(step.body.length).toBeGreaterThan(50);
+      expect(isClaimClean(`${step.subject}\n${step.body}`)).toBe(true);
+    }
+    expect(steps.map((s) => s.step)).toEqual([1, 2, 3, 4]);
+  });
+
+  it("keeps the delay it was handed rather than inventing one", () => {
+    const steps = templateDripSequence({
+      preset: "custom",
+      steps: [{ name: "Kickoff", delayDays: 0 }, { name: "Follow up", delayDays: 9 }],
+    });
+    expect(steps[1]).toMatchObject({ name: "Follow up", delay_days: 9 });
+  });
+
+  it("recycles subjects rather than emptying them when there are more steps than templates", () => {
+    const steps = templateDripSequence({
+      preset: "custom",
+      steps: Array.from({ length: 4 }, (_, i) => ({ name: `Step ${i}`, delayDays: i })),
+    });
+    for (const step of steps) expect(step.subject).not.toBe("");
+  });
+});
+
+describe("competitor pulse", () => {
+  it("drops entries with no id or no hook", () => {
+    const stored = JSON.stringify([
+      { id: "a", account: "x", date: "2026-07-01", hook: "keep me", tags: ["rates"] },
+      { id: "", account: "y", date: "", hook: "no id", tags: [] },
+      { id: "c", account: "z", date: "", hook: "", tags: [] },
+    ]);
+    const log = parseStoredCompetitorLog(stored);
+    expect(log).toHaveLength(1);
+    expect(log[0]?.hook).toBe("keep me");
+  });
+
+  it("drops unknown tags rather than the whole row", () => {
+    const stored = JSON.stringify([
+      { id: "a", hook: "h", account: "", date: "", tags: ["rates", "astrology"] },
+    ]);
+    expect(parseStoredCompetitorLog(stored)[0]?.tags).toEqual(["rates"]);
+  });
+
+  it("caps the log and survives junk", () => {
+    const many = JSON.stringify(
+      Array.from({ length: 80 }, (_, i) => ({ id: String(i), hook: "h", account: "", date: "", tags: [] })),
+    );
+    expect(parseStoredCompetitorLog(many)).toHaveLength(COMPETITOR_LOG_MAX);
+    expect(parseStoredCompetitorLog(null)).toEqual([]);
+    expect(parseStoredCompetitorLog("not json")).toEqual([]);
+    expect(parseStoredCompetitorLog('{"not":"an array"}')).toEqual([]);
+  });
+
+  it("names readiness as open ground when nobody logged is claiming it", () => {
+    const analysis = templateCompetitorAnalysis([
+      { id: "a", account: "x", date: "", hook: "Rates are moving", tags: ["rates"] },
+    ]);
+    expect(analysis.patterns).toHaveLength(1);
+    expect(analysis.gaps.join(" ")).toContain("decision readiness");
+    expect(analysis.recommendations).toHaveLength(3);
+  });
+
+  it("still returns three recommendations with an empty log", () => {
+    const analysis = templateCompetitorAnalysis([]);
+    expect(analysis.recommendations).toHaveLength(3);
+    expect(analysis.patterns[0]).toContain("Nothing logged yet");
+  });
+});
+
+describe("themed calendar", () => {
+  it("rotates four themes a week at a time and wraps after week 4", () => {
+    expect(themeForDayOfMonth(1).label).toBe("Founder Story");
+    expect(themeForDayOfMonth(7).label).toBe("Founder Story");
+    expect(themeForDayOfMonth(8).label).toBe("ICP Pain");
+    expect(themeForDayOfMonth(22).label).toBe("Product / Path");
+    expect(themeForDayOfMonth(29).label).toBe("Founder Story");
+    expect(THEME_WEEKS).toHaveLength(4);
+  });
+
+  it("chunks a month into rows of seven with a short final row", () => {
+    const rows = monthWeekRows(2026, 7); // August 2026, 31 days
+    expect(daysInMonth(2026, 7)).toBe(31);
+    expect(rows.map((r) => r.length)).toEqual([7, 7, 7, 7, 3]);
+    expect(rows.flat()).toHaveLength(31);
+    expect(rows[0]?.[0]).toBe(1);
+    expect(rows[4]?.[2]).toBe(31);
+  });
+
+  it("handles February in a leap year", () => {
+    expect(daysInMonth(2028, 1)).toBe(29);
+    expect(monthWeekRows(2028, 1).flat()).toHaveLength(29);
+  });
+
+  it("finds exactly three posting days in any seven consecutive days", () => {
+    const firstWeek = monthWeekRows(2026, 0)[0]!;
+    expect(firstWeek.filter((day) => isPostingDay(2026, 0, day))).toHaveLength(3);
+  });
+
+  it("exports one line per posting day, dated and tagged", () => {
+    const lines = themeMonthExport(2026, 7).split("\n");
+    const postingDays = monthWeekRows(2026, 7)
+      .flat()
+      .filter((day) => isPostingDay(2026, 7, day));
+    expect(lines).toHaveLength(postingDays.length);
+    for (const line of lines) {
+      expect(line).toMatch(/^2026-08-\d{2} — .+ — [a-z0-9_]+$/);
+    }
+  });
+
+  it("keeps only well-formed note keys", () => {
+    const notes = parseStoredThemeNotes(
+      JSON.stringify({ "2026-08-03": "angle", "not-a-date": "drop me", "2026-08-04": 12 }),
+    );
+    expect(notes).toEqual({ "2026-08-03": "angle" });
+    expect(parseStoredThemeNotes(null)).toEqual({});
+    expect(parseStoredThemeNotes("[1,2]")).toEqual({});
+  });
+});
+
+describe("webhook targets", () => {
+  it("accepts https and rejects everything else", () => {
+    expect(isValidWebhookUrl("https://hooks.example.com/abc")).toBe(true);
+    expect(isValidWebhookUrl("  https://hooks.example.com/abc  ")).toBe(true);
+    expect(isValidWebhookUrl("http://hooks.example.com/abc")).toBe(false);
+    expect(isValidWebhookUrl("javascript:alert(1)")).toBe(false);
+    expect(isValidWebhookUrl("data:text/plain,hi")).toBe(false);
+    expect(isValidWebhookUrl("")).toBe(false);
+    expect(isValidWebhookUrl("not a url")).toBe(false);
+  });
+});
+
+describe("post performance", () => {
+  const row = (over: Partial<PostPerformanceRow>): PostPerformanceRow => ({
+    id: "1",
+    created_at: "2026-08-01T00:00:00Z",
+    platform: "linkedin",
+    utm_campaign: "w1",
+    utm_source: "linkedin",
+    post_snippet: "snippet",
+    posted_at: "2026-08-01",
+    impressions: null,
+    clicks: null,
+    completions: null,
+    notes: null,
+    ...over,
+  });
+
+  it("collapses whitespace and caps the snippet at 120 characters", () => {
+    expect(postSnippet("  a\n\n b  ")).toBe("a b");
+    expect(postSnippet("x".repeat(300))).toHaveLength(120);
+  });
+
+  it("treats a missing metric as unknown, not as zero", () => {
+    const totals = performanceTotals([
+      row({ id: "a", impressions: 1000, clicks: 50, completions: 3 }),
+      row({ id: "b" }),
+    ]);
+    expect(totals).toEqual({ impressions: 1000, clicks: 50, completions: 3, ctr: 5 });
+  });
+
+  it("reports no CTR rather than dividing by zero", () => {
+    expect(performanceTotals([row({})]).ctr).toBeNull();
+    expect(performanceTotals([]).ctr).toBeNull();
+  });
+
+  it("crowns the row with the most completions, not the most reach", () => {
+    const rows = [
+      row({ id: "reach", impressions: 100_000, completions: 1 }),
+      row({ id: "converter", impressions: 200, completions: 9 }),
+    ];
+    expect(bestPerformingId(rows)).toBe("converter");
+  });
+
+  it("crowns nothing when no row has a completion", () => {
+    expect(bestPerformingId([row({ id: "a", impressions: 5000 }), row({ id: "b" })])).toBeNull();
+    expect(bestPerformingId([])).toBeNull();
   });
 });

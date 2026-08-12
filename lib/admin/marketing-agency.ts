@@ -274,16 +274,24 @@ export function buildPostPrompt(input: {
   tone: PostTone;
   topic: string;
   wordCount?: number;
+  persona?: string;
 }): string {
   const meta = platformMeta(input.platform);
   const tone = TONES.find((t) => t.key === input.tone) ?? TONES[0]!;
   const target = input.wordCount ? `Aim for roughly ${input.wordCount} words. ` : "";
+  const persona = input.persona?.trim();
 
   return [
     `Write one ${meta.label} post for HōMI.`,
     "",
     `TOPIC: ${input.topic}`,
     `TONE: ${tone.label} — ${tone.brief}`,
+    ...(persona
+      ? [
+          `Write for this specific ICP persona: ${persona}. Address their specific anxiety.`,
+          "Use their language. Do not name the persona label in the copy itself.",
+        ]
+      : []),
     `PLATFORM BRIEF: ${meta.brief}`,
     `HARD CEILING: ${meta.limit} characters for the post copy. ${target}`.trim(),
     "",
@@ -448,10 +456,15 @@ export function templatePost(input: {
   platform: SocialPlatform;
   tone: PostTone;
   topic: string;
+  persona?: string;
 }): GeneratedPost {
   const meta = platformMeta(input.platform);
   const topic = input.topic.trim() || "a major purchase decision";
-  const body = TONE_TEMPLATES[input.tone](topic).join("\n");
+  const persona = input.persona?.trim();
+  const lines = TONE_TEMPLATES[input.tone](topic);
+  // The template path cannot rewrite for a persona, so it says who the post was
+  // aimed at rather than pretending the targeting happened.
+  const body = (persona ? [...lines, "", `(Written for: ${persona})`] : lines).join("\n");
 
   return {
     copy: fitToLimit(stripNeverSay(body).clean, meta.limit),
@@ -684,3 +697,1106 @@ export type CalendarAddDetail = {
   campaign: string;
   copy: string;
 };
+
+/* ================================================================== *
+ * TIER-2 EXTENSION — personas, repurpose, scorecard, image brief,    *
+ * drip sequences, analytics, competitor intel, post performance,      *
+ * theme calendar, webhook publisher.                                  *
+ * ================================================================== */
+
+/* ------------------------------------------------------------------ *
+ * Personas                                                            *
+ * ------------------------------------------------------------------ */
+
+export type PersonaKey =
+  | "all"
+  | "self_employed"
+  | "recently_divorced"
+  | "dual_income"
+  | "first_time"
+  | "pre_retiree";
+
+/**
+ * ICP slices the copy can be aimed at. `description` is what reaches the model
+ * verbatim, so it is written as a brief rather than as a label.
+ *
+ * "all" carries an empty description on purpose — an empty brief is how the
+ * caller says "general ICP", and the prompt builder omits the persona block
+ * entirely rather than telling the model to write for nobody in particular.
+ */
+export const PERSONAS: { key: PersonaKey; label: string; description: string }[] = [
+  { key: "all", label: "All (general ICP)", description: "" },
+  {
+    key: "self_employed",
+    label: "Self-employed buyer",
+    description:
+      "freelancer or contractor with variable income, anxious about how that income reads on paper",
+  },
+  {
+    key: "recently_divorced",
+    label: "Recently divorced",
+    description: "rebuilding solo on one income, financial and emotional reset at the same time",
+  },
+  {
+    key: "dual_income",
+    label: "Dual-income anxious couple",
+    description: "earn well together but scared of the commitment, stuck in analysis paralysis",
+  },
+  {
+    key: "first_time",
+    label: "First-time buyer",
+    description: "overwhelmed by rates, terms and timeline, and by not knowing what they do not know",
+  },
+  {
+    key: "pre_retiree",
+    label: "Pre-retiree mover",
+    description: "downsizing or relocating on a five-year horizon, moving to a fixed income",
+  },
+];
+
+export function personaMeta(key: PersonaKey): { key: PersonaKey; label: string; description: string } {
+  return PERSONAS.find((p) => p.key === key) ?? PERSONAS[0]!;
+}
+
+/** The brief handed to generate_post. Empty string means "no persona". */
+export function personaBrief(key: PersonaKey): string {
+  const meta = personaMeta(key);
+  return meta.description ? `${meta.label} — ${meta.description}` : "";
+}
+
+/* ------------------------------------------------------------------ *
+ * Repurpose                                                           *
+ * ------------------------------------------------------------------ */
+
+export function buildRepurposePrompt(input: {
+  sourceCopy: string;
+  targetPlatform: SocialPlatform;
+}): string {
+  const meta = platformMeta(input.targetPlatform);
+
+  // AGENCY_SYSTEM_PROMPT is passed as the `system` parameter by the route, not
+  // spread in here — it is a string, and spreading a string into an array would
+  // yield one element per character.
+  return [
+    `Adapt this LinkedIn post for ${meta.label}.`,
+    "",
+    "SOURCE POST:",
+    input.sourceCopy,
+    "",
+    `HARD CEILING: ${meta.limit} characters. Respect it — do not go one character over.`,
+    `PLATFORM BRIEF: ${meta.brief}`,
+    "Keep the core message. Adjust format for platform norms. Strip never-say words.",
+    "This is a rewrite, not a summary — it should read as if written for this platform first.",
+    "",
+    "Return this JSON object:",
+    "{",
+    '  "copy": "the adapted post copy, ready to paste, no hashtags inside it",',
+    `  "hashtags": ["exactly ${meta.hashtagCount} hashtags, each starting with #"],`,
+    '  "utmSuggestion": "a short lowercase utm_campaign slug, words joined by underscores"',
+    "}",
+  ].join("\n");
+}
+
+/**
+ * Deterministic repurpose: fit the source to the target ceiling.
+ *
+ * Honest about what it is — a trim, not a rewrite. The badge on the panel says
+ * "Template" so the operator knows to edit before posting.
+ */
+export function templateRepurpose(input: {
+  sourceCopy: string;
+  targetPlatform: SocialPlatform;
+}): GeneratedPost {
+  const meta = platformMeta(input.targetPlatform);
+  const clean = stripNeverSay(input.sourceCopy).clean.trim();
+
+  return {
+    copy: fitToLimit(clean, meta.limit),
+    hashtags: defaultHashtags(input.targetPlatform),
+    utmSuggestion: `${meta.utmSource}_${slugifyCampaign(clean.slice(0, 60))}`.slice(0, 60),
+  };
+}
+
+/* ------------------------------------------------------------------ *
+ * Post performance log                                                *
+ * ------------------------------------------------------------------ */
+
+export const POST_SNIPPET_LENGTH = 120;
+
+export type PostPerformanceRow = {
+  id: string;
+  created_at: string;
+  platform: string;
+  utm_campaign: string;
+  utm_source: string;
+  post_snippet: string;
+  posted_at: string;
+  impressions: number | null;
+  clicks: number | null;
+  completions: number | null;
+  notes: string | null;
+};
+
+export function postSnippet(copy: string): string {
+  return copy.replace(/\s+/g, " ").trim().slice(0, POST_SNIPPET_LENGTH);
+}
+
+export type PerformanceTotals = {
+  impressions: number;
+  clicks: number;
+  completions: number;
+  /** Percentage points, or null when nothing was ever shown. */
+  ctr: number | null;
+};
+
+export function performanceTotals(rows: PostPerformanceRow[]): PerformanceTotals {
+  const impressions = rows.reduce((sum, r) => sum + (r.impressions ?? 0), 0);
+  const clicks = rows.reduce((sum, r) => sum + (r.clicks ?? 0), 0);
+  const completions = rows.reduce((sum, r) => sum + (r.completions ?? 0), 0);
+  return {
+    impressions,
+    clicks,
+    completions,
+    ctr: impressions > 0 ? Math.round((clicks / impressions) * 10_000) / 100 : null,
+  };
+}
+
+/**
+ * The row to highlight — most attributed completions wins, because completions
+ * are the north star and impressions are not. Null when nothing has completions
+ * yet, so the badge never crowns a row for scoring zero.
+ */
+export function bestPerformingId(rows: PostPerformanceRow[]): string | null {
+  let best: PostPerformanceRow | null = null;
+  for (const row of rows) {
+    if ((row.completions ?? 0) <= 0) continue;
+    if (!best || (row.completions ?? 0) > (best.completions ?? 0)) best = row;
+  }
+  return best?.id ?? null;
+}
+
+/* ------------------------------------------------------------------ *
+ * Sunday scorecard                                                    *
+ * ------------------------------------------------------------------ */
+
+export type ScorecardMetrics = {
+  /**
+   * Unique users with ≥1 completed assessment in the last 7 days (north star).
+   * Not raw completion-event count.
+   */
+  activationsLast7: number;
+  accountsLast7: number;
+  waitlistLast7: number;
+  waitlistTotal: number;
+  accountsTotal: number;
+  assessedUsers: number;
+  paidTotal: number;
+  mrrCents: number;
+  /**
+   * Cohort activation %: new accounts (7d) who completed at least once,
+   * or null when n is under the cohort minimum / zero.
+   */
+  activationRate7d: number | null;
+  /** Top channels this week, already ranked. Only the first three are printed. */
+  channels: { label: string; count: number }[];
+};
+
+/** Whole dollars, thousands-separated — the scorecard has no room for cents. */
+export function formatUsdWhole(cents: number): string {
+  return `$${Math.round(cents / 100).toLocaleString("en-US")}`;
+}
+
+/** "Aug 12, 2026" — the week-ending stamp in the scorecard heading. */
+export function weekEndingLabel(date: Date): string {
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+/**
+ * The exact markdown the founder pastes into the Sunday scoreboard.
+ *
+ * Three channel lines are always printed, padded with an em dash, so the shape
+ * of the scorecard does not change week to week — a missing line reads as a
+ * formatting bug, a dash reads as "no third channel yet".
+ */
+export function buildScorecardMarkdown(metrics: ScorecardMetrics, weekEnding: Date): string {
+  const rate =
+    metrics.activationRate7d !== null
+      ? `${metrics.activationRate7d}% of new accounts (cohort)`
+      : "— (n under 5 or no new accounts)";
+  const channels = [0, 1, 2].map((i) => {
+    const row = metrics.channels[i];
+    return `${i + 1}. ${row ? `${row.label} — ${row.count.toLocaleString()}` : "—"}`;
+  });
+
+  return [
+    `## HōMI Weekly Scorecard — WEEK ending ${weekEndingLabel(weekEnding)}`,
+    "",
+    "### North Star",
+    `- Unique activated users (7d): ${metrics.activationsLast7.toLocaleString()}`,
+    `- Cohort activation rate: ${rate}`,
+    "",
+    "### Pipeline",
+    `- New accounts (7d): ${metrics.accountsLast7.toLocaleString()}`,
+    `- Waitlist signups (7d): ${metrics.waitlistLast7.toLocaleString()}`,
+    `- Total waitlist: ${metrics.waitlistTotal.toLocaleString()}`,
+    `- Total accounts: ${metrics.accountsTotal.toLocaleString()}`,
+    `- Assessed (ever): ${metrics.assessedUsers.toLocaleString()}`,
+    `- Paid: ${metrics.paidTotal.toLocaleString()}`,
+    "",
+    "### Revenue",
+    `- MRR (est.): ${formatUsdWhole(metrics.mrrCents)}`,
+    "",
+    "### Top channels this week",
+    ...channels,
+    "",
+    "### Wins this week",
+    "- [ ] (fill in manually)",
+    "",
+    "### Blockers",
+    "- [ ] (fill in manually)",
+    "",
+    "### Next week focus",
+    "- [ ] (fill in manually)",
+  ].join("\n");
+}
+
+export type ScorecardSummaryInput = {
+  activationsLast7: number;
+  accountsLast7: number;
+  waitlistLast7: number;
+  mrrCents: number;
+  topChannel: string;
+};
+
+export function buildScorecardSummaryPrompt(input: ScorecardSummaryInput): string {
+  return [
+    "You are the founder's weekly marketing analyst. Given these HōMI metrics, write 2-3",
+    "sentences of honest, actionable insight. No hype. Recommend one content priority for",
+    "next week. If the numbers are too small to support a conclusion, say that plainly.",
+    "",
+    `ACTIVATIONS (7d): ${input.activationsLast7}`,
+    `NEW ACCOUNTS (7d): ${input.accountsLast7}`,
+    `WAITLIST SIGNUPS (7d): ${input.waitlistLast7}`,
+    `MRR (est.): ${formatUsdWhole(input.mrrCents)}`,
+    `TOP CHANNEL: ${input.topChannel || "none yet"}`,
+    "",
+    'Return this JSON object: { "summary": "the 2-3 sentences" }',
+  ].join("\n");
+}
+
+export function templateScorecardSummary(input: ScorecardSummaryInput): { summary: string } {
+  const rate =
+    input.accountsLast7 > 0 ? Math.round((input.activationsLast7 / input.accountsLast7) * 100) : null;
+
+  if (input.activationsLast7 === 0 && input.accountsLast7 === 0 && input.waitlistLast7 === 0) {
+    return {
+      summary:
+        "Nothing moved this week — no new accounts, activations or waitlist signups. That is a distribution problem, not a product one. Publish the three-post slate with tagged links so next Sunday has channel truth to read.",
+    };
+  }
+
+  const parts: string[] = [];
+  parts.push(
+    rate === null
+      ? `${input.activationsLast7} activations against no new accounts — the activations came from people who signed up earlier, so the top of the funnel is what to work on.`
+      : `${input.activationsLast7} activations from ${input.accountsLast7} new accounts (${rate}%) — ${
+          rate >= 40
+            ? "the path is converting, so the constraint is traffic, not friction."
+            : "more than half of new accounts never finish, so walk the path yourself before adding reach."
+        }`,
+  );
+  if (input.topChannel) {
+    parts.push(
+      input.topChannel === "direct"
+        ? "Most signups are landing as direct, which means the links are not tagged — stamp every founder post with UTMs before drawing any channel conclusion."
+        : `${input.topChannel} is carrying the week; keep the cadence there rather than opening a second surface.`,
+    );
+  }
+  parts.push(
+    input.waitlistLast7 > input.accountsLast7
+      ? "Waitlist is outpacing accounts — next week's priority is the founder-story post that converts interest into a completed assessment."
+      : "Next week's priority: one Build First post that shows the path a “not yet” verdict opens.",
+  );
+
+  return { summary: parts.join(" ") };
+}
+
+/* ------------------------------------------------------------------ *
+ * Image brief                                                         *
+ * ------------------------------------------------------------------ */
+
+export type ImageBrief = { canva_prompt: string; midjourney_prompt: string; style_notes: string };
+
+export function buildImageBriefPrompt(input: {
+  captionHook: string;
+  captionBody: string;
+  platform: SocialPlatform;
+}): string {
+  const meta = platformMeta(input.platform);
+
+  return [
+    "Based on this social post hook and body, write a visual design brief.",
+    "",
+    `PLATFORM: ${meta.label}`,
+    `HOOK: ${input.captionHook}`,
+    `BODY: ${input.captionBody}`,
+    "",
+    "Output three things:",
+    "1) A Canva description — what to put on the graphic: text, layout, feel. Two sentences.",
+    "2) An image-generation prompt (photorealistic or illustrated) that matches the HōMI dark",
+    "   navy aesthetic. No faces unless the post requires one. No text rendered in the image.",
+    "3) Style notes — colour mood and one composition tip.",
+    "",
+    "BRAND: dark navy background, cyan / emerald / yellow accents, generous negative space,",
+    "calm and precise rather than loud. Never a stock-photo handshake.",
+    "",
+    "Return this JSON object:",
+    "{",
+    '  "canva_prompt": "the Canva description",',
+    '  "midjourney_prompt": "the image-generation prompt",',
+    '  "style_notes": "colour mood and composition tip"',
+    "}",
+  ].join("\n");
+}
+
+/**
+ * Deterministic brief. Colour is named in words rather than hex on purpose:
+ * lib/brand COLORS is the single source of the palette, and a hex literal
+ * copied into a prompt string is a fork waiting to drift.
+ */
+export function templateImageBrief(input: {
+  captionHook: string;
+  captionBody: string;
+  platform: SocialPlatform;
+}): ImageBrief {
+  const meta = platformMeta(input.platform);
+  const hook = stripNeverSay(input.captionHook.trim()).clean || "Afford ≠ ready";
+
+  return {
+    canva_prompt: [
+      `${meta.label} graphic on a dark navy canvas with the hook — “${fitToLimit(hook, 90)}” —`,
+      "set left-aligned in the upper third, large, with a thin cyan rule beneath it and a lot of",
+      "empty space below. Bottom-left: the HōMI wordmark and the line “educational guidance only”",
+      "at a quarter of the hook's size, in dim grey.",
+    ].join(" "),
+    midjourney_prompt: [
+      "editorial illustration, deep navy background, single subject lit by cool cyan rim light,",
+      "soft emerald and warm yellow accents, wide negative space on the left third,",
+      "calm precise composition, matte finish, subtle film grain, no faces, no text,",
+      "no logos, square 1:1 --style raw",
+    ].join(" "),
+    style_notes:
+      "Cool base with one warm accent — navy ground, cyan for the signal, yellow used once and only once. Compose to the left third so the hook has room; keep the subject small in frame rather than centred and cropped.",
+  };
+}
+
+/* ------------------------------------------------------------------ *
+ * Email drip sequences                                                *
+ * ------------------------------------------------------------------ */
+
+export type DripPresetKey = "launch" | "reengagement" | "assessment_nurture" | "custom";
+
+export type DripStepInput = { name: string; delayDays: number };
+
+export type DripStep = {
+  step: number;
+  name: string;
+  delay_days: number;
+  subject: string;
+  body: string;
+};
+
+/** Delays are days after the PREVIOUS step, not days since signup. */
+export const DRIP_PRESETS: {
+  key: DripPresetKey;
+  label: string;
+  audience: string;
+  steps: DripStepInput[];
+}[] = [
+  {
+    key: "launch",
+    label: "Launch sequence",
+    audience: "someone who just joined the waitlist",
+    steps: [
+      { name: "Welcome", delayDays: 0 },
+      { name: "Day 3", delayDays: 3 },
+      { name: "Day 7", delayDays: 4 },
+      { name: "Day 14", delayDays: 7 },
+    ],
+  },
+  {
+    key: "reengagement",
+    label: "Re-engagement",
+    audience: "someone who signed up but never finished the readiness path",
+    steps: [
+      { name: "Day 0", delayDays: 0 },
+      { name: "Day 7", delayDays: 7 },
+      { name: "Day 21", delayDays: 14 },
+    ],
+  },
+  {
+    key: "assessment_nurture",
+    label: "Assessment nurture",
+    audience: "someone who completed the assessment and has a verdict",
+    steps: [
+      { name: "Completed", delayDays: 0 },
+      { name: "Day 2", delayDays: 2 },
+      { name: "Day 5", delayDays: 3 },
+      { name: "Day 10", delayDays: 5 },
+    ],
+  },
+  {
+    key: "custom",
+    label: "Custom",
+    audience: "the HōMI ICP",
+    steps: [{ name: "Step 1", delayDays: 0 }],
+  },
+];
+
+export function dripPreset(key: DripPresetKey): {
+  key: DripPresetKey;
+  label: string;
+  audience: string;
+  steps: DripStepInput[];
+} {
+  return DRIP_PRESETS.find((p) => p.key === key) ?? DRIP_PRESETS[0]!;
+}
+
+export function buildDripStepPrompt(input: {
+  preset: DripPresetKey;
+  step: DripStepInput;
+  index: number;
+  total: number;
+  audienceInterest?: string;
+}): string {
+  const preset = dripPreset(input.preset);
+  const interest = input.audienceInterest?.trim();
+
+  return [
+    `Write email step ${input.index + 1} of ${input.total} in a "${preset.label}" sequence for HōMI Technology.`,
+    "",
+    `STEP NAME: ${input.step.name}`,
+    `DELAY: ${input.step.delayDays} days after the previous email.`,
+    `AUDIENCE: ${preset.audience}.`,
+    ...(interest ? [`WHAT THEY SAID THEY WANT: ${interest}.`] : []),
+    "",
+    "Tone: educational, warm, no hype. Educational guidance only — HōMI is not a lender and",
+    "does not tell anyone what to buy.",
+    "Subject line: 6-8 words, curiosity-driven, no colon-stacking, no emoji.",
+    "Body: 3-4 short paragraphs, plain text, one clear call to action at the end.",
+    "",
+    "Return this JSON object:",
+    "{",
+    '  "subject": "the subject line",',
+    '  "body": "the email body, newline-separated paragraphs"',
+    "}",
+  ].join("\n");
+}
+
+const DRIP_BODY_TEMPLATES: Record<DripPresetKey, (step: DripStepInput, index: number) => string> = {
+  launch: (step, index) =>
+    [
+      index === 0
+        ? "You are on the list. Here is what that actually gets you."
+        : `Following on from ${step.name.toLowerCase()} — one idea worth sitting with.`,
+      "",
+      "Most tools answer how much you can carry. Almost nothing answers the question underneath it: what does your month look like after you commit, and would that feel steady?",
+      "",
+      "HōMI reads the signals you already have and returns one readiness verdict plus the path to close the gap. Educational guidance only — not a lender, not a credit score substitute.",
+      "",
+      "When you are ready, the readiness path takes about eight minutes.",
+    ].join("\n"),
+  reengagement: (_step, index) =>
+    [
+      index === 0
+        ? "You started the readiness path and stopped. That is worth a minute of honesty."
+        : "Still here whenever you want to pick it back up.",
+      "",
+      "People usually stop at the same place — the question that asks what happens the month after. It is uncomfortable because it is the real one.",
+      "",
+      "You do not have to like the answer to benefit from having it. A “not yet” is a map with a date on it, not a rejection.",
+      "",
+      "Pick up where you left off — nothing you entered was lost.",
+    ].join("\n"),
+  assessment_nurture: (_step, index) =>
+    [
+      index === 0
+        ? "Your verdict is ready. Here is how to read it."
+        : "One step from your Build First path, in plain language.",
+      "",
+      "A verdict is a snapshot of three things at once: the money, the timing, and how you actually feel about the commitment. Any one of them can be the thing holding the score down.",
+      "",
+      "The path underneath it is ordered by leverage — the first item moves the number most. Work it in that order rather than all at once.",
+      "",
+      "Open your path and take the first item this week.",
+    ].join("\n"),
+  custom: (step) =>
+    [
+      `${step.name}.`,
+      "",
+      "Affordability is arithmetic. Readiness is what your life looks like after you commit — the cushion, the month-after, the thing that goes wrong anyway.",
+      "",
+      "HōMI turns the signals you already have into one readiness verdict and a Build First path. Educational guidance only.",
+      "",
+      "Take the readiness path when you have eight minutes.",
+    ].join("\n"),
+};
+
+const DRIP_SUBJECT_TEMPLATES: Record<DripPresetKey, string[]> = {
+  launch: [
+    "What being on this list actually gets you",
+    "Afford and ready are different questions",
+    "The month after is the real test",
+    "A “not yet” with a date on it",
+  ],
+  reengagement: [
+    "You stopped at the honest question",
+    "Nothing you entered was lost",
+    "Two minutes to finish what you started",
+  ],
+  assessment_nurture: [
+    "How to read your readiness verdict",
+    "The one item that moves your score most",
+    "Why timing counts as much as money",
+    "Where you stand two weeks on",
+  ],
+  custom: ["A clearer read on a big decision"],
+};
+
+export function templateDripSequence(input: {
+  preset: DripPresetKey;
+  steps: DripStepInput[];
+}): DripStep[] {
+  const subjects = DRIP_SUBJECT_TEMPLATES[input.preset] ?? DRIP_SUBJECT_TEMPLATES.custom;
+  const bodyFor = DRIP_BODY_TEMPLATES[input.preset] ?? DRIP_BODY_TEMPLATES.custom;
+
+  return input.steps.map((step, index) => ({
+    step: index + 1,
+    name: step.name,
+    delay_days: step.delayDays,
+    subject: stripNeverSay(subjects[index % subjects.length]!).clean,
+    body: stripNeverSay(bodyFor(step, index)).clean,
+  }));
+}
+
+/* ------------------------------------------------------------------ *
+ * LinkedIn analytics import                                           *
+ * ------------------------------------------------------------------ */
+
+export type AnalyticsPost = { title: string; date: string; impressions: number; clicks: number; ctr: number };
+export type AnalyticsSummary = { summary: string; recommended_hooks: string[]; content_gaps: string[] };
+
+/**
+ * RFC4180-ish CSV reader: quoted fields, embedded commas and newlines, and
+ * doubled quotes as an escaped quote. Written by hand rather than pulled in as
+ * a dependency because this parses exactly one known export shape — but it does
+ * have to handle quotes, since LinkedIn post titles routinely contain commas.
+ */
+export function parseCsv(text: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i]!;
+    if (inQuotes) {
+      if (ch !== '"') {
+        field += ch;
+      } else if (text[i + 1] === '"') {
+        field += '"';
+        i++;
+      } else {
+        inQuotes = false;
+      }
+      continue;
+    }
+    if (ch === '"') {
+      inQuotes = true;
+    } else if (ch === ",") {
+      row.push(field);
+      field = "";
+    } else if (ch === "\n") {
+      row.push(field);
+      rows.push(row);
+      row = [];
+      field = "";
+    } else if (ch !== "\r") {
+      field += ch;
+    }
+  }
+  if (field !== "" || row.length > 0) {
+    row.push(field);
+    rows.push(row);
+  }
+
+  return rows
+    .map((r) => r.map((cell) => cell.trim()))
+    .filter((r) => r.some((cell) => cell !== ""));
+}
+
+/** "1,234" → 1234, "1.23%" → 1.23, anything unreadable → 0. */
+function parseNumeric(raw: string | undefined): number {
+  if (!raw) return 0;
+  const value = Number.parseFloat(raw.replace(/[,\s%$]/g, ""));
+  return Number.isFinite(value) ? value : 0;
+}
+
+/**
+ * Read a LinkedIn post-analytics export.
+ *
+ * LinkedIn prefixes the real table with a metadata block, and the column set
+ * has changed more than once, so columns are located by header name with a
+ * positional fallback rather than by index alone.
+ */
+export function parseLinkedInAnalytics(text: string): AnalyticsPost[] {
+  const rows = parseCsv(text);
+  if (rows.length === 0) return [];
+
+  const headerAt = rows.findIndex((row) =>
+    row.some((cell) => /post\s*(?:title|url)|published/i.test(cell)),
+  );
+  const start = headerAt === -1 ? 0 : headerAt;
+  const headers = (rows[start] ?? []).map((h) => h.toLowerCase());
+
+  const at = (predicate: (header: string) => boolean, fallback: number): number => {
+    const found = headers.findIndex(predicate);
+    return found === -1 ? fallback : found;
+  };
+  const titleAt = at((h) => h.includes("title") || h === "post", 0);
+  const dateAt = at((h) => h.includes("published") || h.includes("date"), 1);
+  // "Unique impressions" is a different metric — never let it win this lookup.
+  const impressionsAt = at((h) => h.includes("impressions") && !h.includes("unique"), 2);
+  const clicksAt = at((h) => h.includes("click") && !h.includes("through") && !h.includes("ctr"), 4);
+  const ctrAt = at(
+    (h) => h.includes("ctr") || h.includes("click through") || h.includes("click-through"),
+    8,
+  );
+
+  // When the header row was not found, row 0 is data, not a header.
+  const dataRows = headerAt === -1 ? rows : rows.slice(start + 1);
+
+  return dataRows
+    .map((row): AnalyticsPost => {
+      const impressions = Math.max(0, Math.round(parseNumeric(row[impressionsAt])));
+      const clicks = Math.max(0, Math.round(parseNumeric(row[clicksAt])));
+      const rawCtr = row[ctrAt] ?? "";
+      let ctr = parseNumeric(rawCtr);
+      // A CTR column can arrive as "1.23%" or as the fraction 0.0123.
+      if (rawCtr && !rawCtr.includes("%") && ctr > 0 && ctr <= 1) ctr *= 100;
+      if (!ctr && impressions > 0) ctr = (clicks / impressions) * 100;
+
+      return {
+        title: (row[titleAt] ?? "").slice(0, 200) || "(untitled post)",
+        date: row[dateAt] ?? "",
+        impressions,
+        clicks,
+        ctr: Math.round(ctr * 100) / 100,
+      };
+    })
+    .filter((post) => post.impressions > 0 || post.clicks > 0);
+}
+
+export function topPostsBy(
+  posts: AnalyticsPost[],
+  key: "impressions" | "clicks" | "ctr",
+  count = 3,
+): AnalyticsPost[] {
+  return [...posts].sort((a, b) => b[key] - a[key]).slice(0, count);
+}
+
+export function buildAnalyticsPrompt(topPosts: {
+  title: string;
+  impressions: number;
+  ctr: number;
+  clicks: number;
+}[]): string {
+  const table = topPosts
+    .map(
+      (p, i) =>
+        `${i + 1}. "${p.title}" — ${p.impressions} impressions, ${p.clicks} clicks, ${p.ctr}% CTR`,
+    )
+    .join("\n");
+
+  return [
+    "You are a LinkedIn content analyst for HōMI Technology.",
+    "Given these top performing posts, identify:",
+    "1) What hooks and angles are working — read impressions and CTR together, not separately.",
+    "2) What content gaps exist.",
+    "3) Recommend 3 specific post angles for next month.",
+    "Be specific. Reference the actual post titles.",
+    "",
+    "TOP POSTS:",
+    table || "(none supplied)",
+    "",
+    "Return this JSON object:",
+    "{",
+    '  "summary": "2-4 sentences on what is working and what is not",',
+    '  "recommended_hooks": ["3 specific post angles, each one line"],',
+    '  "content_gaps": ["2-4 gaps, each one line"]',
+    "}",
+  ].join("\n");
+}
+
+export function templateAnalyticsSummary(posts: AnalyticsPost[]): AnalyticsSummary {
+  if (posts.length === 0) {
+    return {
+      summary:
+        "No rows parsed from that export. Paste the CSV including its header row — the table starts at the line naming “Post title”.",
+      recommended_hooks: [],
+      content_gaps: [],
+    };
+  }
+
+  const totalImpressions = posts.reduce((sum, p) => sum + p.impressions, 0);
+  const byImpressions = topPostsBy(posts, "impressions");
+  const byCtr = topPostsBy(posts, "ctr");
+  const share = (n: number) =>
+    totalImpressions > 0 ? `${Math.round((n / totalImpressions) * 100)}%` : "0%";
+
+  const lead = byImpressions
+    .map(
+      (p) =>
+        `“${fitToLimit(p.title, 60)}” at ${p.impressions.toLocaleString()} (${share(p.impressions)} of all reach)`,
+    )
+    .join("; ");
+
+  const reachWinner = byImpressions[0];
+  const ctrWinner = byCtr[0];
+  const divergent = Boolean(reachWinner && ctrWinner && reachWinner.title !== ctrWinner.title);
+
+  return {
+    summary: [
+      `${posts.length} posts parsed, ${totalImpressions.toLocaleString()} impressions total. Reach leaders: ${lead}.`,
+      divergent && ctrWinner
+        ? `Reach and intent are pulling apart — “${fitToLimit(ctrWinner.title, 60)}” converts best at ${ctrWinner.ctr}% CTR despite less reach, which is the angle worth repeating.`
+        : "Reach and click-through agree on the same post, so the top angle is doing both jobs — repeat its structure before testing a new one.",
+    ].join(" "),
+    recommended_hooks: byCtr.map((p) => fitToLimit(p.title, 90)),
+    content_gaps: [
+      "No post in this export addresses the month-after question directly.",
+      "Build First — what a “not yet” verdict actually unlocks — is missing from the top set.",
+    ],
+  };
+}
+
+/* ------------------------------------------------------------------ *
+ * Competitor intel                                                    *
+ * ------------------------------------------------------------------ */
+
+export const COMPETITOR_LOG_KEY = "homi-competitor-log";
+export const COMPETITOR_URLS_KEY = "homi-competitor-urls";
+export const COMPETITOR_URL_SLOTS = 5;
+export const COMPETITOR_LOG_MAX = 50;
+
+export const COMPETITOR_TAGS = [
+  "housing",
+  "rates",
+  "readiness",
+  "emotional",
+  "data",
+  "story",
+  "tips",
+  "fear",
+] as const;
+export type CompetitorTag = (typeof COMPETITOR_TAGS)[number];
+
+export type CompetitorPost = {
+  id: string;
+  account: string;
+  hook: string;
+  date: string;
+  tags: CompetitorTag[];
+  impressions?: number;
+};
+
+export type CompetitorAnalysis = { patterns: string[]; gaps: string[]; recommendations: string[] };
+
+function isCompetitorTag(value: unknown): value is CompetitorTag {
+  return typeof value === "string" && (COMPETITOR_TAGS as readonly string[]).includes(value);
+}
+
+/**
+ * Defensive read of the hand-kept log.
+ *
+ * An entry with no id or no hook is unrenderable — the id is the React key and
+ * the hook is the only column worth reading — so those rows are dropped. An
+ * unknown tag is not fatal in the same way, so it is dropped from the row rather
+ * than taking the row with it.
+ */
+export function parseStoredCompetitorLog(raw: string | null): CompetitorPost[] {
+  if (!raw) return [];
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(parsed)) return [];
+
+  const log: CompetitorPost[] = [];
+  for (const value of parsed) {
+    if (log.length >= COMPETITOR_LOG_MAX) break;
+    if (!value || typeof value !== "object") continue;
+    const entry = value as Partial<CompetitorPost>;
+    const id = typeof entry.id === "string" ? entry.id.trim() : "";
+    const hook = typeof entry.hook === "string" ? entry.hook.trim() : "";
+    if (!id || !hook) continue;
+
+    const impressions =
+      typeof entry.impressions === "number" && Number.isFinite(entry.impressions)
+        ? entry.impressions
+        : undefined;
+
+    log.push({
+      id,
+      hook,
+      account: typeof entry.account === "string" ? entry.account : "",
+      date: typeof entry.date === "string" ? entry.date : "",
+      tags: Array.isArray(entry.tags) ? entry.tags.filter(isCompetitorTag) : [],
+      ...(impressions === undefined ? {} : { impressions }),
+    });
+  }
+  return log;
+}
+
+export function buildCompetitorPrompt(
+  posts: { account: string; hook: string; tags: string[]; impressions?: number }[],
+): string {
+  // AGENCY_SYSTEM_PROMPT is passed as the `system` parameter by the route, not
+  // spread in here — it is a string, and spreading a string into an array would
+  // yield one element per character.
+  const lines = posts.map(
+    (p) =>
+      `- [${p.account || "unattributed"}] "${p.hook}" — tags: ${p.tags.join(", ") || "none"}${
+        p.impressions ? ` — ~${p.impressions} impressions` : ""
+      }`,
+  );
+
+  return [
+    "You are a competitive content analyst for HōMI in the decision-readiness space.",
+    "",
+    "COMPETITOR POSTS LOGGED BY HAND:",
+    ...(lines.length > 0 ? lines : ["(none logged)"]),
+    "",
+    "Say what is working for them, which angles HōMI can own that they are not claiming, and",
+    "three specific post angles that differentiate rather than imitate. HōMI is not a lender",
+    "and does not compete on rates — an angle that requires either is not usable.",
+    "",
+    "Return this JSON object:",
+    "{",
+    '  "patterns": ["what is working for them, one line each"],',
+    '  "gaps": ["angles nobody logged here is claiming, one line each"],',
+    '  "recommendations": ["exactly three post angles, one line each"]',
+    "}",
+  ].join("\n");
+}
+
+/** What each tag means when it shows up repeatedly in the log. */
+const COMPETITOR_TAG_PATTERNS: Record<CompetitorTag, string> = {
+  housing: "Housing-market commentary — inventory, prices, when to move",
+  rates: "Rate and affordability anxiety is what they lead with",
+  readiness: "Readiness language, though usually stopping at the number behind it",
+  emotional: "Emotional framing — how the decision feels, not what it costs",
+  data: "Charts and data posts, credibility built on the numbers",
+  story: "Personal story hooks rather than a data-only open",
+  tips: "Checklist and how-to formats, written to be saved",
+  fear: "Loss framing — what you give up by waiting",
+};
+
+/**
+ * Deterministic read of the log.
+ *
+ * Tag-driven rather than canned: one pattern line per tag actually seen, ranked
+ * by how often it appeared, so an empty log says it is empty instead of
+ * inventing a category the operator never logged.
+ */
+export function templateCompetitorAnalysis(posts: CompetitorPost[]): CompetitorAnalysis {
+  const counts = new Map<CompetitorTag, number>();
+  for (const post of posts) {
+    for (const tag of post.tags) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+  }
+  const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  const logged = `${posts.length} logged`;
+
+  let patterns: string[];
+  if (posts.length === 0) {
+    patterns = [
+      "Nothing logged yet — paste five hooks from the accounts you watch and the pattern shows up on its own.",
+    ];
+  } else if (ranked.length === 0) {
+    patterns = [
+      `${posts.length} post${posts.length === 1 ? "" : "s"} logged with no topic tags, so there is nothing to group on yet. Tag them and the shape of their content becomes readable.`,
+    ];
+  } else {
+    patterns = ranked.map(([tag, count]) => `${COMPETITOR_TAG_PATTERNS[tag]} (${count} of ${logged})`);
+  }
+
+  return {
+    patterns,
+    gaps: [
+      counts.has("readiness")
+        ? "Someone logged here is already using decision readiness language — read those posts closely and say what the verdict actually rests on, which they do not."
+        : "Nobody logged here is claiming decision readiness — the gap between what someone can afford and whether they are ready for it is open ground.",
+      "The month after the purchase. Their posts stop at the closing; the anxiety starts after it.",
+      '"Not yet" as a real answer with a date on it, rather than a softer way of saying no.',
+    ],
+    recommendations: [
+      "Afford ≠ ready — name the distinction nobody else in this feed is making.",
+      "What a readiness verdict rests on, and what it deliberately does not claim.",
+      "The month after: what your budget actually looks like thirty days past the commitment.",
+    ],
+  };
+}
+
+/* ------------------------------------------------------------------ *
+ * Theme calendar (30-day)                                             *
+ * ------------------------------------------------------------------ */
+
+export const THEME_CALENDAR_STORAGE_KEY = "homi-theme-calendar";
+export const THEME_NOTES_STORAGE_KEY = "homi-theme-cal-notes";
+export type ThemeColorKey = "cyan" | "amber" | "emerald" | "yellow";
+
+export type ThemeWeek = {
+  /** 1-4, matching the "Week n" label in the legend. */
+  week: number;
+  label: string;
+  description: string;
+  colorKey: ThemeColorKey;
+  /** Pre-selected in the studio when the operator writes for this theme. */
+  tone: PostTone;
+  studioCampaign: string;
+};
+
+export const THEME_WEEKS: ThemeWeek[] = [
+  {
+    week: 1,
+    label: "Founder Story",
+    description: "Share your why, your journey, your own read on what readiness cost you.",
+    colorKey: "cyan",
+    tone: "story",
+    studioCampaign: "founder_story",
+  },
+  {
+    week: 2,
+    label: "ICP Pain",
+    description: "Speak straight at the anxiety the ICP already feels. Name the fear out loud.",
+    colorKey: "amber",
+    tone: "hook",
+    studioCampaign: "icp_pain",
+  },
+  {
+    week: 3,
+    label: "Social Proof / Insight",
+    description: "Data, an insight, or a real user moment — evidence rather than assertion.",
+    colorKey: "emerald",
+    tone: "authority",
+    studioCampaign: "social_proof",
+  },
+  {
+    week: 4,
+    label: "Product / Path",
+    description: "Show what HōMI does, concretely. The path, the verdict, the next move.",
+    colorKey: "yellow",
+    tone: "educational",
+    studioCampaign: "product_path",
+  },
+];
+
+/**
+ * Days 1-7 are week one, 8-14 week two, and so on — deliberately not tied to
+ * which weekday the month starts on, so a theme never splits across a row.
+ */
+export function themeForDayOfMonth(dayOfMonth: number): ThemeWeek {
+  return THEME_WEEKS[Math.floor((dayOfMonth - 1) / 7) % THEME_WEEKS.length]!;
+}
+
+export function themeDayKey(year: number, month: number, day: number): string {
+  return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+export function monthLabel(year: number, month: number): string {
+  return new Date(year, month, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}
+
+/** Day 0 of the next month is the last day of this one. `month` is 0-indexed. */
+export function daysInMonth(year: number, month: number): number {
+  return new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+}
+
+/**
+ * The month packed into rows of seven, starting at day 1.
+ *
+ * Not a weekday-aligned grid: the theme rotation is what the rows represent, so
+ * padding the first row to the calendar weekday would put week one's theme on
+ * blank cells. The final row is short rather than null-padded — a caller
+ * mapping over it gets real days and nothing else.
+ */
+export function monthWeekRows(year: number, month: number): number[][] {
+  const total = daysInMonth(year, month);
+  const rows: number[][] = [];
+  for (let first = 1; first <= total; first += 7) {
+    rows.push(Array.from({ length: Math.min(7, total - first + 1) }, (_, i) => first + i));
+  }
+  return rows;
+}
+
+/** Mon/Wed/Fri is the publishing cadence. Null (an absent day) is never one. */
+export function isPostingDay(year: number, month: number, day: number | null): boolean {
+  if (day === null) return false;
+  const weekday = new Date(Date.UTC(year, month, day)).getUTCDay();
+  return weekday === 1 || weekday === 3 || weekday === 5;
+}
+
+/** Note keys are ISO calendar days; anything else is a stale or corrupt write. */
+const THEME_NOTE_KEY = /^\d{4}-\d{2}-\d{2}$/;
+
+export function parseStoredThemeNotes(raw: string | null): Record<string, string> {
+  if (!raw) return {};
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return {};
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+
+  const notes: Record<string, string> = {};
+  for (const [key, value] of Object.entries(parsed as Record<string, unknown>)) {
+    if (!THEME_NOTE_KEY.test(key) || typeof value !== "string") continue;
+    notes[key] = value;
+  }
+  return notes;
+}
+
+/** One line per posting day: ISO date, theme, and the campaign tag to stamp. */
+export function themeMonthExport(year: number, month: number): string {
+  const lines: string[] = [];
+  for (let day = 1; day <= daysInMonth(year, month); day += 1) {
+    if (!isPostingDay(year, month, day)) continue;
+    const theme = themeForDayOfMonth(day);
+    lines.push(`${themeDayKey(year, month, day)} — ${theme.label} — ${theme.studioCampaign}`);
+  }
+  return lines.join("\n");
+}
+
+/* ------------------------------------------------------------------ *
+ * Webhook publisher                                                   *
+ * ------------------------------------------------------------------ */
+
+export const WEBHOOK_BUFFER_KEY = "homi-webhook-buffer";
+export const WEBHOOK_MAKE_KEY = "homi-webhook-make";
+export type WebhookTarget = "buffer" | "make";
+
+export type WebhookPayload = {
+  platform: string; copy: string; utm_link: string; utm_campaign: string;
+  hashtags: string[]; scheduled_for: null; source: "homi-marketing-studio";
+};
+
+export function buildWebhookPayload(post: { platform: string; copy: string; utm_link: string; utm_campaign: string; hashtags: string[] }): WebhookPayload {
+  return { ...post, scheduled_for: null, source: "homi-marketing-studio" };
+}
+
+export function isValidWebhookUrl(url: string): boolean {
+  try { return new URL(url).protocol === "https:"; } catch { return false; }
+}

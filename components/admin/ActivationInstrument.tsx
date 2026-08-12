@@ -10,32 +10,43 @@ import {
 import { COLORS } from "@/lib/brand";
 
 export type ActivationInstrumentProps = {
-  activationsLast7: number;
+  /** Unique users with ≥1 completed assessment in the last 7 days. */
+  uniqueActivated7d: number;
+  /** Raw completion events in the last 7 days (can exceed unique users). */
+  completions7d: number;
   accountsLast7: number;
-  activationRate7d: number | null;
+  /** New accounts (7d) who completed at least once — cohort numerator. */
+  cohortActivated7d: number;
+  /** Honest cohort % or null when n is too small / zero. */
+  cohortRate7d: number | null;
+  /** True when sample is below MIN_COHORT_N so % is suppressed. */
+  cohortRateSuppressed: boolean;
   activationSeries: { date: string; count: number }[];
   /** Compact UTM builder (client island) rendered under the engine rail. */
   utmSlot: ReactNode;
 };
 
-function instrumentTint(activationsLast7: number, accountsLast7: number): string {
-  if (activationsLast7 > 0) return COLORS.emerald;
+function instrumentTint(uniqueActivated7d: number, accountsLast7: number): string {
+  if (uniqueActivated7d > 0) return COLORS.emerald;
   if (accountsLast7 > 0) return COLORS.amber;
   return COLORS.cyan;
 }
 
 /**
- * Signature hero for /admin/marketing — activations 7d + LinkedIn engine + UTM.
+ * Signature hero for /admin/marketing — unique activated users 7d + engine + UTM.
  * Does not emit a page-level h1 (PageHeader owns that).
  */
 export function ActivationInstrument({
-  activationsLast7,
+  uniqueActivated7d,
+  completions7d,
   accountsLast7,
-  activationRate7d,
+  cohortActivated7d,
+  cohortRate7d,
+  cohortRateSuppressed,
   activationSeries,
   utmSlot,
 }: ActivationInstrumentProps) {
-  const tint = instrumentTint(activationsLast7, accountsLast7);
+  const tint = instrumentTint(uniqueActivated7d, accountsLast7);
   const icpChip = truncateLabel(MARKETING_LOCK.icp, 56);
   const claimLine = truncateLabel(MARKETING_LOCK.claimOneLiner, 80);
 
@@ -43,7 +54,7 @@ export function ActivationInstrument({
     <OperateInstrument tint={tint} className="mt-6">
       <p className="eyebrow">This week · LinkedIn engine</p>
       <div className="dash-hero-meta" role="group" aria-label="This week focus">
-        <p className="font-display text-[clamp(1.35rem,2.4vw,1.85rem)] font-medium leading-tight tracking-tight text-light">
+        <p className="font-display text-xl font-medium leading-tight tracking-tight text-light">
           Create activations
         </p>
         <p>
@@ -75,18 +86,33 @@ export function ActivationInstrument({
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,0.45fr)_minmax(0,0.55fr)]">
         <div>
           <p className="text-3xs font-semibold uppercase tracking-wide text-dim">
-            Activations · 7 days
+            Activated users · 7 days
           </p>
-          <p className="score-numeral mt-1 text-5xl text-light sm:text-6xl">
-            {activationsLast7.toLocaleString()}
+          <p
+            className="score-numeral mt-1 text-5xl text-light sm:text-6xl"
+            title="Unique users with at least one completed assessment in the last 7 days"
+          >
+            {uniqueActivated7d.toLocaleString()}
           </p>
           <p className="mt-2 text-sm text-dim">
-            {accountsLast7.toLocaleString()} accounts → {activationsLast7.toLocaleString()}{" "}
-            activations
-            {activationRate7d !== null ? ` (${activationRate7d}%)` : ""}
+            {completions7d.toLocaleString()} completion
+            {completions7d === 1 ? "" : "s"}
+            {completions7d !== uniqueActivated7d
+              ? ` · ${uniqueActivated7d.toLocaleString()} unique`
+              : ""}
+          </p>
+          <p className="mt-1 text-sm text-dim">
+            Cohort: {cohortActivated7d.toLocaleString()} of {accountsLast7.toLocaleString()} new
+            accounts activated
+            {cohortRate7d !== null
+              ? ` (${cohortRate7d}%)`
+              : cohortRateSuppressed
+                ? " (rate hidden — n under 5)"
+                : ""}
           </p>
           {activationSeries.length >= 2 && (
             <div className="mt-4 w-full max-w-xs">
+              <p className="mb-1 text-3xs text-dim">Unique activated / day</p>
               <Sparkline
                 id="mk-instrument-activations"
                 values={activationSeries.map((d) => d.count)}
@@ -95,7 +121,8 @@ export function ActivationInstrument({
             </div>
           )}
           <p className="mt-3 text-xs text-dim">
-            North star: completed readiness path — not followers.
+            North star: unique users who completed a readiness path — not completion spam, not
+            followers.
           </p>
         </div>
 
