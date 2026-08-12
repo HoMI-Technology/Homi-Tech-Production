@@ -185,3 +185,12 @@ export {
   collectDataQualityInput,
   buildClientDataQuality,
 } from "./collect-data-quality";
+
+export {
+  buildReasoningTrail,
+  pillarGapBand,
+  type ReasoningTrail,
+  type ReasoningTrailItem,
+  type ReasoningTrailKind,
+  type BuildReasoningTrailInput,
+} from "./reasoning-trail";
