@@ -134,7 +134,7 @@ export function ActivationInstrument({
             {ENGINE_WEEK_POSTS.map((p) => (
               <li
                 key={p.campaign}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2"
+                className="glass flex flex-wrap items-center justify-between gap-2 px-3 py-2"
               >
                 <div>
                   <p className="text-sm font-medium text-light">
@@ -192,7 +192,7 @@ export function ActivationInstrument({
 
           <div
             id="utm-builder"
-            className="mt-5 scroll-mt-[calc(var(--nav-offset)+3.5rem)] rounded-lg border border-white/10 bg-navy/40 p-3 sm:p-4"
+            className="glass mt-5 scroll-mt-[calc(var(--nav-offset)+3.5rem)] p-3 sm:p-4"
           >
             <p className="text-3xs font-semibold uppercase tracking-wide text-dim">
               UTM link builder

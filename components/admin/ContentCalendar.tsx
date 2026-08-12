@@ -163,7 +163,7 @@ export function ContentCalendar({ enginePosts }: { enginePosts: EnginePost[] }) 
                   <div key={slot}>
                     <p className="text-3xs uppercase tracking-wide text-dim">{slotLabel(slot)}</p>
                     {entry ? (
-                      <div className="mt-1 rounded-lg border border-white/10 bg-navy/40 p-2">
+                      <div className="glass mt-1 p-2">
                         <p className="text-3xs font-semibold text-light">
                           {platformMeta(entry.platform).label}
                         </p>

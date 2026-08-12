@@ -69,7 +69,7 @@ export function AgencyControlTower({
       </div>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+        <div className="glass p-4">
           <p className="text-3xs font-semibold uppercase tracking-wide text-dim">
             North star · 7d
           </p>
@@ -80,7 +80,7 @@ export function AgencyControlTower({
             unique activated · {completions7d.toLocaleString()} completions
           </p>
         </div>
-        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 sm:col-span-2">
+        <div className="glass p-4 sm:col-span-2">
           <p className="text-3xs font-semibold uppercase tracking-wide text-dim">Cohort</p>
           <p className="mt-2 text-sm leading-relaxed text-light">{cohortLine}</p>
           <p className="mt-2 text-xs text-dim">
@@ -159,7 +159,7 @@ function StatusChip({
           ? COLORS.crimson
           : COLORS.dim;
   return (
-    <div className="rounded-lg border border-white/10 bg-navy/50 px-3 py-2 text-center">
+    <div className="glass px-3 py-2 text-center">
       <p className="score-numeral text-lg" style={{ color }}>
         {value}
       </p>
