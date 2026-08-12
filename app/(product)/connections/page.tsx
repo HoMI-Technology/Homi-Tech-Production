@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { COLORS } from "@/lib/brand";
 import dynamic from "next/dynamic";
 import type { LinkFlow } from "@/components/connections/PlaidLinkLauncher";
+import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
+import { PageFrame } from "@/components/operate/PageFrame";
 
 /**
  * Bank Connections — list, connect, reconnect (Plaid Link update mode),
@@ -242,7 +244,7 @@ export default function ConnectionsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-12">
+    <PageFrame width="focus" density="spacious" role="personal">
       <h1 className="font-display text-3xl text-light">Bank Connections</h1>
       <p className="mt-2 max-w-2xl text-dim">
         Connect your accounts for real balance and transaction context, or enter your numbers
@@ -259,7 +261,7 @@ export default function ConnectionsPage() {
 
       <div className="mt-8">
         {pageState === "loading" && (
-          <div className="glass p-6 text-sm text-dim">Checking bank connection status…</div>
+          <ProductLoadingSkeleton label="Checking bank connection status" rows={3} />
         )}
 
         {pageState === "unconfigured" && <UnconfiguredPanel />}
@@ -278,16 +280,26 @@ export default function ConnectionsPage() {
         )}
 
         {pageState === "error" && (
-          <div className="glass border bg-verdict-notyet p-6">
+          <div className="glass border border-crimson/25 bg-crimson/5 p-6" role="alert">
             <h2 className="font-semibold text-light">Couldn&apos;t reach bank connections</h2>
             <p className="mt-2 text-sm text-dim">
               Something went wrong checking connection status. You can still enter your numbers
               manually on the{" "}
-              <a href="/finance" className="text-cyan underline underline-offset-2">
-                Finance dashboard
+              <a href="/money" className="text-cyan underline underline-offset-2">
+                Money Stand
               </a>
               .
             </p>
+            <button
+              type="button"
+              className="btn btn-ghost mt-4 btn-sm"
+              onClick={() => {
+                setPageState("loading");
+                void loadItems();
+              }}
+            >
+              Retry
+            </button>
           </div>
         )}
 
@@ -356,7 +368,7 @@ export default function ConnectionsPage() {
           </div>
         )}
       </div>
-    </div>
+    </PageFrame>
   );
 }
 

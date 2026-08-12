@@ -5,11 +5,9 @@ import { signInRedirect } from "@/lib/auth/signInRedirect";
 import { AccessPanel } from "@/components/b2b/AccessPanel";
 import { PageFrame } from "@/components/operate/PageFrame";
 import { MetricRail } from "@/components/operate/MetricRail";
-import {
-  ActionDock,
-  OperateHeroMeta,
-  OperateInstrument,
-} from "@/components/operate/OperateInstrument";
+import { ActionDock } from "@/components/operate/ActionDock";
+import { OperateHeroMeta } from "@/components/operate/OperateHeroMeta";
+import { OperateInstrument } from "@/components/operate/OperateInstrument";
 import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
 import type { AssessmentRow, Organization, Profile } from "@/types/database";
 

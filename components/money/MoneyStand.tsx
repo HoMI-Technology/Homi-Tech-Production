@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ActionDock, OperateInstrument } from "@/components/operate/OperateInstrument";
+import { ActionDock } from "@/components/operate/ActionDock";
+import { OperateInstrument } from "@/components/operate/OperateInstrument";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { useCfm } from "@/hooks/use-cfm";
