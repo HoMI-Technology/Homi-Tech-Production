@@ -29,7 +29,14 @@ export default function OnboardingPage() {
           fetch("/api/assessments", {
             method: "POST",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({ inputs: local.inputs, kind: local.kind ?? "full" }),
+            body: JSON.stringify({
+              inputs: local.inputs,
+              kind: local.kind ?? "full",
+              // F.13: the replay must carry the vertical it was taken in.
+              // Omitting it lets the server default to home_buying, which would
+              // relabel a car assessment the moment the user signs up.
+              ...(local.decisionType ? { decisionType: local.decisionType } : {}),
+            }),
           }).catch(() => {});
         }
       }

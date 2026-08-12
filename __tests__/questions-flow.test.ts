@@ -19,27 +19,38 @@ describe("buildAssessmentFlow", () => {
   });
 
   /**
-   * Doubles as the Plans.md 5.9 PHASE 1 guard: the server allowlist has already
-   * widened to include "car", and this asserts the picker has NOT — that gap is
-   * the whole point of the expand phase. Phase 2 flips this expectation to
-   * ["home_buying", "car"] / true and moves the assertion to the multi-type
-   * case below; until then, a picker appearing here is a premature activation.
+   * Plans.md 5.9 PHASE 2 guard (was the phase-1 guard, inverted). Both deploys
+   * have landed: the server allowlist accepts "car" and the picker now offers
+   * it, so the live flow MUST open on the decision step. A single-entry active
+   * set here would mean the activation was reverted.
    */
-  it("skips the decision picker when only one active type (launch honesty)", () => {
-    expect(ACTIVE_DECISION_TYPES).toEqual(["home_buying"]);
-    expect(shouldShowDecisionPicker()).toBe(false);
+  it("shows the decision picker now that car is active", () => {
+    expect(ACTIVE_DECISION_TYPES).toEqual(["home_buying", "car"]);
+    expect(shouldShowDecisionPicker()).toBe(true);
 
     const steps = buildAssessmentFlow("home_buying");
+    expect(steps[0].kind).toBe("decision");
+  });
+
+  /** Launch-honesty path is still live code: one active type ⇒ no picker. */
+  it("skips the decision picker when only one type is active", () => {
+    const solo = ["home_buying"] as const;
+    expect(shouldShowDecisionPicker(solo)).toBe(false);
+
+    const steps = buildAssessmentFlow("home_buying", { activeDecisionTypes: solo });
     expect(steps.some((s) => s.kind === "decision")).toBe(false);
     expect(steps[0].kind).toBe("intro");
   });
 
-  it("includes the decision picker when multiple types are active", () => {
-    const multi = ["home_buying", "car"] as const;
-    expect(shouldShowDecisionPicker(multi)).toBe(true);
+  it("builds a full 3-pillar car flow behind the picker", () => {
+    const steps = buildAssessmentFlow("car");
+    const bankCount = getQuestionsForDecisionType("car").length;
+    const questionSteps = steps.filter((s) => s.kind === "question");
 
-    const steps = buildAssessmentFlow("home_buying", { activeDecisionTypes: multi });
+    expect(bankCount).toBeGreaterThan(0);
+    expect(questionSteps).toHaveLength(bankCount);
     expect(steps[0].kind).toBe("decision");
+    expect(steps[steps.length - 1].kind).toBe("review");
   });
 
   it("resolves every question step to a bank entry", () => {

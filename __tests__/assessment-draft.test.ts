@@ -111,7 +111,8 @@ describe("assessment draft persistence (bank flow v2)", () => {
     // rejects its submit — the draft must be treated as unresumable instead.
     const envelope = {
       version: DRAFT_VERSION,
-      decisionType: "car",
+      // "education" is canon-but-inactive; "car" went active at 5.9 phase 2.
+      decisionType: "education",
       responses: { fin_income: 6500 },
       conflict: { referralSource: null, deadlineOrigin: null },
       index: 4,
