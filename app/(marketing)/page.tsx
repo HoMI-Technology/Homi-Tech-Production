@@ -362,8 +362,11 @@ export default function MarketingHomePage() {
           <div className="mx-auto max-w-6xl">
             <Kicker>The companion layer</Kicker>
             <h2 className="mt-5 text-center type-display">
-              One companion. Six ways of telling the truth.
+              One companion. Three ways to hear it.
             </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-center text-dim">
+              Trinity under the hood. Steady, Clarity, or Horizon on the surface.
+            </p>
             <div className="mt-14">
               <Voices />
             </div>

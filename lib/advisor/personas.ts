@@ -1,11 +1,11 @@
 /**
- * Companion persona registry — shared between the floating CompanionWidget
- * (persona switcher chips), the /api/advisor route (system-prompt line when
- * a live model is available), and the deterministic fallback (persona
- * voice). Role descriptions are reused verbatim from components/home/Voices.tsx
- * so the marketing section and the live product never disagree about what
- * each mode is for. "Guardrail" from Voices is a safety layer, not a
- * conversational persona, so it is intentionally excluded here.
+ * Companion persona registry — engine-internal tone modes for /api/advisor
+ * (system-prompt line when a live model is available) and the deterministic
+ * fallback voice. Launch UI does **not** expose these labels (Homie / Reality
+ * Check / Gut Check / Timing Advisor); users pick skins Steady / Clarity /
+ * Horizon from `LAUNCH_SKINS` in `lib/advisor/identity.ts`, which map onto
+ * these personas underneath. "Planner" remains an engine mode for finance-
+ * tool framing, not a launch skin.
  */
 
 export type AdvisorPersona = "homie" | "reality" | "gut" | "timing" | "planner";

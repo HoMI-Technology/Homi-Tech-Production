@@ -31,12 +31,13 @@ each phase ships independently.
 - **Your HōMI.** Every user names and shapes their own HōMI. Identity is
   _configuration inside the brand-voice envelope_ — a name, a visual accent within
   brand canon, tone/pacing/depth/focus settings — never a way to opt out of the
-  voice rules. A few curated starter HōMIs (the classic compass plus Steady,
-  Clarity, and Horizon — the prototype archetypes re-voiced as brand-color forms,
-  deliberately a few and not fifty) give people a starting point; each is
-  renameable and maps to a persona default (`lib/advisor/identity.ts`). What the
-  user never configures: the math, verdict bands, weights, or the no-advice floor.
-  (Canon per `docs/archive/COMPANION-INTELLIGENCE-AUDIT.md`.)
+  voice rules. Launch-selectable skins are Steady, Clarity, and Horizon (orb
+  accents from `HOMI_PRESETS` / `LAUNCH_SKINS` in `lib/advisor/identity.ts`).
+  Classic compass preset `homi` may remain default identity chrome but is not a
+  fourth marketing skin label. Engine personas (homie / reality / gut / timing)
+  and Trinity (advocate / skeptic / arbiter) stay off default launch pickers.
+  What the user never configures: the math, verdict bands, weights, or the
+  no-advice floor. (Canon per `docs/archive/COMPANION-INTELLIGENCE-AUDIT.md`.)
 
 ## 2. What exists today (the seams)
 
@@ -45,7 +46,8 @@ each phase ships independently.
 | Floating widget | `components/companion/CompanionWidget.tsx`, mounted in `app/(product)/layout.tsx` | The mote's physical form in the product               |
 | Full-page chat  | `app/(product)/advisor/page.tsx` + `components/advisor/Chat.tsx`                  | Deep-conversation surface                             |
 | Brain           | `app/api/advisor/route.ts` (Anthropic, deterministic fallback)                    | One endpoint, one voice                               |
-| Personas        | `lib/advisor/personas.ts` — homie, reality, gut, timing, planner                  | Modes of the same friend                              |
+| Launch skins    | `LAUNCH_SKINS` in `lib/advisor/identity.ts` — Steady, Clarity, Horizon            | Launch UI surface of one companion                    |
+| Personas        | `lib/advisor/personas.ts` — homie, reality, gut, timing, planner                  | Engine tone under the skins (not launch labels)       |
 | Context spine   | `lib/advisor/context.ts`                                                          | What the Companion knows about _this user, right now_ |
 | Gate            | `lib/advisor/quota.ts` + `lib/entitlements.ts`                                    | Tiered daily message quota, server-authoritative      |
 | Siblings        | `/api/twin`, `/api/trinity`                                                       | Same gate, same guardrails, different formats         |
