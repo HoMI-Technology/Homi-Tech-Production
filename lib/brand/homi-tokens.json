@@ -1,0 +1,187 @@
+{
+  "_meta": {
+    "version": "1.0.0",
+    "product": "HōMI",
+    "spelling": "HōMI (capital H, ō = U+014D, capital MI). Repo/org slugs may use HoMI/Homi.",
+    "source": "derived from lib/brand + DESIGN.md + globals.css + components/brand/Wordmark.tsx",
+    "authority": "Wordmark anatomy > DESIGN.md > shipped rasters > process notes. Executable TypeScript/CSS must stay aligned; see CANON.md.",
+    "path": "lib/brand/homi-tokens.json",
+    "outOfScope": ["Post", "OmniTerm"]
+  },
+  "brand": {
+    "name": "HōMI",
+    "display": "HōMI",
+    "legalEntity": "HOMI TECHNOLOGIES LLC",
+    "domain": "homitechnology.com",
+    "category": "Decision Readiness Intelligence™"
+  },
+  "colors": {
+    "accents": {
+      "cyan": "#22d3ee",
+      "emerald": "#34d399",
+      "yellow": "#facc15"
+    },
+    "verdicts": {
+      "amber": "#fab633",
+      "crimson": "#f24822"
+    },
+    "surfaces": {
+      "navy": "#0a1628",
+      "navyLight": "#0f172a",
+      "slateSurface": "#1e293b",
+      "slateHigh": "#334155"
+    },
+    "text": {
+      "ink": "#ffffff",
+      "light": "#e2e8f0",
+      "dim": "#94a3b8"
+    }
+  },
+  "cssThemeKeys": {
+    "cyan": "--color-cyan",
+    "emerald": "--color-emerald",
+    "yellow": "--color-yellow",
+    "amber": "--color-amber",
+    "crimson": "--color-crimson",
+    "navy": "--color-navy",
+    "navyLight": "--color-navy-light",
+    "slateSurface": "--color-slate-surface",
+    "slateHigh": "--color-slate-high",
+    "ink": "--color-ink",
+    "light": "--color-light",
+    "dim": "--color-dim"
+  },
+  "verdicts": {
+    "READY": {
+      "label": "READY",
+      "colorToken": "emerald",
+      "color": "#34d399"
+    },
+    "ALMOST_THERE": {
+      "label": "ALMOST THERE",
+      "colorToken": "yellow",
+      "color": "#facc15"
+    },
+    "BUILD_FIRST": {
+      "label": "BUILD FIRST",
+      "colorToken": "amber",
+      "color": "#fab633"
+    },
+    "NOT_YET": {
+      "label": "DO NOT PROCEED",
+      "enum": "NOT_YET",
+      "colorToken": "crimson",
+      "color": "#f24822"
+    }
+  },
+  "pillars": {
+    "financial": {
+      "name": "Financial Reality",
+      "colorToken": "cyan",
+      "color": "#22d3ee",
+      "max": 35
+    },
+    "emotional": {
+      "name": "Emotional Truth",
+      "colorToken": "emerald",
+      "color": "#34d399",
+      "max": 35
+    },
+    "timing": {
+      "name": "Perfect Timing",
+      "colorToken": "yellow",
+      "color": "#facc15",
+      "max": 30
+    }
+  },
+  "typography": {
+    "display": {
+      "family": "Fraunces",
+      "cssVar": "--font-display",
+      "stack": ["Fraunces Omacron", "var(--font-fraunces)", "Georgia", "serif"],
+      "role": "Marketing/display headings"
+    },
+    "body": {
+      "family": "Inter",
+      "cssVar": "--font-sans",
+      "stack": ["Inter Omacron", "var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+      "role": "Body and UI chrome"
+    },
+    "score": {
+      "family": "JetBrains Mono",
+      "cssVar": "--font-score",
+      "stack": ["var(--font-jbm)", "ui-monospace", "monospace"],
+      "className": "score-numeral",
+      "role": "Scores, money, tabular data"
+    },
+    "microType": {
+      "text3xs": "0.625rem",
+      "text2xs": "0.6875rem"
+    }
+  },
+  "wordmark": {
+    "spelling": "HōMI",
+    "fontFamily": "Inter",
+    "fontWeight": 900,
+    "letterSpacing": "-0.02em",
+    "static": true,
+    "letters": {
+      "H": { "colorToken": "cyan", "color": "#22d3ee" },
+      "ō": { "colorToken": "emerald", "color": "#34d399" },
+      "M": { "colorToken": "yellow", "color": "#facc15" },
+      "I": { "colorToken": "cyan", "color": "#22d3ee" }
+    },
+    "component": "components/brand/Wordmark.tsx"
+  },
+  "radius": {
+    "sm": "8px",
+    "md": "12px",
+    "lg": "16px",
+    "xl": "24px"
+  },
+  "chrome": {
+    "navHeight": "60px",
+    "cssVar": "--nav-height"
+  },
+  "glow": {
+    "cyan": "0 0 30px rgba(34, 211, 238, 0.4)",
+    "emerald": "0 0 30px rgba(52, 211, 153, 0.35)",
+    "yellow": "0 0 30px rgba(250, 204, 21, 0.3)"
+  },
+  "materials": {
+    "glass": {
+      "className": "glass",
+      "background": "linear-gradient(160deg, rgba(15, 23, 42, 0.82), rgba(15, 23, 42, 0.62))",
+      "backdropFilter": "blur(18px) saturate(1.25)",
+      "border": "1px solid rgba(148, 163, 184, 0.14)",
+      "borderRadiusToken": "lg"
+    },
+    "hairline": {
+      "className": "hairline",
+      "height": "1px",
+      "background": "linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.22), transparent)"
+    }
+  },
+  "taglines": {
+    "primary": "Know When You're Ready",
+    "companion": "A Decision Companion",
+    "leap": "Know Before You Leap",
+    "moment": "The Moment Before Everything Changes",
+    "binary": "Ready or Not Yet. Nothing In Between."
+  },
+  "assets": {
+    "icons": [
+      "public/icon-192-v2.png",
+      "public/icon-512-v2.png",
+      "public/icon-512-maskable-v2.png",
+      "public/icon-v2.svg",
+      "public/apple-touch-icon-v2.png"
+    ],
+    "og": "public/og-v2.png",
+    "splashDir": "public/splash/"
+  },
+  "forbidden": {
+    "looks": ["beige", "purple-SaaS", "Anthropic brand-guidelines", "light surfaces"],
+    "secondVisualLanguage": true
+  }
+}
