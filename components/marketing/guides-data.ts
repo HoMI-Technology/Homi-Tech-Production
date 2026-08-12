@@ -19,6 +19,78 @@ export interface Guide {
 
 export const GUIDES: Guide[] = [
   {
+    slug: "afford-is-not-ready",
+    title: "Afford Is Not the Same as Ready",
+    description:
+      "Approval answers whether someone will fund the commitment. Readiness asks whether you’ll be okay after. Those are different questions — and confusing them is expensive.",
+    sections: [
+      {
+        heading: "Two questions that get collapsed into one",
+        paragraphs: [
+          "When people say “I can afford it,” they often mean one of three different things: a bank might lend against it, the payment fits in a spreadsheet this month, or life still feels livable after the commitment. Only the third is readiness. The first is underwriting. The second is cash-flow theater. Collapsing them is how people end up house-poor without ever missing a payment.",
+          "Credit scores and pre-approvals do important work. They were never designed to answer “will you be okay?” HōMI exists for that second question — as educational guidance, not as a lender, broker, or credit-score replacement.",
+        ],
+      },
+      {
+        heading: "What “afford” usually measures",
+        paragraphs: [
+          "Afford, in market language, is mostly structural: debt-to-income bands, payment-to-income ratios, reserves the underwriter wants to see. Those numbers protect the lender’s risk. They do not automatically protect your margin for a bad month, a job change, a repair, or the emotional cost of feeling trapped in a decision you rushed.",
+          "A maximum approval figure is especially dangerous when treated as a target. The bank’s ceiling is not your goal line. Treating it like one is one of the most common paths to a life that looks fine on paper and feels tight every week.",
+        ],
+      },
+      {
+        heading: "What “ready” actually requires",
+        paragraphs: [
+          "Readiness is three lenses at once. Financial Reality asks what the numbers can support without fantasy. Emotional Truth asks what still feels honest when the pressure drops. Perfect Timing asks whether now is your window — or whether waiting is the wiser move. Any one lens alone is incomplete.",
+          "That is why “not yet” and “Build First” are not failures. They are protective maps. They name the gap without shame and point at the next build action instead of forcing a commitment you will regret.",
+        ],
+      },
+      {
+        heading: "A simple test before you escalate",
+        paragraphs: [
+          "Ask out loud: If this closed tomorrow, would I still be okay — financially, emotionally, and in the life I’m actually living — not the life the listing photos sell? If the honest answer is “I’m not sure,” that uncertainty is data. It is not weakness.",
+          "You do not need HōMI’s permission to wait. You may want a calmer, structured read across all three pillars before someone with a stake in the sale sets the tempo. Ninety seconds of honesty beats ninety days of quiet regret.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "what-homi-is-not",
+    title: "What HōMI Is — and Isn’t",
+    description:
+      "A Decision Companion for Decision Readiness. Not a lender, not a credit score, not a hype machine. Clear bright lines so you know what you’re using.",
+    sections: [
+      {
+        heading: "What HōMI is",
+        paragraphs: [
+          "HōMI is a Decision Companion: a Decision Readiness Intelligence layer that helps you see whether you’ll be okay after a major commitment — starting with home-buying as the wedge, with the same honesty applied to other money decisions over time.",
+          "The product reads three pillars together: Financial Reality, Emotional Truth, and Perfect Timing. The output is educational guidance — a readiness signal and a map (including Build First and not yet), not an order to buy and not an approval.",
+        ],
+      },
+      {
+        heading: "What HōMI is not",
+        paragraphs: [
+          "HōMI is not a lender, mortgage broker, real-estate agent, credit bureau, or financial advisor. We do not pre-approve, pre-qualify, underwrite, or guarantee outcomes. We do not replace a credit score. We do not take affiliate or referral fees from lenders — zero-affiliate is doctrine, not a slogan.",
+          "If you need a loan offer, a rate lock, or a legal opinion, you need a licensed professional for that job. If you need clarity before that pressure, you are in the right place.",
+        ],
+      },
+      {
+        heading: "Language we refuse",
+        paragraphs: [
+          "You will not hear us claim you are “approved,” “guaranteed,” or that we “unlock your dream home.” We will not cosplay as a bank or invent urgency from market headlines. “Know When You’re Ready” means permission to wait when waiting is wise — not FOMO dressed as product.",
+          "If any marketing, partner, or rep ever blurs that line, treat it as a bug. The bright lines are public on purpose: educational guidance only; not a lender; not a credit score replacement.",
+        ],
+      },
+      {
+        heading: "How to use it well",
+        paragraphs: [
+          "Start with a calm assessment. Read the verdict as a map, not a grade. If the signal is Build First or not yet, use the path tools to close the real gap. If you are ready, you still talk to humans who underwrite and advise — HōMI does not replace them.",
+          "Bring curiosity, not performance. The product works when you tell the truth about money, feeling, and timing — especially the parts that are inconvenient.",
+        ],
+      },
+    ],
+  },
+  {
     slug: "the-real-cost-of-waiting-vs-rushing",
     title: "The Real Cost of Waiting vs. Rushing",
     description:

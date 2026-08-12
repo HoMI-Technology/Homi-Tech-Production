@@ -320,6 +320,21 @@ export default async function AdminMarketingPage() {
               hint: "7 workstreams · what is shipped vs ops TODO",
             },
             {
+              label: "Founder 30-min setup",
+              href: "/marketing/gtm/FOUNDER-30-MIN.md",
+              hint: "LinkedIn assets · first post + UTM · Resend · admin check",
+            },
+            {
+              label: "Engine · 2 weeks",
+              href: "/marketing/gtm/ENGINE-2-WEEKS.md",
+              hint: "Post calendar · daily engagements · Sunday scoreboards",
+            },
+            {
+              label: "Support: “Are you a lender?”",
+              href: "/marketing/gtm/SUPPORT-ARE-YOU-A-LENDER.md",
+              hint: "Copy-paste replies · claim-law under growth pressure",
+            },
+            {
               label: "Product Hunt gallery",
               href: "/marketing/launch/product-hunt/gallery-live/homi_ph_live_01_home.png",
               hint: "Live-UI gallery preferred over abstract-only",
@@ -328,6 +343,21 @@ export default async function AdminMarketingPage() {
               label: "Email campaigns",
               href: "/admin/email",
               hint: "Load sequence 01–04 as drafts · Resend send",
+            },
+            {
+              label: "Demo VO brief",
+              href: "/marketing/launch/demo-video/DEMO-VO-BRIEF.md",
+              hint: "Replace slideshow when engine weeks are done",
+            },
+            {
+              label: "SEO: afford ≠ ready",
+              href: "/guides/afford-is-not-ready",
+              hint: "Live guide hub · CTA to assessment",
+            },
+            {
+              label: "SEO: what HōMI isn’t",
+              href: "/guides/what-homi-is-not",
+              hint: "Bright lines public page",
             },
           ].map((item) => (
             <a

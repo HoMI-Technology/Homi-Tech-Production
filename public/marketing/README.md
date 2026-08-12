@@ -25,9 +25,13 @@
 
 **Master OS:** [`gtm/HOMI-SOLO-GTM-OS.md`](./gtm/HOMI-SOLO-GTM-OS.md)  
 **Execution status (7 workstreams):** [`gtm/EXECUTION-STATUS.md`](./gtm/EXECUTION-STATUS.md)  
+**Start here (30 min):** [`gtm/FOUNDER-30-MIN.md`](./gtm/FOUNDER-30-MIN.md)  
+**Engine · 2 weeks:** [`gtm/ENGINE-2-WEEKS.md`](./gtm/ENGINE-2-WEEKS.md)  
 **Launch day checklist:** [`gtm/LAUNCH_DAY.md`](./gtm/LAUNCH_DAY.md)  
-**Weekly scoreboard:** [`gtm/WEEKLY-SCOREBOARD.md`](./gtm/WEEKLY-SCOREBOARD.md)  
-**Support — “Are you a lender?”:** [`gtm/SUPPORT-ARE-YOU-A-LENDER.md`](./gtm/SUPPORT-ARE-YOU-A-LENDER.md)
+**Weekly scoreboard (template):** [`gtm/WEEKLY-SCOREBOARD.md`](./gtm/WEEKLY-SCOREBOARD.md) · [Week 1](./gtm/weeks/WEEK-1-SCOREBOARD.md) · [Week 2](./gtm/weeks/WEEK-2-SCOREBOARD.md)  
+**Support — “Are you a lender?”:** [`gtm/SUPPORT-ARE-YOU-A-LENDER.md`](./gtm/SUPPORT-ARE-YOU-A-LENDER.md)  
+**Demo VO brief:** [`launch/demo-video/DEMO-VO-BRIEF.md`](./launch/demo-video/DEMO-VO-BRIEF.md)  
+**SEO hubs:** [/guides/afford-is-not-ready](/guides/afford-is-not-ready) · [/guides/what-homi-is-not](/guides/what-homi-is-not)
 
 ---
 

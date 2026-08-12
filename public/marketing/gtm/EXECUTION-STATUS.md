@@ -25,56 +25,63 @@ Track the 7 workstreams. Checkboxes = founder/ops reality, not wishful code.
 | Verdict email post-assessment | Shipped | `sendVerdictEmailForAssessment` |
 | Broadcast campaigns | Shipped admin UI | `/admin/email` |
 | Launch sequence 01–04 as markdown | Assets ready | `/marketing/launch/emails/` |
-| Launch sequence **loaded & scheduled** | **Ops TODO** | Paste into `/admin/email` per `launch/emails/README.md` |
+| Launch sequence **loaded & scheduled** | **Ops TODO** | Paste into `/admin/email` per `FOUNDER-30-MIN.md` |
 | Engaged (clicked 30d) | **ESP TODO** | Resend open/click analytics; no in-app click store yet |
-| Post-assessment capture | Shipped path | Results → sign-up / plan (prefer account over waitlist) |
+| Post-assessment capture | Shipped path | Results → plan / Path to Ready / sign-up |
 
 ## 3. Activation instrumentation
 | Piece | Status | Where |
 |-------|--------|-------|
 | All-time completed assessments | Shipped | `/admin/marketing` funnel |
-| Weekly new activations | **Shipped (this pass)** | `/admin/marketing` MetricRail + 30d series |
-| Source of last 10 activations | **Shipped (this pass)** | `/admin/marketing` table |
+| Weekly new activations | Shipped | `/admin/marketing` MetricRail + 30d series |
+| Source of last 10 activations | Shipped | `/admin/marketing` table |
 | Full channel rollups | Shipped | `/admin/attribution` |
-| Drop-off start → complete | Partial | Accounts vs completed; “started draft” not a first-class weekly KPI yet |
+| Drop-off start → complete | Partial | Accounts vs completed; draft-start not weekly KPI yet |
 | Visit → signup (web analytics) | PostHog if configured | Product analytics, not admin SQL |
 
-## 4. Activation path (product)
+## 4. Activation path (product) — **set up**
 | Piece | Status |
 |-------|--------|
-| Assessment → results → plan / Build First CTAs | Shipped on `/results` |
-| “Are you a lender?” support script | **Shipped** · `SUPPORT-ARE-YOU-A-LENDER.md` |
-| Friction fixes from real users | Ongoing · use Sunday scoreboard + conversations |
+| Assessment → results → plan / Path to Ready / save | Shipped on `/results` |
+| **What next** activation path panel | **Shipped** on `/results` (ordered steps + claim line) |
+| “Are you a lender?” support script | **Shipped** · `SUPPORT-ARE-YOU-A-LENDER.md` · linked in admin library |
+| Friction fixes from real users | Ongoing · Sunday scoreboards |
 
-## 5. Run the engine (ops — 2 weeks)
+## 5. Run the engine (ops — 2 weeks) — **set up**
+| Artifact | Path |
+|----------|------|
+| Master runbook | [`ENGINE-2-WEEKS.md`](./ENGINE-2-WEEKS.md) |
+| Founder 30-min setup | [`FOUNDER-30-MIN.md`](./FOUNDER-30-MIN.md) |
+| Week 1 scoreboard | [`weeks/WEEK-1-SCOREBOARD.md`](./weeks/WEEK-1-SCOREBOARD.md) |
+| Week 2 scoreboard | [`weeks/WEEK-2-SCOREBOARD.md`](./weeks/WEEK-2-SCOREBOARD.md) |
+
 | Week action | W1 | W2 |
 |-------------|----|----|
 | 2–5 LinkedIn founder posts | [ ] | [ ] |
 | ~10 ICP engagements/day (help first) | [ ] | [ ] |
 | 1 email touch if list exists | [ ] | [ ] |
-| Sunday `WEEKLY-SCOREBOARD.md` | [ ] | [ ] |
+| Sunday scoreboard filled | [ ] | [ ] |
 | Claim-law violations = 0 | [ ] | [ ] |
 
-**Do not** build more graphics until both weeks are checked.
+**Do not** build more graphics until both week scoreboards are checked.
 
-## 6. Demo upgrade
-- [ ] Replace slideshow `HOMI-Demo-60s.mp4` with real product VO/screen capture  
-- Keep claim law in voiceover (not a lender / educational only)
+## 6. Demo upgrade — **brief ready**
+- [x] Shot list + VO claim-law brief · `launch/demo-video/DEMO-VO-BRIEF.md`
+- [ ] Record + replace `HOMI-Demo-60s.mp4` (after engine weeks preferred)
 
-## 7. SEO compounder (Days 30–60)
+## 7. SEO compounder — **hubs shipped**
 | Piece | Status |
 |-------|--------|
 | Guides hub | Shipped · `/guides` |
-| Afford / timing / emotional spokes | Partial · see `guides-data.ts` |
-| Explicit “afford ≠ ready” + “what HōMI isn’t” hubs | Optional next content PR |
-| CTA to assessment on every guide | Verify on page templates |
+| **Afford ≠ ready** | **Shipped** · `/guides/afford-is-not-ready` |
+| **What HōMI isn’t** | **Shipped** · `/guides/what-homi-is-not` |
+| CTA → assessment + UTM | **Shipped** on guide pages |
+| Other spokes | Existing guides in `guides-data.ts` |
 
 ---
 
-## This week’s founder checklist (minimum)
+## Start here (founder)
 
-1. Upload LinkedIn avatar + personal cover from `/marketing/brand/`  
-2. Post first founder piece from `content/posts/` + `CAPTIONS.md`  
-3. Confirm Resend domain green; send one test waitlist email  
-4. Load launch emails 01–04 as drafts in `/admin/email` (do not blast until list is warm)  
-5. Open `/admin/marketing` Sunday and fill scoreboard from real numbers  
+1. **`FOUNDER-30-MIN.md`** — LinkedIn, first post, Resend, admin check (once)  
+2. **`ENGINE-2-WEEKS.md`** — daily/weekly rhythm  
+3. Sundays → `weeks/WEEK-*-SCOREBOARD.md` + `/admin/marketing`  

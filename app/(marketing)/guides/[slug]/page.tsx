@@ -76,11 +76,15 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
               <div>
                 <h2 className="type-h3">See where you stand.</h2>
                 <p className="mt-2 text-sm text-dim">
-                  Ninety seconds tells you the truth about your readiness today.
+                  Ninety seconds of educational guidance — not a lender decision. Afford is not the
+                  same as ready.
                 </p>
               </div>
-              <Link href="/shadow-score" className="btn btn-primary shrink-0">
-                Get your score
+              <Link
+                href={`/assessment?utm_source=guides&utm_medium=organic&utm_campaign=${guide.slug}`}
+                className="btn btn-primary shrink-0"
+              >
+                Start Decision Readiness
               </Link>
             </div>
           </div>
