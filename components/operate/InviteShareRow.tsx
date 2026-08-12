@@ -21,7 +21,9 @@ export function InviteShareRow({
       >
         {url}
       </code>
-      <CopyButton value={url} label={copyLabel} className="!min-h-11 w-full shrink-0 sm:w-auto" />
+      {/* No min-height patch: CopyButton is .btn-sm, which already restores the
+          44px target under `@media (any-pointer: coarse)` (app/globals.css). */}
+      <CopyButton value={url} label={copyLabel} className="w-full shrink-0 sm:w-auto" />
     </div>
   );
 }

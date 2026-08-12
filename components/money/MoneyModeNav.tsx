@@ -12,7 +12,7 @@ import { usePathname } from "next/navigation";
  * and this stays the ONLY place the four modes appear as peers.
  */
 
-export type MoneyMode = "stand" | "track" | "plan" | "decide";
+export type MoneyMode = "stand" | "track" | "plan" | "decide" | "goals" | "invest";
 
 /** Single mode catalog — label is both the affordance and the a11y name. */
 export const MONEY_MODES: { id: MoneyMode; href: string; label: string }[] = [
@@ -20,12 +20,16 @@ export const MONEY_MODES: { id: MoneyMode; href: string; label: string }[] = [
   { id: "track", href: "/money/budget", label: "Track" },
   { id: "decide", href: "/money/decide", label: "Decide" },
   { id: "plan", href: "/money/plan", label: "Plan" },
+  { id: "goals", href: "/money/goals", label: "Goals" },
+  { id: "invest", href: "/money/investments", label: "Invest" },
 ];
 
 export function modeFromPath(pathname: string): MoneyMode {
   if (pathname.startsWith("/money/budget")) return "track";
   if (pathname.startsWith("/money/plan")) return "plan";
   if (pathname.startsWith("/money/decide")) return "decide";
+  if (pathname.startsWith("/money/goals")) return "goals";
+  if (pathname.startsWith("/money/investments")) return "invest";
   return "stand";
 }
 

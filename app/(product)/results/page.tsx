@@ -570,6 +570,15 @@ export default function ResultsPage() {
       <div className="mt-6 flex justify-center">
         <VerdictOverride hardStops={result.hardStops} assessmentId={effective.serverId ?? null} />
       </div>
+
+      {/* One number is a reading; the line is the story. /timeline owns the line. */}
+      {!isAnonymous && (
+        <div className="mt-8 flex justify-center">
+          <Link href="/timeline" className="text-sm font-semibold text-cyan hover:underline">
+            View score history &rarr;
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

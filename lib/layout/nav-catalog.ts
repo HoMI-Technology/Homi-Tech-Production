@@ -108,6 +108,15 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     surfaces: { header: "more", palette: true },
   },
   {
+    // Must stay after /results: the parity tests pin Results directly behind
+    // Path to Ready, and the timeline is the same story told over time.
+    href: "/timeline",
+    label: "Score history",
+    group: "Navigate",
+    keywords: "timeline trajectory re-check progress over time chart",
+    surfaces: { header: "more", palette: true },
+  },
+  {
     href: "/household",
     label: "Household",
     group: "Navigate",
@@ -255,6 +264,14 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     label: "Connections",
     group: "Navigate",
     keywords: "bank plaid sync accounts",
+    surfaces: { header: "more", palette: true },
+  },
+  {
+    href: "/trust",
+    label: "Trust",
+    paletteLabel: "Trust & privacy",
+    group: "Navigate",
+    keywords: "privacy data export download delete security portability",
     surfaces: { header: "more", palette: true },
   },
 

@@ -51,7 +51,7 @@ export function AgencyControlTower({
         <div>
           <p className="eyebrow">Agency OS · CEO board</p>
           <div className="dash-hero-meta" role="group" aria-label="Agency command">
-            <p className="font-display text-[clamp(1.35rem,2.4vw,1.85rem)] font-medium leading-tight tracking-tight text-light">
+            <p className="font-display text-2xl font-medium leading-tight tracking-tight text-light">
               You run the agency. Agents run the work.
             </p>
             <p>
@@ -129,7 +129,7 @@ export function AgencyControlTower({
           Proof
         </Link>
         <a
-          href="/marketing/gtm/HOMI-SOLO-GTM-OS.md"
+          href="/marketing/gtm/HOMI-SOLO-GTM-OS.md" // brand-ok: asset filename on disk, not user-visible brand text
           target="_blank"
           rel="noreferrer"
           className="btn btn-ghost btn-sm"

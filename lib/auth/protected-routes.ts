@@ -57,7 +57,9 @@ export const PROTECTED_PRODUCT_ROUTES = [
   "signals",
   "simulator",
   "team",
+  "timeline",
   "trinity",
+  "trust",
   "twin",
 ] as const;
 

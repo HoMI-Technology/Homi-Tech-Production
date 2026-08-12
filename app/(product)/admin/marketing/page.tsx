@@ -568,7 +568,7 @@ export default async function AdminMarketingPage() {
                   users · Claim law always on.
                 </p>
                 <a
-                  href="/marketing/gtm/HOMI-SOLO-GTM-OS.md"
+                  href="/marketing/gtm/HOMI-SOLO-GTM-OS.md" // brand-ok: asset filename on disk, not user-visible brand text
                   target="_blank"
                   rel="noreferrer"
                   className="mt-3 inline-block text-cyan hover:underline"
