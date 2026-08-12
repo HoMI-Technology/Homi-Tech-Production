@@ -38,6 +38,8 @@
 @theme {
   /* Primary brand */
   --color-cyan: #22d3ee;
+  /* CTA gradient end (btn-primary) — not a general-purpose accent */
+  --color-cyan-deep: #0ea5c4;
   --color-emerald: #34d399;
   --color-yellow: #facc15;
   /* Proprietary verdict colors (trademark-pending) */
@@ -52,6 +54,8 @@
   --color-ink: #ffffff;
   --color-light: #e2e8f0;
   --color-dim: #94a3b8;
+  /* CTA label ink on cyan primary buttons — not general-purpose text */
+  --color-cta-ink: #04121c;
 
   /*
    * Approved text/background contrast pairings (WCAG AA, dark-first canon).
@@ -643,8 +647,8 @@ body {
     transform: translateY(1px) scale(0.985);
   }
   .btn-primary {
-    background: linear-gradient(135deg, #22d3ee, #0ea5c4);
-    color: #04121c;
+    background: linear-gradient(135deg, var(--color-cyan), var(--color-cyan-deep));
+    color: var(--color-cta-ink);
     box-shadow: 0 8px 24px -8px rgba(34, 211, 238, 0.5);
   }
   .btn-primary:hover {

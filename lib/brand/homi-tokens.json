@@ -21,6 +21,11 @@
       "emerald": "#34d399",
       "yellow": "#facc15"
     },
+    "cta": {
+      "cyanDeep": "#0ea5c4",
+      "ctaInk": "#04121c",
+      "_note": "CTA-only tokens derived from existing btn-primary UI — not general-purpose accents."
+    },
     "verdicts": {
       "amber": "#fab633",
       "crimson": "#f24822"
@@ -39,6 +44,7 @@
   },
   "cssThemeKeys": {
     "cyan": "--color-cyan",
+    "cyanDeep": "--color-cyan-deep",
     "emerald": "--color-emerald",
     "yellow": "--color-yellow",
     "amber": "--color-amber",
@@ -49,7 +55,8 @@
     "slateHigh": "--color-slate-high",
     "ink": "--color-ink",
     "light": "--color-light",
-    "dim": "--color-dim"
+    "dim": "--color-dim",
+    "ctaInk": "--color-cta-ink"
   },
   "verdicts": {
     "READY": {
@@ -163,7 +170,7 @@
     }
   },
   "taglines": {
-    "primary": "Know When You're Ready",
+    "primary": "Know when you're ready. Move when it matters.",
     "companion": "A Decision Companion",
     "leap": "Know Before You Leap",
     "moment": "The Moment Before Everything Changes",

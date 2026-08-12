@@ -95,6 +95,7 @@ describe("preserved: original rule set", () => {
 describe("BRANDHEX: raw brand-palette hexes must come from lib/brand", () => {
   const PALETTE = [
     "#22d3ee",
+    "#0ea5c4",
     "#34d399",
     "#facc15",
     "#fab633",
@@ -105,6 +106,7 @@ describe("BRANDHEX: raw brand-palette hexes must come from lib/brand", () => {
     "#334155",
     "#e2e8f0",
     "#94a3b8",
+    "#04121c",
   ];
 
   it("flags every canonical palette hex in app/ and components/ TS/TSX", () => {

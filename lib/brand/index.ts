@@ -19,6 +19,7 @@ export const BRAND = {
  */
 export const COLORS = {
   cyan: "#22d3ee",
+  cyanDeep: "#0ea5c4", // CTA gradient end — not a general accent
   emerald: "#34d399",
   yellow: "#facc15",
   amber: "#fab633",
@@ -30,6 +31,7 @@ export const COLORS = {
   ink: "#ffffff",
   light: "#e2e8f0",
   dim: "#94a3b8",
+  ctaInk: "#04121c", // CTA label ink — not general-purpose text
 } as const;
 
 /**
@@ -129,7 +131,7 @@ export const LEGAL_DISCLAIMER =
   "HōMI is a product of HOMI TECHNOLOGIES LLC. HōMI is not a lender, mortgage broker, registered investment advisor, credit bureau, real estate agent or brokerage, financial planner, bank or deposit institution, or product recommendation engine. HōMI provides educational guidance only and does not provide financial, legal, tax, mortgage, real estate, or investment advice.";
 
 export const TAGLINES = {
-  primary: "Know When You're Ready",
+  primary: "Know when you're ready. Move when it matters.",
   companion: "A Decision Companion",
   leap: "Know Before You Leap",
   moment: "The Moment Before Everything Changes",
