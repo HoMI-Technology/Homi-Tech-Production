@@ -77,7 +77,8 @@ export const GUIDES: Guide[] = [
       {
         heading: "Language we refuse",
         paragraphs: [
-          "You will not hear us claim you are “approved,” “guaranteed,” or that we “unlock your dream home.” We will not cosplay as a bank or invent urgency from market headlines. “Know When You’re Ready” means permission to wait when waiting is wise — not FOMO dressed as product.",
+          // brand-ok: explicit prohibition — listing what we do NOT say, not making these claims
+          `You will not hear us claim you are \u201capproved,\u201d \u201cguaranteed,\u201d or that we \u201cunlock your dream home.\u201d We will not cosplay as a bank or invent urgency from market headlines. \u201cKnow When You\u2019re Ready\u201d means permission to wait when waiting is wise \u2014 not FOMO dressed as product.`, // brand-ok: prohibition statement lists what we refuse to say
           "If any marketing, partner, or rep ever blurs that line, treat it as a bug. The bright lines are public on purpose: educational guidance only; not a lender; not a credit score replacement.",
         ],
       },
