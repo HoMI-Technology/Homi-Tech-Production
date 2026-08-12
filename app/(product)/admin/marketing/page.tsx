@@ -9,6 +9,10 @@ import { FunnelBars, type FunnelStage } from "@/components/admin/FunnelBars";
 import { RankedBars } from "@/components/admin/RankedBars";
 import { MarketingLibrary } from "@/components/admin/MarketingLibrary";
 import { UtmLinkBuilder } from "@/components/admin/UtmLinkBuilder";
+import { AudienceInsights } from "@/components/admin/AudienceInsights";
+import { SocialContentStudio } from "@/components/admin/SocialContentStudio";
+import { PostCaptionWriter } from "@/components/admin/PostCaptionWriter";
+import { ContentCalendar } from "@/components/admin/ContentCalendar";
 import { AttentionStrip, type AttentionItem } from "@/components/operate/AttentionStrip";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
@@ -36,6 +40,7 @@ import {
   buildUtmUrl,
 } from "@/lib/admin/marketing-command";
 import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
+import { hasAnthropic } from "@/lib/env";
 import type { Campaign, SubscriptionTier } from "@/types/database";
 
 type ActivationRow = {
@@ -546,6 +551,18 @@ export default async function AdminMarketingPage() {
           )}
         </div>
       </div>
+
+      {/* Agency suite — read the audience, then write against it. Each panel is
+          its own client island; the page stays a server component. */}
+      <AudienceInsights
+        verdictCounts={verdictCounts}
+        channelRows={channelRows}
+        interestCounts={interestCounts}
+        aiEnabled={hasAnthropic()}
+      />
+      <SocialContentStudio />
+      <PostCaptionWriter />
+      <ContentCalendar enginePosts={ENGINE_WEEK_POSTS} />
 
       {/* Engine this week + UTM */}
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
