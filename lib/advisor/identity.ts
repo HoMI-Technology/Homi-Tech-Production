@@ -79,12 +79,15 @@ export const HOMI_PRESETS: HomiPreset[] = [
   },
 ];
 
+/** A launch skin preset — Steady / Clarity / Horizon (never classic `homi`). */
+export type LaunchSkin = HomiPreset & { key: LaunchSkinKey };
+
 /**
  * Launch-selectable skins only. Classic `homi` stays default identity chrome
  * but must not appear as a fourth marketing / picker skin label.
  */
-export const LAUNCH_SKINS: HomiPreset[] = HOMI_PRESETS.filter(
-  (p): p is HomiPreset & { key: LaunchSkinKey } => p.key !== "homi",
+export const LAUNCH_SKINS: LaunchSkin[] = HOMI_PRESETS.filter(
+  (p): p is LaunchSkin => p.key !== "homi",
 );
 
 export function getPreset(key: string | null | undefined): HomiPreset {

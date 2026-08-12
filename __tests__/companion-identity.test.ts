@@ -98,7 +98,8 @@ describe("starter presets", () => {
 describe("launch skins (founder lock)", () => {
   it("exposes exactly Steady, Clarity, and Horizon — not classic as a skin label", () => {
     expect(LAUNCH_SKINS.map((s) => s.key)).toEqual(["steady", "clarity", "horizon"]);
-    expect(LAUNCH_SKINS.some((s) => s.key === "homi")).toBe(false);
+    expect(HOMI_PRESETS.some((s) => s.key === "homi")).toBe(true);
+    expect(LAUNCH_SKINS).toHaveLength(3);
   });
 
   it("keeps orb accents from HOMI_PRESETS brand canon", () => {
