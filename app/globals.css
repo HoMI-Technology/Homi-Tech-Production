@@ -30,7 +30,8 @@
 
 /* ═══════════════════════════════════════════════════════════════════
    HōMI Design System — brand canon locked.
-   Colors, compass motion, and typography per CANON.md / homi-tokens.json.
+   Colors, compass motion, and typography per CANON.md /
+   lib/brand/homi-tokens.json (derived lock; keep `@theme` in sync).
    Dark-first navy only. Never light surfaces.
    ═══════════════════════════════════════════════════════════════════ */
 
