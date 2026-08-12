@@ -9,8 +9,8 @@ export type ToastRole = "alert" | "status";
 
 /**
  * Why a toast left the screen. "suppressed" means a higher-priority toast at
- * the same placement displaced it (the successor to the old
- * [data-priority-notice] DOM-attribute protocol).
+ * the same placement displaced it out of the queue entirely (hard drop when
+ * the deferred queue is at capacity), not a temporary deferral.
  */
 export type ToastDismissReason = "timeout" | "manual" | "suppressed";
 
@@ -36,6 +36,11 @@ export interface ToastItem {
   pauseOnHover: boolean;
   /** Card class override for custom-content toasts. */
   className?: string;
+  /**
+   * Bumped when the same announcement text repeats so screen readers re-read
+   * the live region (F.6(d)).
+   */
+  announceSeq: number;
   onDismiss?: (reason: ToastDismissReason) => void;
 }
 
@@ -66,6 +71,55 @@ function useToastTimer(duration: number | null, paused: boolean, onTimeout: () =
       );
     };
   }, [duration, paused]);
+}
+
+/**
+ * WCAG 2.2.1: pause time limits when the user leaves the window, not only on
+ * hover. `document.hidden` covers tab switches; window blur/focus covers
+ * focus moving to another app while the tab stays visible.
+ *
+ * Event-driven (not document.hasFocus() polling): jsdom reports hasFocus()
+ * as false by default, which would permanently freeze every toast timer.
+ */
+export function useDocumentPause(): boolean {
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    const pause = () => setPaused(true);
+    const resume = () => setPaused(document.hidden);
+    const onVisibility = () => setPaused(document.hidden);
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("blur", pause);
+    window.addEventListener("focus", resume);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("blur", pause);
+      window.removeEventListener("focus", resume);
+    };
+  }, []);
+  return paused;
+}
+
+function useToastPause(pauseOnHover: boolean): {
+  paused: boolean;
+  pauseHandlers: {
+    onMouseEnter?: () => void;
+    onMouseLeave?: () => void;
+    onFocus?: () => void;
+    onBlur?: () => void;
+  };
+} {
+  const documentPaused = useDocumentPause();
+  const [hoverPaused, setHoverPaused] = useState(false);
+  const paused = documentPaused || (pauseOnHover && hoverPaused);
+  const pauseHandlers = pauseOnHover
+    ? {
+        onMouseEnter: () => setHoverPaused(true),
+        onMouseLeave: () => setHoverPaused(false),
+        onFocus: () => setHoverPaused(true),
+        onBlur: () => setHoverPaused(false),
+      }
+    : {};
+  return { paused, pauseHandlers };
 }
 
 const variantStyles: Record<ToastVariant, { border: string; icon: string; glow: string }> = {
@@ -124,6 +178,24 @@ function renderContent(toast: ToastItem, dismiss: () => void): ReactNode {
   return typeof toast.content === "function" ? toast.content(dismiss) : toast.content;
 }
 
+/**
+ * Framer belt-and-braces (F.6): willChange only while the card is moving —
+ * set on every variant target that needs compositing, cleared via
+ * transitionEnd when the enter spring settles. onAnimationComplete is the
+ * fallback if transitionEnd is skipped (upstream regressions: motion #2317,
+ * 12.31.1 changelog). Exported for the structural unit contract.
+ */
+export const toastMotionVariants = {
+  initial: { opacity: 0, y: -20, scale: 0.95, willChange: "transform, opacity" },
+  animate: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transitionEnd: { willChange: "auto" },
+  },
+  exit: { opacity: 0, x: 40, scale: 0.95, willChange: "transform, opacity" },
+};
+
 /** Standard stacked toast card (top-right queue). */
 export function Toast({
   toast,
@@ -132,31 +204,31 @@ export function Toast({
   toast: ToastItem;
   onDismiss: (id: string, reason: ToastDismissReason) => void;
 }) {
-  const { id, message, variant, duration, role, pauseOnHover } = toast;
+  const { id, message, variant, duration, role, pauseOnHover, announceSeq } = toast;
   const styles = variantStyles[variant];
-  const [paused, setPaused] = useState(false);
+  const { paused, pauseHandlers } = useToastPause(pauseOnHover);
+  const nodeRef = useRef<HTMLDivElement | null>(null);
 
   useToastTimer(duration, paused, () => onDismiss(id, "timeout"));
 
-  const pauseHandlers = pauseOnHover
-    ? {
-        onMouseEnter: () => setPaused(true),
-        onMouseLeave: () => setPaused(false),
-        onFocus: () => setPaused(true),
-        onBlur: () => setPaused(false),
-      }
-    : {};
-
   return (
     <motion.div
+      ref={nodeRef}
       layout
-      initial={{ opacity: 0, y: -20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, x: 40, scale: 0.95 }}
+      variants={toastMotionVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
       transition={{ type: "spring", stiffness: 380, damping: 28 }}
+      onAnimationComplete={() => {
+        // Fallback when transitionEnd does not fire: dissolve the containing
+        // block so position:fixed descendants elsewhere stay viewport-pinned.
+        if (nodeRef.current) nodeRef.current.style.willChange = "auto";
+      }}
       role={role}
       aria-live={role === "status" ? "polite" : undefined}
       aria-atomic={role === "status" ? "true" : undefined}
+      data-announce-seq={announceSeq}
       className={`glass flex items-center gap-3 px-4 py-3 pr-3 ${styles.glow} border ${styles.border} min-w-[280px] max-w-[420px]`}
       {...pauseHandlers}
     >
@@ -167,7 +239,11 @@ export function Toast({
           <span className={`shrink-0 ${styles.icon}`}>
             <ToastIcon variant={variant} />
           </span>
-          <span className="text-sm text-light">{message}</span>
+          <span className="text-sm text-light">
+            {/* Alternating nbsp forces SR re-announce of identical copy (F.6(d)). */}
+            {message}
+            {announceSeq > 0 ? (announceSeq % 2 === 0 ? "\u00A0" : "\u200B") : null}
+          </span>
         </>
       )}
       <button
@@ -189,16 +265,9 @@ export function Toast({
 }
 
 /**
- * Bottom-center toast (session/security notices, Path progress). The fixed
- * wrapper carries the live-region role and the pause handlers, matching the
- * pre-consolidation ImpactToast DOM so screen readers and tests see the same
- * surface. Each instance is portaled by ToastProvider as a direct child of
- * document.body — ancestor will-change wrappers can never un-fix it.
- *
- * Bottom offset — narrow viewports: the toast spans nearly full width, so it
- * must clear the Companion launcher (h-14 at bottom-6 right-6) — same
- * clearance formula as the Companion panel. From sm up the centered max-w-md
- * card cannot reach the right corner, so it returns to the bottom baseline.
+ * Bottom-center toast card. Positioning lives on the persistent viewport in
+ * ToastProvider (F.6(a)); this card only owns role/live-region semantics and
+ * pause handlers so the viewport can stay mounted with or without children.
  */
 export function BottomCenterToast({
   toast,
@@ -207,27 +276,20 @@ export function BottomCenterToast({
   toast: ToastItem;
   onDismiss: (id: string, reason: ToastDismissReason) => void;
 }) {
-  const { id, role, duration, pauseOnHover } = toast;
-  const [paused, setPaused] = useState(false);
+  const { id, role, duration, pauseOnHover, announceSeq, message } = toast;
+  const { paused, pauseHandlers } = useToastPause(pauseOnHover);
 
   useToastTimer(duration, paused, () => onDismiss(id, "timeout"));
 
   const dismiss = () => onDismiss(id, "manual");
-  const pauseHandlers = pauseOnHover
-    ? {
-        onMouseEnter: () => setPaused(true),
-        onMouseLeave: () => setPaused(false),
-        onFocus: () => setPaused(true),
-        onBlur: () => setPaused(false),
-      }
-    : {};
 
   return (
     <div
       role={role}
       aria-live={role === "status" ? "polite" : undefined}
       aria-atomic={role === "status" ? "true" : undefined}
-      className="fixed inset-x-0 bottom-[max(5.5rem,calc(env(safe-area-inset-bottom,0px)+4.5rem))] z-[var(--z-toast)] flex justify-center px-4 sm:bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))]"
+      data-announce-seq={announceSeq}
+      className="w-full max-w-md"
       {...pauseHandlers}
     >
       <div
@@ -236,10 +298,19 @@ export function BottomCenterToast({
         }
       >
         {toast.content !== undefined ? (
-          renderContent(toast, dismiss)
+          <>
+            {/* sr-only tick re-announces custom-content repeats without changing the card. */}
+            {announceSeq > 0 ? (
+              <span className="sr-only">{announceSeq % 2 === 0 ? "\u00A0" : "\u200B"}</span>
+            ) : null}
+            {renderContent(toast, dismiss)}
+          </>
         ) : (
           <>
-            <p className="text-sm text-light">{toast.message}</p>
+            <p className="text-sm text-light">
+              {message}
+              {announceSeq > 0 ? (announceSeq % 2 === 0 ? "\u00A0" : "\u200B") : null}
+            </p>
             <button
               type="button"
               onClick={dismiss}

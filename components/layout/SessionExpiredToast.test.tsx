@@ -73,7 +73,10 @@ describe("SessionExpiredToast", () => {
     await window.fetch("/api/assessments");
 
     await waitFor(() => expect(screen.getByRole("alert")).toBeInTheDocument());
-    expect(screen.getByRole("alert").parentElement).toBe(document.body);
+    // F.6(a): toast lives inside the persistent Priority notices viewport,
+    // which itself must be a direct body child (escapes ancestor will-change).
+    const viewport = screen.getByRole("alert").closest('[aria-label="Priority notices"]');
+    expect(viewport?.parentElement).toBe(document.body);
   });
 
   it("ignores 401s from foreign origins", async () => {
