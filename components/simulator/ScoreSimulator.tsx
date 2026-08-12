@@ -277,7 +277,11 @@ export function ScoreSimulator({
               />
             </div>
             <div className="mt-6 flex flex-col items-center gap-2 text-center">
-              <VerdictBadge verdict={simulated.verdict} size="lg" />
+              <VerdictBadge
+                score={simulated.compositeScore}
+                hardStops={simulated.hardStops}
+                size="lg"
+              />
               <p className="max-w-md text-sm leading-relaxed text-dim">
                 {crossed
                   ? `This change moves you from ${currentMeta.label} to ${simulatedMeta.label}.`
