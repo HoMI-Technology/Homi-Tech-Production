@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   description: "Waitlist signups and interest areas.",
 };
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function formatDate(value: string) {
   try {
     return new Date(value).toLocaleDateString("en-US", {

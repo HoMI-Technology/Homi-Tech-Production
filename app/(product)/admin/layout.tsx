@@ -3,6 +3,9 @@ import { AdminMobileNav, AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminAccessWall } from "@/components/admin/AdminAccessWall";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { env } from "@/lib/env";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 import {
   deriveNextLevel,
   evaluateAdminAccess,
