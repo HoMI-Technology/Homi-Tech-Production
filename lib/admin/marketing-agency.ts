@@ -1789,14 +1789,36 @@ export const WEBHOOK_MAKE_KEY = "homi-webhook-make";
 export type WebhookTarget = "buffer" | "make";
 
 export type WebhookPayload = {
-  platform: string; copy: string; utm_link: string; utm_campaign: string;
-  hashtags: string[]; scheduled_for: null; source: "homi-marketing-studio";
+  platform: string;
+  copy: string;
+  utm_link: string;
+  utm_campaign: string;
+  hashtags: string[];
+  /** Always null: HōMI composes, the downstream tool schedules. */
+  scheduled_for: null;
+  source: "homi-marketing-studio";
 };
 
-export function buildWebhookPayload(post: { platform: string; copy: string; utm_link: string; utm_campaign: string; hashtags: string[] }): WebhookPayload {
+export function buildWebhookPayload(post: {
+  platform: string;
+  copy: string;
+  utm_link: string;
+  utm_campaign: string;
+  hashtags: string[];
+}): WebhookPayload {
   return { ...post, scheduled_for: null, source: "homi-marketing-studio" };
 }
 
+/**
+ * https only. Draft copy leaves the browser on this URL, so plain http (or a
+ * javascript:/data: URL pasted by accident) is refused rather than warned about.
+ * Trimmed first — a URL pasted with trailing whitespace is a typo, not a
+ * different protocol.
+ */
 export function isValidWebhookUrl(url: string): boolean {
-  try { return new URL(url).protocol === "https:"; } catch { return false; }
+  try {
+    return new URL(url.trim()).protocol === "https:";
+  } catch {
+    return false;
+  }
 }

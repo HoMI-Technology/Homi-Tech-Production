@@ -13,13 +13,7 @@ import { UtmLinkBuilder } from "@/components/admin/UtmLinkBuilder";
 import { AudienceInsights } from "@/components/admin/AudienceInsights";
 import { SocialContentStudio } from "@/components/admin/SocialContentStudio";
 import { PostCaptionWriter } from "@/components/admin/PostCaptionWriter";
-import { SundayScorecard } from "@/components/admin/SundayScorecard";
-import { ThemeCalendar } from "@/components/admin/ThemeCalendar";
-import { PostPerformanceTracker } from "@/components/admin/PostPerformanceTracker";
-import { LinkedInAnalyticsImport } from "@/components/admin/LinkedInAnalyticsImport";
-import { CompetitorPulse } from "@/components/admin/CompetitorPulse";
-import { EmailDripBuilder } from "@/components/admin/EmailDripBuilder";
-import { WebhookPublisher } from "@/components/admin/WebhookPublisher";
+import { ContentCalendar } from "@/components/admin/ContentCalendar";
 import { AttentionStrip, type AttentionItem } from "@/components/operate/AttentionStrip";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
@@ -40,6 +34,7 @@ import {
 import {
   CLAIM_NEVER_SAY,
   CLAIM_PREFER,
+  ENGINE_WEEK_POSTS,
   LIBRARY_SECTIONS,
   QUICK_ACTIONS,
 } from "@/lib/admin/marketing-command";
@@ -318,9 +313,6 @@ export default async function AdminMarketingPage() {
   const resendConfigured = Boolean(process.env.RESEND_API_KEY);
   const cohortRate7d = cohortActivationRatePct(cohortActivated7d, accountsLast7, MIN_COHORT_N);
   const cohortRateSuppressed = accountsLast7 > 0 && accountsLast7 < MIN_COHORT_N;
-  /** Alias for scorecard / AI: unique activated users (not completion events). */
-  const activationsLast7 = uniqueActivated7d;
-  const activationRate7d = cohortRate7d;
   const accountActivatePct =
     accountsTotal > 0 ? Math.round((assessedUsers / accountsTotal) * 100) : null;
 
@@ -497,21 +489,6 @@ return (
           ]}
         />
       </div>
-
-      {/* 4b. Sunday scorecard — the same numbers, as pasteable markdown. */}
-      <SundayScorecard
-        activationsLast7={activationsLast7}
-        accountsLast7={accountsLast7}
-        waitlistLast7={waitlistLast7}
-        waitlistTotal={waitlistTotal}
-        accountsTotal={accountsTotal}
-        assessedUsers={assessedUsers}
-        paidTotal={paidTotal}
-        mrrCents={mrrCents}
-        activationRate7d={activationRate7d}
-        channels={channels.slice(0, 3).map((c) => ({ label: c.key, count: c.count }))}
-        aiEnabled={hasAnthropic()}
-      />
 
       {/* 5. Quick actions */}
       <div className="mt-8">
@@ -761,10 +738,6 @@ return (
           )}
         </div>
 
-        {/* Drafts the sequence the Email OS card sends. Deliberately below it:
-            the composer is the destination, this is the drafting table. */}
-        <EmailDripBuilder />
-
         <div className="glass mt-6 p-6">
           <SectionHeader
             eyebrow="Revenue"
@@ -907,13 +880,7 @@ return (
           />
           <SocialContentStudio />
           <PostCaptionWriter />
-          {/* The 30-day themed plan supersedes the 7-day board: a week of slots
-              is a to-do list, a month of themes is a content strategy.
-              components/admin/ContentCalendar.tsx is retained but unmounted. */}
-          <ThemeCalendar />
-          <PostPerformanceTracker />
-          <LinkedInAnalyticsImport />
-          <CompetitorPulse />
+          <ContentCalendar enginePosts={ENGINE_WEEK_POSTS} />
         </div>
       </section>
 
@@ -996,9 +963,6 @@ return (
           </p>
         </div>
       </section>
-
-      {/* 11. Publish webhook settings — configuration, so it sits at the foot. */}
-      <WebhookPublisher />
     </div>
   );
 }
