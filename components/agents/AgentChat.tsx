@@ -297,7 +297,7 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
           type="button"
           onClick={() => sendMessage(input)}
           disabled={sending || !input.trim()}
-          className="btn btn-primary !px-4 disabled:opacity-50"
+          className="btn btn-primary btn-sm disabled:opacity-50"
           aria-label="Send message"
         >
           <svg

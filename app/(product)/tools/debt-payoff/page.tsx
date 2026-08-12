@@ -170,7 +170,7 @@ function DebtPayoffPageInner() {
                   onChange={(e) => updateDebt(debt.id, { minPayment: Number(e.target.value) })}
                 />
                 <button
-                  className="btn btn-ghost !px-3"
+                  className="btn btn-ghost btn-xs"
                   onClick={() => removeDebt(debt.id)}
                   aria-label={`Remove ${debt.name || "debt"}`}
                 >
