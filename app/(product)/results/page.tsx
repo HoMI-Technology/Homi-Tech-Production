@@ -13,6 +13,8 @@ import { deriveConflictSignals } from "@/lib/conflict/engine";
 import { useResultInsights } from "@/hooks/use-result-insights";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
+import { ReadinessBar } from "@/components/ui/ReadinessBar";
+import { SubMetricPill } from "@/components/ui/SubMetricPill";
 import { ScoreRing } from "@/components/ui/ScoreRing";
 import { CountUpScore } from "@/components/assessment/CountUpScore";
 import { SubFactorBar } from "@/components/assessment/SubFactorBar";
@@ -193,7 +195,7 @@ export default function ResultsPage() {
           <CountUpScore value={result.score} />
           <p className="mt-1 text-sm uppercase tracking-widest text-dim">HōMI-Score out of 100</p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-3 md:justify-start">
-            <VerdictBadge verdict={result.verdict} size="lg" />
+            <VerdictBadge score={result.score} hardStops={result.hardStops} size="lg" />
             {effective.previous && (
               <ScoreDeltaBadge
                 current={result.score}
@@ -201,6 +203,29 @@ export default function ResultsPage() {
                 previousDate={effective.previous.completedAt}
               />
             )}
+          </div>
+          <ReadinessBar
+            score={result.score}
+            hardStops={result.hardStops}
+            className="mt-5 w-full max-w-md"
+            showLegend={false}
+          />
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-2 md:justify-start">
+            <SubMetricPill
+              label="Financial"
+              value={result.financial.total}
+              max={PILLAR_MAX_POINTS.financial}
+            />
+            <SubMetricPill
+              label="Emotional"
+              value={result.emotional.total}
+              max={PILLAR_MAX_POINTS.emotional}
+            />
+            <SubMetricPill
+              label="Timing"
+              value={result.timing.total}
+              max={PILLAR_MAX_POINTS.timing}
+            />
           </div>
           <p className="mt-4 max-w-md text-base text-light">{meta.line}</p>
           <p className="mt-3 max-w-md text-xs leading-relaxed text-dim/80">
