@@ -5,21 +5,42 @@ import { getClientIp, rateLimit } from "@/lib/ratelimit";
 import { env, hasAnthropic } from "@/lib/env";
 import {
   AGENCY_SYSTEM_PROMPT,
+  buildAnalyticsPrompt,
   buildCaptionPrompt,
+  buildCompetitorPrompt,
+  buildDripStepPrompt,
+  buildImageBriefPrompt,
   buildInsightPrompt,
   buildPostPrompt,
+  buildRepurposePrompt,
+  buildScorecardSummaryPrompt,
   defaultHashtags,
   fitToLimit,
+  isCompetitorTag,
   platformMeta,
   slugifyCampaign,
   stripNeverSay,
+  templateAnalyticsSummary,
   templateCaption,
+  templateCompetitorAnalysis,
+  templateDripSequence,
+  templateImageBrief,
   templateInsight,
   templatePost,
+  templateRepurpose,
+  templateScorecardSummary,
+  type AnalyticsSummary,
+  type CompetitorAnalysis,
+  type CompetitorPost,
+  type DripPresetKey,
+  type DripStep,
+  type DripStepInput,
   type GeneratedCaption,
   type GeneratedPost,
   type HookStyle,
+  type ImageBrief,
   type PostTone,
+  type ScorecardSummaryInput,
   type SocialPlatform,
 } from "@/lib/admin/marketing-agency";
 import type { User } from "@supabase/supabase-js";
@@ -72,6 +93,10 @@ const generatePostSchema = z.object({
   tone: toneSchema,
   topic: z.string().trim().min(3).max(400),
   wordCount: z.number().int().min(20).max(600).optional(),
+  // Free text rather than an enum: the client sends the persona *brief*, which
+  // is what reaches the model. An unknown string is harmless — it is prose in a
+  // prompt, not a lookup key.
+  persona: z.string().trim().max(200).optional(),
 });
 
 const audienceInsightSchema = z.object({
@@ -93,10 +118,90 @@ const captionSchema = z.object({
   hookStyle: hookStyleSchema,
 });
 
+const scorecardSummarySchema = z.object({
+  action: z.literal("scorecard_summary"),
+  metrics: z.object({
+    activationsLast7: z.number().int().min(0).max(10_000_000),
+    accountsLast7: z.number().int().min(0).max(10_000_000),
+    waitlistLast7: z.number().int().min(0).max(10_000_000),
+    mrrCents: z.number().int().min(0).max(1_000_000_000),
+    topChannel: z.string().trim().max(60),
+  }),
+});
+
+const repurposeSchema = z.object({
+  action: z.literal("repurpose"),
+  source_copy: z.string().trim().min(3).max(3000),
+  target_platform: platformSchema,
+});
+
+const imageBriefSchema = z.object({
+  action: z.literal("image_brief"),
+  caption_hook: z.string().trim().min(1).max(400),
+  caption_body: z.string().trim().max(3000),
+  platform: platformSchema,
+});
+
+const analyticsSummarySchema = z.object({
+  action: z.literal("analytics_summary"),
+  top_posts: z
+    .array(
+      z.object({
+        title: z.string().trim().max(200),
+        impressions: z.number().min(0).max(1_000_000_000),
+        ctr: z.number().min(0).max(100),
+        clicks: z.number().min(0).max(1_000_000_000),
+      }),
+    )
+    .min(1)
+    .max(30),
+});
+
+const dripSequenceSchema = z.object({
+  action: z.literal("drip_sequence"),
+  preset: z.enum(["launch", "reengagement", "assessment_nurture", "custom"]),
+  steps: z
+    .array(
+      z.object({
+        name: z.string().trim().min(1).max(60),
+        delay_days: z.number().int().min(0).max(365),
+      }),
+    )
+    .min(1)
+    .max(8),
+  audience_interest: z.string().trim().max(120).optional(),
+  /**
+   * Single-step regeneration. The whole sequence is still sent so the prompt can
+   * say "step 3 of 4" honestly; only this index is generated and returned.
+   */
+  regenerate_index: z.number().int().min(0).max(7).optional(),
+});
+
+const competitorAnalysisSchema = z.object({
+  action: z.literal("competitor_analysis"),
+  posts: z
+    .array(
+      z.object({
+        account: z.string().trim().max(80),
+        hook: z.string().trim().min(1).max(400),
+        tags: z.array(z.string().trim().max(30)).max(6),
+        impressions: z.number().int().min(0).max(1_000_000_000).optional(),
+      }),
+    )
+    .min(1)
+    .max(50),
+});
+
 const bodySchema = z.discriminatedUnion("action", [
   generatePostSchema,
   audienceInsightSchema,
   captionSchema,
+  scorecardSummarySchema,
+  repurposeSchema,
+  imageBriefSchema,
+  analyticsSummarySchema,
+  dripSequenceSchema,
+  competitorAnalysisSchema,
 ]);
 
 /**
@@ -227,17 +332,40 @@ export async function POST(request: Request) {
   }
   const body = parsed.data;
 
-  if (body.action === "generate_post") {
-    return NextResponse.json(await generatePost(body, gate.user.id));
+  switch (body.action) {
+    case "generate_post":
+      return NextResponse.json(await generatePost(body, gate.user.id));
+    case "audience_insight":
+      return NextResponse.json(await audienceInsight(body, gate.user.id));
+    case "caption":
+      return NextResponse.json(await caption(body, gate.user.id));
+    case "scorecard_summary":
+      return NextResponse.json(await scorecardSummary(body.metrics, gate.user.id));
+    case "repurpose":
+      return NextResponse.json(await repurpose(body, gate.user.id));
+    case "image_brief":
+      return NextResponse.json(await imageBrief(body, gate.user.id));
+    case "analytics_summary":
+      return NextResponse.json(await analyticsSummary(body.top_posts, gate.user.id));
+    case "drip_sequence":
+      return NextResponse.json(await dripSequence(body, gate.user.id));
+    case "competitor_analysis":
+      return NextResponse.json(await competitorAnalysis(body.posts, gate.user.id));
   }
-  if (body.action === "audience_insight") {
-    return NextResponse.json(await audienceInsight(body, gate.user.id));
-  }
-  return NextResponse.json(await caption(body, gate.user.id));
+
+  // Unreachable: bodySchema is a discriminated union over exactly these actions.
+  // Kept so the handler's return type can never widen to include undefined.
+  return NextResponse.json({ error: "Unsupported action." }, { status: 400 });
 }
 
 async function generatePost(
-  body: { platform: SocialPlatform; tone: PostTone; topic: string; wordCount?: number },
+  body: {
+    platform: SocialPlatform;
+    tone: PostTone;
+    topic: string;
+    wordCount?: number;
+    persona?: string;
+  },
   actorId: string,
 ): Promise<GeneratedPost & { source: "model" | "template"; flagged: string[] }> {
   const fallback = { ...templatePost(body), source: "template" as const, flagged: [] as string[] };
@@ -321,5 +449,257 @@ async function caption(
     hashtags: asHashtags(parsed?.hashtags, body.platform),
     source: "model",
     flagged: [...new Set([...hook.flagged, ...bodyCopy.flagged])],
+  };
+}
+
+/* ------------------------------------------------------------------ *
+ * Tier 2 actions
+ * ------------------------------------------------------------------ */
+
+/**
+ * Claim-strip every string in a model-produced list and drop what is left empty.
+ * Bulleted output is where a prohibited phrase most often survives review, since
+ * the operator skims a list rather than reading it.
+ */
+function asCleanList(value: unknown, max: number, flagged: string[]): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => {
+      const checked = stripNeverSay(item.trim());
+      flagged.push(...checked.flagged);
+      return checked.clean.trim();
+    })
+    .filter((item) => item.length > 0)
+    .slice(0, max);
+}
+
+async function scorecardSummary(
+  metrics: ScorecardSummaryInput,
+  actorId: string,
+): Promise<{ summary: string; source: "model" | "template"; flagged: string[] }> {
+  const fallback = {
+    ...templateScorecardSummary(metrics),
+    source: "template" as const,
+    flagged: [] as string[],
+  };
+
+  const raw = await callModel(buildScorecardSummaryPrompt(metrics), 400, actorId, "scorecard_summary");
+  if (!raw) return fallback;
+
+  const summary = asString(extractJson(raw)?.summary);
+  if (!summary) return fallback;
+
+  const checked = stripNeverSay(summary);
+  if (!checked.clean) return fallback;
+
+  return { summary: checked.clean, source: "model", flagged: checked.flagged };
+}
+
+async function repurpose(
+  body: { source_copy: string; target_platform: SocialPlatform },
+  actorId: string,
+): Promise<GeneratedPost & { platform: SocialPlatform; source: "model" | "template"; flagged: string[] }> {
+  const input = { sourceCopy: body.source_copy, targetPlatform: body.target_platform };
+  const fallback = {
+    ...templateRepurpose(input),
+    platform: body.target_platform,
+    source: "template" as const,
+    flagged: [] as string[],
+  };
+
+  const raw = await callModel(buildRepurposePrompt(input), 900, actorId, "repurpose");
+  if (!raw) return fallback;
+
+  const parsed = extractJson(raw);
+  const copy = asString(parsed?.copy);
+  if (!copy) return fallback;
+
+  const meta = platformMeta(body.target_platform);
+  const checked = stripNeverSay(copy);
+  if (!checked.clean) return fallback;
+
+  const suggestion = asString(parsed?.utmSuggestion);
+  return {
+    copy: fitToLimit(checked.clean, meta.limit),
+    hashtags: asHashtags(parsed?.hashtags, body.target_platform),
+    utmSuggestion: suggestion
+      ? slugifyCampaign(suggestion)
+      : `${meta.utmSource}_${slugifyCampaign(body.source_copy.slice(0, 60))}`.slice(0, 60),
+    platform: body.target_platform,
+    source: "model",
+    flagged: checked.flagged,
+  };
+}
+
+async function imageBrief(
+  body: { caption_hook: string; caption_body: string; platform: SocialPlatform },
+  actorId: string,
+): Promise<ImageBrief & { source: "model" | "template"; flagged: string[] }> {
+  const input = {
+    captionHook: body.caption_hook,
+    captionBody: body.caption_body,
+    platform: body.platform,
+  };
+  const fallback = {
+    ...templateImageBrief(input),
+    source: "template" as const,
+    flagged: [] as string[],
+  };
+
+  const raw = await callModel(buildImageBriefPrompt(input), 700, actorId, "image_brief");
+  if (!raw) return fallback;
+
+  const parsed = extractJson(raw);
+  const canva = stripNeverSay(asString(parsed?.canva_prompt));
+  const midjourney = stripNeverSay(asString(parsed?.midjourney_prompt));
+  if (!canva.clean || !midjourney.clean) return fallback;
+
+  const notes = stripNeverSay(asString(parsed?.style_notes));
+  return {
+    canva_prompt: canva.clean,
+    midjourney_prompt: midjourney.clean,
+    style_notes: notes.clean || fallback.style_notes,
+    source: "model",
+    flagged: [...new Set([...canva.flagged, ...midjourney.flagged, ...notes.flagged])],
+  };
+}
+
+async function analyticsSummary(
+  topPosts: { title: string; impressions: number; ctr: number; clicks: number }[],
+  actorId: string,
+): Promise<AnalyticsSummary & { source: "model" | "template"; flagged: string[] }> {
+  const fallback = {
+    // The template twin reads full rows; the endpoint only receives the top set,
+    // which is enough for the share-of-reach arithmetic it does.
+    ...templateAnalyticsSummary(topPosts.map((p) => ({ ...p, date: "" }))),
+    source: "template" as const,
+    flagged: [] as string[],
+  };
+
+  const raw = await callModel(buildAnalyticsPrompt(topPosts), 900, actorId, "analytics_summary");
+  if (!raw) return fallback;
+
+  const parsed = extractJson(raw);
+  const summary = stripNeverSay(asString(parsed?.summary));
+  if (!summary.clean) return fallback;
+
+  const flagged = [...summary.flagged];
+  return {
+    summary: summary.clean,
+    recommended_hooks: asCleanList(parsed?.recommended_hooks, 5, flagged),
+    content_gaps: asCleanList(parsed?.content_gaps, 5, flagged),
+    source: "model",
+    flagged: [...new Set(flagged)],
+  };
+}
+
+async function dripSequence(
+  body: {
+    preset: DripPresetKey;
+    steps: { name: string; delay_days: number }[];
+    audience_interest?: string;
+    regenerate_index?: number;
+  },
+  actorId: string,
+): Promise<{ steps: DripStep[]; source: "model" | "template"; flagged: string[] }> {
+  const steps: DripStepInput[] = body.steps.map((s) => ({ name: s.name, delayDays: s.delay_days }));
+  const template = templateDripSequence({ preset: body.preset, steps });
+
+  // Single-step regeneration still prompts with the full sequence context, so
+  // "step 3 of 4" is true rather than "step 1 of 1".
+  const targets =
+    body.regenerate_index !== undefined && body.regenerate_index < steps.length
+      ? [body.regenerate_index]
+      : steps.map((_, i) => i);
+
+  if (!hasAnthropic()) {
+    return {
+      steps: targets.map((i) => template[i]!),
+      source: "template",
+      flagged: [],
+    };
+  }
+
+  const flagged: string[] = [];
+  let anyModel = false;
+
+  const generated = await Promise.all(
+    targets.map(async (index) => {
+      const raw = await callModel(
+        buildDripStepPrompt({
+          preset: body.preset,
+          step: steps[index]!,
+          index,
+          total: steps.length,
+          audienceInterest: body.audience_interest,
+        }),
+        800,
+        actorId,
+        "drip_sequence",
+      );
+      if (!raw) return template[index]!;
+
+      const parsed = extractJson(raw);
+      const subject = stripNeverSay(asString(parsed?.subject));
+      const emailBody = stripNeverSay(asString(parsed?.body));
+      if (!subject.clean || !emailBody.clean) return template[index]!;
+
+      anyModel = true;
+      flagged.push(...subject.flagged, ...emailBody.flagged);
+      return {
+        step: index + 1,
+        name: steps[index]!.name,
+        delay_days: steps[index]!.delayDays,
+        subject: subject.clean,
+        body: emailBody.clean,
+      } satisfies DripStep;
+    }),
+  );
+
+  return {
+    steps: generated,
+    source: anyModel ? "model" : "template",
+    flagged: [...new Set(flagged)],
+  };
+}
+
+async function competitorAnalysis(
+  posts: { account: string; hook: string; tags: string[]; impressions?: number }[],
+  actorId: string,
+): Promise<CompetitorAnalysis & { source: "model" | "template"; flagged: string[] }> {
+  // The template twin is tag-driven, so unknown tags are dropped rather than
+  // widening CompetitorTag to string across the whole module. Narrowed with the
+  // library's own guard so this cannot drift from COMPETITOR_TAGS.
+  const typed: CompetitorPost[] = posts.map((p, i) => ({
+    id: String(i),
+    account: p.account,
+    date: "",
+    hook: p.hook,
+    tags: p.tags.filter(isCompetitorTag),
+    impressions: p.impressions,
+  }));
+
+  const fallback = {
+    ...templateCompetitorAnalysis(typed),
+    source: "template" as const,
+    flagged: [] as string[],
+  };
+
+  const raw = await callModel(buildCompetitorPrompt(posts), 1000, actorId, "competitor_analysis");
+  if (!raw) return fallback;
+
+  const parsed = extractJson(raw);
+  const flagged: string[] = [];
+  const patterns = asCleanList(parsed?.patterns, 6, flagged);
+  const recommendations = asCleanList(parsed?.recommendations, 3, flagged);
+  if (patterns.length === 0 || recommendations.length === 0) return fallback;
+
+  return {
+    patterns,
+    gaps: asCleanList(parsed?.gaps, 5, flagged),
+    recommendations,
+    source: "model",
+    flagged: [...new Set(flagged)],
   };
 }

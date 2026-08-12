@@ -2263,113 +2263,73 @@ body {
   padding: 2.5rem 1rem 5rem;
 }
 
-.money-instrument-shell {
+/* ── Money cockpit — one measured column, labeled mode tabs ────────
+   Replaces .money-instrument-shell / .money-picture-col / .money-mode-rail /
+   .money-content-col: the three-column instrument put four competing zones on
+   one page and printed the same figures twice. */
+.money-page {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
+}
+.money-page-content {
+  padding-top: 1.5rem;
+}
+
+/* Horizontal mode tabs — Stand / Track / Decide / Plan, always labeled.
+   Scrolls rather than wraps on narrow screens so the row stays one line. */
+.money-mode-nav {
   display: flex;
-  /* Fills the viewport: the sidebar offset lives on `main`, and the 56px top
-     bar only exists below lg — where the mobile rule below drops min-height
-     entirely. Subtracting it here left dead space on desktop. */
-  min-height: 100dvh;
-  overflow: hidden;
+  gap: 0;
+  padding: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  overflow-x: auto;
+  scrollbar-width: none;
 }
-.money-picture-col {
-  width: 280px;
-  flex-shrink: 0;
-  border-right: 1px solid rgba(34, 211, 238, 0.08);
-  overflow-y: auto;
-  overscroll-behavior: contain;
+.money-mode-nav::-webkit-scrollbar {
+  display: none;
 }
-.money-picture-panel-inner {
-  padding: 1.25rem 1rem 1.5rem;
-}
-/* Vertical mode rail — S / T / D / P */
-.money-mode-rail {
-  width: 40px;
-  flex-shrink: 0;
-  border-right: 1px solid rgba(34, 211, 238, 0.06);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 1.25rem;
-  gap: 2px;
-  background: rgba(10, 22, 40, 0.4);
-}
-.money-mode-btn {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  font-family: var(--font-score);
-  font-size: 0.6875rem;
+.money-mode-tab {
+  padding: 0.75rem 1.25rem;
+  font-size: 0.75rem;
   font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--color-dim);
   text-decoration: none;
-  transition: background 150ms ease, color 150ms ease;
+  border-bottom: 2px solid transparent;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
+  white-space: nowrap;
 }
-.money-mode-btn:hover {
-  background: rgba(255, 255, 255, 0.04);
+.money-mode-tab:hover {
   color: var(--color-light);
 }
-.money-mode-btn[data-active="true"] {
+.money-mode-tab[data-active="true"] {
   color: var(--color-cyan);
+  border-bottom-color: var(--color-cyan);
 }
-.money-mode-btn[data-active="true"]::before {
-  content: "";
-  position: absolute;
-  left: -4px;
-  top: 20%;
-  bottom: 20%;
-  width: 3px;
-  border-radius: 0 2px 2px 0;
-  background: var(--color-cyan);
+
+/* Data strip — hairline-separated cells, no boxes. Replaces the MiniTile
+   grid in the hero and the MetricRail below it. Wraps before it squeezes:
+   four cells become 2x2 on a phone rather than four unreadable columns. */
+.money-data-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.75rem;
+  overflow: hidden;
 }
-.money-content-col {
-  flex: 1;
+.money-data-cell {
+  flex: 1 1 8rem;
   min-width: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  padding: 0.875rem 1rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
-/* Mobile collapse — picture full-width top, rail horizontal, content below */
-@media (max-width: 1023px) {
-  .money-instrument-shell {
-    flex-direction: column;
-    min-height: unset;
-  }
-  .money-picture-col {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid rgba(34, 211, 238, 0.08);
-  }
-  .money-mode-rail {
-    width: 100%;
-    height: 40px;
-    flex-direction: row;
-    justify-content: flex-start;
-    padding: 0 1rem;
-    border-right: none;
-    border-bottom: 1px solid rgba(34, 211, 238, 0.06);
-    gap: 4px;
-  }
-  .money-mode-btn {
-    width: auto;
-    height: 36px;
-    padding: 0 0.75rem;
-    font-size: 0.75rem;
-  }
-  .money-mode-btn[data-active="true"]::before {
-    left: 20%;
-    right: 20%;
-    top: auto;
-    bottom: -4px;
-    width: auto;
-    height: 3px;
-    border-radius: 2px 2px 0 0;
-  }
-  .money-content-col {
-    overflow-y: unset;
-  }
+.money-data-cell:last-child {
+  border-right: none;
 }
 
 .card-chrome {

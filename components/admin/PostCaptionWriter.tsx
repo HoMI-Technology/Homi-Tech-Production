@@ -8,6 +8,7 @@ import {
   platformMeta,
   stripNeverSay,
   type HookStyle,
+  type ImageBrief,
   type SocialPlatform,
 } from "@/lib/admin/marketing-agency";
 
@@ -36,6 +37,11 @@ export function PostCaptionWriter() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
+  const [brief, setBrief] = useState<ImageBrief | null>(null);
+  const [briefSource, setBriefSource] = useState<"model" | "template" | null>(null);
+  const [briefLoading, setBriefLoading] = useState(false);
+  const [copiedBrief, setCopiedBrief] = useState<"canva" | "image" | null>(null);
+
   const meta = platformMeta(platform);
   const full = hook ? `${hook}\n\n${body}\n\n${hashtags.join(" ")}`.trim() : "";
   const used = hook.length + body.length;
@@ -51,6 +57,9 @@ export function PostCaptionWriter() {
     setLoading(true);
     setError(null);
     setCopied(false);
+    // A new caption invalidates the brief written against the old one.
+    setBrief(null);
+    setBriefSource(null);
 
     try {
       const response = await fetch("/api/admin/marketing-ai", {
@@ -101,6 +110,58 @@ export function PostCaptionWriter() {
       window.setTimeout(() => setCopied(false), 1600);
     } catch {
       setError("Clipboard blocked by the browser — select the caption and copy it manually.");
+    }
+  }
+
+  /**
+   * Turn the finished caption into a design brief.
+   *
+   * Deliberately a second step rather than part of the caption call: the
+   * operator edits the hook before it is worth briefing a visual against, and
+   * the brief is only wanted for the captions that actually ship.
+   */
+  async function generateBrief() {
+    setBriefLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/admin/marketing-ai", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          action: "image_brief",
+          caption_hook: hook.slice(0, 400),
+          caption_body: body.slice(0, 3000),
+          platform,
+        }),
+      });
+      const data = (await response.json()) as Partial<ImageBrief> & {
+        source?: "model" | "template";
+        error?: string;
+      };
+      if (!response.ok || !data.canva_prompt || !data.midjourney_prompt) {
+        setError(data.error ?? "Could not write the image brief.");
+        return;
+      }
+      setBrief({
+        canva_prompt: data.canva_prompt,
+        midjourney_prompt: data.midjourney_prompt,
+        style_notes: data.style_notes ?? "",
+      });
+      setBriefSource(data.source ?? "template");
+    } catch {
+      setError("Could not reach the brief service.");
+    } finally {
+      setBriefLoading(false);
+    }
+  }
+
+  async function copyBrief(which: "canva" | "image", text: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedBrief(which);
+      window.setTimeout(() => setCopiedBrief(null), 1600);
+    } catch {
+      setError("Clipboard blocked by the browser — select the brief and copy it manually.");
     }
   }
 
@@ -260,6 +321,80 @@ export function PostCaptionWriter() {
           {copied ? "Copied" : "Copy all"}
         </button>
       </div>
+
+      {/* Image brief — only once there is a caption to brief a visual against. */}
+      {hook && (
+        <div className="mt-6 border-t border-white/5 pt-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="text-3xs font-semibold uppercase tracking-wide text-dim">Image brief</p>
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={generateBrief}
+              disabled={briefLoading}
+            >
+              {briefLoading ? (
+                <span className="flex items-center gap-2">
+                  <span
+                    aria-hidden
+                    className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent"
+                  />
+                  Briefing
+                </span>
+              ) : brief ? (
+                "Rewrite brief"
+              ) : (
+                "Generate image brief"
+              )}
+            </button>
+            {briefSource && (
+              <span className="rounded-full border border-white/10 px-2.5 py-1 text-3xs font-semibold uppercase tracking-wide text-dim">
+                {briefSource === "model" ? "Model" : "Template"}
+              </span>
+            )}
+          </div>
+
+          {brief && (
+            <div className="mt-3 space-y-3">
+              <div className="grid gap-3 lg:grid-cols-2">
+                <div className="rounded-lg border border-white/5 bg-navy/40 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-3xs uppercase tracking-wide text-cyan">Canva brief</p>
+                    <button
+                      type="button"
+                      className="text-3xs text-dim hover:underline"
+                      onClick={() => void copyBrief("canva", brief.canva_prompt)}
+                    >
+                      {copiedBrief === "canva" ? "Copied" : "Copy"}
+                    </button>
+                  </div>
+                  <p className="mt-2 font-mono text-3xs leading-relaxed text-light">
+                    {brief.canva_prompt}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-white/5 bg-navy/40 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-3xs uppercase tracking-wide text-cyan">Image prompt</p>
+                    <button
+                      type="button"
+                      className="text-3xs text-dim hover:underline"
+                      onClick={() => void copyBrief("image", brief.midjourney_prompt)}
+                    >
+                      {copiedBrief === "image" ? "Copied" : "Copy"}
+                    </button>
+                  </div>
+                  <p className="mt-2 font-mono text-3xs leading-relaxed text-light">
+                    {brief.midjourney_prompt}
+                  </p>
+                </div>
+              </div>
+              {brief.style_notes && (
+                <p className="text-3xs leading-relaxed text-dim">{brief.style_notes}</p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

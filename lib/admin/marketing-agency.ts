@@ -1512,7 +1512,8 @@ export type CompetitorPost = {
 
 export type CompetitorAnalysis = { patterns: string[]; gaps: string[]; recommendations: string[] };
 
-function isCompetitorTag(value: unknown): value is CompetitorTag {
+/** Exported so the route narrows against the registry rather than a copy of it. */
+export function isCompetitorTag(value: unknown): value is CompetitorTag {
   return typeof value === "string" && (COMPETITOR_TAGS as readonly string[]).includes(value);
 }
 

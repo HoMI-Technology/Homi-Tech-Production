@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HōMI · Money Reality — Instrument Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet" />
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   HōMI · MONEY REALITY
+   Linear canvas DNA · Vercel shadow-as-border · Superhuman compression
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Brand */
+  --navy:        #0a1628;
+  --navy-light:  #0f172a;
+  --slate:       #1e293b;
+  --cyan:        #22d3ee;
+  --emerald:     #34d399;
+  --yellow:      #facc15;
+  --amber:       #fab633;
+  --crimson:     #f24822;
+
+  /* Canvas — content emerging from darkness */
+  --canvas:      #08090a;
+  --canvas-2:    #0b0d0f;
+
+  /* Semi-transparent system */
+  --hair-1:      rgba(255,255,255,0.05);
+  --hair-2:      rgba(255,255,255,0.08);
+  --surface-1:   rgba(255,255,255,0.02);
+  --surface-2:   rgba(255,255,255,0.035);
+  --surface-3:   rgba(255,255,255,0.05);
+  --hover:       rgba(255,255,255,0.04);
+
+  /* Ink */
+  --ink:         rgba(255,255,255,0.94);
+  --ink-2:       rgba(255,255,255,0.70);
+  --ink-3:       rgba(255,255,255,0.46);
+  --ink-4:       rgba(255,255,255,0.28);
+
+  /* Shadow-as-border (Vercel) */
+  --ring-cyan:   0 0 0 1px rgba(34,211,238,0.12);
+  --ring-em:     0 0 0 1px rgba(52,211,153,0.14);
+  --ring-hair:   0 0 0 1px rgba(255,255,255,0.06);
+  --lift: 0 1px 0 rgba(255,255,255,0.03) inset,
+          0 1px 2px rgba(0,0,0,0.4),
+          0 8px 24px -12px rgba(0,0,0,0.8);
+
+  --sidebar-w:   248px;
+  --picture-w:   280px;
+  --rail-w:      40px;
+  --ease:        cubic-bezier(0.16,1,0.3,1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  background: var(--canvas);
+  background-image:
+    radial-gradient(1200px 620px at 18% -10%, rgba(10,22,40,0.95), transparent 62%),
+    radial-gradient(900px 520px at 92% 4%, rgba(34,211,238,0.055), transparent 60%),
+    radial-gradient(700px 420px at 50% 110%, rgba(52,211,153,0.035), transparent 65%);
+  color: var(--ink);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 510;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow: hidden;
+}
+
+/* ── Typography scale (STRICT) ─────────────────────────────── */
+.eyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.data-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px; font-weight: 500;
+  color: var(--ink-2);
+}
+.data-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px; font-weight: 500;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.section-heading {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 20px; font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--ink);
+}
+.hero-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 0.96; /* Superhuman compression */
+  font-variant-numeric: tabular-nums;
+}
+.mono { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+
+/* ── Shell ─────────────────────────────────────────────────── */
+.shell { display: flex; height: 100vh; }
+
+/* ── SIDEBAR ───────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  flex: 0 0 var(--sidebar-w);
+  border-right: 1px solid var(--hair-1);
+  background: linear-gradient(180deg, rgba(10,22,40,0.5), rgba(8,9,10,0.2));
+  display: flex; flex-direction: column;
+  padding: 18px 0 0;
+}
+
+.brand { padding: 0 18px 16px; }
+.wordmark {
+  font-family: 'Fraunces', serif;
+  font-size: 19px; font-weight: 600;
+  letter-spacing: -0.02em;
+  display: flex; align-items: baseline; gap: 7px;
+}
+.wordmark .dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 12px rgba(34,211,238,0.9);
+  display: inline-block;
+}
+.wordmark-sub {
+  margin-top: 3px;
+  font-size: 8.5px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ink-4);
+}
+
+.verdict-chip {
+  margin: 0 14px 14px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: rgba(250,182,51,0.07);
+  box-shadow: 0 0 0 1px rgba(250,182,51,0.18);
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.verdict-chip .vname {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.13em;
+  color: var(--amber);
+}
+.verdict-chip .vscore {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px; font-weight: 600; letter-spacing: -0.03em;
+  color: var(--amber);
+}
+
+.rule { height: 1px; background: var(--hair-1); margin: 4px 14px 12px; }
+
+.nav { flex: 1; overflow-y: auto; padding: 0 10px; }
+.nav::-webkit-scrollbar { width: 0; }
+
+.nav-group { margin-bottom: 14px; }
+.nav-group-label {
+  padding: 0 8px 7px;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--ink-4);
+  transition: color 0.3s var(--ease);
+}
+.nav-group.active .nav-group-label { color: var(--cyan); }
+
+.nav-item {
+  position: relative;
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 8px 7px 11px;
+  border-radius: 6px;
+  font-size: 12.5px; font-weight: 510;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: background 0.16s var(--ease), color 0.16s var(--ease);
+  user-select: none;
+}
+.nav-item:hover { background: var(--hover); color: var(--ink-2); }
+.nav-item .glyph {
+  width: 14px; text-align: center;
+  font-size: 10px; opacity: 0.7;
+}
+.nav-item.active {
+  background: rgba(34,211,238,0.07);
+  color: var(--ink);
+  box-shadow: var(--ring-cyan);
+}
+.nav-item.active::before {
+  content: ''; position: absolute; left: 0; top: 7px; bottom: 7px;
+  width: 2px; border-radius: 2px;
+  background: var(--cyan);
+  box-shadow: 0 0 10px rgba(34,211,238,0.8);
+}
+.nav-item .tail {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px; color: var(--ink-4);
+}
+
+.sidebar-foot {
+  border-top: 1px solid var(--hair-1);
+  padding: 11px 16px 13px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.foot-stat { display: flex; flex-direction: column; gap: 2px; }
+.foot-stat .k { font-size: 8.5px; font-weight: 700; letter-spacing: 0.14em; color: var(--ink-4); text-transform: uppercase; }
+.foot-stat .v { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; letter-spacing: -0.02em; }
+
+/* ── MAIN ──────────────────────────────────────────────────── */
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+
+.main-head {
+  padding: 22px 30px 0;
+  flex: 0 0 auto;
+}
+.head-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+.head-title { display: flex; flex-direction: column; gap: 7px; }
+.head-title .eyebrow { color: var(--cyan); }
+.head-meta { display: flex; align-items: center; gap: 18px; padding-bottom: 2px; }
+.head-meta .cell { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.head-meta .cell .k { font-size: 8.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-4); }
+.head-meta .cell .v { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: -0.02em; color: var(--ink-2); }
+
+.head-rule {
+  height: 1px; margin: 16px 0 0;
+  background: linear-gradient(90deg, rgba(34,211,238,0.42), rgba(255,255,255,0.07) 32%, rgba(255,255,255,0.03) 70%, transparent);
+}
+
+/* ── Instrument body: picture | rail | mode ────────────────── */
+.instrument {
+  flex: 1; min-height: 0;
+  display: flex;
+  padding: 18px 30px 24px;
+  gap: 0;
+}
+
+/* ── PICTURE PANEL ─────────────────────────────────────────── */
+.picture {
+  width: var(--picture-w);
+  flex: 0 0 var(--picture-w);
+  display: flex; flex-direction: column;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.015));
+  box-shadow: var(--ring-hair), var(--lift);
+  overflow: hidden;
+}
+
+.picture-head {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--hair-1);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.conn-dot {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink-4);
+}
+.conn-dot i {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--ink-4);
+  transition: background 0.4s var(--ease), box-shadow 0.4s var(--ease);
+}
+body.connected .conn-dot { color: var(--emerald); }
+body.connected .conn-dot i { background: var(--emerald); box-shadow: 0 0 10px rgba(52,211,153,0.9); }
+
+.picture-body { flex: 1; overflow-y: auto; padding: 4px 0 8px; }
+.picture-body::-webkit-scrollbar { width: 3px; }
+.picture-body::-webkit-scrollbar-thumb { background: var(--hair-2); border-radius: 3px; }
+
+.pic-stat {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--hair-1);
+  display: flex; flex-direction: column; gap: 6px;
+}
+.pic-stat:last-child { border-bottom: none; }
+.pic-stat-top { display: flex; align-items: baseline; justify-content: space-between; }
+.pic-stat .val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px; font-weight: 500;
+  letter-spacing: -0.035em; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.pic-stat .delta { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: -0.01em; }
+.up { color: var(--emerald); } .down { color: var(--crimson); } .flat { color: var(--ink-4); }
+
+.bar { height: 3px; border-radius: 3px; background: rgba(255,255,255,0.06); overflow: hidden; }
+.bar > span {
+  display: block; height: 100%; width: 0;
+  border-radius: 3px;
+  transition: width 900ms var(--ease);
+}
+
+/* Live balance tiles — only when Plaid connected */
+.balances { display: none; padding: 12px 16px 4px; gap: 8px; flex-direction: column; }
+body.connected .balances { display: flex; }
+.bal-tile {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 11px; border-radius: 8px;
+  background: var(--surface-2);
+  box-shadow: var(--ring-hair);
+  animation: tileIn 500ms var(--ease) backwards;
+}
+.bal-tile:nth-child(2) { animation-delay: 70ms; }
+.bal-tile:nth-child(3) { animation-delay: 140ms; }
+@keyframes tileIn { from { opacity: 0; transform: translateY(6px); } }
+.bal-tile .inst { display: flex; flex-direction: column; gap: 2px; }
+.bal-tile .inst b { font-size: 11px; font-weight: 600; color: var(--ink-2); }
+.bal-tile .inst span { font-size: 9px; color: var(--ink-4); font-family: 'JetBrains Mono', monospace; }
+.bal-tile .amt { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; letter-spacing: -0.025em; }
+
+.picture-foot { border-top: 1px solid var(--hair-1); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+
+.cta {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 12px;
+  border: none; border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.14s var(--ease), background 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+.cta:active { transform: scale(0.985); }
+.cta-plaid {
+  background: rgba(52,211,153,0.13); color: var(--emerald);
+  box-shadow: 0 0 0 1px rgba(52,211,153,0.3), 0 6px 20px -10px rgba(52,211,153,0.55);
+}
+.cta-plaid:hover { background: rgba(52,211,153,0.19); }
+body.connected .cta-plaid {
+  background: rgba(52,211,153,0.06); color: rgba(52,211,153,0.75);
+  box-shadow: 0 0 0 1px rgba(52,211,153,0.16);
+}
+.cta-homie {
+  background: rgba(34,211,238,0.09); color: var(--cyan);
+  box-shadow: var(--ring-cyan);
+}
+.cta-homie:hover { background: rgba(34,211,238,0.15); }
+.cta-homie.open { background: rgba(34,211,238,0.16); box-shadow: 0 0 0 1px rgba(34,211,238,0.32); }
+
+.cta .ic { width: 13px; height: 13px; display: block; }
+
+/* ── COMPANION CHAT STRIP ──────────────────────────────────── */
+.chat-strip {
+  height: 0; opacity: 0;
+  overflow: hidden;
+  border-top: 1px solid transparent;
+  transition: height 380ms var(--ease), opacity 260ms var(--ease), border-color 380ms var(--ease);
+  background: linear-gradient(180deg, rgba(34,211,238,0.05), rgba(34,211,238,0.015));
+}
+.chat-strip.open { height: 200px; opacity: 1; border-top-color: rgba(34,211,238,0.2); }
+.chat-inner { padding: 11px 13px; display: flex; flex-direction: column; height: 200px; gap: 8px; }
+.chat-head { display: flex; align-items: center; justify-content: space-between; }
+.chat-head .who { display: flex; align-items: center; gap: 7px; font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cyan); }
+.chat-head .who i { width: 4px; height: 4px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); animation: pulse 2.4s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+.chat-close { background: none; border: none; color: var(--ink-4); cursor: pointer; font-size: 14px; line-height: 1; padding: 2px 4px; }
+.chat-close:hover { color: var(--ink-2); }
+
+.chat-log { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 7px; padding-right: 2px; }
+.chat-log::-webkit-scrollbar { width: 3px; }
+.chat-log::-webkit-scrollbar-thumb { background: var(--hair-2); border-radius: 3px; }
+.msg { font-size: 11.5px; line-height: 1.5; padding: 7px 9px; border-radius: 7px; max-width: 96%; }
+.msg.me { align-self: flex-end; background: rgba(255,255,255,0.055); color: var(--ink-2); }
+.msg.ai { background: rgba(34,211,238,0.07); box-shadow: 0 0 0 1px rgba(34,211,238,0.1); color: var(--ink-2); }
+.msg.ai b { color: var(--cyan); font-weight: 600; }
+.msg .mono { font-size: 11px; color: var(--ink); }
+
+.chat-input {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 9px; border-radius: 7px;
+  background: rgba(0,0,0,0.32);
+  box-shadow: var(--ring-hair);
+}
+.chat-input input {
+  flex: 1; background: none; border: none; outline: none;
+  color: var(--ink); font-family: 'Inter', sans-serif; font-size: 11.5px;
+}
+.chat-input input::placeholder { color: var(--ink-4); }
+.chat-send {
+  background: rgba(34,211,238,0.14); border: none; border-radius: 5px;
+  color: var(--cyan); cursor: pointer;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600;
+  padding: 4px 8px;
+}
+.chat-send:hover { background: rgba(34,211,238,0.24); }
+
+/* ── MODE RAIL ─────────────────────────────────────────────── */
+.rail {
+  width: var(--rail-w); flex: 0 0 var(--rail-w);
+  display: flex; flex-direction: column; align-items: stretch;
+  padding: 6px 0;
+  margin: 0 4px;
+  gap: 2px;
+}
+.rail-btn {
+  position: relative;
+  height: 56px;
+  border: none; background: none;
+  color: var(--ink-4);
+  cursor: pointer;
+  border-radius: 7px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  transition: background 0.16s var(--ease), color 0.2s var(--ease);
+}
+.rail-btn .letter {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px; font-weight: 600; letter-spacing: -0.02em;
+}
+.rail-btn .tick { width: 12px; height: 1px; background: currentColor; opacity: 0.35; }
+.rail-btn:hover { background: var(--hover); color: var(--ink-2); }
+.rail-btn.active { color: var(--cyan); background: rgba(34,211,238,0.05); }
+.rail-btn.active::before {
+  content: ''; position: absolute; left: -4px; top: 10px; bottom: 10px;
+  width: 3px; border-radius: 3px; background: var(--cyan);
+  box-shadow: 0 0 12px rgba(34,211,238,0.75);
+}
+.rail-spacer { flex: 1; }
+.rail-note {
+  writing-mode: vertical-rl; transform: rotate(180deg);
+  font-size: 8px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ink-4); align-self: center; padding: 8px 0;
+}
+
+/* ── MODE CONTENT ──────────────────────────────────────────── */
+.stage { flex: 1; min-width: 0; position: relative; overflow: hidden; }
+.mode {
+  position: absolute; inset: 0;
+  overflow-y: auto;
+  padding: 2px 4px 4px 8px;
+  opacity: 0; visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity 320ms var(--ease), transform 320ms var(--ease), visibility 320ms;
+}
+.mode.active { opacity: 1; visibility: visible; transform: none; }
+.mode::-webkit-scrollbar { width: 4px; }
+.mode::-webkit-scrollbar-thumb { background: var(--hair-2); border-radius: 4px; }
+
+.mode-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+.mode-head .lede { font-size: 11.5px; color: var(--ink-3); max-width: 46ch; line-height: 1.5; margin-top: 5px; }
+
+.card {
+  border-radius: 11px;
+  background: var(--surface-1);
+  box-shadow: var(--ring-hair);
+  padding: 15px 16px;
+}
+.card.raised { background: var(--surface-2); box-shadow: var(--ring-hair), var(--lift); }
+
+/* ── STAND: gauge cockpit ──────────────────────────────────── */
+.gauges { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
+.gauge-card {
+  border-radius: 11px; padding: 15px 12px 13px;
+  background: var(--surface-1);
+  box-shadow: var(--ring-hair);
+  display: flex; flex-direction: column; align-items: center; gap: 9px;
+  transition: box-shadow 0.3s var(--ease), background 0.3s var(--ease);
+}
+body.connected .gauge-card { background: var(--surface-2); box-shadow: var(--ring-cyan), var(--lift); }
+.gauge-card .g-label { font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); }
+.gauge-wrap { position: relative; width: 118px; height: 118px; }
+.gauge-wrap svg { width: 100%; height: 100%; display: block; }
+.gauge-track { fill: none; stroke: rgba(255,255,255,0.055); stroke-width: 7; stroke-linecap: round; }
+.gauge-fill {
+  fill: none; stroke-width: 7; stroke-linecap: round;
+  stroke-dasharray: 0 100;
+  transition: stroke-dasharray 1100ms var(--ease), opacity 400ms var(--ease);
+  filter: drop-shadow(0 0 6px currentColor);
+}
+.gauge-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+}
+.gauge-center .gv {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px; font-weight: 500; letter-spacing: -0.035em; line-height: 0.96;
+  font-variant-numeric: tabular-nums;
+}
+.gauge-center .gu { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--ink-4); letter-spacing: 0.02em; }
+.gauge-card .g-foot { font-size: 10px; color: var(--ink-4); font-family: 'JetBrains Mono', monospace; letter-spacing: -0.01em; }
+
+/* Not-connected overlay */
+.gauges.locked .gauge-card { filter: grayscale(1) brightness(0.62); }
+.gauge-shroud {
+  display: none;
+  margin-bottom: 12px;
+  border-radius: 11px;
+  padding: 14px 16px;
+  background: linear-gradient(90deg, rgba(250,182,51,0.07), rgba(255,255,255,0.015));
+  box-shadow: 0 0 0 1px rgba(250,182,51,0.18);
+  align-items: center; justify-content: space-between; gap: 16px;
+}
+body:not(.connected) .gauge-shroud { display: flex; }
+.shroud-txt { display: flex; flex-direction: column; gap: 5px; }
+.shroud-txt .t {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--amber);
+  display: flex; align-items: center; gap: 8px;
+}
+.shroud-txt .t .scan {
+  width: 40px; height: 2px; border-radius: 2px; overflow: hidden;
+  background: rgba(250,182,51,0.18); position: relative;
+}
+.shroud-txt .t .scan::after {
+  content: ''; position: absolute; inset: 0; width: 40%;
+  background: var(--amber); border-radius: 2px;
+  animation: scan 1.8s var(--ease) infinite;
+}
+@keyframes scan { 0% { transform: translateX(-100%);} 100% { transform: translateX(250%);} }
+.shroud-txt .d { font-size: 11.5px; color: var(--ink-3); line-height: 1.5; max-width: 52ch; }
+.shroud-btn {
+  flex: 0 0 auto;
+  padding: 9px 14px; border: none; border-radius: 8px; cursor: pointer;
+  background: rgba(52,211,153,0.13); color: var(--emerald);
+  box-shadow: 0 0 0 1px rgba(52,211,153,0.28);
+  font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+}
+.shroud-btn:hover { background: rgba(52,211,153,0.2); }
+
+/* 4-cell data grid */
+.datagrid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-radius: 11px; overflow: hidden;
+  background: var(--surface-1);
+  box-shadow: var(--ring-hair);
+  margin-bottom: 12px;
+}
+.dcell {
+  padding: 13px 14px;
+  border-right: 1px solid var(--hair-1);
+  display: flex; flex-direction: column; gap: 7px;
+}
+.dcell:last-child { border-right: none; }
+.dcell .dv {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px; font-weight: 500; letter-spacing: -0.03em; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.dcell .dsub { font-size: 10px; color: var(--ink-4); font-family: 'JetBrains Mono', monospace; }
+
+/* Next move dock */
+.dock {
+  border-radius: 11px;
+  padding: 15px 16px;
+  background: linear-gradient(100deg, rgba(34,211,238,0.075), rgba(255,255,255,0.018) 62%);
+  box-shadow: var(--ring-cyan), var(--lift);
+  display: flex; align-items: center; justify-content: space-between; gap: 20px;
+}
+.dock-txt { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.dock-txt .eyebrow { color: var(--cyan); }
+.dock-txt .h { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 500; letter-spacing: -0.02em; }
+.dock-txt .p { font-size: 11.5px; color: var(--ink-3); line-height: 1.5; max-width: 62ch; }
+.dock-cta {
+  flex: 0 0 auto;
+  padding: 11px 17px; border: none; border-radius: 8px; cursor: pointer;
+  background: var(--cyan); color: #05202a;
+  font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  box-shadow: 0 8px 26px -12px rgba(34,211,238,0.9);
+  transition: transform 0.14s var(--ease), filter 0.2s var(--ease);
+}
+.dock-cta:hover { filter: brightness(1.08); }
+.dock-cta:active { transform: scale(0.985); }
+
+.footnote { margin-top: 11px; font-size: 10px; color: var(--ink-4); line-height: 1.5; }
+
+/* ── TRACK: budget instrument ──────────────────────────────── */
+.track-top { display: grid; grid-template-columns: 1.45fr 1fr; gap: 12px; margin-bottom: 12px; }
+
+.flowbars { display: flex; flex-direction: column; gap: 13px; margin-top: 13px; }
+.flowrow { display: flex; flex-direction: column; gap: 6px; }
+.flowrow .frtop { display: flex; align-items: baseline; justify-content: space-between; }
+.flowrow .frname { font-size: 11px; font-weight: 600; color: var(--ink-2); }
+.flowrow .frval { font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: -0.025em; }
+.trackbar { height: 8px; border-radius: 8px; background: rgba(255,255,255,0.05); overflow: hidden; position: relative; }
+.trackbar > span { display: block; height: 100%; width: 0; border-radius: 8px; transition: width 1000ms var(--ease); }
+.trackbar .marker {
+  position: absolute; top: -3px; bottom: -3px; width: 1px;
+  background: rgba(255,255,255,0.4);
+}
+.trackbar .marker::after {
+  content: attr(data-l); position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+  font-family: 'JetBrains Mono', monospace; font-size: 8px; color: var(--ink-4); white-space: nowrap;
+}
+
+.rings { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
+.ringrow { display: flex; align-items: center; gap: 12px; }
+.ring { position: relative; width: 54px; height: 54px; flex: 0 0 54px; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring .rt { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 6; }
+.ring .rf { fill: none; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 0 100; transition: stroke-dasharray 1100ms var(--ease); }
+.ring .rc {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: -0.03em;
+}
+.ringmeta { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ringmeta .rn { font-size: 11.5px; font-weight: 600; color: var(--ink-2); }
+.ringmeta .rs { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-4); }
+
+.txn-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.txn-list { display: flex; flex-direction: column; }
+.txn {
+  display: grid; grid-template-columns: 30px 1fr auto auto;
+  align-items: center; gap: 12px;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--hair-1);
+  transition: background 0.16s var(--ease);
+  border-radius: 6px;
+}
+.txn:hover { background: var(--hover); }
+.txn:last-child { border-bottom: none; }
+.txn .tglyph {
+  width: 26px; height: 26px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+  background: rgba(255,255,255,0.05); color: var(--ink-3);
+}
+.txn .tmain { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.txn .tname { font-size: 12px; font-weight: 510; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.txn .tdate { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--ink-4); }
+.tag {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 7px; border-radius: 5px; white-space: nowrap;
+}
+.tag.housing  { background: rgba(34,211,238,0.1);  color: var(--cyan);    box-shadow: 0 0 0 1px rgba(34,211,238,0.16); }
+.tag.food     { background: rgba(250,204,21,0.1);  color: var(--yellow);  box-shadow: 0 0 0 1px rgba(250,204,21,0.16); }
+.tag.debt     { background: rgba(242,72,34,0.1);   color: var(--crimson); box-shadow: 0 0 0 1px rgba(242,72,34,0.18); }
+.tag.savings  { background: rgba(52,211,153,0.1);  color: var(--emerald); box-shadow: 0 0 0 1px rgba(52,211,153,0.18); }
+.tag.income   { background: rgba(52,211,153,0.14); color: var(--emerald); box-shadow: 0 0 0 1px rgba(52,211,153,0.24); }
+.tag.util     { background: rgba(255,255,255,0.05);color: var(--ink-3);   box-shadow: 0 0 0 1px rgba(255,255,255,0.07); }
+.txn .tamt { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; letter-spacing: -0.025em; text-align: right; min-width: 84px; }
+
+/* ── DECIDE: lens grid ─────────────────────────────────────── */
+.lensgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
+.lens {
+  text-align: left;
+  border: none; cursor: pointer;
+  border-radius: 10px; padding: 13px 13px 12px;
+  background: var(--surface-1);
+  box-shadow: var(--ring-hair);
+  display: flex; flex-direction: column; gap: 9px;
+  color: inherit; font-family: inherit;
+  transition: background 0.18s var(--ease), box-shadow 0.22s var(--ease), transform 0.18s var(--ease);
+}
+.lens:hover { background: var(--hover); transform: translateY(-1px); }
+.lens.active { background: rgba(34,211,238,0.07); box-shadow: 0 0 0 1px rgba(34,211,238,0.3), var(--lift); }
+.lens .ltop { display: flex; align-items: center; justify-content: space-between; }
+.lens .lic {
+  width: 28px; height: 28px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.05);
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: var(--ink-2);
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+.lens.active .lic { background: rgba(34,211,238,0.15); color: var(--cyan); }
+.lens .lname { font-size: 12.5px; font-weight: 600; letter-spacing: -0.005em; }
+.lens .ldesc { font-size: 10.5px; color: var(--ink-4); line-height: 1.45; }
+.prefill {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 8.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+}
+.prefill i { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
+.prefill.ready   { color: var(--emerald); }
+.prefill.partial { color: var(--amber); }
+.prefill.manual  { color: var(--ink-4); }
+
+.calc {
+  border-radius: 11px; padding: 0 16px;
+  max-height: 0; overflow: hidden; opacity: 0;
+  background: linear-gradient(180deg, rgba(34,211,238,0.05), rgba(255,255,255,0.015));
+  box-shadow: var(--ring-cyan);
+  transition: max-height 420ms var(--ease), opacity 300ms var(--ease), padding 420ms var(--ease);
+}
+.calc.open { max-height: 460px; opacity: 1; padding: 16px; }
+.calc-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 18px; }
+.fields { display: flex; flex-direction: column; gap: 11px; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field .flab { display: flex; align-items: center; justify-content: space-between; }
+.field input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 3px; border-radius: 3px; background: rgba(255,255,255,0.09); outline: none; }
+.field input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 13px; height: 13px; border-radius: 50%;
+  background: var(--cyan); cursor: pointer;
+  box-shadow: 0 0 0 4px rgba(34,211,238,0.16), 0 0 12px rgba(34,211,238,0.7);
+}
+.field .fval { font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: -0.025em; color: var(--ink); }
+.field .src { font-size: 8.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--emerald); }
+
+.verdict-box {
+  border-radius: 10px; padding: 14px;
+  background: rgba(0,0,0,0.28);
+  box-shadow: var(--ring-hair);
+  display: flex; flex-direction: column; gap: 10px; justify-content: center;
+}
+.verdict-box .vlab { font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-4); }
+.verdict-box .vbig {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 30px; font-weight: 500; letter-spacing: -0.04em; line-height: 0.96;
+  font-variant-numeric: tabular-nums;
+}
+.verdict-box .vnote { font-size: 11px; color: var(--ink-3); line-height: 1.5; }
+.vtag {
+  align-self: flex-start;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 4px 9px; border-radius: 5px;
+}
+.vtag.ok    { background: rgba(52,211,153,0.12); color: var(--emerald); box-shadow: 0 0 0 1px rgba(52,211,153,0.24); }
+.vtag.warn  { background: rgba(250,182,51,0.12); color: var(--amber);   box-shadow: 0 0 0 1px rgba(250,182,51,0.26); }
+.vtag.stop  { background: rgba(242,72,34,0.12);  color: var(--crimson); box-shadow: 0 0 0 1px rgba(242,72,34,0.26); }
+
+/* ── PLAN: roadmap ─────────────────────────────────────────── */
+.chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.chip {
+  border-radius: 10px; padding: 13px;
+  background: var(--surface-1);
+  box-shadow: var(--ring-hair);
+  display: flex; flex-direction: column; gap: 9px;
+}
+.chip .ctop { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.chip .cname { font-size: 12px; font-weight: 600; }
+.chip .cnums { display: flex; align-items: baseline; gap: 6px; }
+.chip .cnow { font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 500; letter-spacing: -0.03em; }
+.chip .ctgt { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-4); }
+
+.timeline { position: relative; padding-left: 26px; margin-top: 14px; }
+.timeline::before {
+  content: ''; position: absolute; left: 6px; top: 6px; bottom: 6px; width: 1px;
+  background: linear-gradient(180deg, var(--cyan), rgba(34,211,238,0.25) 34%, var(--hair-2));
+}
+.tl-item { position: relative; padding: 0 0 18px; }
+.tl-item:last-child { padding-bottom: 0; }
+.tl-item::before {
+  content: ''; position: absolute; left: -23px; top: 4px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--canvas); box-shadow: 0 0 0 2px var(--ink-4);
+}
+.tl-item.done::before  { background: var(--emerald); box-shadow: 0 0 0 2px rgba(52,211,153,0.35), 0 0 12px rgba(52,211,153,0.8); }
+.tl-item.now::before   { background: var(--cyan);    box-shadow: 0 0 0 2px rgba(34,211,238,0.35), 0 0 14px rgba(34,211,238,0.9); }
+.tl-item.risk::before  { background: var(--amber);   box-shadow: 0 0 0 2px rgba(250,182,51,0.35), 0 0 12px rgba(250,182,51,0.8); }
+.tl-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tl-month { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.04em; color: var(--ink-4); text-transform: uppercase; }
+.tl-title { font-size: 12.5px; font-weight: 600; }
+.tl-body { margin-top: 5px; font-size: 11px; color: var(--ink-3); line-height: 1.55; max-width: 66ch; }
+.tl-nums { margin-top: 7px; display: flex; gap: 16px; flex-wrap: wrap; }
+.tl-nums .n { display: flex; flex-direction: column; gap: 2px; }
+.tl-nums .n .k { font-size: 8.5px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--ink-4); }
+.tl-nums .n .v { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: -0.025em; }
+
+/* ── shared blocks ─────────────────────────────────────────── */
+.block-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.stack-12 { display: flex; flex-direction: column; gap: 12px; }
+.dim { color: var(--ink-4); }
+.cyan { color: var(--cyan); } .em { color: var(--emerald); } .am { color: var(--amber); } .cr { color: var(--crimson); } .yl { color: var(--yellow); }
+
+/* ── Toast ─────────────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 22px; left: 50%;
+  transform: translate(-50%, 14px);
+  padding: 10px 16px; border-radius: 9px;
+  background: rgba(15,23,42,0.96);
+  box-shadow: var(--ring-cyan), 0 18px 44px -18px rgba(0,0,0,0.95);
+  font-size: 11.5px; color: var(--ink-2);
+  opacity: 0; pointer-events: none;
+  transition: opacity 280ms var(--ease), transform 280ms var(--ease);
+  z-index: 60;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast b { color: var(--cyan); font-weight: 600; }
+
+@media (max-width: 1180px) {
+  .gauges { grid-template-columns: 1fr; }
+  .datagrid { grid-template-columns: repeat(2, 1fr); }
+  .dcell:nth-child(2) { border-right: none; }
+  .lensgrid, .chips { grid-template-columns: repeat(2, 1fr); }
+  .track-top, .calc-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ══════════════════ SIDEBAR ══════════════════ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="wordmark">HōMI<span class="dot"></span></div>
+      <div class="wordmark-sub">Decision Intelligence OS</div>
+    </div>
+
+    <div class="verdict-chip">
+      <span class="vname">BUILD_FIRST</span>
+      <span class="vscore" data-count="61" data-dec="0">0</span>
+    </div>
+
+    <div class="rule"></div>
+
+    <nav class="nav">
+      <div class="nav-group" data-group="measure">
+        <div class="nav-group-label">Measure</div>
+        <div class="nav-item" data-nav="dashboard"><span class="glyph">◧</span>Dashboard</div>
+        <div class="nav-item" data-nav="assessment"><span class="glyph">◍</span>Assessment<span class="tail">7/7</span></div>
+      </div>
+
+      <div class="nav-group" data-group="understand">
+        <div class="nav-group-label">Understand</div>
+        <div class="nav-item" data-nav="results"><span class="glyph">◈</span>Results</div>
+        <div class="nav-item" data-nav="path"><span class="glyph">◢</span>Path to Ready</div>
+      </div>
+
+      <div class="nav-group active" data-group="act">
+        <div class="nav-group-label">Act</div>
+        <div class="nav-item active" data-nav="money"><span class="glyph">◆</span>Money<span class="tail">4</span></div>
+        <div class="nav-item" data-nav="connections"><span class="glyph">◇</span>Connections</div>
+      </div>
+
+      <div class="nav-group" data-group="reflect">
+        <div class="nav-group-label">Reflect</div>
+        <div class="nav-item" data-nav="companion"><span class="glyph">◉</span>Companion</div>
+        <div class="nav-item" data-nav="journal"><span class="glyph">◌</span>Journal</div>
+      </div>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="foot-stat">
+        <span class="k">Score</span>
+        <span class="v am" data-count="61" data-dec="0">0</span>
+      </div>
+      <div class="foot-stat">
+        <span class="k">Pulse</span>
+        <span class="v cyan"><span data-count="5" data-dec="0">0</span>/7</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══════════════════ MAIN ══════════════════ -->
+  <main class="main">
+
+    <header class="main-head">
+      <div class="head-row">
+        <div class="head-title">
+          <div class="eyebrow">Money Reality</div>
+          <h1 class="section-heading">What your money actually says about being ready</h1>
+        </div>
+        <div class="head-meta">
+          <div class="cell">
+            <span class="k">Last sync</span>
+            <span class="v" id="syncLabel">— never —</span>
+          </div>
+          <div class="cell">
+            <span class="k">Evidence</span>
+            <span class="v"><span data-count="12" data-dec="0">0</span> sources</span>
+          </div>
+          <div class="cell">
+            <span class="k">Confidence</span>
+            <span class="v am" id="confLabel">LOW</span>
+          </div>
+        </div>
+      </div>
+      <div class="head-rule"></div>
+    </header>
+
+    <section class="instrument">
+
+      <!-- ─────── PICTURE PANEL ─────── -->
+      <div class="picture">
+        <div class="picture-head">
+          <span class="eyebrow">The Picture</span>
+          <span class="conn-dot"><i></i><span id="connLabel">No bank</span></span>
+        </div>
+
+        <div class="picture-body">
+
+          <div class="balances">
+            <div class="bal-tile">
+              <div class="inst"><b>Chase Checking</b><span>••4102</span></div>
+              <div class="amt em">$<span data-count="6284.19" data-dec="2">0</span></div>
+            </div>
+            <div class="bal-tile">
+              <div class="inst"><b>Ally Savings</b><span>••8837</span></div>
+              <div class="amt em">$<span data-count="18450.00" data-dec="2">0</span></div>
+            </div>
+            <div class="bal-tile">
+              <div class="inst"><b>Amex Revolve</b><span>••1009</span></div>
+              <div class="amt cr">−$<span data-count="3120.44" data-dec="2">0</span></div>
+            </div>
+          </div>
+
+          <div class="pic-stat">
+            <div class="pic-stat-top">
+              <span class="data-label">Surplus / mo</span>
+              <span class="delta up">▲ 8.4%</span>
+            </div>
+            <div class="val em">$<span data-count="2340" data-dec="0">0</span></div>
+            <div class="bar"><span style="background:var(--emerald)" data-fill="72"></span></div>
+          </div>
+
+          <div class="pic-stat">
+            <div class="pic-stat-top">
+              <span class="data-label">Runway</span>
+              <span class="delta flat">target 6.0</span>
+            </div>
+            <div class="val am"><span data-count="4.2" data-dec="1">0</span> <span class="mono" style="font-size:13px;color:var(--ink-4)">mo</span></div>
+            <div class="bar"><span style="background:var(--amber)" data-fill="70"></span></div>
+          </div>
+
+          <div class="pic-stat">
+            <div class="pic-stat-top">
+              <span class="data-label">DTI</span>
+              <span class="delta up">▼ 1.2 pts</span>
+            </div>
+            <div class="val cyan"><span data-count="28" data-dec="0">0</span>%</div>
+            <div class="bar"><span style="background:var(--cyan)" data-fill="65"></span></div>
+          </div>
+        </div>
+
+        <div class="picture-foot">
+          <button class="cta cta-plaid" id="plaidBtn">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h3"/>
+            </svg>
+            <span id="plaidLabel">Connect bank</span>
+          </button>
+
+          <button class="cta cta-homie" id="homieBtn">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12a8 8 0 1 1-3.2-6.4"/><circle cx="12" cy="12" r="2.6"/>
+            </svg>
+            Ask Homie
+          </button>
+        </div>
+
+        <!-- Companion strip -->
+        <div class="chat-strip" id="chatStrip">
+          <div class="chat-inner">
+            <div class="chat-head">
+              <span class="who"><i></i>Homie · money context</span>
+              <button class="chat-close" id="chatClose" aria-label="Close">×</button>
+            </div>
+            <div class="chat-log" id="chatLog">
+              <div class="msg ai">I can see your money picture. Ask me anything about what it means for readiness.</div>
+            </div>
+            <div class="chat-input">
+              <input id="chatInput" value="What does my runway mean for my home readiness?" />
+              <button class="chat-send" id="chatSend">↵</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────── MODE RAIL ─────── -->
+      <div class="rail">
+        <button class="rail-btn active" data-mode="stand"  title="Stand — where you are">
+          <span class="letter">S</span><span class="tick"></span>
+        </button>
+        <button class="rail-btn" data-mode="track" title="Track — budget planner">
+          <span class="letter">T</span><span class="tick"></span>
+        </button>
+        <button class="rail-btn" data-mode="decide" title="Decide — decision lenses">
+          <span class="letter">D</span><span class="tick"></span>
+        </button>
+        <button class="rail-btn" data-mode="plan" title="Plan — roadmap">
+          <span class="letter">P</span><span class="tick"></span>
+        </button>
+        <div class="rail-spacer"></div>
+        <div class="rail-note">Mode</div>
+      </div>
+
+      <!-- ─────── STAGE ─────── -->
+      <div class="stage">
+
+        <!-- ══ STAND ══ -->
+        <section class="mode active" data-panel="stand">
+          <div class="mode-head">
+            <div>
+              <div class="eyebrow cyan">Stand · Cockpit</div>
+              <div class="lede">Three instruments decide everything downstream. Everything else on this screen is derived from them.</div>
+            </div>
+            <div class="eyebrow dim">Aug 2026 cycle</div>
+          </div>
+
+          <div class="gauge-shroud">
+            <div class="shroud-txt">
+              <div class="t"><span class="scan"></span>Intelligence gathering in progress</div>
+              <div class="d">These readings are estimates from your assessment. Connect a bank to replace them with observed cash flow — the instruments sharpen the moment data lands.</div>
+            </div>
+            <button class="shroud-btn" id="shroudConnect">Connect bank</button>
+          </div>
+
+          <div class="gauges locked" id="gaugeRow">
+
+            <div class="gauge-card">
+              <div class="g-label">Cash Flow</div>
+              <div class="gauge-wrap">
+                <svg viewBox="0 0 120 120">
+                  <circle class="gauge-track" cx="60" cy="60" r="48" pathLength="100"
+                          stroke-dasharray="75 100" transform="rotate(135 60 60)"/>
+                  <circle class="gauge-fill" cx="60" cy="60" r="48" pathLength="100"
+                          transform="rotate(135 60 60)" stroke="#34d399" style="color:#34d399"
+                          data-arc="72"/>
+                </svg>
+                <div class="gauge-center">
+                  <div class="gv em">$<span data-count="2340" data-dec="0">0</span></div>
+                  <div class="gu">surplus / mo</div>
+                </div>
+              </div>
+              <div class="g-foot">72% of healthy band</div>
+            </div>
+
+            <div class="gauge-card">
+              <div class="g-label">Runway</div>
+              <div class="gauge-wrap">
+                <svg viewBox="0 0 120 120">
+                  <circle class="gauge-track" cx="60" cy="60" r="48" pathLength="100"
+                          stroke-dasharray="75 100" transform="rotate(135 60 60)"/>
+                  <circle class="gauge-fill" cx="60" cy="60" r="48" pathLength="100"
+                          transform="rotate(135 60 60)" stroke="#fab633" style="color:#fab633"
+                          data-arc="70"/>
+                </svg>
+                <div class="gauge-center">
+                  <div class="gv am"><span data-count="4.2" data-dec="1">0</span></div>
+                  <div class="gu">months held</div>
+                </div>
+              </div>
+              <div class="g-foot">1.8 mo below target</div>
+            </div>
+
+            <div class="gauge-card">
+              <div class="g-label">DTI</div>
+              <div class="gauge-wrap">
+                <svg viewBox="0 0 120 120">
+                  <circle class="gauge-track" cx="60" cy="60" r="48" pathLength="100"
+                          stroke-dasharray="75 100" transform="rotate(135 60 60)"/>
+                  <circle class="gauge-fill" cx="60" cy="60" r="48" pathLength="100"
+                          transform="rotate(135 60 60)" stroke="#22d3ee" style="color:#22d3ee"
+                          data-arc="65"/>
+                </svg>
+                <div class="gauge-center">
+                  <div class="gv cyan"><span data-count="28" data-dec="0">0</span>%</div>
+                  <div class="gu">of gross</div>
+                </div>
+              </div>
+              <div class="g-foot">15 pts of headroom</div>
+            </div>
+          </div>
+
+          <div class="datagrid">
+            <div class="dcell">
+              <span class="eyebrow">Income</span>
+              <span class="dv">$<span data-count="8420" data-dec="0">0</span></span>
+              <span class="dsub">2 streams · monthly</span>
+            </div>
+            <div class="dcell">
+              <span class="eyebrow">Spending</span>
+              <span class="dv">$<span data-count="6080" data-dec="0">0</span></span>
+              <span class="dsub">6 categories</span>
+            </div>
+            <div class="dcell">
+              <span class="eyebrow">Savings rate</span>
+              <span class="dv em"><span data-count="27.8" data-dec="1">0</span>%</span>
+              <span class="dsub">▲ 3.1 pts / 90d</span>
+            </div>
+            <div class="dcell">
+              <span class="eyebrow">Evidence</span>
+              <span class="dv"><span data-count="12" data-dec="0">0</span> <span class="dsub" style="font-size:11px">src</span></span>
+              <span class="dsub" id="evidenceSub">9 self-reported</span>
+            </div>
+          </div>
+
+          <div class="dock">
+            <div class="dock-txt">
+              <div class="eyebrow">Next move</div>
+              <div class="h">Lift runway from 4.2 to 6.0 months</div>
+              <div class="p">At your current surplus of $2,340/mo, holding spend flat closes the 1.8-month gap by <span class="mono cyan">Feb 2027</span>. It is the single highest-leverage change to your readiness score.</div>
+            </div>
+            <button class="dock-cta" data-goto="plan">Open the plan</button>
+          </div>
+
+          <div class="footnote">Directional signal from your own data. Not a lending decision, offer, or approval of any kind.</div>
+        </section>
+
+        <!-- ══ TRACK ══ -->
+        <section class="mode" data-panel="track">
+          <div class="mode-head">
+            <div>
+              <div class="eyebrow cyan">Track · Budget Instrument</div>
+              <div class="lede">The month as a readout, not a ledger. Bars show pressure; rings show progress.</div>
+            </div>
+            <div class="eyebrow dim">Cycle 12 of 12</div>
+          </div>
+
+          <div class="track-top">
+            <div class="card raised">
+              <div class="block-head">
+                <span class="eyebrow">Month overview</span>
+                <span class="mono dim" style="font-size:10px">Aug 1 — Aug 31</span>
+              </div>
+              <div class="flowbars">
+                <div class="flowrow">
+                  <div class="frtop"><span class="frname">Income received</span><span class="frval em">$<span data-count="8420" data-dec="0">0</span></span></div>
+                  <div class="trackbar"><span style="background:linear-gradient(90deg,#34d399,rgba(52,211,153,0.55))" data-fill="100"></span></div>
+                </div>
+                <div class="flowrow">
+                  <div class="frtop"><span class="frname">Spending posted</span><span class="frval">$<span data-count="6080" data-dec="0">0</span></span></div>
+                  <div class="trackbar">
+                    <span style="background:linear-gradient(90deg,#facc15,rgba(250,204,21,0.5))" data-fill="72"></span>
+                    <div class="marker" style="left:79%" data-l="plan $6,650"></div>
+                  </div>
+                </div>
+                <div class="flowrow">
+                  <div class="frtop"><span class="frname">Held back</span><span class="frval cyan">$<span data-count="2340" data-dec="0">0</span></span></div>
+                  <div class="trackbar"><span style="background:linear-gradient(90deg,#22d3ee,rgba(34,211,238,0.45))" data-fill="28"></span></div>
+                </div>
+              </div>
+              <div class="footnote">Spending is <span class="em">$570 under plan</span> with 11 days left in cycle.</div>
+            </div>
+
+            <div class="card raised">
+              <div class="block-head">
+                <span class="eyebrow">Goal progress</span>
+                <span class="mono dim" style="font-size:10px">3 active</span>
+              </div>
+              <div class="rings">
+                <div class="ringrow">
+                  <div class="ring">
+                    <svg viewBox="0 0 60 60">
+                      <circle class="rt" cx="30" cy="30" r="24" pathLength="100"/>
+                      <circle class="rf" cx="30" cy="30" r="24" pathLength="100" stroke="#34d399" data-arc="68"/>
+                    </svg>
+                    <div class="rc em">68%</div>
+                  </div>
+                  <div class="ringmeta">
+                    <span class="rn">Down payment</span>
+                    <span class="rs">$34,200 / $50,000</span>
+                  </div>
+                </div>
+                <div class="ringrow">
+                  <div class="ring">
+                    <svg viewBox="0 0 60 60">
+                      <circle class="rt" cx="30" cy="30" r="24" pathLength="100"/>
+                      <circle class="rf" cx="30" cy="30" r="24" pathLength="100" stroke="#fab633" data-arc="70"/>
+                    </svg>
+                    <div class="rc am">70%</div>
+                  </div>
+                  <div class="ringmeta">
+                    <span class="rn">Reserve · 6 mo</span>
+                    <span class="rs">4.2 mo / 6.0 mo</span>
+                  </div>
+                </div>
+                <div class="ringrow">
+                  <div class="ring">
+                    <svg viewBox="0 0 60 60">
+                      <circle class="rt" cx="30" cy="30" r="24" pathLength="100"/>
+                      <circle class="rf" cx="30" cy="30" r="24" pathLength="100" stroke="#22d3ee" data-arc="41"/>
+                    </svg>
+                    <div class="rc cyan">41%</div>
+                  </div>
+                  <div class="ringmeta">
+                    <span class="rn">Revolving payoff</span>
+                    <span class="rs">$3,120 remaining</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="txn-head">
+              <span class="eyebrow">Recent movement</span>
+              <span class="mono dim" style="font-size:10px" id="txnSrc">estimated · connect to verify</span>
+            </div>
+            <div class="txn-list">
+              <div class="txn">
+                <div class="tglyph">↓</div>
+                <div class="tmain"><span class="tname">Payroll · Meridian Group</span><span class="tdate">Aug 09</span></div>
+                <span class="tag income">Income</span>
+                <span class="tamt em">+$4,210.00</span>
+              </div>
+              <div class="txn">
+                <div class="tglyph">⌂</div>
+                <div class="tmain"><span class="tname">Rent · Fairmount Residences</span><span class="tdate">Aug 01</span></div>
+                <span class="tag housing">Housing</span>
+                <span class="tamt">−$2,150.00</span>
+              </div>
+              <div class="txn">
+                <div class="tglyph">→</div>
+                <div class="tmain"><span class="tname">Transfer to Ally Savings</span><span class="tdate">Aug 10</span></div>
+                <span class="tag savings">Savings</span>
+                <span class="tamt em">−$900.00</span>
+              </div>
+              <div class="txn">
+                <div class="tglyph">$</div>
+                <div class="tmain"><span class="tname">Amex · statement payment</span><span class="tdate">Aug 07</span></div>
+                <span class="tag debt">Debt</span>
+                <span class="tamt">−$480.00</span>
+              </div>
+              <div class="txn">
+                <div class="tglyph">◍</div>
+                <div class="tmain"><span class="tname">Groceries · aggregated 14 txns</span><span class="tdate">Aug 01 — 11</span></div>
+                <span class="tag food">Food</span>
+                <span class="tamt">−$612.38</span>
+              </div>
+              <div class="txn">
+                <div class="tglyph">⚡</div>
+                <div class="tmain"><span class="tname">Utilities · power, water, net</span><span class="tdate">Aug 05</span></div>
+                <span class="tag util">Utilities</span>
+                <span class="tamt">−$284.10</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ══ DECIDE ══ -->
+        <section class="mode" data-panel="decide">
+          <div class="mode-head">
+            <div>
+              <div class="eyebrow cyan">Decide · Lenses</div>
+              <div class="lede">Each lens is a pre-filled question, not a blank calculator. Pick one; your numbers are already in it.</div>
+            </div>
+            <div class="eyebrow dim">6 lenses</div>
+          </div>
+
+          <div class="lensgrid" id="lensGrid">
+            <button class="lens active" data-lens="afford">
+              <div class="ltop"><div class="lic">◆</div><span class="prefill ready"><i></i>Pre-filled</span></div>
+              <div class="lname">Affordability</div>
+              <div class="ldesc">What monthly housing cost your surplus actually supports.</div>
+            </button>
+            <button class="lens" data-lens="dti">
+              <div class="ltop"><div class="lic">%</div><span class="prefill ready"><i></i>Pre-filled</span></div>
+              <div class="lname">DTI headroom</div>
+              <div class="ldesc">How much new obligation fits before the ratio bends.</div>
+            </button>
+            <button class="lens" data-lens="runway">
+              <div class="ltop"><div class="lic">↔</div><span class="prefill ready"><i></i>Pre-filled</span></div>
+              <div class="lname">Runway stress</div>
+              <div class="ldesc">Months of cover if income stops the day you close.</div>
+            </button>
+            <button class="lens" data-lens="blind">
+              <div class="ltop"><div class="lic">◐</div><span class="prefill partial"><i></i>Partial</span></div>
+              <div class="lname">Blind budget</div>
+              <div class="ldesc">Spending you cannot yet see, sized by category gaps.</div>
+            </button>
+            <button class="lens" data-lens="reserve">
+              <div class="ltop"><div class="lic">▣</div><span class="prefill partial"><i></i>Partial</span></div>
+              <div class="lname">Reserve depth</div>
+              <div class="ldesc">Cash left standing after down payment and closing.</div>
+            </button>
+            <button class="lens" data-lens="rentbuy">
+              <div class="ltop"><div class="lic">⇄</div><span class="prefill manual"><i></i>Manual</span></div>
+              <div class="lname">Rent vs. buy</div>
+              <div class="ldesc">Crossover point at your horizon and local costs.</div>
+            </button>
+          </div>
+
+          <div class="calc open" id="calcPane">
+            <div class="block-head" style="margin-bottom:14px">
+              <span class="eyebrow cyan" id="calcTitle">Affordability lens</span>
+              <span class="eyebrow dim">Adjust to test</span>
+            </div>
+            <div class="calc-grid">
+              <div class="fields">
+                <div class="field">
+                  <div class="flab">
+                    <span class="data-label">Monthly income</span>
+                    <span class="src">from plaid</span>
+                  </div>
+                  <input type="range" min="4000" max="16000" step="100" value="8420" id="sIncome" />
+                  <span class="fval">$<span id="vIncome">8,420</span> / mo</span>
+                </div>
+                <div class="field">
+                  <div class="flab">
+                    <span class="data-label">Existing obligations</span>
+                    <span class="src">from plaid</span>
+                  </div>
+                  <input type="range" min="0" max="4000" step="50" value="1180" id="sDebt" />
+                  <span class="fval">$<span id="vDebt">1,180</span> / mo</span>
+                </div>
+                <div class="field">
+                  <div class="flab">
+                    <span class="data-label">Target DTI ceiling</span>
+                    <span class="src" style="color:var(--ink-4)">policy</span>
+                  </div>
+                  <input type="range" min="28" max="50" step="1" value="43" id="sCeil" />
+                  <span class="fval"><span id="vCeil">43</span>% of gross</span>
+                </div>
+              </div>
+
+              <div class="verdict-box">
+                <span class="vlab">Supported housing cost</span>
+                <span class="vbig em">$<span id="vResult">2,440</span></span>
+                <span class="vtag ok" id="vVerdict">Within headroom</span>
+                <span class="vnote">Leaves <span class="mono">$<span id="vLeft">1,350</span></span> of monthly surplus untouched. Directional only — not an offer or approval.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ══ PLAN ══ -->
+        <section class="mode" data-panel="plan">
+          <div class="mode-head">
+            <div>
+              <div class="eyebrow cyan">Plan · Roadmap</div>
+              <div class="lede">Milestones sized by your actual surplus. Verdicts update as the money moves.</div>
+            </div>
+            <div class="eyebrow dim">Horizon · 8 months</div>
+          </div>
+
+          <div class="chips">
+            <div class="chip">
+              <div class="ctop"><span class="cname">Down payment</span><span class="vtag ok">On track</span></div>
+              <div class="cnums"><span class="cnow em">$<span data-count="34200" data-dec="0">0</span></span><span class="ctgt">/ $50,000</span></div>
+              <div class="bar"><span style="background:var(--emerald)" data-fill="68"></span></div>
+            </div>
+            <div class="chip">
+              <div class="ctop"><span class="cname">6-month reserve</span><span class="vtag warn">Off track</span></div>
+              <div class="cnums"><span class="cnow am"><span data-count="4.2" data-dec="1">0</span> mo</span><span class="ctgt">/ 6.0 mo</span></div>
+              <div class="bar"><span style="background:var(--amber)" data-fill="70"></span></div>
+            </div>
+            <div class="chip">
+              <div class="ctop"><span class="cname">Revolving payoff</span><span class="vtag ok">On track</span></div>
+              <div class="cnums"><span class="cnow cyan">$<span data-count="3120" data-dec="0">0</span></span><span class="ctgt">left</span></div>
+              <div class="bar"><span style="background:var(--cyan)" data-fill="41"></span></div>
+            </div>
+          </div>
+
+          <div class="card raised">
+            <div class="block-head">
+              <span class="eyebrow">Monthly milestones</span>
+              <span class="mono dim" style="font-size:10px">at $2,340 / mo surplus</span>
+            </div>
+
+            <div class="timeline">
+              <div class="tl-item done">
+                <div class="tl-top"><span class="tl-month">Jul 2026</span><span class="tl-title">Revolving balance below $3,500</span><span class="vtag ok">Cleared</span></div>
+                <div class="tl-body">Two consecutive months of above-minimum payments moved DTI from 31% to 28%.</div>
+                <div class="tl-nums">
+                  <div class="n"><span class="k">DTI</span><span class="v em">28%</span></div>
+                  <div class="n"><span class="k">Delta</span><span class="v em">−3.0 pts</span></div>
+                </div>
+              </div>
+
+              <div class="tl-item now">
+                <div class="tl-top"><span class="tl-month">Aug 2026</span><span class="tl-title">Hold spending under $6,650</span><span class="vtag ok">In progress</span></div>
+                <div class="tl-body">Currently $570 under plan with 11 days remaining. Holding this keeps the reserve curve intact.</div>
+                <div class="tl-nums">
+                  <div class="n"><span class="k">Spend</span><span class="v">$6,080</span></div>
+                  <div class="n"><span class="k">Surplus</span><span class="v cyan">$2,340</span></div>
+                  <div class="n"><span class="k">Reserve</span><span class="v am">4.2 mo</span></div>
+                </div>
+              </div>
+
+              <div class="tl-item risk">
+                <div class="tl-top"><span class="tl-month">Oct 2026</span><span class="tl-title">Reserve reaches 5.0 months</span><span class="vtag warn">At risk</span></div>
+                <div class="tl-body">Two variable months (insurance renewal, travel) sit inside this window. A $340 overrun pushes this milestone to November.</div>
+                <div class="tl-nums">
+                  <div class="n"><span class="k">Needed</span><span class="v">$1,870 / mo</span></div>
+                  <div class="n"><span class="k">Buffer</span><span class="v am">$470</span></div>
+                </div>
+              </div>
+
+              <div class="tl-item">
+                <div class="tl-top"><span class="tl-month">Dec 2026</span><span class="tl-title">Down payment crosses $45,000</span></div>
+                <div class="tl-body">Assumes the current transfer of $900/mo to savings continues without interruption.</div>
+                <div class="tl-nums">
+                  <div class="n"><span class="k">Projected</span><span class="v">$45,300</span></div>
+                  <div class="n"><span class="k">Of target</span><span class="v em">91%</span></div>
+                </div>
+              </div>
+
+              <div class="tl-item">
+                <div class="tl-top"><span class="tl-month">Feb 2027</span><span class="tl-title">Reserve reaches 6.0 months</span><span class="vtag ok">Readiness gate</span></div>
+                <div class="tl-body">This is the milestone that moves the verdict. Clearing it lifts the money component of your score from amber into the ready band.</div>
+                <div class="tl-nums">
+                  <div class="n"><span class="k">Reserve</span><span class="v em">6.0 mo</span></div>
+                  <div class="n"><span class="k">Score impact</span><span class="v cyan">+9 pts</span></div>
+                  <div class="n"><span class="k">Verdict</span><span class="v em">READY</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="footnote">Projections use your observed surplus and hold current behavior constant. They are planning aids, not lending decisions, offers, or approvals.</div>
+        </section>
+
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ───────────── Count-up · easeOutQuart 800ms ───────────── */
+  var DUR = 800;
+  function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
+
+  function fmt(n, dec) {
+    return n.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  }
+
+  function countUp(el) {
+    var target = parseFloat(el.getAttribute('data-count'));
+    var dec = parseInt(el.getAttribute('data-dec') || '0', 10);
+    if (isNaN(target)) return;
+    var start = null;
+    function step(ts) {
+      if (start === null) start = ts;
+      var p = Math.min((ts - start) / DUR, 1);
+      el.textContent = fmt(target * easeOutQuart(p), dec);
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = fmt(target, dec);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function runCounters(root) {
+    (root || document).querySelectorAll('[data-count]').forEach(countUp);
+  }
+
+  function runFills(root) {
+    (root || document).querySelectorAll('[data-fill]').forEach(function (el) {
+      var v = el.getAttribute('data-fill');
+      el.style.width = '0%';
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { el.style.width = v + '%'; });
+      });
+    });
+  }
+
+  /* Gauge arcs: pathLength=100, 270° sweep = 75 units */
+  function runArcs(root) {
+    (root || document).querySelectorAll('[data-arc]').forEach(function (el) {
+      var pct = parseFloat(el.getAttribute('data-arc')) || 0;
+      var isGauge = el.classList.contains('gauge-fill');
+      var span = isGauge ? 75 : 100;         /* gauges sweep 270°, rings full circle */
+      el.style.strokeDasharray = '0 100';
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          el.style.strokeDasharray = (pct / 100 * span).toFixed(2) + ' 100';
+        });
+      });
+    });
+  }
+
+  /* ───────────── Toast ───────────── */
+  var toastEl = document.getElementById('toast');
+  var toastTimer;
+  function toast(html) {
+    toastEl.innerHTML = html;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2600);
+  }
+
+  /* ───────────── Sidebar nav ───────────── */
+  document.querySelectorAll('.nav-item').forEach(function (item) {
+    item.addEventListener('click', function () {
+      document.querySelectorAll('.nav-item').forEach(function (n) { n.classList.remove('active'); });
+      item.classList.add('active');
+      document.querySelectorAll('.nav-group').forEach(function (g) { g.classList.remove('active'); });
+      var group = item.closest('.nav-group');
+      if (group) group.classList.add('active');
+      if (item.dataset.nav !== 'money') {
+        toast('<b>' + item.textContent.replace(/\d+\/?\d*$/, '').trim() + '</b> — prototype scope is the Money surface');
+      }
+    });
+  });
+
+  /* ───────────── Mode rail ───────────── */
+  var railBtns = document.querySelectorAll('.rail-btn');
+  var panels = document.querySelectorAll('.mode');
+
+  function setMode(mode) {
+    railBtns.forEach(function (b) { b.classList.toggle('active', b.dataset.mode === mode); });
+    panels.forEach(function (p) {
+      var on = p.dataset.panel === mode;
+      p.classList.toggle('active', on);
+      if (on) {
+        runCounters(p);
+        runFills(p);
+        runArcs(p);
+      }
+    });
+  }
+
+  railBtns.forEach(function (b) {
+    b.addEventListener('click', function () { setMode(b.dataset.mode); });
+  });
+
+  document.querySelectorAll('[data-goto]').forEach(function (b) {
+    b.addEventListener('click', function () { setMode(b.dataset.goto); });
+  });
+
+  /* Keyboard: S / T / D / P */
+  document.addEventListener('keydown', function (e) {
+    if (e.target.tagName === 'INPUT') return;
+    var map = { s: 'stand', t: 'track', d: 'decide', p: 'plan' };
+    var m = map[e.key.toLowerCase()];
+    if (m) setMode(m);
+  });
+
+  /* ───────────── Plaid connect toggle ───────────── */
+  var plaidBtn = document.getElementById('plaidBtn');
+  var plaidLabel = document.getElementById('plaidLabel');
+  var connLabel = document.getElementById('connLabel');
+  var syncLabel = document.getElementById('syncLabel');
+  var confLabel = document.getElementById('confLabel');
+  var evidenceSub = document.getElementById('evidenceSub');
+  var txnSrc = document.getElementById('txnSrc');
+  var gaugeRow = document.getElementById('gaugeRow');
+
+  function setConnected(on) {
+    document.body.classList.toggle('connected', on);
+    gaugeRow.classList.toggle('locked', !on);
+    plaidLabel.textContent = on ? 'Bank connected' : 'Connect bank';
+    connLabel.textContent = on ? '3 accounts' : 'No bank';
+    syncLabel.textContent = on ? '2 min ago' : '— never —';
+    confLabel.textContent = on ? 'HIGH' : 'LOW';
+    confLabel.className = 'v ' + (on ? 'em' : 'am');
+    evidenceSub.textContent = on ? '12 verified' : '9 self-reported';
+    txnSrc.textContent = on ? 'verified · plaid feed' : 'estimated · connect to verify';
+    if (on) {
+      runCounters(document.querySelector('.balances'));
+      runArcs(gaugeRow);
+      toast('<b>Connected</b> — 3 accounts linked, instruments now reading live');
+    } else {
+      toast('<b>Disconnected</b> — instruments fell back to assessment estimates');
+    }
+  }
+
+  plaidBtn.addEventListener('click', function () {
+    setConnected(!document.body.classList.contains('connected'));
+  });
+  document.getElementById('shroudConnect').addEventListener('click', function () {
+    setConnected(true);
+  });
+
+  /* ───────────── Companion strip ───────────── */
+  var homieBtn = document.getElementById('homieBtn');
+  var strip = document.getElementById('chatStrip');
+  var chatLog = document.getElementById('chatLog');
+  var chatInput = document.getElementById('chatInput');
+
+  function toggleChat(force) {
+    var open = typeof force === 'boolean' ? force : !strip.classList.contains('open');
+    strip.classList.toggle('open', open);
+    homieBtn.classList.toggle('open', open);
+    if (open) setTimeout(function () { chatInput.focus(); chatInput.select(); }, 240);
+  }
+
+  homieBtn.addEventListener('click', function () { toggleChat(); });
+  document.getElementById('chatClose').addEventListener('click', function () { toggleChat(false); });
+
+  var REPLIES = [
+    'At <span class="mono">4.2 months</span> you can absorb a shock, but the reserve gate for your verdict sits at <span class="mono">6.0</span>. That gap is what is holding the money component in amber.',
+    'Your surplus of <span class="mono">$2,340/mo</span> closes it by <span class="mono">Feb 2027</span> without cutting anything — the plan already assumes no behavior change.',
+    'The largest single lever is the <b>revolving balance</b>. Clearing <span class="mono">$3,120</span> frees roughly <span class="mono">$180/mo</span> and moves DTI another 2 points.'
+  ];
+  var replyIdx = 0;
+
+  function sendChat() {
+    var text = chatInput.value.trim();
+    if (!text) return;
+    var me = document.createElement('div');
+    me.className = 'msg me';
+    me.textContent = text;
+    chatLog.appendChild(me);
+    chatInput.value = '';
+    chatLog.scrollTop = chatLog.scrollHeight;
+
+    setTimeout(function () {
+      var ai = document.createElement('div');
+      ai.className = 'msg ai';
+      ai.innerHTML = REPLIES[replyIdx % REPLIES.length];
+      replyIdx++;
+      chatLog.appendChild(ai);
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }, 520);
+  }
+
+  document.getElementById('chatSend').addEventListener('click', sendChat);
+  chatInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') sendChat(); });
+
+  /* ───────────── Decide lenses ───────────── */
+  var LENSES = {
+    afford:  { title: 'Affordability lens' },
+    dti:     { title: 'DTI headroom lens' },
+    runway:  { title: 'Runway stress lens' },
+    blind:   { title: 'Blind budget lens' },
+    reserve: { title: 'Reserve depth lens' },
+    rentbuy: { title: 'Rent vs. buy lens' }
+  };
+  var calcPane = document.getElementById('calcPane');
+  var calcTitle = document.getElementById('calcTitle');
+  var activeLens = 'afford';
+
+  document.querySelectorAll('.lens').forEach(function (l) {
+    l.addEventListener('click', function () {
+      var key = l.dataset.lens;
+      if (key === activeLens && calcPane.classList.contains('open')) {
+        calcPane.classList.remove('open');
+        l.classList.remove('active');
+        activeLens = null;
+        return;
+      }
+      document.querySelectorAll('.lens').forEach(function (x) { x.classList.remove('active'); });
+      l.classList.add('active');
+      activeLens = key;
+      calcTitle.textContent = LENSES[key].title;
+      calcPane.classList.add('open');
+      recalc();
+    });
+  });
+
+  /* Calculator */
+  var sIncome = document.getElementById('sIncome');
+  var sDebt = document.getElementById('sDebt');
+  var sCeil = document.getElementById('sCeil');
+
+  function recalc() {
+    var income = +sIncome.value, debt = +sDebt.value, ceil = +sCeil.value;
+    var supported = Math.max(0, Math.round(income * (ceil / 100) - debt));
+    var OTHER_SPEND = 3450; /* observed non-housing, non-debt monthly spend */
+    var left = Math.max(0, Math.round(income - debt - supported - OTHER_SPEND));
+
+    document.getElementById('vIncome').textContent = income.toLocaleString('en-US');
+    document.getElementById('vDebt').textContent = debt.toLocaleString('en-US');
+    document.getElementById('vCeil').textContent = ceil;
+    document.getElementById('vResult').textContent = supported.toLocaleString('en-US');
+    document.getElementById('vLeft').textContent = left.toLocaleString('en-US');
+
+    var ratio = (debt + supported) / income;
+    var tag = document.getElementById('vVerdict');
+    if (ratio <= 0.36) { tag.className = 'vtag ok';   tag.textContent = 'Within headroom'; }
+    else if (ratio <= 0.45) { tag.className = 'vtag warn'; tag.textContent = 'Tight — watch the reserve'; }
+    else { tag.className = 'vtag stop'; tag.textContent = 'Beyond comfortable range'; }
+  }
+
+  [sIncome, sDebt, sCeil].forEach(function (s) { s.addEventListener('input', recalc); });
+
+  /* ───────────── Boot ───────────── */
+  window.addEventListener('load', function () {
+    runCounters(document);
+    runFills(document);
+    runArcs(document.querySelector('.mode.active'));
+    recalc();
+    setTimeout(function () {
+      toast('Press <b>S T D P</b> to switch modes · click <b>Connect bank</b> to see live state');
+    }, 1100);
+  });
+})();
+</script>
+</body>
+</html>
