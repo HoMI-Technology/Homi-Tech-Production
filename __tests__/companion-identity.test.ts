@@ -11,9 +11,12 @@ import {
   DEFAULT_IDENTITY_NAME,
   IDENTITY_NAME_MAX,
   HOMI_PRESETS,
+  LAUNCH_SKINS,
   clearIdentity,
+  getLaunchSkin,
   getPreset,
   hasChosenIdentity,
+  isLaunchSkin,
   loadIdentity,
   saveIdentity,
   sanitizeIdentityName,
@@ -89,6 +92,37 @@ describe("starter presets", () => {
   it("resolves unknown preset keys to the classic", () => {
     expect(getPreset("nonsense").key).toBe("homi");
     expect(getPreset(undefined).key).toBe("homi");
+  });
+});
+
+describe("launch skins (founder lock)", () => {
+  it("exposes exactly Steady, Clarity, and Horizon — not classic as a skin label", () => {
+    expect(LAUNCH_SKINS.map((s) => s.key)).toEqual(["steady", "clarity", "horizon"]);
+    expect(LAUNCH_SKINS.some((s) => s.key === "homi")).toBe(false);
+  });
+
+  it("keeps orb accents from HOMI_PRESETS brand canon", () => {
+    expect(getPreset("steady").color).toBe("#34d399");
+    expect(getPreset("clarity").color).toBe("#22d3ee");
+    expect(getPreset("horizon").color).toBe("#facc15");
+    for (const skin of LAUNCH_SKINS) {
+      expect(skin.form).toBe("orb");
+    }
+  });
+
+  it("treats classic homi as chrome, not a launch skin", () => {
+    expect(isLaunchSkin("homi")).toBe(false);
+    expect(getLaunchSkin("homi")).toBeNull();
+    expect(isLaunchSkin("steady")).toBe(true);
+    expect(getLaunchSkin("steady")?.name).toBe("Steady");
+  });
+
+  it("does not use retired Homie/Reality/Gut/Timing strings as launch labels", () => {
+    const launchLabels = LAUNCH_SKINS.map((s) => s.name);
+    expect(launchLabels).toEqual(["Steady", "Clarity", "Horizon"]);
+    for (const banned of ["Homie", "Reality Check", "Gut Check", "Timing Advisor"]) {
+      expect(launchLabels).not.toContain(banned);
+    }
   });
 });
 

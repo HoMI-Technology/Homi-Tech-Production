@@ -16,11 +16,14 @@ import {
   saveIdentity,
   hasChosenIdentity,
   getPreset,
-  HOMI_PRESETS,
+  getLaunchSkin,
+  isLaunchSkin,
+  LAUNCH_SKINS,
   IDENTITY_NAME_MAX,
   DEFAULT_IDENTITY,
   type HomiIdentity,
   type HomiPreset,
+  type LaunchSkinKey,
 } from "@/lib/advisor/identity";
 import { PERSONAS, type AdvisorPersona } from "@/lib/advisor/personas";
 import { SegmentedControl, accentFromBrandHex } from "@/components/ui/SegmentedControl";
@@ -81,9 +84,10 @@ function HomiForm({
 
 /**
  * Floating Decision Companion — a compass-styled launcher (bottom-right,
- * product pages only) that opens a compact persona-aware chat panel. Not a
- * replacement for the full /advisor page (hidden there by design), just a
- * quick line to HōMI wherever the user happens to be in the product.
+ * product pages only) that opens a compact skin-aware chat panel. Launch
+ * chrome offers Steady / Clarity / Horizon only; engine personas stay
+ * underneath. Not a replacement for the full /advisor page (hidden there
+ * by design), just a quick line to HōMI wherever the user happens to be.
  *
  * Prefer mounting via CompanionHost so this module is not in the public
  * initial script graph. `skipIdle` is set when the host already gated on
@@ -134,15 +138,23 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
   // Hydrate persisted state on mount (client only).
   useEffect(() => {
     setMessages(loadThreadMessages("widget"));
+    const identityOnLoad = loadIdentity();
+    setIdentity(identityOnLoad);
+    setIdentityChosen(hasChosenIdentity());
     if (typeof window !== "undefined") {
       setOpen(window.sessionStorage.getItem(OPEN_KEY) === "1");
-      const storedPersona = window.sessionStorage.getItem(PERSONA_KEY) as AdvisorPersona | null;
-      if (storedPersona && PERSONAS.some((p) => p.key === storedPersona)) {
-        setPersona(storedPersona);
+      // Skin identity wins: launch skins pin the engine persona. Classic chrome
+      // may still restore a previously stored persona for continuity.
+      const skin = getLaunchSkin(identityOnLoad.preset);
+      if (skin) {
+        setPersona(skin.persona);
+      } else {
+        const storedPersona = window.sessionStorage.getItem(PERSONA_KEY) as AdvisorPersona | null;
+        if (storedPersona && PERSONAS.some((p) => p.key === storedPersona)) {
+          setPersona(storedPersona);
+        }
       }
     }
-    setIdentity(loadIdentity());
-    setIdentityChosen(hasChosenIdentity());
     setHydrated(true);
 
     // One memory: signed-in users reconcile their server thread — same
@@ -169,9 +181,19 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
     track("companion_renamed");
   }
 
-  function choosePreset(p: HomiPreset) {
+  function chooseSkin(p: HomiPreset) {
     setIdentity(saveIdentity({ name: p.name, preset: p.key }));
     setPersona(p.persona);
+    setIdentityChosen(true);
+    track("companion_preset_chosen");
+  }
+
+  function selectLaunchSkin(key: LaunchSkinKey) {
+    const skin = getPreset(key);
+    const nextName =
+      identity.name === DEFAULT_IDENTITY.name ? skin.name : identity.name;
+    setIdentity(saveIdentity({ name: nextName, preset: skin.key }));
+    setPersona(skin.persona);
     setIdentityChosen(true);
     track("companion_preset_chosen");
   }
@@ -355,7 +377,11 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
   }
   if (!idleReady) return null;
 
-  const activePersona = PERSONAS.find((p) => p.key === persona) ?? PERSONAS[0];
+  const activeSkin = getLaunchSkin(identity.preset);
+  const skinForEmptyState = activeSkin ?? getPreset(identity.preset);
+  const selectedSkinKey: LaunchSkinKey | null = isLaunchSkin(identity.preset)
+    ? identity.preset
+    : null;
 
   return (
     <>
@@ -452,15 +478,15 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
           <CompanionTierBanner compact />
 
           <div className="border-b border-slate-surface/60 px-3 py-2.5">
-            <SegmentedControl<AdvisorPersona>
-              ariaLabel="Companion persona"
-              options={PERSONAS.map((p) => ({
+            <SegmentedControl<LaunchSkinKey>
+              ariaLabel="Companion skin"
+              options={LAUNCH_SKINS.map((p) => ({
                 value: p.key,
                 label: p.name,
                 accent: accentFromBrandHex(p.color),
               }))}
-              value={persona}
-              onChange={setPersona}
+              value={selectedSkinKey}
+              onChange={selectLaunchSkin}
               variant="compact"
               className="flex flex-wrap gap-1.5"
             />
@@ -472,15 +498,15 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
                 <div>
                   <p className="font-display text-sm font-semibold text-light">Choose your HōMI</p>
                   <p className="mt-1 text-xs text-dim">
-                    A starting point, not a box. Rename it any time.
+                    Steady, Clarity, or Horizon. Rename it any time.
                   </p>
                 </div>
-                <div className="grid w-full grid-cols-2 gap-2">
-                  {HOMI_PRESETS.map((p) => (
+                <div className="grid w-full grid-cols-3 gap-2">
+                  {LAUNCH_SKINS.map((p) => (
                     <button
                       key={p.key}
                       type="button"
-                      onClick={() => choosePreset(p)}
+                      onClick={() => chooseSkin(p)}
                       className="glass flex flex-col items-center gap-1.5 rounded-xl border border-slate-surface/60 p-3 transition-colors hover:border-cyan/40"
                     >
                       <HomiForm preset={p} size={28} />
@@ -494,10 +520,12 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
 
             {messages.length === 0 && identityChosen && (
               <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-                <HomiForm preset={getPreset(identity.preset)} size={48} glow />
-                <p className="text-xs text-dim">{activePersona.role}</p>
+                <HomiForm preset={skinForEmptyState} size={48} glow />
+                <p className="text-xs text-dim">{skinForEmptyState.role}</p>
                 <p className="max-w-[240px] text-sm text-light">
-                  Ask me anything, in {activePersona.name.toLowerCase()} mode.
+                  {activeSkin
+                    ? `Ask me anything — ${activeSkin.name} is listening.`
+                    : "Ask me anything. Pick Steady, Clarity, or Horizon above whenever you want a different surface."}
                 </p>
               </div>
             )}

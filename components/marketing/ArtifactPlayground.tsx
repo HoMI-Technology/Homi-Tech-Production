@@ -1,7 +1,11 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { PERSONAS, type AdvisorPersona } from "@/lib/advisor/personas";
+import {
+  LAUNCH_SKINS,
+  getPreset,
+  type LaunchSkinKey,
+} from "@/lib/advisor/identity";
 import { SegmentedControl, accentFromBrandHex } from "@/components/ui/SegmentedControl";
 import { VERDICT_META } from "@/lib/brand";
 import { DEMO_DATA } from "@/lib/demo/context";
@@ -30,20 +34,21 @@ function makeId(): string {
 /**
  * Standalone companion chat + mock-context panel for the /artifact test
  * environment. Follows the same visual conventions as
- * components/companion/CompanionWidget.tsx (persona chips, message bubbles,
+ * components/companion/CompanionWidget.tsx (launch-skin chips, message bubbles,
  * .input/.btn composer) but posts with `demoContext: true` instead of a
  * real assessment payload — the server supplies the fixed mock context.
  */
 export function ArtifactPlayground() {
   const [contextOpen, setContextOpen] = useState(true);
-  const [persona, setPersona] = useState<AdvisorPersona>("homie");
+  const [skin, setSkin] = useState<LaunchSkinKey>("steady");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const meta = VERDICT_META[DEMO_DATA.verdict];
-  const activePersona = PERSONAS.find((p) => p.key === persona) ?? PERSONAS[0];
+  const activeSkin = getPreset(skin);
+  const persona = activeSkin.persona;
 
   async function sendMessage(text: string) {
     const trimmed = text.trim();
@@ -168,15 +173,15 @@ export function ArtifactPlayground() {
       {/* RIGHT — companion chat */}
       <div className="glass flex h-[600px] flex-col overflow-hidden">
         <div className="border-b border-slate-surface/60 px-4 py-3">
-          <SegmentedControl<AdvisorPersona>
-            ariaLabel="Companion persona"
-            options={PERSONAS.map((p) => ({
+          <SegmentedControl<LaunchSkinKey>
+            ariaLabel="Companion skin"
+            options={LAUNCH_SKINS.map((p) => ({
               value: p.key,
               label: p.name,
               accent: accentFromBrandHex(p.color),
             }))}
-            value={persona}
-            onChange={setPersona}
+            value={skin}
+            onChange={setSkin}
             variant="compact"
             className="flex flex-wrap gap-1.5"
           />
@@ -185,10 +190,10 @@ export function ArtifactPlayground() {
         <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
           {messages.length === 0 && (
             <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
-              <p className="text-xs text-dim">{activePersona.role}</p>
+              <p className="text-xs text-dim">{activeSkin.role}</p>
               <p className="max-w-[280px] text-sm text-light">
-                Ask anything, in {activePersona.name.toLowerCase()} mode — the mock context above is
-                what the Companion sees.
+                Ask anything — {activeSkin.name} is listening. The mock context above is what the
+                Companion sees.
               </p>
             </div>
           )}

@@ -2,8 +2,12 @@
  * "Your HōMI" — the user-created companion identity. Canon per
  * COMPANION-INTELLIGENCE-AUDIT.md: identity is configuration inside the
  * brand-voice envelope. The user names their HōMI; the name changes how the
- * relationship feels, never what the Companion is allowed to say. Personas
- * remain the tone presets underneath.
+ * relationship feels, never what the Companion is allowed to say.
+ *
+ * Launch UI exposes three skins (Steady / Clarity / Horizon). Classic `homi`
+ * remains default identity chrome (compass) but is not a fourth marketing
+ * skin label. Engine personas (homie / reality / gut / timing) stay behind
+ * the skins — not launch picker chips.
  *
  * v1 is the name. Tone/pacing/depth/focus arrive as later configuration —
  * extend HomiIdentity rather than adding parallel stores.
@@ -18,6 +22,9 @@ export const DEFAULT_IDENTITY_NAME = "HōMI";
 
 export type HomiPresetKey = "homi" | "steady" | "clarity" | "horizon";
 
+/** Launch-selectable skin keys — Steady / Clarity / Horizon only. */
+export type LaunchSkinKey = Exclude<HomiPresetKey, "homi">;
+
 export interface HomiPreset {
   key: HomiPresetKey;
   /** Starter name — the user can rename it any time. */
@@ -26,17 +33,16 @@ export interface HomiPreset {
   role: string;
   /** Brand-palette accent. Never colors outside canon. */
   color: string;
-  /** The persona this HōMI leads with. Just a default — switchable as ever. */
+  /** Engine persona this skin leads with (not a launch UI label). */
   persona: AdvisorPersona;
   /** Visual form: the threshold compass, or a glowing orb in the accent color. */
   form: "compass" | "orb";
 }
 
 /**
- * The starter HōMIs — a few, deliberately. The old prototype's archetypes
- * (grounding / analytical / reflective) re-voiced within brand canon: no
- * animals, no emoji, brand colors only. Picking one is a starting point,
- * not a box — every one can be renamed, and personas stay switchable.
+ * Full preset table — classic compass plus three launch skins. The old
+ * prototype's archetypes (grounding / analytical / reflective) re-voiced
+ * within brand canon: no animals, no emoji, brand colors only.
  */
 export const HOMI_PRESETS: HomiPreset[] = [
   {
@@ -73,8 +79,26 @@ export const HOMI_PRESETS: HomiPreset[] = [
   },
 ];
 
+/**
+ * Launch-selectable skins only. Classic `homi` stays default identity chrome
+ * but must not appear as a fourth marketing / picker skin label.
+ */
+export const LAUNCH_SKINS: HomiPreset[] = HOMI_PRESETS.filter(
+  (p): p is HomiPreset & { key: LaunchSkinKey } => p.key !== "homi",
+);
+
 export function getPreset(key: string | null | undefined): HomiPreset {
   return HOMI_PRESETS.find((p) => p.key === key) ?? HOMI_PRESETS[0];
+}
+
+/** True when the preset is one of the three launch skins. */
+export function isLaunchSkin(key: string | null | undefined): key is LaunchSkinKey {
+  return key === "steady" || key === "clarity" || key === "horizon";
+}
+
+/** Resolve a launch skin, or null when the identity is still classic chrome. */
+export function getLaunchSkin(key: string | null | undefined): HomiPreset | null {
+  return isLaunchSkin(key) ? getPreset(key) : null;
 }
 
 export interface HomiIdentity {
