@@ -142,7 +142,7 @@ npx web-push generate-vapid-keys
 
 ## Phase 3: Ops Hardening (Week 1–2)
 
-- [ ] Branch protection on `main`: require `verify` status check (the gating one; `lighthouse` is informational)
+- [ ] Branch protection on `main`: require `verify` status check (includes merge-blocking LHCI budgets)
 - [ ] Set up `support@homitechnology.com` inbox
 - [ ] Uptime monitor on `/api/healthcheck` (UptimeRobot/BetterStack) — it 503s honestly on DB failure
 - [ ] Enable GitHub Advanced Security (CodeQL, secret scanning)

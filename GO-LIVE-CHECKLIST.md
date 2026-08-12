@@ -261,8 +261,11 @@ connect UI stays gracefully disabled.
 
 ## 8. 🟢 GitHub + ops hygiene
 
-- Branch protection on `main`: require the **`verify`** status check (it's the
-  gating one; `lighthouse` is informational — see §9).
+- Branch protection on `main`: require the **`verify`** status check. `verify`
+  now runs Lighthouse CI (`npx lhci autorun`) against the existing
+  `lighthouserc.json` / `lighthouse-budget.json` budgets, so a script/a11y
+  budget break blocks merge. The standalone `lighthouse.yml` workflow remains
+  for manual/auth dashboard runs — see §9.
 - A `support@homitechnology.com` inbox.
 - Note the last-known-good Vercel deployment before each release (Instant
   Rollback is your undo).
@@ -275,24 +278,21 @@ cohort study is credible rather than retro-fitted.
 
 ---
 
-## 9. Known code-side follow-up (not a blocker): Lighthouse LCP
+## 9. Lighthouse gate (merge-blocking) + LCP follow-up
 
-The mobile Lighthouse check reports **LCP ~3.7s** on `/`, `/shadow-score`,
-`/tools/mortgage`. Investigated this session:
+**Merge-blocking today (inside `verify`):** LHCI asserts the existing §11
+budgets — notably `resource-summary:script:size` ≤ 368640 (error) and
+accessibility ≥ 0.95 (error). Soft `warn` thresholds (perf score, LCP, TBT)
+do not fail the job. Public URLs include the acquisition funnel (`/assessment`,
+`/results`) plus marketing/tools routes in `lighthouserc.json`. `/money` stays
+auth-gated and is covered by the optional dashboard LHCI config when
+`LHCI_TEST_*` secrets are set.
 
-- **CLS is now fixed** (0.33 → ~0.00) and the off-message welcome toast no longer
-  covers the funnel.
-- The **observed** LCP is **195–958ms** — real users get a fast page. The ~3.7s
-  is Lighthouse's _Lantern simulation_ estimate, which models these
-  dynamically-rendered App-Router routes' largest paint as gated behind the JS/
-  RSC chain on simulated slow-4G.
-- It does **not** block merges (the `verify` check is the required one; this
-  team has been merging past the Lighthouse check).
-
-To actually turn the check green later needs a dedicated pass: reduce critical
-JS on these routes (RSC prefetch trimming, deferring the advisor-history fetch),
-or make the landing hero lighter, or point LHCI at a Vercel preview with real
-(not simulated) throttling. Not required to launch — real-world CWV is fine.
+**LCP follow-up (warn-only, not a merge blocker):** mobile Lighthouse still
+reports LCP ~3.7s on `/`, `/shadow-score`, `/tools/mortgage` under Lantern
+simulation, while observed real-user LCP is 195–958ms. A dedicated pass can
+trim critical JS or point LHCI at a Vercel preview with real throttling —
+real-world CWV is fine for launch.
 
 ---
 

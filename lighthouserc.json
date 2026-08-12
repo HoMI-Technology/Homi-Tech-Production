@@ -10,6 +10,8 @@
         "http://localhost:3000/how-it-works",
         "http://localhost:3000/method",
         "http://localhost:3000/pricing",
+        "http://localhost:3000/assessment",
+        "http://localhost:3000/results",
         "http://localhost:3000/tools",
         "http://localhost:3000/tools/mortgage",
         "http://localhost:3000/shadow-score"

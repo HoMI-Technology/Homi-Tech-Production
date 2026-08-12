@@ -55,9 +55,9 @@ Secrets live in THREE places (do not mix them up):
 
 | Workflow          | File                               | Without secrets                                                 | With secrets                                       |
 | ----------------- | ---------------------------------- | --------------------------------------------------------------- | -------------------------------------------------- |
-| **CI** (`verify`) | `.github/workflows/ci.yml`         | Still runs brand/typecheck/tests/build using public anon values | Same (does not need service role)                  |
+| **CI** (`verify`) | `.github/workflows/ci.yml`         | Brand/typecheck/tests/build **and** merge-blocking LHCI (`npx lhci autorun` on public routes) using public anon values | Same + authenticated dashboard LHCI if `LHCI_TEST_*` set (does not need service role) |
 | **E2E**           | `.github/workflows/e2e.yml`        | Anonymous smoke runs; **live** specs **self-skip**              | Live auth/checkout/share paths execute             |
-| **Lighthouse**    | `.github/workflows/lighthouse.yml` | Public routes only                                              | + authenticated dashboard run if `LHCI_TEST_*` set |
+| **Lighthouse**    | `.github/workflows/lighthouse.yml` | Manual/`workflow_dispatch` only (same budgets as verify)        | + authenticated dashboard run if `LHCI_TEST_*` set |
 
 Design goal (from `e2e/README.md`): missing secrets must **not** fail forks; they **reduce coverage**. Green E2E without secrets ≠ full product coverage.
 

@@ -213,6 +213,32 @@ describe("lighthouse.yml concurrency protection", () => {
   });
 });
 
+// --- Merge-blocking Lighthouse lives inside the required verify job --------
+
+describe("ci.yml Lighthouse merge gate", () => {
+  const FILE = "ci.yml";
+
+  it("runs lhci autorun inside the verify job (merge-blocking)", () => {
+    const doc = parse(readWorkflow(FILE)) as {
+      jobs?: Record<string, { steps?: { name?: string; run?: string }[] }>;
+    };
+    const verify = doc.jobs?.verify;
+    expect(verify, "verify job must exist").toBeTruthy();
+    const runs = (verify?.steps ?? []).map((s) => s.run ?? "").join("\n");
+    expect(runs).toContain("lhci autorun");
+    // Dead unlighthouse stub must not be the gate.
+    expect(runs).not.toMatch(/unlighthouse-ci/);
+  });
+
+  it("names the public-route LH step so regressions are obvious in Actions", () => {
+    const doc = parse(readWorkflow(FILE)) as {
+      jobs?: Record<string, { steps?: { name?: string; run?: string }[] }>;
+    };
+    const names = (doc.jobs?.verify?.steps ?? []).map((s) => s.name ?? "");
+    expect(names.some((n) => /Lighthouse CI \(public routes/i.test(n))).toBe(true);
+  });
+});
+
 // --- The same guarantees for the other expensive workflows ---------------
 
 describe.each([
