@@ -19,6 +19,7 @@ import { ReadinessHero } from "@/components/planner/ReadinessHero";
 import { SignalsStrip } from "@/components/planner/SignalsStrip";
 import { NudgeRail } from "@/components/planner/NudgeRail";
 import { ImpactToast } from "@/components/planner/ImpactToast";
+import { TrackBottomStrip } from "@/components/planner/TrackBottomStrip";
 import {
   financialReality,
   summarizePortfolio,
@@ -311,6 +312,14 @@ export function PlannerPage({
       </TabPanel>
 
       <ImpactToast impact={lastImpact} onDismiss={clearLastImpact} />
+
+      {embedded ? (
+        <TrackBottomStrip
+          onSection={(section) => {
+            onTabChange(section);
+          }}
+        />
+      ) : null}
     </div>
   );
 }
