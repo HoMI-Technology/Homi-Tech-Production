@@ -1,35 +1,28 @@
 name: Lighthouse
 
-# Enforces the premium-redesign budget (BUILD-BRIEF §11) on the built app.
-# Runs mobile-emulated Lighthouse (LHCI default) against public/representative
-# routes. Authenticated dashboards need a login step (see note at bottom).
+# Manual / on-demand Lighthouse against the same budgets as CI verify.
+#
+# Merge-blocking public-route budgets run inside `.github/workflows/ci.yml`
+# (`verify` → `npx lhci autorun`). This workflow stays for:
+#   · workflow_dispatch / API triggers from agent sessions that skip PR events
+#   · authenticated dashboard collection when LHCI_TEST_* secrets are set
+#
+# Do not invent a second product budget here — budgets live in
+# lighthouserc.json, lighthouserc.dashboard.json, and lighthouse-budget.json.
 
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - "app/**"
-      - "components/**"
-      - "hooks/**"
-      - "lib/**"
-      - "instrumentation*.ts"
-      - "lighthouserc.json"
-      - "lighthouse-budget.json"
   # Manual/API trigger — pushes from bot credentials (agent sessions) don't
   # fire pull_request synchronize events, so branches need a way to run CI.
   workflow_dispatch:
 
-# Cancel superseded runs, matching ci.yml and e2e.yml. Without this, a new push
-# cancelled its CI and E2E runs but left Lighthouse — the most expensive job in
-# the repo at ~7 minutes — running to completion against a commit nobody would
-# merge. On a metered private repo that was the largest single source of wasted
+# Cancel superseded runs, matching ci.yml and e2e.yml. Without this, a new
+# dispatch left an obsolete run billing Actions minutes against a commit nobody
+# would merge. On a metered private repo that was a large source of wasted
 # Actions minutes.
 #
-# Group key: one lane per pull request (github.event.pull_request.number), and
-# for workflow_dispatch — where there is no PR payload — one lane per ref. PR
-# #12 therefore never cancels PR #13, and a manual run on feat/x never cancels
-# a manual run on feat/y. github.workflow keeps the namespace distinct from
-# ci.yml / e2e.yml even if a future workflow reuses the "lighthouse-" prefix.
+# Group key: for workflow_dispatch — where there is no PR payload — one lane
+# per ref. A manual run on feat/x never cancels a manual run on feat/y.
+# github.workflow keeps the namespace distinct from ci.yml / e2e.yml.
 #
 # cancel-in-progress is deliberately an expression, not `true`: a run whose ref
 # is refs/heads/main (a manual dispatch on main) must always finish, because

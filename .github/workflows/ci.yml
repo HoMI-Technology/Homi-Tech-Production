@@ -3,6 +3,11 @@ name: CI
 # Required status check. A red run must block merge to main.
 # Configure branch protection: Settings → Branches → main →
 #   Require status checks to pass → select "verify".
+#
+# The verify job includes Lighthouse CI (`npx lhci autorun`) against the
+# existing lighthouserc.json + lighthouse-budget.json budgets (script transfer
+# error at 368640 bytes / ~360 KiB, a11y ≥ 0.95). That is the merge-blocking
+# perf gate — do not reintroduce the commented-out unlighthouse stub.
 
 on:
   pull_request:
@@ -34,7 +39,8 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # Build + unit tests ~8–12m; LHCI (3 runs × public URLs) ~7–10m.
+    timeout-minutes: 35
     env:
       # Publishable, browser-safe values (the anon key is designed to ship to
       # clients). Server-only secrets are NOT needed for typecheck/test/build
@@ -44,6 +50,11 @@ jobs:
       NEXT_PUBLIC_SITE_URL: https://homitechnology.com
       NEXT_TELEMETRY_DISABLED: "1"
       NODE_OPTIONS: --max-old-space-size=4096
+      # Dedicated low-value test account for the optional authenticated LH run.
+      LHCI_TEST_EMAIL: ${{ secrets.LHCI_TEST_EMAIL }}
+      LHCI_TEST_PASSWORD: ${{ secrets.LHCI_TEST_PASSWORD }}
+      PUPPETEER_SKIP_DOWNLOAD: "1"
+      PUPPETEER_EXECUTABLE_PATH: /usr/bin/google-chrome
     steps:
       - uses: actions/checkout@v4
 
@@ -71,7 +82,12 @@ jobs:
       - name: Production build
         run: npx next build
 
-      # Optional but recommended once wired: fails the build if a page
-      # regresses Core Web Vitals / a11y below the premium budget.
-      # - name: Lighthouse budgets
-      #   run: npx unlighthouse-ci --site http://localhost:3000 --budget .lighthouse-budget.json
+      # Merge-blocking perf/a11y gate — existing §11 budgets only
+      # (lighthouserc.json + lighthouse-budget.json). Hard errors today:
+      # resource-summary:script:size ≤ 368640 and categories:accessibility ≥ 0.95.
+      - name: Lighthouse CI (public routes — §11 budget)
+        run: npx lhci autorun
+
+      - name: Lighthouse CI — authenticated dashboard
+        if: env.LHCI_TEST_EMAIL != ''
+        run: npx lhci autorun --config=lighthouserc.dashboard.json
