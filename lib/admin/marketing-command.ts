@@ -34,12 +34,13 @@ export const MARKETING_LOCK = {
 } as const;
 
 /** Never-say lines for the claim-law panel (meta: prohibition list). */
+// brand-ok: entire array is a prohibition registry — these strings are what we refuse to say, not claims we make
 export const CLAIM_NEVER_SAY = [
   "Approved / pre-approved / pre-qualified / you qualify",
-  "Guaranteed / risk-free / will buy by DATE",
-  "Replaces your credit score",
-  "Our lenders / best deal / unlock your dream home",
-  "Bank-level / military-grade security",
+  "Guaranteed / risk-free / will buy by DATE", // brand-ok: prohibition — listing what we never claim
+  "Replaces your credit score", // brand-ok: prohibition — listing what we never claim
+  "Our lenders / best deal / unlock your dream home", // brand-ok: prohibition — listing what we never claim
+  "Bank-level / military-grade security", // brand-ok: prohibition — listing what we never claim
   "This is financial advice",
 ] as const;
 
@@ -161,7 +162,7 @@ export const LIBRARY_SECTIONS: LibrarySection[] = [
       },
       {
         label: "GTM OS (master)",
-        href: "/marketing/gtm/HOMI-SOLO-GTM-OS.md",
+        href: "/marketing/gtm/HOMI-SOLO-GTM-OS.md", // brand-ok: asset filename on disk, not user-visible text
         hint: "Doctrine · kill criteria · phases",
         external: true,
       },
@@ -278,19 +279,19 @@ export const LIBRARY_SECTIONS: LibrarySection[] = [
       },
       {
         label: "Press one-pager PDF",
-        href: "/marketing/launch/press-kit/pdf/HOMI-One-Pager-Partners-Investors.pdf",
+        href: "/marketing/launch/press-kit/pdf/HOMI-One-Pager-Partners-Investors.pdf", // brand-ok: asset filename on disk, not user-visible text
         hint: "Partners / investors",
         external: true,
       },
       {
         label: "FAQ PDF",
-        href: "/marketing/launch/press-kit/pdf/HOMI-FAQ.pdf",
+        href: "/marketing/launch/press-kit/pdf/HOMI-FAQ.pdf", // brand-ok: asset filename on disk, not user-visible text
         hint: "Press kit",
         external: true,
       },
       {
         label: "Demo 60s",
-        href: "/marketing/launch/demo-video/HOMI-Demo-60s.mp4",
+        href: "/marketing/launch/demo-video/HOMI-Demo-60s.mp4", // brand-ok: asset filename on disk, not user-visible text
         hint: "Slideshow until VO upgrade",
         external: true,
       },
