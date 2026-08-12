@@ -23,6 +23,7 @@ import { ShareScoreButton } from "@/components/share/ShareScoreButton";
 import { ShareShadowButton } from "@/components/share/ShareShadowButton";
 import { ScoreDeltaBadge } from "@/components/dashboard/ScoreDeltaBadge";
 import { ScoreExplanation } from "@/components/results/ScoreExplanation";
+import { DataQualityChip } from "@/components/results/DataQualityChip";
 import { VerdictOverride } from "@/components/assessment/VerdictOverride";
 import { SaveStatusBanner } from "@/components/results/SaveStatusBanner";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
@@ -204,6 +205,10 @@ export default function ResultsPage() {
               />
             )}
           </div>
+          <DataQualityChip
+            rawScore={result.score}
+            assessmentCompletedAt={effective.completedAt}
+          />
           <ReadinessBar
             score={result.score}
             hardStops={result.hardStops}
