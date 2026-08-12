@@ -40,13 +40,22 @@ export function MoneyModeRail() {
           <Link
             key={mode.id}
             href={mode.href}
-            title={mode.label}
             aria-label={mode.label}
             aria-current={isActive ? "page" : undefined}
             data-active={isActive ? "true" : "false"}
-            className="money-mode-btn"
+            className="money-mode-btn group"
           >
             <span aria-hidden>{mode.glyph}</span>
+            {/* Hover label. aria-hidden because the link already carries the
+              * label as its accessible name — exposing both makes screen
+              * readers announce "Stand Stand". The native `title` tooltip is
+              * gone for the same reason: it would double up visually. */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute left-full top-1/2 z-10 ml-2 hidden -translate-y-1/2 whitespace-nowrap rounded-md border border-white/[0.08] bg-slate-surface px-2 py-1 text-2xs font-medium text-light opacity-0 transition-opacity group-hover:opacity-100 lg:block"
+            >
+              {mode.label}
+            </span>
           </Link>
         );
       })}

@@ -66,6 +66,16 @@ export function Chat() {
     setMessages(loadThreadMessages("chat"));
     setHasAssessment(Boolean(loadLocalResult()));
 
+    // `?q=` opener (Money picture panel → "Ask Homie"). Read off window rather
+    // than useSearchParams: the latter forces a Suspense boundary / CSR bailout
+    // on this statically-rendered page. It *pre-fills* the composer instead of
+    // sending — a link should never spend a companion turn on its own.
+    const seed = new URLSearchParams(window.location.search).get("q")?.trim();
+    if (seed) {
+      setInput(seed);
+      textareaRef.current?.focus();
+    }
+
     // One memory: reconcile the server thread (shared with the floating
     // widget) in the background via the persistence contract; on
     // 401/offline the local copy above stands.
