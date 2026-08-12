@@ -287,7 +287,10 @@ export function PlannerPage({
           onAction={(s) => onTabChange(s.actionTab)}
         />
 
-        <NudgeRail nudges={nudges} onAction={(n) => onTabChange(n.actionTab)} />
+        {/* Overview owns Suggested move (OverviewCommand); hide rail there to avoid duplicate chrome. */}
+        {tab !== "overview" ? (
+          <NudgeRail nudges={nudges} onAction={(n) => onTabChange(n.actionTab)} />
+        ) : null}
       </div>
 
       <Tabs
