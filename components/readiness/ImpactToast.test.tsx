@@ -136,9 +136,11 @@ describe("ImpactToast display", () => {
     dispatchImpact(impactFixture());
     // Root ClientProviders historically kept a permanent will-change:transform
     // on its page-transition div (fixed 2026-08-03 to animate-time-only), which
-    // made it the containing block for any fixed descendant. The portal stays
-    // as defense in depth: the toast must escape that tree entirely.
-    expect(screen.getByRole("status").parentElement).toBe(document.body);
+    // made it the containing block for any fixed descendant. F.6(a) keeps the
+    // Priority notices viewport persistently mounted as a direct body child;
+    // the toast lives inside it and still escapes the page-transition tree.
+    const viewport = screen.getByRole("status").closest('[aria-label="Priority notices"]');
+    expect(viewport?.parentElement).toBe(document.body);
   });
 
   it("does not steal focus when it appears", () => {
@@ -364,16 +366,21 @@ describe("ImpactToast priority notices", () => {
     });
   }
 
-  it("suppresses display while a session-expired notice is active", async () => {
+  it("defers display while a session-expired notice is active, then promotes", async () => {
     renderBothToasts();
     await triggerSessionExpiry();
     expect(screen.getByRole("alert")).toBeInTheDocument();
 
     dispatchImpact(impactFixture());
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
+
+    // F.6(e): deferred, not dropped — dismissing the session notice promotes it.
+    fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toBeInTheDocument();
   });
 
-  it("hides itself when a session-expired notice appears mid-display", async () => {
+  it("parks itself when a session-expired notice appears mid-display, then returns", async () => {
     renderBothToasts();
     dispatchImpact(impactFixture());
     expect(screen.getByRole("status")).toBeInTheDocument();
@@ -381,5 +388,9 @@ describe("ImpactToast priority notices", () => {
     await triggerSessionExpiry();
     expect(screen.getByRole("alert")).toBeInTheDocument();
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toBeInTheDocument();
   });
 });

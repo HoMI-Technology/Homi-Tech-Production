@@ -3,16 +3,18 @@
 /**
  * Impact toast — transient Path progress feedback (PR #127).
  *
- * Headless controller over the unified toast system (task 3.2): it owns the
- * bus subscription, payload validation, dedupe, demo isolation, and transport
- * clearing, and delegates presentation (portal, bottom-center placement,
- * auto-dismiss timer, hover/focus pause, priority suppression) to
- * ToastProvider. Session/security notices (TOAST_PRIORITY.security) always
- * outrank Path progress (TOAST_PRIORITY.base): a visible session toast
- * suppresses new impacts, and one appearing mid-display displaces this toast
- * — the toast system's priority model, replacing the old
- * [data-priority-notice] MutationObserver protocol. role="status"
- * (informational, no focus stealing), flag-gated mount, hard /demo isolation.
+ * Headless controller over the unified toast system (task 3.2 / F.6): it owns
+ * the bus subscription, payload validation, dedupe, demo isolation, and
+ * transport clearing, and delegates presentation (portal, bottom-center
+ * placement, auto-dismiss timer, hover/focus/document-blur pause, priority
+ * deferral) to ToastProvider. Session/security notices
+ * (TOAST_PRIORITY.security) always outrank Path progress
+ * (TOAST_PRIORITY.base): a visible session toast defers Path progress into
+ * the provider queue (not dropped), and one appearing mid-display parks this
+ * toast until the session notice leaves — the toast system's priority model,
+ * replacing the old [data-priority-notice] MutationObserver protocol.
+ * role="status" (informational, no focus stealing), flag-gated mount, hard
+ * /demo isolation.
  *
  * Every payload — stored or event-delivered — passes the full runtime guard
  * before display; invalid input fails closed. Duplicate impactIds display
@@ -63,8 +65,9 @@ export function ImpactToast() {
     (raw: unknown) => {
       const next = parsePathStepImpact(raw);
       if (!next) return;
-      // A session/security notice is on screen — Path progress must yield.
-      if (toast.isSuppressed(TOAST_PRIORITY.base, "bottom-center")) return;
+      // Priority deferral is owned by ToastProvider (F.6(e)): a session notice
+      // queues this toast instead of dropping it. Do not pre-filter here or the
+      // impact never reaches the queue.
       if (seenIdsRef.current.has(next.impactId)) return;
       seenIdsRef.current.add(next.impactId);
       // The publisher stores AND dispatches; once the event path delivered,
