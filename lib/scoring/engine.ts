@@ -574,6 +574,12 @@ export function scoreToVerdict(score: number): Verdict {
  *
  * Pure & deterministic. Returns an empty array when no guards trip.
  */
+// 5.8: parameterize when decisionType flows here. HOUSING_RATIO_OVER_45 and
+// RUNWAY_UNDER_1_MONTH phrase themselves around a home ("The home you are
+// considering", "Owning a home means owning the surprises"). The guard LOGIC is
+// vertical-agnostic and stays frozen; only the message copy is home-flavored.
+// AssessmentInputs carries no decisionType by design, so this is a copy-layer
+// fix (map code → per-vertical message at render), not an engine change.
 function detectHardStops(inputs: AssessmentInputs): HardStopReason[] {
   const reasons: HardStopReason[] = [];
 
@@ -618,6 +624,10 @@ function detectHardStops(inputs: AssessmentInputs): HardStopReason[] {
 
 /**
  * Detects edge cases and produces warning flags.
+ *
+ * 5.8: parameterize when decisionType flows here — FOMO_WARNING says "buying a
+ * home is one of the biggest decisions you will make". Same copy-layer note as
+ * detectHardStops above.
  */
 function detectWarnings(inputs: AssessmentInputs): ScoringWarning[] {
   const warnings: ScoringWarning[] = [];

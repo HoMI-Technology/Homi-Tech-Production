@@ -7,6 +7,10 @@ import {
   type DecisionType,
 } from "@/lib/assessment/types";
 import { activeDecisionTypeSchema } from "@/lib/validation/assessment";
+import {
+  SERVER_ACTIVE_DECISION_TYPES,
+  clientTypesAreServerAccepted,
+} from "@/lib/assessment/server-active-types";
 
 /**
  * Assessment decision-type canon (Plans.md 5.3).
@@ -41,13 +45,30 @@ describe("assessment decision-type canon", () => {
     for (const active of ACTIVE_DECISION_TYPES) {
       expect(CANON).toContain(active);
     }
+    for (const active of SERVER_ACTIVE_DECISION_TYPES) {
+      expect(CANON).toContain(active);
+    }
   });
 
-  it("activeDecisionTypeSchema accepts exactly the active set", () => {
-    for (const active of ACTIVE_DECISION_TYPES) {
+  /**
+   * ParallelChange invariant (Plans.md 5.9). The server may accept a vertical
+   * the picker does not yet offer — that IS the expand phase — but the picker
+   * must never offer one the server would 400. Client ⊆ server, never reverse.
+   */
+  it("the client picker never out-runs the server allowlist", () => {
+    expect(clientTypesAreServerAccepted()).toBe(true);
+    for (const clientType of ACTIVE_DECISION_TYPES) {
+      expect(activeDecisionTypeSchema.safeParse(clientType).success).toBe(true);
+    }
+    // Mutation guard: the helper must actually detect a violation.
+    expect(clientTypesAreServerAccepted(["car"], ["home_buying"])).toBe(false);
+  });
+
+  it("activeDecisionTypeSchema accepts exactly the SERVER-active set", () => {
+    for (const active of SERVER_ACTIVE_DECISION_TYPES) {
       expect(activeDecisionTypeSchema.safeParse(active).success).toBe(true);
     }
-    const inactive = CANON.filter((t) => !(ACTIVE_DECISION_TYPES as string[]).includes(t));
+    const inactive = CANON.filter((t) => !(SERVER_ACTIVE_DECISION_TYPES as string[]).includes(t));
     expect(inactive.length).toBeGreaterThan(0); // vacuity guard while verticals are pending
     for (const t of inactive) {
       expect(activeDecisionTypeSchema.safeParse(t).success).toBe(false);

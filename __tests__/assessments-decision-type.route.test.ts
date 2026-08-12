@@ -5,8 +5,12 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
  *
  * The route must persist the decisionType the client picked (defaulting to
  * "home_buying" when absent) and reject anything outside the server-side
- * ACTIVE_DECISION_TYPES allowlist — including canon-but-inactive verticals,
- * so "Coming soon" types cannot be smuggled in ahead of activation.
+ * SERVER_ACTIVE_DECISION_TYPES allowlist — including canon-but-inactive
+ * verticals, so "Coming soon" types cannot be smuggled in ahead of activation.
+ *
+ * Note the allowlist is SERVER_ACTIVE_DECISION_TYPES, not the client-facing
+ * ACTIVE_DECISION_TYPES: activation is a two-deploy ParallelChange (5.9), so
+ * the two lists are deliberately allowed to differ by one vertical.
  */
 
 const state = vi.hoisted(() => ({
@@ -97,8 +101,21 @@ describe("POST /api/assessments decision_type", () => {
     expect(state.insertCalls[0].decision_type).toBe("home_buying");
   });
 
-  it("rejects a canon-but-inactive vertical with 400 and no insert", async () => {
+  /**
+   * Plans.md 5.9 phase 1 (expand). The server accepts "car" one deploy BEFORE
+   * the picker offers it, so a new client hitting an old pod mid-rollout can
+   * never take a 400. The picker staying hidden is asserted separately, in
+   * __tests__/questions-flow.test.ts.
+   */
+  it("accepts car — server allowlist widened ahead of the picker", async () => {
     const res = await post({ inputs: VALID_INPUTS, kind: "full", decisionType: "car" });
+    expect(res.status).toBe(200);
+    expect(state.insertCalls).toHaveLength(1);
+    expect(state.insertCalls[0].decision_type).toBe("car");
+  });
+
+  it("rejects a canon-but-inactive vertical with 400 and no insert", async () => {
+    const res = await post({ inputs: VALID_INPUTS, kind: "full", decisionType: "career_change" });
     expect(res.status).toBe(400);
     expect(state.insertCalls).toHaveLength(0);
   });

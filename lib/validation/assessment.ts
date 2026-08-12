@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { ACTIVE_DECISION_TYPES, type DecisionType } from "@/lib/assessment/types";
+import { type DecisionType } from "@/lib/assessment/types";
+import { SERVER_ACTIVE_DECISION_TYPES } from "@/lib/assessment/server-active-types";
 
 /**
  * Shared assessment-inputs schema (T1.8b).
@@ -39,10 +40,12 @@ export type AssessmentInputsPayload = z.infer<typeof assessmentInputsSchema>;
 
 /**
  * Server-side allowlist for assessments.decision_type. Built from
- * ACTIVE_DECISION_TYPES — canon-but-inactive verticals ("Coming soon" in the
- * picker) are rejected here too, so activation is a single-array change in
- * lib/assessment/types.ts and never a client claim.
+ * SERVER_ACTIVE_DECISION_TYPES, not the client-facing ACTIVE_DECISION_TYPES:
+ * activation is a two-deploy ParallelChange, so the server accepts a vertical
+ * one deploy BEFORE the picker offers it (see server-active-types.ts). Canon
+ * verticals outside the server list are still rejected here, so a decision type
+ * is never a client claim.
  */
 export const activeDecisionTypeSchema = z.enum(
-  ACTIVE_DECISION_TYPES as [DecisionType, ...DecisionType[]],
+  SERVER_ACTIVE_DECISION_TYPES as [DecisionType, ...DecisionType[]],
 );

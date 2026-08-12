@@ -18,6 +18,13 @@ describe("buildAssessmentFlow", () => {
     expect(steps[steps.length - 1].kind).toBe("review");
   });
 
+  /**
+   * Doubles as the Plans.md 5.9 PHASE 1 guard: the server allowlist has already
+   * widened to include "car", and this asserts the picker has NOT — that gap is
+   * the whole point of the expand phase. Phase 2 flips this expectation to
+   * ["home_buying", "car"] / true and moves the assertion to the multi-type
+   * case below; until then, a picker appearing here is a premature activation.
+   */
   it("skips the decision picker when only one active type (launch honesty)", () => {
     expect(ACTIVE_DECISION_TYPES).toEqual(["home_buying"]);
     expect(shouldShowDecisionPicker()).toBe(false);

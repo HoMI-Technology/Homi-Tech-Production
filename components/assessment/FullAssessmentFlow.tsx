@@ -280,8 +280,8 @@ export function FullAssessmentFlow() {
           <PillarIntro
             color={pillarMeta.color}
             name={pillarMeta.name}
-            question={pillarIntroCopy(step.dimension).question}
-            description={pillarIntroCopy(step.dimension).description}
+            question={pillarIntroCopy(step.dimension, decisionType).question}
+            description={pillarIntroCopy(step.dimension, decisionType).description}
           />
         </StepShell>
       )}

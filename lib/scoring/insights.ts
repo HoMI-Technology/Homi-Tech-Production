@@ -77,7 +77,18 @@ export function generateKeyInsight(result: AssessmentResult): string {
   );
 }
 
-/** Up to 5 context-aware next steps keyed off which pillars are below 60 / 80. */
+/**
+ * Up to 5 context-aware next steps keyed off which pillars are below 60 / 80.
+ *
+ * 5.8: parameterize when decisionType flows here. Several steps below are
+ * home-specific ("Re-scope the target home", "Grow the down payment", "after
+ * closing"), but AssessmentResult carries no decisionType — it is derived from
+ * the frozen AssessmentInputs, which is deliberately vertical-agnostic. Adding
+ * a vertical here means threading it from the caller, not widening the engine
+ * contract. Both render paths must move together (Plans.md F.15): /results and
+ * /plan recompute this client-side while /report/[id] renders the stored
+ * `insights` column.
+ */
 export function generateNextSteps(result: AssessmentResult): string[] {
   const steps: string[] = [];
   const f = result.financial;
