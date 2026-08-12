@@ -9,11 +9,20 @@ import { RankedBars } from "@/components/admin/RankedBars";
 import { MarketingLibrary } from "@/components/admin/MarketingLibrary";
 import { MarketingTodayStrip } from "@/components/admin/MarketingTodayStrip";
 import { ActivationInstrument } from "@/components/admin/ActivationInstrument";
+import { AgencyControlTower } from "@/components/admin/AgencyControlTower";
+import { AgencyDesks } from "@/components/admin/AgencyDesks";
 import { UtmLinkBuilder } from "@/components/admin/UtmLinkBuilder";
 import { AudienceInsights } from "@/components/admin/AudienceInsights";
 import { SocialContentStudio } from "@/components/admin/SocialContentStudio";
 import { PostCaptionWriter } from "@/components/admin/PostCaptionWriter";
 import { ContentCalendar } from "@/components/admin/ContentCalendar";
+import { ThemeCalendar } from "@/components/admin/ThemeCalendar";
+import { SundayScorecard } from "@/components/admin/SundayScorecard";
+import { PostPerformanceTracker } from "@/components/admin/PostPerformanceTracker";
+import { LinkedInAnalyticsImport } from "@/components/admin/LinkedInAnalyticsImport";
+import { CompetitorPulse } from "@/components/admin/CompetitorPulse";
+import { EmailDripBuilder } from "@/components/admin/EmailDripBuilder";
+import { WebhookPublisher } from "@/components/admin/WebhookPublisher";
 import { AttentionStrip, type AttentionItem } from "@/components/operate/AttentionStrip";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
@@ -111,9 +120,9 @@ function last7(series: { count: number }[]): number {
 }
 
 export const metadata: Metadata = {
-  title: "Marketing command center | Admin | HōMI",
+  title: "Marketing Agency OS | Admin | HōMI",
   description:
-    "North-star activations, funnel, email OS, GTM engine, asset library, and claim law.",
+    "CEO control tower for the HōMI marketing agency — agent fleet, desks, activations, claim law.",
 };
 
 const TIER_COLORS: Record<SubscriptionTier, string> = {
@@ -429,27 +438,51 @@ export default async function AdminMarketingPage() {
   }
   const attention = sortBySeverity(attentionRaw);
 
-return (
+  const cohortLine =
+    cohortRate7d !== null
+      ? `${cohortActivated7d.toLocaleString()} of ${accountsLast7.toLocaleString()} new accounts activated (${cohortRate7d}% cohort)`
+      : cohortRateSuppressed
+        ? `${cohortActivated7d.toLocaleString()} of ${accountsLast7.toLocaleString()} new accounts activated — rate hidden until n ≥ 5`
+        : `${accountsLast7.toLocaleString()} new accounts this week · ${uniqueActivated7d.toLocaleString()} unique activated`;
+
+  const aiEnabled = hasAnthropic();
+
+  return (
     <div>
       <PageHeader
-        eyebrow="Growth · Command center"
-        title="Marketing"
-        description="Post the slate, tag links, load email — then prove activations. This is the weekly growth cockpit."
-        primaryAction={{ label: "Email", href: "/admin/email", variant: "primary" }}
-        secondaryAction={{ label: "Waitlist", href: "/admin/waitlist", variant: "ghost" }}
+        eyebrow="Agency OS · CEO"
+        title="Marketing Agency"
+        description="Ultra-premium agentic agency. You are CEO: watch the fleet, open a desk, approve before anything ships. Activations are the score — not vanity."
+        primaryAction={{ label: "Email desk", href: "#desk-email", variant: "primary" }}
+        secondaryAction={{ label: "Content desk", href: "#desk-content", variant: "ghost" }}
       />
 
-      {/* 1. Today strip — primary attention + Engine · Proof · Email · Scoreboard */}
+      {/* CEO attention */}
       <MarketingTodayStrip primary={attention[0]} />
-
-      {/* 2. Secondary attention only (never re-list primary) */}
       {attention.length > 1 && (
         <div className="mt-4">
-          <AttentionStrip items={attention.slice(1)} title="Also needs attention" />
+          <AttentionStrip items={attention.slice(1)} title="Also needs the CEO" />
         </div>
       )}
 
-      {/* 3. Activation Instrument — north star + engine + UTM */}
+      {/* CEO control tower — agent fleet */}
+      <AgencyControlTower
+        signals={{
+          aiEnabled,
+          resendConfigured,
+          uniqueActivated7d,
+          accountsLast7,
+          waitlistTotal,
+          campaignDrafts,
+          campaignSent,
+          metricsCapped,
+        }}
+        uniqueActivated7d={uniqueActivated7d}
+        completions7d={completions7d}
+        cohortLine={cohortLine}
+      />
+
+      {/* Activation instrument — weekly engine + UTM */}
       <ActivationInstrument
         uniqueActivated7d={uniqueActivated7d}
         completions7d={completions7d}
@@ -461,7 +494,6 @@ return (
         utmSlot={<UtmLinkBuilder />}
       />
 
-      {/* 4. MetricRail — Waitlist · Accounts · Paid only (no activations) */}
       <div className="mt-6">
         <MetricRail
           cells={[
@@ -490,39 +522,198 @@ return (
         />
       </div>
 
-      {/* 5. Quick actions */}
-      <div className="mt-8">
-        <SectionHeader
-          eyebrow="Command"
-          title="Quick actions"
-          subtitle="Jump to growth surfaces. Email and waitlist are the owned-audience path."
-        />
-        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-          {QUICK_ACTIONS.map((a) =>
-            a.external ? (
-              <a
-                key={a.href}
-                href={a.href}
-                target="_blank"
-                rel="noreferrer"
-                className="glass-hover rounded-lg border border-white/5 p-3.5"
-              >
-                <p className="text-sm font-medium text-light">{a.label}</p>
-                <p className="mt-1 text-xs text-dim">{a.hint}</p>
-              </a>
-            ) : (
-              <Link
-                key={a.href}
-                href={a.href}
-                className="glass-hover rounded-lg border border-white/5 p-3.5"
-              >
-                <p className="text-sm font-medium text-light">{a.label}</p>
-                <p className="mt-1 text-xs text-dim">{a.hint}</p>
-              </Link>
-            ),
-          )}
-        </div>
+      {/* Quick ops links */}
+      <div className="mt-6 flex flex-wrap gap-2">
+        {QUICK_ACTIONS.map((a) =>
+          a.external ? (
+            <a
+              key={a.href}
+              href={a.href}
+              target="_blank"
+              rel="noreferrer"
+              className="btn btn-ghost btn-sm"
+            >
+              {a.label}
+            </a>
+          ) : (
+            <Link key={a.href} href={a.href} className="btn btn-ghost btn-sm">
+              {a.label}
+            </Link>
+          ),
+        )}
       </div>
+
+      {/* Full agent desks */}
+      <AgencyDesks
+        panels={{
+          "desk-strategy": (
+            <div className="space-y-6">
+              <SundayScorecard
+                activationsLast7={uniqueActivated7d}
+                accountsLast7={accountsLast7}
+                waitlistLast7={waitlistLast7}
+                waitlistTotal={waitlistTotal}
+                accountsTotal={accountsTotal}
+                assessedUsers={assessedUsers}
+                paidTotal={paidTotal}
+                mrrCents={mrrCents}
+                activationRate7d={cohortRate7d}
+                channels={channels.slice(0, 3).map((c) => ({ label: c.key, count: c.count }))}
+                aiEnabled={aiEnabled}
+              />
+              <div className="glass p-5 text-sm text-dim">
+                <p className="font-semibold text-light">GTM lock</p>
+                <p className="mt-2">
+                  Channel: LinkedIn founder · PH this quarter: No · North star: unique activated
+                  users · Claim law always on.
+                </p>
+                <a
+                  href="/marketing/gtm/HOMI-SOLO-GTM-OS.md"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 inline-block text-cyan hover:underline"
+                >
+                  Open Solo GTM OS →
+                </a>
+              </div>
+            </div>
+          ),
+          "desk-content": (
+            <div className="space-y-6">
+              <SocialContentStudio />
+              <PostCaptionWriter />
+            </div>
+          ),
+          "desk-calendar": (
+            <div className="space-y-6">
+              <ThemeCalendar />
+              <ContentCalendar enginePosts={ENGINE_WEEK_POSTS} />
+            </div>
+          ),
+          "desk-audience": (
+            <AudienceInsights
+              verdictCounts={verdictCounts}
+              channelRows={channelRows}
+              interestCounts={interestCounts}
+              aiEnabled={aiEnabled}
+            />
+          ),
+          "desk-email": (
+            <div className="space-y-6">
+              <div className="glass p-6">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <SectionHeader
+                    eyebrow="Email desk"
+                    title="Campaign OS"
+                    subtitle="Resend + admin broadcasts. AI drafts drips — you approve before send."
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    <span
+                      className={`rounded-full border px-2.5 py-1 text-3xs font-semibold uppercase tracking-wide ${
+                        resendConfigured
+                          ? "border-emerald/40 bg-emerald/10 text-emerald"
+                          : "border-crimson/40 bg-crimson/10 text-light"
+                      }`}
+                    >
+                      Resend {resendConfigured ? "ready" : "blocked"}
+                    </span>
+                    <Link href="/admin/email" className="btn btn-primary btn-sm">
+                      Open composer
+                    </Link>
+                  </div>
+                </div>
+                <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  <div>
+                    <p className="text-xs text-dim">Campaigns</p>
+                    <p className="score-numeral mt-1 text-2xl text-light">{campaigns.length}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-dim">Drafts</p>
+                    <p className="score-numeral mt-1 text-2xl text-light">{campaignDrafts}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-dim">Sent</p>
+                    <p className="score-numeral mt-1 text-2xl text-light">{campaignSent}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-dim">Waitlist</p>
+                    <p className="score-numeral mt-1 text-2xl text-light">
+                      {waitlistTotal.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <EmailDripBuilder />
+            </div>
+          ),
+          "desk-performance": (
+            <div className="space-y-6">
+              <PostPerformanceTracker />
+              <LinkedInAnalyticsImport />
+            </div>
+          ),
+          "desk-competitive": <CompetitorPulse />,
+          "desk-publish": <WebhookPublisher />,
+          "desk-guardrails": (
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="glass border border-crimson/20 p-6">
+                <SectionHeader
+                  eyebrow="Claim law"
+                  title="Never say"
+                  subtitle="No exceptions under growth pressure."
+                />
+                <ul className="mt-4 space-y-2 text-sm text-dim">
+                  {CLAIM_NEVER_SAY.map((line) => (
+                    <li key={line} className="flex gap-2">
+                      <span className="text-crimson" aria-hidden>
+                        ×
+                      </span>
+                      <span>{line}</span>
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href="/marketing/gtm/SUPPORT-ARE-YOU-A-LENDER.md"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-5 inline-block text-sm text-cyan hover:underline"
+                >
+                  “Are you a lender?” script →
+                </a>
+              </div>
+              <div className="glass border border-emerald/20 p-6">
+                <SectionHeader
+                  eyebrow="Claim law"
+                  title="Always prefer"
+                  subtitle="Educational · decision-ready language."
+                />
+                <ul className="mt-4 space-y-2 text-sm text-dim">
+                  {CLAIM_PREFER.map((line) => (
+                    <li key={line} className="flex gap-2">
+                      <span className="text-emerald" aria-hidden>
+                        ✓
+                      </span>
+                      <span>{line}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ),
+          "desk-library": (
+            <div className="glass p-6">
+              <SectionHeader
+                eyebrow="Brand ops"
+                title="Marketing library"
+                subtitle="Canonical under public/marketing/ — GitHub + live SoT."
+              />
+              <div className="mt-6">
+                <MarketingLibrary sections={LIBRARY_SECTIONS} />
+              </div>
+            </div>
+          ),
+        }}
+      />
 
       {/* 6. Proof — always expanded */}
       <section
@@ -857,110 +1048,6 @@ return (
               emptyLabel="No interest tags captured yet."
             />
           </div>
-        </div>
-      </section>
-
-      {/* 8. Agency suite AFTER proof (PR1: still expanded) */}
-      <section
-        id="create"
-        className="mt-10 scroll-mt-[calc(var(--nav-offset)+3.5rem)]"
-        aria-label="Create"
-      >
-        <SectionHeader
-          eyebrow="Create"
-          title="Agency suite"
-          subtitle="Audience insights, social studio, captions, content calendar — after you can prove activations."
-        />
-        <div className="mt-6 space-y-6">
-          <AudienceInsights
-            verdictCounts={verdictCounts}
-            channelRows={channelRows}
-            interestCounts={interestCounts}
-            aiEnabled={hasAnthropic()}
-          />
-          <SocialContentStudio />
-          <PostCaptionWriter />
-          <ContentCalendar enginePosts={ENGINE_WEEK_POSTS} />
-        </div>
-      </section>
-
-      {/* 9. Claim law */}
-      <section
-        id="claim"
-        className="mt-10 scroll-mt-[calc(var(--nav-offset)+3.5rem)]"
-        aria-label="Claim law"
-      >
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div className="glass border border-crimson/20 p-6">
-            <SectionHeader
-              eyebrow="Claim law"
-              title="Never say"
-              subtitle="Marketing, product UI, support, PH, ads — no exceptions under growth pressure."
-            />
-            <ul className="mt-4 space-y-2 text-sm text-dim">
-              {CLAIM_NEVER_SAY.map((line) => (
-                <li key={line} className="flex gap-2">
-                  <span className="text-crimson" aria-hidden>
-                    ×
-                  </span>
-                  <span>{line}</span>
-                </li>
-              ))}
-            </ul>
-            <a
-              href="/marketing/gtm/SUPPORT-ARE-YOU-A-LENDER.md"
-              target="_blank"
-              rel="noreferrer"
-              className="mt-5 inline-block text-sm text-cyan hover:underline"
-            >
-              “Are you a lender?” script →
-            </a>
-          </div>
-          <div className="glass border border-emerald/20 p-6">
-            <SectionHeader
-              eyebrow="Claim law"
-              title="Always prefer"
-              subtitle="Language that stays educational and decision-ready."
-            />
-            <ul className="mt-4 space-y-2 text-sm text-dim">
-              {CLAIM_PREFER.map((line) => (
-                <li key={line} className="flex gap-2">
-                  <span className="text-emerald" aria-hidden>
-                    ✓
-                  </span>
-                  <span>{line}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-5 text-xs text-dim">
-              Educational guidance only. Not a lender. Not a credit score replacement.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 10. Library */}
-      <section
-        id="library"
-        className="mt-10 scroll-mt-[calc(var(--nav-offset)+3.5rem)]"
-        aria-label="Marketing library"
-      >
-        <div className="glass p-6">
-          <SectionHeader
-            eyebrow="Source of truth"
-            title="Marketing library"
-            subtitle="Canonical under public/marketing/ (GitHub + live). Desktop kits are working copies only."
-          />
-          <div className="mt-6">
-            <MarketingLibrary sections={LIBRARY_SECTIONS} />
-          </div>
-          <p className="mt-6 text-xs text-dim">
-            Full index:{" "}
-            <a href="/marketing/README.md" target="_blank" rel="noreferrer" className="text-cyan">
-              /marketing/README.md
-            </a>
-            . Do not ship more graphics until engine Week 1–2 scoreboards are filled.
-          </p>
         </div>
       </section>
     </div>
