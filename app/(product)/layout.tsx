@@ -5,6 +5,7 @@ import { ImpactToast } from "@/components/readiness/ImpactToast";
 // CompanionHost (not CompanionWidget): interaction-gated panel so public
 // Lighthouse script budget stays green without removing Companion for E2E.
 import { CompanionHost } from "@/components/companion/CompanionHost";
+import { PageTransition } from "@/components/layout/PageTransition";
 import { impactBus } from "@/lib/flags";
 import { getCachedClient, getCachedUser } from "@/lib/supabase/server";
 import type { Profile } from "@/types/database";
@@ -58,7 +59,7 @@ export default async function ProductLayout({ children }: { children: React.Reac
         employerId={employerId}
         organizationId={organizationId}
       >
-        {children}
+        <PageTransition>{children}</PageTransition>
       </ProductLayoutRouter>
 
       <SiteFooter />

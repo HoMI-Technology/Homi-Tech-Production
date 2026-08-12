@@ -29,6 +29,7 @@ export function HeroScore({ value, color }: { value: number; color: string }) {
         fontSize: "clamp(4rem, 8vw, 6rem)",
         letterSpacing: "-0.04em",
         lineHeight: "1",
+        // Stronger glow than the original — score is the dominant instrument
         textShadow: `0 0 60px ${color}66`,
       }}
     >
