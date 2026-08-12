@@ -1,5 +1,5 @@
 import { SiteHeader } from "@/components/layout/SiteHeader";
-import { AppHeader } from "@/components/layout/AppHeader";
+import { AppSidebar } from "@/components/layout/AppSidebar";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SessionExpiredToast } from "@/components/layout/SessionExpiredToast";
 import { ImpactToast } from "@/components/readiness/ImpactToast";
@@ -48,8 +48,13 @@ export default async function ProductLayout({ children }: { children: React.Reac
       <a href="#main" className="skip-link">
         Skip to content
       </a>
+
+      {/* Atmospheric layers — behind everything */}
+      <div aria-hidden className="app-aurora" />
+      <div aria-hidden className="app-noise" />
+
       {user ? (
-        <AppHeader
+        <AppSidebar
           email={user.email ?? null}
           role={role}
           employerId={employerId}
@@ -58,9 +63,18 @@ export default async function ProductLayout({ children }: { children: React.Reac
       ) : (
         <SiteHeader />
       )}
-      <main id="main" className="main-under-nav min-h-dvh">
+
+      <main
+        id="main"
+        className={
+          user
+            ? "relative z-10 min-h-dvh pt-14 lg:pt-0 lg:pl-[72px] xl:pl-[248px]"
+            : "main-under-nav min-h-dvh"
+        }
+      >
         {children}
       </main>
+
       <SiteFooter />
       {/* Always mount the thin host for signed-out + signed-in. Heavy
           CompanionWidget JS loads only on open / synthesis (see CompanionHost). */}

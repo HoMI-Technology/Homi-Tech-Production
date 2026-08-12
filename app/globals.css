@@ -439,6 +439,35 @@ body {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
+  /* ── App shell atmospheric layers ── */
+  .app-aurora {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 45% at 12% -5%, rgba(34, 211, 238, 0.08), transparent 70%),
+      radial-gradient(ellipse 45% 35% at 95% 110%, rgba(34, 211, 238, 0.04), transparent 70%);
+  }
+  .app-noise {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 256px 256px;
+    opacity: 0.03;
+  }
+  /* ── Sidebar nav section label ── */
+  .nav-section-label {
+    font-size: 0.5625rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(148, 163, 184, 0.7);
+    padding: 1rem 0.75rem 0.25rem;
+  }
+
   /* ── Glass panels (premium glassmorphism, inner edge glow) ─────── */
   .glass {
     background: linear-gradient(160deg, rgba(15, 23, 42, 0.82), rgba(15, 23, 42, 0.62));
