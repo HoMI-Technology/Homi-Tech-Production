@@ -1,19 +1,25 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent } from "react";
+import {
+  WAITLIST_INTERESTS,
+  type WaitlistInterest,
+  type WaitlistSource,
+} from "@/lib/waitlist";
 
-type Interest = "home-buying" | "career-change" | "major-purchase" | "teams";
-
-const INTEREST_OPTIONS: { value: Interest; label: string }[] = [
-  { value: "home-buying", label: "Home buying" },
-  { value: "career-change", label: "Career change" },
-  { value: "major-purchase", label: "Major purchase" },
-  { value: "teams", label: "Teams / benefits" },
-];
-
-export function WaitlistForm() {
+export function WaitlistForm({
+  source = "waitlist",
+  idPrefix,
+}: {
+  source?: WaitlistSource;
+  idPrefix?: string;
+}) {
+  const generatedId = useId();
+  const prefix = idPrefix ?? `waitlist-${generatedId}`;
+  const emailId = `${prefix}-email`;
+  const interestId = `${prefix}-interest`;
   const [email, setEmail] = useState("");
-  const [interest, setInterest] = useState<Interest>("home-buying");
+  const [interest, setInterest] = useState<WaitlistInterest>("home-buying");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -24,7 +30,7 @@ export function WaitlistForm() {
       const res = await fetch("/api/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, interest }),
+        body: JSON.stringify({ email, interest, source }),
       });
 
       if (!res.ok) {
@@ -49,15 +55,17 @@ export function WaitlistForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="glass flex flex-col gap-5 p-8">
+    <form onSubmit={handleSubmit} className="glass flex flex-col gap-5 p-8 text-left">
       <div>
-        <label htmlFor="waitlist-email" className="text-sm font-medium text-light">
+        <label htmlFor={emailId} className="text-sm font-medium text-light">
           Email
         </label>
         <input
-          id="waitlist-email"
+          id={emailId}
           type="email"
           required
+          autoComplete="email"
+          maxLength={254}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@example.com"
@@ -66,16 +74,16 @@ export function WaitlistForm() {
       </div>
 
       <div>
-        <label htmlFor="waitlist-interest" className="text-sm font-medium text-light">
+        <label htmlFor={interestId} className="text-sm font-medium text-light">
           What brings you here?
         </label>
         <select
-          id="waitlist-interest"
+          id={interestId}
           value={interest}
-          onChange={(e) => setInterest(e.target.value as Interest)}
+          onChange={(e) => setInterest(e.target.value as WaitlistInterest)}
           className="input mt-2"
         >
-          {INTEREST_OPTIONS.map((opt) => (
+          {WAITLIST_INTERESTS.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>
@@ -88,7 +96,7 @@ export function WaitlistForm() {
       </button>
 
       {status === "error" && (
-        <p className="text-center text-sm text-dim">
+        <p className="text-center text-sm text-dim" role="alert">
           Something didn&rsquo;t connect. Try again in a moment.
         </p>
       )}

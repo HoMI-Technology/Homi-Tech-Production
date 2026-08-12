@@ -16,6 +16,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
 import { COLORS, withAlpha } from "@/lib/brand";
 import { SITE_URL } from "@/lib/seo/site";
+import { WaitlistForm } from "@/components/marketing/WaitlistForm";
 
 export const metadata: Metadata = {
   title: "Know When You're Ready — Decision Readiness Intelligence™",
@@ -539,9 +540,9 @@ export default function MarketingHomePage() {
         </section>
       </Reveal>
 
-      {/* ── 18 · The final threshold ────────────────────────────── */}
+      {/* ── 18 · The final threshold — waitlist capture ─────────── */}
       <Reveal>
-        <section className="hero-field px-6 py-28 text-center">
+        <section id="waitlist" className="hero-field scroll-mt-24 px-6 py-28 text-center">
           <div className="mx-auto flex max-w-3xl flex-col items-center">
             <div className="compass-float">
               <Compass3D size={240} verdict="READY" maxTilt={6} />
@@ -553,29 +554,25 @@ export default function MarketingHomePage() {
                 background: `linear-gradient(${withAlpha(COLORS.navy, 0.85)}, ${withAlpha(COLORS.navy, 0.85)}) padding-box, linear-gradient(120deg, ${withAlpha(COLORS.yellow, 0.55)}, ${withAlpha(COLORS.emerald, 0.55)}) border-box`,
               }}
             >
-              <h2 className="type-display">
+              <p className="type-kicker text-cyan">Get notified</p>
+              <h2 className="mt-4 type-display">
                 Not yet is not <span className="text-emerald">no</span>.
               </h2>
               <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-dim">
-                It means you have time to build. And HōMI will show you exactly what to build first.
-                Before the next major decision, know where you stand.
+                Leave your email. We&rsquo;ll tell you when it&rsquo;s your turn &mdash; the truth,
+                not a sales sequence.
               </p>
-              <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                <Link href="/shadow-score" className="btn btn-primary btn-glow px-9 py-4 text-base">
-                  Start Your Free Assessment
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    aria-hidden
-                  >
-                    <path d="M2 8h11m0 0L9 4m4 4l-4 4" />
-                  </svg>
+              <div className="mx-auto mt-10 max-w-md">
+                <WaitlistForm source="landing" idPrefix="landing-waitlist" />
+              </div>
+              <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+                <Link href="/shadow-score" className="btn btn-ghost px-8 py-3.5 text-base">
+                  Or start a free assessment
                 </Link>
-                <a href="#compass" className="btn btn-ghost px-8 py-3.5 text-base">
+                <a
+                  href="#compass"
+                  className="text-sm text-dim underline-offset-4 hover:text-light hover:underline"
+                >
                   Explore the Compass
                 </a>
               </div>

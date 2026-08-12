@@ -3,12 +3,21 @@ import { z } from "zod";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
 import { createClient } from "@/lib/supabase/server";
 import { sendTemplateEmail } from "@/lib/email/send";
+import { WAITLIST_INTEREST_VALUES, WAITLIST_SOURCES } from "@/lib/waitlist";
 
 export const runtime = "nodejs";
 
+const interestSchema = z.enum(WAITLIST_INTEREST_VALUES);
+
 const bodySchema = z.object({
-  email: z.string().email(),
-  interest: z.union([z.string(), z.array(z.string())]).optional(),
+  email: z
+    .string()
+    .trim()
+    .max(254)
+    .email()
+    .transform((value) => value.toLowerCase()),
+  interest: z.union([interestSchema, z.array(interestSchema).max(4)]).optional(),
+  source: z.enum(WAITLIST_SOURCES).optional(),
 });
 
 export async function POST(request: Request) {
@@ -33,13 +42,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
   }
 
-  const { email, interest } = parsed.data;
+  const { email, interest, source } = parsed.data;
   const interestedIn = interest ? (Array.isArray(interest) ? interest : [interest]) : [];
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("waitlist")
-    .insert({ email, interested_in: interestedIn, source: "site" });
+    .insert({ email, interested_in: interestedIn, source: source ?? "site" });
 
   // Uniform response regardless of outcome (T1.8a) — do not let the response
   // reveal whether this email already exists on the waitlist (Postgres unique

@@ -22,7 +22,7 @@ export default function WaitlistPage() {
         </p>
 
         <Reveal className="mt-10 w-full">
-          <WaitlistForm />
+          <WaitlistForm source="waitlist" idPrefix="waitlist-page" />
         </Reveal>
       </div>
     </section>

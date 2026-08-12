@@ -102,6 +102,7 @@ export default async function AdminWaitlistPage() {
               <tr>
                 <th>Email</th>
                 <th>Interests</th>
+                <th>Source</th>
                 <th>Status</th>
                 <th>Date</th>
               </tr>
@@ -115,6 +116,7 @@ export default async function AdminWaitlistPage() {
                       ? e.interested_in.join(", ")
                       : "—"}
                   </td>
+                  <td className="text-dim capitalize">{e.source ?? "—"}</td>
                   <td>
                     <span className="chip !text-xs capitalize">{e.status}</span>
                   </td>

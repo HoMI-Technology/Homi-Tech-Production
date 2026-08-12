@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { scoreToVerdict, type Verdict } from "@/lib/scoring/engine";
 
@@ -80,5 +82,14 @@ describe("landing canon — scoreToVerdict boundary cases", () => {
     [49, "NOT_YET"],
   ] as const)("maps score %s to %s", (score, expected) => {
     expect(scoreToVerdict(score)).toBe(expected);
+  });
+});
+
+describe("landing canon — waitlist capture", () => {
+  it("renders a waitlist form on the homepage, not only /waitlist", () => {
+    const source = readFileSync(join(process.cwd(), "app/(marketing)/page.tsx"), "utf8");
+    expect(source).toContain('id="waitlist"');
+    expect(source).toContain("WaitlistForm");
+    expect(source).toContain('source="landing"');
   });
 });

@@ -430,10 +430,10 @@ export function InterviewHero() {
                     </svg>
                   </Link>
                   <a
-                    href="#statement"
+                    href="#waitlist"
                     className="text-sm text-dim underline-offset-4 transition-colors hover:text-light hover:underline"
                   >
-                    Just exploring
+                    Join the waitlist
                   </a>
                 </div>
               </div>

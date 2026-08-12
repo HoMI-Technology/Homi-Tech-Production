@@ -13,6 +13,12 @@ test("landing page loads and routes into the Shadow Score", async ({ page }) => 
   await expect(cta).toBeVisible();
 });
 
+test("landing page exposes the waitlist capture", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("#landing-waitlist-email")).toBeAttached();
+  await expect(page.getByRole("button", { name: /get notified/i })).toBeAttached();
+});
+
 test("Shadow Score flow renders its first step", async ({ page }) => {
   await page.goto("/shadow-score");
   await expect(page.getByRole("heading", { name: /90-second read/i })).toBeVisible();
