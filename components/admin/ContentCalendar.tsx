@@ -1,67 +1,160 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import {
   CALENDAR_ADD_EVENT,
   CALENDAR_DAYS,
   CALENDAR_SLOTS,
-  CALENDAR_STORAGE_KEY,
   STUDIO_PREFILL_EVENT,
   calendarKey,
   calendarToText,
-  parseStoredCalendar,
   platformMeta,
   seedCalendarFromEngine,
   slotLabel,
   type CalendarAddDetail,
   type CalendarBoard,
   type CalendarDay,
+  type CalendarEntry,
   type CalendarSlot,
+  type SocialPlatform,
   type StudioPrefillDetail,
+  type PostTone,
 } from "@/lib/admin/marketing-agency";
 
 type EnginePost = { day: string; title: string; campaign: string };
 
+type DbEntry = {
+  day_key: string;
+  slot: string;
+  title: string;
+  body: string;
+  platform: string | null;
+  campaign: string | null;
+  meta: Record<string, unknown> | null;
+};
+
+function isCalendarDay(value: string): value is CalendarDay {
+  return (CALENDAR_DAYS as readonly string[]).includes(value);
+}
+
+function isCalendarSlot(value: string): value is CalendarSlot {
+  return (CALENDAR_SLOTS as readonly string[]).includes(value);
+}
+
+function dbRowsToBoard(rows: DbEntry[]): CalendarBoard {
+  const board: CalendarBoard = {};
+  for (const row of rows) {
+    if (!isCalendarDay(row.day_key) || !isCalendarSlot(row.slot)) continue;
+    if (!row.body?.trim()) continue;
+    const meta = row.meta ?? {};
+    const tone =
+      typeof meta.tone === "string" && meta.tone
+        ? (meta.tone as PostTone)
+        : "authority";
+    const platform = (row.platform || "linkedin") as SocialPlatform;
+    board[calendarKey(row.day_key, row.slot)] = {
+      day: row.day_key,
+      slot: row.slot,
+      platform,
+      tone,
+      campaign: row.campaign || row.title || "",
+      copy: row.body,
+    };
+  }
+  return board;
+}
+
+async function persistEntry(entry: CalendarEntry): Promise<boolean> {
+  try {
+    const res = await fetch("/api/admin/marketing-calendar", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        day_key: entry.day,
+        slot: entry.slot,
+        title: entry.campaign.slice(0, 200),
+        body: entry.copy,
+        platform: entry.platform,
+        campaign: entry.campaign,
+        meta: { tone: entry.tone },
+      }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+async function deleteEntry(day: CalendarDay, slot: CalendarSlot): Promise<boolean> {
+  try {
+    const res = await fetch("/api/admin/marketing-calendar", {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ day_key: day, slot }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Seven-day publishing board, two slots a day.
- *
- * State lives in localStorage rather than the database: this is a founder's
- * working week, it changes several times a day, and a dropped row costs nothing
- * to retype. Seeded from the engine slate on first visit so the board is never
- * empty. An empty slot hands off to the content studio through a window event
- * (see STUDIO_PREFILL_EVENT); the studio hands the finished post back the same
- * way.
+ * Durable in Supabase (marketing_calendar_entries). Falls back to engine seed
+ * when the table is empty or the API is unavailable.
  */
 export function ContentCalendar({ enginePosts }: { enginePosts: EnginePost[] }) {
-  // Seeded on mount, not during render: localStorage does not exist during the
-  // server pass, and reading it in an initializer would desync hydration.
   const [board, setBoard] = useState<CalendarBoard>({});
   const [hydrated, setHydrated] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [persistHint, setPersistHint] = useState<"supabase" | "local" | null>(null);
+  const seededRef = useRef(false);
 
   useEffect(() => {
-    let stored: CalendarBoard | null = null;
-    try {
-      stored = parseStoredCalendar(window.localStorage.getItem(CALENDAR_STORAGE_KEY));
-    } catch {
-      stored = null;
-    }
-    setBoard(stored ?? seedCalendarFromEngine(enginePosts));
-    setHydrated(true);
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/marketing-calendar");
+        if (res.ok) {
+          const data = (await res.json()) as { entries?: DbEntry[] };
+          const fromDb = dbRowsToBoard(data.entries ?? []);
+          if (!cancelled) {
+            if (Object.keys(fromDb).length > 0) {
+              setBoard(fromDb);
+              setPersistHint("supabase");
+            } else if (!seededRef.current) {
+              const seed = seedCalendarFromEngine(enginePosts);
+              setBoard(seed);
+              setPersistHint("supabase");
+              seededRef.current = true;
+              // Best-effort seed write so the board survives refresh.
+              for (const entry of Object.values(seed)) {
+                if (entry) void persistEntry(entry);
+              }
+            } else {
+              setPersistHint("supabase");
+            }
+          }
+        } else if (!cancelled) {
+          setBoard(seedCalendarFromEngine(enginePosts));
+          setPersistHint("local");
+        }
+      } catch {
+        if (!cancelled) {
+          setBoard(seedCalendarFromEngine(enginePosts));
+          setPersistHint("local");
+        }
+      } finally {
+        if (!cancelled) setHydrated(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [enginePosts]);
 
-  useEffect(() => {
-    if (!hydrated) return;
-    try {
-      window.localStorage.setItem(CALENDAR_STORAGE_KEY, JSON.stringify(board));
-    } catch {
-      // Private mode / quota — the board still works for this session.
-    }
-  }, [board, hydrated]);
-
-  // The studio pushes finished posts here. When it carries no target slot
-  // (the operator generated freehand), the post lands in the first empty one.
+  // Studio → calendar handoff.
   useEffect(() => {
     function onAdd(event: Event) {
       const detail = (event as CustomEvent<CalendarAddDetail>).detail;
@@ -76,16 +169,18 @@ export function ContentCalendar({ enginePosts }: { enginePosts: EnginePost[] }) 
           day = open.day;
           slot = open.slot;
         }
+        const entry: CalendarEntry = {
+          day,
+          slot,
+          platform: detail.platform,
+          tone: detail.tone,
+          campaign: detail.campaign,
+          copy: detail.copy,
+        };
+        void persistEntry(entry);
         return {
           ...prev,
-          [calendarKey(day, slot)]: {
-            day,
-            slot,
-            platform: detail.platform,
-            tone: detail.tone,
-            campaign: detail.campaign,
-            copy: detail.copy,
-          },
+          [calendarKey(day, slot)]: entry,
         };
       });
     }
@@ -99,6 +194,7 @@ export function ContentCalendar({ enginePosts }: { enginePosts: EnginePost[] }) 
   }, []);
 
   function clearSlot(day: CalendarDay, slot: CalendarSlot) {
+    void deleteEntry(day, slot);
     setBoard((prev) => {
       const next = { ...prev };
       delete next[calendarKey(day, slot)];
@@ -107,6 +203,11 @@ export function ContentCalendar({ enginePosts }: { enginePosts: EnginePost[] }) 
   }
 
   function clearWeek() {
+    for (const day of CALENDAR_DAYS) {
+      for (const slot of CALENDAR_SLOTS) {
+        if (board[calendarKey(day, slot)]) void deleteEntry(day, slot);
+      }
+    }
     setBoard({});
   }
 
@@ -129,7 +230,13 @@ export function ContentCalendar({ enginePosts }: { enginePosts: EnginePost[] }) 
       <SectionHeader
         eyebrow="Agency"
         title="Content calendar"
-        subtitle="Seven days, two slots each. Saved in this browser — not the database."
+        subtitle={
+          persistHint === "supabase"
+            ? "Seven days, two slots each. Saved to Supabase — survives devices."
+            : persistHint === "local"
+              ? "Seven days, two slots each. API unavailable — session-only until migration is live."
+              : "Seven days, two slots each. Loading durable board…"
+        }
         action={
           <div className="flex flex-wrap gap-2">
             <button
@@ -144,7 +251,7 @@ export function ContentCalendar({ enginePosts }: { enginePosts: EnginePost[] }) 
               type="button"
               className="btn btn-ghost btn-sm"
               onClick={clearWeek}
-              disabled={filled === 0}
+              disabled={filled === 0 || !hydrated}
             >
               Clear week
             </button>
@@ -192,6 +299,7 @@ export function ContentCalendar({ enginePosts }: { enginePosts: EnginePost[] }) 
                         type="button"
                         className="glass-hover mt-1 w-full rounded-lg border border-dashed border-white/10 px-2 py-3 text-3xs text-dim"
                         onClick={() => requestPost(day, slot)}
+                        disabled={!hydrated}
                       >
                         + Add post
                       </button>

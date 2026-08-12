@@ -70,3 +70,49 @@ export async function POST(request: Request) {
   }
   return NextResponse.json({ post: data }, { status: 201 });
 }
+
+const deleteSchema = z.object({
+  id: z.string().uuid().optional(),
+  /** When true, wipe the full log (admin only). */
+  clear_all: z.boolean().optional(),
+});
+
+export async function DELETE(request: Request) {
+  const gate = await requireAdmin();
+  if ("response" in gate) return gate.response;
+  let json: unknown;
+  try {
+    json = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON." }, { status: 400 });
+  }
+  const parsed = deleteSchema.safeParse(json);
+  if (!parsed.success) return NextResponse.json({ error: "Invalid body." }, { status: 400 });
+  if (!parsed.data.id && !parsed.data.clear_all) {
+    return NextResponse.json({ error: "id or clear_all required." }, { status: 400 });
+  }
+
+  const supabase = await createClient();
+  if (parsed.data.clear_all) {
+    // Delete all rows the admin can see (RLS scopes to admin).
+    const { error } = await supabase
+      .from("marketing_competitor_log")
+      .delete()
+      .neq("id", "00000000-0000-0000-0000-000000000000");
+    if (error) {
+      console.error("[marketing-competitor:clear]", error);
+      return NextResponse.json({ error: "Clear failed." }, { status: 500 });
+    }
+    return NextResponse.json({ ok: true });
+  }
+
+  const { error } = await supabase
+    .from("marketing_competitor_log")
+    .delete()
+    .eq("id", parsed.data.id!);
+  if (error) {
+    console.error("[marketing-competitor:delete]", error);
+    return NextResponse.json({ error: "Delete failed." }, { status: 500 });
+  }
+  return NextResponse.json({ ok: true });
+}

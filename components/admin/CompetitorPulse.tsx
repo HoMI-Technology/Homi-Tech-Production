@@ -4,12 +4,10 @@ import { useEffect, useId, useState } from "react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { COLORS } from "@/lib/brand";
 import {
-  COMPETITOR_LOG_KEY,
   COMPETITOR_LOG_MAX,
   COMPETITOR_TAGS,
   COMPETITOR_URLS_KEY,
   COMPETITOR_URL_SLOTS,
-  parseStoredCompetitorLog,
   templateCompetitorAnalysis,
   type CompetitorAnalysis,
   type CompetitorPost,
@@ -20,7 +18,13 @@ function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-function emptyDraft(): { account: string; date: string; hook: string; impressions: string; tags: CompetitorTag[] } {
+function emptyDraft(): {
+  account: string;
+  date: string;
+  hook: string;
+  impressions: string;
+  tags: CompetitorTag[];
+} {
   return { account: "", date: todayIso(), hook: "", impressions: "", tags: [] };
 }
 
@@ -37,13 +41,32 @@ function readUrls(): string[] {
   }
 }
 
+type DbPost = {
+  id: string;
+  account: string;
+  hook: string;
+  posted_on: string | null;
+  tags: string[] | null;
+  impressions: number | null;
+  created_at?: string;
+};
+
+function mapDbPost(row: DbPost): CompetitorPost {
+  return {
+    id: row.id,
+    account: row.account ?? "",
+    date: row.posted_on ?? "",
+    hook: row.hook,
+    tags: (row.tags ?? []).filter((t): t is CompetitorTag =>
+      (COMPETITOR_TAGS as readonly string[]).includes(t),
+    ),
+    impressions: row.impressions ?? undefined,
+  };
+}
+
 /**
- * Competitor content pulse — logged by hand, on purpose.
- *
- * LinkedIn does not permit scraping, and a tool that quietly did it anyway would
- * be a liability rather than an advantage. So the accounts list is a bookmark
- * list, and the posts are what the operator actually read. Fifty entries is
- * plenty: the pattern is visible long before the log is full.
+ * Competitor content pulse — logged by hand, durable in Supabase.
+ * Account bookmarks stay browser-local (personal shortcuts).
  */
 export function CompetitorPulse() {
   const fieldId = useId();
@@ -58,25 +81,39 @@ export function CompetitorPulse() {
   const [source, setSource] = useState<"model" | "template" | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [persistOk, setPersistOk] = useState(true);
 
   useEffect(() => {
     setUrls(readUrls());
-    try {
-      setLog(parseStoredCompetitorLog(window.localStorage.getItem(COMPETITOR_LOG_KEY)));
-    } catch {
-      setLog([]);
-    }
-    setHydrated(true);
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/marketing-competitor");
+        if (!res.ok) {
+          if (!cancelled) {
+            setPersistOk(false);
+            setLog([]);
+          }
+        } else {
+          const data = (await res.json()) as { posts?: DbPost[] };
+          if (!cancelled) {
+            setLog((data.posts ?? []).map(mapDbPost).slice(0, COMPETITOR_LOG_MAX));
+            setPersistOk(true);
+          }
+        }
+      } catch {
+        if (!cancelled) {
+          setPersistOk(false);
+          setLog([]);
+        }
+      } finally {
+        if (!cancelled) setHydrated(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    try {
-      window.localStorage.setItem(COMPETITOR_LOG_KEY, JSON.stringify(log));
-    } catch {
-      // Private mode / quota — the log still works for this session.
-    }
-  }, [log, hydrated]);
 
   function saveUrls() {
     try {
@@ -95,24 +132,61 @@ export function CompetitorPulse() {
     }));
   }
 
-  function logPost() {
+  async function logPost() {
     const hook = draft.hook.trim();
     if (!hook) {
       setError("Paste the hook — the first line is the part worth logging.");
       return;
     }
     const impressions = Number.parseInt(draft.impressions.replace(/[,\s]/g, ""), 10);
-    const entry: CompetitorPost = {
-      id: crypto.randomUUID(),
+    const payload = {
       account: draft.account.trim().slice(0, 80),
-      date: draft.date,
       hook: hook.slice(0, 400),
+      posted_on: draft.date || null,
       tags: draft.tags,
-      impressions: Number.isFinite(impressions) && impressions >= 0 ? impressions : undefined,
+      impressions: Number.isFinite(impressions) && impressions >= 0 ? impressions : null,
     };
-    setLog((prev) => [entry, ...prev].slice(0, COMPETITOR_LOG_MAX));
-    setDraft(emptyDraft());
+
     setError(null);
+    try {
+      const res = await fetch("/api/admin/marketing-competitor", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = (await res.json()) as { post?: DbPost; error?: string };
+      if (!res.ok || !data.post) {
+        setError(data.error ?? "Could not save competitor post.");
+        setPersistOk(false);
+        return;
+      }
+      setLog((prev) => [mapDbPost(data.post!), ...prev].slice(0, COMPETITOR_LOG_MAX));
+      setDraft(emptyDraft());
+      setPersistOk(true);
+    } catch {
+      setError("Network error saving competitor post.");
+      setPersistOk(false);
+    }
+  }
+
+  async function clearLog() {
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/marketing-competitor", {
+        method: "DELETE",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ clear_all: true }),
+      });
+      if (!res.ok) {
+        setError("Could not clear log.");
+        return;
+      }
+      setLog([]);
+      setAnalysis(null);
+      setSource(null);
+    } catch {
+      setError("Network error clearing log.");
+    }
   }
 
   async function analyse() {
@@ -165,7 +239,11 @@ export function CompetitorPulse() {
       <SectionHeader
         eyebrow="Agency"
         title="Competitor pulse"
-        subtitle="What the rest of the category is posting, logged by hand. Nothing is scraped."
+        subtitle={
+          persistOk
+            ? "What the rest of the category is posting, logged by hand. Durable in Supabase — nothing is scraped."
+            : "API unavailable — apply marketing spine migration. Nothing is scraped."
+        }
         action={
           <div className="flex items-center gap-2">
             {source && (
@@ -204,10 +282,10 @@ export function CompetitorPulse() {
           <button type="button" className="btn btn-ghost btn-sm" onClick={saveUrls}>
             {savedUrls ? "Saved" : "Save accounts"}
           </button>
+          <p className="text-3xs text-dim">Account bookmarks stay in this browser only.</p>
         </div>
       )}
 
-      {/* Log form */}
       <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <label className="block text-xs text-dim" htmlFor={`${fieldId}-account`}>
           Account
@@ -271,7 +349,12 @@ export function CompetitorPulse() {
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <button type="button" className="btn btn-primary btn-sm" onClick={logPost}>
+        <button
+          type="button"
+          className="btn btn-primary btn-sm"
+          onClick={logPost}
+          disabled={!hydrated}
+        >
           Log competitor post
         </button>
         <button
@@ -285,17 +368,14 @@ export function CompetitorPulse() {
         <button
           type="button"
           className="btn btn-ghost btn-sm"
-          onClick={() => {
-            setLog([]);
-            setAnalysis(null);
-            setSource(null);
-          }}
+          onClick={clearLog}
           disabled={log.length === 0}
         >
           Clear log
         </button>
         <span className="text-xs text-dim">
-          {log.length} of {COMPETITOR_LOG_MAX} logged · stays in this browser
+          {log.length} of {COMPETITOR_LOG_MAX} logged
+          {persistOk ? " · Supabase" : " · offline"}
         </span>
       </div>
 
@@ -377,8 +457,6 @@ export function CompetitorPulse() {
             <ul className="mt-2 space-y-1.5">
               {analysis.recommendations.map((line) => (
                 <li key={line}>
-                  {/* A full navigation on purpose: the studio reads its prefill
-                      from the query string on mount. */}
                   <a
                     href={`/admin/marketing?studio_topic=${encodeURIComponent(line)}&studio_tone=authority`}
                     className="glass-hover block rounded-lg border border-white/5 px-3 py-2 text-xs text-light"
