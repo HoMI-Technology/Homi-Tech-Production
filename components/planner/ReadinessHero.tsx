@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { HardStopBanner } from "@/components/finance/HardStopBanner";
 import { VERDICT_META, type VerdictKey } from "@/lib/brand";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
 import {
@@ -112,6 +113,8 @@ export function ReadinessHero({
 
   const verdict: VerdictKey | null = score?.verdict ?? null;
   const meta = verdict ? VERDICT_META[verdict] : null;
+  const hardStops = score?.hardStops ?? [];
+  const hasHardStops = hardStops.length > 0;
 
   const pillars = [
     {
@@ -155,6 +158,14 @@ export function ReadinessHero({
             {completeness.canShowLiveScore && score ? (
               <span className="rounded-full border border-white/10 bg-navy/50 px-2 py-0.5 text-3xs font-medium uppercase tracking-wide text-dim">
                 Live instrument
+              </span>
+            ) : null}
+            {hasHardStops ? (
+              <span
+                data-testid="readiness-hard-stop-chip"
+                className="inline-flex items-center rounded-full border border-crimson/40 bg-crimson/10 px-2.5 py-1 text-3xs font-semibold uppercase tracking-wide text-crimson"
+              >
+                {hardStops.length === 1 ? "Hard stop" : `${hardStops.length} hard stops`}
               </span>
             ) : null}
           </div>
@@ -206,6 +217,11 @@ export function ReadinessHero({
               <p className="mt-4 max-w-lg text-sm leading-relaxed text-light/90">
                 {score.keyInsight}
               </p>
+              {hasHardStops ? (
+                <div className="mt-4" data-testid="readiness-hard-stop-banner">
+                  <HardStopBanner result={score.assessment} />
+                </div>
+              ) : null}
               <div className="mt-6 space-y-3">
                 {pillars.map((p) => (
                   <div key={p.short}>
