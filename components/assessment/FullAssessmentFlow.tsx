@@ -5,7 +5,13 @@ import { useRouter } from "next/navigation";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { PILLARS } from "@/lib/brand";
 import { fetchServerScore, ScoringRequestError } from "@/lib/scoring/client-score";
-import { saveLocalResult, loadLocalResult, attachServerId } from "@/lib/assessment/storage";
+import {
+  saveLocalResult,
+  loadLocalResult,
+  attachServerId,
+  writeSidebarVerdict,
+  type StoredAssessment,
+} from "@/lib/assessment/storage";
 import { recordSaveStatus, statusFromResponse } from "@/lib/assessment/save-status";
 import { saveDraft, loadDraft, clearDraft, type AssessmentDraft } from "@/lib/assessment/draft";
 import { track } from "@/lib/analytics";
@@ -168,7 +174,7 @@ export function FullAssessmentFlow() {
         }
       : undefined;
 
-    saveLocalResult({
+    const stored: StoredAssessment = {
       inputs,
       result,
       completedAt: new Date().toISOString(),
@@ -176,7 +182,15 @@ export function FullAssessmentFlow() {
       decisionType,
       previous,
       insights: { keyInsight, nextSteps },
-    });
+    };
+    saveLocalResult(stored);
+    // Belt and suspenders. saveLocalResult already mirrors the verdict onto the
+    // sidebar key (that is the canonical path, so shadow score and onboarding
+    // replay get it too); completing the full assessment is the one moment the
+    // rail absolutely must update, so it is written explicitly here as well
+    // rather than trusted to a call three modules away. Same helper, so the
+    // payload can never fork; idempotent, so a second write costs nothing.
+    writeSidebarVerdict(stored);
     clearDraft();
 
     recordSaveStatus("pending");

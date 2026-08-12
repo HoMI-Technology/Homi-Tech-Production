@@ -168,6 +168,21 @@ Production SSOT for scoring/path/tools. **No SPA score engine / WEIGHTS on clien
 | BP.3 | Wealth + Plan Lab; delete superseded finance components (Wave B)                                                                                                                                                                                       | Plan path no-regen on complete; Wave B deleted              | BP.2    | cc:Done |
 | BP.4 | Ledger bridge (hydrate + dual-write); BudgetTab/orphans removed in audit                                                                                                                                                                               | dual-write + ledger hydrate; no unmounted finance UI        | BP.3    | cc:Done |
 
+## Phase 7: Household production slice (one journey)
+
+**Journey:** Signed-in Family-tier user creates a household, invites a partner by email, and the partner accepts the token to join.
+
+Profile: `next-supabase-vercel`. Production-build gates G1–G14. Extra product work stays on G14.
+
+| Task | Description | DoD | Depends | Status |
+| ---- | ----------- | --- | ------- | ------ |
+| 7.1  | G8: route tests for POST `/api/household` (create) and POST `/api/household/invite` covering 401/400/403/402/success [tdd:required] | vitest green; invite 402 without Family; owner-only invite | - | cc:Done |
+| 7.2  | G9: request id + structured JSON log on household create/invite/accept; no token/email in logs [tdd:required] | `x-request-id` echoed; failure log queryable by requestId; on-call questions on disk | - | cc:Done |
+| 7.3  | G2: labels + visible focus on household name, invite email, accept display name [tdd:required] | RTL finds each control by accessible name; 375px layout not broken | - | cc:Done |
+| 7.4  | G12 + G14 files: household rollback path + dated deferral list [tdd:skip:docs] | `docs/ops/HOUSEHOLD-ROLLBACK.md` + `docs/ops/HOUSEHOLD-PRODUCTION-SLICE.md` exist | 7.1–7.3 | cc:Done |
+
+**PR:** `feat/household-production-slice`.
+
 ---
 
 ## Decision Sheet (product calls only the owner can make — plan proceeds on approved defaults)
