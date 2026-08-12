@@ -1,7 +1,9 @@
 import type { AssessmentInputs } from "@/lib/scoring";
+import { EMERGENCY_FUND_MONTHS } from "@/lib/assessment/types";
 import type {
   DeadlineOriginChoice,
   DecisionType,
+  EmergencyFundChoice,
   ReferralSourceChoice,
 } from "@/lib/assessment/types";
 import type { ResponseValue } from "@/lib/questions/bank";
@@ -251,6 +253,166 @@ export function mapHomeBuyingResponses(
   };
 }
 
+// ---------------------------------------------------------------------------
+// Car vertical (Plans.md 5.7)
+// ---------------------------------------------------------------------------
+
+function carDownPaymentChoiceToPercent(choice: string): number {
+  switch (choice) {
+    case "20_plus":
+      return 0.22;
+    case "10_19":
+      return 0.15;
+    case "5_9":
+      return 0.07;
+    case "under_5":
+      return 0.03;
+    default:
+      return 0.1;
+  }
+}
+
+/**
+ * Car monthly-cost band → estimated payment as a fraction of GROSS income.
+ * The question asks the band as a share of take-home; take-home is ~0.75 of
+ * gross, so each band's midpoint is converted down (e.g. 20% take-home ≈ 15%
+ * gross). Used only to estimate the new payment inside the DTI numerator.
+ */
+function carPaymentBandToRatio(band: string): number {
+  switch (band) {
+    case "under_10pct":
+      return 0.07;
+    case "10_15pct":
+      return 0.11;
+    case "15_20pct":
+      return 0.14;
+    case "over_20pct":
+      return 0.18;
+    default:
+      return 0.12;
+  }
+}
+
+/**
+ * Car monthly-payment band → the engine's `monthlyHousingRatio` slot,
+ * deliberately repurposed as the car-payment hard-stop.
+ *
+ * The engine is frozen: its only payment-burden guard is
+ * `monthlyHousingRatio > 0.45`. The founder-confirmed car red line (D10) is a
+ * different number — monthly cost above 20% of take-home. Rather than change
+ * the engine, the mapper reports 0.46 (just past the fixed threshold) when and
+ * only when the user selects `over_20pct`, so the guard fires exactly on the
+ * car rule. Every other band omits the ratio and skips the guard entirely.
+ *
+ * Consequence: the hard-stop surfaces as HOUSING_RATIO_OVER_45 with home-buying
+ * copy. Task 5.8 must parameterize that message per vertical.
+ */
+function carPaymentBandToHousingRatio(band: string): number | undefined {
+  if (band === "over_20pct") return 0.46;
+  return undefined;
+}
+
+/**
+ * Car emergency-fund choice → months of runway.
+ *
+ * The car bank (5.6) reuses the canonical EmergencyFundChoice values
+ * (`lt1` / `1to3` / `3to6` / `6plus`), which do NOT match the home question's
+ * option values (`6_plus` / `4_5` / `2_3` / `1` / `none`). Routing car answers
+ * through the home mapper would drop every one of them onto the default and
+ * silently disarm the runway hard-stop, so car reads the shared
+ * EMERGENCY_FUND_MONTHS table instead.
+ */
+function carEmergencyChoiceToMonths(choice: string): number {
+  return choice in EMERGENCY_FUND_MONTHS
+    ? EMERGENCY_FUND_MONTHS[choice as EmergencyFundChoice]
+    : 2;
+}
+
+/** Car credit question uses a simplified 4-band choice (home uses 6). */
+function carCreditChoiceToScore(choice: string): number {
+  switch (choice) {
+    case "excellent":
+      return 775;
+    case "good":
+      return 725;
+    case "fair":
+      return 675;
+    case "low":
+      return 600;
+    default:
+      return 650;
+  }
+}
+
+/**
+ * Car vertical mapper. Feeds the same frozen AssessmentInputs shape as home
+ * buying, with car-specific derivations:
+ *   - downPaymentPercent   → car down payment as % of vehicle price
+ *   - debtToIncomeRatio    → (existing debt + estimated new payment) / income
+ *   - downPaymentProgress  → measured against a 10% goal, not home's 20%
+ *   - monthlyHousingRatio  → repurposed as the car-payment hard-stop
+ */
+export function mapCarResponses(
+  responses: Record<string, ResponseValue>,
+  conflict: ConflictResponses,
+): AssessmentInputs {
+  const income = num(responses.car_fin_income) ?? 0;
+  const debt = num(responses.car_fin_debt_payments) ?? 0;
+
+  // DTI = (existing debt + estimated new payment) / income. The exact payment
+  // is unknown (no rate question), so it is derived from the cost band.
+  const paymentBand = str(responses.car_fin_monthly_payment) ?? "";
+  const estimatedPaymentDollars = income * carPaymentBandToRatio(paymentBand);
+  const debtToIncomeRatio = income > 0 ? (debt + estimatedPaymentDollars) / income : 0;
+
+  const downPaymentPercent = carDownPaymentChoiceToPercent(
+    str(responses.car_fin_down_payment_amount) ?? "",
+  );
+  const emergencyFundMonths = carEmergencyChoiceToMonths(
+    str(responses.car_fin_emergency_fund) ?? "",
+  );
+  const creditScore = carCreditChoiceToScore(str(responses.car_fin_credit_score) ?? "");
+
+  // Emotional + timing reuse the shared bank tags, so they reuse home's maps.
+  const confidenceLevel = sliderValue(responses.emo_confidence);
+  const lifeStability = sliderValue(
+    responses.emo_lifestyle_ready,
+    sliderValue(responses.emo_clarity),
+  );
+  const partnerAlignment = partnerChoiceToScale(str(responses.emo_partner_alignment) ?? "solo");
+  const fomoLevel = fomoChoiceToScale(str(responses.emo_fomo) ?? "mixed");
+
+  const timeHorizonMonths = timelineChoiceToMonths(str(responses.tim_timeline) ?? "6_12");
+  const urgency = sliderValue(responses.tim_urgency, 5);
+  const deadlineFromUrgency = urgencyToDeadlineOrigin(urgency);
+  // The car bank has no total-savings question, so the rate falls back to the
+  // income-only heuristic.
+  const savingsRate = estimateSavingsRate(null, income);
+
+  // Car targets a 10% down payment, not home's 20%.
+  const tenPercentGoal = 0.1;
+  const downPaymentProgress = Math.min(1, downPaymentPercent / tenPercentGoal);
+
+  const monthlyHousingRatio = carPaymentBandToHousingRatio(paymentBand);
+
+  return {
+    debtToIncomeRatio,
+    downPaymentPercent,
+    emergencyFundMonths,
+    creditScore,
+    lifeStability,
+    confidenceLevel,
+    partnerAlignment,
+    fomoLevel,
+    timeHorizonMonths,
+    savingsRate,
+    downPaymentProgress,
+    monthlyHousingRatio,
+    referralSource: conflict.referralSource ?? undefined,
+    deadlineOrigin: conflict.deadlineOrigin ?? deadlineFromUrgency,
+  };
+}
+
 /**
  * Per-vertical mapper registry (Plans.md 5.5). Only registered verticals can
  * produce AssessmentInputs — unmapped / inactive types hard-reject so they
@@ -258,7 +420,8 @@ export function mapHomeBuyingResponses(
  */
 const MAPPERS: Partial<Record<DecisionType, VerticalMapper>> = {
   home_buying: mapHomeBuyingResponses,
-  // car / career_change / education / starting_a_business: registered in 5.7+
+  car: mapCarResponses,
+  // career_change / education / starting_a_business: registered in 5.8+
 };
 
 /**

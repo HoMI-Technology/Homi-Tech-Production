@@ -1,8 +1,12 @@
 // =============================================================================
 // lib/questions/bank.ts — HōMI Question Bank (TypeScript mirror of SQL seed)
 // =============================================================================
-// 45 questions total: 15 per dimension (Financial, Emotional, Timing)
-// All questions tagged for the 'home_buying' decision type.
+// 53 questions total.
+//   home_buying — 45: 15 per dimension (Financial, Emotional, Timing)
+//   car         — 38: 8 car-specific financial questions (order_index 101+)
+//                 plus the 30 shared emotional/timing questions.
+// Emotional and Timing are decision-shared "bank tags": one question tagged for
+// both verticals. Financial questions are vertical-specific and never shared.
 // This is the offline / client-side source of truth. When Supabase is
 // available, the app should prefer the DB version (question_bank table,
 // seeded faithfully from this same data in
@@ -96,7 +100,7 @@ export interface Question {
 export type ResponseValue = number | string;
 
 // ---------------------------------------------------------------------------
-// Question Bank — 45 Questions
+// Question Bank — 53 Questions
 // ---------------------------------------------------------------------------
 
 export const QUESTION_BANK: Question[] = [
@@ -457,7 +461,186 @@ export const QUESTION_BANK: Question[] = [
   },
 
   // =========================================================================
-  // EMOTIONAL TRUTH (15 questions)
+  // CAR — FINANCIAL REALITY (8 questions)
+  // Categories: affordability, savings, income, debt, credit
+  // order_index starts at 101 to leave a clear gap from home buying's 1-15.
+  // Car carries its own financial pillar; emotional + timing are shared tags.
+  // =========================================================================
+
+  // CAR-F1: Vehicle price
+  {
+    id: "car_fin_vehicle_price",
+    dimension: "financial",
+    category: "affordability",
+    question_text: "What is the total price of the vehicle you are considering?",
+    question_type: "number",
+    options: null,
+    weight: 1.0,
+    order_index: 101,
+    decision_types: ["car"],
+    scoring_function: {
+      type: "linear_scale",
+      min: 5000,
+      max: 80000,
+      optimal_min: 15000,
+      unit: "usd",
+    },
+  },
+
+  // CAR-F2: Down payment amount
+  {
+    id: "car_fin_down_payment_amount",
+    dimension: "financial",
+    category: "savings",
+    question_text: "How much can you put down on the vehicle?",
+    question_type: "single_choice",
+    options: [
+      { value: "20_plus", label: "20% or more of the vehicle price" },
+      { value: "10_19", label: "10–19% of the vehicle price" },
+      { value: "5_9", label: "5–9% of the vehicle price" },
+      { value: "under_5", label: "Less than 5% — or financing the full amount" },
+    ],
+    weight: 1.0,
+    order_index: 102,
+    decision_types: ["car"],
+    scoring_function: {
+      type: "option_map",
+      scores: { "20_plus": 100, "10_19": 70, "5_9": 45, under_5: 20 },
+    },
+  },
+
+  // CAR-F3: Estimated all-in monthly payment (principal + interest + insurance + registration)
+  {
+    id: "car_fin_monthly_payment",
+    dimension: "financial",
+    category: "affordability",
+    question_text:
+      "Estimated total monthly cost — loan payment, insurance, and registration combined?",
+    question_type: "single_choice",
+    options: [
+      { value: "under_10pct", label: "Under 10% of my take-home pay" },
+      { value: "10_15pct", label: "10–15% of my take-home pay" },
+      { value: "15_20pct", label: "15–20% of my take-home pay" },
+      { value: "over_20pct", label: "More than 20% of my take-home pay" },
+    ],
+    weight: 1.0,
+    order_index: 103,
+    decision_types: ["car"],
+    scoring_function: {
+      type: "option_map",
+      scores: { under_10pct: 100, "10_15pct": 75, "15_20pct": 40, over_20pct: 10 },
+    },
+  },
+
+  // CAR-F4: Monthly gross income (mirrors fin_income, car-tagged)
+  {
+    id: "car_fin_income",
+    dimension: "financial",
+    category: "income",
+    question_text: "What is your monthly gross income (before taxes)?",
+    question_type: "number",
+    options: null,
+    weight: 0.9,
+    order_index: 104,
+    decision_types: ["car"],
+    scoring_function: {
+      type: "linear_scale",
+      min: 0,
+      max: 25000,
+      optimal_min: 3500,
+      unit: "usd",
+    },
+  },
+
+  // CAR-F5: Total existing debt (DTI)
+  {
+    id: "car_fin_debt_payments",
+    dimension: "financial",
+    category: "debt",
+    question_text:
+      "What are your total monthly debt payments (rent/mortgage, student loans, cards, existing car payments)?",
+    question_type: "number",
+    options: null,
+    weight: 1.0,
+    order_index: 105,
+    decision_types: ["car"],
+    scoring_function: {
+      type: "linear_scale",
+      min: 0,
+      max: 5000,
+      optimal_min: 0,
+      unit: "usd",
+    },
+  },
+
+  // CAR-F6: Emergency fund
+  {
+    id: "car_fin_emergency_fund",
+    dimension: "financial",
+    category: "savings",
+    question_text: "After this purchase, how many months of expenses will you have in savings?",
+    question_type: "single_choice",
+    options: [
+      { value: "6plus", label: "6 months or more" },
+      { value: "3to6", label: "3–6 months" },
+      { value: "1to3", label: "1–3 months" },
+      { value: "lt1", label: "Less than 1 month" },
+    ],
+    weight: 1.0,
+    order_index: 106,
+    decision_types: ["car"],
+    scoring_function: {
+      type: "option_map",
+      scores: { "6plus": 100, "3to6": 75, "1to3": 45, lt1: 10 },
+    },
+  },
+
+  // CAR-F7: Credit score
+  {
+    id: "car_fin_credit_score",
+    dimension: "financial",
+    category: "credit",
+    question_text: "What is your approximate credit score?",
+    question_type: "single_choice",
+    options: [
+      { value: "excellent", label: "Excellent — 750 or above" },
+      { value: "good", label: "Good — 700–749" },
+      { value: "fair", label: "Fair — 650–699" },
+      { value: "low", label: "Below 650" },
+    ],
+    weight: 1.0,
+    order_index: 107,
+    decision_types: ["car"],
+    scoring_function: {
+      type: "option_map",
+      scores: { excellent: 100, good: 80, fair: 55, low: 20 },
+    },
+  },
+
+  // CAR-F8: Loan term preference
+  {
+    id: "car_fin_loan_term",
+    dimension: "financial",
+    category: "affordability",
+    question_text: "What loan term are you considering?",
+    question_type: "single_choice",
+    options: [
+      { value: "36_or_less", label: "36 months or less — paying it off fast" },
+      { value: "48", label: "48 months" },
+      { value: "60", label: "60 months" },
+      { value: "72_plus", label: "72 months or more — stretching to make it fit" },
+    ],
+    weight: 0.8,
+    order_index: 108,
+    decision_types: ["car"],
+    scoring_function: {
+      type: "option_map",
+      scores: { "36_or_less": 100, "48": 80, "60": 55, "72_plus": 25 },
+    },
+  },
+
+  // =========================================================================
+  // EMOTIONAL TRUTH (15 questions) — shared: home_buying + car
   // Categories: confidence, stress, alignment, support, readiness
   // =========================================================================
 
@@ -476,7 +659,7 @@ export const QUESTION_BANK: Question[] = [
     },
     weight: 0.8,
     order_index: 1,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "slider_direct",
       min: 1,
@@ -496,7 +679,7 @@ export const QUESTION_BANK: Question[] = [
     options: { min: 1, max: 10, min_label: "Very unclear", max_label: "Crystal clear" },
     weight: 0.75,
     order_index: 2,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "slider_direct",
       min: 1,
@@ -521,7 +704,7 @@ export const QUESTION_BANK: Question[] = [
     },
     weight: 0.8,
     order_index: 3,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "slider_direct",
       min: 1,
@@ -547,7 +730,7 @@ export const QUESTION_BANK: Question[] = [
     },
     weight: 0.85,
     order_index: 4,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "slider_direct",
       min: 1,
@@ -576,7 +759,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.85,
     order_index: 5,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: { fully_aligned: 100, mostly_aligned: 80, partially: 45, not_aligned: 15, solo: 75 },
@@ -603,7 +786,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.9,
     order_index: 6,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: { genuine: 100, mostly_genuine: 80, mixed: 50, mostly_fomo: 25, fomo: 10 },
@@ -626,7 +809,7 @@ export const QUESTION_BANK: Question[] = [
     },
     weight: 0.65,
     order_index: 7,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "slider_direct",
       min: 1,
@@ -657,7 +840,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.7,
     order_index: 8,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: { strong: 100, moderate: 70, minimal: 40, none: 15 },
@@ -680,7 +863,7 @@ export const QUESTION_BANK: Question[] = [
     },
     weight: 0.8,
     order_index: 9,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "slider_direct",
       min: 1,
@@ -712,7 +895,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.75,
     order_index: 10,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: { fine: 100, slightly_anxious: 75, worried: 40, devastated: 10 },
@@ -734,7 +917,7 @@ export const QUESTION_BANK: Question[] = [
     },
     weight: 0.65,
     order_index: 11,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "slider_direct",
       min: 1,
@@ -773,7 +956,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.7,
     order_index: 12,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: {
@@ -801,7 +984,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.75,
     order_index: 13,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: { never: 100, rarely: 75, sometimes: 40, often: 10 },
@@ -823,7 +1006,7 @@ export const QUESTION_BANK: Question[] = [
     },
     weight: 0.6,
     order_index: 14,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "slider_direct",
       min: 1,
@@ -851,7 +1034,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.6,
     order_index: 15,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: { confident: 100, mostly_good: 75, anxious: 40, avoidant: 15 },
@@ -859,7 +1042,7 @@ export const QUESTION_BANK: Question[] = [
   },
 
   // =========================================================================
-  // PERFECT TIMING (15 questions)
+  // PERFECT TIMING (15 questions) — shared: home_buying + car
   // Categories: timeline, market, life_stage, readiness, external
   // =========================================================================
 
@@ -879,7 +1062,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.9,
     order_index: 1,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: { "0_3": 90, "3_6": 100, "6_12": 80, "12_24": 50, "24_plus": 30 },
@@ -908,7 +1091,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.8,
     order_index: 2,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: { buyers: 100, balanced: 85, competitive: 55, very_hot: 30, unsure: 40 },
@@ -931,7 +1114,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.85,
     order_index: 3,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: { favorable: 100, acceptable: 80, high_but_ok: 60, prohibitive: 20, waiting: 35 },
@@ -965,7 +1148,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.9,
     order_index: 4,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: { very_settled: 100, mostly_settled: 75, transitioning: 35, very_uncertain: 10 },
@@ -1001,7 +1184,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.85,
     order_index: 5,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: {
@@ -1036,7 +1219,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.75,
     order_index: 6,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: {
@@ -1065,7 +1248,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.7,
     order_index: 7,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: { month_to_month: 90, ending_soon: 100, mid_term: 70, long_term: 40, no_lease: 80 },
@@ -1094,7 +1277,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.7,
     order_index: 8,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: {
@@ -1125,7 +1308,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.5,
     order_index: 9,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: { optimal_season: 100, aware: 75, not_considered: 40, not_relevant: 70 },
@@ -1147,7 +1330,7 @@ export const QUESTION_BANK: Question[] = [
     },
     weight: 0.7,
     order_index: 10,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "threshold",
       thresholds: [
@@ -1175,7 +1358,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.65,
     order_index: 11,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: { optimistic: 100, cautious: 75, uncertain: 45, pessimistic: 25 },
@@ -1206,7 +1389,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.65,
     order_index: 12,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: { strong_growth: 95, steady: 80, declining: 30, unknown: 35 },
@@ -1231,7 +1414,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.75,
     order_index: 13,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: { none: 100, minor: 80, moderate: 50, major: 25 },
@@ -1256,7 +1439,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.9,
     order_index: 14,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: { immediately: 100, within_weeks: 80, within_months: 45, not_yet: 15 },
@@ -1282,7 +1465,7 @@ export const QUESTION_BANK: Question[] = [
     ],
     weight: 0.6,
     order_index: 15,
-    decision_types: ["home_buying"],
+    decision_types: ["home_buying", "car"],
     scoring_function: {
       type: "option_map",
       scores: { calculated: 100, aware: 70, not_considered: 35, waiting_is_better: 50 },

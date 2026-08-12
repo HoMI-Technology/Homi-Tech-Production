@@ -79,12 +79,8 @@ describe("bankResponsesToInputs", () => {
   });
 
   it("hard-rejects unmapped decision verticals (no home fallthrough)", () => {
-    const unmapped: DecisionType[] = [
-      "car",
-      "career_change",
-      "education",
-      "starting_a_business",
-    ];
+    // "car" moved out of this list in 5.7 — it now has a registered mapper.
+    const unmapped: DecisionType[] = ["career_change", "education", "starting_a_business"];
     for (const decisionType of unmapped) {
       expect(() =>
         bankResponsesToInputs(HOME_FIXTURE_RESPONSES, EMPTY_CONFLICT, decisionType),

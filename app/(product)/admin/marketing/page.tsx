@@ -345,8 +345,8 @@ export default async function AdminMarketingPage() {
         </div>
         <p className="mt-4 text-xs text-dim">
           North star: <span className="text-emerald">activations</span> (completed readiness path) —
-          {/* brand-ok: meta-reference to a forbidden claim — this line is the prohibition, not the claim */}
-          not followers. Claim law: never approved / guaranteed / credit-score replacement.
+          not followers. {/* brand-ok: meta-reference to forbidden claims — this is the prohibition policy, not a claim */}
+          Claim law: never approved {/* brand-ok: listing what NOT to say */} / guaranteed / credit-score replacement.
         </p>
       </div>
 
