@@ -22,7 +22,7 @@ import { TrinityBar } from "@/components/assessment/TrinityBar";
 import { ShareScoreButton } from "@/components/share/ShareScoreButton";
 import { ShareShadowButton } from "@/components/share/ShareShadowButton";
 import { ScoreDeltaBadge } from "@/components/dashboard/ScoreDeltaBadge";
-import { ScoreExplanation } from "@/components/results/ScoreExplanation";
+import { ReasoningTrail } from "@/components/results/ReasoningTrail";
 import { DataQualityChip } from "@/components/results/DataQualityChip";
 import { VerdictOverride } from "@/components/assessment/VerdictOverride";
 import { SaveStatusBanner } from "@/components/results/SaveStatusBanner";
@@ -255,8 +255,8 @@ export default function ResultsPage() {
         </div>
       </div>
 
-      {/* Why did this change — only when there's a previous result to compare */}
-      <ScoreExplanation stored={effective} />
+      {/* Reasoning trail — confidence + blockers + optional magnitude movement */}
+      <ReasoningTrail stored={effective} />
 
       {/* Hard stops */}
       {result.hardStops.length > 0 && (

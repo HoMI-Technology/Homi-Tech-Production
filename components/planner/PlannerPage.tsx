@@ -20,6 +20,7 @@ import { SignalsStrip } from "@/components/planner/SignalsStrip";
 import { NudgeRail } from "@/components/planner/NudgeRail";
 import { ImpactToast } from "@/components/planner/ImpactToast";
 import ConfirmDialog from "@/components/planner/ui/ConfirmDialog";
+import { TrackBottomStrip } from "@/components/planner/TrackBottomStrip";
 import {
   financialReality,
   summarizePortfolio,
@@ -282,7 +283,10 @@ export function PlannerPage({
           onAction={(s) => onTabChange(s.actionTab)}
         />
 
-        <NudgeRail nudges={nudges} onAction={(n) => onTabChange(n.actionTab)} />
+        {/* Overview owns Suggested move (OverviewCommand); hide rail there to avoid duplicate chrome. */}
+        {tab !== "overview" ? (
+          <NudgeRail nudges={nudges} onAction={(n) => onTabChange(n.actionTab)} />
+        ) : null}
       </div>
 
       <Tabs
@@ -324,6 +328,14 @@ export function PlannerPage({
         onConfirm={loadSampleNumbers}
         onClose={() => setConfirmSampleOpen(false)}
       />
+
+      {embedded ? (
+        <TrackBottomStrip
+          onSection={(section) => {
+            onTabChange(section);
+          }}
+        />
+      ) : null}
     </div>
   );
 }
