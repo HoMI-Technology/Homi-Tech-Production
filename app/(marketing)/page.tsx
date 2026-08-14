@@ -17,6 +17,7 @@ import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
 import { COLORS, withAlpha } from "@/lib/brand";
 import { SITE_URL } from "@/lib/seo/site";
 import { WaitlistForm } from "@/components/marketing/WaitlistForm";
+import { PRIMARY_CLOSE_HREF } from "@/components/marketing/first-moment-copy";
 
 export const metadata: Metadata = {
   title: "Know When You're Ready — Decision Readiness Intelligence™",
@@ -566,7 +567,7 @@ export default function MarketingHomePage() {
                 <WaitlistForm source="landing" idPrefix="landing-waitlist" />
               </div>
               <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-                <Link href="/shadow-score" className="btn btn-ghost px-8 py-3.5 text-base">
+                <Link href={PRIMARY_CLOSE_HREF} className="btn btn-ghost px-8 py-3.5 text-base">
                   Or start a free assessment
                 </Link>
                 <a

@@ -191,29 +191,18 @@ function StepWhereToStart({
         Where do you want to start?
       </h1>
       <p className="mt-3 text-sm leading-relaxed text-dim">
-        Take the full assessment for your complete read, or get a fast Shadow Score in under two
-        minutes. Either way, HōMI meets you where you are.
+        Take the assessment for your complete read. HōMI meets you where you are.
       </p>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
+      <div className="mt-8">
         <Link
           href="/assessment"
           onClick={onFinish}
           className="glass glass-hover flex flex-col gap-2 p-5"
         >
-          <span className="text-sm font-semibold text-cyan">Full Assessment</span>
+          <span className="text-sm font-semibold text-cyan">Assess</span>
           <span className="text-xs text-dim">
-            The complete read across all three pillars. Takes about 8 minutes.
-          </span>
-        </Link>
-        <Link
-          href="/shadow-score"
-          onClick={onFinish}
-          className="glass glass-hover flex flex-col gap-2 p-5"
-        >
-          <span className="text-sm font-semibold text-emerald">Shadow Score</span>
-          <span className="text-xs text-dim">
-            Six questions. A fast, honest first read. Under two minutes.
+            The complete read across all three pillars. About 5 minutes.
           </span>
         </Link>
       </div>

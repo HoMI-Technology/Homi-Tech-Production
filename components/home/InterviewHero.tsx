@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import {
+  PRIMARY_CLOSE_HREF,
+  PRIMARY_CLOSE_LABEL,
+} from "@/components/marketing/first-moment-copy";
 import { Particles } from "./CinematicCompass";
 import { Compass3D } from "./Compass3D";
 import { track } from "@/lib/analytics";
@@ -10,7 +14,7 @@ import { COLORS, withAlpha } from "@/lib/brand";
 /**
  * InterviewHero — landing hook (PERSUADE).
  * Ultra-premium film pass: Compass3D gyro instrument, reactive ring glow,
- * one-shot beam climax on temperature, lit magnetic CTA → /shadow-score.
+ * one-shot beam climax on temperature, lit magnetic CTA → First Moment / Assess.
  * DESIGN.md: navy/cyan/Fraunces, boldness in the instrument, PRM-safe.
  *
  * SEO/AT: h1 is in the DOM from first paint at full contrast.
@@ -381,9 +385,6 @@ export function InterviewHero() {
                     </button>
                   ))}
                 </div>
-                <p className="mt-4 text-xs text-dim/75">
-                  Your answers aren&rsquo;t stored or sent.
-                </p>
               </div>
             )}
 
@@ -412,11 +413,11 @@ export function InterviewHero() {
                 </p>
                 <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row lg:justify-start">
                   <Link
-                    href="/shadow-score?src=hero"
+                    href={`${PRIMARY_CLOSE_HREF}?src=hero`}
                     className={`btn btn-primary btn-glow magnetic px-8 py-3.5 text-base ${ctaLit ? "is-lit" : ""}`}
                     onClick={handleCtaClick}
                   >
-                    Check My Readiness
+                    {PRIMARY_CLOSE_LABEL}
                     <svg
                       width="16"
                       height="16"

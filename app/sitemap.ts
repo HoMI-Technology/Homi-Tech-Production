@@ -40,6 +40,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/tools/preflight`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${base}/scenarios`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${base}/assessment`, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${base}/first-moment`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${base}/shadow-score`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${base}/employee`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${base}/waitlist`, changeFrequency: "monthly", priority: 0.5 },

@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import {
+  PRIMARY_CLOSE_HREF,
+  PRIMARY_CLOSE_LABEL,
+} from "@/components/marketing/first-moment-copy";
 import { CinematicCompass } from "./CinematicCompass";
 import { COLORS } from "@/lib/brand";
 
@@ -234,8 +238,8 @@ export function ThresholdPreview() {
         </div>
 
         <div className="flex flex-col items-start gap-2">
-          <Link href="/shadow-score" className="btn btn-primary">
-            Check my readiness
+          <Link href={PRIMARY_CLOSE_HREF} className="btn btn-primary">
+            {PRIMARY_CLOSE_LABEL}
           </Link>
           <p className="text-xs text-dim/70">
             This preview uses illustrative signals only — no scoring internals. Your real HōMI-Score
