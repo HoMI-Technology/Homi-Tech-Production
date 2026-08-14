@@ -366,7 +366,7 @@ export default function MarketingHomePage() {
               One companion. Three ways to hear it.
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-center text-dim">
-              Trinity under the hood. Steady, Clarity, or Horizon on the surface.
+              Steady, Clarity, or Horizon — three ways to hear the same honest read.
             </p>
             <div className="mt-14">
               <Voices />

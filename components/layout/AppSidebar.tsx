@@ -68,7 +68,7 @@ const JOURNEY_ORDER: readonly { label: string; hrefs: readonly string[] }[] = [
   // /agents is header-primary whenever the Agent OS flag is on; it belongs to
   // the acting half of the journey, next to Money and the household surfaces.
   { label: "Act", hrefs: ["/money", "/agents", "/household", "/connections"] },
-  { label: "Reflect", hrefs: ["/advisor", "/journal"] },
+  { label: "Reflect", hrefs: ["/journal"] },
 ];
 
 /**

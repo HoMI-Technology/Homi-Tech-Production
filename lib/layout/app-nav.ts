@@ -17,7 +17,7 @@ import { HEADER_MORE_NAV, HEADER_PRIMARY_NAV } from "@/lib/layout/nav-catalog";
 export const APP_PRIMARY_NAV = HEADER_PRIMARY_NAV;
 
 /**
- * Everything else under More. Journal, Companion, finance, and the deeper
+ * Everything else under More. Journal, finance, and the deeper
  * product surface stay one click away without crowding the bar.
  */
 export const APP_MORE_NAV = HEADER_MORE_NAV;

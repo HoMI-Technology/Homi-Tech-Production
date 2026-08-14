@@ -6,8 +6,8 @@ import { SegmentedControl, accentFromBrandHex } from "@/components/ui/SegmentedC
 import { LAUNCH_SKINS, type LaunchSkinKey } from "@/lib/advisor/identity";
 
 /**
- * Marketing companion layer — Trinity under the hood, three launch skins on
- * the surface. Founder lock: Steady / Clarity / Horizon only. Homie / Reality
+ * Marketing companion layer — three launch skins on the surface.
+ * Founder lock: Steady / Clarity / Horizon only. Homie / Reality
  * / Gut / Timing and advocate/skeptic/arbiter stay off default chrome.
  */
 
@@ -83,8 +83,7 @@ export function Voices() {
         </div>
 
         <p className="mt-2 text-sm leading-relaxed text-dim/80">
-          Trinity runs underneath — three honest reads, one companion. On the surface you choose
-          how to hear it: Steady, Clarity, or Horizon.
+          Three honest reads, one companion. Choose how to hear it: Steady, Clarity, or Horizon.
         </p>
       </div>
 

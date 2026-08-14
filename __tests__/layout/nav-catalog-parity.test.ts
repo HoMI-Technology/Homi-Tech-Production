@@ -17,6 +17,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
  *   menu, not product chrome.
  * - /shadow-score: quick-score lead-gen action; intentionally not chrome nav.
  * - /agent-hub: deep Agent OS surface; /agents (roster) is the chrome entry.
+ * - /advisor: Companion chat stays reachable via palette + widget, not More.
  */
 const PALETTE_ONLY_HREFS = [
   "/partner/dashboard",
@@ -28,6 +29,7 @@ const PALETTE_ONLY_HREFS = [
   "/settings/subscription",
   "/shadow-score",
   "/agent-hub",
+  "/advisor",
   // Money modes: primary Money + MoneyModeNav; not duplicated in More
   "/money/budget",
   "/money/decide",
@@ -79,6 +81,15 @@ describe("nav catalog parity", () => {
     expect(pathIdx).toBeGreaterThanOrEqual(0);
     expect(moreHrefs[pathIdx + 1]).toBe("/results");
     expect(palette.PALETTE_CATALOG.map((i) => i.href)).toContain("/results");
+  });
+
+  it("agentOs keywords never include homie scout, even when the flag is off", async () => {
+    await loadSurfaces("false");
+    const { NAV_CATALOG } = await import("@/lib/layout/nav-catalog");
+    for (const entry of NAV_CATALOG) {
+      const hay = `${entry.keywords ?? ""} ${entry.label} ${entry.paletteLabel ?? ""}`.toLowerCase();
+      expect(hay, entry.href).not.toMatch(/homie[\s-]?scout/);
+    }
   });
 
   it("agent surfaces are gated by the agentOs flag on both surfaces", async () => {

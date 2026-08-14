@@ -12,10 +12,9 @@ describe("AppHeader nav config", () => {
     expect(APP_PRIMARY_NAV.length).toBeLessThanOrEqual(4);
   });
 
-  it("puts Journal and Companion under More", () => {
+  it("puts Journal under More and keeps Companion off header chrome", () => {
     expect(APP_MORE_NAV.map((i) => i.href)).toContain("/journal");
-    expect(APP_MORE_NAV.map((i) => i.href)).toContain("/advisor");
-    expect(APP_MORE_NAV.find((i) => i.href === "/advisor")?.label).toBe("Companion");
+    expect(APP_MORE_NAV.map((i) => i.href)).not.toContain("/advisor");
   });
 
   it("carries the launch product surface under More", () => {
@@ -28,7 +27,6 @@ describe("AppHeader nav config", () => {
       "/scenarios",
       "/plan",
       "/journal",
-      "/advisor",
       "/connections",
     ]) {
       expect(hrefs).toContain(href);
@@ -38,6 +36,7 @@ describe("AppHeader nav config", () => {
       expect(hrefs).not.toContain(href);
     }
     expect(APP_MORE_NAV.find((i) => i.href === "/plan")?.label).toBe("Readiness plan");
+    expect(APP_MORE_NAV.map((i) => i.href)).not.toContain("/advisor");
     // Incomplete lab surfaces stay off chrome for launch (routes still exist).
     for (const href of [
       "/simulator",
