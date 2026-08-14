@@ -81,9 +81,9 @@ export function ResultsVerdictView({
           <ThresholdCompass size={220} verdict={result.verdict} />
         </div>
         <div className="flex flex-col items-center md:items-start">
-          <p className="text-3xs font-semibold uppercase tracking-[0.25em] text-dim">
+          <h1 className="text-3xs font-semibold uppercase tracking-[0.25em] text-dim">
             Decision readiness
-          </p>
+          </h1>
           <CountUpScore value={result.score} />
           <p className="mt-1 text-sm uppercase tracking-widest text-dim">HōMI-Score out of 100</p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-3 md:justify-start">
