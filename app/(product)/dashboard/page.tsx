@@ -19,7 +19,6 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Reveal } from "@/components/ui/Reveal";
 import { ScoreHistory, type ScoreHistoryPoint } from "@/components/dashboard/ScoreHistory";
 import { ScoreDeltaBadge } from "@/components/dashboard/ScoreDeltaBadge";
-import { DailyPulseStrip } from "@/components/dashboard/DailyPulseStrip";
 import { QuickActionGrid } from "@/components/dashboard/QuickActionGrid";
 import { OutcomeSurveyPrompt } from "@/components/dashboard/OutcomeSurveyPrompt";
 import { EntranceConductor } from "@/components/dashboard/Entrance";
@@ -33,9 +32,6 @@ import {
   FinancialPositionSection,
   FinancialPositionSkeleton,
 } from "@/components/dashboard/FinancialPositionSection";
-import { GenomeWidget } from "@/components/dashboard/GenomeWidget";
-import { genomeScoresMap } from "@/lib/genome/constants";
-import { TrinityGapAlert } from "@/components/dashboard/TrinityGapAlert";
 import { DecisionTimeline } from "@/components/dashboard/DecisionTimeline";
 import { PathNextMove } from "@/components/dashboard/PathNextMove";
 import { PageFrame } from "@/components/operate/PageFrame";
@@ -45,7 +41,6 @@ import { OperateHeroMeta } from "@/components/operate/OperateHeroMeta";
 import { OperateInstrument } from "@/components/operate/OperateInstrument";
 import type {
   AssessmentRow,
-  BehavioralGenome,
   DailyCheckin,
   JournalEntry,
   OutcomeSurvey,
@@ -54,8 +49,7 @@ import type {
 
 export const metadata: Metadata = {
   title: "Dashboard | HōMI",
-  description:
-    "Your decision readiness at a glance — score history, daily pulse, and quick actions.",
+  description: "Your decision readiness at a glance — score history and next moves.",
 };
 
 function firstName(profile: Profile | null, fallbackEmail: string | null): string {
@@ -109,10 +103,10 @@ const NEXT_MOVES: Record<
     secondary: { href: "/journal", label: "Open your journal" },
   },
   timing: {
-    title: "Read the timing signals",
-    body: "You're close on money and motive — the moment is the question. Check the signals shaping your window before you move.",
-    href: "/signals",
-    cta: "View timing signals",
+    title: "Work the timing constraint",
+    body: "You're close on money and motive — the moment is the question. Open Path and work the binding constraint before you move.",
+    href: "/path",
+    cta: "Open Path to Ready",
     secondary: { href: "/plan", label: "See your plan" },
   },
 };
@@ -127,7 +121,7 @@ export default async function DashboardPage() {
   // pillars, pulse, and actions need. The money section streams separately
   // behind Suspense (FinancialPositionSection) so Plaid-derived data never
   // blocks first paint.
-  const [profileR, assessmentsR, checkinsR, journalR, surveysR, genomeR, journalEntriesR] =
+  const [profileR, assessmentsR, checkinsR, journalR, surveysR, journalEntriesR] =
     await Promise.all([
       user
         ? supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
@@ -166,9 +160,6 @@ export default async function DashboardPage() {
             .limit(1)
         : Promise.resolve({ data: [] as OutcomeSurvey[], error: null }),
       user
-        ? supabase.from("behavioral_genome").select("*").eq("user_id", user.id).maybeSingle()
-        : Promise.resolve({ data: null as BehavioralGenome | null, error: null }),
-      user
         ? supabase
             .from("decision_journal")
             .select("id, title, context, decision_date, created_at")
@@ -187,7 +178,6 @@ export default async function DashboardPage() {
   // Empty and failed are different truths. A transient error must never render
   // first-run copy to a user who has real history.
   const assessmentsFailed = Boolean(user && assessmentsR.error);
-  const checkinsFailed = Boolean(user && checkinsR.error);
 
   const profile = profileR.data ?? null;
   const assessmentRows: AssessmentRow[] = assessmentsR.data ?? [];
@@ -196,7 +186,6 @@ export default async function DashboardPage() {
   const latest = assessmentRows[0] ?? null;
   const previousAssessment = assessmentRows[1] ?? null;
   const dueSurvey: OutcomeSurvey | null = surveysR.data?.[0] ?? null;
-  const genome = (genomeR.data as BehavioralGenome | null) ?? null;
   const journalEntries =
     (journalEntriesR.data as
       | Pick<JournalEntry, "id" | "title" | "context" | "decision_date" | "created_at">[]
@@ -484,10 +473,6 @@ export default async function DashboardPage() {
 
       {latest && (
         <>
-          <div className="mt-5">
-            <TrinityGapAlert pillars={pillarReadings} />
-          </div>
-
           {/* Metric strip - no kicker, sits under instrument */}
           <div className="dash-stage mt-5" style={{ "--stage-delay": "100ms" } as CSSProperties}>
             <MetricRail
@@ -531,7 +516,7 @@ export default async function DashboardPage() {
                   footer:
                     checkinRows.length > 0
                       ? `${checkinRows.length} in last 14`
-                      : "Start a daily pulse",
+                      : "None in last 14",
                   color: COLORS.emerald,
                 },
                 {
@@ -657,12 +642,6 @@ export default async function DashboardPage() {
                   </div>
                 </Reveal>
 
-                {genome && (
-                  <Reveal delay={100}>
-                    <GenomeWidget scores={genomeScoresMap(genome.scores)} />
-                  </Reveal>
-                )}
-
                 {user && (
                   <div>
                     <Suspense fallback={<FinancialPositionSkeleton />}>
@@ -684,24 +663,6 @@ export default async function DashboardPage() {
               </div>
 
               <aside className="dash-side-stack" aria-label="Cadence">
-                <div className="dash-panel">
-                  <div className="mb-2 flex items-center justify-between gap-2">
-                    <h3>Daily pulse</h3>
-                    <Link href="/daily" className="text-xs font-medium text-cyan hover:underline">
-                      Check in
-                    </Link>
-                  </div>
-                  {checkinsFailed ? (
-                    <LoadErrorPanel
-                      compact
-                      title="Check-ins didn't load"
-                      body="Retry in a moment."
-                    />
-                  ) : (
-                    <DailyPulseStrip checkins={checkinRows} />
-                  )}
-                </div>
-
                 <div className="dash-panel">
                   <h3 className="mb-1">Snapshot</h3>
                   <div className="dash-side-metric">

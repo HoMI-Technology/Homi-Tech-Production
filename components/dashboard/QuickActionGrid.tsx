@@ -142,8 +142,8 @@ export function QuickActionGrid({
   const resolveAction = (href: string): Action | undefined => {
     const direct = ACTIONS.find((a) => a.href === href);
     if (direct) return direct;
-    // Contextual actions may deep-link Money modes or launch-hidden /daily —
-    // collapse Money modes to Money card; skip true launch-hidden unless copied.
+    // Contextual actions may deep-link Money modes — collapse those to Money.
+    // Launch-hidden labs (/daily, /signals, /simulator) are never featured.
     if (href === "/money/decide" || href === "/money/budget" || href === "/money/plan") {
       const money = ACTIONS.find((a) => a.href === "/money");
       if (!money) return undefined;
@@ -154,32 +154,6 @@ export function QuickActionGrid({
           href === "/money/decide"
             ? "Your financial pillar is the one to work — open Decide"
             : money.nowDesc,
-      };
-    }
-    if (href === "/daily") {
-      return {
-        href: "/daily",
-        label: "Daily check-in",
-        desc: "60 seconds of honesty",
-        icon: "plan",
-        nowDesc: "You haven't checked in today",
-      };
-    }
-    if (href === "/signals") {
-      return {
-        href: "/signals",
-        label: "Signals",
-        desc: "Timing forces around you",
-        icon: "path",
-        nowDesc: "Timing is your open question",
-      };
-    }
-    if (href === "/simulator") {
-      return {
-        href: "/simulator",
-        label: "Simulate your score",
-        desc: "Test a move before you make it",
-        icon: "assessment",
       };
     }
     return undefined;
