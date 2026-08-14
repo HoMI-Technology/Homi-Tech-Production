@@ -94,7 +94,7 @@ function MonteCarloPageInner() {
   return (
     <ToolShell
       title="Monte Carlo Projection"
-      description="Simulated paths. Not a forecast."
+      description={`Simulated paths. Not a forecast.`}
     >
       <SavedNumbersStrip />
 
