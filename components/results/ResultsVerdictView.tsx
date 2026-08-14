@@ -434,8 +434,8 @@ export function ResultsVerdictView({
             Save your progress
           </Link>
         )}
-        <Link href={kind === "shadow" ? "/assessment" : "/shadow-score"} className="btn btn-ghost">
-          {kind === "shadow" ? "Take the full assessment" : "Retake the assessment"}
+        <Link href="/shadow-score" className="btn btn-ghost">
+          Retake the assessment
         </Link>
         {stored.serverId && fullReport && (
           <Link href={`/report/${stored.serverId}`} className="btn btn-ghost">

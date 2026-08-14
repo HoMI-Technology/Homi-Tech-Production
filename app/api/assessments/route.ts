@@ -136,7 +136,7 @@ export async function POST(req: NextRequest) {
           nextSteps: generateNextSteps(result),
         },
         hard_stops: result.hardStops,
-        is_shadow: kind === "shadow",
+        is_shadow: false,
         completed_at: new Date().toISOString(),
       })
       .select("id")

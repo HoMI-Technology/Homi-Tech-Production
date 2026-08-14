@@ -171,7 +171,7 @@ describe("/results does not paint leftover shadow as a HōMI-Score", () => {
     const page = readFileSync(join(process.cwd(), "app/(product)/results/page.tsx"), "utf8");
     expect(page).toContain("discardScoreShapedShadow");
     expect(page).toContain('href="/assessment"');
-    expect(page).toContain(">Assess<");
+    expect(page).toMatch(/>\s*Assess\s*</);
     expect(page).not.toContain("Get your Shadow Score");
     expect(page).not.toContain('href="/shadow-score"');
   });
@@ -180,8 +180,11 @@ describe("/results does not paint leftover shadow as a HōMI-Score", () => {
     const view = readFileSync(join(process.cwd(), "components/results/ResultsVerdictView.tsx"), "utf8");
     expect(view).toMatch(/kind === ["']shadow["']/);
     expect(view).toContain('href="/assessment"');
-    const shadowGuard = view.slice(0, view.indexOf("const meta = VERDICT_META"));
-    expect(shadowGuard).toContain("kind === \"shadow\"");
+    const guardStart = view.indexOf('if (kind === "shadow")');
+    const guardEnd = view.indexOf("const meta = VERDICT_META");
+    const shadowGuard = view.slice(guardStart, guardEnd);
+    expect(shadowGuard).toContain('href="/assessment"');
+    expect(shadowGuard).toMatch(/>\s*Assess\s*</);
     expect(shadowGuard).not.toContain("CountUpScore");
     expect(shadowGuard).not.toContain("HōMI-Score");
     expect(shadowGuard).not.toContain("VerdictBadge");
