@@ -4,6 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HeaderShell, isActivePath } from "@/components/layout/HeaderShell";
 import { NotificationBell } from "@/components/layout/NotificationBell";
+import {
+  PRIMARY_CLOSE_HREF,
+  PRIMARY_CLOSE_LABEL,
+} from "@/components/marketing/first-moment-copy";
 
 const NAV = [
   { href: "/how-it-works", label: "How It Works" },
@@ -46,8 +50,8 @@ export function SiteHeader() {
           >
             Sign in
           </Link>
-          <Link href="/shadow-score" className="btn btn-primary btn-sm">
-            Get your score
+          <Link href={PRIMARY_CLOSE_HREF} className="btn btn-primary btn-sm">
+            {PRIMARY_CLOSE_LABEL}
           </Link>
         </>
       }
@@ -70,8 +74,8 @@ export function SiteHeader() {
           <Link href="/auth/sign-in" className="rounded-lg px-3 py-2 text-sm text-dim">
             Sign in
           </Link>
-          <Link href="/shadow-score" className="btn btn-primary mt-1">
-            Get your score
+          <Link href={PRIMARY_CLOSE_HREF} className="btn btn-primary mt-1">
+            {PRIMARY_CLOSE_LABEL}
           </Link>
         </>
       }

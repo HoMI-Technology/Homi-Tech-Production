@@ -5,12 +5,13 @@ import { test, expect } from "@playwright/test";
  * These need no account, so they're the CI-safe core of the E2E smoke.
  */
 
-test("landing page loads and routes into the Shadow Score", async ({ page }) => {
+test("landing page loads and routes into Assess / First Moment", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveTitle(/HōMI/);
-  // The primary CTA points at the shadow score (verified in the marketing page).
-  const cta = page.getByRole("link", { name: /shadow score|get your|know when/i }).first();
+  // Header primary close is Assess → First Moment (account-then-45).
+  const cta = page.getByRole("link", { name: /^assess$/i }).first();
   await expect(cta).toBeVisible();
+  await expect(cta).toHaveAttribute("href", "/first-moment");
 });
 
 test("landing page exposes the waitlist capture", async ({ page }) => {
