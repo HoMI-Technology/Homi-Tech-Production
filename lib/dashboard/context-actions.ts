@@ -18,10 +18,11 @@ const PILLAR_TOOL: Record<PillarKey, string> = {
   // Money Reality: signed-in financial work happens in Decide, not the public hub.
   financial: "/money/decide",
   emotional: "/advisor",
-  timing: "/signals",
+  // Timing lab (/signals) stays launch-hidden — Path is the customer surface.
+  timing: "/path",
 };
 
-const FILLERS = ["/simulator", "/journal", "/plan"];
+const FILLERS = ["/path", "/journal", "/plan"];
 
 /** Exactly three hrefs, most-relevant first, deduped. */
 export function contextualActionHrefs(input: ContextActionInput): string[] {
@@ -30,7 +31,6 @@ export function contextualActionHrefs(input: ContextActionInput): string[] {
     return ["/shadow-score", "/assessment", "/money"];
   }
   const out: string[] = [];
-  if (!input.checkedInToday) out.push("/daily");
   if (input.weakestPillar) out.push(PILLAR_TOOL[input.weakestPillar]);
   for (const href of FILLERS) {
     if (out.length >= 3) break;

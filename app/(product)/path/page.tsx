@@ -633,9 +633,6 @@ export default function PathPage() {
         <Link href="/results" className="btn btn-ghost">
           Results
         </Link>
-        <Link href="/calendar" className="btn btn-ghost">
-          Calendar
-        </Link>
         <Link href="/assessment" className="btn btn-ghost">
           Reassess
         </Link>

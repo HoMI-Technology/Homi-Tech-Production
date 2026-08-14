@@ -9,14 +9,14 @@ describe("contextualActionHrefs", () => {
     ).toEqual(["/shadow-score", "/assessment", "/money"]);
   });
 
-  it("surfaces check-in, weakest-pillar instrument, then a filler", () => {
+  it("leads with the weakest-pillar instrument, then launch surfaces", () => {
     expect(
       contextualActionHrefs({
         hasAssessment: true,
         weakestPillar: "emotional",
         checkedInToday: false,
       }),
-    ).toEqual(["/daily", "/advisor", "/simulator"]);
+    ).toEqual(["/advisor", "/path", "/journal"]);
   });
 
   it("routes each pillar to its instrument", () => {
@@ -26,10 +26,21 @@ describe("contextualActionHrefs", () => {
         weakestPillar: "financial",
         checkedInToday: true,
       }),
-    ).toEqual(["/money/decide", "/simulator", "/journal"]);
+    ).toEqual(["/money/decide", "/path", "/journal"]);
     expect(
       contextualActionHrefs({ hasAssessment: true, weakestPillar: "timing", checkedInToday: true }),
-    ).toEqual(["/signals", "/simulator", "/journal"]);
+    ).toEqual(["/path", "/journal", "/plan"]);
+  });
+
+  it("never features launch-hidden lab fillers", () => {
+    const hrefs = contextualActionHrefs({
+      hasAssessment: true,
+      weakestPillar: "timing",
+      checkedInToday: false,
+    });
+    for (const banned of ["/daily", "/signals", "/simulator", "/trinity", "/genome"]) {
+      expect(hrefs).not.toContain(banned);
+    }
   });
 
   it("always returns exactly three unique hrefs", () => {
