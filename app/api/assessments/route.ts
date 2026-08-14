@@ -15,6 +15,7 @@ import {
 import { sendLifecycleEmail } from "@/lib/email/send";
 import { verdictEmail } from "@/lib/email/templates";
 import { captureServerEvent } from "@/lib/analytics/server";
+import { isShadowAssessmentKind } from "@/lib/assessment/storage";
 
 const bodySchema = z.object({
   inputs: assessmentInputsSchema,
@@ -40,6 +41,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid assessment payload" }, { status: 400 });
     }
     const { inputs, kind, decisionType } = parsed.data;
+    // Compare on a raw string before any union narrowing (TS2367).
+    const isShadowRead = isShadowAssessmentKind(String(kind));
+
+    // Packet B: a shadow read is not an assessment. Do not score or persist it.
+    if (isShadowRead) {
+      return NextResponse.json(
+        { error: "Shadow reads are not assessments.", saved: false },
+        { status: 400 },
+      );
+    }
 
     const supabase = await createClient();
     const {
@@ -128,7 +139,7 @@ export async function POST(req: NextRequest) {
           nextSteps: generateNextSteps(result),
         },
         hard_stops: result.hardStops,
-        is_shadow: kind === "shadow",
+        is_shadow: isShadowRead,
         completed_at: new Date().toISOString(),
       })
       .select("id")

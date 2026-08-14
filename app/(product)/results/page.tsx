@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
 import { mapAssessmentRowToStored } from "@/lib/assessment/remote";
-import { pickResult } from "@/lib/assessment/resolveResult";
+import { discardScoreShapedShadow, pickResult } from "@/lib/assessment/resolveResult";
 import { createClient } from "@/lib/supabase/client";
 import { track } from "@/lib/analytics";
 import { useResultInsights } from "@/hooks/use-result-insights";
@@ -83,7 +83,9 @@ export default function ResultsPage() {
   // Local result wins when it is newer or remote isn't signed in / doesn't
   // exist; anonymous users always fall straight through to `stored` here
   // since `remote` stays null for them.
-  const effective = stored === undefined ? undefined : pickResult(stored ?? null, remote);
+  const picked = stored === undefined ? undefined : pickResult(stored ?? null, remote);
+  const effective =
+    picked === undefined ? undefined : discardScoreShapedShadow(picked ?? null);
 
   // Insights from storage / server backfill — never generateKeyInsight on client (6.3).
   // Hook must run before every early return.
@@ -125,15 +127,11 @@ export default function ResultsPage() {
           <ThresholdCompass size={96} verdict="ALMOST_THERE" className="mx-auto" />
           <h1 className="mt-6 font-display text-2xl font-semibold text-light">No results yet</h1>
           <p className="mt-3 text-sm text-dim">
-            You haven&rsquo;t taken an assessment yet. Start with the 90-second Shadow Score to see
-            where you stand.
+            You haven&rsquo;t taken an assessment yet. The verdict lives on the full assessment.
           </p>
-          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <Link href="/shadow-score" className="btn btn-primary">
-              Get your Shadow Score
-            </Link>
-            <Link href="/assessment" className="btn btn-ghost">
-              Take the full assessment
+          <div className="mt-6 flex flex-col items-center gap-3 sm:justify-center">
+            <Link href="/assessment" className="btn btn-primary">
+              Assess
             </Link>
           </div>
         </div>

@@ -1,11 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { fetchServerScore, ScoringRequestError } from "@/lib/scoring/client-score";
-import { saveLocalResult, loadLocalResult, attachServerId } from "@/lib/assessment/storage";
-import { recordSaveStatus, statusFromResponse } from "@/lib/assessment/save-status";
 import {
   saveShadowDraft,
   loadShadowDraft,
@@ -13,118 +9,50 @@ import {
   INITIAL_SHADOW_FORM,
   type ShadowDraft,
   type ShadowDraftForm,
-  type ShadowCreditBand,
 } from "@/lib/assessment/shadow-draft";
-import { track } from "@/lib/analytics";
 import {
-  EMERGENCY_FUND_LABELS,
-  EMERGENCY_FUND_MONTHS,
-  TIME_HORIZON_LABELS,
-  TIME_HORIZON_MONTHS,
-  type EmergencyFundChoice,
-  type TimeHorizonChoice,
-} from "@/lib/assessment/types";
+  SHADOW_READ_CONFIDENCE_HIGH,
+  SHADOW_READ_CONFIDENCE_LOW,
+  SHADOW_READ_DISCLAIMER,
+  SHADOW_READ_HELPER,
+  SHADOW_READ_KICKER,
+  SHADOW_READ_PRIMARY_CTA,
+  SHADOW_READ_PRIMARY_HREF,
+  SHADOW_READ_SECONDARY_CTA,
+  SHADOW_READ_SEE_BUTTON,
+  SHADOW_READ_STEMS,
+  SHADOW_READ_SUBMITTING,
+  SHADOW_READ_TITLE,
+  buildShadowReadLines,
+  clearShadowReadDone,
+  loadShadowReadDone,
+  saveShadowReadDone,
+  type ShadowReadDone,
+  type ShadowReadStem,
+} from "@/lib/assessment/shadow-read";
+import { track } from "@/lib/analytics";
+import { TIME_HORIZON_LABELS, type TimeHorizonChoice } from "@/lib/assessment/types";
 import { StepShell } from "./StepShell";
 import { ProgressBar, type StepMeta } from "./ProgressBar";
 import { MoneyField } from "@/components/ui/MoneyField";
-import { NumberField } from "@/components/ui/NumberField";
 import { ChoiceCards } from "./ChoiceCards";
 import { SliderField } from "./SliderField";
-
-const HERO_SIGNALS_KEY = "homi:hero-signals";
-
-interface HeroSignals {
-  financial: 0 | 1 | 2 | 3;
-  emotional: 0 | 1 | 2 | 3;
-  timing: 0 | 1 | 2 | 3;
-}
-
-const EMOTIONAL_TO_FOMO_LEVEL: Record<number, number> = {
-  0: 9,
-  1: 7,
-  2: 4,
-  3: 2,
-};
-
-function readHeroSignals(): HeroSignals | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = window.sessionStorage.getItem(HERO_SIGNALS_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as Partial<HeroSignals>;
-    if (
-      typeof parsed.financial !== "number" ||
-      typeof parsed.emotional !== "number" ||
-      typeof parsed.timing !== "number"
-    ) {
-      return null;
-    }
-    return parsed as HeroSignals;
-  } catch {
-    return null;
-  }
-}
-
-type CreditBand = ShadowCreditBand;
-
-const CREDIT_BAND_MIDPOINT: Record<CreditBand, number> = {
-  excellent: 760,
-  good: 715,
-  fair: 675,
-  poor: 600,
-};
-
-const CREDIT_BAND_LABELS: Record<CreditBand, string> = {
-  excellent: "740+ (Excellent)",
-  good: "700–739 (Good)",
-  fair: "660–699 (Fair)",
-  poor: "Below 660",
-};
 
 type ShadowForm = ShadowDraftForm;
 
 const INITIAL: ShadowForm = { ...INITIAL_SHADOW_FORM };
 
-const STEP_IDS = [
-  "income-debt",
-  "emergency-fund",
-  "credit-band",
-  "confidence",
-  "fomo",
-  "time-horizon",
-] as const;
+const STEP_IDS: readonly ShadowReadStem[] = SHADOW_READ_STEMS;
 
 function progressSteps(): StepMeta[] {
-  // Shadow score has no pillar grouping intro — treat all as a single neutral track,
-  // colored cyan to feel purposeful without implying pillar structure.
   return STEP_IDS.map(() => ({ pillar: "financial" as const }));
 }
 
-// Maps a hero financial chip value to the closest ChoiceCards emergency-fund
-// band. Target months from FINANCIAL_TO_EMERGENCY_FUND_MONTHS: 0.5, 2, 4, 8.
-const FINANCIAL_TO_EMERGENCY_FUND_CHOICE: Record<number, EmergencyFundChoice> = {
-  0: "lt1",
-  1: "1to3",
-  2: "3to6",
-  3: "6plus",
-};
-
-// Maps a hero timing chip value to the closest ChoiceCards time-horizon band.
-// Target months from TIMING_TO_TIME_HORIZON_MONTHS: 2, 6, 12, 18.
-const TIMING_TO_TIME_HORIZON_CHOICE: Record<number, TimeHorizonChoice> = {
-  0: "lt3",
-  1: "3to6",
-  2: "6to12",
-  3: "12plus",
-};
-
 export function ShadowScoreFlow() {
-  const router = useRouter();
   const [index, setIndex] = useState(0);
   const [form, setForm] = useState<ShadowForm>(INITIAL);
   const [submitting, setSubmitting] = useState(false);
-  const [scoreError, setScoreError] = useState<string | null>(null);
-  const [prefillNoteVisible, setPrefillNoteVisible] = useState(false);
+  const [done, setDone] = useState<ShadowReadDone | null>(null);
   const [resumeDraft, setResumeDraft] = useState<ShadowDraft | null>(null);
   const [draftReady, setDraftReady] = useState(false);
 
@@ -132,32 +60,26 @@ export function ShadowScoreFlow() {
   const meta = useMemo(progressSteps, []);
 
   useEffect(() => {
+    const completed = loadShadowReadDone();
+    if (completed) {
+      setDone(completed);
+      setDraftReady(true);
+      track("assessment_started", { kind: "shadow", resumed: 1, done: 1 });
+      return;
+    }
     const draft = loadShadowDraft(STEP_IDS.length - 1);
     track("assessment_started", { kind: "shadow", resumed: draft ? 1 : 0 });
     if (draft) {
       setResumeDraft(draft);
       return;
     }
-    // No saved draft — apply hero prefill if present, then enable autosave.
-    const signals = readHeroSignals();
-    if (signals) {
-      setForm((f) => ({
-        ...f,
-        emergencyFundChoice:
-          FINANCIAL_TO_EMERGENCY_FUND_CHOICE[signals.financial] ?? f.emergencyFundChoice,
-        fomoLevel: EMOTIONAL_TO_FOMO_LEVEL[signals.emotional] ?? f.fomoLevel,
-        timeHorizonChoice: TIMING_TO_TIME_HORIZON_CHOICE[signals.timing] ?? f.timeHorizonChoice,
-      }));
-      setPrefillNoteVisible(true);
-    }
     setDraftReady(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (!draftReady) return;
+    if (!draftReady || done) return;
     saveShadowDraft(form, index);
-  }, [form, index, draftReady]);
+  }, [form, index, draftReady, done]);
 
   function handleResumeDraft() {
     if (resumeDraft) {
@@ -170,19 +92,11 @@ export function ShadowScoreFlow() {
 
   function handleStartOver() {
     clearShadowDraft();
+    clearShadowReadDone();
     setForm({ ...INITIAL });
     setIndex(0);
+    setDone(null);
     setResumeDraft(null);
-    const signals = readHeroSignals();
-    if (signals) {
-      setForm({
-        ...INITIAL,
-        emergencyFundChoice: FINANCIAL_TO_EMERGENCY_FUND_CHOICE[signals.financial] ?? null,
-        fomoLevel: EMOTIONAL_TO_FOMO_LEVEL[signals.emotional] ?? 5,
-        timeHorizonChoice: TIMING_TO_TIME_HORIZON_CHOICE[signals.timing] ?? null,
-      });
-      setPrefillNoteVisible(true);
-    }
     setDraftReady(true);
   }
 
@@ -192,139 +106,97 @@ export function ShadowScoreFlow() {
 
   function goNext() {
     if (index < STEP_IDS.length - 1) setIndex(index + 1);
-    else handleSubmit();
+    else handleSeeRead();
   }
+
   function goBack() {
     if (index > 0) setIndex(index - 1);
   }
 
-  async function handleSubmit() {
+  function handleSeeRead() {
+    if (form.monthlyGrossIncome === null || form.monthlyDebtPayments === null) return;
+    if (form.timeHorizonChoice === null) return;
     setSubmitting(true);
-    setScoreError(null);
-    clearShadowDraft();
-    const income = form.monthlyGrossIncome ?? 0;
-    const debt = form.monthlyDebtPayments ?? 0;
-    const debtToIncomeRatio = income > 0 ? debt / income : 0;
-    const emergencyFundMonths = form.emergencyFundChoice
-      ? EMERGENCY_FUND_MONTHS[form.emergencyFundChoice]
-      : 0;
-    const creditScore = form.creditBand ? CREDIT_BAND_MIDPOINT[form.creditBand] : 0;
-    const timeHorizonMonths = form.timeHorizonChoice
-      ? TIME_HORIZON_MONTHS[form.timeHorizonChoice]
-      : 6;
-
-    // Same neutral padding as SHADOW_DEFAULTS (public defaults, not engine curves).
-    // Server runs computeScore; client never imports the engine (Plans.md 6.2).
-    const inputs = {
-      debtToIncomeRatio,
-      downPaymentPercent: 0.1,
-      emergencyFundMonths,
-      creditScore,
-      lifeStability: 6,
+    const answers: ShadowReadDone = {
+      monthlyGrossIncome: form.monthlyGrossIncome,
+      monthlyDebtPayments: form.monthlyDebtPayments,
       confidenceLevel: form.confidenceLevel,
-      partnerAlignment: null as number | null,
-      fomoLevel: form.fomoLevel,
-      timeHorizonMonths,
-      savingsRate: 0.1,
-      downPaymentProgress: 0.4,
+      timeHorizonChoice: form.timeHorizonChoice,
     };
-
-    let scored: Awaited<ReturnType<typeof fetchServerScore>>;
-    try {
-      scored = await fetchServerScore(inputs);
-    } catch (err) {
-      const message =
-        err instanceof ScoringRequestError ? err.message : "Scoring failed. Try again in a moment.";
-      setScoreError(message);
-      recordSaveStatus("failed");
-      setSubmitting(false);
-      return;
-    }
-
-    const { result, keyInsight, nextSteps } = scored;
-    const prior = loadLocalResult();
-    const previous = prior
-      ? {
-          score: prior.result.score,
-          verdict: prior.result.verdict,
-          completedAt: prior.completedAt,
-          pillars: {
-            financial: prior.result.financial.total,
-            emotional: prior.result.emotional.total,
-            timing: prior.result.timing.total,
-          },
-        }
-      : undefined;
-
-    saveLocalResult({
-      inputs,
-      result,
-      completedAt: new Date().toISOString(),
-      kind: "shadow",
-      previous,
-      insights: { keyInsight, nextSteps },
-    });
-
-    recordSaveStatus("pending");
-    fetch("/api/assessments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        inputs,
-        kind: "shadow",
-      }),
-    })
-      .then(async (res) => {
-        recordSaveStatus(statusFromResponse(res.status));
-        if (!res.ok) return;
-        const data = (await res.json().catch(() => null)) as { id?: string } | null;
-        if (data?.id) attachServerId(data.id);
-      })
-      .catch(() => {
-        recordSaveStatus("failed");
-      });
-
+    clearShadowDraft();
+    saveShadowReadDone(answers);
     track("assessment_completed", { kind: "shadow" });
-    router.push("/results");
+    setDone(answers);
+    setSubmitting(false);
   }
 
   const nextDisabled = (() => {
     switch (stepId) {
       case "income-debt":
         return form.monthlyGrossIncome === null || form.monthlyDebtPayments === null;
-      case "emergency-fund":
-        return form.emergencyFundChoice === null;
-      case "credit-band":
-        return form.creditBand === null;
+      case "confidence":
+        return false;
       case "time-horizon":
         return form.timeHorizonChoice === null;
-      default:
-        return false;
+      default: {
+        const _exhaustive: never = stepId;
+        return _exhaustive;
+      }
     }
   })();
+
+  if (done) {
+    const lines = buildShadowReadLines(done);
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16">
+        <div className="mb-8 text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest text-cyan">
+            {SHADOW_READ_TITLE}
+          </p>
+          <h1 className="mt-2 font-display text-3xl font-semibold text-light">{SHADOW_READ_TITLE}</h1>
+          <p className="mx-auto mt-2 max-w-md text-sm text-dim">{SHADOW_READ_KICKER}</p>
+        </div>
+
+        <div className="glass flex flex-col gap-5 p-6 sm:p-10">
+          <p className="text-base leading-relaxed text-light">{lines.incomeDebt}</p>
+          <p className="text-base leading-relaxed text-light">{lines.confidence}</p>
+          <p className="text-base leading-relaxed text-light">{lines.horizon}</p>
+          <p className="mt-2 text-sm text-dim">{SHADOW_READ_DISCLAIMER}</p>
+        </div>
+
+        <p className="mx-auto mt-6 max-w-md text-center text-sm text-dim">{SHADOW_READ_HELPER}</p>
+
+        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <Link href={SHADOW_READ_PRIMARY_HREF} className="btn btn-primary">
+            {SHADOW_READ_PRIMARY_CTA}
+          </Link>
+          <Link href="/" className="btn btn-ghost">
+            {SHADOW_READ_SECONDARY_CTA}
+          </Link>
+        </div>
+
+        <div className="mt-6 text-center">
+          <button type="button" onClick={handleStartOver} className="text-sm text-dim hover:text-light">
+            Start over
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16">
       <div className="mb-8 text-center">
-        <p className="text-sm font-semibold uppercase tracking-widest text-cyan">Shadow Score</p>
-        <h1 className="mt-2 font-display text-3xl font-semibold text-light">The 90-second read</h1>
-        <p className="mx-auto mt-2 max-w-md text-sm text-dim">
-          Six questions. HōMI fills the rest with neutral assumptions. For your full, precise
-          HōMI-Score,{" "}
-          <Link href="/assessment" className="text-cyan underline underline-offset-2">
-            take the complete assessment
-          </Link>
-          .
-        </p>
+        <p className="text-sm font-semibold uppercase tracking-widest text-cyan">{SHADOW_READ_TITLE}</p>
+        <h1 className="mt-2 font-display text-3xl font-semibold text-light">{SHADOW_READ_TITLE}</h1>
+        <p className="mx-auto mt-2 max-w-md text-sm text-dim">{SHADOW_READ_KICKER}</p>
       </div>
 
       {resumeDraft && (
         <div className="glass mb-6 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-light">
             <span className="font-semibold text-cyan">Resume where you left off?</span>{" "}
-            <span className="text-dim">
-              You have an in-progress Shadow Score saved on this device.
-            </span>
+            <span className="text-dim">You have an in-progress read saved in this session.</span>
           </p>
           <div className="flex shrink-0 items-center gap-3">
             <button type="button" onClick={handleStartOver} className="btn btn-ghost text-sm">
@@ -334,33 +206,6 @@ export function ShadowScoreFlow() {
               Resume
             </button>
           </div>
-        </div>
-      )}
-
-      {prefillNoteVisible && !resumeDraft && (
-        <div className="glass mb-8 flex items-start justify-between gap-4 !rounded-xl px-5 py-4">
-          <p className="text-sm leading-relaxed text-dim">
-            <span className="font-semibold text-cyan">We kept your three answers.</span> Adjust
-            anything.
-          </p>
-          <button
-            type="button"
-            onClick={() => setPrefillNoteVisible(false)}
-            aria-label="Dismiss"
-            className="shrink-0 text-dim hover:text-light"
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden
-            >
-              <path d="M3 3l10 10M13 3L3 13" />
-            </svg>
-          </button>
         </div>
       )}
 
@@ -399,66 +244,15 @@ export function ShadowScoreFlow() {
         </StepShell>
       )}
 
-      {stepId === "emergency-fund" && (
-        <StepShell
-          stepKey="emergency-fund"
-          onBack={goBack}
-          onNext={goNext}
-          nextDisabled={nextDisabled}
-        >
-          <ChoiceCards<EmergencyFundChoice>
-            label="How many months of expenses do you have saved?"
-            value={form.emergencyFundChoice}
-            onChange={(v) => update("emergencyFundChoice", v)}
-            options={(Object.keys(EMERGENCY_FUND_LABELS) as EmergencyFundChoice[]).map((k) => ({
-              value: k,
-              label: EMERGENCY_FUND_LABELS[k],
-            }))}
-          />
-        </StepShell>
-      )}
-
-      {stepId === "credit-band" && (
-        <StepShell
-          stepKey="credit-band"
-          onBack={goBack}
-          onNext={goNext}
-          nextDisabled={nextDisabled}
-        >
-          <ChoiceCards<CreditBand>
-            label="Where does your credit score fall?"
-            value={form.creditBand}
-            onChange={(v) => update("creditBand", v)}
-            options={(Object.keys(CREDIT_BAND_LABELS) as CreditBand[]).map((k) => ({
-              value: k,
-              label: CREDIT_BAND_LABELS[k],
-            }))}
-          />
-        </StepShell>
-      )}
-
       {stepId === "confidence" && (
         <StepShell stepKey="confidence" onBack={goBack} onNext={goNext}>
           <SliderField
             label="Confidence level"
             hint="How confident are you that buying is the right move?"
             value={form.confidenceLevel}
-            lowLabel="Not confident"
-            highLabel="Very confident"
+            lowLabel={SHADOW_READ_CONFIDENCE_LOW}
+            highLabel={SHADOW_READ_CONFIDENCE_HIGH}
             onChange={(v) => update("confidenceLevel", v)}
-          />
-        </StepShell>
-      )}
-
-      {stepId === "fomo" && (
-        <StepShell stepKey="fomo" onBack={goBack} onNext={goNext}>
-          <SliderField
-            label="Outside pressure"
-            hint="How much outside pressure is on this decision? 1 = none, 10 = crushing."
-            value={form.fomoLevel}
-            lowLabel="No pressure"
-            highLabel="Crushing pressure"
-            onChange={(v) => update("fomoLevel", v)}
           />
         </StepShell>
       )}
@@ -469,7 +263,7 @@ export function ShadowScoreFlow() {
           onBack={goBack}
           onNext={goNext}
           nextDisabled={nextDisabled}
-          nextLabel={submitting ? "Calculating…" : "See my Shadow Score"}
+          nextLabel={submitting ? SHADOW_READ_SUBMITTING : SHADOW_READ_SEE_BUTTON}
         >
           <ChoiceCards<TimeHorizonChoice>
             label="How soon are you planning to buy?"
@@ -480,11 +274,6 @@ export function ShadowScoreFlow() {
               label: TIME_HORIZON_LABELS[k],
             }))}
           />
-          {scoreError && (
-            <p className="mt-4 text-sm text-crimson" role="alert">
-              {scoreError}
-            </p>
-          )}
         </StepShell>
       )}
     </div>

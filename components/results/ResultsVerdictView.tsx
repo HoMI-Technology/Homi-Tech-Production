@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { LEGAL_DISCLAIMER, PILLARS, VERDICT_META } from "@/lib/brand";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
-import type { StoredAssessment } from "@/lib/assessment/storage";
+import { isShadowAssessmentKind, type StoredAssessment } from "@/lib/assessment/storage";
 import { deriveConflictSignals } from "@/lib/conflict/engine";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
@@ -45,6 +45,28 @@ export function ResultsVerdictView({
   nextSteps: string[];
 }) {
   const { result, kind } = stored;
+  // Compare on a raw string before any union narrowing (TS2367).
+  const isShadowRead = isShadowAssessmentKind(String(kind));
+
+  // Packet B: leftover kind:"shadow" must never print a HōMI-Score.
+  if (isShadowRead) {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-24 text-center">
+        <div className="glass p-10">
+          <h1 className="font-display text-2xl font-semibold text-light">No results yet</h1>
+          <p className="mt-3 text-sm text-dim">
+            That read is not a HōMI verdict. Take the full assessment.
+          </p>
+          <div className="mt-6">
+            <Link href="/assessment" className="btn btn-primary">
+              Assess
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const meta = VERDICT_META[result.verdict];
   const conflictSignals = deriveConflictSignals({
     fomoLevel: stored.inputs.fomoLevel,
@@ -56,20 +78,6 @@ export function ResultsVerdictView({
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:py-16">
       <SaveStatusBanner />
-      {kind === "shadow" && (
-        <div className="glass mb-8 flex flex-col items-start justify-between gap-4 border border-cyan/30 p-5 sm:flex-row sm:items-center">
-          <div>
-            <p className="text-sm font-semibold text-cyan">This is your Shadow Score</p>
-            <p className="mt-1 text-sm text-dim">
-              Six inputs, filled out with neutral assumptions. The full assessment gives you a
-              precise read.
-            </p>
-          </div>
-          <Link href="/assessment" className="btn btn-primary shrink-0 btn-sm">
-            Take the full assessment
-          </Link>
-        </div>
-      )}
 
       {/* Score reveal — flagship moment */}
       <div className="glass relative flex flex-col items-center gap-8 overflow-hidden p-8 text-center sm:p-12 md:flex-row md:text-left">
@@ -428,8 +436,8 @@ export function ResultsVerdictView({
             Save your progress
           </Link>
         )}
-        <Link href={kind === "shadow" ? "/assessment" : "/shadow-score"} className="btn btn-ghost">
-          {kind === "shadow" ? "Take the full assessment" : "Retake the assessment"}
+        <Link href={isShadowRead ? "/assessment" : "/shadow-score"} className="btn btn-ghost">
+          {isShadowRead ? "Take the full assessment" : "Retake the assessment"}
         </Link>
         {stored.serverId && fullReport && (
           <Link href={`/report/${stored.serverId}`} className="btn btn-ghost">

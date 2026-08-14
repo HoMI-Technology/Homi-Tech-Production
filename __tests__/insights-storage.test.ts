@@ -59,4 +59,9 @@ describe("mapAssessmentRowToStored insights (6.3)", () => {
     expect(stored).not.toBeNull();
     expect(stored?.insights).toBeUndefined();
   });
+
+  it("returns null for is_shadow rows — they are not a HōMI-Score", () => {
+    const stored = mapAssessmentRowToStored({ ...baseRow, is_shadow: true });
+    expect(stored).toBeNull();
+  });
 });

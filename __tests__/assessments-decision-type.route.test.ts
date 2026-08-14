@@ -125,4 +125,13 @@ describe("POST /api/assessments decision_type", () => {
     expect(res.status).toBe(400);
     expect(state.insertCalls).toHaveLength(0);
   });
+
+  it("rejects kind:shadow — a read is not an assessment", async () => {
+    const res = await post({ inputs: VALID_INPUTS, kind: "shadow" });
+    expect(res.status).toBe(400);
+    const body = (await res.json()) as { saved?: boolean; error?: string };
+    expect(body.saved).toBe(false);
+    expect(body.error).toMatch(/not assessments/i);
+    expect(state.insertCalls).toHaveLength(0);
+  });
 });
