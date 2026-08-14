@@ -10,6 +10,8 @@ import {
   LENSES,
   RING_ORDER,
   getLens,
+  hubLenses,
+  hubLensesByRing,
   lensCoveragePaths,
   resolveCarryWrites,
   resolveLensSeeds,
@@ -27,9 +29,81 @@ describe("lens registry", () => {
     expect(new Set(paths).size).toBe(paths.length);
   });
 
-  it("every lens sits on a known ring", () => {
+  it("every lens sits on a known ring and declares a placement", () => {
+    const placements = ["hub", "more", "deep-link", "hidden", "redirect"] as const;
     for (const lens of LENSES) {
       expect(RING_ORDER).toContain(lens.ring);
+      expect(placements).toContain(lens.placement);
+    }
+  });
+
+  it("public hub lists exactly the ten locked lenses", () => {
+    const hub = hubLenses();
+    expect(hub).toHaveLength(10);
+    expect(hub.map((l) => l.id).sort()).toEqual(
+      [
+        "affordability",
+        "apr-compare",
+        "blind-budget",
+        "debt-payoff",
+        "fire",
+        "heloc",
+        "loan-programs",
+        "monte-carlo",
+        "refinance",
+        "roth-conversion",
+      ].sort(),
+    );
+    expect(hub.some((l) => l.id === "simulator")).toBe(false);
+    expect(hub.some((l) => l.id === "mortgage")).toBe(false);
+    expect(hub.some((l) => l.id === "down-payment")).toBe(false);
+    expect(hub.some((l) => l.id === "runway")).toBe(false);
+    expect(hub.some((l) => l.id === "rent-vs-buy")).toBe(false);
+    expect(hub.some((l) => l.id === "path-to-ready")).toBe(false);
+    expect(hub.some((l) => l.id === "scenario-studio")).toBe(false);
+    expect(hub.some((l) => l.id === "preflight")).toBe(false);
+  });
+
+  it("off-hub extras keep their routes and placements", () => {
+    expect(getLens("mortgage")).toMatchObject({
+      path: "/tools/mortgage",
+      placement: "redirect",
+    });
+    expect(getLens("rent-vs-buy")).toMatchObject({
+      path: "/tools/rent-vs-buy",
+      placement: "deep-link",
+    });
+    expect(getLens("down-payment")).toMatchObject({
+      path: "/tools/down-payment",
+      placement: "deep-link",
+    });
+    expect(getLens("runway")).toMatchObject({ path: "/tools/runway", placement: "deep-link" });
+    expect(getLens("path-to-ready")).toMatchObject({ path: "/path", placement: "more" });
+    expect(getLens("scenario-studio")).toMatchObject({ path: "/scenarios", placement: "more" });
+    expect(getLens("simulator")).toMatchObject({ path: "/simulator", placement: "hidden" });
+    expect(getLens("preflight")).toMatchObject({ path: "/tools/preflight", placement: "more" });
+  });
+
+  it("hub and registry marketing copy drops 18-calculators and Monte Carlo run counts", () => {
+    const hubCopy = hubLenses()
+      .map((l) => `${l.name} ${l.desc}`)
+      .join("\n");
+    const chainPitches = LENSES.flatMap((l) => (l.chains ?? []).map((c) => c.pitch)).join("\n");
+    expect(hubCopy).not.toMatch(/18 calculators/i);
+    expect(hubCopy).not.toMatch(/\b1,000\b/);
+    expect(hubCopy).not.toMatch(/\b10,000\b/);
+    expect(chainPitches).not.toMatch(/\b1,000\b/);
+    expect(chainPitches).not.toMatch(/\b10,000\b/);
+    expect(getLens("monte-carlo")!.desc).toMatch(/simulated paths/i);
+    expect(getLens("roth-conversion")!.desc).toMatch(/not a recommendation/i);
+  });
+
+  it("hubLensesByRing never surfaces off-hub cards", () => {
+    for (const ring of RING_ORDER) {
+      for (const lens of hubLensesByRing(ring)) {
+        expect(lens.placement).toBe("hub");
+        expect(lens.ring).toBe(ring);
+      }
     }
   });
 
@@ -159,6 +233,11 @@ describe("resolveCarryWrites", () => {
 });
 
 describe("chain carry contract", () => {
+  it("affordability no longer chains to the folded mortgage lens", () => {
+    const chains = getLens("affordability")?.chains ?? [];
+    expect(chains.some((c) => c.lensId === "mortgage")).toBe(false);
+  });
+
   it("every non-empty carry key resolves to an input on the target lens", () => {
     const mismatches: string[] = [];
     for (const lens of LENSES) {

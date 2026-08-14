@@ -1,21 +1,25 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { LENSES, RING_META, RING_ORDER, lensesByRing } from "@/lib/tools/registry";
+import { RING_META, RING_ORDER, hubLenses, hubLensesByRing } from "@/lib/tools/registry";
+import { getCachedUser } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Tools",
   description:
-    "Honest calculators for the math behind your biggest decisions — housing, runway, debt, and independence.",
+    "Honest lenses for the math behind your biggest decisions — housing, debt, and independence.",
   alternates: { canonical: "/tools" },
 };
 
 /**
- * Tools hub — rendered entirely from the lens registry (lib/tools/registry.ts).
- * Tool metadata lives in exactly one place; adding a lens to the registry
- * adds it here, to the Companion's tool directory, and to the prefill
- * contract in one edit.
+ * Tools hub — ten public lenses from the registry (lib/tools/registry.ts).
+ * Off-hub routes stay reachable as deep links; they are not peer cards.
+ * See docs/TOOL_CONSOLIDATION.md (locked 14 Aug 2026).
  */
-export default function ToolsHubPage() {
+export default async function ToolsHubPage() {
+  const user = await getCachedUser();
+  const signedIn = !!user;
+  const count = hubLenses().length;
+
   return (
     <div className="mx-auto max-w-6xl px-6 py-10 sm:py-12">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -23,28 +27,30 @@ export default function ToolsHubPage() {
           <p className="eyebrow">Decision math · public</p>
           <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">Tools</h1>
           <p className="mt-2 max-w-2xl text-dim">
-            No hype, no black boxes — the math behind decisions that matter, laid out plainly.
-            {` ${LENSES.length} calculators.`} Sign in to seed them from your Money picture.
-            Educational guidance only.
+            No hype, no black boxes — the math behind decisions that matter, laid out plainly.{" "}
+            {count} lenses.{" "}
+            {signedIn
+              ? "Educational estimates only — pre-filled from your ledger."
+              : "Educational estimates. Not a HōMI verdict."}
           </p>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <Link href="/money" className="text-sm font-medium text-cyan hover:underline">
-            Open Money picture →
-          </Link>
-          <Link
-            href="/scenarios"
-            className="text-sm font-medium text-dim hover:text-cyan hover:underline"
-          >
-            Scenario studio →
-          </Link>
+          {signedIn ? (
+            <Link href="/money" className="text-sm font-medium text-cyan hover:underline">
+              Open Money picture →
+            </Link>
+          ) : (
+            <Link href="/assessment" className="text-sm font-medium text-cyan hover:underline">
+              Assess →
+            </Link>
+          )}
         </div>
       </div>
 
       <div className="mt-10 space-y-14">
         {RING_ORDER.map((ring) => {
           const meta = RING_META[ring];
-          const lenses = lensesByRing(ring);
+          const lenses = hubLensesByRing(ring);
           if (lenses.length === 0) return null;
           return (
             <section key={ring} aria-labelledby={`tools-${ring}`}>
@@ -61,7 +67,7 @@ export default function ToolsHubPage() {
                   <p className="mt-1 max-w-xl text-sm text-dim">{meta.subtitle}</p>
                 </div>
                 <span className="score-numeral text-xs text-dim/70">
-                  {lenses.length} tool{lenses.length === 1 ? "" : "s"}
+                  {lenses.length} {lenses.length === 1 ? "lens" : "lenses"}
                 </span>
               </div>
 
@@ -82,7 +88,7 @@ export default function ToolsHubPage() {
                     <h3 className="font-semibold text-light group-hover:text-cyan">{lens.name}</h3>
                     <p className="mt-2 flex-1 text-sm leading-relaxed text-dim">{lens.desc}</p>
                     <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-cyan">
-                      Open calculator
+                      Open lens
                       <svg
                         width="14"
                         height="14"

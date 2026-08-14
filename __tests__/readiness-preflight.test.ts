@@ -36,6 +36,37 @@ describe("runPreflight", () => {
     expect(pre.findings.some((f) => f.signal === "NEGATIVE_CASHFLOW")).toBe(true);
   });
 
+  it("emits Pre-Flight language only — never HōMI verdict badges", () => {
+    const blocked = runPreflight({
+      monthlyIncome: 4000,
+      monthlyExpenses: 3500,
+      monthlyDebtPayments: 800,
+      liquidSavings: 10000,
+    });
+    const warned = runPreflight({
+      monthlyIncome: 8000,
+      monthlyExpenses: 4000,
+      monthlyDebtPayments: 500,
+      liquidSavings: 40000,
+      externalPressure: 9,
+    });
+    const clear = runPreflight({
+      monthlyIncome: 8000,
+      monthlyExpenses: 4000,
+      monthlyDebtPayments: 500,
+      liquidSavings: 40000,
+    });
+
+    expect(blocked.badge).toBe("DO NOT PROCEED");
+    expect(warned.badge).toBe("WAIT");
+    expect(clear.badge).toBe("PROCEED WITH CARE");
+
+    for (const pre of [blocked, warned, clear]) {
+      expect(pre.badge).not.toMatch(/READY|ALMOST THERE|BUILD FIRST/i);
+      expect(["PROCEED WITH CARE", "WAIT", "DO NOT PROCEED"]).toContain(pre.badge);
+    }
+  });
+
   it("warns on high FOMO without hard blocks", () => {
     const result = computeScore(SAFE);
     const pre = runPreflight({

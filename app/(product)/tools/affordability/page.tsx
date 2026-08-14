@@ -130,7 +130,7 @@ export default function AffordabilityPage() {
   return (
     <ToolShell
       title="Affordability"
-      description={`What you can afford is not the same as what a lender will approve you for. Here are three honest tiers of monthly housing cost, based on your income before other debts are even in the picture.`}
+      description={`What you can afford is not the same as what a lender will approve you for. Three honest tiers of monthly housing cost — 28 / 33 / 36 — not the 45% housing hard stop. Payment parts live here too.`}
     >
       <SavedNumbersStrip />
 

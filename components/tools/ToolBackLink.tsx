@@ -15,7 +15,7 @@ function ToolBackLinkInner({
   const fromMoney = searchParams.get("from") === "money";
   const href = backHref ?? (fromMoney ? "/money/decide" : "/tools");
   const label =
-    backLabel ?? (fromMoney || href === "/money/decide" ? "Money · Decide" : "All calculators");
+    backLabel ?? (fromMoney || href === "/money/decide" ? "Money · Decide" : "All tools");
 
   return (
     <Link
@@ -47,7 +47,7 @@ export function ToolBackLink(props: { backHref?: string; backLabel?: string }) {
           href={props.backHref ?? "/tools"}
           className="inline-flex items-center gap-1.5 text-sm text-dim"
         >
-          {props.backLabel ?? "All calculators"}
+          {props.backLabel ?? "All tools"}
         </Link>
       }
     >
