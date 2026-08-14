@@ -6,7 +6,7 @@
  */
 
 import { beforeEach, describe, expect, it } from "vitest";
-import { loadDecisionInputs, saveDecisionInputs } from "@/lib/decisions/state";
+import { hasSavedDecisionInputs, loadDecisionInputs, saveDecisionInputs } from "@/lib/decisions/state";
 import { DEFAULT_SIMULATION_INPUTS } from "@/lib/decisions/simulate";
 
 beforeEach(() => {
@@ -15,6 +15,7 @@ beforeEach(() => {
 
 describe("loadDecisionInputs", () => {
   it("returns defaults when nothing is saved", () => {
+    expect(hasSavedDecisionInputs()).toBe(false);
     expect(loadDecisionInputs()).toEqual(DEFAULT_SIMULATION_INPUTS);
   });
 

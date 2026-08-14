@@ -64,20 +64,35 @@ export function scenarioInputsFromFinance(opts: {
   monthlyIncome?: number;
   monthlyExpenses?: number;
   monthlyDebtPayments?: number;
+  /** @deprecated Ignored — never used to invent a home price. */
   downPaymentTarget?: number;
+  downPaymentSaved?: number;
+  targetPrice?: number;
+  currentRent?: number;
+  assumedRatePct?: number;
 }): SimulationInputs {
+  const hasLedger =
+    opts.monthlyIncome != null ||
+    opts.liquidSavings != null ||
+    opts.targetPrice != null ||
+    opts.downPaymentSaved != null;
+
+  if (!hasLedger) {
+    return { ...DEFAULT_SIMULATION_INPUTS };
+  }
+
   const surplus =
     opts.monthlyIncome != null && opts.monthlyExpenses != null
       ? Math.max(0, opts.monthlyIncome - opts.monthlyExpenses - (opts.monthlyDebtPayments ?? 0))
-      : DEFAULT_SIMULATION_INPUTS.monthlySavings;
+      : 0;
 
   return {
-    ...DEFAULT_SIMULATION_INPUTS,
-    downPaymentSaved: opts.liquidSavings ?? DEFAULT_SIMULATION_INPUTS.downPaymentSaved,
-    monthlySavings: surplus || DEFAULT_SIMULATION_INPUTS.monthlySavings,
-    homePrice: Math.max(
-      DEFAULT_SIMULATION_INPUTS.homePrice,
-      (opts.downPaymentTarget ?? 60_000) * 5,
-    ),
+    homePrice: opts.targetPrice ?? 0,
+    downPaymentSaved: opts.downPaymentSaved ?? opts.liquidSavings ?? 0,
+    monthlySavings: surplus,
+    rent: opts.currentRent ?? 0,
+    rate: opts.assumedRatePct ?? DEFAULT_SIMULATION_INPUTS.rate,
+    appreciation: DEFAULT_SIMULATION_INPUTS.appreciation,
+    rentIncrease: DEFAULT_SIMULATION_INPUTS.rentIncrease,
   };
 }

@@ -3,7 +3,13 @@
  * financial position of buying now vs. waiting 12 or 24 months. No side
  * effects, deterministic, testable in isolation. Educational modeling only
  * — not financial advice.
+ *
+ * Housing P&I uses the same amortizer as Affordability (`lib/tools/mortgage`).
+ * House price and income must come from the ledger — never invent a second
+ * price or a second income. This model does not share the Monte Carlo engine.
  */
+
+import { monthlyPayment as amortizeMonthly } from "@/lib/tools/mortgage";
 
 export interface SimulationInputs {
   /** Current home price, dollars. */
@@ -38,15 +44,26 @@ export interface ScenarioOutcome {
   series: MonthPoint[];
 }
 
-const LOAN_TERM_MONTHS = 360; // 30-year mortgage, standard assumption for amortization.
+export const LOAN_TERM_MONTHS = 360; // 30-year mortgage, standard assumption for amortization.
 const CLOSING_COST_RATE = 0.03; // Simplified closing costs as % of home price.
 const MAINTENANCE_RATE_ANNUAL = 0.01; // Simplified annual maintenance as % of home value.
 
-/** Monthly amortizing payment for a fixed-rate loan. */
+/** Monthly amortizing payment — same formula as Affordability. */
 function monthlyPayment(principal: number, annualRatePct: number, termMonths: number): number {
-  const r = annualRatePct / 100 / 12;
-  if (r === 0) return principal / termMonths;
-  return (principal * r) / (1 - Math.pow(1 + r, -termMonths));
+  return amortizeMonthly(principal, annualRatePct, termMonths / 12);
+}
+
+/**
+ * P&I Rehearse amortizes for these inputs. Identity lock: must match
+ * Affordability `paymentBreakdown` principal-and-interest for the same
+ * home price, down payment, rate, and term.
+ */
+export function housingPrincipalAndInterest(
+  inputs: Pick<SimulationInputs, "homePrice" | "downPaymentSaved" | "rate">,
+  termYears = LOAN_TERM_MONTHS / 12,
+): number {
+  const principal = Math.max(inputs.homePrice - inputs.downPaymentSaved, 0);
+  return amortizeMonthly(principal, inputs.rate, termYears);
 }
 
 /** Remaining loan balance after `monthsElapsed` payments. */

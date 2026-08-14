@@ -13,7 +13,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { runMonteCarlo } from "@/lib/tools/montecarlo";
+import { MONTE_CARLO_ENGINE, runMonteCarlo } from "@/lib/tools/montecarlo";
 import { computeCoastFire, computeFireNumber } from "@/lib/tools/fire";
 import { computeRothConversion } from "@/lib/tools/roth";
 import { formatCompactCurrency, formatCurrency, formatPercent } from "@/lib/tools/format";
@@ -40,9 +40,6 @@ const AXIS_TICK = {
 /* Monte Carlo Projection — seeded P10/P50/P90 fan chart               */
 /* ------------------------------------------------------------------ */
 
-const MC_RUNS = 1000;
-const MC_SEED = 42;
-
 export function MonteCarloPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string }) {
   const [currentSavings, setCurrentSavings] = useState(
     seeds.invested > 0 ? Math.round(seeds.invested) : 0,
@@ -50,13 +47,13 @@ export function MonteCarloPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: str
   const [monthlyContribution, setMonthlyContribution] = useState(
     seeds.monthlyCashFlow > 0 ? Math.round(seeds.monthlyCashFlow) : 0,
   );
-  const [years, setYears] = useState(20);
-  const [expectedReturn, setExpectedReturn] = useState(7);
-  const [volatility, setVolatility] = useState(15);
+  const [years, setYears] = useState(MONTE_CARLO_ENGINE.defaultYears);
+  const [expectedReturn, setExpectedReturn] = useState(MONTE_CARLO_ENGINE.defaultReturnPct);
+  const [volatility, setVolatility] = useState(MONTE_CARLO_ENGINE.defaultVolatilityPct);
   const [targetAmount, setTargetAmount] = useState(0);
 
-  /* Seeded simulation — identical inputs always produce identical bands.
-   * Memoized on the inputs alone so re-renders never re-roll the dice. */
+  /* Same engine as /tools/monte-carlo — identical inputs always produce
+   * identical bands. Memoized on the inputs alone so re-renders never re-roll. */
   const result = useMemo(
     () =>
       runMonteCarlo({
@@ -66,8 +63,8 @@ export function MonteCarloPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: str
         expectedReturnPct: expectedReturn,
         volatilityPct: volatility,
         targetAmount: targetAmount > 0 ? targetAmount : undefined,
-        runs: MC_RUNS,
-        seed: MC_SEED,
+        runs: MONTE_CARLO_ENGINE.runs,
+        seed: MONTE_CARLO_ENGINE.seed,
       }),
     [currentSavings, monthlyContribution, years, expectedReturn, volatility, targetAmount],
   );
@@ -137,8 +134,7 @@ export function MonteCarloPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: str
           <p className="score-numeral text-2xl font-semibold tracking-[-0.01em] text-light">
             {formatPercent(result.probabilityOfTarget, 0)}
             <span className="ml-2 text-xs font-normal text-dim">
-              of {MC_RUNS.toLocaleString("en-US")} simulated futures reach{" "}
-              {formatCompactCurrency(targetAmount, { minDecimals: 1 })}
+              chance of reaching {formatCompactCurrency(targetAmount, { minDecimals: 1 })}
             </span>
           </p>
         )}
@@ -244,9 +240,9 @@ export function MonteCarloPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: str
       </div>
 
       <p className="mt-4 text-xs leading-relaxed text-dim">
-        {MC_RUNS.toLocaleString("en-US")} seeded simulations, normally-distributed monthly returns —
-        the same inputs always produce the same bands. The median path (P50) is the planning anchor;
-        the P10–P90 band is the honest range, not a promise.
+        Seeded simulations, normally-distributed monthly returns — the same inputs always produce
+        the same bands. The median path (P50) is the planning anchor; the P10–P90 band is the honest
+        range, not a promise.
       </p>
     </ToolPanel>
   );

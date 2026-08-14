@@ -13,7 +13,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { runMonteCarlo } from "@/lib/tools/montecarlo";
+import { MONTE_CARLO_ENGINE, runMonteCarlo } from "@/lib/tools/montecarlo";
 import { runScenarioStudio, SCENARIO_DISCLAIMER } from "@/lib/readiness/scenario";
 import type { SimulationInputs } from "@/lib/decisions/simulate";
 import { financialReality } from "@/lib/planner/derived";
@@ -28,19 +28,18 @@ import { PlanFooter, PlanSectionHeader, PlanTile } from "./ui";
 /* ------------------------------------------------------------------ */
 /* Models sub-tab — Monte Carlo + decision rehearsal (spec §7).        */
 /*                                                                     */
-/* Monte Carlo: canon lib/tools/montecarlo.ts — 10,000 runs (canon     */
-/* default; the reference's 2,500-run drift was rejected), seeded and  */
+/* Monte Carlo: canon lib/tools/montecarlo.ts — MONTE_CARLO_ENGINE     */
+/* (same runs/seed as Tools and Money · Decide). Seeded and            */
 /* reproducible, with the canon shock params (job loss / maintenance   */
 /* / income growth) exposed as labeled assumptions. Return and         */
 /* volatility are user-set assumptions — never silently imputed.       */
+/* Never print the run count in UI.                                    */
 /*                                                                     */
 /* Rehearsal: canon lib/rehearsal.ts buy-now vs wait-12 vs wait-24     */
 /* net position at month 60. Home inputs come from the readiness       */
 /* profile; monthly savings from live cash flow; appreciation / rent   */
 /* increase are the canon defaults — labeled.                          */
 /* ------------------------------------------------------------------ */
-
-const MC_RUNS = 10000;
 
 const CYAN = COLORS.cyan;
 
@@ -83,7 +82,7 @@ export default function PlanModels() {
         volatilityPct: mcVolatility,
         targetAmount: mcTarget > 0 ? mcTarget : undefined,
         seed,
-        runs: MC_RUNS,
+        runs: MONTE_CARLO_ENGINE.runs,
         jobLossProb: Math.max(0, mcJobLoss),
         maintenanceShock: Math.max(0, mcShock),
         incomeGrowth: Math.max(0, mcIncomeGrowth),
@@ -153,7 +152,7 @@ export default function PlanModels() {
         <PlanSectionHeader
           eyebrow="MONTE CARLO"
           title="Savings trajectory bands"
-          caption={`${MC_RUNS.toLocaleString("en-US")} seeded runs — reproducible, never a forecast. Bands are P10 / P50 / P90 of simulated outcomes.`}
+          caption="Seeded runs — reproducible, never a forecast. Bands are P10 / P50 / P90 of simulated outcomes."
           right={
             <button
               type="button"
@@ -320,7 +319,7 @@ export default function PlanModels() {
         <PlanFooter
           lines={[
             "Savings and contribution pre-fill from your live ledger. Return, volatility, and shock rates are assumptions you set — edit them to stress the model.",
-            `${MC_RUNS.toLocaleString("en-US")} runs · seed ${seed}. Educational simulation only — not a projection of your actual returns.`,
+            `Seed ${seed}. Educational simulation only — not a projection of your actual returns.`,
           ]}
         />
       </section>
