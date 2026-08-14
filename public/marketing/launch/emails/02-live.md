@@ -1,5 +1,7 @@
 # Email 2 — We're live (Launch Day)
 
+**Operator:** leave `ph_url` empty unless the amplifier gate in [`../../agency/06-MEASUREMENT.md`](../../agency/06-MEASUREMENT.md) has already passed.
+
 **Subject options:**
 - A: HōMI is live — Know When You're Ready
 - B: The readiness layer is open
@@ -34,5 +36,5 @@ No urgency gimmicks. Explore when it serves you.
 
 Thank you for being early.
 
-— Chike  
-HōMI · HOMI TECHNOLOGIES LLC
+— Founder  
+Founder, HōMI · HOMI TECHNOLOGIES LLC

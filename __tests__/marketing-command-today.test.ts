@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  LIBRARY_SECTIONS,
   isSundayInNy,
   todaySecondaryCtas,
   truncateLabel,
@@ -40,6 +41,31 @@ describe("todaySecondaryCtas", () => {
       primaryIsScoreboard: true,
     }).map((c) => c.label);
     expect(labels).toEqual(["Engine", "Proof", "Email"]);
+  });
+});
+
+describe("LIBRARY_SECTIONS launch agency", () => {
+  const agency = LIBRARY_SECTIONS.find((s) => s.id === "agency");
+
+  it("registers a Launch agency section before Operate", () => {
+    expect(agency).toBeDefined();
+    expect(agency?.title).toBe("Launch agency");
+    expect(LIBRARY_SECTIONS[0]?.id).toBe("agency");
+    expect(LIBRARY_SECTIONS.some((s) => s.id === "ops")).toBe(true);
+  });
+
+  it("links the seven doctrine files under /marketing/agency/", () => {
+    const hrefs = agency?.items.map((i) => i.href) ?? [];
+    expect(hrefs).toEqual([
+      "/marketing/agency/README.md",
+      "/marketing/agency/01-NARRATIVE.md",
+      "/marketing/agency/02-DESKS.md",
+      "/marketing/agency/03-LAUNCH-90.md",
+      "/marketing/agency/04-COPY-SYSTEM.md",
+      "/marketing/agency/05-CREATIVE-BRIEF.md",
+      "/marketing/agency/06-MEASUREMENT.md",
+    ]);
+    expect(agency?.items.every((i) => i.external === true)).toBe(true);
   });
 });
 

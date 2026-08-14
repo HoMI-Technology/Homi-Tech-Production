@@ -35,7 +35,7 @@ If HōMI ever feels like pressure, something is wrong — tell us.
 
 Thank you for trusting us with a careful category.
 
-— Chike “Wally” Wali  
+— Founder  
 Founder, HōMI (HOMI TECHNOLOGIES LLC)  
 homitechnology.com
 

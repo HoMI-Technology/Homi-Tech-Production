@@ -126,6 +126,55 @@ export const QUICK_ACTIONS: LibraryItem[] = [
 
 export const LIBRARY_SECTIONS: LibrarySection[] = [
   {
+    id: "agency",
+    title: "Launch agency",
+    subtitle: "Doctrine for the ten desks — not a second org",
+    items: [
+      {
+        label: "Agency pack (start)",
+        href: "/marketing/agency/README.md",
+        hint: "How to run launch from these desks",
+        external: true,
+      },
+      {
+        label: "Narrative",
+        href: "/marketing/agency/01-NARRATIVE.md",
+        hint: "Thesis · enemy · three true proofs",
+        external: true,
+      },
+      {
+        label: "Desk jobs",
+        href: "/marketing/agency/02-DESKS.md",
+        hint: "Weekly · launch-week · done",
+        external: true,
+      },
+      {
+        label: "Launch 90",
+        href: "/marketing/agency/03-LAUNCH-90.md",
+        hint: "Weeks 0–12 · burst ≠ Product Hunt",
+        external: true,
+      },
+      {
+        label: "Copy system",
+        href: "/marketing/agency/04-COPY-SYSTEM.md",
+        hint: "Ready lines · banned → shippable",
+        external: true,
+      },
+      {
+        label: "Creative brief",
+        href: "/marketing/agency/05-CREATIVE-BRIEF.md",
+        hint: "PERSUADE · make vs reuse",
+        external: true,
+      },
+      {
+        label: "Measurement",
+        href: "/marketing/agency/06-MEASUREMENT.md",
+        hint: "North star · Sunday · kill criteria",
+        external: true,
+      },
+    ],
+  },
+  {
     id: "ops",
     title: "Operate",
     subtitle: "Run the OS — not more graphics",
