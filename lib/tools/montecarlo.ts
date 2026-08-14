@@ -11,12 +11,12 @@
  * the run count in UI — hub/registry copy stays "Simulated paths. Not a forecast."
  */
 export const MONTE_CARLO_ENGINE = {
-  runs: 10_000,
-  seed: 1337,
+  runs: 10_000 as const,
+  seed: 1337 as const,
   defaultYears: 10,
   defaultReturnPct: 7,
   defaultVolatilityPct: 15,
-} as const;
+};
 
 /** Deterministic 32-bit PRNG. Returns a function producing floats in [0, 1). */
 export function mulberry32(seed: number): () => number {
