@@ -7,9 +7,9 @@ import { COLORS, withAlpha } from "@/lib/brand";
 
 /**
  * Section 6 — "Not Yet Is Not No" as a visual moment. When the section
- * enters the viewport, the score card shifts from ALMOST THERE (72) to
- * BUILD FIRST (61): warm+ amber glow, calm keyhole, a build path — and
- * deliberately no red, no panic, no shame.
+ * enters the viewport, temperature shifts from Warm to Warm+: amber glow,
+ * a build path — and deliberately no fake HōMI-Score, no red, no panic,
+ * no shame.
  */
 export function VerdictShift() {
   const ref = useRef<HTMLDivElement>(null);
@@ -37,9 +37,7 @@ export function VerdictShift() {
   }, []);
 
   const color = shifted ? COLORS.amber : COLORS.yellow;
-  const label = shifted ? "BUILD FIRST" : "ALMOST THERE";
   const temp = shifted ? "Warm+" : "Warm";
-  const score = shifted ? 61 : 72;
 
   return (
     <div ref={ref} className="grid items-center gap-10 lg:grid-cols-2">
@@ -53,29 +51,14 @@ export function VerdictShift() {
         }}
         aria-live="polite"
       >
-        <p className="text-xs uppercase tracking-[0.25em] text-dim">HōMI-Score</p>
+        <p className="text-xs uppercase tracking-[0.25em] text-dim">Temperature</p>
         <p
-          className="score-numeral mt-2 text-7xl font-bold text-light"
-          style={{ transition: "all 500ms ease" }}
+          className="mt-2 font-display text-6xl font-bold"
+          style={{ color, transition: "all 500ms ease" }}
         >
-          {score}
+          {temp}
         </p>
-        <span
-          className="mt-4 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-bold tracking-wide"
-          style={{
-            color,
-            borderColor: `${color}55`,
-            background: `${color}14`,
-            transition: "all 500ms ease",
-          }}
-        >
-          <span
-            className="inline-block h-2 w-2 rounded-full"
-            style={{ background: color, boxShadow: `0 0 8px ${color}` }}
-          />
-          {label}
-          <span className="font-normal opacity-70">· {temp}</span>
-        </span>
+        <p className="mt-2 text-xs text-dim/70">Illustration — not a HōMI-Score</p>
 
         {/* The build path appears — the map, not the wall */}
         <div

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   PRIMARY_CLOSE_HREF,
@@ -9,41 +9,14 @@ import {
 import { CinematicCompass } from "./CinematicCompass";
 import { COLORS } from "@/lib/brand";
 
-/** Tweens a number toward its target — cinema, not snapping. */
-function useTweened(target: number, ms = 450): number {
-  const [value, setValue] = useState(target);
-  const raf = useRef(0);
-  useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      setValue(target);
-      return;
-    }
-    const from = value;
-    const start = performance.now();
-    const step = (now: number) => {
-      const t = Math.min(1, (now - start) / ms);
-      const eased = 1 - Math.pow(1 - t, 3);
-      setValue(Math.round(from + (target - from) * eased));
-      if (t < 1) raf.current = requestAnimationFrame(step);
-    };
-    raf.current = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target, ms]);
-  return value;
-}
-
 /**
  * Threshold Preview — a public-safe, interactive feel for live readiness.
  *
- * Three signals, one score, a verdict that changes temperature as you
- * move. This module deliberately uses a plain average of the three
- * illustrative signals: no proprietary weights, no sub-factor logic,
- * no scoring internals. The real HōMI-Score comes from the full
- * assessment. Verdict bands shown here are the published public bands.
+ * Three signals, one temperature. This module deliberately uses a plain
+ * average of the three illustrative signals: no proprietary weights, no
+ * sub-factor logic, no scoring internals. Chrome never presents a 0–100
+ * numeral as a HōMI-Score, and never pins a verdict badge on the visitor.
+ * The real read comes from the full assessment.
  */
 
 type PreviewVerdict = "READY" | "ALMOST_THERE" | "BUILD_FIRST" | "DO_NOT_PROCEED";
@@ -116,6 +89,13 @@ function toVerdict(score: number): PreviewVerdict {
   return "DO_NOT_PROCEED";
 }
 
+function signalTemperature(value: number): string {
+  if (value >= 80) return "Cool";
+  if (value >= 65) return "Warm";
+  if (value >= 50) return "Warm+";
+  return "Hot";
+}
+
 export function ThresholdPreview() {
   const [values, setValues] = useState({ financial: 74, emotional: 86, timing: 68 });
 
@@ -123,7 +103,6 @@ export function ThresholdPreview() {
     () => Math.round((values.financial + values.emotional + values.timing) / 3),
     [values],
   );
-  const shownScore = useTweened(score);
   const verdictKey = toVerdict(score);
   const verdict = VERDICTS[verdictKey];
   const weakest = SIGNALS.reduce((a, b) => (values[a.key] <= values[b.key] ? a : b));
@@ -146,29 +125,14 @@ export function ThresholdPreview() {
           />
         </div>
         <div className="mt-6 text-center" aria-live="polite">
-          <p className="text-xs uppercase tracking-[0.25em] text-dim">HōMI-Score</p>
+          <p className="text-xs uppercase tracking-[0.25em] text-dim">Temperature</p>
           <p
-            className="score-numeral text-6xl font-bold text-light"
-            style={{ transition: "color 400ms ease" }}
+            className="mt-2 font-display text-5xl font-bold"
+            style={{ color: verdict.color, transition: "color 400ms ease" }}
           >
-            {shownScore}
+            {verdict.temperature}
           </p>
-          <span
-            className="mt-3 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-bold tracking-wide"
-            style={{
-              color: verdict.color,
-              borderColor: `${verdict.color}55`,
-              background: `${verdict.color}14`,
-              transition: "all 400ms ease",
-            }}
-          >
-            <span
-              className="inline-block h-2 w-2 rounded-full"
-              style={{ background: verdict.color, boxShadow: `0 0 8px ${verdict.color}` }}
-            />
-            {verdict.label}
-            <span className="font-normal opacity-70">· {verdict.temperature}</span>
-          </span>
+          <p className="mt-2 text-xs text-dim/70">Illustration — not a HōMI-Score</p>
           <p className="mx-auto mt-4 max-w-xs text-sm leading-relaxed text-dim">
             {verdict.message}
           </p>
@@ -187,7 +151,7 @@ export function ThresholdPreview() {
                 />
                 {s.name}
               </label>
-              <span className="score-numeral text-sm text-dim">{values[s.key]}</span>
+              <span className="text-sm text-dim">{signalTemperature(values[s.key])}</span>
             </div>
             <input
               id={`tp-${s.key}`}
@@ -242,8 +206,8 @@ export function ThresholdPreview() {
             {PRIMARY_CLOSE_LABEL}
           </Link>
           <p className="text-xs text-dim/70">
-            This preview uses illustrative signals only — no scoring internals. Your real HōMI-Score
-            comes from the full assessment.
+            This preview uses illustrative signals only — temperature, not a HōMI-Score. Your real
+            read comes from the full assessment.
           </p>
         </div>
       </div>

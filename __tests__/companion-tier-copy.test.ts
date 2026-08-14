@@ -2,8 +2,15 @@ import { describe, it, expect } from "vitest";
 import { companionTierCopy } from "@/lib/advisor/companion-tier-copy";
 import { getEntitlements } from "@/lib/entitlements";
 
-describe("companionTierCopy (CL-09 honest free vs paid labeling)", () => {
-  it("labels free tier as limited rule-based Companion with daily limit + upgrade", () => {
+const SKU_BANNED = [
+  /hōmi companion/i,
+  /full ai companion/i,
+  /get companion/i,
+  /daily companion limits/i,
+];
+
+describe("companionTierCopy (honest free vs paid labeling)", () => {
+  it("labels free tier as Clarity voice with daily limit + voice-picker upgrade", () => {
     const free = getEntitlements("free");
     const copy = companionTierCopy({
       advisorRealModel: free.advisorRealModel,
@@ -12,16 +19,18 @@ describe("companionTierCopy (CL-09 honest free vs paid labeling)", () => {
 
     expect(free.advisorRealModel).toBe(false);
     expect(copy.kind).toBe("free");
-    expect(copy.summary.toLowerCase()).toContain("rule-based");
-    expect(copy.summary.toLowerCase()).toContain("free");
-    expect(copy.summary.toLowerCase()).not.toMatch(/\bfull ai\b/);
+    expect(copy.summary).toBe("Clarity voice");
     expect(copy.detail).toContain(`${free.advisorMessagesPerDay} messages/day`);
-    expect(copy.detail?.toLowerCase()).toContain("upgrade");
+    expect(copy.detail?.toLowerCase()).toContain("voice picker");
     expect(copy.upgradeHref).toBe("/pricing");
     expect(copy.upgradeLabel).toBeTruthy();
+    for (const banned of SKU_BANNED) {
+      expect(copy.summary).not.toMatch(banned);
+      expect(copy.detail ?? "").not.toMatch(banned);
+    }
   });
 
-  it("labels paid tiers as Full AI Companion without inventing a model name", () => {
+  it("labels paid tiers as Decision Companion without inventing a model or SKU name", () => {
     for (const tier of ["plus", "pro", "family"] as const) {
       const paid = getEntitlements(tier);
       const copy = companionTierCopy({
@@ -31,10 +40,12 @@ describe("companionTierCopy (CL-09 honest free vs paid labeling)", () => {
 
       expect(paid.advisorRealModel, `${tier} should grant real model`).toBe(true);
       expect(copy.kind).toBe("paid");
-      expect(copy.summary).toBe("Full AI Companion");
+      expect(copy.summary).toBe("Decision Companion");
       expect(copy.upgradeHref).toBeUndefined();
-      // Never invent Anthropic / model product names in UI copy.
       expect(copy.summary.toLowerCase()).not.toMatch(/claude|anthropic|gpt|haiku|sonnet/);
+      for (const banned of SKU_BANNED) {
+        expect(copy.summary).not.toMatch(banned);
+      }
     }
   });
 

@@ -42,11 +42,11 @@ interface TitledBody {
  * Threshold Compass is the instrument at the center of everything;
  * the page is a private decision room, not a sales funnel.
  *
- * Copy is inlined English (i18n message catalogs removed). Two things stay
- * hardcoded on purpose: the verdict labels (READY / ALMOST THERE /
- * BUILD FIRST / DO NOT PROCEED — the public badge form; the stored
- * enum stays NOT_YET, see docs/adr/001-verdict-vocabulary.md) and
- * the sample score numerals beside them.
+ * Copy is inlined English (i18n message catalogs removed). Verdict labels
+ * (READY / ALMOST THERE / BUILD FIRST / DO NOT PROCEED — the public badge
+ * form; the stored enum stays NOT_YET, see docs/adr/001-verdict-vocabulary.md)
+ * stay hardcoded on the spectrum. Homepage theater never presents a fake
+ * 0–100 HōMI-Score as the visitor's score.
  */
 export default function MarketingHomePage() {
   const scoreLeft: string[] = [
@@ -93,9 +93,9 @@ export default function MarketingHomePage() {
     },
   ];
   const buildSteps: string[] = [
-    "Build your emergency fund toward 6 months of expenses.",
-    "Bring your debt-to-income ratio below 36%.",
-    "Push your credit score above 700.",
+    "Keep at least one month of expenses set aside — under one month is a hard stop.",
+    "Stay at or under the 50% DTI hard stop. Comfort tiers (28 / 33 / 36) are educational, not a HōMI path target.",
+    "Credit below 620, or housing above 45% of gross, each force DO NOT PROCEED.",
   ];
   const proofs: TitledBody[] = [
     {
@@ -390,16 +390,15 @@ export default function MarketingHomePage() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-widest text-amber">
-                    Sample verdict
+                    Sample path
                   </p>
                   <p className="mt-0.5 text-xs text-dim/70">
-                    Illustration only &mdash; not your score
+                    Illustration only &mdash; not your verdict
                   </p>
                 </div>
                 <div className="text-right">
-                  {/* Canon-checked pair (landing-canon tests): 52 → BUILD FIRST. */}
-                  <p className="score-numeral text-4xl font-bold text-light">52</p>
-                  <p className="text-xs font-bold tracking-wide text-amber">BUILD FIRST</p>
+                  <p className="font-display text-3xl font-bold text-amber">Warm+</p>
+                  <p className="text-xs tracking-wide text-dim">Temperature</p>
                 </div>
               </div>
               <div className="hairline my-6" />
@@ -441,13 +440,10 @@ export default function MarketingHomePage() {
               <div className="hairline my-5" />
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-xs text-dim">HōMI-Score</p>
-                  {/* Canon-checked pair (landing-canon tests): 76 → ALMOST THERE. */}
-                  <p className="score-numeral text-5xl font-bold text-light">76</p>
+                  <p className="text-xs text-dim">Temperature</p>
+                  <p className="font-display text-5xl font-bold text-yellow">Warm</p>
                 </div>
-                <span className="inline-flex items-center gap-2 rounded-full border border-yellow/40 bg-yellow/10 px-4 py-1.5 text-sm font-bold text-yellow">
-                  ALMOST THERE <span className="font-normal opacity-70">· Warm</span>
-                </span>
+                <span className="text-xs text-dim/70">Illustration only</span>
               </div>
               <div className="mt-6 space-y-3 text-sm">
                 <Row k="Primary signal" v="Timing is close. Monthly pressure is still warm." />

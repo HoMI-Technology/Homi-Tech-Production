@@ -20,8 +20,8 @@ const COLUMNS: FooterColumn[] = [
     ns: "product",
     title: "Product",
     links: [
+      { href: "/first-moment", label: "Assess" },
       { href: "/assessment", label: "Full Assessment" },
-      { href: "/shadow-score", label: "Shadow Score" },
       { href: "/waitlist", label: "Waitlist" },
       { href: "/money", label: "Money" },
       { href: "/advisor", label: "Decision Companion" },
