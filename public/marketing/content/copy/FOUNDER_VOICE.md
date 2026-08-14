@@ -46,6 +46,8 @@ Build First is not failure. It is the map.
 ---
 
 ### founder_homie
+Internal metaphor only — not a ship line.
+
 We want HōMI to feel like a homie with a flashlight — not a banker with a quota.
 
 Your homie, not your banker.

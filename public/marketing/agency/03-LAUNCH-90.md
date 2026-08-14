@@ -109,8 +109,9 @@ If the week would exceed ~12 hours, ship only REQUIRED.
 | Day | Post | Image | Caption | Campaign slug |
 |-----|------|-------|---------|---------------|
 | Mon | How vs if | [`../content/posts/homi_post_quote_how_vs_if_1080.png`](../content/posts/homi_post_quote_how_vs_if_1080.png) | `CAPTIONS.md` → how_vs_if | `w4_how_if` |
-| Wed | Homie, not banker | [`../content/posts/homi_post_founder_homie_1080.png`](../content/posts/homi_post_founder_homie_1080.png) | `FOUNDER_VOICE` → founder_homie | `w4_homie` |
 | Fri | Launch-week close / thank you | [`../content/carousels/launch-week/05.png`](../content/carousels/launch-week/05.png) or OG home | “Thanks for exploring. The path is still free.” + legal close | `w4_thanks` |
+
+Homie post (`founder_homie` / `w4_homie`) is unscheduled — internal metaphor only; do not ship. Image file stays in the library.
 
 **Email:** no fifth blast. Reply to everyone who replied.  
 **Audience:** write the two questions people asked → they become Week 5–6 posts.  

@@ -12,7 +12,7 @@ Legal close (append near any product claim):
 
 ---
 
-## Ready-to-ship (24 lines)
+## Ready-to-ship (23 lines)
 
 ### Headlines
 
@@ -30,25 +30,24 @@ Legal close (append near any product claim):
 9. Credit answers whether you can get it. Readiness asks whether you will be okay after.
 10. Three lenses: Financial Reality, Emotional Truth, Perfect Timing.
 11. Build First is not failure. It is the map.
-12. Your homie, not your banker.
-13. Momentum is not readiness.
-14. Not a budget app. Not therapy. Not a financial advisor. Not a lender.
-15. Lose a transaction, gain a relationship. The product is clarity.
+12. Momentum is not readiness.
+13. Not a budget app. Not therapy. Not a financial advisor. Not a lender.
+14. Lose a transaction, gain a relationship. The product is clarity.
 
 ### CTAs (buttons, last lines, pinned comments)
 
-16. Explore your Decision Readiness.
-17. Explore whether you are ready — start the free path.
-18. Take the free Decision Readiness path.
-19. Read what HōMI is not.
-20. Meet Your Decision Compass — start the free path.
+15. Explore your Decision Readiness.
+16. Explore whether you are ready — start the free path.
+17. Take the free Decision Readiness path.
+18. Read what HōMI is not.
+19. Meet Your Decision Compass — start the free path.
 
 ### Email subjects (claim-safe)
 
-21. A question credit was never designed to answer
-22. Afford ≠ ready (and that is allowed)
-23. HōMI is live — the path is free
-24. What we will never be
+20. A question credit was never designed to answer
+21. Afford ≠ ready (and that is allowed)
+22. HōMI is live — the path is free
+23. What we will never be
 
 Do not write subjects that promise an outcome, a date you will buy, or a funding result.
 
@@ -161,6 +160,6 @@ Free Decision Readiness path · Plus $9.99 · Pro $24.99 · Family $39.99 / mo.
 
 1. Search the draft for the left column.  
 2. Confirm spelling is **HōMI** (ō = U+014D).  
-3. Confirm the CTA is one of 16–20 or a close cousin (“explore”, “see if”, “start the free path”).  
+3. Confirm the CTA is one of 15–19 or a close cousin (“explore”, “see if”, “start the free path”).  
 4. Confirm the byline is **Founder** only — no personal name.  
 5. Guardrails desk ritual in [`02-DESKS.md`](./02-DESKS.md).
