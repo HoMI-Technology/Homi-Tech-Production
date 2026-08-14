@@ -84,7 +84,7 @@ export function VerdictShift() {
       <div>
         <h2 className="type-h2">Not yet is not no.</h2>
         <p className="mt-4 max-w-md text-lg leading-relaxed text-dim">
-          It is clarity. It is protection. The most valuable answer HōMI gives is often NOT YET —
+          It is clarity. It is protection. The most valuable answer HōMI gives is often not yet —
           and when it arrives, it arrives with a map, not a door in your face.
         </p>
         <p className="mt-4 max-w-md font-display text-xl text-light">

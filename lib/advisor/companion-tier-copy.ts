@@ -1,7 +1,6 @@
 /**
- * Honest Decision Companion tier labeling — pure display copy for free
- * (Clarity voice, no picker) vs paid (voice picker). Does not gate access;
- * server entitlements + /api/advisor remain authoritative.
+ * Honest free vs paid labeling for ask-about-this-verdict notes.
+ * Does not gate access; server entitlements + /api/advisor remain authoritative.
  */
 
 export type CompanionTierCopyInput = {
@@ -22,15 +21,14 @@ export type CompanionTierCopy = {
 };
 
 /**
- * Build display strings for the free vs paid honesty chip.
- * Never names a SKU "Companion". Product noun "Decision Companion" is allowed.
- * Free is Clarity voice (no picker). Paid is the voice picker.
+ * Brand Use chip copy. Never names a SKU "Companion".
+ * Free: rule-based notes. Plus+: ask about this verdict.
  */
 export function companionTierCopy(input: CompanionTierCopyInput): CompanionTierCopy {
   if (input.advisorRealModel) {
     return {
       kind: "paid",
-      summary: "Decision Companion",
+      summary: "Ask about this verdict.",
     };
   }
 
@@ -41,8 +39,8 @@ export function companionTierCopy(input: CompanionTierCopyInput): CompanionTierC
 
   return {
     kind: "free",
-    summary: "Clarity voice",
-    detail: `${daily} messages/day · Upgrade for the voice picker`,
+    summary: "Rule-based notes on this verdict.",
+    detail: `${daily} messages/day`,
     upgradeHref: "/pricing",
     upgradeLabel: "Upgrade",
   };

@@ -23,7 +23,7 @@ export const TIERS: Record<TierKey, Tier> = {
     lookupKey: "homi_plus_monthly",
     priceEnvVar: "STRIPE_PRICE_PLUS",
     features: [
-      "Voice picker — Steady, Clarity, or Horizon",
+      "Verdict in your companion's voice (Steady, Clarity, or Horizon).",
       "Verdict history",
     ],
   },
@@ -33,7 +33,7 @@ export const TIERS: Record<TierKey, Tier> = {
     priceMonthlyUsd: 24.99,
     lookupKey: "homi_pro_monthly",
     priceEnvVar: "STRIPE_PRICE_PRO",
-    features: ["Everything in Plus", "Rehearse — not live yet"],
+    features: ["Everything in Plus", "Higher daily ask-about-this-verdict limits."],
   },
   family: {
     key: "family",

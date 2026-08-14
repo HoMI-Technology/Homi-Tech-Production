@@ -9,8 +9,8 @@ const SKU_BANNED = [
   /daily companion limits/i,
 ];
 
-describe("companionTierCopy (honest free vs paid labeling)", () => {
-  it("labels free tier as Clarity voice with daily limit + voice-picker upgrade", () => {
+describe("companionTierCopy (Brand Use)", () => {
+  it("pins free copy to rule-based notes on this verdict", () => {
     const free = getEntitlements("free");
     const copy = companionTierCopy({
       advisorRealModel: free.advisorRealModel,
@@ -19,9 +19,8 @@ describe("companionTierCopy (honest free vs paid labeling)", () => {
 
     expect(free.advisorRealModel).toBe(false);
     expect(copy.kind).toBe("free");
-    expect(copy.summary).toBe("Clarity voice");
+    expect(copy.summary).toBe("Rule-based notes on this verdict.");
     expect(copy.detail).toContain(`${free.advisorMessagesPerDay} messages/day`);
-    expect(copy.detail?.toLowerCase()).toContain("voice picker");
     expect(copy.upgradeHref).toBe("/pricing");
     expect(copy.upgradeLabel).toBeTruthy();
     for (const banned of SKU_BANNED) {
@@ -30,7 +29,7 @@ describe("companionTierCopy (honest free vs paid labeling)", () => {
     }
   });
 
-  it("labels paid tiers as Decision Companion without inventing a model or SKU name", () => {
+  it("pins Plus+ copy to ask about this verdict", () => {
     for (const tier of ["plus", "pro", "family"] as const) {
       const paid = getEntitlements(tier);
       const copy = companionTierCopy({
@@ -40,7 +39,7 @@ describe("companionTierCopy (honest free vs paid labeling)", () => {
 
       expect(paid.advisorRealModel, `${tier} should grant real model`).toBe(true);
       expect(copy.kind).toBe("paid");
-      expect(copy.summary).toBe("Decision Companion");
+      expect(copy.summary).toBe("Ask about this verdict.");
       expect(copy.upgradeHref).toBeUndefined();
       expect(copy.summary.toLowerCase()).not.toMatch(/claude|anthropic|gpt|haiku|sonnet/);
       for (const banned of SKU_BANNED) {
@@ -55,6 +54,7 @@ describe("companionTierCopy (honest free vs paid labeling)", () => {
       advisorMessagesPerDay: 0,
     });
     expect(copy.kind).toBe("free");
+    expect(copy.summary).toBe("Rule-based notes on this verdict.");
     expect(copy.detail).toMatch(/5 messages\/day/);
   });
 });

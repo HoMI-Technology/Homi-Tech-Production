@@ -43,6 +43,42 @@ const SOLD_LIES = [
   "5 household members",
 ];
 
+const VERDICT_BADGES = ["DO NOT PROCEED", "ALMOST THERE", "BUILD FIRST"] as const;
+
+describe("Wave 1 chrome honesty — Brand Use lines", () => {
+  it("pins Pricing Free to the Brand Use protective-verdict line", () => {
+    expect(PRICING).toContain("Protective verdict and Path — same quality as paid.");
+  });
+
+  it("pins Stripe Plus to the Brand Use companion-voice line", () => {
+    expect(TIERS.plus.features).toContain(
+      "Verdict in your companion's voice (Steady, Clarity, or Horizon).",
+    );
+    expect(TIERS_SRC).toContain(
+      "Verdict in your companion's voice (Steady, Clarity, or Horizon).",
+    );
+  });
+
+  it("pins companion-tier-copy Free and Plus+ to Brand Use", () => {
+    expect(companionTierCopy({ advisorRealModel: false, advisorMessagesPerDay: 5 }).summary).toBe(
+      "Rule-based notes on this verdict.",
+    );
+    expect(companionTierCopy({ advisorRealModel: true, advisorMessagesPerDay: 25 }).summary).toBe(
+      "Ask about this verdict.",
+    );
+    expect(TIER_COPY_SRC).toContain("Rule-based notes on this verdict.");
+    expect(TIER_COPY_SRC).toContain("Ask about this verdict.");
+  });
+
+  it("does not sell Rehearse or Genome; Pro ask-limit uses Brand Use if present", () => {
+    const proBlob = [...TIERS.pro.features, PRICING, TIERS_SRC].join("\n");
+    expect(proBlob).not.toMatch(/rehearse/i);
+    expect(proBlob).not.toMatch(/genome/i);
+    expect(TIERS.pro.features).toContain("Higher daily ask-about-this-verdict limits.");
+    expect(PRICING).toContain("Higher daily ask-about-this-verdict limits.");
+  });
+});
+
 describe("Wave 1 chrome honesty — SKU and score names", () => {
   it.each([
     ["app/(marketing)/pricing/page.tsx", PRICING],
@@ -63,13 +99,6 @@ describe("Wave 1 chrome honesty — SKU and score names", () => {
     expect(PRICING).not.toContain('href="/partner"');
     expect(PRICING).not.toMatch(/Trinity|Twin/);
     expect(TIERS_SRC).not.toMatch(/Trinity|Twin/);
-  });
-
-  it("if Pro mentions Rehearse, it is clearly not live", () => {
-    const proBlob = [...TIERS.pro.features, PRICING].join("\n");
-    if (/rehearse/i.test(proBlob)) {
-      expect(proBlob.toLowerCase()).toMatch(/not live/);
-    }
   });
 
   it("companionTierCopy never emits banned SKU strings", () => {
@@ -94,6 +123,11 @@ describe("Wave 1 chrome honesty — primary close", () => {
     expect(FOOTER).toContain('label: "Assess"');
     expect(FOOTER).not.toContain("/shadow-score");
   });
+
+  it("footer is not a product CTA to /advisor", () => {
+    expect(FOOTER).not.toContain("/advisor");
+    expect(FOOTER).not.toContain('label: "Decision Companion"');
+  });
 });
 
 describe("Wave 1 chrome honesty — homepage theater", () => {
@@ -104,6 +138,21 @@ describe("Wave 1 chrome honesty — homepage theater", () => {
     expect(SHIFT).not.toMatch(/uppercase tracking-\[0\.25em\] text-dim">HōMI-Score</);
     expect(PREVIEW).toContain("Temperature");
     expect(SHIFT).toContain("Temperature");
+  });
+
+  it("sample path, ThresholdPreview, and VerdictShift do not say the 4-band badges", () => {
+    for (const [source, text] of [
+      ["homepage sample path", HOME],
+      ["ThresholdPreview", PREVIEW],
+      ["VerdictShift", SHIFT],
+    ] as const) {
+      for (const badge of VERDICT_BADGES) {
+        expect(text, `${source} must not say ${badge}`).not.toContain(badge);
+      }
+    }
+    expect(HOME).not.toContain('label="READY"');
+    expect(PREVIEW).not.toContain('label: "READY"');
+    expect(SHIFT).not.toContain("READY");
   });
 
   it("sample path does not treat credit 700 or DTI 36% as HōMI law", () => {

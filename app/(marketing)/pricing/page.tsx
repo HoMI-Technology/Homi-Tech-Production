@@ -42,19 +42,18 @@ const TIER_COPY: Record<PricingTier["id"], TierCopy> = {
     description: "Start with the truth. No card required.",
     features: [
       "Full 45-question assessment — same engine, bands, and hard stops",
+      "Protective verdict and Path — same quality as paid.",
       "Results, Path, and Money",
       "Educational tools",
-      "Clarity voice (no picker)",
-      "A 90-second educational read — not a verdict",
     ],
     cta: PRIMARY_CLOSE_LABEL,
   },
   plus: {
     name: "Plus",
-    description: "Hear the same honest read the way you need it.",
+    description: "For anyone actively building toward readiness.",
     features: [
       "Everything in Free",
-      "Voice picker — Steady, Clarity, or Horizon",
+      "Verdict in your companion's voice (Steady, Clarity, or Horizon).",
       "Verdict history",
     ],
     cta: "Start Plus",
@@ -62,7 +61,7 @@ const TIER_COPY: Record<PricingTier["id"], TierCopy> = {
   pro: {
     name: "Pro",
     description: "Everything in Plus.",
-    features: ["Everything in Plus", "Rehearse — not live yet"],
+    features: ["Everything in Plus", "Higher daily ask-about-this-verdict limits."],
     cta: "Start Pro",
   },
   family: {

@@ -42,11 +42,9 @@ interface TitledBody {
  * Threshold Compass is the instrument at the center of everything;
  * the page is a private decision room, not a sales funnel.
  *
- * Copy is inlined English (i18n message catalogs removed). Verdict labels
- * (READY / ALMOST THERE / BUILD FIRST / DO NOT PROCEED — the public badge
- * form; the stored enum stays NOT_YET, see docs/adr/001-verdict-vocabulary.md)
- * stay hardcoded on the spectrum. Homepage theater never presents a fake
- * 0–100 HōMI-Score as the visitor's score.
+ * Copy is inlined English (i18n message catalogs removed). Homepage theater
+ * uses temperature only. The four verdict badges stay on /results.
+ * Never present a fake 0–100 HōMI-Score as the visitor's score.
  */
 export default function MarketingHomePage() {
   const scoreLeft: string[] = [
@@ -95,7 +93,7 @@ export default function MarketingHomePage() {
   const buildSteps: string[] = [
     "Keep at least one month of expenses set aside — under one month is a hard stop.",
     "Stay at or under the 50% DTI hard stop. Comfort tiers (28 / 33 / 36) are educational, not a HōMI path target.",
-    "Credit below 620, or housing above 45% of gross, each force DO NOT PROCEED.",
+    "Credit below 620, or housing above 45% of gross, each force a hard stop.",
   ];
   const proofs: TitledBody[] = [
     {
@@ -315,34 +313,23 @@ export default function MarketingHomePage() {
       <Reveal>
         <section className="px-6 py-24">
           <div className="mx-auto max-w-4xl">
-            <Kicker color={COLORS.emerald}>The verdict spectrum</Kicker>
-            <h2 className="mt-5 text-center type-display">Four verdicts. Zero judgment.</h2>
+            <Kicker color={COLORS.emerald}>Temperature</Kicker>
+            <h2 className="mt-5 text-center type-display">Cool means clear. Hot means stop.</h2>
             <p className="mx-auto mt-4 max-w-xl text-center text-dim">
-              Cool means clear. Hot means stop. HōMI never blurs the line to make you feel better.
+              HōMI never blurs the line to make you feel better.
             </p>
 
             <div className="glass mt-12 p-8">
               <div
                 className="spectrum-bar"
                 role="img"
-                aria-label="Verdict spectrum from DO NOT PROCEED (hot) through BUILD FIRST and ALMOST THERE to READY (cool)"
+                aria-label="Temperature spectrum from hot through warm+ and warm to cool"
               />
               <div className="mt-6 flex flex-wrap justify-center gap-3">
-                {/* Verdict badge labels — public form; storage enum stays NOT_YET. */}
-                <SpectrumChip color={COLORS.emerald} label="READY" range="80–100" temp="Cool" />
-                <SpectrumChip
-                  color={COLORS.yellow}
-                  label="ALMOST THERE"
-                  range="65–79"
-                  temp="Warm"
-                />
-                <SpectrumChip color={COLORS.amber} label="BUILD FIRST" range="50–64" temp="Warm+" />
-                <SpectrumChip
-                  color={COLORS.crimson}
-                  label="DO NOT PROCEED"
-                  range="0–49"
-                  temp="Hot"
-                />
+                <SpectrumChip color={COLORS.emerald} label="Cool" range="80–100" />
+                <SpectrumChip color={COLORS.yellow} label="Warm" range="65–79" />
+                <SpectrumChip color={COLORS.amber} label="Warm+" range="50–64" />
+                <SpectrumChip color={COLORS.crimson} label="Hot" range="0–49" />
               </div>
             </div>
           </div>
@@ -381,7 +368,7 @@ export default function MarketingHomePage() {
         <section className="px-6 py-24">
           <div className="mx-auto max-w-3xl">
             <Kicker color={COLORS.amber}>After your verdict</Kicker>
-            <h2 className="mt-5 text-center type-display">Your Build First path.</h2>
+            <h2 className="mt-5 text-center type-display">What to build first.</h2>
             <p className="mx-auto mt-4 max-w-xl text-center text-dim">
               When you&rsquo;re not ready yet, HōMI shows what to build first.
             </p>
@@ -617,12 +604,10 @@ function SpectrumChip({
   color,
   label,
   range,
-  temp,
 }: {
   color: string;
   label: string;
   range: string;
-  temp: string;
 }) {
   return (
     <span
@@ -635,7 +620,6 @@ function SpectrumChip({
       />
       {label}
       <span className="score-numeral font-medium opacity-80">{range}</span>
-      <span className="font-normal opacity-60">· {temp}</span>
     </span>
   );
 }
