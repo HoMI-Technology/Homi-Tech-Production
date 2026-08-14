@@ -43,6 +43,17 @@ const GRADE_COLOR: Record<FinanceCompleteness, string> = {
 };
 
 /**
+ * Companion openers. These are entry points into the existing Companion, not a
+ * second chat surface — /advisor reads ?q= and pre-fills the composer so the
+ * user still presses send (no silent API call, no quota burned on navigation).
+ */
+const COMPANION_PROMPTS = [
+  "What does my runway mean for readiness?",
+  "Is my DTI a problem?",
+  "How much should I save before buying?",
+];
+
+/**
  * Stand mode — OPERATE instrument backed by named metrics + CFM honesty meta.
  * Works after planner absorb (no use-finance-dashboard).
  *
@@ -286,6 +297,22 @@ export function MoneyStand() {
             </Link>
           )}
         </div>
+      </div>
+
+      {/* ── Ask Homie: Companion openers, inline instead of buried in a panel ── */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-3xs font-semibold uppercase tracking-[0.14em] text-dim/60">
+          Ask Homie ↗
+        </span>
+        {COMPANION_PROMPTS.map((q) => (
+          <Link
+            key={q}
+            href={`/advisor?q=${encodeURIComponent(q)}`}
+            className="rounded-full border border-line/60 px-3 py-1 text-2xs text-dim/80 transition-colors hover:border-cyan/40 hover:text-cyan"
+          >
+            {q}
+          </Link>
+        ))}
       </div>
 
       <p className="max-w-2xl text-xs leading-relaxed text-dim/70">
