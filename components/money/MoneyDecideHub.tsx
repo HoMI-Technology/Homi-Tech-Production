@@ -158,7 +158,14 @@ export function MoneyDecideHub() {
 
   /** Lenses that still live only as their own page. */
   const linkedLenses = useMemo(
-    () => LENSES.filter((l) => !PANEL_IDS.includes(l.id as PanelId)),
+    () =>
+      LENSES.filter(
+        (l) =>
+          !PANEL_IDS.includes(l.id as PanelId) &&
+          l.placement !== "hidden" &&
+          l.placement !== "redirect" &&
+          l.path.startsWith("/tools/"),
+      ),
     [],
   );
 

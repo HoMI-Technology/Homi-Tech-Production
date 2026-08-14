@@ -9,13 +9,13 @@ test.describe("Money Reality — public funnel", () => {
     const res = await page.goto("/tools");
     expect(res?.status()).toBeLessThan(400);
     await expect(page.getByRole("heading", { name: "Tools" })).toBeVisible();
-    await expect(page.getByText(/calculators/i).first()).toBeVisible();
+    await expect(page.getByText(/Lenses for the math\. Not a catalog\./i)).toBeVisible();
   });
 
   test("individual calculator stays public with public back link", async ({ page }) => {
     await page.goto("/tools/runway");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    const back = page.getByRole("link", { name: /all calculators|money · decide/i });
+    const back = page.getByRole("link", { name: /all tools|all lenses|money · decide/i });
     await expect(back).toBeVisible();
     const href = await back.getAttribute("href");
     // Anonymous default must not be a protected money path.

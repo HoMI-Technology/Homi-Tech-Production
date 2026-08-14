@@ -7,7 +7,7 @@
  * its own slider defaults. The registry drives four things from one
  * definition:
  *
- *   1. The /tools hub (ring grouping, cards, counts)
+ *   1. The /tools hub (ring grouping, cards — hub placement only)
  *   2. CFM prefill (inputs[].cfmPath / inputs[].derive → slider seeds +
  *      "your numbers" tags)
  *   3. Decision chains (typed next-lens hand-offs on result panels)
@@ -95,6 +95,12 @@ export interface LensChain {
   carry: string[];
 }
 
+/**
+ * Where a lens appears. Public `/tools` lists `hub` only.
+ * See docs/TOOL_CONSOLIDATION.md (locked 14 Aug 2026).
+ */
+export type LensPlacement = "hub" | "more" | "deep-link" | "hidden" | "redirect";
+
 export interface LensDefinition {
   id: string;
   path: string;
@@ -103,6 +109,8 @@ export interface LensDefinition {
   ring: LensRing;
   accent: string;
   gate: "free" | "plus";
+  /** Public hub card vs hide / More / deep-link / fold. Default is not implied — set it. */
+  placement: LensPlacement;
   inputs?: LensInputSpec[];
   chains?: LensChain[];
 }
@@ -148,6 +156,7 @@ export const LENSES: LensDefinition[] = [
     ring: "readiness",
     accent: "#22d3ee",
     gate: "free",
+    placement: "hidden",
   },
   {
     id: "preflight",
@@ -157,6 +166,7 @@ export const LENSES: LensDefinition[] = [
     ring: "readiness",
     accent: "#f24822",
     gate: "free",
+    placement: "more",
   },
   {
     id: "path-to-ready",
@@ -166,6 +176,7 @@ export const LENSES: LensDefinition[] = [
     ring: "readiness",
     accent: "#34d399",
     gate: "free",
+    placement: "more",
   },
   {
     id: "scenario-studio",
@@ -175,6 +186,7 @@ export const LENSES: LensDefinition[] = [
     ring: "readiness",
     accent: "#facc15",
     gate: "free",
+    placement: "more",
   },
 
   // --- Financial Reality (housing) ---
@@ -182,10 +194,11 @@ export const LENSES: LensDefinition[] = [
     id: "affordability",
     path: "/tools/affordability",
     name: "Affordability",
-    desc: "Three honest comfort tiers — protected, stretch, and red line.",
+    desc: "Three honest comfort tiers — 28 / 33 / 36. Not the 45% housing hard stop.",
     ring: "reality",
     accent: "#34d399",
     gate: "plus",
+    placement: "hub",
     inputs: [
       {
         key: "income",
@@ -253,7 +266,6 @@ export const LENSES: LensDefinition[] = [
       },
     ],
     chains: [
-      { lensId: "mortgage", pitch: "See a real payment at this price", carry: ["price"] },
       {
         lensId: "down-payment",
         pitch: "How long the down payment actually takes",
@@ -269,6 +281,7 @@ export const LENSES: LensDefinition[] = [
     ring: "reality",
     accent: "#22d3ee",
     gate: "plus",
+    placement: "redirect",
     inputs: [
       {
         key: "price",
@@ -358,6 +371,7 @@ export const LENSES: LensDefinition[] = [
     ring: "reality",
     accent: "#facc15",
     gate: "plus",
+    placement: "deep-link",
     inputs: [
       {
         key: "rent",
@@ -405,6 +419,7 @@ export const LENSES: LensDefinition[] = [
     ring: "reality",
     accent: "#22d3ee",
     gate: "plus",
+    placement: "deep-link",
     inputs: [
       {
         key: "price",
@@ -439,9 +454,6 @@ export const LENSES: LensDefinition[] = [
         format: "currency",
       },
     ],
-    chains: [
-      { lensId: "simulator", pitch: "See what reaching this goal does to readiness", carry: [] },
-    ],
   },
   {
     id: "heloc",
@@ -451,6 +463,7 @@ export const LENSES: LensDefinition[] = [
     ring: "reality",
     accent: "#34d399",
     gate: "plus",
+    placement: "hub",
     inputs: [
       {
         key: "homeValue",
@@ -487,6 +500,7 @@ export const LENSES: LensDefinition[] = [
     ring: "reality",
     accent: "#facc15",
     gate: "plus",
+    placement: "hub",
     inputs: [
       {
         key: "balance",
@@ -534,6 +548,7 @@ export const LENSES: LensDefinition[] = [
     ring: "reality",
     accent: "#22d3ee",
     gate: "plus",
+    placement: "hub",
     inputs: [
       {
         key: "loan",
@@ -569,6 +584,7 @@ export const LENSES: LensDefinition[] = [
     ring: "reality",
     accent: "#34d399",
     gate: "plus",
+    placement: "hub",
     inputs: [
       {
         key: "homePrice",
@@ -618,6 +634,7 @@ export const LENSES: LensDefinition[] = [
     ring: "stability",
     accent: "#34d399",
     gate: "free",
+    placement: "deep-link",
     inputs: [
       {
         key: "expenses",
@@ -650,6 +667,7 @@ export const LENSES: LensDefinition[] = [
     ring: "stability",
     accent: "#fab633",
     gate: "plus",
+    placement: "hub",
     chains: [{ lensId: "runway", pitch: "Watch runway grow as payments disappear", carry: [] }],
   },
   {
@@ -660,6 +678,7 @@ export const LENSES: LensDefinition[] = [
     ring: "stability",
     accent: "#facc15",
     gate: "plus",
+    placement: "hub",
     inputs: [
       {
         key: "incomeLow",
@@ -733,6 +752,7 @@ export const LENSES: LensDefinition[] = [
     ring: "timing",
     accent: "#34d399",
     gate: "plus",
+    placement: "hub",
     inputs: [
       {
         key: "annualExpenses",
@@ -769,7 +789,7 @@ export const LENSES: LensDefinition[] = [
     chains: [
       {
         lensId: "monte-carlo",
-        pitch: "Stress-test this path against 10,000 simulated futures",
+        pitch: "Stress-test this path against simulated paths",
         carry: [],
       },
     ],
@@ -778,10 +798,11 @@ export const LENSES: LensDefinition[] = [
     id: "monte-carlo",
     path: "/tools/monte-carlo",
     name: "Monte Carlo Projection",
-    desc: "1,000 simulated futures — markets don’t move in a straight line.",
+    desc: "Simulated paths. Not a forecast.",
     ring: "timing",
     accent: "#22d3ee",
     gate: "plus",
+    placement: "hub",
     inputs: [
       {
         key: "currentSavings",
@@ -838,6 +859,7 @@ export const LENSES: LensDefinition[] = [
     ring: "timing",
     accent: "#facc15",
     gate: "plus",
+    placement: "hub",
     inputs: [
       {
         key: "currentBalance",
@@ -860,6 +882,15 @@ export function getLens(id: string): LensDefinition | undefined {
 
 export function lensesByRing(ring: LensRing): LensDefinition[] {
   return LENSES.filter((l) => l.ring === ring);
+}
+
+/** Public `/tools` cards — ten lenses. Off-hub entries stay in LENSES. */
+export function hubLenses(): LensDefinition[] {
+  return LENSES.filter((l) => l.placement === "hub");
+}
+
+export function hubLensesByRing(ring: LensRing): LensDefinition[] {
+  return hubLenses().filter((l) => l.ring === ring);
 }
 
 /** All CFM paths a lens can seed from — the Companion's coverage input. */

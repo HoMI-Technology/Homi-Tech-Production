@@ -199,6 +199,9 @@ export function runPreflight(input: PreflightInput): PreflightResult {
   const hasBlock = findings.some((f) => f.severity === "block");
   const hasWarn = findings.some((f) => f.severity === "warn");
 
+  // Pre-Flight language only — never emit HōMI assessment badges
+  // (READY / ALMOST THERE / BUILD FIRST). DO NOT PROCEED here is the
+  // Pre-Flight verdict, not a scored HōMI badge.
   let verdict: PreflightVerdict;
   let badge: string;
   if (hasBlock || assessmentVerdict === "NOT_YET") {
@@ -210,7 +213,7 @@ export function runPreflight(input: PreflightInput): PreflightResult {
     assessmentVerdict === "ALMOST_THERE"
   ) {
     verdict = "WAIT";
-    badge = "WAIT / BUILD FIRST";
+    badge = "WAIT";
   } else {
     verdict = "PROCEED_WITH_CARE";
     badge = "PROCEED WITH CARE";
