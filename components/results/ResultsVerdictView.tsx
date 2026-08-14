@@ -45,9 +45,11 @@ export function ResultsVerdictView({
   nextSteps: string[];
 }) {
   const { result, kind } = stored;
+  // Compare on a raw string before any union narrowing (TS2367).
+  const isShadowRead = isShadowAssessmentKind(String(kind));
 
   // Packet B: leftover kind:"shadow" must never print a HōMI-Score.
-  if (isShadowAssessmentKind(kind)) {
+  if (isShadowRead) {
     return (
       <div className="mx-auto max-w-xl px-4 py-24 text-center">
         <div className="glass p-10">
@@ -434,11 +436,8 @@ export function ResultsVerdictView({
             Save your progress
           </Link>
         )}
-        <Link
-          href={isShadowAssessmentKind(kind) ? "/assessment" : "/shadow-score"}
-          className="btn btn-ghost"
-        >
-          {isShadowAssessmentKind(kind) ? "Take the full assessment" : "Retake the assessment"}
+        <Link href={isShadowRead ? "/assessment" : "/shadow-score"} className="btn btn-ghost">
+          {isShadowRead ? "Take the full assessment" : "Retake the assessment"}
         </Link>
         {stored.serverId && fullReport && (
           <Link href={`/report/${stored.serverId}`} className="btn btn-ghost">

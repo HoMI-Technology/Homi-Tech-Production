@@ -161,7 +161,7 @@ describe("assessments APIs reject or skip shadow as a score", () => {
     expect(route).toContain("isShadowAssessmentKind");
     expect(route).toMatch(/Shadow reads are not assessments/);
     expect(route).toMatch(/status:\s*400/);
-    expect(route).toContain("is_shadow: isShadowAssessmentKind(kind)");
+    expect(route).toContain("is_shadow: isShadowRead");
   });
 
   it("GET /api/assessments/latest excludes is_shadow rows", () => {
@@ -184,7 +184,7 @@ describe("/results does not paint leftover shadow as a HōMI-Score", () => {
     const view = readFileSync(join(process.cwd(), "components/results/ResultsVerdictView.tsx"), "utf8");
     expect(view).toContain("isShadowAssessmentKind");
     expect(view).toContain('href="/assessment"');
-    const guardStart = view.indexOf("if (isShadowAssessmentKind(kind))");
+    const guardStart = view.indexOf("if (isShadowRead)");
     const guardEnd = view.indexOf("const meta = VERDICT_META");
     const shadowGuard = view.slice(guardStart, guardEnd);
     expect(shadowGuard).toContain('href="/assessment"');
