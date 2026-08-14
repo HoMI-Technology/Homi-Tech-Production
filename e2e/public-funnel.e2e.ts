@@ -14,9 +14,17 @@ test("landing page loads and routes into the Shadow Score", async ({ page }) => 
 });
 
 test("landing page exposes the waitlist capture", async ({ page }) => {
-  await page.goto("/");
-  await expect(page.locator("#landing-waitlist-email")).toBeAttached();
-  await expect(page.getByRole("button", { name: /get notified/i })).toBeAttached();
+  // Capture lives at #waitlist, below a long cinematic landing page (420vh
+  // pin-scene + many sections). Hash-navigate so the section is the contract,
+  // then scroll and assert the real form — email + submit. Do not weaken
+  // this into a "section exists" no-op.
+  await page.goto("/#waitlist");
+  const section = page.locator("#waitlist");
+  await expect(section).toBeAttached({ timeout: 45_000 });
+  await section.scrollIntoViewIfNeeded();
+  const email = section.locator("#landing-waitlist-email");
+  await expect(email).toBeVisible();
+  await expect(section.getByRole("button", { name: /^get notified$/i })).toBeVisible();
 });
 
 test("Shadow Score flow renders its first step", async ({ page }) => {

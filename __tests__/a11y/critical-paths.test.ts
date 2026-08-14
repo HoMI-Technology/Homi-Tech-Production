@@ -45,7 +45,10 @@ describe("a11y — assessment forms have accessible labels", () => {
 
 describe("a11y — heading hierarchy on verdict page", () => {
   it("results page has h1 before any h2 in source order", () => {
-    const src = readSource("app", "(product)", "results", "page.tsx");
+    const empty = readSource("app", "(product)", "results", "page.tsx");
+    expect(empty.indexOf("<h1")).toBeGreaterThanOrEqual(0);
+
+    const src = readSource("components", "results", "ResultsVerdictView.tsx");
     const h1Index = src.indexOf("<h1");
     const h2Index = src.indexOf("<h2");
     expect(h1Index).toBeGreaterThanOrEqual(0);
