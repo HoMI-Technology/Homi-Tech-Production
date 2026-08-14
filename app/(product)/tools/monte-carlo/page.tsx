@@ -94,7 +94,7 @@ function MonteCarloPageInner() {
   return (
     <ToolShell
       title="Monte Carlo Projection"
-      description={`Markets don't move in a straight line. This runs simulated paths for your savings and shows the range of realistic outcomes — not just one optimistic average.`}
+      description="Simulated paths. Not a forecast."
     >
       <SavedNumbersStrip />
 
