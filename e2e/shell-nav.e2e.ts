@@ -28,9 +28,10 @@ test.describe("signed-in shell navigation", () => {
       }
 
       await page.getByRole("button", { name: "More" }).click();
-      await expect(page.getByRole("menuitem", { name: "Companion" })).toBeVisible();
-      await page.getByRole("menuitem", { name: "Companion" }).click();
-      await expect(page).toHaveURL(/\/advisor/);
+      await expect(page.getByRole("menuitem", { name: "Journal" })).toBeVisible();
+      await expect(page.getByRole("menuitem", { name: "Companion" })).toHaveCount(0);
+      await page.getByRole("menuitem", { name: "Journal" }).click();
+      await expect(page).toHaveURL(/\/journal/);
 
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto("/dashboard");
@@ -95,7 +96,8 @@ test.describe("signed-in shell navigation", () => {
 test.describe("shell nav config (always-on)", () => {
   test("PRIMARY and More exports stay coherent", async () => {
     expect(APP_PRIMARY_NAV[0].href).toBe("/dashboard");
-    expect(APP_MORE_NAV.some((i) => i.href === "/advisor")).toBe(true);
+    expect(APP_MORE_NAV.some((i) => i.href === "/advisor")).toBe(false);
+    expect(APP_MORE_NAV.some((i) => i.href === "/journal")).toBe(true);
   });
 
   test("anonymous report path redirects to sign-in with next", async ({ page }) => {

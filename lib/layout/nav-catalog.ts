@@ -33,7 +33,7 @@ export type NavCatalogEntry = {
 /**
  * Canonical ordered catalog. Header lists preserve this order; the palette
  * catalog does too. Order conventions: primary bar first, palette-only quick
- * actions, then the More journey (path -> planning -> journal/companion ->
+ * actions, then the More journey (path -> planning -> journal ->
  * insight surfaces -> money/life), then role dashboards + settings.
  */
 export const NAV_CATALOG: readonly NavCatalogEntry[] = [
@@ -51,7 +51,7 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     label: "Agents",
     paletteLabel: "AI Agents roster",
     group: "Act",
-    keywords: "agent os ensemble homie scout",
+    keywords: "agent os ensemble",
     flag: "agentOs",
     surfaces: { header: "primary", palette: true },
   },
@@ -156,7 +156,8 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     surfaces: { palette: false },
   },
 
-  // Header MORE: journal + companion
+  // Header MORE: journal. Companion chat stays on /advisor (widget +
+  // palette) — not a More / header tab.
   {
     href: "/journal",
     label: "Journal",
@@ -170,7 +171,7 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     paletteLabel: "Talk to the Companion",
     group: "Act",
     keywords: "chat advisor ai talk",
-    surfaces: { header: "more", palette: true },
+    surfaces: { palette: true },
   },
 
   // Launch-hidden insight labs (routes exist; not in header More or palette)
