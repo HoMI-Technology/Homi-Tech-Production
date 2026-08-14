@@ -94,7 +94,7 @@ describe("lens registry", () => {
     expect(hubCopy).not.toMatch(/\b10,000\b/);
     expect(chainPitches).not.toMatch(/\b1,000\b/);
     expect(chainPitches).not.toMatch(/\b10,000\b/);
-    expect(getLens("monte-carlo")!.desc).toMatch(/simulated paths/i);
+    expect(getLens("monte-carlo")!.desc).toBe("Simulated paths. Not a forecast.");
     expect(getLens("roth-conversion")!.desc).toMatch(/not a recommendation/i);
   });
 

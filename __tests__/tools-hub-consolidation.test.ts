@@ -15,11 +15,13 @@ function read(rel: string): string {
 describe("tools hub consolidation lock", () => {
   it("hub page renders hubLenses only — no 18-calculators marketing", () => {
     const src = read("app/(product)/tools/page.tsx");
-    expect(src).toMatch(/hubLenses/);
     expect(src).toMatch(/hubLensesByRing/);
     expect(src).not.toMatch(/LENSES\.length/);
     expect(src).not.toMatch(/18 calculators/i);
     expect(src).not.toMatch(/Open calculator/);
+    expect(src).toMatch(/Open lens/);
+    expect(src).toMatch(/Decision math/);
+    expect(src).toMatch(/Lenses for the math\. Not a catalog\./);
     expect(src).not.toMatch(/href=["']\/simulator["']/);
     expect(src).not.toMatch(/href=["']\/scenarios["']/);
     expect(src).toMatch(/Educational estimates/);

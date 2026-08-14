@@ -798,7 +798,7 @@ export const LENSES: LensDefinition[] = [
     id: "monte-carlo",
     path: "/tools/monte-carlo",
     name: "Monte Carlo Projection",
-    desc: "Simulated paths — markets don’t move in a straight line.",
+    desc: "Simulated paths. Not a forecast.",
     ring: "timing",
     accent: "#22d3ee",
     gate: "plus",

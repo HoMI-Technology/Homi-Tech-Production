@@ -9,7 +9,7 @@ test.describe("Money Reality — public funnel", () => {
     const res = await page.goto("/tools");
     expect(res?.status()).toBeLessThan(400);
     await expect(page.getByRole("heading", { name: "Tools" })).toBeVisible();
-    await expect(page.getByText(/lenses/i).first()).toBeVisible();
+    await expect(page.getByText(/Lenses for the math\. Not a catalog\./i)).toBeVisible();
   });
 
   test("individual calculator stays public with public back link", async ({ page }) => {

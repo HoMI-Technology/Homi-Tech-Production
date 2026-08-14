@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { RING_META, RING_ORDER, hubLenses, hubLensesByRing } from "@/lib/tools/registry";
+import { RING_META, RING_ORDER, hubLensesByRing } from "@/lib/tools/registry";
 import { getCachedUser } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -18,17 +18,15 @@ export const metadata: Metadata = {
 export default async function ToolsHubPage() {
   const user = await getCachedUser();
   const signedIn = !!user;
-  const count = hubLenses().length;
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-10 sm:py-12">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="eyebrow">Decision math · public</p>
+          <p className="eyebrow">Decision math</p>
           <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">Tools</h1>
           <p className="mt-2 max-w-2xl text-dim">
-            No hype, no black boxes — the math behind decisions that matter, laid out plainly.{" "}
-            {count} lenses.{" "}
+            Lenses for the math. Not a catalog.{" "}
             {signedIn
               ? "Educational estimates only — pre-filled from your ledger."
               : "Educational estimates. Not a HōMI verdict."}
@@ -66,9 +64,6 @@ export default async function ToolsHubPage() {
                   </h2>
                   <p className="mt-1 max-w-xl text-sm text-dim">{meta.subtitle}</p>
                 </div>
-                <span className="score-numeral text-xs text-dim/70">
-                  {lenses.length} {lenses.length === 1 ? "lens" : "lenses"}
-                </span>
               </div>
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
