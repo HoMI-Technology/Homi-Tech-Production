@@ -17,7 +17,9 @@ export interface ContextActionInput {
 const PILLAR_TOOL: Record<PillarKey, string> = {
   // Money Reality: signed-in financial work happens in Decide, not the public hub.
   financial: "/money/decide",
-  emotional: "/advisor",
+  // Companion chat is not a next-move / featured launcher — journal is the
+  // customer surface for Emotional Truth (same as Path's emotional steps).
+  emotional: "/journal",
   // Timing lab (/signals) stays launch-hidden — Path is the customer surface.
   timing: "/path",
 };
