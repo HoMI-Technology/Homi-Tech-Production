@@ -15,6 +15,7 @@ import {
 import { sendLifecycleEmail } from "@/lib/email/send";
 import { verdictEmail } from "@/lib/email/templates";
 import { captureServerEvent } from "@/lib/analytics/server";
+import { isShadowAssessmentKind } from "@/lib/assessment/storage";
 
 const bodySchema = z.object({
   inputs: assessmentInputsSchema,
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest) {
     const { inputs, kind, decisionType } = parsed.data;
 
     // Packet B: a shadow read is not an assessment. Do not score or persist it.
-    if (kind === "shadow") {
+    if (isShadowAssessmentKind(kind)) {
       return NextResponse.json(
         { error: "Shadow reads are not assessments.", saved: false },
         { status: 400 },
@@ -136,7 +137,7 @@ export async function POST(req: NextRequest) {
           nextSteps: generateNextSteps(result),
         },
         hard_stops: result.hardStops,
-        is_shadow: false,
+        is_shadow: isShadowAssessmentKind(kind),
         completed_at: new Date().toISOString(),
       })
       .select("id")

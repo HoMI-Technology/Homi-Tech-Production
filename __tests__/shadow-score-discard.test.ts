@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { computeScore, type AssessmentInputs } from "@/lib/scoring";
 import {
   isScoreShapedShadow,
+  isShadowAssessmentKind,
   loadLocalResult,
   saveLocalResult,
   type StoredAssessment,
@@ -80,6 +81,8 @@ describe("kind:shadow cannot become a HōMI-Score", () => {
       "homi-latest-verdict",
       JSON.stringify({ verdict: leftover.result.verdict, score: leftover.result.score, heldDays: 0 }),
     );
+    expect(isShadowAssessmentKind("shadow")).toBe(true);
+    expect(isShadowAssessmentKind("full")).toBe(false);
     expect(isScoreShapedShadow(leftover)).toBe(true);
     expect(loadLocalResult()).toBeNull();
     expect(window.localStorage.getItem("homi:last-assessment")).toBeNull();
@@ -155,9 +158,10 @@ describe("mapAssessmentRowToStored discards is_shadow rows", () => {
 describe("assessments APIs reject or skip shadow as a score", () => {
   it("POST /api/assessments refuses kind:shadow before insert", () => {
     const route = readFileSync(join(process.cwd(), "app/api/assessments/route.ts"), "utf8");
-    expect(route).toMatch(/kind === ["']shadow["']/);
+    expect(route).toContain("isShadowAssessmentKind");
     expect(route).toMatch(/Shadow reads are not assessments/);
     expect(route).toMatch(/status:\s*400/);
+    expect(route).toContain("is_shadow: isShadowAssessmentKind(kind)");
   });
 
   it("GET /api/assessments/latest excludes is_shadow rows", () => {
@@ -178,9 +182,9 @@ describe("/results does not paint leftover shadow as a HōMI-Score", () => {
 
   it("ResultsVerdictView refuses to print a score for kind:shadow", () => {
     const view = readFileSync(join(process.cwd(), "components/results/ResultsVerdictView.tsx"), "utf8");
-    expect(view).toMatch(/kind === ["']shadow["']/);
+    expect(view).toContain("isShadowAssessmentKind");
     expect(view).toContain('href="/assessment"');
-    const guardStart = view.indexOf('if (kind === "shadow")');
+    const guardStart = view.indexOf("if (isShadowAssessmentKind(kind))");
     const guardEnd = view.indexOf("const meta = VERDICT_META");
     const shadowGuard = view.slice(guardStart, guardEnd);
     expect(shadowGuard).toContain('href="/assessment"');

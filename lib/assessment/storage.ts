@@ -109,11 +109,20 @@ export function writeSidebarVerdict(data: StoredAssessment): void {
   }
 }
 
+/**
+ * Packet B neutralize. Takes `string` on purpose — not a type predicate —
+ * so a reject/empty-state return does not narrow `kind` to `"full"` and
+ * make later leftover-shadow checks look unintentional to tsc (TS2367).
+ */
+export function isShadowAssessmentKind(kind: string): boolean {
+  return kind === "shadow";
+}
+
 /** True when a stored payload is a leftover score-shaped shadow read. */
 export function isScoreShapedShadow(
   stored: StoredAssessment | null | undefined,
 ): stored is StoredAssessment {
-  return !!stored && stored.kind === "shadow";
+  return !!stored && isShadowAssessmentKind(stored.kind);
 }
 
 function discardScoreShapedShadowFromDevice(): void {

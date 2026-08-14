@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { LEGAL_DISCLAIMER, PILLARS, VERDICT_META } from "@/lib/brand";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
-import type { StoredAssessment } from "@/lib/assessment/storage";
+import { isShadowAssessmentKind, type StoredAssessment } from "@/lib/assessment/storage";
 import { deriveConflictSignals } from "@/lib/conflict/engine";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
@@ -47,7 +47,7 @@ export function ResultsVerdictView({
   const { result, kind } = stored;
 
   // Packet B: leftover kind:"shadow" must never print a HōMI-Score.
-  if (kind === "shadow") {
+  if (isShadowAssessmentKind(kind)) {
     return (
       <div className="mx-auto max-w-xl px-4 py-24 text-center">
         <div className="glass p-10">
@@ -434,8 +434,11 @@ export function ResultsVerdictView({
             Save your progress
           </Link>
         )}
-        <Link href="/shadow-score" className="btn btn-ghost">
-          Retake the assessment
+        <Link
+          href={isShadowAssessmentKind(kind) ? "/assessment" : "/shadow-score"}
+          className="btn btn-ghost"
+        >
+          {isShadowAssessmentKind(kind) ? "Take the full assessment" : "Retake the assessment"}
         </Link>
         {stored.serverId && fullReport && (
           <Link href={`/report/${stored.serverId}`} className="btn btn-ghost">
