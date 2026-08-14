@@ -86,6 +86,17 @@ describe("perf bundle guards (Lighthouse §11 + E2E coexistence)", () => {
     expect(code).not.toMatch(/["']@\/lib\/scoring["']/);
   });
 
+  it("results page lazy-loads the verdict view (empty /results stays off Path/trail)", () => {
+    const page = codeOnly(src("app/(product)/results/page.tsx"));
+    expect(page).toMatch(/next\/dynamic/);
+    expect(page).toMatch(/ResultsVerdictView/);
+    expect(page).toMatch(/import\s*\(\s*["']@\/components\/results\/ResultsVerdictView["']\s*\)/);
+    expect(page).not.toMatch(/from\s+["']@\/components\/readiness["']/);
+    expect(page).not.toMatch(/from\s+["']@\/components\/results\/ReasoningTrail["']/);
+    expect(page).not.toMatch(/from\s+["']@\/components\/share\/ShareScoreButton["']/);
+    expect(page).not.toMatch(/from\s+["']@\/lib\/conflict\/engine["']/);
+  });
+
   it("housing readiness uses the batch API, not readiness-bands on the client", () => {
     const code = codeOnly(src("hooks/use-housing-readiness.ts"));
     expect(code).toMatch(/fetchSimulatorBatch/);
