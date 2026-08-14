@@ -68,21 +68,36 @@ describe("POST /api/scoring full result (6.2)", () => {
 });
 
 describe("assessment flows do not import the engine (6.2 source guard)", () => {
-  it("FullAssessmentFlow and ShadowScoreFlow avoid @/lib/scoring value imports", async () => {
+  it("FullAssessmentFlow avoids @/lib/scoring value imports and scores via the server", async () => {
     const { readFileSync } = await import("node:fs");
     const { join } = await import("node:path");
-    for (const rel of [
-      "components/assessment/FullAssessmentFlow.tsx",
-      "components/assessment/ShadowScoreFlow.tsx",
-    ]) {
-      // Strip comments so docs that name computeScore don't false-fail.
-      const raw = readFileSync(join(process.cwd(), rel), "utf8");
-      const src = raw.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
-      expect(src).not.toMatch(/from\s+["']@\/lib\/scoring["']/);
-      expect(src).not.toMatch(/\bcomputeScore\b/);
-      expect(src).not.toMatch(/\bcomputeShadowScore\b/);
-      expect(src).toMatch(/fetchServerScore/);
-    }
+    const raw = readFileSync(join(process.cwd(), "components/assessment/FullAssessmentFlow.tsx"), "utf8");
+    const src = raw.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+    expect(src).not.toMatch(/from\s+["']@\/lib\/scoring["']/);
+    expect(src).not.toMatch(/\bcomputeScore\b/);
+    expect(src).not.toMatch(/\bcomputeShadowScore\b/);
+    expect(src).toMatch(/fetchServerScore/);
+  });
+
+  it("ShadowScoreFlow is a read — no engine, no /results, no score persist", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const raw = readFileSync(join(process.cwd(), "components/assessment/ShadowScoreFlow.tsx"), "utf8");
+    const src = raw.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+    expect(src).not.toMatch(/from\s+["']@\/lib\/scoring["']/);
+    expect(src).not.toMatch(/\bcomputeScore\b/);
+    expect(src).not.toMatch(/\bcomputeShadowScore\b/);
+    expect(src).not.toMatch(/\bfetchServerScore\b/);
+    expect(src).not.toMatch(/saveLocalResult/);
+    expect(src).not.toMatch(/\/api\/assessments/);
+    expect(src).not.toMatch(/\/api\/scoring/);
+    expect(src).not.toMatch(/router\.push\s*\(\s*["']\/results["']/);
+    expect(src).not.toMatch(/CountUpScore/);
+    expect(src).not.toMatch(/VerdictBadge/);
+    expect(src).not.toMatch(/HōMI-Score/);
+    expect(src).not.toMatch(/See my Shadow Score/);
+    expect(src).not.toMatch(/Check My Readiness/);
+    expect(src).not.toMatch(/get your score/i);
   });
 });
 

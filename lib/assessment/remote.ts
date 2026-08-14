@@ -47,6 +47,7 @@ export function mapAssessmentRowToStored(row: AssessmentRow): StoredAssessment |
     decision_type,
   } = row;
 
+  if (is_shadow) return null;
   if (overall_score === null || verdict === null || !sub_scores || !inputs) return null;
 
   const subScores = sub_scores as {

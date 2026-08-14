@@ -1,6 +1,6 @@
 /**
- * Client-side draft persistence for the Shadow Score funnel (/shadow-score).
- * Same contract as the full assessment draft: versioned localStorage, SSR-safe.
+ * In-progress answers for the /shadow-score read.
+ * Session only — never a score, band, or verdict. SSR-safe.
  */
 
 export const SHADOW_DRAFT_KEY = "homi:shadow-draft";
@@ -73,16 +73,25 @@ export function saveShadowDraft(form: ShadowDraftForm, index: number): void {
       index,
       updatedAt: new Date().toISOString(),
     };
-    window.localStorage.setItem(SHADOW_DRAFT_KEY, JSON.stringify(envelope));
+    window.sessionStorage.setItem(SHADOW_DRAFT_KEY, JSON.stringify(envelope));
   } catch {
     // ignore
   }
 }
 
-export function loadShadowDraft(maxStepIndex = 5): ShadowDraft | null {
-  if (typeof window === "undefined") return null;
+function discardLegacyLocalDraft(): void {
   try {
-    const raw = window.localStorage.getItem(SHADOW_DRAFT_KEY);
+    window.localStorage.removeItem(SHADOW_DRAFT_KEY);
+  } catch {
+    // ignore
+  }
+}
+
+export function loadShadowDraft(maxStepIndex = 2): ShadowDraft | null {
+  if (typeof window === "undefined") return null;
+  discardLegacyLocalDraft();
+  try {
+    const raw = window.sessionStorage.getItem(SHADOW_DRAFT_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<Envelope> | null;
     if (!parsed || typeof parsed !== "object") return null;
@@ -105,8 +114,9 @@ export function loadShadowDraft(maxStepIndex = 5): ShadowDraft | null {
 
 export function clearShadowDraft(): void {
   if (typeof window === "undefined") return;
+  discardLegacyLocalDraft();
   try {
-    window.localStorage.removeItem(SHADOW_DRAFT_KEY);
+    window.sessionStorage.removeItem(SHADOW_DRAFT_KEY);
   } catch {
     // ignore
   }

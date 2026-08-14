@@ -6,9 +6,10 @@ import { createClient } from "@/lib/supabase/server";
  *
  * Returns the signed-in user's most recent completed assessment row, or
  * `{ assessment: null }` when anonymous, on any error, or when the user has
- * no completed assessment yet. Always 200 — this endpoint is a best-effort
- * fallback source for /results and /plan, never a hard dependency, so it
- * fails safe rather than surfacing errors the client would have to branch on.
+ * no completed full assessment yet. Shadow rows are excluded — they are not
+ * a HōMI-Score. Always 200 — this endpoint is a best-effort fallback source
+ * for /results and /plan, never a hard dependency, so it fails safe rather
+ * than surfacing errors the client would have to branch on.
  */
 export async function GET() {
   try {
@@ -26,6 +27,7 @@ export async function GET() {
       .select("*")
       .eq("user_id", user.id)
       .eq("status", "completed")
+      .eq("is_shadow", false)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();

@@ -30,6 +30,7 @@ describe("shadow score draft persistence", () => {
   beforeEach(() => {
     (globalThis as unknown as { window: Window }).window = {
       localStorage: createMockStorage(),
+      sessionStorage: createMockStorage(),
     } as unknown as Window;
   });
 
@@ -56,7 +57,7 @@ describe("shadow score draft persistence", () => {
   });
 
   it("invalidates version mismatches", () => {
-    window.localStorage.setItem(
+    window.sessionStorage.setItem(
       SHADOW_DRAFT_KEY,
       JSON.stringify({
         version: SHADOW_DRAFT_VERSION - 1,
@@ -73,5 +74,19 @@ describe("shadow score draft persistence", () => {
     expect(loadShadowDraft()).not.toBeNull();
     clearShadowDraft();
     expect(loadShadowDraft()).toBeNull();
+  });
+
+  it("discards leftover localStorage drafts from the old score flow", () => {
+    window.localStorage.setItem(
+      SHADOW_DRAFT_KEY,
+      JSON.stringify({
+        version: SHADOW_DRAFT_VERSION,
+        form: { ...INITIAL_SHADOW_FORM, monthlyGrossIncome: 9000 },
+        index: 4,
+        updatedAt: new Date().toISOString(),
+      }),
+    );
+    expect(loadShadowDraft()).toBeNull();
+    expect(window.localStorage.getItem(SHADOW_DRAFT_KEY)).toBeNull();
   });
 });

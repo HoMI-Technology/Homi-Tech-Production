@@ -41,6 +41,14 @@ export async function POST(req: NextRequest) {
     }
     const { inputs, kind, decisionType } = parsed.data;
 
+    // Packet B: a shadow read is not an assessment. Do not score or persist it.
+    if (kind === "shadow") {
+      return NextResponse.json(
+        { error: "Shadow reads are not assessments.", saved: false },
+        { status: 400 },
+      );
+    }
+
     const supabase = await createClient();
     const {
       data: { user },

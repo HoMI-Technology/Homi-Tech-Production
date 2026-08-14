@@ -75,8 +75,9 @@ export interface StoredAssessment {
  * Mirrors the verdict + score of a stored assessment onto the sidebar's key so
  * the signed-in rail (components/layout/SidebarDecisionState.tsx, read-only by
  * construction) reflects the latest result. This is the canonical write path:
- * every save route — full assessment, shadow score, onboarding replay — goes
- * through saveLocalResult and therefore through here.
+ * every save route — full assessment, onboarding replay — goes
+ * through saveLocalResult and therefore through here. Packet B: kind
+ * "shadow" is not a score and must never be written here.
  *
  * Its own try/catch on purpose, separate from the full-payload write: the
  * mirror is a few dozen bytes and can still land when the whole assessment blob
@@ -108,9 +109,27 @@ export function writeSidebarVerdict(data: StoredAssessment): void {
   }
 }
 
+/** True when a stored payload is a leftover score-shaped shadow read. */
+export function isScoreShapedShadow(
+  stored: StoredAssessment | null | undefined,
+): stored is StoredAssessment {
+  return !!stored && stored.kind === "shadow";
+}
+
+function discardScoreShapedShadowFromDevice(): void {
+  try {
+    window.localStorage.removeItem(STORAGE_KEY);
+    window.localStorage.removeItem(SIDEBAR_VERDICT_KEY);
+  } catch {
+    // ignore
+  }
+}
+
 /** Persists the last assessment result to localStorage. No-op on the server or on failure. */
 export function saveLocalResult(data: StoredAssessment): void {
   if (typeof window === "undefined") return;
+  // Packet B: never persist a shadow read as a score / band / verdict.
+  if (isScoreShapedShadow(data)) return;
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch {
@@ -127,6 +146,10 @@ export function loadLocalResult(): StoredAssessment | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as StoredAssessment;
     if (!parsed || typeof parsed !== "object" || !parsed.inputs || !parsed.result) return null;
+    if (isScoreShapedShadow(parsed)) {
+      discardScoreShapedShadowFromDevice();
+      return null;
+    }
     return parsed;
   } catch {
     return null;
@@ -146,7 +169,7 @@ export function clearLocalResult(): void {
 /**
  * Attaches the server-side assessments.id to the currently stored result once
  * the background POST to /api/assessments resolves. No-op if nothing is
- * stored yet (e.g. anonymous shadow score with no local result).
+ * stored yet (e.g. anonymous guest with no local result).
  */
 export function attachServerId(id: string): void {
   if (typeof window === "undefined") return;
