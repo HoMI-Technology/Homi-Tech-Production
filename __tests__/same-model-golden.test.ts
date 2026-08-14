@@ -22,17 +22,20 @@ import { deriveAnchors, simulate } from "@/lib/simulator";
 import { MONTE_CARLO_ENGINE } from "@/lib/tools/montecarlo";
 import { getLens } from "@/lib/tools/registry";
 import {
+  DECIDE_MC_DEFAULTS,
   SAME_MODEL_DOLLAR_TOLERANCE,
   SAME_MODEL_GOLDEN_LEDGER,
   SAME_MODEL_RATE_TOLERANCE,
+  TOOLS_MC_DEFAULTS,
   affordabilityHousingPaymentFromLedger,
   affordabilityInputsFromLedger,
-  monteCarloInputsFromLedger,
+  decideMonteCarloInputsFromLedger,
   monthlyContributionFromLedger,
   rehearseHousingPaymentFromLedger,
   rehearseInputsFromLedger,
   runDecideMonteCarlo,
   runToolsMonteCarlo,
+  toolsMonteCarloInputsFromLedger,
 } from "@/lib/tools/same-model";
 import { scenarioInputsFromFinance } from "@/lib/readiness/scenario";
 import { DEFAULT_SIMULATION_INPUTS } from "@/lib/decisions/simulate";
@@ -51,19 +54,56 @@ describe("Wave 1 same-model golden — Monte Carlo", () => {
     expect(SAME_MODEL_RATE_TOLERANCE).toBe(1e-6);
   });
 
+  it("keeps Tools and Decide surface defaults as independent objects", () => {
+    expect(TOOLS_MC_DEFAULTS).not.toBe(DECIDE_MC_DEFAULTS);
+    expect(toolsMonteCarloInputsFromLedger).not.toBe(decideMonteCarloInputsFromLedger);
+    expect(runToolsMonteCarlo).not.toBe(runDecideMonteCarlo);
+    const src = read("lib/tools/same-model.ts");
+    expect(src).toMatch(/function toolsMonteCarloInputsFromLedger[\s\S]*TOOLS_MC_DEFAULTS/);
+    expect(src).toMatch(/function decideMonteCarloInputsFromLedger[\s\S]*DECIDE_MC_DEFAULTS/);
+    expect(src).not.toMatch(
+      /export function runDecideMonteCarlo[\s\S]{0,80}runToolsMonteCarlo/,
+    );
+    expect(src).not.toMatch(
+      /export function runToolsMonteCarlo[\s\S]{0,80}runDecideMonteCarlo/,
+    );
+  });
+
   it("Tools MC and Decide MC agree on the golden ledger within tolerance", () => {
+    const toolsInputs = toolsMonteCarloInputsFromLedger(GOLDEN);
+    const decideInputs = decideMonteCarloInputsFromLedger(GOLDEN);
+
+    expect(toolsInputs.currentSavings).toBe(GOLDEN.investedAssets);
+    expect(decideInputs.currentSavings).toBe(GOLDEN.investedAssets);
+    expect(toolsInputs.monthlyContribution).toBe(monthlyContributionFromLedger(GOLDEN));
+    expect(decideInputs.monthlyContribution).toBe(monthlyContributionFromLedger(GOLDEN));
+
+    expect(toolsInputs.years).toBe(TOOLS_MC_DEFAULTS.years);
+    expect(decideInputs.years).toBe(DECIDE_MC_DEFAULTS.years);
+    expect(toolsInputs.seed).toBe(TOOLS_MC_DEFAULTS.seed);
+    expect(decideInputs.seed).toBe(DECIDE_MC_DEFAULTS.seed);
+    expect(toolsInputs.runs).toBe(TOOLS_MC_DEFAULTS.runs);
+    expect(decideInputs.runs).toBe(DECIDE_MC_DEFAULTS.runs);
+    expect(toolsInputs.jobLossProb).toBe(TOOLS_MC_DEFAULTS.jobLossProb);
+    expect(decideInputs.jobLossProb).toBe(DECIDE_MC_DEFAULTS.jobLossProb);
+    expect(toolsInputs.maintenanceShock).toBe(TOOLS_MC_DEFAULTS.maintenanceShock);
+    expect(decideInputs.maintenanceShock).toBe(DECIDE_MC_DEFAULTS.maintenanceShock);
+    expect(toolsInputs.incomeGrowth).toBe(TOOLS_MC_DEFAULTS.incomeGrowth);
+    expect(decideInputs.incomeGrowth).toBe(DECIDE_MC_DEFAULTS.incomeGrowth);
+    expect(toolsInputs.targetAmount).toBe(TOOLS_MC_DEFAULTS.targetAmount);
+    expect(decideInputs.targetAmount).toBe(DECIDE_MC_DEFAULTS.targetAmount);
+
+    expect(decideInputs.years).toBe(toolsInputs.years);
+    expect(decideInputs.seed).toBe(toolsInputs.seed);
+    expect(decideInputs.runs).toBe(toolsInputs.runs);
+    expect(decideInputs.jobLossProb).toBe(toolsInputs.jobLossProb);
+    expect(decideInputs.maintenanceShock).toBe(toolsInputs.maintenanceShock);
+    expect(decideInputs.incomeGrowth).toBe(toolsInputs.incomeGrowth);
+    expect(decideInputs.targetAmount).toBe(toolsInputs.targetAmount);
+
     const tools = runToolsMonteCarlo(GOLDEN);
     const decide = runDecideMonteCarlo(GOLDEN);
-    const inputs = monteCarloInputsFromLedger(GOLDEN);
 
-    expect(inputs.seed).toBe(MONTE_CARLO_ENGINE.seed);
-    expect(inputs.runs).toBe(MONTE_CARLO_ENGINE.runs);
-    expect(inputs.currentSavings).toBe(GOLDEN.investedAssets);
-    expect(inputs.monthlyContribution).toBe(monthlyContributionFromLedger(GOLDEN));
-
-    expect(decide.finalP10).toBeCloseTo(tools.finalP10, 2);
-    expect(decide.finalP50).toBeCloseTo(tools.finalP50, 2);
-    expect(decide.finalP90).toBeCloseTo(tools.finalP90, 2);
     expect(Math.abs(decide.finalP10 - tools.finalP10)).toBeLessThanOrEqual(
       SAME_MODEL_DOLLAR_TOLERANCE,
     );
@@ -79,19 +119,28 @@ describe("Wave 1 same-model golden — Monte Carlo", () => {
     expect(Math.abs(decide.distressRate - tools.distressRate)).toBeLessThanOrEqual(
       SAME_MODEL_RATE_TOLERANCE,
     );
+    expect(decide.probabilityOfTarget).not.toBeNull();
+    expect(tools.probabilityOfTarget).not.toBeNull();
+    expect(
+      Math.abs((decide.probabilityOfTarget as number) - (tools.probabilityOfTarget as number)),
+    ).toBeLessThanOrEqual(SAME_MODEL_RATE_TOLERANCE);
     expect(decide.bands).toHaveLength(tools.bands.length);
     for (let i = 0; i < tools.bands.length; i++) {
-      expect(decide.bands[i]!.p50).toBeCloseTo(tools.bands[i]!.p50, 2);
+      expect(Math.abs(decide.bands[i]!.p50 - tools.bands[i]!.p50)).toBeLessThanOrEqual(
+        SAME_MODEL_DOLLAR_TOLERANCE,
+      );
     }
   });
 
-  it("Decide panel and Tools page both pass MONTE_CARLO_ENGINE and print no run count", () => {
+  it("Decide panel and Tools page each bind their own surface defaults and print no run count", () => {
     const decideSrc = read("components/tools/TimingPanels.tsx");
     const toolsSrc = read("app/(product)/tools/monte-carlo/page.tsx");
     const planSrc = read("components/planner/plan/PlanModels.tsx");
 
-    expect(decideSrc).toMatch(/MONTE_CARLO_ENGINE/);
-    expect(toolsSrc).toMatch(/MONTE_CARLO_ENGINE/);
+    expect(toolsSrc).toMatch(/TOOLS_MC_DEFAULTS/);
+    expect(decideSrc).toMatch(/DECIDE_MC_DEFAULTS/);
+    expect(toolsSrc).not.toMatch(/DECIDE_MC_DEFAULTS/);
+    expect(decideSrc).not.toMatch(/TOOLS_MC_DEFAULTS/);
     expect(decideSrc).not.toMatch(/const MC_RUNS\s*=\s*1000/);
     expect(decideSrc).not.toMatch(/runs:\s*1000\b/);
     expect(toolsSrc).not.toMatch(/runs:\s*10000\b/);
@@ -99,6 +148,13 @@ describe("Wave 1 same-model golden — Monte Carlo", () => {
     expect(decideSrc).not.toMatch(/1,000 seeded|10,000 seeded/);
     expect(planSrc).not.toMatch(/\$\{MC_RUNS\.toLocaleString/);
     expect(planSrc).not.toMatch(/10,000 seeded runs|1,000 seeded/);
+  });
+
+  it("PlanModels does not invent a $400k house", () => {
+    const planSrc = read("components/planner/plan/PlanModels.tsx");
+    expect(planSrc).not.toMatch(/targetHomePrice\s*\|\|\s*400000/);
+    expect(planSrc).not.toMatch(/targetHomePrice\s*\|\|\s*400_000/);
+    expect(planSrc).toMatch(/homePrice:\s*readinessProfile\.targetHomePrice/);
   });
 
   it("hub/registry copy stays Simulated paths. Not a forecast.", () => {

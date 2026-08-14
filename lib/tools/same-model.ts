@@ -74,25 +74,81 @@ export function monthlyContributionFromLedger(ledger: SameModelLedger): number {
   );
 }
 
-/** Shared Tools / Decide MC inputs. Seed and runs come only from the engine. */
-export function monteCarloInputsFromLedger(ledger: SameModelLedger): MonteCarloInputs {
+/**
+ * Tools `/tools/monte-carlo` mount defaults. Independent object — do not
+ * alias this to DECIDE_MC_DEFAULTS. A later fork of years / seed / shocks /
+ * target must fail the golden test.
+ */
+export const TOOLS_MC_DEFAULTS = {
+  years: MONTE_CARLO_ENGINE.defaultYears,
+  seed: MONTE_CARLO_ENGINE.seed,
+  runs: MONTE_CARLO_ENGINE.runs,
+  expectedReturnPct: MONTE_CARLO_ENGINE.defaultReturnPct,
+  volatilityPct: MONTE_CARLO_ENGINE.defaultVolatilityPct,
+  jobLossProb: 0,
+  maintenanceShock: 0,
+  incomeGrowth: 0,
+  targetAmount: 150_000,
+};
+
+/**
+ * Money · Decide MonteCarloPanel mount defaults. Independent object — do not
+ * alias this to TOOLS_MC_DEFAULTS. Values match Tools today so the same
+ * ledger agrees; changing one surface's years / seed / shocks / target
+ * without the other fails CI.
+ */
+export const DECIDE_MC_DEFAULTS = {
+  years: MONTE_CARLO_ENGINE.defaultYears,
+  seed: MONTE_CARLO_ENGINE.seed,
+  runs: MONTE_CARLO_ENGINE.runs,
+  expectedReturnPct: MONTE_CARLO_ENGINE.defaultReturnPct,
+  volatilityPct: MONTE_CARLO_ENGINE.defaultVolatilityPct,
+  jobLossProb: 0,
+  maintenanceShock: 0,
+  incomeGrowth: 0,
+  targetAmount: 150_000,
+};
+
+/** Tools surface builder — reads TOOLS_MC_DEFAULTS only. */
+export function toolsMonteCarloInputsFromLedger(ledger: SameModelLedger): MonteCarloInputs {
   return {
     currentSavings: ledger.investedAssets,
     monthlyContribution: monthlyContributionFromLedger(ledger),
-    years: ledger.monteCarloYears,
-    expectedReturnPct: ledger.expectedReturnPct,
-    volatilityPct: ledger.volatilityPct,
-    seed: MONTE_CARLO_ENGINE.seed,
-    runs: MONTE_CARLO_ENGINE.runs,
+    years: TOOLS_MC_DEFAULTS.years,
+    expectedReturnPct: TOOLS_MC_DEFAULTS.expectedReturnPct,
+    volatilityPct: TOOLS_MC_DEFAULTS.volatilityPct,
+    targetAmount: TOOLS_MC_DEFAULTS.targetAmount > 0 ? TOOLS_MC_DEFAULTS.targetAmount : undefined,
+    jobLossProb: TOOLS_MC_DEFAULTS.jobLossProb,
+    maintenanceShock: TOOLS_MC_DEFAULTS.maintenanceShock,
+    incomeGrowth: TOOLS_MC_DEFAULTS.incomeGrowth,
+    seed: TOOLS_MC_DEFAULTS.seed,
+    runs: TOOLS_MC_DEFAULTS.runs,
+  };
+}
+
+/** Decide surface builder — reads DECIDE_MC_DEFAULTS only. */
+export function decideMonteCarloInputsFromLedger(ledger: SameModelLedger): MonteCarloInputs {
+  return {
+    currentSavings: ledger.investedAssets,
+    monthlyContribution: monthlyContributionFromLedger(ledger),
+    years: DECIDE_MC_DEFAULTS.years,
+    expectedReturnPct: DECIDE_MC_DEFAULTS.expectedReturnPct,
+    volatilityPct: DECIDE_MC_DEFAULTS.volatilityPct,
+    targetAmount: DECIDE_MC_DEFAULTS.targetAmount > 0 ? DECIDE_MC_DEFAULTS.targetAmount : undefined,
+    jobLossProb: DECIDE_MC_DEFAULTS.jobLossProb,
+    maintenanceShock: DECIDE_MC_DEFAULTS.maintenanceShock,
+    incomeGrowth: DECIDE_MC_DEFAULTS.incomeGrowth,
+    seed: DECIDE_MC_DEFAULTS.seed,
+    runs: DECIDE_MC_DEFAULTS.runs,
   };
 }
 
 export function runToolsMonteCarlo(ledger: SameModelLedger): MonteCarloResult {
-  return runMonteCarlo(monteCarloInputsFromLedger(ledger));
+  return runMonteCarlo(toolsMonteCarloInputsFromLedger(ledger));
 }
 
 export function runDecideMonteCarlo(ledger: SameModelLedger): MonteCarloResult {
-  return runMonteCarlo(monteCarloInputsFromLedger(ledger));
+  return runMonteCarlo(decideMonteCarloInputsFromLedger(ledger));
 }
 
 export function affordabilityInputsFromLedger(ledger: SameModelLedger): AffordabilityInputs {

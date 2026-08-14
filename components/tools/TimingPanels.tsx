@@ -13,7 +13,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { MONTE_CARLO_ENGINE, runMonteCarlo } from "@/lib/tools/montecarlo";
+import { runMonteCarlo } from "@/lib/tools/montecarlo";
+import { DECIDE_MC_DEFAULTS } from "@/lib/tools/same-model";
 import { computeCoastFire, computeFireNumber } from "@/lib/tools/fire";
 import { computeRothConversion } from "@/lib/tools/roth";
 import { formatCompactCurrency, formatCurrency, formatPercent } from "@/lib/tools/format";
@@ -47,13 +48,13 @@ export function MonteCarloPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: str
   const [monthlyContribution, setMonthlyContribution] = useState(
     seeds.monthlyCashFlow > 0 ? Math.round(seeds.monthlyCashFlow) : 0,
   );
-  const [years, setYears] = useState(MONTE_CARLO_ENGINE.defaultYears);
-  const [expectedReturn, setExpectedReturn] = useState(MONTE_CARLO_ENGINE.defaultReturnPct);
-  const [volatility, setVolatility] = useState(MONTE_CARLO_ENGINE.defaultVolatilityPct);
-  const [targetAmount, setTargetAmount] = useState(0);
+  const [years, setYears] = useState(DECIDE_MC_DEFAULTS.years);
+  const [expectedReturn, setExpectedReturn] = useState(DECIDE_MC_DEFAULTS.expectedReturnPct);
+  const [volatility, setVolatility] = useState(DECIDE_MC_DEFAULTS.volatilityPct);
+  const [targetAmount, setTargetAmount] = useState(DECIDE_MC_DEFAULTS.targetAmount);
 
-  /* Same engine as /tools/monte-carlo — identical inputs always produce
-   * identical bands. Memoized on the inputs alone so re-renders never re-roll. */
+  /* Decide-surface defaults. Independent of the Tools page bag. Memoized
+   * on the inputs alone so re-renders never re-roll. */
   const result = useMemo(
     () =>
       runMonteCarlo({
@@ -63,8 +64,11 @@ export function MonteCarloPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: str
         expectedReturnPct: expectedReturn,
         volatilityPct: volatility,
         targetAmount: targetAmount > 0 ? targetAmount : undefined,
-        runs: MONTE_CARLO_ENGINE.runs,
-        seed: MONTE_CARLO_ENGINE.seed,
+        jobLossProb: DECIDE_MC_DEFAULTS.jobLossProb,
+        maintenanceShock: DECIDE_MC_DEFAULTS.maintenanceShock,
+        incomeGrowth: DECIDE_MC_DEFAULTS.incomeGrowth,
+        runs: DECIDE_MC_DEFAULTS.runs,
+        seed: DECIDE_MC_DEFAULTS.seed,
       }),
     [currentSavings, monthlyContribution, years, expectedReturn, volatility, targetAmount],
   );

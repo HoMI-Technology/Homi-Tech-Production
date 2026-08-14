@@ -106,7 +106,7 @@ export default function PlanModels() {
   /* ---- Decision rehearsal ---- */
   const rehearsalInputs: SimulationInputs = useMemo(
     () => ({
-      homePrice: readinessProfile.targetHomePrice || 400000,
+      homePrice: readinessProfile.targetHomePrice,
       downPaymentSaved: readinessProfile.downPaymentSaved || 0,
       monthlySavings: Math.max(0, Math.round(finance.cashFlow)),
       rent: readinessProfile.currentRent || 0,
