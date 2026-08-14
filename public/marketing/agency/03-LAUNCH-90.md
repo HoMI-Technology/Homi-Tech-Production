@@ -215,8 +215,9 @@ Run the PH / directory slice of [`../gtm/LAUNCH_DAY.md`](../gtm/LAUNCH_DAY.md) *
 
 ## What you are not doing in these 90 days
 
-- Importing old wave HTML kits or stale price cards  
+- Importing iCloud / Drive / old wave HTML kits or stale price cards (inventories are research only)  
 - Building a second visual system  
 - Making Product Hunt the definition of launch  
-- Publishing invented TAM, regret %, or “most people” statistics  
+- Publishing invented TAM, regret %, “73%,” 50/30/20 scoring, “twelve minutes,” or $5 / $500K hooks  
+- Signing a personal name — byline is **Founder** only  
 - Staffing desks that do not exist

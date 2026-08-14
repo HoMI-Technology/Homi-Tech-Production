@@ -40,7 +40,7 @@ Fuel: [`../gtm/07-WEEKLY-OS.md`](../gtm/07-WEEKLY-OS.md) · [`../gtm/WEEKLY-SCOR
 
 | | |
 |--|--|
-| **Weekly job** | Pull **three** slots (Mon / Wed / Fri) from existing files — do not design new carousels. Default fuel: [`../content/copy/CAPTIONS.md`](../content/copy/CAPTIONS.md) + [`../content/copy/FOUNDER_VOICE.md`](../content/copy/FOUNDER_VOICE.md). Rewrite any byline that names a person to **Founder**. Run every line through [`04-COPY-SYSTEM.md`](./04-COPY-SYSTEM.md). Draft in the Social Content Studio; leave AI drafts in the approval queue. |
+| **Weekly job** | Pull **three** slots (Mon / Wed / Fri) from existing files — do not design new carousels. Default fuel: [`../content/copy/CAPTIONS.md`](../content/copy/CAPTIONS.md) + [`../content/copy/FOUNDER_VOICE.md`](../content/copy/FOUNDER_VOICE.md). Sign **Founder** only — strip any personal name from a caption before it ships. Run every line through [`04-COPY-SYSTEM.md`](./04-COPY-SYSTEM.md). Draft in the Social Content Studio; leave AI drafts in the approval queue. |
 | **Launch-week job** | Assemble the burst kit from assets that already exist: announcement image, founder-why, afford ≠ ready carousel, what-HōMI-is carousel, launch-week slides. Write three claim-clean captions + one reply bank (lender misread). No new “launch brand system.” |
 | **Done when** | Three posts have image path + caption + UTM campaign slug + Guardrails check. Nothing in the queue uses a banned headline or CTA. |
 

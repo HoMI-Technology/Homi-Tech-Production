@@ -65,10 +65,15 @@ Free Decision Readiness path · Plus $9.99 · Pro $24.99 · Family $39.99 / mo.
 | Print / OG / bio close | HōMI is the Decision Companion. Decision Readiness Intelligence™. Everyone else tells you how. HōMI tells you if. |
 | Headline | Know When You're Ready. |
 | Problem | Afford is not the same as ready. |
-| Question | Will you be okay — after the commitment you cannot undo? |
+| Question | Will you be okay? |
+| Question (long) | Will you be okay — after the commitment you cannot undo? |
+| Compass (product, not a rename) | Meet Your Decision Compass. (The object is the **Threshold Compass**. Never “HōMI Compass.”) |
+| Process story (not an outcome flex) | Lose a transaction, gain a relationship. The product is clarity. |
+| Founder spine | Momentum ≠ readiness. Speed is not the same as being okay after. |
+| Bright line (what we are not) | Not a budget app. Not therapy. Not a financial advisor. Not a lender. |
 | Legal close (required near product claims) | Educational guidance only. Not a lender. Not a credit score replacement. |
 
-If a draft cannot survive those five lines, it is not a HōMI draft.
+If a draft cannot survive the print line, the question, and the legal close, it is not a HōMI draft.
 
 ---
 
@@ -92,7 +97,7 @@ The read is not a binary yes/no from a counter. It is one of four:
 Badge label is **DO NOT PROCEED** (never a formal “NOT YET” chip). Weights and thresholds are frozen in product code. Marketing does not invent a fifth verdict or a friendlier rename.
 
 ### 3. Educational / zero affiliate
-HōMI is not a lender, broker, RIA, credit bureau, realtor, or bank. We do not take referral fees from lenders. Public bright line: [`/guides/what-homi-is-not`](/guides/what-homi-is-not). Support script when someone misreads us: [`../gtm/SUPPORT-ARE-YOU-A-LENDER.md`](../gtm/SUPPORT-ARE-YOU-A-LENDER.md).
+HōMI is not a lender, broker, RIA, credit bureau, realtor, or bank. It is also **not a budget app, not therapy, and not a financial advisor**. We do not take referral fees from lenders. Public bright line: [`/guides/what-homi-is-not`](/guides/what-homi-is-not). Support script when someone misreads us: [`../gtm/SUPPORT-ARE-YOU-A-LENDER.md`](../gtm/SUPPORT-ARE-YOU-A-LENDER.md).
 
 ---
 
@@ -103,6 +108,16 @@ Publicly: calm, clear, anti-shame. Curiosity CTAs (“see if”, “explore your
 
 **Fire, shipped:** the person who can afford it and still cannot sleep gets a companion that will tell them the truth — including wait.
 
+**Founder spine (keep this in the body, not as a miracle CTA):** momentum ≠ readiness. A fast close can still be a bad after. If a piece would rather we “win the deal,” rewrite toward clarity. Process story we will own: **lose a transaction, gain a relationship.** That is not an outcome flex (“they bought in 90 days”). It is what honesty costs — and what it is for.
+
+**Object name:** Meet Your Decision Compass. On-product and in pixels the instrument is the **Threshold Compass**. Never paint “HōMI Compass.”
+
+---
+
+## Do not import (research inventories are not copy)
+
+Desktop / iCloud / Drive dumps and old wave kits are **research only**. Do not paste them into this pack. Never ship: 50/30/20 scoring, a “73%” NOT YET stat, `www.hōmi.com`, a 22-question bank, “twelve minutes,” $5 / $500K hooks, Decision Intelligence OS, revolutionary, world’s first.
+
 ---
 
 ## Narrative tests (Strategy desk, before any campaign)
@@ -110,4 +125,4 @@ Publicly: calm, clear, anti-shame. Curiosity CTAs (“see if”, “explore your
 1. Would a reasonable person think we underwrite or place credit? If yes → rewrite.
 2. Does the piece teach afford ≠ ready, name a verdict honestly, or draw a bright line? If none → it is decoration. Kill it.
 3. Any statistic? Source file in-repo or delete. No regret %, no invented market size, no “most buyers.”
-4. Founder is the byline. No personal-name debate in public copy.
+4. Byline is **Founder** only. No personal name in public lines.

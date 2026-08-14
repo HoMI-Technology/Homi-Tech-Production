@@ -2,9 +2,9 @@
 
 **What this is:** the missing operating doctrine for the Marketing Agency OS already live at [`/admin/marketing`](/admin/marketing). Ten desks exist in code (`lib/admin/agency-fleet.ts`, `AgencyDesks`). This pack staffs those desks with runnable launch work.
 
-**What this is not:** an iCloud/Drive import, a second org chart, or a rewrite of the GTM pillars. The weekly engine stays [`../gtm/`](../gtm/). This folder is launch doctrine that sits beside it.
+**What this is not:** an iCloud/Drive import, a second org chart, or a rewrite of the GTM pillars. Inventories of old kits are **research only** — do not paste them here. The weekly engine stays [`../gtm/`](../gtm/). This folder is launch doctrine that sits beside it.
 
-**Owner:** Founder  
+**Owner / byline:** Founder only (no personal name in public lines)  
 **Entity:** HOMI TECHNOLOGIES LLC  
 **Print category:** Decision Companion · Decision Readiness Intelligence™  
 **North star:** weekly activated users (completed readiness path)  
@@ -49,7 +49,7 @@ Launch week is a **coordinated burst**: email + LinkedIn + site + UTM. Product H
 | Pricing | Free Decision Readiness path · Plus $9.99 · Pro $24.99 · Family $39.99 / mo |
 | Legal | Educational guidance only. Not a lender, broker, RIA, credit bureau, realtor, or bank |
 | Hours | ~10–12 / week across all ten desks — not 10 hours per desk |
-| Name in copy | Say **Founder**. Do not pick a personal name in public lines |
+| Name in copy | Say **Founder** only. No personal name in posts, emails, or captions |
 
 Claim law and never-say live in [`../gtm/06-CLAIM-LAW.md`](../gtm/06-CLAIM-LAW.md) and the Guardrails desk. This pack does not loosen them.
 

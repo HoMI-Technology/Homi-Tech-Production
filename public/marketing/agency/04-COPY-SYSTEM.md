@@ -2,7 +2,7 @@
 
 **Desk:** Content drafts · Guardrails signs · Founder approves  
 **Voice:** calm, clear, anti-shame. Curiosity over urgency.  
-**Byline:** **Founder** — do not pick a personal name in public lines.
+**Byline:** **Founder** only. No personal name in posts, emails, captions, or sign-offs.
 
 Use these as-is, or rewrite *within* the table. Do not “improve” them into banned hype.
 
@@ -12,37 +12,43 @@ Legal close (append near any product claim):
 
 ---
 
-## Ready-to-ship (18 lines)
+## Ready-to-ship (24 lines)
 
 ### Headlines
 
 1. Know When You're Ready.
 2. Afford is not the same as ready.
-3. Will you be okay after the commitment you cannot undo?
-4. Everyone else tells you how. HōMI tells you if.
-5. Not yet is not no.
+3. Will you be okay?
+4. Will you be okay after the commitment you cannot undo?
+5. Everyone else tells you how. HōMI tells you if.
+6. Not yet is not no.
+7. Meet Your Decision Compass.
 
 ### One-liners / bios
 
-6. HōMI is the Decision Companion. Decision Readiness Intelligence™.
-7. Credit answers whether you can get it. Readiness asks whether you will be okay after.
-8. Three lenses: Financial Reality, Emotional Truth, Perfect Timing.
-9. Build First is not failure. It is the map.
-10. Your homie, not your banker.
+8. HōMI is the Decision Companion. Decision Readiness Intelligence™.
+9. Credit answers whether you can get it. Readiness asks whether you will be okay after.
+10. Three lenses: Financial Reality, Emotional Truth, Perfect Timing.
+11. Build First is not failure. It is the map.
+12. Your homie, not your banker.
+13. Momentum is not readiness.
+14. Not a budget app. Not therapy. Not a financial advisor. Not a lender.
+15. Lose a transaction, gain a relationship. The product is clarity.
 
 ### CTAs (buttons, last lines, pinned comments)
 
-11. Explore your Decision Readiness.
-12. See if you will be okay — start the free path.
-13. Take the free Decision Readiness path.
-14. Read what HōMI is not.
+16. Explore your Decision Readiness.
+17. See if you will be okay — start the free path.
+18. Take the free Decision Readiness path.
+19. Read what HōMI is not.
+20. Meet Your Decision Compass — start the free path.
 
 ### Email subjects (claim-safe)
 
-15. A question credit was never designed to answer
-16. Afford ≠ ready (and that is allowed)
-17. HōMI is live — the path is free
-18. What we will never be
+21. A question credit was never designed to answer
+22. Afford ≠ ready (and that is allowed)
+23. HōMI is live — the path is free
+24. What we will never be
 
 Do not write subjects that promise an outcome, a date you will buy, or a funding result.
 
@@ -67,6 +73,28 @@ Free Decision Readiness path · Plus $9.99 · Pro $24.99 · Family $39.99 / mo.
 Educational guidance only. Not a lender. Not a credit score replacement.
 
 → [UTM assessment link]
+
+— Founder
+```
+
+---
+
+## Process-story post (optional Fri, weeks 5–8)
+
+Not an outcome flex. Image: reuse `homi_post_founder_pause_1080.png` or a quote square.
+
+```
+Momentum is not readiness.
+
+A fast close can still be a hard after.
+We would rather lose a transaction and keep the relationship than rush a signature.
+
+The product is clarity.
+Meet Your Decision Compass — the Threshold Compass on the path.
+
+Educational guidance only. Not a budget app. Not therapy. Not a financial advisor. Not a lender.
+
+— Founder
 ```
 
 ---
@@ -86,6 +114,10 @@ Educational guidance only. Not a lender. Not a credit score replacement.
 **“So should I buy?”**
 
 > We won’t tell you to buy or wait as advice. The path gives a readiness signal — READY, ALMOST THERE, BUILD FIRST, or DO NOT PROCEED — as educational guidance. Talk to a qualified professional when you need one.
+
+**“Is this a budget app / therapy / a financial advisor?”**
+
+> No. HōMI is a Decision Companion — educational guidance on readiness, not a budget tracker, not therapy, and not a financial advisor. If you need those, go to the people who do that work. If you want a readiness read first, start here: [UTM]
 
 ---
 
@@ -110,8 +142,10 @@ Left column is what we **refuse**. Right column is what we **ship**. Do not publ
 | Don’t wait — prices are rising | Consider whether timing supports this decision. |
 | Skip the advisor / Our AI knows best | Talk to a qualified professional when you need one. |
 | HōMI Score | Decision Readiness Score |
-| HōMI Compass | Threshold Compass |
+| HōMI Compass | Threshold Compass · Meet Your Decision Compass |
 | 73% / 50/30/20 / 70% / invented TAM or regret % | (delete, or cite an in-repo source) |
+| www.hōmi.com / any invented domain | homitechnology.com |
+| 22-question bank / “twelve minutes” / $5 or $500K hooks | (delete — do not invent size, time, or stake) |
 
 Internal docs may say “category-defining OS” or “readiness operating system.” Those phrases stay **off** posts, headlines, CTAs, and subjects.
 
@@ -127,6 +161,6 @@ Free Decision Readiness path · Plus $9.99 · Pro $24.99 · Family $39.99 / mo.
 
 1. Search the draft for the left column.  
 2. Confirm spelling is **HōMI** (ō = U+014D).  
-3. Confirm the CTA is one of 11–14 or a close cousin (“explore”, “see if”, “start the free path”).  
-4. Confirm no personal name in the byline.  
+3. Confirm the CTA is one of 16–20 or a close cousin (“explore”, “see if”, “start the free path”).  
+4. Confirm the byline is **Founder** only — no personal name.  
 5. Guardrails desk ritual in [`02-DESKS.md`](./02-DESKS.md).
