@@ -35,6 +35,17 @@
 
 ---
 
+## Launch agency (doctrine)
+
+Staff the ten desks already on [`/admin/marketing`](/admin/marketing). Do not invent a parallel org.
+
+**Pack:** [`agency/`](./agency/) — narrative, desk jobs, 90-day run, copy system, creative brief, measurement.  
+**Weekly engine stays the GTM OS** (pillars above). This pack is launch doctrine beside it, not a replacement.
+
+Start: [`agency/README.md`](./agency/README.md)
+
+---
+
 ## Library map
 
 | Folder | Contents |
@@ -53,6 +64,7 @@
 | `launch/demo-video/` | 60s demo + frames + script |
 | `launch/faq/` | FAQ source |
 | `screenshots/live/` | Production site captures |
+| `agency/` | Launch-agency doctrine (desks · 90-day · copy · measurement) |
 
 ---
 
