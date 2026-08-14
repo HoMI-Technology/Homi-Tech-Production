@@ -16,7 +16,7 @@ describe("contextualActionHrefs", () => {
         weakestPillar: "emotional",
         checkedInToday: false,
       }),
-    ).toEqual(["/advisor", "/path", "/journal"]);
+    ).toEqual(["/journal", "/path", "/plan"]);
   });
 
   it("routes each pillar to its instrument", () => {
@@ -40,6 +40,17 @@ describe("contextualActionHrefs", () => {
     });
     for (const banned of ["/daily", "/signals", "/simulator", "/trinity", "/genome"]) {
       expect(hrefs).not.toContain(banned);
+    }
+  });
+
+  it("never features Companion chat as a next-move launcher", () => {
+    for (const weakestPillar of ["financial", "emotional", "timing", null] as const) {
+      const hrefs = contextualActionHrefs({
+        hasAssessment: true,
+        weakestPillar,
+        checkedInToday: false,
+      });
+      expect(hrefs).not.toContain("/advisor");
     }
   });
 

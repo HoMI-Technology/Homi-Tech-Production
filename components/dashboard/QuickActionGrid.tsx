@@ -9,7 +9,6 @@ const ICONS: Record<string, React.ReactNode> = {
     <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
   ),
   plan: <path d="M4 6h16M4 12h16M4 18h7" />,
-  advisor: <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />,
   journal: (
     <path d="M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
   ),
@@ -55,11 +54,6 @@ const ACTION_COPY: Record<string, { desc: string; icon: string; nowDesc?: string
     desc: "Binding-constraint path from your verdict",
     icon: "path",
   },
-  "/advisor": {
-    desc: "Talk it through",
-    icon: "advisor",
-    nowDesc: "Your emotional pillar wants a conversation",
-  },
   "/journal": {
     desc: "Log the decisions you're making",
     icon: "journal",
@@ -84,7 +78,6 @@ function buildActions(): Action[] {
     "/path",
     "/plan",
     "/journal",
-    "/advisor",
     "/household",
   ];
 

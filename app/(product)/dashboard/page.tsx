@@ -97,10 +97,10 @@ const NEXT_MOVES: Record<
   },
   emotional: {
     title: "Get honest about the want",
-    body: "The math may work, but the why is undercooked. Talk it through with the Companion or write the decision down — clarity moves this pillar.",
-    href: "/advisor",
-    cta: "Talk to the Companion",
-    secondary: { href: "/journal", label: "Open your journal" },
+    body: "The math may work, but the why is undercooked. Write the decision down — clarity moves this pillar.",
+    href: "/journal",
+    cta: "Open your journal",
+    secondary: { href: "/path", label: "Open Path to Ready" },
   },
   timing: {
     title: "Work the timing constraint",
