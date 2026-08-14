@@ -7,7 +7,7 @@ import {
   PRIMARY_CLOSE_LABEL,
 } from "@/components/marketing/first-moment-copy";
 import { CinematicCompass } from "./CinematicCompass";
-import { COLORS, type VerdictKey } from "@/lib/brand";
+import { COLORS } from "@/lib/brand";
 
 /**
  * Threshold Preview — a public-safe, interactive feel for live readiness.
@@ -24,32 +24,27 @@ const TEMPS: Record<
     color: string;
     temperature: string;
     message: string;
-    engineKey: VerdictKey;
   }
 > = {
   Cool: {
     color: COLORS.emerald,
     temperature: "Cool",
     message: "Your signals appear favorable. Move with clarity, not pressure.",
-    engineKey: "READY",
   },
   Warm: {
     color: COLORS.yellow,
     temperature: "Warm",
     message: "You are close. One signal still needs attention.",
-    engineKey: "ALMOST_THERE",
   },
   "Warm+": {
     color: COLORS.amber,
     temperature: "Warm+",
-    message: "Build First is not failure. It is the map.",
-    engineKey: "BUILD_FIRST",
+    message: "Not yet is not no.",
   },
   Hot: {
     color: COLORS.crimson,
     temperature: "Hot",
     message: "This is a protection signal. Slow down before pressure makes the decision for you.",
-    engineKey: "NOT_YET",
   },
 };
 
@@ -111,7 +106,6 @@ export function ThresholdPreview() {
               middle: 0.45 + (values.emotional / 100) * 0.75,
               inner: 0.45 + (values.timing / 100) * 0.75,
             }}
-            verdict={temp.engineKey}
             keyholePulse={tempKey === "Cool"}
           />
         </div>

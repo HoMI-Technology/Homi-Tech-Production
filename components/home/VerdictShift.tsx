@@ -87,9 +87,6 @@ export function VerdictShift() {
           It is clarity. It is protection. The most valuable answer HōMI gives is often not yet —
           and when it arrives, it arrives with a map, not a door in your face.
         </p>
-        <p className="mt-4 max-w-md font-display text-xl text-light">
-          Build First is not failure. It is the map.
-        </p>
         <Link href="/method" className="btn btn-ghost mt-8">
           How the verdicts protect you
         </Link>

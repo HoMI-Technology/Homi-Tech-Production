@@ -31,6 +31,8 @@ describe("landing canon — homepage theater is not a fake score", () => {
       expect(text, source).not.toContain("DO NOT PROCEED");
       expect(text, source).not.toContain("ALMOST THERE");
       expect(text, source).not.toContain("BUILD FIRST");
+      expect(text, source).not.toContain("80–100");
+      expect(text, source).not.toContain('verdict="READY"');
     }
   });
 });

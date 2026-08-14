@@ -43,7 +43,14 @@ const SOLD_LIES = [
   "5 household members",
 ];
 
-const VERDICT_BADGES = ["DO NOT PROCEED", "ALMOST THERE", "BUILD FIRST"] as const;
+const VERDICT_BADGES = [
+  "DO NOT PROCEED",
+  "ALMOST THERE",
+  "BUILD FIRST",
+  "Build First",
+] as const;
+
+const FAKE_SCORE_RANGES = ["80–100", "65–79", "50–64", "0–49"] as const;
 
 describe("Wave 1 chrome honesty — Brand Use lines", () => {
   it("pins Pricing Free to the Brand Use protective-verdict line", () => {
@@ -140,19 +147,26 @@ describe("Wave 1 chrome honesty — homepage theater", () => {
     expect(SHIFT).toContain("Temperature");
   });
 
-  it("sample path, ThresholdPreview, and VerdictShift do not say the 4-band badges", () => {
+  it("homepage theater is temperature-only — no 4-band words, no 0–100 fake score surface", () => {
+    const alignment = src("components", "home", "AlignmentScene.tsx");
     for (const [source, text] of [
-      ["homepage sample path", HOME],
+      ["homepage", HOME],
       ["ThresholdPreview", PREVIEW],
       ["VerdictShift", SHIFT],
+      ["AlignmentScene", alignment],
     ] as const) {
       for (const badge of VERDICT_BADGES) {
         expect(text, `${source} must not say ${badge}`).not.toContain(badge);
       }
+      expect(text, `${source} must not pass verdict=READY`).not.toContain('verdict="READY"');
     }
-    expect(HOME).not.toContain('label="READY"');
-    expect(PREVIEW).not.toContain('label: "READY"');
+    for (const range of FAKE_SCORE_RANGES) {
+      expect(HOME, `homepage must not print ${range}`).not.toContain(range);
+    }
+    expect(HOME).not.toContain("READY");
+    expect(PREVIEW).not.toContain("READY");
     expect(SHIFT).not.toContain("READY");
+    expect(alignment).not.toContain("READY");
   });
 
   it("sample path does not treat credit 700 or DTI 36% as HōMI law", () => {

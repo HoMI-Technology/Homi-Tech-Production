@@ -326,10 +326,10 @@ export default function MarketingHomePage() {
                 aria-label="Temperature spectrum from hot through warm+ and warm to cool"
               />
               <div className="mt-6 flex flex-wrap justify-center gap-3">
-                <SpectrumChip color={COLORS.emerald} label="Cool" range="80–100" />
-                <SpectrumChip color={COLORS.yellow} label="Warm" range="65–79" />
-                <SpectrumChip color={COLORS.amber} label="Warm+" range="50–64" />
-                <SpectrumChip color={COLORS.crimson} label="Hot" range="0–49" />
+                <SpectrumChip color={COLORS.emerald} label="Cool" />
+                <SpectrumChip color={COLORS.yellow} label="Warm" />
+                <SpectrumChip color={COLORS.amber} label="Warm+" />
+                <SpectrumChip color={COLORS.crimson} label="Hot" />
               </div>
             </div>
           </div>
@@ -363,7 +363,7 @@ export default function MarketingHomePage() {
         </section>
       </Reveal>
 
-      {/* ── 14 · Your Build First path ──────────────────────────── */}
+      {/* ── 14 · What to build first ──────────────────────────── */}
       <Reveal>
         <section className="px-6 py-24">
           <div className="mx-auto max-w-3xl">
@@ -529,7 +529,7 @@ export default function MarketingHomePage() {
         <section id="waitlist" className="hero-field scroll-mt-24 px-6 py-28 text-center">
           <div className="mx-auto flex max-w-3xl flex-col items-center">
             <div className="compass-float">
-              <Compass3D size={240} verdict="READY" maxTilt={6} />
+              <Compass3D size={240} maxTilt={6} />
             </div>
             <div
               className="mt-12 w-full rounded-3xl p-10 sm:p-14"
@@ -600,15 +600,7 @@ function WrongRow({ system, asks, missed }: { system: string; asks: string; miss
   );
 }
 
-function SpectrumChip({
-  color,
-  label,
-  range,
-}: {
-  color: string;
-  label: string;
-  range: string;
-}) {
+function SpectrumChip({ color, label }: { color: string; label: string }) {
   return (
     <span
       className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold tracking-wide"
@@ -619,7 +611,6 @@ function SpectrumChip({
         style={{ background: color, boxShadow: `0 0 8px ${color}` }}
       />
       {label}
-      <span className="score-numeral font-medium opacity-80">{range}</span>
     </span>
   );
 }
