@@ -30,7 +30,7 @@ If you opened HōMI and thought “okay… where do I begin?” — this is for 
 
 If something feels confusing, reply to this email. Real humans read these.
 
-— Chike  
-HōMI · homitechnology.com
+— Founder  
+Founder, HōMI · homitechnology.com
 
 *Educational guidance only. HōMI is not a lender, broker, credit bureau, or financial advisor.*

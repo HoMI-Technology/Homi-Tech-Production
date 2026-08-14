@@ -1,4 +1,6 @@
-# Founder-voice posts (Chike “Wally” Wali)
+# Founder-voice posts
+
+Public byline is **Founder** only until a name is locked.
 
 **Images:** `05-posts/homi_post_founder_*_1080.png` (also `*_1080x1350.png` for IG)
 
@@ -16,7 +18,7 @@ That's the gap we're building for.
 
 Educational guidance only — not a lender, not financial advice.
 
-— Chike “Wally” Wali, Founder
+— Founder
 
 **Image:** `homi_post_founder_why_1080.png`
 

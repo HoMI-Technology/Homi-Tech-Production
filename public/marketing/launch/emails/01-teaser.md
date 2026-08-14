@@ -27,7 +27,7 @@ More clarity before the commitment you can't undo.
 
 I'll send the link when we're live.
 
-— Chike “Wally” Wali  
+— Founder  
 Founder, HōMI  
 homitechnology.com
 

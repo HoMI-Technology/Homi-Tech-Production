@@ -80,24 +80,24 @@ Use the existing launch-week calendar as fuel, not as a PH mandate: [`../content
 
 Pick a **Wednesday** as D-0 (mid-week replies). Work backward.
 
-| When | Desk | Ship | Asset / copy |
-|------|------|------|----------------|
-| D−3 | Email | Send email 01 (teaser) | [`../launch/emails/01-teaser.md`](../launch/emails/01-teaser.md) · `utm_campaign=launch_teaser` |
-| D−2 | Content / Publish | Founder soft teaser | [`../content/posts/homi_post_founder_pause_1080.png`](../content/posts/homi_post_founder_pause_1080.png) · `FOUNDER_VOICE` pause · `launch_dminus2` |
-| D−1 | Content / Publish | What HōMI is carousel (founder profile) | [`../content/carousels/what-homi-is/`](../content/carousels/what-homi-is/) · `CAROUSELS.md` · `launch_dminus1` |
-| **D-0 morning** | Library | Confirm `/` and `/assessment` open; OG is [`../brand/og/homi_og_home_1200x630_v1.png`](../brand/og/homi_og_home_1200x630_v1.png) | — |
-| **D-0 morning** | Email | Send email 02 (live) | [`../launch/emails/02-live.md`](../launch/emails/02-live.md) · **omit PH link** unless amplifiers already unlocked · `launch_live` |
-| **D-0 +30 min** | Publish | Founder announcement | [`../content/posts/homi_post_launch_announcement_1080.png`](../content/posts/homi_post_launch_announcement_1080.png) · caption from [`04-COPY-SYSTEM.md`](./04-COPY-SYSTEM.md) “Burst announcement” · `launch_announce` |
-| **D-0 +45 min** | Publish | Company Page reshare of the founder post | same asset · no new caption that hypes past the one-liner |
-| D-0 | Content | Optional story frames | [`../content/stories/`](../content/stories/) — only if the three primary ships are done |
-| D+1 | Email | Send email 03 (how to start) | [`../launch/emails/03-how-to-start.md`](../launch/emails/03-how-to-start.md) · `launch_howto` |
-| D+1 | Content | Afford ≠ ready carousel | [`../content/carousels/afford-vs-ready/`](../content/carousels/afford-vs-ready/) · `launch_afford` |
-| D+2 | Content | Pillars carousel | [`../content/carousels/pillars/`](../content/carousels/pillars/) · `CAPTIONS.md` carousel · `launch_pillars` |
-| D+3 | Email | Send email 04 (what HōMI isn’t) | [`../launch/emails/04-what-homi-isnt.md`](../launch/emails/04-what-homi-isnt.md) · `launch_isnt` |
-| D+3 | Content | Anti-shame / Build First | [`../content/posts/homi_post_founder_shame_1080.png`](../content/posts/homi_post_founder_shame_1080.png) · `FOUNDER_VOICE` shame · `launch_shame` |
-| D+4 | Content | Three questions tip | [`../content/posts/homi_post_tip_three_questions_1080.png`](../content/posts/homi_post_tip_three_questions_1080.png) · `CAPTIONS.md` · `launch_threeq` |
+| When | Pri | Desk | Ship | Asset / copy |
+|------|-----|------|------|----------------|
+| D−3 | **REQUIRED** | Email | Send email 01 (teaser) | [`../launch/emails/01-teaser.md`](../launch/emails/01-teaser.md) · `utm_campaign=launch_teaser` |
+| D−2 | — | Content / Publish | Founder soft teaser | [`../content/posts/homi_post_founder_pause_1080.png`](../content/posts/homi_post_founder_pause_1080.png) · `FOUNDER_VOICE` pause · `launch_dminus2` |
+| D−1 | — | Content / Publish | What HōMI is carousel (founder profile) | [`../content/carousels/what-homi-is/`](../content/carousels/what-homi-is/) · `CAROUSELS.md` · `launch_dminus1` |
+| **D-0 morning** | — | Library | Confirm `/` and `/assessment` open; OG is [`../brand/og/homi_og_home_1200x630_v1.png`](../brand/og/homi_og_home_1200x630_v1.png) | — |
+| **D-0 morning** | **REQUIRED** | Email | Send email 02 (live) | [`../launch/emails/02-live.md`](../launch/emails/02-live.md) · **omit PH link** unless amplifiers already unlocked · `launch_live` |
+| **D-0 +30 min** | **REQUIRED** | Publish | Founder announcement | [`../content/posts/homi_post_launch_announcement_1080.png`](../content/posts/homi_post_launch_announcement_1080.png) · caption from [`04-COPY-SYSTEM.md`](./04-COPY-SYSTEM.md) “Burst announcement” · `launch_announce` |
+| **D-0 +45 min** | — | Publish | Company Page reshare of the founder post | same asset · no new caption that hypes past the one-liner |
+| D-0 | **OPTIONAL** | Content | Story frames | [`../content/stories/`](../content/stories/) — only if REQUIRED ships are done |
+| D+1 | **REQUIRED** | Email | Send email 03 (how to start) | [`../launch/emails/03-how-to-start.md`](../launch/emails/03-how-to-start.md) · `launch_howto` |
+| D+1 | **REQUIRED** | Content | Afford ≠ ready carousel | [`../content/carousels/afford-vs-ready/`](../content/carousels/afford-vs-ready/) · `launch_afford` |
+| D+2 | **OPTIONAL** | Content | Pillars carousel | [`../content/carousels/pillars/`](../content/carousels/pillars/) · `CAPTIONS.md` carousel · `launch_pillars` |
+| D+3 | **REQUIRED** | Email | Send email 04 (what HōMI isn’t) | [`../launch/emails/04-what-homi-isnt.md`](../launch/emails/04-what-homi-isnt.md) · `launch_isnt` |
+| D+3 | **REQUIRED** | Content | Anti-shame / Build First | [`../content/posts/homi_post_founder_shame_1080.png`](../content/posts/homi_post_founder_shame_1080.png) · `FOUNDER_VOICE` shame · `launch_shame` |
+| D+4 | **OPTIONAL** | Content | Three questions tip | [`../content/posts/homi_post_tip_three_questions_1080.png`](../content/posts/homi_post_tip_three_questions_1080.png) · `CAPTIONS.md` · `launch_threeq` |
 
-**Burst hours:** stay near 12. Cut optional stories before you cut replies.  
+If the week would exceed ~12 hours, ship only REQUIRED.  
 **Pinned comment** on the announcement (copy-paste):
 
 > Educational guidance only. HōMI is not a lender, broker, or credit score replacement. Start the free Decision Readiness path: [UTM link]

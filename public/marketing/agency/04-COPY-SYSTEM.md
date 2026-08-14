@@ -38,7 +38,7 @@ Legal close (append near any product claim):
 ### CTAs (buttons, last lines, pinned comments)
 
 16. Explore your Decision Readiness.
-17. See if you will be okay — start the free path.
+17. Explore whether you are ready — start the free path.
 18. Take the free Decision Readiness path.
 19. Read what HōMI is not.
 20. Meet Your Decision Compass — start the free path.
