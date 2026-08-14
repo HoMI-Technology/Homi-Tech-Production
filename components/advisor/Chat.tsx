@@ -68,7 +68,7 @@ export function Chat() {
       setHasAssessment(Boolean(latest));
     });
 
-    // `?q=` opener (Money picture panel → "Ask Homie"). Read off window rather
+    // `?q=` opener (deep link into /advisor). Read off window rather
     // than useSearchParams: the latter forces a Suspense boundary / CSR bailout
     // on this statically-rendered page. It *pre-fills* the composer instead of
     // sending — a link should never spend a companion turn on its own.
