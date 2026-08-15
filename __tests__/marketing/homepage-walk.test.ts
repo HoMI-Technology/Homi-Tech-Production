@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { TAGLINES } from "@/lib/brand";
+import { FIRST_MOMENT_BEATS } from "@/components/marketing/first-moment-copy";
 
 const ROOT = process.cwd();
 
@@ -19,6 +21,8 @@ describe("homepage walk — locked first viewport", () => {
     expect(hero).toContain("PRIMARY_CLOSE_LABEL");
     expect(hero).toContain("?src=hero");
     expect(hero).toContain('track("hero_cta_click", { src: "hero" })');
+    expect(hero).toContain('href="#statement"');
+    expect(hero).toContain("What this is");
   });
 
   it("does not contain Trinity, wait-rate 70, or a two-column instrument split", () => {
@@ -28,23 +32,26 @@ describe("homepage walk — locked first viewport", () => {
   });
 });
 
-describe("homepage walk — continuation uses existing lines only", () => {
+describe("homepage walk — Knowledge keep-list only", () => {
   const home = src("app", "(marketing)", "page.tsx");
 
-  it("keeps AlignmentScene as the continuing walk, then inversion / before / not-yet", () => {
-    expect(home).toMatch(/from\s+["']@\/components\/home\/AlignmentScene["']/);
-    expect(home).toContain("<AlignmentScene");
-    expect(home).toContain("A credit score tells institutions if they may trust your history.");
-    expect(home).toContain("HōMI helps you know if you can trust the decision.");
-    expect(home).toContain("Most people don&rsquo;t regret what they bought");
-    expect(home).toContain("Most systems arrive after you decide.");
-    expect(home).toContain("HōMI enters before the commitment.");
-    expect(home).toContain("Home is the first threshold.");
+  it("continues with keep-list jobs: if/when, permission to wait, the object", () => {
+    expect(home).toContain("TAGLINES.primary");
+    expect(TAGLINES.primary).toBe("Know when you're ready. Move when it matters.");
     expect(home).toContain("Not yet is not");
-    expect(home).toContain("The friend who says:");
-    expect(home).not.toContain("Everyone asks the wrong question.");
-    expect(home).not.toContain("The category, drawn");
-    expect(home).not.toContain("Not the whole company.");
+    expect(home).toContain("The compass that becomes a key when you&rsquo;re finally ready to turn it.");
+    expect(home).toContain("Clarity, not commission.");
+    expect(home).toContain("CinematicCompass");
+    expect(home).toContain('id="statement"');
+  });
+
+  it("does not restate the hero inversion or paste First Moment beats", () => {
+    expect(home).not.toContain("Everyone else tells you how");
+    expect(home).not.toContain("Will you be okay?");
+    expect(home).not.toContain("A Decision Companion.");
+    for (const beat of FIRST_MOMENT_BEATS) {
+      expect(home).not.toContain(beat.line);
+    }
   });
 
   it("closes on Assess; waitlist is a whisper — no competing primary", () => {
@@ -66,10 +73,11 @@ describe("homepage walk — continuation uses existing lines only", () => {
   });
 });
 
-describe("homepage walk — 2024 SaaS landing is unmounted", () => {
+describe("homepage walk — brochure inventory is unmounted", () => {
   const home = src("app", "(marketing)", "page.tsx");
 
-  it("does not mount killed theater, tables, or comparison grids", () => {
+  it("does not mount killed theater, tables, grids, or AlignmentScene", () => {
+    expect(home).not.toMatch(/from\s+["']@\/components\/home\/AlignmentScene["']/);
     expect(home).not.toMatch(/from\s+["']@\/components\/home\/ThresholdPreview["']/);
     expect(home).not.toMatch(/from\s+["']@\/components\/home\/VerdictShift["']/);
     expect(home).not.toMatch(/from\s+["']@\/components\/home\/Voices["']/);
@@ -77,6 +85,7 @@ describe("homepage walk — 2024 SaaS landing is unmounted", () => {
     expect(home).not.toMatch(/from\s+["']@\/components\/home\/Flashlight["']/);
     expect(home).not.toMatch(/from\s+["']@\/components\/home\/TimelineShift["']/);
     expect(home).not.toMatch(/from\s+["']@\/components\/home\/StatementReveal["']/);
+    expect(home).not.toContain("<AlignmentScene");
     expect(home).not.toContain("<ThresholdPreview");
     expect(home).not.toContain("<Voices");
     expect(home).not.toContain("<table");
@@ -86,10 +95,18 @@ describe("homepage walk — 2024 SaaS landing is unmounted", () => {
     expect(home).not.toContain("Permissioned Readiness Summary");
     expect(home).not.toContain("One companion. Three ways to hear it.");
     expect(home).not.toContain("28 / 33 / 36");
+    expect(home).not.toContain("35/35/30");
     expect(home).not.toContain("No commissions");
     expect(home).not.toContain("What HōMI is not");
     expect(home).not.toContain("Your Decision Companion");
+    expect(home).not.toContain("Everyone asks the wrong question.");
+    expect(home).not.toContain("Home is the first threshold.");
+    expect(home).not.toContain("A credit score tells institutions");
     expect(home).not.toContain("Trinity");
     expect(home).not.toContain("70 · told to wait");
+    expect(home).not.toContain("Homie");
+    expect(home).not.toContain("ALMOST THERE");
+    expect(home).not.toContain("DO NOT PROCEED");
+    expect(home).not.toContain("BUILD FIRST");
   });
 });
