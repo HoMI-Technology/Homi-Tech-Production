@@ -12,6 +12,10 @@ import {
   saveThreadMessages,
   pullAdvisorThread,
 } from "@/lib/advisor/thread-store";
+import { detectAcuteDistress } from "@/lib/advisor/crisis";
+import { ingestPhase0Observation, writePhase0Freeze } from "@/lib/advisor/phase0";
+import { Phase0FreezeScreen } from "@/components/advisor/Phase0FreezeScreen";
+import { resolvePhase0PersonKey, usePhase0Freeze } from "@/hooks/usePhase0Freeze";
 
 type Role = "user" | "assistant";
 
@@ -54,6 +58,7 @@ function TypingIndicator() {
 }
 
 export function Chat() {
+  const freeze = usePhase0Freeze();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [input, setInput] = useState("");
@@ -115,6 +120,16 @@ export function Chat() {
     setSending(true);
 
     try {
+      const personKey = await resolvePhase0PersonKey();
+      const tripped = ingestPhase0Observation({
+        personKey,
+        texts: [trimmed],
+        selfHarm: detectAcuteDistress(trimmed),
+      });
+      if (tripped.frozen && tripped.record) {
+        return;
+      }
+
       const latest = await fetchLatestStoredAssessment();
       const { assessment, finance, credit, whatChanged, path } = buildCompanionContext(
         undefined,
@@ -132,6 +147,8 @@ export function Chat() {
           credit,
           path,
           identity: loadIdentity(),
+          phase0Frozen: freeze.status === "frozen",
+          phase0Until: freeze.record?.until,
         }),
       });
 
@@ -139,7 +156,26 @@ export function Chat() {
         reply?: unknown;
         error?: unknown;
         conversationId?: unknown;
+        source?: unknown;
+        phase0?: {
+          frozen?: boolean;
+          until?: number;
+          financialStress?: boolean;
+          selfHarm?: boolean;
+        };
       };
+
+      if (data.source === "phase0" && data.phase0?.frozen && typeof data.phase0.until === "number") {
+        writePhase0Freeze({
+          personKey,
+          until: data.phase0.until,
+          trippedAt: Date.now(),
+          financialStress: Boolean(data.phase0.financialStress),
+          selfHarm: Boolean(data.phase0.selfHarm),
+          signalIds: [],
+        });
+        return;
+      }
 
       if (!res.ok) {
         // Surface the gate's truthful copy (e.g. daily-quota upgrade nudge) rather
@@ -179,6 +215,10 @@ export function Chat() {
       e.preventDefault();
       sendMessage(input);
     }
+  }
+
+  if (freeze.status === "frozen" && freeze.record) {
+    return <Phase0FreezeScreen record={freeze.record} />;
   }
 
   return (

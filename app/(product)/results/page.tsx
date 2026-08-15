@@ -11,6 +11,8 @@ import { track } from "@/lib/analytics";
 import { useResultInsights } from "@/hooks/use-result-insights";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
+import { Phase0FreezeScreen } from "@/components/advisor/Phase0FreezeScreen";
+import { usePhase0Freeze } from "@/hooks/usePhase0Freeze";
 
 /**
  * Verdict UI (Path, ReasoningTrail, share, pillar rings) is interaction-free
@@ -35,6 +37,7 @@ export default function ResultsPage() {
   const [remote, setRemote] = useState<StoredAssessment | null>(null);
   const [remoteChecked, setRemoteChecked] = useState(false);
   const [fullReport, setFullReport] = useState(false);
+  const freeze = usePhase0Freeze();
 
   useEffect(() => {
     setStored(loadLocalResult());
@@ -97,11 +100,24 @@ export default function ResultsPage() {
   // verdict label only — never the score). Must live above the early returns.
   const trackedVerdict = useRef<string | null>(null);
   useEffect(() => {
+    if (freeze.status !== "open") return;
     if (!effective) return;
     if (trackedVerdict.current === effective.result.verdict) return;
     trackedVerdict.current = effective.result.verdict;
     track("verdict_shown", { verdict: effective.result.verdict });
-  }, [effective]);
+  }, [effective, freeze.status]);
+
+  if (freeze.status === "pending") {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-24">
+        <ProductLoadingSkeleton label="Loading" />
+      </div>
+    );
+  }
+
+  if (freeze.status === "frozen" && freeze.record) {
+    return <Phase0FreezeScreen record={freeze.record} />;
+  }
 
   if (stored === undefined) {
     return (

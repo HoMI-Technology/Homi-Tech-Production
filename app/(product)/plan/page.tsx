@@ -11,6 +11,8 @@ import { createClient } from "@/lib/supabase/client";
 import { useResultInsights } from "@/hooks/use-result-insights";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
+import { Phase0FreezeScreen } from "@/components/advisor/Phase0FreezeScreen";
+import { usePhase0Freeze } from "@/hooks/usePhase0Freeze";
 
 const PLAN_PROGRESS_KEY = "homi:plan-progress";
 
@@ -52,6 +54,7 @@ function pillarPct(key: "financial" | "emotional" | "timing", stored: StoredAsse
  * Don't duplicate one surface's job on another — link across instead.
  */
 export default function PlanPage() {
+  const freeze = usePhase0Freeze();
   const [stored, setStored] = useState<StoredAssessment | null | undefined>(undefined);
   const [remote, setRemote] = useState<StoredAssessment | null>(null);
   const [remoteChecked, setRemoteChecked] = useState(false);
@@ -118,6 +121,18 @@ export default function PlanPage() {
       saveProgress(next);
       return next;
     });
+  }
+
+  if (freeze.status === "pending") {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-24">
+        <ProductLoadingSkeleton label="Loading" />
+      </div>
+    );
+  }
+
+  if (freeze.status === "frozen" && freeze.record) {
+    return <Phase0FreezeScreen record={freeze.record} />;
   }
 
   if (stored === undefined) {

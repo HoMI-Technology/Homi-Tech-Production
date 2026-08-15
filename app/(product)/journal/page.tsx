@@ -8,6 +8,8 @@ import { PageFrame } from "@/components/operate/PageFrame";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { formatLocalDateISO, localDateISO } from "@/lib/dates";
 import type { JournalEntry } from "@/types/database";
+import { observePhase0Text } from "@/lib/advisor/crisis";
+import { resolvePhase0PersonKey } from "@/hooks/usePhase0Freeze";
 
 const DECISION_TYPES = [
   { value: "home_buying", label: "Home buying" },
@@ -88,6 +90,12 @@ export default function JournalPage() {
       setError("Give this decision a title.");
       return;
     }
+    void resolvePhase0PersonKey().then((personKey) => {
+      observePhase0Text(
+        personKey,
+        [draft.title, draft.context, draft.expected_impact].filter(Boolean).join("\n"),
+      );
+    });
 
     const optimistic: JournalEntry = {
       id: `optimistic-${Date.now()}`,
@@ -145,6 +153,12 @@ export default function JournalPage() {
 
   async function handleSaveEdit(id: string) {
     if (!editDraft) return;
+    void resolvePhase0PersonKey().then((personKey) => {
+      observePhase0Text(
+        personKey,
+        [editDraft.title, editDraft.context, editDraft.expected_impact].filter(Boolean).join("\n"),
+      );
+    });
     const prevEntries = entries;
     setEntries((prev) =>
       prev.map((e) =>

@@ -12,6 +12,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
  */
 
 import { detectAcuteDistress, CRISIS_SUPPORT_MESSAGE } from "@/lib/advisor/crisis";
+import { PHASE0_PAUSE_COPY } from "@/lib/advisor/phase0";
 
 const state = vi.hoisted(() => ({
   user: { id: "u1" } as { id: string } | null,
@@ -150,5 +151,29 @@ describe("POST /api/advisor — crisis short-circuit", () => {
     );
     const body = (await res.json()) as { source: string };
     expect(body.source).not.toBe("crisis");
+  });
+});
+
+describe("POST /api/advisor — Phase 0 two-category freeze", () => {
+  const TWO_CATEGORY = "nothing will ever get better and my life is falling apart";
+
+  it("two-category text returns Brand freeze copy, not a verdict", async () => {
+    const res = await POST(req({ messages: [{ role: "user", content: TWO_CATEGORY }] }));
+    const body = (await res.json()) as { reply: string; source: string; phase0?: { frozen: boolean } };
+    expect(body.source).toBe("phase0");
+    expect(body.phase0?.frozen).toBe(true);
+    expect(body.reply).toContain(PHASE0_PAUSE_COPY.split("\n")[0]);
+    expect(body.reply).not.toContain("READY");
+    expect(body.reply).not.toContain("ALMOST THERE");
+    expect(body.reply).not.toContain("DO NOT PROCEED");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("one language signal does not freeze (acute still wins when it fires)", async () => {
+    const res = await POST(
+      req({ messages: [{ role: "user", content: "I feel hopeless about this mortgage" }] }),
+    );
+    const body = (await res.json()) as { source: string };
+    expect(body.source).not.toBe("phase0");
   });
 });

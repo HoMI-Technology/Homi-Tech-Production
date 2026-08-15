@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { PILLARS } from "@/lib/brand";
@@ -42,6 +42,14 @@ import { StepShell } from "./StepShell";
 import { PillarIntro } from "./PillarIntro";
 import { ProgressBar, type StepMeta } from "./ProgressBar";
 import { ChoiceCards } from "./ChoiceCards";
+import {
+  ingestPhase0Observation,
+  isFrozenForPerson,
+  recordAssessmentRestartLoop,
+  recordNamedPhase0Signal,
+} from "@/lib/advisor/phase0";
+import { Phase0FreezeScreen } from "@/components/advisor/Phase0FreezeScreen";
+import { resolvePhase0PersonKey, usePhase0Freeze } from "@/hooks/usePhase0Freeze";
 
 const EMPTY_CONFLICT: ConflictResponses = {
   referralSource: null,
@@ -62,6 +70,7 @@ function stepMeta(steps: FlowStep[]): StepMeta[] {
 const DEFAULT_DECISION_TYPE: DecisionType = ACTIVE_DECISION_TYPES[0] ?? "home_buying";
 
 export function FullAssessmentFlow() {
+  const freeze = usePhase0Freeze();
   const router = useRouter();
   // Launch honesty: when only one vertical is live, force it — never offer
   // disabled "Coming soon" decision cards.
@@ -76,11 +85,15 @@ export function FullAssessmentFlow() {
 
   const [resumeDraft, setResumeDraft] = useState<AssessmentDraft | null>(null);
   const [draftReady, setDraftReady] = useState(false);
+  const answerHistoryRef = useRef<Record<string, ResponseValue[]>>({});
 
   useEffect(() => {
     const draft = loadDraft(steps.length - 1);
     if (draft) {
       setResumeDraft(draft);
+      void resolvePhase0PersonKey().then((personKey) => {
+        recordAssessmentRestartLoop(personKey);
+      });
     } else {
       setDraftReady(true);
     }
@@ -110,6 +123,9 @@ export function FullAssessmentFlow() {
   }
 
   function handleStartOver() {
+    void resolvePhase0PersonKey().then((personKey) => {
+      recordAssessmentRestartLoop(personKey);
+    });
     clearDraft();
     setResumeDraft(null);
     setDecisionType(DEFAULT_DECISION_TYPE);
@@ -117,6 +133,7 @@ export function FullAssessmentFlow() {
     setConflict(EMPTY_CONFLICT);
     setIndex(0);
     setDraftReady(true);
+    answerHistoryRef.current = {};
   }
 
   const step = steps[index];
@@ -126,6 +143,20 @@ export function FullAssessmentFlow() {
   );
 
   function setResponse(questionId: string, value: ResponseValue) {
+    const prevHist = answerHistoryRef.current[questionId] ?? [];
+    const last = prevHist[prevHist.length - 1];
+    if (last === undefined) {
+      answerHistoryRef.current[questionId] = [value];
+    } else if (last !== value) {
+      const nextHist = [...prevHist, value];
+      answerHistoryRef.current[questionId] = nextHist;
+      const oscillated = nextHist.length >= 3 || prevHist.includes(value);
+      if (oscillated) {
+        void resolvePhase0PersonKey().then((personKey) => {
+          recordNamedPhase0Signal(personKey, "rapid_answer_oscillation");
+        });
+      }
+    }
     setResponses((prev) => ({ ...prev, [questionId]: value }));
   }
 
@@ -143,6 +174,15 @@ export function FullAssessmentFlow() {
   async function handleSubmit() {
     setSubmitting(true);
     setScoreError(null);
+    const personKey = await resolvePhase0PersonKey();
+    const freezeCheck = ingestPhase0Observation({
+      personKey,
+      selfHarm: false,
+    });
+    if (freezeCheck.frozen || isFrozenForPerson(personKey)) {
+      setSubmitting(false);
+      return;
+    }
     const inputs = bankResponsesToInputs(responses, conflict, decisionType);
 
     // Server-authoritative score (Plans.md 6.2) — never computeScore on client.
@@ -226,6 +266,17 @@ export function FullAssessmentFlow() {
 
   const pillarForIntro = step.kind === "intro" ? step.dimension : null;
   const pillarMeta = pillarForIntro ? PILLARS.find((p) => p.key === pillarForIntro) : null;
+
+  if (freeze.status === "frozen" && freeze.record) {
+    return (
+      <Phase0FreezeScreen
+        record={freeze.record}
+        onStartFresh={() => {
+          handleStartOver();
+        }}
+      />
+    );
+  }
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16">

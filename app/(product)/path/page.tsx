@@ -46,6 +46,8 @@ import { hasSavedFinanceState, loadFinanceState, saveFinanceState } from "@/lib/
 import { track } from "@/lib/analytics";
 import type { VerdictKey } from "@/lib/brand";
 import { formatCurrency } from "@/lib/tools/format";
+import { Phase0FreezeScreen } from "@/components/advisor/Phase0FreezeScreen";
+import { usePhase0Freeze } from "@/hooks/usePhase0Freeze";
 
 /**
  * Path to Ready home — full timeline, progress, funding apply, coach prompts.
@@ -59,6 +61,7 @@ import { formatCurrency } from "@/lib/tools/format";
  * Don't duplicate one surface's job on another — link across instead.
  */
 export default function PathPage() {
+  const freeze = usePhase0Freeze();
   const { assessment: latestAssessment } = useLatestAssessment();
   const [path, setPath] = useState<ReadinessPath | null>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -308,12 +311,16 @@ export default function PathPage() {
     setCommitting(false);
   }, [path]);
 
-  if (!hydrated) {
+  if (freeze.status === "pending" || !hydrated) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-16">
         <ProductLoadingSkeleton label="Loading path" />
       </div>
     );
+  }
+
+  if (freeze.status === "frozen" && freeze.record) {
+    return <Phase0FreezeScreen record={freeze.record} />;
   }
 
   if (!path) {

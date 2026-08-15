@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { loadLocalResult, saveOverride } from "@/lib/assessment/storage";
 import { track } from "@/lib/analytics";
+import { recordNamedPhase0Signal } from "@/lib/advisor/phase0";
+import { resolvePhase0PersonKey } from "@/hooks/usePhase0Freeze";
 
 interface HardStopLike {
   code: string;
@@ -51,6 +53,9 @@ export function VerdictOverride({
     // Score/verdict never change here — this only records the user's choice.
     saveOverride({ at, acknowledgedHardStops });
     track("override_recorded");
+    void resolvePhase0PersonKey().then((personKey) => {
+      recordNamedPhase0Signal(personKey, "override_attempt");
+    });
 
     try {
       const supabase = createClient();

@@ -30,6 +30,12 @@ import {
   sanitizePromptLiteral,
 } from "@/lib/advisor/prompt-safety";
 import { detectAcuteDistress, CRISIS_SUPPORT_MESSAGE } from "@/lib/advisor/crisis";
+import {
+  PHASE0_SIGNAL_IDS,
+  buildPhase0AdvisorReply,
+  evaluatePhase0,
+  freezeUntilMs,
+} from "@/lib/advisor/phase0";
 
 export const runtime = "nodejs";
 
@@ -279,6 +285,10 @@ const bodySchema = z.object({
    * by the public /artifact companion test environment) and any client-sent
    * `assessment` field is ignored. */
   demoContext: z.boolean().nullish(),
+  /** Client-held Phase 0 freeze. Server still re-evaluates the latest text. */
+  phase0Frozen: z.boolean().nullish(),
+  phase0Until: z.number().int().positive().nullish(),
+  phase0Signals: z.array(z.enum(PHASE0_SIGNAL_IDS)).max(20).nullish(),
 });
 
 /**
@@ -500,11 +510,39 @@ export async function POST(request: Request) {
 
   // Safety triage — checked before EVERYTHING else that could answer: the
   // quota/auth gate, the real-model path, and the deterministic fallback.
-  // A user in acute distress gets the word-locked supportive reply (988 +
-  // Crisis Text Line) even when signed out, over quota, on the free tier,
-  // or with no ANTHROPIC_API_KEY configured. No model call, no scoring talk.
+  // Layer 2 (Phase 0): two-category freeze blocks verdicts for 24h.
+  // Layer 1 (acute): single-signal self-harm still gets CRISIS_SUPPORT_MESSAGE
+  // when Phase 0 does not trip. Do not collapse these layers.
   const latestUserContent = messages[messages.length - 1]?.content ?? "";
-  if (detectAcuteDistress(latestUserContent)) {
+  const acute = detectAcuteDistress(latestUserContent);
+  const phase0 = evaluatePhase0({
+    texts: [latestUserContent],
+    named: (parsed.data.phase0Signals ?? []).map((id) => ({ id })),
+    selfHarm: acute,
+  });
+  if (parsed.data.phase0Frozen || phase0.frozen) {
+    const until =
+      typeof parsed.data.phase0Until === "number" && parsed.data.phase0Until > Date.now()
+        ? parsed.data.phase0Until
+        : freezeUntilMs();
+    const flags = {
+      until,
+      financialStress: phase0.financialStress,
+      selfHarm: phase0.selfHarm || acute,
+    };
+    return NextResponse.json({
+      reply: buildPhase0AdvisorReply(flags, parsed.data.phase0Frozen ? "return" : "trip"),
+      source: "phase0",
+      phase0: {
+        frozen: true,
+        until,
+        financialStress: flags.financialStress,
+        selfHarm: flags.selfHarm,
+      },
+      conversationId: parsed.data.conversationId ?? null,
+    });
+  }
+  if (acute) {
     return NextResponse.json({
       reply: CRISIS_SUPPORT_MESSAGE,
       source: "crisis",
