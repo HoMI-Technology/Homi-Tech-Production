@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import {
+  PRIMARY_CLOSE_HREF,
+  PRIMARY_CLOSE_LABEL,
+} from "@/components/marketing/first-moment-copy";
 import { Reveal } from "@/components/ui/Reveal";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { PILLARS } from "@/lib/brand";
@@ -96,12 +100,12 @@ export default function HowItWorksPage() {
               {
                 step: "01",
                 title: "Assess",
-                copy: "Answer honest questions across Financial Reality, Emotional Truth, and Perfect Timing. Sliders, not essays. Ninety seconds for the shadow version, longer for the full picture.",
+                copy: "Answer honest questions across Financial Reality, Emotional Truth, and Perfect Timing. Sliders, not essays.",
               },
               {
                 step: "02",
                 title: "Verdict",
-                copy: "HōMI weighs all three pillars equally and checks for hard-stops — conditions that override the math entirely because they're not safe to build on top of.",
+                copy: "HōMI weighs Financial Reality, Emotional Truth, and Perfect Timing at 35 / 35 / 30, then checks for hard-stops — conditions that override the math entirely because they are not safe to build on top of.",
               },
               {
                 step: "03",
@@ -125,8 +129,7 @@ export default function HowItWorksPage() {
           <div className="mx-auto max-w-6xl">
             <h2 className="text-center type-h2">Inside the three pillars</h2>
             <p className="mx-auto mt-4 max-w-2xl text-center text-dim">
-              We don&rsquo;t publish exact point values or weights — those are the trade secret.
-              What we will tell you is exactly what each pillar looks at and why it matters.
+              The public weights are 35 / 35 / 30 — Financial Reality, Emotional Truth, Perfect Timing. Here is what each pillar looks at and why it matters.
             </p>
 
             <div className="mt-14 space-y-10">
@@ -256,8 +259,8 @@ export default function HowItWorksPage() {
           <div className="mx-auto max-w-2xl">
             <h2 className="type-h1">See where you stand.</h2>
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Link href="/shadow-score" className="btn btn-primary">
-                Get your score — 90 seconds
+              <Link href={PRIMARY_CLOSE_HREF} className="btn btn-primary">
+                {PRIMARY_CLOSE_LABEL}
               </Link>
               <Link href="/method" className="btn btn-ghost">
                 Read the philosophy

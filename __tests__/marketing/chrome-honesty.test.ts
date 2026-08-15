@@ -14,6 +14,7 @@ const PRICING = src("app", "(marketing)", "pricing", "page.tsx");
 const TIERS_SRC = src("lib", "stripe", "tiers.ts");
 const TIER_COPY_SRC = src("lib", "advisor", "companion-tier-copy.ts");
 const HOME = src("app", "(marketing)", "page.tsx");
+const HOW_IT_WORKS = src("app", "(marketing)", "how-it-works", "page.tsx");
 const PREVIEW = src("components", "home", "ThresholdPreview.tsx");
 const SHIFT = src("components", "home", "VerdictShift.tsx");
 const FOOTER = src("components", "layout", "SiteFooter.tsx");
@@ -89,6 +90,7 @@ describe("Wave 1 chrome honesty — Brand Use lines", () => {
 describe("Wave 1 chrome honesty — SKU and score names", () => {
   it.each([
     ["app/(marketing)/pricing/page.tsx", PRICING],
+    ["app/(marketing)/how-it-works/page.tsx", HOW_IT_WORKS],
     ["lib/stripe/tiers.ts", TIERS_SRC],
     ["lib/advisor/companion-tier-copy.ts", TIER_COPY_SRC],
     ["components/layout/SiteFooter.tsx", FOOTER],
@@ -129,6 +131,21 @@ describe("Wave 1 chrome honesty — primary close", () => {
     expect(FOOTER).toContain('href: "/first-moment"');
     expect(FOOTER).toContain('label: "Assess"');
     expect(FOOTER).not.toContain("/shadow-score");
+  });
+
+  it("how-it-works closes on Assess → First Moment, not Get your score /shadow-score", () => {
+    expect(HOW_IT_WORKS).toContain("PRIMARY_CLOSE_HREF");
+    expect(HOW_IT_WORKS).toContain("PRIMARY_CLOSE_LABEL");
+    expect(HOW_IT_WORKS).not.toContain('href="/shadow-score"');
+    expect(HOW_IT_WORKS).not.toContain("Get your score — 90 seconds");
+    expect(HOW_IT_WORKS).not.toContain("Get your score");
+  });
+
+  it("how-it-works publishes 35 / 35 / 30 and does not claim equal weights or a trade secret", () => {
+    expect(HOW_IT_WORKS).toContain("35 / 35 / 30");
+    expect(HOW_IT_WORKS).not.toContain("HōMI weighs all three pillars equally");
+    expect(HOW_IT_WORKS).not.toContain("those are the trade secret");
+    expect(HOW_IT_WORKS).not.toContain("shadow version");
   });
 
   it("footer is not a product CTA to /advisor", () => {
