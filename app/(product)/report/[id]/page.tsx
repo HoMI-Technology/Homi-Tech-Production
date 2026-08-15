@@ -13,7 +13,8 @@ import { TrinityBar } from "@/components/assessment/TrinityBar";
 import { UpgradePanel } from "@/components/ui/UpgradePanel";
 import { getUserEntitlements } from "@/lib/entitlements";
 import type { AssessmentRow } from "@/types/database";
-import { Phase0VerdictGate } from "@/components/advisor/Phase0VerdictGate";
+import { Phase0FreezeView } from "@/components/advisor/Phase0FreezeView";
+import { loadPhase0ServerState } from "@/lib/advisor/phase0/server";
 
 const FINANCIAL = PILLARS.find((p) => p.key === "financial")!;
 const EMOTIONAL = PILLARS.find((p) => p.key === "emotional")!;
@@ -40,6 +41,11 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
   }
 
   const { entitlements } = await getUserEntitlements(supabase);
+  const freeze = await loadPhase0ServerState(supabase, user.id);
+  if (freeze.frozen && freeze.record) {
+    return <Phase0FreezeView record={freeze.record} mode="return" />;
+  }
+
   if (!entitlements.fullReport) {
     return (
       <UpgradePanel
@@ -77,7 +83,6 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
     : new Date(assessment.created_at);
 
   return (
-    <Phase0VerdictGate>
     <div className="mx-auto max-w-3xl px-4 py-12 sm:py-16 print:max-w-full print:px-8 print:py-8">
       <div className="flex items-center justify-between border-b border-slate-surface/60 pb-6 print:border-black/20">
         <div className="flex items-center gap-3">
@@ -239,7 +244,6 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
         />
       </div>
     </div>
-    </Phase0VerdictGate>
   );
 }
 

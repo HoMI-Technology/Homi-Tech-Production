@@ -36,6 +36,7 @@ import {
   evaluatePhase0,
   freezeUntilMs,
 } from "@/lib/advisor/phase0";
+import { ingestPhase0Server, loadPhase0ServerState } from "@/lib/advisor/phase0/server";
 
 export const runtime = "nodejs";
 
@@ -515,27 +516,71 @@ export async function POST(request: Request) {
   // when Phase 0 does not trip. Do not collapse these layers.
   const latestUserContent = messages[messages.length - 1]?.content ?? "";
   const acute = detectAcuteDistress(latestUserContent);
+  // Client phase0Frozen is advisory only. Signed-in freeze is the server row.
+  const namedSignals = (parsed.data.phase0Signals ?? []).map((id) => ({ id }));
+
+  if (!demoContext) {
+    try {
+      const phase0Client = await createClient();
+      const {
+        data: { user: phase0User },
+      } = await phase0Client.auth.getUser();
+      if (phase0User) {
+        const prior = await loadPhase0ServerState(phase0Client, phase0User.id);
+        if (prior.frozen && prior.record) {
+          return NextResponse.json({
+            reply: buildPhase0AdvisorReply(prior.record, "return"),
+            source: "phase0",
+            phase0: {
+              frozen: true,
+              until: prior.record.until,
+              financialStress: prior.record.financialStress,
+              selfHarm: prior.record.selfHarm,
+            },
+            conversationId: parsed.data.conversationId ?? null,
+          });
+        }
+        const ingested = await ingestPhase0Server(phase0Client, phase0User.id, {
+          texts: [latestUserContent],
+          named: namedSignals,
+          selfHarm: acute,
+        });
+        if (ingested.frozen && ingested.record) {
+          return NextResponse.json({
+            reply: buildPhase0AdvisorReply(ingested.record, "trip"),
+            source: "phase0",
+            phase0: {
+              frozen: true,
+              until: ingested.record.until,
+              financialStress: ingested.record.financialStress,
+              selfHarm: ingested.record.selfHarm,
+            },
+            conversationId: parsed.data.conversationId ?? null,
+          });
+        }
+      }
+    } catch {
+      // Session/RPC unavailable — fall through to this-message evaluation.
+    }
+  }
+
   const phase0 = evaluatePhase0({
     texts: [latestUserContent],
-    named: (parsed.data.phase0Signals ?? []).map((id) => ({ id })),
+    named: namedSignals,
     selfHarm: acute,
   });
-  if (parsed.data.phase0Frozen || phase0.frozen) {
-    const until =
-      typeof parsed.data.phase0Until === "number" && parsed.data.phase0Until > Date.now()
-        ? parsed.data.phase0Until
-        : freezeUntilMs();
+  if (phase0.frozen) {
     const flags = {
-      until,
+      until: freezeUntilMs(),
       financialStress: phase0.financialStress,
       selfHarm: phase0.selfHarm || acute,
     };
     return NextResponse.json({
-      reply: buildPhase0AdvisorReply(flags, parsed.data.phase0Frozen ? "return" : "trip"),
+      reply: buildPhase0AdvisorReply(flags, "trip"),
       source: "phase0",
       phase0: {
         frozen: true,
-        until,
+        until: flags.until,
         financialStress: flags.financialStress,
         selfHarm: flags.selfHarm,
       },

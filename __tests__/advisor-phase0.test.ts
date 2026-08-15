@@ -84,6 +84,10 @@ describe("Phase 0 freeze store — 24h per person", () => {
       sessionStorage: memoryStorage(),
       dispatchEvent: () => true,
     });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(JSON.stringify({ frozen: false }), { status: 200 })),
+    );
   });
 
   afterEach(() => {

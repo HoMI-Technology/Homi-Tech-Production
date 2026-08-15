@@ -10,6 +10,8 @@ import { CredentialPrintButton } from "@/components/assessment/CredentialPrintBu
 import { UpgradePanel } from "@/components/ui/UpgradePanel";
 import { getUserEntitlements } from "@/lib/entitlements";
 import type { AssessmentRow, Profile } from "@/types/database";
+import { Phase0FreezeView } from "@/components/advisor/Phase0FreezeView";
+import { loadPhase0ServerState } from "@/lib/advisor/phase0/server";
 
 /**
  * Printable HōMI credential — a shareable certificate view of a completed
@@ -34,6 +36,10 @@ export default async function ReportCredentialPage({
   }
 
   const { entitlements } = await getUserEntitlements(supabase);
+  const freeze = await loadPhase0ServerState(supabase, user.id);
+  if (freeze.frozen && freeze.record) {
+    return <Phase0FreezeView record={freeze.record} mode="return" />;
+  }
   if (!entitlements.fullReport) {
     return (
       <UpgradePanel

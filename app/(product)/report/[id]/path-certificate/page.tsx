@@ -10,6 +10,8 @@ import { UpgradePanel } from "@/components/ui/UpgradePanel";
 import { getUserEntitlements } from "@/lib/entitlements";
 import { CERTIFICATE_LEGAL, HOUSEHOLD_LEGAL_SHORT } from "@/lib/readiness/legal";
 import type { AssessmentRow, Profile } from "@/types/database";
+import { Phase0FreezeView } from "@/components/advisor/Phase0FreezeView";
+import { loadPhase0ServerState } from "@/lib/advisor/phase0/server";
 
 /**
  * Partner/B2B packaging: readiness certificate that also points to Path posture.
@@ -27,6 +29,10 @@ export default async function PathCertificatePage({ params }: { params: Promise<
   }
 
   const { entitlements } = await getUserEntitlements(supabase);
+  const freeze = await loadPhase0ServerState(supabase, user.id);
+  if (freeze.frozen && freeze.record) {
+    return <Phase0FreezeView record={freeze.record} mode="return" />;
+  }
   if (!entitlements.fullReport) {
     return (
       <UpgradePanel

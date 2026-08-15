@@ -9,6 +9,7 @@ import {
   personKeyForUserId,
   rememberPhase0Person,
   selectPhase0Surface,
+  writePhase0Freeze,
   type Phase0FreezeRecord,
   type Phase0Surface,
 } from "@/lib/advisor/phase0";
@@ -68,6 +69,32 @@ export function usePhase0Freeze(): Phase0FreezeState {
       }
       if (!active) return;
       rememberPhase0Person(personKey);
+      if (personKey.startsWith("user:")) {
+        try {
+          const res = await fetch("/api/advisor/phase0");
+          const json = (await res.json().catch(() => null)) as {
+            frozen?: boolean;
+            phase0?: {
+              until?: number;
+              financialStress?: boolean;
+              selfHarm?: boolean;
+            } | null;
+          } | null;
+          if (json?.frozen && json.phase0 && typeof json.phase0.until === "number") {
+            writePhase0Freeze({
+              personKey,
+              until: json.phase0.until,
+              trippedAt: Date.now(),
+              financialStress: Boolean(json.phase0.financialStress),
+              selfHarm: Boolean(json.phase0.selfHarm),
+              signalIds: [],
+            });
+          }
+        } catch {
+          // Server unread — local mirror (if any) still applies for this tab.
+        }
+      }
+      if (!active) return;
       apply(personKey, true);
     }
 

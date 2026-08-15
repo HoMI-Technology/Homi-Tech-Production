@@ -7,6 +7,8 @@ import {
   type AssessmentInputs,
 } from "@/lib/scoring";
 import { assessmentInputsSchema as inputsSchema } from "@/lib/validation/assessment";
+import { createClient } from "@/lib/supabase/server";
+import { phase0RefuseIfFrozen } from "@/lib/advisor/phase0/server";
 
 export const runtime = "nodejs";
 
@@ -44,6 +46,15 @@ export async function POST(request: Request) {
   }
 
   const inputs: AssessmentInputs = parsed.data;
+
+  try {
+    const supabase = await createClient();
+    const refused = await phase0RefuseIfFrozen(supabase);
+    if (refused) return refused;
+  } catch {
+    // No session infra — guest scoring path.
+  }
+
   const result = computeScore(inputs);
   const keyInsight = generateKeyInsight(result);
   const nextSteps = generateNextSteps(result);

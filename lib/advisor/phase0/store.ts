@@ -1,9 +1,13 @@
 /**
  * Phase 0 freeze + signal ledger. 24h, per person, never household/partner.
  *
- * localStorage only (no cookies, no PostHog, no household table). Partner
- * isolation is the personKey on every record — a different signed-in user
- * on the same browser does not inherit the freeze.
+ * Guest freeze lives in localStorage. Signed-in freeze is mirrored here for
+ * UX only — the authority is phase0_state via /api/advisor/phase0 and the
+ * advisor / scoring / assessment routes. No cookies, no PostHog, no
+ * household table. Partner isolation is the personKey on every record.
+ *
+ * clearPhase0Freeze is local-only. It does not lift a signed-in server freeze.
+ * Lift is 24h expiry only.
  */
 
 import { clearDraft } from "@/lib/assessment/draft";
@@ -245,6 +249,20 @@ export function ingestPhase0Observation(input: {
   });
   const financialStress = combined.financialStress || fresh.financialStress;
   const selfHarm = combined.selfHarm || fresh.selfHarm;
+
+  if (input.personKey.startsWith("user:") && typeof fetch === "function") {
+    void fetch("/api/advisor/phase0", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        texts: input.texts ?? [],
+        named: (input.named ?? []).map((item) => item.id),
+      }),
+    }).catch(() => {
+      // Server persist is best-effort from the client; advisor/scoring
+      // routes re-check the row themselves.
+    });
+  }
 
   if (!combined.frozen) {
     return { ...combined, financialStress, selfHarm, record: null };

@@ -14,10 +14,21 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { detectAcuteDistress, CRISIS_SUPPORT_MESSAGE } from "@/lib/advisor/crisis";
 import { PHASE0_PAUSE_COPY } from "@/lib/advisor/phase0";
 
+const OPEN_PHASE0 = {
+  frozen: false,
+  frozen_until: null,
+  last_signal_at: null,
+};
+
 const state = vi.hoisted(() => ({
   user: { id: "u1" } as { id: string } | null,
   tier: "free" as string,
   role: null as string | null,
+  phase0: {
+    frozen: false,
+    frozen_until: null as string | null,
+    last_signal_at: null as string | null,
+  },
 }));
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -33,7 +44,12 @@ vi.mock("@/lib/supabase/server", () => ({
         }),
       }),
     }),
-    rpc: async () => ({ data: true, error: null }),
+    rpc: async (fn: string) => {
+      if (fn === "phase0_get_state" || fn === "phase0_ingest") {
+        return { data: state.phase0, error: null };
+      }
+      return { data: true, error: null };
+    },
   }),
 }));
 
@@ -63,6 +79,7 @@ beforeEach(() => {
   state.user = { id: "u1" };
   state.tier = "free";
   state.role = null;
+  state.phase0 = { ...OPEN_PHASE0 };
   fetchMock = vi.fn(async () => ({ ok: true, status: 200, json: async () => ({}) }));
   vi.stubGlobal("fetch", fetchMock);
 });
@@ -142,6 +159,31 @@ describe("POST /api/advisor — crisis short-circuit", () => {
     const body = (await res.json()) as { reply: string; source: string };
     expect(body.source).toBe("crisis");
     expect(body.reply).toBe(CRISIS_SUPPORT_MESSAGE);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("signed-in Phase 0 freeze refuses a clean message (no READY from the model)", async () => {
+    const frozenUntil = new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString();
+    state.phase0 = {
+      frozen: true,
+      frozen_until: frozenUntil,
+      last_signal_at: frozenUntil,
+    };
+
+    const res = await POST(
+      req({
+        messages: [{ role: "user", content: "am I ready to buy?" }],
+        phase0Frozen: false,
+      }),
+    );
+    const body = (await res.json()) as { reply: string; source: string };
+    expect(body.source).toBe("phase0");
+    expect(body.reply).toContain("Your assessment is paused");
+    expect(body.reply).not.toMatch(/\bREADY\b/);
+    expect(body.reply).not.toMatch(/ALMOST THERE/);
+    expect(body.reply).not.toMatch(/BUILD FIRST/);
+    expect(body.reply).not.toMatch(/DO NOT PROCEED/);
+    expect(body.reply).not.toMatch(/NOT YET/);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
