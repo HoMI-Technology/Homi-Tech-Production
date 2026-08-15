@@ -1,9 +1,6 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useRef, type ReactNode, type RefObject } from "react";
-import { PRIMARY_CLOSE_HREF, PRIMARY_CLOSE_LABEL } from "@/components/marketing/first-moment-copy";
-import { track } from "@/lib/analytics";
 import { Particles } from "./CinematicCompass";
 import { HoldStage, WalkWords } from "./walk-hold";
 import { tokenizeWalkLine } from "./walk-tokens";
@@ -19,7 +16,7 @@ export { WalkPersist } from "./walk-persist";
  * 3. Next — the inversion.
  *
  * Type sits ON the navy field. Compass and Assess travel via WalkPersist —
- * one instance each, never destroyed on the hero and reborn at the close.
+ * one instance each. Assess paints in the hero on first paint, then travels.
  * DESIGN.md: navy/cyan, type-display, PRM-safe (no spin/beam/tilt).
  *
  * SEO/AT: h1 text is in the DOM from first paint. The locked question
@@ -161,16 +158,6 @@ function OpeningBeat() {
           <a href="#statement" className="walk-kicker">
             What this is
           </a>
-        }
-        after={
-          <Link
-            href={`${PRIMARY_CLOSE_HREF}?src=hero`}
-            className="btn btn-primary btn-sm"
-            data-walk-hero-assess=""
-            onClick={() => track("hero_cta_click", { src: "hero" })}
-          >
-            {PRIMARY_CLOSE_LABEL}
-          </Link>
         }
       >
         <h1
