@@ -103,7 +103,9 @@ describe("middleware with Supabase env present", () => {
     expect(res.headers.get("location")).toBeNull();
   });
 
-  it("serves public routes without requiring a session", async () => {
+  it("leaves /assessment public so the page can send guests to First Moment", async () => {
+    // Middleware must not bounce /assessment to sign-in — that skips First Moment.
+    // The page itself server-redirects guests to /first-moment.
     state.user = null;
     const res = await middleware(req("/assessment"));
     expect(res.status).toBe(200);

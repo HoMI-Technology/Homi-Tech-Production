@@ -1,5 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { signInViaUi } from "./helpers/auth";
 import { dismissCookieConsent } from "./helpers/consent";
+
+const email = process.env.E2E_TEST_EMAIL ?? "";
+const password = process.env.E2E_TEST_PASSWORD ?? "";
 
 /**
  * Path to Ready — seeded localStorage (no full assessment drive).
@@ -147,6 +151,10 @@ test.describe("Path to Ready (seeded)", () => {
   });
 
   test("results surface auto-generates Path to Ready for non-ready verdict", async ({ page }) => {
+    test.skip(
+      !email || !password,
+      "Set E2E_TEST_EMAIL/E2E_TEST_PASSWORD to run signed-in Path to Ready on /results.",
+    );
     test.setTimeout(90_000);
 
     await page.addInitScript(
@@ -157,6 +165,8 @@ test.describe("Path to Ready (seeded)", () => {
       { assessment: SAMPLE_ASSESSMENT },
     );
 
+    // Guest /results must stay empty — do not seed a guest verdict here.
+    await signInViaUi(page, email, password);
     await page.goto("/results");
     await dismissCookieConsent(page);
 

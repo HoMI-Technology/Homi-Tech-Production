@@ -24,6 +24,11 @@ describe("SiteHeader primary close", () => {
     expect(header).not.toContain('href="/shadow-score"');
     expect(header).not.toContain("Get your score");
   });
+
+  it("does not deep-link the Assessment nav to /assessment", () => {
+    expect(header).toMatch(/href:\s*PRIMARY_CLOSE_HREF,\s*label:\s*"Assessment"/);
+    expect(header).not.toMatch(/href:\s*["']\/assessment["']/);
+  });
 });
 
 describe("InterviewHero primary close", () => {
