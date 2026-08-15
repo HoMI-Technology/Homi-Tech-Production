@@ -10,9 +10,12 @@ import {
 export function WaitlistForm({
   source = "waitlist",
   idPrefix,
+  surface = "card",
 }: {
   source?: WaitlistSource;
   idPrefix?: string;
+  /** `whisper` is the homepage close — fields only, no glass card. */
+  surface?: "card" | "whisper";
 }) {
   const generatedId = useId();
   const prefix = idPrefix ?? `waitlist-${generatedId}`;
@@ -44,10 +47,12 @@ export function WaitlistForm({
     }
   }
 
+  const whisper = surface === "whisper";
+
   if (status === "success") {
     return (
-      <div className="glass p-8 text-center">
-        <p className="font-display text-xl text-light">
+      <div className={whisper ? "text-left" : "glass p-8 text-center"}>
+        <p className={whisper ? "text-sm text-dim" : "font-display text-xl text-light"}>
           You&rsquo;re on the list. We&rsquo;ll tell you the truth when it&rsquo;s your turn.
         </p>
       </div>
@@ -55,9 +60,12 @@ export function WaitlistForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="glass flex flex-col gap-5 p-8 text-left">
+    <form
+      onSubmit={handleSubmit}
+      className={whisper ? "flex flex-col gap-4 text-left" : "glass flex flex-col gap-5 p-8 text-left"}
+    >
       <div>
-        <label htmlFor={emailId} className="text-sm font-medium text-light">
+        <label htmlFor={emailId} className={whisper ? "text-xs font-medium text-dim" : "text-sm font-medium text-light"}>
           Email
         </label>
         <input
@@ -74,7 +82,7 @@ export function WaitlistForm({
       </div>
 
       <div>
-        <label htmlFor={interestId} className="text-sm font-medium text-light">
+        <label htmlFor={interestId} className={whisper ? "text-xs font-medium text-dim" : "text-sm font-medium text-light"}>
           What brings you here?
         </label>
         <select
@@ -91,12 +99,16 @@ export function WaitlistForm({
         </select>
       </div>
 
-      <button type="submit" disabled={status === "loading"} className="btn btn-primary mt-2">
+      <button
+        type="submit"
+        disabled={status === "loading"}
+        className={whisper ? "btn btn-ghost btn-sm mt-1 self-start" : "btn btn-primary mt-2"}
+      >
         {status === "loading" ? "Sending…" : "Get notified"}
       </button>
 
       {status === "error" && (
-        <p className="text-center text-sm text-dim" role="alert">
+        <p className={`text-sm text-dim ${whisper ? "text-left" : "text-center"}`} role="alert">
           Something didn&rsquo;t connect. Try again in a moment.
         </p>
       )}

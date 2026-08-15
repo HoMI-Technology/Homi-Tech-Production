@@ -122,6 +122,13 @@ export function SiteFooter() {
         {/* Legal canon (lib/brand LEGAL_DISCLAIMER) is regulatory text, not
             marketing copy — it is rendered verbatim. */}
         <p className="text-xs leading-relaxed text-dim/80">{LEGAL_DISCLAIMER}</p>
+        <p className="mt-3 text-xs leading-relaxed text-dim/70">
+          <span className="font-medium text-emerald/90">
+            Educational only &mdash; not financial advice.
+          </span>{" "}
+          HōMI provides educational guidance only. Consider consulting qualified professionals
+          before making legal, tax, mortgage, investment, or real estate decisions.
+        </p>
         <div className="mt-6 flex flex-col items-start justify-between gap-3 text-xs text-dim/70 sm:flex-row">
           <span>
             © <CopyrightYear initial={new Date().getFullYear()} /> HOMI TECHNOLOGIES LLC. All rights
