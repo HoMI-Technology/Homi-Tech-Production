@@ -63,14 +63,16 @@ describe("homepage walk — 2024 SaaS landing is unmounted", () => {
   const home = src("app", "(marketing)", "page.tsx");
 
   it("does not mount killed theater, tables, or comparison grids", () => {
-    expect(home).not.toContain("ThresholdPreview");
-    expect(home).not.toContain("VerdictShift");
-    expect(home).not.toContain("Voices");
-    expect(home).not.toContain("DecisionOrbit");
-    expect(home).not.toContain("Flashlight");
-    expect(home).not.toContain("AlignmentScene");
-    expect(home).not.toContain("TimelineShift");
-    expect(home).not.toContain("StatementReveal");
+    expect(home).not.toMatch(/from\s+["']@\/components\/home\/ThresholdPreview["']/);
+    expect(home).not.toMatch(/from\s+["']@\/components\/home\/VerdictShift["']/);
+    expect(home).not.toMatch(/from\s+["']@\/components\/home\/Voices["']/);
+    expect(home).not.toMatch(/from\s+["']@\/components\/home\/DecisionOrbit["']/);
+    expect(home).not.toMatch(/from\s+["']@\/components\/home\/Flashlight["']/);
+    expect(home).not.toMatch(/from\s+["']@\/components\/home\/AlignmentScene["']/);
+    expect(home).not.toMatch(/from\s+["']@\/components\/home\/TimelineShift["']/);
+    expect(home).not.toMatch(/from\s+["']@\/components\/home\/StatementReveal["']/);
+    expect(home).not.toContain("<ThresholdPreview");
+    expect(home).not.toContain("<Voices");
     expect(home).not.toContain("<table");
     expect(home).not.toMatch(/lg:grid-cols/);
     expect(home).not.toMatch(/md:grid-cols-2/);

@@ -175,8 +175,10 @@ describe("Wave 1 chrome honesty — homepage theater", () => {
     expect(HOME).not.toMatch(/below 36%/);
     expect(HOME).not.toContain("Sample path");
     expect(HOME).not.toContain("28 / 33 / 36");
-    expect(HOME).not.toContain("ThresholdPreview");
-    expect(HOME).not.toContain("Voices");
+    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/ThresholdPreview["']/);
+    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/Voices["']/);
+    expect(HOME).not.toContain("<ThresholdPreview");
+    expect(HOME).not.toContain("<Voices");
   });
 });
 

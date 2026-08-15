@@ -20,8 +20,7 @@ export const metadata: Metadata = {
  *
  * InterviewHero owns the locked first three beats + Assess on first paint.
  * Everything after is the same IdeaBeat / WalkChapter primitive. No tables,
- * comparison grids, kicker+card walls, or theater (ThresholdPreview, Voices,
- * sample path, B2B summary, DecisionOrbit, Flashlight).
+ * comparison grids, kicker+card walls, or product-tour theater.
  *
  * Copy is existing homepage lines only. Waitlist stays a quiet last close,
  * secondary to Assess. Never present a fake 0–100 HōMI-Score.
