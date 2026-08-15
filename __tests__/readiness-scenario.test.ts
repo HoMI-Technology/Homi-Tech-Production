@@ -24,5 +24,19 @@ describe("runScenarioStudio", () => {
     });
     expect(inputs.monthlySavings).toBe(2500);
     expect(inputs.downPaymentSaved).toBe(20000);
+    expect(inputs.homePrice).toBe(0);
+  });
+
+  it("scenarioInputsFromFinance never invents a house price from down-payment target", () => {
+    const inputs = scenarioInputsFromFinance({
+      liquidSavings: 20000,
+      monthlyIncome: 8000,
+      monthlyExpenses: 5000,
+      monthlyDebtPayments: 500,
+      downPaymentTarget: 80_000,
+      targetPrice: 410_000,
+    });
+    expect(inputs.homePrice).toBe(410_000);
+    expect(inputs.homePrice).not.toBe(400_000);
   });
 });

@@ -12,6 +12,7 @@ import {
 } from "@/lib/readiness";
 import { useLatestAssessment } from "@/hooks/use-latest-assessment";
 import { hasSavedFinanceState, loadFinanceState } from "@/lib/finance/store";
+import { loadToolsOverlay } from "@/lib/tools/cfm";
 import type { ScenarioKey, SimulationInputs } from "@/lib/decisions/simulate";
 import { NetPositionChart } from "@/components/decisions/NetPositionChart";
 import { PageFrame } from "@/components/operate/PageFrame";
@@ -44,12 +45,16 @@ export default function ScenariosPage() {
   const seeded = useMemo(() => {
     if (!hasSavedFinanceState()) return scenarioInputsFromFinance({});
     const f = loadFinanceState();
+    const overlay = loadToolsOverlay();
     return scenarioInputsFromFinance({
       liquidSavings: f.liquidSavings,
       monthlyIncome: f.monthlyIncome,
       monthlyExpenses: f.monthlyExpenses,
       monthlyDebtPayments: f.monthlyDebtPayments,
-      downPaymentTarget: f.downPaymentTarget,
+      downPaymentSaved: overlay.downPaymentSaved ?? f.liquidSavings,
+      targetPrice: overlay.targetPrice,
+      currentRent: overlay.currentRent,
+      assumedRatePct: overlay.assumedRatePct,
     });
   }, []);
 

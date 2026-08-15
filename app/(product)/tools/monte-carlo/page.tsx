@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { COLORS } from "@/lib/brand";
 import { runMonteCarlo, type MonteCarloResult } from "@/lib/tools/montecarlo";
+import { TOOLS_MC_DEFAULTS } from "@/lib/tools/same-model";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { LensField } from "@/components/tools/LensField";
 import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
@@ -20,13 +21,13 @@ const LENS = getLens("monte-carlo")!;
 function MonteCarloPageInner() {
   const [currentSavings, setCurrentSavings] = useState(20000);
   const [monthlyContribution, setMonthlyContribution] = useState(600);
-  const [years, setYears] = useState(10);
-  const [expectedReturn, setExpectedReturn] = useState(7);
-  const [volatility, setVolatility] = useState(15);
-  const [targetAmount, setTargetAmount] = useState(150000);
-  const [jobLossProb, setJobLossProb] = useState(0);
-  const [maintenanceShock, setMaintenanceShock] = useState(0);
-  const [incomeGrowth, setIncomeGrowth] = useState(0);
+  const [years, setYears] = useState(TOOLS_MC_DEFAULTS.years);
+  const [expectedReturn, setExpectedReturn] = useState(TOOLS_MC_DEFAULTS.expectedReturnPct);
+  const [volatility, setVolatility] = useState(TOOLS_MC_DEFAULTS.volatilityPct);
+  const [targetAmount, setTargetAmount] = useState(TOOLS_MC_DEFAULTS.targetAmount);
+  const [jobLossProb, setJobLossProb] = useState(TOOLS_MC_DEFAULTS.jobLossProb);
+  const [maintenanceShock, setMaintenanceShock] = useState(TOOLS_MC_DEFAULTS.maintenanceShock);
+  const [incomeGrowth, setIncomeGrowth] = useState(TOOLS_MC_DEFAULTS.incomeGrowth);
 
   const [result, setResult] = useState<MonteCarloResult | null>(null);
 
@@ -54,8 +55,8 @@ function MonteCarloPageInner() {
       jobLossProb,
       maintenanceShock,
       incomeGrowth,
-      seed: 1337,
-      runs: 10000,
+      seed: TOOLS_MC_DEFAULTS.seed,
+      runs: TOOLS_MC_DEFAULTS.runs,
     });
     setResult(r);
   }, [

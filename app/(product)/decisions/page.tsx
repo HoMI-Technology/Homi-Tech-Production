@@ -7,7 +7,14 @@ import {
   simulateAllScenarios,
   type SimulationInputs,
 } from "@/lib/decisions/simulate";
-import { loadDecisionInputs, saveDecisionInputs } from "@/lib/decisions/state";
+import {
+  hasSavedDecisionInputs,
+  loadDecisionInputs,
+  saveDecisionInputs,
+} from "@/lib/decisions/state";
+import { hasSavedFinanceState, loadFinanceState } from "@/lib/finance/store";
+import { loadToolsOverlay } from "@/lib/tools/cfm";
+import { scenarioInputsFromFinance } from "@/lib/readiness/scenario";
 import { NetPositionChart } from "@/components/decisions/NetPositionChart";
 import { MoneyField } from "@/components/ui/MoneyField";
 import { PageFrame } from "@/components/operate/PageFrame";
@@ -38,6 +45,27 @@ export default function DecisionsPage() {
   const [inputs, setInputs] = useState<SimulationInputs>(DEFAULT_SIMULATION_INPUTS);
 
   useEffect(() => {
+    if (hasSavedDecisionInputs()) {
+      setInputs(loadDecisionInputs());
+      return;
+    }
+    if (hasSavedFinanceState()) {
+      const f = loadFinanceState();
+      const overlay = loadToolsOverlay();
+      setInputs(
+        scenarioInputsFromFinance({
+          liquidSavings: f.liquidSavings,
+          monthlyIncome: f.monthlyIncome,
+          monthlyExpenses: f.monthlyExpenses,
+          monthlyDebtPayments: f.monthlyDebtPayments,
+          downPaymentSaved: overlay.downPaymentSaved ?? f.liquidSavings,
+          targetPrice: overlay.targetPrice,
+          currentRent: overlay.currentRent,
+          assumedRatePct: overlay.assumedRatePct,
+        }),
+      );
+      return;
+    }
     setInputs(loadDecisionInputs());
   }, []);
 

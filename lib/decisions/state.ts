@@ -14,6 +14,16 @@ import { DEFAULT_SIMULATION_INPUTS, type SimulationInputs } from "./simulate";
 
 const STORAGE_KEY = "homi:decision:inputs";
 
+/** True when the user has saved rehearsal inputs — not illustrative defaults. */
+export function hasSavedDecisionInputs(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(STORAGE_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
 /** Load saved decision inputs, falling back to defaults. SSR-safe. */
 export function loadDecisionInputs(): SimulationInputs {
   if (typeof window === "undefined") return DEFAULT_SIMULATION_INPUTS;
