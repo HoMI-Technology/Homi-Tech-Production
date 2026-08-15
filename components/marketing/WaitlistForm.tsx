@@ -62,7 +62,7 @@ export function WaitlistForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className={whisper ? "flex flex-col gap-4 text-left" : "glass flex flex-col gap-5 p-8 text-left"}
+      className={whisper ? "flex flex-col gap-3 text-left" : "glass flex flex-col gap-5 p-8 text-left"}
     >
       <div>
         <label htmlFor={emailId} className={whisper ? "text-xs font-medium text-dim" : "text-sm font-medium text-light"}>
