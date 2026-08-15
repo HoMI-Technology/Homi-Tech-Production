@@ -141,11 +141,12 @@ describe("Wave 1 chrome honesty — primary close", () => {
     expect(HOW_IT_WORKS).not.toContain("Get your score");
   });
 
-  it("how-it-works publishes 35 / 35 / 30 and does not claim equal weights or a trade secret", () => {
+  it("how-it-works publishes 35 / 35 / 30 and does not claim equal weights, a trade secret, or 200+ signals", () => {
     expect(HOW_IT_WORKS).toContain("35 / 35 / 30");
     expect(HOW_IT_WORKS).not.toContain("HōMI weighs all three pillars equally");
     expect(HOW_IT_WORKS).not.toContain("those are the trade secret");
     expect(HOW_IT_WORKS).not.toContain("shadow version");
+    expect(HOW_IT_WORKS).not.toContain("200+ signals");
   });
 
   it("footer is not a product CTA to /advisor", () => {

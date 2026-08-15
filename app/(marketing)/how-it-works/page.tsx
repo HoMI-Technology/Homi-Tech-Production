@@ -85,10 +85,6 @@ export default function HowItWorksPage() {
       <section className="px-6 pb-16 pt-16 md:pt-24">
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="type-h1">How HōMI works</h1>
-          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-dim">
-            200+ signals. 3 dimensions. 1 score. Here is exactly how we get from your answers to an
-            honest verdict — no trade secrets, just the shape of the method.
-          </p>
         </div>
       </section>
 
