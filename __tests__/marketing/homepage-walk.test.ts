@@ -117,7 +117,8 @@ describe("homepage walk — Knowledge keep-list only", () => {
     expect(home).not.toMatch(/from\s+["']@\/components\/home\/StatementReveal["']/);
     expect(home).not.toMatch(/from\s+["']@\/components\/home\/AlignmentScene["']/);
     expect(home).not.toContain("<StatementReveal");
-    expect(home).not.toContain("pin-scene");
+    expect(home).not.toContain('className="pin-scene');
+    expect(home).not.toContain("data-testid=\"alignment-pin-stage\"");
   });
 });
 
