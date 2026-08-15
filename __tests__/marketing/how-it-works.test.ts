@@ -12,10 +12,15 @@ const VERDICT_CARD =
   "HōMI weighs Financial Reality, Emotional Truth, and Perfect Timing at 35 / 35 / 30, then checks for hard-stops — conditions that override the math entirely because they are not safe to build on top of.";
 const PILLAR_INTRO =
   "The public weights are 35 / 35 / 30 — Financial Reality, Emotional Truth, Perfect Timing. Here is what each pillar looks at and why it matters.";
+const WEIGHTS_LOCK =
+  "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours.";
 
 const KILLED = [
   "200+ signals",
   "200+ signals. 3 dimensions. 1 score.",
+  "equally-weighted",
+  "equal weights",
+  "weights are a trade secret",
   "HōMI weighs all three pillars equally",
   "We don’t publish exact point values or weights — those are the trade secret.",
   "We don&rsquo;t publish exact point values or weights — those are the trade secret.",
@@ -24,14 +29,18 @@ const KILLED = [
 ] as const;
 
 describe("how-it-works — Brand-authored lock", () => {
+  it("pins the Product weights lock character-for-character", () => {
+    expect(PAGE).toContain(WEIGHTS_LOCK);
+  });
+
   it("pins the three Brand-authored lines character-for-character", () => {
     expect(PAGE).toContain(ASSESS_CARD);
     expect(PAGE).toContain(VERDICT_CARD);
     expect(PAGE).toContain(PILLAR_INTRO);
   });
 
-  it("publishes CANON weights 35 / 35 / 30 — never equal weights or a hidden-weight claim", () => {
-    expect(PAGE).toContain("35 / 35 / 30");
+  it("locks CANON numbers as not-equal / not-secret — never a different 35/35/30 wording", () => {
+    expect(PAGE).toContain(WEIGHTS_LOCK);
     expect(PAGE).not.toMatch(/weighs all three pillars equally/i);
     expect(PAGE).not.toContain("those are the trade secret");
     expect(PAGE).not.toContain("We don’t publish exact point values or weights");

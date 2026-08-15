@@ -141,9 +141,14 @@ describe("Wave 1 chrome honesty — primary close", () => {
     expect(HOW_IT_WORKS).not.toContain("Get your score");
   });
 
-  it("how-it-works publishes 35 / 35 / 30 and does not claim equal weights, a trade secret, or 200+ signals", () => {
-    expect(HOW_IT_WORKS).toContain("35 / 35 / 30");
+  it("how-it-works locks Product weights and does not claim equal weights, a trade secret, or 200+ signals", () => {
+    expect(HOW_IT_WORKS).toContain(
+      "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours.",
+    );
     expect(HOW_IT_WORKS).not.toContain("HōMI weighs all three pillars equally");
+    expect(HOW_IT_WORKS).not.toContain("equally-weighted");
+    expect(HOW_IT_WORKS).not.toContain("equal weights");
+    expect(HOW_IT_WORKS).not.toContain("weights are a trade secret");
     expect(HOW_IT_WORKS).not.toContain("those are the trade secret");
     expect(HOW_IT_WORKS).not.toContain("shadow version");
     expect(HOW_IT_WORKS).not.toContain("200+ signals");
