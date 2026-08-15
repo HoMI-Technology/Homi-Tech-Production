@@ -120,7 +120,8 @@ describe("homepage walk — Knowledge keep-list only", () => {
     const persist = src("components", "home", "walk-persist.tsx");
     const hero = src("components", "home", "InterviewHero.tsx");
     const compass = src("components", "home", "CinematicCompass.tsx");
-    expect(persist).toContain("<CinematicCompass");
+    expect(persist).toContain("<CinematicCompass responsive keyholePulse={false} />");
+    expect(persist).not.toMatch(/<CinematicCompass[^>]*\bsize=/);
     expect(persist).not.toContain("Compass3D");
     expect(hero).not.toContain("Compass3D");
     expect(hero).not.toContain("<CinematicCompass");
