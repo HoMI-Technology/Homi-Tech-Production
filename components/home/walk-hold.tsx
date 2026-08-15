@@ -22,8 +22,9 @@ type WalkHoldValue = {
 const WalkHoldContext = createContext<WalkHoldValue>({ progress: 1, reduced: true });
 
 /**
- * Tall runway + sticky stage. The current line owns the viewport until
- * scroll progress finishes resolving its words. PRM: CSS drops the pin.
+ * Sticky 100vh scene + a short lighting runway. Native scroll only —
+ * rAF reads progress; it does not hijack wheel or change scroll rate.
+ * PRM: CSS drops the pin and paints every word. No shortened jack.
  */
 export function HoldStage({
   id,
@@ -117,7 +118,9 @@ function useHoldProgress(ref: RefObject<HTMLElement | null>): WalkHoldValue {
     }
 
     let raf = 0;
+    let onScreen = true;
     const update = () => {
+      if (!onScreen) return;
       const rect = el.getBoundingClientRect();
       const max = Math.max(1, el.offsetHeight - window.innerHeight);
       const next = Math.max(0, Math.min(1, -rect.top / max));
@@ -130,10 +133,21 @@ function useHoldProgress(ref: RefObject<HTMLElement | null>): WalkHoldValue {
       raf = requestAnimationFrame(update);
     };
 
+    const io = new IntersectionObserver(
+      (entries) => {
+        onScreen = entries.some((entry) => entry.isIntersecting);
+        if (onScreen) onScroll();
+        else cancelAnimationFrame(raf);
+      },
+      { rootMargin: "12% 0px" },
+    );
+    io.observe(el);
+
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
     return () => {
+      io.disconnect();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
       cancelAnimationFrame(raf);

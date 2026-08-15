@@ -20,8 +20,9 @@ export { WalkPersist } from "./walk-persist";
  * DESIGN.md: navy/cyan, type-display, PRM-safe (no spin/beam/tilt).
  *
  * SEO/AT: h1 text is in the DOM from first paint. The locked question
- * paints fully (WalkWords paint="full"); later holds resolve
- * invisible→full on scroll. prefers-reduced-motion paints every line.
+ * paints fully (WalkWords paint="full") and is the LCP element — do not
+ * fade, type, or scrub it. Later holds keep every word in the DOM at a
+ * readable unlit alpha, then scroll-lit color fill. PRM paints every line.
  */
 
 export const HERO_VARIANT: "interview" | "film" = "film";

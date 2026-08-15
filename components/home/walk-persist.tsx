@@ -10,7 +10,8 @@ import { track } from "@/lib/analytics";
  * Persistent walk objects — one compass, one Assess pill.
  * They travel. They are not destroyed on the hero and reborn later.
  * Arriving at the object beat is one-way; we do not reverse-animate.
- * Compass parks before the waitlist. Assess fades as the footer enters.
+ * Compass parks before the waitlist. Assess parks when waitlist, footer,
+ * or the cookie bar would sit under it — cookie itself paints at z-60.
  */
 
 function handleCtaClick() {
@@ -24,23 +25,23 @@ export function WalkPersist({ children }: { children: ReactNode }) {
   const [atObject, setAtObject] = useState(false);
   const [parked, setParked] = useState(false);
   const [footerIn, setFooterIn] = useState(false);
+  const [cookieIn, setCookieIn] = useState(false);
   const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setReduced(true);
-      return;
-    }
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion) setReduced(true);
 
     const object = root.querySelector("[data-walk-object]");
     const waitlist = root.querySelector("#waitlist");
     const footer = document.querySelector("footer");
+    const cookie = document.querySelector("#cookie-consent");
 
     const observers: IntersectionObserver[] = [];
 
-    if (object) {
+    if (object && !reducedMotion) {
       const io = new IntersectionObserver(
         (entries) => {
           if (entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= 0.35)) {
@@ -77,6 +78,17 @@ export function WalkPersist({ children }: { children: ReactNode }) {
       observers.push(io);
     }
 
+    if (cookie) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          setCookieIn(entries.some((entry) => entry.isIntersecting));
+        },
+        { threshold: [0] },
+      );
+      io.observe(cookie);
+      observers.push(io);
+    }
+
     return () => observers.forEach((io) => io.disconnect());
   }, []);
 
@@ -106,7 +118,8 @@ export function WalkPersist({ children }: { children: ReactNode }) {
           <div
             className="walk-travel-assess"
             data-walk-assess-slot=""
-            data-fade={footerIn ? "footer" : undefined}
+            data-fade={parked || footerIn ? "away" : undefined}
+            data-cookie={cookieIn ? "" : undefined}
           >
             <div className="walk-cluster mx-auto flex h-full w-full max-w-7xl flex-col items-start justify-center px-5 sm:px-6 lg:px-8">
               <div className="walk-line" aria-hidden />

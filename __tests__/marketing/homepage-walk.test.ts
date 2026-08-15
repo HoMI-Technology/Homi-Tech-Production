@@ -38,7 +38,7 @@ describe("homepage walk — locked first viewport", () => {
     expect(hero).not.toMatch(/lg:grid-cols/);
   });
 
-  it("holds one idea and resolves walk words invisible→full; PRM is static", () => {
+  it("holds one idea and scroll-lits later words; PRM is static", () => {
     expect(hero).toContain("HoldStage");
     expect(hero).toContain("WalkWords");
     expect(hero).toContain("tokenizeWalkLine");
@@ -47,13 +47,17 @@ describe("homepage walk — locked first viewport", () => {
     expect(hold).toContain("walk-word");
     expect(hold).toContain("--walk-progress");
     expect(hold).toContain("prefers-reduced-motion: reduce");
+    expect(hold).toContain("{token.text}");
     const css = src("app", "globals.css");
     expect(css).toContain(".walk-hold");
     expect(css).toContain(".walk-word");
-    expect(css).toContain("opacity: 0");
+    expect(css).toContain("rgb(255 255 255 / 0.42)");
     expect(css).toContain("rgb(255 255 255 / 0.94)");
     expect(css).toContain("prefers-reduced-motion: reduce");
     expect(css).not.toMatch(/\.walk-hold[^{]*\{[^}]*pin-scene/);
+    const wordBlock = css.slice(css.indexOf("  .walk-word {"), css.indexOf("  .walk-word[data-on]"));
+    expect(wordBlock).not.toContain("opacity: 0");
+    expect(wordBlock).toContain("color: rgb(255 255 255 / 0.42)");
   });
 
   it("paints the locked hero question fully on first paint", () => {
@@ -64,7 +68,7 @@ describe("homepage walk — locked first viewport", () => {
     const hold = src("components", "home", "walk-hold.tsx");
     expect(hold).toContain('paint === "full"');
     const css = src("app", "globals.css");
-    expect(css).toMatch(/\[data-cinema="hero"\]\s*\.walk-word\s*\{[^}]*opacity:\s*1/);
+    expect(css).toMatch(/\[data-cinema="hero"\]\s*\.walk-word\s*\{[^}]*color:\s*rgb\(255 255 255 \/ 0\.94\)/);
     expect(css).not.toMatch(/\[data-cinema="hero"\]\s*\.walk-word\s*\{[^}]*opacity:\s*0/);
   });
 
@@ -256,3 +260,109 @@ describe("homepage walk — brochure inventory is unmounted", () => {
     expect(home).not.toContain("BUILD FIRST");
   });
 });
+
+describe("homepage walk — craft failure modes", () => {
+  const walkFiles = [
+    src("components", "home", "walk-hold.tsx"),
+    src("components", "home", "walk-persist.tsx"),
+    src("components", "home", "InterviewHero.tsx"),
+    src("app", "(marketing)", "page.tsx"),
+  ].join("\n");
+  const css = src("app", "globals.css");
+  const persist = src("components", "home", "walk-persist.tsx");
+  const hold = src("components", "home", "walk-hold.tsx");
+  const compass = src("components", "home", "CinematicCompass.tsx");
+  const waitlist = src("components", "marketing", "WaitlistForm.tsx");
+
+  it("does not jack scroll or import GSAP / Lenis / SplitType / Three", () => {
+    expect(walkFiles).not.toMatch(/preventDefault/);
+    expect(walkFiles).not.toMatch(/scroll-snap|scrollSnap|pin-spacer|pinSpacer/);
+    expect(css).not.toMatch(/\.walk-hold[^{]*\{[^}]*scroll-snap/);
+    expect(hold).toContain("passive: true");
+    expect(hold).toContain("requestAnimationFrame");
+    expect(hold).not.toContain("wheel");
+    expect(walkFiles).not.toMatch(
+      /from\s+["'](?:gsap|lenis|split-type|@studio-freight\/lenis|three)["']/,
+    );
+  });
+
+  it("shortens the hold runway and does not fade the stage to empty navy", () => {
+    expect(css).toContain("height: calc(100dvh + 36vh)");
+    expect(css).toContain("margin-bottom: -28vh");
+    expect(css).not.toContain("(var(--walk-words, 4) + 0.2) * 15vh");
+    const stage = css.slice(css.indexOf(".walk-hold-stage {"), css.indexOf(".walk-cluster {"));
+    expect(stage).not.toContain("--walk-progress");
+    expect(stage).not.toContain("opacity:");
+  });
+
+  it("keeps later hold words readable at low alpha — not opacity 0", () => {
+    const wordBlock = css.slice(css.indexOf("  .walk-word {"), css.indexOf("  .walk-word[data-on]"));
+    expect(wordBlock).toContain("rgb(255 255 255 / 0.42)");
+    expect(wordBlock).not.toContain("opacity: 0");
+    expect(hold).toContain("{token.text}");
+    expect(unlitWhiteOnNavyContrast(0.42)).toBeGreaterThanOrEqual(3);
+    expect(unlitWhiteOnNavyContrast(0.38)).toBeGreaterThanOrEqual(3);
+  });
+
+  it("locks waitlist / Get notified / Assess href and parks Assess over them", () => {
+    expect(waitlist).toContain("Get notified");
+    expect(persist).toContain("PRIMARY_CLOSE_HREF");
+    expect(persist).toContain("PRIMARY_CLOSE_LABEL");
+    expect(persist).toContain("?src=hero");
+    expect(persist).toContain("#waitlist");
+    expect(persist).toContain("#cookie-consent");
+    expect(persist).toContain("parked || footerIn");
+    expect(css).toContain(".walk-travel-assess[data-fade]");
+    expect(css).toContain("scroll-padding-bottom");
+    expect(src("components", "consent", "CookieConsent.tsx")).toContain("z-[60]");
+    expect(persist).toContain("z-[5]");
+  });
+
+  it("jumps PRM to final states — no pin, no shortened jack", () => {
+    expect(css).toMatch(/prefers-reduced-motion:\s*reduce[\s\S]*\.walk-hold\s*\{[\s\S]*height:\s*auto/);
+    expect(hold).toContain('setProgress(1)');
+    expect(hold).toContain("prefers-reduced-motion: reduce");
+    expect(css).not.toMatch(/prefers-reduced-motion:\s*reduce[\s\S]*\.walk-hold\s*\{[\s\S]*15vh/);
+  });
+
+  it("keeps the walk compass SVG, pauses parked rings, and caps mobile DPR", () => {
+    expect(compass).toContain("<svg");
+    expect(compass).not.toContain("getContext");
+    expect(compass).toContain("COMPASS_MAX_DEVICE_PIXEL_RATIO = 1.5");
+    expect(css).toContain("animation-play-state: paused");
+    expect(persist).toContain("<CinematicCompass responsive keyholePulse={false} />");
+  });
+
+  it("keeps waitlist field borders at 3:1 non-text contrast", () => {
+    expect(css).toContain("border-color: rgb(148 163 184 / 0.64)");
+    expect(css).toContain("color: rgb(148 163 184 / 0.82)");
+    expect(css).not.toContain("border-color: rgb(148 163 184 / 0.48)");
+  });
+});
+
+function unlitWhiteOnNavyContrast(alpha: number): number {
+  const navy: [number, number, number] = [10, 22, 40];
+  const white: [number, number, number] = [255, 255, 255];
+  const blended = white.map((channel, i) => channel * alpha + navy[i] * (1 - alpha)) as [
+    number,
+    number,
+    number,
+  ];
+  return contrastRatio(blended, navy);
+}
+
+function contrastRatio(a: [number, number, number], b: [number, number, number]): number {
+  const L1 = relativeLuminance(a);
+  const L2 = relativeLuminance(b);
+  const hi = Math.max(L1, L2);
+  const lo = Math.min(L1, L2);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+function relativeLuminance([r, g, b]: [number, number, number]): number {
+  const lin = (channel: number) => {
+    const c = channel / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
