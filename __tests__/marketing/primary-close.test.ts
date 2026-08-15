@@ -41,6 +41,21 @@ describe("InterviewHero primary close", () => {
     expect(hero).not.toContain("aren't stored");
     expect(hero).not.toContain("aren&rsquo;t stored");
   });
+
+  it("pins the three locked first-viewport lines", () => {
+    expect(hero).toContain("Will you be okay?");
+    expect(hero).toContain("A Decision Companion.");
+    expect(hero).toContain("Everyone else tells you how");
+    expect(hero).toContain('track("hero_cta_click", { src: "hero" })');
+    expect(hero).toContain("?src=hero");
+  });
+
+  it("does not contain wait-rate proof, Trinity, or a two-column instrument split", () => {
+    expect(hero).not.toContain("70 · told to wait");
+    expect(hero).not.toContain("Trinity");
+    expect(hero).not.toMatch(/lg:grid-cols/);
+    expect(hero).not.toContain("If you lost your income tomorrow");
+  });
 });
 
 describe("homepage primary labels", () => {
