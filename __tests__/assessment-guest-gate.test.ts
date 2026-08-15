@@ -8,6 +8,7 @@ import {
   FIRST_MOMENT_BEATS,
   FIRST_MOMENT_HANDOFF_LINE,
   PRIMARY_CLOSE_HREF,
+  PRIMARY_CLOSE_LABEL,
 } from "@/components/marketing/first-moment-copy";
 
 const ROOT = process.cwd();
