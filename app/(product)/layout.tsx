@@ -2,8 +2,9 @@ import { ProductLayoutRouter } from "@/components/layout/ProductLayoutRouter";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SessionExpiredToast } from "@/components/layout/SessionExpiredToast";
 import { ImpactToast } from "@/components/readiness/ImpactToast";
-// CompanionHost (not CompanionWidget): interaction-gated panel so public
-// Lighthouse script budget stays green without removing Companion for E2E.
+// CompanionHost (not CompanionWidget): interaction-gated panel so signed-in
+// Lighthouse/E2E still open the widget on click. Guests do not get the FAB —
+// Companion is not anonymous customer chrome.
 import { CompanionHost } from "@/components/companion/CompanionHost";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { impactBus } from "@/lib/flags";
@@ -63,7 +64,7 @@ export default async function ProductLayout({ children }: { children: React.Reac
       </ProductLayoutRouter>
 
       <SiteFooter />
-      <CompanionHost />
+      {user && <CompanionHost />}
       {user && <SessionExpiredToast />}
       {impactBus ? <ImpactToast /> : null}
     </>

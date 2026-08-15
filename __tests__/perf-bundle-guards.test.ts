@@ -3,7 +3,7 @@
  *
  * These are *source* guards, not runtime LHCI: they fail in `vitest` (CI
  * verify job) the moment someone reintroduces a static import that blew the
- * §11 script budget or broke E2E by removing Companion from public pages.
+ * §11 script budget or statically imported CompanionWidget.
  *
  * Architecture (do not "simplify"):
  * 1. instrumentation-client — dynamic import @sentry/nextjs inside DSN guard
@@ -54,7 +54,7 @@ describe("perf bundle guards (Lighthouse §11 + E2E coexistence)", () => {
       /import\s+(?:type\s+)?\{[^}]*CompanionWidget[^}]*\}\s+from\s+["']\.\/CompanionWidget["']/,
     );
     expect(code).not.toMatch(/import\s+CompanionWidget\s+from\s+["']\.\/CompanionWidget["']/);
-    // Launcher must keep the E2E-facing accessible name for anonymous users.
+    // Launcher must keep the E2E-facing accessible name for signed-in users.
     // (string may live in JSX — check raw source)
     expect(src("components/companion/CompanionHost.tsx")).toMatch(/Open HōMI Companion/);
   });

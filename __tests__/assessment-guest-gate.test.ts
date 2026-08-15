@@ -138,6 +138,16 @@ describe("anonymous SiteHeader has no NotificationBell", () => {
   });
 });
 
+describe("guest product chrome has no Companion FAB", () => {
+  it("mounts CompanionHost only for a signed-in user", () => {
+    const layout = src("app", "(product)", "layout.tsx");
+    expect(layout).toMatch(/\{user\s*&&\s*<CompanionHost\s*\/>\}/);
+    expect(layout).not.toMatch(/^\s*<CompanionHost\s*\/>\s*$/m);
+    expect(layout).toContain('from "@/components/companion/CompanionHost"');
+    expect(layout).not.toContain("CompanionWidget");
+  });
+});
+
 describe("/api/scoring is not session-gated", () => {
   it("does not 401 /api/scoring — other callers stay auth-free", () => {
     const route = src("app", "api", "scoring", "route.ts");
