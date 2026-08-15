@@ -43,10 +43,10 @@ export function WalkChapter({ id, children }: { id?: string; children: ReactNode
   return (
     <section
       id={id}
-      className="hero-deep hero-chapter relative flex min-h-[100dvh] scroll-mt-24 flex-col justify-center overflow-hidden px-5 pb-[max(5.5rem,env(safe-area-inset-bottom,0px)+4.5rem)] pt-16 sm:px-6 lg:px-8"
+      className="hero-deep hero-chapter relative flex min-h-[100dvh] scroll-mt-24 flex-col justify-center overflow-hidden pb-[max(5.5rem,env(safe-area-inset-bottom,0px)+4.5rem)] pt-16"
     >
       <ChapterField />
-      <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-start">
+      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-start px-5 sm:px-6 lg:px-8">
         {children}
       </div>
     </section>
@@ -65,7 +65,7 @@ export function IdeaBeat({
   return (
     <WalkChapter id={id}>
       <h2
-        className="type-display relative z-10 max-w-3xl font-display font-semibold text-light"
+        className="type-display relative z-10 max-w-2xl font-display font-semibold text-light"
         style={{ textWrap: "balance" }}
       >
         {children}
