@@ -128,6 +128,24 @@ describe("guest /plan does not paint a localStorage score", () => {
     expect(page).not.toContain("/api/scoring");
     expect(page.indexOf("isAnonymous ? null")).toBeLessThan(page.indexOf("No plan yet"));
   });
+
+  it("empty state has exactly one close: Assess → /first-moment", () => {
+    const page = src("app", "(product)", "plan", "page.tsx");
+    const emptyStart = page.indexOf("No plan yet");
+    const emptyEnd = page.indexOf("const doneCount");
+    const empty = page.slice(emptyStart, emptyEnd);
+    expect(emptyStart).toBeGreaterThan(-1);
+    expect(emptyEnd).toBeGreaterThan(emptyStart);
+    expect(empty).toContain("PRIMARY_CLOSE_HREF");
+    expect(empty).toContain("PRIMARY_CLOSE_LABEL");
+    expect(PRIMARY_CLOSE_HREF).toBe("/first-moment");
+    expect(PRIMARY_CLOSE_LABEL).toBe("Assess");
+    expect(empty.match(/<Link\b/g)).toHaveLength(1);
+    expect(empty).not.toContain("Get your Shadow Score");
+    expect(empty).not.toContain("Take the full assessment");
+    expect(empty).not.toContain("/shadow-score");
+    expect(empty).not.toMatch(/href=["']\/assessment["']/);
+  });
 });
 
 describe("anonymous SiteHeader has no NotificationBell", () => {

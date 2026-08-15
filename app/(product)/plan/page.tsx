@@ -13,6 +13,10 @@ import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 import { Phase0FreezeScreen } from "@/components/advisor/Phase0FreezeScreen";
 import { usePhase0Freeze } from "@/hooks/usePhase0Freeze";
+import {
+  PRIMARY_CLOSE_HREF,
+  PRIMARY_CLOSE_LABEL,
+} from "@/components/marketing/first-moment-copy";
 
 const PLAN_PROGRESS_KEY = "homi:plan-progress";
 
@@ -171,11 +175,8 @@ export default function PlanPage() {
             Take an assessment first — your plan is built from your real answers.
           </p>
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <Link href="/shadow-score" className="btn btn-primary">
-              Get your Shadow Score
-            </Link>
-            <Link href="/assessment" className="btn btn-ghost">
-              Take the full assessment
+            <Link href={PRIMARY_CLOSE_HREF} className="btn btn-primary">
+              {PRIMARY_CLOSE_LABEL}
             </Link>
           </div>
         </div>
