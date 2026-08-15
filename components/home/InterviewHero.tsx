@@ -43,10 +43,10 @@ export function WalkChapter({ id, children }: { id?: string; children: ReactNode
   return (
     <section
       id={id}
-      className="hero-deep hero-chapter relative flex min-h-[100dvh] scroll-mt-24 flex-col justify-center overflow-hidden px-5 sm:px-6 lg:px-8"
+      className="hero-deep hero-chapter relative flex min-h-[100dvh] scroll-mt-24 flex-col justify-center overflow-hidden px-5 pb-[max(5.5rem,env(safe-area-inset-bottom,0px)+4.5rem)] pt-16 sm:px-6 lg:px-8"
     >
       <ChapterField />
-      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center">
+      <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-start">
         {children}
       </div>
     </section>
@@ -65,7 +65,7 @@ export function IdeaBeat({
   return (
     <WalkChapter id={id}>
       <h2
-        className="type-statement relative z-10 mx-auto max-w-5xl font-display font-semibold text-light"
+        className="type-display relative z-10 max-w-3xl font-display font-semibold text-light"
         style={{ textWrap: "balance" }}
       >
         {children}
@@ -87,10 +87,10 @@ function OpeningBeat() {
     >
       <HeroAtmosphere />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col justify-center px-5 pb-16 pt-24 sm:px-6 sm:pb-20 sm:pt-28 lg:px-8">
-        <div className="max-w-xl">
+      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col justify-center px-5 pb-16 pt-24 sm:px-6 sm:pb-20 sm:pt-28 lg:px-8">
+        <div className="w-full max-w-xl lg:max-w-[32rem]">
           <h1
-            className="type-display"
+            className="type-giant whitespace-normal font-display font-semibold text-light"
             style={{
               textWrap: "balance",
               textShadow: `0 2px 32px ${withAlpha(COLORS.navy, 0.88)}`,
@@ -201,8 +201,8 @@ function HeroAtmosphere() {
         }}
       />
 
-      <div className="hero-instrument absolute inset-[-6%] sm:inset-[-2%]">
-        <div className="hero-rings-enter relative mx-auto aspect-square h-full max-h-[92vmin] w-full max-w-[92vmin]">
+      <div className="hero-instrument hero-instrument-field absolute inset-[-6%] sm:inset-[-2%] lg:inset-y-0 lg:left-[38%] lg:right-[-6%] lg:w-auto">
+        <div className="hero-rings-enter relative mx-auto aspect-square h-full max-h-[92vmin] w-full max-w-[92vmin] lg:ml-auto lg:mr-0 lg:max-h-[min(78vmin,38rem)] lg:max-w-[min(78vmin,38rem)]">
           <RadarRings />
           <div className="absolute left-1/2 top-1/2 w-[78%] -translate-x-1/2 -translate-y-1/2">
             <div className="relative aspect-square w-full">
@@ -224,7 +224,7 @@ function HeroAtmosphere() {
         className="absolute inset-0"
         style={{
           background: [
-            `linear-gradient(90deg, ${withAlpha(COLORS.navy, 0.62)} 0%, ${withAlpha(COLORS.navy, 0.28)} 32%, ${withAlpha(COLORS.navy, 0.06)} 56%, ${withAlpha(COLORS.navy, 0)} 72%)`,
+            `linear-gradient(90deg, ${withAlpha(COLORS.navy, 0.82)} 0%, ${withAlpha(COLORS.navy, 0.58)} 28%, ${withAlpha(COLORS.navy, 0.18)} 52%, ${withAlpha(COLORS.navy, 0)} 72%)`,
             `linear-gradient(180deg, ${withAlpha(COLORS.navy, 0)} 58%, ${withAlpha(COLORS.navy, 0.72)} 100%)`,
           ].join(", "),
         }}

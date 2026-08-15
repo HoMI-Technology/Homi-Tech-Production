@@ -33,4 +33,14 @@ describe("WaitlistForm", () => {
       await screen.findByText(/You’re on the list|You're on the list/i),
     ).toBeTruthy();
   });
+
+  it("whisper surface keeps the same fields without a glass card", () => {
+    const { container } = render(
+      <WaitlistForm source="landing" idPrefix="landing-waitlist" surface="whisper" />,
+    );
+    expect(container.querySelector(".glass")).toBeNull();
+    expect(screen.getByLabelText("Email")).toBeTruthy();
+    expect(screen.getByLabelText("What brings you here?")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Get notified" })).toBeTruthy();
+  });
 });

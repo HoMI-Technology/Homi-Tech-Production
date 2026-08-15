@@ -13,6 +13,12 @@ function src(...segments: string[]): string {
 describe("homepage walk — locked first viewport", () => {
   const hero = src("components", "home", "InterviewHero.tsx");
 
+  it("sizes the question as the largest display, not a two-column split", () => {
+    expect(hero).toContain("type-giant");
+    expect(hero).toContain("lg:left-[38%]");
+    expect(hero).not.toContain("type-statement");
+  });
+
   it("pins the three locked first-viewport lines and Assess → First Moment", () => {
     expect(hero).toContain("Will you be okay?");
     expect(hero).toContain("A Decision Companion.");
@@ -61,15 +67,46 @@ describe("homepage walk — Knowledge keep-list only", () => {
     expect(home).toContain('source="landing"');
     expect(home).toContain('idPrefix="landing-waitlist"');
     expect(home).toContain('id="waitlist"');
+    expect(home).toContain('surface="whisper"');
     expect(home).not.toContain("Or start a free assessment");
     expect(home).not.toContain("Explore the Compass");
     expect(home).not.toContain("Get notified");
+  });
+
+  it("does not insert a disclaimer chapter between hero and #statement", () => {
+    const start = home.indexOf("<InterviewHero");
+    const end = home.indexOf('id="statement"');
+    expect(start).toBeGreaterThan(-1);
+    expect(end).toBeGreaterThan(start);
+    expect(home.slice(start, end)).not.toContain("Educational only");
+  });
+
+  it("keeps the educational line in the footer, character-matched", () => {
+    const footer = src("components", "layout", "SiteFooter.tsx");
+    expect(footer).toContain("Educational only &mdash; not financial advice.");
+    expect(footer).toContain(
+      "HōMI provides educational guidance only. Consider consulting qualified professionals",
+    );
+    expect(footer).toContain(
+      "before making legal, tax, mortgage, investment, or real estate decisions.",
+    );
   });
 
   it("reuses IdeaBeat / WalkChapter — does not invent a new marketing section type", () => {
     expect(home).toContain("IdeaBeat");
     expect(home).toContain("WalkChapter");
     expect(home).toContain("InterviewHero");
+  });
+});
+
+describe("homepage walk — cookie copy stays locked", () => {
+  it("does not rewrite the consent sentence or button labels", () => {
+    const banner = src("components", "consent", "CookieConsent.tsx");
+    expect(banner).toContain("HōMI uses essential cookies to keep you signed in. Optional analytics help us improve the");
+    expect(banner).toContain("product — your choice, and you can change it anytime. No ad tech.");
+    expect(banner).toContain("Reject optional");
+    expect(banner).toContain("Accept optional");
+    expect(banner).toContain("Cookie policy");
   });
 });
 

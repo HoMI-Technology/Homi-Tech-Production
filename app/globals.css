@@ -1357,7 +1357,17 @@ body {
     }
   }
   .hero-chapter {
-    text-align: center;
+    text-align: left;
+  }
+  @media (min-width: 64rem) {
+    .hero-instrument-field {
+      left: 38%;
+      right: -6%;
+      top: 0;
+      bottom: 0;
+      width: auto;
+      justify-content: flex-end;
+    }
   }
   @media (pointer: coarse) and (prefers-reduced-motion: no-preference) {
     .hero-instrument {
@@ -1436,19 +1446,18 @@ body {
     }
   }
 
-  /* Giant display type — the question at cinema scale */
+  /* Giant display type — the question at cinema scale.
+     Wraps on purpose: a nowrap line collides with the right-field instrument. */
   .type-giant {
-    font-size: clamp(2.25rem, 7vw, 6.5rem);
-    line-height: 1.05;
-    letter-spacing: -0.02em;
+    font-family: var(--font-display);
+    font-size: clamp(2.75rem, 1.5rem + 5.4vw, 5.75rem);
+    font-weight: 600;
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--color-light);
     white-space: normal;
     overflow-wrap: balance;
     text-wrap: balance;
-  }
-  @media (min-width: 640px) {
-    .type-giant {
-      white-space: nowrap;
-    }
   }
   .type-statement {
     font-size: clamp(2rem, 6.5vw, 5.5rem);

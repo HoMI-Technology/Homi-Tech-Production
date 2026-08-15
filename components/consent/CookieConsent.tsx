@@ -62,24 +62,26 @@ export function CookieConsent() {
   return (
     <div
       id="cookie-consent"
-      className="fixed inset-x-0 bottom-0 z-[60] px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))]"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-[60]"
     >
-      <div className="glass mx-auto flex max-w-2xl flex-col items-center gap-3 p-4 text-center sm:flex-row sm:justify-between sm:text-left">
-        <p className="text-sm text-light">
-          HōMI uses essential cookies to keep you signed in. Optional analytics help us improve the
-          product — your choice, and you can change it anytime. No ad tech.{" "}
-          <Link href="/legal/cookies" className="underline hover:text-cyan">
-            Cookie policy
-          </Link>
-          .
-        </p>
-        <div className="flex shrink-0 gap-2">
-          <button onClick={() => decide("denied")} className="btn btn-ghost shrink-0 btn-sm">
-            Reject optional
-          </button>
-          <button onClick={() => decide("granted")} className="btn btn-primary shrink-0 btn-sm">
-            Accept optional
-          </button>
+      <div className="pointer-events-auto border-t border-white/[0.06] bg-navy/90 px-3 py-2 backdrop-blur-md pb-[max(0.5rem,env(safe-area-inset-bottom,0px))]">
+        <div className="mx-auto flex max-w-5xl flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <p className="text-xs leading-snug text-dim">
+            HōMI uses essential cookies to keep you signed in. Optional analytics help us improve the
+            product — your choice, and you can change it anytime. No ad tech.{" "}
+            <Link href="/legal/cookies" className="underline hover:text-cyan">
+              Cookie policy
+            </Link>
+            .
+          </p>
+          <div className="flex shrink-0 gap-2">
+            <button onClick={() => decide("denied")} className="btn btn-ghost shrink-0 btn-sm">
+              Reject optional
+            </button>
+            <button onClick={() => decide("granted")} className="btn btn-primary shrink-0 btn-sm">
+              Accept optional
+            </button>
+          </div>
         </div>
       </div>
     </div>

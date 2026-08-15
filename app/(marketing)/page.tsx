@@ -36,16 +36,6 @@ export default function MarketingHomePage() {
 
       <InterviewHero />
 
-      <section className="border-t border-white/[0.04] px-6 py-5">
-        <p className="mx-auto max-w-3xl text-center text-xs leading-relaxed text-dim sm:text-sm">
-          <span className="font-medium text-emerald/90">
-            Educational only &mdash; not financial advice.
-          </span>{" "}
-          HōMI provides educational guidance only. Consider consulting qualified professionals
-          before making legal, tax, mortgage, investment, or real estate decisions.
-        </p>
-      </section>
-
       <IdeaBeat id="statement">{TAGLINES.primary}</IdeaBeat>
 
       <IdeaBeat>
@@ -53,11 +43,11 @@ export default function MarketingHomePage() {
       </IdeaBeat>
 
       <WalkChapter>
-        <div className="w-[min(64vmin,24rem)]" aria-hidden>
+        <div className="w-[min(36vmin,14rem)]" aria-hidden>
           <CinematicCompass responsive keyholePulse={false} />
         </div>
         <h2
-          className="type-display relative z-10 mt-10 max-w-3xl font-display font-semibold text-light"
+          className="type-h1 relative z-10 mt-6 max-w-2xl font-display font-semibold text-light"
           style={{ textWrap: "balance" }}
         >
           The compass that becomes a key when you&rsquo;re finally ready to turn it.
@@ -65,12 +55,12 @@ export default function MarketingHomePage() {
       </WalkChapter>
 
       <WalkChapter id="waitlist">
-        <Link href={PRIMARY_CLOSE_HREF} className="btn btn-primary btn-glow px-8 py-3.5 text-base">
+        <Link href={PRIMARY_CLOSE_HREF} className="btn btn-primary btn-sm">
           {PRIMARY_CLOSE_LABEL}
         </Link>
-        <p className="mx-auto mt-8 text-sm text-dim">Clarity, not commission.</p>
-        <div className="mx-auto mt-16 w-full max-w-md">
-          <WaitlistForm source="landing" idPrefix="landing-waitlist" />
+        <p className="mt-6 text-sm text-dim">Clarity, not commission.</p>
+        <div className="mt-10 w-full max-w-md">
+          <WaitlistForm source="landing" idPrefix="landing-waitlist" surface="whisper" />
         </div>
       </WalkChapter>
     </div>

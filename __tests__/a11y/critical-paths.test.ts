@@ -77,6 +77,13 @@ describe("a11y — buttons have explicit type", () => {
     expect(src).toContain('type="button"');
   });
 
+  it("HeaderShell hides the hamburger at the desktop nav breakpoint", () => {
+    const src = readSource("components", "layout", "HeaderShell.tsx");
+    expect(src).toContain('className="ml-auto lg:hidden"');
+    expect(src).toContain('className="chrome-icon-btn"');
+    expect(src).not.toContain("chrome-icon-btn ml-auto lg:ml-0 lg:hidden");
+  });
+
   it('ChoiceCards buttons declare type="button"', () => {
     const src = readSource("components", "assessment", "ChoiceCards.tsx");
     const buttonCount = (src.match(/<button\b/g) || []).length;

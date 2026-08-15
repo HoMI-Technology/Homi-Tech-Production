@@ -106,27 +106,31 @@ export function HeaderShell({
 
         <div className="ml-auto hidden shrink-0 items-center gap-1.5 lg:flex">{right}</div>
 
-        <button
-          ref={toggleRef}
-          type="button"
-          className="chrome-icon-btn ml-auto lg:ml-0 lg:hidden"
-          onClick={() => setOpen(!open)}
-          aria-expanded={open}
-          aria-controls={menuId}
-          aria-label={open ? "Close menu" : "Open menu"}
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            aria-hidden
+        {/* Wrapper owns lg:hidden. .chrome-icon-btn sets unlayered `display`,
+            which otherwise beats the utility and leaves the hamburger on desktop. */}
+        <div className="ml-auto lg:hidden">
+          <button
+            ref={toggleRef}
+            type="button"
+            className="chrome-icon-btn"
+            onClick={() => setOpen(!open)}
+            aria-expanded={open}
+            aria-controls={menuId}
+            aria-label={open ? "Close menu" : "Open menu"}
           >
-            {open ? <path d="M4 4l12 12M16 4L4 16" /> : <path d="M3 5h14M3 10h14M3 15h14" />}
-          </svg>
-        </button>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden
+            >
+              {open ? <path d="M4 4l12 12M16 4L4 16" /> : <path d="M3 5h14M3 10h14M3 15h14" />}
+            </svg>
+          </button>
+        </div>
       </div>
 
       {open && (
