@@ -1397,6 +1397,54 @@ body {
     .walk-word[data-accent="emerald"] {
       color: var(--color-emerald);
     }
+    .walk-travel-compass {
+      transition: none;
+    }
+  }
+
+  /* One traveling compass — field (right 38%) then object (left, small).
+     One-way; do not reverse-animate. PRM stays on the field. */
+  .walk-travel-compass {
+    position: absolute;
+    pointer-events: none;
+  }
+  .walk-travel-compass[data-at="field"] {
+    inset: -6%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .walk-travel-compass[data-at="field"] .walk-travel-compass-body {
+    width: min(92vmin, 38rem);
+    max-height: 92vmin;
+  }
+  .walk-travel-compass[data-at="object"] {
+    left: max(1.25rem, calc((100vw - 80rem) / 2 + 2rem));
+    top: 50%;
+    width: min(36vmin, 14rem);
+    transform: translateY(calc(-50% - 3.5rem));
+  }
+  .walk-travel-compass[data-at="object"] .walk-travel-compass-body {
+    width: 100%;
+  }
+  @media (min-width: 64rem) {
+    .walk-travel-compass[data-at="field"] {
+      inset: 0 -6% 0 38%;
+      justify-content: flex-end;
+    }
+    .walk-travel-compass[data-at="field"] .walk-travel-compass-body {
+      width: min(78vmin, 38rem);
+      max-height: min(78vmin, 38rem);
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .walk-travel-compass.is-object {
+      transition:
+        left 700ms cubic-bezier(0.16, 1, 0.3, 1),
+        top 700ms cubic-bezier(0.16, 1, 0.3, 1),
+        width 700ms cubic-bezier(0.16, 1, 0.3, 1),
+        transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
   }
   @media (min-width: 64rem) {
     .hero-instrument-field {

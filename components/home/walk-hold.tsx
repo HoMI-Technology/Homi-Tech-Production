@@ -31,6 +31,7 @@ export function HoldStage({
   className,
   stageRef,
   cinema,
+  object = false,
   children,
 }: {
   id?: string;
@@ -38,6 +39,7 @@ export function HoldStage({
   className?: string;
   stageRef?: Ref<HTMLDivElement | null>;
   cinema?: string;
+  object?: boolean;
   children: ReactNode;
 }) {
   const outerRef = useRef<HTMLElement>(null);
@@ -56,6 +58,7 @@ export function HoldStage({
         <div
           ref={stageRef}
           data-cinema={cinema}
+          data-walk-object={object ? "" : undefined}
           className={`walk-hold-stage ${className ?? ""}`}
         >
           {children}

@@ -1,14 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useRef, type ReactNode, type RefObject } from "react";
-import { PRIMARY_CLOSE_HREF, PRIMARY_CLOSE_LABEL } from "@/components/marketing/first-moment-copy";
 import { Particles } from "./CinematicCompass";
-import { Compass3D } from "./Compass3D";
 import { HoldStage, WalkWords } from "./walk-hold";
 import { tokenizeWalkLine } from "./walk-tokens";
-import { track } from "@/lib/analytics";
 import { COLORS, withAlpha } from "@/lib/brand";
+
+export { WalkPersist } from "./walk-persist";
 
 /**
  * InterviewHero — opening walk (TeraFab rhythm: one idea per scroll).
@@ -17,8 +15,8 @@ import { COLORS, withAlpha } from "@/lib/brand";
  * 2. Next scroll — the noun.
  * 3. Next — the inversion.
  *
- * Type sits ON the navy field. Compass is atmosphere and presence.
- * Assess is never gated behind a scroll beat or interview chips.
+ * Type sits ON the navy field. Compass and Assess travel via WalkPersist —
+ * one instance each, never destroyed on the hero and reborn at the close.
  * DESIGN.md: navy/cyan, type-display, PRM-safe (no spin/beam/tilt).
  *
  * SEO/AT: h1 text is in the DOM from first paint. Visual resolve is
@@ -26,10 +24,6 @@ import { COLORS, withAlpha } from "@/lib/brand";
  */
 
 export const HERO_VARIANT: "interview" | "film" = "film";
-
-function handleCtaClick() {
-  track("hero_cta_click", { src: "hero" });
-}
 
 export function InterviewHero() {
   return (
@@ -50,12 +44,14 @@ export function WalkChapter({
   children,
   hold = false,
   words = 0,
+  object = false,
 }: {
   id?: string;
   children: ReactNode;
   /** Pin the stage until the line finishes resolving. Close / waitlist stay unpinned. */
   hold?: boolean;
   words?: number;
+  object?: boolean;
 }) {
   const body = (
     <>
@@ -68,7 +64,7 @@ export function WalkChapter({
 
   if (hold) {
     return (
-      <HoldStage id={id} words={words} className={CHAPTER_STAGE}>
+      <HoldStage id={id} words={words} object={object} className={CHAPTER_STAGE}>
         {body}
       </HoldStage>
     );
@@ -90,16 +86,18 @@ export function IdeaBeat({
   after,
   before,
   headingClassName,
+  object = false,
 }: {
   id?: string;
   children: ReactNode;
   after?: ReactNode;
   before?: ReactNode;
   headingClassName?: string;
+  object?: boolean;
 }) {
   const tokens = useMemo(() => tokenizeWalkLine(children), [children]);
   return (
-    <WalkChapter id={id} hold words={tokens.length}>
+    <WalkChapter id={id} hold words={tokens.length} object={object}>
       {before}
       <h2
         className={
@@ -142,18 +140,9 @@ function OpeningBeat() {
             <WalkWords>Will you be okay?</WalkWords>
           </h1>
 
-          <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-            <Link
-              href={`${PRIMARY_CLOSE_HREF}?src=hero`}
-              className="btn btn-primary btn-glow px-8 py-3.5 text-base"
-              onClick={handleCtaClick}
-            >
-              {PRIMARY_CLOSE_LABEL}
-            </Link>
-            <a href="#statement" className="btn btn-ghost px-8 py-3.5 text-base">
-              What this is
-            </a>
-          </div>
+          <a href="#statement" className="btn btn-ghost btn-sm mt-8">
+            What this is
+          </a>
         </div>
       </div>
     </HoldStage>
@@ -244,23 +233,6 @@ function HeroAtmosphere() {
         }}
       />
 
-      <div className="hero-instrument hero-instrument-field absolute inset-[-6%] sm:inset-[-2%] lg:inset-y-0 lg:left-[38%] lg:right-[-6%] lg:w-auto">
-        <div className="hero-rings-enter relative mx-auto aspect-square h-full max-h-[92vmin] w-full max-w-[92vmin] lg:ml-auto lg:mr-0 lg:max-h-[min(78vmin,38rem)] lg:max-w-[min(78vmin,38rem)]">
-          <RadarRings />
-          <div className="absolute left-1/2 top-1/2 w-[78%] -translate-x-1/2 -translate-y-1/2">
-            <div className="relative aspect-square w-full">
-              <Compass3D
-                size={0}
-                className="h-full w-full"
-                glow={{ outer: 0.95, middle: 0.88, inner: 0.8 }}
-                keyholePulse={false}
-                maxTilt={14}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
       <Particles />
 
       <div
@@ -305,28 +277,3 @@ function ChapterField() {
   );
 }
 
-function RadarRings() {
-  return (
-    <div className="absolute inset-0">
-      <Ring size="94%" color={withAlpha(COLORS.cyan, 0.42)} />
-      <Ring size="70%" color={withAlpha(COLORS.emerald, 0.38)} />
-      <Ring size="44%" color={withAlpha(COLORS.yellow, 0.44)} />
-      <span
-        className="absolute left-[calc(50%+22%)] top-1/2 h-2 w-2 -translate-y-1/2 rounded-full"
-        style={{
-          background: COLORS.yellow,
-          boxShadow: `0 0 10px ${COLORS.yellow}`,
-        }}
-      />
-    </div>
-  );
-}
-
-function Ring({ size, color }: { size: string; color: string }) {
-  return (
-    <span
-      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border"
-      style={{ width: size, height: size, borderColor: color }}
-    />
-  );
-}
