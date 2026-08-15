@@ -67,6 +67,7 @@ describe("homepage primary labels", () => {
   it.each([
     ["components/layout/SiteHeader.tsx"],
     ["components/home/InterviewHero.tsx"],
+    ["app/(marketing)/page.tsx"],
     ["components/home/ThresholdPreview.tsx"],
     ["app/(marketing)/pricing/page.tsx"],
     ["components/layout/SiteFooter.tsx"],

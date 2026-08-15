@@ -15,10 +15,10 @@ test("landing page loads and routes into Assess / First Moment", async ({ page }
 });
 
 test("landing page exposes the waitlist capture", async ({ page }) => {
-  // Capture lives at #waitlist, below a long cinematic landing page (420vh
-  // pin-scene + many sections). Hash-navigate so the section is the contract,
-  // then scroll and assert the real form — email + submit. Do not weaken
-  // this into a "section exists" no-op.
+  // Capture lives at #waitlist, the quiet last close under Assess.
+  // Hash-navigate so the section is the contract, then scroll and assert
+  // the real form — email + submit. Do not weaken this into a "section
+  // exists" no-op.
   await page.goto("/#waitlist");
   const section = page.locator("#waitlist");
   await expect(section).toBeAttached({ timeout: 45_000 });
