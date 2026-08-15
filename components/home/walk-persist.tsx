@@ -8,9 +8,10 @@ import { track } from "@/lib/analytics";
 
 /**
  * Persistent walk objects — one compass, one Assess pill.
- * The same Assess instance paints in the hero (LCP-safe) and travels
- * with the walk, then parks (inert + aria-hidden) before waitlist,
- * footer, or cookie controls. No second copy. No GSAP/Lenis.
+ * The same Assess instance paints in the hero (LCP-safe), sits below
+ * the locked question (never on the type), travels with the walk, then
+ * parks (inert + aria-hidden) before waitlist, footer, or cookie
+ * controls. No second copy. No GSAP/Lenis.
  */
 
 function handleCtaClick() {
@@ -125,15 +126,22 @@ export function WalkPersist({ children }: { children: ReactNode }) {
             inert={assessAway || undefined}
           >
             <div className="walk-cluster mx-auto flex h-full w-full max-w-7xl flex-col items-start justify-center px-5 sm:px-6 lg:px-8">
-              <div className="walk-line" aria-hidden />
-              <Link
-                href={`${PRIMARY_CLOSE_HREF}?src=hero`}
-                className="btn btn-primary btn-sm pointer-events-auto"
-                data-walk-assess=""
-                onClick={handleCtaClick}
-              >
-                {PRIMARY_CLOSE_LABEL}
-              </Link>
+              {/*
+                Stack height = the line band only. Assess is out of flow so
+                justify-center matches the locked H1 — the pill sits below
+                the question, not on “be”.
+              */}
+              <div className="walk-travel-assess-stack">
+                <div className="walk-line" aria-hidden />
+                <Link
+                  href={`${PRIMARY_CLOSE_HREF}?src=hero`}
+                  className="btn btn-primary btn-sm pointer-events-auto"
+                  data-walk-assess=""
+                  onClick={handleCtaClick}
+                >
+                  {PRIMARY_CLOSE_LABEL}
+                </Link>
+              </div>
             </div>
           </div>
         </div>
