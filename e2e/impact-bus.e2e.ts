@@ -550,42 +550,27 @@ test.describe("Impact Bus @flag-on", () => {
       );
       expect(overflow).toBeLessThanOrEqual(1);
 
-      // Companion launcher stays usable (not fully covered by the toast)
+      // Companion is signed-in chrome — guests must not see the orb FAB.
       const launcher = page.getByRole("button", { name: "Open HōMI Companion" });
-      await expect(launcher).toBeVisible();
-      const [toastBox, launcherBox] = [await toast.boundingBox(), await launcher.boundingBox()];
-      expect(toastBox).toBeTruthy();
-      expect(launcherBox).toBeTruthy();
-      if (toastBox && launcherBox) {
-        const intersects =
-          toastBox.x < launcherBox.x + launcherBox.width &&
-          toastBox.x + toastBox.width > launcherBox.x &&
-          toastBox.y < launcherBox.y + launcherBox.height &&
-          toastBox.y + toastBox.height > launcherBox.y;
-        expect(intersects).toBe(false);
-      }
+      await expect(launcher).toHaveCount(0);
 
-      // Deferred 3.2/3.3 assertion: the toast and the Companion launcher are
-      // fixed overlays — their screen positions must not move when the page
-      // scrolls. Regression guard for the will-change containing-block bug
-      // (ClientProviders once held a permanent will-change:transform, which
-      // pinned un-portaled fixed descendants to the page instead of the
-      // viewport).
+      const toastBox = await toast.boundingBox();
+      expect(toastBox).toBeTruthy();
+
+      // Deferred 3.2/3.3 assertion: the toast is a fixed overlay — its screen
+      // position must not move when the page scrolls. Regression guard for the
+      // will-change containing-block bug (ClientProviders once held a
+      // permanent will-change:transform, which pinned un-portaled fixed
+      // descendants to the page instead of the viewport).
       await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
       await expect
         .poll(() => page.evaluate(() => window.scrollY), { timeout: 10_000 })
         .toBeGreaterThan(0);
       const toastBoxAfterScroll = await toast.boundingBox();
-      const launcherBoxAfterScroll = await launcher.boundingBox();
       expect(toastBoxAfterScroll).toBeTruthy();
-      expect(launcherBoxAfterScroll).toBeTruthy();
       if (toastBox && toastBoxAfterScroll) {
         expect(Math.abs(toastBoxAfterScroll.x - toastBox.x)).toBeLessThanOrEqual(1);
         expect(Math.abs(toastBoxAfterScroll.y - toastBox.y)).toBeLessThanOrEqual(1);
-      }
-      if (launcherBox && launcherBoxAfterScroll) {
-        expect(Math.abs(launcherBoxAfterScroll.x - launcherBox.x)).toBeLessThanOrEqual(1);
-        expect(Math.abs(launcherBoxAfterScroll.y - launcherBox.y)).toBeLessThanOrEqual(1);
       }
     });
   });

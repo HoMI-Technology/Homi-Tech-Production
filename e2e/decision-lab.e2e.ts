@@ -98,7 +98,7 @@ test.describe("Decision Lab — saved numbers vs illustrative", () => {
 });
 
 test.describe("Decision Lab — synthesis hand-off", () => {
-  test("digest lands in sessionStorage and the button opens the Companion", async ({ page }) => {
+  test("digest lands in sessionStorage and guests do not open Companion", async ({ page }) => {
     await seedFinance(page);
     await page.goto("/tools/affordability");
     await dismissCookieConsent(page);
@@ -117,9 +117,11 @@ test.describe("Decision Lab — synthesis hand-off", () => {
     expect(digest.lensId).toBe("affordability");
     expect(digest.path).toBe("/tools/affordability");
 
-    // Clicking opens the Companion dock with the synthesis question pre-seeded.
+    // Anonymous by design: CompanionHost is signed-in chrome. The click still
+    // fires the synthesis event, but guests must not get the dock or FAB.
     await synth.click();
-    await expect(page.getByRole("dialog", { name: "HōMI Companion" })).toBeVisible();
+    await expect(page.getByRole("dialog", { name: "HōMI Companion" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Open HōMI Companion" })).toHaveCount(0);
   });
 });
 

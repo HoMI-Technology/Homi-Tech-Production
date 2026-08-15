@@ -8,6 +8,7 @@ import {
   FIRST_MOMENT_BEATS,
   FIRST_MOMENT_HANDOFF_LINE,
   PRIMARY_CLOSE_HREF,
+  PRIMARY_CLOSE_LABEL,
 } from "@/components/marketing/first-moment-copy";
 
 const ROOT = process.cwd();
@@ -114,6 +115,65 @@ describe("guest /results does not paint a localStorage verdict", () => {
     expect(page).toMatch(/isAnonymous\s*\?\s*null/);
     expect(page).toContain('href="/assessment"');
     expect(page.indexOf("isAnonymous ? null")).toBeLessThan(page.indexOf("<ResultsVerdictView"));
+  });
+});
+
+describe("guest /plan does not paint a localStorage score", () => {
+  it("waits for auth, then drops leftover local results for anonymous visitors", () => {
+    const page = src("app", "(product)", "plan", "page.tsx");
+    expect(page).toMatch(/isAnonymous\s*\?\s*null/);
+    expect(page).toContain("pickResult");
+    expect(page).toContain("No plan yet");
+    expect(page).not.toContain("fetchServerScore");
+    expect(page).not.toContain("/api/scoring");
+    expect(page.indexOf("isAnonymous ? null")).toBeLessThan(page.indexOf("No plan yet"));
+  });
+
+  it("empty state has exactly one close: Assess → /first-moment", () => {
+    const page = src("app", "(product)", "plan", "page.tsx");
+    const emptyStart = page.indexOf("No plan yet");
+    const emptyEnd = page.indexOf("const doneCount");
+    const empty = page.slice(emptyStart, emptyEnd);
+    expect(emptyStart).toBeGreaterThan(-1);
+    expect(emptyEnd).toBeGreaterThan(emptyStart);
+    expect(empty).toContain("PRIMARY_CLOSE_HREF");
+    expect(empty).toContain("PRIMARY_CLOSE_LABEL");
+    expect(PRIMARY_CLOSE_HREF).toBe("/first-moment");
+    expect(PRIMARY_CLOSE_LABEL).toBe("Assess");
+    expect(empty.match(/<Link\b/g)).toHaveLength(1);
+    expect(empty).not.toContain("Get your Shadow Score");
+    expect(empty).not.toContain("Take the full assessment");
+    expect(empty).not.toContain("/shadow-score");
+    expect(empty).not.toMatch(/href=["']\/assessment["']/);
+  });
+});
+
+describe("anonymous SiteHeader has no NotificationBell", () => {
+  it("removes the bell from marketing chrome and leaves it on AppHeader", () => {
+    const site = src("components", "layout", "SiteHeader.tsx");
+    const app = src("components", "layout", "AppHeader.tsx");
+    expect(site).not.toContain("NotificationBell");
+    expect(app).toContain("<NotificationBell />");
+  });
+});
+
+describe("guest /tools Assess close is First Moment", () => {
+  it("points the hub Assess link at PRIMARY_CLOSE_HREF, not /assessment", () => {
+    const page = src("app", "(product)", "tools", "page.tsx");
+    expect(page).toContain("PRIMARY_CLOSE_HREF");
+    expect(page).toContain("PRIMARY_CLOSE_LABEL");
+    expect(PRIMARY_CLOSE_HREF).toBe("/first-moment");
+    expect(PRIMARY_CLOSE_LABEL).toBe("Assess");
+    expect(page).not.toMatch(/href=["']\/assessment["']/);
+  });
+});
+
+describe("guest product chrome has no Companion FAB", () => {
+  it("mounts CompanionHost only for a signed-in user", () => {
+    const layout = src("app", "(product)", "layout.tsx");
+    expect(layout).toMatch(/\{user\s*&&\s*<CompanionHost\s*\/>\}/);
+    expect(layout).not.toMatch(/^\s*<CompanionHost\s*\/>\s*$/m);
+    expect(layout).toContain('from "@/components/companion/CompanionHost"');
   });
 });
 

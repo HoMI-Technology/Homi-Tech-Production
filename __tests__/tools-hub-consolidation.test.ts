@@ -25,7 +25,9 @@ describe("tools hub consolidation lock", () => {
     expect(src).not.toMatch(/href=["']\/simulator["']/);
     expect(src).not.toMatch(/href=["']\/scenarios["']/);
     expect(src).toMatch(/Educational estimates/);
-    expect(src).toMatch(/\/assessment/);
+    expect(src).toMatch(/PRIMARY_CLOSE_HREF/);
+    expect(src).toMatch(/PRIMARY_CLOSE_LABEL/);
+    expect(src).not.toMatch(/href=["']\/assessment["']/);
   });
 
   it("mortgage route folds into affordability instead of remaining a peer card", () => {

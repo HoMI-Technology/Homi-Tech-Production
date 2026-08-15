@@ -2,6 +2,10 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { RING_META, RING_ORDER, hubLensesByRing } from "@/lib/tools/registry";
 import { getCachedUser } from "@/lib/supabase/server";
+import {
+  PRIMARY_CLOSE_HREF,
+  PRIMARY_CLOSE_LABEL,
+} from "@/components/marketing/first-moment-copy";
 
 export const metadata: Metadata = {
   title: "Tools",
@@ -38,8 +42,11 @@ export default async function ToolsHubPage() {
               Open Money picture →
             </Link>
           ) : (
-            <Link href="/assessment" className="text-sm font-medium text-cyan hover:underline">
-              Assess →
+            <Link
+              href={PRIMARY_CLOSE_HREF}
+              className="text-sm font-medium text-cyan hover:underline"
+            >
+              {PRIMARY_CLOSE_LABEL}
             </Link>
           )}
         </div>
