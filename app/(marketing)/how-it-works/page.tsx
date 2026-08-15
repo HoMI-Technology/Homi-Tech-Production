@@ -109,7 +109,7 @@ export default function HowItWorksPage() {
               {
                 step: "03",
                 title: "Build",
-                copy: "Every verdict below READY comes with a map: the specific, ordered things to build first. Not yet is a starting line, not a wall.",
+                copy: "Not yet is a starting line, not a wall. You get a map: the specific, ordered things to build first.",
               },
             ].map((s) => (
               <div key={s.step} className="glass glass-hover p-8">

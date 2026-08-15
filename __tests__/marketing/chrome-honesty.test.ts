@@ -152,6 +152,10 @@ describe("Wave 1 chrome honesty — primary close", () => {
     expect(HOW_IT_WORKS).not.toContain("those are the trade secret");
     expect(HOW_IT_WORKS).not.toContain("shadow version");
     expect(HOW_IT_WORKS).not.toContain("200+ signals");
+    expect(HOW_IT_WORKS).not.toContain("Every verdict below READY comes with a map");
+    expect(HOW_IT_WORKS).toContain(
+      "Not yet is a starting line, not a wall. You get a map: the specific, ordered things to build first.",
+    );
   });
 
   it("footer is not a product CTA to /advisor", () => {

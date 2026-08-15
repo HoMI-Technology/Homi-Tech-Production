@@ -14,6 +14,8 @@ const PILLAR_INTRO =
   "The public weights are 35 / 35 / 30 — Financial Reality, Emotional Truth, Perfect Timing. Here is what each pillar looks at and why it matters.";
 const WEIGHTS_LOCK =
   "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours.";
+const BUILD_CARD =
+  "Not yet is a starting line, not a wall. You get a map: the specific, ordered things to build first.";
 
 const KILLED = [
   "200+ signals",
@@ -26,6 +28,7 @@ const KILLED = [
   "We don&rsquo;t publish exact point values or weights — those are the trade secret.",
   "shadow version",
   "Get your score — 90 seconds",
+  "Every verdict below READY comes with a map",
 ] as const;
 
 describe("how-it-works — Brand-authored lock", () => {
@@ -37,6 +40,7 @@ describe("how-it-works — Brand-authored lock", () => {
     expect(PAGE).toContain(ASSESS_CARD);
     expect(PAGE).toContain(VERDICT_CARD);
     expect(PAGE).toContain(PILLAR_INTRO);
+    expect(PAGE).toContain(BUILD_CARD);
   });
 
   it("locks CANON numbers as not-equal / not-secret — never a different 35/35/30 wording", () => {
