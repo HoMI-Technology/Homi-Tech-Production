@@ -41,10 +41,7 @@ export default function MarketingHomePage() {
           Not yet is not <span className="text-emerald">no</span>.
         </IdeaBeat>
 
-        <IdeaBeat
-          object
-          headingClassName="type-h1 max-w-2xl font-display font-semibold"
-        >
+        <IdeaBeat object>
           The compass that becomes a key when you&rsquo;re finally ready to turn it.
         </IdeaBeat>
 

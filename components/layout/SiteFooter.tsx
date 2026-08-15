@@ -65,11 +65,11 @@ const COLUMNS: FooterColumn[] = [
 
 export function SiteFooter() {
   return (
-    <footer className="relative z-10 mt-0 border-t border-slate-surface/60 bg-navy">
+    <footer className="site-footer relative z-10 mt-0 overflow-hidden border-t border-slate-surface/60 bg-navy">
       <div className="mx-auto max-w-6xl px-6 py-12 sm:py-16">
         <div className="grid gap-10 sm:grid-cols-2 sm:gap-12 md:grid-cols-4 lg:grid-cols-[1.4fr_repeat(4,1fr)]">
-          <div className="sm:col-span-2 md:col-span-4 lg:col-span-1">
-            <div className="flex items-center gap-2.5">
+          <div className="min-w-0 sm:col-span-2 md:col-span-4 lg:col-span-1">
+            <div className="flex min-w-0 items-center gap-2.5 overflow-hidden">
               <ThresholdCompass size={28} animated={false} glow={false} />
               <Wordmark size="text-xl" />
             </div>
@@ -83,7 +83,7 @@ export function SiteFooter() {
               {/* Not a heading: pages end their own outlines at varying levels,
                   so a fixed h3 here trips heading-order on h1-only pages. The
                   nav's aria-label already names the group. */}
-              <p className="text-sm font-semibold text-light">{col.title}</p>
+              <p className="site-footer-label">{col.title}</p>
               <ul className="mt-4 space-y-2.5">
                 {col.links.map((l) => (
                   <li key={`${l.href}:${l.label}`}>
@@ -100,7 +100,7 @@ export function SiteFooter() {
           ))}
         </div>
 
-        <div className="hairline my-10" />
+        <div className="hairline my-6" />
 
         {/* Legal canon (lib/brand LEGAL_DISCLAIMER) is regulatory text, not
             marketing copy — it is rendered verbatim. */}
