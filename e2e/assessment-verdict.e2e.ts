@@ -23,6 +23,31 @@ test.describe("guest /assessment is First Moment", () => {
     await expect(page.getByText("See my HōMI-Score")).toHaveCount(0);
     await expect(page.getByText("HōMI-Score out of 100")).toHaveCount(0);
   });
+
+  test("guest /results does not paint a 4-band verdict from localStorage", async ({ page }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem(
+        "homi:last-assessment",
+        JSON.stringify({
+          kind: "full",
+          completedAt: "2026-08-15T00:00:00.000Z",
+          inputs: { debtToIncomeRatio: 0.2 },
+          result: {
+            score: 88,
+            verdict: "READY",
+            financial: { total: 30 },
+            emotional: { total: 30 },
+            timing: { total: 28 },
+          },
+        }),
+      );
+    });
+    await page.goto("/results");
+    await expect(page.getByRole("heading", { name: /No results yet/i })).toBeVisible();
+    await expect(page.getByText("HōMI-Score out of 100")).toHaveCount(0);
+    await expect(page.getByText("See my HōMI-Score")).toHaveCount(0);
+    await expect(page.locator('[class*="bg-verdict-"]')).toHaveCount(0);
+  });
 });
 
 test.describe("signed-in assessment → verdict", () => {

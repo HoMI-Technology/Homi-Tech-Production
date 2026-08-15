@@ -84,11 +84,13 @@ export default function ResultsPage() {
   }, []);
 
   // Local result wins when it is newer or remote isn't signed in / doesn't
-  // exist; anonymous users always fall straight through to `stored` here
-  // since `remote` stays null for them.
+  // exist. Guests must not paint a 4-band verdict from localStorage — wait
+  // for the auth check, then drop the local payload. discardScoreShapedShadow
+  // is unchanged (shadow leftovers stay a separate refuse).
   const picked = stored === undefined ? undefined : pickResult(stored ?? null, remote);
-  const effective =
+  const discarded =
     picked === undefined ? undefined : discardScoreShapedShadow(picked ?? null);
+  const effective = !remoteChecked ? undefined : isAnonymous ? null : discarded;
 
   // Insights from storage / server backfill — never generateKeyInsight on client (6.3).
   // Hook must run before every early return.

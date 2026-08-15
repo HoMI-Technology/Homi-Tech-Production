@@ -92,11 +92,35 @@ describe("First Moment copy stays word-locked", () => {
   });
 });
 
-describe("/api/scoring stays auth-free", () => {
-  it("keeps the guest scoring path — the UI gate is the named leak", () => {
+describe("FullAssessmentFlow does not score a guest", () => {
+  it("handleSubmit redirects to First Moment before fetchServerScore / save / /results", () => {
+    const flow = src("components", "assessment", "FullAssessmentFlow.tsx");
+    const start = flow.indexOf("async function handleSubmit");
+    const end = flow.indexOf("const nextDisabled");
+    const submit = flow.slice(start, end);
+    expect(submit).toContain("getUser");
+    expect(submit).toContain("PRIMARY_CLOSE_HREF");
+    expect(submit.indexOf("getUser")).toBeLessThan(submit.indexOf("fetchServerScore"));
+    expect(submit.indexOf("PRIMARY_CLOSE_HREF")).toBeLessThan(submit.indexOf("fetchServerScore"));
+    expect(submit.indexOf("PRIMARY_CLOSE_HREF")).toBeLessThan(submit.indexOf("saveLocalResult"));
+    expect(submit.indexOf("PRIMARY_CLOSE_HREF")).toBeLessThan(submit.indexOf('router.push("/results")'));
+  });
+});
+
+describe("guest /results does not paint a localStorage verdict", () => {
+  it("refuses ResultsVerdictView when there is no user", () => {
+    const page = src("app", "(product)", "results", "page.tsx");
+    expect(page).toContain("discardScoreShapedShadow");
+    expect(page).toMatch(/isAnonymous\s*\?\s*null/);
+    expect(page).toContain('href="/assessment"');
+    expect(page.indexOf("isAnonymous ? null")).toBeLessThan(page.indexOf("<ResultsVerdictView"));
+  });
+});
+
+describe("/api/scoring is not session-gated", () => {
+  it("does not 401 /api/scoring — other callers stay auth-free", () => {
     const route = src("app", "api", "scoring", "route.ts");
     expect(route).toMatch(/Auth-free so the anonymous assessment funnel/);
-    expect(route).toMatch(/guest scoring path/);
     expect(route).not.toMatch(/status:\s*401/);
   });
 });

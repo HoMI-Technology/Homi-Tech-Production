@@ -4,7 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { PILLARS } from "@/lib/brand";
+import { PRIMARY_CLOSE_HREF } from "@/components/marketing/first-moment-copy";
 import { fetchServerScore, ScoringRequestError } from "@/lib/scoring/client-score";
+import { createClient } from "@/lib/supabase/client";
 import {
   saveLocalResult,
   loadLocalResult,
@@ -174,6 +176,19 @@ export function FullAssessmentFlow() {
   async function handleSubmit() {
     setSubmitting(true);
     setScoreError(null);
+    try {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        router.replace(PRIMARY_CLOSE_HREF);
+        return;
+      }
+    } catch {
+      router.replace(PRIMARY_CLOSE_HREF);
+      return;
+    }
     const personKey = await resolvePhase0PersonKey();
     const freezeCheck = ingestPhase0Observation({
       personKey,
