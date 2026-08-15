@@ -36,13 +36,16 @@ export function HeaderShell({
   menuContent: ReactNode;
 }) {
   const pathname = usePathname();
-  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    const el = headerRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      el.style.setProperty("--nav-frost", Math.min(1, window.scrollY / 300).toFixed(3));
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -86,9 +89,7 @@ export function HeaderShell({
   return (
     <header
       ref={headerRef}
-      className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${
-        scrolled ? "glass !rounded-none border-x-0 border-t-0" : "bg-transparent"
-      }`}
+      className="chrome-frost fixed inset-x-0 top-0 z-40"
       style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
       <div className="chrome-bar mx-auto flex h-[var(--nav-height)] max-w-7xl items-center gap-3 px-4 sm:gap-4 sm:px-6 lg:gap-6">

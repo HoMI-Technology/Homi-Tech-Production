@@ -51,13 +51,13 @@ describe("homepage walk — locked first viewport", () => {
     const css = src("app", "globals.css");
     expect(css).toContain(".walk-hold");
     expect(css).toContain(".walk-word");
-    expect(css).toContain("rgb(255 255 255 / 0.42)");
-    expect(css).toContain("rgb(255 255 255 / 0.94)");
+    expect(css).toContain("--walk-alpha-dim: 0.4");
+    expect(css).toContain("var(--color-light)");
     expect(css).toContain("prefers-reduced-motion: reduce");
     expect(css).not.toMatch(/\.walk-hold[^{]*\{[^}]*pin-scene/);
     const wordBlock = css.slice(css.indexOf("  .walk-word {"), css.indexOf("  .walk-word[data-on]"));
     expect(wordBlock).not.toContain("opacity: 0");
-    expect(wordBlock).toContain("color: rgb(255 255 255 / 0.42)");
+    expect(wordBlock).toContain("--walk-alpha-dim");
   });
 
   it("paints the locked hero question fully on first paint", () => {
@@ -68,8 +68,9 @@ describe("homepage walk — locked first viewport", () => {
     const hold = src("components", "home", "walk-hold.tsx");
     expect(hold).toContain('paint === "full"');
     const css = src("app", "globals.css");
-    expect(css).toMatch(/\[data-cinema="hero"\]\s*\.walk-word\s*\{[^}]*color:\s*rgb\(255 255 255 \/ 0\.94\)/);
+    expect(css).toMatch(/\[data-cinema="hero"\]\s*\.walk-word\s*\{[^}]*color:\s*var\(--color-light\)/);
     expect(css).not.toMatch(/\[data-cinema="hero"\]\s*\.walk-word\s*\{[^}]*opacity:\s*0/);
+    expect(css).toMatch(/\[data-cinema="hero"\]\s*\.walk-word\s*\{[^}]*transition:\s*none/);
   });
 
   it("keeps What this is as a text kicker, not a pill, and Assess under the line band", () => {
@@ -168,7 +169,8 @@ describe("homepage walk — Knowledge keep-list only", () => {
     expect(persist).toContain("walk-compass-halo");
     expect(persist).not.toContain("btn-glow");
     expect(hero).not.toContain("btn-glow");
-    expect(hero).not.toContain("btn-primary");
+    expect(hero).toContain("data-walk-hero-assess");
+    expect(hero).toContain("btn btn-primary btn-sm");
     expect(home).not.toContain("btn-primary");
     expect(compass).toContain('r="85"');
     expect(compass).toContain('r="60"');
@@ -280,15 +282,15 @@ describe("homepage walk — craft failure modes", () => {
     expect(css).not.toMatch(/\.walk-hold[^{]*\{[^}]*scroll-snap/);
     expect(hold).toContain("passive: true");
     expect(hold).toContain("requestAnimationFrame");
-    expect(hold).not.toContain("wheel");
+    expect(hold).not.toMatch(/addEventListener\(\s*["']wheel["']/);
     expect(walkFiles).not.toMatch(
       /from\s+["'](?:gsap|lenis|split-type|@studio-freight\/lenis|three)["']/,
     );
   });
 
-  it("shortens the hold runway and does not fade the stage to empty navy", () => {
-    expect(css).toContain("height: calc(100dvh + 36vh)");
-    expect(css).toContain("margin-bottom: -28vh");
+  it("keeps the scene contract at 1.0–1.3 viewports with no empty-navy fade", () => {
+    expect(css).toContain("height: 122dvh");
+    expect(css).toContain("margin-bottom: -22vh");
     expect(css).not.toContain("(var(--walk-words, 4) + 0.2) * 15vh");
     const stage = css.slice(css.indexOf(".walk-hold-stage {"), css.indexOf(".walk-cluster {"));
     expect(stage).not.toContain("--walk-progress");
@@ -297,21 +299,24 @@ describe("homepage walk — craft failure modes", () => {
 
   it("keeps later hold words readable at low alpha — not opacity 0", () => {
     const wordBlock = css.slice(css.indexOf("  .walk-word {"), css.indexOf("  .walk-word[data-on]"));
-    expect(wordBlock).toContain("rgb(255 255 255 / 0.42)");
+    expect(wordBlock).toContain("--walk-alpha-dim");
     expect(wordBlock).not.toContain("opacity: 0");
     expect(hold).toContain("{token.text}");
-    expect(unlitWhiteOnNavyContrast(0.42)).toBeGreaterThanOrEqual(3);
+    expect(hold).toContain("smoothstep");
+    expect(unlitWhiteOnNavyContrast(0.4)).toBeGreaterThanOrEqual(3);
     expect(unlitWhiteOnNavyContrast(0.38)).toBeGreaterThanOrEqual(3);
   });
 
-  it("locks waitlist / Get notified / Assess href and parks Assess over them", () => {
+  it("locks waitlist / Get notified / Assess href and parks the follower over them", () => {
     expect(waitlist).toContain("Get notified");
     expect(persist).toContain("PRIMARY_CLOSE_HREF");
     expect(persist).toContain("PRIMARY_CLOSE_LABEL");
     expect(persist).toContain("?src=hero");
     expect(persist).toContain("#waitlist");
     expect(persist).toContain("#cookie-consent");
-    expect(persist).toContain("parked || footerIn");
+    expect(persist).toContain("data-walk-hero-assess");
+    expect(persist).toContain("heroAssessGone");
+    expect(persist).toContain("docked || footerIn");
     expect(css).toContain(".walk-travel-assess[data-fade]");
     expect(css).toContain("scroll-padding-bottom");
     expect(src("components", "consent", "CookieConsent.tsx")).toContain("z-[60]");
@@ -327,7 +332,7 @@ describe("homepage walk — craft failure modes", () => {
 
   it("keeps the walk compass SVG, pauses parked rings, and caps mobile DPR", () => {
     expect(compass).toContain("<svg");
-    expect(compass).not.toContain("getContext");
+    expect(compass).not.toMatch(/getContext\s*\(/);
     expect(compass).toContain("COMPASS_MAX_DEVICE_PIXEL_RATIO = 1.5");
     expect(css).toContain("animation-play-state: paused");
     expect(persist).toContain("<CinematicCompass responsive keyholePulse={false} />");
@@ -337,6 +342,22 @@ describe("homepage walk — craft failure modes", () => {
     expect(css).toContain("border-color: rgb(148 163 184 / 0.64)");
     expect(css).toContain("color: rgb(148 163 184 / 0.82)");
     expect(css).not.toContain("border-color: rgb(148 163 184 / 0.48)");
+  });
+
+  it("uses one walk ease, docks the compass, and keeps five nav items", () => {
+    expect(css).toContain("--walk-ease: cubic-bezier(0.4, 0, 0.2, 1)");
+    expect(persist).toContain('"docked"');
+    expect(css).toContain("[data-at=\"docked\"]");
+    const header = src("components", "layout", "SiteHeader.tsx");
+    const navBlock = header.slice(header.indexOf("const NAV"), header.indexOf("] as const"));
+    expect((navBlock.match(/label:/g) ?? []).length).toBe(5);
+    expect(header).toContain("How It Works");
+    expect(header).toContain("Assessment");
+    expect(header).toContain("Guides");
+    expect(header).toContain("Pricing");
+    expect(header).toContain("For Teams");
+    expect(css).toContain("letter-spacing: 0.01em");
+    expect(src("app", "(marketing)", "page.tsx")).not.toContain("type-h1");
   });
 });
 

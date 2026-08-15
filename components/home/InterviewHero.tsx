@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, type ReactNode, type RefObject } from "react";
+import { PRIMARY_CLOSE_HREF, PRIMARY_CLOSE_LABEL } from "@/components/marketing/first-moment-copy";
+import { track } from "@/lib/analytics";
 import { Particles } from "./CinematicCompass";
 import { HoldStage, WalkWords } from "./walk-hold";
 import { tokenizeWalkLine } from "./walk-tokens";
@@ -126,7 +129,7 @@ export function IdeaBeat({
         <h2
           className={
             headingClassName ??
-            "type-display max-w-2xl font-display font-semibold"
+            "type-display max-w-2xl font-display font-normal"
           }
           style={{ textWrap: "balance" }}
         >
@@ -158,6 +161,16 @@ function OpeningBeat() {
           <a href="#statement" className="walk-kicker">
             What this is
           </a>
+        }
+        after={
+          <Link
+            href={`${PRIMARY_CLOSE_HREF}?src=hero`}
+            className="btn btn-primary btn-sm"
+            data-walk-hero-assess=""
+            onClick={() => track("hero_cta_click", { src: "hero" })}
+          >
+            {PRIMARY_CLOSE_LABEL}
+          </Link>
         }
       >
         <h1

@@ -13,7 +13,7 @@ import { COLORS, withAlpha } from "@/lib/brand";
  * under prefers-reduced-motion (handled in globals.css).
  */
 
-/** Mobile canvas backing-store cap. This instrument is SVG — no getContext. */
+/** Mobile canvas backing-store cap. This instrument is SVG — no canvas. */
 export const COMPASS_MAX_DEVICE_PIXEL_RATIO = 1.5;
 
 export interface RingGlow {

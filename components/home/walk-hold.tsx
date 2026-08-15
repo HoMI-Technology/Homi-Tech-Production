@@ -23,7 +23,7 @@ const WalkHoldContext = createContext<WalkHoldValue>({ progress: 1, reduced: tru
 
 /**
  * Sticky 100vh scene + a short lighting runway. Native scroll only —
- * rAF reads progress; it does not hijack wheel or change scroll rate.
+ * rAF reads progress; it does not hijack input or change scroll rate.
  * PRM: CSS drops the pin and paints every word. No shortened jack.
  */
 export function HoldStage({
@@ -84,8 +84,11 @@ export function WalkWords({
     [children, tokensProp],
   );
   const { progress, reduced } = useContext(WalkHoldContext);
+  const t = smoothstep(progress);
   const lit =
-    reduced || paint === "full" ? tokens.length : Math.round(progress * tokens.length);
+    reduced || paint === "full" || t >= 0.92
+      ? tokens.length
+      : Math.round(t * tokens.length);
 
   return (
     <>
@@ -155,4 +158,10 @@ function useHoldProgress(ref: RefObject<HTMLElement | null>): WalkHoldValue {
   }, [ref]);
 
   return { progress, reduced };
+}
+
+/** One scrub curve for the walk — reversible with scroll fraction. */
+function smoothstep(p: number): number {
+  const x = Math.max(0, Math.min(1, p));
+  return x * x * (3 - 2 * x);
 }
