@@ -135,6 +135,12 @@ describe("homepage walk — Knowledge keep-list only", () => {
     expect(compass).toContain('r="85"');
     expect(compass).toContain('r="60"');
     expect(compass).toContain('r="35"');
+    expect(home).not.toContain("4:3:2");
+    expect(home).not.toContain("85/60/35");
+    expect(persist).not.toContain("4:3:2");
+    expect(persist).not.toContain("85/60/35");
+    expect(hero).not.toContain("4:3:2");
+    expect(hero).not.toContain("85/60/35");
   });
 
   it("does not remount StatementReveal or AlignmentScene for the word hold", () => {

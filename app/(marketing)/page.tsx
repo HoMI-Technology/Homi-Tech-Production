@@ -22,7 +22,7 @@ export const metadata: Metadata = {
  * existing keep-list lines only. No AlignmentScene, no pin-scene, no fourth
  * slogan restating the hero inversion.
  *
- * One CinematicCompass for the walk (canonical 4:3:2). Waitlist is a whisper.
+ * One CinematicCompass for the walk. Waitlist is a whisper.
  * Never a fake 0–100 HōMI-Score.
  */
 export default function MarketingHomePage() {
