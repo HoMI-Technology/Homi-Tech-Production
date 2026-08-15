@@ -5,7 +5,7 @@ import { BRAND } from "@/lib/brand";
 export const metadata: Metadata = {
   title: "Cookie Policy",
   description:
-    "How HōMI uses cookies and browser storage — essential only, zero trackers, zero ad tech.",
+    "How HōMI uses essential cookies and optional analytics. No ad tech. You can reject optional analytics anytime.",
   alternates: { canonical: "/legal/cookies" },
 };
 
@@ -14,20 +14,20 @@ export default function CookiesPage() {
     <section className="px-6 py-16 md:py-24">
       <div className="mx-auto max-w-3xl">
         <h1 className="type-h1">Cookie Policy</h1>
-        <p className="mt-3 text-sm text-dim">Last updated: July 2026</p>
+        <p className="mt-3 text-sm text-dim">Last updated: August 2026</p>
 
         <div className="mt-10 space-y-10 text-dim">
           <div>
             <h2 className="type-h3">1. The short version</h2>
             <p className="mt-3 leading-relaxed">
-              {BRAND.display} uses one essential cookie to keep you signed in. That is the whole
-              list. We do not use advertising cookies, analytics trackers, cross-site pixels, or any
-              third-party ad-tech. Nothing here is sold or shared for marketing purposes.
+              {BRAND.display} uses one essential cookie to keep you signed in. Optional analytics
+              (PostHog) help us improve the product. That choice is yours — reject or accept
+              anytime. No ad tech. Nothing here is sold or shared for marketing.
             </p>
           </div>
 
           <div>
-            <h2 className="type-h3">2. The one cookie we set</h2>
+            <h2 className="type-h3">2. The essential cookie</h2>
             <ul className="mt-3 list-disc space-y-2 pl-5 leading-relaxed">
               <li>
                 <span className="font-medium text-light">Supabase auth session cookie.</span> Set
@@ -39,47 +39,57 @@ export default function CookiesPage() {
           </div>
 
           <div>
-            <h2 className="type-h3">3. Zero trackers, zero ad tech</h2>
+            <h2 className="type-h3">3. Optional analytics</h2>
             <p className="mt-3 leading-relaxed">
-              We do not run Google Analytics, Meta Pixel, ad-network tags, cross-site tracking
-              scripts, or any fingerprinting technology. We do not build advertising profiles from
-              your activity on {BRAND.display}, and we never will.
+              If you accept optional analytics, {BRAND.display} loads PostHog to understand how the
+              product is used. You can reject optional analytics and the product still works. You
+              can change this anytime from the cookie banner.
+            </p>
+            <p className="mt-3 leading-relaxed">
+              We do not run advertising cookies, ad-network tags, cross-site pixels, or Meta Pixel.
+              We do not build advertising profiles from your activity on {BRAND.display}.
+            </p>
+            <p className="mt-3 leading-relaxed">
+              See also{" "}
+              <Link href="/legal/subprocessors" className="text-cyan hover:underline">
+                Subprocessors
+              </Link>
+              .
             </p>
           </div>
 
           <div>
             <h2 className="type-h3">4. What lives in your browser storage</h2>
             <p className="mt-3 leading-relaxed">
-              Beyond that one cookie, {BRAND.display} uses your browser&rsquo;s local and session
-              storage — not cookies — to keep the product fast and to let anonymous visitors use it
-              before creating an account. None of this is sent to our servers or to any third party;
-              it stays on your device unless you choose to sign in and sync it.
+              Beyond cookies, {BRAND.display} uses your browser&rsquo;s local and session storage
+              for small flags — not a guest verdict.
             </p>
             <ul className="mt-3 list-disc space-y-2 pl-5 leading-relaxed">
               <li>
-                <span className="font-medium text-light">Assessment drafts and results</span> — your
-                most recent Shadow Score or full-assessment result, saved locally so /results and
-                /plan work without an account.
+                <span className="font-medium text-light">Cookie and notification preferences</span>{" "}
+                — your choice on this banner, and your notification toggle in Settings.
               </li>
               <li>
                 <span className="font-medium text-light">Hero and onboarding signals</span> — small
                 flags (like whether you&rsquo;ve seen the landing-page intro) so the site
                 doesn&rsquo;t repeat itself on every visit.
               </li>
-              <li>
-                <span className="font-medium text-light">Cookie and notification preferences</span>{" "}
-                — your choice on this banner, and your notification toggle in Settings.
-              </li>
             </ul>
+            <p className="mt-3 leading-relaxed">
+              Assessment results live on your account after you sign in. Guest /results and /plan
+              are not a product path. /shadow-score is a read, not a score we store in your browser
+              as the product.
+            </p>
           </div>
 
           <div>
             <h2 className="type-h3">5. Managing or clearing this data</h2>
             <p className="mt-3 leading-relaxed">
-              You can clear local and session storage at any time from your browser&rsquo;s
-              settings, which will remove any locally saved assessment drafts. Clearing the Supabase
-              session cookie will sign you out. Neither action deletes data already saved to your
-              account — see our{" "}
+              You can reject optional analytics from the cookie banner without clearing anything
+              else. You can clear local and session storage from your browser&rsquo;s settings,
+              which removes those flags and your stored choice — the banner may ask again. Clearing
+              the Supabase session cookie will sign you out. Neither action deletes data already
+              saved to your account — see our{" "}
               <Link href="/legal/privacy" className="text-cyan hover:underline">
                 Privacy Policy
               </Link>{" "}
@@ -102,10 +112,14 @@ export default function CookiesPage() {
               channels. See also our{" "}
               <Link href="/legal/privacy" className="text-cyan hover:underline">
                 Privacy Policy
-              </Link>{" "}
-              and{" "}
+              </Link>
+              ,{" "}
               <Link href="/legal/terms" className="text-cyan hover:underline">
                 Terms of Service
+              </Link>
+              , and{" "}
+              <Link href="/legal/subprocessors" className="text-cyan hover:underline">
+                Subprocessors
               </Link>
               .
             </p>
