@@ -27,9 +27,13 @@ vi.mock("@/lib/ratelimit", () => ({
   getClientIp: vi.fn(() => "127.0.0.1"),
 }));
 
+const state = vi.hoisted(() => ({
+  user: { id: "user-1" } as { id: string } | null,
+}));
+
 vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({
-    auth: { getUser: async () => ({ data: { user: null }, error: null }) },
+    auth: { getUser: async () => ({ data: { user: state.user }, error: null }) },
     rpc: async () => ({ data: null, error: null }),
   }),
 }));
@@ -37,6 +41,7 @@ vi.mock("@/lib/supabase/server", () => ({
 describe("POST /api/scoring full result (6.2)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    state.user = { id: "user-1" };
   });
 
   it("returns full pillar breakdowns matching computeScore", async () => {
@@ -60,6 +65,22 @@ describe("POST /api/scoring full result (6.2)", () => {
     expect(body.hardStops).toEqual(engine.hardStops);
     expect(body.keyInsight).toBe(generateKeyInsight(engine));
     expect(body.nextSteps).toEqual(generateNextSteps(engine));
+  });
+
+  it("refuses a guest session — no verdict, no score", async () => {
+    state.user = null;
+    const { POST } = await import("@/app/api/scoring/route");
+    const req = new Request("http://localhost/api/scoring", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(SAMPLE),
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(401);
+    const body = (await res.json()) as { verdict?: unknown; score?: unknown; error?: string };
+    expect(body.error).toBe("Unauthorized");
+    expect(body.verdict).toBeUndefined();
+    expect(body.score).toBeUndefined();
   });
 
   it("rejects invalid inputs with 400", async () => {

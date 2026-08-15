@@ -14,10 +14,12 @@
  */
 
 /**
- * Product routes anonymous visitors may view — the acquisition funnel and
- * marketing surfaces (assessment → results → plan), the public tools, the
- * shadow-score teaser, the demo, and the onboarding intro. These read only
- * local/derived state or degrade to an empty state without a session.
+ * Product routes anonymous visitors may view — empty results/plan states,
+ * public tools, the shadow-score teaser, the demo, and the onboarding intro.
+ * `/assessment` stays classified public so middleware does not bounce guests
+ * to sign-in (that would skip First Moment). The page itself server-redirects
+ * guests to /first-moment. These routes read only local/derived state or
+ * degrade to an empty state without a session.
  */
 export const PUBLIC_PRODUCT_ROUTES = [
   "assessment",

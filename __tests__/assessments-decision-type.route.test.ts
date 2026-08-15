@@ -94,6 +94,7 @@ function post(body: Record<string, unknown>) {
 }
 
 beforeEach(() => {
+  state.user = { id: "user-1", email: "u@example.com" };
   state.insertCalls = [];
   state.phase0 = { frozen: false, frozen_until: null };
 });
@@ -167,6 +168,17 @@ describe("POST /api/assessments decision_type", () => {
     expect(state.insertCalls).toHaveLength(0);
     const body = (await res.json()) as { verdict?: unknown; score?: unknown; source?: string };
     expect(body.source).toBe("phase0");
+    expect(body.verdict).toBeUndefined();
+    expect(body.score).toBeUndefined();
+  });
+
+  it("refuses a guest persist — no insert, no verdict", async () => {
+    state.user = null;
+    const res = await post({ inputs: VALID_INPUTS, kind: "full" });
+    expect(res.status).toBe(401);
+    expect(state.insertCalls).toHaveLength(0);
+    const body = (await res.json()) as { saved?: boolean; verdict?: unknown; score?: unknown };
+    expect(body.saved).toBe(false);
     expect(body.verdict).toBeUndefined();
     expect(body.score).toBeUndefined();
   });

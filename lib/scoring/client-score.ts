@@ -3,8 +3,8 @@
  *
  * Assessment flows must NOT import computeScore / computeShadowScore —
  * engine curves stay off the client bundle. This helper POSTs validated
- * inputs to /api/scoring (auth-free, rate-limited) and returns the full
- * AssessmentResult plus insight strings for local storage / UI.
+ * inputs to /api/scoring (session required, rate-limited) and returns the
+ * full AssessmentResult plus insight strings for local storage / UI.
  */
 
 import type {

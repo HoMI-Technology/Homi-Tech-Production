@@ -11,7 +11,7 @@ import {
 
 const NAV = [
   { href: "/how-it-works", label: "How It Works" },
-  { href: "/assessment", label: "Assessment" },
+  { href: PRIMARY_CLOSE_HREF, label: "Assessment" },
   { href: "/guides", label: "Guides" },
   { href: "/pricing", label: "Pricing" },
   { href: "/b2b", label: "For Teams" },
