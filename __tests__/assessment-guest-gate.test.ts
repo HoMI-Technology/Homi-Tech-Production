@@ -138,6 +138,17 @@ describe("anonymous SiteHeader has no NotificationBell", () => {
   });
 });
 
+describe("guest /tools Assess close is First Moment", () => {
+  it("points the hub Assess link at PRIMARY_CLOSE_HREF, not /assessment", () => {
+    const page = src("app", "(product)", "tools", "page.tsx");
+    expect(page).toContain("PRIMARY_CLOSE_HREF");
+    expect(page).toContain("PRIMARY_CLOSE_LABEL");
+    expect(PRIMARY_CLOSE_HREF).toBe("/first-moment");
+    expect(PRIMARY_CLOSE_LABEL).toBe("Assess");
+    expect(page).not.toMatch(/href=["']\/assessment["']/);
+  });
+});
+
 describe("guest product chrome has no Companion FAB", () => {
   it("mounts CompanionHost only for a signed-in user", () => {
     const layout = src("app", "(product)", "layout.tsx");
