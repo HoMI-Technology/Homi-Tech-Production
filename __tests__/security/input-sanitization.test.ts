@@ -197,7 +197,8 @@ describe("API routes — no raw SQL concatenation", () => {
         /\.delete\s*\(/.test(source) ||
         /\.rpc\s*\(/.test(source) ||
         /\.auth\./.test(source) ||
-        /getUserEntitlements\s*\(/.test(source);
+        /getUserEntitlements\s*\(/.test(source) ||
+        /phase0RefuseIfFrozen\s*\(/.test(source);
 
       expect(
         hasBuilderMethod,
