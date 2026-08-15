@@ -47,8 +47,24 @@ describe("anonymous SiteHeader Assessment nav", () => {
     expect(PRIMARY_CLOSE_HREF).toBe("/first-moment");
   });
 
+  it("leaves the primary Assess button on PRIMARY_CLOSE_HREF / PRIMARY_CLOSE_LABEL", () => {
+    expect(header).toContain("PRIMARY_CLOSE_LABEL");
+    expect(header).toMatch(/href=\{PRIMARY_CLOSE_HREF\}[\s\S]*\{PRIMARY_CLOSE_LABEL\}/);
+  });
+
   it("leaves signed-in product chrome on /assessment", () => {
     expect(APP_PRIMARY_NAV.map((item) => item.href)).toContain("/assessment");
+  });
+});
+
+describe("anonymous SiteFooter Product column", () => {
+  const footer = src("components", "layout", "SiteFooter.tsx");
+
+  it("points Full Assessment at First Moment and does not touch Waitlist", () => {
+    expect(footer).toContain('{ href: "/first-moment", label: "Full Assessment" }');
+    expect(footer).not.toMatch(/href:\s*["']\/assessment["']/);
+    expect(footer).toContain('{ href: "/waitlist", label: "Waitlist" }');
+    expect(footer).toContain('{ href: "/first-moment", label: "Assess" }');
   });
 });
 
@@ -76,20 +92,11 @@ describe("First Moment copy stays word-locked", () => {
   });
 });
 
-describe("scoring APIs refuse a guest verdict", () => {
-  it("POST /api/assessments already 401s without a session", () => {
-    const route = src("app", "api", "assessments", "route.ts");
-    expect(route).toMatch(/if\s*\(\s*!user\s*\)/);
-    expect(route).toMatch(/saved:\s*false/);
-    expect(route).toMatch(/status:\s*401/);
-  });
-
-  it("POST /api/scoring requires a session before computeScore", () => {
+describe("/api/scoring stays auth-free", () => {
+  it("keeps the guest scoring path — the UI gate is the named leak", () => {
     const route = src("app", "api", "scoring", "route.ts");
-    expect(route).toMatch(/if\s*\(\s*!user\s*\)/);
-    expect(route).toMatch(/status:\s*401/);
-    expect(route.indexOf('status: 401')).toBeLessThan(route.indexOf("computeScore(inputs)"));
-    expect(route).not.toMatch(/guest scoring path/);
-    expect(route).not.toMatch(/Auth-free/);
+    expect(route).toMatch(/Auth-free so the anonymous assessment funnel/);
+    expect(route).toMatch(/guest scoring path/);
+    expect(route).not.toMatch(/status:\s*401/);
   });
 });

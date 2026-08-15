@@ -21,7 +21,7 @@ const COLUMNS: FooterColumn[] = [
     title: "Product",
     links: [
       { href: "/first-moment", label: "Assess" },
-      { href: "/assessment", label: "Full Assessment" },
+      { href: "/first-moment", label: "Full Assessment" },
       { href: "/waitlist", label: "Waitlist" },
       { href: "/money", label: "Money" },
       { href: "/pricing", label: "Pricing" },
@@ -103,7 +103,7 @@ export function SiteFooter() {
               <p className="text-sm font-semibold text-light">{col.title}</p>
               <ul className="mt-4 space-y-2.5">
                 {col.links.map((l) => (
-                  <li key={l.href}>
+                  <li key={`${l.href}:${l.label}`}>
                     <Link
                       href={l.href}
                       className="text-sm text-dim transition-colors hover:text-cyan"

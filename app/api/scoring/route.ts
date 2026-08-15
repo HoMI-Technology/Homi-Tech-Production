@@ -17,8 +17,8 @@ export const runtime = "nodejs";
  *
  * Returns the full AssessmentResult (pillar sub-factors are public UI output)
  * plus insight strings. Clients must not ship computeScore — they POST inputs
- * here and display the response. Session required: a guest verdict is the
- * same leak as mounting the 45-q. Rate-limited by IP.
+ * here and display the response. Auth-free so the anonymous assessment funnel
+ * works; rate-limited by IP.
  */
 export async function POST(request: Request) {
   const ip = getClientIp(request);
@@ -47,26 +47,13 @@ export async function POST(request: Request) {
 
   const inputs: AssessmentInputs = parsed.data;
 
-  let supabase;
   try {
-    supabase = await createClient();
+    const supabase = await createClient();
+    const refused = await phase0RefuseIfFrozen(supabase);
+    if (refused) return refused;
   } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // No session infra — guest scoring path.
   }
-
-  let user;
-  try {
-    const { data } = await supabase.auth.getUser();
-    user = data.user;
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const refused = await phase0RefuseIfFrozen(supabase);
-  if (refused) return refused;
 
   const result = computeScore(inputs);
   const keyInsight = generateKeyInsight(result);
