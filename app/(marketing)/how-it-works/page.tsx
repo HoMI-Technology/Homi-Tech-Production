@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import {
+  PRIMARY_CLOSE_HREF,
+  PRIMARY_CLOSE_LABEL,
+} from "@/components/marketing/first-moment-copy";
 import { Reveal } from "@/components/ui/Reveal";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { PILLARS } from "@/lib/brand";
@@ -82,8 +86,7 @@ export default function HowItWorksPage() {
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="type-h1">How HōMI works</h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-dim">
-            200+ signals. 3 dimensions. 1 score. Here is exactly how we get from your answers to an
-            honest verdict — no trade secrets, just the shape of the method.
+            Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours.
           </p>
         </div>
       </section>
@@ -96,17 +99,17 @@ export default function HowItWorksPage() {
               {
                 step: "01",
                 title: "Assess",
-                copy: "Answer honest questions across Financial Reality, Emotional Truth, and Perfect Timing. Sliders, not essays. Ninety seconds for the shadow version, longer for the full picture.",
+                copy: "Answer honest questions across Financial Reality, Emotional Truth, and Perfect Timing. Sliders, not essays.",
               },
               {
                 step: "02",
                 title: "Verdict",
-                copy: "HōMI weighs all three pillars equally and checks for hard-stops — conditions that override the math entirely because they're not safe to build on top of.",
+                copy: "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours. Then hard-stops — conditions that override the math because they are not safe to build on top of.",
               },
               {
                 step: "03",
                 title: "Build",
-                copy: "Every verdict below READY comes with a map: the specific, ordered things to build first. Not yet is a starting line, not a wall.",
+                copy: "Not yet is a starting line, not a wall. You get a map: the specific, ordered things to build first.",
               },
             ].map((s) => (
               <div key={s.step} className="glass glass-hover p-8">
@@ -125,8 +128,7 @@ export default function HowItWorksPage() {
           <div className="mx-auto max-w-6xl">
             <h2 className="text-center type-h2">Inside the three pillars</h2>
             <p className="mx-auto mt-4 max-w-2xl text-center text-dim">
-              We don&rsquo;t publish exact point values or weights — those are the trade secret.
-              What we will tell you is exactly what each pillar looks at and why it matters.
+              Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours. Here is what each pillar looks at and why it matters.
             </p>
 
             <div className="mt-14 space-y-10">
@@ -256,8 +258,8 @@ export default function HowItWorksPage() {
           <div className="mx-auto max-w-2xl">
             <h2 className="type-h1">See where you stand.</h2>
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Link href="/shadow-score" className="btn btn-primary">
-                Get your score — 90 seconds
+              <Link href={PRIMARY_CLOSE_HREF} className="btn btn-primary">
+                {PRIMARY_CLOSE_LABEL}
               </Link>
               <Link href="/method" className="btn btn-ghost">
                 Read the philosophy

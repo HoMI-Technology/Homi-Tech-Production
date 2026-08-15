@@ -73,12 +73,24 @@ describe("homepage primary labels", () => {
     ["app/(marketing)/page.tsx"],
     ["components/home/ThresholdPreview.tsx"],
     ["app/(marketing)/pricing/page.tsx"],
+    ["app/(marketing)/how-it-works/page.tsx"],
     ["components/layout/SiteFooter.tsx"],
   ])("%s does not use banned primary-close labels", (rel) => {
     const text = src(...rel.split("/"));
     for (const banned of BANNED_LABEL_SNIPPETS) {
       expect(text).not.toContain(banned);
     }
+  });
+});
+
+describe("how-it-works primary close", () => {
+  const page = src("app", "(marketing)", "how-it-works", "page.tsx");
+
+  it("uses the Assess close, not /shadow-score", () => {
+    expect(page).toContain("PRIMARY_CLOSE_HREF");
+    expect(page).toContain("PRIMARY_CLOSE_LABEL");
+    expect(page).not.toContain('href="/shadow-score"');
+    expect(page).not.toContain("Get your score");
   });
 });
 
