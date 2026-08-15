@@ -156,6 +156,18 @@ describe("Wave 1 chrome honesty — primary close", () => {
     expect(HOW_IT_WORKS).toContain(
       "Not yet is a starting line, not a wall. You get a map: the specific, ordered things to build first.",
     );
+    expect(HOW_IT_WORKS).toContain(
+      "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours. Then hard-stops — conditions that override the math because they are not safe to build on top of.",
+    );
+    expect(HOW_IT_WORKS).toContain(
+      "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours. Here is what each pillar looks at and why it matters.",
+    );
+    expect(HOW_IT_WORKS).not.toContain(
+      "HōMI weighs Financial Reality, Emotional Truth, and Perfect Timing at 35 / 35 / 30, then checks for hard-stops — conditions that override the math entirely because they are not safe to build on top of.",
+    );
+    expect(HOW_IT_WORKS).not.toContain(
+      "The public weights are 35 / 35 / 30 — Financial Reality, Emotional Truth, Perfect Timing. Here is what each pillar looks at and why it matters.",
+    );
   });
 
   it("footer is not a product CTA to /advisor", () => {

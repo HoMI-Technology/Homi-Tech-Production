@@ -9,9 +9,9 @@ const PAGE = readFileSync(join(ROOT, "app", "(marketing)", "how-it-works", "page
 const ASSESS_CARD =
   "Answer honest questions across Financial Reality, Emotional Truth, and Perfect Timing. Sliders, not essays.";
 const VERDICT_CARD =
-  "HōMI weighs Financial Reality, Emotional Truth, and Perfect Timing at 35 / 35 / 30, then checks for hard-stops — conditions that override the math entirely because they are not safe to build on top of.";
+  "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours. Then hard-stops — conditions that override the math because they are not safe to build on top of.";
 const PILLAR_INTRO =
-  "The public weights are 35 / 35 / 30 — Financial Reality, Emotional Truth, Perfect Timing. Here is what each pillar looks at and why it matters.";
+  "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours. Here is what each pillar looks at and why it matters.";
 const WEIGHTS_LOCK =
   "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours.";
 const BUILD_CARD =
@@ -29,6 +29,8 @@ const KILLED = [
   "shadow version",
   "Get your score — 90 seconds",
   "Every verdict below READY comes with a map",
+  "HōMI weighs Financial Reality, Emotional Truth, and Perfect Timing at 35 / 35 / 30, then checks for hard-stops — conditions that override the math entirely because they are not safe to build on top of.",
+  "The public weights are 35 / 35 / 30 — Financial Reality, Emotional Truth, Perfect Timing. Here is what each pillar looks at and why it matters.",
 ] as const;
 
 describe("how-it-works — Brand-authored lock", () => {

@@ -104,7 +104,7 @@ export default function HowItWorksPage() {
               {
                 step: "02",
                 title: "Verdict",
-                copy: "HōMI weighs Financial Reality, Emotional Truth, and Perfect Timing at 35 / 35 / 30, then checks for hard-stops — conditions that override the math entirely because they are not safe to build on top of.",
+                copy: "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours. Then hard-stops — conditions that override the math because they are not safe to build on top of.",
               },
               {
                 step: "03",
@@ -128,7 +128,7 @@ export default function HowItWorksPage() {
           <div className="mx-auto max-w-6xl">
             <h2 className="text-center type-h2">Inside the three pillars</h2>
             <p className="mx-auto mt-4 max-w-2xl text-center text-dim">
-              The public weights are 35 / 35 / 30 — Financial Reality, Emotional Truth, Perfect Timing. Here is what each pillar looks at and why it matters.
+              Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours. Here is what each pillar looks at and why it matters.
             </p>
 
             <div className="mt-14 space-y-10">
