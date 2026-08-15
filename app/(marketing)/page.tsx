@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { InterviewHero, IdeaBeat, WalkChapter } from "@/components/home/InterviewHero";
+import { AlignmentScene } from "@/components/home/AlignmentScene";
 import { CinemaFX } from "@/components/home/CinemaFX";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
@@ -19,11 +20,11 @@ export const metadata: Metadata = {
  * Homepage walk — TeraFab rhythm: one idea per scroll, all the way down.
  *
  * InterviewHero owns the locked first three beats + Assess on first paint.
- * Everything after is the same IdeaBeat / WalkChapter primitive. No tables,
- * comparison grids, kicker+card walls, or product-tour theater.
+ * AlignmentScene continues the walk (Financial / Emotional / Timing / key).
+ * Beats after that reuse IdeaBeat / WalkChapter. Existing lines only.
  *
- * Copy is existing homepage lines only. Waitlist stays a quiet last close,
- * secondary to Assess. Never present a fake 0–100 HōMI-Score.
+ * Waitlist is a whisper under Assess — never the last headline.
+ * Never present a fake 0–100 HōMI-Score.
  */
 export default function MarketingHomePage() {
   return (
@@ -44,8 +45,11 @@ export default function MarketingHomePage() {
         </p>
       </section>
 
+      <div id="statement" className="scroll-mt-24">
+        <AlignmentScene />
+      </div>
+
       <IdeaBeat
-        id="statement"
         after={
           <>
             <p className="mx-auto mt-8 max-w-xl text-lg text-dim sm:text-xl">
@@ -61,8 +65,6 @@ export default function MarketingHomePage() {
         A credit score tells institutions if they may trust your history.
       </IdeaBeat>
 
-      <IdeaBeat>Everyone asks the wrong question.</IdeaBeat>
-
       <IdeaBeat
         after={
           <p className="mx-auto mt-8 max-w-xl text-lg text-dim sm:text-xl">
@@ -73,7 +75,16 @@ export default function MarketingHomePage() {
         Most systems arrive after you decide.
       </IdeaBeat>
 
-      <IdeaBeat>
+      <IdeaBeat>Home is the first threshold.</IdeaBeat>
+
+      <IdeaBeat
+        after={
+          <p className="mx-auto mt-12 max-w-2xl font-display text-xl leading-relaxed text-light/80">
+            &ldquo;The friend who says: I love you, but you&rsquo;re not ready yet &mdash; and then
+            helps you get there.&rdquo;
+          </p>
+        }
+      >
         Not yet is not <span className="text-emerald">no</span>.
       </IdeaBeat>
 
@@ -81,11 +92,11 @@ export default function MarketingHomePage() {
         <Link href={PRIMARY_CLOSE_HREF} className="btn btn-primary btn-glow px-8 py-3.5 text-base">
           {PRIMARY_CLOSE_LABEL}
         </Link>
-        <p className="mx-auto mt-16 max-w-xl text-sm leading-relaxed text-dim">
+        <p className="mx-auto mt-20 max-w-xl text-xs leading-relaxed text-dim/70">
           Leave your email. We&rsquo;ll tell you when it&rsquo;s your turn &mdash; the truth, not a
           sales sequence.
         </p>
-        <div className="mx-auto mt-8 w-full max-w-md">
+        <div className="mx-auto mt-4 w-full max-w-md">
           <WaitlistForm source="landing" idPrefix="landing-waitlist" />
         </div>
       </WalkChapter>

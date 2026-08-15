@@ -31,17 +31,23 @@ describe("homepage walk — locked first viewport", () => {
 describe("homepage walk — continuation uses existing lines only", () => {
   const home = src("app", "(marketing)", "page.tsx");
 
-  it("keeps the inversion, wrong-question, before-commitment, and not-yet beats", () => {
+  it("keeps AlignmentScene as the continuing walk, then inversion / before / not-yet", () => {
+    expect(home).toMatch(/from\s+["']@\/components\/home\/AlignmentScene["']/);
+    expect(home).toContain("<AlignmentScene");
     expect(home).toContain("A credit score tells institutions if they may trust your history.");
     expect(home).toContain("HōMI helps you know if you can trust the decision.");
-    expect(home).toContain("Everyone asks the wrong question.");
+    expect(home).toContain("Most people don&rsquo;t regret what they bought");
     expect(home).toContain("Most systems arrive after you decide.");
     expect(home).toContain("HōMI enters before the commitment.");
+    expect(home).toContain("Home is the first threshold.");
     expect(home).toContain("Not yet is not");
-    expect(home).toContain("Most people don&rsquo;t regret what they bought");
+    expect(home).toContain("The friend who says:");
+    expect(home).not.toContain("Everyone asks the wrong question.");
+    expect(home).not.toContain("The category, drawn");
+    expect(home).not.toContain("Not the whole company.");
   });
 
-  it("closes on Assess, with waitlist secondary — no competing primary", () => {
+  it("closes on Assess; waitlist is a whisper — no competing primary", () => {
     expect(home).toContain("PRIMARY_CLOSE_HREF");
     expect(home).toContain("PRIMARY_CLOSE_LABEL");
     expect(home).toContain("WaitlistForm");
@@ -50,6 +56,7 @@ describe("homepage walk — continuation uses existing lines only", () => {
     expect(home).toContain('id="waitlist"');
     expect(home).not.toContain("Or start a free assessment");
     expect(home).not.toContain("Explore the Compass");
+    expect(home).not.toContain("Get notified");
   });
 
   it("reuses IdeaBeat / WalkChapter — does not invent a new marketing section type", () => {
@@ -68,7 +75,6 @@ describe("homepage walk — 2024 SaaS landing is unmounted", () => {
     expect(home).not.toMatch(/from\s+["']@\/components\/home\/Voices["']/);
     expect(home).not.toMatch(/from\s+["']@\/components\/home\/DecisionOrbit["']/);
     expect(home).not.toMatch(/from\s+["']@\/components\/home\/Flashlight["']/);
-    expect(home).not.toMatch(/from\s+["']@\/components\/home\/AlignmentScene["']/);
     expect(home).not.toMatch(/from\s+["']@\/components\/home\/TimelineShift["']/);
     expect(home).not.toMatch(/from\s+["']@\/components\/home\/StatementReveal["']/);
     expect(home).not.toContain("<ThresholdPreview");
@@ -80,6 +86,9 @@ describe("homepage walk — 2024 SaaS landing is unmounted", () => {
     expect(home).not.toContain("Permissioned Readiness Summary");
     expect(home).not.toContain("One companion. Three ways to hear it.");
     expect(home).not.toContain("28 / 33 / 36");
+    expect(home).not.toContain("No commissions");
+    expect(home).not.toContain("What HōMI is not");
+    expect(home).not.toContain("Your Decision Companion");
     expect(home).not.toContain("Trinity");
     expect(home).not.toContain("70 · told to wait");
   });
