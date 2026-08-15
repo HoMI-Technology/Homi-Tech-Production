@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HeaderShell, isActivePath } from "@/components/layout/HeaderShell";
-import { NotificationBell } from "@/components/layout/NotificationBell";
 import {
   PRIMARY_CLOSE_HREF,
   PRIMARY_CLOSE_LABEL,
@@ -43,7 +42,6 @@ export function SiteHeader() {
       })}
       right={
         <>
-          <NotificationBell />
           <Link
             href="/auth/sign-in"
             className="text-sm text-dim transition-colors hover:text-light"
@@ -59,7 +57,6 @@ export function SiteHeader() {
         <>
           <div className="flex items-center justify-between px-1 pb-1">
             <span className="text-xs uppercase tracking-wide text-dim">Menu</span>
-            <NotificationBell />
           </div>
           {NAV.map((item) => (
             <Link

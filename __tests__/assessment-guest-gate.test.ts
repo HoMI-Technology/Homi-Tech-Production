@@ -117,6 +117,27 @@ describe("guest /results does not paint a localStorage verdict", () => {
   });
 });
 
+describe("guest /plan does not paint a localStorage score", () => {
+  it("waits for auth, then drops leftover local results for anonymous visitors", () => {
+    const page = src("app", "(product)", "plan", "page.tsx");
+    expect(page).toMatch(/isAnonymous\s*\?\s*null/);
+    expect(page).toContain("pickResult");
+    expect(page).toContain("No plan yet");
+    expect(page).not.toContain("fetchServerScore");
+    expect(page).not.toContain("/api/scoring");
+    expect(page.indexOf("isAnonymous ? null")).toBeLessThan(page.indexOf("No plan yet"));
+  });
+});
+
+describe("anonymous SiteHeader has no NotificationBell", () => {
+  it("removes the bell from marketing chrome and leaves it on AppHeader", () => {
+    const site = src("components", "layout", "SiteHeader.tsx");
+    const app = src("components", "layout", "AppHeader.tsx");
+    expect(site).not.toContain("NotificationBell");
+    expect(app).toContain("<NotificationBell />");
+  });
+});
+
 describe("/api/scoring is not session-gated", () => {
   it("does not 401 /api/scoring — other callers stay auth-free", () => {
     const route = src("app", "api", "scoring", "route.ts");

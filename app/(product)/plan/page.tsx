@@ -56,6 +56,7 @@ function pillarPct(key: "financial" | "emotional" | "timing", stored: StoredAsse
 export default function PlanPage() {
   const freeze = usePhase0Freeze();
   const [stored, setStored] = useState<StoredAssessment | null | undefined>(undefined);
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const [remote, setRemote] = useState<StoredAssessment | null>(null);
   const [remoteChecked, setRemoteChecked] = useState(false);
   const [progress, setProgress] = useState<Record<string, boolean>>({});
@@ -71,7 +72,10 @@ export default function PlanPage() {
       try {
         const supabase = createClient();
         const { data } = await supabase.auth.getUser();
-        if (!data?.user) {
+        const signedIn = !!data?.user;
+        if (active) setIsAnonymous(!signedIn);
+
+        if (!signedIn) {
           if (active) setRemoteChecked(true);
           return;
         }
@@ -84,7 +88,10 @@ export default function PlanPage() {
           setRemoteChecked(true);
         }
       } catch {
-        if (active) setRemoteChecked(true);
+        if (active) {
+          setIsAnonymous(true);
+          setRemoteChecked(true);
+        }
       }
     }
     checkAuthAndRemote();
@@ -93,10 +100,12 @@ export default function PlanPage() {
     };
   }, []);
 
-  // Local result wins when it is newer or there is no signed-in remote
-  // result; anonymous users always fall straight through to `stored` here
-  // since `remote` stays null for them.
-  const effective = stored === undefined ? undefined : pickResult(stored, remote);
+  // Local result wins when it is newer or remote isn't signed in / doesn't
+  // exist. Guests must not paint pillar percents or next steps from
+  // localStorage — wait for the auth check, then drop the local payload.
+  // Signed-in users still resolve via pickResult (localStorage stays on).
+  const picked = stored === undefined ? undefined : pickResult(stored ?? null, remote);
+  const effective = !remoteChecked ? undefined : isAnonymous ? null : picked;
 
   // Insights from storage / server backfill — never generateNextSteps on client (6.3).
   const { insights } = useResultInsights(effective ?? null);
