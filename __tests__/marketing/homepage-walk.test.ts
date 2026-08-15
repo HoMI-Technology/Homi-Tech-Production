@@ -78,10 +78,16 @@ describe("homepage walk — locked first viewport", () => {
     expect(hero).toContain("What this is");
     expect(hero).not.toMatch(/What this is[\s\S]{0,80}btn/);
     expect(persist).toContain("walk-travel-assess");
+    expect(persist).toContain("walk-travel-assess-stack");
     expect(persist).toContain("walk-line");
     expect(persist).not.toContain("bottom-[max(6.5rem");
     expect(persist).toContain("is-parked");
     expect(persist).toContain('"parked"');
+    const css = src("app", "globals.css");
+    expect(css).toMatch(/\.walk-line \{[^}]*overflow:\s*visible/);
+    expect(css).not.toMatch(/\.walk-line \{[^}]*overflow:\s*hidden/);
+    expect(css).toContain(".walk-travel-assess-stack [data-walk-assess]");
+    expect(css).toMatch(/\.walk-travel-assess-stack \[data-walk-assess\]\s*\{[^}]*top:\s*100%/);
   });
 });
 
@@ -201,6 +207,8 @@ describe("homepage walk — Knowledge keep-list only", () => {
     expect(hero).not.toContain("PRIMARY_CLOSE_HREF");
     expect(hero).not.toContain("PRIMARY_CLOSE_LABEL");
     expect(hero).not.toContain("<Link");
+    expect(hero).toContain("Will you be okay?");
+    expect(hero).not.toContain('data-walk-hero');
     expect(src("components", "marketing", "first-moment-copy.ts")).toContain(
       'export const PRIMARY_CLOSE_HREF = "/first-moment"',
     );

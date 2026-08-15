@@ -1451,6 +1451,15 @@ body {
   .walk-cluster {
     --walk-line-band: 8.75rem;
   }
+  /* Two type-giant lines (“Will you / be okay?”) must fit the band.
+     Traveler spacer matches so Assess hangs below, not on the type. */
+  .hero-story .walk-cluster,
+  .walk-travel-assess .walk-cluster {
+    --walk-line-band: max(
+      8.75rem,
+      calc(2 * clamp(2.75rem, 1.5rem + 5.4vw, 5.75rem) * 1.04 + 0.5rem)
+    );
+  }
   @media (max-width: 47.99rem) {
     .hero-story .walk-cluster,
     .hero-chapter .walk-cluster {
@@ -1470,7 +1479,7 @@ body {
     min-height: var(--walk-line-band);
     width: 100%;
     max-width: 36rem;
-    overflow: hidden;
+    overflow: visible;
   }
   .walk-kicker {
     position: absolute;
@@ -1521,6 +1530,17 @@ body {
     z-index: 20;
     pointer-events: none;
     transition: opacity 0.4s var(--walk-ease, cubic-bezier(0.4, 0, 0.2, 1));
+  }
+  .walk-travel-assess-stack {
+    position: relative;
+    width: 100%;
+    max-width: 36rem;
+  }
+  .walk-travel-assess-stack [data-walk-assess] {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    margin-top: 0.85rem;
   }
   .walk-travel-assess[data-fade] {
     opacity: 0;
