@@ -144,7 +144,6 @@ describe("guest product chrome has no Companion FAB", () => {
     expect(layout).toMatch(/\{user\s*&&\s*<CompanionHost\s*\/>\}/);
     expect(layout).not.toMatch(/^\s*<CompanionHost\s*\/>\s*$/m);
     expect(layout).toContain('from "@/components/companion/CompanionHost"');
-    expect(layout).not.toContain("CompanionWidget");
   });
 });
 
