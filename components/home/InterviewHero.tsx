@@ -19,8 +19,9 @@ export { WalkPersist } from "./walk-persist";
  * one instance each, never destroyed on the hero and reborn at the close.
  * DESIGN.md: navy/cyan, type-display, PRM-safe (no spin/beam/tilt).
  *
- * SEO/AT: h1 text is in the DOM from first paint. Visual resolve is
- * invisible→full on scroll; prefers-reduced-motion paints the final line.
+ * SEO/AT: h1 text is in the DOM from first paint. The locked question
+ * paints fully (WalkWords paint="full"); later holds resolve
+ * invisible→full on scroll. prefers-reduced-motion paints every line.
  */
 
 export const HERO_VARIANT: "interview" | "film" = "film";
@@ -165,7 +166,7 @@ function OpeningBeat() {
             textShadow: `0 2px 32px ${withAlpha(COLORS.navy, 0.88)}`,
           }}
         >
-          <WalkWords>Will you be okay?</WalkWords>
+          <WalkWords paint="full">Will you be okay?</WalkWords>
         </h1>
       </WalkCluster>
     </HoldStage>

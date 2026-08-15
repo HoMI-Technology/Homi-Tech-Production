@@ -1474,6 +1474,10 @@ body {
   .walk-word[data-on] {
     opacity: 1;
   }
+  /* First viewport: the locked question must paint. Do not start it at 0. */
+  [data-cinema="hero"] .walk-word {
+    opacity: 1;
+  }
   .walk-word[data-on][data-accent="emerald"] {
     color: var(--color-emerald);
     opacity: 1;

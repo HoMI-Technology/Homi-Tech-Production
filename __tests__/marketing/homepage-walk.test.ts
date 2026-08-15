@@ -56,6 +56,18 @@ describe("homepage walk — locked first viewport", () => {
     expect(css).not.toMatch(/\.walk-hold[^{]*\{[^}]*pin-scene/);
   });
 
+  it("paints the locked hero question fully on first paint", () => {
+    const opening = hero.slice(hero.indexOf("function OpeningBeat"), hero.indexOf("function useHeroField"));
+    expect(opening).toContain("Will you be okay?");
+    expect(opening).toContain('paint="full"');
+    expect(opening).toContain("<WalkWords paint=\"full\">Will you be okay?</WalkWords>");
+    const hold = src("components", "home", "walk-hold.tsx");
+    expect(hold).toContain('paint === "full"');
+    const css = src("app", "globals.css");
+    expect(css).toMatch(/\[data-cinema="hero"\]\s*\.walk-word\s*\{[^}]*opacity:\s*1/);
+    expect(css).not.toMatch(/\[data-cinema="hero"\]\s*\.walk-word\s*\{[^}]*opacity:\s*0/);
+  });
+
   it("keeps What this is as a text kicker, not a pill, and Assess under the line band", () => {
     expect(hero).toContain("walk-kicker");
     expect(hero).toContain("What this is");

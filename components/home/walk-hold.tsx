@@ -71,16 +71,20 @@ export function HoldStage({
 export function WalkWords({
   children,
   tokens: tokensProp,
+  paint = "hold",
 }: {
   children?: ReactNode;
   tokens?: WalkToken[];
+  /** `full` paints every word on first paint — hero question only. */
+  paint?: "hold" | "full";
 }) {
   const tokens = useMemo(
     () => tokensProp ?? tokenizeWalkLine(children),
     [children, tokensProp],
   );
   const { progress, reduced } = useContext(WalkHoldContext);
-  const lit = reduced ? tokens.length : Math.round(progress * tokens.length);
+  const lit =
+    reduced || paint === "full" ? tokens.length : Math.round(progress * tokens.length);
 
   return (
     <>
