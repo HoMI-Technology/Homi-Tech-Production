@@ -18,7 +18,8 @@ export const metadata: Metadata = {
  * Homepage walk — Knowledge brief: air over inventory.
  *
  * InterviewHero owns the locked first three beats. Assess and the compass
- * travel via WalkPersist — one instance each. Three jobs after the hero,
+ * travel via WalkPersist — one instance each (Assess first-paints in the
+ * hero, then follows). Three jobs after the hero,
  * existing keep-list lines only. No AlignmentScene, no pin-scene, no fourth
  * slogan restating the hero inversion.
  *

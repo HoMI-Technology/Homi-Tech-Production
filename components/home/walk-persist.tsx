@@ -7,10 +7,10 @@ import { CinematicCompass } from "./CinematicCompass";
 import { track } from "@/lib/analytics";
 
 /**
- * Persistent walk objects — one compass, one Assess follower.
- * Hero owns the first-paint Assess. The follower appears only after that
- * pill leaves the viewport, then docks away before waitlist / footer / cookie.
- * Compass travels, docks as the mark for Clarity, then stops.
+ * Persistent walk objects — one compass, one Assess pill.
+ * The same Assess instance paints in the hero (LCP-safe) and travels
+ * with the walk, then parks (inert + aria-hidden) before waitlist,
+ * footer, or cookie controls. No second copy. No GSAP/Lenis.
  */
 
 function handleCtaClick() {
@@ -26,7 +26,6 @@ export function WalkPersist({ children }: { children: ReactNode }) {
   const [parked, setParked] = useState(false);
   const [footerIn, setFooterIn] = useState(false);
   const [cookieIn, setCookieIn] = useState(false);
-  const [heroAssessGone, setHeroAssessGone] = useState(false);
   const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
@@ -39,7 +38,6 @@ export function WalkPersist({ children }: { children: ReactNode }) {
     const waitlist = root.querySelector("#waitlist");
     const footer = document.querySelector("footer");
     const cookie = document.querySelector("#cookie-consent");
-    const heroAssess = root.querySelector("[data-walk-hero-assess]");
 
     const observers: IntersectionObserver[] = [];
 
@@ -53,17 +51,6 @@ export function WalkPersist({ children }: { children: ReactNode }) {
         { threshold: [0.35] },
       );
       io.observe(object);
-      observers.push(io);
-    }
-
-    if (heroAssess) {
-      const io = new IntersectionObserver(
-        (entries) => {
-          setHeroAssessGone(entries.every((entry) => !entry.isIntersecting));
-        },
-        { threshold: [0] },
-      );
-      io.observe(heroAssess);
       observers.push(io);
     }
 
@@ -107,7 +94,7 @@ export function WalkPersist({ children }: { children: ReactNode }) {
 
   const placed: Exclude<CompassAt, "docked" | "parked"> = atObject && !reduced ? "object" : "field";
   const compassAt: CompassAt = footerIn ? "parked" : docked ? "docked" : placed;
-  const assessAway = !heroAssessGone || docked || footerIn;
+  const assessAway = docked || footerIn;
 
   return (
     <div ref={rootRef} className="walk-persist relative">
@@ -134,6 +121,8 @@ export function WalkPersist({ children }: { children: ReactNode }) {
             data-walk-assess-slot=""
             data-fade={assessAway ? "away" : undefined}
             data-cookie={cookieIn ? "" : undefined}
+            aria-hidden={assessAway || undefined}
+            inert={assessAway || undefined}
           >
             <div className="walk-cluster mx-auto flex h-full w-full max-w-7xl flex-col items-start justify-center px-5 sm:px-6 lg:px-8">
               <div className="walk-line" aria-hidden />

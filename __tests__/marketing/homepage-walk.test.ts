@@ -169,8 +169,10 @@ describe("homepage walk — Knowledge keep-list only", () => {
     expect(persist).toContain("walk-compass-halo");
     expect(persist).not.toContain("btn-glow");
     expect(hero).not.toContain("btn-glow");
-    expect(hero).toContain("data-walk-hero-assess");
-    expect(hero).toContain("btn btn-primary btn-sm");
+    expect(hero).not.toContain("data-walk-hero-assess");
+    expect(hero).not.toContain("btn-primary");
+    expect(hero).not.toContain("PRIMARY_CLOSE_HREF");
+    expect(hero).not.toContain("PRIMARY_CLOSE_LABEL");
     expect(home).not.toContain("btn-primary");
     expect(compass).toContain('r="85"');
     expect(compass).toContain('r="60"');
@@ -181,6 +183,27 @@ describe("homepage walk — Knowledge keep-list only", () => {
     expect(persist).not.toContain("85/60/35");
     expect(hero).not.toContain("4:3:2");
     expect(hero).not.toContain("85/60/35");
+  });
+
+  it("keeps exactly one walk Assess — first-paint traveler, still → /first-moment", () => {
+    const persist = src("components", "home", "walk-persist.tsx");
+    const hero = src("components", "home", "InterviewHero.tsx");
+    expect((persist.match(/<Link/g) ?? []).length).toBe(1);
+    expect((persist.match(/data-walk-assess=""/g) ?? []).length).toBe(1);
+    expect((persist.match(/PRIMARY_CLOSE_LABEL/g) ?? []).length).toBe(2);
+    expect((persist.match(/PRIMARY_CLOSE_HREF/g) ?? []).length).toBe(2);
+    expect(persist).toContain("?src=hero");
+    expect(persist).toContain("inert");
+    expect(persist).toContain("aria-hidden");
+    expect(persist).not.toContain("heroAssessGone");
+    expect(persist).not.toContain("data-walk-hero-assess");
+    expect(hero).not.toContain("data-walk-hero-assess");
+    expect(hero).not.toContain("PRIMARY_CLOSE_HREF");
+    expect(hero).not.toContain("PRIMARY_CLOSE_LABEL");
+    expect(hero).not.toContain("<Link");
+    expect(src("components", "marketing", "first-moment-copy.ts")).toContain(
+      'export const PRIMARY_CLOSE_HREF = "/first-moment"',
+    );
   });
 
   it("does not remount StatementReveal or AlignmentScene for the word hold", () => {
@@ -314,9 +337,11 @@ describe("homepage walk — craft failure modes", () => {
     expect(persist).toContain("?src=hero");
     expect(persist).toContain("#waitlist");
     expect(persist).toContain("#cookie-consent");
-    expect(persist).toContain("data-walk-hero-assess");
-    expect(persist).toContain("heroAssessGone");
+    expect(persist).not.toContain("data-walk-hero-assess");
+    expect(persist).not.toContain("heroAssessGone");
     expect(persist).toContain("docked || footerIn");
+    expect(persist).toContain("inert");
+    expect(persist).toContain("aria-hidden");
     expect(css).toContain(".walk-travel-assess[data-fade]");
     expect(css).toContain("scroll-padding-bottom");
     expect(src("components", "consent", "CookieConsent.tsx")).toContain("z-[60]");
