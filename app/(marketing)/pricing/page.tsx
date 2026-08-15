@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
 import { PricingCheckoutButton } from "@/components/marketing/PricingCheckoutButton";
+import {
+  PRIMARY_CLOSE_HREF,
+  PRIMARY_CLOSE_LABEL,
+} from "@/components/marketing/first-moment-copy";
 
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "HōMI pricing: a free Shadow Score, and paid tiers for unlimited assessments, the Decision Companion, and household plans. Our revenue comes from subscriptions, not transactions.",
+    "HōMI pricing: a free 45-question assessment with the same engine and hard stops, Plus for the voice picker and verdict history, and Family for two people on one compass. Our revenue comes from subscriptions, not transactions.",
   alternates: { canonical: "/pricing" },
 };
 
@@ -37,43 +41,36 @@ const TIER_COPY: Record<PricingTier["id"], TierCopy> = {
     name: "Free",
     description: "Start with the truth. No card required.",
     features: [
-      "Shadow Score — a 90-second read on where you stand",
-      "One full assessment across all three pillars",
-      "Basic finance tools",
-      "HōMI Companion — starter guidance",
+      "Full 45-question assessment — same engine, bands, and hard stops",
+      "Protective verdict and Path — same quality as paid.",
+      "Results, Path, and Money",
+      "Educational tools",
     ],
-    cta: "Get your Shadow Score",
+    cta: PRIMARY_CLOSE_LABEL,
   },
   plus: {
     name: "Plus",
     description: "For anyone actively building toward readiness.",
     features: [
-      "Unlimited assessments",
-      "Full readiness report across all pillars",
-      "Decision Companion — full AI conversations",
-      "A transformation plan built around your gaps",
-      "Private journal to track the moment before",
+      "Everything in Free",
+      "Verdict in your companion's voice (Steady, Clarity, or Horizon).",
+      "Verdict history",
     ],
     cta: "Start Plus",
   },
   pro: {
     name: "Pro",
-    description: "Everything in Plus, with a companion who talks back.",
-    features: [
-      "Everything in Plus",
-      "Couples mode for shared decisions",
-      "Behavioral genome across your decision history",
-      "Higher daily Companion limits",
-    ],
+    description: "Everything in Plus.",
+    features: ["Everything in Plus", "Higher daily ask-about-this-verdict limits."],
     cta: "Start Pro",
   },
   family: {
     name: "Family",
-    description: "Everything in Pro, for the whole household.",
+    description: "Two people. One compass.",
     features: [
-      "Everything in Pro for up to 5 household members",
-      "Shared dashboards across the family",
-      "One account, one honest picture for everyone in it",
+      "Everything in Pro for two people",
+      "The slower-person pillar sets the pace",
+      "One compass for both",
     ],
     cta: "Start Family",
   },
@@ -102,8 +99,8 @@ const FAQS: Faq[] = [
     a: "No. Never. See our privacy policy for the full detail, but the short version is: your data is yours, and it isn’t for sale.",
   },
   {
-    q: "Is the Decision Companion financial advice?",
-    a: "No. HōMI provides educational guidance only. The Companion helps you see your own situation clearly — it doesn’t recommend products, and it isn’t a substitute for a licensed advisor.",
+    q: "Is HōMI financial advice?",
+    a: "No. HōMI is a Decision Companion: educational guidance only. It helps you see your own situation clearly — it doesn’t recommend products, and it isn’t a substitute for a licensed advisor.",
   },
 ];
 
@@ -165,8 +162,8 @@ export default function PricingPage() {
 
                     <div className="mt-8">
                       {tier.id === "free" ? (
-                        <Link href="/shadow-score" className="btn btn-ghost w-full">
-                          Get your Shadow Score
+                        <Link href={PRIMARY_CLOSE_HREF} className="btn btn-ghost w-full">
+                          {copy.cta}
                         </Link>
                       ) : (
                         <PricingCheckoutButton
@@ -214,10 +211,10 @@ export default function PricingPage() {
       <Reveal>
         <section className="px-6 py-20 text-center">
           <div className="mx-auto max-w-2xl">
-            <h2 className="type-h1">Start with the free score.</h2>
+            <h2 className="type-h1">Start with the full assessment.</h2>
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Link href="/shadow-score" className="btn btn-primary">
-                Get your score &mdash; 90 seconds
+              <Link href={PRIMARY_CLOSE_HREF} className="btn btn-primary">
+                {PRIMARY_CLOSE_LABEL}
               </Link>
               <Link href="/how-it-works" className="btn btn-ghost">
                 How it works

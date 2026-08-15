@@ -1,75 +1,40 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { scoreToVerdict, type Verdict } from "@/lib/scoring/engine";
+import { scoreToVerdict } from "@/lib/scoring/engine";
 
 // ---------------------------------------------------------------------------
-// Landing canon guard (audit T2.4)
+// Landing canon guard (audit T2.4) + Wave 1 chrome honesty
 // ---------------------------------------------------------------------------
 //
 // HōMI's moat is verdict integrity: a rendered (score, verdict) pair on any
-// marketing surface must agree with the single source of truth,
-// scoreToVerdict() in lib/scoring/engine.ts. The audit found the landing
-// "Permissioned Readiness Summary" card showing 82 labeled "ALMOST THERE"
-// when 82 >= 80 is actually READY — a canon violation, since a real user
-// landing on 82 would see READY inside the product.
-//
-// This test hardcodes every (score, verdict-label) pair currently rendered
-// on marketing surfaces and asserts each is consistent with the engine.
-// If you add or change a hardcoded score/verdict illustration anywhere in
-// app/(marketing)/** or components/home/**, add the pair here too.
+// marketing surface must agree with scoreToVerdict() in lib/scoring/engine.ts.
+// Wave 1 goes further: homepage theater must not present a fake 0–100
+// HōMI-Score as the visitor's score at all. Temperature illustrations are
+// allowed. The engine boundary cases below stay locked.
 
-/** Marketing-surface verdict label -> canonical Verdict enum value. */
-const LABEL_TO_VERDICT: Record<string, Verdict> = {
-  READY: "READY",
-  "ALMOST THERE": "ALMOST_THERE",
-  "BUILD FIRST": "BUILD_FIRST",
-  "NOT YET": "NOT_YET",
-};
+describe("landing canon — homepage theater is not a fake score", () => {
+  it("does not hardcode visitor-facing (score, verdict) pairs", () => {
+    const home = readFileSync(join(process.cwd(), "app/(marketing)/page.tsx"), "utf8");
+    const preview = readFileSync(
+      join(process.cwd(), "components/home/ThresholdPreview.tsx"),
+      "utf8",
+    );
+    const shift = readFileSync(join(process.cwd(), "components/home/VerdictShift.tsx"), "utf8");
 
-interface RenderedPair {
-  /** Where this pair is rendered, for traceability. */
-  source: string;
-  score: number;
-  label: string;
-}
-
-/**
- * Every hardcoded (score, verdict-label) pair currently rendered on a
- * marketing surface. Keep this list in sync with the JSX.
- */
-const RENDERED_PAIRS: RenderedPair[] = [
-  {
-    source: "app/(marketing)/page.tsx — Build First sample verdict card",
-    score: 52,
-    label: "BUILD FIRST",
-  },
-  {
-    source: "app/(marketing)/page.tsx — Permissioned Readiness Summary card",
-    score: 76,
-    label: "ALMOST THERE",
-  },
-  {
-    source: "components/home/VerdictShift.tsx — pre-shift state",
-    score: 72,
-    label: "ALMOST THERE",
-  },
-  {
-    source: "components/home/VerdictShift.tsx — post-shift state",
-    score: 61,
-    label: "BUILD FIRST",
-  },
-];
-
-describe("landing canon — hardcoded marketing (score, verdict) pairs", () => {
-  it.each(RENDERED_PAIRS)(
-    "$source renders $score as $label, matching scoreToVerdict",
-    ({ score, label, source }) => {
-      const expectedVerdict = LABEL_TO_VERDICT[label];
-      expect(expectedVerdict, `unknown verdict label "${label}" for ${source}`).toBeDefined();
-      expect(scoreToVerdict(score)).toBe(expectedVerdict);
-    },
-  );
+    for (const [source, text] of [
+      ["homepage", home],
+      ["ThresholdPreview", preview],
+      ["VerdictShift", shift],
+    ] as const) {
+      expect(text, source).not.toMatch(/score-numeral[^>]*>\s*(52|61|72|76)\s*</);
+      expect(text, source).not.toContain("DO NOT PROCEED");
+      expect(text, source).not.toContain("ALMOST THERE");
+      expect(text, source).not.toContain("BUILD FIRST");
+      expect(text, source).not.toContain("80–100");
+      expect(text, source).not.toContain('verdict="READY"');
+    }
+  });
 });
 
 describe("landing canon — scoreToVerdict boundary cases", () => {

@@ -2,8 +2,15 @@ import { describe, it, expect } from "vitest";
 import { companionTierCopy } from "@/lib/advisor/companion-tier-copy";
 import { getEntitlements } from "@/lib/entitlements";
 
-describe("companionTierCopy (CL-09 honest free vs paid labeling)", () => {
-  it("labels free tier as limited rule-based Companion with daily limit + upgrade", () => {
+const SKU_BANNED = [
+  /hōmi companion/i,
+  /full ai companion/i,
+  /get companion/i,
+  /daily companion limits/i,
+];
+
+describe("companionTierCopy (Brand Use)", () => {
+  it("pins free copy to rule-based notes on this verdict", () => {
     const free = getEntitlements("free");
     const copy = companionTierCopy({
       advisorRealModel: free.advisorRealModel,
@@ -12,16 +19,17 @@ describe("companionTierCopy (CL-09 honest free vs paid labeling)", () => {
 
     expect(free.advisorRealModel).toBe(false);
     expect(copy.kind).toBe("free");
-    expect(copy.summary.toLowerCase()).toContain("rule-based");
-    expect(copy.summary.toLowerCase()).toContain("free");
-    expect(copy.summary.toLowerCase()).not.toMatch(/\bfull ai\b/);
+    expect(copy.summary).toBe("Rule-based notes on this verdict.");
     expect(copy.detail).toContain(`${free.advisorMessagesPerDay} messages/day`);
-    expect(copy.detail?.toLowerCase()).toContain("upgrade");
     expect(copy.upgradeHref).toBe("/pricing");
     expect(copy.upgradeLabel).toBeTruthy();
+    for (const banned of SKU_BANNED) {
+      expect(copy.summary).not.toMatch(banned);
+      expect(copy.detail ?? "").not.toMatch(banned);
+    }
   });
 
-  it("labels paid tiers as Full AI Companion without inventing a model name", () => {
+  it("pins Plus+ copy to ask about this verdict", () => {
     for (const tier of ["plus", "pro", "family"] as const) {
       const paid = getEntitlements(tier);
       const copy = companionTierCopy({
@@ -31,10 +39,12 @@ describe("companionTierCopy (CL-09 honest free vs paid labeling)", () => {
 
       expect(paid.advisorRealModel, `${tier} should grant real model`).toBe(true);
       expect(copy.kind).toBe("paid");
-      expect(copy.summary).toBe("Full AI Companion");
+      expect(copy.summary).toBe("Ask about this verdict.");
       expect(copy.upgradeHref).toBeUndefined();
-      // Never invent Anthropic / model product names in UI copy.
       expect(copy.summary.toLowerCase()).not.toMatch(/claude|anthropic|gpt|haiku|sonnet/);
+      for (const banned of SKU_BANNED) {
+        expect(copy.summary).not.toMatch(banned);
+      }
     }
   });
 
@@ -44,6 +54,7 @@ describe("companionTierCopy (CL-09 honest free vs paid labeling)", () => {
       advisorMessagesPerDay: 0,
     });
     expect(copy.kind).toBe("free");
+    expect(copy.summary).toBe("Rule-based notes on this verdict.");
     expect(copy.detail).toMatch(/5 messages\/day/);
   });
 });

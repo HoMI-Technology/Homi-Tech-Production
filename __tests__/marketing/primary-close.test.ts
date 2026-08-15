@@ -48,6 +48,8 @@ describe("homepage primary labels", () => {
     ["components/layout/SiteHeader.tsx"],
     ["components/home/InterviewHero.tsx"],
     ["components/home/ThresholdPreview.tsx"],
+    ["app/(marketing)/pricing/page.tsx"],
+    ["components/layout/SiteFooter.tsx"],
   ])("%s does not use banned primary-close labels", (rel) => {
     const text = src(...rel.split("/"));
     for (const banned of BANNED_LABEL_SNIPPETS) {

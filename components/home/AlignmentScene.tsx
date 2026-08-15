@@ -139,7 +139,6 @@ export function AlignmentScene() {
               <CinematicCompass
                 responsive
                 glow={glow}
-                verdict={step === 3 ? "READY" : undefined}
                 keyholePulse={step === 3}
               />
             </div>

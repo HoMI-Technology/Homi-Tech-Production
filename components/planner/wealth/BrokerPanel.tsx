@@ -4,8 +4,8 @@
 /* BrokerPanel — brokerage feeds card (planner spec §6).                */
 /*                                                                      */
 /* Connected brokers with brokers.ts metadata, connect / disconnect /   */
-/* sync demo flows. Demo brokerage — production swaps in SnapTrade /    */
-/* Plaid Investments. Reads usePlannerStore directly.                   */
+/* sync demo flows. Demo brokerage only — no live broker feed.          */
+/* Reads usePlannerStore directly.                                      */
 /* ------------------------------------------------------------------ */
 
 import { useState } from "react";
@@ -96,7 +96,7 @@ export function BrokerPanel() {
           <div>
             <h3 className="text-base font-semibold text-light">Brokerage feeds</h3>
             <p className="mt-0.5 max-w-md text-xs leading-relaxed text-dim">
-              Demo brokerage — production swaps in SnapTrade / Plaid Investments.
+              Demo brokerage — holdings stay in this session until a live feed exists.
             </p>
           </div>
         </div>
@@ -177,7 +177,7 @@ export function BrokerPanel() {
             ))}
           </div>
           <p className="mt-3 text-2xs leading-relaxed text-dim">
-            Demo brokerage — production swaps in SnapTrade / Plaid Investments.
+            Demo brokerage — holdings stay in this session until a live feed exists.
           </p>
         </div>
       )}

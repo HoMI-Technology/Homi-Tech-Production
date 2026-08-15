@@ -1,7 +1,6 @@
 /**
- * Honest Companion tier labeling — pure display copy for free (rule-based,
- * daily-limited) vs paid (full AI) tiers. Does not gate access; server
- * entitlements + /api/advisor remain authoritative.
+ * Honest free vs paid labeling for ask-about-this-verdict notes.
+ * Does not gate access; server entitlements + /api/advisor remain authoritative.
  */
 
 export type CompanionTierCopyInput = {
@@ -22,15 +21,14 @@ export type CompanionTierCopy = {
 };
 
 /**
- * Build display strings for the Companion free vs paid honesty chip.
- * Free never claims "AI Companion"; paid claims full AI without inventing
- * a model name.
+ * Brand Use chip copy. Never names a SKU "Companion".
+ * Free: rule-based notes. Plus+: ask about this verdict.
  */
 export function companionTierCopy(input: CompanionTierCopyInput): CompanionTierCopy {
   if (input.advisorRealModel) {
     return {
       kind: "paid",
-      summary: "Full AI Companion",
+      summary: "Ask about this verdict.",
     };
   }
 
@@ -41,8 +39,8 @@ export function companionTierCopy(input: CompanionTierCopyInput): CompanionTierC
 
   return {
     kind: "free",
-    summary: "Free plan: limited rule-based Companion",
-    detail: `${daily} messages/day · Upgrade for full AI`,
+    summary: "Rule-based notes on this verdict.",
+    detail: `${daily} messages/day`,
     upgradeHref: "/pricing",
     upgradeLabel: "Upgrade",
   };

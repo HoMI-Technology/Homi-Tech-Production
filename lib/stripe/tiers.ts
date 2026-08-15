@@ -23,10 +23,8 @@ export const TIERS: Record<TierKey, Tier> = {
     lookupKey: "homi_plus_monthly",
     priceEnvVar: "STRIPE_PRICE_PLUS",
     features: [
-      "Full assessment with detailed pillar breakdowns",
-      "Unlimited re-scoring as your numbers change",
-      "Full AI Companion conversations",
-      "Progress tracking over time",
+      "Verdict in your companion's voice (Steady, Clarity, or Horizon).",
+      "Verdict history",
     ],
   },
   pro: {
@@ -35,13 +33,7 @@ export const TIERS: Record<TierKey, Tier> = {
     priceMonthlyUsd: 24.99,
     lookupKey: "homi_pro_monthly",
     priceEnvVar: "STRIPE_PRICE_PRO",
-    features: [
-      "Everything in Plus",
-      "Advanced finance tools (mortgage, debt payoff modeling)",
-      "Higher daily Companion limits",
-      "Couples mode — shared readiness view",
-      "Decision journal with outcome tracking",
-    ],
+    features: ["Everything in Plus", "Higher daily ask-about-this-verdict limits."],
   },
   family: {
     key: "family",
@@ -50,11 +42,9 @@ export const TIERS: Record<TierKey, Tier> = {
     lookupKey: "homi_family_monthly",
     priceEnvVar: "STRIPE_PRICE_FAMILY",
     features: [
-      "Everything in Pro",
-      "Up to 5 linked household members",
-      "Shared assessments and joint verdicts",
-      "Family financial reality dashboard",
-      "Dedicated onboarding walkthrough",
+      "Everything in Pro for two people",
+      "The slower-person pillar sets the pace",
+      "One compass for both",
     ],
   },
 };
