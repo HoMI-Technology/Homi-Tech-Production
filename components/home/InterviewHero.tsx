@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, type ReactNode, type RefObject } from "react";
+import { useEffect, useMemo, useRef, type ReactNode, type RefObject } from "react";
 import { PRIMARY_CLOSE_HREF, PRIMARY_CLOSE_LABEL } from "@/components/marketing/first-moment-copy";
 import { Particles } from "./CinematicCompass";
 import { Compass3D } from "./Compass3D";
+import { HoldStage, WalkWords } from "./walk-hold";
+import { tokenizeWalkLine } from "./walk-tokens";
 import { track } from "@/lib/analytics";
 import { COLORS, withAlpha } from "@/lib/brand";
 
@@ -19,7 +21,8 @@ import { COLORS, withAlpha } from "@/lib/brand";
  * Assess is never gated behind a scroll beat or interview chips.
  * DESIGN.md: navy/cyan, type-display, PRM-safe (no spin/beam/tilt).
  *
- * SEO/AT: h1 is in the DOM from first paint at full contrast.
+ * SEO/AT: h1 text is in the DOM from first paint. Visual resolve is
+ * grey→white on scroll; prefers-reduced-motion paints the final line.
  */
 
 export const HERO_VARIANT: "interview" | "film" = "film";
@@ -38,17 +41,45 @@ export function InterviewHero() {
   );
 }
 
+const CHAPTER_STAGE =
+  "hero-deep hero-chapter relative flex min-h-[100dvh] flex-col justify-center overflow-hidden pb-[max(5.5rem,env(safe-area-inset-bottom,0px)+4.5rem)] pt-16";
+
 /** Full-viewport chapter field. Homepage walk reuses this — no new marketing sections. */
-export function WalkChapter({ id, children }: { id?: string; children: ReactNode }) {
-  return (
-    <section
-      id={id}
-      className="hero-deep hero-chapter relative flex min-h-[100dvh] scroll-mt-24 flex-col justify-center overflow-hidden pb-[max(5.5rem,env(safe-area-inset-bottom,0px)+4.5rem)] pt-16"
-    >
+export function WalkChapter({
+  id,
+  children,
+  hold = false,
+  words = 0,
+}: {
+  id?: string;
+  children: ReactNode;
+  /** Pin the stage until the line finishes resolving. Close / waitlist stay unpinned. */
+  hold?: boolean;
+  words?: number;
+}) {
+  const body = (
+    <>
       <ChapterField />
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-start px-5 sm:px-6 lg:px-8">
         {children}
       </div>
+    </>
+  );
+
+  if (hold) {
+    return (
+      <HoldStage id={id} words={words} className={CHAPTER_STAGE}>
+        {body}
+      </HoldStage>
+    );
+  }
+
+  return (
+    <section
+      id={id}
+      className={`${CHAPTER_STAGE} scroll-mt-24`}
+    >
+      {body}
     </section>
   );
 }
@@ -57,18 +88,27 @@ export function IdeaBeat({
   id,
   children,
   after,
+  before,
+  headingClassName,
 }: {
   id?: string;
   children: ReactNode;
   after?: ReactNode;
+  before?: ReactNode;
+  headingClassName?: string;
 }) {
+  const tokens = useMemo(() => tokenizeWalkLine(children), [children]);
   return (
-    <WalkChapter id={id}>
+    <WalkChapter id={id} hold words={tokens.length}>
+      {before}
       <h2
-        className="type-display relative z-10 max-w-2xl font-display font-semibold text-light"
+        className={
+          headingClassName ??
+          "type-display relative z-10 max-w-2xl font-display font-semibold text-light"
+        }
         style={{ textWrap: "balance" }}
       >
-        {children}
+        <WalkWords tokens={tokens} />
       </h2>
       {after}
     </WalkChapter>
@@ -76,13 +116,16 @@ export function IdeaBeat({
 }
 
 function OpeningBeat() {
-  const fieldRef = useRef<HTMLElement>(null);
+  const fieldRef = useRef<HTMLDivElement>(null);
   useHeroField(fieldRef);
+  const question = "Will you be okay?";
+  const words = tokenizeWalkLine(question).length;
 
   return (
-    <section
-      ref={fieldRef}
-      data-cinema="hero"
+    <HoldStage
+      words={words}
+      stageRef={fieldRef}
+      cinema="hero"
       className="hero-deep hero-story relative flex min-h-[100dvh] flex-col justify-center overflow-hidden"
     >
       <HeroAtmosphere />
@@ -96,7 +139,7 @@ function OpeningBeat() {
               textShadow: `0 2px 32px ${withAlpha(COLORS.navy, 0.88)}`,
             }}
           >
-            Will you be okay?
+            <WalkWords>Will you be okay?</WalkWords>
           </h1>
 
           <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
@@ -113,12 +156,12 @@ function OpeningBeat() {
           </div>
         </div>
       </div>
-    </section>
+    </HoldStage>
   );
 }
 
 /** Pointer + scroll light the room. Touch: no fake pointer. PRM: still. */
-function useHeroField(ref: RefObject<HTMLElement | null>) {
+function useHeroField(ref: RefObject<HTMLDivElement | null>) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;

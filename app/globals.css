@@ -1359,6 +1359,45 @@ body {
   .hero-chapter {
     text-align: left;
   }
+
+  /* One-idea hold — sticky stage; tall runway is scroll, not a second claim.
+     Do not reuse .pin-scene (AlignmentScene) — that cinema stays unmounted. */
+  .walk-hold {
+    position: relative;
+    height: calc(100dvh + (var(--walk-words, 4) + 0.75) * 16vh);
+  }
+  .walk-hold-stage {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    min-height: 100dvh;
+    box-sizing: border-box;
+  }
+  .walk-word {
+    color: var(--color-dim);
+    transition: color 480ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .walk-word[data-on] {
+    color: var(--color-light);
+  }
+  .walk-word[data-on][data-accent="emerald"] {
+    color: var(--color-emerald);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .walk-hold {
+      height: auto;
+    }
+    .walk-hold-stage {
+      position: relative;
+    }
+    .walk-word {
+      color: var(--color-light);
+      transition: none;
+    }
+    .walk-word[data-accent="emerald"] {
+      color: var(--color-emerald);
+    }
+  }
   @media (min-width: 64rem) {
     .hero-instrument-field {
       left: 38%;
@@ -1608,6 +1647,19 @@ body {
     }
     .sword {
       opacity: 1 !important;
+    }
+    .walk-hold {
+      height: auto;
+    }
+    .walk-hold-stage {
+      position: relative;
+    }
+    .walk-word {
+      color: var(--color-light);
+      transition: none;
+    }
+    .walk-word[data-accent="emerald"] {
+      color: var(--color-emerald);
     }
     .beam,
     .beam.go {

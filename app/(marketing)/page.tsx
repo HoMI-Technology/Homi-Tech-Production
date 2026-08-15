@@ -42,24 +42,23 @@ export default function MarketingHomePage() {
         Not yet is not <span className="text-emerald">no</span>.
       </IdeaBeat>
 
-      <WalkChapter>
-        <div className="w-[min(36vmin,14rem)]" aria-hidden>
-          <CinematicCompass responsive keyholePulse={false} />
-        </div>
-        <h2
-          className="type-h1 relative z-10 mt-6 max-w-2xl font-display font-semibold text-light"
-          style={{ textWrap: "balance" }}
-        >
-          The compass that becomes a key when you&rsquo;re finally ready to turn it.
-        </h2>
-      </WalkChapter>
+      <IdeaBeat
+        before={
+          <div className="w-[min(36vmin,14rem)]" aria-hidden>
+            <CinematicCompass responsive keyholePulse={false} />
+          </div>
+        }
+        headingClassName="type-h1 relative z-10 mt-6 max-w-2xl font-display font-semibold text-light"
+      >
+        The compass that becomes a key when you&rsquo;re finally ready to turn it.
+      </IdeaBeat>
 
       <WalkChapter id="waitlist">
         <Link href={PRIMARY_CLOSE_HREF} className="btn btn-primary btn-sm">
           {PRIMARY_CLOSE_LABEL}
         </Link>
         <p className="mt-6 text-sm text-dim">Clarity, not commission.</p>
-        <div className="mt-10 w-full max-w-md">
+        <div className="mt-20 w-full max-w-xs opacity-50 transition-opacity duration-300 hover:opacity-80 focus-within:opacity-90">
           <WaitlistForm source="landing" idPrefix="landing-waitlist" surface="whisper" />
         </div>
       </WalkChapter>

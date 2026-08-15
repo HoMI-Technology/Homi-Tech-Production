@@ -36,6 +36,21 @@ describe("homepage walk — locked first viewport", () => {
     expect(hero).not.toContain("70 · told to wait");
     expect(hero).not.toMatch(/lg:grid-cols/);
   });
+
+  it("holds one idea and resolves walk words grey→white; PRM is static", () => {
+    expect(hero).toContain("HoldStage");
+    expect(hero).toContain("WalkWords");
+    expect(hero).toContain("tokenizeWalkLine");
+    const hold = src("components", "home", "walk-hold.tsx");
+    expect(hold).toContain("walk-hold");
+    expect(hold).toContain("walk-word");
+    expect(hold).toContain("prefers-reduced-motion: reduce");
+    const css = src("app", "globals.css");
+    expect(css).toContain(".walk-hold");
+    expect(css).toContain(".walk-word");
+    expect(css).toContain("prefers-reduced-motion: reduce");
+    expect(css).not.toMatch(/\.walk-hold[^{]*\{[^}]*pin-scene/);
+  });
 });
 
 describe("homepage walk — Knowledge keep-list only", () => {
@@ -97,6 +112,13 @@ describe("homepage walk — Knowledge keep-list only", () => {
     expect(home).toContain("WalkChapter");
     expect(home).toContain("InterviewHero");
   });
+
+  it("does not remount StatementReveal or AlignmentScene for the word hold", () => {
+    expect(home).not.toMatch(/from\s+["']@\/components\/home\/StatementReveal["']/);
+    expect(home).not.toMatch(/from\s+["']@\/components\/home\/AlignmentScene["']/);
+    expect(home).not.toContain("<StatementReveal");
+    expect(home).not.toContain("pin-scene");
+  });
 });
 
 describe("homepage walk — cookie copy stays locked", () => {
@@ -107,6 +129,19 @@ describe("homepage walk — cookie copy stays locked", () => {
     expect(banner).toContain("Reject optional");
     expect(banner).toContain("Accept optional");
     expect(banner).toContain("Cookie policy");
+  });
+
+  it("keeps the cookie hairline from #230", () => {
+    const banner = src("components", "consent", "CookieConsent.tsx");
+    expect(banner).toContain("border-t border-white/[0.06]");
+  });
+});
+
+describe("homepage walk — desktop hamburger stays hidden", () => {
+  it("keeps the lg:hidden wrapper on the marketing hamburger", () => {
+    const shell = src("components", "layout", "HeaderShell.tsx");
+    expect(shell).toContain('className="ml-auto lg:hidden"');
+    expect(shell).not.toContain("chrome-icon-btn ml-auto lg:ml-0 lg:hidden");
   });
 });
 
