@@ -84,9 +84,8 @@ describe("homepage walk — locked first viewport", () => {
     expect(persist).toContain("is-parked");
     expect(persist).toContain('"parked"');
     const css = src("app", "globals.css");
-    const lineBlock = css.slice(css.indexOf("  .walk-line {"), css.indexOf("  .walk-kicker {"));
-    expect(lineBlock).toContain("overflow: visible");
-    expect(lineBlock).not.toContain("overflow: hidden");
+    expect(css).toMatch(/\.walk-line \{[^}]*overflow:\s*visible/);
+    expect(css).not.toMatch(/\.walk-line \{[^}]*overflow:\s*hidden/);
     expect(css).toContain(".walk-travel-assess-stack [data-walk-assess]");
     expect(css).toMatch(/\.walk-travel-assess-stack \[data-walk-assess\]\s*\{[^}]*top:\s*100%/);
   });
