@@ -9,7 +9,6 @@
  */
 
 import { NextResponse } from "next/server";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { PHASE0_PAUSE_COPY, renderPhase0ReturnCopy } from "./copy";
 import { evaluatePhase0, PHASE0_FREEZE_MS } from "./detect";
 import { formatPhase0ResourceLines, selectPhase0Resources } from "./resources";
@@ -110,7 +109,17 @@ function parseState(data: unknown, userId: string, nowMs: number): Phase0ServerS
   };
 }
 
-type RpcClient = Pick<SupabaseClient, "rpc">;
+interface RpcError {
+  code?: string;
+  message?: string;
+}
+
+export interface RpcClient {
+  rpc: (
+    fn: string,
+    args?: Record<string, unknown>,
+  ) => PromiseLike<{ data: unknown; error: RpcError | null }>;
+}
 
 export async function loadPhase0ServerState(
   supabase: RpcClient,
@@ -219,7 +228,7 @@ export async function ingestPhase0Server(
       }
       // RPC returned success without echoing a freeze — still trip this request.
     }
-    if (error.code && !INFRA_MISSING.has(error.code) && combined.frozen) {
+    if (error && error.code && !INFRA_MISSING.has(error.code) && combined.frozen) {
       return {
         ...combined,
         financialStress,
