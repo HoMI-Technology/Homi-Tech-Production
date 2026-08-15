@@ -38,6 +38,43 @@ export function InterviewHero() {
   );
 }
 
+/** Full-viewport chapter field. Homepage walk reuses this — no new marketing sections. */
+export function WalkChapter({ id, children }: { id?: string; children: ReactNode }) {
+  return (
+    <section
+      id={id}
+      className="hero-deep hero-chapter relative flex min-h-[100dvh] scroll-mt-24 flex-col justify-center overflow-hidden px-5 sm:px-6 lg:px-8"
+    >
+      <ChapterField />
+      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center">
+        {children}
+      </div>
+    </section>
+  );
+}
+
+export function IdeaBeat({
+  id,
+  children,
+  after,
+}: {
+  id?: string;
+  children: ReactNode;
+  after?: ReactNode;
+}) {
+  return (
+    <WalkChapter id={id}>
+      <h2
+        className="type-statement relative z-10 mx-auto max-w-5xl font-display font-semibold text-light"
+        style={{ textWrap: "balance" }}
+      >
+        {children}
+      </h2>
+      {after}
+    </WalkChapter>
+  );
+}
+
 function OpeningBeat() {
   const fieldRef = useRef<HTMLElement>(null);
   useHeroField(fieldRef);
@@ -76,20 +113,6 @@ function OpeningBeat() {
           </div>
         </div>
       </div>
-    </section>
-  );
-}
-
-function IdeaBeat({ children }: { children: ReactNode }) {
-  return (
-    <section className="hero-deep hero-chapter relative flex min-h-[100dvh] flex-col justify-center overflow-hidden px-5 sm:px-6 lg:px-8">
-      <ChapterField />
-      <h2
-        className="type-statement relative z-10 mx-auto max-w-5xl font-display font-semibold text-light"
-        style={{ textWrap: "balance" }}
-      >
-        {children}
-      </h2>
     </section>
   );
 }

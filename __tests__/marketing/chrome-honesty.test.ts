@@ -169,13 +169,16 @@ describe("Wave 1 chrome honesty — homepage theater", () => {
     expect(alignment).not.toContain("READY");
   });
 
-  it("sample path does not treat credit 700 or DTI 36% as HōMI law", () => {
+  it("homepage walk does not mount a sample path or treat 700 / 36% as HōMI law", () => {
     expect(HOME).not.toMatch(/credit score above 700/i);
     expect(HOME).not.toMatch(/above 700/);
     expect(HOME).not.toMatch(/below 36%/);
-    expect(HOME).toMatch(/50%/);
-    expect(HOME).toMatch(/620/);
-    expect(HOME).toMatch(/45%/);
+    expect(HOME).not.toContain("Sample path");
+    expect(HOME).not.toContain("28 / 33 / 36");
+    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/ThresholdPreview["']/);
+    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/Voices["']/);
+    expect(HOME).not.toContain("<ThresholdPreview");
+    expect(HOME).not.toContain("<Voices");
   });
 });
 

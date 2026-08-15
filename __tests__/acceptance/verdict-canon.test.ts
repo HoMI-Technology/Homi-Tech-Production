@@ -55,8 +55,8 @@ function landingScoreVerdictPairs(): Array<{ score: number; label: string; verdi
 }
 
 describe("landing page — hardcoded score/verdict pairs obey canon", () => {
-  it("finds at least one hardcoded pair to check", () => {
-    expect(landingScoreVerdictPairs().length).toBeGreaterThan(0);
+  it("homepage walk has no hardcoded score/verdict pairs", () => {
+    expect(landingScoreVerdictPairs()).toEqual([]);
   });
   it("every displayed score matches its verdict label", () => {
     for (const p of landingScoreVerdictPairs()) {
