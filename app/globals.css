@@ -1324,6 +1324,56 @@ body {
     background: radial-gradient(ellipse 90% 80% at 60% 40%, #0a1628 0%, #071120 55%, #040b16 100%);
   }
 
+  /* InterviewHero — living field + one-idea chapters */
+  .hero-story {
+    --hero-x: 0.68;
+    --hero-y: 0.42;
+    --hero-s: 0;
+  }
+  .hero-instrument {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translate3d(
+      calc((var(--hero-x, 0.68) - 0.5) * 36px),
+      calc((var(--hero-y, 0.42) - 0.5) * 24px + var(--hero-s, 0) * 20px),
+      0
+    );
+    transition: transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .hero-rings-enter {
+    animation: hero-rings-focus 1600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes hero-rings-focus {
+    from {
+      transform: scale(1.06);
+      filter: blur(5px);
+      opacity: 0.55;
+    }
+    to {
+      transform: scale(1);
+      filter: blur(0);
+      opacity: 1;
+    }
+  }
+  .hero-chapter {
+    text-align: center;
+  }
+  @media (pointer: coarse) and (prefers-reduced-motion: no-preference) {
+    .hero-instrument {
+      animation: hero-idle-breathe 9s ease-in-out infinite;
+    }
+  }
+  @keyframes hero-idle-breathe {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    50% {
+      transform: translate3d(0, -10px, 0) scale(1.015);
+    }
+  }
+
   /* Horizon light — an eclipse rim behind the instrument */
   .horizon {
     position: absolute;
@@ -1744,8 +1794,13 @@ body {
       display: none;
     }
     .halo-breathe,
-    .keyhole-glint {
+    .keyhole-glint,
+    .hero-rings-enter,
+    .hero-instrument {
       animation: none;
+    }
+    .hero-instrument {
+      transform: none;
     }
     .tilt-3d {
       transform: none !important;
@@ -1778,9 +1833,14 @@ body {
 
   @media (prefers-reduced-motion: reduce) {
     .hero-field::before,
-    .hero-field::after {
+    .hero-field::after,
+    .hero-rings-enter,
+    .hero-instrument {
       animation: none;
       opacity: 1;
+    }
+    .hero-instrument {
+      transform: none;
     }
     .particle,
     .keyhole-pulse,
