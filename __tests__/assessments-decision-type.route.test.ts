@@ -67,7 +67,7 @@ vi.mock("@/lib/email/send", () => ({ sendLifecycleEmail: async () => {} }));
 vi.mock("@/lib/analytics/server", () => ({ captureServerEvent: () => {} }));
 
 import { NextRequest } from "next/server";
-import { POST } from "@/app/api/assessments/route";
+import { GET, POST } from "@/app/api/assessments/route";
 
 const VALID_INPUTS = {
   debtToIncomeRatio: 0.25,
@@ -135,6 +135,26 @@ describe("POST /api/assessments decision_type", () => {
     const res = await post({ inputs: VALID_INPUTS, kind: "full", decisionType: "banana" });
     expect(res.status).toBe(400);
     expect(state.insertCalls).toHaveLength(0);
+  });
+
+  it("GET omits verdict/score rows while a signed-in Phase 0 freeze is active", async () => {
+    state.phase0 = {
+      frozen: true,
+      frozen_until: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
+    };
+    const res = await GET();
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      assessments?: unknown[];
+      verdict?: unknown;
+      score?: unknown;
+      phase0?: { frozen?: boolean };
+    };
+    expect(body.assessments).toEqual([]);
+    expect(body.phase0?.frozen).toBe(true);
+    expect(body.verdict).toBeUndefined();
+    expect(body.score).toBeUndefined();
+    expect(JSON.stringify(body)).not.toMatch(/\bREADY\b/);
   });
 
   it("refuses persist while a signed-in Phase 0 freeze is active", async () => {
