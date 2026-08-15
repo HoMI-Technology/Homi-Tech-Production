@@ -2,10 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, type ReactNode, type RefObject } from "react";
-import {
-  PRIMARY_CLOSE_HREF,
-  PRIMARY_CLOSE_LABEL,
-} from "@/components/marketing/first-moment-copy";
+import { PRIMARY_CLOSE_HREF, PRIMARY_CLOSE_LABEL } from "@/components/marketing/first-moment-copy";
 import { Particles } from "./CinematicCompass";
 import { Compass3D } from "./Compass3D";
 import { track } from "@/lib/analytics";
@@ -165,7 +162,8 @@ function HeroAtmosphere() {
             `linear-gradient(90deg, ${withAlpha(COLORS.cyan, 0.09)} 1px, transparent 1px)`,
           ].join(", "),
           backgroundSize: "72px 72px",
-          backgroundPosition: "calc(var(--hero-x, 0.68) * -24px) calc(var(--hero-y, 0.42) * -24px + var(--hero-s, 0) * 16px)",
+          backgroundPosition:
+            "calc(var(--hero-x, 0.68) * -24px) calc(var(--hero-y, 0.42) * -24px + var(--hero-s, 0) * 16px)",
           maskImage:
             "radial-gradient(ellipse 82% 72% at calc(var(--hero-x, 0.58) * 100%) calc(var(--hero-y, 0.4) * 100%), black 16%, transparent 78%)",
           WebkitMaskImage:
