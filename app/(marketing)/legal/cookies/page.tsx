@@ -53,8 +53,8 @@ export default function CookiesPage() {
               See also{" "}
               <Link href="/legal/subprocessors" className="text-cyan hover:underline">
                 Subprocessors
-              </Link>{" "}
-              → /legal/subprocessors.
+              </Link>
+              .
             </p>
           </div>
 
