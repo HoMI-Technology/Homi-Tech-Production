@@ -65,35 +65,18 @@ const COLUMNS: FooterColumn[] = [
 
 export function SiteFooter() {
   return (
-    <footer className="relative mt-20 border-t border-slate-surface/60 sm:mt-24">
+    <footer className="relative z-10 mt-0 border-t border-slate-surface/60 bg-navy">
       <div className="mx-auto max-w-6xl px-6 py-12 sm:py-16">
         <div className="grid gap-10 sm:grid-cols-2 sm:gap-12 md:grid-cols-4 lg:grid-cols-[1.4fr_repeat(4,1fr)]">
           <div className="sm:col-span-2 md:col-span-4 lg:col-span-1">
-            <div className="flex items-center gap-3">
-              <ThresholdCompass size={44} animated={false} glow={false} />
+            <div className="flex items-center gap-2.5">
+              <ThresholdCompass size={28} animated={false} glow={false} />
               <Wordmark size="text-xl" />
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-dim">
               A Decision Companion. Financial Reality · Emotional Truth · Perfect Timing.
             </p>
             <p className="mt-3 text-sm font-medium text-light">{TAGLINES.primary}</p>
-            <a
-              href="https://x.com/homi_tech"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="HōMI on X (opens in a new tab)"
-              className="mt-4 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-surface/60 text-dim transition-colors hover:border-cyan/40 hover:text-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                width="16"
-                height="16"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-              </svg>
-            </a>
           </div>
           {COLUMNS.map((col) => (
             <nav key={col.ns} aria-label={col.title}>
@@ -121,19 +104,36 @@ export function SiteFooter() {
 
         {/* Legal canon (lib/brand LEGAL_DISCLAIMER) is regulatory text, not
             marketing copy — it is rendered verbatim. */}
-        <p className="text-xs leading-relaxed text-dim/80">{LEGAL_DISCLAIMER}</p>
-        <p className="mt-3 text-xs leading-relaxed text-dim/70">
+        <p className="text-sm leading-7 text-dim/80">{LEGAL_DISCLAIMER}</p>
+        <p className="mt-3 text-sm leading-7 text-dim/70">
           <span className="font-medium text-emerald/90">
             Educational only &mdash; not financial advice.
           </span>{" "}
           HōMI provides educational guidance only. Consider consulting qualified professionals
           before making legal, tax, mortgage, investment, or real estate decisions.
         </p>
-        <div className="mt-6 flex flex-col items-start justify-between gap-3 text-xs text-dim/70 sm:flex-row">
+        <div className="mt-6 flex flex-col items-start justify-between gap-3 text-sm leading-7 text-dim/70 sm:flex-row sm:items-center">
           <span>
             © <CopyrightYear initial={new Date().getFullYear()} /> HOMI TECHNOLOGIES LLC. All rights
             reserved.
           </span>
+          <a
+            href="https://x.com/homi_tech"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="HōMI on X (opens in a new tab)"
+            className="inline-flex items-center text-dim/70 transition-opacity hover:text-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
+          </a>
           <span>
             Decision Readiness Intelligence™ | Educational Guidance Only | Not Financial Advice
           </span>

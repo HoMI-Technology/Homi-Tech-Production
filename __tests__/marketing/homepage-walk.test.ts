@@ -38,19 +38,45 @@ describe("homepage walk — locked first viewport", () => {
     expect(hero).not.toMatch(/lg:grid-cols/);
   });
 
-  it("holds one idea and resolves walk words grey→white; PRM is static", () => {
+  it("holds one idea and resolves walk words invisible→full; PRM is static", () => {
     expect(hero).toContain("HoldStage");
     expect(hero).toContain("WalkWords");
     expect(hero).toContain("tokenizeWalkLine");
     const hold = src("components", "home", "walk-hold.tsx");
     expect(hold).toContain("walk-hold");
     expect(hold).toContain("walk-word");
+    expect(hold).toContain("--walk-progress");
     expect(hold).toContain("prefers-reduced-motion: reduce");
     const css = src("app", "globals.css");
     expect(css).toContain(".walk-hold");
     expect(css).toContain(".walk-word");
+    expect(css).toContain("opacity: 0");
+    expect(css).toContain("rgb(255 255 255 / 0.94)");
     expect(css).toContain("prefers-reduced-motion: reduce");
     expect(css).not.toMatch(/\.walk-hold[^{]*\{[^}]*pin-scene/);
+  });
+
+  it("paints the locked hero question fully on first paint", () => {
+    const opening = hero.slice(hero.indexOf("function OpeningBeat"), hero.indexOf("function useHeroField"));
+    expect(opening).toContain("Will you be okay?");
+    expect(opening).toContain('paint="full"');
+    expect(opening).toContain("<WalkWords paint=\"full\">Will you be okay?</WalkWords>");
+    const hold = src("components", "home", "walk-hold.tsx");
+    expect(hold).toContain('paint === "full"');
+    const css = src("app", "globals.css");
+    expect(css).toMatch(/\[data-cinema="hero"\]\s*\.walk-word\s*\{[^}]*opacity:\s*1/);
+    expect(css).not.toMatch(/\[data-cinema="hero"\]\s*\.walk-word\s*\{[^}]*opacity:\s*0/);
+  });
+
+  it("keeps What this is as a text kicker, not a pill, and Assess under the line band", () => {
+    expect(hero).toContain("walk-kicker");
+    expect(hero).toContain("What this is");
+    expect(hero).not.toMatch(/What this is[\s\S]{0,80}btn/);
+    expect(persist).toContain("walk-travel-assess");
+    expect(persist).toContain("walk-line");
+    expect(persist).not.toContain("bottom-[max(6.5rem");
+    expect(persist).toContain("is-parked");
+    expect(persist).toContain('"parked"');
   });
 });
 
@@ -83,6 +109,12 @@ describe("homepage walk — Knowledge keep-list only", () => {
     expect(home).toContain('idPrefix="landing-waitlist"');
     expect(home).toContain('id="waitlist"');
     expect(home).toContain('surface="whisper"');
+    expect(home).toContain("walk-waitlist-form");
+    expect(home).not.toContain("opacity-50");
+    const waitlist = src("components", "marketing", "WaitlistForm.tsx");
+    expect(waitlist).toContain('type="submit"');
+    expect(waitlist).toContain("Get notified");
+    expect(waitlist).toContain("walk-waitlist-submit");
     expect(home).not.toContain("PRIMARY_CLOSE_HREF");
     expect(home).not.toContain("PRIMARY_CLOSE_LABEL");
     expect(home).not.toContain("Or start a free assessment");
@@ -100,6 +132,7 @@ describe("homepage walk — Knowledge keep-list only", () => {
 
   it("keeps the educational line in the footer, character-matched", () => {
     const footer = src("components", "layout", "SiteFooter.tsx");
+    expect(footer).toContain("bg-navy");
     expect(footer).toContain("Educational only &mdash; not financial advice.");
     expect(footer).toContain(
       "HōMI provides educational guidance only. Consider consulting qualified professionals",
@@ -128,6 +161,7 @@ describe("homepage walk — Knowledge keep-list only", () => {
     expect(home).not.toContain("<CinematicCompass");
     expect((persist.match(/<CinematicCompass/g) ?? []).length).toBe(1);
     expect(persist).toContain("btn btn-primary btn-sm");
+    expect(persist).toContain("walk-compass-halo");
     expect(persist).not.toContain("btn-glow");
     expect(hero).not.toContain("btn-glow");
     expect(hero).not.toContain("btn-primary");
@@ -165,6 +199,15 @@ describe("homepage walk — cookie copy stays locked", () => {
   it("keeps the cookie hairline from #230", () => {
     const banner = src("components", "consent", "CookieConsent.tsx");
     expect(banner).toContain("border-t border-white/[0.06]");
+  });
+
+  it("keeps Accept filled and Reject as text — one accent", () => {
+    const banner = src("components", "consent", "CookieConsent.tsx");
+    expect(banner).toContain("cookie-reject");
+    expect(banner).toMatch(/Accept optional[\s\S]{0,80}btn-primary|btn-primary[\s\S]{0,120}Accept optional/);
+    const rejectBlock = banner.slice(banner.indexOf("Reject optional") - 180, banner.indexOf("Reject optional"));
+    expect(rejectBlock).not.toContain("btn-primary");
+    expect(rejectBlock).not.toContain("btn-ghost");
   });
 });
 

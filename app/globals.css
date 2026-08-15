@@ -147,6 +147,58 @@
   font: inherit;
 }
 
+/* Marketing header — weight and contrast only. Hover is alpha / underline,
+   not a cyan color shift. */
+.site-nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.84375rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: rgb(255 255 255 / 0.74);
+  text-underline-offset: 0.38em;
+  text-decoration-thickness: 1px;
+  transition:
+    color 180ms ease,
+    text-decoration-color 180ms ease;
+}
+.site-nav-link:hover,
+.site-nav-link.is-active {
+  color: rgb(255 255 255 / 0.96);
+  text-decoration: underline;
+  text-decoration-color: rgb(255 255 255 / 0.5);
+}
+.site-nav-link:focus-visible {
+  outline: 2px solid var(--color-cyan);
+  outline-offset: 2px;
+  border-radius: 0.375rem;
+}
+.site-logo {
+  line-height: 1;
+}
+
+.cookie-reject {
+  background: none;
+  border: none;
+  color: rgb(226 232 240 / 0.72);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  min-height: 2.25rem;
+  padding: 0.2rem 0.1rem;
+  cursor: pointer;
+}
+.cookie-reject:hover {
+  color: rgb(255 255 255 / 0.94);
+}
+.cookie-reject:focus-visible {
+  outline: 2px solid var(--color-cyan);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
 .chrome-icon-btn {
   display: inline-flex;
   align-items: center;
@@ -1361,10 +1413,15 @@ body {
   }
 
   /* One-idea hold — sticky stage; tall runway is scroll, not a second claim.
-     Do not reuse .pin-scene (AlignmentScene) — that cinema stays unmounted. */
+     Do not reuse .pin-scene (AlignmentScene) — that cinema stays unmounted.
+     Negative margin overlaps the next hold so the outgoing line is still
+     present when the incoming line lands (no empty dark-field frames). */
   .walk-hold {
+    --walk-progress: 0;
+    --walk-line-band: 8.75rem;
     position: relative;
-    height: calc(100dvh + (var(--walk-words, 4) + 0.75) * 16vh);
+    height: calc(100dvh + (var(--walk-words, 4) + 0.2) * 15vh);
+    margin-bottom: -32vh;
   }
   .walk-hold-stage {
     position: sticky;
@@ -1372,26 +1429,125 @@ body {
     width: 100%;
     min-height: 100dvh;
     box-sizing: border-box;
+    opacity: min(1, max(0, calc((1 - var(--walk-progress, 0)) / 0.52)));
+  }
+  .walk-cluster {
+    --walk-line-band: 8.75rem;
+  }
+  .walk-line {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: var(--walk-line-band);
+    width: 100%;
+    max-width: 36rem;
+  }
+  .walk-kicker {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 0.65rem);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgb(255 255 255 / 0.62);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.28em;
+    background: none;
+    border: none;
+    padding: 0;
+    border-radius: 0;
+  }
+  .walk-kicker:hover {
+    color: rgb(255 255 255 / 0.92);
+  }
+  .walk-kicker:focus-visible {
+    outline: 2px solid var(--color-cyan);
+    outline-offset: 3px;
   }
   .walk-word {
-    color: var(--color-dim);
-    transition: color 480ms cubic-bezier(0.16, 1, 0.3, 1);
+    color: rgb(255 255 255 / 0.94);
+    opacity: 0;
+    transition: opacity 480ms cubic-bezier(0.16, 1, 0.3, 1);
   }
   .walk-word[data-on] {
-    color: var(--color-light);
+    opacity: 1;
+  }
+  /* First viewport: the locked question must paint. Do not start it at 0. */
+  [data-cinema="hero"] .walk-word {
+    opacity: 1;
   }
   .walk-word[data-on][data-accent="emerald"] {
     color: var(--color-emerald);
+    opacity: 1;
+  }
+  .walk-travel-assess {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    pointer-events: none;
+    transition: opacity 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .walk-travel-assess[data-fade="footer"] {
+    opacity: 0;
+  }
+  .walk-waitlist-form {
+    margin-top: 3.25rem;
+  }
+  .walk-input {
+    border-color: rgb(148 163 184 / 0.48);
+  }
+  .walk-input::placeholder {
+    color: rgb(148 163 184 / 0.82);
+  }
+  .walk-input:focus {
+    outline: none;
+    border-color: rgb(34 211 238 / 0.7);
+    box-shadow: 0 0 0 2px rgb(34 211 238 / 0.28);
+  }
+  .walk-waitlist-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding: 0.55rem 1.15rem;
+    border: 1px solid rgb(226 232 240 / 0.42);
+    border-radius: 0.75rem;
+    background: transparent;
+    color: rgb(255 255 255 / 0.92);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+  }
+  .walk-waitlist-submit:hover {
+    border-color: rgb(226 232 240 / 0.7);
+    color: rgb(255 255 255 / 0.98);
+  }
+  .walk-waitlist-submit:focus-visible {
+    outline: 2px solid var(--color-cyan);
+    outline-offset: 2px;
+  }
+  .walk-waitlist-submit:disabled {
+    opacity: 0.55;
+    cursor: wait;
+  }
+  #waitlist.hero-chapter {
+    padding-bottom: max(8.5rem, env(safe-area-inset-bottom, 0px) + 7rem);
   }
   @media (prefers-reduced-motion: reduce) {
     .walk-hold {
       height: auto;
+      margin-bottom: 0;
     }
     .walk-hold-stage {
       position: relative;
+      opacity: 1;
     }
     .walk-word {
-      color: var(--color-light);
+      color: rgb(255 255 255 / 0.94);
+      opacity: 1;
       transition: none;
     }
     .walk-word[data-accent="emerald"] {
@@ -1400,13 +1556,44 @@ body {
     .walk-travel-compass {
       transition: none;
     }
+    .walk-travel-assess {
+      transition: none;
+    }
   }
 
-  /* One traveling compass — field (right 38%) then object (left, small).
-     One-way; do not reverse-animate. PRM stays on the field. */
+  /* One traveling compass — field (right 38%) then object (left, small),
+     then parked before waitlist. One-way; do not reverse-animate.
+     PRM stays on the field. */
   .walk-travel-compass {
     position: absolute;
     pointer-events: none;
+  }
+  .walk-travel-compass-body {
+    position: relative;
+  }
+  .walk-compass-halo {
+    position: absolute;
+    inset: 22%;
+    border-radius: 50%;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        circle,
+        rgb(34 211 238 / 0.2) 0%,
+        rgb(34 211 238 / 0.07) 26%,
+        transparent 56%
+      ),
+      repeating-radial-gradient(
+        circle at 50% 50%,
+        transparent 0,
+        transparent 10px,
+        rgb(226 232 240 / 0.045) 10.6px,
+        transparent 12px
+      );
+  }
+  .walk-travel-compass .compass-glow {
+    position: relative;
+    filter: drop-shadow(0 0 16px rgb(34 211 238 / 0.28));
   }
   .walk-travel-compass[data-at="field"] {
     inset: -6%;
@@ -1427,6 +1614,21 @@ body {
   .walk-travel-compass[data-at="object"] .walk-travel-compass-body {
     width: 100%;
   }
+  .walk-travel-compass.is-parked,
+  .walk-travel-compass[data-at="parked"] {
+    opacity: 0;
+  }
+  .walk-travel-compass.is-parked.hero-instrument-field,
+  .walk-travel-compass[data-at="parked"].hero-instrument-field {
+    inset: -6%;
+  }
+  .walk-travel-compass.is-parked.is-object,
+  .walk-travel-compass[data-at="parked"].is-object {
+    left: max(1.25rem, calc((100vw - 80rem) / 2 + 2rem));
+    top: 50%;
+    width: min(36vmin, 14rem);
+    transform: translateY(calc(-50% - 3.5rem));
+  }
   @media (min-width: 64rem) {
     .walk-travel-compass[data-at="field"] {
       inset: 0 -6% 0 38%;
@@ -1438,12 +1640,14 @@ body {
     }
   }
   @media (prefers-reduced-motion: no-preference) {
-    .walk-travel-compass.is-object {
+    .walk-travel-compass.is-object,
+    .walk-travel-compass.is-parked {
       transition:
         left 700ms cubic-bezier(0.16, 1, 0.3, 1),
         top 700ms cubic-bezier(0.16, 1, 0.3, 1),
         width 700ms cubic-bezier(0.16, 1, 0.3, 1),
-        transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+        transform 700ms cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 700ms cubic-bezier(0.16, 1, 0.3, 1);
     }
   }
   @media (min-width: 64rem) {

@@ -31,9 +31,7 @@ export function SiteHeader() {
           <Link
             key={item.href}
             href={item.href}
-            className={`rounded-lg px-3 py-2 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan ${
-              active ? "text-cyan" : "text-dim hover:text-light"
-            }`}
+            className={`site-nav-link${active ? " is-active" : ""}`}
             aria-current={active ? "page" : undefined}
           >
             {item.label}
@@ -42,10 +40,7 @@ export function SiteHeader() {
       })}
       right={
         <>
-          <Link
-            href="/auth/sign-in"
-            className="text-sm text-dim transition-colors hover:text-light"
-          >
+          <Link href="/auth/sign-in" className="site-nav-link">
             Sign in
           </Link>
           <Link href={PRIMARY_CLOSE_HREF} className="btn btn-primary btn-sm">

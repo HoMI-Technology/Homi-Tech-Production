@@ -77,7 +77,7 @@ export function WaitlistForm({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@example.com"
-          className="input mt-2"
+          className={whisper ? "input walk-input mt-2" : "input mt-2"}
         />
       </div>
 
@@ -89,7 +89,7 @@ export function WaitlistForm({
           id={interestId}
           value={interest}
           onChange={(e) => setInterest(e.target.value as WaitlistInterest)}
-          className="input mt-2"
+          className={whisper ? "input walk-input mt-2" : "input mt-2"}
         >
           {WAITLIST_INTERESTS.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -102,7 +102,7 @@ export function WaitlistForm({
       <button
         type="submit"
         disabled={status === "loading"}
-        className={whisper ? "btn btn-ghost btn-sm mt-1 self-start" : "btn btn-primary mt-2"}
+        className={whisper ? "walk-waitlist-submit mt-1 self-start" : "btn btn-primary mt-2"}
       >
         {status === "loading" ? "Sending…" : "Get notified"}
       </button>

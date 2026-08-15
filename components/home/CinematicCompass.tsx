@@ -84,12 +84,21 @@ export function CinematicCompass({
       aria-label="HōMI Threshold Compass showing Financial Reality, Emotional Truth, and Perfect Timing around the user at the decision threshold."
     >
       <defs>
-        <filter id="cc-glow" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="2" result="blur" />
+        <filter id="cc-glow" x="-24%" y="-24%" width="148%" height="148%">
+          <feGaussianBlur stdDeviation="1.2" result="blur" />
           <feMerge>
             <feMergeNode in="blur" />
             <feMergeNode in="SourceGraphic" />
           </feMerge>
+        </filter>
+        <filter id="cc-emit" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="3" result="noise" />
+          <feColorMatrix
+            in="noise"
+            type="matrix"
+            values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.045 0"
+            result="grain"
+          />
         </filter>
         <linearGradient
           id="cc-comet"
@@ -104,9 +113,17 @@ export function CinematicCompass({
         </linearGradient>
       </defs>
 
-      {/* Instrument gradations — precision ticks + ghost rings */}
+      {/* Instrument gradations — precision ticks + emitted hairlines */}
       {layer !== "keyhole" && (
         <g className={`ring-materialize ${visible >= 1 ? "is-on" : ""}`} aria-hidden>
+          <circle
+            cx="100"
+            cy="100"
+            r="96"
+            fill={COLORS.cyan}
+            opacity="0.04"
+            filter="url(#cc-emit)"
+          />
           <circle
             cx="100"
             cy="100"
@@ -122,18 +139,45 @@ export function CinematicCompass({
             cy="100"
             r="72.5"
             stroke={COLORS.cyan}
-            strokeWidth="0.5"
+            strokeWidth="0.45"
             fill="none"
-            opacity="0.10"
+            opacity="0.16"
+          />
+          <circle
+            cx="100"
+            cy="100"
+            r="67"
+            stroke={COLORS.cyan}
+            strokeWidth="0.35"
+            fill="none"
+            opacity="0.08"
           />
           <circle
             cx="100"
             cy="100"
             r="47.5"
             stroke={COLORS.emerald}
-            strokeWidth="0.5"
+            strokeWidth="0.45"
             fill="none"
-            opacity="0.10"
+            opacity="0.16"
+          />
+          <circle
+            cx="100"
+            cy="100"
+            r="42"
+            stroke={COLORS.emerald}
+            strokeWidth="0.35"
+            fill="none"
+            opacity="0.08"
+          />
+          <circle
+            cx="100"
+            cy="100"
+            r="28"
+            stroke={COLORS.yellow}
+            strokeWidth="0.35"
+            fill="none"
+            opacity="0.1"
           />
         </g>
       )}
