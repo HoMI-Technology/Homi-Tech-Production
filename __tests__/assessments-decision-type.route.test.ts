@@ -16,6 +16,10 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 const state = vi.hoisted(() => ({
   user: { id: "user-1", email: "u@example.com" } as { id: string; email: string } | null,
   insertCalls: [] as Record<string, unknown>[],
+  phase0: {
+    frozen: false,
+    frozen_until: null as string | null,
+  },
 }));
 
 vi.mock("next/server", async (importOriginal) => {
@@ -37,6 +41,12 @@ vi.mock("@/lib/supabase/server", () => ({
         },
       };
     },
+    rpc: async (fn: string) => {
+      if (fn === "phase0_get_state" || fn === "phase0_ingest") {
+        return { data: state.phase0, error: null };
+      }
+      return { data: null, error: null };
+    },
   }),
 }));
 
@@ -57,7 +67,7 @@ vi.mock("@/lib/email/send", () => ({ sendLifecycleEmail: async () => {} }));
 vi.mock("@/lib/analytics/server", () => ({ captureServerEvent: () => {} }));
 
 import { NextRequest } from "next/server";
-import { POST } from "@/app/api/assessments/route";
+import { GET, POST } from "@/app/api/assessments/route";
 
 const VALID_INPUTS = {
   debtToIncomeRatio: 0.25,
@@ -85,6 +95,7 @@ function post(body: Record<string, unknown>) {
 
 beforeEach(() => {
   state.insertCalls = [];
+  state.phase0 = { frozen: false, frozen_until: null };
 });
 
 describe("POST /api/assessments decision_type", () => {
@@ -124,6 +135,40 @@ describe("POST /api/assessments decision_type", () => {
     const res = await post({ inputs: VALID_INPUTS, kind: "full", decisionType: "banana" });
     expect(res.status).toBe(400);
     expect(state.insertCalls).toHaveLength(0);
+  });
+
+  it("GET omits verdict/score rows while a signed-in Phase 0 freeze is active", async () => {
+    state.phase0 = {
+      frozen: true,
+      frozen_until: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
+    };
+    const res = await GET();
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      assessments?: unknown[];
+      verdict?: unknown;
+      score?: unknown;
+      phase0?: { frozen?: boolean };
+    };
+    expect(body.assessments).toEqual([]);
+    expect(body.phase0?.frozen).toBe(true);
+    expect(body.verdict).toBeUndefined();
+    expect(body.score).toBeUndefined();
+    expect(JSON.stringify(body)).not.toMatch(/\bREADY\b/);
+  });
+
+  it("refuses persist while a signed-in Phase 0 freeze is active", async () => {
+    state.phase0 = {
+      frozen: true,
+      frozen_until: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
+    };
+    const res = await post({ inputs: VALID_INPUTS, kind: "full" });
+    expect(res.status).toBe(423);
+    expect(state.insertCalls).toHaveLength(0);
+    const body = (await res.json()) as { verdict?: unknown; score?: unknown; source?: string };
+    expect(body.source).toBe("phase0");
+    expect(body.verdict).toBeUndefined();
+    expect(body.score).toBeUndefined();
   });
 
   it("rejects kind:shadow — a read is not an assessment", async () => {

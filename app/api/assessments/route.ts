@@ -16,6 +16,7 @@ import { sendLifecycleEmail } from "@/lib/email/send";
 import { verdictEmail } from "@/lib/email/templates";
 import { captureServerEvent } from "@/lib/analytics/server";
 import { isShadowAssessmentKind } from "@/lib/assessment/storage";
+import { loadPhase0ServerState, phase0RefuseIfFrozen } from "@/lib/advisor/phase0/server";
 
 const bodySchema = z.object({
   inputs: assessmentInputsSchema,
@@ -60,6 +61,9 @@ export async function POST(req: NextRequest) {
     if (!user) {
       return NextResponse.json({ saved: false }, { status: 401 });
     }
+
+    const refused = await phase0RefuseIfFrozen(supabase);
+    if (refused) return refused;
 
     const { entitlements } = await getUserEntitlements(supabase);
 
@@ -234,6 +238,21 @@ export async function GET() {
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const freeze = await loadPhase0ServerState(supabase, user.id);
+    if (freeze.frozen) {
+      return NextResponse.json({
+        assessments: [],
+        phase0: freeze.record
+          ? {
+              frozen: true,
+              until: freeze.record.until,
+              financialStress: freeze.record.financialStress,
+              selfHarm: freeze.record.selfHarm,
+            }
+          : { frozen: true },
+      });
     }
 
     const { data, error } = await supabase

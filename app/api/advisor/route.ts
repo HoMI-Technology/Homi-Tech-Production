@@ -30,6 +30,13 @@ import {
   sanitizePromptLiteral,
 } from "@/lib/advisor/prompt-safety";
 import { detectAcuteDistress, CRISIS_SUPPORT_MESSAGE } from "@/lib/advisor/crisis";
+import {
+  PHASE0_SIGNAL_IDS,
+  buildPhase0AdvisorReply,
+  evaluatePhase0,
+  freezeUntilMs,
+} from "@/lib/advisor/phase0";
+import { ingestPhase0Server, loadPhase0ServerState } from "@/lib/advisor/phase0/server";
 
 export const runtime = "nodejs";
 
@@ -279,6 +286,10 @@ const bodySchema = z.object({
    * by the public /artifact companion test environment) and any client-sent
    * `assessment` field is ignored. */
   demoContext: z.boolean().nullish(),
+  /** Client-held Phase 0 freeze. Server still re-evaluates the latest text. */
+  phase0Frozen: z.boolean().nullish(),
+  phase0Until: z.number().int().positive().nullish(),
+  phase0Signals: z.array(z.enum(PHASE0_SIGNAL_IDS)).max(20).nullish(),
 });
 
 /**
@@ -500,11 +511,83 @@ export async function POST(request: Request) {
 
   // Safety triage — checked before EVERYTHING else that could answer: the
   // quota/auth gate, the real-model path, and the deterministic fallback.
-  // A user in acute distress gets the word-locked supportive reply (988 +
-  // Crisis Text Line) even when signed out, over quota, on the free tier,
-  // or with no ANTHROPIC_API_KEY configured. No model call, no scoring talk.
+  // Layer 2 (Phase 0): two-category freeze blocks verdicts for 24h.
+  // Layer 1 (acute): single-signal self-harm still gets CRISIS_SUPPORT_MESSAGE
+  // when Phase 0 does not trip. Do not collapse these layers.
   const latestUserContent = messages[messages.length - 1]?.content ?? "";
-  if (detectAcuteDistress(latestUserContent)) {
+  const acute = detectAcuteDistress(latestUserContent);
+  // Client phase0Frozen is advisory only. Signed-in freeze is the server row.
+  const namedSignals = (parsed.data.phase0Signals ?? []).map((id) => ({ id }));
+
+  if (!demoContext) {
+    try {
+      const phase0Client = await createClient();
+      const {
+        data: { user: phase0User },
+      } = await phase0Client.auth.getUser();
+      if (phase0User) {
+        const prior = await loadPhase0ServerState(phase0Client, phase0User.id);
+        if (prior.frozen && prior.record) {
+          return NextResponse.json({
+            reply: buildPhase0AdvisorReply(prior.record, "return"),
+            source: "phase0",
+            phase0: {
+              frozen: true,
+              until: prior.record.until,
+              financialStress: prior.record.financialStress,
+              selfHarm: prior.record.selfHarm,
+            },
+            conversationId: parsed.data.conversationId ?? null,
+          });
+        }
+        const ingested = await ingestPhase0Server(phase0Client, phase0User.id, {
+          texts: [latestUserContent],
+          named: namedSignals,
+          selfHarm: acute,
+        });
+        if (ingested.frozen && ingested.record) {
+          return NextResponse.json({
+            reply: buildPhase0AdvisorReply(ingested.record, "trip"),
+            source: "phase0",
+            phase0: {
+              frozen: true,
+              until: ingested.record.until,
+              financialStress: ingested.record.financialStress,
+              selfHarm: ingested.record.selfHarm,
+            },
+            conversationId: parsed.data.conversationId ?? null,
+          });
+        }
+      }
+    } catch {
+      // Session/RPC unavailable — fall through to this-message evaluation.
+    }
+  }
+
+  const phase0 = evaluatePhase0({
+    texts: [latestUserContent],
+    named: namedSignals,
+    selfHarm: acute,
+  });
+  if (phase0.frozen) {
+    const flags = {
+      until: freezeUntilMs(),
+      financialStress: phase0.financialStress,
+      selfHarm: phase0.selfHarm || acute,
+    };
+    return NextResponse.json({
+      reply: buildPhase0AdvisorReply(flags, "trip"),
+      source: "phase0",
+      phase0: {
+        frozen: true,
+        until: flags.until,
+        financialStress: flags.financialStress,
+        selfHarm: flags.selfHarm,
+      },
+      conversationId: parsed.data.conversationId ?? null,
+    });
+  }
+  if (acute) {
     return NextResponse.json({
       reply: CRISIS_SUPPORT_MESSAGE,
       source: "crisis",

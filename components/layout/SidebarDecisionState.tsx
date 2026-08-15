@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { VERDICT_META, withAlpha, type VerdictKey } from "@/lib/brand";
+import { isFrozenForPerson, loadKnownPhase0Person, PHASE0_EVENT } from "@/lib/advisor/phase0";
 
 /**
  * Persistent decision state for the app sidebar.
@@ -84,6 +85,10 @@ export function useLatestVerdict(): LatestVerdict | null {
   useEffect(() => {
     function read() {
       try {
+        if (isFrozenForPerson(loadKnownPhase0Person())) {
+          setState(null);
+          return;
+        }
         setState(parseLatestVerdict(window.localStorage.getItem(LATEST_VERDICT_KEY)));
       } catch {
         // Storage can throw outright (Safari private mode, blocked cookies).
@@ -97,7 +102,11 @@ export function useLatestVerdict(): LatestVerdict | null {
       if (e.key === null || e.key === LATEST_VERDICT_KEY) read();
     }
     window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    window.addEventListener(PHASE0_EVENT, read);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener(PHASE0_EVENT, read);
+    };
   }, []);
 
   return state;

@@ -34,6 +34,10 @@ import {
   pullAdvisorThread,
 } from "@/lib/advisor/thread-store";
 import { track } from "@/lib/analytics";
+import { detectAcuteDistress } from "@/lib/advisor/crisis";
+import { ingestPhase0Observation, writePhase0Freeze } from "@/lib/advisor/phase0";
+import { Phase0FreezeScreen } from "@/components/advisor/Phase0FreezeScreen";
+import { resolvePhase0PersonKey, usePhase0Freeze } from "@/hooks/usePhase0Freeze";
 
 type Role = "user" | "assistant";
 
@@ -96,6 +100,7 @@ function HomiForm({
  */
 export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {}) {
   const pathname = usePathname();
+  const freeze = usePhase0Freeze();
   const [open, setOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [persona, setPersona] = useState<AdvisorPersona>("homie");
@@ -267,6 +272,16 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
     setSending(true);
 
     try {
+      const personKey = await resolvePhase0PersonKey();
+      const tripped = ingestPhase0Observation({
+        personKey,
+        texts: [trimmed],
+        selfHarm: detectAcuteDistress(trimmed),
+      });
+      if (tripped.frozen && tripped.record) {
+        return;
+      }
+
       const latest = await fetchLatestStoredAssessment();
       const { assessment, finance, credit, surface, whatChanged, path } =
         buildCompanionContext(pathname, latest);
@@ -289,6 +304,8 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
           lensDigest,
           identity,
           persona,
+          phase0Frozen: freeze.status === "frozen",
+          phase0Until: freeze.record?.until,
         }),
       });
 
@@ -296,7 +313,26 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
         reply?: unknown;
         error?: unknown;
         conversationId?: unknown;
+        source?: unknown;
+        phase0?: {
+          frozen?: boolean;
+          until?: number;
+          financialStress?: boolean;
+          selfHarm?: boolean;
+        };
       };
+
+      if (data.source === "phase0" && data.phase0?.frozen && typeof data.phase0.until === "number") {
+        writePhase0Freeze({
+          personKey,
+          until: data.phase0.until,
+          trippedAt: Date.now(),
+          financialStress: Boolean(data.phase0.financialStress),
+          selfHarm: Boolean(data.phase0.selfHarm),
+          signalIds: [],
+        });
+        return;
+      }
 
       if (!res.ok) {
         // The gate returns truthful, on-brand copy (sign-in / upgrade / retry) —
@@ -494,6 +530,12 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
             />
           </div>
 
+          {freeze.status === "frozen" && freeze.record ? (
+            <div className="flex-1 overflow-y-auto">
+              <Phase0FreezeScreen record={freeze.record} />
+            </div>
+          ) : (
+            <>
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
             {messages.length === 0 && !identityChosen && (
               <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
@@ -601,6 +643,8 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
           <p className="px-3 pb-2 text-center text-3xs leading-snug text-dim/70">
             Educational guidance only — not financial advice.
           </p>
+            </>
+          )}
         </div>
       )}
     </>

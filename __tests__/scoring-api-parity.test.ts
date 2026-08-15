@@ -27,6 +27,13 @@ vi.mock("@/lib/ratelimit", () => ({
   getClientIp: vi.fn(() => "127.0.0.1"),
 }));
 
+vi.mock("@/lib/supabase/server", () => ({
+  createClient: async () => ({
+    auth: { getUser: async () => ({ data: { user: null }, error: null }) },
+    rpc: async () => ({ data: null, error: null }),
+  }),
+}));
+
 describe("POST /api/scoring full result (6.2)", () => {
   beforeEach(() => {
     vi.clearAllMocks();

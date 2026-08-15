@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { loadPhase0ServerState } from "@/lib/advisor/phase0/server";
 
 /**
  * GET /api/assessments/latest
@@ -20,6 +21,21 @@ export async function GET() {
 
     if (!user) {
       return NextResponse.json({ assessment: null });
+    }
+
+    const freeze = await loadPhase0ServerState(supabase, user.id);
+    if (freeze.frozen) {
+      return NextResponse.json({
+        assessment: null,
+        phase0: freeze.record
+          ? {
+              frozen: true,
+              until: freeze.record.until,
+              financialStress: freeze.record.financialStress,
+              selfHarm: freeze.record.selfHarm,
+            }
+          : { frozen: true },
+      });
     }
 
     const { data, error } = await supabase

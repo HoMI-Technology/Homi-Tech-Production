@@ -1,20 +1,33 @@
 /**
- * Companion crisis triage — the minimal safety layer in front of the advisor.
+ * Companion crisis triage — two layers, do not collapse them.
  *
- * detectAcuteDistress is a deliberately CONSERVATIVE, deterministic phrase
- * detector: it only fires on explicit first-person expressions of self-harm
- * ideation, suicidal language, or acute hopelessness. It runs BEFORE both
- * reply paths (real model and deterministic fallback) in
- * app/api/advisor/route.ts, so it works with no ANTHROPIC_API_KEY and costs
- * nothing. Softer or more ambiguous distress is handled by the safety section
- * of the system prompt instead — this detector prefers a false negative
- * (the model's safety clause still catches it) over hijacking a normal
- * money conversation with a crisis reply.
+ * 1. detectAcuteDistress (this file) — conservative SINGLE-signal self-harm
+ *    phrase detector. Returns CRISIS_SUPPORT_MESSAGE (988 + Crisis Text Line)
+ *    before the model. One acute phrase is enough. This is not a freeze and
+ *    is not a verdict.
  *
- * When it fires, the route returns CRISIS_SUPPORT_MESSAGE verbatim —
- * word-locked, reviewed copy. Do not paraphrase it, do not add resources
- * beyond the ones here, and never mix scoring or assessment talk into it.
+ * 2. Phase 0 freeze (`lib/advisor/phase0`) — WAVE2 Packet 1 Safety Canon.
+ *    Crisis = ≥2 signals from ≥2 of 3 categories (behavioral / emotional /
+ *    language). No single signal freezes. On trip: 24h per-person freeze,
+ *    block verdicts / scores / pathways, Brand pause copy, max 3 resource
+ *    types. Slot 3 (988) is how Brand wants self-harm resources on the
+ *    freeze screen. Do not replace layer 1 with a single-signal Phase 0 trip.
+ *
+ * detectAcuteDistress runs BEFORE both reply paths (real model and
+ * deterministic fallback) in app/api/advisor/route.ts, so it works with no
+ * ANTHROPIC_API_KEY and costs nothing.
  */
+
+import { ingestPhase0Observation } from "@/lib/advisor/phase0";
+
+export {
+  evaluatePhase0,
+  ingestPhase0Observation,
+  isFrozenForPerson,
+  buildPhase0AdvisorReply,
+  PHASE0_PAUSE_COPY,
+  PHASE0_FREEZE_MS,
+} from "@/lib/advisor/phase0";
 
 /**
  * Word-boundary-aware patterns for acute distress. Case-insensitive by
@@ -83,3 +96,12 @@ I'm going to set the money conversation down — it can wait, and it will keep.
 Right now the most honest thing I can do is point you to real human support. The 988 Suicide & Crisis Lifeline is there around the clock — call or text 988. You can also reach the Crisis Text Line by texting HOME to 741741. Both are free and confidential, and the people there are trained for moments exactly like this one.
 
 I'm a decision companion, not a counselor, and you deserve more than what I can offer here. Whenever you're ready — today, next week, whenever — I'll be right here, and we can pick things back up gently.`;
+
+/** Record text on a live surface. Does not freeze on a single signal. */
+export function observePhase0Text(personKey: string, text: string) {
+  return ingestPhase0Observation({
+    personKey,
+    texts: [text],
+    selfHarm: detectAcuteDistress(text),
+  });
+}

@@ -8,6 +8,8 @@ import { UpgradePanel } from "@/components/ui/UpgradePanel";
 import { getUserEntitlements } from "@/lib/entitlements";
 import type { AssessmentRow } from "@/types/database";
 import { AutoPrint } from "./AutoPrint";
+import { Phase0FreezeView } from "@/components/advisor/Phase0FreezeView";
+import { loadPhase0ServerState } from "@/lib/advisor/phase0/server";
 
 const FINANCIAL = PILLARS.find((p) => p.key === "financial")!;
 const EMOTIONAL = PILLARS.find((p) => p.key === "emotional")!;
@@ -34,6 +36,10 @@ export default async function ReportPrintPage({
   }
 
   const { entitlements } = await getUserEntitlements(supabase);
+  const freeze = await loadPhase0ServerState(supabase, user.id);
+  if (freeze.frozen && freeze.record) {
+    return <Phase0FreezeView record={freeze.record} mode="return" />;
+  }
   if (!entitlements.fullReport) {
     return (
       <UpgradePanel

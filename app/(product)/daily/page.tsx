@@ -9,6 +9,8 @@ import { PageFrame } from "@/components/operate/PageFrame";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Skeleton } from "@/components/ui/Skeleton";
 import type { DailyCheckin } from "@/types/database";
+import { observePhase0Text } from "@/lib/advisor/crisis";
+import { resolvePhase0PersonKey } from "@/hooks/usePhase0Freeze";
 
 function isToday(dateStr: string): boolean {
   const d = new Date(dateStr);
@@ -175,6 +177,11 @@ export default function DailyCheckinPage() {
     }
 
     const finalNote = buildNote(spend, win, note);
+    if (note.trim()) {
+      void resolvePhase0PersonKey().then((personKey) => {
+        observePhase0Text(personKey, note);
+      });
+    }
 
     const { data, error: insertError } = await supabase
       .from("daily_checkins")

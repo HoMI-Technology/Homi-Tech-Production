@@ -458,3 +458,15 @@ export interface PlaidTransactionRow {
   created_at: string;
   updated_at: string;
 }
+
+/** Signed-in Phase 0 freeze row. Lift is frozen_until expiry only. */
+export interface Phase0StateRow {
+  user_id: string;
+  frozen_until: string | null;
+  tripped_at: string | null;
+  financial_stress: boolean;
+  self_harm: boolean;
+  signal_ids: string[];
+  ledger: unknown;
+  updated_at: string;
+}
