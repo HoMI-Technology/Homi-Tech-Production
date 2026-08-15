@@ -94,10 +94,10 @@ export function HeaderShell({
       <div className="chrome-bar mx-auto flex h-[var(--nav-height)] max-w-7xl items-center gap-3 px-4 sm:gap-4 sm:px-6 lg:gap-6">
         <Link
           href={logoHref}
-          className="flex shrink-0 items-center gap-2"
+          className="site-logo flex h-8 shrink-0 items-center gap-2"
           aria-label={logoAriaLabel}
         >
-          <Wordmark size="text-2xl" />
+          <Wordmark size="text-2xl leading-none" />
         </Link>
 
         <nav className="hidden min-w-0 flex-1 items-center gap-0.5 lg:flex" aria-label="Primary">

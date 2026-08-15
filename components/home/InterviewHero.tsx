@@ -20,7 +20,7 @@ export { WalkPersist } from "./walk-persist";
  * DESIGN.md: navy/cyan, type-display, PRM-safe (no spin/beam/tilt).
  *
  * SEO/AT: h1 text is in the DOM from first paint. Visual resolve is
- * grey→white on scroll; prefers-reduced-motion paints the final line.
+ * invisible→full on scroll; prefers-reduced-motion paints the final line.
  */
 
 export const HERO_VARIANT: "interview" | "film" = "film";
@@ -36,7 +36,28 @@ export function InterviewHero() {
 }
 
 const CHAPTER_STAGE =
-  "hero-deep hero-chapter relative flex min-h-[100dvh] flex-col justify-center overflow-hidden pb-[max(5.5rem,env(safe-area-inset-bottom,0px)+4.5rem)] pt-16";
+  "hero-deep hero-chapter relative flex min-h-[100dvh] flex-col justify-center overflow-hidden";
+
+/** Shared type column — one left axis, one optical line band. */
+export function WalkCluster({
+  kicker,
+  children,
+  after,
+}: {
+  kicker?: ReactNode;
+  children: ReactNode;
+  after?: ReactNode;
+}) {
+  return (
+    <div className="walk-cluster relative z-10 mx-auto flex w-full max-w-7xl flex-col items-start px-5 sm:px-6 lg:px-8">
+      <div className="walk-line">
+        {kicker}
+        {children}
+      </div>
+      {after}
+    </div>
+  );
+}
 
 /** Full-viewport chapter field. Homepage walk reuses this — no new marketing sections. */
 export function WalkChapter({
@@ -56,7 +77,7 @@ export function WalkChapter({
   const body = (
     <>
       <ChapterField />
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-start px-5 sm:px-6 lg:px-8">
+      <div className="walk-cluster relative z-10 mx-auto flex w-full max-w-7xl flex-col items-start px-5 sm:px-6 lg:px-8">
         {children}
       </div>
     </>
@@ -99,15 +120,17 @@ export function IdeaBeat({
   return (
     <WalkChapter id={id} hold words={tokens.length} object={object}>
       {before}
-      <h2
-        className={
-          headingClassName ??
-          "type-display relative z-10 max-w-2xl font-display font-semibold text-light"
-        }
-        style={{ textWrap: "balance" }}
-      >
-        <WalkWords tokens={tokens} />
-      </h2>
+      <div className="walk-line">
+        <h2
+          className={
+            headingClassName ??
+            "type-display max-w-2xl font-display font-semibold"
+          }
+          style={{ textWrap: "balance" }}
+        >
+          <WalkWords tokens={tokens} />
+        </h2>
+      </div>
       {after}
     </WalkChapter>
   );
@@ -128,23 +151,23 @@ function OpeningBeat() {
     >
       <HeroAtmosphere />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col justify-center px-5 pb-16 pt-24 sm:px-6 sm:pb-20 sm:pt-28 lg:px-8">
-        <div className="w-full max-w-xl lg:max-w-[32rem]">
-          <h1
-            className="type-giant whitespace-normal font-display font-semibold text-light"
-            style={{
-              textWrap: "balance",
-              textShadow: `0 2px 32px ${withAlpha(COLORS.navy, 0.88)}`,
-            }}
-          >
-            <WalkWords>Will you be okay?</WalkWords>
-          </h1>
-
-          <a href="#statement" className="btn btn-ghost btn-sm mt-8">
+      <WalkCluster
+        kicker={
+          <a href="#statement" className="walk-kicker">
             What this is
           </a>
-        </div>
-      </div>
+        }
+      >
+        <h1
+          className="type-giant w-full max-w-xl whitespace-normal font-display font-semibold lg:max-w-[32rem]"
+          style={{
+            textWrap: "balance",
+            textShadow: `0 2px 32px ${withAlpha(COLORS.navy, 0.88)}`,
+          }}
+        >
+          <WalkWords>Will you be okay?</WalkWords>
+        </h1>
+      </WalkCluster>
     </HoldStage>
   );
 }

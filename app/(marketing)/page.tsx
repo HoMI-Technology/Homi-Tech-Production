@@ -43,15 +43,18 @@ export default function MarketingHomePage() {
 
         <IdeaBeat
           object
-          before={<div className="aspect-square w-[min(36vmin,14rem)]" aria-hidden />}
-          headingClassName="type-h1 relative z-10 mt-6 max-w-2xl font-display font-semibold text-light"
+          headingClassName="type-h1 max-w-2xl font-display font-semibold"
         >
           The compass that becomes a key when you&rsquo;re finally ready to turn it.
         </IdeaBeat>
 
         <WalkChapter id="waitlist">
-          <p className="text-sm text-dim">Clarity, not commission.</p>
-          <div className="mt-20 w-full max-w-xs opacity-50 transition-opacity duration-300 hover:opacity-80 focus-within:opacity-90">
+          <div className="walk-line">
+            <p className="type-h2 max-w-2xl font-display font-semibold text-light">
+              Clarity, not commission.
+            </p>
+          </div>
+          <div className="walk-waitlist-form w-full max-w-sm">
             <WaitlistForm source="landing" idPrefix="landing-waitlist" surface="whisper" />
           </div>
         </WalkChapter>

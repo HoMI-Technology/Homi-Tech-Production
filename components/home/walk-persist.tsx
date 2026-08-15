@@ -10,15 +10,20 @@ import { track } from "@/lib/analytics";
  * Persistent walk objects — one compass, one Assess pill.
  * They travel. They are not destroyed on the hero and reborn later.
  * Arriving at the object beat is one-way; we do not reverse-animate.
+ * Compass parks before the waitlist. Assess fades as the footer enters.
  */
 
 function handleCtaClick() {
   track("hero_cta_click", { src: "hero" });
 }
 
+type CompassAt = "field" | "object" | "parked";
+
 export function WalkPersist({ children }: { children: ReactNode }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [atObject, setAtObject] = useState(false);
+  const [parked, setParked] = useState(false);
+  const [footerIn, setFooterIn] = useState(false);
   const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
@@ -29,20 +34,54 @@ export function WalkPersist({ children }: { children: ReactNode }) {
       return;
     }
 
-    const target = root.querySelector("[data-walk-object]");
-    if (!target) return;
+    const object = root.querySelector("[data-walk-object]");
+    const waitlist = root.querySelector("#waitlist");
+    const footer = document.querySelector("footer");
 
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= 0.35)) {
-          setAtObject(true);
-        }
-      },
-      { threshold: [0.35] },
-    );
-    io.observe(target);
-    return () => io.disconnect();
+    const observers: IntersectionObserver[] = [];
+
+    if (object) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= 0.35)) {
+            setAtObject(true);
+          }
+        },
+        { threshold: [0.35] },
+      );
+      io.observe(object);
+      observers.push(io);
+    }
+
+    if (waitlist) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= 0.12)) {
+            setParked(true);
+          }
+        },
+        { threshold: [0.12], rootMargin: "12% 0px -8% 0px" },
+      );
+      io.observe(waitlist);
+      observers.push(io);
+    }
+
+    if (footer) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          setFooterIn(entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= 0.08));
+        },
+        { threshold: [0.08], rootMargin: "24% 0px 0px 0px" },
+      );
+      io.observe(footer);
+      observers.push(io);
+    }
+
+    return () => observers.forEach((io) => io.disconnect());
   }, []);
+
+  const placed: Exclude<CompassAt, "parked"> = atObject && !reduced ? "object" : "field";
+  const compassAt: CompassAt = parked || footerIn ? "parked" : placed;
 
   return (
     <div ref={rootRef} className="walk-persist relative">
@@ -50,21 +89,27 @@ export function WalkPersist({ children }: { children: ReactNode }) {
         <div className="walk-persist-frame pointer-events-none relative h-[100dvh]">
           <div
             className={
-              atObject && !reduced
-                ? "walk-travel-compass is-object"
-                : "walk-travel-compass hero-instrument-field lg:left-[38%]"
+              placed === "object"
+                ? `walk-travel-compass is-object${compassAt === "parked" ? " is-parked" : ""}`
+                : `walk-travel-compass hero-instrument-field lg:left-[38%]${compassAt === "parked" ? " is-parked" : ""}`
             }
-            data-at={atObject && !reduced ? "object" : "field"}
+            data-at={compassAt === "parked" ? "parked" : placed}
             data-walk-compass=""
             aria-hidden
           >
             <div className="walk-travel-compass-body">
+              <div className="walk-compass-halo" />
               <CinematicCompass responsive keyholePulse={false} />
             </div>
           </div>
 
-          <div className="absolute inset-x-0 bottom-[max(6.5rem,env(safe-area-inset-bottom,0px)+5.5rem)] z-20">
-            <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+          <div
+            className="walk-travel-assess"
+            data-walk-assess-slot=""
+            data-fade={footerIn ? "footer" : undefined}
+          >
+            <div className="walk-cluster mx-auto flex h-full w-full max-w-7xl flex-col items-start justify-center px-5 sm:px-6 lg:px-8">
+              <div className="walk-line" aria-hidden />
               <Link
                 href={`${PRIMARY_CLOSE_HREF}?src=hero`}
                 className="btn btn-primary btn-sm pointer-events-auto"

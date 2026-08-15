@@ -64,8 +64,8 @@ export function CookieConsent() {
       id="cookie-consent"
       className="pointer-events-none fixed inset-x-0 bottom-0 z-[60]"
     >
-      <div className="pointer-events-auto border-t border-white/[0.06] bg-navy/90 px-3 py-2 backdrop-blur-md pb-[max(0.5rem,env(safe-area-inset-bottom,0px))]">
-        <div className="mx-auto flex max-w-5xl flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+      <div className="pointer-events-auto border-t border-white/[0.06] bg-navy/90 px-3 py-1.5 backdrop-blur-md pb-[max(0.35rem,env(safe-area-inset-bottom,0px))]">
+        <div className="mx-auto flex max-w-5xl flex-col items-start gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
           <p className="text-xs leading-snug text-dim">
             HōMI uses essential cookies to keep you signed in. Optional analytics help us improve the
             product — your choice, and you can change it anytime. No ad tech.{" "}
@@ -74,11 +74,11 @@ export function CookieConsent() {
             </Link>
             .
           </p>
-          <div className="flex shrink-0 gap-2">
-            <button onClick={() => decide("denied")} className="btn btn-ghost shrink-0 btn-sm">
+          <div className="flex shrink-0 items-center gap-3">
+            <button type="button" onClick={() => decide("denied")} className="cookie-reject">
               Reject optional
             </button>
-            <button onClick={() => decide("granted")} className="btn btn-primary shrink-0 btn-sm">
+            <button type="button" onClick={() => decide("granted")} className="btn btn-primary shrink-0 btn-sm">
               Accept optional
             </button>
           </div>

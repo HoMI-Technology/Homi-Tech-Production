@@ -117,6 +117,7 @@ function useHoldProgress(ref: RefObject<HTMLElement | null>): WalkHoldValue {
       const rect = el.getBoundingClientRect();
       const max = Math.max(1, el.offsetHeight - window.innerHeight);
       const next = Math.max(0, Math.min(1, -rect.top / max));
+      el.style.setProperty("--walk-progress", next.toFixed(3));
       setProgress(next);
     };
 
