@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { CinematicCompass, Particles } from "./CinematicCompass";
+import { useEffect } from "react";
+import { CinematicCompass } from "./CinematicCompass";
 import {
   PRIMARY_CLOSE_HREF,
   PRIMARY_CLOSE_LABEL,
@@ -16,32 +17,29 @@ function handleCtaClick(): void {
 }
 
 /**
- * First viewport of the hybrid front door.
- * Locked question + companion + inversion on one still screen.
- * Assess is a normal button. Compass does not travel.
+ * TeraFab craft: one still scene, giant type, one instrument.
+ * Locked question + companion + inversion. Compass does not travel.
  */
 export function InterviewHero() {
+  useFieldLight();
+
   return (
-    <section className="hero-deep hero-story relative flex min-h-[100dvh] flex-col justify-center overflow-hidden">
+    <section className="hero-deep hero-story relative flex min-h-[100dvh] flex-col justify-end overflow-hidden pb-16 pt-28 sm:justify-center sm:pb-0">
       <HeroAtmosphere />
 
-      <div
-        className="hero-still-compass"
-        data-at="field"
-        aria-hidden
-      >
+      <div className="hero-still-compass" data-at="field" aria-hidden>
         <div className="hero-still-compass-body">
           <div className="walk-compass-halo" />
           <CinematicCompass responsive keyholePulse={false} />
         </div>
       </div>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-start px-5 pb-28 sm:px-6 lg:px-8 lg:pb-0">
+      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-start px-5 sm:px-6 lg:px-8">
         <a href="#statement" className="walk-kicker">
           What this is
         </a>
         <h1
-          className="type-giant mt-4 w-full max-w-xl whitespace-normal font-display font-semibold lg:max-w-[32rem]"
+          className="type-giant mt-5 w-full max-w-3xl whitespace-normal font-display font-semibold"
           style={{
             textWrap: "balance",
             textShadow: `0 2px 32px ${withAlpha(COLORS.navy, 0.88)}`,
@@ -49,10 +47,10 @@ export function InterviewHero() {
         >
           Will you be okay?
         </h1>
-        <p className="mt-6 max-w-xl font-display text-xl text-light sm:text-2xl">
+        <p className="mt-6 max-w-xl text-2xl font-light text-light sm:text-3xl">
           A Decision Companion.
         </p>
-        <p className="mt-3 max-w-xl text-lg text-dim">
+        <p className="mt-3 max-w-xl text-lg text-dim sm:text-xl">
           Everyone else tells you how. HōMI tells you if.
         </p>
         <Link
@@ -67,6 +65,34 @@ export function InterviewHero() {
   );
 }
 
+/** Field brightens as you travel — TeraFab sun, on-token navy. */
+function useFieldLight(): void {
+  useEffect(() => {
+    const root = document.documentElement;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      root.style.setProperty("--tf-light", "1");
+      return;
+    }
+
+    let raf = 0;
+    const paint = () => {
+      const max = Math.max(1, document.body.scrollHeight - window.innerHeight);
+      const t = Math.max(0, Math.min(1, window.scrollY / max));
+      root.style.setProperty("--tf-light", t.toFixed(3));
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(paint);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    paint();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+}
+
 function HeroAtmosphere() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0">
@@ -74,33 +100,17 @@ function HeroAtmosphere() {
         className="absolute inset-0"
         style={{
           background: [
-            `radial-gradient(ellipse 58% 52% at 68% 42%, ${withAlpha(COLORS.cyan, 0.22)}, transparent 64%)`,
-            `radial-gradient(ellipse 42% 40% at 74% 54%, ${withAlpha(COLORS.emerald, 0.16)}, transparent 62%)`,
-            `radial-gradient(ellipse 30% 26% at 64% 36%, ${withAlpha(COLORS.yellow, 0.1)}, transparent 70%)`,
+            `radial-gradient(ellipse 70% 60% at 78% 42%, ${withAlpha(COLORS.cyan, 0.16)}, transparent 62%)`,
+            `radial-gradient(ellipse 40% 36% at 72% 58%, ${withAlpha(COLORS.emerald, 0.1)}, transparent 70%)`,
           ].join(", "),
         }}
       />
-      <div
-        className="absolute inset-[-36px]"
-        style={{
-          backgroundImage: [
-            `linear-gradient(${withAlpha(COLORS.cyan, 0.09)} 1px, transparent 1px)`,
-            `linear-gradient(90deg, ${withAlpha(COLORS.cyan, 0.09)} 1px, transparent 1px)`,
-          ].join(", "),
-          backgroundSize: "72px 72px",
-          maskImage:
-            "radial-gradient(ellipse 82% 72% at 58% 40%, black 16%, transparent 78%)",
-          WebkitMaskImage:
-            "radial-gradient(ellipse 82% 72% at 58% 40%, black 16%, transparent 78%)",
-        }}
-      />
-      <Particles />
       <div
         className="absolute inset-0"
         style={{
           background: [
-            `linear-gradient(90deg, ${withAlpha(COLORS.navy, 0.82)} 0%, ${withAlpha(COLORS.navy, 0.58)} 28%, ${withAlpha(COLORS.navy, 0.18)} 52%, ${withAlpha(COLORS.navy, 0)} 72%)`,
-            `linear-gradient(180deg, ${withAlpha(COLORS.navy, 0)} 58%, ${withAlpha(COLORS.navy, 0.72)} 100%)`,
+            `linear-gradient(90deg, ${withAlpha(COLORS.navy, 0.88)} 0%, ${withAlpha(COLORS.navy, 0.42)} 42%, transparent 72%)`,
+            `linear-gradient(180deg, ${withAlpha(COLORS.navy, 0.35)} 0%, transparent 28%, ${withAlpha(COLORS.navy, 0.82)} 100%)`,
           ].join(", "),
         }}
       />
