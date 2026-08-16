@@ -98,22 +98,27 @@ A character is a third member of that union and one branch in the `HomiForm`
 component in `CompanionWidget.tsx`. That is the entire surface area of the change,
 which is what makes it cleanly revertible.
 
-### Pilot surface — open, founder decides
+### Pilot surface — chosen: the first-run identity moment
 
 The Companion picker is **closed by founder ruling**, twice on 2026-08-16:
 `companion-rebuild-20260816/approved.json` sets `"hold_figure_in_presets": false`, and
 the session brief states *"Hold and Figure stay OUT of presets."* This ADR does not
 reopen it.
 
-Remaining candidates, one to be chosen:
+**Chosen (founder, 2026-08-16): A.** The character appears exactly once, at the moment
+the user names their HōMI (`commitNameDraft` / `chooseSkin` in `CompanionWidget.tsx`),
+and then recedes permanently to the mote. Highest emotional return, smallest footprint,
+never adjacent to a score. Expiry **2026-10-15**.
 
-- **A. First-run identity moment.** The character appears once when the user names
-  their HōMI, then recedes permanently to the mote. Highest emotional return, smallest
-  footprint, never adjacent to a score.
-- **B. `/twin` letter.** A personal letter is already a first-person format. But its
-  output sits near readiness content, which brushes the verdict boundary.
+Considered and not chosen:
+
+- **B. `/twin` letter.** A personal letter is already a first-person format, but its
+  output sits beside readiness content, which brushes the verdict boundary.
 - **C. Empty state only.** Lowest risk, lowest return.
-- **D. Picker.** Closed. Listed so the record shows it was considered.
+- **D. Picker.** Closed by founder ruling.
+
+**The recede is part of the pilot, not a nice-to-have.** If the face persists past the
+naming moment, the pilot has silently become something else and fails its own gate.
 
 ### Destination — top of funnel, after the pilot
 
