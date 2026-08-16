@@ -5,6 +5,14 @@
 **Local SSOT path (this PC):** `Desktop\HoMI_Tech_Github_Build`  
 **Last updated:** 2026-08-16
 
+## Spend hold (founder 2026-08-16)
+
+**[#241](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/241) is open.** Do not spend on GitHub Pro, Vercel Pro, or a second Supabase project, and do not nag the founder to, until that issue is **closed by the founder**.
+
+- Protection/secrets playbooks below (§A.2–A.7) are **for go-live**, not for this week.
+- Empty Actions secrets and CORE E2E (skipped live specs) are **expected**.
+- Children: [#243](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/243) protection, [#242](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/242) DEV secrets, [#191](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/191) Vercel/checkout.
+
 This manual covers three operator systems that keep the product shippable:
 
 | System                               | What it is                                                                     | How you run it                               |
@@ -46,11 +54,13 @@ Secrets live in THREE places (do not mix them up):
 3. Local app currently uses **production Supabase** unless you deliberately point `.env.local` elsewhere—treat data as live ammo. **Do not** run destructive Playwright live specs (they create/delete auth users) against production.
 4. **Never** `supabase db push` the full history against production. Apply one file via `docs/ops/MIGRATIONS-SSOT.md`. There is **no dedicated DEV/E2E Supabase project** until the owner creates one (free-plan, no production clone of PII).
 5. **Never** put `sk_live_*` in E2E secrets; suite refuses live Stripe keys.
-6. **GitHub branch protection is OFF** (private repo; GitHub Pro required). Merges to `main` are not blocked by `verify`/`e2e` until the owner upgrades and requires those checks. Exact clicks: §A.5.
+6. **GitHub branch protection is OFF** (private repo; GitHub Pro required). That is **accepted under #241**. Do not upgrade until go-live. When the hold lifts, exact clicks are §A.7.
 
 ---
 
 # A. Wire E2E + Lighthouse secrets correctly
+
+> **Hold:** Do not create a DEV project or set Actions secrets while [#241](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/241) is open. Section A is the go-live runbook, not a current sprint.
 
 ## A.1 What “correct” means
 
