@@ -47,7 +47,11 @@ export default defineConfig({
   // Two workers in CI keep auth/Stripe rate limits and runner CPU comfortable.
   workers: process.env.CI ? 2 : undefined,
   reporter: process.env.CI
-    ? [["github"], ["html", { open: "never" }]]
+    ? [
+        ["github"],
+        ["html", { open: "never" }],
+        ["json", { outputFile: "playwright-results.json" }],
+      ]
     : [["list"], ["html", { open: "never" }]],
   use: {
     baseURL,

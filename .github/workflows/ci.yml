@@ -20,6 +20,7 @@ on:
       - "feat/**"
       - "fix/**"
       - "chore/**"
+      - "grok/**"
   # Manual/API trigger — still useful when a branch name doesn't match globs.
   workflow_dispatch:
 
@@ -91,3 +92,9 @@ jobs:
       - name: Lighthouse CI — authenticated dashboard
         if: env.LHCI_TEST_EMAIL != ''
         run: npx lhci autorun --config=lighthouserc.dashboard.json
+
+      # Always emit coverage truth so a skipped dashboard run is not mistaken
+      # for a passing authenticated audit. Public LHCI above remains the gate.
+      - name: Coverage truth summary
+        if: always()
+        run: node scripts/ci-coverage-report.mjs

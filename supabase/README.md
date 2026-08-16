@@ -11,8 +11,9 @@ Apply in numeric order — later files depend on tables/types created earlier.
 
 > **Note:** Three prefix collisions exist in this repo (`00018`, `00020`, `00024`).
 > Apply both files sharing a prefix in filesystem sort order (see table).
-> Remote project `giyycykxkzfbowiapxpd` has migrations through `00031`; `00032`
-> is pending (`npm run verify-supabase` + `supabase db push` after repair).
+> Production apply state is **not** "push through 00032". See
+> `docs/ops/MIGRATIONS-SSOT.md` (current ceiling includes timestamped 202608*
+> files). **Never** `supabase db push` the full history against production.
 
 | #   | File                                      | Purpose                                                                                                                                                                                      |
 | --- | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -79,22 +80,17 @@ allow `http://localhost:3000/**`. See `e2e/README.md` for the full env map.
 This is the simplest path for a first-time setup or a hosted project without
 the CLI installed locally.
 
-### Option B — Supabase CLI (`supabase db push`)
+### Option B — DEV / local only (`supabase db push`)
+
+`supabase db push` is allowed against a **dedicated DEV** project or `supabase start` local stack. It is **forbidden** against production (`giyycykxkzfbowiapxpd`) because the remote ledger predates the numbered files.
 
 ```bash
-# Link once to your project
-supabase link --project-ref YOUR_PROJECT_REF
-
-# Push all migrations in supabase/migrations/ in order
+# DEV project only — never the production ref
+supabase link --project-ref YOUR_DEV_PROJECT_REF
 supabase db push
 ```
 
-The CLI tracks applied migrations in the `supabase_migrations` schema, so
-`supabase db push` only applies files that haven't run yet. For local
-development, use `supabase start` + `supabase db reset` to rebuild the local
-stack from these migrations plus seed data.
-
-> **Production history repair:** the remote project's migration history still contains prototype-era phantom rows — before any `db push` against production, a human must run the runbook in [`docs/MIGRATION-REPAIR.md`](../docs/MIGRATION-REPAIR.md) (AUDIT T0.6).
+Production: single-file apply per `docs/ops/MIGRATIONS-SSOT.md`. History repair: `docs/MIGRATION-REPAIR.md`.
 
 ## Row Level Security overview
 

@@ -118,8 +118,11 @@ truth and `lib/scoring/weights.ts` is a C2-restricted trade-secret boundary.
 - Set all required environment variables in the Vercel project settings
   before the first deploy (see table below). Optional integrations can be
   left blank; the app disables the corresponding feature gracefully.
-- CI gate (`.github/workflows/ci.yml`): `brand-check` → `architecture:check`
-  → `tsc --noEmit` → `vitest run` → `next build`.
+- CI gate (`.github/workflows/ci.yml` job **`verify`**): `brand-check` →
+  `architecture:check` → `tsc --noEmit` → `vitest run` → `next build` →
+  public Lighthouse. `next build` is **not** a typecheck (`ignoreBuildErrors`).
+  Playwright is a separate **`e2e`** check (CORE without secrets; FULL only
+  with DEV Supabase + Stripe TEST). `npm run lint` is not a gate.
 
 ## Environment variables
 

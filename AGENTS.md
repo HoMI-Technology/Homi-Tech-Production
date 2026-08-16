@@ -14,10 +14,16 @@
 
 Do **not** invent a parallel ops process. Point the user at the manual section + command.
 
+**Release verification (any candidate SHA):** `homi doctor` (machine) →
+`homi secrets` (E2E/LHCI presence, never values) → `homi hygiene` (open PRs) →
+GitHub Actions for that SHA (`verify` + `e2e`) →
+`node scripts/ci-coverage-report.mjs` (CORE vs FULL) →
+`docs/ops/MIGRATIONS-SSOT.md` (do not `supabase db push` production).
+
 ## Source of truth
 
 - **GitHub:** https://github.com/HoMI-Technology/Homi-Tech-Production
-- **Local only (this PC):** `C:\Users\Quality Assurance\Desktop\kimi-workspace\Homi-Tech-Production`
+- **Local only (this PC):** `C:\Users\Quality Assurance\Desktop\HoMI_Tech_Github_Build` (GitHub worktrees under `Desktop\homi-worktrees\`). Never treat Branding-Marketing copies, ultra-premium 4-root snapshots, or zips as product truth.
 - **Default branch:** `main`
 - **Never** treat Desktop `HoMI Tech` dumps, zips, or other clones as product truth.
 
@@ -215,13 +221,23 @@ so you should not need to install them manually.
 - **Standard commands** are the `package.json` scripts (`dev`, `build`, `start`,
   `typecheck`, `test`, `test:e2e`, `brand-check`). Dev server is `npm run dev`
   on `http://localhost:3000`.
-- **CI gate order** (`.github/workflows/ci.yml`): `brand-check` →
-  `architecture:check` → `tsc --noEmit` → `vitest run` → `next build`. Treat
-  these as the real pass/fail signal.
+- **CI gate order** (`.github/workflows/ci.yml` job `verify`): `brand-check` →
+  `architecture:check` → `tsc --noEmit` → `vitest run` → `next build` →
+  public Lighthouse CI. `next.config.ts` sets `typescript.ignoreBuildErrors`
+  so **`next build` is not proof of type safety** — the separate typecheck
+  step is. Authenticated dashboard Lighthouse is optional and **skips** unless
+  `LHCI_TEST_*` secrets exist.
+- **Required GitHub check names** (from successful `main` runs): `verify`, `e2e`.
+  Branch protection / rulesets are **not available** on this private repo
+  without GitHub Pro — a green check is not merge enforcement until the owner
+  upgrades and requires those two names.
+- **Coverage mode:** `node scripts/ci-coverage-report.mjs` (also a CI step).
+  CORE = anonymous/public suites. FULL = live DEV Supabase + Stripe TEST
+  secrets present. A green `e2e` badge on CORE is not FULL.
 - **Do NOT rely on `npm run lint`**: there is no committed ESLint config, so
   `next lint` drops into an interactive setup prompt and hangs a non-interactive
   shell. It is intentionally not part of the CI gate; use `typecheck` +
-  `brand-check` instead.
+  `brand-check` instead. **DEFERRED — TOOLING CLEANUP.**
 - **Core flow needs no secrets to test**: the assessment (`/assessment` →
   `/results`) and the scoring engine (`POST /api/scoring` with the body shape in
   `lib/validation/assessment.ts`) run fully on placeholder env. This is the

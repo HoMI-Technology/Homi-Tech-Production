@@ -48,8 +48,10 @@ Two switches turn on the measurement shipped in the perf/measurement branch:
    GitHub repo secrets: `LHCI_TEST_EMAIL` and `LHCI_TEST_PASSWORD`
    (Settings → Secrets and variables → Actions). The lighthouse workflow's
    dashboard step activates automatically once the secrets exist; until then
-   it skips itself. Budgets: lighthouserc.dashboard.json (warn-first while a
-   baseline accumulates; CLS and accessibility gate immediately).
+   it is **NOT CONFIGURED** (the step is skipped — that is not a PASS).
+   Use a dedicated DEV/test identity, never a real customer or prod admin.
+   Budgets: lighthouserc.dashboard.json (warn-first while a baseline
+   accumulates; CLS and accessibility gate immediately).
 
 ## Content Security Policy
 
