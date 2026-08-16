@@ -27,6 +27,7 @@ on:
       - "feat/**"
       - "fix/**"
       - "chore/**"
+      - "grok/**"
   # Manual/API trigger — pushes from bot credentials (agent sessions) don't
   # fire pull_request synchronize events, so branches need a way to run CI.
   workflow_dispatch:
@@ -102,6 +103,11 @@ jobs:
         env:
           NEXT_PUBLIC_FF_IMPACT_BUS: "true"
         run: npx playwright test
+
+      # Truth, not a second gate: green + skipped live specs is CORE, not FULL.
+      - name: Coverage truth summary
+        if: always()
+        run: node scripts/ci-coverage-report.mjs --playwright playwright-results.json
 
       - name: Upload Playwright report + traces
         if: failure()

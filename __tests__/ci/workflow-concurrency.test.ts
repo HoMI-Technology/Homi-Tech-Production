@@ -230,6 +230,18 @@ describe("ci.yml Lighthouse merge gate", () => {
     expect(runs).not.toMatch(/unlighthouse-ci/);
   });
 
+  it("keeps typecheck as a separate verify step (build ignoreBuildErrors is not enough)", () => {
+    const doc = parse(readWorkflow(FILE)) as {
+      jobs?: Record<string, { steps?: { name?: string; run?: string }[] }>;
+    };
+    const steps = doc.jobs?.verify?.steps ?? [];
+    const typecheck = steps.find((s) => s.name === "Typecheck");
+    expect(typecheck?.run).toMatch(/tsc --noEmit/);
+    expect(steps.some((s) => /Coverage truth summary/.test(s.name ?? ""))).toBe(
+      true,
+    );
+  });
+
   it("names the public-route LH step so regressions are obvious in Actions", () => {
     const doc = parse(readWorkflow(FILE)) as {
       jobs?: Record<string, { steps?: { name?: string; run?: string }[] }>;

@@ -11,7 +11,8 @@ rule that keeps each task inside one.
 > the repo, but may only **write** inside the Section named in the task, plus
 > any shared dependency the task explicitly declares. If it believes it must
 > edit **Section 0 (Scoring Core)** or **Section 8 (Platform)**, it stops and
-> asks first.
+> asks first. (Release-control / CI / GitHub governance work is Section 8 and
+> needs an explicit mission — scoring stays frozen.)
 
 Start every AI task by naming the Section and the boundary, e.g.:
 

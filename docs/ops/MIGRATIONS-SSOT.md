@@ -1,8 +1,22 @@
-# Supabase migrations Ã¢â‚¬â€ source of truth
+# Supabase migrations — source of truth
 
 **Production project:** `giyycykxkzfbowiapxpd` (East US)  
+**DEV / E2E project:** **none yet** (owner action — create a separate free/test project; never clone production PII)  
 **Local folder:** `supabase/migrations/`  
-**Rule:** forward-only. Never edit a migration after it has been applied to production.
+**Rule:** forward-only. Never edit a migration after it has been applied to production.  
+**Never** run `supabase db push` blindly against production. Zero production schema mutation unless a named security fix is marked OWNER REVIEW REQUIRED.
+
+## DEV / E2E bootstrap (when a second project exists)
+
+Do **not** clone production data. On a new empty project:
+
+1. Link: `npx supabase link --project-ref <DEV_REF>` (never the production ref).
+2. Apply **this repo's** `supabase/migrations/` as the contract for DEV. Local filenames are not a guaranteed 1:1 with the production ledger (`docs/ops/MIGRATION-DRIFT-2026-07-28.md`).
+3. **Do not apply** `00034_profile_field_locks.sql` (superseded).
+4. Prefer `supabase db query` per file or a fresh `db reset` **only on DEV**.
+5. Point GitHub `E2E_SUPABASE_*` at the DEV URL + DEV `service_role` only.
+
+Until that project exists, live E2E stays **NOT CONFIGURED** / CORE coverage.
 
 ## Reality check
 

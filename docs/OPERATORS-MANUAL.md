@@ -2,8 +2,8 @@
 
 **Audience:** You (founder / operator) and any AI agent working on your machine.  
 **Product SSOT:** [HoMI-Technology/Homi-Tech-Production](https://github.com/HoMI-Technology/Homi-Tech-Production)  
-**Local SSOT path (this PC):** `Desktop\kimi-workspace\Homi-Tech-Production`  
-**Last updated:** 2026-07-26
+**Local SSOT path (this PC):** `Desktop\HoMI_Tech_Github_Build`  
+**Last updated:** 2026-08-16
 
 This manual covers three operator systems that keep the product shippable:
 
@@ -43,9 +43,10 @@ Secrets live in THREE places (do not mix them up):
 
 1. Only **one writable clone**: this repo path (or the same remote on another machine via Git—not Desktop zips).
 2. **Pull before work; push before walk-away.**
-3. Local app currently uses **production Supabase** unless you deliberately point `.env.local` elsewhere—treat data as live ammo.
-4. **Never** `supabase db push` until migration history repair is done (`docs/MIGRATION-REPAIR.md`).
+3. Local app currently uses **production Supabase** unless you deliberately point `.env.local` elsewhere—treat data as live ammo. **Do not** run destructive Playwright live specs (they create/delete auth users) against production.
+4. **Never** `supabase db push` the full history against production. Apply one file via `docs/ops/MIGRATIONS-SSOT.md`. There is **no dedicated DEV/E2E Supabase project** until the owner creates one (free-plan, no production clone of PII).
 5. **Never** put `sk_live_*` in E2E secrets; suite refuses live Stripe keys.
+6. **GitHub branch protection is OFF** (private repo; GitHub Pro required). Merges to `main` are not blocked by `verify`/`e2e` until the owner upgrades and requires those checks. Exact clicks: §A.5.
 
 ---
 
@@ -59,7 +60,9 @@ Secrets live in THREE places (do not mix them up):
 | **E2E**           | `.github/workflows/e2e.yml`        | Anonymous smoke runs; **live** specs **self-skip**              | Live auth/checkout/share paths execute             |
 | **Lighthouse**    | `.github/workflows/lighthouse.yml` | Manual/`workflow_dispatch` only (same budgets as verify)        | + authenticated dashboard run if `LHCI_TEST_*` set |
 
-Design goal (from `e2e/README.md`): missing secrets must **not** fail forks; they **reduce coverage**. Green E2E without secrets ≠ full product coverage.
+Design goal (from `e2e/README.md`): missing secrets must **not** fail forks; they **reduce coverage**. Green E2E without secrets is **CORE**, not **FULL**. CI prints this via `scripts/ci-coverage-report.mjs`.
+
+**DEV vs production (E2E):** `E2E_SUPABASE_*` must point at a dedicated empty/test project. Never paste production `service_role` into GitHub Actions. Stripe secrets must be **test mode** (`sk_test_`, `whsec_`).
 
 ## A.2 Secrets checklist (GitHub Actions)
 
@@ -107,6 +110,8 @@ On the E2E project:
 4. Never put production service_role into Actions if you can avoid it.
 
 **Why:** Live specs create and delete real auth users. Production is the wrong target.
+
+`gh secret list --repo HoMI-Technology/Homi-Tech-Production` on 2026-08-16 returned **zero** Actions secrets. Live E2E and authenticated Lighthouse are **NOT CONFIGURED** until you set the names in A.2. Creating a second Supabase project is **BLOCKED — OWNER/BILLING DECISION** if it would change the paid plan; repository-side wiring is ready.
 
 ## A.4 How to set secrets (you run these)
 
@@ -183,6 +188,20 @@ gh run list --limit 5
 | Checkout e2e skips                         | Not `sk_test_` / missing price | Stripe test keys + `stripe-setup` |
 | LHCI dashboard step skipped                | Empty `LHCI_TEST_EMAIL`        | Create test user + secrets        |
 | `gh secret set` fails                      | Not logged in / wrong repo     | `gh auth status`; `homi go`       |
+
+## A.7 GitHub Pro + required checks (owner — platform)
+
+Private repos cannot use classic branch protection or rulesets on the current plan (`gh api .../branches/main/protection` → HTTP 403, "Upgrade to GitHub Pro").
+
+After **GitHub → Settings → Billing → upgrade this account to Pro** (do not make the repo public):
+
+1. Repo → **Settings → Rules → Rulesets → New ruleset** (or Branches → Add branch protection rule).
+2. Target: `main`.
+3. Enable: **Restrict deletions**, **Block force pushes**, **Require a pull request before merging**.
+4. **Require status checks to pass:** exact names `verify` and `e2e` (from successful `main` runs). Do **not** require the manual `Lighthouse` workflow or authenticated LH.
+5. Save. Confirm with `gh api repos/HoMI-Technology/Homi-Tech-Production/branches/main/protection`.
+
+Preferred merge method: **Allow squash merging only** (one task → one PR → squash → delete branch). Rollback: Settings → General → re-enable merge commit / rebase.
 
 ---
 
@@ -428,6 +447,7 @@ gh run list --limit 10
 | production build   | `npm run build`              | Yes         | No            | Optional note only (slow) |
 | verify-supabase    | `npm run verify-supabase`    | No          | Yes           | Yes                       |
 | secrets present    | `gh secret list`             | N/A         | Yes           | Yes                       |
+| coverage mode      | `node scripts/ci-coverage-report.mjs` | Yes (summary) | No      | Yes                       |
 | tooling auth       | gh/vercel/supabase           | N/A         | Yes           | Yes                       |
 
 **Ship rule:** before non-trivial merge, either `homi doctor -Full` **or** green `verify` on the PR.
