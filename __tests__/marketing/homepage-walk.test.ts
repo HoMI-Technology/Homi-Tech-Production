@@ -77,6 +77,17 @@ describe("homepage hybrid — readable front door", () => {
     expect(home).not.toContain("85/60/35");
   });
 
+  it("stays type and air — no glass card wall, no 01/02/03", () => {
+    expect(home).not.toMatch(/\bclassName="[^"]*glass/);
+    expect(home).not.toContain("glass-hover");
+    expect(home).not.toContain("md:grid-cols-3");
+    expect(home).not.toContain("md:grid-cols");
+    expect(home).not.toContain('"01"');
+    expect(home).not.toContain('"02"');
+    expect(home).not.toContain('"03"');
+    expect(home).not.toContain("score-numeral");
+  });
+
   it("says what HōMI is not, without a brochure table", () => {
     expect(home).toContain("What HōMI is not");
     expect(home).toContain("Not a lender or broker");
