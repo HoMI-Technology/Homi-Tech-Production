@@ -1,0 +1,56 @@
+# HōMI Grok-Workspace Audit — 24 Upload Libs vs Canon vs Our Build
+
+*Read-only audit, banked 2026-08-05. Line refs: `U:` = /mnt/agents/upload, `C:` = /mnt/agents/output/canon, `B:` = /mnt/agents/output/app/src.*
+
+## 1. Audit table
+
+| # | Lib | What it does | Overlap | Drift / conflict (canon wins) | Novel & valuable | Verdict |
+|---|-----|--------------|---------|-------------------------------|------------------|---------|
+| 1 | scoring.ts | Full HōMI-Score engine: 3 pillars (35/35/30), stepwise sub-scorers, solo redistribution of 9 partner points, 4 hard-stops, verdict bands, insight/next-step generators, VERDICT_META. | C:scoring/engine.ts + weights.ts + insights.ts; B:lib/score.ts + lib/insights.ts | **Numerics: zero drift.** Copy drift only: CREDIT_UNDER_620 message trimmed (drops "and the interest cost alone could undo the purchase"); FOMO_WARNING/PRESSURE_RUSH shortened; key-insight hard-stop line trimmed. Missing canon's optional `referralSource`/`deadlineOrigin` inputs. | None — pure re-implementation. | **SKIP** |
+| 2 | score-bridge.ts | Derives canonical `AssessmentInputs` from live budget state, runs `computeScore`, defensive re-run on defaults; `scoreHouseholdMember` (income-share clamp 0.1–0.9); `wealthSnapshot`. | None in B. | None numeric. `runway` defaults to 12 when infinite — should be labeled. | The live-budget→score bridge that makes the closed loop work. | **PORT** (wave 1) |
+| 3 | path.ts | Finance-first path generator: bespoke 0–100 `scoreFromFinance` (base 40 + stepwise), `verdictFromScore`, ≤7 steps. | C:readiness/path.ts (B:lib/path.ts) | **CRITICAL DRIFT — verdict thresholds** 75/55 vs canon 80/65/50 four-tier; 3-tier vocab (no BUILD_FIRST); second non-canonical scorer violates scorer-owns-truth. | Step reasons canon lacks: RUNWAY_UNDER_3_MONTHS, LOW_SAVINGS_RATE, EF goal-gap funding targets, DEBT_BURDEN avalanche step; `pathCompletionRatio`, `pathStepDueDate`. | **FLAG** (canon wins; salvage step-sequencing ideas only) |
+| 4 | signals.ts | Live-planner signal engine: ≤6 deduped severity-ranked signals from cash flow, runway, DTI, bills, path state, weakest pillar <60%, stress, savings, net worth; dismissal set; all-clear fallback. | C:signals/engine.ts (B:lib/signals.ts) — same severity enum/priority, different input domain. | None. | Bill/path/cash-flow/stress signals entirely new. | **PORT** (wave 2) |
+| 5 | companion.ts | Rule-based chat companion over live `CompanionFinanceContext`: verdict read, money picture, portfolio/path talk, FOMO deflection, not-advice guardrail, reflective default keyed to weakest gauge. | C:trinity/fallback.ts + twin/fallback.ts (B:lib/companions.ts) — debate/letter formats, not chat. Claims port from production lib/advisor/fallback.ts — not in canon fetch, unverifiable. | None numeric. | Conversational fallback with live-number context. | **PORT** (wave 3) |
+| 6 | household.ts | Dual-household score: joint=min, hard-stop union, gap/alignment summaries. | C:household/dual-score.ts — verbatim; B:lib/household.ts already ports it. | None. | None. | **SKIP** |
+| 7 | housing.ts | Rent-vs-buy lens: P&I amortization, PITI via cfm, 5-yr delta with principal paydown, appreciation 3%, opportunity cost 6%, break-even scan, runway-hit, 4-way verdict (blocked/buy_stretch/rent_clearer/buy_competitive). | None in canon (C:tools/mortgage.ts is affordability only). None in B. | Internally consistent with canon gates (45% hard-stop, 36% stretch). | Whole lens is novel. | **PORT** (wave 3, with cfm) |
+| 8 | debt.ts | Avalanche vs snowball with freed-minimum rolling, 0.005 epsilon, 1200-month cap. | C:tools/debt.ts logic identical; B:lib/tools/debt.ts byte-port. | None. | None. | **SKIP** |
+| 9 | montecarlo.ts | Seeded savings-trajectory MC: P10/50/90, probability-of-target, survival/distress. | C:tools/montecarlo.ts; B byte-port. | **DRIFT**: runs default 2500 vs canon 10000; drops canon shock params (`jobLossProb`, `maintenanceShock`, `incomeGrowth`). | Nothing canon lacks (subset). | **FLAG** (keep B's canon port; do not port) |
+| 10 | simulate.ts | Decision Rehearsal: buy-now vs wait-12/24, 60-month series. Constants 360-mo, 3% closing, 1%/yr maintenance. | C:decisions/simulate.ts byte-identical constants; B:lib/rehearsal.ts ports it. | None. | None. | **SKIP** |
+| 11 | stress.ts | Daily-check-in stress analytics over last 7: OLS slope, mean, stdev, streaks, composite 0–100 index (level 40% + slope 30% + vol 15% + streak 15%), spike detection, 9 reason codes with protective narratives. | Canon has only a simple 4-check-in down-trend signal. B has no check-in surface at all. | None. | The missing emotional-truth telemetry loop. | **PORT** (wave 2 — needs check-in store) |
+| 12 | closed-loop.ts | Wraps store mutations: snapshots score before/after, emits ScoreImpact, optionally regenerates path; never regenerates path after step completion; progress-first copy when score flat. | C:readiness/impact-bus.ts — doctrinal analog but canon forbids score computation on path completion (upload computes deltas but handles flat honestly — architectural choice, not engine drift). | No numeric drift. | The mutation→impact wrapper pattern. | **PORT** (wave 1) |
+| 13 | impact.ts | Builds ScoreImpact: delta, hard-stops cleared/added, pillar deltas, main-mover narrative, verdict-shift headlines, per-action copy, next-hint; `impactToSnapshot`. | None in canon or B. | None numeric. | Heart of the closed loop. | **PORT** (wave 1) |
+| 14 | nudges.ts | Behavioral nudge engine: 8 rule families (implementation intentions, micro-commitments, fresh-start day 1/15/16, identity, protect-decision, progress on delta ≥0.5, social sync), priority-sorted, deduped, capped at 4. | None. | None. | Entirely novel engagement layer. | **PORT** (wave 2) |
+| 15 | digest.ts | Week-over-week spend digest + 30-day cashflow spark; receipt helpers (scoreBand 80/65/50, pillarBand 75/50). | Receipt helpers duplicate B:lib/receipts.ts exactly (consistent). Spend digest novel. | None. | WoW digest + spark. | **PORT** (spend digest + spark only; SKIP receipt helpers) |
+| 16 | cfm.ts | Canonical Financial Model: source-labeled core/housing/horizon numbers, coverage ratio, `estimateHousingPayment` (PITI + tax/ins + HOA). | C:tools/cfm.ts — decoupled re-implementation. Not in B. | **Minor drift**: adds 4th FieldSource "derived"; imputes expectedReturnPct ?? 7 / volatilityPct ?? 12 — canon: strictly self-reported, missing never imputed. | `estimateHousingPayment`, `cfmCoverage`, more portable shape. | **PORT** (adapted — strip the 7/12 imputation) |
+| 17 | p2p.ts | Full-mesh WebRTC room client. Requires `/api/rtc` relay. | None. | n/a | None for this product. | **BACKEND** (skip) |
+| 18 | brokers.ts | Static broker metadata + fallback lookup. | None. | None. | Cheap polish. | **PORT** (trivial) |
+| 19 | institutions.ts | Static bank metadata + lookup. | None. | None. | Same. | **PORT** (trivial) |
+| 20 | categories.ts | Expense (9) + income (4) categories with colors. | B:store/budget.tsx has richer taxonomy; shapes differ. | None. | The `debt` expense category feeds DTI derivation. | **SKIP** (but planner store carries its own category ids per types.ts) |
+| 21 | store.ts (942 ln) | Zustand + persist budget store: full CRUD; atomic `payBill`; one-checkin-per-day + 60-cap + FOMO decay (fomo*0.6 + stress*0.4); defensive persist merge; `financialReality` derivation; temperature functions matching canon gauge lines. | B:store/budget.tsx (stronger versioned-envelope persistence). | No canon conflicts. FOMO-decay feedback is a doctrine choice (makes Emotional Truth partially ledger-driven) — flag, keep. | checkins slice, financialReality, atomic payBill. | **PORT** (near-verbatim with zustand; keep our hardening patterns) |
+| 22 | db.ts | Server-only SQL (Neon/PGLite). | None. | n/a | None portable. | **BACKEND** (skip) |
+| 23 | types.ts | Data model: Transaction/Bill/BankAccount/Holding/NetWorthItem/DebtItem/DailyCheckin/ReadinessProfile/HouseholdPartner/PathSnapshot/ScoreImpactSnapshot/BudgetState. | Partial B overlaps. | `PathSnapshot.verdict` 3-tier — conflicts canon 4-tier (never adopt). | ReadinessProfile, HouseholdPartner, DailyCheckin, ScoreImpactSnapshot needed by PORT waves. | **PORT** (selective; never 3-tier verdict) |
+| 24 | format.ts | Intl memoized formatters, ISO date helpers, daysUntil, addDaysISO. | B:lib/money.ts + B:lib/tools/format.ts. | None. | Only daysUntil/addDaysISO if bills ported. | **SKIP** (add daysUntil/addDaysISO to planner lib only) |
+
+## 2. Engine-critical conflicts (canon wins)
+
+1. **path.ts verdict thresholds (CRITICAL)** — U:path.ts:130-133 (75/55, 3-tier) vs canon 80/65/50 four-tier. Never port the scorer or verdicts.
+2. **path.ts second scorer** — `scoreFromFinance` violates scorer-owns-truth.
+3. **montecarlo.ts runs default + dropped shocks** — keep B's canon byte-port.
+4. **cfm.ts imputed horizon defaults** — strip `?? 7` / `?? 12`; missing stays missing.
+5. **scoring.ts trimmed protective copy** — canon copy text wins (we already have it).
+6. **score-bridge runway imputation** — infinite runway coerced to 12; label it.
+7. **Doctrine divergence (not drift)** — upload computes score deltas on path completion; canon impact-bus forbids it. Upload's flat-delta copy is honest; we adopt the upload behavior deliberately for the planner.
+
+## 3. Store API contract (exact, from U:store.ts:142-179)
+
+State: transactions, savingsGoal, accounts, bills, holdings, brokers, netWorthItems, debts, extraDebtPayment, checkins, readinessProfile, householdPartner, path (PathSnapshot|null), dismissedSignals, lastImpact (ScoreImpactSnapshot|null), _hasHydrated.
+
+Actions: setHasHydrated, addTransaction, updateTransaction, deleteTransaction, setSavingsGoal, addAccount, connectBank (async), disconnectAccount, syncBanks (async), addBill, updateBill, deleteBill, payBill(billId, accountId?) → {ok, error?}, scheduleBill, addHolding, updateHolding, deleteHolding, markPrices, addNetWorthItem, updateNetWorthItem, deleteNetWorthItem, connectBroker (async), disconnectBroker, syncBrokers (async), regeneratePath, completePathStep(stepId, status?), clearPath, setReadinessProfile, setHouseholdPartner, setDebts, updateDebt, setExtraDebtPayment, dismissSignal, clearDismissedSignals, setLastImpact, clearLastImpact, addCheckin(financialStress, note?), clearWorkspace.
+
+Derived helpers (exported from store.ts): buildPathFinanceSnapshot, summarize, summarizeAccounts, upcomingBillsTotal, holdingMarketValue, holdingCost, holdingGain, summarizePortfolio, totalNetWorth, financialReality, temperature functions.
+
+## 4. Grok UI composition skeleton (U:index.tsx, 433 lines)
+
+Components referenced (NOT uploaded — must be rebuilt from screenshots): AppHeader, BankingCommand, BrokerPanel, BudgetCalendar, ImpactToast, NetWorthPanel, NudgeRail, OverviewCommand, PlanCommand, PortfolioPanel, ReadinessHero, SignalsStrip.
+
+Data flow in index.tsx: `result = scoreFromBudget({transactions, accounts, bills, holdings, netWorthItems, readinessProfile, householdPartner, debts})`; `stress = analyzeStress(checkins)`; `signals = derivePlannerSignals({...})` minus dismissed; `nudges = deriveBehaviorNudges({...})` capped 4; five tabs overview/calendar/banking/wealth/plan with cross-tab `goTab` navigation; ImpactToast driven by lastImpact.

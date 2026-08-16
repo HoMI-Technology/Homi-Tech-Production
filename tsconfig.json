@@ -17,5 +17,12 @@
     "paths": { "@/*": ["./*"] }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "__tests__/acceptance"]
+  "exclude": [
+    "node_modules",
+    "__tests__/acceptance",
+    "planner-spa",
+    "incoming",
+    "docs/merge"
+  ]
 }
+

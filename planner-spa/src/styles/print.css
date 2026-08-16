@@ -1,0 +1,98 @@
+/* ------------------------------------------------------------------ */
+/* HōMI printable readiness report (M10)                                */
+/* Screen values mirror the canon dark palette; @media print flips to   */
+/* white paper with navy ink, keeps pillar colors legible (cyan prints  */
+/* as the darker #0e7490 variant), hides .no-print, and disables all    */
+/* animation so the compass prints static.                              */
+/* ------------------------------------------------------------------ */
+
+/* screen (canon dark) */
+.report-sheet { background-color: #0f172a; }
+.report-ink { color: #e2e8f0; }
+.report-ink-dim { color: #94a3b8; }
+.report-hairline { border-color: rgba(226, 232, 240, 0.08); }
+.report-cyan { color: #22d3ee; }
+.report-track { background-color: rgba(226, 232, 240, 0.08); }
+.pillar-fin { color: #22d3ee; }
+.pillar-emo { color: #34d399; }
+.pillar-tim { color: #facc15; }
+
+@media print {
+  @page {
+    margin: 18mm;
+  }
+
+  /* animations off — everything prints static */
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #0a1628;
+  }
+
+  /* screen-only controls */
+  .no-print {
+    display: none !important;
+  }
+
+  /* hide app chrome (sidebar, top bar, aurora/noise) on the report only */
+  body:has(.report-root) aside,
+  body:has(.report-root) header,
+  body:has(.report-root) .app-aurora,
+  body:has(.report-root) .app-noise {
+    display: none !important;
+  }
+
+  /* reclaim the sidebar offset + content padding for the sheet */
+  body:has(.report-root) div:has(> main) {
+    padding-left: 0 !important;
+  }
+  body:has(.report-root) main {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .report-root {
+    display: block !important;
+  }
+
+  /* white paper, navy ink */
+  .report-sheet {
+    background: #ffffff !important;
+    color: #0a1628 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  .report-ink {
+    color: #0a1628 !important;
+  }
+  .report-ink-dim {
+    color: #475569 !important;
+  }
+  .report-hairline {
+    border-color: #cbd5e1 !important;
+  }
+  .report-track {
+    background-color: #e2e8f0 !important;
+  }
+
+  /* pillar colors pass on white; cyan uses the darker print variant */
+  .report-cyan,
+  .pillar-fin {
+    color: #0e7490 !important;
+  }
+
+  /* never split a card across pages */
+  .report-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

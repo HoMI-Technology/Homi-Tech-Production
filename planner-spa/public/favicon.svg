@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- HōMI icon mark: emerald ō on navy, macron in cyan -->
+  <rect width="64" height="64" rx="12.8" fill="#0a1628"/>
+  <rect x="18" y="15" width="28" height="4.5" rx="2.25" fill="#22d3ee"/>
+  <path fill="#34d399" fill-rule="evenodd" d="M32 25c-8.6 0-14.5 5.9-14.5 14s5.9 14 14.5 14 14.5-5.9 14.5-14-5.9-14-14.5-14zm0 6.2c4.6 0 7.6 3.3 7.6 7.8s-3 7.8-7.6 7.8-7.6-3.3-7.6-7.8 3-7.8 7.6-7.8z"/>
+</svg>

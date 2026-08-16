@@ -17,6 +17,10 @@ export default defineConfig({
       "**/__tests__/architecture.gen.test.ts",
       "e2e/**",
       "**/.claude/**",
+      // Nested SPA + node-script planner gates (not Vitest suites)
+      "planner-spa/**",
+      "incoming/**",
+      "scripts/planner/**",
     ],
   },
   resolve: {

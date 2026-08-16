@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="360" viewBox="0 0 480 360" fill="none">
+  <!-- faint rising sparkline above the ledger -->
+  <polyline points="150,118 196,104 234,112 276,88 318,96 352,70"
+    stroke="#22d3ee" stroke-opacity="0.45" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="352" cy="70" r="3.5" fill="#34d399"/>
+  <!-- open ledger book, thin line art -->
+  <path d="M240 168 C 204 150 156 146 112 156 L 112 268 C 156 258 204 262 240 280 C 276 262 324 258 368 268 L 368 156 C 324 146 276 150 240 168 Z"
+    stroke="#22d3ee" stroke-opacity="0.7" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M240 168 L 240 280" stroke="#22d3ee" stroke-opacity="0.4" stroke-width="1.5"/>
+  <!-- left page ruled lines -->
+  <path d="M132 178 C 164 171 196 173 222 182" stroke="#94a3b8" stroke-opacity="0.5" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M132 198 C 164 191 196 193 222 202" stroke="#94a3b8" stroke-opacity="0.5" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M132 218 C 164 211 196 213 222 222" stroke="#94a3b8" stroke-opacity="0.5" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M132 238 C 164 231 196 233 214 240" stroke="#94a3b8" stroke-opacity="0.35" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- right page ruled lines -->
+  <path d="M258 182 C 284 173 316 171 348 178" stroke="#94a3b8" stroke-opacity="0.5" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M258 202 C 284 193 316 191 348 198" stroke="#94a3b8" stroke-opacity="0.5" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M258 222 C 284 213 316 211 348 218" stroke="#94a3b8" stroke-opacity="0.5" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M266 240 C 284 233 316 231 348 238" stroke="#94a3b8" stroke-opacity="0.35" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

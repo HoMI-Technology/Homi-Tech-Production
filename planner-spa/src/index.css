@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 216 61% 10%;
+    --foreground: 213 27% 89%;
+    --card: 217 33% 14%;
+    --card-foreground: 213 27% 89%;
+    --popover: 222 47% 8%;
+    --popover-foreground: 213 27% 89%;
+    --primary: 187 86% 53%;
+    --primary-foreground: 222 47% 8%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 213 27% 89%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 213 27% 89%;
+    --destructive: 10 88% 54%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 187 86% 53%;
+    --radius: 0.5rem;
+    --sidebar-background: 222 47% 8%;
+    --sidebar-foreground: 213 27% 89%;
+    --sidebar-primary: 187 86% 53%;
+    --sidebar-primary-foreground: 222 47% 8%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 213 27% 89%;
+    --sidebar-border: 217 33% 17%;
+    --sidebar-ring: 187 86% 53%;
+    color-scheme: dark;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    @apply antialiased;
+  }
+  body {
+    @apply bg-navy text-light font-sans;
+    font-feature-settings: "tnum";
+  }
+  ::selection {
+    background: rgba(34, 211, 238, 0.25);
+  }
+  /* HōMI canon focus ring: 2px cyan with offset */
+  :focus-visible {
+    outline: 2px solid #22d3ee;
+    outline-offset: 2px;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.18);
+    border-radius: 999px;
+    border: 2px solid #0a1628;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.32);
+  }
+}
+
+@layer utilities {
+  .tnum {
+    font-feature-settings: "tnum";
+  }
+  .text-hero-number {
+    @apply font-display font-bold tracking-[-0.02em] tnum;
+    font-size: 48px;
+    line-height: 1.05;
+  }
+  .text-kpi {
+    @apply font-display font-semibold tracking-[-0.01em] tnum;
+    font-size: 28px;
+    line-height: 1.1;
+  }
+  /* HōMI canon heading hierarchy: H1 cyan, H2 emerald, H3 yellow — Inter 700 */
+  .text-h1 {
+    @apply font-sans font-bold text-cyan;
+    font-size: 24px;
+    line-height: 1.2;
+  }
+  .text-h2 {
+    @apply font-sans font-bold text-emerald;
+    font-size: 16px;
+    line-height: 1.3;
+  }
+  .text-h3 {
+    @apply font-sans font-bold text-yellow;
+    font-size: 16px;
+    line-height: 1.3;
+  }
+  .text-label {
+    @apply font-sans font-semibold uppercase text-dim;
+    font-size: 11px;
+    line-height: 1.2;
+    letter-spacing: 0.12em;
+  }
+  .text-data-sm {
+    @apply font-display font-medium tnum;
+    font-size: 13px;
+  }
+  .card-chrome {
+    @apply bg-slate/60 backdrop-blur-sm border border-white/[0.06] rounded-2xl;
+  }
+  .card-hairline-top {
+    position: relative;
+  }
+  .card-hairline-top::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 8%;
+    right: 8%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.35), transparent);
+    pointer-events: none;
+  }
+  .app-aurora {
+    background:
+      radial-gradient(ellipse 60% 45% at 12% -5%, rgba(34, 211, 238, 0.08), transparent 70%),
+      radial-gradient(ellipse 45% 35% at 95% 110%, rgba(34, 211, 238, 0.04), transparent 70%);
+  }
+  .app-noise {
+    background-image: url("/noise.svg");
+    background-size: 256px 256px;
+    opacity: 0.03;
+  }
+}

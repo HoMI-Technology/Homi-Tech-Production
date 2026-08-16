@@ -1654,3 +1654,46 @@ html[data-homi-consent-hold] #cookie-consent {
 }
 ::-webkit-scrollbar-thumb:hover { background: rgba(34, 211, 238, 0.4); }
 }
+
+/* ── Planner SPA utilities (unified merge) ───────────────────────── */
+.tnum { font-feature-settings: "tnum"; font-variant-numeric: tabular-nums; }
+.card-chrome {
+  background: color-mix(in srgb, var(--color-slate, #1e293b) 60%, transparent);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 1rem;
+}
+.card-hairline-top { position: relative; }
+.card-hairline-top::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.35), transparent);
+  pointer-events: none;
+}
+.text-hero-number {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-feature-settings: "tnum";
+  font-size: 48px;
+  line-height: 1.05;
+}
+.text-kpi {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-feature-settings: "tnum";
+  font-size: 28px;
+  line-height: 1.1;
+}
+.text-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-dim, #94a3b8);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+}

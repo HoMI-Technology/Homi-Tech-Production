@@ -69,6 +69,7 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
 
   // ── Header MORE: money + life ──
   { href: "/finance", label: "Finance", group: "Navigate", keywords: "budget money numbers", surfaces: { header: "more", palette: true } },
+  { href: "/planner", label: "Budget Planner", group: "Navigate", keywords: "closed loop planner banks bills wealth calendar", surfaces: { header: "more", palette: true } },
   { href: "/calendar", label: "Calendar", group: "Navigate", keywords: "milestones dates", surfaces: { header: "more", palette: true } },
   { href: "/daily", label: "Daily Check-in", paletteLabel: "Daily check-in", group: "Act", keywords: "mood stress pulse", surfaces: { header: "more", palette: true } },
   { href: "/credit", label: "Credit", group: "Navigate", keywords: "score report", surfaces: { header: "more", palette: true } },

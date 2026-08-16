@@ -26,6 +26,9 @@ export const PUBLIC_PRODUCT_ROUTES = [
   "onboarding",
   "path",
   "plan",
+  // Closed-loop Budget Planner is localStorage-demo (no server PII);
+  // mirrors SPA /planner and tools/shadow-score public acquisition surfaces.
+  "planner",
   "results",
   "scenarios",
   "shadow-score",
