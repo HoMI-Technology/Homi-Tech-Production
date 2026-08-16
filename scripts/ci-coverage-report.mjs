@@ -17,7 +17,7 @@
 import { readFileSync, appendFileSync } from "node:fs";
 
 /**
- * @param {NodeJS.ProcessEnv} [env]
+ * @param {Record<string, string | undefined>} [env]
  */
 export function coverageFromEnv(env = process.env) {
   const supabaseUrl = env.E2E_SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL || "";

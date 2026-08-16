@@ -4,9 +4,11 @@ import {
   summarizePlaywrightJson,
 } from "../../scripts/ci-coverage-report.mjs";
 
+type Env = Record<string, string | undefined>;
+
 describe("coverageFromEnv", () => {
   it("is CORE when no live integration secrets exist", () => {
-    const cov = coverageFromEnv({});
+    const cov = coverageFromEnv({} satisfies Env);
     expect(cov.mode).toBe("CORE");
     expect(cov.supabaseIntegration).toBe("NOT_CONFIGURED");
     expect(cov.stripeIntegration).toBe("NOT_CONFIGURED");
