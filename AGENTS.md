@@ -206,31 +206,45 @@ In-product UI: `/agent-hub` (Agent Hub — feed URL, prompt builder, exports).
 
 Single Next.js 15 / React 19 app (`homi-production`), package manager **npm**
 (only `package-lock.json`; `.npmrc` sets `legacy-peer-deps=true`), **Node 22**.
-Dependencies are refreshed automatically by the startup update script (`npm ci`),
-so you should not need to install them manually.
+Config lives in `.cursor/environment.json` (repo file beats dashboard/personal).
 
-- **`.env.local` is required and gitignored**, so it does not persist across
-  fresh Cloud VMs — recreate it if the app can't find Supabase vars. The CI
-  placeholder Supabase values (see `NEXT_PUBLIC_SUPABASE_URL` /
-  `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.github/workflows/ci.yml`) plus
-  `NEXT_PUBLIC_SITE_URL=http://localhost:3000` and any non-empty
-  `SUPABASE_SERVICE_ROLE_KEY` are enough for lint/typecheck/test/build and to
-  run the app. Every other integration (Stripe, Plaid, Anthropic, Resend,
-  Sentry, Upstash, PostHog, web-push) degrades gracefully when unset. Real
-  login/DB persistence and the live E2E specs need a real Supabase project.
-- **When real Supabase secrets are provided as VM env secrets**
-  (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
-  `SUPABASE_SERVICE_ROLE_KEY`), copy them into `.env.local` so the dev server
-  reads them reliably. **Gotcha:** a dev server launched inside a `tmux` session
-  that was created _before_ the secrets were injected keeps the stale env and
-  logs in fail with "Something went wrong"; writing the values into `.env.local`
-  (which Next always loads) sidesteps this — or recreate the tmux server. The
-  authenticated Supabase MCP server can apply migrations / query the DB directly.
-- **The reachable Supabase project is the live/production project** (real
-  `profiles`, `waitlist`, etc.), not a throwaway. Per `e2e/README.md`, do NOT run
-  the destructive live Playwright suite (it creates/deletes auth users) against
-  it — use a dedicated test project for that. Self-cleaning single-user checks
-  (admin `create` → sign in → admin `delete`) are fine for smoke-testing auth.
+Two explicit modes — bootable is not the same as isolated:
+
+- **BUILD-SAFE** (default when no DEV Supabase trio is injected): `npm ci`,
+  typecheck, unit tests, brand/architecture checks, production build, `npm run
+  dev`, anonymous assessment → `POST /api/scoring` → results. Uses an inert
+  local Supabase URL (`http://127.0.0.1:54321`) and **does not** write a
+  service-role key. `/api/healthcheck` may report `database: error` — that is
+  correct, not a reason to point at production. No production fallback.
+- **FULL-STACK DEV** (only when all three dedicated DEV secrets are injected as
+  an atomic set): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+  `SUPABASE_SERVICE_ROLE_KEY`. Optional Stripe **test** (`sk_test_*`) and Plaid
+  **sandbox** keys may ride along. Live Stripe (`sk_live_*`), Plaid
+  `production`, or the production Supabase host are refused. Partial sets fail
+  closed — never mix DEV URL + missing service role.
+
+`.env.local` is gitignored and does not survive a fresh Cloud VM.
+`scripts/cloud-agent-env.sh` (start hook) reconciles it:
+
+1. Human-authored file (no managed block) → left untouched.
+2. Empty / missing → write a managed block (`# BEGIN HōMI CURSOR CLOUD MANAGED`).
+3. Managed file → replace only that block; keep extra manual keys.
+4. Repeated starts are idempotent. Writes are atomic (temp + rename).
+
+**Do not** apply migrations, `supabase db push`, or seed on start.
+**Do not** run live/destructive Playwright (`e2e` specs that create users)
+against production. Full integration E2E only against the dedicated DEV
+project. A truthy fake `SUPABASE_SERVICE_ROLE_KEY` is never written — absence
+means not configured (`createAdminClient()` returns null).
+
+Stale tmux/shell: Next loads `.env.local` on boot, so writing the managed
+block beats a shell that started before secrets were injected. Restart
+`npm run dev` after a mode change.
+
+Install (snapshot) runs `npm ci` and Playwright Chromium once. Start only
+reconciles env. The visible terminal is `npm run dev` on
+`http://localhost:3000`.
+
 - **Standard commands** are the `package.json` scripts (`dev`, `build`, `start`,
   `typecheck`, `test`, `test:e2e`, `brand-check`). Dev server is `npm run dev`
   on `http://localhost:3000`.

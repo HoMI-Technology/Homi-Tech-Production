@@ -1,6 +1,6 @@
 {
-  "name": "HōMI (homi-production)",
-  "install": "npm ci",
+  "name": "HōMI (BUILD-SAFE / FULL-STACK DEV)",
+  "install": "npm ci && npx playwright install --with-deps chromium",
   "start": "bash scripts/cloud-agent-env.sh",
   "terminals": [
     {
