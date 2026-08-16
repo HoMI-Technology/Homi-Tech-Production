@@ -1,0 +1,11 @@
+{
+  "name": "HōMI (homi-production)",
+  "install": "npm ci",
+  "start": "bash scripts/cloud-agent-env.sh",
+  "terminals": [
+    {
+      "name": "next-dev",
+      "command": "npm run dev"
+    }
+  ]
+}
