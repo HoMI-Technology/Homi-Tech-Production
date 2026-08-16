@@ -1,5 +1,19 @@
 # HōMI Tech — agent instructions (SSOT)
 
+## Spend hold — read before launch, CI, or paid-plan talk
+
+**Issue [#241](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/241) is the SSOT.** Founder lock 2026-08-16: the site is accepted as built. **Do not buy, quote-pressure, or “helpfully” upgrade** GitHub Pro, Vercel Pro, or a second Supabase project until the founder **closes #241** and says go-live / marketing / traffic.
+
+| Deferred (children of #241) | Do not start while #241 is open |
+| --- | --- |
+| [#243](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/243) | GitHub Pro + protect `main` (`verify` + `e2e` only) |
+| [#242](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/242) | DEV Supabase + Stripe TEST + LHCI secrets |
+| [#191](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/191) | Vercel Pro + leaked-password + real-card checkout |
+
+**Accepted today:** CORE E2E (live suites skip when Actions secrets are empty). A green `verify` is not a release. Never put production `service_role` or `sk_live_*` in Actions to fake FULL coverage. Never use production as an E2E sandbox.
+
+If a task looks like “fix skipped tests,” “enable branch protection,” or `buy_pro`: stop, link #241, and ask the founder.
+
 ## Operator manual (humans + agents)
 
 **Read and follow:** [`docs/OPERATORS-MANUAL.md`](docs/OPERATORS-MANUAL.md)
@@ -14,11 +28,10 @@
 
 Do **not** invent a parallel ops process. Point the user at the manual section + command.
 
-**Release verification (any candidate SHA):** `homi doctor` (machine) →
-`homi secrets` (E2E/LHCI presence, never values) → `homi hygiene` (open PRs) →
-GitHub Actions for that SHA (`verify` + `e2e`) →
-`node scripts/ci-coverage-report.mjs` (CORE vs FULL) →
-`docs/ops/MIGRATIONS-SSOT.md` (do not `supabase db push` production).
+**Release verification (any candidate SHA):** confirm [#241](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/241) still open (if so, CORE is enough) →
+`homi doctor` → `homi secrets` (presence only) → `homi hygiene` →
+Actions `verify` + `e2e` → `node scripts/ci-coverage-report.mjs` →
+`docs/ops/MIGRATIONS-SSOT.md` (never `supabase db push` production).
 
 ## Source of truth
 
