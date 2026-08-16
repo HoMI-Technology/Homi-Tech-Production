@@ -1627,6 +1627,34 @@ body {
     }
   }
 
+  /* Still hero compass — sits in the first viewport, does not travel. */
+  .hero-still-compass {
+    position: absolute;
+    pointer-events: none;
+    inset: auto 10% 6% 10%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0.42;
+  }
+  .hero-still-compass-body {
+    position: relative;
+    width: min(38vmin, 11rem);
+    max-height: 24vh;
+  }
+  @media (min-width: 64rem) {
+    .hero-still-compass {
+      inset: 12% 2% 12% 42%;
+      align-items: center;
+      justify-content: flex-end;
+      opacity: 1;
+    }
+    .hero-still-compass-body {
+      width: min(42vw, 28rem);
+      max-height: min(70vh, 28rem);
+    }
+  }
+
   /* One traveling compass — field (right 38%) then object (left, small),
      then parked before waitlist. One-way; do not reverse-animate.
      PRM stays on the field. */
