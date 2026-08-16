@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { InterviewHero } from "@/components/home/InterviewHero";
+import { CinematicCompass } from "@/components/home/CinematicCompass";
 import { CinemaFX } from "@/components/home/CinemaFX";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
@@ -52,82 +53,99 @@ const NOT_ITEMS = [
 const AXIS = "mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-8";
 
 /**
- * Benji craft on the hybrid front door.
- * One type axis. Air over inventory. Compass stays in the hero.
- * No card wall. No 01/02/03. Never a fake 0-100 HōMI-Score.
+ * TeraFab craft (Benji Taylor / Tesla-SpaceX site), HōMI words.
+ * Full scenes. Giant type. One object. Hairline rows. No card wall.
+ * Never a fake 0-100 HōMI-Score.
  */
 export default function MarketingHomePage() {
   return (
-    <div>
+    <div className="tf-page">
       <JsonLd data={organizationJsonLd(SITE_URL, "/icon-512-v2.png")} />
       <JsonLd data={websiteJsonLd(SITE_URL)} />
       <CinemaFX />
 
       <InterviewHero />
 
-      <section id="statement" className="scroll-mt-24 py-28 sm:py-36">
+      <section
+        id="statement"
+        className="tf-scene relative flex min-h-[100dvh] flex-col justify-end pb-24 pt-32"
+      >
         <div className={AXIS}>
           <h2
-            className="type-display max-w-2xl font-display font-normal"
+            className="type-giant max-w-4xl font-display font-semibold"
             style={{ textWrap: "balance" }}
           >
             {TAGLINES.primary}
           </h2>
-          <p className="mt-8 max-w-xl text-lg leading-relaxed text-dim">
+          <p className="mt-8 max-w-xl text-lg leading-relaxed text-dim sm:text-xl">
             HōMI helps you evaluate readiness for the decision itself, across
             Financial Reality, Emotional Truth, and Perfect Timing.
           </p>
-          <p className="mt-4 max-w-xl text-lg text-dim">
+          <p className="mt-4 max-w-xl text-lg text-dim sm:text-xl">
             HōMI enters before the commitment.
           </p>
-          <p className="mt-16 max-w-2xl font-display text-3xl text-light sm:text-4xl">
+        </div>
+      </section>
+
+      <section className="tf-scene relative flex min-h-[100dvh] flex-col justify-end pb-24 pt-32">
+        <div className={AXIS}>
+          <p className="type-giant max-w-4xl font-display font-semibold text-light">
             Not yet is not <span className="text-emerald">no</span>.
           </p>
-          <p className="mt-8 max-w-xl text-lg leading-relaxed text-dim">
+        </div>
+      </section>
+
+      <section className="tf-scene relative flex min-h-[100dvh] flex-col justify-end overflow-hidden pb-24 pt-32">
+        <div className="tf-object-compass" aria-hidden>
+          <CinematicCompass responsive keyholePulse={false} />
+        </div>
+        <div className={AXIS}>
+          <p className="type-display max-w-3xl font-display font-normal text-light">
             The compass that becomes a key when you&rsquo;re finally ready to turn it.
           </p>
         </div>
       </section>
 
-      <section className="py-28 sm:py-36">
+      <section className="tf-scene relative flex min-h-[100dvh] flex-col justify-end pb-24 pt-32">
         <div className={AXIS}>
-          <div className="max-w-xl space-y-16">
+          <ul className="tf-rows max-w-3xl">
             {STEPS.map((item) => (
-              <div key={item.title}>
-                <h2 className="font-display text-3xl font-normal text-light sm:text-4xl">
-                  {item.title}
-                </h2>
-                <p className="mt-4 text-lg leading-relaxed text-dim">{item.copy}</p>
-              </div>
+              <li key={item.title}>
+                <span>{item.title}</span>
+                <span>{item.copy}</span>
+              </li>
             ))}
-          </div>
-          <p className="mt-16">
-            <Link href="/how-it-works" className="text-sm text-dim hover:text-cyan">
+          </ul>
+          <p className="mt-12">
+            <Link href="/how-it-works" className="text-sm text-dim hover:text-light">
               See how it works
             </Link>
           </p>
         </div>
       </section>
 
-      <section className="py-28 sm:py-36">
+      <section className="tf-scene relative flex min-h-[100dvh] flex-col justify-end pb-24 pt-32">
         <div className={AXIS}>
-          <h2 className="font-display text-3xl font-normal text-light sm:text-4xl">
+          <h2 className="type-display max-w-3xl font-display font-normal">
             What HōMI is not
           </h2>
-          <ul className="mt-12 max-w-xl space-y-10">
+          <ul className="tf-rows mt-12 max-w-3xl">
             {NOT_ITEMS.map((item) => (
               <li key={item.title}>
-                <p className="text-lg text-light">{item.title}</p>
-                <p className="mt-2 text-base leading-relaxed text-dim">{item.body}</p>
+                <span>{item.title}</span>
+                <span>{item.body}</span>
               </li>
             ))}
           </ul>
         </div>
       </section>
 
-      <section id="waitlist" className="scroll-mt-24 py-28 sm:py-36">
+      <section
+        id="waitlist"
+        className="tf-scene relative flex min-h-[100dvh] flex-col justify-end pb-28 pt-32"
+      >
         <div className={AXIS}>
-          <p className="type-display max-w-2xl font-display font-normal text-light">
+          <p className="type-giant max-w-3xl font-display font-semibold text-light">
             Clarity, not commission.
           </p>
           <Link

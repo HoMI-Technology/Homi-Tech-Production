@@ -1644,14 +1644,65 @@ body {
   }
   @media (min-width: 64rem) {
     .hero-still-compass {
-      inset: 12% 2% 12% 42%;
+      inset: 8% -4% 8% 38%;
       align-items: center;
       justify-content: flex-end;
       opacity: 1;
     }
     .hero-still-compass-body {
-      width: min(42vw, 28rem);
-      max-height: min(70vh, 28rem);
+      width: min(52vw, 36rem);
+      max-height: min(82vh, 36rem);
+    }
+  }
+
+  /* TeraFab scenes: full viewports, hairline rows, field light. */
+  .tf-page {
+    --tf-light: 0;
+    background: #040b16;
+  }
+  .tf-scene {
+    background:
+      radial-gradient(
+        ellipse 70% 55% at 78% 40%,
+        rgb(34 211 238 / calc(0.04 + var(--tf-light) * 0.1)),
+        transparent 68%
+      ),
+      #040b16;
+  }
+  .tf-object-compass {
+    pointer-events: none;
+    position: absolute;
+    inset: auto 4% 22% auto;
+    width: min(52vmin, 22rem);
+    opacity: 0.85;
+  }
+  @media (min-width: 64rem) {
+    .tf-object-compass {
+      inset: 18% 2% 18% 52%;
+      width: auto;
+    }
+  }
+  .tf-rows {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .tf-rows > li {
+    display: grid;
+    grid-template-columns: minmax(7rem, 11rem) 1fr;
+    gap: 1.5rem 2.5rem;
+    padding: 1.35rem 0;
+    border-top: 1px solid rgb(226 232 240 / 0.12);
+    color: var(--color-dim);
+  }
+  .tf-rows > li > span:first-child {
+    color: var(--color-light);
+    font-weight: 500;
+  }
+  @media (max-width: 39.99rem) {
+    .tf-rows > li {
+      grid-template-columns: 1fr;
+      gap: 0.4rem;
     }
   }
 
