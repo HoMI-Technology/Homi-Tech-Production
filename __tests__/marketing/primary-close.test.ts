@@ -33,14 +33,12 @@ describe("SiteHeader primary close", () => {
 
 describe("InterviewHero primary close", () => {
   const hero = src("components", "home", "InterviewHero.tsx");
-  const persist = src("components", "home", "walk-persist.tsx");
 
   it("uses the Assess close, not /shadow-score", () => {
-    expect(persist).toContain("PRIMARY_CLOSE_HREF");
-    expect(persist).toContain("PRIMARY_CLOSE_LABEL");
-    expect(persist).not.toContain("/shadow-score");
+    expect(hero).toContain("PRIMARY_CLOSE_HREF");
+    expect(hero).toContain("PRIMARY_CLOSE_LABEL");
     expect(hero).not.toContain("/shadow-score");
-    expect(persist).not.toContain("Check My Readiness");
+    expect(hero).not.toContain("Check My Readiness");
   });
 
   it("does not claim answers are unstored or unsent", () => {
@@ -53,8 +51,8 @@ describe("InterviewHero primary close", () => {
     expect(hero).toContain("Will you be okay?");
     expect(hero).toContain("A Decision Companion.");
     expect(hero).toContain("Everyone else tells you how");
-    expect(persist).toContain('track("hero_cta_click", { src: "hero" })');
-    expect(persist).toContain("?src=hero");
+    expect(hero).toContain('track("hero_cta_click", { src: "hero" })');
+    expect(hero).toContain("?src=hero");
   });
 
   it("does not contain wait-rate proof, Trinity, or a two-column instrument split", () => {
