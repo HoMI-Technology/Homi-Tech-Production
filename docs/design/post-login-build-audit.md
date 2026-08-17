@@ -2,226 +2,430 @@
 title: Post-login audit — let users experience their build
 source: Claude Code (design audit, two-lens review)
 date: 2026-08-17
+revision: 2 — rewritten after deeper research; rev 1 contained one retracted finding
 status: design — not yet implemented
 surface: post-login (`/dashboard`, `/path`, `/plan`, `/results`, `/onboarding`)
 sections: Section 1 (Assessment/Readiness surfaces) + Section 5 (Chrome/IA) — no writes to Section 0 or 8
-related: DESIGN.md, CANON.md, docs/SECTIONS.md
+related: DESIGN.md, CANON.md, COMPANION-ECOSYSTEM.md, docs/SECTIONS.md
 ---
 
 # Post-login audit — let users experience their build
 
-## The one-sentence verdict
+## The finding, in one line
 
-**After login, HōMI hands you a grade. It never hands you a build.**
+**The build already exists. It is just not on stage.**
 
-The product's whole vocabulary is construction — `BUILD_FIRST`, Path to Ready,
-binding constraint, "softest lever first." The screen a user actually lands on is
-a report card: a numeral, a band, and a spectrum from Not Yet to Ready.
+Nearly every component required to let a user experience their build is already in
+this repo — path generation, completion ratio, binding constraint, impact tracking,
+hard stops, and a Companion that already reads all of it. They are built, tested,
+and disconnected from the one screen everybody lands on.
 
-## Two lenses, one finding
+That reframing matters, because it changes the cost, the risk, and the sequencing.
+A redesign needs doctrine amendments and founder sign-off before anything ships.
+Wiring existing modules into an existing surface can start immediately and collides
+with nothing until phase 04.
 
-**The craft lens — _does it feel built?_**
-Nothing on the post-login surface accumulates. "Verdict held · 3 days."
-"Check-ins · 2/7." "Journal · 4." Those are attendance records. A build has
-mass — courses laid, a thing that is measurably taller than it was last month.
-A user who has done six weeks of real work sees a dashboard that looks
-identical to week one with different digits in it.
+**This is a wiring problem wearing a redesign costume.**
 
-**The subtraction lens — _what is the one thing this screen is for?_**
-Today the honest answer is "your number." But the number is a *measurement of*
-the build, not the build. Nobody opens their project to look at its grade. The
-score belongs on the instrument rail, in mono, next to its delta — where a
-reading belongs. The fold belongs to the thing being built.
+---
 
-Both lenses land on the same move: **invert the hierarchy. The build is the
-hero; the score is its reading.**
+## Method, and what this audit is not
+
+| Did | Did not |
+| --- | --- |
+| Read the post-login route tree, product layout, chrome, nav catalog | **Never ran the app** — every screen description is read from source |
+| Traced auth → redirect → landing for both sign-in and sign-up | No analytics, funnel data, or retention numbers |
+| Read dashboard / results / path / plan / onboarding end to end | No user research or usability testing |
+| Traced the Companion host, widget, and context spine | No screen-reader accessibility pass |
+| Grepped instrumentation, hard-stop handling, persistence | Did not deep-read the 16 tool calculators or 11 admin pages |
+| Counted routes and nav entries directly rather than estimating | Did not test on a real mobile device |
+
+**Confidence labels.** _Verified_ = the code path was traced and the claim follows
+directly. _Inferred_ = strong code evidence, never executed. Nothing here is
+_observed_. Severity is a prioritisation hypothesis, not a measurement — which is
+itself finding F3.
+
+---
+
+## Corrections to revision 1
+
+- **Retracted.** Rev 1 claimed an anonymous user could take the assessment and lose
+  it on sign-in. False. `app/(product)/assessment/page.tsx:23` server-redirects
+  guests to First Moment, and `saveLocalResult` refuses shadow-kind payloads
+  (`lib/assessment/storage.ts:141`), so a guest cannot hold a score-shaped local
+  result at all. The finding does not exist.
+- **Overstated.** "70 product pages" as evidence of bloat is misleading — it includes
+  16 tool calculators, 11 admin pages, and 4 report views. Consumer-reachable is
+  **36**; the rail shows **14**.
+- **Missed.** Rev 1 audited "experience your build through HōMI" without opening the
+  Companion, which COMPANION-ECOSYSTEM.md calls "the connective tissue of the whole
+  product." It already reads the path (`lib/advisor/context.ts:183`). That single
+  fact reframes the recommendation.
+
+---
+
+## The structural fact
+
+`/assessment` is classified public so middleware will not bounce guests to sign-in,
+but the page redirects them to First Moment. **Every HōMI account is therefore
+created before its first measurement exists.** The real first-run sequence:
+
+1. Sign up → `safeNext` default → `/onboarding`
+2. Onboarding, three steps
+3. "Skip for now" → writes a flag, **navigates nowhere**
+4. Or "Assess" → 45 questions, ~5 minutes, no partial credit
+5. Abandon → `/dashboard` → greeting + one empty card
+
+The dashboard is not the front door — the intended path routes *around* it. That
+makes it **the abandonment catch-basin**: the people who land there are the ones who
+did not finish, or who came back intending to. The highest-intent, highest-risk
+cohort in the product, served a greeting and a card.
+
+---
+
+## What already exists
+
+| Capability | Built | On the dashboard |
+| --- | --- | --- |
+| Readiness path generation (`lib/readiness/path.ts`) | Yes | Client only |
+| `pathCompletionRatio()` (`lib/readiness/progress.ts:315`) | Yes | Never shown |
+| Binding-constraint sequencing | Yes | Below fold |
+| Step completion with impact | Yes | No receipt |
+| Hard stops (`lib/scoring/engine.ts:714`, `path.ts:556`) | Yes | Absent |
+| Server path persistence (`/api/readiness-path`, Zod) | Yes | Not queried |
+| Companion reading the path (`lib/advisor/context.ts:183`, `:213`) | Yes | Behind a click |
+| `assessments.decision_type` | Yes | Sidebar only |
+| **Analytics on the landing surface** | **No** | **Zero events** |
+
+Eight of nine capabilities are built and unwired. The ninth — instrumentation — is
+genuinely missing, and it is why nobody has noticed the other eight.
 
 ---
 
 ## Findings
 
-Ranked by severity. Every claim is anchored to code in this repo.
+### F1 · CRITICAL · Verified — The abandonment catch-basin is a dead end
 
-### F1 · CRITICAL — The first minute is an empty room
+Every module below the hero is gated on a completed assessment, so abandoners get a
+greeting and one card.
 
-Every module below the hero is gated on `latest`
-(`app/(product)/dashboard/page.tsx:474`). A user who just signed up, clicked
-through the three onboarding steps, and landed on `/dashboard` sees exactly two
-things: a greeting, and one empty-state card
-(`app/(product)/dashboard/page.tsx:460`). No metric rail, no pillars, no
-history, no quick actions, no path.
+```
+app/(product)/assessment/page.tsx:23   if (!user) redirect(PRIMARY_CLOSE_HREF)
+app/(product)/dashboard/page.tsx:474   {latest && ( … )}   ← rail, pillars, history, timeline, actions
+app/(product)/dashboard/page.tsx:460   <EmptyState preset="dashboard" />
+lib/assessment/draft.ts:73             export function loadDraft(maxStepIndex = 64)  ← never called from the dashboard
+```
 
-The single most important minute in the product renders as a near-blank navy
-page with two buttons on it.
+The sharpest detail: **their answers are still on the device.**
+`lib/assessment/draft.ts` persists the in-progress assessment to `localStorage` under
+`homi:assessment-draft`, with a loader that takes a step index. The dashboard never
+calls it, and renders "One measurement and this page comes alive" instead.
 
-**Fix:** never land a scoreless user on a score page. Route by state at the
-door, not by convention.
+**Fix:** the empty state becomes a resume ramp — read `loadDraft()` and lead with
+where they stopped. Cheapest activation fix in the document; no new data model.
 
-### F2 · CRITICAL — The build is client-only and below the fold
+### F2 · CRITICAL · Verified — Hard stops are invisible on the landing surface
 
-`PathNextMove` (`app/(product)/dashboard/page.tsx:466`) is a `"use client"`
-island that hydrates from `localStorage`, then pulls the server copy
-(`components/dashboard/PathNextMove.tsx`). Consequences:
+The engine forces `NOT_YET` when a hard stop is detected; the path generator emits
+dedicated hard-stop steps. The dashboard never references `hardStops`.
 
-- On a new device, first paint has **no build at all**.
-- It renders *after* the instrument, *under* the fold.
-- The thing the user is supposedly building is the last element on the page to
-  exist.
+```
+lib/scoring/engine.ts:714    const verdict = hardStops.length > 0 ? "NOT_YET" : baseVerdict
+lib/readiness/path.ts:556    steps.push(hardStopStep(stops[i], d, finance, idFactory))
+app/(product)/dashboard/page.tsx   grep "hardStop" → no matches
+```
 
-**Fix:** server-render the path into the dashboard. `GET /api/readiness-path`
-already exists and is already validated. The page already runs six parallel
-server queries in one `Promise.all` — make it seven.
+A user with DTI over 50% sees "34 · DO NOT PROCEED" with no statement of what is
+blocking them. The one interpretation that would help exists in the data and is
+never rendered.
 
-### F3 · HIGH — The score outranks the build in the hierarchy
+**Fix:** name hard stops on the landing surface, above everything. Also a
+prerequisite for any progress UI — see R2.
 
-`OperateInstrument` gives the entire fold to compass + `HeroScore` numeral
-(`:350`) + verdict chip + spectrum + `ActionDock` (`:403`). DESIGN.md's own
-definition of done asks for a "3-second hierarchy test on dashboard (score +
-next step obvious)." That test encodes the wrong priority.
+### F3 · CRITICAL · Verified — The landing surface has zero instrumentation
 
-**Fix:** the correct 3-second test is **"what am I building, and what is the
-next course?"** Hero becomes the build — current stage, binding constraint,
-next step. Score moves into `MetricRail` as a mono reading with its
-`ScoreDeltaBadge`, which is exactly what it is.
+27 distinct analytics events exist in the product. None fire from the dashboard tree.
+`PageViewBeacon` gives a section-level page view and nothing else.
 
-### F4 · HIGH — Four surfaces own one story
+```
+grep track(" in app/(product)/dashboard, components/dashboard, lib/dashboard → 0 results
+components/analytics/PageViewBeacon.tsx:25   track("page_viewed", { section })
+```
 
-`/results`, `/path`, `/plan`, and `/report/{id}` all narrate readiness. The
-codebase carries a nine-line comment (`app/(product)/path/page.tsx:52-61`)
-explaining which page does what and warning agents not to duplicate jobs across
-them.
+Every finding here, including the severity ordering, is an argument rather than a
+measurement — because the product cannot currently produce the measurement.
 
-If the codebase needs that comment to keep them straight, so does the user —
-and the user never gets one.
+**Fix:** ships **before** any redesign. Cheapest item on the list, and the only one
+that makes the others falsifiable.
 
-**Fix:** collapse to two.
+### F4 · HIGH · Verified — The build is client-only and below the fold
 
-| Surface | Job |
-| --- | --- |
-| **The Build** | Living, singular, the post-login home. Absorbs `/path` and `/plan`. |
-| **The Record** (`/report/{id}`) | The frozen, shareable, printable artifact of one measurement. |
+`PathNextMove` hydrates from `localStorage`, then pulls the server copy. New device →
+no build at first paint. It renders after the instrument, under the fold.
 
-`/results` stops being a destination and becomes the reveal *transition* into
-the Build.
+**Fix:** the page already runs six parallel server queries in one `Promise.all`.
+Make it seven. Highest value-to-risk change in the document.
 
-### F5 · HIGH — Onboarding is a write-only dead end
+### F5 · HIGH · Verified — Onboarding carries three vestigial mechanisms
 
-`profiles.onboarding_completed` is written at
-`app/(product)/onboarding/page.tsx:23` and **read nowhere in application
-code** — the only other references are the type definition (`types/database.ts:27`)
-and an RLS test. Meanwhile `safeNext`'s fallback is `/dashboard`
-(`lib/auth/safeNext.ts:7`) for every sign-in.
+- **Dead button.** No `useRouter`, no `redirect`, anywhere in the file. "Skip for
+  now" writes a flag and leaves the user on step 3.
+- **Write-only flag.** `onboarding_completed` is written (`:23`) and read nowhere in
+  app code.
+- **Unreachable replay.** The local-assessment rescue at `:27` cannot fire — guests
+  can no longer take an assessment.
 
-So: a user who abandons onboarding is never brought back to it, and a user who
-finished it gets the identical dashboard to one who never saw it. The column is
-a promise the product does not keep.
+**Fix:** navigate on skip; read the flag or drop the column; delete the replay. The
+first is a bug fix, not a design decision.
 
-**Fix:** read it or drop it. A field that is written and never read is a lie in
-the schema. Reading it is the cheaper option — it is the natural switch for the
-first-run Build state in F1.
+### F6 · HIGH · Verified — The Companion knows the build; the page it sits on does not
 
-### F6 · MEDIUM — 70 product pages, 36 catalog destinations, 14 in the rail
+`buildCompanionContext()` assembles assessment, finance, credit, surface **and path**
+— verdict, mode, confidence, step count, plus a coach pack. It renders as a 56px orb,
+mounted after `requestIdleCallback`, opening the real widget on click.
 
-`find app/(product) -name page.tsx` returns **70**. `lib/layout/nav-catalog.ts`
-carries **36** destinations; four are header-primary and ten are under More.
-Genome, Trinity, Twin, Signals, Decisions, Calibration, Simulator, Scenarios,
-Timeline and Shadow Score each promise a different lens on the same three
-numbers.
+The idle-gating is well-reasoned (it keeps the advisor graph off the Lighthouse
+script budget) and should not be undone. But the one component that understands the
+user's build is hidden behind a click, on a page that does not mention the build.
 
-`AppSidebar`'s Measure → Understand → Act → Reflect grouping is a good instinct
-applied one layer too late: it *labels* an inventory instead of reducing it.
-The comment in the file is candid that it is "a *labeling* change only."
+**Fix:** one server-rendered Companion line on the dashboard — static text from the
+same context, no chat graph, no bundle cost. Opening the panel stays a click;
+*being present* stops being one.
 
-**Fix:** the question is not "which pages do we delete." It is **"which of
-these are instruments the Build calls for at a stage?"** Surface them from
-inside the Build when the stage needs them; leave ⌘K as the escape hatch for
-everything else. A tool nobody can find at the moment they need it is not a
-feature.
+### F7 · MEDIUM · Verified — The score outranks the build; metrics measure attendance
 
-### F7 · MEDIUM — Nothing shows cause and effect
+Fold: compass, `HeroScore` (`:350`), verdict chip, spectrum, dock (`:403`). Rail
+(`:477-529`): Verdict held · Strongest · Check-ins 7d · Journal — three of four are
+attendance. DESIGN.md's "3-second hierarchy test (score + next step obvious)" encodes
+the current priority as the standard.
 
-`VerdictCelebrate` fires only when a verdict *band* improves
-(`components/dashboard/VerdictCelebrate.tsx:23`) — a rare event. Completing a
-path step via `completePathStepWithImpact` produces no visible receipt on the
-dashboard. A user does real work, returns, and the page looks the same.
+**Fix:** build in the fold, score in the rail with its delta. Replace the weakest
+attendance cell with progress in **steps** ("4 of 7"), not a percentage — see R3.
 
-**Fix:** the receipt *is* the product. Every completed step writes a line into a
-visible build ledger stating what it moved. That loop is what brings people
-back — not a reminder email.
+### F8 · MEDIUM · Verified — Four surfaces own one story
 
-### F8 · MEDIUM — The metrics measure compliance, not construction
+The nine-line "Surface roles (D4)" comment is duplicated verbatim at
+`app/(product)/results/page.tsx:27` and `app/(product)/path/page.tsx:56`. A boundary
+that must be restated in two files to hold is not a boundary.
 
-The `MetricRail` cells are Verdict held · Strongest · Check-ins 7d · Journal
-(`app/(product)/dashboard/page.tsx:477-529`). Three of the four are attendance.
-None answers "how much of my build is done?"
+**Fix:** two surfaces — **the Build** (living, absorbing `/path` and `/plan`) and
+**the Record** (`/report/{id}`). `/results` becomes the reveal transition. Last in
+the sequence: it is the only one that touches routing.
 
-`pathCompletionRatio()` already exists (`lib/readiness/progress.ts:315`) and is
-used on `/path`, `PathToReadyCard`, and the planner overview — but **never on
-the dashboard**. The number is already computed. It is simply not shown where it
-matters.
+### F9 · MEDIUM · Verified — Nothing shows cause and effect
 
-**Fix:** build progress becomes the rail's first cell.
+`VerdictCelebrate` fires only on a verdict *band* improvement (`:23`) — possibly a
+once-per-user event. Completing a path step produces no dashboard receipt.
+
+**Fix:** a ledger of completed steps and what each moved. The impact plumbing exists
+behind the `impactBus` flag — this is surfacing, not inventing.
+
+### F10 · LOW · Inferred — The Snapshot aside is mobile dead weight
+
+It repeats Held / Strongest / Pulse 7d / Journal from the rail above. Below 1024px
+the grid collapses to one column, so it stacks after pillars, history, financial
+position, and the timeline.
+
+```
+app/globals.css:2888   .dash-body-grid { display: grid; gap: 1.5rem }   ← 1 col default
+app/globals.css:2892   @media (min-width: 1024px) { … 1fr 17.5rem; }
+app/globals.css:2904   @media (min-width: 1024px) { .dash-side-stack { position: sticky } }
+```
+
+Marked *inferred* — never rendered at mobile width, so lived severity may be lower.
+
+**Fix:** render at `lg` and above only.
 
 ---
 
-## The proposal — "The Build"
+## Three directions, and why one wins
 
-### 1. Route by state at the door
+### A — Fix the plumbing, keep the instrument
 
-One function, called once after auth. Replaces the blanket `/dashboard`
-fallback in `safeNext`.
+Server-render the path, add hard stops and progress, instrument everything. Change no
+hierarchy.
 
-| User state | Lands on |
-| --- | --- |
-| No assessment | Shadow Score, in place — two minutes to a real read |
-| Assessment, not READY | **The Build** |
-| READY | The decision surface |
-| Partner / employee / admin role | Their hub (already handled by the switcher) |
+- **+** Zero doctrine collision; ships immediately; every change independently revertible.
+- **−** Does not answer the question asked. The build is still a module on a grade page.
+- **Verdict:** correct as phase one. Insufficient as an answer.
 
-### 2. The Build fold, top to bottom
+### B — Companion-first, the mote leads
 
-1. **What you're building** — the decision, named, from `decision_type`, which
-   the dashboard already loads and currently only passes to the sidebar
-   (`:303`). "A house, spring 2027." Not "Good morning, Cody."
-2. **How far up it is** — the structure: courses complete, course in progress,
-   and the binding constraint holding the next one. Verdict tint carries state;
-   the existing `ThresholdCompass` becomes the capstone, not the headline.
-3. **The next course** — one action, the binding step, completable in place.
-4. **The reading** — score, delta, and the three pillars as instruments *on* the
-   build, in mono, in the rail.
-5. **The ledger** — what you did and what it moved, newest first. This is the
-   part that accumulates. This is the part users screenshot.
+Post-login opens as a conversation; structure is secondary.
 
-### 3. What gets cut
+- **+** Strongest brand differentiation; the context spine already supports it.
+- **−** Conversation is a poor medium for "how far along am I."
+- **−** Collides head-on with OPERATE density doctrine.
+- **−** Quota-gated and LLM-dependent — a degraded state leaves no page underneath.
+- **Verdict:** rejected as primary. The failure mode is fatal.
 
-- `/plan` as a destination — folds into the Build's near-term list.
-- `/results` as a destination — becomes the reveal transition.
-- The greeting as the page's headline.
-- Three of four compliance metrics in the rail.
+### C — Structure leads, the mote narrates **(recommended)**
 
-### 4. Build order
+The build is the fold. The Companion adds one server-rendered sentence of
+interpretation. The score is a reading on the rail.
 
-| Phase | Work | Ships |
+- **+** Degrades cleanly — remove the mote line and a complete page remains.
+- **+** Satisfies OPERATE density while sounding like HōMI.
+- **+** Reached *through* direction A, so phase one is not wasted work.
+- **−** Needs DESIGN.md's 3-second test amended (phase 04).
+- **Verdict:** chosen. The only direction where every phase is independently shippable
+  and the end state answers the question.
+
+---
+
+## How the proposal fails
+
+### R1 — It becomes a guilt machine
+
+Progress invites streaks; streaks invite nudges; nudges invite the engagement-farming
+pattern HōMI's brand explicitly refuses.
+
+**Mitigation:** no streaks, no red for inactivity. A stalled build reads neutral. Ban
+copy implying the user is behind — "the build is where you left it," never "you have
+not built in 12 days."
+
+### R2 — A progress bar over a hard stop is actively harmful
+
+"You're 43% built" above an unaddressed DTI-over-50 tells the user the build completes
+if they keep going. It does not. The engine forces `NOT_YET` precisely because the
+answer is *stop*.
+
+**Mitigation:** hard rule — when `hardStops.length > 0`, suppress completion
+percentage, streaks, and celebration entirely. Render structure so the block is
+visible, blocked course in crimson above everything. **This gets a test** (AGENTS.md
+rule 5).
+
+### R3 — False precision in the completion number
+
+"43%" implies a fixed-length, equal-weight sequence. Steps are generated per verdict
+and binding constraint; a regenerated path moves the number with no user action.
+
+**Mitigation:** express progress in **steps completed** ("4 of 7"), against the
+current path only. If the path regenerates, say so rather than letting a number move
+silently.
+
+### R4 — Couples and verticals break the singular "your build"
+
+`/household`, couples alignment, and partner path notes exist and appear nowhere on
+the dashboard. `decision_type` supports multiple verticals (`home_buying`, `car` are
+server-active).
+
+**Mitigation:** scope phase one to single-user, single-decision and say so. Design the
+build header to accept a decision switcher and a second participant from the start,
+even if neither ships initially.
+
+---
+
+## Every state the fold must handle
+
+| State | What the fold shows | Progress UI |
 | --- | --- | --- |
-| 1 | Server-render the readiness path into `/dashboard`; add `pathCompletionRatio` to the rail | F2, F8 |
-| 2 | State-based post-login routing; read `onboarding_completed`; first-run Build state | F1, F5 |
-| 3 | Invert the fold — build hero, score to rail; update DESIGN.md's 3-second test in the same commit | F3 |
-| 4 | The ledger — completed steps with their impact | F7 |
-| 5 | Collapse `/plan` and `/results` into the Build; re-point nav catalog | F4, F6 |
+| No assessment, no draft | What HōMI will tell you; two-minute path to a first read | Suppressed |
+| Assessment abandoned mid-flow | Resume ramp — where you stopped, how much is left | Questions only |
+| Hard stop present | The blocked course, named, above everything | **Suppressed — R2** |
+| NOT_YET / BUILD_FIRST, no hard stop | Courses, binding constraint, next course | Steps completed |
+| ALMOST_THERE | Same, remaining gap named explicitly | Steps completed |
+| READY | The decision, not the build — the build is finished | Replaced by the record |
+| Path stale vs. latest assessment | Structure, flagged stale, regenerate action | Frozen until reconciled |
+| Assessment query failed | Existing `LoadErrorPanel` — never first-run copy | Suppressed |
+| New device, no local path | Server-rendered build (what F4 buys) | Steps completed |
+| Phase 0 freeze active | Freeze screen — unchanged, takes precedence | Not rendered |
 
-Phases 1 and 2 are additive and carry no doctrine collision. Phase 3 edits
-DESIGN.md's definition of done, so per CANON.md's amendment procedure it is a
-PILOT on one named surface (`/dashboard`) with a named revert, or it goes to
-CANON with the doctrine file edited in the same commit.
+Six of these ten currently render the same greeting-plus-empty-card or the same score
+hero. The design work is mostly in the states; the happy path is the only one the
+current dashboard treats as real.
+
+---
+
+## Sequencing
+
+| Phase | Work | Closes | Doctrine risk |
+| --- | --- | --- | --- |
+| 00 | Instrument the dashboard: empty-state impression, next-move click, activation funnel, return cadence | F3 | None |
+| 01 | Bug fixes, no design content: navigate on skip; read or drop `onboarding_completed`; delete unreachable replay; hide Snapshot below `lg` | F5, F10 | None |
+| 02 | Server-render the path into the existing `Promise.all`; surface hard stops; steps-completed in the rail | F2, F4, F7 (part) | None — additive |
+| 03 | Resume ramp for abandoned assessments; state-based post-login routing | F1 | Low |
+| 04 | Invert the fold — build hero, score to rail. **Edits DESIGN.md's 3-second test in the same commit** | F7 | **PILOT required** |
+| 05 | One server-rendered Companion line on the build | F6 | Low |
+| 06 | The ledger — completed steps with impact | F9 | None |
+| 07 | Collapse `/plan` and `/results` into the Build; re-point nav catalog + parity test | F8 | Medium — routing |
+
+Phases 00–03 contain **no design decisions at all**. They close both critical findings
+plus two highs without requiring anyone's taste to agree. If nothing else here is
+accepted, those four still stand.
+
+Phase 04 is the only doctrine contradiction. Under CANON.md it needs the collision
+quoted verbatim, the argument, one bounded surface (`/dashboard`), a named revert
+commit written before the pilot starts, and a 60-day expiry — or straight to CANON
+with DESIGN.md edited in the same commit.
+
+---
+
+## How we know it worked
+
+| Claim | Metric | Kills the change if |
+| --- | --- | --- |
+| The empty dashboard leaks users | % of empty-state impressions → assessment start within 7d | Already above ~60% |
+| A resume ramp recovers abandoners | Completion rate for users with a saved draft | No lift after 4 weeks at volume |
+| The build drives return visits | D7/D30 return rate; steps completed per returning user | Return flat while steps rise — that's a chore |
+| Hard-stop clarity helps | Action rate on hard-stop copy vs. abandonment after seeing it | Abandonment rises |
+| The Companion line earns its place | Companion open rate from dashboard, before vs. after | No change — it's decoration |
+
+### Tests this implies
+
+- **Hard-stop suppression guard** — a path with `hardStops.length > 0` must never
+  render completion percentage, streak, or celebration. Most important test in the set.
+- **State matrix coverage** — one assertion per row above, so a new state cannot
+  silently fall back to the score hero.
+- **Server-path parity** — server-rendered and client-hydrated build must agree, or
+  the page flashes a different build on hydration.
+- **Nav catalog parity** — already exists; phase 07 must not break it.
+- **Verdict canon guard** — unchanged, but re-run: the fold now renders
+  verdict-derived structure.
+
+---
+
+## What gets cut
+
+- The greeting as headline. The decision is the headline.
+- The Snapshot aside on mobile.
+- Two of four attendance metrics.
+- `/plan` and `/results` as destinations.
+- The unreachable onboarding replay, and `onboarding_completed` if it stays unread.
+- The duplicated nine-line surface-roles comment.
+
+---
+
+## Open questions — founder calls
+
+1. **Is the dashboard meant to be the post-login home at all?** The intended first-run
+   path routes around it. If `/path` is the real home, several findings collapse into
+   "point the door at the right room" and phase 04 gets much cheaper.
+2. **Is a 45-question assessment with no partial credit the right first ask** when the
+   account already exists? The Shadow Score is a two-minute read sitting outside the
+   first-run flow entirely.
+3. **Should the build be per-decision or per-person?** With `home_buying` and `car`
+   both server-active, "your build" needs an owner before the hero is designed around it.
+4. **Does DESIGN.md's 3-second test change, or does the dashboard stay a score page?**
+   This is the actual decision. It is a doctrine amendment, so it is the founder's to
+   make — not an agent's.
+5. **Does any of this move while #241 is open?** Phases 00–03 are code-only and cost
+   nothing, but instrumentation implies analytics volume — check that against the spend
+   hold before phase 00, not after.
 
 ---
 
 ## Boundaries respected
 
-- No changes proposed to `lib/scoring/*`, verdict thresholds, pillar weights, or
-  the four hard stops. The scoring canon is frozen and stays frozen.
-- No new palette, typeface, or visual language. Every element above is built
-  from existing tokens and existing `components/operate/*` primitives.
-- No light surfaces. Navy only.
-- Findings F3 and F4 touch DESIGN.md doctrine and are flagged as such rather
-  than assumed.
+- No changes to `lib/scoring/*`, verdict thresholds, pillar weights, or the four hard
+  stops. Scoring canon is frozen and stays frozen — this audit asks only that hard
+  stops be *shown*, never redefined.
+- No new palette, typeface, or visual language. Every proposed element uses existing
+  tokens and existing `components/operate/*` primitives. Navy surfaces only.
+- The Companion's idle-gating and interaction-gated import are deliberately preserved
+  — the proposed dashboard line is server-rendered text, not the chat graph, so the
+  Lighthouse script budget is unaffected.
+- Phase 04 touches DESIGN.md doctrine and is flagged for STUDY → PILOT → CANON rather
+  than assumed. Phase 07 touches routing and the nav parity test.
+- Nothing here starts work deferred behind #241. No purchase, no plan upgrade, no
+  branch protection.
