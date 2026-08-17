@@ -131,6 +131,25 @@ describe("homepage hybrid — readable front door", () => {
     expect(home).not.toContain("V — Close");
   });
 
+  it("grades the compass onto the canon ramp, from tokens", () => {
+    const filter = src("components", "home", "CompassFilter.tsx");
+    // Derived from lib/brand COLORS so the grade cannot fork from the palette.
+    expect(filter).toContain("COLORS.navy");
+    expect(filter).toContain("COLORS.cyanDeep");
+    expect(filter).toContain("COLORS.cyan");
+    expect(filter).toContain("COLORS.light");
+    expect(filter).not.toMatch(/hueRotate/);
+    expect(filter).not.toMatch(/#[0-9a-fA-F]{6}/);
+    // linearRGB (the default) washes the mids out badly.
+    expect(filter).toContain('colorInterpolationFilters="sRGB"');
+    // Luminance first — the map is a function of brightness alone.
+    expect(filter).toContain('type="saturate"');
+
+    const css = src("app", "globals.css");
+    expect(css).toContain('filter: url("#homi-compass-grade")');
+    expect(home).toContain("CompassFilter");
+  });
+
   it("keeps display type restrained and light, per the reference", () => {
     // The reference's hero title caps at 4.4rem at weight 300 — it is not
     // cinema-scale, and it is never bold. A 7.5rem semibold headline was the

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { InterviewHero } from "@/components/home/InterviewHero";
+import { CompassFilter } from "@/components/home/CompassFilter";
 import { ObjectReveal } from "@/components/home/ObjectReveal";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
@@ -62,6 +63,7 @@ export default function MarketingHomePage() {
     <div className="tf-page">
       <JsonLd data={organizationJsonLd(SITE_URL, "/icon-512-v2.png")} />
       <JsonLd data={websiteJsonLd(SITE_URL)} />
+      <CompassFilter />
 
       <div className="tf-guides" aria-hidden>
         <div className="tf-shell h-full">

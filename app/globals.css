@@ -1867,6 +1867,9 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    /* Brass → canon cyan. See components/home/CompassFilter.tsx for the ramp
+       and why this is a gradient map rather than a hue-rotate. */
+    filter: url("#homi-compass-grade");
   }
   .tf-hero-panel {
     margin-top: clamp(28px, 5vh, 48px);
@@ -1896,6 +1899,8 @@ body {
     animation-range: entry 10% cover 42%;
   }
   .tf-object-scene .tf-panel img {
+    /* Re-declares the grade: a bare `filter` here would drop it. */
+    filter: url("#homi-compass-grade") brightness(calc(0.82 + var(--p) * 0.18));
     opacity: calc(0.55 + var(--p) * 0.45);
     transition: opacity 0.4s var(--tf-ease);
   }
