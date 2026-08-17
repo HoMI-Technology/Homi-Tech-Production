@@ -1476,7 +1476,9 @@ body {
     .walk-line h1,
     .walk-line h2,
     .walk-kicker {
-      text-shadow: 0 0 28px var(--color-navy), 0 2px 20px var(--color-navy);
+      text-shadow:
+        0 0 28px var(--color-navy),
+        0 2px 20px var(--color-navy);
     }
   }
   .walk-line {
@@ -1663,69 +1665,182 @@ body {
     }
   }
 
-  /* TeraFab scenes: media is the colour. Type sits on a scrim. */
+  /* ── TeraFab scenes — Benji craft, HōMI identity ───────────────────
+     One idea per viewport. One left axis. Hairlines instead of cards.
+
+     Ground is canon navy with the existing #071120 → #040b16 vignette
+     ramp (the same falloff the OG rasters use), never a flat slab — a
+     flat off-token black reads as a different product.
+
+     The compass is a SCULPTURE standing in that void, not wallpaper.
+     Every plate is `contain` inside a frame narrower than the raster,
+     so the object is never upscaled. Full-bleed `cover` asked the
+     browser for 3840px of a 1280×720 still and paid for it in soft
+     brass; the void is both the honest fix and the better composition.
+
+     Accent budget for the whole page: cyan twice (hero rule, CTA),
+     emerald once (the word “no”). Nothing else is coloured. */
+
   .tf-page {
-    background: #040b16;
+    background:
+      radial-gradient(ellipse 110% 70% at 68% 4%, #12263f 0%, transparent 56%),
+      linear-gradient(180deg, var(--color-navy) 0%, #071120 60%, #040b16 100%);
   }
   .tf-scene {
-    background: #040b16;
+    position: relative;
   }
+
+  /* The hairline that opens a scene, with a mono index sitting on it. */
+  .tf-rule {
+    display: flex;
+    align-items: baseline;
+    gap: 1.25rem;
+    border-top: 1px solid rgb(226 232 240 / 0.1);
+    padding-top: 1.1rem;
+  }
+  .tf-mark {
+    font-family: var(--font-score);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--color-dim);
+  }
+
+  /* Terafab scale — one page, so the bump is scene-scoped, not a second
+     type system. `.type-giant` is homepage-only by inventory. */
+  .tf-page .type-giant {
+    font-size: clamp(3rem, 1.1rem + 7.4vw, 7.5rem);
+    line-height: 1;
+    letter-spacing: -0.035em;
+  }
+  .tf-page .type-display {
+    font-size: clamp(1.875rem, 1rem + 3.4vw, 3.25rem);
+    line-height: 1.08;
+  }
+
+  /* ── Object plates ──────────────────────────────────────────────── */
+  .tf-media {
+    width: 100%;
+    height: 100%;
+    /* Never `cover`. See the note at the top of this block. */
+    object-fit: contain;
+    /* Both stills are a lit object on a near-black ground. `lighten` lets
+       that ground fall away — max(navy, near-black) is navy — so the plate
+       reads as an object standing in the void instead of a pasted
+       rectangle, while the object's own dark structure survives. The mask
+       feathers the corner falloff that lighten alone cannot.
+
+       Do NOT give the plate a z-index: the blend needs the page gradient as
+       its backdrop, and a positioned z-index would isolate it into its own
+       stacking context and paint the rectangle straight back. */
+    mix-blend-mode: lighten;
+    -webkit-mask-image: radial-gradient(ellipse 74% 74% at 50% 50%, #000 46%, transparent 86%);
+    mask-image: radial-gradient(ellipse 74% 74% at 50% 50%, #000 46%, transparent 86%);
+  }
+  .tf-plate {
+    position: absolute;
+    pointer-events: none;
+  }
+  /* Bloom under the object so it sits in light, not on a rectangle. */
+  .tf-plate::before,
+  .tf-object-plate::before {
+    content: "";
+    position: absolute;
+    inset: 8%;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgb(34 211 238 / 0.09) 0%,
+      rgb(34 211 238 / 0.035) 34%,
+      transparent 66%
+    );
+    filter: blur(32px);
+  }
+
+  /* ── Hero — the void, the question, the object ──────────────────── */
   .tf-hero {
     min-height: calc(100dvh - var(--nav-offset));
   }
-  .tf-media {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 72% 50%;
-    pointer-events: none;
+  .tf-hero-plate {
+    top: calc(var(--nav-offset) - 3rem);
+    right: -6%;
+    /* ≤896px CSS wide against a 1280px raster: oversampled at 1×, and
+       still near-native at 2×. */
+    width: min(56rem, 62vw);
+    aspect-ratio: 16 / 9;
   }
-  .tf-hero-scrim,
-  .tf-object-scrim {
+  /* The compass sits right-of-centre in this raster; centre the feather on
+     the object, not on the frame. */
+  .tf-hero-plate .tf-media {
+    -webkit-mask-image: radial-gradient(ellipse 68% 72% at 62% 50%, #000 40%, transparent 84%);
+    mask-image: radial-gradient(ellipse 68% 72% at 62% 50%, #000 40%, transparent 84%);
+  }
+  /* Type never fights the object: a navy wash under the left axis. */
+  .tf-veil {
     position: absolute;
     inset: 0;
     z-index: 1;
     pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      rgb(10 22 40 / 0.95) 0%,
+      rgb(10 22 40 / 0.74) 32%,
+      rgb(10 22 40 / 0.26) 58%,
+      transparent 80%
+    );
   }
-  .tf-hero-scrim {
-    background:
-      linear-gradient(
-        90deg,
-        rgb(4 11 22 / 0.88) 0%,
-        rgb(4 11 22 / 0.58) 28%,
-        rgb(4 11 22 / 0.18) 52%,
-        transparent 78%
-      ),
-      linear-gradient(
+  .tf-hero-rule {
+    width: min(9rem, 30vw);
+    border-top: 1px solid rgb(34 211 238 / 0.55);
+  }
+  /* The veil carries the contrast now, so the kicker does not need the
+     navy text-shadow the walk-era hero used — on flat navy it reads as a
+     smudge. */
+  .tf-hero .walk-kicker {
+    text-shadow: none;
+  }
+  @media (max-width: 47.99rem) {
+    /* Phones read object → question: the object takes the upper void, the
+       type sits low. Kept fully inside the viewport so the feathered edge
+       lands on navy instead of being clipped by the section. */
+    .tf-hero-plate {
+      top: calc(var(--nav-offset) + 1rem);
+      right: -4%;
+      /* 96vw ≈ 374px on a 390pt phone — under native even at 3×. */
+      width: 96vw;
+    }
+    .tf-veil {
+      background: linear-gradient(
         180deg,
-        rgb(4 11 22 / 0.45) 0%,
-        transparent 28%,
-        rgb(4 11 22 / 0.82) 100%
+        rgb(10 22 40 / 0.52) 0%,
+        rgb(10 22 40 / 0.3) 30%,
+        rgb(10 22 40 / 0.9) 60%,
+        var(--color-navy) 100%
       );
+    }
   }
+
+  /* ── Object scene — the light arrives with the scene ────────────── */
   .tf-object-scene {
     --p: 0;
     animation: tf-object-light linear both;
     animation-timeline: view();
-    animation-range: entry 0% cover 50%;
+    animation-range: entry 10% cover 46%;
   }
-  .tf-object-scene .tf-media {
-    object-position: 50% 48%;
+  .tf-object-plate {
+    position: relative;
+    width: min(56rem, 88vw);
+    aspect-ratio: 16 / 9;
+    margin-inline: auto;
   }
-  .tf-object-scrim {
-    background:
-      linear-gradient(
-        90deg,
-        rgb(4 11 22 / 0.9) 0%,
-        rgb(4 11 22 / 0.55) 36%,
-        rgb(4 11 22 / 0.2) 62%,
-        transparent 82%
-      ),
-      linear-gradient(180deg, rgb(4 11 22 / 0.55) 0%, transparent 24%, rgb(4 11 22 / 0.78) 100%);
-    opacity: calc(1 - var(--p) * 0.82);
+  .tf-object-plate .tf-media {
+    /* The object fills this frame edge to edge, so it gets a looser feather
+       than the hero — enough to kill the corners, not the outer ring. */
+    -webkit-mask-image: radial-gradient(ellipse 84% 84% at 50% 50%, #000 58%, transparent 94%);
+    mask-image: radial-gradient(ellipse 84% 84% at 50% 50%, #000 58%, transparent 94%);
+    opacity: calc(0.55 + var(--p) * 0.45);
+    filter: brightness(calc(0.82 + var(--p) * 0.28));
   }
   @keyframes tf-object-light {
     from {
@@ -1735,6 +1850,8 @@ body {
       --p: 1;
     }
   }
+  /* No scroll-driven animation support, or the user asked for stillness:
+     the object stays fully lit. Nothing is gated behind motion. */
   @media (prefers-reduced-motion: reduce) {
     .tf-object-scene {
       animation: none;
@@ -1747,53 +1864,74 @@ body {
       --p: 1;
     }
   }
-  @media (max-width: 47.99rem) {
-    .tf-media {
-      object-position: 78% 42%;
-    }
-  }
-  .tf-rows {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  .tf-rows > li {
-    display: grid;
-    grid-template-columns: minmax(7rem, 11rem) 1fr;
-    gap: 1.5rem 2.5rem;
-    padding: 1.35rem 0;
-    border-top: 1px solid rgb(226 232 240 / 0.12);
-    color: var(--color-dim);
-  }
-  .tf-rows > li > span:first-child {
-    color: var(--color-light);
-    font-weight: 500;
-  }
-  @media (max-width: 39.99rem) {
-    .tf-rows > li {
-      grid-template-columns: 1fr;
-      gap: 0.4rem;
-    }
-  }
+
+  /* ── Index rows — Terafab hairline list, roman numerals ─────────── */
+  .tf-index,
   .tf-not {
     list-style: none;
     padding: 0;
     margin: 0;
   }
-  .tf-not > li + li {
-    margin-top: 2.5rem;
+  .tf-index > li {
+    display: grid;
+    grid-template-columns: 3.5rem minmax(6rem, 11rem) 1fr;
+    align-items: baseline;
+    gap: 0.75rem 2.5rem;
+    padding: 1.75rem 0;
+    border-top: 1px solid rgb(226 232 240 / 0.1);
+  }
+  .tf-index > li:last-child,
+  .tf-not > li:last-child {
+    border-bottom: 1px solid rgb(226 232 240 / 0.1);
+  }
+  .tf-numeral {
+    font-family: var(--font-score);
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    color: rgb(148 163 184 / 0.72);
+  }
+  .tf-term {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--color-light);
+  }
+  .tf-gloss {
+    max-width: 46ch;
+    color: var(--color-dim);
+    line-height: 1.6;
+  }
+  .tf-not > li {
+    display: grid;
+    grid-template-columns: minmax(0, 17rem) 1fr;
+    gap: 0.5rem 2.5rem;
+    padding: 1.6rem 0;
+    border-top: 1px solid rgb(226 232 240 / 0.1);
   }
   .tf-not > li > p:first-child {
     color: var(--color-light);
-    font-size: 1.25rem;
+    font-size: 1.125rem;
     font-weight: 500;
     letter-spacing: -0.01em;
   }
   .tf-not > li > p:last-child {
-    margin-top: 0.4rem;
     color: var(--color-dim);
-    font-size: 1.05rem;
-    line-height: 1.5;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  @media (max-width: 47.99rem) {
+    .tf-index > li {
+      grid-template-columns: 2.75rem 1fr;
+      gap: 0.4rem 1rem;
+      padding: 1.4rem 0;
+    }
+    .tf-gloss {
+      grid-column: 2;
+    }
+    .tf-not > li {
+      grid-template-columns: 1fr;
+    }
   }
 
   /* One traveling compass — field (right 38%) then object (left, small),
@@ -2054,7 +2192,8 @@ body {
     letter-spacing: -0.025em;
     color: var(--color-light);
     white-space: normal;
-    overflow-wrap: balance;
+    /* `balance` is not a valid overflow-wrap value — the declaration below
+       is the one that balances the wrap. Do not re-add it. */
     text-wrap: balance;
   }
   .type-statement {
@@ -3084,8 +3223,7 @@ body {
 .card-chrome {
   border-radius: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background:
-    linear-gradient(165deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.45) 100%);
+  background: linear-gradient(165deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.45) 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(8px);
 }
@@ -3105,12 +3243,7 @@ body {
   left: 10%;
   right: 10%;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(34, 211, 238, 0.45),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.45), transparent);
   pointer-events: none;
 }
 .text-label {
@@ -3130,8 +3263,7 @@ body {
 .planner-panel {
   border-radius: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background:
-    linear-gradient(165deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.45) 100%);
+  background: linear-gradient(165deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.45) 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .planner-tile {

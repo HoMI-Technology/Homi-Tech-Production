@@ -36,6 +36,35 @@ describe("homepage hybrid — locked first viewport", () => {
     expect(hero).not.toMatch(/lg:grid-cols/);
   });
 
+  it("stands the object in the void at native resolution — never a stretched cover", () => {
+    // The stills are 1280×720. A full-bleed `fill` + sizes="100vw" asked the
+    // optimizer for 3840px of a 1280px raster on every retina viewport and got
+    // soft brass back. Intrinsic width/height + `contain` inside a frame
+    // narrower than the raster is the fix; re-adding `fill` undoes it.
+    expect(hero).toContain("width={1280}");
+    expect(hero).toContain("height={720}");
+    expect(hero).not.toMatch(/^\s*fill$/m);
+    expect(hero).not.toContain('sizes="100vw"');
+
+    const css = src("app", "globals.css");
+    expect(css).toContain("object-fit: contain");
+    const tf = css.slice(css.indexOf(".tf-page {"), css.indexOf(".tf-index,"));
+    expect(tf).not.toContain("object-fit: cover");
+  });
+
+  it("grounds the page on canon navy, not a flat off-token slab", () => {
+    const css = src("app", "globals.css");
+    const page = css.slice(css.indexOf(".tf-page {"), css.indexOf(".tf-scene {"));
+    expect(page).toContain("var(--color-navy)");
+    expect(page).not.toMatch(/background:\s*#040b16;/);
+  });
+
+  it("drops the invalid overflow-wrap value from the giant display", () => {
+    // `balance` is not a legal overflow-wrap value; the parser dropped it and
+    // `text-wrap: balance` was doing the work all along.
+    expect(src("app", "globals.css")).not.toContain("overflow-wrap: balance");
+  });
+
   it("is a still first screen — photo object, no pin-scroll, no traveling Assess", () => {
     expect(hero).not.toContain("HoldStage");
     expect(hero).not.toContain("WalkPersist");
@@ -83,6 +112,27 @@ describe("homepage hybrid — readable front door", () => {
     expect(home).not.toContain("35/35/30");
     expect(home).not.toContain("4:3:2");
     expect(home).not.toContain("85/60/35");
+  });
+
+  it("indexes the method with roman numerals on hairline rows", () => {
+    expect(home).toContain("tf-index");
+    expect(home).toContain("tf-numeral");
+    expect(home).toContain('numeral: "I"');
+    expect(home).toContain('numeral: "II"');
+    expect(home).toContain('numeral: "III"');
+    // Scene marks are the Terafab index, not a second nav.
+    expect(home).toContain("I — Thesis");
+    expect(home).toContain("II — The object");
+    expect(home).toContain("III — Method");
+    expect(home).toContain("IV — Boundaries");
+    expect(home).toContain("V — Close");
+  });
+
+  it("spends the accent budget once each — cyan on the close, emerald on no", () => {
+    expect((home.match(/text-emerald/g) ?? []).length).toBe(1);
+    expect(home).not.toContain("text-cyan");
+    expect(home).not.toContain("text-yellow");
+    expect((home.match(/btn-primary/g) ?? []).length).toBe(1);
   });
 
   it("stays type and air — no glass card wall, no 01/02/03", () => {
@@ -168,9 +218,7 @@ describe("homepage walk — cookie copy stays locked", () => {
     expect(banner).toContain(
       "HōMI uses essential cookies to keep you signed in. Optional analytics help us improve the",
     );
-    expect(banner).toContain(
-      "product — your choice, and you can change it anytime. No ad tech.",
-    );
+    expect(banner).toContain("product — your choice, and you can change it anytime. No ad tech.");
     expect(banner).toContain("Reject optional");
     expect(banner).toContain("Accept optional");
     expect(banner).toContain("Cookie policy");
