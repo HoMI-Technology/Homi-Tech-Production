@@ -114,6 +114,14 @@
   --sidebar-verdict-tint: rgba(255, 255, 255, 0.06);
 }
 
+/* Object-scene scrim progress. Must live at the top level so the
+   view() timeline can interpolate opacity without a scroll listener. */
+@property --p {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
 /* ── Product chrome (AppHeader / HeaderShell) ────────────────────
    One-line operate bar: short primary, workspace dropdown, icon tools. */
 .chrome-nav-link {
@@ -1655,31 +1663,93 @@ body {
     }
   }
 
-  /* TeraFab scenes: full viewports, hairline rows, field light. */
+  /* TeraFab scenes: media is the colour. Type sits on a scrim. */
   .tf-page {
-    --tf-light: 0;
     background: #040b16;
   }
   .tf-scene {
-    background:
-      radial-gradient(
-        ellipse 70% 55% at 78% 40%,
-        rgb(34 211 238 / calc(0.04 + var(--tf-light) * 0.1)),
-        transparent 68%
-      ),
-      #040b16;
+    background: #040b16;
   }
-  .tf-object-compass {
-    pointer-events: none;
+  .tf-hero {
+    min-height: calc(100dvh - var(--nav-offset));
+  }
+  .tf-media {
     position: absolute;
-    inset: auto 4% 22% auto;
-    width: min(52vmin, 22rem);
-    opacity: 0.85;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 72% 50%;
+    pointer-events: none;
   }
-  @media (min-width: 64rem) {
-    .tf-object-compass {
-      inset: 18% 2% 18% 52%;
-      width: auto;
+  .tf-hero-scrim,
+  .tf-object-scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .tf-hero-scrim {
+    background:
+      linear-gradient(
+        90deg,
+        rgb(4 11 22 / 0.88) 0%,
+        rgb(4 11 22 / 0.58) 28%,
+        rgb(4 11 22 / 0.18) 52%,
+        transparent 78%
+      ),
+      linear-gradient(
+        180deg,
+        rgb(4 11 22 / 0.45) 0%,
+        transparent 28%,
+        rgb(4 11 22 / 0.82) 100%
+      );
+  }
+  .tf-object-scene {
+    --p: 0;
+    animation: tf-object-light linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 50%;
+  }
+  .tf-object-scene .tf-media {
+    object-position: 50% 48%;
+  }
+  .tf-object-scrim {
+    background:
+      linear-gradient(
+        90deg,
+        rgb(4 11 22 / 0.9) 0%,
+        rgb(4 11 22 / 0.55) 36%,
+        rgb(4 11 22 / 0.2) 62%,
+        transparent 82%
+      ),
+      linear-gradient(180deg, rgb(4 11 22 / 0.55) 0%, transparent 24%, rgb(4 11 22 / 0.78) 100%);
+    opacity: calc(1 - var(--p) * 0.82);
+  }
+  @keyframes tf-object-light {
+    from {
+      --p: 0;
+    }
+    to {
+      --p: 1;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tf-object-scene {
+      animation: none;
+      --p: 1;
+    }
+  }
+  @supports not (animation-timeline: view()) {
+    .tf-object-scene {
+      animation: none;
+      --p: 1;
+    }
+  }
+  @media (max-width: 47.99rem) {
+    .tf-media {
+      object-position: 78% 42%;
     }
   }
   .tf-rows {
@@ -1704,6 +1774,26 @@ body {
       grid-template-columns: 1fr;
       gap: 0.4rem;
     }
+  }
+  .tf-not {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .tf-not > li + li {
+    margin-top: 2.5rem;
+  }
+  .tf-not > li > p:first-child {
+    color: var(--color-light);
+    font-size: 1.25rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .tf-not > li > p:last-child {
+    margin-top: 0.4rem;
+    color: var(--color-dim);
+    font-size: 1.05rem;
+    line-height: 1.5;
   }
 
   /* One traveling compass — field (right 38%) then object (left, small),

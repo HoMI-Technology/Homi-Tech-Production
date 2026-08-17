@@ -36,14 +36,22 @@ describe("homepage hybrid — locked first viewport", () => {
     expect(hero).not.toMatch(/lg:grid-cols/);
   });
 
-  it("is a still first screen — no pin-scroll hold and no traveling Assess", () => {
+  it("is a still first screen — photo object, no pin-scroll, no traveling Assess", () => {
     expect(hero).not.toContain("HoldStage");
     expect(hero).not.toContain("WalkPersist");
     expect(hero).not.toContain("walk-travel-assess");
-    expect(hero).toContain("<CinematicCompass");
-    expect((hero.match(/<CinematicCompass/g) ?? []).length).toBe(1);
+    expect(hero).not.toContain("CinematicCompass");
+    expect(hero).toContain("/marketing/home/object-hero.jpg");
     expect(hero).not.toContain("4:3:2");
     expect(hero).not.toContain("85/60/35");
+  });
+
+  it("keeps hero padding and stack inside the first viewport", () => {
+    expect(hero).toContain("pt-24");
+    expect(hero).not.toContain("pt-28");
+    expect(hero).not.toContain("pt-32");
+    expect((hero.match(/<p[\s>]/g) ?? []).length).toBe(1);
+    expect(src("app", "globals.css")).toContain("min-height: calc(100dvh - var(--nav-offset))");
   });
 
   it("keeps What this is as a text kicker, not a pill", () => {
@@ -86,6 +94,10 @@ describe("homepage hybrid — readable front door", () => {
     expect(home).not.toContain('"02"');
     expect(home).not.toContain('"03"');
     expect(home).not.toContain("score-numeral");
+    expect(home).not.toContain("CinematicCompass");
+    expect(home).not.toContain("CinemaFX");
+    expect(home).toContain("/marketing/home/object-key.jpg");
+    expect(home).toContain("ObjectReveal");
   });
 
   it("says what HōMI is not, without a brochure table", () => {
@@ -230,6 +242,7 @@ describe("homepage hybrid — brochure inventory is unmounted", () => {
 describe("homepage hybrid — no scroll jack", () => {
   const files = [
     src("components", "home", "InterviewHero.tsx"),
+    src("components", "home", "ObjectReveal.tsx"),
     src("app", "(marketing)", "page.tsx"),
   ].join("\n");
 
@@ -239,6 +252,15 @@ describe("homepage hybrid — no scroll jack", () => {
     expect(files).not.toMatch(
       /from\s+["'](?:gsap|lenis|split-type|@studio-freight\/lenis|three)["']/,
     );
+    expect(files).not.toContain('addEventListener("scroll"');
+    expect(files).not.toContain("window.scrollY");
+  });
+
+  it("lifts the object scrim with a view timeline, not a scroll listener", () => {
+    const css = src("app", "globals.css");
+    expect(css).toContain("animation-timeline: view()");
+    expect(css).toContain("@property --p");
+    expect(src("components", "home", "ObjectReveal.tsx")).not.toContain("useEffect");
   });
 
   it("keeps five marketing nav items", () => {

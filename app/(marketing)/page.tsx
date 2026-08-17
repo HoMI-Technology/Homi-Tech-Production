@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { InterviewHero } from "@/components/home/InterviewHero";
-import { CinematicCompass } from "@/components/home/CinematicCompass";
-import { CinemaFX } from "@/components/home/CinemaFX";
+import { ObjectReveal } from "@/components/home/ObjectReveal";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
 import { TAGLINES } from "@/lib/brand";
@@ -62,14 +62,10 @@ export default function MarketingHomePage() {
     <div className="tf-page">
       <JsonLd data={organizationJsonLd(SITE_URL, "/icon-512-v2.png")} />
       <JsonLd data={websiteJsonLd(SITE_URL)} />
-      <CinemaFX />
 
       <InterviewHero />
 
-      <section
-        id="statement"
-        className="tf-scene relative flex min-h-[100dvh] flex-col justify-end pb-24 pt-32"
-      >
+      <section id="statement" className="tf-scene relative py-28 sm:py-36">
         <div className={AXIS}>
           <h2
             className="type-giant max-w-4xl font-display font-semibold"
@@ -87,7 +83,7 @@ export default function MarketingHomePage() {
         </div>
       </section>
 
-      <section className="tf-scene relative flex min-h-[100dvh] flex-col justify-end pb-24 pt-32">
+      <section className="tf-scene relative py-16 sm:py-20">
         <div className={AXIS}>
           <p className="type-giant max-w-4xl font-display font-semibold text-light">
             Not yet is not <span className="text-emerald">no</span>.
@@ -95,18 +91,23 @@ export default function MarketingHomePage() {
         </div>
       </section>
 
-      <section className="tf-scene relative flex min-h-[100dvh] flex-col justify-end overflow-hidden pb-24 pt-32">
-        <div className="tf-object-compass" aria-hidden>
-          <CinematicCompass responsive keyholePulse={false} />
-        </div>
-        <div className={AXIS}>
+      <ObjectReveal className="tf-object-scene relative flex min-h-[100dvh] flex-col justify-end overflow-hidden pb-20 pt-24">
+        <Image
+          src="/marketing/home/object-key.jpg"
+          alt=""
+          fill
+          sizes="100vw"
+          className="tf-media"
+        />
+        <div className="tf-object-scrim" aria-hidden />
+        <div className={`${AXIS} relative z-10`}>
           <p className="type-display max-w-3xl font-display font-normal text-light">
             The compass that becomes a key when you&rsquo;re finally ready to turn it.
           </p>
         </div>
-      </section>
+      </ObjectReveal>
 
-      <section className="tf-scene relative flex min-h-[100dvh] flex-col justify-end pb-24 pt-32">
+      <section className="tf-scene relative py-28 sm:py-32">
         <div className={AXIS}>
           <ul className="tf-rows max-w-3xl">
             {STEPS.map((item) => (
@@ -124,16 +125,16 @@ export default function MarketingHomePage() {
         </div>
       </section>
 
-      <section className="tf-scene relative flex min-h-[100dvh] flex-col justify-end pb-24 pt-32">
+      <section className="tf-scene relative pb-28 pt-8 sm:pt-12">
         <div className={AXIS}>
           <h2 className="type-display max-w-3xl font-display font-normal">
             What HōMI is not
           </h2>
-          <ul className="tf-rows mt-12 max-w-3xl">
+          <ul className="tf-not mt-16 max-w-2xl">
             {NOT_ITEMS.map((item) => (
               <li key={item.title}>
-                <span>{item.title}</span>
-                <span>{item.body}</span>
+                <p>{item.title}</p>
+                <p>{item.body}</p>
               </li>
             ))}
           </ul>
@@ -142,7 +143,7 @@ export default function MarketingHomePage() {
 
       <section
         id="waitlist"
-        className="tf-scene relative flex min-h-[100dvh] flex-col justify-end pb-28 pt-32"
+        className="tf-scene relative flex min-h-[80dvh] flex-col justify-center pb-28 pt-24"
       >
         <div className={AXIS}>
           <p className="type-giant max-w-3xl font-display font-semibold text-light">
