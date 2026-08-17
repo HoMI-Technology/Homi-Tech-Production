@@ -24,8 +24,11 @@ describe("guest /assessment is First Moment — page gate", () => {
     expect(page).toContain("getCachedUser");
     expect(page).toContain("PRIMARY_CLOSE_HREF");
     expect(page).toMatch(/if\s*\(\s*!user\s*\)\s*redirect\(\s*PRIMARY_CLOSE_HREF\s*\)/);
-    expect(page).toMatch(/catch\s*\{[\s\S]*redirect\(\s*PRIMARY_CLOSE_HREF\s*\)/);
-    expect(page.indexOf("redirect(PRIMARY_CLOSE_HREF)")).toBeLessThan(page.indexOf("<FullAssessmentFlow"));
+    expect(page).toContain("isNextRedirectError");
+    expect(page).toMatch(/if\s*\(\s*isNextRedirectError\s*\(/);
+    expect(page.indexOf("redirect(PRIMARY_CLOSE_HREF)")).toBeLessThan(
+      page.indexOf("<FullAssessmentFlow"),
+    );
   });
 
   it("still renders FullAssessmentFlow for a signed-in user", () => {

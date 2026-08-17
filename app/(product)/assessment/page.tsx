@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { FullAssessmentFlow } from "@/components/assessment/FullAssessmentFlow";
 import { PRIMARY_CLOSE_HREF } from "@/components/marketing/first-moment-copy";
+import { isNextRedirectError } from "@/lib/dashboard/fold-truth";
 import { getCachedUser } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -21,7 +22,8 @@ export default async function AssessmentPage() {
   try {
     const user = await getCachedUser();
     if (!user) redirect(PRIMARY_CLOSE_HREF);
-  } catch {
+  } catch (error) {
+    if (isNextRedirectError(error)) throw error;
     redirect(PRIMARY_CLOSE_HREF);
   }
 

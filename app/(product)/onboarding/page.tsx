@@ -2,17 +2,20 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { PILLARS } from "@/lib/brand";
 import { loadLocalResult } from "@/lib/assessment/storage";
+import { ONBOARDING_SKIP_HREF } from "@/lib/dashboard/fold-truth";
 
 const STEPS = ["What HōMI is", "What to expect", "Where to start"] as const;
 
 export default function OnboardingPage() {
+  const router = useRouter();
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
 
-  async function finish() {
+  async function finish(next?: typeof ONBOARDING_SKIP_HREF) {
     setSaving(true);
     try {
       const supabase = createClient();
@@ -44,6 +47,7 @@ export default function OnboardingPage() {
       // Ignore — onboarding completion is a nicety, never a blocker.
     } finally {
       setSaving(false);
+      if (next) router.push(next);
     }
   }
 
@@ -70,7 +74,13 @@ export default function OnboardingPage() {
       <div className="glass p-8 sm:p-10">
         {step === 0 && <StepWhatIsHomi />}
         {step === 1 && <StepWhatToExpect />}
-        {step === 2 && <StepWhereToStart saving={saving} onFinish={finish} />}
+        {step === 2 && (
+          <StepWhereToStart
+            saving={saving}
+            onFinish={finish}
+            onSkip={() => finish(ONBOARDING_SKIP_HREF)}
+          />
+        )}
 
         {step < 2 && (
           <div className="mt-10 flex items-center justify-between">
@@ -181,9 +191,11 @@ function StepWhatToExpect() {
 function StepWhereToStart({
   saving,
   onFinish,
+  onSkip,
 }: {
   saving: boolean;
   onFinish: () => Promise<void>;
+  onSkip: () => Promise<void>;
 }) {
   return (
     <div>
@@ -211,7 +223,7 @@ function StepWhereToStart({
         <button
           type="button"
           disabled={saving}
-          onClick={onFinish}
+          onClick={onSkip}
           className="text-xs text-dim underline decoration-dotted underline-offset-4 hover:text-light disabled:opacity-60"
         >
           {saving ? "Saving…" : "Skip for now"}
