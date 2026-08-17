@@ -5,7 +5,7 @@ import { InterviewHero } from "@/components/home/InterviewHero";
 import { ObjectReveal } from "@/components/home/ObjectReveal";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
-import { TAGLINES } from "@/lib/brand";
+import { PILLARS, TAGLINES } from "@/lib/brand";
 import { SITE_URL } from "@/lib/seo/site";
 import { WaitlistForm } from "@/components/marketing/WaitlistForm";
 import { PRIMARY_CLOSE_HREF, PRIMARY_CLOSE_LABEL } from "@/components/marketing/first-moment-copy";
@@ -19,17 +19,14 @@ export const metadata: Metadata = {
 
 const STEPS = [
   {
-    numeral: "I",
     title: "Assess",
     copy: "Answer honest questions across Financial Reality, Emotional Truth, and Perfect Timing. Sliders, not essays.",
   },
   {
-    numeral: "II",
     title: "Verdict",
     copy: "You get an honest verdict. Hard-stops override the math when something is not safe to build on.",
   },
   {
-    numeral: "III",
     title: "Build",
     copy: "Not yet is a starting line, not a wall. You get a map: the specific, ordered things to build first.",
   },
@@ -50,17 +47,14 @@ const NOT_ITEMS = [
   },
 ] as const;
 
-const AXIS = "mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-8";
-
 /**
- * TeraFab craft (Benji Taylor), HōMI identity.
+ * TeraFab craft, HōMI identity.
  *
- * One idea per viewport. One left axis. Giant Fraunces, mono index marks,
- * hairline rows — no card wall, no glass, no numbered step chips. The
- * compass is the single object and it stands in the void at its native
- * resolution rather than stretching across the viewport.
+ * Built against the real reference (terafab.ai), not a memory of it: flat
+ * ground, restrained display type at weight 300, a 12-column structural
+ * guide overlay, hairline tier rows that light on entry, and flush
+ * hard-edged object panels on the grid.
  *
- * Accent budget: cyan twice (hero rule, CTA), emerald once (“no”).
  * Never a fake 0-100 HōMI-Score.
  */
 export default function MarketingHomePage() {
@@ -69,117 +63,109 @@ export default function MarketingHomePage() {
       <JsonLd data={organizationJsonLd(SITE_URL, "/icon-512-v2.png")} />
       <JsonLd data={websiteJsonLd(SITE_URL)} />
 
+      <div className="tf-guides" aria-hidden>
+        <div className="tf-shell h-full">
+          <div className="tf-guides-grid">
+            {Array.from({ length: 12 }, (_, i) => (
+              <i key={i} />
+            ))}
+          </div>
+        </div>
+      </div>
+
       <InterviewHero />
 
-      <section id="statement" className="tf-scene py-28 sm:py-40">
-        <div className={AXIS}>
-          <div className="tf-rule max-w-5xl">
-            <span className="tf-mark">I — Thesis</span>
-          </div>
-          <h2
-            className="type-giant mt-12 max-w-5xl font-display font-semibold"
-            style={{ textWrap: "balance" }}
-          >
+      <section id="statement" className="tf-scene tf-state">
+        <div className="tf-shell">
+          <p className="tf-statement max-w-3xl" style={{ textWrap: "balance" }}>
             {TAGLINES.primary}
-          </h2>
-          <p className="mt-12 max-w-xl text-lg leading-relaxed text-dim sm:text-xl">
+          </p>
+          <p className="tf-body mt-8 max-w-xl">
             HōMI helps you evaluate readiness for the decision itself, across Financial Reality,
             Emotional Truth, and Perfect Timing.
           </p>
-          <p className="mt-5 max-w-xl text-lg text-dim sm:text-xl">
-            HōMI enters before the commitment.
-          </p>
+          <p className="tf-body mt-3 max-w-xl">HōMI enters before the commitment.</p>
+
+          <ul className="tf-rows mt-10">
+            {PILLARS.map((pillar) => (
+              <li key={pillar.key}>
+                <span className="tf-term">{pillar.name}</span>
+                <span className="tf-gloss">{pillar.question}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
-      <section className="tf-scene flex min-h-[72dvh] flex-col justify-center py-16">
-        <div className={AXIS}>
-          <p className="type-giant max-w-4xl font-display font-semibold text-light">
+      <section className="tf-scene tf-block">
+        <div className="tf-shell">
+          <h2 className="type-display max-w-3xl font-light">
             Not yet is not <span className="text-emerald">no</span>.
-          </p>
+          </h2>
         </div>
       </section>
 
-      <ObjectReveal className="tf-object-scene tf-scene py-24 sm:py-32">
-        <div className={AXIS}>
-          <div className="tf-rule">
-            <span className="tf-mark">II — The object</span>
-          </div>
-          <div className="tf-object-plate mt-16">
+      <ObjectReveal className="tf-object-scene tf-scene tf-block">
+        <div className="tf-shell">
+          <span className="tf-code">The object</span>
+          <div className="tf-panel mt-8">
             <Image
               src="/marketing/home/object-key.jpg"
               alt=""
               width={1280}
               height={720}
-              sizes="(max-width: 47.99rem) 88vw, 56rem"
-              className="tf-media"
+              sizes="(min-width: 48rem) 566px, 90vw"
             />
           </div>
-          <p className="type-display mt-16 max-w-3xl font-display font-normal text-light">
+          <p className="tf-statement mt-10 max-w-2xl">
             The compass that becomes a key when you&rsquo;re finally ready to turn it.
           </p>
         </div>
       </ObjectReveal>
 
-      <section className="tf-scene py-28 sm:py-36">
-        <div className={AXIS}>
-          <div className="tf-rule max-w-5xl">
-            <span className="tf-mark">III — Method</span>
-          </div>
-          <ul className="tf-index mt-16 max-w-5xl">
+      <section className="tf-scene tf-block">
+        <div className="tf-shell">
+          <h2 className="type-display max-w-2xl font-light">How it works</h2>
+          <ul className="tf-rows tf-rows--wide mt-10">
             {STEPS.map((item) => (
               <li key={item.title}>
-                <span className="tf-numeral">{item.numeral}</span>
                 <span className="tf-term">{item.title}</span>
                 <span className="tf-gloss">{item.copy}</span>
               </li>
             ))}
           </ul>
-          <p className="mt-12">
-            <Link href="/how-it-works" className="text-sm text-dim hover:text-light">
+          <p className="mt-8">
+            <Link href="/how-it-works" className="tf-body hover:text-light">
               See how it works
             </Link>
           </p>
         </div>
       </section>
 
-      <section className="tf-scene py-24 sm:py-32">
-        <div className={AXIS}>
-          <div className="tf-rule max-w-5xl">
-            <span className="tf-mark">IV — Boundaries</span>
-          </div>
-          <h2 className="type-display mt-12 max-w-3xl font-display font-normal">
-            What HōMI is not
-          </h2>
-          <ul className="tf-not mt-14 max-w-5xl">
+      <section className="tf-scene tf-block">
+        <div className="tf-shell">
+          <h2 className="type-display max-w-2xl font-light">What HōMI is not</h2>
+          <ul className="tf-rows tf-rows--wide mt-10">
             {NOT_ITEMS.map((item) => (
               <li key={item.title}>
-                <p>{item.title}</p>
-                <p>{item.body}</p>
+                <span className="tf-term">{item.title}</span>
+                <span className="tf-gloss">{item.body}</span>
               </li>
             ))}
           </ul>
         </div>
       </section>
 
-      <section
-        id="waitlist"
-        className="tf-scene flex min-h-[86dvh] flex-col justify-center pb-32 pt-24"
-      >
-        <div className={AXIS}>
-          <div className="tf-rule max-w-5xl">
-            <span className="tf-mark">V — Close</span>
-          </div>
-          <p className="type-giant mt-12 max-w-3xl font-display font-semibold text-light">
-            Clarity, not commission.
-          </p>
+      <section id="waitlist" className="tf-scene tf-block">
+        <div className="tf-shell">
+          <h2 className="type-giant max-w-2xl font-light">Clarity, not commission.</h2>
           <Link
             href={`${PRIMARY_CLOSE_HREF}?src=home`}
-            className="btn btn-primary mt-12 px-8 py-3.5 text-base"
+            className="btn btn-primary mt-10 px-8 py-3.5 text-base"
           >
             {PRIMARY_CLOSE_LABEL}
           </Link>
-          <div className="walk-waitlist-form mt-20 w-full max-w-sm">
+          <div className="walk-waitlist-form mt-16 w-full max-w-sm">
             <WaitlistForm source="landing" idPrefix="landing-waitlist" surface="whisper" />
           </div>
         </div>

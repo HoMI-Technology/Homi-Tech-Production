@@ -13,59 +13,54 @@ function handleCtaClick(): void {
 }
 
 /**
- * TeraFab hero — the void, the question, the object.
+ * TeraFab hero, HōMI words.
  *
- * The compass is a sculpture standing in navy, not a background plate:
- * `contain` inside a frame narrower than the 1280×720 raster, so the brass
- * is never upscaled. Type holds the left axis on a navy veil.
+ * Restrained per the reference: the title caps at 4.4rem in the display
+ * face at weight 300, not at cinema scale. Kicker is a 13px sans line in
+ * secondary ink. The object is a flush hard-edged panel on the grid, not
+ * a full-bleed wash. A hairline foot carries the three pillars.
  *
- * Locked: question, companion line, inversion, one Assess. Hero stack is
- * four units — kicker, headline, one subtext, CTA — closed by the pillar
- * index. Assess does not travel.
+ * Locked: question, companion line, inversion, one Assess. Assess does
+ * not travel.
  */
 export function InterviewHero() {
   return (
-    <section className="tf-hero tf-scene relative flex flex-col justify-end overflow-hidden pb-10 pt-24 sm:pb-14">
-      <div className="tf-plate tf-hero-plate" aria-hidden>
-        <Image
-          src="/marketing/home/object-hero.jpg"
-          alt=""
-          width={1280}
-          height={720}
-          priority
-          className="tf-media"
-        />
-      </div>
-      <div className="tf-veil" aria-hidden />
-
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-start px-5 sm:px-6 lg:px-8">
-        <div className="relative pt-8">
-          <a href="#statement" className="walk-kicker">
+    <section className="tf-hero tf-scene relative flex flex-col pt-24">
+      <div className="tf-shell relative flex-1">
+        <div className="tf-hero-copy">
+          <a href="#statement" className="tf-kicker">
             What this is
           </a>
-          <h1
-            className="type-giant w-full max-w-[16ch] whitespace-normal font-display font-semibold"
-            style={{ textWrap: "balance" }}
-          >
+          <h1 className="type-giant mt-7 max-w-[14ch] font-light" style={{ textWrap: "balance" }}>
             Will you be okay?
           </h1>
+          <p className="tf-lede mt-7 max-w-[38ch] font-light">
+            A Decision Companion.{" "}
+            <span className="text-dim">Everyone else tells you how. HōMI tells you if.</span>
+          </p>
+          <Link
+            href={`${PRIMARY_CLOSE_HREF}?src=hero`}
+            className="btn btn-primary mt-9 px-8 py-3.5 text-base"
+            onClick={handleCtaClick}
+          >
+            {PRIMARY_CLOSE_LABEL}
+          </Link>
         </div>
-        <div className="tf-hero-rule mt-8" aria-hidden />
-        <p className="mt-8 max-w-[42ch] text-lg font-light leading-snug text-light sm:text-xl">
-          A Decision Companion.{" "}
-          <span className="text-dim">Everyone else tells you how. HōMI tells you if.</span>
-        </p>
-        <Link
-          href={`${PRIMARY_CLOSE_HREF}?src=hero`}
-          className="btn btn-primary mt-10 px-8 py-3.5 text-base"
-          onClick={handleCtaClick}
-        >
-          {PRIMARY_CLOSE_LABEL}
-        </Link>
 
-        <div className="tf-rule mt-14 w-full flex-wrap gap-y-2 sm:mt-20">
+        <div className="tf-panel tf-hero-panel">
+          <Image
+            src="/marketing/home/object-hero.jpg"
+            alt=""
+            width={1280}
+            height={720}
+            priority
+            sizes="(min-width: 64rem) 46vw, 90vw"
+          />
+        </div>
+
+        <div className="tf-hero-foot">
           {PILLARS.map((pillar) => (
-            <span key={pillar.key} className="tf-mark">
+            <span key={pillar.key} className="tf-code">
               {pillar.name}
             </span>
           ))}

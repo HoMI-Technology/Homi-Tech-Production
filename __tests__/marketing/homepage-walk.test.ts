@@ -36,27 +36,27 @@ describe("homepage hybrid — locked first viewport", () => {
     expect(hero).not.toMatch(/lg:grid-cols/);
   });
 
-  it("stands the object in the void at native resolution — never a stretched cover", () => {
-    // The stills are 1280×720. A full-bleed `fill` + sizes="100vw" asked the
-    // optimizer for 3840px of a 1280px raster on every retina viewport and got
-    // soft brass back. Intrinsic width/height + `contain` inside a frame
-    // narrower than the raster is the fix; re-adding `fill` undoes it.
+  it("keeps the object panel inside the raster it actually has", () => {
+    // The stills are 1280×720 and cannot be re-rendered here. A full-bleed
+    // `fill` + sizes="100vw" asked the optimizer for 3840px of them on every
+    // retina viewport; the optimizer does not upscale, so the brass came back
+    // soft. Intrinsic width/height plus a panel capped at 6 of 12 columns
+    // keeps the object oversampled even at 2×. Re-adding `fill` undoes it.
     expect(hero).toContain("width={1280}");
     expect(hero).toContain("height={720}");
     expect(hero).not.toMatch(/^\s*fill$/m);
     expect(hero).not.toContain('sizes="100vw"');
-
-    const css = src("app", "globals.css");
-    expect(css).toContain("object-fit: contain");
-    const tf = css.slice(css.indexOf(".tf-page {"), css.indexOf(".tf-index,"));
-    expect(tf).not.toContain("object-fit: cover");
+    expect(src("app", "globals.css")).toContain("max-width: 566px");
   });
 
-  it("grounds the page on canon navy, not a flat off-token slab", () => {
+  it("grounds the page on flat canon navy — no gradient, no off-token slab", () => {
+    // The reference's ground is flat. So is this one; the previous build's
+    // radial+linear ramp was neither the reference nor canon.
     const css = src("app", "globals.css");
-    const page = css.slice(css.indexOf(".tf-page {"), css.indexOf(".tf-scene {"));
-    expect(page).toContain("var(--color-navy)");
+    const page = css.slice(css.indexOf(".tf-page {"), css.indexOf(".tf-shell {"));
+    expect(page).toContain("background: var(--color-navy)");
     expect(page).not.toMatch(/background:\s*#040b16;/);
+    expect(page).not.toContain("radial-gradient");
   });
 
   it("drops the invalid overflow-wrap value from the giant display", () => {
@@ -84,7 +84,11 @@ describe("homepage hybrid — locked first viewport", () => {
   });
 
   it("keeps What this is as a text kicker, not a pill", () => {
-    expect(hero).toContain("walk-kicker");
+    // `walk-kicker` is walk-era CSS: absolutely positioned, uppercase, wide
+    // tracked, underlined. It escaped its column on mobile and is the opposite
+    // of the reference's plain 13px sans line. `tf-kicker` replaces it.
+    expect(hero).toContain("tf-kicker");
+    expect(hero).not.toContain("walk-kicker");
     expect(hero).toContain("What this is");
     expect(hero).not.toMatch(/What this is[\s\S]{0,80}btn/);
   });
@@ -114,18 +118,43 @@ describe("homepage hybrid — readable front door", () => {
     expect(home).not.toContain("85/60/35");
   });
 
-  it("indexes the method with roman numerals on hairline rows", () => {
-    expect(home).toContain("tf-index");
-    expect(home).toContain("tf-numeral");
-    expect(home).toContain('numeral: "I"');
-    expect(home).toContain('numeral: "II"');
-    expect(home).toContain('numeral: "III"');
-    // Scene marks are the Terafab index, not a second nav.
-    expect(home).toContain("I — Thesis");
-    expect(home).toContain("II — The object");
-    expect(home).toContain("III — Method");
-    expect(home).toContain("IV — Boundaries");
-    expect(home).toContain("V — Close");
+  it("carries the reference's grammar — guides, tier rows, flush panels", () => {
+    // Measured off terafab.ai's own stylesheet, not recalled: a 12-column
+    // structural guide overlay, hairline tier rows, and flush hard-edged
+    // object panels. Roman-numeral scene marks were a misread of that site's
+    // Kardashev *content* as a structural device — do not bring them back.
+    expect(home).toContain("tf-guides-grid");
+    expect(home).toContain("tf-rows");
+    expect(home).toContain("tf-panel");
+    expect(home).not.toMatch(/numeral: "I+"/);
+    expect(home).not.toContain("I — Thesis");
+    expect(home).not.toContain("V — Close");
+  });
+
+  it("keeps display type restrained and light, per the reference", () => {
+    // The reference's hero title caps at 4.4rem at weight 300 — it is not
+    // cinema-scale, and it is never bold. A 7.5rem semibold headline was the
+    // single biggest reason the last pass did not read as that site.
+    const css = src("app", "globals.css");
+    const giant = css.slice(
+      css.indexOf(".tf-page .type-giant {"),
+      css.indexOf(".tf-page .type-display {"),
+    );
+    expect(giant).toContain("clamp(2.4rem, 5.2vw, 4.4rem)");
+    expect(giant).toContain("font-weight: 300");
+    expect(giant).toContain("letter-spacing: -0.035em");
+    const heroSrc = src("components", "home", "InterviewHero.tsx");
+    expect(heroSrc).toContain("font-light");
+    expect(heroSrc).not.toContain("font-semibold");
+    expect(home).not.toContain("font-semibold");
+  });
+
+  it("keeps the kicker a plain 13px sans line, not a wide-tracked overline", () => {
+    const css = src("app", "globals.css");
+    const kicker = css.slice(css.indexOf(".tf-kicker {"), css.indexOf(".tf-code {"));
+    expect(kicker).toContain("font-size: 13px");
+    expect(kicker).toContain("font-weight: 400");
+    expect(kicker).not.toContain("text-transform: uppercase");
   });
 
   it("spends the accent budget once each — cyan on the close, emerald on no", () => {
