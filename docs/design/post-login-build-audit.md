@@ -2,7 +2,7 @@
 title: Post-login audit — let users experience their build
 source: Claude Code (design audit, two-lens review)
 date: 2026-08-17
-revision: 2 — rewritten after deeper research; rev 1 contained one retracted finding
+revision: 3 — adds an observational pass (app actually run); rev 1 contained one retracted finding
 status: design — not yet implemented
 surface: post-login (`/dashboard`, `/path`, `/plan`, `/results`, `/onboarding`)
 sections: Section 1 (Assessment/Readiness surfaces) + Section 5 (Chrome/IA) — no writes to Section 0 or 8
@@ -33,27 +33,56 @@ with nothing until phase 04.
 
 | Did | Did not |
 | --- | --- |
-| Read the post-login route tree, product layout, chrome, nav catalog | **Never ran the app** — every screen description is read from source |
-| Traced auth → redirect → landing for both sign-in and sign-up | No analytics, funnel data, or retention numbers |
-| Read dashboard / results / path / plan / onboarding end to end | No user research or usability testing |
-| Traced the Companion host, widget, and context spine | No screen-reader accessibility pass |
-| Grepped instrumentation, hard-stop handling, persistence | Did not deep-read the 16 tool calculators or 11 admin pages |
-| Counted routes and nav entries directly rather than estimating | Did not test on a real mobile device |
+| Read the post-login route tree, product layout, chrome, nav catalog | No analytics, funnel data, or retention numbers |
+| Traced auth → redirect → landing for both sign-in and sign-up | No user research or usability testing |
+| Read dashboard / results / path / plan / onboarding end to end | No screen-reader accessibility pass |
+| Traced the Companion host, widget, and context spine | Did not deep-read the 16 tool calculators or 11 admin pages |
+| Grepped instrumentation, hard-stop handling, persistence | Did not test on a real mobile device |
+| Counted routes and nav entries directly rather than estimating | **Never reached the authenticated dashboard** — see below |
+| **Ran the app** (rev 3): `npm ci`, `next dev`, `next build`, `next start`, driven with Playwright | |
 
-**Confidence labels.** _Verified_ = the code path was traced and the claim follows
-directly. _Inferred_ = strong code evidence, never executed. Nothing here is
-_observed_. Severity is a prioritisation hypothesis, not a measurement — which is
-itself finding F3.
+**The observational pass (rev 3).** Revisions 1 and 2 were read entirely from
+source. Rev 3 installs, builds, and runs the app, and drives it with a browser.
+Scope limit, stated plainly: **the authenticated dashboard was never observed.**
+The only reachable Supabase project is production (per AGENTS.md), and creating a
+user there to look at a dashboard is not an acceptable way to run an audit. So
+every dashboard-specific finding (F1, F2, F4, F6, F7, F9, F10) remains
+code-verified, not observed. What the browser could reach — the guest funnel and
+the public product routes — was observed directly.
+
+Browsing was strictly read-only: public routes only, no sign-in, no writes. The
+one button clicked (`Skip for now`) cannot write while signed out, because its
+handler is guarded by `if (user)`.
+
+**Confidence labels.** _Observed_ = executed in a browser against a running
+build. _Verified_ = the code path was traced and the claim follows directly.
+_Inferred_ = strong code evidence, never executed. Severity remains a
+prioritisation hypothesis rather than a measurement — which is itself finding F3.
+
+### What the observational pass returned
+
+| Check | Result |
+| --- | --- |
+| `/dashboard` as a guest → `/auth/sign-in?next=%2Fdashboard` | CONFIRMED |
+| `/results` as a guest → "No results yet", no 4-band verdict painted | CONFIRMED |
+| Onboarding "Skip for now" performs no navigation | **CONFIRMED — F5 upgraded to observed** |
+| Guests cannot reach the full assessment (rev 2's retraction) | CONFIRMED — but via a broken mechanism, see **F11** |
+
+`next build` also completed successfully (exit 0), which independently establishes
+that the tree compiles — something CI has been unable to report since
+2026-08-16T23:34Z.
 
 ---
 
 ## Corrections to revision 1
 
 - **Retracted.** Rev 1 claimed an anonymous user could take the assessment and lose
-  it on sign-in. False. `app/(product)/assessment/page.tsx:23` server-redirects
-  guests to First Moment, and `saveLocalResult` refuses shadow-kind payloads
+  it on sign-in. False. `app/(product)/assessment/page.tsx:23` sends guests to First
+  Moment, and `saveLocalResult` refuses shadow-kind payloads
   (`lib/assessment/storage.ts:141`), so a guest cannot hold a score-shaped local
-  result at all. The finding does not exist.
+  result at all. The finding does not exist. **Rev 3 confirms this in a browser** —
+  a guest aiming at `/assessment` does land on `/first-moment`. The retraction was
+  correct; the *mechanism* delivering it is not (F11).
 - **Overstated.** "70 product pages" as evidence of bloat is misleading — it includes
   16 tool calculators, 11 admin pages, and 4 report views. Consumer-reachable is
   **36**; the rail shows **14**.
@@ -166,7 +195,7 @@ no build at first paint. It renders after the instrument, under the fold.
 **Fix:** the page already runs six parallel server queries in one `Promise.all`.
 Make it seven. Highest value-to-risk change in the document.
 
-### F5 · HIGH · Verified — Onboarding carries three vestigial mechanisms
+### F5 · HIGH · **Observed** — Onboarding carries three vestigial mechanisms
 
 - **Dead button.** No `useRouter`, no `redirect`, anywhere in the file. "Skip for
   now" writes a flag and leaves the user on step 3.
@@ -175,8 +204,79 @@ Make it seven. Highest value-to-risk change in the document.
 - **Unreachable replay.** The local-assessment rescue at `:27` cannot fire — guests
   can no longer take an assessment.
 
+**Observed in a browser (rev 3).** Loaded `/onboarding`, advanced to step 3, clicked
+"Skip for now", waited 3 seconds:
+
+```
+url  http://localhost:3000/onboarding → http://localhost:3000/onboarding
+h1   "Where do you want to start?"    → "Where do you want to start?"
+```
+
+Nothing moves. This is no longer an inference from a missing import — it is the
+observed behaviour of the button.
+
 **Fix:** navigate on skip; read the flag or drop the column; delete the replay. The
 first is a bug fix, not a design decision.
+
+### F11 · MEDIUM · **Observed** — The guest guard on `/assessment` swallows its own redirect
+
+Found only by running the app; three passes of reading the source missed it.
+
+```ts
+try {
+  const user = await getCachedUser();
+  if (!user) redirect(PRIMARY_CLOSE_HREF);   // throws NEXT_REDIRECT
+} catch {                                     // ← and this catches it
+  redirect(PRIMARY_CLOSE_HREF);
+}
+```
+
+`redirect()` signals by throwing. The bare `catch` swallows that throw — the classic
+Next.js footgun. Instrumenting the handler proved it directly:
+
+```
+[PROBE] user = null -> will redirect: true
+[PROBE] catch fired, digest = NEXT_REDIRECT;replace;/first-moment;307
+GET /assessment 200
+```
+
+The intended 307 never reaches the client. Instead the guest gets a **200**, the
+page streams, and a client-side navigation bounces them to `/first-moment`.
+
+**Measured in production mode** (`next build && next start`) — not dev, because dev
+timings are not trustworthy:
+
+| Path | Status | Bytes | Time to `/first-moment` |
+| --- | --- | --- | --- |
+| `/assessment` (broken guard) | 200 | 66 KB | **401 ms** |
+| `/first-moment` (direct) | 200 | 66 KB | 114 ms |
+
+**Correcting my own first read:** in `next dev` this looked catastrophic — 5–8
+seconds of a "Finding your bearings…" screen. That was a dev artifact. In a
+production build the user-visible cost is roughly **290 ms** and one wasted 66 KB
+round trip. Real, but not dramatic. Reporting the dev number as the finding would
+have been the kind of overstatement rev 2 had to correct elsewhere.
+
+The durable cost is not the delay, it is what crawlers get:
+
+```html
+<title>The Full Assessment · HōMI</title>
+<link rel="canonical" href="https://…/assessment" />
+```
+
+A **self-referential canonical on a 200 page that redirects every human away.** The
+canonical asserts `/assessment` is the indexable destination for a URL no signed-out
+visitor can stay on.
+
+Guest-reachable entries into this path: the `/results` empty state, `/path` (×2),
+`/tools/preflight`, and `/onboarding`. The primary marketing nav is correctly wired
+— `SiteHeader`'s "Assessment" item points at `PRIMARY_CLOSE_HREF`, not
+`/assessment` — which is why this is medium and not high.
+
+**Fix:** move the guard's `redirect()` outside the `try`, or call
+`unstable_rethrow(e)` first in the `catch`. One line. The `catch` is presumably
+there to handle a Supabase failure, which is reasonable — it just must not eat the
+control-flow throw.
 
 ### F6 · HIGH · Verified — The Companion knows the build; the page it sits on does not
 
@@ -342,7 +442,7 @@ current dashboard treats as real.
 | Phase | Work | Closes | Doctrine risk |
 | --- | --- | --- | --- |
 | 00 | Instrument the dashboard: empty-state impression, next-move click, activation funnel, return cadence | F3 | None |
-| 01 | Bug fixes, no design content: navigate on skip; read or drop `onboarding_completed`; delete unreachable replay; hide Snapshot below `lg` | F5, F10 | None |
+| 01 | Bug fixes, no design content: navigate on skip; read or drop `onboarding_completed`; delete unreachable replay; hide Snapshot below `lg`; un-swallow the `/assessment` redirect | F5, F10, F11 | None |
 | 02 | Server-render the path into the existing `Promise.all`; surface hard stops; steps-completed in the rail | F2, F4, F7 (part) | None — additive |
 | 03 | Resume ramp for abandoned assessments; state-based post-login routing | F1 | Low |
 | 04 | Invert the fold — build hero, score to rail. **Edits DESIGN.md's 3-second test in the same commit** | F7 | **PILOT required** |
