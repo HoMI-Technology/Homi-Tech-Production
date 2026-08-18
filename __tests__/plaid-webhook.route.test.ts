@@ -76,6 +76,16 @@ vi.mock("@/lib/supabase/admin", () => ({
             }),
           };
         }
+        if (table.startsWith("plaid_")) {
+          return {
+            delete: () => ({
+              eq: async () => ({ error: null }),
+            }),
+            select: () => ({
+              eq: async () => ({ data: [], error: null }),
+            }),
+          };
+        }
         throw new Error(`unexpected table ${table}`);
       },
     };
@@ -88,6 +98,21 @@ vi.mock("@/lib/plaid/sync", () => ({
     return { added: 0, modified: 0, removed: 0, accountsUpdated: 0, snapshotInserted: false };
   }),
   PlaidSyncError: class PlaidSyncError extends Error {},
+}));
+
+vi.mock("@/lib/plaid/picture", () => ({
+  syncItemPictureFromDb: vi.fn(async () => ({
+    identityAccounts: 0,
+    holdings: 0,
+    investmentTransactions: 0,
+    liabilities: 0,
+  })),
+  syncItemPicture: vi.fn(async () => ({
+    identityAccounts: 0,
+    holdings: 0,
+    investmentTransactions: 0,
+    liabilities: 0,
+  })),
 }));
 
 import { POST } from "@/app/api/plaid/webhook/route";

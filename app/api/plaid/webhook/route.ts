@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPlaidCredentials } from "@/lib/plaid/client";
 import { verifyPlaidWebhook, sha256Hex } from "@/lib/plaid/webhook-verify";
+import { syncItemPictureFromDb } from "@/lib/plaid/picture";
 import { syncItem, type SyncableItem } from "@/lib/plaid/sync";
 import type { PlaidItemStatus } from "@/types/database";
 
@@ -148,6 +149,17 @@ export async function POST(request: Request) {
       // Inline sync is acceptable here: one user's item, well inside Plaid's
       // 10-second acknowledgment window for typical delta sizes.
       await syncItem(admin, item as SyncableItem);
+      await syncItemPictureFromDb(admin, item as SyncableItem).catch(() => undefined);
+      return ack();
+    }
+
+    if (
+      (webhookType === "HOLDINGS" && webhookCode === "DEFAULT_UPDATE") ||
+      (webhookType === "INVESTMENTS_TRANSACTIONS" &&
+        (webhookCode === "DEFAULT_UPDATE" || webhookCode === "HISTORICAL_UPDATE")) ||
+      (webhookType === "LIABILITIES" && webhookCode === "DEFAULT_UPDATE")
+    ) {
+      await syncItemPictureFromDb(admin, item as SyncableItem);
       return ack();
     }
 
@@ -179,15 +191,20 @@ export async function POST(request: Request) {
           // accounts row — their only UI entry point — is already gone. Both
           // deletes are idempotent, and a failure still acks so Plaid
           // redelivers and the retry completes the purge.
-          const { error: txnError } = await admin
-            .from("plaid_transactions")
-            .delete()
-            .eq("item_id", item.id);
-          if (txnError) {
-            console.error(
-              `[plaid/webhook:${correlationId}] transaction purge failed`,
-              txnError.message,
-            );
+          for (const table of [
+            "plaid_account_owners",
+            "plaid_investment_transactions",
+            "plaid_holdings",
+            "plaid_liabilities",
+            "plaid_transactions",
+          ]) {
+            const { error: extraError } = await admin.from(table).delete().eq("item_id", item.id);
+            if (extraError) {
+              console.error(
+                `[plaid/webhook:${correlationId}] ${table} purge failed`,
+                extraError.message,
+              );
+            }
           }
           const { error: accountError } = await admin
             .from("plaid_accounts")

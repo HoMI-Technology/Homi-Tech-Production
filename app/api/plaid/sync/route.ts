@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getPlaidCredentials } from "@/lib/plaid/client";
 import { getUserEntitlements, requireCapability } from "@/lib/entitlements";
 import { getClientIp, rateLimit } from "@/lib/ratelimit";
+import { syncItemPictureFromDb } from "@/lib/plaid/picture";
 import { syncItem, type SyncableItem } from "@/lib/plaid/sync";
 
 export const runtime = "nodejs";
@@ -122,6 +123,14 @@ export async function POST(request: Request) {
     }
     try {
       await syncItem(admin, item as SyncableItem);
+      try {
+        await syncItemPictureFromDb(admin, item as SyncableItem);
+      } catch (err) {
+        console.error(
+          `[plaid/sync] picture pull failed for ${item.id}:`,
+          err instanceof Error ? err.message : "unknown error",
+        );
+      }
       results.push({ item_id: item.id, ok: true });
     } catch (err) {
       const correlationId = crypto.randomUUID();

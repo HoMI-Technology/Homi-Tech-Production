@@ -4,7 +4,10 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPlaidCredentials, plaidFetch } from "@/lib/plaid/client";
 import { decryptToken } from "@/lib/plaid/crypto";
+import { optionalPlaidRedirectUri, plaidWebhookUrl } from "@/lib/plaid/link-request";
+import { newItemLinkProducts, updateModeLinkProducts } from "@/lib/plaid/products";
 import { getUserEntitlements, requireCapability } from "@/lib/entitlements";
+import { env } from "@/lib/env";
 import { getClientIp, rateLimit } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
@@ -107,6 +110,12 @@ async function handler(request: Request) {
     }
   }
 
+  const linkExtras: Record<string, unknown> = {
+    webhook: plaidWebhookUrl(env.NEXT_PUBLIC_SITE_URL),
+  };
+  const redirectUri = optionalPlaidRedirectUri(process.env.PLAID_REDIRECT_URI);
+  if (redirectUri) linkExtras.redirect_uri = redirectUri;
+
   try {
     const response = await plaidFetch(
       "/link/token/create",
@@ -118,13 +127,16 @@ async function handler(request: Request) {
             access_token: updateAccessToken,
             country_codes: ["US"],
             language: "en",
+            ...updateModeLinkProducts(),
+            ...linkExtras,
           }
         : {
             client_name: "HōMI",
             user: { client_user_id: userId },
-            products: ["transactions"],
             country_codes: ["US"],
             language: "en",
+            ...newItemLinkProducts(),
+            ...linkExtras,
           },
       credentials,
     );

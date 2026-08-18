@@ -160,6 +160,9 @@ function plaidQueue(responses: { status: number; body: unknown }[]) {
     if (url.endsWith("/accounts/get")) {
       return new Response(JSON.stringify({ accounts: [] }), { status: 200 });
     }
+    if (url.endsWith("/item/webhook/update")) {
+      return new Response(JSON.stringify({}), { status: 200 });
+    }
     throw new Error(`unexpected Plaid call: ${url}`);
   });
   return { fetchMock: fetchMock as unknown as typeof fetch, syncRequests };
