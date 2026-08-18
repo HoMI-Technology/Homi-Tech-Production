@@ -2,6 +2,21 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { randomBytes } from "node:crypto";
 import { decryptToken } from "@/lib/plaid/crypto";
 
+vi.mock("@/lib/plaid/picture", () => ({
+  syncItemPicture: vi.fn(async () => ({
+    identityAccounts: 0,
+    holdings: 0,
+    investmentTransactions: 0,
+    liabilities: 0,
+  })),
+  syncItemPictureFromDb: vi.fn(async () => ({
+    identityAccounts: 0,
+    holdings: 0,
+    investmentTransactions: 0,
+    liabilities: 0,
+  })),
+}));
+
 /**
  * Route tests for POST /api/plaid/exchange — proves the access_token is no
  * longer discarded: it is persisted to plaid_items as AES-256-GCM ciphertext

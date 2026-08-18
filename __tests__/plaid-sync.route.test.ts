@@ -6,6 +6,21 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
  * items are read), optional {item_id} narrowing, revoked items skipped.
  */
 
+vi.mock("@/lib/plaid/picture", () => ({
+  syncItemPictureFromDb: vi.fn(async () => ({
+    identityAccounts: 0,
+    holdings: 0,
+    investmentTransactions: 0,
+    liabilities: 0,
+  })),
+  syncItemPicture: vi.fn(async () => ({
+    identityAccounts: 0,
+    holdings: 0,
+    investmentTransactions: 0,
+    liabilities: 0,
+  })),
+}));
+
 const state = vi.hoisted(() => ({
   user: null as { id: string } | null,
   tier: "plus" as string,

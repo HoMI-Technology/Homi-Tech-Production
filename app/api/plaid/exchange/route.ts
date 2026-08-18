@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPlaidCredentials, plaidFetch } from "@/lib/plaid/client";
 import { encryptToken } from "@/lib/plaid/crypto";
+import { syncItemPicture } from "@/lib/plaid/picture";
 import { getUserEntitlements, requireCapability } from "@/lib/entitlements";
 import { getClientIp, rateLimit } from "@/lib/ratelimit";
 
@@ -230,6 +231,26 @@ export async function POST(request: Request) {
           `[plaid/exchange:${correlationId}] plaid_accounts upsert failed`,
           accountsError.message,
         );
+      } else {
+        try {
+          await syncItemPicture(
+            admin,
+            {
+              id: itemRow.id,
+              user_id: userId,
+              item_id: data.item_id,
+              access_token_ct: accessTokenCt,
+              transactions_cursor: null,
+            },
+            accounts,
+          );
+        } catch (err) {
+          const correlationId = crypto.randomUUID();
+          console.error(
+            `[plaid/exchange:${correlationId}] picture pull failed:`,
+            err instanceof Error ? err.message : "unknown error",
+          );
+        }
       }
     }
 

@@ -314,6 +314,32 @@ export interface PlaidAccount {
   updated_at: string;
 }
 
+export interface PlaidHolding {
+  id: string;
+  item_id: string;
+  user_id: string;
+  account_id: string;
+  security_id: string;
+  quantity: number | null;
+  institution_price: number | null;
+  institution_value: number | null;
+  cost_basis: number | null;
+  iso_currency: string | null;
+  vested_quantity: number | null;
+  vested_value: number | null;
+  updated_at: string;
+}
+
+export interface PlaidLiability {
+  id: string;
+  item_id: string;
+  user_id: string;
+  account_id: string;
+  kind: "credit" | "student" | "mortgage" | string;
+  payload: Record<string, unknown>;
+  updated_at: string;
+}
+
 /** Finance ledger (builds on migration 20260803000001_finance_ledger.sql).
  *  Positive cents + semantic type (direction never encoded in sign).
  *  transaction_date is date-only in user's budget frame (never derive months from timestamps).

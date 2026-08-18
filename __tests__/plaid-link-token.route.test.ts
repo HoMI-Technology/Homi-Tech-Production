@@ -121,6 +121,30 @@ describe("POST /api/plaid/link-token", () => {
     const body = JSON.parse(String(init?.body));
     expect(body.user.client_user_id).toBe("user-plus-1");
     expect(body.user.client_user_id).not.toBe("anonymous");
+    expect(body.webhook).toBe("https://homitechnology.com/api/plaid/webhook");
+    expect(body.redirect_uri).toBeUndefined();
+    expect(body.products).toEqual(["transactions"]);
+    expect(body.required_if_supported_products).toEqual(["identity"]);
+    expect(body.additional_consented_products).toEqual(["investments", "liabilities"]);
+  });
+
+  it("registers the deployment webhook and an allowlisted redirect URI when set", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://homi-platform-preview.vercel.app");
+    vi.stubEnv("PLAID_REDIRECT_URI", "https://homitechnology.com/connections/oauth");
+    const plaidFetch = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(JSON.stringify({ link_token: "link-sandbox-token-2" }), { status: 200 }),
+      );
+    vi.stubGlobal("fetch", plaidFetch);
+
+    const res = await POST(req());
+    expect(res.status).toBe(200);
+
+    const [, init] = plaidFetch.mock.calls[0];
+    const body = JSON.parse(String(init?.body));
+    expect(body.webhook).toBe("https://homi-platform-preview.vercel.app/api/plaid/webhook");
+    expect(body.redirect_uri).toBe("https://homitechnology.com/connections/oauth");
   });
 
   it("creates an update-mode token bound to an OWNED item's access token (no products array)", async () => {
@@ -144,7 +168,13 @@ describe("POST /api/plaid/link-token", () => {
     const body = JSON.parse(String(init?.body));
     expect(body.access_token).toBe(RAW_TOKEN);
     expect(body.products).toBeUndefined();
+    expect(body.additional_consented_products).toEqual([
+      "investments",
+      "identity",
+      "liabilities",
+    ]);
     expect(body.user.client_user_id).toBe("user-plus-1");
+    expect(body.webhook).toBe("https://homitechnology.com/api/plaid/webhook");
   });
 
   it("404s an update-mode request for an item the caller does not own", async () => {

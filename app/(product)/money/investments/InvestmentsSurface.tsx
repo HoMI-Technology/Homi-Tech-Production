@@ -16,6 +16,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { PlaidHoldingsPanel } from "@/components/money/PlaidHoldingsPanel";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 import { LEGAL_DISCLAIMER } from "@/lib/brand";
 import { usePlannerStore } from "@/lib/planner/store";
@@ -56,10 +57,13 @@ export function InvestmentsSurface() {
           What your holdings are worth
         </h1>
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-dim">
-          Positions you enter, priced at the marks you set. Simulated — educational guidance only,
-          never a brokerage feed and never an instruction to buy or sell.
+          Linked brokerage positions when you have connected an institution,
+          plus optional manual marks. Educational guidance only — never an
+          instruction to buy or sell.
         </p>
       </header>
+
+      <PlaidHoldingsPanel />
 
       {ready ? <PortfolioPanel /> : <ProductLoadingSkeleton label="Loading portfolio" rows={3} />}
 
