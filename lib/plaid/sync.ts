@@ -26,6 +26,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getPlaidCredentials, plaidFetch } from "@/lib/plaid/client";
 import { decryptToken } from "@/lib/plaid/crypto";
+import { env } from "@/lib/env";
+import { plaidWebhookUrl } from "@/lib/plaid/link-request";
+import { registerItemWebhook } from "@/lib/plaid/register-webhook";
 
 /** Subset of a plaid_items row the sync engine needs. */
 export interface SyncableItem {
@@ -180,6 +183,14 @@ export async function syncItem(admin: SupabaseClient, item: SyncableItem): Promi
   // Held only for the duration of the Plaid calls below; never logged.
   const accessToken = decryptToken(item.access_token_ct);
   const originalCursor = item.transactions_cursor;
+
+  // Best-effort: attach our receiver on Items that were linked before
+  // /link/token/create sent `webhook`. Failure must not abort cash-flow sync.
+  try {
+    await registerItemWebhook(accessToken, credentials, plaidWebhookUrl(env.NEXT_PUBLIC_SITE_URL));
+  } catch {
+    // ignore
+  }
 
   let added = new Map<string, PlaidTransaction>();
   let modified = new Map<string, PlaidTransaction>();
