@@ -2,7 +2,7 @@
  * Link product arrays for the full financial picture.
  *
  * Official PFM pattern (plaid.com/docs/link/initializing-products):
- * Transactions is the only required product so Link is not filtered to the
+ * Transactions is the sole required product so Link is not filtered to the
  * intersection of every product. Identity is required-if-supported so OAuth
  * banks cannot silently drop it. Investments and Liabilities are consented
  * now and billed only when we call their endpoints for matching accounts.

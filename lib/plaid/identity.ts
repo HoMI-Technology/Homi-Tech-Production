@@ -1,6 +1,6 @@
 /**
  * Bank-file Identity (/identity/get) — not Identity Verification, not a CRA.
- * Only name is guaranteed. Persist full owners server-side; the client gets
+ * Name is the field Plaid always returns. Persist full owners server-side; the client gets
  * a redacted view (display name, initials, city/region).
  */
 
