@@ -26,7 +26,7 @@ describe("newItemLinkProducts", () => {
 describe("updateModeLinkProducts", () => {
   it("consents the extra products without a products array (update mode)", () => {
     const body = updateModeLinkProducts();
-    expect(body.products).toBeUndefined();
+    expect(Object.keys(body)).toEqual(["additional_consented_products"]);
     expect(body.additional_consented_products).toEqual([
       "investments",
       "identity",

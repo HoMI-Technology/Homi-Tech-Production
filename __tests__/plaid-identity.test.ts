@@ -71,6 +71,7 @@ describe("redactIdentityForClient", () => {
     expect(JSON.stringify(redacted)).not.toContain("Cameron");
     expect(JSON.stringify(redacted)).not.toContain("accountholder0");
     expect(JSON.stringify(redacted)).not.toContain("2025550123");
+    expect(JSON.stringify(redacted)).not.toContain("14236");
     expect(redacted.display_name).toBe("Alberta Bobbeth Charleson");
     expect(redacted.initials).toBe("AC");
     expect(redacted.city).toBe("Malakoff");

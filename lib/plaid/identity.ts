@@ -70,12 +70,7 @@ export interface RedactedIdentity {
   region: string | null;
 }
 
-export function redactIdentityForClient(owner: {
-  names?: string[];
-  emails?: PlaidIdentityEmail[];
-  phone_numbers?: PlaidIdentityPhone[];
-  addresses?: Array<{ primary?: boolean; data?: { city?: string | null; region?: string | null } }>;
-}): RedactedIdentity {
+export function redactIdentityForClient(owner: PlaidIdentityOwner): RedactedIdentity {
   const displayName = owner.names?.[0]?.trim() || null;
   const initials = displayName
     ? displayName
