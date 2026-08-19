@@ -7,7 +7,7 @@ import { PILLARS } from "@/lib/brand";
 import { pageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = pageMetadata({
-  title: "How it works · Three pillars, not equal · HōMI",
+  title: "HōMI Score · How it works · HōMI",
   description:
     "How HōMI measures readiness across Financial Reality, Emotional Truth, and Perfect Timing. A Decision Companion. Not a verdict factory.",
   path: "/how-it-works",
