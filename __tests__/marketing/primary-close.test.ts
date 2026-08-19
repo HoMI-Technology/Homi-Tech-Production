@@ -76,6 +76,8 @@ describe("homepage primary labels", () => {
     ["app/(marketing)/pricing/page.tsx"],
     ["app/(marketing)/how-it-works/page.tsx"],
     ["components/layout/SiteFooter.tsx"],
+    ["components/layout/SitemapFooter.tsx"],
+    ["components/layout/QuietHomeFooter.tsx"],
   ])("%s does not use banned primary-close labels", (rel) => {
     const text = src(...rel.split("/"));
     for (const banned of BANNED_LABEL_SNIPPETS) {

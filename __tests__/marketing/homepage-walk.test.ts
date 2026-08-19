@@ -270,14 +270,22 @@ describe("homepage front door — waitlist Get notified stays", () => {
 });
 
 describe("homepage front door — footer educational line stays", () => {
-  it("keeps the educational line in the footer, character-matched", () => {
-    const footer = src("components", "layout", "SiteFooter.tsx");
-    expect(footer).toContain("bg-navy");
-    expect(footer).toContain("Educational only &mdash; not financial advice.");
-    expect(footer).toContain(
+  it("home quiet cut prints only the muted educational line", () => {
+    const quiet = src("components", "layout", "QuietHomeFooter.tsx");
+    expect(quiet).toContain("bg-navy");
+    expect(quiet).toContain("Educational only — not financial advice.");
+    expect(quiet).not.toContain("HōMI provides educational guidance only.");
+    expect(quiet).not.toContain("LEGAL_DISCLAIMER");
+    expect(quiet).not.toContain("Decision Readiness Intelligence");
+  });
+
+  it("sitemap footer keeps the long educational paragraph", () => {
+    const sitemap = src("components", "layout", "SitemapFooter.tsx");
+    expect(sitemap).toContain("Educational only &mdash; not financial advice.");
+    expect(sitemap).toContain(
       "HōMI provides educational guidance only. Consider consulting qualified professionals",
     );
-    expect(footer).toContain(
+    expect(sitemap).toContain(
       "before making legal, tax, mortgage, investment, or real estate decisions.",
     );
   });
