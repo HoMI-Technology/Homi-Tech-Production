@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
 import { BRAND } from "@/lib/brand";
+import { pageMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "About HōMI",
   description:
     "HōMI is a product of HOMI TECHNOLOGIES LLC — a Decision Companion designed without transaction pressure. Here's what we are, and what we are not.",
-  alternates: { canonical: "/about" },
-};
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (

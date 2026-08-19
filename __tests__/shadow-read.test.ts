@@ -152,7 +152,7 @@ describe("Packet B — session answers only", () => {
 describe("Packet B — /shadow-score surface guards", () => {
   it("keeps the public path and locked brand lines on the page + flow", () => {
     const page = src("app/(product)/shadow-score/page.tsx");
-    expect(page).toContain('canonical: "/shadow-score"');
+    expect(page).toContain('path: "/shadow-score"');
     expect(page).toContain("SHADOW_READ_TITLE");
     expect(page).toContain("ShadowScoreFlow");
 

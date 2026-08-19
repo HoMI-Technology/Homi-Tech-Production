@@ -6,6 +6,7 @@ import { BLOG_POSTS, getAllPostSlugs, getPost } from "@/components/marketing/blo
 import { JsonLd } from "@/components/seo/JsonLd";
 import { articleJsonLd } from "@/lib/seo/schema";
 import { SITE_URL } from "@/lib/seo/site";
+import { pageMetadata } from "@/lib/seo/metadata";
 
 export function generateStaticParams() {
   return getAllPostSlugs().map((slug) => ({ slug }));
@@ -23,11 +24,11 @@ export async function generateMetadata({
     return { title: "Post not found" };
   }
 
-  return {
+  return pageMetadata({
     title: post.title,
     description: post.description,
-    alternates: { canonical: `/blog/${post.slug}` },
-  };
+    path: `/blog/${post.slug}`,
+  });
 }
 
 function formatDate(date: string): string {

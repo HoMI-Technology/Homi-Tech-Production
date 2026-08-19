@@ -7,7 +7,7 @@
  * authors, or dates.
  */
 
-import { BRAND } from "@/lib/brand";
+import { BRAND, TAGLINES } from "@/lib/brand";
 
 export interface OrganizationJsonLd {
   "@context": "https://schema.org";
@@ -77,5 +77,59 @@ export function articleJsonLd(input: ArticleJsonLdInput, siteUrl: string): Artic
     datePublished: input.datePublished,
     mainEntityOfPage: { "@type": "WebPage", "@id": `${siteUrl}${input.path}` },
     publisher: { "@type": "Organization", name: BRAND.name, legalName: BRAND.legalEntity },
+  };
+}
+
+export interface FaqItem {
+  q: string;
+  a: string;
+}
+
+export interface FaqPageJsonLd {
+  "@context": "https://schema.org";
+  "@type": "FAQPage";
+  mainEntity: Array<{
+    "@type": "Question";
+    name: string;
+    acceptedAnswer: { "@type": "Answer"; text: string };
+  }>;
+}
+
+/** FAQPage from questions already on the page. Never invent Q&As. */
+export function faqPageJsonLd(faqs: readonly FaqItem[]): FaqPageJsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  };
+}
+
+export interface SoftwareApplicationJsonLd {
+  "@context": "https://schema.org";
+  "@type": "SoftwareApplication";
+  name: string;
+  applicationCategory: string;
+  operatingSystem: string;
+  url: string;
+  description: string;
+}
+
+/**
+ * Optional SoftwareApplication for the Decision Companion.
+ * National software — no LocalBusiness, PostalAddress, telephone, or geo.
+ */
+export function softwareApplicationJsonLd(siteUrl: string): SoftwareApplicationJsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: BRAND.name,
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    url: siteUrl,
+    description: `${TAGLINES.companion}. ${BRAND.category}.`,
   };
 }

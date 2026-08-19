@@ -1,19 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  PRIMARY_CLOSE_HREF,
-  PRIMARY_CLOSE_LABEL,
-} from "@/components/marketing/first-moment-copy";
+import { PRIMARY_CLOSE_HREF, PRIMARY_CLOSE_LABEL } from "@/components/marketing/first-moment-copy";
 import { Reveal } from "@/components/ui/Reveal";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { PILLARS } from "@/lib/brand";
+import { pageMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
-  title: "How It Works",
+export const metadata: Metadata = pageMetadata({
+  title: "How it works · Three pillars, not equal · HōMI",
   description:
-    "How HōMI measures readiness: assess across three pillars, receive an honest verdict, and get the map for what to build first.",
-  alternates: { canonical: "/how-it-works" },
-};
+    "How HōMI measures readiness across Financial Reality, Emotional Truth, and Perfect Timing. A Decision Companion. Not a verdict factory.",
+  path: "/how-it-works",
+  absolute: true,
+});
 
 const SUB_FACTORS: Record<string, { name: string; description: string }[]> = {
   financial: [

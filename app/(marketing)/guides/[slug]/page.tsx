@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Reveal } from "@/components/ui/Reveal";
 import { GUIDES, getAllGuideSlugs, getGuide } from "@/components/marketing/guides-data";
+import { pageMetadata } from "@/lib/seo/metadata";
 
 export function generateStaticParams() {
   return getAllGuideSlugs().map((slug) => ({ slug }));
@@ -20,11 +21,11 @@ export async function generateMetadata({
     return { title: "Guide not found" };
   }
 
-  return {
+  return pageMetadata({
     title: guide.title,
     description: guide.description,
-    alternates: { canonical: `/guides/${guide.slug}` },
-  };
+    path: `/guides/${guide.slug}`,
+  });
 }
 
 export default async function GuidePage({ params }: { params: Promise<{ slug: string }> }) {

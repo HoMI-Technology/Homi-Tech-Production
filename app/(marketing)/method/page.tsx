@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
+import { pageMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "The Method",
   description:
     "The philosophy behind HōMI: readiness before action, the temperature metaphor, and why emotional truth counts as much as financial reality.",
-  alternates: { canonical: "/method" },
-};
+  path: "/method",
+});
 
 export default function MethodPage() {
   return (

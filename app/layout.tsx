@@ -10,7 +10,7 @@ import { AppleSplashLinks } from "@/components/pwa/AppleSplashLinks";
 import { AnalyticsScripts } from "@/components/analytics/AnalyticsScripts";
 import { PageViewBeacon } from "@/components/analytics/PageViewBeacon";
 import { AttributionCapture } from "@/components/analytics/AttributionCapture";
-import { SITE_URL } from "@/lib/seo/site";
+import { SITE_URL, OG_DEFAULT_IMAGE } from "@/lib/seo/site";
 import { COLORS } from "@/lib/brand";
 
 import { ClientProviders } from "@/components/layout/ClientProviders";
@@ -35,17 +35,14 @@ export const metadata: Metadata = {
     "decision companion",
   ],
   openGraph: {
-    title: "HōMI · Decision Readiness Intelligence™",
-    description:
-      "Readiness, not eligibility. Decision Readiness Intelligence™ across Financial Reality, Emotional Truth, and Perfect Timing.",
     siteName: "HōMI",
     type: "website",
     images: [
       {
-        url: "/og-v2.png",
-        width: 1200,
-        height: 630,
-        alt: "The HōMI Threshold Compass above the HōMI wordmark — Decision Readiness Intelligence™. Know When You're Ready.",
+        url: OG_DEFAULT_IMAGE.url,
+        width: OG_DEFAULT_IMAGE.width,
+        height: OG_DEFAULT_IMAGE.height,
+        alt: OG_DEFAULT_IMAGE.alt,
       },
     ],
   },
@@ -53,13 +50,10 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@homi_tech",
     creator: "@homi_tech",
-    title: "HōMI · Decision Readiness Intelligence™",
-    description:
-      "A credit score estimates repayment risk. HōMI helps you evaluate readiness for the decision itself.",
     images: [
       {
-        url: "/og-v2.png",
-        alt: "The HōMI Threshold Compass above the HōMI wordmark — Decision Readiness Intelligence™. Know When You're Ready.",
+        url: OG_DEFAULT_IMAGE.url,
+        alt: OG_DEFAULT_IMAGE.alt,
       },
     ],
   },
