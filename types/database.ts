@@ -68,6 +68,7 @@ export interface OutcomeSurvey {
   kind: OutcomeSurveyKind;
   completed_at: string | null;
   satisfaction: number | null;
+  /** Gate 6 taxonomy: moved | waited | lender_blocked | not_okay | no_answer. */
   outcome: string | null;
   notes: string | null;
   created_at: string;

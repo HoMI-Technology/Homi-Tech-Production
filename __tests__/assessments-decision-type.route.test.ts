@@ -16,6 +16,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 const state = vi.hoisted(() => ({
   user: { id: "user-1", email: "u@example.com" } as { id: string; email: string } | null,
   insertCalls: [] as Record<string, unknown>[],
+  surveyInserts: [] as Record<string, unknown>[],
   phase0: {
     frozen: false,
     frozen_until: null as string | null,
@@ -31,12 +32,23 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({
     auth: { getUser: async () => ({ data: { user: state.user } }) },
     from: (table: string) => {
+      if (table === "outcome_surveys") {
+        return {
+          insert: async (payload: Record<string, unknown> | Record<string, unknown>[]) => {
+            const rows = Array.isArray(payload) ? payload : [payload];
+            state.surveyInserts.push(...rows);
+            return { error: null };
+          },
+        };
+      }
       if (table !== "assessments") throw new Error(`unexpected table ${table}`);
       return {
         insert: (payload: Record<string, unknown>) => {
           state.insertCalls.push(payload);
           return {
-            select: () => ({ single: async () => ({ data: { id: "a-1" }, error: null }) }),
+            select: () => ({
+              single: async () => ({ data: { id: payload.id ?? "a-1" }, error: null }),
+            }),
           };
         },
       };
@@ -96,6 +108,7 @@ function post(body: Record<string, unknown>) {
 beforeEach(() => {
   state.user = { id: "user-1", email: "u@example.com" };
   state.insertCalls = [];
+  state.surveyInserts = [];
   state.phase0 = { frozen: false, frozen_until: null };
 });
 
@@ -111,6 +124,8 @@ describe("POST /api/assessments decision_type", () => {
     const res = await post({ inputs: VALID_INPUTS, kind: "full" });
     expect(res.status).toBe(200);
     expect(state.insertCalls[0].decision_type).toBe("home_buying");
+    expect(state.surveyInserts).toHaveLength(1);
+    expect(state.surveyInserts[0].kind).toBe("day30");
   });
 
   /**
@@ -124,6 +139,9 @@ describe("POST /api/assessments decision_type", () => {
     expect(res.status).toBe(200);
     expect(state.insertCalls).toHaveLength(1);
     expect(state.insertCalls[0].decision_type).toBe("car");
+    expect(state.surveyInserts).toHaveLength(0);
+    const insights = state.insertCalls[0].insights as { decisionSnapshot?: unknown };
+    expect(insights.decisionSnapshot).toBeUndefined();
   });
 
   it("rejects a canon-but-inactive vertical with 400 and no insert", async () => {
@@ -190,5 +208,69 @@ describe("POST /api/assessments decision_type", () => {
     expect(body.saved).toBe(false);
     expect(body.error).toMatch(/not assessments/i);
     expect(state.insertCalls).toHaveLength(0);
+  });
+});
+
+describe("POST /api/assessments persist-on-verdict (Gate 6 day30)", () => {
+  it("writes a decision snapshot and a day30 row for a completed home assess", async () => {
+    const res = await post({
+      inputs: { ...VALID_INPUTS, selfReportedCreditBand: "good" },
+      kind: "full",
+      decisionType: "home_buying",
+    });
+    expect(res.status).toBe(200);
+
+    expect(state.insertCalls).toHaveLength(1);
+    const row = state.insertCalls[0];
+    const completedAt = row.completed_at as string;
+    const insights = row.insights as {
+      decisionSnapshot: {
+        decision_id: string;
+        score: number;
+        verdict: string;
+        hardStops: unknown[];
+        provenance: {
+          dti: string;
+          downPayment: string;
+          runway: string;
+          credit: string;
+          lookbackDays: number | null;
+        };
+        self_reported_credit_band: string | null;
+        timestamp: string;
+      };
+    };
+
+    expect(row.id).toEqual(expect.any(String));
+    expect(insights.decisionSnapshot.decision_id).toBe(row.id);
+    expect(insights.decisionSnapshot.score).toBe(row.overall_score);
+    expect(insights.decisionSnapshot.verdict).toBe(row.verdict);
+    expect(insights.decisionSnapshot.hardStops).toEqual(row.hard_stops);
+    expect(insights.decisionSnapshot.provenance).toEqual({
+      dti: "self_report",
+      downPayment: "self_report",
+      runway: "self_report",
+      credit: "band_ignored",
+      lookbackDays: null,
+    });
+    expect(insights.decisionSnapshot.self_reported_credit_band).toBe("good");
+    expect(insights.decisionSnapshot.timestamp).toBe(completedAt);
+
+    expect(state.surveyInserts).toHaveLength(1);
+    const survey = state.surveyInserts[0];
+    expect(survey.kind).toBe("day30");
+    expect(survey.assessment_id).toBe(row.id);
+    expect(survey.user_id).toBe("user-1");
+    expect(Date.parse(survey.due_at as string) - Date.parse(completedAt)).toBe(
+      30 * 24 * 60 * 60 * 1000,
+    );
+  });
+
+  it("does not write snapshot or day30 when persist is refused", async () => {
+    state.user = null;
+    const res = await post({ inputs: VALID_INPUTS, kind: "full" });
+    expect(res.status).toBe(401);
+    expect(state.insertCalls).toHaveLength(0);
+    expect(state.surveyInserts).toHaveLength(0);
   });
 });

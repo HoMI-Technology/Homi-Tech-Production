@@ -60,6 +60,12 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(page).toContain("DashboardFoldBeacon");
   });
 
+  it("keeps the existing outcome prompt below Path — no second Home card", () => {
+    expect(fold).toContain("<OutcomeSurveyPrompt");
+    expect(fold.indexOf("<PathNextMove")).toBeLessThan(fold.indexOf("<OutcomeSurveyPrompt"));
+    expect(page).not.toContain("OutcomeSurveyPrompt");
+  });
+
   it("does not render the verdict spectrum — hard-stop theater stays off the fold", () => {
     expect(page).toContain("shouldSuppressBuildPercent");
     expect(page).not.toContain("DashSpectrum");

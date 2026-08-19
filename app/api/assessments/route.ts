@@ -17,6 +17,11 @@ import { verdictEmail } from "@/lib/email/templates";
 import { captureServerEvent } from "@/lib/analytics/server";
 import { isShadowAssessmentKind } from "@/lib/assessment/storage";
 import { loadPhase0ServerState, phase0RefuseIfFrozen } from "@/lib/advisor/phase0/server";
+import {
+  buildDay30SurveyRow,
+  buildDecisionSnapshot,
+  isHomeDecisionType,
+} from "@/lib/outcomes/decision-snapshot";
 
 const bodySchema = z.object({
   inputs: assessmentInputsSchema,
@@ -119,13 +124,36 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const assessmentId = crypto.randomUUID();
+    const completedAt = new Date().toISOString();
+    const resolvedDecisionType = decisionType ?? "home_buying";
+    const homeOutcome = isHomeDecisionType(resolvedDecisionType);
+    const decisionSnapshot = homeOutcome
+      ? buildDecisionSnapshot({
+          decisionId: assessmentId,
+          score: result.score,
+          verdict: result.verdict,
+          hardStops: result.hardStops,
+          provenance: result.provenance ?? {
+            dti: "self_report",
+            downPayment: "self_report",
+            runway: "self_report",
+            credit: "none",
+            lookbackDays: null,
+          },
+          selfReportedCreditBand: inputs.selfReportedCreditBand ?? null,
+          timestamp: completedAt,
+        })
+      : null;
+
     const { data, error } = await supabase
       .from("assessments")
       .insert({
+        id: assessmentId,
         user_id: user.id,
         ...(attribution ? { attribution } : {}),
         ...(referralSource ? { referral_source: referralSource } : {}),
-        decision_type: decisionType ?? "home_buying",
+        decision_type: resolvedDecisionType,
         status: "completed",
         financial_score: result.financial.total,
         emotional_score: result.emotional.total,
@@ -142,10 +170,11 @@ export async function POST(req: NextRequest) {
           keyInsight: generateKeyInsight(result),
           nextSteps: generateNextSteps(result),
           provenance: result.provenance,
+          ...(decisionSnapshot ? { decisionSnapshot } : {}),
         },
         hard_stops: result.hardStops,
         is_shadow: isShadowRead,
-        completed_at: new Date().toISOString(),
+        completed_at: completedAt,
       })
       .select("id")
       .single();
@@ -182,9 +211,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Gate 6 v0: home verdict persist also schedules the existing day30 row.
+    // Failure here must not roll back the assessment (retry would create a
+    // second full row on the free tier). The snapshot is already on insights.
+    if (homeOutcome) {
+      const { error: surveyError } = await supabase.from("outcome_surveys").insert(
+        buildDay30SurveyRow({
+          userId: user.id,
+          assessmentId,
+          completedAt,
+        }),
+      );
+      if (surveyError) {
+        console.error("[assessments] day30 schedule failed:", surveyError);
+      }
+    }
+
     // Post-response: verdict email (deduped per assessment) + server-side
     // funnel capture. Neither may add latency or failure modes to the save.
-    const assessmentId = data.id as string;
     const userId = user.id;
     const userEmail = user.email ?? null;
     const verdict = result.verdict;
