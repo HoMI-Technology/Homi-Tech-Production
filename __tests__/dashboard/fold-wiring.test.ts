@@ -27,6 +27,7 @@ describe("onboarding skip lands on Home", () => {
 
 describe("dashboard fold tells the truth about the build", () => {
   const page = src("app", "(product)", "dashboard", "page.tsx");
+  const fold = src("components", "dashboard", "HomeFold.tsx");
 
   it("names hard stops from the latest assessment", () => {
     expect(page).toContain("hardStopMessages");
@@ -35,12 +36,14 @@ describe("dashboard fold tells the truth about the build", () => {
 
   it("does not celebrate or percent-complete over an active hard stop", () => {
     expect(page).toContain("shouldSuppressBuildPercent");
-    expect(page).toMatch(/shouldSuppressBuildPercent\([\s\S]*\)[\s\S]*VerdictCelebrate/);
+    expect(fold).toContain("VerdictCelebrate");
+    expect(fold).toMatch(/!suppressBuildPercent[\s\S]*VerdictCelebrate/);
   });
 
   it("uses HōMI-Score, never Decision Readiness Score", () => {
-    expect(page).toContain("HōMI-Score");
+    expect(fold).toContain("HōMI-Score");
     expect(page).not.toContain(BANNED_FOLD_NOUN);
+    expect(fold).not.toContain(BANNED_FOLD_NOUN);
   });
 
   it("does not advertise launch-hidden labs on the fold", () => {
@@ -52,18 +55,52 @@ describe("dashboard fold tells the truth about the build", () => {
   });
 
   it("offers a draft resume ramp and fold analytics", () => {
-    expect(page).toContain("DashboardResumeRamp");
+    expect(fold).toContain("DashboardResumeRamp");
+    expect(fold).toContain("PathNextMove");
     expect(page).toContain("DashboardFoldBeacon");
   });
 
-  it("does not render the verdict spectrum over an active hard stop", () => {
-    expect(page).toContain("shouldPaintDashSpectrum");
-    expect(page).toContain("DashSpectrum");
-    expect(page).toMatch(/shouldPaintDashSpectrum\([\s\S]*\)[\s\S]*DashSpectrum/);
-    expect(page).toMatch(/stopActive=\{suppressBuildPercent\}/);
+  it("does not render the verdict spectrum — hard-stop theater stays off the fold", () => {
+    expect(page).toContain("shouldSuppressBuildPercent");
+    expect(page).not.toContain("DashSpectrum");
+    expect(page).not.toContain("shouldPaintDashSpectrum");
     expect(page).not.toMatch(/className="dash-spectrum"/);
     expect(page).not.toMatch(/>\s*Not yet\s*</);
     expect(page).not.toMatch(/>\s*Almost\s*</);
+  });
+
+  it("keeps one fold instrument and does not dual-mount compass + hero", () => {
+    expect(page).toContain("HomeFold");
+    expect(fold).toContain("HOME_FOLD_INSTRUMENT");
+    expect(fold).toContain("HeroScore");
+    expect(fold).not.toContain("ThresholdCompass");
+    expect(page).not.toContain("ThresholdCompass");
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("PillarRing");
+    expect(fold).not.toContain("PillarRing");
+  });
+
+  it("does not mount the kitchen-sink body on Home", () => {
+    for (const banned of [
+      "QuickActionGrid",
+      "FinancialPositionSection",
+      "ScoreHistory",
+      "DecisionTimeline",
+      "MetricRail",
+      "ActionDock",
+      "OperateInstrument",
+      "OperateHeroMeta",
+    ]) {
+      expect(page).not.toContain(banned);
+    }
+  });
+});
+
+describe("completed home assessment lands on Results", () => {
+  it("FullAssessmentFlow pushes /results, never /dashboard", () => {
+    const flow = src("components", "assessment", "FullAssessmentFlow.tsx");
+    expect(flow).toContain('router.push("/results")');
+    expect(flow).not.toMatch(/router\.push\(["']\/dashboard["']\)/);
   });
 });
 

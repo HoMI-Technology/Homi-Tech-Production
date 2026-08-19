@@ -1,13 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
+  HOME_FOLD_INSTRUMENT,
   ONBOARDING_SKIP_HREF,
   buildProgressLabel,
   companionFoldLine,
   hardStopMessages,
+  homeFoldSentence,
   isNextRedirectError,
   resumeDraftCopy,
   shouldPaintDashSpectrum,
   shouldSuppressBuildPercent,
+  weakestMeasuredPillar,
 } from "@/lib/dashboard/fold-truth";
 
 describe("isNextRedirectError", () => {
@@ -117,5 +120,55 @@ describe("companionFoldLine", () => {
 describe("onboarding skip destination", () => {
   it("lands Skip for now on the signed-in home", () => {
     expect(ONBOARDING_SKIP_HREF).toBe("/dashboard");
+  });
+});
+
+describe("HOME_FOLD_INSTRUMENT", () => {
+  it("keeps the hero numeral — not the three-ring compass", () => {
+    expect(HOME_FOLD_INSTRUMENT).toBe("hero");
+  });
+});
+
+describe("weakestMeasuredPillar", () => {
+  it("names the softest measured pillar", () => {
+    expect(
+      weakestMeasuredPillar({ financial: 12, emotional: 28, timing: 20 }),
+    ).toBe("financial");
+  });
+
+  it("does not treat a skipped Emotional Truth (null) as a zeroed ring", () => {
+    expect(
+      weakestMeasuredPillar({ financial: 22, emotional: null, timing: 18 }),
+    ).toBe("timing");
+  });
+
+  it("returns null when no pillar was measured", () => {
+    expect(
+      weakestMeasuredPillar({ financial: null, emotional: null, timing: null }),
+    ).toBeNull();
+  });
+});
+
+describe("homeFoldSentence", () => {
+  it("lets a hard stop outrank the weak-pillar line", () => {
+    const line = homeFoldSentence({
+      hardStopCount: 1,
+      weakestPillar: "financial",
+      hasPath: true,
+      hasAssessment: true,
+    });
+    expect(line.toLowerCase()).toContain("hard stop");
+    expect(line).not.toMatch(/Financial Reality/i);
+  });
+
+  it("names the softest measured pillar when there is no hard stop", () => {
+    expect(
+      homeFoldSentence({
+        hardStopCount: 0,
+        weakestPillar: "timing",
+        hasPath: true,
+        hasAssessment: true,
+      }),
+    ).toBe("Perfect Timing is the softest pillar on this read.");
   });
 });
