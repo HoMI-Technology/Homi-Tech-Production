@@ -50,13 +50,16 @@ export async function POST(request: Request) {
     .from("waitlist")
     .insert({ email, interested_in: interestedIn, source: source ?? "site" });
 
-  // Uniform response regardless of outcome (T1.8a) — do not let the response
-  // reveal whether this email already exists on the waitlist (Postgres unique
-  // violation, code 23505) or leak any other insert error. The insert itself
-  // still happens as normal; only enumeration via the response is prevented.
+  // Unique violation 23505 (already on the list) still returns success so the
+  // list cannot be enumerated. Any other insert failure must fail the request —
+  // founder lock overrides T1.8a uniform { ok: true } for non-23505 errors.
   if (error && error.code !== "23505") {
     const correlationId = crypto.randomUUID();
     console.error(`[waitlist:${correlationId}]`, error);
+    return NextResponse.json(
+      { error: "Something didn't connect. Try again in a moment." },
+      { status: 500 },
+    );
   }
 
   // Best-effort confirmation email on a fresh sign-up. Never let a delivery

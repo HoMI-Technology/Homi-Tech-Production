@@ -276,6 +276,18 @@ describe("homepage front door — waitlist Get notified is off /", () => {
     expect(HOME).not.toContain('id="waitlist"');
     expect(HOME).not.toContain("Get notified");
   });
+
+  it("founder lock: Assess is the only homepage close — Packet 2, Rehearse, SKU, vendor list stay out", () => {
+    expect(HOME).not.toContain("WaitlistForm");
+    expect(HOME).not.toContain("Get notified");
+    expect(HOME).not.toContain("Packet 2");
+    expect(HOME).not.toContain("Rehearse");
+    expect(HOME).not.toContain("HōMI Companion");
+    expect(HOME).not.toContain("vendor list");
+    expect(HOME).not.toContain("PRIMARY_CLOSE");
+    expect(HERO).toContain("PRIMARY_CLOSE_HREF");
+    expect(HERO).toContain("PRIMARY_CLOSE_LABEL");
+  });
 });
 
 describe("homepage front door — footer educational line stays", () => {

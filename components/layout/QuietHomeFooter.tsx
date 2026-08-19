@@ -9,6 +9,7 @@ const LEGAL = [
   { href: "/legal/terms", label: "Terms" },
   { href: "/legal/cookies", label: "Cookies" },
   { href: "mailto:support@homitechnology.com", label: "Support" },
+  { href: "/waitlist", label: "Waitlist" },
 ] as const;
 
 /** Quiet three-row footer — the only cut SiteFooter mounts. */
