@@ -44,7 +44,7 @@ export function InterviewHero() {
         </p>
         <Link
           href={`${PRIMARY_CLOSE_HREF}?src=hero`}
-          className="btn btn-primary btn-sm mt-8"
+          className="btn btn-primary mt-8"
           onClick={handleCtaClick}
         >
           {PRIMARY_CLOSE_LABEL}
