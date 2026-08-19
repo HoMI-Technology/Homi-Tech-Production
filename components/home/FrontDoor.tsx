@@ -19,6 +19,18 @@ import {
 /** Verdict display order — cool to hot. Qualitative only: names and meanings, no ranges. */
 const VERDICT_ORDER: VerdictKey[] = ["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"];
 
+/**
+ * Public marketing labels. ADR-001's dual-stable vocabulary keeps the
+ * in-product hard-stop badge "DO NOT PROCEED" (VERDICT_META is untouched);
+ * the public front door renders the softer name for the fourth verdict.
+ */
+const PUBLIC_VERDICT_LABELS: Record<VerdictKey, string> = {
+  READY: VERDICT_META.READY.label,
+  ALMOST_THERE: VERDICT_META.ALMOST_THERE.label,
+  BUILD_FIRST: VERDICT_META.BUILD_FIRST.label,
+  NOT_YET: "NOT YET", // brand-ok: marketing-page label per 2026-08 audit fix 4 — the in-product badge keeps ADR-001's DO NOT PROCEED
+};
+
 function SectionHeader({
   eyebrow,
   title,
@@ -176,7 +188,7 @@ export function VerdictSpectrum() {
                         }}
                       />
                       <span className="text-sm font-semibold" style={{ color: meta.color }}>
-                        {meta.label}
+                        {PUBLIC_VERDICT_LABELS[key]}
                       </span>
                     </div>
                     <p className="mt-3 text-sm text-dim">{meta.line}</p>
