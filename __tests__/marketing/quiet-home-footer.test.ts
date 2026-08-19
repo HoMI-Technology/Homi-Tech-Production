@@ -67,6 +67,20 @@ describe("quiet home footer — sitewide SiteFooter cut", () => {
     expect(quiet).toContain('rel="noopener noreferrer"');
   });
 
+  it("founder lock: Waitlist is a legal-row text link only — Packet 2, Rehearse, SKU, vendor list, and form stay out", () => {
+    expect(quiet).toContain('{ href: "/waitlist", label: "Waitlist" }');
+    expect((quiet.match(/label: "Waitlist"/g) ?? []).length).toBe(1);
+    expect(quiet).not.toContain("WaitlistForm");
+    expect(quiet).not.toContain("Get notified");
+    expect(quiet).not.toContain("PRIMARY_CLOSE");
+    expect(quiet).not.toContain("Packet 2");
+    expect(quiet).not.toContain("Rehearse");
+    expect(quiet).not.toContain("HōMI Companion");
+    expect(quiet).not.toContain("vendor list");
+    expect(quiet).not.toContain("subprocessors");
+    expect(quiet).not.toContain("SnapTrade");
+  });
+
   it("mounted footer forbids sitemap columns, X SVG, legal wall, and DRI pipe", () => {
     expect(mounted).not.toContain("<svg");
     expect(mounted).not.toContain('title: "Product"');

@@ -58,6 +58,10 @@ describe("landing canon — waitlist capture", () => {
     expect(source).not.toContain('source="landing"');
     expect(source).not.toContain('idPrefix="landing-waitlist"');
     expect(source).not.toContain("Get notified");
+    expect(source).not.toContain("Packet 2");
+    expect(source).not.toContain("Rehearse");
+    expect(source).not.toContain("HōMI Companion");
+    expect(source).not.toContain("vendor list");
   });
 
   it("keeps WaitlistForm on /waitlist", () => {
