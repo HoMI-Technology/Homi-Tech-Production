@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
 import { InterviewHero } from "@/components/home/InterviewHero";
-import {
-  WALK_CLARITY,
-  WALK_COMPANION,
-  WALK_OBJECT,
-  WALK_PRIMARY,
-} from "@/components/home/walk-copy";
+
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, softwareApplicationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
 import { SITE_URL } from "@/lib/seo/site";
 import { pageMetadata } from "@/lib/seo/metadata";
-import { Reveal } from "@/components/ui/Reveal";
 import { PaperScene } from "@/components/home/PaperScene";
+import {
+  Clarity,
+  CloseCta,
+  FriendFrame,
+  Pillars,
+  Steps,
+  VerdictSpectrum,
+  WrongQuestion,
+} from "@/components/home/FrontDoor";
 
 export const metadata: Metadata = pageMetadata({
   title: "Decision Readiness · A Decision Companion · HōMI",
@@ -22,9 +25,9 @@ export const metadata: Metadata = pageMetadata({
 });
 
 /**
- * Front door — question, inversion, one Assess, hero-scale Brand
- * compass. Later locked lines are paper-readable. No sticky walk,
- * no scroll-lit theater, no traveling pill.
+ * Front door — hero (question, inversion, Assess, hero-scale compass),
+ * then the lit field: companion frame, pillars, verdict spectrum,
+ * steps, clarity, and a grid-floor close. Native scroll; no pin.
  */
 export default function MarketingHomePage() {
   return (
@@ -39,33 +42,24 @@ export default function MarketingHomePage() {
         <div className="hairline mx-auto w-full max-w-7xl" />
       </div>
 
-      {/* Lit scenes: each locked line owns a 55svh frame with its own
-          volumetric light and a 3D perspective arrival (CSS only — the same
-          physics family as the hero gyroscope). Native scroll; no-JS and
-          reduced-motion render fully lit and flat. */}
-      <section className="bg-navy">
+      {/* The lit field: every mid-page section sits in the same volumetric
+          atmosphere (pointer light + 3D arrivals). Verdict labels, colors,
+          and ranges are imported/derived from lib/brand and lib/scoring —
+          this page cannot contradict the engine. */}
+      <div className="bg-navy">
         <PaperScene>
-          <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col px-5 py-12 sm:px-6 lg:px-8">
-            <Reveal className="line-light line-glow-cyan flex min-h-[55svh] items-center">
-              <p className="type-display max-w-4xl text-light">{WALK_COMPANION}</p>
-            </Reveal>
-            <Reveal className="line-light line-glow-cyan flex min-h-[55svh] items-center">
-              <p className="type-display max-w-4xl text-light">{WALK_PRIMARY}</p>
-            </Reveal>
-            <Reveal className="line-light line-glow-cyan flex min-h-[55svh] items-center">
-              <p className="type-display max-w-4xl text-light">{WALK_CLARITY}</p>
-            </Reveal>
-            <Reveal className="line-light line-glow-emerald flex min-h-[55svh] items-center">
-              <p className="type-display max-w-4xl text-light">
-                Not yet is not <span className="text-emerald">no</span>.
-              </p>
-            </Reveal>
-            <Reveal className="line-light line-glow-yellow flex min-h-[55svh] items-center">
-              <p className="type-display max-w-4xl text-light">{WALK_OBJECT}</p>
-            </Reveal>
+          <div className="relative z-10">
+            <FriendFrame />
+            <WrongQuestion />
+            <Pillars />
+            <VerdictSpectrum />
+            <Steps />
+            <Clarity />
           </div>
         </PaperScene>
-      </section>
+      </div>
+
+      <CloseCta />
     </>
   );
 }

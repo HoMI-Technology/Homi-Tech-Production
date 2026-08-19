@@ -22,6 +22,7 @@ function src(...segments: string[]): string {
 
 const HOME = src("app", "(marketing)", "page.tsx");
 const HERO = src("components", "home", "InterviewHero.tsx");
+const FRONT = src("components", "home", "FrontDoor.tsx");
 
 describe("homepage front door — locked copy is character-exact", () => {
   it("pins the seven locked lines and invents no others", () => {
@@ -51,12 +52,14 @@ describe("homepage front door — locked copy is character-exact", () => {
     expect(HERO).toContain("WALK_QUESTION");
     expect(HERO).toContain("WALK_INVERSION");
     expect(HERO).not.toContain("WALK_OBJECT");
-    expect(HOME).toContain("WALK_COMPANION");
-    expect(HOME).toContain("WALK_PRIMARY");
-    expect(HOME).toContain("WALK_CLARITY");
-    expect(HOME).toContain("WALK_OBJECT");
-    expect(HOME).toContain("Not yet is not");
-    expect(HOME).toContain('className="text-emerald"');
+    // Locked lines render from the FrontDoor sections the homepage mounts.
+    expect(HOME).toContain("FrontDoor");
+    expect(FRONT).toContain("WALK_COMPANION");
+    expect(FRONT).toContain("WALK_PRIMARY");
+    expect(FRONT).toContain("WALK_CLARITY");
+    expect(FRONT).toContain("WALK_OBJECT");
+    expect(FRONT).toContain("Not yet is not");
+    expect(FRONT).toContain('className="text-emerald"');
     expect(HOME).not.toContain("WALK_INVERSION");
     expect(HOME).toContain("softwareApplicationJsonLd");
     expect(HOME).toContain("organizationJsonLd");
@@ -64,6 +67,7 @@ describe("homepage front door — locked copy is character-exact", () => {
     for (const beat of FIRST_MOMENT_BEATS) {
       expect(HOME).not.toContain(beat.line);
       expect(HERO).not.toContain(beat.line);
+      expect(FRONT).not.toContain(beat.line);
     }
   });
 });
@@ -144,7 +148,7 @@ describe("homepage front door — first viewport", () => {
 
 describe("homepage front door — later lines are paper, not a pin", () => {
   it("renders locked later lines as document type, not WalkWords", () => {
-    expect(HOME).toContain("type-display");
+    expect(FRONT).toContain("type-display");
     expect(HOME).not.toContain("WalkWords");
     expect(HOME).not.toContain("h-[100dvh]");
     expect(HOME).not.toContain("walk-hold");
@@ -154,7 +158,7 @@ describe("homepage front door — later lines are paper, not a pin", () => {
 });
 
 describe("homepage front door — native scroll only", () => {
-  const files = [HERO, HOME].join("\n");
+  const files = [HERO, HOME, FRONT].join("\n");
 
   it("does not hijack scroll or import GSAP / Lenis / SplitType", () => {
     expect(files).not.toMatch(/preventDefault/);
@@ -274,6 +278,18 @@ describe("homepage front door — waitlist Get notified is off /", () => {
     expect(HOME).not.toContain('surface="whisper"');
     expect(HOME).not.toContain('id="waitlist"');
     expect(HOME).not.toContain("Get notified");
+  });
+
+  it("founder lock: Assess is the only homepage close — Packet 2, Rehearse, SKU, vendor list stay out", () => {
+    expect(HOME).not.toContain("WaitlistForm");
+    expect(HOME).not.toContain("Get notified");
+    expect(HOME).not.toContain("Packet 2");
+    expect(HOME).not.toContain("Rehearse");
+    expect(HOME).not.toContain("HōMI Companion");
+    expect(HOME).not.toContain("vendor list");
+    expect(HOME).not.toContain("PRIMARY_CLOSE");
+    expect(HERO).toContain("PRIMARY_CLOSE_HREF");
+    expect(HERO).toContain("PRIMARY_CLOSE_LABEL");
   });
 });
 

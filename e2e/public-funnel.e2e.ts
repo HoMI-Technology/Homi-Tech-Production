@@ -19,6 +19,13 @@ test("landing page does not expose the waitlist capture", async ({ page }) => {
   await expect(page.locator("#waitlist")).toHaveCount(0);
   await expect(page.locator("#landing-waitlist-email")).toHaveCount(0);
   await expect(page.getByRole("button", { name: /^get notified$/i })).toHaveCount(0);
+  // Assess stays the only homepage close; Waitlist is footer legal-row only.
+  await expect(page.getByRole("link", { name: /^assess$/i }).first()).toBeVisible();
+  await expect(page.getByText("Packet 2")).toHaveCount(0);
+  await expect(page.getByText("Rehearse", { exact: true })).toHaveCount(0);
+  const waitlist = page.getByRole("contentinfo").getByRole("link", { name: /^waitlist$/i });
+  await expect(waitlist).toBeVisible();
+  await expect(waitlist).toHaveAttribute("href", "/waitlist");
 });
 
 test("Shadow Score flow renders its first step", async ({ page }) => {

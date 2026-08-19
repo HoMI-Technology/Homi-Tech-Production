@@ -38,6 +38,24 @@ describe("quiet home footer — sitewide SiteFooter cut", () => {
     expect(text).not.toContain("SitemapFooter");
   });
 
+  it("legal row is Privacy · Terms · Cookies · Support · Waitlist", () => {
+    expect(quiet).toContain('{ href: "/legal/privacy", label: "Privacy" }');
+    expect(quiet).toContain('{ href: "/legal/terms", label: "Terms" }');
+    expect(quiet).toContain('{ href: "/legal/cookies", label: "Cookies" }');
+    expect(quiet).toContain('{ href: "mailto:support@homitechnology.com", label: "Support" }');
+    expect(quiet).toContain('{ href: "/waitlist", label: "Waitlist" }');
+    const privacy = quiet.indexOf('label: "Privacy"');
+    const terms = quiet.indexOf('label: "Terms"');
+    const cookies = quiet.indexOf('label: "Cookies"');
+    const support = quiet.indexOf('label: "Support"');
+    const waitlist = quiet.indexOf('href: "/waitlist", label: "Waitlist"');
+    expect(privacy).toBeGreaterThan(-1);
+    expect(terms).toBeGreaterThan(privacy);
+    expect(cookies).toBeGreaterThan(terms);
+    expect(support).toBeGreaterThan(cookies);
+    expect(waitlist).toBeGreaterThan(support);
+  });
+
   it("quiet cut pins exact socials as equal text links", () => {
     expect(quiet).toContain(TIKTOK);
     expect(quiet).toContain(X);
@@ -47,6 +65,20 @@ describe("quiet home footer — sitewide SiteFooter cut", () => {
     expect(quiet).toContain('aria-label="HōMI on TikTok (opens in a new tab)"');
     expect(quiet).toContain('target="_blank"');
     expect(quiet).toContain('rel="noopener noreferrer"');
+  });
+
+  it("founder lock: Waitlist is a legal-row text link only — Packet 2, Rehearse, SKU, vendor list, and form stay out", () => {
+    expect(quiet).toContain('{ href: "/waitlist", label: "Waitlist" }');
+    expect((quiet.match(/label: "Waitlist"/g) ?? []).length).toBe(1);
+    expect(quiet).not.toContain("WaitlistForm");
+    expect(quiet).not.toContain("Get notified");
+    expect(quiet).not.toContain("PRIMARY_CLOSE");
+    expect(quiet).not.toContain("Packet 2");
+    expect(quiet).not.toContain("Rehearse");
+    expect(quiet).not.toContain("HōMI Companion");
+    expect(quiet).not.toContain("vendor list");
+    expect(quiet).not.toContain("subprocessors");
+    expect(quiet).not.toContain("SnapTrade");
   });
 
   it("mounted footer forbids sitemap columns, X SVG, legal wall, and DRI pipe", () => {

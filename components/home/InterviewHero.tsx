@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { PRIMARY_CLOSE_HREF, PRIMARY_CLOSE_LABEL } from "@/components/marketing/first-moment-copy";
 import { Compass3D } from "./Compass3D";
+import { BRAND } from "@/lib/brand";
 import { WALK_INVERSION, WALK_QUESTION } from "./walk-copy";
 import { track } from "@/lib/analytics";
 
@@ -30,8 +31,9 @@ export function InterviewHero() {
       </div>
 
       <div className="relative z-10 mx-auto flex min-h-[calc(100dvh-var(--nav-offset))] w-full max-w-7xl flex-col items-start justify-center pb-[min(20rem,42vh)] md:pb-16">
+        <p className="eyebrow">{BRAND.category}</p>
         <h1
-          className="type-giant max-w-[14ch] text-ink"
+          className="type-giant mt-5 max-w-[14ch] text-ink"
           style={{ textWrap: "balance", opacity: 1 }}
         >
           {WALK_QUESTION}
@@ -42,13 +44,21 @@ export function InterviewHero() {
         >
           {WALK_INVERSION}
         </p>
-        <Link
-          href={`${PRIMARY_CLOSE_HREF}?src=hero`}
-          className="btn btn-primary mt-8"
-          onClick={handleCtaClick}
-        >
-          {PRIMARY_CLOSE_LABEL}
-        </Link>
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          <Link
+            href={`${PRIMARY_CLOSE_HREF}?src=hero`}
+            className="btn btn-primary"
+            onClick={handleCtaClick}
+          >
+            {PRIMARY_CLOSE_LABEL}
+          </Link>
+          <Link href="/how-it-works" className="btn btn-ghost">
+            How it works
+          </Link>
+        </div>
+        <p className="mt-4 text-sm text-dim">
+          Free &middot; about 5 minutes &middot; educational only
+        </p>
       </div>
     </section>
   );

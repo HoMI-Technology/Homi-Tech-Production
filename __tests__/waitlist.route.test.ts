@@ -75,6 +75,29 @@ describe("POST /api/waitlist", () => {
     insertMock.mockResolvedValue({ error: { code: "23505" } });
     const res = await POST(request({ email: "ok@example.com", source: "waitlist" }));
     expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true });
     expect(sendTemplateEmail).not.toHaveBeenCalled();
+  });
+
+  it("fails the request when insert errors for any reason other than 23505", async () => {
+    insertMock.mockResolvedValue({ error: { code: "42501", message: "permission denied" } });
+    const res = await POST(request({ email: "ok@example.com", source: "waitlist" }));
+    expect(res.status).toBe(500);
+    expect(res.ok).toBe(false);
+    const body = await res.json();
+    expect(body.ok).not.toBe(true);
+    expect(body.error).toBe("Something didn't connect. Try again in a moment.");
+    expect(sendTemplateEmail).not.toHaveBeenCalled();
+  });
+
+  it("still returns ok when confirmation email throws after a successful insert", async () => {
+    sendTemplateEmail.mockRejectedValue(new Error("resend unavailable"));
+    const res = await POST(request({ email: "ok@example.com", source: "waitlist" }));
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true });
+    expect(sendTemplateEmail).toHaveBeenCalledWith({
+      template: "waitlist",
+      to: "ok@example.com",
+    });
   });
 });
