@@ -112,6 +112,8 @@ describe("homepage walk — one traveling Assess", () => {
   it("sits the pill below the line band, then parks before waitlist, footer, and cookie", () => {
     expect(PERSIST).toContain("walk-travel-assess-stack");
     expect(PERSIST).toContain("walk-line");
+    expect(PERSIST).toContain('minHeight: "14rem"');
+    expect(BEAT).toContain("max-w-5xl");
     expect(PERSIST).toContain('querySelector("#waitlist")');
     expect(PERSIST).toContain('querySelector("footer")');
     expect(PERSIST).toContain('querySelector("#cookie-consent")');

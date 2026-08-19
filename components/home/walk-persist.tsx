@@ -89,7 +89,7 @@ export function WalkPersist({ children }: { children: ReactNode }) {
                 the question, not on “be”.
               */}
               <div className="walk-travel-assess-stack">
-                <div className="walk-line" aria-hidden />
+                <div className="walk-line" aria-hidden style={{ minHeight: "14rem" }} />
                 <Link
                   href={`${PRIMARY_CLOSE_HREF}?src=hero`}
                   className="btn btn-primary btn-sm pointer-events-auto"

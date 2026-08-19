@@ -18,7 +18,7 @@ export function WalkBeat({
   return (
     <HoldStage words={words} className="hero-story hero-chapter">
       <div className={CLUSTER}>
-        <div className="walk-line">
+        <div className="walk-line max-w-5xl">
           <h2 className="type-display">
             <WalkWords>{children}</WalkWords>
           </h2>
