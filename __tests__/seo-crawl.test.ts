@@ -171,7 +171,7 @@ describe("locked title/meta lines", () => {
       "How HōMI measures readiness across Financial Reality, Emotional Truth, and Perfect Timing. A Decision Companion. Not a verdict factory.",
     );
     expect(page).toContain(
-      "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours.",
+      "Three pillars, weighed differently — how they combine stays ours. No single pillar",
     );
     expect(page).not.toContain("Palm Springs");
   });

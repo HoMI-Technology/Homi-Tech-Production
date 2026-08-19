@@ -150,15 +150,15 @@ export const GUIDES: Guide[] = [
       {
         heading: "The housing-ratio line that actually matters",
         paragraphs: [
-          "A separate ratio worth tracking closely is your total monthly housing cost — principal, interest, taxes, insurance, and HOA dues — as a share of gross monthly income. Once that crosses roughly 45%, the math stops being about comfort and starts being about risk. One bad month at that ratio doesn't dent your budget. It threatens the roof over your head.",
-          "This is one of the few lines HōMI treats as non-negotiable. Cross it, and the verdict is NOT YET regardless of how strong the rest of the picture looks, because no amount of emotional readiness offsets a housing payment that leaves no room to breathe.",
+          "A separate ratio worth tracking closely is your total monthly housing cost — principal, interest, taxes, insurance, and HOA dues — as a share of gross monthly income. When that share climbs high enough, the math stops being about comfort and starts being about risk: one bad month no longer dents your budget, it threatens the roof over your head.",
+          "This is one of the few places HōMI draws a firm line. When housing costs leave no room to breathe, the verdict turns protective regardless of how strong the rest of the picture looks, because no amount of emotional readiness offsets that exposure. We don't publish the exact line, so the signal can't be gamed.",
         ],
       },
       {
         heading: "What down payment and emergency fund actually protect",
         paragraphs: [
-          "A down payment below 5% isn't just a bigger loan — it's thinner equity, which means a soft market or a rushed sale in year two can leave you owing more than the home is worth. Twenty percent down remains the clearest marker of a purchase with real margin, but it's not a magic number; it's a proxy for discipline and cushion.",
-          "The emergency fund matters just as much as the down payment, and it's the one buyers most often ignore. Six months of expenses set aside, separate from the down payment, is what actually protects you once you own the surprises that come with ownership — the water heater, the roof, the year the property taxes jump. Fewer than three months, and you're one repair away from a debt spiral. Fewer than one month, and HōMI treats that as a hard-stop, not a warning.",
+          "A very small down payment isn't just a bigger loan — it's thinner equity, which means a soft market or a rushed sale in year two can leave you owing more than the home is worth. Twenty percent down remains the clearest marker of a purchase with real margin, but it's not a magic number; it's a proxy for discipline and cushion.",
+          "The emergency fund matters just as much as the down payment, and it's the one buyers most often ignore. Six months of expenses set aside, separate from the down payment, is what actually protects you once you own the surprises that come with ownership — the water heater, the roof, the year the property taxes jump. At the thin end, a single repair can start a debt spiral — and when there's essentially nothing set aside, HōMI stops treating it as a warning at all. The verdict turns protective, and the exact floor stays unpublished so it can't be gamed.",
         ],
       },
       {
@@ -185,7 +185,7 @@ export const GUIDES: Guide[] = [
       {
         heading: "Why HōMI won't let this one slide",
         paragraphs: [
-          "Most factors in the HōMI-Score are a matter of degree — more is better, less is worse, but nothing is disqualifying on its own. Runway is different. Under one month of expenses set aside forces a NOT YET verdict regardless of every other number in the assessment, because owning a home means owning its surprises, and there is no version of financial readiness that works without a cushion under it.",
+          "Most factors in the HōMI-Score are a matter of degree — more is better, less is worse, but nothing is disqualifying on its own. Runway is different. When there is essentially nothing set aside, the verdict turns fully protective regardless of every other number in the assessment, because owning a home means owning its surprises, and there is no version of financial readiness that works without a cushion under it. The exact floor is one of the red lines we keep private, so the signal can't be gamed.",
           "This isn't a penalty. It's the same logic as a building code: some lines exist because the failure mode behind them is severe enough that no other strength compensates for it. A high income and strong credit don't protect you from an emergency if there's nothing set aside to absorb it.",
         ],
       },
@@ -214,7 +214,7 @@ export const GUIDES: Guide[] = [
       {
         heading: "Your gut is part of the math here",
         paragraphs: [
-          "Emotional Truth carries equal weight to Financial Reality in the HōMI-Score, and that surprises people the first time they see it. It shouldn't. Confidence, alignment, and pressure predict whether someone regrets a major decision at least as reliably as debt-to-income ratios predict whether they can make the payment.",
+          "Emotional Truth is measured with the same seriousness as Financial Reality in the HōMI-Score, and that surprises people the first time they see it. It shouldn't. Confidence, alignment, and pressure predict whether someone regrets a major decision at least as reliably as debt-to-income ratios predict whether they can make the payment.",
           'Most financial tools treat feelings as noise to filter out before getting to the "real" numbers. HōMI treats them as their own category of signal, measured with the same seriousness as the spreadsheet, because a financially sound decision made for the wrong emotional reasons still produces regret.',
         ],
       },
@@ -251,13 +251,13 @@ export const GUIDES: Guide[] = [
     slug: "the-620-line-credit-before-keys",
     title: "The 620 Line: Credit Before Keys",
     description:
-      "Why HōMI treats a credit score under 620 as a hard-stop, and what actually moves the number in the months before you need it.",
+      "Why credit priced as high-risk changes the whole readiness picture — and what actually moves the number in the months before you need it.",
     sections: [
       {
         heading: "Why 620 specifically",
         paragraphs: [
           "620 is roughly where conventional mortgage pricing starts to shift meaningfully against you. Below it, the loans available narrow, the rates offered climb, and the total interest cost over the life of the loan can grow large enough to undo the value of the purchase itself. This isn't an arbitrary number — it's the point where the math genuinely changes.",
-          "That's why HōMI treats credit under 620 as a hard-stop rather than a deduction. A strong down payment and healthy emergency fund don't offset a credit score that will make the loan itself expensive for the next 15 to 30 years. Building credit first protects you from paying for years to skip a step that takes months to fix.",
+          "That's why credit priced as high-risk is a protective line for HōMI rather than a small deduction — and why we keep the exact line private, so it can't be gamed. A strong down payment and healthy emergency fund don't offset a credit score that will make the loan itself expensive for the next 15 to 30 years. Building credit first protects you from paying for years to skip a step that takes months to fix.",
         ],
       },
       {

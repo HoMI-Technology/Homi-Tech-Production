@@ -25,11 +25,13 @@
  *     credit-score-is-static framing, real-time & "live" freshness claims,
  *     absolute conflict-of-interest claims, perpetual guarantees, and
  *     whole-market competitor claims — EN and ES.
- *   - Trade-secret scoring internals on public marketing surfaces (N21–N22,
- *     2026-08 audit): numeric pillar weights ("35 of 100") and verdict score
- *     ranges rendered beside a verdict label. Path-scoped to app/(marketing),
- *     components/home, and components/marketing — product surfaces
- *     legitimately render "n / max" breakdowns and stay out of scope.
+ *   - Trade-secret scoring internals on public marketing surfaces (N21–N24,
+ *     2026-08 audit): numeric pillar weights in ANY phrasing ("35 of 100",
+ *     "Financial Reality 35"), verdict score ranges rendered beside a verdict
+ *     label, and numeric hard-stop cutoffs ("above 50%", "under 620",
+ *     "one month of runway") near hard-stop vocabulary. Path-scoped to
+ *     app/(marketing), components/home, and components/marketing — product
+ *     surfaces legitimately render "n / max" breakdowns and stay out of scope.
  *
  * SUPPRESSION (tightened — see SUPPRESSION_REGISTRY):
  *   The old model suppressed a line if it merely *contained* the substring
@@ -326,7 +328,7 @@ function isNegated(prevLine, line, matchIndex) {
 
 /**
  * Public marketing tree — the surfaces where trade-secret scoring internals
- * (N21–N22) must never render. Repo-relative posix path prefixes.
+ * (N21–N24) must never render. Repo-relative posix path prefixes.
  */
 const MARKETING_SURFACE_RE = /^(?:app\/\(marketing\)\/|components\/(?:home|marketing)\/)/;
 
@@ -446,9 +448,9 @@ const RULES = [
   },
   {
     id: "N8",
-    re: /\bthe only\s+(?:\w+[- ])?(?:platform|company|product|tool|service|app|score|system|voice)\b|\b(?:la única|el único)\s+(?:plataforma|empresa|producto|herramienta|puntuación)\b/,
+    re: /\bthe only\s+(?:\w+\s+)?(?:platform|company|product|tool|service|app|score|system|voice)\b|\b(?:la única|el único)\s+(?:plataforma|empresa|producto|herramienta|puntuación)\b/,
     message:
-      'Unsupported exclusivity claim ("the only <platform/company/…>") — cannot be substantiated.',
+      'Unsupported exclusivity claim ("the only <platform/company/…") — cannot be substantiated.',
   },
   {
     id: "N9",
@@ -552,10 +554,10 @@ const RULES = [
       "Arbitrary text size (text-[…]) is off the type scale — snap to a scale step (text-3xs … text-3xl, or a type-* class from app/globals.css).",
   },
 
-  /* --- Trade-secret scoring internals on marketing surfaces (N21–N22) *
-   * 2026-08 brand/compliance audit: exact pillar weights and verdict
-   * thresholds are trade-secret; the public model is qualitative only.
-   * Scoped via `paths` to the public marketing tree. Product surfaces
+  /* --- Trade-secret scoring internals on marketing surfaces (N21–N24) *
+   * 2026-08 brand/compliance audit: exact pillar weights, verdict thresholds,
+   * and hard-stop cutoffs are trade-secret; the public model is qualitative
+   * only. Scoped via `paths` to the public marketing tree. Product surfaces
    * (score breakdowns rendering "n / max") stay out of scope, as do the
    * engine and its docs under lib/scoring. */
   {
@@ -574,6 +576,30 @@ const RULES = [
     re: /\b(?:0|[1-9]\d{0,2})\s*(?:–|—|&ndash;|&mdash;|-)\s*(?:0|[1-9]\d{0,2})\b/,
     message:
       "Verdict score range beside a verdict label on a public marketing surface — thresholds are trade-secret; keep the public spectrum qualitative (2026-08 audit).",
+  },
+  {
+    // Catches the phrasing N21 missed on /how-it-works: weights stated as
+    // "Financial Reality 35. Emotional Truth 35. Perfect Timing 30." — a bare
+    // number beside the pillar name, with no "of 100" anchor.
+    id: "N23",
+    paths: MARKETING_SURFACE_RE,
+    re: /\b(?:Financial Reality|Emotional Truth|Perfect Timing)\s*[.,:;—–-]?\s*\d{1,3}\b/,
+    message:
+      'Numeric pillar weight beside a pillar name on a public marketing surface — exact weights are trade-secret in ANY phrasing; the public model is qualitative only (2026-08 audit).',
+  },
+  {
+    // Hard-stop cutoffs are the most gameable parameters in the system: a
+    // visitor who knows "above 50%" / "under 620" / "one month of runway"
+    // knows exactly which answer to shade. Only fires when hard-stop
+    // vocabulary sits in the line window, so ordinary marketing numerals
+    // ("save up to 20%") are unaffected. NOTE: no inline /i flag on `re` —
+    // checkLine() appends the i flag itself for non-cs rules.
+    id: "N24",
+    paths: MARKETING_SURFACE_RE,
+    near: /\b(?:hard[- ]?stop|red lines?|forced to|override[s]? the math)\b/i,
+    re: /\b(?:above|over|under|below|fewer than|less than)\s+(?:\d|one\b|a single\b)/,
+    message:
+      "Numeric hard-stop cutoff on a public marketing surface — exact red-line thresholds are trade-secret; describe them qualitatively so the protective signal cannot be gamed (2026-08 audit).",
   },
 ];
 

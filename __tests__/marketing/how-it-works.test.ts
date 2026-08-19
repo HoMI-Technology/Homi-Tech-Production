@@ -9,11 +9,11 @@ const PAGE = readFileSync(join(ROOT, "app", "(marketing)", "how-it-works", "page
 const ASSESS_CARD =
   "Answer honest questions across Financial Reality, Emotional Truth, and Perfect Timing. Sliders, not essays.";
 const VERDICT_CARD =
-  "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours. Then hard-stops — conditions that override the math because they are not safe to build on top of.";
+  "Your answers become a deterministic readiness score — same inputs, same answer, every time. Then hard-stops: conditions that override the math because they are not safe to build on top of.";
 const PILLAR_INTRO =
-  "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours. Here is what each pillar looks at and why it matters.";
+  "How the pillars weigh in stays ours. Here is what each pillar looks at and why it";
 const WEIGHTS_LOCK =
-  "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours.";
+  "Three pillars, weighed differently — how they combine stays ours. No single pillar";
 const BUILD_CARD =
   "Not yet is a starting line, not a wall. You get a map: the specific, ordered things to build first.";
 
@@ -31,6 +31,8 @@ const KILLED = [
   "Every verdict below READY comes with a map",
   "HōMI weighs Financial Reality, Emotional Truth, and Perfect Timing at 35 / 35 / 30, then checks for hard-stops — conditions that override the math entirely because they are not safe to build on top of.",
   "The public weights are 35 / 35 / 30 — Financial Reality, Emotional Truth, Perfect Timing. Here is what each pillar looks at and why it matters.",
+  "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30.",
+  "Fannie&apos;s manual floor is still 620.",
 ] as const;
 
 describe("how-it-works — Brand-authored lock", () => {
@@ -72,9 +74,8 @@ describe("how-it-works — Brand-authored lock", () => {
   it("locks the finance-packet credit disclaimer", () => {
     expect(PAGE).toContain("HōMI Score is not a credit score.");
     expect(PAGE).toContain("Lenders will still pull a credit report.");
-    expect(PAGE).toContain(
-      "Fannie&apos;s manual floor is still 620. That is their gate, not a HōMI verdict.",
-    );
+    expect(PAGE).toContain("Their");
+    expect(PAGE).toContain("gates are their gates, not a HōMI verdict.");
     expect(PAGE).not.toContain("replace your credit score");
     expect(PAGE).not.toContain("HōMI-approved");
     expect(PAGE).not.toContain("UltraFICO");
