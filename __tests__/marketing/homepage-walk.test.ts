@@ -3,6 +3,16 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { TAGLINES } from "@/lib/brand";
 import { FIRST_MOMENT_BEATS } from "@/components/marketing/first-moment-copy";
+import {
+  WALK_CLARITY,
+  WALK_COMPANION,
+  WALK_INVERSION,
+  WALK_LINES,
+  WALK_OBJECT,
+  WALK_PRIMARY,
+  WALK_QUESTION,
+  WALK_NOT_YET,
+} from "@/components/home/walk-copy";
 
 const ROOT = process.cwd();
 
@@ -10,253 +20,230 @@ function src(...segments: string[]): string {
   return readFileSync(join(ROOT, ...segments), "utf8");
 }
 
-describe("homepage hybrid — locked first viewport", () => {
-  const hero = src("components", "home", "InterviewHero.tsx");
+const HOME = src("app", "(marketing)", "page.tsx");
+const HERO = src("components", "home", "InterviewHero.tsx");
+const PERSIST = src("components", "home", "walk-persist.tsx");
+const BEAT = src("components", "home", "WalkBeat.tsx");
+const HOLD = src("components", "home", "walk-hold.tsx");
+const CSS = src("app", "globals.css");
 
-  it("sizes the question as the largest display", () => {
-    expect(hero).toContain("type-giant");
-    expect(hero).not.toContain("type-statement");
+describe("homepage walk — locked copy is character-exact", () => {
+  it("pins the seven locked lines and invents no others", () => {
+    expect(WALK_LINES).toEqual([
+      "Will you be okay?",
+      "A Decision Companion.",
+      "Everyone else tells you how. HōMI tells you if.",
+      "Know when you're ready. Move when it matters.",
+      "Clarity, not commission.",
+      "Not yet is not no.",
+      "The compass that becomes a key when you're finally ready to turn it.",
+    ]);
+    expect(WALK_PRIMARY).toBe(TAGLINES.primary);
+    expect(WALK_QUESTION).toBe("Will you be okay?");
+    expect(WALK_COMPANION).toBe("A Decision Companion.");
+    expect(WALK_INVERSION).toBe("Everyone else tells you how. HōMI tells you if.");
+    expect(WALK_CLARITY).toBe("Clarity, not commission.");
+    expect(WALK_NOT_YET).toBe("Not yet is not no.");
+    expect(WALK_OBJECT).toBe(
+      "The compass that becomes a key when you're finally ready to turn it.",
+    );
   });
 
-  it("pins the three locked first-viewport lines and Assess → First Moment", () => {
-    expect(hero).toContain("Will you be okay?");
-    expect(hero).toContain("A Decision Companion.");
-    expect(hero).toContain("Everyone else tells you how. HōMI tells you if.");
-    expect(hero).toContain("PRIMARY_CLOSE_HREF");
-    expect(hero).toContain("PRIMARY_CLOSE_LABEL");
-    expect(hero).toContain("?src=hero");
-    expect(hero).toContain('track("hero_cta_click", { src: "hero" })');
-    expect(hero).toContain('href="#statement"');
-    expect(hero).toContain("What this is");
-  });
-
-  it("does not contain Trinity, wait-rate 70, or a two-column instrument split", () => {
-    expect(hero).not.toContain("Trinity");
-    expect(hero).not.toContain("70 · told to wait");
-    expect(hero).not.toMatch(/lg:grid-cols/);
-  });
-
-  it("keeps the object panel inside the raster it actually has", () => {
-    // The stills are 1280×720 and cannot be re-rendered here. A full-bleed
-    // `fill` + sizes="100vw" asked the optimizer for 3840px of them on every
-    // retina viewport; the optimizer does not upscale, so the brass came back
-    // soft. Intrinsic width/height plus a panel capped at 6 of 12 columns
-    // keeps the object oversampled even at 2×. Re-adding `fill` undoes it.
-    expect(hero).toContain("width={1280}");
-    expect(hero).toContain("height={720}");
-    expect(hero).not.toMatch(/^\s*fill$/m);
-    expect(hero).not.toContain('sizes="100vw"');
-    expect(src("app", "globals.css")).toContain("max-width: 566px");
-  });
-
-  it("grounds the page on flat canon navy — no gradient, no off-token slab", () => {
-    // The reference's ground is flat. So is this one; the previous build's
-    // radial+linear ramp was neither the reference nor canon.
-    const css = src("app", "globals.css");
-    const page = css.slice(css.indexOf(".tf-page {"), css.indexOf(".tf-shell {"));
-    expect(page).toContain("background: var(--color-navy)");
-    expect(page).not.toMatch(/background:\s*#040b16;/);
-    expect(page).not.toContain("radial-gradient");
-  });
-
-  it("drops the invalid overflow-wrap value from the giant display", () => {
-    // `balance` is not a legal overflow-wrap value; the parser dropped it and
-    // `text-wrap: balance` was doing the work all along.
-    expect(src("app", "globals.css")).not.toContain("overflow-wrap: balance");
-  });
-
-  it("is a still first screen — photo object, no pin-scroll, no traveling Assess", () => {
-    expect(hero).not.toContain("HoldStage");
-    expect(hero).not.toContain("WalkPersist");
-    expect(hero).not.toContain("walk-travel-assess");
-    expect(hero).not.toContain("CinematicCompass");
-    expect(hero).toContain("/marketing/home/object-hero.jpg");
-    expect(hero).not.toContain("4:3:2");
-    expect(hero).not.toContain("85/60/35");
-  });
-
-  it("keeps hero padding and stack inside the first viewport", () => {
-    expect(hero).toContain("pt-24");
-    expect(hero).not.toContain("pt-28");
-    expect(hero).not.toContain("pt-32");
-    expect((hero.match(/<p[\s>]/g) ?? []).length).toBe(1);
-    expect(src("app", "globals.css")).toContain("min-height: calc(100dvh - var(--nav-offset))");
-  });
-
-  it("keeps What this is as a text kicker, not a pill", () => {
-    // `walk-kicker` is walk-era CSS: absolutely positioned, uppercase, wide
-    // tracked, underlined. It escaped its column on mobile and is the opposite
-    // of the reference's plain 13px sans line. `tf-kicker` replaces it.
-    expect(hero).toContain("tf-kicker");
-    expect(hero).not.toContain("walk-kicker");
-    expect(hero).toContain("What this is");
-    expect(hero).not.toMatch(/What this is[\s\S]{0,80}btn/);
+  it("mounts every locked line on the walk and does not paste First Moment beats", () => {
+    expect(HERO).toContain("WALK_QUESTION");
+    expect(HOME).toContain("WALK_COMPANION");
+    expect(HOME).toContain("WALK_INVERSION");
+    expect(HOME).toContain("WALK_PRIMARY");
+    expect(HOME).toContain("WALK_CLARITY");
+    expect(HOME).toContain("WALK_OBJECT");
+    expect(HOME).toContain("Not yet is not");
+    expect(HOME).toContain('className="text-emerald"');
+    for (const beat of FIRST_MOMENT_BEATS) {
+      expect(HOME).not.toContain(beat.line);
+      expect(HERO).not.toContain(beat.line);
+    }
   });
 });
 
-describe("homepage hybrid — readable front door", () => {
-  const home = src("app", "(marketing)", "page.tsx");
-
-  it("keeps the keep-list lines after the hero", () => {
-    expect(home).toContain("TAGLINES.primary");
-    expect(TAGLINES.primary).toBe("Know when you're ready. Move when it matters.");
-    expect(home).toContain("Not yet is not");
-    expect(home).toContain(
-      "The compass that becomes a key when you&rsquo;re finally ready to turn it.",
-    );
-    expect(home).toContain("Clarity, not commission.");
-    expect(home).toContain('id="statement"');
+describe("homepage walk — first viewport is the painted question", () => {
+  it("renders the H1 as solid type-giant with no opacity or typewriter", () => {
+    expect(HERO).toContain("type-giant");
+    expect(HERO).toContain("{WALK_QUESTION}");
+    expect(HERO).not.toContain("opacity-0");
+    expect(HERO).not.toContain("opacity: 0");
+    expect(HERO).not.toMatch(/typewriter|split-type|SplitType/i);
+    expect(HERO).not.toContain("WalkWords");
+    expect(HERO).not.toMatch(/<(p|a|button|svg)[\s>]/);
+    expect((HERO.match(/<h1[\s>]/g) ?? []).length).toBe(1);
   });
 
-  it("explains the product in three steps without scoring internals", () => {
-    expect(home).toContain("Assess");
-    expect(home).toContain("Verdict");
-    expect(home).toContain("Build");
-    expect(home).toContain("/how-it-works");
-    expect(home).not.toContain("35/35/30");
-    expect(home).not.toContain("4:3:2");
-    expect(home).not.toContain("85/60/35");
+  it("holds the question as a sticky 100vh scene, cinema=hero", () => {
+    expect(HERO).toContain("HoldStage");
+    expect(HERO).toContain('cinema="hero"');
+    expect(HERO).toContain("hero-story");
+    expect(CSS).toContain('[data-cinema="hero"] .walk-word');
+    expect(CSS).toContain("color: var(--color-light)");
   });
 
-  it("carries the reference's grammar — guides, tier rows, flush panels", () => {
-    // Measured off terafab.ai's own stylesheet, not recalled: a 12-column
-    // structural guide overlay, hairline tier rows, and flush hard-edged
-    // object panels. Roman-numeral scene marks were a misread of that site's
-    // Kardashev *content* as a structural device — do not bring them back.
-    expect(home).toContain("tf-guides-grid");
-    expect(home).toContain("tf-rows");
-    expect(home).toContain("tf-panel");
-    expect(home).not.toMatch(/numeral: "I+"/);
-    expect(home).not.toContain("I — Thesis");
-    expect(home).not.toContain("V — Close");
+  it("does not put Assess, a pill, or a compass on the question", () => {
+    expect(HERO).not.toContain("PRIMARY_CLOSE");
+    expect(HERO).not.toContain("btn-primary");
+    expect(HERO).not.toContain("CinematicCompass");
+    expect(HERO).not.toContain("walk-travel-assess");
+    expect(HERO).not.toContain("object-hero");
+    expect(HERO).not.toMatch(/lg:grid-cols/);
+  });
+});
+
+describe("homepage walk — one traveling Assess", () => {
+  it("keeps a single walk pill on PRIMARY_CLOSE → First Moment", () => {
+    expect(PERSIST).toContain("PRIMARY_CLOSE_HREF");
+    expect(PERSIST).toContain("PRIMARY_CLOSE_LABEL");
+    expect(PERSIST).toContain("?src=hero");
+    expect(PERSIST).toContain('track("hero_cta_click", { src: "hero" })');
+    expect((PERSIST.match(/btn-primary/g) ?? []).length).toBe(1);
+    expect((PERSIST.match(/data-walk-assess=""/g) ?? []).length).toBe(1);
+    expect(HOME).not.toContain("btn-primary");
+    expect(HOME).not.toContain("PRIMARY_CLOSE");
+    expect(BEAT).not.toContain("btn-primary");
+    expect(BEAT).not.toContain("PRIMARY_CLOSE");
   });
 
-  it("grades the compass onto the canon ramp, from tokens", () => {
-    const filter = src("components", "home", "CompassFilter.tsx");
-    // Derived from lib/brand COLORS so the grade cannot fork from the palette.
-    expect(filter).toContain("COLORS.navy");
-    expect(filter).toContain("COLORS.cyanDeep");
-    expect(filter).toContain("COLORS.cyan");
-    expect(filter).toContain("COLORS.light");
-    expect(filter).not.toMatch(/hueRotate/);
-    expect(filter).not.toMatch(/#[0-9a-fA-F]{6}/);
-    // linearRGB (the default) washes the mids out badly.
-    expect(filter).toContain('colorInterpolationFilters="sRGB"');
-    // Luminance first — the map is a function of brightness alone.
-    expect(filter).toContain('type="saturate"');
-
-    const css = src("app", "globals.css");
-    expect(css).toContain('filter: url("#homi-compass-grade")');
-    expect(home).toContain("CompassFilter");
+  it("sits the pill below the question, then parks before the locked when beat", () => {
+    expect(PERSIST).toContain("walk-travel-assess-stack");
+    expect(PERSIST).toContain("walk-line");
+    expect(PERSIST).toContain('minHeight: "14rem"');
+    expect(BEAT).toContain("max-w-5xl");
+    expect(PERSIST).toContain('querySelector("#walk-when")');
+    expect(PERSIST).toContain("assessAway = onWhen || docked || footerIn");
+    expect(PERSIST).toContain("compassAway = docked || footerIn");
+    expect(PERSIST).toContain('querySelector("#waitlist")');
+    expect(PERSIST).toContain('querySelector("footer")');
+    expect(PERSIST).toContain('querySelector("#cookie-consent")');
+    expect(PERSIST).toContain("inert={assessAway");
+    expect(PERSIST).toContain("aria-hidden={assessAway");
+    expect(PERSIST).toContain("data-cookie");
+    expect(HOME).toContain('id="walk-when"');
+    expect(HOME).toContain("WALK_PRIMARY");
+    expect(HOME).toContain('id="waitlist"');
+    expect(HOME).toContain("WaitlistForm");
+    expect(HOME).toContain('source="landing"');
+    expect(HOME).toContain('idPrefix="landing-waitlist"');
+    expect(HOME).toContain('surface="whisper"');
+    expect(WALK_PRIMARY).toContain("when");
+    expect(WALK_OBJECT).toContain("when");
   });
 
-  it("keeps display type restrained and light, per the reference", () => {
-    // The reference's hero title caps at 4.4rem at weight 300 — it is not
-    // cinema-scale, and it is never bold. A 7.5rem semibold headline was the
-    // single biggest reason the last pass did not read as that site.
-    const css = src("app", "globals.css");
-    const giant = css.slice(
-      css.indexOf(".tf-page .type-giant {"),
-      css.indexOf(".tf-page .type-display {"),
-    );
-    expect(giant).toContain("clamp(2.4rem, 5.2vw, 4.4rem)");
-    expect(giant).toContain("font-weight: 300");
-    expect(giant).toContain("letter-spacing: -0.035em");
-    const heroSrc = src("components", "home", "InterviewHero.tsx");
-    expect(heroSrc).toContain("font-light");
-    expect(heroSrc).not.toContain("font-semibold");
-    expect(home).not.toContain("font-semibold");
+  it("travels the Brand compass in the lower-right field, off the type", () => {
+    expect(PERSIST).toContain("CinematicCompass");
+    expect(PERSIST).toContain("walk-travel-compass");
+    expect(PERSIST).toContain("COMPASS_FIELD");
+    expect(PERSIST).toContain('right: "max(1.25rem, 5vw)"');
+    expect(PERSIST).toContain('bottom: "max(6.75rem, 12vh)"');
+    expect(PERSIST).toContain('width: "min(26vmin, 9.25rem)"');
+    expect(PERSIST).not.toContain("hero-instrument-field");
+    expect(PERSIST).not.toContain("lg:left-[38%]");
+    expect(PERSIST).not.toContain("is-object");
+    expect(PERSIST).not.toContain("walk-compass-halo");
+    expect(PERSIST).not.toContain('verdict="READY"');
+    expect(HOME).not.toContain("CinematicCompass");
+    expect(HOME).not.toContain("CompassFilter");
+    const compass = src("components", "home", "CinematicCompass.tsx");
+    expect(compass).toContain('r="85"');
+    expect(compass).toContain('r="60"');
+    expect(compass).toContain('r="35"');
+  });
+});
+
+describe("homepage walk — later lines are scroll-lit, not typed", () => {
+  it("lights later words with color fill from a readable dim, reversible with scroll", () => {
+    expect(BEAT).toContain("WalkWords");
+    expect(BEAT).not.toContain('paint="full"');
+    expect(HOLD).toContain("requestAnimationFrame");
+    expect(HOLD).toContain("setProgress");
+    expect(HOLD).toContain("smoothstep");
+    expect(CSS).toContain("--walk-alpha-dim: 0.4");
+    expect(CSS).toContain(".walk-word[data-on]");
+    expect(HOLD).not.toContain("opacity-0");
+    expect(BEAT).not.toContain("opacity-0");
+    expect(`${HOLD}\n${BEAT}`).not.toMatch(/split-type|SplitType|letter-spacing:\s*0\s+\w/i);
   });
 
-  it("keeps the kicker a plain 13px sans line, not a wide-tracked overline", () => {
-    const css = src("app", "globals.css");
-    const kicker = css.slice(css.indexOf(".tf-kicker {"), css.indexOf(".tf-code {"));
-    expect(kicker).toContain("font-size: 13px");
-    expect(kicker).toContain("font-weight: 400");
-    expect(kicker).not.toContain("text-transform: uppercase");
+  it("paints every word immediately under prefers-reduced-motion", () => {
+    expect(HOLD).toContain("prefers-reduced-motion");
+    expect(HOLD).toContain("setProgress(1)");
+    expect(CSS).toContain("@media (prefers-reduced-motion: reduce)");
+    expect(CSS).toContain(".walk-word {\n      color: var(--color-light)");
   });
 
-  it("spends the accent budget once each — cyan on the close, emerald on no", () => {
-    expect((home.match(/text-emerald/g) ?? []).length).toBe(1);
-    expect(home).not.toContain("text-cyan");
-    expect(home).not.toContain("text-yellow");
-    expect((home.match(/btn-primary/g) ?? []).length).toBe(1);
+  it("holds one idea per 1.0–1.3 viewports with no dead navy fade", () => {
+    expect(HOLD).toContain("walk-hold");
+    expect(CSS).toContain("height: 122dvh");
+    expect(CSS).toContain("margin-bottom: -22vh");
+    expect(CSS).toContain("Do not fade the stage");
+    expect(BEAT).toContain("h-[100dvh]");
+    expect(HERO).toContain("h-[100dvh]");
   });
+});
 
-  it("stays type and air — no glass card wall, no 01/02/03", () => {
-    expect(home).not.toMatch(/\bclassName="[^"]*glass/);
-    expect(home).not.toContain("glass-hover");
-    expect(home).not.toContain("md:grid-cols-3");
-    expect(home).not.toContain("md:grid-cols");
-    expect(home).not.toContain('"01"');
-    expect(home).not.toContain('"02"');
-    expect(home).not.toContain('"03"');
-    expect(home).not.toContain("score-numeral");
-    expect(home).not.toContain("CinematicCompass");
-    expect(home).not.toContain("CinemaFX");
-    expect(home).toContain("/marketing/home/object-key.jpg");
-    expect(home).toContain("ObjectReveal");
-  });
+describe("homepage walk — native scroll only", () => {
+  const files = [HERO, BEAT, PERSIST, HOLD, HOME].join("\n");
 
-  it("says what HōMI is not, without a brochure table", () => {
-    expect(home).toContain("What HōMI is not");
-    expect(home).toContain("Not a lender or broker");
-    expect(home).toContain("Not a credit bureau");
-    expect(home).toContain("Not financial advice");
-    expect(home).not.toContain("<table");
-  });
-
-  it("does not restate the hero inversion or paste First Moment beats", () => {
-    expect(home).not.toContain("Everyone else tells you how");
-    expect(home).not.toContain("Will you be okay?");
-    expect(home).not.toContain("A Decision Companion.");
-    for (const beat of FIRST_MOMENT_BEATS) {
-      expect(home).not.toContain(beat.line);
-    }
-  });
-
-  it("closes with Assess plus a whisper waitlist — no remounted theater", () => {
-    expect(home).toContain("PRIMARY_CLOSE_HREF");
-    expect(home).toContain("PRIMARY_CLOSE_LABEL");
-    expect(home).toContain("WaitlistForm");
-    expect(home).toContain('source="landing"');
-    expect(home).toContain('idPrefix="landing-waitlist"');
-    expect(home).toContain('id="waitlist"');
-    expect(home).toContain('surface="whisper"');
-    expect(home).not.toContain("WalkPersist");
-    expect(home).not.toContain("IdeaBeat");
-    expect(home).not.toContain("WalkChapter");
-    expect(home).not.toContain("Or start a free assessment");
-    expect(home).not.toContain("Explore the Compass");
-    expect(home).not.toContain("Get notified");
-  });
-
-  it("does not insert a disclaimer chapter between hero and #statement", () => {
-    const start = home.indexOf("<InterviewHero");
-    const end = home.indexOf('id="statement"');
-    expect(start).toBeGreaterThan(-1);
-    expect(end).toBeGreaterThan(start);
-    expect(home.slice(start, end)).not.toContain("Educational only");
-  });
-
-  it("keeps the educational line in the footer, character-matched", () => {
-    const footer = src("components", "layout", "SiteFooter.tsx");
-    expect(footer).toContain("bg-navy");
-    expect(footer).toContain("Educational only &mdash; not financial advice.");
-    expect(footer).toContain(
-      "HōMI provides educational guidance only. Consider consulting qualified professionals",
-    );
-    expect(footer).toContain(
-      "before making legal, tax, mortgage, investment, or real estate decisions.",
+  it("does not hijack scroll or import GSAP / Lenis / SplitType / Three", () => {
+    expect(files).not.toMatch(/preventDefault/);
+    expect(files).not.toMatch(/scroll-snap|scrollSnap|pin-spacer|pinSpacer/);
+    expect(files).not.toMatch(
+      /from\s+["'](?:gsap|lenis|split-type|@studio-freight\/lenis|three)["']/,
     );
   });
 
-  it("does not remount StatementReveal or AlignmentScene", () => {
-    expect(home).not.toMatch(/from\s+["']@\/components\/home\/StatementReveal["']/);
-    expect(home).not.toMatch(/from\s+["']@\/components\/home\/AlignmentScene["']/);
-    expect(home).not.toContain("<StatementReveal");
-    expect(home).not.toContain('className="pin-scene');
-    expect(home).not.toContain('data-testid="alignment-pin-stage"');
+  it("reads progress on rAF from native scroll — no Lenis", () => {
+    expect(HOLD).toContain('addEventListener("scroll"');
+    expect(HOLD).toContain("{ passive: true }");
+    expect(HOLD).toContain("requestAnimationFrame");
+  });
+});
+
+describe("homepage walk — parked theater and TeraFab stack stay off", () => {
+  it("does not mount killed theater, Packet 2, or /advisor", () => {
+    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/AlignmentScene["']/);
+    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/ThresholdPreview["']/);
+    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/VerdictShift["']/);
+    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/Voices["']/);
+    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/DecisionOrbit["']/);
+    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/Flashlight["']/);
+    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/TimelineShift["']/);
+    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/StatementReveal["']/);
+    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/ObjectReveal["']/);
+    expect(HOME).not.toContain("<AlignmentScene");
+    expect(HOME).not.toContain("<ThresholdPreview");
+    expect(HOME).not.toContain("<Voices");
+    expect(HOME).not.toContain("<table");
+    expect(HOME).not.toContain("/advisor");
+    expect(HOME).not.toContain("Packet 2");
+    expect(HOME).not.toContain("HōMI Score");
+    expect(HOME).not.toContain("4:3:2");
+    expect(HOME).not.toContain("85/60/35");
+    expect(HERO).not.toContain("4:3:2");
+    expect(HERO).not.toContain("85/60/35");
+    expect(PERSIST).not.toContain("4:3:2");
+    expect(PERSIST).not.toContain("85/60/35");
+  });
+
+  it("does not copy the TeraFab stack, chrome, or inventory", () => {
+    expect(HOME).not.toContain("tf-page");
+    expect(HOME).not.toContain("tf-guides");
+    expect(HOME).not.toContain("tf-panel");
+    expect(HOME).not.toContain("Watch Now");
+    expect(HOME).not.toContain("Kardashev");
+    expect(HOME).not.toContain("Inter Tight");
+    expect(HOME).not.toContain("object-hero");
+    expect(HOME).not.toContain("object-key");
+    expect(HERO).not.toContain("tf-kicker");
+    expect(HERO).not.toContain("What this is");
+    expect(HERO).not.toContain("font-light");
+    expect(`${HOME}\n${HERO}\n${BEAT}`).not.toContain("Trinity");
+    expect(`${HOME}\n${HERO}`).not.toContain("70 · told to wait");
   });
 });
 
@@ -300,65 +287,7 @@ describe("homepage walk — desktop hamburger stays hidden", () => {
   });
 });
 
-describe("homepage hybrid — brochure inventory is unmounted", () => {
-  const home = src("app", "(marketing)", "page.tsx");
-
-  it("does not mount killed theater or fake-score surfaces", () => {
-    expect(home).not.toMatch(/from\s+["']@\/components\/home\/AlignmentScene["']/);
-    expect(home).not.toMatch(/from\s+["']@\/components\/home\/ThresholdPreview["']/);
-    expect(home).not.toMatch(/from\s+["']@\/components\/home\/VerdictShift["']/);
-    expect(home).not.toMatch(/from\s+["']@\/components\/home\/Voices["']/);
-    expect(home).not.toMatch(/from\s+["']@\/components\/home\/DecisionOrbit["']/);
-    expect(home).not.toMatch(/from\s+["']@\/components\/home\/Flashlight["']/);
-    expect(home).not.toMatch(/from\s+["']@\/components\/home\/TimelineShift["']/);
-    expect(home).not.toMatch(/from\s+["']@\/components\/home\/StatementReveal["']/);
-    expect(home).not.toContain("<AlignmentScene");
-    expect(home).not.toContain("<ThresholdPreview");
-    expect(home).not.toContain("<Voices");
-    expect(home).not.toContain("<table");
-    expect(home).not.toContain("HōMI Score");
-    expect(home).not.toContain("Permissioned Readiness Summary");
-    expect(home).not.toContain("One companion. Three ways to hear it.");
-    expect(home).not.toContain("28 / 33 / 36");
-    expect(home).not.toContain("35/35/30");
-    expect(home).not.toContain("No commissions");
-    expect(home).not.toContain("Your Decision Companion");
-    expect(home).not.toContain("Everyone asks the wrong question.");
-    expect(home).not.toContain("Home is the first threshold.");
-    expect(home).not.toContain("A credit score tells institutions");
-    expect(home).not.toContain("Trinity");
-    expect(home).not.toContain("70 · told to wait");
-    expect(home).not.toContain("Homie");
-    expect(home).not.toContain("ALMOST THERE");
-    expect(home).not.toContain("DO NOT PROCEED");
-    expect(home).not.toContain("BUILD FIRST");
-  });
-});
-
-describe("homepage hybrid — no scroll jack", () => {
-  const files = [
-    src("components", "home", "InterviewHero.tsx"),
-    src("components", "home", "ObjectReveal.tsx"),
-    src("app", "(marketing)", "page.tsx"),
-  ].join("\n");
-
-  it("does not jack scroll or import GSAP / Lenis / SplitType / Three", () => {
-    expect(files).not.toMatch(/preventDefault/);
-    expect(files).not.toMatch(/scroll-snap|scrollSnap|pin-spacer|pinSpacer/);
-    expect(files).not.toMatch(
-      /from\s+["'](?:gsap|lenis|split-type|@studio-freight\/lenis|three)["']/,
-    );
-    expect(files).not.toContain('addEventListener("scroll"');
-    expect(files).not.toContain("window.scrollY");
-  });
-
-  it("lifts the object scrim with a view timeline, not a scroll listener", () => {
-    const css = src("app", "globals.css");
-    expect(css).toContain("animation-timeline: view()");
-    expect(css).toContain("@property --p");
-    expect(src("components", "home", "ObjectReveal.tsx")).not.toContain("useEffect");
-  });
-
+describe("homepage walk — five nav items stay", () => {
   it("keeps five marketing nav items", () => {
     const header = src("components", "layout", "SiteHeader.tsx");
     const navBlock = header.slice(header.indexOf("const NAV"), header.indexOf("] as const"));
@@ -368,5 +297,28 @@ describe("homepage hybrid — no scroll jack", () => {
     expect(header).toContain("Guides");
     expect(header).toContain("Pricing");
     expect(header).toContain("For Teams");
+  });
+});
+
+describe("homepage walk — waitlist Get notified stays", () => {
+  it("keeps the whisper waitlist submit label", () => {
+    const form = src("components", "marketing", "WaitlistForm.tsx");
+    expect(form).toContain("Get notified");
+    expect(HOME).toContain("WaitlistForm");
+    expect(HOME).not.toContain("Get notified");
+  });
+});
+
+describe("homepage walk — footer educational line stays", () => {
+  it("keeps the educational line in the footer, character-matched", () => {
+    const footer = src("components", "layout", "SiteFooter.tsx");
+    expect(footer).toContain("bg-navy");
+    expect(footer).toContain("Educational only &mdash; not financial advice.");
+    expect(footer).toContain(
+      "HōMI provides educational guidance only. Consider consulting qualified professionals",
+    );
+    expect(footer).toContain(
+      "before making legal, tax, mortgage, investment, or real estate decisions.",
+    );
   });
 });

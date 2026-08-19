@@ -73,13 +73,15 @@ describe("anonymous SiteFooter Product column", () => {
 });
 
 describe("homepage Assess close is unchanged", () => {
-  it("keeps InterviewHero on PRIMARY_CLOSE_HREF / First Moment", () => {
+  it("keeps the traveling walk Assess on PRIMARY_CLOSE_HREF / First Moment", () => {
+    const persist = src("components", "home", "walk-persist.tsx");
     const hero = src("components", "home", "InterviewHero.tsx");
-    expect(hero).toContain("PRIMARY_CLOSE_HREF");
-    expect(hero).toContain("PRIMARY_CLOSE_LABEL");
-    expect(hero).toContain("?src=hero");
-    expect(hero).not.toContain('href="/assessment"');
-    expect(hero).not.toContain("/shadow-score");
+    expect(persist).toContain("PRIMARY_CLOSE_HREF");
+    expect(persist).toContain("PRIMARY_CLOSE_LABEL");
+    expect(persist).toContain("?src=hero");
+    expect(persist).not.toContain('href="/assessment"');
+    expect(persist).not.toContain("/shadow-score");
+    expect(hero).not.toContain("PRIMARY_CLOSE");
   });
 });
 

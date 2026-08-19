@@ -1,66 +1,71 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { PRIMARY_CLOSE_HREF, PRIMARY_CLOSE_LABEL } from "@/components/marketing/first-moment-copy";
 import { CinematicCompass } from "./CinematicCompass";
 import { track } from "@/lib/analytics";
 
 /**
- * Persistent walk objects — one compass, one Assess pill.
- * The same Assess instance paints in the hero (LCP-safe), sits below
- * the locked question (never on the type), travels with the walk, then
- * parks (inert + aria-hidden) before waitlist, footer, or cookie
- * controls. No second copy. No GSAP/Lenis.
+ * Persistent walk objects — one Brand compass, one Assess pill.
+ * The compass is the existing Threshold instrument.
+ * It travels in the lower-right field so it never sits on the H1 or
+ * the Assess pill. Assess paints below the locked question, then
+ * parks before the locked “when” beat so later type stays readable.
+ * Compass stays in the field until waitlist / footer. Header chrome
+ * Assess is nav — not a second walk CTA.
  */
+
+/** Quiet field seat — overrides the cinema-scale desktop inset. */
+const COMPASS_FIELD: CSSProperties = {
+  position: "absolute",
+  top: "auto",
+  left: "auto",
+  right: "max(1.25rem, 5vw)",
+  bottom: "max(6.75rem, 12vh)",
+  width: "min(26vmin, 9.25rem)",
+  height: "auto",
+  display: "flex",
+  alignItems: "flex-end",
+  justifyContent: "flex-end",
+};
 
 function handleCtaClick() {
   track("hero_cta_click", { src: "hero" });
 }
 
-type CompassAt = "field" | "object" | "docked" | "parked";
-
 export function WalkPersist({ children }: { children: ReactNode }) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const [atObject, setAtObject] = useState(false);
+  const [onWhen, setOnWhen] = useState(false);
   const [docked, setDocked] = useState(false);
-  const [parked, setParked] = useState(false);
   const [footerIn, setFooterIn] = useState(false);
   const [cookieIn, setCookieIn] = useState(false);
-  const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion) setReduced(true);
 
-    const object = root.querySelector("[data-walk-object]");
+    const whenBeat = root.querySelector("#walk-when");
     const waitlist = root.querySelector("#waitlist");
     const footer = document.querySelector("footer");
     const cookie = document.querySelector("#cookie-consent");
-
     const observers: IntersectionObserver[] = [];
 
-    if (object && !reducedMotion) {
+    if (whenBeat) {
       const io = new IntersectionObserver(
         (entries) => {
-          if (entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= 0.35)) {
-            setAtObject(true);
-          }
+          setOnWhen(entries.some((entry) => entry.isIntersecting));
         },
-        { threshold: [0.35] },
+        { threshold: [0], rootMargin: "40% 0px 0px 0px" },
       );
-      io.observe(object);
+      io.observe(whenBeat);
       observers.push(io);
     }
 
     if (waitlist) {
       const io = new IntersectionObserver(
         (entries) => {
-          if (entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= 0.12)) {
-            setDocked(true);
-          }
+          setDocked(entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= 0.12));
         },
         { threshold: [0.12], rootMargin: "12% 0px -8% 0px" },
       );
@@ -93,32 +98,28 @@ export function WalkPersist({ children }: { children: ReactNode }) {
     return () => observers.forEach((io) => io.disconnect());
   }, []);
 
-  const placed: Exclude<CompassAt, "docked" | "parked"> = atObject && !reduced ? "object" : "field";
-  const compassAt: CompassAt = footerIn ? "parked" : docked ? "docked" : placed;
-  const assessAway = docked || footerIn;
+  const assessAway = onWhen || docked || footerIn;
+  const compassAway = docked || footerIn;
 
   return (
     <div ref={rootRef} className="walk-persist relative">
       <div className="walk-persist-layer sticky top-0 z-[5] h-0 overflow-visible">
         <div className="walk-persist-frame pointer-events-none relative h-[100dvh]">
           <div
-            className={
-              placed === "object"
-                ? `walk-travel-compass is-object${compassAt === "docked" ? " is-docked" : ""}${compassAt === "parked" ? " is-parked" : ""}`
-                : `walk-travel-compass hero-instrument-field lg:left-[38%]${compassAt === "docked" ? " is-docked" : ""}${compassAt === "parked" ? " is-parked" : ""}`
-            }
-            data-at={compassAt}
+            className={compassAway ? "walk-travel-compass is-parked" : "walk-travel-compass"}
+            data-at={compassAway ? "parked" : "field"}
             data-walk-compass=""
+            data-walk-object=""
             aria-hidden
+            style={COMPASS_FIELD}
           >
-            <div className="walk-travel-compass-body">
-              <div className="walk-compass-halo" />
+            <div className="walk-travel-compass-body" style={{ width: "100%" }}>
               <CinematicCompass responsive keyholePulse={false} />
             </div>
           </div>
 
           <div
-            className="walk-travel-assess"
+            className="walk-travel-assess hero-story"
             data-walk-assess-slot=""
             data-fade={assessAway ? "away" : undefined}
             data-cookie={cookieIn ? "" : undefined}
@@ -132,7 +133,7 @@ export function WalkPersist({ children }: { children: ReactNode }) {
                 the question, not on “be”.
               */}
               <div className="walk-travel-assess-stack">
-                <div className="walk-line" aria-hidden />
+                <div className="walk-line" aria-hidden style={{ minHeight: "14rem" }} />
                 <Link
                   href={`${PRIMARY_CLOSE_HREF}?src=hero`}
                   className="btn btn-primary btn-sm pointer-events-auto"
