@@ -2,10 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import {
-  PRIMARY_CLOSE_HREF,
-  PRIMARY_CLOSE_LABEL,
-} from "@/components/marketing/first-moment-copy";
+import { PRIMARY_CLOSE_HREF, PRIMARY_CLOSE_LABEL } from "@/components/marketing/first-moment-copy";
+import { PILLARS } from "@/lib/brand";
 import { track } from "@/lib/analytics";
 
 export const HERO_VARIANT: "interview" | "film" = "film";
@@ -15,46 +13,58 @@ function handleCtaClick(): void {
 }
 
 /**
- * TeraFab hero: one still is the scene. Type sits on the left void.
- * Locked question + companion + inversion. Assess does not travel.
- * Hero stack is four units: kicker, headline, one subtext, CTA.
+ * TeraFab hero, HōMI words.
+ *
+ * Restrained per the reference: the title caps at 4.4rem in the display
+ * face at weight 300, not at cinema scale. Kicker is a 13px sans line in
+ * secondary ink. The object is a flush hard-edged panel on the grid, not
+ * a full-bleed wash. A hairline foot carries the three pillars.
+ *
+ * Locked: question, companion line, inversion, one Assess. Assess does
+ * not travel.
  */
 export function InterviewHero() {
   return (
-    <section className="tf-hero relative flex flex-col justify-end overflow-hidden pb-10 pt-24 sm:pb-16">
-      <Image
-        src="/marketing/home/object-hero.jpg"
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="tf-media"
-      />
-      <div className="tf-hero-scrim" aria-hidden />
-
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-start px-5 sm:px-6 lg:px-8">
-        <div className="relative pt-8">
-          <a href="#statement" className="walk-kicker">
+    <section className="tf-hero tf-scene relative flex flex-col pt-24">
+      <div className="tf-shell relative flex-1">
+        <div className="tf-hero-copy">
+          <a href="#statement" className="tf-kicker">
             What this is
           </a>
-          <h1
-            className="type-giant w-full max-w-[16ch] whitespace-normal font-display font-semibold"
-            style={{ textWrap: "balance" }}
-          >
+          <h1 className="type-giant mt-7 max-w-[14ch] font-light" style={{ textWrap: "balance" }}>
             Will you be okay?
           </h1>
+          <p className="tf-lede mt-7 max-w-[38ch] font-light">
+            A Decision Companion.{" "}
+            <span className="text-dim">Everyone else tells you how. HōMI tells you if.</span>
+          </p>
+          <Link
+            href={`${PRIMARY_CLOSE_HREF}?src=hero`}
+            className="btn btn-primary mt-9 px-8 py-3.5 text-base"
+            onClick={handleCtaClick}
+          >
+            {PRIMARY_CLOSE_LABEL}
+          </Link>
         </div>
-        <p className="mt-6 max-w-[42ch] text-lg font-light leading-snug text-light sm:text-xl">
-          A Decision Companion.{" "}
-          <span className="text-dim">Everyone else tells you how. HōMI tells you if.</span>
-        </p>
-        <Link
-          href={`${PRIMARY_CLOSE_HREF}?src=hero`}
-          className="btn btn-primary mt-10 px-8 py-3.5 text-base"
-          onClick={handleCtaClick}
-        >
-          {PRIMARY_CLOSE_LABEL}
-        </Link>
+
+        <div className="tf-panel tf-hero-panel">
+          <Image
+            src="/marketing/home/object-hero.jpg"
+            alt=""
+            width={1280}
+            height={720}
+            priority
+            sizes="(min-width: 64rem) 46vw, 90vw"
+          />
+        </div>
+
+        <div className="tf-hero-foot">
+          {PILLARS.map((pillar) => (
+            <span key={pillar.key} className="tf-code">
+              {pillar.name}
+            </span>
+          ))}
+        </div>
       </div>
     </section>
   );

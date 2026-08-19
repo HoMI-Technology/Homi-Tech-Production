@@ -1476,7 +1476,9 @@ body {
     .walk-line h1,
     .walk-line h2,
     .walk-kicker {
-      text-shadow: 0 0 28px var(--color-navy), 0 2px 20px var(--color-navy);
+      text-shadow:
+        0 0 28px var(--color-navy),
+        0 2px 20px var(--color-navy);
     }
   }
   .walk-line {
@@ -1663,69 +1665,244 @@ body {
     }
   }
 
-  /* TeraFab scenes: media is the colour. Type sits on a scrim. */
+  /* ── TeraFab craft, HōMI identity ─────────────────────────────────
+     Translated from the real reference (terafab.ai), not from a memory
+     of it. Its grammar, measured off its own stylesheet:
+
+       ground     flat, no gradient
+       heading    weight 300, tracking -0.032/-0.035em, line-height 1.02,
+                  and RESTRAINED — the hero title caps at 4.4rem, not at
+                  cinema scale
+       hairlines  content rules at 13% white; separate OPAQUE structural
+                  guides one shade off the ground
+       guides     a 12-column overlay with a solid guide on the first
+                  column and dashed guides inside — the signature move
+       rows       border-top on the list, border-bottom per row, 15px
+                  padding, 110px + 1fr, resting dim that lights on entry
+       objects    flush hard-edged panels aligned to the grid. No radius,
+                  no float, no blend
+       kicker     13px regular sans in secondary ink — not a wide-tracked
+                  uppercase mono label
+       ease       cubic-bezier(0.4, 0, 0.2, 1)
+
+     HōMI mapping: their #000 becomes canon navy, their Inter Tight /
+     Inter / Unbounded stack becomes this system's Fraunces / Inter /
+     JetBrains Mono in the same three slots — heading, body, technical.
+     Same grammar, this product's voice. */
+
   .tf-page {
-    background: #040b16;
+    position: relative;
+    background: var(--color-navy);
+    --tf-line: rgb(226 232 240 / 0.13);
+    --tf-line-2: rgb(226 232 240 / 0.24);
+    /* Opaque equivalents of --tf-line on navy — structural guides must not
+       ghost where they cross content. */
+    --tf-guide: #17273d;
+    --tf-guide-soft: #132134;
+    --tf-guide-faint: #101c2d;
+    --tf-container: 1180px;
+    --tf-pad: 24px;
+    --tf-ease: cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .tf-scene {
-    background: #040b16;
+  @media (min-width: 48rem) {
+    .tf-page {
+      --tf-pad: 48px;
+    }
   }
-  .tf-hero {
-    min-height: calc(100dvh - var(--nav-offset));
+  .tf-shell {
+    width: 100%;
+    max-width: var(--tf-container);
+    margin-inline: auto;
+    padding-inline: var(--tf-pad);
   }
-  .tf-media {
+
+  /* ── Structural guides ───────────────────────────────────────────
+     One overlay for the whole page, on the same 12 columns the content
+     sits on. Solid at the axis, dashed inside. */
+  .tf-guides {
     position: absolute;
     inset: 0;
     z-index: 0;
+    pointer-events: none;
+  }
+  .tf-guides-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    height: 100%;
+  }
+  .tf-guides-grid > i {
+    display: block;
+    border-left: 1px solid transparent;
+  }
+  .tf-guides-grid > i:first-child {
+    border-left-color: var(--tf-guide);
+  }
+  .tf-guides-grid > i:nth-child(5),
+  .tf-guides-grid > i:nth-child(9) {
+    border-left-style: dashed;
+    border-left-color: var(--tf-guide-faint);
+  }
+  .tf-guides-grid > i:last-child {
+    border-right: 1px solid var(--tf-guide-soft);
+  }
+  @media (max-width: 47.99rem) {
+    .tf-guides-grid > i:nth-child(n + 5) {
+      display: none;
+    }
+    .tf-guides-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  /* Content rides above the overlay. */
+  .tf-scene {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Type — the reference's metrics, this system's faces ───────── */
+  .tf-page .type-giant {
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 5.2vw, 4.4rem);
+    font-weight: 300;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    color: var(--color-light);
+  }
+  .tf-page .type-display {
+    font-family: var(--font-display);
+    font-size: clamp(2.15rem, 3.85vw, 3.5rem);
+    font-weight: 300;
+    line-height: 1.02;
+    letter-spacing: -0.032em;
+    color: var(--color-light);
+  }
+  .tf-statement {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3.4vw, 2.8rem);
+    font-weight: 300;
+    line-height: 1.22;
+    letter-spacing: -0.027em;
+    color: var(--color-light);
+  }
+  .tf-lede {
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 2vw, 1.55rem);
+    font-weight: 300;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    color: var(--color-light);
+  }
+  .tf-body {
+    font-size: clamp(0.98rem, 1.35vw, 1.12rem);
+    line-height: 1.5;
+    color: var(--color-dim);
+  }
+  .tf-kicker {
+    display: block;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--color-dim);
+  }
+  /* The technical slot — the reference's chip codes. Mono, tight tracking,
+     not a wide-tracked overline. */
+  .tf-code {
+    font-family: var(--font-score);
+    font-size: clamp(0.72rem, 0.95vw, 0.85rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    color: var(--color-dim);
+  }
+
+  /* ── Section rhythm ──────────────────────────────────────────────── */
+  .tf-block {
+    padding: clamp(80px, 13vh, 170px) 0;
+    border-top: 1px solid var(--tf-line);
+  }
+  .tf-state {
+    padding: clamp(80px, 14vh, 170px) 0;
+  }
+
+  /* ── Hero ────────────────────────────────────────────────────────── */
+  .tf-hero {
+    min-height: calc(100dvh - var(--nav-offset));
+    padding-bottom: clamp(36px, 6vh, 64px);
+  }
+  .tf-hero-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 16px 36px;
+    margin-top: clamp(56px, 10vh, 120px);
+    padding-top: 30px;
+    border-top: 1px solid var(--tf-line);
+  }
+  @media (min-width: 64rem) {
+    /* The foot rule sits on the hero's baseline; the panel is parked above
+       it, not through it. */
+    .tf-hero-foot {
+      position: absolute;
+      right: var(--tf-pad);
+      bottom: 0;
+      left: var(--tf-pad);
+      margin-top: 0;
+    }
+  }
+
+  /* ── Object panels — flush, hard-edged, grid-aligned ─────────────
+     Width is capped at 6 of 12 columns (~566px inside the 1180px shell)
+     so a 1280×720 raster is still oversampled at 2×. The reference's
+     panels are small and flush for the same compositional reason; here
+     it also keeps the object off pixels that do not exist. */
+  .tf-panel {
+    position: relative;
+    width: 100%;
+    max-width: 566px;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 0;
+    line-height: 0;
+  }
+  .tf-panel img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 72% 50%;
-    pointer-events: none;
+    /* Brass → canon cyan. See components/home/CompassFilter.tsx for the ramp
+       and why this is a gradient map rather than a hue-rotate. */
+    filter: url("#homi-compass-grade");
   }
-  .tf-hero-scrim,
-  .tf-object-scrim {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
+  .tf-hero-panel {
+    margin-top: clamp(28px, 5vh, 48px);
   }
-  .tf-hero-scrim {
-    background:
-      linear-gradient(
-        90deg,
-        rgb(4 11 22 / 0.88) 0%,
-        rgb(4 11 22 / 0.58) 28%,
-        rgb(4 11 22 / 0.18) 52%,
-        transparent 78%
-      ),
-      linear-gradient(
-        180deg,
-        rgb(4 11 22 / 0.45) 0%,
-        transparent 28%,
-        rgb(4 11 22 / 0.82) 100%
-      );
+  /* Above lg the panel parks bottom-right and the type column is capped so
+     the two never collide. */
+  @media (min-width: 64rem) {
+    .tf-hero-copy {
+      max-width: 52%;
+    }
+    .tf-hero-panel {
+      position: absolute;
+      right: var(--tf-pad);
+      /* Sits above the foot rule (~45px tall) with air. A hairline cutting
+         across the object reads as a mistake, not as structure. */
+      bottom: 76px;
+      width: 44%;
+      margin-top: 0;
+    }
   }
+
+  /* ── Object scene — the light arrives with the scene ─────────────── */
   .tf-object-scene {
     --p: 0;
     animation: tf-object-light linear both;
     animation-timeline: view();
-    animation-range: entry 0% cover 50%;
+    animation-range: entry 10% cover 42%;
   }
-  .tf-object-scene .tf-media {
-    object-position: 50% 48%;
-  }
-  .tf-object-scrim {
-    background:
-      linear-gradient(
-        90deg,
-        rgb(4 11 22 / 0.9) 0%,
-        rgb(4 11 22 / 0.55) 36%,
-        rgb(4 11 22 / 0.2) 62%,
-        transparent 82%
-      ),
-      linear-gradient(180deg, rgb(4 11 22 / 0.55) 0%, transparent 24%, rgb(4 11 22 / 0.78) 100%);
-    opacity: calc(1 - var(--p) * 0.82);
+  .tf-object-scene .tf-panel img {
+    /* Re-declares the grade: a bare `filter` here would drop it. */
+    filter: url("#homi-compass-grade") brightness(calc(0.82 + var(--p) * 0.18));
+    opacity: calc(0.55 + var(--p) * 0.45);
+    transition: opacity 0.4s var(--tf-ease);
   }
   @keyframes tf-object-light {
     from {
@@ -1735,65 +1912,75 @@ body {
       --p: 1;
     }
   }
+  /* No scroll-driven animation support, or the reader asked for stillness:
+     everything rests fully lit. Nothing is gated behind motion. */
   @media (prefers-reduced-motion: reduce) {
-    .tf-object-scene {
+    .tf-object-scene,
+    .tf-rows > li {
       animation: none;
       --p: 1;
+      opacity: 1;
     }
   }
   @supports not (animation-timeline: view()) {
-    .tf-object-scene {
+    .tf-object-scene,
+    .tf-rows > li {
       animation: none;
       --p: 1;
+      opacity: 1;
     }
   }
-  @media (max-width: 47.99rem) {
-    .tf-media {
-      object-position: 78% 42%;
-    }
-  }
+
+  /* ── Rows — the reference's tier list ────────────────────────────
+     Resting ink is the secondary tone (62%), lifting to full as the row
+     enters. Resting state still clears AA on navy, so a browser that
+     never runs the timeline loses nothing. */
   .tf-rows {
     list-style: none;
-    padding: 0;
     margin: 0;
+    padding: 0;
+    max-width: 580px;
+    border-top: 1px solid var(--tf-line);
+  }
+  .tf-rows--wide {
+    max-width: 720px;
   }
   .tf-rows > li {
     display: grid;
-    grid-template-columns: minmax(7rem, 11rem) 1fr;
-    gap: 1.5rem 2.5rem;
-    padding: 1.35rem 0;
-    border-top: 1px solid rgb(226 232 240 / 0.12);
-    color: var(--color-dim);
+    /* The reference's tier labels are two words ("Type I"); these are longer,
+       so the column is widened to keep every term on one line. */
+    grid-template-columns: 190px 1fr;
+    align-items: baseline;
+    gap: 18px;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--tf-line);
+    opacity: 0.62;
+    animation: tf-row-lift linear both;
+    animation-timeline: view();
+    animation-range: entry 20% cover 34%;
   }
-  .tf-rows > li > span:first-child {
+  @keyframes tf-row-lift {
+    to {
+      opacity: 1;
+    }
+  }
+  .tf-rows .tf-term {
+    font-family: var(--font-display);
+    font-size: 1.08rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
     color: var(--color-light);
-    font-weight: 500;
+  }
+  .tf-rows .tf-gloss {
+    font-size: 1.02rem;
+    line-height: 1.5;
+    color: var(--color-dim);
   }
   @media (max-width: 39.99rem) {
     .tf-rows > li {
       grid-template-columns: 1fr;
-      gap: 0.4rem;
+      gap: 6px;
     }
-  }
-  .tf-not {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  .tf-not > li + li {
-    margin-top: 2.5rem;
-  }
-  .tf-not > li > p:first-child {
-    color: var(--color-light);
-    font-size: 1.25rem;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-  }
-  .tf-not > li > p:last-child {
-    margin-top: 0.4rem;
-    color: var(--color-dim);
-    font-size: 1.05rem;
-    line-height: 1.5;
   }
 
   /* One traveling compass — field (right 38%) then object (left, small),
@@ -2054,7 +2241,8 @@ body {
     letter-spacing: -0.025em;
     color: var(--color-light);
     white-space: normal;
-    overflow-wrap: balance;
+    /* `balance` is not a valid overflow-wrap value — the declaration below
+       is the one that balances the wrap. Do not re-add it. */
     text-wrap: balance;
   }
   .type-statement {
@@ -3084,8 +3272,7 @@ body {
 .card-chrome {
   border-radius: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background:
-    linear-gradient(165deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.45) 100%);
+  background: linear-gradient(165deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.45) 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(8px);
 }
@@ -3105,12 +3292,7 @@ body {
   left: 10%;
   right: 10%;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(34, 211, 238, 0.45),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.45), transparent);
   pointer-events: none;
 }
 .text-label {
@@ -3130,8 +3312,7 @@ body {
 .planner-panel {
   border-radius: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background:
-    linear-gradient(165deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.45) 100%);
+  background: linear-gradient(165deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.45) 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .planner-tile {

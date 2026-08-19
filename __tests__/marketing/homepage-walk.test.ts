@@ -36,6 +36,35 @@ describe("homepage hybrid — locked first viewport", () => {
     expect(hero).not.toMatch(/lg:grid-cols/);
   });
 
+  it("keeps the object panel inside the raster it actually has", () => {
+    // The stills are 1280×720 and cannot be re-rendered here. A full-bleed
+    // `fill` + sizes="100vw" asked the optimizer for 3840px of them on every
+    // retina viewport; the optimizer does not upscale, so the brass came back
+    // soft. Intrinsic width/height plus a panel capped at 6 of 12 columns
+    // keeps the object oversampled even at 2×. Re-adding `fill` undoes it.
+    expect(hero).toContain("width={1280}");
+    expect(hero).toContain("height={720}");
+    expect(hero).not.toMatch(/^\s*fill$/m);
+    expect(hero).not.toContain('sizes="100vw"');
+    expect(src("app", "globals.css")).toContain("max-width: 566px");
+  });
+
+  it("grounds the page on flat canon navy — no gradient, no off-token slab", () => {
+    // The reference's ground is flat. So is this one; the previous build's
+    // radial+linear ramp was neither the reference nor canon.
+    const css = src("app", "globals.css");
+    const page = css.slice(css.indexOf(".tf-page {"), css.indexOf(".tf-shell {"));
+    expect(page).toContain("background: var(--color-navy)");
+    expect(page).not.toMatch(/background:\s*#040b16;/);
+    expect(page).not.toContain("radial-gradient");
+  });
+
+  it("drops the invalid overflow-wrap value from the giant display", () => {
+    // `balance` is not a legal overflow-wrap value; the parser dropped it and
+    // `text-wrap: balance` was doing the work all along.
+    expect(src("app", "globals.css")).not.toContain("overflow-wrap: balance");
+  });
+
   it("is a still first screen — photo object, no pin-scroll, no traveling Assess", () => {
     expect(hero).not.toContain("HoldStage");
     expect(hero).not.toContain("WalkPersist");
@@ -55,7 +84,11 @@ describe("homepage hybrid — locked first viewport", () => {
   });
 
   it("keeps What this is as a text kicker, not a pill", () => {
-    expect(hero).toContain("walk-kicker");
+    // `walk-kicker` is walk-era CSS: absolutely positioned, uppercase, wide
+    // tracked, underlined. It escaped its column on mobile and is the opposite
+    // of the reference's plain 13px sans line. `tf-kicker` replaces it.
+    expect(hero).toContain("tf-kicker");
+    expect(hero).not.toContain("walk-kicker");
     expect(hero).toContain("What this is");
     expect(hero).not.toMatch(/What this is[\s\S]{0,80}btn/);
   });
@@ -83,6 +116,71 @@ describe("homepage hybrid — readable front door", () => {
     expect(home).not.toContain("35/35/30");
     expect(home).not.toContain("4:3:2");
     expect(home).not.toContain("85/60/35");
+  });
+
+  it("carries the reference's grammar — guides, tier rows, flush panels", () => {
+    // Measured off terafab.ai's own stylesheet, not recalled: a 12-column
+    // structural guide overlay, hairline tier rows, and flush hard-edged
+    // object panels. Roman-numeral scene marks were a misread of that site's
+    // Kardashev *content* as a structural device — do not bring them back.
+    expect(home).toContain("tf-guides-grid");
+    expect(home).toContain("tf-rows");
+    expect(home).toContain("tf-panel");
+    expect(home).not.toMatch(/numeral: "I+"/);
+    expect(home).not.toContain("I — Thesis");
+    expect(home).not.toContain("V — Close");
+  });
+
+  it("grades the compass onto the canon ramp, from tokens", () => {
+    const filter = src("components", "home", "CompassFilter.tsx");
+    // Derived from lib/brand COLORS so the grade cannot fork from the palette.
+    expect(filter).toContain("COLORS.navy");
+    expect(filter).toContain("COLORS.cyanDeep");
+    expect(filter).toContain("COLORS.cyan");
+    expect(filter).toContain("COLORS.light");
+    expect(filter).not.toMatch(/hueRotate/);
+    expect(filter).not.toMatch(/#[0-9a-fA-F]{6}/);
+    // linearRGB (the default) washes the mids out badly.
+    expect(filter).toContain('colorInterpolationFilters="sRGB"');
+    // Luminance first — the map is a function of brightness alone.
+    expect(filter).toContain('type="saturate"');
+
+    const css = src("app", "globals.css");
+    expect(css).toContain('filter: url("#homi-compass-grade")');
+    expect(home).toContain("CompassFilter");
+  });
+
+  it("keeps display type restrained and light, per the reference", () => {
+    // The reference's hero title caps at 4.4rem at weight 300 — it is not
+    // cinema-scale, and it is never bold. A 7.5rem semibold headline was the
+    // single biggest reason the last pass did not read as that site.
+    const css = src("app", "globals.css");
+    const giant = css.slice(
+      css.indexOf(".tf-page .type-giant {"),
+      css.indexOf(".tf-page .type-display {"),
+    );
+    expect(giant).toContain("clamp(2.4rem, 5.2vw, 4.4rem)");
+    expect(giant).toContain("font-weight: 300");
+    expect(giant).toContain("letter-spacing: -0.035em");
+    const heroSrc = src("components", "home", "InterviewHero.tsx");
+    expect(heroSrc).toContain("font-light");
+    expect(heroSrc).not.toContain("font-semibold");
+    expect(home).not.toContain("font-semibold");
+  });
+
+  it("keeps the kicker a plain 13px sans line, not a wide-tracked overline", () => {
+    const css = src("app", "globals.css");
+    const kicker = css.slice(css.indexOf(".tf-kicker {"), css.indexOf(".tf-code {"));
+    expect(kicker).toContain("font-size: 13px");
+    expect(kicker).toContain("font-weight: 400");
+    expect(kicker).not.toContain("text-transform: uppercase");
+  });
+
+  it("spends the accent budget once each — cyan on the close, emerald on no", () => {
+    expect((home.match(/text-emerald/g) ?? []).length).toBe(1);
+    expect(home).not.toContain("text-cyan");
+    expect(home).not.toContain("text-yellow");
+    expect((home.match(/btn-primary/g) ?? []).length).toBe(1);
   });
 
   it("stays type and air — no glass card wall, no 01/02/03", () => {
@@ -168,9 +266,7 @@ describe("homepage walk — cookie copy stays locked", () => {
     expect(banner).toContain(
       "HōMI uses essential cookies to keep you signed in. Optional analytics help us improve the",
     );
-    expect(banner).toContain(
-      "product — your choice, and you can change it anytime. No ad tech.",
-    );
+    expect(banner).toContain("product — your choice, and you can change it anytime. No ad tech.");
     expect(banner).toContain("Reject optional");
     expect(banner).toContain("Accept optional");
     expect(banner).toContain("Cookie policy");
