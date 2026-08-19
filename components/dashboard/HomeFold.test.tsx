@@ -61,7 +61,7 @@ describe("HomeFold", () => {
     expect(fold?.getAttribute("data-hard-stop")).toBe("0");
     expect(screen.getByText("HōMI-Score")).toBeInTheDocument();
     expect(container.querySelector("[data-home-hero]")).not.toBeNull();
-    expect(screen.getByText("64")).toBeInTheDocument();
+    expect(screen.getByText("Overall HōMI-Score 64 out of 100")).toBeInTheDocument();
     expect(screen.getByText("BUILD FIRST")).toBeInTheDocument();
     expect(
       screen.getByText("Financial Reality is the softest pillar on this read."),
@@ -92,8 +92,10 @@ describe("HomeFold", () => {
     expect(banner).not.toBeNull();
     expect(screen.getByRole("alert")).toHaveTextContent("DTI is above 50%.");
     expect(screen.getByText("DO NOT PROCEED")).toBeInTheDocument();
-    expect(hero).not.toBeNull();
-    expect(banner?.compareDocumentPosition(hero as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+    if (!banner || !hero) {
+      throw new Error("expected hard-stop banner and hero numeral");
+    }
+    expect(banner.compareDocumentPosition(hero) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeNull();
