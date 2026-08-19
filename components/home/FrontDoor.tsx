@@ -147,10 +147,11 @@ export function Pillars() {
 }
 
 export function VerdictSpectrum() {
-  const gradient = `linear-gradient(90deg, ${[...VERDICT_ORDER]
-    .reverse()
-    .map((key) => VERDICT_META[key].color)
-    .join(", ")})`;
+  // Canon spectrum runs cool to hot, left to right: emerald → yellow →
+  // amber → crimson — the same order as the cards beneath it.
+  const gradient = `linear-gradient(90deg, ${VERDICT_ORDER.map(
+    (key) => VERDICT_META[key].color,
+  ).join(", ")})`;
   return (
     <section className="px-5 py-[9vh] sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-7xl">
