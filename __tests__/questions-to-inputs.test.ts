@@ -37,7 +37,7 @@ describe("bankResponsesToInputs", () => {
     expect(inputs.debtToIncomeRatio).toBeCloseTo(0.2);
   });
 
-  it("stores the credit band and does not map good→730", () => {
+  it("stores the credit band and does not map good→730 or award 5 credit points", () => {
     const inputs = bankResponsesToInputs(
       { fin_credit_score: "good" },
       EMPTY_CONFLICT,
@@ -46,6 +46,8 @@ describe("bankResponsesToInputs", () => {
     expect(inputs.creditScoreProvenance).toBe("band_ignored");
     expect(inputs.selfReportedCreditBand).toBe("good");
     expect(inputs.creditScore).not.toBe(730);
+    const result = computeScore(inputs);
+    expect(result.financial.creditHealth).toBe(0);
   });
 
   it("maps down payment choice to a percent", () => {
