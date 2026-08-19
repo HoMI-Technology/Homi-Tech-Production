@@ -17,58 +17,59 @@ export const metadata: Metadata = pageMetadata({
  * Public explainer for the four red-line guards.
  *
  * Keyed by HardStopCode (type-only import — the engine never reaches the
- * browser) so this page cannot drift into a fifth stop or rename one. The
- * threshold values are canon and frozen: see AGENTS.md §Product guardrails.
- * This page explains them; it does not compute anything.
+ * browser) so this page cannot drift into a fifth stop or rename one.
+ * The exact cutoffs are trade-secret (2026-08 audit): this page explains
+ * each condition qualitatively so the protective signal cannot be gamed.
+ * It does not compute anything.
  */
 const HARD_STOPS: {
   code: HardStopCode;
   title: string;
-  threshold: string;
+  signal: string;
   why: string;
   clear: string[];
 }[] = [
   {
     code: "DTI_OVER_50",
-    title: "Debt above half your income",
-    threshold: "Debt-to-income over 50% of gross income",
-    why: "Every dollar already promised to a lender is a dollar that cannot absorb a surprise. Past half your gross income, a single missed paycheck stops being inconvenient and starts being structural — and a mortgage payment lands on top of it, not instead of it.",
+    title: "Debt payments crowd out the margin",
+    signal: "Monthly debt takes too large a share of gross income",
+    why: "Every dollar already promised to a lender is a dollar that cannot absorb a surprise. When debt payments claim too much of gross income, a single missed paycheck stops being inconvenient and starts being structural — and a mortgage payment lands on top of it, not instead of it.",
     clear: [
       "List every monthly debt payment and divide the total by your gross monthly income — that ratio is the number being measured.",
       "Retire the smallest balances first if you need the monthly relief fastest; retire the highest rates first if you want to pay the least overall.",
       "Raising income moves this as surely as lowering debt does, and often faster.",
-      "Re-check once the ratio is under 50%. The pause lifts on its own.",
+      "Re-check as the ratio comes down. The pause lifts on its own.",
     ],
   },
   {
     code: "RUNWAY_UNDER_1_MONTH",
-    title: "Less than one month of runway",
-    threshold: "Emergency reserve under 1 month of expenses",
-    why: "Owning means owning the surprises — the water heater, the roof, the month the hours get cut. Without a month of expenses set aside, the first ordinary emergency becomes debt at the worst possible rate.",
+    title: "Essentially nothing set aside",
+    signal: "Emergency reserve too thin to absorb the first surprise",
+    why: "Owning means owning the surprises — the water heater, the roof, the month the hours get cut. With essentially nothing set aside, the first ordinary emergency becomes debt at the worst possible rate.",
     clear: [
       "Work out one month of essential expenses: housing, food, transport, insurance, minimum debt payments.",
       "Hold that amount somewhere boring and reachable — a separate savings account, not an investment.",
-      "One month lifts the stop. Three to six months is what actually makes ownership comfortable.",
+      "A first cushion lifts the stop. Three to six months is what actually makes ownership comfortable.",
       "Set it up as an automatic transfer so it does not depend on remembering.",
     ],
   },
   {
     code: "CREDIT_UNDER_620",
-    title: "Credit score under 620",
-    threshold: "Credit score below 620",
-    why: "Below 620, lenders price the loan as high-risk. The interest difference over a thirty-year term can cost more than the down payment you spent years assembling — so waiting here is usually the cheaper decision, not the slower one.",
+    title: "Credit priced as high-risk",
+    signal: "Credit score in the band lenders price as high-risk",
+    why: "In the high-risk band, lenders charge for the risk they see. The interest difference over a thirty-year term can cost more than the down payment you spent years assembling — so waiting here is usually the cheaper decision, not the slower one.",
     clear: [
       "Pull your reports from all three bureaus and dispute anything that is not yours. Errors are common and free to fix.",
       "Bring every account current, then keep every payment on time — payment history carries the most weight.",
-      "Get card balances under 30% of their limits, and lower if you can.",
+      "Get card balances well below their limits — under a third is the usual rule of thumb, and lower is better.",
       "Leave old accounts open. Length of history counts in your favor even when the card sits unused.",
     ],
   },
   {
     code: "HOUSING_RATIO_OVER_45",
-    title: "Housing above 45% of income",
-    threshold: "Monthly housing cost over 45% of monthly income",
-    why: "This is the line where one bad month becomes a crisis. Above it, the house is affordable only while nothing goes wrong — and something always goes wrong. Note that the payment includes taxes, insurance and any association dues, not the loan alone.",
+    title: "Housing costs crowd the paycheck",
+    signal: "Full monthly housing cost too large a share of monthly income",
+    why: "This is where one bad month becomes a crisis. When the full housing cost claims too much of monthly income, the house is affordable only while nothing goes wrong — and something always goes wrong. Note that the payment includes taxes, insurance and any association dues, not the loan alone.",
     clear: [
       "Add the full monthly cost — principal, interest, taxes, insurance, dues — not the quoted payment.",
       "Look at a lower price band. Nothing moves this ratio faster.",
@@ -90,7 +91,9 @@ export default function HardStopsGuidePage() {
           <p className="mt-5 text-lg leading-relaxed text-dim">
             Four conditions pause any readiness score, whatever the rest of the numbers say. They
             are not a grade and not a rejection. They are the four places where buying now would
-            most likely hurt you, and every one of them is temporary.
+            most likely hurt you, and every one of them is temporary. The exact lines stay
+            private — naming them would tell you how to answer around them instead of how to fix
+            them.
           </p>
         </div>
       </section>
@@ -127,7 +130,7 @@ export default function HardStopsGuidePage() {
                   <div className="min-w-0">
                     <h2 className="type-h3">{stop.title}</h2>
                     <p className="num mt-1 text-sm font-semibold text-crimson">
-                      {stop.threshold}
+                      {stop.signal}
                     </p>
                   </div>
                 </div>
