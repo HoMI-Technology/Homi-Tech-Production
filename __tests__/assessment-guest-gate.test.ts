@@ -62,7 +62,7 @@ describe("anonymous SiteHeader Assessment nav", () => {
 });
 
 describe("anonymous SiteFooter Product column", () => {
-  const footer = src("components", "layout", "SiteFooter.tsx");
+  const footer = src("components", "layout", "SitemapFooter.tsx");
 
   it("points Full Assessment at First Moment and does not touch Waitlist", () => {
     expect(footer).toContain('{ href: "/first-moment", label: "Full Assessment" }');

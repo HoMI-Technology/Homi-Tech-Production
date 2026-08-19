@@ -17,7 +17,8 @@ const HOME = src("app", "(marketing)", "page.tsx");
 const HOW_IT_WORKS = src("app", "(marketing)", "how-it-works", "page.tsx");
 const PREVIEW = src("components", "home", "ThresholdPreview.tsx");
 const SHIFT = src("components", "home", "VerdictShift.tsx");
-const FOOTER = src("components", "layout", "SiteFooter.tsx");
+const FOOTER = src("components", "layout", "SitemapFooter.tsx");
+const QUIET_FOOTER = src("components", "layout", "QuietHomeFooter.tsx");
 const BROKER = src("components", "planner", "wealth", "BrokerPanel.tsx");
 
 const SKU_BANNED = [
@@ -93,7 +94,8 @@ describe("Wave 1 chrome honesty — SKU and score names", () => {
     ["app/(marketing)/how-it-works/page.tsx", HOW_IT_WORKS],
     ["lib/stripe/tiers.ts", TIERS_SRC],
     ["lib/advisor/companion-tier-copy.ts", TIER_COPY_SRC],
-    ["components/layout/SiteFooter.tsx", FOOTER],
+    ["components/layout/SitemapFooter.tsx", FOOTER],
+    ["components/layout/QuietHomeFooter.tsx", QUIET_FOOTER],
   ])("%s never names a Companion SKU or Shadow Score product", (_rel, text) => {
     for (const banned of [...SKU_BANNED, ...SHADOW_BANNED]) {
       expect(text).not.toContain(banned);
