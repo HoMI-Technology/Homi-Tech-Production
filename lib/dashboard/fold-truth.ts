@@ -15,6 +15,11 @@ export function shouldSuppressBuildPercent(hardStopCount: number): boolean {
   return hardStopCount > 0;
 }
 
+/** 4-band dash-spectrum is a verdict-band claim. Hard stops hide it. */
+export function shouldPaintDashSpectrum(hardStopCount: number): boolean {
+  return !shouldSuppressBuildPercent(hardStopCount);
+}
+
 export function hardStopMessages(hardStops: unknown): string[] {
   if (!Array.isArray(hardStops)) return [];
   const messages: string[] = [];

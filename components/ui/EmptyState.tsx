@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
+import {
+  PRIMARY_CLOSE_HREF,
+  PRIMARY_CLOSE_LABEL,
+} from "@/components/marketing/first-moment-copy";
 
 type EmptyStatePreset = "journal" | "calendar" | "dashboard" | "signals";
 
@@ -23,14 +27,11 @@ const PRESETS: Record<EmptyStatePreset, PresetCopy> = {
     body: "Add a milestone, deadline, or review — the moments worth tracking as your readiness changes.",
   },
   dashboard: {
-    // First-run activation: the shortest path to a real score leads (Shadow
-    // Score, ~2 minutes); the full assessment is the deeper second path.
+    // First-run Home: one close only — Assess → First Moment. No Shadow Score.
     title: "One measurement and this page comes alive",
-    body: "Get a first read in about two minutes with the Shadow Score — or go deep with the full three-pillar assessment: Financial Reality, Emotional Truth, Perfect Timing. Either way, you get an honest verdict, not a maybe.",
-    actionHref: "/shadow-score",
-    actionLabel: "Get your Shadow Score",
-    secondaryHref: "/assessment",
-    secondaryLabel: "Take the full assessment",
+    body: "Get a three-pillar read — Financial Reality, Emotional Truth, Perfect Timing — and this page will have a build to show.",
+    actionHref: PRIMARY_CLOSE_HREF,
+    actionLabel: PRIMARY_CLOSE_LABEL,
   },
   signals: {
     title: "No signals yet",

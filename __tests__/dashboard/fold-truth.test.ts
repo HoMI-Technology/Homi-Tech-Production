@@ -6,6 +6,7 @@ import {
   hardStopMessages,
   isNextRedirectError,
   resumeDraftCopy,
+  shouldPaintDashSpectrum,
   shouldSuppressBuildPercent,
 } from "@/lib/dashboard/fold-truth";
 
@@ -31,6 +32,17 @@ describe("shouldSuppressBuildPercent", () => {
 
   it("allows step counts when there is no hard stop", () => {
     expect(shouldSuppressBuildPercent(0)).toBe(false);
+  });
+});
+
+describe("shouldPaintDashSpectrum", () => {
+  it("hides the 4-band spectrum when a hard stop is active", () => {
+    expect(shouldPaintDashSpectrum(1)).toBe(false);
+    expect(shouldPaintDashSpectrum(3)).toBe(false);
+  });
+
+  it("allows the 4-band spectrum when there is no hard stop", () => {
+    expect(shouldPaintDashSpectrum(0)).toBe(true);
   });
 });
 

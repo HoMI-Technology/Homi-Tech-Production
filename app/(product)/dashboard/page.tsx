@@ -35,10 +35,12 @@ import { DecisionTimeline } from "@/components/dashboard/DecisionTimeline";
 import { PathNextMove } from "@/components/dashboard/PathNextMove";
 import { DashboardResumeRamp } from "@/components/dashboard/DashboardResumeRamp";
 import { DashboardFoldBeacon } from "@/components/dashboard/DashboardFoldBeacon";
+import { DashSpectrum } from "@/components/dashboard/DashSpectrum";
 import {
   buildProgressLabel,
   companionFoldLine,
   hardStopMessages,
+  shouldPaintDashSpectrum,
   shouldSuppressBuildPercent,
 } from "@/lib/dashboard/fold-truth";
 import { PageFrame } from "@/components/operate/PageFrame";
@@ -391,7 +393,7 @@ export default async function DashboardPage() {
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-3xs font-bold uppercase tracking-[0.16em] text-dim">
-                      Decision Readiness Score
+                      HōMI-Score
                     </p>
                     {scoreDelta && (
                       <ScoreDeltaBadge
@@ -414,38 +416,13 @@ export default async function DashboardPage() {
                   </p>
                   <p className="mt-2 max-w-xl text-sm leading-relaxed text-dim">{foldLine}</p>
 
-                  <div className="mt-5 max-w-lg">
-                    <div className="dash-spectrum">
-                      <span
-                        aria-hidden
-                        className="dash-spectrum-marker"
-                        style={{
-                          left: `${Math.max(3, Math.min(97, scorePct))}%`,
-                          ["--instrument-tint" as string]: instrumentTint,
-                        }}
-                      />
-                    </div>
-                    <div className="relative mt-2 h-4 text-3xs font-medium uppercase tracking-wide text-dim">
-                      <span className="absolute -translate-x-1/2" style={{ left: "12%" }}>
-                        Not yet
-                      </span>
-                      <span
-                        className="absolute hidden -translate-x-1/2 sm:block"
-                        style={{ left: "42%" }}
-                      >
-                        Build
-                      </span>
-                      <span
-                        className="absolute hidden -translate-x-1/2 sm:block"
-                        style={{ left: "68%" }}
-                      >
-                        Almost
-                      </span>
-                      <span className="absolute -translate-x-1/2" style={{ left: "92%" }}>
-                        Ready
-                      </span>
-                    </div>
-                  </div>
+                  {shouldPaintDashSpectrum(hardStopCount) && (
+                    <DashSpectrum
+                      scorePct={scorePct}
+                      tint={instrumentTint}
+                      stopActive={suppressBuildPercent}
+                    />
+                  )}
 
                   {showNudge && (
                     <p className="mt-4 rounded-lg border border-amber/35 bg-verdict-build/90 px-4 py-2.5 text-sm text-light">
@@ -670,7 +647,7 @@ export default async function DashboardPage() {
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="dash-section-head !mb-0">
                         <h2>Score history</h2>
-                        <p>Decision Readiness Score over time, colored by verdict.</p>
+                        <p>HōMI-Score over time, colored by verdict.</p>
                       </div>
                       {scoreDelta && (
                         <ScoreDeltaBadge

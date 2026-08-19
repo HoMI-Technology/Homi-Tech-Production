@@ -27,11 +27,18 @@ describe("DashboardResumeRamp", () => {
     expect(
       screen.getByRole("heading", { name: /the build is where you left it/i }),
     ).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /shadow score/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /full assessment/i })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("link")).toHaveLength(1);
   });
 
-  it("falls back to the first-run empty state when there is no draft", () => {
+  it("falls back to one Assess close on First Moment when there is no draft", () => {
     render(<DashboardResumeRamp />);
-    expect(screen.getByRole("link", { name: /shadow score/i })).toBeInTheDocument();
+    const close = screen.getByRole("link", { name: /^assess$/i });
+    expect(close).toHaveAttribute("href", "/first-moment");
+    expect(screen.queryByRole("link", { name: /shadow score/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /full assessment/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /resume your assessment/i })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("link")).toHaveLength(1);
   });
 });
