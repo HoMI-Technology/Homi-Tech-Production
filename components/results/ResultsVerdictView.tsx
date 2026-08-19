@@ -420,8 +420,7 @@ export function ResultsVerdictView({
           </li>
         </ol>
         <p className="mt-4 text-xs text-dim">
-          HōMI Score is not a credit score. Lenders will still pull a credit report. Fannie&apos;s
-          manual floor is still 620. That is their gate, not a HōMI verdict.
+          HōMI Score is not a credit score. Lenders will still pull a credit report. Fannie&apos;s manual floor is still 620. That is their gate, not a HōMI verdict.
         </p>
       </div>
 
