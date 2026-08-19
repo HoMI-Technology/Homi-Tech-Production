@@ -62,7 +62,7 @@ describe("share cards — no root ImageResponse convention", () => {
 
   it("does not import next/og from the default share metadata module", () => {
     const share = readFileSync(join(ROOT, "lib/seo/share.ts"), "utf8");
-    expect(share).not.toContain("from \"next/og\"");
+    expect(share).not.toContain('from "next/og"');
     expect(share).not.toContain("from 'next/og'");
     expect(share).not.toMatch(/new\s+ImageResponse/);
   });
