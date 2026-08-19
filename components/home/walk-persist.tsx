@@ -10,9 +10,10 @@ import { track } from "@/lib/analytics";
  * Persistent walk objects — one Brand compass, one Assess pill.
  * The compass is the existing Threshold instrument.
  * It travels in the lower-right field so it never sits on the H1 or
- * the Assess pill. Assess paints below the locked question, travels,
- * then parks before waitlist, footer, or cookie controls.
- * Header chrome Assess is nav — not a second walk CTA.
+ * the Assess pill. Assess paints below the locked question, then
+ * parks before the locked “when” beat so later type stays readable.
+ * Compass stays in the field until waitlist / footer. Header chrome
+ * Assess is nav — not a second walk CTA.
  */
 
 /** Quiet field seat — overrides the cinema-scale desktop inset. */
@@ -35,6 +36,7 @@ function handleCtaClick() {
 
 export function WalkPersist({ children }: { children: ReactNode }) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const [onWhen, setOnWhen] = useState(false);
   const [docked, setDocked] = useState(false);
   const [footerIn, setFooterIn] = useState(false);
   const [cookieIn, setCookieIn] = useState(false);
@@ -43,10 +45,22 @@ export function WalkPersist({ children }: { children: ReactNode }) {
     const root = rootRef.current;
     if (!root) return;
 
+    const whenBeat = root.querySelector("#walk-when");
     const waitlist = root.querySelector("#waitlist");
     const footer = document.querySelector("footer");
     const cookie = document.querySelector("#cookie-consent");
     const observers: IntersectionObserver[] = [];
+
+    if (whenBeat) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          setOnWhen(entries.some((entry) => entry.isIntersecting));
+        },
+        { threshold: [0], rootMargin: "40% 0px 0px 0px" },
+      );
+      io.observe(whenBeat);
+      observers.push(io);
+    }
 
     if (waitlist) {
       const io = new IntersectionObserver(
@@ -84,15 +98,16 @@ export function WalkPersist({ children }: { children: ReactNode }) {
     return () => observers.forEach((io) => io.disconnect());
   }, []);
 
-  const assessAway = docked || footerIn;
+  const assessAway = onWhen || docked || footerIn;
+  const compassAway = docked || footerIn;
 
   return (
     <div ref={rootRef} className="walk-persist relative">
       <div className="walk-persist-layer sticky top-0 z-[5] h-0 overflow-visible">
         <div className="walk-persist-frame pointer-events-none relative h-[100dvh]">
           <div
-            className={assessAway ? "walk-travel-compass is-parked" : "walk-travel-compass"}
-            data-at={assessAway ? "parked" : "field"}
+            className={compassAway ? "walk-travel-compass is-parked" : "walk-travel-compass"}
+            data-at={compassAway ? "parked" : "field"}
             data-walk-compass=""
             data-walk-object=""
             aria-hidden

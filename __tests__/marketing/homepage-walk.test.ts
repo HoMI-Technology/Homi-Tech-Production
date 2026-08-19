@@ -109,22 +109,29 @@ describe("homepage walk — one traveling Assess", () => {
     expect(BEAT).not.toContain("PRIMARY_CLOSE");
   });
 
-  it("sits the pill below the line band, then parks before waitlist, footer, and cookie", () => {
+  it("sits the pill below the question, then parks before the locked when beat", () => {
     expect(PERSIST).toContain("walk-travel-assess-stack");
     expect(PERSIST).toContain("walk-line");
     expect(PERSIST).toContain('minHeight: "14rem"');
     expect(BEAT).toContain("max-w-5xl");
+    expect(PERSIST).toContain('querySelector("#walk-when")');
+    expect(PERSIST).toContain("assessAway = onWhen || docked || footerIn");
+    expect(PERSIST).toContain("compassAway = docked || footerIn");
     expect(PERSIST).toContain('querySelector("#waitlist")');
     expect(PERSIST).toContain('querySelector("footer")');
     expect(PERSIST).toContain('querySelector("#cookie-consent")');
     expect(PERSIST).toContain("inert={assessAway");
     expect(PERSIST).toContain("aria-hidden={assessAway");
     expect(PERSIST).toContain("data-cookie");
+    expect(HOME).toContain('id="walk-when"');
+    expect(HOME).toContain("WALK_PRIMARY");
     expect(HOME).toContain('id="waitlist"');
     expect(HOME).toContain("WaitlistForm");
     expect(HOME).toContain('source="landing"');
     expect(HOME).toContain('idPrefix="landing-waitlist"');
     expect(HOME).toContain('surface="whisper"');
+    expect(WALK_PRIMARY).toContain("when");
+    expect(WALK_OBJECT).toContain("when");
   });
 
   it("travels the Brand compass in the lower-right field, off the type", () => {

@@ -9,14 +9,16 @@ const CLUSTER =
  * low-alpha fill and light with native scroll. Not a letter-by-letter reveal.
  */
 export function WalkBeat({
+  id,
   words,
   children,
 }: {
+  id?: string;
   words: number;
   children: ReactNode;
 }) {
   return (
-    <HoldStage words={words} className="hero-story hero-chapter">
+    <HoldStage id={id} words={words} className="hero-story hero-chapter">
       <div className={CLUSTER}>
         <div className="walk-line max-w-5xl">
           <h2 className="type-display">

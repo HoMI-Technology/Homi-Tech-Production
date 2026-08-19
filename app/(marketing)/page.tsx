@@ -39,7 +39,9 @@ export default function MarketingHomePage() {
 
         <WalkBeat words={3}>{WALK_COMPANION}</WalkBeat>
         <WalkBeat words={9}>{WALK_INVERSION}</WalkBeat>
-        <WalkBeat words={8}>{WALK_PRIMARY}</WalkBeat>
+        <WalkBeat id="walk-when" words={8}>
+          {WALK_PRIMARY}
+        </WalkBeat>
         <WalkBeat words={3}>{WALK_CLARITY}</WalkBeat>
         <WalkBeat words={5}>
           Not yet is not <span className="text-emerald">no</span>.
