@@ -119,6 +119,7 @@ describe("fetchServerScore client helper", () => {
       timing: engine.timing,
       warnings: engine.warnings,
       hardStops: engine.hardStops,
+      provenance: engine.provenance,
       keyInsight: "insight",
       nextSteps: ["a", "b"],
     };

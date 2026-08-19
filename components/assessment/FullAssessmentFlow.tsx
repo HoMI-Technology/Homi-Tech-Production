@@ -35,6 +35,7 @@ import {
   type FlowStep,
 } from "@/lib/questions/flow";
 import { bankResponsesToInputs, type ConflictResponses } from "@/lib/questions/to-inputs";
+import { applyConfirmedFinancePrefill } from "@/lib/finance/prefill-confirm";
 import {
   BankQuestionField,
   formatResponseForReview,
@@ -198,7 +199,9 @@ export function FullAssessmentFlow() {
       setSubmitting(false);
       return;
     }
-    const inputs = bankResponsesToInputs(responses, conflict, decisionType);
+    const inputs = applyConfirmedFinancePrefill(
+      bankResponsesToInputs(responses, conflict, decisionType),
+    );
 
     // Server-authoritative score (Plans.md 6.2) — never computeScore on client.
     let scored: Awaited<ReturnType<typeof fetchServerScore>>;

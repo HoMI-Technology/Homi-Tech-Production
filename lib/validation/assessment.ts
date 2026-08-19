@@ -23,6 +23,14 @@ export const assessmentInputsSchema = z.object({
   downPaymentPercent: z.number().min(0).max(1),
   emergencyFundMonths: z.number().min(0).max(120),
   creditScore: z.number().min(300).max(850),
+  creditScoreProvenance: z.enum(["band_ignored", "self_report_digit", "none"]).optional(),
+  selfReportedCreditBand: z
+    .enum(["excellent", "good", "fair", "poor", "very_poor", "skipped"])
+    .optional(),
+  dtiProvenance: z.enum(["self_report", "verified"]).optional(),
+  downPaymentProvenance: z.enum(["self_report", "ledger_earmark"]).optional(),
+  runwayProvenance: z.enum(["self_report", "verified"]).optional(),
+  lookbackDays: z.number().min(0).max(3650).nullable().optional(),
 
   lifeStability: z.number().min(1).max(10),
   confidenceLevel: z.number().min(1).max(10),

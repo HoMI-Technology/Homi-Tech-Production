@@ -21,6 +21,10 @@ import {
 import type { FinanceCompleteness } from "@/lib/finance/readiness-snapshot";
 import { cashFlowTemperature, runwayTemperature, type Temperature } from "@/lib/finance/store";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
+import { ObservedPrefillCard } from "@/components/finance/ObservedPrefillCard";
+import { ProvenanceLine } from "@/components/results/ProvenanceLine";
+import { loadConfirmedFinancePrefill } from "@/lib/finance/prefill-confirm";
+import type { AssessmentProvenance } from "@/lib/scoring/public";
 
 const TEMP_COLOR: Record<Temperature, string> = {
   emerald: COLORS.emerald,
@@ -54,8 +58,10 @@ export function MoneyStand() {
   const { cfm, hydrated: cfmHydrated } = useCfm();
   const [metrics, setMetrics] = useState<NamedMoneyMetrics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [confirmed, setConfirmed] = useState<ReturnType<typeof loadConfirmedFinancePrefill>>(null);
 
   useEffect(() => {
+    setConfirmed(loadConfirmedFinancePrefill());
     const nowIso = new Date().toISOString();
     if (!hasSavedBudgetLedger()) {
       setMetrics(null);
@@ -92,6 +98,13 @@ export function MoneyStand() {
    * merely "some money data is saved". A hand-typed picture never lights it.
    */
   const linked = metrics !== null && metrics.evidence.sourceMode !== "manual";
+  const moneyProvenance: AssessmentProvenance = {
+    dti: "self_report",
+    downPayment: confirmed?.downPaymentEarmarked ? "ledger_earmark" : "self_report",
+    runway: "self_report",
+    credit: "band_ignored",
+    lookbackDays: confirmed?.lookbackDays ?? null,
+  };
 
   const cashTemp = ready ? cashFlowTemperature(surplus, income) : "amber";
   const runwayTemp = ready && runwayMonths != null ? runwayTemperature(runwayMonths) : "amber";
@@ -253,6 +266,9 @@ export function MoneyStand() {
           color={COLORS.emerald}
         />
       </div>
+
+      <ProvenanceLine provenance={moneyProvenance} />
+      <ObservedPrefillCard />
 
       {ready && completeness === "low" && (
         <p

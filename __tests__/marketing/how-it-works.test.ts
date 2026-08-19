@@ -69,6 +69,17 @@ describe("how-it-works — Brand-authored lock", () => {
     expect(PAGE).not.toContain("Get your score");
   });
 
+  it("locks the finance-packet credit disclaimer", () => {
+    expect(PAGE).toContain("HōMI Score is not a credit score.");
+    expect(PAGE).toContain("Lenders will still pull a credit report.");
+    expect(PAGE).toContain(
+      "Fannie&apos;s manual floor is still 620. That is their gate, not a HōMI verdict.",
+    );
+    expect(PAGE).not.toContain("replace your credit score");
+    expect(PAGE).not.toContain("HōMI-approved");
+    expect(PAGE).not.toContain("UltraFICO");
+  });
+
   it("does not add Trinity, Homie, Advisor, Packet 2 theater, or a founder name", () => {
     expect(PAGE).not.toContain("Trinity");
     expect(PAGE).not.toContain("Homie");

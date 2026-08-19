@@ -68,6 +68,7 @@ export async function POST(request: Request) {
     timing: result.timing,
     warnings: result.warnings,
     hardStops: result.hardStops,
+    provenance: result.provenance,
     keyInsight,
     nextSteps,
   });

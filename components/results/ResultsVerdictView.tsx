@@ -19,6 +19,7 @@ import { ShareShadowButton } from "@/components/share/ShareShadowButton";
 import { ScoreDeltaBadge } from "@/components/dashboard/ScoreDeltaBadge";
 import { ReasoningTrail } from "@/components/results/ReasoningTrail";
 import { DataQualityChip } from "@/components/results/DataQualityChip";
+import { ProvenanceLine } from "@/components/results/ProvenanceLine";
 import { VerdictOverride } from "@/components/assessment/VerdictOverride";
 import { SaveStatusBanner } from "@/components/results/SaveStatusBanner";
 import { PathToReadyCard } from "@/components/readiness";
@@ -108,6 +109,7 @@ export function ResultsVerdictView({
             rawScore={result.score}
             assessmentCompletedAt={stored.completedAt}
           />
+          <ProvenanceLine provenance={result.provenance} className="mt-3 max-w-md" />
           <ReadinessBar
             score={result.score}
             hardStops={result.hardStops}
@@ -418,8 +420,8 @@ export function ResultsVerdictView({
           </li>
         </ol>
         <p className="mt-4 text-xs text-dim">
-          HōMI is not a lender and does not replace a credit score. If someone asked whether we
-          approve loans: we don’t — we help you see if you’ll be okay.
+          HōMI Score is not a credit score. Lenders will still pull a credit report. Fannie&apos;s
+          manual floor is still 620. That is their gate, not a HōMI verdict.
         </p>
       </div>
 

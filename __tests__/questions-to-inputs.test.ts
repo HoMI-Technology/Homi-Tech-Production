@@ -37,13 +37,15 @@ describe("bankResponsesToInputs", () => {
     expect(inputs.debtToIncomeRatio).toBeCloseTo(0.2);
   });
 
-  it("maps credit band to a numeric score", () => {
+  it("stores the credit band and does not map good→730", () => {
     const inputs = bankResponsesToInputs(
       { fin_credit_score: "good" },
       EMPTY_CONFLICT,
       "home_buying",
     );
-    expect(inputs.creditScore).toBe(730);
+    expect(inputs.creditScoreProvenance).toBe("band_ignored");
+    expect(inputs.selfReportedCreditBand).toBe("good");
+    expect(inputs.creditScore).not.toBe(730);
   });
 
   it("maps down payment choice to a percent", () => {
@@ -107,7 +109,9 @@ describe("home fixture score parity (Plans.md 5.5 DoD)", () => {
       debtToIncomeRatio: 0.2,
       downPaymentPercent: 0.22,
       emergencyFundMonths: 8,
-      creditScore: 780,
+      creditScore: 650,
+      creditScoreProvenance: "band_ignored",
+      selfReportedCreditBand: "excellent",
       lifeStability: 8,
       confidenceLevel: 7,
       partnerAlignment: 9,
@@ -118,6 +122,9 @@ describe("home fixture score parity (Plans.md 5.5 DoD)", () => {
       monthlyHousingRatio: 0.265,
       referralSource: "me",
       deadlineOrigin: "mine",
+      dtiProvenance: "self_report",
+      downPaymentProvenance: "self_report",
+      runwayProvenance: "self_report",
     });
   });
 
@@ -139,11 +146,12 @@ describe("home fixture score parity (Plans.md 5.5 DoD)", () => {
       emotional: result.emotional.total,
       timing: result.timing.total,
     }).toEqual({
-      score: 93,
+      score: 86,
       verdict: "READY",
-      financial: 35,
+      financial: 28,
       emotional: 28,
       timing: 30,
     });
+    expect(result.financial.creditHealth).toBe(0);
   });
 });

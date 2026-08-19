@@ -141,6 +141,7 @@ export async function POST(req: NextRequest) {
         insights: {
           keyInsight: generateKeyInsight(result),
           nextSteps: generateNextSteps(result),
+          provenance: result.provenance,
         },
         hard_stops: result.hardStops,
         is_shadow: isShadowRead,
