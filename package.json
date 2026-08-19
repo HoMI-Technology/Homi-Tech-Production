@@ -17,6 +17,7 @@
     "smoke:auth": "node scripts/smoke.mjs auth",
     "smoke:manual": "node scripts/smoke.mjs manual",
     "brand-check": "node scripts/brand-check.mjs",
+    "brand:audit": "node scripts/brand-check.mjs",
     "architecture:gen": "vitest run --config vitest.architecture.config.ts",
     "architecture:check": "node scripts/check-architecture.mjs",
     "eval:companion": "npx tsx eval/companion-honesty/run.ts",

@@ -30,14 +30,14 @@ import {
  */
 
 /** Collect rule ids fired by a single line. `file` drives extension/path logic. */
-function idsFor(line, file = "app/x.tsx", prevLine = "") {
+function idsFor(line, file = "app/x.tsx", prevLine = "", nextLine = "") {
   const violations = [];
-  checkLine(path.join(ROOT, file), 1, line, violations, prevLine);
+  checkLine(path.join(ROOT, file), 1, line, violations, prevLine, nextLine);
   return violations.map((v) => v.rule);
 }
 
-function fires(line, ruleId, file, prevLine) {
-  return idsFor(line, file, prevLine).includes(ruleId);
+function fires(line, ruleId, file, prevLine, nextLine) {
+  return idsFor(line, file, prevLine, nextLine).includes(ruleId);
 }
 
 function clean(line, file = "app/x.tsx", prevLine = "") {
@@ -545,6 +545,84 @@ describe("N19–N20: type-scale drift", () => {
     expect(clean('<p className="text-[var(--tone)]">', "app/x.tsx")).toBe(true);
     expect(clean('<p className="text-3xs uppercase">', "app/x.tsx")).toBe(true);
     expect(clean('<p className="text-2xs tracking-widest">', "app/x.tsx")).toBe(true);
+  });
+});
+
+/* ================================================================== *
+ * 7c. Trade-secret scoring internals on marketing surfaces (N21–N22)
+ * ================================================================== */
+
+describe("N21–N22: scoring internals stay off public marketing surfaces", () => {
+  it("flags numeric pillar weights on the marketing tree", () => {
+    expect(
+      fires(
+        "Weighted at up to 35 of 100 in your readiness score.",
+        "N21",
+        "components/home/FrontDoor.tsx",
+      ),
+    ).toBe(true);
+    expect(
+      fires(
+        "<p>Financial Reality is 35 / 100.</p>",
+        "N21",
+        "app/(marketing)/how-it-works/page.tsx",
+      ),
+    ).toBe(true);
+    expect(fires("Emotional Truth: 30 of 100", "N21", "components/marketing/copy.ts")).toBe(true);
+  });
+
+  it("keeps product surfaces, the engine, and 'out of 100' prose out of N21", () => {
+    expect(
+      fires("<p>Weighted at up to 35 of 100.</p>", "N21", "app/(product)/results/page.tsx"),
+    ).toBe(false);
+    expect(
+      fires("financial: 35, // max of the 100-point scale", "N21", "lib/scoring/public.ts"),
+    ).toBe(false);
+    expect(
+      fires(
+        "HōMI-Score out of 100 · streak 4",
+        "N21",
+        "components/marketing/ArtifactPlayground.tsx",
+      ),
+    ).toBe(false);
+  });
+
+  it("flags verdict score ranges beside a verdict label, including on adjacent lines", () => {
+    expect(fires("READY 80–100", "N22", "components/home/FrontDoor.tsx")).toBe(true);
+    expect(
+      fires(
+        '<p className="font-score text-sm text-dim">80 &ndash; 100</p>',
+        "N22",
+        "app/(marketing)/how-it-works/page.tsx",
+        '<VerdictBadge verdict="READY" />',
+      ),
+    ).toBe(true);
+    expect(
+      fires(
+        "<span>65 - 79</span>",
+        "N22",
+        "components/home/FrontDoor.tsx",
+        "",
+        "<span>ALMOST THERE</span>",
+      ),
+    ).toBe(true);
+  });
+
+  it("does not flag ranges with no verdict word nearby, dates, or product surfaces", () => {
+    expect(
+      fires(
+        'detail: "A deterministic 0–100 readiness score — same inputs, same answer, every time.",',
+        "N22",
+        "components/home/FrontDoor.tsx",
+        'name: "Score",',
+        "},",
+      ),
+    ).toBe(false);
+    expect(fires('date: "2026-06-24",', "N22", "components/marketing/blog-data.ts")).toBe(false);
+    expect(fires("READY 80–100", "N22", "app/(product)/results/page.tsx", "", "")).toBe(false);
+    expect(fires("a 30-year mortgage horizon", "N22", "components/marketing/guides-data.ts")).toBe(
+      false,
+    );
   });
 });
 
