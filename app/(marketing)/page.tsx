@@ -3,6 +3,7 @@ import { InterviewHero } from "@/components/home/InterviewHero";
 
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
+import { defaultShareOpenGraph, defaultShareTwitter } from "@/lib/seo/share";
 import { SITE_URL } from "@/lib/seo/site";
 import { PaperScene } from "@/components/home/PaperScene";
 import {
@@ -20,6 +21,9 @@ export const metadata: Metadata = {
   description:
     "A credit score estimates repayment risk. HōMI helps you evaluate readiness for the decision itself — across Financial Reality, Emotional Truth, and Perfect Timing.",
   alternates: { canonical: "/" },
+  // Pin share tags so the ranking HTML title does not leak into Slack/OG.
+  openGraph: defaultShareOpenGraph(),
+  twitter: defaultShareTwitter(),
 };
 
 /**
