@@ -103,10 +103,10 @@ describe("share cards — default OG / Twitter strings", () => {
     }
   });
 
-  it("does not rewrite ranking HTML titles on this branch", () => {
+  it("locks the ranking HTML titles the SEO merge set (#267)", () => {
     const layout = readFileSync(join(APP, "layout.tsx"), "utf8");
     const home = readFileSync(join(APP, "(marketing)/page.tsx"), "utf8");
-    expect(layout).toContain('default: "HōMI · Decision Readiness Intelligence™"');
-    expect(home).toContain('title: "Know When You\'re Ready — Decision Readiness Intelligence™"');
+    expect(layout).toContain('default: "HōMI"');
+    expect(home).toContain('title: "Decision Readiness · A Decision Companion · HōMI"');
   });
 });

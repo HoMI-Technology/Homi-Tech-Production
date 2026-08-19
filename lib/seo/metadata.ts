@@ -5,7 +5,9 @@ export const NOINDEX_ROBOTS: Metadata["robots"] = { index: false, follow: false 
 
 /**
  * Per-page title, description, canonical, and matching og:title / og:description / og:url.
- * Site-wide OG in the root layout is images-only so a child page cannot inherit the homepage card.
+ * The root layout pins the default brand share card (lib/seo/share); pages using this
+ * helper replace it with their own OG. Surfaces that must keep the pinned card (the
+ * homepage) spread this and re-pin openGraph/twitter with the share defaults.
  */
 export function pageMetadata(opts: {
   /** Title segment (template appends ` · HōMI`) unless `absolute` is set. */
