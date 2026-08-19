@@ -596,7 +596,7 @@ const RULES = [
     // checkLine() appends the i flag itself for non-cs rules.
     id: "N24",
     paths: MARKETING_SURFACE_RE,
-    near: /\b(?:hard[- ]?stop|red lines?|forced to|override[s]? the math)\b/i,
+    near: /\b(?:hard[- ]?stops?|red lines?|forced to|override[s]? (?:the )?(?:math|numeric score))\b/i,
     re: /\b(?:above|over|under|below|fewer than|less than)\s+(?:\d|one\b|a single\b)/,
     message:
       "Numeric hard-stop cutoff on a public marketing surface — exact red-line thresholds are trade-secret; describe them qualitatively so the protective signal cannot be gamed (2026-08 audit).",
