@@ -23,7 +23,7 @@ describe("Ticket 4 copy lock", () => {
       expect(HOW).toContain(line);
     }
     expect(RESULTS).toContain("Fannie&apos;s manual floor is still 620.");
-    expect(HOW).toContain("Fannie&apos;s manual floor is still 620.");
+    expect(HOW).toContain("gates are their gates, not a HōMI verdict.");
   });
 
   it("does not mount the finance ThresholdCompass on Results", () => {
