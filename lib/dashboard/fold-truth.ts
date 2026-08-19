@@ -70,3 +70,73 @@ export function companionFoldLine(args: {
   }
   return "One measurement and this page has a build to show.";
 }
+
+/**
+ * First-viewport instrument on signed-in Home. Hero is the honest 0–100
+ * HōMI Score. Compass is the three-ring brand mark — it always draws
+ * Financial / Emotional / Timing, which invents an empty third ring when
+ * Emotional Truth was skipped, and it glows cheerfully next to
+ * DO NOT PROCEED. Keep one. Not both.
+ */
+export const HOME_FOLD_INSTRUMENT = "hero" as const;
+
+export type HomeFoldPillar = "financial" | "emotional" | "timing";
+
+function pillarDisplayName(key: HomeFoldPillar): string {
+  switch (key) {
+    case "financial":
+      return "Financial Reality";
+    case "emotional":
+      return "Emotional Truth";
+    case "timing":
+      return "Perfect Timing";
+    default: {
+      const _exhaustive: never = key;
+      return _exhaustive;
+    }
+  }
+}
+
+/** Softest measured pillar. Null scores (skipped ET) are not treated as zero. */
+export function weakestMeasuredPillar(scores: {
+  financial: number | null;
+  emotional: number | null;
+  timing: number | null;
+}): HomeFoldPillar | null {
+  const measured: Array<{ key: HomeFoldPillar; value: number }> = [];
+  const entries: Array<[HomeFoldPillar, number | null]> = [
+    ["financial", scores.financial],
+    ["emotional", scores.emotional],
+    ["timing", scores.timing],
+  ];
+  for (const [key, value] of entries) {
+    if (value !== null) measured.push({ key, value });
+  }
+  if (measured.length === 0) return null;
+  measured.sort((a, b) => a.value - b.value);
+  return measured[0].key;
+}
+
+/** One fold sentence: hard stop outranks the weak-pillar line. */
+export function homeFoldSentence(args: {
+  hardStopCount: number;
+  weakestPillar: HomeFoldPillar | null;
+  hasPath: boolean;
+  hasAssessment: boolean;
+}): string {
+  if (args.hardStopCount > 0) {
+    return companionFoldLine({
+      hasHardStops: true,
+      hasPath: args.hasPath,
+      hasAssessment: args.hasAssessment,
+    });
+  }
+  if (args.weakestPillar) {
+    return `${pillarDisplayName(args.weakestPillar)} is the softest pillar on this read.`;
+  }
+  return companionFoldLine({
+    hasHardStops: false,
+    hasPath: args.hasPath,
+    hasAssessment: args.hasAssessment,
+  });
+}
