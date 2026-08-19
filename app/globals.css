@@ -2602,6 +2602,14 @@ body {
     .cursor-spotlight {
       display: none;
     }
+    .hero-field::before {
+      animation: none;
+    }
+    .hero-field::after {
+      /* bloom is decoration — hold it steady instead of fading it in */
+      animation: none;
+      opacity: 1;
+    }
     .halo-breathe,
     .keyhole-glint,
     .hero-rings-enter,

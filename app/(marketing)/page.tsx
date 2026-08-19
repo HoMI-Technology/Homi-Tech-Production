@@ -27,6 +27,10 @@ export default function MarketingHomePage() {
 
       <InterviewHero />
 
+      <div aria-hidden className="bg-navy px-5 sm:px-6 lg:px-8">
+        <div className="hairline mx-auto w-full max-w-7xl" />
+      </div>
+
       {/* Paper: one locked line per scroll position. Each line owns a 55svh
           frame (measured: vh-scale gaps still put 2-3 lines in a 900px
           viewport; fixed frames make the rhythm deterministic). Native scroll
@@ -35,29 +39,32 @@ export default function MarketingHomePage() {
       <section className="bg-navy px-5 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto flex w-full max-w-7xl flex-col">
           <Reveal className="flex min-h-[55svh] items-center">
-            <p className="type-display max-w-4xl text-ink">{WALK_COMPANION}</p>
+            <p className="type-display max-w-4xl text-light">{WALK_COMPANION}</p>
           </Reveal>
           <Reveal className="flex min-h-[55svh] items-center">
-            <p className="type-display max-w-4xl text-ink">{WALK_PRIMARY}</p>
+            <p className="type-display max-w-4xl text-light">{WALK_PRIMARY}</p>
           </Reveal>
           <Reveal className="flex min-h-[55svh] items-center">
-            <p className="type-display max-w-4xl text-ink">{WALK_CLARITY}</p>
+            <p className="type-display max-w-4xl text-light">{WALK_CLARITY}</p>
           </Reveal>
           <Reveal className="flex min-h-[55svh] items-center">
-            <p className="type-display max-w-4xl text-ink">
+            <p className="type-display max-w-4xl text-light">
               Not yet is not <span className="text-emerald">no</span>.
             </p>
           </Reveal>
           <Reveal className="flex min-h-[55svh] items-center">
-            <p className="type-display max-w-4xl text-ink">{WALK_OBJECT}</p>
+            <p className="type-display max-w-4xl text-light">{WALK_OBJECT}</p>
           </Reveal>
         </div>
       </section>
 
       <section id="waitlist" className="bg-navy px-5 pb-24 pt-[12vh] sm:px-6 lg:px-8">
-        <div className="walk-waitlist-form mx-auto w-full max-w-7xl">
-          <div className="w-full max-w-sm">
-            <WaitlistForm source="landing" idPrefix="landing-waitlist" surface="whisper" />
+        <div className="mx-auto w-full max-w-7xl">
+          <div className="hairline mb-[9vh]" aria-hidden />
+          <div className="walk-waitlist-form">
+            <div className="glass w-full max-w-sm p-6 sm:p-8">
+              <WaitlistForm source="landing" idPrefix="landing-waitlist" surface="whisper" />
+            </div>
           </div>
         </div>
       </section>
