@@ -27,26 +27,28 @@ export default function MarketingHomePage() {
 
       <InterviewHero />
 
-      {/* Paper: one locked line per scroll position — vh-scale gaps so each
-          frame is finished, native scroll only. Reveal is the LCP-safe house
-          fade (server HTML visible, reduced-motion and no-JS see plain text). */}
-      <section className="bg-navy px-5 py-24 sm:px-6 lg:px-8">
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-[18vh] sm:gap-[24vh]">
-          <Reveal>
+      {/* Paper: one locked line per scroll position. Each line owns a 55svh
+          frame (measured: vh-scale gaps still put 2-3 lines in a 900px
+          viewport; fixed frames make the rhythm deterministic). Native scroll
+          only. Reveal is the LCP-safe house fade — server HTML paints visible,
+          reduced-motion and no-JS read plain text. */}
+      <section className="bg-navy px-5 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto flex w-full max-w-7xl flex-col">
+          <Reveal className="flex min-h-[55svh] items-center">
             <p className="type-display max-w-4xl text-ink">{WALK_COMPANION}</p>
           </Reveal>
-          <Reveal>
+          <Reveal className="flex min-h-[55svh] items-center">
             <p className="type-display max-w-4xl text-ink">{WALK_PRIMARY}</p>
           </Reveal>
-          <Reveal>
+          <Reveal className="flex min-h-[55svh] items-center">
             <p className="type-display max-w-4xl text-ink">{WALK_CLARITY}</p>
           </Reveal>
-          <Reveal>
+          <Reveal className="flex min-h-[55svh] items-center">
             <p className="type-display max-w-4xl text-ink">
               Not yet is not <span className="text-emerald">no</span>.
             </p>
           </Reveal>
-          <Reveal>
+          <Reveal className="flex min-h-[55svh] items-center">
             <p className="type-display max-w-4xl text-ink">{WALK_OBJECT}</p>
           </Reveal>
         </div>
