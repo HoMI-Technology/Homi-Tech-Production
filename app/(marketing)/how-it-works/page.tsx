@@ -85,7 +85,8 @@ export default function HowItWorksPage() {
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="type-h1">How HōMI works</h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-dim">
-            Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours.
+            Three pillars, weighed differently — how they combine stays ours. No single pillar
+            decides alone: the three are measured together, never in isolation.
           </p>
         </div>
       </section>
@@ -103,7 +104,7 @@ export default function HowItWorksPage() {
               {
                 step: "02",
                 title: "Verdict",
-                copy: "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours. Then hard-stops — conditions that override the math because they are not safe to build on top of.",
+                copy: "Your answers become a deterministic readiness score — same inputs, same answer, every time. Then hard-stops: conditions that override the math because they are not safe to build on top of.",
               },
               {
                 step: "03",
@@ -127,7 +128,8 @@ export default function HowItWorksPage() {
           <div className="mx-auto max-w-6xl">
             <h2 className="text-center type-h2">Inside the three pillars</h2>
             <p className="mx-auto mt-4 max-w-2xl text-center text-dim">
-              Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours. Here is what each pillar looks at and why it matters.
+              How the pillars weigh in stays ours. Here is what each pillar looks at and why it
+              matters.
             </p>
 
             <div className="mt-14 space-y-10">
@@ -160,52 +162,55 @@ export default function HowItWorksPage() {
         </section>
       </Reveal>
 
-      {/* Hard stops */}
+      {/* Hard stops — qualitative on purpose: the exact cutoffs are
+          trade-secret so the protective signal cannot be gamed
+          (scripts/brand-check.mjs N23). */}
       <Reveal>
         <section className="px-6 py-16">
           <div className="mx-auto max-w-4xl">
             <div className="glass p-10 md:p-14">
               <h2 className="type-h2">Red lines that protect you</h2>
               <p className="mt-4 leading-relaxed text-dim">
-                Some conditions aren&rsquo;t a matter of degree. When any of these are true, the
-                verdict is forced to NOT YET regardless of the numeric score. This is a protection
-                signal, not a punishment.
+                Some conditions aren&rsquo;t a matter of degree. When certain red lines are
+                present, the verdict is forced to NOT YET regardless of the numeric score. We
+                don&rsquo;t publish the exact lines, so the signal can&rsquo;t be gamed. This is a
+                protection signal, not a punishment.
               </p>
               <ul className="mt-8 space-y-5">
                 <li className="flex items-start gap-4">
                   <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-crimson" />
                   <div>
-                    <p className="font-semibold text-light">Debt-to-income above 50%</p>
+                    <p className="font-semibold text-light">A debt load with no margin left</p>
                     <p className="mt-1 text-sm text-dim">
-                      Almost no margin left to absorb a new payment without strain.
+                      When existing obligations leave almost no room to absorb a new payment
+                      without strain.
                     </p>
                   </div>
                 </li>
                 <li className="flex items-start gap-4">
                   <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-crimson" />
                   <div>
-                    <p className="font-semibold text-light">Housing cost above 45% of income</p>
+                    <p className="font-semibold text-light">Housing costs that crowd out everything else</p>
                     <p className="mt-1 text-sm text-dim">
-                      The line where one bad month turns into a crisis.
+                      The point where one bad month turns into a crisis.
                     </p>
                   </div>
                 </li>
                 <li className="flex items-start gap-4">
                   <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-crimson" />
                   <div>
-                    <p className="font-semibold text-light">Less than one month of runway</p>
+                    <p className="font-semibold text-light">No financial cushion</p>
                     <p className="mt-1 text-sm text-dim">
-                      Owning a home means owning its surprises. You need a cushion first.
+                      Owning a home means owning its surprises. You need a buffer first.
                     </p>
                   </div>
                 </li>
                 <li className="flex items-start gap-4">
                   <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-crimson" />
                   <div>
-                    <p className="font-semibold text-light">Credit under 620</p>
+                    <p className="font-semibold text-light">Credit lenders already price as high-risk</p>
                     <p className="mt-1 text-sm text-dim">
-                      Lenders price this as high-risk. The interest cost alone could undo the
-                      purchase.
+                      At that point the interest cost alone can undo the purchase.
                     </p>
                   </div>
                 </li>
@@ -255,7 +260,8 @@ export default function HowItWorksPage() {
         <section className="px-6 py-8">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-sm leading-relaxed text-dim">
-              HōMI Score is not a credit score. Lenders will still pull a credit report. Fannie&apos;s manual floor is still 620. That is their gate, not a HōMI verdict.
+              HōMI Score is not a credit score. Lenders will still pull a credit report. Their
+              gates are their gates, not a HōMI verdict.
             </p>
           </div>
         </section>
