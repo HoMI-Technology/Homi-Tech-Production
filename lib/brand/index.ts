@@ -83,7 +83,7 @@ export const VERDICT_META: Record<
     temperature: "Warm",
     className: "verdict-almost",
     bgClassName: "bg-verdict-almost",
-    line: "You've nearly cooled down. One or two things first.",
+    line: "Close. A few specific gaps stand between you and ready — and we name them.",
   },
   BUILD_FIRST: {
     label: "BUILD FIRST",

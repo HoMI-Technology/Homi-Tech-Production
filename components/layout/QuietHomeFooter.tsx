@@ -4,6 +4,10 @@ import { TAGLINES } from "@/lib/brand";
 
 const SOCIAL_CLASS = "text-sm text-dim hover:text-light";
 
+/** Full canon disclaimer (2026-08 audit fix 9) — same sentence SitemapFooter carries. */
+const CANON_DISCLAIMER =
+  "HōMI provides educational guidance only. Consider consulting qualified professionals before making legal, tax, mortgage, investment, or real estate decisions.";
+
 const LEGAL = [
   { href: "/legal/privacy", label: "Privacy" },
   { href: "/legal/terms", label: "Terms" },
@@ -61,7 +65,7 @@ export function QuietHomeFooter() {
             </a>
           </div>
 
-          <p className="text-sm text-dim/70">Educational only — not financial advice.</p>
+          <p className="max-w-2xl text-sm text-dim">{CANON_DISCLAIMER}</p>
         </div>
       </div>
     </footer>

@@ -12,8 +12,8 @@ import { COLORS } from "@/lib/brand";
 /**
  * Threshold Preview — a public-safe, interactive feel for live readiness.
  *
- * Three signals, one temperature. Chrome never presents a 0–100 numeral as a
- * HōMI-Score and never pins a 4-band verdict badge on the visitor.
+ * Three signals, one temperature. Chrome never presents a 0 to 100 numeral
+ * as a HōMI-Score and never pins a 4-band verdict badge on the visitor.
  */
 
 type PreviewTemp = "Cool" | "Warm" | "Warm+" | "Hot";

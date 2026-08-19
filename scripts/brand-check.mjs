@@ -25,6 +25,11 @@
  *     credit-score-is-static framing, real-time & "live" freshness claims,
  *     absolute conflict-of-interest claims, perpetual guarantees, and
  *     whole-market competitor claims — EN and ES.
+ *   - Trade-secret scoring internals on public marketing surfaces (N21–N22,
+ *     2026-08 audit): numeric pillar weights ("35 of 100") and verdict score
+ *     ranges rendered beside a verdict label. Path-scoped to app/(marketing),
+ *     components/home, and components/marketing — product surfaces
+ *     legitimately render "n / max" breakdowns and stay out of scope.
  *
  * SUPPRESSION (tightened — see SUPPRESSION_REGISTRY):
  *   The old model suppressed a line if it merely *contained* the substring
@@ -320,12 +325,21 @@ function isNegated(prevLine, line, matchIndex) {
 }
 
 /**
+ * Public marketing tree — the surfaces where trade-secret scoring internals
+ * (N21–N22) must never render. Repo-relative posix path prefixes.
+ */
+const MARKETING_SURFACE_RE = /^(?:app\/\(marketing\)\/|components\/(?:home|marketing)\/)/;
+
+/**
  * id        – stable rule id, quoted in the report
  * re        – detector
  * message   – operator-facing remediation text
  * cs        – case-sensitive (default false)
  * negatable – run the negation guard before reporting (default false)
  * brand     – run against the carve-out-stripped line (default false)
+ * paths     – only run on files whose repo-relative posix path matches
+ * near      – only report when this regex matches the prev/current/next-line
+ *             window (used directly, with its own flags)
  */
 const RULES = [
   /* --- Brand spelling variants (N1–N5) ------------------------------ */
@@ -537,6 +551,30 @@ const RULES = [
     message:
       "Arbitrary text size (text-[…]) is off the type scale — snap to a scale step (text-3xs … text-3xl, or a type-* class from app/globals.css).",
   },
+
+  /* --- Trade-secret scoring internals on marketing surfaces (N21–N22) *
+   * 2026-08 brand/compliance audit: exact pillar weights and verdict
+   * thresholds are trade-secret; the public model is qualitative only.
+   * Scoped via `paths` to the public marketing tree. Product surfaces
+   * (score breakdowns rendering "n / max") stay out of scope, as do the
+   * engine and its docs under lib/scoring. */
+  {
+    id: "N21",
+    paths: MARKETING_SURFACE_RE,
+    re: /\b\d{1,3}\s*(?:of|\/)\s*100\b/,
+    message:
+      'Numeric pillar weight ("<n> of 100") on a public marketing surface — exact weights are trade-secret; the public model is qualitative only (2026-08 audit).',
+  },
+  {
+    id: "N22",
+    paths: MARKETING_SURFACE_RE,
+    near: /\b(?:READY|ALMOST[ _]THERE|BUILD[ _]FIRST|NOT[ _]YET|DO NOT PROCEED|verdict)/i,
+    // First number must not carry a leading zero, so ISO dates (2026-06-24)
+    // and version-ish tokens never match; "0" alone still does (0–49).
+    re: /\b(?:0|[1-9]\d{0,2})\s*(?:–|—|&ndash;|&mdash;|-)\s*(?:0|[1-9]\d{0,2})\b/,
+    message:
+      "Verdict score range beside a verdict label on a public marketing surface — thresholds are trade-secret; keep the public spectrum qualitative (2026-08 audit).",
+  },
 ];
 
 /* ------------------------------------------------------------------ *
@@ -570,8 +608,9 @@ function walk(dir, extensions, files = []) {
  * Line checker
  * ------------------------------------------------------------------ */
 
-export function checkLine(filePath, lineNumber, line, violations, prevLine = "") {
+export function checkLine(filePath, lineNumber, line, violations, prevLine = "", nextLine = "") {
   const relPath = path.relative(ROOT, filePath);
+  const relPosix = relPath.split(path.sep).join("/");
   const ext = path.extname(filePath);
 
   const { suppressed, defect } = evaluateSuppression(line, relPath, ext);
@@ -584,11 +623,13 @@ export function checkLine(filePath, lineNumber, line, violations, prevLine = "")
   const brandLine = stripBrandCarveOuts(line);
 
   for (const rule of RULES) {
+    if (rule.paths && !rule.paths.test(relPosix)) continue;
     const target = rule.brand ? brandLine : line;
     const re = rule.cs ? rule.re : new RegExp(rule.re.source, `${rule.re.flags}i`);
     const match = re.exec(target);
     if (!match) continue;
     if (rule.negatable && isNegated(prevLine, target, match.index)) continue;
+    if (rule.near && !rule.near.test(`${prevLine}\n${target}\n${nextLine}`)) continue;
     violations.push({ file: filePath, line: lineNumber, rule: rule.id, message: rule.message });
   }
 
@@ -646,7 +687,14 @@ export function checkLine(filePath, lineNumber, line, violations, prevLine = "")
 export function checkContent(filePath, content, violations) {
   const lines = content.split("\n");
   lines.forEach((line, idx) =>
-    checkLine(filePath, idx + 1, line, violations, idx > 0 ? lines[idx - 1] : ""),
+    checkLine(
+      filePath,
+      idx + 1,
+      line,
+      violations,
+      idx > 0 ? lines[idx - 1] : "",
+      idx + 1 < lines.length ? lines[idx + 1] : "",
+    ),
   );
 }
 

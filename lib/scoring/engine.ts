@@ -235,10 +235,16 @@ const MAX_FINANCIAL = PILLAR_MAX_POINTS.financial;
 const MAX_EMOTIONAL = PILLAR_MAX_POINTS.emotional;
 const MAX_TIMING = PILLAR_MAX_POINTS.timing;
 
-/** Verdict thresholds — score on the boundary is included in the higher tier. */
-const THRESHOLD_READY = 80;
-const THRESHOLD_ALMOST = 65;
-const THRESHOLD_BUILD = 50;
+import { VERDICT_CONFIG } from "./verdicts";
+
+/**
+ * Verdict thresholds — score on the boundary is included in the higher tier.
+ * Sourced from lib/scoring/verdicts.ts, the single home of these literals
+ * (shared with the client seam in ./public so the two can never drift).
+ */
+const THRESHOLD_READY = VERDICT_CONFIG.READY.min;
+const THRESHOLD_ALMOST = VERDICT_CONFIG.ALMOST_THERE.min;
+const THRESHOLD_BUILD = VERDICT_CONFIG.BUILD_FIRST.min;
 
 // ---------------------------------------------------------------------------
 // Internal helpers

@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { PRIMARY_CLOSE_HREF, PRIMARY_CLOSE_LABEL } from "@/components/marketing/first-moment-copy";
+import {
+  PRIMARY_CLOSE_HREF,
+  PRIMARY_CLOSE_LABEL_HOME,
+} from "@/components/marketing/first-moment-copy";
 import { Reveal } from "@/components/ui/Reveal";
 import { PILLARS, VERDICT_META, withAlpha, type VerdictKey } from "@/lib/brand";
-import { scoreToVerdict } from "@/lib/scoring/engine";
 import {
   WALK_CLARITY,
   WALK_COMPANION,
@@ -12,22 +14,25 @@ import {
 
 /**
  * Front-door sections — the rich guest `/` rebuilt on canon.
- * Every verdict label, color, and score range is imported or derived
- * from lib/brand and lib/scoring at render time, so this page cannot
- * drift from the engine the way the old 75/60/40 build did.
+ * Verdict labels, colors, and meaning lines come from lib/brand. Numeric
+ * score ranges and pillar weights are trade-secret and never render here:
+ * the public model is qualitative only (scripts/brand-check.mjs N21/N22).
  */
 
-/** Derive the verdict bands by probing the canonical engine mapping. */
-function verdictBands(): { key: VerdictKey; min: number; max: number }[] {
-  const bands = new Map<VerdictKey, { min: number; max: number }>();
-  for (let score = 0; score <= 100; score++) {
-    const v = scoreToVerdict(score);
-    const band = bands.get(v);
-    if (band) band.max = Math.max(band.max, score);
-    else bands.set(v, { min: score, max: score });
-  }
-  return [...bands.entries()].map(([key, b]) => ({ key, ...b })).sort((a, b) => b.min - a.min);
-}
+/** Verdict display order — cool to hot. Qualitative only: names and meanings, no ranges. */
+const VERDICT_ORDER: VerdictKey[] = ["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"];
+
+/**
+ * Public marketing labels. ADR-001's dual-stable vocabulary keeps the
+ * in-product hard-stop badge "DO NOT PROCEED" (VERDICT_META is untouched);
+ * the public front door renders the softer name for the fourth verdict.
+ */
+const PUBLIC_VERDICT_LABELS: Record<VerdictKey, string> = {
+  READY: VERDICT_META.READY.label,
+  ALMOST_THERE: VERDICT_META.ALMOST_THERE.label,
+  BUILD_FIRST: VERDICT_META.BUILD_FIRST.label,
+  NOT_YET: "NOT YET", // brand-ok: marketing-page label per 2026-08 audit fix 4 — the in-product badge keeps ADR-001's DO NOT PROCEED
+};
 
 function SectionHeader({
   eyebrow,
@@ -85,6 +90,11 @@ export function WrongQuestion() {
             </Reveal>
           ))}
         </div>
+        <Reveal className="mt-12">
+          <p className="mx-auto max-w-3xl text-center text-xl font-semibold text-light">
+            A credit score tells institutions if you may repay. HōMI tells you if you are ready.
+          </p>
+        </Reveal>
       </div>
     </section>
   );
@@ -132,8 +142,8 @@ export function Pillars() {
                 </h3>
                 <p className="mt-2 text-lg text-light">{pillar.question}</p>
                 <p className="mt-4 text-sm text-dim">
-                  Weighted at up to <span className="score-numeral">{pillar.max}</span> of 100 in
-                  your readiness score.
+                  No single pillar decides alone &mdash; the three are measured together, never in
+                  isolation.
                 </p>
               </div>
             </Reveal>
@@ -145,18 +155,18 @@ export function Pillars() {
 }
 
 export function VerdictSpectrum() {
-  const bands = verdictBands();
-  const gradient = `linear-gradient(90deg, ${[...bands]
-    .reverse()
-    .map((b) => VERDICT_META[b.key].color)
-    .join(", ")})`;
+  // Canon spectrum runs cool to hot, left to right: emerald → yellow →
+  // amber → crimson — the same order as the cards beneath it.
+  const gradient = `linear-gradient(90deg, ${VERDICT_ORDER.map(
+    (key) => VERDICT_META[key].color,
+  ).join(", ")})`;
   return (
     <section className="px-5 py-[9vh] sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-7xl">
         <SectionHeader
           eyebrow="The verdict spectrum"
           title="Four verdicts. Zero judgment."
-          support="Every range below is derived from the scoring engine itself — this page cannot say one thing while the score says another."
+          support="The same four verdicts the assessment can give you — plain names, honest meanings, no fine print."
         />
         <Reveal className="mt-14">
           <div className="glass p-8 sm:p-10">
@@ -166,11 +176,11 @@ export function VerdictSpectrum() {
               style={{ background: gradient, opacity: 0.9 }}
             />
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {bands.map((band) => {
-                const meta = VERDICT_META[band.key];
+              {VERDICT_ORDER.map((key) => {
+                const meta = VERDICT_META[key];
                 return (
                   <div
-                    key={band.key}
+                    key={key}
                     className="rounded-xl border p-5"
                     style={{
                       borderColor: withAlpha(meta.color, 0.35),
@@ -187,10 +197,7 @@ export function VerdictSpectrum() {
                         }}
                       />
                       <span className="text-sm font-semibold" style={{ color: meta.color }}>
-                        {meta.label}
-                      </span>
-                      <span className="score-numeral ml-auto text-xs text-dim">
-                        {band.min}&ndash;{band.max}
+                        {PUBLIC_VERDICT_LABELS[key]}
                       </span>
                     </div>
                     <p className="mt-3 text-sm text-dim">{meta.line}</p>
@@ -273,6 +280,37 @@ export function Clarity() {
   );
 }
 
+const NOT_ITEMS = [
+  "Not a lender or broker.",
+  "Not a credit bureau.",
+  "Not a financial, legal, tax, or mortgage advisor.",
+  "Not a product-pushing engine.",
+] as const;
+
+/** What HōMI is not — the boundary said plainly, between Clarity and the close. */
+export function NotYourBanker() {
+  return (
+    <section className="px-5 py-[9vh] sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-7xl">
+        <SectionHeader
+          eyebrow="What HōMI is not"
+          title="Your homie, not your banker."
+          support="HōMI provides educational guidance only. The answer is the product."
+        />
+        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {NOT_ITEMS.map((item, i) => (
+            <Reveal key={item} delay={i * 80}>
+              <div className="h-full rounded-xl border border-slate-high/40 bg-slate-surface p-7">
+                <p className="text-base text-dim">{item}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function CloseCta() {
   return (
     <section className="hero-field px-5 py-[14vh] sm:px-6 lg:px-8">
@@ -286,7 +324,7 @@ export function CloseCta() {
             href={`${PRIMARY_CLOSE_HREF}?src=close`}
             className="btn btn-primary mt-8 inline-flex"
           >
-            {PRIMARY_CLOSE_LABEL}
+            {PRIMARY_CLOSE_LABEL_HOME}
           </Link>
           <p className="mt-4 text-sm text-dim">Free &middot; about 5 minutes</p>
         </div>

@@ -7,6 +7,7 @@ import {
   FIRST_MOMENT_HANDOFF_LINE,
   PRIMARY_CLOSE_HREF,
   PRIMARY_CLOSE_LABEL,
+  PRIMARY_CLOSE_LABEL_HOME,
   SIGNED_IN_ASSESS_HREF,
 } from "@/components/marketing/first-moment-copy";
 
@@ -63,9 +64,14 @@ describe("primary marketing close", () => {
     expect(SIGNED_IN_ASSESS_HREF).toBe("/assessment");
   });
 
+  it("labels the landing hero/close cut See where you stand (audit fix 6)", () => {
+    expect(PRIMARY_CLOSE_LABEL_HOME).toBe("See where you stand");
+  });
+
   it("does not use banned primary labels", () => {
     for (const banned of BANNED_PRIMARY_LABELS) {
       expect(PRIMARY_CLOSE_LABEL).not.toMatch(banned);
+      expect(PRIMARY_CLOSE_LABEL_HOME).not.toMatch(banned);
     }
   });
 

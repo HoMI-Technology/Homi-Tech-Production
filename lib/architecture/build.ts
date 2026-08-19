@@ -1,5 +1,6 @@
 import { AGENTS, type AgentMode } from "../agents/registry";
 import { BRAND, PILLARS, VERDICT_META, type VerdictKey } from "../brand";
+import { VERDICT_CONFIG } from "../scoring/verdicts";
 import { ARCHITECTURE_CALCULATORS } from "./calculators";
 import { ARCHITECTURE_BRAND, ARCHITECTURE_COMPLIANCE } from "./compliance";
 import { ARCHITECTURE_GAPS } from "./gaps";
@@ -424,11 +425,16 @@ function categorizePath(path: string): string {
 
 export function buildScoringEngine(): ArchitectureScoringEngine {
   const keys: VerdictKey[] = ["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"];
+  // Band boundaries come from the threshold SSOT (lib/scoring/verdicts.ts);
+  // each tier's max is the next tier up's min - 1, READY tops out at 100.
   const bands: Record<VerdictKey, { min: number; max: number }> = {
-    READY: { min: 80, max: 100 },
-    ALMOST_THERE: { min: 65, max: 79 },
-    BUILD_FIRST: { min: 50, max: 64 },
-    NOT_YET: { min: 0, max: 49 },
+    READY: { min: VERDICT_CONFIG.READY.min, max: 100 },
+    ALMOST_THERE: { min: VERDICT_CONFIG.ALMOST_THERE.min, max: VERDICT_CONFIG.READY.min - 1 },
+    BUILD_FIRST: {
+      min: VERDICT_CONFIG.BUILD_FIRST.min,
+      max: VERDICT_CONFIG.ALMOST_THERE.min - 1,
+    },
+    NOT_YET: { min: VERDICT_CONFIG.NOT_YET.min, max: VERDICT_CONFIG.BUILD_FIRST.min - 1 },
   };
 
   const verdict_thresholds = Object.fromEntries(
