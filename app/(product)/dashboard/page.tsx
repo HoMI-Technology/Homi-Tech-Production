@@ -15,7 +15,6 @@ import {
 import { checkedInToday, contextualActionHrefs } from "@/lib/dashboard/context-actions";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
-import { EmptyState } from "@/components/ui/EmptyState";
 import { Reveal } from "@/components/ui/Reveal";
 import { ScoreHistory, type ScoreHistoryPoint } from "@/components/dashboard/ScoreHistory";
 import { ScoreDeltaBadge } from "@/components/dashboard/ScoreDeltaBadge";
@@ -34,6 +33,16 @@ import {
 } from "@/components/dashboard/FinancialPositionSection";
 import { DecisionTimeline } from "@/components/dashboard/DecisionTimeline";
 import { PathNextMove } from "@/components/dashboard/PathNextMove";
+import { DashboardResumeRamp } from "@/components/dashboard/DashboardResumeRamp";
+import { DashboardFoldBeacon } from "@/components/dashboard/DashboardFoldBeacon";
+import { DashSpectrum } from "@/components/dashboard/DashSpectrum";
+import {
+  buildProgressLabel,
+  companionFoldLine,
+  hardStopMessages,
+  shouldPaintDashSpectrum,
+  shouldSuppressBuildPercent,
+} from "@/lib/dashboard/fold-truth";
 import { PageFrame } from "@/components/operate/PageFrame";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { ActionDock } from "@/components/operate/ActionDock";
@@ -121,7 +130,7 @@ export default async function DashboardPage() {
   // pillars, pulse, and actions need. The money section streams separately
   // behind Suspense (FinancialPositionSection) so Plaid-derived data never
   // blocks first paint.
-  const [profileR, assessmentsR, checkinsR, journalR, surveysR, journalEntriesR] =
+  const [profileR, assessmentsR, checkinsR, journalR, surveysR, journalEntriesR, pathR] =
     await Promise.all([
       user
         ? supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
@@ -173,6 +182,13 @@ export default async function DashboardPage() {
             >[],
             error: null,
           }),
+      user
+        ? supabase
+            .from("user_readiness_path")
+            .select("path")
+            .eq("user_id", user.id)
+            .maybeSingle()
+        : Promise.resolve({ data: null as { path: unknown } | null, error: null }),
     ]);
 
   // Empty and failed are different truths. A transient error must never render
@@ -184,6 +200,27 @@ export default async function DashboardPage() {
   const checkinRows: DailyCheckin[] = checkinsR.data ?? [];
   const journalCount = journalR.count ?? 0;
   const latest = assessmentRows[0] ?? null;
+  const stopMessages = hardStopMessages(latest?.hard_stops);
+  const hardStopCount = stopMessages.length;
+  const suppressBuildPercent = shouldSuppressBuildPercent(hardStopCount);
+  const pathPayload =
+    pathR.error || !pathR.data ? null : (pathR.data as { path?: { steps?: unknown } }).path;
+  const pathSteps = Array.isArray(pathPayload?.steps) ? pathPayload.steps : [];
+  const pathDone = pathSteps.filter((step) => {
+    if (!step || typeof step !== "object") return false;
+    const status = (step as { status?: unknown }).status;
+    return status === "done" || status === "skipped";
+  }).length;
+  const progressLabel = buildProgressLabel({
+    done: pathDone,
+    total: pathSteps.length,
+    hardStopCount,
+  });
+  const foldLine = companionFoldLine({
+    hasHardStops: hardStopCount > 0,
+    hasPath: pathSteps.length > 0,
+    hasAssessment: latest !== null,
+  });
   const previousAssessment = assessmentRows[1] ?? null;
   const dueSurvey: OutcomeSurvey | null = surveysR.data?.[0] ?? null;
   const journalEntries =
@@ -296,6 +333,11 @@ export default async function DashboardPage() {
       style={fieldStyle}
     >
       <script dangerouslySetInnerHTML={{ __html: ENTRANCE_BOOT_SCRIPT }} />
+      <DashboardFoldBeacon
+        hasAssessment={latest ? 1 : 0}
+        hardStopCount={hardStopCount}
+        hasPath={pathSteps.length > 0 ? 1 : 0}
+      />
       <EntranceConductor containerId="dash-root" />
       <SidebarVerdictSync
         verdict={verdict}
@@ -306,7 +348,7 @@ export default async function DashboardPage() {
       {/* ── Single fold instrument: greeting + score + next move ── */}
       <div className="dash-stage">
         <OperateInstrument tint={instrumentTint}>
-          {latest && (
+          {latest && !suppressBuildPercent && (
             <VerdictCelebrate
               assessmentId={latest.id}
               improved={improved}
@@ -329,6 +371,21 @@ export default async function DashboardPage() {
             />
           ) : latest ? (
             <>
+              {stopMessages.length > 0 && (
+                <div
+                  className="mb-5 rounded-xl border border-crimson/45 bg-crimson/10 px-4 py-3"
+                  role="alert"
+                >
+                  <p className="text-3xs font-bold uppercase tracking-[0.14em] text-crimson">
+                    Hard stop
+                  </p>
+                  <ul className="mt-2 space-y-1.5 text-sm text-light">
+                    {stopMessages.map((message) => (
+                      <li key={message}>{message}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               <div className="grid items-center gap-7 lg:grid-cols-[minmax(0,140px)_1fr] lg:gap-10">
                 <div className="flex justify-center lg:justify-start">
                   <ThresholdCompass size={128} verdict={verdict ?? undefined} />
@@ -357,39 +414,15 @@ export default async function DashboardPage() {
                   <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-light/90">
                     {verdictMeta.line}
                   </p>
+                  <p className="mt-2 max-w-xl text-sm leading-relaxed text-dim">{foldLine}</p>
 
-                  <div className="mt-5 max-w-lg">
-                    <div className="dash-spectrum">
-                      <span
-                        aria-hidden
-                        className="dash-spectrum-marker"
-                        style={{
-                          left: `${Math.max(3, Math.min(97, scorePct))}%`,
-                          ["--instrument-tint" as string]: instrumentTint,
-                        }}
-                      />
-                    </div>
-                    <div className="relative mt-2 h-4 text-3xs font-medium uppercase tracking-wide text-dim">
-                      <span className="absolute -translate-x-1/2" style={{ left: "12%" }}>
-                        Not yet
-                      </span>
-                      <span
-                        className="absolute hidden -translate-x-1/2 sm:block"
-                        style={{ left: "42%" }}
-                      >
-                        Build
-                      </span>
-                      <span
-                        className="absolute hidden -translate-x-1/2 sm:block"
-                        style={{ left: "68%" }}
-                      >
-                        Almost
-                      </span>
-                      <span className="absolute -translate-x-1/2" style={{ left: "92%" }}>
-                        Ready
-                      </span>
-                    </div>
-                  </div>
+                  {shouldPaintDashSpectrum(hardStopCount) && (
+                    <DashSpectrum
+                      scorePct={scorePct}
+                      tint={instrumentTint}
+                      stopActive={suppressBuildPercent}
+                    />
+                  )}
 
                   {showNudge && (
                     <p className="mt-4 rounded-lg border border-amber/35 bg-verdict-build/90 px-4 py-2.5 text-sm text-light">
@@ -457,7 +490,7 @@ export default async function DashboardPage() {
               </ActionDock>
             </>
           ) : (
-            <EmptyState preset="dashboard" />
+            <DashboardResumeRamp />
           )}
         </OperateInstrument>
       </div>
@@ -506,18 +539,14 @@ export default async function DashboardPage() {
                   color: strongest?.color,
                 },
                 {
-                  label: "Check-ins · 7d",
-                  value: (
-                    <>
-                      {checkinsThisWeek}
-                      <span className="ml-1 text-sm font-normal text-dim">/7</span>
-                    </>
-                  ),
-                  footer:
-                    checkinRows.length > 0
-                      ? `${checkinRows.length} in last 14`
-                      : "None in last 14",
-                  color: COLORS.emerald,
+                  label: suppressBuildPercent ? "Path" : "Path steps",
+                  value: suppressBuildPercent ? "Stop" : (progressLabel ?? "—"),
+                  footer: suppressBuildPercent
+                    ? "Hard stop first"
+                    : progressLabel
+                      ? "Current path"
+                      : "No path yet",
+                  color: suppressBuildPercent ? COLORS.crimson : COLORS.emerald,
                 },
                 {
                   label: "Journal",
