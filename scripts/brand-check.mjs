@@ -450,7 +450,7 @@ const RULES = [
     id: "N8",
     re: /\bthe only\s+(?:\w+\s+)?(?:platform|company|product|tool|service|app|score|system|voice)\b|\b(?:la única|el único)\s+(?:plataforma|empresa|producto|herramienta|puntuación)\b/,
     message:
-      'Unsupported exclusivity claim ("the only <platform/company/…>") — cannot be substantiated.',
+      'Unsupported exclusivity claim ("the only <platform/company/…") — cannot be substantiated.',
   },
   {
     id: "N9",
@@ -724,7 +724,7 @@ export function checkContent(filePath, content, violations) {
 }
 
 export function collectFiles() {
-  return SCAN_TARGETS.flatMap(({ dir, extensions }) => walk(path.join(ROOT, dir, ), extensions));
+  return SCAN_TARGETS.flatMap(({ dir, extensions }) => walk(path.join(ROOT, dir), extensions));
 }
 
 export function run() {
@@ -756,7 +756,7 @@ function main() {
   const violations = run();
 
   if (violations.length > 0) {
-    console.error(`brand-check: ${violationCount(violations)} violation(s) found\n`);
+    console.error(`brand-check: ${violations.length} violation(s) found\n`);
     for (const v of violations) {
       console.error(`${path.relative(ROOT, v.file)}:${v.line}  [${v.rule}] ${v.message}`);
     }
@@ -766,10 +766,6 @@ function main() {
 
   console.log("brand-check: clean — no violations found.");
   process.exitCode = 0;
-}
-
-function violationCount(violations) {
-  return violations.length;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
