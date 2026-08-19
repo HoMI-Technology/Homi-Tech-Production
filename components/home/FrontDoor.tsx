@@ -90,6 +90,11 @@ export function WrongQuestion() {
             </Reveal>
           ))}
         </div>
+        <Reveal className="mt-12">
+          <p className="mx-auto max-w-3xl text-center text-xl font-semibold text-light">
+            A credit score tells institutions if you may repay. HōMI tells you if you are ready.
+          </p>
+        </Reveal>
       </div>
     </section>
   );
