@@ -33,6 +33,17 @@ Phases 00–03 landed in [#252](https://github.com/HoMI-Technology/Homi-Tech-Pro
 
 This file stays the audit. It does not replace the product PR, and phases 04–07 (fold inversion, Companion line, ledger, route collapse) are still open founder/doctrine calls.
 
+**Still open inside phases 00–03**, verified against the tree after #252 landed — recorded so these do not disappear behind a "landed" label:
+
+| Item | Phase | Finding | State |
+| --- | --- | --- | --- |
+| `onboarding_completed` still written and never read | 01 | F5 | Open |
+| Unreachable `loadLocalResult` replay still in `onboarding/page.tsx` | 01 | F5 | Open |
+| Snapshot aside still ungated below `lg` | 01 | **F10** | Untouched |
+| State-based post-login routing — `safeNext` still hard-defaults to `/dashboard` | 03 | F1 | Open |
+
+The headline items of each phase did ship. These are the residue, and each is small.
+
 ---
 
 ## Method, and what this audit is not
@@ -448,9 +459,9 @@ current dashboard treats as real.
 | Phase | Work | Closes | Doctrine risk | Status |
 | --- | --- | --- | --- | --- |
 | 00 | Instrument the dashboard: empty-state impression, next-move click, activation funnel, return cadence | F3 | None | Landed in #252 (`dashboard_fold_viewed`; remaining funnel events still thin) |
-| 01 | Bug fixes, no design content: navigate on skip; read or drop `onboarding_completed`; delete unreachable replay; hide Snapshot below `lg`; un-swallow the `/assessment` redirect | F5, F10, F11 | None | Landed in #252 |
+| 01 | Bug fixes, no design content: navigate on skip; read or drop `onboarding_completed`; delete unreachable replay; hide Snapshot below `lg`; un-swallow the `/assessment` redirect | F5, F10, F11 | None | **Partly landed in #252** — skip navigation and the `NEXT_REDIRECT` rethrow shipped (F5 limb 1, F11). Still open: `onboarding_completed` remains write-only, the unreachable replay is still in `onboarding/page.tsx`, and the Snapshot aside is still ungated (**F10 untouched**) |
 | 02 | Server-render the path into the existing `Promise.all`; surface hard stops; steps-completed in the rail | F2, F4, F7 (part) | None — additive | Landed in #252 |
-| 03 | Resume ramp for abandoned assessments; state-based post-login routing | F1 | Low | Landed in #252 |
+| 03 | Resume ramp for abandoned assessments; state-based post-login routing | F1 | Low | **Partly landed in #252** — the resume ramp shipped. Still open: state-based post-login routing (`lib/auth/safeNext.ts:7` still hard-defaults every sign-in to `/dashboard`) |
 | 04 | Invert the fold — build hero, score to rail. **Edits DESIGN.md's 3-second test in the same commit** | F7 | **PILOT required** | Open |
 | 05 | One server-rendered Companion line on the build | F6 | Low | Open |
 | 06 | The ledger — completed steps with impact | F9 | None | Open |
