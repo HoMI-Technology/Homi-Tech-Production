@@ -2721,6 +2721,11 @@ body {
     .hero-instrument {
       animation: none;
     }
+    .halo-breathe {
+      /* Freeze the compass glow at mid-breath instead of snapping to the
+         un-animated opacity: 1 — rotation stops, the static glow stays. */
+      opacity: 0.7;
+    }
     .hero-instrument {
       transform: none;
     }
