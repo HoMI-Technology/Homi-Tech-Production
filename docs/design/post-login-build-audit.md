@@ -2,8 +2,8 @@
 title: Post-login audit — let users experience their build
 source: Claude Code (design audit, two-lens review)
 date: 2026-08-17
-revision: 3 — adds an observational pass (app actually run); rev 1 contained one retracted finding
-status: design — not yet implemented
+revision: 4 — notes that phases 00–03 landed in #252; remaining phases are still open
+status: design — phases 00–03 implemented in #252 (2026-08-19); 04–07 still open
 surface: post-login (`/dashboard`, `/path`, `/plan`, `/results`, `/onboarding`)
 sections: Section 1 (Assessment/Readiness surfaces) + Section 5 (Chrome/IA) — no writes to Section 0 or 8
 related: DESIGN.md, CANON.md, COMPANION-ECOSYSTEM.md, docs/SECTIONS.md
@@ -26,6 +26,12 @@ Wiring existing modules into an existing surface can start immediately and colli
 with nothing until phase 04.
 
 **This is a wiring problem wearing a redesign costume.**
+
+### Implementation status (2026-08-19)
+
+Phases 00–03 landed in [#252](https://github.com/HoMI-Technology/Homi-Tech-Production/pull/252) (`feat(dashboard): tell the truth about the build on Home`). That PR wired hard-stop fold truth, Path as step counts (no percent over a stop), the resume ramp, `dashboard_fold_viewed`, onboarding skip → `/dashboard`, and the `/assessment` `NEXT_REDIRECT` rethrow. Scoring was not changed.
+
+This file stays the audit. It does not replace the product PR, and phases 04–07 (fold inversion, Companion line, ledger, route collapse) are still open founder/doctrine calls.
 
 ---
 
@@ -439,16 +445,16 @@ current dashboard treats as real.
 
 ## Sequencing
 
-| Phase | Work | Closes | Doctrine risk |
-| --- | --- | --- | --- |
-| 00 | Instrument the dashboard: empty-state impression, next-move click, activation funnel, return cadence | F3 | None |
-| 01 | Bug fixes, no design content: navigate on skip; read or drop `onboarding_completed`; delete unreachable replay; hide Snapshot below `lg`; un-swallow the `/assessment` redirect | F5, F10, F11 | None |
-| 02 | Server-render the path into the existing `Promise.all`; surface hard stops; steps-completed in the rail | F2, F4, F7 (part) | None — additive |
-| 03 | Resume ramp for abandoned assessments; state-based post-login routing | F1 | Low |
-| 04 | Invert the fold — build hero, score to rail. **Edits DESIGN.md's 3-second test in the same commit** | F7 | **PILOT required** |
-| 05 | One server-rendered Companion line on the build | F6 | Low |
-| 06 | The ledger — completed steps with impact | F9 | None |
-| 07 | Collapse `/plan` and `/results` into the Build; re-point nav catalog + parity test | F8 | Medium — routing |
+| Phase | Work | Closes | Doctrine risk | Status |
+| --- | --- | --- | --- | --- |
+| 00 | Instrument the dashboard: empty-state impression, next-move click, activation funnel, return cadence | F3 | None | Landed in #252 (`dashboard_fold_viewed`; remaining funnel events still thin) |
+| 01 | Bug fixes, no design content: navigate on skip; read or drop `onboarding_completed`; delete unreachable replay; hide Snapshot below `lg`; un-swallow the `/assessment` redirect | F5, F10, F11 | None | Landed in #252 |
+| 02 | Server-render the path into the existing `Promise.all`; surface hard stops; steps-completed in the rail | F2, F4, F7 (part) | None — additive | Landed in #252 |
+| 03 | Resume ramp for abandoned assessments; state-based post-login routing | F1 | Low | Landed in #252 |
+| 04 | Invert the fold — build hero, score to rail. **Edits DESIGN.md's 3-second test in the same commit** | F7 | **PILOT required** | Open |
+| 05 | One server-rendered Companion line on the build | F6 | Low | Open |
+| 06 | The ledger — completed steps with impact | F9 | None | Open |
+| 07 | Collapse `/plan` and `/results` into the Build; re-point nav catalog + parity test | F8 | Medium — routing | Open |
 
 Phases 00–03 contain **no design decisions at all**. They close both critical findings
 plus two highs without requiring anyone's taste to agree. If nothing else here is
