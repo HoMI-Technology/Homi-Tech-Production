@@ -117,23 +117,34 @@ export function SiteFooter() {
             © <CopyrightYear initial={new Date().getFullYear()} /> HOMI TECHNOLOGIES LLC. All rights
             reserved.
           </span>
-          <a
-            href="https://x.com/homi_tech"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="HōMI on X (opens in a new tab)"
-            className="inline-flex items-center text-dim/70 transition-opacity hover:text-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="14"
-              height="14"
-              fill="currentColor"
-              aria-hidden="true"
+          <span className="inline-flex items-center gap-3">
+            <a
+              href="https://x.com/homi_tech"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="HōMI on X (opens in a new tab)"
+              className="inline-flex items-center text-dim/70 transition-opacity hover:text-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
             >
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-            </svg>
-          </a>
+              <svg
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+            </a>
+            <a
+              href="https://www.tiktok.com/@homi_technology"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="HōMI on TikTok (opens in a new tab)"
+              className="inline-flex items-center text-dim/70 transition-opacity hover:text-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
+            >
+              TikTok
+            </a>
+          </span>
           <span>
             Decision Readiness Intelligence™ | Educational Guidance Only | Not Financial Advice
           </span>
