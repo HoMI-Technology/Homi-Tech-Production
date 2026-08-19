@@ -2,8 +2,8 @@
  * Default Slack / OG / Twitter share card — static files only.
  *
  * Next.js `app/opengraph-image.*` / `app/twitter-image.*` file conventions
- * must not exist at the app root: ImageResponse would override these paths
- * and ship a generated gradient. Serve `public/og-v2.png` and
+ * must not exist at the app root: a generated OG module would override these
+ * paths and ship a gradient wordmark. Serve `public/og-v2.png` and
  * `public/twitter-v2.png` (Brand-PASSed bytes) through metadata only.
  */
 

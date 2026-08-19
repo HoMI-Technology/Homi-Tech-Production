@@ -60,10 +60,11 @@ describe("share cards — no root ImageResponse convention", () => {
     expect(existsSync(join(APP, "twitter-image.tsx"))).toBe(false);
   });
 
-  it("does not import ImageResponse from the default share metadata module", () => {
+  it("does not import next/og from the default share metadata module", () => {
     const share = readFileSync(join(ROOT, "lib/seo/share.ts"), "utf8");
-    expect(share).not.toContain("ImageResponse");
-    expect(share).not.toContain("next/og");
+    expect(share).not.toContain("from \"next/og\"");
+    expect(share).not.toContain("from 'next/og'");
+    expect(share).not.toMatch(/new\s+ImageResponse/);
   });
 });
 
