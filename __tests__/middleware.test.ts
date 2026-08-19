@@ -35,6 +35,10 @@ function req(path: string): NextRequest {
   return new NextRequest(`http://localhost${path}`);
 }
 
+function reqUrl(url: string): NextRequest {
+  return new NextRequest(url);
+}
+
 beforeEach(() => {
   state.user = null;
   state.createClientCalls = 0;
@@ -54,6 +58,7 @@ describe("middleware fail-closed (Supabase env missing)", () => {
     const location = res.headers.get("location") ?? "";
     expect(location).toContain("/auth/sign-in");
     expect(location).toContain("next=%2Fdashboard");
+    expect(res.headers.get("X-Robots-Tag")).toBe("noindex");
   });
 
   it("redirects nested protected paths and preserves the full next target", async () => {
@@ -94,6 +99,7 @@ describe("middleware with Supabase env present", () => {
     const location = res.headers.get("location") ?? "";
     expect(location).toContain("/auth/sign-in");
     expect(location).toContain("next=%2Fdashboard");
+    expect(res.headers.get("X-Robots-Tag")).toBe("noindex");
   });
 
   it("passes authenticated users through on protected routes", async () => {
@@ -110,5 +116,51 @@ describe("middleware with Supabase env present", () => {
     const res = await middleware(req("/assessment"));
     expect(res.status).toBe(200);
     expect(res.headers.get("location")).toBeNull();
+  });
+});
+
+describe("middleware www → apex", () => {
+  it("308s https www onto the matching apex path", async () => {
+    const res = await middleware(reqUrl("https://www.homitechnology.com/how-it-works"));
+    expect(res.status).toBe(308);
+    expect(res.headers.get("location")).toBe("https://homitechnology.com/how-it-works");
+  });
+
+  it("does not stop HTTP www at https://www — Location is https apex", async () => {
+    const res = await middleware(reqUrl("http://www.homitechnology.com/how-it-works"));
+    expect(res.status).toBe(308);
+    expect(res.headers.get("location")).toBe("https://homitechnology.com/how-it-works");
+    expect(res.headers.get("location")).not.toContain("www.homitechnology.com");
+  });
+
+  it("preserves query strings on www → apex", async () => {
+    const res = await middleware(reqUrl("https://www.homitechnology.com/pricing?utm=1"));
+    expect(res.status).toBe(308);
+    expect(res.headers.get("location")).toBe("https://homitechnology.com/pricing?utm=1");
+  });
+
+  it("308s www homepage to the trailing-slash apex", async () => {
+    const res = await middleware(reqUrl("https://www.homitechnology.com/"));
+    expect(res.status).toBe(308);
+    expect(res.headers.get("location")).toBe("https://homitechnology.com/");
+  });
+
+  it("www protected paths fold to apex first, not to www sign-in", async () => {
+    const res = await middleware(reqUrl("https://www.homitechnology.com/dashboard"));
+    expect(res.status).toBe(308);
+    expect(res.headers.get("location")).toBe("https://homitechnology.com/dashboard");
+  });
+});
+
+describe("middleware sign-in X-Robots-Tag", () => {
+  it("sends X-Robots-Tag: noindex on the sign-in response", async () => {
+    const res = await middleware(req("/auth/sign-in"));
+    expect(res.status).toBe(200);
+    expect(res.headers.get("X-Robots-Tag")).toBe("noindex");
+  });
+
+  it("does not noindex public marketing pages", async () => {
+    const res = await middleware(req("/how-it-works"));
+    expect(res.headers.get("X-Robots-Tag")).toBeNull();
   });
 });

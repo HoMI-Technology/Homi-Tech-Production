@@ -2,17 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
 import { PricingCheckoutButton } from "@/components/marketing/PricingCheckoutButton";
-import {
-  PRIMARY_CLOSE_HREF,
-  PRIMARY_CLOSE_LABEL,
-} from "@/components/marketing/first-moment-copy";
+import { PRIMARY_CLOSE_HREF, PRIMARY_CLOSE_LABEL } from "@/components/marketing/first-moment-copy";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { faqPageJsonLd } from "@/lib/seo/schema";
+import { pageMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
-  title: "Pricing",
+export const metadata: Metadata = pageMetadata({
+  title: "HōMI Pricing · HōMI",
   description:
     "HōMI pricing: a free 45-question assessment with the same engine and hard stops, Plus for the voice picker and verdict history, and Family for two people on one compass. Our revenue comes from subscriptions, not transactions.",
-  alternates: { canonical: "/pricing" },
-};
+  path: "/pricing",
+  absolute: true,
+});
 
 interface PricingTier {
   id: "free" | "plus" | "pro" | "family";
@@ -81,7 +82,7 @@ interface Faq {
   a: string;
 }
 
-const FAQS: Faq[] = [
+export const FAQS: Faq[] = [
   {
     q: "Why do you charge at all if you’re not selling a transaction?",
     a: "Someone has to pay for an honest voice to exist. We charge a subscription rather than taking commissions, so what HōMI earns doesn’t depend on what you decide.",
@@ -107,6 +108,7 @@ const FAQS: Faq[] = [
 export default function PricingPage() {
   return (
     <>
+      <JsonLd data={faqPageJsonLd(FAQS)} />
       <section className="px-6 pb-16 pt-16 md:pt-24">
         <div className="mx-auto max-w-3xl text-center">
           <h1 className="type-h1">Pricing</h1>

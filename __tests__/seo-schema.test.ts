@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { organizationJsonLd, websiteJsonLd, articleJsonLd } from "@/lib/seo/schema";
-import { BRAND } from "@/lib/brand";
+import {
+  organizationJsonLd,
+  websiteJsonLd,
+  articleJsonLd,
+  faqPageJsonLd,
+  softwareApplicationJsonLd,
+} from "@/lib/seo/schema";
+import { BRAND, TAGLINES } from "@/lib/brand";
 
 const SITE = "https://homitechnology.com";
 
@@ -12,6 +18,11 @@ describe("organizationJsonLd", () => {
     expect(data.legalName).toBe(BRAND.legalEntity);
     expect(data.url).toBe(SITE);
     expect(data.logo).toBeUndefined();
+    expect(data).not.toHaveProperty("address");
+    expect(data).not.toHaveProperty("telephone");
+    expect(data).not.toHaveProperty("geo");
+    expect(JSON.stringify(data)).not.toContain("LocalBusiness");
+    expect(JSON.stringify(data)).not.toContain("PostalAddress");
   });
 
   it("resolves logo against the site URL when a path is given", () => {
@@ -57,5 +68,37 @@ describe("articleJsonLd", () => {
       legalName: BRAND.legalEntity,
     });
     expect("author" in data).toBe(false);
+  });
+});
+
+describe("faqPageJsonLd", () => {
+  it("maps the provided Q&As without inventing extras", () => {
+    const faqs = [{ q: "Can I cancel anytime?", a: "Yes." }];
+    const data = faqPageJsonLd(faqs);
+    expect(data["@type"]).toBe("FAQPage");
+    expect(data.mainEntity).toHaveLength(1);
+    expect(data.mainEntity[0]?.name).toBe("Can I cancel anytime?");
+    expect(data.mainEntity[0]?.acceptedAnswer.text).toBe("Yes.");
+  });
+});
+
+describe("softwareApplicationJsonLd", () => {
+  it("names HōMI as a Decision Companion with no local fields", () => {
+    const data = softwareApplicationJsonLd(SITE);
+    expect(data["@type"]).toBe("SoftwareApplication");
+    expect(data.name).toBe(BRAND.name);
+    expect(data.name).toBe("HōMI");
+    expect(data.name).not.toMatch(/Decision Readiness Intelligence/);
+    expect(data.name).not.toMatch(/DRI/);
+    expect(data.name).not.toMatch(/replaces/i);
+    expect(data.name).not.toMatch(/outdated credit score/i);
+    expect(data.url).toBe(SITE);
+    expect(data.description).toBe(TAGLINES.companion);
+    expect(data.description).not.toContain(BRAND.category);
+    expect(data.description).not.toMatch(/Decision Readiness Intelligence/);
+    expect(data).not.toHaveProperty("address");
+    expect(data).not.toHaveProperty("telephone");
+    expect(data).not.toHaveProperty("geo");
+    expect(JSON.stringify(data)).not.toMatch(/LocalBusiness|PostalAddress/);
   });
 });

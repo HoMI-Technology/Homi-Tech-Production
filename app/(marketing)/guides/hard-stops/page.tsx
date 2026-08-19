@@ -4,12 +4,14 @@ import { ShieldAlert } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
 import type { HardStopCode } from "@/lib/scoring/public";
 
-export const metadata: Metadata = {
+import { pageMetadata } from "@/lib/seo/metadata";
+
+export const metadata: Metadata = pageMetadata({
   title: "Hard Stops — When to Wait",
   description:
     "Four conditions that pause any readiness score. Learn what they mean and how to clear them.",
-  alternates: { canonical: "/guides/hard-stops" },
-};
+  path: "/guides/hard-stops",
+});
 
 /**
  * Public explainer for the four red-line guards.

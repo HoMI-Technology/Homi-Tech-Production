@@ -7,6 +7,7 @@ import {
   getAllArticleSlugs,
   getArticle,
 } from "@/components/learning/learning-data";
+import { pageMetadata } from "@/lib/seo/metadata";
 
 export function generateStaticParams() {
   return getAllArticleSlugs().map((slug) => ({ slug }));
@@ -24,10 +25,11 @@ export async function generateMetadata({
     return { title: "Article not found" };
   }
 
-  return {
+  return pageMetadata({
     title: article.title,
     description: article.description,
-  };
+    path: `/learning/${article.slug}`,
+  });
 }
 
 export default async function LearningArticlePage({

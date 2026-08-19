@@ -2,13 +2,14 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Reveal } from "@/components/ui/Reveal";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
+import { pageMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Partner Program",
   description:
     "White-label readiness assessments for financial advisors, coaches, and HR consultants. Help your clients arrive prepared, not pressured.",
-  alternates: { canonical: "/partner" },
-};
+  path: "/partner",
+});
 
 const STEPS = [
   {

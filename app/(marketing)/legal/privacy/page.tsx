@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BRAND } from "@/lib/brand";
 
-export const metadata: Metadata = {
+import { pageMetadata } from "@/lib/seo/metadata";
+
+export const metadata: Metadata = pageMetadata({
   title: "Privacy Policy",
   description:
     "How HOMI TECHNOLOGIES LLC collects, stores, and protects your data. We do not sell your data — ever.",
-  alternates: { canonical: "/legal/privacy" },
-};
+  path: "/legal/privacy",
+});
 
 export default function PrivacyPage() {
   return (

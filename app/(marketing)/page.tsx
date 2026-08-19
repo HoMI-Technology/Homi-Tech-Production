@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { InterviewHero } from "@/components/home/InterviewHero";
 
 import { JsonLd } from "@/components/seo/JsonLd";
-import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
+import { organizationJsonLd, softwareApplicationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
 import { defaultShareOpenGraph, defaultShareTwitter } from "@/lib/seo/share";
 import { SITE_URL } from "@/lib/seo/site";
+import { pageMetadata } from "@/lib/seo/metadata";
 import { PaperScene } from "@/components/home/PaperScene";
 import {
   Clarity,
@@ -18,10 +19,13 @@ import {
 } from "@/components/home/FrontDoor";
 
 export const metadata: Metadata = {
-  title: "Know When You're Ready — Decision Readiness Intelligence™",
-  description:
-    "A credit score estimates repayment risk. HōMI helps you evaluate readiness for the decision itself — across Financial Reality, Emotional Truth, and Perfect Timing.",
-  alternates: { canonical: "/" },
+  ...pageMetadata({
+    title: "Decision Readiness · A Decision Companion · HōMI",
+    description:
+      "A credit score estimates repayment risk. HōMI helps you evaluate readiness for the decision itself — across Financial Reality, Emotional Truth, and Perfect Timing.",
+    path: "/",
+    absolute: true,
+  }),
   // Pin share tags so the ranking HTML title does not leak into Slack/OG.
   openGraph: defaultShareOpenGraph(),
   twitter: defaultShareTwitter(),
@@ -37,6 +41,7 @@ export default function MarketingHomePage() {
     <>
       <JsonLd data={organizationJsonLd(SITE_URL, "/icon-512-v2.png")} />
       <JsonLd data={websiteJsonLd(SITE_URL)} />
+      <JsonLd data={softwareApplicationJsonLd(SITE_URL)} />
 
       <InterviewHero />
 

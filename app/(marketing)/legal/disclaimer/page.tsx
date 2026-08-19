@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BRAND, LEGAL_DISCLAIMER } from "@/lib/brand";
 
-export const metadata: Metadata = {
+import { pageMetadata } from "@/lib/seo/metadata";
+
+export const metadata: Metadata = pageMetadata({
   title: "Disclaimer",
   description:
     "HōMI provides educational guidance only. Read the full disclaimer on what HōMI is, and what it is not.",
-  alternates: { canonical: "/legal/disclaimer" },
-};
+  path: "/legal/disclaimer",
+});
 
 export default function DisclaimerPage() {
   return (

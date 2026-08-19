@@ -1,83 +1,81 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL } from "@/lib/seo/site";
+import { canonicalUrl } from "@/lib/seo/site";
 import { getAllPostSlugs } from "@/components/marketing/blog-data";
 import { getAllGuideSlugs } from "@/components/marketing/guides-data";
 import { getAllArticleSlugs } from "@/components/learning/learning-data";
 import { LENSES } from "@/lib/tools/registry";
 
 /**
- * Tool slugs derived from the lens registry (the single declarative contract
- * for every decision tool) — no hand-copied list to drift. Preflight is
- * excluded here because it is listed separately as a static route
- * (/tools/preflight) with its own priority.
+ * Public tool lenses from the registry — no hand-copied list to drift.
+ * Redirect placements (e.g. /tools/mortgage → /tools/affordability) stay out.
+ * Preflight is listed separately as a static route with its own priority.
  */
-const TOOL_SLUGS = LENSES.map((lens) => lens.path)
-  .filter((path) => path.startsWith("/tools/"))
-  .map((path) => path.slice("/tools/".length))
+const TOOL_SLUGS = LENSES.filter(
+  (lens) => lens.path.startsWith("/tools/") && lens.placement !== "redirect",
+)
+  .map((lens) => lens.path.slice("/tools/".length))
   .filter((slug) => slug !== "preflight")
   .sort();
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const base = SITE_URL;
+/** lastmod omitted — a generated timestamp per build is not a real last-change. */
+function entry(
+  path: string,
+  changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"],
+  priority: number,
+): MetadataRoute.Sitemap[number] {
+  return {
+    url: canonicalUrl(path),
+    changeFrequency,
+    priority,
+  };
+}
 
-  // Static marketing & product routes
+export default function sitemap(): MetadataRoute.Sitemap {
+  // Static marketing & content routes. Not listed: /money (auth), /employee,
+  // /waitlist, /status (system-status), /assessment (Assess is /first-moment),
+  // /plan (noindex until it is a real public page), /tools/mortgage (canonicals
+  // to /tools/affordability).
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: `${base}/`, changeFrequency: "weekly", priority: 1 },
-    { url: `${base}/about`, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${base}/how-it-works`, changeFrequency: "monthly", priority: 0.9 },
-    { url: `${base}/method`, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${base}/b2b`, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${base}/partner`, changeFrequency: "monthly", priority: 0.7 },
+    entry("/", "weekly", 1),
+    entry("/about", "monthly", 0.8),
+    entry("/how-it-works", "monthly", 0.9),
+    entry("/method", "monthly", 0.8),
+    entry("/b2b", "monthly", 0.7),
+    entry("/partner", "monthly", 0.7),
     // Content hub consolidation (D5): /guides is THE hub. /blog and /learning
     // index pages permanently redirect there and are delisted; their [slug]
     // routes still render and stay in the dynamic sections below.
-    { url: `${base}/guides`, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${base}/pricing`, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${base}/status`, changeFrequency: "monthly", priority: 0.4 },
-    // Money Reality (signed-in). Public tools hub remains crawlable.
-    { url: `${base}/money`, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${base}/tools`, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${base}/tools/preflight`, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${base}/scenarios`, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${base}/assessment`, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${base}/first-moment`, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${base}/shadow-score`, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${base}/employee`, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${base}/waitlist`, changeFrequency: "monthly", priority: 0.5 },
-    // Legal
-    { url: `${base}/legal/privacy`, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${base}/legal/terms`, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${base}/legal/disclaimer`, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${base}/legal/acceptable-use`, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${base}/legal/cookies`, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${base}/legal/dmca`, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${base}/legal/subprocessors`, changeFrequency: "yearly", priority: 0.3 },
+    entry("/guides", "weekly", 0.8),
+    entry("/pricing", "monthly", 0.7),
+    entry("/tools", "monthly", 0.8),
+    entry("/tools/preflight", "monthly", 0.6),
+    entry("/scenarios", "monthly", 0.6),
+    entry("/first-moment", "monthly", 0.8),
+    entry("/shadow-score", "monthly", 0.7),
+    entry("/legal/privacy", "yearly", 0.3),
+    entry("/legal/terms", "yearly", 0.3),
+    entry("/legal/disclaimer", "yearly", 0.3),
+    entry("/legal/acceptable-use", "yearly", 0.3),
+    entry("/legal/cookies", "yearly", 0.3),
+    entry("/legal/dmca", "yearly", 0.3),
+    entry("/legal/subprocessors", "yearly", 0.3),
   ];
 
-  // Dynamic content routes
-  const blogRoutes: MetadataRoute.Sitemap = getAllPostSlugs().map((slug) => ({
-    url: `${base}/blog/${slug}`,
-    changeFrequency: "monthly",
-    priority: 0.6,
-  }));
+  const blogRoutes: MetadataRoute.Sitemap = getAllPostSlugs().map((slug) =>
+    entry(`/blog/${slug}`, "monthly", 0.6),
+  );
 
-  const guideRoutes: MetadataRoute.Sitemap = getAllGuideSlugs().map((slug) => ({
-    url: `${base}/guides/${slug}`,
-    changeFrequency: "monthly",
-    priority: 0.6,
-  }));
+  const guideRoutes: MetadataRoute.Sitemap = getAllGuideSlugs().map((slug) =>
+    entry(`/guides/${slug}`, "monthly", 0.6),
+  );
 
-  const learningRoutes: MetadataRoute.Sitemap = getAllArticleSlugs().map((slug) => ({
-    url: `${base}/learning/${slug}`,
-    changeFrequency: "monthly",
-    priority: 0.6,
-  }));
+  const learningRoutes: MetadataRoute.Sitemap = getAllArticleSlugs().map((slug) =>
+    entry(`/learning/${slug}`, "monthly", 0.6),
+  );
 
-  const toolRoutes: MetadataRoute.Sitemap = TOOL_SLUGS.map((slug) => ({
-    url: `${base}/tools/${slug}`,
-    changeFrequency: "monthly",
-    priority: 0.5,
-  }));
+  const toolRoutes: MetadataRoute.Sitemap = TOOL_SLUGS.map((slug) =>
+    entry(`/tools/${slug}`, "monthly", 0.5),
+  );
 
   return [...staticRoutes, ...blogRoutes, ...guideRoutes, ...learningRoutes, ...toolRoutes];
 }

@@ -35,6 +35,6 @@ describe("cookie policy — Brand paste", () => {
     expect(page).toContain(
       "How HōMI uses essential cookies and optional analytics. No ad tech. You can reject optional analytics anytime.",
     );
-    expect(page).toContain('canonical: "/legal/cookies"');
+    expect(page).toContain('path: "/legal/cookies"');
   });
 });

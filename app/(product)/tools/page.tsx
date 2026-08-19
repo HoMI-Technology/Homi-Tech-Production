@@ -2,17 +2,15 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { RING_META, RING_ORDER, hubLensesByRing } from "@/lib/tools/registry";
 import { getCachedUser } from "@/lib/supabase/server";
-import {
-  PRIMARY_CLOSE_HREF,
-  PRIMARY_CLOSE_LABEL,
-} from "@/components/marketing/first-moment-copy";
+import { PRIMARY_CLOSE_HREF, PRIMARY_CLOSE_LABEL } from "@/components/marketing/first-moment-copy";
+import { pageMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Tools",
   description:
     "Honest lenses for the math behind your biggest decisions — housing, debt, and independence.",
-  alternates: { canonical: "/tools" },
-};
+  path: "/tools",
+});
 
 /**
  * Tools hub — ten public lenses from the registry (lib/tools/registry.ts).
