@@ -2,7 +2,6 @@ import Link from "next/link";
 import { PRIMARY_CLOSE_HREF, PRIMARY_CLOSE_LABEL } from "@/components/marketing/first-moment-copy";
 import { Reveal } from "@/components/ui/Reveal";
 import { PILLARS, VERDICT_META, withAlpha, type VerdictKey } from "@/lib/brand";
-import { scoreToVerdict } from "@/lib/scoring/engine";
 import {
   WALK_CLARITY,
   WALK_COMPANION,
@@ -12,22 +11,13 @@ import {
 
 /**
  * Front-door sections — the rich guest `/` rebuilt on canon.
- * Every verdict label, color, and score range is imported or derived
- * from lib/brand and lib/scoring at render time, so this page cannot
- * drift from the engine the way the old 75/60/40 build did.
+ * Verdict labels, colors, and meaning lines come from lib/brand. Numeric
+ * score ranges and pillar weights are trade-secret and never render here:
+ * the public model is qualitative only (scripts/brand-check.mjs N21/N22).
  */
 
-/** Derive the verdict bands by probing the canonical engine mapping. */
-function verdictBands(): { key: VerdictKey; min: number; max: number }[] {
-  const bands = new Map<VerdictKey, { min: number; max: number }>();
-  for (let score = 0; score <= 100; score++) {
-    const v = scoreToVerdict(score);
-    const band = bands.get(v);
-    if (band) band.max = Math.max(band.max, score);
-    else bands.set(v, { min: score, max: score });
-  }
-  return [...bands.entries()].map(([key, b]) => ({ key, ...b })).sort((a, b) => b.min - a.min);
-}
+/** Verdict display order — cool to hot. Qualitative only: names and meanings, no ranges. */
+const VERDICT_ORDER: VerdictKey[] = ["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"];
 
 function SectionHeader({
   eyebrow,
@@ -132,8 +122,8 @@ export function Pillars() {
                 </h3>
                 <p className="mt-2 text-lg text-light">{pillar.question}</p>
                 <p className="mt-4 text-sm text-dim">
-                  Weighted at up to <span className="score-numeral">{pillar.max}</span> of 100 in
-                  your readiness score.
+                  No single pillar decides alone &mdash; the three are measured together, never in
+                  isolation.
                 </p>
               </div>
             </Reveal>
@@ -145,10 +135,9 @@ export function Pillars() {
 }
 
 export function VerdictSpectrum() {
-  const bands = verdictBands();
-  const gradient = `linear-gradient(90deg, ${[...bands]
+  const gradient = `linear-gradient(90deg, ${[...VERDICT_ORDER]
     .reverse()
-    .map((b) => VERDICT_META[b.key].color)
+    .map((key) => VERDICT_META[key].color)
     .join(", ")})`;
   return (
     <section className="px-5 py-[9vh] sm:px-6 lg:px-8">
@@ -156,7 +145,7 @@ export function VerdictSpectrum() {
         <SectionHeader
           eyebrow="The verdict spectrum"
           title="Four verdicts. Zero judgment."
-          support="Every range below is derived from the scoring engine itself — this page cannot say one thing while the score says another."
+          support="The same four verdicts the assessment can give you — plain names, honest meanings, no fine print."
         />
         <Reveal className="mt-14">
           <div className="glass p-8 sm:p-10">
@@ -166,11 +155,11 @@ export function VerdictSpectrum() {
               style={{ background: gradient, opacity: 0.9 }}
             />
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {bands.map((band) => {
-                const meta = VERDICT_META[band.key];
+              {VERDICT_ORDER.map((key) => {
+                const meta = VERDICT_META[key];
                 return (
                   <div
-                    key={band.key}
+                    key={key}
                     className="rounded-xl border p-5"
                     style={{
                       borderColor: withAlpha(meta.color, 0.35),
@@ -188,9 +177,6 @@ export function VerdictSpectrum() {
                       />
                       <span className="text-sm font-semibold" style={{ color: meta.color }}>
                         {meta.label}
-                      </span>
-                      <span className="score-numeral ml-auto text-xs text-dim">
-                        {band.min}&ndash;{band.max}
                       </span>
                     </div>
                     <p className="mt-3 text-sm text-dim">{meta.line}</p>

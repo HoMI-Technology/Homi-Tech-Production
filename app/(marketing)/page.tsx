@@ -40,9 +40,9 @@ export default function MarketingHomePage() {
       </div>
 
       {/* The lit field: every mid-page section sits in the same volumetric
-          atmosphere (pointer light + 3D arrivals). Verdict labels, colors,
-          and ranges are imported/derived from lib/brand and lib/scoring —
-          this page cannot contradict the engine. */}
+          atmosphere (pointer light + 3D arrivals). Verdict labels and colors
+          come from lib/brand; numeric ranges and pillar weights are
+          trade-secret and never render on this public page. */}
       <div className="bg-navy">
         <PaperScene>
           <div className="relative z-10">

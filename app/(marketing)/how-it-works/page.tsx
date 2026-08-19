@@ -222,28 +222,27 @@ export default function HowItWorksPage() {
           <div className="mx-auto max-w-6xl">
             <h2 className="text-center type-h2">The verdict tiers</h2>
             <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {/* Qualitative only: verdict names and meanings. The numeric
+                  bands behind them are trade-secret and never render on
+                  public marketing surfaces (scripts/brand-check.mjs N22). */}
               <div className="glass flex flex-col items-center gap-3 p-7 text-center">
                 <VerdictBadge verdict="READY" />
-                <p className="font-score text-sm text-dim">80 – 100</p>
                 <p className="text-sm text-dim">
                   All three rings align. Your compass becomes a key.
                 </p>
               </div>
               <div className="glass flex flex-col items-center gap-3 p-7 text-center">
                 <VerdictBadge verdict="ALMOST_THERE" />
-                <p className="font-score text-sm text-dim">65 – 79</p>
                 <p className="text-sm text-dim">
                   You&rsquo;ve nearly cooled down. One or two things first.
                 </p>
               </div>
               <div className="glass flex flex-col items-center gap-3 p-7 text-center">
                 <VerdictBadge verdict="BUILD_FIRST" />
-                <p className="font-score text-sm text-dim">50 – 64</p>
                 <p className="text-sm text-dim">Build First is not failure. It is the map.</p>
               </div>
               <div className="glass flex flex-col items-center gap-3 p-7 text-center">
                 <VerdictBadge verdict="NOT_YET" />
-                <p className="font-score text-sm text-dim">Below 50</p>
                 <p className="text-sm text-dim">
                   Not yet is not no. It is clarity. It is protection.
                 </p>
