@@ -4,7 +4,6 @@ import { WALK_CLARITY, WALK_COMPANION, WALK_OBJECT, WALK_PRIMARY } from "@/compo
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
 import { SITE_URL } from "@/lib/seo/site";
-import { WaitlistForm } from "@/components/marketing/WaitlistForm";
 import { Reveal } from "@/components/ui/Reveal";
 import { PaperScene } from "@/components/home/PaperScene";
 
@@ -58,17 +57,6 @@ export default function MarketingHomePage() {
             </Reveal>
           </div>
         </PaperScene>
-      </section>
-
-      <section id="waitlist" className="bg-navy px-5 pb-24 pt-[12vh] sm:px-6 lg:px-8">
-        <div className="mx-auto w-full max-w-7xl">
-          <div className="hairline mb-[9vh]" aria-hidden />
-          <div className="walk-waitlist-form">
-            <div className="glass w-full max-w-sm p-6 sm:p-8">
-              <WaitlistForm source="landing" idPrefix="landing-waitlist" surface="whisper" />
-            </div>
-          </div>
-        </div>
       </section>
     </>
   );

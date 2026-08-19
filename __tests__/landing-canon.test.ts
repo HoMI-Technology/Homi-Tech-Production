@@ -51,11 +51,18 @@ describe("landing canon — scoreToVerdict boundary cases", () => {
 });
 
 describe("landing canon — waitlist capture", () => {
-  it("renders a waitlist form on the homepage, not only /waitlist", () => {
+  it("does not render a waitlist form on the homepage", () => {
     const source = readFileSync(join(process.cwd(), "app/(marketing)/page.tsx"), "utf8");
-    expect(source).toContain('id="waitlist"');
-    expect(source).toContain("WaitlistForm");
-    expect(source).toContain('source="landing"');
-    expect(source).toContain('idPrefix="landing-waitlist"');
+    expect(source).not.toContain('id="waitlist"');
+    expect(source).not.toContain("WaitlistForm");
+    expect(source).not.toContain('source="landing"');
+    expect(source).not.toContain('idPrefix="landing-waitlist"');
+    expect(source).not.toContain("Get notified");
+  });
+
+  it("keeps WaitlistForm on /waitlist", () => {
+    const waitlist = readFileSync(join(process.cwd(), "app/(marketing)/waitlist/page.tsx"), "utf8");
+    expect(waitlist).toContain("WaitlistForm");
+    expect(waitlist).toContain('source="waitlist"');
   });
 });
