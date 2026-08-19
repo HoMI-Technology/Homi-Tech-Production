@@ -234,7 +234,7 @@ export default function HowItWorksPage() {
               <div className="glass flex flex-col items-center gap-3 p-7 text-center">
                 <VerdictBadge verdict="ALMOST_THERE" />
                 <p className="text-sm text-dim">
-                  You&rsquo;ve nearly cooled down. One or two things first.
+                  Close. A few specific gaps stand between you and ready &mdash; and we name them.
                 </p>
               </div>
               <div className="glass flex flex-col items-center gap-3 p-7 text-center">
