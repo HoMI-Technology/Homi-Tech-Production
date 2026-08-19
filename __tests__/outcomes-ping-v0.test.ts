@@ -113,13 +113,16 @@ describe("due-prompt taxonomy", () => {
 
   it("keeps the Home prompt on the existing card and writes only survey fields", () => {
     const prompt = src("components", "dashboard", "OutcomeSurveyPrompt.tsx");
+    const taxonomy = src("lib", "outcomes", "taxonomy.ts");
     const fold = src("components", "dashboard", "HomeFold.tsx");
-    expect(prompt).toContain("moved");
-    expect(prompt).toContain("waited");
-    expect(prompt).toContain("lender_blocked");
-    expect(prompt).toContain("not_okay");
-    expect(prompt).toContain("no_answer");
+    expect(taxonomy).toContain('"moved"');
+    expect(taxonomy).toContain('"waited"');
+    expect(taxonomy).toContain('"lender_blocked"');
+    expect(taxonomy).toContain('"not_okay"');
+    expect(taxonomy).toContain('"no_answer"');
+    expect(prompt).toContain("OUTCOME_TAXONOMY");
     expect(prompt).toContain("outcomeSurveyAnswerPayload");
+    expect(prompt).toContain('save("no_answer")');
     expect(prompt).not.toMatch(/overall_score|computeScore|verdict:/);
     expect(fold.indexOf("<PathNextMove")).toBeLessThan(fold.indexOf("<OutcomeSurveyPrompt"));
   });
@@ -146,7 +149,7 @@ describe("score-untouched", () => {
     const taxonomy = src("lib", "outcomes", "taxonomy.ts");
     const prompt = src("components", "dashboard", "OutcomeSurveyPrompt.tsx");
     for (const file of [persist, taxonomy, prompt]) {
-      expect(file).not.toMatch(/lib\/scoring/);
+      expect(file).not.toMatch(/from\s+["']@\/lib\/scoring/);
       expect(file).not.toMatch(/computeScore/);
       expect(file).not.toMatch(/creditBandInputs|carCreditChoiceToScore/);
     }

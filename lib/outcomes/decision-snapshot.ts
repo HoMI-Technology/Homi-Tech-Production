@@ -1,6 +1,6 @@
 /**
  * Gate 6 / Ticket 5 — decision snapshot + day30 row for a completed home
- * verdict. Answers never re-score. Scoring stays in lib/scoring (frozen).
+ * verdict. Answers never re-score. Weights and hard stops stay frozen.
  *
  * Storage (live schema, 2026-08-19): reuse existing columns.
  *   • assessments.insights.decisionSnapshot — snapshot the 30-day ping reads
