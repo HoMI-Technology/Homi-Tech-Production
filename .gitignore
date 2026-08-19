@@ -19,8 +19,12 @@ test-results/
 playwright-report/
 
 # Claude Code local state + agent git worktrees (never commit; their __tests__
-# otherwise pollute local `vitest` with phantom duplicate-file failures)
-.claude/
+# otherwise pollute local `vitest` with phantom duplicate-file failures).
+# settings.json is the exception: it carries the DESIGN.md forbidden-skill
+# lock, which is worthless if every machine has to re-create it by hand.
+# Ignore the CONTENTS, not the directory, so the negation below can apply.
+.claude/*
+!.claude/settings.json
 
 # Temporary audit/build artifacts and local Supabase CLI state
 .tmp-*
