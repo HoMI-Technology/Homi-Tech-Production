@@ -275,6 +275,37 @@ export function Clarity() {
   );
 }
 
+const NOT_ITEMS = [
+  "Not a lender or broker.",
+  "Not a credit bureau.",
+  "Not a financial, legal, tax, or mortgage advisor.",
+  "Not a product-pushing engine.",
+] as const;
+
+/** What HōMI is not — the boundary said plainly, between Clarity and the close. */
+export function NotYourBanker() {
+  return (
+    <section className="px-5 py-[9vh] sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-7xl">
+        <SectionHeader
+          eyebrow="What HōMI is not"
+          title="Your homie, not your banker."
+          support="HōMI provides educational guidance only. The answer is the product."
+        />
+        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {NOT_ITEMS.map((item, i) => (
+            <Reveal key={item} delay={i * 80}>
+              <div className="h-full rounded-xl border border-slate-high/40 bg-slate-surface p-7">
+                <p className="text-base text-dim">{item}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function CloseCta() {
   return (
     <section className="hero-field px-5 py-[14vh] sm:px-6 lg:px-8">

@@ -9,6 +9,7 @@ import {
   Clarity,
   CloseCta,
   FriendFrame,
+  NotYourBanker,
   Pillars,
   Steps,
   VerdictSpectrum,
@@ -52,6 +53,7 @@ export default function MarketingHomePage() {
             <VerdictSpectrum />
             <Steps />
             <Clarity />
+            <NotYourBanker />
           </div>
         </PaperScene>
       </div>
