@@ -13,6 +13,7 @@ import {
   Pillars,
   Steps,
   VerdictSpectrum,
+  WrongQuestion,
 } from "@/components/home/FrontDoor";
 
 export const metadata: Metadata = {
@@ -47,6 +48,7 @@ export default function MarketingHomePage() {
         <PaperScene>
           <div className="relative z-10">
             <FriendFrame />
+            <WrongQuestion />
             <Pillars />
             <VerdictSpectrum />
             <Steps />

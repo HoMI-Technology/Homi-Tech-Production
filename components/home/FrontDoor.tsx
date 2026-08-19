@@ -49,6 +49,47 @@ function SectionHeader({
   );
 }
 
+const WRONG_QUESTIONS = [
+  {
+    system: "Lenders",
+    asks: "Can you qualify?",
+    misses: "Will you be okay after the decision?",
+  },
+  {
+    system: "Calculators",
+    asks: "What\u2019s the monthly payment?",
+    misses: "Emergency buffer, emotional readiness, timing risk.",
+  },
+] as const;
+
+export function WrongQuestion() {
+  return (
+    <section className="px-5 py-[9vh] sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-7xl">
+        <SectionHeader
+          eyebrow="The human problem"
+          title="Everyone asks the wrong question"
+          support="Major decisions are pressure, timing, and alignment problems — not just math."
+        />
+        <div className="mt-14 grid gap-6 md:grid-cols-2">
+          {WRONG_QUESTIONS.map((row, i) => (
+            <Reveal key={row.system} delay={i * 90}>
+              <div className="glass glass-hover h-full p-7">
+                <p className="eyebrow">{row.system}</p>
+                <p className="mt-4 text-xl font-semibold text-light">{row.asks}</p>
+                <div className="hairline my-5" aria-hidden />
+                <p className="text-sm text-dim">
+                  What gets missed: <span className="text-light">{row.misses}</span>
+                </p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function FriendFrame() {
   return (
     <section className="px-5 py-[10vh] sm:px-6 lg:px-8">
@@ -115,7 +156,7 @@ export function VerdictSpectrum() {
         <SectionHeader
           eyebrow="The verdict spectrum"
           title="Four verdicts. Zero judgment."
-          support="The ranges below are read live from the scoring engine — the page cannot say one thing and the score another."
+          support="Every range below is derived from the scoring engine itself — this page cannot say one thing while the score says another."
         />
         <Reveal className="mt-14">
           <div className="glass p-8 sm:p-10">
@@ -157,9 +198,6 @@ export function VerdictSpectrum() {
                 );
               })}
             </div>
-            <p className="mt-6 text-xs text-dim">
-              Ranges are computed from the scoring engine at build time, never hand-written.
-            </p>
           </div>
         </Reveal>
       </div>
