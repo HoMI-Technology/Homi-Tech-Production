@@ -83,7 +83,7 @@ export function welcomeEmail(name: string): { subject: string; html: string } {
       give you an honest read on where you stand, not to talk you into anything.
     </p>
     <p style="margin:0 0 16px 0;">
-      The read comes from three equally-weighted pillars:
+      The read comes from three pillars, weighed differently:
     </p>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 16px 0;">
       <tr>
