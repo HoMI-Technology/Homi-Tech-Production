@@ -12,49 +12,55 @@ function src(...segments: string[]): string {
 const TIKTOK = "https://www.tiktok.com/@homi_technology";
 const X = "https://x.com/homi_tech";
 
-describe("quiet home footer — `/` cut vs sitemap", () => {
-  const quiet = src("components", "layout", "QuietHomeFooter.tsx");
-  const sitemap = src("components", "layout", "SitemapFooter.tsx");
-  const gate = src("components", "layout", "SiteFooterSwitch.tsx");
-  const shell = src("components", "layout", "SiteFooter.tsx");
+const MOUNTS = [
+  ["app/(marketing)/layout.tsx", src("app", "(marketing)", "layout.tsx")],
+  ["app/(product)/layout.tsx", src("app", "(product)", "layout.tsx")],
+  ["app/not-found.tsx", src("app", "not-found.tsx")],
+  ["app/share/[token]/page.tsx", src("app", "share", "[token]", "page.tsx")],
+] as const;
 
-  it("gates the quiet cut on pathname `/` only", () => {
-    expect(gate).toContain("usePathname");
-    expect(gate).toContain('pathname === "/"');
+describe("quiet home footer — sitewide SiteFooter cut", () => {
+  const quiet = src("components", "layout", "QuietHomeFooter.tsx");
+  const shell = src("components", "layout", "SiteFooter.tsx");
+  const mounted = `${shell}\n${quiet}`;
+
+  it("SiteFooter always mounts QuietHomeFooter and never SitemapFooter", () => {
     expect(shell).toContain("<QuietHomeFooter");
-    expect(shell).toContain("<SitemapFooter");
+    expect(shell).not.toContain("SitemapFooter");
+    expect(shell).not.toContain("SiteFooterSwitch");
+    expect(shell).not.toContain("usePathname");
+    expect(shell).not.toContain('pathname === "/"');
   });
 
-  it("home cut pins exact socials as equal text links", () => {
+  it.each(MOUNTS)("%s mounts SiteFooter, not a sitemap cut", (_rel, text) => {
+    expect(text).toContain("<SiteFooter");
+    expect(text).not.toContain("SitemapFooter");
+  });
+
+  it("quiet cut pins exact socials as equal text links", () => {
     expect(quiet).toContain(TIKTOK);
     expect(quiet).toContain(X);
     expect(quiet).toMatch(/>\s*X\s*</);
     expect(quiet).toMatch(/>\s*TikTok\s*</);
-    expect(quiet).not.toContain("<svg");
     expect(quiet).toContain('aria-label="HōMI on X (opens in a new tab)"');
     expect(quiet).toContain('aria-label="HōMI on TikTok (opens in a new tab)"');
+    expect(quiet).toContain('target="_blank"');
+    expect(quiet).toContain('rel="noopener noreferrer"');
   });
 
-  it("home cut has no sitemap column titles or long legal wall", () => {
-    expect(quiet).not.toContain('title: "Product"');
-    expect(quiet).not.toContain('title: "Learn"');
-    expect(quiet).not.toContain('title: "For Teams"');
-    expect(quiet).not.toContain('title: "Legal"');
-    expect(quiet).not.toContain("Cookie policy");
+  it("mounted footer forbids sitemap columns, X SVG, legal wall, and DRI pipe", () => {
+    expect(mounted).not.toContain("<svg");
+    expect(mounted).not.toContain('title: "Product"');
+    expect(mounted).not.toContain('title: "Learn"');
+    expect(mounted).not.toContain('title: "For Teams"');
+    expect(mounted).not.toContain('title: "Legal"');
+    expect(mounted).not.toContain("Cookie policy");
+    expect(mounted).not.toContain("LEGAL_DISCLAIMER");
+    expect(mounted).not.toContain("A Decision Companion. Financial Reality");
+    expect(mounted).not.toContain("Decision Readiness Intelligence");
+    expect(mounted).not.toContain("Decision Readiness Intelligence™");
     expect(quiet).toContain('label: "Cookies"');
     expect(quiet).toContain("{TAGLINES.primary}");
     expect(TAGLINES.primary).toBe("Know when you're ready. Move when it matters.");
-    expect(quiet).not.toContain("A Decision Companion. Financial Reality");
-  });
-
-  it("other routes keep the five-column sitemap and #260 TikTok href", () => {
-    expect(sitemap).toContain('title: "Product"');
-    expect(sitemap).toContain('title: "Learn"');
-    expect(sitemap).toContain('title: "For Teams"');
-    expect(sitemap).toContain('title: "Legal"');
-    expect(sitemap).toContain(TIKTOK);
-    expect(sitemap).toContain(X);
-    expect(sitemap).toContain("{LEGAL_DISCLAIMER}");
-    expect(sitemap).toContain("Decision Readiness Intelligence™");
   });
 });

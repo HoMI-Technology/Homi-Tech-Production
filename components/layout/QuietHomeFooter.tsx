@@ -11,7 +11,7 @@ const LEGAL = [
   { href: "mailto:support@homitechnology.com", label: "Support" },
 ] as const;
 
-/** Quiet three-row footer — pathname `/` only. */
+/** Quiet three-row footer — the only cut SiteFooter mounts. */
 export function QuietHomeFooter() {
   return (
     <footer className="site-footer relative z-10 mt-0 border-t border-slate-surface/60 bg-navy">
