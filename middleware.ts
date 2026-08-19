@@ -1,6 +1,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isProtectedPath } from "@/lib/auth/protected-routes";
+import { wwwToApexUrl, X_ROBOTS_NOINDEX } from "@/lib/seo/site";
 
 type CookieToSet = { name: string; value: string; options?: CookieOptions };
 
@@ -15,15 +16,33 @@ type CookieToSet = { name: string; value: string; options?: CookieOptions };
  * middleware.
  */
 
+function isSignInPath(path: string): boolean {
+  return path === "/auth/sign-in";
+}
+
+function withSignInNoindex(response: NextResponse): NextResponse {
+  response.headers.set("X-Robots-Tag", X_ROBOTS_NOINDEX);
+  return response;
+}
+
 /** Sign-in redirect, preserving the attempted path for post-login return. */
 function redirectToSignIn(request: NextRequest, path: string): NextResponse {
   const redirect = request.nextUrl.clone();
   redirect.pathname = "/auth/sign-in";
   redirect.searchParams.set("next", path);
-  return NextResponse.redirect(redirect);
+  return withSignInNoindex(NextResponse.redirect(redirect));
+}
+
+function redirectWwwToApex(request: NextRequest): NextResponse | null {
+  const apex = wwwToApexUrl(new URL(request.nextUrl.toString()), request.headers.get("host"));
+  if (!apex) return null;
+  return NextResponse.redirect(apex, 308);
 }
 
 export async function middleware(request: NextRequest) {
+  const wwwRedirect = redirectWwwToApex(request);
+  if (wwwRedirect) return wwwRedirect;
+
   const path = request.nextUrl.pathname;
   const isProtected = isProtectedPath(path);
 
@@ -35,6 +54,9 @@ export async function middleware(request: NextRequest) {
     pendingCookies.forEach(({ name, value, options }) =>
       response.cookies.set(name, value, options),
     );
+    if (isSignInPath(path)) {
+      return withSignInNoindex(response);
+    }
     return response;
   };
 

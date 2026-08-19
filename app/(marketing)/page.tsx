@@ -1,18 +1,24 @@
 import type { Metadata } from "next";
 import { InterviewHero } from "@/components/home/InterviewHero";
-import { WALK_CLARITY, WALK_COMPANION, WALK_OBJECT, WALK_PRIMARY } from "@/components/home/walk-copy";
+import {
+  WALK_CLARITY,
+  WALK_COMPANION,
+  WALK_OBJECT,
+  WALK_PRIMARY,
+} from "@/components/home/walk-copy";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
+import { organizationJsonLd, softwareApplicationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
 import { SITE_URL } from "@/lib/seo/site";
+import { pageMetadata } from "@/lib/seo/metadata";
 import { Reveal } from "@/components/ui/Reveal";
 import { PaperScene } from "@/components/home/PaperScene";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Know When You're Ready — Decision Readiness Intelligence™",
   description:
     "A credit score estimates repayment risk. HōMI helps you evaluate readiness for the decision itself — across Financial Reality, Emotional Truth, and Perfect Timing.",
-  alternates: { canonical: "/" },
-};
+  path: "/",
+});
 
 /**
  * Front door — question, inversion, one Assess, hero-scale Brand
@@ -24,6 +30,7 @@ export default function MarketingHomePage() {
     <>
       <JsonLd data={organizationJsonLd(SITE_URL, "/icon-512-v2.png")} />
       <JsonLd data={websiteJsonLd(SITE_URL)} />
+      <JsonLd data={softwareApplicationJsonLd(SITE_URL)} />
 
       <InterviewHero />
 

@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BRAND } from "@/lib/brand";
 
-export const metadata: Metadata = {
+import { pageMetadata } from "@/lib/seo/metadata";
+
+export const metadata: Metadata = pageMetadata({
   title: "Terms of Service",
   description:
     "The terms governing your use of HōMI, including our educational-only guidance, accounts, subscriptions, and liability limitations.",
-  alternates: { canonical: "/legal/terms" },
-};
+  path: "/legal/terms",
+});
 
 export default function TermsPage() {
   return (

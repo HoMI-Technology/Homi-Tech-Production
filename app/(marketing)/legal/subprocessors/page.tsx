@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BRAND } from "@/lib/brand";
 
-export const metadata: Metadata = {
+import { pageMetadata } from "@/lib/seo/metadata";
+
+export const metadata: Metadata = pageMetadata({
   title: "Subprocessors",
   description: "The third-party service providers HōMI uses to deliver its Services.",
-  alternates: { canonical: "/legal/subprocessors" },
-};
+  path: "/legal/subprocessors",
+});
 
 // Base list recovered verbatim from the v153 build (src/pages/SubprocessorsPage.tsx).
 // The recovered build left the "Communications" and "AI and Machine Learning"

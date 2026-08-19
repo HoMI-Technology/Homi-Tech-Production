@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
+import { pageMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "HōMI for Teams",
   description:
     "A financial-wellness benefit that measures readiness, not just affordability. Bring HōMI to your employees as a Decision Companion, not another budgeting app.",
-  alternates: { canonical: "/b2b" },
-};
+  path: "/b2b",
+});
 
 export default function B2BPage() {
   return (

@@ -5,12 +5,14 @@ import { GUIDES } from "@/components/marketing/guides-data";
 import { LEARNING_ARTICLES } from "@/components/learning/learning-data";
 import { BLOG_POSTS } from "@/components/marketing/blog-data";
 
-export const metadata: Metadata = {
+import { pageMetadata } from "@/lib/seo/metadata";
+
+export const metadata: Metadata = pageMetadata({
   title: "Guides",
   description:
     "In-depth, honest guides on affordability, runway, credit, timing, and emotional readiness — plus the reasoning behind the method and notes on why HōMI exists.",
-  alternates: { canonical: "/guides" },
-};
+  path: "/guides",
+});
 
 function formatDate(date: string): string {
   return new Date(date).toLocaleDateString("en-US", {

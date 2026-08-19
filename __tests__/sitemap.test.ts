@@ -1,19 +1,23 @@
 import { describe, it, expect } from "vitest";
 import sitemap from "@/app/sitemap";
 import { LENSES } from "@/lib/tools/registry";
-import { SITE_URL } from "@/lib/seo/site";
+import { canonicalUrl, SITE_URL } from "@/lib/seo/site";
 import { getAllPostSlugs } from "@/components/marketing/blog-data";
 import { getAllGuideSlugs } from "@/components/marketing/guides-data";
 import { getAllArticleSlugs } from "@/components/learning/learning-data";
 
-const urls = sitemap().map((entry) => entry.url);
+const entries = sitemap();
+const urls = entries.map((entry) => entry.url);
+
+const crawlableToolPaths = LENSES.filter(
+  (l) => l.path.startsWith("/tools/") && l.placement !== "redirect",
+).map((l) => l.path);
 
 describe("sitemap tool routes (registry parity)", () => {
-  it("lists every /tools/* lens from the registry — no hand-copied drift", () => {
-    const registryToolPaths = LENSES.map((l) => l.path).filter((p) => p.startsWith("/tools/"));
-    expect(registryToolPaths.length).toBeGreaterThan(0);
-    for (const path of registryToolPaths) {
-      expect(urls).toContain(`${SITE_URL}${path}`);
+  it("lists every crawlable /tools/* lens from the registry — no hand-copied drift", () => {
+    expect(crawlableToolPaths.length).toBeGreaterThan(0);
+    for (const path of crawlableToolPaths) {
+      expect(urls).toContain(canonicalUrl(path));
     }
   });
 
@@ -28,24 +32,29 @@ describe("sitemap tool routes (registry parity)", () => {
       expect(registryToolPaths.has(path)).toBe(true);
     }
   });
+
+  it("drops /tools/mortgage because it canonicals to /tools/affordability", () => {
+    expect(urls).not.toContain(canonicalUrl("/tools/mortgage"));
+    expect(urls).toContain(canonicalUrl("/tools/affordability"));
+  });
 });
 
 describe("sitemap content hub (D5 consolidation)", () => {
   it("lists /guides as the single content hub; /blog and /learning indexes are delisted", () => {
-    expect(urls).toContain(`${SITE_URL}/guides`);
-    expect(urls).not.toContain(`${SITE_URL}/blog`);
-    expect(urls).not.toContain(`${SITE_URL}/learning`);
+    expect(urls).toContain(canonicalUrl("/guides"));
+    expect(urls).not.toContain(canonicalUrl("/blog"));
+    expect(urls).not.toContain(canonicalUrl("/learning"));
   });
 
   it("keeps every guide, blog post, and learning article reachable (no content loss)", () => {
     for (const slug of getAllGuideSlugs()) {
-      expect(urls).toContain(`${SITE_URL}/guides/${slug}`);
+      expect(urls).toContain(canonicalUrl(`/guides/${slug}`));
     }
     for (const slug of getAllPostSlugs()) {
-      expect(urls).toContain(`${SITE_URL}/blog/${slug}`);
+      expect(urls).toContain(canonicalUrl(`/blog/${slug}`));
     }
     for (const slug of getAllArticleSlugs()) {
-      expect(urls).toContain(`${SITE_URL}/learning/${slug}`);
+      expect(urls).toContain(canonicalUrl(`/learning/${slug}`));
     }
   });
 
@@ -58,5 +67,52 @@ describe("sitemap content hub (D5 consolidation)", () => {
 describe("sitemap hygiene", () => {
   it("contains no duplicate URLs", () => {
     expect(new Set(urls).size).toBe(urls.length);
+  });
+
+  it("puts lastmod on every kept URL", () => {
+    expect(entries.length).toBeGreaterThan(0);
+    for (const entry of entries) {
+      expect(entry.lastModified, entry.url).toBeTruthy();
+    }
+  });
+
+  it("keeps the public marketing/content set", () => {
+    for (const path of [
+      "/",
+      "/how-it-works",
+      "/first-moment",
+      "/pricing",
+      "/tools",
+      "/legal/privacy",
+      "/guides",
+      "/about",
+      "/method",
+      "/b2b",
+    ]) {
+      expect(urls).toContain(canonicalUrl(path));
+    }
+  });
+
+  it("homepage URL uses the live trailing-slash convention", () => {
+    expect(urls).toContain("https://homitechnology.com/");
+    expect(urls).not.toContain("https://homitechnology.com");
+  });
+
+  it("excludes auth-wall, non-landers, overlapping Assess, and unfinished /plan", () => {
+    for (const path of [
+      "/money",
+      "/employee",
+      "/waitlist",
+      "/status",
+      "/assessment",
+      "/plan",
+      "/advisor",
+      "/decisions",
+      "/genome",
+      "/trinity",
+      "/twin",
+    ]) {
+      expect(urls).not.toContain(canonicalUrl(path));
+    }
   });
 });

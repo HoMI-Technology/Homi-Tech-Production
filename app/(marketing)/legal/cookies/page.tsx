@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BRAND } from "@/lib/brand";
 
-export const metadata: Metadata = {
+import { pageMetadata } from "@/lib/seo/metadata";
+
+export const metadata: Metadata = pageMetadata({
   title: "Cookie Policy",
   description:
     "How HōMI uses essential cookies and optional analytics. No ad tech. You can reject optional analytics anytime.",
-  alternates: { canonical: "/legal/cookies" },
-};
+  path: "/legal/cookies",
+});
 
 export default function CookiesPage() {
   return (

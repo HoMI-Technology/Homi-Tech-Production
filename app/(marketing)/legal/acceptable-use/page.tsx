@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BRAND } from "@/lib/brand";
 
-export const metadata: Metadata = {
+import { pageMetadata } from "@/lib/seo/metadata";
+
+export const metadata: Metadata = pageMetadata({
   title: "Acceptable Use Policy",
   description: "The rules and guidelines for using HōMI's Services.",
-  alternates: { canonical: "/legal/acceptable-use" },
-};
+  path: "/legal/acceptable-use",
+});
 
 // Text recovered verbatim from the v153 build (src/pages/AcceptableUsePage.tsx);
 // heading/paragraph order corrected here (the built page rendered several

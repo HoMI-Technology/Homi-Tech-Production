@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
+import { LEGACY_PATH_REDIRECTS, WWW_REDIRECTS } from "./lib/seo/redirects";
+import { X_ROBOTS_NOINDEX } from "./lib/seo/site";
 
 /**
  * Content Security Policy (AUDIT-2026-07-08 T1.5, enforce half).
@@ -74,6 +76,8 @@ const nextConfig: NextConfig = {
       ["apr-comparison", "apr-compare"],
     ] as const;
     return [
+      ...WWW_REDIRECTS,
+      ...LEGACY_PATH_REDIRECTS,
       ...toolAliases.map(([from, to]) => ({
         source: `/tools/${from}`,
         destination: `/tools/${to}`,
@@ -142,6 +146,10 @@ const nextConfig: NextConfig = {
       {
         source: "/manifest.webmanifest",
         headers: [{ key: "Cache-Control", value: "public, max-age=0, must-revalidate" }],
+      },
+      {
+        source: "/auth/sign-in",
+        headers: [{ key: "X-Robots-Tag", value: X_ROBOTS_NOINDEX }],
       },
       {
         source: "/architecture.json",

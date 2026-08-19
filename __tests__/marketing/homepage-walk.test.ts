@@ -58,6 +58,9 @@ describe("homepage front door — locked copy is character-exact", () => {
     expect(HOME).toContain("Not yet is not");
     expect(HOME).toContain('className="text-emerald"');
     expect(HOME).not.toContain("WALK_INVERSION");
+    expect(HOME).toContain("softwareApplicationJsonLd");
+    expect(HOME).toContain("organizationJsonLd");
+    expect(HOME).toContain("websiteJsonLd");
     for (const beat of FIRST_MOMENT_BEATS) {
       expect(HOME).not.toContain(beat.line);
       expect(HERO).not.toContain(beat.line);
