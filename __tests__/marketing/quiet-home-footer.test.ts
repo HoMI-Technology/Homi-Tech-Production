@@ -38,6 +38,24 @@ describe("quiet home footer — sitewide SiteFooter cut", () => {
     expect(text).not.toContain("SitemapFooter");
   });
 
+  it("legal row is Privacy · Terms · Cookies · Support · Waitlist", () => {
+    expect(quiet).toContain('{ href: "/legal/privacy", label: "Privacy" }');
+    expect(quiet).toContain('{ href: "/legal/terms", label: "Terms" }');
+    expect(quiet).toContain('{ href: "/legal/cookies", label: "Cookies" }');
+    expect(quiet).toContain('{ href: "mailto:support@homitechnology.com", label: "Support" }');
+    expect(quiet).toContain('{ href: "/waitlist", label: "Waitlist" }');
+    const privacy = quiet.indexOf('label: "Privacy"');
+    const terms = quiet.indexOf('label: "Terms"');
+    const cookies = quiet.indexOf('label: "Cookies"');
+    const support = quiet.indexOf('label: "Support"');
+    const waitlist = quiet.indexOf('href: "/waitlist", label: "Waitlist"');
+    expect(privacy).toBeGreaterThan(-1);
+    expect(terms).toBeGreaterThan(privacy);
+    expect(cookies).toBeGreaterThan(terms);
+    expect(support).toBeGreaterThan(cookies);
+    expect(waitlist).toBeGreaterThan(support);
+  });
+
   it("quiet cut pins exact socials as equal text links", () => {
     expect(quiet).toContain(TIKTOK);
     expect(quiet).toContain(X);
