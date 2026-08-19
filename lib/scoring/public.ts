@@ -17,6 +17,7 @@
  */
 
 import type { Verdict } from "./engine";
+import { VERDICT_CONFIG } from "./verdicts";
 
 export type {
   Verdict,
@@ -43,10 +44,14 @@ export const PILLAR_MAX_POINTS = Object.freeze({
   timing: 30,
 });
 
-/** Boundary-inclusive verdict mapping, identical to the engine's (parity-tested). */
+/**
+ * Boundary-inclusive verdict mapping, identical to the engine's
+ * (parity-tested). Threshold literals live only in ./verdicts — the single
+ * source of truth this seam and the engine both consume.
+ */
 export function scoreToVerdict(score: number): Verdict {
-  if (score >= 80) return "READY";
-  if (score >= 65) return "ALMOST_THERE";
-  if (score >= 50) return "BUILD_FIRST";
+  if (score >= VERDICT_CONFIG.READY.min) return "READY";
+  if (score >= VERDICT_CONFIG.ALMOST_THERE.min) return "ALMOST_THERE";
+  if (score >= VERDICT_CONFIG.BUILD_FIRST.min) return "BUILD_FIRST";
   return "NOT_YET";
 }

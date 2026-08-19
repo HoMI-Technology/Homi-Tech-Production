@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { PRIMARY_CLOSE_HREF, PRIMARY_CLOSE_LABEL } from "@/components/marketing/first-moment-copy";
+import {
+  PRIMARY_CLOSE_HREF,
+  PRIMARY_CLOSE_LABEL_HOME,
+} from "@/components/marketing/first-moment-copy";
 import { Compass3D } from "./Compass3D";
 import { BRAND } from "@/lib/brand";
 import { WALK_INVERSION, WALK_QUESTION } from "./walk-copy";
@@ -50,7 +53,7 @@ export function InterviewHero() {
             className="btn btn-primary"
             onClick={handleCtaClick}
           >
-            {PRIMARY_CLOSE_LABEL}
+            {PRIMARY_CLOSE_LABEL_HOME}
           </Link>
           <Link href="/how-it-works" className="btn btn-ghost">
             How it works

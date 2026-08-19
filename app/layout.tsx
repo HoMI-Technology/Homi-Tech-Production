@@ -10,7 +10,8 @@ import { AppleSplashLinks } from "@/components/pwa/AppleSplashLinks";
 import { AnalyticsScripts } from "@/components/analytics/AnalyticsScripts";
 import { PageViewBeacon } from "@/components/analytics/PageViewBeacon";
 import { AttributionCapture } from "@/components/analytics/AttributionCapture";
-import { SITE_URL, OG_DEFAULT_IMAGE } from "@/lib/seo/site";
+import { SITE_URL } from "@/lib/seo/site";
+import { defaultShareOpenGraph, defaultShareTwitter } from "@/lib/seo/share";
 import { COLORS } from "@/lib/brand";
 
 import { ClientProviders } from "@/components/layout/ClientProviders";
@@ -32,29 +33,8 @@ export const metadata: Metadata = {
     "perfect timing",
     "decision companion",
   ],
-  openGraph: {
-    siteName: "HōMI",
-    type: "website",
-    images: [
-      {
-        url: OG_DEFAULT_IMAGE.url,
-        width: OG_DEFAULT_IMAGE.width,
-        height: OG_DEFAULT_IMAGE.height,
-        alt: OG_DEFAULT_IMAGE.alt,
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    site: "@homi_tech",
-    creator: "@homi_tech",
-    images: [
-      {
-        url: OG_DEFAULT_IMAGE.url,
-        alt: OG_DEFAULT_IMAGE.alt,
-      },
-    ],
-  },
+  openGraph: defaultShareOpenGraph(),
+  twitter: defaultShareTwitter(),
   icons: {
     icon: [
       { url: "/icon-v2.svg", type: "image/svg+xml" },

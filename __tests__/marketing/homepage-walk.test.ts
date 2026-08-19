@@ -294,11 +294,13 @@ describe("homepage front door — waitlist Get notified is off /", () => {
 });
 
 describe("homepage front door — footer educational line stays", () => {
-  it("home quiet cut prints only the muted educational line", () => {
+  it("home quiet cut prints the full canon disclaimer (audit fix 9)", () => {
     const quiet = src("components", "layout", "QuietHomeFooter.tsx");
     expect(quiet).toContain("bg-navy");
-    expect(quiet).toContain("Educational only — not financial advice.");
-    expect(quiet).not.toContain("HōMI provides educational guidance only.");
+    expect(quiet).toContain(
+      "HōMI provides educational guidance only. Consider consulting qualified professionals before making legal, tax, mortgage, investment, or real estate decisions.",
+    );
+    expect(quiet).not.toContain("Educational only — not financial advice.");
     expect(quiet).not.toContain("LEGAL_DISCLAIMER");
     expect(quiet).not.toContain("Decision Readiness Intelligence");
   });

@@ -8,6 +8,14 @@
 export const PRIMARY_CLOSE_LABEL = "Assess";
 export const PRIMARY_CLOSE_HREF = "/first-moment";
 
+/**
+ * Landing-page cut of the primary close (2026-08 audit fix 6): the homepage
+ * hero and closing CTA read "See where you stand"; compact surfaces (site
+ * header, product ramps, pricing) keep PRIMARY_CLOSE_LABEL. Same href, same
+ * ?src= tracking — the label is the only difference.
+ */
+export const PRIMARY_CLOSE_LABEL_HOME = "See where you stand";
+
 /** After beat 5: create account, then the 45-q assessment. */
 export const ACCOUNT_THEN_ASSESSMENT_HREF = "/auth/sign-up?next=/assessment";
 
