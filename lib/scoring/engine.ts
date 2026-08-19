@@ -51,6 +51,28 @@ import "server-only";
 /** Verdict tiers produced by the scoring engine. */
 export type Verdict = "READY" | "ALMOST_THERE" | "BUILD_FIRST" | "NOT_YET";
 
+/** Self-reported credit band from the 45-q / car question. Never mapped to a FICO. */
+export type SelfReportedCreditBand =
+  | "excellent"
+  | "good"
+  | "fair"
+  | "poor"
+  | "very_poor"
+  | "skipped";
+
+export type CreditScoreProvenance = "band_ignored" | "self_report_digit" | "none";
+export type FactorProvenance = "self_report" | "verified";
+export type DownPaymentProvenance = "self_report" | "ledger_earmark";
+
+/** Additive honesty record — not a second score. */
+export interface AssessmentProvenance {
+  dti: FactorProvenance;
+  downPayment: DownPaymentProvenance;
+  runway: FactorProvenance;
+  credit: CreditScoreProvenance;
+  lookbackDays: number | null;
+}
+
 /** Raw inputs collected from the assessment flow. */
 export interface AssessmentInputs {
   // --- Financial Reality ---
@@ -60,8 +82,24 @@ export interface AssessmentInputs {
   downPaymentPercent: number;
   /** Number of months of living expenses in emergency fund. */
   emergencyFundMonths: number;
-  /** FICO or equivalent credit score (300-850 range). */
+  /** FICO or equivalent credit score (300-850 range). Unused for points when creditScoreProvenance is band_ignored. */
   creditScore: number;
+  /**
+   * How credit reached the engine. `band_ignored` is the 45-question band:
+   * scoreCreditHealth awards 0 (not a skipper bonus). Hard-stop uses the
+   * stored band, never a mapped FICO.
+   */
+  creditScoreProvenance?: CreditScoreProvenance;
+  /** Raw 45-q / car credit band. Required for CREDIT_UNDER_620 when provenance is band_ignored. */
+  selfReportedCreditBand?: SelfReportedCreditBand;
+  /** Who supplied DTI. Default self_report. `verified` only after the user confirms linked observations. */
+  dtiProvenance?: FactorProvenance;
+  /** Who supplied down payment. `ledger_earmark` after the user confirms an earmark. */
+  downPaymentProvenance?: DownPaymentProvenance;
+  /** Who supplied emergency-fund months. `verified` only after the user confirms linked runway. */
+  runwayProvenance?: FactorProvenance;
+  /** Linked-transaction lookback used for verified DTI/runway, or null. */
+  lookbackDays?: number | null;
 
   // --- Emotional Truth ---
   /** Self-reported life stability on a 1-10 slider. */
@@ -150,6 +188,11 @@ export interface AssessmentResult {
    * "NOT_NOW" protective message keyed off these reasons.
    */
   hardStops: HardStopReason[];
+  /**
+   * Additive. Where Financial Reality numbers came from. Never a second
+   * score or compass. Older stored results may omit this field.
+   */
+  provenance?: AssessmentProvenance;
 }
 
 export interface ScoringWarning {
@@ -291,15 +334,24 @@ function scoreEmergencyFund(months: number): number {
  * | 660-699 | 3      |
  * | < 660   | 0      |
  *
+ * A 45-question credit *band* must set creditScoreProvenance to
+ * `band_ignored` so this awards 0 — never a mapped excellent→780 bonus.
+ *
  * @param score - FICO score (300-850)
+ * @param provenance - how the number was produced
  * @returns 0-7 integer
  */
-function scoreCreditHealth(score: number): number {
+function scoreCreditHealth(score: number, provenance?: CreditScoreProvenance): number {
+  if (provenance === "band_ignored" || provenance === "none") return 0;
   const s = clamp(score, 300, 850);
   if (s >= 740) return 7;
   if (s >= 700) return 5;
   if (s >= 660) return 3;
   return 0;
+}
+
+function isBandHardStop(band: SelfReportedCreditBand | undefined): boolean {
+  return band === "poor" || band === "very_poor";
 }
 
 /**
@@ -309,7 +361,7 @@ function computeFinancial(inputs: AssessmentInputs): FinancialBreakdown {
   const debtToIncome = scoreDTI(inputs.debtToIncomeRatio);
   const downPayment = scoreDownPayment(inputs.downPaymentPercent);
   const emergencyFund = scoreEmergencyFund(inputs.emergencyFundMonths);
-  const creditHealth = scoreCreditHealth(inputs.creditScore);
+  const creditHealth = scoreCreditHealth(inputs.creditScore, inputs.creditScoreProvenance);
 
   return {
     debtToIncome,
@@ -607,7 +659,12 @@ function detectHardStops(inputs: AssessmentInputs): HardStopReason[] {
     });
   }
 
-  if (inputs.creditScore < 620) {
+  const creditIsBand = inputs.creditScoreProvenance === "band_ignored";
+  const creditIsNone = inputs.creditScoreProvenance === "none";
+  const creditUnder620 = creditIsBand
+    ? isBandHardStop(inputs.selfReportedCreditBand)
+    : !creditIsNone && inputs.creditScore < 620;
+  if (creditUnder620) {
     reasons.push({
       code: "CREDIT_UNDER_620",
       message:
@@ -722,5 +779,24 @@ export function computeScore(inputs: AssessmentInputs): AssessmentResult {
     timing,
     warnings,
     hardStops,
+    provenance: buildAssessmentProvenance(inputs),
+  };
+}
+
+/** Additive provenance for Results / Money. Never a second score. */
+export function buildAssessmentProvenance(inputs: AssessmentInputs): AssessmentProvenance {
+  const credit: CreditScoreProvenance =
+    inputs.creditScoreProvenance ??
+    (inputs.selfReportedCreditBand ? "band_ignored" : "self_report_digit");
+  const lookback =
+    typeof inputs.lookbackDays === "number" && Number.isFinite(inputs.lookbackDays)
+      ? inputs.lookbackDays
+      : null;
+  return {
+    dti: inputs.dtiProvenance ?? "self_report",
+    downPayment: inputs.downPaymentProvenance ?? "self_report",
+    runway: inputs.runwayProvenance ?? "self_report",
+    credit,
+    lookbackDays: lookback,
   };
 }

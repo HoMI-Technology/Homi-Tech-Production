@@ -254,6 +254,16 @@ export default function HowItWorksPage() {
       </Reveal>
 
       <Reveal>
+        <section className="px-6 py-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-sm leading-relaxed text-dim">
+              HōMI Score is not a credit score. Lenders will still pull a credit report. Fannie&apos;s manual floor is still 620. That is their gate, not a HōMI verdict.
+            </p>
+          </div>
+        </section>
+      </Reveal>
+
+      <Reveal>
         <section className="px-6 py-20 text-center">
           <div className="mx-auto max-w-2xl">
             <h2 className="type-h1">See where you stand.</h2>

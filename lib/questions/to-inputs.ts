@@ -1,4 +1,4 @@
-import type { AssessmentInputs } from "@/lib/scoring";
+import type { AssessmentInputs, SelfReportedCreditBand } from "@/lib/scoring/public";
 import { EMERGENCY_FUND_MONTHS } from "@/lib/assessment/types";
 import type {
   DeadlineOriginChoice,
@@ -7,6 +7,13 @@ import type {
   ReferralSourceChoice,
 } from "@/lib/assessment/types";
 import type { ResponseValue } from "@/lib/questions/bank";
+
+/**
+ * Schema still requires a 300–850 number. This sentinel is never read for
+ * creditHealth points or CREDIT_UNDER_620 when creditScoreProvenance is
+ * band_ignored. Do not map excellent→780.
+ */
+export const BAND_IGNORED_CREDIT_SENTINEL = 650;
 
 export interface ConflictResponses {
   referralSource: ReferralSourceChoice | null;
@@ -89,21 +96,36 @@ function emergencyChoiceToMonths(choice: string): number {
   }
 }
 
-function creditChoiceToScore(choice: string): number {
+/**
+ * Home 45-q credit band only. Never invent a FICO.
+ * `unknown` / missing is today's 650 path: 0 credit points, no hard-stop.
+ * There is no skip option in the bank — do not add one.
+ */
+export function normalizeSelfReportedCreditBand(choice: string): SelfReportedCreditBand {
   switch (choice) {
     case "excellent":
-      return 780;
     case "good":
-      return 730;
     case "fair":
-      return 670;
     case "poor":
-      return 610;
     case "very_poor":
-      return 550;
+      return choice;
+    case "unknown":
+    case "skipped":
+      return "skipped";
     default:
-      return 650;
+      return "skipped";
   }
+}
+
+function creditBandInputs(choice: string): Pick<
+  AssessmentInputs,
+  "creditScore" | "creditScoreProvenance" | "selfReportedCreditBand"
+> {
+  return {
+    creditScore: BAND_IGNORED_CREDIT_SENTINEL,
+    creditScoreProvenance: "band_ignored",
+    selfReportedCreditBand: normalizeSelfReportedCreditBand(choice),
+  };
 }
 
 function partnerChoiceToScale(choice: string): number | null {
@@ -212,7 +234,7 @@ export function mapHomeBuyingResponses(
 
   const downPaymentPercent = downPaymentChoiceToPercent(str(responses.fin_down_payment) ?? "");
   const emergencyFundMonths = emergencyChoiceToMonths(str(responses.fin_emergency_fund) ?? "");
-  const creditScore = creditChoiceToScore(str(responses.fin_credit_score) ?? "");
+  const credit = creditBandInputs(str(responses.fin_credit_score) ?? "");
 
   const confidenceLevel = sliderValue(responses.emo_confidence);
   const lifeStability = sliderValue(
@@ -239,7 +261,7 @@ export function mapHomeBuyingResponses(
     debtToIncomeRatio,
     downPaymentPercent,
     emergencyFundMonths,
-    creditScore,
+    ...credit,
     lifeStability,
     confidenceLevel,
     partnerAlignment,
@@ -250,6 +272,9 @@ export function mapHomeBuyingResponses(
     monthlyHousingRatio,
     referralSource: conflict.referralSource ?? undefined,
     deadlineOrigin: conflict.deadlineOrigin ?? deadlineFromUrgency,
+    dtiProvenance: "self_report",
+    downPaymentProvenance: "self_report",
+    runwayProvenance: "self_report",
   };
 }
 

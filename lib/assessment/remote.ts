@@ -8,6 +8,7 @@
 
 import type {
   AssessmentInputs,
+  AssessmentProvenance,
   FinancialBreakdown,
   EmotionalBreakdown,
   TimingBreakdown,
@@ -57,7 +58,11 @@ export function mapAssessmentRowToStored(row: AssessmentRow): StoredAssessment |
   };
   if (!subScores.financial || !subScores.emotional || !subScores.timing) return null;
 
-  const rawInsights = insights as { keyInsight?: unknown; nextSteps?: unknown } | null;
+  const rawInsights = insights as {
+    keyInsight?: unknown;
+    nextSteps?: unknown;
+    provenance?: AssessmentProvenance;
+  } | null;
   const mappedInsights =
     rawInsights &&
     typeof rawInsights.keyInsight === "string" &&
@@ -67,6 +72,7 @@ export function mapAssessmentRowToStored(row: AssessmentRow): StoredAssessment |
           nextSteps: rawInsights.nextSteps.filter((s): s is string => typeof s === "string"),
         }
       : undefined;
+  const provenance = rawInsights?.provenance;
 
   const decisionType = asDecisionType(decision_type);
 
@@ -80,6 +86,7 @@ export function mapAssessmentRowToStored(row: AssessmentRow): StoredAssessment |
       timing: subScores.timing,
       warnings: [],
       hardStops: (hard_stops as unknown as HardStopReason[] | null) ?? [],
+      ...(provenance ? { provenance } : {}),
     },
     completedAt: completed_at ?? created_at,
     kind: is_shadow ? "shadow" : "full",

@@ -9,8 +9,12 @@
 
 import type {
   AssessmentInputs,
+  AssessmentProvenance,
   AssessmentResult,
+  CreditScoreProvenance,
+  DownPaymentProvenance,
   EmotionalBreakdown,
+  FactorProvenance,
   FinancialBreakdown,
   TimingBreakdown,
   HardStopReason,
@@ -73,6 +77,31 @@ function parseTiming(raw: unknown): TimingBreakdown {
   };
 }
 
+function parseProvenance(raw: unknown): AssessmentProvenance | undefined {
+  if (!isRecord(raw)) return undefined;
+  const dti = raw.dti;
+  const downPayment = raw.downPayment;
+  const runway = raw.runway;
+  const credit = raw.credit;
+  if (dti !== "self_report" && dti !== "verified") return undefined;
+  if (downPayment !== "self_report" && downPayment !== "ledger_earmark") return undefined;
+  if (runway !== "self_report" && runway !== "verified") return undefined;
+  if (credit !== "band_ignored" && credit !== "self_report_digit" && credit !== "none") {
+    return undefined;
+  }
+  const lookback =
+    typeof raw.lookbackDays === "number" && Number.isFinite(raw.lookbackDays)
+      ? raw.lookbackDays
+      : null;
+  return {
+    dti: dti as FactorProvenance,
+    downPayment: downPayment as DownPaymentProvenance,
+    runway: runway as FactorProvenance,
+    credit: credit as CreditScoreProvenance,
+    lookbackDays: lookback,
+  };
+}
+
 function parseResult(data: Record<string, unknown>): AssessmentResult {
   const verdict = data.verdict;
   if (
@@ -85,6 +114,7 @@ function parseResult(data: Record<string, unknown>): AssessmentResult {
   }
   const warnings = Array.isArray(data.warnings) ? (data.warnings as ScoringWarning[]) : [];
   const hardStops = Array.isArray(data.hardStops) ? (data.hardStops as HardStopReason[]) : [];
+  const provenance = parseProvenance(data.provenance);
   return {
     score: num(data.score),
     verdict,
@@ -93,6 +123,7 @@ function parseResult(data: Record<string, unknown>): AssessmentResult {
     timing: parseTiming(data.timing),
     warnings,
     hardStops,
+    ...(provenance ? { provenance } : {}),
   };
 }
 
