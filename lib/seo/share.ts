@@ -36,7 +36,14 @@ export function defaultShareOpenGraph(): NonNullable<Metadata["openGraph"]> {
   };
 }
 
-export function defaultShareTwitter(): NonNullable<Metadata["twitter"]> {
+/**
+ * Next's `Metadata["twitter"]` is a union. The base `TwitterMetadata`
+ * member has no `card` (it defaults to summary). This helper always
+ * ships `summary_large_image`, so the return type says so.
+ */
+export function defaultShareTwitter(): NonNullable<Metadata["twitter"]> & {
+  card: "summary_large_image";
+} {
   return {
     card: "summary_large_image",
     site: "@homi_tech",
