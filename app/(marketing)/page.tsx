@@ -17,10 +17,11 @@ import {
 } from "@/components/home/FrontDoor";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Know When You're Ready — Decision Readiness Intelligence™",
+  title: "Decision Readiness · A Decision Companion · HōMI",
   description:
     "A credit score estimates repayment risk. HōMI helps you evaluate readiness for the decision itself — across Financial Reality, Emotional Truth, and Perfect Timing.",
   path: "/",
+  absolute: true,
 });
 
 /**

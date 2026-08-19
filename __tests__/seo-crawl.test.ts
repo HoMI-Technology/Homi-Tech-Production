@@ -7,7 +7,6 @@ import { LEGACY_PATH_REDIRECTS, WWW_REDIRECTS } from "@/lib/seo/redirects";
 import { pageMetadata } from "@/lib/seo/metadata";
 import {
   canonicalUrl,
-  TITLE_TEMPLATE_SUFFIX,
   WWW_HOST,
   APEX_ORIGIN,
   wwwToApexUrl,
@@ -101,19 +100,21 @@ describe("robots.txt crawl control", () => {
 });
 
 describe("pageMetadata OG matches HTML title/meta", () => {
-  it("homepage canonical is the trailing-slash live URL", () => {
+  it("homepage canonical is the trailing-slash live URL and title does not lead with the tagline", () => {
+    const title = "Decision Readiness · A Decision Companion · HōMI";
     const meta = pageMetadata({
-      title: "Know When You're Ready — Decision Readiness Intelligence™",
+      title,
       description:
         "A credit score estimates repayment risk. HōMI helps you evaluate readiness for the decision itself — across Financial Reality, Emotional Truth, and Perfect Timing.",
       path: "/",
+      absolute: true,
     });
     expect(meta.alternates?.canonical).toBe("https://homitechnology.com/");
     expect(meta.openGraph?.url).toBe("https://homitechnology.com/");
-    expect(meta.openGraph?.title).toBe(
-      `Know When You're Ready — Decision Readiness Intelligence™${TITLE_TEMPLATE_SUFFIX}`,
-    );
+    expect(meta.title).toEqual({ absolute: title });
+    expect(meta.openGraph?.title).toBe(title);
     expect(meta.openGraph?.description).toBe(meta.description);
+    expect(String(meta.openGraph?.title)).not.toMatch(/^Know When You're Ready/i);
   });
 
   it("absolute locked titles are used for both <title> and og:title", () => {
@@ -132,12 +133,16 @@ describe("pageMetadata OG matches HTML title/meta", () => {
 });
 
 describe("locked title/meta lines", () => {
-  it("keeps the homepage title and meta", () => {
+  it("locks the homepage title to Decision Readiness and keeps the live meta", () => {
     const page = src("app", "(marketing)", "page.tsx");
-    expect(page).toContain('title: "Know When You\'re Ready — Decision Readiness Intelligence™"');
+    expect(page).toContain('title: "Decision Readiness · A Decision Companion · HōMI"');
+    expect(page).toContain("absolute: true");
+    expect(page).not.toContain("Know When You're Ready — Decision Readiness Intelligence™");
+    expect(page).not.toMatch(/title: "Know When You're Ready/);
     expect(page).toContain(
       "A credit score estimates repayment risk. HōMI helps you evaluate readiness for the decision itself — across Financial Reality, Emotional Truth, and Perfect Timing.",
     );
+    expect(page).not.toMatch(/DIOS|decision-intelligence|Decision Intelligence OS/i);
   });
 
   it("locks /how-it-works title and meta", () => {
@@ -210,7 +215,13 @@ describe("root layout does not pin a site-wide OG title", () => {
   });
 });
 
-const BANNED_CREDIT_COPY = [/replaces the credit score/i, /outdated credit score/i] as const;
+const BANNED_SEO_COPY = [
+  /replaces the credit score/i,
+  /outdated credit score/i,
+  /\bDIOS\b/,
+  /decision-intelligence/i,
+  /Decision Intelligence OS/i,
+] as const;
 
 /** lib/seo/* plus the marketing/metadata files this PR already touched. */
 const SEO_AND_TOUCHED_METADATA = [
@@ -253,7 +264,7 @@ describe("credit-score copy stays the live homepage line — never a replacement
   it("never writes replacement or outdated-credit-score copy in SEO or touched metadata", () => {
     for (const rel of SEO_AND_TOUCHED_METADATA) {
       const text = src(...rel.split("/"));
-      for (const banned of BANNED_CREDIT_COPY) {
+      for (const banned of BANNED_SEO_COPY) {
         expect(text, `${rel} must not contain ${banned}`).not.toMatch(banned);
       }
     }
