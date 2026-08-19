@@ -1,3 +1,0 @@
-export function collectFiles() {
-  return SCAN_TARGETS.flatMap(({ dir, extensions }) => walk(path.join(ROOT, dir), extensions));
-}
