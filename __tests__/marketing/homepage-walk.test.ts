@@ -50,14 +50,14 @@ describe("homepage front door — locked copy is character-exact", () => {
   it("mounts every locked line and does not paste First Moment beats", () => {
     expect(HERO).toContain("WALK_QUESTION");
     expect(HERO).toContain("WALK_INVERSION");
-    expect(HERO).toContain("WALK_OBJECT");
+    expect(HERO).not.toContain("WALK_OBJECT");
     expect(HOME).toContain("WALK_COMPANION");
     expect(HOME).toContain("WALK_PRIMARY");
     expect(HOME).toContain("WALK_CLARITY");
+    expect(HOME).toContain("WALK_OBJECT");
     expect(HOME).toContain("Not yet is not");
     expect(HOME).toContain('className="text-emerald"');
     expect(HOME).not.toContain("WALK_INVERSION");
-    expect(HOME).not.toContain("WALK_OBJECT");
     for (const beat of FIRST_MOMENT_BEATS) {
       expect(HOME).not.toContain(beat.line);
       expect(HERO).not.toContain(beat.line);
@@ -134,7 +134,8 @@ describe("homepage front door — first viewport", () => {
     expect(compass).toContain('r="85"');
     expect(compass).toContain('r="60"');
     expect(compass).toContain('r="35"');
-    expect(HERO).toContain("{WALK_OBJECT}");
+    expect(HERO).not.toContain("{WALK_OBJECT}");
+    expect(HERO).not.toContain("WALK_OBJECT");
   });
 });
 

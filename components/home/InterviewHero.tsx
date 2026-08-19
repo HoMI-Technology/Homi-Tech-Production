@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { PRIMARY_CLOSE_HREF, PRIMARY_CLOSE_LABEL } from "@/components/marketing/first-moment-copy";
 import { Compass3D } from "./Compass3D";
-import { WALK_INVERSION, WALK_OBJECT, WALK_QUESTION } from "./walk-copy";
+import { WALK_INVERSION, WALK_QUESTION } from "./walk-copy";
 import { track } from "@/lib/analytics";
 
 function handleCtaClick(): void {
@@ -49,9 +49,6 @@ export function InterviewHero() {
         >
           {PRIMARY_CLOSE_LABEL}
         </Link>
-        <p className="mt-8 max-w-md text-lg leading-relaxed text-light" style={{ opacity: 1 }}>
-          {WALK_OBJECT}
-        </p>
       </div>
     </section>
   );

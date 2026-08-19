@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { InterviewHero } from "@/components/home/InterviewHero";
-import { WALK_CLARITY, WALK_COMPANION, WALK_PRIMARY } from "@/components/home/walk-copy";
+import { WALK_CLARITY, WALK_COMPANION, WALK_OBJECT, WALK_PRIMARY } from "@/components/home/walk-copy";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
 import { SITE_URL } from "@/lib/seo/site";
@@ -34,6 +34,7 @@ export default function MarketingHomePage() {
           <p className="type-display max-w-4xl text-ink">
             Not yet is not <span className="text-emerald">no</span>.
           </p>
+          <p className="type-display max-w-4xl text-ink">{WALK_OBJECT}</p>
         </div>
       </section>
 
