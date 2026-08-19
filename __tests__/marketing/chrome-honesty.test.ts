@@ -145,7 +145,7 @@ describe("Wave 1 chrome honesty — primary close", () => {
 
   it("how-it-works locks Product weights and does not claim equal weights, a trade secret, or 200+ signals", () => {
     expect(HOW_IT_WORKS).toContain(
-      "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours.",
+      "Three pillars, weighed differently — how they combine stays ours. No single pillar",
     );
     expect(HOW_IT_WORKS).not.toContain("HōMI weighs all three pillars equally");
     expect(HOW_IT_WORKS).not.toContain("equally-weighted");
@@ -159,16 +159,19 @@ describe("Wave 1 chrome honesty — primary close", () => {
       "Not yet is a starting line, not a wall. You get a map: the specific, ordered things to build first.",
     );
     expect(HOW_IT_WORKS).toContain(
-      "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours. Then hard-stops — conditions that override the math because they are not safe to build on top of.",
+      "Your answers become a deterministic readiness score — same inputs, same answer, every time. Then hard-stops: conditions that override the math because they are not safe to build on top of.",
     );
     expect(HOW_IT_WORKS).toContain(
-      "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours. Here is what each pillar looks at and why it matters.",
+      "How the pillars weigh in stays ours. Here is what each pillar looks at and why it",
     );
     expect(HOW_IT_WORKS).not.toContain(
       "HōMI weighs Financial Reality, Emotional Truth, and Perfect Timing at 35 / 35 / 30, then checks for hard-stops — conditions that override the math entirely because they are not safe to build on top of.",
     );
     expect(HOW_IT_WORKS).not.toContain(
       "The public weights are 35 / 35 / 30 — Financial Reality, Emotional Truth, Perfect Timing. Here is what each pillar looks at and why it matters.",
+    );
+    expect(HOW_IT_WORKS).not.toContain(
+      "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30.",
     );
   });
 
