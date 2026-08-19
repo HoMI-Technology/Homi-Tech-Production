@@ -5,6 +5,8 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
 import { SITE_URL } from "@/lib/seo/site";
 import { WaitlistForm } from "@/components/marketing/WaitlistForm";
+import { Reveal } from "@/components/ui/Reveal";
+import { PaperScene } from "@/components/home/PaperScene";
 
 export const metadata: Metadata = {
   title: "Know When You're Ready — Decision Readiness Intelligence™",
@@ -26,22 +28,45 @@ export default function MarketingHomePage() {
 
       <InterviewHero />
 
-      <section className="bg-navy px-5 py-24 sm:px-6 lg:px-8">
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-16">
-          <p className="type-display max-w-4xl text-ink">{WALK_COMPANION}</p>
-          <p className="type-display max-w-4xl text-ink">{WALK_PRIMARY}</p>
-          <p className="type-display max-w-4xl text-ink">{WALK_CLARITY}</p>
-          <p className="type-display max-w-4xl text-ink">
-            Not yet is not <span className="text-emerald">no</span>.
-          </p>
-          <p className="type-display max-w-4xl text-ink">{WALK_OBJECT}</p>
-        </div>
+      <div aria-hidden className="bg-navy px-5 sm:px-6 lg:px-8">
+        <div className="hairline mx-auto w-full max-w-7xl" />
+      </div>
+
+      {/* Lit scenes: each locked line owns a 55svh frame with its own
+          volumetric light and a 3D perspective arrival (CSS only — the same
+          physics family as the hero gyroscope). Native scroll; no-JS and
+          reduced-motion render fully lit and flat. */}
+      <section className="bg-navy">
+        <PaperScene>
+          <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col px-5 py-12 sm:px-6 lg:px-8">
+            <Reveal className="line-light line-glow-cyan flex min-h-[55svh] items-center">
+              <p className="type-display max-w-4xl text-light">{WALK_COMPANION}</p>
+            </Reveal>
+            <Reveal className="line-light line-glow-cyan flex min-h-[55svh] items-center">
+              <p className="type-display max-w-4xl text-light">{WALK_PRIMARY}</p>
+            </Reveal>
+            <Reveal className="line-light line-glow-cyan flex min-h-[55svh] items-center">
+              <p className="type-display max-w-4xl text-light">{WALK_CLARITY}</p>
+            </Reveal>
+            <Reveal className="line-light line-glow-emerald flex min-h-[55svh] items-center">
+              <p className="type-display max-w-4xl text-light">
+                Not yet is not <span className="text-emerald">no</span>.
+              </p>
+            </Reveal>
+            <Reveal className="line-light line-glow-yellow flex min-h-[55svh] items-center">
+              <p className="type-display max-w-4xl text-light">{WALK_OBJECT}</p>
+            </Reveal>
+          </div>
+        </PaperScene>
       </section>
 
-      <section id="waitlist" className="bg-navy px-5 pb-24 sm:px-6 lg:px-8">
-        <div className="walk-waitlist-form mx-auto w-full max-w-7xl">
-          <div className="w-full max-w-sm">
-            <WaitlistForm source="landing" idPrefix="landing-waitlist" surface="whisper" />
+      <section id="waitlist" className="bg-navy px-5 pb-24 pt-[12vh] sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-7xl">
+          <div className="hairline mb-[9vh]" aria-hidden />
+          <div className="walk-waitlist-form">
+            <div className="glass w-full max-w-sm p-6 sm:p-8">
+              <WaitlistForm source="landing" idPrefix="landing-waitlist" surface="whisper" />
+            </div>
           </div>
         </div>
       </section>

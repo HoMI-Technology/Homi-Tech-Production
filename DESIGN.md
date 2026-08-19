@@ -62,7 +62,8 @@ Never introduce Anthropic / Linear-beige / purple-SaaS palettes. Never apply the
 | Hook               | `cro` / `copywriting`, then **one of** `frontend-design` **or** `design-taste-frontend` |
 | Always after paint | brand-check, typecheck, reduced-motion smoke                                            |
 
-**Forbidden stack:** multiple aesthetic skills on one PR · `brand-guidelines` (Anthropic) · unconstrained high-end on `/dashboard`.
+**Forbidden stack:** multiple aesthetic skills on one PR · `brand-guidelines` (Anthropic) · `theme-factory` (generates off-token palettes) · unconstrained high-end on `/dashboard`.
+Enforced, not just documented: `.claude/settings.json` hides both skills (`skillOverrides: off`) and denies `Skill(brand-guidelines)` / `Skill(theme-factory)`.
 
 ## Layout ownership
 

@@ -18,7 +18,7 @@ function handleCtaClick(): void {
  */
 export function InterviewHero() {
   return (
-    <section className="relative isolate min-h-[calc(100dvh-var(--nav-offset))] overflow-hidden bg-navy px-5 sm:px-6 lg:px-8">
+    <section className="hero-field relative isolate min-h-[calc(100dvh-var(--nav-offset))] overflow-hidden bg-navy px-5 sm:px-6 lg:px-8">
       <div
         className="pointer-events-none absolute z-0 flex aspect-square w-[min(56vmin,18rem)] items-center justify-center bottom-[max(1.5rem,4vh)] left-1/2 -translate-x-1/2 md:bottom-auto md:left-auto md:right-[max(-1.5rem,-2vw)] md:top-1/2 md:w-[min(68vmin,38rem)] md:-translate-y-1/2 md:translate-x-0"
         data-walk-compass=""
@@ -44,7 +44,7 @@ export function InterviewHero() {
         </p>
         <Link
           href={`${PRIMARY_CLOSE_HREF}?src=hero`}
-          className="btn btn-primary btn-sm mt-8"
+          className="btn btn-primary mt-8"
           onClick={handleCtaClick}
         >
           {PRIMARY_CLOSE_LABEL}
