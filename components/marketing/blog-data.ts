@@ -152,7 +152,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         heading: "A composite read across three dimensions",
         paragraphs: [
-          "What the HōMI-Score actually is: a composite readiness read across three equally-weighted pillars — Financial Reality, Emotional Truth, and Perfect Timing — each broken into specific, explainable sub-factors, with four hard-stops acting as protective floors underneath all of it. It's a rules-based system, not a black box: every point traces back to a stated threshold, and four specific conditions (DTI over 50%, housing costs over 45% of income, runway under one month, credit under 620) override the numeric score entirely when they're present, because those failure modes are severe enough that nothing else offsets them.",
+          "What the HōMI-Score actually is: a composite readiness read across three pillars — Financial Reality, Emotional Truth, and Perfect Timing — weighed differently, each broken into specific, explainable sub-factors, with a small set of hard-stops acting as protective floors underneath all of it. It's a rules-based system, not a black box: every point traces back to a stated reason, and when certain red-line conditions are present they override the numeric score entirely, because those failure modes are severe enough that nothing else offsets them. The exact weights and red lines stay private, so the signal can't be gamed.",
           "The result is a verdict — READY, ALMOST THERE, BUILD FIRST, or NOT YET — plus a full breakdown of exactly why. Not a mysterious number. An accounting.",
         ],
       },
