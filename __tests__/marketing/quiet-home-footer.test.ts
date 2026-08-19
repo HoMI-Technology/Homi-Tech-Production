@@ -26,7 +26,8 @@ describe("quiet home footer — sitewide SiteFooter cut", () => {
 
   it("SiteFooter always mounts QuietHomeFooter and never SitemapFooter", () => {
     expect(shell).toContain("<QuietHomeFooter");
-    expect(shell).not.toContain("SitemapFooter");
+    expect(shell).not.toContain("<SitemapFooter");
+    expect(shell).not.toMatch(/from ["']@\/components\/layout\/SitemapFooter["']/);
     expect(shell).not.toContain("SiteFooterSwitch");
     expect(shell).not.toContain("usePathname");
     expect(shell).not.toContain('pathname === "/"');
