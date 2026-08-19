@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
 import { InterviewHero } from "@/components/home/InterviewHero";
-import {
-  WALK_CLARITY,
-  WALK_COMPANION,
-  WALK_INVERSION,
-  WALK_OBJECT,
-  WALK_PRIMARY,
-} from "@/components/home/walk-copy";
+import { WALK_CLARITY, WALK_COMPANION, WALK_OBJECT, WALK_PRIMARY } from "@/components/home/walk-copy";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
 import { SITE_URL } from "@/lib/seo/site";
@@ -20,9 +14,9 @@ export const metadata: Metadata = {
 };
 
 /**
- * Front door — question, one Assess, quiet Brand compass.
- * Later locked lines are paper-readable. No sticky walk, no
- * scroll-lit theater, no traveling pill.
+ * Front door — question, inversion, one Assess, hero-scale Brand
+ * compass. Later locked lines are paper-readable. No sticky walk,
+ * no scroll-lit theater, no traveling pill.
  */
 export default function MarketingHomePage() {
   return (
@@ -35,7 +29,6 @@ export default function MarketingHomePage() {
       <section className="bg-navy px-5 py-24 sm:px-6 lg:px-8">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-16">
           <p className="type-display max-w-4xl text-ink">{WALK_COMPANION}</p>
-          <p className="type-display max-w-4xl text-ink">{WALK_INVERSION}</p>
           <p className="type-display max-w-4xl text-ink">{WALK_PRIMARY}</p>
           <p className="type-display max-w-4xl text-ink">{WALK_CLARITY}</p>
           <p className="type-display max-w-4xl text-ink">

@@ -49,13 +49,15 @@ describe("homepage front door — locked copy is character-exact", () => {
 
   it("mounts every locked line and does not paste First Moment beats", () => {
     expect(HERO).toContain("WALK_QUESTION");
+    expect(HERO).toContain("WALK_INVERSION");
+    expect(HERO).not.toContain("WALK_OBJECT");
     expect(HOME).toContain("WALK_COMPANION");
-    expect(HOME).toContain("WALK_INVERSION");
     expect(HOME).toContain("WALK_PRIMARY");
     expect(HOME).toContain("WALK_CLARITY");
     expect(HOME).toContain("WALK_OBJECT");
     expect(HOME).toContain("Not yet is not");
     expect(HOME).toContain('className="text-emerald"');
+    expect(HOME).not.toContain("WALK_INVERSION");
     for (const beat of FIRST_MOMENT_BEATS) {
       expect(HOME).not.toContain(beat.line);
       expect(HERO).not.toContain(beat.line);
@@ -76,6 +78,15 @@ describe("homepage front door — first viewport", () => {
     expect(HERO).not.toContain("WalkWords");
     expect(HERO).not.toContain("HoldStage");
     expect((HERO.match(/<h1[\s>]/g) ?? []).length).toBe(1);
+  });
+
+  it("puts the inversion on the first viewport, readable without scroll", () => {
+    expect(HERO).toContain("{WALK_INVERSION}");
+    expect(HERO).toContain("type-h2");
+    const mark = HERO.indexOf("{WALK_INVERSION}");
+    const inversion = HERO.slice(Math.max(0, mark - 220), mark);
+    expect(inversion).toContain("opacity: 1");
+    expect(inversion).toContain('textWrap: "balance"');
   });
 
   it("is a finished front door — no sticky 100vh walk theater", () => {
@@ -104,23 +115,27 @@ describe("homepage front door — first viewport", () => {
     expect(HERO).not.toContain("object-hero");
   });
 
-  it("keeps the Brand compass in the lower-right field, off the type", () => {
-    expect(HERO).toContain("CinematicCompass");
-    expect(HERO).toContain("COMPASS_FIELD");
+  it("mounts the Brand compass at hero scale, not a corner sticker", () => {
+    expect(HERO).toContain("Compass3D");
+    expect(HERO).toContain("data-hero-compass");
     expect(HERO).toContain("keyholePulse={false}");
-    expect(HERO).toContain('right: "max(1.25rem, 5vw)"');
-    expect(HERO).toContain('bottom: "max(6.75rem, 12vh)"');
-    expect(HERO).toContain('width: "min(26vmin, 9.25rem)"');
+    expect(HERO).toContain("md:w-[min(68vmin,38rem)]");
+    expect(HERO).not.toContain("9.25rem");
+    expect(HERO).not.toContain("26vmin");
+    expect(HERO).not.toContain("COMPASS_FIELD");
     expect(HERO).not.toContain("hero-instrument-field");
     expect(HERO).not.toContain('verdict="READY"');
     expect(HERO).not.toContain("Particles");
     expect(HOME).not.toContain("Particles");
     expect(HOME).not.toContain("CinematicCompass");
+    expect(HOME).not.toContain("Compass3D");
     expect(HOME).not.toContain("CompassFilter");
     const compass = src("components", "home", "CinematicCompass.tsx");
     expect(compass).toContain('r="85"');
     expect(compass).toContain('r="60"');
     expect(compass).toContain('r="35"');
+    expect(HERO).not.toContain("{WALK_OBJECT}");
+    expect(HERO).not.toContain("WALK_OBJECT");
   });
 });
 
@@ -138,12 +153,10 @@ describe("homepage front door — later lines are paper, not a pin", () => {
 describe("homepage front door — native scroll only", () => {
   const files = [HERO, HOME].join("\n");
 
-  it("does not hijack scroll or import GSAP / Lenis / SplitType / Three", () => {
+  it("does not hijack scroll or import GSAP / Lenis / SplitType", () => {
     expect(files).not.toMatch(/preventDefault/);
     expect(files).not.toMatch(/scroll-snap|scrollSnap|pin-spacer|pinSpacer/);
-    expect(files).not.toMatch(
-      /from\s+["'](?:gsap|lenis|split-type|@studio-freight\/lenis|three)["']/,
-    );
+    expect(files).not.toMatch(/from\s+["'](?:gsap|lenis|split-type|@studio-freight\/lenis)["']/);
     expect(files).not.toContain('addEventListener("scroll"');
   });
 });
