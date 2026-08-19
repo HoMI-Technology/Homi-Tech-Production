@@ -201,4 +201,70 @@ describe("root layout does not pin a site-wide OG title", () => {
     expect(layout).not.toContain("openGraph: {\n    title:");
     expect(layout).not.toContain("Readiness, not eligibility.");
   });
+
+  it("does not pin home-buying as the company category", () => {
+    const layout = src("app", "layout.tsx");
+    expect(layout).not.toContain("home buying readiness");
+    expect(layout).toContain('"decision readiness"');
+    expect(layout).toContain('"decision companion"');
+  });
+});
+
+const BANNED_CREDIT_COPY = [/replaces the credit score/i, /outdated credit score/i] as const;
+
+/** lib/seo/* plus the marketing/metadata files this PR already touched. */
+const SEO_AND_TOUCHED_METADATA = [
+  "lib/seo/site.ts",
+  "lib/seo/metadata.ts",
+  "lib/seo/schema.ts",
+  "lib/seo/redirects.ts",
+  "app/layout.tsx",
+  "app/(marketing)/page.tsx",
+  "app/(marketing)/how-it-works/page.tsx",
+  "app/(marketing)/first-moment/page.tsx",
+  "app/(marketing)/pricing/page.tsx",
+  "app/(marketing)/about/page.tsx",
+  "app/(marketing)/method/page.tsx",
+  "app/(marketing)/b2b/page.tsx",
+  "app/(marketing)/partner/page.tsx",
+  "app/(marketing)/guides/page.tsx",
+  "app/(marketing)/guides/hard-stops/page.tsx",
+  "app/(marketing)/guides/[slug]/page.tsx",
+  "app/(marketing)/blog/[slug]/page.tsx",
+  "app/(marketing)/learning/[slug]/page.tsx",
+  "app/(marketing)/legal/privacy/page.tsx",
+  "app/(marketing)/legal/terms/page.tsx",
+  "app/(marketing)/legal/disclaimer/page.tsx",
+  "app/(marketing)/legal/acceptable-use/page.tsx",
+  "app/(marketing)/legal/cookies/page.tsx",
+  "app/(marketing)/legal/dmca/page.tsx",
+  "app/(marketing)/legal/subprocessors/page.tsx",
+  "app/(product)/tools/page.tsx",
+  "app/(product)/shadow-score/page.tsx",
+] as const;
+
+describe("credit-score copy stays the live homepage line — never a replacement claim", () => {
+  it("keeps the live homepage repayment-risk sentence", () => {
+    expect(src("app", "(marketing)", "page.tsx")).toContain(
+      "A credit score estimates repayment risk. HōMI helps you evaluate readiness for the decision itself — across Financial Reality, Emotional Truth, and Perfect Timing.",
+    );
+  });
+
+  it("never writes replacement or outdated-credit-score copy in SEO or touched metadata", () => {
+    for (const rel of SEO_AND_TOUCHED_METADATA) {
+      const text = src(...rel.split("/"));
+      for (const banned of BANNED_CREDIT_COPY) {
+        expect(text, `${rel} must not contain ${banned}`).not.toMatch(banned);
+      }
+    }
+  });
+
+  it("does not add LocalBusiness, town, or house-only SKU fields in those files", () => {
+    for (const rel of SEO_AND_TOUCHED_METADATA) {
+      const text = src(...rel.split("/"));
+      expect(text, rel).not.toMatch(/"@type":\s*"LocalBusiness"/);
+      expect(text, rel).not.toMatch(/"@type":\s*"PostalAddress"/);
+      expect(text, rel).not.toMatch(/Palm Springs/i);
+    }
+  });
 });

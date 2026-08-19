@@ -28,7 +28,6 @@ export const metadata: Metadata = {
   applicationName: "HōMI",
   keywords: [
     "decision readiness",
-    "home buying readiness",
     "financial reality",
     "emotional truth",
     "perfect timing",
