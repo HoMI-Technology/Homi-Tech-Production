@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { InterviewHero } from "@/components/home/InterviewHero";
-import { WalkBeat } from "@/components/home/WalkBeat";
-import { WalkPersist } from "@/components/home/walk-persist";
 import {
   WALK_CLARITY,
   WALK_COMPANION,
@@ -22,11 +20,9 @@ export const metadata: Metadata = {
 };
 
 /**
- * Marketing walk — craft bar, HōMI identity.
- *
- * Sticky 100vh scenes, native scroll, rAF-lit later lines, one idea
- * per hold. Locked copy only. One traveling Assess. Navy / Fraunces /
- * Inter. No TeraFab stack, no second walk CTA, no 4-band theater.
+ * Front door — question, one Assess, quiet Brand compass.
+ * Later locked lines are paper-readable. No sticky walk, no
+ * scroll-lit theater, no traveling pill.
  */
 export default function MarketingHomePage() {
   return (
@@ -34,28 +30,28 @@ export default function MarketingHomePage() {
       <JsonLd data={organizationJsonLd(SITE_URL, "/icon-512-v2.png")} />
       <JsonLd data={websiteJsonLd(SITE_URL)} />
 
-      <WalkPersist>
-        <InterviewHero />
+      <InterviewHero />
 
-        <WalkBeat words={3}>{WALK_COMPANION}</WalkBeat>
-        <WalkBeat words={9}>{WALK_INVERSION}</WalkBeat>
-        <WalkBeat id="walk-when" words={8}>
-          {WALK_PRIMARY}
-        </WalkBeat>
-        <WalkBeat words={3}>{WALK_CLARITY}</WalkBeat>
-        <WalkBeat words={5}>
-          Not yet is not <span className="text-emerald">no</span>.
-        </WalkBeat>
-        <WalkBeat words={15}>{WALK_OBJECT}</WalkBeat>
+      <section className="bg-navy px-5 py-24 sm:px-6 lg:px-8">
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-16">
+          <p className="type-display max-w-4xl text-ink">{WALK_COMPANION}</p>
+          <p className="type-display max-w-4xl text-ink">{WALK_INVERSION}</p>
+          <p className="type-display max-w-4xl text-ink">{WALK_PRIMARY}</p>
+          <p className="type-display max-w-4xl text-ink">{WALK_CLARITY}</p>
+          <p className="type-display max-w-4xl text-ink">
+            Not yet is not <span className="text-emerald">no</span>.
+          </p>
+          <p className="type-display max-w-4xl text-ink">{WALK_OBJECT}</p>
+        </div>
+      </section>
 
-        <section id="waitlist" className="hero-chapter relative z-[1] px-5 py-24 sm:px-6 lg:px-8">
-          <div className="walk-waitlist-form mx-auto w-full max-w-7xl">
-            <div className="w-full max-w-sm">
-              <WaitlistForm source="landing" idPrefix="landing-waitlist" surface="whisper" />
-            </div>
+      <section id="waitlist" className="bg-navy px-5 pb-24 sm:px-6 lg:px-8">
+        <div className="walk-waitlist-form mx-auto w-full max-w-7xl">
+          <div className="w-full max-w-sm">
+            <WaitlistForm source="landing" idPrefix="landing-waitlist" surface="whisper" />
           </div>
-        </section>
-      </WalkPersist>
+        </div>
+      </section>
     </>
   );
 }

@@ -1,5 +1,5 @@
 /**
- * Homepage walk — locked lines. Character-exact. Do not invent sentences.
+ * Homepage locked lines. Character-exact. Do not invent sentences.
  */
 export const WALK_QUESTION = "Will you be okay?";
 export const WALK_COMPANION = "A Decision Companion.";
