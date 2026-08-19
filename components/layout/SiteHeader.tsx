@@ -19,25 +19,32 @@ const NAV = [
 /** Marketing header for anonymous visitors. Chrome lives in HeaderShell. */
 export function SiteHeader() {
   const pathname = usePathname();
+  // Guest `/` is wordmark + Sign in + Assess. The five product labels stay
+  // on every other marketing route.
+  const slimHome = pathname === "/";
 
   return (
     <HeaderShell
       logoHref="/"
       logoAriaLabel="HōMI home"
       menuId="site-mobile-menu"
-      nav={NAV.map((item) => {
-        const active = isActivePath(pathname, item.href);
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`site-nav-link${active ? " is-active" : ""}`}
-            aria-current={active ? "page" : undefined}
-          >
-            {item.label}
-          </Link>
-        );
-      })}
+      nav={
+        slimHome
+          ? null
+          : NAV.map((item) => {
+              const active = isActivePath(pathname, item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`site-nav-link${active ? " is-active" : ""}`}
+                  aria-current={active ? "page" : undefined}
+                >
+                  {item.label}
+                </Link>
+              );
+            })
+      }
       right={
         <>
           <Link href="/auth/sign-in" className="site-nav-link">
@@ -50,19 +57,23 @@ export function SiteHeader() {
       }
       menuContent={
         <>
-          <div className="flex items-center justify-between px-1 pb-1">
-            <span className="text-xs uppercase tracking-wide text-dim">Menu</span>
-          </div>
-          {NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="rounded-lg px-3 py-2 text-sm text-light hover:bg-slate-surface"
-            >
-              {item.label}
-            </Link>
-          ))}
-          <div className="hairline my-2" />
+          {!slimHome && (
+            <>
+              <div className="flex items-center justify-between px-1 pb-1">
+                <span className="text-xs uppercase tracking-wide text-dim">Menu</span>
+              </div>
+              {NAV.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="rounded-lg px-3 py-2 text-sm text-light hover:bg-slate-surface"
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <div className="hairline my-2" />
+            </>
+          )}
           <Link href="/auth/sign-in" className="rounded-lg px-3 py-2 text-sm text-dim">
             Sign in
           </Link>

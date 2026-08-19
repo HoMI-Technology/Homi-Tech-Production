@@ -29,6 +29,13 @@ describe("SiteHeader primary close", () => {
     expect(header).toMatch(/href:\s*PRIMARY_CLOSE_HREF,\s*label:\s*"Assessment"/);
     expect(header).not.toMatch(/href:\s*["']\/assessment["']/);
   });
+
+  it("keeps Sign in on guest / and gates the five product labels off / only", () => {
+    expect(header).toContain('pathname === "/"');
+    expect(header).toContain("slimHome");
+    expect(header).toContain("/auth/sign-in");
+    expect(header).toContain("Sign in");
+  });
 });
 
 describe("InterviewHero primary close", () => {

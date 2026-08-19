@@ -14,18 +14,11 @@ test("landing page loads and routes into Assess / First Moment", async ({ page }
   await expect(cta).toHaveAttribute("href", "/first-moment");
 });
 
-test("landing page exposes the waitlist capture", async ({ page }) => {
-  // Capture lives at #waitlist, the quiet last close under Assess.
-  // Hash-navigate so the section is the contract, then scroll and assert
-  // the real form — email + submit. Do not weaken this into a "section
-  // exists" no-op.
-  await page.goto("/#waitlist");
-  const section = page.locator("#waitlist");
-  await expect(section).toBeAttached({ timeout: 45_000 });
-  await section.scrollIntoViewIfNeeded();
-  const email = section.locator("#landing-waitlist-email");
-  await expect(email).toBeVisible();
-  await expect(section.getByRole("button", { name: /^get notified$/i })).toBeVisible();
+test("landing page does not expose the waitlist capture", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("#waitlist")).toHaveCount(0);
+  await expect(page.locator("#landing-waitlist-email")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /^get notified$/i })).toHaveCount(0);
 });
 
 test("Shadow Score flow renders its first step", async ({ page }) => {
