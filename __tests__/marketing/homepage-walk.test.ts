@@ -22,6 +22,7 @@ function src(...segments: string[]): string {
 
 const HOME = src("app", "(marketing)", "page.tsx");
 const HERO = src("components", "home", "InterviewHero.tsx");
+const FRONT = src("components", "home", "FrontDoor.tsx");
 
 describe("homepage front door — locked copy is character-exact", () => {
   it("pins the seven locked lines and invents no others", () => {
@@ -51,16 +52,19 @@ describe("homepage front door — locked copy is character-exact", () => {
     expect(HERO).toContain("WALK_QUESTION");
     expect(HERO).toContain("WALK_INVERSION");
     expect(HERO).not.toContain("WALK_OBJECT");
-    expect(HOME).toContain("WALK_COMPANION");
-    expect(HOME).toContain("WALK_PRIMARY");
-    expect(HOME).toContain("WALK_CLARITY");
-    expect(HOME).toContain("WALK_OBJECT");
-    expect(HOME).toContain("Not yet is not");
-    expect(HOME).toContain('className="text-emerald"');
+    // Locked lines render from the FrontDoor sections the homepage mounts.
+    expect(HOME).toContain("FrontDoor");
+    expect(FRONT).toContain("WALK_COMPANION");
+    expect(FRONT).toContain("WALK_PRIMARY");
+    expect(FRONT).toContain("WALK_CLARITY");
+    expect(FRONT).toContain("WALK_OBJECT");
+    expect(FRONT).toContain("Not yet is not");
+    expect(FRONT).toContain('className="text-emerald"');
     expect(HOME).not.toContain("WALK_INVERSION");
     for (const beat of FIRST_MOMENT_BEATS) {
       expect(HOME).not.toContain(beat.line);
       expect(HERO).not.toContain(beat.line);
+      expect(FRONT).not.toContain(beat.line);
     }
   });
 });
@@ -141,7 +145,7 @@ describe("homepage front door — first viewport", () => {
 
 describe("homepage front door — later lines are paper, not a pin", () => {
   it("renders locked later lines as document type, not WalkWords", () => {
-    expect(HOME).toContain("type-display");
+    expect(FRONT).toContain("type-display");
     expect(HOME).not.toContain("WalkWords");
     expect(HOME).not.toContain("h-[100dvh]");
     expect(HOME).not.toContain("walk-hold");
@@ -151,7 +155,7 @@ describe("homepage front door — later lines are paper, not a pin", () => {
 });
 
 describe("homepage front door — native scroll only", () => {
-  const files = [HERO, HOME].join("\n");
+  const files = [HERO, HOME, FRONT].join("\n");
 
   it("does not hijack scroll or import GSAP / Lenis / SplitType", () => {
     expect(files).not.toMatch(/preventDefault/);
