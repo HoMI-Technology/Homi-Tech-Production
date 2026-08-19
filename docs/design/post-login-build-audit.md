@@ -39,10 +39,14 @@ This file stays the audit. It does not replace the product PR, and phases 04–0
 | --- | --- | --- | --- |
 | `onboarding_completed` still written and never read | 01 | F5 | Open |
 | Unreachable `loadLocalResult` replay still in `onboarding/page.tsx` | 01 | F5 | Open |
-| Snapshot aside still ungated below `lg` | 01 | **F10** | Untouched |
+| Snapshot aside still ungated below `lg` | 01 | **F10** | **Resolved incidentally** — the `#257` Home rewrite removed the aside entirely, so there is nothing left to gate |
 | State-based post-login routing — `safeNext` still hard-defaults to `/dashboard` | 03 | F1 | Open |
 
 The headline items of each phase did ship. These are the residue, and each is small.
+
+**Re-verified against `main` at `f022929`** (after #252, #256, and #257 landed): items 1, 2 and 4 above are still open; item 3 is closed. F10 was resolved by deletion rather than by the gate this audit proposed — a better outcome than the fix, and worth recording as such rather than left claimed as open.
+
+> **A note on file and line references.** Every path and line number in this document is as of the audit date, **2026-08-17**. `app/(product)/dashboard/page.tsx` has since been rewritten twice — by #252 and then by #257, which moved the fold into `components/dashboard/HomeFold.tsx` and cut the page from ~709 lines to 132. The findings and the reasoning stand; the coordinates do not. Re-locate before acting on any line reference here.
 
 ---
 
