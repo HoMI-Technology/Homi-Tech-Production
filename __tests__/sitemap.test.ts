@@ -1,4 +1,6 @@
 import { describe, it, expect } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import sitemap from "@/app/sitemap";
 import { LENSES } from "@/lib/tools/registry";
 import { canonicalUrl, SITE_URL } from "@/lib/seo/site";
@@ -69,10 +71,12 @@ describe("sitemap hygiene", () => {
     expect(new Set(urls).size).toBe(urls.length);
   });
 
-  it("puts lastmod on every kept URL", () => {
+  it("omits lastmod rather than stamping a new Date() on every build", () => {
+    const source = readFileSync(join(process.cwd(), "app", "sitemap.ts"), "utf8");
+    expect(source).not.toMatch(/lastModified:\s*new Date\(\)/);
     expect(entries.length).toBeGreaterThan(0);
     for (const entry of entries) {
-      expect(entry.lastModified, entry.url).toBeTruthy();
+      expect(entry.lastModified, entry.url).toBeUndefined();
     }
   });
 

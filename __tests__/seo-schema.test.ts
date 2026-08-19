@@ -88,8 +88,14 @@ describe("softwareApplicationJsonLd", () => {
     expect(data["@type"]).toBe("SoftwareApplication");
     expect(data.name).toBe(BRAND.name);
     expect(data.name).toBe("HōMI");
+    expect(data.name).not.toMatch(/Decision Readiness Intelligence/);
+    expect(data.name).not.toMatch(/DRI/);
+    expect(data.name).not.toMatch(/replaces/i);
+    expect(data.name).not.toMatch(/outdated credit score/i);
     expect(data.url).toBe(SITE);
-    expect(data.description).toContain(TAGLINES.companion);
+    expect(data.description).toBe(TAGLINES.companion);
+    expect(data.description).not.toContain(BRAND.category);
+    expect(data.description).not.toMatch(/Decision Readiness Intelligence/);
     expect(data).not.toHaveProperty("address");
     expect(data).not.toHaveProperty("telephone");
     expect(data).not.toHaveProperty("geo");

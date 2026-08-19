@@ -130,6 +130,6 @@ export function softwareApplicationJsonLd(siteUrl: string): SoftwareApplicationJ
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     url: siteUrl,
-    description: `${TAGLINES.companion}. ${BRAND.category}.`,
+    description: TAGLINES.companion,
   };
 }

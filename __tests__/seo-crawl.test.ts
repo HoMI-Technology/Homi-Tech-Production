@@ -118,17 +118,22 @@ describe("pageMetadata OG matches HTML title/meta", () => {
   });
 
   it("absolute locked titles are used for both <title> and og:title", () => {
-    const meta = pageMetadata({
-      title: "HōMI Score · How it works · HōMI",
-      description:
-        "How HōMI measures readiness across Financial Reality, Emotional Truth, and Perfect Timing. A Decision Companion. Not a verdict factory.",
-      path: "/how-it-works",
-      absolute: true,
-    });
-    expect(meta.title).toEqual({ absolute: "HōMI Score · How it works · HōMI" });
-    expect(meta.openGraph?.title).toBe("HōMI Score · How it works · HōMI");
-    expect(meta.openGraph?.url).toBe("https://homitechnology.com/how-it-works");
-    expect(meta.openGraph?.description).toBe(meta.description);
+    const locked: [string, string][] = [
+      ["/", "Decision Readiness · A Decision Companion · HōMI"],
+      ["/how-it-works", "HōMI Score · How it works · HōMI"],
+      ["/pricing", "HōMI Pricing · HōMI"],
+      ["/first-moment", "First Moment · HōMI"],
+    ];
+    for (const [path, title] of locked) {
+      const meta = pageMetadata({
+        title,
+        description: "x",
+        path,
+        absolute: true,
+      });
+      expect(meta.title).toEqual({ absolute: title });
+      expect(meta.openGraph?.title).toBe(title);
+    }
   });
 });
 
@@ -176,6 +181,8 @@ describe("locked title/meta lines", () => {
     expect(page).toContain('title: "First Moment · HōMI"');
     expect(page).toContain("absolute: true");
     expect(page).not.toMatch(/title: "Will you be okay\?/);
+    expect(page).not.toContain('title: "Will you be okay? · Assess · HōMI"');
+    expect(page).not.toContain('title: "Assess · HōMI"');
     expect(page).not.toMatch(/title: "[^"]*Assess[^"]*"/);
     expect(page).toContain(
       "Five quiet beats, then an account, then the full assessment, so the verdict stays yours. Everyone else tells you how. HōMI tells you if.",
@@ -233,6 +240,17 @@ describe("root layout does not pin a site-wide OG title", () => {
     expect(layout).not.toContain("home buying readiness");
     expect(layout).toContain('"decision readiness"');
     expect(layout).toContain('"decision companion"');
+  });
+
+  it("default title is HōMI and does not lead with DRI or the tagline", () => {
+    const layout = src("app", "layout.tsx");
+    expect(layout).toContain('default: "HōMI"');
+    expect(layout).toContain('description: "A Decision Companion."');
+    expect(layout).not.toContain('default: "HōMI · Decision Readiness Intelligence™"');
+    expect(layout).not.toMatch(/default: "[^"]*Know When You're Ready/);
+    expect(layout).not.toMatch(/description:\s*"[^"]*Know When You're Ready/);
+    expect(layout).not.toMatch(/description:\s*"[^"]*Decision Readiness Intelligence/);
+    expect(layout).not.toMatch(/\bDIOS\b|decision-intelligence|Decision Intelligence OS/i);
   });
 });
 

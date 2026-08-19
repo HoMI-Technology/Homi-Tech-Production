@@ -17,6 +17,7 @@ const TOOL_SLUGS = LENSES.filter(
   .filter((slug) => slug !== "preflight")
   .sort();
 
+/** lastmod omitted — a generated timestamp per build is not a real last-change. */
 function entry(
   path: string,
   changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"],
@@ -24,7 +25,6 @@ function entry(
 ): MetadataRoute.Sitemap[number] {
   return {
     url: canonicalUrl(path),
-    lastModified: new Date(),
     changeFrequency,
     priority,
   };

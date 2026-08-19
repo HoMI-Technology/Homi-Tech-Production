@@ -20,11 +20,10 @@ import { ToastProvider } from "@/components/ui/ToastProvider";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "HōMI · Decision Readiness Intelligence™",
+    default: "HōMI",
     template: "%s · HōMI",
   },
-  description:
-    "HōMI is Decision Readiness Intelligence™ — a decision companion that helps you evaluate your readiness for life's biggest decisions. Not 'can you afford it?' — 'are you ready for it?'",
+  description: "A Decision Companion.",
   applicationName: "HōMI",
   keywords: [
     "decision readiness",
