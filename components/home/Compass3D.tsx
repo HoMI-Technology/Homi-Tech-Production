@@ -66,7 +66,7 @@ export function Compass3D({
   return (
     <div
       className={`gyro-scene relative ${className}`}
-      style={size > 0 ? { width: size, height: size } : undefined}
+      style={size > 0 ? { width: size, height: size } : { width: "100%", height: "100%" }}
     >
       {/* Volumetric halos — light with air around it */}
       <div
@@ -92,6 +92,16 @@ export function Compass3D({
         style={{
           inset: "30%",
           background: `radial-gradient(circle, ${withAlpha(COLORS.yellow, 0.14)}, transparent 65%)`,
+        }}
+      />
+
+      {/* Instrument body — navy glass under the rings, cyan material only */}
+      <div
+        aria-hidden
+        className="absolute inset-[8%] rounded-full"
+        style={{
+          background: `radial-gradient(circle at 36% 30%, ${withAlpha(COLORS.cyan, 0.2)}, ${withAlpha(COLORS.navy, 0.42)} 38%, ${withAlpha(COLORS.navy, 0.88)} 72%)`,
+          boxShadow: `0 28px 80px ${withAlpha(COLORS.cyan, 0.16)}, inset 0 1px 0 ${withAlpha(COLORS.cyan, 0.22)}`,
         }}
       />
 

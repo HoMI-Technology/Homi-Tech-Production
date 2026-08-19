@@ -49,6 +49,7 @@ describe("InterviewHero primary close", () => {
 
   it("pins the locked first-viewport question; Assess sits under it", () => {
     expect(hero).toContain("WALK_QUESTION");
+    expect(hero).toContain("WALK_INVERSION");
     expect(hero).toContain("PRIMARY_CLOSE");
     expect(hero).toContain('track("hero_cta_click", { src: "hero" })');
     expect(hero).toContain("?src=hero");
