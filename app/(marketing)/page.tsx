@@ -4,7 +4,6 @@ import { InterviewHero } from "@/components/home/InterviewHero";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
 import { SITE_URL } from "@/lib/seo/site";
-import { WaitlistForm } from "@/components/marketing/WaitlistForm";
 import { PaperScene } from "@/components/home/PaperScene";
 import {
   Clarity,
@@ -58,17 +57,6 @@ export default function MarketingHomePage() {
       </div>
 
       <CloseCta />
-
-      <section id="waitlist" className="bg-navy px-5 pb-24 pt-[8vh] sm:px-6 lg:px-8">
-        <div className="mx-auto w-full max-w-7xl">
-          <div className="hairline mb-[7vh]" aria-hidden />
-          <div className="walk-waitlist-form">
-            <div className="glass w-full max-w-sm p-6 sm:p-8">
-              <WaitlistForm source="landing" idPrefix="landing-waitlist" surface="whisper" />
-            </div>
-          </div>
-        </div>
-      </section>
     </>
   );
 }

@@ -247,8 +247,8 @@ describe("homepage front door — desktop hamburger stays hidden", () => {
   });
 });
 
-describe("homepage front door — five nav items stay", () => {
-  it("keeps five marketing nav items", () => {
+describe("homepage front door — guest / nav is slim", () => {
+  it("keeps five marketing nav items for other routes and gates them off /", () => {
     const header = src("components", "layout", "SiteHeader.tsx");
     const navBlock = header.slice(header.indexOf("const NAV"), header.indexOf("] as const"));
     expect((navBlock.match(/label:/g) ?? []).length).toBe(5);
@@ -257,18 +257,23 @@ describe("homepage front door — five nav items stay", () => {
     expect(header).toContain("Guides");
     expect(header).toContain("Pricing");
     expect(header).toContain("For Teams");
+    expect(header).toContain('pathname === "/"');
+    expect(header).toContain("slimHome");
+    expect(header).toContain("Sign in");
+    expect(header).toContain("PRIMARY_CLOSE_HREF");
+    expect(header).toContain("PRIMARY_CLOSE_LABEL");
   });
 });
 
-describe("homepage front door — waitlist Get notified stays", () => {
-  it("keeps the whisper waitlist submit label", () => {
+describe("homepage front door — waitlist Get notified is off /", () => {
+  it("keeps Get notified on WaitlistForm and removes the homepage capture", () => {
     const form = src("components", "marketing", "WaitlistForm.tsx");
     expect(form).toContain("Get notified");
-    expect(HOME).toContain("WaitlistForm");
-    expect(HOME).toContain('source="landing"');
-    expect(HOME).toContain('idPrefix="landing-waitlist"');
-    expect(HOME).toContain('surface="whisper"');
-    expect(HOME).toContain('id="waitlist"');
+    expect(HOME).not.toContain("WaitlistForm");
+    expect(HOME).not.toContain('source="landing"');
+    expect(HOME).not.toContain('idPrefix="landing-waitlist"');
+    expect(HOME).not.toContain('surface="whisper"');
+    expect(HOME).not.toContain('id="waitlist"');
     expect(HOME).not.toContain("Get notified");
   });
 });
