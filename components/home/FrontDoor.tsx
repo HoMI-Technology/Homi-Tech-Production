@@ -1,5 +1,8 @@
 import Link from "next/link";
-import { PRIMARY_CLOSE_HREF, PRIMARY_CLOSE_LABEL } from "@/components/marketing/first-moment-copy";
+import {
+  PRIMARY_CLOSE_HREF,
+  PRIMARY_CLOSE_LABEL_HOME,
+} from "@/components/marketing/first-moment-copy";
 import { Reveal } from "@/components/ui/Reveal";
 import { PILLARS, VERDICT_META, withAlpha, type VerdictKey } from "@/lib/brand";
 import {
@@ -285,7 +288,7 @@ export function CloseCta() {
             href={`${PRIMARY_CLOSE_HREF}?src=close`}
             className="btn btn-primary mt-8 inline-flex"
           >
-            {PRIMARY_CLOSE_LABEL}
+            {PRIMARY_CLOSE_LABEL_HOME}
           </Link>
           <p className="mt-4 text-sm text-dim">Free &middot; about 5 minutes</p>
         </div>
