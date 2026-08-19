@@ -71,7 +71,7 @@ describe("homepage walk — first viewport is the painted question", () => {
     expect(HERO).toContain("{WALK_QUESTION}");
     expect(HERO).not.toContain("opacity-0");
     expect(HERO).not.toContain("opacity: 0");
-    expect(HERO).not.toContain("typewriter");
+    expect(HERO).not.toMatch(/typewriter|split-type|SplitType/i);
     expect(HERO).not.toContain("WalkWords");
     expect(HERO).not.toMatch(/<(p|a|button|svg)[\s>]/);
     expect((HERO.match(/<h1[\s>]/g) ?? []).length).toBe(1);
@@ -144,7 +144,7 @@ describe("homepage walk — later lines are scroll-lit, not typed", () => {
     expect(CSS).toContain(".walk-word[data-on]");
     expect(HOLD).not.toContain("opacity-0");
     expect(BEAT).not.toContain("opacity-0");
-    expect(`${HOLD}\n${BEAT}`).not.toContain("typewriter");
+    expect(`${HOLD}\n${BEAT}`).not.toMatch(/split-type|SplitType|letter-spacing:\s*0\s+\w/i);
   });
 
   it("paints every word immediately under prefers-reduced-motion", () => {

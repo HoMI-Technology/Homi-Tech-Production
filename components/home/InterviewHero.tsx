@@ -6,8 +6,8 @@ const CLUSTER =
 
 /**
  * First viewport — the locked question, fully painted on first paint.
- * No typewriter. No opacity on the H1. Assess travels in WalkPersist
- * and sits below this line band, never on the type.
+ * No letter-by-letter reveal. No opacity on the H1. Assess travels in
+ * WalkPersist and sits below this line band, never on the type.
  */
 export function InterviewHero() {
   return (

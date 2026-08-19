@@ -6,7 +6,7 @@ const CLUSTER =
 
 /**
  * One locked idea, one sticky viewport. Words start at a readable
- * low-alpha fill and light with native scroll. Not a typewriter.
+ * low-alpha fill and light with native scroll. Not a letter-by-letter reveal.
  */
 export function WalkBeat({
   words,
