@@ -1,17 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { PRIMARY_CLOSE_HREF, PRIMARY_CLOSE_LABEL } from "@/components/marketing/first-moment-copy";
+import { CinematicCompass } from "./CinematicCompass";
 import { track } from "@/lib/analytics";
 
 /**
- * One traveling Assess for the walk. The same instance paints in the
- * hero (below the locked question, never on the type), travels with
- * the scenes, then parks (inert + aria-hidden) before waitlist
- * “Get notified”, footer, or cookie Reject/Accept. Header chrome
- * Assess is nav — not a second walk CTA.
+ * Persistent walk objects — one Brand compass, one Assess pill.
+ * The compass is the existing Threshold instrument.
+ * It travels in the lower-right field so it never sits on the H1 or
+ * the Assess pill. Assess paints below the locked question, travels,
+ * then parks before waitlist, footer, or cookie controls.
+ * Header chrome Assess is nav — not a second walk CTA.
  */
+
+/** Quiet field seat — overrides the cinema-scale desktop inset. */
+const COMPASS_FIELD: CSSProperties = {
+  position: "absolute",
+  top: "auto",
+  left: "auto",
+  right: "max(1.25rem, 5vw)",
+  bottom: "max(6.75rem, 12vh)",
+  width: "min(26vmin, 9.25rem)",
+  height: "auto",
+  display: "flex",
+  alignItems: "flex-end",
+  justifyContent: "flex-end",
+};
 
 function handleCtaClick() {
   track("hero_cta_click", { src: "hero" });
@@ -74,6 +90,19 @@ export function WalkPersist({ children }: { children: ReactNode }) {
     <div ref={rootRef} className="walk-persist relative">
       <div className="walk-persist-layer sticky top-0 z-[5] h-0 overflow-visible">
         <div className="walk-persist-frame pointer-events-none relative h-[100dvh]">
+          <div
+            className={assessAway ? "walk-travel-compass is-parked" : "walk-travel-compass"}
+            data-at={assessAway ? "parked" : "field"}
+            data-walk-compass=""
+            data-walk-object=""
+            aria-hidden
+            style={COMPASS_FIELD}
+          >
+            <div className="walk-travel-compass-body" style={{ width: "100%" }}>
+              <CinematicCompass responsive keyholePulse={false} />
+            </div>
+          </div>
+
           <div
             className="walk-travel-assess hero-story"
             data-walk-assess-slot=""

@@ -127,11 +127,24 @@ describe("homepage walk — one traveling Assess", () => {
     expect(HOME).toContain('surface="whisper"');
   });
 
-  it("does not remount a compass that can cover the type", () => {
-    expect(PERSIST).not.toContain("CinematicCompass");
-    expect(PERSIST).not.toContain("walk-travel-compass");
+  it("travels the Brand compass in the lower-right field, off the type", () => {
+    expect(PERSIST).toContain("CinematicCompass");
+    expect(PERSIST).toContain("walk-travel-compass");
+    expect(PERSIST).toContain("COMPASS_FIELD");
+    expect(PERSIST).toContain('right: "max(1.25rem, 5vw)"');
+    expect(PERSIST).toContain('bottom: "max(6.75rem, 12vh)"');
+    expect(PERSIST).toContain('width: "min(26vmin, 9.25rem)"');
+    expect(PERSIST).not.toContain("hero-instrument-field");
+    expect(PERSIST).not.toContain("lg:left-[38%]");
+    expect(PERSIST).not.toContain("is-object");
+    expect(PERSIST).not.toContain("walk-compass-halo");
+    expect(PERSIST).not.toContain('verdict="READY"');
     expect(HOME).not.toContain("CinematicCompass");
     expect(HOME).not.toContain("CompassFilter");
+    const compass = src("components", "home", "CinematicCompass.tsx");
+    expect(compass).toContain('r="85"');
+    expect(compass).toContain('r="60"');
+    expect(compass).toContain('r="35"');
   });
 });
 
