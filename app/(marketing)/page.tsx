@@ -6,6 +6,7 @@ import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/schema";
 import { SITE_URL } from "@/lib/seo/site";
 import { WaitlistForm } from "@/components/marketing/WaitlistForm";
 import { Reveal } from "@/components/ui/Reveal";
+import { PaperScene } from "@/components/home/PaperScene";
 
 export const metadata: Metadata = {
   title: "Know When You're Ready — Decision Readiness Intelligence™",
@@ -31,31 +32,32 @@ export default function MarketingHomePage() {
         <div className="hairline mx-auto w-full max-w-7xl" />
       </div>
 
-      {/* Paper: one locked line per scroll position. Each line owns a 55svh
-          frame (measured: vh-scale gaps still put 2-3 lines in a 900px
-          viewport; fixed frames make the rhythm deterministic). Native scroll
-          only. Reveal is the LCP-safe house fade — server HTML paints visible,
-          reduced-motion and no-JS read plain text. */}
-      <section className="bg-navy px-5 py-12 sm:px-6 lg:px-8">
-        <div className="mx-auto flex w-full max-w-7xl flex-col">
-          <Reveal className="flex min-h-[55svh] items-center">
-            <p className="type-display max-w-4xl text-light">{WALK_COMPANION}</p>
-          </Reveal>
-          <Reveal className="flex min-h-[55svh] items-center">
-            <p className="type-display max-w-4xl text-light">{WALK_PRIMARY}</p>
-          </Reveal>
-          <Reveal className="flex min-h-[55svh] items-center">
-            <p className="type-display max-w-4xl text-light">{WALK_CLARITY}</p>
-          </Reveal>
-          <Reveal className="flex min-h-[55svh] items-center">
-            <p className="type-display max-w-4xl text-light">
-              Not yet is not <span className="text-emerald">no</span>.
-            </p>
-          </Reveal>
-          <Reveal className="flex min-h-[55svh] items-center">
-            <p className="type-display max-w-4xl text-light">{WALK_OBJECT}</p>
-          </Reveal>
-        </div>
+      {/* Lit scenes: each locked line owns a 55svh frame with its own
+          volumetric light and a 3D perspective arrival (CSS only — the same
+          physics family as the hero gyroscope). Native scroll; no-JS and
+          reduced-motion render fully lit and flat. */}
+      <section className="bg-navy">
+        <PaperScene>
+          <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col px-5 py-12 sm:px-6 lg:px-8">
+            <Reveal className="line-light line-glow-cyan flex min-h-[55svh] items-center">
+              <p className="type-display max-w-4xl text-light">{WALK_COMPANION}</p>
+            </Reveal>
+            <Reveal className="line-light line-glow-cyan flex min-h-[55svh] items-center">
+              <p className="type-display max-w-4xl text-light">{WALK_PRIMARY}</p>
+            </Reveal>
+            <Reveal className="line-light line-glow-cyan flex min-h-[55svh] items-center">
+              <p className="type-display max-w-4xl text-light">{WALK_CLARITY}</p>
+            </Reveal>
+            <Reveal className="line-light line-glow-emerald flex min-h-[55svh] items-center">
+              <p className="type-display max-w-4xl text-light">
+                Not yet is not <span className="text-emerald">no</span>.
+              </p>
+            </Reveal>
+            <Reveal className="line-light line-glow-yellow flex min-h-[55svh] items-center">
+              <p className="type-display max-w-4xl text-light">{WALK_OBJECT}</p>
+            </Reveal>
+          </div>
+        </PaperScene>
       </section>
 
       <section id="waitlist" className="bg-navy px-5 pb-24 pt-[12vh] sm:px-6 lg:px-8">
