@@ -22,12 +22,8 @@ function src(...segments: string[]): string {
 
 const HOME = src("app", "(marketing)", "page.tsx");
 const HERO = src("components", "home", "InterviewHero.tsx");
-const PERSIST = src("components", "home", "walk-persist.tsx");
-const BEAT = src("components", "home", "WalkBeat.tsx");
-const HOLD = src("components", "home", "walk-hold.tsx");
-const CSS = src("app", "globals.css");
 
-describe("homepage walk — locked copy is character-exact", () => {
+describe("homepage front door — locked copy is character-exact", () => {
   it("pins the seven locked lines and invents no others", () => {
     expect(WALK_LINES).toEqual([
       "Will you be okay?",
@@ -41,6 +37,8 @@ describe("homepage walk — locked copy is character-exact", () => {
     expect(WALK_PRIMARY).toBe(TAGLINES.primary);
     expect(WALK_QUESTION).toBe("Will you be okay?");
     expect(WALK_COMPANION).toBe("A Decision Companion.");
+    expect(TAGLINES.companion).toBe("A Decision Companion");
+    expect(WALK_COMPANION).not.toBe(TAGLINES.companion);
     expect(WALK_INVERSION).toBe("Everyone else tells you how. HōMI tells you if.");
     expect(WALK_CLARITY).toBe("Clarity, not commission.");
     expect(WALK_NOT_YET).toBe("Not yet is not no.");
@@ -49,7 +47,7 @@ describe("homepage walk — locked copy is character-exact", () => {
     );
   });
 
-  it("mounts every locked line on the walk and does not paste First Moment beats", () => {
+  it("mounts every locked line and does not paste First Moment beats", () => {
     expect(HERO).toContain("WALK_QUESTION");
     expect(HOME).toContain("WALK_COMPANION");
     expect(HOME).toContain("WALK_INVERSION");
@@ -65,87 +63,58 @@ describe("homepage walk — locked copy is character-exact", () => {
   });
 });
 
-describe("homepage walk — first viewport is the painted question", () => {
-  it("renders the H1 as solid type-giant with no opacity or typewriter", () => {
+describe("homepage front door — first viewport", () => {
+  it("paints the H1 at opacity 1 with text-wrap balance — never opacity 0", () => {
     expect(HERO).toContain("type-giant");
     expect(HERO).toContain("{WALK_QUESTION}");
+    expect(HERO).toContain("text-ink");
+    expect(HERO).toContain('textWrap: "balance"');
+    expect(HERO).toContain("opacity: 1");
     expect(HERO).not.toContain("opacity-0");
     expect(HERO).not.toContain("opacity: 0");
     expect(HERO).not.toMatch(/typewriter|split-type|SplitType/i);
     expect(HERO).not.toContain("WalkWords");
-    expect(HERO).not.toMatch(/<(p|a|button|svg)[\s>]/);
+    expect(HERO).not.toContain("HoldStage");
     expect((HERO.match(/<h1[\s>]/g) ?? []).length).toBe(1);
   });
 
-  it("holds the question as a sticky 100vh scene, cinema=hero", () => {
-    expect(HERO).toContain("HoldStage");
-    expect(HERO).toContain('cinema="hero"');
-    expect(HERO).toContain("hero-story");
-    expect(CSS).toContain('[data-cinema="hero"] .walk-word');
-    expect(CSS).toContain("color: var(--color-light)");
+  it("is a finished front door — no sticky 100vh walk theater", () => {
+    expect(HOME).not.toContain("WalkPersist");
+    expect(HOME).not.toContain("WalkBeat");
+    expect(HOME).not.toContain("HoldStage");
+    expect(HOME).not.toContain("WalkWords");
+    expect(HERO).not.toContain("HoldStage");
+    expect(HERO).not.toContain("walk-hold");
+    expect(HERO).not.toContain("h-[100dvh]");
+    expect(HOME).not.toContain("walk-when");
+    expect(HOME).not.toContain('href="/walk"');
   });
 
-  it("does not put Assess, a pill, or a compass on the question", () => {
-    expect(HERO).not.toContain("PRIMARY_CLOSE");
-    expect(HERO).not.toContain("btn-primary");
-    expect(HERO).not.toContain("CinematicCompass");
-    expect(HERO).not.toContain("walk-travel-assess");
-    expect(HERO).not.toContain("object-hero");
-    expect(HERO).not.toMatch(/lg:grid-cols/);
-  });
-});
-
-describe("homepage walk — one traveling Assess", () => {
-  it("keeps a single walk pill on PRIMARY_CLOSE → First Moment", () => {
-    expect(PERSIST).toContain("PRIMARY_CLOSE_HREF");
-    expect(PERSIST).toContain("PRIMARY_CLOSE_LABEL");
-    expect(PERSIST).toContain("?src=hero");
-    expect(PERSIST).toContain('track("hero_cta_click", { src: "hero" })');
-    expect((PERSIST.match(/btn-primary/g) ?? []).length).toBe(1);
-    expect((PERSIST.match(/data-walk-assess=""/g) ?? []).length).toBe(1);
+  it("sits one Assess under the H1 and does not travel over later type", () => {
+    expect(HERO).toContain("PRIMARY_CLOSE_HREF");
+    expect(HERO).toContain("PRIMARY_CLOSE_LABEL");
+    expect(HERO).toContain("?src=hero");
+    expect(HERO).toContain('track("hero_cta_click", { src: "hero" })');
+    expect((HERO.match(/btn-primary/g) ?? []).length).toBe(1);
     expect(HOME).not.toContain("btn-primary");
     expect(HOME).not.toContain("PRIMARY_CLOSE");
-    expect(BEAT).not.toContain("btn-primary");
-    expect(BEAT).not.toContain("PRIMARY_CLOSE");
+    expect(HERO).not.toContain("walk-travel-assess");
+    expect(HOME).not.toContain("walk-travel-assess");
+    expect(HERO).not.toMatch(/lg:grid-cols/);
+    expect(HERO).not.toContain("object-hero");
   });
 
-  it("sits the pill below the question, then parks before the locked when beat", () => {
-    expect(PERSIST).toContain("walk-travel-assess-stack");
-    expect(PERSIST).toContain("walk-line");
-    expect(PERSIST).toContain('minHeight: "14rem"');
-    expect(BEAT).toContain("max-w-5xl");
-    expect(PERSIST).toContain('querySelector("#walk-when")');
-    expect(PERSIST).toContain("assessAway = onWhen || docked || footerIn");
-    expect(PERSIST).toContain("compassAway = docked || footerIn");
-    expect(PERSIST).toContain('querySelector("#waitlist")');
-    expect(PERSIST).toContain('querySelector("footer")');
-    expect(PERSIST).toContain('querySelector("#cookie-consent")');
-    expect(PERSIST).toContain("inert={assessAway");
-    expect(PERSIST).toContain("aria-hidden={assessAway");
-    expect(PERSIST).toContain("data-cookie");
-    expect(HOME).toContain('id="walk-when"');
-    expect(HOME).toContain("WALK_PRIMARY");
-    expect(HOME).toContain('id="waitlist"');
-    expect(HOME).toContain("WaitlistForm");
-    expect(HOME).toContain('source="landing"');
-    expect(HOME).toContain('idPrefix="landing-waitlist"');
-    expect(HOME).toContain('surface="whisper"');
-    expect(WALK_PRIMARY).toContain("when");
-    expect(WALK_OBJECT).toContain("when");
-  });
-
-  it("travels the Brand compass in the lower-right field, off the type", () => {
-    expect(PERSIST).toContain("CinematicCompass");
-    expect(PERSIST).toContain("walk-travel-compass");
-    expect(PERSIST).toContain("COMPASS_FIELD");
-    expect(PERSIST).toContain('right: "max(1.25rem, 5vw)"');
-    expect(PERSIST).toContain('bottom: "max(6.75rem, 12vh)"');
-    expect(PERSIST).toContain('width: "min(26vmin, 9.25rem)"');
-    expect(PERSIST).not.toContain("hero-instrument-field");
-    expect(PERSIST).not.toContain("lg:left-[38%]");
-    expect(PERSIST).not.toContain("is-object");
-    expect(PERSIST).not.toContain("walk-compass-halo");
-    expect(PERSIST).not.toContain('verdict="READY"');
+  it("keeps the Brand compass in the lower-right field, off the type", () => {
+    expect(HERO).toContain("CinematicCompass");
+    expect(HERO).toContain("COMPASS_FIELD");
+    expect(HERO).toContain("keyholePulse={false}");
+    expect(HERO).toContain('right: "max(1.25rem, 5vw)"');
+    expect(HERO).toContain('bottom: "max(6.75rem, 12vh)"');
+    expect(HERO).toContain('width: "min(26vmin, 9.25rem)"');
+    expect(HERO).not.toContain("hero-instrument-field");
+    expect(HERO).not.toContain('verdict="READY"');
+    expect(HERO).not.toContain("Particles");
+    expect(HOME).not.toContain("Particles");
     expect(HOME).not.toContain("CinematicCompass");
     expect(HOME).not.toContain("CompassFilter");
     const compass = src("components", "home", "CinematicCompass.tsx");
@@ -155,39 +124,19 @@ describe("homepage walk — one traveling Assess", () => {
   });
 });
 
-describe("homepage walk — later lines are scroll-lit, not typed", () => {
-  it("lights later words with color fill from a readable dim, reversible with scroll", () => {
-    expect(BEAT).toContain("WalkWords");
-    expect(BEAT).not.toContain('paint="full"');
-    expect(HOLD).toContain("requestAnimationFrame");
-    expect(HOLD).toContain("setProgress");
-    expect(HOLD).toContain("smoothstep");
-    expect(CSS).toContain("--walk-alpha-dim: 0.4");
-    expect(CSS).toContain(".walk-word[data-on]");
-    expect(HOLD).not.toContain("opacity-0");
-    expect(BEAT).not.toContain("opacity-0");
-    expect(`${HOLD}\n${BEAT}`).not.toMatch(/split-type|SplitType|letter-spacing:\s*0\s+\w/i);
-  });
-
-  it("paints every word immediately under prefers-reduced-motion", () => {
-    expect(HOLD).toContain("prefers-reduced-motion");
-    expect(HOLD).toContain("setProgress(1)");
-    expect(CSS).toContain("@media (prefers-reduced-motion: reduce)");
-    expect(CSS).toContain(".walk-word {\n      color: var(--color-light)");
-  });
-
-  it("holds one idea per 1.0–1.3 viewports with no dead navy fade", () => {
-    expect(HOLD).toContain("walk-hold");
-    expect(CSS).toContain("height: 122dvh");
-    expect(CSS).toContain("margin-bottom: -22vh");
-    expect(CSS).toContain("Do not fade the stage");
-    expect(BEAT).toContain("h-[100dvh]");
-    expect(HERO).toContain("h-[100dvh]");
+describe("homepage front door — later lines are paper, not a pin", () => {
+  it("renders locked later lines as document type, not WalkWords", () => {
+    expect(HOME).toContain("type-display");
+    expect(HOME).not.toContain("WalkWords");
+    expect(HOME).not.toContain("h-[100dvh]");
+    expect(HOME).not.toContain("walk-hold");
+    expect(WALK_PRIMARY).toContain("when");
+    expect(WALK_OBJECT).toContain("when");
   });
 });
 
-describe("homepage walk — native scroll only", () => {
-  const files = [HERO, BEAT, PERSIST, HOLD, HOME].join("\n");
+describe("homepage front door — native scroll only", () => {
+  const files = [HERO, HOME].join("\n");
 
   it("does not hijack scroll or import GSAP / Lenis / SplitType / Three", () => {
     expect(files).not.toMatch(/preventDefault/);
@@ -195,16 +144,11 @@ describe("homepage walk — native scroll only", () => {
     expect(files).not.toMatch(
       /from\s+["'](?:gsap|lenis|split-type|@studio-freight\/lenis|three)["']/,
     );
-  });
-
-  it("reads progress on rAF from native scroll — no Lenis", () => {
-    expect(HOLD).toContain('addEventListener("scroll"');
-    expect(HOLD).toContain("{ passive: true }");
-    expect(HOLD).toContain("requestAnimationFrame");
+    expect(files).not.toContain('addEventListener("scroll"');
   });
 });
 
-describe("homepage walk — parked theater and TeraFab stack stay off", () => {
+describe("homepage front door — parked theater and TeraFab stack stay off", () => {
   it("does not mount killed theater, Packet 2, or /advisor", () => {
     expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/AlignmentScene["']/);
     expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/ThresholdPreview["']/);
@@ -226,8 +170,6 @@ describe("homepage walk — parked theater and TeraFab stack stay off", () => {
     expect(HOME).not.toContain("85/60/35");
     expect(HERO).not.toContain("4:3:2");
     expect(HERO).not.toContain("85/60/35");
-    expect(PERSIST).not.toContain("4:3:2");
-    expect(PERSIST).not.toContain("85/60/35");
   });
 
   it("does not copy the TeraFab stack, chrome, or inventory", () => {
@@ -242,12 +184,13 @@ describe("homepage walk — parked theater and TeraFab stack stay off", () => {
     expect(HERO).not.toContain("tf-kicker");
     expect(HERO).not.toContain("What this is");
     expect(HERO).not.toContain("font-light");
-    expect(`${HOME}\n${HERO}\n${BEAT}`).not.toContain("Trinity");
+    expect(`${HOME}\n${HERO}`).not.toContain("Trinity");
     expect(`${HOME}\n${HERO}`).not.toContain("70 · told to wait");
+    expect(`${HOME}\n${HERO}`).not.toMatch(/Geist|SF Pro|Inter Tight/);
   });
 });
 
-describe("homepage walk — cookie copy stays locked", () => {
+describe("homepage front door — cookie copy stays locked", () => {
   it("does not rewrite the consent sentence or button labels", () => {
     const banner = src("components", "consent", "CookieConsent.tsx");
     expect(banner).toContain(
@@ -279,7 +222,7 @@ describe("homepage walk — cookie copy stays locked", () => {
   });
 });
 
-describe("homepage walk — desktop hamburger stays hidden", () => {
+describe("homepage front door — desktop hamburger stays hidden", () => {
   it("keeps the lg:hidden wrapper on the marketing hamburger", () => {
     const shell = src("components", "layout", "HeaderShell.tsx");
     expect(shell).toContain('className="ml-auto lg:hidden"');
@@ -287,7 +230,7 @@ describe("homepage walk — desktop hamburger stays hidden", () => {
   });
 });
 
-describe("homepage walk — five nav items stay", () => {
+describe("homepage front door — five nav items stay", () => {
   it("keeps five marketing nav items", () => {
     const header = src("components", "layout", "SiteHeader.tsx");
     const navBlock = header.slice(header.indexOf("const NAV"), header.indexOf("] as const"));
@@ -300,16 +243,20 @@ describe("homepage walk — five nav items stay", () => {
   });
 });
 
-describe("homepage walk — waitlist Get notified stays", () => {
+describe("homepage front door — waitlist Get notified stays", () => {
   it("keeps the whisper waitlist submit label", () => {
     const form = src("components", "marketing", "WaitlistForm.tsx");
     expect(form).toContain("Get notified");
     expect(HOME).toContain("WaitlistForm");
+    expect(HOME).toContain('source="landing"');
+    expect(HOME).toContain('idPrefix="landing-waitlist"');
+    expect(HOME).toContain('surface="whisper"');
+    expect(HOME).toContain('id="waitlist"');
     expect(HOME).not.toContain("Get notified");
   });
 });
 
-describe("homepage walk — footer educational line stays", () => {
+describe("homepage front door — footer educational line stays", () => {
   it("keeps the educational line in the footer, character-matched", () => {
     const footer = src("components", "layout", "SiteFooter.tsx");
     expect(footer).toContain("bg-navy");
