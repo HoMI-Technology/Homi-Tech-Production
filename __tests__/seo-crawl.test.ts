@@ -119,20 +119,32 @@ describe("pageMetadata OG matches HTML title/meta", () => {
 
   it("absolute locked titles are used for both <title> and og:title", () => {
     const meta = pageMetadata({
-      title: "How it works · Three pillars, not equal · HōMI",
+      title: "HōMI Score · How it works · HōMI",
       description:
         "How HōMI measures readiness across Financial Reality, Emotional Truth, and Perfect Timing. A Decision Companion. Not a verdict factory.",
       path: "/how-it-works",
       absolute: true,
     });
-    expect(meta.title).toEqual({ absolute: "How it works · Three pillars, not equal · HōMI" });
-    expect(meta.openGraph?.title).toBe("How it works · Three pillars, not equal · HōMI");
+    expect(meta.title).toEqual({ absolute: "HōMI Score · How it works · HōMI" });
+    expect(meta.openGraph?.title).toBe("HōMI Score · How it works · HōMI");
     expect(meta.openGraph?.url).toBe("https://homitechnology.com/how-it-works");
     expect(meta.openGraph?.description).toBe(meta.description);
   });
 });
 
 describe("locked title/meta lines", () => {
+  it("pins the four Tech SEO titles exactly", () => {
+    const titles: [string[], string][] = [
+      [["app", "(marketing)", "page.tsx"], "Decision Readiness · A Decision Companion · HōMI"],
+      [["app", "(marketing)", "how-it-works", "page.tsx"], "HōMI Score · How it works · HōMI"],
+      [["app", "(marketing)", "pricing", "page.tsx"], "HōMI Pricing · HōMI"],
+      [["app", "(marketing)", "first-moment", "page.tsx"], "First Moment · HōMI"],
+    ];
+    for (const [segments, title] of titles) {
+      expect(src(...segments)).toContain(`title: "${title}"`);
+      expect(src(...segments)).toContain("absolute: true");
+    }
+  });
   it("locks the homepage title to Decision Readiness and keeps the live meta", () => {
     const page = src("app", "(marketing)", "page.tsx");
     expect(page).toContain('title: "Decision Readiness · A Decision Companion · HōMI"');
@@ -145,28 +157,37 @@ describe("locked title/meta lines", () => {
     expect(page).not.toMatch(/DIOS|decision-intelligence|Decision Intelligence OS/i);
   });
 
-  it("locks /how-it-works title and meta", () => {
+  it("locks /how-it-works title and meta — body lock stays, title is not the pillars line", () => {
     const page = src("app", "(marketing)", "how-it-works", "page.tsx");
-    expect(page).toContain('title: "How it works · Three pillars, not equal · HōMI"');
+    expect(page).toContain('title: "HōMI Score · How it works · HōMI"');
+    expect(page).toContain("absolute: true");
+    expect(page).not.toContain('title: "How it works · Three pillars, not equal · HōMI"');
     expect(page).toContain(
       "How HōMI measures readiness across Financial Reality, Emotional Truth, and Perfect Timing. A Decision Companion. Not a verdict factory.",
+    );
+    expect(page).toContain(
+      "Three pillars, not equal. Financial Reality 35. Emotional Truth 35. Perfect Timing 30. How they combine stays ours.",
     );
     expect(page).not.toContain("Palm Springs");
   });
 
-  it("locks /first-moment title and meta", () => {
+  it("locks /first-moment to a non-ranking title — not Assess, not Will you be okay?", () => {
     const page = src("app", "(marketing)", "first-moment", "page.tsx");
-    expect(page).toContain('title: "Will you be okay? · Assess · HōMI"');
+    expect(page).toContain('title: "First Moment · HōMI"');
+    expect(page).toContain("absolute: true");
+    expect(page).not.toMatch(/title: "Will you be okay\?/);
+    expect(page).not.toMatch(/title: "[^"]*Assess[^"]*"/);
     expect(page).toContain(
       "Five quiet beats, then an account, then the full assessment, so the verdict stays yours. Everyone else tells you how. HōMI tells you if.",
     );
     expect(page).not.toContain("Everyone else tells you if.");
   });
 
-  it("keeps /pricing and /tools titles and does not say 18 calculators", () => {
+  it("locks /pricing title and keeps /tools copy; does not say 18 calculators", () => {
     const pricing = src("app", "(marketing)", "pricing", "page.tsx");
     const tools = src("app", "(product)", "tools", "page.tsx");
-    expect(pricing).toContain('title: "Pricing"');
+    expect(pricing).toContain('title: "HōMI Pricing · HōMI"');
+    expect(pricing).toContain("absolute: true");
     expect(pricing).toContain("faqPageJsonLd(FAQS)");
     expect(tools).toContain('title: "Tools"');
     expect(tools).toContain(
