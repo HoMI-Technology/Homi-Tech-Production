@@ -115,8 +115,9 @@ deliberately SEPARATE vocabulary (career/purchase/investment/life — journal/pa
 Client components value-import `computeScore`/`computeShadowScore`/insight generators — engine internals ship
 in the client bundle. Blast radius (verified by grep, this session): flows ×2; /results + /plan (generators);
 `lib/simulator.ts` (spreads via `hooks/use-readiness.ts` + `lib/tools/readiness-bands.ts`); `lib/readiness/preflight.ts`;
-`lib/household/dual-score.ts` (scoreToVerdict only); ~12 client sites value-import PILLAR_MAX_POINTS (public canon
-35/35/30 — the constant is public; the curves are not). `computeShadowScore` ≡ `computeScore(SHADOW_DEFAULTS+inputs)`
+`lib/household/dual-score.ts` (scoreToVerdict only); ~12 client sites value-import PILLAR_MAX_POINTS (doctrine
+updated 2026-08: the pillar maxima are internal too — no part of the rubric is public canon; the curves were
+never public). `computeShadowScore` ≡ `computeScore(SHADOW_DEFAULTS+inputs)`
 (shadow.ts:20-30) and ShadowScoreFlow already builds identical padding — both flows can share /api/scoring.
 
 | Task | Description                                                                                                                                                                                                                                                                                              | DoD                                                                                                                                             | Depends | Status                                            |
