@@ -527,9 +527,9 @@ function UnconfiguredPanel() {
       <div className="hairline my-6" />
 
       <p className="text-sm text-dim">
-        Enter your numbers directly on the{" "}
-        <a href="/finance" className="text-cyan underline underline-offset-2">
-          Finance dashboard
+        Enter your numbers directly on{" "}
+        <a href="/money" className="text-cyan underline underline-offset-2">
+          Money Stand
         </a>{" "}
         — everything there works fully without a bank connection.
       </p>

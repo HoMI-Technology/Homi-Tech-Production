@@ -248,7 +248,7 @@ export function NetWorthPanel() {
               Net worth
             </h3>
             <p className="mt-0.5 max-w-md text-xs leading-relaxed text-dim">
-              Cash + portfolio + other assets minus debts — same stack as HōMI Finance Command.
+              Cash + portfolio + other assets minus debts — same stack as Money Stand.
             </p>
           </div>
         </div>

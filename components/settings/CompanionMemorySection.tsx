@@ -54,7 +54,7 @@ export function CompanionMemorySection() {
             ? "saved today"
             : `saved ${finance.ageDays} days ago`
           : "save date unknown";
-      setFinanceLine(`Your money picture (${age}), self-reported in the Finance dashboard.`);
+      setFinanceLine(`Your money picture (${age}), self-reported on Money Stand.`);
     }
 
     let cancelled = false;

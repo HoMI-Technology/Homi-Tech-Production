@@ -180,8 +180,8 @@ function buildContextNote(
   if (finance) {
     parts.push(
       typeof finance.ageDays === "number" && finance.ageDays >= 30
-        ? `Money picture from their Finance Command dashboard — self-reported and ${finance.ageDays} days old, so flag the staleness (monthly USD):`
-        : "Live money picture from their Finance Command dashboard (self-reported, monthly USD):",
+        ? `Money picture from Money Stand — self-reported and ${finance.ageDays} days old, so flag the staleness (monthly USD):`
+        : "Live money picture from Money Stand (self-reported, monthly USD):",
       `income $${finance.monthlyIncome}, net cash flow $${finance.netCashFlow}, savings rate ${finance.savingsRate}%,`,
       finance.runwayMonths === null
         ? "runway not computable from what is known — do not state or estimate it,"

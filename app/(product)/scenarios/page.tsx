@@ -67,11 +67,15 @@ export default function ScenariosPage() {
 
   function fundScenario(scenarioKey: ScenarioKey) {
     const current = stored;
+    if (!current?.result) {
+      setPathMsg("Assess first — Path is built from your readiness score.");
+      return;
+    }
     const path = generatePathFromScenario({
       inputs,
       scenarioKey,
-      assessmentResult: current?.result ?? null,
-      assessmentCompletedAt: current?.completedAt ?? null,
+      assessmentResult: current.result,
+      assessmentCompletedAt: current.completedAt ?? null,
     });
     saveReadinessPath(path);
     setPathMsg(
@@ -207,30 +211,40 @@ export default function ScenariosPage() {
           <div className="glass border border-emerald/25 p-5">
             <p className="eyebrow text-emerald">Fund a scenario</p>
             <p className="mt-1 text-sm text-dim">
-              Turn the wait plan into a Path to Ready with monthly funding targets.
+              {stored
+                ? "Turn the wait plan into a Path to Ready with monthly funding targets."
+                : "Path is built from your readiness score — Assess first, then fund a scenario."}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <button
-                type="button"
-                className="btn btn-primary btn-sm"
-                onClick={() => fundScenario("wait-12")}
-              >
-                Fund wait-12 path
-              </button>
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm"
-                onClick={() => fundScenario("wait-24")}
-              >
-                Fund wait-24 path
-              </button>
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm"
-                onClick={() => fundScenario("buy-now")}
-              >
-                Path for buy-now
-              </button>
+              {stored ? (
+                <>
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    onClick={() => fundScenario("wait-12")}
+                  >
+                    Fund wait-12 path
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => fundScenario("wait-24")}
+                  >
+                    Fund wait-24 path
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => fundScenario("buy-now")}
+                  >
+                    Path for buy-now
+                  </button>
+                </>
+              ) : (
+                <Link href="/assessment" className="btn btn-primary btn-sm">
+                  Assess
+                </Link>
+              )}
             </div>
             {pathMsg && (
               <p className="mt-3 text-sm text-emerald" role="status">

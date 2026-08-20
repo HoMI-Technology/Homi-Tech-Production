@@ -130,7 +130,7 @@ export function MoneyStand() {
   }, [asOf, ready]);
 
   const primaryAction = !ready
-    ? { label: "Build your picture", href: "/money/budget" }
+    ? { label: "Open your picture", href: "/money/budget" }
     : completeness === "low"
       ? { label: "Strengthen picture", href: "/money/budget" }
       : { label: "Stress a decision", href: "/money/decide" };

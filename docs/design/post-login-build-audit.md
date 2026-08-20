@@ -49,7 +49,10 @@ Phases 00–03 landed in [#252](https://github.com/HoMI-Technology/Homi-Tech-Pro
 | Collapse `/plan` + `/results` | F8 / phase 07 | **Closed** — `/plan` read-only; `/results` route deleted; middleware → Home (signed-in) / First Moment (guest); LHCI URL removed; `ResultsVerdictView` removed |
 | Companion / Agents invite Shadow Score when unscored | signed-in CTA honesty | **Closed** — Chat/AgentChat Assess CTA; hand-off allowlist drops `/shadow-score`; fallback → `/assessment` |
 | Post-auth email “ninety seconds” while CTA is `/assessment` | duration honesty | **Closed** — welcome / complete-profile / start-assessment → “about five minutes” |
-| Companion MessageContent linkified `/results` + `/shadow-score` | signed-in chrome | **Closed** — linkify Build paths only |
+| Scenario “Fund path” invents readiness when unscored | Build honesty | **Closed** — requires scored assessment; UI Assess-gates Fund buttons |
+| Stale “Finance dashboard” on signed-in money surfaces | Money IA | **Closed** — Money Stand language on connections, path, simulator, memory, Companion prompts |
+| Timeline empty CTA said “Re-check” | first-run honesty | **Closed** — empty history → Assess |
+| ⌘K Home labeled Dashboard | chrome | **Closed** — paletteLabel Home |
 | Sign-up default → `/onboarding` | first-run honesty | **Closed** — bare sign-up defaults to `POST_LOGIN_ASSESS` (`/assessment`); explicit `?next=` still wins |
 | Home fold premium identity | visual / brand | **Closed** — `dash-instrument` chrome, in-fold `Wordmark` + eyebrow, Companion `panel-focus`, Path dock language, ledger kicker |
 | Signed-in Shadow Score as product close | tools IA | **Closed** — removed from ⌘K; Twin/Trinity empties → Assess; QuickActionGrid stripped |

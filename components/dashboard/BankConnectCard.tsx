@@ -25,7 +25,7 @@ export function BankConnectCard({ plusRequired }: { plusRequired: boolean }) {
       </div>
       <p className="mt-2 max-w-xl text-sm leading-relaxed text-dim">
         {plusRequired
-          ? "Bank sync keeps your net worth, cash flow, and savings rate current automatically. It's part of the HōMI Plus plan — until then, the Finance dashboard works fully with manual numbers."
+          ? "Bank sync keeps your net worth, cash flow, and savings rate current automatically. It's part of the HōMI Plus plan — until then, Money Stand works fully with manual numbers."
           : "Connect a bank for read-only balance and transaction context — net worth, cash flow, and savings rate update automatically after every sync. Revocable at any time."}
       </p>
       <div className="mt-4 flex flex-wrap gap-3">

@@ -41,7 +41,7 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
   {
     href: "/dashboard",
     label: "Home",
-    paletteLabel: "Dashboard",
+    paletteLabel: "Home",
     group: "Navigate",
     keywords: "home overview score",
     surfaces: { header: "primary", palette: true },
