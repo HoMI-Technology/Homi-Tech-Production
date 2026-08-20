@@ -170,12 +170,12 @@ export function footerChipModel(state: LatestVerdict | null): FooterChipModel {
   }
 
   return {
-    href: "/results",
+    href: "/dashboard",
     color: meta.color,
     score: String(state.score),
     label: meta.label,
     meta: state.heldDays === null ? null : `Held ${state.heldDays}d`,
-    ariaLabel: `Readiness score ${state.score}, ${meta.label}. View results.`,
+    ariaLabel: `Readiness score ${state.score}, ${meta.label}. Continue on Home.`,
   };
 }
 

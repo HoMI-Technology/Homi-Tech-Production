@@ -16,7 +16,7 @@ describe("contextualActionHrefs", () => {
         weakestPillar: "emotional",
         checkedInToday: false,
       }),
-    ).toEqual(["/journal", "/path", "/plan"]);
+    ).toEqual(["/journal", "/path", "/money"]);
   });
 
   it("routes each pillar to its instrument", () => {
@@ -29,7 +29,7 @@ describe("contextualActionHrefs", () => {
     ).toEqual(["/money/decide", "/path", "/journal"]);
     expect(
       contextualActionHrefs({ hasAssessment: true, weakestPillar: "timing", checkedInToday: true }),
-    ).toEqual(["/path", "/journal", "/plan"]);
+    ).toEqual(["/path", "/journal", "/money"]);
   });
 
   it("never features launch-hidden lab fillers", () => {

@@ -24,7 +24,7 @@ const PILLAR_TOOL: Record<PillarKey, string> = {
   timing: "/path",
 };
 
-const FILLERS = ["/path", "/journal", "/plan"];
+const FILLERS = ["/path", "/journal", "/money"];
 
 /** Exactly three hrefs, most-relevant first, deduped. */
 export function contextualActionHrefs(input: ContextActionInput): string[] {

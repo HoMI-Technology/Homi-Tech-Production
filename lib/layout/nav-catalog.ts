@@ -77,13 +77,6 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
 
   // Palette-only quick actions (documented parity exceptions)
   {
-    href: "/shadow-score",
-    label: "Get a Shadow Score",
-    group: "Act",
-    keywords: "quick score fast read",
-    surfaces: { palette: true },
-  },
-  {
     href: "/agent-hub",
     label: "Agent Hub feed",
     group: "Act",
@@ -101,15 +94,15 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     surfaces: { header: "more", palette: true },
   },
   {
+    // Verdict reveal — palette-only so Path owns Measure chrome (post-login F8).
     href: "/results",
     label: "Results",
+    paletteLabel: "Last verdict",
     group: "Navigate",
-    keywords: "readiness verdict score outcome report",
-    surfaces: { header: "more", palette: true },
+    keywords: "readiness verdict score outcome report reveal",
+    surfaces: { palette: true },
   },
   {
-    // Must stay after /results: the parity tests pin Results directly behind
-    // Path to Ready, and the timeline is the same story told over time.
     href: "/timeline",
     label: "Score history",
     group: "Navigate",

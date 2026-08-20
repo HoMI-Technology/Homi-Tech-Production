@@ -69,7 +69,7 @@ describe("parseLatestVerdict", () => {
  * the two things that must hold are where it points and what it announces.
  */
 describe("footerChipModel", () => {
-  it("points at /results and announces score + verdict", () => {
+  it("points at Home and announces score + verdict", () => {
     const chip = footerChipModel({
       verdict: "BUILD_FIRST",
       score: 61,
@@ -77,12 +77,12 @@ describe("footerChipModel", () => {
       decisionType: "Home Buying",
     });
     expect(chip).toEqual({
-      href: "/results",
+      href: "/dashboard",
       color: VERDICT_META.BUILD_FIRST.color,
       score: "61",
       label: VERDICT_META.BUILD_FIRST.label,
       meta: "Held 12d",
-      ariaLabel: `Readiness score 61, ${VERDICT_META.BUILD_FIRST.label}. View results.`,
+      ariaLabel: `Readiness score 61, ${VERDICT_META.BUILD_FIRST.label}. Continue on Home.`,
     });
   });
 
@@ -94,7 +94,7 @@ describe("footerChipModel", () => {
       decisionType: null,
     });
     expect(chip.meta).toBeNull();
-    expect(chip.href).toBe("/results");
+    expect(chip.href).toBe("/dashboard");
   });
 
   it("routes the empty state to /assessment with no pinned color", () => {

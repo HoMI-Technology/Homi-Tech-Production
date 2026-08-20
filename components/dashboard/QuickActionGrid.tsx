@@ -36,19 +36,10 @@ const ACTION_COPY: Record<string, { desc: string; icon: string; nowDesc?: string
     icon: "assessment",
     nowDesc: "Get your full verdict — ~10 minutes",
   },
-  "/shadow-score": {
-    desc: "A quick, lighter read",
-    icon: "shadow",
-    nowDesc: "A first score in about 2 minutes",
-  },
   "/money": {
     desc: "Picture · track · decide — one finance surface",
     icon: "money",
     nowDesc: "Your financial pillar is the one to work — open Money",
-  },
-  "/plan": {
-    desc: "Personalized next steps from your verdict",
-    icon: "plan",
   },
   "/path": {
     desc: "Binding-constraint path from your verdict",
@@ -71,15 +62,7 @@ const ACTION_COPY: Record<string, { desc: string; icon: string; nowDesc?: string
  */
 function buildActions(): Action[] {
   const byHref = new Map(NAV_CATALOG.map((e) => [e.href, e]));
-  const order = [
-    "/money",
-    "/assessment",
-    "/shadow-score",
-    "/path",
-    "/plan",
-    "/journal",
-    "/household",
-  ];
+  const order = ["/money", "/assessment", "/path", "/journal", "/household"];
 
   const out: Action[] = [];
   for (const href of order) {

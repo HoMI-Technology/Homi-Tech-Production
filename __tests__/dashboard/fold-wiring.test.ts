@@ -177,6 +177,7 @@ describe("empty Home first-run is one Assess close", () => {
     expect(employee).not.toContain('actionHref="/shadow-score"');
     expect(employee).not.toContain("ThresholdCompass");
     expect(employee).toContain('href="/path"');
+    expect(employee).not.toContain('href: "/plan"');
   });
 
   it("onboarding and the guest assessment gate do not print those CTAs", () => {
