@@ -257,18 +257,18 @@ const PILLAR_LABEL = {
 } as const;
 type PillarKey = keyof typeof PILLAR_LABEL;
 
-/** Onboarding: profile incomplete after signup. */
+/** Post-signup nudge: measurement first (matches bare sign-up → Assess). */
 export function completeProfileEmail(name: string): { subject: string; html: string } {
   const body = `
     <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">Hi ${name},</p>
     <p style="margin:0 0 16px 0;">
-      One quick step before your assessment. A few details about the decision you're weighing
-      lets HōMI give you a read that's actually about <em>your</em> situation — not a generic score.
+      Your account is ready. Take the assessment next — ninety seconds of honesty across all three
+      pillars, and you'll know whether now is the moment or what to close first.
     </p>
-    <p style="margin:0;">It takes under a minute.</p>
-    ${cta(`${SITE}/onboarding`, "Complete your profile")}
+    <p style="margin:0;">No card. No pressure. Just the truth about where you stand today.</p>
+    ${cta(`${SITE}/assessment`, "Take the assessment")}
   `;
-  return { subject: `${name}, one quick step before your assessment`, html: layout(body) };
+  return { subject: `${name}, take your HōMI assessment`, html: layout(body) };
 }
 
 /** Onboarding: profile complete, assessment not started. */

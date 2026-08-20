@@ -142,7 +142,7 @@ export function normalizeReadinessPath(raw: unknown): ReadinessPath | null {
       kind: (step.kind as PathStep["kind"]) ?? "milestone",
       daysFromNow: typeof step.daysFromNow === "number" ? step.daysFromNow : 0,
       reasonCode: (step.reasonCode as PathReasonCode) ?? "REASSESS",
-      href: typeof step.href === "string" ? step.href : "/results",
+      href: typeof step.href === "string" ? step.href : "/dashboard",
       notes: typeof step.notes === "string" ? step.notes : "",
       fundingTarget: typeof step.fundingTarget === "number" ? step.fundingTarget : null,
       fundingLabel: typeof step.fundingLabel === "string" ? step.fundingLabel : null,

@@ -5,7 +5,7 @@
  * boundary cannot drift as three copy-pasted comment blocks (post-login audit F8).
  *
  * Living Build = `/dashboard` fold + `/path`. Checklist `/plan` is palette-only.
- * `/results` is the verdict reveal transition. `/report/{id}` is the record.
+ * `/results` is an optional palette / Last-verdict reveal. `/report/{id}` is the record.
  */
 export const SURFACE_ROLES = {
   home: "Signed-in Home fold — Path next move leads; money standing strip shows where cash sits; HōMI-Score is a compact rail reading.",

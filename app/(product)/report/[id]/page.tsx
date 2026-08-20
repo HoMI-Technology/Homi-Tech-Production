@@ -16,17 +16,19 @@ import type { AssessmentRow } from "@/types/database";
 import { Phase0FreezeView } from "@/components/advisor/Phase0FreezeView";
 import { loadPhase0ServerState } from "@/lib/advisor/phase0/server";
 
+import { SURFACE_ROLES } from "@/lib/dashboard/surface-roles";
+
 const FINANCIAL = PILLARS.find((p) => p.key === "financial")!;
 const EMOTIONAL = PILLARS.find((p) => p.key === "emotional")!;
 const TIMING = PILLARS.find((p) => p.key === "timing")!;
 
+// Surface role SSOT — record only; Build lives on Home + Path.
+void SURFACE_ROLES.report;
+
 /**
- * Surface roles (D4 — all four readiness surfaces stay, each with one job):
- * - /results — the verdict MOMENT: score reveal, pillars, insight, immediate CTAs.
- * - /path    — the ongoing plan-to-ready: binding-constraint sequence over time.
- * - /plan    — simple next-steps checklist derived from the latest result.
- * - /report/{id} — the persisted, shareable/printable RECORD of one assessment.
- * Don't duplicate one surface's job on another — link across instead.
+ * Persisted, shareable/printable record of one assessment.
+ * Living Build = Home + Path. /results is an optional palette reveal.
+ * /plan is a read-only checklist deep-link. Don't duplicate those jobs here.
  */
 export default async function ReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

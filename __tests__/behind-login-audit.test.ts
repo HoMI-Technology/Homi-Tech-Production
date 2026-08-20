@@ -75,6 +75,15 @@ describe("sign-up default lands on Assess", () => {
     expect(page).toContain("safeNext(searchParams.get(\"next\"), POST_LOGIN_ASSESS)");
     expect(page).not.toContain('safeNext(searchParams.get("next"), "/onboarding")');
   });
+
+  it("completeProfileEmail points at Assess, not /onboarding", () => {
+    const templates = read("lib", "email", "templates.ts");
+    const start = templates.indexOf("export function completeProfileEmail");
+    const end = templates.indexOf("export function startAssessmentEmail");
+    const fn = templates.slice(start, end);
+    expect(fn).toContain("/assessment");
+    expect(fn).not.toContain("/onboarding");
+  });
 });
 
 describe("public demo page secrecy", () => {

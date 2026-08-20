@@ -56,15 +56,15 @@ test.describe("signed-in assessment → verdict", () => {
     "Set E2E_TEST_EMAIL/E2E_TEST_PASSWORD to run the signed-in verdict path.",
   );
 
-  test("completing the full assessment lands on /results with a canon verdict", async ({
+  test("completing the full assessment lands on Home Build with a canon verdict", async ({
     page,
   }) => {
     test.setTimeout(240_000);
     await signInViaUi(page, email, password);
     await completeFullAssessment(page, { decisionType: "home_buying" });
 
-    await expect(page).toHaveURL(/\/results$/);
-    await expect(page.getByText("HōMI-Score out of 100")).toBeVisible();
+    await expect(page).toHaveURL(/\/dashboard/);
+    await expect(page.getByLabel(/Overall HōMI-Score/i)).toBeVisible({ timeout: 30_000 });
     await expect(
       page.locator('[class*="bg-verdict-"]').or(page.getByText(VERDICT_BADGE)).first(),
     ).toBeVisible({ timeout: 30_000 });

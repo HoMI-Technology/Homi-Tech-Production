@@ -150,10 +150,10 @@ test.describe("Path to Ready (seeded)", () => {
     expect(stored?.steps?.[0]?.status).toBe("done");
   });
 
-  test("results surface auto-generates Path to Ready for non-ready verdict", async ({ page }) => {
+  test("Home Build auto-generates Path to Ready for non-ready verdict", async ({ page }) => {
     test.skip(
       !email || !password,
-      "Set E2E_TEST_EMAIL/E2E_TEST_PASSWORD to run signed-in Path to Ready on /results.",
+      "Set E2E_TEST_EMAIL/E2E_TEST_PASSWORD to run signed-in Path to Ready on Home.",
     );
     test.setTimeout(90_000);
 
@@ -165,20 +165,16 @@ test.describe("Path to Ready (seeded)", () => {
       { assessment: SAMPLE_ASSESSMENT },
     );
 
-    // Guest /results must stay empty — do not seed a guest verdict here.
     await signInViaUi(page, email, password);
-    await page.goto("/results");
+    await page.goto("/dashboard");
     await dismissCookieConsent(page);
 
-    // Auto-path on results hydrate — no Generate click required.
+    // Auto-path on Home fold hydrate — Path operate lives on Build, not /results.
     await expect(page.getByText("Path to Ready").first()).toBeVisible({
       timeout: 20_000,
     });
     await expect(
-      page.getByText(/Your sequenced path|Binding constraint|runway/i).first(),
+      page.getByText(/Your sequenced path|Binding constraint|runway|next move/i).first(),
     ).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByRole("link", { name: /Open full path/i }).first()).toBeVisible({
-      timeout: 10_000,
-    });
   });
 });

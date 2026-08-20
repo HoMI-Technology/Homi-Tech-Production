@@ -137,6 +137,18 @@ describe("step completion", () => {
     expect(normalized!.steps.every((s) => s.status === "pending")).toBe(true);
     expect(normalized!.calendarCommittedAt).toBeNull();
   });
+
+  it("normalizeReadinessPath defaults missing step href to Home Build", () => {
+    const result = computeScore({ ...SAFE_BASE, emergencyFundMonths: 0.5 });
+    const path = buildReadinessPath(result, { idFactory: idFactory() });
+    const legacy = {
+      ...path,
+      steps: path.steps.map(({ href: _h, status: _s, completedAt: _c, ...rest }) => rest),
+    };
+    const normalized = normalizeReadinessPath(legacy);
+    expect(normalized).not.toBeNull();
+    expect(normalized!.steps.every((s) => s.href === "/dashboard")).toBe(true);
+  });
 });
 
 describe("summarizePathResolution", () => {
