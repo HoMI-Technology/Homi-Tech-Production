@@ -4,7 +4,7 @@
 
 // @vitest-environment jsdom
 
-import { describe, expect, it, afterEach } from "vitest";
+import { describe, expect, it, afterEach, vi } from "vitest";
 import { readEmotionalMirror } from "@/lib/advisor/emotional-mirror";
 import {
   buildMemoryPalace,
@@ -22,7 +22,9 @@ import {
   highlightHomieCards,
 } from "@/lib/advisor/card-highlight";
 import {
+  estimateSpeechRateWpm,
   measureVoiceLatency,
+  speakText,
 } from "@/lib/advisor/voice";
 import { HOMIE_VOICE_LATENCY_BUDGET_MS } from "@/types/companion";
 
@@ -174,5 +176,102 @@ describe("voice latency budget", () => {
     const slow = measureVoiceLatency("tts_start", 1000, 1400);
     expect(slow.withinBudget).toBe(false);
     expect(slow.durationMs).toBe(400);
+  });
+});
+
+describe("speech pace as voice tone", () => {
+  it("estimates words per minute over the listen window", () => {
+    const forty = Array.from({ length: 40 }, () => "word").join(" ");
+    expect(estimateSpeechRateWpm(forty, 12_000)).toBe(200);
+  });
+
+  it("refuses samples too small to mean anything", () => {
+    expect(estimateSpeechRateWpm("too few words", 10_000)).toBeNull();
+    expect(estimateSpeechRateWpm("four words right here", 800)).toBeNull();
+    expect(estimateSpeechRateWpm("", 5_000)).toBeNull();
+  });
+
+  it("raises anxious confidence when worried words come fast", () => {
+    const base = readEmotionalMirror("I'm worried about the debt payment");
+    const fast = readEmotionalMirror("I'm worried about the debt payment", 200);
+    expect(fast.tone).toBe("anxious");
+    expect(fast.confidence).toBeGreaterThan(base.confidence);
+  });
+
+  it("reads pure pace as pressing even without anxious words", () => {
+    const r = readEmotionalMirror(
+      "Let me walk through the numbers and the timeline together",
+      195,
+    );
+    expect(r.tone).toBe("anxious");
+    expect(r.signals).toContain("fast_speech");
+  });
+
+  it("carries pace through the orchestrator into the emotional read", () => {
+    const turn = orchestrateHomieBehaviors({
+      utterance: "Let me walk through the numbers and the timeline together",
+      speechRateWpm: 200,
+    });
+    expect(turn.emotional?.signals).toContain("fast_speech");
+  });
+});
+
+describe("speakText cancellation semantics", () => {
+  class MockUtterance {
+    text: string;
+    lang = "";
+    rate = 1;
+    pitch = 1;
+    voice: unknown = null;
+    onstart: (() => void) | null = null;
+    onend: (() => void) | null = null;
+    onerror: ((ev: { error?: string }) => void) | null = null;
+    constructor(text: string) {
+      this.text = text;
+    }
+  }
+
+  function setupSynthMock() {
+    const spoken: MockUtterance[] = [];
+    const synth = {
+      cancel: vi.fn(),
+      speak: vi.fn((u: unknown) => spoken.push(u as MockUtterance)),
+      getVoices: vi.fn(() => []),
+    };
+    vi.stubGlobal("SpeechSynthesisUtterance", MockUtterance);
+    Object.defineProperty(window, "speechSynthesis", {
+      value: synth,
+      configurable: true,
+    });
+    return spoken;
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    Reflect.deleteProperty(window, "speechSynthesis");
+  });
+
+  it("treats browser-initiated interruption as lifecycle, not failure", () => {
+    const spoken = setupSynthMock();
+    const onError = vi.fn();
+    const onEnd = vi.fn();
+    speakText("The verdict still holds.", { onError, onEnd });
+    expect(spoken).toHaveLength(1);
+    spoken[0].onerror?.({ error: "interrupted" });
+    spoken[0].onerror?.({ error: "canceled" });
+    expect(onError).not.toHaveBeenCalled();
+    expect(onEnd).toHaveBeenCalledTimes(2);
+  });
+
+  it("still reports real synthesis failures", () => {
+    const spoken = setupSynthMock();
+    const onError = vi.fn();
+    const onEnd = vi.fn();
+    speakText("The verdict still holds.", { onError, onEnd });
+    spoken[0].onerror?.({ error: "synthesis-failed" });
+    expect(onError).toHaveBeenCalledWith(
+      expect.objectContaining({ code: "synthesis_failed" }),
+    );
+    expect(onEnd).toHaveBeenCalledTimes(1);
   });
 });

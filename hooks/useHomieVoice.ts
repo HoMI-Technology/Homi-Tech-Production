@@ -36,6 +36,10 @@ export function useHomieVoice(options?: {
   const [listening, setListening] = useState(false);
   const handleRef = useRef<ListenHandle | null>(null);
   const cancelSpeakRef = useRef<(() => void) | null>(null);
+  // Utterance generation: cancelling an utterance still fires its async
+  // end/error events later — bumping this makes those events stale so they
+  // can never stomp a newer state (e.g. flip "listening" back to "breathing").
+  const speakSeqRef = useRef(0);
   const onLatencyRef = useRef(options?.onLatency);
   const onErrorRef = useRef(options?.onError);
   const ttsEnabledRef = useRef(options?.ttsEnabled ?? true);
@@ -71,6 +75,7 @@ export function useHomieVoice(options?: {
 
     cancelSpeakRef.current?.();
     cancelSpeech();
+    speakSeqRef.current += 1;
     setListening(true);
     setAvatarState("listening");
     setInterim("");
@@ -93,25 +98,40 @@ export function useHomieVoice(options?: {
     return text;
   }, []);
 
-  const speak = useCallback((text: string) => {
+  const speak = useCallback((text: string, onDone?: () => void) => {
     if (!ttsEnabledRef.current || !text.trim()) return () => undefined;
     if (!detectHomieVoiceCapabilities().synthesis) return () => undefined;
 
+    const seq = ++speakSeqRef.current;
     setAvatarState("speaking");
+    // The speech window closes exactly once — on natural end or on a real
+    // synthesis failure — and never for a superseded (cancelled) utterance.
+    let finished = false;
+    const finish = () => {
+      if (finished || speakSeqRef.current !== seq) return;
+      finished = true;
+      setAvatarState("breathing");
+      onDone?.();
+    };
     const cancel = speakText(text, {
       rate: 1,
-      onStart: (sample) => onLatencyRef.current?.(sample),
-      onEnd: () => setAvatarState("breathing"),
+      onStart: (sample) => {
+        if (speakSeqRef.current === seq) onLatencyRef.current?.(sample);
+      },
+      onEnd: finish,
       onError: (error) => {
+        if (speakSeqRef.current !== seq) return;
         onErrorRef.current?.(error);
-        setAvatarState("breathing");
       },
     });
     cancelSpeakRef.current = cancel;
     return () => {
       cancel();
+      if (speakSeqRef.current === seq) {
+        speakSeqRef.current += 1;
+        setAvatarState("breathing");
+      }
       cancelSpeakRef.current = null;
-      setAvatarState("breathing");
     };
   }, []);
 

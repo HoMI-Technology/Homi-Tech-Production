@@ -189,12 +189,22 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
       {(subScores.financial || subScores.emotional || subScores.timing) && (
         <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
           {subScores.financial && (
-            <SubScoreList title="Financial Reality" scores={subScores.financial} />
+            <SubScoreList
+              title="Financial Reality"
+              scores={subScores.financial}
+              homiePillar="financial"
+            />
           )}
           {subScores.emotional && (
-            <SubScoreList title="Emotional Truth" scores={subScores.emotional} />
+            <SubScoreList
+              title="Emotional Truth"
+              scores={subScores.emotional}
+              homiePillar="emotional"
+            />
           )}
-          {subScores.timing && <SubScoreList title="Perfect Timing" scores={subScores.timing} />}
+          {subScores.timing && (
+            <SubScoreList title="Perfect Timing" scores={subScores.timing} homiePillar="timing" />
+          )}
         </div>
       )}
 
@@ -261,12 +271,21 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
   );
 }
 
-function SubScoreList({ title, scores }: { title: string; scores: Record<string, number> }) {
+function SubScoreList({
+  title,
+  scores,
+  homiePillar,
+}: {
+  title: string;
+  scores: Record<string, number>;
+  /** Marks this card as a Homie highlight target (`lib/advisor/card-highlight.ts`). */
+  homiePillar?: "financial" | "emotional" | "timing";
+}) {
   const entries = Object.entries(scores).filter(
     ([key]) => key !== "total" && key !== "singleRedistribution",
   );
   return (
-    <div>
+    <div data-homie-pillar={homiePillar}>
       <h3 className="text-sm font-semibold text-light print:text-black">{title}</h3>
       <ul className="mt-2 flex flex-col gap-1.5">
         {entries.map(([key, value]) => (
