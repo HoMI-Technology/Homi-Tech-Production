@@ -5,13 +5,14 @@ import { Fragment } from "react";
 
 /**
  * Tool hand-offs made clickable: renders Companion message text with known
- * internal paths (/tools/*, /finance, /credit, /assessment, …) as links.
+ * internal paths (/tools/*, /assessment, /path, /dashboard, /money, …) as links.
+ * Guest teasers (/shadow-score) and retired /results are never linkified.
  * Deliberately conservative — only an allowlisted set of product routes ever
  * becomes a link, so model output can't fabricate navigation to arbitrary
  * or external destinations.
  */
 const INTERNAL_PATH =
-  /(\/(?:tools\/[a-z-]+|assessment|shadow-score|finance|credit|results|plan|simulator|advisor|connections|dashboard))(?=[\s.,;:!?)]|$)/g;
+  /(\/(?:tools\/[a-z-]+|assessment|finance|credit|plan|path|simulator|advisor|connections|dashboard|money(?:\/[a-z-]+)?))(?=[\s.,;:!?)]|$)/g;
 
 export function MessageContent({ text }: { text: string }) {
   const segments = text.split(INTERNAL_PATH);

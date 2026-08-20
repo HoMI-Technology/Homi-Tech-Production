@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { buildCompanionContext } from "@/lib/advisor/context";
@@ -12,6 +13,7 @@ import {
 } from "@/lib/advisor/thread-store";
 import { fetchLatestStoredAssessment } from "@/lib/assessment/latest";
 import type { AgentId, AgentMode } from "@/lib/agents/registry";
+import { SIGNED_IN_ASSESS_HREF } from "@/components/marketing/first-moment-copy";
 
 type Role = "user" | "assistant";
 
@@ -232,9 +234,14 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
               <p className="mt-1 max-w-sm text-sm text-dim">
                 {hasAssessment
                   ? "Homie coordinates Scout, Analyst, Coach, Architect, and Oracle — each brings a different lens."
-                  : "Take the full assessment first, or ask a general question — the agents can still talk in plain terms."}
+                  : "Assess first for a real read, or ask a general question — the agents can still talk in plain terms."}
               </p>
             </div>
+            {!hasAssessment ? (
+              <Link href={SIGNED_IN_ASSESS_HREF} className="btn btn-primary btn-sm">
+                Assess
+              </Link>
+            ) : null}
             <div className="flex flex-wrap justify-center gap-2">
               {SUGGESTED_PROMPTS.map((prompt) => (
                 <button

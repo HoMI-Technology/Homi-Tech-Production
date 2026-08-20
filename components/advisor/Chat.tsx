@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { fetchLatestStoredAssessment } from "@/lib/assessment/latest";
 import { buildCompanionContext } from "@/lib/advisor/context";
@@ -16,6 +17,7 @@ import { detectAcuteDistress } from "@/lib/advisor/crisis";
 import { ingestPhase0Observation, writePhase0Freeze } from "@/lib/advisor/phase0";
 import { Phase0FreezeScreen } from "@/components/advisor/Phase0FreezeScreen";
 import { resolvePhase0PersonKey, usePhase0Freeze } from "@/hooks/usePhase0Freeze";
+import { SIGNED_IN_ASSESS_HREF } from "@/components/marketing/first-moment-copy";
 
 type Role = "user" | "assistant";
 
@@ -237,9 +239,14 @@ export function Chat() {
               <p className="mt-1 max-w-sm text-sm text-dim">
                 {hasAssessment
                   ? "Ask me anything about your readiness. I'll always tell you the truth."
-                  : "Take the full assessment first, or just ask me something — I can still talk in general terms."}
+                  : "Assess first for a real read, or ask me something general — I can still talk without your numbers."}
               </p>
             </div>
+            {!hasAssessment ? (
+              <Link href={SIGNED_IN_ASSESS_HREF} className="btn btn-primary btn-sm">
+                Assess
+              </Link>
+            ) : null}
             <div className="flex flex-wrap justify-center gap-2">
               {SUGGESTED_PROMPTS.map((prompt) => (
                 <button

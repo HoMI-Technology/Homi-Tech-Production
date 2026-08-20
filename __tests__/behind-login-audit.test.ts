@@ -89,6 +89,34 @@ describe("sign-up default lands on Assess", () => {
     const fn = templates.slice(start, end);
     expect(fn).toContain("/assessment");
     expect(fn).not.toContain("/onboarding");
+    expect(fn).toContain("about five minutes");
+    expect(fn).not.toMatch(/ninety seconds/i);
+  });
+
+  it("welcome and start-assessment emails match Assess duration, not Shadow Score", () => {
+    const templates = read("lib", "email", "templates.ts");
+    expect(templates).toContain("About five minutes tells you the truth");
+    expect(templates).toContain("About five minutes of honesty across all three pillars");
+    expect(templates).not.toMatch(/Ninety seconds/i);
+    expect(templates).not.toMatch(/ninety seconds/i);
+  });
+});
+
+describe("Companion hand-offs stay on the signed-in measurement path", () => {
+  it("advisor tool hand-off allowlist excludes /shadow-score", () => {
+    const aliases = read("lib", "architecture", "tool-aliases.ts");
+    expect(aliases).toContain('"/assessment"');
+    expect(aliases).toContain('"/path"');
+    expect(aliases).toContain('"/dashboard"');
+    expect(aliases).not.toMatch(/ADVISOR_TOOL_HANDOFF_PATHS[\s\S]*?"\/shadow-score"/);
+    expect(aliases).toContain("Do not send signed-in users to /shadow-score");
+  });
+
+  it("Companion empty state offers Assess when unscored", () => {
+    const chat = read("components", "advisor", "Chat.tsx");
+    expect(chat).toContain("SIGNED_IN_ASSESS_HREF");
+    expect(chat).toMatch(/>\s*Assess\s*</);
+    expect(chat).not.toContain("Take the full assessment first");
   });
 });
 

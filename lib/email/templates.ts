@@ -103,7 +103,7 @@ export function welcomeEmail(name: string): { subject: string; html: string } {
       </tr>
     </table>
     <p style="margin:0 0 20px 0;">
-      Ninety seconds tells you the truth about where you stand today.
+      About five minutes tells you the truth about where you stand today.
     </p>
     <p style="margin:0;">
       <a href="${SITE}/assessment" style="color:#22d3ee;text-decoration:none;font-weight:700;">Start your assessment &rarr;</a>
@@ -262,7 +262,7 @@ export function completeProfileEmail(name: string): { subject: string; html: str
   const body = `
     <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">Hi ${name},</p>
     <p style="margin:0 0 16px 0;">
-      Your account is ready. Take the assessment next — ninety seconds of honesty across all three
+      Your account is ready. Take the assessment next — about five minutes of honesty across all three
       pillars, and you'll know whether now is the moment or what to close first.
     </p>
     <p style="margin:0;">No card. No pressure. Just the truth about where you stand today.</p>
@@ -276,7 +276,7 @@ export function startAssessmentEmail(name: string): { subject: string; html: str
   const body = `
     <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">Hi ${name},</p>
     <p style="margin:0 0 16px 0;">
-      Your assessment is ready. Ninety seconds of honesty across all three pillars, and you'll
+      Your assessment is ready. About five minutes of honesty across all three pillars, and you'll
       know whether now is the moment — or whether there's something worth closing first.
     </p>
     <p style="margin:0;">No card. No pressure. Just the truth about where you stand today.</p>
