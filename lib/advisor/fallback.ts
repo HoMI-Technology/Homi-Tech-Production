@@ -308,7 +308,7 @@ function defaultReflective(ctx?: AdvisorAssessmentContext | null): string {
   }
   return (
     "I hear you. I don't have your assessment yet, so I'm working without your real numbers right now — " +
-    "take the full assessment when you're ready and I can speak to your actual situation instead of in general terms."
+    "take the assessment at /assessment when you're ready and I can speak to your actual situation instead of in general terms."
   );
 }
 

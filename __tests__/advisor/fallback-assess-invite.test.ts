@@ -2,12 +2,12 @@ import { describe, expect, it } from "vitest";
 import { buildFallbackReply } from "@/lib/advisor/fallback";
 
 describe("fallback invite — signed-in Assess, not Shadow Score", () => {
-  it("no-assessment replies invite the full assessment", () => {
+  it("no-assessment replies invite /assessment", () => {
     const reply = buildFallbackReply({
       message: "Am I ready to buy?",
       assessment: null,
     });
-    expect(reply).toMatch(/full assessment/i);
+    expect(reply).toMatch(/\/assessment/);
     expect(reply).not.toMatch(/Shadow Score/i);
   });
 
@@ -16,7 +16,7 @@ describe("fallback invite — signed-in Assess, not Shadow Score", () => {
       message: "hmm not sure",
       assessment: null,
     });
-    expect(reply).toMatch(/full assessment/i);
+    expect(reply).toMatch(/\/assessment|assessment when you're ready/i);
     expect(reply).not.toMatch(/Shadow Score/i);
   });
 });
