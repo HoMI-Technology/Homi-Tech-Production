@@ -52,7 +52,7 @@ function ensureHighlightStyles(): void {
   document.head.appendChild(style);
 }
 
-/** Clear all Homie card highlights. */
+/** Clear all HōMI card highlights. */
 export function clearHomieCardHighlights(): void {
   if (typeof document === "undefined") return;
   document.querySelectorAll(`.${HOMIE_HIGHLIGHT_CLASS}`).forEach((el) => {

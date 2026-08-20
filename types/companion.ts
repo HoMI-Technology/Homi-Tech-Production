@@ -51,7 +51,7 @@ export type HomieCardId =
   | "emotional"
   | "timing";
 
-/** Three-pillar Decision Readiness anchors Homie may reference. */
+/** Three-pillar Decision Readiness anchors HōMI may reference. */
 export type ReadinessPillar = "financial" | "emotional" | "timing";
 
 export interface EmotionalMirrorReading {
@@ -85,7 +85,7 @@ export interface FutureSelfProjection {
 export interface GentleInterruptDecision {
   shouldInterrupt: boolean;
   reason: "long_monologue" | "insight_ready" | "tone_shift" | "none";
-  /** Soft copy Homie may offer after the chime (never advice). */
+  /** Soft copy HōMI may offer after the chime (never advice). */
   insight?: string;
 }
 
@@ -102,7 +102,7 @@ export interface HomieBehaviorTurn {
   interrupt?: GentleInterruptDecision;
   futureSelf?: FutureSelfProjection;
   silent?: SilentWitnessDecision;
-  /** Cards to highlight while Homie speaks this turn. */
+  /** Cards to highlight while HōMI speaks this turn. */
   cards: HomieCardId[];
   /** Optional system-prompt additive for /api/advisor. */
   promptHint: string;

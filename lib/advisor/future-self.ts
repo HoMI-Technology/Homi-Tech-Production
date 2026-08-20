@@ -41,7 +41,7 @@ const PILLAR_LABEL: Record<ReadinessPillar, string> = {
 };
 
 /**
- * Build a short Future Self projection for Homie to speak or show.
+ * Build a short Future Self projection for HōMI to speak or show.
  */
 export function projectFutureSelf(input: FutureSelfInput): FutureSelfProjection {
   const years = input.horizonYears ?? 5;
