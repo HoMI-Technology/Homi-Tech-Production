@@ -342,6 +342,10 @@ export function ResultsVerdictView({
         The living Build is on Home and Path to Ready. This page is the verdict reveal —
         use the closes below when you&apos;re ready to keep building.
       </p>
+      <p className="mt-3 max-w-2xl text-xs text-dim">
+        HōMI Score is not a credit score. Lenders will still pull a credit report. Fannie&apos;s
+        manual floor is still 620. That is their gate, not a HōMI verdict.
+      </p>
 
       {/* CTAs — signed-in returns to Home Build; guests save progress first. */}
       <div className="mt-6 flex flex-col items-center gap-4 border-t border-slate-surface/60 pt-10 sm:flex-row sm:justify-center">
