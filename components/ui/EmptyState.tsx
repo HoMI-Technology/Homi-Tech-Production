@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import {
-  PRIMARY_CLOSE_HREF,
   PRIMARY_CLOSE_LABEL,
+  SIGNED_IN_ASSESS_HREF,
 } from "@/components/marketing/first-moment-copy";
 
 type EmptyStatePreset = "journal" | "calendar" | "dashboard" | "signals";
@@ -27,10 +27,12 @@ const PRESETS: Record<EmptyStatePreset, PresetCopy> = {
     body: "Add a milestone, deadline, or review — the moments worth tracking as your readiness changes.",
   },
   dashboard: {
-    // First-run Home: one close only — Assess → First Moment. No Shadow Score.
+    // Signed-in first-run Home: one close only — Assess → /assessment.
+    // Marketing First Moment (/first-moment) is for guests; this preset is
+    // only mounted on the authenticated dashboard empty state.
     title: "One measurement and this page comes alive",
     body: "Get a three-pillar read — Financial Reality, Emotional Truth, Perfect Timing — and this page will have a build to show.",
-    actionHref: PRIMARY_CLOSE_HREF,
+    actionHref: SIGNED_IN_ASSESS_HREF,
     actionLabel: PRIMARY_CLOSE_LABEL,
   },
   signals: {

@@ -125,6 +125,7 @@ export default async function DashboardPage() {
           instrumentTint={instrumentTint}
           dueSurvey={dueSurvey ? { id: dueSurvey.id, kind: dueSurvey.kind } : null}
           staleDays={daysSince(latest?.completed_at ?? latest?.created_at ?? null)}
+          hasPath={pathSteps.length > 0}
         />
       </div>
     </PageFrame>

@@ -17,6 +17,7 @@ const base = {
   instrumentTint: COLORS.amber,
   dueSurvey: null,
   staleDays: 2,
+  hasPath: false,
 };
 
 describe("HomeFold", () => {
@@ -36,7 +37,7 @@ describe("HomeFold", () => {
     expect(fold?.getAttribute("data-home-instrument")).toBe("empty");
     expect(screen.getByRole("link", { name: /^assess$/i })).toHaveAttribute(
       "href",
-      "/first-moment",
+      "/assessment",
     );
     expect(container.querySelector("[data-home-hero]")).toBeNull();
     expect(screen.queryByText("76")).not.toBeInTheDocument();
@@ -45,13 +46,14 @@ describe("HomeFold", () => {
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeTruthy();
   });
 
-  it("has-verdict shows the hero numeral, verdict word, and See results", () => {
+  it("has-verdict shows the hero numeral, verdict word, Companion line, and tool closes", () => {
     const { container } = render(
       <HomeFold
         {...base}
         latest={{ id: "a1", overallScore: 64 }}
         verdict="BUILD_FIRST"
         stopMessages={[]}
+        hasPath
         foldSentence="Financial Reality is the softest pillar on this read."
       />,
     );
@@ -66,9 +68,17 @@ describe("HomeFold", () => {
     expect(
       screen.getByText("Financial Reality is the softest pillar on this read."),
     ).toBeInTheDocument();
+    const companion = container.querySelector("[data-companion-fold-line]");
+    expect(companion).not.toBeNull();
+    expect(companion).toHaveTextContent(/Companion/);
+    expect(companion).toHaveTextContent(/binding step on Path to Ready/);
     const results = screen.getAllByRole("link", { name: /see results/i });
     expect(results.length).toBeGreaterThanOrEqual(1);
     expect(results[0]).toHaveAttribute("href", "/results");
+    expect(screen.getByRole("link", { name: /money picture/i })).toHaveAttribute(
+      "href",
+      "/money",
+    );
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeNull();
     expect(screen.queryByText("76")).not.toBeInTheDocument();
   });

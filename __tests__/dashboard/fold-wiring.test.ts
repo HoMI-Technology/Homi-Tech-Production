@@ -2,8 +2,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
-  PRIMARY_CLOSE_HREF,
   PRIMARY_CLOSE_LABEL,
+  SIGNED_IN_ASSESS_HREF,
 } from "@/components/marketing/first-moment-copy";
 
 const ROOT = process.cwd();
@@ -22,6 +22,12 @@ describe("onboarding skip lands on Home", () => {
     expect(page).toContain("ONBOARDING_SKIP_HREF");
     expect(page).toContain("finish(ONBOARDING_SKIP_HREF)");
     expect(page).toMatch(/router\.push\(\s*next\s*\)/);
+  });
+
+  it("does not attempt an unreachable guest assessment replay", () => {
+    const page = src("app", "(product)", "onboarding", "page.tsx");
+    expect(page).not.toContain("loadLocalResult");
+    expect(page).not.toContain("/api/assessments");
   });
 });
 
@@ -64,6 +70,13 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(fold).toContain("<OutcomeSurveyPrompt");
     expect(fold.indexOf("<PathNextMove")).toBeLessThan(fold.indexOf("<OutcomeSurveyPrompt"));
     expect(page).not.toContain("OutcomeSurveyPrompt");
+  });
+
+  it("surfaces a Companion fold line without mounting the chat graph", () => {
+    expect(fold).toContain("companionFoldLine");
+    expect(fold).toContain("data-companion-fold-line");
+    expect(fold).toContain("Money picture");
+    expect(fold).not.toContain("CompanionHost");
   });
 
   it("does not render the verdict spectrum — hard-stop theater stays off the fold", () => {
@@ -115,15 +128,17 @@ describe("empty Home first-run is one Assess close", () => {
   const ramp = src("components", "dashboard", "DashboardResumeRamp.tsx");
   const onboarding = src("app", "(product)", "onboarding", "page.tsx");
   const assessment = src("app", "(product)", "assessment", "page.tsx");
+  const sidebar = src("components", "layout", "AppSidebar.tsx");
 
-  it("dashboard empty preset is Assess → First Moment with no second CTA", () => {
+  it("dashboard empty preset is Assess → /assessment with no second CTA", () => {
     const start = empty.indexOf("dashboard:");
     const end = empty.indexOf("signals:", start);
     const preset = empty.slice(start, end);
-    expect(preset).toContain("PRIMARY_CLOSE_HREF");
+    expect(preset).toContain("SIGNED_IN_ASSESS_HREF");
     expect(preset).toContain("PRIMARY_CLOSE_LABEL");
-    expect(PRIMARY_CLOSE_HREF).toBe("/first-moment");
+    expect(SIGNED_IN_ASSESS_HREF).toBe("/assessment");
     expect(PRIMARY_CLOSE_LABEL).toBe("Assess");
+    expect(preset).not.toContain("PRIMARY_CLOSE_HREF");
     expect(preset).not.toContain("secondaryHref");
     expect(preset).not.toContain("secondaryLabel");
     expect(preset).not.toContain("/shadow-score");
@@ -132,15 +147,21 @@ describe("empty Home first-run is one Assess close", () => {
     }
   });
 
-  it("resume ramp has no Shadow Score second close", () => {
-    expect(ramp).toContain("PRIMARY_CLOSE_HREF");
-    expect(ramp).toContain("PRIMARY_CLOSE_LABEL");
+  it("resume ramp uses the signed-in Assess close — never First Moment", () => {
+    expect(ramp).toContain('preset="dashboard"');
+    expect(ramp).not.toContain("PRIMARY_CLOSE_HREF");
     expect(ramp).not.toContain("secondaryHref");
     expect(ramp).not.toContain("secondaryLabel");
     expect(ramp).not.toContain("/shadow-score");
     for (const banned of BANNED_FIRST_RUN) {
       expect(ramp).not.toContain(banned);
     }
+  });
+
+  it("live sidebar mounts the workspace switcher for multi-role users", () => {
+    expect(sidebar).toContain("DashboardSwitcher");
+    expect(sidebar).toContain("visibleDashboards");
+    expect(sidebar).toContain("data-sidebar-workspace-switcher");
   });
 
   it("onboarding and the guest assessment gate do not print those CTAs", () => {

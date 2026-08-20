@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
-import { HOME_FOLD_INSTRUMENT } from "@/lib/dashboard/fold-truth";
+import { HOME_FOLD_INSTRUMENT, companionFoldLine } from "@/lib/dashboard/fold-truth";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { HeroScore } from "@/components/dashboard/HeroScore";
 import { LoadErrorPanel } from "@/components/dashboard/LoadErrorPanel";
@@ -36,6 +36,7 @@ export function HomeFold({
   instrumentTint,
   dueSurvey,
   staleDays,
+  hasPath,
 }: {
   assessmentsFailed: boolean;
   latest: HomeFoldLatest | null;
@@ -47,11 +48,17 @@ export function HomeFold({
   instrumentTint: string;
   dueSurvey: HomeFoldSurvey | null;
   staleDays: number | null;
+  hasPath: boolean;
 }) {
   const verdictMeta = VERDICT_META[verdict ?? "BUILD_FIRST"];
   const scorePct =
     latest?.overallScore != null ? Math.round(latest.overallScore) : null;
   const hardStopActive = stopMessages.length > 0;
+  const companionLine = companionFoldLine({
+    hasHardStops: hardStopActive,
+    hasPath,
+    hasAssessment: latest !== null,
+  });
 
   return (
     <div
@@ -126,9 +133,20 @@ export function HomeFold({
 
           <PathNextMove />
 
-          <div className="mt-3">
+          <p
+            className="mt-4 max-w-xl text-sm leading-relaxed text-dim"
+            data-companion-fold-line=""
+          >
+            <span className="font-medium text-cyan/90">Companion · </span>
+            {companionLine}
+          </p>
+
+          <div className="mt-3 flex flex-wrap items-center gap-3">
             <Link href="/results" className="btn btn-ghost">
               See results
+            </Link>
+            <Link href="/money" className="btn btn-ghost">
+              Money picture
             </Link>
           </div>
 

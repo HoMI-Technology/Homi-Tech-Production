@@ -32,10 +32,10 @@ describe("DashboardResumeRamp", () => {
     expect(screen.getAllByRole("link")).toHaveLength(1);
   });
 
-  it("falls back to one Assess close on First Moment when there is no draft", () => {
+  it("falls back to one Assess close on the 45-q when there is no draft", () => {
     render(<DashboardResumeRamp />);
     const close = screen.getByRole("link", { name: /^assess$/i });
-    expect(close).toHaveAttribute("href", "/first-moment");
+    expect(close).toHaveAttribute("href", "/assessment");
     expect(screen.queryByRole("link", { name: /shadow score/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /full assessment/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /resume your assessment/i })).not.toBeInTheDocument();
