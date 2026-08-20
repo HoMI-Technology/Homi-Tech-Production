@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { PILLARS } from "@/lib/brand";
 import { ONBOARDING_SKIP_HREF } from "@/lib/dashboard/fold-truth";
 
@@ -12,27 +11,10 @@ const STEPS = ["What HōMI is", "What to expect", "Where to start"] as const;
 export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [saving, setSaving] = useState(false);
 
-  async function finish(next?: typeof ONBOARDING_SKIP_HREF) {
-    setSaving(true);
-    try {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        // Guests cannot hold a full assessment locally (they are sent to
-        // First Moment), so there is no local result to replay into the
-        // profile here. Mark onboarding done and move on.
-        await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", user.id);
-      }
-    } catch {
-      // Ignore — onboarding completion is a nicety, never a blocker.
-    } finally {
-      setSaving(false);
-      if (next) router.push(next);
-    }
+  function skip() {
+    // F5 — do not write the unread profiles flag; skip only navigates to Home.
+    router.push(ONBOARDING_SKIP_HREF);
   }
 
   return (
@@ -58,13 +40,7 @@ export default function OnboardingPage() {
       <div className="glass p-8 sm:p-10">
         {step === 0 && <StepWhatIsHomi />}
         {step === 1 && <StepWhatToExpect />}
-        {step === 2 && (
-          <StepWhereToStart
-            saving={saving}
-            onFinish={finish}
-            onSkip={() => finish(ONBOARDING_SKIP_HREF)}
-          />
-        )}
+        {step === 2 && <StepWhereToStart onSkip={skip} />}
 
         {step < 2 && (
           <div className="mt-10 flex items-center justify-between">
@@ -172,15 +148,7 @@ function StepWhatToExpect() {
   );
 }
 
-function StepWhereToStart({
-  saving,
-  onFinish,
-  onSkip,
-}: {
-  saving: boolean;
-  onFinish: () => Promise<void>;
-  onSkip: () => Promise<void>;
-}) {
+function StepWhereToStart({ onSkip }: { onSkip: () => void }) {
   return (
     <div>
       <h1 className="font-display text-2xl font-semibold text-light">
@@ -191,11 +159,7 @@ function StepWhereToStart({
       </p>
 
       <div className="mt-8">
-        <Link
-          href="/assessment"
-          onClick={onFinish}
-          className="glass glass-hover flex flex-col gap-2 p-5"
-        >
+        <Link href="/assessment" className="glass glass-hover flex flex-col gap-2 p-5">
           <span className="text-sm font-semibold text-cyan">Assess</span>
           <span className="text-xs text-dim">
             The complete read across all three pillars. About 5 minutes.
@@ -206,11 +170,10 @@ function StepWhereToStart({
       <div className="mt-8 flex justify-center">
         <button
           type="button"
-          disabled={saving}
           onClick={onSkip}
-          className="text-xs text-dim underline decoration-dotted underline-offset-4 hover:text-light disabled:opacity-60"
+          className="text-xs text-dim underline decoration-dotted underline-offset-4 hover:text-light"
         >
-          {saving ? "Saving…" : "Skip for now"}
+          Skip for now
         </button>
       </div>
     </div>

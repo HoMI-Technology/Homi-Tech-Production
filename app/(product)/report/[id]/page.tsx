@@ -27,7 +27,7 @@ void SURFACE_ROLES.report;
 
 /**
  * Persisted, shareable/printable record of one assessment.
- * Living Build = Home + Path. /results is an optional palette reveal.
+ * Living Build = Home + Path. /results is a guest empty / LHCI shell (signed-in → Home).
  * /plan is a read-only checklist deep-link. Don't duplicate those jobs here.
  */
 export default async function ReportPage({ params }: { params: Promise<{ id: string }> }) {

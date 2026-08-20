@@ -112,12 +112,14 @@ describe("FullAssessmentFlow does not score a guest", () => {
 });
 
 describe("guest /results does not paint a localStorage verdict", () => {
-  it("refuses ResultsVerdictView when there is no user", () => {
+  it("is a guest empty shell — no ResultsVerdictView", () => {
     const page = src("app", "(product)", "results", "page.tsx");
-    expect(page).toContain("discardScoreShapedShadow");
-    expect(page).toMatch(/isAnonymous\s*\?\s*null/);
+    expect(page).not.toContain("ResultsVerdictView");
+    expect(page).not.toContain("loadLocalResult");
+    expect(page).not.toContain("discardScoreShapedShadow");
+    expect(page).toContain("No results yet");
     expect(page).toContain('href="/assessment"');
-    expect(page.indexOf("isAnonymous ? null")).toBeLessThan(page.indexOf("<ResultsVerdictView"));
+    expect(page).toContain('router.replace("/dashboard")');
   });
 });
 

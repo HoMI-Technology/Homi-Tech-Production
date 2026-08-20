@@ -86,11 +86,10 @@ describe("perf bundle guards (Lighthouse §11 + E2E coexistence)", () => {
     expect(code).not.toMatch(/["']@\/lib\/scoring["']/);
   });
 
-  it("results page lazy-loads the verdict view (empty /results stays off Path/trail)", () => {
+  it("results page is a light guest shell (no verdict / Path / trail graph)", () => {
     const page = codeOnly(src("app/(product)/results/page.tsx"));
-    expect(page).toMatch(/next\/dynamic/);
-    expect(page).toMatch(/ResultsVerdictView/);
-    expect(page).toMatch(/import\s*\(\s*["']@\/components\/results\/ResultsVerdictView["']\s*\)/);
+    expect(page).not.toMatch(/ResultsVerdictView/);
+    expect(page).not.toMatch(/next\/dynamic/);
     expect(page).not.toMatch(/from\s+["']@\/components\/readiness["']/);
     expect(page).not.toMatch(/from\s+["']@\/components\/results\/ReasoningTrail["']/);
     expect(page).not.toMatch(/from\s+["']@\/components\/share\/ShareScoreButton["']/);

@@ -271,7 +271,7 @@ export function FullAssessmentFlow() {
       });
 
     // F8 — living Build is Home. Guests never reach this push (gated above).
-    // /results remains a palette reveal for revisiting the last verdict.
+    // Signed-in /results redirects here too — not a post-assessment destination.
     router.push("/dashboard");
   }
 

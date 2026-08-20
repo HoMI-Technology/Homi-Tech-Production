@@ -94,7 +94,7 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     surfaces: { header: "more", palette: true },
   },
   // /results removed from chrome (F8) — not a signed-in destination. Guest empty
-  // route remains for LHCI; signed-in visits redirect to Home.
+  // / LHCI shell remains at the route; signed-in visits redirect to Home.
   {
     href: "/timeline",
     label: "Score history",

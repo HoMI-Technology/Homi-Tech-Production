@@ -173,7 +173,7 @@ describe("assessments APIs reject or skip shadow as a score", () => {
 describe("/results does not paint leftover shadow as a HōMI-Score", () => {
   it("empty state sends guests to Assess, not a shadow score", () => {
     const page = readFileSync(join(process.cwd(), "app/(product)/results/page.tsx"), "utf8");
-    expect(page).toContain("discardScoreShapedShadow");
+    expect(page).not.toContain("ResultsVerdictView");
     expect(page).toContain('href="/assessment"');
     expect(page).toMatch(/>\s*Assess\s*</);
     expect(page).not.toContain("Get your Shadow Score");
