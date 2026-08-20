@@ -343,8 +343,7 @@ export function ResultsVerdictView({
         use the closes below when you&apos;re ready to keep building.
       </p>
       <p className="mt-3 max-w-2xl text-xs text-dim">
-        HōMI Score is not a credit score. Lenders will still pull a credit report. Fannie&apos;s
-        manual floor is still 620. That is their gate, not a HōMI verdict.
+        HōMI Score is not a credit score. Lenders will still pull a credit report. Fannie&apos;s manual floor is still 620. That is their gate, not a HōMI verdict.
       </p>
 
       {/* CTAs — signed-in returns to Home Build; guests save progress first. */}
