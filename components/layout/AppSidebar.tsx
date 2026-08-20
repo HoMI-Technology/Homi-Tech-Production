@@ -395,9 +395,10 @@ export function AppSidebar({
 
       {/* Desktop rail — icons at lg, labels at xl */}
       <aside className="fixed inset-y-0 left-0 z-[var(--z-nav)] hidden w-[72px] flex-col border-r border-white/5 bg-navy/60 backdrop-blur-xl lg:flex xl:w-[248px]">
-        <div className="flex h-16 shrink-0 items-center justify-center px-3 xl:justify-start">
+        <div className="flex h-16 shrink-0 items-center justify-center px-2 xl:justify-start xl:px-3">
           <Link href="/dashboard" aria-label="HōMI dashboard" className="flex items-center">
-            <Wordmark size="text-xl" />
+            {/* Collapsed lg rail is 72px — scale the mark so letter color still reads. */}
+            <Wordmark size="text-base xl:text-xl" />
           </Link>
         </div>
         <button

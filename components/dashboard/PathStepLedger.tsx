@@ -37,10 +37,10 @@ export function PathStepLedger({ suppress }: { suppress: boolean }) {
 
   return (
     <div className="mt-5" data-path-step-ledger="">
-      <p className="text-3xs font-bold uppercase tracking-[0.14em] text-dim">
-        Steps completed
-      </p>
-      <ul className="mt-2 space-y-1.5">
+      <div className="dash-section-kicker">
+        <span>Steps completed</span>
+      </div>
+      <ul className="space-y-1.5 border-t border-white/5 pt-3">
         {doneSteps.map((step) => (
           <li
             key={step.id}

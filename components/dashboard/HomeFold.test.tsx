@@ -66,7 +66,10 @@ describe("HomeFold", () => {
     const fold = container.querySelector("[data-home-fold]");
     expect(fold?.getAttribute("data-home-instrument")).toBe("build");
     expect(fold?.getAttribute("data-hard-stop")).toBe("0");
+    expect(fold?.classList.contains("dash-instrument")).toBe(true);
+    expect(screen.getByLabelText("HōMI")).toBeInTheDocument();
     expect(screen.getByText("Your build")).toBeInTheDocument();
+    expect(container.querySelector(".dash-hero-meta")).not.toBeNull();
     expect(container.querySelector("[data-home-build-hero]")).not.toBeNull();
     expect(container.querySelector("[data-home-build-progress]")).toHaveTextContent("2 of 7");
     expect(container.querySelector("[data-home-score-rail]")).not.toBeNull();
@@ -77,6 +80,7 @@ describe("HomeFold", () => {
     ).toBeInTheDocument();
     const companion = container.querySelector("[data-companion-fold-line]");
     expect(companion).not.toBeNull();
+    expect(companion?.classList.contains("panel-focus")).toBe(true);
     expect(companion).toHaveTextContent(/Companion/);
     expect(companion).toHaveTextContent(/binding step on Path to Ready/);
     const results = screen.getAllByRole("link", { name: /see results/i });

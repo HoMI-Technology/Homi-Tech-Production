@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { fetchLatestStoredAssessment } from "@/lib/assessment/latest";
-import { COLORS, withAlpha } from "@/lib/brand";
+import { COLORS } from "@/lib/brand";
 import { impactBus } from "@/lib/flags";
 import {
   loadReadinessPath,
@@ -128,19 +128,23 @@ export function PathNextMove({ variant = "default" }: { variant?: "default" | "f
   if (path.mode === "ready_optional") {
     return (
       <div
-        className={`${variant === "fold" ? "mt-4" : "mt-5"} rounded-xl border border-emerald/30 px-4 py-3 sm:px-5`}
-        style={{ background: withAlpha(COLORS.emerald, 0.08) }}
+        className={variant === "fold" ? undefined : "mt-5"}
         role="status"
         data-path-fold-hero={variant === "fold" ? "" : undefined}
       >
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-sm font-medium text-emerald">Last path: READY — optional review</p>
-          <Link
-            href="/results"
-            className="text-sm font-medium text-emerald/90 underline-offset-2 hover:underline"
-          >
-            View results
-          </Link>
+        <div
+          className={`dash-action-dock${variant === "fold" ? " !mt-0" : ""}`}
+          style={{ ["--instrument-tint" as string]: COLORS.emerald }}
+        >
+          <div className="min-w-0">
+            <p className="dash-action-dock-label">Path to Ready</p>
+            <p className="dash-action-dock-title">READY — optional review</p>
+          </div>
+          <div className="dash-action-dock-actions flex flex-wrap gap-2.5">
+            <Link href="/results" className="btn btn-ghost">
+              View results
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -155,12 +159,15 @@ export function PathNextMove({ variant = "default" }: { variant?: "default" | "f
 
   return (
     <div
-      className={variant === "fold" ? "mt-4" : "mt-5"}
+      className={variant === "fold" ? undefined : "mt-5"}
       data-path-habit-stage={stage}
       data-path-fold-hero={variant === "fold" ? "" : undefined}
       aria-label="Path to Ready next move"
     >
-      <div className="dash-action-dock" style={{ ["--instrument-tint" as string]: COLORS.cyan }}>
+      <div
+        className={`dash-action-dock${variant === "fold" ? " !mt-0" : ""}`}
+        style={{ ["--instrument-tint" as string]: COLORS.cyan }}
+      >
         <div className="min-w-0">
           <p className="dash-action-dock-label">
             {firstPending ? "Path habit · first move" : "Path to Ready"}

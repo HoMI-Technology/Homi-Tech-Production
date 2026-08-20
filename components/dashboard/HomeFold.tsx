@@ -5,6 +5,7 @@ import {
   buildProgressLabel,
   companionFoldLine,
 } from "@/lib/dashboard/fold-truth";
+import { Wordmark } from "@/components/brand/Wordmark";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { LoadErrorPanel } from "@/components/dashboard/LoadErrorPanel";
 import { VerdictCelebrate } from "@/components/dashboard/VerdictCelebrate";
@@ -27,7 +28,8 @@ export type HomeFoldSurvey = {
 /**
  * First viewport of signed-in Home — Direction C (build leads).
  * Path next move is the fold instrument; HōMI-Score is a compact rail
- * reading. No compass, no second chrome, no money ledger on Home.
+ * reading. Instrument chrome + wordmark carry brand identity; no compass
+ * theater on the scored fold.
  */
 export function HomeFold({
   assessmentsFailed,
@@ -75,119 +77,123 @@ export function HomeFold({
 
   return (
     <div
-      className="glass relative p-5 sm:p-7 lg:p-8"
+      className="dash-instrument"
       data-home-fold=""
       data-home-instrument={latest ? HOME_FOLD_INSTRUMENT : "empty"}
       data-hard-stop={hardStopActive ? "1" : "0"}
     >
-      {assessmentsFailed ? (
-        <LoadErrorPanel
-          title="Your readiness didn't load"
-          body="Your assessments are safe - this is a loading hiccup on our side, not a change in your data."
-        />
-      ) : latest ? (
-        <>
-          {latest && !suppressBuildPercent && (
-            <VerdictCelebrate
-              assessmentId={latest.id}
-              improved={improved}
-              label={verdictMeta.label}
-            />
-          )}
+      <div className="dash-instrument-inner p-5 sm:p-7 lg:p-8">
+        {assessmentsFailed ? (
+          <LoadErrorPanel
+            title="Your readiness didn't load"
+            body="Your assessments are safe - this is a loading hiccup on our side, not a change in your data."
+          />
+        ) : latest ? (
+          <>
+            {latest && !suppressBuildPercent && (
+              <VerdictCelebrate
+                assessmentId={latest.id}
+                improved={improved}
+                label={verdictMeta.label}
+              />
+            )}
 
-          {hardStopActive && (
-            <div
-              className="mb-5 rounded-xl border border-crimson/45 bg-crimson/10 px-4 py-3"
-              role="alert"
-              data-home-hard-stop=""
+            {hardStopActive && (
+              <div
+                className="mb-5 rounded-xl border border-crimson/45 bg-crimson/10 px-4 py-3"
+                role="alert"
+                data-home-hard-stop=""
+              >
+                <p className="text-3xs font-bold uppercase tracking-[0.14em] text-crimson">
+                  Hard stop
+                </p>
+                <ul className="mt-2 space-y-1.5 text-sm text-light">
+                  {stopMessages.map((message) => (
+                    <li key={message}>{message}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="dash-hero-meta">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                  <Wordmark size="text-xl sm:text-2xl" />
+                  <p className="eyebrow">Your build</p>
+                </div>
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-light/90">
+                  {foldSentence}
+                </p>
+              </div>
+              {progressLabel ? (
+                <p
+                  className="score-numeral text-sm text-light/80"
+                  data-home-build-progress=""
+                >
+                  {progressLabel}
+                </p>
+              ) : null}
+            </div>
+
+            {staleDays !== null && staleDays > 30 && (
+              <p className="mb-4 rounded-lg border border-amber/35 bg-verdict-build/90 px-4 py-2.5 text-sm text-light">
+                It has been {staleDays} days since your last assessment. Life
+                changes - consider a retest.
+              </p>
+            )}
+
+            <div data-home-build-hero="">
+              <PathNextMove variant="fold" />
+            </div>
+
+            <PathStepLedger suppress={hardStopActive || suppressBuildPercent} />
+
+            <p
+              className="panel-focus mt-5 max-w-xl rounded-xl border border-cyan/20 bg-cyan/[0.04] px-4 py-3 text-sm leading-relaxed text-dim"
+              data-companion-fold-line=""
             >
-              <p className="text-3xs font-bold uppercase tracking-[0.14em] text-crimson">
-                Hard stop
-              </p>
-              <ul className="mt-2 space-y-1.5 text-sm text-light">
-                {stopMessages.map((message) => (
-                  <li key={message}>{message}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <p className="text-3xs font-bold uppercase tracking-[0.16em] text-dim">
-              Your build
+              <span className="font-medium text-cyan/90">Companion · </span>
+              {companionLine}
             </p>
-            {progressLabel ? (
-              <p
-                className="score-numeral text-sm text-light/80"
-                data-home-build-progress=""
-              >
-                {progressLabel}
-              </p>
-            ) : null}
-          </div>
 
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-light/90">
-            {foldSentence}
-          </p>
-
-          {staleDays !== null && staleDays > 30 && (
-            <p className="mt-4 rounded-lg border border-amber/35 bg-verdict-build/90 px-4 py-2.5 text-sm text-light">
-              It has been {staleDays} days since your last assessment. Life
-              changes - consider a retest.
-            </p>
-          )}
-
-          <div data-home-build-hero="">
-            <PathNextMove variant="fold" />
-          </div>
-
-          <PathStepLedger suppress={hardStopActive || suppressBuildPercent} />
-
-          <p
-            className="mt-4 max-w-xl text-sm leading-relaxed text-dim"
-            data-companion-fold-line=""
-          >
-            <span className="font-medium text-cyan/90">Companion · </span>
-            {companionLine}
-          </p>
-
-          <div
-            className="mt-5 flex flex-wrap items-center gap-3 border-t border-white/5 pt-4"
-            data-home-score-rail=""
-          >
-            {scorePct != null && (
-              <p
-                className="score-numeral text-3xl font-semibold tabular-nums sm:text-4xl"
-                style={{ color: hardStopActive ? COLORS.crimson : instrumentTint }}
-                aria-label={`Overall HōMI-Score ${scorePct} out of 100`}
-              >
-                {scorePct}
-              </p>
-            )}
-            {verdict && (
-              <Link href="/results" aria-label="See results" data-home-verdict="">
-                <VerdictBadge verdict={verdict} size="md" />
-              </Link>
-            )}
-            <div className="flex flex-wrap items-center gap-3 sm:ml-auto">
-              <Link href="/results" className="btn btn-ghost">
-                See results
-              </Link>
-              <Link href="/money" className="btn btn-ghost">
-                Money picture
-              </Link>
+            <div
+              className="mt-5 flex flex-wrap items-center gap-3 border-t border-white/5 pt-4"
+              data-home-score-rail=""
+            >
+              {scorePct != null && (
+                <p
+                  className="score-numeral text-3xl font-semibold tabular-nums sm:text-4xl"
+                  style={{ color: hardStopActive ? COLORS.crimson : instrumentTint }}
+                  aria-label={`Overall HōMI-Score ${scorePct} out of 100`}
+                >
+                  {scorePct}
+                </p>
+              )}
+              {verdict && (
+                <Link href="/results" aria-label="See results" data-home-verdict="">
+                  <VerdictBadge verdict={verdict} size="md" />
+                </Link>
+              )}
+              <div className="flex flex-wrap items-center gap-3 sm:ml-auto">
+                <Link href="/results" className="btn btn-ghost">
+                  See results
+                </Link>
+                <Link href="/money" className="btn btn-ghost">
+                  Money picture
+                </Link>
+              </div>
             </div>
-          </div>
 
-          {dueSurvey && (
-            <div className="mt-5">
-              <OutcomeSurveyPrompt surveyId={dueSurvey.id} kind={dueSurvey.kind} />
-            </div>
-          )}
-        </>
-      ) : (
-        <DashboardResumeRamp />
-      )}
+            {dueSurvey && (
+              <div className="mt-5">
+                <OutcomeSurveyPrompt surveyId={dueSurvey.id} kind={dueSurvey.kind} />
+              </div>
+            )}
+          </>
+        ) : (
+          <DashboardResumeRamp />
+        )}
+      </div>
     </div>
   );
 }

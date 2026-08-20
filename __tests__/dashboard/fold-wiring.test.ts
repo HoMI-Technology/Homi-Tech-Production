@@ -91,6 +91,8 @@ describe("dashboard fold tells the truth about the build", () => {
   it("keeps one fold instrument and does not dual-mount compass + giant hero", () => {
     expect(page).toContain("HomeFold");
     expect(fold).toContain("HOME_FOLD_INSTRUMENT");
+    expect(fold).toContain("dash-instrument");
+    expect(fold).toContain("Wordmark");
     expect(fold).toContain("data-home-build-hero");
     expect(fold).toContain("data-home-score-rail");
     expect(fold).toContain("PathStepLedger");
