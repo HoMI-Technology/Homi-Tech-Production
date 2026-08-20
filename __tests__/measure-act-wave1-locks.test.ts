@@ -45,6 +45,9 @@ describe("Measure-Act Wave 1 locks", () => {
     expect(ui).toContain("MONEY_RECHECK_PROMPT");
     expect(ui).toContain("MONEY_RECHECK_RETAKE_HREF");
     expect(ui).toContain("/assessment");
+    expect(read("app/auth/sign-out/route.ts")).not.toContain(
+      "money-recheck-dismissed",
+    );
     for (const rel of WAVE1_UI) {
       const src = read(rel);
       expect(src, rel).not.toContain(
