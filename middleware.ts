@@ -66,6 +66,12 @@ export async function middleware(request: NextRequest) {
     // Fail CLOSED: without Supabase config the session can't be verified, so
     // a protected route must never be served — send it to sign-in instead of
     // passing it through. Public routes still pass through.
+    if (path === "/results" || path.startsWith("/results/")) {
+      const dest = request.nextUrl.clone();
+      dest.pathname = "/first-moment";
+      dest.search = "";
+      return NextResponse.redirect(dest);
+    }
     if (isProtected) {
       return redirectToSignIn(request, path);
     }
@@ -89,6 +95,18 @@ export async function middleware(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  // F8 — /results is retired. Signed-in → Home Build; guests → First Moment.
+  if (path === "/results" || path.startsWith("/results/")) {
+    const dest = request.nextUrl.clone();
+    dest.pathname = user ? "/dashboard" : "/first-moment";
+    dest.search = "";
+    const response = NextResponse.redirect(dest);
+    pendingCookies.forEach(({ name, value, options }) =>
+      response.cookies.set(name, value, options),
+    );
+    return response;
+  }
 
   if (isProtected && !user) {
     return redirectToSignIn(request, path);

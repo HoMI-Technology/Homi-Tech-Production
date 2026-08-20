@@ -170,27 +170,20 @@ describe("assessments APIs reject or skip shadow as a score", () => {
   });
 });
 
-describe("/results does not paint leftover shadow as a HōMI-Score", () => {
-  it("empty state sends guests to Assess, not a shadow score", () => {
-    const page = readFileSync(join(process.cwd(), "app/(product)/results/page.tsx"), "utf8");
-    expect(page).not.toContain("ResultsVerdictView");
-    expect(page).toContain('href="/assessment"');
-    expect(page).toMatch(/>\s*Assess\s*</);
-    expect(page).not.toContain("Get your Shadow Score");
-    expect(page).not.toContain('href="/shadow-score"');
+describe("/results is retired — no leftover shadow paint surface", () => {
+  it("product tree has no /results page or ResultsVerdictView", () => {
+    expect(() =>
+      readFileSync(join(process.cwd(), "app/(product)/results/page.tsx"), "utf8"),
+    ).toThrow();
+    expect(() =>
+      readFileSync(join(process.cwd(), "components/results/ResultsVerdictView.tsx"), "utf8"),
+    ).toThrow();
   });
 
-  it("ResultsVerdictView refuses to print a score for kind:shadow", () => {
-    const view = readFileSync(join(process.cwd(), "components/results/ResultsVerdictView.tsx"), "utf8");
-    expect(view).toContain("isShadowAssessmentKind");
-    expect(view).toContain('href="/assessment"');
-    const guardStart = view.indexOf("if (isShadowRead)");
-    const guardEnd = view.indexOf("const meta = VERDICT_META");
-    const shadowGuard = view.slice(guardStart, guardEnd);
-    expect(shadowGuard).toContain('href="/assessment"');
-    expect(shadowGuard).toMatch(/>\s*Assess\s*</);
-    expect(shadowGuard).not.toContain("CountUpScore");
-    expect(shadowGuard).not.toContain("HōMI-Score");
-    expect(shadowGuard).not.toContain("VerdictBadge");
+  it("middleware retires /results without shadow-score CTAs", () => {
+    const mw = readFileSync(join(process.cwd(), "middleware.ts"), "utf8");
+    expect(mw).toContain('path === "/results"');
+    expect(mw).not.toContain("Get your Shadow Score");
+    expect(mw).not.toContain('href="/shadow-score"');
   });
 });

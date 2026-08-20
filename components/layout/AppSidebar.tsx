@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  BarChart2,
   BookOpen,
   ClipboardCheck,
   Compass,
@@ -112,7 +111,6 @@ const ICONS: Record<string, LucideIcon> = {
   "/assessment": ClipboardCheck,
   "/money": DollarSign,
   "/path": MapPin,
-  "/results": BarChart2,
   "/household": Users,
   "/tools/preflight": Wrench,
   "/scenarios": LayoutGrid,

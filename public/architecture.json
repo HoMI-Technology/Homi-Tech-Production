@@ -1,7 +1,7 @@
 {
   "_meta": {
     "version": "v1",
-    "generated": "2026-08-08",
+    "generated": "2026-08-20",
     "product": "HōMI",
     "full_name": "HOMI TECHNOLOGIES LLC — Decision Readiness Intelligence™",
     "domain": "homitechnology.com",
@@ -13,12 +13,12 @@
     "authority": "Executable TypeScript in this repo wins over this document. Prefer lib/scoring, lib/brand, lib/agents/registry on conflict."
   },
   "stats": {
-    "product_routes": 98,
-    "api_routes": 27,
+    "product_routes": 103,
+    "api_routes": 28,
     "component_directories": 34,
-    "lib_modules": 47,
-    "db_tables": 37,
-    "migrations": 51,
+    "lib_modules": 51,
+    "db_tables": 42,
+    "migrations": 57,
     "calculators": 14,
     "ai_agents": 7,
     "gaps": 3
@@ -249,6 +249,14 @@
       "file": "app/(product)/connections/page.tsx"
     },
     {
+      "path": "/connections/oauth",
+      "name": "Oauth",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/connections/oauth/page.tsx"
+    },
+    {
       "path": "/credit",
       "name": "Credit",
       "category": "Dashboard",
@@ -305,12 +313,12 @@
       "file": "app/(product)/employee/dashboard/page.tsx"
     },
     {
-      "path": "/finance",
-      "name": "Finance",
+      "path": "/first-moment",
+      "name": "First Moment",
       "category": "Product",
       "status": "complete",
       "features": [],
-      "file": "app/(product)/finance/page.tsx"
+      "file": "app/(marketing)/first-moment/page.tsx"
     },
     {
       "path": "/genome",
@@ -335,6 +343,14 @@
       "status": "complete",
       "features": [],
       "file": "app/(marketing)/guides/[slug]/page.tsx"
+    },
+    {
+      "path": "/guides/hard-stops",
+      "name": "Hard Stops",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/(marketing)/guides/hard-stops/page.tsx"
     },
     {
       "path": "/household",
@@ -465,6 +481,22 @@
       "file": "app/(product)/money/decide/page.tsx"
     },
     {
+      "path": "/money/goals",
+      "name": "Goals",
+      "category": "Dashboard",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/money/goals/page.tsx"
+    },
+    {
+      "path": "/money/investments",
+      "name": "Investments",
+      "category": "Dashboard",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/money/investments/page.tsx"
+    },
+    {
       "path": "/money/plan",
       "name": "Plan",
       "category": "Dashboard",
@@ -561,14 +593,6 @@
       "file": "app/(product)/report/[id]/print/page.tsx"
     },
     {
-      "path": "/results",
-      "name": "Results",
-      "category": "Assessment",
-      "status": "complete",
-      "features": [],
-      "file": "app/(product)/results/page.tsx"
-    },
-    {
       "path": "/scenarios",
       "name": "Scenarios",
       "category": "Product",
@@ -647,6 +671,14 @@
       "status": "complete",
       "features": [],
       "file": "app/(product)/team/page.tsx"
+    },
+    {
+      "path": "/timeline",
+      "name": "Timeline",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/timeline/page.tsx"
     },
     {
       "path": "/tools",
@@ -785,6 +817,14 @@
       "file": "app/(product)/trinity/page.tsx"
     },
     {
+      "path": "/trust",
+      "name": "Trust",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/trust/page.tsx"
+    },
+    {
       "path": "/twin",
       "name": "Twin",
       "category": "AI Companion",
@@ -911,6 +951,11 @@
       "method": "GET/POST"
     },
     {
+      "path": "/api/simulator",
+      "purpose": "simulator API",
+      "method": "GET/POST"
+    },
+    {
       "path": "/api/tools",
       "purpose": "tools API",
       "method": "GET/POST"
@@ -949,22 +994,25 @@
   "component_directories": [
     {
       "name": "admin",
-      "count": 12,
+      "count": 32,
       "description": "admin UI module",
       "examples": [
-        "admin-nav",
+        "ActivationInstrument",
+        "AdSpendForm",
         "AdminAccessWall",
         "AdminSidebar",
-        "AdSpendForm",
-        "Badge"
+        "AgencyControlTower"
       ]
     },
     {
       "name": "advisor",
-      "count": 1,
+      "count": 4,
       "description": "advisor UI module",
       "examples": [
-        "Chat"
+        "Chat",
+        "Phase0FreezeScreen",
+        "Phase0FreezeView",
+        "Phase0VerdictGate"
       ]
     },
     {
@@ -989,14 +1037,14 @@
     },
     {
       "name": "assessment",
-      "count": 15,
+      "count": 17,
       "description": "assessment UI module",
       "examples": [
+        "AssessmentShell",
         "BankQuestionField",
         "ChoiceCards.test",
         "ChoiceCards",
-        "CountUpScore",
-        "CredentialPrintButton"
+        "CountUpScore"
       ]
     },
     {
@@ -1061,20 +1109,20 @@
       "count": 2,
       "description": "consent UI module",
       "examples": [
-        "consent-shared",
-        "CookieConsent"
+        "CookieConsent",
+        "consent-shared"
       ]
     },
     {
       "name": "dashboard",
-      "count": 20,
+      "count": 30,
       "description": "dashboard UI module",
       "examples": [
         "BankConnectCard",
         "ConnectionsTile",
         "DailyPulseStrip",
-        "DecisionTimeline",
-        "entrance-shared"
+        "DashSpectrum.test",
+        "DashSpectrum"
       ]
     },
     {
@@ -1100,22 +1148,22 @@
       "description": "finance UI module",
       "examples": [
         "HardStopBanner",
-        "PillarBreakdown",
-        "readiness-types",
+        "ObservedPrefillCard",
         "ThresholdCompass",
-        "WarningsBanner"
+        "WarningsBanner",
+        "readiness-types"
       ]
     },
     {
       "name": "home",
-      "count": 12,
+      "count": 21,
       "description": "home UI module",
       "examples": [
         "AlignmentScene",
         "CinemaFX",
         "CinematicCompass",
         "Compass3D",
-        "DecisionOrbit"
+        "CompassFilter"
       ]
     },
     {
@@ -1130,14 +1178,14 @@
     },
     {
       "name": "layout",
-      "count": 17,
+      "count": 26,
       "description": "layout UI module",
       "examples": [
         "AppHeader",
+        "AppSidebar",
         "ClientProviders.test",
         "ClientProviders",
-        "CommandPalette",
-        "CopyrightYear"
+        "CommandPalette"
       ]
     },
     {
@@ -1150,49 +1198,50 @@
     },
     {
       "name": "marketing",
-      "count": 6,
+      "count": 9,
       "description": "marketing UI module",
       "examples": [
         "ArtifactPlayground",
-        "blog-data",
-        "guides-data",
+        "FirstMoment",
         "PricingCheckoutButton",
-        "UnsubscribeConfirm"
+        "UnsubscribeConfirm",
+        "WaitlistForm.test"
       ]
     },
     {
       "name": "money",
-      "count": 4,
+      "count": 7,
       "description": "money UI module",
       "examples": [
         "MoneyDecideHub",
         "MoneyModeNav",
-        "MoneyShell",
-        "MoneyStand"
+        "MoneyModeRail",
+        "MoneyPicturePanel",
+        "MoneyShell"
       ]
     },
     {
       "name": "operate",
-      "count": 6,
+      "count": 8,
       "description": "operate UI module",
       "examples": [
+        "ActionDock",
         "AttentionStrip",
         "InviteShareRow",
         "MetricRail",
-        "OperateInstrument",
-        "PageFrame"
+        "OperateHeroMeta"
       ]
     },
     {
       "name": "planner",
-      "count": 37,
+      "count": 42,
       "description": "planner UI module",
       "examples": [
-        "banking-derive",
-        "BankingCommand",
-        "AgendaList",
-        "DayForms",
-        "DayInspector"
+        "ImpactToast",
+        "NudgeRail",
+        "PlannerApp",
+        "PlannerPage",
+        "ReadinessHero"
       ]
     },
     {
@@ -1218,12 +1267,14 @@
     },
     {
       "name": "results",
-      "count": 3,
+      "count": 7,
       "description": "results UI module",
       "examples": [
-        "SaveStatusBanner.test",
-        "SaveStatusBanner",
-        "ScoreExplanation"
+        "DataQualityChip.test",
+        "DataQualityChip",
+        "ProvenanceLine",
+        "ReasoningTrail",
+        "SaveStatusBanner.test"
       ]
     },
     {
@@ -1266,14 +1317,14 @@
     },
     {
       "name": "tools",
-      "count": 12,
+      "count": 20,
       "description": "tools UI module",
       "examples": [
         "CalcField",
         "ChainLinks",
         "DeltasCard",
-        "LensField",
-        "LensSynthesis"
+        "HousingPanels",
+        "LensField"
       ]
     },
     {
@@ -1286,18 +1337,22 @@
     },
     {
       "name": "ui",
-      "count": 31,
+      "count": 35,
       "description": "ui UI module",
       "examples": [
         "AnimatedNumber",
         "Celebrate",
         "ChartTooltip",
-        "count-up",
-        "DashboardLoadingSkeleton"
+        "DashboardLoadingSkeleton",
+        "EmptyState"
       ]
     }
   ],
   "lib_modules": [
+    {
+      "name": "account",
+      "purpose": "account domain module"
+    },
     {
       "name": "admin",
       "purpose": "admin domain module"
@@ -1407,6 +1462,10 @@
       "purpose": "notifications domain module"
     },
     {
+      "name": "observe",
+      "purpose": "observe domain module"
+    },
+    {
       "name": "outcomes",
       "purpose": "outcomes domain module"
     },
@@ -1460,6 +1519,10 @@
     },
     {
       "name": "simulator",
+      "purpose": "simulator domain module"
+    },
+    {
+      "name": "simulator",
       "purpose": "simulator.ts helper"
     },
     {
@@ -1485,6 +1548,10 @@
     {
       "name": "validation",
       "purpose": "validation domain module"
+    },
+    {
+      "name": "waitlist",
+      "purpose": "waitlist.ts helper"
     }
   ],
   "db_tables": [
@@ -1597,6 +1664,58 @@
       "rls": true,
       "category": "user",
       "description": "Synced transactions"
+    },
+    {
+      "name": "plaid_account_owners",
+      "columns": [
+        "id",
+        "user_id",
+        "account_id"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Bank-file Identity owners (service-role only)"
+    },
+    {
+      "name": "plaid_securities",
+      "columns": [
+        "security_id"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Plaid investment securities catalog"
+    },
+    {
+      "name": "plaid_holdings",
+      "columns": [
+        "id",
+        "user_id",
+        "security_id"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Plaid investment holdings"
+    },
+    {
+      "name": "plaid_investment_transactions",
+      "columns": [
+        "id",
+        "user_id"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Plaid investment transactions"
+    },
+    {
+      "name": "plaid_liabilities",
+      "columns": [
+        "id",
+        "user_id",
+        "account_id"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Plaid credit/student/mortgage liabilities"
     },
     {
       "name": "credit_snapshots",

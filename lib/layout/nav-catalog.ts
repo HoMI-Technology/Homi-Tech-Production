@@ -93,8 +93,7 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     keywords: "next steps journey roadmap",
     surfaces: { header: "more", palette: true },
   },
-  // /results removed from chrome (F8) — not a signed-in destination. Guest empty
-  // / LHCI shell remains at the route; signed-in visits redirect to Home.
+  // /results retired (F8) — middleware redirects; not in chrome or palette.
   {
     href: "/timeline",
     label: "Score history",

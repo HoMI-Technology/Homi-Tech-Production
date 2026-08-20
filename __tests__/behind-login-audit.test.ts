@@ -32,32 +32,31 @@ describe("verdict email privacy", () => {
 });
 
 describe("retake CTAs land on the flow that can re-score", () => {
-  it("results retake goes to /assessment, never the score-less shadow read", () => {
-    const view = read("components", "results", "ResultsVerdictView.tsx");
-    expect(view).toContain("Retake the assessment");
-    expect(view).not.toContain('"/shadow-score"');
+  it("report retake goes to /assessment, never the score-less shadow read", () => {
+    const report = read("app", "(product)", "report", "[id]", "page.tsx");
+    expect(report).toContain("Retake the assessment");
+    expect(report).toContain('href="/assessment"');
+    expect(report).not.toContain('"/shadow-score"');
   });
 
-  it("results primary CTA is auth-aware: Home for signed-in, save for guests", () => {
-    const view = read("components", "results", "ResultsVerdictView.tsx");
-    expect(view).toContain('href="/dashboard"');
-    expect(view).toContain("Continue on Home");
-    expect(view).toContain('href="/auth/sign-up"');
-    expect(view).toContain("Save your progress");
-    expect(view).toContain('href="/path"');
-    expect(view).not.toContain("Build your plan");
-    expect(view).not.toMatch(/href="\/plan"/);
-    // Reveal only — Path operate lives on Home / /path; signed-in /results redirects Home.
-    expect(view).not.toContain("PathToReadyCard");
-    expect(view).not.toContain("#path-to-ready");
-    expect(view).not.toContain("Your next steps");
-    expect(view).not.toContain("Your activation path");
+  it("report primary CTA is Home Build, with Path alongside", () => {
+    const report = read("app", "(product)", "report", "[id]", "page.tsx");
+    expect(report).toContain('href="/dashboard"');
+    expect(report).toContain("Continue on Home");
+    expect(report).toContain('href="/path"');
+    expect(report).not.toContain("Build your plan");
+    expect(report).not.toMatch(/href="\/plan"/);
+    expect(report).not.toContain("PathToReadyCard");
+    expect(report).not.toContain("#path-to-ready");
+    expect(report).not.toContain("Your next steps");
+    expect(report).not.toContain("Your activation path");
   });
 
-  it("signed-in /results redirects to Home Build", () => {
-    const page = read("app", "(product)", "results", "page.tsx");
-    expect(page).toContain('router.replace("/dashboard")');
-    expect(page).toContain("Opening Home");
+  it("middleware retires /results — signed-in → Home, guest → First Moment", () => {
+    const mw = read("middleware.ts");
+    expect(mw).toContain('path === "/results"');
+    expect(mw).toContain('user ? "/dashboard" : "/first-moment"');
+    expect(mw).not.toContain("ResultsVerdictView");
   });
 
   it("plan retake goes to /assessment and Build owns the primary close", () => {

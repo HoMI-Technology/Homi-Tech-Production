@@ -2,8 +2,8 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const RESULTS = readFileSync(
-  resolve(process.cwd(), "components/results/ResultsVerdictView.tsx"),
+const REPORT = readFileSync(
+  resolve(process.cwd(), "app/(product)/report/[id]/page.tsx"),
   "utf8",
 );
 const HOW = readFileSync(
@@ -17,22 +17,21 @@ const LOCKED = [
 ] as const;
 
 describe("Ticket 4 copy lock", () => {
-  it("puts the locked sentences on Results and how-it-works", () => {
+  it("puts the locked sentences on the record and how-it-works", () => {
     for (const line of LOCKED) {
-      expect(RESULTS).toContain(line);
+      expect(REPORT).toContain(line);
       expect(HOW).toContain(line);
     }
-    expect(RESULTS).toContain("Fannie&apos;s manual floor is still 620.");
+    expect(REPORT).toContain("Fannie&apos;s manual floor is still 620.");
     expect(HOW).toContain("gates are their gates, not a HōMI verdict.");
   });
 
-  it("does not mount the finance ThresholdCompass on Results", () => {
-    expect(RESULTS).toContain('from "@/components/brand/ThresholdCompass"');
-    expect(RESULTS).not.toContain("@/components/finance/ThresholdCompass");
+  it("does not mount the finance ThresholdCompass on the record", () => {
+    expect(REPORT).not.toContain("@/components/finance/ThresholdCompass");
   });
 
   it("never ships replacement claims", () => {
-    const blob = `${RESULTS}\n${HOW}`;
+    const blob = `${REPORT}\n${HOW}`;
     expect(blob).not.toContain("replace your credit score");
     expect(blob).not.toContain("HōMI-approved");
     expect(blob).not.toContain("share with your lender");

@@ -111,15 +111,14 @@ describe("FullAssessmentFlow does not score a guest", () => {
   });
 });
 
-describe("guest /results does not paint a localStorage verdict", () => {
-  it("is a guest empty shell — no ResultsVerdictView", () => {
-    const page = src("app", "(product)", "results", "page.tsx");
-    expect(page).not.toContain("ResultsVerdictView");
-    expect(page).not.toContain("loadLocalResult");
-    expect(page).not.toContain("discardScoreShapedShadow");
-    expect(page).toContain("No results yet");
-    expect(page).toContain('href="/assessment"');
-    expect(page).toContain('router.replace("/dashboard")');
+describe("guest /results is retired", () => {
+  it("middleware sends guests to First Moment; no results page or verdict view", () => {
+    const mw = src("middleware.ts");
+    expect(mw).toContain('path === "/results"');
+    expect(mw).toContain('"/first-moment"');
+    expect(mw).toContain('"/dashboard"');
+    expect(() => src("app", "(product)", "results", "page.tsx")).toThrow();
+    expect(() => src("components", "results", "ResultsVerdictView.tsx")).toThrow();
   });
 });
 

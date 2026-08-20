@@ -24,7 +24,7 @@ test.describe("guest /assessment is First Moment", () => {
     await expect(page.getByText("HōMI-Score out of 100")).toHaveCount(0);
   });
 
-  test("guest /results does not paint a 4-band verdict from localStorage", async ({ page }) => {
+  test("guest /results redirects to First Moment — never paints a verdict", async ({ page }) => {
     await page.addInitScript(() => {
       window.localStorage.setItem(
         "homi:last-assessment",
@@ -43,10 +43,9 @@ test.describe("guest /assessment is First Moment", () => {
       );
     });
     await page.goto("/results");
-    await expect(page.getByRole("heading", { name: /No results yet/i })).toBeVisible();
+    await expect(page).toHaveURL(/\/first-moment/, { timeout: 15_000 });
     await expect(page.getByText("HōMI-Score out of 100")).toHaveCount(0);
     await expect(page.getByText("See my HōMI-Score")).toHaveCount(0);
-    await expect(page.locator('[class*="bg-verdict-"]')).toHaveCount(0);
   });
 });
 
