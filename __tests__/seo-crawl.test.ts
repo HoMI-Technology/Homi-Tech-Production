@@ -314,7 +314,11 @@ describe("credit-score copy stays the live homepage line — never a replacement
       const text = src(...rel.split("/"));
       expect(text, rel).not.toMatch(/"@type":\s*"LocalBusiness"/);
       expect(text, rel).not.toMatch(/"@type":\s*"PostalAddress"/);
-      expect(text, rel).not.toMatch(/Palm Springs/i);
+      // Legal contact copy may name the Florida mailing address. That is not
+      // LocalBusiness / house-SKU schema and must stay off marketing metadata.
+      if (!rel.startsWith("app/(marketing)/legal/")) {
+        expect(text, rel).not.toMatch(/Palm Springs/i);
+      }
     }
   });
 });
