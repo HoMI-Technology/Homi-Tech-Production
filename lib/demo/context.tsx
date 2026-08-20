@@ -3,10 +3,10 @@
 /**
  * Fixed mock dataset for the public /demo page. Fully decoupled from real
  * app state and Supabase — no network calls, no auth. Score 67 lands in the
- * ALMOST_THERE band (65-79, see lib/scoring/engine.ts THRESHOLD_ALMOST/
- * THRESHOLD_READY). Pillar points (24/23/20 against maxes 35/35/30) sum to
- * exactly 67, matching how the real engine derives overall_score as the sum
- * of pillar totals.
+ * ALMOST_THERE band (see lib/scoring/verdicts.ts; thresholds and pillar
+ * maxima are internal, not public canon — 2026-08 secrecy direction).
+ * The demo pillar points sum to exactly 67, matching how the real engine
+ * derives overall_score as the sum of pillar totals.
  */
 
 import { createContext, useContext, useMemo } from "react";
