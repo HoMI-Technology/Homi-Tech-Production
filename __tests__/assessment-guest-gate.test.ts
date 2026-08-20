@@ -135,7 +135,8 @@ describe("guest /plan does not paint a localStorage score", () => {
   it("empty state closes: guest → First Moment; signed-in → Assess + Path", () => {
     const page = src("app", "(product)", "plan", "page.tsx");
     const emptyStart = page.indexOf("No plan yet");
-    const emptyEnd = page.indexOf("const doneCount");
+    // Scored checklist starts after the empty return — no local doneCount anymore.
+    const emptyEnd = page.indexOf("Checklist · deep link");
     const empty = page.slice(emptyStart, emptyEnd);
     expect(emptyStart).toBeGreaterThan(-1);
     expect(emptyEnd).toBeGreaterThan(emptyStart);
