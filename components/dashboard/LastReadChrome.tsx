@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import type { VerdictKey } from "@/lib/brand";
 import {
   lastReadAgeFrom,
-  lastReadSentence,
-  moneyPictureImproved,
+  lastReadHeadline,
+  moneyPictureDirection,
+  moneyPictureDirectionLine,
   type LastReadMoneyInputs,
 } from "@/lib/dashboard/last-read-chrome";
 import {
@@ -16,54 +17,47 @@ import {
 import { metricsFromLedger } from "@/lib/finance/metrics";
 
 /**
- * One sentence on the existing scored fold. Not a second card.
- * Closer-to uses last assessment inputs vs Money — never a new score.
+ * Existing scored-fold chrome only — not a second card.
+ * Last verdict + calendar age + optional same-way direction.
+ * Never a next-band proximity claim. Never a live score.
  */
 export function LastReadChrome({
   verdict,
   lastReadAt,
   showAge,
   lastMoney,
-  hardStop,
 }: {
   verdict: VerdictKey;
   lastReadAt: string | null;
   showAge: boolean;
   lastMoney: LastReadMoneyInputs | null;
-  hardStop: boolean;
 }) {
-  const [improving, setImproving] = useState(false);
+  const [directionLine, setDirectionLine] = useState<string | null>(null);
 
   useEffect(() => {
     if (!lastMoney || !hasSavedBudgetLedger()) {
-      setImproving(false);
+      setDirectionLine(null);
       return;
     }
     const nowIso = new Date().toISOString();
     const metrics = metricsFromLedger(loadBudgetLedger(nowIso), nowIso, budgetLedgerSavedAt());
-    setImproving(
-      moneyPictureImproved({
-        lastDtiRatio: lastMoney.debtToIncomeRatio,
-        lastEmergencyFundMonths: lastMoney.emergencyFundMonths,
-        lastSavingsRateRatio: lastMoney.savingsRate,
-        currentDtiPercent: metrics.dti.pct,
-        currentEmergencyFundMonths: metrics.runway.months,
-        currentSavingsRatePercent: metrics.savingsRatePct,
-      }),
-    );
+    const direction = moneyPictureDirection({
+      lastDtiRatio: lastMoney.debtToIncomeRatio,
+      lastEmergencyFundMonths: lastMoney.emergencyFundMonths,
+      lastSavingsRateRatio: lastMoney.savingsRate,
+      currentDtiPercent: metrics.dti.pct,
+      currentEmergencyFundMonths: metrics.runway.months,
+      currentSavingsRatePercent: metrics.savingsRatePct,
+    });
+    setDirectionLine(moneyPictureDirectionLine(direction));
   }, [lastMoney]);
 
-  const sentence = lastReadSentence({
-    verdict,
-    age: showAge ? lastReadAgeFrom(lastReadAt) : null,
-    improving,
-    hardStop,
-  });
-  if (!sentence) return null;
+  const headline = lastReadHeadline(verdict, showAge ? lastReadAgeFrom(lastReadAt) : null);
 
   return (
-    <p data-last-read-chrome="" className="min-w-0 text-sm text-dim">
-      {sentence}
-    </p>
+    <div data-last-read-chrome="" className="min-w-0 text-sm text-dim">
+      <p data-last-read-verdict="">{headline}</p>
+      {directionLine ? <p data-last-read-direction="">{directionLine}</p> : null}
+    </div>
   );
 }

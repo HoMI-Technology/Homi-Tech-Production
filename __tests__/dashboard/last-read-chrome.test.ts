@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { VerdictKey } from "@/lib/brand";
 import {
+  LAST_READ_STRONGER,
+  LAST_READ_WEAKER,
   PUBLIC_VERDICT_LABELS,
-  closerToLine,
   lastReadAgeFrom,
-  lastReadSentence,
-  moneyPictureImproved,
-  nextPublicVerdict,
+  lastReadHeadline,
+  moneyPictureDirection,
+  moneyPictureDirectionLine,
   publicVerdictLabel,
 } from "@/lib/dashboard/last-read-chrome";
 
@@ -21,39 +22,55 @@ describe("last-read chrome — MEASURE_ACT_W1", () => {
       expect(label).not.toMatch(/^Not yet$/i);
     }
     expect(lastReadAgeFrom("2026-03-15T12:00:00.000Z")).toBe("from March 15.");
+    expect(lastReadHeadline("BUILD_FIRST", "from March 15.")).toBe(
+      "Last read: BUILD FIRST from March 15.",
+    );
+    expect(lastReadHeadline("READY", null)).toBe("Last read: READY");
+    expect(lastReadHeadline("NOT_YET", "from March 15.")).toBe(
+      "Last read: DO NOT PROCEED from March 15.",
+    );
+    expect(lastReadHeadline("BUILD_FIRST", "from March 15.")).not.toMatch(/closer to/i);
   });
 
-  it("names the next public band in Brand words — never NOT_YET", () => {
-    expect(nextPublicVerdict("NOT_YET")).toBe("BUILD_FIRST");
-    expect(closerToLine("NOT_YET")).toBe("closer to BUILD FIRST.");
-    expect(closerToLine("BUILD_FIRST")).toBe("closer to ALMOST THERE.");
-    expect(closerToLine("ALMOST_THERE")).toBe("closer to READY.");
-    expect(closerToLine("READY")).toBeNull();
+  it("emits stronger only when DTI, EF, and savings-rate all moved the same way", () => {
+    const direction = moneyPictureDirection({
+      lastDtiRatio: 0.4,
+      lastEmergencyFundMonths: 2,
+      lastSavingsRateRatio: 0.06,
+      currentDtiPercent: 27,
+      currentEmergencyFundMonths: 6,
+      currentSavingsRatePercent: 21,
+    });
+    expect(direction).toBe("stronger");
+    expect(moneyPictureDirectionLine(direction)).toBe(LAST_READ_STRONGER);
   });
 
-  it("closer-to only when Money moved improving — no new score", () => {
+  it("emits weaker only when all three moved weaker — including READY", () => {
+    const direction = moneyPictureDirection({
+      lastDtiRatio: 0.2,
+      lastEmergencyFundMonths: 6,
+      lastSavingsRateRatio: 0.22,
+      currentDtiPercent: 44,
+      currentEmergencyFundMonths: 2,
+      currentSavingsRatePercent: 4,
+    });
+    expect(direction).toBe("weaker");
+    expect(moneyPictureDirectionLine(direction)).toBe(LAST_READ_WEAKER);
+  });
+
+  it("omits mixed or unchanged — no closer-to band claim", () => {
     expect(
-      moneyPictureImproved({
+      moneyPictureDirection({
         lastDtiRatio: 0.4,
         lastEmergencyFundMonths: 2,
         lastSavingsRateRatio: 0.06,
         currentDtiPercent: 27,
-        currentEmergencyFundMonths: 2,
-        currentSavingsRatePercent: 6,
+        currentEmergencyFundMonths: 1.2,
+        currentSavingsRatePercent: 21,
       }),
-    ).toBe(true);
+    ).toBeNull();
     expect(
-      moneyPictureImproved({
-        lastDtiRatio: 0.2,
-        lastEmergencyFundMonths: 6,
-        lastSavingsRateRatio: 0.22,
-        currentDtiPercent: 44,
-        currentEmergencyFundMonths: 2,
-        currentSavingsRatePercent: 4,
-      }),
-    ).toBe(false);
-    expect(
-      moneyPictureImproved({
+      moneyPictureDirection({
         lastDtiRatio: 0.3,
         lastEmergencyFundMonths: 4,
         lastSavingsRateRatio: 0.12,
@@ -61,57 +78,19 @@ describe("last-read chrome — MEASURE_ACT_W1", () => {
         currentEmergencyFundMonths: 4.5,
         currentSavingsRatePercent: 11,
       }),
-    ).toBe(false);
-  });
-
-  it("one sentence: age + closer-to; READY has no closer-to; hard stop yields progress", () => {
+    ).toBeNull();
     expect(
-      lastReadSentence({
-        verdict: "BUILD_FIRST",
-        age: "from March 15.",
-        improving: true,
-        hardStop: false,
+      moneyPictureDirection({
+        lastDtiRatio: 0.4,
+        lastEmergencyFundMonths: 2,
+        lastSavingsRateRatio: 0.06,
+        currentDtiPercent: 27,
+        currentEmergencyFundMonths: 2,
+        currentSavingsRatePercent: 6,
       }),
-    ).toBe("from March 15. closer to ALMOST THERE.");
-    expect(
-      lastReadSentence({
-        verdict: "READY",
-        age: "from March 15.",
-        improving: true,
-        hardStop: false,
-      }),
-    ).toBe("from March 15.");
-    expect(
-      lastReadSentence({
-        verdict: "ALMOST_THERE",
-        age: "from March 15.",
-        improving: true,
-        hardStop: true,
-      }),
-    ).toBe("from March 15.");
-    expect(
-      lastReadSentence({
-        verdict: "ALMOST_THERE",
-        age: "from March 15.",
-        improving: true,
-        hardStop: true,
-      }),
-    ).not.toMatch(/closer to READY/);
-    expect(
-      lastReadSentence({
-        verdict: "BUILD_FIRST",
-        age: "from March 15.",
-        improving: false,
-        hardStop: false,
-      }),
-    ).toBe("from March 15.");
-    expect(
-      lastReadSentence({
-        verdict: "NOT_YET",
-        age: "from March 15.",
-        improving: true,
-        hardStop: false,
-      }),
-    ).toBe("from March 15. closer to BUILD FIRST.");
+    ).toBeNull();
+    expect(moneyPictureDirectionLine(null)).toBeNull();
+    expect(LAST_READ_STRONGER).not.toMatch(/closer to/i);
+    expect(LAST_READ_WEAKER).not.toMatch(/closer to/i);
   });
 });

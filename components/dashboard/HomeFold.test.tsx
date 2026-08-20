@@ -81,10 +81,11 @@ describe("HomeFold", () => {
     expect(screen.getByLabelText("Overall HōMI-Score 64 out of 100")).toBeInTheDocument();
     expect(screen.getByText("BUILD FIRST")).toBeInTheDocument();
     expect(container.querySelector("[data-last-read-chrome]")).toHaveTextContent(
-      "from March 15.",
+      "Last read: BUILD FIRST from March 15.",
     );
-    expect(screen.queryByText(/Last read:/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/looks stronger/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/looks weaker/i)).not.toBeInTheDocument();
     expect(
       screen.getByText("Financial Reality is the softest pillar on this read."),
     ).toBeInTheDocument();
@@ -118,7 +119,9 @@ describe("HomeFold", () => {
     );
 
     expect(screen.getByText(/45 days since your last assessment/i)).toBeInTheDocument();
-    expect(container.querySelector("[data-last-read-chrome]")).toBeNull();
+    expect(container.querySelector("[data-last-read-chrome]")).toHaveTextContent(
+      "Last read: BUILD FIRST",
+    );
     expect(screen.queryByText("from March 15.")).not.toBeInTheDocument();
     expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();
   });
@@ -157,7 +160,7 @@ describe("HomeFold", () => {
     expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();
   });
 
-  it("hard stop yields closer-to; age still shows", () => {
+  it("hard stop still shows last verdict + age and never closer-to READY", () => {
     const { container } = render(
       <HomeFold
         {...base}
@@ -171,7 +174,7 @@ describe("HomeFold", () => {
     );
 
     expect(container.querySelector("[data-last-read-chrome]")).toHaveTextContent(
-      "from March 15.",
+      "Last read: ALMOST THERE from March 15.",
     );
     expect(screen.queryByText(/closer to READY/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();

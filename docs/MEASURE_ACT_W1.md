@@ -52,20 +52,20 @@ These shapes only. Empty of numbers otherwise. Full `/simulator` stays Pro.
 ## Home chrome (existing scored fold only — no new card)
 
 Fold into the existing scored fold (score reading + VerdictBadge + one
-sentence). No new card.
+sentence). No new card. Never “closer to {band}”.
 
 UI verdict labels stay Brand: DO NOT PROCEED, not NOT_YET / Not yet.
 Public names only: READY, ALMOST THERE, BUILD FIRST, DO NOT PROCEED.
 
-- Distance in Brand words only: “closer to ALMOST THERE.” Never points.
-  Never a live number.
+- Last public verdict + age: “Last read: BUILD FIRST from March 15.”
 - Age: “from March 15.” Stale >30d: do not stack a second age treatment.
+- Optional direction only when Money DTI, emergency-fund months, AND
+  savings-rate all moved the same way vs last assessment stored values:
+  “Your money picture looks stronger than last time.”
+  “Your money picture looks weaker than last time.”
+- Mixed or unchanged: omit the direction line. Age can still show.
+- READY: direction still allowed when all three moved consistently;
+  otherwise age only.
 - Empty Home: no progress chrome.
-- Hard stop present: progress chrome yields. Never “closer to READY”
-  under a hard stop.
-- READY: no closer-to line. Age still shows.
-- Next public band uses Brand labels: DO NOT PROCEED, BUILD FIRST,
-  ALMOST THERE, READY.
-- Closer-to only when Money DTI / EF months / savings-rate moved
-  improving vs last assessment stored values. Do not run a new score
-  to decide this.
+- Never invent a live score. Never “closer to READY”. Do not run a new
+  score to decide direction.

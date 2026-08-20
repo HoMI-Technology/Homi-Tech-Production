@@ -191,7 +191,6 @@ export function HomeFold({
                   lastReadAt={lastReadAt ?? null}
                   showAge={staleDays === null || staleDays <= 30}
                   lastMoney={lastMoney ?? null}
-                  hardStop={hardStopActive}
                 />
               )}
             </div>

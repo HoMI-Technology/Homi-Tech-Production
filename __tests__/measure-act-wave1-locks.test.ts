@@ -93,7 +93,7 @@ describe("Measure-Act Wave 1 locks", () => {
 
   it("UI verdict labels stay Brand public names — never NOT_YET / Not yet", () => {
     const chrome = read("components/dashboard/LastReadChrome.tsx");
-    expect(chrome).toContain("lastReadSentence");
+    expect(chrome).toContain("lastReadHeadline");
     for (const rel of [
       "components/dashboard/LastReadChrome.tsx",
       "components/money/MoneyRecheckPrompt.tsx",
@@ -108,18 +108,26 @@ describe("Measure-Act Wave 1 locks", () => {
     );
   });
 
-  it("Home chrome is one fold sentence — Brand closer-to, no live number", () => {
+  it("Home chrome is last verdict + age + optional same-way direction — never closer-to", () => {
     const law = read("docs/MEASURE_ACT_W1.md");
     const helper = read("lib/dashboard/last-read-chrome.ts");
     const chrome = read("components/dashboard/LastReadChrome.tsx");
-    expect(law).toContain("closer to ALMOST THERE.");
     expect(law).toContain("from March 15.");
-    expect(helper).toContain("closer to ${publicVerdictLabel(next)}.");
-    expect(helper).toContain("closerToLine");
-    expect(helper).toContain("moneyPictureImproved");
-    expect(helper).not.toMatch(/\+\d+|0–100|0-100/);
-    expect(chrome).not.toContain("Last read:");
-    expect(chrome).toContain("lastReadSentence");
-    expect(chrome).toContain("hardStop");
+    expect(law).toContain("Your money picture looks stronger than last time.");
+    expect(law).toContain("Your money picture looks weaker than last time.");
+    expect(law).not.toMatch(/closer to ALMOST THERE/);
+    expect(helper).toContain("LAST_READ_STRONGER");
+    expect(helper).toContain("LAST_READ_WEAKER");
+    expect(helper).toContain("moneyPictureDirection");
+    expect(helper).not.toContain("closerToLine");
+    expect(helper).not.toContain("nextPublicVerdict");
+    expect(helper).not.toMatch(/closer to/i);
+    expect(chrome).not.toMatch(/closer to/i);
+    expect(chrome).not.toContain("hardStop");
+    expect(chrome).toContain("lastReadHeadline");
+    expect(helper).toContain("Last read:");
+    for (const rel of WAVE1_UI) {
+      expect(read(rel), rel).not.toMatch(/closer to/i);
+    }
   });
 });
