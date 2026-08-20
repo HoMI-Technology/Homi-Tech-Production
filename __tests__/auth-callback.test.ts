@@ -50,8 +50,8 @@ describe("GET /auth/callback — open-redirect guard", () => {
     expect(res.headers.get("location")).toBe("http://localhost/report/123");
   });
 
-  it("falls back to /dashboard when next is absent", async () => {
+  it("routes to /assessment when next is absent and there is no completed assessment", async () => {
     const res = await GET(new Request("http://localhost/auth/callback"));
-    expect(res.headers.get("location")).toBe("http://localhost/dashboard");
+    expect(res.headers.get("location")).toBe("http://localhost/assessment");
   });
 });

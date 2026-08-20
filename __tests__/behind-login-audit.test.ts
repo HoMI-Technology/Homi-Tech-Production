@@ -30,6 +30,15 @@ describe("retake CTAs land on the flow that can re-score", () => {
     expect(view).not.toContain('"/shadow-score"');
   });
 
+  it("results primary CTA returns to the Build, not checklist /plan", () => {
+    const view = read("components", "results", "ResultsVerdictView.tsx");
+    expect(view).toContain('href="/dashboard"');
+    expect(view).toContain("Continue on Home");
+    expect(view).toContain('href="/path"');
+    expect(view).not.toContain("Build your plan");
+    expect(view).not.toMatch(/href="\/plan"/);
+  });
+
   it("plan retake goes to /assessment", () => {
     const plan = read("app", "(product)", "plan", "page.tsx");
     expect(plan).toContain("Re-take the assessment");

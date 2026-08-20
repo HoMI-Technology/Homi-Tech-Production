@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendLifecycleEmail } from "@/lib/email/send";
 import { welcomeEmail } from "@/lib/email/templates";
 import { readAttributionCookie } from "@/lib/attribution";
-import { safeNext } from "@/lib/auth/safeNext";
+import { resolvePostLoginDestination } from "@/lib/auth/postLoginDestination";
 
 /**
  * GET /auth/callback — exchanges a Supabase auth code (from magic link,
@@ -20,20 +20,35 @@ import { safeNext } from "@/lib/auth/safeNext";
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
-  // Sanitized so a crafted ?next=//evil.com can't turn the post-login
-  // redirect into an off-site open redirect.
-  const next = safeNext(url.searchParams.get("next"));
+  const requestedNext = url.searchParams.get("next");
+
+  let hasCompletedAssessment = false;
+  let userId: string | null = null;
+  let userEmail: string | null = null;
+  let userName = "there";
 
   if (code) {
     const supabase = await createClient();
     const { data } = await supabase.auth.exchangeCodeForSession(code);
     const user = data?.user ?? null;
+    userId = user?.id ?? null;
+    userEmail = user?.email ?? null;
+    userName = (user?.user_metadata?.full_name as string | undefined)?.split(" ")[0] || "there";
 
-    if (user?.email) {
+    if (userId) {
+      const { count } = await supabase
+        .from("assessments")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("status", "completed");
+      hasCompletedAssessment = (count ?? 0) > 0;
+    }
+
+    if (userEmail && userId) {
       const attribution = readAttributionCookie(request.headers.get("cookie"));
-      const email = user.email;
-      const userId = user.id;
-      const name = (user.user_metadata?.full_name as string | undefined)?.split(" ")[0] || "there";
+      const email = userEmail;
+      const id = userId;
+      const name = userName;
       after(async () => {
         try {
           const service = createAdminClient();
@@ -44,14 +59,14 @@ export async function GET(request: Request) {
             await service
               .from("profiles")
               .update({ attribution })
-              .eq("id", userId)
+              .eq("id", id)
               .is("attribution", null);
           }
 
           await sendLifecycleEmail({
             service,
-            dedupeKey: `welcome:${userId}`,
-            userId,
+            dedupeKey: `welcome:${id}`,
+            userId: id,
             to: email,
             template: "welcome",
             marketing: true,
@@ -67,6 +82,11 @@ export async function GET(request: Request) {
       });
     }
   }
+
+  const next = resolvePostLoginDestination({
+    requestedNext,
+    hasCompletedAssessment,
+  });
 
   return NextResponse.redirect(new URL(next, url.origin));
 }

@@ -15,6 +15,7 @@ import {
   shouldSuppressBuildPercent,
   weakestMeasuredPillar,
 } from "@/lib/dashboard/fold-truth";
+import { SURFACE_ROLES } from "@/lib/dashboard/surface-roles";
 import { PageFrame } from "@/components/operate/PageFrame";
 import type { AssessmentRow, OutcomeSurvey } from "@/types/database";
 
@@ -22,6 +23,9 @@ export const metadata: Metadata = {
   title: "Dashboard | HōMI",
   description: "Your Path to Ready next move, HōMI-Score reading, and Companion line.",
 };
+
+// Surface role SSOT — keep import so F8 cannot drift to copy-pasted comments.
+void SURFACE_ROLES.home;
 
 function daysSince(dateStr: string | null): number | null {
   if (!dateStr) return null;

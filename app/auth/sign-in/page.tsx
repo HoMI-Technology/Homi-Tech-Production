@@ -4,14 +4,15 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { safeNext } from "@/lib/auth/safeNext";
+import { resolvePostLoginDestination } from "@/lib/auth/postLoginDestination";
 import { OAuthButtons } from "@/components/auth/OAuthButtons";
 
 function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  // Same-origin only — blocks ?next=//evil.com open-redirects post-login.
-  const next = safeNext(searchParams.get("next"));
+  // Raw `next` is resolved after auth with assessment state; deep links still
+  // pass through resolvePostLoginDestination → safeNext.
+  const requestedNext = searchParams.get("next");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,6 +20,26 @@ function SignInForm() {
   const [magicLoading, setMagicLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [magicSent, setMagicSent] = useState(false);
+
+  async function destinationAfterSignIn(): Promise<string> {
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    let hasCompletedAssessment = false;
+    if (user) {
+      const { count } = await supabase
+        .from("assessments")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("status", "completed");
+      hasCompletedAssessment = (count ?? 0) > 0;
+    }
+    return resolvePostLoginDestination({
+      requestedNext,
+      hasCompletedAssessment,
+    });
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -36,7 +57,8 @@ function SignInForm() {
       }
 
       // Password auth only — no TOTP step-up. MFA is disabled for product login.
-      router.push(next);
+      const dest = await destinationAfterSignIn();
+      router.push(dest);
       router.refresh();
     } catch {
       setError("Something went wrong. Try again in a moment.");
@@ -54,12 +76,17 @@ function SignInForm() {
     setMagicLoading(true);
     try {
       const supabase = createClient();
+      // Callback applies the same state-based resolver. Omit next when the
+      // form had none so first-run users can land on Assess.
+      const nextQuery = requestedNext?.trim()
+        ? `?next=${encodeURIComponent(requestedNext.trim())}`
+        : "";
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email,
         options: {
           emailRedirectTo:
             typeof window !== "undefined"
-              ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
+              ? `${window.location.origin}/auth/callback${nextQuery}`
               : undefined,
         },
       });
@@ -148,7 +175,7 @@ function SignInForm() {
         </form>
       )}
 
-      <OAuthButtons next={next} />
+      <OAuthButtons next={requestedNext} />
 
       <div className="hairline my-6" />
 
