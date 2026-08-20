@@ -1,5 +1,5 @@
 /**
- * Homie voice I/O — Web Speech API wrappers with a hard 300ms local-feedback
+ * HōMI voice I/O — Web Speech API wrappers with a hard 300ms local-feedback
  * latency budget. Recognition / synthesis start must paint UI feedback inside
  * that window; the advisor round-trip itself is out of scope for the budget.
  */

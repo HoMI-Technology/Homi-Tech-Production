@@ -44,7 +44,7 @@ each phase ships independently.
 | Piece           | Where                                                                             | Role                                                  |
 | --------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------- |
 | Floating widget | `components/companion/CompanionWidget.tsx`, mounted in `app/(product)/layout.tsx` | The mote's physical form in the product               |
-| Homie avatar    | `HomieAvatar.tsx` + `lib/advisor/voice.ts` + five behavior modules                | Voice-first circular presence (breathe / listen / speak) |
+| Voice avatar    | `HomieAvatar.tsx` + `lib/advisor/voice.ts` + five behavior modules                | Voice-first circular HōMI presence (breathe / listen / speak) |
 | Full-page chat  | `app/(product)/advisor/page.tsx` + `components/advisor/Chat.tsx`                  | Deep-conversation surface                             |
 | Brain           | `app/api/advisor/route.ts` (Anthropic, deterministic fallback)                    | One endpoint, one voice                               |
 | Launch skins    | `LAUNCH_SKINS` in `lib/advisor/identity.ts` — Steady, Clarity, Horizon            | Launch UI surface of one companion                    |
@@ -103,7 +103,7 @@ The Companion stops being assessment-only and becomes financially aware everywhe
 Result: on the FIRE calculator the mote knows you're on the FIRE calculator; ask it
 "can I afford this?" and it answers with _your_ runway and DTI, not generics.
 
-### Phase 1.5 — Homie voice-first avatar (SHIPPED)
+### Phase 1.5 — HōMI voice-first avatar (SHIPPED)
 
 Floating circular presence in the product chrome (bottom-right), voice I/O, and the
 five presence behaviors — layered on the existing widget without a second brain.
@@ -114,7 +114,7 @@ five presence behaviors — layered on the existing widget without a second brai
 | Avatar UI | `components/companion/HomieAvatar.tsx`, `VoiceWaveform.tsx` | Breathing / listening waveform / speaking |
 | Voice I/O | `lib/advisor/voice.ts`, `hooks/useHomieVoice.ts` | Web Speech recognition + synthesis; soft chime; **300ms local-feedback budget** |
 | Behaviors | `lib/advisor/behaviors.ts` + `emotional-mirror.ts`, `memory-palace.ts`, `gentle-interrupter.ts`, `future-self.ts`, `silent-witness.ts` | Five core presence behaviors |
-| Card highlight | `lib/advisor/card-highlight.ts` | Highlights existing dashboard `data-*` instruments while Homie speaks |
+| Card highlight | `lib/advisor/card-highlight.ts` | Highlights existing dashboard `data-*` instruments while HōMI speaks |
 | Widget | `components/companion/CompanionWidget.tsx` | Mic + TTS mute, behavior orchestration, highlight + speak on reply |
 | API | `homieBehaviorHint` on `/api/advisor` | Additive presence brief in context note (never overrides voice rules) |
 | Memory persistence | existing `lib/advisor/memory.ts` + Supabase `advisor_*` | Memory Palace reads the same server thread; no parallel store |
@@ -130,6 +130,8 @@ five presence behaviors — layered on the existing widget without a second brai
 **Latency:** the 300ms budget applies to **local** listen-feedback and TTS-start paint — not the advisor model round-trip. Over-budget samples emit `homie_voice_latency_over_budget`.
 
 **A11y:** `aria-live` for presence/errors; mic/TTS toggles are labeled buttons; reduced-motion disables breathe/wave animations; keyboard chat path unchanged.
+
+**Brand:** user-visible spelling is always **HōMI** (never "Homie" as a product name). "HōMI like homie" remains the metaphor only.
 
 ### Phase 2 — One memory, one identity
 
