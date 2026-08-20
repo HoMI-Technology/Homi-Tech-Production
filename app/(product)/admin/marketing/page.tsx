@@ -28,7 +28,6 @@ import { EmailDripBuilder } from "@/components/admin/EmailDripBuilder";
 import { WebhookPublisher } from "@/components/admin/WebhookPublisher";
 import { AttentionStrip, type AttentionItem } from "@/components/operate/AttentionStrip";
 import { PageHeader } from "@/components/operate/PageHeader";
-import { MetricRail } from "@/components/operate/MetricRail";
 import {
   arpuCents,
   arrCents,
@@ -122,9 +121,9 @@ function last7(series: { count: number }[]): number {
 }
 
 export const metadata: Metadata = {
-  title: "Marketing Agency OS | Admin | HōMI",
+  title: "X + TikTok | Admin | HōMI",
   description:
-    "CEO control tower for the HōMI marketing agency — agent fleet, desks, activations, claim law.",
+    "Founder growth desk — X @Homi_Tech and TikTok @homi_technology. Approve before ship.",
 };
 
 const TIER_COLORS: Record<SubscriptionTier, string> = {
@@ -361,8 +360,6 @@ export default async function AdminMarketingPage() {
   const resendConfigured = Boolean(process.env.RESEND_API_KEY);
   const cohortRate7d = cohortActivationRatePct(cohortActivated7d, accountsLast7, MIN_COHORT_N);
   const cohortRateSuppressed = accountsLast7 > 0 && accountsLast7 < MIN_COHORT_N;
-  const accountActivatePct =
-    accountsTotal > 0 ? Math.round((assessedUsers / accountsTotal) * 100) : null;
 
   const channels = channelCounts(profileAttrs, 6);
   const channelRows = channels.map((c, i) => ({
@@ -460,7 +457,7 @@ export default async function AdminMarketingPage() {
       id: "cold-start",
       severity: "info",
       title: "Cold start — run founder setup",
-      detail: "No waitlist or accounts yet. Complete the 30-min LinkedIn + capture setup.",
+      detail: "No waitlist or accounts yet. Tag X @Homi_Tech and TikTok @homi_technology posts.",
       href: "/marketing/gtm/FOUNDER-30-MIN.md",
       cta: "Open setup",
     });
@@ -489,11 +486,11 @@ export default async function AdminMarketingPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Agency OS · CEO"
-        title="Marketing Agency"
-        description="Ultra-premium agentic agency. You are CEO: watch the fleet, open a desk, approve before anything ships. Activations are the score — not vanity."
-        primaryAction={{ label: "Email desk", href: "#desk-email", variant: "primary" }}
-        secondaryAction={{ label: "Content desk", href: "#desk-content", variant: "ghost" }}
+        eyebrow="Growth"
+        title="X + TikTok"
+        description="This week’s engines: X @Homi_Tech and TikTok @homi_technology. LinkedIn is a third surface. Queue and approve before anything ships. Activated / Waitlist / Paid live on Overview and Waitlist — zeros stay zeros."
+        primaryAction={{ label: "Open studio", href: "#desk-content", variant: "primary" }}
+        secondaryAction={{ label: "Calendar", href: "#desk-calendar", variant: "ghost" }}
       />
 
       {/* First viewport: decide — brief + queue + north star */}
@@ -519,34 +516,6 @@ export default async function AdminMarketingPage() {
         </div>
       )}
 
-      <div className="mt-6">
-        <MetricRail
-          cells={[
-            {
-              label: "Activated (7d)",
-              value: uniqueActivated7d.toLocaleString(),
-              footer: `${completions7d.toLocaleString()} completions`,
-              color: COLORS.emerald,
-            },
-            {
-              label: "Waitlist",
-              value: waitlistTotal.toLocaleString(),
-              footer: `${waitlistLast7.toLocaleString()} new · 7d`,
-              color: COLORS.amber,
-            },
-            {
-              label: "Paid",
-              value: paidTotal.toLocaleString(),
-              footer:
-                accountActivatePct !== null
-                  ? `${accountActivatePct}% activated · ${conversionPct}% paid`
-                  : "Tier mix below",
-              color: COLORS.yellow,
-            },
-          ]}
-        />
-      </div>
-
       {/* Collapsible fleet — expand when you need the full board */}
       <details className="glass mt-6 p-4">
         <summary className="cursor-pointer text-sm font-semibold text-light">
@@ -569,16 +538,7 @@ export default async function AdminMarketingPage() {
         />
       </details>
 
-      <ActivationInstrument
-        uniqueActivated7d={uniqueActivated7d}
-        completions7d={completions7d}
-        accountsLast7={accountsLast7}
-        cohortActivated7d={cohortActivated7d}
-        cohortRate7d={cohortRate7d}
-        cohortRateSuppressed={cohortRateSuppressed}
-        activationSeries={activationSeries}
-        utmSlot={<UtmLinkBuilder />}
-      />
+      <ActivationInstrument utmSlot={<UtmLinkBuilder />} />
 
       {/* Full agent desks (lazy) */}
       <AgencyDesks
@@ -602,8 +562,8 @@ export default async function AdminMarketingPage() {
               <div className="glass p-5 text-sm text-dim">
                 <p className="font-semibold text-light">GTM lock</p>
                 <p className="mt-2">
-                  Channel: LinkedIn founder · PH this quarter: No · North star: unique activated
-                  users · Claim law always on.
+                  Engines: X @Homi_Tech · TikTok @homi_technology · LinkedIn third surface · PH this
+                  quarter: No · Approve before ship. Claim law always on.
                 </p>
                 <a
                   href="/marketing/gtm/HOMI-SOLO-GTM-OS.md" // brand-ok: asset filename on disk, not user-visible brand text

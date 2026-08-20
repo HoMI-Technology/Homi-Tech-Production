@@ -80,7 +80,7 @@ export async function GET(request: Request) {
                   theme: s.theme || "Product / Path",
                   topic,
                   campaign: (s.campaign || "week_slot").replace(/\s+/g, "_").toLowerCase(),
-                  platform: (s.platform || "linkedin") as "linkedin",
+                  platform: (s.platform || "x") as "x" | "tiktok" | "linkedin",
                 };
               })
               .filter((s): s is NonNullable<typeof s> => Boolean(s));

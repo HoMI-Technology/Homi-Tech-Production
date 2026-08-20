@@ -1,14 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import {
   CALENDAR_ADD_EVENT,
   CALENDAR_DAYS,
   CALENDAR_SLOTS,
+  DEFAULT_SOCIAL_PLATFORM,
   STUDIO_PREFILL_EVENT,
   calendarKey,
   calendarToText,
+  isSocialPlatform,
   platformMeta,
   seedCalendarFromEngine,
   slotLabel,
@@ -22,7 +24,7 @@ import {
   type PostTone,
 } from "@/lib/admin/marketing-agency";
 
-type EnginePost = { day: string; title: string; campaign: string };
+type EnginePost = { day: string; title: string; campaign: string; platform?: string };
 
 type DbEntry = {
   day_key: string;
@@ -52,7 +54,9 @@ function dbRowsToBoard(rows: DbEntry[]): CalendarBoard {
       typeof meta.tone === "string" && meta.tone
         ? (meta.tone as PostTone)
         : "authority";
-    const platform = (row.platform || "linkedin") as SocialPlatform;
+    const platform: SocialPlatform = isSocialPlatform(row.platform)
+      ? row.platform
+      : DEFAULT_SOCIAL_PLATFORM;
     board[calendarKey(row.day_key, row.slot)] = {
       day: row.day_key,
       slot: row.slot,
@@ -101,15 +105,14 @@ async function deleteEntry(day: CalendarDay, slot: CalendarSlot): Promise<boolea
 
 /**
  * Seven-day publishing board, two slots a day.
- * Durable in Supabase (marketing_calendar_entries). Falls back to engine seed
- * when the table is empty or the API is unavailable.
+ * Durable in Supabase (marketing_calendar_entries). Empty stays empty —
+ * no auto-seed, no auto-publish. Operator may load X + TikTok placeholders.
  */
 export function ContentCalendar({ enginePosts }: { enginePosts: EnginePost[] }) {
   const [board, setBoard] = useState<CalendarBoard>({});
   const [hydrated, setHydrated] = useState(false);
   const [copied, setCopied] = useState(false);
   const [persistHint, setPersistHint] = useState<"supabase" | "local" | null>(null);
-  const seededRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -120,29 +123,16 @@ export function ContentCalendar({ enginePosts }: { enginePosts: EnginePost[] }) 
           const data = (await res.json()) as { entries?: DbEntry[] };
           const fromDb = dbRowsToBoard(data.entries ?? []);
           if (!cancelled) {
-            if (Object.keys(fromDb).length > 0) {
-              setBoard(fromDb);
-              setPersistHint("supabase");
-            } else if (!seededRef.current) {
-              const seed = seedCalendarFromEngine(enginePosts);
-              setBoard(seed);
-              setPersistHint("supabase");
-              seededRef.current = true;
-              // Best-effort seed write so the board survives refresh.
-              for (const entry of Object.values(seed)) {
-                if (entry) void persistEntry(entry);
-              }
-            } else {
-              setPersistHint("supabase");
-            }
+            setBoard(fromDb);
+            setPersistHint("supabase");
           }
         } else if (!cancelled) {
-          setBoard(seedCalendarFromEngine(enginePosts));
+          setBoard({});
           setPersistHint("local");
         }
       } catch {
         if (!cancelled) {
-          setBoard(seedCalendarFromEngine(enginePosts));
+          setBoard({});
           setPersistHint("local");
         }
       } finally {
@@ -152,7 +142,7 @@ export function ContentCalendar({ enginePosts }: { enginePosts: EnginePost[] }) 
     return () => {
       cancelled = true;
     };
-  }, [enginePosts]);
+  }, []);
 
   // Studio → calendar handoff.
   useEffect(() => {
@@ -202,6 +192,14 @@ export function ContentCalendar({ enginePosts }: { enginePosts: EnginePost[] }) 
     });
   }
 
+  function loadEnginePlaceholders() {
+    const seed = seedCalendarFromEngine(enginePosts);
+    setBoard(seed);
+    for (const entry of Object.values(seed)) {
+      if (entry) void persistEntry(entry);
+    }
+  }
+
   function clearWeek() {
     for (const day of CALENDAR_DAYS) {
       for (const slot of CALENDAR_SLOTS) {
@@ -228,17 +226,25 @@ export function ContentCalendar({ enginePosts }: { enginePosts: EnginePost[] }) 
   return (
     <div className="glass mt-8 p-6">
       <SectionHeader
-        eyebrow="Agency"
-        title="Content calendar"
+        eyebrow="Calendar"
+        title="X + TikTok week"
         subtitle={
           persistHint === "supabase"
-            ? "Seven days, two slots each. Saved to Supabase — survives devices."
+            ? "Empty slots stay empty. Load X + TikTok placeholders only when you want titled slots."
             : persistHint === "local"
-              ? "Seven days, two slots each. API unavailable — session-only until migration is live."
+              ? "API unavailable — session-only. Empty until you add a draft."
               : "Seven days, two slots each. Loading durable board…"
         }
         action={
           <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={loadEnginePlaceholders}
+              disabled={!hydrated}
+            >
+              Load X + TikTok placeholders
+            </button>
             <button
               type="button"
               className="btn btn-ghost btn-sm"
@@ -314,8 +320,8 @@ export function ContentCalendar({ enginePosts }: { enginePosts: EnginePost[] }) 
 
       <p className="mt-4 text-xs text-dim">
         {filled === 0
-          ? "Week is empty. “+ Add post” opens the studio with the slot remembered."
-          : `${filled} slot${filled === 1 ? "" : "s"} filled. Export pastes one post per line.`}
+          ? "Week is empty. That is correct until a draft exists. “+ Add post” opens the studio on X by default."
+          : `${filled} slot${filled === 1 ? "" : "s"} filled. Export pastes one post per line. Nothing auto-publishes.`}
       </p>
     </div>
   );

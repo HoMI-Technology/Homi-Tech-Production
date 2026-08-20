@@ -20,8 +20,8 @@ export type LibrarySection = {
 
 /** Locked founder decisions (GTM OS §1) — display only. */
 export const MARKETING_LOCK = {
-  channel: "LinkedIn founder",
-  secondary: "Owned email list",
+  channel: "X @Homi_Tech · TikTok @homi_technology",
+  secondary: "LinkedIn (third surface) · owned email list",
   northStar: "Weekly activations (completed readiness path)",
   hoursPerWeek: "10–12 hrs",
   phThisQuarter: "No",
@@ -32,6 +32,38 @@ export const MARKETING_LOCK = {
   claimOneLiner:
     "Educational guidance only. Not a lender. Not a credit score replacement.",
 } as const;
+
+/** First-class growth engines. LinkedIn is not the default. Brand HOLDs the TikTok avatar. */
+export const GROWTH_ENGINES = [
+  {
+    key: "x" as const,
+    label: "X",
+    handle: "@Homi_Tech",
+    href: "https://x.com/Homi_Tech",
+  },
+  {
+    key: "tiktok" as const,
+    label: "TikTok",
+    handle: "@homi_technology",
+    href: "https://www.tiktok.com/@homi_technology",
+  },
+] as const;
+
+export type EnginePlatform = (typeof GROWTH_ENGINES)[number]["key"];
+
+/** Default UTM source on this desk — X, not LinkedIn. */
+export const DEFAULT_UTM_SOURCE = "x";
+
+/**
+ * This-week UTM chips. X + TikTok are peers. LinkedIn stays a chip.
+ * Product Hunt is not a peer this week (PH this quarter: No).
+ */
+export const UTM_PRESETS = [
+  { source: "x", medium: "social", campaign: "founder_post" },
+  { source: "tiktok", medium: "social", campaign: "founder_post" },
+  { source: "linkedin", medium: "social", campaign: "founder_post" },
+  { source: "email", medium: "lifecycle", campaign: "launch_live" },
+] as const;
 
 /** Never-say lines for the claim-law panel (meta: prohibition list). */
 // brand-ok: entire array is a prohibition registry — these strings are what we refuse to say, not claims we make
@@ -52,30 +84,57 @@ export const CLAIM_PREFER = [
   "Not a lender · not a credit score replacement",
 ] as const;
 
-/** This-week engine posts from ENGINE-2-WEEKS (Week 1 default slate). */
-export const ENGINE_WEEK_POSTS: {
+/** This-week engine posts — X and TikTok. Not a LinkedIn-only slate. */
+export type EngineWeekPost = {
   day: string;
   title: string;
   asset: string;
   campaign: string;
-}[] = [
+  platform: EnginePlatform;
+};
+
+export const ENGINE_WEEK_POSTS: EngineWeekPost[] = [
   {
     day: "Mon",
     title: "Founder why",
     asset: "/marketing/content/posts/homi_post_founder_why_1080.png",
     campaign: "w1_founder_why",
+    platform: "x",
+  },
+  {
+    day: "Mon",
+    title: "Founder why",
+    asset: "/marketing/content/posts/homi_post_founder_why_1080.png",
+    campaign: "w1_founder_why_tt",
+    platform: "tiktok",
   },
   {
     day: "Wed",
     title: "Afford ≠ ready",
     asset: "/marketing/content/posts/homi_post_quote_afford_vs_ready_1080.png",
     campaign: "w1_afford",
+    platform: "x",
+  },
+  {
+    day: "Wed",
+    title: "Afford ≠ ready",
+    asset: "/marketing/content/posts/homi_post_quote_afford_vs_ready_1080.png",
+    campaign: "w1_afford_tt",
+    platform: "tiktok",
   },
   {
     day: "Fri",
     title: "Build First",
     asset: "/marketing/content/posts/homi_post_quote_build_first_1080.png",
     campaign: "w1_build_first",
+    platform: "x",
+  },
+  {
+    day: "Fri",
+    title: "Build First",
+    asset: "/marketing/content/posts/homi_post_quote_build_first_1080.png",
+    campaign: "w1_build_first_tt",
+    platform: "tiktok",
   },
 ];
 
@@ -182,7 +241,7 @@ export const LIBRARY_SECTIONS: LibrarySection[] = [
       {
         label: "Founder 30-min setup",
         href: "/marketing/gtm/FOUNDER-30-MIN.md",
-        hint: "LinkedIn · first post · Resend · admin",
+        hint: "X · TikTok · first post · Resend · admin",
         external: true,
       },
       {

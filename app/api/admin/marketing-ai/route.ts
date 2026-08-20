@@ -90,7 +90,7 @@ async function requireAdmin(): Promise<{ user: User } | { response: NextResponse
   return { user };
 }
 
-const platformSchema = z.enum(["linkedin", "x", "instagram", "threads"]);
+const platformSchema = z.enum(["linkedin", "x", "instagram", "threads", "tiktok"]);
 const toneSchema = z.enum(["educational", "story", "authority", "hook", "engagement"]);
 const hookStyleSchema = z.enum(["question", "stat", "story", "quote", "controversial"]);
 
@@ -845,7 +845,7 @@ async function weekPlan(actorId: string): Promise<{
         theme: asString(row.theme) || "Product / Path",
         topic: topic.clean,
         campaign: slugifyCampaign(asString(row.campaign) || asString(row.topic) || "week_slot"),
-        platform: asString(row.platform) || "linkedin",
+        platform: asString(row.platform) || "x",
       };
     })
     .filter((s): s is NonNullable<typeof s> => Boolean(s));

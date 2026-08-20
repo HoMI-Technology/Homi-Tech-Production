@@ -15,17 +15,27 @@
  * Platforms, tones, hook styles
  * ------------------------------------------------------------------ */
 
-export type SocialPlatform = "linkedin" | "x" | "instagram" | "threads";
+export type SocialPlatform = "linkedin" | "x" | "instagram" | "threads" | "tiktok";
 export type PostTone = "educational" | "story" | "authority" | "hook" | "engagement";
 export type HookStyle = "question" | "stat" | "story" | "quote" | "controversial";
 
-/** Hard character ceilings enforced client-side (badge only, never a server gate). */
+/**
+ * Hard character ceilings enforced client-side (badge only, never a server gate).
+ * TikTok caption ceiling is ~2,200 — documented here so studio + templates share one number.
+ */
 export const PLATFORM_LIMITS: Record<SocialPlatform, number> = {
-  linkedin: 3000,
   x: 280,
+  tiktok: 2200,
+  linkedin: 3000,
   instagram: 2200,
   threads: 500,
 };
+
+/** This-week engines. Instagram / Threads stay in the union; they are not peers. */
+export const FIRST_CLASS_ENGINES = ["x", "tiktok"] as const satisfies readonly SocialPlatform[];
+
+/** Studio + calendar default. Never LinkedIn — that made the week engine LinkedIn-only. */
+export const DEFAULT_SOCIAL_PLATFORM: SocialPlatform = "x";
 
 export type PlatformMeta = {
   key: SocialPlatform;
@@ -34,6 +44,8 @@ export type PlatformMeta = {
   /** utm_source / utm_medium stamped on the post's link. */
   utmSource: string;
   utmMedium: string;
+  /** Public handle when this surface is a first-class engine. */
+  handle?: string;
   /** Formatting brief handed to the model. */
   brief: string;
   /** How many hashtags the platform actually rewards. */
@@ -41,6 +53,30 @@ export type PlatformMeta = {
 };
 
 export const PLATFORMS: PlatformMeta[] = [
+  {
+    key: "x",
+    label: "X",
+    limit: PLATFORM_LIMITS.x,
+    utmSource: "x",
+    utmMedium: "social",
+    handle: "@Homi_Tech",
+    brief:
+      "One tight post under 280 characters including the link. Declarative, no throat-clearing, " +
+      "no hashtag stuffing. Say one true thing well.",
+    hashtagCount: 2,
+  },
+  {
+    key: "tiktok",
+    label: "TikTok",
+    limit: PLATFORM_LIMITS.tiktok,
+    utmSource: "tiktok",
+    utmMedium: "social",
+    handle: "@homi_technology",
+    brief:
+      "Caption for a short video. Hook in the first line, then a breathable body under the " +
+      "2,200-character caption ceiling. One idea. Soft close to the link in bio. No hashtag walls.",
+    hashtagCount: 4,
+  },
   {
     key: "linkedin",
     label: "LinkedIn",
@@ -51,17 +87,6 @@ export const PLATFORMS: PlatformMeta[] = [
       "Long-form founder post. Strong first line (it is the only line shown before the fold), " +
       "short paragraphs, one idea per line, a concrete takeaway, and a soft close. No emoji walls.",
     hashtagCount: 3,
-  },
-  {
-    key: "x",
-    label: "Twitter/X",
-    limit: PLATFORM_LIMITS.x,
-    utmSource: "x",
-    utmMedium: "social",
-    brief:
-      "One tight post under 280 characters including the link. Declarative, no throat-clearing, " +
-      "no hashtag stuffing. Say one true thing well.",
-    hashtagCount: 2,
   },
   {
     key: "instagram",
@@ -87,8 +112,33 @@ export const PLATFORMS: PlatformMeta[] = [
   },
 ];
 
+export function isSocialPlatform(value: unknown): value is SocialPlatform {
+  return typeof value === "string" && PLATFORMS.some((p) => p.key === value);
+}
+
 export function platformMeta(key: SocialPlatform): PlatformMeta {
-  return PLATFORMS.find((p) => p.key === key) ?? PLATFORMS[0]!;
+  return (
+    PLATFORMS.find((p) => p.key === key) ??
+    PLATFORMS.find((p) => p.key === DEFAULT_SOCIAL_PLATFORM) ??
+    PLATFORMS[0]!
+  );
+}
+
+/** Primary studio toggles: engines first, LinkedIn as a third surface. */
+export const STUDIO_PRIMARY_PLATFORMS: SocialPlatform[] = ["x", "tiktok", "linkedin"];
+
+/** Not first-class engines — stay in the type union, hidden behind Advanced. */
+export const STUDIO_SECONDARY_PLATFORMS: SocialPlatform[] = ["instagram", "threads"];
+
+/**
+ * Repurpose targets. X is a compose target, not caption-only.
+ * TikTok is included. LinkedIn is optional third. Instagram / Threads are not peers.
+ * Source is whatever is on the canvas — LinkedIn is not required.
+ */
+export function repurposeTargets(from: SocialPlatform): SocialPlatform[] {
+  const engines: SocialPlatform[] = ["x", "tiktok"];
+  const third: SocialPlatform[] = ["linkedin"];
+  return [...engines, ...third].filter((p) => p !== from);
 }
 
 export const TONES: { key: PostTone; label: string; brief: string }[] = [
@@ -596,22 +646,33 @@ function isCalendarSlot(value: unknown): value is CalendarSlot {
   return typeof value === "string" && (CALENDAR_SLOTS as readonly string[]).includes(value);
 }
 
+function enginePlatform(value: unknown): SocialPlatform {
+  return value === "tiktok" ? "tiktok" : DEFAULT_SOCIAL_PLATFORM;
+}
+
+function engineSlot(platform: SocialPlatform): CalendarSlot {
+  return platform === "tiktok" ? "afternoon" : "morning";
+}
+
 /**
- * Seed the week from the engine slate: Mon/Wed/Fri morning, in slate order,
- * mapped onto whichever days the slate actually names.
+ * Seed X + TikTok slots from the engine slate — never a LinkedIn-only week.
+ * Untitled / empty copy is allowed (titled placeholders). Calendar mount does
+ * not auto-apply this; empty slots stay empty until the operator seeds or drafts.
  */
 export function seedCalendarFromEngine(
-  posts: { day: string; title: string; campaign: string }[],
+  posts: { day: string; title: string; campaign: string; platform?: string }[],
 ): CalendarBoard {
   const board: CalendarBoard = {};
   const fallbackDays: CalendarDay[] = ["Mon", "Wed", "Fri"];
 
   posts.forEach((post, index) => {
     const day = isCalendarDay(post.day) ? post.day : fallbackDays[index % fallbackDays.length]!;
-    board[calendarKey(day, "morning")] = {
+    const platform = enginePlatform(post.platform);
+    const slot = engineSlot(platform);
+    board[calendarKey(day, slot)] = {
       day,
-      slot: "morning",
-      platform: "linkedin",
+      slot,
+      platform,
       tone: "authority",
       campaign: post.campaign,
       copy: post.title,
@@ -638,9 +699,9 @@ export function parseStoredCalendar(raw: string | null): CalendarBoard | null {
     const entry = value as Partial<CalendarEntry>;
     if (!isCalendarDay(entry.day) || !isCalendarSlot(entry.slot)) continue;
     if (typeof entry.copy !== "string" || typeof entry.campaign !== "string") continue;
-    const platform = PLATFORMS.some((p) => p.key === entry.platform)
-      ? (entry.platform as SocialPlatform)
-      : "linkedin";
+    const platform = isSocialPlatform(entry.platform)
+      ? entry.platform
+      : DEFAULT_SOCIAL_PLATFORM;
     const tone = TONES.some((t) => t.key === entry.tone) ? (entry.tone as PostTone) : "authority";
     board[calendarKey(entry.day, entry.slot)] = {
       day: entry.day,
@@ -778,7 +839,7 @@ export function buildRepurposePrompt(input: {
   // spread in here — it is a string, and spreading a string into an array would
   // yield one element per character.
   return [
-    `Adapt this LinkedIn post for ${meta.label}.`,
+    `Adapt this post for ${meta.label}.`,
     "",
     "SOURCE POST:",
     input.sourceCopy,
@@ -1926,7 +1987,7 @@ export function buildWeekPlanPrompt(): string {
     "Draft a 7-slot content week for HōMI (Decision Companion). Mon/Wed/Fri are required posting days; include optional Tue/Thu.",
     "Themes rotate: Founder Story, ICP Pain, Social Proof, Product/Path, Afford≠Ready, Not yet, What HōMI isn't.",
     "Educational only. Never lender/approval language.",
-    'Return JSON: { "slots": [ { "day": "Mon", "theme": "...", "topic": "one sentence topic", "campaign": "utm_slug", "platform": "linkedin" } ] }',
+    'Return JSON: { "slots": [ { "day": "Mon", "theme": "...", "topic": "one sentence topic", "campaign": "utm_slug", "platform": "x" } ] }',
     "Exactly 5–7 slots. campaign must be snake_case.",
   ].join("\n");
 }
@@ -1934,11 +1995,11 @@ export function buildWeekPlanPrompt(): string {
 export function templateWeekPlan(): { slots: WeekSlotDraft[] } {
   return {
     slots: [
-      { day: "Mon", theme: "Founder Story", topic: "Why credit answers the wrong question", campaign: "w_founder_why", platform: "linkedin" },
-      { day: "Tue", theme: "ICP Pain", topic: "Afford ≠ ready — the anxiety under the pre-approval letter", campaign: "w_afford_ready", platform: "linkedin" }, // brand-ok: post topic quoting industry term to contrast against HōMI positioning // brand-ok: topic names the banned phrase as the anxiety, not a claim
-      { day: "Wed", theme: "Product / Path", topic: "What a Build First verdict actually unlocks", campaign: "w_build_first", platform: "linkedin" },
-      { day: "Thu", theme: "Social Proof / Insight", topic: "Three questions before you escalate the commitment", campaign: "w_three_q", platform: "linkedin" },
-      { day: "Fri", theme: "What HōMI isn't", topic: "Not a lender. Not a credit score. A Decision Companion.", campaign: "w_what_isnt", platform: "linkedin" },
+      { day: "Mon", theme: "Founder Story", topic: "Why credit answers the wrong question", campaign: "w_founder_why", platform: "x" },
+      { day: "Tue", theme: "ICP Pain", topic: "Afford ≠ ready — the anxiety under the pre-approval letter", campaign: "w_afford_ready", platform: "tiktok" }, // brand-ok: post topic quoting industry term to contrast against HōMI positioning // brand-ok: topic names the banned phrase as the anxiety, not a claim
+      { day: "Wed", theme: "Product / Path", topic: "What a Build First verdict actually unlocks", campaign: "w_build_first", platform: "x" },
+      { day: "Thu", theme: "Social Proof / Insight", topic: "Three questions before you escalate the commitment", campaign: "w_three_q", platform: "tiktok" },
+      { day: "Fri", theme: "What HōMI isn't", topic: "Not a lender. Not a credit score. A Decision Companion.", campaign: "w_what_isnt", platform: "x" },
     ],
   };
 }
