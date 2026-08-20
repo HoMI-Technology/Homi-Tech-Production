@@ -75,14 +75,14 @@ describe("share cards — no root ImageResponse convention", () => {
 
 describe("share cards — default OG / Twitter strings", () => {
   it("pins the exact og:title and og:description", () => {
-    expect(SHARE_OG_TITLE).toBe("HōMI");
+    expect(SHARE_OG_TITLE).toBe("HōMI — Will you be okay?");
     expect(SHARE_OG_DESCRIPTION).toBe(TAGLINES.primary);
     expect(SHARE_OG_DESCRIPTION).toBe("Know when you're ready. Move when it matters.");
     expect(SHARE_OG_IMAGE.alt).toBe(SHARE_ALT);
     expect(SHARE_TWITTER_IMAGE.alt).toBe(SHARE_ALT);
 
     const og = defaultShareOpenGraph();
-    expect(og.title).toBe("HōMI");
+    expect(og.title).toBe("HōMI — Will you be okay?");
     expect(og.description).toBe("Know when you're ready. Move when it matters.");
     expect(og.images).toEqual([
       { url: "/og-v3.png", width: 1200, height: 630, alt: SHARE_ALT },
@@ -90,7 +90,7 @@ describe("share cards — default OG / Twitter strings", () => {
 
     const twitter = defaultShareTwitter();
     expect(twitter.card).toBe("summary_large_image");
-    expect(twitter.title).toBe("HōMI");
+    expect(twitter.title).toBe("HōMI — Will you be okay?");
     expect(twitter.description).toBe("Know when you're ready. Move when it matters.");
     expect(twitter.images).toEqual([
       {

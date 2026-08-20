@@ -9,7 +9,7 @@
 
 import type { Metadata } from "next";
 
-export const SHARE_OG_TITLE = "HōMI";
+export const SHARE_OG_TITLE = "HōMI — Will you be okay?";
 export const SHARE_OG_DESCRIPTION = "Know when you're ready. Move when it matters.";
 
 export const SHARE_OG_IMAGE = {
