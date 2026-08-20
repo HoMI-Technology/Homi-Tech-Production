@@ -35,7 +35,12 @@ import {
   type FlowStep,
 } from "@/lib/questions/flow";
 import { bankResponsesToInputs, type ConflictResponses } from "@/lib/questions/to-inputs";
-import { applyConfirmedFinancePrefill } from "@/lib/finance/prefill-confirm";
+import {
+  applyConfirmedFinancePrefill,
+  applyConfirmedQuestionPrefill,
+  MONEY_PREFILL_BANNER,
+  moneyPrefillWasApplied,
+} from "@/lib/finance/prefill-confirm";
 import {
   BankQuestionField,
   formatResponseForReview,
@@ -88,6 +93,7 @@ export function FullAssessmentFlow() {
 
   const [resumeDraft, setResumeDraft] = useState<AssessmentDraft | null>(null);
   const [draftReady, setDraftReady] = useState(false);
+  const [moneyPrefillBanner, setMoneyPrefillBanner] = useState(false);
   const answerHistoryRef = useRef<Record<string, ResponseValue[]>>({});
 
   useEffect(() => {
@@ -98,6 +104,9 @@ export function FullAssessmentFlow() {
         recordAssessmentRestartLoop(personKey);
       });
     } else {
+      const seeded = applyConfirmedQuestionPrefill({});
+      setResponses(seeded);
+      setMoneyPrefillBanner(moneyPrefillWasApplied({}, seeded));
       setDraftReady(true);
     }
     track("assessment_started", { kind: "full", resumed: draft ? 1 : 0 });
@@ -120,6 +129,7 @@ export function FullAssessmentFlow() {
       setResponses(resumeDraft.responses);
       setConflict(resumeDraft.conflict);
       setIndex(Math.min(resumeDraft.index, steps.length - 1));
+      setMoneyPrefillBanner(false);
     }
     setResumeDraft(null);
     setDraftReady(true);
@@ -132,7 +142,9 @@ export function FullAssessmentFlow() {
     clearDraft();
     setResumeDraft(null);
     setDecisionType(DEFAULT_DECISION_TYPE);
-    setResponses({});
+    const seeded = applyConfirmedQuestionPrefill({});
+    setResponses(seeded);
+    setMoneyPrefillBanner(moneyPrefillWasApplied({}, seeded));
     setConflict(EMPTY_CONFLICT);
     setIndex(0);
     setDraftReady(true);
@@ -300,6 +312,12 @@ export function FullAssessmentFlow() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16">
+      {moneyPrefillBanner && !resumeDraft && (
+        <p data-money-prefill-banner="" className="glass mb-6 p-4 text-sm text-light">
+          {MONEY_PREFILL_BANNER}
+        </p>
+      )}
+
       {resumeDraft && (
         <div className="glass mb-6 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-light">

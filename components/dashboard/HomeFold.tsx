@@ -11,6 +11,8 @@ import { VerdictCelebrate } from "@/components/dashboard/VerdictCelebrate";
 import { PathNextMove } from "@/components/dashboard/PathNextMove";
 import { PathStepLedger } from "@/components/dashboard/PathStepLedger";
 import { HomeMoneyStanding } from "@/components/dashboard/HomeMoneyStanding";
+import { LastReadChrome } from "@/components/dashboard/LastReadChrome";
+import type { LastReadMoneyInputs } from "@/lib/dashboard/last-read-chrome";
 import { DashboardResumeRamp } from "@/components/dashboard/DashboardResumeRamp";
 import { OutcomeSurveyPrompt } from "@/components/dashboard/OutcomeSurveyPrompt";
 import { SaveStatusBanner } from "@/components/results/SaveStatusBanner";
@@ -43,6 +45,8 @@ export function HomeFold({
   instrumentTint,
   dueSurvey,
   staleDays,
+  lastReadAt,
+  lastMoney,
   hasPath,
   pathDone,
   pathTotal,
@@ -57,6 +61,8 @@ export function HomeFold({
   instrumentTint: string;
   dueSurvey: HomeFoldSurvey | null;
   staleDays: number | null;
+  lastReadAt?: string | null;
+  lastMoney?: LastReadMoneyInputs | null;
   hasPath: boolean;
   pathDone: number;
   pathTotal: number;
@@ -178,6 +184,14 @@ export function HomeFold({
                 <span data-home-verdict="" aria-label={`Last verdict ${verdictMeta.label}`}>
                   <VerdictBadge verdict={verdict} size="md" />
                 </span>
+              )}
+              {verdict && (
+                <LastReadChrome
+                  verdict={verdict}
+                  lastReadAt={lastReadAt ?? null}
+                  showAge={staleDays === null || staleDays <= 30}
+                  lastMoney={lastMoney ?? null}
+                />
               )}
             </div>
 

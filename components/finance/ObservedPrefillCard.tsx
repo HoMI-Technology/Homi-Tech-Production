@@ -1,11 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
+  buildConfirmedFinancePrefill,
   saveConfirmedFinancePrefill,
   type ConfirmedFinancePrefill,
 } from "@/lib/finance/prefill-confirm";
-import { runwayMonthsFromLiquid } from "@/lib/finance/observed-prefill";
+import {
+  mergeMoneyPictures,
+  observeDashboardPrefill,
+  questionSuggestionsFromMoney,
+  type MoneyPictureAmounts,
+  type ObservedPrefillSuggestion,
+} from "@/lib/finance/observed-prefill";
+import {
+  budgetLedgerSavedAt,
+  hasSavedBudgetLedger,
+  loadBudgetLedger,
+} from "@/lib/finance/local-ledger";
+import { downPaymentProgress } from "@/lib/finance/goal-semantics";
+import { metricsFromLedger } from "@/lib/finance/metrics";
+import { centsToDollars } from "@/lib/finance/money";
 
 interface LinkedItem {
   id: string;
@@ -13,25 +28,10 @@ interface LinkedItem {
   status: string | null;
 }
 
-interface Suggestion {
-  lookbackDays: number;
-  transactionCount: number;
-  spanDays: number;
-  monthlyInflows: number;
-  monthlyObligations: number;
-  monthlySpend: number;
-  liquidBalances: number;
-  suggestedDti: number | null;
-  suggestedRunwayMonths: number | null;
-  transferClassificationSafe: boolean;
-  canVerify: boolean;
-  reason: string | null;
-}
-
 interface PrefillResponse {
   configured?: boolean;
   items?: LinkedItem[];
-  suggestion?: Suggestion | null;
+  suggestion?: ObservedPrefillSuggestion | null;
   partial?: boolean;
   message?: string | null;
   error?: string;
@@ -45,12 +45,29 @@ function money(n: number): string {
   }).format(n);
 }
 
-function pct(n: number): string {
-  return `${Math.round(n * 100)}%`;
+function pictureFromLedger(earmark: number): MoneyPictureAmounts | null {
+  if (!hasSavedBudgetLedger()) return null;
+  const nowIso = new Date().toISOString();
+  const ledger = loadBudgetLedger(nowIso);
+  const metrics = metricsFromLedger(ledger, nowIso, budgetLedgerSavedAt());
+  if (!metrics.evidence.hasIncome && !metrics.evidence.hasExpenses && metrics.evidence.monthsWithData === 0) {
+    return null;
+  }
+  const home = downPaymentProgress(ledger.goals);
+  return {
+    monthlyIncome: metrics.evidence.hasIncome ? metrics.surplus.incomeDollars : null,
+    monthlyDebtPayments: metrics.evidence.hasDebtSignal ? metrics.dti.debtPaymentDollars : null,
+    liquidSavings: metrics.runway.liquidDollars,
+    monthlyExpenses: metrics.surplus.expenseDollars > 0 ? metrics.surplus.expenseDollars : null,
+    runwayMonths: metrics.runway.months,
+    earmarkedDownPayment: earmark > 0 ? earmark : home ? centsToDollars(home.savedCents) : null,
+    homeTarget: home && home.targetCents > 0 ? centsToDollars(home.targetCents) : null,
+  };
 }
 
 /**
- * Plus / linked-bank suggestions. User must confirm. No second score.
+ * Money Dashboard + linked suggestions. User must confirm.
+ * Confirm writes self_report. canVerify stays false.
  */
 export function ObservedPrefillCard() {
   const [state, setState] = useState<"loading" | "ready" | "hidden">("loading");
@@ -65,20 +82,21 @@ export function ObservedPrefillCard() {
       try {
         const res = await fetch("/api/finance/observed-prefill");
         if (res.status === 401) {
-          if (!cancelled) setState("hidden");
+          if (!cancelled) {
+            setPayload({ configured: false, items: [], suggestion: null });
+            setState("ready");
+          }
           return;
         }
         const json = (await res.json()) as PrefillResponse;
         if (cancelled) return;
-        if (json.configured === false) {
-          setPayload(json);
-          setState("ready");
-          return;
-        }
         setPayload(json);
         setState("ready");
       } catch {
-        if (!cancelled) setState("hidden");
+        if (!cancelled) {
+          setPayload({ configured: false, items: [], suggestion: null });
+          setState("ready");
+        }
       }
     })();
     return () => {
@@ -86,9 +104,41 @@ export function ObservedPrefillCard() {
     };
   }, []);
 
-  if (state === "loading" || state === "hidden" || !payload) return null;
+  const ledgerPicture = useMemo(() => pictureFromLedger(earmark), [earmark]);
+  const merged = useMemo(
+    () => mergeMoneyPictures(ledgerPicture, payload?.suggestion ?? null),
+    [ledgerPicture, payload],
+  );
+  const suggestions = useMemo(() => questionSuggestionsFromMoney(merged), [merged]);
+  const dashboard = useMemo(
+    () => (ledgerPicture ? observeDashboardPrefill(ledgerPicture) : null),
+    [ledgerPicture],
+  );
+  const hasSuggestion =
+    suggestions.fin_income != null ||
+    suggestions.fin_debt_payments != null ||
+    suggestions.fin_savings_total != null ||
+    suggestions.fin_emergency_fund != null ||
+    suggestions.fin_down_payment != null;
 
-  if (payload.configured === false) {
+  if (state === "loading") return null;
+
+  function confirm() {
+    if (!hasSuggestion) {
+      setError("Nothing stored on Money to use as a suggestion.");
+      return;
+    }
+    const next = buildConfirmedFinancePrefill({
+      lookbackDays: payload?.suggestion?.lookbackDays ?? 0,
+      suggestions,
+      earmarkedDownPayment: earmark,
+    });
+    saveConfirmedFinancePrefill(next);
+    setConfirmed(next);
+    setError(null);
+  }
+
+  if (!hasSuggestion && payload?.configured === false) {
     return (
       <p className="text-xs leading-relaxed text-dim/70">
         Bank link is coming soon. Your score stays on self-report.
@@ -96,66 +146,49 @@ export function ObservedPrefillCard() {
     );
   }
 
-  const items = payload.items ?? [];
-  const suggestion = payload.suggestion;
-  const runway =
-    suggestion == null
-      ? null
-      : runwayMonthsFromLiquid({
-          liquidBalances: suggestion.liquidBalances,
-          earmarkedDownPayment: earmark,
-          monthlySpend: suggestion.monthlySpend,
-        });
+  if (!hasSuggestion && !payload?.suggestion) return null;
 
-  function confirm() {
-    if (!suggestion || suggestion.suggestedDti == null || runway == null) {
-      setError("Not enough classified income to use this suggestion.");
-      return;
-    }
-    const next: ConfirmedFinancePrefill = {
-      confirmedAt: new Date().toISOString(),
-      lookbackDays: suggestion.lookbackDays,
-      debtToIncomeRatio: suggestion.suggestedDti,
-      emergencyFundMonths: Math.max(0, runway),
-      earmarkedDownPayment: earmark,
-      dtiVerified: false,
-      runwayVerified: false,
-      downPaymentEarmarked: earmark > 0,
-    };
-    saveConfirmedFinancePrefill(next);
-    setConfirmed(next);
-    setError(null);
-  }
+  const items = payload?.items ?? [];
 
   return (
     <div className="rounded-xl border border-slate-surface/60 bg-navy/20 px-4 py-3">
       <p className="text-3xs font-semibold uppercase tracking-[0.12em] text-dim">
-        Linked suggestions
+        Money suggestions
+      </p>
+      <p className="mt-1 text-xs text-dim/80">
+        Review these before a retake. Confirm still writes self-report.
       </p>
       {items.length > 0 && (
         <p className="mt-1 text-xs text-dim">
           Linked: {items.map((item) => item.institutionName ?? "Bank").join(", ")}
-          {payload.partial ? " — partial." : "."}
+          {payload?.partial ? " — partial." : "."}
         </p>
       )}
-      {payload.message && <p className="mt-1 text-xs text-dim/80">{payload.message}</p>}
-      {suggestion && (
+      {payload?.message && <p className="mt-1 text-xs text-dim/80">{payload.message}</p>}
+      {hasSuggestion && (
         <ul className="mt-2 space-y-1 text-xs text-light">
-          <li>
-            Observed inflows {money(suggestion.monthlyInflows)}/mo · obligations{" "}
-            {money(suggestion.monthlyObligations)}/mo
-            {suggestion.suggestedDti != null ? ` · DTI ${pct(suggestion.suggestedDti)}` : ""}
-          </li>
-          <li>
-            Liquid {money(suggestion.liquidBalances)} · spend {money(suggestion.monthlySpend)}/mo
-            {runway != null ? ` · runway ${runway.toFixed(1)} mo` : ""}
-          </li>
+          {suggestions.fin_income != null && <li>Income {money(suggestions.fin_income)}/mo</li>}
+          {suggestions.fin_debt_payments != null && (
+            <li>Debt payments {money(suggestions.fin_debt_payments)}/mo</li>
+          )}
+          {suggestions.fin_savings_total != null && (
+            <li>Liquid savings {money(suggestions.fin_savings_total)}</li>
+          )}
+          {suggestions.fin_emergency_fund != null && (
+            <li>Emergency fund choice from runway</li>
+          )}
+          {suggestions.fin_down_payment != null && (
+            <li>Down payment choice from earmark</li>
+          )}
         </ul>
       )}
-      {suggestion &&
-        suggestion.suggestedDti != null &&
-        suggestion.spanDays >= 30 &&
-        suggestion.transferClassificationSafe && (
+      {dashboard?.canVerify === false && (
+        <p className="mt-2 text-xs text-dim/70">
+          Suggestions stay self-report. Transfers still count as income, so nothing is marked
+          verified.
+        </p>
+      )}
+      {hasSuggestion && (
         <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-end">
           <label className="text-xs text-dim">
             Down payment earmark

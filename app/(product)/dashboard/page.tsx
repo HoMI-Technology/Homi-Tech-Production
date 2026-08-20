@@ -16,6 +16,7 @@ import {
   weakestMeasuredPillar,
 } from "@/lib/dashboard/fold-truth";
 import { SURFACE_ROLES } from "@/lib/dashboard/surface-roles";
+import type { LastReadMoneyInputs } from "@/lib/dashboard/last-read-chrome";
 import { PageFrame } from "@/components/operate/PageFrame";
 import type { AssessmentRow, OutcomeSurvey } from "@/types/database";
 
@@ -32,6 +33,19 @@ function daysSince(dateStr: string | null): number | null {
   const then = new Date(dateStr).getTime();
   const now = Date.now();
   return Math.floor((now - then) / (1000 * 60 * 60 * 24));
+}
+
+function finiteNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function lastMoneyInputsFromRow(inputs: Record<string, unknown> | null): LastReadMoneyInputs | null {
+  if (!inputs) return null;
+  return {
+    debtToIncomeRatio: finiteNumber(inputs.debtToIncomeRatio),
+    emergencyFundMonths: finiteNumber(inputs.emergencyFundMonths),
+    savingsRate: finiteNumber(inputs.savingsRate),
+  };
 }
 
 export default async function DashboardPage() {
@@ -131,6 +145,8 @@ export default async function DashboardPage() {
           instrumentTint={instrumentTint}
           dueSurvey={dueSurvey ? { id: dueSurvey.id, kind: dueSurvey.kind } : null}
           staleDays={daysSince(latest?.completed_at ?? latest?.created_at ?? null)}
+          lastReadAt={latest?.completed_at ?? latest?.created_at ?? null}
+          lastMoney={lastMoneyInputsFromRow(latest?.inputs ?? null)}
           hasPath={pathSteps.length > 0}
           pathDone={pathDone}
           pathTotal={pathTotal}

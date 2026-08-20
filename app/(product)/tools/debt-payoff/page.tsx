@@ -12,6 +12,13 @@ import { getLens } from "@/lib/tools/registry";
 import { loadFinanceState, hasSavedFinanceState, netCashFlow } from "@/lib/finance/store";
 import { AdvancedToolGate } from "@/components/entitlements/AdvancedToolGate";
 import { ToolShell } from "@/components/tools/ToolShell";
+import { DebtPayoffScorePreview } from "@/components/tools/DebtPayoffScorePreview";
+import {
+  budgetLedgerSavedAt,
+  hasSavedBudgetLedger,
+  loadBudgetLedger,
+} from "@/lib/finance/local-ledger";
+import { metricsFromLedger } from "@/lib/finance/metrics";
 
 const LENS = getLens("debt-payoff")!;
 
@@ -44,6 +51,9 @@ function DebtPayoffPageInner() {
    * honesty note explains which fields are real and which still need the
    * user. */
   const [balancesSeeded, setBalancesSeeded] = useState(false);
+  const [previewIncome, setPreviewIncome] = useState<number | null>(null);
+  const [previewRunway, setPreviewRunway] = useState<number | null>(null);
+  const [previewOutflow, setPreviewOutflow] = useState<number | null>(null);
 
   // Decision Lab: itemized CFM mapping. The finance dashboard stores
   // liability names and balances — never rates or minimums — so a seed
@@ -52,15 +62,28 @@ function DebtPayoffPageInner() {
   // rather than inventing numbers. The extra payment seeds from actual
   // positive cash flow. Mount-only; never fights live edits.
   useEffect(() => {
-    if (!hasSavedFinanceState()) return;
-    const finance = loadFinanceState();
-    const real = finance.liabilities.filter((l) => l.amount > 0);
-    if (real.length > 0) {
-      setDebts(real.map((l) => makeDebt({ name: l.name, balance: l.amount })));
-      setBalancesSeeded(true);
+    if (hasSavedFinanceState()) {
+      const finance = loadFinanceState();
+      const real = finance.liabilities.filter((l) => l.amount > 0);
+      if (real.length > 0) {
+        setDebts(real.map((l) => makeDebt({ name: l.name, balance: l.amount })));
+        setBalancesSeeded(true);
+      }
+      const flow = netCashFlow(finance);
+      if (flow > 0) setExtra(Math.round(flow));
+      if (!hasSavedBudgetLedger() && finance.monthlyIncome > 0) {
+        setPreviewIncome(finance.monthlyIncome);
+      }
     }
-    const flow = netCashFlow(finance);
-    if (flow > 0) setExtra(Math.round(flow));
+    if (hasSavedBudgetLedger()) {
+      const nowIso = new Date().toISOString();
+      const metrics = metricsFromLedger(loadBudgetLedger(nowIso), nowIso, budgetLedgerSavedAt());
+      setPreviewIncome(metrics.surplus.incomeDollars > 0 ? metrics.surplus.incomeDollars : null);
+      setPreviewRunway(metrics.runway.months);
+      setPreviewOutflow(
+        metrics.runway.monthlyOutflowDollars > 0 ? metrics.runway.monthlyOutflowDollars : null,
+      );
+    }
   }, []);
 
   const validDebts = debts.filter((d) => d.balance > 0 && d.minPayment > 0);
@@ -239,6 +262,24 @@ function DebtPayoffPageInner() {
         <p className="mt-8 text-sm text-dim">
           Add at least one debt with a balance and minimum payment to see a comparison.
         </p>
+      )}
+
+      {comparison && (
+        <DebtPayoffScorePreview
+          monthlyIncome={previewIncome}
+          currentMonthlyDebt={validDebts.reduce((sum, debt) => sum + debt.minPayment, 0)}
+          remainingMonthlyDebt={0}
+          currentRunwayMonths={previewRunway}
+          projectedRunwayMonths={
+            previewRunway != null && previewOutflow != null && previewOutflow > 0
+              ? (previewRunway * previewOutflow) /
+                Math.max(
+                  1,
+                  previewOutflow - validDebts.reduce((sum, debt) => sum + debt.minPayment, 0),
+                )
+              : null
+          }
+        />
       )}
 
       {comparison && (
