@@ -51,7 +51,6 @@ Phases 00–03 landed in [#252](https://github.com/HoMI-Technology/Homi-Tech-Pro
 | Home fold premium identity | visual / brand | **Closed** — `dash-instrument` chrome, in-fold `Wordmark` + eyebrow, Companion `panel-focus`, Path dock language, ledger kicker |
 | Signed-in Shadow Score as product close | tools IA | **Closed** — removed from ⌘K; Twin/Trinity empties → Assess; QuickActionGrid stripped |
 | Snapshot aside on mobile (F10) | shell | **Closed-by-deletion** — Home is `HomeFold` only; `dash-body-grid` / Snapshot no longer mount |
-| Onboarding unreachable `loadLocalResult` replay | F5 | **Closed** — deleted |
 
 This file stays the audit. It does not replace the product PR.
 
