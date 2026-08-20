@@ -441,10 +441,6 @@ describe("N13–N14: live / real-time freshness", () => {
         "lib/analytics/posthog.ts",
       ],
       [
-        '<p className="text-sm font-semibold text-light">Your share link is live</p>',
-        "components/share/ShareShadowButton.tsx",
-      ],
-      [
         " * and the browser supports push — so it stays invisible until push is live,",
         "components/settings/PushToggle.tsx",
       ],
