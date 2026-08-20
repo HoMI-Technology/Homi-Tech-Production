@@ -29,8 +29,9 @@ const FILLERS = ["/path", "/journal", "/plan"];
 /** Exactly three hrefs, most-relevant first, deduped. */
 export function contextualActionHrefs(input: ContextActionInput): string[] {
   if (!input.hasAssessment) {
-    // Shortest path to a first score leads; Money picture third (not public tools mall).
-    return ["/shadow-score", "/assessment", "/money"];
+    // Signed-in first-run: full 45-q is the product path. Shadow Score stays
+    // a public acquisition read — not the dashboard empty close.
+    return ["/assessment", "/money", "/path"];
   }
   const out: string[] = [];
   if (input.weakestPillar) out.push(PILLAR_TOOL[input.weakestPillar]);

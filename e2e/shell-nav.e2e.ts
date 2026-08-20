@@ -16,7 +16,7 @@ test.describe("signed-in shell navigation", () => {
     skipWithoutLiveSupabase();
   });
 
-  test("PRIMARY + More + hamburger reach real product routes", async ({ page }) => {
+  test("PRIMARY + mobile drawer reach real product routes", async ({ page }) => {
     const user = await createTestUser();
     try {
       await signInViaUi(page, user.email, user.password);
@@ -27,22 +27,21 @@ test.describe("signed-in shell navigation", () => {
         ).toBeVisible();
       }
 
-      await page.getByRole("button", { name: "More" }).click();
-      await expect(page.getByRole("menuitem", { name: "Journal" })).toBeVisible();
-      await expect(page.getByRole("menuitem", { name: "Companion" })).toHaveCount(0);
-      await page.getByRole("menuitem", { name: "Journal" }).click();
+      // Live shell is AppSidebar (journey groups), not the retired AppHeader More menu.
+      await expect(page.getByRole("link", { name: "Journal" })).toBeVisible();
+      await page.getByRole("navigation", { name: "Primary" }).getByRole("link", { name: "Journal" }).click();
       await expect(page).toHaveURL(/\/journal/);
 
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto("/dashboard");
-      await page.getByRole("button", { name: "Toggle menu" }).click();
+      await page.getByRole("button", { name: "Open navigation" }).click();
       for (const item of [...APP_PRIMARY_NAV, ...APP_MORE_NAV].slice(0, 6)) {
         await expect(
-          page.locator("#app-mobile-menu").getByRole("link", { name: item.label }),
+          page.locator("#app-sidebar-drawer").getByRole("link", { name: item.label }),
         ).toBeVisible();
       }
       await expect(
-        page.locator("#app-mobile-menu").getByRole("button", { name: "Jump to…" }),
+        page.getByRole("button", { name: "Jump to…" }),
       ).toBeVisible();
     } finally {
       await deleteTestUser(user.id);

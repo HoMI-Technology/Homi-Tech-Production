@@ -147,10 +147,8 @@ export default async function EmployeeDashboardPage() {
           <EmptyState
             title="One private measurement and this hub comes alive"
             body="Your employer sponsors the instrument. Only you see the reading."
-            actionHref="/shadow-score"
-            actionLabel="Get your Shadow Score"
-            secondaryHref="/assessment"
-            secondaryLabel="Full assessment"
+            actionHref="/assessment"
+            actionLabel="Assess"
           />
         )}
       </OperateInstrument>

@@ -39,6 +39,8 @@ Phases 00–03 landed in [#252](https://github.com/HoMI-Technology/Homi-Tech-Pro
 | Unreachable `loadLocalResult` replay in onboarding | F5 | **Closed** — deleted |
 | Companion fold line on Home | F6 / phase 05 | **Closed** — server text via `companionFoldLine`, no chat graph |
 | Workspace switcher unreachable in live shell | shell drift | **Closed** — `DashboardSwitcher` mounted in `AppSidebar` footer |
+| Employee hub empty → Shadow Score | signed-in CTA honesty | **Closed** — Assess → `/assessment` |
+| Contextual quick-action first-run led with Shadow Score | tools IA | **Closed** — `/assessment`, `/money`, `/path` |
 | Money tools discovery from Home | tools IA | Partial — Home fold links **Money picture** → `/money` |
 | `onboarding_completed` still write-only | F5 | Open — not used for redirects (unsafe without backfill) |
 | State-based post-login routing | F1 / phase 03 | Open — default remains `/dashboard` with fixed empty CTA |

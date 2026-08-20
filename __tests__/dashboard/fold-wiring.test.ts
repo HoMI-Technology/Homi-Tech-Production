@@ -164,6 +164,14 @@ describe("empty Home first-run is one Assess close", () => {
     expect(sidebar).toContain("data-sidebar-workspace-switcher");
   });
 
+  it("employee hub empty close is Assess → /assessment, not Shadow Score", () => {
+    const employee = src("app", "(product)", "employee", "dashboard", "page.tsx");
+    expect(employee).toContain('actionHref="/assessment"');
+    expect(employee).toContain('actionLabel="Assess"');
+    expect(employee).not.toContain("Get your Shadow Score");
+    expect(employee).not.toContain('actionHref="/shadow-score"');
+  });
+
   it("onboarding and the guest assessment gate do not print those CTAs", () => {
     for (const file of [onboarding, assessment]) {
       expect(file).not.toContain("/shadow-score");
