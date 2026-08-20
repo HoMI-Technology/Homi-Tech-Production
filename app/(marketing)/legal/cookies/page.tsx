@@ -16,91 +16,150 @@ export default function CookiesPage() {
     <section className="px-6 py-16 md:py-24">
       <div className="mx-auto max-w-3xl">
         <h1 className="type-h1">Cookie Policy</h1>
-        <p className="mt-3 text-sm text-dim">Last updated: August 2026</p>
+        <p className="mt-3 text-sm text-dim">Last updated: 20 Aug 2026</p>
 
         <div className="mt-10 space-y-10 text-dim">
           <div>
-            <h2 className="type-h3">1. The short version</h2>
+            <p className="leading-relaxed">
+              This Cookie Policy explains how {BRAND.legalEntity} (&ldquo;{BRAND.display},&rdquo;
+              &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) uses cookies and similar
+              technologies on {BRAND.domain} (the &ldquo;Sites&rdquo;).
+            </p>
             <p className="mt-3 leading-relaxed">
-              {BRAND.display} uses one essential cookie to keep you signed in. Optional analytics
-              (PostHog) help us improve the product. That choice is yours — reject or accept
-              anytime. No ad tech. Nothing here is sold or shared for marketing.
+              {BRAND.display} uses essential cookies to keep you signed in. Optional analytics help
+              us improve the product — your choice, and you can change it anytime. No ad tech.
             </p>
           </div>
 
           <div>
-            <h2 className="type-h3">2. The essential cookie</h2>
+            <h2 className="type-h3">What are cookies?</h2>
+            <p className="mt-3 leading-relaxed">
+              Cookies are small data files placed on your computer or mobile device when you visit
+              a website. They can keep you signed in, remember a preference, or help a site
+              understand how it is used.
+            </p>
+            <p className="mt-3 leading-relaxed">
+              We use first-party cookies we set, and — only if you accept optional analytics — a
+              PostHog script served from PostHog. We do not use advertising cookies, social-login
+              cookies, or advertising pixels.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="type-h3">What types of cookies and similar technologies we use</h2>
+            <p className="mt-3 leading-relaxed">
+              The banner, this page, and the site Content-Security-Policy describe the same set.
+              We do not run advertising cookies or social cookies.
+            </p>
+
+            <p className="mt-6 font-medium text-light">Essential</p>
+            <p className="mt-3 leading-relaxed">
+              Necessary for the Service to work. There is no opt-out while you stay signed in.
+            </p>
             <ul className="mt-3 list-disc space-y-2 pl-5 leading-relaxed">
               <li>
                 <span className="font-medium text-light">Supabase auth session cookie.</span> Set
-                when you sign in, so you stay signed in as you move between pages. It identifies
-                your session, not you as an advertising target, and it is required for the product
-                to function — there is no way to opt out of it while remaining signed in.
+                when you sign in so you stay signed in between pages. It identifies your session.
+                It is not an advertising identifier.
               </li>
             </ul>
-          </div>
-
-          <div>
-            <h2 className="type-h3">3. Optional analytics</h2>
             <p className="mt-3 leading-relaxed">
-              If you accept optional analytics, {BRAND.display} loads PostHog to understand how the
-              product is used. You can reject optional analytics and the product still works. You
-              can change this anytime from the cookie banner.
-            </p>
-            <p className="mt-3 leading-relaxed">
-              We do not run advertising cookies, ad-network tags, cross-site pixels, or Meta Pixel.
-              We do not build advertising profiles from your activity on {BRAND.display}.
-            </p>
-            <p className="mt-3 leading-relaxed">
-              See also{" "}
+              If you use Connections, Plaid Link loads in a third-party frame from cdn.plaid.com
+              so you can connect an account. That is required for that feature, not an advertising
+              cookie. See{" "}
               <Link href="/legal/subprocessors" className="text-cyan hover:underline">
                 Subprocessors
               </Link>
               .
             </p>
-          </div>
 
-          <div>
-            <h2 className="type-h3">4. What lives in your browser storage</h2>
+            <p className="mt-6 font-medium text-light">Analytics</p>
             <p className="mt-3 leading-relaxed">
-              Beyond cookies, {BRAND.display} uses your browser&rsquo;s local and session storage
-              for small flags — not a guest verdict.
+              Optional. Off until you press Accept optional on the cookie banner.
             </p>
             <ul className="mt-3 list-disc space-y-2 pl-5 leading-relaxed">
               <li>
-                <span className="font-medium text-light">Cookie and notification preferences</span>{" "}
-                — your choice on this banner, and your notification toggle in Settings.
-              </li>
-              <li>
-                <span className="font-medium text-light">Hero and onboarding signals</span> — small
-                flags (like whether you&rsquo;ve seen the landing-page intro) so the site
-                doesn&rsquo;t repeat itself on every visit.
+                <span className="font-medium text-light">PostHog.</span> If you accept, we load
+                PostHog to understand product usage. Persistence is memory-only — PostHog does not
+                set a cookie. Autocapture is off. Session recording is off. Reject optional and
+                the product still works. You can change this anytime from the cookie banner.
               </li>
             </ul>
             <p className="mt-3 leading-relaxed">
-              Assessment results live on your account after you sign in. Guest /results and /plan
-              are not a product path. /shadow-score is a read, not a score we store in your browser
-              as the product.
+              We do not run Google Analytics, FullStory, Meta Pixel, or any advertising pixel.
             </p>
+
+            <p className="mt-6 font-medium text-light">Functionality</p>
+            <ul className="mt-3 list-disc space-y-2 pl-5 leading-relaxed">
+              <li>
+                <span className="font-medium text-light">homi_attr</span> — a first-party cookie
+                that stores first-touch channel identifiers (ref or UTM values and the landing
+                path) for 90 days. It does not store scores or answers. It is not an advertising
+                cookie.
+              </li>
+            </ul>
           </div>
 
           <div>
-            <h2 className="type-h3">5. Managing or clearing this data</h2>
+            <h2 className="type-h3">Other technologies</h2>
+            <p className="mt-3 font-medium text-light">Browser web storage</p>
             <p className="mt-3 leading-relaxed">
-              You can reject optional analytics from the cookie banner without clearing anything
-              else. You can clear local and session storage from your browser&rsquo;s settings,
-              which removes those flags and your stored choice — the banner may ask again. Clearing
-              the Supabase session cookie will sign you out. Neither action deletes data already
-              saved to your account — see our{" "}
-              <Link href="/legal/privacy" className="text-cyan hover:underline">
-                Privacy Policy
-              </Link>{" "}
-              for account data export and deletion.
+              Beyond cookies, {BRAND.display} uses local and session storage for small flags — not
+              a guest verdict.
+            </p>
+            <ul className="mt-3 list-disc space-y-2 pl-5 leading-relaxed">
+              <li>
+                <span className="font-medium text-light">homi:consent</span> (local storage) — your
+                Accept optional or Reject optional choice. This is the gate for PostHog.
+              </li>
+              <li>
+                <span className="font-medium text-light">Homepage session flag</span> — the first
+                homepage visit may hold the cookie banner so it does not cover the landing intro.
+                That hold is a session flag, not an advertising identifier.
+              </li>
+            </ul>
+            <p className="mt-3 leading-relaxed">
+              Notification preferences live on your account, not in a browser cookie. Assessment
+              results live on your account after you sign in.
+            </p>
+            <p className="mt-3 leading-relaxed">
+              We do not use Flash cookies, mobile application SDKs, or session-replay products.
             </p>
           </div>
 
           <div>
-            <h2 className="type-h3">6. Changes to this policy</h2>
+            <h2 className="type-h3">Your choices</h2>
+            <ul className="mt-3 list-disc space-y-2 pl-5 leading-relaxed">
+              <li>
+                <span className="font-medium text-light">Cookie banner.</span> On your first
+                visit (and after you clear the stored choice) the banner offers Accept optional
+                and Reject optional. Essential cookies do not need that consent. There is no
+                separate cookie dashboard.
+              </li>
+              <li>
+                <span className="font-medium text-light">Browser settings.</span> Most browsers
+                let you remove or reject cookies. If you block the Supabase session cookie, you
+                will be signed out.
+              </li>
+              <li>
+                <span className="font-medium text-light">Clearing storage.</span> Clearing local
+                or session storage removes the consent flag and may show the banner again. It does
+                not delete account data. See the{" "}
+                <Link href="/legal/privacy" className="text-cyan hover:underline">
+                  Privacy Policy
+                </Link>
+                .
+              </li>
+            </ul>
+            <p className="mt-3 leading-relaxed">
+              We do not respond to Global Privacy Control or Do Not Track. We do not participate
+              in Network Advertising Initiative or Digital Advertising Alliance opt-outs because
+              we do not run interest-based advertising.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="type-h3">Changes</h2>
             <p className="mt-3 leading-relaxed">
               If what we store changes, this page will change with it. Material changes will be
               reflected here with an updated date above.
@@ -108,10 +167,17 @@ export default function CookiesPage() {
           </div>
 
           <div>
-            <h2 className="type-h3">7. Contact</h2>
+            <h2 className="type-h3">Questions</h2>
             <p className="mt-3 leading-relaxed">
-              Questions about this policy can be sent to {BRAND.legalEntity} through our support
-              channels. See also our{" "}
+              Email{" "}
+              <a href="mailto:hello@homitechnology.com" className="text-cyan hover:underline">
+                hello@homitechnology.com
+              </a>{" "}
+              or{" "}
+              <a href="mailto:Info@homitechnology.com" className="text-cyan hover:underline">
+                Info@homitechnology.com
+              </a>
+              . We do not have a telephone number, toll-free line, or fax. See also our{" "}
               <Link href="/legal/privacy" className="text-cyan hover:underline">
                 Privacy Policy
               </Link>
