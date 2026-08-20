@@ -67,8 +67,10 @@ import { visibleDashboards } from "@/lib/dashboard/switcher-visibility";
  * from the catalog so this list can never fork the copy.
  */
 const JOURNEY_ORDER: readonly { label: string; hrefs: readonly string[] }[] = [
-  { label: "Measure", hrefs: ["/dashboard", "/assessment", "/results"] },
-  { label: "Understand", hrefs: ["/path", "/scenarios", "/tools/preflight"] },
+  // Measure owns the Build entry (Home) + Assess + living Path. Results is
+  // palette-only (reveal transition) — not a Measure peer in the rail.
+  { label: "Measure", hrefs: ["/dashboard", "/assessment", "/path"] },
+  { label: "Understand", hrefs: ["/scenarios", "/tools/preflight"] },
   // /agents is header-primary whenever the Agent OS flag is on; it belongs to
   // the acting half of the journey, next to Money and the household surfaces.
   { label: "Act", hrefs: ["/money", "/agents", "/household", "/connections"] },
@@ -207,7 +209,8 @@ function SidebarNav({
 /**
  * Bottom-of-rail readiness chip — the last thing the eye lands on before it
  * leaves the sidebar. It restates the header block's verdict + score at the
- * point of exit and links straight back to /results (or to /assessment when
+ * point of exit and links straight back to /dashboard (or to /assessment when
+ * there is no score yet) so the living Build — not the reveal — is the default.
  * nothing is cached).
  *
  * Collapsed to the 72px rail it degrades to the centered number alone; the link

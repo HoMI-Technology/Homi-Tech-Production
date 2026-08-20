@@ -50,7 +50,7 @@ export type PathToReadyCardProps = {
   isAnonymous?: boolean;
 };
 
-const SIGN_IN_HREF = `/auth/sign-in?next=${encodeURIComponent("/results")}`;
+const SIGN_IN_HREF = `/auth/sign-in?next=${encodeURIComponent("/dashboard")}`;
 
 function isReadyCelebrate(result: AssessmentResult): boolean {
   return result.verdict === "READY" && result.hardStops.length === 0;

@@ -227,8 +227,11 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
       </div>
 
       <div className="mt-8 flex flex-wrap items-center gap-4 print:hidden">
-        <Link href="/results" className="btn btn-ghost">
-          Back to results
+        <Link href="/dashboard" className="btn btn-primary">
+          Continue on Home
+        </Link>
+        <Link href="/path" className="btn btn-ghost">
+          Path to Ready
         </Link>
         <Link href={`/report/${assessment.id}/credential`} className="btn btn-ghost">
           View credential

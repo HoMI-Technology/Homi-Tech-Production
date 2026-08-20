@@ -124,11 +124,8 @@ export default function TrinityPage() {
             assessment first.
           </p>
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <Link href="/shadow-score" className="btn btn-primary">
-              Get your Shadow Score
-            </Link>
-            <Link href="/assessment" className="btn btn-ghost">
-              Take the full assessment
+            <Link href="/assessment" className="btn btn-primary">
+              Assess
             </Link>
           </div>
         </div>

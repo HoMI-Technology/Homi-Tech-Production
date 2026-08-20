@@ -75,7 +75,7 @@ describe("dashboard fold tells the truth about the build", () => {
   it("surfaces a Companion fold line without mounting the chat graph", () => {
     expect(fold).toContain("companionFoldLine");
     expect(fold).toContain("data-companion-fold-line");
-    expect(fold).toContain("Money picture");
+    expect(fold).toContain("HomeMoneyStanding");
     expect(fold).not.toContain("CompanionHost");
   });
 
@@ -93,6 +93,7 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(fold).toContain("HOME_FOLD_INSTRUMENT");
     expect(fold).toContain("dash-instrument");
     expect(fold).toContain("Wordmark");
+    expect(fold).toContain("HomeMoneyStanding");
     expect(fold).toContain("data-home-build-hero");
     expect(fold).toContain("data-home-score-rail");
     expect(fold).toContain("PathStepLedger");
@@ -102,6 +103,8 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(page).not.toContain("HeroScore");
     expect(page).not.toContain("PillarRing");
     expect(fold).not.toContain("PillarRing");
+    expect(fold).not.toContain("FinancialPositionSection");
+    expect(fold).not.toContain("OperateInstrument");
   });
 
   it("does not mount the kitchen-sink body on Home", () => {
@@ -177,6 +180,7 @@ describe("empty Home first-run is one Assess close", () => {
     expect(employee).not.toContain('actionHref="/shadow-score"');
     expect(employee).not.toContain("ThresholdCompass");
     expect(employee).toContain('href="/path"');
+    expect(employee).not.toContain('href: "/plan"');
   });
 
   it("onboarding and the guest assessment gate do not print those CTAs", () => {

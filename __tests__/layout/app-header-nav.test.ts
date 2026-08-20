@@ -21,7 +21,6 @@ describe("AppHeader nav config", () => {
     const hrefs = APP_MORE_NAV.map((i) => i.href);
     for (const href of [
       "/path",
-      "/results",
       "/household",
       "/tools/preflight",
       "/scenarios",
@@ -30,7 +29,8 @@ describe("AppHeader nav config", () => {
     ]) {
       expect(hrefs).toContain(href);
     }
-    // Readiness plan checklist is palette-only — Path owns the living Build.
+    // Verdict reveal + readiness checklist stay palette-only — Path owns Build.
+    expect(hrefs).not.toContain("/results");
     expect(hrefs).not.toContain("/plan");
     // Money modes live under primary Money + MoneyModeNav — not More peers.
     for (const href of ["/money/budget", "/money/decide", "/money/plan"]) {
@@ -57,10 +57,8 @@ describe("AppHeader nav config", () => {
     expect(hrefs).not.toContain("/family");
   });
 
-  it("puts Results adjacent to Path to Ready", () => {
-    const hrefs = APP_MORE_NAV.map((i) => i.href);
-    expect(hrefs.indexOf("/results")).toBe(hrefs.indexOf("/path") + 1);
-    expect(APP_MORE_NAV.find((i) => i.href === "/results")?.label).toBe("Results");
+  it("keeps Results off More chrome (palette reveal only)", () => {
+    expect(APP_MORE_NAV.map((i) => i.href)).not.toContain("/results");
   });
 
   it("does not advertise Agents in PRIMARY unless the public FF is on", () => {

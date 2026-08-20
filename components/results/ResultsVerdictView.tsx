@@ -22,7 +22,6 @@ import { DataQualityChip } from "@/components/results/DataQualityChip";
 import { ProvenanceLine } from "@/components/results/ProvenanceLine";
 import { VerdictOverride } from "@/components/assessment/VerdictOverride";
 import { SaveStatusBanner } from "@/components/results/SaveStatusBanner";
-import { PathToReadyCard } from "@/components/readiness";
 
 const FINANCIAL = PILLARS.find((p) => p.key === "financial")!;
 const EMOTIONAL = PILLARS.find((p) => p.key === "emotional")!;
@@ -144,11 +143,17 @@ export function ResultsVerdictView({
                 constraint first.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <a href="#path-to-ready" className="btn btn-primary btn-sm">
-                  Continue Path to Ready
-                </a>
+                {isAnonymous ? (
+                  <Link href="/auth/sign-up" className="btn btn-primary btn-sm">
+                    Save your progress
+                  </Link>
+                ) : (
+                  <Link href="/dashboard" className="btn btn-primary btn-sm">
+                    Continue on Home
+                  </Link>
+                )}
                 <Link href="/path" className="btn btn-ghost btn-sm">
-                  Open full path
+                  Path to Ready
                 </Link>
               </div>
             </>
@@ -172,25 +177,6 @@ export function ResultsVerdictView({
           ))}
         </div>
       )}
-
-      {/* Path to Ready — binding-constraint sequence (primary operate move) */}
-      <PathToReadyCard
-        result={result}
-        assessmentCompletedAt={stored.completedAt}
-        isAnonymous={isAnonymous}
-      />
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        <Link href="/tools/preflight" className="btn btn-ghost btn-sm">
-          Decision Pre-Flight
-        </Link>
-        <Link href="/scenarios" className="btn btn-ghost btn-sm">
-          Scenario studio
-        </Link>
-        <Link href="/path" className="btn btn-ghost btn-sm">
-          Full path
-        </Link>
-      </div>
 
       {/* Pillar rings */}
       <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-3">
@@ -424,19 +410,20 @@ export function ResultsVerdictView({
         </p>
       </div>
 
-      {/* CTAs — primary returns to Home Build fold; Path owns the ledger. */}
+      {/* CTAs — signed-in returns to Home Build; guests save progress first. */}
       <div className="mt-8 flex flex-col items-center gap-4 border-t border-slate-surface/60 pt-10 sm:flex-row sm:justify-center">
-        <Link href="/dashboard" className="btn btn-primary">
-          Continue on Home
-        </Link>
+        {isAnonymous ? (
+          <Link href="/auth/sign-up" className="btn btn-primary">
+            Save your progress
+          </Link>
+        ) : (
+          <Link href="/dashboard" className="btn btn-primary">
+            Continue on Home
+          </Link>
+        )}
         <Link href="/path" className="btn btn-ghost">
           Path to Ready
         </Link>
-        {isAnonymous && (
-          <Link href="/auth/sign-up" className="btn btn-emerald">
-            Save your progress
-          </Link>
-        )}
         {/* isShadowRead never reaches this block — shadow leftovers return
             early above. A retake must land on the real 45-question flow: the
             90-second shadow read cannot produce a new score, and the server

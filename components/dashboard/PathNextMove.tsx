@@ -141,8 +141,8 @@ export function PathNextMove({ variant = "default" }: { variant?: "default" | "f
             <p className="dash-action-dock-title">READY — optional review</p>
           </div>
           <div className="dash-action-dock-actions flex flex-wrap gap-2.5">
-            <Link href="/results" className="btn btn-ghost">
-              View results
+            <Link href="/path" className="btn btn-primary">
+              Review Path
             </Link>
           </div>
         </div>

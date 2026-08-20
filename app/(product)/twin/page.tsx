@@ -123,14 +123,11 @@ export default function TwinPage() {
           <h1 className="mt-6 font-display text-2xl font-semibold text-light">No results yet</h1>
           <p className="mt-3 text-sm text-dim">
             The Temporal Twin writes to you from your future — but it needs your real numbers first.
-            Get your Shadow Score to unlock it.
+            Take the assessment to unlock it.
           </p>
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <Link href="/shadow-score" className="btn btn-primary">
-              Get your Shadow Score
-            </Link>
-            <Link href="/assessment" className="btn btn-ghost">
-              Take the full assessment
+            <Link href="/assessment" className="btn btn-primary">
+              Assess
             </Link>
           </div>
         </div>

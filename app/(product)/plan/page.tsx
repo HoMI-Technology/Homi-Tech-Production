@@ -173,7 +173,7 @@ export default function PlanPage() {
           <ThresholdCompass size={96} verdict="ALMOST_THERE" className="mx-auto" />
           <h1 className="mt-6 font-display text-2xl font-semibold text-light">No plan yet</h1>
           <p className="mt-3 text-sm text-dim">
-            Take an assessment first — your plan is built from your real answers.
+            Take an assessment first — this checklist is built from your real answers.
           </p>
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link
@@ -198,12 +198,14 @@ export default function PlanPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:py-16">
       <div className="text-center">
-        <p className="text-sm font-semibold uppercase tracking-widest text-cyan">
-          Your transformation path
-        </p>
+        <p className="eyebrow">Checklist · deep link</p>
         <h1 className="mt-2 font-display text-3xl font-semibold text-light sm:text-4xl">
-          This is the map, not the failure.
+          Readiness checklist
         </h1>
+        <p className="mx-auto mt-3 max-w-lg text-sm text-dim">
+          Path to Ready owns the living Build. This page is the step checklist from your last
+          verdict — not a second home.
+        </p>
         {weakestPillar && (
           <p className="mx-auto mt-4 max-w-lg text-base text-dim">
             <span className="font-semibold" style={{ color: weakestPillar.color }}>
@@ -280,14 +282,22 @@ export default function PlanPage() {
       </div>
 
       <div className="mt-12 flex flex-col items-center gap-4 border-t border-slate-surface/60 pt-10 sm:flex-row sm:justify-center">
+        {!isAnonymous ? (
+          <Link href="/dashboard" className="btn btn-primary">
+            Continue on Home
+          </Link>
+        ) : null}
+        <Link href="/path" className="btn btn-ghost">
+          Path to Ready
+        </Link>
         {/* A retake must land on the flow that can actually produce a new
             score. The 90-second shadow read cannot — it is a first-run
             pulse, not a re-test. */}
-        <Link href="/assessment" className="btn btn-primary">
+        <Link href="/assessment" className="btn btn-ghost">
           {effective.kind === "shadow" ? "Take the full assessment" : "Re-take the assessment"}
         </Link>
         <Link href="/results" className="btn btn-ghost">
-          Back to your results
+          Last verdict
         </Link>
       </div>
     </div>

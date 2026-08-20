@@ -49,8 +49,8 @@ function hardStopSignal(storedAssessment: StoredAssessment): Signal | null {
     severity: "crimson",
     title: `${countLabel} active`,
     body: `${first.message} Not yet is not no. It is clarity. It is protection — and it's worth addressing before anything else.`,
-    actionLabel: "Review your plan",
-    actionHref: "/plan",
+    actionLabel: "Open Path to Ready",
+    actionHref: "/path",
   };
 }
 
@@ -71,8 +71,8 @@ function weakPillarSignals(storedAssessment: StoredAssessment): Signal[] {
         severity: "amber",
         title: `${pillar.label} is below where it needs to be`,
         body: `${pillar.label} is sitting at ${Math.round(pct * 100)}% of its max. That's the clearest gap in your plan right now, and the most useful place to focus next.`,
-        actionLabel: "See your plan",
-        actionHref: "/plan",
+        actionLabel: "Open Path to Ready",
+        actionHref: "/path",
       });
     }
   }
@@ -119,8 +119,8 @@ function conflictSignalsFrom(storedAssessment: StoredAssessment): Signal[] {
     severity: CONFLICT_SEVERITY_MAP[signal.severity],
     title: signal.title,
     body: signal.message,
-    actionLabel: "See conflict check",
-    actionHref: "/results",
+    actionLabel: "Open Path to Ready",
+    actionHref: "/path",
   }));
 }
 
@@ -183,8 +183,8 @@ function allClearSignal(storedAssessment: StoredAssessment): Signal | null {
       severity: "emerald",
       title: "Nothing urgent right now",
       body: "No hard-stops, no rising pressure, and your last assessment is holding up. This is what steady readiness looks like — keep an eye on your plan and check in when something changes.",
-      actionLabel: "View your plan",
-      actionHref: "/plan",
+      actionLabel: "Continue on Home",
+      actionHref: "/dashboard",
     };
   }
   return null;

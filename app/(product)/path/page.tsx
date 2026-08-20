@@ -334,17 +334,19 @@ export default function PathPage() {
           </p>
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             {hasAssessment ? (
-              <button type="button" className="btn btn-primary" onClick={handleGenerate}>
-                Generate from last assessment
-              </button>
+              <>
+                <button type="button" className="btn btn-primary" onClick={handleGenerate}>
+                  Generate from last assessment
+                </button>
+                <Link href="/dashboard" className="btn btn-ghost">
+                  Continue on Home
+                </Link>
+              </>
             ) : (
               <Link href="/assessment" className="btn btn-primary">
                 Take the assessment
               </Link>
             )}
-            <Link href="/results" className="btn btn-ghost">
-              View results
-            </Link>
           </div>
           {error && (
             <p className="mt-4 text-sm text-crimson" role="alert">
@@ -634,8 +636,8 @@ export default function PathPage() {
         <button type="button" className="btn btn-ghost" onClick={handleGenerate}>
           Regenerate
         </button>
-        <Link href="/results" className="btn btn-ghost">
-          Results
+        <Link href="/dashboard" className="btn btn-ghost">
+          Continue on Home
         </Link>
         <Link href="/assessment" className="btn btn-ghost">
           Reassess

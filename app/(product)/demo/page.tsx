@@ -62,8 +62,8 @@ function DemoPageContent() {
             shared.
           </p>
         </div>
-        <Link href="/shadow-score" className="btn btn-primary shrink-0 btn-sm">
-          Get your Shadow Score
+        <Link href="/assessment" className="btn btn-primary shrink-0 btn-sm">
+          Assess
         </Link>
       </div>
 

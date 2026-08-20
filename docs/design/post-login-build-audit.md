@@ -41,13 +41,14 @@ Phases 00–03 landed in [#252](https://github.com/HoMI-Technology/Homi-Tech-Pro
 | Workspace switcher unreachable in live shell | shell drift | **Closed** — `DashboardSwitcher` mounted in `AppSidebar` footer |
 | Employee hub empty → Shadow Score | signed-in CTA honesty | **Closed** — Assess → `/assessment` |
 | Contextual quick-action first-run led with Shadow Score | tools IA | **Closed** — `/assessment`, `/money`, `/path` |
-| Money tools discovery from Home | tools IA | Partial — Home fold links **Money picture** → `/money` |
+| Money tools discovery from Home | tools IA | **Closed** — Home `HomeMoneyStanding` strip (ledger surplus / runway / liquid) + CTAs into `/money` |
 | `onboarding_completed` still write-only | F5 | Open — not used for redirects (unsafe without backfill) |
 | State-based post-login routing | F1 / phase 03 | **Closed** — `resolvePostLoginDestination`: explicit `?next=` wins; bare sign-in → Assess if unscored, Home if scored |
 | Fold inversion (build hero, score to rail) | F7 / phase 04 | **Closed** — `HOME_FOLD_INSTRUMENT = "build"`; DESIGN.md 3-second test amended |
 | Step ledger of completed Path moves | F9 / phase 06 | **Closed** — `PathStepLedger` on Home (suppressed over hard stops) |
-| Collapse `/plan` + `/results` | F8 / phase 07 | **Partial** — `/plan` palette-only; surface roles SSOT; results primary CTA → Home/Path; full `/results` merge still open |
+| Collapse `/plan` + `/results` | F8 / phase 07 | **Partial** — `/results` reveal-only (Path card removed); chrome/emails/notifications/report → Build; full route deletion still open |
 | Home fold premium identity | visual / brand | **Closed** — `dash-instrument` chrome, in-fold `Wordmark` + eyebrow, Companion `panel-focus`, Path dock language, ledger kicker |
+| Signed-in Shadow Score as product close | tools IA | **Closed** — removed from ⌘K; Twin/Trinity empties → Assess; QuickActionGrid stripped |
 
 This file stays the audit. It does not replace the product PR.
 
@@ -474,7 +475,7 @@ current dashboard treats as real.
 | 04 | Invert the fold — build hero, score to rail. **Edits DESIGN.md's 3-second test in the same commit** | F7 | **PILOT required** | **Landed** — HomeFold `data-home-build-hero` + score rail; DESIGN.md / ARCHITECTURE-DESIGN.md hierarchy text updated |
 | 05 | One server-rendered Companion line on the build | F6 | Low | **Landed** — `data-companion-fold-line` on HomeFold |
 | 06 | The ledger — completed steps with impact | F9 | None | **Landed** — `PathStepLedger` (titles of done steps; suppressed over hard stops) |
-| 07 | Collapse `/plan` and `/results` into the Build; re-point nav catalog + parity test | F8 | Medium — routing | **Partial** — `/plan` palette-only; `SURFACE_ROLES` SSOT; results primary CTA → Home/Path; full `/results` merge still open |
+| 07 | Collapse `/plan` and `/results` into the Build; re-point nav catalog + parity test | F8 | Medium — routing | **Partial** — `/plan` + `/results` palette-only; Path in Measure journey; chrome CTAs → Home/Path; full `/results` merge still open |
 
 Phases 00–03 contain **no design decisions at all**. They close both critical findings
 plus two highs without requiring anyone's taste to agree. If nothing else here is

@@ -46,6 +46,7 @@ describe("HomeFold", () => {
     expect(screen.queryByText("76")).not.toBeInTheDocument();
     expect(screen.queryByText("Your build")).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /see results/i })).not.toBeInTheDocument();
+    expect(container.querySelector("[data-home-money-standing]")).not.toBeNull();
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeTruthy();
   });
 
@@ -83,13 +84,13 @@ describe("HomeFold", () => {
     expect(companion?.classList.contains("panel-focus")).toBe(true);
     expect(companion).toHaveTextContent(/Companion/);
     expect(companion).toHaveTextContent(/binding step on Path to Ready/);
-    const results = screen.getAllByRole("link", { name: /see results/i });
-    expect(results.length).toBeGreaterThanOrEqual(1);
-    expect(results[0]).toHaveAttribute("href", "/results");
-    expect(screen.getByRole("link", { name: /money picture/i })).toHaveAttribute(
-      "href",
-      "/money",
-    );
+    // Compact score rail keeps a quiet reveal link via the verdict badge only —
+    // no competing "See results" button that steals the Build.
+    expect(container.querySelector("[data-home-verdict]")).toHaveAttribute("href", "/results");
+    expect(screen.getByRole("link", { name: /last verdict/i })).toHaveAttribute("href", "/results");
+    expect(screen.queryByRole("link", { name: /^see results$/i })).not.toBeInTheDocument();
+    expect(container.querySelector("[data-home-money-standing]")).not.toBeNull();
+    expect(screen.queryByRole("link", { name: /money picture/i })).not.toBeInTheDocument();
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeNull();
     expect(screen.queryByText("76")).not.toBeInTheDocument();
   });

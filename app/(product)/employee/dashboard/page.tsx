@@ -230,7 +230,7 @@ export default async function EmployeeDashboardPage() {
           { href: "/advisor", title: "Companion", body: "Private coaching chat" },
           { href: "/journal", title: "Journal", body: "Log decisions as you make them" },
           { href: "/daily", title: "Daily pulse", body: "Mood and stress check-in" },
-          { href: "/plan", title: "Plan", body: "Personalized next steps" },
+          { href: "/path", title: "Path to Ready", body: "Binding-constraint next steps" },
         ].map((card) => (
           <Link
             key={card.href}
