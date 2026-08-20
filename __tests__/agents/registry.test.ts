@@ -38,6 +38,12 @@ describe("lib/agents/registry", () => {
         expect(brandColors.has(agent.color)).toBe(true);
       }
     });
+
+    it("Analyst grounds on Money Stand, not Finance Dashboard", () => {
+      const line = getAgent("analyst").systemLine;
+      expect(line).toMatch(/Money Stand/);
+      expect(line).not.toMatch(/Finance Dashboard/i);
+    });
   });
 
   describe("getAgent", () => {

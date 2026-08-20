@@ -2,8 +2,8 @@
 title: Post-login audit — let users experience their build
 source: Claude Code (design audit, two-lens review)
 date: 2026-08-17
-revision: 8 — 2026-08-20 F8 delete /results route + ResultsVerdictView; middleware redirect
-status: design — phases 00–07 landed; signed-in UI walkthrough still blocked on #241
+revision: 9 — 2026-08-20 residual honesty on main follow-up (Analyst Money Stand; guest /results verify)
+status: design — phases 00–07 landed on main (#286); signed-in UI walkthrough still blocked on #241
 surface: post-login (`/dashboard`, `/path`, `/plan`, `/onboarding`; `/results` retired)
 sections: Section 2 (Dashboard / Shell) primary — no writes to Section 0 or 8
 related: DESIGN.md, CANON.md, COMPANION-ECOSYSTEM.md, docs/SECTIONS.md
@@ -52,7 +52,8 @@ Phases 00–03 landed in [#252](https://github.com/HoMI-Technology/Homi-Tech-Pro
 | Scenario “Fund path” invents readiness when unscored | Build honesty | **Closed** — requires scored assessment; UI Assess-gates Fund buttons |
 | Stale “Finance dashboard” on signed-in money surfaces | Money IA | **Closed** — Money Stand language on connections, path, simulator, memory, Companion prompts |
 | Timeline empty CTA said “Re-check” | first-run honesty | **Closed** — empty history → Assess |
-| ⌘K Home labeled Dashboard | chrome | **Closed** — paletteLabel Home |
+| Analyst agent still said “Finance Dashboard” | Money IA | **Closed** — registry systemLine → Money Stand |
+| QuickActionGrid duration `~10 minutes` | duration honesty | **Closed** — about 5 minutes (component residual; not mounted on Home) |
 | Sign-up default → `/onboarding` | first-run honesty | **Closed** — bare sign-up defaults to `POST_LOGIN_ASSESS` (`/assessment`); explicit `?next=` still wins |
 | Home fold premium identity | visual / brand | **Closed** — `dash-instrument` chrome, in-fold `Wordmark` + eyebrow, Companion `panel-focus`, Path dock language, ledger kicker |
 | Signed-in Shadow Score as product close | tools IA | **Closed** — removed from ⌘K; Twin/Trinity empties → Assess; QuickActionGrid stripped |
