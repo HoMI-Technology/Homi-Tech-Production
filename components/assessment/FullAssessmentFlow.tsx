@@ -35,7 +35,10 @@ import {
   type FlowStep,
 } from "@/lib/questions/flow";
 import { bankResponsesToInputs, type ConflictResponses } from "@/lib/questions/to-inputs";
-import { applyConfirmedFinancePrefill } from "@/lib/finance/prefill-confirm";
+import {
+  applyConfirmedFinancePrefill,
+  applyConfirmedQuestionPrefill,
+} from "@/lib/finance/prefill-confirm";
 import {
   BankQuestionField,
   formatResponseForReview,
@@ -98,6 +101,7 @@ export function FullAssessmentFlow() {
         recordAssessmentRestartLoop(personKey);
       });
     } else {
+      setResponses(applyConfirmedQuestionPrefill({}));
       setDraftReady(true);
     }
     track("assessment_started", { kind: "full", resumed: draft ? 1 : 0 });
@@ -132,7 +136,7 @@ export function FullAssessmentFlow() {
     clearDraft();
     setResumeDraft(null);
     setDecisionType(DEFAULT_DECISION_TYPE);
-    setResponses({});
+    setResponses(applyConfirmedQuestionPrefill({}));
     setConflict(EMPTY_CONFLICT);
     setIndex(0);
     setDraftReady(true);

@@ -22,6 +22,7 @@ import type { FinanceCompleteness } from "@/lib/finance/readiness-snapshot";
 import { cashFlowTemperature, runwayTemperature, type Temperature } from "@/lib/finance/store";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { ObservedPrefillCard } from "@/components/finance/ObservedPrefillCard";
+import { MoneyRecheckPrompt } from "@/components/money/MoneyRecheckPrompt";
 import { ProvenanceLine } from "@/components/results/ProvenanceLine";
 import { loadConfirmedFinancePrefill } from "@/lib/finance/prefill-confirm";
 import type { AssessmentProvenance } from "@/lib/scoring/public";
@@ -268,6 +269,7 @@ export function MoneyStand() {
       </div>
 
       <ProvenanceLine provenance={moneyProvenance} />
+      <MoneyRecheckPrompt metrics={metrics} />
       <ObservedPrefillCard />
 
       {ready && completeness === "low" && (

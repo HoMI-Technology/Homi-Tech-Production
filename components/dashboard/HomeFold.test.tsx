@@ -56,6 +56,7 @@ describe("HomeFold", () => {
         {...base}
         latest={{ id: "a1", overallScore: 64 }}
         verdict="BUILD_FIRST"
+        lastReadAt="2026-03-15T12:00:00.000Z"
         stopMessages={[]}
         hasPath
         pathDone={2}
@@ -76,6 +77,10 @@ describe("HomeFold", () => {
     expect(container.querySelector("[data-home-score-rail]")).not.toBeNull();
     expect(screen.getByLabelText("Overall HōMI-Score 64 out of 100")).toBeInTheDocument();
     expect(screen.getByText("BUILD FIRST")).toBeInTheDocument();
+    expect(container.querySelector("[data-last-read-chrome]")).toHaveTextContent(
+      "Last read: BUILD FIRST from March 15.",
+    );
+    expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();
     expect(
       screen.getByText("Financial Reality is the softest pillar on this read."),
     ).toBeInTheDocument();
