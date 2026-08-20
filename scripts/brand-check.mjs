@@ -25,13 +25,16 @@
  *     credit-score-is-static framing, real-time & "live" freshness claims,
  *     absolute conflict-of-interest claims, perpetual guarantees, and
  *     whole-market competitor claims — EN and ES.
- *   - Trade-secret scoring internals on public marketing surfaces (N21–N24,
- *     2026-08 audit): numeric pillar weights in ANY phrasing ("35 of 100",
- *     "Financial Reality 35"), verdict score ranges rendered beside a verdict
- *     label, and numeric hard-stop cutoffs ("above 50%", "under 620",
- *     "one month of runway") near hard-stop vocabulary. Path-scoped to
- *     app/(marketing), components/home, and components/marketing — product
- *     surfaces legitimately render "n / max" breakdowns and stay out of scope.
+ *   - Trade-secret scoring internals on public surfaces (N21–N25, 2026-08
+ *     audit): numeric pillar weights in ANY phrasing ("35 of 100", "Financial
+ *     Reality 35"), verdict score ranges rendered beside a verdict label,
+ *     numeric hard-stop cutoffs ("above 50%", "under 620", "one month of
+ *     runway") near hard-stop vocabulary, and weighting-structure claims
+ *     ("weighted equally", "close to equally") that disclose the relative
+ *     weights without a single numeral. Path-scoped to app/(marketing),
+ *     app/share, app/shadow, components/home, components/marketing, and
+ *     components/learning — product surfaces legitimately render "n / max"
+ *     breakdowns and stay out of scope.
  *
  * SUPPRESSION (tightened — see SUPPRESSION_REGISTRY):
  *   The old model suppressed a line if it merely *contained* the substring
@@ -327,10 +330,16 @@ function isNegated(prevLine, line, matchIndex) {
 }
 
 /**
- * Public marketing tree — the surfaces where trade-secret scoring internals
- * (N21–N24) must never render. Repo-relative posix path prefixes.
+ * Public copy tree — the surfaces where trade-secret scoring internals
+ * (N21–N25) must never render. Repo-relative posix path prefixes. Covers the
+ * marketing pages and their content modules (components/home,
+ * components/marketing, and components/learning — the Learning hub renders
+ * at app/(marketing)/learning/[slug]) plus the token-gated but
+ * anonymous-readable share pages (app/share, app/shadow), which are public
+ * artifacts by design.
  */
-const MARKETING_SURFACE_RE = /^(?:app\/\(marketing\)\/|components\/(?:home|marketing)\/)/;
+const MARKETING_SURFACE_RE =
+  /^(?:app\/\(marketing\)\/|app\/(?:share|shadow)\/|components\/(?:home|marketing|learning)\/)/;
 
 /**
  * id        – stable rule id, quoted in the report
@@ -554,18 +563,19 @@ const RULES = [
       "Arbitrary text size (text-[…]) is off the type scale — snap to a scale step (text-3xs … text-3xl, or a type-* class from app/globals.css).",
   },
 
-  /* --- Trade-secret scoring internals on marketing surfaces (N21–N24) *
+  /* --- Trade-secret scoring internals on public surfaces (N21–N25) --- *
    * 2026-08 brand/compliance audit: exact pillar weights, verdict thresholds,
-   * and hard-stop cutoffs are trade-secret; the public model is qualitative
-   * only. Scoped via `paths` to the public marketing tree. Product surfaces
-   * (score breakdowns rendering "n / max") stay out of scope, as do the
-   * engine and its docs under lib/scoring. */
+   * hard-stop cutoffs, and the relative weighting structure are trade-secret;
+   * the public model is qualitative only. Scoped via `paths` to the public
+   * copy tree (MARKETING_SURFACE_RE). Product surfaces (score breakdowns
+   * rendering "n / max") stay out of scope, as do the engine and its docs
+   * under lib/scoring. */
   {
     id: "N21",
     paths: MARKETING_SURFACE_RE,
     re: /\b\d{1,3}\s*(?:of|\/)\s*100\b/,
     message:
-      'Numeric pillar weight ("<n> of 100") on a public marketing surface — exact weights are trade-secret; the public model is qualitative only (2026-08 audit).',
+      'Numeric pillar weight ("<n> of 100") on a public surface — exact weights are trade-secret; the public model is qualitative only (2026-08 audit).',
   },
   {
     id: "N22",
@@ -575,7 +585,7 @@ const RULES = [
     // and version-ish tokens never match; "0" alone still does (0–49).
     re: /\b(?:0|[1-9]\d{0,2})\s*(?:–|—|&ndash;|&mdash;|-)\s*(?:0|[1-9]\d{0,2})\b/,
     message:
-      "Verdict score range beside a verdict label on a public marketing surface — thresholds are trade-secret; keep the public spectrum qualitative (2026-08 audit).",
+      "Verdict score range beside a verdict label on a public surface — thresholds are trade-secret; keep the public spectrum qualitative (2026-08 audit).",
   },
   {
     // Catches the phrasing N21 missed on /how-it-works: weights stated as
@@ -585,7 +595,7 @@ const RULES = [
     paths: MARKETING_SURFACE_RE,
     re: /\b(?:Financial Reality|Emotional Truth|Perfect Timing)\s*[.,:;—–-]?\s*\d{1,3}\b/,
     message:
-      'Numeric pillar weight beside a pillar name on a public marketing surface — exact weights are trade-secret in ANY phrasing; the public model is qualitative only (2026-08 audit).',
+      'Numeric pillar weight beside a pillar name on a public surface — exact weights are trade-secret in ANY phrasing; the public model is qualitative only (2026-08 audit).',
   },
   {
     // Hard-stop cutoffs are the most gameable parameters in the system: a
@@ -599,7 +609,19 @@ const RULES = [
     near: /\b(?:hard[- ]?stops?|red lines?|forced to|override[s]? (?:the )?(?:math|numeric score))\b/i,
     re: /\b(?:above|over|under|below|fewer than|less than)\s+(?:\d|one\b|a single\b)/,
     message:
-      "Numeric hard-stop cutoff on a public marketing surface — exact red-line thresholds are trade-secret; describe them qualitatively so the protective signal cannot be gamed (2026-08 audit).",
+      "Numeric hard-stop cutoff on a public surface — exact red-line thresholds are trade-secret; describe them qualitatively so the protective signal cannot be gamed (2026-08 audit).",
+  },
+  {
+    // "Weighted equally" / "close to equally" disclose weighting STRUCTURE
+    // (that the pillars are near-equal) without a single numeral, so N21/N23
+    // can never see them. The relative weights are the same trade secret as
+    // the numbers. Qualitative canon ("weighed differently", "weighed with
+    // the same seriousness") carries no "equally" and stays legal.
+    id: "N25",
+    paths: MARKETING_SURFACE_RE,
+    re: /\bweight(?:ed|ing|s)?\b[^.!?]{0,40}\bequally\b|\bequally\b[^.!?]{0,20}\bweight(?:ed|ing|s)?\b/,
+    message:
+      'Weighting-structure claim ("weighted equally" / "close to equally") on a public surface — relative pillar weights are trade-secret; keep public copy qualitative (2026-08 secrecy).',
   },
 ];
 
