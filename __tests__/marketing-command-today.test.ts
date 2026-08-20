@@ -109,7 +109,8 @@ describe("growth engines and this-week slate", () => {
   it("exports UTM presets for x and tiktok, not Product Hunt", () => {
     expect(DEFAULT_UTM_SOURCE).toBe("x");
     expect(UTM_PRESETS.map((p) => p.source)).toEqual(["x", "tiktok", "linkedin", "email"]);
-    expect(UTM_PRESETS.some((p) => p.source === "producthunt")).toBe(false);
+    const sources: string[] = UTM_PRESETS.map((p) => p.source);
+    expect(sources).not.toContain("producthunt");
     expect(UTM_PRESETS.find((p) => p.source === "tiktok")).toEqual({
       source: "tiktok",
       medium: "social",
