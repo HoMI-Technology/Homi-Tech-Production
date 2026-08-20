@@ -139,7 +139,10 @@ export function verdictEmail(
       <a href="${SITE}/plan" style="color:#22d3ee;text-decoration:none;font-weight:700;">See your full plan &rarr;</a>
     </p>
   `;
-  return { subject: `Your HōMI-Score: ${score} — ${label}`, html: layout(body) };
+  // Privacy: the score and verdict never go in the subject line. Subjects
+  // surface in lock-screen notifications and inbox previews; the full read
+  // belongs inside the email the user deliberately opened.
+  return { subject: "Your HōMI-Score is in", html: layout(body) };
 }
 
 export function outcomeSurveyEmail(

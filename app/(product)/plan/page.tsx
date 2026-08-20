@@ -271,11 +271,11 @@ export default function PlanPage() {
       </div>
 
       <div className="mt-12 flex flex-col items-center gap-4 border-t border-slate-surface/60 pt-10 sm:flex-row sm:justify-center">
-        <Link
-          href={effective.kind === "shadow" ? "/assessment" : "/shadow-score"}
-          className="btn btn-primary"
-        >
-          Re-take the assessment
+        {/* A retake must land on the flow that can actually produce a new
+            score. The 90-second shadow read cannot — it is a first-run
+            pulse, not a re-test. */}
+        <Link href="/assessment" className="btn btn-primary">
+          {effective.kind === "shadow" ? "Take the full assessment" : "Re-take the assessment"}
         </Link>
         <Link href="/results" className="btn btn-ghost">
           Back to your results
