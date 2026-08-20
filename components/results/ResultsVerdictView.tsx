@@ -387,7 +387,7 @@ export function ResultsVerdictView({
               <span className="font-semibold">Read the verdict as a map</span>
               <span className="text-dim">
                 {" "}
-                — Build First and not yet are protection, not a grade.
+                — BUILD FIRST and NOT YET are protection, not a grade.
               </span>
             </span>
           </li>
@@ -437,8 +437,12 @@ export function ResultsVerdictView({
             Save your progress
           </Link>
         )}
-        <Link href={isShadowRead ? "/assessment" : "/shadow-score"} className="btn btn-ghost">
-          {isShadowRead ? "Take the full assessment" : "Retake the assessment"}
+        {/* isShadowRead never reaches this block — shadow leftovers return
+            early above. A retake must land on the real 45-question flow: the
+            90-second shadow read cannot produce a new score, and the server
+            enforces the rescoring window. */}
+        <Link href="/assessment" className="btn btn-ghost">
+          Retake the assessment
         </Link>
         {stored.serverId && fullReport && (
           <Link href={`/report/${stored.serverId}`} className="btn btn-ghost">
