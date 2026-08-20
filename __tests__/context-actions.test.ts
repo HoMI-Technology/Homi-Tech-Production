@@ -3,10 +3,10 @@ import { checkedInToday, contextualActionHrefs } from "@/lib/dashboard/context-a
 import { formatCurrencyTile } from "@/lib/tools/format";
 
 describe("contextualActionHrefs", () => {
-  it("leads first-run users to the shortest path to a score", () => {
+  it("leads first-run users to the signed-in Assess path, not Shadow Score", () => {
     expect(
       contextualActionHrefs({ hasAssessment: false, weakestPillar: null, checkedInToday: false }),
-    ).toEqual(["/shadow-score", "/assessment", "/money"]);
+    ).toEqual(["/assessment", "/money", "/path"]);
   });
 
   it("leads with the weakest-pillar instrument, then launch surfaces", () => {

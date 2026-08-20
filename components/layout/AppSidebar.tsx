@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { CommandPalette } from "@/components/layout/CommandPalette";
+import { DashboardSwitcher } from "@/components/layout/DashboardSwitcher";
 import {
   SidebarDecisionState,
   SidebarPulseStrip,
@@ -37,6 +38,7 @@ import { isActivePath } from "@/components/layout/HeaderShell";
 import { APP_MORE_NAV, APP_PRIMARY_NAV } from "@/lib/layout/app-nav";
 import type { NavLink } from "@/lib/layout/nav-catalog";
 import type { SwitcherContext } from "@/lib/dashboard/switcher-visibility";
+import { visibleDashboards } from "@/lib/dashboard/switcher-visibility";
 
 /**
  * Signed-in application shell — fixed left sidebar.
@@ -49,8 +51,10 @@ import type { SwitcherContext } from "@/lib/dashboard/switcher-visibility";
  * the flag-aware projection of NAV_CATALOG's `surfaces.header` field — the same
  * source AppHeader used, so the parity test in
  * __tests__/layout/nav-catalog-parity.test.ts keeps covering this surface.
- * Palette-only entries (settings, role dashboards, money modes) intentionally
- * stay out of the rail and remain reachable via ⌘K.
+ * Palette-only entries (settings, money modes) intentionally stay out of
+ * the rail and remain reachable via ⌘K. Multi-role workspace homes are
+ * reachable from the sidebar footer switcher when more than one dashboard
+ * is visible.
  *
  * The rail is grouped by decision journey (measure → understand → act →
  * reflect) rather than by header slot. That is a *labeling* change only: the
@@ -64,7 +68,7 @@ import type { SwitcherContext } from "@/lib/dashboard/switcher-visibility";
  */
 const JOURNEY_ORDER: readonly { label: string; hrefs: readonly string[] }[] = [
   { label: "Measure", hrefs: ["/dashboard", "/assessment", "/results"] },
-  { label: "Understand", hrefs: ["/path", "/plan", "/scenarios", "/tools/preflight"] },
+  { label: "Understand", hrefs: ["/path", "/scenarios", "/tools/preflight"] },
   // /agents is header-primary whenever the Agent OS flag is on; it belongs to
   // the acting half of the journey, next to Money and the household surfaces.
   { label: "Act", hrefs: ["/money", "/agents", "/household", "/connections"] },
@@ -237,10 +241,12 @@ function SidebarFooter({
   email,
   decisionState,
   expanded,
+  roleContext,
 }: {
   email: string | null;
   decisionState: LatestVerdict | null;
   expanded: boolean;
+  roleContext: SwitcherContext;
 }) {
   // Labels go screen-reader-only (not display:none) on the rail so the icon
   // rows keep an accessible name without a title-attribute fallback.
@@ -248,10 +254,23 @@ function SidebarFooter({
   const row = `flex items-center gap-3 rounded-lg px-3 py-1.5 text-sm font-medium text-dim transition-colors hover:bg-white/[0.04] hover:text-light ${
     expanded ? "min-h-11" : "min-h-10 max-xl:justify-center max-xl:px-2 xl:min-h-11"
   }`;
+  const showSwitcher = visibleDashboards(roleContext).length > 1;
 
   return (
     <div className={`border-t border-white/5 px-3 py-2.5 ${expanded ? "" : "max-xl:px-2"}`}>
       <SidebarScoreChip state={decisionState} expanded={expanded} />
+      {showSwitcher && (
+        <div
+          className={`mb-1.5 ${expanded ? "px-1" : "max-xl:flex max-xl:justify-center"}`}
+          data-sidebar-workspace-switcher=""
+        >
+          <DashboardSwitcher
+            role={roleContext.role}
+            employerId={roleContext.employerId}
+            organizationId={roleContext.organizationId}
+          />
+        </div>
+      )}
       {email && (
         <p
           className={`truncate px-3 pb-1.5 text-2xs text-dim ${expanded ? "" : "max-xl:hidden"}`}
@@ -376,9 +395,10 @@ export function AppSidebar({
 
       {/* Desktop rail — icons at lg, labels at xl */}
       <aside className="fixed inset-y-0 left-0 z-[var(--z-nav)] hidden w-[72px] flex-col border-r border-white/5 bg-navy/60 backdrop-blur-xl lg:flex xl:w-[248px]">
-        <div className="flex h-16 shrink-0 items-center justify-center px-3 xl:justify-start">
+        <div className="flex h-16 shrink-0 items-center justify-center px-2 xl:justify-start xl:px-3">
           <Link href="/dashboard" aria-label="HōMI dashboard" className="flex items-center">
-            <Wordmark size="text-xl" />
+            {/* Collapsed lg rail is 72px — scale the mark so letter color still reads. */}
+            <Wordmark size="text-base xl:text-xl" />
           </Link>
         </div>
         <button
@@ -407,7 +427,12 @@ export function AppSidebar({
         <SidebarDecisionState state={decisionState} expanded={false} />
         <SidebarNav pathname={pathname} pillId="nav-pill" expanded={false} />
         <SidebarPulseStrip state={decisionState} expanded={false} />
-        <SidebarFooter email={email} decisionState={decisionState} expanded={false} />
+        <SidebarFooter
+          email={email}
+          decisionState={decisionState}
+          expanded={false}
+          roleContext={roleContext}
+        />
       </aside>
 
       {/* Mobile drawer */}
@@ -452,7 +477,12 @@ export function AppSidebar({
               <SidebarDecisionState state={decisionState} expanded />
               <SidebarNav pathname={pathname} pillId="nav-pill-drawer" expanded />
               <SidebarPulseStrip state={decisionState} expanded />
-              <SidebarFooter email={email} decisionState={decisionState} expanded />
+              <SidebarFooter
+                email={email}
+                decisionState={decisionState}
+                expanded
+                roleContext={roleContext}
+              />
             </motion.aside>
           </>
         )}

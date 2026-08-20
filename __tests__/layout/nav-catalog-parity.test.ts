@@ -18,6 +18,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
  * - /shadow-score: quick-score lead-gen action; intentionally not chrome nav.
  * - /agent-hub: deep Agent OS surface; /agents (roster) is the chrome entry.
  * - /advisor: Companion chat stays reachable via palette + widget, not More.
+ * - /plan: checklist deep-link; Path to Ready owns the living Build in chrome.
  */
 const PALETTE_ONLY_HREFS = [
   "/partner/dashboard",
@@ -30,6 +31,7 @@ const PALETTE_ONLY_HREFS = [
   "/shadow-score",
   "/agent-hub",
   "/advisor",
+  "/plan",
   // Money modes: primary Money + MoneyModeNav; not duplicated in More
   "/money/budget",
   "/money/decide",

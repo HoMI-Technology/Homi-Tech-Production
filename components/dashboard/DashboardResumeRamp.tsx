@@ -3,10 +3,6 @@
 import { useEffect, useState } from "react";
 import { loadDraft } from "@/lib/assessment/draft";
 import { resumeDraftCopy } from "@/lib/dashboard/fold-truth";
-import {
-  PRIMARY_CLOSE_HREF,
-  PRIMARY_CLOSE_LABEL,
-} from "@/components/marketing/first-moment-copy";
 import { EmptyState } from "@/components/ui/EmptyState";
 
 export function DashboardResumeRamp() {
@@ -27,11 +23,6 @@ export function DashboardResumeRamp() {
     );
   }
 
-  return (
-    <EmptyState
-      preset="dashboard"
-      actionHref={PRIMARY_CLOSE_HREF}
-      actionLabel={PRIMARY_CLOSE_LABEL}
-    />
-  );
+  // EmptyState preset="dashboard" already points at SIGNED_IN_ASSESS_HREF.
+  return <EmptyState preset="dashboard" />;
 }

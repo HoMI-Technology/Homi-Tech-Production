@@ -288,10 +288,10 @@ flowchart TB
 
 **OPERATE (dashboard, tools results, finance, journal, admin, advisor):**
 
-- Dominant readiness numeral + verdict chip (personal) or book/cohort pulse (partner/admin).
+- Signed-in Home: Path/build next move leads; HōMI-Score + verdict as compact score rail. Partner/admin keep book/cohort pulse.
 - Secondary modules recessive.
 - Tabular / mono numbers for scores and money.
-- 3-second hierarchy test: score + next step must be obvious on load.
+- 3-second hierarchy test: next Path step + score reading must be obvious on load.
 - No equal 4-tile KPI walls outranking the hero.
 - Tools: `ToolShell` / `ToolGrid` / `ToolResultHero`; hub groups by ring/job (readiness/reality/stability/timing).
 

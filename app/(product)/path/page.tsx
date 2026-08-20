@@ -48,17 +48,14 @@ import type { VerdictKey } from "@/lib/brand";
 import { formatCurrency } from "@/lib/tools/format";
 import { Phase0FreezeScreen } from "@/components/advisor/Phase0FreezeScreen";
 import { usePhase0Freeze } from "@/hooks/usePhase0Freeze";
+import { SURFACE_ROLES } from "@/lib/dashboard/surface-roles";
+
+// Surface role SSOT — living Build over time.
+void SURFACE_ROLES.path;
 
 /**
- * Path to Ready home — full timeline, progress, funding apply, coach prompts.
+ * Path to Ready — living Build timeline, progress, funding apply, coach prompts.
  * Works anonymous (localStorage) or signed-in (pull/push server).
- *
- * Surface roles (D4 — all four readiness surfaces stay, each with one job):
- * - /results — the verdict MOMENT: score reveal, pillars, insight, immediate CTAs.
- * - /path    — the ongoing plan-to-ready: binding-constraint sequence over time.
- * - /plan    — simple next-steps checklist derived from the latest result.
- * - /report/{id} — the persisted, shareable/printable RECORD of one assessment.
- * Don't duplicate one surface's job on another — link across instead.
  */
 export default function PathPage() {
   const freeze = usePhase0Freeze();

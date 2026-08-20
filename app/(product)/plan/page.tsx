@@ -16,9 +16,14 @@ import { usePhase0Freeze } from "@/hooks/usePhase0Freeze";
 import {
   PRIMARY_CLOSE_HREF,
   PRIMARY_CLOSE_LABEL,
+  SIGNED_IN_ASSESS_HREF,
 } from "@/components/marketing/first-moment-copy";
+import { SURFACE_ROLES } from "@/lib/dashboard/surface-roles";
 
 const PLAN_PROGRESS_KEY = "homi:plan-progress";
+
+// Surface role SSOT — checklist deep-link; Path owns the Build in chrome.
+void SURFACE_ROLES.plan;
 
 function loadProgress(): Record<string, boolean> {
   if (typeof window === "undefined") return {};
@@ -50,12 +55,8 @@ function pillarPct(key: "financial" | "emotional" | "timing", stored: StoredAsse
 }
 
 /**
- * Surface roles (D4 — all four readiness surfaces stay, each with one job):
- * - /results — the verdict MOMENT: score reveal, pillars, insight, immediate CTAs.
- * - /path    — the ongoing plan-to-ready: binding-constraint sequence over time.
- * - /plan    — simple next-steps checklist derived from the latest result.
- * - /report/{id} — the persisted, shareable/printable RECORD of one assessment.
- * Don't duplicate one surface's job on another — link across instead.
+ * Checklist deep-link derived from the latest result.
+ * Path owns the living Build in chrome — see SURFACE_ROLES.plan.
  */
 export default function PlanPage() {
   const freeze = usePhase0Freeze();
@@ -175,9 +176,17 @@ export default function PlanPage() {
             Take an assessment first — your plan is built from your real answers.
           </p>
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <Link href={PRIMARY_CLOSE_HREF} className="btn btn-primary">
+            <Link
+              href={isAnonymous ? PRIMARY_CLOSE_HREF : SIGNED_IN_ASSESS_HREF}
+              className="btn btn-primary"
+            >
               {PRIMARY_CLOSE_LABEL}
             </Link>
+            {!isAnonymous ? (
+              <Link href="/path" className="btn btn-ghost">
+                Path to Ready
+              </Link>
+            ) : null}
           </div>
         </div>
       </div>

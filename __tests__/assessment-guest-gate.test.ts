@@ -132,7 +132,7 @@ describe("guest /plan does not paint a localStorage score", () => {
     expect(page.indexOf("isAnonymous ? null")).toBeLessThan(page.indexOf("No plan yet"));
   });
 
-  it("empty state has exactly one close: Assess → /first-moment", () => {
+  it("empty state closes: guest → First Moment; signed-in → Assess + Path", () => {
     const page = src("app", "(product)", "plan", "page.tsx");
     const emptyStart = page.indexOf("No plan yet");
     const emptyEnd = page.indexOf("const doneCount");
@@ -141,9 +141,13 @@ describe("guest /plan does not paint a localStorage score", () => {
     expect(emptyEnd).toBeGreaterThan(emptyStart);
     expect(empty).toContain("PRIMARY_CLOSE_HREF");
     expect(empty).toContain("PRIMARY_CLOSE_LABEL");
+    expect(empty).toContain("SIGNED_IN_ASSESS_HREF");
     expect(PRIMARY_CLOSE_HREF).toBe("/first-moment");
     expect(PRIMARY_CLOSE_LABEL).toBe("Assess");
-    expect(empty.match(/<Link\b/g)).toHaveLength(1);
+    // Two Link tags in source: primary Assess (guest or signed-in href) +
+    // signed-in-only Path to Ready (gated by !isAnonymous).
+    expect(empty.match(/<Link\b/g)).toHaveLength(2);
+    expect(empty).toContain('href="/path"');
     expect(empty).not.toContain("Get your Shadow Score");
     expect(empty).not.toContain("Take the full assessment");
     expect(empty).not.toContain("/shadow-score");

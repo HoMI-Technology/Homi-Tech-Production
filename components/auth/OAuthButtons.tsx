@@ -11,14 +11,17 @@ function OAuthButton({
   provider: "google" | "apple";
   label: string;
   icon: React.ReactNode;
-  next: string;
+  /** When omitted, callback resolves by assessment state (Assess vs Home). */
+  next?: string | null;
 }) {
   async function handleClick() {
     const supabase = createClient();
+    const trimmed = typeof next === "string" ? next.trim() : "";
+    const nextQuery = trimmed ? `?next=${encodeURIComponent(trimmed)}` : "";
     await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        redirectTo: `${window.location.origin}/auth/callback${nextQuery}`,
       },
     });
   }
@@ -70,7 +73,7 @@ function AppleIcon() {
   );
 }
 
-export function OAuthButtons({ next }: { next: string }) {
+export function OAuthButtons({ next }: { next?: string | null }) {
   const showGoogle = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED === "1";
   const showApple = process.env.NEXT_PUBLIC_APPLE_OAUTH_ENABLED === "1";
 

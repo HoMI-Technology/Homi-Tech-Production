@@ -396,7 +396,7 @@ export function ResultsVerdictView({
               2
             </span>
             <span>
-              <span className="font-semibold">Follow Path to Ready / plan</span>
+              <span className="font-semibold">Continue Path to Ready on Home</span>
               <span className="text-dim">
                 {" "}
                 — close the binding constraint before you escalate the commitment.
@@ -424,14 +424,14 @@ export function ResultsVerdictView({
         </p>
       </div>
 
-      {/* CTAs */}
+      {/* CTAs — primary returns to Home Build fold; Path owns the ledger. */}
       <div className="mt-8 flex flex-col items-center gap-4 border-t border-slate-surface/60 pt-10 sm:flex-row sm:justify-center">
-        <Link href="/plan" className="btn btn-primary">
-          Build your plan
+        <Link href="/dashboard" className="btn btn-primary">
+          Continue on Home
         </Link>
-        <a href="#path-to-ready" className="btn btn-ghost">
+        <Link href="/path" className="btn btn-ghost">
           Path to Ready
-        </a>
+        </Link>
         {isAnonymous && (
           <Link href="/auth/sign-up" className="btn btn-emerald">
             Save your progress

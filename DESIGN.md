@@ -37,12 +37,12 @@ Never introduce Anthropic / Linear-beige / purple-SaaS palettes. Never apply the
 
 - **Direction A — Cockpit Linear** (locked 2026-07-26 via design-shotgun): one instrument fold, next-move dock, slim metric rail, workspace dropdown in chrome. Not multi-pill switchers. Not equal StatTile KPI walls as the hero.
 - One primary job: **where do I stand, what do I do next?**
-- Dominant readiness numeral + verdict chip (personal/employee) or book/cohort pulse (partner/team/admin); secondary modules recessive.
+- **Signed-in Home (`/dashboard`) instrument is the build** — Path next move + hard stops lead the fold; HōMI-Score + verdict sit as a compact score rail reading (Direction C, post-login audit phase 04). Partner/team/admin keep book/cohort pulse heroes.
 - Tabular / mono numbers for scores and money.
 - Shared primitives: `components/operate/*` (`PageFrame`, `PageHeader`, `OperateInstrument`, `MetricRail`, `ActionDock`).
 - No GSAP / scroll-jack / marquee on app chrome or dashboard.
 - Glass is atmosphere under controlled contrast — not the text substrate over busy gradients.
-- Equal 4-tile KPI walls must not outrank the score / pulse hero.
+- Equal 4-tile KPI walls must not outrank the fold instrument.
 
 ### CHROME — `HeaderShell`, `SiteHeader`, `AppHeader`, `SiteFooter`
 
@@ -82,7 +82,7 @@ HeaderShell        → shared fixed glass bar + mobile panel behavior
 - [ ] Skip link reaches `#main`
 - [ ] `prefers-reduced-motion` still works
 - [ ] `npm run brand-check` and `npm run typecheck` pass
-- [ ] 3-second hierarchy test on dashboard (score + next step obvious)
+- [ ] 3-second hierarchy test on dashboard (**next Path step + score reading** obvious)
 
 ## Phased work
 

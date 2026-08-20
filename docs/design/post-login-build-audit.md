@@ -2,10 +2,10 @@
 title: Post-login audit — let users experience their build
 source: Claude Code (design audit, two-lens review)
 date: 2026-08-17
-revision: 4 — notes that phases 00–03 landed in #252; remaining phases are still open
-status: design — phases 00–03 implemented in #252 (2026-08-19); 04–07 still open
+revision: 6 — 2026-08-20 state-based post-login + surface roles + results→Build CTAs
+status: design — phases 00–06 landed; phase 03 state routing + surface-role SSOT + results primary CTA closed on this branch; phase 07 remainder (full /results merge) still open
 surface: post-login (`/dashboard`, `/path`, `/plan`, `/results`, `/onboarding`)
-sections: Section 1 (Assessment/Readiness surfaces) + Section 5 (Chrome/IA) — no writes to Section 0 or 8
+sections: Section 2 (Dashboard / Shell) primary — no writes to Section 0 or 8
 related: DESIGN.md, CANON.md, COMPANION-ECOSYSTEM.md, docs/SECTIONS.md
 ---
 
@@ -27,24 +27,29 @@ with nothing until phase 04.
 
 **This is a wiring problem wearing a redesign costume.**
 
-### Implementation status (2026-08-19)
+### Implementation status (2026-08-20)
 
 Phases 00–03 landed in [#252](https://github.com/HoMI-Technology/Homi-Tech-Production/pull/252) (`feat(dashboard): tell the truth about the build on Home`). That PR wired hard-stop fold truth, Path as step counts (no percent over a stop), the resume ramp, `dashboard_fold_viewed`, onboarding skip → `/dashboard`, and the `/assessment` `NEXT_REDIRECT` rethrow. Scoring was not changed.
 
-This file stays the audit. It does not replace the product PR, and phases 04–07 (fold inversion, Companion line, ledger, route collapse) are still open founder/doctrine calls.
+**2026-08-20 correctness pass (this branch):**
 
-**Still open inside phases 00–03**, verified against the tree after #252 landed — recorded so these do not disappear behind a "landed" label:
+| Item | Finding | State |
+| --- | --- | --- |
+| Empty Home Assess → marketing `/first-moment` | F1 residue | **Closed** — signed-in empty preset uses `SIGNED_IN_ASSESS_HREF` (`/assessment`) |
+| Unreachable `loadLocalResult` replay in onboarding | F5 | **Closed** — deleted |
+| Companion fold line on Home | F6 / phase 05 | **Closed** — server text via `companionFoldLine`, no chat graph |
+| Workspace switcher unreachable in live shell | shell drift | **Closed** — `DashboardSwitcher` mounted in `AppSidebar` footer |
+| Employee hub empty → Shadow Score | signed-in CTA honesty | **Closed** — Assess → `/assessment` |
+| Contextual quick-action first-run led with Shadow Score | tools IA | **Closed** — `/assessment`, `/money`, `/path` |
+| Money tools discovery from Home | tools IA | Partial — Home fold links **Money picture** → `/money` |
+| `onboarding_completed` still write-only | F5 | Open — not used for redirects (unsafe without backfill) |
+| State-based post-login routing | F1 / phase 03 | **Closed** — `resolvePostLoginDestination`: explicit `?next=` wins; bare sign-in → Assess if unscored, Home if scored |
+| Fold inversion (build hero, score to rail) | F7 / phase 04 | **Closed** — `HOME_FOLD_INSTRUMENT = "build"`; DESIGN.md 3-second test amended |
+| Step ledger of completed Path moves | F9 / phase 06 | **Closed** — `PathStepLedger` on Home (suppressed over hard stops) |
+| Collapse `/plan` + `/results` | F8 / phase 07 | **Partial** — `/plan` palette-only; surface roles SSOT; results primary CTA → Home/Path; full `/results` merge still open |
+| Home fold premium identity | visual / brand | **Closed** — `dash-instrument` chrome, in-fold `Wordmark` + eyebrow, Companion `panel-focus`, Path dock language, ledger kicker |
 
-| Item | Phase | Finding | State |
-| --- | --- | --- | --- |
-| `onboarding_completed` still written and never read | 01 | F5 | Open |
-| Unreachable `loadLocalResult` replay still in `onboarding/page.tsx` | 01 | F5 | Open |
-| Snapshot aside still ungated below `lg` | 01 | **F10** | **Resolved incidentally** — the `#257` Home rewrite removed the aside entirely, so there is nothing left to gate |
-| State-based post-login routing — `safeNext` still hard-defaults to `/dashboard` | 03 | F1 | Open |
-
-The headline items of each phase did ship. These are the residue, and each is small.
-
-**Re-verified against `main` at `f022929`** (after #252, #256, and #257 landed): items 1, 2 and 4 above are still open; item 3 is closed. F10 was resolved by deletion rather than by the gate this audit proposed — a better outcome than the fix, and worth recording as such rather than left claimed as open.
+This file stays the audit. It does not replace the product PR.
 
 > **A note on file and line references.** Every path and line number in this document is as of the audit date, **2026-08-17**. `app/(product)/dashboard/page.tsx` has since been rewritten twice — by #252 and then by #257, which moved the fold into `components/dashboard/HomeFold.tsx` and cut the page from ~709 lines to 132. The findings and the reasoning stand; the coordinates do not. Re-locate before acting on any line reference here.
 
@@ -465,11 +470,11 @@ current dashboard treats as real.
 | 00 | Instrument the dashboard: empty-state impression, next-move click, activation funnel, return cadence | F3 | None | Landed in #252 (`dashboard_fold_viewed`; remaining funnel events still thin) |
 | 01 | Bug fixes, no design content: navigate on skip; read or drop `onboarding_completed`; delete unreachable replay; hide Snapshot below `lg`; un-swallow the `/assessment` redirect | F5, F10, F11 | None | **Partly landed in #252** — skip navigation and the `NEXT_REDIRECT` rethrow shipped (F5 limb 1, F11). Still open: `onboarding_completed` remains write-only, the unreachable replay is still in `onboarding/page.tsx`, and the Snapshot aside is still ungated (**F10 untouched**) |
 | 02 | Server-render the path into the existing `Promise.all`; surface hard stops; steps-completed in the rail | F2, F4, F7 (part) | None — additive | Landed in #252 |
-| 03 | Resume ramp for abandoned assessments; state-based post-login routing | F1 | Low | **Partly landed in #252** — the resume ramp shipped. Still open: state-based post-login routing (`lib/auth/safeNext.ts:7` still hard-defaults every sign-in to `/dashboard`) |
-| 04 | Invert the fold — build hero, score to rail. **Edits DESIGN.md's 3-second test in the same commit** | F7 | **PILOT required** | Open |
-| 05 | One server-rendered Companion line on the build | F6 | Low | Open |
-| 06 | The ledger — completed steps with impact | F9 | None | Open |
-| 07 | Collapse `/plan` and `/results` into the Build; re-point nav catalog + parity test | F8 | Medium — routing | Open |
+| 03 | Resume ramp for abandoned assessments; state-based post-login routing | F1 | Low | **Landed** — resume ramp in #252; `resolvePostLoginDestination` on sign-in + `/auth/callback` (explicit `?next=` wins; bare → Assess/Home by assessment state) |
+| 04 | Invert the fold — build hero, score to rail. **Edits DESIGN.md's 3-second test in the same commit** | F7 | **PILOT required** | **Landed** — HomeFold `data-home-build-hero` + score rail; DESIGN.md / ARCHITECTURE-DESIGN.md hierarchy text updated |
+| 05 | One server-rendered Companion line on the build | F6 | Low | **Landed** — `data-companion-fold-line` on HomeFold |
+| 06 | The ledger — completed steps with impact | F9 | None | **Landed** — `PathStepLedger` (titles of done steps; suppressed over hard stops) |
+| 07 | Collapse `/plan` and `/results` into the Build; re-point nav catalog + parity test | F8 | Medium — routing | **Partial** — `/plan` palette-only; `SURFACE_ROLES` SSOT; results primary CTA → Home/Path; full `/results` merge still open |
 
 Phases 00–03 contain **no design decisions at all**. They close both critical findings
 plus two highs without requiring anyone's taste to agree. If nothing else here is

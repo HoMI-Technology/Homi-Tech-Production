@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { PILLARS } from "@/lib/brand";
-import { loadLocalResult } from "@/lib/assessment/storage";
 import { ONBOARDING_SKIP_HREF } from "@/lib/dashboard/fold-truth";
 
 const STEPS = ["What HōMI is", "What to expect", "Where to start"] as const;
@@ -23,25 +22,10 @@ export default function OnboardingPage() {
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
+        // Guests cannot hold a full assessment locally (they are sent to
+        // First Moment), so there is no local result to replay into the
+        // profile here. Mark onboarding done and move on.
         await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", user.id);
-
-        // If they took an assessment before creating the account, save it
-        // to their profile now — the moment they'd otherwise lose it.
-        const local = loadLocalResult();
-        if (local?.inputs) {
-          fetch("/api/assessments", {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({
-              inputs: local.inputs,
-              kind: local.kind ?? "full",
-              // F.13: the replay must carry the vertical it was taken in.
-              // Omitting it lets the server default to home_buying, which would
-              // relabel a car assessment the moment the user signs up.
-              ...(local.decisionType ? { decisionType: local.decisionType } : {}),
-            }),
-          }).catch(() => {});
-        }
       }
     } catch {
       // Ignore — onboarding completion is a nicety, never a blocker.
