@@ -282,6 +282,13 @@ const bodySchema = z.object({
   lensDigest: lensDigestSchema.nullish(),
   identity: identitySchema.nullish(),
   persona: personaSchema.nullish(),
+  /**
+   * Homie presence-behavior hint from the floating voice avatar
+   * (`lib/advisor/behaviors.ts`). Additive context only — never overrides
+   * voice rules, scoring, or the no-advice floor. Newlines allowed so the
+   * orchestrator can send a short multi-line presence brief.
+   */
+  homieBehaviorHint: promptSafeString(800, true).nullish(),
   /** When true, the server supplies a fixed mock assessment context (used
    * by the public /artifact companion test environment) and any client-sent
    * `assessment` field is ignored. */
@@ -636,6 +643,7 @@ export async function POST(request: Request) {
   const whatChanged = demoContext ? null : parsed.data.whatChanged;
   const lensDigest = demoContext ? null : (parsed.data.lensDigest ?? null);
   const identity = demoContext ? null : parsed.data.identity;
+  const homieBehaviorHint = demoContext ? null : (parsed.data.homieBehaviorHint ?? null);
   const lastUserMessage = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
   const activePersona: AdvisorPersona = persona ?? "homie";
   const personaMeta = getPersona(activePersona);
@@ -705,7 +713,8 @@ export async function POST(request: Request) {
         credit,
         path,
         lensDigest,
-      );
+      ) +
+      (homieBehaviorHint ? ` Homie presence: ${homieBehaviorHint}` : "");
     // The name is user-chosen text — framed as a label, never as instructions.
     const identityLine =
       identity && identity.name !== "HōMI"
