@@ -128,7 +128,7 @@ export const LEARNING_ARTICLES: LearningArticle[] = [
         heading: "Where automation actually helps",
         paragraphs: [
           "A rules-based system is good at exactly the things people are inconsistent at: applying the same standard every time, weighing many inputs simultaneously without fatigue, and doing it without a commission riding on the outcome. Run the same numbers through the same engine twice, on two different days, in two different moods, and you get the same answer both times. That consistency has real value, because human financial advice is notoriously inconsistent — the same buyer can get different guidance depending on which lender, which agent, or which day they ask.",
-          "Pattern-matching across many inputs quickly is the other genuine strength. Debt-to-income, down payment, emergency runway, credit, life stability, confidence, alignment, pressure, time horizon, savings rate, down payment progress — a dozen distinct inputs, weighed the same way every time. A person doing that mental math on the fly, informally, tends to over-weight whichever number feels most urgent that day.",
+          "Pattern-matching across many inputs quickly is the other genuine strength. Debt-to-income, down payment, emergency runway, credit, life stability, confidence, alignment, pressure, time horizon, savings rate, down payment progress — eleven distinct inputs, weighed the same way every time. A person doing that mental math on the fly, informally, tends to over-weight whichever number feels most urgent that day.",
         ],
       },
       {
