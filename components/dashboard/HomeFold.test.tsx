@@ -46,6 +46,7 @@ describe("HomeFold", () => {
     expect(screen.queryByText("76")).not.toBeInTheDocument();
     expect(screen.queryByText("Your build")).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /see results/i })).not.toBeInTheDocument();
+    expect(container.querySelector("[data-home-money-standing]")).not.toBeNull();
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeTruthy();
   });
 
@@ -88,10 +89,8 @@ describe("HomeFold", () => {
     expect(container.querySelector("[data-home-verdict]")).toHaveAttribute("href", "/results");
     expect(screen.getByRole("link", { name: /last verdict/i })).toHaveAttribute("href", "/results");
     expect(screen.queryByRole("link", { name: /^see results$/i })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /money picture/i })).toHaveAttribute(
-      "href",
-      "/money",
-    );
+    expect(container.querySelector("[data-home-money-standing]")).not.toBeNull();
+    expect(screen.queryByRole("link", { name: /money picture/i })).not.toBeInTheDocument();
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeNull();
     expect(screen.queryByText("76")).not.toBeInTheDocument();
   });

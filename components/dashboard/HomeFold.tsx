@@ -11,6 +11,7 @@ import { LoadErrorPanel } from "@/components/dashboard/LoadErrorPanel";
 import { VerdictCelebrate } from "@/components/dashboard/VerdictCelebrate";
 import { PathNextMove } from "@/components/dashboard/PathNextMove";
 import { PathStepLedger } from "@/components/dashboard/PathStepLedger";
+import { HomeMoneyStanding } from "@/components/dashboard/HomeMoneyStanding";
 import { DashboardResumeRamp } from "@/components/dashboard/DashboardResumeRamp";
 import { OutcomeSurveyPrompt } from "@/components/dashboard/OutcomeSurveyPrompt";
 import type { OutcomeSurveyKind } from "@/types/database";
@@ -156,6 +157,8 @@ export function HomeFold({
               {companionLine}
             </p>
 
+            <HomeMoneyStanding />
+
             <div
               className="mt-5 flex flex-wrap items-center gap-3 border-t border-white/5 pt-4"
               data-home-score-rail=""
@@ -170,15 +173,10 @@ export function HomeFold({
                 </p>
               )}
               {verdict && (
-              <Link href="/results" aria-label="Last verdict" data-home-verdict="">
-                <VerdictBadge verdict={verdict} size="md" />
-              </Link>
+                <Link href="/results" aria-label="Last verdict" data-home-verdict="">
+                  <VerdictBadge verdict={verdict} size="md" />
+                </Link>
               )}
-            <div className="flex flex-wrap items-center gap-3 sm:ml-auto">
-              <Link href="/money" className="btn btn-ghost">
-                Money picture
-              </Link>
-            </div>
             </div>
 
             {dueSurvey && (
@@ -188,7 +186,10 @@ export function HomeFold({
             )}
           </>
         ) : (
-          <DashboardResumeRamp />
+          <>
+            <DashboardResumeRamp />
+            <HomeMoneyStanding />
+          </>
         )}
       </div>
     </div>

@@ -8,7 +8,7 @@
  * `/results` is the verdict reveal transition. `/report/{id}` is the record.
  */
 export const SURFACE_ROLES = {
-  home: "Signed-in Home fold — Path next move leads; HōMI-Score is a compact rail reading.",
+  home: "Signed-in Home fold — Path next move leads; money standing strip shows where cash sits; HōMI-Score is a compact rail reading.",
   results: "Verdict reveal — score, pillars, insight, then exit into the Build (Home + Path). No in-page Path operate.",
   path: "Living Build — binding-constraint Path to Ready over time.",
   plan: "Checklist deep-link (palette-only). Path owns the Build in chrome.",

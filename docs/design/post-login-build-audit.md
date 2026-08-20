@@ -41,7 +41,7 @@ Phases 00–03 landed in [#252](https://github.com/HoMI-Technology/Homi-Tech-Pro
 | Workspace switcher unreachable in live shell | shell drift | **Closed** — `DashboardSwitcher` mounted in `AppSidebar` footer |
 | Employee hub empty → Shadow Score | signed-in CTA honesty | **Closed** — Assess → `/assessment` |
 | Contextual quick-action first-run led with Shadow Score | tools IA | **Closed** — `/assessment`, `/money`, `/path` |
-| Money tools discovery from Home | tools IA | Partial — Home fold links **Money picture** → `/money` |
+| Money tools discovery from Home | tools IA | **Closed** — Home `HomeMoneyStanding` strip (ledger surplus / runway / liquid) + CTAs into `/money` |
 | `onboarding_completed` still write-only | F5 | Open — not used for redirects (unsafe without backfill) |
 | State-based post-login routing | F1 / phase 03 | **Closed** — `resolvePostLoginDestination`: explicit `?next=` wins; bare sign-in → Assess if unscored, Home if scored |
 | Fold inversion (build hero, score to rail) | F7 / phase 04 | **Closed** — `HOME_FOLD_INSTRUMENT = "build"`; DESIGN.md 3-second test amended |
