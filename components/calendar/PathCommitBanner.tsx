@@ -65,8 +65,8 @@ export function PathCommitBanner({
                 {refreshing ? "Updating…" : "Refresh path milestones"}
               </button>
             )}
-            <Link href="/results" className="btn btn-ghost" aria-label="Back to assessment results">
-              View results
+            <Link href="/path" className="btn btn-ghost" aria-label="Open Path to Ready">
+              Open Path
             </Link>
           </div>
           {stepCount > 0 && (

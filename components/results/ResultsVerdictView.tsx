@@ -424,19 +424,20 @@ export function ResultsVerdictView({
         </p>
       </div>
 
-      {/* CTAs — primary returns to Home Build fold; Path owns the ledger. */}
+      {/* CTAs — signed-in returns to Home Build; guests save progress first. */}
       <div className="mt-8 flex flex-col items-center gap-4 border-t border-slate-surface/60 pt-10 sm:flex-row sm:justify-center">
-        <Link href="/dashboard" className="btn btn-primary">
-          Continue on Home
-        </Link>
+        {isAnonymous ? (
+          <Link href="/auth/sign-up" className="btn btn-primary">
+            Save your progress
+          </Link>
+        ) : (
+          <Link href="/dashboard" className="btn btn-primary">
+            Continue on Home
+          </Link>
+        )}
         <Link href="/path" className="btn btn-ghost">
           Path to Ready
         </Link>
-        {isAnonymous && (
-          <Link href="/auth/sign-up" className="btn btn-emerald">
-            Save your progress
-          </Link>
-        )}
         {/* isShadowRead never reaches this block — shadow leftovers return
             early above. A retake must land on the real 45-question flow: the
             90-second shadow read cannot produce a new score, and the server

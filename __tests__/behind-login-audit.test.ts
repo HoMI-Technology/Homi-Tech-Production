@@ -21,6 +21,14 @@ describe("verdict email privacy", () => {
     expect(html).toContain("72");
     expect(html).toContain("ALMOST THERE");
   });
+
+  it("points the post-verdict CTA at Home Build, not checklist /plan", () => {
+    const { html } = verdictEmail("Cody", 72, "ALMOST_THERE");
+    expect(html).toContain("/dashboard");
+    expect(html).toContain("Continue on Home");
+    expect(html).not.toContain("/plan");
+    expect(html).not.toContain("See your full plan");
+  });
 });
 
 describe("retake CTAs land on the flow that can re-score", () => {
@@ -30,19 +38,24 @@ describe("retake CTAs land on the flow that can re-score", () => {
     expect(view).not.toContain('"/shadow-score"');
   });
 
-  it("results primary CTA returns to the Build, not checklist /plan", () => {
+  it("results primary CTA is auth-aware: Home for signed-in, save for guests", () => {
     const view = read("components", "results", "ResultsVerdictView.tsx");
     expect(view).toContain('href="/dashboard"');
     expect(view).toContain("Continue on Home");
+    expect(view).toContain('href="/auth/sign-up"');
+    expect(view).toContain("Save your progress");
     expect(view).toContain('href="/path"');
     expect(view).not.toContain("Build your plan");
     expect(view).not.toMatch(/href="\/plan"/);
   });
 
-  it("plan retake goes to /assessment", () => {
+  it("plan retake goes to /assessment and Build owns the primary close", () => {
     const plan = read("app", "(product)", "plan", "page.tsx");
     expect(plan).toContain("Re-take the assessment");
+    expect(plan).toContain("Continue on Home");
+    expect(plan).toContain('href="/path"');
     expect(plan).not.toContain('"/shadow-score"');
+    expect(plan).not.toContain("Your transformation path");
   });
 });
 

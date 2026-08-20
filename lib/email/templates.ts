@@ -136,7 +136,7 @@ export function verdictEmail(
     </table>
     <p style="margin:0 0 20px 0;">${line}</p>
     <p style="margin:0;">
-      <a href="${SITE}/plan" style="color:#22d3ee;text-decoration:none;font-weight:700;">See your full plan &rarr;</a>
+      <a href="${SITE}/dashboard" style="color:#22d3ee;text-decoration:none;font-weight:700;">Continue on Home &rarr;</a>
     </p>
   `;
   // Privacy: the score and verdict never go in the subject line. Subjects
@@ -300,7 +300,7 @@ export function dimensionFocusEmail(
       it's the single clearest place to make progress.
     </p>
     <p style="margin:0;">Here's what moving it looks like, step by step.</p>
-    ${cta(`${SITE}/plan`, `Work on ${label}`)}
+    ${cta(`${SITE}/path`, `Work on ${label}`)}
   `;
   return { subject: `Your biggest opportunity: ${label}`, html: layout(body) };
 }

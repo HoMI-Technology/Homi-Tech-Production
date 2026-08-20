@@ -65,8 +65,8 @@ export function TimelineView() {
   return (
     <PageFrame width="content" density="spacious" role="personal">
       <header>
-        <Link href="/results" className="text-sm text-dim transition-colors hover:text-cyan">
-          &larr; Back to results
+        <Link href="/dashboard" className="text-sm text-dim transition-colors hover:text-cyan">
+          &larr; Continue on Home
         </Link>
         <p className="eyebrow mt-5">Readiness timeline</p>
         <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">
