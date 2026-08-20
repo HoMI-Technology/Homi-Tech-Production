@@ -17,12 +17,13 @@ const ROOT = process.cwd();
 const APP = join(ROOT, "app");
 const PUBLIC_DIR = join(ROOT, "public");
 
-/** v3 Brand-PASSed OG 1200×630 — do not re-encode. */
-const OG_SHA256 = "ca6248bb89b4e3e5b21d84c160700660ca5b1e0a3c7b7d53e548084ebb796bdf";
-/** v3 Brand-PASSed Twitter 1200×600 — do not re-encode. */
-const TWITTER_SHA256 = "011d8ca211fe7dfb79825e000a186dd206b4af2434ec87fbd61d723c67735868";
+/** v4 Brand-PASSed OG 1200×630 — do not re-encode. */
+const OG_SHA256 = "81a37a5cc0108505473f27242fe9a15cd7920dda105cc0bb39d13cd30a64a890";
+/** v4 Brand-PASSed Twitter 1200×600 — do not re-encode. */
+const TWITTER_SHA256 = "61b454451d7c7701bf0450fc06da1ddb2c86aab0fbb1c3d04048a6de0e329519";
 
 const SHARE_ALT = "HōMI — Will you be okay?";
+const SHARE_TITLE = "HōMI";
 
 function sha256File(absPath: string): string {
   return createHash("sha256").update(readFileSync(absPath)).digest("hex");
@@ -36,20 +37,25 @@ function pngDimensions(absPath: string): { width: number; height: number } {
 }
 
 describe("share cards — Brand-PASSed bytes", () => {
-  it("keeps public/og-v3.png at the PASSed SHA-256 and 1200×630", () => {
-    const abs = join(PUBLIC_DIR, "og-v3.png");
+  it("keeps public/og-v4.png at the PASSed SHA-256 and 1200×630", () => {
+    const abs = join(PUBLIC_DIR, "og-v4.png");
     expect(existsSync(abs)).toBe(true);
     expect(sha256File(abs)).toBe(OG_SHA256);
     expect(pngDimensions(abs)).toEqual({ width: 1200, height: 630 });
     expect(readFileSync(abs).byteLength).toBeGreaterThan(0);
   });
 
-  it("keeps public/twitter-v3.png at the PASSed SHA-256 and 1200×600", () => {
-    const abs = join(PUBLIC_DIR, "twitter-v3.png");
+  it("keeps public/twitter-v4.png at the PASSed SHA-256 and 1200×600", () => {
+    const abs = join(PUBLIC_DIR, "twitter-v4.png");
     expect(existsSync(abs)).toBe(true);
     expect(sha256File(abs)).toBe(TWITTER_SHA256);
     expect(pngDimensions(abs)).toEqual({ width: 1200, height: 600 });
     expect(readFileSync(abs).byteLength).toBeGreaterThan(0);
+  });
+
+  it("keeps v3 stills on disk without serving them", () => {
+    expect(existsSync(join(PUBLIC_DIR, "og-v3.png"))).toBe(true);
+    expect(existsSync(join(PUBLIC_DIR, "twitter-v3.png"))).toBe(true);
   });
 });
 
@@ -68,33 +74,35 @@ describe("share cards — no root ImageResponse convention", () => {
     expect(share).not.toContain('from "next/og"');
     expect(share).not.toContain("from 'next/og'");
     expect(share).not.toMatch(/new\s+ImageResponse/);
-    expect(share).toContain("/og-v3.png");
-    expect(share).toContain("/twitter-v3.png");
+    expect(share).toContain("/og-v4.png");
+    expect(share).toContain("/twitter-v4.png");
+    expect(share).not.toContain("/og-v3.png");
+    expect(share).not.toContain("/twitter-v3.png");
   });
 });
 
 describe("share cards — default OG / Twitter strings", () => {
   it("pins the exact og:title and og:description", () => {
-    expect(SHARE_OG_TITLE).toBe("HōMI — Will you be okay?");
+    expect(SHARE_OG_TITLE).toBe(SHARE_TITLE);
     expect(SHARE_OG_DESCRIPTION).toBe(TAGLINES.primary);
     expect(SHARE_OG_DESCRIPTION).toBe("Know when you're ready. Move when it matters.");
     expect(SHARE_OG_IMAGE.alt).toBe(SHARE_ALT);
     expect(SHARE_TWITTER_IMAGE.alt).toBe(SHARE_ALT);
 
     const og = defaultShareOpenGraph();
-    expect(og.title).toBe("HōMI — Will you be okay?");
+    expect(og.title).toBe(SHARE_TITLE);
     expect(og.description).toBe("Know when you're ready. Move when it matters.");
     expect(og.images).toEqual([
-      { url: "/og-v3.png", width: 1200, height: 630, alt: SHARE_ALT },
+      { url: "/og-v4.png", width: 1200, height: 630, alt: SHARE_ALT },
     ]);
 
     const twitter = defaultShareTwitter();
     expect(twitter.card).toBe("summary_large_image");
-    expect(twitter.title).toBe("HōMI — Will you be okay?");
+    expect(twitter.title).toBe(SHARE_TITLE);
     expect(twitter.description).toBe("Know when you're ready. Move when it matters.");
     expect(twitter.images).toEqual([
       {
-        url: "/twitter-v3.png",
+        url: "/twitter-v4.png",
         width: 1200,
         height: 600,
         alt: SHARE_ALT,
