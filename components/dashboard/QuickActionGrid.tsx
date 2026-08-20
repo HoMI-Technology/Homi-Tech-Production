@@ -34,7 +34,7 @@ const ACTION_COPY: Record<string, { desc: string; icon: string; nowDesc?: string
   "/assessment": {
     desc: "Full 3-pillar readiness check",
     icon: "assessment",
-    nowDesc: "Get your full verdict — ~10 minutes",
+    nowDesc: "Get your full verdict — about 5 minutes",
   },
   "/money": {
     desc: "Picture · track · decide — one finance surface",
