@@ -59,6 +59,19 @@ describe("retake CTAs land on the flow that can re-score", () => {
     expect(plan).toContain('href="/path"');
     expect(plan).not.toContain('"/shadow-score"');
     expect(plan).not.toContain("Your transformation path");
+    // Read-only checklist — no local progress store competing with Path.
+    expect(plan).not.toContain("homi:plan-progress");
+    expect(plan).not.toContain("toggleStep");
+    expect(plan).toContain("read-only checklist");
+  });
+});
+
+describe("sign-up default lands on Assess", () => {
+  it("bare sign-up uses POST_LOGIN_ASSESS, not /onboarding", () => {
+    const page = read("app", "auth", "sign-up", "page.tsx");
+    expect(page).toContain("POST_LOGIN_ASSESS");
+    expect(page).toContain("safeNext(searchParams.get(\"next\"), POST_LOGIN_ASSESS)");
+    expect(page).not.toContain('safeNext(searchParams.get("next"), "/onboarding")');
   });
 });
 
