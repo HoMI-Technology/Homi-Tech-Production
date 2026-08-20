@@ -36,13 +36,11 @@ export function ResultsVerdictView({
   isAnonymous,
   fullReport,
   keyInsight,
-  nextSteps,
 }: {
   stored: StoredAssessment;
   isAnonymous: boolean;
   fullReport: boolean;
   keyInsight: string;
-  nextSteps: string[];
 }) {
   const { result, kind } = stored;
   // Compare on a raw string before any union narrowing (TS2367).
@@ -339,79 +337,14 @@ export function ResultsVerdictView({
         </div>
       )}
 
-      {/* Next steps */}
-      <div className="mt-8">
-        <h2 className="font-display text-xl font-semibold text-light">Your next steps</h2>
-        <div className="mt-4 flex flex-col gap-3">
-          {nextSteps.map((step, i) => (
-            <div key={i} className="glass flex items-start gap-4 p-4">
-              <span className="score-numeral flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-surface text-sm font-bold text-cyan">
-                {i + 1}
-              </span>
-              <p className="text-base text-light">{step}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Activation path — ordered first-run after the verdict moment */}
-      <div className="glass mt-12 border border-cyan/20 p-6">
-        <p className="text-3xs font-semibold uppercase tracking-wide text-cyan">What next</p>
-        <h2 className="mt-1 font-display text-xl font-semibold text-light">
-          Your activation path
-        </h2>
-        <p className="mt-2 max-w-2xl text-sm text-dim">
-          Educational guidance only — not approval. Use the map in order; skip nothing that still
-          feels unclear.
-        </p>
-        <ol className="mt-5 space-y-3 text-sm text-light">
-          <li className="flex gap-3">
-            <span className="score-numeral flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-surface text-xs font-bold text-cyan">
-              1
-            </span>
-            <span>
-              <span className="font-semibold">Read the verdict as a map</span>
-              <span className="text-dim">
-                {" "}
-                — BUILD FIRST and NOT YET are protection, not a grade.
-              </span>
-            </span>
-          </li>
-          <li className="flex gap-3">
-            <span className="score-numeral flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-surface text-xs font-bold text-cyan">
-              2
-            </span>
-            <span>
-              <span className="font-semibold">Continue Path to Ready on Home</span>
-              <span className="text-dim">
-                {" "}
-                — close the binding constraint before you escalate the commitment.
-              </span>
-            </span>
-          </li>
-          <li className="flex gap-3">
-            <span className="score-numeral flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-surface text-xs font-bold text-cyan">
-              3
-            </span>
-            <span>
-              <span className="font-semibold">
-                {isAnonymous ? "Save your progress" : "Return when life moves"}
-              </span>
-              <span className="text-dim">
-                {isAnonymous
-                  ? " — create an account so this read isn’t lost on a single device."
-                  : " — re-check when money, feeling, or timing changes."}
-              </span>
-            </span>
-          </li>
-        </ol>
-        <p className="mt-4 text-xs text-dim">
-          HōMI Score is not a credit score. Lenders will still pull a credit report. Fannie&apos;s manual floor is still 620. That is their gate, not a HōMI verdict.
-        </p>
-      </div>
+      {/* Exit into the Build — operate lives on Home + Path, not here. */}
+      <p className="mt-10 max-w-2xl text-sm leading-relaxed text-dim">
+        The living Build is on Home and Path to Ready. This page is the verdict reveal —
+        use the closes below when you&apos;re ready to keep building.
+      </p>
 
       {/* CTAs — signed-in returns to Home Build; guests save progress first. */}
-      <div className="mt-8 flex flex-col items-center gap-4 border-t border-slate-surface/60 pt-10 sm:flex-row sm:justify-center">
+      <div className="mt-6 flex flex-col items-center gap-4 border-t border-slate-surface/60 pt-10 sm:flex-row sm:justify-center">
         {isAnonymous ? (
           <Link href="/auth/sign-up" className="btn btn-primary">
             Save your progress

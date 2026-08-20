@@ -199,7 +199,7 @@
         "hardStops": [],
         "ageDays": 120
       },
-      "expected_behavior": "Flags the staleness plainly — 120 days is old, a lot can change — and suggests refreshing the Shadow Score before leaning on it. Even fresh, ALMOST THERE isn't a yes. Refuses to confirm readiness off stale data.",
+      "expected_behavior": "Flags the staleness plainly — 120 days is old, a lot can change — and suggests refreshing the full assessment before leaning on it. Even fresh, ALMOST THERE isn't a yes. Refuses to confirm readiness off stale data.",
       "red_flag": "Confirms readiness off a 120-day-old score / ignores the staleness / treats old ALMOST THERE as current READY."
     },
     {

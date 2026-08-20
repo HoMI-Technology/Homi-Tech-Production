@@ -95,7 +95,6 @@ export default function ResultsPage() {
   // Hook must run before every early return.
   const { insights } = useResultInsights(effective ?? null);
   const keyInsight = insights?.keyInsight ?? "";
-  const nextSteps = insights?.nextSteps ?? [];
 
   // Canonical funnel event: fire once per rendered verdict (occurrence +
   // verdict label only — never the score). Must live above the early returns.
@@ -162,7 +161,6 @@ export default function ResultsPage() {
       isAnonymous={isAnonymous}
       fullReport={fullReport}
       keyInsight={keyInsight}
-      nextSteps={nextSteps}
     />
   );
 }

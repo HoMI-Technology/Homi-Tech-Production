@@ -237,7 +237,7 @@ export function Chat() {
               <p className="mt-1 max-w-sm text-sm text-dim">
                 {hasAssessment
                   ? "Ask me anything about your readiness. I'll always tell you the truth."
-                  : "Take the Shadow Score first, or just ask me something — I can still talk in general terms."}
+                  : "Take the full assessment first, or just ask me something — I can still talk in general terms."}
               </p>
             </div>
             <div className="flex flex-wrap justify-center gap-2">

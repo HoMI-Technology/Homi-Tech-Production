@@ -50,6 +50,8 @@ describe("retake CTAs land on the flow that can re-score", () => {
     // Reveal only — Path operate lives on Home / /path, not inlined on /results.
     expect(view).not.toContain("PathToReadyCard");
     expect(view).not.toContain("#path-to-ready");
+    expect(view).not.toContain("Your next steps");
+    expect(view).not.toContain("Your activation path");
   });
 
   it("plan retake goes to /assessment and Build owns the primary close", () => {

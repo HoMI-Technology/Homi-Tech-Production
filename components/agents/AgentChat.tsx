@@ -232,7 +232,7 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
               <p className="mt-1 max-w-sm text-sm text-dim">
                 {hasAssessment
                   ? "Homie coordinates Scout, Analyst, Coach, Architect, and Oracle — each brings a different lens."
-                  : "Take the Shadow Score first, or ask a general question — the agents can still talk in plain terms."}
+                  : "Take the full assessment first, or ask a general question — the agents can still talk in plain terms."}
               </p>
             </div>
             <div className="flex flex-wrap justify-center gap-2">
