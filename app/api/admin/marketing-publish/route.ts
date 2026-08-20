@@ -92,7 +92,7 @@ export async function POST(request: Request) {
   const payload = {
     source: "homi-agency-os",
     asset_id: asset.id,
-    platform: asset.platform ?? "linkedin",
+    platform: asset.platform ?? "x",
     text: asset.body,
     title: asset.title,
     hashtags,

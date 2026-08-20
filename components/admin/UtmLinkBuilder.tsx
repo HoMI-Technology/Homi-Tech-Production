@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { buildUtmUrl } from "@/lib/admin/marketing-command";
+import { DEFAULT_UTM_SOURCE, UTM_PRESETS, buildUtmUrl } from "@/lib/admin/marketing-command";
 
 const PATHS = [
   { value: "/assessment", label: "Assessment" },
@@ -13,12 +13,7 @@ const PATHS = [
   { value: "/pricing", label: "Pricing" },
 ] as const;
 
-const PRESETS = [
-  { source: "linkedin", medium: "social", campaign: "founder_post" },
-  { source: "email", medium: "lifecycle", campaign: "launch_live" },
-  { source: "x", medium: "social", campaign: "founder_post" },
-  { source: "producthunt", medium: "referral", campaign: "launch" },
-] as const;
+const PRESETS = UTM_PRESETS;
 
 /**
  * Build first-touch UTM links for founder posts and campaigns.
@@ -26,7 +21,7 @@ const PRESETS = [
  */
 export function UtmLinkBuilder() {
   const [path, setPath] = useState<string>("/assessment");
-  const [source, setSource] = useState("linkedin");
+  const [source, setSource] = useState(DEFAULT_UTM_SOURCE);
   const [medium, setMedium] = useState("social");
   const [campaign, setCampaign] = useState("founder_post");
   const [copied, setCopied] = useState(false);

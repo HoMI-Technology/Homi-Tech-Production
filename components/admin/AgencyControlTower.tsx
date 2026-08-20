@@ -22,7 +22,7 @@ const STATUS_RING: Record<string, string> = {
 };
 
 /**
- * CEO control tower — agent fleet health for the Marketing Agency OS.
+ * Collapsed desk fleet — not the Activated / Waitlist / Paid hero.
  * Pure server component: status derived from live page signals.
  */
 export function AgencyControlTower({
@@ -49,14 +49,14 @@ export function AgencyControlTower({
     <OperateInstrument tint={tint} className="mt-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="eyebrow">Agency OS · CEO board</p>
-          <div className="dash-hero-meta" role="group" aria-label="Agency command">
+          <p className="eyebrow">Fleet (collapsed)</p>
+          <div className="dash-hero-meta" role="group" aria-label="Desk fleet">
             <p className="font-display text-2xl font-medium leading-tight tracking-tight text-light">
-              You run the agency. Agents run the work.
+              X + TikTok first. Approve before ship.
             </p>
             <p>
-              Ten desks. Claim-law armed. Approvals stay with you — nothing public without CEO
-              eyes when status is blocked or needs you.
+              Desks stay behind this fold. Claim-law armed. Nothing public without approval.
+              Activated / Waitlist / Paid live on Overview and Waitlist — not here.
             </p>
           </div>
         </div>
@@ -71,13 +71,22 @@ export function AgencyControlTower({
       <div className="mt-5 grid gap-4 sm:grid-cols-3">
         <div className="glass p-4">
           <p className="text-3xs font-semibold uppercase tracking-wide text-dim">
-            North star · 7d
+            Scoreboard lives elsewhere
           </p>
-          <p className="score-numeral mt-1 text-4xl text-light">
-            {uniqueActivated7d.toLocaleString()}
+          <p className="mt-2 text-sm text-light">
+            Activated / Waitlist / Paid are on{" "}
+            <Link href="/admin" className="text-cyan hover:underline">
+              Overview
+            </Link>{" "}
+            and{" "}
+            <Link href="/admin/waitlist" className="text-cyan hover:underline">
+              Waitlist
+            </Link>
+            .
           </p>
           <p className="mt-1 text-xs text-dim">
-            unique activated · {completions7d.toLocaleString()} completions
+            Honest 7d: {uniqueActivated7d.toLocaleString()} unique ·{" "}
+            {completions7d.toLocaleString()} completions — zeros stay zeros.
           </p>
         </div>
         <div className="glass p-4 sm:col-span-2">

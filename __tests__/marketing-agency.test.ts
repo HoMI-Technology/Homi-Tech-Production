@@ -30,9 +30,15 @@ import {
   personaBrief,
   platformMeta,
   postSnippet,
+  DEFAULT_SOCIAL_PLATFORM,
+  FIRST_CLASS_ENGINES,
   seedCalendarFromEngine,
   slugifyCampaign,
   stripNeverSay,
+  STUDIO_PRIMARY_PLATFORMS,
+  STUDIO_SECONDARY_PLATFORMS,
+  templateWeekPlan,
+  repurposeTargets,
   templateAnalyticsSummary,
   templateCaption,
   templateCompetitorAnalysis,
@@ -138,17 +144,49 @@ describe("fitToLimit", () => {
 
 describe("platform metadata", () => {
   it("matches the documented ceilings", () => {
-    expect(PLATFORM_LIMITS).toEqual({ linkedin: 3000, x: 280, instagram: 2200, threads: 500 });
+    expect(PLATFORM_LIMITS).toEqual({
+      x: 280,
+      tiktok: 2200,
+      linkedin: 3000,
+      instagram: 2200,
+      threads: 500,
+    });
   });
 
-  it("falls back to LinkedIn for an unknown key", () => {
-    expect(platformMeta("nope" as SocialPlatform).key).toBe("linkedin");
+  it("includes X and TikTok as first-class engines, not Instagram or Threads", () => {
+    expect(FIRST_CLASS_ENGINES).toEqual(["x", "tiktok"]);
+    expect(DEFAULT_SOCIAL_PLATFORM).toBe("x");
+    expect(PLATFORMS.map((p) => p.key)).toEqual([
+      "x",
+      "tiktok",
+      "linkedin",
+      "instagram",
+      "threads",
+    ]);
+    expect(STUDIO_PRIMARY_PLATFORMS).toEqual(["x", "tiktok", "linkedin"]);
+    expect(STUDIO_SECONDARY_PLATFORMS).toEqual(["instagram", "threads"]);
+    expect(platformMeta("x").handle).toBe("@Homi_Tech");
+    expect(platformMeta("tiktok").handle).toBe("@homi_technology");
+    expect(platformMeta("tiktok").utmSource).toBe("tiktok");
+    expect(platformMeta("tiktok").utmMedium).toBe("social");
+  });
+
+  it("falls back to X for an unknown key", () => {
+    expect(platformMeta("nope" as SocialPlatform).key).toBe("x");
   });
 
   it("returns the platform's hashtag budget", () => {
     for (const platform of PLATFORMS) {
       expect(defaultHashtags(platform.key)).toHaveLength(platform.hashtagCount);
     }
+  });
+
+  it("repurposes without requiring LinkedIn as the source", () => {
+    expect(repurposeTargets("x")).toEqual(["tiktok", "linkedin"]);
+    expect(repurposeTargets("tiktok")).toEqual(["x", "linkedin"]);
+    expect(repurposeTargets("linkedin")).toEqual(["x", "tiktok"]);
+    expect(repurposeTargets("x")).not.toContain("instagram");
+    expect(repurposeTargets("x")).not.toContain("threads");
   });
 });
 
@@ -250,12 +288,28 @@ describe("content calendar", () => {
     expect(CALENDAR_STORAGE_KEY).toBe("homi-content-calendar");
   });
 
-  it("seeds Mon/Wed/Fri mornings from the engine slate", () => {
+  it("seeds Mon/Wed/Fri mornings from the engine slate on X, not LinkedIn", () => {
     const board = seedCalendarFromEngine(enginePosts);
     expect(Object.keys(board).sort()).toEqual(
       ["Mon:morning", "Wed:morning", "Fri:morning"].sort(),
     );
     expect(board[calendarKey("Mon", "morning")]?.campaign).toBe("w1_founder_why");
+    expect(board[calendarKey("Mon", "morning")]?.platform).toBe("x");
+    expect(Object.values(board).every((entry) => entry?.platform !== "linkedin")).toBe(true);
+  });
+
+  it("seeds X mornings and TikTok afternoons when the slate names both engines", () => {
+    const board = seedCalendarFromEngine([
+      { day: "Mon", title: "Founder why", campaign: "w1_founder_why", platform: "x" },
+      { day: "Mon", title: "Founder why", campaign: "w1_founder_why_tt", platform: "tiktok" },
+      { day: "Wed", title: "Afford ≠ ready", campaign: "w1_afford", platform: "x" },
+      { day: "Wed", title: "Afford ≠ ready", campaign: "w1_afford_tt", platform: "tiktok" },
+    ]);
+    expect(board[calendarKey("Mon", "morning")]?.platform).toBe("x");
+    expect(board[calendarKey("Mon", "afternoon")]?.platform).toBe("tiktok");
+    expect(board[calendarKey("Wed", "morning")]?.platform).toBe("x");
+    expect(board[calendarKey("Wed", "afternoon")]?.platform).toBe("tiktok");
+    expect(Object.values(board).some((entry) => entry?.platform === "linkedin")).toBe(false);
   });
 
   it("falls back to Mon/Wed/Fri when the slate names days it does not recognise", () => {
@@ -300,7 +354,7 @@ describe("content calendar", () => {
       },
     });
     const entry = parseStoredCalendar(stored)?.[calendarKey("Mon", "morning")];
-    expect(entry?.platform).toBe("linkedin");
+    expect(entry?.platform).toBe("x");
     expect(entry?.tone).toBe("authority");
   });
 
@@ -332,13 +386,23 @@ describe("content calendar", () => {
     const lines = calendarToText(board).split("\n");
     expect(lines).toHaveLength(2);
     expect(lines[0]).toContain("Mon · Afternoon · LinkedIn");
-    expect(lines[1]).toContain("Wed · Morning · Twitter/X");
+    expect(lines[1]).toContain("Wed · Morning · X");
     // Newlines inside a post would break the one-post-per-line contract.
     expect(lines[1]).toContain("line one line two");
   });
 
   it("exports nothing for an empty week", () => {
     expect(calendarToText({})).toBe("");
+  });
+});
+
+describe("templateWeekPlan", () => {
+  it("is not a LinkedIn-only week", () => {
+    const { slots } = templateWeekPlan();
+    const platforms = new Set(slots.map((s) => s.platform));
+    expect(platforms.has("x")).toBe(true);
+    expect(platforms.has("tiktok")).toBe(true);
+    expect(slots.every((s) => s.platform === "linkedin")).toBe(false);
   });
 });
 

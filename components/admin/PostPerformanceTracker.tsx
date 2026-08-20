@@ -31,7 +31,7 @@ function todayIso(): string {
 
 function emptyDraft(): Draft {
   return {
-    platform: "linkedin",
+    platform: "x",
     campaign: "",
     snippet: "",
     postedAt: todayIso(),

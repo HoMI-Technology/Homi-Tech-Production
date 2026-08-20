@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  DEFAULT_UTM_SOURCE,
+  ENGINE_WEEK_POSTS,
+  GROWTH_ENGINES,
   LIBRARY_SECTIONS,
+  MARKETING_LOCK,
+  UTM_PRESETS,
   isSundayInNy,
   todaySecondaryCtas,
   truncateLabel,
@@ -71,7 +76,7 @@ describe("LIBRARY_SECTIONS launch agency", () => {
 
 describe("truncateLabel", () => {
   it("leaves short strings alone", () => {
-    expect(truncateLabel("LinkedIn founder", 56)).toBe("LinkedIn founder");
+    expect(truncateLabel("@Homi_Tech", 56)).toBe("@Homi_Tech");
   });
 
   it("truncates long strings with ellipsis", () => {
@@ -79,5 +84,36 @@ describe("truncateLabel", () => {
     const out = truncateLabel(long, 56);
     expect(out.length).toBeLessThanOrEqual(56);
     expect(out.endsWith("…")).toBe(true);
+  });
+});
+
+describe("growth engines and this-week slate", () => {
+  it("names X and TikTok as the engines, not LinkedIn-only", () => {
+    expect(MARKETING_LOCK.channel).toBe("X @Homi_Tech · TikTok @homi_technology");
+    expect(MARKETING_LOCK.channel.toLowerCase()).not.toBe("linkedin founder");
+    expect(GROWTH_ENGINES.map((e) => e.key)).toEqual(["x", "tiktok"]);
+    expect(GROWTH_ENGINES[0]?.handle).toBe("@Homi_Tech");
+    expect(GROWTH_ENGINES[1]?.handle).toBe("@homi_technology");
+    expect(GROWTH_ENGINES[1]?.href).toBe("https://www.tiktok.com/@homi_technology");
+  });
+
+  it("keeps the engine week on X and TikTok", () => {
+    const platforms = new Set(ENGINE_WEEK_POSTS.map((p) => p.platform));
+    expect(platforms.has("x")).toBe(true);
+    expect(platforms.has("tiktok")).toBe(true);
+    expect(ENGINE_WEEK_POSTS.every((p) => p.platform === "x" || p.platform === "tiktok")).toBe(
+      true,
+    );
+  });
+
+  it("exports UTM presets for x and tiktok, not Product Hunt", () => {
+    expect(DEFAULT_UTM_SOURCE).toBe("x");
+    expect(UTM_PRESETS.map((p) => p.source)).toEqual(["x", "tiktok", "linkedin", "email"]);
+    expect(UTM_PRESETS.some((p) => p.source === "producthunt")).toBe(false);
+    expect(UTM_PRESETS.find((p) => p.source === "tiktok")).toEqual({
+      source: "tiktok",
+      medium: "social",
+      campaign: "founder_post",
+    });
   });
 });

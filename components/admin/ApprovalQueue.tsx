@@ -78,7 +78,7 @@ export function ApprovalQueue({
           action: "rewrite_from_feedback",
           original: asset.body,
           feedback: note,
-          platform: asset.platform || "linkedin",
+          platform: asset.platform || "x",
         }),
       });
       const data = (await res.json()) as {

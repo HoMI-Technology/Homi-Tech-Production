@@ -193,7 +193,7 @@ export function WebhookPublisher() {
     const failure = await postToWebhook(
       url,
       buildWebhookPayload({
-        platform: "linkedin",
+        platform: "x",
         copy: "HōMI webhook test — no post was scheduled.",
         utm_link: "https://homitechnology.com/assessment",
         utm_campaign: "webhook_test",
@@ -281,8 +281,8 @@ export function WebhookPublisher() {
       {!open && (
         <p className="mt-4 text-xs text-dim">
           {configured === 0
-            ? "No webhooks configured. Open settings to paste a Buffer or Make URL, then publish straight from the studio."
-            : "Publish buttons are live in the content studio once a post is generated."}
+            ? "No webhooks configured. Test stays in Settings. Studio primary is Queue / Approve — not Publish."
+            : "Webhook test stays settings-only. Studio publish stays gated until the draft is approved."}
         </p>
       )}
     </div>

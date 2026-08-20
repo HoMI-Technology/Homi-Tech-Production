@@ -7,12 +7,15 @@ import { COLORS } from "@/lib/brand";
 import { ENGINE_WEEK_POSTS, buildUtmUrl } from "@/lib/admin/marketing-command";
 import {
   CALENDAR_ADD_EVENT,
+  DEFAULT_SOCIAL_PLATFORM,
   PERSONAS,
-  PLATFORMS,
   STUDIO_PREFILL_EVENT,
+  STUDIO_PRIMARY_PLATFORMS,
+  STUDIO_SECONDARY_PLATFORMS,
   TONES,
   personaBrief,
   platformMeta,
+  repurposeTargets,
   slugifyCampaign,
   stripNeverSay,
   type CalendarAddDetail,
@@ -45,8 +48,7 @@ type RepurposedPost = {
 
 const MAX_HISTORY = 5;
 
-/** A LinkedIn post is the source; these are the three surfaces it adapts to. */
-const REPURPOSE_TARGETS: SocialPlatform[] = ["x", "instagram", "threads"];
+/** LinkedIn is not required as the source. Instagram / Threads are not first-class targets. */
 
 function isTone(value: string): value is PostTone {
   return TONES.some((t) => t.key === value);
@@ -66,7 +68,7 @@ export function SocialContentStudio() {
   const rootRef = useRef<HTMLDivElement>(null);
   const nextId = useRef(1);
 
-  const [platform, setPlatform] = useState<SocialPlatform>("linkedin");
+  const [platform, setPlatform] = useState<SocialPlatform>(DEFAULT_SOCIAL_PLATFORM);
   const [tone, setTone] = useState<PostTone>("educational");
   const [topic, setTopic] = useState("");
   const [copy, setCopy] = useState("");
@@ -244,21 +246,19 @@ export function SocialContentStudio() {
   }, [copy, platform, topic, source, flagged, hashtags, link, campaign, tone]);
 
   /**
-   * Adapt the LinkedIn post to the other three surfaces in one pass.
-   *
-   * Three independent calls rather than one prompt returning three posts: each
-   * platform has its own ceiling and its own failure mode, and a single failure
-   * should cost one column, not all of them. A rejected call falls back to that
-   * platform's template inside the endpoint, so every column always fills.
+   * Adapt the current compose target to the other first-class surfaces.
+   * X is a compose target, not caption-only. LinkedIn is not required as source.
    */
   const repurpose = useCallback(async () => {
     if (!copy) return;
+    const targets = repurposeTargets(platform);
+    if (targets.length === 0) return;
     setRepurposing(true);
     setError(null);
 
     try {
       const results = await Promise.all(
-        REPURPOSE_TARGETS.map(async (targetPlatform): Promise<RepurposedPost | null> => {
+        targets.map(async (targetPlatform): Promise<RepurposedPost | null> => {
           const response = await fetch("/api/admin/marketing-ai", {
             method: "POST",
             headers: { "content-type": "application/json" },
@@ -287,7 +287,7 @@ export function SocialContentStudio() {
 
       const usable = results.filter((r): r is RepurposedPost => r !== null);
       setRepurposed(usable);
-      if (usable.length < REPURPOSE_TARGETS.length) {
+      if (usable.length < targets.length) {
         setError("Some platforms did not come back. Retry to fill the missing columns.");
       }
     } catch {
@@ -295,7 +295,7 @@ export function SocialContentStudio() {
     } finally {
       setRepurposing(false);
     }
-  }, [copy, campaign]);
+  }, [copy, campaign, platform]);
 
   async function copyRepurposed(post: RepurposedPost) {
     const meta = platformMeta(post.platform);
@@ -354,9 +354,9 @@ export function SocialContentStudio() {
   return (
     <div ref={rootRef} className="glass mt-8 p-6">
       <SectionHeader
-        eyebrow="Agency"
-        title="AI content studio"
-        subtitle="Platform, tone and topic in — claim-safe post copy and a tagged link out."
+        eyebrow="Studio"
+        title="Compose for X or TikTok"
+        subtitle="Default is X @Homi_Tech. Queue for approval is the ship path — not Publish."
         action={
           source ? (
             <span className="rounded-full border border-white/10 px-2.5 py-1 text-3xs font-semibold uppercase tracking-wide text-dim">
@@ -366,19 +366,23 @@ export function SocialContentStudio() {
         }
       />
 
-      {/* Platform tabs */}
+      {/* First-class engines + LinkedIn as third surface. IG / Threads stay in Advanced. */}
       <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Target platform">
-        {PLATFORMS.map((p) => (
-          <button
-            key={p.key}
-            type="button"
-            aria-pressed={platform === p.key}
-            className={platform === p.key ? "btn btn-primary btn-sm" : "btn btn-ghost btn-sm"}
-            onClick={() => setPlatform(p.key)}
-          >
-            {p.label}
-          </button>
-        ))}
+        {STUDIO_PRIMARY_PLATFORMS.map((key) => {
+          const p = platformMeta(key);
+          return (
+            <button
+              key={p.key}
+              type="button"
+              aria-pressed={platform === p.key}
+              className={platform === p.key ? "btn btn-primary btn-sm" : "btn btn-ghost btn-sm"}
+              onClick={() => setPlatform(p.key)}
+            >
+              {p.label}
+              {p.handle ? ` ${p.handle}` : ""}
+            </button>
+          );
+        })}
       </div>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -422,26 +426,49 @@ export function SocialContentStudio() {
           {persona !== "all" && !advanced ? " · persona set" : ""}
         </button>
         {advanced && (
-          <label className="mt-2 block max-w-md text-xs text-dim" htmlFor={`${fieldId}-persona`}>
-            Persona
-            <select
-              id={`${fieldId}-persona`}
-              className="mt-1 w-full rounded-lg border border-white/10 bg-slate-surface px-3 py-2 text-sm text-light"
-              value={persona}
-              onChange={(e) => setPersona(e.target.value as PersonaKey)}
-            >
-              {PERSONAS.map((p) => (
-                <option key={p.key} value={p.key}>
-                  {p.label}
-                </option>
-              ))}
-            </select>
-            {personaBrief(persona) && (
-              <span className="mt-1 block text-3xs text-dim">
-                The model writes to this anxiety in their own language.
-              </span>
-            )}
-          </label>
+          <div className="mt-2 space-y-3">
+            <label className="block max-w-md text-xs text-dim" htmlFor={`${fieldId}-persona`}>
+              Persona
+              <select
+                id={`${fieldId}-persona`}
+                className="mt-1 w-full rounded-lg border border-white/10 bg-slate-surface px-3 py-2 text-sm text-light"
+                value={persona}
+                onChange={(e) => setPersona(e.target.value as PersonaKey)}
+              >
+                {PERSONAS.map((p) => (
+                  <option key={p.key} value={p.key}>
+                    {p.label}
+                  </option>
+                ))}
+              </select>
+              {personaBrief(persona) && (
+                <span className="mt-1 block text-3xs text-dim">
+                  The model writes to this anxiety in their own language.
+                </span>
+              )}
+            </label>
+            <div role="group" aria-label="Secondary platforms">
+              <p className="text-3xs uppercase tracking-wide text-dim">Not this-week engines</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {STUDIO_SECONDARY_PLATFORMS.map((key) => {
+                  const p = platformMeta(key);
+                  return (
+                    <button
+                      key={p.key}
+                      type="button"
+                      aria-pressed={platform === p.key}
+                      className={
+                        platform === p.key ? "btn btn-primary btn-sm" : "btn btn-ghost btn-sm"
+                      }
+                      onClick={() => setPlatform(p.key)}
+                    >
+                      {p.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         )}
       </div>
 
@@ -455,9 +482,10 @@ export function SocialContentStudio() {
             onClick={() => {
               setTopic(p.title);
               setCampaign(p.campaign);
+              setPlatform(p.platform);
             }}
           >
-            {p.title}
+            {p.day} · {p.platform === "x" ? "X" : "TikTok"} · {p.title}
           </button>
         ))}
       </div>
@@ -533,7 +561,7 @@ export function SocialContentStudio() {
             setCopy(e.target.value);
             setFlagged(stripNeverSay(e.target.value).flagged);
           }}
-          placeholder="Generated copy lands here — edit freely before you post."
+          placeholder="Generated copy lands here — edit freely, then Queue for approval."
         />
 
         {flagged.length > 0 && (
@@ -555,6 +583,14 @@ export function SocialContentStudio() {
             <button
               type="button"
               className="btn btn-primary btn-sm"
+              onClick={() => void queueForApproval()}
+              disabled={!copy || queueBusy}
+            >
+              {queueBusy ? "Queuing…" : assetId ? "Re-queue draft" : "Queue for approval"}
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
               onClick={copyAll}
               disabled={!copy}
             >
@@ -567,14 +603,6 @@ export function SocialContentStudio() {
               disabled={!copy}
             >
               {copied === "sent" ? "Added" : "Send to calendar"}
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={() => void queueForApproval()}
-              disabled={!copy || queueBusy}
-            >
-              {queueBusy ? "Queuing…" : assetId ? "Re-queue draft" : "Queue for CEO approval"}
             </button>
           </div>
           {queueMsg && <p className="mt-2 text-xs text-cyan">{queueMsg}</p>}
@@ -600,9 +628,7 @@ export function SocialContentStudio() {
           </div>
         )}
 
-        {/* Repurpose — LinkedIn is the source surface, so the button only makes
-            sense there. Everything else is a target, not an origin. */}
-        {copy && platform === "linkedin" && (
+        {copy && repurposeTargets(platform).length > 0 && (
           <div className="mt-4 border-t border-white/5 pt-4">
             <div className="flex flex-wrap items-center gap-3">
               <button
@@ -620,11 +646,12 @@ export function SocialContentStudio() {
                     Adapting
                   </span>
                 ) : (
-                  "Repurpose to all platforms"
+                  "Repurpose to other engines"
                 )}
               </button>
               <span className="text-xs text-dim">
-                One pass to X, Instagram and Threads — each fitted to its own ceiling.
+                Adapts this draft to the other first-class surfaces (X, TikTok, LinkedIn as third).
+                Instagram and Threads are not peers.
               </span>
             </div>
 

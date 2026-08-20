@@ -61,19 +61,19 @@ export function AgencyDesks({
   return (
     <section className="mt-10" aria-label="Agent desks">
       <div className="mb-4">
-        <p className="text-3xs font-semibold uppercase tracking-wide text-cyan">Agent desks</p>
+        <p className="text-3xs font-semibold uppercase tracking-wide text-cyan">Desks</p>
         <h2 className="mt-1 font-display text-xl font-medium text-light">
-          Work the desk. Approve before it ships.
+          X and TikTok first. Approve before it ships.
         </h2>
         <p className="mt-1 max-w-2xl text-sm text-dim">
-          Each tab is an agent seat. Desks mount on demand. AI drafts stay claim-stripped. You are
-          CEO — publish only what you would put your name on.
+          Same admin chrome — no third nav. Drafts stay queued until you approve. LinkedIn is a
+          third surface, not this week’s engine.
         </p>
       </div>
 
       <div
         role="tablist"
-        aria-label="Agency desks"
+        aria-label="Marketing desks"
         className="flex gap-1 overflow-x-auto pb-2"
       >
         {TABS.map((tab) => {
