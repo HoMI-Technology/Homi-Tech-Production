@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
+import { HomieAvatar } from "@/components/companion/HomieAvatar";
 import { buildCompanionContext } from "@/lib/advisor/context";
 import { fetchLatestStoredAssessment } from "@/lib/assessment/latest";
 import { MessageContent } from "@/components/companion/MessageContent";
@@ -38,6 +39,15 @@ import { detectAcuteDistress } from "@/lib/advisor/crisis";
 import { ingestPhase0Observation, writePhase0Freeze } from "@/lib/advisor/phase0";
 import { Phase0FreezeScreen } from "@/components/advisor/Phase0FreezeScreen";
 import { resolvePhase0PersonKey, usePhase0Freeze } from "@/hooks/usePhase0Freeze";
+import { useHomieVoice } from "@/hooks/useHomieVoice";
+import { orchestrateHomieBehaviors } from "@/lib/advisor/behaviors";
+import {
+  clearHomieCardHighlights,
+  highlightHomieCards,
+} from "@/lib/advisor/card-highlight";
+import { decideGentleInterrupt } from "@/lib/advisor/gentle-interrupter";
+import { readEmotionalMirror } from "@/lib/advisor/emotional-mirror";
+import type { VerdictKey } from "@/lib/brand";
 
 type Role = "user" | "assistant";
 
@@ -113,12 +123,44 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [gateCta, setGateCta] = useState<{ href: string; label: string } | null>(null);
+  const [ttsEnabled, setTtsEnabled] = useState(true);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [presenceNote, setPresenceNote] = useState<string | null>(null);
   // LCP guard when mounted directly: keep markup off the critical path until
   // idle. CompanionHost sets skipIdle after user intent so open is immediate.
   const [idleReady, setIdleReady] = useState(skipIdle);
   const panelRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const listenStartedAtRef = useRef<number>(0);
+  const clearHighlightRef = useRef<(() => void) | null>(null);
+  const cancelSpeakRef = useRef<(() => void) | null>(null);
+  const interruptedThisListenRef = useRef(false);
+
+  const voice = useHomieVoice({
+    ttsEnabled,
+    onError: (err) => setVoiceError(err.message),
+    onLatency: (sample) => {
+      if (!sample.withinBudget) {
+        track("homie_voice_latency_over_budget", {
+          phase: sample.phase,
+          ms: sample.durationMs,
+        });
+      }
+    },
+  });
+  const {
+    caps: voiceCaps,
+    avatarState,
+    interim: voiceInterim,
+    listening: voiceListening,
+    listen,
+    stopListening,
+    speak,
+    chimeAndPause,
+    setSilentPresence,
+    resetPresence,
+  } = voice;
 
   // Defer first render until the browser is idle (falls back to a short timer
   // where requestIdleCallback is unavailable, e.g. Safari). Skipped when the
@@ -270,6 +312,11 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
     setMessages(nextMessages);
     setInput("");
     setSending(true);
+    setVoiceError(null);
+    setPresenceNote(null);
+    clearHighlightRef.current?.();
+    clearHighlightRef.current = null;
+    cancelSpeakRef.current?.();
 
     try {
       const personKey = await resolvePhase0PersonKey();
@@ -285,6 +332,52 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
       const latest = await fetchLatestStoredAssessment();
       const { assessment, finance, credit, surface, whatChanged, path } =
         buildCompanionContext(pathname, latest);
+
+      const afterHardTruth =
+        Boolean(assessment?.hardStops?.length) ||
+        assessment?.verdict === "NOT_YET" ||
+        /\b(not yet|do not proceed|hard stop)\b/i.test(
+          messages.filter((m) => m.role === "assistant").slice(-1)[0]?.content ?? "",
+        );
+
+      const behavior = orchestrateHomieBehaviors({
+        utterance: trimmed,
+        thread: nextMessages.map((m) => ({ role: m.role, content: m.content })),
+        speakingMs: listenStartedAtRef.current
+          ? Date.now() - listenStartedAtRef.current
+          : 0,
+        afterHardTruth,
+        presenceRoll: Math.random(),
+        futureSelf: assessment
+          ? {
+              score: assessment.score,
+              verdict: assessment.verdict as VerdictKey,
+              pillars: assessment.pillars,
+              pathProgress:
+                path && path.stepCount > 0
+                  ? path.completedCount / path.stepCount
+                  : null,
+            }
+          : undefined,
+      });
+
+      // Silent Witness — presence only; no API call this turn.
+      if (behavior.primary === "silent_witness" && behavior.silent?.remainSilent) {
+        setSilentPresence();
+        setPresenceNote("Homie is here with you.");
+        track("homie_silent_witness", { reason: behavior.silent.reason });
+        clearHighlightRef.current = highlightHomieCards(["companion_line"]);
+        return;
+      }
+
+      if (behavior.primary === "emotional_mirror" && behavior.emotional) {
+        setPresenceNote(behavior.emotional.reflection);
+      } else if (behavior.primary === "future_self" && behavior.futureSelf) {
+        setPresenceNote(`Future self · ${behavior.futureSelf.horizonLabel}`);
+      } else if (behavior.primary === "memory_palace" && behavior.memoryRefs?.length) {
+        setPresenceNote("Holding what you've already shared.");
+      }
+
       // Decision Lab Phase 3: if a lens on this page has published a fresh
       // digest, the Companion reads its precomputed numbers — it never
       // recomputes them. Page-scoped and staleness-guarded at consume.
@@ -304,6 +397,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
           lensDigest,
           identity,
           persona,
+          homieBehaviorHint: behavior.promptHint,
           phase0Frozen: freeze.status === "frozen",
           phase0Until: freeze.record?.until,
         }),
@@ -361,6 +455,12 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
           : "Something interrupted that thought. Try asking again in a moment.";
 
       setMessages((prev) => [...prev, { id: makeId(), role: "assistant", content: replyContent }]);
+
+      clearHighlightRef.current = highlightHomieCards(behavior.cards);
+      track("homie_behavior_turn", { behavior: behavior.primary });
+      if (ttsEnabled && voiceCaps.synthesis) {
+        cancelSpeakRef.current = speak(replyContent);
+      }
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -372,6 +472,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
       ]);
     } finally {
       setSending(false);
+      listenStartedAtRef.current = 0;
     }
   }
 
@@ -379,6 +480,45 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
   // current sendMessage closure.
   const sendMessageRef = useRef(sendMessage);
   sendMessageRef.current = sendMessage;
+
+  // Clear dashboard highlights when the panel closes or unmounts.
+  useEffect(() => {
+    if (!open) {
+      clearHighlightRef.current?.();
+      clearHighlightRef.current = null;
+      cancelSpeakRef.current?.();
+      cancelSpeakRef.current = null;
+      clearHomieCardHighlights();
+      resetPresence();
+    }
+  }, [open, resetPresence]);
+
+  useEffect(() => {
+    return () => {
+      clearHomieCardHighlights();
+      cancelSpeakRef.current?.();
+    };
+  }, []);
+
+  // Gentle Interrupter — while listening, soft-pause long monologues once.
+  useEffect(() => {
+    if (!voiceListening || !voiceInterim || interruptedThisListenRef.current) return;
+    const speakingMs = Date.now() - listenStartedAtRef.current;
+    const emotional = readEmotionalMirror(voiceInterim);
+    const decision = decideGentleInterrupt({
+      transcript: voiceInterim,
+      speakingMs,
+      emotional,
+    });
+    if (!decision.shouldInterrupt) return;
+    interruptedThisListenRef.current = true;
+    chimeAndPause();
+    stopListening();
+    setPresenceNote(decision.insight ?? null);
+    track("homie_gentle_interrupt", { reason: decision.reason });
+    const text = voiceInterim.trim();
+    if (text) void sendMessageRef.current(text);
+  }, [voiceInterim, voiceListening, chimeAndPause, stopListening]);
 
   // "What does this change for me?" — a lens button queues the message and
   // fires the event; the panel opens and sends it with the page's fresh
@@ -405,6 +545,24 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage(input);
+    }
+  }
+
+  async function handleVoiceToggle() {
+    setVoiceError(null);
+    if (voiceListening) {
+      stopListening();
+      return;
+    }
+    if (!open) setOpen(true);
+    interruptedThisListenRef.current = false;
+    listenStartedAtRef.current = Date.now();
+    track("homie_voice_listen_start");
+    const text = await listen();
+    if (interruptedThisListenRef.current) return;
+    if (text.trim()) {
+      setInput(text.trim());
+      await sendMessage(text.trim());
     }
   }
 
@@ -438,7 +596,11 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
         aria-label={open ? "Close HōMI Companion" : "Open HōMI Companion"}
         className="compass-glow fixed right-6 z-[var(--z-menu)] flex h-14 w-14 items-center justify-center rounded-full border border-cyan/40 bg-navy-light/90 shadow-lg backdrop-blur transition-transform hover:scale-105 bottom-[max(1.5rem,env(safe-area-inset-bottom,0px))]"
       >
-        <ThresholdCompass size={40} animated={!open} glow={false} verdict={undefined} />
+        <HomieAvatar
+          state={open ? avatarState : "breathing"}
+          size={48}
+          accent={getPreset(identity.preset).color}
+        />
       </button>
 
       {open && (
@@ -611,6 +773,22 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
             </div>
           )}
 
+          {(presenceNote || voiceError || voiceInterim) && (
+            <div className="space-y-1 px-3 pt-1" aria-live="polite">
+              {presenceNote && (
+                <p className="text-3xs leading-snug text-cyan/80">{presenceNote}</p>
+              )}
+              {voiceListening && voiceInterim && (
+                <p className="text-3xs leading-snug text-dim">Listening: {voiceInterim}</p>
+              )}
+              {voiceError && (
+                <p className="text-3xs leading-snug text-amber" role="status">
+                  {voiceError}
+                </p>
+              )}
+            </div>
+          )}
+
           <div className="hairline" />
           <div className="flex items-end gap-2 p-3">
             <textarea
@@ -618,9 +796,73 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               rows={1}
-              placeholder={`Ask ${identity.name}…`}
+              placeholder={
+                voiceListening ? "Listening…" : `Ask ${identity.name}…`
+              }
               className="input max-h-28 flex-1 resize-none !py-2 text-sm"
+              aria-label={`Message ${identity.name}`}
             />
+            {voiceCaps.recognition && (
+              <button
+                type="button"
+                onClick={() => void handleVoiceToggle()}
+                disabled={sending}
+                className={`btn btn-sm px-3 disabled:opacity-50 ${
+                  voiceListening
+                    ? "border border-cyan/50 bg-cyan/15 text-cyan"
+                    : "btn-secondary"
+                }`}
+                aria-pressed={voiceListening}
+                aria-label={voiceListening ? "Stop listening" : "Speak to Homie"}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  aria-hidden="true"
+                >
+                  <rect x="7" y="2" width="6" height="10" rx="3" />
+                  <path d="M4 9a6 6 0 0 0 12 0M10 15v3" strokeLinecap="round" />
+                </svg>
+              </button>
+            )}
+            {voiceCaps.synthesis && (
+              <button
+                type="button"
+                onClick={() => setTtsEnabled((v) => !v)}
+                className={`btn btn-sm px-2.5 ${
+                  ttsEnabled ? "text-cyan" : "text-dim"
+                }`}
+                aria-pressed={ttsEnabled}
+                aria-label={ttsEnabled ? "Mute Homie voice" : "Unmute Homie voice"}
+                title={ttsEnabled ? "Voice replies on" : "Voice replies off"}
+              >
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  aria-hidden="true"
+                >
+                  {ttsEnabled ? (
+                    <>
+                      <path d="M3 8v4h3l4 3V5L6 8H3z" strokeLinejoin="round" />
+                      <path d="M14 7.5a4 4 0 0 1 0 5" strokeLinecap="round" />
+                    </>
+                  ) : (
+                    <>
+                      <path d="M3 8v4h3l4 3V5L6 8H3z" strokeLinejoin="round" />
+                      <path d="M14 8l4 4M18 8l-4 4" strokeLinecap="round" />
+                    </>
+                  )}
+                </svg>
+              </button>
+            )}
             <button
               type="button"
               onClick={() => sendMessage(input)}
