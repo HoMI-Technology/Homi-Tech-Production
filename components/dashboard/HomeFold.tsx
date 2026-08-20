@@ -170,18 +170,15 @@ export function HomeFold({
                 </p>
               )}
               {verdict && (
-                <Link href="/results" aria-label="See results" data-home-verdict="">
-                  <VerdictBadge verdict={verdict} size="md" />
-                </Link>
+              <Link href="/results" aria-label="Last verdict" data-home-verdict="">
+                <VerdictBadge verdict={verdict} size="md" />
+              </Link>
               )}
-              <div className="flex flex-wrap items-center gap-3 sm:ml-auto">
-                <Link href="/results" className="btn btn-ghost">
-                  See results
-                </Link>
-                <Link href="/money" className="btn btn-ghost">
-                  Money picture
-                </Link>
-              </div>
+            <div className="flex flex-wrap items-center gap-3 sm:ml-auto">
+              <Link href="/money" className="btn btn-ghost">
+                Money picture
+              </Link>
+            </div>
             </div>
 
             {dueSurvey && (

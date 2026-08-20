@@ -37,7 +37,7 @@ function dueOutcomeSurveyNotification(dueSurvey: boolean): NotificationItem | nu
     id: "due-outcome-survey",
     title: "An outcome survey is ready",
     body: "A quick check-in on how things went since your last decision. No judgment either way — just an honest read.",
-    href: "/dashboard",
+    href: "/outcomes",
     createdAt: new Date().toISOString(),
   };
 }
@@ -53,7 +53,7 @@ function staleAssessmentNotification(
     return {
       id: "stale-assessment",
       title: "Time for a fresh read",
-      body: "Your last assessment is more than 30 days old. A quick retake keeps your plan honest.",
+      body: "Your last assessment is more than 30 days old. A quick retake keeps your read honest.",
       href: "/assessment",
       createdAt: new Date(completedAt).toISOString(),
     };
@@ -87,8 +87,8 @@ function readyCelebrationNotification(
   return {
     id: "ready-celebration",
     title: "Your compass is ready",
-    body: "All three rings align. Take a look at your full result whenever you're ready.",
-    href: "/results",
+    body: "All three rings align. Continue on Home whenever you're ready to keep building.",
+    href: "/dashboard",
     createdAt: storedAssessment.completedAt,
   };
 }

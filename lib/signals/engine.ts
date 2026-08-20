@@ -119,8 +119,8 @@ function conflictSignalsFrom(storedAssessment: StoredAssessment): Signal[] {
     severity: CONFLICT_SEVERITY_MAP[signal.severity],
     title: signal.title,
     body: signal.message,
-    actionLabel: "See conflict check",
-    actionHref: "/results",
+    actionLabel: "Open Path to Ready",
+    actionHref: "/path",
   }));
 }
 

@@ -144,9 +144,6 @@ export function PathNextMove({ variant = "default" }: { variant?: "default" | "f
             <Link href="/path" className="btn btn-primary">
               Review Path
             </Link>
-            <Link href="/results" className="btn btn-ghost">
-              Last verdict
-            </Link>
           </div>
         </div>
       </div>

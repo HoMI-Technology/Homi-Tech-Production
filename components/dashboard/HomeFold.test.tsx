@@ -83,9 +83,11 @@ describe("HomeFold", () => {
     expect(companion?.classList.contains("panel-focus")).toBe(true);
     expect(companion).toHaveTextContent(/Companion/);
     expect(companion).toHaveTextContent(/binding step on Path to Ready/);
-    const results = screen.getAllByRole("link", { name: /see results/i });
-    expect(results.length).toBeGreaterThanOrEqual(1);
-    expect(results[0]).toHaveAttribute("href", "/results");
+    // Compact score rail keeps a quiet reveal link via the verdict badge only —
+    // no competing "See results" button that steals the Build.
+    expect(container.querySelector("[data-home-verdict]")).toHaveAttribute("href", "/results");
+    expect(screen.getByRole("link", { name: /last verdict/i })).toHaveAttribute("href", "/results");
+    expect(screen.queryByRole("link", { name: /^see results$/i })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: /money picture/i })).toHaveAttribute(
       "href",
       "/money",

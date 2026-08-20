@@ -173,7 +173,7 @@ export default function PlanPage() {
           <ThresholdCompass size={96} verdict="ALMOST_THERE" className="mx-auto" />
           <h1 className="mt-6 font-display text-2xl font-semibold text-light">No plan yet</h1>
           <p className="mt-3 text-sm text-dim">
-            Take an assessment first — your plan is built from your real answers.
+            Take an assessment first — this checklist is built from your real answers.
           </p>
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link

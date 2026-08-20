@@ -9,7 +9,7 @@
  */
 export const SURFACE_ROLES = {
   home: "Signed-in Home fold — Path next move leads; HōMI-Score is a compact rail reading.",
-  results: "Verdict moment — score reveal, pillars, insight, immediate CTAs into the Build.",
+  results: "Verdict reveal — score, pillars, insight, then exit into the Build (Home + Path). No in-page Path operate.",
   path: "Living Build — binding-constraint Path to Ready over time.",
   plan: "Checklist deep-link (palette-only). Path owns the Build in chrome.",
   report: "Persisted, shareable/printable record of one assessment.",

@@ -47,6 +47,9 @@ describe("retake CTAs land on the flow that can re-score", () => {
     expect(view).toContain('href="/path"');
     expect(view).not.toContain("Build your plan");
     expect(view).not.toMatch(/href="\/plan"/);
+    // Reveal only — Path operate lives on Home / /path, not inlined on /results.
+    expect(view).not.toContain("PathToReadyCard");
+    expect(view).not.toContain("#path-to-ready");
   });
 
   it("plan retake goes to /assessment and Build owns the primary close", () => {

@@ -46,7 +46,7 @@ Phases 00–03 landed in [#252](https://github.com/HoMI-Technology/Homi-Tech-Pro
 | State-based post-login routing | F1 / phase 03 | **Closed** — `resolvePostLoginDestination`: explicit `?next=` wins; bare sign-in → Assess if unscored, Home if scored |
 | Fold inversion (build hero, score to rail) | F7 / phase 04 | **Closed** — `HOME_FOLD_INSTRUMENT = "build"`; DESIGN.md 3-second test amended |
 | Step ledger of completed Path moves | F9 / phase 06 | **Closed** — `PathStepLedger` on Home (suppressed over hard stops) |
-| Collapse `/plan` + `/results` | F8 / phase 07 | **Partial** — `/plan` + `/results` palette-only; Path in Measure; emails/timeline/calendar/Path card → Build; `/plan` reframed as checklist; full `/results` page merge still open |
+| Collapse `/plan` + `/results` | F8 / phase 07 | **Partial** — `/results` reveal-only (Path card removed); chrome/emails/notifications/report → Build; full route deletion still open |
 | Home fold premium identity | visual / brand | **Closed** — `dash-instrument` chrome, in-fold `Wordmark` + eyebrow, Companion `panel-focus`, Path dock language, ledger kicker |
 | Signed-in Shadow Score as product close | tools IA | **Closed** — removed from ⌘K; Twin/Trinity empties → Assess; QuickActionGrid stripped |
 

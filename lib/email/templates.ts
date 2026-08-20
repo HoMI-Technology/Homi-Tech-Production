@@ -205,7 +205,7 @@ export function outcomeSurveyReminder(
       outcome is what keeps every future verdict honest.
     </p>
     <p style="margin:0;">
-      <a href="${SITE}/dashboard" style="color:#22d3ee;text-decoration:none;font-weight:700;">Share how it went &rarr;</a>
+      <a href="${SITE}/outcomes" style="color:#22d3ee;text-decoration:none;font-weight:700;">Share how it went &rarr;</a>
     </p>
   `;
   return { subject: "How did it go? A quick outcome check-in", html: layout(body) };

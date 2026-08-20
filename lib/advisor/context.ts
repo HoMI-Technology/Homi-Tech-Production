@@ -127,7 +127,7 @@ const SURFACE_LABELS: Array<[prefix: string, label: string]> = [
   ["/report", "their readiness report"],
   ["/path", "their Path to Ready"],
   ["/scenarios", "the scenario studio"],
-  ["/plan", "their readiness plan"],
+  ["/plan", "their readiness checklist"],
   ["/simulator", "the scenario simulator"],
   ["/twin", "the future-self letter"],
   ["/trinity", "the Trinity Engine"],
