@@ -19,6 +19,11 @@ Suggestions. User reviews and confirms. Confirm writes `self_report`.
 Never prefill: `fin_credit_score`, `fin_dti_ratio` when income+debt exist,
 Emotional Truth, Perfect Timing, any other `fin_*` not listed above.
 
+Retake banner: We pre-filled your financial numbers from Money. Review them,
+then the rest. Full 45. Empty-Home Assess with no Money data: no prefill
+banner. DRAFT WINS: an in-progress 45-q draft is not silently overwritten
+by Money.
+
 ## Money re-check prompt
 
 Band-cross only. No intra-band threshold. No ledger write. No score write.
@@ -26,7 +31,10 @@ Band-cross only. No intra-band threshold. No ledger write. No score write.
 Prompt exactly: Your money picture changed. Re-check readiness?
 
 - Retake → `/assessment`
-- Not now → dismisses this band-cross only
+- Hidden if no last assessment, or money unchanged
+- Not now hides until the next score-relevant Money save or they finish a
+  new 45-q. Same numbers after dismiss stay hidden. Sign-out does not reset
+  a dismissed cycle.
 
 The previous moved / when-you-want prompt is retired.
 
@@ -41,21 +49,23 @@ These shapes only. Empty of numbers otherwise. Full `/simulator` stays Pro.
 - Runway may move into a better band.
 - Runway may move into a worse band.
 
-## Home chrome (existing scored fold only — no second card)
+## Home chrome (existing scored fold only — no new card)
+
+Fold into the existing scored fold (score reading + VerdictBadge + one
+sentence). No new card.
 
 UI verdict labels stay Brand: DO NOT PROCEED, not NOT_YET / Not yet.
-Use the public verdict names only (READY, ALMOST THERE, BUILD FIRST,
-DO NOT PROCEED). Last verdict word + age `from March 15.`
-Do not stack the age on the 30-day stale banner.
-Empty Home: no progress chrome.
-READY still gets last verdict + age.
+Public names only: READY, ALMOST THERE, BUILD FIRST, DO NOT PROCEED.
 
-Optional direction only if DTI, emergency-fund months, and savings-rate
-ALL moved the same way vs last assessment inputs:
-
-- Your money picture looks stronger than last time.
-- Your money picture looks weaker than last time.
-
-Mixed or unchanged: omit the direction line. Age can still show.
-Never a next-band proximity claim. Direction is not a verdict claim.
-Never points. Never a live number.
+- Distance in Brand words only: “closer to ALMOST THERE.” Never points.
+  Never a live number.
+- Age: “from March 15.” Stale >30d: do not stack a second age treatment.
+- Empty Home: no progress chrome.
+- Hard stop present: progress chrome yields. Never “closer to READY”
+  under a hard stop.
+- READY: no closer-to line. Age still shows.
+- Next public band uses Brand labels: DO NOT PROCEED, BUILD FIRST,
+  ALMOST THERE, READY.
+- Closer-to only when Money DTI / EF months / savings-rate moved
+  improving vs last assessment stored values. Do not run a new score
+  to decide this.

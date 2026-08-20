@@ -13,6 +13,11 @@ export const MONEY_RECHECK_RETAKE_HREF = "/assessment";
 
 const DISMISS_STORAGE_KEY = "homi:money-recheck-dismissed";
 
+export interface DismissedMoneyCycle {
+  lastAssessmentAt: string;
+  moneyBandsKey: string;
+}
+
 /** Opaque scoring-band keys. Never render these in UI. */
 export type DtiScoreBand = "dti_lte28" | "dti_lte36" | "dti_lte43" | "dti_else" | "dti_hard";
 export type EfScoreBand = "ef_gte6" | "ef_gte3" | "ef_gte1" | "ef_else";
@@ -127,42 +132,71 @@ export function detectBandCrossing(
   return { from, to };
 }
 
-function readDismissedKeys(): string[] {
-  if (typeof window === "undefined") return [];
+function isDismissedCycle(value: unknown): value is DismissedMoneyCycle {
+  if (!value || typeof value !== "object") return false;
+  const row = value as Record<string, unknown>;
+  return typeof row.lastAssessmentAt === "string" && typeof row.moneyBandsKey === "string";
+}
+
+function readDismissedCycle(): DismissedMoneyCycle | null {
+  if (typeof window === "undefined") return null;
   try {
     const raw = window.localStorage.getItem(DISMISS_STORAGE_KEY);
-    if (!raw) return [];
+    if (!raw) return null;
     const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter((row): row is string => typeof row === "string");
+    if (isDismissedCycle(parsed)) return parsed;
+    return null;
   } catch {
-    return [];
+    return null;
   }
 }
 
-export function isCrossingDismissed(crossing: RecheckCrossing): boolean {
-  return readDismissedKeys().includes(crossingKey(crossing));
+export function moneyBandsKey(bands: ScoreRelevantBands): string {
+  return fromBandKey(bands);
 }
 
-/** Dismiss this from→to crossing only. A later different crossing still prompts. */
-export function dismissBandCrossing(crossing: RecheckCrossing): void {
+/**
+ * Not now hides this cycle until a score-relevant Money save (new bands)
+ * or a finished 45-q (new lastAssessmentAt). Same numbers stay hidden.
+ * Sign-out does not clear this key.
+ */
+export function dismissBandCrossing(
+  crossing: RecheckCrossing,
+  lastAssessmentAt: string,
+): void {
   if (typeof window === "undefined") return;
-  const key = crossingKey(crossing);
-  const next = Array.from(new Set([...readDismissedKeys(), key]));
+  const cycle: DismissedMoneyCycle = {
+    lastAssessmentAt,
+    moneyBandsKey: moneyBandsKey(crossing.to),
+  };
   try {
-    window.localStorage.setItem(DISMISS_STORAGE_KEY, JSON.stringify(next));
+    window.localStorage.setItem(DISMISS_STORAGE_KEY, JSON.stringify(cycle));
   } catch {
     // private mode — in-memory dismiss still happens via the caller
   }
 }
 
+export function isDismissedCycleActive(
+  lastAssessmentAt: string,
+  to: ScoreRelevantBands,
+): boolean {
+  const dismissed = readDismissedCycle();
+  if (!dismissed) return false;
+  return (
+    dismissed.lastAssessmentAt === lastAssessmentAt &&
+    dismissed.moneyBandsKey === moneyBandsKey(to)
+  );
+}
+
 export function shouldPromptRecheck(
   from: ScoreRelevantBands,
   to: ScoreRelevantBands,
+  lastAssessmentAt: string | null,
 ): RecheckCrossing | null {
+  if (!lastAssessmentAt) return null;
   const crossing = detectBandCrossing(from, to);
   if (!crossing) return null;
-  if (isCrossingDismissed(crossing)) return null;
+  if (isDismissedCycleActive(lastAssessmentAt, to)) return null;
   return crossing;
 }
 

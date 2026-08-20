@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  MONEY_PREFILL_BANNER,
   applyConfirmedFinancePrefill,
   applyConfirmedQuestionPrefill,
   buildConfirmedFinancePrefill,
+  moneyPrefillWasApplied,
   sanitizeSuggestedResponses,
 } from "@/lib/finance/prefill-confirm";
 import type { AssessmentInputs } from "@/lib/scoring/public";
@@ -90,5 +92,22 @@ describe("prefill confirm — self_report only", () => {
     expect(responses.fin_credit_score).toBe("good");
     expect(responses.fin_dti_ratio).toBeUndefined();
     expect(responses.emo_confidence).toBe(4);
+  });
+
+  it("retake banner only when Money actually filled a blank financial ID", () => {
+    expect(MONEY_PREFILL_BANNER).toBe(
+      "We pre-filled your financial numbers from Money. Review them, then the rest.",
+    );
+    expect(moneyPrefillWasApplied({}, {})).toBe(false);
+    expect(moneyPrefillWasApplied({}, { fin_income: 6000 })).toBe(true);
+    expect(
+      moneyPrefillWasApplied({ fin_income: 5000 }, { fin_income: 5000, fin_debt_payments: 900 }),
+    ).toBe(true);
+    expect(
+      moneyPrefillWasApplied(
+        { fin_income: 5000, fin_debt_payments: 900 },
+        { fin_income: 5000, fin_debt_payments: 900 },
+      ),
+    ).toBe(false);
   });
 });

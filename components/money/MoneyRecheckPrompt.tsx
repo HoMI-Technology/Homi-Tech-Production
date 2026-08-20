@@ -17,19 +17,23 @@ import {
 import type { NamedMoneyMetrics } from "@/lib/finance/metrics";
 
 /**
- * Band-cross prompt only. Never writes the ledger or the score.
+ * Band-cross prompt only. Hidden with no last assessment or unchanged money.
+ * Never writes the ledger or the score. Sign-out does not reset dismiss.
  */
 export function MoneyRecheckPrompt({ metrics }: { metrics: NamedMoneyMetrics | null }) {
   const [crossing, setCrossing] = useState<RecheckCrossing | null>(null);
+  const [lastAssessmentAt, setLastAssessmentAt] = useState<string | null>(null);
 
   useEffect(() => {
     if (!metrics) {
       setCrossing(null);
+      setLastAssessmentAt(null);
       return;
     }
     const stored = loadLocalResult();
-    if (!stored?.inputs) {
+    if (!stored?.inputs || !stored.completedAt) {
       setCrossing(null);
+      setLastAssessmentAt(null);
       return;
     }
     const from = bandsFromAssessmentInputs({
@@ -42,10 +46,11 @@ export function MoneyRecheckPrompt({ metrics }: { metrics: NamedMoneyMetrics | n
       emergencyFundMonths: metrics.runway.months,
       savingsRatePercent: metrics.savingsRatePct,
     });
-    setCrossing(shouldPromptRecheck(from, to));
+    setLastAssessmentAt(stored.completedAt);
+    setCrossing(shouldPromptRecheck(from, to, stored.completedAt));
   }, [metrics]);
 
-  if (!crossing) return null;
+  if (!crossing || !lastAssessmentAt) return null;
 
   return (
     <div
@@ -62,7 +67,7 @@ export function MoneyRecheckPrompt({ metrics }: { metrics: NamedMoneyMetrics | n
           type="button"
           className="btn btn-ghost"
           onClick={() => {
-            dismissBandCrossing(crossing);
+            dismissBandCrossing(crossing, lastAssessmentAt);
             setCrossing(null);
           }}
         >

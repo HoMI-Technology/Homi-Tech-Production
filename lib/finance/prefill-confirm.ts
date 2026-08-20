@@ -19,6 +19,17 @@ import {
 
 const STORAGE_KEY = "homi:finance-prefill-confirm";
 
+export const MONEY_PREFILL_BANNER =
+  "We pre-filled your financial numbers from Money. Review them, then the rest.";
+
+const PREFILL_BANNER_IDS = [
+  "fin_income",
+  "fin_debt_payments",
+  "fin_savings_total",
+  "fin_emergency_fund",
+  "fin_down_payment",
+] as const;
+
 export interface ConfirmedQuestionResponses {
   fin_income?: number;
   fin_debt_payments?: number;
@@ -208,6 +219,16 @@ export function applyConfirmedQuestionPrefill(
     delete next.fin_dti_ratio;
   }
   return next;
+}
+
+/** True when Money actually wrote at least one live financial ID onto a blank retake. */
+export function moneyPrefillWasApplied(
+  before: Record<string, ResponseValue>,
+  after: Record<string, ResponseValue>,
+): boolean {
+  return PREFILL_BANNER_IDS.some(
+    (id) => before[id] === undefined && after[id] !== undefined,
+  );
 }
 
 export function buildConfirmedFinancePrefill(input: {

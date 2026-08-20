@@ -1,7 +1,7 @@
 /**
- * Home last-read chrome — existing scored fold only.
- * Last verdict word + calendar age. Optional same-way money direction.
- * Never a next-band proximity claim. Never a live number. Never points.
+ * Home last-read chrome — one sentence on the existing scored fold.
+ * Distance in Brand words only. Never a live number. Never points.
+ * Do not run a new score to decide closer-to.
  */
 
 import { VERDICT_META, type VerdictKey } from "@/lib/brand";
@@ -13,9 +13,6 @@ import {
   type EfScoreBand,
   type SavingsScoreBand,
 } from "@/lib/finance/recheck-prompt";
-
-export const LAST_READ_STRONGER = "Your money picture looks stronger than last time.";
-export const LAST_READ_WEAKER = "Your money picture looks weaker than last time.";
 
 const MONTHS = [
   "January",
@@ -65,6 +62,30 @@ export function lastReadAgeFrom(iso: string | null): string | null {
   return `from ${month} ${day}.`;
 }
 
+export function nextPublicVerdict(verdict: VerdictKey): VerdictKey | null {
+  switch (verdict) {
+    case "NOT_YET":
+      return "BUILD_FIRST";
+    case "BUILD_FIRST":
+      return "ALMOST_THERE";
+    case "ALMOST_THERE":
+      return "READY";
+    case "READY":
+      return null;
+    default: {
+      const _exhaustive: never = verdict;
+      return _exhaustive;
+    }
+  }
+}
+
+export function closerToLine(verdict: VerdictKey): string | null {
+  if (verdict === "READY") return null;
+  const next = nextPublicVerdict(verdict);
+  if (!next) return null;
+  return `closer to ${publicVerdictLabel(next)}.`;
+}
+
 const DTI_STRENGTH: Record<DtiScoreBand, number> = {
   dti_lte28: 4,
   dti_lte36: 3,
@@ -87,32 +108,30 @@ const SR_STRENGTH: Record<SavingsScoreBand, number> = {
   sr_else: 0,
 };
 
-export type MoneyDirection = "stronger" | "weaker";
-
 export type LastReadMoneyInputs = {
   debtToIncomeRatio: number | null;
   emergencyFundMonths: number | null;
   savingsRate: number | null;
 };
 
-function sign(delta: number): MoneyDirection | "unchanged" {
-  if (delta > 0) return "stronger";
-  if (delta < 0) return "weaker";
+function moveSign(delta: number): "better" | "worse" | "unchanged" {
+  if (delta > 0) return "better";
+  if (delta < 0) return "worse";
   return "unchanged";
 }
 
 /**
- * Direction only when DTI, EF months, and savings-rate all moved the same way.
- * Missing, mixed, or unchanged → omit. Not a verdict claim.
+ * True when comparable Money DTI / EF / savings-rate moved improving vs the
+ * last assessment. Mixed or unchanged → false. Does not compute a score.
  */
-export function moneyPictureDirection(input: {
+export function moneyPictureImproved(input: {
   lastDtiRatio: number | null;
   lastEmergencyFundMonths: number | null;
   lastSavingsRateRatio: number | null;
   currentDtiPercent: number | null;
   currentEmergencyFundMonths: number | null;
   currentSavingsRatePercent: number | null;
-}): MoneyDirection | null {
+}): boolean {
   const lastDti = classifyDtiBand(input.lastDtiRatio, "ratio");
   const lastEf = classifyEmergencyFundBand(input.lastEmergencyFundMonths);
   const lastSr = classifySavingsRateBand(input.lastSavingsRateRatio, "ratio");
@@ -120,22 +139,31 @@ export function moneyPictureDirection(input: {
   const nowEf = classifyEmergencyFundBand(input.currentEmergencyFundMonths);
   const nowSr = classifySavingsRateBand(input.currentSavingsRatePercent, "percent");
 
-  if (lastDti == null || lastEf == null || lastSr == null) return null;
-  if (nowDti == null || nowEf == null || nowSr == null) return null;
-
-  const moves = [
-    sign(DTI_STRENGTH[nowDti] - DTI_STRENGTH[lastDti]),
-    sign(EF_STRENGTH[nowEf] - EF_STRENGTH[lastEf]),
-    sign(SR_STRENGTH[nowSr] - SR_STRENGTH[lastSr]),
-  ];
-  if (moves.some((move) => move === "unchanged")) return null;
-  if (moves.every((move) => move === "stronger")) return "stronger";
-  if (moves.every((move) => move === "weaker")) return "weaker";
-  return null;
+  const moves: Array<"better" | "worse" | "unchanged"> = [];
+  if (lastDti != null && nowDti != null) {
+    moves.push(moveSign(DTI_STRENGTH[nowDti] - DTI_STRENGTH[lastDti]));
+  }
+  if (lastEf != null && nowEf != null) {
+    moves.push(moveSign(EF_STRENGTH[nowEf] - EF_STRENGTH[lastEf]));
+  }
+  if (lastSr != null && nowSr != null) {
+    moves.push(moveSign(SR_STRENGTH[nowSr] - SR_STRENGTH[lastSr]));
+  }
+  if (moves.length === 0) return false;
+  if (moves.some((move) => move === "worse")) return false;
+  return moves.some((move) => move === "better");
 }
 
-export function moneyPictureDirectionLine(direction: MoneyDirection | null): string | null {
-  if (direction === "stronger") return LAST_READ_STRONGER;
-  if (direction === "weaker") return LAST_READ_WEAKER;
-  return null;
+/** One fold sentence: age and/or closer-to. Progress chrome yields on hard stop. */
+export function lastReadSentence(input: {
+  verdict: VerdictKey;
+  age: string | null;
+  improving: boolean;
+  hardStop: boolean;
+}): string | null {
+  const age = input.age;
+  const closer =
+    !input.hardStop && input.improving ? closerToLine(input.verdict) : null;
+  if (age && closer) return `${age} ${closer}`;
+  return age ?? closer;
 }

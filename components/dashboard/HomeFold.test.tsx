@@ -43,6 +43,9 @@ describe("HomeFold", () => {
     );
     expect(container.querySelector("[data-home-build-hero]")).toBeNull();
     expect(container.querySelector("[data-home-score-rail]")).toBeNull();
+    expect(container.querySelector("[data-last-read-chrome]")).toBeNull();
+    expect(screen.queryByText(/from March/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();
     expect(screen.queryByText("76")).not.toBeInTheDocument();
     expect(screen.queryByText("Your build")).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /see results/i })).not.toBeInTheDocument();
@@ -78,8 +81,9 @@ describe("HomeFold", () => {
     expect(screen.getByLabelText("Overall HōMI-Score 64 out of 100")).toBeInTheDocument();
     expect(screen.getByText("BUILD FIRST")).toBeInTheDocument();
     expect(container.querySelector("[data-last-read-chrome]")).toHaveTextContent(
-      "Last read: BUILD FIRST from March 15.",
+      "from March 15.",
     );
+    expect(screen.queryByText(/Last read:/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();
     expect(
       screen.getByText("Financial Reality is the softest pillar on this read."),
@@ -98,6 +102,25 @@ describe("HomeFold", () => {
     expect(screen.queryByRole("link", { name: /money picture/i })).not.toBeInTheDocument();
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeNull();
     expect(screen.queryByText("76")).not.toBeInTheDocument();
+  });
+
+  it("stale >30d does not stack a second age treatment on the fold", () => {
+    const { container } = render(
+      <HomeFold
+        {...base}
+        latest={{ id: "a1", overallScore: 64 }}
+        verdict="BUILD_FIRST"
+        lastReadAt="2026-03-15T12:00:00.000Z"
+        staleDays={45}
+        stopMessages={[]}
+        foldSentence="Financial Reality is the softest pillar on this read."
+      />,
+    );
+
+    expect(screen.getByText(/45 days since your last assessment/i)).toBeInTheDocument();
+    expect(container.querySelector("[data-last-read-chrome]")).toBeNull();
+    expect(screen.queryByText("from March 15.")).not.toBeInTheDocument();
+    expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();
   });
 
   it("hard-stop banner outranks the build and suppresses step progress", () => {
@@ -131,6 +154,27 @@ describe("HomeFold", () => {
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeNull();
     expect(container.querySelector(".dash-spectrum")).toBeNull();
     expect(screen.queryByText("Almost")).not.toBeInTheDocument();
+    expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();
+  });
+
+  it("hard stop yields closer-to; age still shows", () => {
+    const { container } = render(
+      <HomeFold
+        {...base}
+        latest={{ id: "a2", overallScore: 71 }}
+        verdict="ALMOST_THERE"
+        lastReadAt="2026-03-15T12:00:00.000Z"
+        stopMessages={["DTI is above 50%."]}
+        suppressBuildPercent
+        foldSentence="A hard stop is the read right now. The path names what has to move first."
+      />,
+    );
+
+    expect(container.querySelector("[data-last-read-chrome]")).toHaveTextContent(
+      "from March 15.",
+    );
+    expect(screen.queryByText(/closer to READY/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();
   });
 
   it("does not dual-mount giant hero numeral and compass on a scored fold", () => {
