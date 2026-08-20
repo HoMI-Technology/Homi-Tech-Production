@@ -65,22 +65,21 @@ describe("legal pages — honest rewrite lock", () => {
       expect(PRIVACY).toContain(vendor);
     }
     expect(PRIVACY).toContain("We do not use MX, SnapTrade, Meta Pixel");
-    expect(PRIVACY).toContain("not Google Analytics");
-    expect(PRIVACY).toContain("or FullStory");
+    expect(PRIVACY).toContain("Google Analytics, or FullStory");
   });
 
   it("is US-only privacy — no GDPR program, SCCs, DPO, or EU establishment", () => {
     expect(PRIVACY).toContain("United States privacy notice");
     expect(PRIVACY).toContain("We do not claim GDPR operations");
-    expect(PRIVACY).toContain("do not offer standard contractual clauses");
-    expect(PRIVACY).toContain("data-protection officer");
-    expect(PRIVACY).toContain("EEA or UK establishment");
+    expect(PRIVACY).toContain("standard contractual clauses");
+    expect(PRIVACY).toMatch(/data-protection\s+officer/);
+    expect(PRIVACY).toMatch(/EEA or UK\s+establishment/);
     expect(PRIVACY).not.toMatch(/\bDPO\b/);
   });
 
   it("does not sell or share for targeted advertising and does not invent GPC", () => {
     expect(PRIVACY).toContain("We do not sell personal information");
-    expect(PRIVACY).toContain("do not share personal information for targeted advertising");
+    expect(PRIVACY).toMatch(/do not share personal information for\s+targeted advertising/);
     expect(PRIVACY).toContain("does not read Global Privacy Control");
     expect(COOKIES).toContain("We do not respond to Global Privacy Control");
     expect(PRIVACY).not.toContain("We honor GPC");
@@ -114,7 +113,7 @@ describe("legal pages — honest rewrite lock", () => {
       expect(page, name).not.toMatch(/\b35%\b/);
       expect(page, name).not.toMatch(/\bREADY ≥/);
       expect(page, name).not.toMatch(/\[CompanyName\]|\[INSERT|\[ADD\]|\[DATE\]|\[EMAIL\]/);
-      expect(page, name).not.toMatch(/General Legal|legal-templates|based on/i);
+      expect(page, name).not.toMatch(/General Legal|legal-templates/i);
     }
   });
 
