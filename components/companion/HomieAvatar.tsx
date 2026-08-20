@@ -1,9 +1,9 @@
 "use client";
 
 /**
- * HomieAvatar — floating circular presence for the voice-first companion.
+ * HomieAvatar — floating circular HōMI presence for the voice-first companion.
  * States: breathing (idle presence), listening (waveform), speaking, silent.
- * Abstract orb — no mascot. Brand colors only.
+ * Abstract orb — no mascot. Brand colors only. User-visible name is always HōMI.
  */
 
 import { COLORS, withAlpha } from "@/lib/brand";
@@ -31,12 +31,12 @@ export function HomieAvatar({
   const aria =
     label ??
     (listening
-      ? "Homie is listening"
+      ? "HōMI is listening"
       : speaking
-        ? "Homie is speaking"
+        ? "HōMI is speaking"
         : state === "silent"
-          ? "Homie is present quietly"
-          : "Homie companion");
+          ? "HōMI is present quietly"
+          : "HōMI Companion");
 
   const scaleAnim =
     !reduced && breathing

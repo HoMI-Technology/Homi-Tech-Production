@@ -364,7 +364,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
       // Silent Witness — presence only; no API call this turn.
       if (behavior.primary === "silent_witness" && behavior.silent?.remainSilent) {
         setSilentPresence();
-        setPresenceNote("Homie is here with you.");
+        setPresenceNote("HōMI is here with you.");
         track("homie_silent_witness", { reason: behavior.silent.reason });
         clearHighlightRef.current = highlightHomieCards(["companion_line"]);
         return;
@@ -813,7 +813,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
                     : "btn-secondary"
                 }`}
                 aria-pressed={voiceListening}
-                aria-label={voiceListening ? "Stop listening" : "Speak to Homie"}
+                aria-label={voiceListening ? "Stop listening" : "Speak to HōMI"}
               >
                 <svg
                   width="16"
@@ -837,7 +837,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
                   ttsEnabled ? "text-cyan" : "text-dim"
                 }`}
                 aria-pressed={ttsEnabled}
-                aria-label={ttsEnabled ? "Mute Homie voice" : "Unmute Homie voice"}
+                aria-label={ttsEnabled ? "Mute HōMI voice" : "Unmute HōMI voice"}
                 title={ttsEnabled ? "Voice replies on" : "Voice replies off"}
               >
                 <svg

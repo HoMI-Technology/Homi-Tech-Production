@@ -17,7 +17,7 @@ export interface InterruptContext {
   speakingMs: number;
   /** Optional emotional read — tone shifts can warrant a soft pause. */
   emotional?: EmotionalMirrorReading;
-  /** True when Homie already has a grounded insight ready from context. */
+  /** True when HōMI already has a grounded insight ready from context. */
   insightReady?: boolean;
   /** Short educational insight (not advice) to offer after the chime. */
   insightText?: string;

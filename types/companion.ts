@@ -1,9 +1,9 @@
 /**
- * Homie voice-first companion — shared types.
+ * HōMI voice-first companion — shared types.
  *
  * The floating avatar is one surface of the Companion mote. These types describe
  * avatar visual state, the five core presence behaviors, voice I/O, and the
- * dashboard-card highlight contract used while Homie speaks.
+ * dashboard-card highlight contract used while HōMI speaks.
  */
 
 /** Visual / interaction state of the floating circular avatar. */
@@ -36,7 +36,7 @@ export type EmotionalTone =
   | "steady";
 
 /**
- * Dashboard instruments Homie may highlight while speaking.
+ * Dashboard instruments HōMI may highlight while speaking.
  * Selectors live in `lib/advisor/card-highlight.ts` and target existing
  * `data-*` hooks — companion code never invents new dashboard markup.
  */
