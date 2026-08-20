@@ -40,11 +40,14 @@ import { ingestPhase0Observation, writePhase0Freeze } from "@/lib/advisor/phase0
 import { Phase0FreezeScreen } from "@/components/advisor/Phase0FreezeScreen";
 import { resolvePhase0PersonKey, usePhase0Freeze } from "@/hooks/usePhase0Freeze";
 import { useHomieVoice } from "@/hooks/useHomieVoice";
+import { estimateSpeechRateWpm } from "@/lib/advisor/voice";
 import { orchestrateHomieBehaviors } from "@/lib/advisor/behaviors";
 import {
+  cardsForSpeech,
   clearHomieCardHighlights,
   highlightHomieCards,
 } from "@/lib/advisor/card-highlight";
+import type { HomieCardId } from "@/types/companion";
 import { decideGentleInterrupt } from "@/lib/advisor/gentle-interrupter";
 import { readEmotionalMirror } from "@/lib/advisor/emotional-mirror";
 import type { VerdictKey } from "@/lib/brand";
@@ -340,12 +343,19 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
           messages.filter((m) => m.role === "assistant").slice(-1)[0]?.content ?? "",
         );
 
+      // Voice turns carry pace: words over the live listen window feed the
+      // Emotional Mirror's voice-tone read. Typed turns have no pace signal.
+      const speakingMs = listenStartedAtRef.current
+        ? Date.now() - listenStartedAtRef.current
+        : 0;
+      const speechRateWpm =
+        speakingMs > 0 ? (estimateSpeechRateWpm(trimmed, speakingMs) ?? undefined) : undefined;
+
       const behavior = orchestrateHomieBehaviors({
         utterance: trimmed,
         thread: nextMessages.map((m) => ({ role: m.role, content: m.content })),
-        speakingMs: listenStartedAtRef.current
-          ? Date.now() - listenStartedAtRef.current
-          : 0,
+        speakingMs,
+        speechRateWpm,
         afterHardTruth,
         presenceRoll: Math.random(),
         futureSelf: assessment
@@ -456,10 +466,21 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
 
       setMessages((prev) => [...prev, { id: makeId(), role: "assistant", content: replyContent }]);
 
-      clearHighlightRef.current = highlightHomieCards(behavior.cards);
+      // Highlight what Homie actually says: the pre-reply behavior cards plus
+      // instruments named in the spoken reply itself.
+      const highlightCards: HomieCardId[] = Array.from(
+        new Set([...behavior.cards, ...cardsForSpeech(replyContent)]),
+      );
+      clearHighlightRef.current = highlightHomieCards(highlightCards);
       track("homie_behavior_turn", { behavior: behavior.primary });
       if (ttsEnabled && voiceCaps.synthesis) {
-        cancelSpeakRef.current = speak(replyContent);
+        // Highlights live for the speech window — released when the spoken
+        // reply ends. With TTS muted there is no window, so they linger until
+        // the next turn or close (visual stand-in for speech).
+        cancelSpeakRef.current = speak(replyContent, () => {
+          clearHighlightRef.current?.();
+          clearHighlightRef.current = null;
+        });
       }
     } catch {
       setMessages((prev) => [
@@ -504,7 +525,10 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
   useEffect(() => {
     if (!voiceListening || !voiceInterim || interruptedThisListenRef.current) return;
     const speakingMs = Date.now() - listenStartedAtRef.current;
-    const emotional = readEmotionalMirror(voiceInterim);
+    const emotional = readEmotionalMirror(
+      voiceInterim,
+      estimateSpeechRateWpm(voiceInterim, speakingMs) ?? undefined,
+    );
     const decision = decideGentleInterrupt({
       transcript: voiceInterim,
       speakingMs,
@@ -698,7 +722,15 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
             </div>
           ) : (
             <>
-          <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
+          <div
+            ref={scrollRef}
+            role="log"
+            aria-live="polite"
+            aria-label={`Conversation with ${
+              identity.name === DEFAULT_IDENTITY.name ? "HōMI Companion" : identity.name
+            }`}
+            className="flex-1 space-y-3 overflow-y-auto p-4"
+          >
             {messages.length === 0 && !identityChosen && (
               <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
                 <div>
@@ -773,21 +805,25 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
             </div>
           )}
 
-          {(presenceNote || voiceError || voiceInterim) && (
-            <div className="space-y-1 px-3 pt-1" aria-live="polite">
-              {presenceNote && (
-                <p className="text-3xs leading-snug text-cyan/80">{presenceNote}</p>
-              )}
-              {voiceListening && voiceInterim && (
-                <p className="text-3xs leading-snug text-dim">Listening: {voiceInterim}</p>
-              )}
-              {voiceError && (
-                <p className="text-3xs leading-snug text-amber" role="status">
-                  {voiceError}
-                </p>
-              )}
-            </div>
-          )}
+          {/* Presence / voice status. Kept mounted so the live region exists
+              before content arrives — conditional mounting can drop the
+              announcement in some screen readers. */}
+          <div
+            className={`space-y-1 px-3 ${
+              presenceNote || voiceError || (voiceListening && voiceInterim) ? "pt-1" : ""
+            }`}
+            aria-live="polite"
+          >
+            {presenceNote && (
+              <p className="text-3xs leading-snug text-cyan/80">{presenceNote}</p>
+            )}
+            {voiceListening && voiceInterim && (
+              <p className="text-3xs leading-snug text-dim">Listening: {voiceInterim}</p>
+            )}
+            {voiceError && (
+              <p className="text-3xs leading-snug text-amber">{voiceError}</p>
+            )}
+          </div>
 
           <div className="hairline" />
           <div className="flex items-end gap-2 p-3">

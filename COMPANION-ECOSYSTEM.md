@@ -114,14 +114,14 @@ five presence behaviors — layered on the existing widget without a second brai
 | Avatar UI | `components/companion/HomieAvatar.tsx`, `VoiceWaveform.tsx` | Breathing / listening waveform / speaking |
 | Voice I/O | `lib/advisor/voice.ts`, `hooks/useHomieVoice.ts` | Web Speech recognition + synthesis; soft chime; **300ms local-feedback budget** |
 | Behaviors | `lib/advisor/behaviors.ts` + `emotional-mirror.ts`, `memory-palace.ts`, `gentle-interrupter.ts`, `future-self.ts`, `silent-witness.ts` | Five core presence behaviors |
-| Card highlight | `lib/advisor/card-highlight.ts` | Highlights existing dashboard `data-*` instruments while Homie speaks |
+| Card highlight | `lib/advisor/card-highlight.ts` | Highlights existing dashboard `data-*` instruments while Homie speaks — cards named in the spoken reply included, released when the spoken reply ends (linger only when TTS is muted); pillar targets are tagged on `/report/[id]` (`data-homie-pillar`) |
 | Widget | `components/companion/CompanionWidget.tsx` | Mic + TTS mute, behavior orchestration, highlight + speak on reply |
 | API | `homieBehaviorHint` on `/api/advisor` | Additive presence brief in context note (never overrides voice rules) |
 | Memory persistence | existing `lib/advisor/memory.ts` + Supabase `advisor_*` | Memory Palace reads the same server thread; no parallel store |
 
 **Five behaviors (canon):**
 
-1. **Emotional Mirror** — heuristic tone from transcript (never clinical); reflects state in companion voice.
+1. **Emotional Mirror** — heuristic tone from transcript plus speaking pace (words/min over the live listen window; never clinical); reflects state in companion voice.
 2. **Memory Palace** — recalls compact gists from the shared thread and references them honestly.
 3. **Gentle Interrupter** — soft Web Audio chime + short insight when a monologue runs long.
 4. **Future Self** — short path projection grounded in score/verdict/pillars (complements `/twin`; not a promise).
@@ -129,7 +129,12 @@ five presence behaviors — layered on the existing widget without a second brai
 
 **Latency:** the 300ms budget applies to **local** listen-feedback and TTS-start paint — not the advisor model round-trip. Over-budget samples emit `homie_voice_latency_over_budget`.
 
-**A11y:** `aria-live` for presence/errors; mic/TTS toggles are labeled buttons; reduced-motion disables breathe/wave animations; keyboard chat path unchanged.
+**A11y:** the message list is a `role="log"` polite live region (replies are announced even with TTS muted); the presence/error strip is a persistently mounted `aria-live` region; mic/TTS toggles are labeled buttons; reduced-motion disables breathe/wave animations; keyboard chat path unchanged.
+
+**Hardening pass (post-ship):** browser-initiated utterance cancellation
+(`interrupted` / `canceled` — fired by every normal cancel: a newer reply,
+listen start, panel close) is lifecycle, never surfaced as a voice error, and
+stale utterance events can no longer overwrite a newer avatar state.
 
 ### Phase 2 — One memory, one identity
 

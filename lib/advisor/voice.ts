@@ -247,7 +247,14 @@ export function speakText(text: string, options: SpeakOptions = {}): () => void 
     options.onStart?.(measureVoiceLatency("tts_start", startedAt));
   };
   utterance.onend = () => options.onEnd?.();
-  utterance.onerror = () => {
+  utterance.onerror = (ev) => {
+    // "interrupted" / "canceled" are the browser's normal response to
+    // speechSynthesis.cancel() — a newer reply, listen start, or panel close.
+    // Lifecycle, not failure: never surface an error for them.
+    if (ev?.error === "interrupted" || ev?.error === "canceled") {
+      options.onEnd?.();
+      return;
+    }
     options.onError?.({
       code: "synthesis_failed",
       message: "I couldn't speak that aloud. The words are still in chat.",
@@ -272,6 +279,21 @@ export function speakText(text: string, options: SpeakOptions = {}): () => void 
       // ignore
     }
   };
+}
+
+/**
+ * Estimate speaking pace in words per minute over a recognition window.
+ * The Emotional Mirror uses pace as a voice-tone signal (fast → pressing,
+ * very slow → uncertain). Returns null when the sample is too small to be
+ * meaningful — a two-word blurt must never read as "fast speech".
+ */
+export function estimateSpeechRateWpm(
+  transcript: string,
+  elapsedMs: number,
+): number | null {
+  const words = transcript.trim().split(/\s+/).filter(Boolean).length;
+  if (words < 4 || elapsedMs < 1500) return null;
+  return Math.round((words / elapsedMs) * 60_000);
 }
 
 export function cancelSpeech(): void {
