@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
+import type { VerdictKey } from "@/lib/brand";
 import {
   LAST_READ_STRONGER,
   LAST_READ_WEAKER,
+  PUBLIC_VERDICT_LABELS,
   lastReadAgeFrom,
   moneyPictureDirection,
   moneyPictureDirectionLine,
@@ -10,8 +12,14 @@ import {
 
 describe("last-read chrome — Lock 1", () => {
   it("uses Brand verdict words and calendar age", () => {
-    expect(publicVerdictLabel("NOT_YET")).toBe("DO NOT PROCEED");
-    expect(publicVerdictLabel("READY")).toBe("READY");
+    const keys: VerdictKey[] = ["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"];
+    const labels = keys.map(publicVerdictLabel);
+    expect(labels).toEqual(["READY", "ALMOST THERE", "BUILD FIRST", "DO NOT PROCEED"]);
+    expect(labels).toEqual([...PUBLIC_VERDICT_LABELS]);
+    for (const label of labels) {
+      expect(label).not.toBe("NOT_YET");
+      expect(label).not.toMatch(/^Not yet$/i);
+    }
     expect(lastReadAgeFrom("2026-03-15T12:00:00.000Z")).toBe("from March 15.");
   });
 

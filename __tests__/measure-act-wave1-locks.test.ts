@@ -65,6 +65,23 @@ describe("Measure-Act Wave 1 locks", () => {
     expect(confirm).not.toMatch(/fin_expenses/);
   });
 
+  it("UI verdict labels stay Brand public names — never NOT_YET / Not yet", () => {
+    const chrome = read("components/dashboard/LastReadChrome.tsx");
+    expect(chrome).toContain("publicVerdictLabel");
+    for (const rel of [
+      "components/dashboard/LastReadChrome.tsx",
+      "components/dashboard/MoneyPictureDirection.tsx",
+      "components/money/MoneyRecheckPrompt.tsx",
+      "components/tools/DebtPayoffScorePreview.tsx",
+    ] as const) {
+      const src = read(rel);
+      expect(src, rel).not.toContain("NOT_YET");
+      expect(src, rel).not.toMatch(/Not yet/);
+    }
+    const prompt = read("lib/finance/recheck-prompt.ts");
+    expect(prompt).toContain("Your money picture changed. Re-check readiness?");
+  });
+
   it("Home chrome lives on the existing scored fold — no closer-to band", () => {
     const fold = read("components/dashboard/HomeFold.tsx");
     const chrome = read("components/dashboard/LastReadChrome.tsx");

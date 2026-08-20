@@ -43,7 +43,9 @@ These shapes only. Empty of numbers otherwise. Full `/simulator` stays Pro.
 
 ## Home chrome (existing scored fold only — no second card)
 
-Last verdict word (Brand: DO NOT PROCEED, not NOT_YET) + age `from March 15.`
+UI verdict labels stay Brand: DO NOT PROCEED, not NOT_YET / Not yet.
+Use the public verdict names only (READY, ALMOST THERE, BUILD FIRST,
+DO NOT PROCEED). Last verdict word + age `from March 15.`
 Do not stack the age on the 30-day stale banner.
 Empty Home: no progress chrome.
 READY still gets last verdict + age.

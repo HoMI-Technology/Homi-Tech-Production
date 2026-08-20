@@ -32,8 +32,26 @@ const MONTHS = [
   "December",
 ] as const;
 
+/** Public Brand names only. Never print NOT_YET or Not yet. */
+export const PUBLIC_VERDICT_LABELS = [
+  "READY",
+  "ALMOST THERE",
+  "BUILD FIRST",
+  "DO NOT PROCEED",
+] as const;
+
 export function publicVerdictLabel(verdict: VerdictKey): string {
-  return VERDICT_META[verdict].label;
+  switch (verdict) {
+    case "READY":
+    case "ALMOST_THERE":
+    case "BUILD_FIRST":
+    case "NOT_YET":
+      return VERDICT_META[verdict].label;
+    default: {
+      const _exhaustive: never = verdict;
+      return _exhaustive;
+    }
+  }
 }
 
 /** Calendar age: "from March 15." Never a live score. */
