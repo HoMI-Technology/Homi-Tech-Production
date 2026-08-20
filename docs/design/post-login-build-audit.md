@@ -47,6 +47,7 @@ Phases 00–03 landed in [#252](https://github.com/HoMI-Technology/Homi-Tech-Pro
 | Fold inversion (build hero, score to rail) | F7 / phase 04 | **Closed** — `HOME_FOLD_INSTRUMENT = "build"`; DESIGN.md 3-second test amended |
 | Step ledger of completed Path moves | F9 / phase 06 | **Closed** — `PathStepLedger` on Home (suppressed over hard stops) |
 | Collapse `/plan` + `/results` | F8 / phase 07 | **Partial** — `/plan` palette-only; surface roles SSOT; results primary CTA → Home/Path; full `/results` merge still open |
+| Home fold premium identity | visual / brand | **Closed** — `dash-instrument` chrome, in-fold `Wordmark` + eyebrow, Companion `panel-focus`, Path dock language, ledger kicker |
 
 This file stays the audit. It does not replace the product PR.
 
