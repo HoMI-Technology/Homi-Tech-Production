@@ -3,18 +3,15 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
- * F.13 regression — onboarding replay must carry decisionType.
+ * F.13 — decisionType must travel with any local-result POST to
+ * /api/assessments. The route defaults missing `decision_type` to
+ * "home_buying", which would silently relabel a car assessment.
  *
- * When a user takes an assessment anonymously and then creates an account,
- * app/(product)/onboarding/page.tsx re-posts the locally stored result to
- * POST /api/assessments. That route defaults `decision_type` to "home_buying"
- * when the field is absent, so a replay that omits it silently relabels a car
- * assessment as a home purchase — the user's own vertical, rewritten by the one
- * code path that was supposed to rescue their result.
+ * Guests can no longer hold a full assessment locally (they are sent to
+ * First Moment), so the onboarding page no longer replays a local result.
+ * The live rescue path is the /results retry banner (SaveStatusBanner).
  *
- * This is a source-text guard rather than a render test: the page is a Next.js
- * client route whose module graph (next/link, @/lib/supabase/client) is not
- * loadable under vitest. Same approach as __tests__/perf-bundle-guards.test.ts.
+ * Source-text guards (same approach as __tests__/perf-bundle-guards.test.ts).
  */
 
 const ONBOARDING_PAGE = join(process.cwd(), "app", "(product)", "onboarding", "page.tsx");
@@ -25,31 +22,32 @@ function flat(absPath: string): string {
   return readFileSync(absPath, "utf8").replace(/\s+/g, " ");
 }
 
-describe("onboarding replay (F.13)", () => {
-  it("includes decisionType in the replay POST body when the stored result has one", () => {
-    expect(flat(ONBOARDING_PAGE)).toMatch(/decisionType.*local\.decisionType/);
+describe("onboarding local-result replay (removed)", () => {
+  it("does not replay a local assessment into POST /api/assessments", () => {
+    const page = flat(ONBOARDING_PAGE);
+    expect(page).not.toContain("loadLocalResult");
+    expect(page).not.toContain("/api/assessments");
+    expect(page).not.toMatch(/decisionType.*local\.decisionType/);
+  });
+});
+
+describe("results retry banner (F.13)", () => {
+  it("includes decisionType in the retry POST body when the stored result has one", () => {
+    expect(flat(RETRY_BANNER)).toMatch(/decisionType.*stored\.decisionType/);
   });
 
   it("does not post the legacy inputs+kind-only body", () => {
-    // The exact shape the bug shipped as. Its return would re-open F.13.
-    expect(flat(ONBOARDING_PAGE)).not.toContain(
-      'JSON.stringify({ inputs: local.inputs, kind: local.kind ?? "full" })',
+    expect(flat(RETRY_BANNER)).not.toContain(
+      'JSON.stringify({ inputs: stored.inputs, kind: stored.kind ?? "full" })',
     );
   });
 
-  it("omits decisionType rather than sending a falsy one, on both replay paths", () => {
+  it("omits decisionType rather than sending a falsy one", () => {
     // Pre-F.13 localStorage records have no decisionType. Sending it explicitly
     // as null/undefined-shaped data would fail the route's zod schema and lose
-    // the save entirely — strictly worse than the server default. The /results
-    // retry path (F.12) posts the same payload and guards it the same way.
-    const paths = [
-      { file: ONBOARDING_PAGE, ref: "local" },
-      { file: RETRY_BANNER, ref: "stored" },
-    ];
-    for (const { file, ref } of paths) {
-      expect(flat(file)).toContain(
-        `...(${ref}.decisionType ? { decisionType: ${ref}.decisionType } : {})`,
-      );
-    }
+    // the save entirely — strictly worse than the server default.
+    expect(flat(RETRY_BANNER)).toContain(
+      "...(stored.decisionType ? { decisionType: stored.decisionType } : {})",
+    );
   });
 });
