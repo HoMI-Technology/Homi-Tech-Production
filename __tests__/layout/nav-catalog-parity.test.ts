@@ -18,7 +18,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
  * - /agent-hub: deep Agent OS surface; /agents (roster) is the chrome entry.
  * - /advisor: Companion chat stays reachable via palette + widget, not More.
  * - /plan: checklist deep-link; Path to Ready owns the living Build in chrome.
- * - /results: verdict reveal; palette-only so Path owns Measure chrome.
  */
 const PALETTE_ONLY_HREFS = [
   "/partner/dashboard",
@@ -31,7 +30,6 @@ const PALETTE_ONLY_HREFS = [
   "/agent-hub",
   "/advisor",
   "/plan",
-  "/results",
   // Money modes: primary Money + MoneyModeNav; not duplicated in More
   "/money/budget",
   "/money/decide",
@@ -76,12 +74,12 @@ describe("nav catalog parity", () => {
     expect(new Set(hrefs).size).toBe(hrefs.length);
   });
 
-  it("Results is palette-only; Path owns Measure chrome", async () => {
+  it("Results is off chrome and palette; Path owns Measure", async () => {
     const { nav, palette } = await loadSurfaces("true");
     const moreHrefs = nav.APP_MORE_NAV.map((i) => i.href);
     expect(moreHrefs).toContain("/path");
     expect(moreHrefs).not.toContain("/results");
-    expect(palette.PALETTE_CATALOG.map((i) => i.href)).toContain("/results");
+    expect(palette.PALETTE_CATALOG.map((i) => i.href)).not.toContain("/results");
     expect(palette.PALETTE_CATALOG.map((i) => i.href)).not.toContain("/shadow-score");
   });
 

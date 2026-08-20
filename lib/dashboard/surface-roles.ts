@@ -9,7 +9,7 @@
  */
 export const SURFACE_ROLES = {
   home: "Signed-in Home fold — Path next move leads; money standing strip shows where cash sits; HōMI-Score is a compact rail reading.",
-  results: "Optional verdict reveal (palette / Last verdict). Post-assessment lands on Home — the living Build.",
+  results: "Guest empty / residual route only. Signed-in visits redirect to Home — not a Build destination.",
   path: "Living Build — binding-constraint Path to Ready over time.",
   plan: "Checklist deep-link (palette-only). Path owns the Build in chrome.",
   report: "Persisted, shareable/printable record of one assessment.",

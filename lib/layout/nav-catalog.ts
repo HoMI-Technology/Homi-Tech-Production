@@ -93,20 +93,13 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     keywords: "next steps journey roadmap",
     surfaces: { header: "more", palette: true },
   },
-  {
-    // Verdict reveal — palette-only so Path owns Measure chrome (post-login F8).
-    href: "/results",
-    label: "Results",
-    paletteLabel: "Last verdict",
-    group: "Navigate",
-    keywords: "readiness verdict score outcome report reveal",
-    surfaces: { palette: true },
-  },
+  // /results removed from chrome (F8) — not a signed-in destination. Guest empty
+  // route remains for LHCI; signed-in visits redirect to Home.
   {
     href: "/timeline",
     label: "Score history",
     group: "Navigate",
-    keywords: "timeline trajectory re-check progress over time chart",
+    keywords: "timeline trajectory re-check progress over time chart score verdict",
     surfaces: { header: "more", palette: true },
   },
   {

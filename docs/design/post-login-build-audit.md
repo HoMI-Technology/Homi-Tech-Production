@@ -46,7 +46,7 @@ Phases 00–03 landed in [#252](https://github.com/HoMI-Technology/Homi-Tech-Pro
 | State-based post-login routing | F1 / phase 03 | **Closed** — `resolvePostLoginDestination`: explicit `?next=` wins; bare sign-in → Assess if unscored, Home if scored |
 | Fold inversion (build hero, score to rail) | F7 / phase 04 | **Closed** — `HOME_FOLD_INSTRUMENT = "build"`; DESIGN.md 3-second test amended |
 | Step ledger of completed Path moves | F9 / phase 06 | **Closed** — `PathStepLedger` on Home (suppressed over hard stops) |
-| Collapse `/plan` + `/results` | F8 / phase 07 | **Partial** — `/plan` read-only; post-assessment → Home; Path legacy href → Home; `/results` optional palette reveal; full route deletion still open |
+| Collapse `/plan` + `/results` | F8 / phase 07 | **Partial** — `/results` off chrome/palette; signed-in redirect → Home; guest empty kept for LHCI; full file deletion still open |
 | Companion / Agents invite Shadow Score when unscored | signed-in CTA honesty | **Closed** — Chat, AgentChat, fallback, advisor/agents API prompts → full assessment |
 | Sign-up default → `/onboarding` | first-run honesty | **Closed** — bare sign-up defaults to `POST_LOGIN_ASSESS` (`/assessment`); explicit `?next=` still wins |
 | Home fold premium identity | visual / brand | **Closed** — `dash-instrument` chrome, in-fold `Wordmark` + eyebrow, Companion `panel-focus`, Path dock language, ledger kicker |

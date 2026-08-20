@@ -235,9 +235,6 @@ export default function PlanPage() {
         <Link href="/assessment" className="btn btn-ghost">
           {effective.kind === "shadow" ? "Take the full assessment" : "Re-take the assessment"}
         </Link>
-        <Link href="/results" className="btn btn-ghost">
-          Last verdict
-        </Link>
       </div>
     </div>
   );

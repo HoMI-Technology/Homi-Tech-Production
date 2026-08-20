@@ -9,7 +9,7 @@ describe("visiblePaletteItems", () => {
     expect(hrefs).toContain("/settings");
     // Catalog-union entries shared with AppHeader More (PR: nav parity).
     expect(hrefs).toContain("/path");
-    expect(hrefs).toContain("/results");
+    expect(hrefs).not.toContain("/results");
     expect(hrefs).toContain("/household");
     expect(hrefs).toContain("/scenarios");
     expect(hrefs).toContain("/tools/preflight");

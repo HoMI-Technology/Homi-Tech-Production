@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { loadLocalResult, type StoredAssessment } from "@/lib/assessment/storage";
 import { mapAssessmentRowToStored } from "@/lib/assessment/remote";
 import { discardScoreShapedShadow, pickResult } from "@/lib/assessment/resolveResult";
@@ -28,9 +29,11 @@ const ResultsVerdictView = dynamic(() =>
 void SURFACE_ROLES.results;
 
 /**
- * /results — verdict reveal transition into the Build (Home + Path).
+ * /results — guest empty + residual reveal only.
+ * Signed-in users are sent to Home Build (F8 — not a destination).
  */
 export default function ResultsPage() {
+  const router = useRouter();
   const [stored, setStored] = useState<StoredAssessment | null | undefined>(undefined);
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [remote, setRemote] = useState<StoredAssessment | null>(null);
@@ -82,6 +85,12 @@ export default function ResultsPage() {
     };
   }, []);
 
+  // F8 — signed-in /results is not a Build destination.
+  useEffect(() => {
+    if (!remoteChecked || isAnonymous) return;
+    router.replace("/dashboard");
+  }, [remoteChecked, isAnonymous, router]);
+
   // Local result wins when it is newer or remote isn't signed in / doesn't
   // exist. Guests must not paint a 4-band verdict from localStorage — wait
   // for the auth check, then drop the local payload. discardScoreShapedShadow
@@ -119,6 +128,15 @@ export default function ResultsPage() {
     return <Phase0FreezeScreen record={freeze.record} />;
   }
 
+  // Signed-in: hold a quiet loading state while replacing to Home.
+  if (remoteChecked && !isAnonymous) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-24">
+        <ProductLoadingSkeleton label="Opening Home" />
+      </div>
+    );
+  }
+
   if (stored === undefined) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-24">
@@ -128,8 +146,6 @@ export default function ResultsPage() {
   }
 
   if (!effective) {
-    // Signed-in users on a new device: don't flash "No results yet" before
-    // we've had a chance to check the DB for a prior result.
     if (!remoteChecked) {
       return (
         <div className="mx-auto max-w-2xl px-4 py-24">
@@ -155,6 +171,7 @@ export default function ResultsPage() {
     );
   }
 
+  // Guest residual path — signed-in never reaches here (redirect above).
   return (
     <ResultsVerdictView
       stored={effective}
