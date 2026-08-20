@@ -106,9 +106,10 @@ function DemoPageContent() {
             <div key={pillar.key} className="glass p-6">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold text-light">{pillar.name}</h3>
-                <span className="score-numeral text-sm text-dim">
-                  {value}/{max}
-                </span>
+                {/* Percentages only: /demo is anonymous-readable, and a raw
+                    "n / max" pair publishes the exact pillar maxima — the same
+                    leak class as the /share ring geometry (2026-08 audit). */}
+                <span className="score-numeral text-sm text-dim">{Math.round(pct)}%</span>
               </div>
               <p className="mt-1 text-xs text-dim">{pillar.question}</p>
               <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-slate-surface">
