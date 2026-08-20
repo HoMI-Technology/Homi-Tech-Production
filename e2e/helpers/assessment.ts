@@ -160,5 +160,6 @@ export async function completeFullAssessment(
 
   await expect(reviewHeading).toBeVisible();
   await assessmentPane.getByRole("button", { name: "See my HōMI-Score" }).click();
-  await page.waitForURL("**/results");
+  // Signed-in completion lands on Home Build (F8). Guests never finish scoring.
+  await page.waitForURL("**/dashboard");
 }

@@ -13,7 +13,7 @@ describe("surface roles SSOT", () => {
   it("names the Build, reveal, checklist, and record jobs", () => {
     expect(SURFACE_ROLES.home).toMatch(/Path next move/i);
     expect(SURFACE_ROLES.path).toMatch(/Living Build/i);
-    expect(SURFACE_ROLES.results).toMatch(/Verdict reveal/i);
+    expect(SURFACE_ROLES.results).toMatch(/Optional verdict reveal/i);
     expect(SURFACE_ROLES.plan).toMatch(/palette-only/i);
     expect(SURFACE_ROLES.report).toMatch(/record/i);
   });

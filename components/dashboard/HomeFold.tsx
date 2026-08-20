@@ -14,6 +14,7 @@ import { PathStepLedger } from "@/components/dashboard/PathStepLedger";
 import { HomeMoneyStanding } from "@/components/dashboard/HomeMoneyStanding";
 import { DashboardResumeRamp } from "@/components/dashboard/DashboardResumeRamp";
 import { OutcomeSurveyPrompt } from "@/components/dashboard/OutcomeSurveyPrompt";
+import { SaveStatusBanner } from "@/components/results/SaveStatusBanner";
 import type { OutcomeSurveyKind } from "@/types/database";
 
 export type HomeFoldLatest = {
@@ -91,6 +92,8 @@ export function HomeFold({
           />
         ) : latest ? (
           <>
+            <SaveStatusBanner />
+
             {latest && !suppressBuildPercent && (
               <VerdictCelebrate
                 assessmentId={latest.id}

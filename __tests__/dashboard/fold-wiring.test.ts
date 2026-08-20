@@ -123,11 +123,16 @@ describe("dashboard fold tells the truth about the build", () => {
   });
 });
 
-describe("completed home assessment lands on Results", () => {
-  it("FullAssessmentFlow pushes /results, never /dashboard", () => {
+describe("completed home assessment lands on Home Build", () => {
+  it("FullAssessmentFlow pushes /dashboard, never /results", () => {
     const flow = src("components", "assessment", "FullAssessmentFlow.tsx");
-    expect(flow).toContain('router.push("/results")');
-    expect(flow).not.toMatch(/router\.push\(["']\/dashboard["']\)/);
+    expect(flow).toContain('router.push("/dashboard")');
+    expect(flow).not.toMatch(/router\.push\(["']\/results["']\)/);
+  });
+
+  it("HomeFold mounts SaveStatusBanner so locked/failed saves still surface", () => {
+    const fold = src("components", "dashboard", "HomeFold.tsx");
+    expect(fold).toContain("SaveStatusBanner");
   });
 });
 
