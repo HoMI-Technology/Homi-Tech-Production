@@ -44,7 +44,8 @@ Phases 00–03 landed in [#252](https://github.com/HoMI-Technology/Homi-Tech-Pro
 | Money tools discovery from Home | tools IA | Partial — Home fold links **Money picture** → `/money` |
 | `onboarding_completed` still write-only | F5 | Open — not used for redirects (unsafe without backfill) |
 | State-based post-login routing | F1 / phase 03 | Open — default remains `/dashboard` with fixed empty CTA |
-| Fold inversion (build hero, score to rail) | F7 / phase 04 | Open — founder/doctrine |
+| Fold inversion (build hero, score to rail) | F7 / phase 04 | **Closed** — `HOME_FOLD_INSTRUMENT = "build"`; DESIGN.md 3-second test amended |
+| Step ledger of completed Path moves | F9 / phase 06 | **Closed** — `PathStepLedger` on Home (suppressed over hard stops) |
 | Collapse `/plan` + `/results` | F8 / phase 07 | Open — founder/routing |
 
 This file stays the audit. It does not replace the product PR.
@@ -469,9 +470,9 @@ current dashboard treats as real.
 | 01 | Bug fixes, no design content: navigate on skip; read or drop `onboarding_completed`; delete unreachable replay; hide Snapshot below `lg`; un-swallow the `/assessment` redirect | F5, F10, F11 | None | **Partly landed in #252** — skip navigation and the `NEXT_REDIRECT` rethrow shipped (F5 limb 1, F11). Still open: `onboarding_completed` remains write-only, the unreachable replay is still in `onboarding/page.tsx`, and the Snapshot aside is still ungated (**F10 untouched**) |
 | 02 | Server-render the path into the existing `Promise.all`; surface hard stops; steps-completed in the rail | F2, F4, F7 (part) | None — additive | Landed in #252 |
 | 03 | Resume ramp for abandoned assessments; state-based post-login routing | F1 | Low | **Partly landed in #252** — the resume ramp shipped. Still open: state-based post-login routing (`lib/auth/safeNext.ts:7` still hard-defaults every sign-in to `/dashboard`) |
-| 04 | Invert the fold — build hero, score to rail. **Edits DESIGN.md's 3-second test in the same commit** | F7 | **PILOT required** | Open |
+| 04 | Invert the fold — build hero, score to rail. **Edits DESIGN.md's 3-second test in the same commit** | F7 | **PILOT required** | **Landed** — HomeFold `data-home-build-hero` + score rail; DESIGN.md / ARCHITECTURE-DESIGN.md hierarchy text updated |
 | 05 | One server-rendered Companion line on the build | F6 | Low | **Landed** — `data-companion-fold-line` on HomeFold |
-| 06 | The ledger — completed steps with impact | F9 | None | Open |
+| 06 | The ledger — completed steps with impact | F9 | None | **Landed** — `PathStepLedger` (titles of done steps; suppressed over hard stops) |
 | 07 | Collapse `/plan` and `/results` into the Build; re-point nav catalog + parity test | F8 | Medium — routing | Open |
 
 Phases 00–03 contain **no design decisions at all**. They close both critical findings

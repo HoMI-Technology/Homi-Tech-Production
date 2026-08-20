@@ -72,13 +72,28 @@ export function companionFoldLine(args: {
 }
 
 /**
- * First-viewport instrument on signed-in Home. Hero is the honest 0–100
- * HōMI Score. Compass is the three-ring brand mark — it always draws
- * Financial / Emotional / Timing, which invents an empty third ring when
- * Emotional Truth was skipped, and it glows cheerfully next to
- * DO NOT PROCEED. Keep one. Not both.
+ * First-viewport instrument on signed-in Home. The build (Path next move)
+ * leads; the HōMI-Score is a compact reading on the score rail. Compass is
+ * the three-ring brand mark — keep it off this fold so we never invent an
+ * empty Emotional Truth ring or glow cheerfully next to DO NOT PROCEED.
  */
-export const HOME_FOLD_INSTRUMENT = "hero" as const;
+export const HOME_FOLD_INSTRUMENT = "build" as const;
+
+/** Count actionable Path steps from a stored path payload (server or local). */
+export function pathStepCounts(steps: unknown): { done: number; total: number } {
+  if (!Array.isArray(steps)) return { done: 0, total: 0 };
+  let done = 0;
+  let total = 0;
+  for (const step of steps) {
+    if (!step || typeof step !== "object") continue;
+    const reason = (step as { reasonCode?: unknown }).reasonCode;
+    if (reason === "REASSESS") continue;
+    total += 1;
+    const status = (step as { status?: unknown }).status ?? "pending";
+    if (status !== "pending") done += 1;
+  }
+  return { done, total };
+}
 
 export type HomeFoldPillar = "financial" | "emotional" | "timing";
 

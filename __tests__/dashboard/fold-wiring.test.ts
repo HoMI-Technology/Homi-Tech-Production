@@ -88,10 +88,13 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(page).not.toMatch(/>\s*Almost\s*</);
   });
 
-  it("keeps one fold instrument and does not dual-mount compass + hero", () => {
+  it("keeps one fold instrument and does not dual-mount compass + giant hero", () => {
     expect(page).toContain("HomeFold");
     expect(fold).toContain("HOME_FOLD_INSTRUMENT");
-    expect(fold).toContain("HeroScore");
+    expect(fold).toContain("data-home-build-hero");
+    expect(fold).toContain("data-home-score-rail");
+    expect(fold).toContain("PathStepLedger");
+    expect(fold).not.toContain("HeroScore");
     expect(fold).not.toContain("ThresholdCompass");
     expect(page).not.toContain("ThresholdCompass");
     expect(page).not.toContain("HeroScore");

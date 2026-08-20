@@ -11,6 +11,7 @@ import { HomeFold } from "@/components/dashboard/HomeFold";
 import {
   hardStopMessages,
   homeFoldSentence,
+  pathStepCounts,
   shouldSuppressBuildPercent,
   weakestMeasuredPillar,
 } from "@/lib/dashboard/fold-truth";
@@ -19,7 +20,7 @@ import type { AssessmentRow, OutcomeSurvey } from "@/types/database";
 
 export const metadata: Metadata = {
   title: "Dashboard | HōMI",
-  description: "Your HōMI Score, verdict, and next Path step.",
+  description: "Your Path to Ready next move, HōMI-Score reading, and Companion line.",
 };
 
 function daysSince(dateStr: string | null): number | null {
@@ -72,6 +73,7 @@ export default async function DashboardPage() {
   const pathPayload =
     pathR.error || !pathR.data ? null : (pathR.data as { path?: { steps?: unknown } }).path;
   const pathSteps = Array.isArray(pathPayload?.steps) ? pathPayload.steps : [];
+  const { done: pathDone, total: pathTotal } = pathStepCounts(pathSteps);
   const dueSurvey: OutcomeSurvey | null = surveysR.data?.[0] ?? null;
   const verdict = (latest?.verdict as VerdictKey | null) ?? null;
   const improved = verdictImproved(latest?.verdict ?? null, previousAssessment?.verdict ?? null);
@@ -126,6 +128,8 @@ export default async function DashboardPage() {
           dueSurvey={dueSurvey ? { id: dueSurvey.id, kind: dueSurvey.kind } : null}
           staleDays={daysSince(latest?.completed_at ?? latest?.created_at ?? null)}
           hasPath={pathSteps.length > 0}
+          pathDone={pathDone}
+          pathTotal={pathTotal}
         />
       </div>
     </PageFrame>

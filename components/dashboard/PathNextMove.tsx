@@ -30,7 +30,7 @@ import {
  * step, and supports one-click Mark done — so NOT_YET users form a path habit
  * without hunting for /results.
  */
-export function PathNextMove() {
+export function PathNextMove({ variant = "default" }: { variant?: "default" | "fold" }) {
   const [path, setPath] = useState<ReadinessPath | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
@@ -128,9 +128,10 @@ export function PathNextMove() {
   if (path.mode === "ready_optional") {
     return (
       <div
-        className="mt-5 rounded-xl border border-emerald/30 px-4 py-3 sm:px-5"
+        className={`${variant === "fold" ? "mt-4" : "mt-5"} rounded-xl border border-emerald/30 px-4 py-3 sm:px-5`}
         style={{ background: withAlpha(COLORS.emerald, 0.08) }}
         role="status"
+        data-path-fold-hero={variant === "fold" ? "" : undefined}
       >
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm font-medium text-emerald">Last path: READY — optional review</p>
@@ -153,7 +154,12 @@ export function PathNextMove() {
   const firstPending = stage === "path_pending_first";
 
   return (
-    <div className="mt-5" data-path-habit-stage={stage} aria-label="Path to Ready next move">
+    <div
+      className={variant === "fold" ? "mt-4" : "mt-5"}
+      data-path-habit-stage={stage}
+      data-path-fold-hero={variant === "fold" ? "" : undefined}
+      aria-label="Path to Ready next move"
+    >
       <div className="dash-action-dock" style={{ ["--instrument-tint" as string]: COLORS.cyan }}>
         <div className="min-w-0">
           <p className="dash-action-dock-label">

@@ -7,6 +7,7 @@ import {
   hardStopMessages,
   homeFoldSentence,
   isNextRedirectError,
+  pathStepCounts,
   resumeDraftCopy,
   shouldPaintDashSpectrum,
   shouldSuppressBuildPercent,
@@ -124,8 +125,25 @@ describe("onboarding skip destination", () => {
 });
 
 describe("HOME_FOLD_INSTRUMENT", () => {
-  it("keeps the hero numeral — not the three-ring compass", () => {
-    expect(HOME_FOLD_INSTRUMENT).toBe("hero");
+  it("keeps the build (Path) as the fold instrument — score is the rail", () => {
+    expect(HOME_FOLD_INSTRUMENT).toBe("build");
+  });
+});
+
+describe("pathStepCounts", () => {
+  it("counts actionable steps and ignores REASSESS rows", () => {
+    expect(
+      pathStepCounts([
+        { reasonCode: "DTI", status: "done" },
+        { reasonCode: "RUNWAY", status: "pending" },
+        { reasonCode: "REASSESS", status: "pending" },
+      ]),
+    ).toEqual({ done: 1, total: 2 });
+  });
+
+  it("returns zeros for missing payloads", () => {
+    expect(pathStepCounts(null)).toEqual({ done: 0, total: 0 });
+    expect(pathStepCounts([])).toEqual({ done: 0, total: 0 });
   });
 });
 

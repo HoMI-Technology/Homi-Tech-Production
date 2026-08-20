@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
-import { HOME_FOLD_INSTRUMENT, companionFoldLine } from "@/lib/dashboard/fold-truth";
+import {
+  HOME_FOLD_INSTRUMENT,
+  buildProgressLabel,
+  companionFoldLine,
+} from "@/lib/dashboard/fold-truth";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
-import { HeroScore } from "@/components/dashboard/HeroScore";
 import { LoadErrorPanel } from "@/components/dashboard/LoadErrorPanel";
 import { VerdictCelebrate } from "@/components/dashboard/VerdictCelebrate";
 import { PathNextMove } from "@/components/dashboard/PathNextMove";
+import { PathStepLedger } from "@/components/dashboard/PathStepLedger";
 import { DashboardResumeRamp } from "@/components/dashboard/DashboardResumeRamp";
 import { OutcomeSurveyPrompt } from "@/components/dashboard/OutcomeSurveyPrompt";
 import type { OutcomeSurveyKind } from "@/types/database";
@@ -21,9 +25,9 @@ export type HomeFoldSurvey = {
 };
 
 /**
- * First viewport of signed-in Home. One instrument (hero), the verdict,
- * one honest sentence, Path next step + See results. No compass, no
- * second chrome, no money ledger.
+ * First viewport of signed-in Home — Direction C (build leads).
+ * Path next move is the fold instrument; HōMI-Score is a compact rail
+ * reading. No compass, no second chrome, no money ledger on Home.
  */
 export function HomeFold({
   assessmentsFailed,
@@ -37,6 +41,8 @@ export function HomeFold({
   dueSurvey,
   staleDays,
   hasPath,
+  pathDone,
+  pathTotal,
 }: {
   assessmentsFailed: boolean;
   latest: HomeFoldLatest | null;
@@ -49,6 +55,8 @@ export function HomeFold({
   dueSurvey: HomeFoldSurvey | null;
   staleDays: number | null;
   hasPath: boolean;
+  pathDone: number;
+  pathTotal: number;
 }) {
   const verdictMeta = VERDICT_META[verdict ?? "BUILD_FIRST"];
   const scorePct =
@@ -58,6 +66,11 @@ export function HomeFold({
     hasHardStops: hardStopActive,
     hasPath,
     hasAssessment: latest !== null,
+  });
+  const progressLabel = buildProgressLabel({
+    done: pathDone,
+    total: pathTotal,
+    hardStopCount: stopMessages.length,
   });
 
   return (
@@ -99,28 +112,21 @@ export function HomeFold({
             </div>
           )}
 
-          <p className="text-3xs font-bold uppercase tracking-[0.16em] text-dim">
-            HōMI-Score
-          </p>
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <p className="text-3xs font-bold uppercase tracking-[0.16em] text-dim">
+              Your build
+            </p>
+            {progressLabel ? (
+              <p
+                className="score-numeral text-sm text-light/80"
+                data-home-build-progress=""
+              >
+                {progressLabel}
+              </p>
+            ) : null}
+          </div>
 
-          {scorePct != null && (
-            <div className="mt-1.5" data-home-hero="">
-              <HeroScore
-                value={scorePct}
-                color={hardStopActive ? COLORS.crimson : instrumentTint}
-              />
-            </div>
-          )}
-
-          {verdict && (
-            <div className="mt-3" data-home-verdict="">
-              <Link href="/results" aria-label="See results">
-                <VerdictBadge verdict={verdict} size="lg" />
-              </Link>
-            </div>
-          )}
-
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-light/90">
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-light/90">
             {foldSentence}
           </p>
 
@@ -131,7 +137,11 @@ export function HomeFold({
             </p>
           )}
 
-          <PathNextMove />
+          <div data-home-build-hero="">
+            <PathNextMove variant="fold" />
+          </div>
+
+          <PathStepLedger suppress={hardStopActive || suppressBuildPercent} />
 
           <p
             className="mt-4 max-w-xl text-sm leading-relaxed text-dim"
@@ -141,13 +151,32 @@ export function HomeFold({
             {companionLine}
           </p>
 
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            <Link href="/results" className="btn btn-ghost">
-              See results
-            </Link>
-            <Link href="/money" className="btn btn-ghost">
-              Money picture
-            </Link>
+          <div
+            className="mt-5 flex flex-wrap items-center gap-3 border-t border-white/5 pt-4"
+            data-home-score-rail=""
+          >
+            {scorePct != null && (
+              <p
+                className="score-numeral text-3xl font-semibold tabular-nums sm:text-4xl"
+                style={{ color: hardStopActive ? COLORS.crimson : instrumentTint }}
+                aria-label={`Overall HōMI-Score ${scorePct} out of 100`}
+              >
+                {scorePct}
+              </p>
+            )}
+            {verdict && (
+              <Link href="/results" aria-label="See results" data-home-verdict="">
+                <VerdictBadge verdict={verdict} size="md" />
+              </Link>
+            )}
+            <div className="flex flex-wrap items-center gap-3 sm:ml-auto">
+              <Link href="/results" className="btn btn-ghost">
+                See results
+              </Link>
+              <Link href="/money" className="btn btn-ghost">
+                Money picture
+              </Link>
+            </div>
           </div>
 
           {dueSurvey && (
