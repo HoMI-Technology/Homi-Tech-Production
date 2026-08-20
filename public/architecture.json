@@ -1267,14 +1267,12 @@
     },
     {
       "name": "results",
-      "count": 7,
+      "count": 3,
       "description": "results UI module",
       "examples": [
-        "DataQualityChip.test",
-        "DataQualityChip",
         "ProvenanceLine",
-        "ReasoningTrail",
-        "SaveStatusBanner.test"
+        "SaveStatusBanner.test",
+        "SaveStatusBanner"
       ]
     },
     {
@@ -1299,11 +1297,10 @@
     },
     {
       "name": "share",
-      "count": 3,
+      "count": 2,
       "description": "share UI module",
       "examples": [
         "ShareScoreButton",
-        "ShareShadowButton",
         "ShareViewPing"
       ]
     },

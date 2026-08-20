@@ -392,7 +392,7 @@ function categorizePath(path: string): string {
     return "AI Companion";
   }
   if (
-    ["/assessment", "/results", "/shadow-score", "/plan", "/report"].some(
+    ["/assessment", "/shadow-score", "/plan", "/report"].some(
       (p) => path === p || path.startsWith(`${p}/`),
     )
   ) {
