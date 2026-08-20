@@ -94,7 +94,7 @@ prioritisation hypothesis rather than a measurement — which is itself finding 
 | Check | Result |
 | --- | --- |
 | `/dashboard` as a guest → `/auth/sign-in?next=%2Fdashboard` | CONFIRMED |
-| `/results` as a guest → "No results yet", no 4-band verdict painted | CONFIRMED |
+| `/results` as a guest → middleware → `/first-moment` (route deleted F8) | CONFIRMED (code) |
 | Onboarding "Skip for now" performs no navigation | **CONFIRMED — F5 upgraded to observed** |
 | Guests cannot reach the full assessment (rev 2's retraction) | CONFIRMED — but via a broken mechanism, see **F11** |
 

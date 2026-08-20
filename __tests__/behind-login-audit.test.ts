@@ -65,6 +65,7 @@ describe("retake CTAs land on the flow that can re-score", () => {
     expect(plan).toContain("Continue on Home");
     expect(plan).toContain('href="/path"');
     expect(plan).not.toContain('"/shadow-score"');
+    expect(plan).not.toContain("Take the full assessment");
     expect(plan).not.toContain("Your transformation path");
     // Read-only checklist — no local progress store competing with Path.
     expect(plan).not.toContain("homi:plan-progress");

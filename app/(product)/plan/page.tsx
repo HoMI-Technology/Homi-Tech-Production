@@ -233,7 +233,7 @@ export default function PlanPage() {
             score. The 90-second shadow read cannot — it is a first-run
             pulse, not a re-test. */}
         <Link href="/assessment" className="btn btn-ghost">
-          {effective.kind === "shadow" ? "Take the full assessment" : "Re-take the assessment"}
+          {effective.kind === "shadow" ? "Assess" : "Re-take the assessment"}
         </Link>
       </div>
     </div>
