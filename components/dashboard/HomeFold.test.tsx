@@ -100,6 +100,9 @@ describe("HomeFold", () => {
     expect(screen.queryByRole("link", { name: /last verdict/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /^see results$/i })).not.toBeInTheDocument();
     expect(container.querySelector("[data-home-money-standing]")).not.toBeNull();
+    // Money strip CTAs stay secondary — never btn-primary on the fold.
+    const money = container.querySelector("[data-home-money-standing]");
+    expect(money?.querySelectorAll(".btn-primary")).toHaveLength(0);
     expect(screen.queryByRole("link", { name: /money picture/i })).not.toBeInTheDocument();
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeNull();
     expect(screen.queryByText("76")).not.toBeInTheDocument();
@@ -143,15 +146,21 @@ describe("HomeFold", () => {
     const fold = container.querySelector("[data-home-fold]");
     const banner = container.querySelector("[data-home-hard-stop]");
     const build = container.querySelector("[data-home-build-hero]");
+    const scoreRail = container.querySelector("[data-home-score-rail]");
     expect(fold?.getAttribute("data-hard-stop")).toBe("1");
     expect(banner).not.toBeNull();
     expect(screen.getByRole("alert")).toHaveTextContent("DTI is above 50%.");
     expect(screen.getByText("DO NOT PROCEED")).toBeInTheDocument();
     expect(container.querySelector("[data-home-build-progress]")).toBeNull();
-    if (!banner || !build) {
-      throw new Error("expected hard-stop banner and build hero");
+    expect(build).not.toBeNull();
+    expect(scoreRail).not.toBeNull();
+    if (!banner || !build || !scoreRail) {
+      throw new Error("expected hard-stop banner, build hero, and score rail");
     }
     expect(banner.compareDocumentPosition(build) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(build.compareDocumentPosition(scoreRail) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeNull();

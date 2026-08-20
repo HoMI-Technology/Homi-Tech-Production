@@ -121,7 +121,8 @@ export function HomeMoneyStanding() {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <Link href={view.primaryHref} className="btn btn-primary btn-sm">
+        {/* Ghost + sm only — Path fold owns the single viewport primary. */}
+        <Link href={view.primaryHref} className="btn btn-ghost btn-sm">
           {view.primaryLabel}
         </Link>
         <Link href={view.secondaryHref} className="btn btn-ghost btn-sm">
