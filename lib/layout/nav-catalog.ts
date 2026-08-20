@@ -140,11 +140,13 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
   {
     href: "/plan",
     // Not "Plan" — Money · Plan (/money/plan) and Track's Plan tab own that word.
+    // Palette-only: Path to Ready is the living Build; this checklist stays
+    // reachable via ⌘K without competing in the rail (post-login audit §F8).
     label: "Readiness plan",
     paletteLabel: "Readiness plan",
     group: "Navigate",
-    keywords: "next steps path readiness plan",
-    surfaces: { header: "more", palette: true },
+    keywords: "next steps path readiness plan checklist",
+    surfaces: { palette: true },
   },
   // Launch-hidden lab surface - route still exists; chrome off until verified.
   {

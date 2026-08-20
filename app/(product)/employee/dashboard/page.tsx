@@ -9,7 +9,6 @@ import { MetricRail } from "@/components/operate/MetricRail";
 import { ActionDock } from "@/components/operate/ActionDock";
 import { OperateHeroMeta } from "@/components/operate/OperateHeroMeta";
 import { OperateInstrument } from "@/components/operate/OperateInstrument";
-import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { HeroScore } from "@/components/dashboard/HeroScore";
 import { canAccessEmployeeHub } from "@/lib/dashboard/employee-access";
 import { signInRedirect } from "@/lib/auth/signInRedirect";
@@ -115,31 +114,26 @@ export default async function EmployeeDashboardPage() {
 
         {latest && verdictMeta ? (
           <>
-            <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,160px)_1fr] lg:gap-10">
-              <div className="flex justify-center lg:justify-start">
-                <ThresholdCompass size={148} verdict={verdict ?? undefined} />
+            <div className="min-w-0 text-center lg:text-left" data-employee-score-rail="">
+              <p className="text-3xs font-bold uppercase tracking-[0.16em] text-dim">
+                Private HōMI-Score
+              </p>
+              <div className="mt-1.5 flex flex-wrap items-end justify-center gap-3 lg:justify-start">
+                <HeroScore value={scorePct ?? 0} color={tint} />
+                {verdict && (
+                  <div className="mb-1.5">
+                    <VerdictBadge verdict={verdict} size="lg" />
+                  </div>
+                )}
               </div>
-              <div className="min-w-0 text-center lg:text-left">
-                <p className="text-3xs font-bold uppercase tracking-[0.16em] text-dim">
-                  Private HōMI-Score
-                </p>
-                <div className="mt-1.5 flex flex-wrap items-end justify-center gap-3 lg:justify-start">
-                  <HeroScore value={scorePct ?? 0} color={tint} />
-                  {verdict && (
-                    <div className="mb-1.5">
-                      <VerdictBadge verdict={verdict} size="lg" />
-                    </div>
-                  )}
-                </div>
-                <p className="mt-2.5 max-w-xl text-sm text-light/90">{verdictMeta.line}</p>
-              </div>
+              <p className="mt-2.5 max-w-xl text-sm text-light/90">{verdictMeta.line}</p>
             </div>
-            <ActionDock kicker="Next move" title="Open your full personal home">
+            <ActionDock kicker="Next move" title="Continue your build on personal Home">
               <Link href="/dashboard" className="btn btn-primary">
                 Personal dashboard
               </Link>
-              <Link href="/advisor" className="btn btn-ghost">
-                Companion
+              <Link href="/path" className="btn btn-ghost">
+                Path to Ready
               </Link>
             </ActionDock>
           </>

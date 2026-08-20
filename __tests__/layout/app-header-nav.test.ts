@@ -25,17 +25,17 @@ describe("AppHeader nav config", () => {
       "/household",
       "/tools/preflight",
       "/scenarios",
-      "/plan",
       "/journal",
       "/connections",
     ]) {
       expect(hrefs).toContain(href);
     }
+    // Readiness plan checklist is palette-only — Path owns the living Build.
+    expect(hrefs).not.toContain("/plan");
     // Money modes live under primary Money + MoneyModeNav — not More peers.
     for (const href of ["/money/budget", "/money/decide", "/money/plan"]) {
       expect(hrefs).not.toContain(href);
     }
-    expect(APP_MORE_NAV.find((i) => i.href === "/plan")?.label).toBe("Readiness plan");
     expect(APP_MORE_NAV.map((i) => i.href)).not.toContain("/advisor");
     // Incomplete lab surfaces stay off chrome for launch (routes still exist).
     for (const href of [

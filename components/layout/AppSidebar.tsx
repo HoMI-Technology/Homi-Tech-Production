@@ -68,7 +68,7 @@ import { visibleDashboards } from "@/lib/dashboard/switcher-visibility";
  */
 const JOURNEY_ORDER: readonly { label: string; hrefs: readonly string[] }[] = [
   { label: "Measure", hrefs: ["/dashboard", "/assessment", "/results"] },
-  { label: "Understand", hrefs: ["/path", "/plan", "/scenarios", "/tools/preflight"] },
+  { label: "Understand", hrefs: ["/path", "/scenarios", "/tools/preflight"] },
   // /agents is header-primary whenever the Agent OS flag is on; it belongs to
   // the acting half of the journey, next to Money and the household surfaces.
   { label: "Act", hrefs: ["/money", "/agents", "/household", "/connections"] },

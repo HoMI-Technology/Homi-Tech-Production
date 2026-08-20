@@ -16,6 +16,7 @@ import { usePhase0Freeze } from "@/hooks/usePhase0Freeze";
 import {
   PRIMARY_CLOSE_HREF,
   PRIMARY_CLOSE_LABEL,
+  SIGNED_IN_ASSESS_HREF,
 } from "@/components/marketing/first-moment-copy";
 
 const PLAN_PROGRESS_KEY = "homi:plan-progress";
@@ -175,9 +176,17 @@ export default function PlanPage() {
             Take an assessment first — your plan is built from your real answers.
           </p>
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <Link href={PRIMARY_CLOSE_HREF} className="btn btn-primary">
+            <Link
+              href={isAnonymous ? PRIMARY_CLOSE_HREF : SIGNED_IN_ASSESS_HREF}
+              className="btn btn-primary"
+            >
               {PRIMARY_CLOSE_LABEL}
             </Link>
+            {!isAnonymous ? (
+              <Link href="/path" className="btn btn-ghost">
+                Path to Ready
+              </Link>
+            ) : null}
           </div>
         </div>
       </div>
