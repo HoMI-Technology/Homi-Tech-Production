@@ -12,7 +12,8 @@ import { COLORS, withAlpha } from "@/lib/brand";
  * reads as a gyroscope you could reach into. Behind it, volumetric
  * breathing halos give the light physical air. Canonical in-plane ring
  * rotation is untouched; the 3D tilt is a camera move, not a redesign.
- * Reduced motion: static, flat, fully meaningful.
+ * With `scrollRecede`, the whole instrument settles gently back in depth
+ * as the hero scrolls away. Reduced motion: static, flat, fully meaningful.
  */
 export function Compass3D({
   size = 400,
@@ -20,6 +21,7 @@ export function Compass3D({
   verdict,
   keyholePulse = true,
   maxTilt = 9,
+  scrollRecede = false,
   className = "",
   children,
 }: {
@@ -28,40 +30,63 @@ export function Compass3D({
   verdict?: "READY" | "ALMOST_THERE" | "BUILD_FIRST" | "NOT_YET";
   keyholePulse?: boolean;
   maxTilt?: number;
+  scrollRecede?: boolean;
   className?: string;
   children?: ReactNode;
 }) {
   const ringsRef = useRef<HTMLDivElement>(null);
   const keyholeRef = useRef<HTMLDivElement>(null);
+  // Latest tilt angles and scroll-recede progress, composed in apply().
+  const poseRef = useRef({ rx: 0, ry: 0, p: 0 });
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (window.matchMedia("(pointer: coarse)").matches) return;
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    if (coarse && !scrollRecede) return;
 
     let raf = 0;
-    const onMove = (e: PointerEvent) => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const nx = e.clientX / window.innerWidth - 0.5; // -0.5..0.5
-        const ny = e.clientY / window.innerHeight - 0.5;
-        const ry = nx * maxTilt * 2;
-        const rx = -ny * maxTilt * 2;
-        if (ringsRef.current) {
-          ringsRef.current.style.transform = `rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) translateZ(0px)`;
-        }
-        if (keyholeRef.current) {
-          // The keyhole sits deeper in the scene — it tilts less and
-          // counter-drifts slightly, creating real parallax depth.
-          keyholeRef.current.style.transform = `rotateX(${(rx * 0.55).toFixed(2)}deg) rotateY(${(ry * 0.55).toFixed(2)}deg) translateZ(28px)`;
-        }
-      });
+    const apply = () => {
+      const { rx, ry, p } = poseRef.current;
+      if (ringsRef.current) {
+        // Recede: the ring system settles back and shrinks a touch as the
+        // hero scrolls away — depth, not a spin.
+        ringsRef.current.style.transform = `rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) scale(${(1 - p * 0.05).toFixed(4)}) translateZ(0px)`;
+      }
+      if (keyholeRef.current) {
+        // The keyhole sits deeper in the scene — it tilts less, and on
+        // scroll it sinks further back, widening the gap between layers.
+        keyholeRef.current.style.transform = `rotateX(${(rx * 0.55).toFixed(2)}deg) rotateY(${(ry * 0.55).toFixed(2)}deg) translateZ(${(28 + p * 36).toFixed(1)}px) translateY(${(-p * 8).toFixed(1)}px)`;
+      }
     };
-    window.addEventListener("pointermove", onMove, { passive: true });
+    const schedule = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(apply);
+    };
+
+    const onMove = (e: PointerEvent) => {
+      const nx = e.clientX / window.innerWidth - 0.5; // -0.5..0.5
+      const ny = e.clientY / window.innerHeight - 0.5;
+      poseRef.current.ry = nx * maxTilt * 2;
+      poseRef.current.rx = -ny * maxTilt * 2;
+      schedule();
+    };
+    const onScroll = () => {
+      // 0 at hero top, 1 once the first viewport has scrolled away.
+      poseRef.current.p = Math.min(1, Math.max(0, window.scrollY / (window.innerHeight * 0.9)));
+      schedule();
+    };
+
+    if (!coarse) window.addEventListener("pointermove", onMove, { passive: true });
+    if (scrollRecede) {
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+    }
     return () => {
       window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(raf);
     };
-  }, [maxTilt]);
+  }, [maxTilt, scrollRecede]);
 
   return (
     <div

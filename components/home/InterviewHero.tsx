@@ -19,10 +19,18 @@ function handleCtaClick(): void {
  * Question paints at opacity 1. Inversion is on this screen.
  * One Assess sits under the type. Brand compass owns the right
  * field at hero scale — glow, depth, material — and never unmounts.
+ * A far-field conic sheen sits behind the instrument, and the compass
+ * recedes in depth as the hero scrolls away.
  */
 export function InterviewHero() {
   return (
     <section className="hero-field relative isolate min-h-[calc(100dvh-var(--nav-offset))] overflow-hidden bg-navy px-5 sm:px-6 lg:px-8">
+      {/* Far-field sheen — a conic shimmer behind the instrument that gives
+          the scene air. Static layer: depth comes from the scroll recede. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -inset-[30%] z-0 [background:conic-gradient(from_210deg_at_68%_42%,transparent_0deg,rgb(34_211_238_/_0.05)_38deg,transparent_92deg,rgb(52_211_153_/_0.04)_196deg,transparent_258deg,rgb(250_204_21_/_0.03)_312deg,transparent_360deg)]"
+      />
       <div
         className="pointer-events-none absolute z-0 flex aspect-square w-[min(56vmin,18rem)] items-center justify-center bottom-[max(1.5rem,4vh)] left-1/2 -translate-x-1/2 md:bottom-auto md:left-auto md:right-[max(-1.5rem,-2vw)] md:top-1/2 md:w-[min(68vmin,38rem)] md:-translate-y-1/2 md:translate-x-0"
         data-walk-compass=""
@@ -30,7 +38,7 @@ export function InterviewHero() {
         data-hero-compass=""
         aria-hidden
       >
-        <Compass3D size={0} className="h-full w-full" keyholePulse={false} />
+        <Compass3D size={0} className="h-full w-full" keyholePulse={false} scrollRecede />
       </div>
 
       <div className="relative z-10 mx-auto flex min-h-[calc(100dvh-var(--nav-offset))] w-full max-w-7xl flex-col items-start justify-center pb-[min(20rem,42vh)] md:pb-16">
