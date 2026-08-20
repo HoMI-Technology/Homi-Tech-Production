@@ -20,29 +20,8 @@ import {
 } from "@/components/marketing/first-moment-copy";
 import { SURFACE_ROLES } from "@/lib/dashboard/surface-roles";
 
-const PLAN_PROGRESS_KEY = "homi:plan-progress";
-
 // Surface role SSOT — checklist deep-link; Path owns the Build in chrome.
 void SURFACE_ROLES.plan;
-
-function loadProgress(): Record<string, boolean> {
-  if (typeof window === "undefined") return {};
-  try {
-    const raw = window.localStorage.getItem(PLAN_PROGRESS_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
-}
-
-function saveProgress(progress: Record<string, boolean>) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(PLAN_PROGRESS_KEY, JSON.stringify(progress));
-  } catch {
-    // Ignore.
-  }
-}
 
 function pillarPct(key: "financial" | "emotional" | "timing", stored: StoredAssessment): number {
   const total =
@@ -56,7 +35,7 @@ function pillarPct(key: "financial" | "emotional" | "timing", stored: StoredAsse
 
 /**
  * Checklist deep-link derived from the latest result.
- * Path owns the living Build in chrome — see SURFACE_ROLES.plan.
+ * Read-only — Path owns living step completion. See SURFACE_ROLES.plan.
  */
 export default function PlanPage() {
   const freeze = usePhase0Freeze();
@@ -64,11 +43,9 @@ export default function PlanPage() {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [remote, setRemote] = useState<StoredAssessment | null>(null);
   const [remoteChecked, setRemoteChecked] = useState(false);
-  const [progress, setProgress] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     setStored(loadLocalResult());
-    setProgress(loadProgress());
   }, []);
 
   useEffect(() => {
@@ -129,14 +106,6 @@ export default function PlanPage() {
     return base;
   }, [effective]);
 
-  function toggleStep(id: string) {
-    setProgress((prev) => {
-      const next = { ...prev, [id]: !prev[id] };
-      saveProgress(next);
-      return next;
-    });
-  }
-
   if (freeze.status === "pending") {
     return (
       <div className="mx-auto max-w-2xl px-4 py-24">
@@ -193,8 +162,6 @@ export default function PlanPage() {
     );
   }
 
-  const doneCount = steps.filter((_, i) => progress[String(i)]).length;
-
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:py-16">
       <div className="text-center">
@@ -203,8 +170,8 @@ export default function PlanPage() {
           Readiness checklist
         </h1>
         <p className="mx-auto mt-3 max-w-lg text-sm text-dim">
-          Path to Ready owns the living Build. This page is the step checklist from your last
-          verdict — not a second home.
+          Path to Ready owns the living Build. This page is a read-only checklist from your last
+          verdict — mark steps done on Path, not here.
         </p>
         {weakestPillar && (
           <p className="mx-auto mt-4 max-w-lg text-base text-dim">
@@ -218,9 +185,9 @@ export default function PlanPage() {
 
       <div className="glass mt-10 flex items-center justify-between gap-4 p-6">
         <div>
-          <p className="text-sm text-dim">Progress</p>
+          <p className="text-sm text-dim">From your last verdict</p>
           <p className="score-numeral mt-1 text-2xl font-bold text-light">
-            {doneCount}/{steps.length} steps
+            {steps.length} checklist {steps.length === 1 ? "item" : "items"}
           </p>
         </div>
         {retestDate && (
@@ -237,49 +204,21 @@ export default function PlanPage() {
         )}
       </div>
 
-      <div className="mt-8 flex flex-col gap-4">
-        {steps.map((step, i) => {
-          const id = String(i);
-          const checked = !!progress[id];
-          return (
-            <button
-              key={id}
-              type="button"
-              onClick={() => toggleStep(id)}
-              className="glass glass-hover flex w-full items-start gap-4 p-5 text-left"
-            >
-              <span
-                className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
-                  checked ? "border-emerald bg-emerald" : "border-slate-high"
-                }`}
-              >
-                {checked && (
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 14 14"
-                    fill="none"
-                    stroke="#04150e"
-                    strokeWidth="2.5"
-                  >
-                    <path d="M2.5 7l3 3 6-6" />
-                  </svg>
-                )}
+      <ol className="mt-8 flex flex-col gap-4">
+        {steps.map((step, i) => (
+          <li key={String(i)} className="glass flex w-full items-start gap-4 p-5">
+            <span className="score-numeral mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-slate-high text-xs font-bold text-cyan">
+              {i + 1}
+            </span>
+            <div className="flex flex-col">
+              <span className="text-xs font-semibold uppercase tracking-wide text-dim">
+                Milestone {i + 1}
               </span>
-              <div className="flex flex-col">
-                <span className="text-xs font-semibold uppercase tracking-wide text-dim">
-                  Milestone {i + 1}
-                </span>
-                <span
-                  className={`mt-1 text-base ${checked ? "text-dim line-through" : "text-light"}`}
-                >
-                  {step}
-                </span>
-              </div>
-            </button>
-          );
-        })}
-      </div>
+              <span className="mt-1 text-base text-light">{step}</span>
+            </div>
+          </li>
+        ))}
+      </ol>
 
       <div className="mt-12 flex flex-col items-center gap-4 border-t border-slate-surface/60 pt-10 sm:flex-row sm:justify-center">
         {!isAnonymous ? (

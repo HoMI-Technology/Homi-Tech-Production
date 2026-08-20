@@ -43,8 +43,8 @@ test.describe("signup → email confirm", () => {
       await page.locator("#password").fill(password);
       await page.getByRole("button", { name: "Create account" }).click();
 
-      // A successful signup routes into onboarding (even before confirmation).
-      await page.waitForURL("**/onboarding**", { timeout: 45_000 });
+      // A successful signup routes into Assess (first measurement).
+      await page.waitForURL("**/assessment**", { timeout: 45_000 });
 
       userId = await findUserIdByEmail(email);
       expect(userId, "the signed-up user should exist in Supabase auth").not.toBeNull();
