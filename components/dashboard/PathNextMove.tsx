@@ -141,7 +141,11 @@ export function PathNextMove({ variant = "default" }: { variant?: "default" | "f
             <p className="dash-action-dock-title">READY — optional review</p>
           </div>
           <div className="dash-action-dock-actions flex flex-wrap gap-2.5">
-            <Link href="/path" className="btn btn-primary">
+            <Link
+              href="/path"
+              className="btn btn-primary"
+              data-path-fold-primary={variant === "fold" ? "" : undefined}
+            >
               Review Path
             </Link>
           </div>
@@ -189,25 +193,51 @@ export function PathNextMove({ variant = "default" }: { variant?: "default" | "f
         </div>
         <div className="dash-action-dock-actions flex flex-wrap gap-2.5">
           {nextStep && stage !== "path_complete" ? (
-            <>
-              <button type="button" className="btn btn-primary" onClick={handleMarkDone}>
-                Mark done
-              </button>
-              <Link
-                href={nextStep.href}
-                className="btn btn-ghost"
-                onClick={() =>
-                  trackPathStartStepClicked({
-                    surface: "dashboard",
-                    reasonCode: nextStep.reasonCode,
-                  })
-                }
-              >
-                Start step
-              </Link>
-            </>
+            variant === "fold" ? (
+              <>
+                {/* Fold: one primary — starting the step is the honest next physical move. */}
+                <Link
+                  href={nextStep.href}
+                  className="btn btn-primary"
+                  data-path-fold-primary=""
+                  onClick={() =>
+                    trackPathStartStepClicked({
+                      surface: "dashboard",
+                      reasonCode: nextStep.reasonCode,
+                    })
+                  }
+                >
+                  Start step
+                </Link>
+                <button type="button" className="btn btn-ghost" onClick={handleMarkDone}>
+                  Mark done
+                </button>
+              </>
+            ) : (
+              <>
+                <button type="button" className="btn btn-primary" onClick={handleMarkDone}>
+                  Mark done
+                </button>
+                <Link
+                  href={nextStep.href}
+                  className="btn btn-ghost"
+                  onClick={() =>
+                    trackPathStartStepClicked({
+                      surface: "dashboard",
+                      reasonCode: nextStep.reasonCode,
+                    })
+                  }
+                >
+                  Start step
+                </Link>
+              </>
+            )
           ) : (
-            <Link href="/assessment" className="btn btn-primary">
+            <Link
+              href="/assessment"
+              className="btn btn-primary"
+              data-path-fold-primary={variant === "fold" ? "" : undefined}
+            >
               Reassess
             </Link>
           )}

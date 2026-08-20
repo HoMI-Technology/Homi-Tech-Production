@@ -108,6 +108,29 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(fold).not.toContain("OperateInstrument");
   });
 
+  it("Path fold hero prefers Start step as the single primary CTA", () => {
+    const pathNext = src("components", "dashboard", "PathNextMove.tsx");
+    expect(pathNext).toContain('data-path-fold-primary=""');
+    // Locate the fold CTA branch by its primary marker attribute.
+    const marker = pathNext.indexOf('data-path-fold-primary=""');
+    expect(marker).toBeGreaterThan(-1);
+    const window = pathNext.slice(Math.max(0, marker - 160), marker + 420);
+    expect(window).toContain("btn-primary");
+    expect(window).toContain("Start step");
+    // Mark done on the fold is ghost, not primary.
+    const markDoneFold = pathNext.indexOf("Mark done", marker);
+    expect(markDoneFold).toBeGreaterThan(marker);
+    const between = pathNext.slice(marker, markDoneFold);
+    expect(between).toContain("btn-ghost");
+    expect(between).not.toContain("btn-primary");
+  });
+
+  it("Home money strip CTAs stay secondary to the Path primary", () => {
+    const money = src("components", "dashboard", "HomeMoneyStanding.tsx");
+    expect(money).toContain("btn-ghost btn-sm");
+    expect(money).not.toMatch(/btn-primary btn-sm/);
+  });
+
   it("does not mount the kitchen-sink body on Home", () => {
     for (const banned of [
       "QuickActionGrid",
