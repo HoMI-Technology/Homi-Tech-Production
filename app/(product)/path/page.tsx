@@ -594,14 +594,14 @@ export default function PathPage() {
                   Record savings floor (if cash is real)
                 </button>
               )}
-              <Link href="/finance" className="btn btn-ghost btn-sm">
-                Open finance
+              <Link href="/money" className="btn btn-ghost btn-sm">
+                Open Money
               </Link>
             </div>
           ) : (
             <p className="mt-3 text-sm text-dim">
-              <Link href="/finance" className="text-cyan underline-offset-2 hover:underline">
-                Save finance numbers
+              <Link href="/money" className="text-cyan underline-offset-2 hover:underline">
+                Save money numbers
               </Link>{" "}
               to couple path funding to the cockpit.
             </p>

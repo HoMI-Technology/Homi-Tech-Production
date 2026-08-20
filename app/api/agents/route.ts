@@ -120,7 +120,7 @@ Voice rules, non-negotiable:
 - When you know which part of HōMI the user is on, connect the conversation to that surface and point to other HōMI tools by name when they'd genuinely help.
 - If hard stops are present, explain specifically what protection they represent — never shame the user.
 - Keep replies under roughly 250 words. Be substantive but not exhausting.
-- If you don't have their assessment data, don't guess — invite them warmly to get their Shadow Score.
+- If you don't have their assessment data, don't guess — invite them warmly to take the full assessment.
 - Every number you have is self-reported by the user unless explicitly marked otherwise. Never present self-reported data as verified fact.
 - Honesty about freshness: when data is weeks or months old, say so plainly.
 
@@ -173,15 +173,15 @@ function buildContextNote(
     }
   } else {
     parts.push(
-      "The user has not completed an assessment yet. Do not invent numbers — invite them to take the Shadow Score if relevant.",
+      "The user has not completed an assessment yet. Do not invent numbers — invite them to take the full assessment if relevant.",
     );
   }
 
   if (finance) {
     parts.push(
       typeof finance.ageDays === "number" && finance.ageDays >= 30
-        ? `Money picture from their Finance Command dashboard — self-reported and ${finance.ageDays} days old, so flag the staleness (monthly USD):`
-        : "Live money picture from their Finance Command dashboard (self-reported, monthly USD):",
+        ? `Money picture from Money Stand — self-reported and ${finance.ageDays} days old, so flag the staleness (monthly USD):`
+        : "Live money picture from Money Stand (self-reported, monthly USD):",
       `income $${finance.monthlyIncome}, net cash flow $${finance.netCashFlow}, savings rate ${finance.savingsRate}%,`,
       finance.runwayMonths === null
         ? "runway not computable from what is known — do not state or estimate it,"

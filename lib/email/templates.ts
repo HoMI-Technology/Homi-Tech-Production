@@ -103,7 +103,7 @@ export function welcomeEmail(name: string): { subject: string; html: string } {
       </tr>
     </table>
     <p style="margin:0 0 20px 0;">
-      Ninety seconds tells you the truth about where you stand today.
+      About five minutes tells you the truth about where you stand today.
     </p>
     <p style="margin:0;">
       <a href="${SITE}/assessment" style="color:#22d3ee;text-decoration:none;font-weight:700;">Start your assessment &rarr;</a>
@@ -257,18 +257,18 @@ const PILLAR_LABEL = {
 } as const;
 type PillarKey = keyof typeof PILLAR_LABEL;
 
-/** Onboarding: profile incomplete after signup. */
+/** Post-signup nudge: measurement first (matches bare sign-up → Assess). */
 export function completeProfileEmail(name: string): { subject: string; html: string } {
   const body = `
     <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">Hi ${name},</p>
     <p style="margin:0 0 16px 0;">
-      One quick step before your assessment. A few details about the decision you're weighing
-      lets HōMI give you a read that's actually about <em>your</em> situation — not a generic score.
+      Your account is ready. Take the assessment next — about five minutes of honesty across all three
+      pillars, and you'll know whether now is the moment or what to close first.
     </p>
-    <p style="margin:0;">It takes under a minute.</p>
-    ${cta(`${SITE}/onboarding`, "Complete your profile")}
+    <p style="margin:0;">No card. No pressure. Just the truth about where you stand today.</p>
+    ${cta(`${SITE}/assessment`, "Take the assessment")}
   `;
-  return { subject: `${name}, one quick step before your assessment`, html: layout(body) };
+  return { subject: `${name}, take your HōMI assessment`, html: layout(body) };
 }
 
 /** Onboarding: profile complete, assessment not started. */
@@ -276,7 +276,7 @@ export function startAssessmentEmail(name: string): { subject: string; html: str
   const body = `
     <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">Hi ${name},</p>
     <p style="margin:0 0 16px 0;">
-      Your assessment is ready. Ninety seconds of honesty across all three pillars, and you'll
+      Your assessment is ready. About five minutes of honesty across all three pillars, and you'll
       know whether now is the moment — or whether there's something worth closing first.
     </p>
     <p style="margin:0;">No card. No pressure. Just the truth about where you stand today.</p>

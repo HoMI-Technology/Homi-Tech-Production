@@ -192,7 +192,7 @@ function has(message: string, ...needles: string[]): boolean {
 function noAssessmentYet(): string {
   return (
     "I don't have your numbers yet, so I can't give you a real read — I won't guess. " +
-    "Get your Shadow Score first. Six questions, under two minutes, and honest. " +
+    "Take the assessment at /assessment first — that's the HōMI measurement path when you're signed in. " +
     "Come back after and I'll talk with your actual numbers, not generic advice."
   );
 }
@@ -247,7 +247,7 @@ function shouldIBuyQuestion(ctx?: AdvisorAssessmentContext | null): string {
     "What I can do is show you the three things that actually matter: can you afford it (Financial Reality), do you really want it and not just want to want it (Emotional Truth), and is now actually the right moment or just a convenient one (Perfect Timing).";
 
   if (!ctx) {
-    return `${base} Get your Shadow Score and I'll walk through your actual numbers instead of talking in the abstract.`;
+    return `${base} Take the assessment at /assessment and I'll walk through your actual numbers instead of talking in the abstract.`;
   }
 
   const weak = weakestPillar(ctx.pillars);
@@ -308,7 +308,7 @@ function defaultReflective(ctx?: AdvisorAssessmentContext | null): string {
   }
   return (
     "I hear you. I don't have your assessment yet, so I'm working without your real numbers right now — " +
-    "get your Shadow Score when you're ready and I can speak to your actual situation instead of in general terms."
+    "take the assessment at /assessment when you're ready and I can speak to your actual situation instead of in general terms."
   );
 }
 

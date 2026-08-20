@@ -41,7 +41,7 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
   {
     href: "/dashboard",
     label: "Home",
-    paletteLabel: "Dashboard",
+    paletteLabel: "Home",
     group: "Navigate",
     keywords: "home overview score",
     surfaces: { header: "primary", palette: true },
@@ -93,20 +93,12 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     keywords: "next steps journey roadmap",
     surfaces: { header: "more", palette: true },
   },
-  {
-    // Verdict reveal — palette-only so Path owns Measure chrome (post-login F8).
-    href: "/results",
-    label: "Results",
-    paletteLabel: "Last verdict",
-    group: "Navigate",
-    keywords: "readiness verdict score outcome report reveal",
-    surfaces: { palette: true },
-  },
+  // /results retired (F8) — middleware redirects; not in chrome or palette.
   {
     href: "/timeline",
     label: "Score history",
     group: "Navigate",
-    keywords: "timeline trajectory re-check progress over time chart",
+    keywords: "timeline trajectory re-check progress over time chart score verdict",
     surfaces: { header: "more", palette: true },
   },
   {

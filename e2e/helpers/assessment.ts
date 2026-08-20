@@ -6,8 +6,10 @@ import {
 } from "../../lib/assessment/types";
 
 /**
- * Drives the real full-assessment flow (/assessment → /results) the way a
+ * Drives the real full-assessment flow (/assessment → /dashboard) the way a
  * person would: answer whatever each step asks, then continue.
+ *
+ * Signed-in completion lands on Home Build (F8). Guests never finish scoring.
  *
  * The flow renders ~45 canonical questions of three shapes (see
  * components/assessment/BankQuestionField.tsx):
@@ -160,5 +162,6 @@ export async function completeFullAssessment(
 
   await expect(reviewHeading).toBeVisible();
   await assessmentPane.getByRole("button", { name: "See my HōMI-Score" }).click();
-  await page.waitForURL("**/results");
+  // Signed-in completion lands on Home Build (F8). Guests never finish scoring.
+  await page.waitForURL("**/dashboard");
 }

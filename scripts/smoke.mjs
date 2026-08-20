@@ -172,7 +172,7 @@ Create the account once at ${base}/auth/sign-up
 function printManual() {
   console.log(`Manual signed-in checklist (${base}):
   1. Sign in at /auth/sign-in
-  2. Finish /assessment → land on /results with a verdict
+  2. Finish /assessment → land on /dashboard (Home Build) with a verdict
   3. Open Companion (bottom-right)
   4. Open /finance and /tools/mortgage
   5. Optional checkout: /pricing (use Stripe test card 4242… on Preview, not live)

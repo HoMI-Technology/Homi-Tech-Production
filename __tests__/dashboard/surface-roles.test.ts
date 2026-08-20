@@ -10,17 +10,16 @@ function src(...segments: string[]): string {
 }
 
 describe("surface roles SSOT", () => {
-  it("names the Build, reveal, checklist, and record jobs", () => {
+  it("names the Build, retired results, checklist, and record jobs", () => {
     expect(SURFACE_ROLES.home).toMatch(/Path next move/i);
     expect(SURFACE_ROLES.path).toMatch(/Living Build/i);
-    expect(SURFACE_ROLES.results).toMatch(/Verdict reveal/i);
+    expect(SURFACE_ROLES.results).toMatch(/Retired/i);
     expect(SURFACE_ROLES.plan).toMatch(/palette-only/i);
     expect(SURFACE_ROLES.report).toMatch(/record/i);
   });
 
-  it("is imported by the readiness surfaces so comments cannot drift alone", () => {
+  it("is imported by the living readiness surfaces so comments cannot drift alone", () => {
     for (const file of [
-      ["app", "(product)", "results", "page.tsx"],
       ["app", "(product)", "path", "page.tsx"],
       ["app", "(product)", "plan", "page.tsx"],
       ["app", "(product)", "dashboard", "page.tsx"],

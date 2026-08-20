@@ -143,7 +143,7 @@ export function ScoreSimulator({
           </Link>{" "}
           or fill in the{" "}
           <Link href="/money" className="text-cyan underline underline-offset-2">
-            Finance dashboard
+            Money Stand
           </Link>{" "}
           for a real baseline, or just type your numbers below.
         </div>
@@ -171,7 +171,7 @@ export function ScoreSimulator({
             </div>
             <p className="mt-1 text-xs text-dim">
               {baseline.source === "plaid_sync" && "Baseline from your latest bank sync."}
-              {baseline.source === "manual" && "Baseline from your Finance dashboard numbers."}
+              {baseline.source === "manual" && "Baseline from your Money Stand numbers."}
               {baseline.source === "empty" && "Baseline starts at zero until you add numbers."}
             </p>
             <div className="mt-4 space-y-4">
@@ -348,7 +348,7 @@ export function ScoreSimulator({
                 {Math.round(ESTIMATED_DEBT_PAYMENT_RATE * 100)}% of your debt balance (
                 {formatCurrency(simulated.monthlyDebtPayments)}/mo). Enter actual payments on the{" "}
                 <Link href="/money" className="text-cyan underline underline-offset-2">
-                  Finance dashboard
+                  Money Stand
                 </Link>{" "}
                 for a sharper read.
               </p>

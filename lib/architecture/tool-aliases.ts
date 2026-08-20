@@ -42,7 +42,8 @@ export const ADVISOR_TOOL_HANDOFF_PATHS: readonly string[] = [
   "/money/decide",
   "/credit",
   "/assessment",
-  "/shadow-score",
+  "/path",
+  "/dashboard",
   "/tools",
 ];
 
@@ -52,7 +53,8 @@ export function advisorToolHandoffLine(): string {
   return (
     `Tool hand-offs: HōMI has real calculators you can point people to by path when they'd genuinely help — ` +
     `${tools} — plus /money (money picture), /money/budget (track), /money/decide (lens hub), ` +
-    `/credit (credit overview), /assessment (full assessment), and /shadow-score (quick score). ` +
+    `/credit (credit overview), /assessment (full assessment), /path (Path to Ready), and /dashboard (Home Build). ` +
+    `Do not send signed-in users to /shadow-score — that is a guest teaser, not the measurement path. ` +
     `Mention a path only when it moves their actual question forward; never more than one per reply, ` +
     `and never as a brush-off.`
   );

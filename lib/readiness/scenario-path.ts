@@ -45,9 +45,14 @@ export function generatePathFromScenario(opts: {
   const monthlyNeeded =
     months > 0 ? Math.ceil(gap / months) : Math.max(opts.inputs.monthlySavings, 0);
 
-  const verdict: Verdict = opts.assessmentResult?.verdict ?? "BUILD_FIRST";
-  const score = opts.assessmentResult?.score ?? 55;
-  const hardStops = opts.assessmentResult?.hardStops ?? [];
+  const assessment = opts.assessmentResult;
+  if (!assessment) {
+    throw new Error("generatePathFromScenario requires a scored assessment — do not invent readiness");
+  }
+
+  const verdict: Verdict = assessment.verdict;
+  const score = assessment.score;
+  const hardStops = assessment.hardStops ?? [];
 
   const steps: PathStep[] = [];
 
@@ -91,7 +96,7 @@ export function generatePathFromScenario(opts: {
         reasonCode: "PILLAR_FINANCIAL",
         href: "/money",
         notes:
-          "Path funding is intentional — record the transfer in Finance Command. " +
+          "Path funding is intentional — record the transfer on Money Stand. " +
           PATH_DISCLAIMER,
         fundingTarget: monthlyNeeded,
         fundingLabel: "Monthly wait-plan transfer",

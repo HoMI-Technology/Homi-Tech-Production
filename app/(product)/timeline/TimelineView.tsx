@@ -101,7 +101,7 @@ export function TimelineView() {
 
       <div className="mt-8 flex flex-wrap gap-2">
         <Link href="/assessment" className="btn btn-primary btn-sm">
-          Re-check your readiness
+          {points !== null && points.length === 0 ? "Assess" : "Re-check your readiness"}
         </Link>
         <Link href="/path" className="btn btn-ghost btn-sm">
           Path to Ready

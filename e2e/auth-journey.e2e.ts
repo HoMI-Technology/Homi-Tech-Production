@@ -20,15 +20,13 @@ test.describe("authenticated funnel", () => {
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
   });
 
-  test("results page resolves a verdict for the signed-in user", async ({ page }) => {
+  test("signed-in /results redirects to Home Build", async ({ page }) => {
     await page.goto("/auth/sign-in");
     await page.getByLabel(/email/i).fill(email!);
     await page.getByLabel(/password/i).fill(password!);
     await page.getByRole("button", { name: /sign in/i }).click();
     await page.waitForURL(/\/dashboard/, { timeout: 15_000 });
     await page.goto("/results");
-    await expect(
-      page.getByText(/READY|ALMOST|BUILD FIRST|NOT YET|No results yet/i).first(),
-    ).toBeVisible();
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
   });
 });

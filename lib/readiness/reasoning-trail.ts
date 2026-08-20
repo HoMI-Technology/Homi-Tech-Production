@@ -1,5 +1,6 @@
 /**
- * ReasoningTrail v1 — explainability for /results.
+ * ReasoningTrail v1 — explainability builder (Companion / lib consumers).
+ * UI mount on /results was removed in F8; this module stays for explain payloads.
  *
  * Composes E4 data-quality confidence, pillar blockers, hard stops, and
  * (when a previous assessment exists) ScoreExplanation magnitude bands into

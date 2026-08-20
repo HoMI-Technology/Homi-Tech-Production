@@ -13,7 +13,6 @@ import { LEGAL_DISCLAIMER } from "@/lib/brand";
 const ROOT = process.cwd();
 
 const SCORE_SURFACES_REQUIRING_FULL_DISCLAIMER = [
-  "components/results/ResultsVerdictView.tsx",
   "app/(product)/report/[id]/page.tsx",
   "app/(product)/report/[id]/print/page.tsx",
   "app/(product)/report/[id]/credential/page.tsx",
@@ -48,11 +47,9 @@ describe("score surfaces render full LEGAL_DISCLAIMER", () => {
     },
   );
 
-  it("/results does not hardcode an abbreviated disclaimer", () => {
-    const page = readSrc("app/(product)/results/page.tsx");
-    const verdict = readSrc("components/results/ResultsVerdictView.tsx");
-    expect(page).not.toContain(ABBREVIATED_RESULTS_DISCLAIMER);
-    expect(verdict).not.toContain(ABBREVIATED_RESULTS_DISCLAIMER);
-    expect(verdict).toContain("{LEGAL_DISCLAIMER}");
+  it("retired /results surfaces never revive the abbreviated disclaimer", () => {
+    const report = readSrc("app/(product)/report/[id]/page.tsx");
+    expect(report).not.toContain(ABBREVIATED_RESULTS_DISCLAIMER);
+    expect(report).toContain("{LEGAL_DISCLAIMER}");
   });
 });

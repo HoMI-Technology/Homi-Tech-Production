@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  BarChart2,
   BookOpen,
   ClipboardCheck,
   Compass,
@@ -67,8 +66,7 @@ import { visibleDashboards } from "@/lib/dashboard/switcher-visibility";
  * from the catalog so this list can never fork the copy.
  */
 const JOURNEY_ORDER: readonly { label: string; hrefs: readonly string[] }[] = [
-  // Measure owns the Build entry (Home) + Assess + living Path. Results is
-  // palette-only (reveal transition) — not a Measure peer in the rail.
+  // Measure owns the Build entry (Home) + Assess + living Path.
   { label: "Measure", hrefs: ["/dashboard", "/assessment", "/path"] },
   { label: "Understand", hrefs: ["/scenarios", "/tools/preflight"] },
   // /agents is header-primary whenever the Agent OS flag is on; it belongs to
@@ -112,7 +110,6 @@ const ICONS: Record<string, LucideIcon> = {
   "/assessment": ClipboardCheck,
   "/money": DollarSign,
   "/path": MapPin,
-  "/results": BarChart2,
   "/household": Users,
   "/tools/preflight": Wrench,
   "/scenarios": LayoutGrid,

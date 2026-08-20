@@ -16,12 +16,13 @@ const BANNED_FIRST_RUN = ["Get your Shadow Score", "Take the full assessment"] a
 const BANNED_FOLD_NOUN = "Decision Readiness Score";
 
 describe("onboarding skip lands on Home", () => {
-  it("Skip for now navigates to the signed-in dashboard after save", () => {
+  it("Skip for now navigates to the signed-in dashboard", () => {
     const page = src("app", "(product)", "onboarding", "page.tsx");
     expect(page).toContain("useRouter");
     expect(page).toContain("ONBOARDING_SKIP_HREF");
-    expect(page).toContain("finish(ONBOARDING_SKIP_HREF)");
-    expect(page).toMatch(/router\.push\(\s*next\s*\)/);
+    expect(page).toMatch(/router\.push\(\s*ONBOARDING_SKIP_HREF\s*\)/);
+    expect(page).not.toMatch(/\.update\(\s*\{\s*onboarding_completed/);
+    expect(page).not.toContain("createClient");
   });
 
   it("does not attempt an unreachable guest assessment replay", () => {
@@ -123,11 +124,16 @@ describe("dashboard fold tells the truth about the build", () => {
   });
 });
 
-describe("completed home assessment lands on Results", () => {
-  it("FullAssessmentFlow pushes /results, never /dashboard", () => {
+describe("completed home assessment lands on Home Build", () => {
+  it("FullAssessmentFlow pushes /dashboard, never /results", () => {
     const flow = src("components", "assessment", "FullAssessmentFlow.tsx");
-    expect(flow).toContain('router.push("/results")');
-    expect(flow).not.toMatch(/router\.push\(["']\/dashboard["']\)/);
+    expect(flow).toContain('router.push("/dashboard")');
+    expect(flow).not.toMatch(/router\.push\(["']\/results["']\)/);
+  });
+
+  it("HomeFold mounts SaveStatusBanner so locked/failed saves still surface", () => {
+    const fold = src("components", "dashboard", "HomeFold.tsx");
+    expect(fold).toContain("SaveStatusBanner");
   });
 });
 

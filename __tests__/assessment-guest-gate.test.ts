@@ -97,7 +97,7 @@ describe("First Moment copy stays word-locked", () => {
 });
 
 describe("FullAssessmentFlow does not score a guest", () => {
-  it("handleSubmit redirects to First Moment before fetchServerScore / save / /results", () => {
+  it("handleSubmit redirects to First Moment before fetchServerScore / save / /dashboard", () => {
     const flow = src("components", "assessment", "FullAssessmentFlow.tsx");
     const start = flow.indexOf("async function handleSubmit");
     const end = flow.indexOf("const nextDisabled");
@@ -107,17 +107,18 @@ describe("FullAssessmentFlow does not score a guest", () => {
     expect(submit.indexOf("getUser")).toBeLessThan(submit.indexOf("fetchServerScore"));
     expect(submit.indexOf("PRIMARY_CLOSE_HREF")).toBeLessThan(submit.indexOf("fetchServerScore"));
     expect(submit.indexOf("PRIMARY_CLOSE_HREF")).toBeLessThan(submit.indexOf("saveLocalResult"));
-    expect(submit.indexOf("PRIMARY_CLOSE_HREF")).toBeLessThan(submit.indexOf('router.push("/results")'));
+    expect(submit.indexOf("PRIMARY_CLOSE_HREF")).toBeLessThan(submit.indexOf('router.push("/dashboard")'));
   });
 });
 
-describe("guest /results does not paint a localStorage verdict", () => {
-  it("refuses ResultsVerdictView when there is no user", () => {
-    const page = src("app", "(product)", "results", "page.tsx");
-    expect(page).toContain("discardScoreShapedShadow");
-    expect(page).toMatch(/isAnonymous\s*\?\s*null/);
-    expect(page).toContain('href="/assessment"');
-    expect(page.indexOf("isAnonymous ? null")).toBeLessThan(page.indexOf("<ResultsVerdictView"));
+describe("guest /results is retired", () => {
+  it("middleware sends guests to First Moment; no results page or verdict view", () => {
+    const mw = src("middleware.ts");
+    expect(mw).toContain('path === "/results"');
+    expect(mw).toContain('"/first-moment"');
+    expect(mw).toContain('"/dashboard"');
+    expect(() => src("app", "(product)", "results", "page.tsx")).toThrow();
+    expect(() => src("components", "results", "ResultsVerdictView.tsx")).toThrow();
   });
 });
 

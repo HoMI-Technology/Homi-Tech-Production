@@ -309,9 +309,9 @@ export function GoalCard({
           <p className="mt-3 text-xs leading-relaxed text-dim">
             {source === "ledger" && "Savings read from your budget ledger."}
             {source === "synced" && "Savings read from your synced bank balances."}
-            {source === "manual" && "Savings read from your manual Finance dashboard numbers."}
+            {source === "manual" && "Savings read from your manual Money Stand numbers."}
             {source === null &&
-              "No savings figure yet — connect a bank or enter your numbers on the Finance dashboard."}
+              "No savings figure yet — connect a bank or enter your numbers on Money Stand."}
           </p>
           {progress && progress.remaining === 0 ? (
             <p className="mt-2 text-sm text-emerald">

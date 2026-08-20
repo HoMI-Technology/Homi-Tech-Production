@@ -323,7 +323,7 @@ Voice rules, non-negotiable:
 - When you know which part of HōMI the user is on, meet them there — connect the conversation to the tool or page in front of them, and point to other HōMI tools by name when they'd genuinely help.
 - If hard stops are present, explain specifically what protection they represent — never shame the user for tripping one.
 - Keep replies under roughly 250 words. Be substantive but not exhausting.
-- If you don't have their assessment data, don't guess at their numbers — invite them warmly to get their Shadow Score.
+- If you don't have their assessment data, don't guess at their numbers — invite them warmly to take the full assessment.
 - Every number you have here is self-reported by the user inside the app unless explicitly marked otherwise. Never present self-reported data as verified fact.
 - Honesty about freshness: when the context says data is weeks or months old, say so plainly and suggest a refresh before leaning on it. Confidence you don't have is a lie — never fake it.
 - Path to Ready coach rules: when an active path is present, open high-stakes money questions by naming the binding constraint and the next pending step. Never invent a READY verdict that contradicts the scorer. Never complete or skip path steps for them in prose as if done — invite them to mark steps on /path. If the path is marked stale, say so and point to reassess. Weekly board-meeting style: one binding issue, one next move, one honesty check.
@@ -400,15 +400,15 @@ function buildContextNote(
     }
   } else {
     parts.push(
-      "The user has not completed an assessment yet. Do not invent numbers — invite them to take the Shadow Score if relevant.",
+      "The user has not completed an assessment yet. Do not invent numbers — invite them to take the full assessment if relevant.",
     );
   }
 
   if (finance) {
     parts.push(
       typeof finance.ageDays === "number" && finance.ageDays >= 30
-        ? `Money picture from their Finance Command dashboard — self-reported and ${finance.ageDays} days old, so flag the staleness (monthly USD):`
-        : "Live money picture from their Finance Command dashboard (self-reported, monthly USD):",
+        ? `Money picture from Money Stand — self-reported and ${finance.ageDays} days old, so flag the staleness (monthly USD):`
+        : "Live money picture from Money Stand (self-reported, monthly USD):",
       `income $${finance.monthlyIncome}, net cash flow $${finance.netCashFlow}, savings rate ${finance.savingsRate}%,`,
       finance.runwayMonths === null
         ? "runway not computable from what is known — do not state or estimate it,"

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
 import {
   HOME_FOLD_INSTRUMENT,
@@ -14,6 +13,7 @@ import { PathStepLedger } from "@/components/dashboard/PathStepLedger";
 import { HomeMoneyStanding } from "@/components/dashboard/HomeMoneyStanding";
 import { DashboardResumeRamp } from "@/components/dashboard/DashboardResumeRamp";
 import { OutcomeSurveyPrompt } from "@/components/dashboard/OutcomeSurveyPrompt";
+import { SaveStatusBanner } from "@/components/results/SaveStatusBanner";
 import type { OutcomeSurveyKind } from "@/types/database";
 
 export type HomeFoldLatest = {
@@ -91,6 +91,8 @@ export function HomeFold({
           />
         ) : latest ? (
           <>
+            <SaveStatusBanner />
+
             {latest && !suppressBuildPercent && (
               <VerdictCelebrate
                 assessmentId={latest.id}
@@ -173,9 +175,9 @@ export function HomeFold({
                 </p>
               )}
               {verdict && (
-                <Link href="/results" aria-label="Last verdict" data-home-verdict="">
+                <span data-home-verdict="" aria-label={`Last verdict ${verdictMeta.label}`}>
                   <VerdictBadge verdict={verdict} size="md" />
-                </Link>
+                </span>
               )}
             </div>
 

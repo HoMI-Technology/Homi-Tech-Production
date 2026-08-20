@@ -32,24 +32,31 @@ describe("verdict email privacy", () => {
 });
 
 describe("retake CTAs land on the flow that can re-score", () => {
-  it("results retake goes to /assessment, never the score-less shadow read", () => {
-    const view = read("components", "results", "ResultsVerdictView.tsx");
-    expect(view).toContain("Retake the assessment");
-    expect(view).not.toContain('"/shadow-score"');
+  it("report retake goes to /assessment, never the score-less shadow read", () => {
+    const report = read("app", "(product)", "report", "[id]", "page.tsx");
+    expect(report).toContain("Retake the assessment");
+    expect(report).toContain('href="/assessment"');
+    expect(report).not.toContain('"/shadow-score"');
   });
 
-  it("results primary CTA is auth-aware: Home for signed-in, save for guests", () => {
-    const view = read("components", "results", "ResultsVerdictView.tsx");
-    expect(view).toContain('href="/dashboard"');
-    expect(view).toContain("Continue on Home");
-    expect(view).toContain('href="/auth/sign-up"');
-    expect(view).toContain("Save your progress");
-    expect(view).toContain('href="/path"');
-    expect(view).not.toContain("Build your plan");
-    expect(view).not.toMatch(/href="\/plan"/);
-    // Reveal only — Path operate lives on Home / /path, not inlined on /results.
-    expect(view).not.toContain("PathToReadyCard");
-    expect(view).not.toContain("#path-to-ready");
+  it("report primary CTA is Home Build, with Path alongside", () => {
+    const report = read("app", "(product)", "report", "[id]", "page.tsx");
+    expect(report).toContain('href="/dashboard"');
+    expect(report).toContain("Continue on Home");
+    expect(report).toContain('href="/path"');
+    expect(report).not.toContain("Build your plan");
+    expect(report).not.toMatch(/href="\/plan"/);
+    expect(report).not.toContain("PathToReadyCard");
+    expect(report).not.toContain("#path-to-ready");
+    expect(report).not.toContain("Your next steps");
+    expect(report).not.toContain("Your activation path");
+  });
+
+  it("middleware retires /results — signed-in → Home, guest → First Moment", () => {
+    const mw = read("middleware.ts");
+    expect(mw).toContain('path === "/results"');
+    expect(mw).toContain('user ? "/dashboard" : "/first-moment"');
+    expect(mw).not.toContain("ResultsVerdictView");
   });
 
   it("plan retake goes to /assessment and Build owns the primary close", () => {
@@ -58,6 +65,7 @@ describe("retake CTAs land on the flow that can re-score", () => {
     expect(plan).toContain("Continue on Home");
     expect(plan).toContain('href="/path"');
     expect(plan).not.toContain('"/shadow-score"');
+    expect(plan).not.toContain("Take the full assessment");
     expect(plan).not.toContain("Your transformation path");
     // Read-only checklist — no local progress store competing with Path.
     expect(plan).not.toContain("homi:plan-progress");
@@ -72,6 +80,43 @@ describe("sign-up default lands on Assess", () => {
     expect(page).toContain("POST_LOGIN_ASSESS");
     expect(page).toContain("safeNext(searchParams.get(\"next\"), POST_LOGIN_ASSESS)");
     expect(page).not.toContain('safeNext(searchParams.get("next"), "/onboarding")');
+  });
+
+  it("completeProfileEmail points at Assess, not /onboarding", () => {
+    const templates = read("lib", "email", "templates.ts");
+    const start = templates.indexOf("export function completeProfileEmail");
+    const end = templates.indexOf("export function startAssessmentEmail");
+    const fn = templates.slice(start, end);
+    expect(fn).toContain("/assessment");
+    expect(fn).not.toContain("/onboarding");
+    expect(fn).toContain("about five minutes");
+    expect(fn).not.toMatch(/ninety seconds/i);
+  });
+
+  it("welcome and start-assessment emails match Assess duration, not Shadow Score", () => {
+    const templates = read("lib", "email", "templates.ts");
+    expect(templates).toContain("About five minutes tells you the truth");
+    expect(templates).toContain("About five minutes of honesty across all three pillars");
+    expect(templates).not.toMatch(/Ninety seconds/i);
+    expect(templates).not.toMatch(/ninety seconds/i);
+  });
+});
+
+describe("Companion hand-offs stay on the signed-in measurement path", () => {
+  it("advisor tool hand-off allowlist excludes /shadow-score", () => {
+    const aliases = read("lib", "architecture", "tool-aliases.ts");
+    expect(aliases).toContain('"/assessment"');
+    expect(aliases).toContain('"/path"');
+    expect(aliases).toContain('"/dashboard"');
+    expect(aliases).not.toMatch(/ADVISOR_TOOL_HANDOFF_PATHS[\s\S]*?"\/shadow-score"/);
+    expect(aliases).toContain("Do not send signed-in users to /shadow-score");
+  });
+
+  it("Companion empty state offers Assess when unscored", () => {
+    const chat = read("components", "advisor", "Chat.tsx");
+    expect(chat).toContain("SIGNED_IN_ASSESS_HREF");
+    expect(chat).toMatch(/>\s*Assess\s*</);
+    expect(chat).not.toContain("Take the full assessment first");
   });
 });
 

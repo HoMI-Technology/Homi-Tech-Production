@@ -441,10 +441,6 @@ describe("N13–N14: live / real-time freshness", () => {
         "lib/analytics/posthog.ts",
       ],
       [
-        '<p className="text-sm font-semibold text-light">Your share link is live</p>',
-        "components/share/ShareShadowButton.tsx",
-      ],
-      [
         " * and the browser supports push — so it stays invisible until push is live,",
         "components/settings/PushToggle.tsx",
       ],
@@ -573,7 +569,7 @@ describe("N21–N22: scoring internals stay off public surfaces", () => {
 
   it("keeps product surfaces, the engine, and 'out of 100' prose out of N21", () => {
     expect(
-      fires("<p>Weighted at up to 35 of 100.</p>", "N21", "app/(product)/results/page.tsx"),
+      fires("<p>Weighted at up to 35 of 100.</p>", "N21", "app/(product)/report/[id]/page.tsx"),
     ).toBe(false);
     expect(
       fires("financial: 35, // max of the 100-point scale", "N21", "lib/scoring/public.ts"),
@@ -619,7 +615,7 @@ describe("N21–N22: scoring internals stay off public surfaces", () => {
       ),
     ).toBe(false);
     expect(fires('date: "2026-06-24",', "N22", "components/marketing/blog-data.ts")).toBe(false);
-    expect(fires("READY 80–100", "N22", "app/(product)/results/page.tsx", "", "")).toBe(false);
+    expect(fires("READY 80–100", "N22", "app/(product)/report/[id]/page.tsx", "", "")).toBe(false);
     expect(fires("a 30-year mortgage horizon", "N22", "components/marketing/guides-data.ts")).toBe(
       false,
     );
@@ -682,7 +678,7 @@ describe("N25: weighting structure stays qualitative on public surfaces", () => 
 
   it("stays out of product surfaces and lib internals", () => {
     expect(
-      fires("weighted equally", "N25", "app/(product)/results/page.tsx", "", ""),
+      fires("weighted equally", "N25", "app/(product)/report/[id]/page.tsx", "", ""),
     ).toBe(false);
     expect(
       clean(" * Future stamps (negative age) are equally nonsensical.", "lib/advisor/context.ts"),

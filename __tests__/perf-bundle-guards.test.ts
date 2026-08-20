@@ -86,15 +86,16 @@ describe("perf bundle guards (Lighthouse §11 + E2E coexistence)", () => {
     expect(code).not.toMatch(/["']@\/lib\/scoring["']/);
   });
 
-  it("results page lazy-loads the verdict view (empty /results stays off Path/trail)", () => {
-    const page = codeOnly(src("app/(product)/results/page.tsx"));
-    expect(page).toMatch(/next\/dynamic/);
-    expect(page).toMatch(/ResultsVerdictView/);
-    expect(page).toMatch(/import\s*\(\s*["']@\/components\/results\/ResultsVerdictView["']\s*\)/);
-    expect(page).not.toMatch(/from\s+["']@\/components\/readiness["']/);
-    expect(page).not.toMatch(/from\s+["']@\/components\/results\/ReasoningTrail["']/);
-    expect(page).not.toMatch(/from\s+["']@\/components\/share\/ShareScoreButton["']/);
-    expect(page).not.toMatch(/from\s+["']@\/lib\/conflict\/engine["']/);
+  it("retired /results route is gone from the product tree (no verdict graph)", () => {
+    expect(() => src("app/(product)/results/page.tsx")).toThrow();
+    expect(() => src("components/results/ResultsVerdictView.tsx")).toThrow();
+    const mw = codeOnly(src("middleware.ts"));
+    expect(mw).toMatch(/\/results/);
+    expect(mw).toMatch(/\/dashboard/);
+    expect(mw).toMatch(/\/first-moment/);
+    expect(mw).not.toMatch(/ResultsVerdictView/);
+    expect(mw).not.toMatch(/from\s+["']@\/components\/readiness["']/);
+    expect(mw).not.toMatch(/from\s+["']@\/lib\/conflict\/engine["']/);
   });
 
   it("housing readiness uses the batch API, not readiness-bands on the client", () => {

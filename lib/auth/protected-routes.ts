@@ -14,12 +14,13 @@
  */
 
 /**
- * Product routes anonymous visitors may view — empty results/plan states,
+ * Product routes anonymous visitors may view — empty plan states,
  * public tools, the shadow-score teaser, the demo, and the onboarding intro.
  * `/assessment` stays classified public so middleware does not bounce guests
  * to sign-in (that would skip First Moment). The page itself server-redirects
  * guests to /first-moment. These routes read only local/derived state or
  * degrade to an empty state without a session.
+ * `/results` was retired (F8) — middleware redirects; no route directory.
  */
 export const PUBLIC_PRODUCT_ROUTES = [
   "assessment",
@@ -28,7 +29,6 @@ export const PUBLIC_PRODUCT_ROUTES = [
   "onboarding",
   "path",
   "plan",
-  "results",
   "scenarios",
   "shadow-score",
   "tools",

@@ -260,7 +260,7 @@ export function FullAssessmentFlow() {
     })
       .then(async (res) => {
         // 401 (anonymous) → "unauthenticated", 402 rescoring_locked →
-        // "locked", other non-OK → "failed"; /results surfaces the outcome.
+        // "locked", other non-OK → "failed"; Home SaveStatusBanner surfaces it.
         recordSaveStatus(statusFromResponse(res.status));
         if (!res.ok) return;
         const data = (await res.json().catch(() => null)) as { id?: string } | null;
@@ -270,7 +270,9 @@ export function FullAssessmentFlow() {
         recordSaveStatus("failed");
       });
 
-    router.push("/results");
+    // F8 — living Build is Home. Guests never reach this push (gated above).
+    // Signed-in /results redirects here too — not a post-assessment destination.
+    router.push("/dashboard");
   }
 
   const nextDisabled = (() => {

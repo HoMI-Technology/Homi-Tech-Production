@@ -84,10 +84,10 @@ describe("HomeFold", () => {
     expect(companion?.classList.contains("panel-focus")).toBe(true);
     expect(companion).toHaveTextContent(/Companion/);
     expect(companion).toHaveTextContent(/binding step on Path to Ready/);
-    // Compact score rail keeps a quiet reveal link via the verdict badge only —
-    // no competing "See results" button that steals the Build.
-    expect(container.querySelector("[data-home-verdict]")).toHaveAttribute("href", "/results");
-    expect(screen.getByRole("link", { name: /last verdict/i })).toHaveAttribute("href", "/results");
+    // Compact score rail: verdict badge is a reading, not a /results deep-link.
+    expect(container.querySelector("[data-home-verdict]")).not.toBeNull();
+    expect(container.querySelector('[data-home-verdict][href]')).toBeNull();
+    expect(screen.queryByRole("link", { name: /last verdict/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /^see results$/i })).not.toBeInTheDocument();
     expect(container.querySelector("[data-home-money-standing]")).not.toBeNull();
     expect(screen.queryByRole("link", { name: /money picture/i })).not.toBeInTheDocument();

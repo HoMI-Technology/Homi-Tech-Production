@@ -122,8 +122,6 @@ const SURFACE_LABELS: Array<[prefix: string, label: string]> = [
   ["/genome", "their behavioral genome"],
   ["/dashboard", "their dashboard"],
   ["/assessment", "the readiness assessment"],
-  ["/shadow-score", "the Shadow Score"],
-  ["/results", "their assessment results"],
   ["/report", "their readiness report"],
   ["/path", "their Path to Ready"],
   ["/scenarios", "the scenario studio"],
@@ -147,9 +145,8 @@ export function buildSurfaceContext(pathname: string | null | undefined): string
 
 /**
  * The score-movement one-liner from the explainability engine — the same
- * source the /results "why did this change" card renders, so the Companion
- * and the view can never tell different stories. Undefined when there's no
- * previous assessment to compare against.
+ * source Companion explain uses — so the Companion and Home can never tell
+ * different stories. Undefined when there's no previous assessment to compare.
  */
 export function buildWhatChanged(storedOverride?: StoredAssessment | null): string | undefined {
   const stored = storedOverride ?? loadLocalResult();

@@ -140,7 +140,7 @@ export function useVerdictAccent(state: LatestVerdict | null): void {
  * usePathname + framer-motion).
  */
 export type FooterChipModel = {
-  /** /results once there is something to show, /assessment before that. */
+  /** /dashboard once there is a score (Build), /assessment before that. */
   href: string;
   /** Verdict color, or null in the empty state — the chip then inherits the
    *  --sidebar-verdict-color default published by :root. */

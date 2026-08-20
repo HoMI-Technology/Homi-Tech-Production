@@ -16,17 +16,19 @@ import type { AssessmentRow } from "@/types/database";
 import { Phase0FreezeView } from "@/components/advisor/Phase0FreezeView";
 import { loadPhase0ServerState } from "@/lib/advisor/phase0/server";
 
+import { SURFACE_ROLES } from "@/lib/dashboard/surface-roles";
+
 const FINANCIAL = PILLARS.find((p) => p.key === "financial")!;
 const EMOTIONAL = PILLARS.find((p) => p.key === "emotional")!;
 const TIMING = PILLARS.find((p) => p.key === "timing")!;
 
+// Surface role SSOT — record only; Build lives on Home + Path.
+void SURFACE_ROLES.report;
+
 /**
- * Surface roles (D4 — all four readiness surfaces stay, each with one job):
- * - /results — the verdict MOMENT: score reveal, pillars, insight, immediate CTAs.
- * - /path    — the ongoing plan-to-ready: binding-constraint sequence over time.
- * - /plan    — simple next-steps checklist derived from the latest result.
- * - /report/{id} — the persisted, shareable/printable RECORD of one assessment.
- * Don't duplicate one surface's job on another — link across instead.
+ * Persisted, shareable/printable record of one assessment.
+ * Living Build = Home + Path. /results is retired (middleware → Home / First Moment).
+ * /plan is a read-only checklist deep-link. Don't duplicate those jobs here.
  */
 export default async function ReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -94,7 +96,10 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
 
       <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-sm text-dim print:text-black/60">
+          <h1 className="font-display text-2xl font-semibold text-light print:text-black">
+            {meta.label}
+          </h1>
+          <p className="mt-1 text-sm text-dim print:text-black/60">
             {completedAt.toLocaleDateString("en-US", {
               month: "long",
               day: "numeric",
@@ -224,6 +229,9 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
         <p className="text-xs leading-relaxed text-dim/80 print:text-black/60">
           {LEGAL_DISCLAIMER}
         </p>
+        <p className="mt-3 text-xs leading-relaxed text-dim/80 print:text-black/60">
+          HōMI Score is not a credit score. Lenders will still pull a credit report. Fannie&apos;s manual floor is still 620. That is their gate, not a HōMI verdict.
+        </p>
       </div>
 
       <div className="mt-8 flex flex-wrap items-center gap-4 print:hidden">
@@ -232,6 +240,9 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
         </Link>
         <Link href="/path" className="btn btn-ghost">
           Path to Ready
+        </Link>
+        <Link href="/assessment" className="btn btn-ghost">
+          Retake the assessment
         </Link>
         <Link href={`/report/${assessment.id}/credential`} className="btn btn-ghost">
           View credential

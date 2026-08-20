@@ -283,7 +283,7 @@ test.describe("Impact Bus @flag-on", () => {
     await expect(page.getByRole("button", { name: "Mark done" })).toHaveCount(1);
 
     // Remount via navigation: no replay (stored transport was consumed).
-    await page.goto("/results");
+    await page.goto("/dashboard");
     await gotoPath(page);
     await expect(toastRegion(page)).toHaveCount(0);
     const completedAtAfter = await page.evaluate(() => {

@@ -2,9 +2,9 @@
 title: Post-login audit — let users experience their build
 source: Claude Code (design audit, two-lens review)
 date: 2026-08-17
-revision: 6 — 2026-08-20 state-based post-login + surface roles + results→Build CTAs
-status: design — phases 00–06 landed; phase 03 state routing + surface-role SSOT + results primary CTA closed on this branch; phase 07 remainder (full /results merge) still open
-surface: post-login (`/dashboard`, `/path`, `/plan`, `/results`, `/onboarding`)
+revision: 8 — 2026-08-20 F8 delete /results route + ResultsVerdictView; middleware redirect
+status: design — phases 00–07 landed; signed-in UI walkthrough still blocked on #241
+surface: post-login (`/dashboard`, `/path`, `/plan`, `/onboarding`; `/results` retired)
 sections: Section 2 (Dashboard / Shell) primary — no writes to Section 0 or 8
 related: DESIGN.md, CANON.md, COMPANION-ECOSYSTEM.md, docs/SECTIONS.md
 ---
@@ -42,14 +42,21 @@ Phases 00–03 landed in [#252](https://github.com/HoMI-Technology/Homi-Tech-Pro
 | Employee hub empty → Shadow Score | signed-in CTA honesty | **Closed** — Assess → `/assessment` |
 | Contextual quick-action first-run led with Shadow Score | tools IA | **Closed** — `/assessment`, `/money`, `/path` |
 | Money tools discovery from Home | tools IA | **Closed** — Home `HomeMoneyStanding` strip (ledger surplus / runway / liquid) + CTAs into `/money` |
-| `onboarding_completed` still write-only | F5 | Open — not used for redirects (unsafe without backfill) |
+| `onboarding_completed` still write-only | F5 | **Closed** — write removed from onboarding; column may remain in DB (RLS self-update still tested); never gate redirects without backfill |
 | State-based post-login routing | F1 / phase 03 | **Closed** — `resolvePostLoginDestination`: explicit `?next=` wins; bare sign-in → Assess if unscored, Home if scored |
 | Fold inversion (build hero, score to rail) | F7 / phase 04 | **Closed** — `HOME_FOLD_INSTRUMENT = "build"`; DESIGN.md 3-second test amended |
 | Step ledger of completed Path moves | F9 / phase 06 | **Closed** — `PathStepLedger` on Home (suppressed over hard stops) |
-| Collapse `/plan` + `/results` | F8 / phase 07 | **Partial** — `/plan` read-only checklist (no local progress store); `/results` reveal CTAs → Build; full route deletion still open |
+| Collapse `/plan` + `/results` | F8 / phase 07 | **Closed** — `/plan` read-only; `/results` route deleted; middleware → Home (signed-in) / First Moment (guest); LHCI URL removed; `ResultsVerdictView` removed |
+| Companion / Agents invite Shadow Score when unscored | signed-in CTA honesty | **Closed** — Chat/AgentChat Assess CTA; hand-off allowlist drops `/shadow-score`; fallback → `/assessment` |
+| Post-auth email “ninety seconds” while CTA is `/assessment` | duration honesty | **Closed** — welcome / complete-profile / start-assessment → “about five minutes” |
+| Scenario “Fund path” invents readiness when unscored | Build honesty | **Closed** — requires scored assessment; UI Assess-gates Fund buttons |
+| Stale “Finance dashboard” on signed-in money surfaces | Money IA | **Closed** — Money Stand language on connections, path, simulator, memory, Companion prompts |
+| Timeline empty CTA said “Re-check” | first-run honesty | **Closed** — empty history → Assess |
+| ⌘K Home labeled Dashboard | chrome | **Closed** — paletteLabel Home |
 | Sign-up default → `/onboarding` | first-run honesty | **Closed** — bare sign-up defaults to `POST_LOGIN_ASSESS` (`/assessment`); explicit `?next=` still wins |
 | Home fold premium identity | visual / brand | **Closed** — `dash-instrument` chrome, in-fold `Wordmark` + eyebrow, Companion `panel-focus`, Path dock language, ledger kicker |
 | Signed-in Shadow Score as product close | tools IA | **Closed** — removed from ⌘K; Twin/Trinity empties → Assess; QuickActionGrid stripped |
+| Snapshot aside on mobile (F10) | shell | **Closed-by-deletion** — Home is `HomeFold` only; `dash-body-grid` / Snapshot no longer mount |
 
 This file stays the audit. It does not replace the product PR.
 
@@ -92,7 +99,7 @@ prioritisation hypothesis rather than a measurement — which is itself finding 
 | Check | Result |
 | --- | --- |
 | `/dashboard` as a guest → `/auth/sign-in?next=%2Fdashboard` | CONFIRMED |
-| `/results` as a guest → "No results yet", no 4-band verdict painted | CONFIRMED |
+| `/results` as a guest → middleware → `/first-moment` (route deleted F8) | CONFIRMED (code) |
 | Onboarding "Skip for now" performs no navigation | **CONFIRMED — F5 upgraded to observed** |
 | Guests cannot reach the full assessment (rev 2's retraction) | CONFIRMED — but via a broken mechanism, see **F11** |
 
@@ -470,13 +477,13 @@ current dashboard treats as real.
 | Phase | Work | Closes | Doctrine risk | Status |
 | --- | --- | --- | --- | --- |
 | 00 | Instrument the dashboard: empty-state impression, next-move click, activation funnel, return cadence | F3 | None | Landed in #252 (`dashboard_fold_viewed`; remaining funnel events still thin) |
-| 01 | Bug fixes, no design content: navigate on skip; read or drop `onboarding_completed`; delete unreachable replay; hide Snapshot below `lg`; un-swallow the `/assessment` redirect | F5, F10, F11 | None | **Partly landed in #252** — skip navigation and the `NEXT_REDIRECT` rethrow shipped (F5 limb 1, F11). Still open: `onboarding_completed` remains write-only, the unreachable replay is still in `onboarding/page.tsx`, and the Snapshot aside is still ungated (**F10 untouched**) |
+| 01 | Bug fixes, no design content: navigate on skip; read or drop `onboarding_completed`; delete unreachable replay; hide Snapshot below `lg`; un-swallow the `/assessment` redirect | F5, F10, F11 | None | **Landed** — skip → `/dashboard`, `NEXT_REDIRECT` rethrow, unreachable replay deleted, Snapshot surface gone with HomeFold, `onboarding_completed` write removed (column unread; do not gate redirects without backfill) |
 | 02 | Server-render the path into the existing `Promise.all`; surface hard stops; steps-completed in the rail | F2, F4, F7 (part) | None — additive | Landed in #252 |
 | 03 | Resume ramp for abandoned assessments; state-based post-login routing | F1 | Low | **Landed** — resume ramp in #252; `resolvePostLoginDestination` on sign-in + `/auth/callback` (explicit `?next=` wins; bare → Assess/Home by assessment state) |
 | 04 | Invert the fold — build hero, score to rail. **Edits DESIGN.md's 3-second test in the same commit** | F7 | **PILOT required** | **Landed** — HomeFold `data-home-build-hero` + score rail; DESIGN.md / ARCHITECTURE-DESIGN.md hierarchy text updated |
 | 05 | One server-rendered Companion line on the build | F6 | Low | **Landed** — `data-companion-fold-line` on HomeFold |
 | 06 | The ledger — completed steps with impact | F9 | None | **Landed** — `PathStepLedger` (titles of done steps; suppressed over hard stops) |
-| 07 | Collapse `/plan` and `/results` into the Build; re-point nav catalog + parity test | F8 | Medium — routing | **Partial** — `/plan` palette-only + read-only checklist; Path owns operate; full `/results` merge still open |
+| 07 | Collapse `/plan` and `/results` into the Build; re-point nav catalog + parity test | F8 | Medium — routing | **Landed** — `/plan` read-only; Assess → `/dashboard`; `/results` deleted; middleware redirects; LHCI + `ResultsVerdictView` removed |
 
 Phases 00–03 contain **no design decisions at all**. They close both critical findings
 plus two highs without requiring anyone's taste to agree. If nothing else here is
