@@ -54,21 +54,60 @@ export function resumeDraftCopy(
   };
 }
 
+/**
+ * Locked Home-fold Companion lines — SSOT for docs/COMPANION-PRESENCE.md.
+ * One sentence only. Companion never calculates; Path owns the fold hero.
+ */
+export const COMPANION_FOLD_LINES = {
+  hardStop: "A hard stop is the read right now. The path names what has to move first.",
+  pathGuide: "Your next honest move is the binding step on Path to Ready.",
+  assessmentOnly: "You have a read. Path to Ready is the map from here.",
+  firstRun: "One measurement and this page has a build to show.",
+} as const;
+
+export type CompanionFoldLineKey = keyof typeof COMPANION_FOLD_LINES;
+
+/**
+ * Where Escalation (presence state 5) opens full conversation.
+ * Stub only — do not mount chat UI on the Home fold; deep-link here later.
+ */
+export const COMPANION_ESCALATION_HREF = "/advisor" as const;
+
+/** Presence states that drive the Home fold line (Silent Witness = no extra chrome). */
+export type CompanionPresenceState =
+  | "silent_witness"
+  | "hard_stop_guardian"
+  | "path_guide"
+  | "score_rail"
+  | "escalation";
+
+export function companionPresenceState(args: {
+  hasHardStops: boolean;
+  hasPath: boolean;
+  hasAssessment: boolean;
+}): Exclude<CompanionPresenceState, "score_rail" | "escalation"> {
+  if (args.hasHardStops) return "hard_stop_guardian";
+  if (args.hasAssessment && args.hasPath) return "path_guide";
+  // Assessment-only and first-run still speak the locked line; chat stays Silent Witness.
+  if (args.hasAssessment) return "silent_witness";
+  return "silent_witness";
+}
+
 export function companionFoldLine(args: {
   hasHardStops: boolean;
   hasPath: boolean;
   hasAssessment: boolean;
 }): string {
   if (args.hasHardStops) {
-    return "A hard stop is the read right now. The path names what has to move first.";
+    return COMPANION_FOLD_LINES.hardStop;
   }
   if (args.hasAssessment && args.hasPath) {
-    return "Your next honest move is the binding step on Path to Ready.";
+    return COMPANION_FOLD_LINES.pathGuide;
   }
   if (args.hasAssessment) {
-    return "You have a read. Path to Ready is the map from here.";
+    return COMPANION_FOLD_LINES.assessmentOnly;
   }
-  return "One measurement and this page has a build to show.";
+  return COMPANION_FOLD_LINES.firstRun;
 }
 
 /**
