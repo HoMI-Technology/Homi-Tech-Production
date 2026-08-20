@@ -24,7 +24,7 @@ export interface InterruptContext {
 }
 
 /**
- * Decide whether Homie should gently interrupt. Defaults to no — silence and
+ * Decide whether HōMI should gently interrupt. Defaults to no — silence and
  * listening are preferred unless the user is clearly looping or drowning.
  */
 export function decideGentleInterrupt(ctx: InterruptContext): GentleInterruptDecision {

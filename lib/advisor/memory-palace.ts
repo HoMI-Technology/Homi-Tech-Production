@@ -1,7 +1,7 @@
 /**
  * Memory Palace — compact, referenceable moments from Companion threads.
  * Persistence still flows through existing Supabase advisor_* tables via
- * `lib/advisor/memory.ts`; this module shapes what Homie may recall aloud.
+ * `lib/advisor/memory.ts`; this module shapes what HōMI may recall aloud.
  */
 
 import type { MemoryPalaceEntry, ReadinessPillar } from "@/types/companion";
@@ -76,7 +76,7 @@ export function buildMemoryPalace(
 }
 
 /**
- * Pick memories relevant to the current user utterance for Homie to reference.
+ * Pick memories relevant to the current user utterance for HōMI to reference.
  */
 export function recallRelevantMemories(
   palace: MemoryPalaceEntry[],
