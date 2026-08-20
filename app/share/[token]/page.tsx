@@ -24,6 +24,16 @@ interface SharedAssessment {
   shared_by: string;
 }
 
+/**
+ * Pillar strength renders as a normalized percentage, never raw points. The
+ * exact pillar maxima are trade-secret (2026-08 audit): this page is
+ * token-gated but anonymous-readable, and a raw "points vs max" pair is
+ * recoverable from the numeral plus the ring's arc geometry (the SVG
+ * stroke-dasharray sits in the DOM). Percentages carry the same honesty
+ * without publishing the weights.
+ */
+const pillarPct = (score: number, max: number) => Math.round((score / max) * 100);
+
 export default async function SharePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
 
@@ -65,28 +75,31 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
           <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3">
             <div className="glass flex flex-col items-center gap-4 p-6">
               <ScoreRing
-                value={row.financial_score}
-                max={PILLAR_MAX_POINTS.financial}
+                value={pillarPct(row.financial_score, PILLAR_MAX_POINTS.financial)}
+                max={100}
                 color={FINANCIAL.color}
                 label={FINANCIAL.name}
+                sublabel="percent"
                 size={120}
               />
             </div>
             <div className="glass flex flex-col items-center gap-4 p-6">
               <ScoreRing
-                value={row.emotional_score}
-                max={PILLAR_MAX_POINTS.emotional}
+                value={pillarPct(row.emotional_score, PILLAR_MAX_POINTS.emotional)}
+                max={100}
                 color={EMOTIONAL.color}
                 label={EMOTIONAL.name}
+                sublabel="percent"
                 size={120}
               />
             </div>
             <div className="glass flex flex-col items-center gap-4 p-6">
               <ScoreRing
-                value={row.timing_score}
-                max={PILLAR_MAX_POINTS.timing}
+                value={pillarPct(row.timing_score, PILLAR_MAX_POINTS.timing)}
+                max={100}
                 color={TIMING.color}
                 label={TIMING.name}
+                sublabel="percent"
                 size={120}
               />
             </div>

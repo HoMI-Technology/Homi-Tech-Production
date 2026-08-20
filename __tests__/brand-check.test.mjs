@@ -549,11 +549,11 @@ describe("N19–N20: type-scale drift", () => {
 });
 
 /* ================================================================== *
- * 7c. Trade-secret scoring internals on marketing surfaces (N21–N22)
+ * 7c. Trade-secret scoring internals on public surfaces (N21–N22)
  * ================================================================== */
 
-describe("N21–N22: scoring internals stay off public marketing surfaces", () => {
-  it("flags numeric pillar weights on the marketing tree", () => {
+describe("N21–N22: scoring internals stay off public surfaces", () => {
+  it("flags numeric pillar weights on the public copy tree", () => {
     expect(
       fires(
         "Weighted at up to 35 of 100 in your readiness score.",
@@ -623,6 +623,70 @@ describe("N21–N22: scoring internals stay off public marketing surfaces", () =
     expect(fires("a 30-year mortgage horizon", "N22", "components/marketing/guides-data.ts")).toBe(
       false,
     );
+  });
+
+  it("covers the learning hub and the public share pages", () => {
+    expect(
+      fires("worth up to 35 of 100 points", "N21", "components/learning/learning-data.ts"),
+    ).toBe(true);
+    expect(fires("READY 80–100", "N22", "app/share/[token]/page.tsx", "", "")).toBe(true);
+    expect(fires("READY 80–100", "N22", "app/shadow/[token]/page.tsx", "", "")).toBe(true);
+  });
+});
+
+/* ================================================================== *
+ * 7d. Weighting-structure phrasing on public copy (N25)
+ * ================================================================== */
+
+describe("N25: weighting structure stays qualitative on public surfaces", () => {
+  it("flags 'weighted equally' and 'close to equally' on public copy", () => {
+    expect(
+      fires(
+        "Financial Reality and Emotional Truth are weighted equally in the HōMI-Score.",
+        "N25",
+        "app/(marketing)/method/page.tsx",
+      ),
+    ).toBe(true);
+    expect(
+      fires(
+        "Weighting all three pillars close to equally reflects that regret is rarely purely financial.",
+        "N25",
+        "components/learning/learning-data.ts",
+      ),
+    ).toBe(true);
+    expect(
+      fires("<p>The pillars are weighted equally.</p>", "N25", "app/share/[token]/page.tsx"),
+    ).toBe(true);
+  });
+
+  it("keeps the qualitative canon lines clean", () => {
+    expect(
+      clean(
+        "Financial Reality and Emotional Truth are weighed with the same seriousness in the",
+        "app/(marketing)/method/page.tsx",
+      ),
+    ).toBe(true);
+    expect(
+      clean(
+        "Three pillars, weighed differently — how they combine stays ours.",
+        "app/(marketing)/how-it-works/page.tsx",
+      ),
+    ).toBe(true);
+    expect(
+      clean(
+        "All three pillars carry real weight in the read, because regret is rarely purely financial.",
+        "components/learning/learning-data.ts",
+      ),
+    ).toBe(true);
+  });
+
+  it("stays out of product surfaces and lib internals", () => {
+    expect(
+      fires("weighted equally", "N25", "app/(product)/results/page.tsx", "", ""),
+    ).toBe(false);
+    expect(
+      clean(" * Future stamps (negative age) are equally nonsensical.", "lib/advisor/context.ts"),
+    ).toBe(true);
   });
 });
 
