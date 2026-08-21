@@ -2,8 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   HOME_FOLD_INSTRUMENT,
   ONBOARDING_SKIP_HREF,
+  COMPANION_ESCALATION_HREF,
+  COMPANION_FOLD_LINES,
   buildProgressLabel,
   companionFoldLine,
+  companionPresenceState,
   hardStopMessages,
   homeFoldSentence,
   isNextRedirectError,
@@ -97,24 +100,41 @@ describe("resumeDraftCopy", () => {
 });
 
 describe("companionFoldLine", () => {
-  it("names the build without advertising launch-hidden labs", () => {
-    const line = companionFoldLine({
-      hasHardStops: true,
-      hasPath: true,
-      hasAssessment: true,
-    });
-    expect(line.toLowerCase()).toContain("hard stop");
-    expect(line).not.toMatch(/\/advisor|\/trinity|\/genome|talk to the companion/i);
+  it("emits only the four locked presence strings", () => {
+    expect(
+      companionFoldLine({ hasHardStops: true, hasPath: true, hasAssessment: true }),
+    ).toBe(COMPANION_FOLD_LINES.hardStop);
+    expect(
+      companionFoldLine({ hasHardStops: false, hasPath: true, hasAssessment: true }),
+    ).toBe(COMPANION_FOLD_LINES.pathGuide);
+    expect(
+      companionFoldLine({ hasHardStops: false, hasPath: false, hasAssessment: true }),
+    ).toBe(COMPANION_FOLD_LINES.assessmentOnly);
+    expect(
+      companionFoldLine({ hasHardStops: false, hasPath: false, hasAssessment: false }),
+    ).toBe(COMPANION_FOLD_LINES.firstRun);
   });
 
-  it("points an assessed user at Path, not a lab", () => {
-    const line = companionFoldLine({
-      hasHardStops: false,
-      hasPath: true,
-      hasAssessment: true,
-    });
-    expect(line.toLowerCase()).toMatch(/path/);
-    expect(line).not.toMatch(/\/advisor|\/trinity|\/genome/i);
+  it("never advertises labs or a fold chat invite", () => {
+    const lines = Object.values(COMPANION_FOLD_LINES);
+    expect(new Set(lines).size).toBe(4);
+    for (const line of lines) {
+      expect(line).not.toMatch(/\/advisor|\/trinity|\/genome|talk to the companion/i);
+      expect(line).not.toMatch(/limited time|upgrade now|everyone|banker/i);
+    }
+  });
+
+  it("maps hard stops and path to Guardian / Path Guide presence", () => {
+    expect(
+      companionPresenceState({ hasHardStops: true, hasPath: true, hasAssessment: true }),
+    ).toBe("hard_stop_guardian");
+    expect(
+      companionPresenceState({ hasHardStops: false, hasPath: true, hasAssessment: true }),
+    ).toBe("path_guide");
+  });
+
+  it("documents escalation off the fold", () => {
+    expect(COMPANION_ESCALATION_HREF).toBe("/advisor");
   });
 });
 

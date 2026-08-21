@@ -76,8 +76,27 @@ describe("dashboard fold tells the truth about the build", () => {
   it("surfaces a Companion fold line without mounting the chat graph", () => {
     expect(fold).toContain("companionFoldLine");
     expect(fold).toContain("data-companion-fold-line");
+    expect(fold).toContain("COMPANION_ESCALATION_HREF");
+    expect(fold).toContain("data-companion-escalate-href");
     expect(fold).toContain("HomeMoneyStanding");
     expect(fold).not.toContain("CompanionHost");
+    expect(fold).not.toContain("CompanionWidget");
+    expect(fold).not.toContain("HomieAvatar");
+    expect(fold).not.toMatch(/data-companion-chat/);
+  });
+
+  it("locks Companion fold copy to the presence doctrine SSOT", () => {
+    const truth = src("lib", "dashboard", "fold-truth.ts");
+    expect(truth).toContain("COMPANION_FOLD_LINES");
+    expect(truth).toContain(
+      "A hard stop is the read right now. The path names what has to move first.",
+    );
+    expect(truth).toContain(
+      "Your next honest move is the binding step on Path to Ready.",
+    );
+    expect(truth).toContain("You have a read. Path to Ready is the map from here.");
+    expect(truth).toContain("One measurement and this page has a build to show.");
+    expect(truth).toContain('COMPANION_ESCALATION_HREF = "/advisor"');
   });
 
   it("does not render the verdict spectrum — hard-stop theater stays off the fold", () => {

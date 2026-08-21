@@ -1,5 +1,6 @@
 import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
 import {
+  COMPANION_ESCALATION_HREF,
   HOME_FOLD_INSTRUMENT,
   buildProgressLabel,
   companionFoldLine,
@@ -157,9 +158,11 @@ export function HomeFold({
 
             <PathStepLedger suppress={hardStopActive || suppressBuildPercent} />
 
+            {/* Presence only — escalation opens at COMPANION_ESCALATION_HREF; no chat on fold. */}
             <p
               className="panel-focus mt-5 max-w-xl rounded-xl border border-cyan/20 bg-cyan/[0.04] px-4 py-3 text-sm leading-relaxed text-dim"
               data-companion-fold-line=""
+              data-companion-escalate-href={COMPANION_ESCALATION_HREF}
             >
               <span className="font-medium text-cyan/90">Companion · </span>
               {companionLine}
@@ -204,6 +207,15 @@ export function HomeFold({
         ) : (
           <>
             <DashboardResumeRamp />
+            {/* First-run presence line — Assess owns the primary CTA; no chat on fold. */}
+            <p
+              className="panel-focus mt-5 max-w-xl rounded-xl border border-cyan/20 bg-cyan/[0.04] px-4 py-3 text-sm leading-relaxed text-dim"
+              data-companion-fold-line=""
+              data-companion-escalate-href={COMPANION_ESCALATION_HREF}
+            >
+              <span className="font-medium text-cyan/90">Companion · </span>
+              {companionLine}
+            </p>
             <HomeMoneyStanding />
           </>
         )}

@@ -50,6 +50,12 @@ describe("HomeFold", () => {
     expect(screen.queryByText("Your build")).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /see results/i })).not.toBeInTheDocument();
     expect(container.querySelector("[data-home-money-standing]")).not.toBeNull();
+    const companion = container.querySelector("[data-companion-fold-line]");
+    expect(companion).not.toBeNull();
+    expect(companion).toHaveTextContent(/One measurement and this page has a build to show/);
+    expect(companion?.getAttribute("data-companion-escalate-href")).toBe("/advisor");
+    expect(container.querySelector("[data-companion-chat]")).toBeNull();
+    expect(container.querySelector("#homi-companion-panel")).toBeNull();
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeTruthy();
   });
 
@@ -94,6 +100,11 @@ describe("HomeFold", () => {
     expect(companion?.classList.contains("panel-focus")).toBe(true);
     expect(companion).toHaveTextContent(/Companion/);
     expect(companion).toHaveTextContent(/binding step on Path to Ready/);
+    expect(companion?.getAttribute("data-companion-escalate-href")).toBe("/advisor");
+    // Presence only — no chat panel or second primary on the Companion line.
+    expect(companion?.querySelector(".btn-primary")).toBeNull();
+    expect(container.querySelector("#homi-companion-panel")).toBeNull();
+    expect(container.querySelector("[data-companion-chat]")).toBeNull();
     // Compact score rail: verdict badge is a reading, not a /results deep-link.
     expect(container.querySelector("[data-home-verdict]")).not.toBeNull();
     expect(container.querySelector('[data-home-verdict][href]')).toBeNull();
@@ -167,6 +178,11 @@ describe("HomeFold", () => {
     expect(container.querySelector(".dash-spectrum")).toBeNull();
     expect(screen.queryByText("Almost")).not.toBeInTheDocument();
     expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();
+    const companion = container.querySelector("[data-companion-fold-line]");
+    expect(companion).toHaveTextContent(
+      "A hard stop is the read right now. The path names what has to move first.",
+    );
+    expect(companion?.querySelector(".btn-primary")).toBeNull();
   });
 
   it("hard stop still shows last verdict + age and never closer-to READY", () => {

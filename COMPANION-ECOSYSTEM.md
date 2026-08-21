@@ -9,6 +9,9 @@ This document is the single source of truth for how the Companion integrates acr
 the ecosystem. It is grounded in what exists in this repo today, and it is phased —
 each phase ships independently.
 
+**Home fold presence (locked):** see [`docs/COMPANION-PRESENCE.md`](docs/COMPANION-PRESENCE.md)
+— single calm line on `/dashboard`, Path owns the hero, escalation to `/advisor` only.
+
 ---
 
 ## 1. What the mote is
