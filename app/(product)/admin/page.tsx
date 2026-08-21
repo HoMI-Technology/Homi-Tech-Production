@@ -18,7 +18,7 @@ import type { Payment, Profile } from "@/types/database";
 
 export const metadata: Metadata = {
   title: "Admin Overview | HōMI",
-  description: "Platform overview — users, assessments, verdicts, and waitlist.",
+  description: "What needs ops attention now — then platform-wide signal.",
 };
 
 const VERDICT_KEYS: VerdictKey[] = ["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"];
@@ -215,12 +215,12 @@ export default async function AdminOverviewPage() {
       <PageHeader
         eyebrow="Admin"
         title="Overview"
-        description="What needs attention, then platform-wide signal."
+        description="What needs ops attention now? Then platform-wide signal below."
         primaryAction={{ label: "Activity", href: "/admin/activity", variant: "ghost" }}
         secondaryAction={{ label: "Analytics", href: "/admin/analytics", variant: "ghost" }}
       />
 
-      <div className="mt-6">
+      <div className="mt-6" data-admin-attention="">
         <AttentionStrip items={attention} title="Needs attention" />
       </div>
 

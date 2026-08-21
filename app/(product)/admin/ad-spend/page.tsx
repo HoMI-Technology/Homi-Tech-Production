@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
+import { AttentionStrip, type AttentionItem } from "@/components/operate/AttentionStrip";
 import { AdSpendForm } from "@/components/admin/AdSpendForm";
 import { CsvExportButton } from "@/components/admin/CsvExportButton";
 import { COLORS } from "@/lib/brand";
@@ -125,14 +126,67 @@ export default async function AdminAdSpendPage() {
     (c) => c !== "direct",
   );
 
+  const paidChannels = performance.filter((r) => r.channel !== "direct" && (r.spendCents ?? 0) > 0);
+  const worstByRoas = [...paidChannels]
+    .filter((r) => r.roas != null)
+    .sort((a, b) => (a.roas ?? 0) - (b.roas ?? 0))[0];
+  const worstByCac = [...paidChannels]
+    .filter((r) => r.cacCents != null)
+    .sort((a, b) => (b.cacCents ?? 0) - (a.cacCents ?? 0))[0];
+
+  const attention: AttentionItem[] = [];
+  if (totalSpend === 0) {
+    attention.push({
+      id: "no-spend",
+      severity: "info",
+      title: "No paid spend logged yet",
+      detail: "Log a line before trusting CAC or ROAS. Tables stay empty until you do.",
+      href: "#log-spend",
+      cta: "Add spend",
+    });
+  } else if (blendedRoas != null && blendedRoas < 1) {
+    attention.push({
+      id: "roas-low",
+      severity: "warn",
+      title: `Blended ROAS ${blendedRoas.toFixed(2)}× — spend outruns revenue`,
+      detail: worstByRoas
+        ? `Worst channel right now: ${worstByRoas.channel}. Cut or pause before logging more.`
+        : "Review per-channel ROAS below before logging more spend.",
+      href: "#channel-cac",
+      cta: "Review channels",
+    });
+  } else if (worstByCac && worstByCac.cacCents != null && worstByCac.cacCents > 0) {
+    attention.push({
+      id: "cac-watch",
+      severity: "info",
+      title: `Highest CAC: ${worstByCac.channel}`,
+      detail: "Confirm that channel still earns unique activation before you scale it.",
+      href: "#channel-cac",
+      cta: "Inspect channel",
+    });
+  } else {
+    attention.push({
+      id: "ok",
+      severity: "ok",
+      title: "No urgent paid-media alarm from logged spend",
+      detail: "Keep logging honestly. Attribution lives one click away.",
+      href: "/admin/attribution",
+      cta: "Attribution",
+    });
+  }
+
   return (
     <div>
       <PageHeader
         eyebrow="Admin"
         title="Ad Spend & CAC"
-        description="Log paid-media spend, then read blended and per-channel CAC and ROAS against attributed signups and revenue."
+        description="Which paid channel earns vs burns? Decide first — then log lines and read CAC / ROAS."
         primaryAction={{ label: "Attribution", href: "/admin/attribution", variant: "ghost" }}
       />
+
+      <div className="mt-6" data-ad-spend-attention="">
+        <AttentionStrip items={attention} title="Needs a decision" />
+      </div>
 
       <div className="mt-6">
         <MetricRail
@@ -166,7 +220,7 @@ export default async function AdminAdSpendPage() {
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_1.3fr]">
-        <div className="glass panel-focus p-6">
+        <div className="glass panel-focus p-6" id="log-spend">
           <SectionHeader
             eyebrow="Log spend"
             title="Add a spend line"
@@ -177,7 +231,7 @@ export default async function AdminAdSpendPage() {
           </div>
         </div>
 
-        <div className="glass p-6">
+        <div className="glass p-6" id="channel-cac">
           <SectionHeader
             eyebrow="Performance"
             title="CAC & ROAS by channel"

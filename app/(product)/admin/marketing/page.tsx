@@ -123,7 +123,7 @@ function last7(series: { count: number }[]): number {
 export const metadata: Metadata = {
   title: "X + TikTok | Admin | HōMI",
   description:
-    "Founder growth desk — X @Homi_Tech and TikTok @homi_technology. Approve before ship.",
+    "Ship or kill today — paid vs organic toward First Moment. Approve before anything ships.",
 };
 
 const TIER_COLORS: Record<SubscriptionTier, string> = {
@@ -488,12 +488,21 @@ export default async function AdminMarketingPage() {
       <PageHeader
         eyebrow="Growth"
         title="X + TikTok"
-        description="This week’s engines: X @Homi_Tech and TikTok @homi_technology. LinkedIn is a third surface. Queue and approve before anything ships. Activated / Waitlist / Paid live on Overview and Waitlist — zeros stay zeros."
-        primaryAction={{ label: "Open studio", href: "#desk-content", variant: "primary" }}
-        secondaryAction={{ label: "Calendar", href: "#desk-calendar", variant: "ghost" }}
+        description="Ship or kill today. Paid vs organic → First Moment / unique activation. Desks stay below the decide band."
+        primaryAction={{ label: "Approvals", href: "#approval-queue", variant: "primary" }}
+        secondaryAction={{ label: "Open studio", href: "#desk-content", variant: "ghost" }}
       />
 
-      {/* First viewport: decide — brief + queue + north star */}
+      {/* Attention first — ship/kill before desks */}
+      <div data-marketing-attention="">
+        <MarketingTodayStrip primary={attention[0]} />
+        {attention.length > 1 && (
+          <div className="mt-4">
+            <AttentionStrip items={attention.slice(1)} title="Also needs the CEO" />
+          </div>
+        )}
+      </div>
+
       <MorningBrief
         metrics={{
           uniqueActivated7d,
@@ -508,13 +517,6 @@ export default async function AdminMarketingPage() {
       />
 
       <ApprovalQueue initialAssets={pendingAssets} />
-
-      <MarketingTodayStrip primary={attention[0]} />
-      {attention.length > 1 && (
-        <div className="mt-4">
-          <AttentionStrip items={attention.slice(1)} title="Also needs the CEO" />
-        </div>
-      )}
 
       {/* Collapsible fleet — expand when you need the full board */}
       <details className="glass mt-6 p-4">
