@@ -1,5 +1,5 @@
 /**
- * Dashboard card highlighting while Homie speaks.
+ * Dashboard card highlighting while HōMI speaks.
  *
  * Uses existing product `data-*` hooks only (Section 2 markup). Companion code
  * injects a temporary highlight class + scoped stylesheet — no dashboard edits.
@@ -13,7 +13,7 @@ export const HOMIE_HIGHLIGHT_CLASS = "homie-card-highlight";
 const STYLE_ID = "homie-card-highlight-styles";
 
 /**
- * Map of Homie card ids → CSS selectors already present in the product shell.
+ * Map of companion card ids → CSS selectors already present in the product shell.
  * Missing nodes are skipped (best-effort; never throws).
  */
 export const HOMIE_CARD_SELECTORS: Record<HomieCardId, string> = {
@@ -52,7 +52,7 @@ function ensureHighlightStyles(): void {
   document.head.appendChild(style);
 }
 
-/** Clear all Homie card highlights. */
+/** Clear all HōMI card highlights. */
 export function clearHomieCardHighlights(): void {
   if (typeof document === "undefined") return;
   document.querySelectorAll(`.${HOMIE_HIGHLIGHT_CLASS}`).forEach((el) => {
@@ -98,7 +98,7 @@ const TOPIC_TO_CARDS: Array<{ re: RegExp; cards: HomieCardId[] }> = [
 ];
 
 /**
- * Infer which dashboard cards to highlight from Homie's spoken / chat text.
+ * Infer which dashboard cards to highlight from HōMI's spoken / chat text.
  */
 export function cardsForSpeech(text: string): HomieCardId[] {
   const found = new Set<HomieCardId>();

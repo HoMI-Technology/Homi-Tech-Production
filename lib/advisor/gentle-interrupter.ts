@@ -17,14 +17,14 @@ export interface InterruptContext {
   speakingMs: number;
   /** Optional emotional read — tone shifts can warrant a soft pause. */
   emotional?: EmotionalMirrorReading;
-  /** True when Homie already has a grounded insight ready from context. */
+  /** True when HōMI already has a grounded insight ready from context. */
   insightReady?: boolean;
   /** Short educational insight (not advice) to offer after the chime. */
   insightText?: string;
 }
 
 /**
- * Decide whether Homie should gently interrupt. Defaults to no — silence and
+ * Decide whether HōMI should gently interrupt. Defaults to no — silence and
  * listening are preferred unless the user is clearly looping or drowning.
  */
 export function decideGentleInterrupt(ctx: InterruptContext): GentleInterruptDecision {

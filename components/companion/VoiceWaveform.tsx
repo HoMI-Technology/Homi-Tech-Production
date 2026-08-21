@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Minimal waveform bars for Homie listening / speaking states.
+ * Minimal waveform bars for HōMI listening / speaking states.
  */
 
 import { COLORS } from "@/lib/brand";

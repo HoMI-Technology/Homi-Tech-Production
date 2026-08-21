@@ -1,9 +1,9 @@
 /**
- * Homie voice-first companion — shared types.
+ * HōMI voice-first companion — shared types.
  *
  * The floating avatar is one surface of the Companion mote. These types describe
  * avatar visual state, the five core presence behaviors, voice I/O, and the
- * dashboard-card highlight contract used while Homie speaks.
+ * dashboard-card highlight contract used while HōMI speaks.
  */
 
 /** Visual / interaction state of the floating circular avatar. */
@@ -36,7 +36,7 @@ export type EmotionalTone =
   | "steady";
 
 /**
- * Dashboard instruments Homie may highlight while speaking.
+ * Dashboard instruments HōMI may highlight while speaking.
  * Selectors live in `lib/advisor/card-highlight.ts` and target existing
  * `data-*` hooks — companion code never invents new dashboard markup.
  */
@@ -51,7 +51,7 @@ export type HomieCardId =
   | "emotional"
   | "timing";
 
-/** Three-pillar Decision Readiness anchors Homie may reference. */
+/** Three-pillar Decision Readiness anchors HōMI may reference. */
 export type ReadinessPillar = "financial" | "emotional" | "timing";
 
 export interface EmotionalMirrorReading {
@@ -85,7 +85,7 @@ export interface FutureSelfProjection {
 export interface GentleInterruptDecision {
   shouldInterrupt: boolean;
   reason: "long_monologue" | "insight_ready" | "tone_shift" | "none";
-  /** Soft copy Homie may offer after the chime (never advice). */
+  /** Soft copy HōMI may offer after the chime (never advice). */
   insight?: string;
 }
 
@@ -102,7 +102,7 @@ export interface HomieBehaviorTurn {
   interrupt?: GentleInterruptDecision;
   futureSelf?: FutureSelfProjection;
   silent?: SilentWitnessDecision;
-  /** Cards to highlight while Homie speaks this turn. */
+  /** Cards to highlight while HōMI speaks this turn. */
   cards: HomieCardId[];
   /** Optional system-prompt additive for /api/advisor. */
   promptHint: string;

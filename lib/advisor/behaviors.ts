@@ -1,5 +1,5 @@
 /**
- * Homie behavior orchestrator — picks the primary presence behavior for a turn
+ * HōMI behavior orchestrator — picks the primary presence behavior for a turn
  * and assembles prompt hints + card highlights for the floating avatar.
  */
 
@@ -43,7 +43,7 @@ function uniqueCards(cards: HomieCardId[]): HomieCardId[] {
 }
 
 /**
- * Orchestrate Homie's five core behaviors for one user turn.
+ * Orchestrate HōMI's five core presence behaviors for one user turn.
  */
 export function orchestrateHomieBehaviors(input: OrchestrateInput): HomieBehaviorTurn {
   const utterance = input.utterance.trim();
@@ -99,7 +99,7 @@ export function orchestrateHomieBehaviors(input: OrchestrateInput): HomieBehavio
 
   const promptParts: string[] = [];
   promptParts.push(
-    `Homie presence behavior this turn: ${primary.replace(/_/g, " ")}. Stay inside HōMI voice rules — educational only, no advice.`,
+    `HōMI presence behavior this turn: ${primary.replace(/_/g, " ")}. Stay inside HōMI voice rules — educational only, no advice.`,
   );
 
   if (primary === "emotional_mirror") {
