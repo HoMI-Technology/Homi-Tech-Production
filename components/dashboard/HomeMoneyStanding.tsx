@@ -18,7 +18,8 @@ import { formatCurrency } from "@/lib/tools/format";
 /**
  * Home money standing — where cash sits + how solid the picture is.
  * Same on-device ledger SoT as Money Stand. Path stays the fold hero;
- * this strip is the Rocket-adjacent "current standing" under Companion.
+ * this strip is depth-adjacent standing under Companion — never a tools grid,
+ * never a filled primary button (see docs/MONEY-TOOLS-DEPTH.md).
  */
 export function HomeMoneyStanding() {
   const [view, setView] = useState<HomeMoneyStandingView | null>(null);

@@ -283,7 +283,7 @@ const bodySchema = z.object({
   identity: identitySchema.nullish(),
   persona: personaSchema.nullish(),
   /**
-   * Homie presence-behavior hint from the floating voice avatar
+   * HōMI presence-behavior hint from the floating voice avatar
    * (`lib/advisor/behaviors.ts`). Additive context only — never overrides
    * voice rules, scoring, or the no-advice floor. Newlines allowed so the
    * orchestrator can send a short multi-line presence brief.
@@ -714,7 +714,7 @@ export async function POST(request: Request) {
         path,
         lensDigest,
       ) +
-      (homieBehaviorHint ? ` Homie presence: ${homieBehaviorHint}` : "");
+      (homieBehaviorHint ? ` HōMI presence: ${homieBehaviorHint}` : "");
     // The name is user-chosen text — framed as a label, never as instructions.
     const identityLine =
       identity && identity.name !== "HōMI"

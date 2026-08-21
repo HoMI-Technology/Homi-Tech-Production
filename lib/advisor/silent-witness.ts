@@ -1,12 +1,12 @@
 /**
- * Silent Witness — sometimes Homie says nothing. Presence is the behavior.
+ * Silent Witness — sometimes HōMI says nothing. Presence is the behavior.
  */
 
 import type { SilentWitnessDecision } from "@/types/companion";
 import type { EmotionalMirrorReading } from "@/types/companion";
 
 export interface SilentWitnessContext {
-  /** User explicitly asked Homie to just sit with them / be quiet. */
+  /** User explicitly asked HōMI to just sit with them / be quiet. */
   askedForSilence?: boolean;
   /** Last assistant message was a hard truth (NOT YET, hard stop, etc.). */
   afterHardTruth?: boolean;
