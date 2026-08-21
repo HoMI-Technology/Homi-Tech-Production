@@ -129,7 +129,7 @@ export default async function EmployeeDashboardPage() {
               <p className="mt-2.5 max-w-xl text-sm text-light/90">{verdictMeta.line}</p>
             </div>
             <ActionDock kicker="Next move" title="Continue your build on personal Home">
-              <Link href="/dashboard" className="btn btn-primary">
+              <Link href="/dashboard" className="btn btn-primary" data-employee-primary="">
                 Personal dashboard
               </Link>
               <Link href="/path" className="btn btn-ghost">
@@ -147,7 +147,7 @@ export default async function EmployeeDashboardPage() {
         )}
       </OperateInstrument>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+      <div className="mt-5 grid gap-3 sm:grid-cols-2" data-employee-privacy="">
         <div className="dash-panel">
           <h3 className="text-emerald">You see</h3>
           <ul className="mt-2 space-y-1.5 text-sm text-dim">
@@ -222,26 +222,6 @@ export default async function EmployeeDashboardPage() {
           </div>
         </div>
       )}
-
-      <div className="mt-6 grid gap-3 sm:grid-cols-3">
-        {[
-          { href: "/assessment", title: "Assessment", body: "Three-pillar readiness read" },
-          { href: "/money", title: "Money", body: "Picture, track, and decision math" },
-          { href: "/advisor", title: "Companion", body: "Private coaching chat" },
-          { href: "/journal", title: "Journal", body: "Log decisions as you make them" },
-          { href: "/daily", title: "Daily pulse", body: "Mood and stress check-in" },
-          { href: "/path", title: "Path to Ready", body: "Binding-constraint next steps" },
-        ].map((card) => (
-          <Link
-            key={card.href}
-            href={card.href}
-            className="glass glass-hover block p-4 transition-colors"
-          >
-            <p className="font-semibold text-light">{card.title}</p>
-            <p className="mt-1 text-sm text-dim">{card.body}</p>
-          </Link>
-        ))}
-      </div>
 
       <p className="mt-10 text-center text-xs text-dim">
         Decision-support benefit. Not medical or financial advice. HōMI Technologies LLC.

@@ -220,18 +220,20 @@ export default async function PartnerDashboardPage() {
             },
           ]}
         />
-        <ActionDock
-          kicker="Next move"
-          title={hasBook ? "Share your invite link" : "Share your link to open the book"}
-        >
-          {inviteUrl ? (
-            <InviteShareRow url={inviteUrl} />
-          ) : (
-            <p className="text-sm text-dim">
-              Could not mint an invite code. Refresh or contact support.
-            </p>
-          )}
-        </ActionDock>
+        <div data-partner-invite="">
+          <ActionDock
+            kicker="Next move"
+            title={hasBook ? "Share your invite link" : "Share your link to open the book"}
+          >
+            {inviteUrl ? (
+              <InviteShareRow url={inviteUrl} />
+            ) : (
+              <p className="text-sm text-dim">
+                Could not mint an invite code. Refresh or contact support.
+              </p>
+            )}
+          </ActionDock>
+        </div>
       </OperateInstrument>
 
       {!hasBook && (
@@ -342,7 +344,7 @@ export default async function PartnerDashboardPage() {
         </div>
       )}
 
-      <div className="mt-8 grid gap-3 sm:grid-cols-3">
+      <div className="mt-8 grid gap-3 sm:grid-cols-3" data-partner-resources="">
         {[
           { href: "/guides", title: "Client guides", body: "Share ready explainers" },
           { href: "/method", title: "HōMI method", body: "How the instrument works" },
@@ -351,10 +353,10 @@ export default async function PartnerDashboardPage() {
           <Link
             key={card.href}
             href={card.href}
-            className="glass glass-hover block p-4 transition-colors"
+            className="block rounded-lg border border-white/[0.06] px-3 py-2.5 text-sm transition-colors hover:border-cyan/25 hover:text-light"
           >
-            <p className="font-semibold text-light">{card.title}</p>
-            <p className="mt-1 text-sm text-dim">{card.body}</p>
+            <p className="font-medium text-light/90">{card.title}</p>
+            <p className="mt-0.5 text-xs text-dim">{card.body}</p>
           </Link>
         ))}
       </div>

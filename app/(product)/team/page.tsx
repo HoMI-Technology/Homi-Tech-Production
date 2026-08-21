@@ -167,7 +167,7 @@ export default async function TeamDashboardPage() {
         </ActionDock>
       </OperateInstrument>
 
-      <div className="glass mt-6 p-5 sm:p-6">
+      <div className="glass mt-6 p-5 sm:p-6" data-team-aggregates="">
         <div className="dash-section-head">
           <h2>Verdict distribution</h2>
           <p>Group bands only. No named individuals.</p>
