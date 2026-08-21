@@ -8,14 +8,15 @@ import { pageMetadata } from "@/lib/seo/metadata";
 export const metadata: Metadata = pageMetadata({
   title: "Tools",
   description:
-    "Honest lenses for the math behind your biggest decisions — housing, debt, and independence.",
+    "Answer one math question at a time — honest educational lenses for housing, debt, and independence.",
   path: "/tools",
 });
 
 /**
  * Tools hub — ten public lenses from the registry (lib/tools/registry.ts).
  * Off-hub routes stay reachable as deep links; they are not peer cards.
- * See docs/TOOL_CONSOLIDATION.md (locked 14 Aug 2026).
+ * Depth under Path — never remount as a Home fold grid.
+ * See docs/TOOL_CONSOLIDATION.md and docs/MONEY-TOOLS-DEPTH.md.
  */
 export default async function ToolsHubPage() {
   const user = await getCachedUser();

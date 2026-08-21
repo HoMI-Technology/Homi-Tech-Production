@@ -14,7 +14,7 @@ import { MoneyModeNav } from "@/components/money/MoneyModeNav";
  */
 export function MoneyShell({ children }: { children: ReactNode }) {
   return (
-    <div className="money-page" data-surface="money">
+    <div className="money-page" data-surface="money" data-money-depth="">
       <MoneyModeNav />
       <div className="money-page-content">{children}</div>
     </div>

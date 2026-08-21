@@ -7,6 +7,7 @@ import { ToolBackLink } from "@/components/tools/ToolBackLink";
  * Shared operate chrome for every calculator page.
  * Default back target is the **public** hub so anonymous SEO traffic is never
  * auth-walled. Decide arrivals pass `?from=money` (or an explicit backHref).
+ * One job per page: answer one math question (see docs/MONEY-TOOLS-DEPTH.md).
  */
 export function ToolShell({
   title,
@@ -24,12 +25,15 @@ export function ToolShell({
   backLabel?: string;
 }) {
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10 sm:py-12">
+    <div className="mx-auto max-w-6xl px-6 py-10 sm:py-12" data-tool-lens="">
       <ToolBackLink backHref={backHref} backLabel={backLabel} />
 
       <p className="eyebrow mt-5">{eyebrow === "Calculator" ? "Money · lens" : eyebrow}</p>
       <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">{title}</h1>
       <p className="mt-2 max-w-2xl text-dim">{description}</p>
+      <p className="mt-2 max-w-2xl text-xs leading-relaxed text-dim/70" data-tool-educational="">
+        Educational estimates only — not financial, tax, mortgage, or investment advice.
+      </p>
 
       <div className="mt-8">{children}</div>
     </div>

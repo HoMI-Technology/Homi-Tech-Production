@@ -173,12 +173,11 @@ export function MoneyDecideHub() {
 
   return (
     <div>
-      {/* No page header or lede here. MoneyShell already renders the eyebrow,
-       * the h1 and the Stand/Track/Plan/Decide nav, PageFrame already supplies
-       * the max-w-6xl container and spacing, and each panel restates its own
-       * lens description. Adding any of it back stacks two headers, nests two
-       * containers, and stacks three blocks of prose ahead of the lenses — the
-       * exact thing #173 cleaned up. Cards come first. */}
+      <p className="mb-4 max-w-2xl text-sm text-dim" data-money-job="decide">
+        Answer one math question at a time. Educational estimates — not advice.
+      </p>
+      {/* Cards pick the active lens; only one panel answers below. MoneyShell owns
+       * mode chrome — do not stack a second page title here (#173). */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
         {cards.map((tool, i) => {
           const Icon = ICONS[tool.id as PanelId];
