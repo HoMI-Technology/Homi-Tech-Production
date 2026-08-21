@@ -35,3 +35,6 @@ Money/Decide inline panels may keep runway / down-payment / rent-vs-buy / closin
 
 Guest `/tools`: educational estimates. CTA Assess. No HōMI verdict. No fake ledger persist.
 Signed-in hub header: “Educational estimates only — pre-filled from your ledger.”
+
+**Home vs depth:** Money and Tools stay one-click depth under Path — see
+[`docs/MONEY-TOOLS-DEPTH.md`](MONEY-TOOLS-DEPTH.md). Do not remount this hub on `/dashboard`.

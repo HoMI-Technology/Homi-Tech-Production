@@ -5,12 +5,12 @@ import { MoneyStand } from "@/components/money/MoneyStand";
 export const metadata: Metadata = {
   title: "Money",
   description:
-    "Your HōMI money picture — free cash, runway, goals, and decision math in one place.",
+    "Where cash sits — surplus, runway, and liquid. Educational only. Decision math is one click deeper.",
   alternates: { canonical: "/money" },
 };
 
 /**
- * Money Reality — Stand mode (canonical money home).
+ * Money Reality — Stand mode (canonical money depth, not a second Path home).
  * Replaces the dual /finance + /tools chrome split.
  */
 export default function MoneyPage() {
