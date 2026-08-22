@@ -120,8 +120,8 @@ describe("pageMetadata OG matches HTML title/meta", () => {
   it("absolute locked titles are used for both <title> and og:title", () => {
     const locked: [string, string][] = [
       ["/", "Decision Readiness · A Decision Companion · HōMI"],
-      ["/how-it-works", "HōMI Score · How it works · HōMI"],
-      ["/pricing", "HōMI Pricing · HōMI"],
+      ["/how-it-works", "How it works · HōMI"],
+      ["/pricing", "Pricing · HōMI"],
       ["/first-moment", "First Moment · HōMI"],
     ];
     for (const [path, title] of locked) {
@@ -141,8 +141,8 @@ describe("locked title/meta lines", () => {
   it("pins the four Tech SEO titles exactly", () => {
     const titles: [string[], string][] = [
       [["app", "(marketing)", "page.tsx"], "Decision Readiness · A Decision Companion · HōMI"],
-      [["app", "(marketing)", "how-it-works", "page.tsx"], "HōMI Score · How it works · HōMI"],
-      [["app", "(marketing)", "pricing", "page.tsx"], "HōMI Pricing · HōMI"],
+      [["app", "(marketing)", "how-it-works", "page.tsx"], "How it works · HōMI"],
+      [["app", "(marketing)", "pricing", "page.tsx"], "Pricing · HōMI"],
       [["app", "(marketing)", "first-moment", "page.tsx"], "First Moment · HōMI"],
     ];
     for (const [segments, title] of titles) {
@@ -164,8 +164,9 @@ describe("locked title/meta lines", () => {
 
   it("locks /how-it-works title and meta — body lock stays, title is not the pillars line", () => {
     const page = src("app", "(marketing)", "how-it-works", "page.tsx");
-    expect(page).toContain('title: "HōMI Score · How it works · HōMI"');
+    expect(page).toContain('title: "How it works · HōMI"');
     expect(page).toContain("absolute: true");
+    expect(page).not.toContain('title: "HōMI Score · How it works · HōMI"');
     expect(page).not.toContain('title: "How it works · Three pillars, not equal · HōMI"');
     expect(page).toContain(
       "How HōMI measures readiness across Financial Reality, Emotional Truth, and Perfect Timing. A Decision Companion. Not a verdict factory.",
@@ -193,7 +194,8 @@ describe("locked title/meta lines", () => {
   it("locks /pricing title and keeps /tools copy; does not say 18 calculators", () => {
     const pricing = src("app", "(marketing)", "pricing", "page.tsx");
     const tools = src("app", "(product)", "tools", "page.tsx");
-    expect(pricing).toContain('title: "HōMI Pricing · HōMI"');
+    expect(pricing).toContain('title: "Pricing · HōMI"');
+    expect(pricing).not.toContain('title: "HōMI Pricing · HōMI"');
     expect(pricing).toContain("absolute: true");
     expect(pricing).toContain("faqPageJsonLd(FAQS)");
     expect(tools).toContain('title: "Tools"');

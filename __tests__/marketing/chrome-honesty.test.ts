@@ -15,9 +15,8 @@ const TIERS_SRC = src("lib", "stripe", "tiers.ts");
 const TIER_COPY_SRC = src("lib", "advisor", "companion-tier-copy.ts");
 const HOME = src("app", "(marketing)", "page.tsx");
 const HOW_IT_WORKS = src("app", "(marketing)", "how-it-works", "page.tsx");
-const PREVIEW = src("components", "home", "ThresholdPreview.tsx");
-const SHIFT = src("components", "home", "VerdictShift.tsx");
-const FOOTER = src("components", "layout", "SitemapFooter.tsx");
+// ThresholdPreview, VerdictShift, and SitemapFooter were deleted as dead
+// code; their guards here were reduced to the surfaces that still exist.
 const QUIET_FOOTER = src("components", "layout", "QuietHomeFooter.tsx");
 const BROKER = src("components", "planner", "wealth", "BrokerPanel.tsx");
 
@@ -94,7 +93,6 @@ describe("Wave 1 chrome honesty — SKU and score names", () => {
     ["app/(marketing)/how-it-works/page.tsx", HOW_IT_WORKS],
     ["lib/stripe/tiers.ts", TIERS_SRC],
     ["lib/advisor/companion-tier-copy.ts", TIER_COPY_SRC],
-    ["components/layout/SitemapFooter.tsx", FOOTER],
     ["components/layout/QuietHomeFooter.tsx", QUIET_FOOTER],
   ])("%s never names a Companion SKU or Shadow Score product", (_rel, text) => {
     for (const banned of [...SKU_BANNED, ...SHADOW_BANNED]) {
@@ -126,13 +124,10 @@ describe("Wave 1 chrome honesty — SKU and score names", () => {
 });
 
 describe("Wave 1 chrome honesty — primary close", () => {
-  it("pricing free and footer CTAs go to First Moment / Assess, not a score", () => {
+  it("pricing free CTA goes to First Moment / Assess, not a score", () => {
     expect(PRICING).toContain("PRIMARY_CLOSE_HREF");
     expect(PRICING).toContain("PRIMARY_CLOSE_LABEL");
     expect(PRICING).not.toContain('href="/shadow-score"');
-    expect(FOOTER).toContain('href: "/first-moment"');
-    expect(FOOTER).toContain('label: "Assess"');
-    expect(FOOTER).not.toContain("/shadow-score");
   });
 
   it("how-it-works closes on Assess → First Moment, not Get your score /shadow-score", () => {
@@ -175,42 +170,23 @@ describe("Wave 1 chrome honesty — primary close", () => {
     );
   });
 
-  it("footer is not a product CTA to /advisor", () => {
-    expect(FOOTER).not.toContain("/advisor");
-    expect(FOOTER).not.toContain('label: "Decision Companion"');
-  });
 });
 
 describe("Wave 1 chrome honesty — homepage theater", () => {
   it("does not present a fake 0–100 HōMI-Score as the visitor's score", () => {
     expect(HOME).not.toMatch(/score-numeral[^>]*>\s*76\s*</);
     expect(HOME).not.toMatch(/score-numeral[^>]*>\s*52\s*</);
-    expect(PREVIEW).not.toMatch(/uppercase tracking-\[0\.25em\] text-dim">HōMI-Score</);
-    expect(SHIFT).not.toMatch(/uppercase tracking-\[0\.25em\] text-dim">HōMI-Score</);
-    expect(PREVIEW).toContain("Temperature");
-    expect(SHIFT).toContain("Temperature");
   });
 
   it("homepage theater is temperature-only — no 4-band words, no 0–100 fake score surface", () => {
-    const alignment = src("components", "home", "AlignmentScene.tsx");
-    for (const [source, text] of [
-      ["homepage", HOME],
-      ["ThresholdPreview", PREVIEW],
-      ["VerdictShift", SHIFT],
-      ["AlignmentScene", alignment],
-    ] as const) {
-      for (const badge of VERDICT_BADGES) {
-        expect(text, `${source} must not say ${badge}`).not.toContain(badge);
-      }
-      expect(text, `${source} must not pass verdict=READY`).not.toContain('verdict="READY"');
+    for (const badge of VERDICT_BADGES) {
+      expect(HOME, `homepage must not say ${badge}`).not.toContain(badge);
     }
+    expect(HOME, 'homepage must not pass verdict=READY').not.toContain('verdict="READY"');
     for (const range of FAKE_SCORE_RANGES) {
       expect(HOME, `homepage must not print ${range}`).not.toContain(range);
     }
     expect(HOME).not.toContain("READY");
-    expect(PREVIEW).not.toContain("READY");
-    expect(SHIFT).not.toContain("READY");
-    expect(alignment).not.toContain("READY");
   });
 
   it("homepage walk does not mount a sample path or treat 700 / 36% as HōMI law", () => {
@@ -219,10 +195,6 @@ describe("Wave 1 chrome honesty — homepage theater", () => {
     expect(HOME).not.toMatch(/below 36%/);
     expect(HOME).not.toContain("Sample path");
     expect(HOME).not.toContain("28 / 33 / 36");
-    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/ThresholdPreview["']/);
-    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/Voices["']/);
-    expect(HOME).not.toContain("<ThresholdPreview");
-    expect(HOME).not.toContain("<Voices");
   });
 });
 

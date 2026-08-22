@@ -8,7 +8,7 @@ import { faqPageJsonLd } from "@/lib/seo/schema";
 import { pageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = pageMetadata({
-  title: "HōMI Pricing · HōMI",
+  title: "Pricing · HōMI",
   description:
     "HōMI pricing: a free 45-question assessment with the same engine and hard stops, Plus for the voice picker and verdict history, and Family for two people on one compass. Our revenue comes from subscriptions, not transactions.",
   path: "/pricing",

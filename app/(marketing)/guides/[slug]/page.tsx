@@ -3,6 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Reveal } from "@/components/ui/Reveal";
 import { GUIDES, getAllGuideSlugs, getGuide } from "@/components/marketing/guides-data";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { articleJsonLd } from "@/lib/seo/schema";
+import { SITE_URL } from "@/lib/seo/site";
 import { pageMetadata } from "@/lib/seo/metadata";
 
 export function generateStaticParams() {
@@ -40,6 +43,18 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
 
   return (
     <>
+      {/* Guides carry no publication date in guides-data — omit it rather
+          than invent one. */}
+      <JsonLd
+        data={articleJsonLd(
+          {
+            title: guide.title,
+            description: guide.description,
+            path: `/guides/${guide.slug}`,
+          },
+          SITE_URL,
+        )}
+      />
       <section className="px-6 pb-12 pt-16 md:pt-24">
         <div className="mx-auto max-w-3xl">
           <Link href="/guides" className="text-sm text-dim transition-colors hover:text-cyan">

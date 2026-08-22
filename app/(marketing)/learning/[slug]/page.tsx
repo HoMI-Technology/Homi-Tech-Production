@@ -7,6 +7,9 @@ import {
   getAllArticleSlugs,
   getArticle,
 } from "@/components/learning/learning-data";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { articleJsonLd } from "@/lib/seo/schema";
+import { SITE_URL } from "@/lib/seo/site";
 import { pageMetadata } from "@/lib/seo/metadata";
 
 export function generateStaticParams() {
@@ -48,6 +51,18 @@ export default async function LearningArticlePage({
 
   return (
     <>
+      {/* Learning articles carry no publication date in learning-data — omit
+          it rather than invent one. */}
+      <JsonLd
+        data={articleJsonLd(
+          {
+            title: article.title,
+            description: article.description,
+            path: `/learning/${article.slug}`,
+          },
+          SITE_URL,
+        )}
+      />
       <section className="px-6 pb-12 pt-16 md:pt-24">
         <div className="mx-auto max-w-3xl">
           <Link href="/guides" className="text-sm text-dim transition-colors hover:text-cyan">

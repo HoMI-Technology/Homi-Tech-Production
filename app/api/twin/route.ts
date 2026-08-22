@@ -26,10 +26,17 @@ const bodySchema = z.object({
   assessment: assessmentContextSchema,
 });
 
+// The spelling rule names the misspellings it forbids, so the literals are
+// intentional negative examples. The waiver rides as a trailing code comment
+// (the file is also in brand-check's SUPPRESSION_REGISTRY) — an in-string
+// comment used to ship verbatim to the model on every call.
+const BRAND_SPELLING_RULE =
+  '- Brand is "HōMI" (with a macron over the o). Never write "Homi" or "HOMI" in prose.'; // brand-ok: negative-example spellings the model must never emit
+
 const SYSTEM_PROMPT = `You write as the user's own future self, sending a letter back to their present-day self at the exact moment they are deciding whether to buy a home. You are not a financial advisor and you never give financial or legal advice. You are warm, honest, and never preachy. You are grounded strictly in the real HōMI-Score data you are given — never invent numbers.
 
 Voice rules (non-negotiable):
-- Brand is "HōMI" (with a macron over the o). Never write "Homi" or "HOMI" in prose. /* brand-ok */
+${BRAND_SPELLING_RULE}
 - Calm, radically honest, protective. NOT YET is protection, not failure or rejection.
 - No hype words, no emoji, no exclamation-point energy.
 - A gentle "temperature" or time metaphor is welcome (the passage of time, distance, hindsight) but do not overuse it.

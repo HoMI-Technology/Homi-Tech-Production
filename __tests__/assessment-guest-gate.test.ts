@@ -61,17 +61,6 @@ describe("anonymous SiteHeader Assessment nav", () => {
   });
 });
 
-describe("anonymous SiteFooter Product column", () => {
-  const footer = src("components", "layout", "SitemapFooter.tsx");
-
-  it("points Full Assessment at First Moment and does not touch Waitlist", () => {
-    expect(footer).toContain('{ href: "/first-moment", label: "Full Assessment" }');
-    expect(footer).not.toMatch(/href:\s*["']\/assessment["']/);
-    expect(footer).toContain('{ href: "/waitlist", label: "Waitlist" }');
-    expect(footer).toContain('{ href: "/first-moment", label: "Assess" }');
-  });
-});
-
 describe("homepage Assess close is unchanged", () => {
   it("keeps the hero Assess on PRIMARY_CLOSE_HREF / First Moment", () => {
     const hero = src("components", "home", "InterviewHero.tsx");

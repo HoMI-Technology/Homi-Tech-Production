@@ -16,11 +16,16 @@ export const TITLE_TEMPLATE_SUFFIX = " · HōMI";
 
 export const X_ROBOTS_NOINDEX = "noindex";
 
+/**
+ * Default card for pageMetadata OG/Twitter tags. Single canonical asset: the
+ * v5 Brand-PASSed card — the same bytes lib/seo/share.ts pins for the root
+ * layout and homepage. (This default previously pointed at og-v2.)
+ */
 export const OG_DEFAULT_IMAGE = {
-  url: "/og-v2.png",
+  url: "/og-v5.png",
   width: 1200,
   height: 630,
-  alt: "The HōMI Threshold Compass above the HōMI wordmark — Decision Readiness Intelligence™. Know When You're Ready.",
+  alt: "HōMI — Will you be okay?",
 } as const;
 
 /**

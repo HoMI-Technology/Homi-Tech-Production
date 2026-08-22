@@ -69,6 +69,26 @@ describe("articleJsonLd", () => {
     });
     expect("author" in data).toBe(false);
   });
+
+  it("omits datePublished when the source data has no real date (guides/learning)", () => {
+    const data = articleJsonLd(
+      {
+        title: "Afford Is Not the Same as Ready",
+        description: "Some real description.",
+        path: "/guides/afford-is-not-ready",
+      },
+      SITE,
+    );
+
+    expect(data["@type"]).toBe("Article");
+    expect(data.headline).toBe("Afford Is Not the Same as Ready");
+    expect("datePublished" in data).toBe(false);
+    expect("author" in data).toBe(false);
+    expect(data.mainEntityOfPage).toEqual({
+      "@type": "WebPage",
+      "@id": `${SITE}/guides/afford-is-not-ready`,
+    });
+  });
 });
 
 describe("faqPageJsonLd", () => {

@@ -18,7 +18,7 @@ export const runtime = "nodejs";
  * GET /api/v1/receipts/:token — partner-facing readiness-receipt verification.
  *
  * Auth: `Authorization: Bearer homi_live_...` — hashed and matched against a
- * non-revoked partner_api_keys row (00022). The token in the path is the
+ * non-revoked partner_api_keys row (00029_receipts.sql). The token in the path is the
  * consumer-authorized share handle; there is no lookup-by-person path.
  *
  * Fail-closed on revocation/expiry (checked at read time, never cached), and

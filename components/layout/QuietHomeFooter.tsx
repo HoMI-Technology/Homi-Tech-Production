@@ -4,7 +4,7 @@ import { TAGLINES } from "@/lib/brand";
 
 const SOCIAL_CLASS = "text-sm text-dim hover:text-light";
 
-/** Full canon disclaimer (2026-08 audit fix 9) — same sentence SitemapFooter carries. */
+/** Full canon disclaimer (2026-08 audit fix 9) — the long-form compliance sentence. */
 const CANON_DISCLAIMER =
   "HōMI provides educational guidance only. Consider consulting qualified professionals before making legal, tax, mortgage, investment, or real estate decisions.";
 
