@@ -1,6 +1,8 @@
 import { ProductLayoutRouter } from "@/components/layout/ProductLayoutRouter";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SessionExpiredToast } from "@/components/layout/SessionExpiredToast";
+// Readiness Path-to-Ready impact toast (homi:impact:v1 bus, layout-mounted) —
+// NOT the planner closed-loop score toast (components/planner/ImpactToast.tsx).
 import { ImpactToast } from "@/components/readiness/ImpactToast";
 // CompanionHost (not CompanionWidget): interaction-gated panel so signed-in
 // Lighthouse/E2E still open the widget on click. Guests do not get the FAB —

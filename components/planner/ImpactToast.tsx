@@ -4,8 +4,15 @@ import { useEffect } from "react";
 import type { ScoreImpactSnapshot } from "@/lib/planner/types";
 
 /**
- * Planner closed-loop toast — separate from readiness path ImpactToast
- * (homi:impact:v1). Reads store lastImpact only.
+ * PLANNER ImpactToast — the closed-loop score-impact toast for the Budget
+ * Planner / Money · Track workspace. It reads `usePlannerStore.lastImpact`
+ * (set by lib/planner/closed-loop.ts after a score-mutating action) and
+ * renders a fixed bottom-right card with the before/after score.
+ *
+ * NOT the same as components/readiness/ImpactToast.tsx — that one is the
+ * layout-mounted Path-to-Ready impact toast driven by the homi:impact:v1
+ * event bus and the unified ToastProvider. Both are intentionally live;
+ * check both import sites before merging or renaming either one.
  */
 export function ImpactToast({
   impact,
