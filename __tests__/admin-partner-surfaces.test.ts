@@ -28,14 +28,35 @@ describe("admin + marketing attention doctrine", () => {
     expect(page.indexOf("data-admin-attention")).toBeLessThan(page.indexOf("<MetricRail"));
   });
 
-  it("Marketing leads with attention before AgencyDesks", () => {
+  it("Marketing follows the locked command-center v2 section order", () => {
     const page = read("app/(product)/admin/marketing/page.tsx");
     expect(page).toContain('data-marketing-attention=""');
     expect(page).toContain("MarketingTodayStrip");
-    expect(page.indexOf("data-marketing-attention")).toBeLessThan(page.indexOf("<AgencyDesks"));
-    expect(page.indexOf("MarketingTodayStrip")).toBeLessThan(page.indexOf("<AgencyDesks"));
-    expect(page).toMatch(/Ship or kill today/);
-    expect(page).toContain('#approval-queue');
+    // Locked order (docs/design/marketing-command-center-v2.md rev 3):
+    // Today → ActivationInstrument → MetricRail (3-cell) → quick-action chips
+    // → Proof → Owned → Create (agency) → Claim → Library.
+    const order = [
+      "data-marketing-attention",
+      "<ActivationInstrument",
+      "<MetricRail",
+      'id="proof"',
+      'id="owned"',
+      'id="create"',
+      'id="claim"',
+      'id="library"',
+    ];
+    for (let i = 1; i < order.length; i++) {
+      expect(page.indexOf(order[i - 1])).toBeGreaterThanOrEqual(0);
+      expect(page.indexOf(order[i])).toBeGreaterThanOrEqual(0);
+      expect(page.indexOf(order[i - 1])).toBeLessThan(page.indexOf(order[i]));
+    }
+    // Agency suite after Proof, never between header and engine; tabbed
+    // AgencyDesks is the spec-rejected Alternative B.
+    expect(page).not.toContain("<AgencyDesks");
+    expect(page.indexOf('id="proof"')).toBeLessThan(page.indexOf('id="create"'));
+    // Locked PageHeader copy + primary Email action.
+    expect(page).toMatch(/What to do this week to create activations/);
+    expect(page).toContain('href: "/admin/email"');
   });
 
   it("Ad spend mounts attention before MetricRail and tables", () => {
