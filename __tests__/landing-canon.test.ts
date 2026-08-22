@@ -15,25 +15,15 @@ import { scoreToVerdict } from "@/lib/scoring/engine";
 
 describe("landing canon — homepage theater is not a fake score", () => {
   it("does not hardcode visitor-facing (score, verdict) pairs", () => {
+    // ThresholdPreview and VerdictShift were deleted as dead code; the
+    // homepage is the remaining surface this guard covers.
     const home = readFileSync(join(process.cwd(), "app/(marketing)/page.tsx"), "utf8");
-    const preview = readFileSync(
-      join(process.cwd(), "components/home/ThresholdPreview.tsx"),
-      "utf8",
-    );
-    const shift = readFileSync(join(process.cwd(), "components/home/VerdictShift.tsx"), "utf8");
-
-    for (const [source, text] of [
-      ["homepage", home],
-      ["ThresholdPreview", preview],
-      ["VerdictShift", shift],
-    ] as const) {
-      expect(text, source).not.toMatch(/score-numeral[^>]*>\s*(52|61|72|76)\s*</);
-      expect(text, source).not.toContain("DO NOT PROCEED");
-      expect(text, source).not.toContain("ALMOST THERE");
-      expect(text, source).not.toContain("BUILD FIRST");
-      expect(text, source).not.toContain("80–100");
-      expect(text, source).not.toContain('verdict="READY"');
-    }
+    expect(home).not.toMatch(/score-numeral[^>]*>\s*(52|61|72|76)\s*</);
+    expect(home).not.toContain("DO NOT PROCEED");
+    expect(home).not.toContain("ALMOST THERE");
+    expect(home).not.toContain("BUILD FIRST");
+    expect(home).not.toContain("80–100");
+    expect(home).not.toContain('verdict="READY"');
   });
 });
 

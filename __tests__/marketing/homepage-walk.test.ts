@@ -82,8 +82,6 @@ describe("homepage front door — first viewport", () => {
     expect(HERO).not.toContain("opacity-0");
     expect(HERO).not.toContain("opacity: 0");
     expect(HERO).not.toMatch(/typewriter|split-type|SplitType/i);
-    expect(HERO).not.toContain("WalkWords");
-    expect(HERO).not.toContain("HoldStage");
     expect((HERO.match(/<h1[\s>]/g) ?? []).length).toBe(1);
   });
 
@@ -97,15 +95,24 @@ describe("homepage front door — first viewport", () => {
   });
 
   it("is a finished front door — no sticky 100vh walk theater", () => {
-    expect(HOME).not.toContain("WalkPersist");
-    expect(HOME).not.toContain("WalkBeat");
-    expect(HOME).not.toContain("HoldStage");
-    expect(HOME).not.toContain("WalkWords");
-    expect(HERO).not.toContain("HoldStage");
-    expect(HERO).not.toContain("walk-hold");
     expect(HERO).not.toContain("h-[100dvh]");
     expect(HOME).not.toContain("walk-when");
     expect(HOME).not.toContain('href="/walk"');
+  });
+
+  it("imports only the live front-door home modules", () => {
+    // The walk-theater modules (WalkBeat, walk-hold, walk-persist, …) were
+    // deleted as dead code. This whitelist is the guard that the front door
+    // keeps mounting only InterviewHero / PaperScene / FrontDoor, and the
+    // hero keeps its Compass3D / walk-copy pair.
+    const homeModules = [
+      ...HOME.matchAll(/from\s+["']@\/components\/home\/([A-Za-z0-9_-]+)["']/g),
+    ].map((m) => m[1]);
+    expect([...new Set(homeModules)].sort()).toEqual(["FrontDoor", "InterviewHero", "PaperScene"]);
+    const heroModules = [...HERO.matchAll(/from\s+["']\.\/([A-Za-z0-9_-]+)["']/g)].map(
+      (m) => m[1],
+    );
+    expect([...new Set(heroModules)].sort()).toEqual(["Compass3D", "walk-copy"]);
   });
 
   it("sits one Assess under the H1 and does not travel over later type", () => {
@@ -136,7 +143,6 @@ describe("homepage front door — first viewport", () => {
     expect(HOME).not.toContain("Particles");
     expect(HOME).not.toContain("CinematicCompass");
     expect(HOME).not.toContain("Compass3D");
-    expect(HOME).not.toContain("CompassFilter");
     const compass = src("components", "home", "CinematicCompass.tsx");
     expect(compass).toContain('r="85"');
     expect(compass).toContain('r="60"');
@@ -147,11 +153,9 @@ describe("homepage front door — first viewport", () => {
 });
 
 describe("homepage front door — later lines are paper, not a pin", () => {
-  it("renders locked later lines as document type, not WalkWords", () => {
+  it("renders locked later lines as document type, not walk theater", () => {
     expect(FRONT).toContain("type-display");
-    expect(HOME).not.toContain("WalkWords");
     expect(HOME).not.toContain("h-[100dvh]");
-    expect(HOME).not.toContain("walk-hold");
     expect(WALK_PRIMARY).toContain("when");
     expect(WALK_OBJECT).toContain("when");
   });
@@ -170,18 +174,10 @@ describe("homepage front door — native scroll only", () => {
 
 describe("homepage front door — parked theater and TeraFab stack stay off", () => {
   it("does not mount killed theater, Packet 2, or /advisor", () => {
-    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/AlignmentScene["']/);
-    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/ThresholdPreview["']/);
-    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/VerdictShift["']/);
-    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/Voices["']/);
-    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/DecisionOrbit["']/);
-    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/Flashlight["']/);
-    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/TimelineShift["']/);
-    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/StatementReveal["']/);
-    expect(HOME).not.toMatch(/from\s+["']@\/components\/home\/ObjectReveal["']/);
-    expect(HOME).not.toContain("<AlignmentScene");
-    expect(HOME).not.toContain("<ThresholdPreview");
-    expect(HOME).not.toContain("<Voices");
+    // The parked theater modules (AlignmentScene, ThresholdPreview,
+    // VerdictShift, Voices, DecisionOrbit, Flashlight, TimelineShift,
+    // StatementReveal, ObjectReveal) were deleted as dead code; the
+    // live-module whitelist above is the standing guard.
     expect(HOME).not.toContain("<table");
     expect(HOME).not.toContain("/advisor");
     expect(HOME).not.toContain("Packet 2");
@@ -303,16 +299,5 @@ describe("homepage front door — footer educational line stays", () => {
     expect(quiet).not.toContain("Educational only — not financial advice.");
     expect(quiet).not.toContain("LEGAL_DISCLAIMER");
     expect(quiet).not.toContain("Decision Readiness Intelligence");
-  });
-
-  it("sitemap footer keeps the long educational paragraph", () => {
-    const sitemap = src("components", "layout", "SitemapFooter.tsx");
-    expect(sitemap).toContain("Educational only &mdash; not financial advice.");
-    expect(sitemap).toContain(
-      "HōMI provides educational guidance only. Consider consulting qualified professionals",
-    );
-    expect(sitemap).toContain(
-      "before making legal, tax, mortgage, investment, or real estate decisions.",
-    );
   });
 });

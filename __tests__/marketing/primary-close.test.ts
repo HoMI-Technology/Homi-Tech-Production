@@ -75,15 +75,11 @@ describe("homepage primary labels", () => {
   it.each([
     ["components/layout/SiteHeader.tsx"],
     ["components/home/InterviewHero.tsx"],
-    ["components/home/walk-persist.tsx"],
-    ["components/home/WalkBeat.tsx"],
     ["components/home/walk-copy.ts"],
     ["app/(marketing)/page.tsx"],
-    ["components/home/ThresholdPreview.tsx"],
     ["app/(marketing)/pricing/page.tsx"],
     ["app/(marketing)/how-it-works/page.tsx"],
     ["components/layout/SiteFooter.tsx"],
-    ["components/layout/SitemapFooter.tsx"],
     ["components/layout/QuietHomeFooter.tsx"],
   ])("%s does not use banned primary-close labels", (rel) => {
     const text = src(...rel.split("/"));
