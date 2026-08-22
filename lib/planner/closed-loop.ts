@@ -56,12 +56,20 @@ function nextPendingTitle(path: PathSnapshot | null, completedId: string): strin
   return `Next: ${next.title}`;
 }
 
+/**
+ * Seq of the newest closed-loop request. nextScoreSeq() is only bumped at
+ * the start of withScoreImpact (closed-loop is its sole caller), so this
+ * mirrors the bridge counter without advancing it — a peek, not a request.
+ */
+let latestLoopSeq = 0;
+
 export async function withScoreImpact(
   reason: string,
   action: () => void | { ok: boolean; error?: string },
   opts?: { regeneratePath?: boolean },
 ): Promise<{ ok: boolean; error?: string; impact: ScoreImpact | null }> {
   const seq = nextScoreSeq();
+  latestLoopSeq = seq;
   const before = await snapshotScore();
 
   const result = action();
@@ -80,9 +88,11 @@ export async function withScoreImpact(
   }
 
   const after = await snapshotScore();
-  // Ignore stale responses if a newer closed-loop started.
-  if (seq !== nextScoreSeq() - 0 && false) {
-    /* seq check placeholder — use captured after */
+  // Stale-response guard: a newer closed-loop started while the score was
+  // in flight — discard this impact so lastImpact/toast only ever reflect
+  // the most recent mutation. The money mutation above still commits.
+  if (seq !== latestLoopSeq) {
+    return { ok: true, impact: null };
   }
 
   if (!before || !after) {

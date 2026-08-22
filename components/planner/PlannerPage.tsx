@@ -196,17 +196,14 @@ export function PlannerPage({
 
   const loadSampleNumbers = useCallback(() => {
     resetDemo();
-    usePlannerStore.getState().setReadinessProfile({
-      profileComplete: true,
-      creditScore: 720,
-      lifeStability: 7,
-      confidenceLevel: 7,
-      partnerAlignment: 7,
-      fomoLevel: 3,
-      timeHorizonMonths: 18,
-      targetHomePrice: 425_000,
-      downPaymentSaved: 38_000,
-    });
+    // Demo parity (pinned by __tests__/planner/store-parity.test.ts and
+    // closed-loop.test.ts): buildDemoSeed already carries the
+    // screenshot-canonical readiness profile — credit 750, sliders 7/7/7,
+    // FOMO 4, 18-month horizon, $400k / $20k housing lens — which renders
+    // HōMI-Score 73 · ALMOST_THERE · pillars 74/66/80 through the scoring
+    // seam. Only unlock the live score here; never override score-moving
+    // fields, or the demo drifts off canon.
+    usePlannerStore.getState().setReadinessProfile({ profileComplete: true });
   }, [resetDemo]);
 
   const toolbar = (
