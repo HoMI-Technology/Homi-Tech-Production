@@ -4,38 +4,79 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 /**
- * Money Reality mode nav — horizontal labeled tabs under the app nav.
+ * Product mode nav — the five canonical tabs: Readiness · Reality · Decide ·
+ * Plan · Goals. Rendered as the labeled horizontal tab row at the top of the
+ * Money cockpit (MoneyShell) and reused by ProductBottomNav on mobile, so the
+ * two chrome surfaces can never fork the catalog.
  *
- * Replaces the vertical S/T/D/P glyph rail: a single letter told the user
- * nothing about what Stand/Track/Decide/Plan meant, and the hover tooltip
- * that explained it was unreachable on touch. Labels are now always visible,
- * and this stays the ONLY place the four modes appear as peers.
+ * Phase 1 doctrine stance (Home + Money Reality redesign): the Readiness tab
+ * points at /dashboard — the score-forward HomeFold surface — while /dashboard
+ * stays Path-owned in code structure. Invest and Track are no longer peer
+ * tabs, but their routes stay live: /money/investments and /money/budget deep
+ * links resolve and light the Reality tab as the active mode.
  */
 
-export type MoneyMode = "stand" | "track" | "plan" | "decide" | "goals" | "invest";
+export type MoneyMode = "readiness" | "reality" | "decide" | "plan" | "goals";
 
-/** Single mode catalog — label is both the affordance and the a11y name. */
-export const MONEY_MODES: { id: MoneyMode; href: string; label: string }[] = [
-  { id: "stand", href: "/money", label: "Stand" },
-  { id: "track", href: "/money/budget", label: "Track" },
-  { id: "decide", href: "/money/decide", label: "Decide" },
-  { id: "plan", href: "/money/plan", label: "Plan" },
-  { id: "goals", href: "/money/goals", label: "Goals" },
-  { id: "invest", href: "/money/investments", label: "Invest" },
+/**
+ * Single mode catalog — label is both the affordance and the a11y name. The
+ * blurb rides the native tooltip (`title`) on both nav surfaces, so the spec
+ * microcopy ships without inventing new UI chrome.
+ */
+export const MONEY_MODES: { id: MoneyMode; href: string; label: string; blurb: string }[] = [
+  {
+    id: "readiness",
+    href: "/dashboard",
+    label: "Readiness",
+    blurb: "Where you stand across the three pillars",
+  },
+  {
+    id: "reality",
+    href: "/money",
+    label: "Reality",
+    blurb: "The picture of your cash, as it actually is",
+  },
+  {
+    id: "decide",
+    href: "/money/decide",
+    label: "Decide",
+    blurb: "Stress the decision before you stretch",
+  },
+  {
+    id: "plan",
+    href: "/money/plan",
+    label: "Plan",
+    blurb: "The path that turns readiness into action",
+  },
+  {
+    id: "goals",
+    href: "/money/goals",
+    label: "Goals",
+    blurb: "What you’re building toward, and how far",
+  },
 ];
 
-export function modeFromPath(pathname: string): MoneyMode {
-  if (pathname.startsWith("/money/budget")) return "track";
-  if (pathname.startsWith("/money/plan")) return "plan";
+/**
+ * Pathname → active mode. Retired peer routes fold into their new home:
+ * /money/budget (Track) and /money/investments (Invest) light Reality.
+ * Returns null on routes outside the five surfaces (settings, journal, …) so
+ * chrome that renders everywhere (ProductBottomNav) can show no active tab;
+ * the Money cockpit falls back to Reality.
+ */
+export function modeFromPath(pathname: string): MoneyMode | null {
+  if (pathname === "/dashboard" || pathname.startsWith("/dashboard/")) return "readiness";
+  if (pathname.startsWith("/money/budget")) return "reality";
+  if (pathname.startsWith("/money/investments")) return "reality";
   if (pathname.startsWith("/money/decide")) return "decide";
+  if (pathname.startsWith("/money/plan")) return "plan";
   if (pathname.startsWith("/money/goals")) return "goals";
-  if (pathname.startsWith("/money/investments")) return "invest";
-  return "stand";
+  if (pathname.startsWith("/money")) return "reality";
+  return null;
 }
 
 export function MoneyModeNav() {
   const pathname = usePathname() ?? "/money";
-  const active = modeFromPath(pathname);
+  const active = modeFromPath(pathname) ?? "reality";
 
   return (
     <nav aria-label="Money modes" className="money-mode-nav">
@@ -45,6 +86,7 @@ export function MoneyModeNav() {
           <Link
             key={mode.id}
             href={mode.href}
+            title={mode.blurb}
             aria-current={isActive ? "page" : undefined}
             data-active={isActive ? "true" : "false"}
             className="money-mode-tab"

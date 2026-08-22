@@ -35,14 +35,19 @@ Home never answers Money’s full picture or Tools’ catalog.
 
 | Route | Job |
 | --- | --- |
-| `/money` (Stand) | Read where cash sits (picture + evidence) |
-| `/money/budget` (Track) | Build / strengthen the on-device ledger |
+| `/money` (Reality) | Read where cash sits (picture + evidence) |
+| `/money/budget` | Build / strengthen the on-device ledger (Track — folded under Reality) |
 | `/money/decide` (Decide) | Pick **one** lens; answer one math question inline |
-| `/money/plan` | Plan command surface |
-| `/money/goals` | Savings goals |
-| `/money/investments` | Holdings (educational) |
+| `/money/plan` (Plan) | Plan command surface |
+| `/money/goals` (Goals) | Savings goals |
+| `/money/investments` | Holdings (educational — folded under Reality) |
 
-Six mode tabs (`MoneyModeNav`) are **peers inside Money depth**, not peer homes to Path.
+Five mode tabs (`MoneyModeNav` + `ProductBottomNav`): **Readiness · Reality ·
+Decide · Plan · Goals**. The money tabs remain **peers inside Money depth**, not
+peer homes to Path; the Readiness tab links to the Path-owned Home fold
+(`/dashboard`) — the documented Phase-1 stance of the Home + Reality redesign.
+Track (`/money/budget`) and Invest (`/money/investments`) are no longer peer tabs,
+but both routes stay live as deep links and light the Reality mode.
 
 ### One click deeper — Tools
 
