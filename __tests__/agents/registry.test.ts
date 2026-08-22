@@ -9,6 +9,7 @@ import {
   isAgentUnlocked,
   type AgentMode,
 } from "@/lib/agents/registry";
+import { COLORS } from "@/lib/brand";
 
 describe("lib/agents/registry", () => {
   describe("AGENTS", () => {
@@ -25,15 +26,7 @@ describe("lib/agents/registry", () => {
     });
 
     it("uses only brand-canon colors", () => {
-      const brandColors = new Set([
-        "#22d3ee",
-        "#34d399",
-        "#facc15",
-        "#fab633",
-        "#f24822",
-        "#a78bfa",
-        "#ef4444",
-      ]);
+      const brandColors = new Set<string>(Object.values(COLORS));
       for (const agent of AGENTS) {
         expect(brandColors.has(agent.color)).toBe(true);
       }

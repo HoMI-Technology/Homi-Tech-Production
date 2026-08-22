@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Shield } from "lucide-react";
 import { AGENTS, type AgentId, type AgentMode } from "@/lib/agents/registry";
 import { AgentChat } from "./AgentChat";
 
@@ -13,6 +14,41 @@ const MODE_FOR_AGENT: Record<AgentId, AgentMode> = {
   oracle: "simulate",
   sentinel: "explore",
 };
+
+function AgentAvatar({
+  id,
+  color,
+  size,
+}: {
+  id: AgentId;
+  color: string;
+  size: "sm" | "lg";
+}) {
+  const box =
+    size === "sm"
+      ? "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg"
+      : "flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-2xl";
+  return (
+    <div
+      className={box}
+      style={
+        size === "sm"
+          ? { backgroundColor: `${color}15` }
+          : { backgroundColor: `${color}15`, boxShadow: `0 0 24px ${color}20` }
+      }
+    >
+      {id === "sentinel" ? (
+        <Shield
+          className={size === "sm" ? "h-5 w-5" : "h-7 w-7"}
+          style={{ color }}
+          aria-hidden
+        />
+      ) : (
+        id[0].toUpperCase()
+      )}
+    </div>
+  );
+}
 
 export function AgentRoster() {
   const [selected, setSelected] = useState<AgentId>("homie");
@@ -41,12 +77,7 @@ export function AgentRoster() {
                 : "border-white/5 bg-white/[0.02] hover:border-white/10 hover:bg-white/5"
             }`}
           >
-            <div
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg"
-              style={{ backgroundColor: `${a.color}15` }}
-            >
-              {a.id === "sentinel" ? "🛡️" : a.id[0].toUpperCase()}
-            </div>
+            <AgentAvatar id={a.id} color={a.color} size="sm" />
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-light">{a.name}</span>
@@ -58,13 +89,6 @@ export function AgentRoster() {
               </div>
               <span className="text-xs text-dim">{a.role}</span>
             </div>
-            <span
-              className={`shrink-0 text-xs font-semibold ${
-                a.level === 1 ? "text-emerald" : "text-dim"
-              }`}
-            >
-              {a.level === 1 ? "●" : `Lv.${a.level}`}
-            </span>
           </button>
         ))}
       </div>
@@ -73,15 +97,7 @@ export function AgentRoster() {
       <div className="lg:col-span-2">
         <div className="glass mb-4 rounded-xl border border-white/5 p-5 sm:p-6">
           <div className="flex items-start gap-4">
-            <div
-              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-2xl"
-              style={{
-                backgroundColor: `${agent.color}15`,
-                boxShadow: `0 0 24px ${agent.color}20`,
-              }}
-            >
-              {agent.id === "sentinel" ? "🛡️" : agent.id[0].toUpperCase()}
-            </div>
+            <AgentAvatar id={agent.id} color={agent.color} size="lg" />
             <div className="min-w-0 flex-1">
               <h2 className="font-display text-xl font-semibold text-light">{agent.name}</h2>
               <span
@@ -93,7 +109,9 @@ export function AgentRoster() {
               <p className="mt-2 text-sm text-dim leading-relaxed">{agent.description}</p>
 
               <div className="mt-4 flex items-center gap-3">
-                {agent.level === 1 ? (
+                {agent.id === "sentinel" ? (
+                  <span className="text-xs font-semibold text-crimson">● Always active</span>
+                ) : (
                   <>
                     <button
                       type="button"
@@ -106,17 +124,8 @@ export function AgentRoster() {
                     >
                       {primary === agent.id ? "✓ Primary" : "Set as Primary"}
                     </button>
-                    <span className="text-xs font-semibold text-emerald">● Unlocked</span>
+                    <span className="text-xs font-semibold text-emerald">● Available</span>
                   </>
-                ) : (
-                  <div className="flex items-center gap-3">
-                    <div className="cursor-not-allowed rounded-xl bg-slate-surface px-4 py-2 text-sm font-semibold text-dim">
-                      Unlock at Level {agent.level}
-                    </div>
-                    <div className="h-2 w-24 overflow-hidden rounded-full bg-slate-surface">
-                      <div className="h-full rounded-full bg-slate-600" style={{ width: "8%" }} />
-                    </div>
-                  </div>
                 )}
               </div>
             </div>
