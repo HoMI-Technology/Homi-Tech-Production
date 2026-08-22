@@ -21,6 +21,7 @@
  * guests to /first-moment. These routes read only local/derived state or
  * degrade to an empty state without a session.
  * `/results` was retired (F8) — middleware redirects; no route directory.
+ * `/readiness` is a permanentRedirect alias to `/path` (same visibility).
  */
 export const PUBLIC_PRODUCT_ROUTES = [
   "assessment",
@@ -29,6 +30,7 @@ export const PUBLIC_PRODUCT_ROUTES = [
   "onboarding",
   "path",
   "plan",
+  "readiness",
   "scenarios",
   "shadow-score",
   "tools",

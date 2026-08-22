@@ -18,6 +18,8 @@ import { usePlannerStore } from "@/lib/planner/store";
 import { ReadinessHero } from "@/components/planner/ReadinessHero";
 import { SignalsStrip } from "@/components/planner/SignalsStrip";
 import { NudgeRail } from "@/components/planner/NudgeRail";
+// Planner closed-loop score-impact toast (usePlannerStore.lastImpact) — NOT
+// the layout-mounted readiness path toast (components/readiness/ImpactToast.tsx).
 import { ImpactToast } from "@/components/planner/ImpactToast";
 import ConfirmDialog from "@/components/planner/ui/ConfirmDialog";
 import { TrackBottomStrip } from "@/components/planner/TrackBottomStrip";

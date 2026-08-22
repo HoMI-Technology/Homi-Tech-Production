@@ -1,7 +1,14 @@
 "use client";
 
 /**
- * Impact toast — transient Path progress feedback (PR #127).
+ * READINESS ImpactToast — the layout-mounted Path-to-Ready impact toast
+ * (PR #127). It listens to the homi:impact:v1 event bus and displays
+ * transient Path progress through the unified toast system.
+ *
+ * NOT the same as components/planner/ImpactToast.tsx — that one is the
+ * planner closed-loop score-impact toast (usePlannerStore.lastImpact,
+ * fixed bottom-right card). Both are intentionally live; check both
+ * import sites before merging or renaming either one.
  *
  * Headless controller over the unified toast system (task 3.2 / F.6): it owns
  * the bus subscription, payload validation, dedupe, demo isolation, and

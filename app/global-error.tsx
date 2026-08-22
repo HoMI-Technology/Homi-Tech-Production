@@ -4,11 +4,12 @@
  * Next.js global-error.tsx — root-level error boundary.
  * Replaces the entire app when even the root layout fails, so it must
  * render its own <html>/<body> with inline styles (globals.css may not
- * be available in this state). Wraps the app in our polished ErrorBoundary
- * fallback for a consistent, on-brand recovery experience.
+ * be available in this state). Self-contained branded recovery screen
+ * (ThresholdCompass + inline brand-token styling) with no shared
+ * component imports beyond the compass — anything imported here must
+ * itself be safe to render when the rest of the app has failed.
  */
 
-import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { COLORS, withAlpha } from "@/lib/brand";
 import { motion } from "framer-motion";

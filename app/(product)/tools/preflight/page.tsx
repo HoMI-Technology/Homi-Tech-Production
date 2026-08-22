@@ -34,7 +34,11 @@ const DEBOUNCE_MS = 250;
 
 export default function PreflightPage() {
   const { assessment: stored } = useLatestAssessment();
+  // When no saved finance state exists, the money fields below fall back to
+  // hardcoded placeholder numbers — flag that honestly instead of letting the
+  // prefill masquerade as the user's real situation.
   const finance = useMemo(() => (hasSavedFinanceState() ? loadFinanceState() : null), []);
+  const usingExampleValues = finance === null;
 
   const [decisionLabel, setDecisionLabel] = useState("Home purchase");
   const [income, setIncome] = useState(finance?.monthlyIncome ?? 6500);
@@ -127,6 +131,15 @@ export default function PreflightPage() {
             Use latest assessment hard-stops
             {!stored && " (none saved)"}
           </label>
+
+          {usingExampleValues && (
+            <p
+              role="note"
+              className="rounded-lg border border-amber/40 bg-navy/40 px-3 py-2 text-xs leading-relaxed text-dim"
+            >
+              Example values — replace them with your real numbers for an honest reading.
+            </p>
+          )}
 
           <MoneyField label="Monthly income" value={income} onChange={(v) => setIncome(v ?? 0)} />
           <MoneyField
