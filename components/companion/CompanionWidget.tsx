@@ -524,12 +524,10 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
   // Gentle Interrupter — while listening, soft-pause long monologues once.
   useEffect(() => {
     if (!voiceListening || !voiceInterim || interruptedThisListenRef.current) return;
-    const speakingMs = listenStartedAtRef.current
-      ? Date.now() - listenStartedAtRef.current
-      : 0;
+    const speakingMs = Date.now() - listenStartedAtRef.current;
     const emotional = readEmotionalMirror(
       voiceInterim,
-      estimateSpeechRateWpm(voiceInterim, speakingMs),
+      estimateSpeechRateWpm(voiceInterim, speakingMs) ?? undefined,
     );
     const decision = decideGentleInterrupt({
       transcript: voiceInterim,
@@ -544,7 +542,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
     track("homie_gentle_interrupt", { reason: decision.reason });
     const text = voiceInterim.trim();
     if (text) void sendMessageRef.current(text);
-  }, [voiceListening, voiceInterim, chimeAndPause, stopListening]);
+  }, [voiceInterim, voiceListening, chimeAndPause, stopListening]);
 
   // "What does this change for me?" — a lens button queues the message and
   // fires the event; the panel opens and sends it with the page's fresh
