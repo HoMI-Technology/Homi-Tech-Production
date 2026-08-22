@@ -1687,7 +1687,7 @@
       "columns": [
         "id",
         "user_id",
-        "security_id"
+        "account_id"
       ],
       "rls": true,
       "category": "user",
@@ -1707,8 +1707,7 @@
       "name": "plaid_liabilities",
       "columns": [
         "id",
-        "user_id",
-        "account_id"
+        "user_id"
       ],
       "rls": true,
       "category": "user",
@@ -2055,7 +2054,7 @@
       "mode": "simulate",
       "level": 10,
       "boundary": "Simulates, never predicts with certainty.",
-      "color": "#a78bfa",
+      "color": "#facc15",
       "description": "Runs scenario analysis and stress tests — what happens if income drops, rates rise, or timing shifts."
     },
     {
