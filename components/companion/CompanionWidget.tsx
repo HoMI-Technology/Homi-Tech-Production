@@ -524,10 +524,12 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
   // Gentle Interrupter — while listening, soft-pause long monologues once.
   useEffect(() => {
     if (!voiceListening || !voiceInterim || interruptedThisListenRef.current) return;
-    const speakingMs = Date.now() - listenStartedAtRef.current;
+    const speakingMs = listenStartedAtRef.current
+      ? Date.now() - listenStartedAtRef.current
+      : 0;
     const emotional = readEmotionalMirror(
       voiceInterim,
-      estimateSpeechRateWpm(voiceInterim, speakingMs) ?? undefined,
+      estimateSpeechRateWpm(voiceInterim, speakingMs),
     );
     const decision = decideGentleInterrupt({
       transcript: voiceInterim,
@@ -542,7 +544,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
     track("homie_gentle_interrupt", { reason: decision.reason });
     const text = voiceInterim.trim();
     if (text) void sendMessageRef.current(text);
-  }, [voiceInterim, voiceListening, chimeAndPause, stopListening]);
+  }, [voiceListening, voiceInterim, chimeAndPause, stopListening]);
 
   // "What does this change for me?" — a lens button queues the message and
   // fires the event; the panel opens and sends it with the page's fresh
@@ -618,8 +620,10 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
         aria-expanded={open}
         aria-controls="homi-companion-panel"
         aria-label={open ? "Close HōMI Companion" : "Open HōMI Companion"}
-        className="compass-glow fixed right-6 z-[var(--z-menu)] flex h-14 w-14 items-center justify-center rounded-full border border-cyan/40 bg-navy-light/90 shadow-lg backdrop-blur transition-transform hover:scale-105 bottom-[max(1.5rem,env(safe-area-inset-bottom,0px))]"
+        className="compass-glow fixed right-6 z-[var(--z-menu)] flex h-14 w-14 items-center justify-center rounded-full border border-cyan/40 bg-navy-light/90 shadow-lg backdrop-blur transition-transform hover:scale-105 bottom-[max(1.5rem,env(safe-area-inset-bottom,0px))] max-lg:bottom-[calc(4.5rem_+_env(safe-area-inset-bottom,0px))]"
       >
+        {/* max-lg raise keeps the launcher above the ProductBottomNav tab bar
+            (bar height + safe-area inset) so it never covers a tab. */}
         <HomieAvatar
           state={open ? avatarState : "breathing"}
           size={48}
@@ -634,7 +638,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
           role="dialog"
           aria-modal="true"
           aria-label="HōMI Companion"
-          className="glass fixed right-4 z-[var(--z-overlay)] flex h-[min(70dvh,560px)] max-h-[calc(100dvh-env(safe-area-inset-top,0px)-8rem)] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl shadow-2xl bottom-[max(5.5rem,calc(env(safe-area-inset-bottom,0px)+4.5rem))] sm:right-6"
+          className="glass fixed right-4 z-[var(--z-overlay)] flex h-[min(70dvh,560px)] max-h-[calc(100dvh-env(safe-area-inset-top,0px)-8rem)] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl shadow-2xl bottom-[max(5.5rem,calc(env(safe-area-inset-bottom,0px)+4.5rem))] max-lg:bottom-[calc(8.5rem_+_env(safe-area-inset-bottom,0px))] sm:right-6"
         >
           <div className="flex items-center justify-between border-b border-slate-surface/60 px-4 py-3">
             {editingName ? (
