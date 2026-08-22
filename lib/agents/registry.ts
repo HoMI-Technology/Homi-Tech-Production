@@ -8,10 +8,12 @@
  * - Sentinel guardrail patterns (forbidden advice / claims)
  * - HMAC receipt generation for auditable agent responses
  *
- * All agent colors are chosen from the locked brand palette in lib/brand.
+ * All agent colors are imported from the locked brand palette in lib/brand —
+ * never raw hex.
  */
 
 import crypto from "crypto";
+import { COLORS } from "../brand";
 
 export type AgentId = "homie" | "scout" | "analyst" | "coach" | "architect" | "oracle" | "sentinel";
 
@@ -33,7 +35,7 @@ export const AGENTS: AgentMeta[] = [
     id: "homie",
     name: "Homie",
     role: "Companion",
-    color: "#22d3ee",
+    color: COLORS.cyan,
     level: 1,
     description:
       "Your warm, direct coordinator. Homie listens first, then pulls in the right specialist when your question needs one.",
@@ -44,7 +46,7 @@ export const AGENTS: AgentMeta[] = [
     id: "scout",
     name: "Scout",
     role: "Explorer",
-    color: "#34d399",
+    color: COLORS.emerald,
     level: 1,
     description:
       "Discovers context and patterns in the user's readiness data — market awareness, life transitions, and things they might have missed.",
@@ -55,7 +57,7 @@ export const AGENTS: AgentMeta[] = [
     id: "analyst",
     name: "Analyst",
     role: "Numbers",
-    color: "#facc15",
+    color: COLORS.yellow,
     level: 3,
     description:
       "Deep-dives into the financial metrics. Explains DTI, runway, affordability, and opportunity costs in plain language.",
@@ -66,7 +68,7 @@ export const AGENTS: AgentMeta[] = [
     id: "coach",
     name: "Coach",
     role: "Mentor",
-    color: "#fab633",
+    color: COLORS.amber,
     level: 5,
     description:
       "Builds the emotional and motivational side of the decision — pressure, clarity, fear, FOMO, and what 'ready' actually feels like.",
@@ -77,7 +79,7 @@ export const AGENTS: AgentMeta[] = [
     id: "architect",
     name: "Architect",
     role: "Strategy",
-    color: "#f24822",
+    color: COLORS.crimson,
     level: 8,
     description:
       "Designs the decision roadmap: what to fix, in what order, and how long it realistically takes to move from NOT YET to READY.",
@@ -88,7 +90,9 @@ export const AGENTS: AgentMeta[] = [
     id: "oracle",
     name: "Oracle",
     role: "Projection",
-    color: "#a78bfa",
+    // Canon gold (Perfect Timing) — replaces the off-palette #a78bfa purple.
+    // Oracle's role is scenario/timing projection, so the timing-pillar token fits.
+    color: COLORS.yellow,
     level: 10,
     description:
       "Runs scenario analysis and stress tests — what happens if income drops, rates rise, or timing shifts.",
@@ -99,7 +103,7 @@ export const AGENTS: AgentMeta[] = [
     id: "sentinel",
     name: "Sentinel",
     role: "Guardian",
-    color: "#f24822",
+    color: COLORS.crimson,
     level: 1,
     description:
       "Always active safety layer. Blocks disallowed advice, pressure language, and any attempt to bypass HōMI's educational-only posture.",

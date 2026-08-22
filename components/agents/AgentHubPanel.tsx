@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useCallback } from "react";
+import { RefreshCw } from "lucide-react";
 import type { ArchitectureDocument } from "@/lib/architecture/types";
 import { AGENTS } from "@/lib/agents/registry";
 import { COLORS } from "@/lib/brand";
@@ -120,6 +121,30 @@ export function AgentHubPanel({ initialDoc }: { initialDoc: ArchitectureDocument
 
   return (
     <div className="space-y-8">
+      {!doc && (
+        <section className="rounded-2xl border border-amber/30 bg-amber/5 p-6 sm:p-8">
+          <p className="text-2xs font-semibold uppercase tracking-[0.2em] text-amber">
+            Feed unavailable
+          </p>
+          <h2 className="mt-2 font-display text-xl font-semibold text-light">
+            Architecture map unavailable right now.
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-dim">
+            The machine-readable snapshot (architecture.json) could not be loaded, so live stats
+            and context-pack exports are disabled. The prompt builder below still targets the
+            production feed URL.
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-4 inline-flex items-center gap-2 rounded-xl border border-amber/40 px-5 py-2.5 text-sm font-semibold text-amber transition hover:bg-amber/10"
+          >
+            <RefreshCw className="h-4 w-4" aria-hidden />
+            Retry
+          </button>
+        </section>
+      )}
+
       {/* Feed URL */}
       <section className="relative overflow-hidden rounded-2xl border border-cyan/20 bg-gradient-to-br from-cyan/[0.07] via-navy to-emerald/[0.05] p-6 sm:p-8">
         <div
