@@ -18,7 +18,7 @@ import { revokeUserPlaidItems } from "@/lib/plaid/remove";
  *   2. Service-role `auth.admin.deleteUser()`: auth.users → profiles →
  *      ON DELETE CASCADE erases every user table (00002/00017).
  *   3. Fallback without a service key: delete the caller's own profiles row
- *      (policy `profiles_delete_own`, migration 00026) — same cascade for
+ *      (policy `profiles_delete_own`, migration 00025_profiles_delete_own.sql) — same cascade for
  *      data rows — and say honestly that the sign-in credential remains.
  *
  * Success is only ever reported after verifying rows were actually removed.

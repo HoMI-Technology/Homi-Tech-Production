@@ -6,7 +6,7 @@ import { isPushConfigured } from "@/lib/push/config";
 
 export const runtime = "nodejs";
 
-/** Postgres/PostgREST codes meaning migration 00024 isn't applied yet. */
+/** Postgres/PostgREST codes meaning migration 20260720142717_push_and_survey_notifications.sql isn't applied yet. */
 const INFRA_MISSING_CODES = new Set(["42P01", "PGRST205"]);
 
 const subscribeSchema = z.object({

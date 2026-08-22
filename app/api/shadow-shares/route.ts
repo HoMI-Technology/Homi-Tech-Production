@@ -10,7 +10,7 @@ import { env } from "@/lib/env";
 export const runtime = "nodejs";
 
 /**
- * POST /api/shadow-shares — mint an anonymous share card (migration 00021).
+ * POST /api/shadow-shares — mint an anonymous share card (migration 00028_shadow_shares.sql).
  *
  * The anonymous top-of-funnel previously dead-ended at /results; this gives it
  * a shareable exit. Canon holds: the client sends raw INPUTS, never a score —
