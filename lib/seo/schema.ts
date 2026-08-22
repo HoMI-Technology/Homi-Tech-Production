@@ -52,8 +52,9 @@ export interface ArticleJsonLdInput {
   title: string;
   /** Real dek/description already shown on the page. */
   description: string;
-  /** ISO date string ("YYYY-MM-DD") already stored with the post. */
-  datePublished: string;
+  /** ISO date string ("YYYY-MM-DD") already stored with the post. Omit when
+      the source data carries no real date — never invent one. */
+  datePublished?: string;
   /** Site-relative path, e.g. "/blog/some-slug". */
   path: string;
 }
@@ -63,7 +64,7 @@ export interface ArticleJsonLd {
   "@type": "Article";
   headline: string;
   description: string;
-  datePublished: string;
+  datePublished?: string;
   mainEntityOfPage: { "@type": "WebPage"; "@id": string };
   publisher: { "@type": "Organization"; name: string; legalName: string };
 }
@@ -74,7 +75,7 @@ export function articleJsonLd(input: ArticleJsonLdInput, siteUrl: string): Artic
     "@type": "Article",
     headline: input.title,
     description: input.description,
-    datePublished: input.datePublished,
+    ...(input.datePublished ? { datePublished: input.datePublished } : {}),
     mainEntityOfPage: { "@type": "WebPage", "@id": `${siteUrl}${input.path}` },
     publisher: { "@type": "Organization", name: BRAND.name, legalName: BRAND.legalEntity },
   };
