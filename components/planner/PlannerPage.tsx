@@ -73,6 +73,47 @@ function tabFromHash(): Exclude<PlannerTabKey, "plan"> {
   return HASH_ALIASES[raw] ?? "overview";
 }
 
+/* ------------------------------------------------------------------ */
+/* First-visit demo seed (ported from the reference PlannerPage)       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Marker key for "this device has opened the planner before". The
+ * planner persist envelope is written during hydration itself, so it
+ * cannot double as a first-visit signal — this marker can: it is set
+ * exactly once, on the first mounted visit, and `Clear data` never
+ * removes it (a cleared workspace stays honestly empty).
+ */
+const PLANNER_VISITED_KEY = "homi-planner-visited-v1";
+
+/**
+ * On the very first visit seed the demo workspace so the shell lands
+ * with sample numbers. Later visits — including post-`Clear data` —
+ * never reseed. The seeding path is the exact one the toolbar's
+ * "Load sample numbers" confirm runs (`loadSampleNumbers`), called
+ * as-is.
+ */
+function useFirstVisitDemoSeed(loadSample: () => void) {
+  const hydrated = usePlannerStore((s) => s._hasHydrated);
+  useEffect(() => {
+    if (!hydrated || typeof window === "undefined") return;
+    try {
+      if (window.localStorage.getItem(PLANNER_VISITED_KEY) !== null) return;
+      window.localStorage.setItem(PLANNER_VISITED_KEY, new Date().toISOString());
+    } catch {
+      return;
+    }
+    const s = usePlannerStore.getState();
+    if (
+      s.transactions.length === 0 &&
+      s.accounts.length === 0 &&
+      s.bills.length === 0
+    ) {
+      loadSample();
+    }
+  }, [hydrated, loadSample]);
+}
+
 export function PlannerPage({
   overview,
   calendar,
@@ -208,6 +249,9 @@ export function PlannerPage({
       downPaymentSaved: 38_000,
     });
   }, [resetDemo]);
+
+  // First mount on this device seeds the demo (marker-gated, see above).
+  useFirstVisitDemoSeed(loadSampleNumbers);
 
   const toolbar = (
     <div className="relative flex shrink-0 flex-wrap gap-2">
