@@ -47,6 +47,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // index pages permanently redirect there and are delisted; their [slug]
     // routes still render and stay in the dynamic sections below.
     entry("/guides", "weekly", 0.8),
+    // Dedicated guide pages outside guides-data (data-driven slugs are below).
+    entry("/guides/hard-stops", "monthly", 0.6),
+    entry("/guides/glossary", "monthly", 0.7),
     entry("/pricing", "monthly", 0.7),
     entry("/tools", "monthly", 0.8),
     entry("/tools/preflight", "monthly", 0.6),

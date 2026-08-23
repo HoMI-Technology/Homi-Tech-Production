@@ -6,6 +6,7 @@ import {
   faqPageJsonLd,
   softwareApplicationJsonLd,
   definedTermJsonLd,
+  definedTermSetJsonLd,
 } from "@/lib/seo/schema";
 import { BRAND, TAGLINES } from "@/lib/brand";
 
@@ -138,6 +139,29 @@ describe("definedTermJsonLd", () => {
     expect(data.name).toBe("Decision Readiness Intelligence");
     expect(data.url).toBe(`${SITE}/decision-readiness-intelligence`);
     expect(data.description).toBe("A real definition rendered on the page.");
+    // Data discipline: nothing invented — no ratings, authors, or dates.
+    expect(JSON.stringify(data)).not.toMatch(/aggregateRating|review|author|datePublished/);
+  });
+});
+
+describe("definedTermSetJsonLd", () => {
+  it("emits the set with each term's on-page definition", () => {
+    const data = definedTermSetJsonLd(
+      {
+        name: "Decision Readiness Glossary",
+        path: "/guides/glossary",
+        terms: [{ term: "Emergency runway", definition: "A real on-page definition." }],
+      },
+      SITE,
+    );
+    expect(data["@type"]).toBe("DefinedTermSet");
+    expect(data.url).toBe(`${SITE}/guides/glossary`);
+    expect(data.hasDefinedTerm).toHaveLength(1);
+    expect(data.hasDefinedTerm[0]).toEqual({
+      "@type": "DefinedTerm",
+      name: "Emergency runway",
+      description: "A real on-page definition.",
+    });
     // Data discipline: nothing invented — no ratings, authors, or dates.
     expect(JSON.stringify(data)).not.toMatch(/aggregateRating|review|author|datePublished/);
   });

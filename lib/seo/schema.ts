@@ -161,3 +161,37 @@ export function definedTermJsonLd(
     url: `${siteUrl}${input.path}`,
   };
 }
+
+export interface DefinedTermSetJsonLd {
+  "@context": "https://schema.org";
+  "@type": "DefinedTermSet";
+  name: string;
+  url: string;
+  hasDefinedTerm: Array<{ "@type": "DefinedTerm"; name: string; description: string }>;
+}
+
+/**
+ * DefinedTermSet for a glossary page. Every term's description must be the
+ * real definition rendered on that page — pass the same array the page maps
+ * over, never a markup-only rewrite.
+ */
+export function definedTermSetJsonLd(
+  input: {
+    name: string;
+    path: string;
+    terms: ReadonlyArray<{ term: string; definition: string }>;
+  },
+  siteUrl: string,
+): DefinedTermSetJsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "DefinedTermSet",
+    name: input.name,
+    url: `${siteUrl}${input.path}`,
+    hasDefinedTerm: input.terms.map((t) => ({
+      "@type": "DefinedTerm",
+      name: t.term,
+      description: t.definition,
+    })),
+  };
+}
