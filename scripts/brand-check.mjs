@@ -91,7 +91,7 @@ const SCAN_TARGETS = [
  * lib/architecture/*.ts, which IS scanned). It reproduces, verbatim:
  *   - the compliance denylist (`AI-powered`, `dream home`, `pre-approval`,
  *     `Guaranteed`, `replaces your credit score`, …) — deliberate content that
- *     is `/* brand-ok *\`/`-suppressed at its source in
+ *     is `/* brand-ok *\/`-suppressed at its source in
  *     lib/architecture/compliance.ts;
  *   - the GitHub org slug `github.com/HoMI-Technology/Homi-Tech-Production`.
  *
