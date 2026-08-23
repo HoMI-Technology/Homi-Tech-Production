@@ -108,7 +108,7 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(page).not.toMatch(/>\s*Almost\s*</);
   });
 
-  it("keeps one fold instrument and does not dual-mount compass + giant hero", () => {
+  it("score reading leads the fold; Path stays the primary action instrument", () => {
     expect(page).toContain("HomeFold");
     expect(fold).toContain("HOME_FOLD_INSTRUMENT");
     expect(fold).toContain("dash-instrument");
@@ -117,6 +117,20 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(fold).toContain("data-home-build-hero");
     expect(fold).toContain("data-home-score-rail");
     expect(fold).toContain("PathStepLedger");
+    // Fold hierarchy (redesign §D): the elevated score reading sits above
+    // the Path next-move hero so both are above the fold on a phone.
+    expect(fold.indexOf("data-home-score-rail")).toBeGreaterThan(-1);
+    expect(fold.indexOf("data-home-score-rail")).toBeLessThan(
+      fold.indexOf("data-home-build-hero"),
+    );
+    // Score + pillars render through the shared ScoreRail — composed of the
+    // locked PillarRing / VerdictBadge primitives, never a new orb.
+    expect(fold).toContain("ScoreRail");
+    const rail = src("components", "score", "ScoreRail.tsx");
+    expect(rail).toContain("PillarRing");
+    expect(rail).toContain("VerdictBadge");
+    expect(rail).toContain("PILLAR_MAX_POINTS");
+    expect(rail).not.toContain("ThresholdCompass");
     expect(fold).not.toContain("HeroScore");
     expect(fold).not.toContain("ThresholdCompass");
     expect(page).not.toContain("ThresholdCompass");
