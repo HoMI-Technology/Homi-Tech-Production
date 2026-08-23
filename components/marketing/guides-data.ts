@@ -369,6 +369,56 @@ export const GUIDES: Guide[] = [
       },
     ],
   },
+  {
+    slug: "build-first-playbook",
+    title: "The Build First Playbook: What to Do When the Answer Is Not Yet",
+    description:
+      "Not yet is not no — it is a map. How to turn a protective verdict into a season of specific building: one binding constraint at a time, across Financial Reality, Emotional Truth, and Perfect Timing, without shame and without stalling.",
+    sections: [
+      {
+        heading: "Not yet is not no",
+        paragraphs: [
+          "Every product funded by the transaction needs your answer to be yes. That is why “wait” is the one honest answer you will almost never hear from them — and why hearing it can feel like failure. It isn’t. A Build First or not-yet verdict is protection doing its job: it caught the gap before the gap caught you, while it still costs a season to fix instead of a decade.",
+          "Build First is not a grade. It is a map — it names which pillar is holding the decision back and what to strengthen first. The buyers who take that season are not behind the ones who rushed. They are the ones who get to actually enjoy the thing they eventually commit to.",
+        ],
+      },
+      {
+        heading: "Find the binding constraint",
+        paragraphs: [
+          "Don’t try to fix everything. Most not-yet situations have one binding constraint — the single gap that, until it moves, keeps the whole decision unsafe: a runway that’s too thin, a debt load that eats the margin, a partner who isn’t aligned, a horizon that isn’t legible. Working on anything else first feels productive and changes nothing.",
+          "Name it in one sentence: “This decision is not ready because …” If you’ve taken the assessment, the verdict names it for you. If you haven’t, the sentence you’re most reluctant to say out loud is usually the constraint.",
+        ],
+      },
+      {
+        heading: "Building Financial Reality",
+        paragraphs: [
+          "Runway comes first, almost always. Months of essential expenses set aside — separate from any down payment — is the shock absorber every other financial move depends on. Without it, one bad month turns into borrowing, and borrowing turns a thin position into a spiral. Automate the transfer; a fixed amount every payday beats a heroic amount once.",
+          "Then pressure: bring down the obligations that eat your monthly margin, and give a weak credit file time and clean payments to heal — educational math, not magic. This is slow, boring, and completely effective. A season of boring is what ready is made of.",
+        ],
+      },
+      {
+        heading: "Building Emotional Truth",
+        paragraphs: [
+          "Emotional gaps close through conversations, not spreadsheets. If alignment was the constraint, the build is sitting down with the person you’re deciding with — not to win, but to find out what each of you is actually saying yes to, and what each of you is afraid of. Two people discovering they were answering different questions is progress, not a setback.",
+          "If pressure was the constraint, the build is removing the borrowed deadline. Say no to the clock that isn’t yours — the lease panic, the market headline, the relative’s timeline — and see what the want looks like in a quiet week. A desire that survives silence is signal. One that needs urgency to stay alive was the pressure talking.",
+        ],
+      },
+      {
+        heading: "Building Perfect Timing",
+        paragraphs: [
+          "Timing gaps close when your next stretch of life becomes legible. If income is shifting, let it settle enough to be believable. If a move, a career change, or a family change is plausibly inside the next two years, either resolve it or size the decision to survive it. You cannot control the market’s timing; you can absolutely improve your own.",
+          "Waiting with a purpose is not stalling. Stalling is waiting without a named constraint and without a date to re-check. The playbook is the opposite: one gap, one build, one season — then look again.",
+        ],
+      },
+      {
+        heading: "Re-check without shame",
+        paragraphs: [
+          "Readiness moves. The whole point of building is that the answer changes — so put a re-check on the calendar when your constraint should have moved, and measure again. Progress framing matters here: you are not “still not ready,” you are two steps closer than the last read. Avoiding the number because it might disappoint you is how gaps quietly grow.",
+          "And when the verdict finally turns — move with the confidence of someone who built their way there. That is the entire promise of Build First: not yet is not no. It is clarity, it is protection, and for a season it is a plan.",
+        ],
+      },
+    ],
+  },
 ];
 
 export function getGuide(slug: string): Guide | undefined {
