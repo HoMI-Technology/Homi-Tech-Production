@@ -247,8 +247,8 @@ export default function TermsPage() {
               <a href="mailto:hello@homitechnology.com" className="text-cyan hover:underline">
                 hello@homitechnology.com
               </a>{" "}
-              or write to {BRAND.legalEntity}, 3072 Floweva St, Palm Springs, FL 33406. We do not
-              have a telephone number.
+              or write to {BRAND.legalEntity}, 651 N Broad St, Suite 201, Middletown, DE 19709. We do
+              not have a telephone number.
             </p>
           </div>
 
@@ -291,8 +291,8 @@ export default function TermsPage() {
               without prior written consent.
             </p>
             <p className="mt-3 leading-relaxed">
-              <span className="font-medium text-light">Contact.</span> {BRAND.legalEntity}, 3072
-              Floweva St, Palm Springs, FL 33406. Email{" "}
+              <span className="font-medium text-light">Contact.</span> {BRAND.legalEntity}, 651 N
+              Broad St, Suite 201, Middletown, DE 19709. Email{" "}
               <a href="mailto:hello@homitechnology.com" className="text-cyan hover:underline">
                 hello@homitechnology.com
               </a>{" "}
