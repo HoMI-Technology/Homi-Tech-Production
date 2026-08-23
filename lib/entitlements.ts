@@ -191,6 +191,12 @@ export function getAdminEntitlements(storedTier?: string | null): Entitlements {
     ...ENTITLEMENTS.family,
     tier: normalizeTier(storedTier),
     advisorMessagesPerDay: 1000,
+    // Must be raised alongside the daily cap. Inheriting family's 1200/month against
+    // 1000/day made the monthly ceiling bind on day two — the opposite of "never bite
+    // in practice" above, and with tier reading `family` the operator got no upgrade
+    // path either. 30x the daily cap keeps it finite (spend still bounded) and out of
+    // the way. Locked by __tests__/advisor-quota.test.ts.
+    advisorMessagesPerMonth: 30_000,
   };
 }
 

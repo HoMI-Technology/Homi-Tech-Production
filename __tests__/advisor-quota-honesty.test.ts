@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { nextDailyResetIso, nextMonthlyResetIso, summarizeAdvisorUsage } from "@/lib/advisor/usage";
-import { nextTierUp, overQuotaCopy } from "@/lib/advisor/quota-copy";
+import { formatQuotaReset, nextTierUp, overQuotaCopy } from "@/lib/advisor/quota-copy";
 
 const FREE = { advisorMessagesPerDay: 5, advisorMessagesPerMonth: 60 };
 const mid = new Date("2026-08-14T15:00:00.000Z");
@@ -104,5 +104,29 @@ describe("overQuotaCopy", () => {
         expect(c.nextTierName ?? "").not.toMatch(/Companion/i);
       }
     }
+  });
+});
+
+describe("formatQuotaReset", () => {
+  it("returns empty for a missing or unparseable instant", () => {
+    expect(formatQuotaReset("daily", null)).toBe("");
+    expect(formatQuotaReset("daily", "not-a-date")).toBe("");
+  });
+
+  it("always carries a clock time, so a monthly reset never reads as a bare date", () => {
+    // In US Eastern, 2026-09-01T00:00Z is Aug 31 8:00 PM. Without the time this
+    // rendered "Resets Aug 31." under a "this month's messages" headline.
+    const out = formatQuotaReset("monthly", "2026-09-01T00:00:00.000Z");
+    expect(out).toMatch(/^Resets /);
+    expect(out).toMatch(/\d{1,2}:\d{2}/);
+  });
+
+  it("uses a weekday for daily and a date for monthly", () => {
+    expect(formatQuotaReset("daily", "2026-08-24T00:00:00.000Z")).toMatch(
+      /Mon|Tue|Wed|Thu|Fri|Sat|Sun/,
+    );
+    expect(formatQuotaReset("monthly", "2026-09-01T00:00:00.000Z")).toMatch(
+      /Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec/,
+    );
   });
 });

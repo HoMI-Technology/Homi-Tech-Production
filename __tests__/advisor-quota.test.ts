@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { getEntitlements } from "@/lib/entitlements";
+import { getAdminEntitlements, getEntitlements } from "@/lib/entitlements";
 import { gateCompanion } from "@/lib/advisor/quota";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -15,6 +15,17 @@ describe("entitlements monthly ceiling", () => {
       const e = getEntitlements(tier);
       expect(e.advisorMessagesPerMonth).toBeGreaterThanOrEqual(e.advisorMessagesPerDay);
     }
+  });
+
+  it("admin's monthly cap does not bind before its daily cap (never-bite intent)", () => {
+    // getAdminEntitlements raises the daily cap to 1000 but used to inherit family's
+    // 1200/month, so the monthly ceiling bound on day two — the opposite of the
+    // "high enough to never bite in practice" contract in its own docstring. And
+    // because `tier` reflects the stored subscription, the operator got no upgrade
+    // path either, just a wall.
+    const admin = getAdminEntitlements("family");
+    expect(admin.advisorMessagesPerMonth).toBeGreaterThanOrEqual(admin.advisorMessagesPerDay * 28);
+    expect(Number.isFinite(admin.advisorMessagesPerMonth)).toBe(true);
   });
 
   it("free stays a genuine taste, paid tiers scale", () => {

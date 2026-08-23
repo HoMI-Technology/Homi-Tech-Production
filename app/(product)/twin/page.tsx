@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { formatQuotaReset } from "@/lib/advisor/quota-copy";
 import { PILLARS, VERDICT_META } from "@/lib/brand";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
 import type { StoredAssessment } from "@/lib/assessment/storage";
@@ -75,12 +76,18 @@ export default function TwinPage() {
       if (!res.ok) {
         // The companion gate returns truthful, on-brand copy (sign-in / upgrade /
         // retry) — never let a 401/402 fall through to the generic error.
-        const data = (await res.json().catch(() => ({}))) as { error?: unknown };
-        const message =
+        const data = (await res.json().catch(() => ({}))) as {
+          error?: unknown;
+          quota?: { scope: "daily" | "monthly" | null; title: string; resetsAt: string | null };
+        };
+        const base =
           typeof data.error === "string"
             ? data.error
             : "Something went wrong generating your letter. Please try again.";
-        setError(message);
+        // On 402 the gate also sends the derived reset instant. Say when it lifts
+        // rather than leaving "you've used this month's messages" hanging.
+        const reset = data.quota ? formatQuotaReset(data.quota.scope, data.quota.resetsAt) : "";
+        setError(reset ? `${base} ${reset}` : base);
         if (res.status === 401) {
           setGateCta({
             href: `/auth/sign-in?next=${encodeURIComponent(pathname)}`,

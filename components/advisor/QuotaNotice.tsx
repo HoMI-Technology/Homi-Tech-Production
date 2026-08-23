@@ -1,6 +1,7 @@
 "use client";
 
 import { track } from "@/lib/analytics";
+import { formatQuotaReset } from "@/lib/advisor/quota-copy";
 import { useEffect } from "react";
 
 export type QuotaNoticeData = {
@@ -58,7 +59,7 @@ export function QuotaNotice({
       <p className="text-sm font-medium text-light">{data.title}</p>
 
       {data.resetsAt && (
-        <p className="mt-1 text-xs text-dim">{formatReset(data.scope, data.resetsAt)}</p>
+        <p className="mt-1 text-xs text-dim">{formatQuotaReset(data.scope, data.resetsAt)}</p>
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -70,28 +71,3 @@ export function QuotaNotice({
   );
 }
 
-/**
- * The reset is an *instant*, not a calendar day, so it always carries a time.
- *
- * This matters more than it looks. The quota rolls at Postgres `current_date`
- * (UTC midnight), which in US Eastern is 8:00 PM the *previous* evening. Formatting
- * a monthly reset as a bare date therefore produced "You've used this month's
- * messages. Resets Aug 31." — a monthly reset apparently landing inside the same
- * month. Correct to the millisecond and unreadable as English. Showing the clock
- * time removes the ambiguity for every zone west of UTC.
- */
-function formatReset(scope: "daily" | "monthly" | null, iso: string): string {
-  const when = new Date(iso);
-  if (Number.isNaN(when.getTime())) return "";
-
-  // Monthly waits can be weeks out, so name the date. Daily is inside 24h, so the
-  // weekday reads better than a date.
-  const dayPart: Intl.DateTimeFormatOptions =
-    scope === "monthly" ? { month: "short", day: "numeric" } : { weekday: "short" };
-
-  return `Resets ${new Intl.DateTimeFormat(undefined, {
-    ...dayPart,
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(when)}.`;
-}

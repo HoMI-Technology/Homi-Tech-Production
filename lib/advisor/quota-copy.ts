@@ -67,3 +67,30 @@ export function overQuotaCopy(input: {
     nextTierName: TIERS[next].name,
   };
 }
+
+/**
+ * Human reset line for a quota instant, in the *viewer's* timezone.
+ *
+ * Always carries a clock time. The quota rolls at Postgres `current_date` (00:00 UTC,
+ * verified), which is 8:00 PM US Eastern — so a bare date rendered a monthly reset as
+ * "Resets Aug 31.", i.e. apparently inside the month that just ran out. Correct to the
+ * millisecond and unreadable as English.
+ *
+ * Returns "" for a missing or unparseable instant so callers can concatenate safely.
+ */
+export function formatQuotaReset(scope: QuotaScope | null, iso: string | null): string {
+  if (!iso) return "";
+  const when = new Date(iso);
+  if (Number.isNaN(when.getTime())) return "";
+
+  // Monthly waits run to weeks, so name the date. Daily is inside 24h, so the weekday
+  // reads better than a date.
+  const dayPart: Intl.DateTimeFormatOptions =
+    scope === "monthly" ? { month: "short", day: "numeric" } : { weekday: "short" };
+
+  return `Resets ${new Intl.DateTimeFormat(undefined, {
+    ...dayPart,
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(when)}.`;
+}
