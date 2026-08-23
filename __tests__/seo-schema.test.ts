@@ -5,6 +5,7 @@ import {
   articleJsonLd,
   faqPageJsonLd,
   softwareApplicationJsonLd,
+  definedTermJsonLd,
 } from "@/lib/seo/schema";
 import { BRAND, TAGLINES } from "@/lib/brand";
 
@@ -120,5 +121,24 @@ describe("softwareApplicationJsonLd", () => {
     expect(data).not.toHaveProperty("telephone");
     expect(data).not.toHaveProperty("geo");
     expect(JSON.stringify(data)).not.toMatch(/LocalBusiness|PostalAddress/);
+  });
+});
+
+describe("definedTermJsonLd", () => {
+  it("emits the term with its on-page definition and canonical URL", () => {
+    const data = definedTermJsonLd(
+      {
+        name: "Decision Readiness Intelligence",
+        description: "A real definition rendered on the page.",
+        path: "/decision-readiness-intelligence",
+      },
+      SITE,
+    );
+    expect(data["@type"]).toBe("DefinedTerm");
+    expect(data.name).toBe("Decision Readiness Intelligence");
+    expect(data.url).toBe(`${SITE}/decision-readiness-intelligence`);
+    expect(data.description).toBe("A real definition rendered on the page.");
+    // Data discipline: nothing invented — no ratings, authors, or dates.
+    expect(JSON.stringify(data)).not.toMatch(/aggregateRating|review|author|datePublished/);
   });
 });
