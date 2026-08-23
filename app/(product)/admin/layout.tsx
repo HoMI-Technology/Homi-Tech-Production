@@ -56,11 +56,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     }
   }
 
+  // MFA is always-on policy (2026-08) — no env knob. evaluateAdminAccess
+  // decides between allow / needs-stepup / needs-enrollment / not-admin.
   const decision = evaluateAdminAccess({
     role: profile?.role ?? null,
     email: profile?.email ?? user?.email ?? null,
     allowlist: parseAdminEmails(env.ADMIN_EMAILS),
-    requireMfa: env.ADMIN_REQUIRE_MFA,
     currentLevel,
     nextLevel,
   });
