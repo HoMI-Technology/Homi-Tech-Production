@@ -105,6 +105,49 @@ export const GUIDES: Guide[] = [
     ],
   },
   {
+    slug: "readiness-score-vs-credit-score",
+    title: "Readiness Score vs. Credit Score: Two Different Questions",
+    description:
+      "A credit score estimates whether a lender will be repaid. A readiness score asks whether you’ll be okay after the decision. Neither replaces the other — here’s what each one measures, for whom, and how they fit together.",
+    sections: [
+      {
+        heading: "Two instruments, two questions",
+        paragraphs: [
+          "A credit score answers a lender’s question: based on how this person has handled debt, how likely are we to be repaid? It is a repayment-risk estimate, built by and for the credit system, and at that job it works. The Decision Readiness Score answers your question: across your money, your emotions, and your timing, are you ready for this decision — will you be okay after it?",
+          "Those questions live at different moments. Credit activates inside the approval process, after you’ve decided to apply. Readiness sits before the application — in the hour when the decision itself is still open. Confusing the two is how people with excellent credit end up in commitments that were never right for them.",
+        ],
+      },
+      {
+        heading: "What a credit score measures — and for whom",
+        paragraphs: [
+          "Credit scoring reads your debt history: payment record, utilization, account age, recent inquiries, mix. Every input is about how you’ve handled borrowed money, because the customer for that number is a lender pricing risk. Nothing in it knows your income, your savings, your household’s alignment, or whether this is a sane moment in your life for a major commitment.",
+          "That is not a flaw. It is a scope. A credit score is not supposed to know whether you’ll be okay — protecting the borrower was never its job. The mistake is treating a lender’s risk instrument as if it were a verdict on your readiness.",
+        ],
+      },
+      {
+        heading: "What a readiness score measures",
+        paragraphs: [
+          "The Decision Readiness Score reads three pillars together for one specific decision: Financial Reality (what you can actually carry — income, obligations, runway — not just what someone will lend), Emotional Truth (whether the desire is yours, whether the people deciding with you are aligned, whether the deadline is borrowed), and Perfect Timing (whether this is the right window in your life, not the market’s noise).",
+          "The score and verdict are computed deterministically — the same inputs always produce the same reading — and the output is educational guidance: a signal and a map, including the protective answers Build First and not yet. It is not an approval, and it is not advice.",
+        ],
+      },
+      {
+        heading: "Why neither replaces the other",
+        paragraphs: [
+          "HōMI does not replace your credit score, and no credit score can substitute for a readiness check. Lenders will still pull a credit report — that is their gate, answering their question with their instrument. Readiness results stay on your side of the wall: they sit before the application, not inside the approval engine, and they are never furnished to decide whether you get credit, housing, or a job.",
+          "Keeping the two separate is what makes each one trustworthy. A readiness measure that fed approval decisions would stop being yours. A credit score stretched to cover “will you be okay?” would be pretending to knowledge it doesn’t have.",
+        ],
+      },
+      {
+        heading: "How they fit together",
+        paragraphs: [
+          "In a healthy sequence, readiness comes first: check whether the decision is right — all three pillars — before anyone runs your file. Credit standing shows up inside that check as one strand of Financial Reality, because a weak file changes what the commitment would really cost you. Then, if the readiness answer supports moving, the credit system does its job in its own lane.",
+          "One instrument protects the lender. The other exists to protect you. Ask the readiness question first and the approval question second, and both numbers end up doing exactly what they were built for.",
+        ],
+      },
+    ],
+  },
+  {
     slug: "what-homi-is-not",
     title: "What HōMI Is — and Isn’t",
     description:
