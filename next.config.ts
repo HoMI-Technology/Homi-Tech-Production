@@ -215,12 +215,26 @@ const nextConfig: NextConfig = {
  *    entry — the "Sentry ingest deliberately absent" note above stays true.
  *  · telemetry off: no build-time analytics to Sentry.
  */
+/**
+ * Bundle visibility (audit follow-up): `npm run analyze` emits client/server
+ * treemaps so script-budget regressions are diagnosed by import-trace, not
+ * guesswork. Inert without ANALYZE=true — the require never runs in normal
+ * builds, so this adds zero weight to dev/CI/prod.
+ */
+const withBundleAnalyzer =
+  process.env.ANALYZE === "true"
+    ? // eslint-disable-next-line @typescript-eslint/no-require-imports
+      (require("@next/bundle-analyzer") as typeof import("@next/bundle-analyzer"))({
+        enabled: true,
+      })
+    : (config: NextConfig) => config;
+
 const sentryConfigured = Boolean(
   process.env.SENTRY_AUTH_TOKEN && process.env.SENTRY_ORG && process.env.SENTRY_PROJECT,
 );
 
 export default sentryConfigured
-  ? withSentryConfig(nextConfig, {
+  ? withSentryConfig(withBundleAnalyzer(nextConfig), {
       org: process.env.SENTRY_ORG,
       project: process.env.SENTRY_PROJECT,
       authToken: process.env.SENTRY_AUTH_TOKEN,
@@ -232,4 +246,4 @@ export default sentryConfigured
       webpack: { treeshake: { removeDebugLogging: true } },
       telemetry: false,
     })
-  : nextConfig;
+  : withBundleAnalyzer(nextConfig);
