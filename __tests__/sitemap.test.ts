@@ -92,6 +92,8 @@ describe("sitemap hygiene", () => {
       "/about",
       "/method",
       "/decision-readiness-intelligence",
+      "/guides/hard-stops",
+      "/guides/glossary",
       "/b2b",
     ]) {
       expect(urls).toContain(canonicalUrl(path));
