@@ -101,15 +101,19 @@ export interface ArchitectureScoringEngine {
   pillars: Array<{
     key: string;
     name: string;
-    maxScore: number;
     color: string;
     question: string;
   }>;
-  verdict_thresholds: Record<
-    string,
-    { key: string; label: string; min: number; max: number; color: string }
-  >;
-  hard_stops: Array<{ condition: string; effect: string; code: string }>;
+  /**
+   * Trade-secret lockdown: exact verdict bands are never published in the
+   * public feed. The scoring engine (lib/scoring) remains the authority.
+   */
+  verdict_thresholds: { published: false; note: string };
+  /**
+   * Trade-secret lockdown: hard-stop conditions and their exact values are
+   * never published in the public feed.
+   */
+  hard_stops: { published: false; note: string };
   vocabulary_note: string;
 }
 
