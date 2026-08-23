@@ -6,7 +6,7 @@ import {
   companionFoldLine,
 } from "@/lib/dashboard/fold-truth";
 import { Wordmark } from "@/components/brand/Wordmark";
-import { VerdictBadge } from "@/components/ui/VerdictBadge";
+import { ScoreRail, type ScoreRailPillars } from "@/components/score/ScoreRail";
 import { LoadErrorPanel } from "@/components/dashboard/LoadErrorPanel";
 import { VerdictCelebrate } from "@/components/dashboard/VerdictCelebrate";
 import { PathNextMove } from "@/components/dashboard/PathNextMove";
@@ -22,6 +22,8 @@ import type { OutcomeSurveyKind } from "@/types/database";
 export type HomeFoldLatest = {
   id: string;
   overallScore: number | null;
+  /** Raw pillar points from the assessment record; null = never measured. */
+  pillars: ScoreRailPillars;
 };
 
 export type HomeFoldSurvey = {
@@ -30,10 +32,13 @@ export type HomeFoldSurvey = {
 };
 
 /**
- * First viewport of signed-in Home — Direction C (build leads).
- * Path next move is the fold instrument; HōMI-Score is a compact rail
- * reading. Instrument chrome + wordmark carry brand identity; no compass
- * theater on the scored fold.
+ * First viewport of signed-in Home — Reality/Readiness hero order (spec §D):
+ * the elevated HōMI-Score reading (score + verdict + three pillar rings via
+ * the shared ScoreRail) leads, PathNextMove stays the primary action
+ * instrument (doctrine), and HomeMoneyStanding carries the cash strip.
+ * Score block and Path next move both sit above the fold on a phone.
+ * Instrument chrome + wordmark carry brand identity; no compass theater on
+ * the scored fold.
  */
 export function HomeFold({
   assessmentsFailed,
@@ -152,6 +157,31 @@ export function HomeFold({
               </p>
             )}
 
+            {/* (a) Elevated score reading — score + verdict + pillars lead the fold. */}
+            <div
+              className="mb-6 border-b border-white/5 pb-6"
+              data-home-score-rail=""
+            >
+              <ScoreRail
+                variant="hero"
+                score={scorePct}
+                verdict={verdict}
+                pillars={latest.pillars}
+                tint={hardStopActive ? COLORS.crimson : instrumentTint}
+              />
+              {verdict && (
+                <div className="mt-3">
+                  <LastReadChrome
+                    verdict={verdict}
+                    lastReadAt={lastReadAt ?? null}
+                    showAge={staleDays === null || staleDays <= 30}
+                    lastMoney={lastMoney ?? null}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* (b) Path next move — the fold's primary action instrument. */}
             <div data-home-build-hero="">
               <PathNextMove variant="fold" />
             </div>
@@ -168,35 +198,8 @@ export function HomeFold({
               {companionLine}
             </p>
 
+            {/* (c) Reality strip — enhanced, never gutted; CTAs stay ghost/sm. */}
             <HomeMoneyStanding />
-
-            <div
-              className="mt-5 flex flex-wrap items-center gap-3 border-t border-white/5 pt-4"
-              data-home-score-rail=""
-            >
-              {scorePct != null && (
-                <p
-                  className="score-numeral text-3xl font-semibold tabular-nums sm:text-4xl"
-                  style={{ color: hardStopActive ? COLORS.crimson : instrumentTint }}
-                  aria-label={`Overall HōMI-Score ${scorePct} out of 100`}
-                >
-                  {scorePct}
-                </p>
-              )}
-              {verdict && (
-                <span data-home-verdict="" aria-label={`Last verdict ${verdictMeta.label}`}>
-                  <VerdictBadge verdict={verdict} size="md" />
-                </span>
-              )}
-              {verdict && (
-                <LastReadChrome
-                  verdict={verdict}
-                  lastReadAt={lastReadAt ?? null}
-                  showAge={staleDays === null || staleDays <= 30}
-                  lastMoney={lastMoney ?? null}
-                />
-              )}
-            </div>
 
             {dueSurvey && (
               <div className="mt-5">
