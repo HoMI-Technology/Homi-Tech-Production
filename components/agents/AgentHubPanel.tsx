@@ -30,7 +30,7 @@ const SCOPES: { id: ScopeKey; label: string; hint: string }[] = [
   { id: "gaps", label: "Gaps", hint: "Verified residual work" },
   { id: "calculators", label: "Calculators", hint: "Routes + I/O contracts" },
   { id: "ai_agents", label: "Agents", hint: "Levels + boundaries" },
-  { id: "scoring_engine", label: "Scoring", hint: "Pillars + thresholds" },
+  { id: "scoring_engine", label: "Scoring", hint: "Pillar roles · thresholds proprietary" },
   { id: "brand", label: "Brand", hint: "Voice + forbidden phrases" },
 ];
 
