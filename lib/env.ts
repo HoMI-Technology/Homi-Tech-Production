@@ -77,13 +77,9 @@ export const env = {
   get ADMIN_EMAILS(): string | undefined {
     return process.env.ADMIN_EMAILS;
   },
-  /**
-   * When "1", admins must hold an AAL2 (verified TOTP) session to reach the
-   * console; those without an enrolled factor are sent to enroll. Default off.
-   */
-  get ADMIN_REQUIRE_MFA(): boolean {
-    return process.env.ADMIN_REQUIRE_MFA === "1";
-  },
+  // NOTE: there is deliberately no ADMIN_REQUIRE_MFA here. Admin-console MFA
+  // became always-on product policy in 2026-08 (see lib/auth/admin.ts) — a
+  // security requirement should not be an operator-toggleable env knob.
 
   // --- Anthropic (optional) ---
   get ANTHROPIC_API_KEY(): string | undefined {
