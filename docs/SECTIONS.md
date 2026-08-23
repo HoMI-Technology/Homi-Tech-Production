@@ -118,8 +118,7 @@ it is never a side-effect of a feature task — it is its own, declared task.
 
 - **app:** `middleware.ts`, `api/healthcheck/`, `api/cron/`, `api/csp-report/`,
   `api/email/`, `api/push/`, `api/unsubscribe/`, `api/v1/`, and the **share
-  links** surface (`app/share/`, `app/shadow/`, `api/shares/`,
-  `api/shadow-shares/`)
+  links** surface (`app/share/`, `app/shadow/`, `api/shares/`)
 - **lib:** `supabase/`, `env.ts`, `email/`, `push/`, `notifications/`,
   `analytics/` + `analytics.ts`, `audit.ts`, `attribution.ts`, `dates.ts`,
   `persistence.ts`, `ratelimit.ts`, `security.ts`, `architecture/`, `brand/`
@@ -166,7 +165,7 @@ in doubt.
 | 5 Planning    | plan, decisions, simulator, scenarios, path, outcomes, signals, calibration, shadow-score, tools, api/{readiness-path,tools} | planner, decisions, simulator.ts, readiness, outcomes, signals, tools                                                                                               | planner, decisions, simulator, readiness, tools |
 | 6 Org         | household, team, partner, employee, api/household                                                                            | household                                                                                                                                                           | household, b2b                                  |
 | 7 Access      | auth/\*, settings, admin, api/{account,admin}                                                                                | auth, admin, entitlements.ts, flags.ts                                                                                                                              | auth, settings, admin, consent, entitlements    |
-| 8 Platform 🔧 | middleware.ts, api/{healthcheck,cron,csp-report,email,push,unsubscribe,v1}, share, shadow, api/{shares,shadow-shares}        | supabase, env.ts, email, push, notifications, analytics(.ts), audit.ts, attribution.ts, dates.ts, persistence.ts, ratelimit.ts, security.ts, architecture, brand 🔒 | ui, share, analytics, brand 🔒                  |
+| 8 Platform 🔧 | middleware.ts, api/{healthcheck,cron,csp-report,email,push,unsubscribe,v1}, share, shadow, api/shares                             | supabase, env.ts, email, push, notifications, analytics(.ts), audit.ts, attribution.ts, dates.ts, persistence.ts, ratelimit.ts, security.ts, architecture, brand 🔒 | ui, share, analytics, brand 🔒                  |
 
 _Authority note (from `AGENTS.md`): executable TypeScript wins on conflict.
 This map is a routing index for **where work goes**, not a redefinition of what
