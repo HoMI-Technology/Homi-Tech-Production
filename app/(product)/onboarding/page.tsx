@@ -68,8 +68,8 @@ function StepWhatIsHomi() {
         HōMI is your Decision Companion
       </h1>
       <p className="mt-3 text-sm leading-relaxed text-dim">
-        Not a lender. Not a bank. Not a chatbot that tells you what you want to hear. HōMI is your
-        homie — the one honest voice in the room when you&rsquo;re about to make one of the biggest
+        Not a lender. Not a bank. Not a chatbot that tells you what you want to hear. HōMI is
+        the one honest voice in the room when you&rsquo;re about to make one of the biggest
         decisions of your life.
       </p>
 

@@ -294,7 +294,7 @@ export function NotYourBanker() {
       <div className="mx-auto w-full max-w-7xl">
         <SectionHeader
           eyebrow="What HōMI is not"
-          title="Your homie, not your banker."
+          title="Your HōMI, not your banker."
           support="HōMI provides educational guidance only. The answer is the product."
         />
         <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
