@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { OperateInstrument } from "@/components/operate/OperateInstrument";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
+import { ScoreRail, type ScoreRailReading } from "@/components/score/ScoreRail";
 import { useCfm } from "@/hooks/use-cfm";
-import { COLORS } from "@/lib/brand";
+import { COLORS, VERDICT_META } from "@/lib/brand";
 import {
   budgetLedgerSavedAt,
   hasSavedBudgetLedger,
@@ -54,8 +55,15 @@ const GRADE_COLOR: Record<FinanceCompleteness, string> = {
  * One column, one reading of each figure: the hero carries net cash plus the
  * four headline metrics as a single data strip, and the secondary strip
  * carries the evidence behind them. Nothing here is printed twice.
+ *
+ * Reality redesign (Phase 2): a compact ScoreRail top rail carries the
+ * HōMI-Score + verdict + three pillars above the cash instrument (server-
+ * passed from the latest completed assessment — no client fetch, no invented
+ * numbers). Steady Cash stays the dominant number; the rail never competes
+ * with it. Cash data logic (metricsFromLedger, completeness, temperature)
+ * is untouched.
  */
-export function MoneyStand() {
+export function MoneyStand({ readiness = null }: { readiness?: ScoreRailReading | null }) {
   const { cfm, hydrated: cfmHydrated } = useCfm();
   const [metrics, setMetrics] = useState<NamedMoneyMetrics | null>(null);
   const [loading, setLoading] = useState(true);
@@ -131,7 +139,7 @@ export function MoneyStand() {
   }, [asOf, ready]);
 
   const primaryAction = !ready
-    ? { label: "Open your picture", href: "/money/budget" }
+    ? { label: "Open Ledger", href: "/money/budget" }
     : completeness === "low"
       ? { label: "Strengthen picture", href: "/money/budget" }
       : { label: "Stress a decision", href: "/money/decide" };
@@ -140,9 +148,44 @@ export function MoneyStand() {
     ? { label: "Open Path", href: "/path" }
     : { label: "Connect bank", href: "/connections" };
 
+  /**
+   * Compact readiness top rail — server-known, so it renders even while the
+   * on-device ledger hydrates below. No assessment → honest "Unknown" slim
+   * rail with the Assess close, never an invented number.
+   */
+  const scoreRail = readiness ? (
+    <ScoreRail
+      variant="compact"
+      score={readiness.score}
+      verdict={readiness.verdict}
+      pillars={readiness.pillars}
+      tint={readiness.verdict ? VERDICT_META[readiness.verdict].color : COLORS.cyan}
+    />
+  ) : (
+    <section
+      data-score-rail="compact"
+      aria-label="Readiness score"
+      className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-white/8 bg-navy-light/40 px-4 py-3"
+    >
+      <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-dim">
+        <span className="text-2xs font-bold uppercase tracking-[0.16em] text-dim">
+          HōMI-Score
+        </span>
+        <span className="score-numeral text-lg font-semibold text-light" aria-label="HōMI-Score Unknown">
+          —
+        </span>
+        <span>Unknown until your first assessment.</span>
+      </p>
+      <Link href="/assessment" className="btn btn-ghost btn-sm sm:ml-auto">
+        Assess
+      </Link>
+    </section>
+  );
+
   if (loading || !cfmHydrated) {
     return (
       <div className="space-y-6" aria-busy="true">
+        {scoreRail}
         <div className="h-56 animate-pulse rounded-2xl bg-slate-surface/40" />
         <div className="h-20 animate-pulse rounded-xl bg-slate-surface/30" />
       </div>
@@ -151,6 +194,8 @@ export function MoneyStand() {
 
   return (
     <div className="space-y-6">
+      {/* ── Top rail: HōMI-Score + verdict + pillars (cash stays dominant) ── */}
+      {scoreRail}
       {/* ── Hero instrument: status, the one dominant number, headline metrics ── */}
       <OperateInstrument tint={tint}>
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
@@ -184,10 +229,16 @@ export function MoneyStand() {
                 >
                   <span
                     aria-hidden
-                    className="size-1.5 animate-pulse rounded-full"
+                    className="size-1.5 rounded-full motion-safe:animate-pulse"
                     style={{ backgroundColor: COLORS.emerald }}
                   />
                   Bank linked
+                </span>
+              )}
+              {linked && metrics!.evidence.pendingTransactionCount > 0 && (
+                <span className="text-2xs font-semibold uppercase tracking-[0.12em] text-dim/80">
+                  Last-known · {metrics!.evidence.pendingTransactionCount} pending — updates as
+                  they post
                 </span>
               )}
             </div>
@@ -208,7 +259,7 @@ export function MoneyStand() {
             <p className="mt-3 max-w-xl text-xs leading-relaxed text-dim/70">
               {ready
                 ? `${PERIOD_SURPLUS_FORMULA} Source: on-device budget ledger (not Track planner accounts).`
-                : "Add income in Track or connect a bank. Lenses stay illustrative until your picture exists."}
+                : "No picture yet. Open Ledger or connect a bank to begin."}
             </p>
           </div>
 
@@ -221,8 +272,14 @@ export function MoneyStand() {
             />
             <DataCell
               label="Runway"
-              value={ready && runwayMonths != null ? `${runwayMonths.toFixed(1)} mo` : "—"}
-              color={TEMP_COLOR[runwayTemp]}
+              value={
+                ready && runwayMonths != null
+                  ? `${runwayMonths.toFixed(1)} mo`
+                  : ready
+                    ? "Unknown"
+                    : "—"
+              }
+              color={ready && runwayMonths == null ? COLORS.dim : TEMP_COLOR[runwayTemp]}
             />
             <DataCell
               label="Savings rate"
@@ -277,8 +334,9 @@ export function MoneyStand() {
           className="rounded-xl border border-yellow/40 bg-yellow/5 px-4 py-3 text-sm text-dim"
           role="status"
         >
-          Thin evidence — treat every number as a draft. Add more months, categorize spending, or
-          connect a bank before acting on a big decision.
+          Partial picture — more evidence makes the reading honest. Treat every number as a
+          draft: add more months, categorize spending, or connect a bank before acting on a big
+          decision.
         </p>
       )}
 
