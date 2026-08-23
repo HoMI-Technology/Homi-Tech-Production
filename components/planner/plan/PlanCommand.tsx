@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { BookOpen, Combine, Home, LineChart, Scale, Sparkles, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import PlanCashFlow from "./PlanCashFlow";
 import PlanPath from "./PlanPath";
 import PlanHousing from "./PlanHousing";
 import PlanDebt from "./PlanDebt";
@@ -73,6 +74,10 @@ export function PlanCommand() {
           );
         })}
       </nav>
+
+      {/* Phase 3 (spec §4.4): the cash-flow picture rides above every
+          sub-tab — real ledger data only, honest empty state. */}
+      <PlanCashFlow />
 
       <AnimatePresence mode="wait">
         <motion.div

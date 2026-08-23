@@ -26,6 +26,9 @@ vi.mock("@/lib/planner/store", () => {
   return { usePlannerStore };
 });
 
+vi.mock("@/components/planner/plan/PlanCashFlow", () => ({
+  default: () => <div data-testid="plan-cash-flow">Cash flow</div>,
+}));
 vi.mock("@/components/planner/plan/PlanPath", () => ({
   default: () => <div data-testid="plan-path">Path lab</div>,
 }));
