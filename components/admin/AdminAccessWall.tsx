@@ -1,12 +1,14 @@
 import Link from "next/link";
 import type { AdminAccessDecision } from "@/lib/auth/admin";
+import { AdminStepUpForm } from "@/components/admin/AdminStepUpForm";
 
 type Denied = Extract<AdminAccessDecision, { allow: false }>;
 
 interface WallCopy {
   title: string;
   body: string;
-  cta: { label: string; href: string };
+  /** Link CTA. Absent for needs-stepup, which renders an inline code form. */
+  cta?: { label: string; href: string };
 }
 
 /** Copy per denial reason. `signedIn` refines the not-admin case. */
@@ -14,15 +16,14 @@ function copyFor(reason: Denied["reason"], signedIn: boolean): WallCopy {
   switch (reason) {
     case "needs-enrollment":
       return {
-        title: "Two-factor required",
-        body: "Admin accounts must have two-factor authentication enabled. Add an authenticator app in your security settings, then return here.",
-        cta: { label: "Enable two-factor", href: "/settings?section=security" },
+        title: "Set up your authenticator",
+        body: "The admin console needs two-factor authentication, and this account doesn't have an authenticator yet. It takes about a minute: open your security settings, add an authenticator app (Google Authenticator, 1Password, or Authy), scan the QR code, and enter the code it shows. Then come back here.",
+        cta: { label: "Set up two-factor", href: "/settings#security" },
       };
     case "needs-stepup":
       return {
-        title: "Verify your second factor",
-        body: "Your account has two-factor authentication enabled, but this session hasn't completed the second step. Sign in again to verify.",
-        cta: { label: "Verify now", href: "/auth/sign-in?next=/admin" },
+        title: "One more step",
+        body: "Your authenticator is connected — this session just needs the current 6-digit code from your app.",
       };
     case "not-admin":
     default:
@@ -43,6 +44,10 @@ function copyFor(reason: Denied["reason"], signedIn: boolean): WallCopy {
 /**
  * Full-screen gate shown when a request is refused entry to the admin console.
  * Matches the `.field` + `.glass` OPERATE language of the console itself.
+ *
+ * Enrollment and step-up are guided states, not dead ends: needs-enrollment
+ * links straight to the authenticator setup in Settings → Security, and
+ * needs-stepup verifies the second factor inline.
  */
 export function AdminAccessWall({
   reason,
@@ -75,9 +80,17 @@ export function AdminAccessWall({
         <h1 className="mt-5 font-display text-2xl text-light">{title}</h1>
         <p className="mt-3 text-sm leading-relaxed text-dim">{body}</p>
         <div className="mt-8">
-          <Link href={cta.href} className="btn btn-primary">
-            {cta.label}
-          </Link>
+          {reason === "needs-stepup" ? (
+            <div className="text-left">
+              <AdminStepUpForm />
+            </div>
+          ) : (
+            cta && (
+              <Link href={cta.href} className="btn btn-primary">
+                {cta.label}
+              </Link>
+            )
+          )}
         </div>
       </div>
     </div>

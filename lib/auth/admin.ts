@@ -2,18 +2,20 @@
  * Admin-access authorization policy (login-hardening layer).
  *
  * The admin console has always gated on `profiles.role === "admin"`. This
- * module adds two opt-in, defense-in-depth checks on top of that role, both
- * OFF by default so existing (role-only) behaviour is unchanged until an
- * operator turns them on:
+ * module adds two defense-in-depth checks on top of that role:
  *
  *   1. Email allowlist (`ADMIN_EMAILS`) — even a profile row with
  *      `role='admin'` is refused unless its email is on the allowlist. A
  *      compromised/forged row alone can no longer mint console access.
- *   2. Mandatory MFA (`ADMIN_REQUIRE_MFA=1`) — historically required AAL2.
- *      **Disabled in product policy (2026-07):** MFA/step-up never blocks
- *      admin access. Solo-founder / password-only login is intentional.
- *      `requireMfa` and AAL fields remain on the input for API stability and
- *      tests; they are ignored by `evaluateAdminAccess`.
+ *   2. Mandatory MFA — **restored 2026-08** (founder decision: HōMI is a
+ *      fintech and the console touches production data). MFA was waived in
+ *      2026-07 for solo-founder password-only login; that waiver is over.
+ *      Admin access requires an AAL2 (MFA-verified) session whenever the
+ *      account has a verified factor enrolled. An admin with NO verified
+ *      factor is routed to a guided enrollment state — never a silent 403 —
+ *      so the policy cannot lock an admin out. The requirement is always-on
+ *      product policy, not an operator knob: the old `ADMIN_REQUIRE_MFA`
+ *      env flag (which had gone dead) is removed by this change.
  *
  * Pure functions only: all Supabase/AAL lookups happen in the caller (the
  * admin layout) and are passed in, so this policy is unit-testable in
@@ -40,8 +42,6 @@ export interface AdminAccessInput {
   email: string | null | undefined;
   /** Parsed `ADMIN_EMAILS` allowlist; empty array = allowlist disabled. */
   allowlist: readonly string[];
-  /** Whether `ADMIN_REQUIRE_MFA` is on. */
-  requireMfa: boolean;
   /** Session's current assurance level (from getAuthenticatorAssuranceLevel). */
   currentLevel: AssuranceLevel | null;
   /**
@@ -103,6 +103,19 @@ export function isEmailAllowlisted(
 /**
  * Decide whether the current request may enter the admin console. Pure — the
  * caller resolves role/email/AAL and passes them in.
+ *
+ * Decision matrix (MFA always required, 2026-08 policy):
+ *   - not an admin role / not allowlisted        → "not-admin"
+ *   - session already AAL2                       → allow
+ *   - verified factor enrolled, session AAL1     → "needs-stepup"
+ *     (the wall renders an inline code form that lifts the session to AAL2)
+ *   - no verified factor, or AAL lookup failed   → "needs-enrollment"
+ *     (guided setup state, never a silent denial)
+ *
+ * Every branch fails closed: a failed lookup (nulls) can never mint access.
+ * When `currentLevel` is AAL2 the session is trusted even if the factor
+ * lookup failed (`nextLevel` null) — the session's own AAL claim is
+ * authoritative for the request in hand.
  */
 export function evaluateAdminAccess(input: AdminAccessInput): AdminAccessDecision {
   const isAdminRole = input.role === "admin";
@@ -110,10 +123,7 @@ export function evaluateAdminAccess(input: AdminAccessInput): AdminAccessDecisio
     return { allow: false, reason: "not-admin" };
   }
 
-  // MFA / AAL intentionally not enforced — password session is enough.
-  void input.requireMfa;
-  void input.currentLevel;
-  void input.nextLevel;
-
-  return { allow: true };
+  if (input.currentLevel === "aal2") return { allow: true };
+  if (input.nextLevel === "aal2") return { allow: false, reason: "needs-stepup" };
+  return { allow: false, reason: "needs-enrollment" };
 }
