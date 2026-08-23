@@ -55,6 +55,56 @@ export const GUIDES: Guide[] = [
     ],
   },
   {
+    slug: "am-i-ready-to-buy-a-house",
+    title: "Am I Ready to Buy a House? The Full Readiness Check",
+    description:
+      "Ready is a different question than afford or approved. A three-pillar self-check — Financial Reality, Emotional Truth, Perfect Timing — plus the signs the honest answer is “not yet,” and why that answer protects you.",
+    sections: [
+      {
+        heading: "The question behind the question",
+        paragraphs: [
+          "When you type “am I ready to buy a house,” most of what comes back answers a different question: whether a lender would fund you, what a payment calculator says, which loan program fits. Useful — and beside the point. Approval is the lender’s question about their risk. Readiness is your question about your life: after the keys, the closing costs, and the first surprise repair, will you be okay?",
+          "Readiness is not one number. It is three honest reads taken together — Financial Reality, Emotional Truth, and Perfect Timing — and it moves. You can be unready in March and ready in November. The point of checking is not to earn a purchase. It is to find out which one you are in, before someone with a stake in the sale sets the tempo.",
+        ],
+      },
+      {
+        heading: "The Financial Reality check",
+        paragraphs: [
+          "Start with carrying, not qualifying. The bank’s ceiling is the most they will lend, not the most your life can hold. Run the full monthly cost — payment, taxes, insurance, maintenance you’re now responsible for — against your real income, and notice what’s left for everything you currently do. If the honest answer is “nothing,” the house owns you, not the reverse.",
+          "Then look at what protects you when something breaks: months of essential expenses set aside, separate from the down payment. Buyers pour everything into the down payment and arrive at ownership with no shock absorber — which is exactly when ownership starts throwing shocks. Debt load and credit standing matter too, but as a matter of degree; a few conditions are serious enough that the protective answer is a hard stop, and pretending otherwise helps no one.",
+        ],
+      },
+      {
+        heading: "The Emotional Truth check",
+        paragraphs: [
+          "Now the part spreadsheets skip, weighed here with the same seriousness as the math. Whose deadline is this? A lease ending, a market headline, a family member’s timeline, an agent’s urgency — none of those are your readiness. Pressure borrowed from someone else is the most common reason good numbers still turn into regret.",
+          "Ask what stays true when the pressure drops. Do you and anyone deciding with you actually agree — on the money, the place, the timing? Does the want survive a quiet week, or does it only exist in the listing photos? Hesitation isn’t weakness; it’s data. A gut that keeps flagging the same doubt is telling you which pillar to go look at.",
+        ],
+      },
+      {
+        heading: "The Perfect Timing check",
+        paragraphs: [
+          "Timing the market is a game even professionals lose. Timing your life is a question you can actually answer. Is your income settling or shifting? Is the next two years legible — or is a move, a career change, a family change plausibly in it? A great house at a bad moment in your life is a bad decision wearing good staging.",
+          "Waiting has a cost, and so does rushing; the difference is that rushing’s costs compound and arrive uninvited. If your window is genuinely open — steady income, funded runway, aligned people, a horizon you trust — timing favors you. If it isn’t, the market will still be there when you are.",
+        ],
+      },
+      {
+        heading: "Signs the honest answer is “not yet”",
+        paragraphs: [
+          "Some tells recur: the down payment empties every account. The payment only works in the optimistic version of your budget. You’re deciding on someone else’s clock. You and your partner are answering these questions differently. You haven’t stress-tested a single bad month. None of these mean never. Each one names a gap that can be built.",
+          "That is the reframe that changes the whole decision: not yet is not no. It is clarity, and it is protection. Build First is not failure — it is the map. The buyers who wait a season to close a specific gap are not behind; they are the ones who get to enjoy the house they eventually buy.",
+        ],
+      },
+      {
+        heading: "Getting a structured answer",
+        paragraphs: [
+          "You can run this check informally with the questions above — honestly asked, they will get you most of the way. If you want a structured read, HōMI’s assessment walks all three pillars and returns a Decision Readiness Score with a verdict and the specific gaps to build first. It is free, it is educational guidance rather than advice or approval, and no part of it earns anything from what you decide.",
+          "Either way, the standard stays the same: being able to afford something is not the same as being ready to buy it. Answer the readiness question first, and every later question — lender, agent, offer — gets easier and safer.",
+        ],
+      },
+    ],
+  },
+  {
     slug: "what-homi-is-not",
     title: "What HōMI Is — and Isn’t",
     description:
