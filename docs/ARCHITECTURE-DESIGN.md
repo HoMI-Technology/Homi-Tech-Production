@@ -414,7 +414,7 @@ flowchart TB
 - `/api/agents` — Agent OS entry
 - `/api/plaid` — link/exchange/sync
 - `/api/checkout`, `/api/billing` — Stripe
-- `/api/shares`, `/api/shadow-shares`
+- `/api/shares`
 - `/api/webhooks/stripe`
 - Admin, finance-state, goals, push, etc.
 - Healthcheck, csp-report.
