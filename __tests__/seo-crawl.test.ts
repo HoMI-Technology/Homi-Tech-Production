@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import robots from "@/app/robots";
 import { ROBOTS_DISALLOW } from "@/app/robots";
 import { LEGACY_PATH_REDIRECTS, WWW_REDIRECTS } from "@/lib/seo/redirects";
+import { PROTECTED_PREFIXES } from "@/lib/auth/protected-routes";
 import { pageMetadata } from "@/lib/seo/metadata";
 import {
   canonicalUrl,
@@ -79,19 +80,15 @@ describe("www redirects (next.config)", () => {
 });
 
 describe("robots.txt crawl control", () => {
-  it("disallows hidden labs, /money, and the existing private prefixes", () => {
-    expect(ROBOTS_DISALLOW).toEqual([
-      "/api/",
-      "/admin",
-      "/dashboard",
-      "/auth/callback",
-      "/advisor",
-      "/decisions",
-      "/genome",
-      "/trinity",
-      "/twin",
-      "/money",
-    ]);
+  it("disallows /api, the auth callback, and every protected product prefix", () => {
+    // Derived from the middleware SSOT - a newly protected route is
+    // automatically disallowed; a hand-copied list here would just re-drift.
+    expect(ROBOTS_DISALLOW).toEqual(["/api/", "/auth/callback", ...PROTECTED_PREFIXES]);
+    // Public product surfaces must stay crawlable (and /plan keeps its
+    // metadata noindex visible to crawlers instead of a robots block).
+    for (const open of ["/tools", "/scenarios", "/shadow-score", "/assessment", "/plan", "/path"]) {
+      expect(ROBOTS_DISALLOW).not.toContain(open);
+    }
     const doc = robots();
     const rules = Array.isArray(doc.rules) ? doc.rules : [doc.rules];
     expect(rules[0]?.disallow).toEqual([...ROBOTS_DISALLOW]);
