@@ -113,7 +113,7 @@ export default async function ReportCredentialPage({
             {assessment.overall_score ?? "—"}
           </span>
           <p className="text-xs uppercase tracking-widest text-dim print:text-black/60">
-            HōMI-Score out of 100
+            Decision Readiness Score out of 100
           </p>
           <VerdictBadge verdict={verdict} size="lg" />
           <p className="mt-1 max-w-sm text-sm text-light print:text-black">{meta.line}</p>

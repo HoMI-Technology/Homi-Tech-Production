@@ -22,7 +22,7 @@ import type { AssessmentRow, OutcomeSurvey } from "@/types/database";
 
 export const metadata: Metadata = {
   title: "Dashboard | HōMI",
-  description: "Your Path to Ready next move, HōMI-Score reading, and Companion line.",
+  description: "Your Path to Ready next move, Decision Readiness Score reading, and Companion line.",
 };
 
 // Surface role SSOT — keep import so F8 cannot drift to copy-pasted comments.

@@ -60,7 +60,7 @@ describe("mapAssessmentRowToStored insights (6.3)", () => {
     expect(stored?.insights).toBeUndefined();
   });
 
-  it("returns null for is_shadow rows — they are not a HōMI-Score", () => {
+  it("returns null for is_shadow rows — they are not a Decision Readiness Score", () => {
     const stored = mapAssessmentRowToStored({ ...baseRow, is_shadow: true });
     expect(stored).toBeNull();
   });

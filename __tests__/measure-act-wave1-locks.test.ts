@@ -61,7 +61,7 @@ describe("Measure-Act Wave 1 locks", () => {
   it("keeps preview shapes empty of points, 0–100, and cutoff numerals", () => {
     const preview = read("lib/finance/debt-payoff-preview.ts");
     const ui = read("components/tools/DebtPayoffScorePreview.tsx");
-    expect(preview).toContain("This is not your HōMI Score.");
+    expect(preview).toContain("This is not your Decision Readiness Score.");
     expect(preview).toContain("DTI may move into a better band.");
     expect(preview).toContain("DTI may move into a worse band.");
     expect(preview).toContain("Still above the line we treat as a hard stop.");

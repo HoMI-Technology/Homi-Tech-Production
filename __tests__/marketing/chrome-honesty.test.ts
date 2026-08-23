@@ -173,7 +173,7 @@ describe("Wave 1 chrome honesty — primary close", () => {
 });
 
 describe("Wave 1 chrome honesty — homepage theater", () => {
-  it("does not present a fake 0–100 HōMI-Score as the visitor's score", () => {
+  it("does not present a fake 0–100 Decision Readiness Score as the visitor's score", () => {
     expect(HOME).not.toMatch(/score-numeral[^>]*>\s*76\s*</);
     expect(HOME).not.toMatch(/score-numeral[^>]*>\s*52\s*</);
   });

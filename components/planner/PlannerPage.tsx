@@ -243,7 +243,7 @@ export function PlannerPage({
     // closed-loop.test.ts): buildDemoSeed already carries the
     // screenshot-canonical readiness profile — credit 750, sliders 7/7/7,
     // FOMO 4, 18-month horizon, $400k / $20k housing lens — which renders
-    // HōMI-Score 73 · ALMOST_THERE · pillars 74/66/80 through the scoring
+    // Decision Readiness Score 73 · ALMOST_THERE · pillars 74/66/80 through the scoring
     // seam. Only unlock the live score here; never override score-moving
     // fields, or the demo drifts off canon.
     usePlannerStore.getState().setReadinessProfile({ profileComplete: true });

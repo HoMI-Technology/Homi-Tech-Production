@@ -130,7 +130,7 @@ describe("POST /api/agents", () => {
     expect(body.source).toBe("fallback");
     expect(fetchMock).not.toHaveBeenCalled();
     expect(body.routed_agents).toContain("homie");
-    expect(body.reply.startsWith("Homie here.")).toBe(true);
+    expect(body.reply.startsWith("HōMI here.")).toBe(true);
   });
 
   it("anonymous request gets fallback and never reaches Anthropic", async () => {
@@ -157,7 +157,7 @@ describe("POST /api/agents", () => {
     };
     expect(body.source).toBe("fallback");
     expect(body.reply).not.toContain(modelReply);
-    expect(body.reply.startsWith("Homie here.")).toBe(true);
+    expect(body.reply.startsWith("HōMI here.")).toBe(true);
     expect(body.sentinel.flagged).toBe(false);
     expect(body.sentinel.passed).toBe(true);
   });

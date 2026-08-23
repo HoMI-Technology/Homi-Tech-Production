@@ -70,7 +70,7 @@ export default function MethodPage() {
             <h2 className="type-h2">Why emotional truth counts as much as the math</h2>
             <p>
               Financial Reality and Emotional Truth are weighed with the same seriousness in the
-              HōMI-Score. That is deliberate, not sentimental. Your gut is part of the math here. A
+              Decision Readiness Score. That is deliberate, not sentimental. Your gut is part of the math here. A
               buyer with perfect numbers and a partner who isn&rsquo;t aligned, or a buyer being
               rushed by a deadline that isn&rsquo;t theirs, is not actually ready — no matter what
               the spreadsheet says.

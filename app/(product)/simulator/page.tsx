@@ -9,7 +9,7 @@ import { ToolShell } from "@/components/tools/ToolShell";
 export const metadata: Metadata = {
   title: "Score Simulator | HōMI",
   description:
-    "Test a money move before you make it — see how your own numbers shift your HōMI-Score, using the same engine as the real assessment.",
+    "Test a money move before you make it — see how your own numbers shift your Decision Readiness Score, using the same engine as the real assessment.",
 };
 
 /**

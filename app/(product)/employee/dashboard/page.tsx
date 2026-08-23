@@ -116,7 +116,7 @@ export default async function EmployeeDashboardPage() {
           <>
             <div className="min-w-0 text-center lg:text-left" data-employee-score-rail="">
               <p className="text-3xs font-bold uppercase tracking-[0.16em] text-dim">
-                Private HōMI-Score
+                Private Decision Readiness Score
               </p>
               <div className="mt-1.5 flex flex-wrap items-end justify-center gap-3 lg:justify-start">
                 <HeroScore value={scorePct ?? 0} color={tint} />

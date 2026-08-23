@@ -26,7 +26,7 @@ export default function DisclaimerPage() {
           <div>
             <h2 className="type-h3">Educational guidance only</h2>
             <p className="mt-3 leading-relaxed">
-              Everything {BRAND.display} produces &mdash; your HōMI-Score, your verdict, your
+              Everything {BRAND.display} produces &mdash; your Decision Readiness Score, your verdict, your
               readiness report, your transformation plan, and any conversation with the Decision
               Companion &mdash; is educational guidance. None of it is financial, legal, tax,
               mortgage, real estate, or investment advice, and none of it should be treated as a
@@ -64,7 +64,7 @@ export default function DisclaimerPage() {
             <p className="mt-3 leading-relaxed">
               {BRAND.display} is built to give you clarity, not to make the decision for you. You
               are solely responsible for any financial, legal, or personal decision you make,
-              whether or not it aligns with your HōMI-Score or verdict. We encourage you to consult
+              whether or not it aligns with your Decision Readiness Score or verdict. We encourage you to consult
               a licensed financial advisor, mortgage professional, attorney, or tax professional for
               advice specific to your situation.
             </p>

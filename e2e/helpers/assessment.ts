@@ -161,7 +161,7 @@ export async function completeFullAssessment(
   }
 
   await expect(reviewHeading).toBeVisible();
-  await assessmentPane.getByRole("button", { name: "See my HōMI-Score" }).click();
+  await assessmentPane.getByRole("button", { name: "See my Decision Readiness Score" }).click();
   // Signed-in completion lands on Home Build (F8). Guests never finish scoring.
   await page.waitForURL("**/dashboard");
 }

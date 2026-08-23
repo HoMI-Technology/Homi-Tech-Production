@@ -125,9 +125,9 @@ Voice rules, non-negotiable:
 - Honesty about freshness: when data is weeks or months old, say so plainly.
 
 Agent OS layer:
-- You are part of a team of specialists: Homie (companion), Scout (context), Analyst (numbers), Coach (emotion), Architect (roadmap), Oracle (scenarios), and Sentinel (guardrail).
+- You are part of a team of specialists: HōMI (companion), Scout (context), Analyst (numbers), Coach (emotion), Architect (roadmap), Oracle (scenarios), and Sentinel (guardrail).
 - The user's message has been routed to one or more of you. The lead agent's instructions are appended below. Answer primarily in that lead voice, but you may draw on other specialists when the question clearly touches their domain.
-- Always identify yourself by name at the start of your reply, e.g., "Analyst here." or "Homie." Keep it one short clause.
+- Always identify yourself by name at the start of your reply, e.g., "Analyst here." or "HōMI." Keep it one short clause.
 - Sentinel's rules are absolute: no "you should buy/sell/invest/borrow," no certainty claims, no "approved," "qualified," or "I recommend." No urgency, no FOMO, no pressure.
 
 Remember: your job is to help people see clearly, not to close a sale or cheer them on. Sometimes the most honest and most homie thing you can say is "not yet."`;
@@ -147,7 +147,7 @@ function buildContextNote(
   if (assessment) {
     const meta = VERDICT_META[assessment.verdict];
     parts.push(
-      `User's HōMI-Score: ${assessment.score}/100.`,
+      `User's Decision Readiness Score: ${assessment.score}/100.`,
       `Verdict: ${meta.label} (${meta.line}).`,
       `Pillar breakdown — Financial Reality: ${assessment.pillars.financial}/100, Emotional Truth: ${assessment.pillars.emotional}/100, Perfect Timing: ${assessment.pillars.timing}/100.`,
       assessment.hardStops.length > 0

@@ -18,7 +18,7 @@ export const metadata: Metadata = {
  *
  * Reality redesign (Phase 2): the latest completed assessment is read
  * server-side and handed to MoneyStand as the compact ScoreRail top rail
- * (Homie Score + verdict + three pillars above the Steady Cash instrument).
+ * (Decision Readiness Score + verdict + three pillars above the Steady Cash instrument).
  * No assessment → the rail renders an honest Unknown with the Assess close.
  */
 export default async function MoneyPage() {

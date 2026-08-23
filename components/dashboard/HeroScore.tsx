@@ -40,7 +40,7 @@ export function HeroScore({ value, color }: { value: number; color: string }) {
       <span aria-hidden className="absolute inset-0">
         {play ? Math.round(display) : value}
       </span>
-      <span className="sr-only">{`Overall HōMI-Score ${value} out of 100`}</span>
+      <span className="sr-only">{`Overall Decision Readiness Score ${value} out of 100`}</span>
     </span>
   );
 }

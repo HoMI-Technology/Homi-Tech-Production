@@ -33,14 +33,14 @@ export interface AgentMeta {
 export const AGENTS: AgentMeta[] = [
   {
     id: "homie",
-    name: "Homie",
+    name: "HōMI",
     role: "Companion",
     color: COLORS.cyan,
     level: 1,
     description:
-      "Your warm, direct coordinator. Homie listens first, then pulls in the right specialist when your question needs one.",
+      "Your warm, direct coordinator. HōMI listens first, then pulls in the right specialist when your question needs one.",
     systemLine:
-      "You are Homie, the user's default companion. Keep the tone warm and direct. If the question clearly needs a specialist, acknowledge that and answer in their spirit, but never hand off to a different voice mid-reply.",
+      "You are HōMI, the user's default companion. Keep the tone warm and direct. If the question clearly needs a specialist, acknowledge that and answer in their spirit, but never hand off to a different voice mid-reply.",
   },
   {
     id: "scout",

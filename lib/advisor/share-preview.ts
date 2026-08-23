@@ -11,7 +11,7 @@
  *
  * Band / reason / per-source lines come from the shared E4 helper in
  * `lib/readiness/confidence.ts` so /results and share preview cannot drift.
- * The score here is always the raw canonical HōMI-Score (never dampened).
+ * The score here is always the raw canonical Decision Readiness Score (never dampened).
  */
 
 import type { CompanionContext } from "@/lib/advisor/context";
@@ -26,7 +26,7 @@ export type PreviewConfidence = DataQualityBand;
 export interface SharePreview {
   /** Verdict band label, e.g. "ALMOST THERE". */
   band: string;
-  /** Raw canonical HōMI-Score — never display-dampened. */
+  /** Raw canonical Decision Readiness Score — never display-dampened. */
   score: number;
   verdict: VerdictKey;
   confidence: PreviewConfidence;

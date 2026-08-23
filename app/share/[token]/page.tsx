@@ -63,7 +63,7 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
             <div>
               <p className="score-numeral text-6xl font-bold text-light">{row.overall_score}</p>
               <p className="mt-1 text-sm uppercase tracking-widest text-dim">
-                HōMI-Score out of 100
+                Decision Readiness Score out of 100
               </p>
             </div>
 

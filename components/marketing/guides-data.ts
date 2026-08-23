@@ -185,7 +185,7 @@ export const GUIDES: Guide[] = [
       {
         heading: "Why HōMI won't let this one slide",
         paragraphs: [
-          "Most factors in the HōMI-Score are a matter of degree — more is better, less is worse, but nothing is disqualifying on its own. Runway is different. When there is essentially nothing set aside, the verdict turns fully protective regardless of every other number in the assessment, because owning a home means owning its surprises, and there is no version of financial readiness that works without a cushion under it. The exact floor is one of the red lines we keep private, so the signal can't be gamed.",
+          "Most factors in the Decision Readiness Score are a matter of degree — more is better, less is worse, but nothing is disqualifying on its own. Runway is different. When there is essentially nothing set aside, the verdict turns fully protective regardless of every other number in the assessment, because owning a home means owning its surprises, and there is no version of financial readiness that works without a cushion under it. The exact floor is one of the red lines we keep private, so the signal can't be gamed.",
           "This isn't a penalty. It's the same logic as a building code: some lines exist because the failure mode behind them is severe enough that no other strength compensates for it. A high income and strong credit don't protect you from an emergency if there's nothing set aside to absorb it.",
         ],
       },
@@ -214,7 +214,7 @@ export const GUIDES: Guide[] = [
       {
         heading: "Your gut is part of the math here",
         paragraphs: [
-          "Emotional Truth is measured with the same seriousness as Financial Reality in the HōMI-Score, and that surprises people the first time they see it. It shouldn't. Confidence, alignment, and pressure predict whether someone regrets a major decision at least as reliably as debt-to-income ratios predict whether they can make the payment.",
+          "Emotional Truth is measured with the same seriousness as Financial Reality in the Decision Readiness Score, and that surprises people the first time they see it. It shouldn't. Confidence, alignment, and pressure predict whether someone regrets a major decision at least as reliably as debt-to-income ratios predict whether they can make the payment.",
           'Most financial tools treat feelings as noise to filter out before getting to the "real" numbers. HōMI treats them as their own category of signal, measured with the same seriousness as the spreadsheet, because a financially sound decision made for the wrong emotional reasons still produces regret.',
         ],
       },
@@ -299,7 +299,7 @@ export const GUIDES: Guide[] = [
       {
         heading: "What life-timing actually includes",
         paragraphs: [
-          "Perfect Timing, in the HōMI-Score, isn't about predicting the market. It's about your horizon, your savings trajectory, and your progress toward your own goal. A longer, clearer horizon gives the other two pillars — Financial Reality and Emotional Truth — time to actually catch up, instead of forcing a decision on a schedule set by external pressure.",
+          "Perfect Timing, in the Decision Readiness Score, isn't about predicting the market. It's about your horizon, your savings trajectory, and your progress toward your own goal. A longer, clearer horizon gives the other two pillars — Financial Reality and Emotional Truth — time to actually catch up, instead of forcing a decision on a schedule set by external pressure.",
           "Savings rate matters more than savings total, because it's the clearest evidence of direction. Someone with a modest total but a strong, consistent savings rate is moving toward readiness faster than someone with a larger total but a flat or declining rate. Momentum is the signal, not the snapshot.",
         ],
       },

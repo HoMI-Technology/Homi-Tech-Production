@@ -32,7 +32,7 @@ function fmtDate(iso: string): string {
 }
 
 /**
- * HōMI-Score trajectory, verdict-colored, with the canonical thresholds named
+ * Decision Readiness Score trajectory, verdict-colored, with the canonical thresholds named
  * on the grid, real dates on the axis, and a hover tooltip (date · score ·
  * verdict). Sparse histories center at a capped bar width instead of
  * stretching. Keyboard/screen-reader users get the full data as a

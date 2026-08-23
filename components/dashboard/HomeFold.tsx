@@ -33,7 +33,7 @@ export type HomeFoldSurvey = {
 
 /**
  * First viewport of signed-in Home — Reality/Readiness hero order (spec §D):
- * the elevated HōMI-Score reading (score + verdict + three pillar rings via
+ * the elevated Decision Readiness Score reading (score + verdict + three pillar rings via
  * the shared ScoreRail) leads, PathNextMove stays the primary action
  * instrument (doctrine), and HomeMoneyStanding carries the cash strip.
  * Score block and Path next move both sit above the fold on a phone.

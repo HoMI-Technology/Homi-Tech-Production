@@ -72,7 +72,7 @@ describe("ShadowScoreFlow — 90-second read", () => {
 
     expect(fetchMock).not.toHaveBeenCalled();
     expect(window.localStorage.getItem("homi:last-assessment")).toBeNull();
-    expect(screen.queryByText(/HōMI-Score/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Decision Readiness Score/)).not.toBeInTheDocument();
     expect(screen.queryByText(/out of 100/)).not.toBeInTheDocument();
     expect(screen.queryByText(/See my Shadow Score/)).not.toBeInTheDocument();
     expect(screen.queryByText(/READY/)).not.toBeInTheDocument();

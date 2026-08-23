@@ -260,7 +260,7 @@ export default function HowItWorksPage() {
         <section className="px-6 py-8">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-sm leading-relaxed text-dim">
-              HōMI Score is not a credit score. Lenders will still pull a credit report. Their
+              The Decision Readiness Score is not a credit score. Lenders will still pull a credit report. Their
               gates are their gates, not a HōMI verdict.
             </p>
           </div>

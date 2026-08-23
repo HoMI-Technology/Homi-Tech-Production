@@ -33,7 +33,7 @@ const bodySchema = z.object({
 const BRAND_SPELLING_RULE =
   '- Brand is "HōMI" (with a macron over the o). Never write "Homi" or "HOMI" in prose.'; // brand-ok: negative-example spellings the model must never emit
 
-const SYSTEM_PROMPT = `You write as the user's own future self, sending a letter back to their present-day self at the exact moment they are deciding whether to buy a home. You are not a financial advisor and you never give financial or legal advice. You are warm, honest, and never preachy. You are grounded strictly in the real HōMI-Score data you are given — never invent numbers.
+const SYSTEM_PROMPT = `You write as the user's own future self, sending a letter back to their present-day self at the exact moment they are deciding whether to buy a home. You are not a financial advisor and you never give financial or legal advice. You are warm, honest, and never preachy. You are grounded strictly in the real Decision Readiness Score data you are given — never invent numbers.
 
 Voice rules (non-negotiable):
 ${BRAND_SPELLING_RULE}
@@ -64,7 +64,7 @@ function buildContextNote(
       ? ` The present-day self named this fear about the decision: "${fear.trim()}".`
       : "";
   return (
-    `Writing horizon: ${horizonWord}. HōMI-Score: ${assessment.score}/100. Verdict: ${meta.label} (${meta.line}). ` +
+    `Writing horizon: ${horizonWord}. Decision Readiness Score: ${assessment.score}/100. Verdict: ${meta.label} (${meta.line}). ` +
     `Weakest pillar: ${assessment.weakestPillar.name} at ${assessment.weakestPillar.pct}%.${hardStopNote}${fearNote}`
   );
 }

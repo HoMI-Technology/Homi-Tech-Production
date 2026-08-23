@@ -13,7 +13,7 @@ function src(...segments: string[]): string {
 }
 
 const BANNED_FIRST_RUN = ["Get your Shadow Score", "Take the full assessment"] as const;
-const BANNED_FOLD_NOUN = "Decision Readiness Score";
+const BANNED_FOLD_NOUN = "HōMI-Score";
 
 describe("onboarding skip lands on Home", () => {
   it("Skip for now navigates to the signed-in dashboard", () => {
@@ -47,8 +47,8 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(fold).toMatch(/!suppressBuildPercent[\s\S]*VerdictCelebrate/);
   });
 
-  it("uses HōMI-Score, never Decision Readiness Score", () => {
-    expect(fold).toContain("HōMI-Score");
+  it("uses Decision Readiness Score, never HōMI-Score (DESIGN.md naming law 2026-08-23)", () => {
+    expect(fold).toContain("Decision Readiness Score");
     expect(page).not.toContain(BANNED_FOLD_NOUN);
     expect(fold).not.toContain(BANNED_FOLD_NOUN);
   });

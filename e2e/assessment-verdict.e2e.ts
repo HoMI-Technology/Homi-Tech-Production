@@ -20,8 +20,8 @@ test.describe("guest /assessment is First Moment", () => {
       page.getByRole("heading", { name: /Most apps want you to buy/i }),
     ).toBeVisible();
     await expect(page.getByText(/^Step \d+ of \d+$/)).toHaveCount(0);
-    await expect(page.getByText("See my HōMI-Score")).toHaveCount(0);
-    await expect(page.getByText("HōMI-Score out of 100")).toHaveCount(0);
+    await expect(page.getByText("See my Decision Readiness Score")).toHaveCount(0);
+    await expect(page.getByText("Decision Readiness Score out of 100")).toHaveCount(0);
   });
 
   test("guest /results redirects to First Moment — never paints a verdict", async ({ page }) => {
@@ -44,8 +44,8 @@ test.describe("guest /assessment is First Moment", () => {
     });
     await page.goto("/results");
     await expect(page).toHaveURL(/\/first-moment/, { timeout: 15_000 });
-    await expect(page.getByText("HōMI-Score out of 100")).toHaveCount(0);
-    await expect(page.getByText("See my HōMI-Score")).toHaveCount(0);
+    await expect(page.getByText("Decision Readiness Score out of 100")).toHaveCount(0);
+    await expect(page.getByText("See my Decision Readiness Score")).toHaveCount(0);
   });
 });
 
@@ -63,7 +63,7 @@ test.describe("signed-in assessment → verdict", () => {
     await completeFullAssessment(page, { decisionType: "home_buying" });
 
     await expect(page).toHaveURL(/\/dashboard/);
-    await expect(page.getByLabel(/Overall HōMI-Score/i)).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByLabel(/Overall Decision Readiness Score/i)).toBeVisible({ timeout: 30_000 });
     await expect(
       page.locator('[class*="bg-verdict-"]').or(page.getByText(VERDICT_BADGE)).first(),
     ).toBeVisible({ timeout: 30_000 });

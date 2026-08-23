@@ -12,7 +12,7 @@ const HOW = readFileSync(
 );
 
 const LOCKED = [
-  "HōMI Score is not a credit score.",
+  "The Decision Readiness Score is not a credit score.",
   "Lenders will still pull a credit report.",
 ] as const;
 

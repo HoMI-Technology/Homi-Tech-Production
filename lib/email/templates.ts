@@ -123,7 +123,7 @@ export function verdictEmail(
 
   const body = `
     <p style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">Hi ${name},</p>
-    <p style="margin:0 0 20px 0;">Your latest HōMI-Score is in.</p>
+    <p style="margin:0 0 20px 0;">Your latest Decision Readiness Score is in.</p>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px 0;">
       <tr>
         <td align="center" style="padding:20px 0;">
@@ -142,7 +142,7 @@ export function verdictEmail(
   // Privacy: the score and verdict never go in the subject line. Subjects
   // surface in lock-screen notifications and inbox previews; the full read
   // belongs inside the email the user deliberately opened.
-  return { subject: "Your HōMI-Score is in", html: layout(body) };
+  return { subject: "Your Decision Readiness Score is in", html: layout(body) };
 }
 
 export function outcomeSurveyEmail(
