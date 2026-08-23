@@ -14,7 +14,11 @@ const ROOT = process.cwd();
  * the defect this guard prevents from returning.
  */
 const PUBLIC_LENS_PATHS = LENSES.filter(
-  (l) => l.path.startsWith("/tools/") || l.path === "/scenarios",
+  (l) =>
+    (l.path.startsWith("/tools/") || l.path === "/scenarios") &&
+    // Redirect-placement lenses (/tools/mortgage) 308 from their own server
+    // page.tsx, which already ships title + cross-canonical metadata.
+    l.placement !== "redirect",
 ).map((l) => l.path);
 
 function layoutFile(path: string): string {
@@ -48,9 +52,12 @@ describe("tool lens metadata", () => {
   });
 
   it("mortgage keeps its redirect-placement canonical on affordability", () => {
-    expect(readFileSync(layoutFile("/tools/mortgage"), "utf8")).toContain(
-      'canonicalUrl("/tools/affordability")',
+    const page = readFileSync(
+      join(ROOT, "app", "(product)", "tools", "mortgage", "page.tsx"),
+      "utf8",
     );
+    expect(page).toContain('canonical: "/tools/affordability"');
+    expect(page).toContain("permanentRedirect");
   });
 
   it("throws on an unregistered path instead of shipping fallback metadata", () => {

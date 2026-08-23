@@ -27,7 +27,6 @@ const SEO_TITLES: Record<string, string> = {
   "/tools/fire": "FIRE Number Calculator",
   "/tools/monte-carlo": "Monte Carlo Retirement Projection",
   "/tools/roth-conversion": "Roth Conversion Tradeoff Calculator",
-  "/tools/mortgage": "Mortgage Payment Calculator",
   "/tools/blind-budget": "Blind Budget Planner",
   "/tools/preflight": "Decision Pre-Flight Check",
   "/scenarios": "Scenario Studio — Buy Now vs. Wait",
