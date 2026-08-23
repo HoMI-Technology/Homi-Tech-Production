@@ -288,7 +288,7 @@ function notYetProtection(ctx: AdvisorAssessmentContext): string {
 
 function greeting(): string {
   return (
-    "Hey. I'm HōMI — think of me as your homie for this decision, not your banker and not a hype man. " +
+    "Hey. I'm HōMI — think of me as your HōMI for this decision, not your banker and not a hype man. " +
     "Ask me anything about your readiness, your numbers, or what's actually going on in your head about this. " +
     "I'll tell you the truth, even when it's \"not yet.\""
   );
