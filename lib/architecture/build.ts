@@ -1,6 +1,5 @@
 import { AGENTS, type AgentMode } from "../agents/registry";
-import { BRAND, PILLARS, VERDICT_META, type VerdictKey } from "../brand";
-import { VERDICT_CONFIG } from "../scoring/verdicts";
+import { BRAND, PILLARS } from "../brand";
 import { ARCHITECTURE_CALCULATORS } from "./calculators";
 import { ARCHITECTURE_BRAND, ARCHITECTURE_COMPLIANCE } from "./compliance";
 import { ARCHITECTURE_GAPS } from "./gaps";
@@ -140,7 +139,7 @@ export const ARCHITECTURE_DB_TABLES: ArchitectureDbTable[] = [
   },
   {
     name: "plaid_liabilities",
-    columns: ["id", "user_id", "account_id"],
+    columns: ["id", "user_id"],
     rls: true,
     category: "user",
     description: "Plaid credit/student/mortgage liabilities",
@@ -361,7 +360,6 @@ const API_PURPOSES: Record<string, { purpose: string; method: string }> = {
   plaid: { purpose: "Bank linking (Plaid)", method: "POST" },
   push: { purpose: "Push notifications", method: "POST" },
   scoring: { purpose: "Score computation", method: "POST" },
-  "shadow-shares": { purpose: "Anonymous sharing", method: "GET/POST" },
   shares: { purpose: "Score sharing", method: "GET/POST" },
   trinity: { purpose: "3-perspective AI", method: "POST" },
   twin: { purpose: "Future self letter", method: "POST" },
@@ -424,65 +422,27 @@ function categorizePath(path: string): string {
 }
 
 export function buildScoringEngine(): ArchitectureScoringEngine {
-  const keys: VerdictKey[] = ["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"];
-  // Band boundaries come from the threshold SSOT (lib/scoring/verdicts.ts);
-  // each tier's max is the next tier up's min - 1, READY tops out at 100.
-  const bands: Record<VerdictKey, { min: number; max: number }> = {
-    READY: { min: VERDICT_CONFIG.READY.min, max: 100 },
-    ALMOST_THERE: { min: VERDICT_CONFIG.ALMOST_THERE.min, max: VERDICT_CONFIG.READY.min - 1 },
-    BUILD_FIRST: {
-      min: VERDICT_CONFIG.BUILD_FIRST.min,
-      max: VERDICT_CONFIG.ALMOST_THERE.min - 1,
-    },
-    NOT_YET: { min: VERDICT_CONFIG.NOT_YET.min, max: VERDICT_CONFIG.BUILD_FIRST.min - 1 },
-  };
-
-  const verdict_thresholds = Object.fromEntries(
-    keys.map((key) => [
-      key,
-      {
-        key,
-        label: VERDICT_META[key].label,
-        min: bands[key].min,
-        max: bands[key].max,
-        color: VERDICT_META[key].color,
-      },
-    ]),
-  );
-
+  // Trade-secret lockdown (founder ruling): the public feed publishes pillar
+  // identity only — key/name/color/question. Exact maxScores, verdict
+  // threshold bands, and hard-stop conditions/values stay inside
+  // lib/scoring and are never emitted here.
   return {
     description:
       "Deterministic code-only scoring (lib/scoring/engine.ts). AI explains only, never calculates.",
     pillars: PILLARS.map((p) => ({
       key: p.key,
       name: p.name,
-      maxScore: p.max,
       color: p.color,
       question: p.question,
     })),
-    verdict_thresholds,
-    hard_stops: [
-      {
-        code: "DTI_OVER_50",
-        condition: "Debt-to-income > 50%",
-        effect: "Forced NOT_YET regardless of score",
-      },
-      {
-        code: "HOUSING_OVER_45",
-        condition: "Housing cost > 45% of income",
-        effect: "Forced NOT_YET regardless of score",
-      },
-      {
-        code: "RUNWAY_UNDER_1",
-        condition: "Less than 1 month runway",
-        effect: "Forced NOT_YET regardless of score",
-      },
-      {
-        code: "CREDIT_UNDER_620",
-        condition: "Credit score under 620",
-        effect: "Forced NOT_YET regardless of score",
-      },
-    ],
+    verdict_thresholds: {
+      published: false,
+      note: "Exact verdict threshold bands are proprietary and are not published in this feed. Verdict vocabulary is unchanged: READY, ALMOST THERE, BUILD FIRST, DO NOT PROCEED.",
+    },
+    hard_stops: {
+      published: false,
+      note: "Hard-stop conditions and their exact values are proprietary and are not published in this feed.",
+    },
     vocabulary_note:
       "Storage/API enum is NOT_YET; user-facing badge label is DO NOT PROCEED; calm prose may still say “not yet.” See docs/adr/001-verdict-vocabulary.md.",
   };
