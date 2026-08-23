@@ -3,7 +3,8 @@
  *
  * The ledger stored one goal until the multi-goal migration, so there was
  * nowhere to see two side by side. This is that surface: totals across the set,
- * how the monthly contribution splits, and each goal with its own projection.
+ * how the monthly contribution splits, and each goal with its own projection
+ * and a progress ring/bar drawn from its real funded share.
  *
  * Reads the budget ledger directly (mount-only, like useCfm) because goals live
  * in the ledger rather than the planner store. Writes go back through
@@ -17,7 +18,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Plus, Target, Trash2, TriangleAlert } from "lucide-react";
+import { motion } from "framer-motion";
+import { Plus, Trash2, TriangleAlert } from "lucide-react";
 import {
   archiveGoal,
   loadBudgetLedger,
@@ -29,6 +31,12 @@ import type { SavingsGoal } from "@/lib/finance/ledger";
 import { centsToDollars, dollarsToCents } from "@/lib/finance/money";
 import { formatCurrency } from "@/lib/tools/format";
 import { COLORS } from "@/lib/brand";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
+import EmptyState from "@/components/planner/ui/EmptyState";
+import {
+  GoalProgressRing,
+  goalProgressColor,
+} from "@/components/planner/goals/GoalProgressRing";
 import {
   contributionSplit,
   goalRows,
@@ -46,7 +54,7 @@ const GOAL_TYPES: { value: SavingsGoal["goalType"]; label: string }[] = [
   { value: "custom", label: "Something else" },
 ];
 
-/** Distinct accents so the split bar and the cards agree at a glance. */
+/** Distinct accents so the contribution-split slices read at a glance. */
 const SLICE_COLORS = [COLORS.cyan, COLORS.emerald, COLORS.amber, COLORS.yellow, COLORS.crimson];
 
 interface Draft {
@@ -194,19 +202,21 @@ export function GoalsCommand() {
       )}
 
       {rows.length === 0 && !draft ? (
-        <div className="mt-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-8 text-center">
-          <Target size={20} aria-hidden className="mx-auto text-dim" />
-          <p className="mt-2 text-sm text-dim">
-            No goals yet. Add one and HōMI will project it against your cash flow.
-          </p>
+        <div className="mt-4 rounded-xl border border-white/[0.06] bg-white/[0.02]">
+          <EmptyState
+            illustration
+            line="What you're building toward, and how far."
+            caption="No goals yet — a blank page, not a failure. Add one and HōMI will project it against your real cash flow."
+            actionLabel="Add your first goal"
+            onAction={() => setDraft({ ...EMPTY_DRAFT })}
+          />
         </div>
       ) : (
         <ul className="mt-4 flex flex-col gap-3">
-          {rows.map((row, i) => (
+          {rows.map((row) => (
             <GoalCardRow
               key={row.goal.id}
               row={row}
-              accent={SLICE_COLORS[i % SLICE_COLORS.length]}
               onEdit={() =>
                 setDraft({
                   id: row.goal.id,
@@ -234,61 +244,80 @@ export function GoalsCommand() {
 
 function GoalCardRow({
   row,
-  accent,
   onEdit,
   onArchive,
 }: {
   row: GoalRow;
-  accent: string;
   onEdit: () => void;
   onArchive: () => void;
 }) {
   const { goal, projection, pct, funded, behind } = row;
+  const reducedMotion = useReducedMotion();
+  // Single-token fill: emerald on pace / funded; amber only when goals-derive
+  // has already ruled the goal behind a real target date.
+  const progressColor = goalProgressColor(behind);
 
   return (
     <li className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <div className="min-w-0">
-          <p className="font-semibold text-light">{goal.name}</p>
-          <p className="eyebrow text-dim">
-            {GOAL_TYPES.find((t) => t.value === goal.goalType)?.label ?? goal.goalType}
-          </p>
+      <div className="flex items-start gap-4">
+        <GoalProgressRing pct={pct} behind={behind} label={`${goal.name}: ${pct}% funded`} />
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <div className="min-w-0">
+              <p className="font-semibold text-light">{goal.name}</p>
+              <p className="eyebrow text-dim">
+                {GOAL_TYPES.find((t) => t.value === goal.goalType)?.label ?? goal.goalType}
+              </p>
+            </div>
+            <p className="num-money score-numeral text-sm text-light">
+              {formatCurrency(centsToDollars(goal.currentAmountCents))}
+              <span className="num-money text-dim">
+                {" / "}
+                {formatCurrency(centsToDollars(goal.targetAmountCents))}
+              </span>
+            </p>
+          </div>
+
+          <div
+            className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.06]"
+            role="progressbar"
+            aria-valuenow={pct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`${goal.name} funded`}
+          >
+            <motion.span
+              className="block h-full rounded-full"
+              style={{ backgroundColor: progressColor }}
+              initial={reducedMotion ? false : { width: 0 }}
+              animate={{ width: `${pct}%` }}
+              transition={
+                reducedMotion ? { duration: 0 } : { duration: 0.7, ease: "easeOut" }
+              }
+            />
+          </div>
+
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-dim">
+            <span className="num score-numeral">{pct}% funded</span>
+            {funded ? (
+              <span style={{ color: COLORS.emerald }}>Funded</span>
+            ) : projection.monthsToTarget !== null ? (
+              <span>
+                <span className="num score-numeral">{projection.monthsToTarget}</span> month
+                {projection.monthsToTarget === 1 ? "" : "s"} at the planned pace
+              </span>
+            ) : (
+              <span>No contribution set — no projection</span>
+            )}
+            {behind && projection.requiredMonthlyCents !== null && (
+              <span className="inline-flex items-center gap-1" style={{ color: COLORS.amber }}>
+                <TriangleAlert size={12} aria-hidden />
+                Needs {formatCurrency(centsToDollars(projection.requiredMonthlyCents))}/mo to hit{" "}
+                {goal.targetDate}
+              </span>
+            )}
+          </div>
         </div>
-        <p className="num-money score-numeral text-sm text-light">
-          {formatCurrency(centsToDollars(goal.currentAmountCents))}
-          <span className="num-money text-dim">
-            {" / "}
-            {formatCurrency(centsToDollars(goal.targetAmountCents))}
-          </span>
-        </p>
-      </div>
-
-      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
-        <span
-          className="block h-full rounded-full"
-          style={{ width: `${pct}%`, backgroundColor: funded ? COLORS.emerald : accent }}
-        />
-      </div>
-
-      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-dim">
-        <span className="num score-numeral">{pct}% funded</span>
-        {funded ? (
-          <span style={{ color: COLORS.emerald }}>Funded</span>
-        ) : projection.monthsToTarget !== null ? (
-          <span>
-            <span className="num score-numeral">{projection.monthsToTarget}</span> month
-            {projection.monthsToTarget === 1 ? "" : "s"} at the planned pace
-          </span>
-        ) : (
-          <span>No contribution set — no projection</span>
-        )}
-        {behind && projection.requiredMonthlyCents !== null && (
-          <span className="inline-flex items-center gap-1" style={{ color: COLORS.amber }}>
-            <TriangleAlert size={12} aria-hidden />
-            Needs {formatCurrency(centsToDollars(projection.requiredMonthlyCents))}/mo to hit{" "}
-            {goal.targetDate}
-          </span>
-        )}
       </div>
 
       <div className="mt-3 flex gap-2">
