@@ -235,7 +235,7 @@ Desktop `homi-social-kit` is a working mirror only — **commit here**.
 
 ### SEO
 - Hub: decision readiness / home readiness  
-- Spokes: afford vs ready, should i wait (framework), rent vs buy (assumptions labeled), checklists  
+- Spokes: afford vs ready, should I wait (framework), rent vs buy (assumptions labeled), checklists  
 - Tools: “estimate based on your inputs — not a lender quote”  
 - Expect 6–18 months to compound  
 
@@ -256,7 +256,7 @@ Desktop `homi-social-kit` is a working mirror only — **commit here**.
 | Risk | Severity | Mitigation |
 |------|----------|------------|
 | Mispositioned as lender | Critical | Claim law + FAQ + support scripts |
-| Solo burnout on launch day | High | Pre-scheduled; reply-only day |
+| Solo burnout on launch day | High | Pre-schedule; reply-only day |
 | PH without audience | High | 400 engaged rule |
 | SEO lag frustration | Medium | Parallel founder channel |
 | Fake social proof temptation | Critical | Ban; legal risk |
