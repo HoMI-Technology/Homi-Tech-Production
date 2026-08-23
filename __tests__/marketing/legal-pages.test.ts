@@ -32,15 +32,19 @@ describe("legal pages — honest rewrite lock", () => {
   });
 
   it("uses the real entity, address, domain, and emails — no phone", () => {
-    expect(PRIVACY).toContain("HOMI TECHNOLOGIES LLC");
-    expect(PRIVACY).toContain("3072 Floweva St");
-    expect(PRIVACY).toContain("Palm Springs, FL 33406");
+    expect(PRIVACY).toContain("Homi Technologies LLC");
+    expect(PRIVACY).toContain("651 N Broad St, Suite 201");
+    expect(PRIVACY).toContain("Middletown, DE 19709");
+    expect(PRIVACY).not.toContain("Floweva");
+    expect(PRIVACY).not.toContain("Palm Springs");
     expect(PRIVACY).toContain("homitechnology.com");
     expect(PRIVACY).toContain("hello@homitechnology.com");
     expect(PRIVACY).toContain("security@homitechnology.com");
     expect(PRIVACY).toContain("Info@homitechnology.com");
-    expect(TERMS).toContain("3072 Floweva St");
-    expect(TERMS).toContain("Palm Springs, FL 33406");
+    expect(TERMS).toContain("651 N Broad St, Suite 201");
+    expect(TERMS).toContain("Middletown, DE 19709");
+    expect(TERMS).not.toContain("Floweva");
+    expect(TERMS).not.toContain("Palm Springs");
     expect(TERMS).toContain("hello@homitechnology.com");
     expect(TERMS).toContain("Info@homitechnology.com");
     for (const [name, page] of Object.entries(PAGES)) {
