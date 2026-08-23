@@ -70,10 +70,12 @@ export function UpgradePanel({
           </div>
         )}
 
+        {/* One line, price first. `body` already names the tier, so repeating it here
+            and again in an "Included with…" line said e.g. "HōMI Family" three times in
+            four lines. The price is the thing the reader does not already have. */}
         <p className="mt-6 text-sm text-light">
-          {tierLabel} · <span className="text-dim">{price}</span>
+          {price} <span className="text-dim">· {tierLabel} and above</span>
         </p>
-        <p className="mt-1 text-xs text-dim/80">Included with {tierLabel} and above.</p>
 
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link
