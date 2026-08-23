@@ -36,7 +36,7 @@ If HōMI ever feels like pressure, something is wrong — tell us.
 Thank you for trusting us with a careful category.
 
 — Founder  
-Founder, HōMI (HOMI TECHNOLOGIES LLC)  
+Founder, HōMI (Homi Technologies LLC)  
 homitechnology.com
 
 ---

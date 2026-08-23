@@ -1,6 +1,6 @@
 # HōMI Press Kit (v1)
 
-**Company:** HOMI TECHNOLOGIES LLC  
+**Company:** Homi Technologies LLC  
 **Product:** HōMI — Decision Companion / Decision Readiness Intelligence™  
 **Site:** https://homitechnology.com  
 **Founder:** Chike “Wally” Wali  
@@ -34,7 +34,7 @@ See `FOUNDER_BIO.md` and `../emails/` for full language. Never-say list: no “a
 2. `product-screens/homi_live_03_assessment.png` — assessment  
 3. `product-screens/homi_live_07_dashboard.png` — dashboard  
 4. `product-screens/homi_live_04_tools.png` — tools  
-5. `product-screens/homi_product_screen_02.png` — auth / welcome (legacy product UI)
+5. `homi_product_screen_02.png` — auth / welcome (legacy product UI)
 
 ## Logo rules
 
