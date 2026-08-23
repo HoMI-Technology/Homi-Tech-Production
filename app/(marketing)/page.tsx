@@ -20,7 +20,7 @@ import {
 
 export const metadata: Metadata = {
   ...pageMetadata({
-    title: "Decision Readiness · A Decision Companion · HōMI",
+    title: "Decision Readiness Intelligence · A Decision Companion · HōMI",
     description:
       "A credit score estimates repayment risk. HōMI helps you evaluate readiness for the decision itself — across Financial Reality, Emotional Truth, and Perfect Timing.",
     path: "/",
