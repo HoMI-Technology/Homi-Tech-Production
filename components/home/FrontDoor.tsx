@@ -49,7 +49,11 @@ function SectionHeader({
       <h2 className="type-display mt-4 max-w-4xl text-light" style={{ textWrap: "balance" }}>
         {title}
       </h2>
-      {support ? <p className="mt-4 max-w-2xl text-lg text-dim">{support}</p> : null}
+      {support ? (
+        <p className="mt-4 max-w-2xl text-lg leading-relaxed text-dim" style={{ textWrap: "pretty" }}>
+          {support}
+        </p>
+      ) : null}
     </Reveal>
   );
 }
@@ -294,7 +298,7 @@ export function NotYourBanker() {
       <div className="mx-auto w-full max-w-7xl">
         <SectionHeader
           eyebrow="What HōMI is not"
-          title="Your homie, not your banker."
+          title="Your HōMI, not your banker."
           support="HōMI provides educational guidance only. The answer is the product."
         />
         <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">

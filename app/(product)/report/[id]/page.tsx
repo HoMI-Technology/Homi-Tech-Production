@@ -106,7 +106,14 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
               year: "numeric",
             })}
           </p>
-          <p className="score-numeral mt-2 text-5xl font-bold text-light print:text-black">
+          <p
+            className="score-numeral mt-2 text-5xl font-bold tabular-nums text-light print:text-black"
+            aria-label={
+              assessment.overall_score != null
+                ? `Overall HōMI-Score ${assessment.overall_score} out of 100`
+                : "HōMI-Score Unknown"
+            }
+          >
             {assessment.overall_score ?? "—"}
           </p>
           <p className="text-sm uppercase tracking-widest text-dim print:text-black/60">

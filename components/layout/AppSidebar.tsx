@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   BookOpen,
   ClipboardCheck,
@@ -311,6 +311,7 @@ export function AppSidebar({
   const [open, setOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [shortcutLabel, setShortcutLabel] = useState("⌘K");
+  const reduceMotion = useReducedMotion();
 
   // One read, one accent publication — the rail and drawer share the result.
   const decisionState: LatestVerdict | null = useLatestVerdict();
@@ -444,7 +445,7 @@ export function AppSidebar({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.18 }}
+              transition={{ duration: reduceMotion ? 0.12 : 0.2, ease: [0.23, 1, 0.32, 1] }}
               onClick={() => setOpen(false)}
               aria-hidden
               className="fixed inset-0 z-[var(--z-overlay)] bg-navy/70 backdrop-blur-sm lg:hidden"
@@ -455,10 +456,26 @@ export function AppSidebar({
               role="dialog"
               aria-modal="true"
               aria-label="Navigation menu"
-              initial={{ x: -24, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -24, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 420, damping: 38, mass: 0.7 }}
+              initial={
+                reduceMotion
+                  ? { opacity: 0 }
+                  : { opacity: 0, transform: "translateX(-100%)" }
+              }
+              animate={
+                reduceMotion
+                  ? { opacity: 1 }
+                  : { opacity: 1, transform: "translateX(0%)" }
+              }
+              exit={
+                reduceMotion
+                  ? { opacity: 0 }
+                  : { opacity: 0, transform: "translateX(-100%)" }
+              }
+              transition={
+                reduceMotion
+                  ? { duration: 0.16, ease: [0.23, 1, 0.32, 1] }
+                  : { type: "spring", bounce: 0, duration: 0.4 }
+              }
               className="fixed inset-y-0 left-0 z-[var(--z-overlay)] flex w-[248px] flex-col border-r border-white/10 bg-navy lg:hidden"
             >
               <div className="flex h-14 shrink-0 items-center justify-between gap-3 px-4">

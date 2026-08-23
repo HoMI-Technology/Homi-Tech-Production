@@ -135,7 +135,7 @@ export function ScoreRail({
       className={`score-numeral font-semibold tabular-nums ${
         compact ? "text-3xl" : "text-5xl sm:text-6xl"
       }`}
-      style={{ color: tint }}
+      style={{ color: tint, textShadow: `0 0 40px ${tint}55` }}
       aria-label={scoreLabel}
     >
       {score != null ? score : "—"}
@@ -145,7 +145,7 @@ export function ScoreRail({
   const badge = verdict ? (
     // data-home-verdict is the Companion card-highlight hook (lib/advisor/
     // card-highlight.ts) — the attr name is a live contract, do not rename.
-    <span data-home-verdict="" aria-label={`Last verdict ${VERDICT_META[verdict].label}`}>
+    <span data-home-verdict="">
       <VerdictBadge verdict={verdict} size={compact ? "sm" : "md"} hideTemperature={compact} />
     </span>
   ) : null;
@@ -165,11 +165,18 @@ export function ScoreRail({
         aria-label="Readiness score"
         className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-xl border border-white/8 bg-navy-light/40 px-4 py-3"
       >
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
           <span className="text-2xs font-bold uppercase tracking-[0.16em] text-dim">
             HōMI-Score
           </span>
-          {numeral}
+          <span className="inline-flex items-baseline gap-2">
+            {numeral}
+            {score != null ? (
+              <span aria-hidden className="text-2xs font-medium tracking-wide text-dim">
+                /100
+              </span>
+            ) : null}
+          </span>
           {badge}
         </div>
         <div className="sm:ml-auto">{rings}</div>
@@ -179,12 +186,19 @@ export function ScoreRail({
 
   return (
     <section data-score-rail="hero" aria-label="Readiness score">
-      <div className="flex flex-wrap items-end gap-x-5 gap-y-3">
+      <div className="flex flex-wrap items-end gap-x-6 gap-y-3">
         <div>
           <p className="eyebrow">HōMI-Score</p>
-          <div className="mt-1">{numeral}</div>
+          <div className="mt-1 flex items-baseline gap-2">
+            {numeral}
+            {score != null ? (
+              <span aria-hidden className="pb-1 text-sm font-medium tracking-wide text-dim">
+                out of 100
+              </span>
+            ) : null}
+          </div>
         </div>
-        {badge ? <div className="mb-1.5">{badge}</div> : null}
+        {badge ? <div className="mb-1">{badge}</div> : null}
       </div>
       <div className="mt-4">{rings}</div>
     </section>

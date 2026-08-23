@@ -41,14 +41,20 @@ export function VerdictBadge(props: VerdictBadgeProps) {
         ? "px-3 py-1 text-xs"
         : "px-4 py-1.5 text-sm";
 
+  const accessibleName = hideTemperature
+    ? meta.label
+    : `${meta.label}, ${meta.temperature}`;
+
   return (
     <span
       data-verdict={verdict}
-      className={`inline-flex items-center gap-2 rounded-full border font-bold tracking-wide ${pad} ${meta.bgClassName} ${className}`}
+      role="status"
+      aria-label={accessibleName}
+      className={`inline-flex max-w-full items-center gap-2 whitespace-nowrap rounded-full border font-bold tracking-wide ${pad} ${meta.bgClassName} ${className}`}
       style={{ color: meta.color }}
     >
       <span
-        className="inline-block h-2 w-2 rounded-full"
+        className="inline-block h-2 w-2 shrink-0 rounded-full"
         style={{ background: meta.color, boxShadow: `0 0 8px ${meta.color}` }}
         aria-hidden
       />

@@ -1,17 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useCountUp } from "@/components/ui/count-up";
 import { COLORS, withAlpha } from "@/lib/brand";
 
 const KEY = "homi:rings-drawn";
 
 /**
  * Dashboard pillar ring — ScoreRing's exact visual language (r=54 arc,
- * JetBrains Mono numeral, pillar color) plus a one-time draw-in the first time
- * it scrolls into view each session: the arc sweeps from zero while the
- * numeral counts. Server HTML, repeat visits, reduced motion, and no-JS all
- * render the finished ring — the sweep is pure enhancement.
+ * JetBrains Mono numeral, pillar color) plus a one-time arc draw-in the first
+ * time it scrolls into view each session. The numeral is always the final
+ * server value — never a 0 → N ticker. Server HTML, repeat visits, reduced
+ * motion, and no-JS all render the finished ring.
  */
 export function PillarRing({
   value,
@@ -62,8 +61,6 @@ export function PillarRing({
     return () => io.disconnect();
   }, []);
 
-  const displayed = useCountUp(value, { durationMs: 1100, play: phase === "drawing" });
-
   const r = 54;
   const c = 2 * Math.PI * r;
   const shownValue = phase === "armed" ? 0 : value;
@@ -101,10 +98,10 @@ export function PillarRing({
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span
             aria-hidden
-            className="score-numeral font-bold text-light"
+            className="score-numeral font-bold tabular-nums text-light"
             style={{ fontSize: size * 0.24 }}
           >
-            {phase === "drawing" ? Math.round(displayed) : value}
+            {value}
           </span>
           {sublabel && (
             <span aria-hidden className="text-dim" style={{ fontSize: size * 0.07 }}>

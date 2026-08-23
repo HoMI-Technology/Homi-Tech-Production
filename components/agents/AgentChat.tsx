@@ -233,7 +233,7 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
               </p>
               <p className="mt-1 max-w-sm text-sm text-dim">
                 {hasAssessment
-                  ? "Homie coordinates Scout, Analyst, Coach, Architect, and Oracle — each brings a different lens."
+                  ? "HōMI coordinates Scout, Analyst, Coach, Architect, and Oracle — each brings a different lens."
                   : "Assess first for a real read, or ask a general question — the agents can still talk in plain terms."}
               </p>
             </div>

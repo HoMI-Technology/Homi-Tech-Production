@@ -3,7 +3,7 @@ import { PageFrame } from "@/components/operate/PageFrame";
 
 export const metadata = {
   title: "Decision Companion",
-  description: "Talk it through with HōMI — your homie, not your banker.",
+  description: "Talk it through with HōMI — your HōMI, not your banker.",
 };
 
 export default function AdvisorPage() {
@@ -14,7 +14,7 @@ export default function AdvisorPage() {
           Talk it through
         </h1>
         <p className="mt-2 text-sm text-dim">
-          Your homie for this decision, not your banker. Ask anything — you&rsquo;ll get the truth,
+          Your HōMI for this decision, not your banker. Ask anything — you&rsquo;ll get the truth,
           even when it&rsquo;s &ldquo;not yet.&rdquo;
         </p>
       </div>
