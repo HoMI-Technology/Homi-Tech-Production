@@ -29,7 +29,11 @@ interface RpcScript {
   [fn: string]: () => { data: unknown; error: { code: string; message: string } | null };
 }
 
-function client(rpc: RpcScript, userId: string | null = "u1"): SupabaseClient {
+function client(
+  rpc: RpcScript,
+  userId: string | null = "u1",
+  usage: Array<{ day: string; count: number }> = [],
+): SupabaseClient {
   const calls: string[] = [];
   const c = {
     __calls: calls,
@@ -37,6 +41,7 @@ function client(rpc: RpcScript, userId: string | null = "u1"): SupabaseClient {
     from: () => ({
       select: () => ({
         eq: () => ({ maybeSingle: async () => ({ data: { subscription_tier: "plus" } }) }),
+        gte: async () => ({ data: usage, error: null }),
       }),
     }),
     rpc: async (fn: string) => {

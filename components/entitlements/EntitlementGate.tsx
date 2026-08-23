@@ -21,13 +21,19 @@ export function EntitlementGate({
   capability,
   feature,
   minTier,
+  title,
   body,
+  preview,
   children,
 }: {
   capability: BooleanCapability;
   feature: string;
   minTier?: "plus" | "pro" | "family";
+  /** Specific headline for this gate. Falls back to the panel's generic default. */
+  title?: string;
   body: string;
+  /** Static look at what's behind the gate — real output only, never a mock. */
+  preview?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const [state, setState] = useState<GateState>(INITIAL);
@@ -71,7 +77,15 @@ export function EntitlementGate({
   }
 
   if (!state.allowed) {
-    return <UpgradePanel feature={feature} body={body} minTier={minTier} />;
+    return (
+      <UpgradePanel
+        feature={feature}
+        title={title}
+        body={body}
+        minTier={minTier}
+        preview={preview}
+      />
+    );
   }
 
   return <>{children}</>;

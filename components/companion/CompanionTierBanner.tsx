@@ -20,7 +20,7 @@ export function CompanionTierBanner({ compact = false }: { compact?: boolean }) 
     async function load() {
       const freeDefaults = getEntitlements("free");
       try {
-        const res = await fetch("/api/account/entitlements", { cache: "no-store" });
+        const res = await fetch("/api/account/entitlements?usage=1", { cache: "no-store" });
         if (!res.ok) {
           if (active) {
             setState({
@@ -38,8 +38,10 @@ export function CompanionTierBanner({ compact = false }: { compact?: boolean }) 
             advisorRealModel?: boolean;
             advisorMessagesPerDay?: number;
           };
+          usage?: { remainingToday?: number; remainingThisMonth?: number } | null;
         };
         const ent = json.entitlements;
+        const usage = json.usage ?? null;
         if (active) {
           setState({
             status: "ready",
@@ -49,6 +51,10 @@ export function CompanionTierBanner({ compact = false }: { compact?: boolean }) 
                 typeof ent?.advisorMessagesPerDay === "number"
                   ? ent.advisorMessagesPerDay
                   : freeDefaults.advisorMessagesPerDay,
+              remainingToday:
+                typeof usage?.remainingToday === "number" ? usage.remainingToday : null,
+              remainingThisMonth:
+                typeof usage?.remainingThisMonth === "number" ? usage.remainingThisMonth : null,
             }),
           });
         }
