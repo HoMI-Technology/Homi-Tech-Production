@@ -112,7 +112,7 @@ export function companionFoldLine(args: {
 
 /**
  * First-viewport instrument on signed-in Home. The build (Path next move)
- * leads; the HōMI-Score is a compact reading on the score rail. Compass is
+ * leads; the Decision Readiness Score is a compact reading on the score rail. Compass is
  * the three-ring brand mark — keep it off this fold so we never invent an
  * empty Emotional Truth ring or glow cheerfully next to DO NOT PROCEED.
  */

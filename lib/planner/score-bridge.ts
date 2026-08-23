@@ -248,7 +248,7 @@ export function toPlannerScore(
 export async function scoreFromBudgetAsync(input: ScoreBridgeInput): Promise<PlannerScore> {
   const completeness = bridgeCompleteness(input);
   if (!completeness.canShowLiveScore) {
-    throw new ScoringRequestError("Set your decision profile before a live HōMI-Score.", 400);
+    throw new ScoringRequestError("Set your decision profile before a live Decision Readiness Score.", 400);
   }
   const inputs = buildAssessmentInputs(input);
   const payload = await fetchServerScoreCached(inputs);

@@ -145,15 +145,15 @@ export function buildScoreImpact(
   const parts: string[] = [];
   if (Math.abs(delta) >= 0.05) {
     parts.push(
-      `HōMI-Score ${before.score.toFixed(0)} → ${after.score.toFixed(0)} (${delta > 0 ? "+" : ""}${delta.toFixed(1)}).`,
+      `Decision Readiness Score ${before.score.toFixed(0)} → ${after.score.toFixed(0)} (${delta > 0 ? "+" : ""}${delta.toFixed(1)}).`,
     );
   } else if (actionKind === "path_done" || actionKind === "path_skipped") {
     parts.push(
-      `HōMI-Score held at ${after.score.toFixed(0)} — path advanced; score moves when cash, DTI, or runway change.`,
+      `Decision Readiness Score held at ${after.score.toFixed(0)} — path advanced; score moves when cash, DTI, or runway change.`,
     );
   } else {
     parts.push(
-      `HōMI-Score held at ${after.score.toFixed(0)} — the loop still updated cash, path, or signals.`,
+      `Decision Readiness Score held at ${after.score.toFixed(0)} — the loop still updated cash, path, or signals.`,
     );
   }
   if (pillarLine) parts.push(pillarLine);

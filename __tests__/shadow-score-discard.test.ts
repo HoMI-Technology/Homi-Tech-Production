@@ -57,7 +57,7 @@ function createMockStorage(): Storage {
   } as Storage;
 }
 
-describe("kind:shadow cannot become a HōMI-Score", () => {
+describe("kind:shadow cannot become a Decision Readiness Score", () => {
   beforeEach(() => {
     (globalThis as unknown as { window: Window }).window = {
       localStorage: createMockStorage(),
@@ -143,7 +143,7 @@ describe("mapAssessmentRowToStored discards is_shadow rows", () => {
     insights: null,
   } as unknown as AssessmentRow;
 
-  it("returns null for is_shadow so leftover rows cannot print a HōMI-Score", () => {
+  it("returns null for is_shadow so leftover rows cannot print a Decision Readiness Score", () => {
     const mapped = mapAssessmentRowToStored({ ...baseRow, is_shadow: true } as AssessmentRow);
     expect(mapped).toBeNull();
   });

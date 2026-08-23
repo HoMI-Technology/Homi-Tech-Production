@@ -602,7 +602,7 @@ export function buildDemoSeed(now: Date = new Date()): BudgetState {
     path: null,
     readinessProfile: {
       ...DEFAULT_READINESS_PROFILE,
-      // Screenshot parity (reference audit-overview.png): HōMI-Score 73,
+      // Screenshot parity (reference audit-overview.png): Decision Readiness Score 73,
       // ALMOST THERE, pillars 74 / 66 / 80 on this exact ledger. The
       // closed-loop test asserts these numbers — keep them aligned.
       creditScore: 750,

@@ -19,7 +19,7 @@ const LOCKED = new Set([
 ]);
 
 describe("debt-payoff preview — locked shapes", () => {
-  it("always names that this is not the HōMI Score", () => {
+  it("always names that this is not the Decision Readiness Score", () => {
     const lines = debtPayoffPreviewLines({
       monthlyIncome: null,
       currentMonthlyDebt: null,

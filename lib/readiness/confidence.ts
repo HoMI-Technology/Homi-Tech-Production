@@ -6,7 +6,7 @@
  * stand behind a readiness claim.
  *
  * Rules (aligned with `lib/advisor/share-preview.ts` + Path modes):
- * - Raw HōMI-Score stays canonical — never rewrite `computeScore`.
+ * - Raw Decision Readiness Score stays canonical — never rewrite `computeScore`.
  * - Displayed dampening: `displayedScore = round(raw × (0.7 + 0.3·factor))`.
  * - High band only when assessment is fresh AND a money picture is present.
  * - Each degradation drops one band (high → medium → low).

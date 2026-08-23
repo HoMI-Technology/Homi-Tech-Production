@@ -107,7 +107,7 @@ describe("HomeFold", () => {
     const scoreRail = container.querySelector("[data-home-score-rail]");
     expect(scoreRail).not.toBeNull();
     expect(scoreRail?.querySelector('[data-score-rail="hero"]')).not.toBeNull();
-    expect(screen.getByLabelText("Overall HōMI-Score 64 out of 100")).toBeInTheDocument();
+    expect(screen.getByLabelText("Overall Decision Readiness Score 64 out of 100")).toBeInTheDocument();
     expect(screen.getByText("BUILD FIRST")).toBeInTheDocument();
     expect(scoreRail?.querySelectorAll("[data-score-pillar]")).toHaveLength(3);
     expect(
@@ -219,7 +219,7 @@ describe("HomeFold", () => {
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
     // Hard stop tints the score numeral crimson, never a cheerful verdict tint.
-    expect(screen.getByLabelText("Overall HōMI-Score 71 out of 100")).toHaveStyle({
+    expect(screen.getByLabelText("Overall Decision Readiness Score 71 out of 100")).toHaveStyle({
       color: COLORS.crimson,
     });
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeNull();

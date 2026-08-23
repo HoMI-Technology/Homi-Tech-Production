@@ -103,7 +103,7 @@ export default async function ReportPrintPage({
             >
               {assessment.overall_score ?? "—"}
             </p>
-            <p className="text-sm uppercase tracking-widest text-black/60">HōMI-Score out of 100</p>
+            <p className="text-sm uppercase tracking-widest text-black/60">Decision Readiness Score out of 100</p>
           </div>
           <span
             className="rounded-full border px-4 py-1.5 text-sm font-semibold"

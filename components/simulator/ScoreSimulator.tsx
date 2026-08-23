@@ -26,7 +26,7 @@ import { fetchSimulatorBatch, SimulatorRequestError } from "@/lib/simulator/clie
 /**
  * Readiness-score simulator — adjust the four money levers and watch the
  * financial pillar (and only the financial pillar) move the composite
- * HōMI-Score. Scores come from POST /api/simulator (server-authoritative).
+ * Decision Readiness Score. Scores come from POST /api/simulator (server-authoritative).
  */
 
 const DEBOUNCE_MS = 200;
@@ -354,7 +354,7 @@ export function ScoreSimulator({
               </p>
             )}
             <p className="mt-2">
-              Educational guidance only — this shows how your own numbers move your HōMI-Score. It
+              Educational guidance only — this shows how your own numbers move your Decision Readiness Score. It
               is not financial advice.
             </p>
           </div>

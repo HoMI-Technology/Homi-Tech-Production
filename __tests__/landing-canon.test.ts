@@ -10,7 +10,7 @@ import { scoreToVerdict } from "@/lib/scoring/engine";
 // HōMI's moat is verdict integrity: a rendered (score, verdict) pair on any
 // marketing surface must agree with scoreToVerdict() in lib/scoring/engine.ts.
 // Wave 1 goes further: homepage theater must not present a fake 0–100
-// HōMI-Score as the visitor's score at all. Temperature illustrations are
+// Decision Readiness Score as the visitor's score at all. Temperature illustrations are
 // allowed. The engine boundary cases below stay locked.
 
 describe("landing canon — homepage theater is not a fake score", () => {

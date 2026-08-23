@@ -3,7 +3,7 @@
  * ===========================
  *
  * Pure, deterministic detector for outside pressure and conflict-of-interest
- * signals that sit alongside — and never influence — the HōMI-Score itself.
+ * signals that sit alongside — and never influence — the Decision Readiness Score itself.
  * The scoring engine (lib/scoring) never imports this module and these
  * signals never change score, verdict, or hard-stops. They exist purely to
  * surface honest context back to the user: who benefits, whose deadline it

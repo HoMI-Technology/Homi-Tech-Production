@@ -72,7 +72,7 @@ describe("how-it-works — Brand-authored lock", () => {
   });
 
   it("locks the finance-packet credit disclaimer", () => {
-    expect(PAGE).toContain("HōMI Score is not a credit score.");
+    expect(PAGE).toContain("The Decision Readiness Score is not a credit score.");
     expect(PAGE).toContain("Lenders will still pull a credit report.");
     expect(PAGE).toContain("Their");
     expect(PAGE).toContain("gates are their gates, not a HōMI verdict.");

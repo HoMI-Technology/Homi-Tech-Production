@@ -54,7 +54,7 @@ export function SharePreviewSection() {
           <div className="flex flex-wrap items-center gap-3">
             <VerdictBadge verdict={preview.verdict} size="lg" />
             <span className="text-light">
-              HōMI-Score {preview.score}/100 · Confidence: {CONFIDENCE_LABEL[preview.confidence]}
+              Decision Readiness Score {preview.score}/100 · Confidence: {CONFIDENCE_LABEL[preview.confidence]}
             </span>
           </div>
 

@@ -496,7 +496,7 @@ export function PortfolioPanel() {
               No holdings yet — add a position or link a broker.
             </p>
             <p className="mt-1 text-xs text-dim">
-              Marked prices only; portfolio value rolls into net worth and the HōMI-Score.
+              Marked prices only; portfolio value rolls into net worth and the Decision Readiness Score.
             </p>
           </div>
         )}

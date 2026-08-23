@@ -43,7 +43,7 @@ describe("Reality top rail (score + verdict + pillars)", () => {
   it("no assessment renders an honest Unknown rail with the Assess close", () => {
     expect(stand).toContain("Unknown until your first assessment.");
     expect(stand).toContain('href="/assessment"');
-    expect(stand).toContain("HōMI-Score Unknown");
+    expect(stand).toContain("Decision Readiness Score Unknown");
   });
 
   it("ScoreRail composes locked primitives — never a new orb or compass", () => {

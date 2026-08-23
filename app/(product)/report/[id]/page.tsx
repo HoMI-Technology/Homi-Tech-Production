@@ -110,7 +110,7 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
             {assessment.overall_score ?? "—"}
           </p>
           <p className="text-sm uppercase tracking-widest text-dim print:text-black/60">
-            HōMI-Score out of 100
+            Decision Readiness Score out of 100
           </p>
         </div>
         <VerdictBadge verdict={verdict} size="lg" />
@@ -240,7 +240,7 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
           {LEGAL_DISCLAIMER}
         </p>
         <p className="mt-3 text-xs leading-relaxed text-dim/80 print:text-black/60">
-          HōMI Score is not a credit score. Lenders will still pull a credit report. Fannie&apos;s manual floor is still 620. That is their gate, not a HōMI verdict.
+          The Decision Readiness Score is not a credit score. Lenders will still pull a credit report. Fannie&apos;s manual floor is still 620. That is their gate, not a HōMI verdict.
         </p>
       </div>
 

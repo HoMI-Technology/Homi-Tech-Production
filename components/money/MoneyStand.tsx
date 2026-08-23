@@ -58,7 +58,7 @@ const GRADE_COLOR: Record<FinanceCompleteness, string> = {
  * carries the evidence behind them. Nothing here is printed twice.
  *
  * Reality redesign (Phase 2): a compact ScoreRail top rail carries the
- * HōMI-Score + verdict + three pillars above the cash instrument (server-
+ * Decision Readiness Score + verdict + three pillars above the cash instrument (server-
  * passed from the latest completed assessment — no client fetch, no invented
  * numbers). Steady Cash stays the dominant number; the rail never competes
  * with it. Cash data logic (metricsFromLedger, completeness, temperature)
@@ -170,9 +170,9 @@ export function MoneyStand({ readiness = null }: { readiness?: ScoreRailReading 
     >
       <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-dim">
         <span className="text-2xs font-bold uppercase tracking-[0.16em] text-dim">
-          HōMI-Score
+          Decision Readiness Score
         </span>
-        <span className="score-numeral text-lg font-semibold text-light" aria-label="HōMI-Score Unknown">
+        <span className="score-numeral text-lg font-semibold text-light" aria-label="Decision Readiness Score Unknown">
           —
         </span>
         <span>Unknown until your first assessment.</span>
@@ -195,7 +195,7 @@ export function MoneyStand({ readiness = null }: { readiness?: ScoreRailReading 
 
   return (
     <div className="space-y-6">
-      {/* ── Top rail: HōMI-Score + verdict + pillars (cash stays dominant) ── */}
+      {/* ── Top rail: Decision Readiness Score + verdict + pillars (cash stays dominant) ── */}
       {scoreRail}
       {/* ── Hero instrument: status, the one dominant number, headline metrics ── */}
       <OperateInstrument tint={tint}>

@@ -3,7 +3,7 @@
  *
  * Honesty contract:
  * - Path completion never calls computeScore and never reads or stores any
- *   HōMI-Score value. Path is not a scorer; the toast must not invent motion.
+ *   Decision Readiness Score value. Path is not a scorer; the toast must not invent motion.
  * - The bus is not a second Path store, not a durable ledger, not a server
  *   receipt, and not evidence of remote persistence. The existing Path store
  *   (lib/readiness/store.ts) stays authoritative; the bus only describes the

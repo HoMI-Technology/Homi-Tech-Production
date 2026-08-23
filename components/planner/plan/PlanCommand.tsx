@@ -46,7 +46,7 @@ export function PlanCommand() {
           Decision readiness tools
         </h2>
         <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-dim">
-          Path, housing, debt, dual score, Monte Carlo — every move can pulse the HōMI-Score.
+          Path, housing, debt, dual score, Monte Carlo — every move can pulse the Decision Readiness Score.
         </p>
       </header>
 

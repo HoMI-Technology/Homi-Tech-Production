@@ -10,7 +10,7 @@ import {
   type EfScoreBand,
 } from "@/lib/finance/recheck-prompt";
 
-export const DEBT_PAYOFF_NOT_SCORE = "This is not your HōMI Score.";
+export const DEBT_PAYOFF_NOT_SCORE = "This is not your Decision Readiness Score.";
 export const DTI_BETTER_BAND = "DTI may move into a better band.";
 export const DTI_WORSE_BAND = "DTI may move into a worse band.";
 export const HARD_STOP_REMAINS = "Still above the line we treat as a hard stop.";

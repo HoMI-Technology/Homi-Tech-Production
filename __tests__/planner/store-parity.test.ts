@@ -12,7 +12,7 @@
  *   open bills   $2,345.88 (6 bills)
  *   runway       5.2 mo  · DTI 3%
  *   readiness    credit 750 · sliders 7/7/7 · FOMO 4 · 18-mo horizon
- *                (the profile that renders HōMI-Score 73 · ALMOST_THERE
+ *                (the profile that renders Decision Readiness Score 73 · ALMOST_THERE
  *                · pillars 74/66/80 through the server scoring seam)
  */
 

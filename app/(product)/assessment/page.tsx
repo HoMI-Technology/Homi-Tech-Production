@@ -8,7 +8,7 @@ import { getCachedUser } from "@/lib/supabase/server";
 export const metadata: Metadata = {
   title: "The Full Assessment",
   description:
-    "A calm, honest walk through Financial Reality, Emotional Truth, and Perfect Timing — your full HōMI-Score.",
+    "A calm, honest walk through Financial Reality, Emotional Truth, and Perfect Timing — your full Decision Readiness Score.",
   alternates: { canonical: "/assessment" },
 };
 

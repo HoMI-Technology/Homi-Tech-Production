@@ -178,7 +178,7 @@ export default function PlanPage() {
             <span className="font-semibold" style={{ color: weakestPillar.color }}>
               {weakestPillar.name}
             </span>{" "}
-            is where we build first. Strengthening it moves your whole HōMI-Score.
+            is where we build first. Strengthening it moves your whole Decision Readiness Score.
           </p>
         )}
       </div>

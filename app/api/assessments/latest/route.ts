@@ -8,7 +8,7 @@ import { loadPhase0ServerState } from "@/lib/advisor/phase0/server";
  * Returns the signed-in user's most recent completed assessment row, or
  * `{ assessment: null }` when anonymous, on any error, or when the user has
  * no completed full assessment yet. Shadow rows are excluded — they are not
- * a HōMI-Score. Always 200 — this endpoint is a best-effort fallback source
+ * a Decision Readiness Score. Always 200 — this endpoint is a best-effort fallback source
  * for /plan and Home, never a hard dependency, so it fails safe rather
  * than surfacing errors the client would have to branch on.
  */

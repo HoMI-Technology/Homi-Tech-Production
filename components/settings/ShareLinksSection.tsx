@@ -84,7 +84,7 @@ export function ShareLinksSection() {
       <h2 className="font-display text-xl font-semibold text-light">Share links</h2>
       <p className="mt-1 text-sm text-dim">
         Anyone with an active link below can view that read-only score. Revoke a link at any time to
-        cut off access — this does not affect your HōMI-Score.
+        cut off access — this does not affect your Decision Readiness Score.
       </p>
 
       {loading ? (

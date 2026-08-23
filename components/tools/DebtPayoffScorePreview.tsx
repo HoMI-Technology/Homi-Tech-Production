@@ -2,7 +2,7 @@ import { debtPayoffPreviewLines } from "@/lib/finance/debt-payoff-preview";
 
 /**
  * Directional preview after a debt-payoff plan. Locked shapes only.
- * Empty of numbers. This is not a HōMI Score write.
+ * Empty of numbers. This is not a Decision Readiness Score write.
  */
 export function DebtPayoffScorePreview(input: {
   monthlyIncome: number | null;

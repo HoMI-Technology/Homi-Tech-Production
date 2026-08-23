@@ -73,12 +73,12 @@ export const LEARNING_ARTICLES: LearningArticle[] = [
     slug: "the-four-hard-stops",
     title: "The Four Hard Stops",
     description:
-      "Four conditions can override every other number in the HōMI-Score. Not because the rest of your picture doesn't matter — because these four failure modes are severe enough that nothing else compensates for them.",
+      "Four conditions can override every other number in the Decision Readiness Score. Not because the rest of your picture doesn't matter — because these four failure modes are severe enough that nothing else compensates for them.",
     sections: [
       {
         heading: "What a hard-stop actually does",
         paragraphs: [
-          "Most of the HōMI-Score is a matter of degree. A lower down payment costs you ground, not the whole verdict. A shorter time horizon costs you ground, not the whole verdict. Four conditions work differently: if any one of them is true, the verdict is forced to NOT YET regardless of what the rest of the picture says.",
+          "Most of the Decision Readiness Score is a matter of degree. A lower down payment costs you ground, not the whole verdict. A shorter time horizon costs you ground, not the whole verdict. Four conditions work differently: if any one of them is true, the verdict is forced to NOT YET regardless of what the rest of the picture says.",
           "That's a deliberate design choice, not an oversight. Averages hide danger. A strong-looking score built from solid credit and a real down payment can still describe a household one bad month away from crisis, if the number that actually protects against a bad month is missing. Hard-stops exist so that one severe risk can't be diluted into invisibility by unrelated strengths.",
           "We don't publish the exact lines. Naming them would tell you how to answer around them instead of how to fix the underlying condition — and the point of a protective signal is that it can't be gamed. What we can tell you is what each condition looks like and how to build past it.",
         ],
@@ -163,7 +163,7 @@ export const LEARNING_ARTICLES: LearningArticle[] = [
       {
         heading: "Why three pillars",
         paragraphs: [
-          "The HōMI-Score is built from three pillars: Financial Reality, answering can you afford it; Emotional Truth, answering do you really want it; and Perfect Timing, answering is now the right moment. Together they combine into a single score. Exactly how they're weighed stays private — a readiness signal anyone can reverse-engineer is a readiness signal anyone can game.",
+          "The Decision Readiness Score is built from three pillars: Financial Reality, answering can you afford it; Emotional Truth, answering do you really want it; and Perfect Timing, answering is now the right moment. Together they combine into a single score. Exactly how they're weighed stays private — a readiness signal anyone can reverse-engineer is a readiness signal anyone can game.",
           "That no single pillar decides alone is the point, not an accident. Most financial tools weight the numeric side heavily and treat everything else as a footnote. HōMI treats emotional and timing factors as predictive signals with real weight, because a financially sound purchase made under pressure, or made before someone is genuinely ready, produces regret just as reliably as a bad debt-to-income ratio does.",
         ],
       },

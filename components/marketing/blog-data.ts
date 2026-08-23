@@ -113,7 +113,7 @@ export const BLOG_POSTS: BlogPost[] = [
         heading: "Telling the difference from the inside",
         paragraphs: [
           "The honest test isn't how long you've been thinking about it. It's whether the picture is actually getting clearer or just staying stuck. If your savings rate is climbing, your down payment progress is building, and your emotional read on the decision keeps improving, that's not stalling — that's the plan working, and moving soon is readiness, not a rush. If none of that is true and you're moving anyway because of a headline or someone else's timeline, that's the other failure mode wearing a more confident face.",
-          "We built the Perfect Timing pillar of the HōMI-Score specifically to separate these two, because they feel almost identical from the inside and produce almost opposite outcomes. A longer horizon isn't a stall if it's being used. A short one isn't readiness if it's borrowed from someone else's clock.",
+          "We built the Perfect Timing pillar of the Decision Readiness Score specifically to separate these two, because they feel almost identical from the inside and produce almost opposite outcomes. A longer horizon isn't a stall if it's being used. A short one isn't readiness if it's borrowed from someone else's clock.",
         ],
       },
       {
@@ -128,7 +128,7 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: "what-a-readiness-score-actually-measures",
     title: "What a Readiness Score Actually Measures",
     description:
-      "Not a credit score. Not an affordability calculator. Here's what the HōMI-Score is — and just as importantly, what it isn't.",
+      "Not a credit score. Not an affordability calculator. Here's what the Decision Readiness Score is — and just as importantly, what it isn't.",
     date: "2026-05-19",
     readMinutes: 5,
     sections: [
@@ -140,7 +140,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         heading: "Not a credit score",
         paragraphs: [
-          "A credit score measures repayment history — how reliably you've handled debt over time. It says nothing about your emotional readiness, your timing, or whether the house you're considering fits the life you actually want. Credit is one input among eleven inside the HōMI-Score, not the whole of it.",
+          "A credit score measures repayment history — how reliably you've handled debt over time. It says nothing about your emotional readiness, your timing, or whether the house you're considering fits the life you actually want. Credit is one input among eleven inside the Decision Readiness Score, not the whole of it.",
         ],
       },
       {
@@ -152,7 +152,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         heading: "A composite read across three dimensions",
         paragraphs: [
-          "What the HōMI-Score actually is: a composite readiness read across three pillars — Financial Reality, Emotional Truth, and Perfect Timing — weighed differently, each broken into specific, explainable sub-factors, with a small set of hard-stops acting as protective floors underneath all of it. It's a rules-based system, not a black box: every point traces back to a stated reason, and when certain red-line conditions are present they override the numeric score entirely, because those failure modes are severe enough that nothing else offsets them. The exact weights and red lines stay private, so the signal can't be gamed.",
+          "What the Decision Readiness Score actually is: a composite readiness read across three pillars — Financial Reality, Emotional Truth, and Perfect Timing — weighed differently, each broken into specific, explainable sub-factors, with a small set of hard-stops acting as protective floors underneath all of it. It's a rules-based system, not a black box: every point traces back to a stated reason, and when certain red-line conditions are present they override the numeric score entirely, because those failure modes are severe enough that nothing else offsets them. The exact weights and red lines stay private, so the signal can't be gamed.",
           "The result is a verdict — READY, ALMOST THERE, BUILD FIRST, or NOT YET — plus a full breakdown of exactly why. Not a mysterious number. An accounting.",
         ],
       },

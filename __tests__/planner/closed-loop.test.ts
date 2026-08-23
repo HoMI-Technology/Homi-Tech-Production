@@ -4,7 +4,7 @@
  * async server-score seam.
  *
  * The scoring network is mocked (same pattern as score-bridge.test.ts) at
- * the demo's screenshot canon: HōMI-Score 73 · ALMOST_THERE · pillars
+ * the demo's screenshot canon: Decision Readiness Score 73 · ALMOST_THERE · pillars
  * 74/66/80 (totals 26/35, 23/35, 24/30). WEIGHTS is never imported here.
  *
  * Pinned contracts:

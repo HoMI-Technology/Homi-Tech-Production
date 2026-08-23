@@ -541,7 +541,7 @@ function ReviewStep({
             disabled={submitting}
             className="btn btn-primary"
           >
-            {submitting ? "Computing…" : "See my HōMI-Score"}
+            {submitting ? "Computing…" : "See my Decision Readiness Score"}
           </button>
         </div>
       </div>

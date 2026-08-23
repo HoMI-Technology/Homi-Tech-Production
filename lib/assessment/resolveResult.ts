@@ -8,7 +8,7 @@
 import { isScoreShapedShadow, type StoredAssessment } from "./storage";
 
 /**
- * Leftover kind:"shadow" payloads are not a HōMI-Score. Drop them before
+ * Leftover kind:"shadow" payloads are not a Decision Readiness Score. Drop them before
  * /results, /plan, or any other reader can paint a verdict from them.
  */
 export function discardScoreShapedShadow(

@@ -4,7 +4,7 @@ import { PillarRing } from "@/components/dashboard/PillarRing";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 
 /**
- * Shared HōMI-Score rail — score numeral + VerdictBadge + the three pillar
+ * Shared Decision Readiness Score rail — score numeral + VerdictBadge + the three pillar
  * rings (Emotional · Financial · Timing), in the spec's fold order.
  *
  * One reading of the score, reused by the Home fold hero (variant="hero")
@@ -128,7 +128,7 @@ export function ScoreRail({
   const compact = variant === "compact";
   const ringSize = compact ? 48 : 72;
   const scoreLabel =
-    score != null ? `Overall HōMI-Score ${score} out of 100` : "HōMI-Score Unknown";
+    score != null ? `Overall Decision Readiness Score ${score} out of 100` : "Decision Readiness Score Unknown";
 
   const numeral = (
     <span
@@ -167,7 +167,7 @@ export function ScoreRail({
       >
         <div className="flex items-center gap-3">
           <span className="text-2xs font-bold uppercase tracking-[0.16em] text-dim">
-            HōMI-Score
+            Decision Readiness Score
           </span>
           {numeral}
           {badge}
@@ -181,7 +181,7 @@ export function ScoreRail({
     <section data-score-rail="hero" aria-label="Readiness score">
       <div className="flex flex-wrap items-end gap-x-5 gap-y-3">
         <div>
-          <p className="eyebrow">HōMI-Score</p>
+          <p className="eyebrow">Decision Readiness Score</p>
           <div className="mt-1">{numeral}</div>
         </div>
         {badge ? <div className="mb-1.5">{badge}</div> : null}

@@ -16,7 +16,7 @@ describe("verdict email privacy", () => {
     // Subjects surface in lock-screen notifications and inbox previews.
     expect(subject).not.toContain("72");
     expect(subject).not.toContain("ALMOST");
-    expect(subject).toBe("Your HōMI-Score is in");
+    expect(subject).toBe("Your Decision Readiness Score is in");
     // The full read stays in the body the user deliberately opened.
     expect(html).toContain("72");
     expect(html).toContain("ALMOST THERE");

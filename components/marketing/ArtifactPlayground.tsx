@@ -131,7 +131,7 @@ export function ArtifactPlayground() {
                 </span>
               </div>
               <p className="mt-1 text-xs text-dim">
-                HōMI-Score out of 100 · streak {DEMO_DATA.streak}
+                Decision Readiness Score out of 100 · streak {DEMO_DATA.streak}
               </p>
             </div>
 

@@ -130,7 +130,7 @@ function Keyhole({ unlocked }: { unlocked: boolean }) {
  * Threshold Compass hero — canonical geometry (200×200 viewBox).
  * Three complete counter-rotating rings, keyhole center, verdict pip
  * (the ONLY place verdict color appears inside the compass),
- * spring HōMI-Score below, crossfading verdict chip + canon line.
+ * spring Decision Readiness Score below, crossfading verdict chip + canon line.
  */
 export function ThresholdCompass({ result }: { result: AssessmentResult }) {
   const { score, verdict } = result;
@@ -166,7 +166,7 @@ export function ThresholdCompass({ result }: { result: AssessmentResult }) {
       `}</style>
 
       <div className="flex w-full items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-widest text-dim">HōMI-Score</span>
+        <span className="text-xs font-semibold uppercase tracking-widest text-dim">Decision Readiness Score</span>
         <span className="text-xs font-semibold uppercase tracking-widest text-dim">
           35 · 35 · 30
         </span>

@@ -141,7 +141,7 @@ export default function TwinPage() {
     <PageFrame width="focus" density="spacious" role="personal">
       <h1 className="font-display text-3xl text-light">Temporal Twin</h1>
       <p className="mt-2 max-w-2xl text-dim">
-        A letter from your future self. Grounded in your actual HōMI-Score, written from the other
+        A letter from your future self. Grounded in your actual Decision Readiness Score, written from the other
         side of this decision — {horizon === "retirement" ? "retirement" : `${horizon} years`} from
         now.
       </p>

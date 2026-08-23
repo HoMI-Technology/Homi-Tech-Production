@@ -381,7 +381,7 @@ function buildContextNote(
   if (assessment) {
     const meta = VERDICT_META[assessment.verdict];
     parts.push(
-      `User's HōMI-Score: ${assessment.score}/100.`,
+      `User's Decision Readiness Score: ${assessment.score}/100.`,
       `Verdict: ${meta.label} (${meta.line}).`,
       `Pillar breakdown — Financial Reality: ${assessment.pillars.financial}/100, Emotional Truth: ${assessment.pillars.emotional}/100, Perfect Timing: ${assessment.pillars.timing}/100.`,
       assessment.hardStops.length > 0

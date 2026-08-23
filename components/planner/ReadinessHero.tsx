@@ -154,7 +154,7 @@ export function ReadinessHero({
       <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-10">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-2xs font-bold uppercase tracking-[0.16em] text-cyan">HōMI-Score</p>
+            <p className="text-2xs font-bold uppercase tracking-[0.16em] text-cyan">Decision Readiness Score</p>
             {completeness.canShowLiveScore && score ? (
               <span className="rounded-full border border-white/10 bg-navy/50 px-2 py-0.5 text-3xs font-medium uppercase tracking-wide text-dim">
                 Live instrument

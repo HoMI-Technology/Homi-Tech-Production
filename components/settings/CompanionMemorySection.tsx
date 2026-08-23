@@ -45,7 +45,7 @@ export function CompanionMemorySection() {
             ? "from today"
             : `${assessment.ageDays} days old`
           : "age unknown";
-      setAssessmentLine(`HōMI-Score ${assessment.score}/100 (${age}), self-reported answers.`);
+      setAssessmentLine(`Decision Readiness Score ${assessment.score}/100 (${age}), self-reported answers.`);
     }
     if (finance) {
       const age =

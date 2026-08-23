@@ -35,7 +35,7 @@ describe("ScoreRail", () => {
     const { container } = render(<ScoreRail {...reading} tint={COLORS.yellow} />);
 
     expect(container.querySelector('[data-score-rail="hero"]')).not.toBeNull();
-    expect(screen.getByLabelText("Overall HōMI-Score 71 out of 100")).toBeInTheDocument();
+    expect(screen.getByLabelText("Overall Decision Readiness Score 71 out of 100")).toBeInTheDocument();
     expect(screen.getByText("ALMOST THERE")).toBeInTheDocument();
     expect(container.querySelector("[data-home-verdict]")).not.toBeNull();
 
@@ -62,7 +62,7 @@ describe("ScoreRail", () => {
     );
 
     expect(container.querySelector('[data-score-rail="compact"]')).not.toBeNull();
-    expect(screen.getByLabelText("Overall HōMI-Score 71 out of 100")).toBeInTheDocument();
+    expect(screen.getByLabelText("Overall Decision Readiness Score 71 out of 100")).toBeInTheDocument();
     expect(container.querySelectorAll("[data-score-pillar]")).toHaveLength(3);
     expect(container.querySelectorAll("[data-pillar-state='measured']")).toHaveLength(3);
   });
@@ -76,7 +76,7 @@ describe("ScoreRail", () => {
       />,
     );
 
-    expect(screen.getByLabelText("HōMI-Score Unknown")).toHaveTextContent("—");
+    expect(screen.getByLabelText("Decision Readiness Score Unknown")).toHaveTextContent("—");
     expect(container.querySelector("[data-home-verdict]")).toBeNull();
     const emotional = container.querySelector('[data-score-pillar="emotional"]');
     expect(emotional?.getAttribute("data-pillar-state")).toBe("unknown");
