@@ -282,3 +282,13 @@ reconciles env. The visible terminal is `npm run dev` on
   `CHROME_PATH=/usr/local/bin/google-chrome npx lhci autorun --collect.settings.chromeFlags="--no-sandbox --disable-dev-shm-usage --disable-gpu" --upload.target=filesystem`.
   Perf/LCP budget assertions can marginally fail on the throttled Cloud VM CPU
   (not a code defect); a11y/SEO/best-practices pass.
+
+## Script-budget discipline (SEO/perf audit follow-up, 2026-08-23)
+
+- Public routes carry a hard Lighthouse script budget (350KB, error at 360KB —
+  `lighthouse-budget.json` / `lighthouserc.json`). Headroom is thin and webpack
+  module-ID churn can tip it from unrelated commits.
+- **Before adding any import to `app/(marketing)/**` or another budgeted
+  route, trace what it pulls in.** `npm run analyze` (ANALYZE=true build, bash
+  or CI — local Windows builds are SAC-blocked) emits client/server treemaps;
+  diagnose regressions by import-trace, never by guessing.

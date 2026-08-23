@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { canonicalUrl } from "@/lib/seo/site";
-import { getAllPostSlugs } from "@/components/marketing/blog-data";
+import { BLOG_POSTS } from "@/components/marketing/blog-data";
 import { getAllGuideSlugs } from "@/components/marketing/guides-data";
 import { getAllArticleSlugs } from "@/components/learning/learning-data";
 import { LENSES } from "@/lib/tools/registry";
@@ -62,9 +62,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/legal/subprocessors", "yearly", 0.3),
   ];
 
-  const blogRoutes: MetadataRoute.Sitemap = getAllPostSlugs().map((slug) =>
-    entry(`/blog/${slug}`, "monthly", 0.6),
-  );
+  // Blog posts carry a real ISO publish date — the one content type where
+  // lastModified is honest rather than a generated build timestamp.
+  const blogRoutes: MetadataRoute.Sitemap = BLOG_POSTS.map((post) => ({
+    ...entry(`/blog/${post.slug}`, "monthly", 0.6),
+    lastModified: post.date,
+  }));
 
   const guideRoutes: MetadataRoute.Sitemap = getAllGuideSlugs().map((slug) =>
     entry(`/guides/${slug}`, "monthly", 0.6),
