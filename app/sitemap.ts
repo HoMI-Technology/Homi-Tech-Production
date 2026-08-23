@@ -40,6 +40,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/about", "monthly", 0.8),
     entry("/how-it-works", "monthly", 0.9),
     entry("/method", "monthly", 0.8),
+    entry("/decision-readiness-intelligence", "monthly", 0.9),
     entry("/b2b", "monthly", 0.7),
     entry("/partner", "monthly", 0.7),
     // Content hub consolidation (D5): /guides is THE hub. /blog and /learning

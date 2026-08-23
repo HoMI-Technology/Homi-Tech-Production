@@ -95,7 +95,10 @@ export default function MethodPage() {
               money. That is the thesis HōMI is built on.
             </p>
             <p>
-              Credit scores measure if lenders should trust you. Decision Readiness Intelligence™
+              Credit scores measure if lenders should trust you.{" "}
+              <Link href="/decision-readiness-intelligence" className="text-light underline decoration-dim/40 underline-offset-4 hover:text-cyan">
+                Decision Readiness Intelligence™
+              </Link>{" "}
               measures if you should trust yourself. We&rsquo;re not replacing FICO. We&rsquo;re the
               layer before it — the one that asks whether this is the right decision at all, before
               anyone asks whether you qualify for it.

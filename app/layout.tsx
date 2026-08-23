@@ -28,10 +28,13 @@ export const metadata: Metadata = {
   applicationName: "HōMI",
   keywords: [
     "decision readiness",
+    "decision readiness intelligence",
+    "decision readiness score",
     "financial reality",
     "emotional truth",
     "perfect timing",
     "decision companion",
+    "am I ready to buy a house",
   ],
   openGraph: defaultShareOpenGraph(),
   twitter: defaultShareTwitter(),

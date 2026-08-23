@@ -29,7 +29,11 @@ export default function AboutPage() {
             <h2 className="type-h2">Our mission</h2>
             <p>
               We imagine a world where readiness precedes action. Decisions are timed with clarity,
-              not pressure. HōMI is Decision Readiness Intelligence™ &mdash; a decision companion
+              not pressure. HōMI is{" "}
+              <Link href="/decision-readiness-intelligence" className="text-light underline decoration-dim/40 underline-offset-4 hover:text-cyan">
+                Decision Readiness Intelligence™
+              </Link>{" "}
+              &mdash; a decision companion
               that helps you evaluate your readiness for life&rsquo;s biggest decisions, starting
               with home buying.
             </p>

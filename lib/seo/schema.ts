@@ -134,3 +134,30 @@ export function softwareApplicationJsonLd(siteUrl: string): SoftwareApplicationJ
     description: TAGLINES.companion,
   };
 }
+
+export interface DefinedTermJsonLd {
+  "@context": "https://schema.org";
+  "@type": "DefinedTerm";
+  name: string;
+  description: string;
+  url: string;
+}
+
+/**
+ * DefinedTerm for a page that canonically defines a term the brand owns
+ * (e.g. Decision Readiness Intelligence). `description` must be the real
+ * definition already rendered on that page — never a marketing rewrite that
+ * exists only in markup.
+ */
+export function definedTermJsonLd(
+  input: { name: string; description: string; path: string },
+  siteUrl: string,
+): DefinedTermJsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "DefinedTerm",
+    name: input.name,
+    description: input.description,
+    url: `${siteUrl}${input.path}`,
+  };
+}
