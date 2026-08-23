@@ -1,0 +1,192 @@
+import { COLORS, PILLARS, VERDICT_META, type VerdictKey } from "@/lib/brand";
+import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
+import { PillarRing } from "@/components/dashboard/PillarRing";
+import { VerdictBadge } from "@/components/ui/VerdictBadge";
+
+/**
+ * Shared HōMI-Score rail — score numeral + VerdictBadge + the three pillar
+ * rings (Emotional · Financial · Timing), in the spec's fold order.
+ *
+ * One reading of the score, reused by the Home fold hero (variant="hero")
+ * and the Reality surface top rail (variant="compact"), so the two surfaces
+ * can never fork the pattern. This composes the existing locked primitives
+ * (PillarRing / ScoreRing geometry, VerdictBadge, score-numeral) — it is not
+ * a new orb.
+ *
+ * Honesty rules:
+ * - Pillars arrive as raw assessment points and render as normalized
+ *   percentages, never raw points (same rule as the share page — the exact
+ *   pillar maxima stay trade-secret).
+ * - A null pillar was never measured: the cell renders "—" with an
+ *   "Unknown" accessible name, never a zero fill.
+ * - A null score renders "—", never an invented number.
+ */
+
+export type ScoreRailPillars = {
+  emotional: number | null;
+  financial: number | null;
+  timing: number | null;
+};
+
+export type ScoreRailReading = {
+  score: number | null;
+  verdict: VerdictKey | null;
+  pillars: ScoreRailPillars;
+};
+
+type PillarKey = keyof ScoreRailPillars;
+
+/** Spec §D fold order: Emotional · Financial · Timing. */
+const PILLAR_ORDER: readonly PillarKey[] = ["emotional", "financial", "timing"];
+
+const PILLAR_SHORT: Record<PillarKey, string> = {
+  emotional: "Emotional",
+  financial: "Financial",
+  timing: "Timing",
+};
+
+function pillarMeta(key: PillarKey) {
+  const brand = PILLARS.find((p) => p.key === key);
+  return {
+    name: brand?.name ?? PILLAR_SHORT[key],
+    color: brand?.color ?? COLORS.cyan,
+    max: PILLAR_MAX_POINTS[key],
+  };
+}
+
+/** Normalized pillar strength 0–100, clamped; null stays unmeasured. */
+function pillarPct(raw: number, max: number): number {
+  return Math.max(0, Math.min(100, Math.round((raw / max) * 100)));
+}
+
+function PillarCell({
+  pillarKey,
+  raw,
+  size,
+}: {
+  pillarKey: PillarKey;
+  raw: number | null;
+  size: number;
+}) {
+  const meta = pillarMeta(pillarKey);
+  const labelClass = "text-3xs font-semibold uppercase tracking-[0.12em] text-dim";
+
+  if (raw == null) {
+    return (
+      <div
+        className="flex flex-col items-center gap-1.5"
+        aria-label={`${meta.name} Unknown`}
+        data-score-pillar={pillarKey}
+        data-pillar-state="unknown"
+      >
+        <div
+          aria-hidden
+          className="flex items-center justify-center rounded-full border border-dashed border-white/10"
+          style={{ width: size, height: size }}
+        >
+          <span className="score-numeral text-dim" style={{ fontSize: size * 0.24 }}>
+            —
+          </span>
+        </div>
+        <span aria-hidden className={labelClass}>
+          {PILLAR_SHORT[pillarKey]}
+        </span>
+      </div>
+    );
+  }
+
+  const pct = pillarPct(raw, meta.max);
+  return (
+    <div
+      className="flex flex-col items-center gap-1.5"
+      aria-label={`${meta.name} ${pct} of 100`}
+      data-score-pillar={pillarKey}
+      data-pillar-state="measured"
+    >
+      <div aria-hidden>
+        <PillarRing value={pct} max={100} size={size} color={meta.color} />
+      </div>
+      <span aria-hidden className={labelClass}>
+        {PILLAR_SHORT[pillarKey]}
+      </span>
+    </div>
+  );
+}
+
+export function ScoreRail({
+  score,
+  verdict,
+  pillars,
+  tint = COLORS.cyan,
+  variant = "hero",
+}: ScoreRailReading & {
+  /** Instrument tint for the numeral — verdict color, crimson on hard stop. */
+  tint?: string;
+  /** hero = Home fold lead reading; compact = Reality top rail under cash. */
+  variant?: "hero" | "compact";
+}) {
+  const compact = variant === "compact";
+  const ringSize = compact ? 48 : 72;
+  const scoreLabel =
+    score != null ? `Overall HōMI-Score ${score} out of 100` : "HōMI-Score Unknown";
+
+  const numeral = (
+    <span
+      className={`score-numeral font-semibold tabular-nums ${
+        compact ? "text-3xl" : "text-5xl sm:text-6xl"
+      }`}
+      style={{ color: tint }}
+      aria-label={scoreLabel}
+    >
+      {score != null ? score : "—"}
+    </span>
+  );
+
+  const badge = verdict ? (
+    // data-home-verdict is the Companion card-highlight hook (lib/advisor/
+    // card-highlight.ts) — the attr name is a live contract, do not rename.
+    <span data-home-verdict="" aria-label={`Last verdict ${VERDICT_META[verdict].label}`}>
+      <VerdictBadge verdict={verdict} size={compact ? "sm" : "md"} hideTemperature={compact} />
+    </span>
+  ) : null;
+
+  const rings = (
+    <div className={`flex flex-wrap ${compact ? "items-center gap-3" : "gap-x-6 gap-y-3"}`}>
+      {PILLAR_ORDER.map((key) => (
+        <PillarCell key={key} pillarKey={key} raw={pillars[key]} size={ringSize} />
+      ))}
+    </div>
+  );
+
+  if (compact) {
+    return (
+      <section
+        data-score-rail="compact"
+        aria-label="Readiness score"
+        className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-xl border border-white/8 bg-navy-light/40 px-4 py-3"
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-2xs font-bold uppercase tracking-[0.16em] text-dim">
+            HōMI-Score
+          </span>
+          {numeral}
+          {badge}
+        </div>
+        <div className="sm:ml-auto">{rings}</div>
+      </section>
+    );
+  }
+
+  return (
+    <section data-score-rail="hero" aria-label="Readiness score">
+      <div className="flex flex-wrap items-end gap-x-5 gap-y-3">
+        <div>
+          <p className="eyebrow">HōMI-Score</p>
+          <div className="mt-1">{numeral}</div>
+        </div>
+        {badge ? <div className="mb-1.5">{badge}</div> : null}
+      </div>
+      <div className="mt-4">{rings}</div>
+    </section>
+  );
+}

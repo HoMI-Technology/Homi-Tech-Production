@@ -134,7 +134,15 @@ export default async function DashboardPage() {
           assessmentsFailed={assessmentsFailed}
           latest={
             latest
-              ? { id: latest.id, overallScore: latest.overall_score }
+              ? {
+                  id: latest.id,
+                  overallScore: latest.overall_score,
+                  pillars: {
+                    emotional: latest.emotional_score,
+                    financial: latest.financial_score,
+                    timing: latest.timing_score,
+                  },
+                }
               : null
           }
           verdict={verdict}

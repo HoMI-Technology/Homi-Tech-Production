@@ -1,9 +1,26 @@
 // @vitest-environment jsdom
 
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import { COLORS } from "@/lib/brand";
 import { HomeFold } from "./HomeFold";
+
+// jsdom lacks matchMedia — a reduced-motion match makes PillarRing render its
+// finished (static) ring, which is exactly the server/no-JS contract.
+beforeAll(() => {
+  if (!window.matchMedia) {
+    window.matchMedia = ((query: string) => ({
+      matches: true,
+      media: query,
+      onchange: null,
+      addEventListener() {},
+      removeEventListener() {},
+      addListener() {},
+      removeListener() {},
+      dispatchEvent: () => false,
+    })) as typeof window.matchMedia;
+  }
+});
 
 afterEach(() => {
   cleanup();
@@ -21,6 +38,8 @@ const base = {
   pathDone: 0,
   pathTotal: 0,
 };
+
+const pillars = { emotional: 24, financial: 20, timing: 19 };
 
 describe("HomeFold", () => {
   it("empty state is one Assess close — no score rail, no fake 76", () => {
@@ -59,11 +78,11 @@ describe("HomeFold", () => {
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeTruthy();
   });
 
-  it("has-verdict leads with the build, score rail reading, Companion, and tool closes", () => {
+  it("has-verdict leads with the score reading, then the Path action instrument", () => {
     const { container } = render(
       <HomeFold
         {...base}
-        latest={{ id: "a1", overallScore: 64 }}
+        latest={{ id: "a1", overallScore: 64, pillars }}
         verdict="BUILD_FIRST"
         lastReadAt="2026-03-15T12:00:00.000Z"
         stopMessages={[]}
@@ -83,9 +102,33 @@ describe("HomeFold", () => {
     expect(container.querySelector(".dash-hero-meta")).not.toBeNull();
     expect(container.querySelector("[data-home-build-hero]")).not.toBeNull();
     expect(container.querySelector("[data-home-build-progress]")).toHaveTextContent("2 of 7");
-    expect(container.querySelector("[data-home-score-rail]")).not.toBeNull();
+
+    // Elevated score hero: numeral + verdict + three pillar rings.
+    const scoreRail = container.querySelector("[data-home-score-rail]");
+    expect(scoreRail).not.toBeNull();
+    expect(scoreRail?.querySelector('[data-score-rail="hero"]')).not.toBeNull();
     expect(screen.getByLabelText("Overall HōMI-Score 64 out of 100")).toBeInTheDocument();
     expect(screen.getByText("BUILD FIRST")).toBeInTheDocument();
+    expect(scoreRail?.querySelectorAll("[data-score-pillar]")).toHaveLength(3);
+    expect(
+      scoreRail?.querySelector('[data-score-pillar="emotional"][data-pillar-state="measured"]'),
+    ).not.toBeNull();
+    expect(
+      scoreRail?.querySelector('[data-score-pillar="financial"][data-pillar-state="measured"]'),
+    ).not.toBeNull();
+    expect(
+      scoreRail?.querySelector('[data-score-pillar="timing"][data-pillar-state="measured"]'),
+    ).not.toBeNull();
+
+    // Fold order (spec §D): score reading sits above the Path next-move.
+    const build = container.querySelector("[data-home-build-hero]");
+    if (!scoreRail || !build) {
+      throw new Error("expected score rail and build hero");
+    }
+    expect(scoreRail.compareDocumentPosition(build) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+
     expect(container.querySelector("[data-last-read-chrome]")).toHaveTextContent(
       "Last read: BUILD FIRST from March 15.",
     );
@@ -105,9 +148,9 @@ describe("HomeFold", () => {
     expect(companion?.querySelector(".btn-primary")).toBeNull();
     expect(container.querySelector("#homi-companion-panel")).toBeNull();
     expect(container.querySelector("[data-companion-chat]")).toBeNull();
-    // Compact score rail: verdict badge is a reading, not a /results deep-link.
+    // Score hero: verdict badge is a reading, not a /results deep-link.
     expect(container.querySelector("[data-home-verdict]")).not.toBeNull();
-    expect(container.querySelector('[data-home-verdict][href]')).toBeNull();
+    expect(container.querySelector("[data-home-verdict][href]")).toBeNull();
     expect(screen.queryByRole("link", { name: /last verdict/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /^see results$/i })).not.toBeInTheDocument();
     expect(container.querySelector("[data-home-money-standing]")).not.toBeNull();
@@ -123,7 +166,7 @@ describe("HomeFold", () => {
     const { container } = render(
       <HomeFold
         {...base}
-        latest={{ id: "a1", overallScore: 64 }}
+        latest={{ id: "a1", overallScore: 64, pillars }}
         verdict="BUILD_FIRST"
         lastReadAt="2026-03-15T12:00:00.000Z"
         staleDays={45}
@@ -140,11 +183,11 @@ describe("HomeFold", () => {
     expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();
   });
 
-  it("hard-stop banner outranks the build and suppresses step progress", () => {
+  it("hard-stop banner outranks the score reading and the build, and suppresses step progress", () => {
     const { container } = render(
       <HomeFold
         {...base}
-        latest={{ id: "a2", overallScore: 71 }}
+        latest={{ id: "a2", overallScore: 71, pillars }}
         verdict="NOT_YET"
         stopMessages={["DTI is above 50%."]}
         suppressBuildPercent
@@ -166,14 +209,19 @@ describe("HomeFold", () => {
     expect(build).not.toBeNull();
     expect(scoreRail).not.toBeNull();
     if (!banner || !build || !scoreRail) {
-      throw new Error("expected hard-stop banner, build hero, and score rail");
+      throw new Error("expected hard-stop banner, score rail, and build hero");
     }
-    expect(banner.compareDocumentPosition(build) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+    // Order: hard-stop alert → score reading → Path action instrument.
+    expect(banner.compareDocumentPosition(scoreRail) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-    expect(build.compareDocumentPosition(scoreRail) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+    expect(scoreRail.compareDocumentPosition(build) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
+    // Hard stop tints the score numeral crimson, never a cheerful verdict tint.
+    expect(screen.getByLabelText("Overall HōMI-Score 71 out of 100")).toHaveStyle({
+      color: COLORS.crimson,
+    });
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeNull();
     expect(container.querySelector(".dash-spectrum")).toBeNull();
     expect(screen.queryByText("Almost")).not.toBeInTheDocument();
@@ -189,7 +237,7 @@ describe("HomeFold", () => {
     const { container } = render(
       <HomeFold
         {...base}
-        latest={{ id: "a2", overallScore: 71 }}
+        latest={{ id: "a2", overallScore: 71, pillars }}
         verdict="ALMOST_THERE"
         lastReadAt="2026-03-15T12:00:00.000Z"
         stopMessages={["DTI is above 50%."]}
@@ -205,11 +253,32 @@ describe("HomeFold", () => {
     expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();
   });
 
+  it("unmeasured pillar renders an honest Unknown cell, never a zero ring", () => {
+    const { container } = render(
+      <HomeFold
+        {...base}
+        latest={{
+          id: "a4",
+          overallScore: 58,
+          pillars: { emotional: null, financial: 20, timing: 19 },
+        }}
+        verdict="BUILD_FIRST"
+        stopMessages={[]}
+        foldSentence="Financial Reality is the softest pillar on this read."
+      />,
+    );
+
+    const unknown = container.querySelector('[data-score-pillar="emotional"]');
+    expect(unknown?.getAttribute("data-pillar-state")).toBe("unknown");
+    expect(unknown?.getAttribute("aria-label")).toBe("Emotional Truth Unknown");
+    expect(unknown?.querySelector("svg")).toBeNull();
+  });
+
   it("does not dual-mount giant hero numeral and compass on a scored fold", () => {
     const { container } = render(
       <HomeFold
         {...base}
-        latest={{ id: "a3", overallScore: 82 }}
+        latest={{ id: "a3", overallScore: 82, pillars }}
         verdict="READY"
         stopMessages={[]}
         foldSentence="Financial Reality is the softest pillar on this read."

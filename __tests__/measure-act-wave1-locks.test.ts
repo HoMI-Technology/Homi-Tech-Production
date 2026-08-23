@@ -32,7 +32,9 @@ describe("Measure-Act Wave 1 locks", () => {
     const fold = read("components/dashboard/HomeFold.tsx");
     expect(fold).toContain("LastReadChrome");
     expect(fold).toContain("data-home-score-rail");
-    expect(fold).toContain("VerdictBadge");
+    // VerdictBadge lives in the shared ScoreRail the fold now mounts.
+    expect(fold).toContain("ScoreRail");
+    expect(read("components/score/ScoreRail.tsx")).toContain("VerdictBadge");
     expect(fold).not.toMatch(/MoneyPictureDirection/);
   });
 
