@@ -139,7 +139,7 @@ export const ARCHITECTURE_DB_TABLES: ArchitectureDbTable[] = [
   },
   {
     name: "plaid_liabilities",
-    columns: ["id", "user_id"],
+    columns: ["id", "user_id", "account_id"],
     rls: true,
     category: "user",
     description: "Plaid credit/student/mortgage liabilities",
