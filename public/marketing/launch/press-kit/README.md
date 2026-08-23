@@ -1,6 +1,6 @@
 # HōMI Press Kit (v1)
 
-**Company:** HOMI TECHNOLOGIES LLC  
+**Company:** Homi Technologies LLC  
 **Product:** HōMI — Decision Companion / Decision Readiness Intelligence™  
 **Site:** https://homitechnology.com  
 **Founder:** Chike “Wally” Wali  

@@ -7,7 +7,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 export const metadata: Metadata = pageMetadata({
   title: "Privacy Policy",
   description:
-    "How HOMI TECHNOLOGIES LLC collects, stores, and protects your data. We do not sell your data — ever.",
+    "How Homi Technologies LLC collects, stores, and protects your data. We do not sell your data — ever.",
   path: "/legal/privacy",
 });
 
@@ -380,7 +380,7 @@ export default function PrivacyPage() {
           <div id="transfers">
             <h2 className="type-h3">International data transfer</h2>
             <p className="mt-3 leading-relaxed">
-              We are a United States company based in Palm Springs, Florida. Some subprocessors
+              We are a United States company. Some subprocessors
               operate servers in other countries. If you use the Service from outside the United
               States, your information is processed in the United States and in those vendor
               locations. We do not operate a GDPR transfer program and do not offer standard
@@ -413,9 +413,9 @@ export default function PrivacyPage() {
             <p className="mt-3 leading-relaxed">
               {BRAND.legalEntity}
               <br />
-              3072 Floweva St
+              651 N Broad St, Suite 201
               <br />
-              Palm Springs, FL 33406
+              Middletown, DE 19709
             </p>
             <p className="mt-3 leading-relaxed">
               Email:{" "}

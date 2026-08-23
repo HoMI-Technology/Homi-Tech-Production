@@ -1,7 +1,7 @@
 # HōMI
 
 **HōMI** (Decision Readiness Intelligence™) is a production full-stack platform,
-built by HOMI TECHNOLOGIES LLC, that helps people know whether they are truly
+built by Homi Technologies LLC, that helps people know whether they are truly
 ready for a major life decision — starting with home buying. Instead of a
 generic pre-qualification calculator, HōMI runs a structured assessment across
 three pillars — **Financial Reality**, **Emotional Truth**, and **Perfect
@@ -148,7 +148,7 @@ truth and `lib/scoring/weights.ts` is a C2-restricted trade-secret boundary.
 
 ---
 
-HōMI is a product of HOMI TECHNOLOGIES LLC. HōMI is not a lender, mortgage
+HōMI is a product of Homi Technologies LLC. HōMI is not a lender, mortgage
 broker, registered investment advisor, credit bureau, real estate agent or
 brokerage, financial planner, bank or deposit institution, or product
 recommendation engine. HōMI provides educational guidance only and does not

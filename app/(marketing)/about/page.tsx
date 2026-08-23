@@ -7,7 +7,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 export const metadata: Metadata = pageMetadata({
   title: "About HōMI",
   description:
-    "HōMI is a product of HOMI TECHNOLOGIES LLC — a Decision Companion designed without transaction pressure. Here's what we are, and what we are not.",
+    "HōMI is a product of Homi Technologies LLC — a Decision Companion designed without transaction pressure. Here's what we are, and what we are not.",
   path: "/about",
 });
 

@@ -7,7 +7,7 @@
 export const BRAND = {
   name: "HōMI",
   display: "HōMI",
-  legalEntity: "HOMI TECHNOLOGIES LLC",
+  legalEntity: "Homi Technologies LLC",
   domain: "homitechnology.com",
   category: "Decision Readiness Intelligence™",
 } as const;
@@ -128,7 +128,7 @@ export const PILLARS = [
 ];
 
 export const LEGAL_DISCLAIMER =
-  "HōMI is a product of HOMI TECHNOLOGIES LLC. HōMI is not a lender, mortgage broker, registered investment advisor, credit bureau, real estate agent or brokerage, financial planner, bank or deposit institution, or product recommendation engine. HōMI provides educational guidance only and does not provide financial, legal, tax, mortgage, real estate, or investment advice.";
+  "HōMI is a product of Homi Technologies LLC. HōMI is not a lender, mortgage broker, registered investment advisor, credit bureau, real estate agent or brokerage, financial planner, bank or deposit institution, or product recommendation engine. HōMI provides educational guidance only and does not provide financial, legal, tax, mortgage, real estate, or investment advice.";
 
 export const TAGLINES = {
   primary: "Know when you're ready. Move when it matters.",

@@ -5,7 +5,7 @@
 **What this is not:** an iCloud/Drive import, a second org chart, or a rewrite of the GTM pillars. Inventories of old kits are **research only** — do not paste them here. The weekly engine stays [`../gtm/`](../gtm/). This folder is launch doctrine that sits beside it.
 
 **Owner / byline:** Founder only (no personal name in public lines)  
-**Entity:** HOMI TECHNOLOGIES LLC  
+**Entity:** Homi Technologies LLC  
 **Print category:** Decision Companion · Decision Readiness Intelligence™  
 **North star:** weekly activated users (completed readiness path)  
 **Engine:** LinkedIn founder + owned email · ~10–12 hrs/week  

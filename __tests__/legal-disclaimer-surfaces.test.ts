@@ -31,7 +31,7 @@ function readSrc(rel: string): string {
 describe("LEGAL_DISCLAIMER SSOT", () => {
   it("is the full verbatim canon string", () => {
     expect(LEGAL_DISCLAIMER).toBe(
-      "HōMI is a product of HOMI TECHNOLOGIES LLC. HōMI is not a lender, mortgage broker, registered investment advisor, credit bureau, real estate agent or brokerage, financial planner, bank or deposit institution, or product recommendation engine. HōMI provides educational guidance only and does not provide financial, legal, tax, mortgage, real estate, or investment advice.",
+      "HōMI is a product of Homi Technologies LLC. HōMI is not a lender, mortgage broker, registered investment advisor, credit bureau, real estate agent or brokerage, financial planner, bank or deposit institution, or product recommendation engine. HōMI provides educational guidance only and does not provide financial, legal, tax, mortgage, real estate, or investment advice.",
     );
   });
 });

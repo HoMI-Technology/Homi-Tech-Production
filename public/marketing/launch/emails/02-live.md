@@ -37,4 +37,4 @@ No urgency gimmicks. Explore when it serves you.
 Thank you for being early.
 
 — Founder  
-Founder, HōMI · HOMI TECHNOLOGIES LLC
+Founder, HōMI · Homi Technologies LLC

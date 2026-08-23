@@ -2,7 +2,7 @@
 
 ## Short (50 words)
 
-Chike “Wally” Wali is the founder of HōMI (HOMI TECHNOLOGIES LLC). He is building Decision Readiness Intelligence — a Decision Companion that asks whether you’ll be okay after a commitment, not whether you can get approved. Educational guidance only.
+Chike “Wally” Wali is the founder of HōMI (Homi Technologies LLC). He is building Decision Readiness Intelligence — a Decision Companion that asks whether you’ll be okay after a commitment, not whether you can get approved. Educational guidance only.
 
 ## Medium (120 words)
 
@@ -17,6 +17,6 @@ Wally’s work focuses on clarity without pressure: anti-shame language, educati
 ## Contact
 
 - Product: https://homitechnology.com  
-- Entity: HOMI TECHNOLOGIES LLC  
+- Entity: Homi Technologies LLC  
 - Press email: **[ADD BEFORE SEND]**  
 - Social: [ADD X / LinkedIn handles]

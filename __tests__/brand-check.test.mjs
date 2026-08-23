@@ -78,7 +78,7 @@ describe("preserved: original rule set", () => {
   it("still flags HoMI / HOMI and still carves out the legal entity", () => {
     expect(idsFor("const a = HoMI;")).toContain("N1");
     expect(idsFor("const a = HOMI;")).toContain("N2");
-    expect(clean("© HOMI TECHNOLOGIES LLC. All rights reserved.")).toBe(true);
+    expect(clean("© Homi Technologies LLC. All rights reserved.")).toBe(true);
   });
 
   it("still applies WEAK_CONTRAST_PATTERNS to tsx/jsx only", () => {

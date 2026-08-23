@@ -14,4 +14,4 @@ Building HōMI — the readiness layer before big financial decisions. Clarity o
 
 ## GitHub org
 
-Decision Readiness Intelligence. Product + engineering for HōMI (HOMI TECHNOLOGIES LLC).
+Decision Readiness Intelligence. Product + engineering for HōMI (Homi Technologies LLC).

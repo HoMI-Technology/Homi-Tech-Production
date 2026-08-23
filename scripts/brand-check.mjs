@@ -10,7 +10,7 @@
  *
  * Preserved from the original, byte-for-byte in behaviour:
  *   - FORBIDDEN_WORDS (deliberate superset), BANNED_HEXES, WEAK_CONTRAST_PATTERNS
- *   - the "HOMI TECHNOLOGIES" legal-entity carve-out
+ *   - the "Homi Technologies" legal-entity carve-out
  *   - `file:line  message` output, exit 1 on any violation
  *
  * Added coverage (see RULES below for the numbered inventory):
@@ -216,7 +216,7 @@ const FORBIDDEN_WORD_PATTERNS = FORBIDDEN_WORDS.map((word) => ({
  * the original script carved out the legal entity name.
  */
 const BRAND_CARVE_OUTS = [
-  /HOMI TECHNOLOGIES/g, // legal entity — preserved from the original script
+  /Homi Technologies/g, // registered legal entity (Homi Technologies LLC) — the HōMI macron rule does not apply to the entity string
   /HoMI-Technology/g, // GitHub org slug
   /Homi-Tech-Production/g, // GitHub repo slug
   /homi-tech-production/g,

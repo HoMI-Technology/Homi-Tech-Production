@@ -1,7 +1,7 @@
 # HōMI Solo Founder GTM Operating System (v1)
 
 **Owner:** Founder (Chike “Wally” Wali)  
-**Entity:** HOMI TECHNOLOGIES LLC  
+**Entity:** Homi Technologies LLC  
 **Product:** HōMI — Decision Companion / Decision Readiness Intelligence™  
 **Site:** https://homitechnology.com  
 **Doctrine:** Blow up through **trust + activation + owned audience**, not through approval theater or FOMO.  
