@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { nextDailyResetIso, nextMonthlyResetIso, summarizeAdvisorUsage } from "@/lib/advisor/usage";
 import { formatQuotaReset, nextTierUp, overQuotaCopy } from "@/lib/advisor/quota-copy";
@@ -128,5 +129,24 @@ describe("formatQuotaReset", () => {
     expect(formatQuotaReset("monthly", "2026-09-01T00:00:00.000Z")).toMatch(
       /Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec/,
     );
+  });
+});
+
+describe("SQL/TS lockstep", () => {
+  // The day boundary exists twice: once in the quota RPC, once in lib/advisor/usage.ts.
+  // Only a comment held them together, and a comment does not fail a build. If the SQL
+  // bucket ever moves (e.g. a fixed offset, or a per-user timezone), usage.ts must move
+  // with it — otherwise the reset time shown to users silently becomes wrong while every
+  // other test still passes.
+  const sql = readFileSync("supabase/migrations/00030_advisor_monthly_quota.sql", "utf8");
+
+  it("the RPC still buckets on a bare UTC current_date", () => {
+    expect(sql).toMatch(/values \(uid, current_date, 0\)/);
+    expect(sql).toMatch(/date_trunc\('month', current_date\)/);
+  });
+
+  it("the RPC applies no timezone or offset that usage.ts does not model", () => {
+    expect(sql).not.toMatch(/at time zone/i);
+    expect(sql).not.toMatch(/current_date\s*[-+]\s*interval/i);
   });
 });
