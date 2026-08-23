@@ -62,12 +62,21 @@ export function UpgradePanel({
         <p className="mt-3 text-sm leading-relaxed text-dim">{body}</p>
 
         {preview && (
-          <div
-            aria-hidden
-            className="pointer-events-none mt-6 select-none overflow-hidden rounded-xl border border-slate-surface/60 opacity-60"
-          >
-            {preview}
-          </div>
+          <figure className="mt-6 overflow-hidden rounded-xl border border-slate-surface/60">
+            {/* The label is deliberately OUTSIDE the aria-hidden wrapper. Marking the
+                whole figure decorative would hide "Example" from screen readers while
+                still showing numbers to everyone else — which is the unlabeled-number
+                problem with extra steps. The caption is announced; the drawing is not. */}
+            <figcaption className="flex items-center justify-between border-b border-slate-surface/60 bg-slate-surface/30 px-3 py-1.5">
+              <span className="text-2xs font-medium uppercase tracking-wider text-dim">
+                Example — not your numbers
+              </span>
+              <span className="text-2xs text-dim/70">{tierLabel}</span>
+            </figcaption>
+            <div className="pointer-events-none select-none px-3 py-3 opacity-70" aria-hidden>
+              {preview}
+            </div>
+          </figure>
         )}
 
         {/* One line, price first. `body` already names the tier, so repeating it here
