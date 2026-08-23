@@ -35,10 +35,17 @@ describe("architecture feed canon", () => {
     expect(TOOL_ALIASES["/tools/apr-comparison"]).toBe("/tools/apr-compare");
   });
 
-  it("keeps dual-stable verdict vocabulary", () => {
+  it("locks scoring internals while keeping dual-stable verdict vocabulary", () => {
     const scoring = buildScoringEngine();
-    expect(scoring.verdict_thresholds.NOT_YET.key).toBe("NOT_YET");
-    expect(scoring.verdict_thresholds.NOT_YET.label).toBe("DO NOT PROCEED");
+    // Trade-secret lockdown: no maxScores, no threshold bands, no hard-stop
+    // conditions/values in the public feed.
+    expect(scoring.verdict_thresholds.published).toBe(false);
+    expect(scoring.hard_stops.published).toBe(false);
+    expect(scoring.pillars.every((p) => !("maxScore" in p))).toBe(true);
+    expect(JSON.stringify(scoring)).not.toMatch(/"min"\s*:\s*\d|"max"\s*:\s*\d/);
+    // Vocabulary layers still documented (docs/adr/001-verdict-vocabulary.md).
+    expect(scoring.vocabulary_note).toContain("NOT_YET");
+    expect(scoring.vocabulary_note).toContain("DO NOT PROCEED");
     expect(JSON.stringify(scoring)).not.toMatch(/#fb923c|#ef4444/i);
   });
 

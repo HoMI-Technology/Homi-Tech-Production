@@ -1,20 +1,20 @@
 {
   "_meta": {
     "version": "v1",
-    "generated": "2026-08-20",
+    "generated": "2026-08-23",
     "product": "HōMI",
-    "full_name": "HOMI TECHNOLOGIES LLC — Decision Readiness Intelligence™",
+    "full_name": "Homi Technologies LLC — Decision Readiness Intelligence™",
     "domain": "homitechnology.com",
     "repo": "github.com/HoMI-Technology/Homi-Tech-Production",
     "core_question": "Will you be okay?",
     "stack": "Next.js 15 + React 19 + TypeScript + Tailwind CSS v4 + Supabase + Stripe + Plaid + Anthropic",
-    "legal_entity": "HOMI TECHNOLOGIES LLC",
+    "legal_entity": "Homi Technologies LLC",
     "feed_url": "https://homitechnology.com/architecture.json",
     "authority": "Executable TypeScript in this repo wins over this document. Prefer lib/scoring, lib/brand, lib/agents/registry on conflict."
   },
   "stats": {
     "product_routes": 103,
-    "api_routes": 28,
+    "api_routes": 27,
     "component_directories": 34,
     "lib_modules": 51,
     "db_tables": 42,
@@ -939,11 +939,6 @@
       "path": "/api/scoring",
       "purpose": "Score computation",
       "method": "POST"
-    },
-    {
-      "path": "/api/shadow-shares",
-      "purpose": "Anonymous sharing",
-      "method": "GET/POST"
     },
     {
       "path": "/api/shares",
@@ -2321,77 +2316,30 @@
       {
         "key": "financial",
         "name": "Financial Reality",
-        "maxScore": 35,
         "color": "#22d3ee",
         "question": "Can you afford it?"
       },
       {
         "key": "emotional",
         "name": "Emotional Truth",
-        "maxScore": 35,
         "color": "#34d399",
         "question": "Do you really want it?"
       },
       {
         "key": "timing",
         "name": "Perfect Timing",
-        "maxScore": 30,
         "color": "#facc15",
         "question": "Is now the right moment?"
       }
     ],
     "verdict_thresholds": {
-      "READY": {
-        "key": "READY",
-        "label": "READY",
-        "min": 80,
-        "max": 100,
-        "color": "#34d399"
-      },
-      "ALMOST_THERE": {
-        "key": "ALMOST_THERE",
-        "label": "ALMOST THERE",
-        "min": 65,
-        "max": 79,
-        "color": "#facc15"
-      },
-      "BUILD_FIRST": {
-        "key": "BUILD_FIRST",
-        "label": "BUILD FIRST",
-        "min": 50,
-        "max": 64,
-        "color": "#fab633"
-      },
-      "NOT_YET": {
-        "key": "NOT_YET",
-        "label": "DO NOT PROCEED",
-        "min": 0,
-        "max": 49,
-        "color": "#f24822"
-      }
+      "published": false,
+      "note": "Exact verdict threshold bands are proprietary and are not published in this feed. Verdict vocabulary is unchanged: READY, ALMOST THERE, BUILD FIRST, DO NOT PROCEED."
     },
-    "hard_stops": [
-      {
-        "code": "DTI_OVER_50",
-        "condition": "Debt-to-income > 50%",
-        "effect": "Forced NOT_YET regardless of score"
-      },
-      {
-        "code": "HOUSING_OVER_45",
-        "condition": "Housing cost > 45% of income",
-        "effect": "Forced NOT_YET regardless of score"
-      },
-      {
-        "code": "RUNWAY_UNDER_1",
-        "condition": "Less than 1 month runway",
-        "effect": "Forced NOT_YET regardless of score"
-      },
-      {
-        "code": "CREDIT_UNDER_620",
-        "condition": "Credit score under 620",
-        "effect": "Forced NOT_YET regardless of score"
-      }
-    ],
+    "hard_stops": {
+      "published": false,
+      "note": "Hard-stop conditions and their exact values are proprietary and are not published in this feed."
+    },
     "vocabulary_note": "Storage/API enum is NOT_YET; user-facing badge label is DO NOT PROCEED; calm prose may still say “not yet.” See docs/adr/001-verdict-vocabulary.md."
   },
   "brand": {
@@ -2446,7 +2394,7 @@
       "readiness assessment",
       "educational guidance"
     ],
-    "disclaimer": "HōMI is a product of HOMI TECHNOLOGIES LLC. HōMI is not a lender, mortgage broker, registered investment advisor, credit bureau, real estate agent or brokerage, financial planner, bank or deposit institution, or product recommendation engine. HōMI provides educational guidance only and does not provide financial, legal, tax, mortgage, real estate, or investment advice.",
+    "disclaimer": "HōMI is a product of Homi Technologies LLC. HōMI is not a lender, mortgage broker, registered investment advisor, credit bureau, real estate agent or brokerage, financial planner, bank or deposit institution, or product recommendation engine. HōMI provides educational guidance only and does not provide financial, legal, tax, mortgage, real estate, or investment advice.",
     "positioning": "Readiness layer — never a credit score replacement"
   },
   "tool_aliases": {

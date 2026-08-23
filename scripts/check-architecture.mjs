@@ -45,9 +45,30 @@ function main() {
     }
   }
 
-  const notYet = doc.scoring_engine?.verdict_thresholds?.NOT_YET;
-  if (!notYet || notYet.label !== "DO NOT PROCEED" || notYet.key !== "NOT_YET") {
-    fail("NOT_YET threshold must keep key NOT_YET and label DO NOT PROCEED");
+  const scoring = doc.scoring_engine;
+  if (!scoring) {
+    fail("scoring_engine section missing");
+  }
+
+  // Trade-secret lockdown: the public feed must NOT publish exact scoring
+  // internals (pillar maxScores, verdict bands, hard-stop conditions/values).
+  if (scoring.verdict_thresholds?.published !== false) {
+    fail("scoring_engine.verdict_thresholds must be locked to { published: false }");
+  }
+  if (scoring.hard_stops?.published !== false) {
+    fail("scoring_engine.hard_stops must be locked to { published: false }");
+  }
+  for (const pillar of scoring.pillars || []) {
+    if ("maxScore" in pillar) {
+      fail(`pillar ${pillar.key} must not publish maxScore`);
+    }
+  }
+
+  if (
+    !scoring.vocabulary_note?.includes("NOT_YET") ||
+    !scoring.vocabulary_note?.includes("DO NOT PROCEED")
+  ) {
+    fail("vocabulary_note must keep key NOT_YET and label DO NOT PROCEED");
   }
 
   if (!doc.tool_aliases?.["/tools/mortgage-payment"]) {
