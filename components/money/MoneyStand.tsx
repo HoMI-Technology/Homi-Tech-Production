@@ -23,6 +23,7 @@ import type { FinanceCompleteness } from "@/lib/finance/readiness-snapshot";
 import { cashFlowTemperature, runwayTemperature, type Temperature } from "@/lib/finance/store";
 import { formatCurrency, formatPercent } from "@/lib/tools/format";
 import { ObservedPrefillCard } from "@/components/finance/ObservedPrefillCard";
+import { InvestmentsSummary } from "@/components/money/InvestmentsSummary";
 import { MoneyRecheckPrompt } from "@/components/money/MoneyRecheckPrompt";
 import { ProvenanceLine } from "@/components/results/ProvenanceLine";
 import { loadConfirmedFinancePrefill } from "@/lib/finance/prefill-confirm";
@@ -324,6 +325,11 @@ export function MoneyStand({ readiness = null }: { readiness?: ScoreRailReading 
           color={COLORS.emerald}
         />
       </div>
+
+      {/* ── Investments fold (Phase 5): compact summary + entry point to the
+          full /money/investments sub-route — below the Steady Cash instrument,
+          never above the ScoreRail. The route stays live; no UI duplication. ── */}
+      <InvestmentsSummary />
 
       <ProvenanceLine provenance={moneyProvenance} />
       <MoneyRecheckPrompt metrics={metrics} />
