@@ -98,7 +98,7 @@ describe("robots.txt crawl control", () => {
 
 describe("pageMetadata OG matches HTML title/meta", () => {
   it("homepage canonical is the trailing-slash live URL and title does not lead with the tagline", () => {
-    const title = "Decision Readiness · A Decision Companion · HōMI";
+    const title = "Decision Readiness Intelligence · A Decision Companion · HōMI";
     const meta = pageMetadata({
       title,
       description:
@@ -116,7 +116,7 @@ describe("pageMetadata OG matches HTML title/meta", () => {
 
   it("absolute locked titles are used for both <title> and og:title", () => {
     const locked: [string, string][] = [
-      ["/", "Decision Readiness · A Decision Companion · HōMI"],
+      ["/", "Decision Readiness Intelligence · A Decision Companion · HōMI"],
       ["/how-it-works", "How it works · HōMI"],
       ["/pricing", "Pricing · HōMI"],
       ["/first-moment", "First Moment · HōMI"],
@@ -137,7 +137,7 @@ describe("pageMetadata OG matches HTML title/meta", () => {
 describe("locked title/meta lines", () => {
   it("pins the four Tech SEO titles exactly", () => {
     const titles: [string[], string][] = [
-      [["app", "(marketing)", "page.tsx"], "Decision Readiness · A Decision Companion · HōMI"],
+      [["app", "(marketing)", "page.tsx"], "Decision Readiness Intelligence · A Decision Companion · HōMI"],
       [["app", "(marketing)", "how-it-works", "page.tsx"], "How it works · HōMI"],
       [["app", "(marketing)", "pricing", "page.tsx"], "Pricing · HōMI"],
       [["app", "(marketing)", "first-moment", "page.tsx"], "First Moment · HōMI"],
@@ -149,7 +149,7 @@ describe("locked title/meta lines", () => {
   });
   it("locks the homepage title to Decision Readiness and keeps the live meta", () => {
     const page = src("app", "(marketing)", "page.tsx");
-    expect(page).toContain('title: "Decision Readiness · A Decision Companion · HōMI"');
+    expect(page).toContain('title: "Decision Readiness Intelligence · A Decision Companion · HōMI"');
     expect(page).toContain("absolute: true");
     expect(page).not.toContain("Know When You're Ready — Decision Readiness Intelligence™");
     expect(page).not.toMatch(/title: "Know When You're Ready/);

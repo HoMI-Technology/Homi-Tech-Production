@@ -139,7 +139,7 @@ describe("share cards — default OG / Twitter strings", () => {
     const pricing = readFileSync(join(APP, "(marketing)/pricing/page.tsx"), "utf8");
     const firstMoment = readFileSync(join(APP, "(marketing)/first-moment/page.tsx"), "utf8");
     expect(layout).toContain('default: "HōMI"');
-    expect(home).toContain('title: "Decision Readiness · A Decision Companion · HōMI"');
+    expect(home).toContain('title: "Decision Readiness Intelligence · A Decision Companion · HōMI"');
     expect(how).toContain('title: "How it works · HōMI"');
     expect(pricing).toContain('title: "Pricing · HōMI"');
     expect(firstMoment).toContain('title: "First Moment · HōMI"');
