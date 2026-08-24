@@ -70,6 +70,64 @@ export default function GuidesHubPage() {
         <section className="px-6 py-16">
           <div className="mx-auto max-w-6xl">
             <div className="mx-auto max-w-3xl text-center">
+              <h2 className="type-h2">Reference</h2>
+              <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-dim">
+                Two pages worth keeping open while you read everything else: the vocabulary of
+                readiness, and the conditions serious enough to pause any reading.
+              </p>
+            </div>
+            <div className="mt-10 grid gap-6 md:grid-cols-2">
+              <Reveal>
+                <Link
+                  href="/guides/glossary"
+                  className="group glass glass-hover flex h-full flex-col p-8"
+                >
+                  <h3 className="type-h3">The Decision Readiness Glossary</h3>
+                  <p className="mt-3 flex-1 text-sm leading-relaxed text-dim">
+                    The language of readiness, defined in one place — the pillars, the verdicts,
+                    and the terms behind them.
+                  </p>
+                  <span className="mt-6 text-sm font-semibold text-cyan">
+                    Read the glossary{" "}
+                    <span
+                      aria-hidden
+                      className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1"
+                    >
+                      &rarr;
+                    </span>
+                  </span>
+                </Link>
+              </Reveal>
+              <Reveal delay={100}>
+                <Link
+                  href="/guides/hard-stops"
+                  className="group glass glass-hover flex h-full flex-col p-8"
+                >
+                  <h3 className="type-h3">Hard Stops — When to Wait</h3>
+                  <p className="mt-3 flex-1 text-sm leading-relaxed text-dim">
+                    The handful of conditions serious enough to pause any readiness reading on
+                    their own — and why waiting there protects you.
+                  </p>
+                  <span className="mt-6 text-sm font-semibold text-cyan">
+                    Read the guide{" "}
+                    <span
+                      aria-hidden
+                      className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1"
+                    >
+                      &rarr;
+                    </span>
+                  </span>
+                </Link>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+      </Reveal>
+
+      <Reveal>
+        <section className="px-6 py-16">
+          <div className="mx-auto max-w-6xl">
+            <div className="mx-auto max-w-3xl text-center">
               <h2 className="type-h2">Learning</h2>
               <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-dim">
                 Guides are how. Learning is why. The reasoning behind the thresholds — the math, the

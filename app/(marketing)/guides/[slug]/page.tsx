@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Reveal } from "@/components/ui/Reveal";
 import { GUIDES, getAllGuideSlugs, getGuide } from "@/components/marketing/guides-data";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { articleJsonLd } from "@/lib/seo/schema";
+import { articleJsonLd, faqPageJsonLd } from "@/lib/seo/schema";
 import { SITE_URL } from "@/lib/seo/site";
 import { pageMetadata } from "@/lib/seo/metadata";
 
@@ -55,6 +55,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
           SITE_URL,
         )}
       />
+      {guide.faqs ? <JsonLd data={faqPageJsonLd(guide.faqs)} /> : null}
       <section className="px-6 pb-12 pt-16 md:pt-24">
         <div className="mx-auto max-w-3xl">
           <Link href="/guides" className="text-sm text-dim transition-colors hover:text-cyan">
@@ -83,6 +84,24 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
           </div>
         </section>
       </Reveal>
+
+      {guide.faqs ? (
+        <Reveal>
+          <section className="px-6 py-16">
+            <div className="mx-auto max-w-3xl">
+              <h2 className="type-h2">Common questions</h2>
+              <div className="mt-10 space-y-4">
+                {guide.faqs.map((item) => (
+                  <div key={item.q} className="glass p-6">
+                    <h3 className="type-h4">{item.q}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-dim">{item.a}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        </Reveal>
+      ) : null}
 
       <Reveal>
         <section className="px-6 py-16">

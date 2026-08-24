@@ -114,6 +114,14 @@ const TERMS: GlossaryEntry[] = [
   },
 ];
 
+/** Stable per-term anchor id: lowercase, non-alphanumeric runs collapse to one hyphen. */
+function slugify(term: string): string {
+  return term
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export const metadata: Metadata = pageMetadata({
   title: "The Decision Readiness Glossary",
   description:
@@ -149,7 +157,7 @@ export default function GlossaryPage() {
         <section className="px-6 py-16">
           <div className="mx-auto max-w-3xl space-y-6">
             {TERMS.map((entry) => (
-              <div key={entry.term} className="glass p-6">
+              <div key={entry.term} id={slugify(entry.term)} className="glass p-6">
                 <h2 className="font-display text-xl text-light">{entry.term}</h2>
                 <p className="mt-3 leading-relaxed text-dim">{entry.definition}</p>
                 {entry.href ? (
