@@ -111,6 +111,7 @@ export default function DownPaymentPage() {
 
   return (
     <ToolShell
+      relatedGuide={LENS.relatedGuide}
       title="Down Payment Goal"
       description={`How long it will actually take to hit your down payment target, given what you have saved and what you're realistically able to set aside each month.`}
     >

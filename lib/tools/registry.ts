@@ -113,6 +113,9 @@ export interface LensDefinition {
   placement: LensPlacement;
   inputs?: LensInputSpec[];
   chains?: LensChain[];
+  /** Quiet educational cross-reference to a topically matching guide.
+   * Rendered near the bottom of ToolShell — never a conversion push. */
+  relatedGuide?: { href: string; label: string };
 }
 
 /** Shared derivations used by several lenses. */
@@ -167,6 +170,7 @@ export const LENSES: LensDefinition[] = [
     accent: "#f24822",
     gate: "free",
     placement: "more",
+    relatedGuide: { href: "/guides/afford-is-not-ready", label: "Afford is not the same as ready" },
   },
   {
     id: "path-to-ready",
@@ -199,6 +203,10 @@ export const LENSES: LensDefinition[] = [
     accent: "#34d399",
     gate: "plus",
     placement: "hub",
+    relatedGuide: {
+      href: "/guides/how-much-house-you-can-actually-afford",
+      label: "How much house you can actually afford",
+    },
     inputs: [
       {
         key: "income",
@@ -372,6 +380,10 @@ export const LENSES: LensDefinition[] = [
     accent: "#facc15",
     gate: "plus",
     placement: "deep-link",
+    relatedGuide: {
+      href: "/guides/timing-the-market-vs-timing-your-life",
+      label: "Timing the market vs. timing your life",
+    },
     inputs: [
       {
         key: "rent",
@@ -420,6 +432,10 @@ export const LENSES: LensDefinition[] = [
     accent: "#22d3ee",
     gate: "plus",
     placement: "deep-link",
+    relatedGuide: {
+      href: "/guides/am-i-ready-to-buy-a-house",
+      label: "Am I ready to buy a house?",
+    },
     inputs: [
       {
         key: "price",
@@ -585,6 +601,10 @@ export const LENSES: LensDefinition[] = [
     accent: "#34d399",
     gate: "plus",
     placement: "hub",
+    relatedGuide: {
+      href: "/guides/readiness-score-vs-credit-score",
+      label: "Readiness score vs. credit score",
+    },
     inputs: [
       {
         key: "homePrice",
@@ -635,6 +655,10 @@ export const LENSES: LensDefinition[] = [
     accent: "#34d399",
     gate: "free",
     placement: "deep-link",
+    relatedGuide: {
+      href: "/guides/emergency-runway-before-everything",
+      label: "Emergency runway before everything",
+    },
     inputs: [
       {
         key: "expenses",
@@ -668,6 +692,7 @@ export const LENSES: LensDefinition[] = [
     accent: "#fab633",
     gate: "plus",
     placement: "hub",
+    relatedGuide: { href: "/guides/build-first-playbook", label: "The Build First Playbook" },
     chains: [{ lensId: "runway", pitch: "Watch runway grow as payments disappear", carry: [] }],
   },
   {

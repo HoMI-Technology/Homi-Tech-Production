@@ -10,7 +10,10 @@ import { PREFLIGHT_DISCLAIMER } from "@/lib/readiness/preflight-copy";
 import { useLatestAssessment } from "@/hooks/use-latest-assessment";
 import { hasSavedFinanceState, loadFinanceState } from "@/lib/finance/store";
 import { formatCurrency } from "@/lib/tools/format";
+import { getLens } from "@/lib/tools/registry";
 import { fetchSimulatorBatch, SimulatorRequestError } from "@/lib/simulator/client";
+
+const LENS = getLens("preflight")!;
 
 type PreflightView = {
   verdict: "PROCEED_WITH_CARE" | "WAIT" | "DO_NOT_PROCEED";
@@ -106,6 +109,7 @@ export default function PreflightPage() {
   return (
     <ToolShell
       eyebrow="Readiness · Pre-Flight"
+      relatedGuide={LENS.relatedGuide}
       title="Decision Pre-Flight"
       description="Sixty-second honesty check before you sign, bid, or stretch. Protective gates first — not a lender decision."
     >

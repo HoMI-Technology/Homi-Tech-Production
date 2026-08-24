@@ -58,6 +58,7 @@ export default function RunwayPage() {
 
   return (
     <ToolShell
+      relatedGuide={LENS.relatedGuide}
       title="Emergency Runway"
       description={`Runway comes first. Before any big purchase, any investment, any leap — this is the number that tells you how long you can absorb a shock.`}
     >

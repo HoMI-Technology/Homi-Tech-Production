@@ -138,6 +138,7 @@ function DebtPayoffPageInner() {
 
   return (
     <ToolShell
+      relatedGuide={LENS.relatedGuide}
       title="Debt Payoff"
       description={`Avalanche pays the highest interest rate first — mathematically optimal. Snowball pays the smallest balance first — psychologically easier for some. Both are shown honestly, side by side.`}
     >
