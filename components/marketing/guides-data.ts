@@ -15,6 +15,8 @@ export interface Guide {
   title: string;
   description: string;
   sections: GuideSection[];
+  /** Optional on-page Q&As — rendered as a "Common questions" section and shipped as FAQPage JSON-LD. */
+  faqs?: { q: string; a: string }[];
 }
 
 export const GUIDES: Guide[] = [
@@ -101,6 +103,24 @@ export const GUIDES: Guide[] = [
           "You can run this check informally with the questions above — honestly asked, they will get you most of the way. If you want a structured read, HōMI’s assessment walks all three pillars and returns a Decision Readiness Score with a verdict and the specific gaps to build first. It is free, it is educational guidance rather than advice or approval, and no part of it earns anything from what you decide.",
           "Either way, the standard stays the same: being able to afford something is not the same as being ready to buy it. Answer the readiness question first, and every later question — lender, agent, offer — gets easier and safer.",
         ],
+      },
+    ],
+    faqs: [
+      {
+        q: "Is being approved the same as being ready?",
+        a: "No. Approval is the lender’s answer about their own risk — whether someone will fund the commitment. Readiness is your answer about your life: after the keys, the closing costs, and the first surprise repair, will you be okay? HōMI exists for that second question, as educational guidance — not an approval, and not advice.",
+      },
+      {
+        q: "How long does getting ready take?",
+        a: "As long as your specific gap takes — readiness moves. Some gaps close in a season of focused building; others need longer, and pretending otherwise helps no one. The verdict names your binding constraint and the next move, so the pace is set by your life, not by a countdown someone else is running.",
+      },
+      {
+        q: "What if my partner and I disagree?",
+        a: "Disagreement is signal, not an obstacle to steamroll. Emotional Truth treats alignment between the people deciding as part of readiness itself — a commitment this size carried by one yes and one maybe tends to cost more than waiting would. Take the read together, name the gap out loud, and let the honest picture set the tempo.",
+      },
+      {
+        q: "Does HōMI decide for me?",
+        a: "No. HōMI is a Decision Companion: educational guidance only, with no stake in your answer. The assessment shows you your own picture — the score, the verdict, and the specific gaps to build first — and the decision stays yours, including the decision to wait.",
       },
     ],
   },

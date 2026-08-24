@@ -292,3 +292,11 @@ reconciles env. The visible terminal is `npm run dev` on
   route, trace what it pulls in.** `npm run analyze` (ANALYZE=true build, bash
   or CI — local Windows builds are SAC-blocked) emits client/server treemaps;
   diagnose regressions by import-trace, never by guessing.
+
+## Worktree node_modules (2026-08-23)
+
+Worktrees under C:/dev/worktrees share node_modules via Windows junctions.
+NEVER run `npm install` inside a junctioned worktree: npm silently replaces
+the junction with a real directory, the shared install never receives the
+package, and sibling worktrees break. Install new dependencies in a worktree
+with a real node_modules (or the junction's target), then recreate junctions.
