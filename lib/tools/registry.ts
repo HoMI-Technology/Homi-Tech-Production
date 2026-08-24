@@ -602,8 +602,8 @@ export const LENSES: LensDefinition[] = [
     gate: "plus",
     placement: "hub",
     relatedGuide: {
-      href: "/guides/readiness-score-vs-credit-score",
-      label: "Readiness score vs. credit score",
+      href: "/guides/the-620-line-credit-before-keys",
+      label: "The 620 line: credit before keys",
     },
     inputs: [
       {

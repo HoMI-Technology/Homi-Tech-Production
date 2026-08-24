@@ -47,3 +47,48 @@ describe("tool → guide cross-links", () => {
     }
   });
 });
+
+/**
+ * Wiring guard (GAMMA review S1): a dropped `relatedGuide={LENS.relatedGuide}`
+ * on a page, or a broken ToolShell conditional, must fail the suite — the
+ * dead-link checks above cannot see rendering.
+ */
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { renderToStaticMarkup } from "react-dom/server";
+import { createElement } from "react";
+import { ToolShell } from "@/components/tools/ToolShell";
+
+describe("related-guide rendering and page wiring", () => {
+  it("ToolShell renders the link when given, and nothing when absent", () => {
+    const withGuide = renderToStaticMarkup(
+      createElement(ToolShell, {
+        title: "T",
+        subtitle: "S",
+        relatedGuide: { href: "/guides/build-first-playbook", label: "The Build First Playbook" },
+        children: null,
+      } as never),
+    );
+    expect(withGuide).toContain("Related guide");
+    expect(withGuide).toContain('href="/guides/build-first-playbook"');
+    expect(withGuide).toContain("The Build First Playbook");
+
+    const without = renderToStaticMarkup(
+      createElement(ToolShell, { title: "T", subtitle: "S", children: null } as never),
+    );
+    expect(without).not.toContain("Related guide");
+  });
+
+  it("every lens with a relatedGuide has its page passing the prop", () => {
+    for (const lens of lensesWithGuides) {
+      const slug = lens.path.split("/").pop()!;
+      const page = readFileSync(
+        join(process.cwd(), "app", "(product)", "tools", slug, "page.tsx"),
+        "utf8",
+      );
+      expect(page, `${lens.path} page does not wire relatedGuide`).toContain(
+        "relatedGuide={LENS.relatedGuide}",
+      );
+    }
+  });
+});
