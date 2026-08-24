@@ -69,7 +69,7 @@ function verdictLabel(verdict: VerdictKey): string {
 
 export function greeting(): string {
   return (
-    "Hey. I'm HōMI — your homie for this decision, not your banker and not a hype man. " +
+    "Hey. I'm HōMI — your HōMI for this decision, not your banker and not a hype man. " +
     "Ask about your cash flow, runway, portfolio, path, or whether you're ready. " +
     "I'll tell you the truth, even when it's \"not yet.\""
   );

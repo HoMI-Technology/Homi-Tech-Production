@@ -24,7 +24,7 @@ const healthyCtx: CompanionFinanceContext = {
 describe("planner companion voice", () => {
   it("greeting voice is character-exact with macron brand spelling", () => {
     const g = greeting();
-    expect(g).toContain("your homie for this decision, not your banker and not a hype man");
+    expect(g).toContain("your HōMI for this decision, not your banker and not a hype man");
     expect(g).toContain("HōMI");
   });
 
