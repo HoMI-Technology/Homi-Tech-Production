@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 
 import { COLORS, withAlpha } from "@/lib/brand";
 import { ToolBackLink } from "@/components/tools/ToolBackLink";
@@ -16,6 +17,7 @@ export function ToolShell({
   children,
   backHref,
   backLabel,
+  relatedGuide,
 }: {
   title: string;
   description: string;
@@ -23,6 +25,8 @@ export function ToolShell({
   children: ReactNode;
   backHref?: string;
   backLabel?: string;
+  /** Quiet educational cross-reference (from the lens registry). Renders below the tool. */
+  relatedGuide?: { href: string; label: string };
 }) {
   return (
     <div className="mx-auto max-w-6xl px-6 py-10 sm:py-12" data-tool-lens="">
@@ -36,6 +40,18 @@ export function ToolShell({
       </p>
 
       <div className="mt-8">{children}</div>
+
+      {relatedGuide && (
+        <p className="mt-10 text-sm text-dim" data-tool-related-guide="">
+          Related guide:{" "}
+          <Link
+            href={relatedGuide.href}
+            className="text-cyan underline decoration-cyan/40 underline-offset-4 transition-colors hover:decoration-cyan"
+          >
+            {relatedGuide.label}
+          </Link>
+        </p>
+      )}
     </div>
   );
 }

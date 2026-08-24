@@ -143,6 +143,7 @@ export default function RentVsBuyPage() {
 
   return (
     <ToolShell
+      relatedGuide={LENS.relatedGuide}
       title="Rent vs. Buy"
       description={`A cumulative cost comparison over your time horizon. Read this as one honest input among many — the real answer depends on timing, not just math.`}
     >

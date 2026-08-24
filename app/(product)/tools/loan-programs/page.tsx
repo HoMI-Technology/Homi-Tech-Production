@@ -85,6 +85,7 @@ function LoanProgramsPageInner() {
 
   return (
     <ToolShell
+      relatedGuide={LENS.relatedGuide}
       title="Loan Program Comparison"
       description={`Conventional, FHA, and VA side by side. The note rate is only part of the story — down payment, mortgage insurance, and upfront fees change the real monthly cost.`}
     >
