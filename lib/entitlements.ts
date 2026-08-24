@@ -200,6 +200,31 @@ export function getAdminEntitlements(storedTier?: string | null): Entitlements {
   };
 }
 
+/**
+ * The next tier up that actually grants MORE of a numeric capability, or null.
+ *
+ * "Upgrade for more" is a false statement whenever no higher tier raises the cap.
+ * Two shipped examples this exists to prevent: pro and family both allow 100 active
+ * share links, so telling a pro user to upgrade buys them nothing; and household
+ * seats only exist on family, which is top of the ladder, so that upsell was false
+ * 100% of the time it rendered. Same defect as the advisor quota telling a Family
+ * subscriber to upgrade — see lib/advisor/quota-copy.ts.
+ *
+ * Callers must render the upsell ONLY when this returns a tier.
+ */
+export function nextTierWithMore(
+  tier: EntitlementTier,
+  amount: (e: Entitlements) => number,
+): TierKey | null {
+  const ladder: EntitlementTier[] = ["free", "plus", "pro", "family"];
+  const from = normalizeTier(tier);
+  const current = amount(ENTITLEMENTS[from]);
+  for (const next of ladder.slice(ladder.indexOf(from) + 1)) {
+    if (amount(ENTITLEMENTS[next]) > current) return next as TierKey;
+  }
+  return null;
+}
+
 /** Result of a capability check — a discriminated union for ergonomic routing. */
 export type CapabilityCheck = { ok: true } | { ok: false; status: 401 | 402; error: string };
 

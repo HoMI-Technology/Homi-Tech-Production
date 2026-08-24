@@ -13,10 +13,9 @@ import { describe, expect, it } from "vitest";
  * an agent's chat turn and again as an error line, on a live route.
  *
  * The failure mode is "enumerate the call sites, fix a subset, believe it's done."
- * A human (or a model) cannot be relied on to re-enumerate. So: any client module
- * that POSTs to a quota-gated route must go through the hook. Adding a fifth
- * conversational surface without it now fails the build instead of shipping a
- * payment ask in the Companion's voice.
+ * Nobody can be relied on to re-enumerate. So: any client module that POSTs to a
+ * quota-gated route must go through the hook. Adding a fifth conversational surface
+ * without it fails the build instead of shipping a payment ask in a persona's voice.
  */
 
 /** Routes whose handlers call gateCompanion — keep in sync with lib/advisor/quota.ts. */
@@ -43,25 +42,45 @@ const FILES = SEARCH_ROOTS.flatMap((r) => {
   }
 });
 
+/** Strip comments, so prose about `demoContext: true` can never satisfy a code check. */
+export function stripComments(src: string): string {
+  return src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/\/.*$/gm, "$1");
+}
+
 /**
  * Client modules that POST to a gated route — i.e. can actually receive the 402.
  *
- * `demoContext: true` callers are exempt, and the exemption is *verified* below
- * rather than allowlisted: app/api/advisor/route.ts skips gateCompanion entirely
- * for demo traffic, so the public /artifact playground can never see a 402. If that
- * ever changes, the guard in `demo bypass is real` fails and this exemption with it.
+ * The demo-traffic exemption is evaluated PER CALL SITE on comment-stripped source.
+ * An earlier version regex-matched the whole raw file, so a doc comment mentioning
+ * `demoContext: true` exempted the entire module — including any real, non-demo call
+ * inside it. That is exactly the accidental silencing this guard exists to prevent.
  */
 function callersOfGatedRoutes(): Array<{ file: string; src: string }> {
   const hits: Array<{ file: string; src: string }> = [];
+
   for (const file of FILES) {
     // Route handlers implement the gate; they don't consume it.
     if (file.includes(join("app", "api"))) continue;
-    const src = readFileSync(file, "utf8");
-    const targetsGated = GATED_ROUTES.some((r) => src.includes(`"${r}"`) || src.includes(`'${r}'`));
-    if (!targetsGated || !/method:\s*"POST"/.test(src)) continue;
-    if (/demoContext:\s*true/.test(src)) continue;
-    hits.push({ file, src });
+
+    const raw = readFileSync(file, "utf8");
+    const src = stripComments(raw);
+    if (!/method:\s*"POST"/.test(src)) continue;
+
+    // The file qualifies if ANY gated-route call site is not a demo post.
+    let hasRealCall = false;
+    for (const route of GATED_ROUTES) {
+      let from = 0;
+      for (;;) {
+        const at = src.indexOf(`"${route}"`, from);
+        if (at === -1) break;
+        from = at + 1;
+        // The fetch options object follows the URL; a demo post declares it there.
+        if (!/demoContext:\s*true/.test(src.slice(at, at + 800))) hasRealCall = true;
+      }
+    }
+    if (hasRealCall) hits.push({ file, src: raw });
   }
+
   return hits;
 }
 
@@ -69,21 +88,32 @@ describe("quota gate coverage", () => {
   const callers = callersOfGatedRoutes();
 
   it("finds the conversational surfaces at all (guard is not vacuously passing)", () => {
-    // If this drops to zero the detection below is broken, not the codebase clean.
+    // If this drops to zero, detection is broken — not the codebase clean.
     expect(callers.length).toBeGreaterThanOrEqual(3);
   });
 
   it.each(GATED_ROUTES)("%s is still gated by gateCompanion server-side", (route) => {
-    // "/api/advisor" -> "app/api/advisor/route.ts"
     const src = readFileSync(join("app", route.replace(/^\//, ""), "route.ts"), "utf8");
     expect(src).toMatch(/gateCompanion/);
   });
 
-  it("the demo bypass is real, so exempting demoContext callers is sound", () => {
-    // The public /artifact playground posts demoContext:true and is therefore
-    // excluded above. That is only valid while the route actually skips the gate.
-    const route = readFileSync(join("app", "api", "advisor", "route.ts"), "utf8");
-    expect(route).toMatch(/if \(!demoContext\) \{[\s\S]{0,400}gateCompanion/);
+  it.each(GATED_ROUTES)("%s: any demo bypass it declares really skips the gate", (route) => {
+    // Exempting demoContext callers is only sound while the route actually skips
+    // gateCompanion for demo traffic. Checked for EVERY gated route — an earlier
+    // version checked only /api/advisor, while /api/agents has the same bypass.
+    const src = readFileSync(join("app", route.replace(/^\//, ""), "route.ts"), "utf8");
+    if (!src.includes("demoContext")) return; // no bypass to validate
+    expect(src).toMatch(/if \(!demoContext\) \{[\s\S]{0,400}gateCompanion/);
+  });
+
+  it("a doc comment mentioning demoContext cannot exempt a real call site", () => {
+    // Regression: ArtifactPlayground.tsx:38 is prose containing "demoContext: true".
+    // Whole-file matching let that silence the guard for the entire module.
+    const proseThenRealCall = [
+      "/** posts with `demoContext: true` instead of a real payload */",
+      'await fetch("/api/agents", { method: "POST", body: "{}" });',
+    ].join("\n");
+    expect(stripComments(proseThenRealCall)).not.toMatch(/demoContext:\s*true/);
   });
 
   it("every client that can receive a 402 routes it through useQuotaGate", () => {

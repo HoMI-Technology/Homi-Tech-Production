@@ -2,10 +2,29 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { env } from "@/lib/env";
-import { getUserEntitlements } from "@/lib/entitlements";
+import { nextTierWithMore, getUserEntitlements, type Entitlements } from "@/lib/entitlements";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
+import { TIERS } from "@/lib/stripe/tiers";
 
 export const runtime = "nodejs";
+
+/**
+ * The share-cap 402 sentence. One builder for both call sites — the pre-insert gate
+ * and the post-insert race rollback — because the two hand-written copies drifted:
+ * one was corrected and the other kept telling users to "upgrade for more."
+ *
+ * Only offers an upgrade when a higher tier actually raises the cap. Pro and family
+ * both allow 100 active links, so that phrasing bought a pro user nothing and was
+ * simply false at the top of the ladder.
+ */
+function shareLimitMessage(entitlements: Entitlements): string {
+  const cap = entitlements.maxActiveShares;
+  const more = nextTierWithMore(entitlements.tier, (e) => e.maxActiveShares);
+  return more
+    ? `Your plan allows ${cap} active share links. Revoke one, or move to ${TIERS[more].name} for more.`
+    : `Your plan allows ${cap} active share links. Revoke one to create another.`;
+}
+
 
 const bodySchema = z.object({
   assessmentId: z.string().min(1),
@@ -73,10 +92,7 @@ export async function POST(request: Request) {
 
   if ((activeCount ?? 0) >= entitlements.maxActiveShares) {
     return NextResponse.json(
-      {
-        error: `Your plan allows ${entitlements.maxActiveShares} active share links. Revoke one or upgrade for more.`,
-        code: "share_limit",
-      },
+      { error: shareLimitMessage(entitlements), code: "share_limit" },
       { status: 402 },
     );
   }
@@ -110,10 +126,7 @@ export async function POST(request: Request) {
   if ((afterCount ?? 0) > entitlements.maxActiveShares) {
     await supabase.from("score_shares").delete().eq("id", data.id).eq("created_by", user.id);
     return NextResponse.json(
-      {
-        error: `Your plan allows ${entitlements.maxActiveShares} active share links. Revoke one or upgrade for more.`,
-        code: "share_limit",
-      },
+      { error: shareLimitMessage(entitlements), code: "share_limit" },
       { status: 402 },
     );
   }
