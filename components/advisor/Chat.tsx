@@ -18,7 +18,8 @@ import { ingestPhase0Observation, writePhase0Freeze } from "@/lib/advisor/phase0
 import { Phase0FreezeScreen } from "@/components/advisor/Phase0FreezeScreen";
 import { resolvePhase0PersonKey, usePhase0Freeze } from "@/hooks/usePhase0Freeze";
 import { SIGNED_IN_ASSESS_HREF } from "@/components/marketing/first-moment-copy";
-import { QuotaNotice, type QuotaNoticeData } from "@/components/advisor/QuotaNotice";
+import { QuotaNotice } from "@/components/advisor/QuotaNotice";
+import { useQuotaGate } from "@/hooks/useQuotaGate";
 
 type Role = "user" | "assistant";
 
@@ -63,7 +64,7 @@ function TypingIndicator() {
 export function Chat() {
   const freeze = usePhase0Freeze();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [quotaNotice, setQuotaNotice] = useState<QuotaNoticeData | null>(null);
+  const quota = useQuotaGate();
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -161,7 +162,6 @@ export function Chat() {
         error?: unknown;
         conversationId?: unknown;
         source?: unknown;
-        quota?: QuotaNoticeData;
         phase0?: {
           frozen?: boolean;
           until?: number;
@@ -186,10 +186,7 @@ export function Chat() {
         // 402 is a commercial statement, not something HōMI says. It renders as chrome
         // outside the thread so the payment ask never wears the Companion's voice —
         // see ADR-003 and components/advisor/QuotaNotice.tsx.
-        if (res.status === 402 && data.quota) {
-          setQuotaNotice(data.quota);
-          return;
-        }
+        if (quota.handleResponse(res.status, data)) return;
         // Anything else genuinely interrupted the conversation, so it stays in the
         // conversation. /advisor is auth-gated, so 401 is unexpected here.
         const msg =
@@ -291,7 +288,7 @@ export function Chat() {
         {sending && <TypingIndicator />}
       </div>
 
-      {quotaNotice && <QuotaNotice data={quotaNotice} onDismiss={() => setQuotaNotice(null)} />}
+      {quota.notice && <QuotaNotice data={quota.notice} onDismiss={quota.clear} />}
 
       {/* Composer */}
       <div className="hairline" />

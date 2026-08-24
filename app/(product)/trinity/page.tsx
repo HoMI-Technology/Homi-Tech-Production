@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { formatQuotaReset } from "@/lib/advisor/quota-copy";
+import { QuotaNotice } from "@/components/advisor/QuotaNotice";
+import { useQuotaGate } from "@/hooks/useQuotaGate";
 import { COLORS, VERDICT_META } from "@/lib/brand";
 import { useLatestAssessment } from "@/hooks/use-latest-assessment";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
@@ -53,6 +54,7 @@ export default function TrinityPage() {
   const [trinity, setTrinity] = useState<TrinityResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const quota = useQuotaGate();
   const [gateCta, setGateCta] = useState<{ href: string; label: string } | null>(null);
 
   async function runTrinity() {
@@ -80,25 +82,24 @@ export default function TrinityPage() {
       if (!res.ok) {
         // The companion gate returns truthful, on-brand copy (sign-in / upgrade /
         // retry) — never let a 401/402 fall through to the generic error.
-        const data = (await res.json().catch(() => ({}))) as {
-          error?: unknown;
-          quota?: { scope: "daily" | "monthly" | null; title: string; resetsAt: string | null };
-        };
-        const base =
+        const data = (await res.json().catch(() => ({}))) as { error?: unknown };
+        // Running out of messages is a normal state, not a failure — it must not
+        // render in error red alongside "something went wrong". The hook routes it
+        // to QuotaNotice instead. See hooks/useQuotaGate.ts.
+        if (quota.handleResponse(res.status, data)) {
+          setLoading(false);
+          return;
+        }
+        const message =
           typeof data.error === "string"
             ? data.error
             : "Something went wrong running the Trinity. Please try again.";
-        // On 402 the gate also sends the derived reset instant. Say when it lifts
-        // rather than leaving "you've used this month's messages" hanging.
-        const reset = data.quota ? formatQuotaReset(data.quota.scope, data.quota.resetsAt) : "";
-        setError(reset ? `${base} ${reset}` : base);
+        setError(message);
         if (res.status === 401) {
           setGateCta({
             href: `/auth/sign-in?next=${encodeURIComponent(pathname)}`,
             label: "Sign in",
           });
-        } else if (res.status === 402) {
-          setGateCta({ href: "/pricing", label: "See plans" });
         }
         setLoading(false);
         return;
@@ -172,6 +173,9 @@ export default function TrinityPage() {
           <button type="button" onClick={runTrinity} disabled={loading} className="btn btn-primary">
             {loading ? "Convening the Trinity…" : "Run the Trinity"}
           </button>
+          {quota.notice && (
+            <QuotaNotice data={quota.notice} onDismiss={quota.clear} className="mb-2" />
+          )}
           {error && <p className="text-sm text-crimson">{error}</p>}
           {gateCta && (
             <Link href={gateCta.href} className="btn btn-primary">

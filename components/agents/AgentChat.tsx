@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
-import { QuotaNotice, type QuotaNoticeData } from "@/components/advisor/QuotaNotice";
+import { QuotaNotice } from "@/components/advisor/QuotaNotice";
+import { useQuotaGate } from "@/hooks/useQuotaGate";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { buildCompanionContext } from "@/lib/advisor/context";
 import { loadIdentity } from "@/lib/advisor/identity";
@@ -82,7 +83,7 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
   const [sending, setSending] = useState(false);
   const [hasAssessment, setHasAssessment] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [quotaNotice, setQuotaNotice] = useState<QuotaNoticeData | null>(null);
+  const quota = useQuotaGate();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -147,7 +148,6 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
         reply?: unknown;
         error?: unknown;
         conversationId?: unknown;
-        quota?: QuotaNoticeData;
         routed_agents?: AgentId[];
         tools_suggested?: string[];
         receipt?: { id?: string };
@@ -158,10 +158,7 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
         // QuotaNotice strip — never into the thread, and never duplicated into the
         // error line as well (this previously rendered the payment ask twice).
         // See ADR-003 and components/advisor/QuotaNotice.tsx.
-        if (res.status === 402 && data.quota) {
-          setQuotaNotice(data.quota);
-          return;
-        }
+        if (quota.handleResponse(res.status, data)) return;
         const msg =
           typeof data.error === "string"
             ? data.error
@@ -171,7 +168,7 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
         return;
       }
 
-      setQuotaNotice(null);
+      quota.clear();
       if (typeof data.conversationId === "string") setConversationId(data.conversationId);
       const replyContent =
         typeof data.reply === "string"
@@ -335,7 +332,7 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
           </svg>
         </button>
       </div>
-      {quotaNotice && <QuotaNotice data={quotaNotice} onDismiss={() => setQuotaNotice(null)} />}
+      {quota.notice && <QuotaNotice data={quota.notice} onDismiss={quota.clear} />}
       {error && <p className="px-4 pb-3 text-center text-xs text-crimson">{error}</p>}
     </div>
   );

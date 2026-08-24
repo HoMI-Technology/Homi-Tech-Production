@@ -7,7 +7,8 @@ import { HomieAvatar } from "@/components/companion/HomieAvatar";
 import { buildCompanionContext } from "@/lib/advisor/context";
 import { fetchLatestStoredAssessment } from "@/lib/assessment/latest";
 import { MessageContent } from "@/components/companion/MessageContent";
-import { QuotaNotice, type QuotaNoticeData } from "@/components/advisor/QuotaNotice";
+import { QuotaNotice } from "@/components/advisor/QuotaNotice";
+import { useQuotaGate } from "@/hooks/useQuotaGate";
 import { CompanionTierBanner } from "@/components/companion/CompanionTierBanner";
 import {
   consumeLensDigest,
@@ -127,7 +128,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [gateCta, setGateCta] = useState<{ href: string; label: string } | null>(null);
-  const [quotaNotice, setQuotaNotice] = useState<QuotaNoticeData | null>(null);
+  const quota = useQuotaGate();
   const [ttsEnabled, setTtsEnabled] = useState(true);
   const [voiceError, setVoiceError] = useState<string | null>(null);
   const [presenceNote, setPresenceNote] = useState<string | null>(null);
@@ -420,7 +421,6 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
         error?: unknown;
         conversationId?: unknown;
         source?: unknown;
-        quota?: QuotaNoticeData;
         phase0?: {
           frozen?: boolean;
           until?: number;
@@ -446,8 +446,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
         // Homie does not ask for money in its own voice (ADR-003). 401 and everything
         // else still speak in-thread: those interrupt the conversation, they are not
         // a sales moment.
-        if (res.status === 402 && data.quota) {
-          setQuotaNotice(data.quota);
+        if (quota.handleResponse(res.status, data)) {
           setGateCta(null);
           return;
         }
@@ -469,7 +468,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
       }
 
       setGateCta(null);
-      setQuotaNotice(null);
+      quota.clear();
       if (typeof data.conversationId === "string") setConversationId(data.conversationId);
       const replyContent: string =
         typeof data.reply === "string"
@@ -807,12 +806,8 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
             )}
           </div>
 
-          {quotaNotice && (
-            <QuotaNotice
-              data={quotaNotice}
-              onDismiss={() => setQuotaNotice(null)}
-              className="mx-3 mt-1"
-            />
+          {quota.notice && (
+            <QuotaNotice data={quota.notice} onDismiss={quota.clear} className="mx-3 mt-1" />
           )}
 
           {gateCta && (
