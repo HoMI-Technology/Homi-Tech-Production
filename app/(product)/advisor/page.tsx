@@ -3,7 +3,7 @@ import { PageFrame } from "@/components/operate/PageFrame";
 
 export const metadata = {
   title: "Decision Companion",
-  description: "Talk it through with HōMI — your HōMI, not your banker.",
+  description: "Talk it through with HōMI — not your banker.",
 };
 
 export default function AdvisorPage() {
