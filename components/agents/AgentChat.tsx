@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
+import { QuotaNotice } from "@/components/advisor/QuotaNotice";
+import { useQuotaGate } from "@/hooks/useQuotaGate";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { buildCompanionContext } from "@/lib/advisor/context";
 import { loadIdentity } from "@/lib/advisor/identity";
@@ -81,6 +83,7 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
   const [sending, setSending] = useState(false);
   const [hasAssessment, setHasAssessment] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const quota = useQuotaGate();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -151,6 +154,11 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
       };
 
       if (!res.ok) {
+        // 402 is a commercial statement, not something an agent says. It goes to the
+        // QuotaNotice strip — never into the thread, and never duplicated into the
+        // error line as well (this previously rendered the payment ask twice).
+        // See ADR-003 and components/advisor/QuotaNotice.tsx.
+        if (quota.handleResponse(res.status, data)) return;
         const msg =
           typeof data.error === "string"
             ? data.error
@@ -160,6 +168,7 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
         return;
       }
 
+      quota.clear();
       if (typeof data.conversationId === "string") setConversationId(data.conversationId);
       const replyContent =
         typeof data.reply === "string"
@@ -323,6 +332,7 @@ export function AgentChat({ mode, onModeChange }: AgentChatProps) {
           </svg>
         </button>
       </div>
+      {quota.notice && <QuotaNotice data={quota.notice} onDismiss={quota.clear} />}
       {error && <p className="px-4 pb-3 text-center text-xs text-crimson">{error}</p>}
     </div>
   );

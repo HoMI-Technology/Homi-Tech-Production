@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getUserEntitlements } from "@/lib/entitlements";
+import { nextDailyResetIso, readAdvisorUsage } from "@/lib/advisor/usage";
+import { overQuotaCopy } from "@/lib/advisor/quota-copy";
 
 /**
  * Server-authoritative gate for the AI Companion endpoints (advisor / twin /
@@ -43,7 +45,12 @@ export async function gateCompanion(supabase: SupabaseClient): Promise<Companion
     p_monthly_limit: entitlements.advisorMessagesPerMonth,
   });
 
+  // Which RPC actually decided. On v1 only the daily cap is enforced, so a refusal
+  // there can only mean "daily" — reporting a monthly reset would be a lie.
+  let enforcing: "v2" | "v1" = "v2";
+
   if (error && error.code && INFRA_MISSING_CODES.has(error.code)) {
+    enforcing = "v1";
     ({ data, error } = await supabase.rpc("try_consume_advisor_message", {
       p_limit: entitlements.advisorMessagesPerDay,
     }));
@@ -70,13 +77,20 @@ export async function gateCompanion(supabase: SupabaseClient): Promise<Companion
   }
 
   if (data === false) {
+    // The RPCs return a bare `false` for daily *or* monthly exhaustion, but the two
+    // have very different answers to "when do I get messages back?" — and at daily-cap
+    // usage every tier blows its monthly allowance before month-end. Derive the real
+    // binding cap rather than assuming "today".
+    const usage = enforcing === "v2" ? await readAdvisorUsage(supabase, entitlements) : null;
+    const scope = enforcing === "v1" ? "daily" : (usage?.bindingScope ?? null);
+    const resetsAt = enforcing === "v1" ? nextDailyResetIso(new Date()) : (usage?.resetsAt ?? null);
+
+    const quota = overQuotaCopy({ scope, resetsAt, tier: entitlements.tier });
+
     return {
       ok: false,
       response: NextResponse.json(
-        {
-          error: "You've used today's Companion messages. Upgrade to keep going.",
-          code: "over_quota",
-        },
+        { error: quota.title, code: "over_quota", quota },
         { status: 402 },
       ),
     };

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { getEntitlements } from "@/lib/entitlements";
+import { getAdminEntitlements, getEntitlements } from "@/lib/entitlements";
 import { gateCompanion } from "@/lib/advisor/quota";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -17,6 +17,17 @@ describe("entitlements monthly ceiling", () => {
     }
   });
 
+  it("admin's monthly cap does not bind before its daily cap (never-bite intent)", () => {
+    // getAdminEntitlements raises the daily cap to 1000 but used to inherit family's
+    // 1200/month, so the monthly ceiling bound on day two — the opposite of the
+    // "high enough to never bite in practice" contract in its own docstring. And
+    // because `tier` reflects the stored subscription, the operator got no upgrade
+    // path either, just a wall.
+    const admin = getAdminEntitlements("family");
+    expect(admin.advisorMessagesPerMonth).toBeGreaterThanOrEqual(admin.advisorMessagesPerDay * 28);
+    expect(Number.isFinite(admin.advisorMessagesPerMonth)).toBe(true);
+  });
+
   it("free stays a genuine taste, paid tiers scale", () => {
     expect(getEntitlements("free").advisorMessagesPerMonth).toBe(60);
     expect(getEntitlements("plus").advisorMessagesPerMonth).toBeGreaterThan(
@@ -29,7 +40,11 @@ interface RpcScript {
   [fn: string]: () => { data: unknown; error: { code: string; message: string } | null };
 }
 
-function client(rpc: RpcScript, userId: string | null = "u1"): SupabaseClient {
+function client(
+  rpc: RpcScript,
+  userId: string | null = "u1",
+  usage: Array<{ day: string; count: number }> = [],
+): SupabaseClient {
   const calls: string[] = [];
   const c = {
     __calls: calls,
@@ -37,6 +52,7 @@ function client(rpc: RpcScript, userId: string | null = "u1"): SupabaseClient {
     from: () => ({
       select: () => ({
         eq: () => ({ maybeSingle: async () => ({ data: { subscription_tier: "plus" } }) }),
+        gte: async () => ({ data: usage, error: null }),
       }),
     }),
     rpc: async (fn: string) => {

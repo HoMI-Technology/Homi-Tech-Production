@@ -71,7 +71,23 @@ export function ArtifactPlayground() {
         }),
       });
 
-      const data = await res.json();
+      const data = (await res.json().catch(() => ({}))) as { reply?: unknown; error?: unknown };
+
+      if (!res.ok) {
+        // Surface the server's own sentence rather than inventing one. Discarding it
+        // told the user "try asking again in a moment" for conditions that a retry
+        // cannot clear: a 400 from promptSafeMessageContent (an ordinary phrase like
+        // "from now on" trips INJECTION_PATTERNS) keeps the offending message in
+        // state and re-posts it on every send, so the ask is permanently impossible;
+        // and the 20/min IP limiter needs a full minute, not "a moment".
+        const msg =
+          typeof data.error === "string"
+            ? data.error
+            : "Something interrupted that thought. Try asking again in a moment.";
+        setMessages((prev) => [...prev, { id: makeId(), role: "assistant", content: msg }]);
+        return;
+      }
+
       const replyContent: string =
         typeof data.reply === "string"
           ? data.reply

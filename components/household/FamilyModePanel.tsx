@@ -203,10 +203,13 @@ function FamilyModeInner() {
       const maxMembers = Math.max(0, seats - 1);
       const addingNew = editingMemberIndex === null;
       if (addingNew && household.members.length >= maxMembers) {
+        // householdMode is granted on family only, which is top of the ladder — so
+        // the seat-cap branch is reachable ONLY there and "Upgrade for more" was
+        // false every time it rendered. State the cap and the way forward instead.
         setError(
           maxMembers === 0
             ? "Household linking is part of HōMI Family."
-            : `Your plan allows ${seats} household seats. Upgrade for more.`,
+            : `Your plan includes ${seats} household seats. Remove a member to add someone else.`,
         );
         return;
       }

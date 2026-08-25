@@ -7,6 +7,8 @@ import { HomieAvatar } from "@/components/companion/HomieAvatar";
 import { buildCompanionContext } from "@/lib/advisor/context";
 import { fetchLatestStoredAssessment } from "@/lib/assessment/latest";
 import { MessageContent } from "@/components/companion/MessageContent";
+import { QuotaNotice } from "@/components/advisor/QuotaNotice";
+import { useQuotaGate } from "@/hooks/useQuotaGate";
 import { CompanionTierBanner } from "@/components/companion/CompanionTierBanner";
 import {
   consumeLensDigest,
@@ -126,6 +128,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [gateCta, setGateCta] = useState<{ href: string; label: string } | null>(null);
+  const quota = useQuotaGate();
   const [ttsEnabled, setTtsEnabled] = useState(true);
   const [voiceError, setVoiceError] = useState<string | null>(null);
   const [presenceNote, setPresenceNote] = useState<string | null>(null);
@@ -439,8 +442,14 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
       }
 
       if (!res.ok) {
-        // The gate returns truthful, on-brand copy (sign-in / upgrade / retry) —
-        // never let a 401/402 fall through to the generic "interrupted" line.
+        // 402 is a commercial statement, so it renders as chrome below the thread —
+        // Homie does not ask for money in its own voice (ADR-003). 401 and everything
+        // else still speak in-thread: those interrupt the conversation, they are not
+        // a sales moment.
+        if (quota.handleResponse(res.status, data)) {
+          setGateCta(null);
+          return;
+        }
         const msg =
           typeof data.error === "string"
             ? data.error
@@ -452,12 +461,14 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
             label: "Sign in",
           });
         } else if (res.status === 402) {
+          // Payload predates the structured quota field — keep the old CTA path.
           setGateCta({ href: "/pricing", label: "See plans" });
         }
         return;
       }
 
       setGateCta(null);
+      quota.clear();
       if (typeof data.conversationId === "string") setConversationId(data.conversationId);
       const replyContent: string =
         typeof data.reply === "string"
@@ -794,6 +805,10 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
               </div>
             )}
           </div>
+
+          {quota.notice && (
+            <QuotaNotice data={quota.notice} onDismiss={quota.clear} className="mx-3 mt-1" />
+          )}
 
           {gateCta && (
             <div className="px-3 pt-1">

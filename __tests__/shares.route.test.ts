@@ -22,10 +22,14 @@ const state = vi.hoisted(() => ({
   insertCalls: 0,
 }));
 
-vi.mock("@/lib/entitlements", () => ({
+vi.mock("@/lib/entitlements", async (importOriginal) => ({
+  // Keep the real nextTierWithMore: the share-cap sentence only offers an upgrade
+  // when a higher tier actually raises the cap, and stubbing that would let the
+  // route claim an upgrade exists without the tier ladder ever being consulted.
+  ...(await importOriginal<typeof import("@/lib/entitlements")>()),
   getUserEntitlements: async () => ({
     userId: state.user?.id ?? null,
-    entitlements: { maxActiveShares: 2 },
+    entitlements: { tier: "free" as const, maxActiveShares: 2 },
   }),
 }));
 
