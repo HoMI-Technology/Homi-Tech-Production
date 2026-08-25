@@ -263,6 +263,118 @@ export function Steps() {
   );
 }
 
+const OS_LAYERS = [
+  {
+    index: "01",
+    label: "Signal",
+    title: "Readiness scanner",
+    copy: "A five-minute assessment turns Financial Reality, Emotional Truth, and Perfect Timing into one Decision Readiness Score and a protective verdict.",
+    href: "/assessment",
+    action: "Run the assessment",
+    tint: "var(--color-cyan)",
+  },
+  {
+    index: "02",
+    label: "Instrument",
+    title: "Threshold Compass",
+    copy: "See which part of the decision is carrying the risk, then use readiness tools and scenarios to understand what would change the answer.",
+    href: "/tools",
+    action: "Explore the tools",
+    tint: "var(--color-emerald)",
+  },
+  {
+    index: "03",
+    label: "Intelligence",
+    title: "AI agent layer",
+    copy: "Specialized companions help interpret the verdict, pressure-test tradeoffs, and keep the reasoning trail connected to your actual readiness state.",
+    href: "/agents",
+    action: "Meet the agents",
+    tint: "var(--color-yellow)",
+  },
+  {
+    index: "04",
+    label: "Operate",
+    title: "Private command center",
+    copy: "Move from a one-time answer to an operating rhythm across money, plans, decisions, signals, and the next best move.",
+    href: "/dashboard",
+    action: "Enter the command center",
+    tint: "var(--color-amber)",
+  },
+] as const;
+
+/**
+ * The wider product story, kept below the method so the front door remains
+ * decision-first. Every destination is an existing product route; no demo
+ * states or speculative capability claims are introduced here.
+ */
+export function DecisionOS() {
+  return (
+    <section className="px-5 py-[10vh] sm:px-6 lg:px-8" data-decision-os="">
+      <div className="mx-auto w-full max-w-7xl">
+        <SectionHeader
+          eyebrow="Decision Readiness Intelligence™"
+          title="One signal. A system for what comes next."
+          support="HōMI connects the moment of truth to the tools, intelligence, and operating surfaces that help you act on it."
+        />
+
+        <div className="mt-14 overflow-hidden rounded-2xl border border-white/[0.08] bg-slate-surface/45">
+          <div className="grid lg:grid-cols-4">
+            {OS_LAYERS.map((layer, i) => (
+              <Reveal
+                key={layer.index}
+                delay={i * 70}
+                className="group relative border-b border-white/[0.08] p-7 last:border-b-0 lg:border-b-0 lg:border-r lg:last:border-r-0"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <span className="score-numeral text-xs text-dim">{layer.index}</span>
+                  <span
+                    className="h-2 w-2 rounded-full"
+                    style={{
+                      background: layer.tint,
+                      boxShadow: `0 0 16px ${layer.tint}`,
+                    }}
+                    aria-hidden
+                  />
+                </div>
+                <p className="eyebrow mt-10" style={{ color: layer.tint }}>
+                  {layer.label}
+                </p>
+                <h3 className="mt-3 text-xl font-semibold text-light">{layer.title}</h3>
+                <p className="mt-4 min-h-24 text-sm leading-relaxed text-dim">{layer.copy}</p>
+                <Link
+                  href={layer.href}
+                  className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-light transition-colors hover:text-cyan"
+                >
+                  {layer.action}
+                  <span
+                    aria-hidden
+                    className="transition-transform duration-200 group-hover:translate-x-1"
+                  >
+                    &rarr;
+                  </span>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+
+        <Reveal className="mt-8 flex flex-col gap-4 rounded-2xl border border-cyan/20 bg-cyan/[0.04] p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+          <div>
+            <p className="eyebrow text-cyan">Organizations + builders</p>
+            <p className="mt-2 max-w-2xl text-light">
+              Bring privacy-preserving readiness intelligence into employee benefits, partner
+              ecosystems, and agent-enabled products.
+            </p>
+          </div>
+          <Link href="/b2b" className="btn btn-ghost shrink-0">
+            HōMI for organizations
+          </Link>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
 export function Clarity() {
   return (
     <section className="px-5 py-[9vh] sm:px-6 lg:px-8">

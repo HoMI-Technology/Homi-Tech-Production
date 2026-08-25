@@ -10,6 +10,7 @@ import { PaperScene } from "@/components/home/PaperScene";
 import {
   Clarity,
   CloseCta,
+  DecisionOS,
   FriendFrame,
   NotYourBanker,
   Pillars,
@@ -61,6 +62,7 @@ export default function MarketingHomePage() {
             <Pillars />
             <VerdictSpectrum />
             <Steps />
+            <DecisionOS />
             <Clarity />
             <NotYourBanker />
           </div>
