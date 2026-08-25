@@ -4,9 +4,9 @@ import { Reveal } from "@/components/ui/Reveal";
 import { pageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = pageMetadata({
-  title: "HōMI for Teams",
+  title: "HōMI for Organizations",
   description:
-    "A financial-wellness benefit that measures readiness, not just affordability. Bring HōMI to your employees as a Decision Companion, not another budgeting app.",
+    "Decision readiness infrastructure for employers, partners, and developers. Bring HōMI into a trusted B2B2C experience without turning clarity into a transaction funnel.",
   path: "/b2b",
 });
 
@@ -15,10 +15,13 @@ export default function B2BPage() {
     <>
       <section className="px-6 pb-16 pt-16 md:pt-24">
         <div className="mx-auto max-w-3xl text-center">
-          <h1 className="type-h1">HōMI for teams</h1>
+          <p className="eyebrow">B2B2C decision intelligence</p>
+          <h1 className="mt-5 type-h1">
+            Readiness infrastructure for people-facing organizations.
+          </h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-dim">
-            The financial-wellness benefit that measures readiness, not just account balances. Give
-            your people the one honest voice in a sea of things trying to sell them something.
+            Give every person a private Decision Companion. Give your organization aggregate
+            readiness signals. Keep individual answers out of the transaction funnel.
           </p>
         </div>
       </section>
@@ -39,6 +42,69 @@ export default function B2BPage() {
                 regretted decisions means less financial stress carried into the workday — and that
                 shows up in retention, focus, and trust in the benefits you offer.
               </p>
+            </div>
+          </div>
+        </section>
+      </Reveal>
+
+      <Reveal>
+        <section className="px-6 py-16" data-b2b2c-model="">
+          <div className="mx-auto max-w-6xl">
+            <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="eyebrow">One intelligence layer. Three delivery models.</p>
+                <h2 className="mt-4 max-w-3xl type-h2">
+                  Built to meet the person through the organization they already trust.
+                </h2>
+              </div>
+              <p className="max-w-md text-sm leading-relaxed text-dim">
+                The Decision Readiness Score stays personal. Organization surfaces stay aggregated.
+                Integration surfaces stay explicit and auditable.
+              </p>
+            </div>
+
+            <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.08] lg:grid-cols-3">
+              <article className="bg-navy p-8">
+                <p className="score-numeral text-xs text-cyan">01 · Employers</p>
+                <h3 className="mt-5 type-h3">A benefit people can trust</h3>
+                <p className="mt-4 text-sm leading-relaxed text-dim">
+                  A private readiness scanner, Threshold Compass, and action path for employees;
+                  participation and aggregate movement for benefit leaders.
+                </p>
+                <Link href="/employee" className="mt-7 inline-flex text-sm font-semibold text-cyan">
+                  See the employee experience&nbsp;&rarr;
+                </Link>
+              </article>
+
+              <article className="bg-navy p-8">
+                <p className="score-numeral text-xs text-emerald">02 · Partners</p>
+                <h3 className="mt-5 type-h3">A readiness layer for your ecosystem</h3>
+                <p className="mt-4 text-sm leading-relaxed text-dim">
+                  Invite people into a neutral decision process, understand aggregate readiness, and
+                  preserve the boundary between education and recommendation.
+                </p>
+                <Link
+                  href="/partner"
+                  className="mt-7 inline-flex text-sm font-semibold text-emerald"
+                >
+                  Explore partner delivery&nbsp;&rarr;
+                </Link>
+              </article>
+
+              <article className="bg-navy p-8">
+                <p className="score-numeral text-xs text-yellow">03 · Developers + agents</p>
+                <h3 className="mt-5 type-h3">An inspectable intelligence surface</h3>
+                <p className="mt-4 text-sm leading-relaxed text-dim">
+                  Build from canonical routes, tool definitions, agent levels, and product
+                  boundaries through HōMI&rsquo;s public, agent-readable architecture feed.
+                </p>
+                <a
+                  href="/architecture.json"
+                  className="mt-7 inline-flex text-sm font-semibold text-yellow"
+                >
+                  Inspect the architecture feed&nbsp;&rarr;
+                </a>
+              </article>
             </div>
           </div>
         </section>
