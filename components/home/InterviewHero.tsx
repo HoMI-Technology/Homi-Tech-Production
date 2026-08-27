@@ -67,7 +67,7 @@ export function InterviewHero() {
             How it works
           </Link>
         </div>
-        <p className="mt-4 text-sm text-dim">
+        <p className="mt-4 max-w-md text-sm leading-relaxed text-dim">
           Free &middot; about 5 minutes &middot; educational only
         </p>
       </div>

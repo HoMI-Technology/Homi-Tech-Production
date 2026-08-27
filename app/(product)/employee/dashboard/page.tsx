@@ -119,14 +119,26 @@ export default async function EmployeeDashboardPage() {
                 Private Decision Readiness Score
               </p>
               <div className="mt-1.5 flex flex-wrap items-end justify-center gap-3 lg:justify-start">
-                <HeroScore value={scorePct ?? 0} color={tint} />
+                {scorePct != null ? (
+                  <HeroScore value={scorePct} color={tint} />
+                ) : (
+                  <span
+                    className="score-numeral inline-block font-bold tabular-nums text-light"
+                    style={{ fontSize: "clamp(4rem, 8vw, 6rem)", lineHeight: 1.05 }}
+                    aria-label="Decision Readiness Score Unknown"
+                  >
+                    —
+                  </span>
+                )}
                 {verdict && (
                   <div className="mb-1.5">
                     <VerdictBadge verdict={verdict} size="lg" />
                   </div>
                 )}
               </div>
-              <p className="mt-2.5 max-w-xl text-sm text-light/90">{verdictMeta.line}</p>
+              <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-light/90">
+                {verdictMeta.line}
+              </p>
             </div>
             <ActionDock kicker="Next move" title="Continue your build on personal Home">
               <Link href="/dashboard" className="btn btn-primary" data-employee-primary="">

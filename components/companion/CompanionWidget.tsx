@@ -629,7 +629,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
         aria-expanded={open}
         aria-controls="homi-companion-panel"
         aria-label={open ? "Close HōMI Companion" : "Open HōMI Companion"}
-        className="compass-glow fixed right-6 z-[var(--z-menu)] flex h-14 w-14 items-center justify-center rounded-full border border-cyan/40 bg-navy-light/90 shadow-lg backdrop-blur transition-transform hover:scale-105 bottom-[max(1.5rem,env(safe-area-inset-bottom,0px))] max-lg:bottom-[calc(4.5rem_+_env(safe-area-inset-bottom,0px))]"
+        className="companion-launcher compass-glow fixed right-6 z-[var(--z-menu)] flex h-14 w-14 items-center justify-center rounded-full border border-cyan/40 bg-navy-light/90 shadow-lg backdrop-blur bottom-[max(1.5rem,env(safe-area-inset-bottom,0px))] max-lg:bottom-[calc(4.5rem_+_env(safe-area-inset-bottom,0px))]"
       >
         {/* max-lg raise keeps the launcher above the ProductBottomNav tab bar
             (bar height + safe-area inset) so it never covers a tab. */}
@@ -647,7 +647,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
           role="dialog"
           aria-modal="true"
           aria-label="HōMI Companion"
-          className="glass fixed right-4 z-[var(--z-overlay)] flex h-[min(70dvh,560px)] max-h-[calc(100dvh-env(safe-area-inset-top,0px)-8rem)] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl shadow-2xl bottom-[max(5.5rem,calc(env(safe-area-inset-bottom,0px)+4.5rem))] max-lg:bottom-[calc(8.5rem_+_env(safe-area-inset-bottom,0px))] sm:right-6"
+          className="companion-sheet glass fixed right-4 z-[var(--z-overlay)] flex h-[min(70dvh,560px)] max-h-[calc(100dvh-env(safe-area-inset-top,0px)-8rem)] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl shadow-2xl bottom-[max(5.5rem,calc(env(safe-area-inset-bottom,0px)+4.5rem))] max-lg:bottom-[calc(8.5rem_+_env(safe-area-inset-bottom,0px))] sm:right-6"
         >
           <div className="flex items-center justify-between border-b border-slate-surface/60 px-4 py-3">
             {editingName ? (
@@ -696,7 +696,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
               type="button"
               onClick={() => setOpen(false)}
               aria-label="Close HōMI Companion"
-              className="rounded-full p-1.5 text-dim transition-colors hover:text-light"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full p-2 text-dim transition-colors hover:text-light"
             >
               <svg
                 width="16"
@@ -798,10 +798,14 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
             )}
 
             {sending && (
-              <div className="glass inline-flex items-center gap-1.5 rounded-2xl rounded-tl-sm px-3 py-2">
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-dim [animation-delay:0ms]" />
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-dim [animation-delay:150ms]" />
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-dim [animation-delay:300ms]" />
+              <div
+                className="glass inline-flex items-center gap-1.5 rounded-2xl rounded-tl-sm px-3 py-2"
+                role="status"
+                aria-label="HōMI is thinking"
+              >
+                <span className="companion-typing-dot" style={{ animationDelay: "0ms" }} />
+                <span className="companion-typing-dot" style={{ animationDelay: "160ms" }} />
+                <span className="companion-typing-dot" style={{ animationDelay: "320ms" }} />
               </div>
             )}
           </div>

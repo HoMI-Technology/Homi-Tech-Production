@@ -49,7 +49,11 @@ function SectionHeader({
       <h2 className="type-display mt-4 max-w-4xl text-light" style={{ textWrap: "balance" }}>
         {title}
       </h2>
-      {support ? <p className="mt-4 max-w-2xl text-lg text-dim">{support}</p> : null}
+      {support ? (
+        <p className="mt-4 max-w-2xl text-lg leading-relaxed text-dim" style={{ textWrap: "pretty" }}>
+          {support}
+        </p>
+      ) : null}
     </Reveal>
   );
 }

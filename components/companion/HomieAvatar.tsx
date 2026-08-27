@@ -54,12 +54,12 @@ export function HomieAvatar({
     >
       <style>{`
         @keyframes homie-breathe {
-          0%, 100% { transform: scale(1); opacity: 0.92; }
-          50% { transform: scale(1.06); opacity: 1; }
+          0%, 100% { transform: scale(1); opacity: 0.94; }
+          50% { transform: scale(1.03); opacity: 1; }
         }
         @keyframes homie-speak-pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.04); }
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.02); opacity: 0.96; }
         }
         @media (prefers-reduced-motion: reduce) {
           .homie-avatar-core { animation: none !important; }

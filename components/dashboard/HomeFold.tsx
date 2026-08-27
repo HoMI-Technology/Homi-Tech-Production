@@ -5,6 +5,7 @@ import {
   buildProgressLabel,
   companionFoldLine,
 } from "@/lib/dashboard/fold-truth";
+import Link from "next/link";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { ScoreRail, type ScoreRailPillars } from "@/components/score/ScoreRail";
 import { LoadErrorPanel } from "@/components/dashboard/LoadErrorPanel";
@@ -136,7 +137,10 @@ export function HomeFold({
                   <Wordmark size="text-xl sm:text-2xl" />
                   <p className="eyebrow">Your build</p>
                 </div>
-                <p className="mt-2 max-w-xl text-sm leading-relaxed text-light/90">
+                <p
+                  className="mt-2 max-w-xl text-sm leading-relaxed text-light/90"
+                  style={{ textWrap: "pretty" }}
+                >
                   {foldSentence}
                 </p>
               </div>
@@ -206,6 +210,16 @@ export function HomeFold({
                 <OutcomeSurveyPrompt surveyId={dueSurvey.id} kind={dueSurvey.kind} />
               </div>
             )}
+
+            {/* Compliance chrome on the scored fold: one quiet line + the full
+                disclaimer page. The verbatim LEGAL_DISCLAIMER stays on report /
+                share surfaces; the fold links there instead of restating it. */}
+            <p className="mt-6 max-w-xl text-xs leading-relaxed text-dim/80">
+              Educational guidance only.{" "}
+              <Link href="/legal/disclaimer" className="text-cyan underline-offset-2 hover:underline">
+                Full disclaimer
+              </Link>
+            </p>
           </>
         ) : (
           <>

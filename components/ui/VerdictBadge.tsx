@@ -41,14 +41,21 @@ export function VerdictBadge(props: VerdictBadgeProps) {
         ? "px-3 py-1 text-xs"
         : "px-4 py-1.5 text-sm";
 
+  // Accessible name without role="status": the badge is a static reading,
+  // not a live-region announcement (canon review of PR #326).
+  const accessibleName = hideTemperature
+    ? meta.label
+    : `${meta.label}, ${meta.temperature}`;
+
   return (
     <span
       data-verdict={verdict}
-      className={`inline-flex items-center gap-2 rounded-full border font-bold tracking-wide ${pad} ${meta.bgClassName} ${className}`}
+      aria-label={accessibleName}
+      className={`inline-flex max-w-full items-center gap-2 whitespace-nowrap rounded-full border font-bold tracking-wide ${pad} ${meta.bgClassName} ${className}`}
       style={{ color: meta.color }}
     >
       <span
-        className="inline-block h-2 w-2 rounded-full"
+        className="inline-block h-2 w-2 shrink-0 rounded-full"
         style={{ background: meta.color, boxShadow: `0 0 8px ${meta.color}` }}
         aria-hidden
       />

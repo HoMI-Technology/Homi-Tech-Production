@@ -112,6 +112,10 @@
      there is none, so the signed-out/never-assessed rail stays canon cyan. */
   --sidebar-verdict-color: var(--color-cyan);
   --sidebar-verdict-tint: rgba(255, 255, 255, 0.06);
+  /* Shared easing curves (var() consumers only — deliberately NOT @theme
+     keys, so the Tailwind `ease-out` utility keeps its default). */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 /* Object-scene scrim progress. Must live at the top level so the
@@ -715,17 +719,27 @@ body {
   }
   .glass-hover {
     transition:
-      border-color 300ms ease,
-      transform 300ms ease,
-      box-shadow 300ms ease;
+      border-color 200ms var(--ease-out),
+      box-shadow 200ms var(--ease-out);
   }
-  .glass-hover:hover {
-    border-color: rgba(34, 211, 238, 0.35);
-    transform: translateY(-2px);
-    box-shadow:
-      inset 0 1px 0 rgba(226, 232, 240, 0.09),
-      0 32px 64px -20px rgba(2, 6, 16, 0.8),
-      0 0 0 1px rgba(34, 211, 238, 0.08);
+  @media (hover: hover) and (pointer: fine) {
+    .glass-hover {
+      transition:
+        border-color 200ms var(--ease-out),
+        transform 200ms var(--ease-out),
+        box-shadow 200ms var(--ease-out);
+    }
+    .glass-hover:hover {
+      border-color: rgba(34, 211, 238, 0.35);
+      transform: translateY(-2px);
+      box-shadow:
+        inset 0 1px 0 rgba(226, 232, 240, 0.09),
+        0 32px 64px -20px rgba(2, 6, 16, 0.8),
+        0 0 0 1px rgba(34, 211, 238, 0.08);
+    }
+  }
+  .glass-hover:active {
+    transform: scale(0.98);
   }
 
   /* ── Hairline dividers ─────────────────────────────────────────── */
@@ -927,6 +941,78 @@ body {
     50% {
       transform: translateY(-10px);
     }
+  }
+}
+
+/* Companion sheet / launcher — occasional panel, not 100+/day chrome.
+   Enter from the launcher (bottom-right). Never scale(0). */
+.companion-launcher {
+  transition: transform 120ms var(--ease-out);
+}
+.companion-launcher:active {
+  transform: scale(0.96);
+}
+.companion-sheet {
+  transform-origin: 100% 100%;
+  animation: companion-sheet-in 280ms var(--ease-drawer) both;
+}
+@keyframes companion-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.companion-typing-dot {
+  display: inline-block;
+  height: 0.375rem;
+  width: 0.375rem;
+  border-radius: 999px;
+  background: var(--color-dim);
+  animation: companion-typing 1.2s ease-in-out infinite;
+}
+@keyframes companion-typing {
+  0%,
+  100% {
+    opacity: 0.28;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.score-reveal {
+  animation: score-reveal 220ms var(--ease-out) both;
+}
+@keyframes score-reveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .companion-sheet {
+    animation: companion-sheet-in-rm 160ms ease both;
+  }
+  @keyframes companion-sheet-in-rm {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .companion-typing-dot,
+  .score-reveal {
+    animation: none;
+  }
+  .companion-launcher:active {
+    transform: none;
   }
 }
 
@@ -2340,15 +2426,17 @@ body {
      Wraps on purpose: a nowrap line collides with the right-field instrument. */
   .type-giant {
     font-family: var(--font-display);
+    font-optical-sizing: auto;
     font-size: clamp(2.75rem, 1.5rem + 5.4vw, 5.75rem);
     font-weight: 600;
-    line-height: 1.04;
-    letter-spacing: -0.025em;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
     color: var(--color-light);
     white-space: normal;
     /* `balance` is not a valid overflow-wrap value — the declaration below
        is the one that balances the wrap. Do not re-add it. */
     text-wrap: balance;
+    padding-block-end: 0.12em;
   }
   .type-statement {
     font-size: clamp(2rem, 6.5vw, 5.5rem);
