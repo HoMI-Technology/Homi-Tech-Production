@@ -1,44 +1,28 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useCountUp } from "@/components/ui/count-up";
-import { entranceShouldPlay } from "./entrance-state";
-
 /**
- * The verdict hero numeral. On the session's first dashboard visit it performs
- * the house overshoot-and-settle count-up, timed to land as the entrance stage
- * reveals; on repeat visits, reduced motion, or no-JS it renders the value
- * statically (the server HTML already carries it).
+ * Verdict hero numeral — the server-computed value, statically.
+ * Digit tickers (0 → N, overshoot-and-settle) are forbidden: AI explains,
+ * deterministic code scores, and the UI only renders the returned integer.
+ * A one-shot opacity crossfade of the final figure is the only motion
+ * (`.score-reveal` in globals.css; killed under prefers-reduced-motion).
  *
- * CLS-safe: an invisible copy of the final value reserves the exact box.
- * A11y-safe: the animating numeral is aria-hidden; screen readers get only the
- * final value.
+ * A11y-safe: the decorative figure is aria-hidden; screen readers get only
+ * the final value. No "use client" — no hooks remain, so the server HTML
+ * carries the real number (no hydration swap, no CLS ghost).
  */
 export function HeroScore({ value, color }: { value: number; color: string }) {
-  const [play, setPlay] = useState(false);
-  useEffect(() => {
-    setPlay(entranceShouldPlay());
-  }, []);
-
-  const display = useCountUp(value, { durationMs: 2000, delayMs: 400, play });
-
   return (
     <span
-      className="score-numeral relative inline-block font-bold text-light"
+      className="score-numeral relative inline-block font-bold tabular-nums text-light"
       style={{
         fontSize: "clamp(4rem, 8vw, 6rem)",
         letterSpacing: "-0.04em",
-        lineHeight: "1",
+        lineHeight: "1.05",
         // Stronger glow than the original — score is the dominant instrument
         textShadow: `0 0 60px ${color}66`,
       }}
     >
-      {/* Sizing ghost — reserves the final width so counting never shifts layout. */}
-      <span aria-hidden className="invisible">
+      <span aria-hidden className="score-reveal">
         {value}
-      </span>
-      <span aria-hidden className="absolute inset-0">
-        {play ? Math.round(display) : value}
       </span>
       <span className="sr-only">{`Overall Decision Readiness Score ${value} out of 100`}</span>
     </span>
