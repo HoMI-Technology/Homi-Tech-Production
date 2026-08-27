@@ -102,12 +102,24 @@ describe("POST /api/advisor — real-model cost gate", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("paid (Plus) user reaches the model", async () => {
+  it("paid (Plus) user reaches the current Anthropic Messages API contract", async () => {
     state.tier = "plus";
     const res = await POST(req({ messages: [{ role: "user", content: "am I ready?" }] }));
     const body = (await res.json()) as { source: string };
     expect(body.source).toBe("model");
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(String(fetchMock.mock.calls[0][0])).toContain("api.anthropic.com");
+
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("https://api.anthropic.com/v1/messages");
+    expect(init.method).toBe("POST");
+    expect(init.headers).toMatchObject({
+      "content-type": "application/json",
+      "x-api-key": "test-key",
+      "anthropic-version": "2023-06-01",
+    });
+    expect(JSON.parse(String(init.body))).toMatchObject({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 1024,
+    });
   });
 });
