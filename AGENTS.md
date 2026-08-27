@@ -159,19 +159,23 @@ pwsh -File C:\Users\cody\ai-server\scripts\homi-ssot.ps1 pipeline -Task "..."
 ./scripts/homi-ssot.sh pull                # ff-only pull of the current branch
 ./scripts/homi-ssot.sh push "wip: message" # commit everything + push current branch, set upstream
 ./scripts/homi-ssot.sh sync                # fetch GitHub; ff-only local main + current branch
-./scripts/install-mac-ssot-launchagent.sh  # terminal hook: ff-only GitHub sync when you start work
+./scripts/install-mac-ssot-launchagent.sh  # one GitHub sync the first time you start work that day
 ./scripts/homi-agent.sh status             # which CLI owns this tree
 ./scripts/homi-agent.sh take grok|claude|codex
 ./scripts/homi-agent.sh drop
 ```
 
-GitHub stays the SSOT on this Mac via a zsh hook: the first terminal that
-lands in this clone (startup cwd or `cd`) runs `./scripts/homi-ssot.sh sync`
-(ff-only, never force, skip if dirty, never push `main`). Daily building is
-the work PC; this exists so the Mac is current when you start working.
-Repair with the install script above. Skip a session with `HOMI_SSOT_SKIP=1`.
-The clone’s files live at `~/Developer/Homi-Tech-Production`; the Desktop
-path is the human/Cursor alias.
+GitHub stays the SSOT on this Mac via a zsh hook: the **first** terminal that
+lands in this clone (startup cwd or `cd`) **that local calendar day** runs
+`./scripts/homi-ssot.sh sync` once (ff-only, never force, skip if dirty, never
+push `main`). Extra tabs, later `cd`s, and later terminals that day do **not**
+fetch again — the folder is already current, and a mid-work pull would change
+files under you. Next day, the first landing syncs once so you are not on
+yesterday’s copy. Daily building is the work PC. Agents/Cursor: run
+`./scripts/homi-ssot.sh sync` **once** before editing; do not run it again in
+the same session. Repair with the install script above. Skip a session with
+`HOMI_SSOT_SKIP=1`. The clone’s files live at `~/Developer/Homi-Tech-Production`;
+the Desktop path is the human/Cursor alias.
 
 ## Product guardrails (extracted from BUILD-BRIEF §1, 2026-08-03)
 
