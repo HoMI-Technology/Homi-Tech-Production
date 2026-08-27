@@ -5,7 +5,13 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendLifecycleEmail } from "@/lib/email/send";
 import { welcomeEmail } from "@/lib/email/templates";
 import { readAttributionCookie } from "@/lib/attribution";
-import { resolvePostLoginDestination } from "@/lib/auth/postLoginDestination";
+import {
+  EMPLOYEE_HOME_SEEN_COOKIE,
+  EMPLOYEE_HOME_SEEN_MAX_AGE,
+  POST_LOGIN_EMPLOYEE,
+  resolvePostLoginDestination,
+} from "@/lib/auth/postLoginDestination";
+import type { Profile } from "@/types/database";
 
 /**
  * GET /auth/callback — exchanges a Supabase auth code (from magic link,
@@ -23,6 +29,9 @@ export async function GET(request: Request) {
   const requestedNext = url.searchParams.get("next");
 
   let hasCompletedAssessment = false;
+  let role: Profile["role"] | null = null;
+  let employerId: string | null = null;
+  let onboardingCompleted: boolean | undefined;
   let userId: string | null = null;
   let userEmail: string | null = null;
   let userName = "there";
@@ -36,12 +45,25 @@ export async function GET(request: Request) {
     userName = (user?.user_metadata?.full_name as string | undefined)?.split(" ")[0] || "there";
 
     if (userId) {
-      const { count } = await supabase
-        .from("assessments")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", userId)
-        .eq("status", "completed");
+      // Role and orientation state outrank assessment state in the landing
+      // decision, so they are read here alongside the count.
+      const [{ count }, { data: profile }] = await Promise.all([
+        supabase
+          .from("assessments")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", userId)
+          .eq("status", "completed"),
+        supabase
+          .from("profiles")
+          .select("role, employer_id, onboarding_completed")
+          .eq("id", userId)
+          .maybeSingle(),
+      ]);
       hasCompletedAssessment = (count ?? 0) > 0;
+      const p = profile as Pick<Profile, "role" | "employer_id" | "onboarding_completed"> | null;
+      role = p?.role ?? null;
+      employerId = p?.employer_id ?? null;
+      onboardingCompleted = p?.onboarding_completed;
     }
 
     if (userEmail && userId) {
@@ -86,7 +108,26 @@ export async function GET(request: Request) {
   const next = resolvePostLoginDestination({
     requestedNext,
     hasCompletedAssessment,
+    role,
+    employerId,
+    onboardingCompleted,
+    employeeHomeSeen: request.headers.get("cookie")?.includes(`${EMPLOYEE_HOME_SEEN_COOKIE}=1`),
   });
 
-  return NextResponse.redirect(new URL(next, url.origin));
+  const response = NextResponse.redirect(new URL(next, url.origin));
+
+  // Burn the one-time employee orientation as we send them to it, so a refresh
+  // or a second sign-in goes straight to the personal home. Not httpOnly: the
+  // password sign-in path resolves the landing in the browser and must read it.
+  if (next === POST_LOGIN_EMPLOYEE) {
+    response.cookies.set(EMPLOYEE_HOME_SEEN_COOKIE, "1", {
+      httpOnly: false,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: EMPLOYEE_HOME_SEEN_MAX_AGE,
+    });
+  }
+
+  return response;
 }

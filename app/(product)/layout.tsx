@@ -8,6 +8,7 @@ import { ImpactToast } from "@/components/readiness/ImpactToast";
 // Lighthouse/E2E still open the widget on click. Guests do not get the FAB —
 // Companion is not anonymous customer chrome.
 import { CompanionHost } from "@/components/companion/CompanionHost";
+import { LocalResultReplay } from "@/components/assessment/LocalResultReplay";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { impactBus } from "@/lib/flags";
 import { getCachedClient, getCachedUser } from "@/lib/supabase/server";
@@ -66,6 +67,10 @@ export default async function ProductLayout({ children }: { children: React.Reac
       </ProductLayoutRouter>
 
       <SiteFooter />
+      {/* Reconciles a guest assessment onto the account wherever the user
+          lands. Shell-level, not page-level: the sign-in that makes it possible
+          can land on any surface. */}
+      {user && <LocalResultReplay />}
       {user && <CompanionHost />}
       {user && <SessionExpiredToast />}
       {impactBus ? <ImpactToast /> : null}

@@ -4,7 +4,13 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { resolvePostLoginDestination } from "@/lib/auth/postLoginDestination";
+import {
+  employeeHomeSeenCookieValue,
+  EMPLOYEE_HOME_SEEN_COOKIE,
+  POST_LOGIN_EMPLOYEE,
+  resolvePostLoginDestination,
+} from "@/lib/auth/postLoginDestination";
+import type { Profile } from "@/types/database";
 import { OAuthButtons } from "@/components/auth/OAuthButtons";
 
 function SignInForm() {
@@ -27,18 +33,45 @@ function SignInForm() {
       data: { user },
     } = await supabase.auth.getUser();
     let hasCompletedAssessment = false;
+    let role: Profile["role"] | null = null;
+    let employerId: string | null = null;
+    let onboardingCompleted: boolean | undefined;
     if (user) {
-      const { count } = await supabase
-        .from("assessments")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .eq("status", "completed");
+      // Role and orientation state decide the landing before assessment state
+      // does — a partner belongs in their book, and someone who has never
+      // scored belongs in orientation. Read alongside the count, not after.
+      const [{ count }, { data: profile }] = await Promise.all([
+        supabase
+          .from("assessments")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .eq("status", "completed"),
+        supabase
+          .from("profiles")
+          .select("role, employer_id, onboarding_completed")
+          .eq("id", user.id)
+          .maybeSingle(),
+      ]);
       hasCompletedAssessment = (count ?? 0) > 0;
+      const p = profile as Pick<Profile, "role" | "employer_id" | "onboarding_completed"> | null;
+      role = p?.role ?? null;
+      employerId = p?.employer_id ?? null;
+      onboardingCompleted = p?.onboarding_completed;
     }
-    return resolvePostLoginDestination({
+    const destination = resolvePostLoginDestination({
       requestedNext,
       hasCompletedAssessment,
+      role,
+      employerId,
+      onboardingCompleted,
+      employeeHomeSeen: document.cookie.includes(`${EMPLOYEE_HOME_SEEN_COOKIE}=1`),
     });
+    // Burn the one-time employee orientation as we send them to it, so a
+    // refresh or a second sign-in goes straight to the personal home.
+    if (destination === POST_LOGIN_EMPLOYEE) {
+      document.cookie = employeeHomeSeenCookieValue();
+    }
+    return destination;
   }
 
   async function handleSubmit(e: React.FormEvent) {
