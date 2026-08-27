@@ -202,6 +202,14 @@ function readinessQuestion(ctx: AdvisorAssessmentContext): string {
   const weak = weakestPillar(ctx.pillars);
   const strong = strongestPillar(ctx.pillars);
 
+  if (typeof ctx.ageDays === "number" && ctx.ageDays >= 90) {
+    return (
+      `That assessment is ${ctx.ageDays} days old, so I won't treat it as a current readiness answer. ` +
+      `Your last recorded verdict was ${meta.label}, but a lot can change in that time. ` +
+      `Refresh the assessment before you lean on it for this decision.`
+    );
+  }
+
   if (ctx.verdict === "READY") {
     return (
       `Your score is ${ctx.score}. The verdict is READY. ${meta.line} ` +
@@ -221,7 +229,7 @@ function readinessQuestion(ctx: AdvisorAssessmentContext): string {
   return (
     `Your score is ${ctx.score} — verdict: ${meta.label}. ${meta.line} ` +
     `${strong.name} is carrying you at ${strong.value}/100. ${weak.name} is the drag, at ${weak.value}/100. ` +
-    `That gap is the answer to "am I ready" — you're ready in some ways and not in others, and pretending otherwise is how people end up regretting the timing, not the home.`
+    `That gap is why this is not a green light yet. The stronger pillar is real progress; it does not erase the weaker one.`
   );
 }
 
