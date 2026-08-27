@@ -16,7 +16,7 @@
 set -euo pipefail
 
 # Always operate from the physical repo root (pwd -P). A Desktop symlink is
-# fine for humans; LaunchAgents cannot git-fetch TCC-protected Desktop paths.
+# fine for humans; keep the real files off Desktop (TCC / iCloud).
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd -P)"
 cd "$REPO_ROOT"

@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-# Install the Mac LaunchAgent that fast-forwards this clone from GitHub at login.
+# Install the Mac terminal hook that fast-forwards this clone from GitHub
+# when you start working in a terminal (first cd / first shell in the repo).
 #
-# GitHub is the SSOT. Daily building is on the work PC; this Mac only needs to
-# be current when you sit down. The job runs once at login (RunAtLoad), never
-# on a timer. It never force-updates, never commits, never pushes main.
-# macOS blocks LaunchAgents from Desktop/Documents/Downloads — the clone must
-# live outside those folders (Desktop may be a symlink to ~/Developer/...).
+# GitHub is the SSOT. Daily building is on the work PC; this Mac only needs
+# to be current when you sit down. No timer, no login job.
+# The job never force-updates, never commits, never pushes main.
 #
 # Usage: ./scripts/install-mac-ssot-launchagent.sh
 
@@ -16,77 +15,44 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd -P)"
 
 LABEL="com.homitechnology.repo-ssot"
 SUPPORT="${HOME}/Library/Application Support/homitechnology"
-WRAPPER="${SUPPORT}/homi-ssot-launchd.sh"
+HOOK_SRC="${SCRIPT_DIR}/homi-ssot-zsh.sh"
+HOOK_DST="${SUPPORT}/homi-ssot-zsh.sh"
 PLIST="${HOME}/Library/LaunchAgents/${LABEL}.plist"
-LOG="${HOME}/Library/Logs/homi-ssot-sync.log"
+WRAPPER="${SUPPORT}/homi-ssot-launchd.sh"
+ZSHRC="${HOME}/.zshrc"
+MARKER="homi-ssot-zsh.sh"
 
-case "${REPO_ROOT}" in
-  */Desktop/*|*/Documents/*|*/Downloads/*)
-    echo "error: physical repo is under a TCC-protected folder:" >&2
-    echo "       ${REPO_ROOT}" >&2
-    echo "       LaunchAgents cannot git-fetch Desktop/Documents/Downloads." >&2
-    echo "       Keep files at ~/Developer/Homi-Tech-Production (Desktop symlink is ok)." >&2
-    exit 1
-    ;;
-esac
+if [[ ! -f "${HOOK_SRC}" ]]; then
+  echo "error: missing ${HOOK_SRC}" >&2
+  exit 1
+fi
 
-mkdir -p "${SUPPORT}" "${HOME}/Library/LaunchAgents" "${HOME}/Library/Logs"
+mkdir -p "${SUPPORT}" "${HOME}/Library/Caches/homitechnology"
 
-cat > "${WRAPPER}" <<EOF
-#!/bin/bash
-set -euo pipefail
-export HOME="${HOME}"
-export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin"
-export GH_CONFIG_DIR="${HOME}/.config/gh"
-cd -P "${REPO_ROOT}"
-exec /bin/bash "${REPO_ROOT}/scripts/homi-ssot.sh" sync
-EOF
-chmod 755 "${WRAPPER}"
-
-cat > "${PLIST}" <<EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>Label</key>
-	<string>${LABEL}</string>
-	<key>WorkingDirectory</key>
-	<string>${REPO_ROOT}</string>
-	<key>ProgramArguments</key>
-	<array>
-		<string>/bin/bash</string>
-		<string>${WRAPPER}</string>
-	</array>
-	<key>RunAtLoad</key>
-	<true/>
-	<key>StandardOutPath</key>
-	<string>${LOG}</string>
-	<key>StandardErrorPath</key>
-	<string>${LOG}</string>
-	<key>EnvironmentVariables</key>
-	<dict>
-		<key>PATH</key>
-		<string>/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin</string>
-		<key>HOME</key>
-		<string>${HOME}</string>
-		<key>GH_CONFIG_DIR</key>
-		<string>${HOME}/.config/gh</string>
-	</dict>
-</dict>
-</plist>
-EOF
-
+# Login/interval LaunchAgent is the wrong trigger — remove it if present.
 UID_NUM="$(id -u)"
-DOMAIN="gui/${UID_NUM}"
-launchctl bootout "${DOMAIN}/${LABEL}" 2>/dev/null || true
-launchctl bootstrap "${DOMAIN}" "${PLIST}"
-launchctl enable "${DOMAIN}/${LABEL}" 2>/dev/null || true
-launchctl kickstart -k "${DOMAIN}/${LABEL}"
+launchctl bootout "gui/${UID_NUM}/${LABEL}" 2>/dev/null || true
+rm -f "${PLIST}" "${WRAPPER}"
 
-echo "installed: ${LABEL}"
+cp "${HOOK_SRC}" "${HOOK_DST}"
+
+if [[ -f "${ZSHRC}" ]] && grep -q "${MARKER}" "${ZSHRC}"; then
+  echo "zshrc:    already sources ${HOOK_DST}"
+else
+  {
+    echo ""
+    echo "# >>> homi-ssot >>>"
+    echo "# GitHub SSOT: ff-only pull when a terminal starts work in the Homi clone."
+    echo "[[ -f \"\$HOME/Library/Application Support/homitechnology/homi-ssot-zsh.sh\" ]] && source \"\$HOME/Library/Application Support/homitechnology/homi-ssot-zsh.sh\""
+    echo "# <<< homi-ssot <<<"
+  } >> "${ZSHRC}"
+  echo "zshrc:    appended source of ${HOOK_DST}"
+fi
+
+echo "installed: terminal hook (first shell / first cd into Homi-Tech-Production)"
 echo "repo:      ${REPO_ROOT}"
-echo "wrapper:   ${WRAPPER}"
-echo "plist:     ${PLIST}"
-echo "when:      login only (RunAtLoad; ff-only; never force; skip if dirty)"
-echo "log:       ${LOG}"
+echo "hook:      ${HOOK_DST}"
+echo "when:      you start working in a terminal in this clone (ff-only; never force)"
+echo "skip:      HOMI_SSOT_SKIP=1"
 echo "status:    ${REPO_ROOT}/scripts/homi-ssot.sh status"
+echo "note:      open a new terminal (or: source ~/.zshrc) for the hook to load"
