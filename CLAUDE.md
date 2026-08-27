@@ -5,7 +5,7 @@ Open **only** this repository root. SSOT:
 - GitHub: https://github.com/HoMI-Technology/Homi-Tech-Production
 - Site: https://homitechnology.com
 - Local (Windows): `C:\Users\Quality Assurance\Desktop\HoMI_Tech_Github_Build`
-- Local (macOS): `/Users/cody/Desktop/Homi-Tech-Production REPO`
+- Local (macOS): `/Users/cody/Desktop/Homi-Tech-Production REPO` (symlink → `~/Developer/Homi-Tech-Production`)
 
 **Lane:** Claude Code is the **batch** writer. If Cursor or Grok already holds
 `./scripts/homi-agent.sh` lease on this tree, **stop** — use a worktree under

@@ -40,7 +40,7 @@ Actions `verify` + `e2e` → `node scripts/ci-coverage-report.mjs` →
 - **GitHub:** https://github.com/HoMI-Technology/Homi-Tech-Production
 - **Product site:** https://homitechnology.com (HōMI — Decision Readiness Intelligence)
 - **Local SSOT (Windows work PC):** `C:\Users\Quality Assurance\Desktop\HoMI_Tech_Github_Build`
-- **Local SSOT (macOS MacBook):** `/Users/cody/Desktop/Homi-Tech-Production REPO`
+- **Local SSOT (macOS MacBook):** `/Users/cody/Desktop/Homi-Tech-Production REPO` (symlink → `~/Developer/Homi-Tech-Production`; LaunchAgents cannot write `Desktop/`)
 - **Worktrees:** `Desktop/homi-worktrees/` (never a second writable clone). Never treat Branding-Marketing copies, ultra-premium 4-root snapshots, iCloud `HoMI_Tech` folders, or zips as product truth.
 - **Default branch:** `main`
 - **Never** treat Desktop `HoMI Tech` dumps, zips, or other clones as product truth.
@@ -159,10 +159,17 @@ pwsh -File C:\Users\cody\ai-server\scripts\homi-ssot.ps1 pipeline -Task "..."
 ./scripts/homi-ssot.sh pull                # ff-only pull of the current branch
 ./scripts/homi-ssot.sh push "wip: message" # commit everything + push current branch, set upstream
 ./scripts/homi-ssot.sh sync                # fetch GitHub; ff-only local main + current branch
+./scripts/install-mac-ssot-launchagent.sh  # LaunchAgent: sync every 15 min from GitHub
 ./scripts/homi-agent.sh status             # which CLI owns this tree
 ./scripts/homi-agent.sh take grok|claude|codex
 ./scripts/homi-agent.sh drop
 ```
+
+GitHub stays the SSOT on this Mac via LaunchAgent `com.homitechnology.repo-ssot`
+(`sync` every 15 minutes: ff-only, never force, skip if dirty, never push `main`).
+Log: `~/Library/Logs/homi-ssot-sync.log`. Repair with the install script above.
+The clone’s files live at `~/Developer/Homi-Tech-Production` so launchd can
+actually fetch; the Desktop path is the human/Cursor alias.
 
 ## Product guardrails (extracted from BUILD-BRIEF §1, 2026-08-03)
 

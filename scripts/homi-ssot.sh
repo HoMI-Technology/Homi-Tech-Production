@@ -15,9 +15,10 @@
 
 set -euo pipefail
 
-# Always operate from the repo root, regardless of where the script is called from.
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+# Always operate from the physical repo root (pwd -P). A Desktop symlink is
+# fine for humans; LaunchAgents cannot git-fetch TCC-protected Desktop paths.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd -P)"
 cd "$REPO_ROOT"
 
 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -127,10 +128,11 @@ ff_local_main() {
 }
 
 cmd_sync() {
+  echo "sync:    $(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo "repo:    $REPO_ROOT"
   echo "branch:  $(branch)"
   echo "fetching origin..."
-  git fetch origin
+  git fetch --prune origin
 
   ff_local_main || true
 
