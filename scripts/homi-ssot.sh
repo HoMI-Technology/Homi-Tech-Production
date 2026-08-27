@@ -8,8 +8,10 @@
 #   ./scripts/homi-ssot.sh status                 # branch, sync vs origin, dirty files, .env.local check
 #   ./scripts/homi-ssot.sh pull                   # fast-forward-only pull of the current branch
 #   ./scripts/homi-ssot.sh push ["commit message"]  # commit everything + push, set upstream
+#   ./scripts/homi-ssot.sh sync                   # fetch GitHub; ff-only local main + current branch
 #
 # Rule of thumb: `pull` before you touch anything, `push` before you walk away.
+# GitHub is the SSOT. `sync` never force-updates and never commits.
 
 set -euo pipefail
 
@@ -60,6 +62,17 @@ cmd_status() {
   else
     echo "env:     .env.local MISSING — copy from .env.example (secrets are gitignored, never synced)"
   fi
+
+  # Local main can rot if you live on a feature branch — GitHub main is the SSOT.
+  if git show-ref --verify --quiet refs/remotes/origin/main && git show-ref --verify --quiet refs/heads/main; then
+    local main_behind
+    main_behind="$(git rev-list --count main..origin/main 2>/dev/null || echo 0)"
+    if [ "${main_behind:-0}" -gt 0 ]; then
+      echo "main:    local main is $main_behind commit(s) behind origin/main — run: ./scripts/homi-ssot.sh sync"
+    else
+      echo "main:    local main matches origin/main"
+    fi
+  fi
 }
 
 cmd_pull() {
@@ -98,12 +111,58 @@ cmd_push() {
   echo "pushed. On your other machine: git fetch && git checkout $b"
 }
 
+# Fast-forward local `main` to origin/main without checking it out.
+# `git fetch origin main:main` is ff-only into a non-checked-out branch.
+ff_local_main() {
+  if [ "$(branch)" = "main" ]; then
+    git merge --ff-only origin/main
+    return
+  fi
+  if ! git fetch origin main:main; then
+    echo "warning: could not fast-forward local main (diverged or checked out elsewhere)." >&2
+    echo "         reconcile locally — never force. GitHub origin/main stays the SSOT." >&2
+    return 1
+  fi
+  echo "main:    local main fast-forwarded to origin/main ($(git rev-parse --short refs/heads/main))"
+}
+
+cmd_sync() {
+  echo "repo:    $REPO_ROOT"
+  echo "branch:  $(branch)"
+  echo "fetching origin..."
+  git fetch origin
+
+  ff_local_main || true
+
+  local b; b="$(branch)"
+  if ! git rev-parse --abbrev-ref --symbolic-full-name '@{u}' >/dev/null 2>&1; then
+    echo "current: $b has no upstream — it is NOT on GitHub yet."
+    echo "         run: ./scripts/homi-ssot.sh push \"wip: <thing>\""
+    return 0
+  fi
+
+  if [ -n "$(git status --porcelain)" ]; then
+    echo "current: dirty working tree — skip pull so local work is not overwritten."
+    echo "         commit/push or stash, then sync again."
+    git status --short
+    return 0
+  fi
+
+  echo "pulling origin/$b (fast-forward only)..."
+  if ! git pull --ff-only; then
+    echo "ff-only pull failed on $b — local and GitHub diverged. Reconcile; do not force." >&2
+    exit 1
+  fi
+  echo "ok:      $b is 1:1 with GitHub (ff-only)"
+}
+
 case "${1:-status}" in
   status) cmd_status ;;
   pull)   cmd_pull ;;
   push)   shift || true; cmd_push "${1:-}" ;;
+  sync)   cmd_sync ;;
   *)
-    echo "usage: ./scripts/homi-ssot.sh {status|pull|push [\"message\"]}" >&2
+    echo "usage: ./scripts/homi-ssot.sh {status|pull|push [\"message\"]|sync}" >&2
     exit 2
     ;;
 esac

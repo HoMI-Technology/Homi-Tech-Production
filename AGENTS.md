@@ -22,6 +22,8 @@ If a task looks like “fix skipped tests,” “enable branch protection,” or
 | ------------------------------ | ------------------------------------------------- |
 | `homi doctor`                  | Machine + auth + secrets + noise health check     |
 | `homi ssot status\|pull\|push` | Windows 1:1 GitHub sync (`scripts/homi-ssot.ps1`) |
+| `./scripts/homi-ssot.sh …`     | macOS 1:1 GitHub sync (`status` / `pull` / `push` / `sync`) |
+| `./scripts/homi-agent.sh …`    | macOS CLI lane lease (one writer per tree)        |
 | `homi secrets`                 | E2E / LHCI GitHub secrets present?                |
 | `homi hygiene`                 | Open PR policy report                             |
 | `homi manual`                  | Open the Operators Manual                         |
@@ -36,7 +38,10 @@ Actions `verify` + `e2e` → `node scripts/ci-coverage-report.mjs` →
 ## Source of truth
 
 - **GitHub:** https://github.com/HoMI-Technology/Homi-Tech-Production
-- **Local only (this PC):** `C:\Users\Quality Assurance\Desktop\HoMI_Tech_Github_Build` (GitHub worktrees under `Desktop\homi-worktrees\`). Never treat Branding-Marketing copies, ultra-premium 4-root snapshots, or zips as product truth.
+- **Product site:** https://homitechnology.com (HōMI — Decision Readiness Intelligence)
+- **Local SSOT (Windows work PC):** `C:\Users\Quality Assurance\Desktop\HoMI_Tech_Github_Build`
+- **Local SSOT (macOS MacBook):** `/Users/cody/Desktop/Homi-Tech-Production REPO`
+- **Worktrees:** `Desktop/homi-worktrees/` (never a second writable clone). Never treat Branding-Marketing copies, ultra-premium 4-root snapshots, iCloud `HoMI_Tech` folders, or zips as product truth.
 - **Default branch:** `main`
 - **Never** treat Desktop `HoMI Tech` dumps, zips, or other clones as product truth.
 
@@ -98,10 +103,44 @@ through GitHub, never through a copy.
 
 | Writer                                               | May write product tree?                                  |
 | ---------------------------------------------------- | -------------------------------------------------------- |
-| Claude, Cursor, Codex, Kimi, Grok (in this repo cwd) | Yes, with leases / human review                          |
+| Claude, Cursor, Codex, Kimi, Grok (in this repo cwd) | Yes, with **CLI lanes + lease** / human review           |
 | EVO multi-ai-pipeline `-WorkDir` = this root         | Yes                                                      |
 | Agy (Antigravity)                                    | **No** product writes — playground only; consult/read ok |
 | Local Ollama models                                  | Assist only; human or primary desk applies patches here  |
+
+Having three CLIs installed is not permission for three writers in one tree.
+**One writer per working copy.** Cursor counts as a writer.
+
+## CLI lanes (HōMI product — this is the fix)
+
+Do **not** add Aider, OpenCode, Gemini CLI, or a fourth agent to this repo.
+The installed set is enough. The bug was all three treating `cwd` as theirs.
+
+| Lane | Binary | When | Where |
+| --- | --- | --- | --- |
+| **Interactive product** | **Cursor** | UI, Next.js components, you watching `npm run dev` | This clone, current branch |
+| **Batch / hard refactor** | **`claude`** (Claude Code) | Multi-file logic, tests, “come back in 20 min” | **Only after** `./scripts/homi-agent.sh take claude` — prefer a worktree under `Desktop/homi-worktrees/` if Cursor is already open here |
+| **Orchestrate / review (this TUI)** | **`grok`** | Routing, AGENTS.md, git/ssot, explain diffs — default **read / instruct**, write only when it holds the lease | This clone **or** do not write if Cursor/claude holds the lease |
+| **Parked second opinion** | **`codex`** | Only for an isolated worktree comparison, then throw the loser away | Never `main`, never the same tree as Cursor or claude |
+
+**Hard rules**
+
+1. `./scripts/homi-agent.sh status` before any CLI starts editing.
+2. `./scripts/homi-agent.sh take <grok|claude|codex>` — fails if another live lease owns this tree.
+3. `./scripts/homi-agent.sh drop` when that session is done (or before switching machines).
+4. Two agents on one feature = two **git worktrees** + two branches, merge via PR. Never three CLIs on `feat/post-login-state-router` at once.
+5. Section rule still wins: name the Section; **never** edit Section 0 (`lib/scoring/*`) without founder sign-off.
+6. Spend hold **#241** still wins: no GitHub/Vercel/Supabase paid upgrades from an agent.
+7. Product Node for deploy/docs is **22** (Cursor Cloud / `AGENTS.md`). Homebrew Node 26 on the Mac is for the shell only — do not let an agent bump `engines` to 26.
+
+```bash
+cd "/Users/cody/Desktop/Homi-Tech-Production REPO"
+./scripts/homi-ssot.sh status
+./scripts/homi-agent.sh status
+./scripts/homi-agent.sh take grok     # this session, if Grok is the writer
+# …work…
+./scripts/homi-agent.sh drop
+```
 
 ## Commands
 
@@ -119,6 +158,10 @@ pwsh -File C:\Users\cody\ai-server\scripts\homi-ssot.ps1 pipeline -Task "..."
 ./scripts/homi-ssot.sh status              # branch, sync vs origin, dirty files, .env.local check
 ./scripts/homi-ssot.sh pull                # ff-only pull of the current branch
 ./scripts/homi-ssot.sh push "wip: message" # commit everything + push current branch, set upstream
+./scripts/homi-ssot.sh sync                # fetch GitHub; ff-only local main + current branch
+./scripts/homi-agent.sh status             # which CLI owns this tree
+./scripts/homi-agent.sh take grok|claude|codex
+./scripts/homi-agent.sh drop
 ```
 
 ## Product guardrails (extracted from BUILD-BRIEF §1, 2026-08-03)
