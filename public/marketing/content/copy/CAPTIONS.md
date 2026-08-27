@@ -41,7 +41,7 @@ Anti-shame is product policy at HōMI.
 Everyone else tells you how.  
 HōMI helps you see if.
 
-Your homie, not your banker.  
+Your HōMI, not your banker.  
 Educational guidance only.
 
 ### will_you_be_okay → `homi_post_quote_will_you_be_okay_1080.png`

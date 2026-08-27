@@ -61,7 +61,12 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
             <ThresholdCompass size={200} verdict={row.verdict} />
 
             <div>
-              <p className="score-numeral text-6xl font-bold text-light">{row.overall_score}</p>
+              <p
+                className="score-numeral text-6xl font-bold tabular-nums text-light"
+                aria-label={`Overall Decision Readiness Score ${row.overall_score} out of 100`}
+              >
+                {row.overall_score}
+              </p>
               <p className="mt-1 text-sm uppercase tracking-widest text-dim">
                 Decision Readiness Score out of 100
               </p>
