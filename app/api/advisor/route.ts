@@ -652,7 +652,10 @@ export async function POST(request: Request) {
   const credit = demoContext ? null : (serverState?.credit ?? parsed.data.credit);
   const path = demoContext ? null : (parsed.data.path ?? null);
   const surface = demoContext ? null : parsed.data.surface;
-  const whatChanged = demoContext ? null : parsed.data.whatChanged;
+  // A client movement summary is only valid when the client assessment also
+  // wins. If the server provides the assessment, pairing it with client-local
+  // movement can describe a different score history.
+  const whatChanged = demoContext || serverState?.assessment ? null : parsed.data.whatChanged;
   const lensDigest = demoContext ? null : (parsed.data.lensDigest ?? null);
   const identity = demoContext ? null : parsed.data.identity;
   const homieBehaviorHint = demoContext ? null : (parsed.data.homieBehaviorHint ?? null);
@@ -712,7 +715,7 @@ export async function POST(request: Request) {
     // anonymous/demo/unlinked users, and on any failure — best-effort).
     const verified = supabase && gateUserId ? await getVerifiedCashFlow(supabase) : null;
     const provenance = serverState
-      ? "Context assembled server-side from the user's own account records (authoritative across their devices). "
+      ? "Available assessment, finance, and credit blocks were assembled server-side from the user's account records; other context may come from their current client state. "
       : "";
     const contextNote =
       provenance +
