@@ -19,6 +19,23 @@ import type { VerdictKey } from "@/lib/brand";
  */
 
 export const PARTNER_KEY_PREFIX = "homi_live_";
+export const PARTNER_KEY_TEST_PREFIX = "homi_test_";
+
+/** Live or sandbox partner key. Prefix is the environment detector, not the secret. */
+export function isPartnerKey(key: string): boolean {
+  return key.startsWith(PARTNER_KEY_PREFIX) || key.startsWith(PARTNER_KEY_TEST_PREFIX);
+}
+
+/** Sole partner purpose. Eligibility strings 404 as unknown — do not enumerate them. */
+export const EDUCATIONAL_PURPOSE = "educational_guidance";
+
+export const RECEIPT_SCORE_NAME = "Decision Readiness";
+
+export const NOT_FOR = ["credit", "employment", "housing", "insurance"] as const;
+
+export function isEducationalPurpose(value: string | null): boolean {
+  return value === EDUCATIONAL_PURPOSE;
+}
 
 /** SHA-256 hex of a partner API key — the only form stored in the DB. */
 export function hashPartnerKey(key: string): string {
@@ -58,6 +75,9 @@ export interface ReceiptClaims {
   issuedAt: string;
   expiresAt: string | null;
   revoked: boolean;
+  purpose?: typeof EDUCATIONAL_PURPOSE;
+  scoreName?: typeof RECEIPT_SCORE_NAME;
+  notFor?: readonly (typeof NOT_FOR)[number][];
 }
 
 const SIGNING_KID = "homi-receipt-v1";
@@ -67,17 +87,32 @@ const SIGNING_KID = "homi-receipt-v1";
  * regardless of object construction order. Any drift here breaks verification,
  * so the field list is explicit rather than Object.keys-derived.
  */
+function withPurpose(claims: ReceiptClaims): Required<
+  Pick<ReceiptClaims, "purpose" | "scoreName" | "notFor">
+> & ReceiptClaims {
+  return {
+    ...claims,
+    purpose: claims.purpose ?? EDUCATIONAL_PURPOSE,
+    scoreName: claims.scoreName ?? RECEIPT_SCORE_NAME,
+    notFor: claims.notFor ?? NOT_FOR,
+  };
+}
+
 function canonicalize(claims: ReceiptClaims): string {
+  const c = withPurpose(claims);
   return JSON.stringify([
-    claims.sub,
-    claims.verdict,
-    claims.scoreBand,
-    claims.pillars.financial,
-    claims.pillars.emotional,
-    claims.pillars.timing,
-    claims.issuedAt,
-    claims.expiresAt,
-    claims.revoked,
+    c.sub,
+    c.verdict,
+    c.scoreBand,
+    c.pillars.financial,
+    c.pillars.emotional,
+    c.pillars.timing,
+    c.issuedAt,
+    c.expiresAt,
+    c.revoked,
+    c.purpose,
+    c.scoreName,
+    c.notFor,
   ]);
 }
 
@@ -96,10 +131,11 @@ export interface SignedReceipt {
 
 /** Attaches an HMAC signature to the claims. Signature is null when unconfigured. */
 export function signReceipt(claims: ReceiptClaims): SignedReceipt {
+  const full = withPurpose(claims);
   const secret = signingSecret();
-  if (!secret) return { claims, signature: null };
-  const value = createHmac("sha256", secret).update(canonicalize(claims)).digest("base64url");
-  return { claims, signature: { alg: "HS256", kid: SIGNING_KID, value } };
+  if (!secret) return { claims: full, signature: null };
+  const value = createHmac("sha256", secret).update(canonicalize(full)).digest("base64url");
+  return { claims: full, signature: { alg: "HS256", kid: SIGNING_KID, value } };
 }
 
 /** Constant-time verification of a signed receipt (for partner-side/offline checks + tests). */

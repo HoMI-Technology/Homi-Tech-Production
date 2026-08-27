@@ -85,7 +85,7 @@ export default async function PartnerDashboardPage() {
   // L0 — attributed assessments via denormalized referral_source (invite path).
   const { data: referredRows } = await supabase
     .from("assessments")
-    .select("id, user_id, verdict, overall_score, completed_at, created_at, is_shadow")
+    .select("id, user_id, verdict, completed_at, created_at, is_shadow")
     .eq("referral_source", user.id)
     .eq("status", "completed")
     .order("created_at", { ascending: false })
@@ -95,7 +95,6 @@ export default async function PartnerDashboardPage() {
     id: string;
     user_id: string;
     verdict: VerdictKey | null;
-    overall_score: number | null;
     completed_at: string | null;
     created_at: string;
     is_shadow: boolean | null;
@@ -108,7 +107,6 @@ export default async function PartnerDashboardPage() {
 
   // Fallback: portal RPC if denorm empty but code exists (pre-I0 traffic).
   let rpcCount: number | null = null;
-  let rpcAvg: number | null = null;
   if (partnerCode && attributed.length === 0) {
     try {
       const { data: stats } = await supabase.rpc("partner_code_stats", {
@@ -117,7 +115,6 @@ export default async function PartnerDashboardPage() {
       const row = Array.isArray(stats) ? stats[0] : stats;
       if (row) {
         rpcCount = Number(row.assessment_count ?? 0);
-        rpcAvg = row.avg_score != null ? Number(row.avg_score) : null;
       }
       const { data: recent } = await supabase.rpc("partner_recent_assessments", {
         p_code: partnerCode,
@@ -129,7 +126,6 @@ export default async function PartnerDashboardPage() {
             r: {
               created_at: string | null;
               verdict: string | null;
-              overall_score: number | null;
               is_shadow: boolean | null;
             },
             i: number,
@@ -137,7 +133,6 @@ export default async function PartnerDashboardPage() {
             id: `rpc-${i}`,
             user_id: "",
             verdict: (r.verdict as VerdictKey | null) ?? null,
-            overall_score: r.overall_score,
             completed_at: r.created_at,
             created_at: r.created_at ?? new Date().toISOString(),
             is_shadow: r.is_shadow,
@@ -158,10 +153,6 @@ export default async function PartnerDashboardPage() {
     .limit(50);
   const clients = (clientRows as Pick<Profile, "id" | "full_name" | "created_at">[] | null) ?? [];
 
-  const scores = attributed.map((a) => a.overall_score).filter((s): s is number => s != null);
-  const avgFromRows =
-    scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
-  const avg = avgFromRows ?? rpcAvg;
   const assessmentCount = attributed.length > 0 ? attributed.length : (rpcCount ?? 0);
   const readyCount = attributed.filter((a) => a.verdict === "READY").length;
   const readyRate =
@@ -199,12 +190,6 @@ export default async function PartnerDashboardPage() {
               value: String(assessmentCount),
               footer: "Attributed to you",
               color: COLORS.cyan,
-            },
-            {
-              label: "Avg score",
-              value: avg !== null ? String(avg) : "—",
-              footer: "Cohort",
-              color: COLORS.yellow,
             },
             {
               label: "Ready",
@@ -274,7 +259,6 @@ export default async function PartnerDashboardPage() {
                 <thead>
                   <tr>
                     <th>Client</th>
-                    <th>Score</th>
                     <th>Verdict</th>
                     <th>Date</th>
                   </tr>
@@ -289,9 +273,6 @@ export default async function PartnerDashboardPage() {
                           {a.is_shadow && (
                             <span className="ml-2 text-3xs uppercase text-dim">Shadow</span>
                           )}
-                        </td>
-                        <td className="score-numeral text-dim">
-                          {a.overall_score != null ? Math.round(a.overall_score) : "—"}
                         </td>
                         <td>
                           {a.verdict ? (

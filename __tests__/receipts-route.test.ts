@@ -8,6 +8,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const VALID_TOKEN = "a".repeat(32);
 const GOOD_KEY = "homi_live_" + "b".repeat(32);
+const TEST_KEY = "homi_test_" + "c".repeat(32);
 
 interface Scenario {
   keyRow: { id: string; revoked_at: string | null } | null;
@@ -16,6 +17,7 @@ interface Scenario {
     expires_at: string | null;
     revoked_at: string | null;
     created_at: string;
+    audience_partner_key_id?: string | null;
     assessment: Record<string, unknown> | null;
   } | null;
 }
@@ -51,10 +53,11 @@ vi.mock("@/lib/supabase/admin", () => ({
   }),
 }));
 
-async function call(token: string, key?: string) {
+async function call(token: string, key?: string, purpose?: string | null) {
   const { GET } = await import("@/app/api/v1/receipts/[token]/route");
   const headers: Record<string, string> = { "x-forwarded-for": "5.5.5.5" };
   if (key) headers.authorization = `Bearer ${key}`;
+  if (purpose !== null) headers["homi-purpose"] = purpose ?? "educational_guidance";
   return GET(new Request(`https://homitechnology.com/api/v1/receipts/${token}`, { headers }), {
     params: Promise.resolve({ token }),
   });
@@ -66,6 +69,7 @@ function liveShare() {
     expires_at: "2099-01-01T00:00:00.000Z",
     revoked_at: null,
     created_at: "2026-07-01T00:00:00.000Z",
+    audience_partner_key_id: "key-1",
     assessment: {
       overall_score: 82,
       verdict: "READY",
@@ -116,27 +120,72 @@ describe("GET /api/v1/receipts/:token", () => {
     expect(verificationInserts[0]).toMatchObject({ share_id: "share-1", partner_key_id: "key-1" });
   });
 
-  it("fails closed for a revoked share: 410, not valid, no audit row", async () => {
+  it("fails closed for a revoked share: 404, no audit row", async () => {
     scenario.share = { ...liveShare(), revoked_at: "2026-07-02T00:00:00.000Z" };
     const res = await call(VALID_TOKEN, GOOD_KEY);
-    expect(res.status).toBe(410);
+    expect(res.status).toBe(404);
     const json = (await res.json()) as { valid: boolean; status: string };
     expect(json.valid).toBe(false);
-    expect(json.status).toBe("revoked");
+    expect(json.status).toBe("not_found");
     expect(verificationInserts).toHaveLength(0);
   });
 
-  it("fails closed for an expired share: 410 expired", async () => {
+  it("fails closed for an expired share: 404 not_found", async () => {
     scenario.share = { ...liveShare(), expires_at: "2020-01-01T00:00:00.000Z" };
     const res = await call(VALID_TOKEN, GOOD_KEY);
-    expect(res.status).toBe(410);
+    expect(res.status).toBe(404);
     const json = (await res.json()) as { status: string };
-    expect(json.status).toBe("expired");
+    expect(json.status).toBe("not_found");
+  });
+
+  it("404s when the share is not bound to this partner key", async () => {
+    scenario.share = { ...liveShare(), audience_partner_key_id: null };
+    const res = await call(VALID_TOKEN, GOOD_KEY);
+    expect(res.status).toBe(404);
+    expect(verificationInserts).toHaveLength(0);
+  });
+
+  it("404s tokens shorter than 32 hex", async () => {
+    const res = await call("aa".repeat(8), GOOD_KEY);
+    expect(res.status).toBe(404);
   });
 
   it("404s for an unknown token", async () => {
     scenario.share = null;
     const res = await call(VALID_TOKEN, GOOD_KEY);
     expect(res.status).toBe(404);
+  });
+
+  it("400s when Homi-Purpose is omitted", async () => {
+    const res = await call(VALID_TOKEN, GOOD_KEY, null);
+    expect(res.status).toBe(400);
+    const json = (await res.json()) as { error: { code?: string } | string };
+    const code = typeof json.error === "string" ? json.error : json.error.code;
+    expect(String(code)).toMatch(/PURPOSE_REQUIRED|purpose/i);
+    expect(verificationInserts).toHaveLength(0);
+  });
+
+  it("404s eligibility purposes so scanners do not get a forbidden-use menu", async () => {
+    for (const purpose of ["lending", "employment", "housing", "insurance"]) {
+      const res = await call(VALID_TOKEN, GOOD_KEY, purpose);
+      expect(res.status).toBe(404);
+    }
+    expect(verificationInserts).toHaveLength(0);
+  });
+
+  it("returns purpose, not_for, and Decision Readiness name — never a raw score", async () => {
+    const res = await call(VALID_TOKEN, GOOD_KEY);
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as { receipt: Record<string, unknown> };
+    expect(json.receipt.purpose).toBe("educational_guidance");
+    expect(json.receipt.scoreName).toBe("Decision Readiness");
+    expect(json.receipt.notFor).toEqual(["credit", "employment", "housing", "insurance"]);
+    expect(JSON.stringify(json)).not.toContain("82");
+    expect(json.receipt.overall_score).toBeUndefined();
+  });
+
+  it("accepts a homi_test_ partner key", async () => {
+    const res = await call(VALID_TOKEN, TEST_KEY);
+    expect(res.status).toBe(200);
   });
 });

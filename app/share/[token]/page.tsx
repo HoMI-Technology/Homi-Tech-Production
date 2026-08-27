@@ -1,13 +1,14 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { PILLARS, VERDICT_META, LEGAL_DISCLAIMER, type VerdictKey } from "@/lib/brand";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
+import { scoreBand, pillarBand } from "@/lib/receipts";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
-import { ScoreRing } from "@/components/ui/ScoreRing";
 
 const FINANCIAL = PILLARS.find((p) => p.key === "financial")!;
 const EMOTIONAL = PILLARS.find((p) => p.key === "emotional")!;
@@ -24,15 +25,22 @@ interface SharedAssessment {
   shared_by: string;
 }
 
-/**
- * Pillar strength renders as a normalized percentage, never raw points. The
- * exact pillar maxima are trade-secret (2026-08 audit): this page is
- * token-gated but anonymous-readable, and a raw "points vs max" pair is
- * recoverable from the numeral plus the ring's arc geometry (the SVG
- * stroke-dasharray sits in the DOM). Percentages carry the same honesty
- * without publishing the weights.
- */
-const pillarPct = (score: number, max: number) => Math.round((score / max) * 100);
+function pct(score: number, max: number): number {
+  return Math.max(0, Math.min(100, Math.round((score / max) * 100)));
+}
+
+/** Unfurl-safe: never put a numeral or READY gate in OG/title. */
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: "Private HōMI share",
+    description: "A private Decision Readiness share. Educational guidance only.",
+    robots: { index: false, follow: false },
+    openGraph: {
+      title: "Private HōMI share",
+      description: "This link is private.",
+    },
+  };
+}
 
 export default async function SharePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
@@ -47,6 +55,12 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
   }
 
   const meta = VERDICT_META[row.verdict];
+  const band = scoreBand(row.overall_score);
+  const pillars = {
+    financial: pillarBand(pct(row.financial_score, PILLAR_MAX_POINTS.financial)),
+    emotional: pillarBand(pct(row.emotional_score, PILLAR_MAX_POINTS.emotional)),
+    timing: pillarBand(pct(row.timing_score, PILLAR_MAX_POINTS.timing)),
+  };
 
   return (
     <>
@@ -60,17 +74,8 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
 
             <ThresholdCompass size={200} verdict={row.verdict} />
 
-            <div>
-              <p
-                className="score-numeral text-6xl font-bold tabular-nums text-light"
-                aria-label={`Overall HōMI-Score ${row.overall_score} out of 100`}
-              >
-                {row.overall_score}
-              </p>
-              <p className="mt-1 text-sm uppercase tracking-widest text-dim">
-                HōMI-Score out of 100
-              </p>
-            </div>
+            <p className="text-sm uppercase tracking-widest text-dim">Decision Readiness</p>
+            <p className="text-lg font-medium capitalize text-light">{band} band</p>
 
             <VerdictBadge verdict={row.verdict} size="lg" />
 
@@ -78,46 +83,29 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
           </div>
 
           <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3">
-            <div className="glass flex flex-col items-center gap-4 p-6">
-              <ScoreRing
-                value={pillarPct(row.financial_score, PILLAR_MAX_POINTS.financial)}
-                max={100}
-                color={FINANCIAL.color}
-                label={FINANCIAL.name}
-                sublabel="percent"
-                size={120}
-              />
-            </div>
-            <div className="glass flex flex-col items-center gap-4 p-6">
-              <ScoreRing
-                value={pillarPct(row.emotional_score, PILLAR_MAX_POINTS.emotional)}
-                max={100}
-                color={EMOTIONAL.color}
-                label={EMOTIONAL.name}
-                sublabel="percent"
-                size={120}
-              />
-            </div>
-            <div className="glass flex flex-col items-center gap-4 p-6">
-              <ScoreRing
-                value={pillarPct(row.timing_score, PILLAR_MAX_POINTS.timing)}
-                max={100}
-                color={TIMING.color}
-                label={TIMING.name}
-                sublabel="percent"
-                size={120}
-              />
-            </div>
+            {(
+              [
+                [FINANCIAL.name, pillars.financial],
+                [EMOTIONAL.name, pillars.emotional],
+                [TIMING.name, pillars.timing],
+              ] as const
+            ).map(([name, level]) => (
+              <div key={name} className="glass flex flex-col items-center gap-2 p-6">
+                <p className="text-sm text-dim">{name}</p>
+                <p className="text-base font-medium capitalize text-light">{level}</p>
+              </div>
+            ))}
           </div>
 
           <div className="mt-12 flex flex-col items-center gap-4 border-t border-slate-surface/60 pt-10 text-center">
             <h2 className="font-display text-2xl font-semibold text-light">Know before you leap</h2>
             <p className="max-w-md text-sm text-dim">
               HōMI measures readiness across Financial Reality, Emotional Truth, and Perfect Timing
-              — not just whether you can afford it.
+              — not just whether you can afford it. This page is educational guidance, not a
+              consumer report, and is not for credit, employment, housing, or insurance eligibility.
             </p>
             <Link href="/shadow-score" className="btn btn-primary">
-              Get your own score
+              Get your own Decision Readiness read
             </Link>
           </div>
 

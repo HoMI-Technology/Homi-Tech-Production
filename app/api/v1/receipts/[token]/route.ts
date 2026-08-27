@@ -6,7 +6,11 @@ import {
   scoreBand,
   pillarBand,
   signReceipt,
-  PARTNER_KEY_PREFIX,
+  isPartnerKey,
+  isEducationalPurpose,
+  EDUCATIONAL_PURPOSE,
+  RECEIPT_SCORE_NAME,
+  NOT_FOR,
   type ReceiptClaims,
 } from "@/lib/receipts";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
@@ -37,11 +41,19 @@ function unauthorized() {
   );
 }
 
+function notFoundBody() {
+  return NextResponse.json(
+    { status: "not_found", valid: false },
+    { status: 404, headers: { "Cache-Control": "no-store" } },
+  );
+}
+
 interface ShareJoinRow {
   id: string;
   expires_at: string | null;
   revoked_at: string | null;
   created_at: string;
+  audience_partner_key_id: string | null;
   assessment: {
     overall_score: number | null;
     verdict: VerdictKey | null;
@@ -57,7 +69,18 @@ export async function GET(request: Request, { params }: { params: Promise<{ toke
   const ip = getClientIp(request);
   const auth = request.headers.get("authorization") ?? "";
   const key = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
-  if (!key.startsWith(PARTNER_KEY_PREFIX)) return unauthorized();
+  if (!isPartnerKey(key)) return unauthorized();
+
+  const purposeHeader = request.headers.get("homi-purpose");
+  if (!purposeHeader) {
+    return NextResponse.json(
+      { error: { code: "PURPOSE_REQUIRED", message: "Homi-Purpose is required." } },
+      { status: 400 },
+    );
+  }
+  if (!isEducationalPurpose(purposeHeader)) {
+    return NextResponse.json({ error: "Receipt not found." }, { status: 404 });
+  }
 
   // Rate-limit per key (hashed), not per IP — a partner is one caller behind
   // shared egress. Falls back to IP only if the key is malformed.
@@ -85,8 +108,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ toke
   }
   const partnerKeyId = (keyRow as { id: string }).id;
 
-  if (!/^[a-f0-9]{16,64}$/.test(token)) {
-    return NextResponse.json({ error: "Receipt not found." }, { status: 404 });
+  if (!/^[a-f0-9]{32,64}$/.test(token)) {
+    return notFoundBody();
   }
 
   // Resolve the share + its assessment. Revocation/expiry are evaluated here
@@ -94,7 +117,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ toke
   const { data, error } = await service
     .from("score_shares")
     .select(
-      "id, expires_at, revoked_at, created_at, assessment:assessments(overall_score, verdict, financial_score, emotional_score, timing_score)",
+      "id, expires_at, revoked_at, created_at, audience_partner_key_id, assessment:assessments(overall_score, verdict, financial_score, emotional_score, timing_score)",
     )
     .eq("share_token", token)
     .maybeSingle();
@@ -108,12 +131,20 @@ export async function GET(request: Request, { params }: { params: Promise<{ toke
   const share = data as ShareJoinRow | null;
   const assessment = share?.assessment ?? null;
   if (!share || !assessment || assessment.verdict === null || assessment.overall_score === null) {
-    return NextResponse.json({ status: "not_found", valid: false }, { status: 404 });
+    return notFoundBody();
+  }
+
+  // Unbound public links are not partner-redeemable (use the HTML share page).
+  if (!share.audience_partner_key_id || share.audience_partner_key_id !== partnerKeyId) {
+    return notFoundBody();
   }
 
   const revoked = share.revoked_at !== null;
   const expired = share.expires_at !== null && new Date(share.expires_at) <= new Date();
   const valid = !revoked && !expired;
+  if (!valid) {
+    return notFoundBody();
+  }
 
   const claims: ReceiptClaims = {
     sub: token,
@@ -127,6 +158,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ toke
     issuedAt: share.created_at,
     expiresAt: share.expires_at,
     revoked,
+    purpose: EDUCATIONAL_PURPOSE,
+    scoreName: RECEIPT_SCORE_NAME,
+    notFor: NOT_FOR,
   };
 
   // Audit every verification of a live receipt (consumer-visible via RLS).
@@ -141,12 +175,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ toke
   const signed = signReceipt(claims);
   return NextResponse.json(
     {
-      valid,
-      status: revoked ? "revoked" : expired ? "expired" : "valid",
+      valid: true,
+      status: "valid",
       receipt: signed.claims,
       signature: signed.signature,
     },
-    { status: valid ? 200 : 410 },
+    { status: 200, headers: { "Cache-Control": "no-store" } },
   );
 }
 
