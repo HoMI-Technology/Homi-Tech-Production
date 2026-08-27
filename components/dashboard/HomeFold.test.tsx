@@ -183,6 +183,47 @@ describe("HomeFold", () => {
     expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();
   });
 
+  it("S4: a clean verdict leads with the score, and the score is the hero", () => {
+    // The default doctrine. Only a hard stop inverts it — staleness does not,
+    // because a stale score is still the honest headline, just an older one.
+    const { container } = render(
+      <HomeFold
+        {...base}
+        foldState="S4"
+        latest={{ id: "a1", overallScore: 84, pillars }}
+        verdict="READY"
+        stopMessages={[]}
+        foldSentence="You cleared the readiness line."
+      />,
+    );
+    const build = container.querySelector("[data-home-build-hero]");
+    const scoreRail = container.querySelector("[data-home-score-rail]");
+    if (!build || !scoreRail) throw new Error("expected score rail and build hero");
+
+    expect(scoreRail.compareDocumentPosition(build) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(scoreRail.getAttribute("data-home-score-role")).toBe("hero");
+  });
+
+  it("S6: a stale verdict still leads with the score, marked as stale", () => {
+    const { container } = render(
+      <HomeFold
+        {...base}
+        foldState="S6"
+        staleDays={94}
+        latest={{ id: "a3", overallScore: 78, pillars }}
+        verdict="ALMOST_THERE"
+        stopMessages={[]}
+        foldSentence="Your last read is a while back."
+      />,
+    );
+    const scoreRail = container.querySelector("[data-home-score-rail]");
+    expect(scoreRail?.getAttribute("data-home-score-role")).toBe("hero");
+    // The retest nudge is what marks it stale — the score is not demoted.
+    expect(screen.getByText(/94 days since your last assessment/)).toBeInTheDocument();
+  });
+
   it("hard-stop banner outranks the score reading and the build, and suppresses step progress", () => {
     const { container } = render(
       <HomeFold
@@ -211,13 +252,20 @@ describe("HomeFold", () => {
     if (!banner || !build || !scoreRail) {
       throw new Error("expected hard-stop banner, score rail, and build hero");
     }
-    // Order: hard-stop alert → score reading → Path action instrument.
-    expect(banner.compareDocumentPosition(scoreRail) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+    // Order: hard-stop alert → Path action instrument → score reading.
+    //
+    // S5 is the named exception to score-first (design direction §4, phase 04:
+    // do not invert the *default*, but a hard stop leads with the situation).
+    // Someone who cannot proceed does not need their number first — they need
+    // what is blocking them and what to do about it. The score stays on the
+    // fold, demoted to context.
+    expect(banner.compareDocumentPosition(build) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-    expect(scoreRail.compareDocumentPosition(build) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+    expect(build.compareDocumentPosition(scoreRail) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
+    expect(scoreRail.getAttribute("data-home-score-role")).toBe("context");
     // Hard stop tints the score numeral crimson, never a cheerful verdict tint.
     expect(screen.getByLabelText("Overall Decision Readiness Score 71 out of 100")).toHaveStyle({
       color: COLORS.crimson,

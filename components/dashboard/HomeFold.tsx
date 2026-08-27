@@ -19,6 +19,7 @@ import { DashboardResumeRamp } from "@/components/dashboard/DashboardResumeRamp"
 import { OutcomeSurveyPrompt } from "@/components/dashboard/OutcomeSurveyPrompt";
 import { SaveStatusBanner } from "@/components/results/SaveStatusBanner";
 import type { OutcomeSurveyKind } from "@/types/database";
+import { STALE_VERDICT_DAYS, type PostLoginState } from "@/lib/auth/postLoginDestination";
 
 export type HomeFoldLatest = {
   id: string;
@@ -57,6 +58,7 @@ export function HomeFold({
   hasPath,
   pathDone,
   pathTotal,
+  foldState,
 }: {
   assessmentsFailed: boolean;
   latest: HomeFoldLatest | null;
@@ -73,11 +75,25 @@ export function HomeFold({
   hasPath: boolean;
   pathDone: number;
   pathTotal: number;
+  /**
+   * Which post-login state this read is (lib/auth/postLoginDestination).
+   * Optional so any caller that has not been taught it keeps the score-first
+   * default rather than silently changing what leads the fold.
+   */
+  foldState?: PostLoginState;
 }) {
   const verdictMeta = VERDICT_META[verdict ?? "BUILD_FIRST"];
   const scorePct =
     latest?.overallScore != null ? Math.round(latest.overallScore) : null;
   const hardStopActive = stopMessages.length > 0;
+  /**
+   * Score-first is the default and stays the doctrine (design direction §4,
+   * phase 04: "do not invert the default"). S5 is the named exception: when a
+   * hard stop is live, the situation leads and the score drops to context —
+   * a person who cannot proceed does not need their number first, they need
+   * to know what is blocking them and what to do about it.
+   */
+  const nextMoveLeads = (foldState ?? (hardStopActive ? "S5" : "S4")) === "S5";
   const companionLine = companionFoldLine({
     hasHardStops: hardStopActive,
     hasPath,
@@ -154,41 +170,63 @@ export function HomeFold({
               ) : null}
             </div>
 
-            {staleDays !== null && staleDays > 30 && (
+            {staleDays !== null && staleDays > STALE_VERDICT_DAYS && (
               <p className="mb-4 rounded-lg border border-amber/35 bg-verdict-build/90 px-4 py-2.5 text-sm text-light">
                 It has been {staleDays} days since your last assessment. Life
                 changes - consider a retest.
               </p>
             )}
 
-            {/* (a) Elevated score reading — score + verdict + pillars lead the fold. */}
-            <div
-              className="mb-6 border-b border-white/5 pb-6"
-              data-home-score-rail=""
-            >
-              <ScoreRail
-                variant="hero"
-                score={scorePct}
-                verdict={verdict}
-                pillars={latest.pillars}
-                tint={hardStopActive ? COLORS.crimson : instrumentTint}
-              />
-              {verdict && (
-                <div className="mt-3">
-                  <LastReadChrome
+            {/* (a) Elevated score reading — score + verdict + pillars.
+                Declared before the next move because score-first is the
+                default doctrine; `nextMoveLeads` swaps the render order for a
+                hard stop without disturbing that. */}
+            {(() => {
+              const scoreReading = (
+                <div
+                  className={`${nextMoveLeads ? "mt-6 border-t pt-6" : "mb-6 border-b pb-6"} border-white/5`}
+                  data-home-score-rail=""
+                  data-home-score-role={nextMoveLeads ? "context" : "hero"}
+                >
+                  <ScoreRail
+                    variant={nextMoveLeads ? "compact" : "hero"}
+                    score={scorePct}
                     verdict={verdict}
-                    lastReadAt={lastReadAt ?? null}
-                    showAge={staleDays === null || staleDays <= 30}
-                    lastMoney={lastMoney ?? null}
+                    pillars={latest.pillars}
+                    tint={hardStopActive ? COLORS.crimson : instrumentTint}
                   />
+                  {verdict && (
+                    <div className="mt-3">
+                      <LastReadChrome
+                        verdict={verdict}
+                        lastReadAt={lastReadAt ?? null}
+                        showAge={staleDays === null || staleDays <= STALE_VERDICT_DAYS}
+                        lastMoney={lastMoney ?? null}
+                      />
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              );
 
-            {/* (b) Path next move — the fold's primary action instrument. */}
-            <div data-home-build-hero="">
-              <PathNextMove variant="fold" />
-            </div>
+              {/* (b) Path next move — the fold's primary action instrument. */}
+              const nextMove = (
+                <div data-home-build-hero="">
+                  <PathNextMove variant="fold" />
+                </div>
+              );
+
+              return nextMoveLeads ? (
+                <>
+                  {nextMove}
+                  {scoreReading}
+                </>
+              ) : (
+                <>
+                  {scoreReading}
+                  {nextMove}
+                </>
+              );
+            })()}
 
             <PathStepLedger suppress={hardStopActive || suppressBuildPercent} />
 
