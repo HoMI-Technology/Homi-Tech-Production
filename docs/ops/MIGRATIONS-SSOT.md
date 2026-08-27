@@ -52,6 +52,7 @@ npx supabase migration repair 00038 --status applied --linked
 | `00041_profile_guard_security_invoker.sql` | Makes that guard actually enforce (`security invoker`) Ã¢â‚¬â€ applied 2026-08-01                                                                                                                                                                                                    |
 | `20260803000001_finance_ledger.sql`        | Budget & Runway PR 3 Ã¢â‚¬â€ `finance_*` tables + FORCE RLS + system categories + mutation idempotency. **Applied to production 2026-08-03** (single-file via `supabase db query --linked`; repair `20260803000001` applied). 6 tables FORCE RLS, 22 policies, 21 system categories. |
 | `20260818000001_plaid_full_picture.sql`    | Identity owners, holdings, investment transactions, liabilities. **Applied to production 2026-08-18** (`supabase db query --linked`; repair `20260818000001` applied). All five new tables FORCE RLS; `plaid_account_owners` has no authenticated SELECT. |
+| `20260820000001_score_trigger_notifications.sql` | Dedupe store for `/api/cron/score-triggers` — one row per (user_id, trigger_signature) flagged; unique constraint + FORCE RLS, service-role only. **Not yet applied — operator step** (single-file via `supabase db query --linked`; repair `20260820000001` applied). |
 
 ## Drift status
 

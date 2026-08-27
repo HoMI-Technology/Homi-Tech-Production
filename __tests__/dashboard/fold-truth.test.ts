@@ -11,6 +11,7 @@ import {
   homeFoldSentence,
   isNextRedirectError,
   pathStepCounts,
+  pillarActionHref,
   resumeDraftCopy,
   shouldPaintDashSpectrum,
   shouldSuppressBuildPercent,
@@ -184,6 +185,18 @@ describe("weakestMeasuredPillar", () => {
     expect(
       weakestMeasuredPillar({ financial: null, emotional: null, timing: null }),
     ).toBeNull();
+  });
+});
+
+describe("pillarActionHref", () => {
+  it("routes each softest pillar to its training surface", () => {
+    expect(pillarActionHref("financial")).toBe("/money/decide");
+    expect(pillarActionHref("emotional")).toBe("/journal");
+    expect(pillarActionHref("timing")).toBe("/scenarios");
+  });
+
+  it("returns null when there is no weakest pillar", () => {
+    expect(pillarActionHref(null)).toBeNull();
   });
 });
 

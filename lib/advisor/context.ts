@@ -16,6 +16,7 @@ import {
   buildFinanceContextFromLegacy,
 } from "@/lib/advisor/finance-context";
 import { loadCreditState, hasSavedCreditState, creditSavedAt } from "@/lib/credit/store";
+import { checkLiveScoreTriggers } from "@/lib/finance/live-update";
 import { buildScoreExplanation } from "@/lib/advisor/explain";
 import { loadReadinessPath, getFinanceSavedAtForPath, buildPathCoachPack } from "@/lib/readiness";
 import type {
@@ -208,6 +209,12 @@ export interface CompanionContext {
   surface: string | undefined;
   whatChanged: string | undefined;
   path: AdvisorPathContext | undefined;
+  /**
+   * True when the finance numbers crossed a scoring band since the last
+   * assessment (lib/finance/live-update). The deterministic fallback uses it
+   * to open with a re-check suggestion; it is a UI signal, never a score.
+   */
+  hasScoreTrigger: boolean;
 }
 
 /** Everything the Companion knows about this user and this moment. */
@@ -222,5 +229,6 @@ export function buildCompanionContext(
     surface: buildSurfaceContext(pathname),
     whatChanged: buildWhatChanged(storedOverride),
     path: buildPathContext(),
+    hasScoreTrigger: checkLiveScoreTriggers()?.changed === true,
   };
 }

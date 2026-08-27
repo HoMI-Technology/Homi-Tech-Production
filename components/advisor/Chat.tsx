@@ -136,10 +136,8 @@ export function Chat() {
       }
 
       const latest = await fetchLatestStoredAssessment();
-      const { assessment, finance, credit, whatChanged, path } = buildCompanionContext(
-        undefined,
-        latest,
-      );
+      const { assessment, finance, credit, whatChanged, path, hasScoreTrigger } =
+        buildCompanionContext(undefined, latest);
       const res = await fetch("/api/advisor", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -151,6 +149,7 @@ export function Chat() {
           whatChanged,
           credit,
           path,
+          hasScoreTrigger,
           identity: loadIdentity(),
           phase0Frozen: freeze.status === "frozen",
           phase0Until: freeze.record?.until,

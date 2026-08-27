@@ -151,6 +151,26 @@ function pillarDisplayName(key: HomeFoldPillar): string {
   }
 }
 
+/**
+ * Where to send the user when a pillar is the softest on their read.
+ * Each maps to the existing surface that actually trains that pillar.
+ */
+export function pillarActionHref(pillar: HomeFoldPillar | null): string | null {
+  if (!pillar) return null;
+  switch (pillar) {
+    case "financial":
+      return "/money/decide";
+    case "emotional":
+      return "/journal";
+    case "timing":
+      return "/scenarios";
+    default: {
+      const _exhaustive: never = pillar;
+      return _exhaustive;
+    }
+  }
+}
+
 /** Softest measured pillar. Null scores (skipped ET) are not treated as zero. */
 export function weakestMeasuredPillar(scores: {
   financial: number | null;

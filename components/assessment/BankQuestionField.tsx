@@ -32,22 +32,34 @@ export function BankQuestionField({
   question,
   value,
   onChange,
+  prefilled = false,
 }: {
   question: Question;
   value: ResponseValue | undefined;
   onChange: (value: ResponseValue) => void;
+  /** Quick re-check: value was seeded from the user's saved finance numbers. */
+  prefilled?: boolean;
 }) {
   const color = pillarColor(question.dimension);
 
+  const badge = prefilled ? (
+    <p className="mt-3 text-xs font-medium text-cyan">
+      Pre-filled from your saved numbers — edit if anything changed.
+    </p>
+  ) : null;
+
   if (question.question_type === "number") {
     return (
-      <NumberField
-        label={question.question_text}
-        value={typeof value === "number" ? value : null}
-        placeholder="0"
-        min={0}
-        onChange={(v) => onChange(v ?? 0)}
-      />
+      <div>
+        <NumberField
+          label={question.question_text}
+          value={typeof value === "number" ? value : null}
+          placeholder="0"
+          min={0}
+          onChange={(v) => onChange(v ?? 0)}
+        />
+        {badge}
+      </div>
     );
   }
 
@@ -55,28 +67,34 @@ export function BankQuestionField({
     const { min, max, lowLabel, highLabel } = sliderConfig(question);
     const current = typeof value === "number" ? value : Math.round((min + max) / 2);
     return (
-      <SliderField
-        label={question.question_text}
-        value={current}
-        min={min}
-        max={max}
-        color={color}
-        lowLabel={lowLabel}
-        highLabel={highLabel}
-        formatValue={(v) => String(v)}
-        onChange={(v) => onChange(v)}
-      />
+      <div>
+        <SliderField
+          label={question.question_text}
+          value={current}
+          min={min}
+          max={max}
+          color={color}
+          lowLabel={lowLabel}
+          highLabel={highLabel}
+          formatValue={(v) => String(v)}
+          onChange={(v) => onChange(v)}
+        />
+        {badge}
+      </div>
     );
   }
 
   const options = Array.isArray(question.options) ? question.options : [];
   return (
-    <ChoiceCards<string>
-      label={question.question_text}
-      value={typeof value === "string" ? value : null}
-      onChange={(v) => onChange(v)}
-      options={options.map((o) => ({ value: o.value, label: o.label }))}
-    />
+    <div>
+      <ChoiceCards<string>
+        label={question.question_text}
+        value={typeof value === "string" ? value : null}
+        onChange={(v) => onChange(v)}
+        options={options.map((o) => ({ value: o.value, label: o.label }))}
+      />
+      {badge}
+    </div>
   );
 }
 

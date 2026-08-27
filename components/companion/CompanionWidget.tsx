@@ -336,7 +336,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
       }
 
       const latest = await fetchLatestStoredAssessment();
-      const { assessment, finance, credit, surface, whatChanged, path } =
+      const { assessment, finance, credit, surface, whatChanged, path, hasScoreTrigger } =
         buildCompanionContext(pathname, latest);
 
       const afterHardTruth =
@@ -407,6 +407,7 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
           whatChanged,
           credit,
           path,
+          hasScoreTrigger,
           lensDigest,
           identity,
           persona,

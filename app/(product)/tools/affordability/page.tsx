@@ -15,6 +15,8 @@ import { ChainLinks } from "@/components/tools/ChainLinks";
 import { LensSynthesis } from "@/components/tools/LensSynthesis";
 import { UpdateNumbersButton } from "@/components/tools/UpdateNumbersButton";
 import { ReadinessBand } from "@/components/tools/ReadinessBand";
+import { ScoreImpactCard, type BuildScoreOverrides } from "@/components/tools/ScoreImpactCard";
+import { affordabilityOverrides } from "@/lib/tools/score-preview";
 import { getLens } from "@/lib/tools/registry";
 import { computeHousingDeltas } from "@/lib/tools/deltas";
 import { toReadinessDigest } from "@/lib/tools/readiness-impact";
@@ -90,6 +92,30 @@ export default function AffordabilityPage() {
         downPayment,
       }),
     [result, rate, termYears, taxInsRate, downPayment],
+  );
+  const protectedBreakdown = useMemo(
+    () =>
+      paymentBreakdown(result.protected.maxPrice, {
+        rate,
+        termYears,
+        taxInsuranceRate: taxInsRate / 100,
+        downPayment,
+      }),
+    [result, rate, termYears, taxInsRate, downPayment],
+  );
+
+  // Score Impact Preview: "what if I bought at the Protected tier price
+  // with the down payment shown". The helper only projects inputs that
+  // improve on the stored assessment — never a flattering invention.
+  const buildScoreOverrides = useCallback<BuildScoreOverrides>(
+    (baseline) =>
+      affordabilityOverrides(baseline, {
+        monthlyIncome: result.monthlyIncome,
+        monthlyHousing: protectedBreakdown.total,
+        downPayment,
+        homePrice: result.protected.maxPrice,
+      }),
+    [result.monthlyIncome, result.protected.maxPrice, protectedBreakdown.total, downPayment],
   );
 
   // Deterministic impact of carrying the Stretch-tier payment.

@@ -123,6 +123,14 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     surfaces: { header: "more", palette: true },
   },
   {
+    href: "/decisions",
+    label: "Decisions",
+    paletteLabel: "Decision math",
+    group: "Navigate",
+    keywords: "buy now wait rent compare net position decision math simulate",
+    surfaces: { header: "more", palette: true },
+  },
+  {
     href: "/plan",
     // Not "Plan" — Money · Plan (/money/plan) and Track's Plan tab own that word.
     // Palette-only: Path to Ready is the living Build; this checklist stays
@@ -162,13 +170,6 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
   },
 
   // Launch-hidden insight labs (routes exist; not in header More or palette)
-  {
-    href: "/decisions",
-    label: "Decisions",
-    group: "Navigate",
-    keywords: "net position",
-    surfaces: { palette: false },
-  },
   {
     href: "/signals",
     label: "Signals",

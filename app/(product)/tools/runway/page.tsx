@@ -8,6 +8,8 @@ import { SavedNumbersStrip } from "@/components/tools/SavedNumbersStrip";
 import { ChainLinks } from "@/components/tools/ChainLinks";
 import { LensSynthesis } from "@/components/tools/LensSynthesis";
 import { SaveScenarioButton } from "@/components/tools/SaveScenarioButton";
+import { ScoreImpactCard, type BuildScoreOverrides } from "@/components/tools/ScoreImpactCard";
+import { runwayOverrides } from "@/lib/tools/score-preview";
 import { getLens } from "@/lib/tools/registry";
 import { useLensPrefill } from "@/hooks/use-lens-prefill";
 import { ToolShell, ToolResultHero } from "@/components/tools/ToolShell";
@@ -38,6 +40,13 @@ export default function RunwayPage() {
   const months = useMemo(() => (expenses > 0 ? savings / expenses : 0), [expenses, savings]);
   const temp = temperature(months);
   const cappedForBar = Math.min(months, 12);
+
+  // Score Impact Preview: "what if my assessed emergency fund were the
+  // runway this tool currently shows". Null when it already matches.
+  const buildScoreOverrides = useCallback<BuildScoreOverrides>(
+    (baseline) => runwayOverrides(baseline, months),
+    [months],
+  );
 
   // The lens digest the Companion reads. Runway IS the user's current
   // state, not a new obligation — no deltas by design.
@@ -123,6 +132,11 @@ export default function RunwayPage() {
           />
 
           <LensSynthesis digest={digest} />
+
+          <ScoreImpactCard
+            note="Assumes your liquid savings actually reach the runway shown above."
+            buildOverrides={buildScoreOverrides}
+          />
 
           <div className="glass p-6">
             <h2 className="font-semibold text-light">What this means</h2>

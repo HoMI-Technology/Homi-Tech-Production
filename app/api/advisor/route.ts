@@ -278,6 +278,12 @@ const bodySchema = z.object({
   surface: promptSafeString(80).nullish(),
   /** Score-movement one-liner from the explainability engine (lib/advisor/explain). */
   whatChanged: promptSafeString(240).nullish(),
+  /**
+   * True when checkLiveScoreTriggers detected a scoring-band crossing since
+   * the last assessment (lib/finance/live-update). Deterministic fallback
+   * only — opens the greeting with a re-check suggestion. Never a score.
+   */
+  hasScoreTrigger: z.boolean().nullish(),
   /** Precomputed digest of the tool the user is on (lib/tools/digest). */
   lensDigest: lensDigestSchema.nullish(),
   identity: identitySchema.nullish(),
@@ -644,6 +650,10 @@ export async function POST(request: Request) {
   const lensDigest = demoContext ? null : (parsed.data.lensDigest ?? null);
   const identity = demoContext ? null : parsed.data.identity;
   const homieBehaviorHint = demoContext ? null : (parsed.data.homieBehaviorHint ?? null);
+  // Read here, not inside deterministicReply(): that is a hoisted function
+  // declaration, so TS drops the `parsed.success` narrowing from the guard
+  // above inside its body (same reason respond() guards conversationId).
+  const hasScoreTrigger = demoContext ? null : parsed.data.hasScoreTrigger;
   const lastUserMessage = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
   const activePersona: AdvisorPersona = persona ?? "homie";
   const personaMeta = getPersona(activePersona);
@@ -662,6 +672,7 @@ export async function POST(request: Request) {
       message: lastUserMessage,
       assessment,
       persona: activePersona,
+      hasScoreTrigger,
     });
   }
 

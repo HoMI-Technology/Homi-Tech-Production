@@ -149,6 +149,13 @@ export interface AdvisorCreditContext {
 interface FallbackInput {
   message: string;
   assessment?: AdvisorAssessmentContext | null;
+  /**
+   * True when checkLiveScoreTriggers (lib/finance/live-update) detected a
+   * scoring-band crossing since the last assessment. The fallback then opens
+   * with a re-check suggestion. UI-level signal only — never a recomputed
+   * score; the real number still comes from /api/scoring alone.
+   */
+  hasScoreTrigger?: boolean | null;
 }
 
 function weakestPillar(pillars: AdvisorAssessmentContext["pillars"]): {
@@ -286,11 +293,16 @@ function notYetProtection(ctx: AdvisorAssessmentContext): string {
   );
 }
 
-function greeting(): string {
-  return (
+function greeting(hasScoreTrigger?: boolean | null): string {
+  const base =
     "Hey. I'm HōMI — think of me as your HōMI for this decision, not your banker and not a hype man. " +
     "Ask me anything about your readiness, your numbers, or what's actually going on in your head about this. " +
-    "I'll tell you the truth, even when it's \"not yet.\""
+    "I'll tell you the truth, even when it's \"not yet.\"";
+  if (!hasScoreTrigger) return base;
+  return (
+    "Your numbers moved since your last assessment — want to update your score? " +
+    "A quick re-check takes under two minutes, and I'd rather talk from your real numbers than last month's. " +
+    base
   );
 }
 
@@ -317,15 +329,15 @@ function defaultReflective(ctx?: AdvisorAssessmentContext | null): string {
  * assessment context. Deterministic, no external calls.
  */
 export function buildFallbackReply(input: FallbackInput): string {
-  const { message, assessment } = input;
+  const { message, assessment, hasScoreTrigger } = input;
   const m = message.trim();
 
   if (!m) {
-    return greeting();
+    return greeting(hasScoreTrigger);
   }
 
   if (has(m, "hi", "hello", "hey", "sup", "yo ")) {
-    if (m.length < 20) return greeting();
+    if (m.length < 20) return greeting(hasScoreTrigger);
   }
 
   if (has(m, "thank", "thanks", "appreciate")) {

@@ -368,6 +368,14 @@ export function MoneyStand({ readiness = null }: { readiness?: ScoreRailReading 
             </Link>
           )}
         </div>
+        {ready && (
+          <p className="text-xs text-dim">
+            Updated your numbers?{" "}
+            <Link href="/assessment" className="text-cyan underline-offset-2 hover:underline">
+              Reassess your readiness
+            </Link>
+          </p>
+        )}
       </div>
 
       <p className="max-w-2xl text-xs leading-relaxed text-dim/70">

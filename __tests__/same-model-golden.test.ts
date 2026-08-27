@@ -209,9 +209,9 @@ describe("Wave 1 same-model golden — Rehearse housing identity", () => {
     expect(scenarioInputsFromFinance({})).toEqual(DEFAULT_SIMULATION_INPUTS);
   });
 
-  it("does not promote Rehearse into header or More", () => {
+  it("promotes Rehearse (/decisions) into More; /labs stays off chrome", () => {
     const chrome = [...APP_PRIMARY_NAV, ...APP_MORE_NAV].map((i) => i.href);
-    expect(chrome).not.toContain("/decisions");
+    expect(chrome).toContain("/decisions");
     expect(chrome).not.toContain("/labs");
   });
 });

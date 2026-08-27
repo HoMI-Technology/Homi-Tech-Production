@@ -43,6 +43,7 @@ describe("share preview", () => {
       surface: undefined,
       whatChanged: undefined,
       path: undefined,
+      hasScoreTrigger: false,
       ...overrides,
     };
   }

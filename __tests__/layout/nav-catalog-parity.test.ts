@@ -83,6 +83,18 @@ describe("nav catalog parity", () => {
     expect(palette.PALETTE_CATALOG.map((i) => i.href)).not.toContain("/shadow-score");
   });
 
+  it("decision tools (/scenarios, /decisions) are live in More + palette; /simulator stays hidden", async () => {
+    const { nav, palette } = await loadSurfaces("true");
+    const moreHrefs = nav.APP_MORE_NAV.map((i) => i.href);
+    const paletteHrefs = palette.PALETTE_CATALOG.map((i) => i.href);
+    for (const href of ["/scenarios", "/decisions"]) {
+      expect(moreHrefs).toContain(href);
+      expect(paletteHrefs).toContain(href);
+    }
+    expect(moreHrefs).not.toContain("/simulator");
+    expect(paletteHrefs).not.toContain("/simulator");
+  });
+
   it("agentOs keywords never include homie scout, even when the flag is off", async () => {
     await loadSurfaces("false");
     const { NAV_CATALOG } = await import("@/lib/layout/nav-catalog");

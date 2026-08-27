@@ -24,6 +24,7 @@ describe("AppHeader nav config", () => {
       "/household",
       "/tools/preflight",
       "/scenarios",
+      "/decisions",
       "/journal",
       "/connections",
     ]) {
@@ -40,7 +41,6 @@ describe("AppHeader nav config", () => {
     // Incomplete lab surfaces stay off chrome for launch (routes still exist).
     for (const href of [
       "/simulator",
-      "/decisions",
       "/signals",
       "/twin",
       "/trinity",

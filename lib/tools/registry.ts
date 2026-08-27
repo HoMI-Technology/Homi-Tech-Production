@@ -690,7 +690,7 @@ export const LENSES: LensDefinition[] = [
     desc: "Avalanche vs snowball side by side — interest cost, not slogans.",
     ring: "stability",
     accent: "#fab633",
-    gate: "plus",
+    gate: "free",
     placement: "hub",
     relatedGuide: { href: "/guides/build-first-playbook", label: "The Build First Playbook" },
     chains: [{ lensId: "runway", pitch: "Watch runway grow as payments disappear", carry: [] }],
