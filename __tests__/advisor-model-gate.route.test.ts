@@ -112,6 +112,7 @@ describe("POST /api/advisor — real-model cost gate", () => {
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://api.anthropic.com/v1/messages");
     expect(init.method).toBe("POST");
+    expect(init.signal).toBeInstanceOf(AbortSignal);
     expect(init.headers).toMatchObject({
       "content-type": "application/json",
       "x-api-key": "test-key",

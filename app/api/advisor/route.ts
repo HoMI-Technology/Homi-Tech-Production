@@ -490,15 +490,6 @@ function buildContextNote(
 }
 
 export async function POST(request: Request) {
-  const ip = getClientIp(request);
-  const { allowed } = await rateLimit(`advisor:${ip}`, { limit: 20, windowMs: 60_000 });
-  if (!allowed) {
-    return NextResponse.json(
-      { error: "Too many requests. Take a breath and try again in a minute." },
-      { status: 429 },
-    );
-  }
-
   let json: unknown;
   try {
     json = await request.json();
@@ -523,6 +514,27 @@ export async function POST(request: Request) {
   // when Phase 0 does not trip. Do not collapse these layers.
   const latestUserContent = messages[messages.length - 1]?.content ?? "";
   const acute = detectAcuteDistress(latestUserContent);
+
+  // A fixed crisis-support response is safety infrastructure, not model usage.
+  // Classify the latest message before the IP budget so an exhausted caller is
+  // never denied the word-locked resources. All non-acute traffic remains
+  // subject to the same limiter and 429 response.
+  const ip = getClientIp(request);
+  const { allowed } = await rateLimit(`advisor:${ip}`, { limit: 20, windowMs: 60_000 });
+  if (!allowed) {
+    if (acute) {
+      return NextResponse.json({
+        reply: CRISIS_SUPPORT_MESSAGE,
+        source: "crisis",
+        conversationId: parsed.data.conversationId ?? null,
+      });
+    }
+    return NextResponse.json(
+      { error: "Too many requests. Take a breath and try again in a minute." },
+      { status: 429 },
+    );
+  }
+
   // Client phase0Frozen is advisory only. Signed-in freeze is the server row.
   const namedSignals = (parsed.data.phase0Signals ?? []).map((id) => ({ id }));
 
@@ -723,6 +735,7 @@ export async function POST(request: Request) {
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
+      signal: AbortSignal.timeout(15_000),
       headers: {
         "content-type": "application/json",
         "x-api-key": env.ANTHROPIC_API_KEY as string,
