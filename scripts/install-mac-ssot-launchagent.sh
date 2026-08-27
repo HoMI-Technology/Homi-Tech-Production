@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# Install the Mac LaunchAgent that keeps this clone fast-forward-only with GitHub.
+# Install the Mac LaunchAgent that fast-forwards this clone from GitHub at login.
 #
-# GitHub is the SSOT. This job never force-updates, never commits, never pushes
-# main. macOS blocks LaunchAgents from Desktop/Documents/Downloads — the clone
-# must live outside those folders (Desktop may be a symlink to ~/Developer/...).
+# GitHub is the SSOT. Daily building is on the work PC; this Mac only needs to
+# be current when you sit down. The job runs once at login (RunAtLoad), never
+# on a timer. It never force-updates, never commits, never pushes main.
+# macOS blocks LaunchAgents from Desktop/Documents/Downloads — the clone must
+# live outside those folders (Desktop may be a symlink to ~/Developer/...).
 #
 # Usage: ./scripts/install-mac-ssot-launchagent.sh
 
@@ -55,8 +57,6 @@ cat > "${PLIST}" <<EOF
 		<string>/bin/bash</string>
 		<string>${WRAPPER}</string>
 	</array>
-	<key>StartInterval</key>
-	<integer>900</integer>
 	<key>RunAtLoad</key>
 	<true/>
 	<key>StandardOutPath</key>
@@ -87,6 +87,6 @@ echo "installed: ${LABEL}"
 echo "repo:      ${REPO_ROOT}"
 echo "wrapper:   ${WRAPPER}"
 echo "plist:     ${PLIST}"
-echo "interval:  900s + RunAtLoad (ff-only; never force; skip if dirty)"
+echo "when:      login only (RunAtLoad; ff-only; never force; skip if dirty)"
 echo "log:       ${LOG}"
 echo "status:    ${REPO_ROOT}/scripts/homi-ssot.sh status"
