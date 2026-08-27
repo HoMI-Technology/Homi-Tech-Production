@@ -10,7 +10,9 @@
 #   ./scripts/homi-agent.sh drop
 #   ./scripts/homi-agent.sh exec claude -- <args...>   # take, run, drop on exit
 #
-# Lease lives in .git/homi-agent.lease (not committed).
+# `take` fast-forwards from GitHub once (start of this build). `drop` does not
+# pull again. Push as you build with ./scripts/homi-ssot.sh push. Skip pull:
+# HOMI_SSOT_SKIP=1. Lease lives in .git/homi-agent.lease (not committed).
 
 set -euo pipefail
 
@@ -95,6 +97,18 @@ cmd_status() {
   fi
 }
 
+ssot_on_take() {
+  # One GitHub ff-only pull when a build starts. Nothing else pulls.
+  [[ -n "${HOMI_SSOT_SKIP:-}" ]] && return 0
+  local ssot="$SCRIPT_DIR/homi-ssot.sh"
+  if [[ ! -x "$ssot" ]]; then
+    echo "warning: $ssot missing — clone may be behind GitHub" >&2
+    return 0
+  fi
+  echo "ssot:    fetching GitHub once (start of this build)…"
+  "$ssot" sync
+}
+
 cmd_take() {
   local lane="${1:-}"
   if ! valid_lane "$lane"; then
@@ -105,7 +119,7 @@ cmd_take() {
     local held
     held="$(lease_lane)"
     if [[ "$held" == "$lane" ]]; then
-      echo "lease already held by $lane on $BRANCH"
+      echo "lease already held by $lane on $BRANCH (no second GitHub pull)"
       cmd_status
       return 0
     fi
@@ -123,6 +137,11 @@ cmd_take() {
   fi
   write_lease "$lane" "$bin" "${LEASE_PID:-0}"
   echo "lease taken: $lane on $BRANCH (session — drop when done)"
+  if ! ssot_on_take; then
+    echo "error: GitHub sync failed — dropping lease. Reconcile, then take again." >&2
+    rm -f "$LEASE_FILE"
+    exit 1
+  fi
 }
 
 write_lease() {

@@ -15,7 +15,7 @@ Open **only** this repository root. SSOT:
 ./scripts/homi-agent.sh take claude
 ```
 
-Before large changes: `git status` + `git pull --ff-only` (or `./scripts/homi-ssot.sh pull`).
+`./scripts/homi-agent.sh take claude` pulls GitHub once at the start of the build. Push as you go (`./scripts/homi-ssot.sh push`). Do not run extra pulls mid-build.
 After changes: leave a clean commit story; operator pushes so GitHub stays 1:1.
 Do not edit Desktop archives, iCloud `HoMI_Tech` copies, or zips.
 Do not edit `lib/scoring/*` (Section 0 frozen).

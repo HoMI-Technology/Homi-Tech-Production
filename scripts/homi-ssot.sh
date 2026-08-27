@@ -10,8 +10,9 @@
 #   ./scripts/homi-ssot.sh push ["commit message"]  # commit everything + push, set upstream
 #   ./scripts/homi-ssot.sh sync                   # fetch GitHub; ff-only local main + current branch
 #
-# Rule of thumb: `pull` before you touch anything, `push` before you walk away.
 # GitHub is the SSOT. `sync` never force-updates and never commits.
+# Called once from `homi-agent.sh take` when a build starts. Push as you
+# build. No timer, no login job, no terminal hook.
 
 set -euo pipefail
 
