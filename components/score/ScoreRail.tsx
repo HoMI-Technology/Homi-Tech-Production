@@ -7,11 +7,11 @@ import { VerdictBadge } from "@/components/ui/VerdictBadge";
  * Shared Decision Readiness Score rail — score numeral + VerdictBadge + the three pillar
  * rings (Emotional · Financial · Timing), in the spec's fold order.
  *
- * One reading of the score, reused by the Home fold hero (variant="hero")
- * and the Reality surface top rail (variant="compact"), so the two surfaces
- * can never fork the pattern. This composes the existing locked primitives
- * (PillarRing / ScoreRing geometry, VerdictBadge, score-numeral) — it is not
- * a new orb.
+ * One reading of the score. Home fold uses variant="compact" (Path leads;
+ * the rail is supporting). Reality's top rail is the same compact pattern
+ * so the two surfaces cannot fork. variant="hero" remains for surfaces that
+ * still lead with the reading. Composes locked primitives (PillarRing /
+ * ScoreRing geometry, VerdictBadge, score-numeral) — not a new orb.
  *
  * Honesty rules:
  * - Pillars arrive as raw assessment points and render as normalized
@@ -122,7 +122,7 @@ export function ScoreRail({
 }: ScoreRailReading & {
   /** Instrument tint for the numeral — verdict color, crimson on hard stop. */
   tint?: string;
-  /** hero = Home fold lead reading; compact = Reality top rail under cash. */
+  /** hero = lead reading on partner/employee-style instruments; compact = Home + Reality supporting rail. */
   variant?: "hero" | "compact";
 }) {
   const compact = variant === "compact";

@@ -78,7 +78,7 @@ describe("HomeFold", () => {
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeTruthy();
   });
 
-  it("has-verdict leads with the score reading, then the Path action instrument", () => {
+  it("has-verdict leads with the Path action instrument, then a compact score reading", () => {
     const { container } = render(
       <HomeFold
         {...base}
@@ -103,10 +103,12 @@ describe("HomeFold", () => {
     expect(container.querySelector("[data-home-build-hero]")).not.toBeNull();
     expect(container.querySelector("[data-home-build-progress]")).toHaveTextContent("2 of 7");
 
-    // Elevated score hero: numeral + verdict + three pillar rings.
+    // Compact score reading: numeral + verdict + three pillar rings, supporting the build.
     const scoreRail = container.querySelector("[data-home-score-rail]");
     expect(scoreRail).not.toBeNull();
-    expect(scoreRail?.querySelector('[data-score-rail="hero"]')).not.toBeNull();
+    expect(scoreRail?.getAttribute("data-home-score-role")).toBe("context");
+    expect(scoreRail?.querySelector('[data-score-rail="compact"]')).not.toBeNull();
+    expect(scoreRail?.querySelector('[data-score-rail="hero"]')).toBeNull();
     expect(screen.getByLabelText("Overall Decision Readiness Score 64 out of 100")).toBeInTheDocument();
     expect(screen.getByText("BUILD FIRST")).toBeInTheDocument();
     expect(scoreRail?.querySelectorAll("[data-score-pillar]")).toHaveLength(3);
@@ -120,12 +122,12 @@ describe("HomeFold", () => {
       scoreRail?.querySelector('[data-score-pillar="timing"][data-pillar-state="measured"]'),
     ).not.toBeNull();
 
-    // Fold order (spec §D): score reading sits above the Path next-move.
+    // Fold order (DESIGN.md OPERATE): Path/build leads; compact rail follows.
     const build = container.querySelector("[data-home-build-hero]");
     if (!scoreRail || !build) {
       throw new Error("expected score rail and build hero");
     }
-    expect(scoreRail.compareDocumentPosition(build) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+    expect(build.compareDocumentPosition(scoreRail) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
 
@@ -211,13 +213,15 @@ describe("HomeFold", () => {
     if (!banner || !build || !scoreRail) {
       throw new Error("expected hard-stop banner, score rail, and build hero");
     }
-    // Order: hard-stop alert → score reading → Path action instrument.
-    expect(banner.compareDocumentPosition(scoreRail) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+    // Order: hard-stop alert → Path action instrument → compact score reading.
+    expect(banner.compareDocumentPosition(build) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-    expect(scoreRail.compareDocumentPosition(build) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+    expect(build.compareDocumentPosition(scoreRail) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
+    expect(scoreRail.getAttribute("data-home-score-role")).toBe("context");
+    expect(scoreRail.querySelector('[data-score-rail="compact"]')).not.toBeNull();
     // Hard stop tints the score numeral crimson, never a cheerful verdict tint.
     expect(screen.getByLabelText("Overall Decision Readiness Score 71 out of 100")).toHaveStyle({
       color: COLORS.crimson,

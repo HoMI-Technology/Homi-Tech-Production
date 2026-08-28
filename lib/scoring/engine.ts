@@ -1,7 +1,7 @@
 import "server-only";
 
 /**
- * HōMI-Score Canonical Scoring Engine
+ * Decision Readiness Score Canonical Scoring Engine
  * ====================================
  *
  * Server-only (Plans.md 6.5). Client code must use POST /api/scoring or
@@ -172,7 +172,7 @@ export interface TimingBreakdown {
 
 /** Complete output of the scoring engine. */
 export interface AssessmentResult {
-  /** Overall HōMI-Score (0-100, 1 decimal precision). */
+  /** Overall Decision Readiness Score (0-100, 1 decimal precision). */
   score: number;
   /** Verdict tier derived from the score (after hard-stops are applied). */
   verdict: Verdict;
@@ -730,9 +730,9 @@ function detectWarnings(inputs: AssessmentInputs): ScoringWarning[] {
 // ---------------------------------------------------------------------------
 
 /**
- * Computes the canonical HōMI-Score from raw assessment inputs.
+ * Computes the canonical Decision Readiness Score from raw assessment inputs.
  *
- * This is the single source of truth for how the HōMI-Score is calculated.
+ * This is the single source of truth for how the Decision Readiness Score is calculated.
  * The function is pure and deterministic — same inputs always produce
  * the same output.
  *

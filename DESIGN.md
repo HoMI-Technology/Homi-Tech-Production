@@ -70,7 +70,7 @@ On any user-visible surface (UI copy, aria, metadata, marketing pages, emails, O
 - Tagline form: **Your HōMI, not your banker.** Engine comments may keep the metaphor “homie.”
 - Persona/engine keys (`"homie"` in `lib/advisor/personas.ts`, `AgentId`, CSS `homie-breathe`) may stay as internals. They must not leak as labels.
 
-Known leak to fix (do not ignore): `NotYourBanker` title in `FrontDoor.tsx` still says “Your homie, not your banker.” Advisor page metadata and body still say “homie.” Agent roster copy still says “Homie coordinates.” `lib/agents/registry.ts` still names the agent “Homie.”
+Cleared: `FrontDoor.tsx` `NotYourBanker` title is “Your HōMI, not your banker.” Advisor page metadata/body, AgentChat/roster (“HōMI coordinates”), `lib/agents/registry.ts` display `name`, onboarding, planner greeting, and `lib/advisor/fallback.ts` greeting are HōMI (engine ids stay `"homie"`). API system prompts identify as “HōMI here.” Persona keys remain internals.
 
 Legal entity in `lib/brand` today: `HOMI TECHNOLOGIES LLC`. Recase to `Homi Technologies LLC` is an open founder PR (#311), not this contract’s job until it merges.
 

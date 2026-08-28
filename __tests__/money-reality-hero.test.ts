@@ -1,7 +1,7 @@
 /**
  * Reality surface hero lock — Home + Money Reality redesign, Phase 2.
  *
- * §4.1: /money shows Homie Score + verdict + three pillars as a compact top
+ * §4.1: /money shows Decision Readiness Score + verdict + three pillars as a compact top
  * rail above the Steady Cash instrument; cash stays the dominant number.
  * §7: loading skeleton, no-ledger empty state, thin-evidence banner, Unknown
  * DTI/runway, and bank-lag last-known + updating affordance — exact copy.
