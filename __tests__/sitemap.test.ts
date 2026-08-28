@@ -92,6 +92,7 @@ describe("sitemap hygiene", () => {
       "/about",
       "/method",
       "/b2b",
+      "/developers",
     ]) {
       expect(urls).toContain(canonicalUrl(path));
     }

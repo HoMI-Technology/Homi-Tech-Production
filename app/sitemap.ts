@@ -42,6 +42,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/method", "monthly", 0.8),
     entry("/b2b", "monthly", 0.7),
     entry("/partner", "monthly", 0.7),
+    entry("/developers", "monthly", 0.6),
     // Content hub consolidation (D5): /guides is THE hub. /blog and /learning
     // index pages permanently redirect there and are delisted; their [slug]
     // routes still render and stay in the dynamic sections below.

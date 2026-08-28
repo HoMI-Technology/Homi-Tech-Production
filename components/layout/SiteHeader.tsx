@@ -14,6 +14,7 @@ const NAV = [
   { href: "/guides", label: "Guides" },
   { href: "/pricing", label: "Pricing" },
   { href: "/b2b", label: "For Teams" },
+  { href: "/developers", label: "Developers" },
 ] as const;
 
 /** Marketing header for anonymous visitors. Chrome lives in HeaderShell. */
