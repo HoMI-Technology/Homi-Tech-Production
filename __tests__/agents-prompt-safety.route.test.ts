@@ -82,7 +82,7 @@ beforeEach(() => {
   state.user = { id: "u1" };
   state.tier = "plus";
   state.role = null;
-  fetchMock = vi.fn(async () => anthropicOk("Homie here. Let's talk through it."));
+  fetchMock = vi.fn(async () => anthropicOk("HōMI here. Let's talk through it."));
   vi.stubGlobal("fetch", fetchMock);
 });
 

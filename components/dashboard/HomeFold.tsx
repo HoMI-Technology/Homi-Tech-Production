@@ -33,13 +33,10 @@ export type HomeFoldSurvey = {
 };
 
 /**
- * First viewport of signed-in Home — Reality/Readiness hero order (spec §D):
- * the elevated Decision Readiness Score reading (score + verdict + three pillar rings via
- * the shared ScoreRail) leads, PathNextMove stays the primary action
- * instrument (doctrine), and HomeMoneyStanding carries the cash strip.
- * Score block and Path next move both sit above the fold on a phone.
- * Instrument chrome + wordmark carry brand identity; no compass theater on
- * the scored fold.
+ * First viewport of signed-in Home. DESIGN.md OPERATE + HOME_FOLD_INSTRUMENT:
+ * Path next move + hard stops lead the fold; Decision Readiness Score sits as
+ * a compact ScoreRail reading. HomeMoneyStanding is the cash strip. No compass
+ * theater on the scored fold.
  */
 export function HomeFold({
   assessmentsFailed,
@@ -161,13 +158,19 @@ export function HomeFold({
               </p>
             )}
 
-            {/* (a) Elevated score reading — score + verdict + pillars lead the fold. */}
+            {/* Path next move leads. DESIGN.md OPERATE + HOME_FOLD_INSTRUMENT = "build". */}
+            <div data-home-build-hero="">
+              <PathNextMove variant="fold" />
+            </div>
+
+            {/* Compact score reading — supporting, never the hero. */}
             <div
-              className="mb-6 border-b border-white/5 pb-6"
+              className="mt-6 border-t border-white/5 pt-6"
               data-home-score-rail=""
+              data-home-score-role="context"
             >
               <ScoreRail
-                variant="hero"
+                variant="compact"
                 score={scorePct}
                 verdict={verdict}
                 pillars={latest.pillars}
@@ -185,11 +188,6 @@ export function HomeFold({
               )}
             </div>
 
-            {/* (b) Path next move — the fold's primary action instrument. */}
-            <div data-home-build-hero="">
-              <PathNextMove variant="fold" />
-            </div>
-
             <PathStepLedger suppress={hardStopActive || suppressBuildPercent} />
 
             {/* Presence only — escalation opens at COMPANION_ESCALATION_HREF; no chat on fold. */}
@@ -202,7 +200,7 @@ export function HomeFold({
               {companionLine}
             </p>
 
-            {/* (c) Reality strip — enhanced, never gutted; CTAs stay ghost/sm. */}
+            {/* Reality strip — enhanced, never gutted; CTAs stay ghost/sm. */}
             <HomeMoneyStanding />
 
             {dueSurvey && (

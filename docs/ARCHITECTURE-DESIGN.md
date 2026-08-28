@@ -108,7 +108,7 @@ It returns a single deterministic verdict (`READY` / `ALMOST_THERE` / `BUILD_FIR
 
 **Derived / Transient:**
 
-- HōMI-Score + verdict (computed server-side)
+- Decision Readiness Score + verdict (computed server-side)
 - Companion context spine (assessment + finance + surface + goals)
 - CFM (Canonical Financial Model) overlay for tool prefill
 
@@ -288,7 +288,7 @@ flowchart TB
 
 **OPERATE (dashboard, tools results, finance, journal, admin, advisor):**
 
-- Signed-in Home: Path/build next move leads; HōMI-Score + verdict as compact score rail. Partner/admin keep book/cohort pulse.
+- Signed-in Home: Path/build next move leads; Decision Readiness Score + verdict as compact score rail. Partner/admin keep book/cohort pulse.
 - Secondary modules recessive.
 - Tabular / mono numbers for scores and money.
 - 3-second hierarchy test: next Path step + score reading must be obvious on load.

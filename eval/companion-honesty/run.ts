@@ -100,7 +100,7 @@ Remember: your job is to help people see clearly, not to close a sale or cheer t
 function buildContextNote(a: AdvisorAssessmentContext): string {
   const meta = VERDICT_META[a.verdict];
   const parts: string[] = [
-    `User's HōMI-Score: ${a.score}/100.`,
+    `User's Decision Readiness Score: ${a.score}/100.`,
     `Verdict: ${meta.label} (${meta.line}).`,
     `Pillar breakdown — Financial Reality: ${a.pillars.financial}/100, Emotional Truth: ${a.pillars.emotional}/100, Perfect Timing: ${a.pillars.timing}/100.`,
     a.hardStops.length > 0

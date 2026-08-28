@@ -60,7 +60,7 @@ homi-production/
 ├── app/                     # Next.js App Router routes (marketing, product, auth)
 ├── components/              # UI components (brand, layout, assessment, ui)
 ├── lib/
-│   ├── scoring/              # Canonical HōMI-Score engine (engine, weights, shadow, insights)
+│   ├── scoring/              # Canonical Decision Readiness Score engine (engine, weights, shadow, insights)
 │   ├── questions/             # 45-question assessment bank (bank.ts)
 │   ├── assessment/            # Assessment flow types, storage, derivation
 │   ├── tools/                 # Mortgage, debt, Monte Carlo calculators
@@ -76,7 +76,7 @@ homi-production/
 
 ## Scoring canon
 
-The HōMI-Score is a deterministic 0–100 weighted composite of three pillars:
+The Decision Readiness Score is a deterministic 0–100 weighted composite of three pillars:
 
 - **Financial Reality** — max 35 points
 - **Emotional Truth** — max 35 points
