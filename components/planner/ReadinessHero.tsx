@@ -10,6 +10,7 @@ import {
   type PlannerScore,
 } from "@/lib/planner/score-bridge";
 import { usePlannerStore } from "@/lib/planner/store";
+import { TRACK_CASH_FLOW_LABEL } from "@/lib/finance/cash-labels";
 import { financialReality as financialRealityFn, upcomingBillsTotal } from "@/lib/planner/derived";
 
 type Reality = ReturnType<typeof financialRealityFn>;
@@ -251,7 +252,7 @@ export function ReadinessHero({
         <div className="grid grid-cols-2 gap-2.5 content-start sm:gap-3">
           {[
             {
-              label: "Cash flow",
+              label: TRACK_CASH_FLOW_LABEL,
               value: `${reality.cashFlow >= 0 ? "+" : ""}${formatMoney(reality.cashFlow)}`,
               tone: reality.cashFlow >= 0 ? "text-emerald" : "text-crimson",
             },

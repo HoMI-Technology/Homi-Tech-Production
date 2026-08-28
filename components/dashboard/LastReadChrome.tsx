@@ -9,12 +9,7 @@ import {
   moneyPictureDirectionLine,
   type LastReadMoneyInputs,
 } from "@/lib/dashboard/last-read-chrome";
-import {
-  budgetLedgerSavedAt,
-  hasSavedBudgetLedger,
-  loadBudgetLedger,
-} from "@/lib/finance/local-ledger";
-import { metricsFromLedger } from "@/lib/finance/metrics";
+import { loadStandMetrics } from "@/lib/finance/load-stand-metrics";
 
 /**
  * Existing scored-fold chrome only — not a second card.
@@ -35,12 +30,15 @@ export function LastReadChrome({
   const [directionLine, setDirectionLine] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!lastMoney || !hasSavedBudgetLedger()) {
+    if (!lastMoney) {
       setDirectionLine(null);
       return;
     }
-    const nowIso = new Date().toISOString();
-    const metrics = metricsFromLedger(loadBudgetLedger(nowIso), nowIso, budgetLedgerSavedAt());
+    const metrics = loadStandMetrics();
+    if (!metrics) {
+      setDirectionLine(null);
+      return;
+    }
     const direction = moneyPictureDirection({
       lastDtiRatio: lastMoney.debtToIncomeRatio,
       lastEmergencyFundMonths: lastMoney.emergencyFundMonths,

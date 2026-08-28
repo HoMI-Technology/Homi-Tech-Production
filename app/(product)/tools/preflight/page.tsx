@@ -141,9 +141,18 @@ export default function PreflightPage() {
               role="note"
               className="rounded-lg border border-amber/40 bg-navy/40 px-3 py-2 text-xs leading-relaxed text-dim"
             >
-              Example values — replace them with your real numbers for an honest reading.
+              Example values on this form — not your Stand ledger, not Track planner. Replace them
+              with your real numbers for an honest reading.
             </p>
           )}
+          <p
+            className="text-xs leading-relaxed text-dim/80"
+            data-preflight-money-source=""
+          >
+            {usingExampleValues
+              ? "Monthly fields are this form — not Stand ledger, not Track."
+              : "Monthly fields are the finance snapshot on this form — not Stand ledger, not Track planner."}
+          </p>
 
           <MoneyField label="Monthly income" value={income} onChange={(v) => setIncome(v ?? 0)} />
           <MoneyField

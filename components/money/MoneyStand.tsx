@@ -1,22 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { OperateInstrument } from "@/components/operate/OperateInstrument";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { ScoreRail, type ScoreRailReading } from "@/components/score/ScoreRail";
 import { useCfm } from "@/hooks/use-cfm";
 import { COLORS, VERDICT_META } from "@/lib/brand";
-import {
-  budgetLedgerSavedAt,
-  hasSavedBudgetLedger,
-  loadBudgetLedger,
-} from "@/lib/finance/local-ledger";
+import { standCashReading } from "@/lib/dashboard/home-money-standing";
+import { loadStandMetrics } from "@/lib/finance/load-stand-metrics";
 import {
   completenessLabel,
-  metricsFromLedger,
-  PERIOD_SURPLUS_FORMULA,
-  PERIOD_SURPLUS_LABEL,
   type NamedMoneyMetrics,
 } from "@/lib/finance/metrics";
 import type { FinanceCompleteness } from "@/lib/finance/readiness-snapshot";
@@ -61,8 +55,8 @@ const GRADE_COLOR: Record<FinanceCompleteness, string> = {
  * Decision Readiness Score + verdict + three pillars above the cash instrument (server-
  * passed from the latest completed assessment — no client fetch, no invented
  * numbers). Steady Cash stays the dominant number; the rail never competes
- * with it. Cash data logic (metricsFromLedger, completeness, temperature)
- * is untouched.
+ * with it. Cash data logic (loadStandMetrics + standCashReading, completeness,
+ * temperature) is untouched.
  */
 export function MoneyStand({ readiness = null }: { readiness?: ScoreRailReading | null }) {
   const { cfm, hydrated: cfmHydrated } = useCfm();
@@ -72,20 +66,7 @@ export function MoneyStand({ readiness = null }: { readiness?: ScoreRailReading 
 
   useEffect(() => {
     setConfirmed(loadConfirmedFinancePrefill());
-    const nowIso = new Date().toISOString();
-    if (!hasSavedBudgetLedger()) {
-      setMetrics(null);
-      setLoading(false);
-      return;
-    }
-    const ledger = loadBudgetLedger(nowIso);
-    const m = metricsFromLedger(ledger, nowIso, budgetLedgerSavedAt());
-    // No real picture yet
-    if (!m.evidence.hasIncome && !m.evidence.hasExpenses && m.evidence.monthsWithData === 0) {
-      setMetrics(null);
-    } else {
-      setMetrics(m);
-    }
+    setMetrics(loadStandMetrics());
     setLoading(false);
   }, []);
 
@@ -95,7 +76,8 @@ export function MoneyStand({ readiness = null }: { readiness?: ScoreRailReading 
   const chipLabel = !ready ? "No picture yet" : completenessLabel(completeness);
   const chipColor = !ready ? COLORS.dim : GRADE_COLOR[completeness];
 
-  const surplus = metrics?.surplus.dollars ?? 0;
+  const cash = standCashReading(metrics);
+  const surplus = cash.dollars ?? 0;
   const income = metrics?.surplus.incomeDollars ?? 0;
   const runwayMonths = metrics?.runway.months ?? null;
   const savingsRate = metrics?.savingsRatePct ?? 0;
@@ -129,15 +111,7 @@ export function MoneyStand({ readiness = null }: { readiness?: ScoreRailReading 
           ? "Legacy snapshot"
           : "Liquid not recorded";
 
-  const asOf = metrics?.asOf ?? cfm?.meta.savedAt ?? null;
-  const asOfLabel = useMemo(() => {
-    if (!asOf) return ready ? "Age unknown" : null;
-    const days = Math.floor((Date.now() - new Date(asOf).getTime()) / 86_400_000);
-    if (!Number.isFinite(days) || days < 0) return "Age unknown";
-    if (days === 0) return "Updated today";
-    if (days === 1) return "Updated yesterday";
-    return `Updated ${days}d ago`;
-  }, [asOf, ready]);
+  const asOfLabel = cash.asOfLabel;
 
   const primaryAction = !ready
     ? { label: "Open Ledger", href: "/money/budget" }
@@ -210,6 +184,14 @@ export function MoneyStand({ readiness = null }: { readiness?: ScoreRailReading 
                 />
                 {chipLabel}
               </span>
+              {cash.sourceLabel ? (
+                <span
+                  className="text-2xs font-semibold uppercase tracking-[0.12em] text-dim/80"
+                  data-stand-money-source=""
+                >
+                  {cash.sourceLabel}
+                </span>
+              ) : null}
               {asOfLabel && (
                 <span className="text-2xs font-semibold uppercase tracking-[0.12em] text-dim/80">
                   {asOfLabel}
@@ -245,21 +227,28 @@ export function MoneyStand({ readiness = null }: { readiness?: ScoreRailReading 
             </div>
 
             <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-dim">
-              {PERIOD_SURPLUS_LABEL}
+              {cash.label}
             </p>
             <div
               className="mt-1 block"
               style={{ color: ready ? TEMP_COLOR[cashTemp] : COLORS.light }}
+              data-stand-money-surplus=""
             >
-              <AnimatedNumber
-                value={ready ? surplus : 0}
-                format={(n) => formatCurrency(n)}
-                className="score-numeral num-money block text-6xl font-bold tracking-tight sm:text-7xl"
-              />
+              {ready && cash.dollars != null ? (
+                <AnimatedNumber
+                  value={cash.dollars}
+                  format={(n) => formatCurrency(n)}
+                  className="score-numeral num-money block text-6xl font-bold tracking-tight sm:text-7xl"
+                />
+              ) : (
+                <span className="score-numeral num-money block text-6xl font-bold tracking-tight sm:text-7xl">
+                  —
+                </span>
+              )}
             </div>
             <p className="mt-3 max-w-xl text-xs leading-relaxed text-dim/70">
               {ready
-                ? `${PERIOD_SURPLUS_FORMULA} Source: on-device budget ledger (not Track planner accounts).`
+                ? `${cash.formula} Source: ${cash.sourceLabel ?? "Stand ledger"} — not Track planner, not Pre-Flight inputs.`
                 : "No picture yet. Open Ledger or connect a bank to begin."}
             </p>
           </div>

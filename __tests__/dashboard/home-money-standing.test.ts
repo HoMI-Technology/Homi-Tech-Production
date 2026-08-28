@@ -4,7 +4,9 @@ import type { NamedMoneyMetrics } from "@/lib/finance/metrics";
 import {
   buildHomeMoneyStandingView,
   moneyStandingAsOfLabel,
+  standCashReading,
 } from "@/lib/dashboard/home-money-standing";
+import { PERIOD_SURPLUS_LABEL } from "@/lib/finance/metrics";
 
 function metrics(partial: Partial<NamedMoneyMetrics> = {}): NamedMoneyMetrics {
   const {
@@ -98,6 +100,42 @@ describe("buildHomeMoneyStandingView", () => {
     expect(view.primaryLabel).toBe("Open Money");
     expect(view.standingLine).toMatch(/Cash flow is/i);
     expect(view.liquidNote).toMatch(/Emergency goal/i);
+    expect(view.surplusLabel).toBe(PERIOD_SURPLUS_LABEL);
+    expect(view.sourceLabel).toBe("Stand ledger · entered");
+    expect(view.asOfLabel).toBe("Updated 2d ago");
+  });
+
+  it("Home standing and Money Stand cannot diverge under PERIOD_SURPLUS_LABEL", () => {
+    const leak = metrics({
+      surplus: {
+        dollars: -375,
+        incomeDollars: 5000,
+        expenseDollars: 4975,
+        debtPaymentDollars: 400,
+        formula: "income - netExpense - debtPayments",
+      },
+      evidence: {
+        completeness: "medium",
+        sourceMode: "mixed",
+        monthsWithData: 2,
+        uncategorizedCount: 0,
+        pendingTransactionCount: 0,
+        latestTransactionDate: "2026-08-17",
+        hasIncome: true,
+        hasExpenses: true,
+        hasDebtSignal: true,
+        liquidSource: "emergency_goal",
+      },
+    });
+    const home = buildHomeMoneyStandingView(leak, now);
+    const stand = standCashReading(leak, now);
+    expect(home.surplusLabel).toBe(PERIOD_SURPLUS_LABEL);
+    expect(stand.label).toBe(PERIOD_SURPLUS_LABEL);
+    expect(home.surplusDollars).toBe(stand.dollars);
+    expect(home.surplusDollars).toBe(-375);
+    expect(home.sourceLabel).toBe(stand.sourceLabel);
+    expect(home.asOfLabel).toBe(stand.asOfLabel);
+    expect(home.sourceLabel).toBe("Stand ledger · entered + linked");
   });
 
   it("thin completeness keeps Strengthen picture as primary", () => {

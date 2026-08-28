@@ -3,6 +3,7 @@
 import { Receipt, TrendingDown, TrendingUp, Wallet } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/planner/cn";
+import { TRACK_NET_CASH_LABEL } from "@/lib/finance/cash-labels";
 import type { MonthWindowStats } from "@/lib/planner/calendar";
 import { money2, signedMoney2 } from "@/lib/planner/calendar";
 
@@ -53,7 +54,7 @@ export default function StatTiles({
       tint: "from-yellow/[0.07]",
     },
     {
-      label: "Net cash flow",
+      label: TRACK_NET_CASH_LABEL,
       icon: Wallet,
       value: signedMoney2(stats.netCashFlow),
       valueClass: "text-cyan",

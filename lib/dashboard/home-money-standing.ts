@@ -1,6 +1,7 @@
 import { COLORS } from "@/lib/brand";
 import {
   completenessLabel,
+  PERIOD_SURPLUS_FORMULA,
   PERIOD_SURPLUS_LABEL,
   type NamedMoneyMetrics,
 } from "@/lib/finance/metrics";
@@ -33,6 +34,13 @@ export type HomeMoneyStandingView = {
   cashTempWord: string | null;
   cashTempColor: string;
   asOfLabel: string | null;
+  /**
+   * Which store these figures came from. Doctrine: a money figure names its
+   * store AND its as-of. Home and Money Stand render the same label
+   * (PERIOD_SURPLUS_LABEL) from the same ledger — without naming the store,
+   * a reader cannot tell why two surfaces might disagree.
+   */
+  sourceLabel: string | null;
   liquidNote: string | null;
   standingLine: string;
   surplusLabel: string;
@@ -42,6 +50,22 @@ export type HomeMoneyStandingView = {
   secondaryLabel: string;
 };
 
+/** Names the store behind the figures, so Home and Money can never read as one number. */
+export function moneyStandingSourceLabel(
+  sourceMode: "manual" | "linked" | "mixed" | null,
+): string | null {
+  switch (sourceMode) {
+    case "manual":
+      return "Stand ledger · entered";
+    case "linked":
+      return "Stand ledger · linked";
+    case "mixed":
+      return "Stand ledger · entered + linked";
+    default:
+      return null;
+  }
+}
+
 /** Age label for the ledger `asOf` timestamp. */
 export function moneyStandingAsOfLabel(asOf: string | null, nowMs: number = Date.now()): string | null {
   if (!asOf) return null;
@@ -50,6 +74,37 @@ export function moneyStandingAsOfLabel(asOf: string | null, nowMs: number = Date
   if (days === 0) return "Updated today";
   if (days === 1) return "Updated yesterday";
   return `Updated ${days}d ago`;
+}
+
+/** Display contract for PERIOD_SURPLUS_LABEL — Home and Money Stand both call this. */
+export type StandCashReading = {
+  label: typeof PERIOD_SURPLUS_LABEL;
+  formula: typeof PERIOD_SURPLUS_FORMULA;
+  dollars: number | null;
+  sourceLabel: string | null;
+  asOfLabel: string | null;
+};
+
+export function standCashReading(
+  metrics: NamedMoneyMetrics | null,
+  nowMs: number = Date.now(),
+): StandCashReading {
+  if (!metrics) {
+    return {
+      label: PERIOD_SURPLUS_LABEL,
+      formula: PERIOD_SURPLUS_FORMULA,
+      dollars: null,
+      sourceLabel: null,
+      asOfLabel: null,
+    };
+  }
+  return {
+    label: PERIOD_SURPLUS_LABEL,
+    formula: PERIOD_SURPLUS_FORMULA,
+    dollars: metrics.surplus.dollars,
+    sourceLabel: moneyStandingSourceLabel(metrics.evidence.sourceMode),
+    asOfLabel: moneyStandingAsOfLabel(metrics.asOf, nowMs) ?? "Age unknown",
+  };
 }
 
 function liquidNoteFrom(metrics: NamedMoneyMetrics): string | null {
@@ -98,17 +153,19 @@ export function buildHomeMoneyStandingView(
   metrics: NamedMoneyMetrics | null,
   nowMs: number = Date.now(),
 ): HomeMoneyStandingView {
+  const cash = standCashReading(metrics, nowMs);
   if (!metrics) {
     return {
       status: "empty",
-      surplusDollars: null,
+      surplusDollars: cash.dollars,
       runwayMonths: null,
       liquidDollars: null,
       chipLabel: "No picture yet",
       chipColor: COLORS.dim,
       cashTempWord: null,
       cashTempColor: COLORS.cyan,
-      asOfLabel: null,
+      asOfLabel: cash.asOfLabel,
+      sourceLabel: cash.sourceLabel,
       liquidNote: null,
       standingLine: standingLine({
         ready: false,
@@ -116,7 +173,7 @@ export function buildHomeMoneyStandingView(
         cashTemp: null,
         runwayMonths: null,
       }),
-      surplusLabel: PERIOD_SURPLUS_LABEL,
+      surplusLabel: cash.label,
       primaryHref: "/money/budget",
       primaryLabel: "Build your picture",
       secondaryHref: "/connections",
@@ -137,7 +194,7 @@ export function buildHomeMoneyStandingView(
 
   return {
     status: "ready",
-    surplusDollars: surplus,
+    surplusDollars: cash.dollars,
     runwayMonths,
     liquidDollars: liquid,
     chipLabel: completenessLabel(completeness),
@@ -149,7 +206,8 @@ export function buildHomeMoneyStandingView(
           : COLORS.amber,
     cashTempWord: TEMP_WORD[cashTemp],
     cashTempColor: TEMP_COLOR[cashTemp],
-    asOfLabel: moneyStandingAsOfLabel(metrics.asOf, nowMs) ?? "Age unknown",
+    asOfLabel: cash.asOfLabel,
+    sourceLabel: cash.sourceLabel,
     liquidNote: liquidNoteFrom(metrics),
     standingLine: standingLine({
       ready: true,
@@ -157,7 +215,7 @@ export function buildHomeMoneyStandingView(
       cashTemp,
       runwayMonths,
     }),
-    surplusLabel: PERIOD_SURPLUS_LABEL,
+    surplusLabel: cash.label,
     primaryHref: completeness === "low" ? "/money/budget" : "/money",
     primaryLabel: completeness === "low" ? "Strengthen picture" : "Open Money",
     secondaryHref: "/money/decide",
