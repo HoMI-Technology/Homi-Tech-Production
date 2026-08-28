@@ -108,7 +108,7 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(page).not.toMatch(/>\s*Almost\s*</);
   });
 
-  it("score reading leads the fold; Path stays the primary action instrument", () => {
+  it("the build leads the fold; the score rail is a compact supporting reading", () => {
     expect(page).toContain("HomeFold");
     expect(fold).toContain("HOME_FOLD_INSTRUMENT");
     expect(fold).toContain("dash-instrument");
@@ -117,12 +117,19 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(fold).toContain("data-home-build-hero");
     expect(fold).toContain("data-home-score-rail");
     expect(fold).toContain("PathStepLedger");
-    // Fold hierarchy (redesign §D): the elevated score reading sits above
-    // the Path next-move hero so both are above the fold on a phone.
-    expect(fold.indexOf("data-home-score-rail")).toBeGreaterThan(-1);
-    expect(fold.indexOf("data-home-score-rail")).toBeLessThan(
-      fold.indexOf("data-home-build-hero"),
+    // DOCTRINE (DESIGN.md OPERATE + HOME_FOLD_INSTRUMENT = "build"): the Path
+    // next move and hard stops lead; the Decision Readiness Score sits as a
+    // compact ScoreRail reading. Source order here is a cheap smoke check —
+    // the binding assertion is the RENDERED DOM order in HomeFold.test.tsx,
+    // because a string constant never drove render order and that is exactly
+    // how the fold shipped contradicting its own doctrine.
+    expect(fold.indexOf("data-home-build-hero")).toBeGreaterThan(-1);
+    expect(fold.indexOf("data-home-build-hero")).toBeLessThan(
+      fold.indexOf("data-home-score-rail"),
     );
+    // The rail is never the hero on Home.
+    expect(fold).toContain('variant="compact"');
+    expect(fold).toContain('data-home-score-role="context"');
     // Score + pillars render through the shared ScoreRail — composed of the
     // locked PillarRing / VerdictBadge primitives, never a new orb.
     expect(fold).toContain("ScoreRail");

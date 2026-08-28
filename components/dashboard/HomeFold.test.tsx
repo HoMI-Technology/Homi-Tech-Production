@@ -78,7 +78,7 @@ describe("HomeFold", () => {
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeTruthy();
   });
 
-  it("has-verdict leads with the score reading, then the Path action instrument", () => {
+  it("has-verdict leads with the Path action instrument, then a compact score reading", () => {
     const { container } = render(
       <HomeFold
         {...base}
@@ -103,10 +103,11 @@ describe("HomeFold", () => {
     expect(container.querySelector("[data-home-build-hero]")).not.toBeNull();
     expect(container.querySelector("[data-home-build-progress]")).toHaveTextContent("2 of 7");
 
-    // Elevated score hero: numeral + verdict + three pillar rings.
+    // Compact score reading: numeral + verdict + three pillar rings, but
+    // supporting the build rather than heroing over it.
     const scoreRail = container.querySelector("[data-home-score-rail]");
     expect(scoreRail).not.toBeNull();
-    expect(scoreRail?.querySelector('[data-score-rail="hero"]')).not.toBeNull();
+    expect(scoreRail?.querySelector('[data-score-rail="compact"]')).not.toBeNull();
     expect(screen.getByLabelText("Overall Decision Readiness Score 64 out of 100")).toBeInTheDocument();
     expect(screen.getByText("BUILD FIRST")).toBeInTheDocument();
     expect(scoreRail?.querySelectorAll("[data-score-pillar]")).toHaveLength(3);
@@ -120,12 +121,12 @@ describe("HomeFold", () => {
       scoreRail?.querySelector('[data-score-pillar="timing"][data-pillar-state="measured"]'),
     ).not.toBeNull();
 
-    // Fold order (spec §D): score reading sits above the Path next-move.
+    // Fold order (DESIGN.md OPERATE): the build leads, the rail follows.
     const build = container.querySelector("[data-home-build-hero]");
     if (!scoreRail || !build) {
       throw new Error("expected score rail and build hero");
     }
-    expect(scoreRail.compareDocumentPosition(build) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+    expect(build.compareDocumentPosition(scoreRail) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
 
@@ -183,13 +184,14 @@ describe("HomeFold", () => {
     expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();
   });
 
-  it("S4: a clean verdict leads with the score, and the score is the hero", () => {
-    // The default doctrine. Only a hard stop inverts it — staleness does not,
-    // because a stale score is still the honest headline, just an older one.
+  it("S4: a clean verdict still leads with the build, score as context", () => {
+    // I originally wrote this asserting score-first. That was wrong against
+    // DESIGN.md OPERATE and HOME_FOLD_INSTRUMENT = "build", which both say the
+    // Path next move leads and the rail is a compact reading. The order is
+    // unconditional now, so S4 and S5 differ in emphasis, not sequence.
     const { container } = render(
       <HomeFold
         {...base}
-        foldState="S4"
         latest={{ id: "a1", overallScore: 84, pillars }}
         verdict="READY"
         stopMessages={[]}
@@ -200,17 +202,16 @@ describe("HomeFold", () => {
     const scoreRail = container.querySelector("[data-home-score-rail]");
     if (!build || !scoreRail) throw new Error("expected score rail and build hero");
 
-    expect(scoreRail.compareDocumentPosition(build) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+    expect(build.compareDocumentPosition(scoreRail) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-    expect(scoreRail.getAttribute("data-home-score-role")).toBe("hero");
+    expect(scoreRail.getAttribute("data-home-score-role")).toBe("context");
   });
 
-  it("S6: a stale verdict still leads with the score, marked as stale", () => {
+  it("S6: a stale verdict keeps the build lead and marks the reading stale", () => {
     const { container } = render(
       <HomeFold
         {...base}
-        foldState="S6"
         staleDays={94}
         latest={{ id: "a3", overallScore: 78, pillars }}
         verdict="ALMOST_THERE"
@@ -219,9 +220,41 @@ describe("HomeFold", () => {
       />,
     );
     const scoreRail = container.querySelector("[data-home-score-rail]");
-    expect(scoreRail?.getAttribute("data-home-score-role")).toBe("hero");
-    // The retest nudge is what marks it stale — the score is not demoted.
+    expect(scoreRail?.getAttribute("data-home-score-role")).toBe("context");
+    // The retest nudge is what marks it stale.
     expect(screen.getByText(/94 days since your last assessment/)).toBeInTheDocument();
+  });
+
+  it("DOCTRINE: the build leads the DOM, the score rail follows as context", () => {
+    // This is the binding assertion. HOME_FOLD_INSTRUMENT = "build" is only a
+    // string constant emitted as a data attribute — it never drove render
+    // order, which is how the fold shipped score-first while its own doctrine,
+    // fold-truth.ts and surface-roles.ts all said the build leads.
+    // Assert the rendered DOM, in every state, not the constant.
+    for (const stopMessages of [[], ["DTI is above 50%."]]) {
+      const { container, unmount } = render(
+        <HomeFold
+          {...base}
+          latest={{ id: "order", overallScore: 71, pillars }}
+          verdict={stopMessages.length ? "NOT_YET" : "ALMOST_THERE"}
+          stopMessages={stopMessages}
+          foldSentence="Order check."
+        />,
+      );
+
+      const build = container.querySelector("[data-home-build-hero]");
+      const rail = container.querySelector("[data-home-score-rail]");
+      if (!build || !rail) throw new Error("expected build hero and score rail");
+
+      expect(
+        build.compareDocumentPosition(rail) & Node.DOCUMENT_POSITION_FOLLOWING,
+        `build must precede the score rail (stops: ${stopMessages.length})`,
+      ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+
+      // And the rail is supporting, never the hero.
+      expect(rail.getAttribute("data-home-score-role")).toBe("context");
+      unmount();
+    }
   });
 
   it("hard-stop banner outranks the score reading and the build, and suppresses step progress", () => {

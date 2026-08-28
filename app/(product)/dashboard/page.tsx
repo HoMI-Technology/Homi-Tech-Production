@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { getCachedClient, getCachedUser } from "@/lib/supabase/server";
 import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
 import { verdictImproved } from "@/lib/dashboard/insight";
-import { resolvePostLoginState } from "@/lib/auth/postLoginDestination";
 import { EntranceConductor } from "@/components/dashboard/Entrance";
 import { ENTRANCE_BOOT_SCRIPT } from "@/components/dashboard/entrance-shared";
 import { SidebarVerdictSync } from "@/components/dashboard/SidebarVerdictSync";
@@ -89,14 +88,6 @@ export default async function DashboardPage() {
   const stopMessages = hardStopMessages(latest?.hard_stops);
   const hardStopCount = stopMessages.length;
   const suppressBuildPercent = shouldSuppressBuildPercent(hardStopCount);
-  // Same resolver the post-login landing uses, so "which fold" and "where do
-  // they land" can never disagree about what state this user is in.
-  const foldState = resolvePostLoginState({
-    requestedNext: null,
-    hasCompletedAssessment: latest !== null,
-    hardStopCount,
-    scoredAt: latest?.completed_at ?? latest?.created_at ?? null,
-  });
   const pathPayload =
     pathR.error || !pathR.data ? null : (pathR.data as { path?: { steps?: unknown } }).path;
   const pathSteps = Array.isArray(pathPayload?.steps) ? pathPayload.steps : [];
@@ -136,11 +127,11 @@ export default async function DashboardPage() {
         verdict={verdict}
         score={latest?.overall_score ?? null}
         decisionType={latest?.decision_type ?? null}
+        assessmentId={latest?.id ?? null}
       />
 
       <div className="dash-stage">
         <HomeFold
-          foldState={foldState}
           assessmentsFailed={assessmentsFailed}
           latest={
             latest

@@ -19,7 +19,7 @@ import { DashboardResumeRamp } from "@/components/dashboard/DashboardResumeRamp"
 import { OutcomeSurveyPrompt } from "@/components/dashboard/OutcomeSurveyPrompt";
 import { SaveStatusBanner } from "@/components/results/SaveStatusBanner";
 import type { OutcomeSurveyKind } from "@/types/database";
-import { STALE_VERDICT_DAYS, type PostLoginState } from "@/lib/auth/postLoginDestination";
+import { STALE_VERDICT_DAYS } from "@/lib/auth/postLoginDestination";
 
 export type HomeFoldLatest = {
   id: string;
@@ -58,7 +58,6 @@ export function HomeFold({
   hasPath,
   pathDone,
   pathTotal,
-  foldState,
 }: {
   assessmentsFailed: boolean;
   latest: HomeFoldLatest | null;
@@ -75,12 +74,6 @@ export function HomeFold({
   hasPath: boolean;
   pathDone: number;
   pathTotal: number;
-  /**
-   * Which post-login state this read is (lib/auth/postLoginDestination).
-   * Optional so any caller that has not been taught it keeps the score-first
-   * default rather than silently changing what leads the fold.
-   */
-  foldState?: PostLoginState;
 }) {
   const verdictMeta = VERDICT_META[verdict ?? "BUILD_FIRST"];
   const scorePct =
@@ -93,7 +86,7 @@ export function HomeFold({
    * a person who cannot proceed does not need their number first, they need
    * to know what is blocking them and what to do about it.
    */
-  const nextMoveLeads = (foldState ?? (hardStopActive ? "S5" : "S4")) === "S5";
+
   const companionLine = companionFoldLine({
     hasHardStops: hardStopActive,
     hasPath,
@@ -177,56 +170,47 @@ export function HomeFold({
               </p>
             )}
 
-            {/* (a) Elevated score reading — score + verdict + pillars.
-                Declared before the next move because score-first is the
-                default doctrine; `nextMoveLeads` swaps the render order for a
-                hard stop without disturbing that. */}
-            {(() => {
-              const scoreReading = (
-                <div
-                  className={`${nextMoveLeads ? "mt-6 border-t pt-6" : "mb-6 border-b pb-6"} border-white/5`}
-                  data-home-score-rail=""
-                  data-home-score-role={nextMoveLeads ? "context" : "hero"}
-                >
-                  <ScoreRail
-                    variant={nextMoveLeads ? "compact" : "hero"}
-                    score={scorePct}
+            {/* (a) THE BUILD LEADS. Doctrine, not preference:
+                DESIGN.md OPERATE — "Path next move + hard stops lead the fold;
+                Decision Readiness Score + verdict sit as a compact ScoreRail
+                reading" — and lib/dashboard/fold-truth.ts exports
+                HOME_FOLD_INSTRUMENT = "build". Pre-Flight is the display
+                pattern the product already ships: verdict hero, score as a
+                supporting line, reason as a sentence, one primary action.
+
+                This previously rendered score-first by default and only
+                inverted on a hard stop, which contradicted the constant above
+                it and did not fit a phone — the primary action fell below the
+                fold at 430px. Order is now unconditional, so the DOM matches
+                the doctrine in every state. */}
+            <div data-home-build-hero="">
+              <PathNextMove variant="fold" />
+            </div>
+
+            {/* (b) Compact score reading — supporting, never the hero. */}
+            <div
+              className="mt-6 border-t border-white/5 pt-6"
+              data-home-score-rail=""
+              data-home-score-role="context"
+            >
+              <ScoreRail
+                variant="compact"
+                score={scorePct}
+                verdict={verdict}
+                pillars={latest.pillars}
+                tint={hardStopActive ? COLORS.crimson : instrumentTint}
+              />
+              {verdict && (
+                <div className="mt-3">
+                  <LastReadChrome
                     verdict={verdict}
-                    pillars={latest.pillars}
-                    tint={hardStopActive ? COLORS.crimson : instrumentTint}
+                    lastReadAt={lastReadAt ?? null}
+                    showAge={staleDays === null || staleDays <= STALE_VERDICT_DAYS}
+                    lastMoney={lastMoney ?? null}
                   />
-                  {verdict && (
-                    <div className="mt-3">
-                      <LastReadChrome
-                        verdict={verdict}
-                        lastReadAt={lastReadAt ?? null}
-                        showAge={staleDays === null || staleDays <= STALE_VERDICT_DAYS}
-                        lastMoney={lastMoney ?? null}
-                      />
-                    </div>
-                  )}
                 </div>
-              );
-
-              {/* (b) Path next move — the fold's primary action instrument. */}
-              const nextMove = (
-                <div data-home-build-hero="">
-                  <PathNextMove variant="fold" />
-                </div>
-              );
-
-              return nextMoveLeads ? (
-                <>
-                  {nextMove}
-                  {scoreReading}
-                </>
-              ) : (
-                <>
-                  {scoreReading}
-                  {nextMove}
-                </>
-              );
-            })()}
+              )}
+            </div>
 
             <PathStepLedger suppress={hardStopActive || suppressBuildPercent} />
 
