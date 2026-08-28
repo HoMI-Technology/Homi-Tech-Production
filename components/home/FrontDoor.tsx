@@ -120,6 +120,105 @@ export function FriendFrame() {
   );
 }
 
+const COMPANION_ROLES = [
+  {
+    name: "Homie",
+    body: "The only voice you hear. Never pressures a conversion. Educational guidance, not a banker.",
+  },
+  {
+    name: "Reality Check",
+    body: "Financial truth. No mortgage or investment advice.",
+  },
+  {
+    name: "Gut Check",
+    body: "Emotional truth. Not therapy.",
+  },
+  {
+    name: "Timing Advisor",
+    body: "Windows and context. No certainty claims.",
+  },
+  {
+    name: "Finance Planner",
+    body: "Calculator-backed education. No product to push.",
+  },
+  {
+    name: "Guardrail",
+    body: "Refusals and auditability. Cannot be bypassed.",
+  },
+] as const;
+
+/** How the Decision Companion is staffed — names only, no system prompts, no scores. */
+export function HowCompanions() {
+  return (
+    <section className="px-5 py-[9vh] sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-7xl">
+        <SectionHeader
+          eyebrow="How the companion is built"
+          title="One voice. Five specialists behind it."
+          support="Homie speaks. The others inform. You still decide. Nothing here is a credit, employment, or housing decision."
+        />
+        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {COMPANION_ROLES.map((role, i) => (
+            <Reveal key={role.name} delay={i * 70}>
+              <div className="glass h-full p-7">
+                <h3 className="text-xl font-semibold text-light">{role.name}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-dim">{role.body}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Agents and companies: server scores; partners verify a receipt. No lookup. */
+export function AgentsCall() {
+  return (
+    <section className="px-5 py-[9vh] sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-7xl">
+        <SectionHeader
+          eyebrow="For agents and partners"
+          title="Ask before the person commits."
+          support="Scoring stays on HōMI's server. An agent does not look someone up. They open a session; the person completes the assessment; a partner verifies a Decision Readiness receipt. Educational guidance only."
+        />
+        <div className="mt-14 grid gap-6 md:grid-cols-3">
+          {[
+            {
+              n: "01",
+              title: "Start a session",
+              body: "Your system calls the share-session API. The person authenticates on HōMI — not in your lookup.",
+            },
+            {
+              n: "02",
+              title: "Server scores",
+              body: "Deterministic code scores. AI explains. Weights never leave the server.",
+            },
+            {
+              n: "03",
+              title: "Verify a receipt",
+              body: "You receive a token the person authorized. No email or SSN pull. Not for eligibility.",
+            },
+          ].map((step, i) => (
+            <Reveal key={step.n} delay={i * 80}>
+              <div className="glass h-full p-7">
+                <p className="font-mono text-sm text-cyan">{step.n}</p>
+                <h3 className="mt-3 text-xl font-semibold text-light">{step.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-dim">{step.body}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        <Reveal className="mt-10">
+          <Link href="/developers" className="btn btn-secondary inline-flex">
+            Preview the API
+          </Link>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
 export function Pillars() {
   return (
     <section className="px-5 py-[9vh] sm:px-6 lg:px-8">

@@ -41,6 +41,19 @@ describe("landing canon — scoreToVerdict boundary cases", () => {
 });
 
 describe("landing canon — waitlist capture", () => {
+  it("advertises session-plus-receipt API and companion roles without scored theater", () => {
+    const source = readFileSync(join(process.cwd(), "app/(marketing)/page.tsx"), "utf8");
+    expect(source).toContain("HowCompanions");
+    expect(source).toContain("AgentsCall");
+    const door = readFileSync(join(process.cwd(), "components/home/FrontDoor.tsx"), "utf8");
+    expect(door).toContain('href="/developers"');
+    expect(door).toContain("Homie");
+    expect(door).toContain("Guardrail");
+    expect(door).toContain("share-session");
+    expect(door).toContain("Decision Readiness receipt");
+    expect(door).not.toContain("HōMI Companion");
+  });
+
   it("does not render a waitlist form on the homepage", () => {
     const source = readFileSync(join(process.cwd(), "app/(marketing)/page.tsx"), "utf8");
     expect(source).not.toContain('id="waitlist"');
