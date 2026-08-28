@@ -24,6 +24,7 @@ const state = vi.hoisted(() => ({
   user: { id: "u1" } as { id: string } | null,
   tier: "free" as string,
   role: null as string | null,
+  rateAllowed: true,
   phase0: {
     frozen: false,
     frozen_until: null as string | null,
@@ -55,7 +56,7 @@ vi.mock("@/lib/supabase/server", () => ({
 
 vi.mock("@/lib/ratelimit", () => ({
   getClientIp: () => "203.0.113.7",
-  rateLimit: async () => ({ allowed: true }),
+  rateLimit: async () => ({ allowed: state.rateAllowed }),
 }));
 
 vi.mock("@/lib/advisor/memory", () => ({
@@ -79,6 +80,7 @@ beforeEach(() => {
   state.user = { id: "u1" };
   state.tier = "free";
   state.role = null;
+  state.rateAllowed = true;
   state.phase0 = { ...OPEN_PHASE0 };
   fetchMock = vi.fn(async () => ({ ok: true, status: 200, json: async () => ({}) }));
   vi.stubGlobal("fetch", fetchMock);
@@ -157,6 +159,18 @@ describe("POST /api/advisor — crisis short-circuit", () => {
       req({ messages: [{ role: "user", content: DISTRESS }], demoContext: true }),
     );
     const body = (await res.json()) as { reply: string; source: string };
+    expect(body.source).toBe("crisis");
+    expect(body.reply).toBe(CRISIS_SUPPORT_MESSAGE);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("rate-limited caller in acute distress still gets crisis support", async () => {
+    state.rateAllowed = false;
+
+    const res = await POST(req({ messages: [{ role: "user", content: DISTRESS }] }));
+    const body = (await res.json()) as { reply: string; source: string };
+
+    expect(res.status).toBe(200);
     expect(body.source).toBe("crisis");
     expect(body.reply).toBe(CRISIS_SUPPORT_MESSAGE);
     expect(fetchMock).not.toHaveBeenCalled();

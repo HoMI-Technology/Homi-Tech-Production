@@ -12,6 +12,17 @@ const state = vi.hoisted(() => ({
   user: { id: "u1" } as { id: string } | null,
   tier: "plus" as string,
   role: null as string | null,
+  serverContext: null as null | {
+    assessment: {
+      score: number;
+      verdict: "READY" | "ALMOST_THERE" | "BUILD_FIRST" | "NOT_YET";
+      pillars: { financial: number; emotional: number; timing: number };
+      hardStops: string[];
+    } | null;
+    finance: null;
+    credit: null;
+    generatedAt: string;
+  },
 }));
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -38,6 +49,10 @@ vi.mock("@/lib/ratelimit", () => ({
 
 vi.mock("@/lib/advisor/memory", () => ({
   persistCompanionExchange: async () => null,
+}));
+
+vi.mock("@/lib/advisor/server-context", () => ({
+  assembleServerContext: async () => state.serverContext,
 }));
 
 import { POST } from "@/app/api/advisor/route";
@@ -77,6 +92,7 @@ beforeEach(() => {
   state.user = { id: "u1" };
   state.tier = "plus";
   state.role = null;
+  state.serverContext = null;
   fetchMock = vi.fn(async () => anthropicOk("ok"));
   vi.stubGlobal("fetch", fetchMock);
 });
@@ -166,6 +182,38 @@ describe("POST /api/advisor — prompt-injection hardening", () => {
     const { system } = getAnthropicBody();
     expect(system).not.toContain("new system prompt");
     expect(system).not.toContain("What changed");
+  });
+
+  it("drops client movement claims when the server replaces the assessment", async () => {
+    state.serverContext = {
+      assessment: {
+        score: 71,
+        verdict: "ALMOST_THERE",
+        pillars: { financial: 80, emotional: 69, timing: 63 },
+        hardStops: [],
+      },
+      finance: null,
+      credit: null,
+      generatedAt: new Date().toISOString(),
+    };
+
+    await POST(
+      req({
+        messages: [{ role: "user", content: "What changed?" }],
+        assessment: {
+          score: 40,
+          verdict: "NOT_YET",
+          pillars: { financial: 40, emotional: 40, timing: 40 },
+          hardStops: ["client-only stop"],
+        },
+        whatChanged: "Your score moved up 31 points.",
+      }),
+    );
+
+    const { system } = getAnthropicBody();
+    expect(system).toContain("Decision Readiness Score: 71/100");
+    expect(system).not.toContain("moved up 31 points");
+    expect(system).not.toContain("authoritative across their devices");
   });
 
   it("drops malicious hard stops before they reach the system prompt", async () => {
