@@ -27,7 +27,7 @@ import {
   ToolPanel,
 } from "@/components/tools/panel-ui";
 import { TIER_HEX } from "@/components/tools/panel-registry";
-import type { LedgerSeeds } from "@/components/tools/seeds";
+import { ledgerSeedsAreOwn, type LedgerSeeds } from "@/components/tools/seeds";
 import { ChartTooltip } from "@/components/ui/ChartTooltip";
 
 const AXIS_TICK = {
@@ -88,7 +88,7 @@ export function MonteCarloPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: str
   );
 
   return (
-    <ToolPanel desc={desc} seeded>
+    <ToolPanel desc={desc} seeded={ledgerSeedsAreOwn(seeds)}>
       <InputGrid>
         <NumberField
           label="Current savings"
@@ -282,7 +282,7 @@ export function FirePanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string })
   );
 
   return (
-    <ToolPanel desc={desc} seeded>
+    <ToolPanel desc={desc} seeded={ledgerSeedsAreOwn(seeds)}>
       <InputGrid>
         <NumberField
           label="Annual expenses"
@@ -394,7 +394,7 @@ export function RothPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: string })
   const net = r.netEducationalBenefit;
 
   return (
-    <ToolPanel desc={desc} seeded>
+    <ToolPanel desc={desc} seeded={ledgerSeedsAreOwn(seeds)}>
       <InputGrid>
         <NumberField
           label="Traditional balance"

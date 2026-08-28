@@ -195,6 +195,8 @@ describe("locked title/meta lines", () => {
     expect(pricing).not.toContain('title: "HōMI Pricing · HōMI"');
     expect(pricing).toContain("absolute: true");
     expect(pricing).toContain("faqPageJsonLd(FAQS)");
+    expect(pricing).toContain('from "./faqs"');
+    expect(pricing).not.toMatch(/export const FAQS/);
     expect(tools).toContain('title: "Tools"');
     expect(tools).toContain(
       "Answer one math question at a time — honest educational lenses for housing, debt, and independence.",

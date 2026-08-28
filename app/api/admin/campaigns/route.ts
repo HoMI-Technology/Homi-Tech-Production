@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { rateLimit } from "@/lib/ratelimit";
 import {
@@ -20,25 +20,6 @@ export const runtime = "nodejs";
  * then all campaign tables are touched with the service-role client — they are
  * RLS-locked to service role only (migration 00033).
  */
-
-async function requireAdmin(): Promise<{ user: User } | { response: NextResponse }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return { response: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
-  }
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-  if (!profile || profile.role !== "admin") {
-    return { response: NextResponse.json({ error: "Admin access required." }, { status: 403 }) };
-  }
-  return { user };
-}
 
 function serviceOr503(): { service: SupabaseClient } | { response: NextResponse } {
   const service = createAdminClient();

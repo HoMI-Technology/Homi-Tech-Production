@@ -31,7 +31,7 @@ export default async function ToolsHubPage() {
           <p className="mt-2 max-w-2xl text-dim">
             Lenses for the math. Not a catalog.{" "}
             {signedIn
-              ? "Educational estimates only — pre-filled from your ledger."
+              ? "Educational estimates only — lenses that have your picture say so."
               : "Educational estimates. Not a HōMI verdict."}
           </p>
         </div>

@@ -23,7 +23,7 @@ import {
   ToolPanel,
 } from "@/components/tools/panel-ui";
 import { TIER_HEX } from "@/components/tools/panel-registry";
-import type { LedgerSeeds } from "@/components/tools/seeds";
+import { ledgerSeedsAreOwn, type LedgerSeeds } from "@/components/tools/seeds";
 
 /* ------------------------------------------------------------------ */
 /* Affordability — canon PITI tiers: Protected / Stretch / Red Line    */
@@ -57,7 +57,7 @@ export function AffordabilityPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: 
   ];
 
   return (
-    <ToolPanel desc={desc} seeded lender>
+    <ToolPanel desc={desc} seeded={ledgerSeedsAreOwn(seeds)} lender>
       <InputGrid>
         <NumberField
           label="Gross annual income"
@@ -518,7 +518,7 @@ export function LoanProgramsPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: s
   );
 
   return (
-    <ToolPanel desc={desc} seeded lender>
+    <ToolPanel desc={desc} seeded={ledgerSeedsAreOwn(seeds)} lender>
       <InputGrid>
         <NumberField
           label="Home price"

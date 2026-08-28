@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { rateLimit } from "@/lib/ratelimit";
 import { logAdminAction } from "@/lib/audit";
 import { POST_SNIPPET_LENGTH, type PostPerformanceRow } from "@/lib/admin/marketing-agency";
@@ -22,25 +23,6 @@ export const runtime = "nodejs";
  */
 
 const MAX_ROWS = 100;
-
-async function requireAdmin(): Promise<{ user: User } | { response: NextResponse }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return { response: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
-  }
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-  if (!profile || profile.role !== "admin") {
-    return { response: NextResponse.json({ error: "Admin access required." }, { status: 403 }) };
-  }
-  return { user };
-}
 
 const insertSchema = z.object({
   platform: z.string().trim().min(1).max(40),

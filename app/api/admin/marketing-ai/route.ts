@@ -1,6 +1,7 @@
 ﻿import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { getClientIp, rateLimit } from "@/lib/ratelimit";
 import { env, hasAnthropic } from "@/lib/env";
 import {
@@ -70,25 +71,6 @@ export const runtime = "nodejs";
  */
 
 const UPSTREAM_TIMEOUT_MS = 20_000;
-
-async function requireAdmin(): Promise<{ user: User } | { response: NextResponse }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return { response: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
-  }
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-  if (!profile || profile.role !== "admin") {
-    return { response: NextResponse.json({ error: "Admin access required." }, { status: 403 }) };
-  }
-  return { user };
-}
 
 const platformSchema = z.enum(["linkedin", "x", "instagram", "threads", "tiktok"]);
 const toneSchema = z.enum(["educational", "story", "authority", "hook", "engagement"]);

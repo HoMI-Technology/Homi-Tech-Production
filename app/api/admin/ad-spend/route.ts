@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { rateLimit } from "@/lib/ratelimit";
 import { logAdminAction } from "@/lib/audit";
 import type { User } from "@supabase/supabase-js";
@@ -14,25 +15,6 @@ export const runtime = "nodejs";
  * second, database-level guard. Upsert keys on (spend_date, channel, campaign)
  * so re-logging the same day/channel edits in place rather than duplicating.
  */
-
-async function requireAdmin(): Promise<{ user: User } | { response: NextResponse }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return { response: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
-  }
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-  if (!profile || profile.role !== "admin") {
-    return { response: NextResponse.json({ error: "Admin access required." }, { status: 403 }) };
-  }
-  return { user };
-}
 
 const upsertSchema = z.object({
   action: z.literal("upsert"),

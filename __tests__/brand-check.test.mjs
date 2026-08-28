@@ -544,6 +544,24 @@ describe("N19–N20: type-scale drift", () => {
   });
 });
 
+describe("N26: naming law — Decision Readiness Score", () => {
+  it("flags HōMI Score / Homie Score on product surfaces", () => {
+    expect(fires("move your HōMI Score.", "N26", "components/tools/ScoreImpactCard.tsx")).toBe(true);
+    expect(fires("your Homie Score", "N26", "app/(product)/dashboard/page.tsx")).toBe(true);
+    expect(fires("the HōMI-Score", "N26", "app/share/[token]/page.tsx")).toBe(true);
+    expect(fires("the HōMI-Score", "N26", "lib/scoring/engine.ts")).toBe(false);
+  });
+
+  it("does not flag Decision Readiness Score or the wordmark", () => {
+    expect(clean("Overall Decision Readiness Score 71 out of 100", "components/score/ScoreRail.tsx")).toBe(
+      true,
+    );
+    expect(clean("The HōMI wordmark carries identity on the fold.", "components/dashboard/HomeFold.tsx")).toBe(
+      true,
+    );
+  });
+});
+
 /* ================================================================== *
  * 7c. Trade-secret scoring internals on public surfaces (N21–N22)
  * ================================================================== */

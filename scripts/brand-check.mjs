@@ -553,6 +553,14 @@ const RULES = [
       "font-black (weight 900) is off the type scale — headings use type-h1/type-h2 (Fraunces 600) or font-semibold. The HōMI wordmark carries its 900 weight via inline style in components/brand/Wordmark.tsx.",
   },
   {
+    id: "N26",
+    // User-visible surfaces only — the scoring engine may name itself internally.
+    paths: /(^|\/)(app|components)\//,
+    re: /\bH[oō]MI[- ]Score\b|\bHomie[- ]Score\b/,
+    message:
+      'Naming law: never say "HōMI Score" / "Homie Score". The product name is Decision Readiness Score (CANON.md gate 4 / DESIGN.md).',
+  },
+  {
     id: "N20",
     cs: true,
     // Arbitrary text SIZES only: text-[15px], sm:text-[1.35rem], text-[clamp(…)].

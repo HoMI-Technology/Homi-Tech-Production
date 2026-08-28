@@ -130,8 +130,10 @@ Steal craft, not costume: put the constraint in chrome (not footer fog); two nee
 | Hook               | `cro` / `copywriting`, then **one of** `frontend-design` **or** `design-taste-frontend` |
 | Always after paint | brand-check, typecheck, reduced-motion smoke                                            |
 
-**Forbidden stack:** multiple aesthetic skills on one PR · `brand-guidelines` (Anthropic) · `theme-factory` (generates off-token palettes) · unconstrained high-end on `/dashboard` · generating a new landing HTML as if the brand did not exist.
-Enforced, not just documented: `.claude/settings.json` hides both skills (`skillOverrides: off`) and denies `Skill(brand-guidelines)` / `Skill(theme-factory)`.
+**Forbidden stack:** multiple aesthetic skills on one PR · `brand-guidelines` (Anthropic) · `theme-factory` (generates off-token palettes) · `ui-ux-pro-max` (generates off-token palettes, a 4th typeface, `font-weight: 900`, and GSAP scroll motion — all banned here) · unconstrained high-end on `/dashboard` · generating a new landing HTML as if the brand did not exist.
+Enforced, not just documented: `.claude/settings.json` hides all three (`skillOverrides: off`) and denies `Skill(brand-guidelines)` / `Skill(theme-factory)` / `Skill(ui-ux-pro-max)`.
+
+Note the distinction: these skills are not bad, they are *unusable here* because HōMI's palette and type are canon-locked. Their **checklists** (contrast floors, touch-target minimums, focus states, reduced-motion) remain useful and are welcome as a review pass against this document — `homi-operate` states the rule: remote-fetched design guidelines are a checklist against DESIGN.md, never authority. What is forbidden is letting one *generate* a visual language.
 
 ## Layout ownership
 

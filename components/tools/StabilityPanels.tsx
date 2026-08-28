@@ -16,7 +16,7 @@ import {
   ToolPanel,
 } from "@/components/tools/panel-ui";
 import { TIER_HEX } from "@/components/tools/panel-registry";
-import type { LedgerSeeds } from "@/components/tools/seeds";
+import { ledgerSeedsAreOwn, type LedgerSeeds } from "@/components/tools/seeds";
 
 /* ------------------------------------------------------------------ */
 /* Debt Payoff — avalanche vs snowball, month-by-month                 */
@@ -74,7 +74,7 @@ export function DebtPayoffPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: str
     setDebts((prev) => prev.map((d) => (d.id === id ? { ...d, ...patch } : d)));
 
   return (
-    <ToolPanel desc={desc} seeded>
+    <ToolPanel desc={desc} seeded={ledgerSeedsAreOwn(seeds)}>
       <div className="grid gap-3 md:grid-cols-3">
         {debts.map((d) => (
           <div key={d.id} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
@@ -176,7 +176,7 @@ export function BlindBudgetPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: st
   );
 
   return (
-    <ToolPanel desc={desc} seeded>
+    <ToolPanel desc={desc} seeded={ledgerSeedsAreOwn(seeds)}>
       <InputGrid>
         <NumberField
           label="Monthly income (low)"

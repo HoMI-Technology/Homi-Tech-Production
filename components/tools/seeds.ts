@@ -71,6 +71,21 @@ const EMPTY_SEEDS: LedgerSeeds = {
   invested: 0,
 };
 
+/** True when the seed object carries the user's picture, not empty defaults. */
+export function ledgerSeedsAreOwn(seeds: LedgerSeeds): boolean {
+  return (
+    seeds.annualIncome > 0 ||
+    seeds.monthlyIncome > 0 ||
+    seeds.monthlyDebts > 0 ||
+    seeds.totalDebt > 0 ||
+    seeds.monthlyOutflow > 0 ||
+    seeds.liquidSavings > 0 ||
+    seeds.monthlyCashFlow !== 0 ||
+    seeds.invested > 0 ||
+    seeds.downPaymentSaved != null
+  );
+}
+
 export function useLedgerSeeds(): SeedState {
   const { cfm, hydrated } = useCfm();
 

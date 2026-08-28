@@ -1,5 +1,5 @@
 /**
- * Score Impact Preview — projected HōMI Score for tool hypotheticals.
+ * Score Impact Preview — projected Decision Readiness Score for tool hypotheticals.
  *
  * Client-safe module (Section 5). It never imports the scoring engine:
  * projections are computed by the server via fetchServerScore → POST

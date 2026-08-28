@@ -1,5 +1,5 @@
 /**
- * ScoreImpactCard — reusable "what would this plan do to my HōMI Score?"
+ * ScoreImpactCard — reusable "what would this plan do to my Decision Readiness Score?"
  * preview for calculator tools (Decision Lab).
  *
  * The card reads the last stored assessment as the baseline, applies the
@@ -107,7 +107,7 @@ export function ScoreImpactCard({
         <h2 className="font-semibold text-light">{title}</h2>
         <p className="mt-2 text-sm leading-relaxed text-dim">
           Take the assessment once and every tool can show how a plan like this would move your
-          HōMI Score.
+          Decision Readiness Score.
         </p>
         <Link
           href="/assessment"

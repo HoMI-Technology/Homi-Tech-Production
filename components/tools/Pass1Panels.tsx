@@ -21,7 +21,7 @@ import {
   ToolPanel,
 } from "@/components/tools/panel-ui";
 import { TIER_HEX } from "@/components/tools/panel-registry";
-import type { LedgerSeeds } from "@/components/tools/seeds";
+import { ledgerSeedsAreOwn, type LedgerSeeds } from "@/components/tools/seeds";
 
 function runwayTone(months: number): string {
   if (!Number.isFinite(months)) return TIER_HEX.protected;
@@ -307,7 +307,7 @@ export function RentVsBuyPanel({ seeds, desc }: { seeds: LedgerSeeds; desc: stri
           : "Blocked";
 
   return (
-    <ToolPanel desc={desc} seeded lender>
+    <ToolPanel desc={desc} seeded={ledgerSeedsAreOwn(seeds)} lender>
       <InputGrid>
         <NumberField
           label="Target price"
