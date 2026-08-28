@@ -54,6 +54,44 @@ describe("landing canon — waitlist capture", () => {
     expect(door).not.toContain("HōMI Companion");
   });
 
+  it("presents Homie as the only public mouth, specialists behind, not six equal products", () => {
+    const door = readFileSync(join(process.cwd(), "components/home/FrontDoor.tsx"), "utf8");
+    expect(door).toContain('id="companion-chorus"');
+    expect(door).toContain('data-role="homie"');
+    expect(door).toContain("companion-specialists");
+    expect(door).toContain("Reality Check");
+    expect(door).toContain("Gut Check");
+    expect(door).toContain("Timing Advisor");
+    expect(door).toContain("Finance Planner");
+    expect(door).toContain("Guardrail");
+    expect(door).toMatch(/only voice you hear/i);
+    expect(door).not.toContain("HōMI Companion");
+  });
+
+  it("places chorus after the product walk and instrument last before close", () => {
+    const source = readFileSync(join(process.cwd(), "app/(marketing)/page.tsx"), "utf8");
+    const how = source.indexOf("<HowCompanions");
+    const agents = source.indexOf("<AgentsCall");
+    const steps = source.indexOf("<Steps");
+    const close = source.indexOf("<CloseCta");
+    expect(how).toBeGreaterThan(steps);
+    expect(agents).toBeGreaterThan(how);
+    expect(close).toBeGreaterThan(agents);
+  });
+
+  it("advertises partner access as a connected session-then-receipt instrument, never a lookup", () => {
+    const door = readFileSync(join(process.cwd(), "components/home/FrontDoor.tsx"), "utf8");
+    expect(door).toContain('id="partner-instrument"');
+    expect(door).toContain("/api/v1/share-sessions");
+    expect(door).toContain("/api/v1/receipts");
+    expect(door).toContain("Homi-Purpose");
+    expect(door).toMatch(/does not look someone up/i);
+    expect(door).not.toMatch(/GET \/score\?email/i);
+    expect(door).not.toMatch(/\bSSN\b/);
+    expect(door).not.toContain("BUILD FIRST");
+    expect(door).not.toContain("80–100");
+  });
+
   it("does not render a waitlist form on the homepage", () => {
     const source = readFileSync(join(process.cwd(), "app/(marketing)/page.tsx"), "utf8");
     expect(source).not.toContain('id="waitlist"');

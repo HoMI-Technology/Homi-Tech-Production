@@ -5,6 +5,7 @@ import { scoreToVerdict } from "@/lib/scoring/public";
 import {
   AGENT_INSTRUCTION,
   EXAMPLE_COMPUTE_RESPONSE,
+  EXAMPLE_RECEIPT_RESPONSE,
   EXAMPLE_SCORE,
   EXAMPLE_VERDICT,
 } from "@/lib/developers/fixtures";
@@ -64,6 +65,25 @@ describe("developers page canon", () => {
     expect(AGENT_INSTRUCTION.do).toContain("share-sessions");
     expect(AGENT_INSTRUCTION.do).toContain("/api/v1/receipts");
     expect(AGENT_INSTRUCTION.never.toLowerCase()).toMatch(/scoring/);
+  });
+
+  it("defaults the playground to share-sessions, not legacy compute", () => {
+    const src = playground();
+    expect(src).toMatch(/useState<Tab>\(\s*"session"\s*\)/);
+    expect(src.indexOf('id: "session"')).toBeLessThan(src.indexOf('id: "compute"'));
+  });
+
+  it("keeps partner EXAMPLE receipt without a raw overall 0–100", () => {
+    expect(JSON.stringify(EXAMPLE_RECEIPT_RESPONSE)).not.toContain("overall_score");
+    expect(EXAMPLE_RECEIPT_RESPONSE.receipt).not.toHaveProperty("score");
+    expect(EXAMPLE_RECEIPT_RESPONSE.receipt.verdict).toBe("BUILD_FIRST");
+  });
+
+  it("does not advertise lookup-by-email or SSN pull", () => {
+    const src = allUi();
+    expect(src).not.toMatch(/GET \/score\?email/i);
+    expect(src).not.toMatch(/lookup by (email|ssn)/i);
+    expect(src).not.toMatch(/\bSSN\b/);
   });
 });
 

@@ -59,6 +59,16 @@ describe("POST /api/v1/share-sessions", () => {
   it("400s without Homi-Purpose", async () => {
     const res = await post(GOOD_KEY, null);
     expect(res.status).toBe(400);
+    const json = (await res.json()) as { error: { code?: string } | string };
+    const code = typeof json.error === "string" ? json.error : json.error.code;
+    expect(String(code)).toMatch(/PURPOSE_REQUIRED|purpose/i);
+  });
+
+  it("404s eligibility purposes so scanners do not get a forbidden-use menu", async () => {
+    for (const purpose of ["lending", "employment", "housing", "insurance"]) {
+      const res = await post(GOOD_KEY, purpose);
+      expect(res.status).toBe(404);
+    }
   });
 
   it("returns only id, url, expiry — no score — for a live key", async () => {

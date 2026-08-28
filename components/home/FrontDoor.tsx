@@ -120,11 +120,12 @@ export function FriendFrame() {
   );
 }
 
-const COMPANION_ROLES = [
-  {
-    name: "Homie",
-    body: "The only voice you hear. Never pressures a conversion. Educational guidance, not a banker.",
-  },
+const HOMIE_ROLE = {
+  name: "Homie",
+  body: "The only voice you hear. Never pressures a conversion. Educational guidance, not a banker.",
+} as const;
+
+const COMPANION_SPECIALISTS = [
   {
     name: "Reality Check",
     body: "Financial truth. No mortgage or investment advice.",
@@ -147,68 +148,97 @@ const COMPANION_ROLES = [
   },
 ] as const;
 
-/** How the Decision Companion is staffed — names only, no system prompts, no scores. */
+/** How the Decision Companion is staffed — Homie speaks; specialists inform. No scores. */
 export function HowCompanions() {
   return (
-    <section className="px-5 py-[9vh] sm:px-6 lg:px-8">
+    <section id="companion-chorus" className="px-5 py-[9vh] sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-7xl">
         <SectionHeader
           eyebrow="How the companion is built"
           title="One voice. Five specialists behind it."
           support="Homie speaks. The others inform. You still decide. Nothing here is a credit, employment, or housing decision."
         />
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {COMPANION_ROLES.map((role, i) => (
-            <Reveal key={role.name} delay={i * 70}>
-              <div className="glass h-full p-7">
-                <h3 className="text-xl font-semibold text-light">{role.name}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-dim">{role.body}</p>
-              </div>
-            </Reveal>
+        <Reveal className="mt-14">
+          <div
+            data-role="homie"
+            className="glass mx-auto max-w-2xl p-8 text-center sm:p-10"
+          >
+            <p className="eyebrow text-cyan">Decision Companion</p>
+            <h3 className="type-display mt-4 text-light">{HOMIE_ROLE.name}</h3>
+            <p className="mt-4 text-lg leading-relaxed text-dim">{HOMIE_ROLE.body}</p>
+          </div>
+        </Reveal>
+        <ul
+          className="companion-specialists mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5"
+          aria-label="Specialists behind Homie"
+        >
+          {COMPANION_SPECIALISTS.map((role, i) => (
+            <li key={role.name}>
+              <Reveal delay={i * 60}>
+                <div className="h-full rounded-xl border border-slate-high/40 bg-slate-surface p-5">
+                  <h4 className="text-sm font-semibold text-light">{role.name}</h4>
+                  <p className="mt-2 text-xs leading-relaxed text-dim">{role.body}</p>
+                </div>
+              </Reveal>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );
 }
 
-/** Agents and companies: server scores; partners verify a receipt. No lookup. */
+const PARTNER_STEPS = [
+  {
+    n: "01",
+    title: "Start a session",
+    path: "POST /api/v1/share-sessions",
+    body: "Your system opens a hosted URL. The person authenticates on HōMI. An agent does not look someone up.",
+  },
+  {
+    n: "02",
+    title: "Server scores",
+    path: "HōMI engine (server-only)",
+    body: "Deterministic code scores. AI explains. Weights never leave the server.",
+  },
+  {
+    n: "03",
+    title: "Verify a receipt",
+    path: "GET /api/v1/receipts · Homi-Purpose",
+    body: "You receive a token the person authorized. Educational guidance only. Not for eligibility.",
+  },
+] as const;
+
+/** Agents and companies: session then Decision Readiness receipt. No lookup. */
 export function AgentsCall() {
   return (
-    <section className="px-5 py-[9vh] sm:px-6 lg:px-8">
+    <section id="partner-instrument" className="px-5 py-[9vh] sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-7xl">
         <SectionHeader
           eyebrow="For agents and partners"
           title="Ask before the person commits."
           support="Scoring stays on HōMI's server. An agent does not look someone up. They open a session; the person completes the assessment; a partner verifies a Decision Readiness receipt. Educational guidance only."
         />
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
-          {[
-            {
-              n: "01",
-              title: "Start a session",
-              body: "Your system calls the share-session API. The person authenticates on HōMI — not in your lookup.",
-            },
-            {
-              n: "02",
-              title: "Server scores",
-              body: "Deterministic code scores. AI explains. Weights never leave the server.",
-            },
-            {
-              n: "03",
-              title: "Verify a receipt",
-              body: "You receive a token the person authorized. No email or SSN pull. Not for eligibility.",
-            },
-          ].map((step, i) => (
-            <Reveal key={step.n} delay={i * 80}>
-              <div className="glass h-full p-7">
-                <p className="font-mono text-sm text-cyan">{step.n}</p>
-                <h3 className="mt-3 text-xl font-semibold text-light">{step.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-dim">{step.body}</p>
-              </div>
-            </Reveal>
+        <ol className="mt-14 grid gap-0 md:grid-cols-3">
+          {PARTNER_STEPS.map((step, i) => (
+            <li key={step.n} className="relative">
+              <Reveal delay={i * 80}>
+                <div className="h-full border border-slate-high/50 bg-slate-surface p-7 md:border-e-0 md:last:border-e">
+                  {i < PARTNER_STEPS.length - 1 ? (
+                    <span
+                      aria-hidden
+                      className="absolute end-0 top-1/2 hidden h-px w-6 translate-x-full bg-cyan/40 md:block"
+                    />
+                  ) : null}
+                  <p className="font-mono text-sm text-cyan">{step.n}</p>
+                  <h3 className="mt-3 text-xl font-semibold text-light">{step.title}</h3>
+                  <p className="mt-2 font-mono text-[11px] tracking-wide text-cyan/80">{step.path}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-dim">{step.body}</p>
+                </div>
+              </Reveal>
+            </li>
           ))}
-        </div>
+        </ol>
         <Reveal className="mt-10">
           <Link href="/developers" className="btn btn-secondary inline-flex">
             Preview the API
@@ -430,6 +460,12 @@ export function CloseCta() {
             {PRIMARY_CLOSE_LABEL_HOME}
           </Link>
           <p className="mt-4 text-sm text-dim">Free &middot; about 5 minutes</p>
+          <p className="mt-6 text-sm text-dim">
+            Building with HōMI?{" "}
+            <Link href="/developers" className="text-cyan">
+              Preview the API
+            </Link>
+          </p>
         </div>
       </Reveal>
     </section>

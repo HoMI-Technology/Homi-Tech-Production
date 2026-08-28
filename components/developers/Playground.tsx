@@ -10,18 +10,18 @@ import {
   EXAMPLE_SESSION_RESPONSE,
 } from "@/lib/developers/fixtures";
 
-type Tab = "compute" | "inputs" | "receipt" | "session" | "hooks";
+type Tab = "session" | "receipt" | "inputs" | "compute" | "hooks";
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: "compute", label: "EXAMPLE compute" },
-  { id: "inputs", label: "AssessmentInputs" },
-  { id: "receipt", label: "GET receipts" },
   { id: "session", label: "POST share-sessions" },
+  { id: "receipt", label: "GET receipts" },
+  { id: "inputs", label: "AssessmentInputs" },
+  { id: "compute", label: "EXAMPLE compute (legacy)" },
   { id: "hooks", label: "Webhooks (proposed)" },
 ];
 
 export function Playground() {
-  const [tab, setTab] = useState<Tab>("compute");
+  const [tab, setTab] = useState<Tab>("session");
   const [copied, setCopied] = useState<string | null>(null);
 
   const { req, res, caption } = useMemo(() => {

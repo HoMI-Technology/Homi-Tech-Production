@@ -31,9 +31,9 @@ export default function DevelopersPage() {
         <section className="mt-16">
           <h2 className="type-h2">Playground · EXAMPLE</h2>
           <p className="mt-3 max-w-2xl text-dim">
-            BUILD FIRST is not failure — it is the map. ALMOST THERE: a little more runway changes
-            everything. DO NOT PROCEED is a protection signal, not a punishment. READY ≥80 · ALMOST
-            THERE 65–79 · BUILD FIRST 50–64 · DO NOT PROCEED 0–49.
+            Start with a hosted session. Then verify a Decision Readiness receipt. The EXAMPLE 61 /
+            BUILD FIRST fixture is labeled mock theater only — not a live POST /v1/readiness. READY
+            ≥80 · ALMOST THERE 65–79 · BUILD FIRST 50–64 · DO NOT PROCEED 0–49.
           </p>
           <div className="mt-8">
             <Playground />

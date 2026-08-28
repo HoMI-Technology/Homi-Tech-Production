@@ -37,18 +37,25 @@ export function CanonVoices() {
         <p className="mt-4 min-h-12 text-sm text-light">{mood ? REPLIES[mood] : "Tap a mood. Nothing is scored."}</p>
       </section>
 
-      <section>
-        <p className="font-mono text-xs tracking-widest text-yellow">TRINITY · CANNED</p>
+      <details className="rounded-xl border border-slate-high bg-navy-light p-4">
+        <summary className="cursor-pointer font-mono text-xs tracking-widest text-yellow">
+          TRINITY · CANNED
+        </summary>
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           <Voice title="Advocate" body="Savings velocity is a real strength in this example. That is worth protecting, not rushing past." />
           <Voice title="Skeptic" body="Emotional readiness still needs time. A strong spreadsheet does not make the person ready." />
           <Voice title="Arbiter" body="Verdict on this mock is BUILD FIRST. The map, not a no. The person still decides." />
         </div>
-      </section>
+      </details>
 
-      <section>
-        <p className="font-mono text-xs tracking-widest text-emerald">COMPANION ROLES · CANON</p>
-        <p className="mt-2 text-sm text-dim">Six voices. One person in charge. Descriptions only — not system prompts.</p>
+      <details className="rounded-xl border border-slate-high bg-navy-light p-4">
+        <summary className="cursor-pointer font-mono text-xs tracking-widest text-emerald">
+          COMPANION ROLES · CANON
+        </summary>
+        <p className="mt-2 text-sm text-dim">
+          Homie is the only voice a person hears. Five specialists inform. Descriptions only — not
+          system prompts.
+        </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <Voice title="Homie" body="Sole user-facing voice. Never pressures conversion." />
           <Voice title="Reality Check" body="Financial truth. No mortgage or investment advice." />
@@ -57,7 +64,7 @@ export function CanonVoices() {
           <Voice title="Finance Planner" body="Calculator-backed education. No product push." />
           <Voice title="Guardrail" body="Refusals and auditability. Cannot be bypassed." />
         </div>
-      </section>
+      </details>
     </div>
   );
 }

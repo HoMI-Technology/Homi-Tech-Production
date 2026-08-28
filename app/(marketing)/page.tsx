@@ -59,11 +59,11 @@ export default function MarketingHomePage() {
         <PaperScene>
           <div className="relative z-10">
             <FriendFrame />
-            <HowCompanions />
             <WrongQuestion />
             <Pillars />
             <VerdictSpectrum />
             <Steps />
+            <HowCompanions />
             <Clarity />
             <NotYourBanker />
             <AgentsCall />
