@@ -37,6 +37,36 @@ export function hasSavedCreditState(): boolean {
   }
 }
 
+/**
+ * What /credit may paint as "yours". Defaults (680 / 35% / 12mo) are editor
+ * starting points — never a FICO reading. Persist only when `ownNumbers`.
+ */
+export function creditDisplay(
+  ownNumbers: boolean,
+  hydrated: boolean,
+  state: CreditState,
+): {
+  value: string;
+  label: string;
+  showInterpretation: boolean;
+  persist: boolean;
+} {
+  if (!hydrated || !ownNumbers) {
+    return {
+      value: "—",
+      label: "Not your score yet",
+      showInterpretation: false,
+      persist: false,
+    };
+  }
+  return {
+    value: String(state.score),
+    label: "Your score",
+    showInterpretation: true,
+    persist: true,
+  };
+}
+
 /** Loads credit state merged over defaults. SSR-safe. */
 export function loadCreditState(): CreditState {
   if (typeof window === "undefined") return DEFAULT_CREDIT_STATE;

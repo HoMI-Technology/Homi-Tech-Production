@@ -122,8 +122,10 @@ export function PathToReadyCard({
     () =>
       computePathFreshness(path, {
         financeSavedAt: getFinanceSavedAtForPath(),
+        liveScore: result.score,
+        liveVerdict: result.verdict,
       }),
-    [path],
+    [path, result.score, result.verdict],
   );
 
   useEffect(() => {
@@ -352,6 +354,8 @@ export function PathToReadyCard({
     const conf = confidenceLabel(path.confidence);
     const isOptional = path.mode === "ready_optional";
     const completion = Math.round(pathCompletionRatio(path) * 100);
+    const readingVerdict =
+      result.hardStops.length > 0 ? "NOT_YET" : result.verdict;
 
     return (
       <section
@@ -371,9 +375,11 @@ export function PathToReadyCard({
               {isOptional ? "Optional maintenance" : "Your sequenced path"}
             </h2>
             <p className="mt-1 text-sm text-dim">
-              Score <span className="score-numeral text-light">{path.score}</span>
+              Score <span className="score-numeral text-light">{Math.round(result.score)}</span>
               {" · "}
-              {path.verdict === "NOT_YET" ? "DO NOT PROCEED" : path.verdict.replace("_", " ")}
+              {readingVerdict === "NOT_YET"
+                ? "DO NOT PROCEED"
+                : readingVerdict.replace("_", " ")}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">

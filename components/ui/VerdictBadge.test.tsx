@@ -64,8 +64,14 @@ describe("VerdictBadge — score prop via public SSOT", () => {
 });
 
 describe("verdict-ssot helpers", () => {
-  it("resolveVerdictKey prefers explicit verdict over score", () => {
+  it("resolveVerdictKey prefers explicit verdict over score when no hard stops", () => {
     expect(resolveVerdictKey({ verdict: "BUILD_FIRST", score: 90 })).toBe("BUILD_FIRST");
+  });
+
+  it("resolveVerdictKey lets hard stops outrank an explicit ALMOST_THERE at 65", () => {
+    expect(
+      resolveVerdictKey({ verdict: "ALMOST_THERE", score: 65, hardStops: [{ code: "RUNWAY_UNDER_1_MONTH" }] }),
+    ).toBe("NOT_YET");
   });
 
   it("resolveVerdictKey maps via scoreToVerdict when no hard stops", () => {

@@ -231,6 +231,9 @@ export function computePathFreshness(
   opts?: {
     financeSavedAt?: string | null;
     now?: Date;
+    /** Live assessment reading — when it diverges from the frozen path, the plan is stale. */
+    liveScore?: number | null;
+    liveVerdict?: string | null;
   },
 ): PathFreshness {
   const now = opts?.now ?? new Date();
@@ -250,6 +253,20 @@ export function computePathFreshness(
   if (financeAgeDays != null && financeAgeDays > ASSESSMENT_STALE_DAYS) {
     reasons.push(
       `Finance numbers are ${financeAgeDays} days old — update the cockpit for honest targets.`,
+    );
+  }
+  if (
+    path &&
+    opts?.liveScore != null &&
+    Number.isFinite(opts.liveScore) &&
+    Math.round(opts.liveScore) !== Math.round(path.score)
+  ) {
+    reasons.push(
+      `This path was built at score ${Math.round(path.score)} — your current reading is ${Math.round(opts.liveScore)}. Regenerate to bind the plan to the current verdict.`,
+    );
+  } else if (path && opts?.liveVerdict && opts.liveVerdict !== path.verdict) {
+    reasons.push(
+      "Your current verdict and this path no longer match — regenerate from the latest assessment.",
     );
   }
 

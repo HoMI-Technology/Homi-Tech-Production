@@ -15,15 +15,15 @@ type VerdictBadgeBase = {
 };
 
 /**
- * Pass either a resolved `verdict`, or a `score` (+ optional `hardStops`)
- * so the badge maps through the public SSOT (`scoreToVerdict`) — callers
- * must not invent band thresholds.
+ * Pass a resolved `verdict` and/or a `score`. Hard stops always force
+ * NOT_YET, even when the stored verdict is a pre-override band.
+ * Callers must not invent band thresholds.
  */
-export type VerdictBadgeProps = VerdictBadgeBase &
-  (
-    | { verdict: VerdictKey; score?: never; hardStops?: never }
-    | { score: number; hardStops?: HardStopsInput; verdict?: never }
-  );
+export type VerdictBadgeProps = VerdictBadgeBase & {
+  verdict?: VerdictKey;
+  score?: number;
+  hardStops?: HardStopsInput;
+};
 
 /** Verdict chip — exact proprietary verdict colors, temperature metaphor. */
 export function VerdictBadge(props: VerdictBadgeProps) {

@@ -21,6 +21,7 @@ describe("parseLatestVerdict", () => {
       score: 61,
       heldDays: 12,
       decisionType: "Home Buying",
+      assessmentId: null,
     });
   });
 
@@ -30,6 +31,7 @@ describe("parseLatestVerdict", () => {
       score: 88,
       heldDays: null,
       decisionType: null,
+      assessmentId: null,
     });
   });
 
@@ -75,6 +77,7 @@ describe("footerChipModel", () => {
       score: 61,
       heldDays: 12,
       decisionType: "Home Buying",
+      assessmentId: null,
     });
     expect(chip).toEqual({
       href: "/dashboard",
@@ -92,6 +95,7 @@ describe("footerChipModel", () => {
       score: 88,
       heldDays: null,
       decisionType: null,
+      assessmentId: null,
     });
     expect(chip.meta).toBeNull();
     expect(chip.href).toBe("/dashboard");

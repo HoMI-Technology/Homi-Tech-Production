@@ -10,6 +10,7 @@ import {
   MAX_PATH_STEPS,
   FIRST_STEP_MAX_DAYS,
   bindingConstraintLabel,
+  pathDisplayVerdict,
 } from "@/lib/readiness";
 
 const SAFE_BASE: AssessmentInputs = {
@@ -63,6 +64,17 @@ describe("buildReadinessPath", () => {
     expect(path.steps[0].reasonCode).toBe("RUNWAY_UNDER_1_MONTH");
     expect(path.steps[0].href).toBe("/tools/runway");
     expect(path.steps[0].daysFromNow).toBeLessThanOrEqual(FIRST_STEP_MAX_DAYS);
+  });
+
+  it("pathDisplayVerdict forces NOT_YET when a frozen path still carries ALMOST_THERE", () => {
+    const result = computeScore({
+      ...SAFE_BASE,
+      emergencyFundMonths: 0.5,
+    });
+    expect(result.verdict).toBe("NOT_YET");
+    const path = buildReadinessPath(result, { idFactory: idFactory() });
+    const leaked = { ...path, verdict: "ALMOST_THERE" as const, score: 65 };
+    expect(pathDisplayVerdict(leaked)).toBe("NOT_YET");
   });
 
   it("respects HARD_STOP_ORDER when multiple fire", () => {

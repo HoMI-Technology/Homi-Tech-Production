@@ -127,6 +127,23 @@ function pendingFields(): Pick<PathStep, "status" | "completedAt"> {
   return { status: "pending", completedAt: null };
 }
 
+/** True when this path is sequencing a protective hard-stop, not a soft pillar. */
+export function pathHasProtectiveHardStop(path: ReadinessPath): boolean {
+  const codes: ReadonlySet<string> = new Set(HARD_STOP_ORDER);
+  if (path.bindingConstraint && codes.has(path.bindingConstraint)) return true;
+  return path.steps.some((step) => codes.has(step.reasonCode));
+}
+
+/**
+ * Verdict the Path surface may show. Frozen `path.verdict` can predate the
+ * hard-stop override (`deriveVerdict(65)` → ALMOST_THERE while runway is 0).
+ * The engine preserves the numeric score and forces NOT_YET; so must Path.
+ */
+export function pathDisplayVerdict(path: ReadinessPath): Verdict {
+  if (pathHasProtectiveHardStop(path)) return "NOT_YET";
+  return path.verdict;
+}
+
 /** Normalize legacy localStorage paths missing status / calendarCommittedAt. */
 export function normalizeReadinessPath(raw: unknown): ReadinessPath | null {
   if (!raw || typeof raw !== "object") return null;

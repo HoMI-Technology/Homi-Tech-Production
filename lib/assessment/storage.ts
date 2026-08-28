@@ -20,6 +20,14 @@ const STORAGE_KEY = "homi:last-assessment";
  */
 const SIDEBAR_VERDICT_KEY = "homi-latest-verdict";
 
+/** Same-tab rail refresh. `storage` events do not fire in the window that wrote. */
+export const VERDICT_SYNC_EVENT = "homi-verdict-sync";
+
+export function notifySidebarVerdictChanged(): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(VERDICT_SYNC_EVENT));
+}
+
 export type AssessmentKind = "full" | "shadow";
 
 /** Local record of a "deciding anyway" verdict override. Never changes score/verdict. */
@@ -101,8 +109,10 @@ export function writeSidebarVerdict(data: StoredAssessment): void {
         // The reader renders this string verbatim, so mirror the label, never
         // the enum — "HOME_BUYING" in the rail eyebrow is not shippable.
         decisionType: data.decisionType ? DECISION_TYPE_LABELS[data.decisionType] : null,
+        assessmentId: data.serverId ?? null,
       }),
     );
+    notifySidebarVerdictChanged();
   } catch {
     // Storage full, disabled, or private mode — the sidebar degrades to its
     // "Assess to begin" empty state. Never fatal.

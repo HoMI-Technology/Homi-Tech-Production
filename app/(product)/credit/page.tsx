@@ -6,6 +6,7 @@ import {
   loadCreditState,
   saveCreditState,
   hasSavedCreditState,
+  creditDisplay,
   DEFAULT_CREDIT_STATE,
   CREDIT_HARD_STOP,
   type CreditState,
@@ -68,13 +69,18 @@ const BAND_META: Record<Band, { label: string; color: string; explanation: strin
 export default function CreditPage() {
   const [state, setState] = useState<CreditState>(DEFAULT_CREDIT_STATE);
   const [hydrated, setHydrated] = useState(false);
+  const [ownNumbers, setOwnNumbers] = useState(false);
   const [remoteId, setRemoteId] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
     async function hydrate(): Promise<void> {
+      const saved = hasSavedCreditState();
       const local = loadCreditState();
-      if (active) setState(local);
+      if (active && saved) {
+        setState(local);
+        setOwnNumbers(true);
+      }
       try {
         const supabase = createClient();
         const { data } = await supabase.auth.getUser();
@@ -85,9 +91,11 @@ export default function CreditPage() {
           if (remote.state) {
             setState(remote.state);
             saveCreditState(remote.state);
+            setOwnNumbers(true);
           } else if (hasSavedCreditState()) {
             const id = await saveRemoteCredit(supabase, data.user.id, local, null);
             if (active) setRemoteId(id);
+            setOwnNumbers(true);
           }
         }
       } catch {
@@ -102,7 +110,7 @@ export default function CreditPage() {
   }, []);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || !ownNumbers) return;
     saveCreditState(state);
     const timer = window.setTimeout(() => {
       void (async () => {
@@ -118,11 +126,17 @@ export default function CreditPage() {
       })();
     }, 800);
     return () => window.clearTimeout(timer);
-  }, [state, hydrated, remoteId]);
+  }, [state, hydrated, remoteId, ownNumbers]);
 
+  const display = creditDisplay(ownNumbers, hydrated, state);
   const band = bandFor(state.score);
   const meta = BAND_META[band];
   const isHardStop = state.score < HARD_STOP;
+
+  function claimNumbers(patch: Partial<CreditState>) {
+    setOwnNumbers(true);
+    setState((s) => ({ ...s, ...patch }));
+  }
 
   return (
     <ToolShell
@@ -140,7 +154,7 @@ export default function CreditPage() {
             min={300}
             max={850}
             step={1}
-            onChange={(v) => setState((s) => ({ ...s, score: v }))}
+            onChange={(v) => claimNumbers({ score: v })}
             suffix=""
           />
           <SliderField
@@ -149,7 +163,7 @@ export default function CreditPage() {
             min={0}
             max={100}
             step={1}
-            onChange={(v) => setState((s) => ({ ...s, utilization: v }))}
+            onChange={(v) => claimNumbers({ utilization: v })}
             suffix="%"
           />
           <SliderField
@@ -158,33 +172,43 @@ export default function CreditPage() {
             min={0}
             max={60}
             step={1}
-            onChange={(v) => setState((s) => ({ ...s, onTimeStreakMonths: v }))}
+            onChange={(v) => claimNumbers({ onTimeStreakMonths: v })}
             suffix=" mo"
           />
         </div>
 
         <div className="space-y-6">
           <ToolResultHero
-            label="Your score"
-            value={hydrated ? String(state.score) : "—"}
-            color={meta.color}
+            label={display.label}
+            value={display.value}
+            color={display.showInterpretation ? meta.color : COLORS.cyan}
             badge={
-              <span
-                className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                  isHardStop
-                    ? "border-crimson/40 bg-verdict-notyet text-crimson"
-                    : "border-slate-surface/60 text-light"
-                }`}
-                style={{ color: meta.color, borderColor: `${meta.color}55` }}
-              >
-                {isHardStop
-                  ? "DO NOT PROCEED zone"
-                  : (meta.label.split("—")[0]?.trim() ?? meta.label)}
-              </span>
+              display.showInterpretation ? (
+                <span
+                  className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                    isHardStop
+                      ? "border-crimson/40 bg-verdict-notyet text-crimson"
+                      : "border-slate-surface/60 text-light"
+                  }`}
+                  style={{ color: meta.color, borderColor: `${meta.color}55` }}
+                >
+                  {isHardStop
+                    ? "DO NOT PROCEED zone"
+                    : (meta.label.split("—")[0]?.trim() ?? meta.label)}
+                </span>
+              ) : (
+                <span className="rounded-full border border-slate-surface/60 px-3 py-1 text-xs font-semibold text-dim">
+                  Defaults are not a FICO file
+                </span>
+              )
             }
-            footer={meta.explanation}
+            footer={
+              display.showInterpretation
+                ? meta.explanation
+                : "Move a slider when you have a real reading. HōMI will not treat 680 / 35% / 12 months as yours."
+            }
           >
-            <ScoreDial score={state.score} />
+            {display.showInterpretation ? <ScoreDial score={state.score} /> : null}
           </ToolResultHero>
         </div>
       </div>

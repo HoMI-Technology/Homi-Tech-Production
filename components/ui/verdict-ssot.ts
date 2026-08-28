@@ -38,13 +38,16 @@ export function resolveVerdictKey(opts: {
   score?: number | null;
   hardStops?: HardStopsInput;
 }): VerdictKey {
+  // Hard-stops outrank an explicit verdict. Path snapshots and scoreToVerdict
+  // can still carry ALMOST_THERE at 65 after the engine has already forced
+  // NOT_YET — displaying the stored adjective is the contradiction.
+  if (hasHardStops(opts.hardStops)) return "NOT_YET";
   if (opts.verdict != null) return opts.verdict;
   if (opts.score == null || !Number.isFinite(opts.score)) {
     throw new TypeError(
       "Verdict UI SSOT requires either `verdict` or a finite `score` (via scoreToVerdict).",
     );
   }
-  if (hasHardStops(opts.hardStops)) return "NOT_YET";
   return scoreToVerdict(opts.score);
 }
 

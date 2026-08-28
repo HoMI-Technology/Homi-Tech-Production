@@ -32,6 +32,8 @@ import {
   totalRecurringMonthly,
   capacityAfterRecurring,
   PATH_DISCLAIMER,
+  pathDisplayVerdict,
+  pathHasProtectiveHardStop,
   derivePathHabitStage,
   pathPendingStepCount,
   pathHabitOncePerSession,
@@ -172,8 +174,10 @@ export default function PathPage() {
     () =>
       computePathFreshness(path, {
         financeSavedAt: getFinanceSavedAtForPath(),
+        liveScore: assessment?.result.score ?? null,
+        liveVerdict: assessment?.result.verdict ?? null,
       }),
-    [path],
+    [path, assessment],
   );
 
   const coach = useMemo(
@@ -360,7 +364,16 @@ export default function PathPage() {
   }
 
   const completion = Math.round(pathCompletionRatio(path) * 100);
-  const verdict = path.verdict as VerdictKey;
+  const live = assessment?.result;
+  const displayScore = live && Number.isFinite(live.score) ? live.score : path.score;
+  const verdict = (
+    live
+      ? live.verdict
+      : pathDisplayVerdict(path)
+  ) as VerdictKey;
+  const protectiveStops = live
+    ? live.hardStops
+    : pathHasProtectiveHardStop(path);
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-12 sm:py-16">
@@ -374,9 +387,9 @@ export default function PathPage() {
           </p>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <VerdictBadge verdict={verdict} size="md" />
+          <VerdictBadge verdict={verdict} hardStops={protectiveStops} size="md" />
           <p className="score-numeral text-sm text-dim">
-            Score {path.score}
+            Score {Math.round(displayScore)}
             {" · "}
             {completion}% resolved
           </p>

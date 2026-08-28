@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { VERDICT_META, withAlpha, type VerdictKey } from "@/lib/brand";
 import { isFrozenForPerson, loadKnownPhase0Person, PHASE0_EVENT } from "@/lib/advisor/phase0";
+import { VERDICT_SYNC_EVENT } from "@/lib/assessment/storage";
 
 /**
  * Persistent decision state for the app sidebar.
@@ -32,6 +33,8 @@ export type LatestVerdict = {
   heldDays: number | null;
   /** Free-text decision label ("Home Buying"). Null when absent. */
   decisionType: string | null;
+  /** Server assessments.id when the writer knew it. Null on anonymous/legacy payloads. */
+  assessmentId: string | null;
 };
 
 const VERDICT_KEYS = new Set(Object.keys(VERDICT_META));
@@ -66,12 +69,17 @@ export function parseLatestVerdict(raw: string | null): LatestVerdict | null {
     typeof record.decisionType === "string" && record.decisionType.trim().length > 0
       ? record.decisionType.trim()
       : null;
+  const assessmentId =
+    typeof record.assessmentId === "string" && record.assessmentId.trim().length > 0
+      ? record.assessmentId.trim()
+      : null;
 
   return {
     verdict: verdict as VerdictKey,
     score: Math.round(Math.min(100, Math.max(0, score))),
     heldDays,
     decisionType,
+    assessmentId,
   };
 }
 
@@ -103,9 +111,11 @@ export function useLatestVerdict(): LatestVerdict | null {
     }
     window.addEventListener("storage", onStorage);
     window.addEventListener(PHASE0_EVENT, read);
+    window.addEventListener(VERDICT_SYNC_EVENT, read);
     return () => {
       window.removeEventListener("storage", onStorage);
       window.removeEventListener(PHASE0_EVENT, read);
+      window.removeEventListener(VERDICT_SYNC_EVENT, read);
     };
   }, []);
 

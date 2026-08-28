@@ -6,6 +6,8 @@ export {
   pathStepEventDate,
   bindingConstraintLabel,
   normalizeReadinessPath,
+  pathHasProtectiveHardStop,
+  pathDisplayVerdict,
   setPathStepStatus,
   HARD_STOP_ORDER,
   PATH_DISCLAIMER,

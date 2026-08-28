@@ -83,6 +83,17 @@ describe("computePathFreshness", () => {
     expect(freshness.isStale).toBe(true);
     expect(freshness.reasons.some((r) => /assessment/i.test(r))).toBe(true);
   });
+
+  it("flags a path whose frozen score disagrees with the live reading", () => {
+    const result = computeScore({ ...SAFE_BASE, emergencyFundMonths: 0.5 });
+    const path = buildReadinessPath(result, { idFactory: idFactory() });
+    const freshness = computePathFreshness(
+      { ...path, score: 65 },
+      { now: new Date(), liveScore: 61, liveVerdict: "NOT_YET" },
+    );
+    expect(freshness.isStale).toBe(true);
+    expect(freshness.reasons.some((r) => /current reading is 61/i.test(r))).toBe(true);
+  });
 });
 
 describe("step completion", () => {
