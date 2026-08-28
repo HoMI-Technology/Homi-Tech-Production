@@ -16,7 +16,10 @@ import {
   MapPin,
   Menu,
   MessageCircle,
+  Route,
+  Scale,
   Settings,
+  Target,
   Users,
   Wrench,
   X,
@@ -38,6 +41,7 @@ import { APP_MORE_NAV, APP_PRIMARY_NAV } from "@/lib/layout/app-nav";
 import type { NavLink } from "@/lib/layout/nav-catalog";
 import type { SwitcherContext } from "@/lib/dashboard/switcher-visibility";
 import { visibleDashboards } from "@/lib/dashboard/switcher-visibility";
+import { MONEY_MODES } from "@/components/money/MoneyModeNav";
 
 /**
  * Signed-in application shell — fixed left sidebar.
@@ -55,23 +59,43 @@ import { visibleDashboards } from "@/lib/dashboard/switcher-visibility";
  * reachable from the sidebar footer switcher when more than one dashboard
  * is visible.
  *
- * The rail is grouped by decision journey (measure → understand → act →
- * reflect) rather than by header slot. That is a *labeling* change only: the
- * rendered entry set is still exactly APP_PRIMARY_NAV + APP_MORE_NAV, which is
- * what parity covers.
+ * The rail leads with the five product modes — Readiness · Reality · Decide ·
+ * Plan · Goals — which are the primary product map on desktop exactly as
+ * ProductBottomNav is on mobile. Both surfaces read MONEY_MODES, so the labels
+ * and routes can never fork. Everything else follows underneath.
+ *
+ * There is deliberately no "Money" parent: Money is not a place you open
+ * before you can work, it IS the four non-Readiness modes. /money is the
+ * Reality mode entry.
  */
 
 /**
- * Journey grouping. Hrefs, not entries — labels and flag-gating still come
- * from the catalog so this list can never fork the copy.
+ * The five modes, in canonical order, sourced from MONEY_MODES so this file
+ * cannot fork the labels the bottom bar renders.
+ */
+const MODE_HREFS: readonly string[] = MONEY_MODES.map((m) => m.href);
+
+/** href → the exact mode label, for the five product modes. */
+const MODE_LABELS: Readonly<Record<string, string>> = Object.fromEntries(
+  MONEY_MODES.map((m) => [m.href, m.label]),
+);
+
+/** href → the mode blurb, surfaced as the rail item's tooltip. */
+const MODE_BLURBS: Readonly<Record<string, string>> = Object.fromEntries(
+  MONEY_MODES.map((m) => [m.href, m.blurb]),
+);
+
+/**
+ * Grouping. Hrefs, not entries — flag-gating still comes from the catalog so
+ * this list can never fork the entry set that parity covers.
  */
 const JOURNEY_ORDER: readonly { label: string; hrefs: readonly string[] }[] = [
-  // Measure owns the Build entry (Home) + Assess + living Path.
-  { label: "Measure", hrefs: ["/dashboard", "/assessment", "/path"] },
+  // The product itself. Five modes, at the top, always.
+  { label: "Product", hrefs: MODE_HREFS },
+  // Measuring and re-measuring.
+  { label: "Measure", hrefs: ["/assessment", "/path"] },
   { label: "Understand", hrefs: ["/scenarios", "/tools/preflight"] },
-  // /agents is header-primary whenever the Agent OS flag is on; it belongs to
-  // the acting half of the journey, next to Money and the household surfaces.
-  { label: "Act", hrefs: ["/money", "/agents", "/household", "/connections"] },
+  { label: "Act", hrefs: ["/agents", "/household", "/connections"] },
   { label: "Reflect", hrefs: ["/journal"] },
 ];
 
@@ -114,6 +138,9 @@ const ICONS: Record<string, LucideIcon> = {
   "/tools/preflight": Wrench,
   "/scenarios": LayoutGrid,
   "/plan": Compass,
+  "/money/decide": Scale,
+  "/money/plan": Route,
+  "/money/goals": Target,
   "/journal": BookOpen,
   "/advisor": MessageCircle,
   "/connections": Link2,
@@ -137,10 +164,14 @@ function NavItem({
   expanded: boolean;
 }) {
   const Icon = ICONS[item.href] ?? FALLBACK_ICON;
+  // The five product modes render their canonical label and blurb from
+  // MONEY_MODES so the rail and the mobile bar always say the same thing.
+  const label = MODE_LABELS[item.href] ?? item.label;
+  const tooltip = MODE_BLURBS[item.href] ?? item.label;
   return (
     <Link
       href={item.href}
-      title={item.label}
+      title={tooltip}
       aria-current={active ? "page" : undefined}
       className={`relative flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
         active ? "text-light" : "text-dim hover:bg-white/[0.04] hover:text-light"
@@ -166,7 +197,7 @@ function NavItem({
       )}
       <Icon aria-hidden className="relative z-10 size-[18px] shrink-0" strokeWidth={1.75} />
       <span className={`relative z-10 truncate ${expanded ? "" : "max-xl:hidden"}`}>
-        {item.label}
+        {label}
       </span>
     </Link>
   );

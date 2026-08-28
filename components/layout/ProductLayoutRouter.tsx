@@ -5,6 +5,7 @@ import { AssessmentShell } from "@/components/assessment/AssessmentShell";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { ProductBottomNav } from "@/components/layout/ProductBottomNav";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { modeFromPath } from "@/components/money/MoneyModeNav";
 
 /**
  * Chrome selector for the (product) group. app/(product)/layout.tsx reads the
@@ -44,6 +45,7 @@ export function ProductLayoutRouter({
   organizationId?: string | null;
 }) {
   const pathname = usePathname();
+  const showModeBar = modeFromPath(pathname ?? "") !== null;
 
   if (!user) {
     return (
@@ -76,11 +78,15 @@ export function ProductLayoutRouter({
       />
       <main
         id="main"
-        className="relative z-10 min-h-dvh pt-14 pb-[calc(4.5rem_+_env(safe-area-inset-bottom,0px))] lg:pt-0 lg:pb-0 lg:pl-[72px] xl:pl-[248px]"
+        className={`relative z-10 min-h-dvh pt-14 lg:pt-0 lg:pl-[72px] xl:pl-[248px] ${
+          showModeBar
+            ? "pb-[calc(4.5rem_+_env(safe-area-inset-bottom,0px))] lg:pb-0"
+            : "lg:pb-0"
+        }`}
       >
         {children}
       </main>
-      <ProductBottomNav />
+      {showModeBar ? <ProductBottomNav /> : null}
     </>
   );
 }

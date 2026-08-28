@@ -3,13 +3,28 @@ import { APP_MORE_NAV, APP_PRIMARY_NAV } from "@/lib/layout/app-nav";
 
 /** Nav config lives outside the client component for unit/e2e import. */
 describe("AppHeader nav config", () => {
-  it("keeps PRIMARY ruthlessly short with Home first", () => {
+  it("carries the five product modes as PRIMARY, Readiness first", () => {
+    // Doctrine change (founder, 2026-08-27): the five product modes —
+    // Readiness · Reality · Decide · Plan · Goals — ARE the primary product
+    // map on desktop, exactly as ProductBottomNav is on mobile. The previous
+    // "ruthlessly short, max 4" rule described the retired one-line AppHeader
+    // and required the user to open a "Money" parent before reaching four of
+    // the five modes. That parent no longer exists.
+    const hrefs = APP_PRIMARY_NAV.map((i) => i.href);
     expect(APP_PRIMARY_NAV[0]).toEqual({ href: "/dashboard", label: "Home" });
     expect(APP_PRIMARY_NAV.map((i) => i.href)).toContain("/assessment");
-    expect(APP_PRIMARY_NAV.map((i) => i.href)).toContain("/money");
-    // Journal lives under More so the product bar stays one line.
-    expect(APP_PRIMARY_NAV.map((i) => i.href)).not.toContain("/journal");
-    expect(APP_PRIMARY_NAV.length).toBeLessThanOrEqual(4);
+
+    // Every mode route is primary chrome — none of them is nested behind a
+    // parent destination.
+    for (const href of ["/money", "/money/decide", "/money/plan", "/money/goals"]) {
+      expect(hrefs).toContain(href);
+    }
+
+    // Journal still lives under More so the rail stays scannable.
+    expect(hrefs).not.toContain("/journal");
+    // Track and Invest fold into Reality rather than becoming peer entries.
+    expect(hrefs).not.toContain("/money/budget");
+    expect(hrefs).not.toContain("/money/investments");
   });
 
   it("puts Journal under More and keeps Companion off header chrome", () => {

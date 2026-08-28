@@ -74,6 +74,16 @@ describe("five-mode navigation", () => {
     expect(layout).not.toContain("ProductBottomNav");
   });
 
+  it("hides the five-mode bar when the route is not a product mode (X9)", () => {
+    const router = read("components/layout/ProductLayoutRouter.tsx");
+    expect(router).toContain("modeFromPath");
+    expect(router).toContain("showModeBar");
+    expect(router).toContain("{showModeBar ? <ProductBottomNav /> : null}");
+    expect(modeFromPath("/settings")).toBeNull();
+    expect(modeFromPath("/journal")).toBeNull();
+    expect(modeFromPath("/path")).toBeNull();
+  });
+
   it("Companion FAB clears the bottom bar on mobile", () => {
     const host = read("components/companion/CompanionHost.tsx");
     const widget = read("components/companion/CompanionWidget.tsx");

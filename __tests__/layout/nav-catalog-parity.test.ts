@@ -30,10 +30,11 @@ const PALETTE_ONLY_HREFS = [
   "/agent-hub",
   "/advisor",
   "/plan",
-  // Money modes: primary Money + MoneyModeNav; not duplicated in More
+  // Track folds into Reality — /money/budget lights the Reality tab and is
+  // reachable from it, so it stays palette-only rather than becoming a sixth
+  // peer. Decide / Plan / Goals are now primary chrome (the five product
+  // modes), so they are no longer exceptions.
   "/money/budget",
-  "/money/decide",
-  "/money/plan",
 ];
 
 /** Import both surfaces with the Agent OS flag ON so gated entries count. */

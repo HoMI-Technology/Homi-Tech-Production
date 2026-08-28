@@ -63,15 +63,17 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     keywords: "readiness verdict full test measure",
     surfaces: { header: "primary", palette: true },
   },
-  // Money Reality: one primary entry for picture + decision math.
-  // Public /tools hub stays crawlable for acquisition; signed-in chrome
-  // (dashboard, keyboard, contextual actions) points at /money + /money/decide.
+  // Reality — the cash picture. This is a MODE, not a parent destination:
+  // the five product modes (Readiness · Reality · Decide · Plan · Goals) are
+  // the primary product map, and AppSidebar renders their labels from
+  // MONEY_MODES so chrome can never fork from ProductBottomNav.
+  // Public /tools hub stays crawlable for acquisition.
   {
     href: "/money",
-    label: "Money",
+    label: "Reality",
     paletteLabel: "Money picture",
     group: "Navigate",
-    keywords: "finance budget tools calculators mortgage affordability runway decide",
+    keywords: "finance budget tools calculators mortgage affordability runway decide reality cash",
     surfaces: { header: "primary", palette: true },
   },
 
@@ -214,16 +216,24 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     label: "Decide",
     paletteLabel: "Money · Decide",
     group: "Navigate",
-    keywords: "tools calculators lenses decision math",
-    surfaces: { palette: true },
+    keywords: "tools calculators lenses decision math stress test",
+    surfaces: { header: "primary", palette: true },
   },
   {
     href: "/money/plan",
-    label: "Money plan",
+    label: "Plan",
     paletteLabel: "Money · Plan",
     group: "Navigate",
-    keywords: "housing debt household money plan",
-    surfaces: { palette: true },
+    keywords: "housing debt household money plan path action",
+    surfaces: { header: "primary", palette: true },
+  },
+  {
+    href: "/money/goals",
+    label: "Goals",
+    paletteLabel: "Money · Goals",
+    group: "Navigate",
+    keywords: "goals savings target down payment progress funded",
+    surfaces: { header: "primary", palette: true },
   },
   // Launch-hidden life labs
   {
