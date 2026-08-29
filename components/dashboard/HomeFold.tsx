@@ -2,17 +2,16 @@ import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
 import {
   COMPANION_ESCALATION_HREF,
   HOME_FOLD_INSTRUMENT,
-  buildProgressLabel,
   companionFoldLine,
 } from "@/lib/dashboard/fold-truth";
 import Link from "next/link";
-import { Wordmark } from "@/components/brand/Wordmark";
 import { ScoreRail, type ScoreRailPillars } from "@/components/score/ScoreRail";
 import { LoadErrorPanel } from "@/components/dashboard/LoadErrorPanel";
 import { VerdictCelebrate } from "@/components/dashboard/VerdictCelebrate";
 import { PathNextMove } from "@/components/dashboard/PathNextMove";
 import { PathStepLedger } from "@/components/dashboard/PathStepLedger";
 import { HomeMoneyStanding } from "@/components/dashboard/HomeMoneyStanding";
+import { HomeMoneyRecheck } from "@/components/dashboard/HomeMoneyRecheck";
 import { LastReadChrome } from "@/components/dashboard/LastReadChrome";
 import type { LastReadMoneyInputs } from "@/lib/dashboard/last-read-chrome";
 import { DashboardResumeRamp } from "@/components/dashboard/DashboardResumeRamp";
@@ -23,7 +22,7 @@ import type { OutcomeSurveyKind } from "@/types/database";
 export type HomeFoldLatest = {
   id: string;
   overallScore: number | null;
-  /** Raw pillar points from the assessment record; null = never measured. */
+  /** Raw pillar points from the assessment record; unused on compact rail. */
   pillars: ScoreRailPillars;
 };
 
@@ -33,10 +32,9 @@ export type HomeFoldSurvey = {
 };
 
 /**
- * First viewport of signed-in Home. DESIGN.md OPERATE + HOME_FOLD_INSTRUMENT:
- * Path next move + hard stops lead the fold; Decision Readiness Score sits as
- * a compact ScoreRail reading. HomeMoneyStanding is the cash strip. No compass
- * theater on the scored fold.
+ * First viewport of signed-in HōMI. DESIGN.md OPERATE + HOME_FOLD_INSTRUMENT:
+ * hard-stop eyebrow → Path + one primary → compact ScoreRail → money strip.
+ * Compass lives in the page shell, not on this fold.
  */
 export function HomeFold({
   assessmentsFailed,
@@ -45,15 +43,12 @@ export function HomeFold({
   stopMessages,
   suppressBuildPercent,
   improved,
-  foldSentence,
   instrumentTint,
   dueSurvey,
-  staleDays,
   lastReadAt,
   lastMoney,
   hasPath,
-  pathDone,
-  pathTotal,
+  bankLinked,
 }: {
   assessmentsFailed: boolean;
   latest: HomeFoldLatest | null;
@@ -61,17 +56,13 @@ export function HomeFold({
   stopMessages: string[];
   suppressBuildPercent: boolean;
   improved: boolean;
-  foldSentence: string;
   instrumentTint: string;
   dueSurvey: HomeFoldSurvey | null;
-  staleDays: number | null;
   lastReadAt?: string | null;
   lastMoney?: LastReadMoneyInputs | null;
   hasPath: boolean;
-  pathDone: number;
-  pathTotal: number;
+  bankLinked: boolean | null;
 }) {
-  const verdictMeta = VERDICT_META[verdict ?? "BUILD_FIRST"];
   const scorePct =
     latest?.overallScore != null ? Math.round(latest.overallScore) : null;
   const hardStopActive = stopMessages.length > 0;
@@ -80,11 +71,8 @@ export function HomeFold({
     hasPath,
     hasAssessment: latest !== null,
   });
-  const progressLabel = buildProgressLabel({
-    done: pathDone,
-    total: pathTotal,
-    hardStopCount: stopMessages.length,
-  });
+  const celebrateOk =
+    Boolean(latest) && !suppressBuildPercent && verdict !== "NOT_YET";
 
   return (
     <div
@@ -103,63 +91,26 @@ export function HomeFold({
           <>
             <SaveStatusBanner />
 
-            {latest && !suppressBuildPercent && (
+            {celebrateOk && verdict && (
               <VerdictCelebrate
                 assessmentId={latest.id}
                 improved={improved}
-                label={verdictMeta.label}
+                label={VERDICT_META[verdict].label}
               />
             )}
 
             {hardStopActive && (
-              <div
-                className="mb-5 rounded-xl border border-crimson/45 bg-crimson/10 px-4 py-3"
+              <p
+                className="eyebrow text-crimson"
                 role="alert"
                 data-home-hard-stop=""
               >
-                <p className="text-3xs font-bold uppercase tracking-[0.14em] text-crimson">
-                  Hard stop
-                </p>
-                <ul className="mt-2 space-y-1.5 text-sm text-light">
-                  {stopMessages.map((message) => (
-                    <li key={message}>{message}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <div className="dash-hero-meta">
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                  <Wordmark size="text-xl sm:text-2xl" />
-                  <p className="eyebrow">Your build</p>
-                </div>
-                <p
-                  className="mt-2 max-w-xl text-sm leading-relaxed text-light/90"
-                  style={{ textWrap: "pretty" }}
-                >
-                  {foldSentence}
-                </p>
-              </div>
-              {progressLabel ? (
-                <p
-                  className="score-numeral text-sm text-light/80"
-                  data-home-build-progress=""
-                >
-                  {progressLabel}
-                </p>
-              ) : null}
-            </div>
-
-            {staleDays !== null && staleDays > 30 && (
-              <p className="mb-4 rounded-lg border border-amber/35 bg-verdict-build/90 px-4 py-2.5 text-sm text-light">
-                It has been {staleDays} days since your last assessment. Life
-                changes - consider a retest.
+                Hard stop · {stopMessages[0]}
               </p>
             )}
 
             {/* Path next move leads. DESIGN.md OPERATE + HOME_FOLD_INSTRUMENT = "build". */}
-            <div data-home-build-hero="">
+            <div className={hardStopActive ? "mt-4" : undefined} data-home-build-hero="">
               <PathNextMove variant="fold" />
             </div>
 
@@ -175,22 +126,24 @@ export function HomeFold({
                 verdict={verdict}
                 pillars={latest.pillars}
                 tint={hardStopActive ? COLORS.crimson : instrumentTint}
+                href="/results"
               />
               {verdict && (
                 <div className="mt-3">
                   <LastReadChrome
                     verdict={verdict}
                     lastReadAt={lastReadAt ?? null}
-                    showAge={staleDays === null || staleDays <= 30}
-                    lastMoney={lastMoney ?? null}
                   />
                 </div>
               )}
             </div>
 
-            <PathStepLedger suppress={hardStopActive || suppressBuildPercent} />
+            <HomeMoneyStanding
+              lastMoney={lastMoney ?? null}
+              hardStopFlags={stopMessages}
+              bankLinked={bankLinked}
+            />
 
-            {/* Presence only — escalation opens at COMPANION_ESCALATION_HREF; no chat on fold. */}
             <p
               className="panel-focus mt-5 max-w-xl rounded-xl border border-cyan/20 bg-cyan/[0.04] px-4 py-3 text-sm leading-relaxed text-dim"
               data-companion-fold-line=""
@@ -200,18 +153,29 @@ export function HomeFold({
               {companionLine}
             </p>
 
-            {/* Reality strip — enhanced, never gutted; CTAs stay ghost/sm. */}
-            <HomeMoneyStanding />
-
             {dueSurvey && (
               <div className="mt-5">
                 <OutcomeSurveyPrompt surveyId={dueSurvey.id} kind={dueSurvey.kind} />
               </div>
             )}
 
-            {/* Compliance chrome on the scored fold: one quiet line + the full
-                disclaimer page. The verbatim LEGAL_DISCLAIMER stays on report /
-                share surfaces; the fold links there instead of restating it. */}
+            <HomeMoneyRecheck />
+
+            <p
+              className="mt-5 text-sm text-dim"
+              data-home-plaid-presence={bankLinked ? "present" : "absent"}
+            >
+              {bankLinked ? "Bank linked" : "Bank not linked"}
+            </p>
+
+            <p className="mt-4">
+              <Link href="/scenarios" className="btn btn-ghost btn-sm">
+                Saved scenarios
+              </Link>
+            </p>
+
+            <PathStepLedger suppress={hardStopActive || suppressBuildPercent} />
+
             <p className="mt-6 max-w-xl text-xs leading-relaxed text-dim/80">
               Educational guidance only.{" "}
               <Link href="/legal/disclaimer" className="text-cyan underline-offset-2 hover:underline">
@@ -222,7 +186,6 @@ export function HomeFold({
         ) : (
           <>
             <DashboardResumeRamp />
-            {/* First-run presence line — Assess owns the primary CTA; no chat on fold. */}
             <p
               className="panel-focus mt-5 max-w-xl rounded-xl border border-cyan/20 bg-cyan/[0.04] px-4 py-3 text-sm leading-relaxed text-dim"
               data-companion-fold-line=""
@@ -231,7 +194,13 @@ export function HomeFold({
               <span className="font-medium text-cyan/90">Companion · </span>
               {companionLine}
             </p>
-            <HomeMoneyStanding />
+            <HomeMoneyStanding lastMoney={null} hardStopFlags={[]} bankLinked={bankLinked} />
+            <p
+              className="mt-5 text-sm text-dim"
+              data-home-plaid-presence={bankLinked ? "present" : "absent"}
+            >
+              {bankLinked ? "Bank linked" : "Bank not linked"}
+            </p>
           </>
         )}
       </div>

@@ -56,15 +56,18 @@ describe("ScoreRail", () => {
     expect(screen.queryByText(/\/\s*35|\/\s*30/)).not.toBeInTheDocument();
   });
 
-  it("compact variant keeps the same reading in rail form", () => {
+  it("compact variant keeps the numeral and temperature and kills PillarRings", () => {
     const { container } = render(
-      <ScoreRail {...reading} variant="compact" tint={COLORS.yellow} />,
+      <ScoreRail {...reading} variant="compact" tint={COLORS.yellow} href="/results" />,
     );
 
     expect(container.querySelector('[data-score-rail="compact"]')).not.toBeNull();
     expect(screen.getByLabelText("Overall Decision Readiness Score 71 out of 100")).toBeInTheDocument();
-    expect(container.querySelectorAll("[data-score-pillar]")).toHaveLength(3);
-    expect(container.querySelectorAll("[data-pillar-state='measured']")).toHaveLength(3);
+    expect(screen.getByText("ALMOST THERE")).toBeInTheDocument();
+    expect(screen.getByText(/Warm/)).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-score-pillar]")).toHaveLength(0);
+    expect(container.querySelector("a")?.getAttribute("href")).toBe("/results");
+    expect(screen.queryByText(/80–100|80-100/)).not.toBeInTheDocument();
   });
 
   it("null score and unmeasured pillar render Unknown, never invented numbers", () => {

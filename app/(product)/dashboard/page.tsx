@@ -8,12 +8,10 @@ import { ENTRANCE_BOOT_SCRIPT } from "@/components/dashboard/entrance-shared";
 import { SidebarVerdictSync } from "@/components/dashboard/SidebarVerdictSync";
 import { DashboardFoldBeacon } from "@/components/dashboard/DashboardFoldBeacon";
 import { HomeFold } from "@/components/dashboard/HomeFold";
+import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import {
   hardStopMessages,
-  homeFoldSentence,
-  pathStepCounts,
   shouldSuppressBuildPercent,
-  weakestMeasuredPillar,
 } from "@/lib/dashboard/fold-truth";
 import { SURFACE_ROLES } from "@/lib/dashboard/surface-roles";
 import type { LastReadMoneyInputs } from "@/lib/dashboard/last-read-chrome";
@@ -28,13 +26,6 @@ export const metadata: Metadata = {
 // Surface role SSOT — keep import so F8 cannot drift to copy-pasted comments.
 void SURFACE_ROLES.home;
 
-function daysSince(dateStr: string | null): number | null {
-  if (!dateStr) return null;
-  const then = new Date(dateStr).getTime();
-  const now = Date.now();
-  return Math.floor((now - then) / (1000 * 60 * 60 * 24));
-}
-
 function finiteNumber(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
@@ -45,6 +36,7 @@ function lastMoneyInputsFromRow(inputs: Record<string, unknown> | null): LastRea
     debtToIncomeRatio: finiteNumber(inputs.debtToIncomeRatio),
     emergencyFundMonths: finiteNumber(inputs.emergencyFundMonths),
     savingsRate: finiteNumber(inputs.savingsRate),
+    liquidDollars: finiteNumber(inputs.liquidDollars) ?? finiteNumber(inputs.liquidSavings),
   };
 }
 
@@ -52,7 +44,7 @@ export default async function DashboardPage() {
   const user = await getCachedUser();
   const supabase = await getCachedClient();
 
-  const [assessmentsR, surveysR, pathR] = await Promise.all([
+  const [assessmentsR, surveysR, pathR, plaidR] = await Promise.all([
     user
       ? supabase
           .from("assessments")
@@ -79,6 +71,12 @@ export default async function DashboardPage() {
           .eq("user_id", user.id)
           .maybeSingle()
       : Promise.resolve({ data: null as { path: unknown } | null, error: null }),
+    user
+      ? supabase
+          .from("plaid_items")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id)
+      : Promise.resolve({ count: 0, error: null }),
   ]);
 
   const assessmentsFailed = Boolean(user && assessmentsR.error);
@@ -91,28 +89,15 @@ export default async function DashboardPage() {
   const pathPayload =
     pathR.error || !pathR.data ? null : (pathR.data as { path?: { steps?: unknown } }).path;
   const pathSteps = Array.isArray(pathPayload?.steps) ? pathPayload.steps : [];
-  const { done: pathDone, total: pathTotal } = pathStepCounts(pathSteps);
   const dueSurvey: OutcomeSurvey | null = surveysR.data?.[0] ?? null;
   const verdict = (latest?.verdict as VerdictKey | null) ?? null;
   const improved = verdictImproved(latest?.verdict ?? null, previousAssessment?.verdict ?? null);
-  const weakestPillar = latest
-    ? weakestMeasuredPillar({
-        financial: latest.financial_score,
-        emotional: latest.emotional_score,
-        timing: latest.timing_score,
-      })
-    : null;
-  const foldSentence = homeFoldSentence({
-    hardStopCount,
-    weakestPillar,
-    hasPath: pathSteps.length > 0,
-    hasAssessment: latest !== null,
-  });
   const instrumentTint = verdict ? VERDICT_META[verdict].color : COLORS.cyan;
   const fieldStyle = {
     "--field-tint": `${instrumentTint}14`,
     "--instrument-tint": instrumentTint,
   } as CSSProperties;
+  const bankLinked = user ? (plaidR.error ? null : (plaidR.count ?? 0) > 0) : false;
 
   return (
     <PageFrame id="dash-root" role="personal" density="compact" style={fieldStyle}>
@@ -130,6 +115,18 @@ export default async function DashboardPage() {
       />
 
       <div className="dash-stage">
+        {latest ? (
+          <div
+            className="mb-4 flex justify-end"
+            data-dash-shell-compass=""
+          >
+            <ThresholdCompass
+              size={88}
+              glow={false}
+              verdict={verdict ?? undefined}
+            />
+          </div>
+        ) : null}
         <HomeFold
           assessmentsFailed={assessmentsFailed}
           latest={
@@ -149,15 +146,12 @@ export default async function DashboardPage() {
           stopMessages={stopMessages}
           suppressBuildPercent={suppressBuildPercent}
           improved={improved}
-          foldSentence={foldSentence}
           instrumentTint={instrumentTint}
           dueSurvey={dueSurvey ? { id: dueSurvey.id, kind: dueSurvey.kind } : null}
-          staleDays={daysSince(latest?.completed_at ?? latest?.created_at ?? null)}
           lastReadAt={latest?.completed_at ?? latest?.created_at ?? null}
           lastMoney={lastMoneyInputsFromRow(latest?.inputs ?? null)}
           hasPath={pathSteps.length > 0}
-          pathDone={pathDone}
-          pathTotal={pathTotal}
+          bankLinked={bankLinked}
         />
       </div>
     </PageFrame>

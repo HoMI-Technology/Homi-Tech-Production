@@ -57,13 +57,15 @@ describe("five-mode navigation", () => {
     expect(blurbs.goals).toBe("What you’re building toward, and how far");
   });
 
-  it("ProductBottomNav is mobile-only, safe-area aware, and marks the active tab", () => {
+  it("ProductBottomNav is mobile-only and is not the Money cockpit", () => {
     const nav = read("components/layout/ProductBottomNav.tsx");
     expect(nav).toContain("lg:hidden");
     expect(nav).toContain("env(safe-area-inset-bottom");
     expect(nav).toContain('aria-current={isActive ? "page" : undefined}');
-    // Same catalog as the Money cockpit tabs — the surfaces can never drift.
-    expect(nav).toContain('from "@/components/money/MoneyModeNav"');
+    expect(nav).not.toContain("MONEY_MODES");
+    expect(nav).not.toContain("MoneyModeNav");
+    expect(nav).toContain('label: "HōMI"');
+    expect(nav).toContain('label: "Assess"');
   });
 
   it("bottom nav mounts on signed-in product chrome only", () => {

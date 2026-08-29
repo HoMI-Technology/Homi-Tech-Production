@@ -8,7 +8,8 @@
  *
  * PRIMARY stays ruthlessly short so the product bar fits one line with
  * workspace + search + account; Agents appears only when the public feature
- * flag is on (lib/flags.ts → agentOs). Deep routes live under More.
+ * flag is on (lib/flags.ts → agentOs). Money is More / palette (depth),
+ * not a peer home. Deep routes live under More.
  */
 
 import { HEADER_MORE_NAV, HEADER_PRIMARY_NAV } from "@/lib/layout/nav-catalog";

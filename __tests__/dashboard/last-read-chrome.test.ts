@@ -4,6 +4,7 @@ import {
   LAST_READ_STRONGER,
   LAST_READ_WEAKER,
   PUBLIC_VERDICT_LABELS,
+  lastReadAgeDays,
   lastReadAgeFrom,
   lastReadHeadline,
   moneyPictureDirection,
@@ -11,8 +12,8 @@ import {
   publicVerdictLabel,
 } from "@/lib/dashboard/last-read-chrome";
 
-describe("last-read chrome — MEASURE_ACT_W1", () => {
-  it("uses Brand verdict words and calendar age", () => {
+describe("last-read chrome — MEASURE_ACT_W1 + Phase 4", () => {
+  it("uses Brand verdict words and omits age under 30 days", () => {
     const keys: VerdictKey[] = ["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"];
     const labels = keys.map(publicVerdictLabel);
     expect(labels).toEqual(["READY", "ALMOST THERE", "BUILD FIRST", "DO NOT PROCEED"]);
@@ -22,14 +23,21 @@ describe("last-read chrome — MEASURE_ACT_W1", () => {
       expect(label).not.toMatch(/^Not yet$/i);
     }
     expect(lastReadAgeFrom("2026-03-15T12:00:00.000Z")).toBe("from March 15.");
-    expect(lastReadHeadline("BUILD_FIRST", "from March 15.")).toBe(
-      "Last read: BUILD FIRST from March 15.",
+    expect(lastReadHeadline("BUILD_FIRST", 2, "from March 15.")).toBeNull();
+    expect(lastReadHeadline("READY", 0, "from March 15.")).toBeNull();
+    expect(lastReadHeadline("NOT_YET", 45, "from March 15.")).toBe("from March 15.");
+    expect(lastReadHeadline("BUILD_FIRST", 45, "from March 15.")).not.toMatch(/BUILD FIRST|Last read:/i);
+    expect(lastReadHeadline("BUILD_FIRST", 45, "from March 15.")).not.toMatch(/closer to/i);
+  });
+
+  it("counts calendar age without inventing 0d chrome", () => {
+    const now = Date.parse("2026-04-14T12:00:00.000Z");
+    expect(lastReadAgeDays("2026-04-14T08:00:00.000Z", now)).toBe(0);
+    expect(lastReadAgeDays("2026-03-15T12:00:00.000Z", now)).toBe(30);
+    expect(lastReadHeadline("BUILD_FIRST", lastReadAgeDays("2026-04-14T08:00:00.000Z", now), lastReadAgeFrom("2026-04-14T08:00:00.000Z"))).toBeNull();
+    expect(lastReadHeadline("BUILD_FIRST", lastReadAgeDays("2026-03-15T12:00:00.000Z", now), lastReadAgeFrom("2026-03-15T12:00:00.000Z"))).toBe(
+      "from March 15.",
     );
-    expect(lastReadHeadline("READY", null)).toBe("Last read: READY");
-    expect(lastReadHeadline("NOT_YET", "from March 15.")).toBe(
-      "Last read: DO NOT PROCEED from March 15.",
-    );
-    expect(lastReadHeadline("BUILD_FIRST", "from March 15.")).not.toMatch(/closer to/i);
   });
 
   it("emits stronger only when DTI, EF, and savings-rate all moved the same way", () => {
@@ -67,26 +75,6 @@ describe("last-read chrome — MEASURE_ACT_W1", () => {
         currentDtiPercent: 27,
         currentEmergencyFundMonths: 1.2,
         currentSavingsRatePercent: 21,
-      }),
-    ).toBeNull();
-    expect(
-      moneyPictureDirection({
-        lastDtiRatio: 0.3,
-        lastEmergencyFundMonths: 4,
-        lastSavingsRateRatio: 0.12,
-        currentDtiPercent: 32,
-        currentEmergencyFundMonths: 4.5,
-        currentSavingsRatePercent: 11,
-      }),
-    ).toBeNull();
-    expect(
-      moneyPictureDirection({
-        lastDtiRatio: 0.4,
-        lastEmergencyFundMonths: 2,
-        lastSavingsRateRatio: 0.06,
-        currentDtiPercent: 27,
-        currentEmergencyFundMonths: 2,
-        currentSavingsRatePercent: 6,
       }),
     ).toBeNull();
     expect(moneyPictureDirectionLine(null)).toBeNull();

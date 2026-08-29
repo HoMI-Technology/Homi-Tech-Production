@@ -5,7 +5,8 @@
 [`docs/TOOL_CONSOLIDATION.md`](TOOL_CONSOLIDATION.md). Home Path CTA and Companion
 presence are out of scope (Phases 1–2 locked).
 
-Money is **depth**. Tools are **lenses**. Path owns the Home fold.
+Money is folded into `/dashboard`; it is not a standalone dashboard.
+Money is **depth**. Tools are **lenses**. Path owns the HōMI fold.
 
 ---
 
@@ -15,7 +16,7 @@ Money is **depth**. Tools are **lenses**. Path owns the Home fold.
 | --- | --- |
 | **Money** (`/money*`) | Where does cash sit, and what decision math? |
 | **Tools** (`/tools*`) | Answer one math question. |
-| **Home** (`/dashboard`) | Where do I stand on the build, and what is the next Path move? |
+| **HōMI** (`/dashboard`) | Where do I stand on the build, and what is the next Path move? |
 
 Home never answers Money’s full picture or Tools’ catalog.
 
@@ -23,9 +24,11 @@ Home never answers Money’s full picture or Tools’ catalog.
 
 ## What lives where
 
-### On Home (strip only)
+### On HōMI (strip only)
 
-- `components/dashboard/HomeMoneyStanding.tsx` — surplus / runway / liquid + meaning + as-of.
+- `components/dashboard/HomeMoneyStanding.tsx` — Path evidence only:
+  runway months, liquid, hard-stop flags. Last AssessmentResult wins.
+  Honest empty is an em dash. Never a 4xl surplus. Never a 4-tile wall.
 - CTAs are **ghost / sm only** — never `btn-primary` (Path owns the fold primary).
 - Deep links only: `/money`, `/money/budget`, `/money/decide`, `/connections`
   (see `lib/dashboard/home-money-standing.ts`).
@@ -42,10 +45,11 @@ Home never answers Money’s full picture or Tools’ catalog.
 | `/money/goals` (Goals) | Savings goals |
 | `/money/investments` | Holdings (educational — folded under Reality) |
 
-Five mode tabs (`MoneyModeNav` + `ProductBottomNav`): **Readiness · Reality ·
-Decide · Plan · Goals**. The money tabs remain **peers inside Money depth**, not
-peer homes to Path; the Readiness tab links to the Path-owned Home fold
-(`/dashboard`) — the documented Phase-1 stance of the Home + Reality redesign.
+`MoneyModeNav` (inside `/money*`): **Readiness · Reality · Decide · Plan ·
+Goals**. Those tabs are **peers inside Money depth**, not peer homes to Path.
+`ProductBottomNav` (<lg) is **HōMI + Assess** only — not a five-tab money
+cockpit. Money stays under More, not a global tab. The Readiness tab on the
+Money cockpit still links to the Path-owned fold (`/dashboard`).
 Track (`/money/budget`) and Invest (`/money/investments`) are no longer peer tabs,
 but both routes stay live as deep links and light the Reality mode.
 

@@ -57,15 +57,18 @@ sentence). No new card. Never “closer to {band}”.
 UI verdict labels stay Brand: DO NOT PROCEED, not NOT_YET / Not yet.
 Public names only: READY, ALMOST THERE, BUILD FIRST, DO NOT PROCEED.
 
-- Last public verdict + age: “Last read: BUILD FIRST from March 15.”
-- Age: “from March 15.” Stale >30d: do not stack a second age treatment.
+- ScoreRail prints the public verdict word once. LastReadChrome does not
+  reprint it.
+- Age: “from March 15.” omitted when last-read age is under 30 days.
+  No 0d chrome. Stale ≥30d: one age line, do not stack.
 - Optional direction only when Money DTI, emergency-fund months, AND
   savings-rate all moved the same way vs last assessment stored values:
   “Your money picture looks stronger than last time.”
   “Your money picture looks weaker than last time.”
-- Mixed or unchanged: omit the direction line. Age can still show.
-- READY: direction still allowed when all three moved consistently;
-  otherwise age only.
+  The fold omits this line — LastReadChrome does not read the client
+  ledger. Wave 1 band-cross recheck stays below as HomeMoneyRecheck.
+- Mixed or unchanged: omit the direction line.
+- READY: direction still allowed when all three moved consistently.
 - Empty Home: no progress chrome.
 - Never invent a live score. Never “closer to READY”. Do not run a new
   score to decide direction.

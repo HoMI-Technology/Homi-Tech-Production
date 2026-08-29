@@ -16,8 +16,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
  * - /settings and /settings/subscription: account surfaces; palette + user
  *   menu, not product chrome.
  * - /agent-hub: deep Agent OS surface; /agents (roster) is the chrome entry.
- * - /advisor: Companion chat stays reachable via palette + widget, not More.
  * - /plan: checklist deep-link; Path to Ready owns the living Build in chrome.
+ * - /advisor is off palette (widget + route; a Companion row reads as chrome).
  */
 const PALETTE_ONLY_HREFS = [
   "/partner/dashboard",
@@ -28,9 +28,8 @@ const PALETTE_ONLY_HREFS = [
   "/settings",
   "/settings/subscription",
   "/agent-hub",
-  "/advisor",
   "/plan",
-  // Money modes: primary Money + MoneyModeNav; not duplicated in More
+  // Money hub is More + palette; modes stay palette-only
   "/money/budget",
   "/money/decide",
   "/money/plan",
@@ -81,6 +80,7 @@ describe("nav catalog parity", () => {
     expect(moreHrefs).not.toContain("/results");
     expect(palette.PALETTE_CATALOG.map((i) => i.href)).not.toContain("/results");
     expect(palette.PALETTE_CATALOG.map((i) => i.href)).not.toContain("/shadow-score");
+    expect(palette.PALETTE_CATALOG.map((i) => i.href)).not.toContain("/advisor");
   });
 
   it("agentOs keywords never include homie scout, even when the flag is off", async () => {
