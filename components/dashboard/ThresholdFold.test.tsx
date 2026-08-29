@@ -40,6 +40,9 @@ describe("ThresholdFold", () => {
     expect(fold).not.toBeNull();
     expect(fold?.getAttribute("data-home-instrument")).toBe("empty");
     expect(screen.getByLabelText("Decision Readiness Score Unknown")).toHaveTextContent("—");
+    expect(screen.getByLabelText("Decision Readiness Score Unknown")).toHaveStyle({
+      color: COLORS.light,
+    });
     expect(screen.getByRole("link", { name: /^assess$/i })).toHaveAttribute("href", "/assessment");
     expect(screen.queryByText("76")).not.toBeInTheDocument();
     expect(screen.queryByText("NOT_YET")).not.toBeInTheDocument();

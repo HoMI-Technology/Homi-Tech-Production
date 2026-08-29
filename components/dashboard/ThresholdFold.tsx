@@ -40,11 +40,14 @@ export function ThresholdFold({
   const scorePct =
     latest?.overallScore != null ? Math.round(latest.overallScore) : null;
   const hardStopActive = stopMessages.length > 0;
-  const instrumentTint = hardStopActive
-    ? COLORS.crimson
-    : verdict
-      ? VERDICT_META[verdict].color
-      : COLORS.yellow;
+  const instrumentTint =
+    scorePct == null
+      ? COLORS.light
+      : hardStopActive
+        ? COLORS.crimson
+        : verdict
+          ? VERDICT_META[verdict].color
+          : COLORS.yellow;
   const runwayLabel = foldRunwayLabel(lastMoney?.emergencyFundMonths);
   const cashLabel =
     lastMoney?.liquidDollars != null && Number.isFinite(lastMoney.liquidDollars)
@@ -88,7 +91,7 @@ export function ThresholdFold({
                   className="score-numeral text-5xl font-semibold tabular-nums sm:text-6xl"
                   style={{
                     color: instrumentTint,
-                    textShadow: `0 0 28px ${instrumentTint}55`,
+                    textShadow: `0 0 10px ${COLORS.navy}, 0 0 28px ${instrumentTint}66`,
                   }}
                   aria-label={scoreLabel}
                   data-home-fold-score=""
