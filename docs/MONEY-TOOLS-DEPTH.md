@@ -45,10 +45,11 @@ Home never answers Money’s full picture or Tools’ catalog.
 | `/money/goals` (Goals) | Savings goals |
 | `/money/investments` | Holdings (educational — folded under Reality) |
 
-Five mode tabs (`MoneyModeNav` + `ProductBottomNav`): **Readiness · Reality ·
-Decide · Plan · Goals**. The money tabs remain **peers inside Money depth**, not
-peer homes to Path; the Readiness tab links to the Path-owned Home fold
-(`/dashboard`) — the documented Phase-1 stance of the Home + Reality redesign.
+`MoneyModeNav` (inside `/money*`): **Readiness · Reality · Decide · Plan ·
+Goals**. Those tabs are **peers inside Money depth**, not peer homes to Path.
+`ProductBottomNav` (<lg) is **HōMI + Assess** only — not a five-tab money
+cockpit. Money stays under More, not a global tab. The Readiness tab on the
+Money cockpit still links to the Path-owned fold (`/dashboard`).
 Track (`/money/budget`) and Invest (`/money/investments`) are no longer peer tabs,
 but both routes stay live as deep links and light the Reality mode.
 

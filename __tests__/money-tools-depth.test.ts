@@ -20,6 +20,7 @@ describe("money-tools depth doctrine", () => {
     expect(doc).toMatch(/Answer one math question/);
     expect(doc).toMatch(/Path owns the HōMI fold/);
     expect(doc).toMatch(/Money is folded into `\/dashboard`/);
+    expect(doc).toMatch(/HōMI \+ Assess/);
     expect(doc).toMatch(/Forbidden patterns/);
   });
 

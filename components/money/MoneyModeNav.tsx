@@ -6,8 +6,8 @@ import { usePathname } from "next/navigation";
 /**
  * Product mode nav — the five canonical tabs: Readiness · Reality · Decide ·
  * Plan · Goals. Rendered as the labeled horizontal tab row at the top of the
- * Money cockpit (MoneyShell) and reused by ProductBottomNav on mobile, so the
- * two chrome surfaces can never fork the catalog.
+ * Money cockpit (MoneyShell) only. ProductBottomNav is HōMI + Assess — Money
+ * modes are depth, not global mobile tabs.
  *
  * Phase 1 doctrine stance (Home + Money Reality redesign): the Readiness tab
  * points at /dashboard — the score-forward HomeFold surface — while /dashboard
@@ -59,9 +59,8 @@ export const MONEY_MODES: { id: MoneyMode; href: string; label: string; blurb: s
 /**
  * Pathname → active mode. Retired peer routes fold into their new home:
  * /money/budget (Track) and /money/investments (Invest) light Reality.
- * Returns null on routes outside the five surfaces (settings, journal, …) so
- * chrome that renders everywhere (ProductBottomNav) can show no active tab;
- * the Money cockpit falls back to Reality.
+ * Returns null on routes outside the five surfaces (settings, journal, …).
+ * The Money cockpit falls back to Reality.
  */
 export function modeFromPath(pathname: string): MoneyMode | null {
   if (pathname === "/dashboard" || pathname.startsWith("/dashboard/")) return "readiness";
