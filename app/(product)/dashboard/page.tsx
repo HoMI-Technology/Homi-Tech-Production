@@ -2,25 +2,20 @@ import { type CSSProperties } from "react";
 import type { Metadata } from "next";
 import { getCachedClient, getCachedUser } from "@/lib/supabase/server";
 import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
-import { verdictImproved } from "@/lib/dashboard/insight";
 import { EntranceConductor } from "@/components/dashboard/Entrance";
 import { ENTRANCE_BOOT_SCRIPT } from "@/components/dashboard/entrance-shared";
 import { SidebarVerdictSync } from "@/components/dashboard/SidebarVerdictSync";
 import { DashboardFoldBeacon } from "@/components/dashboard/DashboardFoldBeacon";
-import { HomeFold } from "@/components/dashboard/HomeFold";
-import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
-import {
-  hardStopMessages,
-  shouldSuppressBuildPercent,
-} from "@/lib/dashboard/fold-truth";
+import { ThresholdFold } from "@/components/dashboard/ThresholdFold";
+import { foldPathPrimary, hardStopMessages } from "@/lib/dashboard/fold-truth";
 import { SURFACE_ROLES } from "@/lib/dashboard/surface-roles";
 import type { LastReadMoneyInputs } from "@/lib/dashboard/last-read-chrome";
 import { PageFrame } from "@/components/operate/PageFrame";
-import type { AssessmentRow, OutcomeSurvey } from "@/types/database";
+import type { AssessmentRow } from "@/types/database";
 
 export const metadata: Metadata = {
-  title: "Dashboard | HōMI",
-  description: "Your Path to Ready next move, Decision Readiness Score reading, and Companion line.",
+  title: "HōMI",
+  description: "Your last Decision Readiness Score on the Threshold Compass.",
 };
 
 // Surface role SSOT — keep import so F8 cannot drift to copy-pasted comments.
@@ -44,7 +39,7 @@ export default async function DashboardPage() {
   const user = await getCachedUser();
   const supabase = await getCachedClient();
 
-  const [assessmentsR, surveysR, pathR, plaidR] = await Promise.all([
+  const [assessmentsR, pathR] = await Promise.all([
     user
       ? supabase
           .from("assessments")
@@ -56,48 +51,28 @@ export default async function DashboardPage() {
       : Promise.resolve({ data: [] as AssessmentRow[], error: null }),
     user
       ? supabase
-          .from("outcome_surveys")
-          .select("*")
-          .eq("user_id", user.id)
-          .is("completed_at", null)
-          .lt("due_at", new Date().toISOString())
-          .order("due_at", { ascending: true })
-          .limit(1)
-      : Promise.resolve({ data: [] as OutcomeSurvey[], error: null }),
-    user
-      ? supabase
           .from("user_readiness_path")
           .select("path")
           .eq("user_id", user.id)
           .maybeSingle()
       : Promise.resolve({ data: null as { path: unknown } | null, error: null }),
-    user
-      ? supabase
-          .from("plaid_items")
-          .select("id", { count: "exact", head: true })
-          .eq("user_id", user.id)
-      : Promise.resolve({ count: 0, error: null }),
   ]);
 
   const assessmentsFailed = Boolean(user && assessmentsR.error);
   const assessmentRows: AssessmentRow[] = assessmentsR.data ?? [];
   const latest = assessmentRows[0] ?? null;
-  const previousAssessment = assessmentRows[1] ?? null;
   const stopMessages = hardStopMessages(latest?.hard_stops);
   const hardStopCount = stopMessages.length;
-  const suppressBuildPercent = shouldSuppressBuildPercent(hardStopCount);
   const pathPayload =
     pathR.error || !pathR.data ? null : (pathR.data as { path?: { steps?: unknown } }).path;
   const pathSteps = Array.isArray(pathPayload?.steps) ? pathPayload.steps : [];
-  const dueSurvey: OutcomeSurvey | null = surveysR.data?.[0] ?? null;
+  const pathPrimary = foldPathPrimary(pathSteps);
   const verdict = (latest?.verdict as VerdictKey | null) ?? null;
-  const improved = verdictImproved(latest?.verdict ?? null, previousAssessment?.verdict ?? null);
   const instrumentTint = verdict ? VERDICT_META[verdict].color : COLORS.cyan;
   const fieldStyle = {
     "--field-tint": `${instrumentTint}14`,
     "--instrument-tint": instrumentTint,
   } as CSSProperties;
-  const bankLinked = user ? (plaidR.error ? null : (plaidR.count ?? 0) > 0) : false;
 
   return (
     <PageFrame id="dash-root" role="personal" density="compact" style={fieldStyle}>
@@ -115,43 +90,20 @@ export default async function DashboardPage() {
       />
 
       <div className="dash-stage">
-        {latest ? (
-          <div
-            className="mb-4 flex justify-end"
-            data-dash-shell-compass=""
-          >
-            <ThresholdCompass
-              size={88}
-              glow={false}
-              verdict={verdict ?? undefined}
-            />
-          </div>
-        ) : null}
-        <HomeFold
+        <ThresholdFold
           assessmentsFailed={assessmentsFailed}
           latest={
             latest
               ? {
                   id: latest.id,
                   overallScore: latest.overall_score,
-                  pillars: {
-                    emotional: latest.emotional_score,
-                    financial: latest.financial_score,
-                    timing: latest.timing_score,
-                  },
                 }
               : null
           }
           verdict={verdict}
           stopMessages={stopMessages}
-          suppressBuildPercent={suppressBuildPercent}
-          improved={improved}
-          instrumentTint={instrumentTint}
-          dueSurvey={dueSurvey ? { id: dueSurvey.id, kind: dueSurvey.kind } : null}
-          lastReadAt={latest?.completed_at ?? latest?.created_at ?? null}
           lastMoney={lastMoneyInputsFromRow(latest?.inputs ?? null)}
-          hasPath={pathSteps.length > 0}
-          bankLinked={bankLinked}
+          pathPrimary={pathPrimary}
         />
       </div>
     </PageFrame>

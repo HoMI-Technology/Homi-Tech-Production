@@ -26,8 +26,9 @@ describe("money-tools depth doctrine", () => {
 
   it("Home fold mounts money strip only — no tools grid or kitchen-sink widgets", () => {
     const page = read("app/(product)/dashboard/page.tsx");
-    const fold = read("components/dashboard/HomeFold.tsx");
-    expect(fold).toContain("HomeMoneyStanding");
+    const fold = read("components/dashboard/ThresholdFold.tsx");
+    expect(fold).not.toContain("HomeMoneyStanding");
+    expect(fold).toContain("data-home-fold-runway");
     expect(page).not.toMatch(/QuickActionGrid|ToolGrid|hubLensesByRing/);
     expect(fold).not.toMatch(/QuickActionGrid|\/tools\/affordability|Open lens/);
     expect(fold).not.toContain("FinancialPositionSection");
@@ -98,9 +99,8 @@ describe("money-tools depth doctrine", () => {
     expect(truth).toContain(
       "Your next honest move is the binding step on Path to Ready.",
     );
-    const fold = read("components/dashboard/HomeFold.tsx");
-    expect(fold).toContain("data-companion-fold-line");
-    // This change set must not rewrite presence or Path CTA files.
+    const fold = read("components/dashboard/ThresholdFold.tsx");
+    expect(fold).not.toContain("data-companion-fold-line");
     expect(path).not.toMatch(/MoneyDecideHub|ToolShell|HomeMoneyStanding/);
   });
 });

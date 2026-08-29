@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   HOME_FOLD_INSTRUMENT,
+  foldPathPrimary,
+  foldRunwayLabel,
   ONBOARDING_SKIP_HREF,
   COMPANION_ESCALATION_HREF,
   COMPANION_FOLD_LINES,
@@ -145,8 +147,41 @@ describe("onboarding skip destination", () => {
 });
 
 describe("HOME_FOLD_INSTRUMENT", () => {
-  it("keeps the build (Path) as the fold instrument — score is the rail", () => {
-    expect(HOME_FOLD_INSTRUMENT).toBe("build");
+  it("keeps the Threshold Compass as the fold instrument", () => {
+    expect(HOME_FOLD_INSTRUMENT).toBe("threshold");
+  });
+});
+
+describe("foldRunwayLabel", () => {
+  it("prints last AssessmentResult months, or an em dash", () => {
+    expect(foldRunwayLabel(0.5)).toBe("0.5 mo");
+    expect(foldRunwayLabel(12)).toBe("12 mo");
+    expect(foldRunwayLabel(null)).toBe("—");
+    expect(foldRunwayLabel(undefined)).toBe("—");
+  });
+});
+
+describe("foldPathPrimary", () => {
+  it("picks the first pending step and skips REASSESS", () => {
+    expect(
+      foldPathPrimary([
+        {
+          title: "Stabilize emergency runway to at least 1 month",
+          href: "/tools/runway",
+          status: "pending",
+          reasonCode: "RUNWAY_UNDER_1_MONTH",
+        },
+        { title: "Reassess readiness", href: "/assessment", status: "pending", reasonCode: "REASSESS" },
+      ]),
+    ).toEqual({
+      title: "Stabilize emergency runway to at least 1 month",
+      href: "/tools/runway",
+    });
+  });
+
+  it("returns null when there is no pending step", () => {
+    expect(foldPathPrimary([])).toBeNull();
+    expect(foldPathPrimary(null)).toBeNull();
   });
 });
 

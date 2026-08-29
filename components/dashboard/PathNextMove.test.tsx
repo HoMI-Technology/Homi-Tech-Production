@@ -76,27 +76,24 @@ function primaryButtons(container: HTMLElement) {
 }
 
 describe("PathNextMove fold hierarchy", () => {
-  it("fold variant: exactly one primary — Start step — Full path stays ghost", async () => {
+  it("fold variant: exactly one primary — the pending step title", async () => {
     saveReadinessPath(samplePath());
     const { container } = render(<PathNextMove variant="fold" />);
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: /^start step$/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: /build emergency runway/i }),
+      ).toBeInTheDocument();
     });
 
     expect(primaryButtons(container)).toHaveLength(1);
-    const start = screen.getByRole("link", { name: /^start step$/i });
+    const start = screen.getByRole("link", { name: /build emergency runway/i });
     expect(start).toHaveClass("btn-primary");
     expect(start).toHaveAttribute("data-path-fold-primary");
     expect(start).toHaveAttribute("href", "/tools/runway");
-
-    const markDone = screen.getByRole("button", { name: /^mark done$/i });
-    expect(markDone).toHaveClass("btn-ghost");
-    expect(markDone).not.toHaveClass("btn-primary");
-
-    const fullPath = screen.getByRole("link", { name: /^full path$/i });
-    expect(fullPath).toHaveClass("btn-ghost");
-    expect(fullPath).not.toHaveClass("btn-primary");
+    expect(screen.queryByRole("button", { name: /^mark done$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /^full path$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /^start step$/i })).not.toBeInTheDocument();
   });
 
   it("default variant keeps Mark done as primary (habit surfaces outside fold)", async () => {

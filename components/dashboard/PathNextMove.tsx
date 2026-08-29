@@ -194,25 +194,19 @@ export function PathNextMove({ variant = "default" }: { variant?: "default" | "f
         <div className="dash-action-dock-actions flex flex-wrap gap-2.5">
           {nextStep && stage !== "path_complete" ? (
             variant === "fold" ? (
-              <>
-                {/* Fold: one primary — starting the step is the honest next physical move. */}
-                <Link
-                  href={nextStep.href}
-                  className="btn btn-primary"
-                  data-path-fold-primary=""
-                  onClick={() =>
-                    trackPathStartStepClicked({
-                      surface: "dashboard",
-                      reasonCode: nextStep.reasonCode,
-                    })
-                  }
-                >
-                  Start step
-                </Link>
-                <button type="button" className="btn btn-ghost" onClick={handleMarkDone}>
-                  Mark done
-                </button>
-              </>
+              <Link
+                href={nextStep.href}
+                className="btn btn-primary"
+                data-path-fold-primary=""
+                onClick={() =>
+                  trackPathStartStepClicked({
+                    surface: "dashboard",
+                    reasonCode: nextStep.reasonCode,
+                  })
+                }
+              >
+                {nextStep.title}
+              </Link>
             ) : (
               <>
                 <button type="button" className="btn btn-primary" onClick={handleMarkDone}>
@@ -241,9 +235,11 @@ export function PathNextMove({ variant = "default" }: { variant?: "default" | "f
               Reassess
             </Link>
           )}
-          <Link href="/path" className="btn btn-ghost">
-            Full path
-          </Link>
+          {variant === "fold" ? null : (
+            <Link href="/path" className="btn btn-ghost">
+              Full path
+            </Link>
+          )}
         </div>
       </div>
     </div>

@@ -8,7 +8,7 @@ function read(rel: string): string {
 
 const WAVE1_UI = [
   "components/dashboard/LastReadChrome.tsx",
-  "components/dashboard/HomeFold.tsx",
+  "components/dashboard/ThresholdFold.tsx",
   "components/money/MoneyRecheckPrompt.tsx",
   "components/tools/DebtPayoffScorePreview.tsx",
   "components/finance/ObservedPrefillCard.tsx",
@@ -29,12 +29,11 @@ describe("Measure-Act Wave 1 locks", () => {
     expect(
       existsSync(resolve(process.cwd(), "components/dashboard/MoneyPictureDirection.tsx")),
     ).toBe(false);
-    const fold = read("components/dashboard/HomeFold.tsx");
-    expect(fold).toContain("LastReadChrome");
-    expect(fold).toContain("data-home-score-rail");
-    // VerdictBadge lives in the shared ScoreRail the fold now mounts.
-    expect(fold).toContain("ScoreRail");
-    expect(read("components/score/ScoreRail.tsx")).toContain("VerdictBadge");
+    const fold = read("components/dashboard/ThresholdFold.tsx");
+    expect(fold).toContain("ThresholdCompass");
+    expect(fold).toContain("VerdictBadge");
+    expect(fold).not.toContain("ScoreRail");
+    expect(fold).not.toContain("LastReadChrome");
     expect(fold).not.toMatch(/MoneyPictureDirection/);
   });
 

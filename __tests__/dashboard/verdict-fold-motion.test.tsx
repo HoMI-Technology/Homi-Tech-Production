@@ -113,7 +113,7 @@ describe("naming law — rescued surfaces never say HōMI-Score", () => {
   const TOUCHED = [
     ["components", "score", "ScoreRail.tsx"],
     ["components", "dashboard", "HeroScore.tsx"],
-    ["components", "dashboard", "HomeFold.tsx"],
+    ["components", "dashboard", "ThresholdFold.tsx"],
     ["components", "ui", "VerdictBadge.tsx"],
     ["app", "(product)", "employee", "dashboard", "page.tsx"],
     ["app", "(product)", "report", "[id]", "page.tsx"],
@@ -134,6 +134,7 @@ describe("naming law — rescued surfaces never say HōMI-Score", () => {
     for (const segments of [
       ["components", "score", "ScoreRail.tsx"],
       ["components", "dashboard", "HeroScore.tsx"],
+      ["components", "dashboard", "ThresholdFold.tsx"],
       ["app", "(product)", "employee", "dashboard", "page.tsx"],
       ["app", "(product)", "report", "[id]", "page.tsx"],
       ["app", "share", "[token]", "page.tsx"],
