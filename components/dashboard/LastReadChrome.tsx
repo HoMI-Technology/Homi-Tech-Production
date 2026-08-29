@@ -52,12 +52,18 @@ export function LastReadChrome({
     setDirectionLine(moneyPictureDirectionLine(direction));
   }, [lastMoney]);
 
-  const line = compactScoreAgeLine(score, showAge ? lastReadAgeCompact(lastReadAt) : null);
+  const age = showAge ? lastReadAgeCompact(lastReadAt) : null;
+  const line = compactScoreAgeLine(score, age);
 
   return (
     <div data-last-read-chrome="" className="min-w-0 text-sm text-dim">
-      <p data-last-read-score-age="" className="score-numeral text-light/90">
-        {line}
+      <p
+        data-last-read-score-age=""
+        className="score-numeral"
+        aria-label={line}
+      >
+        <span className="text-cyan">{score}</span>
+        {age ? <span className="text-dim"> · {age}</span> : null}
       </p>
       {directionLine ? <p data-last-read-direction="">{directionLine}</p> : null}
     </div>

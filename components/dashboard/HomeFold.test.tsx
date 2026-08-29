@@ -153,6 +153,37 @@ describe("HomeFold first viewport", () => {
     expect(screen.queryByText(/Checking in/i)).not.toBeInTheDocument();
   });
 
+  it("compact last-read uses the assessment date — Aug 29 is {Mon D} shape, not a ship date", async () => {
+    saveReadinessPath(runwayPath());
+    const { container } = render(
+      <HomeFold
+        {...base}
+        latest={{ id: "a2", overallScore: 61 }}
+        verdict="NOT_YET"
+        lastReadAt="2026-03-15T12:00:00.000Z"
+        stopMessages={["You have less than one month of expenses set aside."]}
+        stopCodes={["RUNWAY_UNDER_1_MONTH"]}
+        suppressBuildPercent
+        hasPath
+        foldSentence="Runway is the hold. Build the fund before anything else."
+      />,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("link", { name: /grow emergency fund toward 3–6 months/i }),
+      ).toBeInTheDocument();
+    });
+
+    const chrome = container.querySelector("[data-last-read-chrome]");
+    expect(chrome).toHaveTextContent("61 · from Mar 15");
+    expect(chrome).not.toHaveTextContent("Aug 29");
+    expect(chrome).not.toHaveTextContent("Last read");
+    expect(chrome).not.toHaveTextContent("DO NOT PROCEED");
+    expect(chrome).not.toHaveTextContent("NOT_YET");
+    expect(screen.getAllByText("DO NOT PROCEED")).toHaveLength(1);
+  });
+
   it("does not render day30 inside the first viewport even when due_at has passed", () => {
     const { container } = render(
       <HomeFold

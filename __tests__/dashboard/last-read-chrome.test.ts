@@ -37,12 +37,15 @@ describe("last-read chrome — MEASURE_ACT_W1", () => {
   it("compact Home line is score · from {Mon D} — never Last read + verdict", () => {
     expect(lastReadAgeCompact("2026-08-29T12:00:00.000Z")).toBe("from Aug 29");
     expect(lastReadAgeCompact("2026-03-15T12:00:00.000Z")).toBe("from Mar 15");
+    expect(lastReadAgeCompact("2026-01-03T12:00:00.000Z")).toBe("from Jan 3");
     expect(compactScoreAgeLine(61, "from Aug 29")).toBe("61 · from Aug 29");
     expect(compactScoreAgeLine(61, null)).toBe("61");
     expect(compactScoreAgeLine(61, "from Aug 29")).not.toMatch(/Last read/i);
     expect(compactScoreAgeLine(61, "from Aug 29")).not.toMatch(/DO NOT PROCEED/);
     expect(compactScoreAgeLine(61, "from Aug 29")).not.toMatch(/NOT_YET/);
     expect(compactScoreAgeLine(61, "from Aug 29")).not.toMatch(/closer to/i);
+    expect(lastReadAgeCompact.toString()).not.toMatch(/Aug 29/);
+    expect(compactScoreAgeLine.toString()).not.toMatch(/Aug 29/);
   });
 
   it("emits stronger only when DTI, EF, and savings-rate all moved the same way", () => {
