@@ -123,7 +123,7 @@ describe("dashboard fold tells the truth about the build", () => {
       fold.indexOf("data-home-score-rail"),
     );
     expect(fold.indexOf("data-home-score-rail")).toBeLessThan(
-      fold.indexOf("HomeMoneyStanding"),
+      fold.indexOf("<HomeMoneyStanding"),
     );
     expect(fold).toContain('variant="compact"');
     expect(fold).toContain('data-home-score-role="context"');
