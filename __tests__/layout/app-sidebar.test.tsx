@@ -9,6 +9,10 @@ let mockPathname = "/dashboard";
 vi.mock("next/navigation", async (importOriginal) => ({
   ...(await importOriginal<typeof import("next/navigation")>()),
   usePathname: () => mockPathname,
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), prefetch: vi.fn() }),
+}));
+vi.mock("@/components/layout/CommandPalette", () => ({
+  CommandPalette: () => null,
 }));
 
 import { AppSidebar } from "@/components/layout/AppSidebar";
@@ -93,6 +97,9 @@ describe("AppSidebar — HōMI primary rail", () => {
     expect(sidebar).not.toContain("Build entry (Home)");
     expect(sidebar).not.toContain("JOURNEY_ORDER");
     expect(sidebar).not.toContain("SidebarPulseStrip");
+    expect(sidebar).not.toContain("Pulse·7d");
+    expect(sidebar).not.toContain("Held ${");
+    expect(sidebar).not.toContain("DO NOT PROCEED");
     expect(sidebar).not.toContain("SidebarScoreChip");
     expect(sidebar).not.toContain("footerChipModel");
     expect(sidebar).toContain('from "@/components/brand/ThresholdCompass"');
@@ -100,12 +107,11 @@ describe("AppSidebar — HōMI primary rail", () => {
     expect(sidebar).toContain("data-sidebar-primary");
     expect(sidebar).toContain("data-sidebar-more");
 
-    expect(pulse).not.toContain("Pulse·7d");
-    expect(pulse).not.toContain("Held ${");
     expect(pulse).not.toContain("sidebar-pulse-strip");
     expect(pulse).not.toContain("function SidebarPulseStrip");
-    expect(pulse).not.toContain("function SidebarDecisionState");
+    expect(pulse).not.toContain("export function SidebarDecisionState");
     expect(pulse).not.toContain("footerChipModel");
+    expect(pulse).not.toContain('label: "Pulse');
 
     expect(bottom).toContain('label: "HōMI"');
     expect(bottom).toContain('label: "Assess"');

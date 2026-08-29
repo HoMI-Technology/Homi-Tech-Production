@@ -131,6 +131,6 @@ export function useVerdictAccent(state: LatestVerdict | null): void {
   }, [state]);
 }
 
-/** Rail chrome (score hero, DNP chip, Pulse·7d, Held, footer numeral) is
- *  unmounted. Verdict parsing + accent publication stay — active-nav tint
- *  still keys to the last assessment without reprinting the score. */
+/** Rail chrome (score hero, verdict chip, pulse strip, held-days, footer
+ *  numeral) is unmounted. Verdict parsing + accent publication stay — the
+ *  active-nav tint still keys to the last assessment without reprinting. */
