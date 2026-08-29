@@ -82,7 +82,7 @@ describe("footerChipModel", () => {
       score: "61",
       label: VERDICT_META.BUILD_FIRST.label,
       meta: "Held 12d",
-      ariaLabel: `Readiness score 61, ${VERDICT_META.BUILD_FIRST.label}. Continue on Home.`,
+      ariaLabel: `Readiness score 61, ${VERDICT_META.BUILD_FIRST.label}. Continue on HōMI.`,
     });
   });
 

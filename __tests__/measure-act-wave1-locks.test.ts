@@ -127,7 +127,8 @@ describe("Measure-Act Wave 1 locks", () => {
     expect(chrome).not.toMatch(/closer to/i);
     expect(chrome).not.toContain("hardStop");
     expect(chrome).toContain("lastReadHeadline");
-    expect(helper).toContain("Last read:");
+    expect(helper).toContain("from March 15.");
+    expect(helper).toContain("lastReadAgeDays");
     for (const rel of WAVE1_UI) {
       expect(read(rel), rel).not.toMatch(/closer to/i);
     }

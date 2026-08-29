@@ -1,6 +1,7 @@
 /**
  * Home last-read chrome — existing scored fold only.
- * Last verdict word + calendar age. Optional same-way money direction.
+ * Calendar age when stale (≥30d). Optional same-way money direction.
+ * Never reprints the verdict (ScoreRail owns the public word once).
  * Never a next-band proximity claim. Never a live number. Never points.
  * Do not run a new score to decide direction.
  */
@@ -33,6 +34,8 @@ const MONTHS = [
   "December",
 ] as const;
 
+const STALE_AFTER_DAYS = 30;
+
 /** Public Brand names only. Never print NOT_YET or Not yet. */
 export const PUBLIC_VERDICT_LABELS = [
   "READY",
@@ -55,7 +58,17 @@ export function publicVerdictLabel(verdict: VerdictKey): string {
   }
 }
 
-/** Calendar age: "from March 15." Never a live score. */
+/** Whole calendar days since last read. Null when the timestamp is unusable. */
+export function lastReadAgeDays(iso: string | null, nowMs: number = Date.now()): number | null {
+  if (!iso) return null;
+  const then = new Date(iso);
+  if (!Number.isFinite(then.getTime())) return null;
+  const days = Math.floor((nowMs - then.getTime()) / 86_400_000);
+  if (!Number.isFinite(days) || days < 0) return null;
+  return days;
+}
+
+/** Calendar age: "from March 15." Never a live score. Never "0d". */
 export function lastReadAgeFrom(iso: string | null): string | null {
   if (!iso) return null;
   const then = new Date(iso);
@@ -66,10 +79,15 @@ export function lastReadAgeFrom(iso: string | null): string | null {
   return `from ${month} ${day}.`;
 }
 
-/** Last public verdict + optional age. Never a closer-to band. */
-export function lastReadHeadline(verdict: VerdictKey, age: string | null): string {
-  const label = publicVerdictLabel(verdict);
-  return age ? `Last read: ${label} ${age}` : `Last read: ${label}`;
+/**
+ * One stale age line, or null.
+ * Age is omitted under 30 days (no 0d chrome, no “30 days later” under 30).
+ * Chrome does not reprint the verdict — ScoreRail already said it once.
+ */
+export function lastReadHeadline(verdict: VerdictKey, ageDays: number | null, ageFrom: string | null): string | null {
+  void publicVerdictLabel(verdict);
+  if (ageDays == null || ageDays < STALE_AFTER_DAYS) return null;
+  return ageFrom;
 }
 
 const DTI_STRENGTH: Record<DtiScoreBand, number> = {
@@ -100,6 +118,8 @@ export type LastReadMoneyInputs = {
   debtToIncomeRatio: number | null;
   emergencyFundMonths: number | null;
   savingsRate: number | null;
+  /** Liquid cash from last AssessmentResult only. Never a second FR score. */
+  liquidDollars: number | null;
 };
 
 function sign(delta: number): MoneyDirection | "unchanged" {

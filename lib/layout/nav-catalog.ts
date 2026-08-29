@@ -40,10 +40,10 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
   // Header PRIMARY (ruthlessly short: 3 items + Agents when flagged)
   {
     href: "/dashboard",
-    label: "Home",
-    paletteLabel: "Home",
+    label: "HōMI",
+    paletteLabel: "HōMI",
     group: "Navigate",
-    keywords: "home overview score",
+    keywords: "home overview score dashboard",
     surfaces: { header: "primary", palette: true },
   },
   {

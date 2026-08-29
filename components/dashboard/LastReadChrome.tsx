@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { VerdictKey } from "@/lib/brand";
 import {
+  lastReadAgeDays,
   lastReadAgeFrom,
   lastReadHeadline,
   moneyPictureDirection,
@@ -18,18 +19,16 @@ import { metricsFromLedger } from "@/lib/finance/metrics";
 
 /**
  * Existing scored-fold chrome only — not a second card.
- * Last verdict + calendar age + optional same-way direction.
- * Never a next-band proximity claim. Never a live score.
+ * Stale age (≥30d) + optional same-way direction.
+ * Does not reprint the verdict. Never a next-band proximity claim.
  */
 export function LastReadChrome({
   verdict,
   lastReadAt,
-  showAge,
   lastMoney,
 }: {
   verdict: VerdictKey;
   lastReadAt: string | null;
-  showAge: boolean;
   lastMoney: LastReadMoneyInputs | null;
 }) {
   const [directionLine, setDirectionLine] = useState<string | null>(null);
@@ -52,11 +51,14 @@ export function LastReadChrome({
     setDirectionLine(moneyPictureDirectionLine(direction));
   }, [lastMoney]);
 
-  const headline = lastReadHeadline(verdict, showAge ? lastReadAgeFrom(lastReadAt) : null);
+  const ageDays = lastReadAgeDays(lastReadAt);
+  const headline = lastReadHeadline(verdict, ageDays, lastReadAgeFrom(lastReadAt));
+
+  if (!headline && !directionLine) return null;
 
   return (
     <div data-last-read-chrome="" className="min-w-0 text-sm text-dim">
-      <p data-last-read-verdict="">{headline}</p>
+      {headline ? <p data-last-read-age="">{headline}</p> : null}
       {directionLine ? <p data-last-read-direction="">{directionLine}</p> : null}
     </div>
   );

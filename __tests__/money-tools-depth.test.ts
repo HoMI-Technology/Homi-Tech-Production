@@ -18,7 +18,8 @@ describe("money-tools depth doctrine", () => {
     const doc = read("docs/MONEY-TOOLS-DEPTH.md");
     expect(doc).toMatch(/Where does cash sit/);
     expect(doc).toMatch(/Answer one math question/);
-    expect(doc).toMatch(/Path owns the Home fold/);
+    expect(doc).toMatch(/Path owns the HōMI fold/);
+    expect(doc).toMatch(/Money is folded into `\/dashboard`/);
     expect(doc).toMatch(/Forbidden patterns/);
   });
 
@@ -39,41 +40,23 @@ describe("money-tools depth doctrine", () => {
     expect(money).toContain("view.primaryHref");
     expect(money).toContain("view.secondaryHref");
 
-    const empty = buildHomeMoneyStandingView(null);
+    const empty = buildHomeMoneyStandingView({
+      lastMoney: null,
+      hardStopFlags: [],
+      bankLinked: false,
+    });
     expect(empty.primaryHref).toBe("/money/budget");
     expect(empty.secondaryHref).toBe("/connections");
 
     const ready = buildHomeMoneyStandingView({
-      source: "ledger",
-      asOf: "2026-08-18T12:00:00.000Z",
-      surplus: {
-        dollars: 420,
-        incomeDollars: 5000,
-        expenseDollars: 4200,
-        debtPaymentDollars: 380,
-        formula: "income - netExpense - debtPayments",
-      },
-      runway: {
-        months: 4.2,
+      lastMoney: {
+        debtToIncomeRatio: 0.22,
+        emergencyFundMonths: 4.2,
+        savingsRate: 0.08,
         liquidDollars: 8400,
-        liquidSource: "emergency_goal",
-        monthlyOutflowDollars: 2000,
       },
-      dti: { pct: 22, incomeDollars: 5000, debtPaymentDollars: 1100 },
-      savingsRatePct: 8,
-      evidence: {
-        completeness: "medium",
-        sourceMode: "manual",
-        monthsWithData: 2,
-        uncategorizedCount: 0,
-        pendingTransactionCount: 0,
-        latestTransactionDate: "2026-08-17",
-        hasIncome: true,
-        hasExpenses: true,
-        hasDebtSignal: true,
-        liquidSource: "emergency_goal",
-      },
-      periodTotals: null,
+      hardStopFlags: [],
+      bankLinked: true,
     });
     expect(ready.primaryHref).toBe("/money");
     expect(ready.secondaryHref).toBe("/money/decide");

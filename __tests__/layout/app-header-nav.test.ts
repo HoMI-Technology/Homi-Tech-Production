@@ -3,8 +3,8 @@ import { APP_MORE_NAV, APP_PRIMARY_NAV } from "@/lib/layout/app-nav";
 
 /** Nav config lives outside the client component for unit/e2e import. */
 describe("AppHeader nav config", () => {
-  it("keeps PRIMARY ruthlessly short with Home first", () => {
-    expect(APP_PRIMARY_NAV[0]).toEqual({ href: "/dashboard", label: "Home" });
+  it("keeps PRIMARY ruthlessly short with HōMI first", () => {
+    expect(APP_PRIMARY_NAV[0]).toEqual({ href: "/dashboard", label: "HōMI" });
     expect(APP_PRIMARY_NAV.map((i) => i.href)).toContain("/assessment");
     expect(APP_PRIMARY_NAV.map((i) => i.href)).toContain("/money");
     // Journal lives under More so the product bar stays one line.

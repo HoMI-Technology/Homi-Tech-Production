@@ -175,7 +175,7 @@ export function footerChipModel(state: LatestVerdict | null): FooterChipModel {
     score: String(state.score),
     label: meta.label,
     meta: state.heldDays === null ? null : `Held ${state.heldDays}d`,
-    ariaLabel: `Readiness score ${state.score}, ${meta.label}. Continue on Home.`,
+    ariaLabel: `Readiness score ${state.score}, ${meta.label}. Continue on HōMI.`,
   };
 }
 

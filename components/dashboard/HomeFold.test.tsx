@@ -5,8 +5,6 @@ import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import { COLORS } from "@/lib/brand";
 import { HomeFold } from "./HomeFold";
 
-// jsdom lacks matchMedia — a reduced-motion match makes PillarRing render its
-// finished (static) ring, which is exactly the server/no-JS contract.
 beforeAll(() => {
   if (!window.matchMedia) {
     window.matchMedia = ((query: string) => ({
@@ -33,23 +31,20 @@ const base = {
   improved: false,
   instrumentTint: COLORS.amber,
   dueSurvey: null,
-  staleDays: 2,
   hasPath: false,
-  pathDone: 0,
-  pathTotal: 0,
+  bankLinked: false as boolean | null,
 };
 
 const pillars = { emotional: 24, financial: 20, timing: 19 };
 
 describe("HomeFold", () => {
-  it("empty state is one Assess close — no score rail, no fake 76", () => {
+  it("empty-account is one Assess close — no score rail, no fake 76", () => {
     const { container } = render(
       <HomeFold
         {...base}
         latest={null}
         verdict={null}
         stopMessages={[]}
-        foldSentence="One measurement and this page has a build to show."
       />,
     );
 
@@ -69,6 +64,8 @@ describe("HomeFold", () => {
     expect(screen.queryByText("Your build")).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /see results/i })).not.toBeInTheDocument();
     expect(container.querySelector("[data-home-money-standing]")).not.toBeNull();
+    expect(container.querySelector("[data-home-money-surplus]")).toBeNull();
+    expect(container.querySelector("[data-home-money-standing]")?.textContent).not.toMatch(/76/);
     const companion = container.querySelector("[data-companion-fold-line]");
     expect(companion).not.toBeNull();
     expect(companion).toHaveTextContent(/One measurement and this page has a build to show/);
@@ -78,32 +75,74 @@ describe("HomeFold", () => {
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeTruthy();
   });
 
-  it("has-verdict leads with the Path action instrument, then a compact score reading", () => {
+  it("live 61 / DO NOT PROCEED / runway hard stop is honest Path evidence", () => {
+    const { container } = render(
+      <HomeFold
+        {...base}
+        latest={{ id: "live-61", overallScore: 61, pillars }}
+        verdict="NOT_YET"
+        lastReadAt={new Date().toISOString()}
+        lastMoney={{
+          debtToIncomeRatio: 0.42,
+          emergencyFundMonths: 0.4,
+          savingsRate: 0.03,
+          liquidDollars: 800,
+        }}
+        stopMessages={["Emergency runway is under 1 month."]}
+        suppressBuildPercent
+        hasPath
+        instrumentTint={COLORS.crimson}
+      />,
+    );
+
+    expect(container.querySelector("[data-home-hard-stop]")).toHaveTextContent(
+      /Hard stop · Emergency runway is under 1 month/,
+    );
+    expect(screen.getByLabelText("Overall Decision Readiness Score 61 out of 100")).toHaveStyle({
+      color: COLORS.crimson,
+    });
+    expect(screen.getByText("DO NOT PROCEED")).toBeInTheDocument();
+    expect(screen.queryByText("NOT_YET")).not.toBeInTheDocument();
+    expect(screen.queryByText("Not yet")).not.toBeInTheDocument();
+    expect(container.querySelectorAll("[data-score-pillar]")).toHaveLength(0);
+    expect(container.querySelector("[data-home-money-runway]")).toHaveTextContent("0.4 mo");
+    expect(container.querySelector("[data-home-money-surplus]")).toBeNull();
+    expect(container.querySelector("[data-home-money-standing]")?.className).not.toMatch(/text-4xl/);
+    expect(screen.queryByText("76")).not.toBeInTheDocument();
+    expect(screen.queryByText("850")).not.toBeInTheDocument();
+    expect(screen.queryByText("720")).not.toBeInTheDocument();
+    expect(screen.queryByText(/80–100|80-100/)).not.toBeInTheDocument();
+    expect(container.querySelector("[data-last-read-chrome]")).toBeNull();
+    expect(screen.queryByText(/from August/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();
+    expect(foldCelebrate(container)).toBeNull();
+  });
+
+  it("has-verdict leads with Path, then compact ScoreRail without PillarRings", () => {
     const { container } = render(
       <HomeFold
         {...base}
         latest={{ id: "a1", overallScore: 64, pillars }}
         verdict="BUILD_FIRST"
-        lastReadAt="2026-03-15T12:00:00.000Z"
+        lastReadAt={new Date().toISOString()}
+        lastMoney={{
+          debtToIncomeRatio: 0.3,
+          emergencyFundMonths: 2,
+          savingsRate: 0.08,
+          liquidDollars: null,
+        }}
         stopMessages={[]}
         hasPath
-        pathDone={2}
-        pathTotal={7}
-        foldSentence="Financial Reality is the softest pillar on this read."
       />,
     );
 
     const fold = container.querySelector("[data-home-fold]");
     expect(fold?.getAttribute("data-home-instrument")).toBe("build");
     expect(fold?.getAttribute("data-hard-stop")).toBe("0");
-    expect(fold?.classList.contains("dash-instrument")).toBe(true);
-    expect(screen.getByLabelText("HōMI")).toBeInTheDocument();
-    expect(screen.getByText("Your build")).toBeInTheDocument();
-    expect(container.querySelector(".dash-hero-meta")).not.toBeNull();
+    expect(screen.queryByText("Your build")).not.toBeInTheDocument();
+    expect(container.querySelector(".dash-hero-meta")).toBeNull();
     expect(container.querySelector("[data-home-build-hero]")).not.toBeNull();
-    expect(container.querySelector("[data-home-build-progress]")).toHaveTextContent("2 of 7");
 
-    // Compact score reading: numeral + verdict + three pillar rings, supporting the build.
     const scoreRail = container.querySelector("[data-home-score-rail]");
     expect(scoreRail).not.toBeNull();
     expect(scoreRail?.getAttribute("data-home-score-role")).toBe("context");
@@ -111,91 +150,61 @@ describe("HomeFold", () => {
     expect(scoreRail?.querySelector('[data-score-rail="hero"]')).toBeNull();
     expect(screen.getByLabelText("Overall Decision Readiness Score 64 out of 100")).toBeInTheDocument();
     expect(screen.getByText("BUILD FIRST")).toBeInTheDocument();
-    expect(scoreRail?.querySelectorAll("[data-score-pillar]")).toHaveLength(3);
-    expect(
-      scoreRail?.querySelector('[data-score-pillar="emotional"][data-pillar-state="measured"]'),
-    ).not.toBeNull();
-    expect(
-      scoreRail?.querySelector('[data-score-pillar="financial"][data-pillar-state="measured"]'),
-    ).not.toBeNull();
-    expect(
-      scoreRail?.querySelector('[data-score-pillar="timing"][data-pillar-state="measured"]'),
-    ).not.toBeNull();
+    expect(screen.getByText(/Warm\+/)).toBeInTheDocument();
+    expect(scoreRail?.querySelectorAll("[data-score-pillar]")).toHaveLength(0);
+    expect(scoreRail?.querySelector("a")?.getAttribute("href")).toBe("/results");
 
-    // Fold order (DESIGN.md OPERATE): Path/build leads; compact rail follows.
     const build = container.querySelector("[data-home-build-hero]");
-    if (!scoreRail || !build) {
-      throw new Error("expected score rail and build hero");
+    const money = container.querySelector("[data-home-money-standing]");
+    if (!scoreRail || !build || !money) {
+      throw new Error("expected path, score rail, and money strip");
     }
     expect(build.compareDocumentPosition(scoreRail) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-
-    expect(container.querySelector("[data-last-read-chrome]")).toHaveTextContent(
-      "Last read: BUILD FIRST from March 15.",
+    expect(scoreRail.compareDocumentPosition(money) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
     );
+
+    expect(container.querySelector("[data-last-read-chrome]")).toBeNull();
     expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/looks stronger/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/looks weaker/i)).not.toBeInTheDocument();
-    expect(
-      screen.getByText("Financial Reality is the softest pillar on this read."),
-    ).toBeInTheDocument();
-    const companion = container.querySelector("[data-companion-fold-line]");
-    expect(companion).not.toBeNull();
-    expect(companion?.classList.contains("panel-focus")).toBe(true);
-    expect(companion).toHaveTextContent(/Companion/);
-    expect(companion).toHaveTextContent(/binding step on Path to Ready/);
-    expect(companion?.getAttribute("data-companion-escalate-href")).toBe("/advisor");
-    // Presence only — no chat panel or second primary on the Companion line.
-    expect(companion?.querySelector(".btn-primary")).toBeNull();
-    expect(container.querySelector("#homi-companion-panel")).toBeNull();
-    expect(container.querySelector("[data-companion-chat]")).toBeNull();
-    // Score hero: verdict badge is a reading, not a /results deep-link.
-    expect(container.querySelector("[data-home-verdict]")).not.toBeNull();
-    expect(container.querySelector("[data-home-verdict][href]")).toBeNull();
-    expect(screen.queryByRole("link", { name: /last verdict/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /^see results$/i })).not.toBeInTheDocument();
-    expect(container.querySelector("[data-home-money-standing]")).not.toBeNull();
-    // Money strip CTAs stay secondary — never btn-primary on the fold.
-    const money = container.querySelector("[data-home-money-standing]");
-    expect(money?.querySelectorAll(".btn-primary")).toHaveLength(0);
-    expect(screen.queryByRole("link", { name: /money picture/i })).not.toBeInTheDocument();
+    expect(container.querySelector("[data-home-money-liquid]")).toHaveTextContent("—");
+    expect(money.querySelectorAll(".btn-primary")).toHaveLength(0);
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeNull();
     expect(screen.queryByText("76")).not.toBeInTheDocument();
   });
 
-  it("stale >30d does not stack a second age treatment on the fold", () => {
+  it("stale ≥30d shows one age line and does not reprint the verdict", () => {
     const { container } = render(
       <HomeFold
         {...base}
         latest={{ id: "a1", overallScore: 64, pillars }}
         verdict="BUILD_FIRST"
         lastReadAt="2026-03-15T12:00:00.000Z"
-        staleDays={45}
         stopMessages={[]}
-        foldSentence="Financial Reality is the softest pillar on this read."
       />,
     );
 
-    expect(screen.getByText(/45 days since your last assessment/i)).toBeInTheDocument();
-    expect(container.querySelector("[data-last-read-chrome]")).toHaveTextContent(
-      "Last read: BUILD FIRST",
-    );
-    expect(screen.queryByText("from March 15.")).not.toBeInTheDocument();
+    expect(container.querySelector("[data-last-read-chrome]")).toHaveTextContent("from March 15.");
+    expect(container.querySelector("[data-last-read-chrome]")).not.toHaveTextContent("BUILD FIRST");
+    expect(screen.queryByText(/45 days since your last assessment/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();
   });
 
-  it("hard-stop banner outranks the score reading and the build, and suppresses step progress", () => {
+  it("hard-stop eyebrow outranks the score reading and the build", () => {
     const { container } = render(
       <HomeFold
         {...base}
-        latest={{ id: "a2", overallScore: 71, pillars }}
+        latest={{ id: "a2", overallScore: 61, pillars }}
         verdict="NOT_YET"
-        stopMessages={["DTI is above 50%."]}
+        stopMessages={["Emergency runway is under 1 month."]}
         suppressBuildPercent
-        pathDone={3}
-        pathTotal={7}
-        foldSentence="A hard stop is the read right now. The path names what has to move first."
+        lastMoney={{
+          debtToIncomeRatio: 0.5,
+          emergencyFundMonths: 0.4,
+          savingsRate: 0.01,
+          liquidDollars: 400,
+        }}
       />,
     );
 
@@ -205,77 +214,30 @@ describe("HomeFold", () => {
     const scoreRail = container.querySelector("[data-home-score-rail]");
     expect(fold?.getAttribute("data-hard-stop")).toBe("1");
     expect(banner).not.toBeNull();
-    expect(screen.getByRole("alert")).toHaveTextContent("DTI is above 50%.");
+    expect(screen.getByRole("alert")).toHaveTextContent("Emergency runway is under 1 month.");
+    expect(banner?.className).toMatch(/eyebrow/);
     expect(screen.getByText("DO NOT PROCEED")).toBeInTheDocument();
     expect(container.querySelector("[data-home-build-progress]")).toBeNull();
-    expect(build).not.toBeNull();
-    expect(scoreRail).not.toBeNull();
     if (!banner || !build || !scoreRail) {
-      throw new Error("expected hard-stop banner, score rail, and build hero");
+      throw new Error("expected hard-stop eyebrow, score rail, and build hero");
     }
-    // Order: hard-stop alert → Path action instrument → compact score reading.
     expect(banner.compareDocumentPosition(build) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
     expect(build.compareDocumentPosition(scoreRail) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-    expect(scoreRail.getAttribute("data-home-score-role")).toBe("context");
     expect(scoreRail.querySelector('[data-score-rail="compact"]')).not.toBeNull();
-    // Hard stop tints the score numeral crimson, never a cheerful verdict tint.
-    expect(screen.getByLabelText("Overall Decision Readiness Score 71 out of 100")).toHaveStyle({
+    expect(scoreRail.querySelectorAll("[data-score-pillar]")).toHaveLength(0);
+    expect(screen.getByLabelText("Overall Decision Readiness Score 61 out of 100")).toHaveStyle({
       color: COLORS.crimson,
     });
     expect(fold?.querySelector("svg[aria-label*='Threshold Compass']")).toBeNull();
     expect(container.querySelector(".dash-spectrum")).toBeNull();
-    expect(screen.queryByText("Almost")).not.toBeInTheDocument();
-    expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();
     const companion = container.querySelector("[data-companion-fold-line]");
     expect(companion).toHaveTextContent(
       "A hard stop is the read right now. The path names what has to move first.",
     );
-    expect(companion?.querySelector(".btn-primary")).toBeNull();
-  });
-
-  it("hard stop still shows last verdict + age and never closer-to READY", () => {
-    const { container } = render(
-      <HomeFold
-        {...base}
-        latest={{ id: "a2", overallScore: 71, pillars }}
-        verdict="ALMOST_THERE"
-        lastReadAt="2026-03-15T12:00:00.000Z"
-        stopMessages={["DTI is above 50%."]}
-        suppressBuildPercent
-        foldSentence="A hard stop is the read right now. The path names what has to move first."
-      />,
-    );
-
-    expect(container.querySelector("[data-last-read-chrome]")).toHaveTextContent(
-      "Last read: ALMOST THERE from March 15.",
-    );
-    expect(screen.queryByText(/closer to READY/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/closer to/i)).not.toBeInTheDocument();
-  });
-
-  it("unmeasured pillar renders an honest Unknown cell, never a zero ring", () => {
-    const { container } = render(
-      <HomeFold
-        {...base}
-        latest={{
-          id: "a4",
-          overallScore: 58,
-          pillars: { emotional: null, financial: 20, timing: 19 },
-        }}
-        verdict="BUILD_FIRST"
-        stopMessages={[]}
-        foldSentence="Financial Reality is the softest pillar on this read."
-      />,
-    );
-
-    const unknown = container.querySelector('[data-score-pillar="emotional"]');
-    expect(unknown?.getAttribute("data-pillar-state")).toBe("unknown");
-    expect(unknown?.getAttribute("aria-label")).toBe("Emotional Truth Unknown");
-    expect(unknown?.querySelector("svg")).toBeNull();
   });
 
   it("does not dual-mount giant hero numeral and compass on a scored fold", () => {
@@ -285,7 +247,6 @@ describe("HomeFold", () => {
         latest={{ id: "a3", overallScore: 82, pillars }}
         verdict="READY"
         stopMessages={[]}
-        foldSentence="Financial Reality is the softest pillar on this read."
       />,
     );
 
@@ -296,3 +257,7 @@ describe("HomeFold", () => {
     expect(fold?.querySelectorAll("svg[aria-label*='Threshold Compass']")).toHaveLength(0);
   });
 });
+
+function foldCelebrate(container: HTMLElement) {
+  return container.querySelector("[data-celebrate], .pointer-events-none.absolute");
+}

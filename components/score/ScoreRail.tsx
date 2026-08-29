@@ -1,25 +1,24 @@
+import Link from "next/link";
 import { COLORS, PILLARS, VERDICT_META, withAlpha, type VerdictKey } from "@/lib/brand";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
 import { PillarRing } from "@/components/dashboard/PillarRing";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 
 /**
- * Shared Decision Readiness Score rail — score numeral + VerdictBadge + the three pillar
- * rings (Emotional · Financial · Timing), in the spec's fold order.
+ * Shared Decision Readiness Score rail — score numeral + public verdict word
+ * + (hero only) the three pillar rings (Emotional · Financial · Timing).
  *
- * One reading of the score. Home fold uses variant="compact" (Path leads;
- * the rail is supporting). Reality's top rail is the same compact pattern
- * so the two surfaces cannot fork. variant="hero" remains for surfaces that
- * still lead with the reading. Composes locked primitives (PillarRing /
- * ScoreRing geometry, VerdictBadge, score-numeral) — not a new orb.
+ * Compact (Home + Reality supporting rail): numeral + temperature ON + the
+ * public verdict word once. No PillarRings. No 80–100 legend. Honest empty
+ * is an em dash. Optional href tap-through (Home uses /results).
  *
  * Honesty rules:
  * - Pillars arrive as raw assessment points and render as normalized
- *   percentages, never raw points (same rule as the share page — the exact
- *   pillar maxima stay trade-secret).
+ *   percentages, never raw points (hero only).
  * - A null pillar was never measured: the cell renders "—" with an
  *   "Unknown" accessible name, never a zero fill.
  * - A null score renders "—", never an invented number.
+ * - Last AssessmentResult.score only. Never recalc in UI.
  */
 
 export type ScoreRailPillars = {
@@ -119,14 +118,17 @@ export function ScoreRail({
   pillars,
   tint = COLORS.cyan,
   variant = "hero",
+  href,
 }: ScoreRailReading & {
   /** Instrument tint for the numeral — verdict color, crimson on hard stop. */
   tint?: string;
-  /** hero = lead reading on partner/employee-style instruments; compact = Home + Reality supporting rail. */
+  /** hero = lead reading; compact = Home + Reality supporting rail. */
   variant?: "hero" | "compact";
+  /** Compact tap-through. Home fold uses /results. */
+  href?: string;
 }) {
   const compact = variant === "compact";
-  const ringSize = compact ? 48 : 72;
+  const ringSize = 72;
   const scoreLabel =
     score != null ? `Overall Decision Readiness Score ${score} out of 100` : "Decision Readiness Score Unknown";
 
@@ -142,32 +144,25 @@ export function ScoreRail({
     </span>
   );
 
-  // Scale context next to the numeral — aria-hidden: the accessible name on
-  // the numeral already carries "out of 100".
-  const scale =
-    score != null ? (
-      <span
-        aria-hidden
-        className={
-          compact
-            ? "text-2xs font-medium tracking-wide text-dim"
-            : "pb-1 text-sm font-medium tracking-wide text-dim"
-        }
-      >
-        {compact ? "/100" : "out of 100"}
-      </span>
-    ) : null;
-
   const badge = verdict ? (
     // data-home-verdict is the Companion card-highlight hook (lib/advisor/
     // card-highlight.ts) — the attr name is a live contract, do not rename.
-    <span data-home-verdict="" aria-label={`Last verdict ${VERDICT_META[verdict].label}`}>
-      <VerdictBadge verdict={verdict} size={compact ? "sm" : "md"} hideTemperature={compact} />
+    <span
+      data-home-verdict=""
+      aria-label={`Last verdict ${VERDICT_META[verdict].label}`}
+      className={compact ? "font-display italic font-normal tracking-normal" : undefined}
+    >
+      <VerdictBadge
+        verdict={verdict}
+        size={compact ? "sm" : "md"}
+        hideTemperature={false}
+        className={compact ? "border-0 bg-transparent px-0 py-0 font-display italic font-normal" : undefined}
+      />
     </span>
   ) : null;
 
   const rings = (
-    <div className={`flex flex-wrap ${compact ? "items-center gap-3" : "gap-x-6 gap-y-3"}`}>
+    <div className="flex flex-wrap gap-x-6 gap-y-3">
       {PILLAR_ORDER.map((key) => (
         <PillarCell key={key} pillarKey={key} raw={pillars[key]} size={ringSize} />
       ))}
@@ -175,7 +170,7 @@ export function ScoreRail({
   );
 
   if (compact) {
-    return (
+    const body = (
       <section
         data-score-rail="compact"
         aria-label="Readiness score"
@@ -185,15 +180,20 @@ export function ScoreRail({
           <span className="text-2xs font-bold uppercase tracking-[0.16em] text-dim">
             Decision Readiness Score
           </span>
-          <span className="inline-flex items-baseline gap-2">
-            {numeral}
-            {scale}
-          </span>
+          {numeral}
           {badge}
         </div>
-        <div className="sm:ml-auto">{rings}</div>
       </section>
     );
+
+    if (href) {
+      return (
+        <Link href={href} className="block no-underline">
+          {body}
+        </Link>
+      );
+    }
+    return body;
   }
 
   return (
@@ -203,7 +203,11 @@ export function ScoreRail({
           <p className="eyebrow">Decision Readiness Score</p>
           <div className="mt-1 flex items-baseline gap-2">
             {numeral}
-            {scale}
+            {score != null ? (
+              <span aria-hidden className="pb-1 text-sm font-medium tracking-wide text-dim">
+                out of 100
+              </span>
+            ) : null}
           </div>
         </div>
         {badge ? <div className="mb-1">{badge}</div> : null}

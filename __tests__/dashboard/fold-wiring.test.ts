@@ -48,7 +48,9 @@ describe("dashboard fold tells the truth about the build", () => {
   });
 
   it("uses Decision Readiness Score, never HōMI-Score (DESIGN.md naming law 2026-08-23)", () => {
-    expect(fold).toContain("Decision Readiness Score");
+    const rail = src("components", "score", "ScoreRail.tsx");
+    expect(rail).toContain("Decision Readiness Score");
+    expect(fold).toContain("ScoreRail");
     expect(page).not.toContain(BANNED_FOLD_NOUN);
     expect(fold).not.toContain(BANNED_FOLD_NOUN);
   });
@@ -112,35 +114,41 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(page).toContain("HomeFold");
     expect(fold).toContain("HOME_FOLD_INSTRUMENT");
     expect(fold).toContain("dash-instrument");
-    expect(fold).toContain("Wordmark");
     expect(fold).toContain("HomeMoneyStanding");
     expect(fold).toContain("data-home-build-hero");
     expect(fold).toContain("data-home-score-rail");
     expect(fold).toContain("PathStepLedger");
-    // Source order is a cheap smoke check. Binding assertion is rendered
-    // DOM order in HomeFold.test.tsx — a string constant never drove order.
     expect(fold.indexOf("data-home-build-hero")).toBeGreaterThan(-1);
     expect(fold.indexOf("data-home-build-hero")).toBeLessThan(
       fold.indexOf("data-home-score-rail"),
     );
+    expect(fold.indexOf("data-home-score-rail")).toBeLessThan(
+      fold.indexOf("HomeMoneyStanding"),
+    );
     expect(fold).toContain('variant="compact"');
     expect(fold).toContain('data-home-score-role="context"');
-    // Score + pillars render through the shared ScoreRail — composed of the
-    // locked PillarRing / VerdictBadge primitives, never a new orb.
     expect(fold).toContain("ScoreRail");
     const rail = src("components", "score", "ScoreRail.tsx");
     expect(rail).toContain("PillarRing");
     expect(rail).toContain("VerdictBadge");
     expect(rail).toContain("PILLAR_MAX_POINTS");
+    expect(rail).toContain("hideTemperature={false}");
     expect(rail).not.toContain("ThresholdCompass");
     expect(fold).not.toContain("HeroScore");
     expect(fold).not.toContain("ThresholdCompass");
-    expect(page).not.toContain("ThresholdCompass");
+    expect(fold).not.toContain("Your build");
+    expect(page).toContain("ThresholdCompass");
+    expect(page).toContain("data-dash-shell-compass");
     expect(page).not.toContain("HeroScore");
     expect(page).not.toContain("PillarRing");
     expect(fold).not.toContain("PillarRing");
     expect(fold).not.toContain("FinancialPositionSection");
     expect(fold).not.toContain("OperateInstrument");
+    expect(fold).not.toContain("text-4xl");
+    const money = src("components", "dashboard", "HomeMoneyStanding.tsx");
+    expect(money).not.toContain("text-4xl");
+    expect(money).not.toContain("loadBudgetLedger");
+    expect(money).toContain("lastMoney");
   });
 
   it("Path fold hero prefers Start step as the single primary CTA", () => {
@@ -164,6 +172,15 @@ describe("dashboard fold tells the truth about the build", () => {
     const money = src("components", "dashboard", "HomeMoneyStanding.tsx");
     expect(money).toContain("btn-ghost btn-sm");
     expect(money).not.toMatch(/btn-primary btn-sm/);
+    expect(money).not.toContain("text-4xl");
+    expect(money).not.toContain("surplusDisplay");
+  });
+
+  it("first-screen nav name is HōMI, not Home or Your build", () => {
+    const catalog = src("lib", "layout", "nav-catalog.ts");
+    expect(catalog).toMatch(/href: "\/dashboard"[\s\S]*label: "HōMI"/);
+    expect(catalog).not.toMatch(/href: "\/dashboard"[\s\S]*label: "Home"/);
+    expect(fold).not.toContain("Your build");
   });
 
   it("does not mount the kitchen-sink body on Home", () => {
