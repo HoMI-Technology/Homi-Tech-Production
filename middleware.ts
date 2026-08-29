@@ -4,10 +4,19 @@ import { isProtectedPath } from "@/lib/auth/protected-routes";
 import { wwwToApexUrl, X_ROBOTS_NOINDEX } from "@/lib/seo/site";
 
 type CookieToSet = { name: string; value: string; options?: CookieOptions };
+type AuthUser = { id: string } | null;
 
 /**
- * Auth gate. Refreshes the Supabase session on every matched request and
- * redirects unauthenticated traffic away from protected routes.
+ * Bound for the only paths that still call Supabase Auth (`getUser`).
+ * Vercel Routing Middleware is killed at ~25s (MIDDLEWARE_INVOCATION_TIMEOUT).
+ * Public marketing never enters this lookup.
+ */
+export const AUTH_LOOKUP_TIMEOUT_MS = 2_000;
+
+/**
+ * Auth gate. Refreshes the Supabase session on protected routes and the
+ * retired `/results` redirect. Public marketing does not wait on Auth —
+ * a slow or unreachable `getUser()` must not 504 the landing page.
  *
  * This used to compose next-intl's locale router with the auth gate; the
  * locale segment has been removed, so every path is now its own logical
@@ -18,6 +27,10 @@ type CookieToSet = { name: string; value: string; options?: CookieOptions };
 
 function isSignInPath(path: string): boolean {
   return path === "/auth/sign-in";
+}
+
+function isRetiredResultsPath(path: string): boolean {
+  return path === "/results" || path.startsWith("/results/");
 }
 
 function withSignInNoindex(response: NextResponse): NextResponse {
@@ -39,12 +52,34 @@ function redirectWwwToApex(request: NextRequest): NextResponse | null {
   return NextResponse.redirect(apex, 308);
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | "timeout"> {
+  let timer: ReturnType<typeof setTimeout>;
+  const timeout = new Promise<"timeout">((resolve) => {
+    timer = setTimeout(() => resolve("timeout"), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer!));
+}
+
+/**
+ * Verify the session, or treat the lookup as "no user" if Auth does not
+ * answer in time. Callers already fail-closed (`!user`) on protected
+ * routes and fail-open (`/first-moment`) on retired `/results`.
+ */
+async function getUserBounded(
+  getUser: () => Promise<{ data: { user: AuthUser } }>,
+): Promise<AuthUser> {
+  const result = await withTimeout(getUser(), AUTH_LOOKUP_TIMEOUT_MS);
+  if (result === "timeout") return null;
+  return result.data.user;
+}
+
 export async function middleware(request: NextRequest) {
   const wwwRedirect = redirectWwwToApex(request);
   if (wwwRedirect) return wwwRedirect;
 
   const path = request.nextUrl.pathname;
   const isProtected = isProtectedPath(path);
+  const needsAuthLookup = isProtected || isRetiredResultsPath(path);
 
   // Refreshed session cookies collected here get copied onto the response.
   const pendingCookies: CookieToSet[] = [];
@@ -78,6 +113,13 @@ export async function middleware(request: NextRequest) {
     return finish();
   }
 
+  // Public marketing / unprotected product paths must not depend on a live
+  // Supabase round-trip. Session cookie refresh stays on routes that still
+  // need getUser (protected + retired /results).
+  if (!needsAuthLookup) {
+    return finish();
+  }
+
   const supabase = createServerClient(url, key, {
     cookies: {
       getAll() {
@@ -92,9 +134,7 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUserBounded(() => supabase.auth.getUser());
 
   // F8 — /results is retired. Signed-in → Home Build; guests → First Moment.
   if (path === "/results" || path.startsWith("/results/")) {
