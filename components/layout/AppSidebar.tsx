@@ -7,10 +7,8 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   BookOpen,
   ClipboardCheck,
-  Compass,
   Cpu,
   DollarSign,
-  Home,
   LayoutGrid,
   Link2,
   MapPin,
@@ -22,13 +20,11 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
+import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 import { DashboardSwitcher } from "@/components/layout/DashboardSwitcher";
 import {
-  SidebarDecisionState,
-  SidebarPulseStrip,
-  footerChipModel,
   useLatestVerdict,
   useVerdictAccent,
   type LatestVerdict,
@@ -42,70 +38,22 @@ import { visibleDashboards } from "@/lib/dashboard/switcher-visibility";
 /**
  * Signed-in application shell — fixed left sidebar.
  *
- * Replaces the one-line AppHeader on authenticated product routes. Desktop
- * renders an icon rail that expands to labels at xl; below lg it collapses to
- * a top bar plus a drawer.
+ * Primary rail is HEADER_PRIMARY only: HōMI + Assess (+ Agents when flagged).
+ * Path and Money stay under More / palette — not peers of HōMI. Pulse strip,
+ * verdict chip, held-days, and the footer score numeral are off this rail;
+ * the page shell already owns ThresholdCompass + ScoreRail.
  *
- * Nav comes from lib/layout/app-nav (APP_PRIMARY_NAV / APP_MORE_NAV), which is
- * the flag-aware projection of NAV_CATALOG's `surfaces.header` field — the same
- * source AppHeader used, so the parity test in
- * __tests__/layout/nav-catalog-parity.test.ts keeps covering this surface.
- * Palette-only entries (settings, money modes) intentionally stay out of
- * the rail and remain reachable via ⌘K. Multi-role workspace homes are
- * reachable from the sidebar footer switcher when more than one dashboard
- * is visible.
- *
- * The rail is grouped by decision journey (measure → understand → act →
- * reflect) rather than by header slot. That is a *labeling* change only: the
- * rendered entry set is still exactly APP_PRIMARY_NAV + APP_MORE_NAV, which is
- * what parity covers.
+ * Nav comes from lib/layout/app-nav (APP_PRIMARY_NAV / APP_MORE_NAV), the
+ * flag-aware projection of NAV_CATALOG. Palette-only entries stay out of the
+ * rail and remain reachable via ⌘K. Multi-role workspace homes are reachable
+ * from the sidebar footer switcher when more than one dashboard is visible.
  */
 
-/**
- * Journey grouping. Hrefs, not entries — labels and flag-gating still come
- * from the catalog so this list can never fork the copy.
- */
-const JOURNEY_ORDER: readonly { label: string; hrefs: readonly string[] }[] = [
-  // Measure owns the Build entry (Home) + Assess + living Path.
-  { label: "Measure", hrefs: ["/dashboard", "/assessment", "/path"] },
-  { label: "Understand", hrefs: ["/scenarios", "/tools/preflight"] },
-  // /agents is header-primary whenever the Agent OS flag is on; it belongs to
-  // the acting half of the journey, next to Money and the household surfaces.
-  { label: "Act", hrefs: ["/money", "/agents", "/household", "/connections"] },
-  { label: "Reflect", hrefs: ["/journal"] },
-];
-
-/**
- * Project the flag-filtered header set onto the journey order. Anything the
- * catalog adds later that JOURNEY_ORDER does not name still renders, under a
- * trailing "More" group — regrouping must never silently drop a destination.
- */
-function buildGroups(
-  source: readonly NavLink[],
-): readonly { label: string; items: readonly NavLink[] }[] {
-  const remaining = new Map(source.map((item) => [item.href, item]));
-  const groups: { label: string; items: NavLink[] }[] = [];
-
-  for (const { label, hrefs } of JOURNEY_ORDER) {
-    const items: NavLink[] = [];
-    for (const href of hrefs) {
-      const item = remaining.get(href);
-      if (!item) continue;
-      items.push(item);
-      remaining.delete(href);
-    }
-    if (items.length > 0) groups.push({ label, items });
-  }
-  if (remaining.size > 0) groups.push({ label: "More", items: [...remaining.values()] });
-
-  return groups;
-}
-
-const GROUPS = buildGroups([...APP_PRIMARY_NAV, ...APP_MORE_NAV]);
-
-/** href → glyph. Anything unmapped falls back to the neutral grid mark. */
+/** href → glyph. Anything unmapped falls back to the neutral grid mark.
+ *  /dashboard is unmapped on purpose: Lucide Compass is banned on this rail.
+ *  The one compass is repo ThresholdCompass in SidebarShellCompass. /plan is
+ *  palette-only and also must not approximate the mark. */
 const ICONS: Record<string, LucideIcon> = {
-  "/dashboard": Home,
   "/agents": Cpu,
   "/assessment": ClipboardCheck,
   "/money": DollarSign,
@@ -113,7 +61,6 @@ const ICONS: Record<string, LucideIcon> = {
   "/household": Users,
   "/tools/preflight": Wrench,
   "/scenarios": LayoutGrid,
-  "/plan": Compass,
   "/journal": BookOpen,
   "/advisor": MessageCircle,
   "/connections": Link2,
@@ -181,70 +128,69 @@ function SidebarNav({
   pillId: string;
   expanded: boolean;
 }) {
+  const summaryClass = `flex min-h-11 cursor-pointer list-none items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-dim transition-colors hover:bg-white/[0.04] hover:text-light ${
+    expanded ? "" : "justify-center xl:justify-start"
+  }`;
+
   return (
     <nav aria-label="Primary" className="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-4">
-      {GROUPS.map((group) => (
-        <div key={group.label}>
-          <p className={`nav-section-label ${expanded ? "" : "max-xl:sr-only"}`}>{group.label}</p>
-          <div className="flex flex-col gap-0.5">
-            {group.items.map((item) => (
+      <div data-sidebar-primary="" className="flex flex-col gap-0.5">
+        {APP_PRIMARY_NAV.map((item) => (
+          <NavItem
+            key={item.href}
+            item={item}
+            active={isActivePath(pathname, item.href)}
+            pillId={pillId}
+            expanded={expanded}
+          />
+        ))}
+      </div>
+      {APP_MORE_NAV.length > 0 && (
+        <details data-sidebar-more="" className="mt-1">
+          <summary className={`${summaryClass} [&::-webkit-details-marker]:hidden`}>
+            <Menu aria-hidden className="relative z-10 size-[18px] shrink-0" strokeWidth={1.75} />
+            <span className={`relative z-10 truncate ${expanded ? "" : "max-xl:hidden"}`}>More</span>
+          </summary>
+          <div className="mt-0.5 flex flex-col gap-0.5">
+            {APP_MORE_NAV.map((item) => (
               <NavItem
                 key={item.href}
                 item={item}
                 active={isActivePath(pathname, item.href)}
-                pillId={pillId}
+                pillId={`${pillId}-more`}
                 expanded={expanded}
               />
             ))}
           </div>
-        </div>
-      ))}
+        </details>
+      )}
     </nav>
   );
 }
 
-/**
- * Bottom-of-rail readiness chip — the last thing the eye lands on before it
- * leaves the sidebar. It restates the header block's verdict + score at the
- * point of exit and links straight back to /dashboard (or to /assessment when
- * there is no score yet) so the living Build — not the reveal — is the default.
- * nothing is cached).
- *
- * Collapsed to the 72px rail it degrades to the centered number alone; the link
- * carries an explicit aria-label so the verdict is still announced when the
- * label is not painted.
- */
-function SidebarScoreChip({ state, expanded }: { state: LatestVerdict | null; expanded: boolean }) {
-  const chip = footerChipModel(state);
-  const color = chip.color ?? undefined;
-
+function SidebarShellCompass({
+  verdict,
+  expanded,
+}: {
+  verdict: LatestVerdict["verdict"] | undefined;
+  expanded: boolean;
+}) {
   return (
-    <Link
-      href={chip.href}
-      aria-label={chip.ariaLabel}
-      className={`sidebar-footer-chip ${expanded ? "sidebar-footer-chip--expanded" : ""}`}
+    <div
+      data-sidebar-shell-compass=""
+      className={`flex shrink-0 justify-center px-3 py-2 ${expanded ? "" : "xl:justify-start"}`}
     >
-      <span aria-hidden className="num sidebar-footer-score" style={{ color }}>
-        {chip.score}
-      </span>
-      <span aria-hidden className={`sidebar-footer-text ${expanded ? "" : "max-xl:hidden"}`}>
-        <span className="sidebar-footer-label" style={{ color }}>
-          {chip.label}
-        </span>
-        {chip.meta && <span className="sidebar-footer-meta">{chip.meta}</span>}
-      </span>
-    </Link>
+      <ThresholdCompass size={32} animated={false} glow={false} verdict={verdict} />
+    </div>
   );
 }
 
 function SidebarFooter({
   email,
-  decisionState,
   expanded,
   roleContext,
 }: {
   email: string | null;
-  decisionState: LatestVerdict | null;
   expanded: boolean;
   roleContext: SwitcherContext;
 }) {
@@ -258,7 +204,6 @@ function SidebarFooter({
 
   return (
     <div className={`border-t border-white/5 px-3 py-2.5 ${expanded ? "" : "max-xl:px-2"}`}>
-      <SidebarScoreChip state={decisionState} expanded={expanded} />
       {showSwitcher && (
         <div
           className={`mb-1.5 ${expanded ? "px-1" : "max-xl:flex max-xl:justify-center"}`}
@@ -425,12 +370,10 @@ export function AppSidebar({
           <span className="max-xl:hidden">Jump to…</span>
           <kbd className="ml-auto chrome-kbd max-xl:hidden">{shortcutLabel}</kbd>
         </button>
-        <SidebarDecisionState state={decisionState} expanded={false} />
+        <SidebarShellCompass verdict={decisionState?.verdict} expanded={false} />
         <SidebarNav pathname={pathname} pillId="nav-pill" expanded={false} />
-        <SidebarPulseStrip state={decisionState} expanded={false} />
         <SidebarFooter
           email={email}
-          decisionState={decisionState}
           expanded={false}
           roleContext={roleContext}
         />
@@ -491,12 +434,10 @@ export function AppSidebar({
                   <X aria-hidden className="size-5" strokeWidth={1.75} />
                 </button>
               </div>
-              <SidebarDecisionState state={decisionState} expanded />
+              <SidebarShellCompass verdict={decisionState?.verdict} expanded />
               <SidebarNav pathname={pathname} pillId="nav-pill-drawer" expanded />
-              <SidebarPulseStrip state={decisionState} expanded />
               <SidebarFooter
                 email={email}
-                decisionState={decisionState}
                 expanded
                 roleContext={roleContext}
               />

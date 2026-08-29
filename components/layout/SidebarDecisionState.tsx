@@ -9,8 +9,8 @@ import { isFrozenForPerson, loadKnownPhase0Person, PHASE0_EVENT } from "@/lib/ad
  *
  * READ-ONLY by construction: this module never writes to storage and never
  * calls the server. It reflects whatever the last assessment left behind in
- * localStorage under LATEST_VERDICT_KEY, and renders a quiet empty state when
- * there is nothing there (signed-in-but-never-assessed is the common case).
+ * localStorage under LATEST_VERDICT_KEY so the rail can tint the active item.
+ * Score / DNP / pulse chrome is not painted here.
  *
  * Reading happens in an effect, not in the useState initializer, so the first
  * client render matches the server HTML — a storage read during render would
@@ -131,125 +131,6 @@ export function useVerdictAccent(state: LatestVerdict | null): void {
   }, [state]);
 }
 
-/**
- * Presentation model for the sidebar *footer* readiness chip.
- *
- * Lives here, beside the verdict parsing, rather than inside AppSidebar's JSX:
- * the routing target and the announced name are the two things worth pinning in
- * a test, and doing that here costs no shell mount (AppSidebar drags in
- * usePathname + framer-motion).
- */
-export type FooterChipModel = {
-  /** /dashboard once there is a score (Build), /assessment before that. */
-  href: string;
-  /** Verdict color, or null in the empty state — the chip then inherits the
-   *  --sidebar-verdict-color default published by :root. */
-  color: string | null;
-  /** Score glyph. An em dash when nothing has been assessed yet. */
-  score: string;
-  label: string;
-  /** Dim second line, or null when there is nothing to add. */
-  meta: string | null;
-  /** Accessible name for the link — the chip's own text is decorative, and at
-   *  rail width most of it is not painted at all. */
-  ariaLabel: string;
-};
-
-export function footerChipModel(state: LatestVerdict | null): FooterChipModel {
-  const meta = state ? VERDICT_META[state.verdict] : null;
-
-  if (!state || !meta) {
-    return {
-      href: "/assessment",
-      color: null,
-      score: "—",
-      label: "Assess",
-      meta: "No score yet",
-      ariaLabel: "No readiness score yet — start an assessment",
-    };
-  }
-
-  return {
-    href: "/dashboard",
-    color: meta.color,
-    score: String(state.score),
-    label: meta.label,
-    meta: state.heldDays === null ? null : `Held ${state.heldDays}d`,
-    ariaLabel: `Readiness score ${state.score}, ${meta.label}. Continue on HōMI.`,
-  };
-}
-
-/** Sidebar header block: verdict pill, score hero, decision + hold eyebrow. */
-export function SidebarDecisionState({
-  state,
-  expanded,
-}: {
-  state: LatestVerdict | null;
-  /** The drawer is always expanded; the desktop rail collapses below xl. */
-  expanded: boolean;
-}) {
-  // Collapse to icon-rail width below xl: labels go screen-reader-only so the
-  // verdict is still announced, and only the score number stays visible.
-  const railHidden = expanded ? "" : "max-xl:sr-only";
-  const meta = state ? VERDICT_META[state.verdict] : null;
-
-  if (!state || !meta) {
-    return (
-      <div className={`sidebar-state-block ${expanded ? "sidebar-state-block--expanded" : ""}`}>
-        <p className="sidebar-state-empty">
-          <span aria-hidden>—</span>
-          <span className={railHidden}> Assess to begin</span>
-        </p>
-      </div>
-    );
-  }
-
-  const eyebrow = [state.decisionType, state.heldDays === null ? null : `${state.heldDays}d`]
-    .filter(Boolean)
-    .join(" · ");
-
-  return (
-    <div className={`sidebar-state-block ${expanded ? "sidebar-state-block--expanded" : ""}`}>
-      <span
-        className={`sidebar-state-badge ${railHidden}`}
-        style={{ color: meta.color, background: withAlpha(meta.color, 0.14) }}
-      >
-        {meta.label}
-      </span>
-      <p className="sidebar-score-hero" style={{ color: meta.color }}>
-        {state.score}
-      </p>
-      {eyebrow && <p className={`sidebar-state-meta ${railHidden}`}>{eyebrow}</p>}
-    </div>
-  );
-}
-
-/**
- * Thin three-cell data strip above the sidebar footer. Score and Held come
- * from the cached verdict; the 7-day check-in pulse has no client-side source
- * yet and stays a placeholder until a later pass wires it.
- */
-export function SidebarPulseStrip({
-  state,
-  expanded,
-}: {
-  state: LatestVerdict | null;
-  expanded: boolean;
-}) {
-  const cells: readonly { label: string; value: string }[] = [
-    { label: "Score", value: state ? String(state.score) : "—" },
-    { label: "Pulse·7d", value: "—" },
-    { label: "Held", value: state?.heldDays == null ? "—" : `${state.heldDays}d` },
-  ];
-
-  return (
-    <div className={`sidebar-pulse-strip ${expanded ? "" : "max-xl:hidden"}`}>
-      {cells.map((cell) => (
-        <div key={cell.label} className="sidebar-pulse-cell">
-          <span className="sidebar-pulse-label">{cell.label}</span>
-          <span className="sidebar-pulse-value">{cell.value}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
+/** Rail chrome (score hero, verdict chip, pulse strip, held-days, footer
+ *  numeral) is unmounted. Verdict parsing + accent publication stay — the
+ *  active-nav tint still keys to the last assessment without reprinting. */
