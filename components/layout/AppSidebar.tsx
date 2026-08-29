@@ -7,7 +7,6 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   BookOpen,
   ClipboardCheck,
-  Compass,
   Cpu,
   DollarSign,
   LayoutGrid,
@@ -50,9 +49,11 @@ import { visibleDashboards } from "@/lib/dashboard/switcher-visibility";
  * from the sidebar footer switcher when more than one dashboard is visible.
  */
 
-/** href → glyph. Anything unmapped falls back to the neutral grid mark. */
+/** href → glyph. Anything unmapped falls back to the neutral grid mark.
+ *  /dashboard is unmapped on purpose: Lucide Compass is banned on this rail.
+ *  The one compass is repo ThresholdCompass in SidebarShellCompass. /plan is
+ *  palette-only and also must not approximate the mark. */
 const ICONS: Record<string, LucideIcon> = {
-  "/dashboard": Compass,
   "/agents": Cpu,
   "/assessment": ClipboardCheck,
   "/money": DollarSign,
@@ -60,7 +61,6 @@ const ICONS: Record<string, LucideIcon> = {
   "/household": Users,
   "/tools/preflight": Wrench,
   "/scenarios": LayoutGrid,
-  "/plan": Compass,
   "/journal": BookOpen,
   "/advisor": MessageCircle,
   "/connections": Link2,

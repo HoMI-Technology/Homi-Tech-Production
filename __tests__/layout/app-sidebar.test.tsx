@@ -86,12 +86,30 @@ describe("AppSidebar — HōMI primary rail", () => {
     expect(document.querySelector(".sidebar-score-hero")).toBeNull();
   });
 
-  it("source locks: Compass + catalog primary, no Home journey copy, repo compass only", () => {
+  it("HōMI row has no Lucide Compass; the rail mounts ThresholdCompass once", () => {
+    render(<AppSidebar email={null} />);
+
+    const rail = document.querySelector("aside");
+    expect(rail).not.toBeNull();
+    const homi = (rail as HTMLElement).querySelector(
+      '[data-sidebar-primary] a[href="/dashboard"]',
+    );
+    expect(homi).not.toBeNull();
+    expect(homi?.querySelector(".lucide-compass")).toBeNull();
+    expect(rail?.querySelectorAll(".lucide-compass")).toHaveLength(0);
+    expect(rail?.querySelectorAll("[data-sidebar-shell-compass]")).toHaveLength(1);
+    expect(rail?.querySelectorAll('[aria-label*="Threshold Compass"]')).toHaveLength(1);
+    expect(document.querySelectorAll('[aria-label*="Threshold Compass"]')).toHaveLength(1);
+  });
+
+  it("source locks: catalog primary, no Home journey copy, repo compass only", () => {
     const sidebar = read("components/layout/AppSidebar.tsx");
     const pulse = read("components/layout/SidebarDecisionState.tsx");
     const bottom = read("components/layout/ProductBottomNav.tsx");
 
-    expect(sidebar).toContain('"/dashboard": Compass');
+    expect(sidebar).not.toMatch(/^\s*Compass,/m);
+    expect(sidebar).not.toContain('"/dashboard": Compass');
+    expect(sidebar).not.toContain('"/plan": Compass');
     expect(sidebar).not.toMatch(/Home,/);
     expect(sidebar).not.toContain('"/dashboard": Home');
     expect(sidebar).not.toContain("Build entry (Home)");
