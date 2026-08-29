@@ -27,18 +27,20 @@ test.describe("signed-in shell navigation", () => {
         ).toBeVisible();
       }
 
-      // Live shell is AppSidebar (journey groups), not the retired AppHeader More menu.
-      await expect(page.getByRole("link", { name: "Journal" })).toBeVisible();
-      await page.getByRole("navigation", { name: "Primary" }).getByRole("link", { name: "Journal" }).click();
+      // Live shell is AppSidebar: HōMI + Assess on primary; Journal lives under More.
+      const primary = page.getByRole("navigation", { name: "Primary" });
+      await primary.locator("summary").click();
+      await expect(primary.getByRole("link", { name: "Journal" })).toBeVisible();
+      await primary.getByRole("link", { name: "Journal" }).click();
       await expect(page).toHaveURL(/\/journal/);
 
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto("/dashboard");
       await page.getByRole("button", { name: "Open navigation" }).click();
+      const drawer = page.locator("#app-sidebar-drawer");
+      await drawer.locator("summary").click();
       for (const item of [...APP_PRIMARY_NAV, ...APP_MORE_NAV].slice(0, 6)) {
-        await expect(
-          page.locator("#app-sidebar-drawer").getByRole("link", { name: item.label }),
-        ).toBeVisible();
+        await expect(drawer.getByRole("link", { name: item.label })).toBeVisible();
       }
       await expect(
         page.getByRole("button", { name: "Jump to…" }),
