@@ -15,18 +15,26 @@ import { NextRequest } from "next/server";
 const state = vi.hoisted(() => ({
   user: null as { id: string } | null,
   createClientCalls: 0,
+  getUserCalls: 0,
+  getUserImpl: null as null | (() => Promise<{ data: { user: { id: string } | null } }>),
 }));
 
 vi.mock("@supabase/ssr", () => ({
   createServerClient: () => {
     state.createClientCalls += 1;
     return {
-      auth: { getUser: async () => ({ data: { user: state.user } }) },
+      auth: {
+        getUser: () => {
+          state.getUserCalls += 1;
+          if (state.getUserImpl) return state.getUserImpl();
+          return Promise.resolve({ data: { user: state.user } });
+        },
+      },
     };
   },
 }));
 
-import { middleware } from "@/middleware";
+import { AUTH_LOOKUP_TIMEOUT_MS, middleware } from "@/middleware";
 
 const ENV_URL = "NEXT_PUBLIC_SUPABASE_URL";
 const ENV_KEY = "NEXT_PUBLIC_SUPABASE_ANON_KEY";
@@ -42,6 +50,8 @@ function reqUrl(url: string): NextRequest {
 beforeEach(() => {
   state.user = null;
   state.createClientCalls = 0;
+  state.getUserCalls = 0;
+  state.getUserImpl = null;
   // Missing env = the fail-closed scenario (stubbed, never ambient-dependent).
   vi.stubEnv(ENV_URL, "");
   vi.stubEnv(ENV_KEY, "");
@@ -84,6 +94,19 @@ describe("middleware fail-closed (Supabase env missing)", () => {
     expect(res.status).toBe(200);
     expect(res.headers.get("location")).toBeNull();
   });
+
+  it("still serves the public landing page", async () => {
+    const res = await middleware(req("/"));
+    expect(res.status).toBe(200);
+    expect(res.headers.get("location")).toBeNull();
+  });
+
+  it("retires /results to First Moment when the session cannot be verified", async () => {
+    const res = await middleware(req("/results"));
+    expect(res.status).toBe(307);
+    expect(new URL(res.headers.get("location") ?? "").pathname).toBe("/first-moment");
+    expect(state.createClientCalls).toBe(0);
+  });
 });
 
 describe("middleware with Supabase env present", () => {
@@ -116,6 +139,78 @@ describe("middleware with Supabase env present", () => {
     const res = await middleware(req("/assessment"));
     expect(res.status).toBe(200);
     expect(res.headers.get("location")).toBeNull();
+    expect(state.getUserCalls).toBe(0);
+  });
+
+  it("does not call getUser on public marketing paths", async () => {
+    for (const path of ["/", "/pricing", "/how-it-works", "/about"]) {
+      state.createClientCalls = 0;
+      state.getUserCalls = 0;
+      const res = await middleware(req(path));
+      expect(res.status, path).toBe(200);
+      expect(res.headers.get("location"), path).toBeNull();
+      expect(state.createClientCalls, path).toBe(0);
+      expect(state.getUserCalls, path).toBe(0);
+    }
+  });
+
+  it("retires /results to Home when signed in, First Moment when guest", async () => {
+    state.user = { id: "user-1" };
+    const signedIn = await middleware(req("/results"));
+    expect(signedIn.status).toBe(307);
+    expect(new URL(signedIn.headers.get("location") ?? "").pathname).toBe("/dashboard");
+
+    state.user = null;
+    const guest = await middleware(req("/results"));
+    expect(guest.status).toBe(307);
+    expect(new URL(guest.headers.get("location") ?? "").pathname).toBe("/first-moment");
+  });
+});
+
+describe("middleware does not hang on a never-resolving getUser", () => {
+  beforeEach(() => {
+    vi.stubEnv(ENV_URL, "https://example.supabase.co");
+    vi.stubEnv(ENV_KEY, "anon-key");
+    state.getUserImpl = () => new Promise(() => {});
+  });
+
+  it("serves public / (and other marketing paths) without waiting on Auth", async () => {
+    const started = Date.now();
+    const home = await middleware(req("/"));
+    const elapsed = Date.now() - started;
+    expect(home.status).toBe(200);
+    expect(home.headers.get("location")).toBeNull();
+    expect(state.createClientCalls).toBe(0);
+    expect(state.getUserCalls).toBe(0);
+    expect(elapsed).toBeLessThan(200);
+
+    for (const path of ["/pricing", "/how-it-works", "/assessment", "/tools"]) {
+      const res = await middleware(req(path));
+      expect(res.status, path).toBe(200);
+      expect(res.headers.get("location"), path).toBeNull();
+    }
+  });
+
+  it("still redirects unauthenticated protected routes — fail-closed, bounded", async () => {
+    const started = Date.now();
+    const res = await middleware(req("/dashboard"));
+    const elapsed = Date.now() - started;
+    expect(res.status).toBe(307);
+    const location = res.headers.get("location") ?? "";
+    expect(location).toContain("/auth/sign-in");
+    expect(location).toContain("next=%2Fdashboard");
+    expect(res.headers.get("X-Robots-Tag")).toBe("noindex");
+    expect(state.getUserCalls).toBe(1);
+    expect(elapsed).toBeLessThan(AUTH_LOOKUP_TIMEOUT_MS + 500);
+  });
+
+  it("fails open on retired /results when Auth never answers", async () => {
+    const started = Date.now();
+    const res = await middleware(req("/results"));
+    const elapsed = Date.now() - started;
+    expect(res.status).toBe(307);
+    expect(new URL(res.headers.get("location") ?? "").pathname).toBe("/first-moment");
+    expect(elapsed).toBeLessThan(AUTH_LOOKUP_TIMEOUT_MS + 500);
   });
 });
 
