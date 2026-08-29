@@ -133,7 +133,6 @@ export function HomeFold({
                   <LastReadChrome
                     verdict={verdict}
                     lastReadAt={lastReadAt ?? null}
-                    lastMoney={lastMoney ?? null}
                   />
                 </div>
               )}

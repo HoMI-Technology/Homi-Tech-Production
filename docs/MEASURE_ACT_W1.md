@@ -65,6 +65,8 @@ Public names only: READY, ALMOST THERE, BUILD FIRST, DO NOT PROCEED.
   savings-rate all moved the same way vs last assessment stored values:
   “Your money picture looks stronger than last time.”
   “Your money picture looks weaker than last time.”
+  The fold omits this line — LastReadChrome does not read the client
+  ledger. Wave 1 band-cross recheck stays below as HomeMoneyRecheck.
 - Mixed or unchanged: omit the direction line.
 - READY: direction still allowed when all three moved consistently.
 - Empty Home: no progress chrome.

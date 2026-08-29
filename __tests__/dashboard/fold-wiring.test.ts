@@ -5,6 +5,7 @@ import {
   PRIMARY_CLOSE_LABEL,
   SIGNED_IN_ASSESS_HREF,
 } from "@/components/marketing/first-moment-copy";
+import { HEADER_MORE_NAV, HEADER_PRIMARY_NAV } from "@/lib/layout/nav-catalog";
 
 const ROOT = process.cwd();
 
@@ -181,6 +182,28 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(catalog).toMatch(/href: "\/dashboard"[\s\S]*label: "HōMI"/);
     expect(catalog).not.toMatch(/href: "\/dashboard"[\s\S]*label: "Home"/);
     expect(fold).not.toContain("Your build");
+  });
+
+  it("Money is not in HEADER_PRIMARY_NAV — depth, not a peer home", () => {
+    const catalog = src("lib", "layout", "nav-catalog.ts");
+    expect(catalog).toContain("HEADER_PRIMARY_NAV");
+    expect(catalog).toMatch(
+      /href: "\/money"[\s\S]*surfaces: \{ header: "more", palette: true \}/,
+    );
+    expect(HEADER_PRIMARY_NAV.map((i) => i.href)).not.toContain("/money");
+    expect(HEADER_PRIMARY_NAV.map((i) => i.href)).toContain("/assessment");
+    expect(HEADER_MORE_NAV.map((i) => i.href)).toContain("/money");
+    expect(HEADER_PRIMARY_NAV.map((i) => i.href)).not.toContain("/advisor");
+    expect(HEADER_MORE_NAV.map((i) => i.href)).not.toContain("/advisor");
+  });
+
+  it("LastReadChrome does not import the client ledger", () => {
+    const chrome = src("components", "dashboard", "LastReadChrome.tsx");
+    expect(chrome).not.toContain("loadBudgetLedger");
+    expect(chrome).not.toContain("local-ledger");
+    expect(chrome).not.toContain("metricsFromLedger");
+    expect(chrome).not.toContain("useEffect");
+    expect(chrome).not.toContain("lastMoney");
   });
 
   it("does not mount the kitchen-sink body on Home", () => {

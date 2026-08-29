@@ -3,13 +3,14 @@ import { APP_MORE_NAV, APP_PRIMARY_NAV } from "@/lib/layout/app-nav";
 
 /** Nav config lives outside the client component for unit/e2e import. */
 describe("AppHeader nav config", () => {
-  it("keeps PRIMARY ruthlessly short with HōMI first", () => {
+  it("keeps PRIMARY ruthlessly short with HōMI first — Money is not a peer home", () => {
     expect(APP_PRIMARY_NAV[0]).toEqual({ href: "/dashboard", label: "HōMI" });
     expect(APP_PRIMARY_NAV.map((i) => i.href)).toContain("/assessment");
-    expect(APP_PRIMARY_NAV.map((i) => i.href)).toContain("/money");
+    expect(APP_PRIMARY_NAV.map((i) => i.href)).not.toContain("/money");
+    expect(APP_PRIMARY_NAV.map((i) => i.href)).not.toContain("/advisor");
     // Journal lives under More so the product bar stays one line.
     expect(APP_PRIMARY_NAV.map((i) => i.href)).not.toContain("/journal");
-    expect(APP_PRIMARY_NAV.length).toBeLessThanOrEqual(4);
+    expect(APP_PRIMARY_NAV.length).toBeLessThanOrEqual(3);
   });
 
   it("puts Journal under More and keeps Companion off header chrome", () => {
@@ -32,7 +33,8 @@ describe("AppHeader nav config", () => {
     // Verdict reveal + readiness checklist stay palette-only — Path owns Build.
     expect(hrefs).not.toContain("/results");
     expect(hrefs).not.toContain("/plan");
-    // Money modes live under primary Money + MoneyModeNav — not More peers.
+    // Money hub is More (depth). Modes stay off More peers.
+    expect(hrefs).toContain("/money");
     for (const href of ["/money/budget", "/money/decide", "/money/plan"]) {
       expect(hrefs).not.toContain(href);
     }

@@ -95,6 +95,8 @@ test.describe("signed-in shell navigation", () => {
 test.describe("shell nav config (always-on)", () => {
   test("PRIMARY and More exports stay coherent", async () => {
     expect(APP_PRIMARY_NAV[0].href).toBe("/dashboard");
+    expect(APP_PRIMARY_NAV.some((i) => i.href === "/money")).toBe(false);
+    expect(APP_MORE_NAV.some((i) => i.href === "/money")).toBe(true);
     expect(APP_MORE_NAV.some((i) => i.href === "/advisor")).toBe(false);
     expect(APP_MORE_NAV.some((i) => i.href === "/journal")).toBe(true);
   });

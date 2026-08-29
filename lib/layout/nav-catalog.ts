@@ -37,7 +37,8 @@ export type NavCatalogEntry = {
  * insight surfaces -> money/life), then role dashboards + settings.
  */
 export const NAV_CATALOG: readonly NavCatalogEntry[] = [
-  // Header PRIMARY (ruthlessly short: 3 items + Agents when flagged)
+  // Header PRIMARY (ruthlessly short: HōMI + Assess + Agents when flagged).
+  // Money is depth, not a peer home — it lives under More / palette.
   {
     href: "/dashboard",
     label: "HōMI",
@@ -61,17 +62,6 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     paletteLabel: "Take the assessment",
     group: "Act",
     keywords: "readiness verdict full test measure",
-    surfaces: { header: "primary", palette: true },
-  },
-  // Money Reality: one primary entry for picture + decision math.
-  // Public /tools hub stays crawlable for acquisition; signed-in chrome
-  // (dashboard, keyboard, contextual actions) points at /money + /money/decide.
-  {
-    href: "/money",
-    label: "Money",
-    paletteLabel: "Money picture",
-    group: "Navigate",
-    keywords: "finance budget tools calculators mortgage affordability runway decide",
     surfaces: { header: "primary", palette: true },
   },
 
@@ -143,8 +133,8 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     surfaces: { palette: false },
   },
 
-  // Header MORE: journal. Companion chat stays on /advisor (widget +
-  // palette) — not a More / header tab.
+  // Header MORE: journal. Companion chat is the widget + /advisor route —
+  // not header, not More, not palette chrome (a palette row reads as a CTA).
   {
     href: "/journal",
     label: "Journal",
@@ -158,7 +148,7 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     paletteLabel: "Talk to the Companion",
     group: "Act",
     keywords: "chat advisor ai talk",
-    surfaces: { palette: true },
+    surfaces: { palette: false },
   },
 
   // Launch-hidden insight labs (routes exist; not in header More or palette)
@@ -198,8 +188,16 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     surfaces: { palette: false },
   },
 
-  // Money Reality deep modes — palette only. Header More must not re-list
-  // Track/Decide as peer tabs when primary already has Money + in-page modes.
+  // Money is depth under More + palette — never HEADER_PRIMARY_NAV.
+  // Deep modes stay palette-only so More does not list Track/Decide as peers.
+  {
+    href: "/money",
+    label: "Money",
+    paletteLabel: "Money picture",
+    group: "Navigate",
+    keywords: "finance budget tools calculators mortgage affordability runway decide",
+    surfaces: { header: "more", palette: true },
+  },
   {
     href: "/money/budget",
     label: "Budget",
