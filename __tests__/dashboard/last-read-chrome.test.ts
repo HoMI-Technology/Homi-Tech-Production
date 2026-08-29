@@ -4,6 +4,8 @@ import {
   LAST_READ_STRONGER,
   LAST_READ_WEAKER,
   PUBLIC_VERDICT_LABELS,
+  compactScoreAgeLine,
+  lastReadAgeCompact,
   lastReadAgeFrom,
   lastReadHeadline,
   moneyPictureDirection,
@@ -30,6 +32,17 @@ describe("last-read chrome — MEASURE_ACT_W1", () => {
       "Last read: DO NOT PROCEED from March 15.",
     );
     expect(lastReadHeadline("BUILD_FIRST", "from March 15.")).not.toMatch(/closer to/i);
+  });
+
+  it("compact Home line is score · from {Mon D} — never Last read + verdict", () => {
+    expect(lastReadAgeCompact("2026-08-29T12:00:00.000Z")).toBe("from Aug 29");
+    expect(lastReadAgeCompact("2026-03-15T12:00:00.000Z")).toBe("from Mar 15");
+    expect(compactScoreAgeLine(61, "from Aug 29")).toBe("61 · from Aug 29");
+    expect(compactScoreAgeLine(61, null)).toBe("61");
+    expect(compactScoreAgeLine(61, "from Aug 29")).not.toMatch(/Last read/i);
+    expect(compactScoreAgeLine(61, "from Aug 29")).not.toMatch(/DO NOT PROCEED/);
+    expect(compactScoreAgeLine(61, "from Aug 29")).not.toMatch(/NOT_YET/);
+    expect(compactScoreAgeLine(61, "from Aug 29")).not.toMatch(/closer to/i);
   });
 
   it("emits stronger only when DTI, EF, and savings-rate all moved the same way", () => {

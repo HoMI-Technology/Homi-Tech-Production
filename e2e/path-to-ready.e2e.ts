@@ -170,11 +170,8 @@ test.describe("Path to Ready (seeded)", () => {
     await dismissCookieConsent(page);
 
     // Auto-path on Home fold hydrate — Path operate lives on Build, not /results.
-    await expect(page.getByText("Path to Ready").first()).toBeVisible({
+    await expect(page.locator("[data-path-fold-primary]")).toBeVisible({
       timeout: 20_000,
     });
-    await expect(
-      page.getByText(/Your sequenced path|Binding constraint|runway|next move/i).first(),
-    ).toBeVisible({ timeout: 15_000 });
   });
 });

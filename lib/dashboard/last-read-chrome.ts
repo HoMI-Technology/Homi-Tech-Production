@@ -55,6 +55,21 @@ export function publicVerdictLabel(verdict: VerdictKey): string {
   }
 }
 
+const SHORT_MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+] as const;
+
 /** Calendar age: "from March 15." Never a live score. */
 export function lastReadAgeFrom(iso: string | null): string | null {
   if (!iso) return null;
@@ -64,6 +79,28 @@ export function lastReadAgeFrom(iso: string | null): string | null {
   const day = then.getUTCDate();
   if (!month) return null;
   return `from ${month} ${day}.`;
+}
+
+/**
+ * Compact Home age: "from Aug 29" — short month, no trailing period.
+ * Shape is {Mon D} from last-read date, never a hardcoded ship date.
+ */
+export function lastReadAgeCompact(iso: string | null): string | null {
+  if (!iso) return null;
+  const then = new Date(iso);
+  if (!Number.isFinite(then.getTime())) return null;
+  const month = SHORT_MONTHS[then.getUTCMonth()];
+  const day = then.getUTCDate();
+  if (!month) return null;
+  return `from ${month} ${day}`;
+}
+
+/**
+ * Compact last-read on Home: "{score} · from {Mon D}".
+ * Score is the last assessment integer. Never restates the verdict word.
+ */
+export function compactScoreAgeLine(score: number, age: string | null): string {
+  return age ? `${score} · ${age}` : String(score);
 }
 
 /** Last public verdict + optional age. Never a closer-to band. */

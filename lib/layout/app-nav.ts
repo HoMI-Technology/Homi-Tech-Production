@@ -13,7 +13,7 @@
 
 import { HEADER_MORE_NAV, HEADER_PRIMARY_NAV } from "@/lib/layout/nav-catalog";
 
-/** Core operate destinations only — 3 items max (+ Agents when flagged). */
+/** Core operate destinations — Home, Assess, Money, Path. */
 export const APP_PRIMARY_NAV = HEADER_PRIMARY_NAV;
 
 /**

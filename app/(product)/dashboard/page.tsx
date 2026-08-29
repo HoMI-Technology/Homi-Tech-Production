@@ -9,7 +9,7 @@ import { SidebarVerdictSync } from "@/components/dashboard/SidebarVerdictSync";
 import { DashboardFoldBeacon } from "@/components/dashboard/DashboardFoldBeacon";
 import { HomeFold } from "@/components/dashboard/HomeFold";
 import {
-  hardStopMessages,
+  hardStopRecords,
   homeFoldSentence,
   pathStepCounts,
   shouldSuppressBuildPercent,
@@ -85,13 +85,19 @@ export default async function DashboardPage() {
   const assessmentRows: AssessmentRow[] = assessmentsR.data ?? [];
   const latest = assessmentRows[0] ?? null;
   const previousAssessment = assessmentRows[1] ?? null;
-  const stopMessages = hardStopMessages(latest?.hard_stops);
+  const stopRecords = hardStopRecords(latest?.hard_stops);
+  const stopMessages = stopRecords.map((row) => row.message);
+  const stopCodes = stopRecords.map((row) => row.code).filter(Boolean);
   const hardStopCount = stopMessages.length;
   const suppressBuildPercent = shouldSuppressBuildPercent(hardStopCount);
   const pathPayload =
-    pathR.error || !pathR.data ? null : (pathR.data as { path?: { steps?: unknown } }).path;
+    pathR.error || !pathR.data
+      ? null
+      : (pathR.data as { path?: { steps?: unknown; createdAt?: unknown } }).path;
   const pathSteps = Array.isArray(pathPayload?.steps) ? pathPayload.steps : [];
   const { done: pathDone, total: pathTotal } = pathStepCounts(pathSteps);
+  const pathCreatedAt =
+    pathPayload && typeof pathPayload.createdAt === "string" ? pathPayload.createdAt : null;
   const dueSurvey: OutcomeSurvey | null = surveysR.data?.[0] ?? null;
   const verdict = (latest?.verdict as VerdictKey | null) ?? null;
   const improved = verdictImproved(latest?.verdict ?? null, previousAssessment?.verdict ?? null);
@@ -102,8 +108,11 @@ export default async function DashboardPage() {
         timing: latest.timing_score,
       })
     : null;
+  const lastReadAt = latest?.completed_at ?? latest?.created_at ?? null;
+  const staleDays = daysSince(lastReadAt);
   const foldSentence = homeFoldSentence({
     hardStopCount,
+    hardStopCode: stopCodes[0] ?? null,
     weakestPillar,
     hasPath: pathSteps.length > 0,
     hasAssessment: latest !== null,
@@ -137,27 +146,24 @@ export default async function DashboardPage() {
               ? {
                   id: latest.id,
                   overallScore: latest.overall_score,
-                  pillars: {
-                    emotional: latest.emotional_score,
-                    financial: latest.financial_score,
-                    timing: latest.timing_score,
-                  },
                 }
               : null
           }
           verdict={verdict}
           stopMessages={stopMessages}
+          stopCodes={stopCodes}
           suppressBuildPercent={suppressBuildPercent}
           improved={improved}
           foldSentence={foldSentence}
           instrumentTint={instrumentTint}
           dueSurvey={dueSurvey ? { id: dueSurvey.id, kind: dueSurvey.kind } : null}
-          staleDays={daysSince(latest?.completed_at ?? latest?.created_at ?? null)}
-          lastReadAt={latest?.completed_at ?? latest?.created_at ?? null}
+          staleDays={staleDays}
+          lastReadAt={lastReadAt}
           lastMoney={lastMoneyInputsFromRow(latest?.inputs ?? null)}
           hasPath={pathSteps.length > 0}
           pathDone={pathDone}
           pathTotal={pathTotal}
+          pathHeldDays={daysSince(pathCreatedAt)}
         />
       </div>
     </PageFrame>

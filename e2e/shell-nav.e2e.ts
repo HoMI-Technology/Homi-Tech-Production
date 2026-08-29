@@ -27,15 +27,14 @@ test.describe("signed-in shell navigation", () => {
         ).toBeVisible();
       }
 
-      // Live shell is AppSidebar (journey groups), not the retired AppHeader More menu.
-      await expect(page.getByRole("link", { name: "Journal" })).toBeVisible();
-      await page.getByRole("navigation", { name: "Primary" }).getByRole("link", { name: "Journal" }).click();
-      await expect(page).toHaveURL(/\/journal/);
+      await expect(
+        page.getByRole("navigation", { name: "Primary" }).getByRole("link", { name: "Journal" }),
+      ).toHaveCount(0);
 
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto("/dashboard");
       await page.getByRole("button", { name: "Open navigation" }).click();
-      for (const item of [...APP_PRIMARY_NAV, ...APP_MORE_NAV].slice(0, 6)) {
+      for (const item of APP_PRIMARY_NAV) {
         await expect(
           page.locator("#app-sidebar-drawer").getByRole("link", { name: item.label }),
         ).toBeVisible();
@@ -95,8 +94,15 @@ test.describe("signed-in shell navigation", () => {
 test.describe("shell nav config (always-on)", () => {
   test("PRIMARY and More exports stay coherent", async () => {
     expect(APP_PRIMARY_NAV[0].href).toBe("/dashboard");
+    expect(APP_PRIMARY_NAV.map((i) => i.href)).toEqual([
+      "/dashboard",
+      "/assessment",
+      "/money",
+      "/path",
+    ]);
     expect(APP_MORE_NAV.some((i) => i.href === "/advisor")).toBe(false);
     expect(APP_MORE_NAV.some((i) => i.href === "/journal")).toBe(true);
+    expect(APP_MORE_NAV.some((i) => i.href === "/path")).toBe(false);
   });
 
   test("anonymous report path redirects to sign-in with next", async ({ page }) => {

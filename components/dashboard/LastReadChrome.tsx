@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { VerdictKey } from "@/lib/brand";
 import {
-  lastReadAgeFrom,
-  lastReadHeadline,
+  compactScoreAgeLine,
+  lastReadAgeCompact,
   moneyPictureDirection,
   moneyPictureDirectionLine,
   type LastReadMoneyInputs,
@@ -18,16 +17,17 @@ import { metricsFromLedger } from "@/lib/finance/metrics";
 
 /**
  * Existing scored-fold chrome only — not a second card.
- * Last verdict + calendar age + optional same-way direction.
- * Never a next-band proximity claim. Never a live score.
+ * Compact last-read: "{score} · from {Mon D}" + optional same-way direction.
+ * Never prints the verdict word. Never a next-band proximity claim.
+ * Never a live score.
  */
 export function LastReadChrome({
-  verdict,
+  score,
   lastReadAt,
   showAge,
   lastMoney,
 }: {
-  verdict: VerdictKey;
+  score: number;
   lastReadAt: string | null;
   showAge: boolean;
   lastMoney: LastReadMoneyInputs | null;
@@ -52,11 +52,13 @@ export function LastReadChrome({
     setDirectionLine(moneyPictureDirectionLine(direction));
   }, [lastMoney]);
 
-  const headline = lastReadHeadline(verdict, showAge ? lastReadAgeFrom(lastReadAt) : null);
+  const line = compactScoreAgeLine(score, showAge ? lastReadAgeCompact(lastReadAt) : null);
 
   return (
     <div data-last-read-chrome="" className="min-w-0 text-sm text-dim">
-      <p data-last-read-verdict="">{headline}</p>
+      <p data-last-read-score-age="" className="score-numeral text-light/90">
+        {line}
+      </p>
       {directionLine ? <p data-last-read-direction="">{directionLine}</p> : null}
     </div>
   );

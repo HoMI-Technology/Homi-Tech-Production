@@ -32,9 +32,7 @@ describe("Measure-Act Wave 1 locks", () => {
     const fold = read("components/dashboard/HomeFold.tsx");
     expect(fold).toContain("LastReadChrome");
     expect(fold).toContain("data-home-score-rail");
-    // VerdictBadge lives in the shared ScoreRail the fold now mounts.
-    expect(fold).toContain("ScoreRail");
-    expect(read("components/score/ScoreRail.tsx")).toContain("VerdictBadge");
+    expect(fold).not.toContain("ScoreRail");
     expect(fold).not.toMatch(/MoneyPictureDirection/);
   });
 
@@ -95,7 +93,7 @@ describe("Measure-Act Wave 1 locks", () => {
 
   it("UI verdict labels stay Brand public names — never NOT_YET / Not yet", () => {
     const chrome = read("components/dashboard/LastReadChrome.tsx");
-    expect(chrome).toContain("lastReadHeadline");
+    expect(chrome).toContain("compactScoreAgeLine");
     for (const rel of [
       "components/dashboard/LastReadChrome.tsx",
       "components/money/MoneyRecheckPrompt.tsx",
@@ -110,7 +108,7 @@ describe("Measure-Act Wave 1 locks", () => {
     );
   });
 
-  it("Home chrome is last verdict + age + optional same-way direction — never closer-to", () => {
+  it("Home chrome is compact score · age + optional same-way direction — never closer-to", () => {
     const law = read("docs/MEASURE_ACT_W1.md");
     const helper = read("lib/dashboard/last-read-chrome.ts");
     const chrome = read("components/dashboard/LastReadChrome.tsx");
@@ -121,13 +119,16 @@ describe("Measure-Act Wave 1 locks", () => {
     expect(helper).toContain("LAST_READ_STRONGER");
     expect(helper).toContain("LAST_READ_WEAKER");
     expect(helper).toContain("moneyPictureDirection");
+    expect(helper).toContain("compactScoreAgeLine");
+    expect(helper).toContain("lastReadAgeCompact");
     expect(helper).not.toContain("closerToLine");
     expect(helper).not.toContain("nextPublicVerdict");
     expect(helper).not.toMatch(/closer to/i);
     expect(chrome).not.toMatch(/closer to/i);
     expect(chrome).not.toContain("hardStop");
-    expect(chrome).toContain("lastReadHeadline");
-    expect(helper).toContain("Last read:");
+    expect(chrome).toContain("compactScoreAgeLine");
+    expect(chrome).not.toContain("lastReadHeadline");
+    expect(chrome).not.toMatch(/Last read:/);
     for (const rel of WAVE1_UI) {
       expect(read(rel), rel).not.toMatch(/closer to/i);
     }

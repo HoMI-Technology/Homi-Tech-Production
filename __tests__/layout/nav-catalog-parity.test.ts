@@ -76,8 +76,10 @@ describe("nav catalog parity", () => {
 
   it("Results is off chrome and palette; Path owns Measure", async () => {
     const { nav, palette } = await loadSurfaces("true");
+    const primaryHrefs = nav.APP_PRIMARY_NAV.map((i) => i.href);
     const moreHrefs = nav.APP_MORE_NAV.map((i) => i.href);
-    expect(moreHrefs).toContain("/path");
+    expect(primaryHrefs).toEqual(["/dashboard", "/assessment", "/money", "/path"]);
+    expect(moreHrefs).not.toContain("/path");
     expect(moreHrefs).not.toContain("/results");
     expect(palette.PALETTE_CATALOG.map((i) => i.href)).not.toContain("/results");
     expect(palette.PALETTE_CATALOG.map((i) => i.href)).not.toContain("/shadow-score");
@@ -95,12 +97,14 @@ describe("nav catalog parity", () => {
   it("agent surfaces are gated by the agentOs flag on both surfaces", async () => {
     const off = await loadSurfaces("false");
     expect(off.nav.APP_PRIMARY_NAV.map((i) => i.href)).not.toContain("/agents");
+    expect(off.nav.APP_MORE_NAV.map((i) => i.href)).not.toContain("/agents");
     const offVisible = off.palette.visiblePaletteItems({ role: "user" }).map((i) => i.href);
     expect(offVisible).not.toContain("/agents");
     expect(offVisible).not.toContain("/agent-hub");
 
     const on = await loadSurfaces("true");
-    expect(on.nav.APP_PRIMARY_NAV.map((i) => i.href)).toContain("/agents");
+    expect(on.nav.APP_PRIMARY_NAV.map((i) => i.href)).not.toContain("/agents");
+    expect(on.nav.APP_MORE_NAV.map((i) => i.href)).toContain("/agents");
     const onVisible = on.palette.visiblePaletteItems({ role: "user" }).map((i) => i.href);
     expect(onVisible).toContain("/agents");
     expect(onVisible).toContain("/agent-hub");

@@ -126,14 +126,19 @@ export function PathNextMove({ variant = "default" }: { variant?: "default" | "f
   }
 
   if (path.mode === "ready_optional") {
+    if (variant === "fold") {
+      return (
+        <div data-path-fold-hero="" role="status">
+          <Link href="/path" className="btn btn-primary !rounded-full" data-path-fold-primary="">
+            Review Path
+          </Link>
+        </div>
+      );
+    }
     return (
-      <div
-        className={variant === "fold" ? undefined : "mt-5"}
-        role="status"
-        data-path-fold-hero={variant === "fold" ? "" : undefined}
-      >
+      <div className="mt-5" role="status">
         <div
-          className={`dash-action-dock${variant === "fold" ? " !mt-0" : ""}`}
+          className="dash-action-dock"
           style={{ ["--instrument-tint" as string]: COLORS.emerald }}
         >
           <div className="min-w-0">
@@ -141,11 +146,7 @@ export function PathNextMove({ variant = "default" }: { variant?: "default" | "f
             <p className="dash-action-dock-title">READY — optional review</p>
           </div>
           <div className="dash-action-dock-actions flex flex-wrap gap-2.5">
-            <Link
-              href="/path"
-              className="btn btn-primary"
-              data-path-fold-primary={variant === "fold" ? "" : undefined}
-            >
+            <Link href="/path" className="btn btn-primary">
               Review Path
             </Link>
           </div>
@@ -161,15 +162,37 @@ export function PathNextMove({ variant = "default" }: { variant?: "default" | "f
   const pending = pathPendingStepCount(path);
   const firstPending = stage === "path_pending_first";
 
+  if (variant === "fold") {
+    const href = nextStep && stage !== "path_complete" ? nextStep.href : "/assessment";
+    const label =
+      nextStep && stage !== "path_complete"
+        ? nextStep.title
+        : "Reassess";
+    return (
+      <div data-path-habit-stage={stage} data-path-fold-hero="" aria-label="Path to Ready next move">
+        <Link
+          href={href}
+          className="btn btn-primary !rounded-full"
+          data-path-fold-primary=""
+          onClick={() => {
+            if (nextStep && stage !== "path_complete") {
+              trackPathStartStepClicked({
+                surface: "dashboard",
+                reasonCode: nextStep.reasonCode,
+              });
+            }
+          }}
+        >
+          {label}
+        </Link>
+      </div>
+    );
+  }
+
   return (
-    <div
-      className={variant === "fold" ? undefined : "mt-5"}
-      data-path-habit-stage={stage}
-      data-path-fold-hero={variant === "fold" ? "" : undefined}
-      aria-label="Path to Ready next move"
-    >
+    <div className="mt-5" data-path-habit-stage={stage} aria-label="Path to Ready next move">
       <div
-        className={`dash-action-dock${variant === "fold" ? " !mt-0" : ""}`}
+        className="dash-action-dock"
         style={{ ["--instrument-tint" as string]: COLORS.cyan }}
       >
         <div className="min-w-0">
@@ -193,51 +216,25 @@ export function PathNextMove({ variant = "default" }: { variant?: "default" | "f
         </div>
         <div className="dash-action-dock-actions flex flex-wrap gap-2.5">
           {nextStep && stage !== "path_complete" ? (
-            variant === "fold" ? (
-              <>
-                {/* Fold: one primary — starting the step is the honest next physical move. */}
-                <Link
-                  href={nextStep.href}
-                  className="btn btn-primary"
-                  data-path-fold-primary=""
-                  onClick={() =>
-                    trackPathStartStepClicked({
-                      surface: "dashboard",
-                      reasonCode: nextStep.reasonCode,
-                    })
-                  }
-                >
-                  Start step
-                </Link>
-                <button type="button" className="btn btn-ghost" onClick={handleMarkDone}>
-                  Mark done
-                </button>
-              </>
-            ) : (
-              <>
-                <button type="button" className="btn btn-primary" onClick={handleMarkDone}>
-                  Mark done
-                </button>
-                <Link
-                  href={nextStep.href}
-                  className="btn btn-ghost"
-                  onClick={() =>
-                    trackPathStartStepClicked({
-                      surface: "dashboard",
-                      reasonCode: nextStep.reasonCode,
-                    })
-                  }
-                >
-                  Start step
-                </Link>
-              </>
-            )
+            <>
+              <button type="button" className="btn btn-primary" onClick={handleMarkDone}>
+                Mark done
+              </button>
+              <Link
+                href={nextStep.href}
+                className="btn btn-ghost"
+                onClick={() =>
+                  trackPathStartStepClicked({
+                    surface: "dashboard",
+                    reasonCode: nextStep.reasonCode,
+                  })
+                }
+              >
+                Start step
+              </Link>
+            </>
           ) : (
-            <Link
-              href="/assessment"
-              className="btn btn-primary"
-              data-path-fold-primary={variant === "fold" ? "" : undefined}
-            >
+            <Link href="/assessment" className="btn btn-primary">
               Reassess
             </Link>
           )}

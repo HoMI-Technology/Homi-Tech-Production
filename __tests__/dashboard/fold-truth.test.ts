@@ -7,12 +7,17 @@ import {
   buildProgressLabel,
   companionFoldLine,
   companionPresenceState,
+  hardStopEyebrow,
   hardStopMessages,
+  hardStopRecords,
   homeFoldSentence,
+  homeHoldSentence,
   isNextRedirectError,
   pathStepCounts,
   resumeDraftCopy,
   shouldPaintDashSpectrum,
+  shouldShowDay30OutcomePrompt,
+  shouldShowHomeMoneyStanding,
   shouldSuppressBuildPercent,
   weakestMeasuredPillar,
 } from "@/lib/dashboard/fold-truth";
@@ -68,6 +73,15 @@ describe("hardStopMessages", () => {
     expect(hardStopMessages(null)).toEqual([]);
     expect(hardStopMessages("nope")).toEqual([]);
     expect(hardStopMessages([{ code: "dti" }])).toEqual([]);
+  });
+
+  it("keeps codes for the Hard stop · nickname eyebrow", () => {
+    expect(
+      hardStopRecords([{ code: "RUNWAY_UNDER_1_MONTH", message: "Need runway first." }]),
+    ).toEqual([{ code: "RUNWAY_UNDER_1_MONTH", message: "Need runway first." }]);
+    expect(hardStopEyebrow("RUNWAY_UNDER_1_MONTH")).toBe("Hard stop · runway");
+    expect(hardStopEyebrow("DTI_OVER_50")).toBe("Hard stop · debt");
+    expect(hardStopEyebrow(null)).toBeNull();
   });
 });
 
@@ -199,6 +213,21 @@ describe("homeFoldSentence", () => {
     expect(line).not.toMatch(/Financial Reality/i);
   });
 
+  it("locks the runway hold sentence from the Brand PASS crop", () => {
+    expect(homeHoldSentence("RUNWAY_UNDER_1_MONTH")).toBe(
+      "Runway is the hold. Build the fund before anything else.",
+    );
+    expect(
+      homeFoldSentence({
+        hardStopCount: 1,
+        hardStopCode: "RUNWAY_UNDER_1_MONTH",
+        weakestPillar: "financial",
+        hasPath: true,
+        hasAssessment: true,
+      }),
+    ).toBe("Runway is the hold. Build the fund before anything else.");
+  });
+
   it("names the softest measured pillar when there is no hard stop", () => {
     expect(
       homeFoldSentence({
@@ -208,5 +237,61 @@ describe("homeFoldSentence", () => {
         hasAssessment: true,
       }),
     ).toBe("Perfect Timing is the softest pillar on this read.");
+  });
+});
+
+describe("shouldShowHomeMoneyStanding", () => {
+  it("hides the cash strip on DO NOT PROCEED / NOT_YET and any hard stop", () => {
+    expect(shouldShowHomeMoneyStanding({ verdict: "NOT_YET", hardStopActive: false })).toBe(false);
+    expect(shouldShowHomeMoneyStanding({ verdict: "BUILD_FIRST", hardStopActive: true })).toBe(
+      false,
+    );
+    expect(shouldShowHomeMoneyStanding({ verdict: "READY", hardStopActive: true })).toBe(false);
+  });
+
+  it("allows the strip on non-stop verdicts when no hard stop is active", () => {
+    expect(shouldShowHomeMoneyStanding({ verdict: "READY", hardStopActive: false })).toBe(true);
+    expect(shouldShowHomeMoneyStanding({ verdict: "BUILD_FIRST", hardStopActive: false })).toBe(
+      true,
+    );
+    expect(shouldShowHomeMoneyStanding({ verdict: "ALMOST_THERE", hardStopActive: false })).toBe(
+      true,
+    );
+  });
+});
+
+describe("shouldShowDay30OutcomePrompt", () => {
+  it("does not treat due_at alone as enough — path held or last-read under 30d skips", () => {
+    expect(
+      shouldShowDay30OutcomePrompt({
+        kind: "day30",
+        pathHeldDays: 10,
+        lastReadAgeDays: 40,
+      }),
+    ).toBe(false);
+    expect(
+      shouldShowDay30OutcomePrompt({
+        kind: "day30",
+        pathHeldDays: 40,
+        lastReadAgeDays: 12,
+      }),
+    ).toBe(false);
+    expect(
+      shouldShowDay30OutcomePrompt({
+        kind: "day30",
+        pathHeldDays: null,
+        lastReadAgeDays: 40,
+      }),
+    ).toBe(false);
+  });
+
+  it("shows day30 only when both clocks are at least 30 days", () => {
+    expect(
+      shouldShowDay30OutcomePrompt({
+        kind: "day30",
+        pathHeldDays: 30,
+        lastReadAgeDays: 30,
+      }),
+    ).toBe(true);
   });
 });

@@ -3,6 +3,8 @@
  * Keep this module free of Next, scoring internals, and lab routes.
  */
 
+import type { VerdictKey } from "@/lib/brand";
+
 export const ONBOARDING_SKIP_HREF = "/dashboard" as const;
 
 export function isNextRedirectError(error: unknown): boolean {
@@ -20,17 +22,77 @@ export function shouldPaintDashSpectrum(hardStopCount: number): boolean {
   return !shouldSuppressBuildPercent(hardStopCount);
 }
 
-export function hardStopMessages(hardStops: unknown): string[] {
+export type HomeHardStop = { code: string; message: string };
+
+export function hardStopRecords(hardStops: unknown): HomeHardStop[] {
   if (!Array.isArray(hardStops)) return [];
-  const messages: string[] = [];
+  const records: HomeHardStop[] = [];
   for (const row of hardStops) {
     if (!row || typeof row !== "object") continue;
     const message = (row as { message?: unknown }).message;
     if (typeof message !== "string") continue;
     const trimmed = message.trim();
-    if (trimmed) messages.push(trimmed);
+    if (!trimmed) continue;
+    const codeRaw = (row as { code?: unknown }).code;
+    const code = typeof codeRaw === "string" ? codeRaw.trim() : "";
+    records.push({ code, message: trimmed });
   }
-  return messages;
+  return records;
+}
+
+export function hardStopMessages(hardStops: unknown): string[] {
+  return hardStopRecords(hardStops).map((row) => row.message);
+}
+
+const HARD_STOP_NICK: Record<string, string> = {
+  RUNWAY_UNDER_1_MONTH: "runway",
+  DTI_OVER_50: "debt",
+  HOUSING_RATIO_OVER_45: "housing",
+  CREDIT_UNDER_620: "credit",
+};
+
+/** Yellow eyebrow over the Fraunces hero. Brand PASS crop: "Hard stop · runway". */
+export function hardStopEyebrow(code: string | null | undefined): string | null {
+  if (!code) return null;
+  const nick = HARD_STOP_NICK[code];
+  return nick ? `Hard stop · ${nick}` : "Hard stop";
+}
+
+/** Locked one-liner under the hero. Runway crop is copy-locked. */
+export function homeHoldSentence(code: string | null | undefined): string | null {
+  if (code === "RUNWAY_UNDER_1_MONTH") {
+    return "Runway is the hold. Build the fund before anything else.";
+  }
+  return null;
+}
+
+/**
+ * Cash strip is a second hero (4xl surplus). Hide on Home when the public
+ * verdict is DO NOT PROCEED or a hard stop is active. Cash lives on /money.
+ */
+export function shouldShowHomeMoneyStanding(args: {
+  verdict: VerdictKey | null;
+  hardStopActive: boolean;
+}): boolean {
+  if (args.hardStopActive) return false;
+  if (args.verdict === "NOT_YET") return false;
+  return true;
+}
+
+/**
+ * day30 must not fire on due_at alone. Skip when the path has been held
+ * fewer than 30 days OR the last-read is younger than 30 days. Missing
+ * either clock fails closed.
+ */
+export function shouldShowDay30OutcomePrompt(args: {
+  kind: string;
+  pathHeldDays: number | null;
+  lastReadAgeDays: number | null;
+}): boolean {
+  if (args.kind !== "day30") return true;
+  if (args.pathHeldDays == null || args.pathHeldDays < 30) return false;
+  if (args.lastReadAgeDays == null || args.lastReadAgeDays < 30) return false;
+  return true;
 }
 
 export function buildProgressLabel(args: {
@@ -174,11 +236,14 @@ export function weakestMeasuredPillar(scores: {
 /** One fold sentence: hard stop outranks the weak-pillar line. */
 export function homeFoldSentence(args: {
   hardStopCount: number;
+  hardStopCode?: string | null;
   weakestPillar: HomeFoldPillar | null;
   hasPath: boolean;
   hasAssessment: boolean;
 }): string {
   if (args.hardStopCount > 0) {
+    const locked = homeHoldSentence(args.hardStopCode ?? null);
+    if (locked) return locked;
     return companionFoldLine({
       hasHardStops: true,
       hasPath: args.hasPath,

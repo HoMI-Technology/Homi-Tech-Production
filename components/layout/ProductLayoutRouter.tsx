@@ -76,7 +76,7 @@ export function ProductLayoutRouter({
       />
       <main
         id="main"
-        className="relative z-10 min-h-dvh pt-14 pb-[calc(4.5rem_+_env(safe-area-inset-bottom,0px))] lg:pt-0 lg:pb-0 lg:pl-[72px] xl:pl-[248px]"
+        className="relative z-10 min-h-dvh pt-14 pb-[calc(4.5rem_+_env(safe-area-inset-bottom,0px))] lg:pt-0 lg:pb-0 lg:pl-[248px]"
       >
         {children}
       </main>

@@ -3,13 +3,22 @@ import { APP_MORE_NAV, APP_PRIMARY_NAV } from "@/lib/layout/app-nav";
 
 /** Nav config lives outside the client component for unit/e2e import. */
 describe("AppHeader nav config", () => {
-  it("keeps PRIMARY ruthlessly short with Home first", () => {
+  it("keeps PRIMARY to Home, Assess, Money, Path", () => {
+    expect(APP_PRIMARY_NAV.map((i) => i.href)).toEqual([
+      "/dashboard",
+      "/assessment",
+      "/money",
+      "/path",
+    ]);
+    expect(APP_PRIMARY_NAV.map((i) => i.label)).toEqual(["Home", "Assess", "Money", "Path"]);
     expect(APP_PRIMARY_NAV[0]).toEqual({ href: "/dashboard", label: "Home" });
-    expect(APP_PRIMARY_NAV.map((i) => i.href)).toContain("/assessment");
-    expect(APP_PRIMARY_NAV.map((i) => i.href)).toContain("/money");
-    // Journal lives under More so the product bar stays one line.
     expect(APP_PRIMARY_NAV.map((i) => i.href)).not.toContain("/journal");
-    expect(APP_PRIMARY_NAV.length).toBeLessThanOrEqual(4);
+    expect(APP_PRIMARY_NAV.map((i) => i.href)).not.toContain("/agents");
+    expect(APP_PRIMARY_NAV.map((i) => i.href)).not.toContain("/household");
+    expect(APP_PRIMARY_NAV.map((i) => i.href)).not.toContain("/connections");
+    expect(APP_PRIMARY_NAV.map((i) => i.href)).not.toContain("/timeline");
+    expect(APP_PRIMARY_NAV.map((i) => i.href)).not.toContain("/trust");
+    expect(APP_PRIMARY_NAV).toHaveLength(4);
   });
 
   it("puts Journal under More and keeps Companion off header chrome", () => {
@@ -20,7 +29,6 @@ describe("AppHeader nav config", () => {
   it("carries the launch product surface under More", () => {
     const hrefs = APP_MORE_NAV.map((i) => i.href);
     for (const href of [
-      "/path",
       "/household",
       "/tools/preflight",
       "/scenarios",
@@ -30,6 +38,7 @@ describe("AppHeader nav config", () => {
       expect(hrefs).toContain(href);
     }
     // Verdict reveal + readiness checklist stay palette-only — Path owns Build.
+    expect(hrefs).not.toContain("/path");
     expect(hrefs).not.toContain("/results");
     expect(hrefs).not.toContain("/plan");
     // Money modes live under primary Money + MoneyModeNav — not More peers.
@@ -61,12 +70,8 @@ describe("AppHeader nav config", () => {
     expect(APP_MORE_NAV.map((i) => i.href)).not.toContain("/results");
   });
 
-  it("does not advertise Agents in PRIMARY unless the public FF is on", () => {
-    const hrefs = APP_PRIMARY_NAV.map((i) => i.href);
-    if (process.env.NEXT_PUBLIC_FF_AGENT_OS === "true") {
-      expect(hrefs).toContain("/agents");
-    } else {
-      expect(hrefs).not.toContain("/agents");
-    }
+  it("keeps Agents off PRIMARY — More / palette only, even when the flag is on", () => {
+    expect(APP_PRIMARY_NAV.map((i) => i.href)).not.toContain("/agents");
+    expect(APP_MORE_NAV.map((i) => i.href)).not.toContain("/path");
   });
 });

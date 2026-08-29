@@ -37,18 +37,16 @@ describe("dashboard fold tells the truth about the build", () => {
   const fold = src("components", "dashboard", "HomeFold.tsx");
 
   it("names hard stops from the latest assessment", () => {
-    expect(page).toContain("hardStopMessages");
+    expect(page).toContain("hardStopRecords");
     expect(page).toContain("hard_stops");
   });
 
   it("does not celebrate or percent-complete over an active hard stop", () => {
     expect(page).toContain("shouldSuppressBuildPercent");
-    expect(fold).toContain("VerdictCelebrate");
-    expect(fold).toMatch(/!suppressBuildPercent[\s\S]*VerdictCelebrate/);
+    expect(fold).not.toContain("VerdictCelebrate");
   });
 
   it("uses Decision Readiness Score, never HōMI-Score (DESIGN.md naming law 2026-08-23)", () => {
-    expect(fold).toContain("Decision Readiness Score");
     expect(page).not.toContain(BANNED_FOLD_NOUN);
     expect(fold).not.toContain(BANNED_FOLD_NOUN);
   });
@@ -108,56 +106,42 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(page).not.toMatch(/>\s*Almost\s*</);
   });
 
-  it("the build leads the fold; the score rail is a compact supporting reading", () => {
+  it("the first viewport is hard-stop + Path primary + compact last-read", () => {
     expect(page).toContain("HomeFold");
     expect(fold).toContain("HOME_FOLD_INSTRUMENT");
-    expect(fold).toContain("dash-instrument");
-    expect(fold).toContain("Wordmark");
-    expect(fold).toContain("HomeMoneyStanding");
+    expect(fold).toContain("data-home-first-viewport");
     expect(fold).toContain("data-home-build-hero");
     expect(fold).toContain("data-home-score-rail");
+    expect(fold).toContain("LastReadChrome");
     expect(fold).toContain("PathStepLedger");
-    // Source order is a cheap smoke check. Binding assertion is rendered
-    // DOM order in HomeFold.test.tsx — a string constant never drove order.
-    expect(fold.indexOf("data-home-build-hero")).toBeGreaterThan(-1);
+    expect(fold.indexOf("data-home-first-viewport")).toBeLessThan(
+      fold.indexOf("data-home-below-fold"),
+    );
     expect(fold.indexOf("data-home-build-hero")).toBeLessThan(
       fold.indexOf("data-home-score-rail"),
     );
-    expect(fold).toContain('variant="compact"');
-    expect(fold).toContain('data-home-score-role="context"');
-    // Score + pillars render through the shared ScoreRail — composed of the
-    // locked PillarRing / VerdictBadge primitives, never a new orb.
-    expect(fold).toContain("ScoreRail");
-    const rail = src("components", "score", "ScoreRail.tsx");
-    expect(rail).toContain("PillarRing");
-    expect(rail).toContain("VerdictBadge");
-    expect(rail).toContain("PILLAR_MAX_POINTS");
-    expect(rail).not.toContain("ThresholdCompass");
+    expect(fold).not.toContain("ScoreRail");
     expect(fold).not.toContain("HeroScore");
     expect(fold).not.toContain("ThresholdCompass");
     expect(page).not.toContain("ThresholdCompass");
     expect(page).not.toContain("HeroScore");
-    expect(page).not.toContain("PillarRing");
-    expect(fold).not.toContain("PillarRing");
     expect(fold).not.toContain("FinancialPositionSection");
     expect(fold).not.toContain("OperateInstrument");
+    expect(fold).toContain("shouldShowHomeMoneyStanding");
   });
 
-  it("Path fold hero prefers Start step as the single primary CTA", () => {
+  it("Path fold primary is the step title as the single cyan pill", () => {
     const pathNext = src("components", "dashboard", "PathNextMove.tsx");
     expect(pathNext).toContain('data-path-fold-primary=""');
-    // Locate the fold CTA branch by its primary marker attribute.
-    const marker = pathNext.indexOf('data-path-fold-primary=""');
-    expect(marker).toBeGreaterThan(-1);
-    const window = pathNext.slice(Math.max(0, marker - 160), marker + 420);
-    expect(window).toContain("btn-primary");
-    expect(window).toContain("Start step");
-    // Mark done on the fold is ghost, not primary.
-    const markDoneFold = pathNext.indexOf("Mark done", marker);
-    expect(markDoneFold).toBeGreaterThan(marker);
-    const between = pathNext.slice(marker, markDoneFold);
-    expect(between).toContain("btn-ghost");
-    expect(between).not.toContain("btn-primary");
+    expect(pathNext).toContain("nextStep.title");
+    expect(pathNext).toContain("!rounded-full");
+    const start = pathNext.indexOf("const href = nextStep && stage !== \"path_complete\"");
+    expect(start).toBeGreaterThan(-1);
+    const foldPrimary = pathNext.slice(start, start + 900);
+    expect(foldPrimary).toContain("{label}");
+    expect(foldPrimary).not.toContain("Start step");
+    expect(foldPrimary).not.toContain("Mark done");
+    expect(foldPrimary).not.toContain("Full path");
   });
 
   it("Home money strip CTAs stay secondary to the Path primary", () => {
@@ -234,6 +218,9 @@ describe("empty Home first-run is one Assess close", () => {
     expect(sidebar).toContain("DashboardSwitcher");
     expect(sidebar).toContain("visibleDashboards");
     expect(sidebar).toContain("data-sidebar-workspace-switcher");
+    expect(sidebar).not.toContain("sidebar-footer-chip");
+    expect(sidebar).not.toContain("SidebarScoreChip");
+    expect(sidebar).toContain("APP_PRIMARY_NAV");
   });
 
   it("employee hub empty close is Assess → /assessment, not Shadow Score", () => {

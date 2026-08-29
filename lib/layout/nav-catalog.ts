@@ -37,7 +37,7 @@ export type NavCatalogEntry = {
  * insight surfaces -> money/life), then role dashboards + settings.
  */
 export const NAV_CATALOG: readonly NavCatalogEntry[] = [
-  // Header PRIMARY (ruthlessly short: 3 items + Agents when flagged)
+  // Header PRIMARY: Home, Assess, Money, Path. Agents stay under More.
   {
     href: "/dashboard",
     label: "Home",
@@ -53,7 +53,7 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     group: "Act",
     keywords: "agent os ensemble",
     flag: "agentOs",
-    surfaces: { header: "primary", palette: true },
+    surfaces: { header: "more", palette: true },
   },
   {
     href: "/assessment",
@@ -85,13 +85,14 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     surfaces: { palette: true },
   },
 
-  // Header MORE: journey + planning
+  // Header PRIMARY continues: Path. Remaining journey lives under More / palette.
   {
     href: "/path",
-    label: "Path to Ready",
+    label: "Path",
+    paletteLabel: "Path to Ready",
     group: "Navigate",
     keywords: "next steps journey roadmap",
-    surfaces: { header: "more", palette: true },
+    surfaces: { header: "primary", palette: true },
   },
   // /results retired (F8) — middleware redirects; not in chrome or palette.
   {
