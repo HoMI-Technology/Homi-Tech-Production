@@ -35,7 +35,7 @@ describe("onboarding skip lands on Home", () => {
 
 describe("dashboard fold tells the truth about the build", () => {
   const page = src("app", "(product)", "dashboard", "page.tsx");
-  const fold = src("components", "dashboard", "HomeFold.tsx");
+  const fold = src("components", "dashboard", "ThresholdFold.tsx");
 
   it("names hard stops from the latest assessment", () => {
     expect(page).toContain("hardStopMessages");
@@ -43,15 +43,15 @@ describe("dashboard fold tells the truth about the build", () => {
   });
 
   it("does not celebrate or percent-complete over an active hard stop", () => {
-    expect(page).toContain("shouldSuppressBuildPercent");
-    expect(fold).toContain("VerdictCelebrate");
-    expect(fold).toMatch(/!suppressBuildPercent[\s\S]*VerdictCelebrate/);
+    expect(fold).not.toContain("VerdictCelebrate");
+    expect(page).not.toContain("VerdictCelebrate");
   });
 
   it("uses Decision Readiness Score, never HōMI-Score (DESIGN.md naming law 2026-08-23)", () => {
     const rail = src("components", "score", "ScoreRail.tsx");
     expect(rail).toContain("Decision Readiness Score");
-    expect(fold).toContain("ScoreRail");
+    expect(fold).toContain("Decision Readiness Score");
+    expect(fold).not.toContain("ScoreRail");
     expect(page).not.toContain(BANNED_FOLD_NOUN);
     expect(fold).not.toContain(BANNED_FOLD_NOUN);
   });
@@ -64,28 +64,29 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(page).not.toMatch(/GenomeWidget/);
   });
 
-  it("offers a draft resume ramp and fold analytics", () => {
-    expect(fold).toContain("DashboardResumeRamp");
-    expect(fold).toContain("PathNextMove");
+  it("offers a draft resume close and fold analytics", () => {
+    expect(fold).toContain("ThresholdFoldEmptyClose");
     expect(page).toContain("DashboardFoldBeacon");
+    expect(fold).not.toContain("PathNextMove");
+    expect(fold).not.toContain("DashboardResumeRamp");
   });
 
-  it("keeps the existing outcome prompt below Path — no second Home card", () => {
-    expect(fold).toContain("<OutcomeSurveyPrompt");
-    expect(fold.indexOf("<PathNextMove")).toBeLessThan(fold.indexOf("<OutcomeSurveyPrompt"));
+  it("keeps the 30-day outcome prompt off the fold", () => {
+    expect(fold).not.toContain("OutcomeSurveyPrompt");
     expect(page).not.toContain("OutcomeSurveyPrompt");
   });
 
-  it("surfaces a Companion fold line without mounting the chat graph", () => {
-    expect(fold).toContain("companionFoldLine");
-    expect(fold).toContain("data-companion-fold-line");
-    expect(fold).toContain("COMPANION_ESCALATION_HREF");
-    expect(fold).toContain("data-companion-escalate-href");
-    expect(fold).toContain("HomeMoneyStanding");
+  it("does not surface Companion or a money card on the fold", () => {
+    expect(fold).not.toContain("companionFoldLine");
+    expect(fold).not.toContain("data-companion-fold-line");
+    expect(fold).not.toContain("HomeMoneyStanding");
     expect(fold).not.toContain("CompanionHost");
     expect(fold).not.toContain("CompanionWidget");
     expect(fold).not.toContain("HomieAvatar");
     expect(fold).not.toMatch(/data-companion-chat/);
+    expect(fold).not.toContain("/advisor");
+    const host = src("components", "companion", "CompanionHost.tsx");
+    expect(host).toContain('pathname === "/dashboard"');
   });
 
   it("locks Companion fold copy to the presence doctrine SSOT", () => {
@@ -103,7 +104,6 @@ describe("dashboard fold tells the truth about the build", () => {
   });
 
   it("does not render the verdict spectrum — hard-stop theater stays off the fold", () => {
-    expect(page).toContain("shouldSuppressBuildPercent");
     expect(page).not.toContain("DashSpectrum");
     expect(page).not.toContain("shouldPaintDashSpectrum");
     expect(page).not.toMatch(/className="dash-spectrum"/);
@@ -111,66 +111,46 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(page).not.toMatch(/>\s*Almost\s*</);
   });
 
-  it("the build leads the fold; the score rail is a compact supporting reading", () => {
-    expect(page).toContain("HomeFold");
+  it("the Threshold Compass is the fold — no card stack, no second compass", () => {
+    expect(page).toContain("ThresholdFold");
     expect(fold).toContain("HOME_FOLD_INSTRUMENT");
     expect(fold).toContain("dash-instrument");
-    expect(fold).toContain("HomeMoneyStanding");
-    expect(fold).toContain("data-home-build-hero");
-    expect(fold).toContain("data-home-score-rail");
-    expect(fold).toContain("PathStepLedger");
-    expect(fold.indexOf("data-home-build-hero")).toBeGreaterThan(-1);
-    expect(fold.indexOf("data-home-build-hero")).toBeLessThan(
-      fold.indexOf("data-home-score-rail"),
-    );
-    expect(fold.indexOf("data-home-score-rail")).toBeLessThan(
-      fold.indexOf("<HomeMoneyStanding"),
-    );
-    expect(fold).toContain('variant="compact"');
-    expect(fold).toContain('data-home-score-role="context"');
-    expect(fold).toContain("ScoreRail");
-    const rail = src("components", "score", "ScoreRail.tsx");
-    expect(rail).toContain("PillarRing");
-    expect(rail).toContain("VerdictBadge");
-    expect(rail).toContain("PILLAR_MAX_POINTS");
-    expect(rail).toContain("hideTemperature={false}");
-    expect(rail).not.toContain("ThresholdCompass");
+    expect(fold).toContain('from "@/components/brand/ThresholdCompass"');
+    expect(fold).toContain("data-home-threshold-compass");
+    expect(fold).toContain("data-home-fold-score");
+    expect(fold).toContain("data-home-fold-runway");
+    expect(fold).toContain("data-home-fold-cash");
+    expect(fold).toContain("data-path-fold-primary");
+    expect(fold).toContain("VerdictBadge");
+    expect(fold).not.toContain("ScoreRail");
+    expect(fold).not.toContain("HomeMoneyStanding");
+    expect(fold).not.toContain("PathStepLedger");
+    expect(fold).not.toContain("data-home-build-hero");
+    expect(fold).not.toContain("data-home-score-rail");
     expect(fold).not.toContain("HeroScore");
-    expect(fold).not.toContain("ThresholdCompass");
     expect(fold).not.toContain("Your build");
-    expect(page).toContain("ThresholdCompass");
-    expect(page).toContain("data-dash-shell-compass");
+    expect(page).not.toContain("data-dash-shell-compass");
     expect(page).not.toContain("HeroScore");
     expect(page).not.toContain("PillarRing");
     expect(fold).not.toContain("PillarRing");
     expect(fold).not.toContain("FinancialPositionSection");
     expect(fold).not.toContain("OperateInstrument");
     expect(fold).not.toContain("text-4xl");
-    const money = src("components", "dashboard", "HomeMoneyStanding.tsx");
-    expect(money).not.toContain("text-4xl");
-    expect(money).not.toContain("loadBudgetLedger");
-    expect(money).toContain("lastMoney");
+    expect(fold).not.toContain("Open Money");
+    expect(fold).not.toContain("Connect bank");
   });
 
-  it("Path fold hero prefers Start step as the single primary CTA", () => {
-    const pathNext = src("components", "dashboard", "PathNextMove.tsx");
-    expect(pathNext).toContain('data-path-fold-primary=""');
-    // Locate the fold CTA branch by its primary marker attribute.
-    const marker = pathNext.indexOf('data-path-fold-primary=""');
-    expect(marker).toBeGreaterThan(-1);
-    const window = pathNext.slice(Math.max(0, marker - 160), marker + 420);
-    expect(window).toContain("btn-primary");
-    expect(window).toContain("Start step");
-    // Mark done on the fold is ghost, not primary.
-    const markDoneFold = pathNext.indexOf("Mark done", marker);
-    expect(markDoneFold).toBeGreaterThan(marker);
-    const between = pathNext.slice(marker, markDoneFold);
-    expect(between).toContain("btn-ghost");
-    expect(between).not.toContain("btn-primary");
+  it("Path fold primary is the pending step title — not Mark done or Full path", () => {
+    expect(fold).toContain("pathPrimary.title");
+    expect(fold).toContain('data-path-fold-primary=""');
+    expect(fold).not.toContain("Mark done");
+    expect(fold).not.toContain("Full path");
+    expect(fold).not.toContain("Start step");
   });
 
-  it("Home money strip CTAs stay secondary to the Path primary", () => {
+  it("Home money strip stays off the fold — runway is instrument evidence", () => {
     const money = src("components", "dashboard", "HomeMoneyStanding.tsx");
+    expect(fold).not.toContain("HomeMoneyStanding");
     expect(money).toContain("btn-ghost btn-sm");
     expect(money).not.toMatch(/btn-primary btn-sm/);
     expect(money).not.toContain("text-4xl");
@@ -229,8 +209,8 @@ describe("completed home assessment lands on Home Build", () => {
     expect(flow).not.toMatch(/router\.push\(["']\/results["']\)/);
   });
 
-  it("HomeFold mounts SaveStatusBanner so locked/failed saves still surface", () => {
-    const fold = src("components", "dashboard", "HomeFold.tsx");
+  it("ThresholdFold mounts SaveStatusBanner so locked/failed saves still surface", () => {
+    const fold = src("components", "dashboard", "ThresholdFold.tsx");
     expect(fold).toContain("SaveStatusBanner");
   });
 });

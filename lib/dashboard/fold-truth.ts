@@ -111,11 +111,40 @@ export function companionFoldLine(args: {
 }
 
 /**
- * First-viewport instrument on signed-in HōMI. Path next move leads;
- * the Decision Readiness Score is a compact reading on the score rail.
- * Compass lives in the operate shell — not inside ScoreRail or HomeFold.
+ * First-viewport instrument on signed-in HōMI. The fold is the repo
+ * Threshold Compass. Score / runway / cash are last AssessmentResult only.
+ * This module does not write the ledger or a score.
  */
-export const HOME_FOLD_INSTRUMENT = "build" as const;
+export const HOME_FOLD_INSTRUMENT = "threshold" as const;
+
+export type FoldPathPrimary = {
+  href: string;
+  title: string;
+};
+
+/** Next pending Path step for the fold — one primary, never REASSESS as the hero. */
+export function foldPathPrimary(steps: unknown): FoldPathPrimary | null {
+  if (!Array.isArray(steps)) return null;
+  for (const step of steps) {
+    if (!step || typeof step !== "object") continue;
+    const row = step as { title?: unknown; href?: unknown; status?: unknown; reasonCode?: unknown };
+    if (row.reasonCode === "REASSESS") continue;
+    const status = row.status ?? "pending";
+    if (status !== "pending") continue;
+    const title = typeof row.title === "string" ? row.title.trim() : "";
+    const href = typeof row.href === "string" ? row.href.trim() : "";
+    if (!title || !href) continue;
+    return { title, href };
+  }
+  return null;
+}
+
+/** Last AssessmentResult emergency-fund months. Empty is an em dash — never a fake 76. */
+export function foldRunwayLabel(months: number | null | undefined): string {
+  if (months == null || !Number.isFinite(months)) return "—";
+  const shown = months >= 10 ? months.toFixed(0) : months.toFixed(1);
+  return `${shown} mo`;
+}
 
 /** Count actionable Path steps from a stored path payload (server or local). */
 export function pathStepCounts(steps: unknown): { done: number; total: number } {

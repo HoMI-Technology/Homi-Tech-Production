@@ -79,14 +79,14 @@ describe("AppSidebar — HōMI primary rail", () => {
     expect(screen.queryByText("DO NOT PROCEED")).not.toBeInTheDocument();
     expect(screen.queryByText("61")).not.toBeInTheDocument();
 
-    expect(document.querySelector("[data-sidebar-shell-compass]")).not.toBeNull();
+    expect(document.querySelector("[data-sidebar-shell-compass]")).toBeNull();
     expect(document.querySelector(".sidebar-pulse-strip")).toBeNull();
     expect(document.querySelector(".sidebar-footer-chip")).toBeNull();
     expect(document.querySelector(".sidebar-state-badge")).toBeNull();
     expect(document.querySelector(".sidebar-score-hero")).toBeNull();
   });
 
-  it("HōMI row has no Lucide Compass; the rail mounts ThresholdCompass once", () => {
+  it("HōMI row has no Lucide Compass; the rail does not mount a second Threshold Compass", () => {
     render(<AppSidebar email={null} />);
 
     const rail = document.querySelector("aside");
@@ -97,9 +97,9 @@ describe("AppSidebar — HōMI primary rail", () => {
     expect(homi).not.toBeNull();
     expect(homi?.querySelector(".lucide-compass")).toBeNull();
     expect(rail?.querySelectorAll(".lucide-compass")).toHaveLength(0);
-    expect(rail?.querySelectorAll("[data-sidebar-shell-compass]")).toHaveLength(1);
-    expect(rail?.querySelectorAll('[aria-label*="Threshold Compass"]')).toHaveLength(1);
-    expect(document.querySelectorAll('[aria-label*="Threshold Compass"]')).toHaveLength(1);
+    expect(rail?.querySelectorAll("[data-sidebar-shell-compass]")).toHaveLength(0);
+    expect(rail?.querySelectorAll('[aria-label*="Threshold Compass"]')).toHaveLength(0);
+    expect(document.querySelectorAll('[aria-label*="Threshold Compass"]')).toHaveLength(0);
   });
 
   it("source locks: catalog primary, no Home journey copy, repo compass only", () => {
@@ -120,8 +120,9 @@ describe("AppSidebar — HōMI primary rail", () => {
     expect(sidebar).not.toContain("DO NOT PROCEED");
     expect(sidebar).not.toContain("SidebarScoreChip");
     expect(sidebar).not.toContain("footerChipModel");
-    expect(sidebar).toContain('from "@/components/brand/ThresholdCompass"');
+    expect(sidebar).not.toContain('from "@/components/brand/ThresholdCompass"');
     expect(sidebar).not.toContain("@/components/finance/ThresholdCompass");
+    expect(sidebar).not.toContain("SidebarShellCompass");
     expect(sidebar).toContain("data-sidebar-primary");
     expect(sidebar).toContain("data-sidebar-more");
 

@@ -72,6 +72,7 @@ describe("admin + marketing attention doctrine", () => {
     const widget = read("components/companion/CompanionWidget.tsx");
     expect(host).toMatch(/pathname === "\/admin"/);
     expect(host).toMatch(/pathname\?\.startsWith\("\/admin\/"\)/);
+    expect(host).toMatch(/pathname === "\/dashboard"/);
     expect(widget).toMatch(/pathname === "\/admin"/);
     expect(widget).toMatch(/pathname\.startsWith\("\/admin\/"\)/);
   });
@@ -122,7 +123,7 @@ describe("partner + employee surfaces doctrine", () => {
   it("does not reopen Phases 1–3 locks", () => {
     expect(read("components/dashboard/PathNextMove.tsx")).toContain('data-path-fold-primary=""');
     expect(read("lib/dashboard/fold-truth.ts")).toContain("function companionFoldLine");
-    expect(read("components/dashboard/HomeFold.tsx")).toContain("HomeMoneyStanding");
+    expect(read("components/dashboard/ThresholdFold.tsx")).not.toContain("HomeMoneyStanding");
     expect(read("components/dashboard/HomeMoneyStanding.tsx")).toContain("btn-ghost btn-sm");
   });
 });

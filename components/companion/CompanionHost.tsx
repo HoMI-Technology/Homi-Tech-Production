@@ -82,10 +82,13 @@ export function CompanionHost() {
   }, [loadWidget]);
 
   // Full chat lives on /advisor; keep admin uncluttered (same as widget).
+  // HōMI first screen owns the one Threshold Compass — no Companion FAB there.
   if (
     pathname === "/advisor" ||
     pathname === "/admin" ||
-    (pathname?.startsWith("/admin/") ?? false)
+    (pathname?.startsWith("/admin/") ?? false) ||
+    pathname === "/dashboard" ||
+    (pathname?.startsWith("/dashboard/") ?? false)
   ) {
     return null;
   }

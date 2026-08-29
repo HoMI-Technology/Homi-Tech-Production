@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardCheck, Compass, type LucideIcon } from "lucide-react";
+import { ClipboardCheck, type LucideIcon } from "lucide-react";
 
 /**
  * Mobile (< lg) product bar. HōMI + Assess only.
@@ -11,11 +11,11 @@ import { ClipboardCheck, Compass, type LucideIcon } from "lucide-react";
  *
  * Safe-area: the bar grows by env(safe-area-inset-bottom) so the iOS home
  * indicator never covers the tabs. Each tab keeps a ≥44×44px target.
- * The CompanionHost FAB is raised above the bar at the same breakpoint.
+ * No Lucide Compass here — the one Threshold Compass lives on the HōMI fold.
  */
 
-const PRIMARY_TABS: readonly { href: string; label: string; Icon: LucideIcon }[] = [
-  { href: "/dashboard", label: "HōMI", Icon: Compass },
+const PRIMARY_TABS: readonly { href: string; label: string; Icon: LucideIcon | null }[] = [
+  { href: "/dashboard", label: "HōMI", Icon: null },
   { href: "/assessment", label: "Assess", Icon: ClipboardCheck },
 ];
 
@@ -52,7 +52,7 @@ export function ProductBottomNav() {
               isActive ? "text-cyan" : "text-dim hover:text-light"
             }`}
           >
-            <Icon aria-hidden className="size-[18px]" strokeWidth={1.75} />
+            {Icon ? <Icon aria-hidden className="size-[18px]" strokeWidth={1.75} /> : null}
             {tab.label}
           </Link>
         );

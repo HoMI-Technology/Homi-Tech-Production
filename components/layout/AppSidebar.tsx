@@ -20,7 +20,6 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 import { DashboardSwitcher } from "@/components/layout/DashboardSwitcher";
@@ -41,7 +40,7 @@ import { visibleDashboards } from "@/lib/dashboard/switcher-visibility";
  * Primary rail is HEADER_PRIMARY only: HōMI + Assess (+ Agents when flagged).
  * Path and Money stay under More / palette — not peers of HōMI. Pulse strip,
  * verdict chip, held-days, and the footer score numeral are off this rail;
- * the page shell already owns ThresholdCompass + ScoreRail.
+ * the HōMI fold owns the one Threshold Compass.
  *
  * Nav comes from lib/layout/app-nav (APP_PRIMARY_NAV / APP_MORE_NAV), the
  * flag-aware projection of NAV_CATALOG. Palette-only entries stay out of the
@@ -51,7 +50,7 @@ import { visibleDashboards } from "@/lib/dashboard/switcher-visibility";
 
 /** href → glyph. Anything unmapped falls back to the neutral grid mark.
  *  /dashboard is unmapped on purpose: Lucide Compass is banned on this rail.
- *  The one compass is repo ThresholdCompass in SidebarShellCompass. /plan is
+ *  The one compass is repo ThresholdCompass on the HōMI fold. /plan is
  *  palette-only and also must not approximate the mark. */
 const ICONS: Record<string, LucideIcon> = {
   "/agents": Cpu,
@@ -165,23 +164,6 @@ function SidebarNav({
         </details>
       )}
     </nav>
-  );
-}
-
-function SidebarShellCompass({
-  verdict,
-  expanded,
-}: {
-  verdict: LatestVerdict["verdict"] | undefined;
-  expanded: boolean;
-}) {
-  return (
-    <div
-      data-sidebar-shell-compass=""
-      className={`flex shrink-0 justify-center px-3 py-2 ${expanded ? "" : "xl:justify-start"}`}
-    >
-      <ThresholdCompass size={32} animated={false} glow={false} verdict={verdict} />
-    </div>
   );
 }
 
@@ -370,7 +352,6 @@ export function AppSidebar({
           <span className="max-xl:hidden">Jump to…</span>
           <kbd className="ml-auto chrome-kbd max-xl:hidden">{shortcutLabel}</kbd>
         </button>
-        <SidebarShellCompass verdict={decisionState?.verdict} expanded={false} />
         <SidebarNav pathname={pathname} pillId="nav-pill" expanded={false} />
         <SidebarFooter
           email={email}
@@ -434,7 +415,6 @@ export function AppSidebar({
                   <X aria-hidden className="size-5" strokeWidth={1.75} />
                 </button>
               </div>
-              <SidebarShellCompass verdict={decisionState?.verdict} expanded />
               <SidebarNav pathname={pathname} pillId="nav-pill-drawer" expanded />
               <SidebarFooter
                 email={email}

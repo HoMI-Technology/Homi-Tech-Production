@@ -114,7 +114,7 @@ describe("due-prompt taxonomy", () => {
   it("keeps the Home prompt on the existing card and writes only survey fields", () => {
     const prompt = src("components", "dashboard", "OutcomeSurveyPrompt.tsx");
     const taxonomy = src("lib", "outcomes", "taxonomy.ts");
-    const fold = src("components", "dashboard", "HomeFold.tsx");
+    const fold = src("components", "dashboard", "ThresholdFold.tsx");
     expect(taxonomy).toContain('"moved"');
     expect(taxonomy).toContain('"waited"');
     expect(taxonomy).toContain('"lender_blocked"');
@@ -124,7 +124,8 @@ describe("due-prompt taxonomy", () => {
     expect(prompt).toContain("outcomeSurveyAnswerPayload");
     expect(prompt).toContain('save("no_answer")');
     expect(prompt).not.toMatch(/overall_score|computeScore|verdict:/);
-    expect(fold.indexOf("<PathNextMove")).toBeLessThan(fold.indexOf("<OutcomeSurveyPrompt"));
+    expect(fold).not.toContain("OutcomeSurveyPrompt");
+    expect(fold).not.toContain("Checking in");
   });
 });
 

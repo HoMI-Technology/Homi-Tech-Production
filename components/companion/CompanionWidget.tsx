@@ -603,7 +603,13 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
 
   // Full chat lives on /advisor already — don't double up the surface there.
   // Ops console: keep Companion off admin so attention work stays uncluttered.
-  if (pathname === "/advisor" || pathname === "/admin" || pathname.startsWith("/admin/")) {
+  if (
+    pathname === "/advisor" ||
+    pathname === "/admin" ||
+    pathname.startsWith("/admin/") ||
+    pathname === "/dashboard" ||
+    pathname.startsWith("/dashboard/")
+  ) {
     return null;
   }
   if (!idleReady) return null;
