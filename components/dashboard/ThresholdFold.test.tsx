@@ -51,6 +51,7 @@ const live61 = {
     liquidDollars: null,
   },
   stopMessages: ["Emergency runway is under 1 month."],
+  stopCode: "RUNWAY_UNDER_1_MONTH" as const,
   pathPrimary: {
     href: "/tools/runway",
     title: RUNWAY_HARD_STOP_PATH_TITLE,
@@ -168,6 +169,7 @@ describe("ThresholdFold", () => {
     render(
       <ThresholdFold
         {...live61}
+        stopCode="RUNWAY_UNDER_1_MONTH"
         pathPrimary={{
           href: "/tools/runway",
           title: "Grow emergency fund toward 3–6 months",
@@ -180,6 +182,44 @@ describe("ThresholdFold", () => {
     ).toBeInTheDocument();
     expect(screen.queryByText(/Grow emergency fund toward 3–6 months/)).not.toBeInTheDocument();
   });
+
+  it.each([
+    ["DTI_OVER_50", "DTI is above 50%."] as const,
+    ["HOUSING_RATIO_OVER_45", "Housing ratio is above 45%."] as const,
+    ["CREDIT_UNDER_620", "Credit is below 620."] as const,
+  ] satisfies ReadonlyArray<readonly [Exclude<FoldHardStopCode, "RUNWAY_UNDER_1_MONTH">, string]>)(
+    "keeps the live Path grow-fund title when %s is the hard stop",
+    (code, engineMessage) => {
+      render(
+        <ThresholdFold
+          {...base}
+          latest={{ id: `path-${code}`, overallScore: 61 }}
+          verdict="NOT_YET"
+          stopMessages={[engineMessage]}
+          stopCode={code}
+          lastMoney={{
+            debtToIncomeRatio: 0.51,
+            emergencyFundMonths: 0.5,
+            savingsRate: 0.01,
+            liquidDollars: null,
+          }}
+          pathPrimary={{
+            href: "/tools/runway",
+            title: "Grow emergency fund toward 3–6 months",
+          }}
+        />,
+      );
+
+      expect(
+        screen.getByRole("link", { name: /Grow emergency fund toward 3–6 months/ }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("link", {
+          name: /Stabilize emergency runway to at least 1 month/i,
+        }),
+      ).not.toBeInTheDocument();
+    },
+  );
 
   it.each([
     ["RUNWAY_UNDER_1_MONTH", "Emergency runway is under 1 month."] as const,

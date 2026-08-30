@@ -253,19 +253,24 @@ describe("Baseline 001 fold-truth copy", () => {
     expect(runwayOverride).not.toMatch(/0\.5/);
   });
 
-  it("rewrites the stored grow-fund Path title while a hard stop is active", () => {
-    expect(
-      resolveFoldPathPrimary(
-        { href: "/tools/runway", title: "Grow emergency fund toward 3–6 months" },
-        true,
-      ),
-    ).toEqual({ href: "/tools/runway", title: RUNWAY_HARD_STOP_PATH_TITLE });
-    expect(
-      resolveFoldPathPrimary(
-        { href: "/tools/runway", title: "Grow emergency fund toward 3–6 months" },
-        false,
-      )?.title,
-    ).toBe("Grow emergency fund toward 3–6 months");
+  it("swaps the stored grow-fund Path title only for RUNWAY_UNDER_1_MONTH", () => {
+    const growFund = {
+      href: "/tools/runway",
+      title: "Grow emergency fund toward 3–6 months",
+    } as const;
+    expect(resolveFoldPathPrimary(growFund, "RUNWAY_UNDER_1_MONTH")).toEqual({
+      href: "/tools/runway",
+      title: RUNWAY_HARD_STOP_PATH_TITLE,
+    });
+    expect(resolveFoldPathPrimary(growFund, "DTI_OVER_50")?.title).toBe(growFund.title);
+    expect(resolveFoldPathPrimary(growFund, "HOUSING_RATIO_OVER_45")?.title).toBe(
+      growFund.title,
+    );
+    expect(resolveFoldPathPrimary(growFund, "CREDIT_UNDER_620")?.title).toBe(
+      growFund.title,
+    );
+    expect(resolveFoldPathPrimary(growFund, null)?.title).toBe(growFund.title);
+    expect(resolveFoldPathPrimary(growFund, undefined)?.title).toBe(growFund.title);
   });
 });
 
