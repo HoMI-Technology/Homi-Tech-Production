@@ -1,44 +1,60 @@
-# HoMI Product — state packet 2026-08-30
+# Product state — 30 Aug 2026
 
-## Locks / HOLDs (and why)
+**Agent:** HoMI Product. App UX retired into this seat.
+**SHA:** 3bd5471 (F1 #345). Live repo wins.
+**Status:** DRAFT via Dev. Stay draft. No Production.
+**UNPIXELLED** until Brand shoots.
 
-- Packet 2 parked. No live auto-score. No Apply-to-my-score.
-- #333 CLOSED superseded. Look HOLD: do not revive, do not match still 4b5d47ad.
-- W1 spec cards REJECTED. Personal fold is ThresholdFold (compass is the page, Path only primary, hard stop once, money on the instrument). Do not rebuild HomeFold card hierarchy.
-- CEO: no new feature PR until the five leftover surfaces are pixelled. Path leftover follow-on off 3bd5471 stays its own draft. #344 stays the finance packet. No vercel --prod.
-- /advisor marketing HOLD. Companion in More is leftover, not first-screen chrome.
-- Never NOT_YET chrome. Never redraw ThresholdCompass. Pixels decide visual claims.
+Packet 2 parked. Number 333 look HOLD. Surgical W1 REJECTED ON SIGHT.
 
-## Decisions made (my domain)
+## In-flight
+- Brand visual QA on 3bd5471. UNPIXELLED.
+- Dev files this path as draft PR. Product does not open it.
 
-- Signed-in dashboard QA at SHA 3bd5471 (F1 #345). Code-only. UNPIXELLED — no visual PASS from this packet.
-- I0 SHIPPED. Partner dashboard reads assessments.referral_source.
-- W1 SHIPPED under founder lock (ThresholdFold). Spec “score/pulse/attention card hierarchy” is REJECTED.
-- W0 PARTIAL. PageFrame/PageHeader, palette, main#main exist. CompanionHost skips /admin* and /dashboard. Admin home uses PageHeader+AttentionStrip but not PageFrame.
-- W2 PARTIAL. Book pulse + InviteShareRow + referral_source. Leftover: invite URL is `/shadow-score?ref=`. Verdict keys still include NOT_YET.
-- W3 SHIPPED in code (AttentionStrip on /admin). UNPIXELLED whether it sits above the KPI wall.
-- W4 PARTIAL. One employee home at /employee/dashboard. Still mounts HeroScore. Privacy chrome is thin vs D3.
-- W5 PARTIAL. Aggregate team UI exists at `/team`, not `/team/dashboard` (D2).
-- Money is depth in nav-catalog. Personal Companion off /dashboard. Score from last AssessmentResult. Empty numeral is —.
+## Needs
+- Dev: draft PR only. Do not merge. Do not rebuild W1 cards.
+- Brand: shoot the seven named surfaces. Do not invent nav.
+# Signed-in dashboard QA — named surfaces (3bd5471)
 
-## In-flight (branch / PR / wave)
+**Date:** 30 Aug 2026
+**Status:** DRAFT shoot list. Not a new nav. Not a brief to restyle HomeFold. Stay draft. No Production.
+**SHA:** 3bd5471 (F1 merged). Live repo wins.
+**Packet 2:** parked. **#333:** CLOSED superseded; look HOLD, do not revive.
 
-- This packet: docs only, draft off 3bd5471. Product does not open a feature PR.
-- Path leftover (resolveFoldPathPrimary runway-only swap) is a separate follow-on draft off 3bd5471. Not this file.
-- #344 finance packet stays draft.
-- Hidden-route re-enable vs retire is later, not this pass.
+Pixels decide visual claims. Do not PASS a look from code.
 
-## Top gotchas
+---
 
-- Companion still in More → /advisor. No first-screen CTA, but More is still a CTA.
-- Twin / Trinity / Genome / `/credit` still in More catalog. Stay hidden until they explain a verdict.
-- Partner + admin still encode NOT_YET.
-- Employee still HeroScore while personal is ThresholdFold.
-- Do not invent nav. Existing routes only.
-- Code QA ≠ visual PASS.
+## Shared chrome (all signed-in)
 
-## Needs from other agents
+- Primary bar: **HōMI** (`/dashboard`) + **Assess** (`/assessment`). Agents only if `agentOs` flag.
+- Money is **depth**, not a peer home (`/money*` under More / palette).
+- First-screen name is **HōMI**, not Home, not Your build.
+- CompanionHost **off** `/dashboard` and `/admin*`.
+- `/advisor` marketing HOLD. Do not treat More “Companion” as first-screen chrome.
+- Twin / Trinity / Genome / `/credit` are leftover catalog, not shoot targets.
+- Compass: repo `ThresholdCompass.tsx` only. Never generate. One compass.
+- No demo numbers. Honest empty is `—`. No 80–100 legend. No closer-to. Never NOT_YET chrome.
+- Skip-link → `main#main`.
 
-- Brand + App UX: pixels on five surfaces before any new feature PR: /admin AttentionStrip vs KPI wall; /employee/dashboard HeroScore; /team (not /team/dashboard); partner NOT_YET chrome; More → Companion /advisor.
-- Dev: no new feature PR until those five are pixelled. Path leftover stays its own draft. No vercel --prod.
-- CEO: KEEP 3bd5471. Pixels first.
+---
+
+## Surfaces to shoot (existing routes only)
+
+| Wave | Surface | Route | Expected chrome |
+|---|---|---|---|
+| W1 | Personal empty | `/dashboard` no assessment | ThresholdFold empty. Compass is the page. Assess CTA. Numeral `—`. No fake 76. No money strip as a verdict. No Companion / check-in / Open Money on the fold. |
+| W1 | Personal hard-stop | `/dashboard` live 61 / DO NOT PROCEED / runway | Compass is the page. Hard stop **once** (eyebrow). Path **only** primary. Money **on the instrument** (runway/cash as Path evidence). Last AssessmentResult only. |
+| W2 | Partner | `/partner/dashboard` | One partner home. PageFrame. Book pulse from `referral_source`. Invite row. Portals redirect here. Flag leftover: invite URL still `/shadow-score?ref=`. Flag leftover: NOT_YET in verdict keys. |
+| W3 | Admin | `/admin` | AttentionStrip **above** KPI/MetricRail. Companion off. PageHeader present. Do not reopen extra admin rooms this pass. Flag: admin home is not wrapped in PageFrame. |
+| W4 | Employee | `/employee/dashboard` | One employee home. Privacy chrome (no peer-score theater). Flag leftover: still mounts HeroScore while personal is ThresholdFold. |
+| W5 | Team | `/team` | Aggregate only. No individual listing. Same operate frame. Flag: D2 wanted `/team/dashboard`; shipped is `/team`. |
+| — | Marketing | `/admin/marketing` | Existing marketing lock only. X+TikTok first-class. Queue/Approve not Publish. No Instagram/Threads peers. Do not invent a fifth dashboard. |
+
+Do **not** shoot as law: #333 empty Fraunces poster, Packet 2 live score, Apply-to-my-score, a Finance dashboard, guest `/`.
+
+---
+
+## I0–W5 gap reminder (unchanged)
+
+I0 SHIPPED. W0 PARTIAL (admin missing PageFrame). W1 SHIPPED under founder lock (do not rebuild card hierarchy). W2 PARTIAL (shadow-score invite, NOT_YET). W3 SHIPPED in code, UNPIXELLED. W4 PARTIAL (HeroScore). W5 PARTIAL (`/team` vs `/team/dashboard`).
