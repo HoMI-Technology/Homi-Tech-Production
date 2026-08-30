@@ -56,7 +56,7 @@ export function ThresholdFold({
   const connectedCash = liquidDollars != null && Number.isFinite(liquidDollars);
   const cashLabel = connectedCash ? formatCurrency(liquidDollars) : CASH_EMPTY_LABEL;
   const runwayLabel = foldRunwayLabel(lastMoney?.emergencyFundMonths);
-  const shownPath = resolveFoldPathPrimary(pathPrimary, hardStopActive);
+  const shownPath = resolveFoldPathPrimary(pathPrimary, stopCode);
   const scoreLabel =
     scorePct != null
       ? `Overall Decision Readiness Score ${scorePct} out of 100`

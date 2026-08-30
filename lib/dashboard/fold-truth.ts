@@ -271,14 +271,18 @@ export function foldHardStopOverrideLine(
 
 /**
  * Fold Path primary. A stored 3–6 month grow-fund title is the wrong close
- * while a runway hard stop is active — swap to the SSOT stabilize step.
+ * only while RUNWAY_UNDER_1_MONTH is the resolved stop — swap to the SSOT
+ * stabilize step. DTI / housing / credit keep the live Path title.
  */
 export function resolveFoldPathPrimary(
   pathPrimary: FoldPathPrimary | null,
-  hardStopActive: boolean,
+  stopCode?: FoldHardStopCode | null,
 ): FoldPathPrimary | null {
   if (!pathPrimary) return null;
-  if (hardStopActive && pathPrimary.title === GROW_EMERGENCY_FUND_TITLE) {
+  if (
+    stopCode === "RUNWAY_UNDER_1_MONTH" &&
+    pathPrimary.title === GROW_EMERGENCY_FUND_TITLE
+  ) {
     return { ...pathPrimary, title: RUNWAY_HARD_STOP_PATH_TITLE };
   }
   return pathPrimary;

@@ -43,6 +43,7 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(page).toContain("leadingFoldHardStopCode");
     expect(page).toContain("hard_stops");
     expect(page).toContain("stopCode");
+    expect(page).toContain("stopCode={stopCode}");
   });
 
   it("keeps live Path hard-stop titles in path.ts — fold-truth does not rewrite them", () => {
@@ -56,6 +57,8 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(truth).not.toContain("Bring debt-to-income below the protective line");
     expect(truth).not.toContain("Re-scope housing so payment stays under 45% of income");
     expect(truth).not.toContain("Rebuild credit above the 620 protective floor");
+    expect(truth).toMatch(/stopCode === "RUNWAY_UNDER_1_MONTH"/);
+    expect(truth).not.toMatch(/hardStopActive && pathPrimary\.title === GROW_EMERGENCY_FUND_TITLE/);
     expect(fold).not.toContain("Bring debt-to-income below the protective line");
     expect(fold).not.toContain("Re-scope housing so payment stays under 45% of income");
     expect(fold).not.toContain("Rebuild credit above the 620 protective floor");
@@ -150,6 +153,8 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(fold).toContain("stopCode");
     expect(fold).toContain("data-home-fold-score-plate");
     expect(fold).toContain("resolveFoldPathPrimary");
+    expect(fold).toMatch(/resolveFoldPathPrimary\(\s*pathPrimary,\s*stopCode\s*\)/);
+    expect(fold).not.toMatch(/resolveFoldPathPrimary\(\s*pathPrimary,\s*hardStopActive\s*\)/);
     expect(fold).not.toContain("stopMessages[0]");
     expect(fold).not.toContain("Grow emergency fund toward 3–6 months");
     expect(fold).not.toContain("className=\"eyebrow");
