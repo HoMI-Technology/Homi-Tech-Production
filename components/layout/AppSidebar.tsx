@@ -49,7 +49,8 @@ import { visibleDashboards } from "@/lib/dashboard/switcher-visibility";
  */
 
 /** href → glyph. Anything unmapped falls back to the neutral grid mark.
- *  /dashboard is unmapped on purpose: Lucide Compass is banned on this rail.
+ *  /dashboard is unmapped on purpose: Lucide Compass is banned on this rail,
+ *  and the LayoutGrid fallback is also banned on the HōMI row (Baseline 001).
  *  The one compass is repo ThresholdCompass on the HōMI fold. /plan is
  *  palette-only and also must not approximate the mark. */
 const ICONS: Record<string, LucideIcon> = {
@@ -82,12 +83,14 @@ function NavItem({
   /** Rail below xl shows icons only; the drawer is always expanded. */
   expanded: boolean;
 }) {
-  const Icon = ICONS[item.href] ?? FALLBACK_ICON;
+  const isHomi = item.href === "/dashboard";
+  const Icon = isHomi ? null : (ICONS[item.href] ?? FALLBACK_ICON);
   return (
     <Link
       href={item.href}
       title={item.label}
       aria-current={active ? "page" : undefined}
+      data-sidebar-homi={isHomi ? "" : undefined}
       className={`relative flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
         active ? "text-light" : "text-dim hover:bg-white/[0.04] hover:text-light"
       } ${expanded ? "" : "justify-center xl:justify-start"}`}
@@ -110,8 +113,10 @@ function NavItem({
           />
         </>
       )}
-      <Icon aria-hidden className="relative z-10 size-[18px] shrink-0" strokeWidth={1.75} />
-      <span className={`relative z-10 truncate ${expanded ? "" : "max-xl:hidden"}`}>
+      {Icon ? (
+        <Icon aria-hidden className="relative z-10 size-[18px] shrink-0" strokeWidth={1.75} />
+      ) : null}
+      <span className={`relative z-10 truncate ${expanded || isHomi ? "" : "max-xl:hidden"}`}>
         {item.label}
       </span>
     </Link>

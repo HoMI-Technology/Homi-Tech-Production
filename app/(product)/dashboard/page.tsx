@@ -1,7 +1,7 @@
 import { type CSSProperties } from "react";
 import type { Metadata } from "next";
 import { getCachedClient, getCachedUser } from "@/lib/supabase/server";
-import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
+import { COLORS, type VerdictKey } from "@/lib/brand";
 import { EntranceConductor } from "@/components/dashboard/Entrance";
 import { ENTRANCE_BOOT_SCRIPT } from "@/components/dashboard/entrance-shared";
 import { SidebarVerdictSync } from "@/components/dashboard/SidebarVerdictSync";
@@ -68,7 +68,7 @@ export default async function DashboardPage() {
   const pathSteps = Array.isArray(pathPayload?.steps) ? pathPayload.steps : [];
   const pathPrimary = foldPathPrimary(pathSteps);
   const verdict = (latest?.verdict as VerdictKey | null) ?? null;
-  const instrumentTint = verdict ? VERDICT_META[verdict].color : COLORS.cyan;
+  const instrumentTint = COLORS.cyan;
   const fieldStyle = {
     "--field-tint": `${instrumentTint}14`,
     "--instrument-tint": instrumentTint,

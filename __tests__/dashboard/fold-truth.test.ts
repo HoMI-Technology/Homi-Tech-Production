@@ -1,11 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
   HOME_FOLD_INSTRUMENT,
+  CASH_EMPTY_LABEL,
+  foldHardStopOverrideLine,
   foldPathPrimary,
   foldRunwayLabel,
+  hardStopEyebrow,
+  homeHoldSentence,
   ONBOARDING_SKIP_HREF,
   COMPANION_ESCALATION_HREF,
   COMPANION_FOLD_LINES,
+  RUNWAY_HARD_STOP_PATH_TITLE,
   buildProgressLabel,
   companionFoldLine,
   companionPresenceState,
@@ -13,6 +18,7 @@ import {
   homeFoldSentence,
   isNextRedirectError,
   pathStepCounts,
+  resolveFoldPathPrimary,
   resumeDraftCopy,
   shouldPaintDashSpectrum,
   shouldSuppressBuildPercent,
@@ -179,9 +185,58 @@ describe("foldPathPrimary", () => {
     });
   });
 
+  it("prefers a pending runway hard-stop step over a later 3–6 month grow-fund title", () => {
+    expect(
+      foldPathPrimary([
+        {
+          title: "Grow emergency fund toward 3–6 months",
+          href: "/tools/runway",
+          status: "pending",
+          reasonCode: "PILLAR_FINANCIAL",
+        },
+        {
+          title: "Stabilize emergency runway to at least 1 month",
+          href: "/tools/runway",
+          status: "pending",
+          reasonCode: "RUNWAY_UNDER_1_MONTH",
+        },
+      ]),
+    ).toEqual({
+      title: RUNWAY_HARD_STOP_PATH_TITLE,
+      href: "/tools/runway",
+    });
+  });
+
   it("returns null when there is no pending step", () => {
     expect(foldPathPrimary([])).toBeNull();
     expect(foldPathPrimary(null)).toBeNull();
+  });
+});
+
+describe("Baseline 001 fold-truth copy", () => {
+  it("locks hard-stop eyebrow + hold sentence in sentence case", () => {
+    expect(hardStopEyebrow).toBe("Hard stop · runway.");
+    expect(homeHoldSentence).toBe("Runway is the hold. Build the fund before anything else.");
+    expect(hardStopEyebrow).not.toBe(hardStopEyebrow.toUpperCase());
+    expect(CASH_EMPTY_LABEL).toBe("Connect accounts to see cash.");
+    expect(foldHardStopOverrideLine(61)).toBe("61 — runway is a hard stop.");
+    expect(foldHardStopOverrideLine(61)).not.toMatch(/35\s*[·/]\s*35/);
+    expect(RUNWAY_HARD_STOP_PATH_TITLE).toBe("Stabilize emergency runway to at least 1 month");
+  });
+
+  it("rewrites the stored grow-fund Path title while a hard stop is active", () => {
+    expect(
+      resolveFoldPathPrimary(
+        { href: "/tools/runway", title: "Grow emergency fund toward 3–6 months" },
+        true,
+      ),
+    ).toEqual({ href: "/tools/runway", title: RUNWAY_HARD_STOP_PATH_TITLE });
+    expect(
+      resolveFoldPathPrimary(
+        { href: "/tools/runway", title: "Grow emergency fund toward 3–6 months" },
+        false,
+      )?.title,
+    ).toBe("Grow emergency fund toward 3–6 months");
   });
 });
 
