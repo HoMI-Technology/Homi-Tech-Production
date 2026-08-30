@@ -53,7 +53,6 @@ export const DECISION_READINESS_SURFACES = [
   "components/score/ScoreRail.tsx",
   "components/dashboard/HeroScore.tsx",
   "components/dashboard/ThresholdFold.tsx",
-  "app/(product)/employee/dashboard/page.tsx",
   "app/(product)/report/[id]/page.tsx",
   "app/share/[token]/page.tsx",
 ] as const;
@@ -542,10 +541,16 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
   {
     id: "fold-wiring/employee-hub-empty-close",
     file: "app/(product)/employee/dashboard/page.tsx",
-    identifiersMustNot: ["ThresholdCompass"],
-    stringsMustNot: ["Get your Shadow Score"],
-    codeMust: ['actionHref="/assessment"', 'actionLabel="Assess"', 'href="/path"'],
-    codeMustNot: ['actionHref="/shadow-score"', 'href: "/plan"'],
+    identifiersMustNot: ["ThresholdCompass", "HeroScore", "VerdictBadge", "ThresholdFold"],
+    stringsMustNot: [
+      "Get your Shadow Score",
+      "Private Decision Readiness Score",
+      "Continue your build on personal Home",
+      "data-employee-score-rail",
+      "data-employee-primary",
+    ],
+    codeMust: ['actionHref="/assessment"', 'actionLabel="Assess"', 'href="/path"', 'tint="transparent"'],
+    codeMustNot: ['actionHref="/shadow-score"', 'href: "/plan"', "tint={tint}"],
   },
   {
     id: "fold-wiring/onboarding-no-first-run-ctas",
@@ -639,7 +644,8 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
   {
     id: "partner-invite-empty/mint-requires-code",
     file: "app/(product)/partner/dashboard/page.tsx",
-    stringsMust: ["shadow-score?ref=", "Could not mint an invite code"],
+    stringsMust: ["first-moment?ref=", "Could not mint an invite code"],
+    stringsMustNot: ["shadow-score?ref=", "Shadow Score"],
     codeMust: ["const inviteUrl = partnerCode ?"],
     codeMustNotMatch: [
       "inviteUrl\\s*=\\s*partnerCode[\\s\\S]*:\\s*`\\$\\{SITE_URL\\}/shadow-score`",

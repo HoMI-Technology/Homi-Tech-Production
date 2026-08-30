@@ -81,7 +81,7 @@ export default async function PartnerDashboardPage() {
     partnerCode = null;
   }
 
-  const inviteUrl = partnerCode ? `${SITE_URL}/shadow-score?ref=${partnerCode}` : null;
+  const inviteUrl = partnerCode ? `${SITE_URL}/first-moment?ref=${partnerCode}` : null;
 
   // L0 — attributed assessments via denormalized referral_source (invite path).
   const { data: referredRows } = await supabase
@@ -241,7 +241,7 @@ export default async function PartnerDashboardPage() {
         <div className="glass mt-6 p-8">
           <EmptyState
             title="Share your link to open the book"
-            body="When clients complete a Shadow Score or full assessment through your invite, readiness appears here. No emails. No guesswork."
+            body="When clients complete an assessment through your invite, readiness appears here. No emails. No guesswork."
           />
         </div>
       )}

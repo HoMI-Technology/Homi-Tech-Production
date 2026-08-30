@@ -17,7 +17,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
  *   menu, not product chrome.
  * - /agent-hub: deep Agent OS surface; /agents (roster) is the chrome entry.
  * - /plan: checklist deep-link; Path to Ready owns the living Build in chrome.
- * - /advisor is off palette (widget + route; a Companion row reads as chrome).
+ * - /advisor is not a catalog row (widget + route; a Companion row reads as chrome).
  */
 const PALETTE_ONLY_HREFS = [
   "/partner/dashboard",
@@ -96,9 +96,8 @@ describe("nav catalog parity", () => {
       "/advisor",
     );
     const { NAV_CATALOG } = await import("@/lib/layout/nav-catalog");
-    const companion = NAV_CATALOG.find((e) => e.href === "/advisor");
-    expect(companion?.label).toBe("Companion");
-    expect(companion?.surfaces.palette).toBe(false);
+    expect(NAV_CATALOG.some((e) => e.href === "/advisor")).toBe(false);
+    expect(NAV_CATALOG.some((e) => e.label === "Companion")).toBe(false);
   });
 
   it("agentOs keywords never include homie scout, even when the flag is off", async () => {

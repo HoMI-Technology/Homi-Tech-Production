@@ -2,14 +2,11 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { AccessPanel } from "@/components/b2b/AccessPanel";
-import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageFrame } from "@/components/operate/PageFrame";
 import { MetricRail } from "@/components/operate/MetricRail";
-import { ActionDock } from "@/components/operate/ActionDock";
 import { OperateHeroMeta } from "@/components/operate/OperateHeroMeta";
 import { OperateInstrument } from "@/components/operate/OperateInstrument";
-import { HeroScore } from "@/components/dashboard/HeroScore";
 import { canAccessEmployeeHub } from "@/lib/dashboard/employee-access";
 import { signInRedirect } from "@/lib/auth/signInRedirect";
 import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
@@ -88,13 +85,12 @@ export default async function EmployeeDashboardPage() {
   const assessments = (assessmentData as AssessmentRow[] | null) ?? [];
   const latest = assessments[0] ?? null;
   const verdict = (latest?.verdict as VerdictKey | null) ?? null;
-  const verdictMeta = verdict ? VERDICT_META[verdict] : null;
-  const tint = verdictMeta?.color ?? COLORS.cyan;
+  const tint = verdict ? VERDICT_META[verdict].color : COLORS.cyan;
   const scorePct = latest?.overall_score != null ? Math.round(latest.overall_score) : null;
 
   return (
     <PageFrame role="employee" density="compact">
-      <OperateInstrument tint={tint}>
+      <OperateInstrument tint="transparent">
         <OperateHeroMeta
           title={
             <>
@@ -112,43 +108,10 @@ export default async function EmployeeDashboardPage() {
           description="Private through your employer. Only you see individual scores and answers."
         />
 
-        {latest && verdictMeta ? (
-          <>
-            <div className="min-w-0 text-center lg:text-left" data-employee-score-rail="">
-              <p className="text-3xs font-bold uppercase tracking-[0.16em] text-dim">
-                Private Decision Readiness Score
-              </p>
-              <div className="mt-1.5 flex flex-wrap items-end justify-center gap-3 lg:justify-start">
-                {scorePct != null ? (
-                  <HeroScore value={scorePct} color={tint} />
-                ) : (
-                  <span
-                    className="score-numeral inline-block font-bold tabular-nums text-light"
-                    style={{ fontSize: "clamp(4rem, 8vw, 6rem)", lineHeight: 1.05 }}
-                    aria-label="Decision Readiness Score Unknown"
-                  >
-                    —
-                  </span>
-                )}
-                {verdict && (
-                  <div className="mb-1.5">
-                    <VerdictBadge verdict={verdict} size="lg" />
-                  </div>
-                )}
-              </div>
-              <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-light/90">
-                {verdictMeta.line}
-              </p>
-            </div>
-            <ActionDock kicker="Next move" title="Continue your build on personal Home">
-              <Link href="/dashboard" className="btn btn-primary" data-employee-primary="">
-                Personal dashboard
-              </Link>
-              <Link href="/path" className="btn btn-ghost">
-                Path to Ready
-              </Link>
-            </ActionDock>
-          </>
+        {latest ? (
+          <Link href="/path" className="btn btn-ghost">
+            Path to Ready
+          </Link>
         ) : (
           <EmptyState
             title="One private measurement and this hub comes alive"
