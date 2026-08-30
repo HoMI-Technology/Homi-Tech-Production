@@ -21,3 +21,10 @@ export const agentOs = process.env.NEXT_PUBLIC_FF_AGENT_OS === "true";
  * No localStorage/cookie/query overrides, no remote config.
  */
 export const impactBus = process.env.NEXT_PUBLIC_FF_IMPACT_BUS === "true";
+
+/**
+ * Harvest desk: §1091 wash-sale screen, weekly report, TaxAct/8949 CSV.
+ * Default false. Educational only — not tax advice. Do not mount UI or
+ * export CSVs unless this is the exact lowercase string "true".
+ */
+export const harvestDesk = process.env.NEXT_PUBLIC_FF_HARVEST_DESK === "true";
