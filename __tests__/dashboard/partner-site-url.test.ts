@@ -89,3 +89,9 @@ describe("partner dashboard page — no other people's overall scores", () => {
   });
 });
 
+describe("lib/env.ts — silent production default is gone", () => {
+  it("does not fall back to https://homitechnology.com", () => {
+    const src = readFileSync(resolve(process.cwd(), "lib/env.ts"), "utf8");
+    expect(src).not.toMatch(/return\s+["']https:\/\/homitechnology\.com["']/);
+  });
+});
