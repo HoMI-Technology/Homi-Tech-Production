@@ -1,7 +1,8 @@
 /**
  * Copy lock — 45 questions, public DO NOT PROCEED, Layer 03 after the verdict.
  * Lock: docs/knowledge/copy-locks/2026-08-30-three-copy-rulings.md
- * Do not invent nav. /advisor stays. Warm “Not yet is not no.” stays prose.
+ * Does not restyle Home pixels. Does not invent nav. /advisor stays.
+ * Warm “Not yet is not no.” stays prose.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -22,13 +23,14 @@ describe("Marketing copy lock — 45 questions", () => {
     const hero = read("components/home/InterviewHero.tsx");
     const door = read("components/home/FrontDoor.tsx");
     expect(hero).toContain("45 questions");
-    expect(hero).not.toMatch(/about 5 minutes|five-minute/i);
+    expect(hero).not.toMatch(/about 5 minutes|five-minute|5 minutes/i);
     expect(door).toContain("45-question");
     expect(door).toContain("45 questions");
-    expect(door).not.toMatch(/about 5 minutes|five-minute/i);
+    expect(door).not.toMatch(/about 5 minutes|five-minute|5 minutes/i);
     expect(FIRST_MOMENT_HANDOFF_LINE).toBe(
       "This is 45 questions. You’ll need an account so the verdict stays yours.",
     );
+    expect(FIRST_MOMENT_HANDOFF_LINE).not.toMatch(/5 minutes|five-minute/i);
   });
 });
 
