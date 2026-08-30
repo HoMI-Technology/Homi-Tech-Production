@@ -20,7 +20,8 @@ wins over older pack entry for the same fact. Durable items get folded
 into the main pack during the muster; packets older than ~a week are
 history, not state.
 
-Known standing facts at directory creation (2026-08-29): App UX carries
-Product's HOLD on #333; Finance is locked on "Path and hard stops lead";
+Known standing facts at directory creation (2026-08-29): #333 is CLOSED superseded
+(not merged). App UX does not carry an open-PR HOLD; the look HOLD is do-not-revive
+/ do-not-match still 4b5d47ad.; Finance is locked on "Path and hard stops lead";
 Brand & Design ruled "QA crop only, not a gate — Compass is the page";
 Knowledge tracked live tip c1727cd (#337) before #338 merged.
