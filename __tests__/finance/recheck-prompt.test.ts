@@ -1,5 +1,7 @@
 // @vitest-environment jsdom
-
+/**
+ * Recheck prompt fires only when a money band actually crosses.
+ */
 import { afterEach, describe, expect, it } from "vitest";
 import {
   bandsFromAssessmentInputs,

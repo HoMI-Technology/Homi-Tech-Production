@@ -1,3 +1,6 @@
+/**
+ * Finance metrics define surplus, DTI, and runway from ledger facts only.
+ */
 import { describe, expect, it } from "vitest";
 import {
   defineDti,

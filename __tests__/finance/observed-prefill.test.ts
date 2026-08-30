@@ -1,3 +1,6 @@
+/**
+ * Observed-money prefill suggests only allowed question ids — never locked ones.
+ */
 import { describe, expect, it } from "vitest";
 import {
   downPaymentChoiceFromEarmark,

@@ -1,3 +1,6 @@
+/**
+ * Debt-payoff preview lines stay bands — never a score or “closer to ready” claim.
+ */
 import { describe, expect, it } from "vitest";
 import {
   DEBT_PAYOFF_NOT_SCORE,

@@ -1,7 +1,9 @@
+/**
+ * AppHeader primary stays short; Companion /advisor stays off More chrome.
+ */
 import { describe, expect, it } from "vitest";
 import { APP_MORE_NAV, APP_PRIMARY_NAV } from "@/lib/layout/app-nav";
 
-/** Nav config lives outside the client component for unit/e2e import. */
 describe("AppHeader nav config", () => {
   it("keeps PRIMARY ruthlessly short with HōMI first — Money is not a peer home", () => {
     expect(APP_PRIMARY_NAV[0]).toEqual({ href: "/dashboard", label: "HōMI" });

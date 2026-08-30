@@ -4,7 +4,8 @@
  * Metrics from planner store selectors; honest "—" when source slices empty.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
@@ -135,8 +136,9 @@ describe("TrackBottomStrip", () => {
     const onSection = vi.fn();
     render(<TrackBottomStrip onSection={onSection} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Wealth" }));
-    fireEvent.click(screen.getByRole("button", { name: "Banks" }));
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "Wealth" }));
+    await user.click(screen.getByRole("button", { name: "Banks" }));
     expect(onSection).toHaveBeenCalledWith("wealth");
     expect(onSection).toHaveBeenCalledWith("banking");
   });

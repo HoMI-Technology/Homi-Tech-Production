@@ -1,3 +1,6 @@
+/**
+ * Jump-to destinations follow role gates and keep Companion /advisor off the palette.
+ */
 import { describe, it, expect } from "vitest";
 import { visiblePaletteItems } from "@/lib/dashboard/palette-visibility";
 
@@ -21,6 +24,7 @@ describe("visiblePaletteItems", () => {
     expect(hrefs).not.toContain("/partner/dashboard");
     expect(hrefs).not.toContain("/employee/dashboard");
     expect(hrefs).not.toContain("/team");
+    expect(hrefs).not.toContain("/advisor");
   });
 
   it("shows partner home for partner role", () => {
@@ -44,5 +48,6 @@ describe("visiblePaletteItems", () => {
     expect(hrefs).toContain("/partner/dashboard");
     expect(hrefs).toContain("/employee/dashboard");
     expect(hrefs).toContain("/team");
+    expect(hrefs).not.toContain("/advisor");
   });
 });

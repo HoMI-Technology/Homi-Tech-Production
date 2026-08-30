@@ -1,3 +1,6 @@
+/**
+ * Path finance snapshot reads the ledger — empty ledger is an empty picture, not a score.
+ */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   emptyBudgetLedger,

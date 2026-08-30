@@ -9,7 +9,8 @@
  * so the final visual state is what the assertions see.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { COLORS } from "@/lib/brand";
 import {
   emptyBudgetLedger,
@@ -171,7 +172,8 @@ describe("GoalsCommand empty state", () => {
     const { GoalsCommand } = await import("@/components/planner/goals/GoalsCommand");
     render(<GoalsCommand />);
 
-    fireEvent.click(await screen.findByRole("button", { name: "Add your first goal" }));
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole("button", { name: "Add your first goal" }));
     expect(await screen.findByRole("button", { name: "Add goal" })).toBeTruthy();
     expect(screen.getByText("Monthly contribution")).toBeTruthy();
   });

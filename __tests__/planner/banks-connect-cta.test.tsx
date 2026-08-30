@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 /**
- * Track Banks — secondary "Connect bank" CTA → /connections (real Plaid path).
- * Demo self-entry / Link bank / Add account stay local. Dogfood → Production PR #5.
+ * Track Banks — Connect bank → /connections; demo Add account opens Institution + Account name.
  */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -96,5 +96,15 @@ describe("BankingCommand Connect bank CTA", () => {
     expect(screen.getByRole("link", { name: /^connect bank$/i }).getAttribute("href")).toBe(
       "/connections",
     );
+  });
+
+  it("opens demo Add account with Institution and Account name", async () => {
+    const user = userEvent.setup();
+    const { BankingCommand } = await import("@/components/planner/banking/BankingCommand");
+    render(<BankingCommand />);
+
+    await user.click(screen.getAllByRole("button", { name: /add account/i })[0]);
+    expect(screen.getByLabelText("Institution")).toBeTruthy();
+    expect(screen.getByLabelText("Account name")).toBeTruthy();
   });
 });

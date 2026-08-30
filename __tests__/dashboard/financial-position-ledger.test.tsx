@@ -1,4 +1,7 @@
 // @vitest-environment jsdom
+/**
+ * Ledger KPIs convert advisor context into dashboard tile numbers without a verdict.
+ */
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import type { AdvisorFinanceContext } from "@/lib/advisor/fallback";

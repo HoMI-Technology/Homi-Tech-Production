@@ -1,3 +1,6 @@
+/**
+ * Planner companion voice never gives buy advice and never renders a raw verdict key.
+ */
 import { describe, it, expect } from "vitest";
 import { VERDICT_META } from "@/lib/brand";
 import {

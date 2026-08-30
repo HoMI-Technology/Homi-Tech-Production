@@ -1,3 +1,6 @@
+/**
+ * First Moment beats and primary-close constants stay character-exact.
+ */
 import { describe, expect, it } from "vitest";
 import {
   ACCOUNT_THEN_ASSESSMENT_HREF,

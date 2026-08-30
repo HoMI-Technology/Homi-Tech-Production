@@ -1,3 +1,6 @@
+/**
+ * Trinity gap fires only when the strongest–weakest pillar spread exceeds 40.
+ */
 import { describe, it, expect } from "vitest";
 import { computeTrinityGap } from "@/lib/dashboard/trinity-gap";
 

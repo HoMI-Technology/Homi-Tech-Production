@@ -1,3 +1,6 @@
+/**
+ * Score impact snapshots a before/after reading without mutating the live score.
+ */
 import { describe, it, expect } from "vitest";
 import { buildScoreImpact, impactToSnapshot } from "@/lib/planner/impact";
 import type { ScoreResult } from "@/lib/planner/score-result";

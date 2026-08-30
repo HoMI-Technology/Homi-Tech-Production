@@ -1,9 +1,11 @@
 // @vitest-environment jsdom
+/**
+ * Mobile bottom bar is HōMI + Assess only — not a Money cockpit.
+ * Source-lock of MONEY_MODES imports lives in T3 policy.
+ */
 
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 
 let mockPathname = "/dashboard";
 vi.mock("next/navigation", async (importOriginal) => ({
@@ -13,10 +15,6 @@ vi.mock("next/navigation", async (importOriginal) => ({
 
 import { ProductBottomNav } from "@/components/layout/ProductBottomNav";
 import { HEADER_PRIMARY_NAV } from "@/lib/layout/nav-catalog";
-
-function read(rel: string): string {
-  return readFileSync(resolve(process.cwd(), rel), "utf8");
-}
 
 afterEach(() => {
   cleanup();
@@ -65,20 +63,4 @@ describe("ProductBottomNav — <lg global bar", () => {
     expect(screen.getByRole("link", { name: "Assess" }).getAttribute("aria-current")).toBeNull();
   });
 
-  it("source does not import MONEY_MODES or local-ledger", () => {
-    const src = read("components/layout/ProductBottomNav.tsx");
-    expect(src).toContain('label: "HōMI"');
-    expect(src).toContain('label: "Assess"');
-    expect(src).toContain("lg:hidden");
-    expect(src).not.toContain("MONEY_MODES");
-    expect(src).not.toContain("MoneyModeNav");
-    expect(src).not.toContain("/money");
-    expect(src).not.toContain("/advisor");
-    expect(src).not.toContain("Reality");
-    expect(src).not.toContain("Decide");
-    expect(src).not.toContain("Goals");
-    expect(src).not.toMatch(/label: "Home"/);
-    expect(src).not.toMatch(/label: "Money"/);
-    expect(src).not.toMatch(/label: "Readiness"/);
-  });
 });

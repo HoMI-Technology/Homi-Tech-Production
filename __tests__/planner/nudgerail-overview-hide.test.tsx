@@ -4,7 +4,8 @@
  * on overview and show on other Track sections — dogfood → Production PR #2.
  */
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { BehaviorNudge } from "@/lib/planner/nudges";
 
 const nudge: BehaviorNudge = {
@@ -88,7 +89,8 @@ describe("PlannerPage NudgeRail vs Track Overview", () => {
     expect(screen.getByText("Overview panel")).toBeTruthy();
     expect(screen.queryByText("Protect the decision first")).toBeNull();
 
-    fireEvent.click(screen.getByRole("tab", { name: /Calendar/i }));
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("tab", { name: /Calendar/i }));
     expect(screen.getByText("Calendar panel")).toBeTruthy();
     expect(screen.getByText("Protect the decision first")).toBeTruthy();
     expect(screen.getByText("Suggested move")).toBeTruthy();

@@ -1,4 +1,7 @@
 // @vitest-environment jsdom
+/**
+ * Dead finance ThresholdCompass still paints the four gauges — live fold uses brand copy.
+ */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { computeScore, type AssessmentResult } from "@/lib/scoring/engine";

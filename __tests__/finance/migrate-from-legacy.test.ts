@@ -1,3 +1,6 @@
+/**
+ * Legacy finance state migrates into the ledger once and never reseeds a filled book.
+ */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   loadLegacyFinanceState,

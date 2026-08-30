@@ -1,3 +1,6 @@
+/**
+ * Homepage walk lines stay word tokens with punctuation attached — never re-wrapped.
+ */
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 import { tokenizeWalkLine } from "@/components/home/walk-tokens";

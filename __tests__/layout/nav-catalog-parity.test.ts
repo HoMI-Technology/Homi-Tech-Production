@@ -83,6 +83,24 @@ describe("nav catalog parity", () => {
     expect(palette.PALETTE_CATALOG.map((i) => i.href)).not.toContain("/advisor");
   });
 
+  it("Companion /advisor stays off More and Jump-to — catalog as shipped; do not invent nav", async () => {
+    const { nav, palette } = await loadSurfaces("true");
+    expect(nav.APP_MORE_NAV.map((i) => i.href)).not.toContain("/advisor");
+    expect(nav.APP_MORE_NAV.map((i) => i.label)).not.toContain("Companion");
+    expect(palette.PALETTE_CATALOG.map((i) => i.href)).not.toContain("/advisor");
+    expect(palette.PALETTE_CATALOG.map((i) => i.label)).not.toContain("Companion");
+    expect(palette.visiblePaletteItems({ role: "user" }).map((i) => i.href)).not.toContain(
+      "/advisor",
+    );
+    expect(palette.visiblePaletteItems({ role: "admin" }).map((i) => i.href)).not.toContain(
+      "/advisor",
+    );
+    const { NAV_CATALOG } = await import("@/lib/layout/nav-catalog");
+    const companion = NAV_CATALOG.find((e) => e.href === "/advisor");
+    expect(companion?.label).toBe("Companion");
+    expect(companion?.surfaces.palette).toBe(false);
+  });
+
   it("agentOs keywords never include homie scout, even when the flag is off", async () => {
     await loadSurfaces("false");
     const { NAV_CATALOG } = await import("@/lib/layout/nav-catalog");

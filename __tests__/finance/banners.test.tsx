@@ -1,41 +1,18 @@
 // @vitest-environment jsdom
+/**
+ * Hard-stop and warning banners show the server messages or render nothing.
+ */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
-import type { AssessmentResult } from "@/lib/scoring/engine";
 import { HardStopBanner } from "@/components/finance/HardStopBanner";
 import { WarningsBanner } from "@/components/finance/WarningsBanner";
+import { assessmentResult } from "../support/factories/assessment-result";
 
 function makeResult(
-  hardStops: AssessmentResult["hardStops"],
-  warnings: AssessmentResult["warnings"],
-): AssessmentResult {
-  return {
-    score: 45,
-    verdict: "NOT_YET",
-    financial: {
-      debtToIncome: 0,
-      downPayment: 0,
-      emergencyFund: 0,
-      creditHealth: 0,
-      total: 0,
-    },
-    emotional: {
-      lifeStability: 0,
-      confidenceLevel: 0,
-      partnerAlignment: 0,
-      fomoCheck: 0,
-      total: 0,
-      singleRedistribution: false,
-    },
-    timing: {
-      timeHorizon: 0,
-      savingsRate: 0,
-      downPaymentProgress: 0,
-      total: 0,
-    },
-    hardStops,
-    warnings,
-  };
+  hardStops: ReturnType<typeof assessmentResult>["hardStops"],
+  warnings: ReturnType<typeof assessmentResult>["warnings"],
+) {
+  return assessmentResult({ hardStops, warnings });
 }
 
 beforeEach(() => {
