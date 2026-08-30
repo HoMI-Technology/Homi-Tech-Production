@@ -1,3 +1,6 @@
+/**
+ * Dashboard switcher shows only the homes the current role may open.
+ */
 import { describe, expect, it } from "vitest";
 import {
   activeDashboardHref,

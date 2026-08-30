@@ -1,3 +1,6 @@
+/**
+ * Confirmed prefill writes only sanitized answers the user accepted.
+ */
 import { describe, expect, it } from "vitest";
 import {
   MONEY_PREFILL_BANNER,

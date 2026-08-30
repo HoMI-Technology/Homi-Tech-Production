@@ -1,3 +1,6 @@
+/**
+ * Genome payload readers return a rounded score or null — never invent a dimension.
+ */
 import { describe, it, expect } from "vitest";
 import { scoreFromGenomePayload } from "@/lib/genome/constants";
 

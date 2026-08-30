@@ -1,3 +1,6 @@
+/**
+ * Last-read chrome uses Brand verdict words and omits age under 30 days.
+ */
 import { describe, expect, it } from "vitest";
 import type { VerdictKey } from "@/lib/brand";
 import {

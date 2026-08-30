@@ -1,4 +1,7 @@
 // @vitest-environment jsdom
+/**
+ * First Moment handoff copy and continue/account CTAs stay locked to first-moment-copy.
+ */
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";

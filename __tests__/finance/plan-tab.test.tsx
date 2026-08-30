@@ -1,9 +1,10 @@
 // @vitest-environment jsdom
 /**
- * Plan Lab smoke — finance PlanTab was deleted; PlanCommand is the surface.
+ * Plan Lab chrome — heading, Plan sections nav, and tab switch Path → Housing.
  */
-import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 vi.mock("@/lib/planner/store", () => {
   const state = {
@@ -27,34 +28,53 @@ vi.mock("@/lib/planner/store", () => {
 });
 
 vi.mock("@/components/planner/plan/PlanCashFlow", () => ({
-  default: () => <div data-testid="plan-cash-flow">Cash flow</div>,
+  default: () => <div>Cash flow</div>,
 }));
 vi.mock("@/components/planner/plan/PlanPath", () => ({
-  default: () => <div data-testid="plan-path">Path lab</div>,
+  default: () => <div>Path lab</div>,
 }));
 vi.mock("@/components/planner/plan/PlanHousing", () => ({
-  default: () => <div>Housing</div>,
+  default: () => <div>Housing lab</div>,
 }));
 vi.mock("@/components/planner/plan/PlanDebt", () => ({
-  default: () => <div>Debt</div>,
+  default: () => <div>Debt lab</div>,
 }));
 vi.mock("@/components/planner/plan/PlanConsolidate", () => ({
-  default: () => <div>Consolidate</div>,
+  default: () => <div>Consolidate lab</div>,
 }));
 vi.mock("@/components/planner/plan/PlanHousehold", () => ({
-  default: () => <div>Household</div>,
+  default: () => <div>Household lab</div>,
 }));
 vi.mock("@/components/planner/plan/PlanModels", () => ({
-  default: () => <div>Models</div>,
+  default: () => <div>Models lab</div>,
 }));
 vi.mock("@/components/planner/plan/PlanShare", () => ({
-  default: () => <div>Share</div>,
+  default: () => <div>Share lab</div>,
 }));
 
+afterEach(() => {
+  cleanup();
+});
+
 describe("PlanCommand", () => {
-  it("renders Plan Lab chrome", async () => {
+  it("renders Plan Lab chrome and opens Housing from the sections nav", async () => {
+    const user = userEvent.setup();
     const { default: PlanCommand } = await import("@/components/planner/plan/PlanCommand");
     render(<PlanCommand />);
-    expect(screen.getByTestId("plan-path")).toBeTruthy();
+
+    expect(screen.getByText("PLAN LAB")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Decision readiness tools" })).toBeTruthy();
+    expect(screen.getByRole("navigation", { name: "Plan sections" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /path/i }).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByText("Path lab")).toBeTruthy();
+
+    await user.click(screen.getByRole("button", { name: /housing/i }));
+    expect(screen.getByRole("button", { name: /housing/i }).getAttribute("aria-pressed")).toBe(
+      "true",
+    );
+    expect(await screen.findByText("Housing lab")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.queryByText("Path lab")).toBeNull();
+    });
   });
 });

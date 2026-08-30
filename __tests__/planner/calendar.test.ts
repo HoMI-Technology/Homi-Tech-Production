@@ -1,3 +1,6 @@
+/**
+ * Planner calendar helpers pin month bounds and bill state from a date, not the clock.
+ */
 import { describe, it, expect } from "vitest";
 import {
   billState,

@@ -1,3 +1,6 @@
+/**
+ * Planner ↔ ledger dual-write keeps one liquid account and one transaction stream.
+ */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   LEDGER_LIQUID_ACCOUNT_ID,

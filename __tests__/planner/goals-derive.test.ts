@@ -1,3 +1,6 @@
+/**
+ * Goal rows derive pace, split, and totals from the savings plan — never from a score.
+ */
 import { describe, expect, it } from "vitest";
 import {
   contributionSplit,

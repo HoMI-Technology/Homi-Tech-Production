@@ -1,3 +1,6 @@
+/**
+ * Home fold truth — hard stops, hold sentences, and path primaries stay server-canon.
+ */
 import { describe, expect, it } from "vitest";
 import {
   HOME_FOLD_INSTRUMENT,

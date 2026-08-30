@@ -1,3 +1,6 @@
+/**
+ * Employee hub admits employer-linked, employee, and admin profiles only.
+ */
 import { describe, expect, it } from "vitest";
 import { canAccessEmployeeHub } from "@/lib/dashboard/employee-access";
 

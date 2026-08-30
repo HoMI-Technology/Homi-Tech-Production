@@ -1,3 +1,6 @@
+/**
+ * Home money standing is Path evidence dashes — never a verdict or surplus claim.
+ */
 import { describe, expect, it } from "vitest";
 import { buildHomeMoneyStandingView } from "@/lib/dashboard/home-money-standing";
 import type { LastReadMoneyInputs } from "@/lib/dashboard/last-read-chrome";

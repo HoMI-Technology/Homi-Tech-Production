@@ -9,14 +9,14 @@ Disposition ∈ KEEP · PROMOTE · REWRITE · SPLIT · MERGE · DELETE
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | dashboard/admin.test.ts | T0 | T0 | n | n | n | KEEP | docblock added |
 | dashboard/attribution.test.ts | T0 | T0 | n | n | n | KEEP | |
-| dashboard/employee-access.test.ts | T0 | T0 | n | n | n | KEEP | |
-| dashboard/financial-position-ledger.test.tsx | T0+T1 | T0+T1 | n | y | n | KEEP | no interaction on GoalCard |
+| dashboard/employee-access.test.ts | T0 | T0 | n | n | n | KEEP | docblock added |
+| dashboard/financial-position-ledger.test.tsx | T0+T1 | T0+T1 | n | y | n | KEEP | docblock added; no interaction on GoalCard |
 | dashboard/fold-truth.test.ts | T0 | T0 | n | n | n | KEEP | T0 reference |
 | dashboard/fold-wiring.test.ts | T3 | T0+T3 | y→n | n | n | SPLIT | T0 catalog kept; greps → policy |
-| dashboard/genome-scores.test.ts | T0 | T0 | n | n | n | KEEP | |
-| dashboard/home-money-standing.test.ts | T0 | T0 | n | n | n | KEEP | |
-| dashboard/last-read-chrome.test.ts | T0 | T0 | n | n | n | KEEP | |
-| dashboard/palette-visibility.test.ts | T0 | T0 | n | n | n | KEEP | |
+| dashboard/genome-scores.test.ts | T0 | T0 | n | n | n | KEEP | docblock added |
+| dashboard/home-money-standing.test.ts | T0 | T0 | n | n | n | KEEP | docblock added |
+| dashboard/last-read-chrome.test.ts | T0 | T0 | n | n | n | KEEP | docblock added |
+| dashboard/palette-visibility.test.ts | T0 | T0 | n | n | n | KEEP | Jump-to has no /advisor (Brand FAIL nav; do not invent nav) |
 | dashboard/partner-invite-empty.test.ts | T3 | T3 | y | n | n | DELETE | replaced by policy fact |
 | dashboard/partner.test.ts | inline | T0 | n | n | n | REWRITE | imports extracted `canAccessPartnerDashboard` |
 | dashboard/report-signin-redirect.test.ts | T3 | T3 | y | n | n | DELETE | replaced by policy fact |
@@ -24,8 +24,8 @@ Disposition ∈ KEEP · PROMOTE · REWRITE · SPLIT · MERGE · DELETE
 | dashboard/sign-in-redirect.test.ts | T2 | T2 | n | n | n | KEEP | |
 | dashboard/spend.test.ts | T0 | T0 | n | n | n | KEEP | |
 | dashboard/surface-roles.test.ts | T0+T3 | T0+T3 | y→n | n | n | SPLIT | import grep → policy |
-| dashboard/switcher-visibility.test.ts | T0 | T0 | n | n | n | KEEP | |
-| dashboard/trinity.test.ts | T0 | T0 | n | n | n | KEEP | |
+| dashboard/switcher-visibility.test.ts | T0 | T0 | n | n | n | KEEP | docblock added |
+| dashboard/trinity.test.ts | T0 | T0 | n | n | n | KEEP | docblock added |
 | dashboard/verdict-fold-motion.test.tsx | T1+T3 | T1+T3 | y→n | y | n | SPLIT | RTL kept; CSS/naming → policy |
 | finance/banners.test.tsx | T1 | T1 | n | y | n | PROMOTE | factory + docblock |
 | finance/debt-payoff-preview.test.ts | T0 | T0 | n | n | n | KEEP | |
@@ -38,17 +38,17 @@ Disposition ∈ KEEP · PROMOTE · REWRITE · SPLIT · MERGE · DELETE
 | finance/migrate-from-legacy.test.ts | T0 | T0 | n | n | n | KEEP | |
 | finance/observed-prefill.test.ts | T0 | T0 | n | n | n | KEEP | |
 | finance/overview-components.test.tsx | T1 | T1 | n | y | y | REWRITE | fireEvent → userEvent |
-| finance/plan-tab.test.tsx | T1 | T1 | n | y | n | KEEP | smoke; owned mocks remain (AP3 noted) |
+| finance/plan-tab.test.tsx | T1 | T1 | n | y | y | REWRITE | roles + userEvent tab click; child panels still mocked (AP3) |
 | finance/prefill-confirm.test.ts | T0 | T0 | n | n | n | KEEP | |
 | finance/readiness-snapshot.test.ts | T0 | T0 | n | n | n | KEEP | |
 | finance/recheck-prompt.test.ts | T0 | T0 | n | n | n | KEEP | |
 | finance/scoring-import-guard.test.ts | T3 | T3 | y | n | n | MERGE | → policy `no-scoring-import` |
 | finance/temperature.test.ts | T0 | T0 | n | n | n | KEEP | |
 | finance/threshold-compass.test.tsx | T1 | T1 | n | y | n | KEEP | pins dead `components/finance/ThresholdCompass` — defect logged |
-| layout/app-header-nav.test.ts | T0 | T0 | n | n | n | KEEP | |
+| layout/app-header-nav.test.ts | T0 | T0 | n | n | n | KEEP | Companion off More (Brand FAIL nav; do not invent nav) |
 | layout/app-sidebar.test.tsx | T1+T3 | T1 | y→n | y | n | SPLIT | grep describe → policy |
 | layout/money-mode-nav.test.ts | T0+T3 | T0 | y→n | n | n | SPLIT | MONEY_MODES T0 kept |
-| layout/nav-catalog-parity.test.ts | T0 | T0 | n | n | n | KEEP | T3 AST seat added; this file stays |
+| layout/nav-catalog-parity.test.ts | T0 | T0 | n | n | n | KEEP | Companion off More + Jump-to documented; do not invent nav |
 | layout/product-bottom-nav.test.tsx | T1+T3 | T1 | y→n | y | n | SPLIT | grep → policy |
 | marketing/chrome-honesty.test.ts | T0+T3 | T0 | y→n | n | n | SPLIT | TIERS/companionTierCopy kept |
 | marketing/cookies-policy.test.ts | T3 | T3 | y | n | n | DELETE | → policy |
@@ -64,7 +64,7 @@ Disposition ∈ KEEP · PROMOTE · REWRITE · SPLIT · MERGE · DELETE
 | marketing/walk-tokens.test.ts | T0 | T0 | n | n | n | KEEP | |
 | observe/log.test.ts | T0 | T0 | n | n | n | KEEP | |
 | observe/request-context.test.ts | T0 | T0 | n | n | n | KEEP | |
-| planner/banks-connect-cta.test.tsx | T1 | T1 | n | y | n | KEEP | |
+| planner/banks-connect-cta.test.tsx | T1 | T1 | n | y | y | REWRITE | userEvent Add account → Institution + Account name |
 | planner/calendar-formulas.test.ts | T0 | T0 | n | n | n | KEEP | |
 | planner/calendar.test.ts | T0 | T0 | n | n | n | KEEP | |
 | planner/closed-loop.test.ts | T0 | T0 | n | n | n | KEEP | |
@@ -117,3 +117,8 @@ Disposition ∈ KEEP · PROMOTE · REWRITE · SPLIT · MERGE · DELETE
 
 Baseline (pre-topology): 2677 tests, 302 files, 0 failed, in-scope 76 files / ~4.6s.
 Post-rebuild: policy + unit; see PR verification.
+
+## Brand pixel QA (unique 3bd5471 URL)
+
+Logged in `docs/ops/product-defects.md`. Not test-suite failures. Team `/team` PASS — not a defect.
+Companion FAIL nav is pinned by T0 (More + Jump-to omit `/advisor`); product nav was not invented.
