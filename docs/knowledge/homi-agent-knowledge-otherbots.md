@@ -17,6 +17,12 @@ ultra-premium 4-root) — verify against origin/main before trusting.
   than the partner API. As of 2026-08-26 production VIOLATES this — API returns bands but
   `/share/[token]` renders anonymous integer 0–100 + "HōMI-Score" via `get_shared_assessment`
   granted EXECUTE to anon; Slack unfurl counts as furnishing. (same SSOT, §B–C)
+  - **PARTIALLY STALE, corrected 2026-08-30.** The naming half no longer holds:
+    `app/share/[token]/page.tsx` at `3bfe729` says **"Decision Readiness Score"**
+    in both the aria-label and the caption, per the Marketing state packet's grep.
+    **The coarseness question itself is NOT resolved by that** — whether the page
+    still exposes a 0–100 integer where the API returns bands is a separate check
+    nobody has run at this SHA, and it remains a founder-facing legal item.
 - Legal reasoning on record: FCRA §603(d)/§604 "used or expected to be used" test; *Kidd v. Thomson
   Reuters* — disclaimers lose, operational gates (credential, contract, monitor, cut off) win;
   Instant Checkmate analogs; consent ≠ CRA exemption; California DROP live 2026-08-01. Eligibility

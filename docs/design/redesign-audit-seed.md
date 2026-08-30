@@ -77,8 +77,18 @@ not marker cleanup.
    column — drift amplifies with every generator change. **Resolve the SoT
    BEFORE redesigning any of those three surfaces.**
 
-8. **40 of 70 pages export no `metadata`** — including every public
-   `/tools/*` acquisition page. SEO/crawl surface.
+8. ~~**40 of 70 pages export no `metadata`** — including every public
+   `/tools/*` acquisition page.~~ **RETRACTED 2026-08-30.** Both the count and
+   the conclusion were wrong. Measured at `3bfe729`: 106 `page.tsx`, 59 export
+   metadata, 47 do not. The 14 `/tools/*` lenses without a *page-level* export
+   each have a server `layout.tsx` calling `toolMetadata(path)`
+   (`lib/seo/tool-seo.ts`), and `__tests__/seo-tool-metadata.test.ts` already
+   ratchets every public lens directory. The missing page-level export is a
+   `"use client"` constraint, not a missing-title gap — the acquisition surface
+   was never bare. Corrected by the Marketing state packet
+   (`docs/knowledge/team-state/2026-08-30-homi-marketing.md`), which verified
+   by grep at the tip. Metadata ownership, per that packet: Marketing owns the
+   strings, Dev owns the `generateMetadata` plumbing and any ratchet.
 
 9. **Genuinely thin screens:** `app/(product)/agents/page.tsx` →
    `AgentRoster` with a non-focusable `cursor-not-allowed` div
