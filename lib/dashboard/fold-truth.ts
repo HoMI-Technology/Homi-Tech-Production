@@ -122,9 +122,47 @@ export type FoldPathPrimary = {
   title: string;
 };
 
+/** Baseline 001 hard-stop kicker — sentence case, once. Not an ALL-CAPS wall. */
+export const hardStopEyebrow = "Hard stop · runway." as const;
+
+/** Baseline 001 hold line. Path owns the move; this names why. */
+export const homeHoldSentence =
+  "Runway is the hold. Build the fund before anything else." as const;
+
+/** Honest empty for last-read cash. Never a bare em dash next to a hard stop. */
+export const CASH_EMPTY_LABEL = "Connect accounts to see cash" as const;
+
+/** Path SSOT for a runway hard stop. Never the 3–6 month grow-fund title on this fold. */
+export const RUNWAY_HARD_STOP_PATH_TITLE =
+  "Stabilize emergency runway to at least 1 month" as const;
+
+const GROW_EMERGENCY_FUND_TITLE = "Grow emergency fund toward 3–6 months";
+
+/** Quiet override line: score is real; a hard stop still holds. No 35/35/30, no cutoffs. */
+export function foldHardStopOverrideLine(scorePct: number): string {
+  return `${scorePct} — runway is a hard stop.`;
+}
+
+/**
+ * Fold Path primary. A stored 3–6 month grow-fund title is the wrong close
+ * while a runway hard stop is active — swap to the SSOT stabilize step.
+ */
+export function resolveFoldPathPrimary(
+  pathPrimary: FoldPathPrimary | null,
+  hardStopActive: boolean,
+): FoldPathPrimary | null {
+  if (!pathPrimary) return null;
+  if (hardStopActive && pathPrimary.title === GROW_EMERGENCY_FUND_TITLE) {
+    return { ...pathPrimary, title: RUNWAY_HARD_STOP_PATH_TITLE };
+  }
+  return pathPrimary;
+}
+
 /** Next pending Path step for the fold — one primary, never REASSESS as the hero. */
 export function foldPathPrimary(steps: unknown): FoldPathPrimary | null {
   if (!Array.isArray(steps)) return null;
+  let firstPending: FoldPathPrimary | null = null;
+  let runwayPending: FoldPathPrimary | null = null;
   for (const step of steps) {
     if (!step || typeof step !== "object") continue;
     const row = step as { title?: unknown; href?: unknown; status?: unknown; reasonCode?: unknown };
@@ -134,9 +172,13 @@ export function foldPathPrimary(steps: unknown): FoldPathPrimary | null {
     const title = typeof row.title === "string" ? row.title.trim() : "";
     const href = typeof row.href === "string" ? row.href.trim() : "";
     if (!title || !href) continue;
-    return { title, href };
+    const item: FoldPathPrimary = { title, href };
+    if (!firstPending) firstPending = item;
+    if (row.reasonCode === "RUNWAY_UNDER_1_MONTH") {
+      runwayPending = { title: RUNWAY_HARD_STOP_PATH_TITLE, href };
+    }
   }
-  return null;
+  return runwayPending ?? firstPending;
 }
 
 /** Last AssessmentResult emergency-fund months. Empty is an em dash — never a fake 76. */

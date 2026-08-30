@@ -96,6 +96,8 @@ describe("AppSidebar — HōMI primary rail", () => {
     );
     expect(homi).not.toBeNull();
     expect(homi?.querySelector(".lucide-compass")).toBeNull();
+    expect(homi?.querySelector(".lucide-layout-grid")).toBeNull();
+    expect(homi?.querySelector("svg")).toBeNull();
     expect(rail?.querySelectorAll(".lucide-compass")).toHaveLength(0);
     expect(rail?.querySelectorAll("[data-sidebar-shell-compass]")).toHaveLength(0);
     expect(rail?.querySelectorAll('[aria-label*="Threshold Compass"]')).toHaveLength(0);
@@ -125,6 +127,8 @@ describe("AppSidebar — HōMI primary rail", () => {
     expect(sidebar).not.toContain("SidebarShellCompass");
     expect(sidebar).toContain("data-sidebar-primary");
     expect(sidebar).toContain("data-sidebar-more");
+    expect(sidebar).toContain("data-sidebar-homi");
+    expect(sidebar).toContain('const isHomi = item.href === "/dashboard"');
 
     expect(pulse).not.toContain("sidebar-pulse-strip");
     expect(pulse).not.toContain("function SidebarPulseStrip");

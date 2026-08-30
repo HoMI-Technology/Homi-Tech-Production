@@ -3,6 +3,12 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import { COLORS } from "@/lib/brand";
+import {
+  CASH_EMPTY_LABEL,
+  hardStopEyebrow,
+  homeHoldSentence,
+  RUNWAY_HARD_STOP_PATH_TITLE,
+} from "@/lib/dashboard/fold-truth";
 import { ThresholdFold } from "./ThresholdFold";
 
 beforeAll(() => {
@@ -30,6 +36,23 @@ const base = {
   pathPrimary: null as { href: string; title: string } | null,
 };
 
+const live61 = {
+  ...base,
+  latest: { id: "live-61", overallScore: 61 },
+  verdict: "NOT_YET" as const,
+  lastMoney: {
+    debtToIncomeRatio: 0.42,
+    emergencyFundMonths: 0.5,
+    savingsRate: 0.03,
+    liquidDollars: null,
+  },
+  stopMessages: ["Emergency runway is under 1 month."],
+  pathPrimary: {
+    href: "/tools/runway",
+    title: RUNWAY_HARD_STOP_PATH_TITLE,
+  },
+};
+
 describe("ThresholdFold", () => {
   it("empty-account is one Assess close on the compass — em dash, no fake 76", () => {
     const { container } = render(
@@ -54,50 +77,62 @@ describe("ThresholdFold", () => {
     expect(screen.queryByRole("link", { name: /open money/i })).not.toBeInTheDocument();
   });
 
-  it("live 61 sits in the keyhole with DNP, Hot, runway once, one Path CTA", () => {
-    const { container } = render(
-      <ThresholdFold
-        {...base}
-        latest={{ id: "live-61", overallScore: 61 }}
-        verdict="NOT_YET"
-        lastMoney={{
-          debtToIncomeRatio: 0.42,
-          emergencyFundMonths: 0.5,
-          savingsRate: 0.03,
-          liquidDollars: null,
-        }}
-        stopMessages={["Emergency runway is under 1 month."]}
-        pathPrimary={{
-          href: "/tools/runway",
-          title: "Stabilize emergency runway to at least 1 month",
-        }}
-      />,
-    );
+  it("live 61 is plated cyan, DNP without Hot, honest cash empty, Path SSOT", () => {
+    const { container } = render(<ThresholdFold {...live61} />);
 
     expect(container.querySelector("[data-home-instrument]")).toHaveAttribute(
       "data-home-instrument",
       "threshold",
     );
-    expect(screen.getByLabelText("Overall Decision Readiness Score 61 out of 100")).toHaveStyle({
-      color: COLORS.crimson,
-    });
+    const numeral = screen.getByLabelText("Overall Decision Readiness Score 61 out of 100");
+    expect(numeral).toHaveStyle({ color: COLORS.cyan });
+    expect(numeral).not.toHaveStyle({ color: COLORS.crimson });
+    expect(numeral.style.textShadow).toBe("");
+    expect(container.querySelector("[data-home-fold-score-plate]")).not.toBeNull();
     expect(container.querySelector("[data-home-threshold-compass]")?.textContent).toContain("61");
 
     const hardStop = screen.getByRole("alert");
-    expect(hardStop).toHaveTextContent("Hard stop · Emergency runway is under 1 month.");
+    expect(hardStop).toHaveTextContent(hardStopEyebrow);
+    expect(hardStop).toHaveTextContent(homeHoldSentence);
+    expect(hardStop).not.toHaveTextContent("Emergency runway is under 1 month.");
+    expect(container.querySelector("[data-home-hard-stop-eyebrow]")?.className).not.toMatch(
+      /text-crimson/,
+    );
+    expect(hardStop.className).not.toMatch(/eyebrow/);
     expect(container.querySelectorAll("[data-home-hard-stop]")).toHaveLength(1);
     expect(container.querySelectorAll("[role='alert']")).toHaveLength(1);
+    expect(container.querySelector("[data-home-hard-stop-eyebrow]")?.textContent).toBe(
+      hardStopEyebrow,
+    );
+    expect(container.querySelector("[data-home-hard-stop-hold]")?.textContent).toBe(
+      homeHoldSentence,
+    );
 
     expect(screen.getByText("DO NOT PROCEED")).toBeInTheDocument();
-    expect(screen.getByText(/· Hot/)).toBeInTheDocument();
+    expect(screen.queryByText(/· Hot/)).not.toBeInTheDocument();
+    expect(screen.queryByText("Hot")).not.toBeInTheDocument();
+    expect(screen.queryByText("Warm")).not.toBeInTheDocument();
+    expect(screen.queryByText("Cold")).not.toBeInTheDocument();
     expect(screen.queryByText("NOT_YET")).not.toBeInTheDocument();
     expect(screen.queryByText("Not yet")).not.toBeInTheDocument();
     expect(screen.queryByText(/80–100|80-100/)).not.toBeInTheDocument();
+    expect(screen.getByLabelText("DO NOT PROCEED")).toBeInTheDocument();
 
     expect(container.querySelector("[data-home-fold-runway]")).toHaveTextContent("0.5 mo");
-    expect(container.querySelector("[data-home-fold-cash]")).toHaveTextContent("Cash");
-    expect(container.querySelector("[data-home-fold-cash]")).toHaveTextContent("—");
+    expect(container.querySelector("[data-home-fold-cash]")).toHaveTextContent(CASH_EMPTY_LABEL);
+    expect(container.querySelector("[data-home-fold-cash]")).not.toHaveTextContent("—");
     expect(container.querySelector("[data-home-fold-cash]")?.className).not.toMatch(/text-4xl/);
+    expect(screen.queryByText("0")).not.toBeInTheDocument();
+
+    expect(container.querySelector("[data-home-fold-override]")).toHaveTextContent(
+      "61 — runway is a hard stop.",
+    );
+    expect(container.querySelector("[data-home-fold-override]")?.textContent).not.toMatch(
+      /35\s*[·/]\s*35\s*[·/]\s*30/,
+    );
+    expect(container.querySelector("[data-home-fold-override]")?.textContent).not.toMatch(
+      /80|65|50|49/,
+    );
 
     const path = screen.getByRole("link", {
       name: /Stabilize emergency runway to at least 1 month/i,
@@ -106,6 +141,7 @@ describe("ThresholdFold", () => {
     expect(path).toHaveAttribute("data-path-fold-primary");
     expect(path).toHaveAttribute("href", "/tools/runway");
     expect(container.querySelectorAll(".btn-primary")).toHaveLength(1);
+    expect(screen.queryByText(/Grow emergency fund toward 3–6 months/)).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /mark done/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /full path/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /open money/i })).not.toBeInTheDocument();
@@ -115,9 +151,30 @@ describe("ThresholdFold", () => {
     expect(container.querySelector("[data-companion-fold-line]")).toBeNull();
     expect(container.querySelector("[data-home-score-rail]")).toBeNull();
     expect(container.querySelector("[data-home-money-standing]")).toBeNull();
+    expect(container.querySelector("[data-home-money-tile]")).toBeNull();
     expect(screen.queryByText(/Checking in 30 days/i)).not.toBeInTheDocument();
     expect(screen.queryByText("76")).not.toBeInTheDocument();
     expect(container.querySelector("[data-celebrate]")).toBeNull();
+    expect(container.querySelector("[data-hard-stop]")?.getAttribute("style")).toContain(
+      COLORS.cyan,
+    );
+  });
+
+  it("remaps the stored 3–6 month grow-fund title to Path SSOT while runway is a hard stop", () => {
+    render(
+      <ThresholdFold
+        {...live61}
+        pathPrimary={{
+          href: "/tools/runway",
+          title: "Grow emergency fund toward 3–6 months",
+        }}
+      />,
+    );
+
+    expect(
+      screen.getByRole("link", { name: /Stabilize emergency runway to at least 1 month/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Grow emergency fund toward 3–6 months/)).not.toBeInTheDocument();
   });
 
   it("hard-stop sentence sits above the public verdict word", () => {

@@ -122,6 +122,22 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(fold).toContain("data-home-fold-cash");
     expect(fold).toContain("data-path-fold-primary");
     expect(fold).toContain("VerdictBadge");
+    expect(fold).toContain("hideTemperature");
+    expect(fold).not.toContain("hideTemperature={false}");
+    expect(fold).toContain("hardStopEyebrow");
+    expect(fold).toContain("homeHoldSentence");
+    expect(fold).toContain("CASH_EMPTY_LABEL");
+    expect(fold).toContain("foldHardStopOverrideLine");
+    expect(fold).toContain("data-home-fold-score-plate");
+    expect(fold).toContain("resolveFoldPathPrimary");
+    expect(fold).not.toContain("stopMessages[0]");
+    expect(fold).not.toContain("Grow emergency fund toward 3–6 months");
+    expect(fold).not.toContain("className=\"eyebrow");
+    expect(fold).not.toContain("COLORS.crimson");
+    expect(fold).not.toContain("textShadow");
+    expect(fold).not.toContain("VERDICT_META");
+    expect(fold).not.toContain("35/35/30");
+    expect(fold).not.toContain("HomeMoneyStanding");
     expect(fold).not.toContain("ScoreRail");
     expect(fold).not.toContain("HomeMoneyStanding");
     expect(fold).not.toContain("PathStepLedger");
@@ -141,11 +157,23 @@ describe("dashboard fold tells the truth about the build", () => {
   });
 
   it("Path fold primary is the pending step title — not Mark done or Full path", () => {
-    expect(fold).toContain("pathPrimary.title");
+    expect(fold).toContain("shownPath.title");
     expect(fold).toContain('data-path-fold-primary=""');
     expect(fold).not.toContain("Mark done");
     expect(fold).not.toContain("Full path");
     expect(fold).not.toContain("Start step");
+  });
+
+  it("does not paint a thicker crimson hard-stop frame on the fold", () => {
+    const css = src("app", "globals.css");
+    const marker = '.dash-instrument[data-threshold-fold][data-hard-stop="1"]';
+    expect(css).toContain(marker);
+    const from = css.indexOf(marker);
+    const foldHardStop = css.slice(from, from + 700);
+    expect(foldHardStop).not.toMatch(/#f24822/);
+    expect(foldHardStop).not.toMatch(/inset 3px 0 0 0/);
+    expect(page).not.toContain("VERDICT_META");
+    expect(page).toContain("COLORS.cyan");
   });
 
   it("Home money strip stays off the fold — runway is instrument evidence", () => {

@@ -1,8 +1,14 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
-import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
+import { COLORS, type VerdictKey } from "@/lib/brand";
 import {
+  CASH_EMPTY_LABEL,
   HOME_FOLD_INSTRUMENT,
+  foldHardStopOverrideLine,
   foldRunwayLabel,
+  hardStopEyebrow,
+  homeHoldSentence,
+  resolveFoldPathPrimary,
   type FoldPathPrimary,
 } from "@/lib/dashboard/fold-truth";
 import type { LastReadMoneyInputs } from "@/lib/dashboard/last-read-chrome";
@@ -21,6 +27,8 @@ export type ThresholdFoldLatest = {
 /**
  * Signed-in first screen. The fold is the repo Threshold Compass — large,
  * one mark, last AssessmentResult only. Does not write the ledger or a score.
+ * Baseline 001: numeral is plated above the ring (z-order only). Compass
+ * radii / yellow keyhole stay in ThresholdCompass — this file does not redraw them.
  */
 export function ThresholdFold({
   assessmentsFailed,
@@ -40,23 +48,19 @@ export function ThresholdFold({
   const scorePct =
     latest?.overallScore != null ? Math.round(latest.overallScore) : null;
   const hardStopActive = stopMessages.length > 0;
-  const instrumentTint =
-    scorePct == null
-      ? COLORS.light
-      : hardStopActive
-        ? COLORS.crimson
-        : verdict
-          ? VERDICT_META[verdict].color
-          : COLORS.yellow;
+  const scoreInk = scorePct == null ? COLORS.light : COLORS.cyan;
+  const liquidDollars = lastMoney?.liquidDollars;
+  const connectedCash = liquidDollars != null && Number.isFinite(liquidDollars);
+  const cashLabel = connectedCash ? formatCurrency(liquidDollars) : CASH_EMPTY_LABEL;
   const runwayLabel = foldRunwayLabel(lastMoney?.emergencyFundMonths);
-  const cashLabel =
-    lastMoney?.liquidDollars != null && Number.isFinite(lastMoney.liquidDollars)
-      ? formatCurrency(lastMoney.liquidDollars)
-      : "—";
+  const shownPath = resolveFoldPathPrimary(pathPrimary, hardStopActive);
   const scoreLabel =
     scorePct != null
       ? `Overall Decision Readiness Score ${scorePct} out of 100`
       : "Decision Readiness Score Unknown";
+  const instrumentStyle = {
+    "--instrument-tint": COLORS.cyan,
+  } as CSSProperties;
 
   return (
     <div
@@ -65,8 +69,9 @@ export function ThresholdFold({
       data-threshold-fold=""
       data-home-instrument={latest ? HOME_FOLD_INSTRUMENT : "empty"}
       data-hard-stop={hardStopActive ? "1" : "0"}
+      style={instrumentStyle}
     >
-      <div className="dash-instrument-inner flex flex-col items-center px-5 py-8 text-center sm:px-7 sm:py-10 lg:px-8">
+      <div className="dash-instrument-inner flex flex-col items-center px-4 py-5 text-center sm:px-6 sm:py-6">
         {assessmentsFailed ? (
           <LoadErrorPanel
             title="Your readiness didn't load"
@@ -86,17 +91,20 @@ export function ThresholdFold({
                 glow
                 verdict={verdict ?? undefined}
               />
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+              <div className="pointer-events-none absolute inset-0 z-[2] flex items-center justify-center">
                 <span
-                  className="score-numeral text-5xl font-semibold tabular-nums sm:text-6xl"
-                  style={{
-                    color: instrumentTint,
-                    textShadow: `0 0 10px ${COLORS.navy}, 0 0 28px ${instrumentTint}66`,
-                  }}
-                  aria-label={scoreLabel}
-                  data-home-fold-score=""
+                  data-home-fold-score-plate=""
+                  className="flex min-h-[4.75rem] min-w-[6.75rem] items-center justify-center rounded-full px-3"
+                  style={{ background: COLORS.navy }}
                 >
-                  {scorePct != null ? scorePct : "—"}
+                  <span
+                    className="score-numeral text-5xl font-semibold tabular-nums sm:text-6xl"
+                    style={{ color: scoreInk }}
+                    aria-label={scoreLabel}
+                    data-home-fold-score=""
+                  >
+                    {scorePct != null ? scorePct : "—"}
+                  </span>
                 </span>
               </div>
             </div>
@@ -104,7 +112,7 @@ export function ThresholdFold({
             {latest ? (
               <>
                 <p
-                  className="mt-5 font-medium text-light"
+                  className="mt-3 font-medium text-light"
                   data-home-fold-runway=""
                 >
                   <span className="text-2xs font-semibold uppercase tracking-[0.14em] text-dim">
@@ -113,56 +121,82 @@ export function ThresholdFold({
                   <span className="score-numeral">{runwayLabel}</span>
                 </p>
                 <p className="mt-1 text-sm text-dim" data-home-fold-cash="">
-                  <span className="text-2xs font-semibold uppercase tracking-[0.14em]">
-                    Cash
-                  </span>{" "}
-                  <span className="score-numeral text-light">{cashLabel}</span>
+                  {connectedCash ? (
+                    <>
+                      <span className="text-2xs font-semibold uppercase tracking-[0.14em]">
+                        Cash
+                      </span>{" "}
+                      <span className="score-numeral text-light">{cashLabel}</span>
+                    </>
+                  ) : (
+                    <span data-home-fold-cash-empty="">{CASH_EMPTY_LABEL}</span>
+                  )}
                 </p>
 
                 {hardStopActive ? (
-                  <p
-                    className="eyebrow mt-6 text-crimson"
+                  <div
+                    className="mt-5 max-w-[22rem] text-center"
                     role="alert"
                     data-home-hard-stop=""
                   >
-                    Hard stop · {stopMessages[0]}
-                  </p>
+                    <p
+                      className="text-sm font-medium text-light"
+                      data-home-hard-stop-eyebrow=""
+                    >
+                      {hardStopEyebrow}
+                    </p>
+                    <p
+                      className="mt-1 text-sm leading-relaxed text-light/85"
+                      data-home-hard-stop-hold=""
+                    >
+                      {homeHoldSentence}
+                    </p>
+                  </div>
                 ) : null}
 
                 {verdict ? (
                   <div
-                    className={`flex justify-center ${hardStopActive ? "mt-3" : "mt-6"}`}
+                    className={`flex justify-center ${hardStopActive ? "mt-3" : "mt-5"}`}
                     data-home-fold-verdict=""
                     data-home-verdict=""
                   >
                     <VerdictBadge
                       verdict={verdict}
                       size="md"
-                      hideTemperature={false}
+                      hideTemperature
                       className="border-0 bg-transparent px-0 py-0"
                     />
                   </div>
                 ) : null}
 
-                {pathPrimary ? (
-                  <p className="mt-8">
+                {hardStopActive && scorePct != null ? (
+                  <p
+                    className="mt-3 max-w-[22rem] text-sm text-dim"
+                    data-home-fold-override=""
+                  >
+                    {foldHardStopOverrideLine(scorePct)}
+                  </p>
+                ) : null}
+
+                {shownPath ? (
+                  <p className="mt-5">
                     <Link
-                      href={pathPrimary.href}
+                      href={shownPath.href}
                       className="btn btn-primary"
                       data-path-fold-primary=""
                     >
-                      {pathPrimary.title}
+                      {shownPath.title}
                     </Link>
                   </p>
                 ) : null}
               </>
             ) : (
-              <p className="mt-8">
+              <p className="mt-6">
                 <ThresholdFoldEmptyClose />
               </p>
             )}
 
-            <p className="mt-8 max-w-xl text-xs leading-relaxed text-dim/80">
+            <p className="mt-6 max-w-md text-xs leading-relaxed text-dim/80">
               Educational guidance only.{" "}
               <Link href="/legal/disclaimer" className="text-cyan underline-offset-2 hover:underline">
                 Full disclaimer
