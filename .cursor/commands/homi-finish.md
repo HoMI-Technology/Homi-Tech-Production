@@ -20,11 +20,26 @@ feature, dashboard, flow, button, and piece of logic — to launch-ready.**
    `docs/design/redesign-loop-state.md` (create from the template in
    `/homi-redesign-loop` if absent).
 
+## Step 0.5 — Knowledge muster (every run; refresh when >1 day old)
+
+The named agents hold knowledge that exists ONLY in their conversations.
+Before the first work pass, message EVERY roster agent and collect a state
+packet: current locks/HOLDs and why, decisions made in their domain,
+in-flight work and its branch/PR, top-3 known gotchas, and what they need
+from other agents. Commit each packet to
+`docs/knowledge/team-state/<date>-<agent-slug>.md` and fold anything
+durable into `docs/knowledge/homi-agent-knowledge.md`. This is how the
+team's accumulated knowledge reaches subagents and cloud agents — an agent
+that skips the muster is working blind and will re-litigate settled
+decisions. If a roster agent is unreachable this session, say so to the
+user and proceed on the packets already in `docs/knowledge/team-state/`.
+
 ## The team — route by domain, respect the protocol
 
-Delegate through the NAMED agents (send_to_agent / their channels), not
-anonymous spawns. Their message conventions (tips, packets, waves W1…,
-"not a gate", "Locked") are the coordination protocol — use it.
+**ALL work is delegated through the NAMED roster below** — anonymous
+subagents may exist only underneath a named agent's task, never as a
+parallel chain of command. Their message conventions (tips, packets, waves
+W1…, "not a gate", "Locked") are the coordination protocol — use it.
 
 - **CEO** — decisions only: punch-list approvals, direction calls, lifting
   HOLDs, D10/C.2-class rulings. Escalate with a one-screen brief and a
