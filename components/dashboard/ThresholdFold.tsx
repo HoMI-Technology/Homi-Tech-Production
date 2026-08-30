@@ -4,11 +4,12 @@ import { COLORS, type VerdictKey } from "@/lib/brand";
 import {
   CASH_EMPTY_LABEL,
   HOME_FOLD_INSTRUMENT,
+  foldHardStopEyebrow,
   foldHardStopOverrideLine,
+  foldHomeHoldSentence,
   foldRunwayLabel,
-  hardStopEyebrow,
-  homeHoldSentence,
   resolveFoldPathPrimary,
+  type FoldHardStopCode,
   type FoldPathPrimary,
 } from "@/lib/dashboard/fold-truth";
 import type { LastReadMoneyInputs } from "@/lib/dashboard/last-read-chrome";
@@ -35,6 +36,7 @@ export function ThresholdFold({
   latest,
   verdict,
   stopMessages,
+  stopCode = null,
   lastMoney,
   pathPrimary,
 }: {
@@ -42,6 +44,7 @@ export function ThresholdFold({
   latest: ThresholdFoldLatest | null;
   verdict: VerdictKey | null;
   stopMessages: string[];
+  stopCode?: FoldHardStopCode | null;
   lastMoney?: LastReadMoneyInputs | null;
   pathPrimary: FoldPathPrimary | null;
 }) {
@@ -143,13 +146,13 @@ export function ThresholdFold({
                       className="text-sm font-medium text-light"
                       data-home-hard-stop-eyebrow=""
                     >
-                      {hardStopEyebrow}
+                      {foldHardStopEyebrow(stopCode)}
                     </p>
                     <p
                       className="mt-1 text-sm leading-relaxed text-light/85"
                       data-home-hard-stop-hold=""
                     >
-                      {homeHoldSentence}
+                      {foldHomeHoldSentence(stopCode)}
                     </p>
                   </div>
                 ) : null}
@@ -174,7 +177,7 @@ export function ThresholdFold({
                     className="mt-3 max-w-[22rem] text-sm text-dim"
                     data-home-fold-override=""
                   >
-                    {foldHardStopOverrideLine(scorePct)}
+                    {foldHardStopOverrideLine(scorePct, stopCode)}
                   </p>
                 ) : null}
 

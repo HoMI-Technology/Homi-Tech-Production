@@ -2,9 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
   HOME_FOLD_INSTRUMENT,
   CASH_EMPTY_LABEL,
+  FOLD_HARD_STOP_PRECEDENCE,
+  foldHardStopEyebrow,
   foldHardStopOverrideLine,
+  foldHomeHoldSentence,
   foldPathPrimary,
   foldRunwayLabel,
+  hardStopCodes,
   hardStopEyebrow,
   homeHoldSentence,
   ONBOARDING_SKIP_HREF,
@@ -17,6 +21,7 @@ import {
   hardStopMessages,
   homeFoldSentence,
   isNextRedirectError,
+  leadingFoldHardStopCode,
   pathStepCounts,
   resolveFoldPathPrimary,
   resumeDraftCopy,
@@ -224,6 +229,19 @@ describe("Baseline 001 fold-truth copy", () => {
     expect(RUNWAY_HARD_STOP_PATH_TITLE).toBe("Stabilize emergency runway to at least 1 month");
   });
 
+  it("keeps RUNWAY_UNDER_1_MONTH copy on the Baseline 001 constants", () => {
+    expect(foldHardStopEyebrow("RUNWAY_UNDER_1_MONTH")).toBe(hardStopEyebrow);
+    expect(foldHomeHoldSentence("RUNWAY_UNDER_1_MONTH")).toBe(homeHoldSentence);
+    expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).toBe(
+      foldHardStopOverrideLine(61),
+    );
+    expect(foldHardStopEyebrow(null)).toBe(hardStopEyebrow);
+    expect(foldHomeHoldSentence(undefined)).toBe(homeHoldSentence);
+    expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).not.toMatch(
+      /0\.5\s*mo|<1 month|at least 1 month/i,
+    );
+  });
+
   it("rewrites the stored grow-fund Path title while a hard stop is active", () => {
     expect(
       resolveFoldPathPrimary(
@@ -237,6 +255,84 @@ describe("Baseline 001 fold-truth copy", () => {
         false,
       )?.title,
     ).toBe("Grow emergency fund toward 3–6 months");
+  });
+});
+
+describe("F1 hard-stop copy by stop code", () => {
+  const cutoffLeak = /0\.5\s*mo|<1 month|at least 1 month|50%|45%|620|35\s*[·/]\s*35/;
+
+  it("locks DTI_OVER_50 eyebrow, hold, and override", () => {
+    expect(foldHardStopEyebrow("DTI_OVER_50")).toBe("Hard stop · DTI.");
+    expect(foldHomeHoldSentence("DTI_OVER_50")).toBe(
+      "DTI is the hold. Bring the debt load down before anything else.",
+    );
+    expect(foldHardStopOverrideLine(61, "DTI_OVER_50")).toBe("61 — DTI is a hard stop.");
+    expect(foldHardStopOverrideLine(61, "DTI_OVER_50")).not.toMatch(cutoffLeak);
+    expect(foldHardStopOverrideLine(61, "DTI_OVER_50")).not.toMatch(/at least 1 month/i);
+  });
+
+  it("locks HOUSING_RATIO_OVER_45 eyebrow, hold, and override", () => {
+    expect(foldHardStopEyebrow("HOUSING_RATIO_OVER_45")).toBe("Hard stop · housing.");
+    expect(foldHomeHoldSentence("HOUSING_RATIO_OVER_45")).toBe(
+      "Housing is the hold. Re-scope the payment before anything else.",
+    );
+    expect(foldHardStopOverrideLine(61, "HOUSING_RATIO_OVER_45")).toBe(
+      "61 — housing is a hard stop.",
+    );
+    expect(foldHardStopOverrideLine(61, "HOUSING_RATIO_OVER_45")).not.toMatch(cutoffLeak);
+    expect(foldHardStopOverrideLine(61, "HOUSING_RATIO_OVER_45")).not.toMatch(
+      /at least 1 month/i,
+    );
+  });
+
+  it("locks CREDIT_UNDER_620 eyebrow, hold, and override", () => {
+    expect(foldHardStopEyebrow("CREDIT_UNDER_620")).toBe("Hard stop · credit.");
+    expect(foldHomeHoldSentence("CREDIT_UNDER_620")).toBe(
+      "Credit is the hold. Rebuild before anything else.",
+    );
+    expect(foldHardStopOverrideLine(61, "CREDIT_UNDER_620")).toBe("61 — credit is a hard stop.");
+    expect(foldHardStopOverrideLine(61, "CREDIT_UNDER_620")).not.toMatch(cutoffLeak);
+    expect(foldHardStopOverrideLine(61, "CREDIT_UNDER_620")).not.toMatch(/at least 1 month/i);
+  });
+
+  it("locks RUNWAY_UNDER_1_MONTH as the unchanged Baseline 001 trio", () => {
+    expect(foldHardStopEyebrow("RUNWAY_UNDER_1_MONTH")).toBe("Hard stop · runway.");
+    expect(foldHomeHoldSentence("RUNWAY_UNDER_1_MONTH")).toBe(
+      "Runway is the hold. Build the fund before anything else.",
+    );
+    expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).toBe(
+      "61 — runway is a hard stop.",
+    );
+  });
+
+  it("extracts known codes from the same rows as hardStopMessages", () => {
+    expect(
+      hardStopCodes([
+        { code: "DTI_OVER_50", message: "DTI is above 50%." },
+        { code: "blank", message: "   " },
+        { code: "RUNWAY_UNDER_1_MONTH", message: "Emergency runway is under 1 month." },
+        { code: "CREDIT_UNDER_620" },
+      ]),
+    ).toEqual(["DTI_OVER_50", "RUNWAY_UNDER_1_MONTH"]);
+    expect(hardStopCodes(null)).toEqual([]);
+  });
+
+  it("keeps Path + hard-stop precedence when multiple codes fire", () => {
+    expect(FOLD_HARD_STOP_PRECEDENCE).toEqual([
+      "RUNWAY_UNDER_1_MONTH",
+      "DTI_OVER_50",
+      "HOUSING_RATIO_OVER_45",
+      "CREDIT_UNDER_620",
+    ]);
+    expect(
+      leadingFoldHardStopCode(["CREDIT_UNDER_620", "DTI_OVER_50", "RUNWAY_UNDER_1_MONTH"]),
+    ).toBe("RUNWAY_UNDER_1_MONTH");
+    expect(leadingFoldHardStopCode(["CREDIT_UNDER_620", "HOUSING_RATIO_OVER_45"])).toBe(
+      "HOUSING_RATIO_OVER_45",
+    );
+    expect(leadingFoldHardStopCode(["CREDIT_UNDER_620", "DTI_OVER_50"])).toBe("DTI_OVER_50");
+    expect(leadingFoldHardStopCode(["CREDIT_UNDER_620"])).toBe("CREDIT_UNDER_620");
+    expect(leadingFoldHardStopCode([])).toBeNull();
   });
 });
 

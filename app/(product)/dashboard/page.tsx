@@ -7,7 +7,12 @@ import { ENTRANCE_BOOT_SCRIPT } from "@/components/dashboard/entrance-shared";
 import { SidebarVerdictSync } from "@/components/dashboard/SidebarVerdictSync";
 import { DashboardFoldBeacon } from "@/components/dashboard/DashboardFoldBeacon";
 import { ThresholdFold } from "@/components/dashboard/ThresholdFold";
-import { foldPathPrimary, hardStopMessages } from "@/lib/dashboard/fold-truth";
+import {
+  foldPathPrimary,
+  hardStopCodes,
+  hardStopMessages,
+  leadingFoldHardStopCode,
+} from "@/lib/dashboard/fold-truth";
 import { SURFACE_ROLES } from "@/lib/dashboard/surface-roles";
 import type { LastReadMoneyInputs } from "@/lib/dashboard/last-read-chrome";
 import { PageFrame } from "@/components/operate/PageFrame";
@@ -62,6 +67,7 @@ export default async function DashboardPage() {
   const assessmentRows: AssessmentRow[] = assessmentsR.data ?? [];
   const latest = assessmentRows[0] ?? null;
   const stopMessages = hardStopMessages(latest?.hard_stops);
+  const stopCode = leadingFoldHardStopCode(hardStopCodes(latest?.hard_stops));
   const hardStopCount = stopMessages.length;
   const pathPayload =
     pathR.error || !pathR.data ? null : (pathR.data as { path?: { steps?: unknown } }).path;
@@ -102,6 +108,7 @@ export default async function DashboardPage() {
           }
           verdict={verdict}
           stopMessages={stopMessages}
+          stopCode={stopCode}
           lastMoney={lastMoneyInputsFromRow(latest?.inputs ?? null)}
           pathPrimary={pathPrimary}
         />

@@ -39,7 +39,10 @@ describe("dashboard fold tells the truth about the build", () => {
 
   it("names hard stops from the latest assessment", () => {
     expect(page).toContain("hardStopMessages");
+    expect(page).toContain("hardStopCodes");
+    expect(page).toContain("leadingFoldHardStopCode");
     expect(page).toContain("hard_stops");
+    expect(page).toContain("stopCode");
   });
 
   it("does not celebrate or percent-complete over an active hard stop", () => {
@@ -124,10 +127,11 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(fold).toContain("VerdictBadge");
     expect(fold).toContain("hideTemperature");
     expect(fold).not.toContain("hideTemperature={false}");
-    expect(fold).toContain("hardStopEyebrow");
-    expect(fold).toContain("homeHoldSentence");
+    expect(fold).toContain("foldHardStopEyebrow");
+    expect(fold).toContain("foldHomeHoldSentence");
     expect(fold).toContain("CASH_EMPTY_LABEL");
     expect(fold).toContain("foldHardStopOverrideLine");
+    expect(fold).toContain("stopCode");
     expect(fold).toContain("data-home-fold-score-plate");
     expect(fold).toContain("resolveFoldPathPrimary");
     expect(fold).not.toContain("stopMessages[0]");
