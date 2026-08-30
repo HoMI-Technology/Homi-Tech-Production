@@ -14,6 +14,7 @@ import { OperateInstrument } from "@/components/operate/OperateInstrument";
 import type { Profile } from "@/types/database";
 import type { VerdictKey } from "@/lib/brand";
 import { COLORS, VERDICT_META } from "@/lib/brand";
+import { canAccessPartnerDashboard } from "@/lib/dashboard/partner-access";
 
 export const metadata: Metadata = {
   title: "Partner Dashboard | HōMI",
@@ -44,7 +45,7 @@ export default async function PartnerDashboardPage() {
     .maybeSingle();
   const profile = (profileData as Profile | null) ?? null;
 
-  if (!profile || (profile.role !== "partner" && profile.role !== "admin")) {
+  if (!canAccessPartnerDashboard(profile)) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-16">
         <AccessPanel
