@@ -218,7 +218,7 @@ describe("Baseline 001 fold-truth copy", () => {
     expect(hardStopEyebrow).toBe("Hard stop · runway.");
     expect(homeHoldSentence).toBe("Runway is the hold. Build the fund before anything else.");
     expect(hardStopEyebrow).not.toBe(hardStopEyebrow.toUpperCase());
-    expect(CASH_EMPTY_LABEL).toBe("Connect accounts to see cash");
+    expect(CASH_EMPTY_LABEL).toBe("Connect accounts to see cash.");
     expect(foldHardStopOverrideLine(61)).toBe("61 — runway is a hard stop.");
     expect(foldHardStopOverrideLine(61)).not.toMatch(/35\s*[·/]\s*35/);
     expect(RUNWAY_HARD_STOP_PATH_TITLE).toBe("Stabilize emergency runway to at least 1 month");

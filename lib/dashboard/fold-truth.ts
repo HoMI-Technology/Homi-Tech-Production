@@ -130,7 +130,7 @@ export const homeHoldSentence =
   "Runway is the hold. Build the fund before anything else." as const;
 
 /** Honest empty for last-read cash. Never a bare em dash next to a hard stop. */
-export const CASH_EMPTY_LABEL = "Connect accounts to see cash" as const;
+export const CASH_EMPTY_LABEL = "Connect accounts to see cash." as const;
 
 /** Path SSOT for a runway hard stop. Never the 3–6 month grow-fund title on this fold. */
 export const RUNWAY_HARD_STOP_PATH_TITLE =
