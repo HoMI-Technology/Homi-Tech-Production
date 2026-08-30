@@ -252,7 +252,10 @@ export function foldHomeHoldSentence(
 /** Honest empty for last-read cash. Never a bare em dash next to a hard stop. */
 export const CASH_EMPTY_LABEL = "Connect accounts to see cash." as const;
 
-/** Path SSOT for a runway hard stop. Never the 3–6 month grow-fund title on this fold. */
+/**
+ * Path SSOT for a runway hard stop. Never the 3–6 month grow-fund title on this fold.
+ * DTI / housing / credit Path titles stay in lib/readiness/path.ts — do not rewrite them here.
+ */
 export const RUNWAY_HARD_STOP_PATH_TITLE =
   "Stabilize emergency runway to at least 1 month" as const;
 

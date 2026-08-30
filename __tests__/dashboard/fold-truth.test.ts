@@ -226,6 +226,11 @@ describe("Baseline 001 fold-truth copy", () => {
     expect(CASH_EMPTY_LABEL).toBe("Connect accounts to see cash.");
     expect(foldHardStopOverrideLine(61)).toBe("61 — runway is a hard stop.");
     expect(foldHardStopOverrideLine(61)).not.toMatch(/35\s*[·/]\s*35/);
+    expect(foldHardStopOverrideLine(61)).not.toMatch(/50/);
+    expect(foldHardStopOverrideLine(61)).not.toMatch(/45%/);
+    expect(foldHardStopOverrideLine(61)).not.toMatch(/620/);
+    expect(foldHardStopOverrideLine(61)).not.toMatch(/1 month/);
+    expect(foldHardStopOverrideLine(61)).not.toMatch(/0\.5/);
     expect(RUNWAY_HARD_STOP_PATH_TITLE).toBe("Stabilize emergency runway to at least 1 month");
   });
 
@@ -237,9 +242,12 @@ describe("Baseline 001 fold-truth copy", () => {
     );
     expect(foldHardStopEyebrow(null)).toBe(hardStopEyebrow);
     expect(foldHomeHoldSentence(undefined)).toBe(homeHoldSentence);
-    expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).not.toMatch(
-      /0\.5\s*mo|<1 month|at least 1 month/i,
-    );
+    const runwayOverride = foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH");
+    expect(runwayOverride).not.toMatch(/50/);
+    expect(runwayOverride).not.toMatch(/45%/);
+    expect(runwayOverride).not.toMatch(/620/);
+    expect(runwayOverride).not.toMatch(/1 month/);
+    expect(runwayOverride).not.toMatch(/0\.5/);
   });
 
   it("rewrites the stored grow-fund Path title while a hard stop is active", () => {
@@ -259,51 +267,61 @@ describe("Baseline 001 fold-truth copy", () => {
 });
 
 describe("F1 hard-stop copy by stop code", () => {
-  const cutoffLeak = /0\.5\s*mo|<1 month|at least 1 month|50%|45%|620|35\s*[·/]\s*35/;
+  /** Path titles are SSOT in lib/readiness/path.ts — already live, do not rewrite. */
+  const F1_FOUR_LINES = [
+    {
+      code: "RUNWAY_UNDER_1_MONTH",
+      eyebrow: "Hard stop · runway.",
+      hold: "Runway is the hold. Build the fund before anything else.",
+      pathTitle: "Stabilize emergency runway to at least 1 month",
+      override: "61 — runway is a hard stop.",
+    },
+    {
+      code: "DTI_OVER_50",
+      eyebrow: "Hard stop · DTI.",
+      hold: "DTI is the hold. Bring the debt load down before anything else.",
+      pathTitle: "Bring debt-to-income below the protective line",
+      override: "61 — DTI is a hard stop.",
+    },
+    {
+      code: "HOUSING_RATIO_OVER_45",
+      eyebrow: "Hard stop · housing.",
+      hold: "Housing is the hold. Re-scope the payment before anything else.",
+      pathTitle: "Re-scope housing so payment stays under 45% of income",
+      override: "61 — housing is a hard stop.",
+    },
+    {
+      code: "CREDIT_UNDER_620",
+      eyebrow: "Hard stop · credit.",
+      hold: "Credit is the hold. Rebuild before anything else.",
+      pathTitle: "Rebuild credit above the 620 protective floor",
+      override: "61 — credit is a hard stop.",
+    },
+  ] as const;
 
-  it("locks DTI_OVER_50 eyebrow, hold, and override", () => {
-    expect(foldHardStopEyebrow("DTI_OVER_50")).toBe("Hard stop · DTI.");
-    expect(foldHomeHoldSentence("DTI_OVER_50")).toBe(
-      "DTI is the hold. Bring the debt load down before anything else.",
-    );
-    expect(foldHardStopOverrideLine(61, "DTI_OVER_50")).toBe("61 — DTI is a hard stop.");
-    expect(foldHardStopOverrideLine(61, "DTI_OVER_50")).not.toMatch(cutoffLeak);
-    expect(foldHardStopOverrideLine(61, "DTI_OVER_50")).not.toMatch(/at least 1 month/i);
-  });
+  const OVERRIDE_CUTOFF_LEAKS = [/50/, /45%/, /620/, /1 month/, /0\.5/] as const;
 
-  it("locks HOUSING_RATIO_OVER_45 eyebrow, hold, and override", () => {
-    expect(foldHardStopEyebrow("HOUSING_RATIO_OVER_45")).toBe("Hard stop · housing.");
-    expect(foldHomeHoldSentence("HOUSING_RATIO_OVER_45")).toBe(
-      "Housing is the hold. Re-scope the payment before anything else.",
-    );
-    expect(foldHardStopOverrideLine(61, "HOUSING_RATIO_OVER_45")).toBe(
-      "61 — housing is a hard stop.",
-    );
-    expect(foldHardStopOverrideLine(61, "HOUSING_RATIO_OVER_45")).not.toMatch(cutoffLeak);
-    expect(foldHardStopOverrideLine(61, "HOUSING_RATIO_OVER_45")).not.toMatch(
-      /at least 1 month/i,
-    );
-  });
+  function assertOverrideHasNoCutoffs(line: string): void {
+    for (const leak of OVERRIDE_CUTOFF_LEAKS) {
+      expect(line).not.toMatch(leak);
+    }
+  }
 
-  it("locks CREDIT_UNDER_620 eyebrow, hold, and override", () => {
-    expect(foldHardStopEyebrow("CREDIT_UNDER_620")).toBe("Hard stop · credit.");
-    expect(foldHomeHoldSentence("CREDIT_UNDER_620")).toBe(
-      "Credit is the hold. Rebuild before anything else.",
-    );
-    expect(foldHardStopOverrideLine(61, "CREDIT_UNDER_620")).toBe("61 — credit is a hard stop.");
-    expect(foldHardStopOverrideLine(61, "CREDIT_UNDER_620")).not.toMatch(cutoffLeak);
-    expect(foldHardStopOverrideLine(61, "CREDIT_UNDER_620")).not.toMatch(/at least 1 month/i);
-  });
-
-  it("locks RUNWAY_UNDER_1_MONTH as the unchanged Baseline 001 trio", () => {
-    expect(foldHardStopEyebrow("RUNWAY_UNDER_1_MONTH")).toBe("Hard stop · runway.");
-    expect(foldHomeHoldSentence("RUNWAY_UNDER_1_MONTH")).toBe(
-      "Runway is the hold. Build the fund before anything else.",
-    );
-    expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).toBe(
-      "61 — runway is a hard stop.",
-    );
-  });
+  it.each(F1_FOUR_LINES)(
+    "locks $code eyebrow / hold / Path title / override",
+    (row) => {
+      expect(foldHardStopEyebrow(row.code)).toBe(row.eyebrow);
+      expect(foldHomeHoldSentence(row.code)).toBe(row.hold);
+      expect(foldHardStopOverrideLine(61, row.code)).toBe(row.override);
+      assertOverrideHasNoCutoffs(foldHardStopOverrideLine(61, row.code));
+      if (row.code === "RUNWAY_UNDER_1_MONTH") {
+        expect(row.eyebrow).toBe(hardStopEyebrow);
+        expect(row.hold).toBe(homeHoldSentence);
+        expect(row.pathTitle).toBe(RUNWAY_HARD_STOP_PATH_TITLE);
+        expect(foldHardStopOverrideLine(61, row.code)).toBe(foldHardStopOverrideLine(61));
+      }
+    },
+  );
 
   it("extracts known codes from the same rows as hardStopMessages", () => {
     expect(

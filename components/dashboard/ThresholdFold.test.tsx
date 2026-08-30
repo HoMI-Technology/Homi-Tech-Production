@@ -214,9 +214,12 @@ describe("ThresholdFold", () => {
       expect(container.querySelector("[data-home-fold-override]")?.textContent).toBe(
         foldHardStopOverrideLine(61, code),
       );
-      expect(container.querySelector("[data-home-fold-override]")?.textContent).not.toMatch(
-        /0\.5\s*mo|<1 month|at least 1 month/,
-      );
+      const override = container.querySelector("[data-home-fold-override]")?.textContent ?? "";
+      expect(override).not.toMatch(/50/);
+      expect(override).not.toMatch(/45%/);
+      expect(override).not.toMatch(/620/);
+      expect(override).not.toMatch(/1 month/);
+      expect(override).not.toMatch(/0\.5/);
       expect(screen.queryByText(engineMessage)).not.toBeInTheDocument();
       if (code !== "RUNWAY_UNDER_1_MONTH") {
         expect(container.querySelector("[data-home-hard-stop-eyebrow]")?.textContent).not.toBe(
@@ -229,7 +232,7 @@ describe("ThresholdFold", () => {
           foldHardStopOverrideLine(61),
         );
         expect(container.querySelector("[data-home-fold-override]")?.textContent).not.toMatch(
-          /at least 1 month/i,
+          /50|45%|620|1 month|0\.5/,
         );
       } else {
         expect(container.querySelector("[data-home-hard-stop-eyebrow]")?.textContent).toBe(
