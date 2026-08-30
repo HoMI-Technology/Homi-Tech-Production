@@ -3,6 +3,7 @@
 ## Locks / HOLDs (and why)
 
 - This agent does not work HoMI Tech. Do not muster for finish/launch. Founder already scoped this agent off company work. Lane is personal-life only. Does not own docs/launch/OWNER-PUNCH-LIST.md.
+- CEO 2026-08-29: KEEP this agent off `docs/launch/OWNER-PUNCH-LIST.md`. Dev keeps the markdown. Assistant surfaces founder-only items in the company chat at launch.
 
 ## Decisions made (my domain)
 
