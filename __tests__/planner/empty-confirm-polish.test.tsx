@@ -3,7 +3,8 @@
  * Dogfood UX PR #4 — ConfirmDialog for Clear/Load sample + EmptyState polish.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import ConfirmDialog from "@/components/planner/ui/ConfirmDialog";
 import EmptyState from "@/components/planner/ui/EmptyState";
 
@@ -104,7 +105,7 @@ afterEach(() => {
 });
 
 describe("ConfirmDialog", () => {
-  it("confirms destructive clear with honest copy", () => {
+  it("confirms destructive clear with honest copy", async () => {
     const onConfirm = vi.fn();
     const onClose = vi.fn();
     render(
@@ -119,7 +120,8 @@ describe("ConfirmDialog", () => {
     );
     expect(screen.getByRole("dialog")).toBeTruthy();
     expect(screen.getByText("Clear your planner data?")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Clear data" }));
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "Clear data" }));
     expect(onConfirm).toHaveBeenCalledOnce();
     expect(onClose).toHaveBeenCalledOnce();
   });
@@ -171,12 +173,13 @@ describe("PlannerPage Clear / Load sample", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /Load sample numbers/i }));
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /Load sample numbers/i }));
     expect(confirmSpy).not.toHaveBeenCalled();
     expect(screen.getByText("Load sample numbers?")).toBeTruthy();
     expect(screen.getByText(/Education only/i)).toBeTruthy();
 
-    fireEvent.click(screen.getByRole("button", { name: "Load sample" }));
+    await user.click(screen.getByRole("button", { name: "Load sample" }));
     expect(resetDemo).toHaveBeenCalledOnce();
     expect(setReadinessProfile).toHaveBeenCalledOnce();
     confirmSpy.mockRestore();
@@ -213,12 +216,13 @@ describe("PlannerPage Clear / Load sample", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /Clear data/i }));
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /Clear data/i }));
     expect(confirmSpy).not.toHaveBeenCalled();
     const dialog = screen.getByRole("dialog");
     expect(within(dialog).getByText("Clear your planner data?")).toBeTruthy();
 
-    fireEvent.click(within(dialog).getByRole("button", { name: "Clear data" }));
+    await user.click(within(dialog).getByRole("button", { name: "Clear data" }));
     expect(clearWorkspace).toHaveBeenCalledOnce();
     confirmSpy.mockRestore();
   });

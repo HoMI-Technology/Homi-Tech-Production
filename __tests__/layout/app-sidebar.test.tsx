@@ -1,9 +1,11 @@
 // @vitest-environment jsdom
+/**
+ * AppSidebar primary rail shows HōMI then Assess and hides pulse/score chrome.
+ * Source-lock of catalog imports lives in T3 policy.
+ */
 
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 
 let mockPathname = "/dashboard";
 vi.mock("next/navigation", async (importOriginal) => ({
@@ -18,10 +20,6 @@ vi.mock("@/components/layout/CommandPalette", () => ({
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { LATEST_VERDICT_KEY } from "@/components/layout/SidebarDecisionState";
 import { HEADER_PRIMARY_NAV } from "@/lib/layout/nav-catalog";
-
-function read(rel: string): string {
-  return readFileSync(resolve(process.cwd(), rel), "utf8");
-}
 
 afterEach(() => {
   cleanup();
@@ -104,41 +102,4 @@ describe("AppSidebar — HōMI primary rail", () => {
     expect(document.querySelectorAll('[aria-label*="Threshold Compass"]')).toHaveLength(0);
   });
 
-  it("source locks: catalog primary, no Home journey copy, repo compass only", () => {
-    const sidebar = read("components/layout/AppSidebar.tsx");
-    const pulse = read("components/layout/SidebarDecisionState.tsx");
-    const bottom = read("components/layout/ProductBottomNav.tsx");
-
-    expect(sidebar).not.toMatch(/^\s*Compass,/m);
-    expect(sidebar).not.toContain('"/dashboard": Compass');
-    expect(sidebar).not.toContain('"/plan": Compass');
-    expect(sidebar).not.toMatch(/Home,/);
-    expect(sidebar).not.toContain('"/dashboard": Home');
-    expect(sidebar).not.toContain("Build entry (Home)");
-    expect(sidebar).not.toContain("JOURNEY_ORDER");
-    expect(sidebar).not.toContain("SidebarPulseStrip");
-    expect(sidebar).not.toContain("Pulse·7d");
-    expect(sidebar).not.toContain("Held ${");
-    expect(sidebar).not.toContain("DO NOT PROCEED");
-    expect(sidebar).not.toContain("SidebarScoreChip");
-    expect(sidebar).not.toContain("footerChipModel");
-    expect(sidebar).not.toContain('from "@/components/brand/ThresholdCompass"');
-    expect(sidebar).not.toContain("@/components/finance/ThresholdCompass");
-    expect(sidebar).not.toContain("SidebarShellCompass");
-    expect(sidebar).toContain("data-sidebar-primary");
-    expect(sidebar).toContain("data-sidebar-more");
-    expect(sidebar).toContain("data-sidebar-homi");
-    expect(sidebar).toContain('const isHomi = item.href === "/dashboard"');
-
-    expect(pulse).not.toContain("sidebar-pulse-strip");
-    expect(pulse).not.toContain("function SidebarPulseStrip");
-    expect(pulse).not.toContain("export function SidebarDecisionState");
-    expect(pulse).not.toContain("footerChipModel");
-    expect(pulse).not.toContain('label: "Pulse');
-
-    expect(bottom).toContain('label: "HōMI"');
-    expect(bottom).toContain('label: "Assess"');
-    expect(bottom).not.toMatch(/label: "Home"/);
-    expect(bottom).not.toMatch(/label: "Money"/);
-  });
 });

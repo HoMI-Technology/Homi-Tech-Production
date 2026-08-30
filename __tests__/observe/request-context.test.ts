@@ -1,3 +1,6 @@
+/**
+ * Request IDs echo a safe incoming header, otherwise mint a UUID, and stamp the response.
+ */
 import { describe, it, expect } from "vitest";
 import { NextResponse } from "next/server";
 import {

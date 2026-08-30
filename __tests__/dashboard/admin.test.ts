@@ -1,3 +1,6 @@
+/**
+ * Admin CSV export and revenue roll-ups stay deterministic.
+ */
 import { describe, it, expect } from "vitest";
 import { formatCSV } from "@/lib/dashboard/csv";
 import {

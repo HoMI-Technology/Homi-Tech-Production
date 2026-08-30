@@ -1,3 +1,6 @@
+/**
+ * Structured observe logs emit one JSON line and strip secret fields.
+ */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { logEvent } from "@/lib/observe/log";
 

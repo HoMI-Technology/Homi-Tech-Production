@@ -4,7 +4,8 @@
  * after finance Wave B delete (Budget Planner absorption).
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { SignalsStrip } from "@/components/planner/SignalsStrip";
 import { NudgeRail } from "@/components/planner/NudgeRail";
@@ -57,12 +58,13 @@ describe("planner SignalsStrip", () => {
     meta: "IF-THEN",
   };
 
-  it("renders signals and dismisses", () => {
+  it("renders signals and dismisses", async () => {
     const onDismiss = vi.fn();
     const onAction = vi.fn();
     render(<SignalsStrip signals={[signal]} onDismiss={onDismiss} onAction={onAction} />);
     expect(screen.getByText("1 overdue bill")).toBeTruthy();
-    fireEvent.click(screen.getByLabelText("Dismiss 1 overdue bill"));
+    const user = userEvent.setup();
+    await user.click(screen.getByLabelText("Dismiss 1 overdue bill"));
     expect(onDismiss).toHaveBeenCalledWith("sig-1");
   });
 
@@ -84,11 +86,12 @@ describe("planner NudgeRail", () => {
     chip: "Protection",
   };
 
-  it("renders primary nudge and action", () => {
+  it("renders primary nudge and action", async () => {
     const onAction = vi.fn();
     render(<NudgeRail nudges={[nudge]} onAction={onAction} />);
     expect(screen.getByText("Protect the decision first")).toBeTruthy();
-    fireEvent.click(screen.getByText(/Open Plan/i));
+    const user = userEvent.setup();
+    await user.click(screen.getByText(/Open Plan/i));
     expect(onAction).toHaveBeenCalled();
   });
 });
