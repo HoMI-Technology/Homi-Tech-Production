@@ -6,8 +6,9 @@ alwaysApply: true
 # HōMI SSOT
 
 - Product source of truth is GitHub `HoMI-Technology/Homi-Tech-Production` and **this workspace only**.
-- Local path: `C:\Users\cody\code\Homi-Tech-Production-` (`HOMI_SSOT`).
+- Canonical local path on the founder machine: `C:\dev\apps\homi-production` (`HOMI_SSOT`); worktrees live under `C:\dev\worktrees\homi-production--<slug>`. (Historical `C:\Users\cody\...` paths are a retired machine — ignore them.)
+- Local checkouts go stale in hours — **`git fetch origin` first; base work on `origin/main`**, never on local branch state.
 - Never invent a second product root under Desktop `HoMI Tech` archives.
 - Prefer small PRs; after merge keep `main` 1:1 with `origin/main`.
 - Agy must not write here; use EVO playground for experiments.
-- Ship multi-agent via `pwsh -File C:\Users\cody\ai-server\scripts\homi-ssot.ps1 pipeline -Task "..."`.
+- Agent operating system: `.cursor/commands/homi-finish.md` (master goal+loop for the named team), `docs/knowledge/homi-agent-knowledge.md` (compiled cross-bot canon), `docs/design/baseline/` (founder-reviewed visual baselines), `docs/design/redesign-audit-seed.md` (gap seed with staleness alert).
