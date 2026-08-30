@@ -17,3 +17,15 @@ These are **not** fixed in this PR. Tests were not softened.
 
 See `ROUTE_STATE_GAPS` in `__tests__/policy/rules/route-state-coverage.test.ts`.
 Examples: `app/(product)/assessment/page.tsx` (no loading/error), `app/(product)/path/page.tsx` (no loading), partner/employee/team dashboards (no error).
+
+## Brand pixel QA (unique 3bd5471 URL)
+
+Pixel QA at the unique `3bd5471` URL. These are **not** test-suite failures. Tests were not softened and nav was not invented. Team `/team` PASS (aggregates / bands only) — not a defect.
+
+| file | line | severity | note | what is broken |
+| --- | --- | --- | --- | --- |
+| `app/(product)/employee/dashboard/page.tsx` (`HeroScore`, `VerdictBadge`, `ActionDock`, `OperateInstrument`) | HeroScore import 12 / render 123; VerdictBadge 135; ActionDock 143–146; OperateInstrument tint 97. Copy: `lib/brand/index.ts` 99–102 (`temperature` "Hot", line "Not yet is not no. It is clarity. It is protection.") | FAIL | Brand pixel QA, unique 3bd5471 URL | Employee `/employee/dashboard`: HeroScore + Hot + “Not yet is not no” + personal Home CTA + red glow. |
+| `app/(product)/partner/dashboard/page.tsx` | 84 (`inviteUrl = \`${SITE_URL}/shadow-score?ref=${partnerCode}\``; `SITE_URL` default `https://homitechnology.com` at 24) | Extra FAIL | Brand pixel QA, unique 3bd5471 URL | Partner Shadow Score invite URL is `homitechnology.com/shadow-score?ref=`. |
+| `app/(product)/partner/dashboard/page.tsx` (`EmptyState`) | 240–246 | empty PASS | Brand pixel QA, unique 3bd5471 URL | Empty first viewport has no `VerdictBadge` / NOT_YET. |
+| `lib/layout/nav-catalog.ts` | 136–152 (`href: "/advisor"`, `label: "Companion"`, `surfaces: { palette: false }`). Jump-to = `CommandPalette` / `visiblePaletteItems`. More = `APP_MORE_NAV`. | FAIL nav | Brand pixel QA, unique 3bd5471 URL | Companion: `/advisor` content exists off-nav; More and Jump-to have no Companion/advisor entry. Do not invent nav in product. |
+| `app/(product)/admin/layout.tsx` + `components/admin/AdminAccessWall.tsx` + `app/(product)/admin/page.tsx` | layout 59–70 (always-on MFA); wall 17–21 (“Set up your authenticator”); AttentionStrip 224 | INCOMPLETE | Brand pixel QA, unique 3bd5471 URL | Admin 2FA authenticator gate. AttentionStrip vs KPI wall never rendered. |
