@@ -91,6 +91,9 @@ describe("partner + employee surfaces doctrine", () => {
     const page = read("app/(product)/partner/dashboard/page.tsx");
     expect(page).toContain('data-partner-invite=""');
     expect(page).toContain("InviteShareRow");
+    expect(page).toContain("first-moment?ref=");
+    expect(page).not.toContain("shadow-score?ref=");
+    expect(page).not.toContain("Shadow Score");
     expect(page).not.toContain("PathNextMove");
     expect(page).not.toContain("HomeFold");
     expect(page).toContain('data-partner-resources=""');
@@ -98,17 +101,25 @@ describe("partner + employee surfaces doctrine", () => {
     expect(page).not.toMatch(/data-partner-resources[\s\S]*glass-hover/);
   });
 
-  it("Employee continues to personal Home — no product card wall, Path not hero", () => {
+  it("Employee hub keeps privacy and Path ghost — score rail unmounted", () => {
     const page = read("app/(product)/employee/dashboard/page.tsx");
-    expect(page).toContain('href="/dashboard"');
-    expect(page).toContain('data-employee-primary=""');
     expect(page).toContain('data-employee-privacy=""');
+    expect(page).toContain("OperateHeroMeta");
+    expect(page).toContain("MetricRail");
+    expect(page).toContain("EmptyState");
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("VerdictBadge");
+    expect(page).not.toContain("data-employee-score-rail");
+    expect(page).not.toContain("data-employee-primary");
+    expect(page).not.toContain("Private Decision Readiness Score");
+    expect(page).not.toContain("Continue your build on personal Home");
+    expect(page).not.toContain("tint={tint}");
+    expect(page).not.toContain("ThresholdFold");
     expect(page).not.toContain("PathNextMove");
     expect(page).not.toContain("HomeFold");
     // Six-card product wall removed
     expect(page).not.toMatch(/glass glass-hover block p-4[\s\S]*Path to Ready/);
     expect(page).not.toMatch(/title: "Companion"/);
-    expect(page).toMatch(/btn-primary[^>]*data-employee-primary=""|data-employee-primary=""[^>]*btn-primary/);
     const pathLink = page.match(/<Link[^>]*href="\/path"[^>]*>/);
     expect(pathLink?.[0] ?? "").toMatch(/btn-ghost/);
   });

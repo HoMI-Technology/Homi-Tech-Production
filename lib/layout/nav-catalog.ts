@@ -133,22 +133,14 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     surfaces: { palette: false },
   },
 
-  // Header MORE: journal. Companion chat is the widget + /advisor route —
-  // not header, not More, not palette chrome (a palette row reads as a CTA).
+  // Header MORE: journal. /advisor stays as a route + widget — not a catalog
+  // row. palette:false still parked a Companion CTA; deleting the row is the fix.
   {
     href: "/journal",
     label: "Journal",
     group: "Navigate",
     keywords: "decisions log notes",
     surfaces: { header: "more", palette: true },
-  },
-  {
-    href: "/advisor",
-    label: "Companion",
-    paletteLabel: "Talk to the Companion",
-    group: "Act",
-    keywords: "chat advisor ai talk",
-    surfaces: { palette: false },
   },
 
   // Launch-hidden insight labs (routes exist; not in header More or palette)
