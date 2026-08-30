@@ -227,11 +227,24 @@ export function isFoldHardStopCode(value: unknown): value is FoldHardStopCode {
   );
 }
 
-/** Resolve a stored or Path code. Unknown / missing stays the Baseline 001 runway case. */
+/**
+ * Neutral fold copy when the stop code is unknown or missing.
+ * Must not invent RUNWAY_UNDER_1_MONTH. See docs/design/baseline/VERIFIER-NOTE-F1.md.
+ */
+export const NEUTRAL_HARD_STOP_EYEBROW = "Hard stop." as const;
+
+export function foldNeutralHardStopOverrideLine(scorePct: number): string {
+  return `${scorePct} — hard stop.`;
+}
+
+/**
+ * Resolve a stored or Path code. Unknown / missing stays null — never invent runway.
+ * Same posture as resolveFoldPathPrimary (unknown = no swap).
+ */
 export function resolveFoldHardStopCode(
   code: FoldHardStopCode | null | undefined,
-): FoldHardStopCode {
-  return isFoldHardStopCode(code) ? code : "RUNWAY_UNDER_1_MONTH";
+): FoldHardStopCode | null {
+  return isFoldHardStopCode(code) ? code : null;
 }
 
 /** Codes from the same hard_stops rows that carry a human message. */
@@ -267,14 +280,19 @@ export function foldHardStopEyebrow(
   code?: FoldHardStopCode | null,
   decisionType: string = "home_buying",
 ): string {
-  return foldHardStopCopy(resolveFoldHardStopCode(code), decisionType).eyebrow;
+  const resolved = resolveFoldHardStopCode(code);
+  if (!resolved) return NEUTRAL_HARD_STOP_EYEBROW;
+  return foldHardStopCopy(resolved, decisionType).eyebrow;
 }
 
+/** Hold sentence for a known stop. Null when the code is unknown — omit the line. */
 export function foldHomeHoldSentence(
   code?: FoldHardStopCode | null,
   decisionType: string = "home_buying",
-): string {
-  return foldHardStopCopy(resolveFoldHardStopCode(code), decisionType).hold;
+): string | null {
+  const resolved = resolveFoldHardStopCode(code);
+  if (!resolved) return null;
+  return foldHardStopCopy(resolved, decisionType).hold;
 }
 
 /** Honest empty for last-read cash. Never a bare em dash next to a hard stop. */
@@ -295,7 +313,9 @@ export function foldHardStopOverrideLine(
   code?: FoldHardStopCode | null,
   decisionType: string = "home_buying",
 ): string {
-  return foldHardStopCopy(resolveFoldHardStopCode(code), decisionType).override(scorePct);
+  const resolved = resolveFoldHardStopCode(code);
+  if (!resolved) return foldNeutralHardStopOverrideLine(scorePct);
+  return foldHardStopCopy(resolved, decisionType).override(scorePct);
 }
 
 /**

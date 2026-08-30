@@ -38,8 +38,8 @@ describe("fold Path primary — runway swap is gated on the runway stop", () => 
   });
 
   it("never swaps when no stop code resolves — silence beats the wrong action", () => {
-    // Deliberately the opposite posture to resolveFoldHardStopCode, which
-    // defaults unknown codes to runway. See docs/design/baseline/VERIFIER-NOTE-F1.md.
+    // Same posture as resolveFoldHardStopCode: unknown / missing = no invent.
+    // See docs/design/baseline/VERIFIER-NOTE-F1.md.
     expect(resolveFoldPathPrimary(GROW_FUND, null)?.title).toBe(GROW_FUND.title);
     expect(resolveFoldPathPrimary(GROW_FUND, undefined)?.title).toBe(GROW_FUND.title);
   });
