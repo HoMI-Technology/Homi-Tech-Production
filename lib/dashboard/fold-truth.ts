@@ -122,6 +122,30 @@ export type FoldPathPrimary = {
   title: string;
 };
 
+/**
+ * Fold hard-stop codes. Same four Path already ranks.
+ * Do not import the engine; this is display copy only.
+ */
+export const FOLD_HARD_STOP_CODES = [
+  "RUNWAY_UNDER_1_MONTH",
+  "DTI_OVER_50",
+  "HOUSING_RATIO_OVER_45",
+  "CREDIT_UNDER_620",
+] as const;
+
+export type FoldHardStopCode = (typeof FOLD_HARD_STOP_CODES)[number];
+
+/**
+ * Path + hard stops lead. Same precedence as Path HARD_STOP_ORDER.
+ * Do not invent a new ranking.
+ */
+export const FOLD_HARD_STOP_PRECEDENCE: readonly FoldHardStopCode[] = [
+  "RUNWAY_UNDER_1_MONTH",
+  "DTI_OVER_50",
+  "HOUSING_RATIO_OVER_45",
+  "CREDIT_UNDER_620",
+] as const;
+
 /** Baseline 001 hard-stop kicker — sentence case, once. Not an ALL-CAPS wall. */
 export const hardStopEyebrow = "Hard stop · runway." as const;
 
@@ -129,18 +153,120 @@ export const hardStopEyebrow = "Hard stop · runway." as const;
 export const homeHoldSentence =
   "Runway is the hold. Build the fund before anything else." as const;
 
+type FoldHardStopCopy = {
+  eyebrow: string;
+  hold: string;
+  override: (scorePct: number) => string;
+};
+
+function foldHardStopCopy(code: FoldHardStopCode): FoldHardStopCopy {
+  switch (code) {
+    case "RUNWAY_UNDER_1_MONTH":
+      return {
+        eyebrow: hardStopEyebrow,
+        hold: homeHoldSentence,
+        override: (scorePct) => `${scorePct} — runway is a hard stop.`,
+      };
+    case "DTI_OVER_50":
+      return {
+        eyebrow: "Hard stop · DTI.",
+        hold: "DTI is the hold. Bring the debt load down before anything else.",
+        override: (scorePct) => `${scorePct} — DTI is a hard stop.`,
+      };
+    case "HOUSING_RATIO_OVER_45":
+      return {
+        eyebrow: "Hard stop · housing.",
+        hold: "Housing is the hold. Re-scope the payment before anything else.",
+        override: (scorePct) => `${scorePct} — housing is a hard stop.`,
+      };
+    case "CREDIT_UNDER_620":
+      return {
+        eyebrow: "Hard stop · credit.",
+        hold: "Credit is the hold. Rebuild before anything else.",
+        override: (scorePct) => `${scorePct} — credit is a hard stop.`,
+      };
+    default: {
+      const _exhaustive: never = code;
+      return _exhaustive;
+    }
+  }
+}
+
+export function isFoldHardStopCode(value: unknown): value is FoldHardStopCode {
+  return (
+    value === "RUNWAY_UNDER_1_MONTH" ||
+    value === "DTI_OVER_50" ||
+    value === "HOUSING_RATIO_OVER_45" ||
+    value === "CREDIT_UNDER_620"
+  );
+}
+
+/** Resolve a stored or Path code. Unknown / missing stays the Baseline 001 runway case. */
+export function resolveFoldHardStopCode(
+  code: FoldHardStopCode | null | undefined,
+): FoldHardStopCode {
+  return isFoldHardStopCode(code) ? code : "RUNWAY_UNDER_1_MONTH";
+}
+
+/** Codes from the same hard_stops rows that carry a human message. */
+export function hardStopCodes(hardStops: unknown): FoldHardStopCode[] {
+  if (!Array.isArray(hardStops)) return [];
+  const codes: FoldHardStopCode[] = [];
+  for (const row of hardStops) {
+    if (!row || typeof row !== "object") continue;
+    const message = (row as { message?: unknown }).message;
+    if (typeof message !== "string" || !message.trim()) continue;
+    const code = (row as { code?: unknown }).code;
+    if (isFoldHardStopCode(code)) codes.push(code);
+  }
+  return codes;
+}
+
+/** First active stop in Path order. Null when no known code is present. */
+export function leadingFoldHardStopCode(
+  codes: readonly unknown[],
+): FoldHardStopCode | null {
+  const present = new Set<FoldHardStopCode>();
+  for (const code of codes) {
+    if (isFoldHardStopCode(code)) present.add(code);
+  }
+  if (present.size === 0) return null;
+  for (const code of FOLD_HARD_STOP_PRECEDENCE) {
+    if (present.has(code)) return code;
+  }
+  return null;
+}
+
+export function foldHardStopEyebrow(
+  code?: FoldHardStopCode | null,
+): string {
+  return foldHardStopCopy(resolveFoldHardStopCode(code)).eyebrow;
+}
+
+export function foldHomeHoldSentence(
+  code?: FoldHardStopCode | null,
+): string {
+  return foldHardStopCopy(resolveFoldHardStopCode(code)).hold;
+}
+
 /** Honest empty for last-read cash. Never a bare em dash next to a hard stop. */
 export const CASH_EMPTY_LABEL = "Connect accounts to see cash." as const;
 
-/** Path SSOT for a runway hard stop. Never the 3–6 month grow-fund title on this fold. */
+/**
+ * Path SSOT for a runway hard stop. Never the 3–6 month grow-fund title on this fold.
+ * DTI / housing / credit Path titles stay in lib/readiness/path.ts — do not rewrite them here.
+ */
 export const RUNWAY_HARD_STOP_PATH_TITLE =
   "Stabilize emergency runway to at least 1 month" as const;
 
 const GROW_EMERGENCY_FUND_TITLE = "Grow emergency fund toward 3–6 months";
 
 /** Quiet override line: score is real; a hard stop still holds. No 35/35/30, no cutoffs. */
-export function foldHardStopOverrideLine(scorePct: number): string {
-  return `${scorePct} — runway is a hard stop.`;
+export function foldHardStopOverrideLine(
+  scorePct: number,
+  code?: FoldHardStopCode | null,
+): string {
+  return foldHardStopCopy(resolveFoldHardStopCode(code)).override(scorePct);
 }
 
 /**

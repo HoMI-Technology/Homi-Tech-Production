@@ -5,9 +5,13 @@ import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import { COLORS } from "@/lib/brand";
 import {
   CASH_EMPTY_LABEL,
+  foldHardStopEyebrow,
+  foldHardStopOverrideLine,
+  foldHomeHoldSentence,
   hardStopEyebrow,
   homeHoldSentence,
   RUNWAY_HARD_STOP_PATH_TITLE,
+  type FoldHardStopCode,
 } from "@/lib/dashboard/fold-truth";
 import { ThresholdFold } from "./ThresholdFold";
 
@@ -176,6 +180,70 @@ describe("ThresholdFold", () => {
     ).toBeInTheDocument();
     expect(screen.queryByText(/Grow emergency fund toward 3–6 months/)).not.toBeInTheDocument();
   });
+
+  it.each([
+    ["RUNWAY_UNDER_1_MONTH", "Emergency runway is under 1 month."] as const,
+    ["DTI_OVER_50", "DTI is above 50%."] as const,
+    ["HOUSING_RATIO_OVER_45", "Housing ratio is above 45%."] as const,
+    ["CREDIT_UNDER_620", "Credit is below 620."] as const,
+  ] satisfies ReadonlyArray<readonly [FoldHardStopCode, string]>)(
+    "renders %s eyebrow, hold, and override from the T0 contract",
+    (code, engineMessage) => {
+      const { container } = render(
+        <ThresholdFold
+          {...base}
+          latest={{ id: `stop-${code}`, overallScore: 61 }}
+          verdict="NOT_YET"
+          stopMessages={[engineMessage]}
+          stopCode={code}
+          lastMoney={{
+            debtToIncomeRatio: 0.51,
+            emergencyFundMonths: 0.5,
+            savingsRate: 0.01,
+            liquidDollars: null,
+          }}
+        />,
+      );
+
+      expect(container.querySelector("[data-home-hard-stop-eyebrow]")?.textContent).toBe(
+        foldHardStopEyebrow(code),
+      );
+      expect(container.querySelector("[data-home-hard-stop-hold]")?.textContent).toBe(
+        foldHomeHoldSentence(code),
+      );
+      expect(container.querySelector("[data-home-fold-override]")?.textContent).toBe(
+        foldHardStopOverrideLine(61, code),
+      );
+      const override = container.querySelector("[data-home-fold-override]")?.textContent ?? "";
+      expect(override).not.toMatch(/50/);
+      expect(override).not.toMatch(/45%/);
+      expect(override).not.toMatch(/620/);
+      expect(override).not.toMatch(/1 month/);
+      expect(override).not.toMatch(/0\.5/);
+      expect(screen.queryByText(engineMessage)).not.toBeInTheDocument();
+      if (code !== "RUNWAY_UNDER_1_MONTH") {
+        expect(container.querySelector("[data-home-hard-stop-eyebrow]")?.textContent).not.toBe(
+          hardStopEyebrow,
+        );
+        expect(container.querySelector("[data-home-hard-stop-hold]")?.textContent).not.toBe(
+          homeHoldSentence,
+        );
+        expect(container.querySelector("[data-home-fold-override]")?.textContent).not.toBe(
+          foldHardStopOverrideLine(61),
+        );
+        expect(container.querySelector("[data-home-fold-override]")?.textContent).not.toMatch(
+          /50|45%|620|1 month|0\.5/,
+        );
+      } else {
+        expect(container.querySelector("[data-home-hard-stop-eyebrow]")?.textContent).toBe(
+          hardStopEyebrow,
+        );
+        expect(container.querySelector("[data-home-hard-stop-hold]")?.textContent).toBe(
+          homeHoldSentence,
+        );
+      }
+    },
+  );
 
   it("hard-stop sentence sits above the public verdict word", () => {
     const { container } = render(

@@ -39,7 +39,26 @@ describe("dashboard fold tells the truth about the build", () => {
 
   it("names hard stops from the latest assessment", () => {
     expect(page).toContain("hardStopMessages");
+    expect(page).toContain("hardStopCodes");
+    expect(page).toContain("leadingFoldHardStopCode");
     expect(page).toContain("hard_stops");
+    expect(page).toContain("stopCode");
+  });
+
+  it("keeps live Path hard-stop titles in path.ts — fold-truth does not rewrite them", () => {
+    const path = src("lib", "readiness", "path.ts");
+    const truth = src("lib", "dashboard", "fold-truth.ts");
+    expect(path).toContain('title: "Stabilize emergency runway to at least 1 month"');
+    expect(path).toContain('title: "Bring debt-to-income below the protective line"');
+    expect(path).toContain('title: "Re-scope housing so payment stays under 45% of income"');
+    expect(path).toContain('title: "Rebuild credit above the 620 protective floor"');
+    expect(truth).toContain("Stabilize emergency runway to at least 1 month");
+    expect(truth).not.toContain("Bring debt-to-income below the protective line");
+    expect(truth).not.toContain("Re-scope housing so payment stays under 45% of income");
+    expect(truth).not.toContain("Rebuild credit above the 620 protective floor");
+    expect(fold).not.toContain("Bring debt-to-income below the protective line");
+    expect(fold).not.toContain("Re-scope housing so payment stays under 45% of income");
+    expect(fold).not.toContain("Rebuild credit above the 620 protective floor");
   });
 
   it("does not celebrate or percent-complete over an active hard stop", () => {
@@ -124,10 +143,11 @@ describe("dashboard fold tells the truth about the build", () => {
     expect(fold).toContain("VerdictBadge");
     expect(fold).toContain("hideTemperature");
     expect(fold).not.toContain("hideTemperature={false}");
-    expect(fold).toContain("hardStopEyebrow");
-    expect(fold).toContain("homeHoldSentence");
+    expect(fold).toContain("foldHardStopEyebrow");
+    expect(fold).toContain("foldHomeHoldSentence");
     expect(fold).toContain("CASH_EMPTY_LABEL");
     expect(fold).toContain("foldHardStopOverrideLine");
+    expect(fold).toContain("stopCode");
     expect(fold).toContain("data-home-fold-score-plate");
     expect(fold).toContain("resolveFoldPathPrimary");
     expect(fold).not.toContain("stopMessages[0]");
