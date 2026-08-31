@@ -52,7 +52,7 @@ npx supabase migration repair 00038 --status applied --linked
 | `00041_profile_guard_security_invoker.sql` | Makes that guard actually enforce (`security invoker`) Ã¢â‚¬â€ applied 2026-08-01                                                                                                                                                                                                    |
 | `20260803000001_finance_ledger.sql`        | Budget & Runway PR 3 Ã¢â‚¬â€ `finance_*` tables + FORCE RLS + system categories + mutation idempotency. **Applied to production 2026-08-03** (single-file via `supabase db query --linked`; repair `20260803000001` applied). 6 tables FORCE RLS, 22 policies, 21 system categories. |
 | `20260818000001_plaid_full_picture.sql`    | Identity owners, holdings, investment transactions, liabilities. **Applied to production 2026-08-18** (`supabase db query --linked`; repair `20260818000001` applied). All five new tables FORCE RLS; `plaid_account_owners` has no authenticated SELECT. |
-| `20260831000001_evidence_engine.sql`       | Evidence Engine v1.0 — lineage columns, immutable baselines, structured outcome fields, contact events. **Not applied to production yet.** Single-file apply when owner approves. Do not rewrite historical outcomes. |
+| `20260831000001_evidence_engine.sql`       | Evidence Engine v1.0 — lineage columns, immutable baselines, structured outcome fields, contact events. **Applied to production 2026-08-31** (`supabase db query --linked`; repair `20260831000001` applied). Tables `assessment_outcome_baselines` + `outcome_survey_events` FORCE RLS. Do not rewrite historical outcomes. |
 
 ## Drift status
 
