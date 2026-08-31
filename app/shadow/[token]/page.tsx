@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
+import { pillarBand, scoreBand, type PillarBand, type ScoreBand } from "@/lib/receipts";
 import { ShareViewPing } from "@/components/share/ShareViewPing";
 
 /**
@@ -53,6 +54,19 @@ export async function generateMetadata({
   };
 }
 
+const SCORE_BAND_LABEL: Record<ScoreBand, string> = {
+  high: "High",
+  moderate: "Moderate",
+  emerging: "Emerging",
+  early: "Early",
+};
+
+const PILLAR_BAND_LABEL: Record<PillarBand, string> = {
+  strong: "Strong",
+  developing: "Developing",
+  building: "Building",
+};
+
 const PILLAR_BARS: Array<{
   key: "financial_pct" | "emotional_pct" | "timing_pct";
   label: string;
@@ -88,6 +102,7 @@ export default async function ShadowSharePage({ params }: { params: Promise<{ to
 
   const meta = VERDICT_META[share.verdict];
   const refCode = `sh_${share.token.slice(0, 8)}`;
+  const band = scoreBand(share.score);
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-16">
@@ -107,26 +122,21 @@ export default async function ShadowSharePage({ params }: { params: Promise<{ to
             )}
           </h1>
           {share.reveal_score && (
-            <p className="score-numeral mt-2 text-5xl font-bold text-light">{share.score}</p>
+            <p
+              className="mt-2 font-display text-4xl font-semibold text-light"
+              aria-label={`Decision Readiness band ${band}`}
+            >
+              {SCORE_BAND_LABEL[band]}
+            </p>
           )}
 
-          <div className="mt-8 space-y-5">
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {PILLAR_BARS.map((pillar) => (
-              <div key={pillar.key}>
-                <div className="flex items-center justify-between text-xs font-medium">
-                  <span className="text-light">{pillar.label}</span>
-                  <span className="text-dim">{share[pillar.key]}%</span>
-                </div>
-                <div
-                  className="mt-2 h-2 overflow-hidden rounded-full bg-slate-surface/60"
-                  role="img"
-                  aria-label={`${pillar.label}: ${share[pillar.key]} percent`}
-                >
-                  <div
-                    className="h-full rounded-full"
-                    style={{ width: `${share[pillar.key]}%`, backgroundColor: pillar.color }}
-                  />
-                </div>
+              <div key={pillar.key} className="text-center">
+                <p className="text-xs font-medium text-light">{pillar.label}</p>
+                <p className="mt-1 text-lg font-semibold" style={{ color: pillar.color }}>
+                  {PILLAR_BAND_LABEL[pillarBand(share[pillar.key])]}
+                </p>
               </div>
             ))}
           </div>
