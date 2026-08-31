@@ -122,7 +122,7 @@ const FIRST_MOMENT_BEAT_LINES = [
   "I might tell you not yet. Not because I don’t want to help. Because I do.",
   "I look at three things: your finances, your feelings, your timing.",
   "I’m a reflection tool, not a financial advisor.",
-  "This takes about 5 minutes. You’ll need an account so the verdict stays yours.",
+  "This is 45 questions. You’ll need an account so the verdict stays yours.",
 ] as const;
 
 const LEGAL_LIVE_VENDORS = [
@@ -1002,7 +1002,7 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
       'data-decision-os=""',
       'href: "/assessment"',
       'href: "/tools"',
-      'href: "/agents"',
+      'href: "/how-it-works"',
       'href: "/dashboard"',
       'href="/b2b"',
     ],

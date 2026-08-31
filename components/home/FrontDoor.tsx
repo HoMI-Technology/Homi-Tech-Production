@@ -22,18 +22,6 @@ import {
 /** Verdict display order — cool to hot. Qualitative only: names and meanings, no ranges. */
 const VERDICT_ORDER: VerdictKey[] = ["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"];
 
-/**
- * Public marketing labels. ADR-001's dual-stable vocabulary keeps the
- * in-product hard-stop badge "DO NOT PROCEED" (VERDICT_META is untouched);
- * the public front door renders the softer name for the fourth verdict.
- */
-const PUBLIC_VERDICT_LABELS: Record<VerdictKey, string> = {
-  READY: VERDICT_META.READY.label,
-  ALMOST_THERE: VERDICT_META.ALMOST_THERE.label,
-  BUILD_FIRST: VERDICT_META.BUILD_FIRST.label,
-  NOT_YET: "NOT YET", // brand-ok: marketing-page label per 2026-08 audit fix 4 — the in-product badge keeps ADR-001's DO NOT PROCEED
-};
-
 function SectionHeader({
   eyebrow,
   title,
@@ -201,7 +189,7 @@ export function VerdictSpectrum() {
                         }}
                       />
                       <span className="text-sm font-semibold" style={{ color: meta.color }}>
-                        {PUBLIC_VERDICT_LABELS[key]}
+                        {meta.label}
                       </span>
                     </div>
                     <p className="mt-3 text-sm text-dim">{meta.line}</p>
@@ -230,12 +218,12 @@ const STEPS = [
   {
     n: "03",
     name: "Verdict",
-    detail: "One of four honest verdicts. Not yet is one of them, on purpose.",
+    detail: "One of four honest verdicts. DO NOT PROCEED is one of them, on purpose.",
   },
   {
     n: "04",
     name: "Build",
-    detail: "The map of what to build first, so a not-yet verdict has a path.",
+    detail: "The map of what to build first, so a DO NOT PROCEED verdict has a path.",
   },
 ] as const;
 
@@ -272,7 +260,7 @@ const OS_LAYERS = [
     index: "01",
     label: "Signal",
     title: "Readiness scanner",
-    copy: "A five-minute assessment turns Financial Reality, Emotional Truth, and Perfect Timing into one Decision Readiness Score and a protective verdict.",
+    copy: "A 45-question assessment turns Financial Reality, Emotional Truth, and Perfect Timing into one Decision Readiness Score and a protective verdict.",
     href: "/assessment",
     action: "Run the assessment",
     tint: "var(--color-cyan)",
@@ -289,10 +277,10 @@ const OS_LAYERS = [
   {
     index: "03",
     label: "Intelligence",
-    title: "AI agent layer",
-    copy: "Specialized companions help interpret the verdict, pressure-test tradeoffs, and keep the reasoning trail connected to your actual readiness state.",
-    href: "/agents",
-    action: "Meet the agents",
+    title: "After the verdict",
+    copy: "The answer is not a dead end. See what is carrying the risk, and what would have to change before you move. Tied to your readiness, not to someone paid to say yes.",
+    href: "/how-it-works",
+    action: "See the method",
     tint: "var(--color-yellow)",
   },
   {
@@ -442,7 +430,7 @@ export function CloseCta() {
           >
             {PRIMARY_CLOSE_LABEL_HOME}
           </Link>
-          <p className="mt-4 text-sm text-dim">Free &middot; about 5 minutes</p>
+          <p className="mt-4 text-sm text-dim">Free &middot; 45 questions</p>
         </div>
       </Reveal>
     </section>
