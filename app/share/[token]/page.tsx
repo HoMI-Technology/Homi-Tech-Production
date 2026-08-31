@@ -3,15 +3,28 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PILLARS, VERDICT_META, LEGAL_DISCLAIMER, type VerdictKey } from "@/lib/brand";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
+import { pillarBand, scoreBand, type PillarBand, type ScoreBand } from "@/lib/receipts";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
-import { ScoreRing } from "@/components/ui/ScoreRing";
 
 const FINANCIAL = PILLARS.find((p) => p.key === "financial")!;
 const EMOTIONAL = PILLARS.find((p) => p.key === "emotional")!;
 const TIMING = PILLARS.find((p) => p.key === "timing")!;
+
+const SCORE_BAND_LABEL: Record<ScoreBand, string> = {
+  high: "High",
+  moderate: "Moderate",
+  emerging: "Emerging",
+  early: "Early",
+};
+
+const PILLAR_BAND_LABEL: Record<PillarBand, string> = {
+  strong: "Strong",
+  developing: "Developing",
+  building: "Building",
+};
 
 interface SharedAssessment {
   overall_score: number;
@@ -24,15 +37,9 @@ interface SharedAssessment {
   shared_by: string;
 }
 
-/**
- * Pillar strength renders as a normalized percentage, never raw points. The
- * exact pillar maxima are trade-secret (2026-08 audit): this page is
- * token-gated but anonymous-readable, and a raw "points vs max" pair is
- * recoverable from the numeral plus the ring's arc geometry (the SVG
- * stroke-dasharray sits in the DOM). Percentages carry the same honesty
- * without publishing the weights.
- */
-const pillarPct = (score: number, max: number) => Math.round((score / max) * 100);
+function pillarAttainment(score: number, max: number): PillarBand {
+  return pillarBand((score / max) * 100);
+}
 
 export default async function SharePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
@@ -47,6 +54,24 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
   }
 
   const meta = VERDICT_META[row.verdict];
+  const band = scoreBand(row.overall_score);
+  const pillars = [
+    {
+      name: FINANCIAL.name,
+      color: FINANCIAL.color,
+      band: pillarAttainment(row.financial_score, PILLAR_MAX_POINTS.financial),
+    },
+    {
+      name: EMOTIONAL.name,
+      color: EMOTIONAL.color,
+      band: pillarAttainment(row.emotional_score, PILLAR_MAX_POINTS.emotional),
+    },
+    {
+      name: TIMING.name,
+      color: TIMING.color,
+      band: pillarAttainment(row.timing_score, PILLAR_MAX_POINTS.timing),
+    },
+  ];
 
   return (
     <>
@@ -62,13 +87,13 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
 
             <div>
               <p
-                className="score-numeral text-6xl font-bold tabular-nums text-light"
-                aria-label={`Overall Decision Readiness Score ${row.overall_score} out of 100`}
+                className="font-display text-5xl font-semibold text-light"
+                aria-label={`Decision Readiness Score band ${band}`}
               >
-                {row.overall_score}
+                {SCORE_BAND_LABEL[band]}
               </p>
               <p className="mt-1 text-sm uppercase tracking-widest text-dim">
-                Decision Readiness Score out of 100
+                Decision Readiness Score
               </p>
             </div>
 
@@ -78,36 +103,17 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
           </div>
 
           <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3">
-            <div className="glass flex flex-col items-center gap-4 p-6">
-              <ScoreRing
-                value={pillarPct(row.financial_score, PILLAR_MAX_POINTS.financial)}
-                max={100}
-                color={FINANCIAL.color}
-                label={FINANCIAL.name}
-                sublabel="percent"
-                size={120}
-              />
-            </div>
-            <div className="glass flex flex-col items-center gap-4 p-6">
-              <ScoreRing
-                value={pillarPct(row.emotional_score, PILLAR_MAX_POINTS.emotional)}
-                max={100}
-                color={EMOTIONAL.color}
-                label={EMOTIONAL.name}
-                sublabel="percent"
-                size={120}
-              />
-            </div>
-            <div className="glass flex flex-col items-center gap-4 p-6">
-              <ScoreRing
-                value={pillarPct(row.timing_score, PILLAR_MAX_POINTS.timing)}
-                max={100}
-                color={TIMING.color}
-                label={TIMING.name}
-                sublabel="percent"
-                size={120}
-              />
-            </div>
+            {pillars.map((pillar) => (
+              <div
+                key={pillar.name}
+                className="glass flex flex-col items-center gap-2 p-6"
+              >
+                <p className="text-sm uppercase tracking-widest text-dim">{pillar.name}</p>
+                <p className="text-xl font-semibold text-light" style={{ color: pillar.color }}>
+                  {PILLAR_BAND_LABEL[pillar.band]}
+                </p>
+              </div>
+            ))}
           </div>
 
           <div className="mt-12 flex flex-col items-center gap-4 border-t border-slate-surface/60 pt-10 text-center">

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { signInRedirect } from "@/lib/auth/signInRedirect";
 import { AccessPanel } from "@/components/b2b/AccessPanel";
@@ -15,15 +16,22 @@ import type { Profile } from "@/types/database";
 import type { VerdictKey } from "@/lib/brand";
 import { COLORS, VERDICT_META } from "@/lib/brand";
 import { canAccessPartnerDashboard } from "@/lib/dashboard/partner-access";
+import { resolvePartnerInviteOrigin } from "@/lib/dashboard/partner-site-url";
+import { scoreBand, type ScoreBand } from "@/lib/receipts";
 
 export const metadata: Metadata = {
   title: "Partner Dashboard | HōMI",
   description: "Book pulse, invite link, and readiness for your referred clients.",
 };
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://homitechnology.com";
-
 const VERDICT_KEYS: VerdictKey[] = ["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"];
+
+const SCORE_BAND_LABEL: Record<ScoreBand, string> = {
+  high: "High",
+  moderate: "Moderate",
+  emerging: "Emerging",
+  early: "Early",
+};
 
 /**
  * Partner home — single operate surface (portal redirects here).
@@ -81,7 +89,13 @@ export default async function PartnerDashboardPage() {
     partnerCode = null;
   }
 
-  const inviteUrl = partnerCode ? `${SITE_URL}/first-moment?ref=${partnerCode}` : null;
+  const requestHeaders = await headers();
+  const siteUrl = resolvePartnerInviteOrigin({
+    envUrl: process.env.NEXT_PUBLIC_SITE_URL,
+    host: requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host"),
+    proto: requestHeaders.get("x-forwarded-proto"),
+  });
+  const inviteUrl = partnerCode ? `${siteUrl}/first-moment?ref=${partnerCode}` : null;
 
   // L0 — attributed assessments via denormalized referral_source (invite path).
   const { data: referredRows } = await supabase
@@ -109,7 +123,6 @@ export default async function PartnerDashboardPage() {
 
   // Fallback: portal RPC if denorm empty but code exists (pre-I0 traffic).
   let rpcCount: number | null = null;
-  let rpcAvg: number | null = null;
   if (partnerCode && attributed.length === 0) {
     try {
       const { data: stats } = await supabase.rpc("partner_code_stats", {
@@ -118,7 +131,6 @@ export default async function PartnerDashboardPage() {
       const row = Array.isArray(stats) ? stats[0] : stats;
       if (row) {
         rpcCount = Number(row.assessment_count ?? 0);
-        rpcAvg = row.avg_score != null ? Number(row.avg_score) : null;
       }
       const { data: recent } = await supabase.rpc("partner_recent_assessments", {
         p_code: partnerCode,
@@ -159,12 +171,11 @@ export default async function PartnerDashboardPage() {
     .limit(50);
   const clients = (clientRows as Pick<Profile, "id" | "full_name" | "created_at">[] | null) ?? [];
 
-  const scores = attributed.map((a) => a.overall_score).filter((s): s is number => s != null);
-  const avgFromRows =
-    scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
-  const avg = avgFromRows ?? rpcAvg;
   const assessmentCount = attributed.length > 0 ? attributed.length : (rpcCount ?? 0);
   const readyCount = attributed.filter((a) => a.verdict === "READY").length;
+  const waitCount = attributed.filter(
+    (a) => a.verdict === "BUILD_FIRST" || a.verdict === "NOT_YET",
+  ).length;
   const readyRate =
     assessmentCount > 0 ? Math.round((readyCount / Math.max(attributed.length, 1)) * 100) : null;
 
@@ -202,9 +213,9 @@ export default async function PartnerDashboardPage() {
               color: COLORS.cyan,
             },
             {
-              label: "Avg score",
-              value: avg !== null ? String(avg) : "—",
-              footer: "Cohort",
+              label: "Wait",
+              value: String(waitCount),
+              footer: "BUILD FIRST + not yet",
               color: COLORS.yellow,
             },
             {
@@ -275,7 +286,7 @@ export default async function PartnerDashboardPage() {
                 <thead>
                   <tr>
                     <th>Client</th>
-                    <th>Score</th>
+                    <th>Band</th>
                     <th>Verdict</th>
                     <th>Date</th>
                   </tr>
@@ -291,8 +302,10 @@ export default async function PartnerDashboardPage() {
                             <span className="ml-2 text-3xs uppercase text-dim">Shadow</span>
                           )}
                         </td>
-                        <td className="score-numeral text-dim">
-                          {a.overall_score != null ? Math.round(a.overall_score) : "—"}
+                        <td className="text-sm text-dim">
+                          {a.overall_score != null
+                            ? SCORE_BAND_LABEL[scoreBand(a.overall_score)]
+                            : "—"}
                         </td>
                         <td>
                           {a.verdict ? (
