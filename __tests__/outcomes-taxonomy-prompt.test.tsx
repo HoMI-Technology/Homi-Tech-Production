@@ -5,21 +5,13 @@ import { OutcomeSurveyPrompt } from "@/components/dashboard/OutcomeSurveyPrompt"
 
 const updates: Record<string, unknown>[] = [];
 
-vi.mock("@/lib/supabase/client", () => ({
-  createClient: () => ({
-    from: (table: string) => {
-      if (table !== "outcome_surveys") throw new Error(`unexpected table ${table}`);
-      return {
-        update: (payload: Record<string, unknown>) => {
-          updates.push(payload);
-          return {
-            eq: async () => ({ error: null }),
-          };
-        },
-      };
-    },
+vi.stubGlobal(
+  "fetch",
+  vi.fn(async (_url: string, init?: RequestInit) => {
+    updates.push(JSON.parse(String(init?.body ?? "{}")) as Record<string, unknown>);
+    return { ok: true, json: async () => ({ saved: true }) };
   }),
-}));
+);
 
 describe("OutcomeSurveyPrompt Gate 6 taxonomy", () => {
   afterEach(() => {
@@ -37,10 +29,10 @@ describe("OutcomeSurveyPrompt Gate 6 taxonomy", () => {
     fireEvent.click(screen.getByRole("button", { name: "Submit" }));
 
     await waitFor(() => expect(updates).toHaveLength(1));
-    expect(updates[0]).toEqual({
+    expect(updates[0]).toMatchObject({
+      surveyId: "survey-1",
       outcome: "moved",
       notes: "we closed",
-      completed_at: expect.any(String),
     });
     expect(updates[0]).not.toHaveProperty("score");
     expect(updates[0]).not.toHaveProperty("verdict");

@@ -1,7 +1,7 @@
 {
   "_meta": {
     "version": "v1",
-    "generated": "2026-08-23",
+    "generated": "2026-08-31",
     "product": "HōMI",
     "full_name": "Homi Technologies LLC — Decision Readiness Intelligence™",
     "domain": "homitechnology.com",
@@ -13,12 +13,12 @@
     "authority": "Executable TypeScript in this repo wins over this document. Prefer lib/scoring, lib/brand, lib/agents/registry on conflict."
   },
   "stats": {
-    "product_routes": 103,
-    "api_routes": 27,
-    "component_directories": 34,
+    "product_routes": 106,
+    "api_routes": 28,
+    "component_directories": 35,
     "lib_modules": 51,
-    "db_tables": 42,
-    "migrations": 57,
+    "db_tables": 44,
+    "migrations": 58,
     "calculators": 14,
     "ai_agents": 7,
     "gaps": 3
@@ -281,6 +281,14 @@
       "file": "app/(product)/dashboard/page.tsx"
     },
     {
+      "path": "/decision-readiness-intelligence",
+      "name": "Decision Readiness Intelligence",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/(marketing)/decision-readiness-intelligence/page.tsx"
+    },
+    {
       "path": "/decisions",
       "name": "Decisions",
       "category": "Product",
@@ -343,6 +351,14 @@
       "status": "complete",
       "features": [],
       "file": "app/(marketing)/guides/[slug]/page.tsx"
+    },
+    {
+      "path": "/guides/glossary",
+      "name": "Glossary",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/(marketing)/guides/glossary/page.tsx"
     },
     {
       "path": "/guides/hard-stops",
@@ -559,6 +575,14 @@
       "status": "complete",
       "features": [],
       "file": "app/(marketing)/pricing/page.tsx"
+    },
+    {
+      "path": "/readiness",
+      "name": "Readiness",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/readiness/page.tsx"
     },
     {
       "path": "/report/[id]",
@@ -921,6 +945,11 @@
       "method": "GET/POST"
     },
     {
+      "path": "/api/outcomes",
+      "purpose": "Outcome survey capture (no scoring writes)",
+      "method": "POST"
+    },
+    {
       "path": "/api/plaid",
       "purpose": "Bank linking (Plaid)",
       "method": "POST"
@@ -989,25 +1018,26 @@
   "component_directories": [
     {
       "name": "admin",
-      "count": 32,
+      "count": 34,
       "description": "admin UI module",
       "examples": [
         "ActivationInstrument",
-        "AdSpendForm",
+        "admin-nav",
         "AdminAccessWall",
         "AdminSidebar",
-        "AgencyControlTower"
+        "AdminStepUpForm"
       ]
     },
     {
       "name": "advisor",
-      "count": 4,
+      "count": 5,
       "description": "advisor UI module",
       "examples": [
         "Chat",
         "Phase0FreezeScreen",
         "Phase0FreezeView",
-        "Phase0VerdictGate"
+        "Phase0VerdictGate",
+        "QuotaNotice"
       ]
     },
     {
@@ -1082,12 +1112,13 @@
     },
     {
       "name": "companion",
-      "count": 4,
+      "count": 6,
       "description": "companion UI module",
       "examples": [
         "CompanionHost",
         "CompanionTierBanner",
         "CompanionWidget",
+        "HomieAvatar",
         "MessageContent"
       ]
     },
@@ -1104,20 +1135,20 @@
       "count": 2,
       "description": "consent UI module",
       "examples": [
-        "CookieConsent",
-        "consent-shared"
+        "consent-shared",
+        "CookieConsent"
       ]
     },
     {
       "name": "dashboard",
-      "count": 30,
+      "count": 36,
       "description": "dashboard UI module",
       "examples": [
         "BankConnectCard",
         "ConnectionsTile",
         "DailyPulseStrip",
-        "DashSpectrum.test",
-        "DashSpectrum"
+        "DashboardFoldBeacon",
+        "DashboardResumeRamp.test"
       ]
     },
     {
@@ -1130,11 +1161,12 @@
     },
     {
       "name": "entitlements",
-      "count": 2,
+      "count": 3,
       "description": "entitlements UI module",
       "examples": [
         "AdvancedToolGate",
-        "EntitlementGate"
+        "EntitlementGate",
+        "GatePreviews"
       ]
     },
     {
@@ -1144,21 +1176,21 @@
       "examples": [
         "HardStopBanner",
         "ObservedPrefillCard",
+        "readiness-types",
         "ThresholdCompass",
-        "WarningsBanner",
-        "readiness-types"
+        "WarningsBanner"
       ]
     },
     {
       "name": "home",
-      "count": 21,
+      "count": 7,
       "description": "home UI module",
       "examples": [
-        "AlignmentScene",
-        "CinemaFX",
         "CinematicCompass",
         "Compass3D",
-        "CompassFilter"
+        "FrontDoor",
+        "InterviewHero",
+        "PaperScene"
       ]
     },
     {
@@ -1197,22 +1229,22 @@
       "description": "marketing UI module",
       "examples": [
         "ArtifactPlayground",
+        "blog-data",
+        "first-moment-copy",
         "FirstMoment",
-        "PricingCheckoutButton",
-        "UnsubscribeConfirm",
-        "WaitlistForm.test"
+        "guides-data"
       ]
     },
     {
       "name": "money",
-      "count": 7,
+      "count": 9,
       "description": "money UI module",
       "examples": [
+        "InvestmentsSummary",
         "MoneyDecideHub",
         "MoneyModeNav",
         "MoneyModeRail",
-        "MoneyPicturePanel",
-        "MoneyShell"
+        "MoneyPicturePanel"
       ]
     },
     {
@@ -1229,14 +1261,14 @@
     },
     {
       "name": "planner",
-      "count": 42,
+      "count": 44,
       "description": "planner UI module",
       "examples": [
-        "ImpactToast",
-        "NudgeRail",
-        "PlannerApp",
-        "PlannerPage",
-        "ReadinessHero"
+        "banking-derive",
+        "BankingCommand",
+        "AgendaList",
+        "DayForms",
+        "DayInspector"
       ]
     },
     {
@@ -1268,6 +1300,15 @@
         "ProvenanceLine",
         "SaveStatusBanner.test",
         "SaveStatusBanner"
+      ]
+    },
+    {
+      "name": "score",
+      "count": 2,
+      "description": "score UI module",
+      "examples": [
+        "ScoreRail.test",
+        "ScoreRail"
       ]
     },
     {
@@ -1309,14 +1350,14 @@
     },
     {
       "name": "tools",
-      "count": 20,
+      "count": 21,
       "description": "tools UI module",
       "examples": [
         "CalcField",
         "ChainLinks",
+        "DebtPayoffScorePreview",
         "DeltasCard",
-        "HousingPanels",
-        "LensField"
+        "HousingPanels"
       ]
     },
     {
@@ -1335,8 +1376,8 @@
         "AnimatedNumber",
         "Celebrate",
         "ChartTooltip",
-        "DashboardLoadingSkeleton",
-        "EmptyState"
+        "count-up",
+        "DashboardLoadingSkeleton"
       ]
     }
   ],
@@ -1682,7 +1723,7 @@
       "columns": [
         "id",
         "user_id",
-        "account_id"
+        "security_id"
       ],
       "rls": true,
       "category": "user",
@@ -1702,7 +1743,8 @@
       "name": "plaid_liabilities",
       "columns": [
         "id",
-        "user_id"
+        "user_id",
+        "account_id"
       ],
       "rls": true,
       "category": "user",
@@ -1977,7 +2019,29 @@
       ],
       "rls": true,
       "category": "user",
-      "description": "Outcome satisfaction surveys"
+      "description": "Longitudinal outcome checkpoints (taxonomy + structured fields)"
+    },
+    {
+      "name": "assessment_outcome_baselines",
+      "columns": [
+        "assessment_id",
+        "user_id",
+        "schema_version"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Immutable T0 research baseline; insert-only for owners"
+    },
+    {
+      "name": "outcome_survey_events",
+      "columns": [
+        "id",
+        "survey_id",
+        "event_type"
+      ],
+      "rls": true,
+      "category": "user",
+      "description": "Survey contact funnel events without answer payloads"
     },
     {
       "name": "payments",
@@ -1994,13 +2058,13 @@
   "ai_agents": [
     {
       "id": "homie",
-      "name": "Homie",
+      "name": "HōMI",
       "role": "Companion",
       "mode": "explore",
       "level": 1,
       "boundary": "Never pressures conversion. Never suggests paid actions.",
       "color": "#22d3ee",
-      "description": "Your warm, direct coordinator. Homie listens first, then pulls in the right specialist when your question needs one."
+      "description": "Your warm, direct coordinator. HōMI listens first, then pulls in the right specialist when your question needs one."
     },
     {
       "id": "scout",

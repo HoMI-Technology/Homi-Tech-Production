@@ -37,9 +37,11 @@ export function totalResponses(rows: CalibrationRow[]): number {
 }
 
 /**
- * The headline: how the people the compass told to WAIT (NOT_YET / BUILD_FIRST)
- * fared versus the people it cleared (READY). Returns null until both cohorts
- * have enough responses to be meaningful (guards against noise on tiny N).
+ * Product-calibration helper, not research validation.
+ * Compares READY satisfaction with NOT_YET / BUILD_FIRST. Returns null until
+ * both cohorts meet minCohort (default 5) — a privacy / noise floor, not a
+ * scientific endpoint. Never present this as causal proof or a public
+ * accuracy claim. See docs/research/HOMI_DECISION_READINESS_VALIDATION_PROTOCOL_V1.md.
  */
 export function readinessDividend(
   rows: CalibrationRow[],

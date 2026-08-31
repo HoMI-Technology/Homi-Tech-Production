@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import {
   OUTCOME_TAXONOMY,
   OUTCOME_TAXONOMY_LABELS,
@@ -9,6 +8,7 @@ import {
   type OutcomeTaxonomy,
 } from "@/lib/outcomes/taxonomy";
 import type { OutcomeSurveyKind } from "@/types/database";
+import { DIFFICULTY_BANDS, RESERVE_BANDS, YES_NO_UNKNOWN } from "@/lib/outcomes/bands";
 
 const KIND_LABEL: Record<OutcomeSurveyKind, string> = {
   day30: "30 days",
@@ -32,6 +32,10 @@ export function OutcomeSurveyPrompt({
 }) {
   const [outcome, setOutcome] = useState<OutcomeTaxonomy | null>(null);
   const [note, setNote] = useState("");
+  const [financialStress, setFinancialStress] = useState("");
+  const [reserveBand, setReserveBand] = useState("");
+  const [paymentDifficulty, setPaymentDifficulty] = useState("");
+  const [disruption, setDisruption] = useState("");
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,12 +44,20 @@ export function OutcomeSurveyPrompt({
     setSaving(true);
     setError(null);
     try {
-      const supabase = createClient();
-      const { error: updateError } = await supabase
-        .from("outcome_surveys")
-        .update(outcomeSurveyAnswerPayload(answer, note, new Date().toISOString()))
-        .eq("id", surveyId);
-      if (updateError) {
+      const taxonomy = outcomeSurveyAnswerPayload(answer, note, new Date().toISOString());
+      const res = await fetch("/api/outcomes/surveys", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          surveyId,
+          ...taxonomy,
+          financial_stress: financialStress ? Number(financialStress) : undefined,
+          emergency_reserve_band: reserveBand || undefined,
+          payment_difficulty: paymentDifficulty || undefined,
+          material_financial_disruption: disruption || undefined,
+        }),
+      });
+      if (!res.ok) {
         setError("Could not save that. Try again.");
         return;
       }
@@ -72,7 +84,8 @@ export function OutcomeSurveyPrompt({
     <div className="glass mt-8 p-6 sm:p-8">
       <h2 className="text-lg font-semibold text-light">Checking in — {KIND_LABEL[kind]} later</h2>
       <p className="mt-1 text-sm text-dim">
-        A while back HōMI recorded your verdict. No judgment either way — what happened?
+        You made this decision with a certain picture of your life. We want to understand
+        what actually happened.
       </p>
 
       <div className="mt-5 flex flex-wrap gap-2">
@@ -92,6 +105,71 @@ export function OutcomeSurveyPrompt({
           </button>
         ))}
       </div>
+
+      <label className="mt-4 block text-sm text-dim">
+        Compared with when you made the decision, how financially stretched do you feel
+        today?
+        <select
+          className="input mt-1 w-full"
+          value={financialStress}
+          onChange={(e) => setFinancialStress(e.target.value)}
+        >
+          <option value="">Prefer not to say</option>
+          {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="mt-3 block text-sm text-dim">
+        Emergency reserve now
+        <select
+          className="input mt-1 w-full"
+          value={reserveBand}
+          onChange={(e) => setReserveBand(e.target.value)}
+        >
+          <option value="">Prefer not to say</option>
+          {RESERVE_BANDS.filter((b) => b !== "unknown").map((b) => (
+            <option key={b} value={b}>
+              {b.replaceAll("_", " ")}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="mt-3 block text-sm text-dim">
+        Payment difficulty
+        <select
+          className="input mt-1 w-full"
+          value={paymentDifficulty}
+          onChange={(e) => setPaymentDifficulty(e.target.value)}
+        >
+          <option value="">Prefer not to say</option>
+          {DIFFICULTY_BANDS.filter((b) => b !== "unknown").map((b) => (
+            <option key={b} value={b}>
+              {b}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="mt-3 block text-sm text-dim">
+        Did this decision create a material disruption to other priorities?
+        <select
+          className="input mt-1 w-full"
+          value={disruption}
+          onChange={(e) => setDisruption(e.target.value)}
+        >
+          <option value="">Prefer not to say</option>
+          {YES_NO_UNKNOWN.filter((b) => b !== "unknown").map((b) => (
+            <option key={b} value={b}>
+              {b}
+            </option>
+          ))}
+        </select>
+      </label>
 
       <textarea
         className="input mt-4 w-full"

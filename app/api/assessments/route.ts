@@ -18,16 +18,20 @@ import { captureServerEvent } from "@/lib/analytics/server";
 import { isShadowAssessmentKind } from "@/lib/assessment/storage";
 import { loadPhase0ServerState, phase0RefuseIfFrozen } from "@/lib/advisor/phase0/server";
 import {
-  buildDay30SurveyRow,
+  buildCheckpointSurveyRows,
   buildDecisionSnapshot,
-  isHomeDecisionType,
 } from "@/lib/outcomes/decision-snapshot";
+import { baselineInsertRow } from "@/lib/outcomes/baseline";
+import { SCORING_SCHEMA_ID } from "@/lib/outcomes/evidence-version";
+import { assertSameUserLineage } from "@/lib/outcomes/lineage";
 
 const bodySchema = z.object({
   inputs: assessmentInputsSchema,
   kind: z.enum(["full", "shadow"]),
   // Optional for older clients / the home-only shadow flow; absent means home_buying.
   decisionType: activeDecisionTypeSchema.optional(),
+  previousAssessmentId: z.string().uuid().optional(),
+  reassessmentReason: z.string().max(80).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -46,7 +50,8 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid assessment payload" }, { status: 400 });
     }
-    const { inputs, kind, decisionType } = parsed.data;
+    const { inputs, kind, decisionType, previousAssessmentId, reassessmentReason } =
+      parsed.data;
     // Compare on a raw string before any union narrowing (TS2367).
     const isShadowRead = isShadowAssessmentKind(String(kind));
 
@@ -125,26 +130,42 @@ export async function POST(req: NextRequest) {
     }
 
     const assessmentId = crypto.randomUUID();
+    let lineage: { previous_assessment_id: string; reassessment_reason: string | null } | null =
+      null;
+    if (previousAssessmentId) {
+      const { data: prior } = await supabase
+        .from("assessments")
+        .select("id, user_id")
+        .eq("id", previousAssessmentId)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const rejection = assertSameUserLineage(user.id, prior, assessmentId);
+      if (rejection) {
+        return NextResponse.json({ error: "Invalid reassessment link." }, { status: 400 });
+      }
+      lineage = {
+        previous_assessment_id: previousAssessmentId,
+        reassessment_reason: reassessmentReason?.trim() || null,
+      };
+    }
+
     const completedAt = new Date().toISOString();
     const resolvedDecisionType = decisionType ?? "home_buying";
-    const homeOutcome = isHomeDecisionType(resolvedDecisionType);
-    const decisionSnapshot = homeOutcome
-      ? buildDecisionSnapshot({
-          decisionId: assessmentId,
-          score: result.score,
-          verdict: result.verdict,
-          hardStops: result.hardStops,
-          provenance: result.provenance ?? {
-            dti: "self_report",
-            downPayment: "self_report",
-            runway: "self_report",
-            credit: "none",
-            lookbackDays: null,
-          },
-          selfReportedCreditBand: inputs.selfReportedCreditBand ?? null,
-          timestamp: completedAt,
-        })
-      : null;
+    const decisionSnapshot = buildDecisionSnapshot({
+      decisionId: assessmentId,
+      score: result.score,
+      verdict: result.verdict,
+      hardStops: result.hardStops,
+      provenance: result.provenance ?? {
+        dti: "self_report",
+        downPayment: "self_report",
+        runway: "self_report",
+        credit: "none",
+        lookbackDays: null,
+      },
+      selfReportedCreditBand: inputs.selfReportedCreditBand ?? null,
+      timestamp: completedAt,
+    });
 
     const { data, error } = await supabase
       .from("assessments")
@@ -170,11 +191,13 @@ export async function POST(req: NextRequest) {
           keyInsight: generateKeyInsight(result),
           nextSteps: generateNextSteps(result),
           provenance: result.provenance,
-          ...(decisionSnapshot ? { decisionSnapshot } : {}),
+          decisionSnapshot,
         },
         hard_stops: result.hardStops,
         is_shadow: isShadowRead,
         completed_at: completedAt,
+        scoring_schema_id: SCORING_SCHEMA_ID,
+        ...(lineage ?? {}),
       })
       .select("id")
       .single();
@@ -211,20 +234,33 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Gate 6 v0: home verdict persist also schedules the existing day30 row.
-    // Failure here must not roll back the assessment (retry would create a
-    // second full row on the free tier). The snapshot is already on insights.
-    if (homeOutcome) {
-      const { error: surveyError } = await supabase.from("outcome_surveys").insert(
-        buildDay30SurveyRow({
-          userId: user.id,
-          assessmentId,
-          completedAt,
-        }),
-      );
-      if (surveyError) {
-        console.error("[assessments] day30 schedule failed:", surveyError);
-      }
+    // Evidence Engine: snapshot is on insights. Baseline + 30/90/365 rows are
+    // additive. Failure here must not roll back the assessment (retry would
+    // create a second full row on the free tier).
+    const { error: baselineError } = await supabase.from("assessment_outcome_baselines").insert(
+      baselineInsertRow({
+        assessmentId,
+        userId: user.id,
+        capturedAt: completedAt,
+        fields: {
+          emergencyFundMonths: inputs.emergencyFundMonths,
+          confidenceLevel: inputs.confidenceLevel,
+        },
+      }),
+    );
+    if (baselineError) {
+      console.error("[assessments] baseline capture failed:", baselineError);
+    }
+
+    const { error: surveyError } = await supabase.from("outcome_surveys").insert(
+      buildCheckpointSurveyRows({
+        userId: user.id,
+        assessmentId,
+        completedAt,
+      }),
+    );
+    if (surveyError) {
+      console.error("[assessments] checkpoint schedule failed:", surveyError);
     }
 
     // Post-response: verdict email (deduped per assessment) + server-side

@@ -17,6 +17,7 @@
     "smoke": "node scripts/smoke.mjs",
     "smoke:auth": "node scripts/smoke.mjs auth",
     "smoke:manual": "node scripts/smoke.mjs manual",
+    "smoke:evidence": "node scripts/evidence-engine-smoke.mjs",
     "brand-check": "node scripts/brand-check.mjs",
     "analyze": "ANALYZE=true next build",
     "brand:audit": "node scripts/brand-check.mjs",

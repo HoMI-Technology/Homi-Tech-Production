@@ -133,8 +133,37 @@ export async function GET(request: Request) {
     // NotificationBell still surfaces it on next visit.
     const optedOut = !emailAllowed && (subs ?? []).length === 0;
 
+    await db.from("outcome_survey_events").insert({
+      survey_id: row.id,
+      user_id: row.user_id,
+      event_type: "contact_attempted",
+      channel: "system",
+    });
+
+    if (delivered) {
+      await db.from("outcome_survey_events").insert({
+        survey_id: row.id,
+        user_id: row.user_id,
+        event_type: "delivered",
+        channel: emailAllowed ? "email" : "push",
+      });
+    } else if (optedOut) {
+      await db.from("outcome_survey_events").insert({
+        survey_id: row.id,
+        user_id: row.user_id,
+        event_type: "unreachable",
+        channel: "system",
+      });
+    }
+
     if (delivered || optedOut) {
-      await db.from("outcome_surveys").update({ notified_at: now.toISOString() }).eq("id", row.id);
+      await db
+        .from("outcome_surveys")
+        .update({
+          notified_at: now.toISOString(),
+          contact_state: delivered ? "delivered" : "unreachable",
+        })
+        .eq("id", row.id);
       marked += 1;
     }
   }

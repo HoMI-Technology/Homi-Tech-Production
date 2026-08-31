@@ -41,6 +41,11 @@ vi.mock("@/lib/supabase/server", () => ({
           },
         };
       }
+      if (table === "assessment_outcome_baselines") {
+        return {
+          insert: async () => ({ error: null }),
+        };
+      }
       if (table !== "assessments") throw new Error(`unexpected table ${table}`);
       return {
         insert: (payload: Record<string, unknown>) => {
@@ -124,8 +129,7 @@ describe("POST /api/assessments decision_type", () => {
     const res = await post({ inputs: VALID_INPUTS, kind: "full" });
     expect(res.status).toBe(200);
     expect(state.insertCalls[0].decision_type).toBe("home_buying");
-    expect(state.surveyInserts).toHaveLength(1);
-    expect(state.surveyInserts[0].kind).toBe("day30");
+    expect(state.surveyInserts.map((row) => row.kind)).toEqual(["day30", "day90", "day365"]);
   });
 
   /**
@@ -139,9 +143,9 @@ describe("POST /api/assessments decision_type", () => {
     expect(res.status).toBe(200);
     expect(state.insertCalls).toHaveLength(1);
     expect(state.insertCalls[0].decision_type).toBe("car");
-    expect(state.surveyInserts).toHaveLength(0);
-    const insights = state.insertCalls[0].insights as { decisionSnapshot?: unknown };
-    expect(insights.decisionSnapshot).toBeUndefined();
+    expect(state.surveyInserts.map((row) => row.kind)).toEqual(["day30", "day90", "day365"]);
+    const insights = state.insertCalls[0].insights as { decisionSnapshot?: { verdict?: string } };
+    expect(insights.decisionSnapshot?.verdict).toBeTruthy();
   });
 
   it("rejects a canon-but-inactive vertical with 400 and no insert", async () => {
@@ -238,6 +242,7 @@ describe("POST /api/assessments persist-on-verdict (Gate 6 day30)", () => {
         };
         self_reported_credit_band: string | null;
         timestamp: string;
+        scoring_schema_id: string;
       };
     };
 
@@ -256,14 +261,14 @@ describe("POST /api/assessments persist-on-verdict (Gate 6 day30)", () => {
     expect(insights.decisionSnapshot.self_reported_credit_band).toBe("good");
     expect(insights.decisionSnapshot.timestamp).toBe(completedAt);
 
-    expect(state.surveyInserts).toHaveLength(1);
+    expect(state.surveyInserts.map((row) => row.kind)).toEqual(["day30", "day90", "day365"]);
     const survey = state.surveyInserts[0];
-    expect(survey.kind).toBe("day30");
     expect(survey.assessment_id).toBe(row.id);
     expect(survey.user_id).toBe("user-1");
     expect(Date.parse(survey.due_at as string) - Date.parse(completedAt)).toBe(
       30 * 24 * 60 * 60 * 1000,
     );
+    expect(insights.decisionSnapshot.scoring_schema_id).toBe("readiness-engine-public-v1");
   });
 
   it("does not write snapshot or day30 when persist is refused", async () => {
