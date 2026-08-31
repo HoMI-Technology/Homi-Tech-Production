@@ -31,4 +31,8 @@ describe("public share page coarseness", () => {
     expect(PAGE).toMatch(/pillarBand\(/);
     expect(PAGE).toContain('from "@/lib/receipts"');
   });
+
+  it("still names the instrument Decision Readiness Score", () => {
+    expect(PAGE).toContain("Decision Readiness Score");
+  });
 });

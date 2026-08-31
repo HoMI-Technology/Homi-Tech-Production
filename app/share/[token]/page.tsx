@@ -88,12 +88,12 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
             <div>
               <p
                 className="font-display text-5xl font-semibold text-light"
-                aria-label={`Decision Readiness band ${band}`}
+                aria-label={`Decision Readiness Score band ${band}`}
               >
                 {SCORE_BAND_LABEL[band]}
               </p>
               <p className="mt-1 text-sm uppercase tracking-widest text-dim">
-                Decision Readiness band
+                Decision Readiness Score
               </p>
             </div>
 
