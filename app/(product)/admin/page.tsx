@@ -38,7 +38,7 @@ export default async function AdminOverviewPage() {
   let totalUsers = 0;
   let assessmentsCompleted = 0;
   let waitlistCount = 0;
-  let avgScore: number | null = null;
+  let waitCount = 0;
   const verdictCounts: Record<VerdictKey, number> = {
     READY: 0,
     ALMOST_THERE: 0,
@@ -76,23 +76,18 @@ export default async function AdminOverviewPage() {
   try {
     const { data } = await supabase
       .from("assessments")
-      .select("overall_score, verdict")
+      .select("verdict")
       .eq("status", "completed")
-      .not("overall_score", "is", null)
       .limit(2000);
-    const rows =
-      (data as { overall_score: number | null; verdict: VerdictKey | null }[] | null) ?? [];
-    if (rows.length > 0) {
-      const sum = rows.reduce((acc, r) => acc + (r.overall_score ?? 0), 0);
-      avgScore = Math.round(sum / rows.length);
-    }
+    const rows = (data as { verdict: VerdictKey | null }[] | null) ?? [];
     for (const r of rows) {
       if (r.verdict && r.verdict in verdictCounts) {
         verdictCounts[r.verdict] += 1;
       }
     }
+    waitCount = verdictCounts.BUILD_FIRST + verdictCounts.NOT_YET;
   } catch {
-    avgScore = null;
+    waitCount = 0;
   }
 
   try {
@@ -240,9 +235,9 @@ export default async function AdminOverviewPage() {
               color: COLORS.emerald,
             },
             {
-              label: "Avg score",
-              value: avgScore !== null ? String(avgScore) : "—",
-              footer: "Completed assessments",
+              label: "Wait",
+              value: String(waitCount),
+              footer: "BUILD FIRST + not yet",
               color: COLORS.yellow,
             },
             {
