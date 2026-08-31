@@ -68,6 +68,7 @@ describe("decision snapshot + day30 schedule", () => {
       },
       self_reported_credit_band: "fair",
       timestamp: "2026-08-19T12:00:00.000Z",
+      scoring_schema_id: "readiness-engine-public-v1",
     });
   });
 

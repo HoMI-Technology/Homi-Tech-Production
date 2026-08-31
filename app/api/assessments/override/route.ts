@@ -103,6 +103,7 @@ export async function POST(request: Request) {
     assessment_id: assessmentId,
     due_at: new Date(now + days * DAY_MS).toISOString(),
     kind,
+    contact_state: "eligible",
   }));
 
   const { error: insertError } = await supabase.from("outcome_surveys").insert(surveys);

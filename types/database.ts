@@ -56,6 +56,9 @@ export interface AssessmentRow {
   organization_id?: string | null;
   /** First-touch acquisition snapshot — migration 00026. */
   attribution?: Record<string, unknown> | null;
+  scoring_schema_id?: string;
+  previous_assessment_id?: string | null;
+  reassessment_reason?: string | null;
 }
 
 export type OutcomeSurveyKind = "day30" | "day90" | "day365";
@@ -72,6 +75,21 @@ export interface OutcomeSurvey {
   outcome: string | null;
   notes: string | null;
   created_at: string;
+  notified_at?: string | null;
+  contact_state?: string;
+  started_at?: string | null;
+  declined_at?: string | null;
+  response_schema_version?: string | null;
+  financial_stress?: number | null;
+  emergency_reserve_band?: string | null;
+  payment_difficulty?: string | null;
+  unexpected_expense_resilience?: string | null;
+  material_financial_disruption?: string | null;
+  decision_regret?: number | null;
+  decision_confidence?: number | null;
+  would_make_same_decision_again?: string | null;
+  priority_disruption?: string | null;
+  decision_state?: string | null;
 }
 
 export interface JournalEntry {
