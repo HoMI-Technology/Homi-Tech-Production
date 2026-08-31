@@ -86,15 +86,11 @@ export default async function TeamDashboardPage() {
 
   // De-identified cohort read: the security-definer function in 20260802000002 returns
   // only non-PII fields and enforces org membership server-side.
-  let assessments: Pick<AssessmentRow, "verdict" | "overall_score">[] = [];
+  let assessments: Pick<AssessmentRow, "verdict">[] = [];
   if (orgId) {
     const { data } = await supabase.rpc("get_org_assessment_summary", { org_id: orgId });
     assessments = (data as typeof assessments | null) ?? [];
   }
-
-  const scores = assessments.map((a) => a.overall_score).filter((s): s is number => s != null);
-  const avg =
-    scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
 
   const verdictCounts: Record<VerdictKey, number> = {
     READY: 0,
@@ -108,6 +104,7 @@ export default async function TeamDashboardPage() {
     }
   }
 
+  const waitCount = verdictCounts.BUILD_FIRST + verdictCounts.NOT_YET;
   const readyRate =
     assessments.length > 0
       ? `${Math.round((verdictCounts.READY / assessments.length) * 100)}%`
@@ -139,9 +136,9 @@ export default async function TeamDashboardPage() {
               color: COLORS.emerald,
             },
             {
-              label: "Avg score",
-              value: avg !== null ? String(avg) : "—",
-              footer: "Cohort",
+              label: "Wait",
+              value: String(waitCount),
+              footer: "BUILD FIRST + not yet",
               color: COLORS.yellow,
             },
             {

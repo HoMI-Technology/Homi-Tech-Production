@@ -5,11 +5,24 @@ import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
 import type { AssessmentRow } from "@/types/database";
 import { COLORS, type VerdictKey } from "@/lib/brand";
+import { scoreBand, type ScoreBand } from "@/lib/receipts";
+
+const SCORE_BAND_LABEL: Record<ScoreBand, string> = {
+  high: "High",
+  moderate: "Moderate",
+  emerging: "Emerging",
+  early: "Early",
+};
 
 export const metadata: Metadata = {
   title: "Assessments | Admin | HōMI",
   description: "Recent assessment activity across the platform.",
 };
+
+function receiptBandLabel(score: number | null): string {
+  if (score == null) return "—";
+  return SCORE_BAND_LABEL[scoreBand(score)];
+}
 
 function formatDate(value: string | null) {
   if (!value) return "—";
@@ -42,9 +55,9 @@ export default async function AdminAssessmentsPage() {
   }
 
   const completed = assessments.filter((a) => a.verdict !== null).length;
-  const scores = assessments.map((a) => a.overall_score).filter((s): s is number => s != null);
-  const avg =
-    scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
+  const waitCount = assessments.filter(
+    (a) => a.verdict === "BUILD_FIRST" || a.verdict === "NOT_YET",
+  ).length;
   const shadows = assessments.filter((a) => a.is_shadow).length;
 
   return (
@@ -71,9 +84,9 @@ export default async function AdminAssessmentsPage() {
               color: COLORS.emerald,
             },
             {
-              label: "Avg score",
-              value: avg !== null ? String(avg) : "—",
-              footer: "In window",
+              label: "Wait",
+              value: String(waitCount),
+              footer: "BUILD FIRST + not yet",
               color: COLORS.yellow,
             },
             {
@@ -94,7 +107,7 @@ export default async function AdminAssessmentsPage() {
             <thead>
               <tr>
                 <th>Date</th>
-                <th>Score</th>
+                <th>Band</th>
                 <th>Verdict</th>
                 <th>Type</th>
                 <th>Hard stops</th>
@@ -104,7 +117,7 @@ export default async function AdminAssessmentsPage() {
               {assessments.map((a) => (
                 <tr key={a.id}>
                   <td className="text-dim">{formatDate(a.created_at)}</td>
-                  <td className="score-numeral font-semibold">{a.overall_score ?? "—"}</td>
+                  <td className="text-sm text-dim">{receiptBandLabel(a.overall_score)}</td>
                   <td>
                     {a.verdict ? (
                       <VerdictBadge verdict={a.verdict as VerdictKey} size="sm" />
