@@ -1,12 +1,13 @@
 # HōMI Evidence Engine Implementation Status
 
 **Date:** 2026-08-31  
-**Branch:** `feat/evidence-engine-v1`  
-**Base:** `main` @ `867526b9`
+**Ship:** `main` @ `697b325` (#360)  
+**Live healthcheck version:** `697b325ccc6ce916a8f52fa429a82b111599904c`
 
 ## Verdict
 
-PARTIALLY COMPLETE pending CI + production migration apply.
+SHIPPED on `main`. Migration applied. Signed-in smoke PASS. Level B notebook
+run against production (observational, small n — not a public claim).
 
 ## Gap matrix (Phase 2)
 
@@ -43,25 +44,28 @@ Existing, no new secrets:
 
 ## Migration
 
-`supabase/migrations/20260831000001_evidence_engine.sql` — **not applied** anywhere.
+`supabase/migrations/20260831000001_evidence_engine.sql` — **applied to
+production 2026-08-31** (single-file `db query --linked`; repair
+`20260831000001` applied). Do not `supabase db push` the full history.
 
-Apply with the single-file path in `docs/ops/MIGRATIONS-SSOT.md` after review.
-Do not `supabase db push` the full history.
+## Verified 2026-08-31
 
-## Next build (this session)
-
-- Signed-in smoke: `npm run smoke:evidence`
-- Level B notebook: `docs/research/LEVEL_B_VALIDATION_NOTEBOOK.md` +
-  `docs/research/level-b-validation-queries.sql`
-- Shaper: `levelBNotebook()` in `lib/outcomes/research-metrics.ts`
-
-Live persist/survey writes still need merge of PR #360 **and** applying
-`20260831000001_evidence_engine.sql`.
+- `npm run smoke:evidence` against `https://homitechnology.com`: **PASS**
+  (persist, baseline `outcome-baseline-v1`, structured save, verdict
+  unchanged). Free-tier re-run correctly 402s and reuses the same
+  assessment.
+- Level B SQL (linked): 2 completed assessments, 1 baseline present / 1
+  missing (legacy, expected), day30 1/2 completed, day90 and day365 0/2.
+  T0 `financial_stress` missing by design. **Not powered. Not causal.
+  Not for publication.**
 
 ## Remaining limitations
 
-- T0 `financial_stress` and cash-margin are unknown unless a later UI captures them.
+- T0 `financial_stress` and cash-margin stay unknown unless a later UI
+  captures them.
 - Free-tier one-assessment lock limits wait-then-reassess lineage until Plus.
-- Product calibration still uses satisfaction × verdict (k ≥ 5). Research metrics are separate and do not compute p-values.
+- Product calibration still uses satisfaction × verdict (k ≥ 5). Research
+  metrics do not compute p-values.
 - Email “opened” is not measured.
-- Production apply and live survey round-trip are owner steps.
+- Level B sample is too small for any predictive positioning. Freeze
+  statistical thresholds before public validation.
