@@ -48,6 +48,16 @@ Existing, no new secrets:
 Apply with the single-file path in `docs/ops/MIGRATIONS-SSOT.md` after review.
 Do not `supabase db push` the full history.
 
+## Next build (this session)
+
+- Signed-in smoke: `npm run smoke:evidence`
+- Level B notebook: `docs/research/LEVEL_B_VALIDATION_NOTEBOOK.md` +
+  `docs/research/level-b-validation-queries.sql`
+- Shaper: `levelBNotebook()` in `lib/outcomes/research-metrics.ts`
+
+Live persist/survey writes still need merge of PR #360 **and** applying
+`20260831000001_evidence_engine.sql`.
+
 ## Remaining limitations
 
 - T0 `financial_stress` and cash-margin are unknown unless a later UI captures them.

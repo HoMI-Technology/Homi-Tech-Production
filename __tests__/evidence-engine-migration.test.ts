@@ -37,3 +37,19 @@ describe("20260831000001_evidence_engine.sql", () => {
     expect(sql).not.toMatch(/WEIGHTS/);
   });
 });
+
+describe("Level B SQL notebook", () => {
+  const notebook = readFileSync(
+    join(process.cwd(), "docs", "research", "level-b-validation-queries.sql"),
+    "utf8",
+  );
+
+  it("is read-only observational SQL with denominators", () => {
+    expect(notebook).toContain("completion_rate");
+    expect(notebook).toContain("baselines_missing");
+    expect(notebook).toContain("financial_stress_missing");
+    expect(notebook).not.toMatch(/\binsert\b/i);
+    expect(notebook).not.toMatch(/^\s*(insert|update|delete)\b/im);
+    expect(notebook).toContain("Do not compute statistical significance");
+  });
+});
