@@ -212,7 +212,9 @@ export default function PathPage() {
       setError("Take an assessment first — Path is built from your readiness score.");
       return;
     }
-    const next = generatePathFromResult(stored.result, stored.completedAt);
+    const next = generatePathFromResult(stored.result, stored.completedAt, {
+      decisionType: stored.decisionType,
+    });
     saveReadinessPath(next);
     setPath(next);
     setError(null);

@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
+import { computeScore, type AssessmentInputs } from "@/lib/scoring";
+import { withVerticalHardStopDisplay } from "@/lib/assessment/vertical-insights";
 import {
-  computeScore,
-  generateKeyInsight,
-  generateNextSteps,
-  type AssessmentInputs,
-} from "@/lib/scoring";
-import { assessmentInputsSchema as inputsSchema } from "@/lib/validation/assessment";
+  activeDecisionTypeSchema,
+  assessmentInputsSchema as inputsSchema,
+} from "@/lib/validation/assessment";
 import { createClient } from "@/lib/supabase/server";
 import { phase0RefuseIfFrozen } from "@/lib/advisor/phase0/server";
 
@@ -37,7 +36,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const parsed = inputsSchema.safeParse(json);
+  const scoringBodySchema = inputsSchema.extend({
+    decisionType: activeDecisionTypeSchema.optional(),
+  });
+  const parsed = scoringBodySchema.safeParse(json);
   if (!parsed.success) {
     return NextResponse.json(
       { error: "Invalid assessment inputs.", issues: parsed.error.issues },
@@ -45,7 +47,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const inputs: AssessmentInputs = parsed.data;
+  const { decisionType, ...inputFields } = parsed.data;
+  const inputs: AssessmentInputs = inputFields;
 
   try {
     const supabase = await createClient();
@@ -55,9 +58,9 @@ export async function POST(request: Request) {
     // No session infra — guest scoring path.
   }
 
-  const result = computeScore(inputs);
-  const keyInsight = generateKeyInsight(result);
-  const nextSteps = generateNextSteps(result);
+  const scored = computeScore(inputs);
+  const displayed = withVerticalHardStopDisplay(scored, decisionType ?? "home_buying");
+  const result = displayed.result;
 
   return NextResponse.json({
     score: result.score,
@@ -69,7 +72,7 @@ export async function POST(request: Request) {
     warnings: result.warnings,
     hardStops: result.hardStops,
     provenance: result.provenance,
-    keyInsight,
-    nextSteps,
+    keyInsight: displayed.keyInsight,
+    nextSteps: displayed.nextSteps,
   });
 }

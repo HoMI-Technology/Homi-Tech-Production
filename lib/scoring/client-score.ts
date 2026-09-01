@@ -20,6 +20,7 @@ import type {
   HardStopReason,
   ScoringWarning,
 } from "@/lib/scoring/public";
+import type { DecisionType } from "@/lib/assessment/types";
 
 export interface ServerScorePayload {
   result: AssessmentResult;
@@ -128,13 +129,18 @@ function parseResult(data: Record<string, unknown>): AssessmentResult {
 }
 
 /** POST /api/scoring — server recomputes; never trust a client-sent score. */
-export async function fetchServerScore(inputs: AssessmentInputs): Promise<ServerScorePayload> {
+export async function fetchServerScore(
+  inputs: AssessmentInputs,
+  opts?: { decisionType?: DecisionType | string },
+): Promise<ServerScorePayload> {
   let res: Response;
   try {
     res = await fetch("/api/scoring", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(inputs),
+      body: JSON.stringify(
+        opts?.decisionType ? { ...inputs, decisionType: opts.decisionType } : inputs,
+      ),
     });
   } catch {
     throw new ScoringRequestError("Could not reach the scoring service. Check your connection.", 0);

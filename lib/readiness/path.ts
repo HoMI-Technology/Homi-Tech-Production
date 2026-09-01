@@ -9,6 +9,7 @@
 
 import type { AssessmentResult, HardStopCode, Verdict } from "@/lib/scoring/engine";
 import { PILLAR_MAX_POINTS } from "@/lib/scoring/public";
+import { hardStopPathNotes, hardStopPathTitle } from "@/lib/assessment/hard-stop-copy";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -83,6 +84,8 @@ export interface BuildReadinessPathOptions {
   /** Injected for tests. */
   now?: Date;
   idFactory?: () => string;
+  /** Vertical for hard-stop titles (ADR-002). Defaults to home. */
+  decisionType?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -229,6 +232,7 @@ function hardStopStep(
   daysFromNow: number,
   finance: PathFinanceSnapshot | null | undefined,
   idFactory: () => string,
+  decisionType: string = "home_buying",
 ): PathStep {
   const id = stepId(idFactory);
   switch (code) {
@@ -276,15 +280,12 @@ function hardStopStep(
     case "HOUSING_RATIO_OVER_45":
       return {
         id,
-        title: "Re-scope housing so payment stays under 45% of income",
+        title: hardStopPathTitle(code, decisionType),
         kind: "milestone",
         daysFromNow,
         reasonCode: code,
         href: "/tools/affordability",
-        notes:
-          "Protective gate: housing cost above 45% of gross income. " +
-          "Lower the target payment or raise income before proceeding. " +
-          PATH_DISCLAIMER,
+        notes: hardStopPathNotes(code, PATH_DISCLAIMER, decisionType),
         fundingTarget: null,
         fundingLabel: null,
         ...pendingFields(),
@@ -553,7 +554,7 @@ export function buildReadinessPath(
     binding = stops[0];
     for (let i = 0; i < stops.length; i++) {
       const d = i === 0 ? 3 : 14 + (i - 1) * 21;
-      steps.push(hardStopStep(stops[i], d, finance, idFactory));
+      steps.push(hardStopStep(stops[i], d, finance, idFactory, options.decisionType));
       dayCursor = d + 14;
     }
   }

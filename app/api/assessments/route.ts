@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { after } from "next/server";
 import { z } from "zod";
-import { computeScore, generateKeyInsight, generateNextSteps } from "@/lib/scoring";
+import { computeScore } from "@/lib/scoring";
+import { withVerticalHardStopDisplay } from "@/lib/assessment/vertical-insights";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { activeDecisionTypeSchema, assessmentInputsSchema } from "@/lib/validation/assessment";
@@ -108,7 +109,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Never trust client-computed scores — recompute server-side.
-    const result = computeScore(inputs);
+    const scored = computeScore(inputs);
+    const displayed = withVerticalHardStopDisplay(scored, resolvedDecisionType);
+    const result = displayed.result;
 
     // First-touch acquisition snapshot (occurrence data only).
     const attribution = readAttributionCookie(req.headers.get("cookie"));
@@ -196,8 +199,8 @@ export async function POST(req: NextRequest) {
           timing: result.timing,
         },
         insights: {
-          keyInsight: generateKeyInsight(result),
-          nextSteps: generateNextSteps(result),
+          keyInsight: displayed.keyInsight,
+          nextSteps: displayed.nextSteps,
           provenance: result.provenance,
           decisionSnapshot,
         },

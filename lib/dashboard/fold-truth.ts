@@ -3,6 +3,8 @@
  * Keep this module free of Next, scoring internals, and lab routes.
  */
 
+import { foldHardStopDisplay } from "@/lib/assessment/hard-stop-copy";
+
 export const ONBOARDING_SKIP_HREF = "/dashboard" as const;
 
 export function isNextRedirectError(error: unknown): boolean {
@@ -159,37 +161,11 @@ type FoldHardStopCopy = {
   override: (scorePct: number) => string;
 };
 
-function foldHardStopCopy(code: FoldHardStopCode): FoldHardStopCopy {
-  switch (code) {
-    case "RUNWAY_UNDER_1_MONTH":
-      return {
-        eyebrow: hardStopEyebrow,
-        hold: homeHoldSentence,
-        override: (scorePct) => `${scorePct} — runway is a hard stop.`,
-      };
-    case "DTI_OVER_50":
-      return {
-        eyebrow: "Hard stop · DTI.",
-        hold: "DTI is the hold. Bring the debt load down before anything else.",
-        override: (scorePct) => `${scorePct} — DTI is a hard stop.`,
-      };
-    case "HOUSING_RATIO_OVER_45":
-      return {
-        eyebrow: "Hard stop · housing.",
-        hold: "Housing is the hold. Re-scope the payment before anything else.",
-        override: (scorePct) => `${scorePct} — housing is a hard stop.`,
-      };
-    case "CREDIT_UNDER_620":
-      return {
-        eyebrow: "Hard stop · credit.",
-        hold: "Credit is the hold. Rebuild before anything else.",
-        override: (scorePct) => `${scorePct} — credit is a hard stop.`,
-      };
-    default: {
-      const _exhaustive: never = code;
-      return _exhaustive;
-    }
-  }
+function foldHardStopCopy(
+  code: FoldHardStopCode,
+  decisionType: string = "home_buying",
+): FoldHardStopCopy {
+  return foldHardStopDisplay(code, decisionType);
 }
 
 export function isFoldHardStopCode(value: unknown): value is FoldHardStopCode {
@@ -239,14 +215,16 @@ export function leadingFoldHardStopCode(
 
 export function foldHardStopEyebrow(
   code?: FoldHardStopCode | null,
+  decisionType: string = "home_buying",
 ): string {
-  return foldHardStopCopy(resolveFoldHardStopCode(code)).eyebrow;
+  return foldHardStopCopy(resolveFoldHardStopCode(code), decisionType).eyebrow;
 }
 
 export function foldHomeHoldSentence(
   code?: FoldHardStopCode | null,
+  decisionType: string = "home_buying",
 ): string {
-  return foldHardStopCopy(resolveFoldHardStopCode(code)).hold;
+  return foldHardStopCopy(resolveFoldHardStopCode(code), decisionType).hold;
 }
 
 /** Honest empty for last-read cash. Never a bare em dash next to a hard stop. */
@@ -265,8 +243,9 @@ const GROW_EMERGENCY_FUND_TITLE = "Grow emergency fund toward 3–6 months";
 export function foldHardStopOverrideLine(
   scorePct: number,
   code?: FoldHardStopCode | null,
+  decisionType: string = "home_buying",
 ): string {
-  return foldHardStopCopy(resolveFoldHardStopCode(code)).override(scorePct);
+  return foldHardStopCopy(resolveFoldHardStopCode(code), decisionType).override(scorePct);
 }
 
 /**

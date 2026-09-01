@@ -48,6 +48,7 @@ export type PathToReadyCardProps = {
   result: AssessmentResult;
   assessmentCompletedAt?: string | null;
   isAnonymous?: boolean;
+  decisionType?: string;
 };
 
 const SIGN_IN_HREF = `/auth/sign-in?next=${encodeURIComponent("/dashboard")}`;
@@ -103,6 +104,7 @@ export function PathToReadyCard({
   result,
   assessmentCompletedAt = null,
   isAnonymous = false,
+  decisionType,
 }: PathToReadyCardProps) {
   const [path, setPath] = useState<ReadinessPath | null>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -136,7 +138,7 @@ export function PathToReadyCard({
           verdict: result.verdict,
           hardStopCount: result.hardStops.length,
         });
-        const auto = ensurePathForVerdict(result, assessmentCompletedAt, false);
+        const auto = ensurePathForVerdict(result, assessmentCompletedAt, false, decisionType);
         if (active && auto) {
           setPath(auto);
           trackPathGenerated({
@@ -163,7 +165,7 @@ export function PathToReadyCard({
     return () => {
       active = false;
     };
-  }, [result, assessmentCompletedAt, isAnonymous]);
+  }, [result, assessmentCompletedAt, isAnonymous, decisionType]);
 
   useEffect(() => {
     if (!hydrated || !path) return;
@@ -176,7 +178,7 @@ export function PathToReadyCard({
   }, [hydrated, path]);
 
   const handleGenerate = useCallback(() => {
-    const next = generatePathFromResult(result, assessmentCompletedAt);
+    const next = generatePathFromResult(result, assessmentCompletedAt, { decisionType });
     saveReadinessPath(next);
     setPath(next);
     setCommitMsg(null);
@@ -187,7 +189,7 @@ export function PathToReadyCard({
       mode: next.mode,
       stepCount: next.steps.length,
     });
-  }, [result, assessmentCompletedAt]);
+  }, [result, assessmentCompletedAt, decisionType]);
 
   const handleSave = useCallback(() => {
     if (!path) return;
@@ -197,7 +199,7 @@ export function PathToReadyCard({
   }, [path]);
 
   const handleGenerateAndSaveOptional = useCallback(() => {
-    const next = generatePathFromResult(result, assessmentCompletedAt);
+    const next = generatePathFromResult(result, assessmentCompletedAt, { decisionType });
     saveReadinessPath(next);
     setPath(next);
     trackPathGenerated({
@@ -207,7 +209,7 @@ export function PathToReadyCard({
       stepCount: next.steps.length,
     });
     trackPathSaved({ source: "results_manual", stepCount: next.steps.length });
-  }, [result, assessmentCompletedAt]);
+  }, [result, assessmentCompletedAt, decisionType]);
 
   const handleComplete = useCallback((stepId: string) => {
     // Guarded transition either way; only the flag-on branch may publish a

@@ -157,13 +157,15 @@ export function financeSnapshotForPath(): PathFinanceSnapshot | null {
 export function generatePathFromLocalAssessment(): ReadinessPath | null {
   const stored = loadLocalResult();
   if (!stored) return null;
-  return generatePathFromResult(stored.result, stored.completedAt);
+  return generatePathFromResult(stored.result, stored.completedAt, {
+    decisionType: stored.decisionType,
+  });
 }
 
 export function generatePathFromResult(
   result: AssessmentResult,
   assessmentCompletedAt?: string | null,
-  opts?: { archiveExisting?: boolean },
+  opts?: { archiveExisting?: boolean; decisionType?: string },
 ): ReadinessPath {
   if (opts?.archiveExisting !== false) {
     const existing = loadReadinessPath();
@@ -172,6 +174,7 @@ export function generatePathFromResult(
   const base = buildReadinessPath(result, {
     assessmentCompletedAt: assessmentCompletedAt ?? null,
     finance: financeSnapshotForPath(),
+    decisionType: opts?.decisionType,
   });
   return injectPartnerStep(base);
 }
@@ -206,6 +209,7 @@ export function ensurePathForVerdict(
   result: AssessmentResult,
   assessmentCompletedAt?: string | null,
   force = false,
+  decisionType?: string,
 ): ReadinessPath | null {
   if (result.verdict === "READY" && result.hardStops.length === 0) {
     return loadReadinessPath();
@@ -214,7 +218,7 @@ export function ensurePathForVerdict(
   if (existing && existing.verdict === result.verdict && !force) {
     return existing;
   }
-  const path = generatePathFromResult(result, assessmentCompletedAt);
+  const path = generatePathFromResult(result, assessmentCompletedAt, { decisionType });
   saveReadinessPath(path);
   return path;
 }
