@@ -67,13 +67,8 @@ export const COMPANION_FOLD_LINES = {
 
 export type CompanionFoldLineKey = keyof typeof COMPANION_FOLD_LINES;
 
-/**
- * Where Escalation (presence state 5) opens full conversation.
- * Stub only — do not mount chat UI on the Home fold; deep-link here later.
- */
 export const COMPANION_ESCALATION_HREF = "/advisor" as const;
 
-/** Presence states that drive the Home fold line (Silent Witness = no extra chrome). */
 export type CompanionPresenceState =
   | "silent_witness"
   | "hard_stop_guardian"
@@ -88,7 +83,6 @@ export function companionPresenceState(args: {
 }): Exclude<CompanionPresenceState, "score_rail" | "escalation"> {
   if (args.hasHardStops) return "hard_stop_guardian";
   if (args.hasAssessment && args.hasPath) return "path_guide";
-  // Assessment-only and first-run still speak the locked line; chat stays Silent Witness.
   if (args.hasAssessment) return "silent_witness";
   return "silent_witness";
 }
@@ -98,23 +92,12 @@ export function companionFoldLine(args: {
   hasPath: boolean;
   hasAssessment: boolean;
 }): string {
-  if (args.hasHardStops) {
-    return COMPANION_FOLD_LINES.hardStop;
-  }
-  if (args.hasAssessment && args.hasPath) {
-    return COMPANION_FOLD_LINES.pathGuide;
-  }
-  if (args.hasAssessment) {
-    return COMPANION_FOLD_LINES.assessmentOnly;
-  }
+  if (args.hasHardStops) return COMPANION_FOLD_LINES.hardStop;
+  if (args.hasAssessment && args.hasPath) return COMPANION_FOLD_LINES.pathGuide;
+  if (args.hasAssessment) return COMPANION_FOLD_LINES.assessmentOnly;
   return COMPANION_FOLD_LINES.firstRun;
 }
 
-/**
- * First-viewport instrument on signed-in HōMI. The fold is the repo
- * Threshold Compass. Score / runway / cash are last AssessmentResult only.
- * This module does not write the ledger or a score.
- */
 export const HOME_FOLD_INSTRUMENT = "threshold" as const;
 
 export type FoldPathPrimary = {
@@ -122,10 +105,6 @@ export type FoldPathPrimary = {
   title: string;
 };
 
-/**
- * Fold hard-stop codes. Same four Path already ranks.
- * Do not import the engine; this is display copy only.
- */
 export const FOLD_HARD_STOP_CODES = [
   "RUNWAY_UNDER_1_MONTH",
   "DTI_OVER_50",
@@ -135,10 +114,6 @@ export const FOLD_HARD_STOP_CODES = [
 
 export type FoldHardStopCode = (typeof FOLD_HARD_STOP_CODES)[number];
 
-/**
- * Path + hard stops lead. Same precedence as Path HARD_STOP_ORDER.
- * Do not invent a new ranking.
- */
 export const FOLD_HARD_STOP_PRECEDENCE: readonly FoldHardStopCode[] = [
   "RUNWAY_UNDER_1_MONTH",
   "DTI_OVER_50",
@@ -146,10 +121,8 @@ export const FOLD_HARD_STOP_PRECEDENCE: readonly FoldHardStopCode[] = [
   "CREDIT_UNDER_620",
 ] as const;
 
-/** Baseline 001 hard-stop kicker — sentence case, once. Not an ALL-CAPS wall. */
 export const hardStopEyebrow = "Hard stop · runway." as const;
 
-/** Baseline 001 hold line. Path owns the move; this names why. */
 export const homeHoldSentence =
   "Runway is the hold. Build the fund before anything else." as const;
 
@@ -201,14 +174,12 @@ export function isFoldHardStopCode(value: unknown): value is FoldHardStopCode {
   );
 }
 
-/** Resolve a stored or Path code. Unknown / missing stays the Baseline 001 runway case. */
 export function resolveFoldHardStopCode(
   code: FoldHardStopCode | null | undefined,
 ): FoldHardStopCode {
   return isFoldHardStopCode(code) ? code : "RUNWAY_UNDER_1_MONTH";
 }
 
-/** Codes from the same hard_stops rows that carry a human message. */
 export function hardStopCodes(hardStops: unknown): FoldHardStopCode[] {
   if (!Array.isArray(hardStops)) return [];
   const codes: FoldHardStopCode[] = [];
@@ -222,7 +193,6 @@ export function hardStopCodes(hardStops: unknown): FoldHardStopCode[] {
   return codes;
 }
 
-/** First active stop in Path order. Null when no known code is present. */
 export function leadingFoldHardStopCode(
   codes: readonly unknown[],
 ): FoldHardStopCode | null {
@@ -237,31 +207,21 @@ export function leadingFoldHardStopCode(
   return null;
 }
 
-export function foldHardStopEyebrow(
-  code?: FoldHardStopCode | null,
-): string {
+export function foldHardStopEyebrow(code?: FoldHardStopCode | null): string {
   return foldHardStopCopy(resolveFoldHardStopCode(code)).eyebrow;
 }
 
-export function foldHomeHoldSentence(
-  code?: FoldHardStopCode | null,
-): string {
+export function foldHomeHoldSentence(code?: FoldHardStopCode | null): string {
   return foldHardStopCopy(resolveFoldHardStopCode(code)).hold;
 }
 
-/** Honest empty for last-read cash. Never a bare em dash next to a hard stop. */
 export const CASH_EMPTY_LABEL = "Connect accounts to see cash." as const;
 
-/**
- * Path SSOT for a runway hard stop. Never the 3–6 month grow-fund title on this fold.
- * DTI / housing / credit Path titles stay in lib/readiness/path.ts — do not rewrite them here.
- */
 export const RUNWAY_HARD_STOP_PATH_TITLE =
   "Stabilize emergency runway to at least 1 month" as const;
 
 const GROW_EMERGENCY_FUND_TITLE = "Grow emergency fund toward 3–6 months";
 
-/** Quiet override line: score is real; a hard stop still holds. No 35/35/30, no cutoffs. */
 export function foldHardStopOverrideLine(
   scorePct: number,
   code?: FoldHardStopCode | null,
@@ -269,11 +229,6 @@ export function foldHardStopOverrideLine(
   return foldHardStopCopy(resolveFoldHardStopCode(code)).override(scorePct);
 }
 
-/**
- * Fold Path primary. A stored 3–6 month grow-fund title is the wrong close
- * only while RUNWAY_UNDER_1_MONTH is the resolved stop — swap to the SSOT
- * stabilize step. DTI / housing / credit keep the live Path title.
- */
 export function resolveFoldPathPrimary(
   pathPrimary: FoldPathPrimary | null,
   stopCode?: FoldHardStopCode | null,
@@ -288,7 +243,6 @@ export function resolveFoldPathPrimary(
   return pathPrimary;
 }
 
-/** Next pending Path step for the fold — one primary, never REASSESS as the hero. */
 export function foldPathPrimary(steps: unknown): FoldPathPrimary | null {
   if (!Array.isArray(steps)) return null;
   let firstPending: FoldPathPrimary | null = null;
@@ -311,14 +265,14 @@ export function foldPathPrimary(steps: unknown): FoldPathPrimary | null {
   return runwayPending ?? firstPending;
 }
 
-/** Last AssessmentResult emergency-fund months. Empty is an em dash — never a fake 76. */
+/** Last AssessmentResult emergency-fund months. Under 1 month is named, never 0.5 mo. */
 export function foldRunwayLabel(months: number | null | undefined): string {
   if (months == null || !Number.isFinite(months)) return "—";
+  if (months < 1) return "Under 1 month";
   const shown = months >= 10 ? months.toFixed(0) : months.toFixed(1);
   return `${shown} mo`;
 }
 
-/** Count actionable Path steps from a stored path payload (server or local). */
 export function pathStepCounts(steps: unknown): { done: number; total: number } {
   if (!Array.isArray(steps)) return { done: 0, total: 0 };
   let done = 0;
@@ -351,7 +305,6 @@ function pillarDisplayName(key: HomeFoldPillar): string {
   }
 }
 
-/** Softest measured pillar. Null scores (skipped ET) are not treated as zero. */
 export function weakestMeasuredPillar(scores: {
   financial: number | null;
   emotional: number | null;
@@ -371,7 +324,6 @@ export function weakestMeasuredPillar(scores: {
   return measured[0].key;
 }
 
-/** One fold sentence: hard stop outranks the weak-pillar line. */
 export function homeFoldSentence(args: {
   hardStopCount: number;
   weakestPillar: HomeFoldPillar | null;
