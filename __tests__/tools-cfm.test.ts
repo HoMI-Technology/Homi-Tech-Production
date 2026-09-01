@@ -46,7 +46,11 @@ describe("buildCfm", () => {
 
   it("prefers a real budget ledger over the legacy finance snapshot", () => {
     saveFinanceState({ ...DEFAULT_FINANCE_STATE, monthlyIncome: 1000 });
-    const nowIso = "2026-08-08T12:00:00.000Z";
+    // buildCfm() uses Date.now(); pin the paycheck to the current UTC month so
+    // period actuals win over the trailing 3-month average (Aug 2026 fixtures
+    // diluted to $3,000 once the calendar rolled to September).
+    const nowIso = new Date().toISOString();
+    const thisMonth = `${nowIso.slice(0, 7)}-01`;
     let ledger: BudgetLedgerState = emptyBudgetLedger(nowIso);
     ledger = addManualTransaction(
       ledger,
@@ -55,7 +59,7 @@ describe("buildCfm", () => {
         amountCents: 900_000,
         description: "Paycheck",
         categoryId: "cat-payroll",
-        transactionDate: "2026-08-01",
+        transactionDate: thisMonth,
       },
       nowIso,
     );
