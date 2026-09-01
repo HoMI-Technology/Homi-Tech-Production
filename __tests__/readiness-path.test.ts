@@ -50,6 +50,20 @@ describe("buildReadinessPath", () => {
     ).toBe(true);
   });
 
+  it("car payment hard-stop uses take-home copy, not housing 45%", () => {
+    const result = computeScore({
+      ...SAFE_BASE,
+      monthlyHousingRatio: 0.5,
+    });
+    expect(result.hardStops.some((h) => h.code === "HOUSING_RATIO_OVER_45")).toBe(true);
+    const path = buildReadinessPath(result, { idFactory: idFactory(), decisionType: "car" });
+    const housing = path.steps.find((s) => s.reasonCode === "HOUSING_RATIO_OVER_45");
+    expect(housing).toBeDefined();
+    expect(housing!.title).toMatch(/take-home/);
+    expect(housing!.title.replace(/take-home/gi, "")).not.toMatch(/\bhomes?\b|\bhousing\b/i);
+    expect(housing!.notes.replace(/take-home/gi, "")).not.toMatch(/\bhomes?\b|\bhousing\b/i);
+  });
+
   it("orders RUNWAY hard-stop as binding constraint first", () => {
     const result = computeScore({
       ...SAFE_BASE,

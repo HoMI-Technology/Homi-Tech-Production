@@ -36,7 +36,7 @@ export function useResultInsights(stored: StoredAssessment | null | undefined): 
 
     let cancelled = false;
     setLoading(true);
-    void fetchServerScore(stored.inputs)
+    void fetchServerScore(stored.inputs, { decisionType: stored.decisionType })
       .then((scored) => {
         if (cancelled) return;
         setInsights({ keyInsight: scored.keyInsight, nextSteps: scored.nextSteps });

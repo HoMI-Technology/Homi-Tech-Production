@@ -37,6 +37,7 @@ export function ThresholdFold({
   verdict,
   stopMessages,
   stopCode = null,
+  decisionType = "home_buying",
   lastMoney,
   pathPrimary,
 }: {
@@ -45,6 +46,7 @@ export function ThresholdFold({
   verdict: VerdictKey | null;
   stopMessages: string[];
   stopCode?: FoldHardStopCode | null;
+  decisionType?: string;
   lastMoney?: LastReadMoneyInputs | null;
   pathPrimary: FoldPathPrimary | null;
 }) {
@@ -146,13 +148,13 @@ export function ThresholdFold({
                       className="text-sm font-medium text-light"
                       data-home-hard-stop-eyebrow=""
                     >
-                      {foldHardStopEyebrow(stopCode)}
+                      {foldHardStopEyebrow(stopCode, decisionType)}
                     </p>
                     <p
                       className="mt-1 text-sm leading-relaxed text-light/85"
                       data-home-hard-stop-hold=""
                     >
-                      {foldHomeHoldSentence(stopCode)}
+                      {foldHomeHoldSentence(stopCode, decisionType)}
                     </p>
                   </div>
                 ) : null}
@@ -177,7 +179,7 @@ export function ThresholdFold({
                     className="mt-3 max-w-[22rem] text-sm text-dim"
                     data-home-fold-override=""
                   >
-                    {foldHardStopOverrideLine(scorePct, stopCode)}
+                    {foldHardStopOverrideLine(scorePct, stopCode, decisionType)}
                   </p>
                 ) : null}
 

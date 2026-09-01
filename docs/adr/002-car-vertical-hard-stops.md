@@ -39,9 +39,9 @@ A comment in `lib/questions/to-inputs.ts` once labeled that 20% line as
 ## Consequences
 
 - `lib/scoring/*` is not a vertical branch point.
-- A car user who picks `over_20pct` currently sees home-flavored hard-stop
-  copy until the copy layer maps the code per vertical.
-- 5.9 phase 2 (picker) may ship without waiting on that copy pass.
+- Display copy lives in `lib/assessment/hard-stop-copy.ts`. Engine codes stay
+  `HOUSING_RATIO_OVER_45`. Car payment copy names 20% of take-home, not housing.
+- 5.9 phase 2 (picker) shipped independently of the first copy pass.
 
 ## Rejected alternatives
 

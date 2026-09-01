@@ -71,6 +71,20 @@ describe("fold hard-stop copy — never names the wrong stop", () => {
     expect(shown, `${code} copy never names ${noun}`).toContain(noun);
   });
 
+  it("car housing stop says payment, not housing or home", () => {
+    const shown = [
+      foldHardStopEyebrow("HOUSING_RATIO_OVER_45", "car"),
+      foldHomeHoldSentence("HOUSING_RATIO_OVER_45", "car"),
+      foldHardStopOverrideLine(61, "HOUSING_RATIO_OVER_45", "car"),
+    ]
+      .join(" ")
+      .toLowerCase()
+      .replace(/take-home/g, "");
+    expect(shown).toContain("payment");
+    expect(shown).not.toContain("housing");
+    expect(shown).not.toMatch(/\bhome\b/);
+  });
+
   it("gives each stop code distinct copy — no two stops read alike", () => {
     const rendered = FOLD_HARD_STOP_CODES.map((c) => foldCopyFor(c).join("|"));
     expect(new Set(rendered).size).toBe(FOLD_HARD_STOP_CODES.length);

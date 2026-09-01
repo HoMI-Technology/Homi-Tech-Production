@@ -62,6 +62,23 @@ describe("POST /api/scoring full result (6.2)", () => {
     expect(body.nextSteps).toEqual(generateNextSteps(engine));
   });
 
+  it("remaps housing hard-stop copy when decisionType is car", async () => {
+    const { POST } = await import("@/app/api/scoring/route");
+    const carInputs = { ...SAMPLE, monthlyHousingRatio: 0.5 };
+    const req = new Request("http://localhost/api/scoring", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ...carInputs, decisionType: "car" }),
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { hardStops: Array<{ code: string; message: string }> };
+    const housing = body.hardStops.find((s) => s.code === "HOUSING_RATIO_OVER_45");
+    expect(housing).toBeDefined();
+    expect(housing!.message.replace(/take-home/gi, "")).not.toMatch(/\bhomes?\b|\bhousing\b/i);
+    expect(housing!.message).toMatch(/20%/);
+  });
+
   it("rejects invalid inputs with 400", async () => {
     const { POST } = await import("@/app/api/scoring/route");
     const req = new Request("http://localhost/api/scoring", {

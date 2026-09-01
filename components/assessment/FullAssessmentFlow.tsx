@@ -218,7 +218,7 @@ export function FullAssessmentFlow() {
     // Server-authoritative score (Plans.md 6.2) — never computeScore on client.
     let scored: Awaited<ReturnType<typeof fetchServerScore>>;
     try {
-      scored = await fetchServerScore(inputs);
+      scored = await fetchServerScore(inputs, { decisionType });
     } catch (err) {
       const message =
         err instanceof ScoringRequestError ? err.message : "Scoring failed. Try again in a moment.";
