@@ -28,8 +28,8 @@ export type ThresholdFoldLatest = {
 /**
  * Signed-in first screen. The fold is the repo Threshold Compass — large,
  * one mark, last AssessmentResult only. Does not write the ledger or a score.
- * Baseline 001: numeral is plated above the ring (z-order only). Compass
- * radii / yellow keyhole stay in ThresholdCompass — this file does not redraw them.
+ * Score sits below the mark so the yellow keyhole stays visible.
+ * Compass radii / yellow keyhole stay in ThresholdCompass — this file does not redraw them.
  */
 export function ThresholdFold({
   assessmentsFailed,
@@ -94,30 +94,22 @@ export function ThresholdFold({
                 glow
                 verdict={verdict ?? undefined}
               />
-              <div className="pointer-events-none absolute inset-0 z-[2] flex items-center justify-center">
-                <span
-                  data-home-fold-score-plate=""
-                  className="flex min-h-[4.75rem] min-w-[6.75rem] items-center justify-center rounded-full px-3"
-                  style={{ background: COLORS.navy }}
-                >
-                  <span
-                    className="score-numeral text-5xl font-semibold tabular-nums sm:text-6xl"
-                    style={{ color: scoreInk }}
-                    aria-label={scoreLabel}
-                    data-home-fold-score=""
-                  >
-                    {scorePct != null ? scorePct : "—"}
-                  </span>
-                </span>
-              </div>
             </div>
+
+            <p data-home-fold-score-plate="" className="mt-4">
+              <span
+                className="score-numeral text-2xl font-semibold tabular-nums sm:text-3xl"
+                style={{ color: scoreInk }}
+                aria-label={scoreLabel}
+                data-home-fold-score=""
+              >
+                {scorePct != null ? scorePct : "\u2014"}
+              </span>
+            </p>
 
             {latest ? (
               <>
-                <p
-                  className="mt-3 font-medium text-light"
-                  data-home-fold-runway=""
-                >
+                <p className="mt-3 font-medium text-light" data-home-fold-runway="">
                   <span className="text-2xs font-semibold uppercase tracking-[0.14em] text-dim">
                     Runway
                   </span>{" "}
@@ -142,16 +134,10 @@ export function ThresholdFold({
                     role="alert"
                     data-home-hard-stop=""
                   >
-                    <p
-                      className="text-sm font-medium text-light"
-                      data-home-hard-stop-eyebrow=""
-                    >
+                    <p className="text-sm font-medium text-light" data-home-hard-stop-eyebrow="">
                       {foldHardStopEyebrow(stopCode)}
                     </p>
-                    <p
-                      className="mt-1 text-sm leading-relaxed text-light/85"
-                      data-home-hard-stop-hold=""
-                    >
+                    <p className="mt-1 text-sm leading-relaxed text-light/85" data-home-hard-stop-hold="">
                       {foldHomeHoldSentence(stopCode)}
                     </p>
                   </div>
@@ -173,21 +159,14 @@ export function ThresholdFold({
                 ) : null}
 
                 {hardStopActive && scorePct != null ? (
-                  <p
-                    className="mt-3 max-w-[22rem] text-sm text-dim"
-                    data-home-fold-override=""
-                  >
+                  <p className="mt-3 max-w-[22rem] text-sm text-dim" data-home-fold-override="">
                     {foldHardStopOverrideLine(scorePct, stopCode)}
                   </p>
                 ) : null}
 
                 {shownPath ? (
                   <p className="mt-5">
-                    <Link
-                      href={shownPath.href}
-                      className="btn btn-primary"
-                      data-path-fold-primary=""
-                    >
+                    <Link href={shownPath.href} className="btn btn-primary" data-path-fold-primary="">
                       {shownPath.title}
                     </Link>
                   </p>
