@@ -73,8 +73,8 @@ export function SaveStatusBanner() {
         <p className="text-sm text-light">
           <span className="font-semibold text-cyan">Saved on this device only.</span>{" "}
           <span className="text-dim">
-            Your free plan includes one full assessment. Upgrade to save this result to your account
-            and re-score as your numbers change.
+            Your free plan includes one completed assessment per decision. Upgrade to save this
+            result to your account and re-score this decision as your numbers change.
           </span>
         </p>
         <Link href="/pricing" className="btn btn-primary shrink-0 text-sm">

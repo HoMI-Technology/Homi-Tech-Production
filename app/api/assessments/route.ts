@@ -16,6 +16,12 @@ import { sendLifecycleEmail } from "@/lib/email/send";
 import { verdictEmail } from "@/lib/email/templates";
 import { captureServerEvent } from "@/lib/analytics/server";
 import { isShadowAssessmentKind } from "@/lib/assessment/storage";
+import {
+  FREE_TIER_LOCKED_CODE,
+  FREE_TIER_LOCKED_MESSAGE,
+  freeTierOverflowAfterInsert,
+  freeTierQuotaExceeded,
+} from "@/lib/assessment/free-tier-quota";
 import { loadPhase0ServerState, phase0RefuseIfFrozen } from "@/lib/advisor/phase0/server";
 import {
   buildCheckpointSurveyRows,
@@ -76,23 +82,26 @@ export async function POST(req: NextRequest) {
     if (refused) return refused;
 
     const { entitlements } = await getUserEntitlements(supabase);
+    const resolvedDecisionType = decisionType ?? "home_buying";
 
-    // Free tier gets one completed full assessment; Plus+ gets unlimited re-scoring.
+    // D10: free tier gets one completed assessment per vertical; Plus+ unlimited.
     if (kind === "full" && !entitlements.unlimitedRescoring) {
       const { count } = await supabase
         .from("assessments")
         .select("id", { count: "exact", head: true })
         .eq("user_id", user.id)
         .eq("is_shadow", false)
-        .eq("status", "completed");
+        .eq("status", "completed")
+        .eq("decision_type", resolvedDecisionType);
 
-      if ((count ?? 0) >= 1) {
+      if (
+        freeTierQuotaExceeded({
+          unlimitedRescoring: false,
+          completedCountForVertical: count ?? 0,
+        })
+      ) {
         return NextResponse.json(
-          {
-            error:
-              "Your free plan includes one full assessment. Upgrade to re-score as your numbers change.",
-            code: "rescoring_locked",
-          },
+          { error: FREE_TIER_LOCKED_MESSAGE, code: FREE_TIER_LOCKED_CODE },
           { status: 402 },
         );
       }
@@ -150,7 +159,6 @@ export async function POST(req: NextRequest) {
     }
 
     const completedAt = new Date().toISOString();
-    const resolvedDecisionType = decisionType ?? "home_buying";
     const decisionSnapshot = buildDecisionSnapshot({
       decisionId: assessmentId,
       score: result.score,
@@ -211,15 +219,17 @@ export async function POST(req: NextRequest) {
         .select("id", { count: "exact", head: true })
         .eq("user_id", user.id)
         .eq("is_shadow", false)
-        .eq("status", "completed");
-      if ((afterCount ?? 0) > 1) {
+        .eq("status", "completed")
+        .eq("decision_type", resolvedDecisionType);
+      if (
+        freeTierOverflowAfterInsert({
+          unlimitedRescoring: false,
+          completedCountForVertical: afterCount ?? 0,
+        })
+      ) {
         await supabase.from("assessments").delete().eq("id", data.id).eq("user_id", user.id);
         return NextResponse.json(
-          {
-            error:
-              "Your free plan includes one full assessment. Upgrade to re-score as your numbers change.",
-            code: "rescoring_locked",
-          },
+          { error: FREE_TIER_LOCKED_MESSAGE, code: FREE_TIER_LOCKED_CODE },
           { status: 402 },
         );
       }
