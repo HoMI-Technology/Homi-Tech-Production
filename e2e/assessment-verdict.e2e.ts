@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { signInViaUi } from "./helpers/auth";
 import { completeFullAssessment, VERDICT_BADGE } from "./helpers/assessment";
 
@@ -68,16 +68,45 @@ test.describe("signed-in assessment → verdict", () => {
       page.locator('[class*="bg-verdict-"]').or(page.getByText(VERDICT_BADGE)).first(),
     ).toBeVisible({ timeout: 30_000 });
 
-    const verdict = await page.evaluate(() => {
-      const raw = window.localStorage.getItem("homi:last-assessment");
-      if (!raw) return null;
-      try {
-        const parsed = JSON.parse(raw) as { result?: { verdict?: string } };
-        return parsed.result?.verdict ?? null;
-      } catch {
-        return null;
-      }
-    });
-    expect(["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"]).toContain(verdict);
+    const stored = await readStoredAssessment(page);
+    expect(["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"]).toContain(stored.verdict);
+    expect(stored.decisionType).toBe("home_buying");
+  });
+
+  test("completing a car assessment lands on Home Build with a canon verdict", async ({
+    page,
+  }) => {
+    test.setTimeout(240_000);
+    await signInViaUi(page, email, password);
+    await completeFullAssessment(page, { decisionType: "car" });
+
+    await expect(page).toHaveURL(/\/dashboard/);
+    await expect(page.getByLabel(/Overall Decision Readiness Score/i)).toBeVisible({ timeout: 30_000 });
+    await expect(
+      page.locator('[class*="bg-verdict-"]').or(page.getByText(VERDICT_BADGE)).first(),
+    ).toBeVisible({ timeout: 30_000 });
+
+    const stored = await readStoredAssessment(page);
+    expect(["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"]).toContain(stored.verdict);
+    expect(stored.decisionType).toBe("car");
   });
 });
+
+async function readStoredAssessment(page: Page) {
+  return page.evaluate(() => {
+    const raw = window.localStorage.getItem("homi:last-assessment");
+    if (!raw) return { verdict: null, decisionType: null };
+    try {
+      const parsed = JSON.parse(raw) as {
+        result?: { verdict?: string };
+        decisionType?: string;
+      };
+      return {
+        verdict: parsed.result?.verdict ?? null,
+        decisionType: parsed.decisionType ?? null,
+      };
+    } catch {
+      return { verdict: null, decisionType: null };
+    }
+  });
+}

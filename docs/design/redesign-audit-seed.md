@@ -97,14 +97,13 @@ not marker cleanup.
 
 10. **Statically disabled with no in-app enabling path:**
     `components/admin/WebhookPublisher.tsx:142` (out-of-band approval),
-    assessment decision-type cards (`ChoiceCards.tsx:106`,
-    `FullAssessmentFlow.tsx:67` — gated on Plans.md 5.9 phase 2; D10 is
-    resolved as one-per-vertical in ADR-004).
+    assessment decision-type cards (`ChoiceCards.tsx:106` still lists
+    career/education/business as inactive; home + car are live).
 
 ## Known blocked / decide-first (park under BLOCKED, don't guess)
 
 - 5L.6 — signed-in L2 QA never run end-to-end (needs owner).
 - C.2 — impact-bus production rollout undecided.
-- D10 — resolved 2026-09-01 as one-per-vertical (ADR-004). 5.9 phase 2 (picker) is the remaining activation gate.
+- D10 — resolved 2026-09-01 as one-per-vertical (ADR-004). 5.9 picker is live (home + car). Remaining: career/education/business ADRs.
 - GO-LIVE §4 / §1.5 — Vercel Hobby plan, Supabase leaked-password
   protection: owner-only infrastructure items.

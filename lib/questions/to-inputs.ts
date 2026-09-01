@@ -323,11 +323,12 @@ function carPaymentBandToRatio(band: string): number {
  * deliberately repurposed as the car-payment hard-stop.
  *
  * The engine is frozen: its only payment-burden guard is
- * `monthlyHousingRatio > 0.45`. The founder-confirmed car red line (D10) is a
+ * `monthlyHousingRatio > 0.45`. The car payment red line (ADR-002) is a
  * different number — monthly cost above 20% of take-home. Rather than change
  * the engine, the mapper reports 0.46 (just past the fixed threshold) when and
  * only when the user selects `over_20pct`, so the guard fires exactly on the
  * car rule. Every other band omits the ratio and skips the guard entirely.
+ * D10 (ADR-004) is free-tier quota, not this threshold.
  *
  * Consequence: the hard-stop surfaces as HOUSING_RATIO_OVER_45 with home-buying
  * copy. Task 5.8 must parameterize that message per vertical.

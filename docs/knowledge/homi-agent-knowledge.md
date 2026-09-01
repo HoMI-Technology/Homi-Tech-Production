@@ -29,10 +29,12 @@ over older docs. Source file named in parentheses after each item.
   D8 = **shared bank tags** on decision-agnostic emotional/timing questions; D9 = **lean
   ~24–30-question bank** (~8–10 car-specific financial + reused pillars). **D10 resolved
   2026-09-01 (ADR-004): one completed assessment per vertical on free**; re-score of the
-  same vertical is Plus+. 402 code stays `rescoring_locked`. D10 does not activate the
-  car picker (5.9 phase 2). Car-vertical hard stops are NOT yet defined — the four
-  shipped hard stops are home-specific; define car hard stops in ADR 002 before 5.6
-  ships. (homi-decision-verticals.md; state-and-plan.md; docs/adr/004-free-tier-quota-per-vertical.md)
+  same vertical is Plus+. 402 code stays `rescoring_locked`. 5.9 phase 2 (picker)
+  is live: `ACTIVE_DECISION_TYPES = ['home_buying','car']`. **ADR-002:** car hard
+  stops stay mapper-side (DTI / runway / credit through frozen engine slots;
+  `over_20pct` → `monthlyHousingRatio = 0.46`). Do not unfreeze `lib/scoring/*`.
+  (homi-decision-verticals.md; docs/adr/002-car-vertical-hard-stops.md;
+  docs/adr/004-free-tier-quota-per-vertical.md)
 - **Scoring canon frozen (SHIPPED):** pillars Financial Reality 35 / Emotional Truth 35 /
   Perfect Timing 30; verdicts READY ≥80 · ALMOST_THERE 65–79 · BUILD_FIRST 50–64 ·
   NOT_YET 0–49 (badge: DO NOT PROCEED); four home hard stops force NOT_YET (DTI >50%,
@@ -129,12 +131,13 @@ over older docs. Source file named in parentheses after each item.
   `/finance` → `/money/budget` 308 redirect exists in `next.config.ts` — don't re-add.
   9 planner directories existed on disk as of 2026-08-09 — collapse to one eventually.
   (homi-budget-planner-standalone.md; homi-money-duplication-audit.md; state-and-plan.md)
-- **Decision verticals (Plans.md Phase 5):** 5.1–5.8 done; 5.9 phase 1 (server allowlist
-  includes `car`) done. D10 resolved (ADR-004, one-per-vertical). 5.9 phase 2 (picker)
-  remains a separate client change. `journal_entries.decision_type` is a deliberately
+- **Decision verticals (Plans.md Phase 5):** 5.1–5.9 done. Server allowlist and picker
+  both include `car`. D10 resolved (ADR-004, one-per-vertical). ADR-002 records car
+  hard stops as mapper-side. `journal_entries.decision_type` is a deliberately
   SEPARATE vocabulary (career/purchase/investment/life) — never "fix" it to assessment
   canon. Career/education/business verticals do NOT map — stay "Coming soon" pending ADR.
-  (homi-decision-verticals.md; docs/adr/004-free-tier-quota-per-vertical.md)
+  (homi-decision-verticals.md; docs/adr/002-car-vertical-hard-stops.md;
+  docs/adr/004-free-tier-quota-per-vertical.md)
 - **Scoring server-only refactor LANDED on main** (verified 2026-08-10): engine/weights/
   insights/shadow/public all guarded; `client-score.ts` is type-only + POSTs `/api/scoring`.
   Fact worth reusing: `computeShadowScore ≡ computeScore(SHADOW_DEFAULTS + inputs)` — both
