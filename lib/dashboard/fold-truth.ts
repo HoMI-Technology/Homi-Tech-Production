@@ -290,9 +290,10 @@ export function foldPathPrimary(steps: unknown): FoldPathPrimary | null {
   return runwayPending ?? firstPending;
 }
 
-/** Last AssessmentResult emergency-fund months. Empty is an em dash — never a fake 76. */
+/** Last AssessmentResult emergency-fund months. Under 1 month is named, never 0.5 mo. */
 export function foldRunwayLabel(months: number | null | undefined): string {
-  if (months == null || !Number.isFinite(months)) return "—";
+  if (months == null || !Number.isFinite(months)) return "\u2014";
+  if (months < 1) return "Under 1 month";
   const shown = months >= 10 ? months.toFixed(0) : months.toFixed(1);
   return `${shown} mo`;
 }

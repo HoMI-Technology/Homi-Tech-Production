@@ -28,8 +28,8 @@ export type ThresholdFoldLatest = {
 /**
  * Signed-in first screen. The fold is the repo Threshold Compass — large,
  * one mark, last AssessmentResult only. Does not write the ledger or a score.
- * Baseline 001: numeral is plated above the ring (z-order only). Compass
- * radii / yellow keyhole stay in ThresholdCompass — this file does not redraw them.
+ * Score sits below the mark so the yellow keyhole stays visible.
+ * Compass radii / yellow keyhole stay in ThresholdCompass — this file does not redraw them.
  */
 export function ThresholdFold({
   assessmentsFailed,
@@ -96,23 +96,18 @@ export function ThresholdFold({
                 glow
                 verdict={verdict ?? undefined}
               />
-              <div className="pointer-events-none absolute inset-0 z-[2] flex items-center justify-center">
-                <span
-                  data-home-fold-score-plate=""
-                  className="flex min-h-[4.75rem] min-w-[6.75rem] items-center justify-center rounded-full px-3"
-                  style={{ background: COLORS.navy }}
-                >
-                  <span
-                    className="score-numeral text-5xl font-semibold tabular-nums sm:text-6xl"
-                    style={{ color: scoreInk }}
-                    aria-label={scoreLabel}
-                    data-home-fold-score=""
-                  >
-                    {scorePct != null ? scorePct : "—"}
-                  </span>
-                </span>
-              </div>
             </div>
+
+            <p data-home-fold-score-plate="" className="mt-4">
+              <span
+                className="score-numeral text-2xl font-semibold tabular-nums sm:text-3xl"
+                style={{ color: scoreInk }}
+                aria-label={scoreLabel}
+                data-home-fold-score=""
+              >
+                {scorePct != null ? scorePct : "\u2014"}
+              </span>
+            </p>
 
             {latest ? (
               <>

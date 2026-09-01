@@ -67,7 +67,7 @@ describe("ThresholdFold", () => {
     const fold = container.querySelector("[data-threshold-fold]");
     expect(fold).not.toBeNull();
     expect(fold?.getAttribute("data-home-instrument")).toBe("empty");
-    expect(screen.getByLabelText("Decision Readiness Score Unknown")).toHaveTextContent("—");
+    expect(screen.getByLabelText("Decision Readiness Score Unknown")).toHaveTextContent("\u2014");
     expect(screen.getByLabelText("Decision Readiness Score Unknown")).toHaveStyle({
       color: COLORS.light,
     });
@@ -93,8 +93,13 @@ describe("ThresholdFold", () => {
     expect(numeral).toHaveStyle({ color: COLORS.cyan });
     expect(numeral).not.toHaveStyle({ color: COLORS.crimson });
     expect(numeral.style.textShadow).toBe("");
-    expect(container.querySelector("[data-home-fold-score-plate]")).not.toBeNull();
-    expect(container.querySelector("[data-home-threshold-compass]")?.textContent).toContain("61");
+
+    const compass = container.querySelector("[data-home-threshold-compass]");
+    const plate = container.querySelector("[data-home-fold-score-plate]");
+    expect(plate).not.toBeNull();
+    expect(compass?.contains(plate)).toBe(false);
+    expect(plate).toHaveTextContent("61");
+    expect(compass?.textContent).not.toContain("61");
 
     const hardStop = screen.getByRole("alert");
     expect(hardStop).toHaveTextContent(hardStopEyebrow);
@@ -123,9 +128,10 @@ describe("ThresholdFold", () => {
     expect(screen.queryByText(/80–100|80-100/)).not.toBeInTheDocument();
     expect(screen.getByLabelText("DO NOT PROCEED")).toBeInTheDocument();
 
-    expect(container.querySelector("[data-home-fold-runway]")).toHaveTextContent("0.5 mo");
+    expect(container.querySelector("[data-home-fold-runway]")).toHaveTextContent("Under 1 month");
+    expect(container.querySelector("[data-home-fold-runway]")).not.toHaveTextContent("0.5 mo");
     expect(container.querySelector("[data-home-fold-cash]")).toHaveTextContent(CASH_EMPTY_LABEL);
-    expect(container.querySelector("[data-home-fold-cash]")).not.toHaveTextContent("—");
+    expect(container.querySelector("[data-home-fold-cash]")).not.toHaveTextContent("\u2014");
     expect(container.querySelector("[data-home-fold-cash]")?.className).not.toMatch(/text-4xl/);
     expect(screen.queryByText("0")).not.toBeInTheDocument();
 

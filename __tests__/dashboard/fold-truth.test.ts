@@ -167,11 +167,13 @@ describe("HOME_FOLD_INSTRUMENT", () => {
 });
 
 describe("foldRunwayLabel", () => {
-  it("prints last AssessmentResult months, or an em dash", () => {
-    expect(foldRunwayLabel(0.5)).toBe("0.5 mo");
+  it("names under-1-month runway instead of printing tenths", () => {
+    expect(foldRunwayLabel(0.5)).toBe("Under 1 month");
+    expect(foldRunwayLabel(0)).toBe("Under 1 month");
+    expect(foldRunwayLabel(1)).toBe("1.0 mo");
     expect(foldRunwayLabel(12)).toBe("12 mo");
-    expect(foldRunwayLabel(null)).toBe("—");
-    expect(foldRunwayLabel(undefined)).toBe("—");
+    expect(foldRunwayLabel(null)).toBe("\u2014");
+    expect(foldRunwayLabel(undefined)).toBe("\u2014");
   });
 });
 
