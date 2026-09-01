@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { gateCompanion } from "@/lib/advisor/quota";
+import { nextMonthlyResetIso } from "@/lib/advisor/usage";
 
 /**
  * Unit tests for the Companion gate (advisor/twin/trinity). Builds a minimal
@@ -84,7 +85,7 @@ describe("gateCompanion", () => {
       };
       expect(body.quota.scope).toBe("monthly");
       expect(body.quota.title).toBe("You've used this month's messages.");
-      expect(body.quota.resetsAt.startsWith("2026-09-01")).toBe(true);
+      expect(body.quota.resetsAt).toBe(nextMonthlyResetIso(new Date()));
     }
   });
 

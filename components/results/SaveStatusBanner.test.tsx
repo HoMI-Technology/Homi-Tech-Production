@@ -47,6 +47,7 @@ describe("SaveStatusBanner", () => {
     recordSaveStatus("locked");
     render(<SaveStatusBanner />);
     expect(await screen.findByText(/saved on this device only/i)).toBeInTheDocument();
+    expect(screen.getByText(/one completed assessment per decision/i)).toBeInTheDocument();
     const cta = screen.getByRole("link", { name: /see plans/i });
     expect(cta).toHaveAttribute("href", "/pricing");
   });

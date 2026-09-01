@@ -98,13 +98,13 @@ not marker cleanup.
 10. **Statically disabled with no in-app enabling path:**
     `components/admin/WebhookPublisher.tsx:142` (out-of-band approval),
     assessment decision-type cards (`ChoiceCards.tsx:106`,
-    `FullAssessmentFlow.tsx:67` — gated on Plans.md 5.9 / D10: free-tier
-    quota counts ALL assessments → unexplained 402 for free users).
+    `FullAssessmentFlow.tsx:67` — gated on Plans.md 5.9 phase 2; D10 is
+    resolved as one-per-vertical in ADR-004).
 
 ## Known blocked / decide-first (park under BLOCKED, don't guess)
 
 - 5L.6 — signed-in L2 QA never run end-to-end (needs owner).
 - C.2 — impact-bus production rollout undecided.
-- D10 — decision-type quota ruling (blocks assessment card enablement).
+- D10 — resolved 2026-09-01 as one-per-vertical (ADR-004). 5.9 phase 2 (picker) is the remaining activation gate.
 - GO-LIVE §4 / §1.5 — Vercel Hobby plan, Supabase leaked-password
   protection: owner-only infrastructure items.
