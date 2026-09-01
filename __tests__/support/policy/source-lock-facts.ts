@@ -255,8 +255,15 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
     stringsMust: [
       "Stabilize emergency runway to at least 1 month",
       "Bring debt-to-income below the protective line",
-      "Re-scope housing so payment stays under 45% of income",
       "Rebuild credit above the 620 protective floor",
+    ],
+  },
+  {
+    id: "fold-wiring/hard-stop-copy-housing-titles",
+    file: "lib/assessment/hard-stop-copy.ts",
+    stringsMust: [
+      "Re-scope housing so payment stays under 45% of income",
+      "Re-scope the car so all-in monthly cost stays at or under 20% of take-home",
     ],
   },
   {
