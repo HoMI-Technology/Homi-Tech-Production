@@ -26,7 +26,7 @@ export const CONTINUE_ASSESSMENT_HREF = "/auth/sign-in?next=/assessment";
 export const SIGNED_IN_ASSESS_HREF = "/assessment";
 
 export const FIRST_MOMENT_HANDOFF_LINE =
-  "This takes about 5 minutes. You’ll need an account so the verdict stays yours.";
+  "This is 45 questions. You’ll need an account so the verdict stays yours.";
 
 export const FIRST_MOMENT_BEATS = [
   {

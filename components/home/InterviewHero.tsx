@@ -68,7 +68,7 @@ export function InterviewHero() {
           </Link>
         </div>
         <p className="mt-4 max-w-md text-sm leading-relaxed text-dim">
-          Free &middot; about 5 minutes &middot; educational only
+          Free &middot; 45 questions &middot; educational only
         </p>
       </div>
     </section>

@@ -41,7 +41,7 @@ describe("First Moment — word-locked beats", () => {
     expect(FIRST_MOMENT_BEATS[3].line).toBe("I’m a reflection tool, not a financial advisor.");
     expect(FIRST_MOMENT_BEATS[4].line).toBe(FIRST_MOMENT_HANDOFF_LINE);
     expect(FIRST_MOMENT_HANDOFF_LINE).toBe(
-      "This takes about 5 minutes. You’ll need an account so the verdict stays yours.",
+      "This is 45 questions. You’ll need an account so the verdict stays yours.",
     );
   });
 
