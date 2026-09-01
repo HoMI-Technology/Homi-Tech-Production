@@ -24,12 +24,9 @@ import {
  * picker appears — this helper pins the decision type by accessible name so
  * e2e never silently clicks an unchecked alternate vertical.
  *
- * Verified still correct at 5.9 phase 1 (car added to the SERVER allowlist,
- * picker deliberately still hidden): selectDecisionTypeIfPresent() runs BEFORE
- * the "first unchecked radio" heuristic and returns false when the picker is
- * absent, so today this suite provably stays on home_buying, and the moment
- * phase 2 reveals the picker it will pin home by label rather than drifting
- * onto car. Car gets its own spec at phase 2 via `{ decisionType: "car" }`.
+ * 5.9 phase 2 is live: the picker offers home + car. This helper pins the
+ * requested vertical by accessible name before any "first unchecked radio"
+ * heuristic, so home e2e stays home and car e2e is `{ decisionType: "car" }`.
  *
  * The helper is intentionally black-box for question steps: it detects the
  * field shape per step instead of hardcoding question ids, so question-bank
