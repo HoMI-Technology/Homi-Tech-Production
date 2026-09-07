@@ -155,4 +155,16 @@ describe("AppHeader — SHELL_CRAFT v3 quiet top bar", () => {
     expect(document.querySelector("[data-app-shell='v3']")).not.toBeNull();
     expect(document.querySelector("aside")).toBeNull();
   });
+
+  it("does not ship the mock-only craft badge on /assessment", () => {
+    mockPathname = "/assessment";
+    render(<AppHeader email={null} />);
+
+    const assess = document.querySelector("[data-shell-assess]");
+    expect(assess).toHaveAttribute("aria-current", "page");
+    expect(document.querySelector("[data-shell-floor]")).toBeNull();
+    expect(document.body.textContent).not.toContain("Craft v3");
+    expect(document.body.textContent).not.toContain("PR2 floor");
+    expect(document.body.textContent).not.toContain("Craft v3 · PR2 floor · not ship");
+  });
 });

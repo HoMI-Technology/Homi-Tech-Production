@@ -84,11 +84,14 @@ export const HOME_TIMING_ENRICHMENT_IDS = [
   "tim_waiting_cost",
 ] as const;
 
-/** Tilde estimates for progress chrome — not a promise of 45. */
+/**
+ * Tilde estimates for progress chrome — Core path length, not the 45-question bank.
+ * Financial Core is 8 ids; `fin_dti_ratio` skips when income + debt exist → ~7–8.
+ */
 export const HOME_PATH_ESTIMATE: Record<Dimension, number> = {
-  financial: 9,
-  emotional: 4,
-  timing: 2,
+  financial: HOME_FINANCIAL_CORE_IDS.length,
+  emotional: HOME_EMOTIONAL_CORE_IDS.length,
+  timing: HOME_TIMING_CORE_IDS.length,
 };
 
 export type AdaptiveHomeState = {

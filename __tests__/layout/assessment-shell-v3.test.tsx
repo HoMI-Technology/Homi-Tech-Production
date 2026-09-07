@@ -48,5 +48,9 @@ describe("signed-in /assessment uses quiet top-bar shell v3", () => {
     const compasses = document.querySelectorAll('[aria-label*="Threshold Compass"]');
     expect(compasses).toHaveLength(1);
     expect(compasses[0]?.closest("main#main")).toBeNull();
+    expect(document.querySelector("[data-shell-floor]")).toBeNull();
+    expect(document.body.textContent).not.toContain("Craft v3");
+    expect(document.body.textContent).not.toContain("PR2 floor");
+    expect(document.body.textContent).not.toContain("Craft v3 · PR2 floor · not ship");
   });
 });

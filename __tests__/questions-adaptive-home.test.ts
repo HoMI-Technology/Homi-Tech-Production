@@ -146,9 +146,15 @@ describe("adaptive home_buying path — Option 1", () => {
 
   it("progress chrome is path-true — never N of 45", () => {
     const label = pathProgressLabel("financial", 4);
-    expect(label).toBe("Financial Reality · 4 of ~9 this path");
+    expect(label).toBe("Financial Reality · 4 of ~8 this path");
     expect(label).not.toMatch(/45/);
-    expect(HOME_PATH_ESTIMATE.financial).toBe(9);
+    expect(HOME_PATH_ESTIMATE.financial).toBe(HOME_FINANCIAL_CORE_IDS.length);
+    expect(HOME_PATH_ESTIMATE.financial).toBeGreaterThanOrEqual(7);
+    expect(HOME_PATH_ESTIMATE.financial).toBeLessThanOrEqual(8);
+    expect(offeredFinancialCoreIds({}).length).toBe(HOME_PATH_ESTIMATE.financial);
+    expect(
+      offeredFinancialCoreIds({ fin_income: 8000, fin_debt_payments: 1200 }).length,
+    ).toBe(HOME_PATH_ESTIMATE.financial - 1);
     expect(hasRealBankAnswer({}, "fin_income")).toBe(false);
   });
 });

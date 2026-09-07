@@ -21,7 +21,7 @@ describe("assessment progress chrome honesty", () => {
       pathQuestionEstimate: HOME_PATH_ESTIMATE.financial,
     });
     expect(financial.description).toBe(
-      "~9 questions on this path · money you can prove. Count may shorten after a branch.",
+      "~8 questions on this path · money you can prove. Count may shorten after a branch.",
     );
     expect(financial.description).not.toContain("Fifteen");
     expect(financial.question).toBe("Can you afford it?");
@@ -37,13 +37,13 @@ describe("assessment progress chrome honesty", () => {
     const { container } = render(
       <PathProgressChrome
         dimension="financial"
-        label="Financial Reality · 4 of ~9 this path"
+        label="Financial Reality · 4 of ~8 this path"
         current={4}
-        estimate={9}
+        estimate={8}
       />,
     );
     const node = container.querySelector("[data-path-progress]");
-    expect(node?.textContent).toBe("Financial Reality · 4 of ~9 this path");
+    expect(node?.textContent).toBe("Financial Reality · 4 of ~8 this path");
     expect(container.textContent).not.toMatch(/45/);
     expect(container.querySelector("[data-progress-chrome='path']")).not.toBeNull();
   });

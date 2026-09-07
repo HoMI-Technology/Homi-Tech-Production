@@ -26,8 +26,8 @@ describe("pillarIntroCopy", () => {
 
   it("adaptive home intros use path estimates instead of Fifteen", () => {
     expect(
-      pillarIntroCopy("financial", "home_buying", { pathQuestionEstimate: 9 }).description,
-    ).toMatch(/^~9 questions on this path/);
+      pillarIntroCopy("financial", "home_buying", { pathQuestionEstimate: 8 }).description,
+    ).toMatch(/^~8 questions on this path/);
     expect(
       pillarIntroCopy("emotional", "home_buying", { pathQuestionEstimate: 4 }).description,
     ).not.toContain("Fifteen");
