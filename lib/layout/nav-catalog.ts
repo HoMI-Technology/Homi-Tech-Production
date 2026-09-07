@@ -35,6 +35,11 @@ export type NavCatalogEntry = {
    * Labels stay live route names — never Stand / Plan / Decide / More.
    */
   moreGroup?: MoreDrawerGroup;
+  /**
+   * Brand More drawer weight. `live` paints as light; `quiet` stays dim.
+   * Path/Money/Connections/Trust/Household are live; Journal/Score history quiet.
+   */
+  moreTone?: "live" | "quiet";
 };
 
 /**
@@ -85,11 +90,13 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
   // Header MORE: journey + planning
   {
     href: "/path",
-    label: "Path to Ready",
+    label: "Path",
+    paletteLabel: "Path to Ready",
     group: "Navigate",
-    keywords: "next steps journey roadmap",
+    keywords: "next steps journey roadmap path to ready",
     surfaces: { header: "more", palette: true },
     moreGroup: "build",
+    moreTone: "live",
   },
   // /results retired (F8) — middleware redirects; not in chrome or palette.
   {
@@ -99,6 +106,7 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     keywords: "timeline trajectory re-check progress over time chart score verdict",
     surfaces: { header: "more", palette: true },
     moreGroup: "care",
+    moreTone: "quiet",
   },
   {
     href: "/household",
@@ -107,6 +115,7 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     keywords: "home profile shared setup couples partner alignment family members",
     surfaces: { header: "more", palette: true },
     moreGroup: "care",
+    moreTone: "live",
   },
   {
     href: "/tools/preflight",
@@ -153,6 +162,7 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     keywords: "decisions log notes",
     surfaces: { header: "more", palette: true },
     moreGroup: "care",
+    moreTone: "quiet",
   },
 
   // Launch-hidden insight labs (routes exist; not in header More or palette)
@@ -202,6 +212,7 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     keywords: "finance budget tools calculators mortgage affordability runway decide",
     surfaces: { header: "more", palette: true },
     moreGroup: "build",
+    moreTone: "live",
   },
   {
     href: "/money/budget",
@@ -257,6 +268,7 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     keywords: "bank plaid sync accounts",
     surfaces: { header: "more", palette: true },
     moreGroup: "build",
+    moreTone: "live",
   },
   {
     href: "/trust",
@@ -266,6 +278,7 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     keywords: "privacy data export download delete security portability",
     surfaces: { header: "more", palette: true },
     moreGroup: "care",
+    moreTone: "live",
   },
 
   // Role dashboards + account (palette/switcher only - parity exceptions)
@@ -359,6 +372,13 @@ const MORE_DRAWER_HREF_ORDER: Record<MoreDrawerGroup, readonly string[]> = {
 export function moreDrawerGroupForHref(href: string): MoreDrawerGroup | null {
   const entry = NAV_CATALOG.find((e) => e.href === href);
   return entry?.moreGroup ?? null;
+}
+
+export type MoreDrawerTone = "live" | "quiet";
+
+export function moreDrawerToneForHref(href: string): MoreDrawerTone {
+  const entry = NAV_CATALOG.find((e) => e.href === href);
+  return entry?.moreTone ?? "live";
 }
 
 export function sortMoreDrawerItems<T extends { href: string }>(

@@ -12,6 +12,7 @@ import { APP_MORE_NAV, APP_PRIMARY_NAV } from "@/lib/layout/app-nav";
 import {
   MORE_DRAWER_GROUPS,
   moreDrawerGroupForHref,
+  moreDrawerToneForHref,
   sortMoreDrawerItems,
   type MoreDrawerGroup,
 } from "@/lib/layout/nav-catalog";
@@ -26,6 +27,12 @@ import { SIGNED_IN_ASSESS_HREF } from "@/components/marketing/first-moment-copy"
  */
 
 const SHELL_COMPASS_SIZE = 28;
+
+function moreItemClass(pathname: string, href: string, extra = ""): string {
+  const tone = moreDrawerToneForHref(href);
+  const active = isActivePath(pathname, href);
+  return `chrome-menu-item ${tone === "quiet" ? "is-quiet" : "is-live"} ${active ? "is-active" : ""} ${extra}`.trim();
+}
 
 /** Live depth behind ···. HōMI is the logo; Assess is the primary CTA. */
 function shellDepthNav(): { href: string; label: string }[] {
@@ -70,6 +77,7 @@ export function AppHeader({
   const { grouped, leftover } = groupDepthNav(depthNav);
   const switcherProps = { role, employerId, organizationId };
   const assessActive = isActivePath(pathname, "/assessment");
+  void email;
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -157,11 +165,6 @@ export function AppHeader({
                   data-more-drawer=""
                   className="chrome-menu chrome-menu--drawer max-h-[min(70dvh,32rem)] overflow-y-auto"
                 >
-                  {email && (
-                    <p className="truncate px-3 py-2 text-xs text-dim" title={email}>
-                      {email}
-                    </p>
-                  )}
                   {MORE_DRAWER_GROUPS.map((group) => (
                     <div key={group.id} data-more-group={group.id}>
                       <p className="chrome-menu-group-label">{group.label}</p>
@@ -170,9 +173,8 @@ export function AppHeader({
                           key={item.href}
                           href={item.href}
                           role="menuitem"
-                          className={`chrome-menu-item ${
-                            isActivePath(pathname, item.href) ? "is-active" : ""
-                          }`}
+                          data-more-tone={moreDrawerToneForHref(item.href)}
+                          className={moreItemClass(pathname, item.href)}
                           aria-current={isActivePath(pathname, item.href) ? "page" : undefined}
                         >
                           {item.label}
@@ -185,9 +187,8 @@ export function AppHeader({
                       key={item.href}
                       href={item.href}
                       role="menuitem"
-                      className={`chrome-menu-item ${
-                        isActivePath(pathname, item.href) ? "is-active" : ""
-                      }`}
+                      data-more-tone={moreDrawerToneForHref(item.href)}
+                      className={moreItemClass(pathname, item.href)}
                       aria-current={isActivePath(pathname, item.href) ? "page" : undefined}
                     >
                       {item.label}
@@ -195,14 +196,29 @@ export function AppHeader({
                   ))}
                   <div data-more-group="account">
                     <p className="chrome-menu-group-label">Account</p>
-                    <Link href="/settings" role="menuitem" className="chrome-menu-item">
+                    <Link
+                      href="/settings"
+                      role="menuitem"
+                      data-more-tone="live"
+                      className={moreItemClass(pathname, "/settings")}
+                    >
                       Settings
                     </Link>
-                    <Link href="/settings/subscription" role="menuitem" className="chrome-menu-item">
+                    <Link
+                      href="/settings/subscription"
+                      role="menuitem"
+                      data-more-tone="quiet"
+                      className="chrome-menu-item is-quiet"
+                    >
                       Subscription
                     </Link>
                     <form action="/auth/sign-out" method="post">
-                      <button type="submit" role="menuitem" className="chrome-menu-item w-full text-left">
+                      <button
+                        type="submit"
+                        role="menuitem"
+                        data-more-tone="quiet"
+                        className="chrome-menu-item is-quiet w-full text-left"
+                      >
                         Sign out
                       </button>
                     </form>

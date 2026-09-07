@@ -138,10 +138,10 @@ describe("AppHeader — SHELL_CRAFT v3 quiet top bar", () => {
       "href",
       "/journal",
     );
-    expect(within(menu).getByRole("menuitem", { name: "Path to Ready" })).toHaveAttribute(
-      "href",
-      "/path",
-    );
+    expect(within(menu).getByRole("menuitem", { name: "Path" })).toHaveAttribute("href", "/path");
+    expect(document.querySelector('[data-more-tone="live"][href="/path"]')).not.toBeNull();
+    expect(document.querySelector('[data-more-tone="quiet"][href="/journal"]')).not.toBeNull();
+    expect(document.querySelector('[data-more-tone="quiet"][href="/timeline"]')).not.toBeNull();
     expect(within(menu).getByRole("menuitem", { name: "Money" })).toHaveAttribute("href", "/money");
     expect(within(menu).getByRole("menuitem", { name: "Trust & privacy" })).toHaveAttribute(
       "href",

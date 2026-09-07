@@ -10,7 +10,6 @@ import {
   loadBudgetLedger,
 } from "@/lib/finance/local-ledger";
 import { metricsFromLedger, type NamedMoneyMetrics } from "@/lib/finance/metrics";
-import { InvestmentsSummary } from "@/components/money/InvestmentsSummary";
 
 /**
  * Money picture — Stand job on live `/money`.
@@ -105,22 +104,14 @@ export function MoneyStand() {
           Ledger truth lives here when accounts are real. No estimated net worth.
         </p>
         <div className="flex flex-wrap gap-3">
-          <Link href="/connections" className="btn btn-ghost">
+          <Link href="/connections" className="btn btn-ghost border-cyan/50 text-cyan">
             Connect accounts
           </Link>
           <Link href="/money/budget" className="text-sm text-dim underline-offset-2 hover:underline">
             Record manually
           </Link>
         </div>
-        <p className="pt-4">
-          <Link
-            href="/timeline"
-            className="text-sm text-dim underline decoration-white/20 underline-offset-4 hover:text-light"
-          >
-            Score history · age as evidence
-          </Link>
-        </p>
-        <p className="max-w-2xl text-xs leading-relaxed text-dim/70">
+        <p className="max-w-2xl pt-4 text-xs leading-relaxed text-dim/70">
           HōMI Money is educational. It does not provide financial, tax, mortgage, or investment
           advice. Confirm critical numbers with qualified professionals before you act.
         </p>
@@ -154,11 +145,9 @@ export function MoneyStand() {
           href="/timeline"
           className="text-sm text-dim underline decoration-white/20 underline-offset-4 hover:text-light"
         >
-          Score history · age as evidence
-        </Link>
-      </p>
-
-      <InvestmentsSummary />
+        Score history · age as evidence
+          </Link>
+        </p>
 
       <p className="max-w-2xl text-xs leading-relaxed text-dim/70">
         HōMI Money is educational. It does not provide financial, tax, mortgage, or investment

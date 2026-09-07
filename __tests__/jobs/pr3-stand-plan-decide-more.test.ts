@@ -137,6 +137,7 @@ describe("PR3 Stand — /money empty honesty, no theater", () => {
     expect(stand).toContain("Emergency runway");
     expect(stand).toContain("Flags");
     expect(stand).toContain("Score history · age as evidence");
+    expect(stand).not.toContain("InvestmentsSummary");
     expect(stand).not.toContain("ScoreRail");
     expect(stand).not.toContain("OperateInstrument");
     expect(stand).not.toContain("AnimatedNumber");
@@ -215,6 +216,8 @@ describe("PR3 More — demoted drawer, not a peer home", () => {
     expect(HEADER_MORE_NAV.map((i) => i.href).sort()).toEqual(
       ["/connections", "/household", "/journal", "/money", "/path", "/timeline", "/trust"].sort(),
     );
+    expect(HEADER_MORE_NAV.map((i) => i.label)).toContain("Path");
+    expect(HEADER_MORE_NAV.map((i) => i.label)).not.toContain("Path to Ready");
     expect(HEADER_MORE_NAV.map((i) => i.label)).toContain("Trust & privacy");
     expect(HEADER_MORE_NAV.map((i) => i.href)).not.toContain("/tools/preflight");
     expect(HEADER_MORE_NAV.map((i) => i.href)).not.toContain("/scenarios");

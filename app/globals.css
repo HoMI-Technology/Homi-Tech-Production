@@ -317,6 +317,17 @@
   padding: 0.4rem 0.75rem;
   font-size: 0.8125rem;
 }
+.chrome-menu--drawer .chrome-menu-item.is-live {
+  color: var(--color-light);
+}
+.chrome-menu--drawer .chrome-menu-item.is-quiet {
+  color: var(--color-dim);
+}
+.chrome-menu--drawer [data-more-group] + [data-more-group] {
+  margin-top: 0.2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 0.15rem;
+}
 .chrome-more-backdrop {
   position: fixed;
   inset: 0;

@@ -126,12 +126,10 @@ describe("InvestmentsSummary", () => {
 describe("Investments fold under Reality (static locks)", () => {
   const stand = read("components/money/MoneyStand.tsx");
 
-  it("MoneyStand still mounts the summary as depth, not a hero", () => {
-    expect(stand).toContain(
-      'import { InvestmentsSummary } from "@/components/money/InvestmentsSummary"',
-    );
-    expect(stand).toContain("<InvestmentsSummary />");
-    expect(stand.indexOf("<InvestmentsSummary />")).toBeGreaterThan(stand.indexOf("Liquid cash"));
+  it("MoneyStand keeps investments off the quiet picture — depth lives on /money/investments", () => {
+    expect(stand).not.toContain("InvestmentsSummary");
+    expect(stand).not.toContain("ScoreRail");
+    expect(stand).not.toContain("OperateInstrument");
   });
 
   it("does not remount a ScoreRail or surplus instrument on /money", () => {

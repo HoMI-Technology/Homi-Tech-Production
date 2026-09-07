@@ -71,11 +71,12 @@ export default async function ToolsHubPage() {
           <li key={lens.id}>
             <Link
               href={lens.path}
+              aria-label={`Open lens: ${lens.name}`}
               className="flex h-full flex-col rounded-xl border border-white/[0.08] bg-navy/40 px-4 py-4 transition-colors hover:border-white/[0.14]"
             >
               <p className="text-sm font-medium text-light">{lens.name}</p>
               <p className="mt-1 flex-1 text-sm leading-relaxed text-dim">{lens.desc}</p>
-              <span className="mt-3 text-sm text-cyan">Open lens</span>
+              <span className="sr-only">Open lens</span>
             </Link>
           </li>
         ))}
@@ -84,6 +85,9 @@ export default async function ToolsHubPage() {
       <p className="mt-10 max-w-xl text-xs leading-relaxed text-dim/70">
         Supporting depth: Scenarios · close language stays law (changed / unchanged / hard stop still
         on). FI v2 & Monte Carlo quarantined.
+      </p>
+      <p className="mt-3 max-w-xl text-xs leading-relaxed text-dim/70">
+        No Apply-to-my-score. No Packet 2. No guest HōMI verdict.
       </p>
       <p className="mt-3 max-w-xl text-xs leading-relaxed text-dim/70">
         HōMI tools are educational. They do not provide financial, tax, mortgage, or investment
