@@ -119,17 +119,20 @@ test.describe("Path to Ready (seeded)", () => {
     await page.goto("/path");
     await dismissCookieConsent(page);
 
-    await expect(page.getByRole("heading", { name: "Your path" })).toBeVisible({
+    await expect(page.getByRole("heading", { name: "Path to Ready" })).toBeVisible({
       timeout: 20_000,
     });
     await expect(page.getByText(/Emergency runway|Binding constraint/i).first()).toBeVisible();
-    // Exact match rather than `.first()`: the step title also appears inside
-    // the path-coach summary line and the "what does this mean" advisor
-    // deep-link. In DOM order the summary comes first, so `.first()` turns this
-    // green while asserting against the coach board instead of the step itself.
+    // The binding title is on the Next-step callout and the list row. Scope to
+    // the step list so both surfaces can stay without a strict-mode collision.
     await expect(
-      page.getByText("Stabilize emergency runway to at least 1 month", { exact: true }),
-    ).toBeVisible();
+      page
+        .getByRole("list", { name: "Path steps" })
+        .getByRole("listitem")
+        .filter({
+          hasText: "Stabilize emergency runway to at least 1 month",
+        }),
+    ).toHaveCount(1);
 
     await page.getByRole("button", { name: "Mark done" }).first().click();
 

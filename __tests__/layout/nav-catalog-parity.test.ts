@@ -33,6 +33,9 @@ const PALETTE_ONLY_HREFS = [
   "/money/budget",
   "/money/decide",
   "/money/plan",
+  // Demoted from More — still palette-reachable (JOBS_CRAFT v3)
+  "/tools/preflight",
+  "/scenarios",
 ];
 
 /** Import both surfaces with the Agent OS flag ON so gated entries count. */

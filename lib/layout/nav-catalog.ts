@@ -14,6 +14,8 @@
 
 import { agentOs } from "@/lib/flags";
 
+export type MoreDrawerGroup = "build" | "care";
+
 export type NavCatalogEntry = {
   href: string;
   /** Chrome (AppHeader) label - kept short so the bar fits one line. */
@@ -28,6 +30,16 @@ export type NavCatalogEntry = {
   flag?: "agentOs";
   /** Where the entry renders. Role/account entries are palette-only. */
   surfaces: { header?: "primary" | "more"; palette: boolean };
+  /**
+   * ··· drawer grouping (JOBS_CRAFT v3). Only for `header: "more"` entries.
+   * Labels stay live route names — never Stand / Plan / Decide / More.
+   */
+  moreGroup?: MoreDrawerGroup;
+  /**
+   * Brand More drawer weight. `live` paints as light; `quiet` stays dim.
+   * Path/Money/Connections/Trust/Household are live; Journal/Score history quiet.
+   */
+  moreTone?: "live" | "quiet";
 };
 
 /**
@@ -78,10 +90,13 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
   // Header MORE: journey + planning
   {
     href: "/path",
-    label: "Path to Ready",
+    label: "Path",
+    paletteLabel: "Path to Ready",
     group: "Navigate",
-    keywords: "next steps journey roadmap",
+    keywords: "next steps journey roadmap path to ready",
     surfaces: { header: "more", palette: true },
+    moreGroup: "build",
+    moreTone: "live",
   },
   // /results retired (F8) — middleware redirects; not in chrome or palette.
   {
@@ -90,6 +105,8 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     group: "Navigate",
     keywords: "timeline trajectory re-check progress over time chart score verdict",
     surfaces: { header: "more", palette: true },
+    moreGroup: "care",
+    moreTone: "quiet",
   },
   {
     href: "/household",
@@ -97,20 +114,23 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     group: "Navigate",
     keywords: "home profile shared setup couples partner alignment family members",
     surfaces: { header: "more", palette: true },
+    moreGroup: "care",
+    moreTone: "live",
   },
   {
     href: "/tools/preflight",
     label: "Pre-Flight",
     group: "Navigate",
     keywords: "checklist readiness before offer",
-    surfaces: { header: "more", palette: true },
+    // Palette-only: not a More peer home (JOBS_CRAFT v3 demoted catalog).
+    surfaces: { palette: true },
   },
   {
     href: "/scenarios",
     label: "Scenarios",
     group: "Navigate",
     keywords: "compare what if paths saved",
-    surfaces: { header: "more", palette: true },
+    surfaces: { palette: true },
   },
   {
     href: "/plan",
@@ -141,6 +161,8 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     group: "Navigate",
     keywords: "decisions log notes",
     surfaces: { header: "more", palette: true },
+    moreGroup: "care",
+    moreTone: "quiet",
   },
 
   // Launch-hidden insight labs (routes exist; not in header More or palette)
@@ -189,6 +211,8 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     group: "Navigate",
     keywords: "finance budget tools calculators mortgage affordability runway decide",
     surfaces: { header: "more", palette: true },
+    moreGroup: "build",
+    moreTone: "live",
   },
   {
     href: "/money/budget",
@@ -243,14 +267,18 @@ export const NAV_CATALOG: readonly NavCatalogEntry[] = [
     group: "Navigate",
     keywords: "bank plaid sync accounts",
     surfaces: { header: "more", palette: true },
+    moreGroup: "build",
+    moreTone: "live",
   },
   {
     href: "/trust",
-    label: "Trust",
+    label: "Trust & privacy",
     paletteLabel: "Trust & privacy",
     group: "Navigate",
     keywords: "privacy data export download delete security portability",
     surfaces: { header: "more", palette: true },
+    moreGroup: "care",
+    moreTone: "live",
   },
 
   // Role dashboards + account (palette/switcher only - parity exceptions)
@@ -329,6 +357,41 @@ export const HEADER_PRIMARY_NAV: NavLink[] = NAV_CATALOG.filter(
 export const HEADER_MORE_NAV: NavLink[] = NAV_CATALOG.filter(
   (e) => e.surfaces.header === "more" && flagOn(e),
 ).map((e) => ({ href: e.href, label: e.label }));
+
+/** ··· drawer groups — live route labels only; Account stays in AppHeader chrome. */
+export const MORE_DRAWER_GROUPS: { id: MoreDrawerGroup; label: string }[] = [
+  { id: "build", label: "Build" },
+  { id: "care", label: "Care" },
+];
+
+const MORE_DRAWER_HREF_ORDER: Record<MoreDrawerGroup, readonly string[]> = {
+  build: ["/path", "/money", "/connections"],
+  care: ["/trust", "/household", "/journal", "/timeline"],
+};
+
+export function moreDrawerGroupForHref(href: string): MoreDrawerGroup | null {
+  const entry = NAV_CATALOG.find((e) => e.href === href);
+  return entry?.moreGroup ?? null;
+}
+
+export type MoreDrawerTone = "live" | "quiet";
+
+export function moreDrawerToneForHref(href: string): MoreDrawerTone {
+  const entry = NAV_CATALOG.find((e) => e.href === href);
+  return entry?.moreTone ?? "live";
+}
+
+export function sortMoreDrawerItems<T extends { href: string }>(
+  group: MoreDrawerGroup,
+  items: T[],
+): T[] {
+  const order = MORE_DRAWER_HREF_ORDER[group];
+  return [...items].sort((a, b) => {
+    const ai = order.indexOf(a.href);
+    const bi = order.indexOf(b.href);
+    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+  });
+}
 
 /**
  * Full palette catalog including flag-gated entries - the palette filters

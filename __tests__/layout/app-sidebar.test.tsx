@@ -138,12 +138,22 @@ describe("AppHeader — SHELL_CRAFT v3 quiet top bar", () => {
       "href",
       "/journal",
     );
-    expect(within(menu).getByRole("menuitem", { name: "Path to Ready" })).toHaveAttribute(
-      "href",
-      "/path",
-    );
+    expect(within(menu).getByRole("menuitem", { name: "Path" })).toHaveAttribute("href", "/path");
+    expect(document.querySelector('[data-more-tone="live"][href="/path"]')).not.toBeNull();
+    expect(document.querySelector('[data-more-tone="quiet"][href="/journal"]')).not.toBeNull();
+    expect(document.querySelector('[data-more-tone="quiet"][href="/timeline"]')).not.toBeNull();
     expect(within(menu).getByRole("menuitem", { name: "Money" })).toHaveAttribute("href", "/money");
+    expect(within(menu).getByRole("menuitem", { name: "Trust & privacy" })).toHaveAttribute(
+      "href",
+      "/trust",
+    );
     expect(within(menu).queryByRole("menuitem", { name: "Companion" })).toBeNull();
+    expect(within(menu).queryByRole("menuitem", { name: "Trinity" })).toBeNull();
+    expect(within(menu).queryByRole("menuitem", { name: "Stand" })).toBeNull();
+    expect(within(menu).queryByRole("menuitem", { name: "Decide" })).toBeNull();
+    expect(document.querySelector("[data-more-group='build']")).not.toBeNull();
+    expect(document.querySelector("[data-more-group='care']")).not.toBeNull();
+    expect(document.querySelector("[data-more-group='account']")).not.toBeNull();
     expect(within(menu).getByRole("menuitem", { name: "Settings" })).toHaveAttribute(
       "href",
       "/settings",

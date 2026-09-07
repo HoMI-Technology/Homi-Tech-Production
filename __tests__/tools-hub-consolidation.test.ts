@@ -15,19 +15,18 @@ function read(rel: string): string {
 describe("tools hub consolidation lock", () => {
   it("hub page renders hubLenses only — no 18-calculators marketing", () => {
     const src = read("app/(product)/tools/page.tsx");
-    expect(src).toMatch(/hubLensesByRing/);
+    expect(src).toMatch(/hubLenses/);
     expect(src).not.toMatch(/LENSES\.length/);
     expect(src).not.toMatch(/18 calculators/i);
     expect(src).not.toMatch(/Open calculator/);
     expect(src).toMatch(/Open lens/);
-    expect(src).toMatch(/Decision math/);
-    expect(src).toMatch(/Lenses for the math\. Not a catalog\./);
+    expect(src).toMatch(/Educational estimates/);
     expect(src).not.toMatch(/href=["']\/simulator["']/);
     expect(src).not.toMatch(/href=["']\/scenarios["']/);
-    expect(src).toMatch(/Educational estimates/);
     expect(src).toMatch(/PRIMARY_CLOSE_HREF/);
     expect(src).toMatch(/PRIMARY_CLOSE_LABEL/);
     expect(src).not.toMatch(/href=["']\/assessment["']/);
+    expect(src).not.toMatch(/hubLensesByRing/);
   });
 
   it("mortgage route folds into affordability instead of remaining a peer card", () => {

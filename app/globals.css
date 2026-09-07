@@ -297,6 +297,44 @@
   right: 0;
   width: 14rem;
 }
+.chrome-menu--drawer {
+  right: 0;
+  width: 16.5rem;
+  padding: 0.5rem 0.35rem 0.45rem;
+  border-color: rgba(148, 163, 184, 0.12);
+  background: rgba(10, 22, 40, 0.98);
+}
+.chrome-menu-group-label {
+  padding: 0.65rem 0.75rem 0.2rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-dim);
+}
+.chrome-menu--drawer .chrome-menu-item {
+  min-height: 2.25rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8125rem;
+}
+.chrome-menu--drawer .chrome-menu-item.is-live {
+  color: var(--color-light);
+}
+.chrome-menu--drawer .chrome-menu-item.is-quiet {
+  color: var(--color-dim);
+}
+.chrome-menu--drawer [data-more-group] + [data-more-group] {
+  margin-top: 0.2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 0.15rem;
+}
+.chrome-more-backdrop {
+  position: fixed;
+  inset: 0;
+  top: var(--nav-offset);
+  z-index: 40;
+  background: rgba(10, 22, 40, 0.48);
+}
 .chrome-menu-item {
   display: flex;
   align-items: center;
@@ -3440,12 +3478,31 @@ body {
    .money-content-col: the three-column instrument put four competing zones on
    one page and printed the same figures twice. */
 .money-page {
-  max-width: 72rem;
-  margin: 0 auto;
-  padding: 0 1rem 3rem;
+  max-width: none;
+  margin: 0;
+  padding: 0;
 }
 .money-page-content {
-  padding-top: 1.5rem;
+  padding-top: 0;
+}
+
+/* JOBS_CRAFT v3 — quiet depth column on live job routes. */
+.job-depth-frame {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 3rem;
+}
+.job-depth-frame--path {
+  max-width: 45rem;
+}
+.job-depth-frame--catalog {
+  max-width: 48rem;
+}
+@media (min-width: 640px) {
+  .job-depth-frame {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
 }
 
 /* Horizontal mode tabs — Stand / Track / Decide / Plan, always labeled.

@@ -22,19 +22,15 @@ describe("AppHeader nav config", () => {
 
   it("carries the launch product surface under More", () => {
     const hrefs = APP_MORE_NAV.map((i) => i.href);
-    for (const href of [
-      "/path",
-      "/household",
-      "/tools/preflight",
-      "/scenarios",
-      "/journal",
-      "/connections",
-    ]) {
+    for (const href of ["/path", "/household", "/journal", "/connections", "/trust", "/timeline"]) {
       expect(hrefs).toContain(href);
     }
     // Verdict reveal + readiness checklist stay palette-only — Path owns Build.
     expect(hrefs).not.toContain("/results");
     expect(hrefs).not.toContain("/plan");
+    // Pre-Flight + Scenarios stay palette-only — not More peer homes.
+    expect(hrefs).not.toContain("/tools/preflight");
+    expect(hrefs).not.toContain("/scenarios");
     // Money hub is More (depth). Modes stay off More peers.
     expect(hrefs).toContain("/money");
     for (const href of ["/money/budget", "/money/decide", "/money/plan"]) {

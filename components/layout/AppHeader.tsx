@@ -9,6 +9,13 @@ import { CommandPalette } from "@/components/layout/CommandPalette";
 import { DashboardSwitcher } from "@/components/layout/DashboardSwitcher";
 import { isActivePath } from "@/components/layout/HeaderShell";
 import { APP_MORE_NAV, APP_PRIMARY_NAV } from "@/lib/layout/app-nav";
+import {
+  MORE_DRAWER_GROUPS,
+  moreDrawerGroupForHref,
+  moreDrawerToneForHref,
+  sortMoreDrawerItems,
+  type MoreDrawerGroup,
+} from "@/lib/layout/nav-catalog";
 import { SIGNED_IN_ASSESS_HREF } from "@/components/marketing/first-moment-copy";
 
 /**
@@ -16,9 +23,16 @@ import { SIGNED_IN_ASSESS_HREF } from "@/components/marketing/first-moment-copy"
  * ThresholdCompass 28 + HōMI wordmark + role (only when >1) + Assess + ···.
  * No left rail. No Jump slab. No score chip. Depth only behind ··· (live routes).
  * Compass stays in this bar — never in the page body.
+ * More is a demoted catalog drawer — not a peer home and not a /more URL.
  */
 
 const SHELL_COMPASS_SIZE = 28;
+
+function moreItemClass(pathname: string, href: string, extra = ""): string {
+  const tone = moreDrawerToneForHref(href);
+  const active = isActivePath(pathname, href);
+  return `chrome-menu-item ${tone === "quiet" ? "is-quiet" : "is-live"} ${active ? "is-active" : ""} ${extra}`.trim();
+}
 
 /** Live depth behind ···. HōMI is the logo; Assess is the primary CTA. */
 function shellDepthNav(): { href: string; label: string }[] {
@@ -26,6 +40,22 @@ function shellDepthNav(): { href: string; label: string }[] {
     (item) => item.href !== "/dashboard" && item.href !== "/assessment",
   );
   return [...primaryDepth, ...APP_MORE_NAV];
+}
+
+function groupDepthNav(depthNav: { href: string; label: string }[]) {
+  const grouped: Record<MoreDrawerGroup, { href: string; label: string }[]> = {
+    build: [],
+    care: [],
+  };
+  const leftover: { href: string; label: string }[] = [];
+  for (const item of depthNav) {
+    const group = moreDrawerGroupForHref(item.href);
+    if (group) grouped[group].push(item);
+    else leftover.push(item);
+  }
+  grouped.build = sortMoreDrawerItems("build", grouped.build);
+  grouped.care = sortMoreDrawerItems("care", grouped.care);
+  return { grouped, leftover };
 }
 
 export function AppHeader({
@@ -44,8 +74,10 @@ export function AppHeader({
   const [paletteOpen, setPaletteOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
   const depthNav = shellDepthNav();
+  const { grouped, leftover } = groupDepthNav(depthNav);
   const switcherProps = { role, employerId, organizationId };
   const assessActive = isActivePath(pathname, "/assessment");
+  void email;
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -130,45 +162,81 @@ export function AppHeader({
                 <div
                   role="menu"
                   aria-label="More"
-                  className="chrome-menu chrome-menu--account max-h-[min(70dvh,28rem)] overflow-y-auto"
+                  data-more-drawer=""
+                  className="chrome-menu chrome-menu--drawer max-h-[min(70dvh,32rem)] overflow-y-auto"
                 >
-                  {email && (
-                    <p className="truncate px-3 py-2 text-xs text-dim" title={email}>
-                      {email}
-                    </p>
-                  )}
-                  <div className="hairline my-1" />
-                  {depthNav.map((item) => (
+                  {MORE_DRAWER_GROUPS.map((group) => (
+                    <div key={group.id} data-more-group={group.id}>
+                      <p className="chrome-menu-group-label">{group.label}</p>
+                      {grouped[group.id].map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          role="menuitem"
+                          data-more-tone={moreDrawerToneForHref(item.href)}
+                          className={moreItemClass(pathname, item.href)}
+                          aria-current={isActivePath(pathname, item.href) ? "page" : undefined}
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  ))}
+                  {leftover.map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
                       role="menuitem"
-                      className={`chrome-menu-item ${
-                        isActivePath(pathname, item.href) ? "is-active" : ""
-                      }`}
+                      data-more-tone={moreDrawerToneForHref(item.href)}
+                      className={moreItemClass(pathname, item.href)}
                       aria-current={isActivePath(pathname, item.href) ? "page" : undefined}
                     >
                       {item.label}
                     </Link>
                   ))}
-                  <div className="hairline my-1" />
-                  <Link href="/settings" role="menuitem" className="chrome-menu-item">
-                    Settings
-                  </Link>
-                  <Link href="/settings/subscription" role="menuitem" className="chrome-menu-item">
-                    Subscription
-                  </Link>
-                  <form action="/auth/sign-out" method="post">
-                    <button type="submit" role="menuitem" className="chrome-menu-item w-full text-left">
-                      Sign out
-                    </button>
-                  </form>
+                  <div data-more-group="account">
+                    <p className="chrome-menu-group-label">Account</p>
+                    <Link
+                      href="/settings"
+                      role="menuitem"
+                      data-more-tone="live"
+                      className={moreItemClass(pathname, "/settings")}
+                    >
+                      Settings
+                    </Link>
+                    <Link
+                      href="/settings/subscription"
+                      role="menuitem"
+                      data-more-tone="quiet"
+                      className="chrome-menu-item is-quiet"
+                    >
+                      Subscription
+                    </Link>
+                    <form action="/auth/sign-out" method="post">
+                      <button
+                        type="submit"
+                        role="menuitem"
+                        data-more-tone="quiet"
+                        className="chrome-menu-item is-quiet w-full text-left"
+                      >
+                        Sign out
+                      </button>
+                    </form>
+                  </div>
                 </div>
               )}
             </div>
           </div>
         </div>
       </header>
+      {moreOpen && (
+        <div
+          aria-hidden
+          data-more-backdrop=""
+          className="chrome-more-backdrop"
+          onClick={() => setMoreOpen(false)}
+        />
+      )}
       <CommandPalette
         open={paletteOpen}
         onClose={() => setPaletteOpen(false)}
