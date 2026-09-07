@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
 /**
- * AppSidebar primary rail shows HōMI then Assess and hides pulse/score chrome.
- * Source-lock of catalog imports lives in T3 policy.
+ * SHELL_CRAFT v3 — quiet top bar: compass 28 + wordmark + Assess + ···.
+ * No left rail, Jump slab, or score chip. AppSidebar re-exports AppHeader.
  */
 
-import { cleanup, render, screen, within } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 let mockPathname = "/dashboard";
 vi.mock("next/navigation", async (importOriginal) => ({
@@ -17,9 +17,25 @@ vi.mock("@/components/layout/CommandPalette", () => ({
   CommandPalette: () => null,
 }));
 
+import { AppHeader } from "@/components/layout/AppHeader";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { LATEST_VERDICT_KEY } from "@/components/layout/SidebarDecisionState";
 import { HEADER_PRIMARY_NAV } from "@/lib/layout/nav-catalog";
+
+beforeAll(() => {
+  if (!window.matchMedia) {
+    window.matchMedia = ((query: string) => ({
+      matches: true,
+      media: query,
+      onchange: null,
+      addEventListener() {},
+      removeEventListener() {},
+      addListener() {},
+      removeListener() {},
+      dispatchEvent: () => false,
+    })) as typeof window.matchMedia;
+  }
+});
 
 afterEach(() => {
   cleanup();
@@ -39,39 +55,54 @@ beforeEach(() => {
   );
 });
 
-describe("AppSidebar — HōMI primary rail", () => {
-  it("primary peers are HōMI then Assess — not Home / Path to Ready / Money", () => {
-    render(<AppSidebar email={null} />);
+describe("AppHeader — SHELL_CRAFT v3 quiet top bar", () => {
+  it("mounts compass 28 + wordmark + Assess, and keeps Path/Money behind ···", () => {
+    render(<AppHeader email={null} />);
 
-    const primary = document.querySelector("[data-sidebar-primary]");
-    expect(primary).not.toBeNull();
-    const peers = within(primary as HTMLElement).getAllByRole("link");
-    const pairs = peers.map((link) => [link.getAttribute("href"), link.textContent?.trim()]);
-    expect(pairs[0]).toEqual(["/dashboard", "HōMI"]);
-    expect(pairs).toContainEqual(["/assessment", "Assess"]);
-    expect(pairs.map(([, label]) => label)).not.toEqual(expect.arrayContaining(["Home"]));
-    expect(pairs.map(([href]) => href)).not.toContain("/path");
-    expect(pairs.map(([href]) => href)).not.toContain("/money");
+    const shell = document.querySelector("[data-app-shell='v3']");
+    expect(shell).not.toBeNull();
 
-    expect(within(primary as HTMLElement).queryByRole("link", { name: /^home$/i })).toBeNull();
-    expect(within(primary as HTMLElement).queryByRole("link", { name: /path to ready/i })).toBeNull();
-    expect(within(primary as HTMLElement).queryByRole("link", { name: /^money$/i })).toBeNull();
+    const compass = document.querySelector("[data-shell-compass] svg[aria-label*='Threshold Compass']");
+    expect(compass).not.toBeNull();
+    expect(compass?.getAttribute("width")).toBe("28");
+    expect(compass?.getAttribute("height")).toBe("28");
+    expect(compass?.getAttribute("class") ?? "").not.toMatch(/compass-glow/);
+    expect(compass?.innerHTML ?? "").not.toContain("url(#hc-glow)");
+    expect(compass?.querySelector("#hc-glow")).toBeNull();
+    expect(compass?.getAttribute("viewBox")).toBe("0 0 200 200");
+    expect(compass?.querySelector('circle[r="85"]')).not.toBeNull();
+    expect(compass?.querySelector('circle[r="60"]')).not.toBeNull();
+    expect(compass?.querySelector('circle[r="35"]')).not.toBeNull();
+
+    expect(screen.getByLabelText("HōMI dashboard")).toHaveAttribute("href", "/dashboard");
+    const assess = document.querySelector("[data-shell-assess]");
+    expect(assess).toHaveAttribute("href", "/assessment");
+    expect(assess).toHaveTextContent("Assess");
+
+    expect(screen.queryByRole("link", { name: /path to ready/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /^money$/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /^home$/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /jump to/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /open navigation/i })).toBeNull();
+    expect(document.querySelector("aside")).toBeNull();
+    expect(document.querySelector("[data-sidebar-primary]")).toBeNull();
 
     expect(HEADER_PRIMARY_NAV[0]).toEqual({ href: "/dashboard", label: "HōMI" });
     expect(HEADER_PRIMARY_NAV.map((i) => i.label)).toContain("Assess");
   });
 
-  it("kills pulse chrome, DNP chip, Held, and the duplicate 61 on the rail", () => {
-    render(<AppSidebar email={null} />);
+  it("kills pulse chrome, DNP chip, Held, Jump slab, and the duplicate 61 on the bar", () => {
+    render(<AppHeader email={null} />);
 
-    const rail = document.querySelector("aside");
-    expect(rail).not.toBeNull();
-    const text = rail?.textContent ?? "";
+    const shell = document.querySelector("[data-app-shell='v3']");
+    expect(shell).not.toBeNull();
+    const text = shell?.textContent ?? "";
 
     expect(text).not.toMatch(/Pulse·7d/);
     expect(text).not.toMatch(/Held\s+\d+d/);
     expect(text).not.toContain("DO NOT PROCEED");
     expect(text).not.toMatch(/(^|[^0-9])61([^0-9]|$)/);
+    expect(text).not.toContain("Jump to");
     expect(screen.queryByText("Pulse·7d")).not.toBeInTheDocument();
     expect(screen.queryByText(/Held 8d/)).not.toBeInTheDocument();
     expect(screen.queryByText("DO NOT PROCEED")).not.toBeInTheDocument();
@@ -82,24 +113,46 @@ describe("AppSidebar — HōMI primary rail", () => {
     expect(document.querySelector(".sidebar-footer-chip")).toBeNull();
     expect(document.querySelector(".sidebar-state-badge")).toBeNull();
     expect(document.querySelector(".sidebar-score-hero")).toBeNull();
+    expect(document.querySelectorAll('[aria-label*="Threshold Compass"]')).toHaveLength(1);
   });
 
-  it("HōMI row has no Lucide Compass; the rail does not mount a second Threshold Compass", () => {
-    render(<AppSidebar email={null} />);
+  it("HōMI logo uses brand ThresholdCompass — never Lucide, never a second mark", () => {
+    render(<AppHeader email={null} />);
 
-    const rail = document.querySelector("aside");
-    expect(rail).not.toBeNull();
-    const homi = (rail as HTMLElement).querySelector(
-      '[data-sidebar-primary] a[href="/dashboard"]',
+    const logo = document.querySelector("[data-shell-logo]");
+    expect(logo).not.toBeNull();
+    expect(logo?.querySelector(".lucide-compass")).toBeNull();
+    expect(logo?.querySelector(".lucide-layout-grid")).toBeNull();
+    expect(document.querySelectorAll(".lucide-compass")).toHaveLength(0);
+    expect(document.querySelectorAll("[data-shell-compass]")).toHaveLength(1);
+    expect(document.querySelectorAll('[aria-label*="Threshold Compass"]')).toHaveLength(1);
+  });
+
+  it("opens live depth behind ··· including Journal, and hides role when only Personal", () => {
+    render(<AppHeader email="ada@example.com" />);
+
+    expect(screen.queryByRole("navigation", { name: "Dashboard switcher" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "More" }));
+    const menu = screen.getByRole("menu", { name: "More" });
+    expect(within(menu).getByRole("menuitem", { name: "Journal" })).toHaveAttribute(
+      "href",
+      "/journal",
     );
-    expect(homi).not.toBeNull();
-    expect(homi?.querySelector(".lucide-compass")).toBeNull();
-    expect(homi?.querySelector(".lucide-layout-grid")).toBeNull();
-    expect(homi?.querySelector("svg")).toBeNull();
-    expect(rail?.querySelectorAll(".lucide-compass")).toHaveLength(0);
-    expect(rail?.querySelectorAll("[data-sidebar-shell-compass]")).toHaveLength(0);
-    expect(rail?.querySelectorAll('[aria-label*="Threshold Compass"]')).toHaveLength(0);
-    expect(document.querySelectorAll('[aria-label*="Threshold Compass"]')).toHaveLength(0);
+    expect(within(menu).getByRole("menuitem", { name: "Path to Ready" })).toHaveAttribute(
+      "href",
+      "/path",
+    );
+    expect(within(menu).getByRole("menuitem", { name: "Money" })).toHaveAttribute("href", "/money");
+    expect(within(menu).queryByRole("menuitem", { name: "Companion" })).toBeNull();
+    expect(within(menu).getByRole("menuitem", { name: "Settings" })).toHaveAttribute(
+      "href",
+      "/settings",
+    );
   });
 
+  it("AppSidebar alias still renders the v3 top bar", () => {
+    render(<AppSidebar email={null} />);
+    expect(document.querySelector("[data-app-shell='v3']")).not.toBeNull();
+    expect(document.querySelector("aside")).toBeNull();
+  });
 });

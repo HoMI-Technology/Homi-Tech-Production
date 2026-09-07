@@ -22,6 +22,7 @@ export function ThresholdCompass({
 }) {
   const pip = verdict ? VERDICT_COLORS[verdict] : COLORS.yellow;
   const unlocked = verdict === "READY";
+  const glowFilter = glow ? "url(#hc-glow)" : undefined;
 
   return (
     <svg
@@ -32,17 +33,19 @@ export function ThresholdCompass({
       role="img"
       aria-label="HōMI Threshold Compass showing Financial Reality, Emotional Truth, and Perfect Timing around the user at the decision threshold."
     >
-      <defs>
-        <filter id="hc-glow" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="2" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
+      {glow ? (
+        <defs>
+          <filter id="hc-glow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="2" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+      ) : null}
 
-      <g className={animated ? "ring-outer" : undefined} filter="url(#hc-glow)">
+      <g className={animated ? "ring-outer" : undefined} filter={glowFilter}>
         <circle
           cx="100"
           cy="100"
@@ -58,7 +61,7 @@ export function ThresholdCompass({
         <circle cx="39.9" cy="39.9" r="3" fill={COLORS.cyan} />
       </g>
 
-      <g className={animated ? "ring-middle" : undefined} filter="url(#hc-glow)">
+      <g className={animated ? "ring-middle" : undefined} filter={glowFilter}>
         <circle
           cx="100"
           cy="100"
@@ -74,7 +77,7 @@ export function ThresholdCompass({
         <circle cx="40" cy="100" r="2.5" fill={COLORS.emerald} />
       </g>
 
-      <g className={animated ? "ring-inner" : undefined} filter="url(#hc-glow)">
+      <g className={animated ? "ring-inner" : undefined} filter={glowFilter}>
         <circle
           cx="100"
           cy="100"
@@ -86,7 +89,7 @@ export function ThresholdCompass({
         />
       </g>
 
-      <g filter="url(#hc-glow)">
+      <g filter={glowFilter}>
         <circle
           cx="100"
           cy="96"

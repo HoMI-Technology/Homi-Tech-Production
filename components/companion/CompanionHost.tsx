@@ -114,11 +114,10 @@ export function CompanionHost() {
       aria-expanded={false}
       aria-controls="homi-companion-panel"
       aria-label="Open HōMI Companion"
-      className="companion-launcher compass-glow fixed right-6 z-[var(--z-menu)] flex h-14 w-14 items-center justify-center rounded-full border border-cyan/40 bg-navy-light/90 shadow-lg backdrop-blur bottom-[max(1.5rem,env(safe-area-inset-bottom,0px))] max-lg:bottom-[calc(4.5rem_+_env(safe-area-inset-bottom,0px))]"
+      className="companion-launcher compass-glow fixed right-6 z-[var(--z-menu)] flex h-14 w-14 items-center justify-center rounded-full border border-cyan/40 bg-navy-light/90 shadow-lg backdrop-blur bottom-[max(1.5rem,env(safe-area-inset-bottom,0px))]"
     >
       {/* Inline mark — no ThresholdCompass in the public shell; COLORS only.
-          max-lg raise: the FAB clears the ProductBottomNav tab bar (bar height
-          + safe-area inset) so the launcher never covers a tab. */}
+          v3 shell has no bottom tab bar, so the FAB sits on the safe-area floor. */}
       <svg width="28" height="28" viewBox="0 0 40 40" aria-hidden="true">
         <circle
           cx="20"

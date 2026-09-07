@@ -6,8 +6,8 @@ import { usePathname } from "next/navigation";
 /**
  * Product mode nav — the five canonical tabs: Readiness · Reality · Decide ·
  * Plan · Goals. Rendered as the labeled horizontal tab row at the top of the
- * Money cockpit (MoneyShell) only. ProductBottomNav is HōMI + Assess — Money
- * modes are depth, not global mobile tabs.
+ * Money cockpit (MoneyShell) only. Signed-in v3 chrome is a quiet top bar —
+ * Money stays depth, not a global mobile tab. ProductBottomNav is unmounted.
  *
  * Phase 1 doctrine stance (Home + Money Reality redesign): the Readiness tab
  * points at /dashboard — the score-forward HomeFold surface — while /dashboard

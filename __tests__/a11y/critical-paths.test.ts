@@ -57,7 +57,9 @@ describe("a11y — heading hierarchy on verdict record", () => {
 describe("a11y — navigation has aria-current", () => {
   it('AppHeader marks active route with aria-current="page"', () => {
     const src = readSource("components", "layout", "AppHeader.tsx");
-    expect(src).toContain('aria-current={active ? "page" : undefined}');
+    expect(src).toContain('aria-current={isActivePath(pathname, "/dashboard") ? "page" : undefined}');
+    expect(src).toContain('aria-current={assessActive ? "page" : undefined}');
+    expect(src).toContain('aria-current={isActivePath(pathname, item.href) ? "page" : undefined}');
   });
 });
 

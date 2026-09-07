@@ -3,19 +3,30 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { HeaderShell, isActivePath } from "@/components/layout/HeaderShell";
-import { NotificationBell } from "@/components/layout/NotificationBell";
+import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
+import { Wordmark } from "@/components/brand/Wordmark";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 import { DashboardSwitcher } from "@/components/layout/DashboardSwitcher";
+import { isActivePath } from "@/components/layout/HeaderShell";
 import { APP_MORE_NAV, APP_PRIMARY_NAV } from "@/lib/layout/app-nav";
+import { SIGNED_IN_ASSESS_HREF } from "@/components/marketing/first-moment-copy";
 
 /**
- * Signed-in application header — operate chrome, one line.
- * Layout: wordmark · primary (≤4) · More · [flex] · workspace · search · bell · avatar
+ * SHELL_CRAFT v3 — quiet signed-in top bar.
+ * ThresholdCompass 28 + HōMI wordmark + role (only when >1) + Assess + ···.
+ * No left rail. No Jump slab. No score chip. Depth only behind ··· (live routes).
+ * Compass stays in this bar — never in the page body.
  */
 
-const PRIMARY = APP_PRIMARY_NAV;
-const MORE = APP_MORE_NAV;
+const SHELL_COMPASS_SIZE = 28;
+
+/** Live depth behind ···. HōMI is the logo; Assess is the primary CTA. */
+function shellDepthNav(): { href: string; label: string }[] {
+  const primaryDepth = APP_PRIMARY_NAV.filter(
+    (item) => item.href !== "/dashboard" && item.href !== "/assessment",
+  );
+  return [...primaryDepth, ...APP_MORE_NAV];
+}
 
 export function AppHeader({
   email,
@@ -30,14 +41,13 @@ export function AppHeader({
 }) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
-  const [userOpen, setUserOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
-  const [shortcutLabel, setShortcutLabel] = useState("⌘K");
   const moreRef = useRef<HTMLDivElement>(null);
-  const userRef = useRef<HTMLDivElement>(null);
+  const depthNav = shellDepthNav();
+  const switcherProps = { role, employerId, organizationId };
+  const assessActive = isActivePath(pathname, "/assessment");
 
   useEffect(() => {
-    if (!/Mac|iP(hone|ad|od)/.test(navigator.userAgent)) setShortcutLabel("Ctrl K");
     function onKey(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
@@ -50,19 +60,14 @@ export function AppHeader({
 
   useEffect(() => {
     setMoreOpen(false);
-    setUserOpen(false);
   }, [pathname]);
 
   useEffect(() => {
     function onPointer(e: MouseEvent) {
       if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMoreOpen(false);
-      if (userRef.current && !userRef.current.contains(e.target as Node)) setUserOpen(false);
     }
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        setMoreOpen(false);
-        setUserOpen(false);
-      }
+      if (e.key === "Escape") setMoreOpen(false);
     }
     document.addEventListener("mousedown", onPointer);
     document.addEventListener("keydown", onKey);
@@ -72,34 +77,40 @@ export function AppHeader({
     };
   }, []);
 
-  const initial = (email?.trim()?.[0] ?? "H").toUpperCase();
-  const switcherProps = {
-    role,
-    employerId,
-    organizationId,
-  };
-
   return (
     <>
-      <HeaderShell
-        logoHref="/dashboard"
-        logoAriaLabel="HōMI dashboard"
-        menuId="app-mobile-menu"
-        nav={
-          <>
-            {PRIMARY.map((item) => {
-              const active = isActivePath(pathname, item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`chrome-nav-link ${active ? "is-active" : ""}`}
-                  aria-current={active ? "page" : undefined}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
+      <header
+        data-app-shell="v3"
+        className="chrome-frost fixed inset-x-0 top-0 z-[var(--z-nav)]"
+        style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
+      >
+        <div className="mx-auto flex h-[var(--nav-height)] max-w-7xl items-center gap-3 px-4 sm:px-6">
+          <Link
+            href="/dashboard"
+            aria-label="HōMI dashboard"
+            aria-current={isActivePath(pathname, "/dashboard") ? "page" : undefined}
+            data-shell-logo=""
+            className="flex min-h-11 shrink-0 items-center gap-2"
+          >
+            <span data-shell-compass="" className="flex size-7 items-center justify-center">
+              <ThresholdCompass size={SHELL_COMPASS_SIZE} glow={false} animated={false} />
+            </span>
+            <Wordmark size="text-xl leading-none" />
+          </Link>
+
+          <div data-shell-role="" className="min-w-0">
+            <DashboardSwitcher {...switcherProps} />
+          </div>
+
+          <div className="ml-auto flex shrink-0 items-center gap-2">
+            <Link
+              href={SIGNED_IN_ASSESS_HREF}
+              className="btn btn-primary btn-sm"
+              data-shell-assess=""
+              aria-current={assessActive ? "page" : undefined}
+            >
+              Assess
+            </Link>
 
             <div ref={moreRef} className="relative">
               <button
@@ -107,26 +118,27 @@ export function AppHeader({
                 onClick={() => setMoreOpen((o) => !o)}
                 aria-expanded={moreOpen}
                 aria-haspopup="menu"
-                className={`chrome-nav-link chrome-nav-link--btn ${
-                  MORE.some((m) => isActivePath(pathname, m.href)) ? "is-active" : ""
-                }`}
+                aria-label="More"
+                data-shell-more=""
+                className="chrome-icon-btn !h-10 !min-w-10 !px-0 text-dim"
               >
-                More
-                <svg
-                  width="11"
-                  height="11"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
-                  aria-hidden
-                >
-                  <path d="M5 8l5 5 5-5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                <span aria-hidden className="text-lg leading-none tracking-[0.2em]">
+                  ···
+                </span>
               </button>
               {moreOpen && (
-                <div role="menu" className="chrome-menu chrome-menu--more">
-                  {MORE.map((item) => (
+                <div
+                  role="menu"
+                  aria-label="More"
+                  className="chrome-menu chrome-menu--account max-h-[min(70dvh,28rem)] overflow-y-auto"
+                >
+                  {email && (
+                    <p className="truncate px-3 py-2 text-xs text-dim" title={email}>
+                      {email}
+                    </p>
+                  )}
+                  <div className="hairline my-1" />
+                  {depthNav.map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
@@ -134,58 +146,11 @@ export function AppHeader({
                       className={`chrome-menu-item ${
                         isActivePath(pathname, item.href) ? "is-active" : ""
                       }`}
+                      aria-current={isActivePath(pathname, item.href) ? "page" : undefined}
                     >
                       {item.label}
                     </Link>
                   ))}
-                </div>
-              )}
-            </div>
-          </>
-        }
-        right={
-          <>
-            <DashboardSwitcher {...switcherProps} />
-            <button
-              type="button"
-              onClick={() => setPaletteOpen(true)}
-              className="chrome-icon-btn"
-              aria-label="Jump to…"
-              title={`Jump to… (${shortcutLabel})`}
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.75"
-                aria-hidden
-              >
-                <circle cx="11" cy="11" r="7" />
-                <path d="M20 20l-3.5-3.5" strokeLinecap="round" />
-              </svg>
-              <kbd className="chrome-kbd">{shortcutLabel}</kbd>
-            </button>
-            <NotificationBell />
-            <div ref={userRef} className="relative">
-              <button
-                type="button"
-                onClick={() => setUserOpen((o) => !o)}
-                aria-expanded={userOpen}
-                aria-haspopup="menu"
-                aria-label="Account menu"
-                className="chrome-avatar"
-              >
-                {initial}
-              </button>
-              {userOpen && (
-                <div role="menu" className="chrome-menu chrome-menu--account">
-                  {email && (
-                    <p className="truncate px-3 py-2 text-xs text-dim" title={email}>
-                      {email}
-                    </p>
-                  )}
                   <div className="hairline my-1" />
                   <Link href="/settings" role="menuitem" className="chrome-menu-item">
                     Settings
@@ -194,64 +159,16 @@ export function AppHeader({
                     Subscription
                   </Link>
                   <form action="/auth/sign-out" method="post">
-                    <button
-                      type="submit"
-                      role="menuitem"
-                      className="chrome-menu-item w-full text-left"
-                    >
+                    <button type="submit" role="menuitem" className="chrome-menu-item w-full text-left">
                       Sign out
                     </button>
                   </form>
                 </div>
               )}
             </div>
-          </>
-        }
-        menuContent={
-          <>
-            <div className="flex items-center justify-between gap-3 px-1 pb-2">
-              <span className="truncate text-xs text-dim">{email ?? "Signed in"}</span>
-              <NotificationBell />
-            </div>
-            <div className="px-1 pb-2">
-              <DashboardSwitcher {...switcherProps} />
-            </div>
-            <button
-              type="button"
-              onClick={() => setPaletteOpen(true)}
-              className="chrome-menu-item w-full text-left"
-              aria-label="Jump to…"
-            >
-              Jump to…
-              <kbd className="ml-auto chrome-kbd">{shortcutLabel}</kbd>
-            </button>
-            <div className="hairline my-1" />
-            {[...PRIMARY, ...MORE].map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`chrome-menu-item ${
-                  isActivePath(pathname, item.href) ? "is-active" : ""
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-            <div className="hairline my-2" />
-            <Link href="/settings" className="chrome-menu-item">
-              Settings
-            </Link>
-            <Link href="/settings/subscription" className="chrome-menu-item">
-              Subscription
-            </Link>
-            <form action="/auth/sign-out" method="post">
-              <button type="submit" className="chrome-menu-item w-full text-left">
-                Sign out
-              </button>
-            </form>
-          </>
-        }
-      />
+          </div>
+        </div>
+      </header>
       <CommandPalette
         open={paletteOpen}
         onClose={() => setPaletteOpen(false)}
