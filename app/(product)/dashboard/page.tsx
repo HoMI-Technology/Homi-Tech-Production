@@ -20,7 +20,7 @@ import type { AssessmentRow } from "@/types/database";
 
 export const metadata: Metadata = {
   title: "HōMI",
-  description: "Your last Decision Readiness Score on the Threshold Compass.",
+  description: "Your last Decision Readiness Score.",
 };
 
 // Surface role SSOT — keep import so F8 cannot drift to copy-pasted comments.
@@ -103,6 +103,7 @@ export default async function DashboardPage() {
               ? {
                   id: latest.id,
                   overallScore: latest.overall_score,
+                  scoredAt: latest.completed_at ?? latest.created_at,
                 }
               : null
           }

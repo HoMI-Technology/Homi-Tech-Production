@@ -11,7 +11,7 @@ import {
 
 /**
  * Empty fold close — Assess, or resume a started 45-q draft.
- * No compass here (the page already owns the one Threshold Compass).
+ * No compass here — SHELL_CRAFT v3 keeps the mark in the quiet top bar.
  */
 export function ThresholdFoldEmptyClose() {
   const [copy, setCopy] = useState<ReturnType<typeof resumeDraftCopy>>(null);

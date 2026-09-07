@@ -113,11 +113,21 @@ export function companionFoldLine(args: {
 }
 
 /**
- * First-viewport instrument on signed-in HōMI. The fold is the repo
- * Threshold Compass. Score / runway / cash are last AssessmentResult only.
- * This module does not write the ledger or a score.
+ * First-viewport instrument on signed-in HōMI. Compass lives in the v3
+ * shell bar only. Score is last AssessmentResult only. Money waits below
+ * the fold until real accounts. This module does not write the ledger or a score.
  */
 export const HOME_FOLD_INSTRUMENT = "threshold" as const;
+
+/** Empty Home fold heading — SHELL_CRAFT v3 / HOME_CRAFT. */
+export const EMPTY_FOLD_HEADING = "Will you be okay?" as const;
+
+/** Empty Home fold whisper until a scored AssessmentResult exists. */
+export const EMPTY_FOLD_WHISPER =
+  "Readiness lives here. Soft whisper until Home fills this frame." as const;
+
+/** Below-fold money line until connected accounts exist. */
+export const MONEY_WAIT_LINE = "Money waits until accounts are connected" as const;
 
 export type FoldPathPrimary = {
   href: string;

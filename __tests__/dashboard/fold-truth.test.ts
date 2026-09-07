@@ -5,6 +5,9 @@ import { describe, expect, it } from "vitest";
 import {
   HOME_FOLD_INSTRUMENT,
   CASH_EMPTY_LABEL,
+  EMPTY_FOLD_HEADING,
+  EMPTY_FOLD_WHISPER,
+  MONEY_WAIT_LINE,
   FOLD_HARD_STOP_PRECEDENCE,
   foldHardStopEyebrow,
   foldHardStopOverrideLine,
@@ -229,6 +232,9 @@ describe("Baseline 001 fold-truth copy", () => {
     expect(homeHoldSentence).toBe("Runway is the hold. Build the fund before anything else.");
     expect(hardStopEyebrow).not.toBe(hardStopEyebrow.toUpperCase());
     expect(CASH_EMPTY_LABEL).toBe("Connect accounts to see cash.");
+    expect(EMPTY_FOLD_HEADING).toBe("Will you be okay?");
+    expect(EMPTY_FOLD_WHISPER).toMatch(/Readiness lives here/);
+    expect(MONEY_WAIT_LINE).toBe("Money waits until accounts are connected");
     expect(foldHardStopOverrideLine(61)).toBe("61 — runway is a hard stop.");
     expect(foldHardStopOverrideLine(61)).not.toMatch(/35\s*[·/]\s*35/);
     expect(foldHardStopOverrideLine(61)).not.toMatch(/50/);

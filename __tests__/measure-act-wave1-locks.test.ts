@@ -30,8 +30,8 @@ describe("Measure-Act Wave 1 locks", () => {
       existsSync(resolve(process.cwd(), "components/dashboard/MoneyPictureDirection.tsx")),
     ).toBe(false);
     const fold = read("components/dashboard/ThresholdFold.tsx");
-    expect(fold).toContain("ThresholdCompass");
-    expect(fold).toContain("VerdictBadge");
+    expect(fold).not.toContain("ThresholdCompass");
+    expect(fold).toContain("verdictMetaFor");
     expect(fold).not.toContain("ScoreRail");
     expect(fold).not.toContain("LastReadChrome");
     expect(fold).not.toMatch(/MoneyPictureDirection/);

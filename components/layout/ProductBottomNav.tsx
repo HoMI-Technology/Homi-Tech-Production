@@ -5,13 +5,13 @@ import { usePathname } from "next/navigation";
 import { ClipboardCheck, type LucideIcon } from "lucide-react";
 
 /**
- * Mobile (< lg) product bar. HōMI + Assess only.
- * Money is depth under More, not a global tab. Not a five-tab money cockpit.
- * Desktop (lg+) keeps the AppSidebar rail, so this bar is hidden at lg and up.
+ * Retired from SHELL_CRAFT v3 live chrome (quiet top bar owns Assess + ···).
+ * Kept as a unit-tested contract so Money never re-enters a global tab bar.
+ * ProductLayoutRouter does not mount this.
  *
  * Safe-area: the bar grows by env(safe-area-inset-bottom) so the iOS home
  * indicator never covers the tabs. Each tab keeps a ≥44×44px target.
- * No Lucide Compass here — the one Threshold Compass lives on the HōMI fold.
+ * No Lucide Compass here — the one Threshold Compass lives in the v3 top bar.
  */
 
 const PRIMARY_TABS: readonly { href: string; label: string; Icon: LucideIcon | null }[] = [

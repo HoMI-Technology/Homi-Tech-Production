@@ -28,7 +28,7 @@ describe("money-tools depth doctrine", () => {
     const page = read("app/(product)/dashboard/page.tsx");
     const fold = read("components/dashboard/ThresholdFold.tsx");
     expect(fold).not.toContain("HomeMoneyStanding");
-    expect(fold).toContain("data-home-fold-runway");
+    expect(fold).toContain("data-home-money-below-fold");
     expect(page).not.toMatch(/QuickActionGrid|ToolGrid|hubLensesByRing/);
     expect(fold).not.toMatch(/QuickActionGrid|\/tools\/affordability|Open lens/);
     expect(fold).not.toContain("FinancialPositionSection");

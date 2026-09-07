@@ -147,11 +147,11 @@ describe("guest /plan does not paint a localStorage score", () => {
 });
 
 describe("anonymous SiteHeader has no NotificationBell", () => {
-  it("removes the bell from marketing chrome and leaves it on AppHeader", () => {
+  it("removes the bell from marketing chrome and from the v3 signed-in bar", () => {
     const site = src("components", "layout", "SiteHeader.tsx");
     const app = src("components", "layout", "AppHeader.tsx");
     expect(site).not.toContain("NotificationBell");
-    expect(app).toContain("<NotificationBell />");
+    expect(app).not.toContain("NotificationBell");
   });
 });
 

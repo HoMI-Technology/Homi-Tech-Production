@@ -381,14 +381,14 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
     file: "components/dashboard/ThresholdFold.tsx",
     identifiersMust: [
       "HOME_FOLD_INSTRUMENT",
-      "VerdictBadge",
-      "hideTemperature",
+      "EMPTY_FOLD_HEADING",
+      "MONEY_WAIT_LINE",
       "foldHardStopEyebrow",
       "foldHomeHoldSentence",
-      "CASH_EMPTY_LABEL",
       "foldHardStopOverrideLine",
       "stopCode",
       "resolveFoldPathPrimary",
+      "verdictMetaFor",
     ],
     identifiersMustNot: [
       "textShadow",
@@ -400,27 +400,34 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
       "PillarRing",
       "FinancialPositionSection",
       "OperateInstrument",
+      "ThresholdCompass",
+      "VerdictBadge",
     ],
     stringsMust: [
       "dash-instrument",
-      "data-home-threshold-compass",
       "data-home-fold-score",
-      "data-home-fold-runway",
-      "data-home-fold-cash",
+      "data-home-fold-age",
+      "data-home-fold-verdict",
       "data-path-fold-primary",
       "data-home-fold-score-plate",
+      "data-home-money-below-fold",
     ],
     stringsMustNot: [
       "Grow emergency fund toward 3–6 months",
       "35/35/30",
       "data-home-build-hero",
       "data-home-score-rail",
+      "data-home-threshold-compass",
       "Your build",
-      "text-4xl",
       "Open Money",
       "Connect bank",
+      "NOT_YET",
     ],
-    importsMust: ["@/components/brand/ThresholdCompass"],
+    importsMust: ["@/components/ui/verdict-ssot"],
+    importsMustNot: [
+      "@/components/brand/ThresholdCompass",
+      "@/components/finance/ThresholdCompass",
+    ],
     codeMustNot: [
       "hideTemperature={false}",
       "stopMessages[0]",
@@ -541,9 +548,9 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
   },
   {
     id: "fold-wiring/sidebar-workspace-switcher",
-    file: "components/layout/AppSidebar.tsx",
-    identifiersMust: ["DashboardSwitcher", "visibleDashboards"],
-    stringsMust: ["data-sidebar-workspace-switcher"],
+    file: "components/layout/AppHeader.tsx",
+    identifiersMust: ["DashboardSwitcher"],
+    stringsMust: ["data-shell-role"],
   },
   {
     id: "fold-wiring/employee-hub-empty-close",
@@ -597,9 +604,9 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
   },
   {
     id: "verdict-fold-motion/sidebar-reduced-motion",
-    file: "components/layout/AppSidebar.tsx",
-    identifiersMust: ["useReducedMotion"],
-    codeMust: ["reduceMotion ? 0.12 : 0.2"],
+    file: "components/layout/AppHeader.tsx",
+    identifiersMustNot: ["useReducedMotion", "AnimatePresence"],
+    stringsMustNot: ["Jump to", "DO NOT PROCEED"],
   },
   ...NAMING_LAW_SURFACES.map(
     (file): SourceLockFact => ({
@@ -664,20 +671,23 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
   // ---------------------------------------------------------------------------
   {
     id: "app-sidebar/source-locks",
-    file: "components/layout/AppSidebar.tsx",
+    file: "components/layout/AppHeader.tsx",
     identifiersMustNot: [
       "JOURNEY_ORDER",
       "SidebarPulseStrip",
       "SidebarScoreChip",
       "footerChipModel",
       "SidebarShellCompass",
+      "NotificationBell",
     ],
     stringsMust: [
-      "data-sidebar-primary",
-      "data-sidebar-more",
-      "data-sidebar-homi",
+      "data-app-shell",
+      "data-shell-compass",
+      "data-shell-assess",
+      "data-shell-more",
     ],
     stringsMustNot: [
+      "Jump to",
       '"/dashboard": Compass',
       '"/plan": Compass',
       '"/dashboard": Home',
@@ -685,13 +695,11 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
       "Pulse·7d",
       "DO NOT PROCEED",
     ],
-    importsMustNot: [
-      "@/components/brand/ThresholdCompass",
-      "@/components/finance/ThresholdCompass",
-    ],
-    codeMust: ['const isHomi = item.href === "/dashboard"'],
+    importsMust: ["@/components/brand/ThresholdCompass"],
+    importsMustNot: ["@/components/finance/ThresholdCompass"],
+    codeMust: ["glow={false}", "animated={false}", "size={SHELL_COMPASS_SIZE}"],
     codeMustNot: ["Held ${"],
-    codeMustNotMatch: ["^\\s*Compass,", "Home,"],
+    codeMustNotMatch: ["^\\s*Compass,", "lucide-compass"],
   },
   {
     id: "app-sidebar/pulse-strip-retired",
@@ -729,7 +737,8 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
   {
     id: "money-mode-nav/bottom-nav-on-product-router",
     file: "components/layout/ProductLayoutRouter.tsx",
-    identifiersMust: ["ProductBottomNav"],
+    identifiersMust: ["AppHeader"],
+    identifiersMustNot: ["ProductBottomNav", "AppSidebar"],
   },
   {
     id: "money-mode-nav/bottom-nav-off-product-layout",
@@ -739,12 +748,14 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
   {
     id: "money-mode-nav/companion-fab-clears-bar-host",
     file: "components/companion/CompanionHost.tsx",
-    codeMust: ["max-lg:bottom-"],
+    codeMust: ['bottom-[max(1.5rem,env(safe-area-inset-bottom,0px))]'],
+    codeMustNot: ["max-lg:bottom-"],
   },
   {
     id: "money-mode-nav/companion-fab-clears-bar-widget",
     file: "components/companion/CompanionWidget.tsx",
-    codeMust: ["max-lg:bottom-"],
+    codeMust: ['bottom-[max(1.5rem,env(safe-area-inset-bottom,0px))]'],
+    codeMustNot: ["max-lg:bottom-"],
   },
 
   // ---------------------------------------------------------------------------

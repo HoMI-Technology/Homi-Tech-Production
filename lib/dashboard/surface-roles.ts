@@ -9,7 +9,7 @@
  * `/report/{id}` is the record.
  */
 export const SURFACE_ROLES = {
-  home: "Signed-in Home fold — Path next move leads; money standing strip shows where cash sits; Decision Readiness Score is a compact rail reading.",
+  home: "Signed-in Home fold inside the v3 quiet shell — verdict, score, age, hard stop, hold, then Path/Assess. Money waits below the fold until real accounts. Compass stays in the bar.",
   results:
     "Retired route. Middleware redirects signed-in → Home, guest → First Moment — not a Build destination.",
   path: "Living Build — binding-constraint Path to Ready over time.",

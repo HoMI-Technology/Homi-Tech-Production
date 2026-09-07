@@ -21,30 +21,26 @@ test.describe("signed-in shell navigation", () => {
     try {
       await signInViaUi(page, user.email, user.password);
 
-      for (const item of APP_PRIMARY_NAV) {
-        await expect(
-          page.getByRole("navigation", { name: "Primary" }).getByRole("link", { name: item.label }),
-        ).toBeVisible();
-      }
+      await expect(page.getByLabel("HōMI dashboard")).toBeVisible();
+      await expect(page.getByRole("link", { name: "Assess" })).toBeVisible();
+      await expect(page.locator("[data-app-shell='v3']")).toBeVisible();
+      await expect(page.locator("[data-shell-compass] svg")).toBeVisible();
 
-      // Live shell is AppSidebar: HōMI + Assess on primary; Journal lives under More.
-      const primary = page.getByRole("navigation", { name: "Primary" });
-      await primary.locator("summary").click();
-      await expect(primary.getByRole("link", { name: "Journal" })).toBeVisible();
-      await primary.getByRole("link", { name: "Journal" }).click();
+      // Live shell is SHELL_CRAFT v3: Assess in the top bar; Journal lives under ···.
+      await page.getByRole("button", { name: "More" }).click();
+      await expect(page.getByRole("menuitem", { name: "Journal" })).toBeVisible();
+      await page.getByRole("menuitem", { name: "Journal" }).click();
       await expect(page).toHaveURL(/\/journal/);
 
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto("/dashboard");
-      await page.getByRole("button", { name: "Open navigation" }).click();
-      const drawer = page.locator("#app-sidebar-drawer");
-      await drawer.locator("summary").click();
-      for (const item of [...APP_PRIMARY_NAV, ...APP_MORE_NAV].slice(0, 6)) {
-        await expect(drawer.getByRole("link", { name: item.label })).toBeVisible();
+      await expect(page.getByRole("link", { name: "Assess" })).toBeVisible();
+      await page.getByRole("button", { name: "More" }).click();
+      for (const item of APP_MORE_NAV.slice(0, 6)) {
+        await expect(page.getByRole("menuitem", { name: item.label })).toBeVisible();
       }
-      await expect(
-        page.getByRole("button", { name: "Jump to…" }),
-      ).toBeVisible();
+      await expect(page.getByRole("button", { name: "Jump to…" })).toHaveCount(0);
+      await expect(page.getByRole("button", { name: "Open navigation" })).toHaveCount(0);
     } finally {
       await deleteTestUser(user.id);
     }

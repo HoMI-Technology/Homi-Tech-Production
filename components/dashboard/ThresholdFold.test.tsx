@@ -4,7 +4,9 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import { COLORS } from "@/lib/brand";
 import {
-  CASH_EMPTY_LABEL,
+  EMPTY_FOLD_HEADING,
+  EMPTY_FOLD_WHISPER,
+  MONEY_WAIT_LINE,
   foldHardStopEyebrow,
   foldHardStopOverrideLine,
   foldHomeHoldSentence,
@@ -13,6 +15,7 @@ import {
   RUNWAY_HARD_STOP_PATH_TITLE,
   type FoldHardStopCode,
 } from "@/lib/dashboard/fold-truth";
+import { lastReadAgeFrom } from "@/lib/dashboard/last-read-chrome";
 import { ThresholdFold } from "./ThresholdFold";
 
 beforeAll(() => {
@@ -42,7 +45,7 @@ const base = {
 
 const live61 = {
   ...base,
-  latest: { id: "live-61", overallScore: 61 },
+  latest: { id: "live-61", overallScore: 61, scoredAt: "2026-08-29T12:00:00.000Z" },
   verdict: "NOT_YET" as const,
   lastMoney: {
     debtToIncomeRatio: 0.42,
@@ -59,7 +62,7 @@ const live61 = {
 };
 
 describe("ThresholdFold", () => {
-  it("empty-account is one Assess close on the compass — em dash, no fake 76", () => {
+  it("empty Home is heading + whisper + em dash + Assess — no age, no compass", () => {
     const { container } = render(
       <ThresholdFold {...base} latest={null} verdict={null} stopMessages={[]} />,
     );
@@ -67,22 +70,27 @@ describe("ThresholdFold", () => {
     const fold = container.querySelector("[data-threshold-fold]");
     expect(fold).not.toBeNull();
     expect(fold?.getAttribute("data-home-instrument")).toBe("empty");
+    expect(screen.getByRole("heading", { name: EMPTY_FOLD_HEADING })).toBeInTheDocument();
+    expect(screen.getByText(EMPTY_FOLD_WHISPER)).toBeInTheDocument();
     expect(screen.getByLabelText("Decision Readiness Score Unknown")).toHaveTextContent("\u2014");
     expect(screen.getByLabelText("Decision Readiness Score Unknown")).toHaveStyle({
       color: COLORS.light,
     });
     expect(screen.getByRole("link", { name: /^assess$/i })).toHaveAttribute("href", "/assessment");
+    expect(container.querySelector("[data-home-fold-age]")).toBeNull();
     expect(screen.queryByText("76")).not.toBeInTheDocument();
     expect(screen.queryByText("NOT_YET")).not.toBeInTheDocument();
-    expect(container.querySelectorAll("svg[aria-label*='Threshold Compass']")).toHaveLength(1);
+    expect(container.querySelectorAll("svg[aria-label*='Threshold Compass']")).toHaveLength(0);
+    expect(container.querySelector("[data-home-threshold-compass]")).toBeNull();
     expect(container.querySelector("[data-companion-fold-line]")).toBeNull();
     expect(container.querySelector("[data-home-score-rail]")).toBeNull();
     expect(container.querySelector("[data-home-money-standing]")).toBeNull();
+    expect(container.querySelector("[data-home-money-below-fold]")).toBeNull();
     expect(screen.queryByText(/Checking in/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /open money/i })).not.toBeInTheDocument();
   });
 
-  it("live 61 is plated cyan, DNP without Hot, honest cash empty, Path SSOT", () => {
+  it("live 61 is HOME_CRAFT order: verdict → score → age → hard stop → hold → Path", () => {
     const { container } = render(<ThresholdFold {...live61} />);
 
     expect(container.querySelector("[data-home-instrument]")).toHaveAttribute(
@@ -90,18 +98,41 @@ describe("ThresholdFold", () => {
       "threshold",
     );
     const numeral = screen.getByLabelText("Overall Decision Readiness Score 61 out of 100");
-    expect(numeral).toHaveStyle({ color: COLORS.cyan });
+    expect(numeral).toHaveStyle({ color: COLORS.light });
     expect(numeral).not.toHaveStyle({ color: COLORS.crimson });
+    expect(numeral).not.toHaveStyle({ color: COLORS.cyan });
     expect(numeral.style.textShadow).toBe("");
 
-    const compass = container.querySelector("[data-home-threshold-compass]");
-    const plate = container.querySelector("[data-home-fold-score-plate]");
-    expect(plate).not.toBeNull();
-    expect(compass?.contains(plate)).toBe(false);
-    expect(plate).toHaveTextContent("61");
-    expect(compass?.textContent).not.toContain("61");
+    expect(container.querySelector("[data-home-threshold-compass]")).toBeNull();
+    expect(container.querySelectorAll("svg[aria-label*='Threshold Compass']")).toHaveLength(0);
+    expect(container.querySelector("[data-home-fold-score-plate]")).toHaveTextContent("61");
 
+    const verdict = container.querySelector("[data-home-fold-verdict]");
+    const score = container.querySelector("[data-home-fold-score]");
+    const age = container.querySelector("[data-home-fold-age]");
     const hardStop = screen.getByRole("alert");
+    const path = screen.getByRole("link", {
+      name: /Stabilize emergency runway to at least 1 month/i,
+    });
+    if (!verdict || !score || !age) throw new Error("expected verdict, score, and age");
+    expect(verdict.compareDocumentPosition(score) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(score.compareDocumentPosition(age) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(age.compareDocumentPosition(hardStop) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(hardStop.compareDocumentPosition(path) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+
+    expect(verdict).toHaveTextContent("DO NOT PROCEED");
+    expect(screen.getByLabelText("DO NOT PROCEED")).toBeInTheDocument();
+    expect(age).toHaveTextContent(lastReadAgeFrom("2026-08-29T12:00:00.000Z") ?? "");
+    expect(age).toHaveTextContent("from August 29.");
+
     expect(hardStop).toHaveTextContent(hardStopEyebrow);
     expect(hardStop).toHaveTextContent(homeHoldSentence);
     expect(hardStop).not.toHaveTextContent("Emergency runway is under 1 month.");
@@ -118,7 +149,6 @@ describe("ThresholdFold", () => {
       homeHoldSentence,
     );
 
-    expect(screen.getByText("DO NOT PROCEED")).toBeInTheDocument();
     expect(screen.queryByText(/· Hot/)).not.toBeInTheDocument();
     expect(screen.queryByText("Hot")).not.toBeInTheDocument();
     expect(screen.queryByText("Warm")).not.toBeInTheDocument();
@@ -126,14 +156,15 @@ describe("ThresholdFold", () => {
     expect(screen.queryByText("NOT_YET")).not.toBeInTheDocument();
     expect(screen.queryByText("Not yet")).not.toBeInTheDocument();
     expect(screen.queryByText(/80–100|80-100/)).not.toBeInTheDocument();
-    expect(screen.getByLabelText("DO NOT PROCEED")).toBeInTheDocument();
 
-    expect(container.querySelector("[data-home-fold-runway]")).toHaveTextContent("Under 1 month");
-    expect(container.querySelector("[data-home-fold-runway]")).not.toHaveTextContent("0.5 mo");
-    expect(container.querySelector("[data-home-fold-cash]")).toHaveTextContent(CASH_EMPTY_LABEL);
-    expect(container.querySelector("[data-home-fold-cash]")).not.toHaveTextContent("\u2014");
-    expect(container.querySelector("[data-home-fold-cash]")?.className).not.toMatch(/text-4xl/);
+    const money = container.querySelector("[data-home-money-below-fold]");
+    expect(money).not.toBeNull();
+    expect(money).toHaveTextContent(MONEY_WAIT_LINE);
+    expect(container.querySelector("[data-home-fold-runway]")).toBeNull();
     expect(screen.queryByText("0")).not.toBeInTheDocument();
+    expect(path.compareDocumentPosition(money as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
 
     expect(container.querySelector("[data-home-fold-override]")).toHaveTextContent(
       "61 — runway is a hard stop.",
@@ -145,9 +176,6 @@ describe("ThresholdFold", () => {
       /80|65|50|49/,
     );
 
-    const path = screen.getByRole("link", {
-      name: /Stabilize emergency runway to at least 1 month/i,
-    });
     expect(path).toHaveClass("btn-primary");
     expect(path).toHaveAttribute("data-path-fold-primary");
     expect(path).toHaveAttribute("href", "/tools/runway");
@@ -158,7 +186,6 @@ describe("ThresholdFold", () => {
     expect(screen.queryByRole("link", { name: /open money/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /connect bank/i })).not.toBeInTheDocument();
 
-    expect(container.querySelectorAll("svg[aria-label*='Threshold Compass']")).toHaveLength(1);
     expect(container.querySelector("[data-companion-fold-line]")).toBeNull();
     expect(container.querySelector("[data-home-score-rail]")).toBeNull();
     expect(container.querySelector("[data-home-money-standing]")).toBeNull();
@@ -169,6 +196,26 @@ describe("ThresholdFold", () => {
     expect(container.querySelector("[data-hard-stop]")?.getAttribute("style")).toContain(
       COLORS.cyan,
     );
+  });
+
+  it("shows runway and cash below the fold only when accounts are connected", () => {
+    const { container } = render(
+      <ThresholdFold
+        {...live61}
+        lastMoney={{
+          ...live61.lastMoney,
+          liquidDollars: 4200,
+        }}
+      />,
+    );
+
+    const money = container.querySelector("[data-home-money-below-fold]");
+    expect(money).not.toBeNull();
+    expect(money).not.toHaveTextContent(MONEY_WAIT_LINE);
+    expect(container.querySelector("[data-home-fold-runway]")).toHaveTextContent("Under 1 month");
+    expect(container.querySelector("[data-home-fold-runway]")).not.toHaveTextContent("0.5 mo");
+    expect(container.querySelector("[data-home-fold-cash]")).toHaveTextContent("4,200");
+    expect(container.querySelector("[data-home-fold-cash]")?.className).not.toMatch(/text-4xl/);
   });
 
   it("remaps the stored 3–6 month grow-fund title to Path SSOT while runway is a hard stop", () => {
@@ -199,7 +246,7 @@ describe("ThresholdFold", () => {
       render(
         <ThresholdFold
           {...base}
-          latest={{ id: `path-${code}`, overallScore: 61 }}
+          latest={{ id: `path-${code}`, overallScore: 61, scoredAt: "2026-08-29T12:00:00.000Z" }}
           verdict="NOT_YET"
           stopMessages={[engineMessage]}
           stopCode={code}
@@ -238,7 +285,7 @@ describe("ThresholdFold", () => {
       const { container } = render(
         <ThresholdFold
           {...base}
-          latest={{ id: `stop-${code}`, overallScore: 61 }}
+          latest={{ id: `stop-${code}`, overallScore: 61, scoredAt: "2026-08-29T12:00:00.000Z" }}
           verdict="NOT_YET"
           stopMessages={[engineMessage]}
           stopCode={code}
@@ -291,11 +338,11 @@ describe("ThresholdFold", () => {
     },
   );
 
-  it("hard-stop sentence sits above the public verdict word", () => {
+  it("places the public verdict word before the hard-stop sentence", () => {
     const { container } = render(
       <ThresholdFold
         {...base}
-        latest={{ id: "a2", overallScore: 61 }}
+        latest={{ id: "a2", overallScore: 61, scoredAt: "2026-08-29T12:00:00.000Z" }}
         verdict="NOT_YET"
         stopMessages={["Emergency runway is under 1 month."]}
         lastMoney={{
@@ -309,8 +356,8 @@ describe("ThresholdFold", () => {
 
     const banner = container.querySelector("[data-home-hard-stop]");
     const verdict = container.querySelector("[data-home-fold-verdict]");
-    if (!banner || !verdict) throw new Error("expected hard stop above verdict");
-    expect(banner.compareDocumentPosition(verdict) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+    if (!banner || !verdict) throw new Error("expected verdict before hard stop");
+    expect(verdict.compareDocumentPosition(banner) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
   });
