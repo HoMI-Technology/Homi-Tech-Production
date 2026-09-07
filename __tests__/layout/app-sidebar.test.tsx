@@ -67,6 +67,12 @@ describe("AppHeader — SHELL_CRAFT v3 quiet top bar", () => {
     expect(compass?.getAttribute("width")).toBe("28");
     expect(compass?.getAttribute("height")).toBe("28");
     expect(compass?.getAttribute("class") ?? "").not.toMatch(/compass-glow/);
+    expect(compass?.innerHTML ?? "").not.toContain("url(#hc-glow)");
+    expect(compass?.querySelector("#hc-glow")).toBeNull();
+    expect(compass?.getAttribute("viewBox")).toBe("0 0 200 200");
+    expect(compass?.querySelector('circle[r="85"]')).not.toBeNull();
+    expect(compass?.querySelector('circle[r="60"]')).not.toBeNull();
+    expect(compass?.querySelector('circle[r="35"]')).not.toBeNull();
 
     expect(screen.getByLabelText("HōMI dashboard")).toHaveAttribute("href", "/dashboard");
     const assess = document.querySelector("[data-shell-assess]");

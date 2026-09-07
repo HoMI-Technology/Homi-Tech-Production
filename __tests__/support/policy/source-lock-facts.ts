@@ -725,6 +725,18 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
     codeMustNotMatch: ["^\\s*Compass,", "lucide-compass"],
   },
   {
+    id: "app-sidebar/brand-compass-glow-filter-respects-prop",
+    file: "components/brand/ThresholdCompass.tsx",
+    codeMust: [
+      'viewBox="0 0 200 200"',
+      'r="85"',
+      'r="60"',
+      'r="35"',
+      'glow ? "url(#hc-glow)" : undefined',
+    ],
+    stringsMustNot: ['filter="url(#hc-glow)"'],
+  },
+  {
     id: "app-sidebar/pulse-strip-retired",
     file: "components/layout/SidebarDecisionState.tsx",
     identifiersMustNot: ["footerChipModel"],
