@@ -198,8 +198,8 @@ export const FOLD_HARD_STOP_PRECEDENCE: readonly FoldHardStopCode[] = [
   "CREDIT_UNDER_620",
 ] as const;
 
-/** Baseline 001 hard-stop kicker — sentence case, once. Not an ALL-CAPS wall. */
-export const hardStopEyebrow = "Hard stop · runway." as const;
+/** HOME_CRAFT eyebrow — Title Case stop name, no trailing period. Not an ALL-CAPS wall. */
+export const hardStopEyebrow = "Hard stop · Runway" as const;
 
 /** Baseline 001 hold line. Path owns the move; this names why. */
 export const homeHoldSentence =

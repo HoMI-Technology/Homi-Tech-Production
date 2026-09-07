@@ -100,7 +100,7 @@ export function foldHardStopDisplay(
 ): FoldHardStopDisplay {
   if (decisionType === "car" && code === "HOUSING_RATIO_OVER_45") {
     return {
-      eyebrow: "Hard stop · payment.",
+      eyebrow: "Hard stop · Payment",
       hold: "Payment is the hold. Re-scope the all-in monthly cost before anything else.",
       override: (scorePct) => `${scorePct} — payment is a hard stop.`,
     };
@@ -108,25 +108,25 @@ export function foldHardStopDisplay(
   switch (code) {
     case "RUNWAY_UNDER_1_MONTH":
       return {
-        eyebrow: "Hard stop · runway.",
+        eyebrow: "Hard stop · Runway",
         hold: "Runway is the hold. Build the fund before anything else.",
         override: (scorePct) => `${scorePct} — runway is a hard stop.`,
       };
     case "DTI_OVER_50":
       return {
-        eyebrow: "Hard stop · DTI.",
+        eyebrow: "Hard stop · DTI",
         hold: "DTI is the hold. Bring the debt load down before anything else.",
         override: (scorePct) => `${scorePct} — DTI is a hard stop.`,
       };
     case "HOUSING_RATIO_OVER_45":
       return {
-        eyebrow: "Hard stop · housing.",
+        eyebrow: "Hard stop · Housing",
         hold: "Housing is the hold. Re-scope the payment before anything else.",
         override: (scorePct) => `${scorePct} — housing is a hard stop.`,
       };
     case "CREDIT_UNDER_620":
       return {
-        eyebrow: "Hard stop · credit.",
+        eyebrow: "Hard stop · Credit",
         hold: "Credit is the hold. Rebuild before anything else.",
         override: (scorePct) => `${scorePct} — credit is a hard stop.`,
       };
