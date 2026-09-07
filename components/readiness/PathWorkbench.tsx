@@ -4,21 +4,43 @@ import Link from "next/link";
 import { COLORS } from "@/lib/brand";
 import { MAX_PATH_STEPS, type PathStep, type PathStepStatus } from "@/lib/readiness";
 
-function statusLabel(status: PathStepStatus | undefined, isNext: boolean): string {
-  if (status === "done") return "Done";
-  if (status === "skipped") return "Queued";
-  if (isNext) return "Open";
-  return "Queued";
+type PathBarLabel = "Done" | "Open" | "Queued" | "Skipped";
+
+function statusLabel(status: PathStepStatus | undefined, isNext: boolean): PathBarLabel {
+  const resolved: PathStepStatus = status ?? "pending";
+  switch (resolved) {
+    case "done":
+      return "Done";
+    case "skipped":
+      return "Skipped";
+    case "pending":
+      return isNext ? "Open" : "Queued";
+    default: {
+      const _exhaustive: never = resolved;
+      return _exhaustive;
+    }
+  }
 }
 
-function statusColor(label: string): string {
-  if (label === "Done") return COLORS.emerald;
-  if (label === "Open") return COLORS.yellow;
-  return COLORS.dim;
+function statusColor(label: PathBarLabel): string {
+  switch (label) {
+    case "Done":
+      return COLORS.emerald;
+    case "Open":
+      return COLORS.yellow;
+    case "Queued":
+    case "Skipped":
+      return COLORS.dim;
+    default: {
+      const _exhaustive: never = label;
+      return _exhaustive;
+    }
+  }
 }
 
 /**
  * Finite Path workbench — max 7, one next step, Inter list. No compass, no KPI wall.
+ * Open / Queued / Done is the pending bar. Skip stays honest as Skipped.
  */
 export function PathWorkbench({
   steps,
@@ -62,7 +84,11 @@ export function PathWorkbench({
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-3">
                   <p className="text-sm font-medium tracking-tight text-light">{step.title}</p>
-                  <span className="shrink-0 text-sm" style={{ color: statusColor(label) }}>
+                  <span
+                    className="shrink-0 text-sm"
+                    data-path-step-status={status}
+                    style={{ color: statusColor(label) }}
+                  >
                     {label}
                   </span>
                 </div>

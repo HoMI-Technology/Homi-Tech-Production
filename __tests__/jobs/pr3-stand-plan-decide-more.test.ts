@@ -164,6 +164,7 @@ describe("PR3 Plan — Path workbench max 7", () => {
     expect(pathPage).not.toContain("PathProgressHero");
     expect(pathPage).not.toContain("font-display");
     expect(workbench).toContain("Next step");
+    expect(workbench).toContain('return "Skipped"');
     expect(workbench).toContain("slice(0, MAX_PATH_STEPS)");
     expect(workbench).toContain("/money/budget");
     expect(workbench).toContain("/money/plan");
