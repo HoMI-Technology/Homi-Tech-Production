@@ -27,9 +27,10 @@ const NON_RUNWAY = FOLD_HARD_STOP_CODES.filter((c) => c !== RUNWAY);
 
 /** Every line the fold shows a user while a hard stop is active. */
 function foldCopyFor(code: FoldHardStopCode): string[] {
+  const hold = foldHomeHoldSentence(code);
   return [
     foldHardStopEyebrow(code),
-    foldHomeHoldSentence(code),
+    ...(hold ? [hold] : []),
     foldHardStopOverrideLine(61, code),
   ];
 }
@@ -105,20 +106,21 @@ describe("fold hard-stop copy — never names the wrong stop", () => {
   });
 
   /**
-   * The fallback is a live product decision, not settled behavior. An absent
-   * or unrecognized code currently resolves to runway, so a legacy row without
-   * a `code` field would assert runway to a DTI user. `resolveFoldPathPrimary`
-   * takes the opposite posture: unknown code means no swap.
-   *
-   * This test pins today's behavior so the decision cannot change by accident.
-   * If the fallback is made neutral, update this test deliberately — that edit
-   * is the record of the decision.
+   * Unknown / missing must not invent RUNWAY_UNDER_1_MONTH.
+   * Neutral copy: "Hard stop." + score line; hold omitted.
+   * Same posture as resolveFoldPathPrimary (unknown = no swap).
+   * See docs/design/baseline/VERIFIER-NOTE-F1.md.
    */
-  it("documents the unresolved fallback: unknown code resolves to runway", () => {
-    expect(resolveFoldHardStopCode(null)).toBe(RUNWAY);
-    expect(resolveFoldHardStopCode(undefined)).toBe(RUNWAY);
-    expect(resolveFoldHardStopCode("NOT_A_CODE" as FoldHardStopCode)).toBe(
-      RUNWAY,
-    );
+  it("unknown or missing code stays neutral — never invents runway", () => {
+    expect(resolveFoldHardStopCode(null)).toBeNull();
+    expect(resolveFoldHardStopCode(undefined)).toBeNull();
+    expect(resolveFoldHardStopCode("NOT_A_CODE" as FoldHardStopCode)).toBeNull();
+    expect(foldHardStopEyebrow(null)).toBe("Hard stop.");
+    expect(foldHardStopEyebrow(undefined)).toBe("Hard stop.");
+    expect(foldHomeHoldSentence(null)).toBeNull();
+    expect(foldHomeHoldSentence(undefined)).toBeNull();
+    expect(foldHardStopOverrideLine(61)).toBe("61 — hard stop.");
+    expect(foldHardStopOverrideLine(61, null)).not.toMatch(/runway/i);
+    expect(foldHardStopEyebrow(null)).not.toMatch(/runway/i);
   });
 });

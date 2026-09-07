@@ -357,7 +357,7 @@ describe("ThresholdFold", () => {
           homeHoldSentence,
         );
         expect(container.querySelector("[data-home-fold-override]")?.textContent).not.toBe(
-          foldHardStopOverrideLine(61),
+          foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH"),
         );
         expect(container.querySelector("[data-home-fold-override]")?.textContent).not.toMatch(
           /50|45%|620|1 month|0\.5/,
@@ -372,6 +372,38 @@ describe("ThresholdFold", () => {
       }
     },
   );
+
+  it("unknown or missing stop code is Neutral — Hard stop. + score line, hold omitted", () => {
+    const { container } = render(
+      <ThresholdFold
+        {...base}
+        latest={{ id: "unknown-stop", overallScore: 61 }}
+        verdict="NOT_YET"
+        stopMessages={["A hard stop is active."]}
+        stopCode={null}
+        lastMoney={{
+          debtToIncomeRatio: 0.42,
+          emergencyFundMonths: 0.5,
+          savingsRate: 0.03,
+          liquidDollars: null,
+        }}
+      />,
+    );
+
+    expect(container.querySelector("[data-home-hard-stop-eyebrow]")?.textContent).toBe(
+      "Hard stop.",
+    );
+    expect(container.querySelector("[data-home-hard-stop-hold]")).toBeNull();
+    expect(container.querySelector("[data-home-fold-override]")?.textContent).toBe(
+      "61 — hard stop.",
+    );
+    expect(container.querySelector("[data-home-hard-stop]")?.textContent).not.toMatch(
+      /runway/i,
+    );
+    expect(
+      screen.queryByText("Runway is the hold. Build the fund before anything else."),
+    ).not.toBeInTheDocument();
+  });
 
   it("places the public verdict word before the hard-stop sentence", () => {
     const { container } = render(

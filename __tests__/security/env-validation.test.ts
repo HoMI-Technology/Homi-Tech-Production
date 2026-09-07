@@ -81,9 +81,14 @@ describe("env.ts — optional variables", () => {
     expect(env.NEXT_PUBLIC_POSTHOG_KEY).toBeUndefined();
   });
 
-  it("falls back to canonical URL when NEXT_PUBLIC_SITE_URL is absent", () => {
+  it("fails loud when NEXT_PUBLIC_SITE_URL is absent — never defaults to production", () => {
     delete process.env.NEXT_PUBLIC_SITE_URL;
-    expect(env.NEXT_PUBLIC_SITE_URL).toBe("https://homitechnology.com");
+    delete process.env.VERCEL_ENV;
+    delete process.env.VERCEL_URL;
+    delete process.env.NEXT_PUBLIC_VERCEL_ENV;
+    delete process.env.NEXT_PUBLIC_VERCEL_URL;
+    expect(() => env.NEXT_PUBLIC_SITE_URL).toThrow(/NEXT_PUBLIC_SITE_URL is unset/);
+    expect(() => env.NEXT_PUBLIC_SITE_URL).toThrow(/homitechnology\.com/);
   });
 
   it("strips inline comments from NEXT_PUBLIC_POSTHOG_HOST", () => {

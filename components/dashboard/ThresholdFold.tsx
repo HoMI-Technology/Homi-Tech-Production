@@ -60,6 +60,7 @@ export function ThresholdFold({
   const cashLabel = connectedCash ? formatCurrency(liquidDollars) : null;
   const runwayLabel = foldRunwayLabel(lastMoney?.emergencyFundMonths);
   const shownPath = resolveFoldPathPrimary(pathPrimary, stopCode);
+  const holdSentence = foldHomeHoldSentence(stopCode, decisionType);
   const scoreLabel =
     scorePct != null
       ? `Overall Decision Readiness Score ${scorePct} out of 100`
@@ -129,12 +130,14 @@ export function ThresholdFold({
                     >
                       {foldHardStopEyebrow(stopCode, decisionType)}
                     </p>
-                    <p
-                      className="mt-2 text-sm leading-relaxed text-light/85"
-                      data-home-hard-stop-hold=""
-                    >
-                      {foldHomeHoldSentence(stopCode, decisionType)}
-                    </p>
+                    {holdSentence ? (
+                      <p
+                        className="mt-2 text-sm leading-relaxed text-light/85"
+                        data-home-hard-stop-hold=""
+                      >
+                        {holdSentence}
+                      </p>
+                    ) : null}
                   </div>
                 ) : null}
 

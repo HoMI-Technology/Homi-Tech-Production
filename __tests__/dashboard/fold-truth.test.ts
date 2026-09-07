@@ -242,13 +242,19 @@ describe("Baseline 001 fold-truth copy", () => {
     expect(foldScoreAgeLine(null, "2026-08-29T12:00:00.000Z")).toBeNull();
     expect(foldScoreAgeLine(61, null)).toBeNull();
     expect(foldScoreAgeLine(61, "not-a-date")).toBeNull();
-    expect(foldHardStopOverrideLine(61)).toBe("61 — runway is a hard stop.");
-    expect(foldHardStopOverrideLine(61)).not.toMatch(/35\s*[·/]\s*35/);
-    expect(foldHardStopOverrideLine(61)).not.toMatch(/50/);
-    expect(foldHardStopOverrideLine(61)).not.toMatch(/45%/);
-    expect(foldHardStopOverrideLine(61)).not.toMatch(/620/);
-    expect(foldHardStopOverrideLine(61)).not.toMatch(/1 month/);
-    expect(foldHardStopOverrideLine(61)).not.toMatch(/0\.5/);
+    expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).toBe(
+      "61 — runway is a hard stop.",
+    );
+    expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).not.toMatch(
+      /35\s*[·/]\s*35/,
+    );
+    expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).not.toMatch(/50/);
+    expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).not.toMatch(/45%/);
+    expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).not.toMatch(/620/);
+    expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).not.toMatch(
+      /1 month/,
+    );
+    expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).not.toMatch(/0\.5/);
     expect(RUNWAY_HARD_STOP_PATH_TITLE).toBe("Stabilize emergency runway to at least 1 month");
   });
 
@@ -256,10 +262,11 @@ describe("Baseline 001 fold-truth copy", () => {
     expect(foldHardStopEyebrow("RUNWAY_UNDER_1_MONTH")).toBe(hardStopEyebrow);
     expect(foldHomeHoldSentence("RUNWAY_UNDER_1_MONTH")).toBe(homeHoldSentence);
     expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).toBe(
-      foldHardStopOverrideLine(61),
+      "61 — runway is a hard stop.",
     );
-    expect(foldHardStopEyebrow(null)).toBe(hardStopEyebrow);
-    expect(foldHomeHoldSentence(undefined)).toBe(homeHoldSentence);
+    expect(foldHardStopEyebrow(null)).toBe("Hard stop.");
+    expect(foldHomeHoldSentence(undefined)).toBeNull();
+    expect(foldHardStopOverrideLine(61)).toBe("61 — hard stop.");
     const runwayOverride = foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH");
     expect(runwayOverride).not.toMatch(/50/);
     expect(runwayOverride).not.toMatch(/45%/);
@@ -341,7 +348,9 @@ describe("F1 hard-stop copy by stop code", () => {
         expect(row.eyebrow).toBe(hardStopEyebrow);
         expect(row.hold).toBe(homeHoldSentence);
         expect(row.pathTitle).toBe(RUNWAY_HARD_STOP_PATH_TITLE);
-        expect(foldHardStopOverrideLine(61, row.code)).toBe(foldHardStopOverrideLine(61));
+        expect(foldHardStopOverrideLine(61, row.code)).toBe(
+          "61 — runway is a hard stop.",
+        );
       }
     },
   );

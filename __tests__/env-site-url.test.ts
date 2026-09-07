@@ -3,11 +3,10 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { env } from "@/lib/env";
 
 /**
- * NEXT_PUBLIC_SITE_URL is set in Production only. Before the preview fallback,
- * a preview deployment silently used the production origin — so a preview
- * checkout redirected to production on success, and preview-generated share
- * links pointed at rows the production site cannot resolve. Neither fails
- * loudly, which is why this is pinned by tests.
+ * NEXT_PUBLIC_SITE_URL is required except on Vercel preview. A silent
+ * production origin used to send preview checkouts and invite links to
+ * homitechnology.com. Preview still derives from VERCEL_URL. Anything else
+ * fails loud.
  */
 describe("env.NEXT_PUBLIC_SITE_URL", () => {
   beforeEach(() => {
@@ -45,13 +44,15 @@ describe("env.NEXT_PUBLIC_SITE_URL", () => {
     expect(env.NEXT_PUBLIC_SITE_URL).toBe("https://homi-platform-abc123.vercel.app");
   });
 
-  it("uses production origin on a production build with the var unset", () => {
+  it("fails loud on a production build with the var unset — never invents homitechnology.com", () => {
     vi.stubEnv("VERCEL_ENV", "production");
     vi.stubEnv("VERCEL_URL", "homi-platform-prod.vercel.app");
-    expect(env.NEXT_PUBLIC_SITE_URL).toBe("https://homitechnology.com");
+    expect(() => env.NEXT_PUBLIC_SITE_URL).toThrow(/NEXT_PUBLIC_SITE_URL is unset/);
+    expect(() => env.NEXT_PUBLIC_SITE_URL).toThrow(/homitechnology\.com/);
   });
 
-  it("uses production origin off-platform (local dev, CI) with nothing set", () => {
-    expect(env.NEXT_PUBLIC_SITE_URL).toBe("https://homitechnology.com");
+  it("fails loud off-platform (local dev, CI) with nothing set", () => {
+    expect(() => env.NEXT_PUBLIC_SITE_URL).toThrow(/NEXT_PUBLIC_SITE_URL is unset/);
+    expect(() => env.NEXT_PUBLIC_SITE_URL).toThrow(/must not silently default|Do not silently default/);
   });
 });

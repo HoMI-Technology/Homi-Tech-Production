@@ -36,11 +36,10 @@ export const env = {
    * success/cancel URLs, share links, household invites, the billing portal
    * return URL.
    *
-   * NEXT_PUBLIC_SITE_URL is set in Production only, so preview deployments used
-   * to fall through to the production origin: a preview checkout would send you
-   * to production on success, and a preview-generated share link would point at
-   * a row the production site can't resolve. Falling back to the deployment's
-   * own host keeps a preview self-consistent.
+   * NEXT_PUBLIC_SITE_URL is required except on Vercel preview, where the
+   * deployment host is derived from VERCEL_URL. Never silently default to
+   * https://homitechnology.com — that sent preview checkouts and invite
+   * links to production.
    *
    * Vercel exposes VERCEL_URL/VERCEL_ENV server-side and the NEXT_PUBLIC_*
    * mirrors client-side (when "Automatically expose System Environment
@@ -59,7 +58,11 @@ export const env = {
       return `https://${vercelUrl.replace(/^https?:\/\//, "")}`;
     }
 
-    return "https://homitechnology.com";
+    throw new Error(
+      `[HōMI env] NEXT_PUBLIC_SITE_URL is unset. ` +
+        `Do not silently default to https://homitechnology.com. ` +
+        `Set NEXT_PUBLIC_SITE_URL, or on Vercel preview derive from VERCEL_URL.`,
+    );
   },
 
   // --- Supabase (server-only, optional) ---
