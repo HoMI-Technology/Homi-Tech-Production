@@ -69,6 +69,8 @@ export interface StoredAssessment {
    * /api/scoring). Optional for pre-6.3 local payloads — UI must not crash.
    */
   insights?: StoredInsights;
+  /** Option 1: Emotional Truth omitted. Not a zeroed ring. */
+  emotionalSkipped?: boolean;
 }
 
 /**

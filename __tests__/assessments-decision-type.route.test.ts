@@ -205,6 +205,24 @@ describe("POST /api/assessments decision_type", () => {
     expect(body.score).toBeUndefined();
   });
 
+  it("persists emotional_score null when Option 1 skips the ET pillar", async () => {
+    const res = await post({
+      inputs: VALID_INPUTS,
+      kind: "full",
+      decisionType: "home_buying",
+      emotionalSkipped: true,
+    });
+    expect(res.status).toBe(200);
+    expect(state.insertCalls[0].emotional_score).toBeNull();
+    expect(state.insertCalls[0].financial_score).toEqual(expect.any(Number));
+    expect(state.insertCalls[0].timing_score).toEqual(expect.any(Number));
+    const fin = state.insertCalls[0].financial_score as number;
+    const tim = state.insertCalls[0].timing_score as number;
+    expect(state.insertCalls[0].overall_score).toBe(
+      Math.round(((fin + tim) / 65) * 100 * 10) / 10,
+    );
+  });
+
   it("rejects kind:shadow — a read is not an assessment", async () => {
     const res = await post({ inputs: VALID_INPUTS, kind: "shadow" });
     expect(res.status).toBe(400);

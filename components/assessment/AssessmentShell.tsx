@@ -9,10 +9,9 @@ import { Wordmark } from "@/components/brand/Wordmark";
  * with no competing chrome. Routed to by ProductLayoutRouter, which is the only
  * place that knows the current path.
  *
- * It renders the `main#main` that the sidebar layout would otherwise provide:
- * the skip link in app/(product)/layout.tsx targets #main, and e2e/helpers/
- * assessment.ts scopes every locator to `main#main`. Dropping it would silently
- * break both.
+ * It renders `main#main` when used. Signed-in /assessment now uses the quiet
+ * top-bar shell (ProductLayoutRouter → AppHeader); this file is unused in
+ * that live path.
  */
 export function AssessmentShell({ children }: { children: React.ReactNode }) {
   return (

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { after } from "next/server";
 import { z } from "zod";
 import { computeScore } from "@/lib/scoring";
+import { applySkippedEmotionalReading } from "@/lib/assessment/two-pillar";
 import { withVerticalHardStopDisplay } from "@/lib/assessment/vertical-insights";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -39,6 +40,8 @@ const bodySchema = z.object({
   decisionType: activeDecisionTypeSchema.optional(),
   previousAssessmentId: z.string().uuid().optional(),
   reassessmentReason: z.string().max(80).optional(),
+  /** Option 1: omit Emotional Truth. Not partner solo. Not credit skip. */
+  emotionalSkipped: z.boolean().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -57,7 +60,7 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid assessment payload" }, { status: 400 });
     }
-    const { inputs, kind, decisionType, previousAssessmentId, reassessmentReason } =
+    const { inputs, kind, decisionType, previousAssessmentId, reassessmentReason, emotionalSkipped } =
       parsed.data;
     // Compare on a raw string before any union narrowing (TS2367).
     const isShadowRead = isShadowAssessmentKind(String(kind));
@@ -111,7 +114,9 @@ export async function POST(req: NextRequest) {
     // Never trust client-computed scores — recompute server-side.
     const scored = computeScore(inputs);
     const displayed = withVerticalHardStopDisplay(scored, resolvedDecisionType);
-    const result = displayed.result;
+    const result = emotionalSkipped
+      ? applySkippedEmotionalReading(displayed.result)
+      : displayed.result;
 
     // First-touch acquisition snapshot (occurrence data only).
     const attribution = readAttributionCookie(req.headers.get("cookie"));
@@ -188,7 +193,7 @@ export async function POST(req: NextRequest) {
         decision_type: resolvedDecisionType,
         status: "completed",
         financial_score: result.financial.total,
-        emotional_score: result.emotional.total,
+        emotional_score: emotionalSkipped ? null : result.emotional.total,
         timing_score: result.timing.total,
         overall_score: result.score,
         verdict: result.verdict,

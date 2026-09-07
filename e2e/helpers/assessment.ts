@@ -39,7 +39,8 @@ import {
 export const VERDICT_BADGE = /READY|ALMOST THERE|BUILD FIRST|NOT YET/;
 
 const STEP_COUNTER = /^Step \d+ of \d+$/;
-const MAX_STEPS = 60; // flow is ~52 steps today; headroom, never an infinite loop
+const PATH_PROGRESS = / of ~\d+ this path$/;
+const MAX_STEPS = 60; // adaptive home is ~20 steps; car cookie-cutter ~40; headroom
 const STEP_ANIM_MS = 450; // StepShell step-enter-anim duration (420ms) + buffer
 
 export type CompleteFullAssessmentOptions = {
@@ -104,22 +105,29 @@ export async function completeFullAssessment(
   // holds the assessment flow, so .last() targets the flow rather than the shell.
   const assessmentPane = page.locator("main#main").last();
 
-  await expect(assessmentPane.getByText(STEP_COUNTER)).toBeVisible({ timeout: 30_000 });
+  await expect(
+    assessmentPane
+      .getByRole("button", { name: /^(Continue|Skip|Resume)$/ })
+      .or(assessmentPane.getByText(PATH_PROGRESS))
+      .or(assessmentPane.getByText(STEP_COUNTER)),
+  ).toBeVisible({ timeout: 30_000 });
 
   const resumeBanner = page.getByText("Resume where you left off");
   if (await resumeBanner.isVisible().catch(() => false)) {
     await assessmentPane.getByRole("button", { name: "Start over" }).click();
     await expect(resumeBanner).toBeHidden({ timeout: 10_000 });
-    await expect(assessmentPane.getByText("Step 1 of")).toBeVisible({ timeout: 10_000 });
+    await expect(
+      assessmentPane.getByRole("button", { name: /^(Continue|Skip)$/ }),
+    ).toBeVisible({ timeout: 10_000 });
   }
 
-  const counter = assessmentPane.getByText(STEP_COUNTER);
+  const counter = assessmentPane.locator("[data-assessment-step]").first();
   const reviewHeading = assessmentPane.getByRole("heading", { name: "Review your answers" });
 
   for (let step = 0; step < MAX_STEPS; step += 1) {
     if (await reviewHeading.isVisible()) break;
 
-    const before = (await counter.textContent()) ?? "";
+    const before = (await counter.getAttribute("data-assessment-step")) ?? "";
 
     // F.14: pin decision type by accessible name before any "first unchecked
     // radio" heuristic — otherwise an enabled alternate vertical would steal
@@ -153,7 +161,7 @@ export async function completeFullAssessment(
       if (await reviewHeading.isVisible()) return;
       await action.click();
       if (!before) return;
-      await expect(counter).not.toHaveText(before, { timeout: 5_000 });
+      await expect(counter).not.toHaveAttribute("data-assessment-step", before, { timeout: 5_000 });
     }).toPass({ timeout: 25_000 });
   }
 

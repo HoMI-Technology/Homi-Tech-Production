@@ -126,18 +126,33 @@ export function buildAssessmentFlow(
 /**
  * Intro copy for a pillar, in the voice of the vertical being assessed.
  *
- * The question COUNT is never hardcoded — it comes from the same
- * getQuestionsByDimension() call buildAssessmentFlow() uses to lay out the
- * steps, so the intro can never promise "Fifteen questions" ahead of a pillar
- * that renders eight (car financial). Home copy is byte-identical to the
- * pre-5.8 fixed strings.
+ * Cookie-cutter count still comes from getQuestionsByDimension() so car
+ * cannot promise Fifteen financial questions. Adaptive home_buying passes
+ * `pathQuestionEstimate` (tilde, this path) instead of the 15-question bank.
  */
+const PATH_INTRO_TAIL: Record<Dimension, string> = {
+  financial: "money you can prove",
+  emotional: "honest signals, not cheerleading",
+  timing: "your runway and the window",
+};
+
 export function pillarIntroCopy(
   dimension: Dimension,
   decisionType: string = "home_buying",
+  opts?: { pathQuestionEstimate?: number },
 ): { question: string; description: string } {
   const subjects = PILLAR_SUBJECT[dimension];
   const subject = subjects[decisionType] ?? subjects.default;
+  const pathEstimate = opts?.pathQuestionEstimate;
+
+  if (typeof pathEstimate === "number" && Number.isFinite(pathEstimate) && pathEstimate >= 0) {
+    const n = Math.max(0, Math.round(pathEstimate));
+    return {
+      question: PILLAR_QUESTION[dimension],
+      description: `~${n} questions on this path · ${PATH_INTRO_TAIL[dimension]}. Count may shorten after a branch.`,
+    };
+  }
+
   const count = getQuestionsByDimension(dimension, decisionType).length;
 
   return {

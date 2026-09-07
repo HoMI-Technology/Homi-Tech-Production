@@ -59,6 +59,8 @@ describe("a11y — navigation has aria-current", () => {
     const src = readSource("components", "layout", "AppHeader.tsx");
     expect(src).toContain('aria-current={isActivePath(pathname, "/dashboard") ? "page" : undefined}');
     expect(src).toContain('aria-current={assessActive ? "page" : undefined}');
+    expect(src).not.toContain("Craft v3");
+    expect(src).not.toContain("data-shell-floor");
     expect(src).toContain('aria-current={isActivePath(pathname, item.href) ? "page" : undefined}');
   });
 });

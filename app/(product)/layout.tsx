@@ -17,9 +17,7 @@ import type { Profile } from "@/types/database";
  * Auth-aware product shell (AUDIT T2.1). Reads the session server-side and
  * hands the result to ProductLayoutRouter, which picks the chrome: signed-in
  * v3 quiet top bar, marketing SiteHeader for anonymous visitors on public product pages
- * (tools, shadow-score), or the full-bleed assessment shell. That split exists
- * because the shell now depends on the pathname and this layout is a server
- * component; the router is a thin client wrapper that adds no state.
+ * (tools, shadow-score). Assessment stays in that quiet bar — a flow in main#main.
  *
  * Reading cookies here makes the (product) group dynamically rendered — an
  * intentional tradeoff: the tools are client-computed anyway, and a correct,

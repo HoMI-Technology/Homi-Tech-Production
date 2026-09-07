@@ -64,7 +64,13 @@ export function DashboardSwitcher({
     };
   }, [open]);
 
-  if (visible.length <= 1 || !activeDashboard || !activeHref) return null;
+  if (visible.length <= 1 || !activeDashboard || !activeHref) {
+    return (
+      <span className="truncate text-sm text-dim/70" data-shell-role-label="">
+        {activeDashboard?.label ?? "Personal"}
+      </span>
+    );
+  }
 
   return (
     <nav ref={rootRef} className="relative" aria-label="Dashboard switcher">

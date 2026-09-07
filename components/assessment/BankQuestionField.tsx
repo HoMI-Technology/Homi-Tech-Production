@@ -32,10 +32,12 @@ export function BankQuestionField({
   question,
   value,
   onChange,
+  contextHint,
 }: {
   question: Question;
   value: ResponseValue | undefined;
   onChange: (value: ResponseValue) => void;
+  contextHint?: string;
 }) {
   const color = pillarColor(question.dimension);
 
@@ -43,6 +45,7 @@ export function BankQuestionField({
     return (
       <NumberField
         label={question.question_text}
+        hint={contextHint}
         value={typeof value === "number" ? value : null}
         placeholder="0"
         min={0}
@@ -57,6 +60,7 @@ export function BankQuestionField({
     return (
       <SliderField
         label={question.question_text}
+        hint={contextHint}
         value={current}
         min={min}
         max={max}
@@ -73,6 +77,7 @@ export function BankQuestionField({
   return (
     <ChoiceCards<string>
       label={question.question_text}
+      hint={contextHint}
       value={typeof value === "string" ? value : null}
       onChange={(v) => onChange(v)}
       options={options.map((o) => ({ value: o.value, label: o.label }))}
@@ -84,7 +89,7 @@ export function BankQuestionField({
 export function isQuestionAnswered(question: Question, value: ResponseValue | undefined): boolean {
   switch (question.question_type) {
     case "number":
-      return typeof value === "number" && Number.isFinite(value) && value > 0;
+      return typeof value === "number" && Number.isFinite(value) && value >= 0;
     case "single_choice":
       return typeof value === "string" && value.length > 0;
     case "slider":
