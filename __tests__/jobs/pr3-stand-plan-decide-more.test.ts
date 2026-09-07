@@ -27,6 +27,65 @@ const band = read("components/tools/ReadinessBand.tsx");
 const planChecklist = read("app/(product)/plan/page.tsx");
 const moneyPlan = read("components/planner/plan/PlanCommand.tsx");
 
+describe("CEO chrome defaults 1–7 (founder skipped picker)", () => {
+  it("1 depth-only: jobs stay on live routes — no new URLs", () => {
+    for (const href of ["/stand", "/decide", "/more"]) {
+      expect(existsSync(resolve(process.cwd(), `app/(product)${href}/page.tsx`))).toBe(false);
+    }
+    expect(existsSync(resolve(process.cwd(), "app/(product)/path/page.tsx"))).toBe(true);
+    expect(existsSync(resolve(process.cwd(), "app/(product)/money/page.tsx"))).toBe(true);
+    expect(existsSync(resolve(process.cwd(), "app/(product)/tools/page.tsx"))).toBe(true);
+    expect(pathPage).toContain('job="path"');
+    expect(stand).toContain("Stand job on live `/money`");
+    expect(toolsHub).toContain("Decide job primary surface");
+  });
+
+  it("2 More is a ··· drawer — not a peer home or /more URL", () => {
+    expect(header).toContain("data-more-drawer");
+    expect(header).toContain("data-more-backdrop");
+    expect(header).toContain('aria-label="More"');
+    expect(NAV_CATALOG.some((e) => e.href === "/more")).toBe(false);
+    expect(HEADER_PRIMARY_NAV.map((i) => i.href)).not.toContain("/more");
+  });
+
+  it("3 Path SSOT stays on /path, separate from Money plan/budget", () => {
+    expect(pathPage).toContain("PathWorkbench");
+    expect(pathPage).toContain("Budget and goals stay depth");
+    expect(moneyPlan).toContain("Money plan · depth");
+    expect(existsSync(resolve(process.cwd(), "app/(product)/money/budget/page.tsx"))).toBe(true);
+    expect(existsSync(resolve(process.cwd(), "app/(product)/money/plan/page.tsx"))).toBe(true);
+  });
+
+  it("4 Decide primary is /tools; /money/decide stays supporting", () => {
+    expect(toolsHub).toContain("hubLenses");
+    expect(toolsHub).toContain("not a score write");
+    expect(decide).toContain('href="/tools"');
+    expect(decide).toContain("does not write AssessmentResult");
+  });
+
+  it("5 Steady / Clarity / Horizon stay where those labels already apply", () => {
+    const companion = read("components/companion/CompanionWidget.tsx");
+    expect(companion).toContain("Steady / Clarity / Horizon only");
+    expect(companion).toMatch(/Steady, Clarity, or Horizon/);
+    expect(HEADER_PRIMARY_NAV.map((i) => i.label)).not.toEqual(
+      expect.arrayContaining(["Stand", "Plan", "Decide", "More"]),
+    );
+  });
+
+  it("6 Trinity stays launch-hidden — not More or primary chrome", () => {
+    expect(HEADER_MORE_NAV.map((i) => i.href)).not.toContain("/trinity");
+    expect(HEADER_PRIMARY_NAV.map((i) => i.href)).not.toContain("/trinity");
+    expect(NAV_CATALOG.find((e) => e.href === "/trinity")?.surfaces.palette).toBe(false);
+  });
+
+  it("7 Home verdict fold stays visible — jobs do not replace ThresholdFold", () => {
+    expect(fold).toContain("data-home-verdict");
+    expect(moneyPage).not.toContain("ThresholdFold");
+    expect(pathPage).not.toContain("ThresholdFold");
+    expect(toolsHub).not.toContain("ThresholdFold");
+  });
+});
+
 describe("PR3 topology — live routes only", () => {
   it("does not invent /stand /plan /decide /more product URLs", () => {
     for (const href of ["/stand", "/decide", "/more"]) {
