@@ -145,8 +145,8 @@ describe("ThresholdFold", () => {
     expect(screen.queryByText(/Saved on this device only/)).not.toBeInTheDocument();
 
     expect(hardStop).toHaveTextContent(hardStopEyebrow);
-    expect(hardStop).toHaveTextContent("Hard stop · Runway");
-    expect(hardStop).not.toHaveTextContent("Hard stop · runway.");
+    expect(hardStop).toHaveTextContent("Hard stop · runway.");
+    expect(hardStop).not.toHaveTextContent("Hard stop · Runway");
     expect(hardStop).toHaveTextContent(homeHoldSentence);
     expect(hardStop).not.toHaveTextContent("Emergency runway is under 1 month.");
     expect(container.querySelector("[data-home-hard-stop-eyebrow]")?.className).not.toMatch(

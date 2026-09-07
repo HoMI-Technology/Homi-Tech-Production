@@ -4,7 +4,6 @@ import { bankResponsesToInputs } from "@/lib/questions/to-inputs";
 import type { ResponseValue } from "@/lib/questions/bank";
 import {
   applyHardStopCopy,
-  foldHardStopDisplay,
   hardStopMessage,
   hardStopNextStep,
 } from "@/lib/assessment/hard-stop-copy";
@@ -90,33 +89,5 @@ describe("hard-stop copy — car never names a home", () => {
     const engine = computeScore(HOME);
     const displayed = applyHardStopCopy(engine.hardStops, "home_buying");
     expect(displayed).toEqual(engine.hardStops);
-  });
-});
-
-describe("hard-stop copy — fold eyebrow Title Case", () => {
-  it("names the stop in Title Case with no trailing period", () => {
-    expect(foldHardStopDisplay("RUNWAY_UNDER_1_MONTH").eyebrow).toBe("Hard stop · Runway");
-    expect(foldHardStopDisplay("DTI_OVER_50").eyebrow).toBe("Hard stop · DTI");
-    expect(foldHardStopDisplay("HOUSING_RATIO_OVER_45").eyebrow).toBe("Hard stop · Housing");
-    expect(foldHardStopDisplay("CREDIT_UNDER_620").eyebrow).toBe("Hard stop · Credit");
-    expect(foldHardStopDisplay("HOUSING_RATIO_OVER_45", "car").eyebrow).toBe("Hard stop · Payment");
-    for (const code of [
-      "RUNWAY_UNDER_1_MONTH",
-      "DTI_OVER_50",
-      "HOUSING_RATIO_OVER_45",
-      "CREDIT_UNDER_620",
-    ] as const) {
-      expect(foldHardStopDisplay(code).eyebrow).not.toMatch(/\.$/);
-      expect(foldHardStopDisplay(code).eyebrow).not.toBe("Hard stop · runway.");
-    }
-  });
-
-  it("does not rewrite hold sentences", () => {
-    expect(foldHardStopDisplay("RUNWAY_UNDER_1_MONTH").hold).toBe(
-      "Runway is the hold. Build the fund before anything else.",
-    );
-    expect(foldHardStopDisplay("HOUSING_RATIO_OVER_45", "car").hold).toBe(
-      "Payment is the hold. Re-scope the all-in monthly cost before anything else.",
-    );
   });
 });

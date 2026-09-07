@@ -227,10 +227,9 @@ describe("foldPathPrimary", () => {
 });
 
 describe("Baseline 001 fold-truth copy", () => {
-  it("locks hard-stop eyebrow Title Case + hold sentence", () => {
-    expect(hardStopEyebrow).toBe("Hard stop · Runway");
-    expect(hardStopEyebrow).not.toBe("Hard stop · runway.");
-    expect(hardStopEyebrow).not.toMatch(/\.$/);
+  it("locks hard-stop eyebrow + hold sentence in sentence case", () => {
+    expect(hardStopEyebrow).toBe("Hard stop · runway.");
+    expect(hardStopEyebrow).not.toBe("Hard stop · Runway");
     expect(homeHoldSentence).toBe("Runway is the hold. Build the fund before anything else.");
     expect(hardStopEyebrow).not.toBe(hardStopEyebrow.toUpperCase());
     expect(CASH_EMPTY_LABEL).toBe("Connect accounts to see cash.");
@@ -295,28 +294,28 @@ describe("F1 hard-stop copy by stop code", () => {
   const F1_FOUR_LINES = [
     {
       code: "RUNWAY_UNDER_1_MONTH",
-      eyebrow: "Hard stop · Runway",
+      eyebrow: "Hard stop · runway.",
       hold: "Runway is the hold. Build the fund before anything else.",
       pathTitle: "Stabilize emergency runway to at least 1 month",
       override: "61 — runway is a hard stop.",
     },
     {
       code: "DTI_OVER_50",
-      eyebrow: "Hard stop · DTI",
+      eyebrow: "Hard stop · DTI.",
       hold: "DTI is the hold. Bring the debt load down before anything else.",
       pathTitle: "Bring debt-to-income below the protective line",
       override: "61 — DTI is a hard stop.",
     },
     {
       code: "HOUSING_RATIO_OVER_45",
-      eyebrow: "Hard stop · Housing",
+      eyebrow: "Hard stop · housing.",
       hold: "Housing is the hold. Re-scope the payment before anything else.",
       pathTitle: "Re-scope housing so payment stays under 45% of income",
       override: "61 — housing is a hard stop.",
     },
     {
       code: "CREDIT_UNDER_620",
-      eyebrow: "Hard stop · Credit",
+      eyebrow: "Hard stop · credit.",
       hold: "Credit is the hold. Rebuild before anything else.",
       pathTitle: "Rebuild credit above the 620 protective floor",
       override: "61 — credit is a hard stop.",
@@ -335,8 +334,6 @@ describe("F1 hard-stop copy by stop code", () => {
     "locks $code eyebrow / hold / Path title / override",
     (row) => {
       expect(foldHardStopEyebrow(row.code)).toBe(row.eyebrow);
-      expect(row.eyebrow).not.toMatch(/\.$/);
-      expect(row.eyebrow).toMatch(/^Hard stop · [A-Z]/);
       expect(foldHomeHoldSentence(row.code)).toBe(row.hold);
       expect(foldHardStopOverrideLine(61, row.code)).toBe(row.override);
       assertOverrideHasNoCutoffs(foldHardStopOverrideLine(61, row.code));

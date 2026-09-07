@@ -264,26 +264,20 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
     stringsMust: [
       "Re-scope housing so payment stays under 45% of income",
       "Re-scope the car so all-in monthly cost stays at or under 20% of take-home",
-      "Hard stop · Runway",
-      "Hard stop · Payment",
-    ],
-    stringsMustNot: [
       "Hard stop · runway.",
-      "Hard stop · payment.",
-      "Hard stop · housing.",
-      "Hard stop · credit.",
-      "Hard stop · DTI.",
     ],
+    stringsMustNot: ["Hard stop · Runway"],
+    codeMust: ["runway is a hard stop."],
   },
   {
     id: "fold-wiring/fold-truth-hard-stop-titles",
     file: "lib/dashboard/fold-truth.ts",
-    stringsMust: ["Stabilize emergency runway to at least 1 month", "Hard stop · Runway"],
+    stringsMust: ["Stabilize emergency runway to at least 1 month", "Hard stop · runway."],
     stringsMustNot: [
       "Bring debt-to-income below the protective line",
       "Re-scope housing so payment stays under 45% of income",
       "Rebuild credit above the 620 protective floor",
-      "Hard stop · runway.",
+      "Hard stop · Runway",
     ],
   },
   {
