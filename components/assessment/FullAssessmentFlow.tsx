@@ -14,6 +14,7 @@ import {
   writeSidebarVerdict,
   type StoredAssessment,
 } from "@/lib/assessment/storage";
+import { applySkippedEmotionalReading } from "@/lib/assessment/two-pillar";
 import { recordSaveStatus, statusFromResponse } from "@/lib/assessment/save-status";
 import { saveDraft, loadDraft, clearDraft, type AssessmentDraft } from "@/lib/assessment/draft";
 import { track } from "@/lib/analytics";
@@ -36,6 +37,16 @@ import {
 } from "@/lib/questions/flow";
 import { bankResponsesToInputs, type ConflictResponses } from "@/lib/questions/to-inputs";
 import {
+  adaptiveStepCursor,
+  buildAdaptiveHomeBuyingFlow,
+  currentPillarQuestionNumber,
+  HOME_PATH_ESTIMATE,
+  pathProgressLabel,
+  resolveAdaptiveIndex,
+  stripEmotionalResponses,
+} from "@/lib/questions/adaptive-home";
+import { IncompleteHomeCoverageError, mapCoveredHomeBuyingResponses } from "@/lib/questions/coverage-map";
+import {
   applyConfirmedFinancePrefill,
   applyConfirmedQuestionPrefill,
   MONEY_PREFILL_BANNER,
@@ -48,7 +59,7 @@ import {
 } from "./BankQuestionField";
 import { StepShell } from "./StepShell";
 import { PillarIntro } from "./PillarIntro";
-import { ProgressBar, type StepMeta } from "./ProgressBar";
+import { PathProgressChrome, ProgressBar, type StepMeta } from "./ProgressBar";
 import { ChoiceCards } from "./ChoiceCards";
 import {
   ingestPhase0Observation,
@@ -63,6 +74,8 @@ const EMPTY_CONFLICT: ConflictResponses = {
   referralSource: null,
   deadlineOrigin: null,
 };
+
+const HOME_QUESTION_HINT = "Official readiness assessment · home buying";
 
 function stepMeta(steps: FlowStep[]): StepMeta[] {
   return steps.map((s) => ({
@@ -80,12 +93,9 @@ const DEFAULT_DECISION_TYPE: DecisionType = ACTIVE_DECISION_TYPES[0] ?? "home_bu
 export function FullAssessmentFlow() {
   const freeze = usePhase0Freeze();
   const router = useRouter();
-  // Launch honesty: when only one vertical is live, force it — never offer
-  // disabled "Coming soon" decision cards.
   const [decisionType, setDecisionType] = useState<DecisionType>(DEFAULT_DECISION_TYPE);
-  const steps = useMemo(() => buildAssessmentFlow(decisionType), [decisionType]);
-
-  const [index, setIndex] = useState(0);
+  const [emotionalSkipped, setEmotionalSkipped] = useState(false);
+  const [cursor, setCursor] = useState<string | null>(null);
   const [responses, setResponses] = useState<Record<string, ResponseValue>>({});
   const [conflict, setConflict] = useState<ConflictResponses>(EMPTY_CONFLICT);
   const [submitting, setSubmitting] = useState(false);
@@ -95,6 +105,27 @@ export function FullAssessmentFlow() {
   const [draftReady, setDraftReady] = useState(false);
   const [moneyPrefillBanner, setMoneyPrefillBanner] = useState(false);
   const answerHistoryRef = useRef<Record<string, ResponseValue[]>>({});
+
+  const adaptiveHome = decisionType === "home_buying";
+  const steps = useMemo(() => {
+    if (adaptiveHome) {
+      return buildAdaptiveHomeBuyingFlow({ responses, emotionalSkipped });
+    }
+    return buildAssessmentFlow(decisionType);
+  }, [adaptiveHome, decisionType, responses, emotionalSkipped]);
+
+  const index = adaptiveHome
+    ? resolveAdaptiveIndex(steps, cursor)
+    : Math.min(Math.max(0, cursor ? steps.findIndex((s) => adaptiveStepCursor(s) === cursor) : 0), steps.length - 1);
+
+  const cookieIndex = useMemo(() => {
+    if (adaptiveHome) return index;
+    if (!cursor) return 0;
+    const found = steps.findIndex((s) => adaptiveStepCursor(s) === cursor);
+    return found >= 0 ? found : 0;
+  }, [adaptiveHome, cursor, index, steps]);
+
+  const stepIndex = adaptiveHome ? index : cookieIndex;
 
   useEffect(() => {
     const draft = loadDraft(steps.length - 1);
@@ -116,20 +147,25 @@ export function FullAssessmentFlow() {
 
   useEffect(() => {
     if (!draftReady) return;
-    saveDraft({ decisionType, responses, conflict, index });
-  }, [decisionType, responses, conflict, index, draftReady]);
+    saveDraft({
+      decisionType,
+      responses,
+      conflict,
+      index: stepIndex,
+      emotionalSkipped,
+      cursor: adaptiveStepCursor(steps[stepIndex] ?? { kind: "review" }),
+    });
+  }, [decisionType, responses, conflict, stepIndex, draftReady, emotionalSkipped, steps]);
 
   function handleResumeDraft() {
     if (resumeDraft) {
-      // Prefer the sole live type when the product is single-vertical; otherwise
-      // restore whatever the draft captured.
       const restored =
         ACTIVE_DECISION_TYPES.length === 1 ? DEFAULT_DECISION_TYPE : resumeDraft.decisionType;
       setDecisionType(restored);
       setResponses(resumeDraft.responses);
       setConflict(resumeDraft.conflict);
-      setIndex(Math.min(resumeDraft.index, steps.length - 1));
-      setMoneyPrefillBanner(false);
+      setEmotionalSkipped(resumeDraft.emotionalSkipped === true);
+      setCursor(resumeDraft.cursor ?? null);
     }
     setResumeDraft(null);
     setDraftReady(true);
@@ -146,16 +182,24 @@ export function FullAssessmentFlow() {
     setResponses(seeded);
     setMoneyPrefillBanner(moneyPrefillWasApplied({}, seeded));
     setConflict(EMPTY_CONFLICT);
-    setIndex(0);
+    setEmotionalSkipped(false);
+    setCursor(null);
     setDraftReady(true);
     answerHistoryRef.current = {};
   }
 
-  const step = steps[index];
+  const step = steps[stepIndex] ?? steps[0];
   const progressSteps = useMemo(() => stepMeta(steps), [steps]);
-  usePageTitle(
-    draftReady ? `Assessment · Step ${index + 1} of ${steps.length} · HōMI` : "Assessment · HōMI",
-  );
+
+  const questionDimension =
+    step?.kind === "question" ? (getQuestionById(step.questionId)?.dimension ?? null) : null;
+  const titlePillar =
+    step?.kind === "intro"
+      ? PILLARS.find((p) => p.key === step.dimension)?.name
+      : questionDimension
+        ? PILLARS.find((p) => p.key === questionDimension)?.name
+        : "Assessment";
+  usePageTitle(draftReady ? `Assessment · ${titlePillar ?? "HōMI"} · HōMI` : "Assessment · HōMI");
 
   function setResponse(questionId: string, value: ResponseValue) {
     const prevHist = answerHistoryRef.current[questionId] ?? [];
@@ -175,15 +219,27 @@ export function FullAssessmentFlow() {
     setResponses((prev) => ({ ...prev, [questionId]: value }));
   }
 
+  function goToIndex(nextIndex: number) {
+    const clamped = Math.min(Math.max(0, nextIndex), steps.length - 1);
+    const next = steps[clamped];
+    if (next) setCursor(adaptiveStepCursor(next));
+  }
+
   function goNext() {
-    if (index < steps.length - 1) setIndex(index + 1);
+    goToIndex(stepIndex + 1);
   }
   function goBack() {
-    if (index > 0) setIndex(index - 1);
+    goToIndex(stepIndex - 1);
   }
   function goToQuestion(questionId: string) {
     const i = stepIndexForQuestion(steps, questionId);
-    if (i >= 0) setIndex(i);
+    if (i >= 0) goToIndex(i);
+  }
+
+  function skipEmotionalPillar() {
+    setEmotionalSkipped(true);
+    setResponses((prev) => stripEmotionalResponses(prev));
+    setCursor("intro:timing");
   }
 
   async function handleSubmit() {
@@ -211,25 +267,54 @@ export function FullAssessmentFlow() {
       setSubmitting(false);
       return;
     }
-    const inputs = applyConfirmedFinancePrefill(
-      bankResponsesToInputs(responses, conflict, decisionType),
-    );
 
-    // Server-authoritative score (Plans.md 6.2) — never computeScore on client.
-    let scored: Awaited<ReturnType<typeof fetchServerScore>>;
+    let inputs;
     try {
-      scored = await fetchServerScore(inputs, { decisionType });
+      if (adaptiveHome) {
+        inputs = applyConfirmedFinancePrefill(
+          mapCoveredHomeBuyingResponses(responses, conflict, emotionalSkipped).inputs,
+        );
+      } else {
+        inputs = applyConfirmedFinancePrefill(
+          bankResponsesToInputs(responses, conflict, decisionType),
+        );
+      }
     } catch (err) {
       const message =
-        err instanceof ScoringRequestError ? err.message : "Scoring failed. Try again in a moment.";
+        err instanceof IncompleteHomeCoverageError
+          ? "This path is not a full reading yet. Core questions still need real answers."
+          : "Could not map your answers. Try again in a moment.";
       setScoreError(message);
-      // F.12 channel: scoring failure is a failed save of the authoritative result.
       recordSaveStatus("failed");
       setSubmitting(false);
       return;
     }
 
-    const { result, keyInsight, nextSteps } = scored;
+    let scored: Awaited<ReturnType<typeof fetchServerScore>>;
+    try {
+      scored = await fetchServerScore(inputs, {
+        decisionType,
+        emotionalSkipped: adaptiveHome && emotionalSkipped,
+      });
+    } catch (err) {
+      const message =
+        err instanceof ScoringRequestError ? err.message : "Scoring failed. Try again in a moment.";
+      setScoreError(message);
+      recordSaveStatus("failed");
+      setSubmitting(false);
+      return;
+    }
+
+    const displayed =
+      adaptiveHome && emotionalSkipped
+        ? {
+            result: applySkippedEmotionalReading(scored.result),
+            keyInsight: scored.keyInsight,
+            nextSteps: scored.nextSteps,
+          }
+        : scored;
+
+    const { result, keyInsight, nextSteps } = displayed;
     const prior = loadLocalResult();
     const previous = prior
       ? {
@@ -252,14 +337,9 @@ export function FullAssessmentFlow() {
       decisionType,
       previous,
       insights: { keyInsight, nextSteps },
+      emotionalSkipped: adaptiveHome && emotionalSkipped ? true : undefined,
     };
     saveLocalResult(stored);
-    // Belt and suspenders. saveLocalResult already mirrors the verdict onto the
-    // sidebar key (that is the canonical path, so shadow score and onboarding
-    // replay get it too); completing the full assessment is the one moment the
-    // rail absolutely must update, so it is written explicitly here as well
-    // rather than trusted to a call three modules away. Same helper, so the
-    // payload can never fork; idempotent, so a second write costs nothing.
     writeSidebarVerdict(stored);
     clearDraft();
 
@@ -267,12 +347,15 @@ export function FullAssessmentFlow() {
     fetch("/api/assessments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ inputs, kind: "full", decisionType }),
+      body: JSON.stringify({
+        inputs,
+        kind: "full",
+        decisionType,
+        ...(adaptiveHome && emotionalSkipped ? { emotionalSkipped: true } : {}),
+      }),
       keepalive: true,
     })
       .then(async (res) => {
-        // 401 (anonymous) → "unauthenticated", 402 rescoring_locked →
-        // "locked", other non-OK → "failed"; Home SaveStatusBanner surfaces it.
         recordSaveStatus(statusFromResponse(res.status));
         if (!res.ok) return;
         const data = (await res.json().catch(() => null)) as { id?: string } | null;
@@ -282,12 +365,11 @@ export function FullAssessmentFlow() {
         recordSaveStatus("failed");
       });
 
-    // F8 — living Build is Home. Guests never reach this push (gated above).
-    // Signed-in /results redirects here too — not a post-assessment destination.
     router.push("/dashboard");
   }
 
   const nextDisabled = (() => {
+    if (!step) return true;
     if (step.kind === "question") {
       const question = getQuestionById(step.questionId);
       if (!question) return true;
@@ -296,7 +378,7 @@ export function FullAssessmentFlow() {
     return false;
   })();
 
-  const pillarForIntro = step.kind === "intro" ? step.dimension : null;
+  const pillarForIntro = step?.kind === "intro" ? step.dimension : null;
   const pillarMeta = pillarForIntro ? PILLARS.find((p) => p.key === pillarForIntro) : null;
 
   if (freeze.status === "frozen" && freeze.record) {
@@ -309,6 +391,14 @@ export function FullAssessmentFlow() {
       />
     );
   }
+
+  const introCopy = pillarForIntro
+    ? pillarIntroCopy(
+        pillarForIntro,
+        decisionType,
+        adaptiveHome ? { pathQuestionEstimate: HOME_PATH_ESTIMATE[pillarForIntro] } : undefined,
+      )
+    : null;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16">
@@ -337,20 +427,40 @@ export function FullAssessmentFlow() {
         </div>
       )}
 
-      <div className="mb-8">
-        <ProgressBar steps={progressSteps} currentIndex={index} />
-        <p className="mt-3 text-center text-xs text-dim">
-          Step {index + 1} of {steps.length}
-        </p>
-      </div>
+      {adaptiveHome && questionDimension ? (
+        <PathProgressChrome
+          dimension={questionDimension}
+          label={pathProgressLabel(
+            questionDimension,
+            currentPillarQuestionNumber(steps, stepIndex, questionDimension),
+          )}
+          current={currentPillarQuestionNumber(steps, stepIndex, questionDimension)}
+          estimate={HOME_PATH_ESTIMATE[questionDimension]}
+        />
+      ) : !adaptiveHome ? (
+        <div className="mb-8">
+          <ProgressBar steps={progressSteps} currentIndex={stepIndex} />
+          <p className="mt-3 text-center text-xs text-dim" data-step-counter="">
+            Step {stepIndex + 1} of {steps.length}
+          </p>
+        </div>
+      ) : null}
 
-      {step.kind === "decision" && (
+      {step?.kind === "decision" && (
         <StepShell stepKey="decision" onNext={goNext} showBack={false}>
           <ChoiceCards<DecisionType>
             label="What decision are you working through?"
-            hint={`${steps.filter((s) => s.kind === "question").length} questions from the canonical bank for this decision.`}
+            hint={
+              adaptiveHome
+                ? "Home buying uses an adaptive path through the canonical bank — not 45 clicks."
+                : `${steps.filter((s) => s.kind === "question").length} questions from the canonical bank for this decision.`
+            }
             value={decisionType}
-            onChange={setDecisionType}
+            onChange={(next) => {
+              setDecisionType(next);
+              setEmotionalSkipped(false);
+              setCursor("decision");
+            }}
             options={ACTIVE_DECISION_TYPES.map((key) => ({
               value: key,
               label: DECISION_TYPE_LABELS[key],
@@ -359,23 +469,31 @@ export function FullAssessmentFlow() {
         </StepShell>
       )}
 
-      {step.kind === "intro" && pillarMeta && (
+      {step?.kind === "intro" && pillarMeta && introCopy && (
         <StepShell
           stepKey={`intro-${step.dimension}`}
           onNext={goNext}
-          showBack={index > 0}
+          showBack={stepIndex > 0}
           onBack={goBack}
+          skipLabel={
+            adaptiveHome && step.dimension === "emotional"
+              ? "Skip Emotional Truth for this reading"
+              : undefined
+          }
+          onSkip={
+            adaptiveHome && step.dimension === "emotional" ? skipEmotionalPillar : undefined
+          }
         >
           <PillarIntro
             color={pillarMeta.color}
             name={pillarMeta.name}
-            question={pillarIntroCopy(step.dimension, decisionType).question}
-            description={pillarIntroCopy(step.dimension, decisionType).description}
+            question={introCopy.question}
+            description={introCopy.description}
           />
         </StepShell>
       )}
 
-      {step.kind === "question" &&
+      {step?.kind === "question" &&
         (() => {
           const question = getQuestionById(step.questionId);
           if (!question) return null;
@@ -385,17 +503,19 @@ export function FullAssessmentFlow() {
               onBack={goBack}
               onNext={goNext}
               nextDisabled={nextDisabled}
+              showBack={stepIndex > 0}
             >
               <BankQuestionField
                 question={question}
                 value={responses[step.questionId]}
                 onChange={(v) => setResponse(step.questionId, v)}
+                contextHint={adaptiveHome ? HOME_QUESTION_HINT : undefined}
               />
             </StepShell>
           );
         })()}
 
-      {step.kind === "conflict-referral" && (
+      {step?.kind === "conflict-referral" && (
         <StepShell
           stepKey="conflict-referral"
           onBack={goBack}
@@ -415,7 +535,7 @@ export function FullAssessmentFlow() {
         </StepShell>
       )}
 
-      {step.kind === "conflict-deadline" && (
+      {step?.kind === "conflict-deadline" && (
         <StepShell
           stepKey="conflict-deadline"
           onBack={goBack}
@@ -435,7 +555,7 @@ export function FullAssessmentFlow() {
         </StepShell>
       )}
 
-      {step.kind === "review" && (
+      {step?.kind === "review" && (
         <ReviewStep
           steps={steps}
           responses={responses}
@@ -445,6 +565,7 @@ export function FullAssessmentFlow() {
           onSubmit={handleSubmit}
           submitting={submitting}
           scoreError={scoreError}
+          adaptiveHome={adaptiveHome}
         />
       )}
     </div>
@@ -460,6 +581,7 @@ function ReviewStep({
   onSubmit,
   submitting,
   scoreError,
+  adaptiveHome,
 }: {
   steps: FlowStep[];
   responses: Record<string, ResponseValue>;
@@ -469,6 +591,7 @@ function ReviewStep({
   onSubmit: () => void;
   submitting: boolean;
   scoreError: string | null;
+  adaptiveHome: boolean;
 }) {
   const questionSteps = steps.filter(
     (s): s is { kind: "question"; questionId: string } => s.kind === "question",
@@ -497,12 +620,13 @@ function ReviewStep({
   );
 
   return (
-    <div className="step-enter">
+    <div className="step-enter" data-assessment-step="review">
       <div className="glass p-6 sm:p-10">
         <h2 className="font-display text-2xl font-semibold text-light">Review your answers</h2>
         <p className="mt-2 text-sm text-dim">
-          {questionSteps.length} questions from the canonical bank. Edit anything before you see
-          your score.
+          {adaptiveHome
+            ? `${questionSteps.length} questions on this path from the canonical bank. Edit anything before you see your score.`
+            : `${questionSteps.length} questions from the canonical bank. Edit anything before you see your score.`}
         </p>
 
         <div className="mt-6 max-h-[50vh] divide-y divide-slate-surface/60 overflow-y-auto">
@@ -531,10 +655,7 @@ function ReviewStep({
           </p>
         )}
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-between">
-          <button type="button" onClick={onBack} className="btn btn-ghost">
-            Back
-          </button>
+        <div className="mt-8 flex flex-wrap items-center gap-4">
           <button
             type="button"
             onClick={onSubmit}
@@ -542,6 +663,13 @@ function ReviewStep({
             className="btn btn-primary"
           >
             {submitting ? "Computing…" : "See my Decision Readiness Score"}
+          </button>
+          <button
+            type="button"
+            onClick={onBack}
+            className="text-sm font-medium text-dim transition-colors hover:text-light"
+          >
+            Back
           </button>
         </div>
       </div>

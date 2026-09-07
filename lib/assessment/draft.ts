@@ -12,10 +12,9 @@ export const DRAFT_KEY = "homi:assessment-draft";
 
 /**
  * Bump when the draft envelope shape or flow index semantics change.
- * v3: decision picker omitted when only one ACTIVE_DECISION_TYPES entry — old
- * indices (which included a decision step at 0) are no longer valid.
+ * v4: Option 1 adaptive home path — cursor + ET whole-pillar skip.
  */
-export const DRAFT_VERSION = 3;
+export const DRAFT_VERSION = 4;
 
 export interface AssessmentDraft {
   decisionType: DecisionType;
@@ -23,6 +22,9 @@ export interface AssessmentDraft {
   conflict: ConflictResponses;
   index: number;
   updatedAt?: string;
+  /** Option 1: whole Emotional Truth pillar omitted. Not partner solo. */
+  emotionalSkipped?: boolean;
+  cursor?: string;
 }
 
 interface DraftEnvelope {
@@ -32,6 +34,8 @@ interface DraftEnvelope {
   conflict: ConflictResponses;
   index: number;
   updatedAt: string;
+  emotionalSkipped?: boolean;
+  cursor?: string;
 }
 
 const EMPTY_CONFLICT: ConflictResponses = {
@@ -46,9 +50,11 @@ export function clampDraftIndex(index: number, maxIndexInclusive: number): numbe
 }
 
 export function draftLooksStarted(
-  draft: Pick<AssessmentDraft, "responses" | "conflict" | "index">,
+  draft: Pick<AssessmentDraft, "responses" | "conflict" | "index" | "cursor" | "emotionalSkipped">,
 ): boolean {
   if (draft.index > 0) return true;
+  if (draft.cursor && draft.cursor !== "decision") return true;
+  if (draft.emotionalSkipped) return true;
   if (draft.conflict.referralSource || draft.conflict.deadlineOrigin) return true;
   return Object.keys(draft.responses).length > 0;
 }
@@ -63,6 +69,8 @@ export function saveDraft(draft: AssessmentDraft): void {
       conflict: draft.conflict,
       index: draft.index,
       updatedAt: new Date().toISOString(),
+      emotionalSkipped: draft.emotionalSkipped === true,
+      cursor: draft.cursor,
     };
     window.localStorage.setItem(DRAFT_KEY, JSON.stringify(envelope));
   } catch {
@@ -79,10 +87,6 @@ export function loadDraft(maxStepIndex = 64): AssessmentDraft | null {
     if (!parsed || typeof parsed !== "object") return null;
     if (parsed.version !== DRAFT_VERSION) return null;
     if (!parsed.decisionType || typeof parsed.index !== "number") return null;
-    // A draft for a non-active vertical cannot be resumed: buildAssessmentFlow
-    // would yield zero questions and the server would 400 the submit. Its
-    // responses reference that vertical's question ids, so falling back to
-    // another vertical is meaningless — treat the draft as unresumable.
     if (!(ACTIVE_DECISION_TYPES as string[]).includes(parsed.decisionType)) return null;
 
     const draft: AssessmentDraft = {
@@ -91,6 +95,8 @@ export function loadDraft(maxStepIndex = 64): AssessmentDraft | null {
       conflict: parsed.conflict ?? EMPTY_CONFLICT,
       index: clampDraftIndex(parsed.index, maxStepIndex),
       updatedAt: typeof parsed.updatedAt === "string" ? parsed.updatedAt : undefined,
+      emotionalSkipped: parsed.emotionalSkipped === true,
+      cursor: typeof parsed.cursor === "string" ? parsed.cursor : undefined,
     };
 
     if (!draftLooksStarted(draft)) return null;

@@ -1,7 +1,5 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { AssessmentShell } from "@/components/assessment/AssessmentShell";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 
@@ -10,18 +8,15 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
  * session server-side but cannot know the pathname, so the shell decision lands
  * here — the thinnest possible client component, holding no state of its own.
  *
- * Three shells:
- *   - anonymous              → marketing SiteHeader (public tools, shadow score)
- *   - signed in              → SHELL_CRAFT v3 quiet top bar (AppHeader) + main#main
- *   - signed in, /assessment → AssessmentShell, full-bleed, no product chrome
+ * Two shells:
+ *   - anonymous → marketing SiteHeader (public tools, shadow score)
+ *   - signed in → SHELL_CRAFT v3 quiet top bar (AppHeader) + main#main
  *
- * The assessment branch drops the atmospheric aurora/noise layers along with
- * the bar: focus mode means nothing on screen competes with the question.
- * Every branch renders exactly one `main#main` (AssessmentShell provides its
- * own) so the layout's skip link always has a target.
+ * Assessment is a flow in main#main inside the quiet top bar. No left rail.
+ * Compass stays in the bar. Every branch renders exactly one `main#main`.
  *
- * Signed-in chrome is a quiet top bar only — no left rail, no Jump slab,
- * no mobile bottom tab bar. Depth lives behind ··· (live routes).
+ * Signed-in chrome is a quiet top bar only — no Jump slab, no mobile bottom
+ * tab bar. Depth lives behind ··· (live routes).
  */
 export function ProductLayoutRouter({
   children,
@@ -39,8 +34,6 @@ export function ProductLayoutRouter({
   employerId?: string | null;
   organizationId?: string | null;
 }) {
-  const pathname = usePathname();
-
   if (!user) {
     return (
       <>
@@ -52,12 +45,6 @@ export function ProductLayoutRouter({
         </main>
       </>
     );
-  }
-
-  // Exact route or a sub-route (/assessment/shadow); never a sibling that
-  // merely shares the prefix.
-  if (pathname === "/assessment" || pathname.startsWith("/assessment/")) {
-    return <AssessmentShell>{children}</AssessmentShell>;
   }
 
   return (

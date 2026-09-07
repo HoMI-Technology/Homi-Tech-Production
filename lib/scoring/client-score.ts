@@ -131,16 +131,17 @@ function parseResult(data: Record<string, unknown>): AssessmentResult {
 /** POST /api/scoring — server recomputes; never trust a client-sent score. */
 export async function fetchServerScore(
   inputs: AssessmentInputs,
-  opts?: { decisionType?: DecisionType | string },
+  opts?: { decisionType?: DecisionType | string; emotionalSkipped?: boolean },
 ): Promise<ServerScorePayload> {
   let res: Response;
   try {
+    const payload: Record<string, unknown> = { ...inputs };
+    if (opts?.decisionType) payload.decisionType = opts.decisionType;
+    if (opts?.emotionalSkipped) payload.emotionalSkipped = true;
     res = await fetch("/api/scoring", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(
-        opts?.decisionType ? { ...inputs, decisionType: opts.decisionType } : inputs,
-      ),
+      body: JSON.stringify(payload),
     });
   } catch {
     throw new ScoringRequestError("Could not reach the scoring service. Check your connection.", 0);

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
 import { computeScore, type AssessmentInputs } from "@/lib/scoring";
+import { applySkippedEmotionalReading } from "@/lib/assessment/two-pillar";
 import { withVerticalHardStopDisplay } from "@/lib/assessment/vertical-insights";
 import {
   activeDecisionTypeSchema,
@@ -38,6 +40,7 @@ export async function POST(request: Request) {
 
   const scoringBodySchema = inputsSchema.extend({
     decisionType: activeDecisionTypeSchema.optional(),
+    emotionalSkipped: z.boolean().optional(),
   });
   const parsed = scoringBodySchema.safeParse(json);
   if (!parsed.success) {
@@ -47,7 +50,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { decisionType, ...inputFields } = parsed.data;
+  const { decisionType, emotionalSkipped, ...inputFields } = parsed.data;
   const inputs: AssessmentInputs = inputFields;
 
   try {
@@ -60,7 +63,9 @@ export async function POST(request: Request) {
 
   const scored = computeScore(inputs);
   const displayed = withVerticalHardStopDisplay(scored, decisionType ?? "home_buying");
-  const result = displayed.result;
+  const result = emotionalSkipped
+    ? applySkippedEmotionalReading(displayed.result)
+    : displayed.result;
 
   return NextResponse.json({
     score: result.score,

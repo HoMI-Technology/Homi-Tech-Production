@@ -102,6 +102,15 @@ export function AppHeader({
             <DashboardSwitcher {...switcherProps} />
           </div>
 
+          {assessActive ? (
+            <span
+              data-shell-floor=""
+              className="hidden max-w-[14rem] truncate rounded-full border border-yellow/40 px-3 py-1 text-3xs font-semibold uppercase tracking-widest text-yellow/90 sm:inline-flex"
+            >
+              Craft v3 · PR2 floor · not ship
+            </span>
+          ) : null}
+
           <div className="ml-auto flex shrink-0 items-center gap-2">
             <Link
               href={SIGNED_IN_ASSESS_HREF}

@@ -1,7 +1,53 @@
 import { COLORS, PILLARS, withAlpha } from "@/lib/brand";
+import type { Dimension } from "@/lib/questions/bank";
 
 export interface StepMeta {
   pillar: "financial" | "emotional" | "timing" | null;
+}
+
+/**
+ * Path-true progress for Option 1. Never "Question N of 45".
+ * Tilde on the denominator is an estimate for this path.
+ */
+export function PathProgressChrome({
+  dimension,
+  label,
+  current,
+  estimate,
+}: {
+  dimension: Dimension;
+  label: string;
+  current: number;
+  estimate: number;
+}) {
+  const color = PILLARS.find((p) => p.key === dimension)?.color ?? COLORS.cyan;
+  const pct = estimate > 0 ? Math.min(100, Math.max(0, (current / estimate) * 100)) : 0;
+
+  return (
+    <div className="mb-8">
+      <p
+        className="text-sm font-medium"
+        style={{ color }}
+        data-path-progress=""
+        data-progress-chrome="path"
+      >
+        {label}
+      </p>
+      <div
+        className="mt-2 h-0.5 w-full overflow-hidden rounded-full bg-slate-surface/60"
+        role="progressbar"
+        aria-label={label}
+        aria-valuenow={current}
+        aria-valuemin={1}
+        aria-valuemax={estimate}
+      >
+        <div
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${pct}%`, background: color }}
+        />
+      </div>
+    </div>
+  );
 }
 
 /**
@@ -22,6 +68,7 @@ export function ProgressBar({ steps, currentIndex }: { steps: StepMeta[]; curren
       aria-valuenow={currentIndex + 1}
       aria-valuemin={1}
       aria-valuemax={steps.length}
+      data-progress-chrome="segmented"
     >
       {steps.map((step, i) => {
         const done = i <= currentIndex;

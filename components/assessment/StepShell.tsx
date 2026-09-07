@@ -3,8 +3,8 @@
 import { type ReactNode } from "react";
 
 /**
- * Wraps a single assessment step: CSS fade/slide transition, back/continue
- * nav row. No animation libraries — pure CSS keyed by `stepKey` remount.
+ * Single assessment step: CSS fade/slide, one cyan Continue primary,
+ * optional Back as a quiet text link — not a second competing button.
  */
 export function StepShell({
   children,
@@ -14,6 +14,8 @@ export function StepShell({
   nextLabel = "Continue",
   nextDisabled = false,
   showBack = true,
+  skipLabel,
+  onSkip,
 }: {
   children: ReactNode;
   stepKey: string | number;
@@ -22,9 +24,11 @@ export function StepShell({
   nextLabel?: string;
   nextDisabled?: boolean;
   showBack?: boolean;
+  skipLabel?: string;
+  onSkip?: () => void;
 }) {
   return (
-    <div key={stepKey} className="step-enter">
+    <div key={stepKey} className="step-enter" data-assessment-step={String(stepKey)}>
       <style>{`
         .step-enter {
           animation: step-enter-anim 420ms cubic-bezier(0.16,1,0.3,1);
@@ -40,42 +44,34 @@ export function StepShell({
 
       <div className="glass p-6 sm:p-10">{children}</div>
 
-      <div className="mt-6 flex items-center justify-between gap-4">
-        {showBack && onBack ? (
-          <button type="button" onClick={onBack} className="btn btn-ghost">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M10 3L5 8l5 5" />
-            </svg>
-            Back
-          </button>
-        ) : (
-          <span />
-        )}
+      <div className="mt-6 flex flex-wrap items-center gap-4">
         <button
           type="button"
           onClick={onNext}
           disabled={nextDisabled}
-          className="btn btn-primary disabled:opacity-40 disabled:cursor-not-allowed"
+          className="btn btn-primary disabled:cursor-not-allowed disabled:opacity-40"
         >
           {nextLabel}
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M6 3l5 5-5 5" />
-          </svg>
         </button>
+        {showBack && onBack ? (
+          <button
+            type="button"
+            onClick={onBack}
+            className="text-sm font-medium text-dim transition-colors hover:text-light"
+          >
+            Back
+          </button>
+        ) : null}
+        {skipLabel && onSkip ? (
+          <button
+            type="button"
+            onClick={onSkip}
+            className="text-sm font-medium text-dim/80 underline-offset-4 transition-colors hover:text-dim hover:underline"
+            data-et-skip=""
+          >
+            {skipLabel}
+          </button>
+        ) : null}
       </div>
     </div>
   );
