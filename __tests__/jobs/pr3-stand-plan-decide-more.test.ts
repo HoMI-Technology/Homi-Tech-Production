@@ -58,7 +58,8 @@ describe("CEO chrome defaults 1–7 (founder skipped picker)", () => {
 
   it("4 Decide primary is /tools; /money/decide stays supporting", () => {
     expect(toolsHub).toContain("hubLenses");
-    expect(toolsHub).toContain("not a score write");
+    expect(toolsHub).toContain("Decision lenses");
+    expect(toolsHub).toContain("do not write your score or ledger");
     expect(decide).toContain('href="/tools"');
     expect(decide).toContain("does not write AssessmentResult");
   });
@@ -179,12 +180,18 @@ describe("PR3 Decide — /tools primary, no score write", () => {
   it("tools hub is ten equal-weight lenses with honesty", () => {
     expect(toolHubLenses()).toHaveLength(10);
     expect(toolsHub).toContain("hubLenses");
+    expect(toolsHub).toContain("Decision lenses");
     expect(toolsHub).toContain("Educational estimates");
-    expect(toolsHub).toContain("not a score write");
+    expect(toolsHub).toContain("do not write your score or ledger");
+    expect(toolsHub).toContain("never a verdict factory");
+    expect(toolsHub).toContain("sm:grid-cols-2");
+    expect(toolsHub).toContain("data-decide-honesty");
     expect(toolsHub).toContain("Open lens");
     expect(toolsHub).not.toContain("hubLensesByRing");
     expect(toolsHub).not.toContain("font-display");
     expect(toolsHub).not.toContain("ThresholdCompass");
+    expect(toolsHub).not.toMatch(/href=["']\/scenarios["']/);
+    expect(toolsHub).not.toMatch(/href=["']\/simulator["']/);
   });
 
   it("/money/decide stays supporting and does not write a score", () => {

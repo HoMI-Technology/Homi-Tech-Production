@@ -14,8 +14,8 @@ export const metadata: Metadata = pageMetadata({
 });
 
 /**
- * Tools hub — ten public lenses, equal weight (lib/tools/registry.ts).
- * Decide job primary surface. Educational only — no score write.
+ * Decide job primary surface — Brand craft catalog on live `/tools`.
+ * Ten hub lenses, equal weight. Educational only — no score write.
  */
 export default async function ToolsHubPage() {
   const user = await getCachedUser();
@@ -23,18 +23,29 @@ export default async function ToolsHubPage() {
   const lenses = hubLenses();
 
   return (
-    <JobDepthFrame job="tools">
+    <JobDepthFrame job="tools" width="catalog">
       <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-dim">
-        Tools · educational lenses
+        Tools · money · decide · live route depth
       </p>
-      <h1 className="mt-2 text-2xl font-semibold tracking-tight text-light">Tools</h1>
-      <p className="mt-3 max-w-xl text-sm leading-relaxed text-dim" data-decide-honesty="">
-        Educational estimates only — not a HōMI verdict and not a score write. Ten lenses, equal
-        weight. Close language after a look: verdict unchanged, or a hard stop still on. Only a new
-        assessment writes AssessmentResult.
+      <h1 className="mt-2 text-2xl font-semibold tracking-tight text-light">Decision lenses</h1>
+      <p className="mt-3 max-w-xl text-sm leading-relaxed text-dim">
+        Ten quiet lenses for a choice. Estimates only — never a verdict factory.
       </p>
+
+      <div
+        role="note"
+        data-decide-honesty=""
+        className="mt-6 rounded-xl border border-yellow/45 bg-yellow/[0.06] px-4 py-3"
+      >
+        <p className="text-sm leading-relaxed text-light">
+          <span className="font-semibold text-yellow">Educational estimates</span>
+          {" — "}
+          pre-filled from ledger when present. They do not write your score or ledger.
+        </p>
+      </div>
+
       {signedIn ? (
-        <p className="mt-3 text-sm text-dim">
+        <p className="mt-4 text-sm text-dim">
           <Link href="/money" className="text-cyan underline-offset-2 hover:underline">
             Money picture
           </Link>
@@ -44,34 +55,39 @@ export default async function ToolsHubPage() {
           </Link>
         </p>
       ) : (
-        <p className="mt-3 text-sm">
+        <p className="mt-4 text-sm">
           <Link href={PRIMARY_CLOSE_HREF} className="text-cyan underline-offset-2 hover:underline">
             {PRIMARY_CLOSE_LABEL}
           </Link>
         </p>
       )}
 
-      <ol className="mt-10 divide-y divide-white/[0.06] border-y border-white/[0.06]" data-tools-hub="">
+      <ul
+        className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2"
+        data-tools-hub=""
+        data-decide-catalog=""
+      >
         {lenses.map((lens) => (
-          <li key={lens.id} className="flex items-start justify-between gap-4 py-4">
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-light">{lens.name}</p>
-              <p className="mt-1 text-sm leading-relaxed text-dim">{lens.desc}</p>
-            </div>
+          <li key={lens.id}>
             <Link
               href={lens.path}
-              className="shrink-0 pt-0.5 text-sm text-cyan underline-offset-2 hover:underline"
+              className="flex h-full flex-col rounded-xl border border-white/[0.08] bg-navy/40 px-4 py-4 transition-colors hover:border-white/[0.14]"
             >
-              Open lens
+              <p className="text-sm font-medium text-light">{lens.name}</p>
+              <p className="mt-1 flex-1 text-sm leading-relaxed text-dim">{lens.desc}</p>
+              <span className="mt-3 text-sm text-cyan">Open lens</span>
             </Link>
           </li>
         ))}
-      </ol>
+      </ul>
 
       <p className="mt-10 max-w-xl text-xs leading-relaxed text-dim/70">
+        Supporting depth: Scenarios · close language stays law (changed / unchanged / hard stop still
+        on). FI v2 & Monte Carlo quarantined.
+      </p>
+      <p className="mt-3 max-w-xl text-xs leading-relaxed text-dim/70">
         HōMI tools are educational. They do not provide financial, tax, mortgage, or investment
-        advice. Confirm critical numbers with qualified professionals before you act. FI v2 / Monte
-        Carlo is not a READY gate.
+        advice. Confirm critical numbers with qualified professionals before you act.
       </p>
     </JobDepthFrame>
   );

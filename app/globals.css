@@ -3484,6 +3484,9 @@ body {
 .job-depth-frame--path {
   max-width: 45rem;
 }
+.job-depth-frame--catalog {
+  max-width: 48rem;
+}
 @media (min-width: 640px) {
   .job-depth-frame {
     padding-left: 2.5rem;

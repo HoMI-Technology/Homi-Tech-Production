@@ -93,14 +93,25 @@ export function MoneyDecideHub() {
         Money · decide · supporting
       </p>
       <h1 className="mt-2 text-2xl font-semibold tracking-tight text-light">Educational lenses</h1>
-      <p className="mb-4 mt-3 max-w-xl text-sm leading-relaxed text-dim" data-money-job="decide" data-decide-honesty="">
-        Answer one math question at a time. Educational estimates — not advice, and never a score
-        write. Verdict unchanged, or a hard stop still on, until a new assessment. Primary catalog:{" "}
+      <p className="mt-3 max-w-xl text-sm leading-relaxed text-dim" data-money-job="decide">
+        Answer one math question at a time. Primary catalog:{" "}
         <Link href="/tools" className="text-cyan underline-offset-2 hover:underline">
-          /tools
+          Decision lenses
         </Link>
         .
       </p>
+      <div
+        role="note"
+        data-decide-honesty=""
+        className="mb-4 mt-6 rounded-xl border border-yellow/45 bg-yellow/[0.06] px-4 py-3"
+      >
+        <p className="text-sm leading-relaxed text-light">
+          <span className="font-semibold text-yellow">Educational estimates</span>
+          {" — "}
+          pre-filled from ledger when present. They do not write your score or ledger. Close
+          language: this estimate does not write AssessmentResult.
+        </p>
+      </div>
 
       <ol className="divide-y divide-white/[0.06] border-y border-white/[0.06]">
         {cards.map((tool) => {

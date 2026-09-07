@@ -8,8 +8,8 @@ test.describe("Money Reality — public funnel", () => {
   test("public tools hub stays crawlable (not auth-walled)", async ({ page }) => {
     const res = await page.goto("/tools");
     expect(res?.status()).toBeLessThan(400);
-    await expect(page.getByRole("heading", { name: "Tools" })).toBeVisible();
-    await expect(page.getByText(/Educational estimates only/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Decision lenses" })).toBeVisible();
+    await expect(page.getByText(/Educational estimates/i).first()).toBeVisible();
   });
 
   test("individual calculator stays public with public back link", async ({ page }) => {
