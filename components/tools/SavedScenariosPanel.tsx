@@ -61,21 +61,22 @@ export function SavedScenariosPanel() {
     let cancelled = false;
     async function load() {
       const local = loadLocalScenarios();
-      let merged = local;
+      // Paint local rows before the signed-in sync. BUILD-SAFE / anonymous
+      // GET /api/tools/scenarios can stall on an inert Supabase URL.
+      if (!cancelled) {
+        setScenarios(local);
+        setLoaded(true);
+      }
       try {
         const res = await fetch("/api/tools/scenarios");
-        if (res.ok) {
-          const data = (await res.json()) as { scenarios: ServerRow[] };
-          const server = data.scenarios.map(fromServerRow);
-          const serverIds = new Set(server.map((s) => s.id));
-          merged = [...server, ...local.filter((s) => !serverIds.has(s.id))];
-        }
+        if (!res.ok) return;
+        const data = (await res.json()) as { scenarios: ServerRow[] };
+        const server = data.scenarios.map(fromServerRow);
+        const serverIds = new Set(server.map((s) => s.id));
+        const merged = [...server, ...local.filter((s) => !serverIds.has(s.id))];
+        if (!cancelled) setScenarios(merged);
       } catch {
-        // offline: local only
-      }
-      if (!cancelled) {
-        setScenarios(merged);
-        setLoaded(true);
+        // offline: local already painted
       }
     }
     load();

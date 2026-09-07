@@ -164,6 +164,20 @@ async function storedStepStatus(page: Page, stepId: string): Promise<string | un
   }, stepId);
 }
 
+/** Score lives on the stored assessment — shell chrome has no score chip. */
+async function storedAssessmentScore(page: Page): Promise<number | null> {
+  return page.evaluate(() => {
+    const raw = window.localStorage.getItem("homi:last-assessment");
+    if (!raw) return null;
+    try {
+      const parsed = JSON.parse(raw) as { result?: { score?: unknown } };
+      return typeof parsed.result?.score === "number" ? parsed.result.score : null;
+    } catch {
+      return null;
+    }
+  });
+}
+
 async function sessionKey(page: Page, key: string): Promise<string | null> {
   return page.evaluate((k) => sessionStorage.getItem(k), key);
 }
@@ -230,7 +244,8 @@ test.describe("Impact Bus @flag-on", () => {
     const assessmentBefore = await page.evaluate(() =>
       localStorage.getItem("homi:last-assessment"),
     );
-    await expect(page.getByText(/Score 42/).first()).toBeVisible();
+    // Chrome lock: no score chip. The seeded assessment stays 42 in storage.
+    expect(await storedAssessmentScore(page)).toBe(42);
 
     await page.getByRole("button", { name: "Mark done" }).first().click();
 
@@ -242,11 +257,8 @@ test.describe("Impact Bus @flag-on", () => {
     await expect(toast).toContainText("Reassess when your real inputs change.");
     await expect(toast).not.toContainText(/Path complete|locked in|Score|\+\d/);
 
-    // Score displayed and stored: exactly unchanged. (The header line also
-    // shows "% resolved", which legitimately moves — assert the score token,
-    // not the whole line.)
-    await expect(page.getByText(/Score 42/).first()).toBeVisible();
-    await expect(page.getByText(/Score (?!42\b)\d+/)).toHaveCount(0);
+    // Stored score is exactly unchanged — do not assert AppHeader chip text.
+    expect(await storedAssessmentScore(page)).toBe(42);
     expect(await page.evaluate(() => localStorage.getItem("homi:last-assessment"))).toBe(
       assessmentBefore,
     );

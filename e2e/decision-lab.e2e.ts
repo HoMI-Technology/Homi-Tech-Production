@@ -195,8 +195,10 @@ test.describe("Decision Lab — scenario staleness", () => {
     // D2: saved scenarios live on the canonical /scenarios page (#saved section).
     await page.goto("/scenarios#saved");
     await dismissCookieConsent(page);
+    await expect(page).toHaveURL(/\/scenarios#saved/);
+    await expect(page.getByRole("heading", { name: "Saved scenarios" })).toBeVisible();
 
-    await expect(page.getByText("House at $420k")).toBeVisible();
+    await expect(page.getByText("House at $420k")).toBeVisible({ timeout: 15_000 });
     // Anonymous local scenarios are honestly labeled.
     await expect(page.getByText("this browser only", { exact: false })).toBeVisible();
 
