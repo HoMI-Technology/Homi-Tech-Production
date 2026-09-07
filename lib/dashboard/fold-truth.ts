@@ -119,15 +119,55 @@ export function companionFoldLine(args: {
  */
 export const HOME_FOLD_INSTRUMENT = "threshold" as const;
 
-/** Empty Home fold heading — SHELL_CRAFT v3 / HOME_CRAFT. */
-export const EMPTY_FOLD_HEADING = "Will you be okay?" as const;
-
-/** Empty Home fold whisper until a scored AssessmentResult exists. */
-export const EMPTY_FOLD_WHISPER =
-  "Readiness lives here. Soft whisper until Home fills this frame." as const;
+/**
+ * Empty Home is blank above — until an API verdict exists.
+ * No Fraunces heading, no marketing whisper, no invented age.
+ * The fold itself is — + Assess primary only (HOME_CRAFT / CEO lock).
+ */
 
 /** Below-fold money line until connected accounts exist. */
 export const MONEY_WAIT_LINE = "Money waits until accounts are connected" as const;
+
+/** HOME_CRAFT / HOME_FIRST_VIEWPORT month crop. Short English, UTC, no period. */
+const FOLD_AGE_SHORT_MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+] as const;
+
+/** Age fragment: "from Aug 29". Null when the timestamp is unusable — never invent a date. */
+export function foldScoreAgeCrop(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const then = new Date(iso);
+  if (!Number.isFinite(then.getTime())) return null;
+  const month = FOLD_AGE_SHORT_MONTHS[then.getUTCMonth()];
+  const day = then.getUTCDate();
+  if (!month || !Number.isFinite(day) || day < 1) return null;
+  return `from ${month} ${day}`;
+}
+
+/**
+ * Brand age crop: "61 · from Aug 29".
+ * Omit entirely when score or date is missing — no age theater on empty Home.
+ */
+export function foldScoreAgeLine(
+  scorePct: number | null,
+  iso: string | null | undefined,
+): string | null {
+  if (scorePct == null || !Number.isFinite(scorePct)) return null;
+  const crop = foldScoreAgeCrop(iso);
+  if (!crop) return null;
+  return `${Math.round(scorePct)} · ${crop}`;
+}
 
 export type FoldPathPrimary = {
   href: string;

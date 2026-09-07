@@ -361,6 +361,7 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
     id: "fold-wiring/companion-fold-copy",
     file: "lib/dashboard/fold-truth.ts",
     identifiersMust: ["COMPANION_FOLD_LINES"],
+    identifiersMustNot: ["EMPTY_FOLD_HEADING", "EMPTY_FOLD_WHISPER"],
     stringsMust: [
       "A hard stop is the read right now. The path names what has to move first.",
       "Your next honest move is the binding step on Path to Ready.",
@@ -368,6 +369,7 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
       "One measurement and this page has a build to show.",
     ],
     codeMust: ['COMPANION_ESCALATION_HREF = "/advisor"'],
+    stringsMustNot: ["Will you be okay?", "Readiness lives here", "EMPTY_FOLD_HEADING", "EMPTY_FOLD_WHISPER"],
   },
   {
     id: "fold-wiring/no-verdict-spectrum",
@@ -381,11 +383,11 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
     file: "components/dashboard/ThresholdFold.tsx",
     identifiersMust: [
       "HOME_FOLD_INSTRUMENT",
-      "EMPTY_FOLD_HEADING",
       "MONEY_WAIT_LINE",
       "foldHardStopEyebrow",
       "foldHomeHoldSentence",
       "foldHardStopOverrideLine",
+      "foldScoreAgeLine",
       "stopCode",
       "resolveFoldPathPrimary",
       "verdictMetaFor",
@@ -402,6 +404,10 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
       "OperateInstrument",
       "ThresholdCompass",
       "VerdictBadge",
+      "SaveStatusBanner",
+      "lastReadAgeFrom",
+      "EMPTY_FOLD_HEADING",
+      "EMPTY_FOLD_WHISPER",
     ],
     stringsMust: [
       "dash-instrument",
@@ -422,6 +428,13 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
       "Open Money",
       "Connect bank",
       "NOT_YET",
+      "from March",
+      "from August",
+      "SaveStatusBanner",
+      "lastReadAgeFrom",
+      "Will you be okay?",
+      "Readiness lives here",
+      "One pass. Then you know.",
     ],
     importsMust: ["@/components/ui/verdict-ssot"],
     importsMustNot: [
@@ -520,7 +533,7 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
   {
     id: "fold-wiring/fold-save-status-banner",
     file: "components/dashboard/ThresholdFold.tsx",
-    identifiersMust: ["SaveStatusBanner"],
+    identifiersMustNot: ["SaveStatusBanner"],
   },
   {
     id: "fold-wiring/empty-dashboard-preset",

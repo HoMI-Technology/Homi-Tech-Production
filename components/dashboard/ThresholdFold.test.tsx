@@ -4,19 +4,18 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import { COLORS } from "@/lib/brand";
 import {
-  EMPTY_FOLD_HEADING,
-  EMPTY_FOLD_WHISPER,
   MONEY_WAIT_LINE,
   foldHardStopEyebrow,
   foldHardStopOverrideLine,
   foldHomeHoldSentence,
+  foldScoreAgeLine,
   hardStopEyebrow,
   homeHoldSentence,
   RUNWAY_HARD_STOP_PATH_TITLE,
   type FoldHardStopCode,
 } from "@/lib/dashboard/fold-truth";
-import { lastReadAgeFrom } from "@/lib/dashboard/last-read-chrome";
 import { ThresholdFold } from "./ThresholdFold";
+import { recordSaveStatus } from "@/lib/assessment/save-status";
 
 beforeAll(() => {
   if (!window.matchMedia) {
@@ -62,7 +61,7 @@ const live61 = {
 };
 
 describe("ThresholdFold", () => {
-  it("empty Home is heading + whisper + em dash + Assess — no age, no compass", () => {
+  it("empty Home is — + Assess only — no Fraunces, no whisper, no age", () => {
     const { container } = render(
       <ThresholdFold {...base} latest={null} verdict={null} stopMessages={[]} />,
     );
@@ -70,14 +69,22 @@ describe("ThresholdFold", () => {
     const fold = container.querySelector("[data-threshold-fold]");
     expect(fold).not.toBeNull();
     expect(fold?.getAttribute("data-home-instrument")).toBe("empty");
-    expect(screen.getByRole("heading", { name: EMPTY_FOLD_HEADING })).toBeInTheDocument();
-    expect(screen.getByText(EMPTY_FOLD_WHISPER)).toBeInTheDocument();
+    expect(screen.queryByRole("heading")).not.toBeInTheDocument();
+    expect(fold?.querySelector(".font-display")).toBeNull();
+    expect(screen.queryByText("Will you be okay?")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Readiness lives here/)).not.toBeInTheDocument();
+    expect(screen.queryByText("One pass. Then you know.")).not.toBeInTheDocument();
+    expect(screen.queryByText(/One measurement and this page has a build to show/)).not.toBeInTheDocument();
     expect(screen.getByLabelText("Decision Readiness Score Unknown")).toHaveTextContent("\u2014");
     expect(screen.getByLabelText("Decision Readiness Score Unknown")).toHaveStyle({
       color: COLORS.light,
     });
     expect(screen.getByRole("link", { name: /^assess$/i })).toHaveAttribute("href", "/assessment");
     expect(container.querySelector("[data-home-fold-age]")).toBeNull();
+    expect(screen.queryByText(/from Aug/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/from March/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Saved on this device only/)).not.toBeInTheDocument();
+    expect(screen.queryByText(MONEY_WAIT_LINE)).not.toBeInTheDocument();
     expect(screen.queryByText("76")).not.toBeInTheDocument();
     expect(screen.queryByText("NOT_YET")).not.toBeInTheDocument();
     expect(container.querySelectorAll("svg[aria-label*='Threshold Compass']")).toHaveLength(0);
@@ -129,9 +136,13 @@ describe("ThresholdFold", () => {
     );
 
     expect(verdict).toHaveTextContent("DO NOT PROCEED");
+    expect(verdict).toHaveClass("font-display");
     expect(screen.getByLabelText("DO NOT PROCEED")).toBeInTheDocument();
-    expect(age).toHaveTextContent(lastReadAgeFrom("2026-08-29T12:00:00.000Z") ?? "");
-    expect(age).toHaveTextContent("from August 29.");
+    expect(age).toHaveTextContent("61 · from Aug 29");
+    expect(age).not.toHaveTextContent("from August 29.");
+    expect(age).not.toHaveTextContent("from March 15.");
+    expect(foldScoreAgeLine(61, "2026-08-29T12:00:00.000Z")).toBe("61 · from Aug 29");
+    expect(screen.queryByText(/Saved on this device only/)).not.toBeInTheDocument();
 
     expect(hardStop).toHaveTextContent(hardStopEyebrow);
     expect(hardStop).toHaveTextContent(homeHoldSentence);
@@ -216,6 +227,28 @@ describe("ThresholdFold", () => {
     expect(container.querySelector("[data-home-fold-runway]")).not.toHaveTextContent("0.5 mo");
     expect(container.querySelector("[data-home-fold-cash]")).toHaveTextContent("4,200");
     expect(container.querySelector("[data-home-fold-cash]")?.className).not.toMatch(/text-4xl/);
+  });
+
+  it("omits age when the scored timestamp is missing — no invented date", () => {
+    const { container } = render(
+      <ThresholdFold
+        {...live61}
+        latest={{ id: "no-age", overallScore: 61, scoredAt: null }}
+      />,
+    );
+
+    expect(container.querySelector("[data-home-fold-age]")).toBeNull();
+    expect(screen.queryByText(/from Aug/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/from March/)).not.toBeInTheDocument();
+    expect(foldScoreAgeLine(61, null)).toBeNull();
+  });
+
+  it("does not mount SaveStatusBanner on the scored first viewport", () => {
+    recordSaveStatus("locked");
+    render(<ThresholdFold {...live61} />);
+
+    expect(screen.queryByText(/Saved on this device only/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /upgrade/i })).not.toBeInTheDocument();
   });
 
   it("remaps the stored 3–6 month grow-fund title to Path SSOT while runway is a hard stop", () => {

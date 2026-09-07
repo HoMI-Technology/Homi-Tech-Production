@@ -9,7 +9,8 @@ import { describe, expect, it } from "vitest";
  *
  * Guests can no longer hold a full assessment locally (they are sent to
  * First Moment), so the onboarding page no longer replays a local result.
- * The live rescue path is Home's SaveStatusBanner (post-assessment → /dashboard).
+ * The F.13 rescue POST lives in SaveStatusBanner. HOME_CRAFT keeps that
+ * banner off the Home first-viewport crop.
  *
  * Source-text guards (same approach as __tests__/perf-bundle-guards.test.ts).
  */

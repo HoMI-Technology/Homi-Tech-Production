@@ -5,8 +5,8 @@ import { describe, expect, it } from "vitest";
 import {
   HOME_FOLD_INSTRUMENT,
   CASH_EMPTY_LABEL,
-  EMPTY_FOLD_HEADING,
-  EMPTY_FOLD_WHISPER,
+  foldScoreAgeCrop,
+  foldScoreAgeLine,
   MONEY_WAIT_LINE,
   FOLD_HARD_STOP_PRECEDENCE,
   foldHardStopEyebrow,
@@ -232,9 +232,15 @@ describe("Baseline 001 fold-truth copy", () => {
     expect(homeHoldSentence).toBe("Runway is the hold. Build the fund before anything else.");
     expect(hardStopEyebrow).not.toBe(hardStopEyebrow.toUpperCase());
     expect(CASH_EMPTY_LABEL).toBe("Connect accounts to see cash.");
-    expect(EMPTY_FOLD_HEADING).toBe("Will you be okay?");
-    expect(EMPTY_FOLD_WHISPER).toMatch(/Readiness lives here/);
     expect(MONEY_WAIT_LINE).toBe("Money waits until accounts are connected");
+    expect(foldScoreAgeCrop("2026-08-29T12:00:00.000Z")).toBe("from Aug 29");
+    expect(foldScoreAgeLine(61, "2026-08-29T12:00:00.000Z")).toBe("61 · from Aug 29");
+    expect(foldScoreAgeLine(61, "2026-03-15T12:00:00.000Z")).toBe("61 · from Mar 15");
+    expect(foldScoreAgeLine(61, "2026-08-29T12:00:00.000Z")).not.toMatch(/August|March/);
+    expect(foldScoreAgeLine(61, "2026-08-29T12:00:00.000Z")).not.toMatch(/\.$/);
+    expect(foldScoreAgeLine(null, "2026-08-29T12:00:00.000Z")).toBeNull();
+    expect(foldScoreAgeLine(61, null)).toBeNull();
+    expect(foldScoreAgeLine(61, "not-a-date")).toBeNull();
     expect(foldHardStopOverrideLine(61)).toBe("61 — runway is a hard stop.");
     expect(foldHardStopOverrideLine(61)).not.toMatch(/35\s*[·/]\s*35/);
     expect(foldHardStopOverrideLine(61)).not.toMatch(/50/);

@@ -2,27 +2,22 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { COLORS, type VerdictKey } from "@/lib/brand";
 import {
-  EMPTY_FOLD_HEADING,
-  EMPTY_FOLD_WHISPER,
   HOME_FOLD_INSTRUMENT,
   MONEY_WAIT_LINE,
   foldHardStopEyebrow,
   foldHomeHoldSentence,
   foldHardStopOverrideLine,
   foldRunwayLabel,
+  foldScoreAgeLine,
   resolveFoldPathPrimary,
   type FoldHardStopCode,
   type FoldPathPrimary,
 } from "@/lib/dashboard/fold-truth";
-import {
-  lastReadAgeFrom,
-  type LastReadMoneyInputs,
-} from "@/lib/dashboard/last-read-chrome";
+import type { LastReadMoneyInputs } from "@/lib/dashboard/last-read-chrome";
 import { formatCurrency } from "@/lib/tools/format";
 import { verdictMetaFor } from "@/components/ui/verdict-ssot";
 import { LoadErrorPanel } from "@/components/dashboard/LoadErrorPanel";
 import { ThresholdFoldEmptyClose } from "@/components/dashboard/ThresholdFoldEmptyClose";
-import { SaveStatusBanner } from "@/components/results/SaveStatusBanner";
 import { SIGNED_IN_ASSESS_HREF } from "@/components/marketing/first-moment-copy";
 
 export type ThresholdFoldLatest = {
@@ -36,7 +31,7 @@ export type ThresholdFoldLatest = {
  * HOME_CRAFT order: verdict → score/— → age → hard stop → hold → Path/Assess.
  * Compass never mounts here — the quiet top bar owns the one mark.
  * Score is last AssessmentResult only. Money waits below the fold until
- * connected cash exists. Empty is — + Assess, no age theater.
+ * connected cash exists. Empty is blank above the em dash, then Assess only.
  */
 export function ThresholdFold({
   assessmentsFailed,
@@ -69,7 +64,7 @@ export function ThresholdFold({
     scorePct != null
       ? `Overall Decision Readiness Score ${scorePct} out of 100`
       : "Decision Readiness Score Unknown";
-  const ageLabel = latest ? lastReadAgeFrom(latest.scoredAt ?? null) : null;
+  const ageLine = latest ? foldScoreAgeLine(scorePct, latest.scoredAt) : null;
   const verdictMeta = verdict ? verdictMetaFor(verdict) : null;
   const instrumentStyle = {
     "--instrument-tint": COLORS.cyan,
@@ -92,8 +87,6 @@ export function ThresholdFold({
           />
         ) : (
           <>
-            {latest ? <SaveStatusBanner /> : null}
-
             {latest && verdictMeta ? (
               <h1
                 className="font-display text-4xl font-medium italic leading-tight tracking-tight sm:text-5xl"
@@ -104,17 +97,9 @@ export function ThresholdFold({
               >
                 {verdictMeta.label}
               </h1>
-            ) : !latest ? (
-              <h1 className="font-display text-3xl font-medium leading-tight text-light sm:text-4xl">
-                {EMPTY_FOLD_HEADING}
-              </h1>
             ) : null}
 
-            {!latest ? (
-              <p className="mt-3 max-w-md text-sm leading-relaxed text-dim">{EMPTY_FOLD_WHISPER}</p>
-            ) : null}
-
-            <p data-home-fold-score-plate="" className={latest ? "mt-6" : "mt-8"}>
+            <p data-home-fold-score-plate="" className={latest ? "mt-6" : undefined}>
               <span
                 className="score-numeral text-5xl font-semibold tabular-nums text-light sm:text-6xl"
                 style={{ color: COLORS.light }}
@@ -123,9 +108,9 @@ export function ThresholdFold({
               >
                 {scorePct != null ? scorePct : "\u2014"}
               </span>
-              {latest && ageLabel ? (
+              {ageLine ? (
                 <span className="ml-3 text-sm text-dim" data-home-fold-age="">
-                  {scorePct != null ? `${scorePct} · ${ageLabel}` : ageLabel}
+                  {ageLine}
                 </span>
               ) : null}
             </p>
