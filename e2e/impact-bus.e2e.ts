@@ -133,7 +133,7 @@ async function seedAndInstrument(page: Page, steps: SeedStep[]): Promise<void> {
 async function gotoPath(page: Page, url = "/path"): Promise<void> {
   await page.goto(url);
   await dismissCookieConsent(page);
-  await expect(page.getByRole("heading", { name: "Your path" })).toBeVisible({
+    await expect(page.getByRole("heading", { name: "Path to Ready" })).toBeVisible({
     timeout: 20_000,
   });
 }
@@ -489,7 +489,7 @@ test.describe("Impact Bus @flag-on", () => {
     expect(await sessionKey(page, LAST_IMPACT_KEY)).toBeNull();
 
     // App remains functional
-    await expect(page.getByRole("heading", { name: "Your path" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Path to Ready" })).toBeVisible();
   });
 
   test("@flag-on P13: rapid sequential completions — latest impact wins", async ({ page }) => {

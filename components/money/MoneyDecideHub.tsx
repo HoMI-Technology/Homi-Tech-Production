@@ -1,41 +1,13 @@
 /**
- * Money · Decide — the lens suite.
- *
- * Ported from the local planner build's Tools surface: a flat card grid where
- * selecting a lens expands it *inline*, pre-filled from the money picture,
- * rather than navigating away. The previous version here was a hub of links
- * out to /tools/*; those URLs still exist for the public funnel (a spec
- * non-goal to remove them) and the lenses without an inline panel yet are
- * linked at the foot of this page so no capability is lost.
- *
- * Animation is enter-only. `AnimatePresence mode="wait"` wedges under rAF
- * throttling in background tabs, which strands the panel mid-transition.
+ * Money · Decide — supporting lens surface on live `/money/decide`.
+ * Primary catalog is `/tools`. Educational estimates — never a score write.
  */
 
 "use client";
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import {
-  ChevronRight,
-  Home,
-  Scale,
-  RefreshCw,
-  Landmark,
-  Layers,
-  Flame,
-  Activity,
-  Target,
-  Wallet,
-  PiggyBank,
-  Receipt,
-  TrendingUp,
-  Timer,
-  EyeOff,
-} from "lucide-react";
-import { COLORS } from "@/lib/brand";
-import { LENSES } from "@/lib/tools/registry";
+import { LENSES, hubLenses } from "@/lib/tools/registry";
 import { useLedgerSeeds } from "@/components/tools/seeds";
 import {
   AffordabilityPanel,
@@ -46,18 +18,9 @@ import {
 } from "@/components/tools/HousingPanels";
 import { BlindBudgetPanel, DebtPayoffPanel } from "@/components/tools/StabilityPanels";
 import { FirePanel, MonteCarloPanel, RothPanel } from "@/components/tools/TimingPanels";
-import {
-  ClosingCostPanel,
-  DownPaymentPanel,
-  RentVsBuyPanel,
-  RunwayPanel,
-} from "@/components/tools/Pass1Panels";
 import type { LedgerSeeds } from "@/components/tools/seeds";
 
-const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
-
-/** The lenses that render inline here. Order matches the local build. */
-const PANEL_IDS = [
+const HUB_PANEL_IDS = [
   "affordability",
   "apr-compare",
   "refinance",
@@ -68,43 +31,15 @@ const PANEL_IDS = [
   "fire",
   "roth-conversion",
   "blind-budget",
-  "runway",
-  "down-payment",
-  "rent-vs-buy",
-  "closing-cost",
 ] as const;
 
-type PanelId = (typeof PANEL_IDS)[number];
+type HubPanelId = (typeof HUB_PANEL_IDS)[number];
 
-const ICONS: Record<PanelId, typeof Home> = {
-  affordability: Home,
-  "apr-compare": Scale,
-  refinance: RefreshCw,
-  heloc: Landmark,
-  "loan-programs": Layers,
-  "debt-payoff": Flame,
-  "monte-carlo": Activity,
-  fire: Target,
-  "roth-conversion": Wallet,
-  "blind-budget": EyeOff,
-  runway: Timer,
-  "down-payment": PiggyBank,
-  "rent-vs-buy": TrendingUp,
-  "closing-cost": Receipt,
-};
+function isHubPanelId(id: string): id is HubPanelId {
+  return (HUB_PANEL_IDS as readonly string[]).includes(id);
+}
 
-/**
- * Closing cost has no /tools route in this repo, so its card copy lives here.
- * Every other card reads from the lens registry — one source of truth.
- */
-const CLOSING_COST = {
-  id: "closing-cost",
-  name: "Closing Cost Range",
-  desc: "Illustrative 2%–5% band of purchase price — not a lender quote.",
-  accent: COLORS.amber,
-};
-
-function ActivePanel({ id, seeds, desc }: { id: PanelId; seeds: LedgerSeeds; desc: string }) {
+function ActivePanel({ id, seeds, desc }: { id: HubPanelId; seeds: LedgerSeeds; desc: string }) {
   switch (id) {
     case "affordability":
       return <AffordabilityPanel seeds={seeds} desc={desc} />;
@@ -126,42 +61,25 @@ function ActivePanel({ id, seeds, desc }: { id: PanelId; seeds: LedgerSeeds; des
       return <RothPanel seeds={seeds} desc={desc} />;
     case "blind-budget":
       return <BlindBudgetPanel seeds={seeds} desc={desc} />;
-    case "runway":
-      return <RunwayPanel seeds={seeds} desc={desc} />;
-    case "down-payment":
-      return <DownPaymentPanel seeds={seeds} desc={desc} />;
-    case "rent-vs-buy":
-      return <RentVsBuyPanel seeds={seeds} desc={desc} />;
-    case "closing-cost":
-      return <ClosingCostPanel seeds={seeds} desc={desc} />;
+    default: {
+      const _exhaustive: never = id;
+      void _exhaustive;
+      return null;
+    }
   }
 }
 
 export function MoneyDecideHub() {
   const { seeds } = useLedgerSeeds();
-  const [active, setActive] = useState<PanelId>("affordability");
+  const cards = useMemo(() => hubLenses(), []);
+  const [active, setActive] = useState<string>(cards[0]?.id ?? "affordability");
+  const activeCard = cards.find((c) => c.id === active) ?? cards[0];
 
-  const cards = useMemo(
-    () =>
-      PANEL_IDS.map((id) => {
-        if (id === "closing-cost") return CLOSING_COST;
-        const lens = LENSES.find((l) => l.id === id);
-        return {
-          id,
-          name: lens?.name ?? id,
-          desc: lens?.desc ?? "",
-          accent: lens?.accent ?? COLORS.cyan,
-        };
-      }),
-    [],
-  );
-
-  /** Lenses that still live only as their own page. */
-  const linkedLenses = useMemo(
+  const deepLinks = useMemo(
     () =>
       LENSES.filter(
         (l) =>
-          !PANEL_IDS.includes(l.id as PanelId) &&
+          l.placement !== "hub" &&
           l.placement !== "hidden" &&
           l.placement !== "redirect" &&
           l.path.startsWith("/tools/"),
@@ -169,78 +87,66 @@ export function MoneyDecideHub() {
     [],
   );
 
-  const activeCard = cards.find((c) => c.id === active) ?? cards[0];
-
   return (
     <div>
-      <p className="mb-4 max-w-2xl text-sm text-dim" data-money-job="decide">
-        Answer one math question at a time. Educational estimates — not advice.
+      <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-dim">
+        Money · decide · supporting
       </p>
-      {/* Cards pick the active lens; only one panel answers below. MoneyShell owns
-       * mode chrome — do not stack a second page title here (#173). */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
-        {cards.map((tool, i) => {
-          const Icon = ICONS[tool.id as PanelId];
+      <h1 className="mt-2 text-2xl font-semibold tracking-tight text-light">Educational lenses</h1>
+      <p className="mb-4 mt-3 max-w-xl text-sm leading-relaxed text-dim" data-money-job="decide" data-decide-honesty="">
+        Answer one math question at a time. Educational estimates — not advice, and never a score
+        write. Verdict unchanged, or a hard stop still on, until a new assessment. Primary catalog:{" "}
+        <Link href="/tools" className="text-cyan underline-offset-2 hover:underline">
+          /tools
+        </Link>
+        .
+      </p>
+
+      <ol className="divide-y divide-white/[0.06] border-y border-white/[0.06]">
+        {cards.map((tool) => {
           const selected = tool.id === active;
           return (
-            <motion.button
-              key={tool.id}
-              type="button"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.03, ease: EASE }}
-              onClick={() => setActive(tool.id as PanelId)}
-              aria-pressed={selected}
-              className="group flex flex-col rounded-2xl border p-4 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
-              style={{
-                borderColor: selected ? `${tool.accent}59` : "rgba(255,255,255,0.06)",
-                backgroundColor: selected ? `${tool.accent}0d` : "rgba(30,41,59,0.6)",
-              }}
-            >
-              <span className="flex items-center justify-between">
-                <span
-                  className="flex h-8 w-8 items-center justify-center rounded-xl"
-                  style={{ backgroundColor: `${tool.accent}1a`, color: tool.accent }}
-                >
-                  <Icon size={15} aria-hidden />
+            <li key={tool.id}>
+              <button
+                type="button"
+                onClick={() => setActive(tool.id)}
+                aria-pressed={selected}
+                className="flex w-full items-start justify-between gap-4 py-4 text-left"
+              >
+                <span>
+                  <span className="block text-sm font-medium text-light">{tool.name}</span>
+                  <span className="mt-1 block text-sm leading-relaxed text-dim">{tool.desc}</span>
                 </span>
-                <ChevronRight
-                  size={14}
-                  aria-hidden
-                  className="text-dim transition-transform group-hover:translate-x-0.5"
-                  style={selected ? { color: tool.accent, transform: "rotate(90deg)" } : undefined}
-                />
-              </span>
-              <span className="mt-3 text-sm font-bold text-light">{tool.name}</span>
-              <span className="mt-1 text-xs leading-snug text-dim">{tool.desc}</span>
-            </motion.button>
+                <span className={`shrink-0 pt-0.5 text-sm ${selected ? "text-cyan" : "text-dim"}`}>
+                  {selected ? "Open lens" : "Open"}
+                </span>
+              </button>
+            </li>
           );
         })}
-      </div>
+      </ol>
 
-      <div className="mt-5">
-        {/* Keyed so switching lenses remounts and replays the enter animation. */}
-        <motion.div
-          key={active}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.18, ease: EASE }}
-        >
-          <ActivePanel id={active} seeds={seeds} desc={activeCard.desc} />
-        </motion.div>
-      </div>
+      {activeCard && isHubPanelId(activeCard.id) && (
+        <div className="mt-6" data-decide-active-lens={activeCard.id}>
+          <p className="mb-3 text-xs leading-relaxed text-dim/80">
+            Close language: this estimate does not write AssessmentResult. Verdict unchanged unless
+            you reassess. A hard stop still on stays on.
+          </p>
+          <ActivePanel id={activeCard.id} seeds={seeds} desc={activeCard.desc} />
+        </div>
+      )}
 
-      {linkedLenses.length > 0 && (
-        <section className="mt-10" aria-labelledby="decide-more">
-          <h2 id="decide-more" className="eyebrow text-dim">
-            More lenses
+      {deepLinks.length > 0 && (
+        <section className="mt-10" aria-labelledby="decide-depth">
+          <h2 id="decide-depth" className="text-2xs font-semibold uppercase tracking-[0.16em] text-dim">
+            Depth links
           </h2>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {linkedLenses.map((lens) => (
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+            {deepLinks.map((lens) => (
               <Link
                 key={lens.id}
                 href={lens.path}
-                className="rounded-xl border border-white/[0.08] bg-white/[0.02] px-3 py-2 text-sm text-dim transition-colors hover:border-cyan/30 hover:text-light"
+                className="text-sm text-dim underline decoration-white/20 underline-offset-4 hover:text-light"
               >
                 {lens.name}
               </Link>
@@ -249,7 +155,7 @@ export function MoneyDecideHub() {
         </section>
       )}
 
-      <p className="mt-10 max-w-2xl text-xs leading-relaxed text-dim/70">
+      <p className="mt-10 max-w-xl text-xs leading-relaxed text-dim/70">
         HōMI lenses are educational. They do not provide financial, tax, mortgage, or investment
         advice. Confirm critical numbers with qualified professionals before you act.
       </p>

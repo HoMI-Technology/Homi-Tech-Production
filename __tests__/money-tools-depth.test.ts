@@ -73,7 +73,7 @@ describe("money-tools depth doctrine", () => {
     const hub = read("app/(product)/tools/page.tsx");
     expect(hub).toMatch(/Educational estimates/);
     expect(hub).toMatch(/do not provide financial, tax, mortgage, or investment/);
-    expect(hub).toMatch(/Answer one math question|Lenses for the math/);
+    expect(hub).toMatch(/Answer one math question|Educational estimates only/);
   });
 
   it("ToolShell frames one lens job with educational posture", () => {

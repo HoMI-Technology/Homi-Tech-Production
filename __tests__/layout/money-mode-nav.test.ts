@@ -4,6 +4,12 @@
  */
 import { describe, expect, it } from "vitest";
 import { MONEY_MODES, modeFromPath } from "@/components/money/MoneyModeNav";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+function read(rel: string): string {
+  return readFileSync(resolve(process.cwd(), rel), "utf8");
+}
 
 describe("five-mode navigation", () => {
   it("MONEY_MODES is exactly the five canonical tabs, in order", () => {
@@ -42,5 +48,13 @@ describe("five-mode navigation", () => {
     expect(blurbs.decide).toBe("Stress the decision before you stretch");
     expect(blurbs.plan).toBe("The path that turns readiness into action");
     expect(blurbs.goals).toBe("What you’re building toward, and how far");
+  });
+
+  it("is not mounted as a primary rail or MoneyShell tab wall", () => {
+    const shell = read("components/money/MoneyShell.tsx");
+    const header = read("components/layout/AppHeader.tsx");
+    expect(shell).not.toContain("MoneyModeNav");
+    expect(header).not.toContain("MoneyModeNav");
+    expect(header).not.toContain("MONEY_MODES");
   });
 });

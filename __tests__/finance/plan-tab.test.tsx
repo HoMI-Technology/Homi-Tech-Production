@@ -62,8 +62,8 @@ describe("PlanCommand", () => {
     const { default: PlanCommand } = await import("@/components/planner/plan/PlanCommand");
     render(<PlanCommand />);
 
-    expect(screen.getByText("PLAN LAB")).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Decision readiness tools" })).toBeTruthy();
+    expect(screen.getByText("Money plan · depth")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Money plan" })).toBeTruthy();
     expect(screen.getByRole("navigation", { name: "Plan sections" })).toBeTruthy();
     expect(screen.getByRole("button", { name: /path/i }).getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByText("Path lab")).toBeTruthy();

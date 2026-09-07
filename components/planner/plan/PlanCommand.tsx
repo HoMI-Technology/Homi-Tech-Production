@@ -41,12 +41,13 @@ export function PlanCommand() {
   return (
     <div className="flex flex-col gap-5">
       <header>
-        <p className="text-label text-cyan">PLAN LAB</p>
-        <h2 className="mt-1.5 font-serif text-2xl italic leading-tight text-light sm:text-3xl">
-          Decision readiness tools
-        </h2>
-        <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-dim">
-          Path, housing, debt, dual score, Monte Carlo — every move can pulse the Decision Readiness Score.
+        <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-dim">
+          Money plan · depth
+        </p>
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-light">Money plan</h1>
+        <p className="mt-2 max-w-xl text-sm leading-relaxed text-dim">
+          Goals and housing depth under Path — not a second Path home. Path to Ready stays the build
+          workbench. Educational only; this surface does not write AssessmentResult.
         </p>
       </header>
 

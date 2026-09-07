@@ -5,7 +5,7 @@ import { COLORS } from "@/lib/brand";
 import dynamic from "next/dynamic";
 import type { LinkFlow } from "@/components/connections/PlaidLinkLauncher";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
-import { PageFrame } from "@/components/operate/PageFrame";
+import { JobDepthFrame } from "@/components/layout/JobDepthFrame";
 
 /**
  * Bank Connections — list, connect, reconnect (Plaid Link update mode),
@@ -244,8 +244,8 @@ export default function ConnectionsPage() {
   }
 
   return (
-    <PageFrame width="focus" density="spacious" role="personal">
-      <h1 className="font-display text-3xl text-light">Bank Connections</h1>
+    <JobDepthFrame job="connections">
+      <h1 className="text-2xl font-semibold tracking-tight text-light">Bank Connections</h1>
       <p className="mt-2 max-w-2xl text-dim">
         Connect your accounts for real balance and transaction context, or enter your numbers
         manually — HōMI works either way.
@@ -286,7 +286,7 @@ export default function ConnectionsPage() {
               Something went wrong checking connection status. You can still enter your numbers
               manually on the{" "}
               <a href="/money" className="text-cyan underline underline-offset-2">
-                Money Stand
+                Money picture
               </a>
               .
             </p>
@@ -368,7 +368,7 @@ export default function ConnectionsPage() {
           </div>
         )}
       </div>
-    </PageFrame>
+    </JobDepthFrame>
   );
 }
 
@@ -501,7 +501,7 @@ function UnconfiguredPanel() {
           <rect x="3" y="10" width="18" height="10" rx="2" />
           <path d="M7 10V7a5 5 0 0 1 10 0v3" />
         </svg>
-        <h2 className="font-display text-xl text-light">Bank sync is not available here</h2>
+        <h2 className="font-semibold text-light">Bank sync is not available here</h2>
       </div>
       <p className="mt-4 max-w-xl text-sm leading-relaxed text-dim">
         Live bank connection is not configured in this environment. HōMI does not pretend a connect
@@ -529,7 +529,7 @@ function UnconfiguredPanel() {
       <p className="text-sm text-dim">
         Enter your numbers directly on{" "}
         <a href="/money" className="text-cyan underline underline-offset-2">
-          Money Stand
+          Money picture
         </a>{" "}
         — everything there works fully without a bank connection.
       </p>

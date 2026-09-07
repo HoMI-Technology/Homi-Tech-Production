@@ -9,7 +9,7 @@ test.describe("Money Reality — public funnel", () => {
     const res = await page.goto("/tools");
     expect(res?.status()).toBeLessThan(400);
     await expect(page.getByRole("heading", { name: "Tools" })).toBeVisible();
-    await expect(page.getByText(/Lenses for the math\. Not a catalog\./i)).toBeVisible();
+    await expect(page.getByText(/Educational estimates only/i)).toBeVisible();
   });
 
   test("individual calculator stays public with public back link", async ({ page }) => {
@@ -42,12 +42,12 @@ test.describe("Money Reality — signed-in modes", () => {
     expect(res?.status()).toBeLessThan(400);
     const h1 = page.locator("h1");
     await expect(h1).toHaveCount(1);
-    await expect(h1).toHaveText(/Money/i);
-    await expect(page.getByRole("navigation", { name: /money modes/i })).toBeVisible();
+    await expect(h1).toHaveText(/Connect accounts to see money reality|Your money picture/i);
+    await expect(page.getByRole("navigation", { name: /money modes/i })).toHaveCount(0);
 
     await page.goto("/money/budget");
     await expect(page.locator("h1")).toHaveCount(1);
-    await expect(page.getByRole("navigation", { name: /money modes/i })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: /money modes/i })).toHaveCount(0);
     // No second product title
     await expect(page.getByRole("heading", { name: "Budget Planner" })).toHaveCount(0);
 
@@ -56,6 +56,6 @@ test.describe("Money Reality — signed-in modes", () => {
 
     await page.goto("/money/plan");
     await expect(page.locator("h1")).toHaveCount(1);
-    await expect(page.getByText(/PLAN LAB|Decision readiness/i).first()).toBeVisible();
+    await expect(page.getByText(/Money plan/i).first()).toBeVisible();
   });
 });

@@ -197,7 +197,7 @@ describe("locked title/meta lines", () => {
     expect(pricing).toContain("faqPageJsonLd(FAQS)");
     expect(tools).toContain('title: "Tools"');
     expect(tools).toContain(
-      "Answer one math question at a time — honest educational lenses for housing, debt, and independence.",
+      "Answer one math question at a time — honest educational lenses. Estimates never write your official score.",
     );
     expect(tools).not.toMatch(/18 calculators/i);
     expect(pricing).not.toMatch(/18 calculators/i);

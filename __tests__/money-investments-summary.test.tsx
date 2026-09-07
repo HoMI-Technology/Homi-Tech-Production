@@ -126,21 +126,17 @@ describe("InvestmentsSummary", () => {
 describe("Investments fold under Reality (static locks)", () => {
   const stand = read("components/money/MoneyStand.tsx");
 
-  it("MoneyStand mounts the summary below the Steady Cash instrument", () => {
+  it("MoneyStand still mounts the summary as depth, not a hero", () => {
     expect(stand).toContain(
       'import { InvestmentsSummary } from "@/components/money/InvestmentsSummary"',
     );
-    const instrumentEnd = stand.indexOf("</OperateInstrument>");
-    const summaryIdx = stand.indexOf("<InvestmentsSummary />");
-    expect(instrumentEnd).toBeGreaterThan(-1);
-    expect(summaryIdx).toBeGreaterThan(instrumentEnd);
+    expect(stand).toContain("<InvestmentsSummary />");
+    expect(stand.indexOf("<InvestmentsSummary />")).toBeGreaterThan(stand.indexOf("Liquid cash"));
   });
 
-  it("the ScoreRail compact rail stays above the instrument and the summary", () => {
-    const railIdx = stand.lastIndexOf("{scoreRail}");
-    expect(railIdx).toBeGreaterThan(-1);
-    expect(railIdx).toBeLessThan(stand.indexOf("<OperateInstrument"));
-    expect(railIdx).toBeLessThan(stand.indexOf("<InvestmentsSummary />"));
+  it("does not remount a ScoreRail or surplus instrument on /money", () => {
+    expect(stand).not.toContain("ScoreRail");
+    expect(stand).not.toContain("OperateInstrument");
   });
 
   it("the /money/investments deep link stays live with its full surface intact", () => {

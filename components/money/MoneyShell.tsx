@@ -1,22 +1,19 @@
 import type { ReactNode } from "react";
-import { MoneyModeNav } from "@/components/money/MoneyModeNav";
+import { JobDepthFrame } from "@/components/layout/JobDepthFrame";
 
 /**
- * Money Reality shell — single-column cockpit.
+ * Money Reality shell — single quiet column.
  *
- * The old three-column instrument (280px picture panel + 40px glyph rail +
- * content) put four competing zones on one page and printed surplus/income/
- * evidence twice. Now: labeled mode tabs on top, one measured column below.
- * The picture-panel data lives inline in the mode content (see MoneyStand).
- *
- * Server component: MoneyModeNav owns the only client boundary (usePathname),
- * so a server page can pass server-rendered children straight through.
+ * Mode tabs (Readiness / Reality / Decide / Plan / Goals) are not a primary
+ * rail and are not painted here. Live depth routes stay reachable from Path
+ * links, palette, and ···. Money is depth under the Home verdict.
  */
 export function MoneyShell({ children }: { children: ReactNode }) {
   return (
     <div className="money-page" data-surface="money" data-money-depth="">
-      <MoneyModeNav />
-      <div className="money-page-content">{children}</div>
+      <JobDepthFrame job="money">
+        <div className="money-page-content">{children}</div>
+      </JobDepthFrame>
     </div>
   );
 }

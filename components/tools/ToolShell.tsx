@@ -33,7 +33,7 @@ export function ToolShell({
       <ToolBackLink backHref={backHref} backLabel={backLabel} />
 
       <p className="eyebrow mt-5">{eyebrow === "Calculator" ? "Money · lens" : eyebrow}</p>
-      <h1 className="mt-1 font-display text-3xl text-light md:text-4xl">{title}</h1>
+      <h1 className="mt-1 text-3xl font-semibold tracking-tight text-light md:text-4xl">{title}</h1>
       <p className="mt-2 max-w-2xl text-dim">{description}</p>
       <p className="mt-2 max-w-2xl text-xs leading-relaxed text-dim/70" data-tool-educational="">
         Educational estimates only — not financial, tax, mortgage, or investment advice.

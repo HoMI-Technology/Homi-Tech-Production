@@ -27,7 +27,6 @@ export const ROUTE_STATE_GAPS = [
   "app/(product)/employee/dashboard/page.tsx",
   "app/(product)/genome/page.tsx",
   "app/(product)/partner/dashboard/page.tsx",
-  "app/(product)/path/page.tsx",
   "app/(product)/report/[id]/credential/page.tsx",
   "app/(product)/report/[id]/page.tsx",
   "app/(product)/report/[id]/path-certificate/page.tsx",

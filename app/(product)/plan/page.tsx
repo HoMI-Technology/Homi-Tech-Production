@@ -9,7 +9,7 @@ import { mapAssessmentRowToStored } from "@/lib/assessment/remote";
 import { pickResult } from "@/lib/assessment/resolveResult";
 import { createClient } from "@/lib/supabase/client";
 import { useResultInsights } from "@/hooks/use-result-insights";
-import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
+import { JobDepthFrame } from "@/components/layout/JobDepthFrame";
 import { ProductLoadingSkeleton } from "@/components/ui/ProductLoadingSkeleton";
 import { Phase0FreezeScreen } from "@/components/advisor/Phase0FreezeScreen";
 import { usePhase0Freeze } from "@/hooks/usePhase0Freeze";
@@ -137,51 +137,50 @@ export default function PlanPage() {
       );
     }
     return (
-      <div className="mx-auto max-w-xl px-4 py-24 text-center">
-        <div className="glass p-10">
-          <ThresholdCompass size={96} verdict="ALMOST_THERE" className="mx-auto" />
-          <h1 className="mt-6 font-display text-2xl font-semibold text-light">No plan yet</h1>
-          <p className="mt-3 text-sm text-dim">
-            Take an assessment first — this checklist is built from your real answers.
-          </p>
-          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <Link
-              href={isAnonymous ? PRIMARY_CLOSE_HREF : SIGNED_IN_ASSESS_HREF}
-              className="btn btn-primary"
-            >
-              {PRIMARY_CLOSE_LABEL}
+      <JobDepthFrame job="plan">
+        <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-dim">
+          Checklist · empty
+        </p>
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-light">No plan yet</h1>
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-dim">
+          Take an assessment first — this checklist is built from your real answers. Path to Ready
+          owns the living Build.
+        </p>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Link
+            href={isAnonymous ? PRIMARY_CLOSE_HREF : SIGNED_IN_ASSESS_HREF}
+            className="btn btn-primary"
+          >
+            {PRIMARY_CLOSE_LABEL}
+          </Link>
+          {!isAnonymous ? (
+            <Link href="/path" className="text-sm text-dim underline-offset-2 hover:underline">
+              Path to Ready
             </Link>
-            {!isAnonymous ? (
-              <Link href="/path" className="btn btn-ghost">
-                Path to Ready
-              </Link>
-            ) : null}
-          </div>
+          ) : null}
         </div>
-      </div>
+      </JobDepthFrame>
     );
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12 sm:py-16">
-      <div className="text-center">
-        <p className="eyebrow">Checklist · deep link</p>
-        <h1 className="mt-2 font-display text-3xl font-semibold text-light sm:text-4xl">
-          Readiness checklist
-        </h1>
-        <p className="mx-auto mt-3 max-w-lg text-sm text-dim">
-          Path to Ready owns the living Build. This page is a read-only checklist from your last
-          verdict — mark steps done on Path, not here.
+    <JobDepthFrame job="plan">
+      <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-dim">
+        Checklist · deep link
+      </p>
+      <h1 className="mt-2 text-2xl font-semibold tracking-tight text-light">Readiness checklist</h1>
+      <p className="mt-3 max-w-xl text-sm leading-relaxed text-dim">
+        Path to Ready owns the living Build. This page is a read-only checklist from your last
+        verdict — mark steps done on Path, not here.
+      </p>
+      {weakestPillar && (
+        <p className="mt-4 max-w-xl text-sm text-dim">
+          <span className="font-semibold" style={{ color: weakestPillar.color }}>
+            {weakestPillar.name}
+          </span>{" "}
+          is where we build first.
         </p>
-        {weakestPillar && (
-          <p className="mx-auto mt-4 max-w-lg text-base text-dim">
-            <span className="font-semibold" style={{ color: weakestPillar.color }}>
-              {weakestPillar.name}
-            </span>{" "}
-            is where we build first. Strengthening it moves your whole Decision Readiness Score.
-          </p>
-        )}
-      </div>
+      )}
 
       <div className="glass mt-10 flex items-center justify-between gap-4 p-6">
         <div>
@@ -220,22 +219,19 @@ export default function PlanPage() {
         ))}
       </ol>
 
-      <div className="mt-12 flex flex-col items-center gap-4 border-t border-slate-surface/60 pt-10 sm:flex-row sm:justify-center">
+      <div className="mt-12 flex flex-wrap gap-4 border-t border-slate-surface/60 pt-10">
         {!isAnonymous ? (
-          <Link href="/dashboard" className="btn btn-primary">
+          <Link href="/dashboard" className="text-sm text-dim underline-offset-2 hover:underline">
             Continue on Home
           </Link>
         ) : null}
-        <Link href="/path" className="btn btn-ghost">
+        <Link href="/path" className="text-sm text-cyan underline-offset-2 hover:underline">
           Path to Ready
         </Link>
-        {/* A retake must land on the flow that can actually produce a new
-            score. The 90-second shadow read cannot — it is a first-run
-            pulse, not a re-test. */}
-        <Link href="/assessment" className="btn btn-ghost">
+        <Link href="/assessment" className="text-sm text-dim underline-offset-2 hover:underline">
           {effective.kind === "shadow" ? "Assess" : "Re-take the assessment"}
         </Link>
       </div>
-    </div>
+    </JobDepthFrame>
   );
 }

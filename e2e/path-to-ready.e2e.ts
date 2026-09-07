@@ -119,7 +119,7 @@ test.describe("Path to Ready (seeded)", () => {
     await page.goto("/path");
     await dismissCookieConsent(page);
 
-    await expect(page.getByRole("heading", { name: "Your path" })).toBeVisible({
+    await expect(page.getByRole("heading", { name: "Path to Ready" })).toBeVisible({
       timeout: 20_000,
     });
     await expect(page.getByText(/Emergency runway|Binding constraint/i).first()).toBeVisible();

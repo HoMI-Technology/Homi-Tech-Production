@@ -2,14 +2,12 @@
  * ReadinessBand — the Phase 5 magnitude indicator on a lens result.
  *
  * Renders the band and direction of a hypothetical's readiness impact —
- * never the number, never the weights — with the honesty flags (neutral
- * anchors / estimated debt) and a deep link to the Score Simulator for
- * the full lever picture.
+ * never the number, never the weights — with honesty flags.
+ * Lenses never write AssessmentResult. Simulator stays launch-hidden.
  */
 
 "use client";
 
-import Link from "next/link";
 import { COLORS } from "@/lib/brand";
 import type { ReadinessImpact } from "@/lib/tools/readiness-impact";
 
@@ -20,10 +18,20 @@ function accent(impact: ReadinessImpact): string {
   return impact.band === "large" ? COLORS.crimson : COLORS.yellow;
 }
 
+function closeLanguage(impact: ReadinessImpact): string {
+  if (impact.hardStop) {
+    return "Hard stop still on — this estimate does not clear it, and does not write your official score.";
+  }
+  if (impact.direction === "flat") {
+    return "Verdict unchanged. This lens does not write AssessmentResult.";
+  }
+  return "Verdict language may move only if you reassess — this lens does not write the score.";
+}
+
 export function ReadinessBand({ impact }: { impact: ReadinessImpact }) {
   const color = accent(impact);
   return (
-    <div className="glass p-5" style={{ borderLeft: `2px solid ${color}` }}>
+    <div className="glass p-5" style={{ borderLeft: `2px solid ${color}` }} data-decide-close="">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-sm font-semibold text-light">Readiness impact</h2>
         {impact.band && (
@@ -36,6 +44,7 @@ export function ReadinessBand({ impact }: { impact: ReadinessImpact }) {
         )}
       </div>
       <p className="mt-2 text-sm leading-relaxed text-dim">{impact.line}</p>
+      <p className="mt-2 text-sm leading-relaxed text-light/90">{closeLanguage(impact)}</p>
       {(impact.neutral || impact.debtEstimated) && (
         <p className="mt-2 text-xs leading-relaxed text-dim/70">
           {impact.neutral
@@ -45,12 +54,6 @@ export function ReadinessBand({ impact }: { impact: ReadinessImpact }) {
           The full picture needs your real anchors.
         </p>
       )}
-      <Link
-        href="/simulator"
-        className="mt-3 inline-block text-xs font-medium text-cyan hover:underline"
-      >
-        Explore the levers in the Score Simulator →
-      </Link>
     </div>
   );
 }

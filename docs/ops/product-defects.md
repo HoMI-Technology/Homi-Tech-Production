@@ -11,7 +11,7 @@ These are **not** fixed in this PR. Tests were not softened.
 | `components/planner/goals/goals-derive.ts` | 1 | low | `__tests__/planner/goals-derive.test.ts` | Pure derivation lives under `components/`. Not extracted this PR (already testable). |
 | `components/planner/transactions/transactions-derive.ts` | 1 | low | `__tests__/planner/transactions-derive.test.ts` | Same layering note. |
 | `components/planner/plan/PlanCashFlow.tsx` | ~55 | low | `__tests__/planner/plan-cash-flow.test.tsx` | `buildCashFlowSeries` is exported from a UI module. |
-| fetching `page.tsx` siblings | — | low | `__tests__/policy/rules/route-state-coverage.test.ts` | 32 fetching pages missing `loading.tsx` and/or `error.tsx`. List is the ratchet in `ROUTE_STATE_GAPS`; shrink only. |
+| fetching `page.tsx` siblings | — | low | `__tests__/policy/rules/route-state-coverage.test.ts` | 31 fetching pages missing `loading.tsx` and/or `error.tsx`. List is the ratchet in `ROUTE_STATE_GAPS`; shrink only. |
 
 ## Route-state gaps (32)
 

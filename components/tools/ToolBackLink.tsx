@@ -15,7 +15,7 @@ function ToolBackLinkInner({
   const fromMoney = searchParams.get("from") === "money";
   const href = backHref ?? (fromMoney ? "/money/decide" : "/tools");
   const label =
-    backLabel ?? (fromMoney || href === "/money/decide" ? "Money · Decide" : "All tools");
+    backLabel ?? (fromMoney || href === "/money/decide" ? "Supporting lenses" : "All tools");
 
   return (
     <Link
