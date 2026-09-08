@@ -108,7 +108,7 @@ describe("partner + employee surfaces doctrine", () => {
 
   it("Partner primary is invite — not personal Path hero", () => {
     const page = read("app/(product)/partner/dashboard/page.tsx");
-    expect(page).toContain(">Partner</p>");
+    expect(page).toMatch(/>\s*Partner\s*<\/p>/);
     expect(page).not.toContain("Partner · /partner/dashboard");
     expect(page).toContain('data-partner-invite=""');
     expect(page).toContain("InviteShareRow");
@@ -127,7 +127,7 @@ describe("partner + employee surfaces doctrine", () => {
 
   it("Employee hub keeps privacy and Path ghost — score rail unmounted", () => {
     const page = read("app/(product)/employee/dashboard/page.tsx");
-    expect(page).toContain(">Employee</p>");
+    expect(page).toMatch(/>\s*Employee\s*<\/p>/);
     expect(page).not.toContain("Employee · /employee/dashboard");
     expect(page).toContain('data-employee-privacy=""');
     expect(page).toContain("OperateHeroMeta");

@@ -116,15 +116,15 @@ describe("PR4 team leftover kills", () => {
 
 describe("PR5 craft-residue chrome — operate voice, no new URLs", () => {
   it("first-paint labels drop WORD crumbs and raw path crumbs", () => {
-    expect(employee).toContain(">Employee</p>");
+    expect(employee).toMatch(/>\s*Employee\s*<\/p>/);
     expect(employee).not.toContain("Employee · /employee/dashboard");
-    expect(partner).toContain(">Partner</p>");
+    expect(partner).toMatch(/>\s*Partner\s*<\/p>/);
     expect(partner).not.toContain("Partner · /partner/dashboard");
     expect(team).toContain("Team · aggregate only");
     expect(team).not.toContain("Team · /team");
     expect(admin).toContain('eyebrow="Admin"');
     expect(admin).not.toContain("Admin · /admin");
-    expect(admin).toMatch(/>\s*Marketing\s*</);
+    expect(admin).toMatch(/>\s*Marketing\s*<\/Link>/);
     expect(admin).not.toContain("Marketing · depth");
     expect(admin).toContain("Marketing is depth");
   });
