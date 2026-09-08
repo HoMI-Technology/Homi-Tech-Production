@@ -56,6 +56,7 @@ export function EmptyState({
   actionLabel,
   secondaryHref,
   secondaryLabel,
+  tone = "default",
 }: {
   preset?: EmptyStatePreset;
   title?: string;
@@ -64,6 +65,8 @@ export function EmptyState({
   actionLabel?: string;
   secondaryHref?: string;
   secondaryLabel?: string;
+  /** Operate role homes: no compass in the page body, Inter not Fraunces. */
+  tone?: "default" | "operate";
 }) {
   const defaults = preset ? PRESETS[preset] : undefined;
   const resolvedTitle = title ?? defaults?.title ?? "Nothing here yet";
@@ -72,19 +75,22 @@ export function EmptyState({
   const resolvedLabel = actionLabel ?? defaults?.actionLabel;
   const resolvedSecondaryHref = secondaryHref ?? defaults?.secondaryHref;
   const resolvedSecondaryLabel = secondaryLabel ?? defaults?.secondaryLabel;
+  const operate = tone === "operate";
 
   return (
     <div className="flex flex-col items-center gap-4 text-center">
-      <ThresholdCompass size={56} animated={false} glow={false} />
+      {!operate && <ThresholdCompass size={56} animated={false} glow={false} />}
       <div>
-        <h2 className="font-display text-xl text-light">{resolvedTitle}</h2>
+        <h2 className={operate ? "text-xl font-medium text-light" : "font-display text-xl text-light"}>
+          {resolvedTitle}
+        </h2>
         {resolvedBody && (
           <p className="mt-3 max-w-md text-sm leading-relaxed text-dim">{resolvedBody}</p>
         )}
       </div>
       {resolvedHref && resolvedLabel && (
         <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
-          <Link href={resolvedHref} className="btn btn-primary">
+          <Link href={resolvedHref} className={operate ? "btn btn-ghost" : "btn btn-primary"}>
             {resolvedLabel}
           </Link>
           {resolvedSecondaryHref && resolvedSecondaryLabel && (

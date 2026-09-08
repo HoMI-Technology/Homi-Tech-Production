@@ -24,11 +24,13 @@ describe("admin overview — no cohort 0–100", () => {
     expect(src).not.toMatch(/acc \+ \(r\.overall_score/);
   });
 
-  it("rails Wait (BUILD FIRST + not yet) instead of an average integer", () => {
+  it("rails Users / Orgs / Assessments 7d / Waitlist instead of an average integer", () => {
     const src = read(ADMIN_HOME);
-    expect(src).toMatch(/label:\s*"Wait"/);
-    expect(src).toMatch(/BUILD_FIRST/);
-    expect(src).toMatch(/NOT_YET/);
+    expect(src).toMatch(/label:\s*"Users"/);
+    expect(src).toMatch(/label:\s*"Orgs"/);
+    expect(src).toMatch(/label:\s*"Assessments 7d"/);
+    expect(src).toMatch(/label:\s*"Waitlist"/);
+    expect(src).not.toMatch(/label:\s*"Wait"/);
   });
 });
 
@@ -56,9 +58,12 @@ describe("team dashboard — aggregate wait, not average score", () => {
     expect(src).not.toMatch(/\{a\.overall_score/);
   });
 
-  it("rails Wait and stays aggregate-only", () => {
+  it("rails aggregate coverage and stays named-individual-free", () => {
     const src = read(TEAM);
-    expect(src).toMatch(/label:\s*"Wait"/);
+    expect(src).toMatch(/label:\s*"Members covered"/);
+    expect(src).toMatch(/label:\s*"Participation"/);
+    expect(src).toMatch(/label:\s*"Org pulse"/);
+    expect(src).not.toMatch(/label:\s*"Wait"/);
     expect(src).toContain('data-team-aggregates=""');
     expect(src).toMatch(/Individuals are not listed|No named individuals/);
   });

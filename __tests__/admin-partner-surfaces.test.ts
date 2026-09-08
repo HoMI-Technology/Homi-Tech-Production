@@ -24,8 +24,13 @@ describe("admin + marketing attention doctrine", () => {
     const page = read("app/(product)/admin/page.tsx");
     expect(page).toContain("AttentionStrip");
     expect(page).toContain('data-admin-attention=""');
+    expect(page).toContain("<PageFrame");
+    expect(page).toContain('data-admin-depth=""');
+    expect(page).toContain("Marketing · depth");
     expect(page.indexOf("AttentionStrip")).toBeLessThan(page.indexOf("<MetricRail"));
     expect(page.indexOf("data-admin-attention")).toBeLessThan(page.indexOf("<MetricRail"));
+    expect(page.indexOf("<MetricRail")).toBeLessThan(page.indexOf("data-admin-depth"));
+    expect(page).not.toContain("ThresholdFold");
   });
 
   it("Marketing follows the locked command-center v2 section order", () => {
@@ -76,6 +81,18 @@ describe("admin + marketing attention doctrine", () => {
     expect(widget).toMatch(/pathname === "\/admin"/);
     expect(widget).toMatch(/pathname\.startsWith\("\/admin\/"\)/);
   });
+
+  it("Admin home uses PageFrame under shell v3 — no Wordmark left rail", () => {
+    const layout = read("app/(product)/admin/layout.tsx");
+    expect(layout).toContain("AdminOperateChrome");
+    expect(layout).not.toContain("Wordmark");
+    expect(layout).not.toContain("AdminSidebar");
+    const chrome = read("components/admin/AdminOperateChrome.tsx");
+    expect(chrome).toContain('pathname === "/admin"');
+    expect(chrome).toContain("AdminSidebar");
+    expect(chrome).not.toContain("Wordmark");
+    expect(chrome).not.toContain("ThresholdCompass");
+  });
 });
 
 describe("partner + employee surfaces doctrine", () => {
@@ -92,10 +109,13 @@ describe("partner + employee surfaces doctrine", () => {
     expect(page).toContain('data-partner-invite=""');
     expect(page).toContain("InviteShareRow");
     expect(page).toContain("first-moment?ref=");
+    expect(page).toContain("Copy invite");
     expect(page).not.toContain("shadow-score?ref=");
     expect(page).not.toContain("Shadow Score");
+    expect(page).not.toContain("VerdictBadge");
     expect(page).not.toContain("PathNextMove");
     expect(page).not.toContain("HomeFold");
+    expect(page).not.toContain("NOT_YET");
     expect(page).toContain('data-partner-resources=""');
     // Resources demoted — no glass-hover marketing wall
     expect(page).not.toMatch(/data-partner-resources[\s\S]*glass-hover/);
@@ -107,16 +127,23 @@ describe("partner + employee surfaces doctrine", () => {
     expect(page).toContain("OperateHeroMeta");
     expect(page).toContain("MetricRail");
     expect(page).toContain("EmptyState");
+    expect(page).toContain('tone="operate"');
+    expect(page).toContain("What your employer sees");
+    expect(page).toContain("Your score here");
     expect(page).not.toContain("HeroScore");
     expect(page).not.toContain("VerdictBadge");
     expect(page).not.toContain("data-employee-score-rail");
     expect(page).not.toContain("data-employee-primary");
     expect(page).not.toContain("Private Decision Readiness Score");
     expect(page).not.toContain("Continue your build on personal Home");
+    expect(page).not.toContain("Not yet is not no");
     expect(page).not.toContain("tint={tint}");
     expect(page).not.toContain("ThresholdFold");
     expect(page).not.toContain("PathNextMove");
     expect(page).not.toContain("HomeFold");
+    expect(page).not.toContain("financial_score");
+    expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("ThresholdCompass");
     // Six-card product wall removed
     expect(page).not.toMatch(/glass glass-hover block p-4[\s\S]*Path to Ready/);
     expect(page).not.toMatch(/title: "Companion"/);
@@ -129,6 +156,9 @@ describe("partner + employee surfaces doctrine", () => {
     expect(page).toContain('data-team-aggregates=""');
     expect(page).toMatch(/Individuals are not listed|No named individuals/);
     expect(page).not.toContain("PathNextMove");
+    expect(page).not.toContain("ActionDock");
+    expect(page).not.toContain('href="/dashboard"');
+    expect(page).not.toContain("/team/dashboard");
   });
 
   it("does not reopen Phases 1–3 locks", () => {

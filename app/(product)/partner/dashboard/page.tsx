@@ -4,27 +4,21 @@ import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { signInRedirect } from "@/lib/auth/signInRedirect";
 import { AccessPanel } from "@/components/b2b/AccessPanel";
-import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageFrame } from "@/components/operate/PageFrame";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { InviteShareRow } from "@/components/operate/InviteShareRow";
-import { ActionDock } from "@/components/operate/ActionDock";
 import { OperateHeroMeta } from "@/components/operate/OperateHeroMeta";
-import { OperateInstrument } from "@/components/operate/OperateInstrument";
 import type { Profile } from "@/types/database";
 import type { VerdictKey } from "@/lib/brand";
-import { COLORS, VERDICT_META } from "@/lib/brand";
 import { canAccessPartnerDashboard } from "@/lib/dashboard/partner-access";
 import { resolvePartnerInviteOrigin } from "@/lib/dashboard/partner-site-url";
 import { scoreBand, type ScoreBand } from "@/lib/receipts";
 
 export const metadata: Metadata = {
   title: "Partner Dashboard | HōMI",
-  description: "Book pulse, invite link, and readiness for your referred clients.",
+  description: "Invite clients to a first moment. Book pulse from referral_source.",
 };
-
-const VERDICT_KEYS: VerdictKey[] = ["READY", "ALMOST_THERE", "BUILD_FIRST", "NOT_YET"];
 
 const SCORE_BAND_LABEL: Record<ScoreBand, string> = {
   high: "High",
@@ -37,6 +31,7 @@ const SCORE_BAND_LABEL: Record<ScoreBand, string> = {
  * Partner home — single operate surface (portal redirects here).
  * Book pulse: assessments.referral_source + RPC attribution path.
  * Named roster: profiles.partner_id only (explicit relationship).
+ * Read-only toward client verdicts — never writes score or ledger.
  */
 export default async function PartnerDashboardPage() {
   const supabase = await createClient();
@@ -172,163 +167,105 @@ export default async function PartnerDashboardPage() {
   const clients = (clientRows as Pick<Profile, "id" | "full_name" | "created_at">[] | null) ?? [];
 
   const assessmentCount = attributed.length > 0 ? attributed.length : (rpcCount ?? 0);
-  const readyCount = attributed.filter((a) => a.verdict === "READY").length;
-  const waitCount = attributed.filter(
-    (a) => a.verdict === "BUILD_FIRST" || a.verdict === "NOT_YET",
-  ).length;
-  const readyRate =
-    assessmentCount > 0 ? Math.round((readyCount / Math.max(attributed.length, 1)) * 100) : null;
-
-  const verdictCounts: Record<VerdictKey, number> = {
-    READY: 0,
-    ALMOST_THERE: 0,
-    BUILD_FIRST: 0,
-    NOT_YET: 0,
-  };
-  for (const a of attributed) {
-    if (a.verdict && a.verdict in verdictCounts) {
-      verdictCounts[a.verdict as VerdictKey] += 1;
-    }
-  }
-
+  const booked = attributed.filter((a) => a.is_shadow !== true).length;
+  const open = Math.max(0, assessmentCount - booked);
   const hasBook = assessmentCount > 0;
 
   return (
     <PageFrame role="partner" density="compact">
-      <OperateInstrument tint={COLORS.cyan}>
-        <OperateHeroMeta
-          title={
-            <>
-              Partner <span className="text-aurora">book</span>
-            </>
-          }
-          description="Where your book stands. Invite link attributes readiness. Emails stay private."
-        />
+      <p className="text-2xs font-bold uppercase tracking-[0.14em] text-dim">
+        Partner · /partner/dashboard
+      </p>
+      <OperateHeroMeta
+        title="Invite clients to a first moment"
+        description="Read-honest referral. You never write their score. Book pulse stays from referral_source."
+      />
+
+      <div className="dash-panel mt-6" data-partner-invite="">
+        <p className="dash-rail-label">Your invite link</p>
+        <div className="mt-3">
+          {inviteUrl ? (
+            <InviteShareRow url={inviteUrl} copyLabel="Copy invite" />
+          ) : (
+            <p className="text-sm text-dim">
+              Could not mint an invite code. Refresh or contact support.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-6">
         <MetricRail
           cells={[
             {
-              label: "Assessments",
+              label: "Invites sent",
               value: String(assessmentCount),
-              footer: "Attributed to you",
-              color: COLORS.cyan,
+              footer: "referral_source · live",
             },
             {
-              label: "Wait",
-              value: String(waitCount),
-              footer: "BUILD FIRST + not yet",
-              color: COLORS.yellow,
+              label: "Booked",
+              value: String(booked),
+              footer: "Book pulse",
             },
             {
-              label: "Ready",
-              value: readyRate !== null ? `${readyRate}%` : String(readyCount),
-              footer: "Verdict = READY",
-              color: COLORS.emerald,
-            },
-            {
-              label: "Roster",
-              value: String(clients.length),
-              footer: "Named partner_id only",
-              color: COLORS.emerald,
+              label: "Open",
+              value: String(open),
+              footer: "No client score wall",
             },
           ]}
         />
-        <div data-partner-invite="">
-          <ActionDock
-            kicker="Next move"
-            title={hasBook ? "Share your invite link" : "Share your link to open the book"}
-          >
-            {inviteUrl ? (
-              <InviteShareRow url={inviteUrl} />
-            ) : (
-              <p className="text-sm text-dim">
-                Could not mint an invite code. Refresh or contact support.
-              </p>
-            )}
-          </ActionDock>
-        </div>
-      </OperateInstrument>
+      </div>
 
       {!hasBook && (
-        <div className="glass mt-6 p-8">
+        <div className="mt-6">
           <EmptyState
+            tone="operate"
             title="Share your link to open the book"
-            body="When clients complete an assessment through your invite, readiness appears here. No emails. No guesswork."
+            body="When clients complete a first moment through your invite, book pulse appears here. No emails. No guesswork."
           />
         </div>
       )}
 
       {hasBook && (
-        <>
-          <div className="mt-6">
-            <div className="dash-section-head">
-              <h2>Verdict mix</h2>
-              <p>Distribution across your attributed book.</p>
-            </div>
-            <div className="dash-rail">
-              {VERDICT_KEYS.map((k) => (
-                <div key={k} className="dash-rail-cell">
-                  <p className="dash-rail-label">{VERDICT_META[k].label}</p>
-                  <p className="dash-rail-value" style={{ color: VERDICT_META[k].color }}>
-                    {verdictCounts[k]}
-                  </p>
-                </div>
-              ))}
-            </div>
+        <div className="glass mt-6 p-5 sm:p-6">
+          <div className="dash-section-head">
+            <h2>Recent book pulse</h2>
+            <p>Receipt bands only. No verdict badge wall. Never emails.</p>
           </div>
-
-          <div className="glass mt-6 p-5 sm:p-6">
-            <div className="dash-section-head">
-              <h2>Recent readiness</h2>
-              <p>Roster names only when linked. Never emails.</p>
-            </div>
-            <div className="table-scroll">
-              <table className="table-premium min-w-[520px]">
-                <thead>
-                  <tr>
-                    <th>Client</th>
-                    <th>Band</th>
-                    <th>Verdict</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {attributed.slice(0, 20).map((a) => {
-                    const client = a.user_id ? clients.find((c) => c.id === a.user_id) : undefined;
-                    return (
-                      <tr key={a.id}>
-                        <td className="text-sm text-light">
-                          {client?.full_name || "Client"}
-                          {a.is_shadow && (
-                            <span className="ml-2 text-3xs uppercase text-dim">Shadow</span>
-                          )}
-                        </td>
-                        <td className="text-sm text-dim">
-                          {a.overall_score != null
-                            ? SCORE_BAND_LABEL[scoreBand(a.overall_score)]
-                            : "—"}
-                        </td>
-                        <td>
-                          {a.verdict ? (
-                            <VerdictBadge verdict={a.verdict as VerdictKey} size="sm" />
-                          ) : (
-                            "—"
-                          )}
-                        </td>
-                        <td className="text-xs text-dim">
-                          {new Date(a.completed_at ?? a.created_at).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+          <div className="table-scroll">
+            <table className="table-premium min-w-[520px]">
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Band</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {attributed.slice(0, 20).map((a) => {
+                  const client = a.user_id ? clients.find((c) => c.id === a.user_id) : undefined;
+                  return (
+                    <tr key={a.id}>
+                      <td className="text-sm text-light">{client?.full_name || "Client"}</td>
+                      <td className="text-sm text-dim">
+                        {a.overall_score != null
+                          ? SCORE_BAND_LABEL[scoreBand(a.overall_score)]
+                          : "—"}
+                      </td>
+                      <td className="text-xs text-dim">
+                        {new Date(a.completed_at ?? a.created_at).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-        </>
+        </div>
       )}
 
       {clients.length > 0 && (
@@ -362,7 +299,7 @@ export default async function PartnerDashboardPage() {
         {[
           { href: "/guides", title: "Client guides", body: "Share ready explainers" },
           { href: "/method", title: "HōMI method", body: "How the instrument works" },
-          { href: "/how-it-works", title: "Assessment", body: "What clients complete" },
+          { href: "/how-it-works", title: "First moment", body: "What clients complete" },
         ].map((card) => (
           <Link
             key={card.href}

@@ -9,7 +9,6 @@ import { OperateHeroMeta } from "@/components/operate/OperateHeroMeta";
 import { OperateInstrument } from "@/components/operate/OperateInstrument";
 import { canAccessEmployeeHub } from "@/lib/dashboard/employee-access";
 import { signInRedirect } from "@/lib/auth/signInRedirect";
-import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
 import type { AssessmentRow, Organization, Profile } from "@/types/database";
 
 export const metadata: Metadata = {
@@ -56,11 +55,6 @@ export default async function EmployeeDashboardPage() {
           href="/employee"
           linkLabel="Learn about employee benefits"
         />
-        <div className="mt-6 text-center">
-          <Link href="/dashboard" className="btn btn-ghost text-sm">
-            Personal dashboard
-          </Link>
-        </div>
       </div>
     );
   }
@@ -77,35 +71,27 @@ export default async function EmployeeDashboardPage() {
 
   const { data: assessmentData } = await supabase
     .from("assessments")
-    .select("*")
+    .select("id")
     .eq("user_id", user.id)
     .eq("status", "completed")
     .order("created_at", { ascending: false })
-    .limit(5);
-  const assessments = (assessmentData as AssessmentRow[] | null) ?? [];
-  const latest = assessments[0] ?? null;
-  const verdict = (latest?.verdict as VerdictKey | null) ?? null;
-  const tint = verdict ? VERDICT_META[verdict].color : COLORS.cyan;
-  const scorePct = latest?.overall_score != null ? Math.round(latest.overall_score) : null;
+    .limit(1);
+  const latest = ((assessmentData as Pick<AssessmentRow, "id">[] | null) ?? [])[0] ?? null;
 
   return (
     <PageFrame role="employee" density="compact">
+      <p className="text-2xs font-bold uppercase tracking-[0.14em] text-dim">
+        Employee · /employee/dashboard
+      </p>
       <OperateInstrument tint="transparent">
         <OperateHeroMeta
           title={
             <>
-              {org ? (
-                <>
-                  {org.name} <span className="text-aurora">benefits</span>
-                </>
-              ) : (
-                <>
-                  Employee <span className="text-aurora">readiness</span>
-                </>
-              )}
+              Employee readiness for{" "}
+              <span className="text-aurora">{org?.name ?? "your employer"}</span>
             </>
           }
-          description="Private through your employer. Only you see individual scores and answers."
+          description="Your employer never sees a personal score. Privacy stays on. Operate chrome — not a second personal Home."
         />
 
         {latest ? (
@@ -114,8 +100,9 @@ export default async function EmployeeDashboardPage() {
           </Link>
         ) : (
           <EmptyState
+            tone="operate"
             title="One private measurement and this hub comes alive"
-            body="Your employer sponsors the instrument. Only you see the reading."
+            body="Your employer sponsors the instrument. Only you see the reading — on personal Home, not here."
             actionHref="/assessment"
             actionLabel="Assess"
           />
@@ -124,20 +111,16 @@ export default async function EmployeeDashboardPage() {
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2" data-employee-privacy="">
         <div className="dash-panel">
-          <h3 className="text-emerald">You see</h3>
-          <ul className="mt-2 space-y-1.5 text-sm text-dim">
-            <li className="text-light">Your score, verdict, and pillars</li>
-            <li>Answers and Companion conversations</li>
-            <li>Tools, journal, and personal plan</li>
-          </ul>
+          <h3>What your employer sees</h3>
+          <p className="mt-2 text-sm text-dim">
+            Participation and program fit only. No personal verdict. No peer score listing.
+          </p>
         </div>
         <div className="dash-panel">
-          <h3>Employer may see</h3>
-          <ul className="mt-2 space-y-1.5 text-sm text-dim">
-            <li className="text-light">Participation and de-identified bands</li>
-            <li>Never your score by name</li>
-            <li>Never answers or chat content</li>
-          </ul>
+          <h3>What stays yours</h3>
+          <p className="mt-2 text-sm text-dim">
+            Assessment detail, Path, and money reality stay on your personal Home — not here.
+          </p>
         </div>
       </div>
 
@@ -145,58 +128,23 @@ export default async function EmployeeDashboardPage() {
         <MetricRail
           cells={[
             {
-              label: "Your score",
-              value: scorePct != null ? String(scorePct) : "—",
-              footer: "Private to you",
-              color: tint,
+              label: "Org coverage",
+              value: "—",
+              footer: "Aggregate only",
             },
             {
-              label: "Assessments",
-              value: String(assessments.length),
-              footer: "Completed reads",
-              color: COLORS.emerald,
-            },
-            {
-              label: "Benefit",
-              value: org?.name ? "Active" : "Linked",
+              label: "Benefits open",
+              value: org ? "1" : "—",
               footer: "Employer-sponsored",
-              color: COLORS.yellow,
+            },
+            {
+              label: "Your score here",
+              value: "—",
+              footer: "Personal Home only",
             },
           ]}
         />
       </div>
-
-      {latest && (
-        <div className="mt-5">
-          <div className="dash-section-head">
-            <h2>Three pillars</h2>
-            <p>Private to you. Your employer never sees these numbers by name.</p>
-          </div>
-          <div className="dash-rail">
-            <div className="dash-rail-cell">
-              <p className="dash-rail-label">Financial</p>
-              <p className="dash-rail-value" style={{ color: COLORS.cyan }}>
-                {latest.financial_score != null ? Math.round(latest.financial_score) : "—"}
-              </p>
-              <p className="dash-rail-footer">Reality</p>
-            </div>
-            <div className="dash-rail-cell">
-              <p className="dash-rail-label">Emotional</p>
-              <p className="dash-rail-value" style={{ color: COLORS.emerald }}>
-                {latest.emotional_score != null ? Math.round(latest.emotional_score) : "—"}
-              </p>
-              <p className="dash-rail-footer">Truth</p>
-            </div>
-            <div className="dash-rail-cell">
-              <p className="dash-rail-label">Timing</p>
-              <p className="dash-rail-value" style={{ color: COLORS.yellow }}>
-                {latest.timing_score != null ? Math.round(latest.timing_score) : "—"}
-              </p>
-              <p className="dash-rail-footer">Perfect window</p>
-            </div>
-          </div>
-        </div>
-      )}
 
       <p className="mt-10 text-center text-xs text-dim">
         Decision-support benefit. Not medical or financial advice. HōMI Technologies LLC.

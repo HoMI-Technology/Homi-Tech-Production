@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Sparkline } from "@/components/ui/Sparkline";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -6,6 +7,7 @@ import { BarSeries } from "@/components/admin/BarSeries";
 import { CsvExportButton } from "@/components/admin/CsvExportButton";
 import { SystemHealthCard } from "@/components/admin/SystemHealthCard";
 import { AttentionStrip, type AttentionItem } from "@/components/operate/AttentionStrip";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { COLORS, VERDICT_META, type VerdictKey } from "@/lib/brand";
@@ -36,9 +38,9 @@ export default async function AdminOverviewPage() {
   const supabase = await createClient();
 
   let totalUsers = 0;
+  let orgCount = 0;
   let assessmentsCompleted = 0;
   let waitlistCount = 0;
-  let waitCount = 0;
   const verdictCounts: Record<VerdictKey, number> = {
     READY: 0,
     ALMOST_THERE: 0,
@@ -74,6 +76,15 @@ export default async function AdminOverviewPage() {
   }
 
   try {
+    const { count } = await supabase
+      .from("organizations")
+      .select("*", { count: "exact", head: true });
+    orgCount = count ?? 0;
+  } catch {
+    orgCount = 0;
+  }
+
+  try {
     const { data } = await supabase
       .from("assessments")
       .select("verdict")
@@ -85,9 +96,8 @@ export default async function AdminOverviewPage() {
         verdictCounts[r.verdict] += 1;
       }
     }
-    waitCount = verdictCounts.BUILD_FIRST + verdictCounts.NOT_YET;
   } catch {
-    waitCount = 0;
+    // verdict mix stays zero
   }
 
   try {
@@ -206,45 +216,39 @@ export default async function AdminOverviewPage() {
   }
 
   return (
-    <div>
+    <PageFrame role="admin" density="compact">
       <PageHeader
-        eyebrow="Admin"
-        title="Overview"
-        description="What needs ops attention now? Then platform-wide signal below."
-        primaryAction={{ label: "Activity", href: "/admin/activity", variant: "ghost" }}
-        secondaryAction={{ label: "Analytics", href: "/admin/analytics", variant: "ghost" }}
+        eyebrow="Admin · /admin · PageFrame"
+        title="What needs a human"
+        description="Attention first. KPIs after. Not a personal readiness home. Marketing is depth — not a peer role."
       />
 
       <div className="mt-6" data-admin-attention="">
-        <AttentionStrip items={attention} title="Needs attention" />
+        <AttentionStrip items={attention} title="Attention" />
       </div>
 
       <div className="mt-6">
         <MetricRail
           cells={[
             {
-              label: "Total users",
+              label: "Users",
               value: totalUsers.toLocaleString(),
               footer: "All accounts",
-              color: COLORS.cyan,
             },
             {
-              label: "Assessments",
-              value: assessmentsCompleted.toLocaleString(),
-              footer: `${last7.toLocaleString()} in last 7 days`,
-              color: COLORS.emerald,
+              label: "Orgs",
+              value: orgCount.toLocaleString(),
+              footer: "Organizations",
             },
             {
-              label: "Wait",
-              value: String(waitCount),
-              footer: "BUILD FIRST + not yet",
-              color: COLORS.yellow,
+              label: "Assessments 7d",
+              value: last7.toLocaleString(),
+              footer: `${assessmentsCompleted.toLocaleString()} all-time`,
             },
             {
               label: "Waitlist",
               value: waitlistCount.toLocaleString(),
               footer: "Signups captured",
-              color: COLORS.amber,
             },
           ]}
         />
@@ -260,6 +264,28 @@ export default async function AdminOverviewPage() {
           </div>
         )}
       </div>
+
+      <nav
+        data-admin-depth=""
+        className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-dim"
+        aria-label="Admin depth"
+      >
+        <Link href="/admin/users" className="hover:text-light">
+          Users
+        </Link>
+        <Link href="/admin/organizations" className="hover:text-light">
+          Orgs
+        </Link>
+        <Link href="/admin/activity" className="hover:text-light">
+          Activity
+        </Link>
+        <Link href="/admin/analytics" className="hover:text-light">
+          Analytics
+        </Link>
+        <Link href="/admin/marketing" className="text-aurora underline-offset-4 hover:underline">
+          Marketing · depth
+        </Link>
+      </nav>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         <div className="glass p-6">
@@ -417,6 +443,6 @@ export default async function AdminOverviewPage() {
       <p className="mt-8 text-center text-xs text-dim">
         Decision-support software. Not financial, legal, or tax advice. HōMI Technologies LLC.
       </p>
-    </div>
+    </PageFrame>
   );
 }

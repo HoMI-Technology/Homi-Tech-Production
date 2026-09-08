@@ -3127,6 +3127,27 @@ body {
     color: var(--color-dim);
   }
 
+  /* OTHER_ROLES_CRAFT v3 — Fraunces 0% on operate role surfaces (Inter UI). */
+  [data-operate-role="employee"] .dash-hero-meta h1,
+  [data-operate-role="partner"] .dash-hero-meta h1,
+  [data-operate-role="team"] .dash-hero-meta h1,
+  [data-operate-role="admin"] .dash-hero-meta h1,
+  [data-operate-role="employee"] .type-h1,
+  [data-operate-role="partner"] .type-h1,
+  [data-operate-role="team"] .type-h1,
+  [data-operate-role="admin"] .type-h1,
+  [data-operate-role="employee"] .type-h2,
+  [data-operate-role="partner"] .type-h2,
+  [data-operate-role="team"] .type-h2,
+  [data-operate-role="admin"] .type-h2,
+  [data-operate-role="employee"] .font-display,
+  [data-operate-role="partner"] .font-display,
+  [data-operate-role="team"] .font-display,
+  [data-operate-role="admin"] .font-display {
+    font-family: var(--font-sans);
+    font-style: normal;
+  }
+
   /* Next-move action dock — unmissable, not a footnote */
   .dash-action-dock > .dash-action-dock-actions {
     display: flex;

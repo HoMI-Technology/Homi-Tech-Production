@@ -60,7 +60,7 @@ KPI walls (`MetricRail`, charts, desks) stay **below** attention.
 ## Definition of done
 
 - [ ] `docs/ADMIN-MARKETING-ATTENTION.md` matches this doctrine
-- [ ] `/admin` mounts `AttentionStrip` before `MetricRail`
+- [ ] `/admin` mounts `PageFrame` + `AttentionStrip` before `MetricRail`
 - [ ] `/admin/marketing` leads with attention / ship-kill, desks below
 - [ ] `/admin/ad-spend` leads with an attention/decision band
 - [ ] Companion remains unmounted on admin routes
