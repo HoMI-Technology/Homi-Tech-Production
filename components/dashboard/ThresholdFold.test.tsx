@@ -11,6 +11,11 @@ import {
   FOLD_MONEY_CONNECTED_HEADING,
   FOLD_MONEY_DEPTH_LABEL,
   FOLD_MONEY_HREF,
+  HOME_DENSITY_LENSES,
+  HOME_DENSITY_OPEN_PATH_HREF,
+  HOME_DENSITY_OPEN_PATH_LABEL,
+  HOME_DENSITY_VIEW_ALL_TOOLS_HREF,
+  HOME_DENSITY_VIEW_ALL_TOOLS_LABEL,
   MONEY_WAIT_LINE,
   foldHardStopEyebrow,
   foldHomeHoldSentence,
@@ -65,6 +70,24 @@ const live61 = {
     href: "/tools/runway",
     title: RUNWAY_HARD_STOP_PATH_TITLE,
   },
+  pathSteps: [
+    {
+      title: RUNWAY_HARD_STOP_PATH_TITLE,
+      href: "/tools/runway",
+      status: "pending",
+      reasonCode: "RUNWAY_UNDER_1_MONTH",
+    },
+    {
+      title: "Grow emergency fund toward 3–6 months",
+      href: "/tools/runway",
+      status: "pending",
+    },
+    {
+      title: "Lower monthly debt burden (target DTI ≤ 36%)",
+      href: "/tools/debt-payoff",
+      status: "pending",
+    },
+  ],
 };
 
 describe("ThresholdFold", () => {
@@ -103,6 +126,7 @@ describe("ThresholdFold", () => {
     expect(container.querySelector("[data-home-score-rail]")).toBeNull();
     expect(container.querySelector("[data-home-money-standing]")).toBeNull();
     expect(container.querySelector("[data-home-money-below-fold]")).toBeNull();
+    expect(container.querySelector("[data-home-density]")).toBeNull();
     expect(screen.queryByText(/Checking in/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /open money/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: FOLD_CONNECT_ACCOUNTS_LABEL })).not.toBeInTheDocument();
@@ -223,8 +247,15 @@ describe("ThresholdFold", () => {
     expect(path).toHaveAttribute("href", "/tools/runway");
     expect(path).toHaveTextContent(RUNWAY_HARD_STOP_FOLD_TITLE);
     expect(container.querySelectorAll(".btn-primary")).toHaveLength(1);
-    expect(screen.queryByText(/Stabilize emergency runway to at least 1 month/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Grow emergency fund toward 3–6 months/)).not.toBeInTheDocument();
+    expect(container.querySelector("[data-path-fold-primary]")).toHaveTextContent(
+      RUNWAY_HARD_STOP_FOLD_TITLE,
+    );
+    expect(
+      screen.queryByRole("link", { name: RUNWAY_HARD_STOP_PATH_TITLE }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: /Grow emergency fund toward 3–6 months/ }),
+    ).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /mark done/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /full path/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /open money/i })).not.toBeInTheDocument();
@@ -232,6 +263,9 @@ describe("ThresholdFold", () => {
     expect(screen.getByRole("link", { name: FOLD_CONNECT_ACCOUNTS_LABEL })).toHaveAttribute(
       "href",
       FOLD_CONNECTIONS_HREF,
+    );
+    expect(screen.getByRole("link", { name: FOLD_CONNECT_ACCOUNTS_LABEL })).not.toHaveClass(
+      "btn-primary",
     );
 
     expect(container.querySelector("[data-companion-fold-line]")).toBeNull();
@@ -302,6 +336,7 @@ describe("ThresholdFold", () => {
     render(
       <ThresholdFold
         {...live61}
+        pathSteps={[]}
         stopCode="RUNWAY_UNDER_1_MONTH"
         pathPrimary={{
           href: "/tools/runway",
@@ -459,5 +494,74 @@ describe("ThresholdFold", () => {
     expect(verdict.compareDocumentPosition(banner) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
+  });
+
+  it("HOME_DENSITY_CRAFT sits below the fold: Money → What's next → Tools", () => {
+    const { container } = render(<ThresholdFold {...live61} />);
+
+    const foldCol = container.querySelector("[data-home-fold-column]");
+    const density = container.querySelector("[data-home-density]");
+    const money = container.querySelector("[data-home-density-money]");
+    const next = container.querySelector("[data-home-density-next]");
+    const tools = container.querySelector("[data-home-density-tools]");
+    if (!foldCol || !density || !money || !next || !tools) {
+      throw new Error("expected fold column and density sections");
+    }
+    expect(foldCol.compareDocumentPosition(density) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(money.compareDocumentPosition(next) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(next.compareDocumentPosition(tools) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(density).toHaveClass("mt-12");
+    expect(next).toHaveClass("mt-12");
+    expect(tools).toHaveClass("mt-12");
+    expect(density).toHaveClass("max-w-[720px]");
+    expect(foldCol).toHaveClass("max-w-[560px]");
+    expect(density.querySelector(".font-display")).toBeNull();
+    expect(density.querySelector(".type-fold-verdict")).toBeNull();
+
+    const nextSteps = container.querySelectorAll("[data-home-density-next-step]");
+    expect(nextSteps).toHaveLength(3);
+    expect(nextSteps[0]).toHaveTextContent(RUNWAY_HARD_STOP_PATH_TITLE);
+    const openPath = screen.getByRole("link", { name: HOME_DENSITY_OPEN_PATH_LABEL });
+    expect(openPath).toHaveAttribute("href", HOME_DENSITY_OPEN_PATH_HREF);
+    expect(openPath).not.toHaveClass("btn-primary");
+    expect(openPath).toHaveClass("text-dim");
+    expect(openPath).toHaveClass("underline");
+    expect(openPath).not.toHaveClass("text-cyan");
+
+    for (const lens of HOME_DENSITY_LENSES) {
+      const card = screen.getByRole("link", { name: new RegExp(lens.title, "i") });
+      expect(card).toHaveAttribute("href", lens.href);
+      expect(card).toHaveTextContent(lens.line);
+      expect(card).not.toHaveClass("btn-primary");
+      expect(lens.line.trim().split(/\s+/).length).toBeLessThanOrEqual(8);
+    }
+    const toolLines = container.querySelectorAll("[data-home-density-tool-line]");
+    expect(toolLines).toHaveLength(4);
+    for (const line of toolLines) {
+      expect(line).toHaveClass("text-xs");
+      expect(line).toHaveClass("text-dim");
+      expect(line).not.toHaveClass("text-sm");
+    }
+    const viewTools = screen.getByRole("link", { name: HOME_DENSITY_VIEW_ALL_TOOLS_LABEL });
+    expect(viewTools).toHaveAttribute("href", HOME_DENSITY_VIEW_ALL_TOOLS_HREF);
+    expect(viewTools).not.toHaveClass("btn-primary");
+    expect(viewTools).toHaveClass("text-dim");
+    expect(viewTools).toHaveClass("underline");
+    expect(viewTools).not.toHaveClass("text-cyan");
+    expect(container.querySelectorAll("[data-home-density-tool]")).toHaveLength(4);
+    expect(screen.queryByText(/10,000|10000/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/\$4,200|\$4200/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Net Worth/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Chat with HōMI/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/CRAFT · PR8/)).not.toBeInTheDocument();
+    expect(screen.queryByText("On track")).not.toBeInTheDocument();
+    expect(container.querySelector("[data-companion-fold-line]")).toBeNull();
+    expect(container.querySelectorAll("[data-path-fold-primary]")).toHaveLength(1);
   });
 });

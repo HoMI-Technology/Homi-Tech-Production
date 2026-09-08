@@ -2,29 +2,21 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { COLORS, type VerdictKey } from "@/lib/brand";
 import {
-  FOLD_CONNECT_ACCOUNTS_LABEL,
-  FOLD_CONNECTIONS_HREF,
-  FOLD_FLAGS_NONE_INVENTED,
-  FOLD_LIQUID_CONNECTED_LABEL,
-  FOLD_MONEY_CONNECTED_HEADING,
-  FOLD_MONEY_DEPTH_LABEL,
-  FOLD_MONEY_EMPTY_HEADING,
-  FOLD_MONEY_HREF,
   HOME_FOLD_INSTRUMENT,
-  MONEY_WAIT_LINE,
+  foldDensityPathTitles,
   foldHardStopEyebrow,
   foldHardStopEyebrowParts,
   foldHomeHoldSentence,
-  foldRunwayLabel,
   foldScoreAgeLine,
   resolveFoldPathPrimary,
   type FoldHardStopCode,
   type FoldPathPrimary,
 } from "@/lib/dashboard/fold-truth";
 import type { LastReadMoneyInputs } from "@/lib/dashboard/last-read-chrome";
-import { verdictMetaFor } from "@/components/ui/verdict-ssot";
+import { HomeDensity } from "@/components/dashboard/HomeDensity";
 import { LoadErrorPanel } from "@/components/dashboard/LoadErrorPanel";
 import { ThresholdFoldEmptyClose } from "@/components/dashboard/ThresholdFoldEmptyClose";
+import { verdictMetaFor } from "@/components/ui/verdict-ssot";
 import { SIGNED_IN_ASSESS_HREF } from "@/components/marketing/first-moment-copy";
 
 export type ThresholdFoldLatest = {
@@ -37,7 +29,7 @@ export type ThresholdFoldLatest = {
  * Signed-in first screen inside SHELL_CRAFT v3.
  * HOME_HARDSTOP_CRAFT: verdict label → one score+age line → hard stop → hold → Path.
  * Compass never mounts here — the quiet top bar owns the one mark.
- * Score is last AssessmentResult only. Money waits below the fold.
+ * Score is last AssessmentResult only. HOME_DENSITY_CRAFT waits below the fold.
  * Empty is blank above the em dash, then Assess only.
  */
 export function ThresholdFold({
@@ -49,6 +41,7 @@ export function ThresholdFold({
   decisionType = "home_buying",
   lastMoney,
   pathPrimary,
+  pathSteps,
 }: {
   assessmentsFailed: boolean;
   latest: ThresholdFoldLatest | null;
@@ -58,17 +51,13 @@ export function ThresholdFold({
   decisionType?: string;
   lastMoney?: LastReadMoneyInputs | null;
   pathPrimary: FoldPathPrimary | null;
+  pathSteps?: unknown;
 }) {
   const scorePct =
     latest?.overallScore != null ? Math.round(latest.overallScore) : null;
   const hardStopActive = stopMessages.length > 0;
-  const liquidDollars = lastMoney?.liquidDollars;
-  const connectedCash = liquidDollars != null && Number.isFinite(liquidDollars);
-  const runwayMonths = lastMoney?.emergencyFundMonths;
-  const runwayLabel = foldRunwayLabel(runwayMonths);
-  const runwayUnderOne =
-    runwayMonths != null && Number.isFinite(runwayMonths) && runwayMonths < 1;
   const shownPath = resolveFoldPathPrimary(pathPrimary, stopCode);
+  const pathTitles = foldDensityPathTitles(pathSteps);
   const holdSentence = foldHomeHoldSentence(stopCode, decisionType);
   const hardStopEyebrow = foldHardStopEyebrow(stopCode, decisionType);
   const hardStopParts = foldHardStopEyebrowParts(hardStopEyebrow);
@@ -99,144 +88,97 @@ export function ThresholdFold({
           />
         ) : (
           <>
-            {latest && verdictMeta ? (
-              <h1
-                className="type-fold-verdict leading-snug"
-                style={{ color: verdictMeta.color }}
-                data-home-fold-verdict=""
-                data-home-verdict=""
-                aria-label={verdictMeta.label}
-              >
-                {verdictMeta.label}
-              </h1>
-            ) : null}
-
-            <p
-              data-home-fold-score-plate=""
-              className={latest ? "mt-4 flex flex-wrap items-baseline" : undefined}
-            >
-              <span
-                className="score-numeral type-fold-score tabular-nums text-light"
-                style={{ color: COLORS.light }}
-                aria-label={scoreLabel}
-                data-home-fold-score=""
-              >
-                {scorePct != null ? scorePct : "\u2014"}
-              </span>
-              {ageLine ? (
-                <>
-                  <span className="mx-2 text-dim" aria-hidden="true">
-                    {"\u00b7"}
-                  </span>
-                  <span className="text-sm text-dim" data-home-fold-age="">
-                    {ageLine}
-                  </span>
-                </>
+            <div className="w-full max-w-[560px]" data-home-fold-column="">
+              {latest && verdictMeta ? (
+                <h1
+                  className="type-fold-verdict leading-snug"
+                  style={{ color: verdictMeta.color }}
+                  data-home-fold-verdict=""
+                  data-home-verdict=""
+                  aria-label={verdictMeta.label}
+                >
+                  {verdictMeta.label}
+                </h1>
               ) : null}
-            </p>
 
-            {latest ? (
-              <>
-                {hardStopActive ? (
-                  <div
-                    className="mt-6 max-w-xl"
-                    role="alert"
-                    data-home-hard-stop=""
-                  >
-                    <p
-                      className="type-fold-hardstop text-dim"
-                      data-home-hard-stop-eyebrow=""
-                    >
-                      {hardStopParts.lead}
-                      {hardStopParts.accent ? (
-                        <span className="text-crimson">{hardStopParts.accent}</span>
-                      ) : null}
-                    </p>
-                    {holdSentence ? (
-                      <p
-                        className="type-fold-hold mt-2 text-light/90"
-                        data-home-hard-stop-hold=""
-                      >
-                        {holdSentence}
-                      </p>
-                    ) : null}
-                  </div>
-                ) : null}
-
-                <p className="mt-6">
-                  {shownPath ? (
-                    <Link
-                      href={shownPath.href}
-                      className="btn btn-primary"
-                      data-path-fold-primary=""
-                    >
-                      {shownPath.title}
-                    </Link>
-                  ) : (
-                    <Link href={SIGNED_IN_ASSESS_HREF} className="btn btn-primary">
-                      Assess
-                    </Link>
-                  )}
-                </p>
-              </>
-            ) : (
-              <p className="mt-8">
-                <ThresholdFoldEmptyClose />
-              </p>
-            )}
-
-            {latest ? (
-              <div
-                className="mt-10 w-full max-w-xl border-t border-white/10 pt-6"
-                data-home-money-below-fold=""
+              <p
+                data-home-fold-score-plate=""
+                className={latest ? "mt-4 flex flex-wrap items-baseline" : undefined}
               >
-                <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-dim">
-                  {connectedCash ? FOLD_MONEY_CONNECTED_HEADING : FOLD_MONEY_EMPTY_HEADING}
-                </p>
-                {connectedCash ? (
+                <span
+                  className="score-numeral type-fold-score tabular-nums text-light"
+                  style={{ color: COLORS.light }}
+                  aria-label={scoreLabel}
+                  data-home-fold-score=""
+                >
+                  {scorePct != null ? scorePct : "\u2014"}
+                </span>
+                {ageLine ? (
                   <>
-                    <div className="mt-3 space-y-2 text-sm">
-                      <div className="flex justify-between gap-4" data-home-fold-cash="">
-                        <span className="text-light">Liquid cash</span>
-                        <span className="text-dim">{FOLD_LIQUID_CONNECTED_LABEL}</span>
-                      </div>
-                      <div className="flex justify-between gap-4" data-home-fold-runway="">
-                        <span className="text-light">Runway</span>
-                        <span className={runwayUnderOne ? "text-amber" : "text-dim"}>
-                          {runwayLabel}
-                        </span>
-                      </div>
-                      <div className="flex justify-between gap-4" data-home-fold-flags="">
-                        <span className="text-light">Flags</span>
-                        <span className="text-dim">{FOLD_FLAGS_NONE_INVENTED}</span>
-                      </div>
+                    <span className="mx-2 text-dim" aria-hidden="true">
+                      {"\u00b7"}
+                    </span>
+                    <span className="text-sm text-dim" data-home-fold-age="">
+                      {ageLine}
+                    </span>
+                  </>
+                ) : null}
+              </p>
+
+              {latest ? (
+                <>
+                  {hardStopActive ? (
+                    <div
+                      className="mt-6 max-w-xl"
+                      role="alert"
+                      data-home-hard-stop=""
+                    >
+                      <p
+                        className="type-fold-hardstop text-dim"
+                        data-home-hard-stop-eyebrow=""
+                      >
+                        {hardStopParts.lead}
+                        {hardStopParts.accent ? (
+                          <span className="text-crimson">{hardStopParts.accent}</span>
+                        ) : null}
+                      </p>
+                      {holdSentence ? (
+                        <p
+                          className="type-fold-hold mt-2 text-light/90"
+                          data-home-hard-stop-hold=""
+                        >
+                          {holdSentence}
+                        </p>
+                      ) : null}
                     </div>
-                    <p className="mt-3">
+                  ) : null}
+
+                  <p className="mt-6">
+                    {shownPath ? (
                       <Link
-                        href={FOLD_MONEY_HREF}
-                        className="text-sm text-dim underline underline-offset-2 hover:text-cyan"
-                        data-home-fold-money-depth=""
+                        href={shownPath.href}
+                        className="btn btn-primary"
+                        data-path-fold-primary=""
                       >
-                        {FOLD_MONEY_DEPTH_LABEL}
+                        {shownPath.title}
                       </Link>
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="mt-3 text-sm text-dim" data-home-fold-cash-empty="">
-                      {MONEY_WAIT_LINE}
-                    </p>
-                    <p className="mt-3">
-                      <Link
-                        href={FOLD_CONNECTIONS_HREF}
-                        className="btn border border-cyan bg-transparent text-cyan"
-                        data-home-fold-connect=""
-                      >
-                        {FOLD_CONNECT_ACCOUNTS_LABEL}
+                    ) : (
+                      <Link href={SIGNED_IN_ASSESS_HREF} className="btn btn-primary">
+                        Assess
                       </Link>
-                    </p>
-                  </>
-                )}
+                    )}
+                  </p>
+                </>
+              ) : (
+                <p className="mt-8">
+                  <ThresholdFoldEmptyClose />
+                </p>
+              )}
+            </div>
+
+            {latest ? (
+              <div data-home-money-below-fold="">
+                <HomeDensity lastMoney={lastMoney} pathTitles={pathTitles} />
               </div>
             ) : null}
 

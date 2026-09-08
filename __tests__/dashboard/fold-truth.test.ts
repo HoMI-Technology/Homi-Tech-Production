@@ -16,6 +16,7 @@ import {
   foldHardStopEyebrow,
   foldHardStopOverrideLine,
   foldHomeHoldSentence,
+  foldDensityPathTitles,
   foldPathPrimary,
   foldRunwayLabel,
   hardStopCodes,
@@ -24,6 +25,9 @@ import {
   ONBOARDING_SKIP_HREF,
   COMPANION_ESCALATION_HREF,
   COMPANION_FOLD_LINES,
+  HOME_DENSITY_LENSES,
+  HOME_DENSITY_OPEN_PATH_HREF,
+  HOME_DENSITY_VIEW_ALL_TOOLS_HREF,
   RUNWAY_HARD_STOP_FOLD_TITLE,
   RUNWAY_HARD_STOP_PATH_TITLE,
   buildProgressLabel,
@@ -40,6 +44,7 @@ import {
   shouldSuppressBuildPercent,
   weakestMeasuredPillar,
 } from "@/lib/dashboard/fold-truth";
+import { hubLenses } from "@/lib/tools/registry";
 
 describe("isNextRedirectError", () => {
   it("recognizes Next.js redirect control-flow errors", () => {
@@ -185,6 +190,37 @@ describe("foldRunwayLabel", () => {
   });
 });
 
+describe("foldDensityPathTitles", () => {
+  it("takes at most three pending Path SSOT titles and never invents money", () => {
+    expect(
+      foldDensityPathTitles([
+        {
+          title: "Stabilize emergency runway to at least 1 month",
+          href: "/tools/runway",
+          status: "pending",
+        },
+        { title: "Grow emergency fund toward 3–6 months", href: "/tools/runway", status: "done" },
+        { title: "Lower monthly debt burden (target DTI ≤ 36%)", href: "/tools/debt-payoff", status: "pending" },
+        { title: "Household alignment session (budget ceiling + deal-breakers)", href: "/household", status: "pending" },
+        { title: "A fourth pending title", href: "/path", status: "pending" },
+      ]),
+    ).toEqual([
+      "Stabilize emergency runway to at least 1 month",
+      "Lower monthly debt burden (target DTI ≤ 36%)",
+      "Household alignment session (budget ceiling + deal-breakers)",
+    ]);
+  });
+
+  it("does not invent dollar or points chrome", () => {
+    const titles = foldDensityPathTitles([
+      { title: "Stabilize emergency runway to at least 1 month", status: "pending" },
+    ]);
+    expect(titles.join(" ")).not.toMatch(/\$|\+pts|\+points/i);
+    expect(foldDensityPathTitles([])).toEqual([]);
+    expect(foldDensityPathTitles(null)).toEqual([]);
+  });
+});
+
 describe("foldPathPrimary", () => {
   it("picks the first pending step and skips REASSESS", () => {
     expect(
@@ -275,6 +311,21 @@ describe("Baseline 001 fold-truth copy", () => {
       /1 month/,
     );
     expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).not.toMatch(/0\.5/);
+    expect(HOME_DENSITY_LENSES).toHaveLength(4);
+    expect(HOME_DENSITY_LENSES.map((l) => l.href)).toEqual([
+      "/tools/affordability",
+      "/tools/debt-payoff",
+      "/tools/blind-budget",
+      "/tools/monte-carlo",
+    ]);
+    const hubPaths = new Set(hubLenses().map((lens) => lens.path));
+    for (const lens of HOME_DENSITY_LENSES) {
+      expect(hubPaths.has(lens.href)).toBe(true);
+      expect(lens.line.trim().split(/\s+/).length).toBeLessThanOrEqual(8);
+      expect(lens.line).not.toMatch(/10,000|10000|\$|\+pts/i);
+    }
+    expect(HOME_DENSITY_OPEN_PATH_HREF).toBe("/path");
+    expect(HOME_DENSITY_VIEW_ALL_TOOLS_HREF).toBe("/tools");
     expect(RUNWAY_HARD_STOP_PATH_TITLE).toBe("Stabilize emergency runway to at least 1 month");
     expect(RUNWAY_HARD_STOP_FOLD_TITLE).toBe("Build runway to 1 month");
   });

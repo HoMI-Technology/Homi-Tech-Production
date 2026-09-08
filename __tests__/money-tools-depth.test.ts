@@ -7,6 +7,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { buildHomeMoneyStandingView } from "@/lib/dashboard/home-money-standing";
+import { HOME_DENSITY_LENSES } from "@/lib/dashboard/fold-truth";
 
 function read(rel: string): string {
   return readFileSync(resolve(process.cwd(), rel), "utf8");
@@ -24,14 +25,27 @@ describe("money-tools depth doctrine", () => {
     expect(doc).toMatch(/Forbidden patterns/);
   });
 
-  it("Home fold mounts money strip only — no tools grid or kitchen-sink widgets", () => {
+  it("Home fold mounts money wait + quiet density below — no kitchen-sink fold widgets", () => {
     const page = read("app/(product)/dashboard/page.tsx");
     const fold = read("components/dashboard/ThresholdFold.tsx");
+    const density = read("components/dashboard/HomeDensity.tsx");
+    const truth = read("lib/dashboard/fold-truth.ts");
     expect(fold).not.toContain("HomeMoneyStanding");
     expect(fold).toContain("data-home-money-below-fold");
+    expect(fold).toContain("HomeDensity");
     expect(page).not.toMatch(/QuickActionGrid|ToolGrid|hubLensesByRing/);
-    expect(fold).not.toMatch(/QuickActionGrid|\/tools\/affordability|Open lens/);
+    expect(fold).not.toMatch(/QuickActionGrid|Open lens/);
     expect(fold).not.toContain("FinancialPositionSection");
+    expect(density).toContain("HOME_DENSITY_LENSES");
+    expect(truth).toContain("/tools/affordability");
+    expect(truth).toContain("/tools/debt-payoff");
+    expect(truth).toContain("/tools/blind-budget");
+    expect(truth).toContain("/tools/monte-carlo");
+    expect(truth).not.toContain("/tools/rent-vs-buy");
+    expect(density).not.toContain("10,000");
+    expect(HOME_DENSITY_LENSES.every((lens) => !lens.line.includes("10,000"))).toBe(true);
+    expect(density).not.toMatch(/btn-primary/);
+    expect(density).not.toContain("font-display");
   });
 
   it("Home money standing CTAs stay ghost/sm and deep-link into /money*", () => {
