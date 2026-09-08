@@ -1,21 +1,25 @@
 /**
  * Admin-access policy contract (lib/auth/admin). What matters:
- * - role + optional email allowlist gate access
- * - MFA is always required (2026-08 policy): AAL2 session passes, enrolled
- *   but AAL1 must step up, no verified factor gets guided enrollment — and
- *   every failure mode fails closed.
+ * - role + optional email allowlist still gate access (never weakened)
+ * - Temporary founder waiver (2026-09-08): requireMfa defaults off so
+ *   needs-enrollment / needs-stepup do not block AdminOperateChrome
+ * - When requireMfa is true, AAL2 passes, enrolled AAL1 must step up,
+ *   no verified factor gets guided enrollment, and lookups fail closed
  */
 
 import { describe, it, expect } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import {
   deriveNextLevel,
   evaluateAdminAccess,
   isEmailAllowlisted,
   parseAdminEmails,
+  parseAdminRequireMfa,
   type AdminAccessInput,
 } from "@/lib/auth/admin";
 
-/** A baseline enrolled admin with a verified (AAL2) session — the happy path. */
+/** Baseline enrolled admin. MFA-on tests pass requireMfa: true. */
 function base(overrides: Partial<AdminAccessInput> = {}): AdminAccessInput {
   return {
     role: "admin",
@@ -23,6 +27,7 @@ function base(overrides: Partial<AdminAccessInput> = {}): AdminAccessInput {
     allowlist: [],
     currentLevel: "aal2",
     nextLevel: "aal2",
+    requireMfa: true,
     ...overrides,
   };
 }
@@ -40,6 +45,25 @@ describe("parseAdminEmails", () => {
 
   it("drops tokens that aren't email-shaped", () => {
     expect(parseAdminEmails("notanemail, real@x.com")).toEqual(["real@x.com"]);
+  });
+});
+
+describe("parseAdminRequireMfa", () => {
+  it("defaults off for the temporary founder waiver", () => {
+    expect(parseAdminRequireMfa(undefined)).toBe(false);
+    expect(parseAdminRequireMfa(null)).toBe(false);
+    expect(parseAdminRequireMfa("")).toBe(false);
+    expect(parseAdminRequireMfa("false")).toBe(false);
+    expect(parseAdminRequireMfa("0")).toBe(false);
+    expect(parseAdminRequireMfa("off")).toBe(false);
+  });
+
+  it("is true only for explicit truthy tokens", () => {
+    expect(parseAdminRequireMfa("true")).toBe(true);
+    expect(parseAdminRequireMfa("TRUE")).toBe(true);
+    expect(parseAdminRequireMfa("1")).toBe(true);
+    expect(parseAdminRequireMfa("yes")).toBe(true);
+    expect(parseAdminRequireMfa("on")).toBe(true);
   });
 });
 
@@ -72,7 +96,38 @@ describe("deriveNextLevel", () => {
   });
 });
 
-describe("evaluateAdminAccess", () => {
+describe("evaluateAdminAccess — temporary founder waiver (requireMfa off)", () => {
+  it("defaults requireMfa off so an allowlisted admin enters without AAL2", () => {
+    expect(
+      evaluateAdminAccess({
+        role: "admin",
+        email: "admin@homi.com",
+        allowlist: ["admin@homi.com"],
+        currentLevel: "aal1",
+        nextLevel: "aal1",
+      }),
+    ).toEqual({ allow: true });
+    expect(
+      evaluateAdminAccess(base({ requireMfa: false, currentLevel: "aal1", nextLevel: "aal2" })),
+    ).toEqual({ allow: true });
+    expect(
+      evaluateAdminAccess(base({ requireMfa: false, currentLevel: null, nextLevel: null })),
+    ).toEqual({ allow: true });
+  });
+
+  it("does not weaken not-admin or ADMIN_EMAILS while waived", () => {
+    expect(
+      evaluateAdminAccess(base({ requireMfa: false, role: "user" })),
+    ).toEqual({ allow: false, reason: "not-admin" });
+    expect(
+      evaluateAdminAccess(
+        base({ requireMfa: false, allowlist: ["someone@else.com"] }),
+      ),
+    ).toEqual({ allow: false, reason: "not-admin" });
+  });
+});
+
+describe("evaluateAdminAccess — MFA required (requireMfa true)", () => {
   it("allows an enrolled admin on an AAL2 (MFA-verified) session", () => {
     expect(evaluateAdminAccess(base())).toEqual({ allow: true });
   });
@@ -129,9 +184,18 @@ describe("evaluateAdminAccess", () => {
   });
 
   it("trusts an AAL2 session even when the factor lookup failed", () => {
-    // currentLevel is the session's own claim — authoritative for the request.
     expect(
       evaluateAdminAccess(base({ currentLevel: "aal2", nextLevel: null })),
     ).toEqual({ allow: true });
+  });
+});
+
+describe("admin layout wires the waiver onto /admin (and nested /admin/analytics)", () => {
+  it("passes parseAdminRequireMfa into evaluateAdminAccess and still mounts the wall", () => {
+    const layout = readFileSync(resolve(process.cwd(), "app/(product)/admin/layout.tsx"), "utf8");
+    expect(layout).toContain("parseAdminRequireMfa");
+    expect(layout).toContain("requireMfa:");
+    expect(layout).toContain("AdminAccessWall");
+    expect(layout).toContain("AdminOperateChrome");
   });
 });

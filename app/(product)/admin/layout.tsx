@@ -6,6 +6,7 @@ import {
   deriveNextLevel,
   evaluateAdminAccess,
   parseAdminEmails,
+  parseAdminRequireMfa,
   type AssuranceLevel,
 } from "@/lib/auth/admin";
 import type { Profile } from "@/types/database";
@@ -55,14 +56,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     }
   }
 
-  // MFA is always-on policy (2026-08) — no env knob. evaluateAdminAccess
-  // decides between allow / needs-stepup / needs-enrollment / not-admin.
+  // Temporary founder waiver (2026-09-08): MFA walls skip unless
+  // ADMIN_REQUIRE_MFA is an explicit truthy token. Role + ADMIN_EMAILS
+  // still gate /admin and /admin/analytics (same layout). Enrollment UX is
+  // kept for when the CEO ship-gate re-enables requireMfa.
   const decision = evaluateAdminAccess({
     role: profile?.role ?? null,
     email: profile?.email ?? user?.email ?? null,
     allowlist: parseAdminEmails(env.ADMIN_EMAILS),
     currentLevel,
     nextLevel,
+    requireMfa: parseAdminRequireMfa(env.ADMIN_REQUIRE_MFA),
   });
 
   if (!decision.allow) {

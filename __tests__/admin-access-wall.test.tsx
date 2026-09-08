@@ -2,9 +2,10 @@
 
 /**
  * AdminAccessWall contract: the two MFA denial states are guided paths, not
- * dead ends. needs-enrollment links to authenticator setup in settings;
- * needs-stepup verifies the second factor inline via challenge → verify and
- * refreshes into the console.
+ * dead ends. Temporary founder waiver (2026-09-08) skips these walls in
+ * evaluateAdminAccess when requireMfa is off — this file proves the
+ * enrollment UX is kept, not deleted. needs-enrollment links to authenticator
+ * setup in settings; needs-stepup verifies the second factor inline.
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -39,6 +40,14 @@ afterEach(() => {
 });
 
 describe("AdminAccessWall", () => {
+  it("keeps Settings → Security authenticator setup (waiver must not delete this UX)", () => {
+    render(<AdminAccessWall reason="needs-enrollment" signedIn />);
+    expect(screen.getByRole("link", { name: "Set up two-factor" })).toHaveAttribute(
+      "href",
+      "/settings#security",
+    );
+  });
+
   it("needs-enrollment is a guided setup state with steps, not a dead 403", () => {
     render(<AdminAccessWall reason="needs-enrollment" signedIn />);
     expect(

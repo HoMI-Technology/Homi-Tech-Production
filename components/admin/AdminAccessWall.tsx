@@ -47,7 +47,9 @@ function copyFor(reason: Denied["reason"], signedIn: boolean): WallCopy {
  *
  * Enrollment and step-up are guided states, not dead ends: needs-enrollment
  * links straight to the authenticator setup in Settings → Security, and
- * needs-stepup verifies the second factor inline.
+ * needs-stepup verifies the second factor inline. This wall is kept even
+ * while evaluateAdminAccess defaults requireMfa off (temporary founder
+ * waiver) — do not delete this UX.
  */
 export function AdminAccessWall({
   reason,

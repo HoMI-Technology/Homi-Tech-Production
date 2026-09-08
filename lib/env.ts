@@ -80,9 +80,16 @@ export const env = {
   get ADMIN_EMAILS(): string | undefined {
     return process.env.ADMIN_EMAILS;
   },
-  // NOTE: there is deliberately no ADMIN_REQUIRE_MFA here. Admin-console MFA
-  // became always-on product policy in 2026-08 (see lib/auth/admin.ts) — a
-  // security requirement should not be an operator-toggleable env knob.
+  /**
+   * Temporary founder waiver (2026-09-08): admin-console MFA is off unless
+   * this is an explicit truthy token (`true` / `1` / `yes` / `on`).
+   * Unset/false skips needs-enrollment and needs-stepup so role +
+   * ADMIN_EMAILS can enter AdminOperateChrome. Enrollment UX is kept.
+   * Parsed by `parseAdminRequireMfa` in lib/auth/admin.ts.
+   */
+  get ADMIN_REQUIRE_MFA(): string | undefined {
+    return process.env.ADMIN_REQUIRE_MFA;
+  },
 
   // --- Anthropic (optional) ---
   get ANTHROPIC_API_KEY(): string | undefined {
