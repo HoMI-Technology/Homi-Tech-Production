@@ -5,8 +5,12 @@ import { describe, expect, it } from "vitest";
 import {
   HOME_FOLD_INSTRUMENT,
   CASH_EMPTY_LABEL,
+  FOLD_CONNECTIONS_HREF,
+  FOLD_CONNECT_ACCOUNTS_LABEL,
+  FOLD_MONEY_HREF,
   foldScoreAgeCrop,
   foldScoreAgeLine,
+  foldHardStopEyebrowParts,
   MONEY_WAIT_LINE,
   FOLD_HARD_STOP_PRECEDENCE,
   foldHardStopEyebrow,
@@ -20,6 +24,7 @@ import {
   ONBOARDING_SKIP_HREF,
   COMPANION_ESCALATION_HREF,
   COMPANION_FOLD_LINES,
+  RUNWAY_HARD_STOP_FOLD_TITLE,
   RUNWAY_HARD_STOP_PATH_TITLE,
   buildProgressLabel,
   companionFoldLine,
@@ -227,18 +232,33 @@ describe("foldPathPrimary", () => {
 });
 
 describe("Baseline 001 fold-truth copy", () => {
+  it("splits the cause token so only runway/DTI/housing/credit can take crimson", () => {
+    expect(foldHardStopEyebrowParts("Hard stop · runway.")).toEqual({
+      lead: "Hard stop · ",
+      accent: "runway.",
+    });
+    expect(foldHardStopEyebrowParts("Hard stop.")).toEqual({
+      lead: "Hard stop.",
+      accent: null,
+    });
+  });
+
   it("locks hard-stop eyebrow + hold sentence in sentence case", () => {
     expect(hardStopEyebrow).toBe("Hard stop · runway.");
     expect(hardStopEyebrow).not.toBe("Hard stop · Runway");
     expect(homeHoldSentence).toBe("Runway is the hold. Build the fund before anything else.");
     expect(hardStopEyebrow).not.toBe(hardStopEyebrow.toUpperCase());
     expect(CASH_EMPTY_LABEL).toBe("Connect accounts to see cash.");
-    expect(MONEY_WAIT_LINE).toBe("Money waits until accounts are connected");
+    expect(MONEY_WAIT_LINE).toBe("Accounts aren't connected yet.");
+    expect(FOLD_CONNECT_ACCOUNTS_LABEL).toBe("Connect accounts");
+    expect(FOLD_CONNECTIONS_HREF).toBe("/connections");
+    expect(FOLD_MONEY_HREF).toBe("/money");
     expect(foldScoreAgeCrop("2026-08-29T12:00:00.000Z")).toBe("from Aug 29");
-    expect(foldScoreAgeLine(61, "2026-08-29T12:00:00.000Z")).toBe("61 · from Aug 29");
-    expect(foldScoreAgeLine(61, "2026-03-15T12:00:00.000Z")).toBe("61 · from Mar 15");
+    expect(foldScoreAgeLine(61, "2026-08-29T12:00:00.000Z")).toBe("from Aug 29");
+    expect(foldScoreAgeLine(61, "2026-03-15T12:00:00.000Z")).toBe("from Mar 15");
     expect(foldScoreAgeLine(61, "2026-08-29T12:00:00.000Z")).not.toMatch(/August|March/);
     expect(foldScoreAgeLine(61, "2026-08-29T12:00:00.000Z")).not.toMatch(/\.$/);
+    expect(foldScoreAgeLine(61, "2026-08-29T12:00:00.000Z")).not.toMatch(/^61/);
     expect(foldScoreAgeLine(null, "2026-08-29T12:00:00.000Z")).toBeNull();
     expect(foldScoreAgeLine(61, null)).toBeNull();
     expect(foldScoreAgeLine(61, "not-a-date")).toBeNull();
@@ -256,6 +276,7 @@ describe("Baseline 001 fold-truth copy", () => {
     );
     expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).not.toMatch(/0\.5/);
     expect(RUNWAY_HARD_STOP_PATH_TITLE).toBe("Stabilize emergency runway to at least 1 month");
+    expect(RUNWAY_HARD_STOP_FOLD_TITLE).toBe("Build runway to 1 month");
   });
 
   it("keeps RUNWAY_UNDER_1_MONTH copy on the Baseline 001 constants", () => {
@@ -282,7 +303,7 @@ describe("Baseline 001 fold-truth copy", () => {
     } as const;
     expect(resolveFoldPathPrimary(growFund, "RUNWAY_UNDER_1_MONTH")).toEqual({
       href: "/tools/runway",
-      title: RUNWAY_HARD_STOP_PATH_TITLE,
+      title: RUNWAY_HARD_STOP_FOLD_TITLE,
     });
     expect(resolveFoldPathPrimary(growFund, "DTI_OVER_50")?.title).toBe(growFund.title);
     expect(resolveFoldPathPrimary(growFund, "HOUSING_RATIO_OVER_45")?.title).toBe(
@@ -293,6 +314,12 @@ describe("Baseline 001 fold-truth copy", () => {
     );
     expect(resolveFoldPathPrimary(growFund, null)?.title).toBe(growFund.title);
     expect(resolveFoldPathPrimary(growFund, undefined)?.title).toBe(growFund.title);
+    expect(
+      resolveFoldPathPrimary(
+        { href: "/tools/runway", title: RUNWAY_HARD_STOP_PATH_TITLE },
+        "RUNWAY_UNDER_1_MONTH",
+      )?.title,
+    ).toBe(RUNWAY_HARD_STOP_FOLD_TITLE);
   });
 });
 

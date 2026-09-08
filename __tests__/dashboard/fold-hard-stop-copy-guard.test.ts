@@ -25,14 +25,10 @@ import {
 const RUNWAY: FoldHardStopCode = "RUNWAY_UNDER_1_MONTH";
 const NON_RUNWAY = FOLD_HARD_STOP_CODES.filter((c) => c !== RUNWAY);
 
-/** Every line the fold shows a user while a hard stop is active. */
+/** Lines the Home fold actually mounts while a hard stop is active. Override is kept in copy helpers, not on the fold. */
 function foldCopyFor(code: FoldHardStopCode): string[] {
   const hold = foldHomeHoldSentence(code);
-  return [
-    foldHardStopEyebrow(code),
-    ...(hold ? [hold] : []),
-    foldHardStopOverrideLine(61, code),
-  ];
+  return [foldHardStopEyebrow(code), ...(hold ? [hold] : [])];
 }
 
 describe("fold hard-stop copy — never names the wrong stop", () => {

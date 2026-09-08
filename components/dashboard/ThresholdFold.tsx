@@ -2,11 +2,19 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { COLORS, type VerdictKey } from "@/lib/brand";
 import {
+  FOLD_CONNECT_ACCOUNTS_LABEL,
+  FOLD_CONNECTIONS_HREF,
+  FOLD_FLAGS_NONE_INVENTED,
+  FOLD_LIQUID_CONNECTED_LABEL,
+  FOLD_MONEY_CONNECTED_HEADING,
+  FOLD_MONEY_DEPTH_LABEL,
+  FOLD_MONEY_EMPTY_HEADING,
+  FOLD_MONEY_HREF,
   HOME_FOLD_INSTRUMENT,
   MONEY_WAIT_LINE,
   foldHardStopEyebrow,
+  foldHardStopEyebrowParts,
   foldHomeHoldSentence,
-  foldHardStopOverrideLine,
   foldRunwayLabel,
   foldScoreAgeLine,
   resolveFoldPathPrimary,
@@ -14,7 +22,6 @@ import {
   type FoldPathPrimary,
 } from "@/lib/dashboard/fold-truth";
 import type { LastReadMoneyInputs } from "@/lib/dashboard/last-read-chrome";
-import { formatCurrency } from "@/lib/tools/format";
 import { verdictMetaFor } from "@/components/ui/verdict-ssot";
 import { LoadErrorPanel } from "@/components/dashboard/LoadErrorPanel";
 import { ThresholdFoldEmptyClose } from "@/components/dashboard/ThresholdFoldEmptyClose";
@@ -28,10 +35,10 @@ export type ThresholdFoldLatest = {
 
 /**
  * Signed-in first screen inside SHELL_CRAFT v3.
- * HOME_CRAFT order: verdict → score/— → age → hard stop → hold → Path/Assess.
+ * HOME_HARDSTOP_CRAFT: verdict label → one score+age line → hard stop → hold → Path.
  * Compass never mounts here — the quiet top bar owns the one mark.
- * Score is last AssessmentResult only. Money waits below the fold until
- * connected cash exists. Empty is blank above the em dash, then Assess only.
+ * Score is last AssessmentResult only. Money waits below the fold.
+ * Empty is blank above the em dash, then Assess only.
  */
 export function ThresholdFold({
   assessmentsFailed,
@@ -57,10 +64,14 @@ export function ThresholdFold({
   const hardStopActive = stopMessages.length > 0;
   const liquidDollars = lastMoney?.liquidDollars;
   const connectedCash = liquidDollars != null && Number.isFinite(liquidDollars);
-  const cashLabel = connectedCash ? formatCurrency(liquidDollars) : null;
-  const runwayLabel = foldRunwayLabel(lastMoney?.emergencyFundMonths);
+  const runwayMonths = lastMoney?.emergencyFundMonths;
+  const runwayLabel = foldRunwayLabel(runwayMonths);
+  const runwayUnderOne =
+    runwayMonths != null && Number.isFinite(runwayMonths) && runwayMonths < 1;
   const shownPath = resolveFoldPathPrimary(pathPrimary, stopCode);
   const holdSentence = foldHomeHoldSentence(stopCode, decisionType);
+  const hardStopEyebrow = foldHardStopEyebrow(stopCode, decisionType);
+  const hardStopParts = foldHardStopEyebrowParts(hardStopEyebrow);
   const scoreLabel =
     scorePct != null
       ? `Overall Decision Readiness Score ${scorePct} out of 100`
@@ -90,7 +101,7 @@ export function ThresholdFold({
           <>
             {latest && verdictMeta ? (
               <h1
-                className="font-display text-4xl font-medium italic leading-tight tracking-tight sm:text-5xl"
+                className="font-display text-xl font-medium italic leading-snug tracking-tight"
                 style={{ color: verdictMeta.color }}
                 data-home-fold-verdict=""
                 data-home-verdict=""
@@ -100,7 +111,10 @@ export function ThresholdFold({
               </h1>
             ) : null}
 
-            <p data-home-fold-score-plate="" className={latest ? "mt-6" : undefined}>
+            <p
+              data-home-fold-score-plate=""
+              className={latest ? "mt-4 flex flex-wrap items-baseline" : undefined}
+            >
               <span
                 className="score-numeral text-5xl font-semibold tabular-nums text-light sm:text-6xl"
                 style={{ color: COLORS.light }}
@@ -110,9 +124,14 @@ export function ThresholdFold({
                 {scorePct != null ? scorePct : "\u2014"}
               </span>
               {ageLine ? (
-                <span className="ml-3 text-sm text-dim" data-home-fold-age="">
-                  {ageLine}
-                </span>
+                <>
+                  <span className="mx-2 text-dim" aria-hidden="true">
+                    {"\u00b7"}
+                  </span>
+                  <span className="text-sm text-light" data-home-fold-age="">
+                    {ageLine}
+                  </span>
+                </>
               ) : null}
             </p>
 
@@ -120,7 +139,7 @@ export function ThresholdFold({
               <>
                 {hardStopActive ? (
                   <div
-                    className="mt-6 max-w-xl"
+                    className="mt-5 max-w-xl"
                     role="alert"
                     data-home-hard-stop=""
                   >
@@ -128,11 +147,14 @@ export function ThresholdFold({
                       className="text-sm font-medium text-light"
                       data-home-hard-stop-eyebrow=""
                     >
-                      {foldHardStopEyebrow(stopCode, decisionType)}
+                      {hardStopParts.lead}
+                      {hardStopParts.accent ? (
+                        <span className="text-crimson">{hardStopParts.accent}</span>
+                      ) : null}
                     </p>
                     {holdSentence ? (
                       <p
-                        className="mt-2 text-sm leading-relaxed text-light/85"
+                        className="mt-2 text-sm leading-relaxed text-dim"
                         data-home-hard-stop-hold=""
                       >
                         {holdSentence}
@@ -141,16 +163,7 @@ export function ThresholdFold({
                   </div>
                 ) : null}
 
-                {hardStopActive && scorePct != null ? (
-                  <p
-                    className="mt-3 max-w-xl text-sm text-dim"
-                    data-home-fold-override=""
-                  >
-                    {foldHardStopOverrideLine(scorePct, stopCode, decisionType)}
-                  </p>
-                ) : null}
-
-                <p className="mt-8">
+                <p className="mt-6">
                   {shownPath ? (
                     <Link
                       href={shownPath.href}
@@ -177,25 +190,52 @@ export function ThresholdFold({
                 className="mt-10 w-full max-w-xl border-t border-white/10 pt-6"
                 data-home-money-below-fold=""
               >
+                <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-dim">
+                  {connectedCash ? FOLD_MONEY_CONNECTED_HEADING : FOLD_MONEY_EMPTY_HEADING}
+                </p>
                 {connectedCash ? (
                   <>
-                    <p className="text-sm text-dim" data-home-fold-runway="">
-                      <span className="text-2xs font-semibold uppercase tracking-[0.14em]">
-                        Runway
-                      </span>{" "}
-                      <span className="score-numeral text-light">{runwayLabel}</span>
-                    </p>
-                    <p className="mt-1 text-sm text-dim" data-home-fold-cash="">
-                      <span className="text-2xs font-semibold uppercase tracking-[0.14em]">
-                        Cash
-                      </span>{" "}
-                      <span className="score-numeral text-light">{cashLabel}</span>
+                    <div className="mt-3 space-y-2 text-sm">
+                      <div className="flex justify-between gap-4" data-home-fold-cash="">
+                        <span className="text-light">Liquid cash</span>
+                        <span className="text-dim">{FOLD_LIQUID_CONNECTED_LABEL}</span>
+                      </div>
+                      <div className="flex justify-between gap-4" data-home-fold-runway="">
+                        <span className="text-light">Runway</span>
+                        <span className={runwayUnderOne ? "text-amber" : "text-dim"}>
+                          {runwayLabel}
+                        </span>
+                      </div>
+                      <div className="flex justify-between gap-4" data-home-fold-flags="">
+                        <span className="text-light">Flags</span>
+                        <span className="text-dim">{FOLD_FLAGS_NONE_INVENTED}</span>
+                      </div>
+                    </div>
+                    <p className="mt-3">
+                      <Link
+                        href={FOLD_MONEY_HREF}
+                        className="text-sm text-dim underline underline-offset-2 hover:text-cyan"
+                        data-home-fold-money-depth=""
+                      >
+                        {FOLD_MONEY_DEPTH_LABEL}
+                      </Link>
                     </p>
                   </>
                 ) : (
-                  <p className="text-sm text-dim" data-home-fold-cash-empty="">
-                    {MONEY_WAIT_LINE}
-                  </p>
+                  <>
+                    <p className="mt-3 text-sm text-light" data-home-fold-cash-empty="">
+                      {MONEY_WAIT_LINE}
+                    </p>
+                    <p className="mt-3">
+                      <Link
+                        href={FOLD_CONNECTIONS_HREF}
+                        className="btn border border-cyan bg-transparent text-cyan"
+                        data-home-fold-connect=""
+                      >
+                        {FOLD_CONNECT_ACCOUNTS_LABEL}
+                      </Link>
+                    </p>
+                  </>
                 )}
               </div>
             ) : null}
