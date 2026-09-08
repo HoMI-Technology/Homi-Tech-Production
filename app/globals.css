@@ -807,6 +807,33 @@ body {
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.03em;
   }
+  /* HOME_HARDSTOP_CRAFT — fold score is a quiet JetBrains 28/500, not a 60px scream. */
+  .type-fold-score {
+    font-size: 1.75rem;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+  /* Verdict label 21/500 italic — type class, not an arbitrary text-size utility. */
+  .type-fold-verdict {
+    font-family: var(--font-display);
+    font-size: 1.3125rem;
+    font-weight: 500;
+    font-style: italic;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+  /* Hard-stop line: Inter 12/500 / 0.02em. Cause token still takes crimson. */
+  .type-fold-hardstop {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  /* Hold line: Inter ~15/400, light at ~90%. */
+  .type-fold-hold {
+    font-size: 0.9375rem;
+    font-weight: 400;
+    line-height: 1.5;
+  }
 
   /* ── Numeric typography — every number reads as instrument data ───
    .num is the general marker: scores, counts, percentages, metric
@@ -3063,32 +3090,41 @@ body {
   }
 
   /*
-   * Baseline 001 — ThresholdFold is the one compass, not a crimson instrument.
-   * Kill the left inset bar + tint wash on this fold. Hard-stop must not
-   * thicken a red frame. OperateInstrument (other pages) keeps the default.
+   * HOME_HARDSTOP_CRAFT — ThresholdFold is quiet type, not an instrument poster.
+   * No left inset bar, no tint wash, no glow. Hard-stop must not thicken a
+   * red frame. OperateInstrument (other pages) keeps the default.
    */
   .dash-instrument[data-threshold-fold] {
     --instrument-tint: #22d3ee;
-    box-shadow:
-      inset 0 1px 0 rgba(226, 232, 240, 0.07),
-      0 28px 56px -22px rgba(2, 6, 16, 0.9);
+    border-color: transparent;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
   }
   .dash-instrument[data-threshold-fold]::before {
-    background:
-      radial-gradient(ellipse 45% 55% at 92% 88%, rgba(52, 211, 153, 0.07), transparent 62%),
-      linear-gradient(180deg, rgba(226, 232, 240, 0.03), transparent 28%);
+    background: none;
+  }
+  .dash-instrument[data-threshold-fold]::after {
+    display: none;
   }
   .dash-instrument[data-threshold-fold][data-hard-stop="1"] {
     border-width: 1px;
-    border-color: rgba(34, 211, 238, 0.16);
-    box-shadow:
-      inset 0 1px 0 rgba(226, 232, 240, 0.07),
-      0 28px 56px -22px rgba(2, 6, 16, 0.9);
+    border-color: transparent;
+    box-shadow: none;
   }
   .dash-instrument[data-threshold-fold][data-hard-stop="1"]::before {
-    background:
-      radial-gradient(ellipse 45% 55% at 92% 88%, rgba(52, 211, 153, 0.07), transparent 62%),
-      linear-gradient(180deg, rgba(226, 232, 240, 0.03), transparent 28%);
+    background: none;
+  }
+  .dash-instrument[data-threshold-fold] .btn-primary {
+    background: var(--color-cyan);
+    box-shadow: none;
+  }
+  .dash-instrument[data-threshold-fold] .btn-primary:hover {
+    transform: none;
+    box-shadow: none;
+  }
+  .dash-instrument[data-threshold-fold] .btn-primary:active:not(:disabled) {
+    box-shadow: none;
   }
 
   /* Greeting strip inside the instrument — one fold moment */

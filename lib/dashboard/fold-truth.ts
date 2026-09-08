@@ -125,8 +125,21 @@ export const HOME_FOLD_INSTRUMENT = "threshold" as const;
  * The fold itself is — + Assess primary only (HOME_CRAFT / CEO lock).
  */
 
-/** Below-fold money line until connected accounts exist. */
-export const MONEY_WAIT_LINE = "Money waits until accounts are connected" as const;
+/** Below-fold money line until connected accounts exist. Honest empty — no invented cash. */
+export const MONEY_WAIT_LINE = "Accounts aren't connected yet." as const;
+
+/** Live Connections route. Never invent a URL. */
+export const FOLD_CONNECTIONS_HREF = "/connections" as const;
+
+/** Live Money picture route. Depth, not a fold hero. */
+export const FOLD_MONEY_HREF = "/money" as const;
+
+export const FOLD_CONNECT_ACCOUNTS_LABEL = "Connect accounts" as const;
+export const FOLD_MONEY_EMPTY_HEADING = "Money" as const;
+export const FOLD_MONEY_CONNECTED_HEADING = "Money · Path evidence" as const;
+export const FOLD_LIQUID_CONNECTED_LABEL = "Connected · ledger" as const;
+export const FOLD_FLAGS_NONE_INVENTED = "None invented" as const;
+export const FOLD_MONEY_DEPTH_LABEL = "Money depth" as const;
 
 /** HOME_CRAFT / HOME_FIRST_VIEWPORT month crop. Short English, UTC, no period. */
 const FOLD_AGE_SHORT_MONTHS = [
@@ -156,7 +169,9 @@ export function foldScoreAgeCrop(iso: string | null | undefined): string | null 
 }
 
 /**
- * Brand age crop: "61 · from Aug 29".
+ * Age fragment for the one score line: "from Aug 29".
+ * The JetBrains numeral is rendered once beside this — never concatenate
+ * the score here or the fold prints it twice.
  * Omit entirely when score or date is missing — no age theater on empty Home.
  */
 export function foldScoreAgeLine(
@@ -164,9 +179,7 @@ export function foldScoreAgeLine(
   iso: string | null | undefined,
 ): string | null {
   if (scorePct == null || !Number.isFinite(scorePct)) return null;
-  const crop = foldScoreAgeCrop(iso);
-  if (!crop) return null;
-  return `${Math.round(scorePct)} · ${crop}`;
+  return foldScoreAgeCrop(iso);
 }
 
 export type FoldPathPrimary = {
@@ -285,6 +298,23 @@ export function foldHardStopEyebrow(
   return foldHardStopCopy(resolved, decisionType).eyebrow;
 }
 
+/**
+ * Split "Hard stop · runway." so only the cause token can take crimson.
+ * Neutral "Hard stop." has no accent — never invent a runway word.
+ */
+export function foldHardStopEyebrowParts(eyebrow: string): {
+  lead: string;
+  accent: string | null;
+} {
+  const sep = " · ";
+  const idx = eyebrow.indexOf(sep);
+  if (idx === -1) return { lead: eyebrow, accent: null };
+  return {
+    lead: eyebrow.slice(0, idx + sep.length),
+    accent: eyebrow.slice(idx + sep.length),
+  };
+}
+
 /** Hold sentence for a known stop. Null when the code is unknown — omit the line. */
 export function foldHomeHoldSentence(
   code?: FoldHardStopCode | null,
@@ -305,6 +335,12 @@ export const CASH_EMPTY_LABEL = "Connect accounts to see cash." as const;
 export const RUNWAY_HARD_STOP_PATH_TITLE =
   "Stabilize emergency runway to at least 1 month" as const;
 
+/**
+ * Fold CTA — Companion voice. Path step title stays the Path SSOT above.
+ * Kill "emergency" ops tone on the Home fold only.
+ */
+export const RUNWAY_HARD_STOP_FOLD_TITLE = "Build runway to 1 month" as const;
+
 const GROW_EMERGENCY_FUND_TITLE = "Grow emergency fund toward 3–6 months";
 
 /** Quiet override line: score is real; a hard stop still holds. No 35/35/30, no cutoffs. */
@@ -319,20 +355,24 @@ export function foldHardStopOverrideLine(
 }
 
 /**
- * Fold Path primary. A stored 3–6 month grow-fund title is the wrong close
- * only while RUNWAY_UNDER_1_MONTH is the resolved stop — swap to the SSOT
- * stabilize step. DTI / housing / credit keep the live Path title.
+ * Fold Path primary. A stored 3–6 month grow-fund title or Path SSOT
+ * stabilize title is the wrong close only while RUNWAY_UNDER_1_MONTH is
+ * the resolved stop — swap to Companion fold voice. DTI / housing / credit
+ * keep the live Path title.
  */
 export function resolveFoldPathPrimary(
   pathPrimary: FoldPathPrimary | null,
   stopCode?: FoldHardStopCode | null,
 ): FoldPathPrimary | null {
   if (!pathPrimary) return null;
-  if (
-    stopCode === "RUNWAY_UNDER_1_MONTH" &&
-    pathPrimary.title === GROW_EMERGENCY_FUND_TITLE
-  ) {
-    return { ...pathPrimary, title: RUNWAY_HARD_STOP_PATH_TITLE };
+  if (stopCode === "RUNWAY_UNDER_1_MONTH") {
+    if (
+      pathPrimary.title === GROW_EMERGENCY_FUND_TITLE ||
+      pathPrimary.title === RUNWAY_HARD_STOP_PATH_TITLE ||
+      pathPrimary.title === RUNWAY_HARD_STOP_FOLD_TITLE
+    ) {
+      return { ...pathPrimary, title: RUNWAY_HARD_STOP_FOLD_TITLE };
+    }
   }
   return pathPrimary;
 }
