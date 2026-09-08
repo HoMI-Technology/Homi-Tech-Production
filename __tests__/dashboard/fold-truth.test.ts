@@ -191,7 +191,7 @@ describe("foldRunwayLabel", () => {
 });
 
 describe("foldDensityPathTitles", () => {
-  it("takes at most three pending Path SSOT titles and never invents money", () => {
+  it("takes at most five pending Path SSOT titles and never invents money", () => {
     expect(
       foldDensityPathTitles([
         {
@@ -203,11 +203,15 @@ describe("foldDensityPathTitles", () => {
         { title: "Lower monthly debt burden (target DTI ≤ 36%)", href: "/tools/debt-payoff", status: "pending" },
         { title: "Household alignment session (budget ceiling + deal-breakers)", href: "/household", status: "pending" },
         { title: "A fourth pending title", href: "/path", status: "pending" },
+        { title: "A fifth pending title", href: "/path", status: "pending" },
+        { title: "A sixth pending title", href: "/path", status: "pending" },
       ]),
     ).toEqual([
       "Stabilize emergency runway to at least 1 month",
       "Lower monthly debt burden (target DTI ≤ 36%)",
       "Household alignment session (budget ceiling + deal-breakers)",
+      "A fourth pending title",
+      "A fifth pending title",
     ]);
   });
 
@@ -311,12 +315,14 @@ describe("Baseline 001 fold-truth copy", () => {
       /1 month/,
     );
     expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).not.toMatch(/0\.5/);
-    expect(HOME_DENSITY_LENSES).toHaveLength(4);
+    expect(HOME_DENSITY_LENSES).toHaveLength(6);
     expect(HOME_DENSITY_LENSES.map((l) => l.href)).toEqual([
       "/tools/affordability",
       "/tools/debt-payoff",
       "/tools/blind-budget",
       "/tools/monte-carlo",
+      "/tools/fire",
+      "/tools/roth-conversion",
     ]);
     const hubPaths = new Set(hubLenses().map((lens) => lens.path));
     for (const lens of HOME_DENSITY_LENSES) {

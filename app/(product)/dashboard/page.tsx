@@ -104,6 +104,9 @@ export default async function DashboardPage() {
                   id: latest.id,
                   overallScore: latest.overall_score,
                   scoredAt: latest.completed_at ?? latest.created_at,
+                  financialScore: latest.financial_score,
+                  emotionalScore: latest.emotional_score,
+                  timingScore: latest.timing_score,
                 }
               : null
           }

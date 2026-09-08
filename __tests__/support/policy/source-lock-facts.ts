@@ -547,7 +547,9 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
       "/tools/blind-budget",
       "/tools/monte-carlo",
       "Open Path",
-      "View all tools",
+      "View all",
+      "/tools/fire",
+      "/tools/roth-conversion",
     ],
     stringsMustNot: [
       "10,000",
@@ -847,8 +849,8 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
   {
     id: "money-mode-nav/bottom-nav-on-product-router",
     file: "components/layout/ProductLayoutRouter.tsx",
-    identifiersMust: ["AppHeader"],
-    identifiersMustNot: ["ProductBottomNav", "AppSidebar"],
+    identifiersMust: ["AppHeader", "SignedInPersonalChrome"],
+    identifiersMustNot: ["ProductBottomNav"],
   },
   {
     id: "money-mode-nav/bottom-nav-off-product-layout",
