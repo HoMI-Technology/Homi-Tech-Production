@@ -101,7 +101,7 @@ export function ThresholdFold({
           <>
             {latest && verdictMeta ? (
               <h1
-                className="font-display text-xl font-medium italic leading-snug tracking-tight"
+                className="type-fold-verdict leading-snug"
                 style={{ color: verdictMeta.color }}
                 data-home-fold-verdict=""
                 data-home-verdict=""
@@ -128,7 +128,7 @@ export function ThresholdFold({
                   <span className="mx-2 text-dim" aria-hidden="true">
                     {"\u00b7"}
                   </span>
-                  <span className="text-sm text-light" data-home-fold-age="">
+                  <span className="text-sm text-dim" data-home-fold-age="">
                     {ageLine}
                   </span>
                 </>
@@ -139,12 +139,12 @@ export function ThresholdFold({
               <>
                 {hardStopActive ? (
                   <div
-                    className="mt-5 max-w-xl"
+                    className="mt-6 max-w-xl"
                     role="alert"
                     data-home-hard-stop=""
                   >
                     <p
-                      className="text-sm font-medium text-light"
+                      className="type-fold-hardstop text-dim"
                       data-home-hard-stop-eyebrow=""
                     >
                       {hardStopParts.lead}
@@ -154,7 +154,7 @@ export function ThresholdFold({
                     </p>
                     {holdSentence ? (
                       <p
-                        className="mt-2 text-sm leading-relaxed text-dim"
+                        className="type-fold-hold mt-2 text-light/90"
                         data-home-hard-stop-hold=""
                       >
                         {holdSentence}
@@ -223,7 +223,7 @@ export function ThresholdFold({
                   </>
                 ) : (
                   <>
-                    <p className="mt-3 text-sm text-light" data-home-fold-cash-empty="">
+                    <p className="mt-3 text-sm text-dim" data-home-fold-cash-empty="">
                       {MONEY_WAIT_LINE}
                     </p>
                     <p className="mt-3">

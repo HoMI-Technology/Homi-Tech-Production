@@ -153,11 +153,13 @@ describe("ThresholdFold", () => {
     );
 
     expect(verdict).toHaveTextContent("DO NOT PROCEED");
-    expect(verdict).toHaveClass("font-display");
-    expect(verdict).toHaveClass("text-xl");
-    expect(verdict).toHaveClass("italic");
+    expect(verdict).toHaveClass("type-fold-verdict");
+    expect(verdict).not.toHaveClass("text-xl");
     expect(verdict).not.toHaveClass("text-4xl");
     expect(verdict).not.toHaveClass("sm:text-5xl");
+    expect(age).toHaveClass("text-sm");
+    expect(age).toHaveClass("text-dim");
+    expect(age).not.toHaveClass("text-light");
     expect(screen.getByLabelText("DO NOT PROCEED")).toBeInTheDocument();
     expect(container.querySelectorAll("[data-home-fold-verdict]")).toHaveLength(1);
     expect(screen.queryAllByText("DO NOT PROCEED")).toHaveLength(1);
@@ -184,9 +186,12 @@ describe("ThresholdFold", () => {
     expect(container.querySelector("[data-home-hard-stop-eyebrow]")?.textContent).toBe(
       hardStopEyebrow,
     );
-    expect(container.querySelector("[data-home-hard-stop-hold]")?.textContent).toBe(
-      homeHoldSentence,
-    );
+    expect(container.querySelector("[data-home-hard-stop]")).toHaveClass("mt-6");
+    expect(container.querySelector("[data-home-hard-stop]")).not.toHaveClass("mt-5");
+    expect(container.querySelector("[data-home-hard-stop-eyebrow]")).toHaveClass("type-fold-hardstop");
+    expect(container.querySelector("[data-home-hard-stop-eyebrow]")).toHaveClass("text-dim");
+    expect(container.querySelector("[data-home-hard-stop-hold]")).toHaveClass("type-fold-hold");
+    expect(container.querySelector("[data-home-hard-stop-hold]")).toHaveClass("text-light/90");
 
     expect(screen.queryByText(/· Hot/)).not.toBeInTheDocument();
     expect(screen.queryByText("Hot")).not.toBeInTheDocument();
@@ -200,6 +205,8 @@ describe("ThresholdFold", () => {
     const money = container.querySelector("[data-home-money-below-fold]");
     expect(money).not.toBeNull();
     expect(money).toHaveTextContent(MONEY_WAIT_LINE);
+    expect(container.querySelector("[data-home-fold-cash-empty]")).toHaveClass("text-dim");
+    expect(container.querySelector("[data-home-fold-cash-empty]")).not.toHaveClass("text-light");
     expect(money).toHaveTextContent("Money");
     expect(container.querySelector("[data-home-fold-runway]")).toBeNull();
     expect(screen.queryByText("0")).not.toBeInTheDocument();
