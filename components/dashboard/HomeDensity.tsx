@@ -21,7 +21,7 @@ import {
 import type { LastReadMoneyInputs } from "@/lib/dashboard/last-read-chrome";
 
 const DENSITY_EYEBROW =
-  "text-[11px] font-semibold uppercase tracking-[0.06em] text-dim";
+  "text-2xs font-semibold uppercase tracking-[0.06em] text-dim";
 
 /**
  * HOME_DENSITY_CRAFT — Money → What's next → Tools below the quiet PR7 fold.
@@ -125,7 +125,7 @@ export function HomeDensity({
             <li key={lens.id}>
               <Link
                 href={lens.href}
-                className="flex h-full items-center justify-between gap-3 rounded-xl border border-white/[0.03] bg-[#0f172a] p-4"
+                className="flex h-full items-center justify-between gap-3 rounded-xl border border-white/[0.03] bg-navy-light p-4"
                 data-home-density-tool={lens.id}
               >
                 <span className="min-w-0">

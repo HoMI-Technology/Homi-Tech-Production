@@ -152,7 +152,7 @@ export const HOME_DENSITY_TOOLS_HEADING = "Tools" as const;
 
 /**
  * State A hub-lens cards. Live `/tools/*` hub routes only.
- * Dim lines are locked craft (≤8 words). Never invent 10,000 / $ / +points.
+ * Dim lines are locked craft (≤8 words). Never invent simulation-count theater or dollar chrome.
  */
 export const HOME_DENSITY_LENSES = [
   {
