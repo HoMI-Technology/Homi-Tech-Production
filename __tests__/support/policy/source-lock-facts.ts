@@ -497,7 +497,12 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
   {
     id: "fold-wiring/home-density-quiet",
     file: "components/dashboard/HomeDensity.tsx",
-    identifiersMust: ["HOME_DENSITY_LENSES", "MONEY_WAIT_LINE", "FOLD_CONNECTIONS_HREF"],
+    identifiersMust: [
+      "HOME_DENSITY_LENSES",
+      "MONEY_WAIT_LINE",
+      "FOLD_CONNECTIONS_HREF",
+      "DENSITY_FOOTER_LINK",
+    ],
     identifiersMustNot: [
       "PathNextMove",
       "HomeMoneyStanding",

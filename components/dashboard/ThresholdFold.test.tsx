@@ -517,6 +517,8 @@ describe("ThresholdFold", () => {
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
     expect(density).toHaveClass("mt-12");
+    expect(next).toHaveClass("mt-12");
+    expect(tools).toHaveClass("mt-12");
     expect(density).toHaveClass("max-w-[720px]");
     expect(foldCol).toHaveClass("max-w-[560px]");
     expect(density.querySelector(".font-display")).toBeNull();
@@ -525,13 +527,12 @@ describe("ThresholdFold", () => {
     const nextSteps = container.querySelectorAll("[data-home-density-next-step]");
     expect(nextSteps).toHaveLength(3);
     expect(nextSteps[0]).toHaveTextContent(RUNWAY_HARD_STOP_PATH_TITLE);
-    expect(screen.getByRole("link", { name: HOME_DENSITY_OPEN_PATH_LABEL })).toHaveAttribute(
-      "href",
-      HOME_DENSITY_OPEN_PATH_HREF,
-    );
-    expect(screen.getByRole("link", { name: HOME_DENSITY_OPEN_PATH_LABEL })).not.toHaveClass(
-      "btn-primary",
-    );
+    const openPath = screen.getByRole("link", { name: HOME_DENSITY_OPEN_PATH_LABEL });
+    expect(openPath).toHaveAttribute("href", HOME_DENSITY_OPEN_PATH_HREF);
+    expect(openPath).not.toHaveClass("btn-primary");
+    expect(openPath).toHaveClass("text-dim");
+    expect(openPath).toHaveClass("underline");
+    expect(openPath).not.toHaveClass("text-cyan");
 
     for (const lens of HOME_DENSITY_LENSES) {
       const card = screen.getByRole("link", { name: new RegExp(lens.title, "i") });
@@ -540,10 +541,19 @@ describe("ThresholdFold", () => {
       expect(card).not.toHaveClass("btn-primary");
       expect(lens.line.trim().split(/\s+/).length).toBeLessThanOrEqual(8);
     }
-    expect(screen.getByRole("link", { name: HOME_DENSITY_VIEW_ALL_TOOLS_LABEL })).toHaveAttribute(
-      "href",
-      HOME_DENSITY_VIEW_ALL_TOOLS_HREF,
-    );
+    const toolLines = container.querySelectorAll("[data-home-density-tool-line]");
+    expect(toolLines).toHaveLength(4);
+    for (const line of toolLines) {
+      expect(line).toHaveClass("text-xs");
+      expect(line).toHaveClass("text-dim");
+      expect(line).not.toHaveClass("text-sm");
+    }
+    const viewTools = screen.getByRole("link", { name: HOME_DENSITY_VIEW_ALL_TOOLS_LABEL });
+    expect(viewTools).toHaveAttribute("href", HOME_DENSITY_VIEW_ALL_TOOLS_HREF);
+    expect(viewTools).not.toHaveClass("btn-primary");
+    expect(viewTools).toHaveClass("text-dim");
+    expect(viewTools).toHaveClass("underline");
+    expect(viewTools).not.toHaveClass("text-cyan");
     expect(container.querySelectorAll("[data-home-density-tool]")).toHaveLength(4);
     expect(screen.queryByText(/10,000|10000/)).not.toBeInTheDocument();
     expect(screen.queryByText(/\$4,200|\$4200/)).not.toBeInTheDocument();

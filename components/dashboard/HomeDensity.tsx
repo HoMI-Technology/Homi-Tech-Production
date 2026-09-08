@@ -22,6 +22,9 @@ import type { LastReadMoneyInputs } from "@/lib/dashboard/last-read-chrome";
 
 const DENSITY_EYEBROW =
   "text-2xs font-semibold uppercase tracking-[0.06em] text-dim";
+/** Brand C1 — demoted footer links, not cyan peer weight. */
+const DENSITY_FOOTER_LINK =
+  "text-sm text-dim underline underline-offset-2 hover:text-cyan";
 
 /**
  * HOME_DENSITY_CRAFT — Money → What's next → Tools below the quiet PR7 fold.
@@ -71,7 +74,7 @@ export function HomeDensity({
             <p className="mt-3">
               <Link
                 href={FOLD_MONEY_HREF}
-                className="text-sm text-dim underline underline-offset-2 hover:text-cyan"
+                className={DENSITY_FOOTER_LINK}
                 data-home-fold-money-depth=""
               >
                 {FOLD_MONEY_DEPTH_LABEL}
@@ -96,7 +99,7 @@ export function HomeDensity({
         )}
       </section>
 
-      <section className="mt-8" data-home-density-next="" aria-label="What's next">
+      <section className="mt-12" data-home-density-next="" aria-label="What's next">
         <p className={DENSITY_EYEBROW}>{HOME_DENSITY_WHATS_NEXT_HEADING}</p>
         {pathTitles.length > 0 ? (
           <ol className="mt-3 space-y-2 text-sm text-light/85">
@@ -110,7 +113,7 @@ export function HomeDensity({
         <p className="mt-3">
           <Link
             href={HOME_DENSITY_OPEN_PATH_HREF}
-            className="text-sm text-cyan underline-offset-2 hover:underline"
+            className={DENSITY_FOOTER_LINK}
             data-home-density-open-path=""
           >
             {HOME_DENSITY_OPEN_PATH_LABEL}
@@ -118,7 +121,7 @@ export function HomeDensity({
         </p>
       </section>
 
-      <section className="mt-8" data-home-density-tools="" aria-label="Tools">
+      <section className="mt-12" data-home-density-tools="" aria-label="Tools">
         <p className={DENSITY_EYEBROW}>{HOME_DENSITY_TOOLS_HEADING}</p>
         <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {HOME_DENSITY_LENSES.map((lens) => (
@@ -130,7 +133,9 @@ export function HomeDensity({
               >
                 <span className="min-w-0">
                   <span className="block text-sm font-medium text-light">{lens.title}</span>
-                  <span className="mt-1 block text-sm text-dim">{lens.line}</span>
+                  <span className="mt-1 block text-xs font-normal text-dim" data-home-density-tool-line="">
+                    {lens.line}
+                  </span>
                 </span>
                 <svg
                   aria-hidden="true"
@@ -153,7 +158,7 @@ export function HomeDensity({
         <p className="mt-3">
           <Link
             href={HOME_DENSITY_VIEW_ALL_TOOLS_HREF}
-            className="text-sm text-cyan underline-offset-2 hover:underline"
+            className={DENSITY_FOOTER_LINK}
             data-home-density-view-tools=""
           >
             {HOME_DENSITY_VIEW_ALL_TOOLS_LABEL}
