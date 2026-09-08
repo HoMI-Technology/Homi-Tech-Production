@@ -97,7 +97,7 @@ export default async function TeamDashboardPage() {
   return (
     <PageFrame role="team" density="compact">
       <p className="text-2xs font-bold uppercase tracking-[0.14em] text-dim">
-        Team · /team · aggregate only{org?.name ? ` · ${org.name}` : ""}
+        Team · aggregate only{org?.name ? ` · ${org.name}` : ""}
       </p>
       <OperateHeroMeta
         title="How the team is doing"
