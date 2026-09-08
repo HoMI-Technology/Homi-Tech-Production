@@ -1,11 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { AdminMobileNav, AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminAccessWall } from "@/components/admin/AdminAccessWall";
-import { Wordmark } from "@/components/brand/Wordmark";
+import { AdminOperateChrome } from "@/components/admin/AdminOperateChrome";
 import { env } from "@/lib/env";
-
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 import {
   deriveNextLevel,
   evaluateAdminAccess,
@@ -13,6 +9,9 @@ import {
   type AssuranceLevel,
 } from "@/lib/auth/admin";
 import type { Profile } from "@/types/database";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -70,25 +69,5 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     return <AdminAccessWall reason={decision.reason} signedIn={Boolean(user)} />;
   }
 
-  return (
-    <div className="field min-h-dvh" data-operate-role="admin" data-density="compact">
-      <div className="mx-auto flex max-w-7xl gap-6 px-4 py-8 sm:gap-8 sm:px-6 sm:py-10">
-        <aside className="hidden w-52 shrink-0 md:block lg:w-56">
-          <div className="sticky top-[var(--nav-offset)]">
-            <div className="mb-5 flex items-center gap-2 border-b border-white/[0.06] px-1 pb-4">
-              <Wordmark size="text-lg" />
-              <span className="rounded-full border border-slate-high/40 bg-slate-surface/60 px-2 py-0.5 text-3xs font-semibold uppercase tracking-wide text-dim">
-                Admin
-              </span>
-            </div>
-            <AdminSidebar />
-          </div>
-        </aside>
-        <div className="min-w-0 flex-1">
-          <AdminMobileNav />
-          {children}
-        </div>
-      </div>
-    </div>
-  );
+  return <AdminOperateChrome>{children}</AdminOperateChrome>;
 }
