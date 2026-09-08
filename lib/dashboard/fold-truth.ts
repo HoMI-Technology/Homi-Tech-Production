@@ -141,6 +141,46 @@ export const FOLD_LIQUID_CONNECTED_LABEL = "Connected · ledger" as const;
 export const FOLD_FLAGS_NONE_INVENTED = "None invented" as const;
 export const FOLD_MONEY_DEPTH_LABEL = "Money depth" as const;
 
+/** HOME_DENSITY_CRAFT — below-fold column, not the PR7 fold. */
+export const HOME_DENSITY_MAX_PATH_STEPS = 3 as const;
+export const HOME_DENSITY_OPEN_PATH_LABEL = "Open Path" as const;
+export const HOME_DENSITY_OPEN_PATH_HREF = "/path" as const;
+export const HOME_DENSITY_VIEW_ALL_TOOLS_LABEL = "View all tools" as const;
+export const HOME_DENSITY_VIEW_ALL_TOOLS_HREF = "/tools" as const;
+export const HOME_DENSITY_WHATS_NEXT_HEADING = "What's next" as const;
+export const HOME_DENSITY_TOOLS_HEADING = "Tools" as const;
+
+/**
+ * State A hub-lens cards. Live `/tools/*` hub routes only.
+ * Dim lines are locked craft (≤8 words). Never invent 10,000 / $ / +points.
+ */
+export const HOME_DENSITY_LENSES = [
+  {
+    id: "affordability",
+    href: "/tools/affordability",
+    title: "Affordability",
+    line: "Housing tiers for your ledger",
+  },
+  {
+    id: "debt-payoff",
+    href: "/tools/debt-payoff",
+    title: "Debt Payoff",
+    line: "Avalanche vs snowball paths",
+  },
+  {
+    id: "blind-budget",
+    href: "/tools/blind-budget",
+    title: "Blind Budget",
+    line: "Empty-ledger spending lens",
+  },
+  {
+    id: "monte-carlo",
+    href: "/tools/monte-carlo",
+    title: "Monte Carlo",
+    line: "Simulated paths — educational",
+  },
+] as const;
+
 /** HOME_CRAFT / HOME_FIRST_VIEWPORT month crop. Short English, UTC, no period. */
 const FOLD_AGE_SHORT_MONTHS = [
   "Jan",
@@ -375,6 +415,29 @@ export function resolveFoldPathPrimary(
     }
   }
   return pathPrimary;
+}
+
+/**
+ * Quiet What’s next titles below the fold. Path SSOT titles only — no fold
+ * companion remap, no $ invent, no +points. Cap at three pending steps.
+ */
+export function foldDensityPathTitles(
+  steps: unknown,
+  limit: number = HOME_DENSITY_MAX_PATH_STEPS,
+): string[] {
+  if (!Array.isArray(steps)) return [];
+  const titles: string[] = [];
+  for (const step of steps) {
+    if (titles.length >= limit) break;
+    if (!step || typeof step !== "object") continue;
+    const row = step as { title?: unknown; status?: unknown };
+    const status = row.status ?? "pending";
+    if (status !== "pending") continue;
+    const title = typeof row.title === "string" ? row.title.trim() : "";
+    if (!title) continue;
+    titles.push(title);
+  }
+  return titles;
 }
 
 /** Next pending Path step for the fold — one primary, never REASSESS as the hero. */

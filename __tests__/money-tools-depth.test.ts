@@ -24,14 +24,24 @@ describe("money-tools depth doctrine", () => {
     expect(doc).toMatch(/Forbidden patterns/);
   });
 
-  it("Home fold mounts money strip only — no tools grid or kitchen-sink widgets", () => {
+  it("Home fold mounts money wait + quiet density below — no kitchen-sink fold widgets", () => {
     const page = read("app/(product)/dashboard/page.tsx");
     const fold = read("components/dashboard/ThresholdFold.tsx");
+    const density = read("components/dashboard/HomeDensity.tsx");
     expect(fold).not.toContain("HomeMoneyStanding");
     expect(fold).toContain("data-home-money-below-fold");
+    expect(fold).toContain("HomeDensity");
     expect(page).not.toMatch(/QuickActionGrid|ToolGrid|hubLensesByRing/);
-    expect(fold).not.toMatch(/QuickActionGrid|\/tools\/affordability|Open lens/);
+    expect(fold).not.toMatch(/QuickActionGrid|Open lens/);
     expect(fold).not.toContain("FinancialPositionSection");
+    expect(density).toContain("/tools/affordability");
+    expect(density).toContain("/tools/debt-payoff");
+    expect(density).toContain("/tools/blind-budget");
+    expect(density).toContain("/tools/monte-carlo");
+    expect(density).not.toContain("/tools/rent-vs-buy");
+    expect(density).not.toContain("10,000");
+    expect(density).not.toMatch(/btn-primary/);
+    expect(density).not.toContain("font-display");
   });
 
   it("Home money standing CTAs stay ghost/sm and deep-link into /money*", () => {

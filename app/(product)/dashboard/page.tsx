@@ -113,6 +113,7 @@ export default async function DashboardPage() {
           decisionType={latest?.decision_type ?? "home_buying"}
           lastMoney={lastMoneyInputsFromRow(latest?.inputs ?? null)}
           pathPrimary={pathPrimary}
+          pathSteps={pathSteps}
         />
       </div>
     </PageFrame>
