@@ -83,6 +83,9 @@ describe("ThresholdFold", () => {
     expect(screen.queryByText("One pass. Then you know.")).not.toBeInTheDocument();
     expect(screen.queryByText(/One measurement and this page has a build to show/)).not.toBeInTheDocument();
     expect(screen.getByLabelText("Decision Readiness Score Unknown")).toHaveTextContent("\u2014");
+    expect(screen.getByLabelText("Decision Readiness Score Unknown")).toHaveClass("type-fold-score");
+    expect(screen.getByLabelText("Decision Readiness Score Unknown")).not.toHaveClass("text-5xl");
+    expect(screen.getByLabelText("Decision Readiness Score Unknown")).not.toHaveClass("sm:text-6xl");
     expect(screen.getByLabelText("Decision Readiness Score Unknown")).toHaveStyle({
       color: COLORS.light,
     });
@@ -118,6 +121,11 @@ describe("ThresholdFold", () => {
     expect(numeral).not.toHaveStyle({ color: COLORS.cyan });
     expect(numeral.style.textShadow).toBe("");
     expect(numeral).toHaveTextContent("61");
+    expect(numeral).toHaveClass("type-fold-score");
+    expect(numeral).toHaveClass("score-numeral");
+    expect(numeral).not.toHaveClass("text-5xl");
+    expect(numeral).not.toHaveClass("sm:text-6xl");
+    expect(numeral).not.toHaveClass("font-semibold");
 
     expect(container.querySelector("[data-home-threshold-compass]")).toBeNull();
     expect(container.querySelectorAll("svg[aria-label*='Threshold Compass']")).toHaveLength(0);

@@ -431,8 +431,11 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
       "data-path-fold-primary",
       "data-home-fold-score-plate",
       "data-home-money-below-fold",
+      "type-fold-score",
     ],
     stringsMustNot: [
+      "text-5xl",
+      "sm:text-6xl",
       "Grow emergency fund toward 3–6 months",
       "35/35/30",
       "data-home-build-hero",

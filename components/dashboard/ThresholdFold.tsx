@@ -116,7 +116,7 @@ export function ThresholdFold({
               className={latest ? "mt-4 flex flex-wrap items-baseline" : undefined}
             >
               <span
-                className="score-numeral text-5xl font-semibold tabular-nums text-light sm:text-6xl"
+                className="score-numeral type-fold-score tabular-nums text-light"
                 style={{ color: COLORS.light }}
                 aria-label={scoreLabel}
                 data-home-fold-score=""

@@ -807,6 +807,12 @@ body {
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.03em;
   }
+  /* HOME_HARDSTOP_CRAFT — fold score is a quiet JetBrains 28/500, not a 60px scream. */
+  .type-fold-score {
+    font-size: 1.75rem;
+    font-weight: 500;
+    line-height: 1.2;
+  }
 
   /* ── Numeric typography — every number reads as instrument data ───
    .num is the general marker: scores, counts, percentages, metric
