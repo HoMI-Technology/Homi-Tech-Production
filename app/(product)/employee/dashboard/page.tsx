@@ -6,7 +6,6 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { PageFrame } from "@/components/operate/PageFrame";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { OperateHeroMeta } from "@/components/operate/OperateHeroMeta";
-import { OperateInstrument } from "@/components/operate/OperateInstrument";
 import { canAccessEmployeeHub } from "@/lib/dashboard/employee-access";
 import { signInRedirect } from "@/lib/auth/signInRedirect";
 import type { AssessmentRow, Organization, Profile } from "@/types/database";
@@ -81,33 +80,31 @@ export default async function EmployeeDashboardPage() {
   return (
     <PageFrame role="employee" density="compact">
       <p className="text-2xs font-bold uppercase tracking-[0.14em] text-dim">
-        Employee · /employee/dashboard
+        Employee
       </p>
-      <OperateInstrument tint="transparent">
-        <OperateHeroMeta
-          title={
-            <>
-              Employee readiness for{" "}
-              <span className="text-aurora">{org?.name ?? "your employer"}</span>
-            </>
-          }
-          description="Your employer never sees a personal score. Privacy stays on. Operate chrome — not a second personal Home."
-        />
+      <OperateHeroMeta
+        title={
+          <>
+            Employee readiness for{" "}
+            <span className="text-aurora">{org?.name ?? "your employer"}</span>
+          </>
+        }
+        description="Your employer never sees a personal score. Privacy stays on. Operate chrome — not a second personal Home."
+      />
 
-        {latest ? (
-          <Link href="/path" className="btn btn-ghost">
-            Path to Ready
-          </Link>
-        ) : (
-          <EmptyState
-            tone="operate"
-            title="One private measurement and this hub comes alive"
-            body="Your employer sponsors the instrument. Only you see the reading — on personal Home, not here."
-            actionHref="/assessment"
-            actionLabel="Assess"
-          />
-        )}
-      </OperateInstrument>
+      {latest ? (
+        <Link href="/path" className="btn btn-ghost">
+          Path to Ready
+        </Link>
+      ) : (
+        <EmptyState
+          tone="operate"
+          title="One private measurement and this hub comes alive"
+          body="Your employer sponsors the instrument. Only you see the reading — on personal Home, not here."
+          actionHref="/assessment"
+          actionLabel="Assess"
+        />
+      )}
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2" data-employee-privacy="">
         <div className="dash-panel">

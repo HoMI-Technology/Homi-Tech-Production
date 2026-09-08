@@ -47,7 +47,9 @@ describe("PR4 employee leftover kills", () => {
     expect(employee).not.toContain("Not yet is not no");
     expect(employee).not.toContain("Continue your build on personal Home");
     expect(employee).not.toContain("tint={tint}");
-    expect(employee).toContain('tint="transparent"');
+    expect(employee).not.toContain('tint="transparent"');
+    expect(employee).not.toContain("OperateInstrument");
+    expect(employee).not.toContain("dash-instrument");
     expect(employee).not.toContain("ThresholdFold");
     expect(employee).not.toContain("ThresholdCompass");
     expect(employee).not.toContain("financial_score");
@@ -62,6 +64,7 @@ describe("PR4 employee leftover kills", () => {
     expect(employee).toContain("MetricRail");
     expect(employee).toContain("What your employer sees");
     expect(employee).toContain("What stays yours");
+    expect(employee).toContain('tone="operate"');
   });
 });
 
@@ -108,6 +111,29 @@ describe("PR4 team leftover kills", () => {
     expect(team).not.toContain("HeroScore");
     expect(team).not.toContain("VerdictBadge");
     expect(team).not.toContain("overall_score");
+  });
+});
+
+describe("PR5 craft-residue chrome — operate voice, no new URLs", () => {
+  it("first-paint labels drop WORD crumbs and raw path crumbs", () => {
+    expect(employee).toContain(">Employee</p>");
+    expect(employee).not.toContain("Employee · /employee/dashboard");
+    expect(partner).toContain(">Partner</p>");
+    expect(partner).not.toContain("Partner · /partner/dashboard");
+    expect(team).toContain("Team · aggregate only");
+    expect(team).not.toContain("Team · /team");
+    expect(admin).toContain('eyebrow="Admin"');
+    expect(admin).not.toContain("Admin · /admin");
+    expect(admin).toMatch(/>\s*Marketing\s*</);
+    expect(admin).not.toContain("Marketing · depth");
+    expect(admin).toContain("Marketing is depth");
+  });
+
+  it("hides Assess on role trees; keeps SIGNED_IN_ASSESS_HREF; no invented bar CTAs", () => {
+    expect(header).toContain("hideAssessOnRoleRoute");
+    expect(header).toContain("SIGNED_IN_ASSESS_HREF");
+    expect(header).toContain("/^(?:\\/employee|\\/partner|\\/admin|\\/team)(?:\\/|$)/");
+    expect(header).not.toMatch(/Invite clients|Ops bar|Aggregate CTA/);
   });
 });
 

@@ -26,7 +26,9 @@ describe("admin + marketing attention doctrine", () => {
     expect(page).toContain('data-admin-attention=""');
     expect(page).toContain("<PageFrame");
     expect(page).toContain('data-admin-depth=""');
-    expect(page).toContain("Marketing · depth");
+    expect(page).toContain("Marketing");
+    expect(page).not.toContain("Marketing · depth");
+    expect(page).toContain("Marketing is depth");
     expect(page.indexOf("AttentionStrip")).toBeLessThan(page.indexOf("<MetricRail"));
     expect(page.indexOf("data-admin-attention")).toBeLessThan(page.indexOf("<MetricRail"));
     expect(page.indexOf("<MetricRail")).toBeLessThan(page.indexOf("data-admin-depth"));
@@ -106,6 +108,8 @@ describe("partner + employee surfaces doctrine", () => {
 
   it("Partner primary is invite — not personal Path hero", () => {
     const page = read("app/(product)/partner/dashboard/page.tsx");
+    expect(page).toContain(">Partner</p>");
+    expect(page).not.toContain("Partner · /partner/dashboard");
     expect(page).toContain('data-partner-invite=""');
     expect(page).toContain("InviteShareRow");
     expect(page).toContain("first-moment?ref=");
@@ -123,6 +127,8 @@ describe("partner + employee surfaces doctrine", () => {
 
   it("Employee hub keeps privacy and Path ghost — score rail unmounted", () => {
     const page = read("app/(product)/employee/dashboard/page.tsx");
+    expect(page).toContain(">Employee</p>");
+    expect(page).not.toContain("Employee · /employee/dashboard");
     expect(page).toContain('data-employee-privacy=""');
     expect(page).toContain("OperateHeroMeta");
     expect(page).toContain("MetricRail");
@@ -138,6 +144,9 @@ describe("partner + employee surfaces doctrine", () => {
     expect(page).not.toContain("Continue your build on personal Home");
     expect(page).not.toContain("Not yet is not no");
     expect(page).not.toContain("tint={tint}");
+    expect(page).not.toContain('tint="transparent"');
+    expect(page).not.toContain("OperateInstrument");
+    expect(page).not.toContain("dash-instrument");
     expect(page).not.toContain("ThresholdFold");
     expect(page).not.toContain("PathNextMove");
     expect(page).not.toContain("HomeFold");
@@ -153,6 +162,8 @@ describe("partner + employee surfaces doctrine", () => {
 
   it("Team stays aggregate-only with no named individuals copy", () => {
     const page = read("app/(product)/team/page.tsx");
+    expect(page).toContain("Team · aggregate only");
+    expect(page).not.toContain("Team · /team");
     expect(page).toContain('data-team-aggregates=""');
     expect(page).toMatch(/Individuals are not listed|No named individuals/);
     expect(page).not.toContain("PathNextMove");

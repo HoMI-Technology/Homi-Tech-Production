@@ -218,7 +218,7 @@ export default async function AdminOverviewPage() {
   return (
     <PageFrame role="admin" density="compact">
       <PageHeader
-        eyebrow="Admin · /admin · PageFrame"
+        eyebrow="Admin"
         title="What needs a human"
         description="Attention first. KPIs after. Not a personal readiness home. Marketing is depth — not a peer role."
       />
@@ -283,7 +283,7 @@ export default async function AdminOverviewPage() {
           Analytics
         </Link>
         <Link href="/admin/marketing" className="text-aurora underline-offset-4 hover:underline">
-          Marketing · depth
+          Marketing
         </Link>
       </nav>
 

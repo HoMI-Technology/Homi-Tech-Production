@@ -174,7 +174,7 @@ export default async function PartnerDashboardPage() {
   return (
     <PageFrame role="partner" density="compact">
       <p className="text-2xs font-bold uppercase tracking-[0.14em] text-dim">
-        Partner · /partner/dashboard
+        Partner
       </p>
       <OperateHeroMeta
         title="Invite clients to a first moment"

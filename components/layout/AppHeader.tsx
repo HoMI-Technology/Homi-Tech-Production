@@ -28,6 +28,12 @@ import { SIGNED_IN_ASSESS_HREF } from "@/components/marketing/first-moment-copy"
 
 const SHELL_COMPASS_SIZE = 28;
 
+/** Assess stays on personal Home and the assessment walk — not role operate trees. */
+function hideAssessOnRoleRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return /^(?:\/employee|\/partner|\/admin|\/team)(?:\/|$)/.test(pathname);
+}
+
 function moreItemClass(pathname: string, href: string, extra = ""): string {
   const tone = moreDrawerToneForHref(href);
   const active = isActivePath(pathname, href);
@@ -77,6 +83,7 @@ export function AppHeader({
   const { grouped, leftover } = groupDepthNav(depthNav);
   const switcherProps = { role, employerId, organizationId };
   const assessActive = isActivePath(pathname, "/assessment");
+  const showAssess = !hideAssessOnRoleRoute(pathname);
   void email;
 
   useEffect(() => {
@@ -135,14 +142,16 @@ export function AppHeader({
           </div>
 
           <div className="ml-auto flex shrink-0 items-center gap-2">
-            <Link
-              href={SIGNED_IN_ASSESS_HREF}
-              className="btn btn-primary btn-sm"
-              data-shell-assess=""
-              aria-current={assessActive ? "page" : undefined}
-            >
-              Assess
-            </Link>
+            {showAssess ? (
+              <Link
+                href={SIGNED_IN_ASSESS_HREF}
+                className="btn btn-primary btn-sm"
+                data-shell-assess=""
+                aria-current={assessActive ? "page" : undefined}
+              >
+                Assess
+              </Link>
+            ) : null}
 
             <div ref={moreRef} className="relative">
               <button

@@ -177,4 +177,26 @@ describe("AppHeader — SHELL_CRAFT v3 quiet top bar", () => {
     expect(document.body.textContent).not.toContain("PR2 floor");
     expect(document.body.textContent).not.toContain("Craft v3 · PR2 floor · not ship");
   });
+
+  it("hides Assess on employee/partner/admin/team trees, keeps it on personal Home", () => {
+    mockPathname = "/dashboard";
+    const { unmount: unmountHome } = render(<AppHeader email={null} />);
+    expect(document.querySelector("[data-shell-assess]")).not.toBeNull();
+    unmountHome();
+
+    for (const path of [
+      "/employee/dashboard",
+      "/employee",
+      "/partner/dashboard",
+      "/admin",
+      "/admin/marketing",
+      "/team",
+    ]) {
+      mockPathname = path;
+      const { unmount } = render(<AppHeader email={null} />);
+      expect(document.querySelector("[data-shell-assess]")).toBeNull();
+      expect(screen.queryByRole("link", { name: /^assess$/i })).toBeNull();
+      unmount();
+    }
+  });
 });

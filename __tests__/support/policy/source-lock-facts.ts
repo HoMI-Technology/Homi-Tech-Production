@@ -572,16 +572,17 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
   {
     id: "fold-wiring/employee-hub-empty-close",
     file: "app/(product)/employee/dashboard/page.tsx",
-    identifiersMustNot: ["ThresholdCompass", "HeroScore", "VerdictBadge", "ThresholdFold"],
+    identifiersMustNot: ["ThresholdCompass", "HeroScore", "VerdictBadge", "ThresholdFold", "OperateInstrument"],
     stringsMustNot: [
       "Get your Shadow Score",
       "Private Decision Readiness Score",
       "Continue your build on personal Home",
       "data-employee-score-rail",
       "data-employee-primary",
+      "dash-instrument",
     ],
-    codeMust: ['actionHref="/assessment"', 'actionLabel="Assess"', 'href="/path"', 'tint="transparent"'],
-    codeMustNot: ['actionHref="/shadow-score"', 'href: "/plan"', "tint={tint}"],
+    codeMust: ['actionHref="/assessment"', 'actionLabel="Assess"', 'href="/path"'],
+    codeMustNot: ['actionHref="/shadow-score"', 'href: "/plan"', "tint={tint}", 'tint="transparent"'],
   },
   {
     id: "fold-wiring/onboarding-no-first-run-ctas",
