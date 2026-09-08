@@ -158,7 +158,10 @@ describe("partner + employee surfaces doctrine", () => {
     expect(page).not.toContain("PathNextMove");
     expect(page).not.toContain("ActionDock");
     expect(page).not.toContain('href="/dashboard"');
-    expect(page).not.toContain("/team/dashboard");
+    expect(page).not.toMatch(/href=["']\/team\/dashboard/);
+    expect(existsSync(resolve(process.cwd(), "app/(product)/team/dashboard/page.tsx"))).toBe(
+      false,
+    );
   });
 
   it("does not reopen Phases 1–3 locks", () => {

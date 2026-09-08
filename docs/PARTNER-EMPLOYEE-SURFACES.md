@@ -55,7 +55,7 @@ partner or employee fold hero. Path lives on personal Home.
 
 - **Team / employer views:** aggregates and de-identified bands preferred (D3 in the
   multi-dashboard operate program).
-- **Employee:** privacy cards + supporting MetricRail (score slot stays `—`). No HeroScore / VerdictBadge / personal Home CTA.
+- **Employee:** privacy cards + supporting MetricRail (score slot stays `—`). Private standing stays on personal Home. No HeroScore / VerdictBadge / personal Home CTA.
 - **Partner:** L0 attribution via `referral_source` / invite; L1 names only via
   `partner_id` (see partner dashboard comments). Never emails.
 - Named individual scores only under explicit product roster rules already shipped.
