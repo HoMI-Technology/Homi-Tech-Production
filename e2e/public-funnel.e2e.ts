@@ -57,11 +57,11 @@ test("waitlist page loads", async ({ page }) => {
 
 test("KEEP legal pages load", async ({ page }) => {
   await page.goto("/legal/privacy");
-  await expect(page.getByRole("heading", { name: "Privacy Policy" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Privacy Policy", exact: true })).toBeVisible();
   await page.goto("/legal/terms");
-  await expect(page.getByRole("heading", { name: "Terms of Service" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Terms of Service", exact: true })).toBeVisible();
   await page.goto("/legal/cookies");
-  await expect(page.getByRole("heading", { name: "Cookie Policy" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Cookie Policy", exact: true })).toBeVisible();
 });
 
 test("extra legal folds to /legal/privacy", async ({ page }) => {
