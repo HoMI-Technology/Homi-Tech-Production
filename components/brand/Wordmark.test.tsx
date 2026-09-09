@@ -17,6 +17,10 @@ describe("Wordmark", () => {
   it("colors each letter per brand canon (cyan / emerald / yellow / cyan)", () => {
     const { container } = render(<Wordmark />);
     const letters = container.querySelectorAll<HTMLElement>("span[aria-label] > span");
+    expect(letters[0]?.getAttribute("data-letter")).toBe("H");
+    expect(letters[1]?.getAttribute("data-letter")).toBe("o");
+    expect(letters[2]?.getAttribute("data-letter")).toBe("M");
+    expect(letters[3]?.getAttribute("data-letter")).toBe("I");
     const colors = Array.from(letters).map((el) => el.style.color);
     expect(colors).toEqual([
       "rgb(34, 211, 238)", // H — cyan  #22d3ee

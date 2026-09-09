@@ -16,7 +16,7 @@ import { COLORS } from "@/lib/brand";
 export function HomeCompanionColumn() {
   return (
     <aside
-      className="home-companion-column space-y-6 rounded-2xl border border-white/[0.04] bg-navy-light/40 p-5"
+      className="home-companion-column isolate overflow-hidden space-y-6 rounded-2xl border border-white/[0.04] bg-navy-light/40 p-5"
       data-home-companion-column=""
       aria-label="Companion"
     >

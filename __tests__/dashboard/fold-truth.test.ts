@@ -15,6 +15,8 @@ import {
   FOLD_HARD_STOP_PRECEDENCE,
   foldHardStopEyebrow,
   foldHardStopOverrideLine,
+  foldHoldClose,
+  foldHoldLead,
   foldHomeHoldSentence,
   foldDensityPathTitles,
   foldPathPrimary,
@@ -343,6 +345,11 @@ describe("Baseline 001 fold-truth copy", () => {
   it("keeps RUNWAY_UNDER_1_MONTH copy on the Baseline 001 constants", () => {
     expect(foldHardStopEyebrow("RUNWAY_UNDER_1_MONTH")).toBe(hardStopEyebrow);
     expect(foldHomeHoldSentence("RUNWAY_UNDER_1_MONTH")).toBe(homeHoldSentence);
+    expect(foldHoldLead(homeHoldSentence)).toBe("Runway is the hold.");
+    expect(foldHoldClose(homeHoldSentence)).toBe("Build the fund before anything else.");
+    expect(`${foldHoldLead(homeHoldSentence)} ${foldHoldClose(homeHoldSentence)}`).toBe(
+      homeHoldSentence,
+    );
     expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).toBe(
       "61 — runway is a hard stop.",
     );

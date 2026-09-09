@@ -473,9 +473,57 @@ html {
   background: rgba(34, 211, 238, 0.12);
 }
 
+.left-rail-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.left-rail [data-shell-logo] {
+  color: unset;
+}
+.homi-wordmark[data-wordmark] {
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+.homi-wordmark[data-wordmark] [data-letter="H"],
+.homi-wordmark[data-wordmark] [data-letter="I"] {
+  color: var(--color-cyan);
+}
+.homi-wordmark[data-wordmark] [data-letter="o"] {
+  color: var(--color-emerald);
+}
+.homi-wordmark[data-wordmark] [data-letter="M"] {
+  color: var(--color-yellow);
+}
+
+.home-readiness-hero {
+  isolation: isolate;
+  overflow: hidden;
+}
+.home-readiness-hero-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+@media (min-width: 640px) {
+  .home-readiness-hero-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+.home-hard-stop-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--color-crimson) 55%, transparent);
+  background: color-mix(in srgb, var(--color-crimson) 18%, transparent);
+  padding: 0.2rem 0.7rem 0.2rem 0.55rem;
+}
+
 .workspace-grid {
   display: grid;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 @media (min-width: 1024px) {
   .workspace-grid {

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { HomiHexes } from "@/components/brand/HomiHexes";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { DashboardSwitcher } from "@/components/layout/DashboardSwitcher";
@@ -15,11 +14,11 @@ import {
   personRailIdentity,
 } from "@/lib/layout/left-rail";
 
-const SHELL_COMPASS_SIZE = 28;
+const SHELL_COMPASS_SIZE = 40;
 
 /**
  * PR10 personal left rail. Destinations are LEFT_RAIL_* law.
- * Role trees keep AppHeader v3. This rail is personal signed-in chrome only.
+ * PR11 N3: one ThresholdCompass + Wordmark stack — no HomiHexes, no second compass.
  */
 export function AppSidebar({
   email,
@@ -67,24 +66,21 @@ export function AppSidebar({
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
         }}
       >
-        <div className="flex items-start gap-2 px-4 pb-4 pt-5" data-rail-brand="">
-          <span data-shell-compass="" className="mt-0.5 flex size-7 shrink-0 items-center justify-center">
-            <ThresholdCompass size={SHELL_COMPASS_SIZE} glow={false} animated={false} />
-          </span>
-          <div className="min-w-0">
-            <Link
-              href="/dashboard"
-              aria-label="HōMI dashboard"
-              data-shell-logo=""
-              className="flex items-center gap-2"
-            >
-              <HomiHexes size={22} />
-              <Wordmark size="text-lg leading-none" />
-            </Link>
-            <p className="mt-2 text-2xs leading-snug text-dim" data-rail-tagline="">
-              {TAGLINES.primary}
-            </p>
-          </div>
+        <div className="left-rail-brand px-4 pb-4 pt-5" data-rail-brand="">
+          <Link
+            href="/dashboard"
+            aria-label="HōMI dashboard"
+            data-shell-logo=""
+            className="flex flex-col items-start gap-2"
+          >
+            <span data-shell-compass="" className="flex size-10 items-center justify-center">
+              <ThresholdCompass size={SHELL_COMPASS_SIZE} glow={false} animated={false} />
+            </span>
+            <Wordmark size="text-lg leading-none" />
+          </Link>
+          <p className="mt-1 max-w-[11.5rem] text-2xs leading-snug text-dim/70" data-rail-tagline="">
+            {TAGLINES.primary}
+          </p>
         </div>
 
         <nav data-rail-primary="" aria-label="Primary" className="flex flex-col gap-0.5 px-3">

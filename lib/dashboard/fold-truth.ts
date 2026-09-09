@@ -392,6 +392,21 @@ export function foldHardStopEyebrowParts(eyebrow: string): {
   };
 }
 
+/** First sentence of a hold line — craft-weight next to the HARD STOP pill. */
+export function foldHoldLead(sentence: string): string {
+  const idx = sentence.indexOf(". ");
+  if (idx === -1) return sentence;
+  return sentence.slice(0, idx + 1);
+}
+
+/** Remainder after the hold lead. Null when the hold is a single sentence. */
+export function foldHoldClose(sentence: string): string | null {
+  const idx = sentence.indexOf(". ");
+  if (idx === -1) return null;
+  const rest = sentence.slice(idx + 2).trim();
+  return rest.length > 0 ? rest : null;
+}
+
 /** Hold sentence for a known stop. Null when the code is unknown — omit the line. */
 export function foldHomeHoldSentence(
   code?: FoldHardStopCode | null,
