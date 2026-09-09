@@ -8,6 +8,8 @@ import {
   foldDensityPathTitles,
   foldHardStopEyebrow,
   foldHardStopEyebrowParts,
+  foldHoldClose,
+  foldHoldLead,
   foldHomeHoldSentence,
   foldScoreAgeLine,
   resolveFoldPathPrimary,
@@ -66,6 +68,8 @@ export function ThresholdFold({
   const shownPath = resolveFoldPathPrimary(pathPrimary, stopCode);
   const pathTitles = foldDensityPathTitles(pathSteps);
   const holdSentence = foldHomeHoldSentence(stopCode, decisionType);
+  const holdLead = holdSentence ? foldHoldLead(holdSentence) : null;
+  const holdClose = holdSentence ? foldHoldClose(holdSentence) : null;
   const hardStopEyebrow = foldHardStopEyebrow(stopCode, decisionType);
   const hardStopParts = foldHardStopEyebrowParts(hardStopEyebrow);
   const scoreLabel =
@@ -112,7 +116,7 @@ export function ThresholdFold({
                     className="home-readiness-hero rounded-2xl border border-white/[0.06] bg-navy-light/40 p-5 sm:p-6"
                     data-home-readiness-hero=""
                   >
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="home-readiness-hero-row">
                       <div className="min-w-0 max-w-xl" data-home-fold-column="">
                         <p className="text-2xs font-semibold uppercase tracking-[0.06em] text-dim">
                           {HOME_READINESS_HEADING}
@@ -154,21 +158,39 @@ export function ThresholdFold({
                             role="alert"
                             data-home-hard-stop=""
                           >
-                            <p
-                              className="type-fold-hardstop inline-flex items-center rounded-full border border-crimson/45 bg-crimson/10 px-3 py-1 uppercase text-amber"
-                              data-home-hard-stop-eyebrow=""
-                            >
-                              {hardStopParts.lead}
-                              {hardStopParts.accent ? (
-                                <span className="text-crimson">{hardStopParts.accent}</span>
-                              ) : null}
-                            </p>
+                            <span className="home-hard-stop-pill" data-home-hard-stop-pill="">
+                              <svg
+                                aria-hidden
+                                viewBox="0 0 16 16"
+                                className="size-3 shrink-0 text-crimson"
+                              >
+                                <path
+                                  fill="currentColor"
+                                  d="M8.89 1.5a1 1 0 0 0-1.78 0L1.2 12.26A1 1 0 0 0 2.09 13.8h11.82a1 1 0 0 0 .89-1.54L8.89 1.5ZM8 6.2a.7.7 0 0 1 .7.7v2.3a.7.7 0 1 1-1.4 0V6.9A.7.7 0 0 1 8 6.2Zm0 5.5a.8.8 0 1 1 0-1.6.8.8 0 0 1 0 1.6Z"
+                                />
+                              </svg>
+                              <p
+                                className="type-fold-hardstop m-0 uppercase tracking-[0.08em] text-amber"
+                                data-home-hard-stop-eyebrow=""
+                              >
+                                {hardStopParts.lead}
+                                {hardStopParts.accent ? (
+                                  <span className="text-crimson">{hardStopParts.accent}</span>
+                                ) : null}
+                              </p>
+                            </span>
                             {holdSentence ? (
                               <p
                                 className="type-fold-hold text-amber"
                                 data-home-hard-stop-hold=""
                               >
-                                {holdSentence}
+                                <span className="font-semibold">{holdLead}</span>
+                                {holdClose ? (
+                                  <>
+                                    {" "}
+                                    <span className="font-medium text-light/90">{holdClose}</span>
+                                  </>
+                                ) : null}
                               </p>
                             ) : null}
                           </div>
@@ -203,7 +225,7 @@ export function ThresholdFold({
                       </div>
 
                       {scorePct != null ? (
-                        <div className="shrink-0 self-center sm:self-start" data-home-readiness-gauge="">
+                        <div className="shrink-0 justify-self-end" data-home-readiness-gauge="">
                           <HomeScoreGauge scorePct={scorePct} hardStopActive={hardStopActive} />
                         </div>
                       ) : null}

@@ -56,7 +56,7 @@ function keyAreaLabelClass(status: KeyAreaStatus): string {
 
 export function HomeKeyAreas({ areas }: { areas: readonly KeyArea[] }) {
   return (
-    <section className="mt-4" data-home-key-areas="" aria-label={HOME_KEY_AREAS_HEADING}>
+    <section className="mt-3" data-home-key-areas="" aria-label={HOME_KEY_AREAS_HEADING}>
       <p className="text-2xs font-semibold uppercase tracking-[0.06em] text-dim">
         {HOME_KEY_AREAS_HEADING}
       </p>

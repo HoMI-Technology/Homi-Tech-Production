@@ -45,7 +45,7 @@ export function HomeDensity({
     runwayMonths != null && Number.isFinite(runwayMonths) && runwayMonths < 1;
 
   return (
-    <div className="mt-4 w-full" data-home-density="">
+    <div className="mt-3 w-full" data-home-density="">
       <div className="home-next-money grid grid-cols-1 gap-4 md:grid-cols-2">
         <section data-home-density-next="" aria-label="What's next">
           <p className={DENSITY_EYEBROW}>{HOME_DENSITY_WHATS_NEXT_HEADING}</p>

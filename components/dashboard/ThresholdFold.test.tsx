@@ -218,11 +218,15 @@ describe("ThresholdFold", () => {
       hardStopEyebrow,
     );
     expect(container.querySelector("[data-home-hard-stop]")).toHaveClass("mt-4");
+    expect(container.querySelector("[data-home-hard-stop]")).not.toHaveClass("rounded-2xl");
+    expect(container.querySelector("[data-home-hard-stop]")?.className).not.toMatch(/border-amber/);
+    expect(container.querySelector("[data-home-hard-stop-pill]")).not.toBeNull();
     expect(container.querySelector("[data-home-hard-stop-eyebrow]")).toHaveClass("type-fold-hardstop");
     expect(container.querySelector("[data-home-hard-stop-eyebrow]")).toHaveClass("text-amber");
     expect(container.querySelector("[data-home-hard-stop-eyebrow]")).toHaveClass("uppercase");
     expect(container.querySelector("[data-home-hard-stop-hold]")).toHaveClass("type-fold-hold");
     expect(container.querySelector("[data-home-hard-stop-hold]")).toHaveClass("text-amber");
+    expect(container.querySelector("[data-home-hard-stop-hold]")).toHaveTextContent(homeHoldSentence);
 
     expect(screen.queryByText(/· Hot/)).not.toBeInTheDocument();
     expect(screen.queryByText("Hot")).not.toBeInTheDocument();
@@ -588,7 +592,9 @@ describe("ThresholdFold", () => {
       "data-gauge-stop",
       "1",
     );
+    expect(container.querySelector("[data-home-readiness-hero] [data-home-readiness-gauge]")).not.toBeNull();
     expect(container.querySelector("[data-home-companion-column] [data-home-score-gauge]")).toBeNull();
+    expect(container.querySelector("[data-home-companion-column] [data-home-readiness-gauge]")).toBeNull();
     expect(container.querySelector("[data-home-score-gauge]")).toHaveAttribute("data-gauge-stop", "1");
     expect(container.querySelector("[data-home-recent-empty]")).toHaveTextContent("A fresh start");
     expect(screen.queryByText(/Homie/)).not.toBeInTheDocument();
