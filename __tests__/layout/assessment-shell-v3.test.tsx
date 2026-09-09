@@ -35,13 +35,23 @@ afterEach(() => {
 describe("signed-in /assessment uses PR10 left-rail chrome", () => {
   it("mounts the left rail in product chrome — not AssessmentShell, no craft badge", () => {
     render(
-      <ProductLayoutRouter user email={null}>
+      <ProductLayoutRouter user shell="personal" email={null}>
         <p>walk</p>
       </ProductLayoutRouter>,
     );
 
     expect(document.querySelector("[data-app-shell='pr10-rail']")).not.toBeNull();
     expect(document.querySelector("[data-left-rail]")).not.toBeNull();
+    expect(document.querySelector('[data-product-shell="personal"]')).not.toBeNull();
+    expect(document.querySelector('[data-invent-chrome="pr13"]')).not.toBeNull();
+    expect(document.body.textContent).toContain("Assessment");
+    expect(document.body.textContent).toContain("Finances");
+    expect(document.body.textContent).toContain("Plans");
+    expect(document.body.textContent).toContain("Bills");
+    expect(document.body.textContent).toContain("Insights");
+    expect(document.body.textContent).toContain("Learn");
+    expect(document.body.textContent).toContain("Companion");
+    expect(document.body.textContent).toContain("Tools");
     expect(document.querySelector("main#main")).not.toBeNull();
     expect(document.querySelector(".assessment-focus-bar")).toBeNull();
     expect(document.querySelector(".assessment-focus-shell")).toBeNull();

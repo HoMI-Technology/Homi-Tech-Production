@@ -12,6 +12,7 @@ import { COLORS } from "@/lib/brand";
 
 /**
  * Home insight column — Companion chat LOOK. Local guidance, not live AI.
+ * Theater is a glowing sphere + composer, not the Trinity three-circle mark.
  */
 export function HomeCompanionColumn() {
   return (
@@ -20,7 +21,7 @@ export function HomeCompanionColumn() {
       data-home-companion-column=""
       aria-label="Companion"
     >
-      <section data-home-companion-ask="">
+      <section data-home-companion-ask="" data-home-companion-theater="">
         <p className="text-2xs font-semibold uppercase tracking-[0.06em] text-dim">
           {HOME_COMPANION_HEADING}
         </p>
@@ -33,14 +34,21 @@ export function HomeCompanionColumn() {
         <div className="mt-4 flex items-center gap-3">
           <span
             aria-hidden
-            className="home-companion-orb flex size-12 items-center justify-center rounded-full"
+            className="home-companion-orb flex size-16 items-center justify-center rounded-full"
             data-home-companion-trinity=""
             data-home-companion-orb=""
           >
-            <svg viewBox="0 0 36 36" className="size-8" fill="none">
-              <circle cx="18" cy="18" r="11" fill={COLORS.cyan} fillOpacity="0.16" />
-              <circle cx="18" cy="18" r="7" stroke={COLORS.cyan} strokeWidth="1.5" />
-              <circle cx="18" cy="18" r="2.5" fill={COLORS.cyan} />
+            <svg viewBox="0 0 48 48" className="size-12" fill="none">
+              <defs>
+                <radialGradient id="homie-orb-fill" cx="38%" cy="32%" r="68%">
+                  <stop offset="0%" stopColor={COLORS.light} stopOpacity="0.95" />
+                  <stop offset="28%" stopColor={COLORS.cyan} stopOpacity="0.9" />
+                  <stop offset="72%" stopColor={COLORS.cyan} stopOpacity="0.22" />
+                  <stop offset="100%" stopColor={COLORS.cyan} stopOpacity="0" />
+                </radialGradient>
+              </defs>
+              <circle cx="24" cy="24" r="18" fill="url(#homie-orb-fill)" />
+              <circle cx="24" cy="24" r="13" stroke={COLORS.cyan} strokeOpacity="0.55" strokeWidth="1.25" />
             </svg>
           </span>
           <Link
@@ -51,6 +59,16 @@ export function HomeCompanionColumn() {
             {HOME_ASK_HOMI_LABEL} →
           </Link>
         </div>
+        <Link
+          href="/advisor"
+          className="home-companion-composer mt-3 flex items-center gap-2 rounded-full border border-white/10 bg-navy/55 px-3 py-2 text-sm text-dim hover:border-cyan/40 hover:text-cyan"
+          data-home-companion-composer=""
+        >
+          <span className="min-w-0 flex-1 truncate">{HOME_ASK_HOMI_LABEL}…</span>
+          <span aria-hidden className="text-cyan">
+            →
+          </span>
+        </Link>
       </section>
 
       <section data-home-companion-prompts="" aria-label="Suggested prompts">

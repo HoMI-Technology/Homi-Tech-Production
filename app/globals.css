@@ -456,11 +456,11 @@ html {
 
 .left-rail-link {
   display: flex;
-  min-height: 2.25rem;
+  min-height: 2rem;
   align-items: center;
   border-radius: 0.75rem;
-  padding: 0.4rem 0.75rem;
-  font-size: 0.875rem;
+  padding: 0.28rem 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 500;
   color: var(--color-dim);
 }
@@ -521,7 +521,13 @@ html {
   padding: 0.35rem 0.9rem 0.35rem 0.7rem;
 }
 .home-companion-orb {
-  box-shadow: 0 0 18px color-mix(in srgb, var(--color-cyan) 45%, transparent);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--color-cyan) 55%, transparent);
+}
+.home-companion-composer {
+  min-height: 2.5rem;
+}
+.home-journey-strip {
+  min-height: 3.25rem;
 }
 
 .workspace-grid {
@@ -3178,6 +3184,7 @@ body {
    */
   .dash-instrument[data-threshold-fold] {
     --instrument-tint: #22d3ee;
+    overflow: visible;
     border-color: transparent;
     border-radius: 0;
     background: transparent;

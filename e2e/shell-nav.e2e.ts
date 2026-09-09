@@ -95,7 +95,7 @@ test.describe("shell nav config (always-on)", () => {
     expect(APP_MORE_NAV.some((i) => i.href === "/journal")).toBe(true);
   });
 
-  test("PR12 left rail destinations follow the Product map", async () => {
+  test("PR13 left rail destinations follow the Product map", async () => {
     expect(APP_RAIL_PRIMARY.map((i) => i.href)).toEqual([
       "/dashboard",
       "/assessment",

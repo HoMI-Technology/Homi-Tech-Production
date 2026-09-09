@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/learn" },
 };
 
-/** PR12 invent-chrome. No live /learn curriculum — do not invent courses. */
+/** PR13 invent-chrome. No live /learn curriculum — do not invent courses. */
 export default function LearnPage() {
   return (
     <JobDepthFrame job="learn">

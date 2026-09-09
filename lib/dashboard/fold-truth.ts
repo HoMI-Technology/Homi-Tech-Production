@@ -168,6 +168,20 @@ export const HOME_WORKSPACE_SUBLINE = "Here's where you stand and what's next." 
  */
 export const HOME_DENSITY_LENSES = [
   {
+    id: "net-worth",
+    href: "/tools/net-worth",
+    title: "Net Worth",
+    line: "Empty until accounts connect",
+    kind: "chrome",
+  },
+  {
+    id: "emergency-fund",
+    href: "/tools/emergency-fund",
+    title: "Emergency Fund",
+    line: "Empty until accounts connect",
+    kind: "chrome",
+  },
+  {
     id: "affordability",
     href: "/tools/affordability",
     title: "Affordability",
@@ -194,20 +208,6 @@ export const HOME_DENSITY_LENSES = [
     title: "Monte Carlo",
     line: "Simulated paths — educational",
     kind: "hub",
-  },
-  {
-    id: "net-worth",
-    href: "/tools/net-worth",
-    title: "Net Worth",
-    line: "Empty until accounts connect",
-    kind: "chrome",
-  },
-  {
-    id: "emergency-fund",
-    href: "/tools/emergency-fund",
-    title: "Emergency Fund",
-    line: "Empty until accounts connect",
-    kind: "chrome",
   },
 ] as const;
 
@@ -248,14 +248,14 @@ export function homeJourneyStages(args: {
 }): readonly HomeJourneyStage[] {
   if (!args.hasAssessment) {
     return [
-      { id: "assessment", label: "Assessment", tone: "next", hint: "Start" },
+      { id: "assessment", label: "Assess", tone: "next", hint: "Start" },
       { id: "build", label: "Build", tone: "future", hint: "Future" },
       { id: "prepare", label: "Prepare", tone: "future", hint: "Future" },
       { id: "buy", label: "Buy", tone: "future", hint: "Future" },
     ];
   }
   return [
-    { id: "assessment", label: "Assessment", tone: "done", hint: "Read" },
+    { id: "assessment", label: "Assess", tone: "done", hint: "Read" },
     {
       id: "build",
       label: "Build",

@@ -60,7 +60,7 @@ export function HomeKeyAreas({ areas }: { areas: readonly KeyArea[] }) {
       <p className="text-2xs font-semibold uppercase tracking-[0.06em] text-dim">
         {HOME_KEY_AREAS_HEADING}
       </p>
-      <ul className="home-key-areas mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="home-key-areas mt-2 grid grid-cols-2 gap-2 lg:grid-cols-3">
         {areas.map((area) => {
           const statusAttr = keyAreaStatusAttr(area.status);
           return (
@@ -68,19 +68,19 @@ export function HomeKeyAreas({ areas }: { areas: readonly KeyArea[] }) {
               key={area.id}
               data-home-key-area={area.id}
               data-home-key-area-status={statusAttr}
-              className="rounded-xl border border-white/[0.04] bg-navy-light/50 p-4"
+              className="rounded-xl border border-white/[0.04] bg-navy-light/50 px-3 py-2.5"
             >
               <p className="flex items-center gap-2 text-sm font-medium text-light">
                 <span aria-hidden className={`size-1.5 rounded-full ${keyAreaDotClass(area.status)}`} />
                 {area.title}
               </p>
               <p
-                className={`mt-1 text-xs ${keyAreaLabelClass(area.status)}`}
+                className={`mt-0.5 text-xs ${keyAreaLabelClass(area.status)}`}
                 data-home-key-area-label=""
               >
                 {area.status}
               </p>
-              <p className="mt-1 text-xs text-dim">{area.note}</p>
+              <p className="mt-0.5 text-xs text-dim">{area.note}</p>
             </li>
           );
         })}

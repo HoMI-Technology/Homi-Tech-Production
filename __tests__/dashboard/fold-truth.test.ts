@@ -322,12 +322,12 @@ describe("Baseline 001 fold-truth copy", () => {
     expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).not.toMatch(/0\.5/);
     expect(HOME_DENSITY_LENSES).toHaveLength(6);
     expect(HOME_DENSITY_LENSES.map((l) => l.href)).toEqual([
+      "/tools/net-worth",
+      "/tools/emergency-fund",
       "/tools/affordability",
       "/tools/debt-payoff",
       "/tools/blind-budget",
       "/tools/monte-carlo",
-      "/tools/net-worth",
-      "/tools/emergency-fund",
     ]);
     const hubPaths = new Set(hubLenses().map((lens) => lens.path));
     for (const lens of HOME_DENSITY_LENSES) {
@@ -344,11 +344,11 @@ describe("Baseline 001 fold-truth copy", () => {
     expect(HOME_COMPANION_TAGLINE).toBe("Here to help you see clearly");
     expect(HOME_COMPANION_GUIDANCE).toBe("Local guidance · not live AI");
     const heldJourney = homeJourneyStages({ hasAssessment: true, hardStopActive: true });
-    expect(heldJourney.map((s) => [s.id, s.tone])).toEqual([
-      ["assessment", "done"],
-      ["build", "current"],
-      ["prepare", "next"],
-      ["buy", "future"],
+    expect(heldJourney.map((s) => [s.id, s.label, s.tone])).toEqual([
+      ["assessment", "Assess", "done"],
+      ["build", "Build", "current"],
+      ["prepare", "Prepare", "next"],
+      ["buy", "Buy", "future"],
     ]);
     expect(heldJourney.map((s) => s.hint).join(" ")).not.toMatch(/On track|READY/i);
     expect(homeJourneyStages({ hasAssessment: false, hardStopActive: false })[0].tone).toBe(

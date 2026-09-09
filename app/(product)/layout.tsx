@@ -12,14 +12,18 @@ import { CompanionHost } from "@/components/companion/CompanionHost";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { greetingForHour, hourInTimezone } from "@/lib/dashboard/insight";
 import { firstNameFromProfile } from "@/lib/layout/left-rail";
+import {
+  pathnameFromRequestHeaders,
+  productShellFor,
+} from "@/lib/layout/product-shell";
 import { impactBus } from "@/lib/flags";
 import { getCachedClient, getCachedUser } from "@/lib/supabase/server";
 import type { Profile } from "@/types/database";
 
 /**
  * Auth-aware product shell (AUDIT T2.1). Reads the session server-side and
- * hands the result to ProductLayoutRouter, which picks the chrome: personal
- * left rail, role-tree quiet top bar, or marketing SiteHeader for guests.
+ * computes `shell` via productShellFor so signed-in `/dashboard` mounts the
+ * PR13 invent rail — not marketing SiteHeader or the role-tree quiet bar.
  *
  * Reading cookies here makes the (product) group dynamically rendered — an
  * intentional tradeoff: the tools are client-computed anyway, and a correct,
@@ -57,6 +61,7 @@ export default async function ProductLayout({ children }: { children: React.Reac
   const headerList = await headers();
   const greeting = greetingForHour(hourInTimezone(headerList.get("x-vercel-ip-timezone")));
   const firstName = firstNameFromProfile(fullName, user?.email ?? null);
+  const shell = productShellFor(pathnameFromRequestHeaders(headerList), !!user);
 
   return (
     <>
@@ -66,6 +71,7 @@ export default async function ProductLayout({ children }: { children: React.Reac
 
       <ProductLayoutRouter
         user={!!user}
+        shell={shell}
         email={user?.email ?? null}
         fullName={fullName}
         greeting={greeting}

@@ -514,7 +514,7 @@ describe("ThresholdFold", () => {
     );
   });
 
-  it("HOME_DENSITY_CRAFT sits below the fold: Money → What's next → Tools", () => {
+  it("HOME_DENSITY_CRAFT sits below the fold: Tools (NW/EF near) → What's next → Money", () => {
     const { container } = render(<ThresholdFold {...live61} />);
 
     const foldCol = container.querySelector("[data-home-fold-column]");
@@ -528,10 +528,10 @@ describe("ThresholdFold", () => {
     expect(foldCol.compareDocumentPosition(density) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-    expect(next.compareDocumentPosition(money) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+    expect(tools.compareDocumentPosition(next) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-    expect(money.compareDocumentPosition(tools) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+    expect(next.compareDocumentPosition(money) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
     expect(density.querySelector(".font-display")).toBeNull();
@@ -567,13 +567,32 @@ describe("ThresholdFold", () => {
     expect(screen.queryByText(/\$4,200|\$4200/)).not.toBeInTheDocument();
     expect(screen.getByText("Net Worth")).toBeInTheDocument();
     expect(screen.getByText("Emergency Fund")).toBeInTheDocument();
+    expect(
+      [...container.querySelectorAll("[data-home-density-tool]")].map((el) =>
+        el.getAttribute("data-home-density-tool"),
+      ),
+    ).toEqual([
+      "net-worth",
+      "emergency-fund",
+      "affordability",
+      "debt-payoff",
+      "blind-budget",
+      "monte-carlo",
+    ]);
     expect(container.querySelector('[data-home-density-tool-kind="chrome"]')).not.toBeNull();
     expect(screen.queryByText(/Chat with HōMI/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/CRAFT · PR8/)).not.toBeInTheDocument();
     expect(screen.queryByText(/CRAFT · PR10/)).not.toBeInTheDocument();
     expect(screen.queryByText("On track")).not.toBeInTheDocument();
     expect(container.querySelector("[data-workspace-grid]")).not.toBeNull();
+    expect(container.querySelector("[data-invent-chrome='pr13']")).not.toBeNull();
     expect(container.querySelector("[data-home-key-areas]")).not.toBeNull();
+    expect(container.querySelector("[data-home-key-area='runway']")).toHaveTextContent("Emergency Runway");
+    expect(container.querySelector("[data-home-key-area='income']")).toHaveTextContent("Income Stability");
+    expect(container.querySelector("[data-home-key-area='debt']")).toHaveTextContent("Debt Management");
+    expect(container.querySelector("[data-home-key-area='housing']")).toHaveTextContent(
+      "Housing Affordability",
+    );
     expect(container.querySelectorAll("[data-home-key-area]").length).toBeLessThanOrEqual(6);
     expect(container.querySelector("[data-home-key-area='runway']")).toHaveTextContent("Needs work");
     expect(container.querySelector("[data-home-key-area='income']")).toHaveTextContent("Needs work");
@@ -582,12 +601,26 @@ describe("ThresholdFold", () => {
     expect(container.querySelector("[data-home-key-area='emotional']")).toHaveTextContent("Strong");
     expect(container.querySelector("[data-home-key-area='timing']")).toHaveTextContent("Strong");
     expect(container.querySelector("[data-home-journey]")).not.toBeNull();
+    const journey = container.querySelector("[data-home-journey]");
+    const keyAreasEl = container.querySelector("[data-home-key-areas]");
+    if (!journey || !keyAreasEl) throw new Error("expected journey before Key Factors");
+    expect(journey.compareDocumentPosition(keyAreasEl) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(container.querySelector("[data-home-journey-stage='assessment']")).toHaveTextContent("Assess");
+    expect(container.querySelector("[data-home-journey-stage='build']")).toHaveAttribute(
+      "data-home-journey-tone",
+      "current",
+    );
     expect(container.querySelector("[data-home-journey-stage='buy']")).toHaveAttribute(
       "data-home-journey-tone",
       "future",
     );
     expect(container.querySelector("[data-home-companion-column]")).not.toBeNull();
+    expect(container.querySelector("[data-home-companion-theater]")).not.toBeNull();
+    expect(container.querySelector("[data-home-companion-composer]")).toHaveAttribute("href", "/advisor");
     expect(container.querySelector("[data-home-companion-trinity]")).not.toBeNull();
+    expect(container.querySelector("[data-home-companion-orb] circle[cx='10']")).toBeNull();
     expect(container.querySelector("[data-home-companion-ask-cta]")).toHaveClass("btn-ghost");
     expect(container.querySelector("[data-home-companion-ask-cta]")).not.toHaveClass("btn-primary");
     expect(container.querySelectorAll(".btn-primary")).toHaveLength(1);
