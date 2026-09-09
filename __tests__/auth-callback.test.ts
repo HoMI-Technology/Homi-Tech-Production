@@ -13,8 +13,8 @@ vi.mock("@/lib/supabase/server", () => ({
   }),
 }));
 
-vi.mock("@/lib/email/lifecycle", () => ({
-  maybeSendWelcomeEmail: async () => {},
+vi.mock("@/lib/email/send", () => ({
+  sendLifecycleEmail: async () => {},
 }));
 
 import { GET } from "@/app/auth/callback/route";

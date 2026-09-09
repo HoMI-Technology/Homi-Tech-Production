@@ -82,21 +82,11 @@ describe("sign-up default lands on Assess", () => {
     expect(page).not.toContain('safeNext(searchParams.get("next"), "/onboarding")');
   });
 
-  it("completeProfileEmail points at Assess, not /onboarding", () => {
-    const templates = read("lib", "email", "templates.ts");
-    const start = templates.indexOf("export function completeProfileEmail");
-    const end = templates.indexOf("export function startAssessmentEmail");
-    const fn = templates.slice(start, end);
-    expect(fn).toContain("/assessment");
-    expect(fn).not.toContain("/onboarding");
-    expect(fn).toContain("about five minutes");
-    expect(fn).not.toMatch(/ninety seconds/i);
-  });
-
-  it("welcome and start-assessment emails match Assess duration, not Shadow Score", () => {
+  it("welcome email matches Assess duration, not Shadow Score", () => {
     const templates = read("lib", "email", "templates.ts");
     expect(templates).toContain("About five minutes tells you the truth");
-    expect(templates).toContain("About five minutes of honesty across all three pillars");
+    expect(templates).toContain('href="${SITE}/assessment"');
+    expect(templates).not.toContain("/onboarding");
     expect(templates).not.toMatch(/Ninety seconds/i);
     expect(templates).not.toMatch(/ninety seconds/i);
   });
