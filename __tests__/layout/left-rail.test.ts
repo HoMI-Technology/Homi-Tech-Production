@@ -12,7 +12,7 @@ import {
 } from "@/lib/layout/left-rail";
 import { HOME_DENSITY_LENSES } from "@/lib/dashboard/fold-truth";
 
-describe("PR12 left-rail destinations", () => {
+describe("PR13 left-rail destinations", () => {
   it("locks PRIMARY Product map and SECONDARY without Finances+Money dual peers", () => {
     expect(LEFT_RAIL_PRIMARY.map((i) => [i.label, i.href])).toEqual([
       ["Home", "/dashboard"],
@@ -78,7 +78,7 @@ describe("PR12 left-rail destinations", () => {
   });
 });
 
-describe("PR12 hub membership", () => {
+describe("PR13 hub membership", () => {
   it("Home hub tool cards are a subset of the live hub; chrome shells are empty routes", () => {
     const hubPaths = new Set(hubLenses().map((lens) => lens.path));
     for (const lens of HOME_DENSITY_LENSES) {

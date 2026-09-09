@@ -322,11 +322,11 @@ describe("Baseline 001 fold-truth copy", () => {
     expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).not.toMatch(/0\.5/);
     expect(HOME_DENSITY_LENSES).toHaveLength(6);
     expect(HOME_DENSITY_LENSES.map((l) => l.href)).toEqual([
+      "/tools/net-worth",
+      "/tools/emergency-fund",
       "/tools/affordability",
       "/tools/debt-payoff",
       "/tools/blind-budget",
-      "/tools/net-worth",
-      "/tools/emergency-fund",
       "/tools/monte-carlo",
     ]);
     const hubPaths = new Set(hubLenses().map((lens) => lens.path));

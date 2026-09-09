@@ -105,7 +105,7 @@ export function ThresholdFold({
       className="dash-instrument"
       data-home-fold=""
       data-threshold-fold=""
-      data-invent-chrome="pr12"
+      data-invent-chrome="pr13"
       data-home-instrument={latest ? HOME_FOLD_INSTRUMENT : "empty"}
       data-hard-stop={hardStopActive ? "1" : "0"}
       style={instrumentStyle}

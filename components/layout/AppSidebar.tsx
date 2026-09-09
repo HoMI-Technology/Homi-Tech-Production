@@ -17,7 +17,7 @@ import {
 const SHELL_COMPASS_SIZE = 40;
 
 /**
- * PR12 personal left rail. Destinations are LEFT_RAIL_* Product map.
+ * PR13 personal left rail. Destinations are LEFT_RAIL_* Product map.
  * PR11 N3 kept: one ThresholdCompass + Wordmark stack — no HomiHexes, no second compass.
  */
 export function AppSidebar({
@@ -55,7 +55,7 @@ export function AppSidebar({
       <aside
         data-app-shell="pr10-rail"
         data-left-rail=""
-        data-invent-chrome="pr12"
+        data-invent-chrome="pr13"
         aria-label="HōMI"
         className={`left-rail fixed inset-y-0 left-0 z-[calc(var(--z-nav)+1)] flex flex-col border-r border-white/[0.06] bg-navy transition-transform duration-200 lg:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"

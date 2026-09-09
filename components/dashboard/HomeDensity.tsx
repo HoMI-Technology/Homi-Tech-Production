@@ -27,7 +27,8 @@ const DENSITY_FOOTER_LINK =
   "text-sm text-dim underline underline-offset-2 hover:text-cyan";
 
 /**
- * HOME_SCRAPE_CRAFT — Tools denser near the fold (hub + NW/EF chrome), then What's next + Money.
+ * HOME_SCRAPE_CRAFT — NW/EF chrome shells first so they paint in the State A
+ * tools row, then hub lenses, then What's next + Money.
  * Path primary stays on the hero. No invented $.
  */
 export function HomeDensity({

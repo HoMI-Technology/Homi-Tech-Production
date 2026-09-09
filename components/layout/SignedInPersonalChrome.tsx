@@ -44,7 +44,7 @@ export function SignedInPersonalChrome({
   }, [railOpen]);
 
   return (
-    <>
+    <div data-product-shell="personal" data-invent-chrome="pr13">
       <div aria-hidden className="app-aurora" />
       <div aria-hidden className="app-noise" />
       <AppSidebar
@@ -69,6 +69,6 @@ export function SignedInPersonalChrome({
           {children}
         </main>
       </div>
-    </>
+    </div>
   );
 }

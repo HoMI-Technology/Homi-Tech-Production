@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/money/bills" },
 };
 
-/** PR12 invent-chrome shell. Live bills ledger is not on this route yet. */
+/** PR13 invent-chrome shell. Live bills ledger is not on this route yet. */
 export default function MoneyBillsPage() {
   return (
     <MoneyShell>

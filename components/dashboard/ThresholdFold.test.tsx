@@ -572,11 +572,11 @@ describe("ThresholdFold", () => {
         el.getAttribute("data-home-density-tool"),
       ),
     ).toEqual([
+      "net-worth",
+      "emergency-fund",
       "affordability",
       "debt-payoff",
       "blind-budget",
-      "net-worth",
-      "emergency-fund",
       "monte-carlo",
     ]);
     expect(container.querySelector('[data-home-density-tool-kind="chrome"]')).not.toBeNull();
@@ -585,7 +585,7 @@ describe("ThresholdFold", () => {
     expect(screen.queryByText(/CRAFT · PR10/)).not.toBeInTheDocument();
     expect(screen.queryByText("On track")).not.toBeInTheDocument();
     expect(container.querySelector("[data-workspace-grid]")).not.toBeNull();
-    expect(container.querySelector("[data-invent-chrome='pr12']")).not.toBeNull();
+    expect(container.querySelector("[data-invent-chrome='pr13']")).not.toBeNull();
     expect(container.querySelector("[data-home-key-areas]")).not.toBeNull();
     expect(container.querySelector("[data-home-key-area='runway']")).toHaveTextContent("Emergency Runway");
     expect(container.querySelector("[data-home-key-area='income']")).toHaveTextContent("Income Stability");

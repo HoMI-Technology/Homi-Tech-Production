@@ -57,13 +57,13 @@ beforeEach(() => {
   );
 });
 
-describe("AppSidebar — PR12 left rail", () => {
+describe("AppSidebar — PR13 left rail", () => {
   it("unlocks PRIMARY Product map including Learn / Bills / Insights invent chrome", () => {
     render(<AppSidebar email="jamie@example.com" fullName="Jamie Diaz" />);
 
     const rail = document.querySelector("[data-left-rail]");
     expect(rail).not.toBeNull();
-    expect(rail).toHaveAttribute("data-invent-chrome", "pr12");
+    expect(rail).toHaveAttribute("data-invent-chrome", "pr13");
     expect(document.querySelector("[data-rail-scroll]")).not.toBeNull();
     expect(document.querySelector("[data-app-shell='pr10-rail']")).not.toBeNull();
     expect(document.querySelector("[data-shell-compass] svg[aria-label*='Threshold Compass']")).not.toBeNull();

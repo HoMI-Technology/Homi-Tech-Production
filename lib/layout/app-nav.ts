@@ -18,7 +18,7 @@ import { LEFT_RAIL_PRIMARY, LEFT_RAIL_SECONDARY } from "@/lib/layout/left-rail";
 /** Core operate destinations only — 3 items max (+ Agents when flagged). */
 export const APP_PRIMARY_NAV = HEADER_PRIMARY_NAV;
 
-/** PR10 personal left rail. Quiet HEADER_* catalogs stay for role-tree chrome. */
+/** PR13 personal left rail. Quiet HEADER_* catalogs stay for role-tree chrome. */
 export const APP_RAIL_PRIMARY = LEFT_RAIL_PRIMARY;
 export const APP_RAIL_SECONDARY = LEFT_RAIL_SECONDARY;
 

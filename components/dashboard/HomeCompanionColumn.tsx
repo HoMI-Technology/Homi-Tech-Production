@@ -34,7 +34,7 @@ export function HomeCompanionColumn() {
         <div className="mt-4 flex items-center gap-3">
           <span
             aria-hidden
-            className="home-companion-orb flex size-14 items-center justify-center rounded-full"
+            className="home-companion-orb flex size-16 items-center justify-center rounded-full"
             data-home-companion-trinity=""
             data-home-companion-orb=""
           >

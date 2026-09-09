@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/tools/net-worth" },
 };
 
-/** PR12 invent-chrome tool shell. Not a hub calculator. No invent $. */
+/** PR13 invent-chrome tool shell. Not a hub calculator. No invent $. */
 export default function NetWorthChromePage() {
   return (
     <JobDepthFrame job="tools" width="catalog">

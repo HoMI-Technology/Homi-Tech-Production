@@ -168,6 +168,20 @@ export const HOME_WORKSPACE_SUBLINE = "Here's where you stand and what's next." 
  */
 export const HOME_DENSITY_LENSES = [
   {
+    id: "net-worth",
+    href: "/tools/net-worth",
+    title: "Net Worth",
+    line: "Empty until accounts connect",
+    kind: "chrome",
+  },
+  {
+    id: "emergency-fund",
+    href: "/tools/emergency-fund",
+    title: "Emergency Fund",
+    line: "Empty until accounts connect",
+    kind: "chrome",
+  },
+  {
     id: "affordability",
     href: "/tools/affordability",
     title: "Affordability",
@@ -187,20 +201,6 @@ export const HOME_DENSITY_LENSES = [
     title: "Blind Budget",
     line: "Empty-ledger spending lens",
     kind: "hub",
-  },
-  {
-    id: "net-worth",
-    href: "/tools/net-worth",
-    title: "Net Worth",
-    line: "Empty until accounts connect",
-    kind: "chrome",
-  },
-  {
-    id: "emergency-fund",
-    href: "/tools/emergency-fund",
-    title: "Emergency Fund",
-    line: "Empty until accounts connect",
-    kind: "chrome",
   },
   {
     id: "monte-carlo",
