@@ -6,10 +6,9 @@ import type { HomeV4View } from "@/lib/v4/home-state";
 
 /**
  * HOME_CRAFT v4 State A — hard-stop ACTIVE + empty money.
- * Hierarchy: Decision context → Readiness hero → Decision evidence (three
- * pillars) → Current Path step → Money evidence → What changed → Contextual tools.
- * Greeting is in the shell command bar, not here.
- * Score/verdict from AssessmentResult only.
+ * Ultra Premium hierarchy: Decision context → Readiness hero → Decision
+ * evidence → Path step → Money evidence → What changed → Contextual tools.
+ * Score is a proprietary instrument, not the Compass. No “% ready”.
  */
 export function HomeV4({ view }: { view: HomeV4View }) {
   const scoreLabel =
@@ -21,8 +20,8 @@ export function HomeV4({ view }: { view: HomeV4View }) {
   return (
     <div className="dash-instrument" data-home-v4="" data-home-state={view.hasAssessment ? "read" : "empty"}>
       <div className="dash-instrument-inner px-4 py-5 sm:px-6 sm:py-6">
-        <div className="workspace-grid" data-workspace-grid="">
-          <div data-workspace-main="" className="space-y-4">
+        <div className="v4-home-grid" data-workspace-grid="">
+          <div data-workspace-main="" className="space-y-6">
             <p
               className="text-2xs font-semibold uppercase tracking-[0.08em] text-dim"
               data-home-v4-context=""
@@ -30,10 +29,7 @@ export function HomeV4({ view }: { view: HomeV4View }) {
               {view.decisionContext ?? "No decision read yet"}
             </p>
 
-            <section
-              className="home-readiness-hero rounded-2xl border border-white/[0.06] bg-navy-light/40 p-5 sm:p-6"
-              data-home-v4-readiness=""
-            >
+            <section data-home-v4-readiness="" aria-label="Readiness">
               {view.hasAssessment ? (
                 <>
                   <p className="flex flex-wrap items-baseline gap-x-3" data-home-v4-score-plate="">
@@ -112,17 +108,16 @@ export function HomeV4({ view }: { view: HomeV4View }) {
             </section>
 
             {view.pillars.length === 3 ? (
-              <section className="mt-4" data-home-v4-evidence="" aria-label="Decision evidence">
+              <section data-home-v4-evidence="" aria-label="Decision evidence">
                 <p className="text-2xs font-semibold uppercase tracking-[0.06em] text-dim">
                   Decision evidence
                 </p>
-                <ul className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                <ul className="mt-3 grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-3">
                   {view.pillars.map((pillar) => (
                     <li
                       key={pillar.id}
                       data-home-v4-pillar={pillar.id}
                       data-home-v4-pillar-status={pillar.status}
-                      className="rounded-xl border border-white/[0.04] bg-navy-light/50 px-3 py-2.5"
                     >
                       <p className="text-sm font-medium text-light">{pillar.title}</p>
                       <p className="mt-0.5 text-xs text-dim">{pillar.status}</p>
@@ -132,56 +127,58 @@ export function HomeV4({ view }: { view: HomeV4View }) {
               </section>
             ) : null}
 
-            <section data-home-v4-path-step="" aria-label="Current Path step">
-              <p className="text-2xs font-semibold uppercase tracking-[0.06em] text-dim">
-                Current Path step
-              </p>
-              {view.pathPrimary ? (
-                <p className="mt-3 text-sm text-light/85">
-                  <Link href={view.pathPrimary.href} className="hover:text-cyan">
-                    {view.pathPrimary.title}
+            <section className="space-y-5 border-t border-white/[0.06] pt-5" data-home-v4-fold="">
+              <div data-home-v4-path-step="" aria-label="Current Path step">
+                <p className="text-2xs font-semibold uppercase tracking-[0.06em] text-dim">
+                  Current Path step
+                </p>
+                {view.pathPrimary ? (
+                  <p className="mt-2 text-sm text-light/85">
+                    <Link href={view.pathPrimary.href} className="hover:text-light">
+                      {view.pathPrimary.title}
+                    </Link>
+                  </p>
+                ) : (
+                  <p className="mt-2 text-sm text-dim">Path appears after a read.</p>
+                )}
+              </div>
+
+              <div data-home-v4-money="" aria-label="Money evidence">
+                <p className="text-2xs font-semibold uppercase tracking-[0.06em] text-dim">
+                  Money evidence
+                </p>
+                <p className="mt-2 text-sm text-dim" data-home-v4-money-empty="">
+                  {view.moneyLine}
+                </p>
+                <p className="mt-2">
+                  <Link
+                    href={view.connectHref}
+                    className="text-sm text-cyan hover:text-light"
+                    data-home-v4-connect=""
+                  >
+                    {view.connectLabel}
                   </Link>
                 </p>
-              ) : (
-                <p className="mt-3 text-sm text-dim">Path appears after a read.</p>
-              )}
-            </section>
+              </div>
 
-            <section data-home-v4-money="" aria-label="Money evidence">
-              <p className="text-2xs font-semibold uppercase tracking-[0.06em] text-dim">
-                Money evidence
-              </p>
-              <p className="mt-3 text-sm text-dim" data-home-v4-money-empty="">
-                {view.moneyLine}
-              </p>
-              <p className="mt-3">
-                <Link
-                  href={view.connectHref}
-                  className="btn rounded-full border border-cyan bg-transparent text-cyan shadow-none"
-                  data-home-v4-connect=""
-                >
-                  {view.connectLabel}
-                </Link>
-              </p>
-            </section>
-
-            <section data-home-v4-changed="" aria-label="What changed">
-              <p className="text-2xs font-semibold uppercase tracking-[0.06em] text-dim">What changed</p>
-              <p className="mt-3 text-sm text-dim">
-                {view.whatChanged ?? "Nothing to compare until a read lands."}
-              </p>
+              <div data-home-v4-changed="" aria-label="What changed">
+                <p className="text-2xs font-semibold uppercase tracking-[0.06em] text-dim">What changed</p>
+                <p className="mt-2 text-sm text-dim">
+                  {view.whatChanged ?? "Nothing to compare until a read lands."}
+                </p>
+              </div>
             </section>
 
             <section data-home-v4-tools="" aria-label="Contextual tools">
               <p className="text-2xs font-semibold uppercase tracking-[0.06em] text-dim">
                 Contextual tools
               </p>
-              <ul className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
                 {view.tools.map((tool) => (
                   <li key={tool.id}>
                     <Link
                       href={tool.href}
-                      className="block rounded-xl border border-white/[0.03] bg-navy-light/40 p-3 text-sm text-dim"
+                      className="text-sm text-dim hover:text-light"
                       data-home-v4-tool={tool.id}
                     >
                       {tool.title}

@@ -39,9 +39,9 @@ DARK.
 
 ## Soft nits — P2
 
-Visual polish against brand-shell-craft stills (selected-state edge, rail
-width 216–228, right HōMI width, card density) is **P2**. Do not block the
-stay-draft or Pixel Gate on them. Do not treat P2 as permission to undraft.
+Mock pixel-match vs brand-shell-craft stills. Geometry bands, selected-edge,
+and anti card-soup are folded in Ultra Premium reconcile — remaining P2 is
+screenshot match. Do not treat P2 as permission to undraft.
 
 ## OUT
 

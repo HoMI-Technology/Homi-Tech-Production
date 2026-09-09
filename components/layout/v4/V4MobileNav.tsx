@@ -58,8 +58,8 @@ export function V4MobileNav() {
               href={tab.href}
               aria-current={active ? "page" : undefined}
               data-v4-mobile-tab={tab.label.toLowerCase()}
-              className={`flex min-h-14 min-w-11 flex-1 flex-col items-center justify-center gap-0.5 px-1 py-1.5 text-2xs font-semibold tracking-wide ${
-                active ? "v4-mobile-tab is-active text-light" : "text-dim hover:text-light"
+              className={`v4-mobile-tab flex min-h-14 min-w-11 flex-1 flex-col items-center justify-center gap-0.5 px-1 py-1.5 text-2xs font-semibold tracking-wide ${
+                active ? "is-active text-light" : "text-dim hover:text-light"
               }`}
             >
               {tab.label}
@@ -69,8 +69,8 @@ export function V4MobileNav() {
         <button
           type="button"
           data-v4-mobile-tab="more"
-          className={`flex min-h-14 min-w-11 flex-1 flex-col items-center justify-center gap-0.5 px-1 py-1.5 text-2xs font-semibold tracking-wide ${
-            moreOpen ? "text-cyan" : "text-dim hover:text-light"
+          className={`v4-mobile-tab flex min-h-14 min-w-11 flex-1 flex-col items-center justify-center gap-0.5 px-1 py-1.5 text-2xs font-semibold tracking-wide ${
+            moreOpen ? "is-active text-light" : "text-dim hover:text-light"
           }`}
           onClick={() => setMoreOpen((value) => !value)}
         >

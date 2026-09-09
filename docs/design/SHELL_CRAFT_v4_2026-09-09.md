@@ -21,6 +21,9 @@ Signed-in product chrome for `/home`. Flag default false. Post-login stays `/`.
   No large cyan pills / teal fill.
 - Greeting lives in the top command bar (never overlaps Home verdict/score).
 - Optional right HōMI is contextual educational prompts — not a Companion peer.
+- Geometry: left rail 216–228 (`V4_RAIL_WIDTH_PX` 222). Right HōMI 300–340
+  (`V4_HOMI_RAIL_WIDTH_PX` 320). Top command 60–68 (`V4_COMMAND_HEIGHT_PX` 64).
+  Surfaces `#0a1628` / `#0f172a` / `#1e293b`.
 - Dual-shell a11y KEEP: skip link → `#main`, Escape + focus return, vertical
   scroll lock on overlays, `prefers-reduced-motion`, never `overflow-x: hidden`
   on `body`.
@@ -28,8 +31,7 @@ Signed-in product chrome for `/home`. Flag default false. Post-login stays `/`.
 
 ## Soft nits (P2)
 
-Right HōMI ~300–340. Top command ~60–68. Mock pixel-match. Do not block
-the stay-draft.
+Mock pixel-match vs brand-shell-craft stills. Do not block the stay-draft.
 
 Activation remains CCP (`HOMI_V4_HOME_ENABLED`, default false). Pixel Gate
 unchanged — founder APPROVE VISUAL DIRECTION is still required to undraft.

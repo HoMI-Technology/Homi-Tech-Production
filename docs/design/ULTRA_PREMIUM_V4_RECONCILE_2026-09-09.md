@@ -1,16 +1,29 @@
 # ULTRA_PREMIUM_V4_RECONCILE — 2026-09-09
 
-Reconciles SHELL_CRAFT v4 + HOME_CRAFT v4 with brand tokens.
+Executable floor for stay-draft PR C. Pixel Gate still blocks undraft.
 
-- Surfaces: dark navy only (`#0a1628`). Accents: cyan / emerald / amber /
-  crimson as tokenized. Never light backgrounds.
-- Spelling: **HōMI** (U+014D). User-visible Homie is OUT.
-- Score language: Decision Readiness Score. Never “HōMI Score”.
-- OPERATE / CHROME (dashboard cockpit, invent-chrome) retire for signed-in
-  product. PERSUADE stays on KEEP marketing.
-- Primary: Home · Money · Path · Compare. Secondary: Bills · Tools · Learn.
-  System: Accounts · Settings. Assess = top command (solid cyan). Ask HōMI field.
-- Pixel Gate is the undraft gate. Flag stays false until founder APPROVE
-  VISUAL DIRECTION.
-- Mocks: `docs/design/brand-shell-craft/` (`shell-home-v4-desktop` /
-  `shell-home-v4-mobile`). Soft nits P2.
+## Deltas (folded)
+
+1. **Primary rail:** Home · Money · Path · Compare — Tools demoted.
+2. **Secondary:** Bills · Tools · Learn. **System:** Accounts · Settings.
+3. **Assess** = top command only. Ask HōMI is the command field. **HōMI** =
+   contextual right column heading (not a second Ask field, not a permanent
+   Companion peer).
+4. **Selected** = subtle lift + ~2px cyan edge — no large cyan pills / teal
+   fill blocks.
+5. **Home hierarchy:** Decision context → Readiness hero → Decision evidence →
+   Path step → Money evidence → What changed → Contextual tools.
+6. **Score** = proprietary instrument ≠ Compass. No “% ready”.
+7. **Fewer stronger surfaces** — anti card-soup / neon wash.
+8. **Mobile bottom:** Home · Money · Path · More.
+9. **Geometry:** rail ~216–228 (`V4_RAIL_WIDTH_PX` 222) · surfaces
+   `#0a1628` / `#0f172a` / `#1e293b` · right HōMI ~300–340
+   (`V4_HOMI_RAIL_WIDTH_PX` 320) · top ~60–68 (`V4_COMMAND_HEIGHT_PX` 64).
+10. **Stay DRAFT** until founder APPROVE VISUAL DIRECTION on real screenshots.
+
+## KEEP
+
+Wordmark / ThresholdCompass · Finance GATE (AssessmentResult only) ·
+hard-stop calm · no invent $ · State A · no half-shell · tip `1b12128`.
+
+Flag `HOMI_V4_HOME_ENABLED` default **false**. Post-login stays `/`.

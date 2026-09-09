@@ -22,6 +22,10 @@ export const V4_SHELL_ASK_HREF = "/home" as const;
 export const V4_SHELL_COMPASS_SIZE = 32 as const;
 /** Ultra Premium rail — 216–228. */
 export const V4_RAIL_WIDTH_PX = 222 as const;
+/** Contextual right HōMI — 300–340. */
+export const V4_HOMI_RAIL_WIDTH_PX = 320 as const;
+/** Top command — 60–68. */
+export const V4_COMMAND_HEIGHT_PX = 64 as const;
 
 /** Product law primary order — do not paint Path before Money. */
 export const V4_PRIMARY_NAV: readonly V4NavItem[] = [

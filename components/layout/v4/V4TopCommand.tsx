@@ -57,7 +57,7 @@ export function V4TopCommand({
         className="chrome-frost fixed inset-x-0 top-0 z-[var(--z-nav)] lg:left-[var(--v4-rail-width)]"
         style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
-        <div className="flex min-h-[var(--nav-height)] items-center gap-3 px-4 sm:px-6">
+        <div className="flex min-h-[var(--v4-command-height,var(--nav-height))] items-center gap-3 px-4 sm:px-6">
           <button
             type="button"
             className="chrome-icon-btn lg:hidden"

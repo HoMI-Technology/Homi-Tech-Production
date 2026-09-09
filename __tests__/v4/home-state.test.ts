@@ -45,4 +45,10 @@ describe("Home v4 State A + Finance GATE", () => {
     expect(HOME_V4_HOMI_PROMPTS.some((prompt) => /second score/i.test(prompt.label))).toBe(true);
     expect(assertAssessmentResultOnly("assessment_result")).toBe("assessment_result");
   });
+
+  it("does not mint % ready on the score plate", () => {
+    const view = buildHomeV4View(homeV4VisualReading("hard-stop"));
+    expect(view.scorePct).toBe(61);
+    expect(`${view.scorePct}`).not.toContain("%");
+  });
 });

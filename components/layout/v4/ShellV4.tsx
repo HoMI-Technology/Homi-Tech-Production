@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { V4LeftNav } from "@/components/layout/v4/V4LeftNav";
 import { V4MobileNav } from "@/components/layout/v4/V4MobileNav";
 import { V4TopCommand } from "@/components/layout/v4/V4TopCommand";
-import { V4_RAIL_WIDTH_PX } from "@/lib/layout/v4-shell";
+import { V4_COMMAND_HEIGHT_PX, V4_HOMI_RAIL_WIDTH_PX, V4_RAIL_WIDTH_PX } from "@/lib/layout/v4-shell";
 
 /**
  * Shell v4 — first unlock with Home. Invent-chrome / role trees are not authority.
@@ -35,7 +35,16 @@ export function ShellV4({
   }, [railOpen]);
 
   return (
-    <div data-product-shell="v4" data-shell="v4" style={{ ["--v4-rail-width" as string]: `${V4_RAIL_WIDTH_PX}px` }}>
+    <div
+      data-product-shell="v4"
+      data-shell="v4"
+      style={{
+        ["--v4-rail-width" as string]: `${V4_RAIL_WIDTH_PX}px`,
+        ["--v4-homi-width" as string]: `${V4_HOMI_RAIL_WIDTH_PX}px`,
+        ["--v4-command-height" as string]: `${V4_COMMAND_HEIGHT_PX}px`,
+        ["--nav-height" as string]: `${V4_COMMAND_HEIGHT_PX}px`,
+      }}
+    >
       <div aria-hidden className="app-aurora" />
       <div aria-hidden className="app-noise" />
       <V4LeftNav open={railOpen} onClose={() => setRailOpen(false)} />

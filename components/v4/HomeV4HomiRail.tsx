@@ -1,16 +1,23 @@
 import Link from "next/link";
+import { COLORS } from "@/lib/brand";
 import { HOME_V4_HOMI_PROMPTS } from "@/lib/v4/home-state";
+import { V4_HOMI_RAIL_WIDTH_PX } from "@/lib/layout/v4-shell";
 
 /**
- * Optional right HōMI — educational prompts only.
- * No Homie cast, no second score, no companion orb.
+ * Contextual right HōMI — educational prompts only.
+ * Not a permanent Companion peer. No Homie cast, no second score, no orb.
  */
 export function HomeV4HomiRail() {
   return (
     <aside
-      className="space-y-4 rounded-2xl border border-white/[0.04] bg-navy-light/40 p-5"
+      className="space-y-4 border-l border-white/[0.06] pl-5"
       data-home-v4-homi=""
       aria-label="HōMI"
+      style={{
+        width: V4_HOMI_RAIL_WIDTH_PX,
+        maxWidth: V4_HOMI_RAIL_WIDTH_PX,
+        backgroundColor: COLORS.navyLight,
+      }}
     >
       <p className="text-2xs font-semibold uppercase tracking-[0.06em] text-dim">HōMI</p>
       <p className="text-sm text-light/85">Educational prompts. Not a second score.</p>
@@ -19,7 +26,7 @@ export function HomeV4HomiRail() {
           <li key={prompt.label}>
             <Link
               href={prompt.href}
-              className="block rounded-xl border border-white/[0.04] px-3 py-2 text-sm text-light/85 hover:border-cyan/40 hover:text-cyan"
+              className="block py-1 text-sm text-light/85 hover:text-light"
               data-home-v4-homi-prompt=""
             >
               {prompt.label}
