@@ -25,6 +25,8 @@ import {
   ONBOARDING_SKIP_HREF,
   COMPANION_ESCALATION_HREF,
   COMPANION_FOLD_LINES,
+  HOME_COMPANION_GUIDANCE,
+  HOME_COMPANION_TAGLINE,
   HOME_DENSITY_LENSES,
   HOME_DENSITY_OPEN_PATH_HREF,
   HOME_DENSITY_VIEW_ALL_TOOLS_HREF,
@@ -191,7 +193,7 @@ describe("foldRunwayLabel", () => {
 });
 
 describe("foldDensityPathTitles", () => {
-  it("takes at most three pending Path SSOT titles and never invents money", () => {
+  it("takes at most five pending Path SSOT titles and never invents money", () => {
     expect(
       foldDensityPathTitles([
         {
@@ -203,11 +205,15 @@ describe("foldDensityPathTitles", () => {
         { title: "Lower monthly debt burden (target DTI ≤ 36%)", href: "/tools/debt-payoff", status: "pending" },
         { title: "Household alignment session (budget ceiling + deal-breakers)", href: "/household", status: "pending" },
         { title: "A fourth pending title", href: "/path", status: "pending" },
+        { title: "A fifth pending title", href: "/path", status: "pending" },
+        { title: "A sixth pending title", href: "/path", status: "pending" },
       ]),
     ).toEqual([
       "Stabilize emergency runway to at least 1 month",
       "Lower monthly debt burden (target DTI ≤ 36%)",
       "Household alignment session (budget ceiling + deal-breakers)",
+      "A fourth pending title",
+      "A fifth pending title",
     ]);
   });
 
@@ -311,12 +317,14 @@ describe("Baseline 001 fold-truth copy", () => {
       /1 month/,
     );
     expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).not.toMatch(/0\.5/);
-    expect(HOME_DENSITY_LENSES).toHaveLength(4);
+    expect(HOME_DENSITY_LENSES).toHaveLength(6);
     expect(HOME_DENSITY_LENSES.map((l) => l.href)).toEqual([
       "/tools/affordability",
       "/tools/debt-payoff",
       "/tools/blind-budget",
       "/tools/monte-carlo",
+      "/tools/fire",
+      "/tools/roth-conversion",
     ]);
     const hubPaths = new Set(hubLenses().map((lens) => lens.path));
     for (const lens of HOME_DENSITY_LENSES) {
@@ -326,6 +334,8 @@ describe("Baseline 001 fold-truth copy", () => {
     }
     expect(HOME_DENSITY_OPEN_PATH_HREF).toBe("/path");
     expect(HOME_DENSITY_VIEW_ALL_TOOLS_HREF).toBe("/tools");
+    expect(HOME_COMPANION_TAGLINE).toBe("Here to help you see clearly");
+    expect(HOME_COMPANION_GUIDANCE).toBe("Local guidance · not live AI");
     expect(RUNWAY_HARD_STOP_PATH_TITLE).toBe("Stabilize emergency runway to at least 1 month");
     expect(RUNWAY_HARD_STOP_FOLD_TITLE).toBe("Build runway to 1 month");
   });

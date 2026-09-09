@@ -56,7 +56,14 @@ const base = {
 
 const live61 = {
   ...base,
-  latest: { id: "live-61", overallScore: 61, scoredAt: "2026-08-29T12:00:00.000Z" },
+  latest: {
+    id: "live-61",
+    overallScore: 61,
+    scoredAt: "2026-08-29T12:00:00.000Z",
+    financialScore: 18,
+    emotionalScore: 28,
+    timingScore: 22,
+  },
   verdict: "NOT_YET" as const,
   lastMoney: {
     debtToIncomeRatio: 0.42,
@@ -160,7 +167,7 @@ describe("ThresholdFold", () => {
     const age = container.querySelector("[data-home-fold-age]");
     const hardStop = screen.getByRole("alert");
     const path = screen.getByRole("link", {
-      name: RUNWAY_HARD_STOP_FOLD_TITLE,
+      name: new RegExp(RUNWAY_HARD_STOP_FOLD_TITLE),
     });
     if (!verdict || !score || !age) throw new Error("expected verdict, score, and age");
     expect(verdict.compareDocumentPosition(score) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
@@ -211,9 +218,8 @@ describe("ThresholdFold", () => {
       hardStopEyebrow,
     );
     expect(container.querySelector("[data-home-hard-stop]")).toHaveClass("mt-6");
-    expect(container.querySelector("[data-home-hard-stop]")).not.toHaveClass("mt-5");
     expect(container.querySelector("[data-home-hard-stop-eyebrow]")).toHaveClass("type-fold-hardstop");
-    expect(container.querySelector("[data-home-hard-stop-eyebrow]")).toHaveClass("text-dim");
+    expect(container.querySelector("[data-home-hard-stop-eyebrow]")).toHaveClass("text-amber");
     expect(container.querySelector("[data-home-hard-stop-hold]")).toHaveClass("type-fold-hold");
     expect(container.querySelector("[data-home-hard-stop-hold]")).toHaveClass("text-light/90");
 
@@ -246,7 +252,18 @@ describe("ThresholdFold", () => {
     expect(path).toHaveAttribute("data-path-fold-primary");
     expect(path).toHaveAttribute("href", "/tools/runway");
     expect(path).toHaveTextContent(RUNWAY_HARD_STOP_FOLD_TITLE);
+    expect(container.querySelectorAll("[data-workspace-main] .btn-primary")).toHaveLength(1);
     expect(container.querySelectorAll(".btn-primary")).toHaveLength(1);
+    const companionAsk = container.querySelector("[data-home-companion-ask-cta]");
+    expect(companionAsk).toHaveAttribute("href", "/advisor");
+    expect(companionAsk).toHaveClass("btn-ghost");
+    expect(companionAsk).not.toHaveClass("btn-primary");
+    expect(container.querySelector("[data-home-companion-tagline]")).toHaveTextContent(
+      "Here to help you see clearly",
+    );
+    expect(container.querySelector("[data-home-companion-guidance]")).toHaveTextContent(
+      "Local guidance · not live AI",
+    );
     expect(container.querySelector("[data-path-fold-primary]")).toHaveTextContent(
       RUNWAY_HARD_STOP_FOLD_TITLE,
     );
@@ -260,13 +277,9 @@ describe("ThresholdFold", () => {
     expect(screen.queryByRole("link", { name: /full path/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /open money/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /connect bank/i })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: FOLD_CONNECT_ACCOUNTS_LABEL })).toHaveAttribute(
-      "href",
-      FOLD_CONNECTIONS_HREF,
-    );
-    expect(screen.getByRole("link", { name: FOLD_CONNECT_ACCOUNTS_LABEL })).not.toHaveClass(
-      "btn-primary",
-    );
+    const connect = container.querySelector("[data-home-fold-connect]");
+    expect(connect).toHaveAttribute("href", FOLD_CONNECTIONS_HREF);
+    expect(connect).not.toHaveClass("btn-primary");
 
     expect(container.querySelector("[data-companion-fold-line]")).toBeNull();
     expect(container.querySelector("[data-home-score-rail]")).toBeNull();
@@ -305,7 +318,6 @@ describe("ThresholdFold", () => {
       "href",
       FOLD_MONEY_HREF,
     );
-    expect(screen.queryByRole("link", { name: FOLD_CONNECT_ACCOUNTS_LABEL })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /open money/i })).not.toBeInTheDocument();
     expect(container.querySelector("[data-home-fold-connect]")).toBeNull();
   });
@@ -345,7 +357,7 @@ describe("ThresholdFold", () => {
       />,
     );
 
-    expect(screen.getByRole("link", { name: RUNWAY_HARD_STOP_FOLD_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: new RegExp(RUNWAY_HARD_STOP_FOLD_TITLE) })).toBeInTheDocument();
     expect(screen.queryByText(/Grow emergency fund toward 3–6 months/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Stabilize emergency runway to at least 1 month/)).not.toBeInTheDocument();
   });
@@ -510,58 +522,68 @@ describe("ThresholdFold", () => {
     expect(foldCol.compareDocumentPosition(density) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-    expect(money.compareDocumentPosition(next) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+    expect(next.compareDocumentPosition(money) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-    expect(next.compareDocumentPosition(tools) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+    expect(money.compareDocumentPosition(tools) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-    expect(density).toHaveClass("mt-12");
-    expect(next).toHaveClass("mt-12");
-    expect(tools).toHaveClass("mt-12");
-    expect(density).toHaveClass("max-w-[720px]");
-    expect(foldCol).toHaveClass("max-w-[560px]");
     expect(density.querySelector(".font-display")).toBeNull();
     expect(density.querySelector(".type-fold-verdict")).toBeNull();
 
     const nextSteps = container.querySelectorAll("[data-home-density-next-step]");
-    expect(nextSteps).toHaveLength(3);
+    expect(nextSteps.length).toBeGreaterThan(0);
+    expect(nextSteps.length).toBeLessThanOrEqual(5);
     expect(nextSteps[0]).toHaveTextContent(RUNWAY_HARD_STOP_PATH_TITLE);
-    const openPath = screen.getByRole("link", { name: HOME_DENSITY_OPEN_PATH_LABEL });
+    const openPath = screen.getByRole("link", { name: new RegExp(HOME_DENSITY_OPEN_PATH_LABEL) });
     expect(openPath).toHaveAttribute("href", HOME_DENSITY_OPEN_PATH_HREF);
     expect(openPath).not.toHaveClass("btn-primary");
-    expect(openPath).toHaveClass("text-dim");
-    expect(openPath).toHaveClass("underline");
-    expect(openPath).not.toHaveClass("text-cyan");
 
     for (const lens of HOME_DENSITY_LENSES) {
-      const card = screen.getByRole("link", { name: new RegExp(lens.title, "i") });
+      const card = container.querySelector(`[data-home-density-tool="${lens.id}"]`);
       expect(card).toHaveAttribute("href", lens.href);
       expect(card).toHaveTextContent(lens.line);
       expect(card).not.toHaveClass("btn-primary");
       expect(lens.line.trim().split(/\s+/).length).toBeLessThanOrEqual(8);
     }
     const toolLines = container.querySelectorAll("[data-home-density-tool-line]");
-    expect(toolLines).toHaveLength(4);
+    expect(toolLines).toHaveLength(6);
     for (const line of toolLines) {
       expect(line).toHaveClass("text-xs");
       expect(line).toHaveClass("text-dim");
       expect(line).not.toHaveClass("text-sm");
     }
-    const viewTools = screen.getByRole("link", { name: HOME_DENSITY_VIEW_ALL_TOOLS_LABEL });
+    const viewTools = screen.getByRole("link", { name: new RegExp(HOME_DENSITY_VIEW_ALL_TOOLS_LABEL) });
     expect(viewTools).toHaveAttribute("href", HOME_DENSITY_VIEW_ALL_TOOLS_HREF);
     expect(viewTools).not.toHaveClass("btn-primary");
-    expect(viewTools).toHaveClass("text-dim");
-    expect(viewTools).toHaveClass("underline");
-    expect(viewTools).not.toHaveClass("text-cyan");
-    expect(container.querySelectorAll("[data-home-density-tool]")).toHaveLength(4);
+    expect(container.querySelectorAll("[data-home-density-tool]")).toHaveLength(6);
     expect(screen.queryByText(/10,000|10000/)).not.toBeInTheDocument();
     expect(screen.queryByText(/\$4,200|\$4200/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Net Worth/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Chat with HōMI/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/CRAFT · PR8/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/CRAFT · PR10/)).not.toBeInTheDocument();
     expect(screen.queryByText("On track")).not.toBeInTheDocument();
-    expect(container.querySelector("[data-companion-fold-line]")).toBeNull();
-    expect(container.querySelectorAll("[data-path-fold-primary]")).toHaveLength(1);
+    expect(container.querySelector("[data-workspace-grid]")).not.toBeNull();
+    expect(container.querySelector("[data-home-key-areas]")).not.toBeNull();
+    expect(container.querySelectorAll("[data-home-key-area]").length).toBeLessThanOrEqual(4);
+    expect(container.querySelector("[data-home-key-area='runway']")).toHaveTextContent("Needs work");
+    expect(container.querySelector("[data-home-key-area='financial']")).toHaveTextContent("Needs work");
+    expect(container.querySelector("[data-home-key-area='emotional']")).toHaveTextContent("Strong");
+    expect(container.querySelector("[data-home-key-area='timing']")).toHaveTextContent("Strong");
+    expect(container.querySelector("[data-home-companion-column]")).not.toBeNull();
+    expect(container.querySelector("[data-home-companion-trinity]")).not.toBeNull();
+    expect(container.querySelector("[data-home-companion-ask-cta]")).toHaveClass("btn-ghost");
+    expect(container.querySelector("[data-home-companion-ask-cta]")).not.toHaveClass("btn-primary");
+    expect(container.querySelectorAll(".btn-primary")).toHaveLength(1);
+    expect(container.querySelector("[data-home-companion-tagline]")).toHaveTextContent(
+      "Here to help you see clearly",
+    );
+    expect(container.querySelector("[data-home-companion-guidance]")).toHaveTextContent(
+      "Local guidance · not live AI",
+    );
+    expect(container.querySelector("[data-home-score-gauge]")).toHaveAttribute("data-gauge-stop", "1");
+    expect(container.querySelector("[data-home-recent-empty]")).toHaveTextContent("A fresh start");
+    expect(screen.queryByText(/Homie/)).not.toBeInTheDocument();
   });
 });

@@ -21,6 +21,7 @@ import { AppHeader } from "@/components/layout/AppHeader";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { LATEST_VERDICT_KEY } from "@/components/layout/SidebarDecisionState";
 import { HEADER_PRIMARY_NAV } from "@/lib/layout/nav-catalog";
+import { LEFT_RAIL_PRIMARY, LEFT_RAIL_SECONDARY } from "@/lib/layout/left-rail";
 
 beforeAll(() => {
   if (!window.matchMedia) {
@@ -53,6 +54,44 @@ beforeEach(() => {
       decisionType: "Personal",
     }),
   );
+});
+
+describe("AppSidebar — PR10 left rail", () => {
+  it("unlocks PRIMARY + SECONDARY destinations and omits Learn / killed peers", () => {
+    render(<AppSidebar email="jamie@example.com" fullName="Jamie Diaz" />);
+
+    const rail = document.querySelector("[data-left-rail]");
+    expect(rail).not.toBeNull();
+    expect(document.querySelector("[data-app-shell='pr10-rail']")).not.toBeNull();
+    expect(document.querySelector("[data-shell-compass] svg[aria-label*='Threshold Compass']")).not.toBeNull();
+    expect(document.querySelector("[data-homi-hexes]")).not.toBeNull();
+
+    for (const item of LEFT_RAIL_PRIMARY) {
+      expect(screen.getByRole("link", { name: item.label })).toHaveAttribute("href", item.href);
+    }
+    for (const item of LEFT_RAIL_SECONDARY) {
+      expect(screen.getByRole("link", { name: item.label })).toHaveAttribute("href", item.href);
+    }
+
+    expect(screen.queryByRole("link", { name: /^learn$/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /^bills$/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /^insights$/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /^finances$/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /^plans$/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /homie/i })).toBeNull();
+    expect(document.body.textContent).not.toContain("CRAFT · PR10");
+    expect(document.body.textContent).not.toContain("NOT SHIP");
+    expect(document.querySelector("[data-home-journey]")).toBeNull();
+    expect(document.querySelector("[data-rail-person-name]")).toHaveTextContent("Jamie D.");
+  });
+
+  it("paints Home as the active rail item on /dashboard", () => {
+    mockPathname = "/dashboard";
+    render(<AppSidebar email={null} />);
+    const home = document.querySelector("[data-rail-item='home']");
+    expect(home).toHaveAttribute("aria-current", "page");
+    expect(home).toHaveClass("is-active");
+  });
 });
 
 describe("AppHeader — SHELL_CRAFT v3 quiet top bar", () => {
@@ -160,10 +199,11 @@ describe("AppHeader — SHELL_CRAFT v3 quiet top bar", () => {
     );
   });
 
-  it("AppSidebar alias still renders the v3 top bar", () => {
-    render(<AppSidebar email={null} />);
+  it("role-tree AppHeader stays the quiet bar — no left rail, no craft badge", () => {
+    render(<AppHeader email={null} />);
     expect(document.querySelector("[data-app-shell='v3']")).not.toBeNull();
-    expect(document.querySelector("aside")).toBeNull();
+    expect(document.querySelector("[data-left-rail]")).toBeNull();
+    expect(document.body.textContent).not.toContain("CRAFT · PR10");
   });
 
   it("does not ship the mock-only craft badge on /assessment", () => {

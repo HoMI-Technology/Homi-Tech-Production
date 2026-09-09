@@ -32,15 +32,16 @@ afterEach(() => {
   cleanup();
 });
 
-describe("signed-in /assessment uses quiet top-bar shell v3", () => {
-  it("mounts AppHeader in main's product chrome — not AssessmentShell", () => {
+describe("signed-in /assessment uses PR10 left-rail chrome", () => {
+  it("mounts the left rail in product chrome — not AssessmentShell, no craft badge", () => {
     render(
       <ProductLayoutRouter user email={null}>
         <p>walk</p>
       </ProductLayoutRouter>,
     );
 
-    expect(document.querySelector("[data-app-shell='v3']")).not.toBeNull();
+    expect(document.querySelector("[data-app-shell='pr10-rail']")).not.toBeNull();
+    expect(document.querySelector("[data-left-rail]")).not.toBeNull();
     expect(document.querySelector("main#main")).not.toBeNull();
     expect(document.querySelector(".assessment-focus-bar")).toBeNull();
     expect(document.querySelector(".assessment-focus-shell")).toBeNull();
@@ -49,8 +50,9 @@ describe("signed-in /assessment uses quiet top-bar shell v3", () => {
     expect(compasses).toHaveLength(1);
     expect(compasses[0]?.closest("main#main")).toBeNull();
     expect(document.querySelector("[data-shell-floor]")).toBeNull();
+    expect(document.body.textContent).not.toContain("CRAFT · PR10");
+    expect(document.body.textContent).not.toContain("NOT SHIP");
     expect(document.body.textContent).not.toContain("Craft v3");
     expect(document.body.textContent).not.toContain("PR2 floor");
-    expect(document.body.textContent).not.toContain("Craft v3 · PR2 floor · not ship");
   });
 });

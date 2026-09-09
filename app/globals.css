@@ -93,6 +93,7 @@
   color-scheme: dark;
   /* Product chrome: dense single-line bar (was 72px marketing height) */
   --nav-height: 60px;
+  --rail-width: 16rem;
   /* Total fixed-header clearance incl. notch / Dynamic Island (needs viewport-fit=cover). */
   --nav-offset: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
   --glow-cyan: 0 0 30px rgba(34, 211, 238, 0.4);
@@ -451,6 +452,36 @@ html {
   scroll-padding-top: calc(var(--nav-offset) + 0.75rem);
   /* Assess pill + cookie bar — WCAG 2.4.11 focus not fully hidden. */
   scroll-padding-bottom: calc(3.25rem + 6.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+.left-rail-link {
+  display: flex;
+  min-height: 2.5rem;
+  align-items: center;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-dim);
+}
+.left-rail-link:hover {
+  color: var(--color-light);
+  background: rgba(255, 255, 255, 0.04);
+}
+.left-rail-link.is-active {
+  color: var(--color-cyan);
+  background: rgba(34, 211, 238, 0.12);
+}
+
+.workspace-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+@media (min-width: 1024px) {
+  .workspace-grid {
+    grid-template-columns: 1.8fr minmax(320px, 360px);
+    align-items: start;
+  }
 }
 
 .chrome-frost {

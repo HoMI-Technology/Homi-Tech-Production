@@ -27,8 +27,8 @@ const DENSITY_FOOTER_LINK =
   "text-sm text-dim underline underline-offset-2 hover:text-cyan";
 
 /**
- * HOME_DENSITY_CRAFT — Money → What's next → Tools below the quiet PR7 fold.
- * Inter only. Path primary stays on the fold. No companion, no invented $.
+ * HOME_SCRAPE_CRAFT — What's next + Money side by side, then ≤6 hub tools.
+ * Path primary stays on the hero. No invented $.
  */
 export function HomeDensity({
   lastMoney,
@@ -45,85 +45,94 @@ export function HomeDensity({
     runwayMonths != null && Number.isFinite(runwayMonths) && runwayMonths < 1;
 
   return (
-    <div
-      className="mt-12 w-full max-w-[720px] border-t border-white/[0.03] pt-8"
-      data-home-density=""
-    >
-      <section data-home-density-money="" aria-label="Money">
-        <p className={DENSITY_EYEBROW}>
-          {connectedCash ? FOLD_MONEY_CONNECTED_HEADING : FOLD_MONEY_EMPTY_HEADING}
-        </p>
-        {connectedCash ? (
-          <>
-            <div className="mt-3 space-y-2 text-sm">
-              <div className="flex justify-between gap-4" data-home-fold-cash="">
-                <span className="text-light">Liquid cash</span>
-                <span className="text-dim">{FOLD_LIQUID_CONNECTED_LABEL}</span>
-              </div>
-              <div className="flex justify-between gap-4" data-home-fold-runway="">
-                <span className="text-light">Runway</span>
-                <span className={runwayUnderOne ? "text-amber" : "text-dim"}>
-                  {runwayLabel}
-                </span>
-              </div>
-              <div className="flex justify-between gap-4" data-home-fold-flags="">
-                <span className="text-light">Flags</span>
-                <span className="text-dim">{FOLD_FLAGS_NONE_INVENTED}</span>
-              </div>
-            </div>
-            <p className="mt-3">
-              <Link
-                href={FOLD_MONEY_HREF}
-                className={DENSITY_FOOTER_LINK}
-                data-home-fold-money-depth=""
-              >
-                {FOLD_MONEY_DEPTH_LABEL}
-              </Link>
-            </p>
-          </>
-        ) : (
-          <>
-            <p className="mt-3 text-sm text-dim" data-home-fold-cash-empty="">
-              {MONEY_WAIT_LINE}
-            </p>
-            <p className="mt-3">
-              <Link
-                href={FOLD_CONNECTIONS_HREF}
-                className="btn rounded-full border border-cyan bg-transparent text-cyan"
-                data-home-fold-connect=""
-              >
-                {FOLD_CONNECT_ACCOUNTS_LABEL}
-              </Link>
-            </p>
-          </>
-        )}
-      </section>
+    <div className="mt-8 w-full" data-home-density="">
+      <div className="home-next-money grid grid-cols-1 gap-6 md:grid-cols-2">
+        <section data-home-density-next="" aria-label="What's next">
+          <p className={DENSITY_EYEBROW}>{HOME_DENSITY_WHATS_NEXT_HEADING}</p>
+          {pathTitles.length > 0 ? (
+            <ol className="mt-3 space-y-2 text-sm text-light/85">
+              {pathTitles.map((title, index) => (
+                <li key={title} data-home-density-next-step="" className="flex gap-2">
+                  <span className="text-dim tabular-nums">{index + 1}.</span>
+                  <span>{title}</span>
+                </li>
+              ))}
+            </ol>
+          ) : null}
+          <p className="mt-3">
+            <Link
+              href={HOME_DENSITY_OPEN_PATH_HREF}
+              className="btn rounded-full border border-white/15 bg-transparent text-light"
+              data-home-density-open-path=""
+            >
+              {HOME_DENSITY_OPEN_PATH_LABEL} →
+            </Link>
+          </p>
+        </section>
 
-      <section className="mt-12" data-home-density-next="" aria-label="What's next">
-        <p className={DENSITY_EYEBROW}>{HOME_DENSITY_WHATS_NEXT_HEADING}</p>
-        {pathTitles.length > 0 ? (
-          <ol className="mt-3 space-y-2 text-sm text-light/85">
-            {pathTitles.map((title) => (
-              <li key={title} data-home-density-next-step="">
-                {title}
-              </li>
-            ))}
-          </ol>
-        ) : null}
-        <p className="mt-3">
+        <section data-home-density-money="" aria-label="Money">
+          <p className={DENSITY_EYEBROW}>
+            {connectedCash ? FOLD_MONEY_CONNECTED_HEADING : FOLD_MONEY_EMPTY_HEADING}
+          </p>
+          {connectedCash ? (
+            <>
+              <div className="mt-3 space-y-2 text-sm">
+                <div className="flex justify-between gap-4" data-home-fold-cash="">
+                  <span className="text-light">Liquid cash</span>
+                  <span className="text-dim">{FOLD_LIQUID_CONNECTED_LABEL}</span>
+                </div>
+                <div className="flex justify-between gap-4" data-home-fold-runway="">
+                  <span className="text-light">Runway</span>
+                  <span className={runwayUnderOne ? "text-amber" : "text-dim"}>
+                    {runwayLabel}
+                  </span>
+                </div>
+                <div className="flex justify-between gap-4" data-home-fold-flags="">
+                  <span className="text-light">Flags</span>
+                  <span className="text-dim">{FOLD_FLAGS_NONE_INVENTED}</span>
+                </div>
+              </div>
+              <p className="mt-3">
+                <Link
+                  href={FOLD_MONEY_HREF}
+                  className={DENSITY_FOOTER_LINK}
+                  data-home-fold-money-depth=""
+                >
+                  {FOLD_MONEY_DEPTH_LABEL}
+                </Link>
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="mt-3 text-sm text-dim" data-home-fold-cash-empty="">
+                {MONEY_WAIT_LINE}
+              </p>
+              <p className="mt-3">
+                <Link
+                  href={FOLD_CONNECTIONS_HREF}
+                  className="btn rounded-full border border-cyan bg-transparent text-cyan"
+                  data-home-fold-connect=""
+                >
+                  {FOLD_CONNECT_ACCOUNTS_LABEL}
+                </Link>
+              </p>
+            </>
+          )}
+        </section>
+      </div>
+
+      <section className="mt-8" data-home-density-tools="" aria-label="Tools">
+        <div className="flex items-baseline justify-between gap-3">
+          <p className={DENSITY_EYEBROW}>{HOME_DENSITY_TOOLS_HEADING}</p>
           <Link
-            href={HOME_DENSITY_OPEN_PATH_HREF}
+            href={HOME_DENSITY_VIEW_ALL_TOOLS_HREF}
             className={DENSITY_FOOTER_LINK}
-            data-home-density-open-path=""
+            data-home-density-view-tools=""
           >
-            {HOME_DENSITY_OPEN_PATH_LABEL}
+            {HOME_DENSITY_VIEW_ALL_TOOLS_LABEL} →
           </Link>
-        </p>
-      </section>
-
-      <section className="mt-12" data-home-density-tools="" aria-label="Tools">
-        <p className={DENSITY_EYEBROW}>{HOME_DENSITY_TOOLS_HEADING}</p>
-        <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        </div>
+        <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {HOME_DENSITY_LENSES.map((lens) => (
             <li key={lens.id}>
               <Link
@@ -155,15 +164,6 @@ export function HomeDensity({
             </li>
           ))}
         </ul>
-        <p className="mt-3">
-          <Link
-            href={HOME_DENSITY_VIEW_ALL_TOOLS_HREF}
-            className={DENSITY_FOOTER_LINK}
-            data-home-density-view-tools=""
-          >
-            {HOME_DENSITY_VIEW_ALL_TOOLS_LABEL}
-          </Link>
-        </p>
       </section>
     </div>
   );

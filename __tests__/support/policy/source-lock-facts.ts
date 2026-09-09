@@ -547,7 +547,11 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
       "/tools/blind-budget",
       "/tools/monte-carlo",
       "Open Path",
-      "View all tools",
+      "View all",
+      "/tools/fire",
+      "/tools/roth-conversion",
+      "Here to help you see clearly",
+      "Local guidance · not live AI",
     ],
     stringsMustNot: [
       "10,000",
@@ -555,6 +559,17 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
       "CRAFT · PR8",
       "CRAFT · NOT SHIP",
     ],
+  },
+  {
+    id: "fold-wiring/home-companion-column-craft",
+    file: "components/dashboard/HomeCompanionColumn.tsx",
+    identifiersMust: ["HOME_COMPANION_TAGLINE", "HOME_COMPANION_GUIDANCE"],
+    stringsMust: [
+      "data-home-companion-trinity",
+      'href="/advisor"',
+      "btn-ghost",
+    ],
+    stringsMustNot: ["btn-primary", "Homie", "CRAFT · PR10", "CRAFT · NOT SHIP"],
   },
   {
     id: "fold-wiring/home-money-standing-strip",
@@ -847,8 +862,8 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
   {
     id: "money-mode-nav/bottom-nav-on-product-router",
     file: "components/layout/ProductLayoutRouter.tsx",
-    identifiersMust: ["AppHeader"],
-    identifiersMustNot: ["ProductBottomNav", "AppSidebar"],
+    identifiersMust: ["AppHeader", "SignedInPersonalChrome"],
+    identifiersMustNot: ["ProductBottomNav"],
   },
   {
     id: "money-mode-nav/bottom-nav-off-product-layout",

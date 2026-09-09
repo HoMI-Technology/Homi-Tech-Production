@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { APP_MORE_NAV, APP_PRIMARY_NAV } from "../lib/layout/app-nav";
+import { APP_MORE_NAV, APP_PRIMARY_NAV, APP_RAIL_PRIMARY, APP_RAIL_SECONDARY } from "../lib/layout/app-nav";
 import { skipWithoutLiveSupabase } from "./helpers/env";
 import { signInViaUi } from "./helpers/auth";
 import { createTestUser, deleteTestUser, setTestUserRole } from "./helpers/test-user";
@@ -22,25 +22,21 @@ test.describe("signed-in shell navigation", () => {
       await signInViaUi(page, user.email, user.password);
 
       await expect(page.getByLabel("HōMI dashboard")).toBeVisible();
-      await expect(page.getByRole("link", { name: "Assess" })).toBeVisible();
-      await expect(page.locator("[data-app-shell='v3']")).toBeVisible();
+      await expect(page.getByRole("link", { name: "Assess" }).first()).toBeVisible();
+      await expect(page.locator("[data-app-shell='pr10-rail']")).toBeVisible();
       await expect(page.locator("[data-shell-compass] svg")).toBeVisible();
 
-      // Live shell is SHELL_CRAFT v3: Assess in the top bar; Journal lives under ···.
-      await page.getByRole("button", { name: "More" }).click();
-      await expect(page.getByRole("menuitem", { name: "Journal" })).toBeVisible();
-      await page.getByRole("menuitem", { name: "Journal" }).click();
-      await expect(page).toHaveURL(/\/journal/);
+      await expect(page.getByRole("link", { name: "Plan" })).toBeVisible();
+      await expect(page.getByRole("link", { name: "Money" })).toBeVisible();
+      await page.getByRole("link", { name: "Plan" }).click();
+      await expect(page).toHaveURL(/\/path/);
 
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto("/dashboard");
-      await expect(page.getByRole("link", { name: "Assess" })).toBeVisible();
-      await page.getByRole("button", { name: "More" }).click();
-      for (const item of APP_MORE_NAV.slice(0, 6)) {
-        await expect(page.getByRole("menuitem", { name: item.label })).toBeVisible();
-      }
+      await expect(page.getByRole("button", { name: "Open navigation" })).toBeVisible();
+      await page.getByRole("button", { name: "Open navigation" }).click();
+      await expect(page.getByRole("link", { name: "Companion" })).toBeVisible();
       await expect(page.getByRole("button", { name: "Jump to…" })).toHaveCount(0);
-      await expect(page.getByRole("button", { name: "Open navigation" })).toHaveCount(0);
     } finally {
       await deleteTestUser(user.id);
     }
@@ -97,6 +93,24 @@ test.describe("shell nav config (always-on)", () => {
     expect(APP_MORE_NAV.some((i) => i.href === "/money")).toBe(true);
     expect(APP_MORE_NAV.some((i) => i.href === "/advisor")).toBe(false);
     expect(APP_MORE_NAV.some((i) => i.href === "/journal")).toBe(true);
+  });
+
+  test("PR10 left rail destinations are live product URLs", async () => {
+    expect(APP_RAIL_PRIMARY.map((i) => i.href)).toEqual([
+      "/dashboard",
+      "/assessment",
+      "/path",
+      "/money",
+      "/scenarios",
+      "/tools",
+      "/advisor",
+    ]);
+    expect(APP_RAIL_SECONDARY.map((i) => i.href)).toEqual([
+      "/connections",
+      "/settings",
+      "/trust",
+    ]);
+    expect(APP_RAIL_PRIMARY.some((i) => i.label === "Learn")).toBe(false);
   });
 
   test("anonymous report path redirects to sign-in with next", async ({ page }) => {

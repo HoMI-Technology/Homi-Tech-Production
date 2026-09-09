@@ -141,17 +141,29 @@ export const FOLD_LIQUID_CONNECTED_LABEL = "Connected · ledger" as const;
 export const FOLD_FLAGS_NONE_INVENTED = "None invented" as const;
 export const FOLD_MONEY_DEPTH_LABEL = "Money depth" as const;
 
-/** HOME_DENSITY_CRAFT — below-fold column, not the PR7 fold. */
-export const HOME_DENSITY_MAX_PATH_STEPS = 3 as const;
+/** HOME_SCRAPE_CRAFT — denser Home body under the left rail. */
+export const HOME_DENSITY_MAX_PATH_STEPS = 5 as const;
 export const HOME_DENSITY_OPEN_PATH_LABEL = "Open Path" as const;
 export const HOME_DENSITY_OPEN_PATH_HREF = "/path" as const;
-export const HOME_DENSITY_VIEW_ALL_TOOLS_LABEL = "View all tools" as const;
+export const HOME_DENSITY_VIEW_ALL_TOOLS_LABEL = "View all" as const;
 export const HOME_DENSITY_VIEW_ALL_TOOLS_HREF = "/tools" as const;
 export const HOME_DENSITY_WHATS_NEXT_HEADING = "What's next" as const;
 export const HOME_DENSITY_TOOLS_HEADING = "Tools" as const;
+export const HOME_READINESS_HEADING = "Your Readiness" as const;
+export const HOME_KEY_AREAS_HEADING = "Key Areas" as const;
+export const HOME_SEE_FULL_ASSESSMENT = "See full assessment" as const;
+export const HOME_SEE_FULL_BREAKDOWN = "See full breakdown" as const;
+export const HOME_COMPANION_HEADING = "Your Companion" as const;
+/** HOME_SCRAPE_CRAFT §F — companion identity, not a Homie launch cast. */
+export const HOME_COMPANION_TAGLINE = "Here to help you see clearly" as const;
+export const HOME_COMPANION_GUIDANCE = "Local guidance · not live AI" as const;
+export const HOME_ASK_HOMI_LABEL = "Ask HōMI" as const;
+export const HOME_RECENT_EMPTY =
+  "A fresh start. Your saved models and goals will appear here." as const;
+export const HOME_WORKSPACE_SUBLINE = "Here's where you stand and what's next." as const;
 
 /**
- * State A hub-lens cards. Live `/tools/*` hub routes only.
+ * State A hub-lens cards. Live `/tools/*` hub routes only. ≤6.
  * Dim lines are locked craft (≤8 words). Never invent simulation-count theater or dollar chrome.
  */
 export const HOME_DENSITY_LENSES = [
@@ -179,6 +191,31 @@ export const HOME_DENSITY_LENSES = [
     title: "Monte Carlo",
     line: "Simulated paths — educational",
   },
+  {
+    id: "fire",
+    href: "/tools/fire",
+    title: "FIRE Number",
+    line: "Independence with your assumptions",
+  },
+  {
+    id: "roth-conversion",
+    href: "/tools/roth-conversion",
+    title: "Roth Conversion",
+    line: "Educational · not a recommendation",
+  },
+] as const;
+
+export const HOME_COMPANION_PROMPTS = [
+  { label: "How can I build my runway faster?", href: "/advisor" },
+  { label: "What is my next Path step?", href: "/path" },
+  { label: "Compare debt payoff approaches.", href: "/tools/debt-payoff" },
+] as const;
+
+export const HOME_QUICK_ACTIONS = [
+  { label: "Update assessment", href: "/assessment" },
+  { label: "Connect accounts", href: "/connections" },
+  { label: "Compare scenarios", href: "/scenarios" },
+  { label: "Explore tools", href: "/tools" },
 ] as const;
 
 /** HOME_CRAFT / HOME_FIRST_VIEWPORT month crop. Short English, UTC, no period. */
@@ -418,8 +455,8 @@ export function resolveFoldPathPrimary(
 }
 
 /**
- * Quiet What’s next titles below the fold. Path SSOT titles only — no fold
- * companion remap, no $ invent, no +points. Cap at three pending steps.
+ * Quiet What’s next titles. Path SSOT titles only — no fold
+ * companion remap, no $ invent, no +points. Cap at five pending steps.
  */
 export function foldDensityPathTitles(
   steps: unknown,
