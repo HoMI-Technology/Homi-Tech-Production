@@ -55,6 +55,7 @@ export function AppSidebar({
       <aside
         data-app-shell="pr10-rail"
         data-left-rail=""
+        data-invent-chrome="pr12"
         aria-label="HōMI"
         className={`left-rail fixed inset-y-0 left-0 z-[calc(var(--z-nav)+1)] flex flex-col border-r border-white/[0.06] bg-navy transition-transform duration-200 lg:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
@@ -66,7 +67,7 @@ export function AppSidebar({
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
         }}
       >
-        <div className="left-rail-brand px-4 pb-4 pt-5" data-rail-brand="">
+        <div className="left-rail-brand px-4 pb-3 pt-4" data-rail-brand="">
           <Link
             href="/dashboard"
             aria-label="HōMI dashboard"
@@ -83,45 +84,47 @@ export function AppSidebar({
           </p>
         </div>
 
-        <nav data-rail-primary="" aria-label="Primary" className="flex flex-col gap-0.5 px-3">
-          {LEFT_RAIL_PRIMARY.map((item) => {
-            const active = isLeftRailActive(pathname, item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                data-rail-item={item.label.toLowerCase()}
-                aria-current={active ? "page" : undefined}
-                className={`left-rail-link ${active ? "is-active" : ""}`}
-                onClick={onClose}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto" data-rail-scroll="">
+          <nav data-rail-primary="" aria-label="Primary" className="flex flex-col gap-px px-3">
+            {LEFT_RAIL_PRIMARY.map((item) => {
+              const active = isLeftRailActive(pathname, item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  data-rail-item={item.label.toLowerCase()}
+                  aria-current={active ? "page" : undefined}
+                  className={`left-rail-link ${active ? "is-active" : ""}`}
+                  onClick={onClose}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
 
-        <div className="mx-4 my-4 h-px bg-white/[0.06]" data-rail-divider="" />
+          <div className="mx-4 my-3 h-px shrink-0 bg-white/[0.06]" data-rail-divider="" />
 
-        <nav data-rail-secondary="" aria-label="Account" className="flex flex-col gap-0.5 px-3">
-          {LEFT_RAIL_SECONDARY.map((item) => {
-            const active = isLeftRailActive(pathname, item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                data-rail-item={item.label.toLowerCase()}
-                aria-current={active ? "page" : undefined}
-                className={`left-rail-link ${active ? "is-active" : ""}`}
-                onClick={onClose}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
+          <nav data-rail-secondary="" aria-label="Account" className="flex flex-col gap-px px-3 pb-3">
+            {LEFT_RAIL_SECONDARY.map((item) => {
+              const active = isLeftRailActive(pathname, item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  data-rail-item={item.label.toLowerCase()}
+                  aria-current={active ? "page" : undefined}
+                  className={`left-rail-link ${active ? "is-active" : ""}`}
+                  onClick={onClose}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
 
-        <div className="mt-auto border-t border-white/[0.06] px-4 py-4" data-rail-footer="">
+        <div className="shrink-0 border-t border-white/[0.06] px-4 py-3" data-rail-footer="">
           <div className="flex items-center gap-3">
             <span
               aria-hidden

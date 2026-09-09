@@ -25,12 +25,12 @@ function toneClass(tone: HomeJourneyTone): string {
 }
 
 /**
- * Journey LOOK chrome. Stages are not invent-completed.
- * Hard stop keeps Build current — never On track / READY.
+ * Journey LOOK chrome — Assess→Build→Prepare→Buy strip near the fold.
+ * Stages are not invent-completed. Hard stop keeps Build current — never On track / READY.
  */
 export function HomeJourney({ stages }: { stages: readonly HomeJourneyStage[] }) {
   return (
-    <section className="mt-4" data-home-journey="" aria-label={HOME_JOURNEY_HEADING}>
+    <section className="mt-3" data-home-journey="" aria-label={HOME_JOURNEY_HEADING}>
       <div className="flex items-baseline justify-between gap-3">
         <p className="text-2xs font-semibold uppercase tracking-[0.06em] text-dim">
           {HOME_JOURNEY_HEADING}
@@ -43,16 +43,23 @@ export function HomeJourney({ stages }: { stages: readonly HomeJourneyStage[] })
           {HOME_JOURNEY_HISTORY_LABEL} →
         </Link>
       </div>
-      <ol className="home-journey mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        {stages.map((stage) => (
+      <ol className="home-journey home-journey-strip mt-2 flex items-stretch gap-1">
+        {stages.map((stage, index) => (
           <li
             key={stage.id}
             data-home-journey-stage={stage.id}
             data-home-journey-tone={stage.tone}
-            className={`rounded-xl border px-3 py-3 ${toneClass(stage.tone)}`}
+            className="flex min-w-0 flex-1 items-center gap-1"
           >
-            <p className="text-sm font-medium">{stage.label}</p>
-            <p className="mt-1 text-xs text-dim">{stage.hint}</p>
+            <div className={`min-w-0 flex-1 rounded-xl border px-2.5 py-2 ${toneClass(stage.tone)}`}>
+              <p className="truncate text-sm font-medium">{stage.label}</p>
+              <p className="mt-0.5 truncate text-xs text-dim">{stage.hint}</p>
+            </div>
+            {index < stages.length - 1 ? (
+              <span aria-hidden className="shrink-0 text-xs text-dim">
+                →
+              </span>
+            ) : null}
           </li>
         ))}
       </ol>

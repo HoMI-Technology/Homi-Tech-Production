@@ -63,6 +63,8 @@ describe("AppSidebar — PR12 left rail", () => {
 
     const rail = document.querySelector("[data-left-rail]");
     expect(rail).not.toBeNull();
+    expect(rail).toHaveAttribute("data-invent-chrome", "pr12");
+    expect(document.querySelector("[data-rail-scroll]")).not.toBeNull();
     expect(document.querySelector("[data-app-shell='pr10-rail']")).not.toBeNull();
     expect(document.querySelector("[data-shell-compass] svg[aria-label*='Threshold Compass']")).not.toBeNull();
     const railCompass = document.querySelector("[data-shell-compass] svg[aria-label*='Threshold Compass']");

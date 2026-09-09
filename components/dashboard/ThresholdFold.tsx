@@ -40,7 +40,7 @@ export type ThresholdFoldLatest = {
 
 /**
  * Signed-in first screen inside PR10 left-rail chrome.
- * HOME_SCRAPE_CRAFT: readiness hero (score + gauge) → Key Factors → journey → next/money → tools + companion.
+ * HOME_SCRAPE_CRAFT: readiness hero → journey strip → Key Factors → next/money → tools + companion.
  * Score is last AssessmentResult only. Compass never mounts here.
  */
 export function ThresholdFold({
@@ -105,6 +105,7 @@ export function ThresholdFold({
       className="dash-instrument"
       data-home-fold=""
       data-threshold-fold=""
+      data-invent-chrome="pr12"
       data-home-instrument={latest ? HOME_FOLD_INSTRUMENT : "empty"}
       data-hard-stop={hardStopActive ? "1" : "0"}
       style={instrumentStyle}
@@ -240,9 +241,9 @@ export function ThresholdFold({
                     </div>
                   </section>
 
-                  {keyAreas.length > 0 ? <HomeKeyAreas areas={keyAreas} /> : null}
-
                   {journeyStages.length > 0 ? <HomeJourney stages={journeyStages} /> : null}
+
+                  {keyAreas.length > 0 ? <HomeKeyAreas areas={keyAreas} /> : null}
 
                   <div data-home-money-below-fold="">
                     <HomeDensity lastMoney={lastMoney} pathTitles={pathTitles} />

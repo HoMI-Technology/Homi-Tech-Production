@@ -564,6 +564,8 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
     identifiersMust: ["HOME_COMPANION_TAGLINE", "HOME_COMPANION_GUIDANCE"],
     stringsMust: [
       "data-home-companion-trinity",
+      "data-home-companion-theater",
+      "data-home-companion-composer",
       'href="/advisor"',
       "btn-ghost",
     ],

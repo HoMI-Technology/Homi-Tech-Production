@@ -24,4 +24,28 @@ describe("PR12 invent chrome shells", () => {
     expect(empty).toContain("FOLD_CONNECTIONS_HREF");
     expect(empty).toContain("No invented amounts on this shell.");
   });
+
+  it("signed-in Home and rail actually mount invent chrome (not a gated side path)", () => {
+    const fold = read("components/dashboard/ThresholdFold.tsx");
+    const rail = read("components/layout/AppSidebar.tsx");
+    const router = read("components/layout/ProductLayoutRouter.tsx");
+    const chrome = read("components/layout/SignedInPersonalChrome.tsx");
+    const companion = read("components/dashboard/HomeCompanionColumn.tsx");
+    expect(router).toContain("SignedInPersonalChrome");
+    expect(router).toContain("isRoleOperateRoute");
+    expect(chrome).toContain("AppSidebar");
+    expect(rail).toContain('data-invent-chrome="pr12"');
+    expect(rail).toContain("LEFT_RAIL_PRIMARY");
+    expect(fold).toContain('data-invent-chrome="pr12"');
+    expect(fold.indexOf("<HomeJourney")).toBeLessThan(fold.indexOf("<HomeKeyAreas"));
+    expect(fold.indexOf("<HomeKeyAreas")).toBeLessThan(fold.indexOf("<HomeDensity"));
+    expect(companion).toContain("data-home-companion-theater");
+    expect(companion).toContain("data-home-companion-composer");
+    expect(companion).toContain('href="/advisor"');
+    expect(companion).toContain("HOME_COMPANION_GUIDANCE");
+    expect(companion).not.toMatch(/cx="10"|cx="26"/);
+    for (const src of [fold, rail, companion]) {
+      expect(src).not.toMatch(/\$4,200|~8 points|On track/);
+    }
+  });
 });
