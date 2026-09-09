@@ -175,7 +175,7 @@ describe("CCP v1 `/home` activation", () => {
     expect(pathname(res)).toBe("/");
   });
 
-  it("flag on lets `/home` pass (no Home UI in this PR — Next 404s the empty route)", async () => {
+  it("flag on lets `/home` pass the CCP gate (Home UI still unpublished in production)", async () => {
     vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
     const res = await middleware(req("/home"));
     expect(res.status).toBe(200);

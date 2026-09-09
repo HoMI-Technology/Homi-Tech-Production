@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   PRODUCT_SHELL_PATH_HEADER,
   pathnameFromRequestHeaders,
@@ -7,7 +7,12 @@ import {
 } from "@/lib/layout/product-shell";
 
 describe("PR13 product shell — signed-in Home cannot miss invent chrome", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it("locks /dashboard + session to personal (not guest SiteHeader, not quiet bar)", () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "false");
     expect(productShellFor("/dashboard", true)).toBe("personal");
     expect(productShellFor("/dashboard/", true)).toBe("personal");
     expect(productShellFor("/assessment", true)).toBe("personal");
@@ -46,5 +51,27 @@ describe("PR13 product shell — signed-in Home cannot miss invent chrome", () =
     expect(
       pathnameFromRequestHeaders(new Headers({ "x-invoke-path": "/dashboard?tab=1" })),
     ).toBe("/dashboard");
+  });
+});
+
+describe("PR C product shell — v4 only when flag is on", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("keeps signed-in Home on personal invent chrome while HOMI_V4_HOME_ENABLED is off", () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "false");
+    expect(productShellFor("/home", true)).toBe("personal");
+    expect(productShellFor("/home", false)).toBe("guest");
+  });
+
+  it("mounts Shell v4 for signed-in pending hosts when the flag is exact true", () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
+    expect(productShellFor("/home", true)).toBe("v4");
+    expect(productShellFor("/money", true)).toBe("v4");
+    expect(productShellFor("/dashboard", true)).toBe("personal");
+    expect(productShellFor("/home", false)).toBe("guest");
+    expect(productShellFor("/admin", true)).toBe("role");
+    expect(resolveProductShell("personal", "/home", true)).toBe("v4");
   });
 });

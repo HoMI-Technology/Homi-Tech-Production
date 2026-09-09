@@ -100,8 +100,6 @@ describe("CCP isDarkProductPath", () => {
   it("marks pre-PR15 product/role trees dark", () => {
     for (const path of [
       "/dashboard",
-      "/assessment",
-      "/settings",
       "/admin",
       "/partner/dashboard",
       "/employee/dashboard",
@@ -120,13 +118,28 @@ describe("CCP isDarkProductPath", () => {
 });
 
 describe("CCP isV4Path", () => {
-  it("stubs `/home` as V4_PENDING and leaves V4_LIVE empty", () => {
-    expect(V4_PENDING_PATHS).toEqual(["/home"]);
+  it("names Shell v4 workspaces as V4_PENDING and leaves V4_LIVE empty", () => {
+    expect(V4_PENDING_PATHS).toEqual([
+      "/home",
+      "/money",
+      "/path",
+      "/scenarios",
+      "/tools",
+      "/settings",
+      "/trust",
+      "/connections",
+      "/assessment",
+    ]);
     expect(V4_LIVE_PATHS).toEqual([]);
     expect(isV4Path("/home")).toBe(true);
     expect(isV4Path("/home/inbox")).toBe(true);
+    expect(isV4Path("/money")).toBe(true);
+    expect(isV4Path("/settings")).toBe(true);
+    expect(isV4Path("/assessment")).toBe(true);
     expect(isV4Path("/dashboard")).toBe(false);
     expect(classifyChangeControlLane("/home")).toBe("V4_PENDING");
+    expect(classifyChangeControlLane("/settings")).toBe("V4_PENDING");
+    expect(classifyChangeControlLane("/assessment")).toBe("V4_PENDING");
   });
 
   it("activates Home only when the flag is on and the allow-list includes Home", () => {

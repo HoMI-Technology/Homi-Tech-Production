@@ -23,6 +23,7 @@ test.describe("signed-in shell is scratched", () => {
       await expect(page.getByLabel("HōMI dashboard")).toHaveCount(0);
 
       await expectKillToHome(page, "/dashboard");
+      await expectKillToHome(page, "/home");
       await expectKillToHome(page, "/path");
       await expectKillToHome(page, "/partner/dashboard");
       await expectKillToHome(page, "/employee/dashboard");
@@ -37,6 +38,8 @@ test.describe("KILL routes (always-on)", () => {
     await page.goto("/report/00000000-0000-0000-0000-000000000000");
     expect(new URL(page.url()).pathname).toBe("/");
     await page.goto("/dashboard");
+    expect(new URL(page.url()).pathname).toBe("/");
+    await page.goto("/home");
     expect(new URL(page.url()).pathname).toBe("/");
     expect(page.url()).not.toContain("/auth/sign-in");
   });

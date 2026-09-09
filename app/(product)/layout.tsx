@@ -83,8 +83,8 @@ export default async function ProductLayout({ children }: { children: React.Reac
         <PageTransition>{children}</PageTransition>
       </ProductLayoutRouter>
 
-      <SiteFooter />
-      {user && <CompanionHost />}
+      {shell === "v4" ? null : <SiteFooter />}
+      {user && shell !== "v4" ? <CompanionHost /> : null}
       {user && <SessionExpiredToast />}
       {impactBus ? <ImpactToast /> : null}
     </>

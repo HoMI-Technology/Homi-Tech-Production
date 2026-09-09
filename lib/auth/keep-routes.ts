@@ -24,10 +24,22 @@ const KEEP_API_PREFIXES = ["/api/waitlist", "/api/healthcheck", "/api/csp-report
 
 /**
  * CCP v1 V4_PENDING hosts. `/home` is the signed-in Home contract (preferred
- * over resurrecting `/dashboard` UX). Shell hosts stay TBD — listed here
- * only when CLEAR+PIXEL names them. Until then they 404 or fold to `/`.
+ * over resurrecting `/dashboard` UX). PR C names Shell v4 workspaces
+ * (Home · Money · Path · Compare, then Tools / Settings / Support).
+ * They stay unpublished until HOMI_V4_HOME_ENABLED is exact `"true"` after
+ * Pixel Gate approval. `/dashboard` stays DARK.
  */
-export const V4_PENDING_PATHS = ["/home"] as const;
+export const V4_PENDING_PATHS = [
+  "/home",
+  "/money",
+  "/path",
+  "/scenarios",
+  "/tools",
+  "/settings",
+  "/trust",
+  "/connections",
+  "/assessment",
+] as const;
 
 /**
  * CCP v1 V4_LIVE hosts. Empty until Home v4 ships. Moving a path here is a
@@ -119,8 +131,10 @@ export function isV4HomeEnabled(
 }
 
 /**
- * `/home` is reachable only when the flag is on *and* the allow-list still
- * names Home. V4_LIVE paths pass without the Home flag (none in v1).
+ * V4_PENDING hosts (Home + named Shell workspaces) are reachable only when
+ * the flag is on *and* the allow-list still names the path. V4_LIVE paths
+ * pass without the Home flag (none yet). Flag default stays false — Pixel
+ * Gate: do not expose `/home` until founder APPROVE VISUAL DIRECTION.
  */
 export function isV4RouteActivated(
   path: string,
@@ -131,9 +145,7 @@ export function isV4RouteActivated(
   if (isV4LivePath(path)) return true;
   const enabled = options?.v4HomeEnabled ?? isV4HomeEnabled();
   if (!enabled) return false;
-  const p = normalizeAppPath(path);
-  const isHome = p === "/home" || p.startsWith("/home/");
-  return isHome && isV4Path("/home", allowList);
+  return isV4Path(path, allowList);
 }
 
 /**

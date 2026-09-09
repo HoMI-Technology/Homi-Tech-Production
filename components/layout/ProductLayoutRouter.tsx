@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { SignedInPersonalChrome } from "@/components/layout/SignedInPersonalChrome";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { ShellV4 } from "@/components/layout/v4/ShellV4";
 import {
   resolveProductShell,
   type ProductShell,
@@ -78,6 +79,12 @@ export function ProductLayoutRouter({
             {children}
           </main>
         </div>
+      );
+    case "v4":
+      return (
+        <ShellV4 greeting={greeting ?? "Welcome back"} firstName={firstName ?? null}>
+          {children}
+        </ShellV4>
       );
     case "personal":
       return (
