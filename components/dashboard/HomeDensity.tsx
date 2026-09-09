@@ -45,8 +45,8 @@ export function HomeDensity({
     runwayMonths != null && Number.isFinite(runwayMonths) && runwayMonths < 1;
 
   return (
-    <div className="mt-8 w-full" data-home-density="">
-      <div className="home-next-money grid grid-cols-1 gap-6 md:grid-cols-2">
+    <div className="mt-4 w-full" data-home-density="">
+      <div className="home-next-money grid grid-cols-1 gap-4 md:grid-cols-2">
         <section data-home-density-next="" aria-label="What's next">
           <p className={DENSITY_EYEBROW}>{HOME_DENSITY_WHATS_NEXT_HEADING}</p>
           {pathTitles.length > 0 ? (
@@ -121,7 +121,7 @@ export function HomeDensity({
         </section>
       </div>
 
-      <section className="mt-8" data-home-density-tools="" aria-label="Tools">
+      <section className="mt-4" data-home-density-tools="" aria-label="Tools">
         <div className="flex items-baseline justify-between gap-3">
           <p className={DENSITY_EYEBROW}>{HOME_DENSITY_TOOLS_HEADING}</p>
           <Link

@@ -9,6 +9,7 @@ import type { FoldHardStopCode } from "@/lib/dashboard/fold-truth";
 export const KEY_AREA_STATUS = {
   needsWork: "Needs work",
   strong: "Strong",
+  notAssessed: "Not assessed",
 } as const;
 
 export type KeyAreaStatus = (typeof KEY_AREA_STATUS)[keyof typeof KEY_AREA_STATUS];
@@ -47,7 +48,8 @@ export function keyAreaStatus(
   hardStopActive: boolean,
 ): KeyAreaStatus {
   void hardStopActive;
-  if (pct == null || pct < KEY_AREA_STRONG_FLOOR) return KEY_AREA_STATUS.needsWork;
+  if (pct == null) return KEY_AREA_STATUS.notAssessed;
+  if (pct < KEY_AREA_STRONG_FLOOR) return KEY_AREA_STATUS.needsWork;
   return KEY_AREA_STATUS.strong;
 }
 
@@ -61,12 +63,17 @@ function runwayArea(args: {
     (args.runwayMonths != null && Number.isFinite(args.runwayMonths) && args.runwayMonths < 1);
   const status: KeyAreaStatus = underOne
     ? KEY_AREA_STATUS.needsWork
-    : keyAreaStatus(args.runwayMonths == null ? null : args.runwayMonths >= 1 ? 80 : 40, args.hardStopActive);
+    : keyAreaStatus(
+        args.runwayMonths == null ? null : args.runwayMonths >= 1 ? 80 : 40,
+        args.hardStopActive,
+      );
   const note = underOne
     ? "Hard stop active — under 1 month."
-    : args.hardStopActive
-      ? "Hold stays binding while a stop is active."
-      : "Runway from your latest reading.";
+    : status === KEY_AREA_STATUS.notAssessed
+      ? "Not scored on this reading."
+      : args.hardStopActive
+        ? "Hold stays binding while a stop is active."
+        : "Runway from your latest reading.";
   return { id: "runway", title: "Runway", status, note };
 }
 
@@ -76,12 +83,13 @@ function pillarArea(args: {
   score: number | null | undefined;
   hardStopActive: boolean;
   stopCode: FoldHardStopCode | null;
-}): KeyArea | null {
+}): KeyArea {
   const pct = pillarPct(args.score, PILLAR_MAX[args.id]);
-  if (pct == null) return null;
   const status = keyAreaStatus(pct, args.hardStopActive);
   let note = "Pillar from your latest reading.";
-  if (args.hardStopActive && args.stopCode === "RUNWAY_UNDER_1_MONTH") {
+  if (status === KEY_AREA_STATUS.notAssessed) {
+    note = "Not scored on this reading.";
+  } else if (args.hardStopActive && args.stopCode === "RUNWAY_UNDER_1_MONTH") {
     if (args.id === "financial") {
       note = "Pillar from your latest reading — hold stays binding while stop is active.";
     } else if (args.id === "timing") {
@@ -129,8 +137,6 @@ export function keyAreasFromReading(args: {
     hardStopActive: args.hardStopActive,
     stopCode: args.stopCode,
   });
-  for (const area of [financial, emotional, timing]) {
-    if (area) areas.push(area);
-  }
+  areas.push(financial, emotional, timing);
   return areas.slice(0, 4);
 }

@@ -473,9 +473,15 @@ html {
   background: rgba(34, 211, 238, 0.12);
 }
 
+.left-rail-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .workspace-grid {
   display: grid;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 @media (min-width: 1024px) {
   .workspace-grid {

@@ -21,6 +21,7 @@ import { AppHeader } from "@/components/layout/AppHeader";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { LATEST_VERDICT_KEY } from "@/components/layout/SidebarDecisionState";
 import { HEADER_PRIMARY_NAV } from "@/lib/layout/nav-catalog";
+import { COLORS } from "@/lib/brand";
 import { LEFT_RAIL_PRIMARY, LEFT_RAIL_SECONDARY } from "@/lib/layout/left-rail";
 
 beforeAll(() => {
@@ -64,7 +65,19 @@ describe("AppSidebar — PR10 left rail", () => {
     expect(rail).not.toBeNull();
     expect(document.querySelector("[data-app-shell='pr10-rail']")).not.toBeNull();
     expect(document.querySelector("[data-shell-compass] svg[aria-label*='Threshold Compass']")).not.toBeNull();
-    expect(document.querySelector("[data-homi-hexes]")).not.toBeNull();
+    const railCompass = document.querySelector("[data-shell-compass] svg[aria-label*='Threshold Compass']");
+    expect(railCompass?.getAttribute("width")).toBe("40");
+    expect(railCompass?.getAttribute("class") ?? "").not.toMatch(/compass-glow/);
+    const wordmarkLetters = document.querySelector("[data-shell-logo]")?.querySelectorAll("span span");
+    expect(wordmarkLetters?.[0]).toHaveStyle({ color: COLORS.cyan });
+    expect(wordmarkLetters?.[1]).toHaveStyle({ color: COLORS.emerald });
+    expect(wordmarkLetters?.[2]).toHaveStyle({ color: COLORS.yellow });
+    expect(wordmarkLetters?.[3]).toHaveStyle({ color: COLORS.cyan });
+    expect(document.querySelector("[data-homi-hexes]")).toBeNull();
+    expect(document.querySelectorAll("[data-shell-compass]")).toHaveLength(1);
+    expect(document.querySelectorAll('[aria-label*="Threshold Compass"]')).toHaveLength(1);
+    expect(document.querySelector("[data-shell-logo]")?.querySelector("[data-shell-compass]")).not.toBeNull();
+    expect(document.querySelector("[data-rail-tagline]")).toHaveClass("text-dim/70");
 
     for (const item of LEFT_RAIL_PRIMARY) {
       expect(screen.getByRole("link", { name: item.label })).toHaveAttribute("href", item.href);

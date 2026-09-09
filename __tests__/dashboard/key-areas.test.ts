@@ -25,9 +25,10 @@ describe("Home Key Areas", () => {
     expect(areas.map((a) => a.status).join(" ")).not.toMatch(/On track|READY/i);
     expect(keyAreaStatus(90, true)).toBe(KEY_AREA_STATUS.strong);
     expect(keyAreaStatus(90, true)).not.toBe("On track");
+    expect(keyAreaStatus(null, true)).toBe(KEY_AREA_STATUS.notAssessed);
   });
 
-  it("omits unmeasured pillars instead of inventing them", () => {
+  it("marks unmeasured pillars Not assessed instead of inventing Strong", () => {
     const areas = keyAreasFromReading({
       financialScore: 20,
       emotionalScore: null,
@@ -36,7 +37,10 @@ describe("Home Key Areas", () => {
       stopCode: null,
       hardStopActive: false,
     });
-    expect(areas.map((a) => a.id)).toEqual(["runway", "financial", "timing"]);
-    expect(areas).toHaveLength(3);
+    expect(areas.map((a) => a.id)).toEqual(["runway", "financial", "emotional", "timing"]);
+    expect(areas).toHaveLength(4);
+    expect(areas.find((a) => a.id === "emotional")?.status).toBe(KEY_AREA_STATUS.notAssessed);
+    expect(areas.find((a) => a.id === "emotional")?.note).toBe("Not scored on this reading.");
+    expect(areas.find((a) => a.id === "timing")?.status).toBe(KEY_AREA_STATUS.strong);
   });
 });

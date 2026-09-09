@@ -217,11 +217,12 @@ describe("ThresholdFold", () => {
     expect(container.querySelector("[data-home-hard-stop-eyebrow]")?.textContent).toBe(
       hardStopEyebrow,
     );
-    expect(container.querySelector("[data-home-hard-stop]")).toHaveClass("mt-6");
+    expect(container.querySelector("[data-home-hard-stop]")).toHaveClass("mt-4");
     expect(container.querySelector("[data-home-hard-stop-eyebrow]")).toHaveClass("type-fold-hardstop");
     expect(container.querySelector("[data-home-hard-stop-eyebrow]")).toHaveClass("text-amber");
+    expect(container.querySelector("[data-home-hard-stop-eyebrow]")).toHaveClass("uppercase");
     expect(container.querySelector("[data-home-hard-stop-hold]")).toHaveClass("type-fold-hold");
-    expect(container.querySelector("[data-home-hard-stop-hold]")).toHaveClass("text-light/90");
+    expect(container.querySelector("[data-home-hard-stop-hold]")).toHaveClass("text-amber");
 
     expect(screen.queryByText(/· Hot/)).not.toBeInTheDocument();
     expect(screen.queryByText("Hot")).not.toBeInTheDocument();
@@ -582,6 +583,12 @@ describe("ThresholdFold", () => {
     expect(container.querySelector("[data-home-companion-guidance]")).toHaveTextContent(
       "Local guidance · not live AI",
     );
+    expect(container.querySelector("[data-home-readiness-hero] [data-home-fold-score]")).not.toBeNull();
+    expect(container.querySelector("[data-home-readiness-hero] [data-home-score-gauge]")).toHaveAttribute(
+      "data-gauge-stop",
+      "1",
+    );
+    expect(container.querySelector("[data-home-companion-column] [data-home-score-gauge]")).toBeNull();
     expect(container.querySelector("[data-home-score-gauge]")).toHaveAttribute("data-gauge-stop", "1");
     expect(container.querySelector("[data-home-recent-empty]")).toHaveTextContent("A fresh start");
     expect(screen.queryByText(/Homie/)).not.toBeInTheDocument();

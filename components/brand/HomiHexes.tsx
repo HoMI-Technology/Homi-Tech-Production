@@ -2,7 +2,7 @@ import { COLORS } from "@/lib/brand";
 
 /**
  * Interlocking HōMI hexes — cyan + amber gold. Rail brand mark beside the wordmark.
- * Decorative; ThresholdCompass remains the one named compass.
+ * Decorative. Not the rail brand stack — ThresholdCompass is the one compass.
  */
 export function HomiHexes({ size = 28 }: { size?: number }) {
   return (
