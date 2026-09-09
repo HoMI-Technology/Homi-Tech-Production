@@ -62,8 +62,9 @@ const contentSecurityPolicy = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
-  // Typecheck + lint run as separate CI steps (npm run typecheck / lint);
-  // skipping inside `next build` keeps build minutes down.
+  // Typecheck is a separate CI step (`npm run typecheck`). Skipping inside
+  // `next build` keeps build minutes down. ESLint/Prettier are deferred
+  // (no packages); do not treat them as a gate.
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
   reactStrictMode: true,
