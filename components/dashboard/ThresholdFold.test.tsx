@@ -134,6 +134,7 @@ describe("ThresholdFold", () => {
     expect(container.querySelector("[data-home-money-standing]")).toBeNull();
     expect(container.querySelector("[data-home-money-below-fold]")).toBeNull();
     expect(container.querySelector("[data-home-density]")).toBeNull();
+    expect(container.querySelector("[data-home-journey]")).toBeNull();
     expect(screen.queryByText(/Checking in/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /open money/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: FOLD_CONNECT_ACCOUNTS_LABEL })).not.toBeInTheDocument();
@@ -208,7 +209,7 @@ describe("ThresholdFold", () => {
     expect(hardStop).toHaveTextContent(homeHoldSentence);
     expect(hardStop).not.toHaveTextContent("Emergency runway is under 1 month.");
     expect(hardStop).not.toHaveTextContent("61 — runway is a hard stop.");
-    expect(container.querySelector("[data-home-hard-stop-eyebrow] .text-crimson")?.textContent).toBe(
+    expect(container.querySelector("[data-home-hard-stop-eyebrow] .text-light")?.textContent).toBe(
       "runway.",
     );
     expect(hardStop.className).not.toMatch(/eyebrow/);
@@ -222,7 +223,7 @@ describe("ThresholdFold", () => {
     expect(container.querySelector("[data-home-hard-stop]")?.className).not.toMatch(/border-amber/);
     expect(container.querySelector("[data-home-hard-stop-pill]")).not.toBeNull();
     expect(container.querySelector("[data-home-hard-stop-eyebrow]")).toHaveClass("type-fold-hardstop");
-    expect(container.querySelector("[data-home-hard-stop-eyebrow]")).toHaveClass("text-amber");
+    expect(container.querySelector("[data-home-hard-stop-eyebrow]")).toHaveClass("text-light");
     expect(container.querySelector("[data-home-hard-stop-eyebrow]")).toHaveClass("uppercase");
     expect(container.querySelector("[data-home-hard-stop-hold]")).toHaveClass("type-fold-hold");
     expect(container.querySelector("[data-home-hard-stop-hold]")).toHaveClass("text-amber");
@@ -564,18 +565,27 @@ describe("ThresholdFold", () => {
     expect(container.querySelectorAll("[data-home-density-tool]")).toHaveLength(6);
     expect(screen.queryByText(/10,000|10000/)).not.toBeInTheDocument();
     expect(screen.queryByText(/\$4,200|\$4200/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Net Worth/i)).not.toBeInTheDocument();
+    expect(screen.getByText("Net Worth")).toBeInTheDocument();
+    expect(screen.getByText("Emergency Fund")).toBeInTheDocument();
+    expect(container.querySelector('[data-home-density-tool-kind="chrome"]')).not.toBeNull();
     expect(screen.queryByText(/Chat with HōMI/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/CRAFT · PR8/)).not.toBeInTheDocument();
     expect(screen.queryByText(/CRAFT · PR10/)).not.toBeInTheDocument();
     expect(screen.queryByText("On track")).not.toBeInTheDocument();
     expect(container.querySelector("[data-workspace-grid]")).not.toBeNull();
     expect(container.querySelector("[data-home-key-areas]")).not.toBeNull();
-    expect(container.querySelectorAll("[data-home-key-area]").length).toBeLessThanOrEqual(4);
+    expect(container.querySelectorAll("[data-home-key-area]").length).toBeLessThanOrEqual(6);
     expect(container.querySelector("[data-home-key-area='runway']")).toHaveTextContent("Needs work");
-    expect(container.querySelector("[data-home-key-area='financial']")).toHaveTextContent("Needs work");
+    expect(container.querySelector("[data-home-key-area='income']")).toHaveTextContent("Needs work");
+    expect(container.querySelector("[data-home-key-area='debt']")).toHaveTextContent("Not assessed");
+    expect(container.querySelector("[data-home-key-area='housing']")).toHaveTextContent("Not assessed");
     expect(container.querySelector("[data-home-key-area='emotional']")).toHaveTextContent("Strong");
     expect(container.querySelector("[data-home-key-area='timing']")).toHaveTextContent("Strong");
+    expect(container.querySelector("[data-home-journey]")).not.toBeNull();
+    expect(container.querySelector("[data-home-journey-stage='buy']")).toHaveAttribute(
+      "data-home-journey-tone",
+      "future",
+    );
     expect(container.querySelector("[data-home-companion-column]")).not.toBeNull();
     expect(container.querySelector("[data-home-companion-trinity]")).not.toBeNull();
     expect(container.querySelector("[data-home-companion-ask-cta]")).toHaveClass("btn-ghost");

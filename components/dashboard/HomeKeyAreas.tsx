@@ -60,7 +60,7 @@ export function HomeKeyAreas({ areas }: { areas: readonly KeyArea[] }) {
       <p className="text-2xs font-semibold uppercase tracking-[0.06em] text-dim">
         {HOME_KEY_AREAS_HEADING}
       </p>
-      <ul className="home-key-areas mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <ul className="home-key-areas mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {areas.map((area) => {
           const statusAttr = keyAreaStatusAttr(area.status);
           return (

@@ -32,6 +32,7 @@ import {
   HOME_DENSITY_LENSES,
   HOME_DENSITY_OPEN_PATH_HREF,
   HOME_DENSITY_VIEW_ALL_TOOLS_HREF,
+  homeJourneyStages,
   RUNWAY_HARD_STOP_FOLD_TITLE,
   RUNWAY_HARD_STOP_PATH_TITLE,
   buildProgressLabel,
@@ -325,12 +326,16 @@ describe("Baseline 001 fold-truth copy", () => {
       "/tools/debt-payoff",
       "/tools/blind-budget",
       "/tools/monte-carlo",
-      "/tools/fire",
-      "/tools/roth-conversion",
+      "/tools/net-worth",
+      "/tools/emergency-fund",
     ]);
     const hubPaths = new Set(hubLenses().map((lens) => lens.path));
     for (const lens of HOME_DENSITY_LENSES) {
-      expect(hubPaths.has(lens.href)).toBe(true);
+      if (lens.kind === "hub") {
+        expect(hubPaths.has(lens.href)).toBe(true);
+      } else {
+        expect(hubPaths.has(lens.href)).toBe(false);
+      }
       expect(lens.line.trim().split(/\s+/).length).toBeLessThanOrEqual(8);
       expect(lens.line).not.toMatch(/10,000|10000|\$|\+pts/i);
     }
@@ -338,6 +343,17 @@ describe("Baseline 001 fold-truth copy", () => {
     expect(HOME_DENSITY_VIEW_ALL_TOOLS_HREF).toBe("/tools");
     expect(HOME_COMPANION_TAGLINE).toBe("Here to help you see clearly");
     expect(HOME_COMPANION_GUIDANCE).toBe("Local guidance · not live AI");
+    const heldJourney = homeJourneyStages({ hasAssessment: true, hardStopActive: true });
+    expect(heldJourney.map((s) => [s.id, s.tone])).toEqual([
+      ["assessment", "done"],
+      ["build", "current"],
+      ["prepare", "next"],
+      ["buy", "future"],
+    ]);
+    expect(heldJourney.map((s) => s.hint).join(" ")).not.toMatch(/On track|READY/i);
+    expect(homeJourneyStages({ hasAssessment: false, hardStopActive: false })[0].tone).toBe(
+      "next",
+    );
     expect(RUNWAY_HARD_STOP_PATH_TITLE).toBe("Stabilize emergency runway to at least 1 month");
     expect(RUNWAY_HARD_STOP_FOLD_TITLE).toBe("Build runway to 1 month");
   });

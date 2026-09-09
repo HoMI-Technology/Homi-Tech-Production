@@ -1,6 +1,7 @@
 /**
- * Home Key Areas — ≤4 SSOT tiles from live AssessmentRow + hard stops.
- * Never invent pillars. Never label On track / READY while a hard stop is active.
+ * Home Key Factors LOOK — ≤6 tiles from live AssessmentResult + hard_stops.
+ * Mock-like labels. Statuses only Needs work / Strong / Not assessed.
+ * Never invent Strong. Never label On track / READY while a hard stop is active.
  */
 
 import { PILLARS } from "@/lib/brand";
@@ -14,7 +15,13 @@ export const KEY_AREA_STATUS = {
 
 export type KeyAreaStatus = (typeof KEY_AREA_STATUS)[keyof typeof KEY_AREA_STATUS];
 
-export type KeyAreaId = "runway" | "financial" | "emotional" | "timing";
+export type KeyAreaId =
+  | "runway"
+  | "income"
+  | "debt"
+  | "housing"
+  | "emotional"
+  | "timing";
 
 export type KeyArea = {
   id: KeyAreaId;
@@ -32,6 +39,8 @@ const PILLAR_MAX: Record<"financial" | "emotional" | "timing", number> = {
 /** ALMOST_THERE floor — Strong is not On track, and never a READY claim. */
 export const KEY_AREA_STRONG_FLOOR = 65 as const;
 
+export const KEY_FACTORS_MAX = 6 as const;
+
 export function pillarPct(score: number | null | undefined, max: number): number | null {
   if (score == null || !Number.isFinite(score) || !Number.isFinite(max) || max <= 0) {
     return null;
@@ -41,7 +50,7 @@ export function pillarPct(score: number | null | undefined, max: number): number
 
 /**
  * Binary Home tone. Hard-stop active forbids On track / READY — Strong is the
- * honest high band when the pillar itself is not the hold.
+ * honest high band when the pillar itself was scored. Null score stays Not assessed.
  */
 export function keyAreaStatus(
   pct: number | null,
@@ -53,52 +62,60 @@ export function keyAreaStatus(
   return KEY_AREA_STATUS.strong;
 }
 
+function hasStop(codes: readonly FoldHardStopCode[], code: FoldHardStopCode): boolean {
+  return codes.includes(code);
+}
+
 function runwayArea(args: {
-  stopCode: FoldHardStopCode | null;
+  codes: readonly FoldHardStopCode[];
   runwayMonths: number | null | undefined;
-  hardStopActive: boolean;
 }): KeyArea {
   const underOne =
-    args.stopCode === "RUNWAY_UNDER_1_MONTH" ||
+    hasStop(args.codes, "RUNWAY_UNDER_1_MONTH") ||
     (args.runwayMonths != null && Number.isFinite(args.runwayMonths) && args.runwayMonths < 1);
   const status: KeyAreaStatus = underOne
     ? KEY_AREA_STATUS.needsWork
-    : keyAreaStatus(
-        args.runwayMonths == null ? null : args.runwayMonths >= 1 ? 80 : 40,
-        args.hardStopActive,
-      );
+    : args.runwayMonths == null
+      ? KEY_AREA_STATUS.notAssessed
+      : keyAreaStatus(args.runwayMonths >= 1 ? 80 : 40, false);
   const note = underOne
     ? "Hard stop active — under 1 month."
     : status === KEY_AREA_STATUS.notAssessed
       ? "Not scored on this reading."
-      : args.hardStopActive
-        ? "Hold stays binding while a stop is active."
-        : "Runway from your latest reading.";
-  return { id: "runway", title: "Runway", status, note };
+      : "Runway from your latest reading.";
+  return { id: "runway", title: "Emergency Runway", status, note };
 }
 
-function pillarArea(args: {
-  id: "financial" | "emotional" | "timing";
+function pillarFactor(args: {
+  id: "income" | "emotional" | "timing";
   title: string;
+  pillar: "financial" | "emotional" | "timing";
   score: number | null | undefined;
   hardStopActive: boolean;
-  stopCode: FoldHardStopCode | null;
+  scoredNote: string;
 }): KeyArea {
-  const pct = pillarPct(args.score, PILLAR_MAX[args.id]);
+  const pct = pillarPct(args.score, PILLAR_MAX[args.pillar]);
   const status = keyAreaStatus(pct, args.hardStopActive);
-  let note = "Pillar from your latest reading.";
-  if (status === KEY_AREA_STATUS.notAssessed) {
-    note = "Not scored on this reading.";
-  } else if (args.hardStopActive && args.stopCode === "RUNWAY_UNDER_1_MONTH") {
-    if (args.id === "financial") {
-      note = "Pillar from your latest reading — hold stays binding while stop is active.";
-    } else if (args.id === "timing") {
-      note = "Timing pillar from AssessmentResult — readiness still held by runway.";
-    } else {
-      note = "Pillar from AssessmentResult — readiness still held by runway.";
-    }
-  }
+  const note =
+    status === KEY_AREA_STATUS.notAssessed ? "Not scored on this reading." : args.scoredNote;
   return { id: args.id, title: args.title, status, note };
+}
+
+function stopOrEmptyFactor(args: {
+  id: "debt" | "housing";
+  title: string;
+  stop: FoldHardStopCode;
+  codes: readonly FoldHardStopCode[];
+  activeNote: string;
+  emptyNote: string;
+}): KeyArea {
+  const active = hasStop(args.codes, args.stop);
+  return {
+    id: args.id,
+    title: args.title,
+    status: active ? KEY_AREA_STATUS.needsWork : KEY_AREA_STATUS.notAssessed,
+    note: active ? args.activeNote : args.emptyNote,
+  };
 }
 
 export function keyAreasFromReading(args: {
@@ -107,36 +124,59 @@ export function keyAreasFromReading(args: {
   timingScore: number | null | undefined;
   runwayMonths: number | null | undefined;
   stopCode: FoldHardStopCode | null;
+  stopCodes?: readonly FoldHardStopCode[];
   hardStopActive: boolean;
 }): KeyArea[] {
+  const codes: FoldHardStopCode[] = args.stopCodes
+    ? [...args.stopCodes]
+    : args.stopCode
+      ? [args.stopCode]
+      : [];
   const areas: KeyArea[] = [
     runwayArea({
-      stopCode: args.stopCode,
+      codes,
       runwayMonths: args.runwayMonths,
+    }),
+    pillarFactor({
+      id: "income",
+      title: "Income Stability",
+      pillar: "financial",
+      score: args.financialScore,
       hardStopActive: args.hardStopActive,
+      scoredNote: "From financial pillar (live SSOT).",
+    }),
+    stopOrEmptyFactor({
+      id: "debt",
+      title: "Debt Management",
+      stop: "DTI_OVER_50",
+      codes,
+      activeNote: "Hard stop active — DTI.",
+      emptyNote: "No DTI stop · no invent.",
+    }),
+    stopOrEmptyFactor({
+      id: "housing",
+      title: "Housing Affordability",
+      stop: "HOUSING_RATIO_OVER_45",
+      codes,
+      activeNote: "Hard stop active — housing ratio.",
+      emptyNote: "No housing-ratio stop.",
+    }),
+    pillarFactor({
+      id: "emotional",
+      title: "Emotional Readiness",
+      pillar: "emotional",
+      score: args.emotionalScore,
+      hardStopActive: args.hardStopActive,
+      scoredNote: "From emotional_score live.",
+    }),
+    pillarFactor({
+      id: "timing",
+      title: "Perfect Timing",
+      pillar: "timing",
+      score: args.timingScore,
+      hardStopActive: args.hardStopActive,
+      scoredNote: "From timing_score live.",
     }),
   ];
-  const financial = pillarArea({
-    id: "financial",
-    title: "Financial Reality",
-    score: args.financialScore,
-    hardStopActive: args.hardStopActive,
-    stopCode: args.stopCode,
-  });
-  const emotional = pillarArea({
-    id: "emotional",
-    title: "Emotional Truth",
-    score: args.emotionalScore,
-    hardStopActive: args.hardStopActive,
-    stopCode: args.stopCode,
-  });
-  const timing = pillarArea({
-    id: "timing",
-    title: "Perfect Timing",
-    score: args.timingScore,
-    hardStopActive: args.hardStopActive,
-    stopCode: args.stopCode,
-  });
-  areas.push(financial, emotional, timing);
-  return areas.slice(0, 4);
+  return areas.slice(0, KEY_FACTORS_MAX);
 }

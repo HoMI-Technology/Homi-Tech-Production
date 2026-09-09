@@ -132,16 +132,20 @@ export function HomeDensity({
             {HOME_DENSITY_VIEW_ALL_TOOLS_LABEL} →
           </Link>
         </div>
-        <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-3" data-home-density-tools-grid="">
           {HOME_DENSITY_LENSES.map((lens) => (
             <li key={lens.id}>
               <Link
                 href={lens.href}
-                className="flex h-full items-center justify-between gap-3 rounded-xl border border-white/[0.03] bg-navy-light p-4"
+                className="flex h-full items-center justify-between gap-3 rounded-xl border border-white/[0.03] bg-navy-light p-3 sm:p-4"
                 data-home-density-tool={lens.id}
+                data-home-density-tool-kind={lens.kind}
               >
                 <span className="min-w-0">
-                  <span className="block text-sm font-medium text-light">{lens.title}</span>
+                  <span className="block text-2xs font-semibold uppercase tracking-[0.08em] text-dim">
+                    {lens.kind === "hub" ? "Hub" : "Shell"}
+                  </span>
+                  <span className="mt-1 block text-sm font-medium text-light">{lens.title}</span>
                   <span className="mt-1 block text-xs font-normal text-dim" data-home-density-tool-line="">
                     {lens.line}
                   </span>

@@ -28,6 +28,26 @@ test.describe("Money Reality — public funnel", () => {
     expect(url).toMatch(/\/money|\/auth|\/login|sign-in/i);
     expect(res?.status() ?? 200).toBeLessThan(500);
   });
+
+  test("Net Worth and Emergency Fund chrome shells stay empty with no invented $", async ({
+    page,
+  }) => {
+    await page.goto("/tools/net-worth");
+    await expect(page.getByRole("heading", { name: "Net Worth" })).toBeVisible();
+    await expect(page.getByText("No invented amounts on this shell.")).toBeVisible();
+    await expect(page.getByRole("link", { name: /connect accounts/i })).toHaveAttribute(
+      "href",
+      "/connections",
+    );
+    await expect(page.getByText("$4,200")).toHaveCount(0);
+    await expect(page.getByText("On track")).toHaveCount(0);
+
+    await page.goto("/tools/emergency-fund");
+    await expect(page.getByRole("heading", { name: "Emergency Fund" })).toBeVisible();
+    await expect(page.getByText("No invented amounts on this shell.")).toBeVisible();
+    await expect(page.getByRole("link", { name: /connect accounts/i })).toBeVisible();
+    await expect(page.getByText("$4,200")).toHaveCount(0);
+  });
 });
 
 test.describe("Money Reality — signed-in modes", () => {
