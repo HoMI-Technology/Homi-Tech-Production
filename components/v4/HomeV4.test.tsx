@@ -30,16 +30,23 @@ describe("HomeV4 Ultra Premium fold", () => {
     expect(text).toContain("/100");
     expect(text).toContain("DO NOT PROCEED");
     expect(text).toContain("Runway is the hold.");
-    expect(text).toContain("Build runway");
+    expect(text).toContain("Build runway to 1 month");
     expect(text).toContain("View full assessment");
+    expect(text).toContain("A hard stop takes priority over the number.");
+    expect(text).toContain("Hard stop still holds on this read.");
+    expect(text).toContain("Open");
     expect(text).not.toContain("Educational prompts. Not a second score.");
     expect(text).not.toContain("AssessmentResult");
     expect(container.querySelector(".workspace-grid")).toBeNull();
+    expect(container.querySelector(".v4-home-main")).toBeNull();
+    expect(container.querySelector(".v4-home-rail")).toBeNull();
     expect(container.querySelector(".v4-home-grid")).not.toBeNull();
     expect(container.querySelector("[data-home-v4-gauge]")).not.toBeNull();
     expect(container.querySelector("[data-home-v4-verdict]")?.className).toContain("v4-hero-verdict");
     expect(container.querySelector("[data-home-v4-verdict]")?.className).not.toMatch(/type-fold-verdict/);
+    expect(container.querySelector(".v4-hero-priority")).not.toBeNull();
     expect(container.querySelector("[data-home-v4-tool]")?.className).toContain("v4-tool-cell");
+    expect(container.querySelector(".v4-tool-open")).not.toBeNull();
 
     const context = container.querySelector("[data-home-v4-context]");
     const readiness = container.querySelector("[data-home-v4-readiness]");

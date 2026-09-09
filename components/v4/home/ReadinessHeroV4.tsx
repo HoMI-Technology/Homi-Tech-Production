@@ -1,3 +1,4 @@
+import { AlertTriangle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { COLORS, type VerdictKey } from "@/lib/brand";
 import { SIGNED_IN_ASSESS_HREF } from "@/components/marketing/first-moment-copy";
@@ -26,7 +27,7 @@ function verdictTone(key: VerdictKey | null, hardStopActive: boolean): string {
 
 function primaryCtaLabel(view: HomeV4View): string {
   if (!view.hasAssessment) return "Assess";
-  if (view.pathPrimary?.title === HOME_V4_PATH_CTA) return "Build runway";
+  if (view.pathPrimary?.title === HOME_V4_PATH_CTA) return HOME_V4_PATH_CTA;
   return view.pathPrimary?.title ?? "Assess";
 }
 
@@ -44,6 +45,7 @@ export function ReadinessHeroV4({ view }: { view: HomeV4View }) {
       : "No assessment yet.";
   const primaryHref = view.pathPrimary?.href ?? SIGNED_IN_ASSESS_HREF;
   const primaryLabel = primaryCtaLabel(view);
+  const verdictColor = verdictTone(view.verdictKey, view.hardStopActive);
 
   return (
     <section className="v4-hero" data-home-v4-readiness="" aria-label="Readiness">
@@ -60,7 +62,7 @@ export function ReadinessHeroV4({ view }: { view: HomeV4View }) {
               <p
                 className="v4-hero-verdict"
                 data-home-v4-verdict=""
-                style={{ color: verdictTone(view.verdictKey, view.hardStopActive) }}
+                style={{ color: verdictColor, borderColor: verdictColor }}
               >
                 {view.verdictLabel}
               </p>
@@ -91,6 +93,7 @@ export function ReadinessHeroV4({ view }: { view: HomeV4View }) {
                 data-home-v4-path-cta=""
               >
                 {primaryLabel}
+                <ArrowRight aria-hidden className="size-4" strokeWidth={1.75} />
               </Link>
               <Link
                 href={SIGNED_IN_ASSESS_HREF}
@@ -100,6 +103,13 @@ export function ReadinessHeroV4({ view }: { view: HomeV4View }) {
                 View full assessment
               </Link>
             </div>
+
+            {view.hardStopActive ? (
+              <p className="v4-hero-priority">
+                <AlertTriangle aria-hidden className="size-3.5" strokeWidth={1.75} />
+                A hard stop takes priority over the number.
+              </p>
+            ) : null}
           </>
         ) : (
           <div data-home-v4-empty="">
@@ -111,6 +121,7 @@ export function ReadinessHeroV4({ view }: { view: HomeV4View }) {
                 data-home-v4-assess=""
               >
                 Assess
+                <ArrowRight aria-hidden className="size-4" strokeWidth={1.75} />
               </Link>
             </div>
           </div>

@@ -122,10 +122,8 @@ export function V4LeftNav({
         </nav>
 
         <div className="mt-auto px-4 pb-4 pt-6" data-v4-rail-foot="">
-          <p
-            className="inline-flex rounded-full border border-white/[0.08] px-2.5 py-1 text-2xs font-semibold tracking-wide text-dim"
-            data-v4-workspace-chip=""
-          >
+          <p className="v4-workspace-chip" data-v4-workspace-chip="">
+            <span className="v4-workspace-dot" aria-hidden />
             Personal
           </p>
         </div>

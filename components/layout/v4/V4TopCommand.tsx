@@ -92,6 +92,9 @@ export function V4TopCommand({
                 placeholder="Ask HōMI"
                 className="v4-ask-field-input"
               />
+              <kbd className="chrome-kbd v4-ask-kbd" aria-hidden>
+                ⌘K
+              </kbd>
             </div>
           </form>
           <div className="ml-auto flex items-center gap-2">

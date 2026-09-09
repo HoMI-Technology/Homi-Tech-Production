@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Wallet } from "lucide-react";
 import { HomeSectionV4 } from "@/components/v4/home/HomeSectionV4";
 import type { HomeV4View } from "@/lib/v4/home-state";
 
@@ -10,6 +11,9 @@ export function MoneyEvidenceV4({ view }: { view: HomeV4View }) {
       aria-label="Money evidence"
       className="v4-support-card"
     >
+      <span className="v4-support-icon" aria-hidden>
+        <Wallet className="size-4" strokeWidth={1.75} />
+      </span>
       <p className="v4-support-line" data-home-v4-money-empty="">
         {view.moneyLine}
       </p>

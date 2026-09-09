@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Route } from "lucide-react";
 import { HomeSectionV4 } from "@/components/v4/home/HomeSectionV4";
 import type { HomeV4View } from "@/lib/v4/home-state";
 
@@ -11,6 +11,9 @@ export function NextPathV4({ view }: { view: HomeV4View }) {
       aria-label="Current Path step"
       className="v4-support-card"
     >
+      <span className="v4-support-icon" aria-hidden>
+        <Route className="size-4" strokeWidth={1.75} />
+      </span>
       {view.pathPrimary ? (
         <>
           <p className="v4-support-line">{view.pathPrimary.title}</p>
