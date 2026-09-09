@@ -4,17 +4,18 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { safeNext } from "@/lib/auth/safeNext";
-import { POST_LOGIN_ASSESS } from "@/lib/auth/postLoginDestination";
+import { resolvePostLoginDestination } from "@/lib/auth/postLoginDestination";
 import { OAuthButtons } from "@/components/auth/OAuthButtons";
 
 function SignUpForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  // Same-origin only — defense-in-depth against ?next=//evil.com open redirects.
-  // Bare sign-up defaults to Assess (first measurement), matching post-login
-  // state routing for unscored accounts — not the optional /onboarding detour.
-  const next = safeNext(searchParams.get("next"), POST_LOGIN_ASSESS);
+  // PR15: post-login is always `/`. `?next=` cannot send the account into
+  // scratched product routes (or off-site).
+  const next = resolvePostLoginDestination({
+    requestedNext: searchParams.get("next"),
+    hasCompletedAssessment: false,
+  });
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");

@@ -1,10 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 
 /**
- * Open-redirect regression test for GET /auth/callback (ported from
- * origin/feat/security-hardening 4324ce4): a crafted ?next=//evil.com must
- * collapse to the in-app fallback and never become an off-site Location.
- * Supabase + email side effects are mocked so the handler runs in isolation.
+ * Open-redirect regression test for GET /auth/callback.
+ * PR15: destination is always `/` — even a legit `?next=` cannot leave landing.
  */
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -19,11 +17,11 @@ vi.mock("@/lib/email/lifecycle", () => ({
 
 import { GET } from "@/app/auth/callback/route";
 
-describe("GET /auth/callback — open-redirect guard", () => {
-  it("redirects ?next=//evil.com to the in-app fallback, never off-site", async () => {
+describe("GET /auth/callback — always `/` (PR15)", () => {
+  it("redirects ?next=//evil.com to `/`, never off-site", async () => {
     const res = await GET(new Request("http://localhost/auth/callback?next=//evil.com"));
     const location = res.headers.get("location") ?? "";
-    expect(location).toBe("http://localhost/dashboard");
+    expect(location).toBe("http://localhost/");
     expect(location).not.toContain("evil.com");
   });
 
@@ -32,7 +30,7 @@ describe("GET /auth/callback — open-redirect guard", () => {
       new Request("http://localhost/auth/callback?code=abc123&next=//evil.com"),
     );
     const location = res.headers.get("location") ?? "";
-    expect(location).toBe("http://localhost/dashboard");
+    expect(location).toBe("http://localhost/");
     expect(location).not.toContain("evil.com");
   });
 
@@ -41,17 +39,24 @@ describe("GET /auth/callback — open-redirect guard", () => {
       const res = await GET(
         new Request(`http://localhost/auth/callback?next=${encodeURIComponent(payload)}`),
       );
-      expect(res.headers.get("location")).toBe("http://localhost/dashboard");
+      expect(res.headers.get("location")).toBe("http://localhost/");
     }
   });
 
-  it("passes a legit in-app next through unchanged", async () => {
+  it("ignores a legit in-app next and still lands on `/`", async () => {
     const res = await GET(new Request("http://localhost/auth/callback?next=/report/123"));
-    expect(res.headers.get("location")).toBe("http://localhost/report/123");
+    expect(res.headers.get("location")).toBe("http://localhost/");
   });
 
-  it("routes to /assessment when next is absent and there is no completed assessment", async () => {
+  it("honors KEEP password-reset next so recovery links still work", async () => {
+    const res = await GET(
+      new Request("http://localhost/auth/callback?next=/auth/reset-password"),
+    );
+    expect(res.headers.get("location")).toBe("http://localhost/auth/reset-password");
+  });
+
+  it("routes to `/` when next is absent", async () => {
     const res = await GET(new Request("http://localhost/auth/callback"));
-    expect(res.headers.get("location")).toBe("http://localhost/assessment");
+    expect(res.headers.get("location")).toBe("http://localhost/");
   });
 });

@@ -20,7 +20,8 @@ const SIGN_IN_PATH = "/auth/sign-in";
 
 module.exports = async (browser, context) => {
   const url = new URL(context.url);
-  if (!url.pathname.startsWith("/dashboard")) return;
+  // PR15: signed-in users land on `/`. Skip login for other collect URLs.
+  if (url.pathname !== "/") return;
 
   const email = process.env.LHCI_TEST_EMAIL;
   const password = process.env.LHCI_TEST_PASSWORD;
@@ -49,7 +50,7 @@ module.exports = async (browser, context) => {
     await page.type("#password", password);
     await page.click('button[type="submit"]');
 
-    // Success is a client-side redirect to the `next` target (/dashboard).
+    // Success is a client-side redirect to `/` (PR15 post-login).
     await page.waitForFunction(
       (signInPath) => !window.location.pathname.startsWith(signInPath),
       { timeout: 30000 },

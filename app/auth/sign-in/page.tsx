@@ -21,23 +21,10 @@ function SignInForm() {
   const [error, setError] = useState<string | null>(null);
   const [magicSent, setMagicSent] = useState(false);
 
-  async function destinationAfterSignIn(): Promise<string> {
-    const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    let hasCompletedAssessment = false;
-    if (user) {
-      const { count } = await supabase
-        .from("assessments")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .eq("status", "completed");
-      hasCompletedAssessment = (count ?? 0) > 0;
-    }
+  function destinationAfterSignIn(): string {
     return resolvePostLoginDestination({
       requestedNext,
-      hasCompletedAssessment,
+      hasCompletedAssessment: false,
     });
   }
 
@@ -57,7 +44,7 @@ function SignInForm() {
       }
 
       // Password auth only — no TOTP step-up. MFA is disabled for product login.
-      const dest = await destinationAfterSignIn();
+      const dest = destinationAfterSignIn();
       router.push(dest);
       router.refresh();
     } catch {

@@ -90,9 +90,8 @@ describe("perf bundle guards (Lighthouse §11 + E2E coexistence)", () => {
     expect(() => src("app/(product)/results/page.tsx")).toThrow();
     expect(() => src("components/results/ResultsVerdictView.tsx")).toThrow();
     const mw = codeOnly(src("middleware.ts"));
-    expect(mw).toMatch(/\/results/);
-    expect(mw).toMatch(/\/dashboard/);
-    expect(mw).toMatch(/\/first-moment/);
+    expect(mw).toMatch(/redirectToHome/);
+    expect(mw).not.toMatch(/\/first-moment/);
     expect(mw).not.toMatch(/ResultsVerdictView/);
     expect(mw).not.toMatch(/from\s+["']@\/components\/readiness["']/);
     expect(mw).not.toMatch(/from\s+["']@\/lib\/conflict\/engine["']/);
