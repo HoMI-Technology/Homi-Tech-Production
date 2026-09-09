@@ -25,9 +25,9 @@ const KEEP_API_PREFIXES = ["/api/waitlist", "/api/healthcheck", "/api/csp-report
 /**
  * CCP v1 V4_PENDING hosts. `/home` is the signed-in Home contract (preferred
  * over resurrecting `/dashboard` UX). PR C names Shell v4 workspaces
- * (Home · Money · Path · Compare, then Tools / Settings / Support).
- * They stay unpublished until HOMI_V4_HOME_ENABLED is exact `"true"` after
- * Pixel Gate approval. `/dashboard` stays DARK.
+ * (Home · Money · Path · Compare, then Bills · Tools · Learn and
+ * Accounts · Settings). They stay unpublished until HOMI_V4_HOME_ENABLED
+ * is exact `"true"` after Pixel Gate approval. `/dashboard` stays DARK.
  */
 export const V4_PENDING_PATHS = [
   "/home",
@@ -35,8 +35,8 @@ export const V4_PENDING_PATHS = [
   "/path",
   "/scenarios",
   "/tools",
+  "/learn",
   "/settings",
-  "/trust",
   "/connections",
   "/assessment",
 ] as const;

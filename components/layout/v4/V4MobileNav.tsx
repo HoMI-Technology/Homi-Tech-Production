@@ -28,7 +28,7 @@ export function V4MobileNav() {
           />
           <div className="absolute inset-x-0 bottom-0 rounded-t-2xl border-t border-white/10 bg-navy p-4 pb-[calc(5rem+env(safe-area-inset-bottom,0px))]">
             <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-dim">More</p>
-            <ul className="mt-3 space-y-1">
+            <ul className="mt-3 space-y-1" data-v4-more-list="">
               {V4_MORE_NAV.map((item) => (
                 <li key={item.href}>
                   <Link
@@ -59,7 +59,7 @@ export function V4MobileNav() {
               aria-current={active ? "page" : undefined}
               data-v4-mobile-tab={tab.label.toLowerCase()}
               className={`flex min-h-14 min-w-11 flex-1 flex-col items-center justify-center gap-0.5 px-1 py-1.5 text-2xs font-semibold tracking-wide ${
-                active ? "text-cyan" : "text-dim hover:text-light"
+                active ? "v4-mobile-tab is-active text-light" : "text-dim hover:text-light"
               }`}
             >
               {tab.label}

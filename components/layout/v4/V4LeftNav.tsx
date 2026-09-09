@@ -11,8 +11,39 @@ import {
   V4_SECONDARY_NAV,
   V4_SHELL_COMPASS_SIZE,
   V4_SHELL_HOME_HREF,
+  V4_SYSTEM_NAV,
   isV4NavActive,
 } from "@/lib/layout/v4-shell";
+
+function RailLinks({
+  items,
+  pathname,
+  onClose,
+}: {
+  items: readonly { href: string; label: string }[];
+  pathname: string;
+  onClose?: () => void;
+}) {
+  return (
+    <>
+      {items.map((item) => {
+        const active = isV4NavActive(pathname, item.href);
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            data-v4-rail-item={item.label.toLowerCase()}
+            aria-current={active ? "page" : undefined}
+            className={`v4-rail-link ${active ? "is-active" : ""}`}
+            onClick={onClose}
+          >
+            {item.label}
+          </Link>
+        );
+      })}
+    </>
+  );
+}
 
 /**
  * SHELL_CRAFT v4 — premium left nav.
@@ -71,42 +102,29 @@ export function V4LeftNav({
         </div>
 
         <nav data-v4-rail-primary="" aria-label="Primary" className="flex flex-col gap-px px-3">
-          {V4_PRIMARY_NAV.map((item) => {
-            const active = isV4NavActive(pathname, item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                data-v4-rail-item={item.label.toLowerCase()}
-                aria-current={active ? "page" : undefined}
-                className={`left-rail-link ${active ? "is-active" : ""}`}
-                onClick={onClose}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
+          <RailLinks items={V4_PRIMARY_NAV} pathname={pathname} onClose={onClose} />
         </nav>
 
         <div className="mx-4 my-3 h-px shrink-0 bg-white/[0.06]" data-v4-rail-divider="" />
 
-        <nav data-v4-rail-secondary="" aria-label="More" className="flex flex-col gap-px px-3 pb-4">
-          {V4_SECONDARY_NAV.map((item) => {
-            const active = isV4NavActive(pathname, item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                data-v4-rail-item={item.label.toLowerCase()}
-                aria-current={active ? "page" : undefined}
-                className={`left-rail-link ${active ? "is-active" : ""}`}
-                onClick={onClose}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
+        <nav data-v4-rail-secondary="" aria-label="Secondary" className="flex flex-col gap-px px-3">
+          <RailLinks items={V4_SECONDARY_NAV} pathname={pathname} onClose={onClose} />
         </nav>
+
+        <div className="mx-4 my-3 h-px shrink-0 bg-white/[0.06]" data-v4-rail-system-divider="" />
+
+        <nav data-v4-rail-system="" aria-label="System" className="flex flex-col gap-px px-3">
+          <RailLinks items={V4_SYSTEM_NAV} pathname={pathname} onClose={onClose} />
+        </nav>
+
+        <div className="mt-auto px-4 pb-4 pt-6" data-v4-rail-foot="">
+          <p
+            className="inline-flex rounded-full border border-white/[0.08] px-2.5 py-1 text-2xs font-semibold tracking-wide text-dim"
+            data-v4-workspace-chip=""
+          >
+            Personal
+          </p>
+        </div>
       </aside>
     </>
   );

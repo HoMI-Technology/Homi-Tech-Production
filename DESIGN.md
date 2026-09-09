@@ -87,25 +87,41 @@ Legal entity in `lib/brand` today: `HOMI TECHNOLOGIES LLC`. Recase to `Homi Tech
 
 ### OPERATE / CHROME — retired as signed-in product floor (ADR-006)
 
-OPERATE (dashboard cockpit, `/dashboard`, invent-chrome) and CHROME
-(`HeaderShell` / signed-in `AppHeader` as the Home bar) are **not** the v4
-product law. They remain historical for KEEP marketing chrome (`SiteHeader` /
-`SiteFooter` on PERSUADE) and for DARK role trees still on disk. Do not
-rebuild signed-in Home from them.
+OPERATE (dashboard cockpit, `/dashboard`, Cockpit Linear / MetricRail hero,
+invent-chrome) is **not** the v4 product law. Signed-in personal product is
+**Product v4**: primary Home · Money · Path · Compare; Assess in the top
+command; score ≠ Compass; hard stops outrank; no invent $. `components/operate/*`
+leftovers are not authority.
+
+CHROME (`HeaderShell` / signed-in `AppHeader` as the Home bar) is **not** the
+v4 product bar. Dual shell stays: KEEP marketing uses `SiteHeader` / `SiteFooter`
+(PERSUADE). Product chrome is Shell v4 — left primary four + top command +
+optional right HōMI + mobile bottom four. A11y KEEP: skip link `#main`, Escape
++ focus return, overlay scroll lock, `prefers-reduced-motion`, never
+`overflow-x: hidden` on `body`. DARK role trees may still mount quiet
+`AppHeader` on disk; do not rebuild Home from them.
+
+Craft CLEAR: `docs/design/PRODUCT_V4_SHELL_HOME_CRAFT_CLEAR_2026-09-09.md`.
+Mocks: `docs/design/brand-shell-craft/` (`shell-home-v4-desktop` /
+`shell-home-v4-mobile`). Soft nits P2. Pixel Gate still blocks undraft.
 
 ### Product v4 / Ultra Premium — signed-in Home + Shell (ADR-006)
 
 - **Home is `/home`**, never `/dashboard`. `/dashboard` stays DARK.
 - Identity KEEP: repo `Wordmark` + `ThresholdCompass` only. Compass is the
   shell mark, not a page hero. No Lucide brand. No Homie cast.
-- Primary rail (locked): **Home · Money · Path · Compare**. Secondary:
-  Tools / Settings / Support. Mobile bottom: Home · Money · Path · More.
+- Primary rail (locked): **Home · Money · Path · Compare**. Assess in the
+  top command only (solid cyan). Secondary: **Bills · Tools · Learn**.
+  System: **Accounts · Settings**. Mobile bottom: Home · Money · Path · More.
+  No Support peer. Selected: lift + white + ~2px cyan edge.
 - Home State A (first unlock): hard-stop ACTIVE + empty money. Greeting in
-  the top command. DO NOT PROCEED Fraunces italic quiet · one score + age
-  JetBrains · Hard stop · runway · hold · Path CTA **“Build runway to 1 month”**.
-  Key status ≤4–6: Needs work / Strong / Not assessed only (never On track /
-  READY under hard stop). What’s next ≤3–5. Money honest empty + Connect
-  accounts. Right HōMI educational prompts only — no second score.
+  the top command. Hierarchy: Decision context → Readiness hero (numeral →
+  verdict → hold → action) → Decision evidence (three pillars) → Current Path
+  step → Money evidence → What changed → Contextual tools (~3–4). Path CTA
+  **“Build runway to 1 month”** with no glow. Pillar statuses Needs work /
+  Strong / Not assessed only. Money honest empty + Connect accounts. Right
+  HōMI educational prompts only — no second score. Ask HōMI is a top-command
+  field.
 - Finance GATE: score / verdict / hard stops from **AssessmentResult only**.
 - Activation: `HOMI_V4_HOME_ENABLED` default **false** (CCP / ADR-005).
   Pixel Gate: do not undraft or expose `/home` until founder APPROVE VISUAL

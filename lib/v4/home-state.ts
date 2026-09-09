@@ -6,14 +6,15 @@
  * never mint or display a second score on Shell/Home chrome.
  */
 
-import { KEY_AREA_STATUS, keyAreasFromReading, type KeyArea } from "@/lib/dashboard/key-areas";
+import { DECISION_TYPE_LABELS, type DecisionType } from "@/lib/assessment/types";
+import { KEY_AREA_STATUS, keyAreaStatus, pillarPct, type KeyAreaStatus } from "@/lib/dashboard/key-areas";
 import type { LastReadMoneyInputs } from "@/lib/dashboard/last-read-chrome";
 import {
   FOLD_CONNECT_ACCOUNTS_LABEL,
   FOLD_CONNECTIONS_HREF,
+  HOME_DENSITY_LENSES,
   MONEY_WAIT_LINE,
   RUNWAY_HARD_STOP_FOLD_TITLE,
-  foldDensityPathTitles,
   foldHardStopEyebrow,
   foldHomeHoldSentence,
   foldRunwayLabel,
@@ -22,12 +23,10 @@ import {
   type FoldHardStopCode,
   type FoldPathPrimary,
 } from "@/lib/dashboard/fold-truth";
-import type { VerdictKey } from "@/lib/brand";
-import { VERDICT_META } from "@/lib/brand";
+import { PILLARS, VERDICT_META, type VerdictKey } from "@/lib/brand";
 
 export const HOME_V4_PATH_CTA = RUNWAY_HARD_STOP_FOLD_TITLE;
-export const HOME_V4_WHATS_NEXT_MAX = 5 as const;
-export const HOME_V4_KEY_STATUS_MAX = 6 as const;
+export const HOME_V4_TOOLS_MAX = 4 as const;
 
 export const HOME_V4_HOMI_PROMPTS = [
   { label: "How can I build my runway faster?", href: "/path" },
@@ -37,8 +36,21 @@ export const HOME_V4_HOMI_PROMPTS = [
 
 export type HomeV4MoneyStatus = "empty" | "disconnected";
 
+export type HomeV4Pillar = {
+  id: "financial" | "emotional" | "timing";
+  title: string;
+  status: KeyAreaStatus;
+};
+
+export type HomeV4Tool = {
+  id: string;
+  href: string;
+  title: string;
+};
+
 export type HomeV4View = {
   hasAssessment: boolean;
+  decisionContext: string | null;
   verdictKey: VerdictKey | null;
   verdictLabel: string | null;
   scorePct: number | null;
@@ -48,8 +60,9 @@ export type HomeV4View = {
   holdSentence: string | null;
   runwayLabel: string;
   pathPrimary: FoldPathPrimary | null;
-  keyAreas: KeyArea[];
-  whatsNext: string[];
+  pillars: HomeV4Pillar[];
+  whatChanged: string | null;
+  tools: HomeV4Tool[];
   moneyStatus: HomeV4MoneyStatus;
   moneyLine: string;
   connectHref: string;
@@ -84,10 +97,38 @@ export function homeV4PathPrimary(
   return resolved;
 }
 
+function decisionContextLabel(raw: string | undefined): string | null {
+  if (!raw) return null;
+  if (raw in DECISION_TYPE_LABELS) {
+    return DECISION_TYPE_LABELS[raw as DecisionType];
+  }
+  return raw;
+}
+
+function pillarsFromReading(reading: HomeV4Reading, hardStopActive: boolean): HomeV4Pillar[] {
+  const scores = {
+    financial: reading.financialScore,
+    emotional: reading.emotionalScore,
+    timing: reading.timingScore,
+  } as const;
+  return PILLARS.map((pillar) => ({
+    id: pillar.key,
+    title: pillar.name,
+    status: keyAreaStatus(pillarPct(scores[pillar.key], pillar.max), hardStopActive),
+  }));
+}
+
+const EMPTY_TOOLS: HomeV4Tool[] = HOME_DENSITY_LENSES.slice(0, HOME_V4_TOOLS_MAX).map((lens) => ({
+  id: lens.id,
+  href: lens.href,
+  title: lens.title,
+}));
+
 export function buildHomeV4View(reading: HomeV4Reading | null): HomeV4View {
   if (!reading) {
     return {
       hasAssessment: false,
+      decisionContext: null,
       verdictKey: null,
       verdictLabel: null,
       scorePct: null,
@@ -97,8 +138,9 @@ export function buildHomeV4View(reading: HomeV4Reading | null): HomeV4View {
       holdSentence: null,
       runwayLabel: foldRunwayLabel(null),
       pathPrimary: null,
-      keyAreas: [],
-      whatsNext: [],
+      pillars: [],
+      whatChanged: null,
+      tools: EMPTY_TOOLS,
       moneyStatus: "empty",
       moneyLine: MONEY_WAIT_LINE,
       connectHref: FOLD_CONNECTIONS_HREF,
@@ -112,22 +154,15 @@ export function buildHomeV4View(reading: HomeV4Reading | null): HomeV4View {
       : null;
   const hardStopActive = reading.stopMessages.length > 0;
   const pathPrimary = homeV4PathPrimary(reading.pathPrimary, reading.stopCode);
-  const keyAreas = keyAreasFromReading({
-    financialScore: reading.financialScore,
-    emotionalScore: reading.emotionalScore,
-    timingScore: reading.timingScore,
-    runwayMonths: reading.lastMoney?.emergencyFundMonths,
-    stopCode: reading.stopCode,
-    stopCodes: reading.stopCodes,
-    hardStopActive,
-  }).slice(0, HOME_V4_KEY_STATUS_MAX);
+  const scoreAge = foldScoreAgeLine(scorePct, reading.scoredAt);
 
   return {
     hasAssessment: true,
+    decisionContext: decisionContextLabel(reading.decisionType),
     verdictKey: reading.verdict,
     verdictLabel: reading.verdict ? VERDICT_META[reading.verdict].label : null,
     scorePct,
-    scoreAge: foldScoreAgeLine(scorePct, reading.scoredAt),
+    scoreAge,
     hardStopActive,
     hardStopEyebrow: hardStopActive
       ? foldHardStopEyebrow(reading.stopCode, reading.decisionType)
@@ -137,8 +172,9 @@ export function buildHomeV4View(reading: HomeV4Reading | null): HomeV4View {
       : null,
     runwayLabel: foldRunwayLabel(reading.lastMoney?.emergencyFundMonths),
     pathPrimary,
-    keyAreas,
-    whatsNext: foldDensityPathTitles(reading.pathSteps, HOME_V4_WHATS_NEXT_MAX),
+    pillars: pillarsFromReading(reading, hardStopActive),
+    whatChanged: scoreAge,
+    tools: EMPTY_TOOLS,
     moneyStatus: reading.moneyConnected ? "disconnected" : "empty",
     moneyLine: MONEY_WAIT_LINE,
     connectHref: FOLD_CONNECTIONS_HREF,
@@ -152,9 +188,9 @@ const LEGAL_KEY_STATUSES = new Set<string>([
   KEY_AREA_STATUS.notAssessed,
 ]);
 
-/** Hard-stop State A must never paint On track / READY as a key status. */
+/** Hard-stop State A must never paint On track / READY as a pillar status. */
 export function homeV4KeyStatusesLegal(view: HomeV4View): boolean {
-  return view.keyAreas.every((area) => LEGAL_KEY_STATUSES.has(area.status));
+  return view.pillars.every((pillar) => LEGAL_KEY_STATUSES.has(pillar.status));
 }
 
 export function homeV4ForbidsOnTrackCopy(view: HomeV4View): boolean {

@@ -1,12 +1,16 @@
 "use client";
 
+import Link from "next/link";
+import type { FormEvent } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { V4_COMMAND_ITEMS } from "@/lib/layout/v4-shell";
+import { COLORS } from "@/lib/brand";
+import { V4_COMMAND_ITEMS, V4_SHELL_ASSESS_HREF } from "@/lib/layout/v4-shell";
 
 /**
  * SHELL_CRAFT v4 — top command. Greeting lives here so it never overlaps
- * the Home verdict/score. No second score on chrome.
+ * the Home verdict/score. Assess is the one solid cyan action. Ask HōMI
+ * is a field, not a Homie cast. No second score on chrome.
  */
 export function V4TopCommand({
   greeting,
@@ -41,6 +45,11 @@ export function V4TopCommand({
     return V4_COMMAND_ITEMS.filter((item) => item.label.toLowerCase().includes(q));
   }, [query]);
 
+  function onAsk(e: FormEvent) {
+    e.preventDefault();
+    setOpen(true);
+  }
+
   return (
     <>
       <header
@@ -60,28 +69,33 @@ export function V4TopCommand({
               ☰
             </span>
           </button>
-          <p className="min-w-0 truncate text-base font-medium text-light" data-v4-greeting="">
+          <p className="min-w-0 max-w-[7.5rem] truncate text-sm font-medium text-light sm:max-w-[12rem]" data-v4-greeting="">
             {greeting}
             {nameBit}
           </p>
-          <div className="ml-auto">
-            <button
-              type="button"
-              className="chrome-icon-btn"
-              aria-label="Search"
-              data-v4-command-search=""
-              onClick={() => setOpen(true)}
+          <form className="min-w-0 flex-1" onSubmit={onAsk} data-v4-ask-homi-form="">
+            <label className="sr-only" htmlFor="v4-ask-homi">
+              Ask HōMI
+            </label>
+            <input
+              id="v4-ask-homi"
+              data-v4-ask-homi=""
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onFocus={() => setOpen(true)}
+              placeholder="Ask HōMI"
+              className="w-full rounded-full border border-white/10 bg-navy-light/80 px-3 py-1.5 text-sm text-light placeholder:text-dim"
+            />
+          </form>
+          <div className="ml-auto flex items-center gap-2">
+            <Link
+              href={V4_SHELL_ASSESS_HREF}
+              className="inline-flex min-h-9 items-center rounded-full px-4 text-xs font-semibold tracking-wide shadow-none"
+              data-v4-command-assess=""
+              style={{ backgroundColor: COLORS.cyan, color: COLORS.ctaInk }}
             >
-              <svg aria-hidden viewBox="0 0 20 20" className="size-4" fill="none">
-                <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.5" />
-                <path
-                  d="M13.5 13.5L17 17"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </button>
+              Assess
+            </Link>
           </div>
         </div>
       </header>
@@ -93,16 +107,17 @@ export function V4TopCommand({
           <button
             type="button"
             className="absolute inset-0"
-            aria-label="Close search"
+            aria-label="Close Ask HōMI"
             onClick={() => setOpen(false)}
           />
           <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-navy-light p-3">
+            <p className="px-1 pb-2 text-2xs font-semibold uppercase tracking-[0.08em] text-dim">Ask HōMI</p>
             <input
               autoFocus
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Go to…"
-              aria-label="Command search"
+              placeholder="Ask HōMI"
+              aria-label="Ask HōMI"
               className="w-full rounded-xl border border-white/10 bg-navy px-3 py-2 text-sm text-light"
             />
             <ul className="mt-2 max-h-64 overflow-y-auto">

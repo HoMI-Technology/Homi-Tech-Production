@@ -473,6 +473,31 @@ html {
   background: rgba(34, 211, 238, 0.12);
 }
 
+/* Shell v4 selected: surface lift + white label + ~2px cyan edge. No cyan pill. */
+.v4-rail-link {
+  display: flex;
+  min-height: 2rem;
+  align-items: center;
+  border-radius: 0.5rem;
+  padding: 0.28rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-dim);
+}
+.v4-rail-link:hover {
+  color: var(--color-light);
+  background: rgba(255, 255, 255, 0.04);
+}
+.v4-rail-link.is-active {
+  color: var(--color-light);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 2px 0 0 var(--color-cyan);
+}
+.v4-mobile-tab.is-active {
+  color: var(--color-light);
+  box-shadow: inset 0 2px 0 var(--color-cyan);
+}
+
 .left-rail-brand {
   display: flex;
   flex-direction: column;

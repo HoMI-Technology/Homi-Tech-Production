@@ -8,6 +8,9 @@ Reconciles SHELL_CRAFT v4 + HOME_CRAFT v4 with brand tokens.
 - Score language: Decision Readiness Score. Never “HōMI Score”.
 - OPERATE / CHROME (dashboard cockpit, invent-chrome) retire for signed-in
   product. PERSUADE stays on KEEP marketing.
-- `/home` is the signed-in Home contract. `/dashboard` stays DARK.
+- Primary: Home · Money · Path · Compare. Secondary: Bills · Tools · Learn.
+  System: Accounts · Settings. Assess = top command (solid cyan). Ask HōMI field.
 - Pixel Gate is the undraft gate. Flag stays false until founder APPROVE
   VISUAL DIRECTION.
+- Mocks: `docs/design/brand-shell-craft/` (`shell-home-v4-desktop` /
+  `shell-home-v4-mobile`). Soft nits P2.

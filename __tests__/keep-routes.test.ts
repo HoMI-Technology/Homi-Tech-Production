@@ -125,8 +125,8 @@ describe("CCP isV4Path", () => {
       "/path",
       "/scenarios",
       "/tools",
+      "/learn",
       "/settings",
-      "/trust",
       "/connections",
       "/assessment",
     ]);
@@ -136,10 +136,13 @@ describe("CCP isV4Path", () => {
     expect(isV4Path("/money")).toBe(true);
     expect(isV4Path("/settings")).toBe(true);
     expect(isV4Path("/assessment")).toBe(true);
+    expect(isV4Path("/learn")).toBe(true);
     expect(isV4Path("/dashboard")).toBe(false);
     expect(classifyChangeControlLane("/home")).toBe("V4_PENDING");
     expect(classifyChangeControlLane("/settings")).toBe("V4_PENDING");
     expect(classifyChangeControlLane("/assessment")).toBe("V4_PENDING");
+    expect(classifyChangeControlLane("/learn")).toBe("V4_PENDING");
+    expect(classifyChangeControlLane("/trust")).toBe("DARK");
   });
 
   it("activates Home only when the flag is on and the allow-list includes Home", () => {
