@@ -40,8 +40,6 @@ export const NAMING_LAW_BANNED = [
 ] as const;
 
 export const NAMING_LAW_SURFACES = [
-  "components/score/ScoreRail.tsx",
-  "components/dashboard/HeroScore.tsx",
   "components/dashboard/ThresholdFold.tsx",
   "components/ui/VerdictBadge.tsx",
   "app/(product)/employee/dashboard/page.tsx",
@@ -50,8 +48,6 @@ export const NAMING_LAW_SURFACES = [
 ] as const;
 
 export const DECISION_READINESS_SURFACES = [
-  "components/score/ScoreRail.tsx",
-  "components/dashboard/HeroScore.tsx",
   "components/dashboard/ThresholdFold.tsx",
   "app/(product)/report/[id]/page.tsx",
   "app/share/[token]/page.tsx",
@@ -307,11 +303,6 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
     identifiersMustNot: ["VerdictCelebrate"],
   },
   {
-    id: "fold-wiring/decision-readiness-score-rail",
-    file: "components/score/ScoreRail.tsx",
-    stringsMust: ["Decision Readiness Score"],
-  },
-  {
     id: "fold-wiring/decision-readiness-score-fold",
     file: "components/dashboard/ThresholdFold.tsx",
     identifiersMustNot: ["ScoreRail"],
@@ -557,14 +548,6 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
     ],
   },
   {
-    id: "fold-wiring/home-money-standing-strip",
-    file: "components/dashboard/HomeMoneyStanding.tsx",
-    identifiersMustNot: ["surplusDisplay"],
-    stringsMustNot: ["text-4xl"],
-    codeMust: ["btn-ghost btn-sm"],
-    codeMustNotMatch: ["btn-primary btn-sm"],
-  },
-  {
     id: "fold-wiring/first-screen-nav-name",
     file: "lib/layout/nav-catalog.ts",
     codeMustMatch: ['href: "/dashboard"[\\s\\S]*label: "HōMI"'],
@@ -582,17 +565,6 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
     codeMustMatch: [
       'href: "/money"[\\s\\S]*surfaces: \\{ header: "more", palette: true \\}',
     ],
-  },
-  {
-    id: "fold-wiring/last-read-chrome-no-ledger",
-    file: "components/dashboard/LastReadChrome.tsx",
-    identifiersMustNot: [
-      "loadBudgetLedger",
-      "metricsFromLedger",
-      "useEffect",
-      "lastMoney",
-    ],
-    stringsMustNot: ["local-ledger"],
   },
   {
     id: "fold-wiring/no-kitchen-sink-body",
@@ -637,13 +609,6 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
     ],
   },
   {
-    id: "fold-wiring/resume-ramp-assess-close",
-    file: "components/dashboard/DashboardResumeRamp.tsx",
-    identifiersMustNot: ["PRIMARY_CLOSE_HREF", "secondaryHref", "secondaryLabel"],
-    stringsMustNot: ["/shadow-score", ...BANNED_FIRST_RUN],
-    codeMust: ['preset="dashboard"'],
-  },
-  {
     id: "fold-wiring/sidebar-workspace-switcher",
     file: "components/layout/AppHeader.tsx",
     identifiersMust: ["DashboardSwitcher"],
@@ -677,16 +642,9 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
 
   // ---------------------------------------------------------------------------
   // __tests__/dashboard/verdict-fold-motion.test.tsx
-  // (HeroScore / PillarRing source + CompanionWidget / AppSidebar motion;
+  // (PillarRing source + CompanionWidget / AppSidebar motion;
   //  CSS is CSS_LOCK_FACTS; naming law is NAMING_LAW_* + facts below)
   // ---------------------------------------------------------------------------
-  {
-    id: "verdict-fold-motion/hero-score-no-ticker",
-    file: "components/dashboard/HeroScore.tsx",
-    identifiersMustNot: ["useCountUp"],
-    stringsMustNot: ["count-up", "entrance-state"],
-    codeMustNot: ["Math.round(display"],
-  },
   {
     id: "verdict-fold-motion/pillar-ring-final-numeral",
     file: "components/dashboard/PillarRing.tsx",

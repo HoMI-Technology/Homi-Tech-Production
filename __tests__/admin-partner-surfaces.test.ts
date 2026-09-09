@@ -176,9 +176,8 @@ describe("partner + employee surfaces doctrine", () => {
   });
 
   it("does not reopen Phases 1–3 locks", () => {
-    expect(read("components/dashboard/PathNextMove.tsx")).toContain('data-path-fold-primary=""');
+    expect(read("components/dashboard/ThresholdFold.tsx")).toContain('data-path-fold-primary=""');
     expect(read("lib/dashboard/fold-truth.ts")).toContain("function companionFoldLine");
     expect(read("components/dashboard/ThresholdFold.tsx")).not.toContain("HomeMoneyStanding");
-    expect(read("components/dashboard/HomeMoneyStanding.tsx")).toContain("btn-ghost btn-sm");
   });
 });

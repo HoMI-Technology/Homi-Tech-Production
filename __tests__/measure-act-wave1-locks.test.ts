@@ -7,7 +7,6 @@ function read(rel: string): string {
 }
 
 const WAVE1_UI = [
-  "components/dashboard/LastReadChrome.tsx",
   "components/dashboard/ThresholdFold.tsx",
   "components/money/MoneyRecheckPrompt.tsx",
   "components/tools/DebtPayoffScorePreview.tsx",
@@ -93,10 +92,8 @@ describe("Measure-Act Wave 1 locks", () => {
   });
 
   it("UI verdict labels stay Brand public names — never NOT_YET / Not yet", () => {
-    const chrome = read("components/dashboard/LastReadChrome.tsx");
-    expect(chrome).toContain("lastReadHeadline");
+    expect(read("lib/dashboard/last-read-chrome.ts")).toContain("lastReadHeadline");
     for (const rel of [
-      "components/dashboard/LastReadChrome.tsx",
       "components/money/MoneyRecheckPrompt.tsx",
       "components/tools/DebtPayoffScorePreview.tsx",
     ] as const) {
@@ -112,7 +109,6 @@ describe("Measure-Act Wave 1 locks", () => {
   it("Home chrome is last verdict + age + optional same-way direction — never closer-to", () => {
     const law = read("docs/MEASURE_ACT_W1.md");
     const helper = read("lib/dashboard/last-read-chrome.ts");
-    const chrome = read("components/dashboard/LastReadChrome.tsx");
     expect(law).toContain("from March 15.");
     expect(law).toContain("Your money picture looks stronger than last time.");
     expect(law).toContain("Your money picture looks weaker than last time.");
@@ -123,9 +119,8 @@ describe("Measure-Act Wave 1 locks", () => {
     expect(helper).not.toContain("closerToLine");
     expect(helper).not.toContain("nextPublicVerdict");
     expect(helper).not.toMatch(/closer to/i);
-    expect(chrome).not.toMatch(/closer to/i);
-    expect(chrome).not.toContain("hardStop");
-    expect(chrome).toContain("lastReadHeadline");
+    expect(helper).not.toContain("hardStop");
+    expect(helper).toContain("lastReadHeadline");
     expect(helper).toContain("from March 15.");
     expect(helper).toContain("lastReadAgeDays");
     for (const rel of WAVE1_UI) {

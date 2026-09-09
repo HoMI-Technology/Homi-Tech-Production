@@ -48,14 +48,7 @@ describe("money-tools depth doctrine", () => {
     expect(density).not.toContain("font-display");
   });
 
-  it("Home money standing CTAs stay ghost/sm and deep-link into /money*", () => {
-    const money = read("components/dashboard/HomeMoneyStanding.tsx");
-    expect(money).toContain("btn-ghost btn-sm");
-    expect(money).not.toMatch(/className="btn-primary/);
-    expect(money).not.toMatch(/btn-primary btn-sm/);
-    expect(money).toContain("view.primaryHref");
-    expect(money).toContain("view.secondaryHref");
-
+  it("Home money standing view model deep-links into /money* (UI unmounted)", () => {
     const empty = buildHomeMoneyStandingView({
       lastMoney: null,
       hardStopFlags: [],
@@ -106,15 +99,14 @@ describe("money-tools depth doctrine", () => {
   });
 
   it("does not reopen Path hierarchy or Companion fold line SSOT", () => {
-    const path = read("components/dashboard/PathNextMove.tsx");
-    expect(path).toContain('data-path-fold-primary=""');
+    const fold = read("components/dashboard/ThresholdFold.tsx");
+    expect(fold).toContain('data-path-fold-primary=""');
     const truth = read("lib/dashboard/fold-truth.ts");
     expect(truth).toContain("function companionFoldLine");
     expect(truth).toContain(
       "Your next honest move is the binding step on Path to Ready.",
     );
-    const fold = read("components/dashboard/ThresholdFold.tsx");
     expect(fold).not.toContain("data-companion-fold-line");
-    expect(path).not.toMatch(/MoneyDecideHub|ToolShell|HomeMoneyStanding/);
+    expect(fold).not.toMatch(/MoneyDecideHub|ToolShell|HomeMoneyStanding/);
   });
 });

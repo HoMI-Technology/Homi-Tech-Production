@@ -6,24 +6,11 @@
  * reduced-motion style is T4.
  */
 
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { COLORS } from "@/lib/brand";
-import { HeroScore } from "@/components/dashboard/HeroScore";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 
 afterEach(cleanup);
-
-describe("HeroScore — static server value, no ticker", () => {
-  it("renders the returned integer with the Decision Readiness Score name", () => {
-    const { container } = render(<HeroScore value={71} color={COLORS.yellow} />);
-    expect(screen.getByText("71")).toBeInTheDocument();
-    expect(
-      screen.getByText("Overall Decision Readiness Score 71 out of 100"),
-    ).toBeInTheDocument();
-    expect(container.querySelector(".score-reveal")).not.toBeNull();
-  });
-});
 
 describe("VerdictBadge — accessible name without a live region", () => {
   it("announces label + temperature, never role=status on a static reading", () => {

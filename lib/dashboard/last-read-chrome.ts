@@ -1,7 +1,7 @@
 /**
  * Home last-read chrome — existing scored fold only.
  * Calendar age when stale (≥30d). Optional same-way money direction.
- * Never reprints the verdict (ScoreRail owns the public word once).
+ * Never reprints the verdict (ThresholdFold owns the public word once).
  * Never a next-band proximity claim. Never a live number. Never points.
  * Do not run a new score to decide direction.
  */
@@ -82,7 +82,7 @@ export function lastReadAgeFrom(iso: string | null): string | null {
 /**
  * One stale age line, or null.
  * Age is omitted under 30 days (no 0d chrome, no “30 days later” under 30).
- * Chrome does not reprint the verdict — ScoreRail already said it once.
+ * Chrome does not reprint the verdict — ThresholdFold already said it once.
  */
 export function lastReadHeadline(verdict: VerdictKey, ageDays: number | null, ageFrom: string | null): string | null {
   void publicVerdictLabel(verdict);

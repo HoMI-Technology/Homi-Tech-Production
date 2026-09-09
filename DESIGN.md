@@ -89,7 +89,7 @@ Legal entity in `lib/brand` today: `HOMI TECHNOLOGIES LLC`. Recase to `Homi Tech
 
 - **Direction A — Cockpit Linear** (locked 2026-07-26 via design-shotgun): one instrument fold, next-move dock, slim metric rail, workspace dropdown in chrome. Not multi-pill switchers. Not equal StatTile KPI walls as the hero.
 - One primary job: **where do I stand, what do I do next?**
-- **Signed-in Home (`/dashboard`) instrument is the build** — Path next move + hard stops lead the fold; Decision Readiness Score + verdict sit as a compact ScoreRail reading (`components/score/ScoreRail.tsx`, landed 2026-08-23). Partner/team/admin keep book/cohort pulse heroes.
+- **Signed-in Home (`/dashboard`) instrument is the build** — Path next move + hard stops lead the fold; Decision Readiness Score + verdict render on ThresholdFold. Do not restore `components/score/ScoreRail.tsx`. Partner/team/admin keep book/cohort pulse heroes.
 - Product tabs (landed 2026-08-23): Readiness · Reality · Decide · Plan · Goals. Invest and Track are not peers; routes stay live, folded under Reality.
 - Tabular / mono numbers for scores and money.
 - Shared primitives: `components/operate/*` (`PageFrame`, `PageHeader`, `OperateInstrument`, `MetricRail`, `ActionDock`).

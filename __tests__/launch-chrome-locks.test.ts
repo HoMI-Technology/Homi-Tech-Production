@@ -34,12 +34,36 @@ describe("launch chrome locks", () => {
   it("dashboard next-move and featured actions do not launch /advisor", () => {
     const dash = read("app/(product)/dashboard/page.tsx");
     const actions = read("lib/dashboard/context-actions.ts");
-    const grid = read("components/dashboard/QuickActionGrid.tsx");
     expect(dash).not.toMatch(/Talk to the Companion/);
     expect(dash).not.toMatch(/\/advisor/);
     expect(actions).not.toMatch(/\/advisor/);
-    expect(grid).not.toMatch(/Talk to the Companion/);
-    expect(grid).not.toMatch(/\/advisor/);
+  });
+
+  it("ThresholdFold-era Home leftovers stay unmounted (do not restore)", () => {
+    for (const rel of [
+      "components/dashboard/HomeFold.tsx",
+      "components/dashboard/PathNextMove.tsx",
+      "components/dashboard/DashSpectrum.tsx",
+      "components/dashboard/GenomeWidget.tsx",
+      "components/dashboard/DecisionTimeline.tsx",
+      "components/dashboard/FinancialPositionSection.tsx",
+      "components/dashboard/BankConnectCard.tsx",
+      "components/dashboard/ConnectionsTile.tsx",
+      "components/dashboard/GoalCard.tsx",
+      "components/dashboard/PathStepLedger.tsx",
+      "components/dashboard/ScoreDeltaBadge.tsx",
+      "components/dashboard/TrinityGapAlert.tsx",
+      "components/dashboard/VerdictCelebrate.tsx",
+      "components/dashboard/HeroScore.tsx",
+      "components/dashboard/QuickActionGrid.tsx",
+      "components/dashboard/LastReadChrome.tsx",
+      "components/dashboard/HomeMoneyStanding.tsx",
+      "components/dashboard/HomeMoneyRecheck.tsx",
+      "components/dashboard/DashboardResumeRamp.tsx",
+      "components/score/ScoreRail.tsx",
+    ]) {
+      expect(existsSync(resolve(process.cwd(), rel)), rel).toBe(false);
+    }
   });
 
   it("dashboard body has no Signals / Trinity / Genome / Daily / Simulator fillers", () => {
