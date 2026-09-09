@@ -76,6 +76,7 @@ beforeEach(() => {
   vi.stubEnv("PLAID_CLIENT_ID", "client_test");
   vi.stubEnv("PLAID_SECRET", "secret_test");
   vi.stubEnv("PLAID_TOKEN_KEY", KEY);
+  vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://homitechnology.com");
 });
 
 afterEach(() => {
