@@ -1,10 +1,18 @@
 import { describe, it, expect } from "vitest";
 import {
+  classifyChangeControlLane,
   extraLegalRedirect,
   isDarkApiPath,
+  isDarkProductPath,
   isKeepApiPath,
   isKeepPagePath,
+  isKeepPath,
+  isV4HomeEnabled,
+  isV4Path,
+  isV4RouteActivated,
   normalizeAppPath,
+  V4_LIVE_PATHS,
+  V4_PENDING_PATHS,
 } from "@/lib/auth/keep-routes";
 
 describe("normalizeAppPath", () => {
@@ -60,6 +68,76 @@ describe("extra legal", () => {
     expect(extraLegalRedirect("/legal/dmca")).toBe("/legal/privacy");
     expect(extraLegalRedirect("/legal")).toBe("/legal/privacy");
     expect(extraLegalRedirect("/dashboard")).toBeNull();
+  });
+});
+
+describe("CCP isKeepPath", () => {
+  it("allows KEEP pages and KEEP APIs", () => {
+    for (const path of [
+      "/",
+      "/waitlist",
+      "/auth/sign-in",
+      "/legal/privacy",
+      "/legal/terms",
+      "/legal/cookies",
+      "/api/waitlist",
+      "/api/healthcheck",
+      "/api/csp-report",
+    ]) {
+      expect(isKeepPath(path), path).toBe(true);
+    }
+  });
+
+  it("does not keep DARK product or pending Home", () => {
+    expect(isKeepPath("/dashboard")).toBe(false);
+    expect(isKeepPath("/assessment")).toBe(false);
+    expect(isKeepPath("/home")).toBe(false);
+    expect(isKeepPath("/api/scoring")).toBe(false);
+  });
+});
+
+describe("CCP isDarkProductPath", () => {
+  it("marks pre-PR15 product/role trees dark", () => {
+    for (const path of [
+      "/dashboard",
+      "/assessment",
+      "/settings",
+      "/admin",
+      "/partner/dashboard",
+      "/employee/dashboard",
+    ]) {
+      expect(isDarkProductPath(path), path).toBe(true);
+      expect(classifyChangeControlLane(path), path).toBe("DARK");
+    }
+  });
+
+  it("does not mark KEEP, extra legal, or V4 Home as dark pages", () => {
+    expect(isDarkProductPath("/")).toBe(false);
+    expect(isDarkProductPath("/legal/disclaimer")).toBe(false);
+    expect(isDarkProductPath("/home")).toBe(false);
+    expect(isDarkProductPath("/api/scoring")).toBe(false);
+  });
+});
+
+describe("CCP isV4Path", () => {
+  it("stubs `/home` as V4_PENDING and leaves V4_LIVE empty", () => {
+    expect(V4_PENDING_PATHS).toEqual(["/home"]);
+    expect(V4_LIVE_PATHS).toEqual([]);
+    expect(isV4Path("/home")).toBe(true);
+    expect(isV4Path("/home/inbox")).toBe(true);
+    expect(isV4Path("/dashboard")).toBe(false);
+    expect(classifyChangeControlLane("/home")).toBe("V4_PENDING");
+  });
+
+  it("activates Home only when the flag is on and the allow-list includes Home", () => {
+    expect(isV4HomeEnabled({})).toBe(false);
+    expect(isV4HomeEnabled({ HOMI_V4_HOME_ENABLED: "true" })).toBe(true);
+    expect(isV4HomeEnabled({ HOMI_V4_HOME_ENABLED: "TRUE" })).toBe(false);
+    expect(isV4RouteActivated("/home", { v4HomeEnabled: false })).toBe(false);
+    expect(isV4RouteActivated("/home", { v4HomeEnabled: true })).toBe(true);
+    expect(
+      isV4RouteActivated("/home", { v4HomeEnabled: true, allowList: [] }),
+    ).toBe(false);
   });
 });
 

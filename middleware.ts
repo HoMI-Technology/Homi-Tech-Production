@@ -2,16 +2,19 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   extraLegalRedirect,
   isDarkApiPath,
-  isKeepApiPath,
-  isKeepPagePath,
+  isKeepPath,
+  isV4Path,
+  isV4RouteActivated,
 } from "@/lib/auth/keep-routes";
 import { wwwToApexUrl, X_ROBOTS_NOINDEX } from "@/lib/seo/site";
 
 /**
- * PR15 KEEP/KILL gate.
+ * PR15 KEEP/KILL gate + CCP v1 route activation (thin hook).
  *
  * Public KEEP surfaces (landing, auth, legal, waitlist, brand assets) pass
  * through. Extra legal folds to `/legal/privacy`. Dark product APIs 404.
+ * V4_PENDING `/home` passes only when `HOMI_V4_HOME_ENABLED=true` and the
+ * allow-list still names Home; otherwise it folds to `/` like DARK pages.
  * Every other URL — guest or signed-in — lands on `/`. Session lookup is
  * gone: there is no product shell left to protect.
  *
@@ -66,12 +69,16 @@ export async function middleware(request: NextRequest) {
     return darkApiResponse();
   }
 
-  if (isKeepPagePath(path) || isKeepApiPath(path)) {
+  if (isKeepPath(path)) {
     const response = NextResponse.next({ request });
     if (isSignInPath(path)) {
       return withSignInNoindex(response);
     }
     return response;
+  }
+
+  if (isV4Path(path) && isV4RouteActivated(path)) {
+    return NextResponse.next({ request });
   }
 
   return redirectToHome(request);
