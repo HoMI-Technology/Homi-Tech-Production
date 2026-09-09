@@ -16,8 +16,9 @@ import {
  * marketing SiteHeader or the role-tree quiet bar. Client pathname only
  * upgrades to role trees (employee/partner/admin/team).
  *
- * Three shells:
- *   - anonymous → marketing SiteHeader (public tools, shadow score)
+ * Four shells:
+ *   - anonymous KEEP leftovers → marketing SiteHeader
+ *   - flag-on activated V4 (`/home`, including unsigned visual stills) → ShellV4
  *   - signed-in personal → PR13 left rail + workspace header
  *   - signed-in role trees → SHELL_CRAFT v3 quiet top bar (AppHeader)
  *

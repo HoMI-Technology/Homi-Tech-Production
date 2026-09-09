@@ -1,11 +1,12 @@
 # Pixel Gate — Home v4 screenshot set
 
 Stay-draft until founder **APPROVE VISUAL DIRECTION**. Do not undraft, do not
-set `HOMI_V4_HOME_ENABLED=true` on Production or public Preview.
+set `HOMI_V4_HOME_ENABLED=true` on Production.
 
-Local operator stills only: `HOMI_V4_HOME_ENABLED=true` **and**
+Operator Preview / local stills: `HOMI_V4_HOME_ENABLED=true` **and**
 `HOMI_V4_VISUAL_FIXTURE=true`, then `/home?visual=hard-stop` (State A),
-`empty`, `money-disconnected`, `normal`.
+`empty`, `money-disconnected`, `normal`. Those URLs must paint **ShellV4**
+(left rail + top command), never marketing SiteHeader. Flag stays operator-set.
 
 ## Viewports (required)
 

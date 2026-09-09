@@ -42,13 +42,18 @@ export function pathnameFromRequestHeaders(headerList: Headers): string {
  * Named packet: signed-in `/dashboard` is always personal invent chrome.
  * Missing pathname + authenticated fails open to personal (Home), not guest.
  * Role trees still win when the path is an operate prefix.
+ *
+ * Shell v4 is chrome for an activated V4 route, not a session gate. Flag-on
+ * `/home` (including unsigned `?visual=*` operator stills) must not paint
+ * marketing SiteHeader. Production flag stays false until Pixel Gate.
  */
 export function productShellFor(
   pathname: string | null | undefined,
   hasUser: boolean,
 ): ProductShell {
-  if (isV4HomeEnabled() && hasUser && (!pathname || isV4RouteActivated(pathname))) {
-    return "v4";
+  if (isV4HomeEnabled()) {
+    if (pathname && isV4RouteActivated(pathname)) return "v4";
+    if (!pathname && (hasUser || process.env.HOMI_V4_VISUAL_FIXTURE === "true")) return "v4";
   }
   if (!hasUser) return "guest";
   if (isRoleOperateRoute(pathname)) return "role";

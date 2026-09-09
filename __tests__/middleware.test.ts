@@ -181,4 +181,13 @@ describe("CCP v1 `/home` activation", () => {
     expect(res.status).toBe(200);
     expect(res.headers.get("location")).toBeNull();
   });
+
+  it("flag on lets unsigned visual-fixture `/home?visual=*` through the CCP gate", async () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
+    for (const visual of ["hard-stop", "empty", "money-disconnected", "normal"]) {
+      const res = await middleware(req(`/home?visual=${visual}`));
+      expect(res.status, visual).toBe(200);
+      expect(res.headers.get("location"), visual).toBeNull();
+    }
+  });
 });
