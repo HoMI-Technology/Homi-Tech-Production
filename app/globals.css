@@ -567,6 +567,16 @@ html {
   letter-spacing: 0.02em;
 }
 
+/* Unlayered .chrome-icon-btn { display } beats Tailwind lg:hidden — scope it. */
+.v4-rail-open {
+  display: none;
+}
+@media (max-width: 1023.98px) {
+  .v4-rail-open {
+    display: inline-flex;
+  }
+}
+
 .v4-shell-main {
   overflow-x: clip;
 }

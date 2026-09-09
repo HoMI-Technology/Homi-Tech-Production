@@ -61,7 +61,7 @@ export function V4TopCommand({
         <div className="flex min-h-[var(--v4-command-height,var(--nav-height))] items-center gap-3 px-4 sm:px-6 lg:px-8">
           <button
             type="button"
-            className="chrome-icon-btn lg:hidden"
+            className="chrome-icon-btn v4-rail-open"
             aria-label="Open navigation"
             data-v4-rail-open=""
             onClick={onOpenRail}
