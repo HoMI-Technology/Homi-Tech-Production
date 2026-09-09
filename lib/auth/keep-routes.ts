@@ -1,5 +1,8 @@
 /**
- * PR15 KEEP/KILL surface map. Founder lock: UI/routes cut only.
+ * PR15 KEEP/KILL surface map, extended by CCP v1 (Change Control Plane).
+ *
+ * Four lanes — KEEP · DARK · V4_PENDING · V4_LIVE — are documented in
+ * `docs/CHANGE_CONTROL_V1.md`. This module is the executable allow-list.
  *
  * Dark product pages (redirect → `/`) and product APIs (JSON 404). Do not
  * delete or migrate away Supabase schema/RLS/data, auth users, Plaid rows,
@@ -8,14 +11,32 @@
  *
  * Middleware uses this module as the only allow-list: KEEP pages pass
  * through, extra legal folds to `/legal/privacy`, KEEP APIs stay live,
- * every other page goes to `/`, and every other `/api/*` returns JSON 404.
+ * unpublished V4 paths fold to `/`, and every other `/api/*` returns JSON 404.
  *
  * Do not restyle KEEP pages. Do not invent replacement product chrome.
  */
 
+export type ChangeControlLane = "KEEP" | "DARK" | "V4_PENDING" | "V4_LIVE";
+
 const KEEP_PAGES = new Set(["/", "/waitlist", "/legal/privacy", "/legal/terms", "/legal/cookies"]);
 
 const KEEP_API_PREFIXES = ["/api/waitlist", "/api/healthcheck", "/api/csp-report"] as const;
+
+/**
+ * CCP v1 V4_PENDING hosts. `/home` is the signed-in Home contract (preferred
+ * over resurrecting `/dashboard` UX). Shell hosts stay TBD — listed here
+ * only when CLEAR+PIXEL names them. Until then they 404 or fold to `/`.
+ */
+export const V4_PENDING_PATHS = ["/home"] as const;
+
+/**
+ * CCP v1 V4_LIVE hosts. Empty until Home v4 ships. Moving a path here is a
+ * deliberate activation, not an implicit side-effect of the env flag.
+ */
+export const V4_LIVE_PATHS: readonly string[] = [];
+
+/** Server-only env. Exact lowercase `"true"` enables post-login `/home`. */
+export const HOMI_V4_HOME_FLAG = "HOMI_V4_HOME_ENABLED" as const;
 
 /** Strip trailing slashes except for `/`. */
 export function normalizeAppPath(path: string): string {
@@ -33,6 +54,86 @@ export function isKeepPagePath(path: string): boolean {
   if (p === "/marketing" || p.startsWith("/marketing/")) return true;
   if (p.startsWith("/_vercel")) return true;
   return false;
+}
+
+/** KEEP pages + KEEP APIs (CCP `isKeepPath`). */
+export function isKeepPath(path: string): boolean {
+  return isKeepPagePath(path) || isKeepApiPath(path);
+}
+
+function matchesListedPath(path: string, listed: readonly string[]): boolean {
+  const p = normalizeAppPath(path);
+  return listed.some((item) => p === item || p.startsWith(`${item}/`));
+}
+
+export function v4AllowList(
+  pending: readonly string[] = V4_PENDING_PATHS,
+  live: readonly string[] = V4_LIVE_PATHS,
+): readonly string[] {
+  return [...pending, ...live];
+}
+
+export function isV4PendingPath(path: string): boolean {
+  return matchesListedPath(path, V4_PENDING_PATHS);
+}
+
+export function isV4LivePath(path: string): boolean {
+  return matchesListedPath(path, V4_LIVE_PATHS);
+}
+
+/**
+ * V4_PENDING ∪ V4_LIVE. Stubs are OK: `/home` is pending; live is empty.
+ * Tests may inject an allow-list so flag-true cannot activate a missing Home.
+ */
+export function isV4Path(
+  path: string,
+  allowList: readonly string[] = v4AllowList(),
+): boolean {
+  return matchesListedPath(path, allowList);
+}
+
+/**
+ * Pre-PR15 product/role trees (and any other non-KEEP, non-V4 page).
+ * Dark APIs stay `isDarkApiPath` — JSON 404, not a document redirect.
+ */
+export function isDarkProductPath(path: string): boolean {
+  if (isApiPath(path)) return false;
+  if (isKeepPagePath(path)) return false;
+  if (isV4Path(path)) return false;
+  if (extraLegalRedirect(path) !== null) return false;
+  return true;
+}
+
+export function classifyChangeControlLane(path: string): ChangeControlLane {
+  if (isV4LivePath(path)) return "V4_LIVE";
+  if (isV4PendingPath(path)) return "V4_PENDING";
+  if (isKeepPath(path) || extraLegalRedirect(path) !== null) return "KEEP";
+  return "DARK";
+}
+
+/** Production default is off. Only the exact lowercase string `"true"` enables. */
+export function isV4HomeEnabled(
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  return env[HOMI_V4_HOME_FLAG] === "true";
+}
+
+/**
+ * `/home` is reachable only when the flag is on *and* the allow-list still
+ * names Home. V4_LIVE paths pass without the Home flag (none in v1).
+ */
+export function isV4RouteActivated(
+  path: string,
+  options?: { v4HomeEnabled?: boolean; allowList?: readonly string[] },
+): boolean {
+  const allowList = options?.allowList ?? v4AllowList();
+  if (!isV4Path(path, allowList)) return false;
+  if (isV4LivePath(path)) return true;
+  const enabled = options?.v4HomeEnabled ?? isV4HomeEnabled();
+  if (!enabled) return false;
+  const p = normalizeAppPath(path);
+  const isHome = p === "/home" || p.startsWith("/home/");
+  return isHome && isV4Path("/home", allowList);
 }
 
 /**

@@ -2,13 +2,15 @@ import { describe, expect, it } from "vitest";
 import {
   POST_LOGIN_ASSESS,
   POST_LOGIN_HOME,
+  POST_LOGIN_V4_HOME,
   resolvePostLoginDestination,
 } from "@/lib/auth/postLoginDestination";
 
-describe("resolvePostLoginDestination (PR15)", () => {
-  it("always returns `/`, ignoring next and assessment state", () => {
+describe("resolvePostLoginDestination (PR15 + CCP v1)", () => {
+  it("flag false (default) keeps `/`, ignoring next and assessment state", () => {
     expect(POST_LOGIN_HOME).toBe("/");
     expect(POST_LOGIN_ASSESS).toBe("/");
+    expect(POST_LOGIN_V4_HOME).toBe("/home");
     expect(
       resolvePostLoginDestination({
         requestedNext: "/settings",
@@ -19,6 +21,14 @@ describe("resolvePostLoginDestination (PR15)", () => {
       resolvePostLoginDestination({
         requestedNext: "/dashboard",
         hasCompletedAssessment: true,
+        v4HomeEnabled: false,
+      }),
+    ).toBe("/");
+    expect(
+      resolvePostLoginDestination({
+        requestedNext: "/home",
+        hasCompletedAssessment: true,
+        v4HomeEnabled: false,
       }),
     ).toBe("/");
     expect(
@@ -43,6 +53,40 @@ describe("resolvePostLoginDestination (PR15)", () => {
       resolvePostLoginDestination({
         requestedNext: "//evil.com",
         hasCompletedAssessment: true,
+      }),
+    ).toBe("/");
+  });
+
+  it("flag true lands on `/home` only when the V4 allow-list includes Home", () => {
+    expect(
+      resolvePostLoginDestination({
+        requestedNext: "/dashboard",
+        hasCompletedAssessment: true,
+        v4HomeEnabled: true,
+      }),
+    ).toBe("/home");
+    expect(
+      resolvePostLoginDestination({
+        requestedNext: null,
+        hasCompletedAssessment: false,
+        v4HomeEnabled: true,
+        v4AllowList: ["/home"],
+      }),
+    ).toBe("/home");
+    expect(
+      resolvePostLoginDestination({
+        requestedNext: null,
+        hasCompletedAssessment: false,
+        v4HomeEnabled: true,
+        v4AllowList: [],
+      }),
+    ).toBe("/");
+    expect(
+      resolvePostLoginDestination({
+        requestedNext: null,
+        hasCompletedAssessment: false,
+        v4HomeEnabled: true,
+        v4AllowList: ["/shell"],
       }),
     ).toBe("/");
   });

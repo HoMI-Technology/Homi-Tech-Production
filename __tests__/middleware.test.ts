@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { afterEach, describe, it, expect, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { middleware } from "@/middleware";
 
@@ -160,5 +160,25 @@ describe("middleware sign-in X-Robots-Tag", () => {
   it("does not noindex KEEP public pages", async () => {
     const res = await middleware(req("/"));
     expect(res.headers.get("X-Robots-Tag")).toBeNull();
+  });
+});
+
+describe("CCP v1 `/home` activation", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("DARK-style: flag off folds `/home` onto `/`", async () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "false");
+    const res = await middleware(req("/home"));
+    expect(res.status).toBe(307);
+    expect(pathname(res)).toBe("/");
+  });
+
+  it("flag on lets `/home` pass (no Home UI in this PR — Next 404s the empty route)", async () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
+    const res = await middleware(req("/home"));
+    expect(res.status).toBe(200);
+    expect(res.headers.get("location")).toBeNull();
   });
 });
