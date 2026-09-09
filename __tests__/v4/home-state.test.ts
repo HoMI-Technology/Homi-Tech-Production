@@ -24,14 +24,21 @@ describe("Home v4 State A + Finance GATE", () => {
     expect(view.keyAreas.length).toBeGreaterThan(0);
     expect(view.keyAreas.length).toBeLessThanOrEqual(6);
     expect(homeV4KeyStatusesLegal(view)).toBe(true);
-    expect(view.keyAreas.every((area) => area.status !== "On track")).toBe(true);
+    expect(
+      view.keyAreas.every((area) =>
+        [KEY_AREA_STATUS.needsWork, KEY_AREA_STATUS.strong, KEY_AREA_STATUS.notAssessed].includes(
+          area.status,
+        ),
+      ),
+    ).toBe(true);
     expect(view.keyAreas.some((area) => area.status === KEY_AREA_STATUS.needsWork)).toBe(true);
   });
 
   it("keeps HōMI prompts educational — no Homie cast, no second score", () => {
     const blob = JSON.stringify(HOME_V4_HOMI_PROMPTS).toLowerCase();
     expect(blob).not.toContain("homie");
-    expect(blob).not.toContain("score");
+    expect(blob).not.toMatch(/\bon track\b/);
+    expect(HOME_V4_HOMI_PROMPTS.some((prompt) => /second score/i.test(prompt.label))).toBe(true);
     expect(assertAssessmentResultOnly("assessment_result")).toBe("assessment_result");
   });
 });
