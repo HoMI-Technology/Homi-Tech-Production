@@ -1,0 +1,27 @@
+import type { LucideIcon } from "lucide-react";
+import {
+  BookOpen,
+  GitCompare,
+  Home,
+  Landmark,
+  MoreHorizontal,
+  Receipt,
+  Route,
+  Settings,
+  Wallet,
+  Wrench,
+} from "lucide-react";
+
+/** Lucide is already in-tree — nav marks only. Never a second Compass. */
+export const V4_NAV_ICONS: Record<string, LucideIcon> = {
+  Home,
+  Money: Wallet,
+  Path: Route,
+  Compare: GitCompare,
+  Bills: Receipt,
+  Tools: Wrench,
+  Learn: BookOpen,
+  Accounts: Landmark,
+  Settings,
+  More: MoreHorizontal,
+};

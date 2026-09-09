@@ -4,11 +4,12 @@
  * Primary rail (locked): Home · Money · Path · Compare
  * Secondary: Bills · Tools · Learn
  * System: Accounts · Settings
- * Mobile bottom: Home · Money · Path · More
+ * Mobile bottom: Home · Money · Path · Compare · More
  * Assess = top command only. No Support peer (no proven Support route).
  *
  * Compass is the shell mark only — never a page hero.
- * Wordmark locked hexes. No Lucide brand. No Homie. No `/dashboard`.
+ * Wordmark locked hexes. Lucide is nav marks only — never a second Compass.
+ * No Homie. No `/dashboard`.
  */
 
 export type V4NavItem = {
@@ -50,10 +51,10 @@ export const V4_MOBILE_TABS: readonly V4NavItem[] = [
   { href: "/home", label: "Home" },
   { href: "/money", label: "Money" },
   { href: "/path", label: "Path" },
+  { href: "/scenarios", label: "Compare" },
 ] as const;
 
 export const V4_MORE_NAV: readonly V4NavItem[] = [
-  { href: "/scenarios", label: "Compare" },
   ...V4_SECONDARY_NAV,
   ...V4_SYSTEM_NAV,
 ] as const;

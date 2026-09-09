@@ -1,10 +1,15 @@
 // @vitest-environment jsdom
 
 import { cleanup, render } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { HomeV4 } from "@/components/v4/HomeV4";
 import { buildHomeV4View } from "@/lib/v4/home-state";
 import { homeV4VisualReading } from "@/lib/v4/visual-fixture";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+  usePathname: () => "/home",
+}));
 
 afterEach(() => {
   cleanup();
@@ -15,18 +20,26 @@ function follows(earlier: Element, later: Element): boolean {
 }
 
 describe("HomeV4 Ultra Premium fold", () => {
-  it("paints State A hierarchy without % ready or invent-chrome grid", () => {
+  it("paints State A anatomy: gauge, evidence band, support pair, Homi rail", () => {
     const view = buildHomeV4View(homeV4VisualReading("hard-stop"));
     const { container } = render(<HomeV4 view={view} />);
     const text = container.textContent ?? "";
 
     expect(text).not.toMatch(/% ready/i);
-    expect(text).not.toContain("/ 100");
     expect(text).toContain("61");
+    expect(text).toContain("/100");
     expect(text).toContain("DO NOT PROCEED");
+    expect(text).toContain("Runway is the hold.");
+    expect(text).toContain("Build runway");
+    expect(text).toContain("View full assessment");
+    expect(text).not.toContain("Educational prompts. Not a second score.");
+    expect(text).not.toContain("AssessmentResult");
     expect(container.querySelector(".workspace-grid")).toBeNull();
     expect(container.querySelector(".v4-home-grid")).not.toBeNull();
-    expect(container.querySelector("[data-home-v4-pillar]")?.className).not.toMatch(/rounded/);
+    expect(container.querySelector("[data-home-v4-gauge]")).not.toBeNull();
+    expect(container.querySelector("[data-home-v4-verdict]")?.className).toContain("v4-hero-verdict");
+    expect(container.querySelector("[data-home-v4-verdict]")?.className).not.toMatch(/type-fold-verdict/);
+    expect(container.querySelector("[data-home-v4-tool]")?.className).toContain("v4-tool-cell");
 
     const context = container.querySelector("[data-home-v4-context]");
     const readiness = container.querySelector("[data-home-v4-readiness]");
@@ -47,12 +60,15 @@ describe("HomeV4 Ultra Premium fold", () => {
     expect(homi).not.toBeNull();
     expect(follows(context!, readiness!)).toBe(true);
     expect(follows(readiness!, evidence!)).toBe(true);
-    expect(follows(evidence!, path!)).toBe(true);
-    expect(follows(path!, money!)).toBe(true);
-    expect(follows(money!, changed!)).toBe(true);
-    expect(follows(changed!, tools!)).toBe(true);
+    expect(follows(evidence!, money!)).toBe(true);
+    expect(follows(money!, path!)).toBe(true);
+    expect(follows(path!, tools!)).toBe(true);
+    expect(follows(tools!, homi!)).toBe(true);
+    expect(follows(homi!, changed!)).toBe(true);
 
     expect(homi?.textContent).toContain("HōMI");
-    expect(homi?.textContent).not.toContain("Ask HōMI");
+    expect(homi?.textContent).toContain("Clarity");
+    expect(homi?.textContent).toContain("Ask HōMI");
+    expect(homi?.querySelector("[data-home-v4-homi-ask]")).not.toBeNull();
   });
 });

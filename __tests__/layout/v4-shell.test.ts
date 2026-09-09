@@ -38,9 +38,13 @@ describe("Shell v4 nav law", () => {
       "/learn",
     ]);
     expect(V4_SYSTEM_NAV.map((item) => item.label)).toEqual(["Accounts", "Settings"]);
-    expect(V4_MOBILE_TABS.map((item) => item.label)).toEqual(["Home", "Money", "Path"]);
-    expect(V4_MORE_NAV.map((item) => item.label)).toEqual([
+    expect(V4_MOBILE_TABS.map((item) => item.label)).toEqual([
+      "Home",
+      "Money",
+      "Path",
       "Compare",
+    ]);
+    expect(V4_MORE_NAV.map((item) => item.label)).toEqual([
       "Bills",
       "Tools",
       "Learn",
@@ -65,7 +69,12 @@ describe("Shell v4 nav law", () => {
   });
 
   it("keeps Assess off mobile tabs and More", () => {
-    expect(V4_MOBILE_TABS.map((item) => item.label)).toEqual(["Home", "Money", "Path"]);
+    expect(V4_MOBILE_TABS.map((item) => item.label)).toEqual([
+      "Home",
+      "Money",
+      "Path",
+      "Compare",
+    ]);
     expect(V4_MORE_NAV.some((item) => item.label === "Assess")).toBe(false);
     expect(V4_MOBILE_TABS.some((item) => item.label === "Assess")).toBe(false);
   });

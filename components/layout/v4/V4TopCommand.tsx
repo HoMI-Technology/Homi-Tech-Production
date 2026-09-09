@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { FormEvent } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { Search } from "lucide-react";
 import { COLORS } from "@/lib/brand";
 import { V4_COMMAND_ITEMS, V4_SHELL_ASSESS_HREF } from "@/lib/layout/v4-shell";
 
@@ -54,10 +55,10 @@ export function V4TopCommand({
     <>
       <header
         data-v4-top-command=""
-        className="chrome-frost fixed inset-x-0 top-0 z-[var(--z-nav)] lg:left-[var(--v4-rail-width)]"
+        className="chrome-frost v4-top-command fixed inset-x-0 top-0 z-[var(--z-nav)] lg:left-[var(--v4-rail-width)]"
         style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
-        <div className="flex min-h-[var(--v4-command-height,var(--nav-height))] items-center gap-3 px-4 sm:px-6">
+        <div className="flex min-h-[var(--v4-command-height,var(--nav-height))] items-center gap-3 px-4 sm:px-6 lg:px-8">
           <button
             type="button"
             className="chrome-icon-btn lg:hidden"
@@ -69,7 +70,10 @@ export function V4TopCommand({
               ☰
             </span>
           </button>
-          <p className="min-w-0 max-w-[7.5rem] truncate text-sm font-medium text-light sm:max-w-[12rem]" data-v4-greeting="">
+          <p
+            className="min-w-0 max-w-[7.5rem] truncate text-sm font-medium text-light sm:max-w-[12rem]"
+            data-v4-greeting=""
+          >
             {greeting}
             {nameBit}
           </p>
@@ -77,20 +81,23 @@ export function V4TopCommand({
             <label className="sr-only" htmlFor="v4-ask-homi">
               Ask HōMI
             </label>
-            <input
-              id="v4-ask-homi"
-              data-v4-ask-homi=""
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onFocus={() => setOpen(true)}
-              placeholder="Ask HōMI"
-              className="w-full rounded-full border border-white/10 bg-navy-light/80 px-3 py-1.5 text-sm text-light placeholder:text-dim"
-            />
+            <div className="v4-ask-field">
+              <Search aria-hidden className="v4-ask-field-icon size-4" strokeWidth={1.75} />
+              <input
+                id="v4-ask-homi"
+                data-v4-ask-homi=""
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onFocus={() => setOpen(true)}
+                placeholder="Ask HōMI"
+                className="v4-ask-field-input"
+              />
+            </div>
           </form>
           <div className="ml-auto flex items-center gap-2">
             <Link
               href={V4_SHELL_ASSESS_HREF}
-              className="inline-flex min-h-9 items-center rounded-full px-4 text-xs font-semibold tracking-wide shadow-none"
+              className="v4-command-assess"
               data-v4-command-assess=""
               style={{ backgroundColor: COLORS.cyan, color: COLORS.ctaInk }}
             >
@@ -111,7 +118,9 @@ export function V4TopCommand({
             onClick={() => setOpen(false)}
           />
           <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-navy-light p-3">
-            <p className="px-1 pb-2 text-2xs font-semibold uppercase tracking-[0.08em] text-dim">Ask HōMI</p>
+            <p className="px-1 pb-2 text-2xs font-semibold uppercase tracking-[0.08em] text-dim">
+              Ask HōMI
+            </p>
             <input
               autoFocus
               value={query}

@@ -85,4 +85,4 @@ export function onConsentChange(listener: (state: ConsentState) => void): () => 
  * Note this only controls BANNER VISIBILITY. It deliberately does not enable
  * analytics: that decision is made in client code via readConsent().
  */
-export const CONSENT_BOOT_SCRIPT = `(function(){try{var d=document.documentElement;var v=localStorage.getItem("${CONSENT_KEY}");if(v==="${GRANTED}"||v==="${DENIED}"){d.setAttribute("data-homi-consent","1");}else if(location.pathname==="/"&&sessionStorage.getItem("homi:hero-seen")!=="1"){d.setAttribute("data-homi-consent-hold","1");}}catch(e){}})();`;
+export const CONSENT_BOOT_SCRIPT = `(function(){try{var d=document.documentElement;var v=localStorage.getItem("${CONSENT_KEY}");if(v==="${GRANTED}"||v==="${DENIED}"){d.setAttribute("data-homi-consent","1");}else if(location.pathname.indexOf("/home")===0&&/[?&]visual=/.test(location.search)){d.setAttribute("data-homi-consent","1");}else if(location.pathname==="/"&&sessionStorage.getItem("homi:hero-seen")!=="1"){d.setAttribute("data-homi-consent-hold","1");}}catch(e){}})();`;

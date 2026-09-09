@@ -54,7 +54,7 @@ export function ShellV4({
           firstName={firstName}
           onOpenRail={() => setRailOpen(true)}
         />
-        <main id="main" className="relative z-10 min-h-dvh main-under-nav pb-20 lg:pb-8">
+        <main id="main" className="v4-shell-main relative z-10 min-h-dvh main-under-nav pb-20 lg:pb-8">
           {children}
         </main>
       </div>

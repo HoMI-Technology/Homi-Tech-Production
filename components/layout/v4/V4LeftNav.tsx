@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThresholdCompass } from "@/components/brand/ThresholdCompass";
 import { Wordmark } from "@/components/brand/Wordmark";
+import { V4_NAV_ICONS } from "@/components/layout/v4/v4-nav-icons";
 import { COLORS, TAGLINES } from "@/lib/brand";
 import {
   V4_PRIMARY_NAV,
@@ -28,6 +29,7 @@ function RailLinks({
     <>
       {items.map((item) => {
         const active = isV4NavActive(pathname, item.href);
+        const Icon = V4_NAV_ICONS[item.label];
         return (
           <Link
             key={item.href}
@@ -37,6 +39,7 @@ function RailLinks({
             className={`v4-rail-link ${active ? "is-active" : ""}`}
             onClick={onClose}
           >
+            {Icon ? <Icon aria-hidden className="v4-rail-icon" strokeWidth={1.75} /> : null}
             {item.label}
           </Link>
         );
@@ -48,6 +51,7 @@ function RailLinks({
 /**
  * SHELL_CRAFT v4 — premium left nav.
  * Wordmark + ThresholdCompass from brand components only.
+ * Selected = small lift + white label + cyan icon + 2px cyan edge. No cyan pill.
  */
 export function V4LeftNav({
   open = false,
@@ -83,7 +87,7 @@ export function V4LeftNav({
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
         }}
       >
-        <div className="px-4 pb-4 pt-5" data-v4-rail-brand="">
+        <div className="px-5 pb-5 pt-6" data-v4-rail-brand="">
           <Link
             href={V4_SHELL_HOME_HREF}
             aria-label="HōMI home"
@@ -101,19 +105,19 @@ export function V4LeftNav({
           </p>
         </div>
 
-        <nav data-v4-rail-primary="" aria-label="Primary" className="flex flex-col gap-px px-3">
+        <nav data-v4-rail-primary="" aria-label="Primary" className="flex flex-col gap-0.5 px-3">
           <RailLinks items={V4_PRIMARY_NAV} pathname={pathname} onClose={onClose} />
         </nav>
 
         <div className="mx-4 my-3 h-px shrink-0 bg-white/[0.06]" data-v4-rail-divider="" />
 
-        <nav data-v4-rail-secondary="" aria-label="Secondary" className="flex flex-col gap-px px-3">
+        <nav data-v4-rail-secondary="" aria-label="Secondary" className="flex flex-col gap-0.5 px-3">
           <RailLinks items={V4_SECONDARY_NAV} pathname={pathname} onClose={onClose} />
         </nav>
 
         <div className="mx-4 my-3 h-px shrink-0 bg-white/[0.06]" data-v4-rail-system-divider="" />
 
-        <nav data-v4-rail-system="" aria-label="System" className="flex flex-col gap-px px-3">
+        <nav data-v4-rail-system="" aria-label="System" className="flex flex-col gap-0.5 px-3">
           <RailLinks items={V4_SYSTEM_NAV} pathname={pathname} onClose={onClose} />
         </nav>
 
