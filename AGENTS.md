@@ -261,10 +261,11 @@ reconciles env. The visible terminal is `npm run dev` on
 - **Coverage mode:** `node scripts/ci-coverage-report.mjs` (also a CI step).
   CORE = anonymous/public suites. FULL = live DEV Supabase + Stripe TEST
   secrets present. A green `e2e` badge on CORE is not FULL.
-- **Do NOT rely on `npm run lint`**: there is no committed ESLint config, so
-  `next lint` drops into an interactive setup prompt and hangs a non-interactive
-  shell. It is intentionally not part of the CI gate; use `typecheck` +
-  `brand-check` instead. **DEFERRED — TOOLING CLEANUP.**
+- **ESLint/Prettier are deferred** (no packages, no `lint` / `format`
+  scripts). Do not run `next lint` — it hangs a non-interactive shell on an
+  interactive setup prompt. They are not CI gates; use `typecheck` +
+  `brand-check` (+ `architecture:check`, vitest). **DEFERRED — TOOLING CLEANUP.**
+  Do not add ESLint/Prettier packages while spend hold #241 is open.
 - **Core flow needs no secrets to test**: the assessment (`/assessment` →
   `/results`) and the scoring engine (`POST /api/scoring` with the body shape in
   `lib/validation/assessment.ts`) run fully on placeholder env. This is the

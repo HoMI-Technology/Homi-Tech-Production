@@ -171,11 +171,11 @@ over older docs. Source file named in parentheses after each item.
   `@next/swc-win32-x64-msvc` (exit 255), so no local builds or Playwright e2e. **GitHub
   Actions (`verify` + `e2e`) is the build/e2e gate**; typecheck/vitest/brand/architecture
   run locally. Bundle questions must be answered in CI. (homi-machine-constraints.md)
-- **The repo is NOT prettier-clean — never run `prettier --write`** (formatting one file
-  turned a ~15-line edit into a 421-line diff; ~890 files fail `--check` on Windows CRLF).
-  The config doesn't describe actual formatting and CI doesn't enforce it. Match surrounding
-  style by hand; verify with `git diff --stat` vs `--stat -w`. PR #169 (2026-08-08) was a
-  repo-wide Prettier sweep, so raw line counts/diffs are worthless for judging drift.
+- **Do not run Prettier or ESLint.** Packages and `lint`/`format` scripts are not
+  installed (DEFERRED — TOOLING CLEANUP). Formatting one file with Prettier historically
+  turned a ~15-line edit into a 421-line diff. Match surrounding style by hand; verify
+  with `git diff --stat` vs `--stat -w`. PR #169 (2026-08-08) was a repo-wide Prettier
+  sweep, so raw line counts/diffs are worthless for judging drift.
   (homi-machine-constraints.md; homi-money-duplication-audit.md)
 - **Verify pixels first (feedback rule):** render a visual before proposing it; never trust
   paint/frame metrics from a hidden tab (Chrome throttles rAF to zero — three "performance

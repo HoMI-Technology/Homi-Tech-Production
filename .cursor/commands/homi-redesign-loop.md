@@ -126,8 +126,8 @@ dead logic with its last caller, reuse existing components, consume tokens.
 
 **3. Verify gates (all green or the batch is not done):**
 ```
-npm run typecheck && npm run lint && npm run test
-npm run brand-check && npm run smoke
+npm run typecheck && npm run test
+npm run brand-check && npm run architecture:check && npm run smoke
 ```
 (`npm run build` FAILS locally by design — Smart App Control blocks
 @next/swc. Build + e2e are verified by CI on the PR. Cloud agents may run

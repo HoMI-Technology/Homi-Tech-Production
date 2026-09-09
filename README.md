@@ -38,7 +38,6 @@ Then open [http://localhost:3000](http://localhost:3000).
 | `npm run dev`                | Start the Next.js dev server                                 |
 | `npm run build`              | Production build                                             |
 | `npm run start`              | Serve the production build                                   |
-| `npm run lint`               | Run `next lint`                                              |
 | `npm run typecheck`          | `tsc --noEmit` across the project                            |
 | `npm test`                   | Run the Vitest suite (`vitest run`)                          |
 | `npm run test:acceptance`    | Independent acceptance suite (`vitest.acceptance.config.ts`) |
@@ -122,7 +121,8 @@ truth and `lib/scoring/weights.ts` is a C2-restricted trade-secret boundary.
   `architecture:check` → `tsc --noEmit` → `vitest run` → `next build` →
   public Lighthouse. `next build` is **not** a typecheck (`ignoreBuildErrors`).
   Playwright is a separate **`e2e`** check (CORE without secrets; FULL only
-  with DEV Supabase + Stripe TEST). `npm run lint` is not a gate.
+  with DEV Supabase + Stripe TEST). ESLint/Prettier are deferred (no packages)
+  and are not a gate.
 
 ## Environment variables
 

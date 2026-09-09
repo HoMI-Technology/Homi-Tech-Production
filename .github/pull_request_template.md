@@ -22,6 +22,6 @@
 
 - [ ] Tests pass (`npm run test`)
 - [ ] TypeScript checks pass (`npm run typecheck`)
+- [ ] Brand + architecture checks pass (`npm run brand-check`, `npm run architecture:check`) when those surfaces changed
 - [ ] No secrets or credentials committed
 - [ ] UI changes include screenshots (if applicable)
-- [ ] ESLint and Prettier checks pass (`npm run lint`, `npm run format:check`)
