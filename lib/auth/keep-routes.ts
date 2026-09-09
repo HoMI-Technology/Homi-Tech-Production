@@ -1,10 +1,14 @@
 /**
- * PR15 KEEP/KILL surface map.
+ * PR15 KEEP/KILL surface map. Founder lock: UI/routes cut only.
  *
- * Signed-in product is scratched behind the landing page. Middleware uses this
- * module as the only allow-list: KEEP pages pass through, extra legal folds to
- * `/legal/privacy`, KEEP APIs stay live, every other page goes to `/`, and
- * every other `/api/*` returns JSON 404.
+ * Dark product pages (redirect → `/`) and product APIs (JSON 404). Do not
+ * delete or migrate away Supabase schema/RLS/data, auth users, Plaid rows,
+ * Stripe, or integration config. Score/finance/product code stays on disk
+ * for an easy rebuild; it is just unreachable from routes/APIs.
+ *
+ * Middleware uses this module as the only allow-list: KEEP pages pass
+ * through, extra legal folds to `/legal/privacy`, KEEP APIs stay live,
+ * every other page goes to `/`, and every other `/api/*` returns JSON 404.
  *
  * Do not restyle KEEP pages. Do not invent replacement product chrome.
  */
