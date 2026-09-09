@@ -31,6 +31,7 @@ export const HOME_V4_TOOLS_MAX = 4 as const;
 export const HOME_V4_HOMI_PROMPTS = [
   { label: "How can I build my runway faster?", href: "/path" },
   { label: "What is my next Path step?", href: "/path" },
+  { label: "Why is this decision on hold?", href: "/results" },
   { label: "Compare approaches without a second score.", href: "/scenarios" },
 ] as const;
 

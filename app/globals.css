@@ -501,9 +501,10 @@ html {
 }
 .v4-rail-link.is-active {
   color: var(--color-ink);
-  background: rgba(255, 255, 255, 0.05);
+  background: transparent;
+  border-radius: 0.35rem;
   box-shadow: inset 2px 0 0 var(--color-cyan);
-  transform: translateX(2px);
+  transform: translateX(1px);
 }
 .v4-rail-link.is-active .v4-rail-icon {
   color: var(--color-cyan);
@@ -538,11 +539,26 @@ html {
 }
 
 [data-product-shell="v4"] .app-aurora {
-  background: radial-gradient(
-    ellipse 50% 40% at 10% -8%,
-    rgba(34, 211, 238, 0.03),
-    transparent 72%
-  );
+  background:
+    radial-gradient(ellipse 58% 46% at 12% -6%, rgba(34, 211, 238, 0.07), transparent 70%),
+    radial-gradient(ellipse 42% 38% at 92% 108%, rgba(52, 211, 153, 0.045), transparent 68%);
+}
+[data-product-shell="v4"] .app-noise {
+  opacity: 0.35;
+}
+.v4-rail-lockup {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.65rem;
+}
+.v4-rail-lockup-mark {
+  display: flex;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
 }
 
 .v4-top-command {
@@ -616,12 +632,25 @@ html {
    Source order stays mobile-first. Named areas place HōMI beside
    context+hero and What changed beside evidence at ≥1280. */
 .v4-home {
+  position: relative;
   padding: 1.25rem 1.25rem 1.75rem;
   max-width: none;
 }
+.v4-home::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 4% 8% auto auto;
+  width: min(42vw, 28rem);
+  height: min(42vw, 28rem);
+  border-radius: 9999px;
+  border: 1px solid rgba(34, 211, 238, 0.06);
+  box-shadow: inset 0 0 0 40px rgba(34, 211, 238, 0.015);
+  mask-image: radial-gradient(circle at 30% 30%, #000 0%, transparent 72%);
+}
 @media (min-width: 768px) {
   .v4-home {
-    padding: 1.35rem 1.75rem 1.75rem;
+    padding: 1.5rem 1.75rem 2rem;
   }
 }
 
@@ -642,11 +671,11 @@ html {
 .v4-home-context {
   grid-area: context;
   margin: 0;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-dim);
+  color: color-mix(in srgb, var(--color-cyan) 55%, var(--color-dim));
   align-self: end;
 }
 .v4-hero {
@@ -669,7 +698,7 @@ html {
 }
 @media (min-width: 1280px) {
   .v4-home {
-    padding: 1.15rem 1.5rem 1.5rem;
+    padding: 1.15rem 1.5rem 1.35rem;
   }
   .v4-home-grid {
     grid-template-columns: minmax(0, 1fr) var(--v4-homi-width, 320px);
@@ -680,29 +709,29 @@ html {
       "support support"
       "tools   tools";
     column-gap: 1.25rem;
-    row-gap: 0.75rem;
+    row-gap: 0.7rem;
   }
   .v4-section-kicker {
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
   }
   .v4-evidence {
-    padding: 0.8rem 1.05rem 0.85rem;
+    padding: 0.95rem 1.15rem 1rem;
   }
   .v4-evidence-band {
-    min-height: 4.15rem;
+    min-height: 4.5rem;
   }
   .v4-support-card,
   .v4-changed,
   .v4-tools,
   .v4-homi {
-    padding: 0.85rem 1.05rem 0.95rem;
+    padding: 1rem 1.15rem 1.1rem;
   }
   .v4-support-follow,
   .v4-changed-follow {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
   }
   .v4-support-icon {
-    margin-bottom: 0.45rem;
+    margin-bottom: 0.55rem;
   }
 }
 
@@ -728,13 +757,15 @@ html {
   display: grid;
   gap: 1.25rem;
   min-height: 0;
-  padding: 1.35rem;
-  border-radius: 1.125rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1.5rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(148, 163, 184, 0.14);
   background:
-    radial-gradient(ellipse 70% 80% at 12% 20%, rgba(34, 211, 238, 0.08), transparent 58%),
-    linear-gradient(180deg, rgba(30, 41, 59, 0.35), transparent 70%),
+    radial-gradient(ellipse 55% 70% at 14% 18%, rgba(34, 211, 238, 0.11), transparent 60%),
+    radial-gradient(ellipse 40% 50% at 88% 92%, rgba(52, 211, 153, 0.05), transparent 62%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.2), transparent 72%),
     var(--color-navy-light);
+  box-shadow: inset 0 1px 0 rgba(34, 211, 238, 0.08);
 }
 .v4-hero-narrative {
   min-width: 0;
@@ -798,9 +829,23 @@ html {
 .v4-hero-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
   min-height: 2.75rem;
   padding: 0.65rem 1.25rem;
+  border-radius: 0.7rem;
+  font-weight: 650;
+}
+.v4-hero-primary {
+  min-height: 2.85rem;
+  padding: 0.7rem 1.35rem;
+  box-shadow: 0 10px 28px rgba(34, 211, 238, 0.12);
+}
+.v4-hero-secondary {
+  min-height: 2.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.55);
+  color: var(--color-light);
+  font-weight: 500;
 }
 .v4-hero-priority {
   display: flex;
@@ -822,9 +867,9 @@ html {
   .v4-hero {
     grid-template-columns: 184px minmax(0, 1fr);
     align-items: center;
-    min-height: 19.5rem;
-    padding: 1.75rem 2rem;
-    gap: 1.5rem;
+    min-height: 20.6rem;
+    padding: 1.5rem 1.75rem;
+    gap: 1.35rem;
   }
 }
 
@@ -833,6 +878,7 @@ html {
   width: 176px;
   height: 176px;
   margin-inline: auto;
+  isolation: isolate;
 }
 .v4-gauge-svg {
   display: block;
@@ -847,9 +893,10 @@ html {
   pointer-events: none;
 }
 .v4-gauge-score {
-  font-size: 2.25rem;
+  font-size: 2.75rem;
   font-weight: 500;
   line-height: 1;
+  letter-spacing: -0.04em;
   color: var(--color-ink);
 }
 .v4-gauge-denom {
@@ -933,7 +980,7 @@ html {
 .v4-changed {
   display: flex;
   height: 100%;
-  min-height: 0;
+  min-height: 10.5rem;
   flex-direction: column;
 }
 .v4-support-icon {
@@ -1122,9 +1169,8 @@ html {
 }
 .v4-homi-ask-icon {
   position: absolute;
-  top: 50%;
   left: 0.85rem;
-  transform: translateY(-50%);
+  bottom: 0.85rem;
   color: var(--color-dim);
   pointer-events: none;
 }
@@ -1153,12 +1199,34 @@ html {
   color: var(--color-dim);
 }
 
+@media (max-width: 767.98px) {
+  .v4-home-grid {
+    grid-template-areas:
+      "context"
+      "hero"
+      "homi"
+      "support"
+      "changed"
+      "tools";
+  }
+  .v4-support-pair {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+  .v4-hero {
+    min-height: 0;
+  }
+}
+
 @media (max-width: 390px) {
   .v4-hero-hold {
     font-size: 1.4rem;
   }
   .v4-tools-grid {
     grid-template-columns: 1fr;
+  }
+  .v4-home {
+    padding: 1rem 1rem 5.5rem;
   }
 }
 

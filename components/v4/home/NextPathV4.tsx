@@ -17,7 +17,9 @@ export function NextPathV4({ view }: { view: HomeV4View }) {
       {view.pathPrimary ? (
         <>
           <p className="v4-support-line">{view.pathPrimary.title}</p>
-          <p className="v4-support-follow">The next move from this read. Not a second score.</p>
+          <p className="v4-support-follow">
+            {view.hardStopActive ? "Addresses the current hold." : "The next move from this read."}
+          </p>
           <Link href={view.pathPrimary.href} className="v4-support-cta">
             Open Path
             <ArrowRight aria-hidden className="size-3.5" strokeWidth={1.75} />

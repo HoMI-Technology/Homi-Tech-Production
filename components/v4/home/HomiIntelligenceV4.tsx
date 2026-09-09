@@ -65,7 +65,7 @@ export function HomiIntelligenceV4({
           data-home-v4-homi-ask=""
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Ask HōMI"
+          placeholder="Ask HōMI about this decision..."
           className="v4-homi-ask-input"
         />
       </form>

@@ -19,6 +19,11 @@ function follows(earlier: Element, later: Element): boolean {
   return Boolean(earlier.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING);
 }
 
+function homiAskPlaceholder(container: HTMLElement): string {
+  const input = container.querySelector("[data-home-v4-homi-ask]");
+  return input instanceof HTMLInputElement ? input.placeholder : "";
+}
+
 describe("HomeV4 Ultra Premium fold", () => {
   it("paints State A anatomy: gauge, evidence band, support pair, Homi rail", () => {
     const view = buildHomeV4View(homeV4VisualReading("hard-stop"));
@@ -35,8 +40,16 @@ describe("HomeV4 Ultra Premium fold", () => {
     expect(text).toContain("A hard stop takes priority over the number.");
     expect(text).toContain("Hard stop still holds on this read.");
     expect(text).toContain("Open");
+    expect(text).toContain("Accounts aren't connected yet.");
+    expect(text).toContain("Connect accounts for a fuller picture.");
+    expect(text).toContain("Addresses the current hold.");
+    expect(text).toContain("What HōMI is seeing");
     expect(text).not.toContain("Educational prompts. Not a second score.");
     expect(text).not.toContain("AssessmentResult");
+    expect(text).not.toContain("Ledger stays empty");
+    expect(text).not.toMatch(/% ready/i);
+    expect(text).not.toMatch(/\$\d/);
+    expect(homiAskPlaceholder(container)).toContain("Ask HōMI about this decision");
     expect(container.querySelector(".workspace-grid")).toBeNull();
     expect(container.querySelector(".v4-home-main")).toBeNull();
     expect(container.querySelector(".v4-home-rail")).toBeNull();
@@ -77,5 +90,25 @@ describe("HomeV4 Ultra Premium fold", () => {
     expect(homi?.textContent).toContain("Clarity");
     expect(homi?.textContent).toContain("Ask HōMI");
     expect(homi?.querySelector("[data-home-v4-homi-ask]")).not.toBeNull();
+  });
+
+  it("empty state is a finished first screen, not a report stub", () => {
+    const view = buildHomeV4View(homeV4VisualReading("empty"));
+    const { container } = render(<HomeV4 view={view} />);
+    const text = container.textContent ?? "";
+    expect(container.querySelector("[data-home-v4-empty]")).not.toBeNull();
+    expect(text).toContain("No assessment yet");
+    expect(text).toContain("Assess");
+    expect(text).not.toContain("DO NOT PROCEED");
+    expect(text).not.toContain("AssessmentResult");
+  });
+
+  it("money-disconnected keeps the connect path honest", () => {
+    const view = buildHomeV4View(homeV4VisualReading("money-disconnected"));
+    const { container } = render(<HomeV4 view={view} />);
+    const text = container.textContent ?? "";
+    expect(text).toContain("Accounts aren't connected yet.");
+    expect(container.querySelector("[data-home-v4-connect]")).not.toBeNull();
+    expect(text).not.toMatch(/\$\d/);
   });
 });

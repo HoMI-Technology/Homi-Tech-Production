@@ -87,19 +87,23 @@ export function V4LeftNav({
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
         }}
       >
-        <div className="px-5 pb-5 pt-6" data-v4-rail-brand="">
+        <div className="px-5 pb-4 pt-6" data-v4-rail-brand="">
           <Link
             href={V4_SHELL_HOME_HREF}
             aria-label="HōMI home"
             data-v4-shell-logo=""
-            className="flex flex-col items-start gap-2"
+            className="v4-rail-lockup"
             onClick={onClose}
           >
-            <span data-v4-shell-compass="" className="flex size-8 items-center justify-center">
+            <span data-v4-shell-compass="" className="v4-rail-lockup-mark">
               <ThresholdCompass size={V4_SHELL_COMPASS_SIZE} glow={false} animated={false} />
             </span>
             <Wordmark size="text-lg leading-none" />
           </Link>
+          <p className="v4-workspace-chip mt-3" data-v4-workspace-chip="">
+            <span className="v4-workspace-dot" aria-hidden />
+            Personal
+          </p>
           <p className="mt-2 max-w-[12rem] text-2xs leading-snug text-dim/70" data-v4-rail-tagline="">
             {TAGLINES.primary}
           </p>
@@ -121,12 +125,7 @@ export function V4LeftNav({
           <RailLinks items={V4_SYSTEM_NAV} pathname={pathname} onClose={onClose} />
         </nav>
 
-        <div className="mt-auto px-4 pb-4 pt-6" data-v4-rail-foot="">
-          <p className="v4-workspace-chip" data-v4-workspace-chip="">
-            <span className="v4-workspace-dot" aria-hidden />
-            Personal
-          </p>
-        </div>
+        <div className="mt-auto px-4 pb-4 pt-6" data-v4-rail-foot="" />
       </aside>
     </>
   );

@@ -57,12 +57,22 @@ export function ReadinessGaugeV4({
         aria-hidden
         className="v4-gauge-svg"
       >
+        <defs>
+          <filter id="v4-gauge-bloom" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="1.1" result="glow" />
+            <feMerge>
+              <feMergeNode in="glow" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        <circle cx={CX} cy={CY} r={RADIUS - 8} fill={COLORS.navy} />
         <circle
           cx={CX}
           cy={CY}
           r={RADIUS}
           fill="none"
-          stroke={withAlpha(COLORS.slateHigh, 0.55)}
+          stroke={withAlpha(COLORS.slateHigh, 0.45)}
           strokeWidth={TRACK_WIDTH}
         />
         <circle
@@ -75,6 +85,8 @@ export function ReadinessGaugeV4({
           strokeLinecap="round"
           strokeDasharray={`${dash} ${circ}`}
           transform={`rotate(-90 ${CX} ${CY})`}
+          filter="url(#v4-gauge-bloom)"
+          opacity={0.95}
         />
         {TICKS.map((tick, index) => (
           <line

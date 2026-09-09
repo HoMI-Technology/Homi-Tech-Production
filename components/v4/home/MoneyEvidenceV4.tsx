@@ -17,7 +17,7 @@ export function MoneyEvidenceV4({ view }: { view: HomeV4View }) {
       <p className="v4-support-line" data-home-v4-money-empty="">
         {view.moneyLine}
       </p>
-      <p className="v4-support-follow">Ledger stays empty until accounts connect.</p>
+      <p className="v4-support-follow">Connect accounts for a fuller picture.</p>
       <Link href={view.connectHref} className="v4-support-cta" data-home-v4-connect="">
         {view.connectLabel}
       </Link>
