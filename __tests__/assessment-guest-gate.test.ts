@@ -166,9 +166,11 @@ describe("guest /tools Assess close is First Moment", () => {
 });
 
 describe("guest product chrome has no Companion FAB", () => {
-  it("mounts CompanionHost only for a signed-in user", () => {
+  it("mounts CompanionHost only for a signed-in user, and not on Shell v4", () => {
     const layout = src("app", "(product)", "layout.tsx");
-    expect(layout).toMatch(/\{user\s*&&\s*<CompanionHost\s*\/>\}/);
+    expect(layout).toMatch(
+      /\{user\s*&&\s*shell\s*!==\s*["']v4["']\s*\?\s*<CompanionHost\s*\/>\s*:\s*null\}/,
+    );
     expect(layout).not.toMatch(/^\s*<CompanionHost\s*\/>\s*$/m);
     expect(layout).toContain('from "@/components/companion/CompanionHost"');
   });
