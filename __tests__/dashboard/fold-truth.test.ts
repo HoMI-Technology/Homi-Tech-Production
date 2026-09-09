@@ -25,6 +25,8 @@ import {
   ONBOARDING_SKIP_HREF,
   COMPANION_ESCALATION_HREF,
   COMPANION_FOLD_LINES,
+  HOME_COMPANION_GUIDANCE,
+  HOME_COMPANION_TAGLINE,
   HOME_DENSITY_LENSES,
   HOME_DENSITY_OPEN_PATH_HREF,
   HOME_DENSITY_VIEW_ALL_TOOLS_HREF,
@@ -332,6 +334,8 @@ describe("Baseline 001 fold-truth copy", () => {
     }
     expect(HOME_DENSITY_OPEN_PATH_HREF).toBe("/path");
     expect(HOME_DENSITY_VIEW_ALL_TOOLS_HREF).toBe("/tools");
+    expect(HOME_COMPANION_TAGLINE).toBe("Here to help you see clearly");
+    expect(HOME_COMPANION_GUIDANCE).toBe("Local guidance · not live AI");
     expect(RUNWAY_HARD_STOP_PATH_TITLE).toBe("Stabilize emergency runway to at least 1 month");
     expect(RUNWAY_HARD_STOP_FOLD_TITLE).toBe("Build runway to 1 month");
   });

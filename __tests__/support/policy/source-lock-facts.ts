@@ -550,6 +550,8 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
       "View all",
       "/tools/fire",
       "/tools/roth-conversion",
+      "Here to help you see clearly",
+      "Local guidance · not live AI",
     ],
     stringsMustNot: [
       "10,000",
@@ -557,6 +559,17 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
       "CRAFT · PR8",
       "CRAFT · NOT SHIP",
     ],
+  },
+  {
+    id: "fold-wiring/home-companion-column-craft",
+    file: "components/dashboard/HomeCompanionColumn.tsx",
+    identifiersMust: ["HOME_COMPANION_TAGLINE", "HOME_COMPANION_GUIDANCE"],
+    stringsMust: [
+      "data-home-companion-trinity",
+      'href="/advisor"',
+      "btn-ghost",
+    ],
+    stringsMustNot: ["btn-primary", "Homie", "CRAFT · PR10", "CRAFT · NOT SHIP"],
   },
   {
     id: "fold-wiring/home-money-standing-strip",

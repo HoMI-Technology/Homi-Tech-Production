@@ -1,8 +1,10 @@
 import Link from "next/link";
 import {
   HOME_ASK_HOMI_LABEL,
+  HOME_COMPANION_GUIDANCE,
   HOME_COMPANION_HEADING,
   HOME_COMPANION_PROMPTS,
+  HOME_COMPANION_TAGLINE,
   HOME_QUICK_ACTIONS,
   HOME_RECENT_EMPTY,
 } from "@/lib/dashboard/fold-truth";
@@ -22,6 +24,12 @@ export function HomeCompanionColumn() {
         <p className="text-2xs font-semibold uppercase tracking-[0.06em] text-dim">
           {HOME_COMPANION_HEADING}
         </p>
+        <p className="mt-2 text-sm text-light/85" data-home-companion-tagline="">
+          {HOME_COMPANION_TAGLINE}
+        </p>
+        <p className="mt-1 text-xs text-dim" data-home-companion-guidance="">
+          {HOME_COMPANION_GUIDANCE}
+        </p>
         <div className="mt-4 flex items-center gap-3">
           <span
             aria-hidden
@@ -34,7 +42,11 @@ export function HomeCompanionColumn() {
               <circle cx="26" cy="24" r="5" stroke={COLORS.yellow} strokeWidth="1.5" />
             </svg>
           </span>
-          <Link href="/advisor" className="btn btn-primary flex-1" data-home-companion-ask-cta="">
+          <Link
+            href="/advisor"
+            className="btn btn-ghost flex-1"
+            data-home-companion-ask-cta=""
+          >
             {HOME_ASK_HOMI_LABEL} →
           </Link>
         </div>

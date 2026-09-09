@@ -154,6 +154,9 @@ export const HOME_KEY_AREAS_HEADING = "Key Areas" as const;
 export const HOME_SEE_FULL_ASSESSMENT = "See full assessment" as const;
 export const HOME_SEE_FULL_BREAKDOWN = "See full breakdown" as const;
 export const HOME_COMPANION_HEADING = "Your Companion" as const;
+/** HOME_SCRAPE_CRAFT §F — companion identity, not a Homie launch cast. */
+export const HOME_COMPANION_TAGLINE = "Here to help you see clearly" as const;
+export const HOME_COMPANION_GUIDANCE = "Local guidance · not live AI" as const;
 export const HOME_ASK_HOMI_LABEL = "Ask HōMI" as const;
 export const HOME_RECENT_EMPTY =
   "A fresh start. Your saved models and goals will appear here." as const;

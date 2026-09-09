@@ -253,6 +253,17 @@ describe("ThresholdFold", () => {
     expect(path).toHaveAttribute("href", "/tools/runway");
     expect(path).toHaveTextContent(RUNWAY_HARD_STOP_FOLD_TITLE);
     expect(container.querySelectorAll("[data-workspace-main] .btn-primary")).toHaveLength(1);
+    expect(container.querySelectorAll(".btn-primary")).toHaveLength(1);
+    const companionAsk = container.querySelector("[data-home-companion-ask-cta]");
+    expect(companionAsk).toHaveAttribute("href", "/advisor");
+    expect(companionAsk).toHaveClass("btn-ghost");
+    expect(companionAsk).not.toHaveClass("btn-primary");
+    expect(container.querySelector("[data-home-companion-tagline]")).toHaveTextContent(
+      "Here to help you see clearly",
+    );
+    expect(container.querySelector("[data-home-companion-guidance]")).toHaveTextContent(
+      "Local guidance · not live AI",
+    );
     expect(container.querySelector("[data-path-fold-primary]")).toHaveTextContent(
       RUNWAY_HARD_STOP_FOLD_TITLE,
     );
@@ -561,6 +572,16 @@ describe("ThresholdFold", () => {
     expect(container.querySelector("[data-home-key-area='emotional']")).toHaveTextContent("Strong");
     expect(container.querySelector("[data-home-key-area='timing']")).toHaveTextContent("Strong");
     expect(container.querySelector("[data-home-companion-column]")).not.toBeNull();
+    expect(container.querySelector("[data-home-companion-trinity]")).not.toBeNull();
+    expect(container.querySelector("[data-home-companion-ask-cta]")).toHaveClass("btn-ghost");
+    expect(container.querySelector("[data-home-companion-ask-cta]")).not.toHaveClass("btn-primary");
+    expect(container.querySelectorAll(".btn-primary")).toHaveLength(1);
+    expect(container.querySelector("[data-home-companion-tagline]")).toHaveTextContent(
+      "Here to help you see clearly",
+    );
+    expect(container.querySelector("[data-home-companion-guidance]")).toHaveTextContent(
+      "Local guidance · not live AI",
+    );
     expect(container.querySelector("[data-home-score-gauge]")).toHaveAttribute("data-gauge-stop", "1");
     expect(container.querySelector("[data-home-recent-empty]")).toHaveTextContent("A fresh start");
     expect(screen.queryByText(/Homie/)).not.toBeInTheDocument();
