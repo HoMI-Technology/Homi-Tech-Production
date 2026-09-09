@@ -48,6 +48,13 @@ describe("Shell v4 nav law", () => {
     expect(V4_KILLED_NAV_LABELS).toContain("Support");
   });
 
+  it("locks Money before Path on the primary rail", () => {
+    const labels = V4_PRIMARY_NAV.map((item) => item.label);
+    expect(labels.indexOf("Money")).toBeLessThan(labels.indexOf("Path"));
+    expect(labels.indexOf("Money")).toBe(1);
+    expect(labels.indexOf("Path")).toBe(2);
+  });
+
   it("keeps Assess out of the primary rail (top command only)", () => {
     expect(V4_PRIMARY_NAV.some((item) => item.label === "Assess")).toBe(false);
     expect(V4_PRIMARY_NAV.map((item) => item.label)).not.toContain("Tools");

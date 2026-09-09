@@ -1,6 +1,7 @@
 # SHELL_CRAFT v4 — 2026-09-09
 
 **CLEAR:** `docs/design/PRODUCT_V4_SHELL_HOME_CRAFT_CLEAR_2026-09-09.md`  
+**ADR:** `docs/adr/006-signed-in-product-v4-retires-operate-chrome.md`  
 **Mocks:** `docs/design/brand-shell-craft/` (`shell-home-v4-desktop`, `shell-home-v4-mobile`)
 
 Signed-in product chrome for `/home`. Flag default false. Post-login stays `/`.

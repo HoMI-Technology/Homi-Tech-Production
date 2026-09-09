@@ -2,7 +2,7 @@
 
 **Status:** CCP v1 landed (#390). Executable allow-list: `lib/auth/keep-routes.ts`.  
 **ADR:** [005 — CCP v1 = route activation + post-login flag · no SaaS](./adr/005-change-control-plane-v1.md)  
-**Shell/Home chrome:** [ADR-006](./adr/006-product-v4-home-shell.md) (not 005).  
+**Shell/Home chrome:** [ADR-006](./adr/006-signed-in-product-v4-retires-operate-chrome.md) (not 005).  
 **Tip:** `cc84ac6` (CCP) on `1b12128` (PR15 KEEP/KILL).
 
 CCP v1 is a **route-activation map**, not a product rewrite. It does not

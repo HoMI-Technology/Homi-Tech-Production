@@ -18,6 +18,7 @@ not merge, and not `HOMI_V4_HOME_ENABLED=true`.
 | SHELL_CRAFT v4 | `docs/design/SHELL_CRAFT_v4_2026-09-09.md` |
 | HOME_CRAFT v4 | `docs/design/HOME_CRAFT_v4_2026-09-09.md` |
 | Ultra Premium reconcile | `docs/design/ULTRA_PREMIUM_V4_RECONCILE_2026-09-09.md` |
+| ADR-006 | `docs/adr/006-signed-in-product-v4-retires-operate-chrome.md` |
 | Mocks | `docs/design/brand-shell-craft/` (`shell-home-v4-desktop`, `shell-home-v4-mobile`) |
 
 Identity KEEP: repo `Wordmark` + `ThresholdCompass` only. Primary rail

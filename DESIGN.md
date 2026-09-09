@@ -85,25 +85,32 @@ Legal entity in `lib/brand` today: `HOMI TECHNOLOGIES LLC`. Recase to `Homi Tech
 - Sample scores must match scoring canon (e.g. 76 → ALMOST THERE). Landing-canon tests guard this.
 - Dials for this surface: variance 6, motion 4, density 3. No GSAP pin/marquee on the front door (pin stages were removed).
 
-### OPERATE / CHROME — retired as signed-in product floor (ADR-006)
+### OPERATE — signed-in Product v4 personal
 
-OPERATE (dashboard cockpit, `/dashboard`, Cockpit Linear / MetricRail hero,
-invent-chrome) is **not** the v4 product law. Signed-in personal product is
-**Product v4**: primary Home · Money · Path · Compare; Assess in the top
-command; score ≠ Compass; hard stops outrank; no invent $. `components/operate/*`
-leftovers are not authority.
+Cockpit Linear / MetricRail hero and `/dashboard` invent-chrome are
+**retired** as signed-in authority (ADR-006). Signed-in personal product is
+**Product v4 / Ultra Premium**:
 
-CHROME (`HeaderShell` / signed-in `AppHeader` as the Home bar) is **not** the
-v4 product bar. Dual shell stays: KEEP marketing uses `SiteHeader` / `SiteFooter`
-(PERSUADE). Product chrome is Shell v4 — left primary four + top command +
-optional right HōMI + mobile bottom four. A11y KEEP: skip link `#main`, Escape
-+ focus return, overlay scroll lock, `prefers-reduced-motion`, never
-`overflow-x: hidden` on `body`. DARK role trees may still mount quiet
+- Primary rail **Home · Money · Path · Compare** (Money before Path).
+- Assess in the top command — not a fifth primary peer. Reject five-peer
+  Tools-in-primary.
+- Score ≠ Compass. Hard stops outrank. No invent $.
+- `components/operate/*` leftovers are not authority.
+- Finance GATE: AssessmentResult only. Free===Pro on that read.
+
+### CHROME — dual shell (Shell v4)
+
+Dual shell stays. KEEP marketing uses `SiteHeader` / `SiteFooter` (PERSUADE).
+Product chrome is **Shell v4**: left primary four + top command + optional
+right HōMI + mobile bottom four (Home · Money · Path · More).
+
+A11y KEEP: skip link `#main`, Escape + focus return, overlay scroll lock,
+`prefers-reduced-motion`, never `overflow-x: hidden` on `body`. Header height
+token `--nav-height` + safe-area. DARK role trees may still mount quiet
 `AppHeader` on disk; do not rebuild Home from them.
 
-Craft CLEAR: `docs/design/PRODUCT_V4_SHELL_HOME_CRAFT_CLEAR_2026-09-09.md`.
-Mocks: `docs/design/brand-shell-craft/` (`shell-home-v4-desktop` /
-`shell-home-v4-mobile`). Soft nits P2. Pixel Gate still blocks undraft.
+PR C stays **DRAFT** until founder APPROVE VISUAL DIRECTION on real
+screenshots. `HOMI_V4_HOME_ENABLED` default false.
 
 ### Product v4 / Ultra Premium — signed-in Home + Shell (ADR-006)
 
