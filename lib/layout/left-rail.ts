@@ -1,6 +1,6 @@
 /**
- * PR10 left-rail destinations — product-brief law for personal signed-in chrome.
- * Live Production URLs only. HEADER_PRIMARY_NAV stays the quiet role-tree bar.
+ * PR12 left-rail destinations — Product map invent chrome.
+ * Finances is the one money peer. Live URLs when they exist; honest empty shells otherwise.
  */
 
 export type LeftRailItem = {
@@ -8,31 +8,38 @@ export type LeftRailItem = {
   label: string;
 };
 
-/** PRIMARY: Home · Assess · Plan · Money · Compare · Tools · Companion. */
+/**
+ * PRIMARY Product map:
+ * Home · Assessment · Finances · Plans · Compare · Bills · Insights · Learn · Companion · Tools.
+ */
 export const LEFT_RAIL_PRIMARY: readonly LeftRailItem[] = [
   { href: "/dashboard", label: "Home" },
-  { href: "/assessment", label: "Assess" },
-  { href: "/path", label: "Plan" },
-  { href: "/money", label: "Money" },
+  { href: "/assessment", label: "Assessment" },
+  { href: "/money", label: "Finances" },
+  { href: "/path", label: "Plans" },
   { href: "/scenarios", label: "Compare" },
-  { href: "/tools", label: "Tools" },
+  { href: "/money/bills", label: "Bills" },
+  { href: "/timeline", label: "Insights" },
+  { href: "/learn", label: "Learn" },
   { href: "/advisor", label: "Companion" },
+  { href: "/tools", label: "Tools" },
 ] as const;
 
-/** SECONDARY: Accounts · Settings · Support. Learn omitted (no live /learn). */
+/** SECONDARY: Accounts · Settings · Support. */
 export const LEFT_RAIL_SECONDARY: readonly LeftRailItem[] = [
   { href: "/connections", label: "Accounts" },
   { href: "/settings", label: "Settings" },
   { href: "/trust", label: "Support" },
 ] as const;
 
-/** Labels that must never appear as rail peers. */
+/**
+ * Dual-home labels that must never appear as rail peers next to the Product map.
+ * Homie is companion LOOK, not a rail row.
+ */
 export const LEFT_RAIL_KILLED_LABELS = [
-  "Learn",
-  "Bills",
-  "Insights",
-  "Finances",
-  "Plans",
+  "Assess",
+  "Money",
+  "Plan",
   "Homie",
 ] as const;
 
@@ -47,6 +54,12 @@ export function isRoleOperateRoute(pathname: string | null | undefined): boolean
 export function isLeftRailActive(pathname: string, href: string): boolean {
   if (href === "/dashboard") {
     return pathname === "/dashboard" || pathname.startsWith("/dashboard/");
+  }
+  if (href === "/money") {
+    if (pathname === "/money/bills" || pathname.startsWith("/money/bills/")) {
+      return false;
+    }
+    return pathname === "/money" || pathname.startsWith("/money/");
   }
   return pathname === href || pathname.startsWith(`${href}/`);
 }

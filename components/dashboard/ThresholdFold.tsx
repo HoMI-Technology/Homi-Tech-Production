@@ -12,6 +12,7 @@ import {
   foldHoldLead,
   foldHomeHoldSentence,
   foldScoreAgeLine,
+  homeJourneyStages,
   resolveFoldPathPrimary,
   type FoldHardStopCode,
   type FoldPathPrimary,
@@ -19,6 +20,7 @@ import {
 import type { LastReadMoneyInputs } from "@/lib/dashboard/last-read-chrome";
 import { HomeCompanionColumn } from "@/components/dashboard/HomeCompanionColumn";
 import { HomeDensity } from "@/components/dashboard/HomeDensity";
+import { HomeJourney } from "@/components/dashboard/HomeJourney";
 import { HomeKeyAreas } from "@/components/dashboard/HomeKeyAreas";
 import { HomeScoreGauge } from "@/components/dashboard/HomeScoreGauge";
 import { LoadErrorPanel } from "@/components/dashboard/LoadErrorPanel";
@@ -38,7 +40,7 @@ export type ThresholdFoldLatest = {
 
 /**
  * Signed-in first screen inside PR10 left-rail chrome.
- * HOME_SCRAPE_CRAFT: readiness hero (score + gauge) → Key Areas → next/money → tools + companion.
+ * HOME_SCRAPE_CRAFT: readiness hero (score + gauge) → Key Factors → journey → next/money → tools + companion.
  * Score is last AssessmentResult only. Compass never mounts here.
  */
 export function ThresholdFold({
@@ -47,6 +49,7 @@ export function ThresholdFold({
   verdict,
   stopMessages,
   stopCode = null,
+  stopCodes,
   decisionType = "home_buying",
   lastMoney,
   pathPrimary,
@@ -57,6 +60,7 @@ export function ThresholdFold({
   verdict: VerdictKey | null;
   stopMessages: string[];
   stopCode?: FoldHardStopCode | null;
+  stopCodes?: readonly FoldHardStopCode[];
   decisionType?: string;
   lastMoney?: LastReadMoneyInputs | null;
   pathPrimary: FoldPathPrimary | null;
@@ -88,8 +92,12 @@ export function ThresholdFold({
         timingScore: latest.timingScore,
         runwayMonths: lastMoney?.emergencyFundMonths,
         stopCode,
+        stopCodes,
         hardStopActive,
       })
+    : [];
+  const journeyStages = latest
+    ? homeJourneyStages({ hasAssessment: true, hardStopActive })
     : [];
 
   return (
@@ -162,22 +170,22 @@ export function ThresholdFold({
                               <svg
                                 aria-hidden
                                 viewBox="0 0 16 16"
-                                className="size-3 shrink-0 text-crimson"
+                                className="size-3.5 shrink-0 text-light"
                               >
                                 <path
                                   fill="currentColor"
                                   d="M8.89 1.5a1 1 0 0 0-1.78 0L1.2 12.26A1 1 0 0 0 2.09 13.8h11.82a1 1 0 0 0 .89-1.54L8.89 1.5ZM8 6.2a.7.7 0 0 1 .7.7v2.3a.7.7 0 1 1-1.4 0V6.9A.7.7 0 0 1 8 6.2Zm0 5.5a.8.8 0 1 1 0-1.6.8.8 0 0 1 0 1.6Z"
                                 />
                               </svg>
-                              <p
-                                className="type-fold-hardstop m-0 uppercase tracking-[0.08em] text-amber"
+                              <span
+                                className="type-fold-hardstop m-0 uppercase tracking-[0.08em] text-light"
                                 data-home-hard-stop-eyebrow=""
                               >
                                 {hardStopParts.lead}
                                 {hardStopParts.accent ? (
-                                  <span className="text-crimson">{hardStopParts.accent}</span>
+                                  <span className="text-light">{hardStopParts.accent}</span>
                                 ) : null}
-                              </p>
+                              </span>
                             </span>
                             {holdSentence ? (
                               <p
@@ -233,6 +241,8 @@ export function ThresholdFold({
                   </section>
 
                   {keyAreas.length > 0 ? <HomeKeyAreas areas={keyAreas} /> : null}
+
+                  {journeyStages.length > 0 ? <HomeJourney stages={journeyStages} /> : null}
 
                   <div data-home-money-below-fold="">
                     <HomeDensity lastMoney={lastMoney} pathTitles={pathTitles} />

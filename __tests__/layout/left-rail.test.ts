@@ -10,17 +10,21 @@ import {
   isRoleOperateRoute,
   personRailIdentity,
 } from "@/lib/layout/left-rail";
+import { HOME_DENSITY_LENSES } from "@/lib/dashboard/fold-truth";
 
-describe("PR10 left-rail destinations", () => {
-  it("locks PRIMARY and SECONDARY live URLs and omits Learn", () => {
+describe("PR12 left-rail destinations", () => {
+  it("locks PRIMARY Product map and SECONDARY without Finances+Money dual peers", () => {
     expect(LEFT_RAIL_PRIMARY.map((i) => [i.label, i.href])).toEqual([
       ["Home", "/dashboard"],
-      ["Assess", "/assessment"],
-      ["Plan", "/path"],
-      ["Money", "/money"],
+      ["Assessment", "/assessment"],
+      ["Finances", "/money"],
+      ["Plans", "/path"],
       ["Compare", "/scenarios"],
-      ["Tools", "/tools"],
+      ["Bills", "/money/bills"],
+      ["Insights", "/timeline"],
+      ["Learn", "/learn"],
       ["Companion", "/advisor"],
+      ["Tools", "/tools"],
     ]);
     expect(LEFT_RAIL_SECONDARY.map((i) => [i.label, i.href])).toEqual([
       ["Accounts", "/connections"],
@@ -29,17 +33,16 @@ describe("PR10 left-rail destinations", () => {
     ]);
     const labels = [...LEFT_RAIL_PRIMARY, ...LEFT_RAIL_SECONDARY].map((i) => i.label);
     const hrefs = [...LEFT_RAIL_PRIMARY, ...LEFT_RAIL_SECONDARY].map((i) => i.href);
-    expect(labels).not.toContain("Learn");
-    expect(hrefs).not.toContain("/learn");
+    expect(labels).toContain("Learn");
+    expect(hrefs).toContain("/learn");
     expect(hrefs).not.toContain("/learning");
     for (const killed of LEFT_RAIL_KILLED_LABELS) {
       expect(labels).not.toContain(killed);
     }
-    expect(labels.filter((l) => l === "Money")).toHaveLength(1);
-    expect(labels).not.toContain("Bills");
-    expect(labels).not.toContain("Insights");
-    expect(labels).not.toContain("Finances");
-    expect(labels).not.toContain("Plans");
+    expect(labels.filter((l) => l === "Finances")).toHaveLength(1);
+    expect(labels.filter((l) => l === "Money")).toHaveLength(0);
+    expect(labels.filter((l) => l === "Plans")).toHaveLength(1);
+    expect(labels.filter((l) => l === "Plan")).toHaveLength(0);
     expect(LEFT_RAIL_WIDTH_PX).toBeGreaterThanOrEqual(240);
     expect(LEFT_RAIL_WIDTH_PX).toBeLessThanOrEqual(256);
   });
@@ -48,15 +51,19 @@ describe("PR10 left-rail destinations", () => {
     const hrefs = [...LEFT_RAIL_PRIMARY, ...LEFT_RAIL_SECONDARY].map((i) => i.href);
     for (const href of hrefs) {
       expect(href.startsWith("/")).toBe(true);
-      expect(href).not.toMatch(/\/stand$|\/bills$|\/insights$|\/learn$/);
+      expect(href).not.toMatch(/\/stand$|\/insights$|\/learning$/);
     }
   });
 
-  it("marks Home only on /dashboard and Tools on hub children", () => {
+  it("marks Home only on /dashboard, Tools on hub children, and Bills not Finances", () => {
     expect(isLeftRailActive("/dashboard", "/dashboard")).toBe(true);
     expect(isLeftRailActive("/assessment", "/dashboard")).toBe(false);
     expect(isLeftRailActive("/tools/fire", "/tools")).toBe(true);
     expect(isLeftRailActive("/path", "/path")).toBe(true);
+    expect(isLeftRailActive("/money", "/money")).toBe(true);
+    expect(isLeftRailActive("/money/budget", "/money")).toBe(true);
+    expect(isLeftRailActive("/money/bills", "/money")).toBe(false);
+    expect(isLeftRailActive("/money/bills", "/money/bills")).toBe(true);
     expect(isRoleOperateRoute("/admin")).toBe(true);
     expect(isRoleOperateRoute("/dashboard")).toBe(false);
   });
@@ -71,18 +78,16 @@ describe("PR10 left-rail destinations", () => {
   });
 });
 
-describe("PR10 hub membership", () => {
-  it("Home tools cards are a subset of the live hub", () => {
+describe("PR12 hub membership", () => {
+  it("Home hub tool cards are a subset of the live hub; chrome shells are empty routes", () => {
     const hubPaths = new Set(hubLenses().map((lens) => lens.path));
-    for (const href of [
-      "/tools/affordability",
-      "/tools/debt-payoff",
-      "/tools/blind-budget",
-      "/tools/monte-carlo",
-      "/tools/fire",
-      "/tools/roth-conversion",
-    ]) {
-      expect(hubPaths.has(href)).toBe(true);
+    for (const lens of HOME_DENSITY_LENSES) {
+      if (lens.kind === "hub") {
+        expect(hubPaths.has(lens.href)).toBe(true);
+      } else {
+        expect(hubPaths.has(lens.href)).toBe(false);
+        expect(lens.line).not.toMatch(/\$|\d{2,}/);
+      }
     }
   });
 });

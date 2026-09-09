@@ -26,9 +26,9 @@ test.describe("signed-in shell navigation", () => {
       await expect(page.locator("[data-app-shell='pr10-rail']")).toBeVisible();
       await expect(page.locator("[data-shell-compass] svg")).toBeVisible();
 
-      await expect(page.getByRole("link", { name: "Plan" })).toBeVisible();
-      await expect(page.getByRole("link", { name: "Money" })).toBeVisible();
-      await page.getByRole("link", { name: "Plan" }).click();
+      await expect(page.getByRole("link", { name: "Plans" })).toBeVisible();
+      await expect(page.getByRole("link", { name: "Finances" })).toBeVisible();
+      await page.getByRole("link", { name: "Plans" }).click();
       await expect(page).toHaveURL(/\/path/);
 
       await page.setViewportSize({ width: 390, height: 844 });
@@ -95,22 +95,27 @@ test.describe("shell nav config (always-on)", () => {
     expect(APP_MORE_NAV.some((i) => i.href === "/journal")).toBe(true);
   });
 
-  test("PR10 left rail destinations are live product URLs", async () => {
+  test("PR12 left rail destinations follow the Product map", async () => {
     expect(APP_RAIL_PRIMARY.map((i) => i.href)).toEqual([
       "/dashboard",
       "/assessment",
-      "/path",
       "/money",
+      "/path",
       "/scenarios",
-      "/tools",
+      "/money/bills",
+      "/timeline",
+      "/learn",
       "/advisor",
+      "/tools",
     ]);
     expect(APP_RAIL_SECONDARY.map((i) => i.href)).toEqual([
       "/connections",
       "/settings",
       "/trust",
     ]);
-    expect(APP_RAIL_PRIMARY.some((i) => i.label === "Learn")).toBe(false);
+    expect(APP_RAIL_PRIMARY.some((i) => i.label === "Learn")).toBe(true);
+    expect(APP_RAIL_PRIMARY.some((i) => i.label === "Finances")).toBe(true);
+    expect(APP_RAIL_PRIMARY.some((i) => i.label === "Money")).toBe(false);
   });
 
   test("anonymous report path redirects to sign-in with next", async ({ page }) => {

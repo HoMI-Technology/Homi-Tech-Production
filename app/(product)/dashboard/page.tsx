@@ -113,6 +113,7 @@ export default async function DashboardPage() {
           verdict={verdict}
           stopMessages={stopMessages}
           stopCode={stopCode}
+          stopCodes={hardStopCodes(latest?.hard_stops)}
           decisionType={latest?.decision_type ?? "home_buying"}
           lastMoney={lastMoneyInputsFromRow(latest?.inputs ?? null)}
           pathPrimary={pathPrimary}

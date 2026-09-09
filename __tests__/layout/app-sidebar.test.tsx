@@ -57,8 +57,8 @@ beforeEach(() => {
   );
 });
 
-describe("AppSidebar — PR10 left rail", () => {
-  it("unlocks PRIMARY + SECONDARY destinations and omits Learn / killed peers", () => {
+describe("AppSidebar — PR12 left rail", () => {
+  it("unlocks PRIMARY Product map including Learn / Bills / Insights invent chrome", () => {
     render(<AppSidebar email="jamie@example.com" fullName="Jamie Diaz" />);
 
     const rail = document.querySelector("[data-left-rail]");
@@ -86,15 +86,16 @@ describe("AppSidebar — PR10 left rail", () => {
       expect(screen.getByRole("link", { name: item.label })).toHaveAttribute("href", item.href);
     }
 
-    expect(screen.queryByRole("link", { name: /^learn$/i })).toBeNull();
-    expect(screen.queryByRole("link", { name: /^bills$/i })).toBeNull();
-    expect(screen.queryByRole("link", { name: /^insights$/i })).toBeNull();
-    expect(screen.queryByRole("link", { name: /^finances$/i })).toBeNull();
-    expect(screen.queryByRole("link", { name: /^plans$/i })).toBeNull();
+    expect(screen.getByRole("link", { name: /^learn$/i })).toHaveAttribute("href", "/learn");
+    expect(screen.getByRole("link", { name: /^bills$/i })).toHaveAttribute("href", "/money/bills");
+    expect(screen.getByRole("link", { name: /^insights$/i })).toHaveAttribute("href", "/timeline");
+    expect(screen.getByRole("link", { name: /^finances$/i })).toHaveAttribute("href", "/money");
+    expect(screen.getByRole("link", { name: /^plans$/i })).toHaveAttribute("href", "/path");
+    expect(screen.queryByRole("link", { name: /^money$/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /^assess$/i })).toBeNull();
     expect(screen.queryByRole("link", { name: /homie/i })).toBeNull();
     expect(document.body.textContent).not.toContain("CRAFT · PR10");
     expect(document.body.textContent).not.toContain("NOT SHIP");
-    expect(document.querySelector("[data-home-journey]")).toBeNull();
     expect(document.querySelector("[data-rail-person-name]")).toHaveTextContent("Jamie D.");
   });
 

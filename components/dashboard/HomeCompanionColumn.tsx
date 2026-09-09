@@ -11,7 +11,7 @@ import {
 import { COLORS } from "@/lib/brand";
 
 /**
- * Home insight column — Trinity-skinned Companion, not a Homie launch cast.
+ * Home insight column — Companion chat LOOK. Local guidance, not live AI.
  */
 export function HomeCompanionColumn() {
   return (
@@ -33,13 +33,14 @@ export function HomeCompanionColumn() {
         <div className="mt-4 flex items-center gap-3">
           <span
             aria-hidden
-            className="flex size-12 items-center justify-center rounded-2xl border border-white/[0.06]"
+            className="home-companion-orb flex size-12 items-center justify-center rounded-full"
             data-home-companion-trinity=""
+            data-home-companion-orb=""
           >
             <svg viewBox="0 0 36 36" className="size-8" fill="none">
-              <circle cx="18" cy="12" r="5" stroke={COLORS.cyan} strokeWidth="1.5" />
-              <circle cx="10" cy="24" r="5" stroke={COLORS.emerald} strokeWidth="1.5" />
-              <circle cx="26" cy="24" r="5" stroke={COLORS.yellow} strokeWidth="1.5" />
+              <circle cx="18" cy="18" r="11" fill={COLORS.cyan} fillOpacity="0.16" />
+              <circle cx="18" cy="18" r="7" stroke={COLORS.cyan} strokeWidth="1.5" />
+              <circle cx="18" cy="18" r="2.5" fill={COLORS.cyan} />
             </svg>
           </span>
           <Link

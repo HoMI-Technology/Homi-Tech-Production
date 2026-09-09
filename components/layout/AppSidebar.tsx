@@ -17,8 +17,8 @@ import {
 const SHELL_COMPASS_SIZE = 40;
 
 /**
- * PR10 personal left rail. Destinations are LEFT_RAIL_* law.
- * PR11 N3: one ThresholdCompass + Wordmark stack — no HomiHexes, no second compass.
+ * PR12 personal left rail. Destinations are LEFT_RAIL_* Product map.
+ * PR11 N3 kept: one ThresholdCompass + Wordmark stack — no HomiHexes, no second compass.
  */
 export function AppSidebar({
   email,

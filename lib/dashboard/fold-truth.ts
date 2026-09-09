@@ -150,7 +150,7 @@ export const HOME_DENSITY_VIEW_ALL_TOOLS_HREF = "/tools" as const;
 export const HOME_DENSITY_WHATS_NEXT_HEADING = "What's next" as const;
 export const HOME_DENSITY_TOOLS_HEADING = "Tools" as const;
 export const HOME_READINESS_HEADING = "Your Readiness" as const;
-export const HOME_KEY_AREAS_HEADING = "Key Areas" as const;
+export const HOME_KEY_AREAS_HEADING = "Key Factors" as const;
 export const HOME_SEE_FULL_ASSESSMENT = "See full assessment" as const;
 export const HOME_SEE_FULL_BREAKDOWN = "See full breakdown" as const;
 export const HOME_COMPANION_HEADING = "Your Companion" as const;
@@ -163,8 +163,8 @@ export const HOME_RECENT_EMPTY =
 export const HOME_WORKSPACE_SUBLINE = "Here's where you stand and what's next." as const;
 
 /**
- * State A hub-lens cards. Live `/tools/*` hub routes only. ≤6.
- * Dim lines are locked craft (≤8 words). Never invent simulation-count theater or dollar chrome.
+ * Home Tools row: live hub lenses plus invent-chrome empty shells.
+ * Chrome shells never invent $. Dim lines locked (≤8 words).
  */
 export const HOME_DENSITY_LENSES = [
   {
@@ -172,36 +172,42 @@ export const HOME_DENSITY_LENSES = [
     href: "/tools/affordability",
     title: "Affordability",
     line: "Housing tiers for your ledger",
+    kind: "hub",
   },
   {
     id: "debt-payoff",
     href: "/tools/debt-payoff",
     title: "Debt Payoff",
     line: "Avalanche vs snowball paths",
+    kind: "hub",
   },
   {
     id: "blind-budget",
     href: "/tools/blind-budget",
     title: "Blind Budget",
     line: "Empty-ledger spending lens",
+    kind: "hub",
   },
   {
     id: "monte-carlo",
     href: "/tools/monte-carlo",
     title: "Monte Carlo",
     line: "Simulated paths — educational",
+    kind: "hub",
   },
   {
-    id: "fire",
-    href: "/tools/fire",
-    title: "FIRE Number",
-    line: "Independence with your assumptions",
+    id: "net-worth",
+    href: "/tools/net-worth",
+    title: "Net Worth",
+    line: "Empty until accounts connect",
+    kind: "chrome",
   },
   {
-    id: "roth-conversion",
-    href: "/tools/roth-conversion",
-    title: "Roth Conversion",
-    line: "Educational · not a recommendation",
+    id: "emergency-fund",
+    href: "/tools/emergency-fund",
+    title: "Emergency Fund",
+    line: "Empty until accounts connect",
+    kind: "chrome",
   },
 ] as const;
 
@@ -217,6 +223,49 @@ export const HOME_QUICK_ACTIONS = [
   { label: "Compare scenarios", href: "/scenarios" },
   { label: "Explore tools", href: "/tools" },
 ] as const;
+
+export const HOME_JOURNEY_HEADING = "Your Journey" as const;
+export const HOME_JOURNEY_HISTORY_HREF = "/timeline" as const;
+export const HOME_JOURNEY_HISTORY_LABEL = "See history" as const;
+
+export type HomeJourneyStageId = "assessment" | "build" | "prepare" | "buy";
+export type HomeJourneyTone = "done" | "current" | "next" | "future";
+
+export type HomeJourneyStage = {
+  id: HomeJourneyStageId;
+  label: string;
+  tone: HomeJourneyTone;
+  hint: string;
+};
+
+/**
+ * Craft journey chrome. Never invent a completed Prepare/Buy stage.
+ * Hard stop keeps Build current — does not paint On track / READY.
+ */
+export function homeJourneyStages(args: {
+  hasAssessment: boolean;
+  hardStopActive: boolean;
+}): readonly HomeJourneyStage[] {
+  if (!args.hasAssessment) {
+    return [
+      { id: "assessment", label: "Assessment", tone: "next", hint: "Start" },
+      { id: "build", label: "Build", tone: "future", hint: "Future" },
+      { id: "prepare", label: "Prepare", tone: "future", hint: "Future" },
+      { id: "buy", label: "Buy", tone: "future", hint: "Future" },
+    ];
+  }
+  return [
+    { id: "assessment", label: "Assessment", tone: "done", hint: "Read" },
+    {
+      id: "build",
+      label: "Build",
+      tone: "current",
+      hint: args.hardStopActive ? "Hold" : "In progress",
+    },
+    { id: "prepare", label: "Prepare", tone: "next", hint: "Next" },
+    { id: "buy", label: "Buy", tone: "future", hint: "Future" },
+  ];
+}
 
 /** HOME_CRAFT / HOME_FIRST_VIEWPORT month crop. Short English, UTC, no period. */
 const FOLD_AGE_SHORT_MONTHS = [
