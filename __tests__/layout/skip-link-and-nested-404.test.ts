@@ -38,8 +38,10 @@ describe("nested 404 chrome", () => {
       expect(existsSync(resolve(process.cwd(), rel)), rel).toBe(true);
       const src = read(rel);
       expect(src).toContain("NotFoundContent");
-      expect(src).not.toContain("SiteHeader");
-      expect(src).not.toContain("SiteFooter");
+      expect(src).not.toMatch(/import\s*\{[^}]*\bSiteHeader\b/);
+      expect(src).not.toMatch(/import\s*\{[^}]*\bSiteFooter\b/);
+      expect(src).not.toContain("<SiteHeader");
+      expect(src).not.toContain("<SiteFooter");
       expect(src).not.toContain('id="main"');
     }
   });

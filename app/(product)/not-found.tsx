@@ -1,6 +1,6 @@
 import { NotFoundContent } from "@/components/layout/NotFoundContent";
 
-/** Content-only: product layout already mounts chrome and main#main. */
+/** Content-only: group layout already mounts chrome and main#main. */
 export default function ProductNotFound() {
   return <NotFoundContent />;
 }
