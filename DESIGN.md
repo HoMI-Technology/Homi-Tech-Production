@@ -92,7 +92,7 @@ Legal entity in `lib/brand` today: `HOMI TECHNOLOGIES LLC`. Recase to `Homi Tech
 - **Signed-in Home (`/dashboard`) instrument is the build** — Path next move + hard stops lead the fold; Decision Readiness Score + verdict sit as a compact ScoreRail reading (`components/score/ScoreRail.tsx`, landed 2026-08-23). Partner/team/admin keep book/cohort pulse heroes.
 - Product tabs (landed 2026-08-23): Readiness · Reality · Decide · Plan · Goals. Invest and Track are not peers; routes stay live, folded under Reality.
 - Tabular / mono numbers for scores and money.
-- Shared primitives: `components/operate/*` (`PageFrame`, `PageHeader`, `OperateInstrument`, `MetricRail`, `ActionDock`).
+- Shared primitives: `components/operate/*` (`PageFrame`, `PageHeader`, `OperateInstrument`, `MetricRail`).
 - No GSAP / scroll-jack / marquee on app chrome or dashboard.
 - Glass is atmosphere under controlled contrast — not the text substrate over busy gradients.
 - Equal 4-tile KPI walls must not outrank the fold instrument.

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 /**
  * Instrument fold title + job line — Direction A (Cockpit Linear).
- * Peer to OperateInstrument / MetricRail / ActionDock.
+ * Peer to OperateInstrument / MetricRail.
  */
 export function OperateHeroMeta({
   title,

@@ -8,7 +8,6 @@ import { COLORS } from "@/lib/brand";
  *
  * Peer primitives live beside this file:
  * - `OperateHeroMeta`
- * - `ActionDock`
  * - `MetricRail`
  *
  * Re-exports below are temporary for one release — prefer direct imports.
@@ -32,5 +31,4 @@ export function OperateInstrument({
   );
 }
 
-export { ActionDock } from "@/components/operate/ActionDock";
 export { OperateHeroMeta } from "@/components/operate/OperateHeroMeta";
