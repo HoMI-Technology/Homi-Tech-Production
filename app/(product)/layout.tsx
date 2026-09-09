@@ -49,10 +49,6 @@ export default async function ProductLayout({ children }: { children: React.Reac
 
   return (
     <>
-      <a href="#main" className="skip-link">
-        Skip to content
-      </a>
-
       <ProductLayoutRouter
         user={!!user}
         email={user?.email ?? null}
