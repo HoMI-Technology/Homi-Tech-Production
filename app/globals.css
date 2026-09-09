@@ -1204,6 +1204,7 @@ html {
     grid-template-areas:
       "context"
       "hero"
+      "evidence"
       "homi"
       "support"
       "changed"

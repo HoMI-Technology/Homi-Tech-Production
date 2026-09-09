@@ -1,5 +1,7 @@
 // @vitest-environment jsdom
 
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { HomeV4 } from "@/components/v4/HomeV4";
@@ -110,5 +112,31 @@ describe("HomeV4 Ultra Premium fold", () => {
     expect(text).toContain("Accounts aren't connected yet.");
     expect(container.querySelector("[data-home-v4-connect]")).not.toBeNull();
     expect(text).not.toMatch(/\$\d/);
+  });
+});
+
+describe("Home v4 shipped CSS named areas", () => {
+  it("keeps evidence in the 768/390/320 template so the band cannot auto-place after tools", () => {
+    const css = readFileSync(resolve(process.cwd(), "app/globals.css"), "utf8");
+    expect(css).toMatch(/\.v4-evidence\s*\{[^}]*grid-area:\s*evidence/s);
+
+    const mobile = css.match(
+      /@media \(max-width: 767\.98px\)\s*\{[\s\S]*?\.v4-home-grid\s*\{[\s\S]*?grid-template-areas:\s*([^;]+);/,
+    );
+    expect(mobile).not.toBeNull();
+    const areas = mobile![1];
+    const names = [...areas.matchAll(/"([^"]+)"/g)].map((match) => match[1]);
+    expect(names).toContain("evidence");
+    expect(names).toEqual([
+      "context",
+      "hero",
+      "evidence",
+      "homi",
+      "support",
+      "changed",
+      "tools",
+    ]);
+    expect(names.indexOf("evidence")).toBeLessThan(names.indexOf("tools"));
+    expect(names.indexOf("evidence")).toBeLessThan(names.indexOf("homi"));
   });
 });
