@@ -5,7 +5,7 @@
       "startServerCommand": "npm run start",
       "startServerReadyPattern": "Ready in|Local:|started server",
       "startServerReadyTimeout": 60000,
-      "url": ["http://localhost:3000/dashboard"],
+      "url": ["http://localhost:3000/"],
       "puppeteerScript": "./scripts/lhci-login.cjs",
       "puppeteerLaunchOptions": {
         "args": ["--no-sandbox", "--disable-dev-shm-usage"]

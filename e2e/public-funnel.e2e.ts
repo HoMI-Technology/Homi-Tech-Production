@@ -1,14 +1,14 @@
 import { test, expect } from "@playwright/test";
+import { expectKillToHome } from "./helpers/kill";
 
 /**
- * The anonymous acquisition funnel — the path a launch visitor actually walks.
+ * KEEP acquisition surfaces plus KILL → `/` (PR15).
  * These need no account, so they're the CI-safe core of the E2E smoke.
  */
 
-test("landing page loads and routes into Assess / First Moment", async ({ page }) => {
+test("landing page loads with HōMI brand and Assess close", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveTitle(/HōMI/);
-  // Header primary close is Assess → First Moment (account-then-45).
   const cta = page.getByRole("link", { name: /^assess$/i }).first();
   await expect(cta).toBeVisible();
   await expect(cta).toHaveAttribute("href", "/first-moment");
@@ -19,7 +19,6 @@ test("landing page does not expose the waitlist capture", async ({ page }) => {
   await expect(page.locator("#waitlist")).toHaveCount(0);
   await expect(page.locator("#landing-waitlist-email")).toHaveCount(0);
   await expect(page.getByRole("button", { name: /^get notified$/i })).toHaveCount(0);
-  // Assess stays the only homepage close; Waitlist is footer legal-row only.
   await expect(page.getByRole("link", { name: /^assess$/i }).first()).toBeVisible();
   await expect(page.getByText("Packet 2")).toHaveCount(0);
   await expect(page.getByText("Rehearse", { exact: true })).toHaveCount(0);
@@ -28,14 +27,50 @@ test("landing page does not expose the waitlist capture", async ({ page }) => {
   await expect(waitlist).toHaveAttribute("href", "/waitlist");
 });
 
-test("Shadow Score flow renders its first step", async ({ page }) => {
-  await page.goto("/shadow-score");
-  await expect(page.getByRole("heading", { name: /90-second read/i })).toBeVisible();
+test("footer KEEP links: legal, support, waitlist, X, TikTok", async ({ page }) => {
+  await page.goto("/");
+  const footer = page.getByRole("contentinfo");
+  await expect(footer.getByRole("link", { name: /^privacy$/i })).toHaveAttribute(
+    "href",
+    "/legal/privacy",
+  );
+  await expect(footer.getByRole("link", { name: /^terms$/i })).toHaveAttribute("href", "/legal/terms");
+  await expect(footer.getByRole("link", { name: /^cookies$/i })).toHaveAttribute(
+    "href",
+    "/legal/cookies",
+  );
+  await expect(footer.getByRole("link", { name: /^support$/i })).toHaveAttribute(
+    "href",
+    "mailto:support@homitechnology.com",
+  );
+  await expect(footer.getByRole("link", { name: /^waitlist$/i })).toHaveAttribute("href", "/waitlist");
+  await expect(footer.getByRole("link", { name: /HōMI on X/i })).toBeVisible();
+  await expect(footer.getByRole("link", { name: /HōMI on TikTok/i })).toBeVisible();
+  await expect(footer.getByText(/educational guidance only/i)).toBeVisible();
 });
 
-test("attribution: a ?ref link drops the first-touch cookie", async ({ page, context }) => {
-  await page.goto("/shadow-score?ref=ptr_e2e12345&utm_source=playwright");
-  // AttributionCapture writes the cookie client-side on mount.
+test("waitlist page loads", async ({ page }) => {
+  await page.goto("/waitlist");
+  await expect(page).toHaveURL(/\/waitlist/);
+  await expect(page.getByRole("heading", { name: /your turn/i })).toBeVisible();
+});
+
+test("KEEP legal pages load", async ({ page }) => {
+  await page.goto("/legal/privacy");
+  await expect(page.getByRole("heading", { name: "Privacy Policy", exact: true })).toBeVisible();
+  await page.goto("/legal/terms");
+  await expect(page.getByRole("heading", { name: "Terms of Service", exact: true })).toBeVisible();
+  await page.goto("/legal/cookies");
+  await expect(page.getByRole("heading", { name: "Cookie Policy", exact: true })).toBeVisible();
+});
+
+test("extra legal folds to /legal/privacy", async ({ page }) => {
+  await page.goto("/legal/disclaimer");
+  expect(new URL(page.url()).pathname).toBe("/legal/privacy");
+});
+
+test("attribution: a ?ref link on `/` drops the first-touch cookie", async ({ page, context }) => {
+  await page.goto("/?ref=ptr_e2e12345&utm_source=playwright");
   await expect
     .poll(async () => (await context.cookies()).some((c) => c.name === "homi_attr"))
     .toBe(true);
@@ -43,25 +78,20 @@ test("attribution: a ?ref link drops the first-touch cookie", async ({ page, con
   expect(decodeURIComponent(cookie?.value ?? "")).toContain("ptr_e2e12345");
 });
 
-test("mortgage tool page renders (budget-tracked route)", async ({ page }) => {
-  await page.goto("/tools/mortgage");
-  await expect(page.locator("h1, h2").first()).toBeVisible();
-});
-
-test("an unknown shadow share token shows the expired-card invite, not a crash", async ({
-  page,
-}) => {
-  await page.goto(`/shadow/${"f".repeat(32)}`);
-  await expect(page.getByText(/expired|get your shadow score/i).first()).toBeVisible();
-});
-
-test("protected route redirects anonymous users to sign-in", async ({ page }) => {
-  await page.goto("/dashboard");
-  // The auth middleware only engages when Supabase env is configured (it
-  // early-returns otherwise). Where it's wired (CI has the anon key repo var,
-  // and production), an anonymous hit must bounce to sign-in. Skip rather than
-  // false-fail in a bare env with no Supabase keys.
-  const url = page.url();
-  test.skip(url.includes("/dashboard"), "Supabase env not configured — auth middleware inactive.");
-  await expect(page).toHaveURL(/\/auth\/sign-in/);
+test("KILL product and extra marketing URLs land on `/`", async ({ page }) => {
+  for (const path of [
+    "/dashboard",
+    "/assessment",
+    "/first-moment",
+    "/shadow-score",
+    "/tools/mortgage",
+    "/pricing",
+    "/how-it-works",
+    "/results",
+    "/admin",
+    "/partner/dashboard",
+    `/shadow/${"f".repeat(32)}`,
+  ]) {
+    await expectKillToHome(page, path);
+  }
 });

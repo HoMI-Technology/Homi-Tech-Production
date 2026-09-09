@@ -182,8 +182,9 @@ describe("/results is retired — no leftover shadow paint surface", () => {
 
   it("middleware retires /results without shadow-score CTAs", () => {
     const mw = readFileSync(join(process.cwd(), "middleware.ts"), "utf8");
-    expect(mw).toContain('path === "/results"');
+    expect(mw).toContain("redirectToHome");
     expect(mw).not.toContain("Get your Shadow Score");
     expect(mw).not.toContain('href="/shadow-score"');
+    expect(mw).not.toContain("/first-moment");
   });
 });

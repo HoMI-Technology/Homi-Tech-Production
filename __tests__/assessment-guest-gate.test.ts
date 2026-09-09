@@ -101,11 +101,10 @@ describe("FullAssessmentFlow does not score a guest", () => {
 });
 
 describe("guest /results is retired", () => {
-  it("middleware sends guests to First Moment; no results page or verdict view", () => {
+  it("middleware sends guests and signed-in users to `/`; no results page or verdict view", () => {
     const mw = src("middleware.ts");
-    expect(mw).toContain('path === "/results"');
-    expect(mw).toContain('"/first-moment"');
-    expect(mw).toContain('"/dashboard"');
+    expect(mw).toContain("redirectToHome");
+    expect(mw).not.toContain('user ? "/dashboard" : "/first-moment"');
     expect(() => src("app", "(product)", "results", "page.tsx")).toThrow();
     expect(() => src("components", "results", "ResultsVerdictView.tsx")).toThrow();
   });

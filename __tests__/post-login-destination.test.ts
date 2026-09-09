@@ -5,61 +5,45 @@ import {
   resolvePostLoginDestination,
 } from "@/lib/auth/postLoginDestination";
 
-describe("resolvePostLoginDestination", () => {
-  it("honors explicit deep links after sanitize", () => {
+describe("resolvePostLoginDestination (PR15)", () => {
+  it("always returns `/`, ignoring next and assessment state", () => {
+    expect(POST_LOGIN_HOME).toBe("/");
+    expect(POST_LOGIN_ASSESS).toBe("/");
     expect(
       resolvePostLoginDestination({
         requestedNext: "/settings",
         hasCompletedAssessment: false,
       }),
-    ).toBe("/settings");
+    ).toBe("/");
+    expect(
+      resolvePostLoginDestination({
+        requestedNext: "/dashboard",
+        hasCompletedAssessment: true,
+      }),
+    ).toBe("/");
     expect(
       resolvePostLoginDestination({
         requestedNext: "/path",
         hasCompletedAssessment: true,
       }),
-    ).toBe("/path");
-  });
-
-  it("honors explicit Home so protected-route bounces return to /dashboard", () => {
+    ).toBe("/");
     expect(
       resolvePostLoginDestination({
-        requestedNext: "/dashboard",
+        requestedNext: null,
         hasCompletedAssessment: false,
       }),
-    ).toBe(POST_LOGIN_HOME);
-  });
-
-  it("blocks open redirects even when treating them as explicit", () => {
+    ).toBe("/");
+    expect(
+      resolvePostLoginDestination({
+        requestedNext: "/auth/reset-password",
+        hasCompletedAssessment: false,
+      }),
+    ).toBe("/auth/reset-password");
     expect(
       resolvePostLoginDestination({
         requestedNext: "//evil.com",
         hasCompletedAssessment: true,
       }),
-    ).toBe(POST_LOGIN_HOME);
-  });
-
-  it("sends first-run accounts to Assess when next is omitted", () => {
-    expect(
-      resolvePostLoginDestination({
-        requestedNext: null,
-        hasCompletedAssessment: false,
-      }),
-    ).toBe(POST_LOGIN_ASSESS);
-    expect(
-      resolvePostLoginDestination({
-        requestedNext: "",
-        hasCompletedAssessment: false,
-      }),
-    ).toBe(POST_LOGIN_ASSESS);
-  });
-
-  it("sends scored accounts to Home when next is omitted", () => {
-    expect(
-      resolvePostLoginDestination({
-        requestedNext: null,
-        hasCompletedAssessment: true,
-      }),
-    ).toBe(POST_LOGIN_HOME);
+    ).toBe("/");
   });
 });

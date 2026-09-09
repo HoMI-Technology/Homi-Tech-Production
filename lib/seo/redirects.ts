@@ -19,9 +19,9 @@ export const WWW_REDIRECTS = [
   },
 ];
 
-/** Retired public paths → current legal / Assess URLs. Permanent (308). */
+/** Retired public paths → KEEP legal / landing. Permanent (308). */
 export const LEGACY_PATH_REDIRECTS = [
   { source: "/privacy", destination: "/legal/privacy", permanent: true },
-  { source: "/subprocessors", destination: "/legal/subprocessors", permanent: true },
-  { source: "/assess/new", destination: "/first-moment", permanent: true },
+  { source: "/subprocessors", destination: "/legal/privacy", permanent: true },
+  { source: "/assess/new", destination: "/", permanent: true },
 ];

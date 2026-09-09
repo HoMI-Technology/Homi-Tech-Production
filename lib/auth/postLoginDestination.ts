@@ -1,28 +1,31 @@
 import { safeNext } from "@/lib/auth/safeNext";
+import { normalizeAppPath } from "@/lib/auth/keep-routes";
 
-/** Signed-in Home — build fold when a completed assessment exists. */
-export const POST_LOGIN_HOME = "/dashboard" as const;
-
-/** First measurement — start or resume the 45-q when no `next` and no build yet. */
-export const POST_LOGIN_ASSESS = "/assessment" as const;
+/** After sign-in / OAuth callback — the landing page (PR15). */
+export const POST_LOGIN_HOME = "/" as const;
 
 /**
- * State-based post-login landing (post-login audit F1 / phase 03).
+ * Retired first-measurement default. PR15 scratches `/assessment`; the
+ * export stays so older call sites compile, and it is the same `/` as home.
+ */
+export const POST_LOGIN_ASSESS = "/" as const;
+
+/**
+ * Post-login landing is `/`.
  *
- * - Explicit `?next=` (including `/dashboard`) always wins after `safeNext`.
- *   Protected-route bounces use `next=/dashboard` and must return to Home.
- * - Missing `next` (fresh "Sign in" from marketing): route by assessment state —
- *   no completed assessment → `/assessment`; scored → `/dashboard`.
+ * Product `?next=` values (`/dashboard`, `/assessment`, role homes) are
+ * ignored. The one KEEP exception is `/auth/reset-password`, so recovery
+ * links still reach the reset form.
  */
 export function resolvePostLoginDestination(args: {
   requestedNext: string | null | undefined;
   hasCompletedAssessment: boolean;
 }): string {
-  const raw = typeof args.requestedNext === "string" ? args.requestedNext.trim() : "";
-
-  if (raw !== "") {
-    return safeNext(raw, POST_LOGIN_HOME);
+  void args.hasCompletedAssessment;
+  const sanitized = safeNext(args.requestedNext, POST_LOGIN_HOME);
+  const pathOnly = normalizeAppPath((sanitized.split("?")[0] ?? sanitized) || "/");
+  if (pathOnly === "/auth/reset-password") {
+    return sanitized;
   }
-
-  return args.hasCompletedAssessment ? POST_LOGIN_HOME : POST_LOGIN_ASSESS;
+  return POST_LOGIN_HOME;
 }

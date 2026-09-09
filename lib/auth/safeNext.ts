@@ -4,7 +4,7 @@
  * relative `//host`, scheme injection, and backslash tricks. Returns the
  * fallback for anything that isn't a plain in-app path.
  */
-export function safeNext(next: string | null | undefined, fallback = "/dashboard"): string {
+export function safeNext(next: string | null | undefined, fallback = "/"): string {
   if (!next) return fallback;
   // Must be a rooted path.
   if (!next.startsWith("/")) return fallback;
