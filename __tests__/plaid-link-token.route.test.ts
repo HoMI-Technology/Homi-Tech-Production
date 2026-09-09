@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { randomBytes } from "node:crypto";
 
 /**
- * Route tests for GET/POST /api/plaid/link-token — proves the anonymous-user
+ * Route tests for POST /api/plaid/link-token — proves the anonymous-user
  * bug is fixed (client_user_id was "anonymous"): anon gets 401, free tier
  * gets 402 (bankSync is a paid capability), and the token is created with the
  * real user id. {configured:false} is preserved when Plaid env is absent.

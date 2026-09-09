@@ -97,7 +97,6 @@ describe("scoring engine — numeric edge cases", () => {
 describe("API route Zod validation", () => {
   const routesToCheck = [
     "app/api/checkout/route.ts",
-    "app/api/email/route.ts",
     "app/api/assessments/route.ts",
     "app/api/waitlist/route.ts",
     "app/api/finance/savings-goals/route.ts",
@@ -125,9 +124,11 @@ describe("API route Zod validation", () => {
     expect(source).toContain('z.enum(["plus", "pro", "family"])');
   });
 
-  it("email route restricts template to known enum values", () => {
-    const source = fs.readFileSync(path.join(ROOT, "app/api/email/route.ts"), "utf8");
-    expect(source).toContain('z.enum(["welcome", "verdict", "reassessment", "waitlist"])');
+  it("sendTemplateEmail restricts template to known union values", () => {
+    const source = fs.readFileSync(path.join(ROOT, "lib/email/send.ts"), "utf8");
+    expect(source).toContain(
+      'export type EmailTemplate = "welcome" | "verdict" | "reassessment" | "outcome_survey" | "waitlist"',
+    );
   });
 });
 

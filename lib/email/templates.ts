@@ -1,7 +1,7 @@
 /**
  * HōMI transactional email templates.
  * Pure functions, no side effects — return { subject, html } and let the
- * caller (app/api/email/route.ts) handle delivery. Inline-styled HTML,
+ * caller (`lib/email/send`) handle delivery. Inline-styled HTML,
  * since email clients don't reliably support external or embedded CSS.
  */
 

@@ -54,8 +54,8 @@ export type SendEmailResult =
   | { ok: false; reason: "provider_error" | "render_error" };
 
 /**
- * Server-side email delivery. Mirrors `/api/email` but callable from routes and
- * cron jobs without an HTTP round-trip. Never throws ΓÇö callers log failures.
+ * Server-side email delivery. Callable from routes and cron jobs. Never throws —
+ * callers log failures.
  */
 export async function sendTemplateEmail(options: {
   template: EmailTemplate;

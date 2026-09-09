@@ -93,7 +93,7 @@ The following third-party dependencies process or transport sensitive informatio
 
 - **Stripe webhooks** verify signatures using `stripe.webhooks.constructEvent` with the `STRIPE_WEBHOOK_SECRET`
 - **Plaid webhooks** verify JWT tokens (production only; dev escape hatch documented)
-- **Internal API routes** (`/api/email`, `/api/cron/*`) guard with `x-homi-internal` or `Authorization: Bearer` + `CRON_SECRET`
+- **Internal API routes** (`/api/cron/*`) guard with `x-homi-internal` or `Authorization: Bearer` + `CRON_SECRET`
 - Webhook events are deduplicated via the `webhook_events` table (unique index on `event_id`)
 
 ## Security Testing

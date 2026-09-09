@@ -14,7 +14,7 @@
   },
   "stats": {
     "product_routes": 106,
-    "api_routes": 28,
+    "api_routes": 27,
     "component_directories": 35,
     "lib_modules": 51,
     "db_tables": 44,
@@ -917,11 +917,6 @@
     {
       "path": "/api/csp-report",
       "purpose": "CSP violation reporting",
-      "method": "POST"
-    },
-    {
-      "path": "/api/email",
-      "purpose": "Email sending (Resend)",
       "method": "POST"
     },
     {

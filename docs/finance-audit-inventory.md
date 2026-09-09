@@ -123,7 +123,7 @@
 ### 2.3 Plaid Bank Integration (Related, Not Yet Ledger-Native)
 
 - `lib/plaid/`: client.ts, sync.ts (main), cashflow.ts, categories.ts, crypto.ts (token encrypt), remove.ts, webhook-verify.ts.
-- API: `app/api/plaid/` (accounts, cashflow-summary, disconnect, exchange, link-token, sync, webhook).
+- API: `app/api/plaid/` (accounts, disconnect, exchange, link-token, sync, webhook).
 - DB: `plaid_items`, `plaid_transactions` (older migration 00024; RLS).
 - Usage: Connections page, dashboard, advisor (verified cashflow), simulator (prefers plaid snapshot), lib/readiness/evidence.ts.
 - Current: Summarizes to legacy-like or separate verified cashflow. Ledger has `source: "plaid"` slots but no import code yet (PR6).

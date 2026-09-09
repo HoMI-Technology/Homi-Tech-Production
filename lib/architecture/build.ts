@@ -368,7 +368,6 @@ const API_PURPOSES: Record<string, { purpose: string; method: string }> = {
   checkout: { purpose: "Stripe checkout session", method: "POST" },
   cron: { purpose: "Scheduled jobs", method: "POST" },
   "csp-report": { purpose: "CSP violation reporting", method: "POST" },
-  email: { purpose: "Email sending (Resend)", method: "POST" },
   "finance-state": { purpose: "Finance state sync", method: "GET/POST" },
   goals: { purpose: "Goal tracking", method: "GET/POST" },
   healthcheck: { purpose: "Health monitoring", method: "GET" },

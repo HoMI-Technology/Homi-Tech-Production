@@ -18,7 +18,7 @@ const bodySchema = z.object({
 });
 
 /**
- * GET/POST /api/plaid/link-token — creates a Plaid Link token for the
+ * POST /api/plaid/link-token — creates a Plaid Link token for the
  * current user. Returns {configured:false} when PLAID_CLIENT_ID/PLAID_SECRET
  * are not set, so the client can render a "coming soon" panel instead of
  * erroring. Auth required (401) and gated on the bankSync capability (402
@@ -30,7 +30,7 @@ const bodySchema = z.object({
  * mode to repair the login. No products array, and no public_token exchange
  * afterwards; success is signalled by LOGIN_REPAIRED / a fresh sync.
  */
-async function handler(request: Request) {
+export async function POST(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`plaid-link-token:${ip}`, { limit: 10, windowMs: 60_000 });
   if (!allowed) {
@@ -57,21 +57,19 @@ async function handler(request: Request) {
 
   // Optional POST body: {item_id} switches to update mode for a reconnect.
   let updateItemId: string | undefined;
-  if (request.method === "POST") {
-    const rawBody = await request.text();
-    if (rawBody.trim().length > 0) {
-      let json: unknown;
-      try {
-        json = JSON.parse(rawBody);
-      } catch {
-        return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
-      }
-      const parsed = bodySchema.safeParse(json);
-      if (!parsed.success) {
-        return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
-      }
-      updateItemId = parsed.data.item_id;
+  const rawBody = await request.text();
+  if (rawBody.trim().length > 0) {
+    let json: unknown;
+    try {
+      json = JSON.parse(rawBody);
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
     }
+    const parsed = bodySchema.safeParse(json);
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+    }
+    updateItemId = parsed.data.item_id;
   }
 
   let updateAccessToken: string | null = null;
@@ -171,6 +169,3 @@ async function handler(request: Request) {
     );
   }
 }
-
-export const GET = handler;
-export const POST = handler;

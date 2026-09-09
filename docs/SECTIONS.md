@@ -117,7 +117,7 @@ The seams every other Section depends on. A change here ripples everywhere, so
 it is never a side-effect of a feature task — it is its own, declared task.
 
 - **app:** `middleware.ts`, `api/healthcheck/`, `api/cron/`, `api/csp-report/`,
-  `api/email/`, `api/push/`, `api/unsubscribe/`, `api/v1/`, and the **share
+  `api/push/`, `api/unsubscribe/`, `api/v1/`, and the **share
   links** surface (`app/share/`, `app/shadow/`, `api/shares/`)
 - **lib:** `supabase/`, `env.ts`, `email/`, `push/`, `notifications/`,
   `analytics/` + `analytics.ts`, `audit.ts`, `attribution.ts`, `dates.ts`,
