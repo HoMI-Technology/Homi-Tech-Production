@@ -1,7 +1,7 @@
 import { AlertTriangle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { COLORS, type VerdictKey } from "@/lib/brand";
-import { SIGNED_IN_ASSESS_HREF } from "@/components/marketing/first-moment-copy";
+import { V4_SHELL_ASSESS_HREF } from "@/lib/layout/v4-shell";
 import { ReadinessGaugeV4 } from "@/components/v4/home/ReadinessGaugeV4";
 import { foldHoldClose, foldHoldLead } from "@/lib/dashboard/fold-truth";
 import { HOME_V4_PATH_CTA, type HomeV4View } from "@/lib/v4/home-state";
@@ -43,7 +43,7 @@ export function ReadinessHeroV4({ view }: { view: HomeV4View }) {
     : view.hasAssessment
       ? "One read. One next move."
       : "No assessment yet.";
-  const primaryHref = view.pathPrimary?.href ?? SIGNED_IN_ASSESS_HREF;
+  const primaryHref = view.pathPrimary?.href ?? V4_SHELL_ASSESS_HREF;
   const primaryLabel = primaryCtaLabel(view);
   const verdictColor = verdictTone(view.verdictKey, view.hardStopActive);
 
@@ -96,7 +96,7 @@ export function ReadinessHeroV4({ view }: { view: HomeV4View }) {
                 <ArrowRight aria-hidden className="size-4" strokeWidth={1.75} />
               </Link>
               <Link
-                href={SIGNED_IN_ASSESS_HREF}
+                href={V4_SHELL_ASSESS_HREF}
                 className="btn btn-ghost v4-hero-secondary"
                 data-home-v4-assess=""
               >
@@ -116,7 +116,7 @@ export function ReadinessHeroV4({ view }: { view: HomeV4View }) {
             <p className="v4-hero-hold">No assessment yet. One read paints this page.</p>
             <div className="v4-hero-actions">
               <Link
-                href={SIGNED_IN_ASSESS_HREF}
+                href={V4_SHELL_ASSESS_HREF}
                 className="btn btn-primary v4-hero-primary"
                 data-home-v4-assess=""
               >

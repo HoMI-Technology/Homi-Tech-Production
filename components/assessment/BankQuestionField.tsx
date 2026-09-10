@@ -33,19 +33,22 @@ export function BankQuestionField({
   value,
   onChange,
   contextHint,
+  surface = "default",
 }: {
   question: Question;
   value: ResponseValue | undefined;
   onChange: (value: ResponseValue) => void;
   contextHint?: string;
+  surface?: "default" | "v4";
 }) {
   const color = pillarColor(question.dimension);
+  const v4 = surface === "v4";
 
   if (question.question_type === "number") {
     return (
       <NumberField
         label={question.question_text}
-        hint={contextHint}
+        hint={v4 ? undefined : contextHint}
         value={typeof value === "number" ? value : null}
         placeholder="0"
         min={0}
@@ -60,7 +63,7 @@ export function BankQuestionField({
     return (
       <SliderField
         label={question.question_text}
-        hint={contextHint}
+        hint={v4 ? undefined : contextHint}
         value={current}
         min={min}
         max={max}
@@ -77,10 +80,11 @@ export function BankQuestionField({
   return (
     <ChoiceCards<string>
       label={question.question_text}
-      hint={contextHint}
+      hint={v4 ? undefined : contextHint}
       value={typeof value === "string" ? value : null}
       onChange={(v) => onChange(v)}
       options={options.map((o) => ({ value: o.value, label: o.label }))}
+      layout={v4 ? "stack" : "grid"}
     />
   );
 }

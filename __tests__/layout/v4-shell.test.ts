@@ -10,6 +10,8 @@ import {
   V4_RAIL_WIDTH_PX,
   V4_SECONDARY_NAV,
   V4_SYSTEM_NAV,
+  V4_SHELL_ASSESS_HREF,
+  isV4AssessPath,
   isV4NavActive,
   v4ShellShowsHomiRail,
 } from "@/lib/layout/v4-shell";
@@ -66,6 +68,10 @@ describe("Shell v4 nav law", () => {
     expect(V4_PRIMARY_NAV.some((item) => item.label === "Assess")).toBe(false);
     expect(V4_PRIMARY_NAV.map((item) => item.label)).not.toContain("Tools");
     expect(V4_COMMAND_ITEMS.some((item) => item.label === "Assess")).toBe(true);
+    expect(V4_SHELL_ASSESS_HREF).toBe("/assessment");
+    expect(isV4AssessPath("/assessment")).toBe(true);
+    expect(isV4NavActive("/assessment", "/home")).toBe(false);
+    expect(isV4NavActive("/assessment", "/path")).toBe(false);
   });
 
   it("keeps Assess off mobile tabs and More", () => {
@@ -99,9 +105,10 @@ describe("Shell v4 nav law", () => {
     expect(V4_COMMAND_HEIGHT_PX).toBe(64);
   });
 
-  it("shows the right HōMI column only on Home", () => {
+  it("shows the right HōMI column on Home and Assessment, not Money/Path", () => {
     expect(v4ShellShowsHomiRail("/home")).toBe(true);
     expect(v4ShellShowsHomiRail("/home/next")).toBe(true);
+    expect(v4ShellShowsHomiRail("/assessment")).toBe(true);
     expect(v4ShellShowsHomiRail("/money")).toBe(false);
     expect(v4ShellShowsHomiRail("/path")).toBe(false);
   });

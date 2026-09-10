@@ -63,6 +63,12 @@ describe("client post-login destination (v4 Home hotfix)", () => {
     expect(callback).toContain("resolvePostLoginDestination");
   });
 
+  it("does not call resolvePostLoginDestination from the assessment write path", () => {
+    const flow = read("components", "assessment", "FullAssessmentFlow.tsx");
+    expect(flow).toContain("POST_LOGIN_V4_HOME");
+    expect(flow).not.toContain("resolvePostLoginDestination");
+  });
+
   it("server /home still folds to `/` when the v4 flag is off", () => {
     const home = read("app", "(product)", "home", "page.tsx");
     expect(home).toContain("if (!isV4HomeEnabled())");

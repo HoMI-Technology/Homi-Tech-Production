@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, Search } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { HOME_V4_HOMI_PROMPTS } from "@/lib/v4/home-state";
+import type { V4AssessHomiPrompt } from "@/lib/v4/assessment-walk";
 
 /**
  * Contextual HōMI — clarity rail. Prompts + Ask. Not a second score.
@@ -14,40 +15,59 @@ import { HOME_V4_HOMI_PROMPTS } from "@/lib/v4/home-state";
  */
 export function HomiIntelligenceV4({
   decisionContext = null,
+  prompts: promptList,
+  showContext = true,
+  askPlaceholder = "Ask HōMI about this decision...",
+  surface = "home",
 }: {
   decisionContext?: string | null;
+  prompts?: readonly V4AssessHomiPrompt[];
+  showContext?: boolean;
+  askPlaceholder?: string;
+  surface?: "home" | "walk";
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const contextLine = decisionContext ?? "No decision read yet";
+  const catalog = promptList ?? HOME_V4_HOMI_PROMPTS;
 
   const prompts = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return HOME_V4_HOMI_PROMPTS;
-    const filtered = HOME_V4_HOMI_PROMPTS.filter((prompt) => prompt.label.toLowerCase().includes(q));
-    return filtered.length > 0 ? filtered : HOME_V4_HOMI_PROMPTS;
-  }, [query]);
+    if (!q) return catalog;
+    const filtered = catalog.filter((prompt) => prompt.label.toLowerCase().includes(q));
+    return filtered.length > 0 ? filtered : catalog;
+  }, [catalog, query]);
 
   function onAsk(e: FormEvent) {
     e.preventDefault();
-    const match = prompts[0] ?? HOME_V4_HOMI_PROMPTS[0];
+    const match = prompts[0] ?? catalog[0];
     router.push(match?.href ?? "/path");
   }
 
   return (
-    <aside className="v4-homi" data-home-v4-homi="" aria-label="HōMI">
+    <aside
+      className={`v4-homi${surface === "walk" ? " v4-assess-homi" : ""}`}
+      data-home-v4-homi={surface === "home" ? "" : undefined}
+      data-assessment-v4-homi={surface === "walk" ? "" : undefined}
+      aria-label="HōMI"
+    >
       <header className="v4-homi-head">
         <div className="v4-homi-brand">
           <Wordmark size="text-base leading-none" />
           <p className="v4-homi-mode">Clarity</p>
         </div>
-        <p className="v4-homi-context">{contextLine}</p>
+        {showContext ? <p className="v4-homi-context">{contextLine}</p> : null}
       </header>
 
       <ul className="v4-homi-prompts">
         {prompts.map((prompt) => (
           <li key={prompt.label}>
-            <Link href={prompt.href} className="v4-homi-prompt" data-home-v4-homi-prompt="">
+            <Link
+              href={prompt.href}
+              className="v4-homi-prompt"
+              data-home-v4-homi-prompt=""
+              data-assessment-v4-homi-prompt={surface === "walk" ? "" : undefined}
+            >
               <span>{prompt.label}</span>
               <ArrowRight aria-hidden className="size-3.5 shrink-0" strokeWidth={1.75} />
             </Link>
@@ -55,17 +75,23 @@ export function HomiIntelligenceV4({
         ))}
       </ul>
 
-      <form className="v4-homi-ask" onSubmit={onAsk} data-home-v4-homi-ask-form="">
-        <label className="sr-only" htmlFor="v4-homi-ask">
+      <form
+        className="v4-homi-ask"
+        onSubmit={onAsk}
+        data-home-v4-homi-ask-form={surface === "home" ? "" : undefined}
+        data-assessment-v4-homi-ask-form={surface === "walk" ? "" : undefined}
+      >
+        <label className="sr-only" htmlFor={surface === "walk" ? "v4-assess-homi-ask" : "v4-homi-ask"}>
           Ask HōMI
         </label>
         <Search aria-hidden className="v4-homi-ask-icon size-4" strokeWidth={1.75} />
         <input
-          id="v4-homi-ask"
-          data-home-v4-homi-ask=""
+          id={surface === "walk" ? "v4-assess-homi-ask" : "v4-homi-ask"}
+          data-home-v4-homi-ask={surface === "home" ? "" : undefined}
+          data-assessment-v4-homi-ask={surface === "walk" ? "" : undefined}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Ask HōMI about this decision..."
+          placeholder={askPlaceholder}
           className="v4-homi-ask-input"
         />
       </form>

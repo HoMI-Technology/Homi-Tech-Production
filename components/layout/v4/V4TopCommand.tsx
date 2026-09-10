@@ -6,7 +6,8 @@ import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { COLORS } from "@/lib/brand";
-import { V4_COMMAND_ITEMS, V4_SHELL_ASSESS_HREF } from "@/lib/layout/v4-shell";
+import { V4_COMMAND_ITEMS, V4_SHELL_ASSESS_HREF, isV4AssessPath } from "@/lib/layout/v4-shell";
+import { useAssessmentWalkChrome } from "@/components/v4/assessment/AssessmentWalkChrome";
 
 /**
  * SHELL_CRAFT v4 — top command. Greeting lives here so it never overlaps
@@ -27,6 +28,10 @@ export function V4TopCommand({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const nameBit = firstName ? `, ${firstName}` : "";
+  const { chrome } = useAssessmentWalkChrome();
+  const assessActive = isV4AssessPath(pathname ?? "");
+  const askPlaceholder = chrome.askPlaceholder;
+  const commandLabel = chrome.commandLabel;
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -73,9 +78,9 @@ export function V4TopCommand({
           <p
             className="min-w-0 max-w-[7.5rem] truncate text-sm font-medium text-light sm:max-w-[12rem]"
             data-v4-greeting=""
+            data-v4-assess-context={commandLabel ? "" : undefined}
           >
-            {greeting}
-            {nameBit}
+            {commandLabel ?? `${greeting}${nameBit}`}
           </p>
           <form className="min-w-0 flex-1" onSubmit={onAsk} data-v4-ask-homi-form="">
             <label className="sr-only" htmlFor="v4-ask-homi">
@@ -89,7 +94,7 @@ export function V4TopCommand({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onFocus={() => setOpen(true)}
-                placeholder="Ask HōMI"
+                placeholder={askPlaceholder}
                 className="v4-ask-field-input"
               />
               <kbd className="chrome-kbd v4-ask-kbd" aria-hidden>
@@ -100,8 +105,9 @@ export function V4TopCommand({
           <div className="ml-auto flex items-center gap-2">
             <Link
               href={V4_SHELL_ASSESS_HREF}
-              className="v4-command-assess"
+              className={`v4-command-assess${assessActive ? " is-active" : ""}`}
               data-v4-command-assess=""
+              aria-current={assessActive ? "page" : undefined}
               style={{ backgroundColor: COLORS.cyan, color: COLORS.ctaInk }}
             >
               Assess

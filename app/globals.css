@@ -613,6 +613,85 @@ html {
   font-weight: 700;
   letter-spacing: 0.02em;
 }
+.v4-command-assess.is-active {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-cyan) 50%, transparent);
+}
+
+.v4-assess {
+  position: relative;
+  padding: 1.25rem 1.25rem 1.75rem;
+  max-width: none;
+}
+@media (min-width: 768px) {
+  .v4-assess {
+    padding: 1.5rem 1.75rem 2rem;
+  }
+}
+.v4-assess-grid {
+  display: grid;
+  gap: 1.25rem;
+  align-items: start;
+  grid-template-columns: minmax(0, 1fr);
+}
+.v4-assess-main {
+  min-width: 0;
+  max-width: 42rem;
+}
+@media (min-width: 1280px) {
+  .v4-assess {
+    padding: 1.15rem 1.5rem 1.35rem;
+  }
+  .v4-assess-grid {
+    grid-template-columns: minmax(0, 1fr) var(--v4-homi-width, 320px);
+    column-gap: 1.25rem;
+  }
+  .v4-assess-main {
+    max-width: none;
+    padding-right: 1rem;
+  }
+}
+.v4-assess-question {
+  margin: 0;
+  font-size: 1.65rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-light);
+}
+.v4-assess-choices {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+}
+.v4-assess-choice {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.55);
+  padding: 0.95rem 1.1rem;
+  color: var(--color-light);
+}
+.v4-assess-choice.is-selected {
+  border-color: var(--color-cyan);
+  background: color-mix(in srgb, var(--color-cyan) 12%, var(--color-navy));
+}
+.v4-assess-choice.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.v4-assess-choice:focus-visible {
+  outline: 2px solid rgba(34, 211, 238, 0.45);
+  outline-offset: 2px;
+}
+.v4-assess-homi {
+  min-height: 0;
+  height: auto;
+}
+.v4-assess .v4-homi-prompt {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: transparent;
+}
 
 /* Unlayered .chrome-icon-btn { display } beats Tailwind lg:hidden — scope it. */
 .v4-rail-open {

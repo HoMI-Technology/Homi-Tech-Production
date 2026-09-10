@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { V4LeftNav } from "@/components/layout/v4/V4LeftNav";
 import { V4MobileNav } from "@/components/layout/v4/V4MobileNav";
 import { V4TopCommand } from "@/components/layout/v4/V4TopCommand";
+import { AssessmentWalkChromeProvider } from "@/components/v4/assessment/AssessmentWalkChrome";
 import { V4_COMMAND_HEIGHT_PX, V4_HOMI_RAIL_WIDTH_PX, V4_RAIL_WIDTH_PX } from "@/lib/layout/v4-shell";
 
 /**
@@ -35,6 +36,7 @@ export function ShellV4({
   }, [railOpen]);
 
   return (
+    <AssessmentWalkChromeProvider>
     <div
       data-product-shell="v4"
       data-shell="v4"
@@ -60,5 +62,6 @@ export function ShellV4({
       </div>
       <V4MobileNav />
     </div>
+    </AssessmentWalkChromeProvider>
   );
 }

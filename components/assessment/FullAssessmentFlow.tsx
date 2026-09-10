@@ -7,6 +7,7 @@ import { PILLARS } from "@/lib/brand";
 import { PRIMARY_CLOSE_HREF } from "@/components/marketing/first-moment-copy";
 import { fetchServerScore, ScoringRequestError } from "@/lib/scoring/client-score";
 import { createClient } from "@/lib/supabase/client";
+import { POST_LOGIN_V4_HOME } from "@/lib/auth/postLoginDestination";
 import {
   saveLocalResult,
   loadLocalResult,
@@ -29,7 +30,6 @@ import {
 } from "@/lib/assessment/types";
 import type { ResponseValue } from "@/lib/questions/bank";
 import {
-  buildAssessmentFlow,
   getQuestionById,
   pillarIntroCopy,
   stepIndexForQuestion,
@@ -47,6 +47,16 @@ import {
 } from "@/lib/questions/adaptive-home";
 import { IncompleteHomeCoverageError, mapCoveredHomeBuyingResponses } from "@/lib/questions/coverage-map";
 import {
+  assessmentAskPlaceholder,
+  assessmentHomiPrompts,
+  V4_ASK_PLACEHOLDER_DEFAULT,
+  V4_ASSESS_DECISION_LABEL,
+  V4_ASSESS_VERTICAL,
+  V4_ASSESS_VERTICALS,
+} from "@/lib/v4/assessment-walk";
+import { AssessmentWalkV4 } from "@/components/v4/assessment/AssessmentWalkV4";
+import { useAssessmentWalkChrome } from "@/components/v4/assessment/AssessmentWalkChrome";
+import {
   applyConfirmedFinancePrefill,
   applyConfirmedQuestionPrefill,
   MONEY_PREFILL_BANNER,
@@ -59,7 +69,7 @@ import {
 } from "./BankQuestionField";
 import { StepShell } from "./StepShell";
 import { PillarIntro } from "./PillarIntro";
-import { PathProgressChrome, ProgressBar, type StepMeta } from "./ProgressBar";
+import { PathProgressChrome } from "./ProgressBar";
 import { ChoiceCards } from "./ChoiceCards";
 import {
   ingestPhase0Observation,
@@ -75,24 +85,12 @@ const EMPTY_CONFLICT: ConflictResponses = {
   deadlineOrigin: null,
 };
 
-const HOME_QUESTION_HINT = "Official readiness assessment · home buying";
-
-function stepMeta(steps: FlowStep[]): StepMeta[] {
-  return steps.map((s) => ({
-    pillar:
-      s.kind === "intro"
-        ? s.dimension
-        : s.kind === "question"
-          ? (getQuestionById(s.questionId)?.dimension ?? null)
-          : null,
-  }));
-}
-
-const DEFAULT_DECISION_TYPE: DecisionType = ACTIVE_DECISION_TYPES[0] ?? "home_buying";
+const DEFAULT_DECISION_TYPE: DecisionType = V4_ASSESS_VERTICAL;
 
 export function FullAssessmentFlow() {
   const freeze = usePhase0Freeze();
   const router = useRouter();
+  const { setChrome } = useAssessmentWalkChrome();
   const [decisionType, setDecisionType] = useState<DecisionType>(DEFAULT_DECISION_TYPE);
   const [emotionalSkipped, setEmotionalSkipped] = useState(false);
   const [cursor, setCursor] = useState<string | null>(null);
@@ -106,13 +104,14 @@ export function FullAssessmentFlow() {
   const [moneyPrefillBanner, setMoneyPrefillBanner] = useState(false);
   const answerHistoryRef = useRef<Record<string, ResponseValue[]>>({});
 
-  const adaptiveHome = decisionType === "home_buying";
+  const adaptiveHome = true;
   const steps = useMemo(() => {
-    if (adaptiveHome) {
-      return buildAdaptiveHomeBuyingFlow({ responses, emotionalSkipped });
-    }
-    return buildAssessmentFlow(decisionType);
-  }, [adaptiveHome, decisionType, responses, emotionalSkipped]);
+    return buildAdaptiveHomeBuyingFlow({
+      responses,
+      emotionalSkipped,
+      activeDecisionTypes: V4_ASSESS_VERTICALS,
+    });
+  }, [responses, emotionalSkipped]);
 
   const index = adaptiveHome
     ? resolveAdaptiveIndex(steps, cursor)
@@ -159,9 +158,7 @@ export function FullAssessmentFlow() {
 
   function handleResumeDraft() {
     if (resumeDraft) {
-      const restored =
-        ACTIVE_DECISION_TYPES.length === 1 ? DEFAULT_DECISION_TYPE : resumeDraft.decisionType;
-      setDecisionType(restored);
+      setDecisionType(DEFAULT_DECISION_TYPE);
       setResponses(resumeDraft.responses);
       setConflict(resumeDraft.conflict);
       setEmotionalSkipped(resumeDraft.emotionalSkipped === true);
@@ -189,7 +186,6 @@ export function FullAssessmentFlow() {
   }
 
   const step = steps[stepIndex] ?? steps[0];
-  const progressSteps = useMemo(() => stepMeta(steps), [steps]);
 
   const questionDimension =
     step?.kind === "question" ? (getQuestionById(step.questionId)?.dimension ?? null) : null;
@@ -365,7 +361,7 @@ export function FullAssessmentFlow() {
         recordSaveStatus("failed");
       });
 
-    router.push("/dashboard");
+    router.push(POST_LOGIN_V4_HOME);
   }
 
   const nextDisabled = (() => {
@@ -400,8 +396,32 @@ export function FullAssessmentFlow() {
       )
     : null;
 
+  const homiKind =
+    step?.kind === "intro" ? "intro" : step?.kind === "question" ? "question" : "other";
+  const homiPrompts = assessmentHomiPrompts({
+    kind: homiKind,
+    dimension:
+      step?.kind === "intro"
+        ? step.dimension
+        : questionDimension,
+    questionId: step?.kind === "question" ? step.questionId : undefined,
+  });
+
+  useEffect(() => {
+    setChrome({
+      commandLabel: V4_ASSESS_DECISION_LABEL,
+      askPlaceholder: assessmentAskPlaceholder(homiKind),
+    });
+    return () => {
+      setChrome({
+        commandLabel: null,
+        askPlaceholder: V4_ASK_PLACEHOLDER_DEFAULT,
+      });
+    };
+  }, [homiKind, setChrome]);
+
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16">
+    <AssessmentWalkV4 prompts={homiPrompts}>
       {moneyPrefillBanner && !resumeDraft && (
         <p data-money-prefill-banner="" className="glass mb-6 p-4 text-sm text-light">
           {MONEY_PREFILL_BANNER}
@@ -436,25 +456,16 @@ export function FullAssessmentFlow() {
           )}
           current={currentPillarQuestionNumber(steps, stepIndex, questionDimension)}
           estimate={HOME_PATH_ESTIMATE[questionDimension]}
+          quiet
         />
-      ) : !adaptiveHome ? (
-        <div className="mb-8">
-          <ProgressBar steps={progressSteps} currentIndex={stepIndex} />
-          <p className="mt-3 text-center text-xs text-dim" data-step-counter="">
-            Step {stepIndex + 1} of {steps.length}
-          </p>
-        </div>
       ) : null}
 
       {step?.kind === "decision" && (
-        <StepShell stepKey="decision" onNext={goNext} showBack={false}>
+        <StepShell stepKey="decision" surface="plain" onNext={goNext} showBack={false}>
           <ChoiceCards<DecisionType>
             label="What decision are you working through?"
-            hint={
-              adaptiveHome
-                ? "Home buying uses an adaptive path through the canonical bank — not 45 clicks."
-                : `${steps.filter((s) => s.kind === "question").length} questions from the canonical bank for this decision.`
-            }
+            hint="Home buying uses an adaptive path through the canonical bank — not 45 clicks."
+            layout="stack"
             value={decisionType}
             onChange={(next) => {
               setDecisionType(next);
@@ -472,6 +483,7 @@ export function FullAssessmentFlow() {
       {step?.kind === "intro" && pillarMeta && introCopy && (
         <StepShell
           stepKey={`intro-${step.dimension}`}
+          surface="plain"
           onNext={goNext}
           showBack={stepIndex > 0}
           onBack={goBack}
@@ -500,6 +512,7 @@ export function FullAssessmentFlow() {
           return (
             <StepShell
               stepKey={step.questionId}
+              surface="plain"
               onBack={goBack}
               onNext={goNext}
               nextDisabled={nextDisabled}
@@ -509,7 +522,7 @@ export function FullAssessmentFlow() {
                 question={question}
                 value={responses[step.questionId]}
                 onChange={(v) => setResponse(step.questionId, v)}
-                contextHint={adaptiveHome ? HOME_QUESTION_HINT : undefined}
+                surface="v4"
               />
             </StepShell>
           );
@@ -518,6 +531,7 @@ export function FullAssessmentFlow() {
       {step?.kind === "conflict-referral" && (
         <StepShell
           stepKey="conflict-referral"
+          surface="plain"
           onBack={goBack}
           onNext={goNext}
           nextLabel={conflict.referralSource ? "Continue" : "Skip"}
@@ -525,6 +539,7 @@ export function FullAssessmentFlow() {
           <ChoiceCards<ReferralSourceChoice>
             label="Who brought this decision to you? (optional)"
             hint="This never affects your score. It helps HōMI flag outside pressure honestly."
+            layout="stack"
             value={conflict.referralSource}
             onChange={(v) => setConflict((c) => ({ ...c, referralSource: v }))}
             options={(Object.keys(REFERRAL_SOURCE_LABELS) as ReferralSourceChoice[]).map((k) => ({
@@ -538,6 +553,7 @@ export function FullAssessmentFlow() {
       {step?.kind === "conflict-deadline" && (
         <StepShell
           stepKey="conflict-deadline"
+          surface="plain"
           onBack={goBack}
           onNext={goNext}
           nextLabel={conflict.deadlineOrigin ? "Continue" : "Skip"}
@@ -545,6 +561,7 @@ export function FullAssessmentFlow() {
           <ChoiceCards<DeadlineOriginChoice>
             label="Whose deadline is this, really? (optional)"
             hint="This never affects your score either."
+            layout="stack"
             value={conflict.deadlineOrigin}
             onChange={(v) => setConflict((c) => ({ ...c, deadlineOrigin: v }))}
             options={(Object.keys(DEADLINE_ORIGIN_LABELS) as DeadlineOriginChoice[]).map((k) => ({
@@ -568,7 +585,7 @@ export function FullAssessmentFlow() {
           adaptiveHome={adaptiveHome}
         />
       )}
-    </div>
+    </AssessmentWalkV4>
   );
 }
 
@@ -621,7 +638,7 @@ function ReviewStep({
 
   return (
     <div className="step-enter" data-assessment-step="review">
-      <div className="glass p-6 sm:p-10">
+      <div className="v4-assess-step">
         <h2 className="font-display text-2xl font-semibold text-light">Review your answers</h2>
         <p className="mt-2 text-sm text-dim">
           {adaptiveHome

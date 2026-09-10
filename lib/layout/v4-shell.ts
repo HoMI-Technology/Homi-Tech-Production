@@ -80,6 +80,13 @@ export function isV4NavActive(pathname: string, href: string): boolean {
   return p === href || p.startsWith(`${href}/`);
 }
 
+export function isV4AssessPath(pathname: string): boolean {
+  const p = pathname || "/";
+  return p === V4_SHELL_ASSESS_HREF || p.startsWith(`${V4_SHELL_ASSESS_HREF}/`);
+}
+
 export function v4ShellShowsHomiRail(pathname: string): boolean {
-  return pathname === "/home" || pathname.startsWith("/home/");
+  const p = pathname || "/";
+  if (p === "/home" || p.startsWith("/home/")) return true;
+  return isV4AssessPath(p);
 }
