@@ -24,7 +24,7 @@ export function HomiIntelligenceV4({
   prompts?: readonly V4AssessHomiPrompt[];
   showContext?: boolean;
   askPlaceholder?: string;
-  surface?: "home" | "walk";
+  surface?: "home" | "walk" | "path";
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -46,9 +46,10 @@ export function HomiIntelligenceV4({
 
   return (
     <aside
-      className={`v4-homi${surface === "walk" ? " v4-assess-homi" : ""}`}
+      className={`v4-homi${surface === "home" ? "" : " v4-assess-homi"}`}
       data-home-v4-homi={surface === "home" ? "" : undefined}
       data-assessment-v4-homi={surface === "walk" ? "" : undefined}
+      data-path-v4-homi={surface === "path" ? "" : undefined}
       aria-label="HōMI"
     >
       <header className="v4-homi-head">
@@ -67,6 +68,7 @@ export function HomiIntelligenceV4({
               className="v4-homi-prompt"
               data-home-v4-homi-prompt=""
               data-assessment-v4-homi-prompt={surface === "walk" ? "" : undefined}
+              data-path-v4-homi-prompt={surface === "path" ? "" : undefined}
             >
               <span>{prompt.label}</span>
               <ArrowRight aria-hidden className="size-3.5 shrink-0" strokeWidth={1.75} />
@@ -80,15 +82,32 @@ export function HomiIntelligenceV4({
         onSubmit={onAsk}
         data-home-v4-homi-ask-form={surface === "home" ? "" : undefined}
         data-assessment-v4-homi-ask-form={surface === "walk" ? "" : undefined}
+        data-path-v4-homi-ask-form={surface === "path" ? "" : undefined}
       >
-        <label className="sr-only" htmlFor={surface === "walk" ? "v4-assess-homi-ask" : "v4-homi-ask"}>
+        <label
+          className="sr-only"
+          htmlFor={
+            surface === "walk"
+              ? "v4-assess-homi-ask"
+              : surface === "path"
+                ? "v4-path-homi-ask"
+                : "v4-homi-ask"
+          }
+        >
           Ask HōMI
         </label>
         <Search aria-hidden className="v4-homi-ask-icon size-4" strokeWidth={1.75} />
         <input
-          id={surface === "walk" ? "v4-assess-homi-ask" : "v4-homi-ask"}
+          id={
+            surface === "walk"
+              ? "v4-assess-homi-ask"
+              : surface === "path"
+                ? "v4-path-homi-ask"
+                : "v4-homi-ask"
+          }
           data-home-v4-homi-ask={surface === "home" ? "" : undefined}
           data-assessment-v4-homi-ask={surface === "walk" ? "" : undefined}
+          data-path-v4-homi-ask={surface === "path" ? "" : undefined}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={askPlaceholder}

@@ -48,6 +48,7 @@ describe("HomeV4 Ultra Premium fold", () => {
     expect(text).toContain("Accounts aren't connected yet.");
     expect(text).toContain("Connect accounts for a fuller picture.");
     expect(text).toContain("Addresses the current hold.");
+    expect(container.querySelector("[data-home-v4-path-cta]")?.getAttribute("href")).toBe("/path");
     expect(text).toContain("What HōMI is seeing");
     expect(text).not.toContain("Educational prompts. Not a second score.");
     expect(text).not.toContain("AssessmentResult");

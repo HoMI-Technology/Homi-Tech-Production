@@ -24,6 +24,7 @@ import {
   type FoldPathPrimary,
 } from "@/lib/dashboard/fold-truth";
 import { PILLARS, VERDICT_META, type VerdictKey } from "@/lib/brand";
+import { V4_SHELL_PATH_HREF } from "@/lib/layout/v4-shell";
 
 export const HOME_V4_PATH_CTA = RUNWAY_HARD_STOP_FOLD_TITLE;
 export const HOME_V4_TOOLS_MAX = 4 as const;
@@ -93,9 +94,11 @@ export function homeV4PathPrimary(
 ): FoldPathPrimary | null {
   const resolved = resolveFoldPathPrimary(pathPrimary, stopCode);
   if (stopCode === "RUNWAY_UNDER_1_MONTH") {
-    return resolved ?? { href: "/path", title: HOME_V4_PATH_CTA };
+    return resolved
+      ? { ...resolved, href: V4_SHELL_PATH_HREF }
+      : { href: V4_SHELL_PATH_HREF, title: HOME_V4_PATH_CTA };
   }
-  return resolved;
+  return resolved ? { ...resolved, href: V4_SHELL_PATH_HREF } : null;
 }
 
 function decisionContextLabel(raw: string | undefined): string | null {

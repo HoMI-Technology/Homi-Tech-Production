@@ -74,4 +74,11 @@ describe("client post-login destination (v4 Home hotfix)", () => {
     expect(home).toContain("if (!isV4HomeEnabled())");
     expect(home).toContain('redirect("/")');
   });
+
+  it("server /path still folds to `/` when the v4 flag is off", () => {
+    const pathPage = read("app", "(product)", "path", "page.tsx");
+    expect(pathPage).toContain("if (!isV4HomeEnabled())");
+    expect(pathPage).toContain('redirect("/")');
+    expect(pathPage).not.toContain("resolvePostLoginDestination");
+  });
 });

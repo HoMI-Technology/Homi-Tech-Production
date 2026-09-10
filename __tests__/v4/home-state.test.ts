@@ -20,6 +20,7 @@ describe("Home v4 State A + Finance GATE", () => {
     expect(view.verdictLabel).toBe("DO NOT PROCEED");
     expect(view.scorePct).toBe(61);
     expect(view.pathPrimary?.title).toBe(HOME_V4_PATH_CTA);
+    expect(view.pathPrimary?.href).toBe("/path");
     expect(HOME_V4_PATH_CTA).toBe("Build runway to 1 month");
     expect(view.moneyStatus).toBe("empty");
     expect(view.pillars.map((pillar) => pillar.title)).toEqual(PILLARS.map((pillar) => pillar.name));
