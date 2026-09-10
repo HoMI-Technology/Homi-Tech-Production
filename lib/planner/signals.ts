@@ -376,39 +376,3 @@ function formatRough(n: number): string {
     maximumFractionDigits: 0,
   }).format(n);
 }
-
-export const SIGNAL_SEVERITY_CLASS: Record<
-  SignalSeverity,
-  { border: string; bg: string; text: string; dot: string }
-> = {
-  crimson: {
-    border: "border-crimson/35",
-    bg: "bg-crimson/10",
-    text: "text-crimson",
-    dot: "bg-crimson",
-  },
-  amber: {
-    border: "border-amber/35",
-    bg: "bg-amber/10",
-    text: "text-amber",
-    dot: "bg-amber",
-  },
-  yellow: {
-    border: "border-yellow/35",
-    bg: "bg-yellow/10",
-    text: "text-yellow",
-    dot: "bg-yellow",
-  },
-  cyan: {
-    border: "border-cyan/35",
-    bg: "bg-cyan/10",
-    text: "text-cyan",
-    dot: "bg-cyan",
-  },
-  emerald: {
-    border: "border-emerald/35",
-    bg: "bg-emerald/10",
-    text: "text-emerald",
-    dot: "bg-emerald",
-  },
-};

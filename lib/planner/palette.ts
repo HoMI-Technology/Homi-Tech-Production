@@ -9,13 +9,6 @@ export const TEMP_HEX: Record<Temperature, string> = {
   crimson: COLORS.crimson,
 };
 
-export const TEMP_WORD: Record<Temperature, string> = {
-  emerald: "HEALTHY",
-  yellow: "CAUTION",
-  amber: "WATCH",
-  crimson: "AT RISK",
-};
-
 /** en-US USD. 0 decimals for KPIs, 2 for rows. */
 export function fmt(n: number, decimals = 0): string {
   if (!Number.isFinite(n)) return "—";

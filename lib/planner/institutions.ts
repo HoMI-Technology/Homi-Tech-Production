@@ -32,10 +32,6 @@ export const INSTITUTIONS: InstitutionMeta[] = [
   { id: "other", label: "Other bank", short: "BK", accent: "#94a3b8" },
 ];
 
-export function institutionLabel(id: BankInstitution): string {
-  return INSTITUTIONS.find((i) => i.id === id)?.label ?? id;
-}
-
 export function institutionMeta(id: BankInstitution): InstitutionMeta {
   return INSTITUTIONS.find((i) => i.id === id) ?? INSTITUTIONS[INSTITUTIONS.length - 1]!;
 }

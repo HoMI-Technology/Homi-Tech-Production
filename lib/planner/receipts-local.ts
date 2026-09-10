@@ -55,10 +55,3 @@ export function downloadReceipt(receipt: LocalReceipt): void {
   a.click();
   URL.revokeObjectURL(url);
 }
-
-export function copyReceiptSummary(text: string): Promise<void> {
-  if (typeof navigator !== "undefined" && navigator.clipboard) {
-    return navigator.clipboard.writeText(text);
-  }
-  return Promise.resolve();
-}

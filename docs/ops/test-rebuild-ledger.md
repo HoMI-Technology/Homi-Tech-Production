@@ -68,7 +68,6 @@ Disposition ∈ KEEP · PROMOTE · REWRITE · SPLIT · MERGE · DELETE
 | planner/calendar-formulas.test.ts | T0 | T0 | n | n | n | KEEP | |
 | planner/calendar.test.ts | T0 | T0 | n | n | n | KEEP | |
 | planner/closed-loop.test.ts | T0 | T0 | n | n | n | KEEP | |
-| planner/companion.test.ts | T0 | T0 | n | n | n | KEEP | |
 | planner/empty-confirm-polish.test.tsx | T1 | T1 | n | y | y | REWRITE | fireEvent → userEvent |
 | planner/first-visit-seed.test.ts | T1 | T1 | n | y | n | KEEP | |
 | planner/goals-derive.test.ts | T0 | T0 | n | n | n | KEEP | logic still under `components/` — layering note |
