@@ -1,7 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { POST_LOGIN_V4_HOME } from "@/lib/auth/postLoginDestination";
+import {
+  POST_LOGIN_HOME,
+  POST_LOGIN_V4_HOME,
+  resolvePostLoginDestination,
+} from "@/lib/auth/postLoginDestination";
 
 const read = (...segs: string[]) => fs.readFileSync(path.join(process.cwd(), ...segs), "utf8");
 
@@ -14,6 +18,18 @@ const read = (...segs: string[]) => fs.readFileSync(path.join(process.cwd(), ...
 describe("client post-login destination (v4 Home hotfix)", () => {
   it("exposes /home as the v4 contract route", () => {
     expect(POST_LOGIN_V4_HOME).toBe("/home");
+  });
+
+  it("RCA: browser-missing HOMI_V4_HOME_ENABLED resolves to `/`, not /home", () => {
+    expect(
+      resolvePostLoginDestination({
+        requestedNext: null,
+        hasCompletedAssessment: false,
+        v4HomeEnabled: false,
+      }),
+    ).toBe(POST_LOGIN_HOME);
+    expect(POST_LOGIN_HOME).toBe("/");
+    expect(POST_LOGIN_V4_HOME).not.toBe(POST_LOGIN_HOME);
   });
 
   it("password sign-in pushes POST_LOGIN_V4_HOME and never calls the resolver", () => {
