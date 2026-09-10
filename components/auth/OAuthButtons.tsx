@@ -1,6 +1,7 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import { POST_LOGIN_V4_HOME } from "@/lib/auth/postLoginDestination";
 
 function OAuthButton({
   provider,
@@ -11,13 +12,14 @@ function OAuthButton({
   provider: "google" | "apple";
   label: string;
   icon: React.ReactNode;
-  /** When omitted, callback resolves by assessment state (Assess vs Home). */
+  /** Client cannot resolve HOMI_V4_HOME_ENABLED; default to the v4 Home contract. */
   next?: string | null;
 }) {
   async function handleClick() {
     const supabase = createClient();
     const trimmed = typeof next === "string" ? next.trim() : "";
-    const nextQuery = trimmed ? `?next=${encodeURIComponent(trimmed)}` : "";
+    const destination = trimmed || POST_LOGIN_V4_HOME;
+    const nextQuery = `?next=${encodeURIComponent(destination)}`;
     await supabase.auth.signInWithOAuth({
       provider,
       options: {
