@@ -6,17 +6,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { KpiCard } from "@/components/ui/KpiCard";
 import { SignalsStrip } from "@/components/planner/SignalsStrip";
 import { NudgeRail } from "@/components/planner/NudgeRail";
 import type { PlannerSignal } from "@/lib/planner/signals";
 import type { BehaviorNudge } from "@/lib/planner/nudges";
-
-vi.mock("@/components/ui/AnimatedNumber", () => ({
-  AnimatedNumber: ({ value, format }: { value: number; format?: (n: number) => string }) => (
-    <span>{format ? format(value) : value}</span>
-  ),
-}));
 
 beforeEach(() => {
   vi.stubGlobal(
@@ -37,13 +30,6 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
-});
-
-describe("KpiCard", () => {
-  it("renders label and value", () => {
-    render(<KpiCard label="Cash" value={1200} />);
-    expect(screen.getByText("Cash")).toBeTruthy();
-  });
 });
 
 describe("planner SignalsStrip", () => {

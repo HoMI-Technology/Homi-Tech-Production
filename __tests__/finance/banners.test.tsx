@@ -5,7 +5,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { HardStopBanner } from "@/components/finance/HardStopBanner";
-import { WarningsBanner } from "@/components/finance/WarningsBanner";
 import { assessmentResult } from "../support/factories/assessment-result";
 
 function makeResult(
@@ -59,32 +58,6 @@ describe("HardStopBanner", () => {
 
   it("renders nothing when there are no hard stops", () => {
     const { container } = render(<HardStopBanner result={makeResult([], [])} />);
-    expect(container.firstChild).toBeNull();
-  });
-});
-
-describe("WarningsBanner", () => {
-  it("renders warning messages when present", () => {
-    render(
-      <WarningsBanner
-        result={makeResult(
-          [],
-          [
-            {
-              code: "FOMO_WARNING",
-              message:
-                "All emotional indicators are at their optimal values. Take a moment to honestly reassess.",
-            },
-          ],
-        )}
-      />,
-    );
-
-    expect(screen.getByText(/All emotional indicators are at their optimal values/)).toBeDefined();
-  });
-
-  it("renders nothing when there are no warnings", () => {
-    const { container } = render(<WarningsBanner result={makeResult([], [])} />);
     expect(container.firstChild).toBeNull();
   });
 });

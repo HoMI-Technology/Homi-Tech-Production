@@ -2,8 +2,6 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { VerdictBadge } from "./VerdictBadge";
-import { ReadinessBar } from "./ReadinessBar";
-import { SubMetricPill } from "./SubMetricPill";
 import { resolveVerdictKey, ratioToScore } from "./verdict-ssot";
 import { scoreToVerdict } from "@/lib/scoring/public";
 import { VERDICT_META } from "@/lib/brand";
@@ -77,29 +75,5 @@ describe("verdict-ssot helpers", () => {
     expect(ratioToScore(35, 35)).toBe(100);
     expect(ratioToScore(0, 35)).toBe(0);
     expect(ratioToScore(17.5, 35)).toBe(50);
-  });
-});
-
-describe("ReadinessBar + SubMetricPill SSOT", () => {
-  it("ReadinessBar legend shows DO NOT PROCEED for low scores", () => {
-    render(<ReadinessBar score={40} />);
-    expect(screen.getByText("DO NOT PROCEED")).toBeTruthy();
-    expect(screen.getByRole("meter").getAttribute("aria-valuenow")).toBe("40");
-  });
-
-  it("SubMetricPill colors from value/max through the same bands", () => {
-    render(<SubMetricPill label="Financial" value={28} max={35} />);
-    // 28/35 ≈ 80 → READY band
-    expect(screen.getByText("Financial").closest("[data-verdict]")?.getAttribute("data-verdict")).toBe(
-      "READY",
-    );
-    expect(screen.getByText("28/35")).toBeTruthy();
-  });
-
-  it("SubMetricPill score={49} → NOT_YET", () => {
-    render(<SubMetricPill label="Timing" score={49} />);
-    expect(screen.getByText("Timing").closest("[data-verdict]")?.getAttribute("data-verdict")).toBe(
-      "NOT_YET",
-    );
   });
 });

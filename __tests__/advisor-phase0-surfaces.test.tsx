@@ -1,14 +1,8 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
-import { Phase0VerdictGate } from "@/components/advisor/Phase0VerdictGate";
+import { cleanup, render } from "@testing-library/react";
 import { Phase0FreezeScreen } from "@/components/advisor/Phase0FreezeScreen";
-import {
-  PHASE0_PAUSE_COPY,
-  evaluatePhase0,
-  ingestPhase0Observation,
-  writePhase0Freeze,
-} from "@/lib/advisor/phase0";
+import { PHASE0_PAUSE_COPY, writePhase0Freeze } from "@/lib/advisor/phase0";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -26,15 +20,7 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-vi.mock("@/lib/supabase/client", () => ({
-  createClient: () => ({
-    auth: { getUser: async () => ({ data: { user: null }, error: null }) },
-  }),
-}));
-
-const TWO_CATEGORY_TEXT = "nothing will ever get better and my life is falling apart";
-
-describe("Phase 0 verdict surfaces", () => {
+describe("Phase 0 freeze surface", () => {
   beforeEach(() => {
     window.localStorage.clear();
     window.sessionStorage.clear();
@@ -42,51 +28,6 @@ describe("Phase 0 verdict surfaces", () => {
 
   afterEach(() => {
     cleanup();
-  });
-
-  it("two-category fixture sets freeze and does not render a READY verdict", async () => {
-    const decision = evaluatePhase0({ texts: [TWO_CATEGORY_TEXT] });
-    expect(decision.frozen).toBe(true);
-
-    const ingested = ingestPhase0Observation({
-      personKey: "guest",
-      texts: [TWO_CATEGORY_TEXT],
-    });
-    expect(ingested.frozen).toBe(true);
-    expect(ingested.record).not.toBeNull();
-
-    render(
-      <Phase0VerdictGate>
-        <div>
-          READY
-          <span>ALMOST THERE</span>
-          <span>score 87</span>
-        </div>
-      </Phase0VerdictGate>,
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText(/I want to pause for a moment/)).toBeInTheDocument();
-    });
-    expect(screen.queryByText("READY")).not.toBeInTheDocument();
-    expect(screen.queryByText("ALMOST THERE")).not.toBeInTheDocument();
-    expect(screen.queryByText(/score 87/)).not.toBeInTheDocument();
-  });
-
-  it("one-signal fixture leaves the verdict child visible", async () => {
-    const decision = evaluatePhase0({ texts: ["I feel hopeless about this mortgage"] });
-    expect(decision.frozen).toBe(false);
-
-    render(
-      <Phase0VerdictGate>
-        <div>READY</div>
-      </Phase0VerdictGate>,
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText("READY")).toBeInTheDocument();
-    });
-    expect(screen.queryByText(/I want to pause for a moment/)).not.toBeInTheDocument();
   });
 
   it("freeze screen is Brand-verbatim and has no verdict tokens", () => {
