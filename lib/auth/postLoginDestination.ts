@@ -28,25 +28,31 @@ export type PostLoginDestinationArgs = {
 };
 
 /**
- * Post-login landing.
+ * KEEP exception shared by server and client landing.
+ * Product `?next=` (`/dashboard`, `/assessment`, role homes) is ignored.
+ */
+function keepResetPasswordNext(requestedNext: string | null | undefined): string | null {
+  const sanitized = safeNext(requestedNext, POST_LOGIN_HOME);
+  const pathOnly = normalizeAppPath((sanitized.split("?")[0] ?? sanitized) || "/");
+  return pathOnly === "/auth/reset-password" ? sanitized : null;
+}
+
+/**
+ * Server-only post-login landing (callback / RSC).
  *
- * Default (production): `/` — `HOMI_V4_HOME_ENABLED` is unset/false.
- * When the flag is the exact string `"true"` *and* the V4 allow-list
- * includes `/home`, land on `/home`. Otherwise stay on `/`.
+ * Reads `HOMI_V4_HOME_ENABLED`, which is **not** `NEXT_PUBLIC_*`. Never call
+ * this from a client component — the browser always sees the flag as unset
+ * and lands on `/` (founder login loop after Home v4). Use
+ * `clientPostLoginDestination` on password sign-in / sign-up instead.
  *
- * Product `?next=` values (`/dashboard`, `/assessment`, role homes) are
- * ignored. The one KEEP exception is `/auth/reset-password`, so recovery
- * links still reach the reset form.
- *
- * Not a SaaS flag: one process env, no per-user experiments, no admin UI.
+ * Default (flag off): `/`. Flag exact `"true"` *and* `/home` on the V4
+ * allow-list: `/home`. Not a SaaS flag: one process env, no per-user
+ * experiments, no admin UI.
  */
 export function resolvePostLoginDestination(args: PostLoginDestinationArgs): string {
   void args.hasCompletedAssessment;
-  const sanitized = safeNext(args.requestedNext, POST_LOGIN_HOME);
-  const pathOnly = normalizeAppPath((sanitized.split("?")[0] ?? sanitized) || "/");
-  if (pathOnly === "/auth/reset-password") {
-    return sanitized;
-  }
+  const reset = keepResetPasswordNext(args.requestedNext);
+  if (reset) return reset;
 
   const enabled = args.v4HomeEnabled ?? isV4HomeEnabled();
   const allowList = args.v4AllowList ?? v4AllowList();
@@ -59,4 +65,18 @@ export function resolvePostLoginDestination(args: PostLoginDestinationArgs): str
     return POST_LOGIN_V4_HOME;
   }
   return POST_LOGIN_HOME;
+}
+
+/**
+ * Password / client-side sign-in landing.
+ *
+ * Always send `/home` (or the reset-password KEEP next). Do not read
+ * `HOMI_V4_HOME_ENABLED` here — it is server-only, so `isV4HomeEnabled()`
+ * is always false in the browser. `app/(product)/home/page.tsx` still
+ * redirects to `/` when the flag is off.
+ */
+export function clientPostLoginDestination(
+  requestedNext: string | null | undefined,
+): string {
+  return keepResetPasswordNext(requestedNext) ?? POST_LOGIN_V4_HOME;
 }

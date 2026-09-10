@@ -3,6 +3,7 @@ import {
   POST_LOGIN_ASSESS,
   POST_LOGIN_HOME,
   POST_LOGIN_V4_HOME,
+  clientPostLoginDestination,
   resolvePostLoginDestination,
 } from "@/lib/auth/postLoginDestination";
 
@@ -89,5 +90,26 @@ describe("resolvePostLoginDestination (PR15 + CCP v1)", () => {
         v4AllowList: ["/shell"],
       }),
     ).toBe("/");
+  });
+});
+
+describe("clientPostLoginDestination (password sign-in)", () => {
+  it("sends /home without reading HOMI_V4_HOME_ENABLED, even when the server resolver would stay on /", () => {
+    expect(
+      resolvePostLoginDestination({
+        requestedNext: null,
+        hasCompletedAssessment: false,
+      }),
+    ).toBe("/");
+    expect(clientPostLoginDestination(null)).toBe("/home");
+    expect(clientPostLoginDestination("/dashboard")).toBe("/home");
+    expect(clientPostLoginDestination("//evil.com")).toBe("/home");
+  });
+
+  it("still honors the reset-password KEEP next", () => {
+    expect(clientPostLoginDestination("/auth/reset-password")).toBe("/auth/reset-password");
+    expect(clientPostLoginDestination("/auth/reset-password?token=abc")).toBe(
+      "/auth/reset-password?token=abc",
+    );
   });
 });

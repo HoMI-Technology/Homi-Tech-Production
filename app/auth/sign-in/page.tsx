@@ -4,14 +4,14 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { resolvePostLoginDestination } from "@/lib/auth/postLoginDestination";
+import { clientPostLoginDestination } from "@/lib/auth/postLoginDestination";
 import { OAuthButtons } from "@/components/auth/OAuthButtons";
 
 function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  // Raw `next` is resolved after auth with assessment state; deep links still
-  // pass through resolvePostLoginDestination → safeNext.
+  // Client must not read the v4 Home flag — it is server-only, so the
+  // browser always lands on `/`. Home page still gates flag-off.
   const requestedNext = searchParams.get("next");
 
   const [email, setEmail] = useState("");
@@ -22,10 +22,7 @@ function SignInForm() {
   const [magicSent, setMagicSent] = useState(false);
 
   function destinationAfterSignIn(): string {
-    return resolvePostLoginDestination({
-      requestedNext,
-      hasCompletedAssessment: false,
-    });
+    return clientPostLoginDestination(requestedNext);
   }
 
   async function handleSubmit(e: React.FormEvent) {

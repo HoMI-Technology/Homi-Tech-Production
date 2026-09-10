@@ -75,11 +75,18 @@ describe("retake CTAs land on the flow that can re-score", () => {
 });
 
 describe("sign-up default lands on `/` (PR15)", () => {
-  it("bare sign-up uses resolvePostLoginDestination, not /onboarding or /assessment", () => {
+  it("bare sign-up uses clientPostLoginDestination, not /onboarding or /assessment", () => {
     const page = read("app", "auth", "sign-up", "page.tsx");
-    expect(page).toContain("resolvePostLoginDestination");
+    expect(page).toContain("clientPostLoginDestination");
+    expect(page).not.toContain("resolvePostLoginDestination");
     expect(page).not.toContain("POST_LOGIN_ASSESS");
     expect(page).not.toContain('safeNext(searchParams.get("next"), "/onboarding")');
+  });
+
+  it("password sign-in does not call the server-only resolver (v4 flag is not NEXT_PUBLIC)", () => {
+    const page = read("app", "auth", "sign-in", "page.tsx");
+    expect(page).toContain("clientPostLoginDestination");
+    expect(page).not.toContain("resolvePostLoginDestination");
   });
 
   it("completeProfileEmail points at Assess, not /onboarding", () => {
