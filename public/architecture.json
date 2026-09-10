@@ -1,7 +1,7 @@
 {
   "_meta": {
     "version": "v1",
-    "generated": "2026-09-09",
+    "generated": "2026-09-10",
     "product": "HōMI",
     "full_name": "Homi Technologies LLC — Decision Readiness Intelligence™",
     "domain": "homitechnology.com",
@@ -13,7 +13,7 @@
     "authority": "Executable TypeScript in this repo wins over this document. Prefer lib/scoring, lib/brand, lib/agents/registry on conflict."
   },
   "stats": {
-    "product_routes": 110,
+    "product_routes": 108,
     "api_routes": 28,
     "component_directories": 35,
     "lib_modules": 51,
@@ -209,14 +209,6 @@
       "file": "app/(marketing)/b2b/page.tsx"
     },
     {
-      "path": "/blog",
-      "name": "Blog",
-      "category": "Marketing",
-      "status": "complete",
-      "features": [],
-      "file": "app/(marketing)/blog/page.tsx"
-    },
-    {
       "path": "/blog/[slug]",
       "name": "[slug]",
       "category": "Product",
@@ -399,14 +391,6 @@
       "status": "complete",
       "features": [],
       "file": "app/(product)/learn/page.tsx"
-    },
-    {
-      "path": "/learning",
-      "name": "Learning",
-      "category": "Marketing",
-      "status": "complete",
-      "features": [],
-      "file": "app/(marketing)/learning/page.tsx"
     },
     {
       "path": "/learning/[slug]",

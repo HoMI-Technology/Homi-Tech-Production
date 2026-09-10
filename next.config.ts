@@ -112,7 +112,8 @@ const nextConfig: NextConfig = {
       // Wave-3 consolidations (Plans.md D2/D3/D5): Decision Lab saved scenarios
       // merged into Scenario Studio; couples/family folded into /household as
       // hash modes; blog/learning indexes folded into the /guides hub (their
-      // slug routes still render — deep links unaffected).
+      // slug routes still render — deep links unaffected). Index stub pages
+      // were deleted; bookmarks and legacy links resolve here.
       { source: "/tools/scenarios", destination: "/scenarios#saved", permanent: true },
       { source: "/couples", destination: "/household#couples", permanent: true },
       { source: "/family", destination: "/household#family", permanent: true },

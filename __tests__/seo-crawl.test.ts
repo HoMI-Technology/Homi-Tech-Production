@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import robots from "@/app/robots";
@@ -60,6 +60,33 @@ describe("legacy path redirects", () => {
     expect(config).toContain("WWW_REDIRECTS");
     expect(config).toContain('source: "/auth/sign-in"');
     expect(config).toContain("X-Robots-Tag");
+  });
+});
+
+describe("content-hub index aliases (nightly audit 2026-09-10 area K)", () => {
+  it("308s /blog and /learning onto /guides in next.config", () => {
+    const config = src("next.config.ts");
+    expect(config).toMatch(/\{\s*source:\s*"\/blog",\s*destination:\s*"\/guides",\s*permanent:\s*true\s*\}/);
+    expect(config).toMatch(
+      /\{\s*source:\s*"\/learning",\s*destination:\s*"\/guides",\s*permanent:\s*true\s*\}/,
+    );
+  });
+
+  it("does not keep redundant App Router index pages", () => {
+    expect(existsSync(join(ROOT, "app", "(marketing)", "blog", "page.tsx"))).toBe(false);
+    expect(existsSync(join(ROOT, "app", "(marketing)", "learning", "page.tsx"))).toBe(false);
+    expect(existsSync(join(ROOT, "app", "(marketing)", "blog", "[slug]", "page.tsx"))).toBe(true);
+    expect(existsSync(join(ROOT, "app", "(marketing)", "learning", "[slug]", "page.tsx"))).toBe(
+      true,
+    );
+  });
+
+  it("leaves live alias pages that next.config does not cover", () => {
+    expect(existsSync(join(ROOT, "app", "(product)", "readiness", "page.tsx"))).toBe(true);
+    expect(existsSync(join(ROOT, "app", "(product)", "tools", "mortgage", "page.tsx"))).toBe(true);
+    const config = src("next.config.ts");
+    expect(config).not.toMatch(/source:\s*"\/readiness"/);
+    expect(config).not.toMatch(/source:\s*"\/tools\/mortgage"/);
   });
 });
 
