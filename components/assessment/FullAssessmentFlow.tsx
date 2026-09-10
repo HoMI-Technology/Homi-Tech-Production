@@ -377,25 +377,6 @@ export function FullAssessmentFlow() {
   const pillarForIntro = step?.kind === "intro" ? step.dimension : null;
   const pillarMeta = pillarForIntro ? PILLARS.find((p) => p.key === pillarForIntro) : null;
 
-  if (freeze.status === "frozen" && freeze.record) {
-    return (
-      <Phase0FreezeScreen
-        record={freeze.record}
-        onStartFresh={() => {
-          handleStartOver();
-        }}
-      />
-    );
-  }
-
-  const introCopy = pillarForIntro
-    ? pillarIntroCopy(
-        pillarForIntro,
-        decisionType,
-        adaptiveHome ? { pathQuestionEstimate: HOME_PATH_ESTIMATE[pillarForIntro] } : undefined,
-      )
-    : null;
-
   const homiKind =
     step?.kind === "intro" ? "intro" : step?.kind === "question" ? "question" : "other";
   const homiPrompts = assessmentHomiPrompts({
@@ -419,6 +400,25 @@ export function FullAssessmentFlow() {
       });
     };
   }, [homiKind, setChrome]);
+
+  if (freeze.status === "frozen" && freeze.record) {
+    return (
+      <Phase0FreezeScreen
+        record={freeze.record}
+        onStartFresh={() => {
+          handleStartOver();
+        }}
+      />
+    );
+  }
+
+  const introCopy = pillarForIntro
+    ? pillarIntroCopy(
+        pillarForIntro,
+        decisionType,
+        adaptiveHome ? { pathQuestionEstimate: HOME_PATH_ESTIMATE[pillarForIntro] } : undefined,
+      )
+    : null;
 
   return (
     <AssessmentWalkV4 prompts={homiPrompts}>
