@@ -1,5 +1,7 @@
 # Owner go-live checklist (money / marketing)
 
+**Spend hold [#241](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/241) is open** — do not buy Pro or treat this as this week's work; see [`docs/OPERATORS-MANUAL.md`](../OPERATORS-MANUAL.md).
+
 Do these **on dashboards** — not by an agent. Product code is live; commercial path needs your keys and DNS.
 
 Check off as you go. Source docs linked.

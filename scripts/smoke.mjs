@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * One-command smoke for HōMI.
+ * One-command smoke for HōMI (KEEP surfaces only).
  *
- *   npm run smoke              → live site is up (HTTP + health + scoring)
- *   npm run smoke:auth         → same + signed-in Playwright (needs 2 env vars)
+ *   npm run smoke              → KEEP HTTP + health
+ *   npm run smoke:auth         → same + signed-in Playwright KILL checks
  *
  * Signed-in needs only:
  *   SMOKE_EMAIL=you@example.com
@@ -11,6 +11,7 @@
  * (aliases: E2E_TEST_EMAIL / E2E_TEST_PASSWORD)
  *
  * Target defaults to production. Override with SMOKE_BASE_URL.
+ * DARK product URLs and POST /api/scoring are not CORE.
  */
 
 import { spawnSync } from "node:child_process";
@@ -24,13 +25,15 @@ const base = (
 const email = process.env.SMOKE_EMAIL ?? process.env.E2E_TEST_EMAIL ?? "";
 const password = process.env.SMOKE_PASSWORD ?? process.env.E2E_TEST_PASSWORD ?? "";
 
+/** KEEP pages + KEEP health API. See lib/auth/keep-routes.ts. */
 const PATHS = [
   "/",
-  "/pricing",
-  "/assessment",
-  "/shadow-score",
-  "/tools/mortgage",
+  "/waitlist",
+  "/legal/privacy",
+  "/legal/terms",
+  "/legal/cookies",
   "/auth/sign-in",
+  "/auth/sign-up",
   "/api/healthcheck",
 ];
 
@@ -42,7 +45,7 @@ function bad(label, detail = "") {
 }
 
 async function publicSmoke() {
-  console.log(`\nSmoke (public) → ${base}\n`);
+  console.log(`\nSmoke (public KEEP) → ${base}\n`);
   let failed = 0;
 
   for (const p of PATHS) {
@@ -72,38 +75,6 @@ async function publicSmoke() {
     failed++;
   }
 
-  try {
-    const body = {
-      debtToIncomeRatio: 0.25,
-      downPaymentPercent: 0.2,
-      emergencyFundMonths: 6,
-      creditScore: 750,
-      lifeStability: 8,
-      confidenceLevel: 7,
-      partnerAlignment: 7,
-      fomoLevel: 3,
-      timeHorizonMonths: 18,
-      savingsRate: 0.15,
-      downPaymentProgress: 0.5,
-      monthlyHousingRatio: 0.28,
-    };
-    const res = await fetch(`${base}/api/scoring`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json();
-    if (res.ok && typeof data.score === "number" && data.verdict) {
-      ok(`scoring  ${data.score} ${data.verdict}`);
-    } else {
-      bad("scoring", `${res.status} ${JSON.stringify(data).slice(0, 120)}`);
-      failed++;
-    }
-  } catch (e) {
-    bad("scoring", e.message);
-    failed++;
-  }
-
   console.log(failed === 0 ? "\nPublic smoke: PASS\n" : `\nPublic smoke: FAIL (${failed})\n`);
   return failed === 0;
 }
@@ -127,7 +98,7 @@ Create the account once at ${base}/auth/sign-up
     return false;
   }
 
-  console.log(`\nSmoke (signed-in) → ${base} as ${email}\n`);
+  console.log(`\nSmoke (signed-in KEEP/KILL) → ${base} as ${email}\n`);
 
   const env = {
     ...process.env,
@@ -149,42 +120,29 @@ Create the account once at ${base}/auth/sign-up
     return true;
   }
 
-  // This Windows QA box often blocks Playwright Chromium (SAC spawn UNKNOWN).
-  // Fall back to password-grant + live Supabase/API checks — no browser.
   console.error(
     "\nBrowser smoke failed (often Windows SAC blocking Chromium).\n" +
-      "Falling back to signed-in API smoke (no browser)…\n",
+      "DARK product APIs are not CORE — skipping the old API fallback.\n",
   );
-  const api = spawnSync("node", ["scripts/smoke-auth-api.mjs"], {
-    env,
-    stdio: "inherit",
-    shell: true,
-  });
-  if (api.status === 0) {
-    console.log("Signed-in smoke (API fallback): PASS\n");
-    return true;
-  }
-  console.error("Signed-in smoke: FAIL\n");
   printManual();
   return false;
 }
 
 function printManual() {
-  console.log(`Manual signed-in checklist (${base}):
-  1. Sign in at /auth/sign-in
-  2. Finish /assessment → land on /dashboard (Home Build) with a verdict
-  3. Open Companion (bottom-right)
-  4. Open /finance and /tools/mortgage
-  5. Optional checkout: /pricing (use Stripe test card 4242… on Preview, not live)
+  console.log(`Manual KEEP/KILL checklist (${base}):
+  1. Sign in at /auth/sign-in → land on /
+  2. Confirm /assessment, /pricing, /dashboard, /finance fold to /
+  3. KEEP: /waitlist and /legal/privacy still load
+  Do not walk DARK product chrome (Companion, tools, scoring) as CORE.
 `);
 }
 
 async function main() {
   if (mode === "help" || mode === "-h" || mode === "--help") {
     console.log(`Usage:
-  npm run smoke           Public production smoke (no secrets)
-  npm run smoke:auth      Signed-in smoke (SMOKE_EMAIL + SMOKE_PASSWORD)
-  npm run smoke:manual    Print the 5-step human checklist
+  npm run smoke           Public KEEP production smoke (no secrets)
+  npm run smoke:auth      Signed-in KILL checks (SMOKE_EMAIL + SMOKE_PASSWORD)
+  npm run smoke:manual    Print the KEEP/KILL human checklist
 
 Env:
   SMOKE_BASE_URL          default https://homitechnology.com

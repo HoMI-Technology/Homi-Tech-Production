@@ -212,10 +212,11 @@ Two explicit modes — bootable is not the same as isolated:
 
 - **BUILD-SAFE** (default when no DEV Supabase trio is injected): `npm ci`,
   typecheck, unit tests, brand/architecture checks, production build, `npm run
-  dev`, anonymous assessment → `POST /api/scoring` → results. Uses an inert
-  local Supabase URL (`http://127.0.0.1:54321`) and **does not** write a
-  service-role key. `/api/healthcheck` may report `database: error` — that is
-  correct, not a reason to point at production. No production fallback.
+  dev`, then KEEP surfaces (`/`, `/waitlist`, `/auth/*`, KEEP legal, KEEP APIs).
+  DARK product URLs fold to `/`; `POST /api/scoring` is not a live CORE walk.
+  Uses an inert local Supabase URL (`http://127.0.0.1:54321`) and **does not**
+  write a service-role key. `/api/healthcheck` may report `database: error` —
+  that is correct, not a reason to point at production. No production fallback.
 - **FULL-STACK DEV** (only when all three dedicated DEV secrets are injected as
   an atomic set): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
   `SUPABASE_SERVICE_ROLE_KEY`. Optional Stripe **test** (`sk_test_*`) and Plaid
@@ -259,22 +260,27 @@ reconciles env. The visible terminal is `npm run dev` on
   without GitHub Pro — a green check is not merge enforcement until the owner
   upgrades and requires those two names.
 - **Coverage mode:** `node scripts/ci-coverage-report.mjs` (also a CI step).
-  CORE = anonymous/public suites. FULL = live DEV Supabase + Stripe TEST
-  secrets present. A green `e2e` badge on CORE is not FULL.
+  CORE = KEEP public/auth/legal + KILL→`/` (and hermetic auth UI) with live
+  specs skipped. FULL = live DEV Supabase + Stripe TEST secrets present.
+  A green `e2e` badge on CORE is not FULL and is not a DARK full-product walk.
 - **ESLint/Prettier are deferred** (no packages, no `lint` / `format`
   scripts). Do not run `next lint` — it hangs a non-interactive shell on an
   interactive setup prompt. They are not CI gates; use `typecheck` +
   `brand-check` (+ `architecture:check`, vitest). **DEFERRED — TOOLING CLEANUP.**
   Do not add ESLint/Prettier packages while spend hold #241 is open.
-- **Core flow needs no secrets to test**: the assessment (`/assessment` →
-  `/results`) and the scoring engine (`POST /api/scoring` with the body shape in
-  `lib/validation/assessment.ts`) run fully on placeholder env. This is the
-  fastest way to smoke-test that the app works end-to-end.
+- **Core flow needs no secrets to test**: KEEP pages (`/`, `/waitlist`,
+  `/auth/*`, `/legal/privacy|terms|cookies`) plus KEEP APIs (`/api/healthcheck`,
+  `/api/waitlist`, `/api/csp-report`). Product chrome (`/assessment`,
+  `/results`, `/pricing`, `/dashboard`, `/api/scoring`, …) is KILL/DARK — a
+  redirect to `/` or JSON 404 is the CORE assertion, not a verdict walk.
+  Scoring math still lives in `lib/scoring/*` and is covered by Vitest, not by
+  a public Playwright assessment.
 - **Playwright E2E** (`npm run test:e2e`) additionally requires
   `npx playwright install chromium` (browsers are not part of `npm ci`). It
-  reuses an already-running dev server on `:3000`; the 4 "live" specs self-skip
-  without real Supabase/Stripe secrets, leaving 6 always-on specs (incl. the
-  full assessment→verdict flow) as the gate.
+  reuses an already-running dev server on `:3000`. Without DEV secrets, live
+  create/delete-user and Stripe TEST specs **self-skip**; CORE is the KEEP/KILL
+  matrix in `e2e/README.md`, classified by `scripts/ci-coverage-report.mjs`.
+  Do not treat a green CORE badge as six anonymous assessment→verdict specs.
 - **Lighthouse** (`npm run lighthouse`) collects against a **production** server
   (`npm run start`). `next dev` overwrites `.next` with a dev build, so re-run
   `npm run build` before `npm run start`/lighthouse or `next start` errors with

@@ -1,5 +1,7 @@
 # HōMI — Go-Live Checklist
 
+**Spend hold [#241](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/241) is open** — do not buy GitHub/Vercel Pro or add CI secrets; owner steps below wait on the founder closing #241. See [`docs/OPERATORS-MANUAL.md`](docs/OPERATORS-MANUAL.md).
+
 Everything code-side for the launch loops is **done and merged to `main`**
 (attribution, shadow-share, receipts API, advisor caps, CSP collector, the
 lifecycle email loop + outcome surveys, and the double-send fix). What remains
@@ -17,14 +19,12 @@ Legend: 🔴 hard launch blocker · 🟠 needed within week one · 🟢 do-soon.
 below was confirmed done by direct inspection of the live dashboards, not by
 reading this file. Re-verify before trusting; dashboards change.
 
-### 🔴 Remaining — both are owner-only, ~20 minutes total
+### 🔴 Remaining — owner-only, deferred while #241 is open
 
-1. **Vercel is still on the Hobby plan** (§4). The badge on the `homi-platform`
-   project reads "Hobby." Hobby **prohibits commercial use** and live Stripe
-   subscriptions are wired, so the first paying customer puts the project in
-   breach and at risk of suspension. Usage already sat at **1h29m of the 4h
-   monthly CPU allowance with near-zero traffic** — real traffic exhausts it.
-   _Upgrade before sending anyone to the site._
+1. **Vercel is still on the Hobby plan** (§4). Recorded 2026-08-11: the
+   `homi-platform` badge read "Hobby." This is an owner dashboard step after
+   the founder closes [#241](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/241)
+   — not a prompt to buy Pro this week. See [`docs/OPERATORS-MANUAL.md`](docs/OPERATORS-MANUAL.md).
 2. **Supabase leaked-password protection is disabled** (§1.5). One toggle:
    Authentication → Policies → enable HaveIBeenPwned. Confirmable externally via
    `get_advisors` — it is the only auth item that still reports.
