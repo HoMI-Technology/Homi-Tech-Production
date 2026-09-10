@@ -1,8 +1,9 @@
 # Change Control Plane v1 (CCP)
 
-**Status:** Draft (PR A — docs + tooling). Executable allow-list: `lib/auth/keep-routes.ts`.  
+**Status:** CCP v1 landed (#390). Executable allow-list: `lib/auth/keep-routes.ts`.  
 **ADR:** [005 — CCP v1 = route activation + post-login flag · no SaaS](./adr/005-change-control-plane-v1.md)  
-**Tip this lane starts from:** `1b12128` (PR15 KEEP/KILL).
+**Shell/Home chrome:** [ADR-006](./adr/006-signed-in-product-v4-retires-operate-chrome.md) (not 005).  
+**Tip:** `cc84ac6` (CCP) on `1b12128` (PR15 KEEP/KILL).
 
 CCP v1 is a **route-activation map**, not a product rewrite. It does not
 introduce flag SaaS, per-user experiments, admin flag UI, Shell/Home JSX, or
@@ -44,9 +45,9 @@ requests to `/`. Product JSON returns 404. **No schema drop. No data wipe.**
 
 Seed page prefixes (non-exhaustive; anything not KEEP and not V4 is DARK):
 
-`/dashboard`, `/assessment`, `/first-moment`, `/results`, `/report`, `/path`,
-`/plan`, `/money`, `/tools`, `/advisor`, `/agents`, `/agent-hub`, `/learn`,
-`/timeline`, `/connections`, `/settings`, `/scenarios`, `/journal`,
+`/dashboard`, `/first-moment`, `/results`, `/report`, `/plan`,
+`/advisor`, `/agents`, `/agent-hub`, `/learn`,
+`/timeline`, `/journal`,
 `/household`, `/simulator`, `/decisions`, `/admin`, `/team`,
 `/employee/dashboard`, `/partner/dashboard`, `/pricing`, `/how-it-works`,
 `/shadow-score`, `/onboarding`, `/demo`, `/calendar`, `/daily`, `/credit`,
@@ -61,8 +62,10 @@ Dark APIs: every `/api/*` except the KEEP API prefixes above
 
 | Path | Notes |
 | --- | --- |
-| `/home` | Preferred signed-in Home contract. Inactive until CLEAR + PIXEL + `HOMI_V4_HOME_ENABLED=true`. |
-| Shell hosts | TBD — do not invent routes here in PR A. |
+| `/home` | Signed-in Home contract. Inactive until Pixel Gate + `HOMI_V4_HOME_ENABLED=true`. |
+| `/money` `/path` `/scenarios` | Primary rail hosts (Money · Path · Compare). |
+| `/tools` `/learn` `/money/bills` | Secondary (Bills · Tools · Learn). |
+| `/settings` `/connections` `/assessment` | System + command (Accounts · Settings · Assess). |
 
 ### V4_LIVE
 
@@ -77,17 +80,17 @@ Dark APIs: every `/api/*` except the KEEP API prefixes above
 Server-only. Production must remain false until Home v4 is CLEAR+PIXEL.
 Post-login (`resolvePostLoginDestination`) lands on `/` unless the flag is on
 **and** the V4 allow-list still includes `/home`. Middleware lets `/home`
-through under the same dual gate; there is no Home UI in this PR.
+through under the same dual gate. Production stays false until Pixel Gate.
 
 ## Classifiers
 
 `isKeepPath` · `isDarkProductPath` · `isV4Path` in `lib/auth/keep-routes.ts`.
 Middleware stays a thin hook on that module.
 
-## OUT (not this PR)
+## OUT
 
-- No JSX, Shell, or Home UI components
 - No flag SaaS, per-user experiments, or admin flag UI
+- No undraft / flag-true / public `/home` before founder APPROVE VISUAL DIRECTION
 - No scoring / Plaid / ledger rewrites
 - No data wipe
 - Soft nits N1–N4 stay P2

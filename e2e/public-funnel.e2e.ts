@@ -81,6 +81,7 @@ test("attribution: a ?ref link on `/` drops the first-touch cookie", async ({ pa
 test("KILL product and extra marketing URLs land on `/`", async ({ page }) => {
   for (const path of [
     "/dashboard",
+    "/home",
     "/assessment",
     "/first-moment",
     "/shadow-score",

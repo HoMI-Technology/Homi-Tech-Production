@@ -7,9 +7,10 @@
  * never the role-tree quiet AppHeader, never ProductBottomNav.
  */
 
+import { isV4HomeEnabled, isV4RouteActivated } from "@/lib/auth/keep-routes";
 import { isRoleOperateRoute } from "@/lib/layout/left-rail";
 
-export const PRODUCT_SHELLS = ["guest", "role", "personal"] as const;
+export const PRODUCT_SHELLS = ["guest", "role", "personal", "v4"] as const;
 export type ProductShell = (typeof PRODUCT_SHELLS)[number];
 
 /**
@@ -41,11 +42,19 @@ export function pathnameFromRequestHeaders(headerList: Headers): string {
  * Named packet: signed-in `/dashboard` is always personal invent chrome.
  * Missing pathname + authenticated fails open to personal (Home), not guest.
  * Role trees still win when the path is an operate prefix.
+ *
+ * Shell v4 is chrome for an activated V4 route, not a session gate. Flag-on
+ * `/home` (including unsigned `?visual=*` operator stills) must not paint
+ * marketing SiteHeader. Production flag stays false until Pixel Gate.
  */
 export function productShellFor(
   pathname: string | null | undefined,
   hasUser: boolean,
 ): ProductShell {
+  if (isV4HomeEnabled()) {
+    if (pathname && isV4RouteActivated(pathname)) return "v4";
+    if (!pathname && (hasUser || process.env.HOMI_V4_VISUAL_FIXTURE === "true")) return "v4";
+  }
   if (!hasUser) return "guest";
   if (isRoleOperateRoute(pathname)) return "role";
   return "personal";
@@ -57,6 +66,7 @@ export function resolveProductShell(
   hasUser: boolean,
 ): ProductShell {
   const live = productShellFor(pathname, hasUser);
+  if (live === "v4" || serverShell === "v4") return "v4";
   if (live === "role") return "role";
   if (live === "guest" || !hasUser) return "guest";
   if (serverShell === "role" && !pathname) return "role";

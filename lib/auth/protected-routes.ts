@@ -52,6 +52,7 @@ export const PROTECTED_PRODUCT_ROUTES = [
   "dashboard",
   "decisions",
   "genome",
+  "home",
   "household",
   "journal",
   "learn",

@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { SignedInPersonalChrome } from "@/components/layout/SignedInPersonalChrome";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { ShellV4 } from "@/components/layout/v4/ShellV4";
 import {
   resolveProductShell,
   type ProductShell,
@@ -15,8 +16,9 @@ import {
  * marketing SiteHeader or the role-tree quiet bar. Client pathname only
  * upgrades to role trees (employee/partner/admin/team).
  *
- * Three shells:
- *   - anonymous → marketing SiteHeader (public tools, shadow score)
+ * Four shells:
+ *   - anonymous KEEP leftovers → marketing SiteHeader
+ *   - flag-on activated V4 (`/home`, including unsigned visual stills) → ShellV4
  *   - signed-in personal → PR13 left rail + workspace header
  *   - signed-in role trees → SHELL_CRAFT v3 quiet top bar (AppHeader)
  *
@@ -78,6 +80,12 @@ export function ProductLayoutRouter({
             {children}
           </main>
         </div>
+      );
+    case "v4":
+      return (
+        <ShellV4 greeting={greeting ?? "Welcome back"} firstName={firstName ?? null}>
+          {children}
+        </ShellV4>
       );
     case "personal":
       return (

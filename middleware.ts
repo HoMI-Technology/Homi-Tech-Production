@@ -51,6 +51,13 @@ function darkApiResponse(): NextResponse {
   );
 }
 
+/** Forward the matched path so (product) layout can lock Shell v4 on SSR. */
+function nextWithProductPath(request: NextRequest): NextResponse {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-homi-pathname", request.nextUrl.pathname);
+  return NextResponse.next({ request: { headers: requestHeaders } });
+}
+
 export async function middleware(request: NextRequest) {
   const wwwRedirect = redirectWwwToApex(request);
   if (wwwRedirect) return wwwRedirect;
@@ -78,7 +85,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isV4Path(path) && isV4RouteActivated(path)) {
-    return NextResponse.next({ request });
+    return nextWithProductPath(request);
   }
 
   return redirectToHome(request);

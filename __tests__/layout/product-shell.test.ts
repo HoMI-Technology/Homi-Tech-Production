@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   PRODUCT_SHELL_PATH_HEADER,
   pathnameFromRequestHeaders,
@@ -7,7 +7,12 @@ import {
 } from "@/lib/layout/product-shell";
 
 describe("PR13 product shell — signed-in Home cannot miss invent chrome", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it("locks /dashboard + session to personal (not guest SiteHeader, not quiet bar)", () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "false");
     expect(productShellFor("/dashboard", true)).toBe("personal");
     expect(productShellFor("/dashboard/", true)).toBe("personal");
     expect(productShellFor("/assessment", true)).toBe("personal");
@@ -46,5 +51,45 @@ describe("PR13 product shell — signed-in Home cannot miss invent chrome", () =
     expect(
       pathnameFromRequestHeaders(new Headers({ "x-invoke-path": "/dashboard?tab=1" })),
     ).toBe("/dashboard");
+    expect(PRODUCT_SHELL_PATH_HEADER).toBe("x-homi-pathname");
+  });
+});
+
+describe("PR C product shell — v4 only when flag is on", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("keeps signed-in Home on personal invent chrome while HOMI_V4_HOME_ENABLED is off", () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "false");
+    expect(productShellFor("/home", true)).toBe("personal");
+    expect(productShellFor("/home", false)).toBe("guest");
+  });
+
+  it("mounts Shell v4 for signed-in pending hosts when the flag is exact true", () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
+    expect(productShellFor("/home", true)).toBe("v4");
+    expect(productShellFor("/money", true)).toBe("v4");
+    expect(productShellFor("/dashboard", true)).toBe("personal");
+    expect(productShellFor("/admin", true)).toBe("role");
+    expect(resolveProductShell("personal", "/home", true)).toBe("v4");
+  });
+
+  it("mounts Shell v4 on flag-on /home without a session (visual-fixture stills)", () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
+    expect(productShellFor("/home", false)).toBe("v4");
+    expect(productShellFor("/home/", false)).toBe("v4");
+    expect(productShellFor("/money", false)).toBe("v4");
+    expect(resolveProductShell("guest", "/home", false)).toBe("v4");
+    expect(productShellFor("/dashboard", false)).toBe("guest");
+    expect(productShellFor("", false)).toBe("guest");
+  });
+
+  it("fails open to Shell v4 when the path header is missing but the visual fixture is on", () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
+    vi.stubEnv("HOMI_V4_VISUAL_FIXTURE", "true");
+    expect(productShellFor("", false)).toBe("v4");
+    expect(productShellFor(null, false)).toBe("v4");
+    expect(productShellFor("/home", false)).toBe("v4");
   });
 });

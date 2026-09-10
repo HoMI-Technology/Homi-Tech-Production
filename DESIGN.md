@@ -85,27 +85,58 @@ Legal entity in `lib/brand` today: `HOMI TECHNOLOGIES LLC`. Recase to `Homi Tech
 - Sample scores must match scoring canon (e.g. 76 → ALMOST THERE). Landing-canon tests guard this.
 - Dials for this surface: variance 6, motion 4, density 3. No GSAP pin/marquee on the front door (pin stages were removed).
 
-### OPERATE — dashboard, tools results, finance, journal, admin
+### OPERATE — signed-in Product v4 personal
 
-- **Direction A — Cockpit Linear** (locked 2026-07-26 via design-shotgun): one instrument fold, next-move dock, slim metric rail, workspace dropdown in chrome. Not multi-pill switchers. Not equal StatTile KPI walls as the hero.
-- One primary job: **where do I stand, what do I do next?**
-- **Signed-in Home (`/dashboard`) instrument is the build** — Path next move + hard stops lead the fold; Decision Readiness Score + verdict sit as a compact ScoreRail reading (`components/score/ScoreRail.tsx`, landed 2026-08-23). Partner/team/admin keep book/cohort pulse heroes.
-- Product tabs (landed 2026-08-23): Readiness · Reality · Decide · Plan · Goals. Invest and Track are not peers; routes stay live, folded under Reality.
-- Tabular / mono numbers for scores and money.
-- Shared primitives: `components/operate/*` (`PageFrame`, `PageHeader`, `OperateInstrument`, `MetricRail`, `ActionDock`).
-- No GSAP / scroll-jack / marquee on app chrome or dashboard.
-- Glass is atmosphere under controlled contrast — not the text substrate over busy gradients.
-- Equal 4-tile KPI walls must not outrank the fold instrument.
-- Never say “HōMI Score” on a surface. Say **Decision Readiness Score**.
+Cockpit Linear / MetricRail hero and `/dashboard` invent-chrome are
+**retired** as signed-in authority (ADR-006). Signed-in personal product is
+**Product v4 / Ultra Premium**:
 
-### CHROME — `HeaderShell`, `SiteHeader`, `AppHeader`, `SiteFooter`
+- Primary rail **Home · Money · Path · Compare** (Money before Path).
+- Assess in the top command — not a fifth primary peer. Reject five-peer
+  Tools-in-primary.
+- Score ≠ Compass. Hard stops outrank. No invent $.
+- `components/operate/*` leftovers are not authority.
+- Finance GATE: AssessmentResult only. Free===Pro on that read.
 
-- Dual shell is intentional: marketing vs signed-in product nav.
-- Header height token: `--nav-height` (60px product density) + safe-area.
-- Product bar stays **one line**: short PRIMARY (Home / Assess / Tools / More), workspace **dropdown** (never multi-pill role switcher), icon search + kbd, bell, avatar.
-- Prefer content/IA fixes over rewriting mobile menu behavior.
-- Preserve: vertical scroll lock only, Escape + focus return, close on nav/desktop breakpoint.
-- Never `overflow-x: hidden` on `body` (breaks homepage sticky pin stages).
+### CHROME — dual shell (Shell v4)
+
+Dual shell stays. KEEP marketing uses `SiteHeader` / `SiteFooter` (PERSUADE).
+Product chrome is **Shell v4**: left primary four + top command + optional
+right HōMI + mobile bottom four (Home · Money · Path · More).
+
+A11y KEEP: skip link `#main`, Escape + focus return, overlay scroll lock,
+`prefers-reduced-motion`, never `overflow-x: hidden` on `body`. Header height
+token `--nav-height` + safe-area. DARK role trees may still mount quiet
+`AppHeader` on disk; do not rebuild Home from them.
+
+PR C stays **DRAFT** until founder APPROVE VISUAL DIRECTION on real
+screenshots. `HOMI_V4_HOME_ENABLED` default false.
+
+### Product v4 / Ultra Premium — signed-in Home + Shell (ADR-006)
+
+- **Home is `/home`**, never `/dashboard`. `/dashboard` stays DARK.
+- Identity KEEP: repo `Wordmark` + `ThresholdCompass` only. Compass is the
+  shell mark, not a page hero. No Lucide brand. No Homie cast.
+- Primary rail (locked): **Home · Money · Path · Compare**. Assess in the
+  top command only (solid cyan). Secondary: **Bills · Tools · Learn**.
+  System: **Accounts · Settings**. Mobile bottom: Home · Money · Path · More.
+  No Support peer. Selected: lift + white + ~2px cyan edge.
+- Home State A (first unlock): hard-stop ACTIVE + empty money. Greeting in
+  the top command. Hierarchy: Decision context → Readiness hero (numeral →
+  verdict → hold → action) → Decision evidence (three pillars) → Current Path
+  step → Money evidence → What changed → Contextual tools (~3–4). Path CTA
+  **“Build runway to 1 month”** with no glow. Pillar statuses Needs work /
+  Strong / Not assessed only. Money honest empty + Connect accounts. Right
+  HōMI educational prompts only — no second score. Ask HōMI is a top-command
+  field.
+- Finance GATE: score / verdict / hard stops from **AssessmentResult only**.
+- Activation: `HOMI_V4_HOME_ENABLED` default **false** (CCP / ADR-005).
+  Pixel Gate: do not undraft or expose `/home` until founder APPROVE VISUAL
+  DIRECTION. Screenshot set: `docs/design/v4-screenshot-set.md`.
+- Tabular / mono numbers for scores. Never say “HōMI Score”. Say
+  **Decision Readiness Score**.
+- No GSAP / scroll-jack / marquee on app chrome. Glass is atmosphere under
+  controlled contrast. Never `overflow-x: hidden` on `body`.
 
 ## Category holes (research 2026-08-23 — refuse, do not copy)
 
@@ -126,7 +157,7 @@ Steal craft, not costume: put the constraint in chrome (not footer fog); two nee
 | Phase              | Allowed                                                                                 |
 | ------------------ | --------------------------------------------------------------------------------------- |
 | Chrome             | `redesign-existing-projects`, `web-design-guidelines`, design-review                    |
-| Dashboard          | redesign-existing + this contract’s OPERATE rules                                       |
+| Home v4            | SHELL_CRAFT v4 + HOME_CRAFT v4 + ADR-006 (not OPERATE cockpit)                           |
 | Hook               | `cro` / `copywriting`, then **one of** `frontend-design` **or** `design-taste-frontend` |
 | Always after paint | brand-check, typecheck, reduced-motion smoke                                            |
 
@@ -136,9 +167,9 @@ Enforced, not just documented: `.claude/settings.json` hides both skills (`skill
 ## Layout ownership
 
 ```
-(marketing)/layout → SiteHeader + SiteFooter
-(product)/layout   → AppHeader if session else SiteHeader + SiteFooter
-HeaderShell        → shared fixed glass bar + mobile panel behavior
+(marketing)/layout → SiteHeader + SiteFooter (PERSUADE KEEP)
+(product)/layout   → Shell v4 when HOMI_V4_HOME_ENABLED + V4 path;
+                     else invent-chrome / role quiet bar (DARK trees) or SiteHeader
 ```
 
 ## Definition of done (any design PR)
@@ -174,4 +205,5 @@ Secondary product pages should keep matching operate hierarchy when touched.
 | 2026-08-23 | Dual memorable = compass + HōMI companion | founder; not either/or |
 | 2026-08-23 | User-visible spelling always HōMI | founder; internals may keep `homie` keys |
 | 2026-08-23 | Reject generic navy consultation mock | does not match GitHub identity |
-| 2026-08-23 | ScoreRail + five product tabs | landed on main; OPERATE hierarchy |
+| 2026-08-23 | ScoreRail + five product tabs | landed on main; OPERATE hierarchy (retired as v4 floor) |
+| 2026-09-09 | Product v4 Home + Shell | ADR-006; `/home`; Pixel Gate; flag default false |
