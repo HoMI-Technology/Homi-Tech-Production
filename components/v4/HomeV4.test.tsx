@@ -39,6 +39,9 @@ describe("HomeV4 Ultra Premium fold", () => {
     expect(text).toContain("Runway is the hold.");
     expect(text).toContain("Build runway to 1 month");
     expect(text).toContain("View full assessment");
+    expect(container.querySelector("[data-home-v4-assess]")?.getAttribute("href")).toBe(
+      "/assessment",
+    );
     expect(text).toContain("A hard stop takes priority over the number.");
     expect(text).toContain("Hard stop still holds on this read.");
     expect(text).toContain("Open");
@@ -101,6 +104,9 @@ describe("HomeV4 Ultra Premium fold", () => {
     expect(container.querySelector("[data-home-v4-empty]")).not.toBeNull();
     expect(text).toContain("No assessment yet");
     expect(text).toContain("Assess");
+    expect(container.querySelector("[data-home-v4-assess]")?.getAttribute("href")).toBe(
+      "/assessment",
+    );
     expect(text).not.toContain("DO NOT PROCEED");
     expect(text).not.toContain("AssessmentResult");
   });

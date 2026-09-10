@@ -69,6 +69,7 @@ describe("PR C product shell — v4 only when flag is on", () => {
   it("mounts Shell v4 for signed-in pending hosts when the flag is exact true", () => {
     vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
     expect(productShellFor("/home", true)).toBe("v4");
+    expect(productShellFor("/assessment", true)).toBe("v4");
     expect(productShellFor("/money", true)).toBe("v4");
     expect(productShellFor("/dashboard", true)).toBe("personal");
     expect(productShellFor("/admin", true)).toBe("role");
@@ -79,6 +80,7 @@ describe("PR C product shell — v4 only when flag is on", () => {
     vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
     expect(productShellFor("/home", false)).toBe("v4");
     expect(productShellFor("/home/", false)).toBe("v4");
+    expect(productShellFor("/assessment", false)).toBe("v4");
     expect(productShellFor("/money", false)).toBe("v4");
     expect(resolveProductShell("guest", "/home", false)).toBe("v4");
     expect(productShellFor("/dashboard", false)).toBe("guest");

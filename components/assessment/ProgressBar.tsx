@@ -14,17 +14,19 @@ export function PathProgressChrome({
   label,
   current,
   estimate,
+  quiet = false,
 }: {
   dimension: Dimension;
   label: string;
   current: number;
   estimate: number;
+  quiet?: boolean;
 }) {
   const color = PILLARS.find((p) => p.key === dimension)?.color ?? COLORS.cyan;
   const pct = estimate > 0 ? Math.min(100, Math.max(0, (current / estimate) * 100)) : 0;
 
   return (
-    <div className="mb-8">
+    <div className={quiet ? "mb-4" : "mb-8"}>
       <p
         className="text-sm font-medium"
         style={{ color }}
@@ -33,19 +35,21 @@ export function PathProgressChrome({
       >
         {label}
       </p>
-      <div
-        className="mt-2 h-0.5 w-full overflow-hidden rounded-full bg-slate-surface/60"
-        role="progressbar"
-        aria-label={label}
-        aria-valuenow={current}
-        aria-valuemin={1}
-        aria-valuemax={estimate}
-      >
+      {quiet ? null : (
         <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${pct}%`, background: color }}
-        />
-      </div>
+          className="mt-2 h-0.5 w-full overflow-hidden rounded-full bg-slate-surface/60"
+          role="progressbar"
+          aria-label={label}
+          aria-valuenow={current}
+          aria-valuemin={1}
+          aria-valuemax={estimate}
+        >
+          <div
+            className="h-full rounded-full transition-all duration-500"
+            style={{ width: `${pct}%`, background: color }}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -129,6 +129,11 @@ screenshots. `HOMI_V4_HOME_ENABLED` default false.
   Strong / Not assessed only. Money honest empty + Connect accounts. Right
   HōMI educational prompts only — no second score. Ask HōMI is a top-command
   field.
+- **Assessment is `/assessment`**, Shell v4 `main#main`, same flag. Assess is
+  top-command only. Adaptive **home_buying** first. Progress is
+  `{Pillar} · {n} of ~{m} this path`. Write path lands on `/home`. No guest
+  official score. Fixture stills stay Preview-only
+  (`HOMI_V4_VISUAL_FIXTURE`). Craft: `docs/design/ASSESSMENT_CRAFT_v4_2026-09-10.md`.
 - Finance GATE: score / verdict / hard stops from **AssessmentResult only**.
 - Activation: `HOMI_V4_HOME_ENABLED` default **false** (CCP / ADR-005).
   Pixel Gate: do not undraft or expose `/home` until founder APPROVE VISUAL

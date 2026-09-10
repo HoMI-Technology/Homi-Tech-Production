@@ -20,6 +20,7 @@ export function ChoiceCards<T extends string>({
   options,
   value,
   onChange,
+  layout = "grid",
 }: {
   label: string;
   hint?: string;
@@ -33,6 +34,7 @@ export function ChoiceCards<T extends string>({
   }[];
   value: T | null;
   onChange: (value: T) => void;
+  layout?: "grid" | "stack";
 }) {
   const labelId = useId();
   const hintId = useId();
@@ -77,7 +79,14 @@ export function ChoiceCards<T extends string>({
 
   return (
     <div className="w-full">
-      <p id={labelId} className="mb-2 text-base font-medium text-light">
+      <p
+        id={labelId}
+        className={
+          layout === "stack"
+            ? "v4-assess-question mb-5 font-display"
+            : "mb-2 text-base font-medium text-light"
+        }
+      >
         {label}
       </p>
       {hint && (
@@ -89,7 +98,11 @@ export function ChoiceCards<T extends string>({
         role="radiogroup"
         aria-labelledby={labelId}
         aria-describedby={hint ? hintId : undefined}
-        className="grid grid-cols-1 gap-3 sm:grid-cols-2"
+        className={
+          layout === "stack"
+            ? "v4-assess-choices"
+            : "grid grid-cols-1 gap-3 sm:grid-cols-2"
+        }
       >
         {options.map((opt, i) => {
           const active = value === opt.value;
@@ -107,9 +120,15 @@ export function ChoiceCards<T extends string>({
               tabIndex={i === tabbableIndex ? 0 : -1}
               onClick={() => !opt.disabled && onChange(opt.value)}
               onKeyDown={(e) => handleKeyDown(e, i)}
-              className={`glass rounded-xl border px-4 py-3 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan ${
-                opt.disabled ? "cursor-not-allowed opacity-50" : "glass-hover"
-              } ${active ? "border-cyan ring-1 ring-cyan/40" : "border-transparent"}`}
+              className={
+                layout === "stack"
+                  ? `v4-assess-choice ${active ? "is-selected" : ""} ${
+                      opt.disabled ? "is-disabled" : ""
+                    }`
+                  : `glass rounded-xl border px-4 py-3 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan ${
+                      opt.disabled ? "cursor-not-allowed opacity-50" : "glass-hover"
+                    } ${active ? "border-cyan ring-1 ring-cyan/40" : "border-transparent"}`
+              }
             >
               <span className="flex items-center justify-between gap-2">
                 <span

@@ -22,8 +22,9 @@ import {
  *   - signed-in personal → PR13 left rail + workspace header
  *   - signed-in role trees → SHELL_CRAFT v3 quiet top bar (AppHeader)
  *
- * Assessment is a flow in main#main. Compass lives in the rail (personal) or
- * the quiet bar (role trees). Every branch renders exactly one `main#main`.
+ * Assessment is a flow in Shell v4 main#main when the Home flag is on.
+ * Compass lives in the rail. Assess is top-command only. Every branch
+ * renders exactly one `main#main`.
  */
 export function ProductLayoutRouter({
   children,

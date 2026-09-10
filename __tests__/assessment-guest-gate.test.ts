@@ -34,6 +34,9 @@ describe("guest /assessment is First Moment — page gate", () => {
   it("still renders FullAssessmentFlow for a signed-in user", () => {
     expect(page).toContain("return <FullAssessmentFlow />");
     expect(page).not.toContain('redirect("/auth/sign-in');
+    expect(page).toContain("isV4HomeEnabled");
+    expect(page).toContain("isV4VisualFixtureEnabled");
+    expect(page).not.toMatch(/["']\/assess["']/);
   });
 
   it("does not middleware-protect /assessment — that bounce would skip First Moment", () => {
@@ -86,7 +89,7 @@ describe("First Moment copy stays word-locked", () => {
 });
 
 describe("FullAssessmentFlow does not score a guest", () => {
-  it("handleSubmit redirects to First Moment before fetchServerScore / save / /dashboard", () => {
+  it("handleSubmit redirects to First Moment before fetchServerScore / save / /home", () => {
     const flow = src("components", "assessment", "FullAssessmentFlow.tsx");
     const start = flow.indexOf("async function handleSubmit");
     const end = flow.indexOf("const nextDisabled");
@@ -96,7 +99,9 @@ describe("FullAssessmentFlow does not score a guest", () => {
     expect(submit.indexOf("getUser")).toBeLessThan(submit.indexOf("fetchServerScore"));
     expect(submit.indexOf("PRIMARY_CLOSE_HREF")).toBeLessThan(submit.indexOf("fetchServerScore"));
     expect(submit.indexOf("PRIMARY_CLOSE_HREF")).toBeLessThan(submit.indexOf("saveLocalResult"));
-    expect(submit.indexOf("PRIMARY_CLOSE_HREF")).toBeLessThan(submit.indexOf('router.push("/dashboard")'));
+    expect(submit).toContain("POST_LOGIN_V4_HOME");
+    expect(submit).not.toContain('router.push("/dashboard")');
+    expect(submit).not.toContain('router.push("/results")');
   });
 });
 

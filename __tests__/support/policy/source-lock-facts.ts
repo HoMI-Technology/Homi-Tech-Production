@@ -626,8 +626,11 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
   {
     id: "fold-wiring/full-assessment-lands-home",
     file: "components/assessment/FullAssessmentFlow.tsx",
-    codeMust: ['router.push("/dashboard")'],
-    codeMustNotMatch: ["router\\.push\\([\"']/results[\"']\\)"],
+    codeMust: ["POST_LOGIN_V4_HOME"],
+    codeMustNotMatch: [
+      "router\\.push\\([\"']/results[\"']\\)",
+      "router\\.push\\([\"']/dashboard[\"']\\)",
+    ],
   },
   {
     id: "fold-wiring/fold-save-status-banner",
