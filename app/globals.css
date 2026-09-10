@@ -742,10 +742,13 @@ html {
 }
 .v4-path-meta {
   margin: 0.55rem 0 0;
+  max-width: 36rem;
   font-size: 0.8125rem;
   font-weight: 600;
+  line-height: 1.45;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  overflow-wrap: break-word;
   color: var(--color-amber);
 }
 .v4-path-actions {
