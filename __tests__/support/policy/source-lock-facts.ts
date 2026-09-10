@@ -1410,17 +1410,26 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
   {
     id: "homepage-walk/site-header-slim-nav",
     file: "components/layout/SiteHeader.tsx",
-    identifiersMust: ["slimHome", "PRIMARY_CLOSE_HREF", "PRIMARY_CLOSE_LABEL"],
-    stringsMust: [
+    identifiersMustNot: ["PRIMARY_CLOSE_HREF", "PRIMARY_CLOSE_LABEL", "slimHome"],
+    stringsMust: ["Sign in"],
+    stringsMustNot: [
       "How It Works",
       "Assessment",
       "Guides",
       "Pricing",
       "For Teams",
-      "Sign in",
     ],
-    codeMust: ['pathname === "/"'],
-    // Original: the NAV block between `const NAV` and `] as const` has exactly 5 `label:` matches.
+    codeMust: ["/auth/sign-in"],
+    codeMustNot: [
+      "/how-it-works",
+      "/first-moment",
+      "/guides",
+      "/pricing",
+      "/b2b",
+      "/assessment",
+      "/dashboard",
+      "/demo",
+    ],
   },
   {
     id: "homepage-walk/waitlist-form-keeps-get-notified",
@@ -1677,22 +1686,25 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
   {
     id: "primary-close/site-header-assess",
     file: "components/layout/SiteHeader.tsx",
-    identifiersMust: ["PRIMARY_CLOSE_HREF", "PRIMARY_CLOSE_LABEL"],
-    stringsMustNot: ["Get your score"],
-    codeMustNot: ['href="/shadow-score"'],
+    identifiersMustNot: ["PRIMARY_CLOSE_HREF", "PRIMARY_CLOSE_LABEL"],
+    stringsMustNot: ["Get your score", "Assess"],
+    codeMustNot: ['href="/shadow-score"', "/first-moment"],
   },
   {
     id: "primary-close/site-header-assessment-nav",
     file: "components/layout/SiteHeader.tsx",
-    codeMustMatch: ['href:\\s*PRIMARY_CLOSE_HREF,\\s*label:\\s*"Assessment"'],
-    codeMustNotMatch: ['href:\\s*["\']/assessment["\']'],
+    codeMustNotMatch: [
+      'href:\\s*PRIMARY_CLOSE_HREF,\\s*label:\\s*"Assessment"',
+      'href:\\s*["\']/assessment["\']',
+      'href:\\s*["\']/first-moment["\']',
+    ],
   },
   {
     id: "primary-close/site-header-slim-home-sign-in",
     file: "components/layout/SiteHeader.tsx",
-    identifiersMust: ["slimHome"],
     stringsMust: ["Sign in"],
-    codeMust: ['pathname === "/"', "/auth/sign-in"],
+    codeMust: ["/auth/sign-in"],
+    codeMustNot: ["/dashboard", "/demo"],
   },
   {
     id: "primary-close/interview-hero-assess",

@@ -91,8 +91,8 @@ export default function ResetPasswordPage() {
       <div>
         <h1 className="font-display text-2xl font-semibold text-light">Password updated</h1>
         <p className="mt-2 text-sm text-dim">You&apos;re signed in with your new password.</p>
-        <Link href="/dashboard" className="btn btn-primary mt-6 w-full">
-          Go to your dashboard
+        <Link href="/" className="btn btn-primary mt-6 w-full">
+          Continue
         </Link>
       </div>
     );

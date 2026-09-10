@@ -45,15 +45,18 @@ describe("guest /assessment is First Moment — page gate", () => {
 describe("anonymous SiteHeader Assessment nav", () => {
   const header = src("components", "layout", "SiteHeader.tsx");
 
-  it("points Assessment at First Moment, not a raw /assessment bypass", () => {
-    expect(header).toMatch(/href:\s*PRIMARY_CLOSE_HREF,\s*label:\s*"Assessment"/);
+  it("does not advertise DARK First Moment or /assessment from KEEP chrome", () => {
+    expect(header).not.toMatch(/href:\s*PRIMARY_CLOSE_HREF,\s*label:\s*"Assessment"/);
     expect(header).not.toMatch(/href:\s*["']\/assessment["']/);
+    expect(header).not.toContain("PRIMARY_CLOSE_HREF");
+    expect(header).not.toContain("/first-moment");
     expect(PRIMARY_CLOSE_HREF).toBe("/first-moment");
   });
 
-  it("leaves the primary Assess button on PRIMARY_CLOSE_HREF / PRIMARY_CLOSE_LABEL", () => {
-    expect(header).toContain("PRIMARY_CLOSE_LABEL");
-    expect(header).toMatch(/href=\{PRIMARY_CLOSE_HREF\}[\s\S]*\{PRIMARY_CLOSE_LABEL\}/);
+  it("keeps Sign in as the only KEEP header CTA", () => {
+    expect(header).toContain("/auth/sign-in");
+    expect(header).toContain("Sign in");
+    expect(header).not.toContain("PRIMARY_CLOSE_LABEL");
   });
 
   it("leaves signed-in product chrome on /assessment", () => {

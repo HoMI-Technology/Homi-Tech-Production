@@ -33,20 +33,7 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "maskable",
       },
     ],
-    shortcuts: [
-      {
-        name: "Dashboard",
-        url: "/dashboard",
-        description: "Your readiness dashboard",
-        icons: [{ src: "/icon-192-v2.png", sizes: "192x192", type: "image/png" }],
-      },
-      {
-        name: "Money",
-        url: "/money",
-        description: "Your money picture, track, and decision math",
-        icons: [{ src: "/icon-192-v2.png", sizes: "192x192", type: "image/png" }],
-      },
-    ],
+    // No PWA shortcuts: `/dashboard` and `/money` are DARK (fold to `/`).
     // Install-sheet previews (Android/desktop richer install UI). form_factor
     // "wide" drives the desktop/tablet layout, "narrow" the phone layout; a
     // manifest must carry at least one "wide" screenshot to get the richer

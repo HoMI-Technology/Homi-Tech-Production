@@ -6,12 +6,13 @@ import { expectKillToHome } from "./helpers/kill";
  * These need no account, so they're the CI-safe core of the E2E smoke.
  */
 
-test("landing page loads with HōMI brand and Assess close", async ({ page }) => {
+test("landing page loads with HōMI brand and KEEP header chrome", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveTitle(/HōMI/);
-  const cta = page.getByRole("link", { name: /^assess$/i }).first();
-  await expect(cta).toBeVisible();
-  await expect(cta).toHaveAttribute("href", "/first-moment");
+  const signIn = page.getByRole("banner").getByRole("link", { name: /^sign in$/i });
+  await expect(signIn).toBeVisible();
+  await expect(signIn).toHaveAttribute("href", "/auth/sign-in");
+  await expect(page.getByRole("banner").getByRole("link", { name: /^assess$/i })).toHaveCount(0);
 });
 
 test("landing page does not expose the waitlist capture", async ({ page }) => {
@@ -19,7 +20,7 @@ test("landing page does not expose the waitlist capture", async ({ page }) => {
   await expect(page.locator("#waitlist")).toHaveCount(0);
   await expect(page.locator("#landing-waitlist-email")).toHaveCount(0);
   await expect(page.getByRole("button", { name: /^get notified$/i })).toHaveCount(0);
-  await expect(page.getByRole("link", { name: /^assess$/i }).first()).toBeVisible();
+  await expect(page.getByRole("banner").getByRole("link", { name: /^sign in$/i })).toBeVisible();
   await expect(page.getByText("Packet 2")).toHaveCount(0);
   await expect(page.getByText("Rehearse", { exact: true })).toHaveCount(0);
   const waitlist = page.getByRole("contentinfo").getByRole("link", { name: /^waitlist$/i });

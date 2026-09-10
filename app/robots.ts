@@ -3,16 +3,17 @@ import { SITE_URL } from "@/lib/seo/site";
 import { PROTECTED_PREFIXES } from "@/lib/auth/protected-routes";
 
 /**
- * Crawl-budget hygiene: every auth-gated product shell 307s crawlers to
- * sign-in (which is noindexed via X-Robots-Tag), so the whole protected
- * surface is disallowed. Derived from the middleware SSOT
- * (lib/auth/protected-routes) so a newly protected route can never ship
- * crawlable — the previous hand-copied list had drifted 18 routes behind.
+ * Crawl-budget hygiene. Protected product prefixes stay disallowed
+ * (derived from `lib/auth/protected-routes` so a new prefix cannot ship
+ * crawlable). Under PR15 those prefixes are also DARK: middleware folds
+ * document requests to `/` rather than 307ing crawlers to sign-in.
  *
  * Deliberately NOT disallowed:
- *  · public product routes (/tools, /scenarios, /shadow-score, /assessment,
- *    /demo, /onboarding, /calibration, /path) — public by design;
- *  · /plan — public but noindexed via metadata (app/(product)/plan/layout.tsx);
+ *  · KEEP public surfaces (`/`, `/waitlist`, KEEP `/legal/*`, `/marketing/*`);
+ *  · legacy public-classified product URLs (`/tools`, `/scenarios`,
+ *    `/shadow-score`, `/assessment`, `/demo`, `/onboarding`, `/calibration`,
+ *    `/path`) — DARK, they 308 to `/`; listing them here is optional;
+ *  · `/plan` — DARK plus metadata noindex (`app/(product)/plan/layout.tsx`);
  *    a robots.txt disallow would hide that noindex from crawlers.
  */
 export const ROBOTS_DISALLOW = [

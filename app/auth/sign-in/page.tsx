@@ -172,11 +172,6 @@ function SignInForm() {
           Create an account
         </Link>
       </p>
-      <p className="mt-2 text-center text-sm text-dim">
-        <Link href="/demo" className="text-dim hover:text-light">
-          Try the demo
-        </Link>
-      </p>
     </div>
   );
 }
