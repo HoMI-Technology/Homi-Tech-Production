@@ -1323,14 +1323,11 @@
     },
     {
       "name": "readiness",
-      "count": 8,
+      "count": 2,
       "description": "readiness UI module",
       "examples": [
-        "FirstStepNudge",
         "ImpactToast.test",
-        "ImpactToast",
-        "PathPreview",
-        "PathProgressHero"
+        "ImpactToast"
       ]
     },
     {

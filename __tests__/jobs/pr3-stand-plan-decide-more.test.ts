@@ -18,7 +18,8 @@ const stand = read("components/money/MoneyStand.tsx");
 const moneyPage = read("app/(product)/money/page.tsx");
 const moneyShell = read("components/money/MoneyShell.tsx");
 const pathPage = read("app/(product)/path/page.tsx");
-const workbench = read("components/readiness/PathWorkbench.tsx");
+const pathV4 = read("lib/v4/path-workspace.ts");
+const pathWorkspace = read("components/v4/path/PathWorkspaceV4.tsx");
 const toolsHub = read("app/(product)/tools/page.tsx");
 const decide = read("components/money/MoneyDecideHub.tsx");
 const header = read("components/layout/AppHeader.tsx");
@@ -158,19 +159,28 @@ describe("PR3 Stand — /money empty honesty, no theater", () => {
   });
 });
 
-describe("PR3 Plan — Path workbench max 7", () => {
-  it("Path to Ready title, max 7, one next step, no body compass", () => {
+describe("PR3 Plan — live Path v4 max 7", () => {
+  it("PathWorkspaceV4 is the /path surface, max 7, no body compass, no orphan workbench", () => {
     expect(pathPage).toContain("PathWorkspaceV4");
     expect(MAX_PATH_STEPS).toBe(7);
     expect(pathPage).not.toContain("ThresholdCompass");
     expect(pathPage).not.toContain("PathProgressHero");
+    expect(pathPage).not.toContain("PathWorkbench");
     expect(pathPage).not.toContain("font-display");
-    expect(workbench).toContain("Next step");
-    expect(workbench).toContain('return "Skipped"');
-    expect(workbench).toContain("slice(0, MAX_PATH_STEPS)");
-    expect(workbench).toContain("/money/budget");
-    expect(workbench).toContain("/money/plan");
-    expect(workbench).toContain('href="/plan"');
+    expect(pathV4).toContain("V4_PATH_MAX_STEPS");
+    expect(pathV4).toContain("slice(0, V4_PATH_MAX_STEPS)");
+    expect(pathWorkspace).toContain("data-path-v4");
+    for (const orphan of [
+      "components/readiness/PathWorkbench.tsx",
+      "components/readiness/PathToReadyCard.tsx",
+      "components/readiness/PathPreview.tsx",
+      "components/readiness/PathProgressHero.tsx",
+      "components/readiness/FirstStepNudge.tsx",
+      "components/readiness/index.ts",
+    ]) {
+      expect(existsSync(resolve(process.cwd(), orphan))).toBe(false);
+    }
+    expect(existsSync(resolve(process.cwd(), "components/readiness/ImpactToast.tsx"))).toBe(true);
   });
 
   it("checklist stays reachable depth without a body compass", () => {
