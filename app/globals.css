@@ -977,9 +977,13 @@ html {
   background: transparent;
 }
 
-/* Money HōMI is a full-height column, not a floating Path-style card. */
+/* Money HōMI is a full-height column, not a floating Path-style card.
+   Reset Home's `grid-area: homi` so this workspace grid cannot spawn an
+   implicit bottom row. */
 .v4-money .v4-homi,
 .v4-money-homi {
+  grid-area: auto;
+  justify-content: flex-start;
   border-radius: 0;
   border: 0;
   background: transparent;

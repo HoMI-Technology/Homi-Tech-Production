@@ -144,6 +144,7 @@ describe("Shell v4 nav law", () => {
     const block = css.slice(start, start + 900);
     expect(block).toContain("background: transparent");
     expect(block).toContain("border-radius: 0");
+    expect(block).toContain("grid-area: auto");
     expect(block).toContain("border-left: 1px solid");
     expect(block).not.toMatch(/position:\s*fixed/);
     expect(block).not.toMatch(/position:\s*absolute/);
