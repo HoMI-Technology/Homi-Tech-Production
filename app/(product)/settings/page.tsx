@@ -1,109 +1,44 @@
-"use client";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { SettingsWorkspaceV4 } from "@/components/v4/settings/SettingsWorkspaceV4";
+import { isV4HomeEnabled } from "@/lib/auth/keep-routes";
+import { assertAssessmentResultOnly } from "@/lib/v4/home-state";
+import { loadSystemV4LastRead } from "@/lib/v4/system-read";
+import {
+  buildSettingsV4View,
+  parseV4SettingsVisualState,
+  settingsV4VisualView,
+} from "@/lib/v4/settings-workspace";
+import { isV4VisualFixtureEnabled } from "@/lib/v4/visual-fixture";
 
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { ProfileSection } from "@/components/settings/ProfileSection";
-import { SubscriptionSection } from "@/components/settings/SubscriptionSection";
-import { NotificationsSection } from "@/components/settings/NotificationsSection";
-import { SecuritySection } from "@/components/settings/SecuritySection";
-import { ShareLinksSection } from "@/components/settings/ShareLinksSection";
-import { PrivacySection } from "@/components/settings/PrivacySection";
-import { CompanionMemorySection } from "@/components/settings/CompanionMemorySection";
-import { SharePreviewSection } from "@/components/settings/SharePreviewSection";
-import type { Profile } from "@/types/database";
+export const metadata: Metadata = {
+  title: "Settings",
+  description: "Account · Privacy · Billing entry only. Quarantine everything else this pass.",
+  robots: { index: false, follow: false },
+};
 
-export default function SettingsPage() {
-  const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [email, setEmail] = useState<string>("");
-  const [profile, setProfile] = useState<Profile | null>(null);
+/**
+ * Settings v4 — V4_PENDING `/settings`. Account · Privacy · Billing only.
+ * Never writes a score. Never invents $.
+ */
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ visual?: string }>;
+}) {
+  if (!isV4HomeEnabled()) {
+    redirect("/");
+  }
 
-  useEffect(() => {
-    let active = true;
-    async function load() {
-      try {
-        const supabase = createClient();
-        const { data: userData } = await supabase.auth.getUser();
-        const user = userData?.user;
-        if (!user) {
-          if (active) setLoading(false);
-          return;
-        }
-        if (active) {
-          setUserId(user.id);
-          setEmail(user.email ?? "");
-        }
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .maybeSingle();
-        if (active) setProfile((profileData as Profile) ?? null);
-      } catch {
-        // Leave defaults — sections handle missing data gracefully.
-      } finally {
-        if (active) setLoading(false);
-      }
-    }
-    load();
-    return () => {
-      active = false;
-    };
-  }, []);
+  const params = await searchParams;
+  const visual = isV4VisualFixtureEnabled() ? parseV4SettingsVisualState(params.visual) : null;
 
-  return (
-    <div className="mx-auto max-w-3xl px-4 py-12 sm:py-16">
-      <h1 className="font-display text-3xl font-semibold text-light">Settings</h1>
-      <p className="mt-2 text-sm text-dim">Manage your profile, subscription, and privacy.</p>
+  assertAssessmentResultOnly("assessment_result");
 
-      {loading ? (
-        <div className="mt-10 flex flex-col gap-6">
-          <div className="glass h-40 animate-pulse p-6" />
-          <div className="glass h-32 animate-pulse p-6" />
-          <div className="glass h-32 animate-pulse p-6" />
-          <div className="glass h-40 animate-pulse p-6" />
-        </div>
-      ) : (
-        <div className="mt-10 flex flex-col gap-6">
-          {userId && (
-            <ProfileSection
-              userId={userId}
-              email={email}
-              initialFullName={profile?.full_name ?? ""}
-            />
-          )}
+  if (visual) {
+    return <SettingsWorkspaceV4 view={settingsV4VisualView(visual)} />;
+  }
 
-          <SubscriptionSection
-            tier={profile?.subscription_tier ?? "free"}
-            status={profile?.subscription_status}
-            hasStripeCustomer={Boolean(profile?.stripe_customer_id)}
-          />
-
-          {userId && <SecuritySection />}
-
-          {userId && <ShareLinksSection />}
-
-          <NotificationsSection />
-
-          <CompanionMemorySection />
-
-          <SharePreviewSection />
-
-          <PrivacySection />
-
-          <section className="glass flex items-center justify-between p-6 sm:p-8">
-            <div>
-              <h2 className="font-display text-xl font-semibold text-light">Sign out</h2>
-              <p className="mt-1 text-sm text-dim">End your session on this device.</p>
-            </div>
-            <form action="/auth/sign-out" method="POST">
-              <button type="submit" className="btn btn-ghost btn-sm">
-                Sign out
-              </button>
-            </form>
-          </section>
-        </div>
-      )}
-    </div>
-  );
+  const reading = await loadSystemV4LastRead();
+  return <SettingsWorkspaceV4 view={buildSettingsV4View(reading)} />;
 }

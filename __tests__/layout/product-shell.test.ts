@@ -74,6 +74,11 @@ describe("PR C product shell — v4 only when flag is on", () => {
     expect(productShellFor("/money", true)).toBe("v4");
     expect(productShellFor("/scenarios", true)).toBe("v4");
     expect(productShellFor("/ask", true)).toBe("v4");
+    expect(productShellFor("/money/bills", true)).toBe("v4");
+    expect(productShellFor("/tools", true)).toBe("v4");
+    expect(productShellFor("/learn", true)).toBe("v4");
+    expect(productShellFor("/connections", true)).toBe("v4");
+    expect(productShellFor("/settings", true)).toBe("v4");
     expect(productShellFor("/dashboard", true)).toBe("personal");
     expect(productShellFor("/admin", true)).toBe("role");
     expect(resolveProductShell("personal", "/home", true)).toBe("v4");
@@ -88,6 +93,11 @@ describe("PR C product shell — v4 only when flag is on", () => {
     expect(productShellFor("/money", false)).toBe("v4");
     expect(productShellFor("/scenarios", false)).toBe("v4");
     expect(productShellFor("/ask", false)).toBe("v4");
+    expect(productShellFor("/money/bills", false)).toBe("v4");
+    expect(productShellFor("/tools", false)).toBe("v4");
+    expect(productShellFor("/learn", false)).toBe("v4");
+    expect(productShellFor("/connections", false)).toBe("v4");
+    expect(productShellFor("/settings", false)).toBe("v4");
     expect(resolveProductShell("guest", "/home", false)).toBe("v4");
     expect(productShellFor("/dashboard", false)).toBe("guest");
     expect(productShellFor("", false)).toBe("guest");

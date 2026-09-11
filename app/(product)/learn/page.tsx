@@ -1,30 +1,45 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { InventChromeEmpty } from "@/components/dashboard/InventChromeEmpty";
-import { JobDepthFrame } from "@/components/layout/JobDepthFrame";
+import { redirect } from "next/navigation";
+import { LearnWorkspaceV4 } from "@/components/v4/learn/LearnWorkspaceV4";
+import { isV4HomeEnabled } from "@/lib/auth/keep-routes";
+import { assertAssessmentResultOnly } from "@/lib/v4/home-state";
+import { loadSystemV4LastRead } from "@/lib/v4/system-read";
+import {
+  buildLearnV4View,
+  parseV4LearnVisualState,
+  learnV4VisualView,
+} from "@/lib/v4/learn-workspace";
+import { isV4VisualFixtureEnabled } from "@/lib/v4/visual-fixture";
 
 export const metadata: Metadata = {
   title: "Learn",
   description: "In-app Learn is an empty shell. Public guides stay on the live /guides route.",
   alternates: { canonical: "/learn" },
+  robots: { index: false, follow: false },
 };
 
-/** PR13 invent-chrome. No live /learn curriculum — do not invent courses. */
-export default function LearnPage() {
-  return (
-    <JobDepthFrame job="learn">
-      <InventChromeEmpty
-        job="learn"
-        eyebrow="Learn"
-        title="Learn"
-        body="There is no live in-app Learn surface yet. Public guides stay on the live site — this rail row is an honest empty shell, not a second curriculum."
-        connect={false}
-      />
-      <p className="mt-6 text-sm text-dim">
-        <Link href="/guides" className="text-cyan underline-offset-2 hover:underline">
-          Open public guides
-        </Link>
-      </p>
-    </JobDepthFrame>
-  );
+/**
+ * Learn v4 — V4_PENDING `/learn`. Empty or live public-guide catalog.
+ * Never invent curriculum SKUs.
+ */
+export default async function LearnPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ visual?: string }>;
+}) {
+  if (!isV4HomeEnabled()) {
+    redirect("/");
+  }
+
+  const params = await searchParams;
+  const visual = isV4VisualFixtureEnabled() ? parseV4LearnVisualState(params.visual) : null;
+
+  assertAssessmentResultOnly("assessment_result");
+
+  if (visual) {
+    return <LearnWorkspaceV4 view={learnV4VisualView(visual)} />;
+  }
+
+  const reading = await loadSystemV4LastRead();
+  return <LearnWorkspaceV4 view={buildLearnV4View(reading)} />;
 }

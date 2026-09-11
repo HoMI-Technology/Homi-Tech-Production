@@ -11,6 +11,7 @@ import {
   V4_SHELL_ASSESS_HREF,
   V4_SHELL_ASK_HREF,
   isV4AssessPath,
+  isV4SystemSurfacePath,
 } from "@/lib/layout/v4-shell";
 import { useAssessmentWalkChrome } from "@/components/v4/assessment/AssessmentWalkChrome";
 
@@ -36,6 +37,7 @@ export function V4TopCommand({
   const nameBit = firstName ? `, ${firstName}` : "";
   const { chrome } = useAssessmentWalkChrome();
   const assessActive = isV4AssessPath(pathname ?? "");
+  const askOnly = isV4SystemSurfacePath(pathname ?? "");
   const askPlaceholder = chrome.askPlaceholder;
   const commandLabel = chrome.commandLabel;
   const workspacePrompts = chrome.prompts;
@@ -154,7 +156,7 @@ export function V4TopCommand({
         <div
           className="v4-ask-overlay fixed inset-0 z-[var(--z-modal)] flex items-end justify-center bg-navy/70 px-0 lg:items-start lg:justify-center lg:px-4 lg:pt-24"
           data-v4-command-palette=""
-          data-v4-ask-sheet=""
+          data-v4-ask-sheet={askOnly ? "ask-only" : ""}
         >
           <button
             type="button"
@@ -187,28 +189,32 @@ export function V4TopCommand({
                   </button>
                 </li>
               ))}
-              <li>
-                <button
-                  type="button"
-                  className="w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-white/[0.04]"
-                  data-v4-ask-open=""
-                  style={{ color: COLORS.cyan }}
-                  onClick={() => go(V4_SHELL_ASK_HREF)}
-                >
-                  Open HōMI
-                </button>
-              </li>
-              {navResults.map((item) => (
-                <li key={`${item.href}-${item.label}`}>
+              {askOnly ? null : (
+                <li>
                   <button
                     type="button"
-                    className="w-full rounded-lg px-3 py-2 text-left text-sm text-light hover:bg-white/[0.04]"
-                    onClick={() => go(item.href)}
+                    className="w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-white/[0.04]"
+                    data-v4-ask-open=""
+                    style={{ color: COLORS.cyan }}
+                    onClick={() => go(V4_SHELL_ASK_HREF)}
                   >
-                    {item.label}
+                    Open HōMI
                   </button>
                 </li>
-              ))}
+              )}
+              {askOnly
+                ? null
+                : navResults.map((item) => (
+                    <li key={`${item.href}-${item.label}`}>
+                      <button
+                        type="button"
+                        className="w-full rounded-lg px-3 py-2 text-left text-sm text-light hover:bg-white/[0.04]"
+                        onClick={() => go(item.href)}
+                      >
+                        {item.label}
+                      </button>
+                    </li>
+                  ))}
             </ul>
           </div>
         </div>

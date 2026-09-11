@@ -1,4 +1,4 @@
-# Pixel Gate — Home v4 + Assessment v4 + Path v4 + Money v4 + Compare v4 + Contextual HōMI screenshot set
+# Pixel Gate — Home v4 + Assessment v4 + Path v4 + Money v4 + Compare v4 + Contextual HōMI + System surfaces screenshot set
 
 Stay-draft until founder **APPROVE VISUAL DIRECTION**. Do not undraft, do not
 merge, do not deploy Production. Production may already have
@@ -88,9 +88,27 @@ Mocks (`contextual-homi-empty-v4`, `contextual-homi-hard-stop-v4`,
 `contextual-homi-default-v4`) are orientation only — **≠ PIXEL**. Never invent
 $ or a second official score.
 
+## System surfaces states (PR J)
+
+| Query | Intent |
+| --- | --- |
+| `/money/bills?visual=empty` | No bills — Open Money, never invent dues |
+| `/money/bills?visual=hard-stop` | Hard-stop ACTIVE hold, explain-only, never On track |
+| `/tools?visual=empty` | No tools open — Browse hub REUSE, never a score tile |
+| `/tools?visual=catalog` | Ten hub lenses, educational only |
+| `/learn?visual=empty` | No in-app curriculum — Open public guides |
+| `/connections?visual=normal` | Live connections — name/mask + Live SSOT, no invent $ |
+| `/settings?visual=empty` | Account · Privacy · Billing entry only |
+
+Mocks (`system-bills-empty-v4`, `system-bills-hard-stop-v4`,
+`system-tools-empty-v4`, `system-accounts-normal-v4`,
+`system-settings-empty-v4`) are orientation only — **≠ PIXEL**. Never invent
+$ or a second official score.
+
 ## Gate
 
-Architecture → real rendered Home + Assessment + Path + Money + Compare + Ask → this set → internal ≥92/100 →
+Architecture → real rendered Home + Assessment + Path + Money + Compare + Ask +
+system surfaces → this set → internal ≥92/100 →
 founder APPROVE VISUAL DIRECTION → then undraft / merge.
 
 Stills land under `docs/design/baseline/` when captured. This PR does not

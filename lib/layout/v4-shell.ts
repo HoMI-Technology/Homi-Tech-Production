@@ -73,9 +73,51 @@ export const V4_COMMAND_ITEMS: readonly V4NavItem[] = [
 
 export const V4_KILLED_NAV_LABELS = ["Homie", "On track", "READY", "Support"] as const;
 
+export const V4_SHELL_BILLS_HREF = "/money/bills" as const;
+export const V4_SHELL_TOOLS_HREF = "/tools" as const;
+export const V4_SHELL_LEARN_HREF = "/learn" as const;
+export const V4_SHELL_ACCOUNTS_HREF = "/connections" as const;
+export const V4_SHELL_SETTINGS_HREF = "/settings" as const;
+
 export function isV4AskPath(pathname: string): boolean {
   const p = pathname || "/";
   return p === V4_SHELL_ASK_HREF || p.startsWith(`${V4_SHELL_ASK_HREF}/`);
+}
+
+export function isV4BillsWorkspace(pathname: string): boolean {
+  const p = pathname || "/";
+  return p === V4_SHELL_BILLS_HREF || p.startsWith(`${V4_SHELL_BILLS_HREF}/`);
+}
+
+export function isV4ToolsHub(pathname: string): boolean {
+  return (pathname || "/") === V4_SHELL_TOOLS_HREF;
+}
+
+export function isV4LearnWorkspace(pathname: string): boolean {
+  const p = pathname || "/";
+  return p === V4_SHELL_LEARN_HREF || p.startsWith(`${V4_SHELL_LEARN_HREF}/`);
+}
+
+export function isV4AccountsWorkspace(pathname: string): boolean {
+  const p = pathname || "/";
+  return p === V4_SHELL_ACCOUNTS_HREF || p.startsWith(`${V4_SHELL_ACCOUNTS_HREF}/`);
+}
+
+export function isV4SettingsWorkspace(pathname: string): boolean {
+  const p = pathname || "/";
+  return p === V4_SHELL_SETTINGS_HREF || p.startsWith(`${V4_SHELL_SETTINGS_HREF}/`);
+}
+
+/** Bills · Tools hub · Learn · Accounts · Settings — not nested calculators. */
+export function isV4SystemSurfacePath(pathname: string): boolean {
+  const p = pathname || "/";
+  return (
+    isV4BillsWorkspace(p) ||
+    isV4ToolsHub(p) ||
+    isV4LearnWorkspace(p) ||
+    isV4AccountsWorkspace(p) ||
+    isV4SettingsWorkspace(p)
+  );
 }
 
 export function isV4NavActive(pathname: string, href: string): boolean {

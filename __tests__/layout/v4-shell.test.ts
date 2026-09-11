@@ -21,6 +21,8 @@ import {
   isV4PathWorkspace,
   isV4MoneyWorkspace,
   isV4AskPath,
+  isV4BillsWorkspace,
+  isV4SystemSurfacePath,
   v4ShellShowsHomiRail,
 } from "@/lib/layout/v4-shell";
 
@@ -86,6 +88,14 @@ describe("Shell v4 nav law", () => {
     expect(isV4PathWorkspace("/path")).toBe(true);
     expect(isV4MoneyWorkspace("/money")).toBe(true);
     expect(isV4MoneyWorkspace("/money/bills")).toBe(false);
+    expect(isV4BillsWorkspace("/money/bills")).toBe(true);
+    expect(isV4SystemSurfacePath("/money/bills")).toBe(true);
+    expect(isV4SystemSurfacePath("/tools")).toBe(true);
+    expect(isV4SystemSurfacePath("/tools/runway")).toBe(false);
+    expect(isV4SystemSurfacePath("/learn")).toBe(true);
+    expect(isV4SystemSurfacePath("/connections")).toBe(true);
+    expect(isV4SystemSurfacePath("/settings")).toBe(true);
+    expect(isV4SystemSurfacePath("/home")).toBe(false);
     expect(isV4CompareWorkspace("/scenarios")).toBe(true);
     expect(isV4CompareWorkspace("/path")).toBe(false);
     expect(isV4AskPath("/ask")).toBe(true);
@@ -139,6 +149,9 @@ describe("Shell v4 nav law", () => {
     expect(v4ShellShowsHomiRail("/money")).toBe(false);
     expect(v4ShellShowsHomiRail("/path")).toBe(false);
     expect(v4ShellShowsHomiRail("/scenarios")).toBe(false);
+    expect(v4ShellShowsHomiRail("/money/bills")).toBe(false);
+    expect(v4ShellShowsHomiRail("/tools")).toBe(false);
+    expect(v4ShellShowsHomiRail("/connections")).toBe(false);
   });
 
   it("selected rail is a 2px cyan edge with no glow or pill", () => {
@@ -188,6 +201,21 @@ describe("Shell v4 nav law", () => {
     expect(block).toContain("border-radius: 0");
     expect(block).toContain("grid-area: auto");
     expect(block).toContain("border-left: 1px solid");
+    expect(block).not.toMatch(/position:\s*fixed/);
+    expect(block).not.toMatch(/position:\s*absolute/);
+  });
+
+  it("system-surface HōMI is a full-height column, not a floating overlay card", () => {
+    const css = readFileSync(resolve(process.cwd(), "app/globals.css"), "utf8");
+    expect(css).toContain("/* System surfaces HōMI is a full-height column");
+    const start = css.indexOf(".v4-homi-brand.is-micro {");
+    expect(start).toBeGreaterThan(-1);
+    const block = css.slice(start, start + 900);
+    expect(block).toContain("background: transparent");
+    expect(block).toContain("border-radius: 0");
+    expect(block).toContain("grid-area: auto");
+    expect(block).toContain("border-left: 1px solid");
+    expect(block).toContain(".v4-homi-brand.is-micro");
     expect(block).not.toMatch(/position:\s*fixed/);
     expect(block).not.toMatch(/position:\s*absolute/);
   });
