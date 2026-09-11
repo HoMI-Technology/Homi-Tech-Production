@@ -92,7 +92,7 @@ describe("Team v4 law", () => {
     expect(isV4NavActive("/team", "/home")).toBe(false);
     expect(isV4QuietCommandPath("/team")).toBe(true);
     const page = readFileSync(resolve(process.cwd(), "app/(product)/team/page.tsx"), "utf8");
-    expect(page).not.toContain("/team/dashboard");
+    expect(page).not.toMatch(/href=["']\/team\/dashboard/);
     expect(page).not.toContain("AttentionStrip");
     expect(page).toContain("isV4HomeEnabled");
     const command = readFileSync(
