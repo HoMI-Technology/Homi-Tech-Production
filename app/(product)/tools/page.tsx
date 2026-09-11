@@ -1,5 +1,7 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { PRIMARY_CLOSE_HREF, PRIMARY_CLOSE_LABEL } from "@/components/marketing/first-moment-copy";
 import { ToolsWorkspaceV4 } from "@/components/v4/tools/ToolsWorkspaceV4";
 import { isV4HomeEnabled } from "@/lib/auth/keep-routes";
 import { assertAssessmentResultOnly } from "@/lib/v4/home-state";
@@ -14,12 +16,13 @@ import { isV4VisualFixtureEnabled } from "@/lib/v4/visual-fixture";
 export const metadata: Metadata = {
   title: "Tools",
   description:
-    "Approved hub lenses. Educational estimates — they do not write your score or ledger.",
+    "Answer one math question at a time — honest educational lenses. Estimates never write your official score. Educational estimates — they do not write your score or ledger. They do not provide financial, tax, mortgage, or investment advice.",
   robots: { index: false, follow: false },
 };
 
 /**
  * Tools v4 hub — V4_PENDING `/tools`. Ten-hub REUSE. Never a verdict factory.
+ * Guest Assess close stays PRIMARY_CLOSE_HREF / PRIMARY_CLOSE_LABEL (First Moment).
  */
 export default async function ToolsHubPage({
   searchParams,
@@ -35,10 +38,14 @@ export default async function ToolsHubPage({
 
   assertAssessmentResultOnly("assessment_result");
 
-  if (visual) {
-    return <ToolsWorkspaceV4 view={toolsV4VisualView(visual)} />;
-  }
+  const view = visual ? toolsV4VisualView(visual) : buildToolsV4View(await loadSystemV4LastRead());
 
-  const reading = await loadSystemV4LastRead();
-  return <ToolsWorkspaceV4 view={buildToolsV4View(reading)} />;
+  return (
+    <>
+      <Link href={PRIMARY_CLOSE_HREF} className="sr-only">
+        {PRIMARY_CLOSE_LABEL}
+      </Link>
+      <ToolsWorkspaceV4 view={view} />
+    </>
+  );
 }
