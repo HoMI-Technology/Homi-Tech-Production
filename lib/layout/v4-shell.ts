@@ -4,7 +4,7 @@
  * Primary rail (locked): Home · Money · Path · Compare
  * Secondary: Bills · Tools · Learn
  * System: Accounts · Settings
- * Mobile bottom: Home · Money · Path · Compare · More
+ * Mobile bottom: Home · Money · Path · More. Compare lives under More.
  * Assess = top command only. No Support peer (no proven Support route).
  *
  * Compass is the shell mark only — never a page hero.
@@ -21,6 +21,7 @@ export const V4_SHELL_HOME_HREF = "/home" as const;
 export const V4_SHELL_ASSESS_HREF = "/assessment" as const;
 export const V4_SHELL_PATH_HREF = "/path" as const;
 export const V4_SHELL_MONEY_HREF = "/money" as const;
+export const V4_SHELL_COMPARE_HREF = "/scenarios" as const;
 export const V4_SHELL_ASK_HREF = "/home" as const;
 export const V4_SHELL_COMPASS_SIZE = 32 as const;
 /** Ultra Premium rail — 216–228. */
@@ -35,7 +36,7 @@ export const V4_PRIMARY_NAV: readonly V4NavItem[] = [
   { href: V4_SHELL_HOME_HREF, label: "Home" },
   { href: V4_SHELL_MONEY_HREF, label: "Money" },
   { href: V4_SHELL_PATH_HREF, label: "Path" },
-  { href: "/scenarios", label: "Compare" },
+  { href: V4_SHELL_COMPARE_HREF, label: "Compare" },
 ] as const;
 
 export const V4_SECONDARY_NAV: readonly V4NavItem[] = [
@@ -53,10 +54,10 @@ export const V4_MOBILE_TABS: readonly V4NavItem[] = [
   { href: V4_SHELL_HOME_HREF, label: "Home" },
   { href: V4_SHELL_MONEY_HREF, label: "Money" },
   { href: V4_SHELL_PATH_HREF, label: "Path" },
-  { href: "/scenarios", label: "Compare" },
 ] as const;
 
 export const V4_MORE_NAV: readonly V4NavItem[] = [
+  { href: V4_SHELL_COMPARE_HREF, label: "Compare" },
   ...V4_SECONDARY_NAV,
   ...V4_SYSTEM_NAV,
 ] as const;
@@ -96,6 +97,11 @@ export function isV4MoneyWorkspace(pathname: string): boolean {
   const p = pathname || "/";
   if (p === "/money/bills" || p.startsWith("/money/bills/")) return false;
   return p === V4_SHELL_MONEY_HREF || p.startsWith(`${V4_SHELL_MONEY_HREF}/`);
+}
+
+export function isV4CompareWorkspace(pathname: string): boolean {
+  const p = pathname || "/";
+  return p === V4_SHELL_COMPARE_HREF || p.startsWith(`${V4_SHELL_COMPARE_HREF}/`);
 }
 
 export function v4ShellShowsHomiRail(pathname: string): boolean {

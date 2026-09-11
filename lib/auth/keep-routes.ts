@@ -149,6 +149,16 @@ export function isV4RouteActivated(
 }
 
 /**
+ * Rail label is Compare; workspace stays `/scenarios`.
+ * Alias only — not a second V4_PENDING host.
+ */
+export function compareAliasRedirect(path: string): string | null {
+  const p = normalizeAppPath(path);
+  if (p === "/compare" || p.startsWith("/compare/")) return "/scenarios";
+  return null;
+}
+
+/**
  * Extra legal routes (disclaimer, subprocessors, DMCA, …) may fold onto
  * `/legal/privacy`. KEEP legal pages return null (serve as-is).
  */

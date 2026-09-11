@@ -1,31 +1,18 @@
 import { Skeleton } from "@/components/ui/Skeleton";
 
-/** Route-level loading UI for Scenario studio — matches dashboard skeleton language. */
-export default function ScenariosLoading() {
+/**
+ * Compare v4 route loading — quiet catalog skeleton. No PageFrame, no Compass.
+ * Shell v4 already wraps this route.
+ */
+export default function CompareV4Loading() {
   return (
-    <div
-      className="mx-auto max-w-3xl px-4 sm:px-6 py-12"
-      aria-busy="true"
-      aria-label="Loading scenario studio"
-    >
-      <Skeleton className="h-3 w-32" />
-      <Skeleton className="mt-3 h-9 w-64 max-w-full" />
+    <div className="px-4 py-5 sm:px-6 sm:py-6" aria-busy="true" aria-label="Loading compare">
+      <Skeleton className="h-3 w-28" />
+      <Skeleton className="mt-5 h-8 w-72 max-w-full" />
       <Skeleton className="mt-3 h-4 w-80 max-w-full" />
-      <div className="mt-8 grid gap-6 sm:grid-cols-2">
-        <div className="glass space-y-4 p-6">
-          <Skeleton className="h-5 w-32" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-2 w-full rounded-full" />
-          <Skeleton className="h-4 w-5/6" />
-          <Skeleton className="h-2 w-full rounded-full" />
-        </div>
-        <div className="glass space-y-4 p-6">
-          <Skeleton className="h-5 w-32" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-2 w-full rounded-full" />
-          <Skeleton className="h-4 w-5/6" />
-          <Skeleton className="h-2 w-full rounded-full" />
-        </div>
+      <div className="mt-8 grid gap-3">
+        <Skeleton className="h-16 w-full max-w-xl" />
+        <Skeleton className="h-16 w-full max-w-xl" />
       </div>
     </div>
   );

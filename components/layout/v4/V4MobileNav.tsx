@@ -7,8 +7,8 @@ import { V4_NAV_ICONS } from "@/components/layout/v4/v4-nav-icons";
 import { V4_MOBILE_TABS, V4_MORE_NAV, isV4NavActive } from "@/lib/layout/v4-shell";
 
 /**
- * SHELL_CRAFT v4 mobile bottom: Home · Money · Path · Compare · More.
- * Icons from the existing Lucide package only.
+ * SHELL_CRAFT v4 mobile bottom: Home · Money · Path · More.
+ * Compare lives under More. Icons from the existing Lucide package only.
  */
 export function V4MobileNav() {
   const pathname = usePathname() ?? "/home";

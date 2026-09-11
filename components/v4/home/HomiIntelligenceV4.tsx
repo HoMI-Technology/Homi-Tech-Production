@@ -8,13 +8,14 @@ import { ArrowRight, Search } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 import {
   V4_SHELL_ASSESS_HREF,
+  V4_SHELL_COMPARE_HREF,
   V4_SHELL_MONEY_HREF,
   V4_SHELL_PATH_HREF,
 } from "@/lib/layout/v4-shell";
 import { HOME_V4_HOMI_PROMPTS } from "@/lib/v4/home-state";
 import type { V4AssessHomiPrompt } from "@/lib/v4/assessment-walk";
 
-export type HomiV4Surface = "home" | "walk" | "path" | "money";
+export type HomiV4Surface = "home" | "walk" | "path" | "money" | "compare";
 
 function homiAskId(surface: HomiV4Surface): string {
   switch (surface) {
@@ -26,6 +27,8 @@ function homiAskId(surface: HomiV4Surface): string {
       return "v4-path-homi-ask";
     case "money":
       return "v4-money-homi-ask";
+    case "compare":
+      return "v4-compare-homi-ask";
     default: {
       const _exhaustive: never = surface;
       return _exhaustive;
@@ -42,6 +45,8 @@ function homiFallbackHref(surface: HomiV4Surface): string {
       return V4_SHELL_ASSESS_HREF;
     case "money":
       return V4_SHELL_MONEY_HREF;
+    case "compare":
+      return V4_SHELL_COMPARE_HREF;
     default: {
       const _exhaustive: never = surface;
       return _exhaustive;
@@ -58,6 +63,8 @@ function homiClassName(surface: HomiV4Surface): string {
       return "v4-homi v4-assess-homi";
     case "money":
       return "v4-homi v4-money-homi";
+    case "compare":
+      return "v4-homi v4-compare-homi";
     default: {
       const _exhaustive: never = surface;
       return _exhaustive;
@@ -67,7 +74,7 @@ function homiClassName(surface: HomiV4Surface): string {
 
 /**
  * Contextual HōMI — clarity rail. Prompts + Ask. Not a second score.
- * Column in the workspace grid — never a floating overlay on Money/Path.
+ * Column in the workspace grid — never a floating overlay on Money/Path/Compare.
  * No AssessmentResult engineering language. No educational disclaimer strip.
  */
 export function HomiIntelligenceV4({
@@ -109,6 +116,7 @@ export function HomiIntelligenceV4({
       data-assessment-v4-homi={surface === "walk" ? "" : undefined}
       data-path-v4-homi={surface === "path" ? "" : undefined}
       data-money-v4-homi={surface === "money" ? "" : undefined}
+      data-compare-v4-homi={surface === "compare" ? "" : undefined}
       aria-label="HōMI"
     >
       <header className="v4-homi-head">
@@ -129,6 +137,7 @@ export function HomiIntelligenceV4({
               data-assessment-v4-homi-prompt={surface === "walk" ? "" : undefined}
               data-path-v4-homi-prompt={surface === "path" ? "" : undefined}
               data-money-v4-homi-prompt={surface === "money" ? "" : undefined}
+              data-compare-v4-homi-prompt={surface === "compare" ? "" : undefined}
             >
               <span>{prompt.label}</span>
               <ArrowRight aria-hidden className="size-3.5 shrink-0" strokeWidth={1.75} />
@@ -144,6 +153,7 @@ export function HomiIntelligenceV4({
         data-assessment-v4-homi-ask-form={surface === "walk" ? "" : undefined}
         data-path-v4-homi-ask-form={surface === "path" ? "" : undefined}
         data-money-v4-homi-ask-form={surface === "money" ? "" : undefined}
+        data-compare-v4-homi-ask-form={surface === "compare" ? "" : undefined}
       >
         <label className="sr-only" htmlFor={askId}>
           Ask HōMI
@@ -155,6 +165,7 @@ export function HomiIntelligenceV4({
           data-assessment-v4-homi-ask={surface === "walk" ? "" : undefined}
           data-path-v4-homi-ask={surface === "path" ? "" : undefined}
           data-money-v4-homi-ask={surface === "money" ? "" : undefined}
+          data-compare-v4-homi-ask={surface === "compare" ? "" : undefined}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={askPlaceholder}

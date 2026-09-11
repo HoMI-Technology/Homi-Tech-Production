@@ -16,6 +16,7 @@ import {
   V4_SHELL_MONEY_HREF,
   V4_SHELL_PATH_HREF,
   isV4AssessPath,
+  isV4CompareWorkspace,
   isV4NavActive,
   isV4PathWorkspace,
   isV4MoneyWorkspace,
@@ -50,9 +51,9 @@ describe("Shell v4 nav law", () => {
       "Home",
       "Money",
       "Path",
-      "Compare",
     ]);
     expect(V4_MORE_NAV.map((item) => item.label)).toEqual([
+      "Compare",
       "Bills",
       "Tools",
       "Learn",
@@ -81,6 +82,8 @@ describe("Shell v4 nav law", () => {
     expect(isV4PathWorkspace("/path")).toBe(true);
     expect(isV4MoneyWorkspace("/money")).toBe(true);
     expect(isV4MoneyWorkspace("/money/bills")).toBe(false);
+    expect(isV4CompareWorkspace("/scenarios")).toBe(true);
+    expect(isV4CompareWorkspace("/path")).toBe(false);
     expect(isV4NavActive("/assessment", "/home")).toBe(false);
     expect(isV4NavActive("/assessment", "/path")).toBe(false);
     expect(isV4NavActive("/path", "/path")).toBe(true);
@@ -91,8 +94,9 @@ describe("Shell v4 nav law", () => {
       "Home",
       "Money",
       "Path",
-      "Compare",
     ]);
+    expect(V4_MORE_NAV.some((item) => item.label === "Compare")).toBe(true);
+    expect(V4_MOBILE_TABS.some((item) => item.label === "Compare")).toBe(false);
     expect(V4_MORE_NAV.some((item) => item.label === "Assess")).toBe(false);
     expect(V4_MOBILE_TABS.some((item) => item.label === "Assess")).toBe(false);
   });
@@ -117,12 +121,13 @@ describe("Shell v4 nav law", () => {
     expect(V4_COMMAND_HEIGHT_PX).toBe(64);
   });
 
-  it("shows the right HōMI column on Home and Assessment, not Money/Path", () => {
+  it("shows the right HōMI column on Home and Assessment, not Money/Path/Compare", () => {
     expect(v4ShellShowsHomiRail("/home")).toBe(true);
     expect(v4ShellShowsHomiRail("/home/next")).toBe(true);
     expect(v4ShellShowsHomiRail("/assessment")).toBe(true);
     expect(v4ShellShowsHomiRail("/money")).toBe(false);
     expect(v4ShellShowsHomiRail("/path")).toBe(false);
+    expect(v4ShellShowsHomiRail("/scenarios")).toBe(false);
   });
 
   it("selected rail is a 2px cyan edge with no glow or pill", () => {
@@ -137,9 +142,9 @@ describe("Shell v4 nav law", () => {
     expect(block).not.toMatch(/rgba\(34,\s*211,\s*238/);
   });
 
-  it("Money HōMI is a full-height column, not a floating overlay card", () => {
+  it("Compare HōMI is a full-height column, not a floating overlay card", () => {
     const css = readFileSync(resolve(process.cwd(), "app/globals.css"), "utf8");
-    const start = css.indexOf("/* Money HōMI is a full-height column");
+    const start = css.indexOf("/* Compare HōMI is a full-height column");
     expect(start).toBeGreaterThan(-1);
     const block = css.slice(start, start + 900);
     expect(block).toContain("background: transparent");
