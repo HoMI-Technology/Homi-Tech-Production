@@ -45,7 +45,6 @@ export const ACCOUNTS_V4_HOLD_LEAD = "Hold first — accounts stay ledger-only."
 export const ACCOUNTS_V4_HARD_STOP_BODY =
   "Connecting does not clear the hard stop. Path still leads — never invent balances here." as const;
 export const ACCOUNTS_V4_STALE_NOTE = "Stale sync — live connections until a refresh." as const;
-export const ACCOUNTS_V4_STALE_AFTER_MS = 7 * 24 * 60 * 60 * 1000;
 export const ACCOUNTS_V4_CRAFT_DISCLAIMER =
   "Craft mock only — masks are orientation, never Production invent $." as const;
 
@@ -201,16 +200,17 @@ export function buildAccountsV4View(reading: AccountsV4Reading | null): Accounts
   const nowMs = reading?.nowMs ?? Date.now();
   const syncIso = latestSyncIso(items);
   const ageLabel = rows.length > 0 ? systemV4AgeLabel(syncIso, nowMs) : SYSTEM_V4_AGE_UNKNOWN;
-  const stale =
-    rows.length > 0 &&
-    syncIso != null &&
-    Number.isFinite(new Date(syncIso).getTime()) &&
-    nowMs - new Date(syncIso).getTime() >= ACCOUNTS_V4_STALE_AFTER_MS;
+  const reconnect = rows.some(
+    (row) =>
+      row.status === "login_required" ||
+      row.status === "pending_expiration" ||
+      row.status === "revoked",
+  );
   const kind: AccountsV4Kind = hardStopActive
     ? "hard-stop"
     : rows.length === 0
       ? "empty"
-      : stale
+      : reconnect
         ? "stale"
         : "normal";
   const isCraftFixture = reading?.isCraftFixture === true;
@@ -315,7 +315,7 @@ export function accountsV4VisualReading(state: V4AccountsVisualState): AccountsV
         decisionType: SYSTEM_V4_FIXTURE_DECISION,
         verdict: "ALMOST_THERE",
         stopCode: null,
-        items: [{ ...live.items[0], last_successful_sync: "2026-08-01T12:00:00.000Z" }],
+        items: [{ ...live.items[0], status: "login_required", last_successful_sync: "2026-08-01T12:00:00.000Z" }],
         accounts: live.accounts,
         isCraftFixture: true,
         nowMs: SYSTEM_V4_FIXTURE_NOW_MS,

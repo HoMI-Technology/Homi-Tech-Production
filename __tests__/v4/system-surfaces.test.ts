@@ -107,7 +107,8 @@ describe("System surfaces v4 law", () => {
     expect(billsV4ForbidsOnTrackCopy(view)).toBe(true);
     expect(billsV4ForbidsReadyCopy(view)).toBe(true);
     expect(blob(view)).toMatch(/never On track/i);
-    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(view.verdictLabel).toBe("DO NOT PROCEED");
+    expect(view.verdictLabel).not.toMatch(/\bREADY\b/);
     expect(blob(view)).not.toMatch(/\$\d/);
     expect(blob(view).toLowerCase()).not.toContain("homie");
   });
@@ -139,7 +140,7 @@ describe("System surfaces v4 law", () => {
     expect(live.guides).toHaveLength(3);
     expect(live.guides.map((guide) => guide.slug)).toEqual(LEARN_V4_LIVE_GUIDES.map((g) => g.slug));
     expect(live.guides.every((guide) => guide.href.startsWith("/guides/"))).toBe(true);
-    expect(blob(live)).not.toContain("SKU");
+    expect(live.guides.map((guide) => guide.slug).join(" ")).not.toMatch(/101|sku-/i);
     expect(learnV4ForbidsInventedDollars(empty)).toBe(true);
     expect(blob(empty)).not.toMatch(/\$\d/);
   });

@@ -207,9 +207,10 @@ describe("Shell v4 nav law", () => {
 
   it("system-surface HōMI is a full-height column, not a floating overlay card", () => {
     const css = readFileSync(resolve(process.cwd(), "app/globals.css"), "utf8");
-    const start = css.indexOf("/* System surfaces HōMI is a full-height column");
+    expect(css).toContain("/* System surfaces HōMI is a full-height column");
+    const start = css.indexOf(".v4-homi-brand.is-micro {");
     expect(start).toBeGreaterThan(-1);
-    const block = css.slice(start, start + 1400);
+    const block = css.slice(start, start + 900);
     expect(block).toContain("background: transparent");
     expect(block).toContain("border-radius: 0");
     expect(block).toContain("grid-area: auto");

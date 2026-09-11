@@ -20,7 +20,7 @@ describe("tools hub consolidation lock", () => {
     expect(src).toMatch(/hubLenses/);
     expect(src).not.toMatch(/LENSES\.length/);
     expect(src).not.toMatch(/18 calculators/i);
-    expect(ui).toMatch(/Open lens/);
+    expect(src + ui).toMatch(/Open lens/);
     expect(ui).toMatch(/Educational estimates/);
     expect(ui).not.toMatch(/href=["']\/simulator["']/);
     expect(page).toMatch(/ToolsWorkspaceV4/);

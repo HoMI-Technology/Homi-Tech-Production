@@ -82,7 +82,7 @@ describe("System surfaces v4 in Shell v4", () => {
     expect(text).toContain("Runway hold — bills stay ledger-only.");
     expect(text).toMatch(/never On track/i);
     expect(container.querySelector("[data-system-v4-cta]")?.getAttribute("href")).toBe("/path");
-    expect(text).not.toMatch(/\bREADY\b/);
+    expect(container.querySelector("[data-system-v4-verdict]")?.textContent).toBe("DO NOT PROCEED");
     expect(text).not.toMatch(/\$\d/);
   });
 

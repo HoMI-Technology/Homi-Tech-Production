@@ -62,13 +62,13 @@ export type SystemV4Hold = {
   holdMeta: string | null;
 };
 
-export const V4_ASK_PLACEHOLDER_BY_SURFACE: Record<SystemV4Surface, string> = {
+export const V4_ASK_PLACEHOLDER_BY_SURFACE = {
   bills: V4_ASK_PLACEHOLDER_BILLS,
   tools: V4_ASK_PLACEHOLDER_TOOLS,
   learn: V4_ASK_PLACEHOLDER_LEARN,
   accounts: V4_ASK_PLACEHOLDER_ACCOUNTS,
   settings: V4_ASK_PLACEHOLDER_SETTINGS,
-};
+} as const satisfies Record<SystemV4Surface, string>;
 
 export const V4_SYSTEM_HREF_BY_SURFACE: Record<SystemV4Surface, string> = {
   bills: V4_SHELL_BILLS_HREF,
