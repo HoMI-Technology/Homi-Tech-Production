@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { AdminRoomEmptyV4 } from "@/components/v4/admin/AdminRoomEmptyV4";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { COLORS } from "@/lib/brand";
@@ -52,7 +54,11 @@ export default async function AdminWaitlistPage() {
     .slice(0, 5);
 
   return (
-    <div>
+    <PageFrame role="admin" density="compact">
+      {entries.length === 0 ? (
+        <AdminRoomEmptyV4 title="No waitlist signups yet." />
+      ) : (
+        <>
       <PageHeader
         eyebrow="Admin"
         title="Waitlist"
@@ -130,6 +136,8 @@ export default async function AdminWaitlistPage() {
           </table>
         )}
       </div>
-    </div>
+        </>
+      )}
+    </PageFrame>
   );
 }

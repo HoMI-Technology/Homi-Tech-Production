@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { RoleBadge, TierBadge } from "@/components/admin/Badge";
+import { AdminRoomEmptyV4 } from "@/components/v4/admin/AdminRoomEmptyV4";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { COLORS } from "@/lib/brand";
+import { ADMIN_V4_USERS_EMPTY } from "@/lib/v4/admin-workspace";
 import type { Profile } from "@/types/database";
 
 export const metadata: Metadata = {
@@ -43,7 +46,11 @@ export default async function AdminUsersPage() {
   const partners = users.filter((u) => u.role === "partner").length;
 
   return (
-    <div>
+    <PageFrame role="admin" density="compact">
+      {users.length === 0 ? (
+        <AdminRoomEmptyV4 title={ADMIN_V4_USERS_EMPTY} />
+      ) : (
+        <>
       <PageHeader eyebrow="Admin" title="Users" description="Read-only directory of accounts." />
 
       <div className="mt-6">
@@ -111,6 +118,8 @@ export default async function AdminUsersPage() {
           </table>
         )}
       </div>
-    </div>
+        </>
+      )}
+    </PageFrame>
   );
 }

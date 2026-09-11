@@ -21,10 +21,12 @@ import {
   isV4PathWorkspace,
   isV4MoneyWorkspace,
   isV4AskPath,
+  isV4AdminWorkspace,
   isV4AskOnlyPath,
   isV4BillsWorkspace,
   isV4EmployeeWorkspace,
   isV4PartnerWorkspace,
+  isV4QuietCommandPath,
   isV4SystemSurfacePath,
   v4ShellShowsHomiRail,
 } from "@/lib/layout/v4-shell";
@@ -103,6 +105,15 @@ describe("Shell v4 nav law", () => {
     expect(isV4AskOnlyPath("/employee/dashboard")).toBe(true);
     expect(isV4PartnerWorkspace("/partner/dashboard")).toBe(true);
     expect(isV4AskOnlyPath("/partner/dashboard")).toBe(true);
+    expect(isV4QuietCommandPath("/admin")).toBe(true);
+    expect(isV4QuietCommandPath("/admin/users")).toBe(true);
+    expect(isV4QuietCommandPath("/partner/dashboard")).toBe(false);
+    expect(isV4AdminWorkspace("/admin")).toBe(true);
+    expect(isV4AdminWorkspace("/admin/marketing")).toBe(true);
+    expect(isV4NavActive("/admin", "/admin")).toBe(true);
+    expect(isV4NavActive("/admin/users", "/admin")).toBe(false);
+    expect(isV4NavActive("/admin/users", "/admin/users")).toBe(true);
+    expect(isV4NavActive("/admin", "/home")).toBe(false);
     expect(isV4AskOnlyPath("/money/bills")).toBe(true);
     expect(isV4NavActive("/employee/dashboard", "/home")).toBe(false);
     expect(isV4NavActive("/employee/dashboard", "/employee/dashboard")).toBe(true);

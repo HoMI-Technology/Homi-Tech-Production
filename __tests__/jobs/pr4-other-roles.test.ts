@@ -27,7 +27,7 @@ describe("PR4 live routes only — no invented homes", () => {
     expect(existsSync(resolve(process.cwd(), "app/(product)/partner/page.tsx"))).toBe(false);
     expect(employee).toContain("EmployeeWorkspaceV4");
     expect(partner).toContain("PartnerWorkspaceV4");
-    expect(admin).toContain('role="admin"');
+    expect(admin).toContain("AdminWorkspaceV4");
     expect(team).toContain('role="team"');
     expect(team).toContain("/team — not /team/dashboard");
   });
@@ -102,11 +102,12 @@ describe("PR4 partner leftover kills", () => {
 
 describe("PR4 admin leftover kills", () => {
   it("PageFrame wraps home and AttentionStrip stays above MetricRail", () => {
-    expect(admin).toContain("<PageFrame");
-    expect(admin.indexOf("AttentionStrip")).toBeLessThan(admin.indexOf("<MetricRail"));
-    expect(admin.indexOf("<MetricRail")).toBeLessThan(admin.indexOf("data-admin-depth"));
+    const workspace = read("components/v4/admin/AdminWorkspaceV4.tsx");
+    expect(workspace).toContain("<PageFrame");
+    expect(workspace.indexOf("AttentionStrip")).toBeLessThan(workspace.indexOf("<MetricRail"));
+    expect(admin).toContain("AdminWorkspaceV4");
     expect(admin).not.toContain("ThresholdFold");
-    expect(adminLayout).toContain("AdminOperateChrome");
+    expect(adminLayout).not.toContain("AdminOperateChrome");
     expect(adminLayout).not.toContain("Wordmark");
   });
 
@@ -133,11 +134,9 @@ describe("PR5 craft-residue chrome — operate voice, no new URLs", () => {
     expect(partner).not.toContain("Partner · /partner/dashboard");
     expect(team).toContain("Team · aggregate only");
     expect(team).not.toContain("Team · /team");
-    expect(admin).toContain('eyebrow="Admin"');
+    expect(admin).toContain("AdminWorkspaceV4");
     expect(admin).not.toContain("Admin · /admin");
-    expect(admin).toMatch(/>\s*Marketing\s*<\/Link>/);
     expect(admin).not.toContain("Marketing · depth");
-    expect(admin).toContain("Marketing is depth");
   });
 
   it("hides Assess on role trees; keeps SIGNED_IN_ASSESS_HREF; no invented bar CTAs", () => {

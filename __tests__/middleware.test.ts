@@ -246,13 +246,29 @@ describe("CCP v1 `/home` activation", () => {
     }
   });
 
-  it("flag on does not reopen admin or team (K3–K4)", async () => {
+  it("flag on lets admin ops console pass the CCP gate via /admin prefix", async () => {
     vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
-    for (const path of ["/admin", "/team"]) {
+    for (const path of ["/admin", "/admin/users", "/admin/marketing"]) {
+      const res = await middleware(req(path));
+      expect(res.status, path).toBe(200);
+      expect(res.headers.get("location"), path).toBeNull();
+    }
+  });
+
+  it("flag off folds admin ops console onto `/`", async () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "false");
+    for (const path of ["/admin", "/admin/users"]) {
       const res = await middleware(req(path));
       expect(res.status, path).toBe(307);
       expect(pathname(res), path).toBe("/");
     }
+  });
+
+  it("flag on does not reopen team (K4)", async () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
+    const res = await middleware(req("/team"));
+    expect(res.status).toBe(307);
+    expect(pathname(res)).toBe("/");
   });
 
   it("flag on lets system surfaces pass the CCP gate, including /money/bills via /money prefix", async () => {

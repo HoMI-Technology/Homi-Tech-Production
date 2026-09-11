@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { PageHeader } from "@/components/operate/PageHeader";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { AttentionStrip, type AttentionItem } from "@/components/operate/AttentionStrip";
 import { AdSpendForm } from "@/components/admin/AdSpendForm";
@@ -176,7 +177,7 @@ export default async function AdminAdSpendPage() {
   }
 
   return (
-    <div>
+    <PageFrame role="admin" density="compact">
       <PageHeader
         eyebrow="Admin"
         title="Ad Spend & CAC"
@@ -331,6 +332,6 @@ export default async function AdminAdSpendPage() {
         CAC and ROAS use manually logged spend joined to first-touch attribution and succeeded
         payments. Figures are directional. HōMI Technologies LLC.
       </p>
-    </div>
+    </PageFrame>
   );
 }

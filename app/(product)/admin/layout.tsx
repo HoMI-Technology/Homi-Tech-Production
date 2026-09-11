@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { AdminAccessWall } from "@/components/admin/AdminAccessWall";
-import { AdminOperateChrome } from "@/components/admin/AdminOperateChrome";
 import { env } from "@/lib/env";
+import { isV4HomeEnabled } from "@/lib/auth/keep-routes";
 import {
   deriveNextLevel,
   evaluateAdminAccess,
@@ -9,12 +9,22 @@ import {
   parseAdminRequireMfa,
   type AssuranceLevel,
 } from "@/lib/auth/admin";
+import { isV4VisualFixtureEnabled } from "@/lib/v4/visual-fixture";
 import type { Profile } from "@/types/database";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  if (!isV4HomeEnabled()) {
+    redirect("/");
+  }
+
+  if (isV4VisualFixtureEnabled()) {
+    return children;
+  }
+
   const supabase = await createClient();
 
   const {
@@ -73,5 +83,5 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     return <AdminAccessWall reason={decision.reason} signedIn={Boolean(user)} />;
   }
 
-  return <AdminOperateChrome>{children}</AdminOperateChrome>;
+  return children;
 }

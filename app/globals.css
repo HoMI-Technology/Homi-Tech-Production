@@ -539,7 +539,8 @@ html {
 }
 
 .v4-employee-identity,
-.v4-partner-identity {
+.v4-partner-identity,
+.v4-admin-identity {
   display: flex;
   align-items: baseline;
   gap: 0.4rem;
@@ -549,7 +550,8 @@ html {
 }
 
 .v4-employee-identity-job,
-.v4-partner-identity-job {
+.v4-partner-identity-job,
+.v4-admin-identity-job {
   font-size: 0.6875rem;
   font-weight: 500;
   letter-spacing: 0.06em;
@@ -560,6 +562,70 @@ html {
 [data-partner-v4] #book,
 [data-partner-v4] #invite {
   scroll-margin-top: calc(var(--v4-command-height, 64px) + 0.75rem);
+}
+
+.v4-admin-attention {
+  border: 1px solid color-mix(in srgb, var(--color-cyan) 35%, transparent);
+  border-radius: 0.85rem;
+  padding: 0.9rem 1rem;
+}
+
+.v4-admin-jobs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.v4-admin-job {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  padding: 0.85rem 1rem;
+}
+
+.v4-admin-job-title {
+  color: var(--color-light);
+  font-size: 0.9rem;
+}
+
+.v4-admin-job-cta {
+  color: var(--color-dim);
+  font-size: 0.8125rem;
+}
+
+.v4-admin-stage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.v4-admin-stage-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.28rem 0.7rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-dim);
+}
+
+.v4-admin-stage-pill.is-on {
+  border-color: color-mix(in srgb, var(--color-cyan) 45%, transparent);
+  color: var(--color-cyan);
+}
+
+.v4-admin-stage-pill.is-off {
+  opacity: 0.45;
 }
 
 .v4-rail-section {

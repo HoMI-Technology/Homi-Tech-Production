@@ -22,48 +22,27 @@ describe("admin + marketing attention doctrine", () => {
 
   it("Admin home mounts AttentionStrip before MetricRail", () => {
     const page = read("app/(product)/admin/page.tsx");
-    expect(page).toContain("AttentionStrip");
-    expect(page).toContain('data-admin-attention=""');
-    expect(page).toContain("<PageFrame");
-    expect(page).toContain('data-admin-depth=""');
-    expect(page).toContain("Marketing");
-    expect(page).not.toContain("Marketing · depth");
-    expect(page).toContain("Marketing is depth");
-    expect(page.indexOf("AttentionStrip")).toBeLessThan(page.indexOf("<MetricRail"));
-    expect(page.indexOf("data-admin-attention")).toBeLessThan(page.indexOf("<MetricRail"));
-    expect(page.indexOf("<MetricRail")).toBeLessThan(page.indexOf("data-admin-depth"));
+    const workspace = read("components/v4/admin/AdminWorkspaceV4.tsx");
+    expect(page).toContain("AdminWorkspaceV4");
+    expect(workspace).toContain("AttentionStrip");
+    expect(workspace).toContain('data-admin-attention=""');
+    expect(workspace).toContain("<PageFrame");
+    expect(workspace.indexOf("AttentionStrip")).toBeLessThan(workspace.indexOf("<MetricRail"));
     expect(page).not.toContain("ThresholdFold");
   });
 
-  it("Marketing follows the locked command-center v2 section order", () => {
+  it("Marketing follows Queue/Approve lock — Publish disabled, X+TikTok only", () => {
     const page = read("app/(product)/admin/marketing/page.tsx");
-    expect(page).toContain('data-marketing-attention=""');
-    expect(page).toContain("MarketingTodayStrip");
-    // Locked order (docs/design/marketing-command-center-v2.md rev 3):
-    // Today → ActivationInstrument → MetricRail (3-cell) → quick-action chips
-    // → Proof → Owned → Create (agency) → Claim → Library.
-    const order = [
-      "data-marketing-attention",
-      "<ActivationInstrument",
-      "<MetricRail",
-      'id="proof"',
-      'id="owned"',
-      'id="create"',
-      'id="claim"',
-      'id="library"',
-    ];
-    for (let i = 1; i < order.length; i++) {
-      expect(page.indexOf(order[i - 1])).toBeGreaterThanOrEqual(0);
-      expect(page.indexOf(order[i])).toBeGreaterThanOrEqual(0);
-      expect(page.indexOf(order[i - 1])).toBeLessThan(page.indexOf(order[i]));
-    }
-    // Agency suite after Proof, never between header and engine; tabbed
-    // AgencyDesks is the spec-rejected Alternative B.
+    const surface = read("components/v4/admin/AdminMarketingV4.tsx");
+    expect(page).toContain("AdminMarketingV4");
+    expect(surface).toContain("Queue");
+    expect(surface).toContain("Approve");
+    expect(surface).toContain("Publish");
+    expect(surface).toContain('aria-disabled="true"');
+    expect(page).toContain("adminV4DraftsFromAssets");
+    expect(page).not.toContain("<ActivationInstrument");
     expect(page).not.toContain("<AgencyDesks");
-    expect(page.indexOf('id="proof"')).toBeLessThan(page.indexOf('id="create"'));
-    // Locked PageHeader copy + primary Email action.
-    expect(page).toMatch(/What to do this week to create activations/);
-    expect(page).toContain('href: "/admin/email"');
+    expect(surface).toContain("aria-disabled");
   });
 
   it("Ad spend mounts attention before MetricRail and tables", () => {
@@ -84,16 +63,13 @@ describe("admin + marketing attention doctrine", () => {
     expect(widget).toMatch(/pathname\.startsWith\("\/admin\/"\)/);
   });
 
-  it("Admin home uses PageFrame under shell v3 — no Wordmark left rail", () => {
+  it("Admin home uses Shell v4 — leftover PageFrame, no Wordmark in layout", () => {
     const layout = read("app/(product)/admin/layout.tsx");
-    expect(layout).toContain("AdminOperateChrome");
+    expect(layout).not.toContain("AdminOperateChrome");
     expect(layout).not.toContain("Wordmark");
-    expect(layout).not.toContain("AdminSidebar");
-    const chrome = read("components/admin/AdminOperateChrome.tsx");
-    expect(chrome).toContain('pathname === "/admin"');
-    expect(chrome).toContain("AdminSidebar");
-    expect(chrome).not.toContain("Wordmark");
-    expect(chrome).not.toContain("ThresholdCompass");
+    expect(layout).toContain("isV4HomeEnabled");
+    const workspace = read("components/v4/admin/AdminWorkspaceV4.tsx");
+    expect(workspace).toContain("<PageFrame");
   });
 });
 
