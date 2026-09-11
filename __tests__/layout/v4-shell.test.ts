@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import {
   V4_COMMAND_HEIGHT_PX,
   V4_COMMAND_ITEMS,
@@ -16,6 +18,7 @@ import {
   isV4AssessPath,
   isV4NavActive,
   isV4PathWorkspace,
+  isV4MoneyWorkspace,
   v4ShellShowsHomiRail,
 } from "@/lib/layout/v4-shell";
 
@@ -76,6 +79,8 @@ describe("Shell v4 nav law", () => {
     expect(V4_SHELL_MONEY_HREF).toBe("/money");
     expect(isV4AssessPath("/assessment")).toBe(true);
     expect(isV4PathWorkspace("/path")).toBe(true);
+    expect(isV4MoneyWorkspace("/money")).toBe(true);
+    expect(isV4MoneyWorkspace("/money/bills")).toBe(false);
     expect(isV4NavActive("/assessment", "/home")).toBe(false);
     expect(isV4NavActive("/assessment", "/path")).toBe(false);
     expect(isV4NavActive("/path", "/path")).toBe(true);
@@ -118,5 +123,30 @@ describe("Shell v4 nav law", () => {
     expect(v4ShellShowsHomiRail("/assessment")).toBe(true);
     expect(v4ShellShowsHomiRail("/money")).toBe(false);
     expect(v4ShellShowsHomiRail("/path")).toBe(false);
+  });
+
+  it("selected rail is a 2px cyan edge with no glow or pill", () => {
+    const css = readFileSync(resolve(process.cwd(), "app/globals.css"), "utf8");
+    const start = css.indexOf(".v4-rail-link.is-active {");
+    expect(start).toBeGreaterThan(-1);
+    const block = css.slice(start, css.indexOf("}", start) + 1);
+    expect(block).toContain("inset 2px 0 0 var(--color-cyan)");
+    expect(block).toContain("background: transparent");
+    expect(block).toContain("border-radius: 0");
+    expect(block).not.toMatch(/glow/i);
+    expect(block).not.toMatch(/rgba\(34,\s*211,\s*238/);
+  });
+
+  it("Money HōMI is a full-height column, not a floating overlay card", () => {
+    const css = readFileSync(resolve(process.cwd(), "app/globals.css"), "utf8");
+    const start = css.indexOf("/* Money HōMI is a full-height column");
+    expect(start).toBeGreaterThan(-1);
+    const block = css.slice(start, start + 900);
+    expect(block).toContain("background: transparent");
+    expect(block).toContain("border-radius: 0");
+    expect(block).toContain("grid-area: auto");
+    expect(block).toContain("border-left: 1px solid");
+    expect(block).not.toMatch(/position:\s*fixed/);
+    expect(block).not.toMatch(/position:\s*absolute/);
   });
 });

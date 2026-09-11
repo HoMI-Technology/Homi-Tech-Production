@@ -1,4 +1,4 @@
-# brand-shell-craft — Shell + Home + Assessment + Path v4 mocks
+# brand-shell-craft — Shell + Home + Assessment + Path + Money v4 mocks
 
 Product CLEAR floor for stay-draft PRs. Still **not** Pixel Gate.
 
@@ -7,14 +7,17 @@ Product CLEAR floor for stay-draft PRs. Still **not** Pixel Gate.
 | `shell-home-v4-desktop` | Desktop Shell + Home State A (primary four + command + optional right HōMI) |
 | `shell-home-v4-mobile` | Mobile bottom Home · Money · Path · More |
 | `assessment-pillar-intro-v4` | Assessment walk pillar intro (orientation ≠ PIXEL) |
-| `assessment-mid-walk-v4` | Assessment mid-walk question (orientation ≠ PIXEL) |
+| `assessment-mid-walk-v4` | Assessment walk question (orientation ≠ PIXEL) |
 | `path-empty-v4` | Path empty (Assess CTA, no fake steps; orientation ≠ PIXEL) |
 | `path-hard-stop-v4` | Path hard-stop ACTIVE hold (orientation ≠ PIXEL) |
+| `money-empty-v4` | Money empty Connect (no invented $; orientation ≠ PIXEL) |
+| `money-hard-stop-v4` | Money hard-stop hold, empty-or-live (orientation ≠ PIXEL) |
+| `money-connected-v4` | Money connected craft figures — **not** Production invent |
 
 PNG/WebP stills live on the coordinator box under `brand-shell-craft/`. This
 clone records the names so agents do not invent a parallel mock set.
 
-Pixel Gate screenshots (rendered `/home`, `/assessment`, and `/path` at
+Pixel Gate screenshots (rendered `/home`, `/assessment`, `/path`, and `/money` at
 1440/1280/1024/768/390/320 + states) are a later operator pass with local
 `HOMI_V4_HOME_ENABLED` + `HOMI_V4_VISUAL_FIXTURE` only. See
 `docs/design/v4-screenshot-set.md`. Fixture stays Preview-only.

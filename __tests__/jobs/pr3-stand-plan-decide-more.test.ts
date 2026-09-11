@@ -36,6 +36,7 @@ describe("CEO chrome defaults 1–7 (founder skipped picker)", () => {
     expect(existsSync(resolve(process.cwd(), "app/(product)/money/page.tsx"))).toBe(true);
     expect(existsSync(resolve(process.cwd(), "app/(product)/tools/page.tsx"))).toBe(true);
     expect(pathPage).toContain("PathWorkspaceV4");
+    expect(moneyPage).toContain("MoneyWorkspaceV4");
     expect(stand).toContain("Stand job on live `/money`");
     expect(toolsHub).toContain("Decide job primary surface");
   });
@@ -146,7 +147,9 @@ describe("PR3 Stand — /money empty honesty, no theater", () => {
     expect(stand).not.toContain("text-6xl");
     expect(stand).not.toContain("text-7xl");
     expect(moneyPage).not.toContain("ScoreRail");
-    expect(moneyPage).not.toContain("from(\"assessments\")");
+    expect(moneyPage).not.toContain("MoneyStand");
+    expect(moneyPage).not.toMatch(/\.insert\(|\.upsert\(|\.update\(/);
+    expect(moneyPage).toContain("assertAssessmentResultOnly");
   });
 
   it("MoneyShell does not paint a Decide/Plan mode rail", () => {
