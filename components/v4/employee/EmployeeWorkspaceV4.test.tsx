@@ -53,7 +53,7 @@ describe("Employee v4 in Shell v4", () => {
     expect(text).not.toContain("Compare");
     expect(container.querySelector("[data-employee-v4-job]")).toBeNull();
     expect(container.querySelector("[data-system-v4-cta]")?.getAttribute("href")).toBe(
-      "/employee/dashboard#attention",
+      "#attention",
     );
     expect(container.querySelector("[data-v4-homi-header='micro']")).not.toBeNull();
     expect(container.querySelector("[data-employee-v4-homi] [data-wordmark]")).toBeNull();

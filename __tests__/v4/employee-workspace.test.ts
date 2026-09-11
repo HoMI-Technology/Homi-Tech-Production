@@ -53,7 +53,7 @@ describe("Employee v4 law", () => {
     expect(view.jobs).toEqual([]);
     expect(view.title).toBe(EMPLOYEE_V4_EMPTY_TITLE);
     expect(view.cta.label).toBe(EMPLOYEE_V4_EMPTY_CTA);
-    expect(view.cta.href).toBe("/employee/dashboard#attention");
+    expect(view.cta.href).toBe("#attention");
     expect(view.decisionContext).toBe("Employee");
     expect(blob(view)).not.toMatch(/\$\d/);
     expect(blob(view)).not.toMatch(/\b\d{1,3}\s*\/\s*100\b/);
@@ -89,6 +89,7 @@ describe("Employee v4 law", () => {
     expect(view.hasLiveWorkspace).toBe(true);
     expect(view.title).toBe(EMPLOYEE_V4_LIVE_TITLE);
     expect(view.ageLabel).toBe("Synced 12m ago");
+    expect(view.cta.href).toBe("#attention");
     expect(view.jobs.map((job) => job.id)).toEqual(["attention", "privacy"]);
     expect(view.jobs.find((job) => job.id === "attention")?.follow).toMatch(/empty if none/i);
     expect(view.jobs.find((job) => job.id === "privacy")?.follow).toMatch(/No peer-score listing/);

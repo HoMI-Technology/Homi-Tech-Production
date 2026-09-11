@@ -93,10 +93,14 @@ export const EMPLOYEE_V4_JOBS: readonly EmployeeV4Job[] = [
   },
 ] as const;
 
+/** Same-route hashes keep Preview `?visual=` and avoid a login bounce. */
+const EMPLOYEE_V4_ATTENTION_HASH = "#attention" as const;
+const EMPLOYEE_V4_PRIVACY_HASH = "#privacy" as const;
+
 export const EMPLOYEE_V4_PROMPTS = {
   empty: [
-    { label: "Why no peer scores?", href: `${V4_SHELL_EMPLOYEE_HREF}#privacy` },
-    { label: "Privacy on this workspace", href: `${V4_SHELL_EMPLOYEE_HREF}#privacy` },
+    { label: "Why no peer scores?", href: EMPLOYEE_V4_PRIVACY_HASH },
+    { label: "Privacy on this workspace", href: EMPLOYEE_V4_PRIVACY_HASH },
   ],
   "hard-stop": [
     { label: "What does this hold mean here?", href: V4_SHELL_PATH_HREF },
@@ -104,9 +108,9 @@ export const EMPLOYEE_V4_PROMPTS = {
     { label: "Why no READY theater", href: V4_SHELL_PATH_HREF },
   ],
   normal: [
-    { label: "What is live here?", href: `${V4_SHELL_EMPLOYEE_HREF}#attention` },
-    { label: "When does age go stale?", href: `${V4_SHELL_EMPLOYEE_HREF}#attention` },
-    { label: "Why no HeroScore", href: `${V4_SHELL_EMPLOYEE_HREF}#privacy` },
+    { label: "What is live here?", href: EMPLOYEE_V4_ATTENTION_HASH },
+    { label: "When does age go stale?", href: EMPLOYEE_V4_ATTENTION_HASH },
+    { label: "Why no HeroScore", href: EMPLOYEE_V4_PRIVACY_HASH },
   ],
 } as const satisfies Record<EmployeeV4Kind, readonly SystemV4HomiPrompt[]>;
 
@@ -187,14 +191,14 @@ function employeeV4Cta(kind: EmployeeV4Kind): SystemV4Cta {
     case "empty":
       return {
         label: EMPLOYEE_V4_EMPTY_CTA,
-        href: `${V4_SHELL_EMPLOYEE_HREF}#attention`,
+        href: EMPLOYEE_V4_ATTENTION_HASH,
       };
     case "hard-stop":
       return { label: EMPLOYEE_V4_OPEN_PATH, href: V4_SHELL_PATH_HREF };
     case "normal":
       return {
         label: EMPLOYEE_V4_LIVE_CTA,
-        href: `${V4_SHELL_EMPLOYEE_HREF}#attention`,
+        href: EMPLOYEE_V4_ATTENTION_HASH,
       };
     default: {
       const _exhaustive: never = kind;
