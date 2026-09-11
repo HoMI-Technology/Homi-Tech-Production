@@ -64,13 +64,11 @@ export type AskV4HomiPrompt = V4AssessHomiPrompt;
 export const ASK_V4_PROMPTS = {
   empty: [
     { label: "What does Assess cover?", href: V4_SHELL_ASSESS_HREF },
-    { label: "Start a readiness read", href: V4_SHELL_ASSESS_HREF },
-    { label: "Why there's no score yet", href: V4_SHELL_HOME_HREF },
+    { label: "Why this page is quiet", href: V4_SHELL_HOME_HREF },
   ],
   "hard-stop": [
     { label: "What does this hard stop mean?", href: V4_SHELL_HOME_HREF },
-    { label: "Open Path from this hold", href: V4_SHELL_PATH_HREF },
-    { label: "When to retake Assess", href: V4_SHELL_ASSESS_HREF },
+    { label: "Why the hold outranks the number", href: V4_SHELL_HOME_HREF },
   ],
   default: [
     { label: "What does this readiness mean?", href: V4_SHELL_HOME_HREF },

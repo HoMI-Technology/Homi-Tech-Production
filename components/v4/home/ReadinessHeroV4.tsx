@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { COLORS, type VerdictKey } from "@/lib/brand";
 import { V4_SHELL_ASSESS_HREF, V4_SHELL_PATH_HREF } from "@/lib/layout/v4-shell";
@@ -45,9 +45,7 @@ export function ReadinessHeroV4({ view }: { view: HomeV4View }) {
   const holdClose = view.holdSentence ? foldHoldClose(view.holdSentence) : null;
   const humanLine = view.hardStopActive
     ? holdLead ?? "Hold this decision."
-    : view.hasAssessment
-      ? "One read. One next move."
-      : "No assessment yet.";
+    : "One read. One next move.";
   const primaryHref = view.pathPrimary ? V4_SHELL_PATH_HREF : V4_SHELL_ASSESS_HREF;
   const primaryLabel = primaryCtaLabel(view);
   const verdictColor = verdictTone(view.verdictKey, view.hardStopActive);
@@ -67,7 +65,7 @@ export function ReadinessHeroV4({ view }: { view: HomeV4View }) {
               <p
                 className="v4-hero-verdict"
                 data-home-v4-verdict=""
-                style={{ color: verdictColor, borderColor: verdictColor }}
+                style={{ color: verdictColor }}
               >
                 {view.verdictLabel}
               </p>
@@ -100,21 +98,7 @@ export function ReadinessHeroV4({ view }: { view: HomeV4View }) {
                 {primaryLabel}
                 <ArrowRight aria-hidden className="size-4" strokeWidth={1.75} />
               </Link>
-              <Link
-                href={V4_SHELL_ASSESS_HREF}
-                className="btn btn-ghost v4-hero-secondary"
-                data-home-v4-assess=""
-              >
-                View full assessment
-              </Link>
             </div>
-
-            {view.hardStopActive ? (
-              <p className="v4-hero-priority">
-                <AlertTriangle aria-hidden className="size-3.5" strokeWidth={1.75} />
-                A hard stop takes priority over the number.
-              </p>
-            ) : null}
           </>
         ) : (
           <div data-home-v4-empty="">

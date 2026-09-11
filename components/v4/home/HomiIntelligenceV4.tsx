@@ -247,43 +247,43 @@ export function HomiIntelligenceV4({
         ))}
       </ul>
 
-      <form
-        className="v4-homi-ask"
-        onSubmit={onAsk}
-        data-home-v4-homi-ask-form={surface === "home" ? "" : undefined}
-        data-assessment-v4-homi-ask-form={surface === "walk" ? "" : undefined}
-        data-path-v4-homi-ask-form={surface === "path" ? "" : undefined}
-        data-money-v4-homi-ask-form={surface === "money" ? "" : undefined}
-        data-compare-v4-homi-ask-form={surface === "compare" ? "" : undefined}
-        data-ask-v4-homi-ask-form={surface === "ask" ? "" : undefined}
-      >
-        <label className="sr-only" htmlFor={askId}>
-          Ask HōMI
-        </label>
-        <Search aria-hidden className="v4-homi-ask-icon size-4" strokeWidth={1.75} />
-        <input
-          id={askId}
-          data-v4-homi-ask=""
-          data-home-v4-homi-ask={surface === "home" ? "" : undefined}
-          data-assessment-v4-homi-ask={surface === "walk" ? "" : undefined}
-          data-path-v4-homi-ask={surface === "path" ? "" : undefined}
-          data-money-v4-homi-ask={surface === "money" ? "" : undefined}
-          data-compare-v4-homi-ask={surface === "compare" ? "" : undefined}
-          data-ask-v4-homi-ask={surface === "ask" ? "" : undefined}
-          data-bills-v4-homi-ask={surface === "bills" ? "" : undefined}
-          data-tools-v4-homi-ask={surface === "tools" ? "" : undefined}
-          data-learn-v4-homi-ask={surface === "learn" ? "" : undefined}
-          data-accounts-v4-homi-ask={surface === "accounts" ? "" : undefined}
-          data-settings-v4-homi-ask={surface === "settings" ? "" : undefined}
-          data-employee-v4-homi-ask={surface === "employee" ? "" : undefined}
-          data-partner-v4-homi-ask={surface === "partner" ? "" : undefined}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={askPlaceholder}
-          className="v4-homi-ask-input"
-          autoComplete="off"
-        />
-      </form>
+      {surface === "home" ? null : (
+        <form
+          className="v4-homi-ask"
+          onSubmit={onAsk}
+          data-assessment-v4-homi-ask-form={surface === "walk" ? "" : undefined}
+          data-path-v4-homi-ask-form={surface === "path" ? "" : undefined}
+          data-money-v4-homi-ask-form={surface === "money" ? "" : undefined}
+          data-compare-v4-homi-ask-form={surface === "compare" ? "" : undefined}
+          data-ask-v4-homi-ask-form={surface === "ask" ? "" : undefined}
+        >
+          <label className="sr-only" htmlFor={askId}>
+            Ask HōMI
+          </label>
+          <Search aria-hidden className="v4-homi-ask-icon size-4" strokeWidth={1.75} />
+          <input
+            id={askId}
+            data-v4-homi-ask=""
+            data-assessment-v4-homi-ask={surface === "walk" ? "" : undefined}
+            data-path-v4-homi-ask={surface === "path" ? "" : undefined}
+            data-money-v4-homi-ask={surface === "money" ? "" : undefined}
+            data-compare-v4-homi-ask={surface === "compare" ? "" : undefined}
+            data-ask-v4-homi-ask={surface === "ask" ? "" : undefined}
+            data-bills-v4-homi-ask={surface === "bills" ? "" : undefined}
+            data-tools-v4-homi-ask={surface === "tools" ? "" : undefined}
+            data-learn-v4-homi-ask={surface === "learn" ? "" : undefined}
+            data-accounts-v4-homi-ask={surface === "accounts" ? "" : undefined}
+            data-settings-v4-homi-ask={surface === "settings" ? "" : undefined}
+            data-employee-v4-homi-ask={surface === "employee" ? "" : undefined}
+            data-partner-v4-homi-ask={surface === "partner" ? "" : undefined}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={askPlaceholder}
+            className="v4-homi-ask-input"
+            autoComplete="off"
+          />
+        </form>
+      )}
     </aside>
   );
 }
