@@ -670,7 +670,7 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
   {
     id: "fold-wiring/employee-hub-empty-close",
     file: "app/(product)/employee/dashboard/page.tsx",
-    identifiersMustNot: ["ThresholdCompass", "HeroScore", "VerdictBadge", "ThresholdFold", "OperateInstrument"],
+    identifiersMustNot: ["ThresholdCompass", "HeroScore", "VerdictBadge", "ThresholdFold", "OperateInstrument", "MetricRail"],
     stringsMustNot: [
       "Get your Shadow Score",
       "Private Decision Readiness Score",
@@ -678,8 +678,10 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
       "data-employee-score-rail",
       "data-employee-primary",
       "dash-instrument",
+      "Your score here",
+      "Homie",
     ],
-    codeMust: ['actionHref="/assessment"', 'actionLabel="Assess"', 'href="/path"'],
+    codeMust: ['assertAssessmentResultOnly("assessment_result")', "EmployeeWorkspaceV4"],
     codeMustNot: ['actionHref="/shadow-score"', 'href: "/plan"', "tint={tint}", 'tint="transparent"'],
   },
   {

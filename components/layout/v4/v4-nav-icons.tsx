@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import {
+  Bell,
   BookOpen,
   GitCompare,
   Home,
@@ -9,6 +10,7 @@ import {
   Route,
   Search,
   Settings,
+  Shield,
   Wallet,
   Wrench,
 } from "lucide-react";
@@ -25,5 +27,7 @@ export const V4_NAV_ICONS: Record<string, LucideIcon> = {
   Learn: BookOpen,
   Accounts: Landmark,
   Settings,
+  Attention: Bell,
+  Privacy: Shield,
   More: MoreHorizontal,
 };

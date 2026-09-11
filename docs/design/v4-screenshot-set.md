@@ -1,4 +1,4 @@
-# Pixel Gate — Home v4 + Assessment v4 + Path v4 + Money v4 + Compare v4 + Contextual HōMI + System surfaces screenshot set
+# Pixel Gate — Home v4 + Assessment v4 + Path v4 + Money v4 + Compare v4 + Contextual HōMI + System surfaces + Employee screenshot set
 
 Stay-draft until founder **APPROVE VISUAL DIRECTION**. Do not undraft, do not
 merge, do not deploy Production. Production may already have
@@ -105,10 +105,22 @@ Mocks (`system-bills-empty-v4`, `system-bills-hard-stop-v4`,
 `system-settings-empty-v4`) are orientation only — **≠ PIXEL**. Never invent
 $ or a second official score.
 
+## Employee states (PR K)
+
+| Query | Intent |
+| --- | --- |
+| `/employee/dashboard?visual=empty` | No live workspace — connect/wait, never invent teammate lists or scores |
+| `/employee/dashboard?visual=hard-stop` | Hard-stop ACTIVE hold, explain-only, never On track |
+| `/employee/dashboard?visual=normal` | Live operate chrome — Attention + Privacy, quiet age, no HeroScore |
+
+Mocks (`employee-empty-v4`, `employee-hard-stop-v4`, `employee-normal-v4`) are
+orientation only — **≠ PIXEL**. Never invent $ or a second official score.
+No craft-badge prose in the Production fold.
+
 ## Gate
 
 Architecture → real rendered Home + Assessment + Path + Money + Compare + Ask +
-system surfaces → this set → internal ≥92/100 →
+system surfaces + Employee → this set → internal ≥92/100 →
 founder APPROVE VISUAL DIRECTION → then undraft / merge.
 
 Stills land under `docs/design/baseline/` when captured. This PR does not

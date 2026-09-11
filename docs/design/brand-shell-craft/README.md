@@ -1,4 +1,4 @@
-# brand-shell-craft — Shell + Home + Assessment + Path + Money + Compare + Contextual HōMI + System surfaces v4 mocks
+# brand-shell-craft — Shell + Home + Assessment + Path + Money + Compare + Contextual HōMI + System surfaces + Employee v4 mocks
 
 Product CLEAR floor for stay-draft PRs. Still **not** Pixel Gate.
 
@@ -24,13 +24,15 @@ Product CLEAR floor for stay-draft PRs. Still **not** Pixel Gate.
 | `system-tools-empty-v4` | Tools empty — Browse hub REUSE, never a score tile (orientation ≠ PIXEL) |
 | `system-accounts-normal-v4` | Accounts live connections — name/mask + Live SSOT, no invent $ |
 | `system-settings-empty-v4` | Settings Account · Privacy · Billing entry only (orientation ≠ PIXEL) |
+| `employee-empty-v4` | Employee empty — connect/wait, no invented teammate lists or scores |
+| `employee-hard-stop-v4` | Employee hard-stop hold, explain-only, never On track (orientation ≠ PIXEL) |
+| `employee-normal-v4` | Employee live operate chrome — Attention + Privacy, no HeroScore |
 
 PNG/WebP stills live on the coordinator box under `brand-shell-craft/`. This
 clone records the names so agents do not invent a parallel mock set.
 
-Pixel Gate screenshots (rendered `/home`, `/assessment`, `/path`, `/money`,
-`/scenarios`, `/ask`, `/money/bills`, `/tools`, `/learn`, `/connections`, and
-`/settings` at
+`/home`, `/assessment`, `/path`, `/money`, `/scenarios`, `/ask`, `/money/bills`,
+`/tools`, `/learn`, `/connections`, `/settings`, and `/employee/dashboard` at
 1440/1280/1024/768/390/320 + states) are a later operator pass with local
 `HOMI_V4_HOME_ENABLED` + `HOMI_V4_VISUAL_FIXTURE` only. See
 `docs/design/v4-screenshot-set.md`. Fixture stays Preview-only.

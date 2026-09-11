@@ -4,7 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { V4_NAV_ICONS } from "@/components/layout/v4/v4-nav-icons";
-import { V4_MOBILE_TABS, V4_MORE_NAV, isV4NavActive } from "@/lib/layout/v4-shell";
+import {
+  V4_EMPLOYEE_MOBILE_TABS,
+  V4_EMPLOYEE_OPERATE_NAV,
+  V4_MOBILE_TABS,
+  V4_MORE_NAV,
+  isV4EmployeeWorkspace,
+  isV4NavActive,
+} from "@/lib/layout/v4-shell";
 
 /**
  * SHELL_CRAFT v4 mobile bottom: Home · Money · Path · More.
@@ -14,6 +21,9 @@ export function V4MobileNav() {
   const pathname = usePathname() ?? "/home";
   const [moreOpen, setMoreOpen] = useState(false);
   const MoreIcon = V4_NAV_ICONS.More;
+  const employee = isV4EmployeeWorkspace(pathname);
+  const tabs = employee ? V4_EMPLOYEE_MOBILE_TABS : V4_MOBILE_TABS;
+  const moreItems = employee ? V4_EMPLOYEE_OPERATE_NAV : V4_MORE_NAV;
 
   return (
     <>
@@ -31,7 +41,7 @@ export function V4MobileNav() {
           <div className="absolute inset-x-0 bottom-0 rounded-t-2xl border-t border-white/10 bg-navy p-4 pb-[calc(5rem+env(safe-area-inset-bottom,0px))]">
             <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-dim">More</p>
             <ul className="mt-3 space-y-1" data-v4-more-list="">
-              {V4_MORE_NAV.map((item) => {
+              {moreItems.map((item) => {
                 const Icon = V4_NAV_ICONS[item.label];
                 return (
                   <li key={item.href}>
@@ -56,7 +66,7 @@ export function V4MobileNav() {
         className="fixed inset-x-0 bottom-0 z-[var(--z-nav)] flex border-t border-white/5 bg-navy/90 backdrop-blur-xl lg:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
-        {V4_MOBILE_TABS.map((tab) => {
+        {tabs.map((tab) => {
           const active = isV4NavActive(pathname, tab.href);
           const Icon = V4_NAV_ICONS[tab.label];
           return (

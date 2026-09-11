@@ -161,6 +161,12 @@ screenshots. `HOMI_V4_HOME_ENABLED` default false.
   as a sheet or More depth, never a fifth bottom-nav peer. No Homie. No fake
   live-AI typing. Compass stays shell-only. Craft:
   `docs/design/CONTEXTUAL_HOMI_CRAFT_v4_2026-09-11.md`.
+- **Employee operate home is `/employee/dashboard`**, Shell v4 `main#main`, same
+  flag. One shell · different jobs (Workspace Home · Operate Attention · Privacy).
+  Empty or live operate SSOT only. Never invent teammate lists, scores, or $.
+  Hard stop ACTIVE ⇒ never On track / READY. Ask: *Ask HōMI about this workspace...*.
+  K2–K4 (`/partner` `/admin` `/team`) stay closed. Craft:
+  `docs/design/EMPLOYEE_CRAFT_v4_2026-09-11.md`.
 - Finance GATE: score / verdict / hard stops from **AssessmentResult only**.
 - Activation: `HOMI_V4_HOME_ENABLED` default **false** (CCP / ADR-005).
   Pixel Gate: do not undraft or expose `/home` until founder APPROVE VISUAL

@@ -27,8 +27,9 @@ const KEEP_API_PREFIXES = ["/api/waitlist", "/api/healthcheck", "/api/csp-report
  * over resurrecting `/dashboard` UX). PR C names Shell v4 workspaces
  * (Home · Money · Path · Compare, then Bills · Tools · Learn and
  * Accounts · Settings). `/money/bills` is covered by the `/money` prefix
- * (see `matchesListedPath`). They stay unpublished until HOMI_V4_HOME_ENABLED
- * is exact `"true"` after Pixel Gate approval. `/dashboard` stays DARK.
+ * (see `matchesListedPath`). PR K adds `/employee` so `/employee/dashboard`
+ * and depth activate under the same flag. `/dashboard` stays DARK.
+ * Do not add `/partner` `/admin` `/team` this pass (K2–K4).
  */
 export const V4_PENDING_PATHS = [
   "/home",
@@ -41,6 +42,7 @@ export const V4_PENDING_PATHS = [
   "/settings",
   "/connections",
   "/assessment",
+  "/employee",
 ] as const;
 
 /**

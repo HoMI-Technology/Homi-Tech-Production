@@ -7,12 +7,16 @@ import { Wordmark } from "@/components/brand/Wordmark";
 import { V4_NAV_ICONS } from "@/components/layout/v4/v4-nav-icons";
 import { COLORS, TAGLINES } from "@/lib/brand";
 import {
+  V4_EMPLOYEE_OPERATE_NAV,
+  V4_EMPLOYEE_WORKSPACE_NAV,
   V4_PRIMARY_NAV,
   V4_RAIL_WIDTH_PX,
   V4_SECONDARY_NAV,
   V4_SHELL_COMPASS_SIZE,
+  V4_SHELL_EMPLOYEE_HREF,
   V4_SHELL_HOME_HREF,
   V4_SYSTEM_NAV,
+  isV4EmployeeWorkspace,
   isV4NavActive,
 } from "@/lib/layout/v4-shell";
 
@@ -61,6 +65,8 @@ export function V4LeftNav({
   onClose?: () => void;
 }) {
   const pathname = usePathname() ?? V4_SHELL_HOME_HREF;
+  const employee = isV4EmployeeWorkspace(pathname);
+  const homeHref = employee ? V4_SHELL_EMPLOYEE_HREF : V4_SHELL_HOME_HREF;
 
   return (
     <>
@@ -89,7 +95,7 @@ export function V4LeftNav({
       >
         <div className="px-5 pb-4 pt-6" data-v4-rail-brand="">
           <Link
-            href={V4_SHELL_HOME_HREF}
+            href={homeHref}
             aria-label="HōMI home"
             data-v4-shell-logo=""
             className="v4-rail-lockup"
@@ -100,30 +106,55 @@ export function V4LeftNav({
             </span>
             <Wordmark size="text-lg leading-none" />
           </Link>
-          <p className="v4-workspace-chip mt-3" data-v4-workspace-chip="">
-            <span className="v4-workspace-dot" aria-hidden />
-            Personal
-          </p>
-          <p className="mt-2 max-w-[12rem] text-2xs leading-snug text-dim/70" data-v4-rail-tagline="">
-            {TAGLINES.primary}
-          </p>
+          {employee ? (
+            <p className="v4-employee-identity mt-3" data-v4-workspace-chip="employee">
+              <span>Employee</span>
+              <span className="v4-employee-identity-job">operate</span>
+            </p>
+          ) : (
+            <>
+              <p className="v4-workspace-chip mt-3" data-v4-workspace-chip="">
+                <span className="v4-workspace-dot" aria-hidden />
+                Personal
+              </p>
+              <p className="mt-2 max-w-[12rem] text-2xs leading-snug text-dim/70" data-v4-rail-tagline="">
+                {TAGLINES.primary}
+              </p>
+            </>
+          )}
         </div>
 
-        <nav data-v4-rail-primary="" aria-label="Primary" className="flex flex-col gap-0.5 px-3">
-          <RailLinks items={V4_PRIMARY_NAV} pathname={pathname} onClose={onClose} />
-        </nav>
+        {employee ? (
+          <>
+            <nav data-v4-rail-workspace="" aria-label="Workspace" className="flex flex-col gap-0.5 px-3">
+              <p className="v4-rail-section">Workspace</p>
+              <RailLinks items={V4_EMPLOYEE_WORKSPACE_NAV} pathname={pathname} onClose={onClose} />
+            </nav>
+            <div className="mx-4 my-3 h-px shrink-0 bg-white/[0.06]" data-v4-rail-divider="" />
+            <nav data-v4-rail-operate="" aria-label="Operate" className="flex flex-col gap-0.5 px-3">
+              <p className="v4-rail-section">Operate</p>
+              <RailLinks items={V4_EMPLOYEE_OPERATE_NAV} pathname={pathname} onClose={onClose} />
+            </nav>
+          </>
+        ) : (
+          <>
+            <nav data-v4-rail-primary="" aria-label="Primary" className="flex flex-col gap-0.5 px-3">
+              <RailLinks items={V4_PRIMARY_NAV} pathname={pathname} onClose={onClose} />
+            </nav>
 
-        <div className="mx-4 my-3 h-px shrink-0 bg-white/[0.06]" data-v4-rail-divider="" />
+            <div className="mx-4 my-3 h-px shrink-0 bg-white/[0.06]" data-v4-rail-divider="" />
 
-        <nav data-v4-rail-secondary="" aria-label="Secondary" className="flex flex-col gap-0.5 px-3">
-          <RailLinks items={V4_SECONDARY_NAV} pathname={pathname} onClose={onClose} />
-        </nav>
+            <nav data-v4-rail-secondary="" aria-label="Secondary" className="flex flex-col gap-0.5 px-3">
+              <RailLinks items={V4_SECONDARY_NAV} pathname={pathname} onClose={onClose} />
+            </nav>
 
-        <div className="mx-4 my-3 h-px shrink-0 bg-white/[0.06]" data-v4-rail-system-divider="" />
+            <div className="mx-4 my-3 h-px shrink-0 bg-white/[0.06]" data-v4-rail-system-divider="" />
 
-        <nav data-v4-rail-system="" aria-label="System" className="flex flex-col gap-0.5 px-3">
-          <RailLinks items={V4_SYSTEM_NAV} pathname={pathname} onClose={onClose} />
-        </nav>
+            <nav data-v4-rail-system="" aria-label="System" className="flex flex-col gap-0.5 px-3">
+              <RailLinks items={V4_SYSTEM_NAV} pathname={pathname} onClose={onClose} />
+            </nav>
+          </>
+        )}
 
         <div className="mt-auto px-4 pb-4 pt-6" data-v4-rail-foot="" />
       </aside>

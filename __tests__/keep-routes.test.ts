@@ -103,7 +103,6 @@ describe("CCP isDarkProductPath", () => {
       "/dashboard",
       "/admin",
       "/partner/dashboard",
-      "/employee/dashboard",
     ]) {
       expect(isDarkProductPath(path), path).toBe(true);
       expect(classifyChangeControlLane(path), path).toBe("DARK");
@@ -114,6 +113,7 @@ describe("CCP isDarkProductPath", () => {
     expect(isDarkProductPath("/")).toBe(false);
     expect(isDarkProductPath("/legal/disclaimer")).toBe(false);
     expect(isDarkProductPath("/home")).toBe(false);
+    expect(isDarkProductPath("/employee/dashboard")).toBe(false);
     expect(isDarkProductPath("/api/scoring")).toBe(false);
   });
 });
@@ -131,6 +131,7 @@ describe("CCP isV4Path", () => {
       "/settings",
       "/connections",
       "/assessment",
+      "/employee",
     ]);
     expect(V4_LIVE_PATHS).toEqual([]);
     expect(isV4Path("/home")).toBe(true);
@@ -142,6 +143,17 @@ describe("CCP isV4Path", () => {
     expect(isV4Path("/ask")).toBe(true);
     expect(isV4Path("/money/bills")).toBe(true);
     expect(classifyChangeControlLane("/money/bills")).toBe("V4_PENDING");
+    expect(isV4Path("/employee")).toBe(true);
+    expect(isV4Path("/employee/dashboard")).toBe(true);
+    expect(isV4Path("/employee/dashboard/depth")).toBe(true);
+    expect(classifyChangeControlLane("/employee")).toBe("V4_PENDING");
+    expect(classifyChangeControlLane("/employee/dashboard")).toBe("V4_PENDING");
+    expect(isV4Path("/partner/dashboard")).toBe(false);
+    expect(isV4Path("/admin")).toBe(false);
+    expect(isV4Path("/team")).toBe(false);
+    expect(classifyChangeControlLane("/partner/dashboard")).toBe("DARK");
+    expect(classifyChangeControlLane("/admin")).toBe("DARK");
+    expect(classifyChangeControlLane("/team")).toBe("DARK");
     expect(compareAliasRedirect("/compare")).toBe("/scenarios");
     expect(compareAliasRedirect("/compare/foo")).toBe("/scenarios");
     expect(compareAliasRedirect("/scenarios")).toBeNull();

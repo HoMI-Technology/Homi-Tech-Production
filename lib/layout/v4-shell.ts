@@ -78,6 +78,21 @@ export const V4_SHELL_TOOLS_HREF = "/tools" as const;
 export const V4_SHELL_LEARN_HREF = "/learn" as const;
 export const V4_SHELL_ACCOUNTS_HREF = "/connections" as const;
 export const V4_SHELL_SETTINGS_HREF = "/settings" as const;
+export const V4_SHELL_EMPLOYEE_HREF = "/employee/dashboard" as const;
+
+/** Employee operate jobs — same Shell v4, not a personal Home clone. Live route only. */
+export const V4_EMPLOYEE_WORKSPACE_NAV: readonly V4NavItem[] = [
+  { href: V4_SHELL_EMPLOYEE_HREF, label: "Home" },
+] as const;
+
+export const V4_EMPLOYEE_OPERATE_NAV: readonly V4NavItem[] = [
+  { href: `${V4_SHELL_EMPLOYEE_HREF}#attention`, label: "Attention" },
+  { href: `${V4_SHELL_EMPLOYEE_HREF}#privacy`, label: "Privacy" },
+] as const;
+
+export const V4_EMPLOYEE_MOBILE_TABS: readonly V4NavItem[] = [
+  { href: V4_SHELL_EMPLOYEE_HREF, label: "Home" },
+] as const;
 
 export function isV4AskPath(pathname: string): boolean {
   const p = pathname || "/";
@@ -120,16 +135,27 @@ export function isV4SystemSurfacePath(pathname: string): boolean {
   );
 }
 
+export function isV4EmployeeWorkspace(pathname: string): boolean {
+  const p = pathname || "/";
+  return p === V4_SHELL_EMPLOYEE_HREF || p.startsWith(`${V4_SHELL_EMPLOYEE_HREF}/`);
+}
+
 export function isV4NavActive(pathname: string, href: string): boolean {
   const p = pathname || "/";
-  if (href === "/home") {
+  const hrefPath = href.split("#")[0] || href;
+  if (hrefPath === "/home") {
+    if (isV4EmployeeWorkspace(p)) return false;
     return p === "/home" || p.startsWith("/home/") || isV4AskPath(p);
   }
-  if (href === "/money") {
+  if (hrefPath === "/money") {
     if (p === "/money/bills" || p.startsWith("/money/bills/")) return false;
     return p === "/money" || p.startsWith("/money/");
   }
-  return p === href || p.startsWith(`${href}/`);
+  if (hrefPath === V4_SHELL_EMPLOYEE_HREF) {
+    if (href.includes("#")) return false;
+    return isV4EmployeeWorkspace(p);
+  }
+  return p === hrefPath || p.startsWith(`${hrefPath}/`);
 }
 
 export function isV4AssessPath(pathname: string): boolean {
@@ -158,4 +184,9 @@ export function v4ShellShowsHomiRail(pathname: string): boolean {
   if (p === "/home" || p.startsWith("/home/")) return true;
   if (isV4AskPath(p)) return true;
   return isV4AssessPath(p);
+}
+
+/** Mobile Ask sheet = prompts only (no Open HōMI / nav dump). */
+export function isV4AskOnlyPath(pathname: string): boolean {
+  return isV4SystemSurfacePath(pathname) || isV4EmployeeWorkspace(pathname);
 }
