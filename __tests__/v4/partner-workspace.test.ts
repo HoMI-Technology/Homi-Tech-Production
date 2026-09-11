@@ -179,4 +179,16 @@ describe("Partner v4 law", () => {
     expect(isV4AskOnlyPath("/partner/dashboard")).toBe(true);
     expect(isV4SystemSurfacePath("/partner/dashboard")).toBe(false);
   });
+
+  it("hash targets keep Partner fold titles out from under the command bar", () => {
+    const css = readFileSync(resolve("app/globals.css"), "utf8");
+    expect(css).toMatch(/\[data-partner-v4\] #invite/);
+    expect(css).toMatch(/scroll-margin-top:\s*calc\(var\(--v4-command-height/);
+    const workspace = readFileSync(
+      resolve("components/v4/partner/PartnerWorkspaceV4.tsx"),
+      "utf8",
+    );
+    expect(workspace).toContain('foldAnchorId="invite"');
+    expect(workspace).not.toMatch(/id="invite" data-partner-invite/);
+  });
 });

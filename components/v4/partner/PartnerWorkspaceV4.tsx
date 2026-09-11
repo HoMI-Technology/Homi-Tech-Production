@@ -21,6 +21,7 @@ export function PartnerWorkspaceV4({ view }: { view: PartnerV4View }) {
         cta={view.cta}
         prompts={view.prompts}
         askPlaceholder={view.askPlaceholder}
+        foldAnchorId="invite"
       >
         {view.pulse.length > 0 ? (
           <ul className="v4-system-rows" aria-label="Book pulse" data-partner-v4-book="" id="book">
@@ -36,7 +37,7 @@ export function PartnerWorkspaceV4({ view }: { view: PartnerV4View }) {
         ) : (
           <div id="book" data-partner-v4-book="" />
         )}
-        <div id="invite" data-partner-invite="">
+        <div data-partner-invite="">
           {view.inviteUrl ? (
             <div className="mt-4">
               <InviteShareRow url={view.inviteUrl} copyLabel="Copy invite" />

@@ -556,6 +556,12 @@ html {
   color: var(--color-dim);
 }
 
+/* Partner hash targets sit under the sticky command. Keep fold titles visible. */
+[data-partner-v4] #book,
+[data-partner-v4] #invite {
+  scroll-margin-top: calc(var(--v4-command-height, 64px) + 0.75rem);
+}
+
 .v4-rail-section {
   margin: 0;
   padding: 0.2rem 0.75rem 0.35rem;

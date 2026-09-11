@@ -55,6 +55,9 @@ describe("Partner v4 in Shell v4", () => {
     expect(container.querySelector("[data-partner-v4-pulse]")).toBeNull();
     expect(container.querySelector("[data-system-v4-cta]")?.textContent).toBe("Invite");
     expect(container.querySelector("[data-system-v4-cta]")?.getAttribute("href")).toBe("#invite");
+    expect(container.querySelector(".v4-system-main")?.id).toBe("invite");
+    expect(container.querySelector(".v4-system-title")?.closest("#invite")).not.toBeNull();
+    expect(container.querySelector("[data-partner-invite]")?.id).not.toBe("invite");
     expect(container.querySelector("[data-v4-homi-header='micro']")).not.toBeNull();
     expect(container.querySelector("[data-partner-v4-homi] [data-wordmark]")).toBeNull();
     expect(container.querySelector("[data-partner-v4-homi] .v4-homi-mode")?.textContent).toBe(
@@ -89,6 +92,8 @@ describe("Partner v4 in Shell v4", () => {
     expect(text).toMatch(/fail-loud/i);
     expect(container.querySelector("[data-system-v4-cta]")?.textContent).toBe("Retry invite");
     expect(container.querySelector("[data-system-v4-verdict]")?.textContent).toBe("INVITE BLOCKED");
+    expect(container.querySelector(".v4-system-main")?.id).toBe("invite");
+    expect(container.querySelector("[data-system-v4-hard-stop]")?.closest("#invite")).not.toBeNull();
     expect(text).not.toContain("shadow-score");
     expect(text).not.toContain("https://homitechnology.com");
     expect(text).not.toMatch(/\$\d/);
