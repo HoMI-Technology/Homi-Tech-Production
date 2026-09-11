@@ -16,7 +16,8 @@ vi.mock("@/lib/ratelimit", () => ({
 }));
 
 import { GET, PUT } from "@/app/api/readiness-path/route";
-import { computeScore, type AssessmentInputs } from "@/lib/scoring";
+import { computeScore } from "@/lib/scoring/engine";
+import type { AssessmentInputs } from "@/lib/scoring/public";
 import { buildReadinessPath } from "@/lib/readiness";
 
 const SAFE: AssessmentInputs = {

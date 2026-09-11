@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { pickResult } from "@/lib/assessment/resolveResult";
-import { computeScore, type AssessmentInputs } from "@/lib/scoring";
+import { computeScore } from "@/lib/scoring/engine";
+import type { AssessmentInputs } from "@/lib/scoring/public";
 import type { StoredAssessment } from "@/lib/assessment/storage";
 
 const BASE_INPUTS: AssessmentInputs = {

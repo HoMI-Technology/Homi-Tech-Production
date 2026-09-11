@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
-import { computeScore, scoreToVerdict } from "@/lib/scoring";
+import { computeScore } from "@/lib/scoring/engine";
+import { scoreToVerdict } from "@/lib/scoring/public";
 
 /**
  * Security input-sanitization audit

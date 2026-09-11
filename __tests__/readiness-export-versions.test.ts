@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { buildReadinessPath } from "@/lib/readiness";
 import { exportPathMarkdown, exportPathJson } from "@/lib/readiness/export";
-import { computeScore, type AssessmentInputs } from "@/lib/scoring";
+import { computeScore } from "@/lib/scoring/engine";
+import type { AssessmentInputs } from "@/lib/scoring/public";
 
 const SAFE: AssessmentInputs = {
   debtToIncomeRatio: 0.25,

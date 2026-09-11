@@ -4,7 +4,7 @@
  * Anonymous users get a local copy so /results and /plan work without auth.
  */
 
-import type { AssessmentInputs, AssessmentResult } from "@/lib/scoring";
+import type { AssessmentInputs, AssessmentResult } from "@/lib/scoring/public";
 import type { VerdictKey } from "@/lib/brand";
 import { DECISION_TYPE_LABELS, type DecisionType } from "@/lib/assessment/types";
 

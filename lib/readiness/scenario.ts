@@ -9,7 +9,7 @@ import {
   type ScenarioOutcome,
   type SimulationInputs,
 } from "@/lib/decisions/simulate";
-import type { Verdict } from "@/lib/scoring";
+import type { Verdict } from "@/lib/scoring/public";
 
 export interface ScenarioStudioInput extends SimulationInputs {
   /** Current readiness verdict for honesty chrome */

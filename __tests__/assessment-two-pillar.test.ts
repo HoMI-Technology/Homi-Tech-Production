@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeScore } from "@/lib/scoring";
+import { computeScore } from "@/lib/scoring/engine";
 import { PILLAR_MAX_POINTS, scoreToVerdict } from "@/lib/scoring/public";
 import { applySkippedEmotionalReading } from "@/lib/assessment/two-pillar";
 import { mapCoveredHomeBuyingResponses } from "@/lib/questions/coverage-map";

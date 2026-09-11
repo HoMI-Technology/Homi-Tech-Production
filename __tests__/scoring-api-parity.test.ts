@@ -4,8 +4,9 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { computeScore, generateKeyInsight, generateNextSteps } from "@/lib/scoring";
-import type { AssessmentInputs } from "@/lib/scoring";
+import { computeScore } from "@/lib/scoring/engine";
+import { generateKeyInsight, generateNextSteps } from "@/lib/scoring/insights";
+import type { AssessmentInputs } from "@/lib/scoring/public";
 
 const SAMPLE: AssessmentInputs = {
   debtToIncomeRatio: 0.25,

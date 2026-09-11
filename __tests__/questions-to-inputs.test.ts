@@ -4,7 +4,7 @@ import {
   mapHomeBuyingResponses,
   UnmappedDecisionTypeError,
 } from "@/lib/questions/to-inputs";
-import { computeScore } from "@/lib/scoring";
+import { computeScore } from "@/lib/scoring/engine";
 import type { ResponseValue } from "@/lib/questions/bank";
 import type { DecisionType } from "@/lib/assessment/types";
 

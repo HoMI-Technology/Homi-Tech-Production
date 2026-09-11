@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { bankResponsesToInputs } from "@/lib/questions/to-inputs";
-import { computeScore } from "@/lib/scoring";
+import { computeScore } from "@/lib/scoring/engine";
 import type { ResponseValue } from "@/lib/questions/bank";
 
 const EMPTY_CONFLICT = { referralSource: null, deadlineOrigin: null } as const;

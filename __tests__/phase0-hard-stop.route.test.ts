@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import type { AssessmentInputs } from "@/lib/scoring";
+import type { AssessmentInputs } from "@/lib/scoring/public";
 import { PHASE0_PAUSE_COPY } from "@/lib/advisor/phase0";
 
 /**

@@ -1,12 +1,7 @@
 import { describe, expect, it } from "vitest";
-import {
-  computeScore,
-  scoreToVerdict,
-  PILLAR_MAX_POINTS,
-  computeShadowScore,
-  SHADOW_DEFAULTS,
-  type AssessmentInputs,
-} from "@/lib/scoring";
+import { computeScore } from "@/lib/scoring/engine";
+import { computeShadowScore, SHADOW_DEFAULTS } from "@/lib/scoring/shadow";
+import { scoreToVerdict, PILLAR_MAX_POINTS, type AssessmentInputs } from "@/lib/scoring/public";
 
 // ---------------------------------------------------------------------------
 // Fixtures

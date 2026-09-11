@@ -3,7 +3,7 @@
  * Pure: returns a new path; never invents assessment verdicts.
  */
 
-import type { AssessmentResult } from "@/lib/scoring";
+import type { AssessmentResult } from "@/lib/scoring/public";
 import {
   setPathStepStatus,
   type PathFinanceSnapshot,

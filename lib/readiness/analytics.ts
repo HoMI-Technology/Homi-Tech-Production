@@ -6,7 +6,7 @@
 
 import { track } from "@/lib/analytics";
 import type { PathMode } from "./path";
-import type { Verdict as ScoringVerdict } from "@/lib/scoring";
+import type { Verdict as ScoringVerdict } from "@/lib/scoring/public";
 import type { PathHabitStage, PathHabitSurface } from "./habit";
 
 export type PathFunnelSource =

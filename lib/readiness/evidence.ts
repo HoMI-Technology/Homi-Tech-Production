@@ -3,7 +3,7 @@
  * Completing a step records *why* it cleared — manual, finance, or bank.
  */
 
-import type { AssessmentResult } from "@/lib/scoring";
+import type { AssessmentResult } from "@/lib/scoring/public";
 import {
   setPathStepStatus,
   type PathFinanceSnapshot,

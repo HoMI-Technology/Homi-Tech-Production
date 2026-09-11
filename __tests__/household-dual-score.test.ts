@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { computeScore, type AssessmentInputs } from "@/lib/scoring";
+import { computeScore } from "@/lib/scoring/engine";
+import type { AssessmentInputs } from "@/lib/scoring/public";
 import { computeDualHouseholdScore } from "@/lib/household/dual-score";
 
 const SAFE: AssessmentInputs = {

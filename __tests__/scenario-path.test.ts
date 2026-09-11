@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_SIMULATION_INPUTS } from "@/lib/decisions/simulate";
 import { generatePathFromScenario } from "@/lib/readiness";
-import type { AssessmentResult } from "@/lib/scoring";
+import type { AssessmentResult } from "@/lib/scoring/public";
 
 const scored: AssessmentResult = {
   score: 62,

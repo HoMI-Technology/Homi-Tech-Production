@@ -11,7 +11,7 @@ import {
   DUAL_SCORE_DISCLAIMER,
   type DualHouseholdScore,
 } from "@/lib/household/dual-score";
-import type { AssessmentResult, Verdict } from "@/lib/scoring";
+import type { AssessmentResult, Verdict } from "@/lib/scoring/public";
 import type { VerdictKey } from "@/lib/brand";
 
 type Member = {

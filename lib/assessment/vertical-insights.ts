@@ -5,7 +5,8 @@ import "server-only";
  * calls insight generators. Do not import from client modules.
  */
 
-import { generateKeyInsight, generateNextSteps, type AssessmentResult } from "@/lib/scoring";
+import { generateKeyInsight, generateNextSteps } from "@/lib/scoring/insights";
+import type { AssessmentResult } from "@/lib/scoring/public";
 import {
   applyHardStopCopy,
   hardStopNextStep,

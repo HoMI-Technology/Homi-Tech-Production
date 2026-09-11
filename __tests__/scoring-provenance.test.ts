@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { computeScore, type AssessmentInputs } from "@/lib/scoring";
+import { computeScore } from "@/lib/scoring/engine";
+import type { AssessmentInputs } from "@/lib/scoring/public";
 
 const BASE: AssessmentInputs = {
   debtToIncomeRatio: 0.25,

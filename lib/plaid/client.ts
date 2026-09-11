@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * Small fetch helper for the Plaid API.
  * Base URL is derived from PLAID_ENV (defaults to "sandbox"); auth

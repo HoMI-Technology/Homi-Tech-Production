@@ -13,7 +13,7 @@ import type {
   EmotionalBreakdown,
   TimingBreakdown,
   HardStopReason,
-} from "@/lib/scoring";
+} from "@/lib/scoring/public";
 import type { AssessmentRow } from "@/types/database";
 import type { StoredAssessment } from "./storage";
 import { DECISION_TYPE_LABELS, type DecisionType } from "@/lib/assessment/types";

@@ -1,15 +1,17 @@
+import "server-only";
+
 /**
  * Decision Pre-Flight — 60-second gate before a big commitment.
  * Educational only. Uses scoring hard-stop logic + simple cash/FOMO checks.
  */
 
-import {
-  computeScore,
-  type AssessmentInputs,
-  type AssessmentResult,
-  type HardStopCode,
-  type Verdict,
-} from "@/lib/scoring";
+import { computeScore } from "@/lib/scoring/engine";
+import type {
+  AssessmentInputs,
+  AssessmentResult,
+  HardStopCode,
+  Verdict,
+} from "@/lib/scoring/public";
 
 export type PreflightSignal =
   | "HARD_STOP"

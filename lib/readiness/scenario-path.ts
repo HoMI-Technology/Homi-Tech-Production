@@ -3,7 +3,7 @@
  * Builds a Path to Ready from simulation inputs + readiness context.
  */
 
-import type { AssessmentResult, Verdict } from "@/lib/scoring";
+import type { AssessmentResult, Verdict } from "@/lib/scoring/public";
 import type { ScenarioKey, SimulationInputs } from "@/lib/decisions/simulate";
 import { PATH_DISCLAIMER, type PathStep, type ReadinessPath } from "./path";
 import { runScenarioStudio } from "./scenario";

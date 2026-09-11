@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { computeScore, generateNextSteps, type AssessmentInputs } from "@/lib/scoring";
+import { computeScore } from "@/lib/scoring/engine";
+import { generateNextSteps } from "@/lib/scoring/insights";
+import type { AssessmentInputs } from "@/lib/scoring/public";
 import { bankResponsesToInputs } from "@/lib/questions/to-inputs";
 import type { ResponseValue } from "@/lib/questions/bank";
 import {

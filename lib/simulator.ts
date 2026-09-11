@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * Readiness-score simulator — pure seed helpers + engine-backed simulate.
  *
@@ -21,7 +23,7 @@
  *     through it.
  */
 
-import { computeScore } from "@/lib/scoring";
+import { computeScore } from "@/lib/scoring/engine";
 import { scoreToVerdict, type AssessmentInputs } from "@/lib/scoring/public";
 
 export {

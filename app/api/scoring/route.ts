@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
-import { computeScore, type AssessmentInputs } from "@/lib/scoring";
+import { computeScore } from "@/lib/scoring/engine";
+import type { AssessmentInputs } from "@/lib/scoring/public";
 import { applySkippedEmotionalReading } from "@/lib/assessment/two-pillar";
 import { withVerticalHardStopDisplay } from "@/lib/assessment/vertical-insights";
 import {

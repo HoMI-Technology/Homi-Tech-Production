@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * Readiness bands — Decision Lab Phase 5 (server / test module).
  *

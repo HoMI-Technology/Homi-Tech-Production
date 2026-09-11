@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { after } from "next/server";
 import { z } from "zod";
-import { computeScore } from "@/lib/scoring";
+import { computeScore } from "@/lib/scoring/engine";
 import { applySkippedEmotionalReading } from "@/lib/assessment/two-pillar";
 import { withVerticalHardStopDisplay } from "@/lib/assessment/vertical-insights";
 import { createClient } from "@/lib/supabase/server";

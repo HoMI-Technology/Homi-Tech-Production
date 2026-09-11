@@ -1,22 +1,28 @@
-export {
-  computeScore,
-  scoreToVerdict,
-  buildAssessmentProvenance,
-  type Verdict,
-  type AssessmentInputs,
-  type AssessmentResult,
-  type AssessmentProvenance,
-  type SelfReportedCreditBand,
-  type CreditScoreProvenance,
-  type FactorProvenance,
-  type DownPaymentProvenance,
-  type FinancialBreakdown,
-  type EmotionalBreakdown,
-  type TimingBreakdown,
-  type HardStopReason,
-  type HardStopCode,
-  type ScoringWarning,
+/**
+ * Scoring package barrel — types + the client-safe public seam only.
+ *
+ * Do not value-re-export the engine from here (Plans.md 6.5). An accidental
+ * `import { computeScore } from "@/lib/scoring"` in a client module would
+ * otherwise pull `lib/scoring/engine.ts` through this file.
+ *
+ * Server callers: `import { computeScore } from "@/lib/scoring/engine"`
+ * Client values + types: `@/lib/scoring/public`
+ */
+export type {
+  Verdict,
+  AssessmentInputs,
+  AssessmentResult,
+  AssessmentProvenance,
+  SelfReportedCreditBand,
+  CreditScoreProvenance,
+  FactorProvenance,
+  DownPaymentProvenance,
+  FinancialBreakdown,
+  EmotionalBreakdown,
+  TimingBreakdown,
+  HardStopReason,
+  HardStopCode,
+  ScoringWarning,
 } from "./engine";
-export { generateKeyInsight, generateNextSteps } from "./insights";
-export { computeShadowScore, SHADOW_DEFAULTS, type ShadowInputs } from "./shadow";
-export { PILLAR_MAX_POINTS } from "./weights";
+export type { ShadowInputs } from "./shadow";
+export { PILLAR_MAX_POINTS, scoreToVerdict } from "./public";
