@@ -44,7 +44,10 @@ describe("HomeV4 Ultra Premium fold", () => {
     );
     expect(text).toContain("A hard stop takes priority over the number.");
     expect(text).toContain("Hard stop still holds on this read.");
-    expect(text).toContain("Open");
+    const pathCtas = [...container.querySelectorAll("[data-home-v4-path-cta]")];
+    expect(pathCtas.length).toBeGreaterThan(0);
+    expect(pathCtas.every((el) => el.textContent?.includes("Build runway to 1 month"))).toBe(true);
+    expect(pathCtas.every((el) => !el.textContent?.includes("Open Path"))).toBe(true);
     expect(text).toContain("Accounts aren't connected yet.");
     expect(text).toContain("Connect accounts for a fuller picture.");
     expect(text).toContain("Addresses the current hold.");
@@ -104,8 +107,14 @@ describe("HomeV4 Ultra Premium fold", () => {
     const text = container.textContent ?? "";
     expect(container.querySelector("[data-home-v4-empty]")).not.toBeNull();
     expect(text).toContain("No assessment yet");
+    expect(text).toContain("About five minutes. One verdict. Then this page shows the next move.");
+    expect(text).toContain("Start with Assess. Path fills from that read.");
+    expect(text).toContain("A readiness read comes first.");
     expect(text).toContain("Assess");
     expect(container.querySelector("[data-home-v4-assess]")?.getAttribute("href")).toBe(
+      "/assessment",
+    );
+    expect(container.querySelector("[data-home-v4-path-empty-cta]")?.getAttribute("href")).toBe(
       "/assessment",
     );
     expect(text).not.toContain("DO NOT PROCEED");

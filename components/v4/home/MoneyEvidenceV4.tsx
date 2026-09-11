@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Wallet } from "lucide-react";
 import { HomeSectionV4 } from "@/components/v4/home/HomeSectionV4";
-import type { HomeV4View } from "@/lib/v4/home-state";
+import { HOME_V4_EMPTY_MONEY_FOLLOW, HOME_V4_MONEY_FOLLOW, type HomeV4View } from "@/lib/v4/home-state";
 
 export function MoneyEvidenceV4({ view }: { view: HomeV4View }) {
   return (
@@ -17,7 +17,9 @@ export function MoneyEvidenceV4({ view }: { view: HomeV4View }) {
       <p className="v4-support-line" data-home-v4-money-empty="">
         {view.moneyLine}
       </p>
-      <p className="v4-support-follow">Connect accounts for a fuller picture.</p>
+      <p className="v4-support-follow">
+        {view.hasAssessment ? HOME_V4_MONEY_FOLLOW : HOME_V4_EMPTY_MONEY_FOLLOW}
+      </p>
       <Link href={view.connectHref} className="v4-support-cta" data-home-v4-connect="">
         {view.connectLabel}
       </Link>

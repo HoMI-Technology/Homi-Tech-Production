@@ -4,7 +4,12 @@ import { COLORS, type VerdictKey } from "@/lib/brand";
 import { V4_SHELL_ASSESS_HREF, V4_SHELL_PATH_HREF } from "@/lib/layout/v4-shell";
 import { ReadinessGaugeV4 } from "@/components/v4/home/ReadinessGaugeV4";
 import { foldHoldClose, foldHoldLead } from "@/lib/dashboard/fold-truth";
-import { HOME_V4_PATH_CTA, type HomeV4View } from "@/lib/v4/home-state";
+import {
+  HOME_V4_EMPTY_FOLLOW,
+  HOME_V4_EMPTY_HOLD,
+  HOME_V4_PATH_CTA,
+  type HomeV4View,
+} from "@/lib/v4/home-state";
 
 function verdictTone(key: VerdictKey | null, hardStopActive: boolean): string {
   if (hardStopActive) return COLORS.crimson;
@@ -113,7 +118,8 @@ export function ReadinessHeroV4({ view }: { view: HomeV4View }) {
           </>
         ) : (
           <div data-home-v4-empty="">
-            <p className="v4-hero-hold">No assessment yet. One read paints this page.</p>
+            <p className="v4-hero-hold">{HOME_V4_EMPTY_HOLD}</p>
+            <p className="v4-hero-hold-close">{HOME_V4_EMPTY_FOLLOW}</p>
             <div className="v4-hero-actions">
               <Link
                 href={V4_SHELL_ASSESS_HREF}
