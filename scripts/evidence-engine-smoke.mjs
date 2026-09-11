@@ -4,6 +4,10 @@
  *
  * persist → baseline row → due survey → structured save → verdict unchanged
  *
+ * Hits DARK APIs (`/api/assessments`, `/api/outcomes/surveys`). KEEP CORE has
+ * no evidence surface. BLOCKED until V4_LIVE (Product Rebuild v4) — do not
+ * treat `npm run smoke:evidence` as a CORE gate.
+ *
  *   SMOKE_EMAIL / SMOKE_PASSWORD
  *   NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY (.env.local ok)
  *   SMOKE_BASE_URL  (default http://localhost:3000 — not production)
@@ -11,7 +15,7 @@
  * Production writes require EVIDENCE_SMOKE_WRITE=1. Persist on a free-tier
  * account can 402; the script then uses the latest assessment.
  *
- * BLOCKED (honest): merge + migration not applied, or missing credentials.
+ * BLOCKED (honest): CCP DARK APIs, merge + migration not applied, or missing credentials.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -109,6 +113,12 @@ async function rest(path, access, init = {}) {
 
 async function main() {
   console.log(`\nEvidence Engine smoke → ${site}\n`);
+  if (process.env.EVIDENCE_SMOKE_FORCE !== "1") {
+    console.log(
+      "BLOCKED until V4: this script POSTs `/api/assessments` and `/api/outcomes/surveys`, which are DARK under CCP v1 (JSON 404). KEEP CORE has no evidence surface. See docs/CHANGE_CONTROL_V1.md. Re-enable after V4_LIVE, or set EVIDENCE_SMOKE_FORCE=1 to run the historical path anyway.",
+    );
+    process.exit(2);
+  }
   if (!email || !password) {
     bad("missing SMOKE_EMAIL / SMOKE_PASSWORD");
     console.log("BLOCKED: signed-in credentials not set.");

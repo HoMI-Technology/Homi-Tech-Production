@@ -1,5 +1,11 @@
 # HōMI — Supabase Database
 
+**Apply / production ledger SSOT:** [`docs/ops/MIGRATIONS-SSOT.md`](../docs/ops/MIGRATIONS-SSOT.md).  
+Do **not** `supabase db push` the numbered history against production. Spend hold
+[#241](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/241): no
+second Supabase project until the founder closes it. The table below is a
+**file inventory**, not the production apply order.
+
 This directory contains the full Postgres schema for HōMI as a set of
 ordered, idempotent SQL migrations. Every file can be re-run safely against
 an existing database (guards via `IF NOT EXISTS`, `DO $$ ... EXCEPTION`,
@@ -10,10 +16,9 @@ an existing database (guards via `IF NOT EXISTS`, `DO $$ ... EXCEPTION`,
 Apply in numeric order — later files depend on tables/types created earlier.
 
 > **Note:** Three prefix collisions exist in this repo (`00018`, `00020`, `00024`).
-> Apply both files sharing a prefix in filesystem sort order (see table).
-> Production apply state is **not** "push through 00032". See
-> `docs/ops/MIGRATIONS-SSOT.md` (current ceiling includes timestamped 202608*
-> files). **Never** `supabase db push` the full history against production.
+> Filesystem sort order is in the table. **Do not treat this list as “push through
+> 00032.”** Production apply state, timestamped `202608*` files, and the
+> never-`db push` rule live in `docs/ops/MIGRATIONS-SSOT.md`.
 
 | #   | File                                      | Purpose                                                                                                                                                                                      |
 | --- | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

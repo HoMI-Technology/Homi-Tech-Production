@@ -20,7 +20,7 @@ Until that project exists, live E2E stays **NOT CONFIGURED** / CORE coverage.
 
 ## Reality check
 
-Remote `supabase_migrations.schema_migrations` uses a **long history of timestamp-style versions** that predate the repoÃ¢â‚¬â„¢s `000xx_*.sql` naming. Local files `00001`Ã¢â‚¬â€œ`00039` are the **product schema contract** for this codebase. They do not always line up 1:1 with remote version strings.
+Remote `supabase_migrations.schema_migrations` uses a **long history of timestamp-style versions** that predate the repo's `000xx_*.sql` naming. Local files `00001`–`00039` are the **product schema contract** for this codebase. They do not always line up 1:1 with remote version strings.
 
 ## Applying new migrations (safe path)
 
@@ -28,7 +28,7 @@ Remote `supabase_migrations.schema_migrations` uses a **long history of timestam
 2. Apply to production with the linked CLI (not a blind full history replay):
 
 ```bash
-# Example: apply a single fileÃ¢â‚¬â„¢s SQL
+# Example: apply a single file's SQL
 Get-Content -Raw supabase/migrations/00038_user_readiness_path.sql | npx supabase db query --linked
 ```
 
@@ -38,7 +38,7 @@ Get-Content -Raw supabase/migrations/00038_user_readiness_path.sql | npx supabas
 npx supabase migration repair 00038 --status applied --linked
 ```
 
-4. **Do not** `supabase db push` the entire 00007Ã¢â‚¬â€œ00035 range against production unless you have verified none of those objects already exist under other version names.
+4. **Do not** `supabase db push` the entire 00007–00035 range against production unless you have verified none of those objects already exist under other version names.
 
 ## Current Path / household migrations
 
@@ -48,9 +48,9 @@ npx supabase migration repair 00038 --status applied --linked
 | `00037_ad_spend.sql`                       | Admin ad spend                                                                                                                                                                                                                                                                       |
 | `00038_user_readiness_path.sql`            | Path to Ready LWW JSON                                                                                                                                                                                                                                                               |
 | `00039_households.sql`                     | Dual-user household + invites                                                                                                                                                                                                                                                        |
-| `00040_profile_email_lock.sql`             | Adds `email` to the profiles privileged-column guard Ã¢â‚¬â€ applied 2026-08-01                                                                                                                                                                                                      |
-| `00041_profile_guard_security_invoker.sql` | Makes that guard actually enforce (`security invoker`) Ã¢â‚¬â€ applied 2026-08-01                                                                                                                                                                                                    |
-| `20260803000001_finance_ledger.sql`        | Budget & Runway PR 3 Ã¢â‚¬â€ `finance_*` tables + FORCE RLS + system categories + mutation idempotency. **Applied to production 2026-08-03** (single-file via `supabase db query --linked`; repair `20260803000001` applied). 6 tables FORCE RLS, 22 policies, 21 system categories. |
+| `00040_profile_email_lock.sql`             | Adds `email` to the profiles privileged-column guard — applied 2026-08-01                                                                                                                                                                                                      |
+| `00041_profile_guard_security_invoker.sql` | Makes that guard actually enforce (`security invoker`) — applied 2026-08-01                                                                                                                                                                                                    |
+| `20260803000001_finance_ledger.sql`        | Budget & Runway PR 3 — `finance_*` tables + FORCE RLS + system categories + mutation idempotency. **Applied to production 2026-08-03** (single-file via `supabase db query --linked`; repair `20260803000001` applied). 6 tables FORCE RLS, 22 policies, 21 system categories. |
 | `20260818000001_plaid_full_picture.sql`    | Identity owners, holdings, investment transactions, liabilities. **Applied to production 2026-08-18** (`supabase db query --linked`; repair `20260818000001` applied). All five new tables FORCE RLS; `plaid_account_owners` has no authenticated SELECT. |
 | `20260831000001_evidence_engine.sql`       | Evidence Engine v1.0 — lineage columns, immutable baselines, structured outcome fields, contact events. **Applied to production 2026-08-31** (`supabase db query --linked`; repair `20260831000001` applied). Tables `assessment_outcome_baselines` + `outcome_survey_events` FORCE RLS. Do not rewrite historical outcomes. |
 
@@ -58,20 +58,20 @@ npx supabase migration repair 00038 --status applied --linked
 
 Audited 2026-07-28 by object-existence probe (not by ledger version): **40 of 41
 files applied**, only `00040` outstanding. `00040` was applied 2026-08-01.
-`00034_profile_field_locks.sql` is **superseded Ã¢â‚¬â€ never apply it.** Full evidence
+`00034_profile_field_locks.sql` is **superseded — never apply it.** Full evidence
 and re-run method: `docs/ops/MIGRATION-DRIFT-2026-07-28.md`.
 
-Ã°Å¸Å¸Â¢ **Closed 2026-08-01.** Verifying `00040` revealed that the guard it extends had
+**Closed 2026-08-01.** Verifying `00040` revealed that the guard it extends had
 never enforced anything: `guard_profiles_privileged_columns()` was `SECURITY
-DEFINER` owned by `postgres`, so its `current_user in ('postgres', Ã¢â‚¬Â¦)` service
-allowlist matched its own owner and short-circuited for every caller Ã¢â‚¬â€ any
+DEFINER` owned by `postgres`, so its `current_user in ('postgres', …)` service
+allowlist matched its own owner and short-circuited for every caller — any
 authenticated user could self-write `role`, `subscription_tier`,
 `subscription_status`, `stripe_customer_id` and `email`. `00041` switched it to
 `security invoker` and is applied; escalation attempts now raise `42501`, with the
 benign, admin and `service_role` paths unaffected. A sweep for other `SECURITY
 DEFINER` functions gating on `current_user` returned zero rows.
 
-Lesson for future audits: object existence Ã¢â€°Â  enforcement. Probe behaviour, in a
+Lesson for future audits: object existence ≠ enforcement. Probe behaviour, in a
 transaction you roll back.
 
 Previously `00024` was used twice (`plaid_transactions`,
