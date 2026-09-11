@@ -28,6 +28,7 @@ import {
   isV4PartnerWorkspace,
   isV4QuietCommandPath,
   isV4SystemSurfacePath,
+  isV4TeamWorkspace,
   v4ShellShowsHomiRail,
 } from "@/lib/layout/v4-shell";
 
@@ -107,9 +108,13 @@ describe("Shell v4 nav law", () => {
     expect(isV4AskOnlyPath("/partner/dashboard")).toBe(true);
     expect(isV4QuietCommandPath("/admin")).toBe(true);
     expect(isV4QuietCommandPath("/admin/users")).toBe(true);
+    expect(isV4QuietCommandPath("/team")).toBe(true);
     expect(isV4QuietCommandPath("/partner/dashboard")).toBe(false);
     expect(isV4AdminWorkspace("/admin")).toBe(true);
     expect(isV4AdminWorkspace("/admin/marketing")).toBe(true);
+    expect(isV4TeamWorkspace("/team")).toBe(true);
+    expect(isV4NavActive("/team", "/home")).toBe(false);
+    expect(isV4NavActive("/team", "/team")).toBe(true);
     expect(isV4NavActive("/admin", "/admin")).toBe(true);
     expect(isV4NavActive("/admin/users", "/admin")).toBe(false);
     expect(isV4NavActive("/admin/users", "/admin/users")).toBe(true);

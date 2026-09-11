@@ -540,7 +540,8 @@ html {
 
 .v4-employee-identity,
 .v4-partner-identity,
-.v4-admin-identity {
+.v4-admin-identity,
+.v4-team-identity {
   display: flex;
   align-items: baseline;
   gap: 0.4rem;
@@ -551,7 +552,8 @@ html {
 
 .v4-employee-identity-job,
 .v4-partner-identity-job,
-.v4-admin-identity-job {
+.v4-admin-identity-job,
+.v4-team-identity-job {
   font-size: 0.6875rem;
   font-weight: 500;
   letter-spacing: 0.06em;

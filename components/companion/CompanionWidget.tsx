@@ -607,6 +607,8 @@ export function CompanionWidget({ skipIdle = false }: { skipIdle?: boolean } = {
     pathname === "/advisor" ||
     pathname === "/admin" ||
     pathname.startsWith("/admin/") ||
+    pathname === "/team" ||
+    pathname.startsWith("/team/") ||
     pathname === "/dashboard" ||
     pathname.startsWith("/dashboard/")
   ) {

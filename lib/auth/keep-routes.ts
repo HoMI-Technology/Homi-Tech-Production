@@ -31,8 +31,8 @@ const KEEP_API_PREFIXES = ["/api/waitlist", "/api/healthcheck", "/api/csp-report
  * and depth activate under the same flag. PR K2 adds `/partner` so
  * `/partner/dashboard` + depth activate under the same flag. PR K3 adds
  * `/admin` so `/admin` + existing rooms activate under the same flag.
- * `/dashboard` stays DARK. Do not add `/team` this pass (K4). Do not add
- * `/first-moment` — guest invite is not a role home.
+ * `/dashboard` stays DARK. PR K4 adds `/team` (aggregate home only — never
+ * `/team/dashboard`). Do not add `/first-moment` — guest invite is not a role home.
  */
 export const V4_PENDING_PATHS = [
   "/home",
@@ -48,6 +48,7 @@ export const V4_PENDING_PATHS = [
   "/employee",
   "/partner",
   "/admin",
+  "/team",
 ] as const;
 
 /**

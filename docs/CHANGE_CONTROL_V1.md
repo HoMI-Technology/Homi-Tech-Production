@@ -48,7 +48,7 @@ Seed page prefixes (non-exhaustive; anything not KEEP and not V4 is DARK):
 `/dashboard`, `/first-moment`, `/results`, `/report`, `/plan`,
 `/advisor`, `/agents`, `/agent-hub`, `/learn`,
 `/timeline`, `/journal`,
-`/household`, `/simulator`, `/decisions`, `/team`,
+`/household`, `/simulator`, `/decisions`,
 `/pricing`, `/how-it-works`,
 `/shadow-score`, `/onboarding`, `/demo`, `/calendar`, `/daily`, `/credit`,
 `/twin`, `/trinity`, `/genome`, `/signals`, `/outcomes`
@@ -69,7 +69,8 @@ Dark APIs: every `/api/*` except the KEEP API prefixes above
 | `/settings` `/connections` `/assessment` | System + command (Accounts · Settings · Assess). |
 | `/employee` | Employee operate home. Prefix covers `/employee/dashboard` + depth. |
 | `/partner` | Partner operate home. Prefix covers `/partner/dashboard` + depth. |
-| `/admin` | Admin ops console. Prefix covers `/admin` + existing rooms. K4 (`/team`) stays DARK. Do not add `/first-moment`. |
+| `/admin` | Admin ops console. Prefix covers `/admin` + existing rooms. |
+| `/team` | Team aggregate home only. Never `/team/dashboard`. Same flag. Do not add `/first-moment`. |
 
 ### V4_LIVE
 

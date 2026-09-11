@@ -13,6 +13,7 @@ import {
   isV4AskOnlyPath,
   isV4AssessPath,
   isV4QuietCommandPath,
+  isV4TeamWorkspace,
 } from "@/lib/layout/v4-shell";
 import { useAssessmentWalkChrome } from "@/components/v4/assessment/AssessmentWalkChrome";
 
@@ -40,8 +41,9 @@ export function V4TopCommand({
   const assessActive = isV4AssessPath(pathname ?? "");
   const askOnly = isV4AskOnlyPath(pathname ?? "");
   const quietCommand = isV4QuietCommandPath(pathname ?? "");
+  const teamCommand = isV4TeamWorkspace(pathname ?? "");
   const askPlaceholder = chrome.askPlaceholder;
-  const commandLabel = quietCommand ? "Admin" : chrome.commandLabel;
+  const commandLabel = quietCommand ? (teamCommand ? "Team" : "Admin") : chrome.commandLabel;
   const workspacePrompts = chrome.prompts;
 
   useEffect(() => {

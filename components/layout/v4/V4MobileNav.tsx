@@ -13,10 +13,12 @@ import {
   V4_MORE_NAV,
   V4_PARTNER_MOBILE_TABS,
   V4_PARTNER_OPERATE_NAV,
+  V4_TEAM_MOBILE_TABS,
   isV4AdminWorkspace,
   isV4EmployeeWorkspace,
   isV4NavActive,
   isV4PartnerWorkspace,
+  isV4TeamWorkspace,
 } from "@/lib/layout/v4-shell";
 
 /**
@@ -30,20 +32,25 @@ export function V4MobileNav() {
   const employee = isV4EmployeeWorkspace(pathname);
   const partner = isV4PartnerWorkspace(pathname);
   const admin = isV4AdminWorkspace(pathname);
+  const team = isV4TeamWorkspace(pathname);
   const tabs = admin
     ? V4_ADMIN_MOBILE_TABS
-    : partner
-      ? V4_PARTNER_MOBILE_TABS
-      : employee
-        ? V4_EMPLOYEE_MOBILE_TABS
-        : V4_MOBILE_TABS;
+    : team
+      ? V4_TEAM_MOBILE_TABS
+      : partner
+        ? V4_PARTNER_MOBILE_TABS
+        : employee
+          ? V4_EMPLOYEE_MOBILE_TABS
+          : V4_MOBILE_TABS;
   const moreItems = admin
     ? V4_ADMIN_MORE_NAV
-    : partner
-      ? V4_PARTNER_OPERATE_NAV
-      : employee
-        ? V4_EMPLOYEE_OPERATE_NAV
-        : V4_MORE_NAV;
+    : team
+      ? []
+      : partner
+        ? V4_PARTNER_OPERATE_NAV
+        : employee
+          ? V4_EMPLOYEE_OPERATE_NAV
+          : V4_MORE_NAV;
 
   return (
     <>
@@ -104,17 +111,19 @@ export function V4MobileNav() {
             </Link>
           );
         })}
-        <button
-          type="button"
-          data-v4-mobile-tab="more"
-          className={`v4-mobile-tab flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 py-1.5 text-2xs font-semibold tracking-wide ${
-            moreOpen ? "is-active text-light" : "text-dim hover:text-light"
-          }`}
-          onClick={() => setMoreOpen((value) => !value)}
-        >
-          {MoreIcon ? <MoreIcon aria-hidden className="size-4" strokeWidth={1.75} /> : null}
-          More
-        </button>
+        {moreItems.length > 0 ? (
+          <button
+            type="button"
+            data-v4-mobile-tab="more"
+            className={`v4-mobile-tab flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 py-1.5 text-2xs font-semibold tracking-wide ${
+              moreOpen ? "is-active text-light" : "text-dim hover:text-light"
+            }`}
+            onClick={() => setMoreOpen((value) => !value)}
+          >
+            {MoreIcon ? <MoreIcon aria-hidden className="size-4" strokeWidth={1.75} /> : null}
+            More
+          </button>
+        ) : null}
       </nav>
     </>
   );

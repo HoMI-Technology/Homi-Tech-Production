@@ -21,11 +21,14 @@ import {
   V4_SHELL_EMPLOYEE_HREF,
   V4_SHELL_HOME_HREF,
   V4_SHELL_PARTNER_HREF,
+  V4_SHELL_TEAM_HREF,
   V4_SYSTEM_NAV,
+  V4_TEAM_WORKSPACE_NAV,
   isV4AdminWorkspace,
   isV4EmployeeWorkspace,
   isV4NavActive,
   isV4PartnerWorkspace,
+  isV4TeamWorkspace,
 } from "@/lib/layout/v4-shell";
 
 function RailLinks({
@@ -76,13 +79,16 @@ export function V4LeftNav({
   const employee = isV4EmployeeWorkspace(pathname);
   const partner = isV4PartnerWorkspace(pathname);
   const admin = isV4AdminWorkspace(pathname);
+  const team = isV4TeamWorkspace(pathname);
   const homeHref = admin
     ? V4_SHELL_ADMIN_HREF
-    : partner
-      ? V4_SHELL_PARTNER_HREF
-      : employee
-        ? V4_SHELL_EMPLOYEE_HREF
-        : V4_SHELL_HOME_HREF;
+    : team
+      ? V4_SHELL_TEAM_HREF
+      : partner
+        ? V4_SHELL_PARTNER_HREF
+        : employee
+          ? V4_SHELL_EMPLOYEE_HREF
+          : V4_SHELL_HOME_HREF;
 
   return (
     <>
@@ -127,6 +133,11 @@ export function V4LeftNav({
               <span>Admin</span>
               <span className="v4-admin-identity-job">ops</span>
             </p>
+          ) : team ? (
+            <p className="v4-team-identity mt-3" data-v4-workspace-chip="team">
+              <span>Team</span>
+              <span className="v4-team-identity-job">aggregate</span>
+            </p>
           ) : partner ? (
             <p className="v4-partner-identity mt-3" data-v4-workspace-chip="partner">
               <span>Partner</span>
@@ -162,6 +173,11 @@ export function V4LeftNav({
               <RailLinks items={V4_ADMIN_ROOMS_NAV} pathname={pathname} onClose={onClose} />
             </nav>
           </>
+        ) : team ? (
+          <nav data-v4-rail-workspace="" aria-label="Workspace" className="flex flex-col gap-0.5 px-3">
+            <p className="v4-rail-section">Workspace</p>
+            <RailLinks items={V4_TEAM_WORKSPACE_NAV} pathname={pathname} onClose={onClose} />
+          </nav>
         ) : partner ? (
           <>
             <nav data-v4-rail-workspace="" aria-label="Workspace" className="flex flex-col gap-0.5 px-3">

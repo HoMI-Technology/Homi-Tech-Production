@@ -16,6 +16,7 @@ const partner = read("app/(product)/partner/dashboard/page.tsx");
 const admin = read("app/(product)/admin/page.tsx");
 const adminLayout = read("app/(product)/admin/layout.tsx");
 const team = read("app/(product)/team/page.tsx");
+const teamUi = read("components/v4/team/TeamWorkspaceV4.tsx");
 const header = read("components/layout/AppHeader.tsx");
 const host = read("components/companion/CompanionHost.tsx");
 const css = read("app/globals.css");
@@ -28,7 +29,7 @@ describe("PR4 live routes only — no invented homes", () => {
     expect(employee).toContain("EmployeeWorkspaceV4");
     expect(partner).toContain("PartnerWorkspaceV4");
     expect(admin).toContain("AdminWorkspaceV4");
-    expect(team).toContain('role="team"');
+    expect(teamUi).toContain('role="team"');
     expect(team).toContain("/team — not /team/dashboard");
   });
 
@@ -111,15 +112,17 @@ describe("PR4 admin leftover kills", () => {
     expect(adminLayout).not.toContain("Wordmark");
   });
 
-  it("CompanionHost stays off all /admin*", () => {
+  it("CompanionHost stays off all /admin* and /team*", () => {
     expect(host).toMatch(/pathname === "\/admin"/);
     expect(host).toMatch(/pathname\?\.startsWith\("\/admin\/"\)/);
+    expect(host).toMatch(/pathname === "\/team"/);
+    expect(host).toMatch(/pathname\?\.startsWith\("\/team\/"\)/);
   });
 });
 
 describe("PR4 team leftover kills", () => {
   it("aggregate-only operate — no personal Path primary, no peer score wall", () => {
-    expect(team).toContain('data-team-aggregates=""');
+    expect(teamUi).toContain('data-team-aggregates=""');
     expect(team).not.toContain("ActionDock");
     expect(team).not.toContain('href="/path"');
     expect(team).not.toContain("HeroScore");
