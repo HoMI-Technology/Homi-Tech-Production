@@ -21,13 +21,6 @@ import {
 } from "@/lib/finance/ledger-period";
 import { centsToDollars, type MoneyCents } from "@/lib/finance/money";
 import { gradeCompleteness, type FinanceCompleteness } from "@/lib/finance/readiness-snapshot";
-import type { FinanceState } from "@/lib/finance/store";
-import {
-  netCashFlow as legacyNetCashFlow,
-  runwayMonths as legacyRunwayMonths,
-  debtToIncome as legacyDebtToIncome,
-  savingsRate as legacySavingsRate,
-} from "@/lib/finance/store";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -299,56 +292,6 @@ export function metricsFromLedger(
     savingsRatePct,
     evidence,
     periodTotals: totals,
-  };
-}
-
-/**
- * Legacy FinanceState → named metrics (migration fallback only).
- */
-export function metricsFromLegacy(finance: FinanceState, asOf: string | null): NamedMoneyMetrics {
-  const surplusDollars = legacyNetCashFlow(finance);
-  const surplus: PeriodSurplus = {
-    dollars: surplusDollars,
-    incomeDollars: finance.monthlyIncome,
-    expenseDollars: finance.monthlyExpenses,
-    debtPaymentDollars: finance.monthlyDebtPayments,
-    formula: "income - netExpense - debtPayments",
-  };
-  const runway: RunwayMetric = {
-    months: legacyRunwayMonths(finance),
-    liquidDollars: finance.liquidSavings,
-    liquidSource: "legacy_snapshot",
-    monthlyOutflowDollars: finance.monthlyExpenses + finance.monthlyDebtPayments,
-  };
-  const dtiPct = legacyDebtToIncome(finance);
-  const dti: DtiMetric = {
-    pct: finance.monthlyIncome > 0 ? dtiPct : null,
-    incomeDollars: finance.monthlyIncome > 0 ? finance.monthlyIncome : null,
-    debtPaymentDollars: finance.monthlyDebtPayments,
-  };
-  const hasData =
-    finance.monthlyIncome > 0 || finance.monthlyExpenses > 0 || finance.liquidSavings > 0;
-
-  return {
-    source: "legacy",
-    asOf,
-    surplus,
-    runway,
-    dti,
-    savingsRatePct: finance.monthlyIncome > 0 ? legacySavingsRate(finance) : null,
-    evidence: {
-      completeness: hasData ? "low" : "low",
-      sourceMode: "manual",
-      monthsWithData: hasData ? 1 : 0,
-      uncategorizedCount: 0,
-      pendingTransactionCount: 0,
-      latestTransactionDate: null,
-      hasIncome: finance.monthlyIncome > 0,
-      hasExpenses: finance.monthlyExpenses > 0,
-      hasDebtSignal: finance.monthlyDebtPayments > 0 || finance.totalDebt > 0,
-      liquidSource: finance.liquidSavings > 0 ? "legacy_snapshot" : "missing",
-    },
-    periodTotals: null,
   };
 }
 

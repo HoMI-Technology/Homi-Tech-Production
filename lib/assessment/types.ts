@@ -1,8 +1,6 @@
 /**
- * Raw form state for the full assessment flow, before derivation into the
- * canonical AssessmentInputs consumed by computeScore(). Kept separate so
- * the UI can collect natural units ($ income, $ debt, choice bands) while
- * the engine only ever sees normalized ratios/numbers.
+ * Assessment choice labels and client allowlists. Question banks map these
+ * natural units into canonical AssessmentInputs for computeScore().
  */
 
 export type EmergencyFundChoice = "lt1" | "1to3" | "3to6" | "6plus";
@@ -81,76 +79,3 @@ export const TIME_HORIZON_LABELS: Record<TimeHorizonChoice, string> = {
   "6to12": "6–12 months",
   "12plus": "12+ months",
 };
-
-/** Raw, natural-unit form state collected by the full assessment flow. */
-export interface FullAssessmentForm {
-  // Decision-type foundation
-  decisionType: DecisionType;
-
-  // Financial Reality
-  monthlyGrossIncome: number | null;
-  monthlyDebtPayments: number | null;
-  targetHomePrice: number | null;
-  downPaymentSaved: number | null;
-  emergencyFundChoice: EmergencyFundChoice | null;
-  creditScore: number | null;
-  expectedMonthlyHousingPayment: number | null; // optional, skippable
-
-  // Emotional Truth
-  lifeStability: number;
-  confidenceLevel: number;
-  partnered: "yes" | "no" | null;
-  partnerAlignment: number;
-  fomoLevel: number;
-
-  // Perfect Timing
-  timeHorizonChoice: TimeHorizonChoice | null;
-  savingsRatePercent: number; // 0-40
-
-  // Conflict / bias check (optional, skippable — never affects scoring)
-  referralSource: ReferralSourceChoice | null;
-  deadlineOrigin: DeadlineOriginChoice | null;
-}
-
-export const INITIAL_FULL_FORM: FullAssessmentForm = {
-  decisionType: "home_buying",
-
-  monthlyGrossIncome: null,
-  monthlyDebtPayments: null,
-  targetHomePrice: null,
-  downPaymentSaved: null,
-  emergencyFundChoice: null,
-  creditScore: null,
-  expectedMonthlyHousingPayment: null,
-
-  lifeStability: 5,
-  confidenceLevel: 5,
-  partnered: null,
-  partnerAlignment: 5,
-  fomoLevel: 5,
-
-  timeHorizonChoice: null,
-  savingsRatePercent: 10,
-
-  referralSource: null,
-  deadlineOrigin: null,
-};
-
-function creditBand(score: number): string {
-  if (score >= 740) return "Excellent";
-  if (score >= 700) return "Good";
-  if (score >= 660) return "Fair";
-  if (score >= 620) return "Below average";
-  return "Poor";
-}
-
-export function creditScoreBandHint(score: number | null): string {
-  if (score === null || Number.isNaN(score)) return "";
-  return creditBand(clampCredit(score));
-}
-
-function clampCredit(score: number): number {
-  if (score < 300) return 300;
-  if (score > 850) return 850;
-  return score;
-}

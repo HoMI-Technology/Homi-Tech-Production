@@ -156,12 +156,12 @@ describe("mapAssessmentRowToStored discards is_shadow rows", () => {
 });
 
 describe("assessments APIs reject or skip shadow as a score", () => {
-  it("POST /api/assessments refuses kind:shadow before insert", () => {
+  it("POST /api/assessments refuses kind:shadow at the schema (no insert write)", () => {
     const route = readFileSync(join(process.cwd(), "app/api/assessments/route.ts"), "utf8");
-    expect(route).toContain("isShadowAssessmentKind");
-    expect(route).toMatch(/Shadow reads are not assessments/);
-    expect(route).toMatch(/status:\s*400/);
-    expect(route).toContain("is_shadow: isShadowRead");
+    expect(route).toMatch(/kind:\s*z\.enum\(\["full"\]\)/);
+    expect(route).not.toMatch(/z\.enum\(\["full",\s*"shadow"\]\)/);
+    expect(route).not.toContain("isShadowAssessmentKind");
+    expect(route).not.toContain("is_shadow: isShadowRead");
   });
 
   it("GET /api/assessments/latest excludes is_shadow rows", () => {

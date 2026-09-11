@@ -17,7 +17,6 @@ import {
 import { sendLifecycleEmail } from "@/lib/email/send";
 import { verdictEmail } from "@/lib/email/templates";
 import { captureServerEvent } from "@/lib/analytics/server";
-import { isShadowAssessmentKind } from "@/lib/assessment/storage";
 import {
   FREE_TIER_LOCKED_CODE,
   FREE_TIER_LOCKED_MESSAGE,
@@ -35,8 +34,8 @@ import { assertSameUserLineage } from "@/lib/outcomes/lineage";
 
 const bodySchema = z.object({
   inputs: assessmentInputsSchema,
-  kind: z.enum(["full", "shadow"]),
-  // Optional for older clients / the home-only shadow flow; absent means home_buying.
+  kind: z.enum(["full"]),
+  // Optional for older clients; absent means home_buying.
   decisionType: activeDecisionTypeSchema.optional(),
   previousAssessmentId: z.string().uuid().optional(),
   reassessmentReason: z.string().max(80).optional(),
@@ -62,16 +61,6 @@ export async function POST(req: NextRequest) {
     }
     const { inputs, kind, decisionType, previousAssessmentId, reassessmentReason, emotionalSkipped } =
       parsed.data;
-    // Compare on a raw string before any union narrowing (TS2367).
-    const isShadowRead = isShadowAssessmentKind(String(kind));
-
-    // Packet B: a shadow read is not an assessment. Do not score or persist it.
-    if (isShadowRead) {
-      return NextResponse.json(
-        { error: "Shadow reads are not assessments.", saved: false },
-        { status: 400 },
-      );
-    }
 
     const supabase = await createClient();
     const {
@@ -210,7 +199,6 @@ export async function POST(req: NextRequest) {
           decisionSnapshot,
         },
         hard_stops: result.hardStops,
-        is_shadow: isShadowRead,
         completed_at: completedAt,
         scoring_schema_id: SCORING_SCHEMA_ID,
         ...(lineage ?? {}),

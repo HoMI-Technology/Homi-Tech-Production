@@ -305,12 +305,6 @@ export function saveBudgetLedger(state: BudgetLedgerState): boolean {
 }
 
 /**
- * Phase-1 dual-write helper: call after saveBudgetLedger succeeds.
- * Implemented in migrate-from-legacy to avoid circular imports.
- */
-export type DualWriteLegacyFn = (state: BudgetLedgerState) => void;
-
-/**
  * ISO timestamp of the last local ledger write, or null when never saved.
  * Never uses "now" at read time — that would fake freshness.
  */

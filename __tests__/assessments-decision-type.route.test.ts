@@ -227,8 +227,7 @@ describe("POST /api/assessments decision_type", () => {
     const res = await post({ inputs: VALID_INPUTS, kind: "shadow" });
     expect(res.status).toBe(400);
     const body = (await res.json()) as { saved?: boolean; error?: string };
-    expect(body.saved).toBe(false);
-    expect(body.error).toMatch(/not assessments/i);
+    expect(body.error).toBe("Invalid assessment payload");
     expect(state.insertCalls).toHaveLength(0);
   });
 });
@@ -244,6 +243,7 @@ describe("POST /api/assessments persist-on-verdict (Gate 6 day30)", () => {
 
     expect(state.insertCalls).toHaveLength(1);
     const row = state.insertCalls[0];
+    expect(row).not.toHaveProperty("is_shadow");
     const completedAt = row.completed_at as string;
     const insights = row.insights as {
       decisionSnapshot: {

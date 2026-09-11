@@ -167,16 +167,6 @@ export function loadLocalResult(): StoredAssessment | null {
   }
 }
 
-/** Clears the stored assessment result. No-op on the server or on failure. */
-export function clearLocalResult(): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    // Ignore.
-  }
-}
-
 /**
  * Attaches the server-side assessments.id to the currently stored result once
  * the background POST to /api/assessments resolves. No-op if nothing is
@@ -207,9 +197,4 @@ export function saveOverride(override: StoredOverride): void {
   } catch {
     // Storage full, disabled, or private mode — fail silently. Not fatal.
   }
-}
-
-/** Loads the recorded override for the current stored result, if any. */
-export function loadOverride(): StoredOverride | null {
-  return loadLocalResult()?.override ?? null;
 }
