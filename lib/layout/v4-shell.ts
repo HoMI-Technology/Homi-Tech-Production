@@ -92,6 +92,12 @@ export function isV4PathWorkspace(pathname: string): boolean {
   return p === V4_SHELL_PATH_HREF || p.startsWith(`${V4_SHELL_PATH_HREF}/`);
 }
 
+export function isV4MoneyWorkspace(pathname: string): boolean {
+  const p = pathname || "/";
+  if (p === "/money/bills" || p.startsWith("/money/bills/")) return false;
+  return p === V4_SHELL_MONEY_HREF || p.startsWith(`${V4_SHELL_MONEY_HREF}/`);
+}
+
 export function v4ShellShowsHomiRail(pathname: string): boolean {
   const p = pathname || "/";
   if (p === "/home" || p.startsWith("/home/")) return true;

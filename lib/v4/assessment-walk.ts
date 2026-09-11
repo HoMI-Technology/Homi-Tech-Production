@@ -27,6 +27,7 @@ export const V4_ASSESS_DONE_HREF = V4_SHELL_HOME_HREF;
 export const V4_ASK_PLACEHOLDER_DEFAULT = "Ask HōMI";
 export const V4_ASK_PLACEHOLDER_DECISION = "Ask HōMI about this decision...";
 export const V4_ASK_PLACEHOLDER_QUESTION = "Ask HōMI about this question...";
+export const V4_ASK_PLACEHOLDER_FINANCIAL = "Ask HōMI about this financial picture...";
 
 export const V4_ASSESS_VISUAL_STATES = ["pillar-intro", "mid-walk"] as const;
 export type V4AssessVisualState = (typeof V4_ASSESS_VISUAL_STATES)[number];

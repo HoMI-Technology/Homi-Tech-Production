@@ -818,6 +818,160 @@ html {
   background: transparent;
 }
 
+.v4-money {
+  position: relative;
+  padding: 1.25rem 1.25rem 1.75rem;
+  max-width: none;
+}
+@media (min-width: 768px) {
+  .v4-money {
+    padding: 1.5rem 1.75rem 2rem;
+  }
+}
+.v4-money-grid {
+  display: grid;
+  gap: 1.25rem;
+  align-items: start;
+  grid-template-columns: minmax(0, 1fr);
+}
+.v4-money-main {
+  min-width: 0;
+  max-width: 42rem;
+}
+@media (min-width: 1280px) {
+  .v4-money {
+    padding: 1.15rem 1.5rem 1.35rem;
+  }
+  .v4-money-grid {
+    grid-template-columns: minmax(0, 1fr) var(--v4-homi-width, 320px);
+    column-gap: 1.25rem;
+  }
+  .v4-money-main {
+    max-width: none;
+    padding-right: 1rem;
+  }
+}
+.v4-money-title,
+.v4-money-empty-title {
+  margin: 0;
+  font-size: 1.65rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-light);
+}
+.v4-money-empty-title {
+  margin-top: 1.35rem;
+}
+.v4-money-body {
+  margin: 0.65rem 0 0;
+  max-width: 36rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--color-dim);
+}
+.v4-money-meta {
+  margin: 0.55rem 0 0;
+  max-width: 36rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+  color: var(--color-amber);
+}
+.v4-money-actions {
+  margin-top: 1.25rem;
+}
+.v4-money-age {
+  margin: 0;
+  max-width: 40rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-dim);
+}
+.v4-money-hero {
+  margin: 0.55rem 0 0;
+}
+.v4-money-hero-amount {
+  font-family: var(--font-score);
+  font-size: 2.75rem;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-light);
+}
+.v4-money-hero-empty {
+  margin: 0.55rem 0 0;
+  font-size: 1.15rem;
+  color: var(--color-dim);
+}
+.v4-money-sub {
+  margin: 0.4rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-dim);
+}
+.v4-money-accounts {
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+  max-width: 40rem;
+}
+.v4-money-account {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  min-height: 4.25rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.45);
+  padding: 0.85rem 1rem;
+}
+.v4-money-account-copy {
+  min-width: 0;
+}
+.v4-money-account-name {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-light);
+}
+.v4-money-account-type {
+  margin: 0.2rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-dim);
+}
+.v4-money-account-amount {
+  font-family: var(--font-score);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-light);
+  flex-shrink: 0;
+}
+.v4-money-account-unknown {
+  font-size: 0.9375rem;
+  color: var(--color-dim);
+  flex-shrink: 0;
+}
+.v4-money-honesty {
+  margin: 0.9rem 0 0;
+  max-width: 36rem;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--color-amber);
+}
+.v4-money .v4-homi-prompt {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: transparent;
+}
+
 /* Unlayered .chrome-icon-btn { display } beats Tailwind lg:hidden — scope it. */
 .v4-rail-open {
   display: none;

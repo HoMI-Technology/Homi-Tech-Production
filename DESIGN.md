@@ -139,6 +139,12 @@ screenshots. `HOMI_V4_HOME_ENABLED` default false.
   complete. Home NextPath and rail Path land here. Body deep-links Assess and
   Money only — no ledger / invent $. Compass stays in the shell. Craft:
   `docs/design/PATH_CRAFT_v4_2026-09-10.md`.
+- **Money is `/money`**, Shell v4 `main#main`, same flag. Plaid + ledger reuse
+  (no sync rewrite). Empty Connect / hard-stop hold (empty-or-live) / connected
+  live with always-on age / stale · syncing · error honesty. Never invent $ or
+  write AssessmentResult. Ask: *Ask HōMI about this financial picture...*.
+  JetBrains Mono for live $ only. Craft:
+  `docs/design/MONEY_CRAFT_v4_2026-09-10.md`.
 - Finance GATE: score / verdict / hard stops from **AssessmentResult only**.
 - Activation: `HOMI_V4_HOME_ENABLED` default **false** (CCP / ADR-005).
   Pixel Gate: do not undraft or expose `/home` until founder APPROVE VISUAL

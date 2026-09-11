@@ -6,11 +6,52 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Search } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
+import {
+  V4_SHELL_ASSESS_HREF,
+  V4_SHELL_MONEY_HREF,
+  V4_SHELL_PATH_HREF,
+} from "@/lib/layout/v4-shell";
 import { HOME_V4_HOMI_PROMPTS } from "@/lib/v4/home-state";
 import type { V4AssessHomiPrompt } from "@/lib/v4/assessment-walk";
 
+export type HomiV4Surface = "home" | "walk" | "path" | "money";
+
+function homiAskId(surface: HomiV4Surface): string {
+  switch (surface) {
+    case "home":
+      return "v4-homi-ask";
+    case "walk":
+      return "v4-assess-homi-ask";
+    case "path":
+      return "v4-path-homi-ask";
+    case "money":
+      return "v4-money-homi-ask";
+    default: {
+      const _exhaustive: never = surface;
+      return _exhaustive;
+    }
+  }
+}
+
+function homiFallbackHref(surface: HomiV4Surface): string {
+  switch (surface) {
+    case "home":
+    case "path":
+      return V4_SHELL_PATH_HREF;
+    case "walk":
+      return V4_SHELL_ASSESS_HREF;
+    case "money":
+      return V4_SHELL_MONEY_HREF;
+    default: {
+      const _exhaustive: never = surface;
+      return _exhaustive;
+    }
+  }
+}
+
 /**
  * Contextual HōMI — clarity rail. Prompts + Ask. Not a second score.
+ * Column in the workspace grid — never a floating overlay on Money/Path.
  * No AssessmentResult engineering language. No educational disclaimer strip.
  */
 export function HomiIntelligenceV4({
@@ -24,12 +65,13 @@ export function HomiIntelligenceV4({
   prompts?: readonly V4AssessHomiPrompt[];
   showContext?: boolean;
   askPlaceholder?: string;
-  surface?: "home" | "walk" | "path";
+  surface?: HomiV4Surface;
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const contextLine = decisionContext ?? "No decision read yet";
   const catalog = promptList ?? HOME_V4_HOMI_PROMPTS;
+  const askId = homiAskId(surface);
 
   const prompts = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -41,7 +83,7 @@ export function HomiIntelligenceV4({
   function onAsk(e: FormEvent) {
     e.preventDefault();
     const match = prompts[0] ?? catalog[0];
-    router.push(match?.href ?? "/path");
+    router.push(match?.href ?? homiFallbackHref(surface));
   }
 
   return (
@@ -50,6 +92,7 @@ export function HomiIntelligenceV4({
       data-home-v4-homi={surface === "home" ? "" : undefined}
       data-assessment-v4-homi={surface === "walk" ? "" : undefined}
       data-path-v4-homi={surface === "path" ? "" : undefined}
+      data-money-v4-homi={surface === "money" ? "" : undefined}
       aria-label="HōMI"
     >
       <header className="v4-homi-head">
@@ -69,6 +112,7 @@ export function HomiIntelligenceV4({
               data-home-v4-homi-prompt=""
               data-assessment-v4-homi-prompt={surface === "walk" ? "" : undefined}
               data-path-v4-homi-prompt={surface === "path" ? "" : undefined}
+              data-money-v4-homi-prompt={surface === "money" ? "" : undefined}
             >
               <span>{prompt.label}</span>
               <ArrowRight aria-hidden className="size-3.5 shrink-0" strokeWidth={1.75} />
@@ -83,31 +127,18 @@ export function HomiIntelligenceV4({
         data-home-v4-homi-ask-form={surface === "home" ? "" : undefined}
         data-assessment-v4-homi-ask-form={surface === "walk" ? "" : undefined}
         data-path-v4-homi-ask-form={surface === "path" ? "" : undefined}
+        data-money-v4-homi-ask-form={surface === "money" ? "" : undefined}
       >
-        <label
-          className="sr-only"
-          htmlFor={
-            surface === "walk"
-              ? "v4-assess-homi-ask"
-              : surface === "path"
-                ? "v4-path-homi-ask"
-                : "v4-homi-ask"
-          }
-        >
+        <label className="sr-only" htmlFor={askId}>
           Ask HōMI
         </label>
         <Search aria-hidden className="v4-homi-ask-icon size-4" strokeWidth={1.75} />
         <input
-          id={
-            surface === "walk"
-              ? "v4-assess-homi-ask"
-              : surface === "path"
-                ? "v4-path-homi-ask"
-                : "v4-homi-ask"
-          }
+          id={askId}
           data-home-v4-homi-ask={surface === "home" ? "" : undefined}
           data-assessment-v4-homi-ask={surface === "walk" ? "" : undefined}
           data-path-v4-homi-ask={surface === "path" ? "" : undefined}
+          data-money-v4-homi-ask={surface === "money" ? "" : undefined}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={askPlaceholder}
