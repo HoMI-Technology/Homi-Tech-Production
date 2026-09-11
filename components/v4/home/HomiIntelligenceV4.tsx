@@ -49,6 +49,22 @@ function homiFallbackHref(surface: HomiV4Surface): string {
   }
 }
 
+function homiClassName(surface: HomiV4Surface): string {
+  switch (surface) {
+    case "home":
+      return "v4-homi";
+    case "walk":
+    case "path":
+      return "v4-homi v4-assess-homi";
+    case "money":
+      return "v4-homi v4-money-homi";
+    default: {
+      const _exhaustive: never = surface;
+      return _exhaustive;
+    }
+  }
+}
+
 /**
  * Contextual HōMI — clarity rail. Prompts + Ask. Not a second score.
  * Column in the workspace grid — never a floating overlay on Money/Path.
@@ -88,7 +104,7 @@ export function HomiIntelligenceV4({
 
   return (
     <aside
-      className={`v4-homi${surface === "home" ? "" : " v4-assess-homi"}`}
+      className={homiClassName(surface)}
       data-home-v4-homi={surface === "home" ? "" : undefined}
       data-assessment-v4-homi={surface === "walk" ? "" : undefined}
       data-path-v4-homi={surface === "path" ? "" : undefined}

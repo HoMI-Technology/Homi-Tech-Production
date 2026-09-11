@@ -96,4 +96,18 @@ describe("Money v4 workspace in Shell v4", () => {
     const homiAsk = container.querySelector("[data-money-v4-homi-ask]") as HTMLInputElement | null;
     expect(homiAsk?.placeholder).toBe("Ask HōMI about this financial picture...");
   });
+
+  it("mounts right HōMI as a workspace column, not a floating overlay", () => {
+    const { container } = render(
+      <ShellV4 greeting="Welcome back" firstName={null}>
+        <MoneyWorkspaceV4 view={moneyV4VisualView("empty")} />
+      </ShellV4>,
+    );
+    const homi = container.querySelector("[data-money-v4-homi]");
+    expect(homi).not.toBeNull();
+    expect(homi?.classList.contains("v4-money-homi")).toBe(true);
+    expect(homi?.classList.contains("v4-assess-homi")).toBe(false);
+    expect(container.querySelector("[data-v4-homi-rail]")).toBeNull();
+    expect(container.querySelector(".v4-money")?.contains(homi)).toBe(true);
+  });
 });

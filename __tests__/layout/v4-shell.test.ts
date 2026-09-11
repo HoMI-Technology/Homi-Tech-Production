@@ -132,7 +132,20 @@ describe("Shell v4 nav law", () => {
     const block = css.slice(start, css.indexOf("}", start) + 1);
     expect(block).toContain("inset 2px 0 0 var(--color-cyan)");
     expect(block).toContain("background: transparent");
+    expect(block).toContain("border-radius: 0");
     expect(block).not.toMatch(/glow/i);
     expect(block).not.toMatch(/rgba\(34,\s*211,\s*238/);
+  });
+
+  it("Money HōMI is a full-height column, not a floating overlay card", () => {
+    const css = readFileSync(resolve(process.cwd(), "app/globals.css"), "utf8");
+    const start = css.indexOf("/* Money HōMI is a full-height column");
+    expect(start).toBeGreaterThan(-1);
+    const block = css.slice(start, start + 900);
+    expect(block).toContain("background: transparent");
+    expect(block).toContain("border-radius: 0");
+    expect(block).toContain("border-left: 1px solid");
+    expect(block).not.toMatch(/position:\s*fixed/);
+    expect(block).not.toMatch(/position:\s*absolute/);
   });
 });
