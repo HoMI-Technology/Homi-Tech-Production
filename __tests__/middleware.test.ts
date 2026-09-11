@@ -210,6 +210,33 @@ describe("CCP v1 `/home` activation", () => {
     expect(res.headers.get("location")).toBeNull();
   });
 
+  it("flag on lets employee operate home pass the CCP gate via /employee prefix", async () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
+    for (const path of ["/employee", "/employee/dashboard", "/employee/dashboard/depth"]) {
+      const res = await middleware(req(path));
+      expect(res.status, path).toBe(200);
+      expect(res.headers.get("location"), path).toBeNull();
+    }
+  });
+
+  it("flag off folds employee operate home onto `/`", async () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "false");
+    for (const path of ["/employee", "/employee/dashboard"]) {
+      const res = await middleware(req(path));
+      expect(res.status, path).toBe(307);
+      expect(pathname(res), path).toBe("/");
+    }
+  });
+
+  it("flag on does not reopen partner, admin, or team (K2–K4)", async () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
+    for (const path of ["/partner/dashboard", "/admin", "/team"]) {
+      const res = await middleware(req(path));
+      expect(res.status, path).toBe(307);
+      expect(pathname(res), path).toBe("/");
+    }
+  });
+
   it("flag on lets system surfaces pass the CCP gate, including /money/bills via /money prefix", async () => {
     vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
     for (const path of ["/money/bills", "/tools", "/learn", "/connections", "/settings"]) {

@@ -41,6 +41,7 @@ export const V4_ASK_PLACEHOLDER_TOOLS = "Ask HōMI about these tools...";
 export const V4_ASK_PLACEHOLDER_LEARN = "Ask HōMI about this learning...";
 export const V4_ASK_PLACEHOLDER_ACCOUNTS = "Ask HōMI about these accounts...";
 export const V4_ASK_PLACEHOLDER_SETTINGS = "Ask HōMI about these settings...";
+export const V4_ASK_PLACEHOLDER_WORKSPACE = "Ask HōMI about this workspace...";
 
 export const V4_ASSESS_VISUAL_STATES = ["pillar-intro", "mid-walk"] as const;
 export type V4AssessVisualState = (typeof V4_ASSESS_VISUAL_STATES)[number];

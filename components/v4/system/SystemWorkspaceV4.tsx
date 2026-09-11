@@ -7,7 +7,10 @@ import type { V4AssessHomiPrompt } from "@/lib/v4/assessment-walk";
 import type { SystemV4Cta } from "@/lib/v4/system-surfaces";
 
 export type SystemWorkspaceV4Props = {
-  surface: Extract<HomiV4Surface, "bills" | "tools" | "learn" | "accounts" | "settings">;
+  surface: Extract<
+    HomiV4Surface,
+    "bills" | "tools" | "learn" | "accounts" | "settings" | "employee"
+  >;
   kind: string;
   hardStopActive: boolean;
   decisionContext: string | null;

@@ -25,7 +25,7 @@ describe("PR4 live routes only — no invented homes", () => {
     expect(existsSync(resolve(process.cwd(), "app/(product)/team/dashboard/page.tsx"))).toBe(false);
     expect(existsSync(resolve(process.cwd(), "app/(product)/employee/page.tsx"))).toBe(false);
     expect(existsSync(resolve(process.cwd(), "app/(product)/partner/page.tsx"))).toBe(false);
-    expect(employee).toContain('role="employee"');
+    expect(employee).toContain("EmployeeWorkspaceV4");
     expect(partner).toContain('role="partner"');
     expect(admin).toContain('role="admin"');
     expect(team).toContain('role="team"');
@@ -53,18 +53,19 @@ describe("PR4 employee leftover kills", () => {
     expect(employee).not.toContain("ThresholdFold");
     expect(employee).not.toContain("ThresholdCompass");
     expect(employee).not.toContain("financial_score");
-    expect(employee).toContain("Your score here");
-    expect(employee).toMatch(/label:\s*"Your score here"[\s\S]*value:\s*"—"/);
+    expect(employee).not.toContain("Your score here");
+    expect(employee).not.toContain("MetricRail");
+    expect(employee).not.toContain("OperateHeroMeta");
+    expect(employee).not.toContain("PageFrame");
   });
 
-  it("keeps privacy / OperateHeroMeta / PageFrame / MetricRail", () => {
-    expect(employee).toContain('data-employee-privacy=""');
-    expect(employee).toContain("OperateHeroMeta");
-    expect(employee).toContain('role="employee"');
-    expect(employee).toContain("MetricRail");
-    expect(employee).toContain("What your employer sees");
-    expect(employee).toContain("What stays yours");
-    expect(employee).toContain('tone="operate"');
+  it("keeps Shell v4 employee operate home — privacy chrome, live route only", () => {
+    expect(employee).toContain("EmployeeWorkspaceV4");
+    expect(employee).toContain("assertAssessmentResultOnly");
+    expect(employee).toContain("/employee/dashboard");
+    expect(employee).not.toContain("/partner/dashboard");
+    expect(employee).not.toContain("/admin");
+    expect(employee).not.toContain("/team");
   });
 });
 
@@ -116,7 +117,6 @@ describe("PR4 team leftover kills", () => {
 
 describe("PR5 craft-residue chrome — operate voice, no new URLs", () => {
   it("first-paint labels drop WORD crumbs and raw path crumbs", () => {
-    expect(employee).toMatch(/>\s*Employee\s*<\/p>/);
     expect(employee).not.toContain("Employee · /employee/dashboard");
     expect(partner).toMatch(/>\s*Partner\s*<\/p>/);
     expect(partner).not.toContain("Partner · /partner/dashboard");

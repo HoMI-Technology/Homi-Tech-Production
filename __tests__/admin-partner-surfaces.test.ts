@@ -125,17 +125,11 @@ describe("partner + employee surfaces doctrine", () => {
     expect(page).not.toMatch(/data-partner-resources[\s\S]*glass-hover/);
   });
 
-  it("Employee hub keeps privacy and Path ghost — score rail unmounted", () => {
+  it("Employee hub is Shell v4 operate home — score theater unmounted", () => {
     const page = read("app/(product)/employee/dashboard/page.tsx");
-    expect(page).toMatch(/>\s*Employee\s*<\/p>/);
     expect(page).not.toContain("Employee · /employee/dashboard");
-    expect(page).toContain('data-employee-privacy=""');
-    expect(page).toContain("OperateHeroMeta");
-    expect(page).toContain("MetricRail");
-    expect(page).toContain("EmptyState");
-    expect(page).toContain('tone="operate"');
-    expect(page).toContain("What your employer sees");
-    expect(page).toContain("Your score here");
+    expect(page).toContain("EmployeeWorkspaceV4");
+    expect(page).toContain("assertAssessmentResultOnly");
     expect(page).not.toContain("HeroScore");
     expect(page).not.toContain("VerdictBadge");
     expect(page).not.toContain("data-employee-score-rail");
@@ -153,11 +147,12 @@ describe("partner + employee surfaces doctrine", () => {
     expect(page).not.toContain("financial_score");
     expect(page).not.toContain("overall_score");
     expect(page).not.toContain("ThresholdCompass");
-    // Six-card product wall removed
+    expect(page).not.toContain("MetricRail");
+    expect(page).not.toContain("OperateHeroMeta");
+    expect(page).not.toContain("PageFrame");
+    expect(page).not.toContain("Your score here");
     expect(page).not.toMatch(/glass glass-hover block p-4[\s\S]*Path to Ready/);
     expect(page).not.toMatch(/title: "Companion"/);
-    const pathLink = page.match(/<Link[^>]*href="\/path"[^>]*>/);
-    expect(pathLink?.[0] ?? "").toMatch(/btn-ghost/);
   });
 
   it("Team stays aggregate-only with no named individuals copy", () => {

@@ -10,8 +10,8 @@ import {
   V4_COMMAND_ITEMS,
   V4_SHELL_ASSESS_HREF,
   V4_SHELL_ASK_HREF,
+  isV4AskOnlyPath,
   isV4AssessPath,
-  isV4SystemSurfacePath,
 } from "@/lib/layout/v4-shell";
 import { useAssessmentWalkChrome } from "@/components/v4/assessment/AssessmentWalkChrome";
 
@@ -37,7 +37,7 @@ export function V4TopCommand({
   const nameBit = firstName ? `, ${firstName}` : "";
   const { chrome } = useAssessmentWalkChrome();
   const assessActive = isV4AssessPath(pathname ?? "");
-  const askOnly = isV4SystemSurfacePath(pathname ?? "");
+  const askOnly = isV4AskOnlyPath(pathname ?? "");
   const askPlaceholder = chrome.askPlaceholder;
   const commandLabel = chrome.commandLabel;
   const workspacePrompts = chrome.prompts;
