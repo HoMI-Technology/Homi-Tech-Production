@@ -10,7 +10,7 @@
  * The file stays so no lingering import breaks a build. Delete it once nothing
  * references it.
  *
- * @deprecated Renders nothing. See components/money/MoneyStand.tsx.
+ * @deprecated Renders nothing. Live `/money` is MoneyWorkspaceV4.
  */
 export function MoneyPicturePanel() {
   return null;

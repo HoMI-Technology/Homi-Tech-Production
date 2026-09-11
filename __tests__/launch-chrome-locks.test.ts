@@ -25,10 +25,13 @@ describe("launch chrome locks", () => {
     }
   });
 
-  it("Money Stand has no Ask Homie /advisor launcher", () => {
-    const stand = read("components/money/MoneyStand.tsx");
-    expect(stand).not.toMatch(/Ask Homie/);
-    expect(stand).not.toMatch(/\/advisor/);
+  it("live /money has no Ask Homie /advisor launcher", () => {
+    const moneyPage = read("app/(product)/money/page.tsx");
+    const ui = read("components/v4/money/MoneyWorkspaceV4.tsx");
+    expect(moneyPage).not.toMatch(/Ask Homie/);
+    expect(moneyPage).not.toMatch(/\/advisor/);
+    expect(ui).not.toMatch(/Ask Homie/);
+    expect(ui).not.toMatch(/\/advisor/);
   });
 
   it("dashboard next-move and featured actions do not launch /advisor", () => {

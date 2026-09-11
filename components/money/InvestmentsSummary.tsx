@@ -17,7 +17,7 @@
  *
  * The full investments UI (holdings table, allocation donut, add/edit) stays
  * on /money/investments; this panel is summary + entry point only. The deep
- * link stays live and MoneyModeNav lights Reality for it.
+ * link stays live; Investments is not a peer nav tab.
  */
 
 import Link from "next/link";

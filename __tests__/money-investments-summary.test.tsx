@@ -20,7 +20,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import type { Holding } from "@/lib/planner/types";
 import type { PlaidHoldingView } from "@/lib/plaid/holdings-view";
-import { MONEY_MODES, modeFromPath } from "@/components/money/MoneyModeNav";
+import { NAV_CATALOG } from "@/lib/layout/nav-catalog";
 
 const storeState = {
   holdings: [] as Holding[],
@@ -124,17 +124,20 @@ describe("InvestmentsSummary", () => {
 });
 
 describe("Investments fold under Reality (static locks)", () => {
-  const stand = read("components/money/MoneyStand.tsx");
+  const moneyPage = read("app/(product)/money/page.tsx");
+  const moneyUi = read("components/v4/money/MoneyWorkspaceV4.tsx");
 
-  it("MoneyStand keeps investments off the quiet picture — depth lives on /money/investments", () => {
-    expect(stand).not.toContain("InvestmentsSummary");
-    expect(stand).not.toContain("ScoreRail");
-    expect(stand).not.toContain("OperateInstrument");
+  it("live /money keeps investments off the quiet picture — depth lives on /money/investments", () => {
+    expect(moneyPage).not.toContain("InvestmentsSummary");
+    expect(moneyUi).not.toContain("InvestmentsSummary");
+    expect(moneyUi).not.toContain("ScoreRail");
+    expect(moneyUi).not.toContain("OperateInstrument");
   });
 
   it("does not remount a ScoreRail or surplus instrument on /money", () => {
-    expect(stand).not.toContain("ScoreRail");
-    expect(stand).not.toContain("OperateInstrument");
+    expect(moneyPage).not.toContain("ScoreRail");
+    expect(moneyUi).not.toContain("ScoreRail");
+    expect(moneyUi).not.toContain("OperateInstrument");
   });
 
   it("the /money/investments deep link stays live with its full surface intact", () => {
@@ -144,21 +147,10 @@ describe("Investments fold under Reality (static locks)", () => {
     const surface = read("app/(product)/money/investments/InvestmentsSurface.tsx");
     expect(surface).toContain("PlaidHoldingsPanel");
     expect(surface).toContain("PortfolioPanel");
-    // Reality lights for the folded route — deep links keep working.
-    expect(modeFromPath("/money/investments")).toBe("reality");
   });
 
   it("no nav chrome re-presents Investments as a 6th peer tab", () => {
-    expect(MONEY_MODES).toHaveLength(5);
-    expect(MONEY_MODES.some((m) => m.href === "/money/investments")).toBe(false);
-    expect(MONEY_MODES.map((m) => m.label)).toEqual([
-      "Readiness",
-      "Reality",
-      "Decide",
-      "Plan",
-      "Goals",
-    ]);
-    // Desktop sidebar + mobile drawer derive from the same catalog — no Invest entry.
+    expect(NAV_CATALOG.some((e) => e.href === "/money/investments")).toBe(false);
     const sidebar = read("components/layout/AppSidebar.tsx");
     expect(sidebar).not.toContain("/money/investments");
     const bottomNav = read("components/layout/ProductBottomNav.tsx");

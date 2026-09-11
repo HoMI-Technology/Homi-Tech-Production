@@ -5211,41 +5211,6 @@ body {
   }
 }
 
-/* Horizontal mode tabs — Stand / Track / Decide / Plan, always labeled.
-   Scrolls rather than wraps on narrow screens so the row stays one line. */
-.money-mode-nav {
-  display: flex;
-  gap: 0;
-  padding: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.money-mode-nav::-webkit-scrollbar {
-  display: none;
-}
-.money-mode-tab {
-  padding: 0.75rem 1.25rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-dim);
-  text-decoration: none;
-  border-bottom: 2px solid transparent;
-  transition:
-    color 150ms ease,
-    border-color 150ms ease;
-  white-space: nowrap;
-}
-.money-mode-tab:hover {
-  color: var(--color-light);
-}
-.money-mode-tab[data-active="true"] {
-  color: var(--color-cyan);
-  border-bottom-color: var(--color-cyan);
-}
-
 /* Data strip — hairline-separated cells, no boxes. Replaces the MiniTile
    grid in the hero and the MetricRail below it. Wraps before it squeezes:
    four cells become 2x2 on a phone rather than four unreadable columns. */

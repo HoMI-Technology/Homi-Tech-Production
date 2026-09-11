@@ -3,7 +3,7 @@
  * Empty or live SSOT. No surplus hero, no second score.
  */
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -14,7 +14,6 @@ function read(rel: string): string {
 const workspace = read("lib/v4/money-workspace.ts");
 const page = read("app/(product)/money/page.tsx");
 const ui = read("components/v4/money/MoneyWorkspaceV4.tsx");
-const stand = read("components/money/MoneyStand.tsx");
 
 describe("Money picture — quiet v4 workspace", () => {
   it("page mounts MoneyWorkspaceV4 without a second score write", () => {
@@ -43,10 +42,10 @@ describe("Money picture — quiet v4 workspace", () => {
 });
 
 describe("Money picture — honesty contract", () => {
-  it("legacy Stand file stays on disk without becoming the v4 page", () => {
-    expect(stand).toContain("Unknown · Path evidence");
-    expect(stand).toContain("None invented · ledger only");
+  it("unmounted MoneyStand satellite is gone — live /money is MoneyWorkspaceV4", () => {
+    expect(existsSync(resolve(process.cwd(), "components/money/MoneyStand.tsx"))).toBe(false);
     expect(page).not.toContain("MoneyStand");
+    expect(ui).not.toContain("MoneyStand");
   });
 
   it("educational posture stays on the money surface", () => {

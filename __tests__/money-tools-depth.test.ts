@@ -78,11 +78,12 @@ describe("money-tools depth doctrine", () => {
     expect(ready.secondaryHref).toBe("/money/decide");
   });
 
-  it("Money Stand and Tools hub declare educational-only posture", () => {
-    const stand = read("components/money/MoneyStand.tsx");
-    expect(stand).toMatch(/educational/i);
-    expect(stand).toMatch(/not provide financial, tax, mortgage, or investment/i);
-    expect(stand).not.toMatch(/you should buy|limited time|FOMO/i);
+  it("Money v4 and Tools hub declare educational-only posture", () => {
+    const moneyPage = read("app/(product)/money/page.tsx");
+    const workspace = read("lib/v4/money-workspace.ts");
+    expect(moneyPage).toMatch(/Educational/);
+    expect(workspace).toMatch(/never invent balances/);
+    expect(moneyPage).not.toMatch(/you should buy|limited time|FOMO/i);
 
     const hub = read("app/(product)/tools/page.tsx");
     expect(hub).toMatch(/Educational estimates/);

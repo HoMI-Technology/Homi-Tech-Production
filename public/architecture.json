@@ -13,7 +13,7 @@
     "authority": "Executable TypeScript in this repo wins over this document. Prefer lib/scoring, lib/brand, lib/agents/registry on conflict."
   },
   "stats": {
-    "product_routes": 111,
+    "product_routes": 112,
     "api_routes": 28,
     "component_directories": 36,
     "lib_modules": 52,
@@ -159,6 +159,14 @@
       "status": "complete",
       "features": [],
       "file": "app/(marketing)/artifact/page.tsx"
+    },
+    {
+      "path": "/ask",
+      "name": "Ask",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/ask/page.tsx"
     },
     {
       "path": "/assessment",
@@ -1212,14 +1220,12 @@
     },
     {
       "name": "finance",
-      "count": 5,
+      "count": 3,
       "description": "finance UI module",
       "examples": [
         "HardStopBanner",
         "ObservedPrefillCard",
-        "ThresholdCompass",
-        "WarningsBanner",
-        "readiness-types"
+        "WarningsBanner"
       ]
     },
     {
@@ -1278,14 +1284,14 @@
     },
     {
       "name": "money",
-      "count": 9,
+      "count": 6,
       "description": "money UI module",
       "examples": [
         "InvestmentsSummary",
         "MoneyDecideHub",
-        "MoneyModeNav",
-        "MoneyModeRail",
-        "MoneyPicturePanel"
+        "MoneyPicturePanel",
+        "MoneyRecheckPrompt",
+        "MoneyShell"
       ]
     },
     {
@@ -1411,7 +1417,7 @@
     },
     {
       "name": "ui",
-      "count": 35,
+      "count": 34,
       "description": "ui UI module",
       "examples": [
         "AnimatedNumber",
@@ -1423,14 +1429,14 @@
     },
     {
       "name": "v4",
-      "count": 22,
+      "count": 24,
       "description": "v4 UI module",
       "examples": [
         "HomeV4.test",
         "HomeV4",
         "HomeV4HomiRail",
-        "AssessmentWalkChrome",
-        "AssessmentWalkFixtureV4"
+        "ContextualHomiV4.test",
+        "ContextualHomiV4"
       ]
     }
   ],

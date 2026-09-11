@@ -14,8 +14,9 @@ function read(rel: string): string {
   return readFileSync(resolve(process.cwd(), rel), "utf8");
 }
 
-const stand = read("components/money/MoneyStand.tsx");
 const moneyPage = read("app/(product)/money/page.tsx");
+const moneyUi = read("components/v4/money/MoneyWorkspaceV4.tsx");
+const moneyWorkspace = read("lib/v4/money-workspace.ts");
 const moneyShell = read("components/money/MoneyShell.tsx");
 const pathPage = read("app/(product)/path/page.tsx");
 const workbench = read("components/readiness/PathWorkbench.tsx");
@@ -37,7 +38,7 @@ describe("CEO chrome defaults 1–7 (founder skipped picker)", () => {
     expect(existsSync(resolve(process.cwd(), "app/(product)/tools/page.tsx"))).toBe(true);
     expect(pathPage).toContain("PathWorkspaceV4");
     expect(moneyPage).toContain("MoneyWorkspaceV4");
-    expect(stand).toContain("Stand job on live `/money`");
+    expect(moneyPage).not.toContain("MoneyStand");
     expect(toolsHub).toContain("Decide job primary surface");
   });
 
@@ -123,29 +124,22 @@ describe("PR3 topology — live routes only", () => {
 
 describe("PR3 Stand — /money empty honesty, no theater", () => {
   it("empty state uses connect-accounts honesty", () => {
-    expect(stand).toContain("Connect accounts to see money reality");
-    expect(stand).toContain("Ledger truth lives here when accounts are real. No estimated net worth.");
-    expect(stand).toContain("Connect accounts");
-    expect(stand).toContain("Record manually");
-    expect(stand).toContain('href="/connections"');
-    expect(stand).toContain('href="/money/budget"');
+    expect(moneyWorkspace).toContain("never invent balances");
+    expect(moneyWorkspace).toContain("V4_MONEY_CONNECT_HREF");
+    expect(moneyUi).toContain("data-money-v4-connect");
+    expect(moneyUi).toContain("view.connectHref");
   });
 
   it("data state is quiet facts under the verdict — no surplus hero or score rail", () => {
-    expect(stand).toContain("Your money picture");
-    expect(stand).toContain("Facts under the verdict");
-    expect(stand).toContain("Liquid cash");
-    expect(stand).toContain("Emergency runway");
-    expect(stand).toContain("Flags");
-    expect(stand).toContain("Score history · age as evidence");
-    expect(stand).not.toContain("InvestmentsSummary");
-    expect(stand).not.toContain("ScoreRail");
-    expect(stand).not.toContain("OperateInstrument");
-    expect(stand).not.toContain("AnimatedNumber");
-    expect(stand).not.toContain("ThresholdCompass");
-    expect(stand).not.toContain("font-display");
-    expect(stand).not.toContain("text-6xl");
-    expect(stand).not.toContain("text-7xl");
+    expect(moneyWorkspace).toContain("Liquid cash");
+    expect(moneyUi).not.toContain("InvestmentsSummary");
+    expect(moneyUi).not.toContain("ScoreRail");
+    expect(moneyUi).not.toContain("OperateInstrument");
+    expect(moneyUi).not.toContain("AnimatedNumber");
+    expect(moneyUi).not.toContain("ThresholdCompass");
+    expect(moneyUi).not.toContain("font-display");
+    expect(moneyUi).not.toContain("text-6xl");
+    expect(moneyUi).not.toContain("text-7xl");
     expect(moneyPage).not.toContain("ScoreRail");
     expect(moneyPage).not.toContain("MoneyStand");
     expect(moneyPage).not.toMatch(/\.insert\(|\.upsert\(|\.update\(/);
