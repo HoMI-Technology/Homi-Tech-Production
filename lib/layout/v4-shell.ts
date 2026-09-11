@@ -19,6 +19,8 @@ export type V4NavItem = {
 
 export const V4_SHELL_HOME_HREF = "/home" as const;
 export const V4_SHELL_ASSESS_HREF = "/assessment" as const;
+export const V4_SHELL_PATH_HREF = "/path" as const;
+export const V4_SHELL_MONEY_HREF = "/money" as const;
 export const V4_SHELL_ASK_HREF = "/home" as const;
 export const V4_SHELL_COMPASS_SIZE = 32 as const;
 /** Ultra Premium rail — 216–228. */
@@ -30,9 +32,9 @@ export const V4_COMMAND_HEIGHT_PX = 64 as const;
 
 /** Product law primary order — do not paint Path before Money. */
 export const V4_PRIMARY_NAV: readonly V4NavItem[] = [
-  { href: "/home", label: "Home" },
-  { href: "/money", label: "Money" },
-  { href: "/path", label: "Path" },
+  { href: V4_SHELL_HOME_HREF, label: "Home" },
+  { href: V4_SHELL_MONEY_HREF, label: "Money" },
+  { href: V4_SHELL_PATH_HREF, label: "Path" },
   { href: "/scenarios", label: "Compare" },
 ] as const;
 
@@ -48,9 +50,9 @@ export const V4_SYSTEM_NAV: readonly V4NavItem[] = [
 ] as const;
 
 export const V4_MOBILE_TABS: readonly V4NavItem[] = [
-  { href: "/home", label: "Home" },
-  { href: "/money", label: "Money" },
-  { href: "/path", label: "Path" },
+  { href: V4_SHELL_HOME_HREF, label: "Home" },
+  { href: V4_SHELL_MONEY_HREF, label: "Money" },
+  { href: V4_SHELL_PATH_HREF, label: "Path" },
   { href: "/scenarios", label: "Compare" },
 ] as const;
 
@@ -83,6 +85,11 @@ export function isV4NavActive(pathname: string, href: string): boolean {
 export function isV4AssessPath(pathname: string): boolean {
   const p = pathname || "/";
   return p === V4_SHELL_ASSESS_HREF || p.startsWith(`${V4_SHELL_ASSESS_HREF}/`);
+}
+
+export function isV4PathWorkspace(pathname: string): boolean {
+  const p = pathname || "/";
+  return p === V4_SHELL_PATH_HREF || p.startsWith(`${V4_SHELL_PATH_HREF}/`);
 }
 
 export function v4ShellShowsHomiRail(pathname: string): boolean {

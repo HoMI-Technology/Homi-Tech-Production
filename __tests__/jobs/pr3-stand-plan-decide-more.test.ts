@@ -35,7 +35,7 @@ describe("CEO chrome defaults 1–7 (founder skipped picker)", () => {
     expect(existsSync(resolve(process.cwd(), "app/(product)/path/page.tsx"))).toBe(true);
     expect(existsSync(resolve(process.cwd(), "app/(product)/money/page.tsx"))).toBe(true);
     expect(existsSync(resolve(process.cwd(), "app/(product)/tools/page.tsx"))).toBe(true);
-    expect(pathPage).toContain('job="path"');
+    expect(pathPage).toContain("PathWorkspaceV4");
     expect(stand).toContain("Stand job on live `/money`");
     expect(toolsHub).toContain("Decide job primary surface");
   });
@@ -49,8 +49,8 @@ describe("CEO chrome defaults 1–7 (founder skipped picker)", () => {
   });
 
   it("3 Path SSOT stays on /path, separate from Money plan/budget", () => {
-    expect(pathPage).toContain("PathWorkbench");
-    expect(pathPage).toContain("Budget and goals stay depth");
+    expect(pathPage).toContain("PathWorkspaceV4");
+    expect(pathPage).not.toContain("MoneyStand");
     expect(moneyPlan).toContain("Money plan · depth");
     expect(existsSync(resolve(process.cwd(), "app/(product)/money/budget/page.tsx"))).toBe(true);
     expect(existsSync(resolve(process.cwd(), "app/(product)/money/plan/page.tsx"))).toBe(true);
@@ -111,8 +111,8 @@ describe("PR3 topology — live routes only", () => {
   });
 
   it("keeps Path SSOT on /path separate from Money plan/budget", () => {
-    expect(pathPage).toContain('job="path"');
-    expect(pathPage).toContain("PathWorkbench");
+    expect(pathPage).toContain("PathWorkspaceV4");
+    expect(pathPage).toContain("/path");
     expect(moneyPlan).toContain("Money plan · depth");
     expect(moneyPlan).not.toMatch(/pulse the Decision Readiness Score/);
     expect(existsSync(resolve(process.cwd(), "app/(product)/money/budget/page.tsx"))).toBe(true);
@@ -157,8 +157,7 @@ describe("PR3 Stand — /money empty honesty, no theater", () => {
 
 describe("PR3 Plan — Path workbench max 7", () => {
   it("Path to Ready title, max 7, one next step, no body compass", () => {
-    expect(pathPage).toContain("Path to Ready");
-    expect(pathPage).toContain("MAX_PATH_STEPS");
+    expect(pathPage).toContain("PathWorkspaceV4");
     expect(MAX_PATH_STEPS).toBe(7);
     expect(pathPage).not.toContain("ThresholdCompass");
     expect(pathPage).not.toContain("PathProgressHero");

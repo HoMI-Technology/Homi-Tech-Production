@@ -1,7 +1,7 @@
 import { AlertTriangle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { COLORS, type VerdictKey } from "@/lib/brand";
-import { V4_SHELL_ASSESS_HREF } from "@/lib/layout/v4-shell";
+import { V4_SHELL_ASSESS_HREF, V4_SHELL_PATH_HREF } from "@/lib/layout/v4-shell";
 import { ReadinessGaugeV4 } from "@/components/v4/home/ReadinessGaugeV4";
 import { foldHoldClose, foldHoldLead } from "@/lib/dashboard/fold-truth";
 import { HOME_V4_PATH_CTA, type HomeV4View } from "@/lib/v4/home-state";
@@ -43,7 +43,7 @@ export function ReadinessHeroV4({ view }: { view: HomeV4View }) {
     : view.hasAssessment
       ? "One read. One next move."
       : "No assessment yet.";
-  const primaryHref = view.pathPrimary?.href ?? V4_SHELL_ASSESS_HREF;
+  const primaryHref = view.pathPrimary ? V4_SHELL_PATH_HREF : V4_SHELL_ASSESS_HREF;
   const primaryLabel = primaryCtaLabel(view);
   const verdictColor = verdictTone(view.verdictKey, view.hardStopActive);
 

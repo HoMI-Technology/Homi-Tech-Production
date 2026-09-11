@@ -134,6 +134,11 @@ screenshots. `HOMI_V4_HOME_ENABLED` default false.
   `{Pillar} · {n} of ~{m} this path`. Write path lands on `/home`. No guest
   official score. Fixture stills stay Preview-only
   (`HOMI_V4_VISUAL_FIXTURE`). Craft: `docs/design/ASSESSMENT_CRAFT_v4_2026-09-10.md`.
+- **Path is `/path`**, Shell v4 `main#main`, same flag. Max 7 steps from
+  AssessmentResult + `lib/readiness/path.ts`. Empty / hard-stop ACTIVE / normal /
+  complete. Home NextPath and rail Path land here. Body deep-links Assess and
+  Money only — no ledger / invent $. Compass stays in the shell. Craft:
+  `docs/design/PATH_CRAFT_v4_2026-09-10.md`.
 - Finance GATE: score / verdict / hard stops from **AssessmentResult only**.
 - Activation: `HOMI_V4_HOME_ENABLED` default **false** (CCP / ADR-005).
   Pixel Gate: do not undraft or expose `/home` until founder APPROVE VISUAL

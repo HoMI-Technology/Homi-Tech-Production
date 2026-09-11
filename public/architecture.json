@@ -1,7 +1,7 @@
 {
   "_meta": {
     "version": "v1",
-    "generated": "2026-09-09",
+    "generated": "2026-09-10",
     "product": "HōMI",
     "full_name": "Homi Technologies LLC — Decision Readiness Intelligence™",
     "domain": "homitechnology.com",
@@ -13,10 +13,10 @@
     "authority": "Executable TypeScript in this repo wins over this document. Prefer lib/scoring, lib/brand, lib/agents/registry on conflict."
   },
   "stats": {
-    "product_routes": 110,
+    "product_routes": 111,
     "api_routes": 28,
-    "component_directories": 35,
-    "lib_modules": 51,
+    "component_directories": 36,
+    "lib_modules": 52,
     "db_tables": 44,
     "migrations": 58,
     "calculators": 14,
@@ -367,6 +367,14 @@
       "status": "complete",
       "features": [],
       "file": "app/(marketing)/guides/hard-stops/page.tsx"
+    },
+    {
+      "path": "/home",
+      "name": "Home",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/home/page.tsx"
     },
     {
       "path": "/household",
@@ -1238,7 +1246,7 @@
     },
     {
       "name": "layout",
-      "count": 29,
+      "count": 35,
       "description": "layout UI module",
       "examples": [
         "AppHeader",
@@ -1411,6 +1419,18 @@
         "ChartTooltip",
         "DashboardLoadingSkeleton",
         "EmptyState"
+      ]
+    },
+    {
+      "name": "v4",
+      "count": 18,
+      "description": "v4 UI module",
+      "examples": [
+        "HomeV4.test",
+        "HomeV4",
+        "HomeV4HomiRail",
+        "AssessmentWalkChrome",
+        "AssessmentWalkFixtureV4"
       ]
     }
   ],
@@ -1610,6 +1630,10 @@
     {
       "name": "twin",
       "purpose": "twin domain module"
+    },
+    {
+      "name": "v4",
+      "purpose": "v4 domain module"
     },
     {
       "name": "validation",

@@ -16,7 +16,7 @@ These are **not** fixed in this PR. Tests were not softened.
 ## Route-state gaps (32)
 
 See `ROUTE_STATE_GAPS` in `__tests__/policy/rules/route-state-coverage.test.ts`.
-Examples: `app/(product)/assessment/page.tsx` (no loading/error), `app/(product)/path/page.tsx` (no loading), partner/employee/team dashboards (no error).
+Examples: `app/(product)/assessment/page.tsx` (no loading/error), partner/employee/team dashboards (no error). `/path` now has `loading.tsx` + `error.tsx`.
 
 ## Brand pixel QA (unique 3bd5471 URL)
 

@@ -11,8 +11,11 @@ import {
   V4_SECONDARY_NAV,
   V4_SYSTEM_NAV,
   V4_SHELL_ASSESS_HREF,
+  V4_SHELL_MONEY_HREF,
+  V4_SHELL_PATH_HREF,
   isV4AssessPath,
   isV4NavActive,
+  isV4PathWorkspace,
   v4ShellShowsHomiRail,
 } from "@/lib/layout/v4-shell";
 
@@ -69,9 +72,13 @@ describe("Shell v4 nav law", () => {
     expect(V4_PRIMARY_NAV.map((item) => item.label)).not.toContain("Tools");
     expect(V4_COMMAND_ITEMS.some((item) => item.label === "Assess")).toBe(true);
     expect(V4_SHELL_ASSESS_HREF).toBe("/assessment");
+    expect(V4_SHELL_PATH_HREF).toBe("/path");
+    expect(V4_SHELL_MONEY_HREF).toBe("/money");
     expect(isV4AssessPath("/assessment")).toBe(true);
+    expect(isV4PathWorkspace("/path")).toBe(true);
     expect(isV4NavActive("/assessment", "/home")).toBe(false);
     expect(isV4NavActive("/assessment", "/path")).toBe(false);
+    expect(isV4NavActive("/path", "/path")).toBe(true);
   });
 
   it("keeps Assess off mobile tabs and More", () => {

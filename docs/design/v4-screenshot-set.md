@@ -1,13 +1,14 @@
-# Pixel Gate — Home v4 + Assessment v4 screenshot set
+# Pixel Gate — Home v4 + Assessment v4 + Path v4 screenshot set
 
 Stay-draft until founder **APPROVE VISUAL DIRECTION**. Do not undraft, do not
 merge, do not deploy Production. Production may already have
-`HOMI_V4_HOME_ENABLED=true`; that is not Pixel Gate for Assessment v4.
+`HOMI_V4_HOME_ENABLED=true`; that is not Pixel Gate for Path v4.
 
 Operator Preview / local stills: `HOMI_V4_HOME_ENABLED=true` **and**
 `HOMI_V4_VISUAL_FIXTURE=true`, then `/home?visual=hard-stop` (State A),
 `empty`, `money-disconnected`, `normal`. Assessment walk stills:
-`/assessment?visual=pillar-intro`, `/assessment?visual=mid-walk`. Those URLs
+`/assessment?visual=pillar-intro`, `/assessment?visual=mid-walk`. Path stills:
+`/path?visual=empty`, `hard-stop`, `normal`, `complete`. Those URLs
 must paint **ShellV4** (left rail + top command), never marketing SiteHeader.
 Fixture stays Preview-only. Flag stays operator-set.
 
@@ -31,12 +32,21 @@ Fixture stays Preview-only. Flag stays operator-set.
 | `/assessment?visual=pillar-intro` | Quiet Financial Reality intro + path-true count |
 | `/assessment?visual=mid-walk` | Quiet progress + live bank question (down payment) |
 
-Mocks (`assessment-pillar-intro-v4`, `assessment-mid-walk-v4`) are
-orientation only — **≠ PIXEL**. Live bank choice labels win over mock labels.
+## Path states (PR F)
+
+| Query | Intent |
+| --- | --- |
+| `/path?visual=empty` | No read yet — Assess CTA, no fake steps |
+| `/path?visual=hard-stop` | Hard-stop ACTIVE hold + honest steps addressing the stop |
+| `/path?visual=normal` | ≤7 honest steps, no hold chrome |
+| `/path?visual=complete` | Done steps, no pad-to-7 |
+
+Mocks (`path-empty-v4`, `path-hard-stop-v4`) are orientation only — **≠ PIXEL**.
+Live path-rules titles win over mock step labels.
 
 ## Gate
 
-Architecture → real rendered Home + Assessment → this set → internal ≥92/100 →
+Architecture → real rendered Home + Assessment + Path → this set → internal ≥92/100 →
 founder APPROVE VISUAL DIRECTION → then undraft / merge.
 
 Stills land under `docs/design/baseline/` when captured. This PR does not
