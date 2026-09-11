@@ -9,8 +9,11 @@ import {
   V4_EMPLOYEE_OPERATE_NAV,
   V4_MOBILE_TABS,
   V4_MORE_NAV,
+  V4_PARTNER_MOBILE_TABS,
+  V4_PARTNER_OPERATE_NAV,
   isV4EmployeeWorkspace,
   isV4NavActive,
+  isV4PartnerWorkspace,
 } from "@/lib/layout/v4-shell";
 
 /**
@@ -22,8 +25,17 @@ export function V4MobileNav() {
   const [moreOpen, setMoreOpen] = useState(false);
   const MoreIcon = V4_NAV_ICONS.More;
   const employee = isV4EmployeeWorkspace(pathname);
-  const tabs = employee ? V4_EMPLOYEE_MOBILE_TABS : V4_MOBILE_TABS;
-  const moreItems = employee ? V4_EMPLOYEE_OPERATE_NAV : V4_MORE_NAV;
+  const partner = isV4PartnerWorkspace(pathname);
+  const tabs = partner
+    ? V4_PARTNER_MOBILE_TABS
+    : employee
+      ? V4_EMPLOYEE_MOBILE_TABS
+      : V4_MOBILE_TABS;
+  const moreItems = partner
+    ? V4_PARTNER_OPERATE_NAV
+    : employee
+      ? V4_EMPLOYEE_OPERATE_NAV
+      : V4_MORE_NAV;
 
   return (
     <>

@@ -9,7 +9,7 @@ import type { SystemV4Cta } from "@/lib/v4/system-surfaces";
 export type SystemWorkspaceV4Props = {
   surface: Extract<
     HomiV4Surface,
-    "bills" | "tools" | "learn" | "accounts" | "settings" | "employee"
+    "bills" | "tools" | "learn" | "accounts" | "settings" | "employee" | "partner"
   >;
   kind: string;
   hardStopActive: boolean;

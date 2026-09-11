@@ -11,6 +11,7 @@ import {
   Search,
   Settings,
   Shield,
+  UserPlus,
   Wallet,
   Wrench,
 } from "lucide-react";
@@ -29,5 +30,7 @@ export const V4_NAV_ICONS: Record<string, LucideIcon> = {
   Settings,
   Attention: Bell,
   Privacy: Shield,
+  Book: BookOpen,
+  Invite: UserPlus,
   More: MoreHorizontal,
 };

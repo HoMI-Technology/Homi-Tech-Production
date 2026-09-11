@@ -165,8 +165,14 @@ screenshots. `HOMI_V4_HOME_ENABLED` default false.
   flag. One shell · different jobs (Workspace Home · Operate Attention · Privacy).
   Empty or live operate SSOT only. Never invent teammate lists, scores, or $.
   Hard stop ACTIVE ⇒ never On track / READY. Ask: *Ask HōMI about this workspace...*.
-  K2–K4 (`/partner` `/admin` `/team`) stay closed. Craft:
-  `docs/design/EMPLOYEE_CRAFT_v4_2026-09-11.md`.
+  Craft: `docs/design/EMPLOYEE_CRAFT_v4_2026-09-11.md`.
+- **Partner operate home is `/partner/dashboard`**, Shell v4 `main#main`, same
+  flag. One shell · different jobs (Workspace Home · Operate Book · Invite).
+  Book pulse from live `referral_source` / SSOT only. Invite stays
+  `/first-moment?ref=`. SITE_URL fail-loud. Never invent a client list, scores,
+  or $. Empty CTA is Invite, not a Clarity question. Ask: *Ask HōMI about this
+  partner book...*. K3–K4 (`/admin` `/team`) stay closed. Craft:
+  `docs/design/PARTNER_CRAFT_v4_2026-09-11.md`.
 - Finance GATE: score / verdict / hard stops from **AssessmentResult only**.
 - Activation: `HOMI_V4_HOME_ENABLED` default **false** (CCP / ADR-005).
   Pixel Gate: do not undraft or expose `/home` until founder APPROVE VISUAL

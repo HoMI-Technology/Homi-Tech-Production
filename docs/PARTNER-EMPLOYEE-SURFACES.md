@@ -2,7 +2,10 @@
 
 **Employee (PR K):** `/employee/dashboard` is Shell v4 operate home when
 `HOMI_V4_HOME_ENABLED=true`. Privacy chrome + live operate SSOT only. No HeroScore.
-Partner / Admin / Team stay on this doctrine until K2–K4.
+**Partner (PR K2):** `/partner/dashboard` is Shell v4 operate home under the same
+flag. Book pulse from live `referral_source` / SSOT only. Invite stays
+`/first-moment?ref=`. SITE_URL fail-loud. No HeroScore. Admin / Team stay on this
+doctrine until K3–K4.
 Personal Home Path, Companion presence, and Money/Tools depth stay locked (Phases 1–3).
 
 Partner grows the **book**. Employee is **privacy / operate chrome**, not a second personal Home. Team stays **aggregates**.

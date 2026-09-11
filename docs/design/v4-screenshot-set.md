@@ -1,4 +1,4 @@
-# Pixel Gate — Home v4 + Assessment v4 + Path v4 + Money v4 + Compare v4 + Contextual HōMI + System surfaces + Employee screenshot set
+# Pixel Gate — Home v4 + Assessment v4 + Path v4 + Money v4 + Compare v4 + Contextual HōMI + System surfaces + Employee + Partner screenshot set
 
 Stay-draft until founder **APPROVE VISUAL DIRECTION**. Do not undraft, do not
 merge, do not deploy Production. Production may already have
@@ -117,10 +117,22 @@ Mocks (`employee-empty-v4`, `employee-hard-stop-v4`, `employee-normal-v4`) are
 orientation only — **≠ PIXEL**. Never invent $ or a second official score.
 No craft-badge prose in the Production fold.
 
+## Partner states (PR K2)
+
+| Query | Intent |
+| --- | --- |
+| `/partner/dashboard?visual=empty` | No live book — Invite CTA, never invent a client list or scores |
+| `/partner/dashboard?visual=invite-error` | SITE_URL fail-loud — Origin missing, never a silent bad link |
+| `/partner/dashboard?visual=normal` | Live referral pulse — Referral · live / SSOT, no HeroScore |
+
+Mocks (`partner-empty-v4`, `partner-normal-v4`, `partner-invite-error-v4`) are
+orientation only — **≠ PIXEL**. Never invent $ or a client score.
+No craft-badge prose in the Production fold.
+
 ## Gate
 
 Architecture → real rendered Home + Assessment + Path + Money + Compare + Ask +
-system surfaces + Employee → this set → internal ≥92/100 →
+system surfaces + Employee + Partner → this set → internal ≥92/100 →
 founder APPROVE VISUAL DIRECTION → then undraft / merge.
 
 Stills land under `docs/design/baseline/` when captured. This PR does not

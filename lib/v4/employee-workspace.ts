@@ -2,7 +2,7 @@
  * Employee v4 — Shell v4 operate home. One shell · different jobs.
  * Empty or live operate SSOT only. Never invent teammate lists, scores, or $.
  * Never write AssessmentResult. Hard stop outranks — never On track / READY.
- * Partner / Admin / Team stay closed (K2–K4).
+ * Partner / Admin / Team stay closed (K2–K4). PR K2 opens Partner separately.
  */
 
 import { VERDICT_META } from "@/lib/brand";

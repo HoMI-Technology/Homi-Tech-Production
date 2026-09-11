@@ -538,7 +538,8 @@ html {
   box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.16);
 }
 
-.v4-employee-identity {
+.v4-employee-identity,
+.v4-partner-identity {
   display: flex;
   align-items: baseline;
   gap: 0.4rem;
@@ -547,7 +548,8 @@ html {
   color: var(--color-light);
 }
 
-.v4-employee-identity-job {
+.v4-employee-identity-job,
+.v4-partner-identity-job {
   font-size: 0.6875rem;
   font-weight: 500;
   letter-spacing: 0.06em;

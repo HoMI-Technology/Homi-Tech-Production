@@ -228,9 +228,27 @@ describe("CCP v1 `/home` activation", () => {
     }
   });
 
-  it("flag on does not reopen partner, admin, or team (K2–K4)", async () => {
+  it("flag on lets partner operate home pass the CCP gate via /partner prefix", async () => {
     vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
-    for (const path of ["/partner/dashboard", "/admin", "/team"]) {
+    for (const path of ["/partner", "/partner/dashboard", "/partner/dashboard/depth"]) {
+      const res = await middleware(req(path));
+      expect(res.status, path).toBe(200);
+      expect(res.headers.get("location"), path).toBeNull();
+    }
+  });
+
+  it("flag off folds partner operate home onto `/`", async () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "false");
+    for (const path of ["/partner", "/partner/dashboard"]) {
+      const res = await middleware(req(path));
+      expect(res.status, path).toBe(307);
+      expect(pathname(res), path).toBe("/");
+    }
+  });
+
+  it("flag on does not reopen admin or team (K3–K4)", async () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
+    for (const path of ["/admin", "/team"]) {
       const res = await middleware(req(path));
       expect(res.status, path).toBe(307);
       expect(pathname(res), path).toBe("/");

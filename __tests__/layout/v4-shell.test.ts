@@ -24,6 +24,7 @@ import {
   isV4AskOnlyPath,
   isV4BillsWorkspace,
   isV4EmployeeWorkspace,
+  isV4PartnerWorkspace,
   isV4SystemSurfacePath,
   v4ShellShowsHomiRail,
 } from "@/lib/layout/v4-shell";
@@ -100,9 +101,13 @@ describe("Shell v4 nav law", () => {
     expect(isV4SystemSurfacePath("/home")).toBe(false);
     expect(isV4EmployeeWorkspace("/employee/dashboard")).toBe(true);
     expect(isV4AskOnlyPath("/employee/dashboard")).toBe(true);
+    expect(isV4PartnerWorkspace("/partner/dashboard")).toBe(true);
+    expect(isV4AskOnlyPath("/partner/dashboard")).toBe(true);
     expect(isV4AskOnlyPath("/money/bills")).toBe(true);
     expect(isV4NavActive("/employee/dashboard", "/home")).toBe(false);
     expect(isV4NavActive("/employee/dashboard", "/employee/dashboard")).toBe(true);
+    expect(isV4NavActive("/partner/dashboard", "/home")).toBe(false);
+    expect(isV4NavActive("/partner/dashboard", "/partner/dashboard")).toBe(true);
     expect(isV4CompareWorkspace("/scenarios")).toBe(true);
     expect(isV4CompareWorkspace("/path")).toBe(false);
     expect(isV4AskPath("/ask")).toBe(true);

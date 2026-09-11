@@ -49,7 +49,7 @@ Seed page prefixes (non-exhaustive; anything not KEEP and not V4 is DARK):
 `/advisor`, `/agents`, `/agent-hub`, `/learn`,
 `/timeline`, `/journal`,
 `/household`, `/simulator`, `/decisions`, `/admin`, `/team`,
-`/partner/dashboard`, `/pricing`, `/how-it-works`,
+`/pricing`, `/how-it-works`,
 `/shadow-score`, `/onboarding`, `/demo`, `/calendar`, `/daily`, `/credit`,
 `/twin`, `/trinity`, `/genome`, `/signals`, `/outcomes`
 
@@ -67,7 +67,8 @@ Dark APIs: every `/api/*` except the KEEP API prefixes above
 | `/ask` | Contextual HōMI deep entry. Not a peer dashboard. |
 | `/tools` `/learn` `/money/bills` | Secondary (Bills · Tools · Learn). |
 | `/settings` `/connections` `/assessment` | System + command (Accounts · Settings · Assess). |
-| `/employee` | Employee operate home. Prefix covers `/employee/dashboard` + depth. K2–K4 stay DARK. |
+| `/employee` | Employee operate home. Prefix covers `/employee/dashboard` + depth. |
+| `/partner` | Partner operate home. Prefix covers `/partner/dashboard` + depth. K3–K4 (`/admin` `/team`) stay DARK. Do not add `/first-moment`. |
 
 ### V4_LIVE
 
