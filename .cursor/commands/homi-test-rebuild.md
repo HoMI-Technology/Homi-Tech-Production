@@ -1,5 +1,12 @@
 # MISSION: Ground-up rebuild of six HōMI test suites to production grade
 
+> **HOLD — do not execute this mission.** Spend hold
+> [#241](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/241)
+> is open. KEEP CORE (`docs/CHANGE_CONTROL_V1.md`): CORE coverage is enough;
+> do not “fix skipped tests,” buy Pro, or add secrets to fake FULL. Do **not**
+> resurrect DARK chrome to make dashboard/finance/layout suites green as
+> live product. Historical test-architecture text below.
+>
 > **Local-machine note (host constraint, not part of the original spec):** on
 > this Windows machine `npm run build` fails BY DESIGN (Smart App Control
 > blocks `@next/swc`) — run the §7 gate's build step via CI on the PR or in a

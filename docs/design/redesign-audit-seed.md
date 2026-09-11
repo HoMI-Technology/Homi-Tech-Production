@@ -1,5 +1,12 @@
 # Redesign Audit — Seed (verified 2026-08-29)
 
+> **HOLD (2026-09-11 area U).** This seed predates PR15 KEEP/KILL and CCP v1.
+> [#241](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/241)
+> is open. Do **not** re-enable hidden routes into KEEP chrome, resurrect
+> `/dashboard` / ThresholdFold, or treat “build the thin role dashboards”
+> as current work. `docs/CHANGE_CONTROL_V1.md` wins. Re-verify against
+> `origin/main` if a founder-cleared V4 pass needs a new seed.
+
 > ## ⚠ STALENESS ALERT — read first (added 2026-08-29, same day)
 > This seed was compiled against a local checkout later found to be **89
 > commits behind origin/main** (and parked on `feat/companion-v4-motes`).

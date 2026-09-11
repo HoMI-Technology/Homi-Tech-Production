@@ -1,11 +1,16 @@
 # HōMI Redesign Loop — auto mode, grind to zero
 
+> **HOLD — do not execute this loop.** Spend hold
+> [#241](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/241)
+> is open. KEEP CORE (`docs/CHANGE_CONTROL_V1.md`): do **not** resurrect DARK
+> chrome. Same hold as `/homi-redesign`. Historical loop text below.
+
 Run the `/homi-redesign` mission as a self-auditing loop with an agent team,
 fully autonomous. Do not ask permission for in-scope work. The loop's core
 belief: **the current state is never the best possible output** — every pass
 must either find and fix concrete weakness, or prove none remains.
 
-Repo: `C:\dev\apps\homi-production`. Law: `CANON.md`, `DESIGN.md`,
+Repo: `C:\dev\apps\homi-production` (`HOMI_SSOT`). Law: `CANON.md`, `DESIGN.md`,
 `lib/brand/index.ts`, `app/globals.css` — see `/homi-redesign` for the full
 rules; they all apply here.
 

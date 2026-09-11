@@ -1,10 +1,17 @@
 # HōMI Total Dashboard Redesign — autonomous, multi-agent, anti-slop
 
+> **HOLD — do not execute this mission.** Spend hold
+> [#241](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/241)
+> is open. CCP v1 KEEP CORE (`docs/CHANGE_CONTROL_V1.md`): do **not**
+> resurrect DARK chrome. `/dashboard` stays DARK; v4 Home is `/home` after
+> CLEAR + PIXEL + `HOMI_V4_HOME_ENABLED=true`. Product Rebuild v4 stays on
+> its own PRs. Historical redesign text below.
+
 You are rebuilding the entire HōMI product surface — every dashboard, for every
 user type — to shipped-product quality. Full auto mode: do not stop to ask
 permission for work inside this scope. You own the outcome.
 
-Repo: `HoMI-Technology/Homi-Tech-Production` (local: `C:\dev\apps\homi-production`).
+Repo: `HoMI-Technology/Homi-Tech-Production` (local: `C:\dev\apps\homi-production`, `HOMI_SSOT`).
 Product surface: everything under `app/(product)/` — dashboard, money, assessment,
 results, path, plan, report, admin, advisor, employee, partner, household, team,
 agents, agent-hub, journal, timeline, scenarios, simulator, twin, trinity, trust,

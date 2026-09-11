@@ -1,10 +1,17 @@
 # HōMI Launch Track — from built to marketed and live
 
+> **HOLD — do not execute this mission.** Spend hold
+> [#241](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/241)
+> is open. KEEP CORE (`docs/CHANGE_CONTROL_V1.md`): marketing/waitlist/auth/legal
+> only. Do **not** resurrect DARK chrome. Do not quote-pressure Vercel Pro,
+> live-card checkout, or “go market” until the founder closes #241. Historical
+> launch-track text below.
+
 Run after (or interleaved with) `/homi-redesign-loop`. Mission: HōMI Tech
 ready to market and pushed live everywhere. Full auto for everything that is
 buildable; a clean punch list for the few things only the owner can do.
 
-Repo: `C:\dev\apps\homi-production`. Read FIRST:
+Repo: `C:\dev\apps\homi-production` (`HOMI_SSOT`). Read FIRST:
 `docs/knowledge/homi-agent-knowledge.md` (compiled cross-bot knowledge —
 founder rulings, fragility, canon), `CANON.md`, `GO-LIVE-CHECKLIST.md`,
 `DEPLOY.md`, `docs/launch-shipped-map.md`. Zero-affiliate canon applies to

@@ -1,5 +1,14 @@
 # HōMI FINISH — master goal + loop for the named agent team
 
+> **HOLD — do not execute this mission.** Spend hold
+> [#241](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/241)
+> is open. Change Control Plane v1 (`docs/CHANGE_CONTROL_V1.md`, ADR-005)
+> is KEEP CORE only: `/`, `/waitlist`, `/auth/*`, three legal pages, three
+> KEEP APIs. Do **not** resurrect DARK chrome (`/dashboard`, ThresholdFold,
+> role dashboards, product APIs). Do not buy GitHub/Vercel Pro, add
+> Actions secrets, or treat the owner punch list (Pro, live Stripe, leaked
+> passwords) as a sprint. Historical loop text below; CCP + #241 win.
+
 Register this as your goal (`create_goal`) and run it as a grind loop until
 the exit gate passes. Full auto for everything buildable; HOLDs and the
 owner punch list are the only brakes. Mission: **finish HōMI Tech — every
