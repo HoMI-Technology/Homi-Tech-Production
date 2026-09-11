@@ -36,7 +36,7 @@ Actions `verify` + `e2e` → `node scripts/ci-coverage-report.mjs` →
 ## Source of truth
 
 - **GitHub:** https://github.com/HoMI-Technology/Homi-Tech-Production
-- **Local only (this PC):** `C:\Users\Quality Assurance\Desktop\HoMI_Tech_Github_Build` (GitHub worktrees under `Desktop\homi-worktrees\`). Never treat Branding-Marketing copies, ultra-premium 4-root snapshots, or zips as product truth.
+- **Local (founder machine):** `C:\dev\apps\homi-production` (`HOMI_SSOT`); worktrees under `C:\dev\worktrees\homi-production--<slug>`. Historical `C:\Users\cody\...` and `Desktop\HoMI_Tech_Github_Build` paths are retired. Never treat Branding-Marketing copies, ultra-premium 4-root snapshots, or zips as product truth.
 - **Default branch:** `main`
 - **Never** treat Desktop `HoMI Tech` dumps, zips, or other clones as product truth.
 
@@ -108,9 +108,9 @@ through GitHub, never through a copy.
 **Windows (work PC):**
 
 ```powershell
-pwsh -File C:\Users\cody\ai-server\scripts\homi-ssot.ps1 status
-pwsh -File C:\Users\cody\ai-server\scripts\homi-ssot.ps1 pull
-pwsh -File C:\Users\cody\ai-server\scripts\homi-ssot.ps1 pipeline -Task "..."
+pwsh -File scripts/homi-ssot.ps1 status
+pwsh -File scripts/homi-ssot.ps1 pull
+pwsh -File scripts/homi-ssot.ps1 push "wip: message"
 ```
 
 **macOS (home MacBook):**

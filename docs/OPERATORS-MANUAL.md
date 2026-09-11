@@ -2,8 +2,8 @@
 
 **Audience:** You (founder / operator) and any AI agent working on your machine.  
 **Product SSOT:** [HoMI-Technology/Homi-Tech-Production](https://github.com/HoMI-Technology/Homi-Tech-Production)  
-**Local SSOT path (this PC):** `Desktop\HoMI_Tech_Github_Build`  
-**Last updated:** 2026-08-16
+**Local SSOT path (founder):** `C:\dev\apps\homi-production` (`HOMI_SSOT`)  
+**Last updated:** 2026-09-11 (nightly audit area U — KEEP CORE / #241 honesty)
 
 ## Spend hold (founder 2026-08-16)
 
@@ -12,6 +12,12 @@
 - Protection/secrets playbooks below (§A.2–A.7) are **for go-live**, not for this week.
 - Empty Actions secrets and CORE E2E (skipped live specs) are **expected**.
 - Children: [#243](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/243) protection, [#242](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/242) DEV secrets, [#191](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/191) Vercel/checkout.
+
+## KEEP CORE (accepted while #241 is open)
+
+Live public surface is **KEEP only** — `/`, `/waitlist`, `/auth/*`, `/legal/privacy|terms|cookies`, `/marketing/*`, `/api/waitlist`, `/api/healthcheck`, `/api/csp-report`. See `docs/CHANGE_CONTROL_V1.md` and `lib/auth/keep-routes.ts`. Everything else is DARK (pages → `/`, APIs → JSON `404`). Do **not** resurrect DARK chrome.
+
+**CORE** E2E (empty Actions secrets; live specs skip) is enough. A green `verify` is not a release. Missing secrets are **not** a defect. Do not wire DEV Supabase, Stripe TEST, or LHCI dashboard secrets to “complete” the matrix. Authenticated-dashboard Lighthouse is not CORE (signed-in product is DARK / V4_PENDING).
 
 This manual covers three operator systems that keep the product shippable:
 
@@ -28,7 +34,7 @@ homi doctor      # full machine + CI readiness
 homi             # command menu
 ```
 
-Full narrative on local vs live and basic `homi start` flow: `docs/HoMI-Local-Workflow-Guide.pdf` (Desktop copy).
+Local vs live and `homi start`: this manual + `AGENTS.md` (no separate PDF).
 
 ---
 
@@ -184,16 +190,20 @@ gh workflow run Lighthouse --ref main
 gh run list --limit 5
 ```
 
-**Success criteria**
+**Success criteria (go-live only — not this week)**
+
+While #241 is open, **CORE** is success: anonymous/KEEP suites run; live specs **self-skip**. Do not treat skips as a failure to “fix.”
+
+After the founder closes #241 and secrets exist:
 
 - E2E run log shows live specs **not** skipped for missing env (or only skips for unrelated reasons).
-- Lighthouse “authenticated dashboard” step runs when `LHCI_TEST_EMAIL` is non-empty.
+- Lighthouse authenticated step runs when `LHCI_TEST_EMAIL` is non-empty — and only if that surface is KEEP or V4_LIVE (do not LHCI a DARK `/dashboard`).
 
 ## A.6 Failure modes (secrets)
 
 | Symptom                                    | Cause                          | Fix                               |
 | ------------------------------------------ | ------------------------------ | --------------------------------- |
-| E2E green in 1–2 min, only anonymous tests | Secrets missing                | Set A.2                           |
+| E2E green in 1–2 min, only anonymous tests | Secrets missing (CORE)        | **Accepted under #241.** Do not set A.2 until hold lifts |
 | Live specs fail auth                       | Wrong project / allowlist      | Fix E2E Supabase Auth URLs        |
 | Checkout e2e skips                         | Not `sk_test_` / missing price | Stripe test keys + `stripe-setup` |
 | LHCI dashboard step skipped                | Empty `LHCI_TEST_EMAIL`        | Create test user + secrets        |
@@ -507,8 +517,8 @@ Launcher (machine-local): `%USERPROFILE%\.grok\launchers\homi.ps1`
 - [ ] `npm ci`
 - [ ] `npm run verify-supabase`
 - [ ] Install Playwright browsers if needed: `npx playwright install chromium`
-- [ ] Wire GitHub secrets (section A)
-- [ ] `homi doctor` all green/warn only
+- [ ] GitHub secrets (section A) — **deferred while #241 is open**
+- [ ] `homi doctor` all green/warn only (missing E2E secrets = WARN / CORE, not FAIL)
 - [ ] Read branch policy (section C) once
 
 ---

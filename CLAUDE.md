@@ -3,7 +3,7 @@
 Open **only** this repository root. SSOT:
 
 - GitHub: https://github.com/HoMI-Technology/Homi-Tech-Production
-- Local: C:\Users\Quality Assurance\Desktop\HoMI_Tech_Github_Build
+- Local (founder): `C:\dev\apps\homi-production` (`HOMI_SSOT`). Historical Desktop / Cody paths are retired.
 
 Before large changes: `git status` + `git pull --ff-only`.
 After changes: leave a clean commit story; operator pushes so GitHub stays 1:1.
