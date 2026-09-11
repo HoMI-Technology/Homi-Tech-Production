@@ -5,6 +5,7 @@ import { FunnelBars, type FunnelStage } from "@/components/admin/FunnelBars";
 import { RankedBars } from "@/components/admin/RankedBars";
 import { CsvExportButton } from "@/components/admin/CsvExportButton";
 import { PageHeader } from "@/components/operate/PageHeader";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { MetricRail } from "@/components/operate/MetricRail";
 import {
   attributionCoverage,
@@ -100,7 +101,7 @@ export default async function AdminAttributionPage() {
   const hasAnyAttribution = attributedSignups > 0 || sourceMedium.length > 0;
 
   return (
-    <div>
+    <PageFrame role="admin" density="compact">
       <PageHeader
         eyebrow="Admin"
         title="Attribution"
@@ -268,6 +269,6 @@ export default async function AdminAttributionPage() {
         First-touch attribution — occurrence data only (channel + landing path), never user-entered
         content. HōMI Technologies LLC.
       </p>
-    </div>
+    </PageFrame>
   );
 }

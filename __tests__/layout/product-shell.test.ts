@@ -84,8 +84,9 @@ describe("PR C product shell — v4 only when flag is on", () => {
     expect(productShellFor("/employee", true)).toBe("v4");
     expect(productShellFor("/partner/dashboard", true)).toBe("v4");
     expect(productShellFor("/partner", true)).toBe("v4");
+    expect(productShellFor("/admin", true)).toBe("v4");
+    expect(productShellFor("/admin/users", true)).toBe("v4");
     expect(productShellFor("/dashboard", true)).toBe("personal");
-    expect(productShellFor("/admin", true)).toBe("role");
     expect(productShellFor("/team", true)).toBe("role");
     expect(resolveProductShell("personal", "/home", true)).toBe("v4");
   });
@@ -106,6 +107,7 @@ describe("PR C product shell — v4 only when flag is on", () => {
     expect(productShellFor("/settings", false)).toBe("v4");
     expect(productShellFor("/employee/dashboard", false)).toBe("v4");
     expect(productShellFor("/partner/dashboard", false)).toBe("v4");
+    expect(productShellFor("/admin", false)).toBe("v4");
     expect(resolveProductShell("guest", "/home", false)).toBe("v4");
     expect(productShellFor("/dashboard", false)).toBe("guest");
     expect(productShellFor("", false)).toBe("guest");

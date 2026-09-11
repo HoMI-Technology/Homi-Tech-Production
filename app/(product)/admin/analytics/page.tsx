@@ -4,6 +4,7 @@ import { SegmentedLinkNav } from "@/components/ui/SegmentedControl";
 import { BarSeries } from "@/components/admin/BarSeries";
 import { FunnelSeries, type FunnelSeriesStep } from "@/components/admin/FunnelSeries";
 import { PageHeader } from "@/components/operate/PageHeader";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { hasPostHogAnalytics, hasPostHog } from "@/lib/env";
 import { COLORS } from "@/lib/brand";
@@ -254,7 +255,7 @@ export default async function AdminAnalyticsPage({
   }));
 
   return (
-    <div>
+    <PageFrame role="admin" density="compact">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <PageHeader
           eyebrow="Admin"
@@ -383,6 +384,6 @@ export default async function AdminAnalyticsPage({
           </p>
         </>
       )}
-    </div>
+    </PageFrame>
   );
 }

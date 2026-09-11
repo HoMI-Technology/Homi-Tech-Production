@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { BarSeries } from "@/components/admin/BarSeries";
+import { AdminRoomEmptyV4 } from "@/components/v4/admin/AdminRoomEmptyV4";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { COLORS } from "@/lib/brand";
@@ -105,7 +107,14 @@ export default async function AdminActivityPage() {
   const totalActions = actionCounts.reduce((acc, a) => acc + a.count, 0);
 
   return (
-    <div>
+    <PageFrame role="admin" density="compact">
+      {entries.length === 0 ? (
+        <AdminRoomEmptyV4
+          title="No activity yet."
+          body="Calm empty — never invent a table."
+        />
+      ) : (
+        <>
       <PageHeader
         eyebrow="Admin"
         title="Activity"
@@ -247,6 +256,8 @@ export default async function AdminActivityPage() {
           </div>
         )}
       </div>
-    </div>
+        </>
+      )}
+    </PageFrame>
   );
 }

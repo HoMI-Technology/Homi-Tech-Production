@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
+import { AdminRoomEmptyV4 } from "@/components/v4/admin/AdminRoomEmptyV4";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
 import type { AssessmentRow } from "@/types/database";
@@ -61,7 +63,14 @@ export default async function AdminAssessmentsPage() {
   const shadows = assessments.filter((a) => a.is_shadow).length;
 
   return (
-    <div>
+    <PageFrame role="admin" density="compact">
+      {assessments.length === 0 ? (
+        <AdminRoomEmptyV4
+          title="No assessments yet."
+          body="Calm empty — never invent a table."
+        />
+      ) : (
+        <>
       <PageHeader
         eyebrow="Admin"
         title="Assessments"
@@ -149,6 +158,8 @@ export default async function AdminAssessmentsPage() {
           </table>
         )}
       </div>
-    </div>
+        </>
+      )}
+    </PageFrame>
   );
 }

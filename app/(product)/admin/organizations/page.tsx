@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { AdminRoomEmptyV4 } from "@/components/v4/admin/AdminRoomEmptyV4";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { COLORS } from "@/lib/brand";
@@ -58,7 +60,14 @@ export default async function AdminOrganizationsPage() {
   }
 
   return (
-    <div>
+    <PageFrame role="admin" density="compact">
+      {organizations.length === 0 ? (
+        <AdminRoomEmptyV4
+          title="No organizations yet."
+          body="Calm empty — never invent a table."
+        />
+      ) : (
+        <>
       <PageHeader
         eyebrow="Admin"
         title="Organizations"
@@ -147,6 +156,8 @@ export default async function AdminOrganizationsPage() {
           </div>
         )}
       </div>
-    </div>
+        </>
+      )}
+    </PageFrame>
   );
 }

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CampaignComposer } from "@/components/admin/CampaignComposer";
+import { AdminRoomEmptyV4 } from "@/components/v4/admin/AdminRoomEmptyV4";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { COLORS } from "@/lib/brand";
@@ -73,7 +75,14 @@ export default async function AdminEmailPage() {
   const drafted = campaigns.filter((c) => c.status === "draft").length;
 
   return (
-    <div>
+    <PageFrame role="admin" density="compact">
+      {!service ? (
+        <AdminRoomEmptyV4
+          title="Email is not configured."
+          body="Live ops only — never invent a send table."
+        />
+      ) : (
+        <>
       <PageHeader
         eyebrow="Admin"
         title="Email campaigns"
@@ -111,84 +120,73 @@ export default async function AdminEmailPage() {
         />
       </div>
 
-      {!service && (
-        <div className="glass mt-6 p-6">
-          <p className="text-sm text-dim">
-            Supabase service role is not configured, so campaigns can&apos;t be loaded or sent from
-            this environment.
-          </p>
+      <div className="glass mt-6 p-6">
+        <div className="dash-section-head">
+          <h2>New campaign</h2>
+          <p>Compose and confirm before send.</p>
         </div>
-      )}
+        <CampaignComposer />
+      </div>
 
-      {service && (
-        <>
-          <div className="glass mt-6 p-6">
-            <div className="dash-section-head">
-              <h2>New campaign</h2>
-              <p>Compose and confirm before send.</p>
-            </div>
-            <CampaignComposer />
-          </div>
-
-          <div className="glass mt-6 table-scroll">
-            {campaigns.length === 0 ? (
-              <p className="p-10 text-center text-sm text-dim">No campaigns yet.</p>
-            ) : (
-              <table className="table-premium min-w-[720px]">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Audience</th>
-                    <th>Status</th>
-                    <th>Recipients</th>
-                    <th>Results</th>
-                    <th>Sent</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {campaigns.map((c) => (
-                    <tr key={c.id}>
-                      <td>
-                        <div className="max-w-[240px]">
-                          <p className="truncate font-medium text-light">{c.name}</p>
-                          <p className="truncate text-xs text-dim">{c.subject}</p>
-                        </div>
-                      </td>
-                      <td>
-                        <span className="chip !text-xs capitalize">{c.audience}</span>
-                      </td>
-                      <td>
-                        <span
-                          className={`text-xs font-semibold uppercase tracking-wide ${STATUS_STYLE[c.status]}`}
-                        >
-                          {c.status}
-                        </span>
-                      </td>
-                      <td className="score-numeral">{c.recipient_count.toLocaleString()}</td>
-                      <td className="text-xs text-dim">
-                        {c.status === "sent" ? (
-                          <>
-                            {c.send_counts.sent.toLocaleString()} sent
-                            {c.send_counts.failed > 0
-                              ? ` · ${c.send_counts.failed.toLocaleString()} failed`
-                              : ""}
-                            {c.send_counts.suppressed > 0
-                              ? ` · ${c.send_counts.suppressed.toLocaleString()} suppressed`
-                              : ""}
-                          </>
-                        ) : (
-                          "—"
-                        )}
-                      </td>
-                      <td className="text-dim">{formatDate(c.sent_at)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+      <div className="glass mt-6 table-scroll">
+        {campaigns.length === 0 ? (
+          <p className="p-10 text-center text-sm text-dim">No campaigns yet.</p>
+        ) : (
+          <table className="table-premium min-w-[720px]">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Audience</th>
+                <th>Status</th>
+                <th>Recipients</th>
+                <th>Results</th>
+                <th>Sent</th>
+              </tr>
+            </thead>
+            <tbody>
+              {campaigns.map((c) => (
+                <tr key={c.id}>
+                  <td>
+                    <div className="max-w-[240px]">
+                      <p className="truncate font-medium text-light">{c.name}</p>
+                      <p className="truncate text-xs text-dim">{c.subject}</p>
+                    </div>
+                  </td>
+                  <td>
+                    <span className="chip !text-xs capitalize">{c.audience}</span>
+                  </td>
+                  <td>
+                    <span
+                      className={`text-xs font-semibold uppercase tracking-wide ${STATUS_STYLE[c.status]}`}
+                    >
+                      {c.status}
+                    </span>
+                  </td>
+                  <td className="score-numeral">{c.recipient_count.toLocaleString()}</td>
+                  <td className="text-xs text-dim">
+                    {c.status === "sent" ? (
+                      <>
+                        {c.send_counts.sent.toLocaleString()} sent
+                        {c.send_counts.failed > 0
+                          ? ` · ${c.send_counts.failed.toLocaleString()} failed`
+                          : ""}
+                        {c.send_counts.suppressed > 0
+                          ? ` · ${c.send_counts.suppressed.toLocaleString()} suppressed`
+                          : ""}
+                      </>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                  <td className="text-dim">{formatDate(c.sent_at)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
         </>
       )}
-    </div>
+    </PageFrame>
   );
 }

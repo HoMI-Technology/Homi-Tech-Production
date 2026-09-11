@@ -5,12 +5,15 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { V4_NAV_ICONS } from "@/components/layout/v4/v4-nav-icons";
 import {
+  V4_ADMIN_MOBILE_TABS,
+  V4_ADMIN_MORE_NAV,
   V4_EMPLOYEE_MOBILE_TABS,
   V4_EMPLOYEE_OPERATE_NAV,
   V4_MOBILE_TABS,
   V4_MORE_NAV,
   V4_PARTNER_MOBILE_TABS,
   V4_PARTNER_OPERATE_NAV,
+  isV4AdminWorkspace,
   isV4EmployeeWorkspace,
   isV4NavActive,
   isV4PartnerWorkspace,
@@ -26,16 +29,21 @@ export function V4MobileNav() {
   const MoreIcon = V4_NAV_ICONS.More;
   const employee = isV4EmployeeWorkspace(pathname);
   const partner = isV4PartnerWorkspace(pathname);
-  const tabs = partner
-    ? V4_PARTNER_MOBILE_TABS
-    : employee
-      ? V4_EMPLOYEE_MOBILE_TABS
-      : V4_MOBILE_TABS;
-  const moreItems = partner
-    ? V4_PARTNER_OPERATE_NAV
-    : employee
-      ? V4_EMPLOYEE_OPERATE_NAV
-      : V4_MORE_NAV;
+  const admin = isV4AdminWorkspace(pathname);
+  const tabs = admin
+    ? V4_ADMIN_MOBILE_TABS
+    : partner
+      ? V4_PARTNER_MOBILE_TABS
+      : employee
+        ? V4_EMPLOYEE_MOBILE_TABS
+        : V4_MOBILE_TABS;
+  const moreItems = admin
+    ? V4_ADMIN_MORE_NAV
+    : partner
+      ? V4_PARTNER_OPERATE_NAV
+      : employee
+        ? V4_EMPLOYEE_OPERATE_NAV
+        : V4_MORE_NAV;
 
   return (
     <>

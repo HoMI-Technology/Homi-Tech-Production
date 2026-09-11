@@ -12,6 +12,7 @@ import {
   V4_SHELL_ASK_HREF,
   isV4AskOnlyPath,
   isV4AssessPath,
+  isV4QuietCommandPath,
 } from "@/lib/layout/v4-shell";
 import { useAssessmentWalkChrome } from "@/components/v4/assessment/AssessmentWalkChrome";
 
@@ -38,8 +39,9 @@ export function V4TopCommand({
   const { chrome } = useAssessmentWalkChrome();
   const assessActive = isV4AssessPath(pathname ?? "");
   const askOnly = isV4AskOnlyPath(pathname ?? "");
+  const quietCommand = isV4QuietCommandPath(pathname ?? "");
   const askPlaceholder = chrome.askPlaceholder;
-  const commandLabel = chrome.commandLabel;
+  const commandLabel = quietCommand ? "Admin" : chrome.commandLabel;
   const workspacePrompts = chrome.prompts;
 
   useEffect(() => {
@@ -118,41 +120,49 @@ export function V4TopCommand({
           >
             {commandLabel ?? `${greeting}${nameBit}`}
           </p>
-          <form className="min-w-0 flex-1" onSubmit={onAsk} data-v4-ask-homi-form="">
-            <label className="sr-only" htmlFor="v4-ask-homi">
-              Ask HōMI
-            </label>
-            <div className="v4-ask-field">
-              <Search aria-hidden className="v4-ask-field-icon size-4" strokeWidth={1.75} />
-              <input
-                id="v4-ask-homi"
-                data-v4-ask-homi=""
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onFocus={() => setOpen(true)}
-                placeholder={askPlaceholder}
-                className="v4-ask-field-input"
-                autoComplete="off"
-              />
-              <kbd className="chrome-kbd v4-ask-kbd" aria-hidden>
-                ⌘K
-              </kbd>
-            </div>
-          </form>
+          {quietCommand ? (
+            <p className="min-w-0 flex-1 truncate text-2xs font-semibold uppercase tracking-[0.08em] text-dim" data-admin-v4-lock="">
+              No Ask · Companion off
+            </p>
+          ) : (
+            <form className="min-w-0 flex-1" onSubmit={onAsk} data-v4-ask-homi-form="">
+              <label className="sr-only" htmlFor="v4-ask-homi">
+                Ask HōMI
+              </label>
+              <div className="v4-ask-field">
+                <Search aria-hidden className="v4-ask-field-icon size-4" strokeWidth={1.75} />
+                <input
+                  id="v4-ask-homi"
+                  data-v4-ask-homi=""
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onFocus={() => setOpen(true)}
+                  placeholder={askPlaceholder}
+                  className="v4-ask-field-input"
+                  autoComplete="off"
+                />
+                <kbd className="chrome-kbd v4-ask-kbd" aria-hidden>
+                  ⌘K
+                </kbd>
+              </div>
+            </form>
+          )}
           <div className="ml-auto flex items-center gap-2">
-            <Link
-              href={V4_SHELL_ASSESS_HREF}
-              className={`v4-command-assess${assessActive ? " is-active" : ""}`}
-              data-v4-command-assess=""
-              aria-current={assessActive ? "page" : undefined}
-              style={{ backgroundColor: COLORS.cyan, color: COLORS.ctaInk }}
-            >
-              Assess
-            </Link>
+            {quietCommand ? null : (
+              <Link
+                href={V4_SHELL_ASSESS_HREF}
+                className={`v4-command-assess${assessActive ? " is-active" : ""}`}
+                data-v4-command-assess=""
+                aria-current={assessActive ? "page" : undefined}
+                style={{ backgroundColor: COLORS.cyan, color: COLORS.ctaInk }}
+              >
+                Assess
+              </Link>
+            )}
           </div>
         </div>
       </header>
-      {open ? (
+      {quietCommand || !open ? null : (
         <div
           className="v4-ask-overlay fixed inset-0 z-[var(--z-modal)] flex items-end justify-center bg-navy/70 px-0 lg:items-start lg:justify-center lg:px-4 lg:pt-24"
           data-v4-command-palette=""
@@ -218,7 +228,7 @@ export function V4TopCommand({
             </ul>
           </div>
         </div>
-      ) : null}
+      )}
       <span className="sr-only">{pathname}</span>
     </>
   );
