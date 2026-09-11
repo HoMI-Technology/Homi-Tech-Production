@@ -74,18 +74,15 @@ describe("partner dashboard page — silent production default is gone", () => {
   });
 });
 
-describe("partner dashboard page — no other people's overall scores", () => {
-  it("does not render raw overall_score or an average integer", () => {
+describe("partner dashboard page — no other people's scores", () => {
+  it("does not render raw overall_score, bands, or an average integer", () => {
     const src = readFileSync(PAGE, "utf8");
     expect(src).not.toMatch(/Math\.round\(a\.overall_score\)/);
     expect(src).not.toMatch(/label:\s*"Avg score"/);
     expect(src).not.toMatch(/>Score</);
-  });
-
-  it("shows receipt bands instead of integers", () => {
-    const src = readFileSync(PAGE, "utf8");
-    expect(src).toMatch(/scoreBand\(/);
-    expect(src).toContain('from "@/lib/receipts"');
+    expect(src).not.toMatch(/scoreBand\(/);
+    expect(src).not.toContain("overall_score");
+    expect(src).not.toContain('from "@/lib/receipts"');
   });
 });
 

@@ -28,8 +28,10 @@ const KEEP_API_PREFIXES = ["/api/waitlist", "/api/healthcheck", "/api/csp-report
  * (Home · Money · Path · Compare, then Bills · Tools · Learn and
  * Accounts · Settings). `/money/bills` is covered by the `/money` prefix
  * (see `matchesListedPath`). PR K adds `/employee` so `/employee/dashboard`
- * and depth activate under the same flag. `/dashboard` stays DARK.
- * Do not add `/partner` `/admin` `/team` this pass (K2–K4).
+ * and depth activate under the same flag. PR K2 adds `/partner` so
+ * `/partner/dashboard` + depth activate under the same flag. `/dashboard`
+ * stays DARK. Do not add `/admin` `/team` this pass (K3–K4). Do not add
+ * `/first-moment` — guest invite is not a role home.
  */
 export const V4_PENDING_PATHS = [
   "/home",
@@ -43,6 +45,7 @@ export const V4_PENDING_PATHS = [
   "/connections",
   "/assessment",
   "/employee",
+  "/partner",
 ] as const;
 
 /**

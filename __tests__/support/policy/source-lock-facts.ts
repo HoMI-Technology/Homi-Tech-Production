@@ -783,6 +783,30 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
       "inviteUrl\\s*=\\s*partnerCode[\\s\\S]*:\\s*`\\$\\{SITE_URL\\}/shadow-score`",
     ],
   },
+  {
+    id: "fold-wiring/partner-hub-empty-close",
+    file: "app/(product)/partner/dashboard/page.tsx",
+    identifiersMustNot: [
+      "ThresholdCompass",
+      "HeroScore",
+      "VerdictBadge",
+      "ThresholdFold",
+      "OperateInstrument",
+      "MetricRail",
+      "PageFrame",
+      "OperateHeroMeta",
+    ],
+    stringsMust: ["first-moment?ref=", "Could not mint an invite code", "PartnerWorkspaceV4"],
+    stringsMustNot: [
+      "shadow-score?ref=",
+      "Shadow Score",
+      "HeroScore",
+      "Homie",
+      "data-partner-resources",
+    ],
+    codeMust: ["resolvePartnerInviteOrigin", "PartnerSiteUrlError"],
+    codeMustNot: ['href: "/plan"', "scoreBand("],
+  },
 
   // ---------------------------------------------------------------------------
   // __tests__/layout/app-sidebar.test.tsx (source-grep it only)

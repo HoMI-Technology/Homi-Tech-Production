@@ -1,46 +1,61 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { createClient } from "@/lib/supabase/server";
-import { signInRedirect } from "@/lib/auth/signInRedirect";
+import { redirect } from "next/navigation";
 import { AccessPanel } from "@/components/b2b/AccessPanel";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { PageFrame } from "@/components/operate/PageFrame";
-import { MetricRail } from "@/components/operate/MetricRail";
-import { InviteShareRow } from "@/components/operate/InviteShareRow";
-import { OperateHeroMeta } from "@/components/operate/OperateHeroMeta";
-import type { Profile } from "@/types/database";
-import type { VerdictKey } from "@/lib/brand";
+import { PartnerWorkspaceV4 } from "@/components/v4/partner/PartnerWorkspaceV4";
+import { isV4HomeEnabled } from "@/lib/auth/keep-routes";
+import { signInRedirect } from "@/lib/auth/signInRedirect";
 import { canAccessPartnerDashboard } from "@/lib/dashboard/partner-access";
-import { resolvePartnerInviteOrigin } from "@/lib/dashboard/partner-site-url";
-import { scoreBand, type ScoreBand } from "@/lib/receipts";
+import {
+  PartnerSiteUrlError,
+  resolvePartnerInviteOrigin,
+} from "@/lib/dashboard/partner-site-url";
+import { getCachedClient, getCachedUser } from "@/lib/supabase/server";
+import {
+  buildPartnerV4View,
+  parseV4PartnerVisualState,
+  partnerV4PulseFromLive,
+  partnerV4VisualView,
+  type PartnerV4Pulse,
+} from "@/lib/v4/partner-workspace";
+import { isV4VisualFixtureEnabled } from "@/lib/v4/visual-fixture";
+import type { Profile } from "@/types/database";
 
 export const metadata: Metadata = {
-  title: "Partner Dashboard | HōMI",
-  description: "Invite clients to a first moment. Book pulse from referral_source.",
-};
-
-const SCORE_BAND_LABEL: Record<ScoreBand, string> = {
-  high: "High",
-  moderate: "Moderate",
-  emerging: "Emerging",
-  early: "Early",
+  title: "Partner",
+  description:
+    "Invite clients to a first moment. Book pulse from referral_source. Never invent a client list or scores.",
+  robots: { index: false, follow: false },
 };
 
 /**
- * Partner home — single operate surface (portal redirects here).
- * Book pulse: assessments.referral_source + RPC attribution path.
- * Named roster: profiles.partner_id only (explicit relationship).
- * Read-only toward client verdicts — never writes score or ledger.
+ * Partner v4 — V4_PENDING `/partner/dashboard` (covered by `/partner` prefix).
+ * Shell v4 operate home. Portals redirect here. Invite is `/first-moment?ref=`.
+ * SITE_URL fail-loud. never writes score or ledger. Shadow-score invite stays dead.
+ * Read-only toward client verdicts — never a partner-written AssessmentResult.
  */
-export default async function PartnerDashboardPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export default async function PartnerDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ visual?: string }>;
+}) {
+  if (!isV4HomeEnabled()) {
+    redirect("/");
+  }
 
+  const params = await searchParams;
+  const visual = isV4VisualFixtureEnabled()
+    ? parseV4PartnerVisualState(params.visual)
+    : null;
+
+  if (visual) {
+    return <PartnerWorkspaceV4 view={partnerV4VisualView(visual)} />;
+  }
+
+  const user = await getCachedUser();
   if (!user) return signInRedirect("/partner/dashboard");
 
+  const supabase = await getCachedClient();
   const { data: profileData } = await supabase
     .from("profiles")
     .select("*")
@@ -85,17 +100,28 @@ export default async function PartnerDashboardPage() {
   }
 
   const requestHeaders = await headers();
-  const siteUrl = resolvePartnerInviteOrigin({
-    envUrl: process.env.NEXT_PUBLIC_SITE_URL,
-    host: requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host"),
-    proto: requestHeaders.get("x-forwarded-proto"),
-  });
-  const inviteUrl = partnerCode ? `${siteUrl}/first-moment?ref=${partnerCode}` : null;
+  let origin: string | null = null;
+  let originMissing = false;
+  try {
+    origin = resolvePartnerInviteOrigin({
+      envUrl: process.env.NEXT_PUBLIC_SITE_URL,
+      host: requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host"),
+      proto: requestHeaders.get("x-forwarded-proto"),
+    });
+  } catch (error) {
+    if (error instanceof PartnerSiteUrlError) {
+      originMissing = true;
+    } else {
+      throw error;
+    }
+  }
+
+  const inviteUrl = partnerCode ? (origin ? `${origin}/first-moment?ref=${partnerCode}` : null) : null;
 
   // L0 — attributed assessments via denormalized referral_source (invite path).
   const { data: referredRows } = await supabase
     .from("assessments")
-    .select("id, user_id, verdict, overall_score, completed_at, created_at, is_shadow")
+    .select("id, user_id, completed_at, created_at, is_shadow")
     .eq("referral_source", user.id)
     .eq("status", "completed")
     .order("created_at", { ascending: false })
@@ -104,29 +130,16 @@ export default async function PartnerDashboardPage() {
   type BookRow = {
     id: string;
     user_id: string;
-    verdict: VerdictKey | null;
-    overall_score: number | null;
     completed_at: string | null;
     created_at: string;
     is_shadow: boolean | null;
   };
 
-  let attributed: BookRow[] = ((referredRows as BookRow[] | null) ?? []).map((r) => ({
-    ...r,
-    verdict: (r.verdict as VerdictKey | null) ?? null,
-  }));
+  let attributed: BookRow[] = (referredRows as BookRow[] | null) ?? [];
 
   // Fallback: portal RPC if denorm empty but code exists (pre-I0 traffic).
-  let rpcCount: number | null = null;
   if (partnerCode && attributed.length === 0) {
     try {
-      const { data: stats } = await supabase.rpc("partner_code_stats", {
-        p_code: partnerCode,
-      });
-      const row = Array.isArray(stats) ? stats[0] : stats;
-      if (row) {
-        rpcCount = Number(row.assessment_count ?? 0);
-      }
       const { data: recent } = await supabase.rpc("partner_recent_assessments", {
         p_code: partnerCode,
         p_limit: 20,
@@ -136,16 +149,12 @@ export default async function PartnerDashboardPage() {
           (
             r: {
               created_at: string | null;
-              verdict: string | null;
-              overall_score: number | null;
               is_shadow: boolean | null;
             },
             i: number,
           ) => ({
             id: `rpc-${i}`,
             user_id: "",
-            verdict: (r.verdict as VerdictKey | null) ?? null,
-            overall_score: r.overall_score,
             completed_at: r.created_at,
             created_at: r.created_at ?? new Date().toISOString(),
             is_shadow: r.is_shadow,
@@ -157,164 +166,31 @@ export default async function PartnerDashboardPage() {
     }
   }
 
-  // L1 — explicit roster (names allowed; no emails).
-  const { data: clientRows } = await supabase
+  // L1 — explicit roster SSOT (names allowed; no emails). v4 fold never paints a client list.
+  await supabase
     .from("profiles")
     .select("id, full_name, created_at")
     .eq("partner_id", user.id)
     .order("created_at", { ascending: false })
     .limit(50);
-  const clients = (clientRows as Pick<Profile, "id" | "full_name" | "created_at">[] | null) ?? [];
 
-  const assessmentCount = attributed.length > 0 ? attributed.length : (rpcCount ?? 0);
-  const booked = attributed.filter((a) => a.is_shadow !== true).length;
-  const open = Math.max(0, assessmentCount - booked);
-  const hasBook = assessmentCount > 0;
+  const pulse: PartnerV4Pulse[] = attributed
+    .filter((row) => row.is_shadow !== true)
+    .map((row) =>
+      partnerV4PulseFromLive({
+        id: row.id,
+        liveAt: row.completed_at ?? row.created_at,
+      }),
+    );
 
   return (
-    <PageFrame role="partner" density="compact">
-      <p className="text-2xs font-bold uppercase tracking-[0.14em] text-dim">
-        Partner
-      </p>
-      <OperateHeroMeta
-        title="Invite clients to a first moment"
-        description="Read-honest referral. You never write their score. Book pulse stays from referral_source."
-      />
-
-      <div className="dash-panel mt-6" data-partner-invite="">
-        <p className="dash-rail-label">Your invite link</p>
-        <div className="mt-3">
-          {inviteUrl ? (
-            <InviteShareRow url={inviteUrl} copyLabel="Copy invite" />
-          ) : (
-            <p className="text-sm text-dim">
-              Could not mint an invite code. Refresh or contact support.
-            </p>
-          )}
-        </div>
-      </div>
-
-      <div className="mt-6">
-        <MetricRail
-          cells={[
-            {
-              label: "Invites sent",
-              value: String(assessmentCount),
-              footer: "referral_source · live",
-            },
-            {
-              label: "Booked",
-              value: String(booked),
-              footer: "Book pulse",
-            },
-            {
-              label: "Open",
-              value: String(open),
-              footer: "No client score wall",
-            },
-          ]}
-        />
-      </div>
-
-      {!hasBook && (
-        <div className="mt-6">
-          <EmptyState
-            tone="operate"
-            title="Share your link to open the book"
-            body="When clients complete a first moment through your invite, book pulse appears here. No emails. No guesswork."
-          />
-        </div>
-      )}
-
-      {hasBook && (
-        <div className="glass mt-6 p-5 sm:p-6">
-          <div className="dash-section-head">
-            <h2>Recent book pulse</h2>
-            <p>Receipt bands only. No verdict badge wall. Never emails.</p>
-          </div>
-          <div className="table-scroll">
-            <table className="table-premium min-w-[520px]">
-              <thead>
-                <tr>
-                  <th>Client</th>
-                  <th>Band</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {attributed.slice(0, 20).map((a) => {
-                  const client = a.user_id ? clients.find((c) => c.id === a.user_id) : undefined;
-                  return (
-                    <tr key={a.id}>
-                      <td className="text-sm text-light">{client?.full_name || "Client"}</td>
-                      <td className="text-sm text-dim">
-                        {a.overall_score != null
-                          ? SCORE_BAND_LABEL[scoreBand(a.overall_score)]
-                          : "—"}
-                      </td>
-                      <td className="text-xs text-dim">
-                        {new Date(a.completed_at ?? a.created_at).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {clients.length > 0 && (
-        <div className="glass mt-6 p-5 sm:p-6">
-          <div className="dash-section-head">
-            <h2>Named roster</h2>
-            <p>Explicit partner_id links only. Invite traffic is separate.</p>
-          </div>
-          <ul className="divide-y divide-white/5">
-            {clients.slice(0, 25).map((c) => (
-              <li
-                key={c.id}
-                className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm"
-              >
-                <span className="font-medium text-light">{c.full_name || "Linked client"}</span>
-                <span className="text-xs text-dim">
-                  Joined{" "}
-                  {new Date(c.created_at).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      <div className="mt-8 grid gap-3 sm:grid-cols-3" data-partner-resources="">
-        {[
-          { href: "/guides", title: "Client guides", body: "Share ready explainers" },
-          { href: "/method", title: "HōMI method", body: "How the instrument works" },
-          { href: "/how-it-works", title: "First moment", body: "What clients complete" },
-        ].map((card) => (
-          <Link
-            key={card.href}
-            href={card.href}
-            className="block rounded-lg border border-white/[0.06] px-3 py-2.5 text-sm transition-colors hover:border-cyan/25 hover:text-light"
-          >
-            <p className="font-medium text-light/90">{card.title}</p>
-            <p className="mt-0.5 text-xs text-dim">{card.body}</p>
-          </Link>
-        ))}
-      </div>
-
-      <p className="mt-10 text-center text-xs text-dim">
-        Decision-support for clients. Not financial advice. HōMI Technologies LLC.
-      </p>
-    </PageFrame>
+    <PartnerWorkspaceV4
+      view={buildPartnerV4View({
+        originMissing,
+        inviteUrl,
+        mintFailed: !originMissing && !partnerCode, // Could not mint an invite code
+        pulse,
+      })}
+    />
   );
 }

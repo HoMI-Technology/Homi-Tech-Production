@@ -16,6 +16,7 @@ import {
   V4_SHELL_MONEY_HREF,
   V4_SHELL_PATH_HREF,
   V4_SHELL_EMPLOYEE_HREF,
+  V4_SHELL_PARTNER_HREF,
   V4_SHELL_SETTINGS_HREF,
   V4_SHELL_TOOLS_HREF,
 } from "@/lib/layout/v4-shell";
@@ -38,7 +39,8 @@ export type HomiV4Surface =
   | "learn"
   | "accounts"
   | "settings"
-  | "employee";
+  | "employee"
+  | "partner";
 
 export type HomiV4HeaderMode = "brand" | "micro";
 
@@ -116,6 +118,12 @@ const HOMI_SURFACE_META: Record<HomiV4Surface, HomiSurfaceMeta> = {
     fallbackHref: V4_SHELL_EMPLOYEE_HREF,
     extraClass: "v4-system-homi",
     dataAttr: "data-employee-v4-homi",
+  },
+  partner: {
+    askId: "v4-partner-homi-ask",
+    fallbackHref: V4_SHELL_PARTNER_HREF,
+    extraClass: "v4-system-homi",
+    dataAttr: "data-partner-v4-homi",
   },
 };
 
@@ -268,6 +276,7 @@ export function HomiIntelligenceV4({
           data-accounts-v4-homi-ask={surface === "accounts" ? "" : undefined}
           data-settings-v4-homi-ask={surface === "settings" ? "" : undefined}
           data-employee-v4-homi-ask={surface === "employee" ? "" : undefined}
+          data-partner-v4-homi-ask={surface === "partner" ? "" : undefined}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={askPlaceholder}

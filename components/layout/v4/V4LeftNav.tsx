@@ -9,15 +9,19 @@ import { COLORS, TAGLINES } from "@/lib/brand";
 import {
   V4_EMPLOYEE_OPERATE_NAV,
   V4_EMPLOYEE_WORKSPACE_NAV,
+  V4_PARTNER_OPERATE_NAV,
+  V4_PARTNER_WORKSPACE_NAV,
   V4_PRIMARY_NAV,
   V4_RAIL_WIDTH_PX,
   V4_SECONDARY_NAV,
   V4_SHELL_COMPASS_SIZE,
   V4_SHELL_EMPLOYEE_HREF,
   V4_SHELL_HOME_HREF,
+  V4_SHELL_PARTNER_HREF,
   V4_SYSTEM_NAV,
   isV4EmployeeWorkspace,
   isV4NavActive,
+  isV4PartnerWorkspace,
 } from "@/lib/layout/v4-shell";
 
 function RailLinks({
@@ -66,7 +70,12 @@ export function V4LeftNav({
 }) {
   const pathname = usePathname() ?? V4_SHELL_HOME_HREF;
   const employee = isV4EmployeeWorkspace(pathname);
-  const homeHref = employee ? V4_SHELL_EMPLOYEE_HREF : V4_SHELL_HOME_HREF;
+  const partner = isV4PartnerWorkspace(pathname);
+  const homeHref = partner
+    ? V4_SHELL_PARTNER_HREF
+    : employee
+      ? V4_SHELL_EMPLOYEE_HREF
+      : V4_SHELL_HOME_HREF;
 
   return (
     <>
@@ -106,7 +115,12 @@ export function V4LeftNav({
             </span>
             <Wordmark size="text-lg leading-none" />
           </Link>
-          {employee ? (
+          {partner ? (
+            <p className="v4-partner-identity mt-3" data-v4-workspace-chip="partner">
+              <span>Partner</span>
+              <span className="v4-partner-identity-job">book</span>
+            </p>
+          ) : employee ? (
             <p className="v4-employee-identity mt-3" data-v4-workspace-chip="employee">
               <span>Employee</span>
               <span className="v4-employee-identity-job">operate</span>
@@ -124,7 +138,19 @@ export function V4LeftNav({
           )}
         </div>
 
-        {employee ? (
+        {partner ? (
+          <>
+            <nav data-v4-rail-workspace="" aria-label="Workspace" className="flex flex-col gap-0.5 px-3">
+              <p className="v4-rail-section">Workspace</p>
+              <RailLinks items={V4_PARTNER_WORKSPACE_NAV} pathname={pathname} onClose={onClose} />
+            </nav>
+            <div className="mx-4 my-3 h-px shrink-0 bg-white/[0.06]" data-v4-rail-divider="" />
+            <nav data-v4-rail-operate="" aria-label="Operate" className="flex flex-col gap-0.5 px-3">
+              <p className="v4-rail-section">Operate</p>
+              <RailLinks items={V4_PARTNER_OPERATE_NAV} pathname={pathname} onClose={onClose} />
+            </nav>
+          </>
+        ) : employee ? (
           <>
             <nav data-v4-rail-workspace="" aria-label="Workspace" className="flex flex-col gap-0.5 px-3">
               <p className="v4-rail-section">Workspace</p>

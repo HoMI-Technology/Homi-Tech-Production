@@ -26,7 +26,7 @@ describe("PR4 live routes only — no invented homes", () => {
     expect(existsSync(resolve(process.cwd(), "app/(product)/employee/page.tsx"))).toBe(false);
     expect(existsSync(resolve(process.cwd(), "app/(product)/partner/page.tsx"))).toBe(false);
     expect(employee).toContain("EmployeeWorkspaceV4");
-    expect(partner).toContain('role="partner"');
+    expect(partner).toContain("PartnerWorkspaceV4");
     expect(admin).toContain('role="admin"');
     expect(team).toContain('role="team"');
     expect(team).toContain("/team — not /team/dashboard");
@@ -86,6 +86,18 @@ describe("PR4 partner leftover kills", () => {
     expect(partner).toContain("referral_source");
     expect(partner).toContain("never writes score or ledger");
   });
+
+  it("keeps Shell v4 partner operate home — book pulse, live invite only", () => {
+    expect(partner).toContain("PartnerWorkspaceV4");
+    expect(partner).toContain("/partner/dashboard");
+    expect(partner).not.toContain("HeroScore");
+    expect(partner).not.toContain("MetricRail");
+    expect(partner).not.toContain("OperateHeroMeta");
+    expect(partner).not.toContain("PageFrame");
+    expect(partner).not.toContain("scoreBand");
+    expect(partner).not.toContain("/admin");
+    expect(partner).not.toContain("/team");
+  });
 });
 
 describe("PR4 admin leftover kills", () => {
@@ -118,7 +130,6 @@ describe("PR4 team leftover kills", () => {
 describe("PR5 craft-residue chrome — operate voice, no new URLs", () => {
   it("first-paint labels drop WORD crumbs and raw path crumbs", () => {
     expect(employee).not.toContain("Employee · /employee/dashboard");
-    expect(partner).toMatch(/>\s*Partner\s*<\/p>/);
     expect(partner).not.toContain("Partner · /partner/dashboard");
     expect(team).toContain("Team · aggregate only");
     expect(team).not.toContain("Team · /team");

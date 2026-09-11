@@ -79,6 +79,7 @@ export const V4_SHELL_LEARN_HREF = "/learn" as const;
 export const V4_SHELL_ACCOUNTS_HREF = "/connections" as const;
 export const V4_SHELL_SETTINGS_HREF = "/settings" as const;
 export const V4_SHELL_EMPLOYEE_HREF = "/employee/dashboard" as const;
+export const V4_SHELL_PARTNER_HREF = "/partner/dashboard" as const;
 
 /** Employee operate jobs — same Shell v4, not a personal Home clone. Live route only. */
 export const V4_EMPLOYEE_WORKSPACE_NAV: readonly V4NavItem[] = [
@@ -92,6 +93,20 @@ export const V4_EMPLOYEE_OPERATE_NAV: readonly V4NavItem[] = [
 
 export const V4_EMPLOYEE_MOBILE_TABS: readonly V4NavItem[] = [
   { href: V4_SHELL_EMPLOYEE_HREF, label: "Home" },
+] as const;
+
+/** Partner operate jobs — book growth, not a personal Home clone. Live route only. */
+export const V4_PARTNER_WORKSPACE_NAV: readonly V4NavItem[] = [
+  { href: V4_SHELL_PARTNER_HREF, label: "Home" },
+] as const;
+
+export const V4_PARTNER_OPERATE_NAV: readonly V4NavItem[] = [
+  { href: `${V4_SHELL_PARTNER_HREF}#book`, label: "Book" },
+  { href: `${V4_SHELL_PARTNER_HREF}#invite`, label: "Invite" },
+] as const;
+
+export const V4_PARTNER_MOBILE_TABS: readonly V4NavItem[] = [
+  { href: V4_SHELL_PARTNER_HREF, label: "Home" },
 ] as const;
 
 export function isV4AskPath(pathname: string): boolean {
@@ -140,11 +155,16 @@ export function isV4EmployeeWorkspace(pathname: string): boolean {
   return p === V4_SHELL_EMPLOYEE_HREF || p.startsWith(`${V4_SHELL_EMPLOYEE_HREF}/`);
 }
 
+export function isV4PartnerWorkspace(pathname: string): boolean {
+  const p = pathname || "/";
+  return p === V4_SHELL_PARTNER_HREF || p.startsWith(`${V4_SHELL_PARTNER_HREF}/`);
+}
+
 export function isV4NavActive(pathname: string, href: string): boolean {
   const p = pathname || "/";
   const hrefPath = href.split("#")[0] || href;
   if (hrefPath === "/home") {
-    if (isV4EmployeeWorkspace(p)) return false;
+    if (isV4EmployeeWorkspace(p) || isV4PartnerWorkspace(p)) return false;
     return p === "/home" || p.startsWith("/home/") || isV4AskPath(p);
   }
   if (hrefPath === "/money") {
@@ -154,6 +174,10 @@ export function isV4NavActive(pathname: string, href: string): boolean {
   if (hrefPath === V4_SHELL_EMPLOYEE_HREF) {
     if (href.includes("#")) return false;
     return isV4EmployeeWorkspace(p);
+  }
+  if (hrefPath === V4_SHELL_PARTNER_HREF) {
+    if (href.includes("#")) return false;
+    return isV4PartnerWorkspace(p);
   }
   return p === hrefPath || p.startsWith(`${hrefPath}/`);
 }
@@ -188,5 +212,9 @@ export function v4ShellShowsHomiRail(pathname: string): boolean {
 
 /** Mobile Ask sheet = prompts only (no Open HōMI / nav dump). */
 export function isV4AskOnlyPath(pathname: string): boolean {
-  return isV4SystemSurfacePath(pathname) || isV4EmployeeWorkspace(pathname);
+  return (
+    isV4SystemSurfacePath(pathname) ||
+    isV4EmployeeWorkspace(pathname) ||
+    isV4PartnerWorkspace(pathname)
+  );
 }

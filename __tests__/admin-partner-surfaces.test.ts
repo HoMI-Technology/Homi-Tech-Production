@@ -108,21 +108,22 @@ describe("partner + employee surfaces doctrine", () => {
 
   it("Partner primary is invite — not personal Path hero", () => {
     const page = read("app/(product)/partner/dashboard/page.tsx");
-    expect(page).toMatch(/>\s*Partner\s*<\/p>/);
+    const workspace = read("components/v4/partner/PartnerWorkspaceV4.tsx");
     expect(page).not.toContain("Partner · /partner/dashboard");
-    expect(page).toContain('data-partner-invite=""');
-    expect(page).toContain("InviteShareRow");
+    expect(page).toContain("PartnerWorkspaceV4");
     expect(page).toContain("first-moment?ref=");
-    expect(page).toContain("Copy invite");
+    expect(workspace).toContain('data-partner-invite=""');
+    expect(workspace).toContain("InviteShareRow");
+    expect(workspace).toContain("Copy invite");
     expect(page).not.toContain("shadow-score?ref=");
     expect(page).not.toContain("Shadow Score");
     expect(page).not.toContain("VerdictBadge");
     expect(page).not.toContain("PathNextMove");
     expect(page).not.toContain("HomeFold");
     expect(page).not.toContain("NOT_YET");
-    expect(page).toContain('data-partner-resources=""');
-    // Resources demoted — no glass-hover marketing wall
-    expect(page).not.toMatch(/data-partner-resources[\s\S]*glass-hover/);
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("scoreBand");
+    expect(page).not.toContain("data-partner-resources");
   });
 
   it("Employee hub is Shell v4 operate home — score theater unmounted", () => {

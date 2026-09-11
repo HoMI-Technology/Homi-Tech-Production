@@ -9,7 +9,7 @@ import type { SystemV4Cta } from "@/lib/v4/system-surfaces";
 export type SystemWorkspaceV4Props = {
   surface: Extract<
     HomiV4Surface,
-    "bills" | "tools" | "learn" | "accounts" | "settings" | "employee"
+    "bills" | "tools" | "learn" | "accounts" | "settings" | "employee" | "partner"
   >;
   kind: string;
   hardStopActive: boolean;
@@ -24,6 +24,8 @@ export type SystemWorkspaceV4Props = {
   onCtaClick?: () => void;
   prompts: readonly V4AssessHomiPrompt[];
   askPlaceholder: string;
+  /** Same-route hash for the main column (hard-stop + fold). Keeps the headline out from under the command bar. */
+  foldAnchorId?: string;
   children?: React.ReactNode;
 };
 
@@ -46,12 +48,13 @@ export function SystemWorkspaceV4({
   onCtaClick,
   prompts,
   askPlaceholder,
+  foldAnchorId,
   children,
 }: SystemWorkspaceV4Props) {
   return (
     <div className="v4-system" data-system-v4="" data-system-v4-surface={surface} data-system-v4-kind={kind}>
       <div className="v4-system-grid" data-system-v4-grid="">
-        <div className="v4-system-main">
+        <div className="v4-system-main" id={foldAnchorId}>
           {hardStopActive ? (
             <section data-system-v4-hard-stop="" aria-label="Hard stop">
               {verdictLabel ? (

@@ -1,4 +1,4 @@
-# brand-shell-craft — Shell + Home + Assessment + Path + Money + Compare + Contextual HōMI + System surfaces + Employee v4 mocks
+# brand-shell-craft — Shell + Home + Assessment + Path + Money + Compare + Contextual HōMI + System surfaces + Employee + Partner v4 mocks
 
 Product CLEAR floor for stay-draft PRs. Still **not** Pixel Gate.
 
@@ -27,12 +27,16 @@ Product CLEAR floor for stay-draft PRs. Still **not** Pixel Gate.
 | `employee-empty-v4` | Employee empty — connect/wait, no invented teammate lists or scores |
 | `employee-hard-stop-v4` | Employee hard-stop hold, explain-only, never On track (orientation ≠ PIXEL) |
 | `employee-normal-v4` | Employee live operate chrome — Attention + Privacy, no HeroScore |
+| `partner-empty-v4` | Partner empty book — Invite CTA, no invented client list or scores |
+| `partner-normal-v4` | Partner live referral pulse — Referral · live / SSOT, no HeroScore |
+| `partner-invite-error-v4` | Partner SITE_URL fail-loud — Origin missing, never a silent bad link |
 
 PNG/WebP stills live on the coordinator box under `brand-shell-craft/`. This
 clone records the names so agents do not invent a parallel mock set.
 
 `/home`, `/assessment`, `/path`, `/money`, `/scenarios`, `/ask`, `/money/bills`,
-`/tools`, `/learn`, `/connections`, `/settings`, and `/employee/dashboard` at
+`/tools`, `/learn`, `/connections`, `/settings`, `/employee/dashboard`, and
+`/partner/dashboard` at
 1440/1280/1024/768/390/320 + states) are a later operator pass with local
 `HOMI_V4_HOME_ENABLED` + `HOMI_V4_VISUAL_FIXTURE` only. See
 `docs/design/v4-screenshot-set.md`. Fixture stays Preview-only.
