@@ -125,6 +125,7 @@ describe("CCP isV4Path", () => {
       "/money",
       "/path",
       "/scenarios",
+      "/ask",
       "/tools",
       "/learn",
       "/settings",
@@ -138,6 +139,7 @@ describe("CCP isV4Path", () => {
     expect(isV4Path("/settings")).toBe(true);
     expect(isV4Path("/assessment")).toBe(true);
     expect(isV4Path("/learn")).toBe(true);
+    expect(isV4Path("/ask")).toBe(true);
     expect(compareAliasRedirect("/compare")).toBe("/scenarios");
     expect(compareAliasRedirect("/compare/foo")).toBe("/scenarios");
     expect(compareAliasRedirect("/scenarios")).toBeNull();
@@ -147,6 +149,7 @@ describe("CCP isV4Path", () => {
     expect(classifyChangeControlLane("/settings")).toBe("V4_PENDING");
     expect(classifyChangeControlLane("/assessment")).toBe("V4_PENDING");
     expect(classifyChangeControlLane("/learn")).toBe("V4_PENDING");
+    expect(classifyChangeControlLane("/ask")).toBe("V4_PENDING");
     expect(classifyChangeControlLane("/trust")).toBe("DARK");
   });
 

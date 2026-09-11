@@ -16,7 +16,12 @@ import {
   resolveAdaptiveIndex,
   type AdaptiveHomeState,
 } from "@/lib/questions/adaptive-home";
-import { V4_SHELL_ASSESS_HREF, V4_SHELL_HOME_HREF } from "@/lib/layout/v4-shell";
+import {
+  V4_SHELL_ASSESS_HREF,
+  V4_SHELL_HOME_HREF,
+  V4_SHELL_MONEY_HREF,
+  V4_SHELL_PATH_HREF,
+} from "@/lib/layout/v4-shell";
 
 export const V4_ASSESS_VERTICAL = "home_buying" as const;
 export const V4_ASSESS_VERTICALS = [V4_ASSESS_VERTICAL] as const;
@@ -29,6 +34,8 @@ export const V4_ASK_PLACEHOLDER_DECISION = "Ask HōMI about this decision...";
 export const V4_ASK_PLACEHOLDER_QUESTION = "Ask HōMI about this question...";
 export const V4_ASK_PLACEHOLDER_FINANCIAL = "Ask HōMI about this financial picture...";
 export const V4_ASK_PLACEHOLDER_COMPARE = "Ask HōMI about this comparison...";
+export const V4_ASK_PLACEHOLDER_READINESS = "Ask HōMI about this readiness...";
+export const V4_ASK_PLACEHOLDER_PATH = "Ask HōMI about this path...";
 
 export const V4_ASSESS_VISUAL_STATES = ["pillar-intro", "mid-walk"] as const;
 export type V4AssessVisualState = (typeof V4_ASSESS_VISUAL_STATES)[number];
@@ -54,11 +61,11 @@ export const V4_ASSESS_HOMI_COMPARE: V4AssessHomiPrompt = {
 
 const PATH_LENGTH_PROMPT: V4AssessHomiPrompt = {
   label: "Why path length can change",
-  href: "/learn",
+  href: V4_SHELL_HOME_HREF,
 };
 
 export const V4_ASSESS_HOMI_QUESTION_DEFAULT: readonly V4AssessHomiPrompt[] = [
-  { label: "How does this affect runway?", href: "/path" },
+  { label: "How does this affect runway?", href: V4_SHELL_PATH_HREF },
   V4_ASSESS_HOMI_COMPARE,
 ];
 
@@ -68,8 +75,8 @@ export const V4_ASSESS_MID_WALK_VALUE = "5_9" as const;
 
 const HOMI_BY_QUESTION: Record<string, readonly V4AssessHomiPrompt[]> = {
   [V4_ASSESS_MID_WALK_QUESTION_ID]: [
-    { label: "Why does down payment matter?", href: "/money" },
-    { label: "How does this affect runway?", href: "/path" },
+    { label: "Why does down payment matter?", href: V4_SHELL_MONEY_HREF },
+    { label: "How does this affect runway?", href: V4_SHELL_PATH_HREF },
     V4_ASSESS_HOMI_COMPARE,
   ],
 };
@@ -82,7 +89,7 @@ export function assessmentHomiPrompts(args: {
   if (args.kind === "intro" && args.dimension) {
     const name = PILLARS.find((pillar) => pillar.key === args.dimension)?.name ?? args.dimension;
     return [
-      { label: `What is ${name}?`, href: "/learn" },
+      { label: `What is ${name}?`, href: V4_SHELL_HOME_HREF },
       PATH_LENGTH_PROMPT,
       V4_ASSESS_HOMI_COMPARE,
     ];

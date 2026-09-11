@@ -8,11 +8,12 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { V4_ASK_PLACEHOLDER_DEFAULT } from "@/lib/v4/assessment-walk";
+import { V4_ASK_PLACEHOLDER_DEFAULT, type V4AssessHomiPrompt } from "@/lib/v4/assessment-walk";
 
 export type AssessmentWalkChromeState = {
   commandLabel: string | null;
   askPlaceholder: string;
+  prompts: readonly V4AssessHomiPrompt[];
 };
 
 type AssessmentWalkChromeContextValue = {
@@ -27,6 +28,7 @@ const AssessmentWalkChromeContext = createContext<AssessmentWalkChromeContextVal
 const DEFAULT_CHROME: AssessmentWalkChromeState = {
   commandLabel: null,
   askPlaceholder: V4_ASK_PLACEHOLDER_DEFAULT,
+  prompts: [],
 };
 
 export function AssessmentWalkChromeProvider({ children }: { children: ReactNode }) {

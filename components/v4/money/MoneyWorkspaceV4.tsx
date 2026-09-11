@@ -159,6 +159,7 @@ export function MoneyWorkspaceV4({ view }: { view: MoneyV4View }) {
         <HomiIntelligenceV4
           surface="money"
           showContext={false}
+          commandLabel={view.decisionContext}
           prompts={view.prompts}
           askPlaceholder={V4_ASK_PLACEHOLDER_MONEY}
         />

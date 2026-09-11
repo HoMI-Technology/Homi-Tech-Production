@@ -25,16 +25,12 @@ import {
 } from "@/lib/dashboard/fold-truth";
 import { PILLARS, VERDICT_META, type VerdictKey } from "@/lib/brand";
 import { V4_SHELL_PATH_HREF } from "@/lib/layout/v4-shell";
+import { ASK_V4_PROMPTS } from "@/lib/v4/contextual-homi";
 
 export const HOME_V4_PATH_CTA = RUNWAY_HARD_STOP_FOLD_TITLE;
 export const HOME_V4_TOOLS_MAX = 4 as const;
 
-export const HOME_V4_HOMI_PROMPTS = [
-  { label: "How can I build my runway faster?", href: "/path" },
-  { label: "What is my next Path step?", href: "/path" },
-  { label: "Why is this decision on hold?", href: "/results" },
-  { label: "Compare approaches without a second score.", href: "/scenarios" },
-] as const;
+export const HOME_V4_HOMI_PROMPTS = ASK_V4_PROMPTS.default;
 
 export type HomeV4MoneyStatus = "empty" | "disconnected";
 

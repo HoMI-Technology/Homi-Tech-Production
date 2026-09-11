@@ -153,6 +153,14 @@ screenshots. `HOMI_V4_HOME_ENABLED` default false.
   JetBrains Mono for live SSOT numbers only. No verbose fixture meta in the fold.
   Mobile: Compare under More. Optional `/compare` aliases here. Craft:
   `docs/design/COMPARE_CRAFT_v4_2026-09-11.md`.
+- **Contextual HōMI** is the Shell v4 right column (~300–340) plus Ask in the
+  top command across Home / Money / Path / Compare / Assess. Explain + deep-link
+  only (Path / Money / Compare / Assess / Home). Never a second score, never invent
+  $, never On track under a hard stop. Optional `/ask` is a flag-gated V4_PENDING
+  deep entry that opens the same surface — not a peer dashboard. Mobile: Ask/HōMI
+  as a sheet or More depth, never a fifth bottom-nav peer. No Homie. No fake
+  live-AI typing. Compass stays shell-only. Craft:
+  `docs/design/CONTEXTUAL_HOMI_CRAFT_v4_2026-09-11.md`.
 - Finance GATE: score / verdict / hard stops from **AssessmentResult only**.
 - Activation: `HOMI_V4_HOME_ENABLED` default **false** (CCP / ADR-005).
   Pixel Gate: do not undraft or expose `/home` until founder APPROVE VISUAL

@@ -20,6 +20,7 @@ import {
   isV4NavActive,
   isV4PathWorkspace,
   isV4MoneyWorkspace,
+  isV4AskPath,
   v4ShellShowsHomiRail,
 } from "@/lib/layout/v4-shell";
 
@@ -54,6 +55,7 @@ describe("Shell v4 nav law", () => {
     ]);
     expect(V4_MORE_NAV.map((item) => item.label)).toEqual([
       "Compare",
+      "Ask HōMI",
       "Bills",
       "Tools",
       "Learn",
@@ -75,6 +77,8 @@ describe("Shell v4 nav law", () => {
     expect(V4_PRIMARY_NAV.some((item) => item.label === "Assess")).toBe(false);
     expect(V4_PRIMARY_NAV.map((item) => item.label)).not.toContain("Tools");
     expect(V4_COMMAND_ITEMS.some((item) => item.label === "Assess")).toBe(true);
+    expect(V4_COMMAND_ITEMS.some((item) => item.label === "Ask HōMI")).toBe(true);
+    expect(V4_PRIMARY_NAV.some((item) => item.label === "Ask HōMI")).toBe(false);
     expect(V4_SHELL_ASSESS_HREF).toBe("/assessment");
     expect(V4_SHELL_PATH_HREF).toBe("/path");
     expect(V4_SHELL_MONEY_HREF).toBe("/money");
@@ -84,6 +88,10 @@ describe("Shell v4 nav law", () => {
     expect(isV4MoneyWorkspace("/money/bills")).toBe(false);
     expect(isV4CompareWorkspace("/scenarios")).toBe(true);
     expect(isV4CompareWorkspace("/path")).toBe(false);
+    expect(isV4AskPath("/ask")).toBe(true);
+    expect(isV4AskPath("/home")).toBe(false);
+    expect(isV4NavActive("/ask", "/home")).toBe(true);
+    expect(isV4NavActive("/ask", "/scenarios")).toBe(false);
     expect(isV4NavActive("/assessment", "/home")).toBe(false);
     expect(isV4NavActive("/assessment", "/path")).toBe(false);
     expect(isV4NavActive("/path", "/path")).toBe(true);
@@ -97,6 +105,8 @@ describe("Shell v4 nav law", () => {
     ]);
     expect(V4_MORE_NAV.some((item) => item.label === "Compare")).toBe(true);
     expect(V4_MOBILE_TABS.some((item) => item.label === "Compare")).toBe(false);
+    expect(V4_MORE_NAV.some((item) => item.label === "Ask HōMI")).toBe(true);
+    expect(V4_MOBILE_TABS.some((item) => item.label === "Ask HōMI")).toBe(false);
     expect(V4_MORE_NAV.some((item) => item.label === "Assess")).toBe(false);
     expect(V4_MOBILE_TABS.some((item) => item.label === "Assess")).toBe(false);
   });
@@ -121,10 +131,11 @@ describe("Shell v4 nav law", () => {
     expect(V4_COMMAND_HEIGHT_PX).toBe(64);
   });
 
-  it("shows the right HōMI column on Home and Assessment, not Money/Path/Compare", () => {
+  it("shows the right HōMI column on Home, Assessment, and Ask — not Money/Path/Compare", () => {
     expect(v4ShellShowsHomiRail("/home")).toBe(true);
     expect(v4ShellShowsHomiRail("/home/next")).toBe(true);
     expect(v4ShellShowsHomiRail("/assessment")).toBe(true);
+    expect(v4ShellShowsHomiRail("/ask")).toBe(true);
     expect(v4ShellShowsHomiRail("/money")).toBe(false);
     expect(v4ShellShowsHomiRail("/path")).toBe(false);
     expect(v4ShellShowsHomiRail("/scenarios")).toBe(false);
@@ -147,6 +158,32 @@ describe("Shell v4 nav law", () => {
     const start = css.indexOf("/* Compare HōMI is a full-height column");
     expect(start).toBeGreaterThan(-1);
     const block = css.slice(start, start + 900);
+    expect(block).toContain("background: transparent");
+    expect(block).toContain("border-radius: 0");
+    expect(block).toContain("grid-area: auto");
+    expect(block).toContain("border-left: 1px solid");
+    expect(block).not.toMatch(/position:\s*fixed/);
+    expect(block).not.toMatch(/position:\s*absolute/);
+  });
+
+  it("Path HōMI is a full-height column, not a floating overlay card", () => {
+    const css = readFileSync(resolve(process.cwd(), "app/globals.css"), "utf8");
+    const start = css.indexOf("/* Path HōMI is a full-height column");
+    expect(start).toBeGreaterThan(-1);
+    const block = css.slice(start, start + 900);
+    expect(block).toContain("background: transparent");
+    expect(block).toContain("border-radius: 0");
+    expect(block).toContain("grid-area: auto");
+    expect(block).toContain("border-left: 1px solid");
+    expect(block).not.toMatch(/position:\s*fixed/);
+    expect(block).not.toMatch(/position:\s*absolute/);
+  });
+
+  it("Ask HōMI is a full-height column, not a floating overlay card", () => {
+    const css = readFileSync(resolve(process.cwd(), "app/globals.css"), "utf8");
+    const start = css.indexOf("/* Contextual HōMI /ask — raise the bar vs Compare");
+    expect(start).toBeGreaterThan(-1);
+    const block = css.slice(start, start + 2200);
     expect(block).toContain("background: transparent");
     expect(block).toContain("border-radius: 0");
     expect(block).toContain("grid-area: auto");

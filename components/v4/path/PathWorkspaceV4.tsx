@@ -7,7 +7,7 @@ import { COLORS } from "@/lib/brand";
 import { HomiIntelligenceV4 } from "@/components/v4/home/HomiIntelligenceV4";
 import { useAssessmentWalkChrome } from "@/components/v4/assessment/AssessmentWalkChrome";
 import {
-  V4_ASK_PLACEHOLDER_DECISION,
+  V4_ASK_PLACEHOLDER_PATH,
   V4_ASK_PLACEHOLDER_DEFAULT,
 } from "@/lib/v4/assessment-walk";
 import {
@@ -47,7 +47,7 @@ export function PathWorkspaceV4({ view }: { view: PathV4View }) {
   useEffect(() => {
     setChrome({
       commandLabel: view.decisionContext,
-      askPlaceholder: V4_ASK_PLACEHOLDER_DECISION,
+      askPlaceholder: V4_ASK_PLACEHOLDER_PATH,
     });
     return () =>
       setChrome({
@@ -119,8 +119,9 @@ export function PathWorkspaceV4({ view }: { view: PathV4View }) {
         <HomiIntelligenceV4
           surface="path"
           showContext={false}
+          commandLabel={view.decisionContext}
           prompts={view.prompts}
-          askPlaceholder={V4_ASK_PLACEHOLDER_DECISION}
+          askPlaceholder={V4_ASK_PLACEHOLDER_PATH}
         />
       </div>
     </div>

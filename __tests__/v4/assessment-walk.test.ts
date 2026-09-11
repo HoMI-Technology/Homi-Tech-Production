@@ -58,6 +58,8 @@ describe("Assessment v4 walk law", () => {
     });
     expect(mid.map((item) => item.label)).toContain("Why does down payment matter?");
     expect(mid.every((item) => item.href !== "/results")).toBe(true);
+    expect(JSON.stringify(intro)).not.toContain("/learn");
+    expect(JSON.stringify(mid)).not.toContain("/learn");
     expect(assessmentAskPlaceholder("question")).toBe("Ask HōMI about this question...");
     expect(assessmentAskPlaceholder("intro")).toBe("Ask HōMI about this decision...");
   });

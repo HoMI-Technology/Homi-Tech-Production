@@ -17,13 +17,13 @@ import {
   type FoldHardStopCode,
 } from "@/lib/dashboard/fold-truth";
 import { dollarsToCents, formatCentsUSD, type MoneyCents } from "@/lib/finance/money";
-import { V4_SHELL_MONEY_HREF, V4_SHELL_PATH_HREF } from "@/lib/layout/v4-shell";
+import { V4_SHELL_MONEY_HREF } from "@/lib/layout/v4-shell";
 import {
   V4_ASSESS_DECISION_LABEL,
-  V4_ASSESS_HOMI_COMPARE,
   V4_ASK_PLACEHOLDER_FINANCIAL,
   type V4AssessHomiPrompt,
 } from "@/lib/v4/assessment-walk";
+import { ASK_V4_MONEY_PROMPTS } from "@/lib/v4/contextual-homi";
 import type { PlaidItemStatus } from "@/types/database";
 
 export const V4_MONEY_HREF = V4_SHELL_MONEY_HREF;
@@ -68,11 +68,7 @@ export type MoneyV4Kind = V4MoneyVisualState;
 
 export type MoneyV4HomiPrompt = V4AssessHomiPrompt;
 
-export const MONEY_V4_HOMI_PROMPTS: readonly MoneyV4HomiPrompt[] = [
-  { label: "What does liquid cash mean here?", href: "/learn" },
-  { label: "How does Money relate to Path?", href: V4_SHELL_PATH_HREF },
-  V4_ASSESS_HOMI_COMPARE,
-];
+export const MONEY_V4_HOMI_PROMPTS: readonly MoneyV4HomiPrompt[] = ASK_V4_MONEY_PROMPTS;
 
 export type MoneyV4Account = {
   id: string;

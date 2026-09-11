@@ -379,27 +379,32 @@ export function FullAssessmentFlow() {
 
   const homiKind =
     step?.kind === "intro" ? "intro" : step?.kind === "question" ? "question" : "other";
-  const homiPrompts = assessmentHomiPrompts({
-    kind: homiKind,
-    dimension:
-      step?.kind === "intro"
-        ? step.dimension
-        : questionDimension,
-    questionId: step?.kind === "question" ? step.questionId : undefined,
-  });
+  const homiDimension = step?.kind === "intro" ? step.dimension : questionDimension;
+  const homiQuestionId = step?.kind === "question" ? step.questionId : undefined;
+  const homiPrompts = useMemo(
+    () =>
+      assessmentHomiPrompts({
+        kind: homiKind,
+        dimension: homiDimension,
+        questionId: homiQuestionId,
+      }),
+    [homiDimension, homiKind, homiQuestionId],
+  );
 
   useEffect(() => {
     setChrome({
       commandLabel: V4_ASSESS_DECISION_LABEL,
       askPlaceholder: assessmentAskPlaceholder(homiKind),
+      prompts: homiPrompts,
     });
     return () => {
       setChrome({
         commandLabel: null,
         askPlaceholder: V4_ASK_PLACEHOLDER_DEFAULT,
+        prompts: [],
       });
     };
-  }, [homiKind, setChrome]);
+  }, [homiKind, homiPrompts, setChrome]);
 
   if (freeze.status === "frozen" && freeze.record) {
     return (
@@ -421,7 +426,10 @@ export function FullAssessmentFlow() {
     : null;
 
   return (
-    <AssessmentWalkV4 prompts={homiPrompts}>
+    <AssessmentWalkV4
+      prompts={homiPrompts}
+      askPlaceholder={assessmentAskPlaceholder(homiKind)}
+    >
       {moneyPrefillBanner && !resumeDraft && (
         <p data-money-prefill-banner="" className="glass mb-6 p-4 text-sm text-light">
           {MONEY_PREFILL_BANNER}

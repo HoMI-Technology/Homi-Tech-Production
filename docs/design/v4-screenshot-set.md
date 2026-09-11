@@ -1,4 +1,4 @@
-# Pixel Gate — Home v4 + Assessment v4 + Path v4 + Money v4 + Compare v4 screenshot set
+# Pixel Gate — Home v4 + Assessment v4 + Path v4 + Money v4 + Compare v4 + Contextual HōMI screenshot set
 
 Stay-draft until founder **APPROVE VISUAL DIRECTION**. Do not undraft, do not
 merge, do not deploy Production. Production may already have
@@ -11,7 +11,8 @@ Operator Preview / local stills: `HOMI_V4_HOME_ENABLED=true` **and**
 `/path?visual=empty`, `hard-stop`, `normal`, `complete`. Money stills:
 `/money?visual=empty`, `hard-stop`, `connected`, `stale`, `syncing`, `error`.
 Compare stills: `/scenarios?visual=empty`, `hard-stop`, `normal`, `stale`,
-`error`. Those URLs must paint **ShellV4** (left rail + top command), never
+`error`. Contextual HōMI stills: `/ask?visual=empty`, `hard-stop`, `default`.
+Those URLs must paint **ShellV4** (left rail + top command), never
 marketing SiteHeader. Fixture stays Preview-only. Flag stays operator-set.
 Approved-template cards are orientation — **live saved rows win at Pixel**.
 Never invent $ or a second official score.
@@ -75,9 +76,21 @@ orientation only — **≠ PIXEL**. Mock $ must not ship as Production invent.
 Mocks (`compare-empty-v4`, `compare-hard-stop-v4`, `compare-normal-v4`) are
 orientation only — **≠ PIXEL**. Never invent $ or a second official score.
 
+## Contextual HōMI states (PR I)
+
+| Query | Intent |
+| --- | --- |
+| `/ask?visual=empty` | No assessment — Assess CTA, no fake readiness |
+| `/ask?visual=hard-stop` | Hard-stop ACTIVE hold, explain + Path deep-link, never On track |
+| `/ask?visual=default` | Quiet readiness explain, Path + Money deep-links, Educational label |
+
+Mocks (`contextual-homi-empty-v4`, `contextual-homi-hard-stop-v4`,
+`contextual-homi-default-v4`) are orientation only — **≠ PIXEL**. Never invent
+$ or a second official score.
+
 ## Gate
 
-Architecture → real rendered Home + Assessment + Path + Money + Compare → this set → internal ≥92/100 →
+Architecture → real rendered Home + Assessment + Path + Money + Compare + Ask → this set → internal ≥92/100 →
 founder APPROVE VISUAL DIRECTION → then undraft / merge.
 
 Stills land under `docs/design/baseline/` when captured. This PR does not
