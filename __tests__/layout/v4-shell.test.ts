@@ -181,9 +181,9 @@ describe("Shell v4 nav law", () => {
 
   it("Ask HōMI is a full-height column, not a floating overlay card", () => {
     const css = readFileSync(resolve(process.cwd(), "app/globals.css"), "utf8");
-    const start = css.indexOf("/* Contextual HōMI /ask — raise the bar vs Compare");
+    const start = css.indexOf("/* Ask HōMI is a full-height column");
     expect(start).toBeGreaterThan(-1);
-    const block = css.slice(start, start + 2200);
+    const block = css.slice(start, start + 900);
     expect(block).toContain("background: transparent");
     expect(block).toContain("border-radius: 0");
     expect(block).toContain("grid-area: auto");

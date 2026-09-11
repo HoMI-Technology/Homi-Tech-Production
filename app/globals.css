@@ -1378,6 +1378,9 @@ html {
   border-color: rgba(255, 255, 255, 0.08);
   background: transparent;
 }
+
+/* Ask HōMI is a full-height column, not a floating overlay card.
+   Raise the bar vs Compare: column not overlay. */
 .v4-ask .v4-homi,
 .v4-ask-homi {
   grid-area: auto;
