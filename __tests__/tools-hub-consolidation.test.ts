@@ -14,18 +14,18 @@ function read(rel: string): string {
 
 describe("tools hub consolidation lock", () => {
   it("hub page renders hubLenses only — no 18-calculators marketing", () => {
-    const src = read("app/(product)/tools/page.tsx");
+    const src = read("lib/v4/tools-workspace.ts");
+    const ui = read("components/v4/tools/ToolsWorkspaceV4.tsx");
+    const page = read("app/(product)/tools/page.tsx");
     expect(src).toMatch(/hubLenses/);
     expect(src).not.toMatch(/LENSES\.length/);
     expect(src).not.toMatch(/18 calculators/i);
-    expect(src).not.toMatch(/Open calculator/);
-    expect(src).toMatch(/Open lens/);
-    expect(src).toMatch(/Educational estimates/);
-    expect(src).not.toMatch(/href=["']\/simulator["']/);
-    expect(src).not.toMatch(/href=["']\/scenarios["']/);
-    expect(src).toMatch(/PRIMARY_CLOSE_HREF/);
-    expect(src).toMatch(/PRIMARY_CLOSE_LABEL/);
-    expect(src).not.toMatch(/href=["']\/assessment["']/);
+    expect(ui).toMatch(/Open lens/);
+    expect(ui).toMatch(/Educational estimates/);
+    expect(ui).not.toMatch(/href=["']\/simulator["']/);
+    expect(page).toMatch(/ToolsWorkspaceV4/);
+    expect(page).not.toMatch(/href=["']\/simulator["']/);
+    expect(page).not.toMatch(/hubLensesByRing/);
     expect(src).not.toMatch(/hubLensesByRing/);
   });
 

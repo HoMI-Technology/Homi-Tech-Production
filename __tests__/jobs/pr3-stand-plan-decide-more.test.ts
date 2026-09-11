@@ -19,7 +19,10 @@ const moneyPage = read("app/(product)/money/page.tsx");
 const moneyShell = read("components/money/MoneyShell.tsx");
 const pathPage = read("app/(product)/path/page.tsx");
 const workbench = read("components/readiness/PathWorkbench.tsx");
-const toolsHub = read("app/(product)/tools/page.tsx");
+const toolsHub =
+  read("app/(product)/tools/page.tsx") +
+  read("lib/v4/tools-workspace.ts") +
+  read("components/v4/tools/ToolsWorkspaceV4.tsx");
 const decide = read("components/money/MoneyDecideHub.tsx");
 const header = read("components/layout/AppHeader.tsx");
 const fold = read("components/dashboard/ThresholdFold.tsx");
@@ -38,7 +41,7 @@ describe("CEO chrome defaults 1–7 (founder skipped picker)", () => {
     expect(pathPage).toContain("PathWorkspaceV4");
     expect(moneyPage).toContain("MoneyWorkspaceV4");
     expect(stand).toContain("Stand job on live `/money`");
-    expect(toolsHub).toContain("Decide job primary surface");
+    expect(toolsHub).toContain("ToolsWorkspaceV4");
   });
 
   it("2 More is a ··· drawer — not a peer home or /more URL", () => {

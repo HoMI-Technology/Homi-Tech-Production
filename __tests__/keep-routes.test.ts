@@ -140,6 +140,8 @@ describe("CCP isV4Path", () => {
     expect(isV4Path("/assessment")).toBe(true);
     expect(isV4Path("/learn")).toBe(true);
     expect(isV4Path("/ask")).toBe(true);
+    expect(isV4Path("/money/bills")).toBe(true);
+    expect(classifyChangeControlLane("/money/bills")).toBe("V4_PENDING");
     expect(compareAliasRedirect("/compare")).toBe("/scenarios");
     expect(compareAliasRedirect("/compare/foo")).toBe("/scenarios");
     expect(compareAliasRedirect("/scenarios")).toBeNull();

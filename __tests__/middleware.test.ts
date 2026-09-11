@@ -210,6 +210,24 @@ describe("CCP v1 `/home` activation", () => {
     expect(res.headers.get("location")).toBeNull();
   });
 
+  it("flag on lets system surfaces pass the CCP gate, including /money/bills via /money prefix", async () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
+    for (const path of ["/money/bills", "/tools", "/learn", "/connections", "/settings"]) {
+      const res = await middleware(req(path));
+      expect(res.status, path).toBe(200);
+      expect(res.headers.get("location"), path).toBeNull();
+    }
+  });
+
+  it("flag off folds system surfaces onto `/`", async () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "false");
+    for (const path of ["/money/bills", "/tools", "/learn", "/connections", "/settings"]) {
+      const res = await middleware(req(path));
+      expect(res.status, path).toBe(307);
+      expect(pathname(res), path).toBe("/");
+    }
+  });
+
   it("flag off folds `/ask` onto `/`", async () => {
     vi.stubEnv("HOMI_V4_HOME_ENABLED", "false");
     const res = await middleware(req("/ask"));

@@ -36,6 +36,11 @@ export const V4_ASK_PLACEHOLDER_FINANCIAL = "Ask HōMI about this financial pict
 export const V4_ASK_PLACEHOLDER_COMPARE = "Ask HōMI about this comparison...";
 export const V4_ASK_PLACEHOLDER_READINESS = "Ask HōMI about this readiness...";
 export const V4_ASK_PLACEHOLDER_PATH = "Ask HōMI about this path...";
+export const V4_ASK_PLACEHOLDER_BILLS = "Ask HōMI about these bills...";
+export const V4_ASK_PLACEHOLDER_TOOLS = "Ask HōMI about these tools...";
+export const V4_ASK_PLACEHOLDER_LEARN = "Ask HōMI about this learning...";
+export const V4_ASK_PLACEHOLDER_ACCOUNTS = "Ask HōMI about these accounts...";
+export const V4_ASK_PLACEHOLDER_SETTINGS = "Ask HōMI about these settings...";
 
 export const V4_ASSESS_VISUAL_STATES = ["pillar-intro", "mid-walk"] as const;
 export type V4AssessVisualState = (typeof V4_ASSESS_VISUAL_STATES)[number];

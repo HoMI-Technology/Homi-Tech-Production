@@ -8,10 +8,15 @@ import { ArrowRight, Search } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { useAssessmentWalkChrome } from "@/components/v4/assessment/AssessmentWalkChrome";
 import {
+  V4_SHELL_ACCOUNTS_HREF,
   V4_SHELL_ASSESS_HREF,
+  V4_SHELL_BILLS_HREF,
   V4_SHELL_COMPARE_HREF,
+  V4_SHELL_LEARN_HREF,
   V4_SHELL_MONEY_HREF,
   V4_SHELL_PATH_HREF,
+  V4_SHELL_SETTINGS_HREF,
+  V4_SHELL_TOOLS_HREF,
 } from "@/lib/layout/v4-shell";
 import {
   V4_ASK_PLACEHOLDER_DECISION,
@@ -20,67 +25,107 @@ import {
 } from "@/lib/v4/assessment-walk";
 import { ASK_V4_PROMPTS, ASK_V4_PROMPTS_MAX } from "@/lib/v4/contextual-homi";
 
-export type HomiV4Surface = "home" | "walk" | "path" | "money" | "compare" | "ask";
+export type HomiV4Surface =
+  | "home"
+  | "walk"
+  | "path"
+  | "money"
+  | "compare"
+  | "ask"
+  | "bills"
+  | "tools"
+  | "learn"
+  | "accounts"
+  | "settings";
+
+export type HomiV4HeaderMode = "brand" | "micro";
+
+type HomiSurfaceMeta = {
+  askId: string;
+  fallbackHref: string;
+  extraClass: string;
+  dataAttr: string;
+};
+
+const HOMI_SURFACE_META: Record<HomiV4Surface, HomiSurfaceMeta> = {
+  home: { askId: "v4-homi-ask", fallbackHref: V4_SHELL_PATH_HREF, extraClass: "", dataAttr: "data-home-v4-homi" },
+  walk: {
+    askId: "v4-assess-homi-ask",
+    fallbackHref: V4_SHELL_ASSESS_HREF,
+    extraClass: "v4-assess-homi",
+    dataAttr: "data-assessment-v4-homi",
+  },
+  path: {
+    askId: "v4-path-homi-ask",
+    fallbackHref: V4_SHELL_PATH_HREF,
+    extraClass: "v4-path-homi",
+    dataAttr: "data-path-v4-homi",
+  },
+  money: {
+    askId: "v4-money-homi-ask",
+    fallbackHref: V4_SHELL_MONEY_HREF,
+    extraClass: "v4-money-homi",
+    dataAttr: "data-money-v4-homi",
+  },
+  compare: {
+    askId: "v4-compare-homi-ask",
+    fallbackHref: V4_SHELL_COMPARE_HREF,
+    extraClass: "v4-compare-homi",
+    dataAttr: "data-compare-v4-homi",
+  },
+  ask: {
+    askId: "v4-ask-homi-ask",
+    fallbackHref: V4_SHELL_PATH_HREF,
+    extraClass: "v4-ask-homi",
+    dataAttr: "data-ask-v4-homi",
+  },
+  bills: {
+    askId: "v4-bills-homi-ask",
+    fallbackHref: V4_SHELL_BILLS_HREF,
+    extraClass: "v4-system-homi",
+    dataAttr: "data-bills-v4-homi",
+  },
+  tools: {
+    askId: "v4-tools-homi-ask",
+    fallbackHref: V4_SHELL_TOOLS_HREF,
+    extraClass: "v4-system-homi",
+    dataAttr: "data-tools-v4-homi",
+  },
+  learn: {
+    askId: "v4-learn-homi-ask",
+    fallbackHref: V4_SHELL_LEARN_HREF,
+    extraClass: "v4-system-homi",
+    dataAttr: "data-learn-v4-homi",
+  },
+  accounts: {
+    askId: "v4-accounts-homi-ask",
+    fallbackHref: V4_SHELL_ACCOUNTS_HREF,
+    extraClass: "v4-system-homi",
+    dataAttr: "data-accounts-v4-homi",
+  },
+  settings: {
+    askId: "v4-settings-homi-ask",
+    fallbackHref: V4_SHELL_SETTINGS_HREF,
+    extraClass: "v4-system-homi",
+    dataAttr: "data-settings-v4-homi",
+  },
+};
 
 function homiAskId(surface: HomiV4Surface): string {
-  switch (surface) {
-    case "home":
-      return "v4-homi-ask";
-    case "walk":
-      return "v4-assess-homi-ask";
-    case "path":
-      return "v4-path-homi-ask";
-    case "money":
-      return "v4-money-homi-ask";
-    case "compare":
-      return "v4-compare-homi-ask";
-    case "ask":
-      return "v4-ask-homi-ask";
-    default: {
-      const _exhaustive: never = surface;
-      return _exhaustive;
-    }
-  }
+  return HOMI_SURFACE_META[surface].askId;
 }
 
 function homiFallbackHref(surface: HomiV4Surface): string {
-  switch (surface) {
-    case "home":
-    case "path":
-    case "ask":
-      return V4_SHELL_PATH_HREF;
-    case "walk":
-      return V4_SHELL_ASSESS_HREF;
-    case "money":
-      return V4_SHELL_MONEY_HREF;
-    case "compare":
-      return V4_SHELL_COMPARE_HREF;
-    default: {
-      const _exhaustive: never = surface;
-      return _exhaustive;
-    }
-  }
+  return HOMI_SURFACE_META[surface].fallbackHref;
 }
 
 function homiClassName(surface: HomiV4Surface): string {
-  switch (surface) {
-    case "home":
-      return "v4-homi";
-    case "walk":
-      return "v4-homi v4-assess-homi";
-    case "path":
-      return "v4-homi v4-path-homi";
-    case "money":
-      return "v4-homi v4-money-homi";
-    case "compare":
-      return "v4-homi v4-compare-homi";
-    case "ask":
-      return "v4-homi v4-ask-homi";
-    default: {
-      const _exhaustive: never = surface;
-      return _exhaustive;
-    }
-  }
+  const extra = HOMI_SURFACE_META[surface].extraClass;
+  return extra ? `v4-homi ${extra}` : "v4-homi";
+}
+
+function homiSurfaceAttr(surface: HomiV4Surface): Record<string, string> {
+  return { [HOMI_SURFACE_META[surface].dataAttr]: "" };
 }
 
 /**
@@ -95,6 +140,7 @@ export function HomiIntelligenceV4({
   showContext = true,
   askPlaceholder = V4_ASK_PLACEHOLDER_DECISION,
   surface = "home",
+  headerMode = "brand",
 }: {
   decisionContext?: string | null;
   commandLabel?: string | null;
@@ -102,6 +148,7 @@ export function HomiIntelligenceV4({
   showContext?: boolean;
   askPlaceholder?: string;
   surface?: HomiV4Surface;
+  headerMode?: HomiV4HeaderMode;
 }) {
   const router = useRouter();
   const { setChrome } = useAssessmentWalkChrome();
@@ -145,17 +192,20 @@ export function HomiIntelligenceV4({
   return (
     <aside
       className={homiClassName(surface)}
+      data-v4-homi-header={headerMode}
+      {...homiSurfaceAttr(surface)}
       data-home-v4-homi={surface === "home" ? "" : undefined}
       data-assessment-v4-homi={surface === "walk" ? "" : undefined}
       data-path-v4-homi={surface === "path" ? "" : undefined}
       data-money-v4-homi={surface === "money" ? "" : undefined}
       data-compare-v4-homi={surface === "compare" ? "" : undefined}
       data-ask-v4-homi={surface === "ask" ? "" : undefined}
+      data-system-v4-homi={HOMI_SURFACE_META[surface].extraClass === "v4-system-homi" ? "" : undefined}
       aria-label="HōMI"
     >
       <header className="v4-homi-head">
-        <div className="v4-homi-brand">
-          <Wordmark size="text-base leading-none" />
+        <div className={`v4-homi-brand${headerMode === "micro" ? " is-micro" : ""}`}>
+          {headerMode === "micro" ? null : <Wordmark size="text-base leading-none" />}
           <p className="v4-homi-mode">Clarity</p>
         </div>
         {showContext ? <p className="v4-homi-context">{contextLine}</p> : null}
@@ -197,12 +247,18 @@ export function HomiIntelligenceV4({
         <Search aria-hidden className="v4-homi-ask-icon size-4" strokeWidth={1.75} />
         <input
           id={askId}
+          data-v4-homi-ask=""
           data-home-v4-homi-ask={surface === "home" ? "" : undefined}
           data-assessment-v4-homi-ask={surface === "walk" ? "" : undefined}
           data-path-v4-homi-ask={surface === "path" ? "" : undefined}
           data-money-v4-homi-ask={surface === "money" ? "" : undefined}
           data-compare-v4-homi-ask={surface === "compare" ? "" : undefined}
           data-ask-v4-homi-ask={surface === "ask" ? "" : undefined}
+          data-bills-v4-homi-ask={surface === "bills" ? "" : undefined}
+          data-tools-v4-homi-ask={surface === "tools" ? "" : undefined}
+          data-learn-v4-homi-ask={surface === "learn" ? "" : undefined}
+          data-accounts-v4-homi-ask={surface === "accounts" ? "" : undefined}
+          data-settings-v4-homi-ask={surface === "settings" ? "" : undefined}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={askPlaceholder}
