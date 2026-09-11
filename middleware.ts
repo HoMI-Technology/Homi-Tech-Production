@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import {
+  compareAliasRedirect,
   extraLegalRedirect,
   isDarkApiPath,
   isKeepPath,
@@ -69,6 +70,16 @@ export async function middleware(request: NextRequest) {
     const dest = request.nextUrl.clone();
     dest.pathname = legalDest;
     dest.search = "";
+    return NextResponse.redirect(dest);
+  }
+
+  const compareDest = compareAliasRedirect(path);
+  if (compareDest) {
+    if (!isV4RouteActivated(compareDest)) {
+      return redirectToHome(request);
+    }
+    const dest = request.nextUrl.clone();
+    dest.pathname = compareDest;
     return NextResponse.redirect(dest);
   }
 

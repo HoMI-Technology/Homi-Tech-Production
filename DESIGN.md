@@ -145,6 +145,14 @@ screenshots. `HOMI_V4_HOME_ENABLED` default false.
   write AssessmentResult. Ask: *Ask HōMI about this financial picture...*.
   JetBrains Mono for live $ only. Craft:
   `docs/design/MONEY_CRAFT_v4_2026-09-10.md`.
+- **Compare is `/scenarios`** (rail label Compare), Shell v4 `main#main`, same
+  flag. Educational templates only — reuse `lib/readiness/scenario*.ts` and
+  `lib/tools/scenarios.ts`. Empty / hard-stop (educational-only, never On track)
+  / normal ≤3–4 approved cards / stale · error with quiet age. Never invent $
+  or a second official score. Ask: *Ask HōMI about this comparison...*.
+  JetBrains Mono for live SSOT numbers only. No verbose fixture meta in the fold.
+  Mobile: Compare under More. Optional `/compare` aliases here. Craft:
+  `docs/design/COMPARE_CRAFT_v4_2026-09-11.md`.
 - Finance GATE: score / verdict / hard stops from **AssessmentResult only**.
 - Activation: `HOMI_V4_HOME_ENABLED` default **false** (CCP / ADR-005).
   Pixel Gate: do not undraft or expose `/home` until founder APPROVE VISUAL

@@ -10,6 +10,7 @@ import {
   isV4HomeEnabled,
   isV4Path,
   isV4RouteActivated,
+  compareAliasRedirect,
   normalizeAppPath,
   V4_LIVE_PATHS,
   V4_PENDING_PATHS,
@@ -137,6 +138,10 @@ describe("CCP isV4Path", () => {
     expect(isV4Path("/settings")).toBe(true);
     expect(isV4Path("/assessment")).toBe(true);
     expect(isV4Path("/learn")).toBe(true);
+    expect(compareAliasRedirect("/compare")).toBe("/scenarios");
+    expect(compareAliasRedirect("/compare/foo")).toBe("/scenarios");
+    expect(compareAliasRedirect("/scenarios")).toBeNull();
+    expect(isV4Path("/compare")).toBe(false);
     expect(isV4Path("/dashboard")).toBe(false);
     expect(classifyChangeControlLane("/home")).toBe("V4_PENDING");
     expect(classifyChangeControlLane("/settings")).toBe("V4_PENDING");

@@ -182,11 +182,39 @@ describe("CCP v1 `/home` activation", () => {
     expect(res.headers.get("location")).toBeNull();
   });
 
+  it("flag on lets `/money` pass the CCP gate", async () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
+    const res = await middleware(req("/money"));
+    expect(res.status).toBe(200);
+    expect(res.headers.get("location")).toBeNull();
+  });
+
   it("flag on lets `/assessment` pass the CCP gate", async () => {
     vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
     const res = await middleware(req("/assessment"));
     expect(res.status).toBe(200);
     expect(res.headers.get("location")).toBeNull();
+  });
+
+  it("flag on lets `/scenarios` pass the CCP gate", async () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
+    const res = await middleware(req("/scenarios"));
+    expect(res.status).toBe(200);
+    expect(res.headers.get("location")).toBeNull();
+  });
+
+  it("flag on aliases `/compare` onto `/scenarios` without a second workspace", async () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
+    const res = await middleware(req("/compare"));
+    expect(res.status).toBe(307);
+    expect(pathname(res)).toBe("/scenarios");
+  });
+
+  it("flag off folds `/compare` onto `/`", async () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "false");
+    const res = await middleware(req("/compare"));
+    expect(res.status).toBe(307);
+    expect(pathname(res)).toBe("/");
   });
 
   it("flag on lets unsigned visual-fixture `/assessment?visual=*` through the CCP gate", async () => {

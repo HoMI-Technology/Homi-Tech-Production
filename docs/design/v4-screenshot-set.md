@@ -1,8 +1,8 @@
-# Pixel Gate — Home v4 + Assessment v4 + Path v4 + Money v4 screenshot set
+# Pixel Gate — Home v4 + Assessment v4 + Path v4 + Money v4 + Compare v4 screenshot set
 
 Stay-draft until founder **APPROVE VISUAL DIRECTION**. Do not undraft, do not
 merge, do not deploy Production. Production may already have
-`HOMI_V4_HOME_ENABLED=true`; that is not Pixel Gate for Money v4.
+`HOMI_V4_HOME_ENABLED=true`; that is not Pixel Gate for Compare v4.
 
 Operator Preview / local stills: `HOMI_V4_HOME_ENABLED=true` **and**
 `HOMI_V4_VISUAL_FIXTURE=true`, then `/home?visual=hard-stop` (State A),
@@ -10,9 +10,11 @@ Operator Preview / local stills: `HOMI_V4_HOME_ENABLED=true` **and**
 `/assessment?visual=pillar-intro`, `/assessment?visual=mid-walk`. Path stills:
 `/path?visual=empty`, `hard-stop`, `normal`, `complete`. Money stills:
 `/money?visual=empty`, `hard-stop`, `connected`, `stale`, `syncing`, `error`.
-Those URLs must paint **ShellV4** (left rail + top command), never marketing
-SiteHeader. Fixture stays Preview-only. Flag stays operator-set.
-Connected craft figures are orientation — **live Plaid SSOT wins at Pixel**.
+Compare stills: `/scenarios?visual=empty`, `hard-stop`, `normal`, `stale`,
+`error`. Those URLs must paint **ShellV4** (left rail + top command), never
+marketing SiteHeader. Fixture stays Preview-only. Flag stays operator-set.
+Approved-template cards are orientation — **live saved rows win at Pixel**.
+Never invent $ or a second official score.
 
 ## Viewports (required)
 
@@ -60,9 +62,22 @@ Live path-rules titles win over mock step labels.
 Mocks (`money-empty-v4`, `money-hard-stop-v4`, `money-connected-v4`) are
 orientation only — **≠ PIXEL**. Mock $ must not ship as Production invent.
 
+## Compare states (PR H)
+
+| Query | Intent |
+| --- | --- |
+| `/scenarios?visual=empty` | No scenarios — Start a comparison, no invented results |
+| `/scenarios?visual=hard-stop` | Hard-stop ACTIVE hold + educational-only, never On track |
+| `/scenarios?visual=normal` | ≤3–4 approved cards, quiet age, Educational label |
+| `/scenarios?visual=stale` | Quiet age honesty on live saved rows |
+| `/scenarios?visual=error` | Load honesty, no invented results |
+
+Mocks (`compare-empty-v4`, `compare-hard-stop-v4`, `compare-normal-v4`) are
+orientation only — **≠ PIXEL**. Never invent $ or a second official score.
+
 ## Gate
 
-Architecture → real rendered Home + Assessment + Path + Money → this set → internal ≥92/100 →
+Architecture → real rendered Home + Assessment + Path + Money + Compare → this set → internal ≥92/100 →
 founder APPROVE VISUAL DIRECTION → then undraft / merge.
 
 Stills land under `docs/design/baseline/` when captured. This PR does not

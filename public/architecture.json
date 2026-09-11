@@ -1,7 +1,7 @@
 {
   "_meta": {
     "version": "v1",
-    "generated": "2026-09-10",
+    "generated": "2026-09-11",
     "product": "HōMI",
     "full_name": "Homi Technologies LLC — Decision Readiness Intelligence™",
     "domain": "homitechnology.com",
@@ -1423,7 +1423,7 @@
     },
     {
       "name": "v4",
-      "count": 18,
+      "count": 22,
       "description": "v4 UI module",
       "examples": [
         "HomeV4.test",
