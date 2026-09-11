@@ -11,7 +11,7 @@ export function AdminRoomEmptyV4({
   actionHref,
 }: {
   title: string;
-  body: string;
+  body?: string;
   actionLabel?: string;
   actionHref?: string;
 }) {
@@ -20,7 +20,7 @@ export function AdminRoomEmptyV4({
   return (
     <div data-admin-v4-empty="">
       <h1 className="v4-system-title">{title}</h1>
-      <p className="v4-system-meta mt-2">{body}</p>
+      {body ? <p className="v4-system-body mt-2">{body}</p> : null}
       <div className="mt-6">
         {actionHref ? (
           <Link href={actionHref} className="btn btn-primary">

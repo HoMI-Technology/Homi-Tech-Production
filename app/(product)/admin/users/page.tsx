@@ -6,10 +6,7 @@ import { PageFrame } from "@/components/operate/PageFrame";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { COLORS } from "@/lib/brand";
-import {
-  ADMIN_V4_USERS_EMPTY,
-  ADMIN_V4_USERS_EMPTY_BODY,
-} from "@/lib/v4/admin-workspace";
+import { ADMIN_V4_USERS_EMPTY } from "@/lib/v4/admin-workspace";
 import type { Profile } from "@/types/database";
 
 export const metadata: Metadata = {
@@ -51,7 +48,7 @@ export default async function AdminUsersPage() {
   return (
     <PageFrame role="admin" density="compact">
       {users.length === 0 ? (
-        <AdminRoomEmptyV4 title={ADMIN_V4_USERS_EMPTY} body={ADMIN_V4_USERS_EMPTY_BODY} />
+        <AdminRoomEmptyV4 title={ADMIN_V4_USERS_EMPTY} />
       ) : (
         <>
       <PageHeader eyebrow="Admin" title="Users" description="Read-only directory of accounts." />

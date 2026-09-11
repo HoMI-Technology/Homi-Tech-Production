@@ -32,7 +32,7 @@ export function AdminWorkspaceV4({ view }: { view: AdminV4View }) {
 
         <div className="mt-8">
           <h1 className="v4-system-title">{view.title}</h1>
-          <p className="v4-system-meta mt-2">{view.body}</p>
+          {view.body ? <p className="v4-system-body mt-2">{view.body}</p> : null}
         </div>
 
         {view.jobs.length > 0 ? (

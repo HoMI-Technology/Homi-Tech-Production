@@ -109,10 +109,7 @@ export default async function AdminActivityPage() {
   return (
     <PageFrame role="admin" density="compact">
       {entries.length === 0 ? (
-        <AdminRoomEmptyV4
-          title="No activity yet."
-          body="Calm empty — never invent a table."
-        />
+        <AdminRoomEmptyV4 title="No activity yet." />
       ) : (
         <>
       <PageHeader

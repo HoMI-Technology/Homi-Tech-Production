@@ -56,6 +56,10 @@ describe("Admin v4 in Shell v4", () => {
     expect(V4_PRIMARY_NAV.some((item) => item.label === "Admin")).toBe(false);
     expect(text).toContain("Nothing needs attention.");
     expect(text).toContain("Nothing queued.");
+    expect(text).not.toContain("Live ops only");
+    expect(text).not.toContain("Attention above KPI");
+    expect(container.querySelector("[data-admin-v4] .v4-system-meta")).toBeNull();
+    expect(container.querySelector(".dash-rail")).toBeNull();
     expect(text).not.toContain("Money");
     expect(text).not.toContain("Compare");
     expect(container.querySelector("[data-v4-ask-homi]")).toBeNull();
@@ -77,7 +81,14 @@ describe("Admin v4 in Shell v4", () => {
     expect(container.querySelector("[data-admin-v4-jobs]")).not.toBeNull();
     expect(text).toContain("Ops home.");
     expect(text).toContain("Open waitlist");
+    expect(text).toContain("Users");
+    expect(text).toContain("Orgs");
+    expect(text).toContain("Assessments 7d");
     expect(text).toContain("Waitlist");
+    expect(container.querySelectorAll(".dash-rail-cell")).toHaveLength(4);
+    expect(text).not.toContain("Live ops only");
+    expect(text).not.toContain("Attention above KPI");
+    expect(container.querySelector("[data-admin-v4] .v4-system-meta")).toBeNull();
     expect(text).not.toMatch(/\$\d/);
     expect(container.querySelector("[data-admin-v4-job='waitlist']")).not.toBeNull();
   });
@@ -86,12 +97,14 @@ describe("Admin v4 in Shell v4", () => {
     nav.pathname = "/admin/users";
     const { container } = render(
       shell(
-        <AdminRoomEmptyV4 title={ADMIN_V4_USERS_EMPTY} body="Calm empty — never invent a table." />,
+        <AdminRoomEmptyV4 title={ADMIN_V4_USERS_EMPTY} />,
       ),
     );
     const text = container.textContent ?? "";
     expect(text).toContain("No users yet.");
     expect(container.querySelector("[data-admin-v4-empty] button")?.textContent).toBe("Refresh");
+    expect(container.querySelector("[data-admin-v4-empty] .v4-system-meta")).toBeNull();
+    expect(text).not.toContain("Calm empty");
     expect(text).not.toMatch(/\?$/);
     expect(text).not.toContain("Clarity");
   });

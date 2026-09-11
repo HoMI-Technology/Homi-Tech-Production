@@ -62,10 +62,7 @@ export default async function AdminOrganizationsPage() {
   return (
     <PageFrame role="admin" density="compact">
       {organizations.length === 0 ? (
-        <AdminRoomEmptyV4
-          title="No organizations yet."
-          body="Calm empty — never invent a table."
-        />
+        <AdminRoomEmptyV4 title="No organizations yet." />
       ) : (
         <>
       <PageHeader

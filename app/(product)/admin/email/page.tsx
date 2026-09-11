@@ -77,10 +77,7 @@ export default async function AdminEmailPage() {
   return (
     <PageFrame role="admin" density="compact">
       {!service ? (
-        <AdminRoomEmptyV4
-          title="Email is not configured."
-          body="Live ops only — never invent a send table."
-        />
+        <AdminRoomEmptyV4 title="Email is not configured." />
       ) : (
         <>
       <PageHeader

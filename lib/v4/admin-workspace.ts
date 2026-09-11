@@ -11,18 +11,13 @@ import type { MetricCell } from "@/components/operate/MetricRail";
 
 export const V4_ADMIN_HREF = V4_SHELL_ADMIN_HREF;
 export const ADMIN_V4_CONTEXT = "Admin" as const;
-export const ADMIN_V4_LIVE = "Live" as const;
 
 export const ADMIN_V4_EMPTY_TITLE = "Nothing needs attention." as const;
-export const ADMIN_V4_EMPTY_BODY =
-  "Live ops only — never invent queues, scores, or $." as const;
 export const ADMIN_V4_EMPTY_ATTENTION = "Nothing queued." as const;
 
 export const ADMIN_V4_LIVE_TITLE = "Ops home." as const;
-export const ADMIN_V4_LIVE_BODY = "Attention above KPI. No score theater. No Ask." as const;
 
 export const ADMIN_V4_USERS_EMPTY = "No users yet." as const;
-export const ADMIN_V4_USERS_EMPTY_BODY = "Calm empty — never invent a table." as const;
 export const ADMIN_V4_REFRESH_CTA = "Refresh" as const;
 
 export const ADMIN_V4_MARKETING_TITLE = "Marketing." as const;
@@ -33,8 +28,10 @@ export const V4_ADMIN_VISUAL_STATES = ["empty", "normal"] as const;
 export type V4AdminVisualState = (typeof V4_ADMIN_VISUAL_STATES)[number];
 export type AdminV4Kind = V4AdminVisualState;
 
+export type AdminV4KpiId = "users" | "orgs" | "assessments7d" | "waitlist";
+
 export type AdminV4Kpi = {
-  id: "waitlist" | "activity" | "email";
+  id: AdminV4KpiId;
   label: string;
   value: string;
   href: string;
@@ -58,24 +55,35 @@ export type AdminV4View = {
   kind: AdminV4Kind;
   decisionContext: typeof ADMIN_V4_CONTEXT;
   title: string;
-  body: string;
+  body: string | null;
   attention: readonly AttentionItem[];
   attentionEmpty: typeof ADMIN_V4_EMPTY_ATTENTION | null;
   kpis: readonly AdminV4Kpi[];
   jobs: readonly AdminV4Job[];
 };
 
-export type AdminV4Pulse = {
+export type AdminV4Source = {
+  userCount: number;
+  orgCount: number;
+  assessments7d: number;
   waitlistCount: number;
-  activityCount: number;
   emailFailedCount: number;
 };
 
-export type AdminV4Source = {
-  waitlistCount: number;
-  activityCount: number;
-  emailFailedCount: number;
+export const ADMIN_V4_EMPTY_SOURCE: AdminV4Source = {
+  userCount: 0,
+  orgCount: 0,
+  assessments7d: 0,
+  waitlistCount: 0,
+  emailFailedCount: 0,
 };
+
+export function adminV4Assessments7dSinceIso(now = new Date()): string {
+  const since = new Date(now.getTime());
+  since.setUTCDate(since.getUTCDate() - 7);
+  since.setUTCHours(0, 0, 0, 0);
+  return since.toISOString();
+}
 
 export function parseV4AdminVisualState(
   raw: string | null | undefined,
@@ -114,38 +122,44 @@ function attentionFromLive(source: AdminV4Source): AttentionItem[] {
       cta: "Open email",
     });
   }
-  if (source.activityCount > 0 && items.length === 0) {
-    items.push({
-      id: "activity",
-      severity: "info",
-      title: "Live activity to review",
-      detail: `${source.activityCount.toLocaleString()} recent ops rows`,
-      href: "/admin/activity",
-      cta: "Open activity",
-    });
-  }
   return items;
 }
 
+function hasLiveHonestyCounts(source: AdminV4Source): boolean {
+  return (
+    source.userCount > 0 ||
+    source.orgCount > 0 ||
+    source.assessments7d > 0 ||
+    source.waitlistCount > 0
+  );
+}
+
 function kpisFromLive(source: AdminV4Source): AdminV4Kpi[] {
+  if (!hasLiveHonestyCounts(source)) return [];
   return [
+    {
+      id: "users",
+      label: "Users",
+      value: source.userCount.toLocaleString(),
+      href: "/admin/users",
+    },
+    {
+      id: "orgs",
+      label: "Orgs",
+      value: source.orgCount.toLocaleString(),
+      href: "/admin/organizations",
+    },
+    {
+      id: "assessments7d",
+      label: "Assessments 7d",
+      value: source.assessments7d.toLocaleString(),
+      href: "/admin/assessments",
+    },
     {
       id: "waitlist",
       label: "Waitlist",
-      value: source.waitlistCount > 0 ? source.waitlistCount.toLocaleString() : ADMIN_V4_LIVE,
+      value: source.waitlistCount.toLocaleString(),
       href: "/admin/waitlist",
-    },
-    {
-      id: "activity",
-      label: "Activity",
-      value: source.activityCount > 0 ? source.activityCount.toLocaleString() : ADMIN_V4_LIVE,
-      href: "/admin/activity",
-    },
-    {
-      id: "email",
-      label: "Email",
-      value: source.emailFailedCount > 0 ? source.emailFailedCount.toLocaleString() : ADMIN_V4_LIVE,
-      href: "/admin/email",
     },
   ];
 }
@@ -163,12 +177,13 @@ function jobsFromAttention(items: readonly AttentionItem[]): AdminV4Job[] {
 
 export function buildAdminV4View(source: AdminV4Source): AdminV4View {
   const attention = attentionFromLive(source);
-  if (attention.length === 0) {
+  const kpis = kpisFromLive(source);
+  if (attention.length === 0 && kpis.length === 0) {
     return {
       kind: "empty",
       decisionContext: ADMIN_V4_CONTEXT,
       title: ADMIN_V4_EMPTY_TITLE,
-      body: ADMIN_V4_EMPTY_BODY,
+      body: null,
       attention: [],
       attentionEmpty: ADMIN_V4_EMPTY_ATTENTION,
       kpis: [],
@@ -179,31 +194,34 @@ export function buildAdminV4View(source: AdminV4Source): AdminV4View {
     kind: "normal",
     decisionContext: ADMIN_V4_CONTEXT,
     title: ADMIN_V4_LIVE_TITLE,
-    body: ADMIN_V4_LIVE_BODY,
+    body: null,
     attention,
-    attentionEmpty: null,
-    kpis: kpisFromLive(source),
+    attentionEmpty: attention.length === 0 ? ADMIN_V4_EMPTY_ATTENTION : null,
+    kpis,
     jobs: jobsFromAttention(attention),
   };
 }
 
 export function adminV4VisualView(state: V4AdminVisualState): AdminV4View {
   if (state === "empty") {
-    return buildAdminV4View({ waitlistCount: 0, activityCount: 0, emailFailedCount: 0 });
+    return buildAdminV4View(ADMIN_V4_EMPTY_SOURCE);
   }
   return buildAdminV4View({
+    userCount: 18,
+    orgCount: 4,
+    assessments7d: 7,
     waitlistCount: 24,
-    activityCount: 8,
     emailFailedCount: 2,
   });
 }
 
 export function adminV4MetricCells(view: AdminV4View): MetricCell[] {
-  return view.kpis.map((kpi) => ({
-    label: kpi.label,
-    value: kpi.value,
-    footer: ADMIN_V4_LIVE,
-  }));
+  return view.kpis
+    .filter((kpi) => kpi.label.trim().length > 0 && kpi.value.trim().length > 0)
+    .map((kpi) => ({
+      label: kpi.label,
+      value: kpi.value,
+    }));
 }
 
 export const ADMIN_V4_ENGINE_PLATFORMS = ["x", "tiktok"] as const;

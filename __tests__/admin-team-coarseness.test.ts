@@ -13,6 +13,7 @@ function read(rel: string): string {
 }
 
 const ADMIN_HOME = "app/(product)/admin/page.tsx";
+const ADMIN_HOME_KPI = "lib/v4/admin-workspace.ts";
 const ADMIN_ASSESSMENTS = "app/(product)/admin/assessments/page.tsx";
 const TEAM = "app/(product)/team/page.tsx";
 
@@ -25,12 +26,22 @@ describe("admin overview — no cohort 0–100", () => {
   });
 
   it("rails Users / Orgs / Assessments 7d / Waitlist instead of an average integer", () => {
-    const src = read(ADMIN_HOME);
+    const src = read(ADMIN_HOME_KPI);
     expect(src).toMatch(/label:\s*"Users"/);
     expect(src).toMatch(/label:\s*"Orgs"/);
     expect(src).toMatch(/label:\s*"Assessments 7d"/);
     expect(src).toMatch(/label:\s*"Waitlist"/);
     expect(src).not.toMatch(/label:\s*"Wait"/);
+    expect(src).not.toMatch(/label:\s*"Avg score"/);
+    const home = read(ADMIN_HOME);
+    expect(home).toContain("userCount");
+    expect(home).toContain("orgCount");
+    expect(home).toContain("assessments7d");
+    expect(home).toContain("waitlistCount");
+    expect(home).toContain('from("profiles")');
+    expect(home).toContain('from("organizations")');
+    expect(home).toContain('from("assessments")');
+    expect(home).toContain('from("waitlist")');
   });
 });
 

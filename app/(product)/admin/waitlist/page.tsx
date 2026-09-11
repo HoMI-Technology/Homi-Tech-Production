@@ -56,10 +56,7 @@ export default async function AdminWaitlistPage() {
   return (
     <PageFrame role="admin" density="compact">
       {entries.length === 0 ? (
-        <AdminRoomEmptyV4
-          title="No waitlist signups yet."
-          body="Calm empty — never invent a table."
-        />
+        <AdminRoomEmptyV4 title="No waitlist signups yet." />
       ) : (
         <>
       <PageHeader

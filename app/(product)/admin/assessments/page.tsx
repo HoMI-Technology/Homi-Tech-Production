@@ -65,10 +65,7 @@ export default async function AdminAssessmentsPage() {
   return (
     <PageFrame role="admin" density="compact">
       {assessments.length === 0 ? (
-        <AdminRoomEmptyV4
-          title="No assessments yet."
-          body="Calm empty — never invent a table."
-        />
+        <AdminRoomEmptyV4 title="No assessments yet." />
       ) : (
         <>
       <PageHeader

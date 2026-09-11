@@ -38,17 +38,24 @@ describe("Admin v4 law", () => {
     expect(view.title).toBe(ADMIN_V4_EMPTY_TITLE);
     expect(view.kpis).toEqual([]);
     expect(view.jobs).toEqual([]);
+    expect(view.body).toBeNull();
     expect(view.attentionEmpty).toBe("Nothing queued.");
     expect(ADMIN_V4_REFRESH_CTA).toBe("Refresh");
     expect(ADMIN_V4_USERS_EMPTY).toBe("No users yet.");
     expect(blob(view)).not.toMatch(/\$\d/);
     expect(blob(view)).not.toContain("HeroScore");
     expect(blob(view)).not.toContain("Clarity");
+    expect(blob(view)).not.toContain("Live ops only");
+    expect(blob(view)).not.toContain("Attention above KPI");
     expect(adminV4ForbidsInventedDollars(view)).toBe(true);
     expect(adminV4ForbidsHeroScore(view)).toBe(true);
-    expect(
-      buildAdminV4View({ waitlistCount: 0, activityCount: 0, emailFailedCount: 0 }).kind,
-    ).toBe("empty");
+    expect(buildAdminV4View({
+      userCount: 0,
+      orgCount: 0,
+      assessments7d: 0,
+      waitlistCount: 0,
+      emailFailedCount: 0,
+    }).kind).toBe("empty");
   });
 
   it("normal attention sits above live KPI and never invents $", () => {
@@ -56,7 +63,15 @@ describe("Admin v4 law", () => {
     expect(view.kind).toBe("normal");
     expect(view.title).toBe(ADMIN_V4_LIVE_TITLE);
     expect(view.attention.length).toBeGreaterThan(0);
-    expect(view.kpis.map((kpi) => kpi.label)).toEqual(["Waitlist", "Activity", "Email"]);
+    expect(view.body).toBeNull();
+    expect(view.kpis.map((kpi) => kpi.label)).toEqual([
+      "Users",
+      "Orgs",
+      "Assessments 7d",
+      "Waitlist",
+    ]);
+    expect(view.kpis).toHaveLength(4);
+    expect(view.kpis.every((kpi) => kpi.label.length > 0 && kpi.value.length > 0)).toBe(true);
     expect(view.jobs[0]?.cta).toBe("Open waitlist");
     expect(view.jobs[0]?.cta).not.toMatch(/\?$/);
     expect(blob(view)).not.toMatch(/\$\d/);
