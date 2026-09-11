@@ -34,6 +34,7 @@ export const V4_PENDING_PATHS = [
   "/money",
   "/path",
   "/scenarios",
+  "/ask",
   "/tools",
   "/learn",
   "/settings",

@@ -22,7 +22,8 @@ import {
   V4_SHELL_PATH_HREF,
 } from "@/lib/layout/v4-shell";
 import { MAX_PATH_STEPS, type PathReasonCode, type PathStepStatus } from "@/lib/readiness/path";
-import { V4_ASSESS_DECISION_LABEL, V4_ASSESS_HOMI_COMPARE, type V4AssessHomiPrompt } from "@/lib/v4/assessment-walk";
+import { V4_ASSESS_DECISION_LABEL, type V4AssessHomiPrompt } from "@/lib/v4/assessment-walk";
+import { ASK_V4_PATH_PROMPTS } from "@/lib/v4/contextual-homi";
 
 export const V4_PATH_HREF = V4_SHELL_PATH_HREF;
 export const V4_PATH_ASSESS_HREF = V4_SHELL_ASSESS_HREF;
@@ -61,11 +62,7 @@ export type PathV4Step = {
 
 export type PathV4HomiPrompt = V4AssessHomiPrompt;
 
-export const PATH_V4_HOMI_PROMPTS: readonly PathV4HomiPrompt[] = [
-  { label: "What is my next Path step?", href: V4_SHELL_PATH_HREF },
-  { label: "Why does Path stop at seven?", href: "/learn" },
-  V4_ASSESS_HOMI_COMPARE,
-];
+export const PATH_V4_HOMI_PROMPTS: readonly PathV4HomiPrompt[] = ASK_V4_PATH_PROMPTS;
 
 export type PathV4View = {
   kind: PathV4Kind;

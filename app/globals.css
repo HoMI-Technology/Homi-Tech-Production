@@ -818,6 +818,43 @@ html {
   background: transparent;
 }
 
+/* Path HōMI is a full-height column, not a floating overlay card.
+   Raise the bar vs Compare: column not overlay. */
+.v4-path .v4-homi,
+.v4-path-homi {
+  grid-area: auto;
+  justify-content: flex-start;
+  border-radius: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  min-height: 0;
+  height: auto;
+}
+.v4-path .v4-homi-prompts,
+.v4-path-homi .v4-homi-prompts {
+  flex: 0 0 auto;
+}
+.v4-path .v4-homi-ask,
+.v4-path-homi .v4-homi-ask {
+  margin-top: 1rem;
+}
+@media (min-width: 1280px) {
+  .v4-path .v4-homi,
+  .v4-path-homi {
+    height: 100%;
+    min-height: 100%;
+    align-self: stretch;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0 1.15rem 1.35rem 1.35rem;
+  }
+  .v4-path .v4-homi-ask-input,
+  .v4-path-homi .v4-homi-ask-input {
+    font-size: 0.75rem;
+    padding-left: 2.15rem;
+  }
+}
+
 .v4-money {
   position: relative;
   display: flex;
@@ -1216,6 +1253,164 @@ html {
   }
   .v4-compare .v4-homi-ask-input,
   .v4-compare-homi .v4-homi-ask-input {
+    font-size: 0.75rem;
+    padding-left: 2.15rem;
+  }
+}
+
+/* Contextual HōMI /ask — raise the bar vs Compare: column not overlay,
+   no craft-badge prose, no Homie, no fake live-AI typing. */
+.v4-ask {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.25rem 1.75rem;
+  max-width: none;
+  min-height: calc(100dvh - var(--v4-command-height, 64px));
+}
+@media (min-width: 768px) {
+  .v4-ask {
+    padding: 1.5rem 1.75rem 2rem;
+  }
+}
+.v4-ask-grid {
+  display: grid;
+  flex: 1;
+  gap: 1.25rem;
+  align-items: stretch;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 100%;
+}
+.v4-ask-main {
+  min-width: 0;
+  max-width: 42rem;
+}
+@media (min-width: 1280px) {
+  .v4-ask {
+    padding: 1.15rem 0 0 1.5rem;
+  }
+  .v4-ask-grid {
+    grid-template-columns: minmax(0, 1fr) var(--v4-homi-width, 320px);
+    column-gap: 0;
+  }
+  .v4-ask-main {
+    max-width: none;
+    padding: 0 1.5rem 1.35rem 0;
+  }
+}
+.v4-ask-title,
+.v4-ask-hold-title {
+  margin: 0;
+  font-size: 1.65rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-light);
+}
+.v4-ask-hold-title {
+  margin-top: 1.35rem;
+}
+.v4-ask-body {
+  margin: 0.65rem 0 0;
+  max-width: 36rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--color-dim);
+}
+.v4-ask-meta {
+  margin: 0.55rem 0 0;
+  max-width: 36rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+  color: var(--color-amber);
+}
+.v4-ask-actions {
+  margin-top: 1.25rem;
+}
+.v4-ask-age {
+  margin: 0;
+  max-width: 40rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-dim);
+}
+.v4-ask-cards {
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+.v4-ask-card-link {
+  display: block;
+  padding: 1rem 1.05rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(30, 41, 59, 0.45);
+  color: var(--color-light);
+}
+.v4-ask-card-link:hover {
+  border-color: rgba(34, 211, 238, 0.35);
+}
+.v4-ask-card-title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+.v4-ask-card-follow {
+  margin: 0.35rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-dim);
+}
+.v4-ask-card-badge {
+  margin: 0.25rem 0 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-cyan);
+}
+.v4-ask .v4-homi-prompt {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: transparent;
+}
+
+/* Ask HōMI is a full-height column, not a floating overlay card.
+   Raise the bar vs Compare: column not overlay. */
+.v4-ask .v4-homi,
+.v4-ask-homi {
+  grid-area: auto;
+  justify-content: flex-start;
+  border-radius: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  min-height: 0;
+  height: auto;
+}
+.v4-ask .v4-homi-prompts,
+.v4-ask-homi .v4-homi-prompts {
+  flex: 0 0 auto;
+}
+.v4-ask .v4-homi-ask,
+.v4-ask-homi .v4-homi-ask {
+  margin-top: 1rem;
+}
+@media (min-width: 1280px) {
+  .v4-ask .v4-homi,
+  .v4-ask-homi {
+    height: 100%;
+    min-height: 100%;
+    align-self: stretch;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0 1.15rem 1.35rem 1.35rem;
+  }
+  .v4-ask .v4-homi-ask-input,
+  .v4-ask-homi .v4-homi-ask-input {
     font-size: 0.75rem;
     padding-left: 2.15rem;
   }

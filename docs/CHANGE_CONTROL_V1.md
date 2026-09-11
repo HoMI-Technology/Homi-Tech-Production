@@ -64,6 +64,7 @@ Dark APIs: every `/api/*` except the KEEP API prefixes above
 | --- | --- |
 | `/home` | Signed-in Home contract. Inactive until Pixel Gate + `HOMI_V4_HOME_ENABLED=true`. |
 | `/money` `/path` `/scenarios` | Primary rail hosts (Money · Path · Compare). |
+| `/ask` | Contextual HōMI deep entry. Not a peer dashboard. |
 | `/tools` `/learn` `/money/bills` | Secondary (Bills · Tools · Learn). |
 | `/settings` `/connections` `/assessment` | System + command (Accounts · Settings · Assess). |
 

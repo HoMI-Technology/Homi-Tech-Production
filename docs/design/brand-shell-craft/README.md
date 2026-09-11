@@ -1,4 +1,4 @@
-# brand-shell-craft — Shell + Home + Assessment + Path + Money + Compare v4 mocks
+# brand-shell-craft — Shell + Home + Assessment + Path + Money + Compare + Contextual HōMI v4 mocks
 
 Product CLEAR floor for stay-draft PRs. Still **not** Pixel Gate.
 
@@ -16,12 +16,15 @@ Product CLEAR floor for stay-draft PRs. Still **not** Pixel Gate.
 | `compare-empty-v4` | Compare empty Start (no invented results; orientation ≠ PIXEL) |
 | `compare-hard-stop-v4` | Compare hard-stop hold, educational-only (orientation ≠ PIXEL) |
 | `compare-normal-v4` | Compare approved cards — **not** a second official score |
+| `contextual-homi-default-v4` | Home-bound Ask explain + Path/Money deep-links (orientation ≠ PIXEL) |
+| `contextual-homi-hard-stop-v4` | Ask hard-stop hold, explain-only, never On track (orientation ≠ PIXEL) |
+| `contextual-homi-empty-v4` | Ask empty — Assess CTA, no fake readiness (orientation ≠ PIXEL) |
 
 PNG/WebP stills live on the coordinator box under `brand-shell-craft/`. This
 clone records the names so agents do not invent a parallel mock set.
 
-Pixel Gate screenshots (rendered `/home`, `/assessment`, `/path`, `/money`, and
-`/scenarios` at
+Pixel Gate screenshots (rendered `/home`, `/assessment`, `/path`, `/money`,
+`/scenarios`, and `/ask` at
 1440/1280/1024/768/390/320 + states) are a later operator pass with local
 `HOMI_V4_HOME_ENABLED` + `HOMI_V4_VISUAL_FIXTURE` only. See
 `docs/design/v4-screenshot-set.md`. Fixture stays Preview-only.

@@ -5,6 +5,7 @@ import { NextPathV4 } from "@/components/v4/home/NextPathV4";
 import { ReadinessHeroV4 } from "@/components/v4/home/ReadinessHeroV4";
 import { RelevantToolsV4 } from "@/components/v4/home/RelevantToolsV4";
 import { WhatChangedV4 } from "@/components/v4/home/WhatChangedV4";
+import { ASK_V4_PROMPTS, V4_ASK_PLACEHOLDER_FIELD } from "@/lib/v4/contextual-homi";
 import type { HomeV4View } from "@/lib/v4/home-state";
 
 /**
@@ -29,7 +30,18 @@ export function HomeV4({ view }: { view: HomeV4View }) {
         </div>
 
         <RelevantToolsV4 tools={view.tools} />
-        <HomiIntelligenceV4 decisionContext={view.decisionContext} />
+        <HomiIntelligenceV4
+          decisionContext={view.decisionContext}
+          commandLabel={view.decisionContext}
+          prompts={
+            !view.hasAssessment
+              ? ASK_V4_PROMPTS.empty
+              : view.hardStopActive
+                ? ASK_V4_PROMPTS["hard-stop"]
+                : ASK_V4_PROMPTS.default
+          }
+          askPlaceholder={V4_ASK_PLACEHOLDER_FIELD}
+        />
         <WhatChangedV4 line={view.whatChanged} hardStopActive={view.hardStopActive} />
       </div>
     </div>

@@ -13,9 +13,11 @@ import {
 export function AssessmentWalkV4({
   children,
   prompts,
+  askPlaceholder = V4_ASK_PLACEHOLDER_DECISION,
 }: {
   children: ReactNode;
   prompts: readonly V4AssessHomiPrompt[];
+  askPlaceholder?: string;
 }) {
   return (
     <div className="v4-assess" data-assessment-v4="">
@@ -25,7 +27,7 @@ export function AssessmentWalkV4({
           surface="walk"
           showContext={false}
           prompts={prompts}
-          askPlaceholder={V4_ASK_PLACEHOLDER_DECISION}
+          askPlaceholder={askPlaceholder}
         />
       </div>
     </div>

@@ -19,10 +19,10 @@ import { SCENARIO_DISCLAIMER } from "@/lib/readiness/scenario";
 import type { ToolScenario } from "@/lib/tools/scenarios";
 import {
   V4_ASSESS_DECISION_LABEL,
-  V4_ASSESS_HOMI_COMPARE,
   V4_ASK_PLACEHOLDER_COMPARE,
   type V4AssessHomiPrompt,
 } from "@/lib/v4/assessment-walk";
+import { ASK_V4_COMPARE_PROMPTS } from "@/lib/v4/contextual-homi";
 
 export const V4_COMPARE_HREF = V4_SHELL_COMPARE_HREF;
 export const V4_COMPARE_PATH_HREF = V4_SHELL_PATH_HREF;
@@ -83,11 +83,7 @@ export type CompareV4Kind = V4CompareVisualState;
 
 export type CompareV4HomiPrompt = V4AssessHomiPrompt;
 
-export const COMPARE_V4_HOMI_PROMPTS: readonly CompareV4HomiPrompt[] = [
-  { label: "What is educational compare?", href: "/learn" },
-  { label: "Why isn't this a second score?", href: "/learn" },
-  V4_ASSESS_HOMI_COMPARE,
-];
+export const COMPARE_V4_HOMI_PROMPTS: readonly CompareV4HomiPrompt[] = ASK_V4_COMPARE_PROMPTS;
 
 export type CompareV4Card = {
   id: string;

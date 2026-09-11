@@ -6,13 +6,19 @@ import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { COLORS } from "@/lib/brand";
-import { V4_COMMAND_ITEMS, V4_SHELL_ASSESS_HREF, isV4AssessPath } from "@/lib/layout/v4-shell";
+import {
+  V4_COMMAND_ITEMS,
+  V4_SHELL_ASSESS_HREF,
+  V4_SHELL_ASK_HREF,
+  isV4AssessPath,
+} from "@/lib/layout/v4-shell";
 import { useAssessmentWalkChrome } from "@/components/v4/assessment/AssessmentWalkChrome";
 
 /**
  * SHELL_CRAFT v4 — top command. Greeting lives here so it never overlaps
  * the Home verdict/score. Assess is the one solid cyan action. Ask HōMI
- * is a field, not a Homie cast. No second score on chrome.
+ * is a field, not a Homie cast. No second score. No live-AI typing.
+ * Mobile: sheet (not a fifth bottom-nav peer). Desktop: command palette.
  */
 export function V4TopCommand({
   greeting,
@@ -32,6 +38,7 @@ export function V4TopCommand({
   const assessActive = isV4AssessPath(pathname ?? "");
   const askPlaceholder = chrome.askPlaceholder;
   const commandLabel = chrome.commandLabel;
+  const workspacePrompts = chrome.prompts;
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -45,14 +52,41 @@ export function V4TopCommand({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const results = useMemo(() => {
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflowY;
+    document.body.style.overflowY = "hidden";
+    return () => {
+      document.body.style.overflowY = prev;
+    };
+  }, [open]);
+
+  const promptResults = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return workspacePrompts;
+    return workspacePrompts.filter((item) => item.label.toLowerCase().includes(q));
+  }, [query, workspacePrompts]);
+
+  const navResults = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return V4_COMMAND_ITEMS;
     return V4_COMMAND_ITEMS.filter((item) => item.label.toLowerCase().includes(q));
   }, [query]);
 
+  function go(href: string) {
+    setOpen(false);
+    setQuery("");
+    router.push(href);
+  }
+
   function onAsk(e: FormEvent) {
     e.preventDefault();
+    const q = query.trim().toLowerCase();
+    const match = workspacePrompts.find((item) => item.label.toLowerCase().includes(q));
+    if (q && match) {
+      go(match.href);
+      return;
+    }
     setOpen(true);
   }
 
@@ -96,6 +130,7 @@ export function V4TopCommand({
                 onFocus={() => setOpen(true)}
                 placeholder={askPlaceholder}
                 className="v4-ask-field-input"
+                autoComplete="off"
               />
               <kbd className="chrome-kbd v4-ask-kbd" aria-hidden>
                 ⌘K
@@ -117,8 +152,9 @@ export function V4TopCommand({
       </header>
       {open ? (
         <div
-          className="fixed inset-0 z-[var(--z-modal)] flex items-start justify-center bg-navy/70 px-4 pt-24"
+          className="v4-ask-overlay fixed inset-0 z-[var(--z-modal)] flex items-end justify-center bg-navy/70 px-0 lg:items-start lg:justify-center lg:px-4 lg:pt-24"
           data-v4-command-palette=""
+          data-v4-ask-sheet=""
         >
           <button
             type="button"
@@ -126,7 +162,7 @@ export function V4TopCommand({
             aria-label="Close Ask HōMI"
             onClick={() => setOpen(false)}
           />
-          <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-navy-light p-3">
+          <div className="v4-ask-sheet relative w-full rounded-t-2xl border border-white/10 bg-navy p-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] lg:max-w-md lg:rounded-2xl lg:bg-navy-light lg:p-3 lg:pb-3">
             <p className="px-1 pb-2 text-2xs font-semibold uppercase tracking-[0.08em] text-dim">
               Ask HōMI
             </p>
@@ -134,21 +170,40 @@ export function V4TopCommand({
               autoFocus
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Ask HōMI"
+              placeholder={askPlaceholder}
               aria-label="Ask HōMI"
-              className="w-full rounded-xl border border-white/10 bg-navy px-3 py-2 text-sm text-light"
+              className="w-full rounded-xl border border-white/10 bg-navy px-3 py-2 text-sm text-light lg:bg-navy"
             />
-            <ul className="mt-2 max-h-64 overflow-y-auto">
-              {results.map((item) => (
+            <ul className="mt-2 max-h-64 overflow-y-auto" data-v4-ask-prompts="">
+              {promptResults.map((item) => (
+                <li key={`prompt-${item.href}-${item.label}`}>
+                  <button
+                    type="button"
+                    className="w-full rounded-lg px-3 py-2 text-left text-sm text-light hover:bg-white/[0.04]"
+                    data-v4-ask-prompt=""
+                    onClick={() => go(item.href)}
+                  >
+                    {item.label}
+                  </button>
+                </li>
+              ))}
+              <li>
+                <button
+                  type="button"
+                  className="w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-white/[0.04]"
+                  data-v4-ask-open=""
+                  style={{ color: COLORS.cyan }}
+                  onClick={() => go(V4_SHELL_ASK_HREF)}
+                >
+                  Open HōMI
+                </button>
+              </li>
+              {navResults.map((item) => (
                 <li key={`${item.href}-${item.label}`}>
                   <button
                     type="button"
                     className="w-full rounded-lg px-3 py-2 text-left text-sm text-light hover:bg-white/[0.04]"
-                    onClick={() => {
-                      setOpen(false);
-                      setQuery("");
-                      router.push(item.href);
-                    }}
+                    onClick={() => go(item.href)}
                   >
                     {item.label}
                   </button>

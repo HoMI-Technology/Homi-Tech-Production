@@ -22,7 +22,7 @@ export const V4_SHELL_ASSESS_HREF = "/assessment" as const;
 export const V4_SHELL_PATH_HREF = "/path" as const;
 export const V4_SHELL_MONEY_HREF = "/money" as const;
 export const V4_SHELL_COMPARE_HREF = "/scenarios" as const;
-export const V4_SHELL_ASK_HREF = "/home" as const;
+export const V4_SHELL_ASK_HREF = "/ask" as const;
 export const V4_SHELL_COMPASS_SIZE = 32 as const;
 /** Ultra Premium rail — 216–228. */
 export const V4_RAIL_WIDTH_PX = 222 as const;
@@ -58,6 +58,7 @@ export const V4_MOBILE_TABS: readonly V4NavItem[] = [
 
 export const V4_MORE_NAV: readonly V4NavItem[] = [
   { href: V4_SHELL_COMPARE_HREF, label: "Compare" },
+  { href: V4_SHELL_ASK_HREF, label: "Ask HōMI" },
   ...V4_SECONDARY_NAV,
   ...V4_SYSTEM_NAV,
 ] as const;
@@ -67,14 +68,20 @@ export const V4_COMMAND_ITEMS: readonly V4NavItem[] = [
   ...V4_SECONDARY_NAV,
   ...V4_SYSTEM_NAV,
   { href: V4_SHELL_ASSESS_HREF, label: "Assess" },
+  { href: V4_SHELL_ASK_HREF, label: "Ask HōMI" },
 ] as const;
 
 export const V4_KILLED_NAV_LABELS = ["Homie", "On track", "READY", "Support"] as const;
 
+export function isV4AskPath(pathname: string): boolean {
+  const p = pathname || "/";
+  return p === V4_SHELL_ASK_HREF || p.startsWith(`${V4_SHELL_ASK_HREF}/`);
+}
+
 export function isV4NavActive(pathname: string, href: string): boolean {
   const p = pathname || "/";
   if (href === "/home") {
-    return p === "/home" || p.startsWith("/home/");
+    return p === "/home" || p.startsWith("/home/") || isV4AskPath(p);
   }
   if (href === "/money") {
     if (p === "/money/bills" || p.startsWith("/money/bills/")) return false;
@@ -107,5 +114,6 @@ export function isV4CompareWorkspace(pathname: string): boolean {
 export function v4ShellShowsHomiRail(pathname: string): boolean {
   const p = pathname || "/";
   if (p === "/home" || p.startsWith("/home/")) return true;
+  if (isV4AskPath(p)) return true;
   return isV4AssessPath(p);
 }

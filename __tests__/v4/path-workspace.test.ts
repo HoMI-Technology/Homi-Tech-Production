@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { MAX_PATH_STEPS } from "@/lib/readiness/path";
 import { V4_SHELL_ASSESS_HREF, V4_SHELL_MONEY_HREF, V4_SHELL_PATH_HREF } from "@/lib/layout/v4-shell";
+import { V4_ASK_PLACEHOLDER_PATH } from "@/lib/v4/assessment-walk";
 import { RUNWAY_HARD_STOP_FOLD_TITLE } from "@/lib/dashboard/fold-truth";
 import {
   PATH_V4_EMPTY_BODY,
@@ -92,6 +93,12 @@ describe("Path v4 workspace law", () => {
     expect(labels).toContain("Why does Path stop at seven?");
     expect(labels).toContain("Compare without a second score");
     expect(JSON.stringify(PATH_V4_HOMI_PROMPTS).toLowerCase()).not.toContain("homie");
+    expect(JSON.stringify(PATH_V4_HOMI_PROMPTS)).not.toContain("/learn");
+    expect(PATH_V4_HOMI_PROMPTS.every((item) => item.href !== "/results")).toBe(true);
+  });
+
+  it("binds Ask HōMI to this path, not a generic overlay prompt", () => {
+    expect(V4_ASK_PLACEHOLDER_PATH).toBe("Ask HōMI about this path...");
   });
 
   it("parses Preview-only visual stills and ignores unknown states", () => {

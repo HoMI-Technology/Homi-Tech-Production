@@ -55,7 +55,7 @@ describe("HomeV4 Ultra Premium fold", () => {
     expect(text).not.toContain("Ledger stays empty");
     expect(text).not.toMatch(/% ready/i);
     expect(text).not.toMatch(/\$\d/);
-    expect(homiAskPlaceholder(container)).toContain("Ask HōMI about this decision");
+    expect(homiAskPlaceholder(container)).toContain("Ask HōMI about this readiness");
     expect(container.querySelector(".workspace-grid")).toBeNull();
     expect(container.querySelector(".v4-home-main")).toBeNull();
     expect(container.querySelector(".v4-home-rail")).toBeNull();

@@ -174,6 +174,7 @@ export function CompareWorkspaceV4({ view }: { view: CompareV4View }) {
         <HomiIntelligenceV4
           surface="compare"
           showContext={false}
+          commandLabel={view.decisionContext}
           prompts={view.prompts}
           askPlaceholder={V4_ASK_PLACEHOLDER_COMPARE_FIELD}
         />
