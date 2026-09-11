@@ -45,6 +45,7 @@ export const PROTECTED_PRODUCT_ROUTES = [
   "advisor",
   "agent-hub",
   "agents",
+  "ask",
   "calendar",
   "connections",
   "credit",

@@ -45,7 +45,8 @@ describe("ShellV4 + HomeV4 presentation", () => {
     expect(text).toContain("Path");
     expect(text).toContain("Compare");
     expect(text).toContain("Assess");
-    expect(text).toContain("Welcome back");
+    // Command label is the workspace decision context, not the greeting.
+    expect(text).toContain("Buying a home");
     expect(text).toContain("Personal");
 
     for (const label of MARKETING) {
