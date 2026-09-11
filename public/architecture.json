@@ -1182,7 +1182,7 @@
     },
     {
       "name": "dashboard",
-      "count": 42,
+      "count": 41,
       "description": "dashboard UI module",
       "examples": [
         "BankConnectCard",
@@ -1212,11 +1212,10 @@
     },
     {
       "name": "finance",
-      "count": 5,
+      "count": 4,
       "description": "finance UI module",
       "examples": [
         "HardStopBanner",
-        "ObservedPrefillCard",
         "ThresholdCompass",
         "WarningsBanner",
         "readiness-types"
@@ -1246,7 +1245,7 @@
     },
     {
       "name": "layout",
-      "count": 35,
+      "count": 34,
       "description": "layout UI module",
       "examples": [
         "AppHeader",
@@ -1335,12 +1334,10 @@
     },
     {
       "name": "results",
-      "count": 3,
+      "count": 1,
       "description": "results UI module",
       "examples": [
-        "ProvenanceLine",
-        "SaveStatusBanner.test",
-        "SaveStatusBanner"
+        "ProvenanceLine"
       ]
     },
     {
@@ -1391,7 +1388,7 @@
     },
     {
       "name": "tools",
-      "count": 21,
+      "count": 20,
       "description": "tools UI module",
       "examples": [
         "CalcField",

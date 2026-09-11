@@ -10,10 +10,10 @@ export const runtime = "nodejs";
  * GET /api/finance/observed-prefill
  *
  * Suggestions from already-mirrored Plaid Inc transactions (source=plaid
- * on the ledger / plaid_transactions). Money Dashboard ledger merge happens
- * in ObservedPrefillCard via the same observe/confirm path — not a second
- * write. Never invents a demo P50. Degrades when PLAID env is missing.
- * Does not enable Investments.
+ * on the ledger / plaid_transactions). Assessment prefill uses the same
+ * observe/confirm helpers (`lib/finance/observed-prefill`,
+ * `lib/finance/prefill-confirm`) — not a second write. Never invents a demo
+ * P50. Degrades when PLAID env is missing. Does not enable Investments.
  */
 export async function GET(request: Request) {
   const ip = getClientIp(request);

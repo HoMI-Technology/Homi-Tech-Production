@@ -129,8 +129,8 @@ export async function GET(request: Request) {
     }
 
     // Opted out of every off-site channel (email off/unsubscribed AND no push
-    // subscriptions): mark notified so we don't reprocess daily. The in-app
-    // NotificationBell still surfaces it on next visit.
+    // subscriptions): mark notified so we don't reprocess daily. Due survey
+    // rows stay until the user completes or dismisses them via the API.
     const optedOut = !emailAllowed && (subs ?? []).length === 0;
 
     await db.from("outcome_survey_events").insert({

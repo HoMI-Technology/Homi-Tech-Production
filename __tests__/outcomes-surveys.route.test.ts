@@ -126,4 +126,19 @@ describe("POST /api/outcomes/surveys", () => {
     expect(state.assessmentUpdates).toBe(0);
     expect(state.events[0]?.event_type).toBe("completed");
   });
+
+  it("stores no_answer without score or verdict", async () => {
+    const res = await post({
+      surveyId: "11111111-1111-4111-8111-111111111111",
+      outcome: "no_answer",
+    });
+    expect(res.status).toBe(200);
+    expect(state.updates[0]).toMatchObject({
+      outcome: "no_answer",
+      contact_state: "completed",
+    });
+    expect(state.updates[0]).not.toHaveProperty("score");
+    expect(state.updates[0]).not.toHaveProperty("verdict");
+    expect(state.assessmentUpdates).toBe(0);
+  });
 });

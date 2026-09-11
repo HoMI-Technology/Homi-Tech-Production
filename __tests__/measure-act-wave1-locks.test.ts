@@ -11,7 +11,6 @@ const WAVE1_UI = [
   "components/dashboard/ThresholdFold.tsx",
   "components/money/MoneyRecheckPrompt.tsx",
   "components/tools/DebtPayoffScorePreview.tsx",
-  "components/finance/ObservedPrefillCard.tsx",
   "components/assessment/FullAssessmentFlow.tsx",
   "lib/dashboard/last-read-chrome.ts",
   "lib/finance/debt-payoff-preview.ts",

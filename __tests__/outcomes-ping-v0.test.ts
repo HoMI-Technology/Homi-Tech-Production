@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { computeScore, type AssessmentInputs } from "@/lib/scoring";
@@ -112,19 +112,20 @@ describe("due-prompt taxonomy", () => {
     );
   });
 
-  it("keeps the Home prompt on the existing card and writes only survey fields", () => {
-    const prompt = src("components", "dashboard", "OutcomeSurveyPrompt.tsx");
+  it("keeps taxonomy + survey API without remounting the deleted Home prompt", () => {
+    expect(
+      existsSync(join(ROOT, "components", "dashboard", "OutcomeSurveyPrompt.tsx")),
+    ).toBe(false);
     const taxonomy = src("lib", "outcomes", "taxonomy.ts");
     const fold = src("components", "dashboard", "ThresholdFold.tsx");
+    const surveys = src("app", "api", "outcomes", "surveys", "route.ts");
     expect(taxonomy).toContain('"moved"');
     expect(taxonomy).toContain('"waited"');
     expect(taxonomy).toContain('"lender_blocked"');
     expect(taxonomy).toContain('"not_okay"');
     expect(taxonomy).toContain('"no_answer"');
-    expect(prompt).toContain("OUTCOME_TAXONOMY");
-    expect(prompt).toContain("outcomeSurveyAnswerPayload");
-    expect(prompt).toContain('save("no_answer")');
-    expect(prompt).not.toMatch(/overall_score|computeScore|verdict:/);
+    expect(surveys).toContain("outcome_surveys");
+    expect(surveys).not.toMatch(/overall_score|computeScore/);
     expect(fold).not.toContain("OutcomeSurveyPrompt");
     expect(fold).not.toContain("Checking in");
   });
@@ -146,11 +147,11 @@ describe("score-untouched", () => {
     expect(after.timing).toEqual(before.timing);
   });
 
-  it("persist and prompt helpers never import scoring or credit mappers", () => {
+  it("persist helpers never import scoring or credit mappers", () => {
     const persist = src("lib", "outcomes", "decision-snapshot.ts");
     const taxonomy = src("lib", "outcomes", "taxonomy.ts");
-    const prompt = src("components", "dashboard", "OutcomeSurveyPrompt.tsx");
-    for (const file of [persist, taxonomy, prompt]) {
+    const surveys = src("app", "api", "outcomes", "surveys", "route.ts");
+    for (const file of [persist, taxonomy, surveys]) {
       expect(file).not.toMatch(/from\s+["']@\/lib\/scoring/);
       expect(file).not.toMatch(/computeScore/);
       expect(file).not.toMatch(/creditBandInputs|carCreditChoiceToScore/);

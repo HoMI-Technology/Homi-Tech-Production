@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -9,14 +9,15 @@ import { describe, expect, it } from "vitest";
  *
  * Guests can no longer hold a full assessment locally (they are sent to
  * First Moment), so the onboarding page no longer replays a local result.
- * The F.13 rescue POST lives in SaveStatusBanner. HOME_CRAFT keeps that
- * banner off the Home first-viewport crop.
+ * The live POST is FullAssessmentFlow. The unmounted SaveStatusBanner retry
+ * UI was removed (nightly audit 2026-09-11 area Q).
  *
  * Source-text guards (same approach as __tests__/perf-bundle-guards.test.ts).
  */
 
 const ONBOARDING_PAGE = join(process.cwd(), "app", "(product)", "onboarding", "page.tsx");
-const RETRY_BANNER = join(process.cwd(), "components", "results", "SaveStatusBanner.tsx");
+const FULL_FLOW = join(process.cwd(), "components", "assessment", "FullAssessmentFlow.tsx");
+const DEAD_RETRY_BANNER = join(process.cwd(), "components", "results", "SaveStatusBanner.tsx");
 
 /** Source with whitespace collapsed, so these guards survive prettier reflow. */
 function flat(absPath: string): string {
@@ -32,23 +33,18 @@ describe("onboarding local-result replay (removed)", () => {
   });
 });
 
-describe("results retry banner (F.13)", () => {
-  it("includes decisionType in the retry POST body when the stored result has one", () => {
-    expect(flat(RETRY_BANNER)).toMatch(/decisionType.*stored\.decisionType/);
+describe("full assessment save POST (F.13)", () => {
+  it("does not keep the unmounted SaveStatusBanner retry UI", () => {
+    expect(existsSync(DEAD_RETRY_BANNER)).toBe(false);
+  });
+
+  it("includes decisionType in the live POST body", () => {
+    expect(flat(FULL_FLOW)).toMatch(/JSON\.stringify\(\s*\{\s*inputs,\s*kind:\s*"full",\s*decisionType/);
   });
 
   it("does not post the legacy inputs+kind-only body", () => {
-    expect(flat(RETRY_BANNER)).not.toContain(
+    expect(flat(FULL_FLOW)).not.toContain(
       'JSON.stringify({ inputs: stored.inputs, kind: stored.kind ?? "full" })',
-    );
-  });
-
-  it("omits decisionType rather than sending a falsy one", () => {
-    // Pre-F.13 localStorage records have no decisionType. Sending it explicitly
-    // as null/undefined-shaped data would fail the route's zod schema and lose
-    // the save entirely — strictly worse than the server default.
-    expect(flat(RETRY_BANNER)).toContain(
-      "...(stored.decisionType ? { decisionType: stored.decisionType } : {})",
     );
   });
 });

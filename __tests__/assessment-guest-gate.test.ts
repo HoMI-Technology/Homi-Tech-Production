@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { APP_PRIMARY_NAV } from "@/lib/layout/app-nav";
@@ -156,6 +156,9 @@ describe("anonymous SiteHeader has no NotificationBell", () => {
     const app = src("components", "layout", "AppHeader.tsx");
     expect(site).not.toContain("NotificationBell");
     expect(app).not.toContain("NotificationBell");
+    expect(existsSync(join(process.cwd(), "components", "layout", "NotificationBell.tsx"))).toBe(
+      false,
+    );
   });
 });
 

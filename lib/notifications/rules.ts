@@ -3,8 +3,8 @@
  * =========================
  *
  * Derives a short list of notification items from pre-fetched data. Pure
- * function — no Supabase/localStorage calls here. Callers (NotificationBell)
- * fetch/read data and pass it in. Mirrors the style of lib/signals/engine.ts.
+ * function — no Supabase/localStorage calls here. Callers fetch/read data
+ * and pass it in. Mirrors the style of lib/signals/engine.ts.
  */
 
 import type { StoredAssessment } from "@/lib/assessment/storage";
