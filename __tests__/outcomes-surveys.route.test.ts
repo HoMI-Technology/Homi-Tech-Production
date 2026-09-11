@@ -135,7 +135,7 @@ describe("POST /api/outcomes/surveys", () => {
     expect(res.status).toBe(200);
     expect(state.updates[0]).toMatchObject({
       outcome: "no_answer",
-      contact_state: "completed",
+      contact_state: "declined",
     });
     expect(state.updates[0]).not.toHaveProperty("score");
     expect(state.updates[0]).not.toHaveProperty("verdict");
