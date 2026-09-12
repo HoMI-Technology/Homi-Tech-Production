@@ -23,7 +23,10 @@ import {
   adminV4ForbidsReadyCopy,
   adminV4VisualDrafts,
   adminV4VisualView,
+  ADMIN_V4_USERS_CONSOLE_EMPTY,
+  ADMIN_V4_USERS_COLUMNS,
   buildAdminAssessmentsV4View,
+  buildAdminUsersV4View,
   buildAdminV4View,
 } from "@/lib/v4/admin-workspace";
 import {
@@ -202,6 +205,111 @@ describe("Admin v4 law", () => {
     expect(page).not.toContain("VerdictBadge");
     expect(page).not.toContain("scoreBand");
     expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
+  });
+
+  it("users room is empty-or-live from profiles id/created_at/role/subscription_tier", () => {
+    expect(ADMIN_V4_USERS_CONSOLE_EMPTY).toBe("No live users in this console.");
+    expect(ADMIN_V4_USERS_COLUMNS).toEqual([
+      "id",
+      "created_at",
+      "role",
+      "subscription_tier",
+    ]);
+    expect(ADMIN_V4_USERS_COLUMNS).not.toContain("score");
+
+    const empty = buildAdminUsersV4View({ rows: [], loadError: false });
+    expect(empty.kind).toBe("empty");
+    expect(empty.title).toBe(ADMIN_V4_USERS_CONSOLE_EMPTY);
+    expect(empty.rows).toEqual([]);
+    expect(empty.columns).toEqual([...ADMIN_V4_USERS_COLUMNS]);
+    expect(empty.shown).toBe(0);
+    expect(adminV4ForbidsHeroScore(empty)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(empty)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(empty)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(empty)).toBe(true);
+
+    const errored = buildAdminUsersV4View({
+      rows: [
+        {
+          id: "should-not-render",
+          created_at: "2026-09-11T12:00:00.000Z",
+          role: "admin",
+          subscription_tier: "pro",
+        },
+      ],
+      loadError: true,
+    });
+    expect(errored.kind).toBe("empty");
+    expect(errored.title).toBe(ADMIN_V4_USERS_CONSOLE_EMPTY);
+    expect(errored.rows).toEqual([]);
+    expect(errored.shown).toBe(0);
+
+    const view = buildAdminUsersV4View({
+      rows: [
+        {
+          id: "user-admin",
+          created_at: "2026-09-11T12:00:00.000Z",
+          role: "admin",
+          subscription_tier: "pro",
+        },
+        {
+          id: "user-partner",
+          created_at: null,
+          role: "partner",
+          subscription_tier: "free",
+        },
+        {
+          id: "user-plus",
+          created_at: "2026-09-10T12:00:00.000Z",
+          role: "user",
+          subscription_tier: "plus",
+        },
+      ],
+      loadError: false,
+    });
+    expect(view.kind).toBe("normal");
+    expect(view.columns).toEqual(["id", "created_at", "role", "subscription_tier"]);
+    expect(view.rows.map((row) => row.id)).toEqual([
+      "user-admin",
+      "user-partner",
+      "user-plus",
+    ]);
+    expect(view.rows.map((row) => row.roleLabel)).toEqual([
+      "admin",
+      "partner",
+      "user",
+    ]);
+    expect(view.rows.map((row) => row.tierLabel)).toEqual(["pro", "free", "plus"]);
+    expect(view.rows[1]?.createdLabel).toBe("—");
+    expect(view.shown).toBe(3);
+    expect(view.paidCount).toBe(2);
+    expect(view.adminCount).toBe(1);
+    expect(view.partnerCount).toBe(1);
+    expect(blob(view)).not.toContain("HeroScore");
+    expect(blob(view)).not.toContain("overall_score");
+    expect(blob(view)).not.toContain("score");
+    expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(blob(view)).not.toContain("Publish");
+    expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+
+    const page = readFileSync(
+      resolve(process.cwd(), "app/(product)/admin/users/page.tsx"),
+      "utf8",
+    );
+    expect(page).toContain("buildAdminUsersV4View");
+    expect(page).toContain("loadError");
+    expect(page).toContain("id, created_at, role, subscription_tier");
+    expect(page).not.toContain('select("*")');
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("Publish");
+    expect(page).not.toMatch(/>Score</);
     expect(page).not.toContain("ThresholdFold");
     expect(page).not.toContain("/team");
   });

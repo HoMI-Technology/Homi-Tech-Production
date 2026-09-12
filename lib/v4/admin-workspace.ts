@@ -367,3 +367,99 @@ export function buildAdminAssessmentsV4View(
     shadowCount: rows.filter((row) => row.is_shadow).length,
   };
 }
+
+/** Users room — live profiles directory. Never a score column. */
+export const ADMIN_V4_USERS_CONSOLE_EMPTY =
+  "No live users in this console." as const;
+export const ADMIN_V4_USERS_TITLE = "Users." as const;
+export const ADMIN_V4_USERS_COLUMNS = [
+  "id",
+  "created_at",
+  "role",
+  "subscription_tier",
+] as const;
+
+export type AdminUsersV4Column = (typeof ADMIN_V4_USERS_COLUMNS)[number];
+
+export type AdminUsersV4SourceRow = {
+  id: string;
+  created_at: string | null;
+  role: string | null;
+  subscription_tier: string | null;
+};
+
+export type AdminUsersV4Row = {
+  id: string;
+  createdLabel: string;
+  roleLabel: string;
+  tierLabel: string;
+};
+
+export type AdminUsersV4View = {
+  kind: "empty" | "normal";
+  title: string;
+  columns: readonly AdminUsersV4Column[];
+  rows: readonly AdminUsersV4Row[];
+  shown: number;
+  paidCount: number;
+  adminCount: number;
+  partnerCount: number;
+};
+
+export type AdminUsersV4Input = {
+  rows: readonly AdminUsersV4SourceRow[];
+  loadError?: boolean;
+};
+
+export function adminUsersV4DateLabel(value: string | null): string {
+  if (!value) return "—";
+  try {
+    return new Date(value).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  } catch {
+    return "—";
+  }
+}
+
+function adminUsersV4Label(value: string | null | undefined): string {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : "—";
+}
+
+export function buildAdminUsersV4View({
+  rows,
+  loadError,
+}: AdminUsersV4Input): AdminUsersV4View {
+  if (loadError || rows.length === 0) {
+    return {
+      kind: "empty",
+      title: ADMIN_V4_USERS_CONSOLE_EMPTY,
+      columns: ADMIN_V4_USERS_COLUMNS,
+      rows: [],
+      shown: 0,
+      paidCount: 0,
+      adminCount: 0,
+      partnerCount: 0,
+    };
+  }
+  return {
+    kind: "normal",
+    title: ADMIN_V4_USERS_TITLE,
+    columns: ADMIN_V4_USERS_COLUMNS,
+    rows: rows.map((row) => ({
+      id: row.id,
+      createdLabel: adminUsersV4DateLabel(row.created_at),
+      roleLabel: adminUsersV4Label(row.role),
+      tierLabel: adminUsersV4Label(row.subscription_tier),
+    })),
+    shown: rows.length,
+    paidCount: rows.filter(
+      (row) => Boolean(row.subscription_tier) && row.subscription_tier !== "free",
+    ).length,
+    adminCount: rows.filter((row) => row.role === "admin").length,
+    partnerCount: rows.filter((row) => row.role === "partner").length,
+  };
+}

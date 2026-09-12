@@ -46,7 +46,7 @@ hand-copy a second list into product code.
 <!-- dashboard-matrix:pending -->
 | Host | Status | Terminal | Note |
 | --- | --- | --- | --- |
-| `/home` | HONEST | merged | `lib/v4/home-state.ts` + `__tests__/v4/home-state.test.ts`. Pixel Gate CLOSED — do not undraft. |
+| `/home` | HONEST | merged | `lib/v4/home-state.ts` + `__tests__/v4/home-state.test.ts`. Pixel Gate CLOSED — do not undraft. First-session copy stays on #415; out of #416. |
 | `/money` | HONEST | merged | `lib/v4/money-workspace.ts` + `__tests__/v4/money-workspace.test.ts`. `/money/bills` is the `/money` prefix. Empty-or-live; never invent `$`. |
 | `/path` | HONEST | merged | `lib/v4/path-workspace.ts` + `__tests__/v4/path-workspace.test.ts`. Hard-stop never On track / READY. |
 | `/scenarios` | HONEST | merged | Compare rail. `lib/v4/compare-workspace.ts` + `__tests__/v4/compare-workspace.test.ts`. Educational only; no second official score. |
@@ -79,6 +79,7 @@ hand-copy a second list into product code.
 | spend against #241 | OUT | blocked | No GitHub Pro, Vercel Pro, second Supabase, or production secrets in Actions. |
 | site rebuild | OUT | blocked | Dashboards already exist. Do not rebuild KEEP marketing or scoring. |
 | PR #414 `/team` | OUT | blocked | Stay-draft Team v4 must not land; `/team` stays DARK. |
+| first-session Home copy PR #415 | OUT | blocked | Stays on `feat/home-v4-first-session`. Do not restyle `/home` on #416. |
 
 ## CORE
 
@@ -119,7 +120,7 @@ honesty of the page, not a new CCP host.
 <!-- dashboard-matrix:index -->
 | Path | Lane | Page file | View builder | Data SSOT | Five-status | PR | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `/home` | V4_PENDING | `app/(product)/home/page.tsx` | `buildHomeV4View` | assessments last completed + user_readiness_path | HONEST | #416 | `__tests__/v4/home-state.test.ts` | Empty-or-live; no HeroScore; hard-stop never On track / READY |
+| `/home` | V4_PENDING | `app/(product)/home/page.tsx` | `buildHomeV4View` | assessments last completed + user_readiness_path | HONEST | #416 | `__tests__/v4/home-state.test.ts` | Empty-or-live; no HeroScore; hard-stop never On track / READY. First-session copy stays on #415; out of #416. |
 | `/money` | V4_PENDING | `app/(product)/money/page.tsx` | `buildMoneyV4View` | assessments last-read + plaid_items + plaid_accounts | HONEST | #416 | `__tests__/v4/money-workspace.test.ts` | Empty-or-live; never invent $ |
 | `/money/bills` | V4_PENDING | `app/(product)/money/bills/page.tsx` | `buildBillsV4View` | loadSystemV4LastRead; never invent due amounts | HONEST | #416 | `__tests__/v4/system-surfaces.test.ts` | Covered by `/money` prefix. Not an extra allow-list host. |
 | `/path` | V4_PENDING | `app/(product)/path/page.tsx` | `buildPathV4View` | assessments last-read + user_readiness_path.path | HONEST | #416 | `__tests__/v4/path-workspace.test.ts` | Hard-stop never On track / READY |
@@ -141,7 +142,7 @@ honesty of the page, not a new CCP host.
 | `/admin/attribution` | V4_PENDING | `app/(product)/admin/attribution/page.tsx` | none | profiles.attribution + assessments.attribution | BLOCKED | #416 | `app/(product)/admin/attribution/page.tsx` | BLOCKED: leftover OPERATE chrome; Pixel Gate CLOSED; not an extra host |
 | `/admin/email` | V4_PENDING | `app/(product)/admin/email/page.tsx` | none | campaigns + campaign_sends | BLOCKED | #416 | `app/(product)/admin/email/page.tsx` | BLOCKED: leftover OPERATE chrome; Pixel Gate CLOSED; not an extra host |
 | `/admin/organizations` | V4_PENDING | `app/(product)/admin/organizations/page.tsx` | none | organizations + organization_members + family_accounts | BLOCKED | #416 | `app/(product)/admin/organizations/page.tsx` | BLOCKED: leftover OPERATE chrome; Pixel Gate CLOSED; not an extra host |
-| `/admin/users` | V4_PENDING | `app/(product)/admin/users/page.tsx` | none | profiles | BLOCKED | #416 | `app/(product)/admin/users/page.tsx` | BLOCKED: leftover OPERATE chrome; Pixel Gate CLOSED; not an extra host |
+| `/admin/users` | V4_PENDING | `app/(product)/admin/users/page.tsx` | `buildAdminUsersV4View` | profiles id/created_at/role/subscription_tier | HONEST | #416 | `__tests__/v4/admin-workspace.test.ts` | Covered by `/admin` prefix. Empty on loadError or []. No score column. Terminal stay-draft. |
 | `/admin/waitlist` | V4_PENDING | `app/(product)/admin/waitlist/page.tsx` | none | waitlist | BLOCKED | #416 | `app/(product)/admin/waitlist/page.tsx` | BLOCKED: leftover OPERATE chrome; Pixel Gate CLOSED; not an extra host |
 | `/dashboard` | DARK | `app/(product)/dashboard/page.tsx` | none | pre-PR15 cockpit; not on V4 allow-list | DARK | none | `classifyChangeControlLane("/dashboard")` | DARK: pre-PR15 cockpit; do not resurrect |
 | `/team` | DARK | `app/(product)/team/page.tsx` | none | not in V4_PENDING_PATHS | OUT | #414 | related + OUT rows; draft PR #414 | OUT: PR #414 stays unmerged; do not add `/team` |
