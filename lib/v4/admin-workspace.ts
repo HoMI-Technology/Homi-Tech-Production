@@ -881,3 +881,118 @@ export function buildAdminAnalyticsV4View({
     views: bundle.overview.views,
   };
 }
+
+/** Ad spend room — live ledger + paid counts. Never invent $ or a score column. */
+export const ADMIN_V4_AD_SPEND_CONSOLE_EMPTY =
+  "No live ad spend in this console." as const;
+export const ADMIN_V4_AD_SPEND_TITLE = "Ad spend." as const;
+export const ADMIN_V4_AD_SPEND_COLUMNS = [
+  "id",
+  "spend_date",
+  "channel",
+  "campaign",
+  "spend_cents",
+  "impressions",
+  "clicks",
+] as const;
+
+export type AdminAdSpendV4Column = (typeof ADMIN_V4_AD_SPEND_COLUMNS)[number];
+
+export type AdminAdSpendV4SourceRow = {
+  id: string;
+  spend_date: string | null;
+  channel: string | null;
+  campaign: string | null;
+  spend_cents: number | null;
+  impressions: number | null;
+  clicks: number | null;
+};
+
+export type AdminAdSpendV4ProfileRow = {
+  id: string;
+  subscription_tier: string | null;
+};
+
+export type AdminAdSpendV4PaymentRow = {
+  user_id: string | null;
+  amount: number | null;
+  status: string | null;
+};
+
+export type AdminAdSpendV4Row = {
+  id: string;
+  dateLabel: string;
+  channelLabel: string;
+  campaignLabel: string;
+  spendCents: number;
+  impressions: number;
+  clicks: number;
+};
+
+export type AdminAdSpendV4View = {
+  kind: "empty" | "normal";
+  title: string;
+  columns: readonly AdminAdSpendV4Column[];
+  rows: readonly AdminAdSpendV4Row[];
+  shown: number;
+  spendCents: number;
+  paidCount: number;
+  paymentCount: number;
+};
+
+export type AdminAdSpendV4Input = {
+  rows: readonly AdminAdSpendV4SourceRow[];
+  profiles: readonly AdminAdSpendV4ProfileRow[];
+  payments: readonly AdminAdSpendV4PaymentRow[];
+  loadError?: boolean;
+};
+
+function adminAdSpendV4Label(value: string | null | undefined): string {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : "—";
+}
+
+function adminAdSpendV4Count(value: number | null | undefined): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+export function buildAdminAdSpendV4View({
+  rows,
+  profiles,
+  payments,
+  loadError,
+}: AdminAdSpendV4Input): AdminAdSpendV4View {
+  if (loadError || rows.length === 0) {
+    return {
+      kind: "empty",
+      title: ADMIN_V4_AD_SPEND_CONSOLE_EMPTY,
+      columns: ADMIN_V4_AD_SPEND_COLUMNS,
+      rows: [],
+      shown: 0,
+      spendCents: 0,
+      paidCount: 0,
+      paymentCount: 0,
+    };
+  }
+  const mapped = rows.map((row) => ({
+    id: row.id,
+    dateLabel: adminAdSpendV4Label(row.spend_date),
+    channelLabel: adminAdSpendV4Label(row.channel),
+    campaignLabel: adminAdSpendV4Label(row.campaign),
+    spendCents: adminAdSpendV4Count(row.spend_cents),
+    impressions: adminAdSpendV4Count(row.impressions),
+    clicks: adminAdSpendV4Count(row.clicks),
+  }));
+  return {
+    kind: "normal",
+    title: ADMIN_V4_AD_SPEND_TITLE,
+    columns: ADMIN_V4_AD_SPEND_COLUMNS,
+    rows: mapped,
+    shown: mapped.length,
+    spendCents: mapped.reduce((sum, row) => sum + row.spendCents, 0),
+    paidCount: profiles.filter(
+      (row) => Boolean(row.subscription_tier) && row.subscription_tier !== "free",
+    ).length,
+    paymentCount: payments.filter((row) => row.status === "succeeded").length,
+  };
+}

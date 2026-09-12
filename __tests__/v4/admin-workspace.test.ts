@@ -33,6 +33,9 @@ import {
   ADMIN_V4_WAITLIST_COLUMNS,
   ADMIN_V4_ANALYTICS_CONSOLE_EMPTY,
   ADMIN_V4_ANALYTICS_COLUMNS,
+  ADMIN_V4_AD_SPEND_CONSOLE_EMPTY,
+  ADMIN_V4_AD_SPEND_COLUMNS,
+  buildAdminAdSpendV4View,
   buildAdminAnalyticsV4View,
   buildAdminAssessmentsV4View,
   buildAdminEmailV4View,
@@ -789,6 +792,147 @@ describe("Admin v4 law", () => {
     expect(page).toContain("buildAdminAnalyticsV4View");
     expect(page).toContain("getAnalyticsBundle");
     expect(page).toContain("loadError");
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("score-numeral");
+    expect(page).not.toContain("Publish");
+    expect(page).not.toMatch(/>Score</);
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
+  });
+
+  it("ad-spend room is empty-or-live from ad_spend, profiles, and payments", () => {
+    expect(ADMIN_V4_AD_SPEND_CONSOLE_EMPTY).toBe(
+      "No live ad spend in this console.",
+    );
+    expect(ADMIN_V4_AD_SPEND_COLUMNS).toEqual([
+      "id",
+      "spend_date",
+      "channel",
+      "campaign",
+      "spend_cents",
+      "impressions",
+      "clicks",
+    ]);
+    expect(ADMIN_V4_AD_SPEND_COLUMNS).not.toContain("score");
+
+    const empty = buildAdminAdSpendV4View({
+      rows: [],
+      profiles: [],
+      payments: [],
+      loadError: false,
+    });
+    expect(empty.kind).toBe("empty");
+    expect(empty.title).toBe(ADMIN_V4_AD_SPEND_CONSOLE_EMPTY);
+    expect(empty.rows).toEqual([]);
+    expect(empty.columns).toEqual([...ADMIN_V4_AD_SPEND_COLUMNS]);
+    expect(empty.shown).toBe(0);
+    expect(empty.spendCents).toBe(0);
+    expect(empty.paidCount).toBe(0);
+    expect(empty.paymentCount).toBe(0);
+    expect(adminV4ForbidsHeroScore(empty)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(empty)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(empty)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(empty)).toBe(true);
+
+    const errored = buildAdminAdSpendV4View({
+      rows: [
+        {
+          id: "should-not-render",
+          spend_date: "2026-09-11",
+          channel: "google",
+          campaign: "hidden",
+          spend_cents: 5000,
+          impressions: 100,
+          clicks: 10,
+        },
+      ],
+      profiles: [{ id: "p1", subscription_tier: "pro" }],
+      payments: [{ user_id: "p1", amount: 999, status: "succeeded" }],
+      loadError: true,
+    });
+    expect(errored.kind).toBe("empty");
+    expect(errored.title).toBe(ADMIN_V4_AD_SPEND_CONSOLE_EMPTY);
+    expect(errored.rows).toEqual([]);
+    expect(errored.shown).toBe(0);
+    expect(errored.spendCents).toBe(0);
+
+    const view = buildAdminAdSpendV4View({
+      rows: [
+        {
+          id: "sp-1",
+          spend_date: "2026-09-11",
+          channel: "google",
+          campaign: "search",
+          spend_cents: 2500,
+          impressions: 80,
+          clicks: 12,
+        },
+        {
+          id: "sp-2",
+          spend_date: "2026-09-10",
+          channel: "meta",
+          campaign: null,
+          spend_cents: 1500,
+          impressions: 40,
+          clicks: 4,
+        },
+      ],
+      profiles: [
+        { id: "p1", subscription_tier: "pro" },
+        { id: "p2", subscription_tier: "free" },
+        { id: "p3", subscription_tier: "plus" },
+      ],
+      payments: [
+        { user_id: "p1", amount: 999, status: "succeeded" },
+        { user_id: "p3", amount: 499, status: "failed" },
+      ],
+      loadError: false,
+    });
+    expect(view.kind).toBe("normal");
+    expect(view.columns).toEqual([
+      "id",
+      "spend_date",
+      "channel",
+      "campaign",
+      "spend_cents",
+      "impressions",
+      "clicks",
+    ]);
+    expect(view.rows.map((row) => row.id)).toEqual(["sp-1", "sp-2"]);
+    expect(view.rows.map((row) => row.channelLabel)).toEqual(["google", "meta"]);
+    expect(view.rows.map((row) => row.campaignLabel)).toEqual(["search", "—"]);
+    expect(view.rows.map((row) => row.spendCents)).toEqual([2500, 1500]);
+    expect(view.shown).toBe(2);
+    expect(view.spendCents).toBe(4000);
+    expect(view.paidCount).toBe(2);
+    expect(view.paymentCount).toBe(1);
+    expect(blob(view)).not.toContain("HeroScore");
+    expect(blob(view)).not.toContain("overall_score");
+    expect(blob(view)).not.toContain("score");
+    expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(blob(view)).not.toContain("Publish");
+    expect(blob(view)).not.toContain("MRR");
+    expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+
+    const page = readFileSync(
+      resolve(process.cwd(), "app/(product)/admin/ad-spend/page.tsx"),
+      "utf8",
+    );
+    expect(page).toContain("buildAdminAdSpendV4View");
+    expect(page).toContain("loadError");
+    expect(page).toContain(
+      "id, spend_date, channel, campaign, spend_cents, impressions, clicks",
+    );
+    expect(page).toContain('from("ad_spend")');
+    expect(page).toContain('from("profiles")');
+    expect(page).toContain('from("payments")');
+    expect(page).not.toContain('select("*")');
+    expect(page).not.toContain("formatUsdFromCents");
     expect(page).not.toContain("HeroScore");
     expect(page).not.toContain("overall_score");
     expect(page).not.toContain("score-numeral");
