@@ -800,3 +800,84 @@ export function buildAdminWaitlistV4View({
     ).length,
   };
 }
+
+/** Analytics room — live PostHog bundle only. Never invent $ or a score column. */
+export const ADMIN_V4_ANALYTICS_CONSOLE_EMPTY =
+  "No live analytics in this console." as const;
+export const ADMIN_V4_ANALYTICS_TITLE = "Analytics." as const;
+export const ADMIN_V4_ANALYTICS_COLUMNS = [
+  "visits",
+  "uniques",
+  "views",
+] as const;
+
+export type AdminAnalyticsV4Column = (typeof ADMIN_V4_ANALYTICS_COLUMNS)[number];
+
+export type AdminAnalyticsV4Daily = {
+  day: string;
+  views: number;
+  uniques: number;
+};
+
+export type AdminAnalyticsV4FunnelRow = {
+  event: string;
+  users: number;
+  occurrences: number;
+};
+
+export type AdminAnalyticsV4Bundle = {
+  overview: {
+    visits: number;
+    uniques: number;
+    views: number;
+    avgSessionSeconds: number | null;
+    bounceRatePct: number | null;
+  };
+  daily: readonly AdminAnalyticsV4Daily[];
+  funnel: readonly AdminAnalyticsV4FunnelRow[];
+  pathHabitFunnel: readonly AdminAnalyticsV4FunnelRow[];
+};
+
+export type AdminAnalyticsV4View = {
+  kind: "empty" | "normal";
+  title: string;
+  columns: readonly AdminAnalyticsV4Column[];
+  rows: readonly AdminAnalyticsV4FunnelRow[];
+  daily: readonly AdminAnalyticsV4Daily[];
+  visits: number;
+  uniques: number;
+  views: number;
+};
+
+export type AdminAnalyticsV4Input = {
+  bundle: AdminAnalyticsV4Bundle | null;
+  loadError?: boolean;
+};
+
+export function buildAdminAnalyticsV4View({
+  bundle,
+  loadError,
+}: AdminAnalyticsV4Input): AdminAnalyticsV4View {
+  if (loadError || !bundle) {
+    return {
+      kind: "empty",
+      title: ADMIN_V4_ANALYTICS_CONSOLE_EMPTY,
+      columns: ADMIN_V4_ANALYTICS_COLUMNS,
+      rows: [],
+      daily: [],
+      visits: 0,
+      uniques: 0,
+      views: 0,
+    };
+  }
+  return {
+    kind: "normal",
+    title: ADMIN_V4_ANALYTICS_TITLE,
+    columns: ADMIN_V4_ANALYTICS_COLUMNS,
+    rows: [...bundle.funnel, ...bundle.pathHabitFunnel],
+    daily: [...bundle.daily],
+    visits: bundle.overview.visits,
+    uniques: bundle.overview.uniques,
+    views: bundle.overview.views,
+  };
+}

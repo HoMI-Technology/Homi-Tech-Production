@@ -31,6 +31,9 @@ import {
   ADMIN_V4_EMAIL_COLUMNS,
   ADMIN_V4_WAITLIST_CONSOLE_EMPTY,
   ADMIN_V4_WAITLIST_COLUMNS,
+  ADMIN_V4_ANALYTICS_CONSOLE_EMPTY,
+  ADMIN_V4_ANALYTICS_COLUMNS,
+  buildAdminAnalyticsV4View,
   buildAdminAssessmentsV4View,
   buildAdminEmailV4View,
   buildAdminOrganizationsV4View,
@@ -685,6 +688,107 @@ describe("Admin v4 law", () => {
     expect(page).toContain("id, created_at, status, source, interested_in");
     expect(page).toContain('from("waitlist")');
     expect(page).not.toContain('select("*")');
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("score-numeral");
+    expect(page).not.toContain("Publish");
+    expect(page).not.toMatch(/>Score</);
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
+  });
+
+  it("analytics room is empty-or-live from PostHog getAnalyticsBundle", () => {
+    expect(ADMIN_V4_ANALYTICS_CONSOLE_EMPTY).toBe(
+      "No live analytics in this console.",
+    );
+    expect(ADMIN_V4_ANALYTICS_COLUMNS).toEqual(["visits", "uniques", "views"]);
+    expect(ADMIN_V4_ANALYTICS_COLUMNS).not.toContain("score");
+
+    const empty = buildAdminAnalyticsV4View({ bundle: null, loadError: false });
+    expect(empty.kind).toBe("empty");
+    expect(empty.title).toBe(ADMIN_V4_ANALYTICS_CONSOLE_EMPTY);
+    expect(empty.rows).toEqual([]);
+    expect(empty.columns).toEqual([...ADMIN_V4_ANALYTICS_COLUMNS]);
+    expect(empty.visits).toBe(0);
+    expect(empty.uniques).toBe(0);
+    expect(empty.views).toBe(0);
+    expect(adminV4ForbidsHeroScore(empty)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(empty)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(empty)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(empty)).toBe(true);
+
+    const errored = buildAdminAnalyticsV4View({
+      bundle: {
+        overview: {
+          visits: 99,
+          uniques: 80,
+          views: 120,
+          avgSessionSeconds: 40,
+          bounceRatePct: 10,
+        },
+        daily: [{ day: "2026-09-11", views: 12, uniques: 8 }],
+        funnel: [{ event: "assessment_started", users: 4, occurrences: 4 }],
+        pathHabitFunnel: [],
+      },
+      loadError: true,
+    });
+    expect(errored.kind).toBe("empty");
+    expect(errored.title).toBe(ADMIN_V4_ANALYTICS_CONSOLE_EMPTY);
+    expect(errored.rows).toEqual([]);
+    expect(errored.visits).toBe(0);
+
+    const view = buildAdminAnalyticsV4View({
+      bundle: {
+        overview: {
+          visits: 12,
+          uniques: 8,
+          views: 40,
+          avgSessionSeconds: 90,
+          bounceRatePct: 25,
+        },
+        daily: [{ day: "2026-09-11", views: 4, uniques: 2 }],
+        funnel: [
+          { event: "assessment_started", users: 5, occurrences: 6 },
+          { event: "assessment_completed", users: 3, occurrences: 3 },
+        ],
+        pathHabitFunnel: [
+          { event: "path_generated", users: 2, occurrences: 2 },
+        ],
+      },
+      loadError: false,
+    });
+    expect(view.kind).toBe("normal");
+    expect(view.columns).toEqual(["visits", "uniques", "views"]);
+    expect(view.visits).toBe(12);
+    expect(view.uniques).toBe(8);
+    expect(view.views).toBe(40);
+    expect(view.daily).toEqual([{ day: "2026-09-11", views: 4, uniques: 2 }]);
+    expect(view.rows.map((row) => row.event)).toEqual([
+      "assessment_started",
+      "assessment_completed",
+      "path_generated",
+    ]);
+    expect(view.rows.map((row) => row.users)).toEqual([5, 3, 2]);
+    expect(view.rows.map((row) => row.occurrences)).toEqual([6, 3, 2]);
+    expect(blob(view)).not.toContain("HeroScore");
+    expect(blob(view)).not.toContain("overall_score");
+    expect(blob(view)).not.toContain("score");
+    expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(blob(view)).not.toContain("Publish");
+    expect(blob(view)).not.toContain("MRR");
+    expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+
+    const page = readFileSync(
+      resolve(process.cwd(), "app/(product)/admin/analytics/page.tsx"),
+      "utf8",
+    );
+    expect(page).toContain("buildAdminAnalyticsV4View");
+    expect(page).toContain("getAnalyticsBundle");
+    expect(page).toContain("loadError");
     expect(page).not.toContain("HeroScore");
     expect(page).not.toContain("overall_score");
     expect(page).not.toContain("score-numeral");
