@@ -7,6 +7,11 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
+  ADMIN_V4_ASSESSMENTS_COMPLETE,
+  ADMIN_V4_ASSESSMENTS_EMPTY,
+  ADMIN_V4_ASSESSMENTS_HOLD,
+  ADMIN_V4_ASSESSMENTS_IN_PROGRESS,
+  ADMIN_V4_ASSESSMENTS_TITLE,
   ADMIN_V4_EMPTY_TITLE,
   ADMIN_V4_LIVE_TITLE,
   ADMIN_V4_REFRESH_CTA,
@@ -18,6 +23,7 @@ import {
   adminV4ForbidsReadyCopy,
   adminV4VisualDrafts,
   adminV4VisualView,
+  buildAdminAssessmentsV4View,
   buildAdminV4View,
 } from "@/lib/v4/admin-workspace";
 import {
@@ -130,5 +136,73 @@ describe("Admin v4 law", () => {
     );
     expect(command).toContain("isV4QuietCommandPath");
     expect(command).toContain("No Ask · Companion off");
+  });
+
+  it("assessments room is empty-or-live and never paints HeroScore, $, On track, or READY", () => {
+    const empty = buildAdminAssessmentsV4View([]);
+    expect(empty.kind).toBe("empty");
+    expect(empty.title).toBe(ADMIN_V4_ASSESSMENTS_EMPTY);
+    expect(empty.rows).toEqual([]);
+    expect(adminV4ForbidsHeroScore(empty)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(empty)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(empty)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(empty)).toBe(true);
+
+    const view = buildAdminAssessmentsV4View([
+      {
+        id: "ready-row",
+        created_at: "2026-09-11T12:00:00.000Z",
+        verdict: "READY",
+        is_shadow: false,
+        hard_stops: [],
+      },
+      {
+        id: "hold-row",
+        created_at: "2026-09-11T12:00:00.000Z",
+        verdict: "NOT_YET",
+        is_shadow: true,
+        hard_stops: [{ code: "RUNWAY_UNDER_1_MONTH" }],
+      },
+      {
+        id: "open-row",
+        created_at: null,
+        verdict: null,
+        is_shadow: false,
+        hard_stops: null,
+      },
+    ]);
+    expect(view.kind).toBe("normal");
+    expect(view.title).toBe(ADMIN_V4_ASSESSMENTS_TITLE);
+    expect(view.rows.map((row) => row.statusLabel)).toEqual([
+      ADMIN_V4_ASSESSMENTS_COMPLETE,
+      ADMIN_V4_ASSESSMENTS_HOLD,
+      ADMIN_V4_ASSESSMENTS_IN_PROGRESS,
+    ]);
+    expect(view.rows[1]?.kindLabel).toBe("Shadow");
+    expect(view.shown).toBe(3);
+    expect(view.completed).toBe(2);
+    expect(view.waitCount).toBe(1);
+    expect(view.shadowCount).toBe(1);
+    expect(blob(view)).not.toContain("HeroScore");
+    expect(blob(view)).not.toContain("overall_score");
+    expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bOn track\b/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+
+    const page = readFileSync(
+      resolve(process.cwd(), "app/(product)/admin/assessments/page.tsx"),
+      "utf8",
+    );
+    expect(page).toContain("buildAdminAssessmentsV4View");
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("VerdictBadge");
+    expect(page).not.toContain("scoreBand");
+    expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
   });
 });

@@ -71,6 +71,98 @@ function parseMatrixTable(md: string, marker: string): MatrixRow[] {
   return rows;
 }
 
+const INDEX_COLUMNS = [
+  "Path",
+  "Lane",
+  "Page file",
+  "View builder",
+  "Data SSOT",
+  "Five-status",
+  "PR",
+  "Evidence",
+  "Notes",
+] as const;
+
+const FOUNDER_INDEX_PATHS = [
+  "/home",
+  "/money",
+  "/path",
+  "/scenarios",
+  "/employee/dashboard",
+  "/partner/dashboard",
+  "/admin",
+  "/admin/activity",
+  "/admin/ad-spend",
+  "/admin/analytics",
+  "/admin/assessments",
+  "/admin/attribution",
+  "/admin/email",
+  "/admin/marketing",
+  "/admin/organizations",
+  "/admin/users",
+  "/admin/waitlist",
+  "/ask",
+  "/tools",
+  "/learn",
+  "/settings",
+  "/connections",
+  "/assessment",
+  "/dashboard",
+  "/team",
+] as const;
+
+const CCP_LANES = ["KEEP", "DARK", "V4_PENDING", "V4_LIVE"] as const;
+
+type IndexRow = {
+  path: string;
+  lane: string;
+  pageFile: string;
+  viewBuilder: string;
+  dataSsot: string;
+  fiveStatus: string;
+  pr: string;
+  evidence: string;
+  notes: string;
+  cells: string[];
+};
+
+function parseIndexTable(md: string): { header: string[]; rows: IndexRow[] } {
+  const startTag = "<!-- dashboard-matrix:index -->";
+  const start = md.indexOf(startTag);
+  expect(start, "missing index marker").toBeGreaterThanOrEqual(0);
+  const rest = md.slice(start + startTag.length);
+  const next = rest.search(/<!-- dashboard-matrix:/);
+  const body = next >= 0 ? rest.slice(0, next) : rest;
+  let header: string[] = [];
+  const rows: IndexRow[] = [];
+  for (const line of body.split("\n")) {
+    if (!line.startsWith("|")) continue;
+    const parts = line
+      .split("|")
+      .slice(1, -1)
+      .map((cell) => cell.trim());
+    if (parts.length === 0) continue;
+    if (/^:?-{3,}:?$/.test(parts[0])) continue;
+    if (parts[0] === "Path") {
+      header = parts;
+      continue;
+    }
+    rows.push({
+      path: parts[0]?.replace(/`/g, "") ?? "",
+      lane: parts[1] ?? "",
+      pageFile: parts[2] ?? "",
+      viewBuilder: parts[3] ?? "",
+      dataSsot: parts[4] ?? "",
+      fiveStatus: parts[5] ?? "",
+      pr: parts[6] ?? "",
+      evidence: parts[7] ?? "",
+      notes: parts.slice(8).join(" | "),
+      cells: parts,
+    });
+  }
+  return { header, rows };
+}
+
 type CoreRow = { check: string; result: string };
 
 function parseCoreTable(md: string): CoreRow[] {
@@ -153,6 +245,44 @@ describe("dashboard surface matrix", () => {
     expect(outBlob).toMatch(/#241/);
     expect(outBlob).toMatch(/#414/);
     expect(outBlob.toLowerCase()).toMatch(/rebuild/);
+  });
+
+  it("fills the founder Surface index with no blank cells", () => {
+    const md = readMatrix();
+    const { header, rows } = parseIndexTable(md);
+    expect(header).toEqual([...INDEX_COLUMNS]);
+    expect(rows.map((row) => row.path)).toEqual([...FOUNDER_INDEX_PATHS]);
+
+    for (const row of rows) {
+      expect(row.cells, `${row.path} column count`).toHaveLength(INDEX_COLUMNS.length);
+      for (const [i, cell] of row.cells.entries()) {
+        expect(cell.length, `${row.path} blank ${INDEX_COLUMNS[i]}`).toBeGreaterThan(0);
+      }
+      expect(CCP_LANES, `${row.path} Lane`).toContain(row.lane);
+      expect(STATUSES, `${row.path} Five-status`).toContain(row.fiveStatus);
+      expect(classifyChangeControlLane(row.path)).toBe(row.lane);
+      if (row.fiveStatus !== "HONEST") {
+        const namedPr = /PR\s*#\d+/.test(row.notes) || /#\d+/.test(row.pr);
+        const blockedReason = /BLOCKED:/i.test(row.notes);
+        const darkOrOut = row.fiveStatus === "DARK" || row.fiveStatus === "OUT";
+        expect(
+          namedPr || blockedReason || darkOrOut,
+          `${row.path} non-HONEST row needs PR #<n>, BLOCKED: reason, or DARK/OUT`,
+        ).toBe(true);
+      }
+    }
+
+    const dashboard = rows.find((row) => row.path === "/dashboard");
+    expect(dashboard?.lane).toBe("DARK");
+    expect(dashboard?.fiveStatus).toBe("DARK");
+    const team = rows.find((row) => row.path === "/team");
+    expect(team?.lane).toBe("DARK");
+    expect(team?.fiveStatus).toBe("OUT");
+    expect(team?.pr).toMatch(/#414/);
+    expect(team?.notes).toMatch(/#414/);
+    expect(rows.some((row) => row.path === "/team" && row.lane === "V4_PENDING")).toBe(
+      false,
+    );
   });
 
   it("keeps Pixel Gate CLOSED and records CORE without forcing FULL", () => {

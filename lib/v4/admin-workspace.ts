@@ -91,27 +91,34 @@ export function parseV4AdminVisualState(
   return parseV4VisualState(raw, V4_ADMIN_VISUAL_STATES);
 }
 
-export function adminV4ForbidsHeroScore(view: AdminV4View): boolean {
-  if ("score" in view || "overallScore" in view || "heroScore" in view) return false;
+export function adminV4ForbidsHeroScore(view: unknown): boolean {
+  if (
+    view &&
+    typeof view === "object" &&
+    ("score" in view || "overallScore" in view || "heroScore" in view || "overall_score" in view)
+  ) {
+    return false;
+  }
   const blob = JSON.stringify(view);
   return (
     !blob.includes("HeroScore") &&
     !blob.includes("ThresholdFold") &&
+    !blob.includes("overall_score") &&
     !/\b\d{1,3}\s*\/\s*100\b/.test(blob)
   );
 }
 
-export function adminV4ForbidsInventedDollars(view: AdminV4View): boolean {
+export function adminV4ForbidsInventedDollars(view: unknown): boolean {
   return !/\$\d/.test(JSON.stringify(view));
 }
 
 /** Ops console never paints On track — there is no personal hard-stop theater. */
-export function adminV4ForbidsOnTrackCopy(view: AdminV4View): boolean {
+export function adminV4ForbidsOnTrackCopy(view: unknown): boolean {
   return !/\bOn track\b/.test(JSON.stringify(view));
 }
 
 /** Ops console never paints READY as a verdict badge. */
-export function adminV4ForbidsReadyCopy(view: AdminV4View): boolean {
+export function adminV4ForbidsReadyCopy(view: unknown): boolean {
   return !/\bREADY\b/.test(JSON.stringify(view));
 }
 
@@ -260,4 +267,103 @@ export function adminV4VisualDrafts(state: V4AdminVisualState): AdminV4Draft[] {
     { id: "fixture-x", title: "Draft · X", platform: "x", action: "approve" },
     { id: "fixture-tiktok", title: "Draft · TikTok", platform: "tiktok", action: "queue" },
   ];
+}
+
+/** Assessments room — live rows only. Never a READY badge or score field. */
+export const ADMIN_V4_ASSESSMENTS_EMPTY = "No assessments yet." as const;
+export const ADMIN_V4_ASSESSMENTS_TITLE = "Assessments." as const;
+export const ADMIN_V4_ASSESSMENTS_HOLD = "DO NOT PROCEED" as const;
+export const ADMIN_V4_ASSESSMENTS_IN_PROGRESS = "In progress" as const;
+export const ADMIN_V4_ASSESSMENTS_COMPLETE = "Completed read" as const;
+
+export type AdminAssessmentsV4KindLabel = "Shadow" | "Full";
+export type AdminAssessmentsV4Status =
+  | typeof ADMIN_V4_ASSESSMENTS_HOLD
+  | typeof ADMIN_V4_ASSESSMENTS_IN_PROGRESS
+  | typeof ADMIN_V4_ASSESSMENTS_COMPLETE;
+
+export type AdminAssessmentsV4Row = {
+  id: string;
+  dateLabel: string;
+  kindLabel: AdminAssessmentsV4KindLabel;
+  holdCount: number;
+  statusLabel: AdminAssessmentsV4Status;
+};
+
+export type AdminAssessmentsV4View = {
+  kind: "empty" | "normal";
+  title: string;
+  rows: readonly AdminAssessmentsV4Row[];
+  shown: number;
+  completed: number;
+  waitCount: number;
+  shadowCount: number;
+};
+
+export type AdminAssessmentsV4SourceRow = {
+  id: string;
+  created_at: string | null;
+  verdict: string | null;
+  is_shadow: boolean;
+  hard_stops: unknown;
+};
+
+function adminAssessmentsV4HoldCount(hardStops: unknown): number {
+  return Array.isArray(hardStops) ? hardStops.length : 0;
+}
+
+export function adminAssessmentsV4DateLabel(value: string | null): string {
+  if (!value) return "—";
+  try {
+    return new Date(value).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  } catch {
+    return "—";
+  }
+}
+
+export function adminAssessmentsV4StatusLabel(
+  row: Pick<AdminAssessmentsV4SourceRow, "verdict" | "hard_stops">,
+): AdminAssessmentsV4Status {
+  if (adminAssessmentsV4HoldCount(row.hard_stops) > 0) return ADMIN_V4_ASSESSMENTS_HOLD;
+  if (!row.verdict) return ADMIN_V4_ASSESSMENTS_IN_PROGRESS;
+  return ADMIN_V4_ASSESSMENTS_COMPLETE;
+}
+
+export function buildAdminAssessmentsV4View(
+  rows: readonly AdminAssessmentsV4SourceRow[],
+): AdminAssessmentsV4View {
+  if (rows.length === 0) {
+    return {
+      kind: "empty",
+      title: ADMIN_V4_ASSESSMENTS_EMPTY,
+      rows: [],
+      shown: 0,
+      completed: 0,
+      waitCount: 0,
+      shadowCount: 0,
+    };
+  }
+  return {
+    kind: "normal",
+    title: ADMIN_V4_ASSESSMENTS_TITLE,
+    rows: rows.map((row) => ({
+      id: row.id,
+      dateLabel: adminAssessmentsV4DateLabel(row.created_at),
+      kindLabel: row.is_shadow ? "Shadow" : "Full",
+      holdCount: adminAssessmentsV4HoldCount(row.hard_stops),
+      statusLabel: adminAssessmentsV4StatusLabel(row),
+    })),
+    shown: rows.length,
+    completed: rows.filter((row) => row.verdict !== null).length,
+    waitCount: rows.filter(
+      (row) => row.verdict === "BUILD_FIRST" || row.verdict === "NOT_YET",
+    ).length,
+    shadowCount: rows.filter((row) => row.is_shadow).length,
+  };
 }

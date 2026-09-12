@@ -104,7 +104,11 @@ describe("Contextual HōMI v4 law", () => {
     const view = askV4VisualView("default");
     expect(view.kind).toBe("default");
     expect(view.hasAssessment).toBe(true);
-    expect(view.title).toBe("You're close — Path still leads.");
+    expect(view.title).toBe("Path still leads.");
+    expect(view.title).not.toMatch(/you're ready/i);
+    expect(view.title).not.toMatch(/you're close/i);
+    expect(JSON.stringify(view)).not.toMatch(/Tighten runway before offers/);
+    expect(askV4ForbidsReadyCopy(view)).toBe(true);
     expect(view.ageLabel).toBe("Assessed Aug 29");
     expect(view.verdictLabel).toBeNull();
     expect(view.cards.length).toBeGreaterThan(0);
@@ -130,7 +134,11 @@ describe("Contextual HōMI v4 law", () => {
     });
     expect(ready.kind).toBe("default");
     expect(ready.verdictLabel).toBeNull();
+    expect(ready.title).toBe("Path still leads.");
     expect(ready.title).toBe(askV4DefaultTitle("READY"));
+    expect(ready.title).not.toMatch(/you're ready/i);
+    expect(JSON.stringify(ready)).not.toMatch(/Tighten runway before offers/);
+    expect(askV4ForbidsReadyCopy(ready)).toBe(true);
     expect(JSON.stringify(ready)).not.toMatch(/\$\d/);
   });
 

@@ -58,7 +58,7 @@ hand-copy a second list into product code.
 | `/assessment` | HONEST | merged | `lib/v4/assessment-walk.ts` + `__tests__/v4/assessment-walk.test.ts`. Adaptive home_buying; write path `/home`. |
 | `/employee` | HONEST | merged | Operate home `/employee/dashboard`. `lib/v4/employee-workspace.ts` + `__tests__/v4/employee-workspace.test.ts`. Empty / hard-stop / normal. |
 | `/partner` | HONEST | merged | Operate home `/partner/dashboard`. `lib/v4/partner-workspace.ts` + `__tests__/v4/partner-workspace.test.ts`. Empty / invite-error / normal. SITE_URL fail-loud. |
-| `/admin` | HONEST | merged | Ops console `/admin`. `lib/v4/admin-workspace.ts` + `__tests__/v4/admin-workspace.test.ts`. Empty / normal; live SSOT counts; Companion off. |
+| `/admin` | HONEST | stay-draft | Ops console `/admin`. `lib/v4/admin-workspace.ts` + `__tests__/v4/admin-workspace.test.ts`. Empty / normal; live SSOT counts; Companion off. Assessments room: `buildAdminAssessmentsV4View` — live rows, never READY badge / HeroScore / `overall_score`. PR #416. |
 
 ## Related non-pending dashboards
 
@@ -80,15 +80,50 @@ hand-copy a second list into product code.
 | site rebuild | OUT | blocked | Dashboards already exist. Do not rebuild KEEP marketing or scoring. |
 | PR #414 `/team` | OUT | blocked | Stay-draft Team v4 must not land; `/team` stays DARK. |
 
+## Surface index
+
+Founder index. One row per operate host, admin room, DARK leftover, and OUT
+`/team`. Columns are Path · Lane · Page file · View builder · Data SSOT ·
+Five-status · PR · Evidence · Notes. This table does not replace the locked
+pending host list and does not activate routes.
+
+<!-- dashboard-matrix:index -->
+| Path | Lane | Page file | View builder | Data SSOT | Five-status | PR | Evidence | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `/home` | V4_PENDING | `app/(product)/home/page.tsx` | `buildHomeV4View` | assessments last completed + user_readiness_path | HONEST | main | `__tests__/v4/home-state.test.ts` | Empty-or-live; no HeroScore; hard-stop never On track / READY |
+| `/money` | V4_PENDING | `app/(product)/money/page.tsx` | `buildMoneyV4View` | assessments last-read + plaid_items + plaid_accounts | HONEST | main | `__tests__/v4/money-workspace.test.ts` | Empty-or-live; never invent $; `/money/bills` is the `/money` prefix |
+| `/path` | V4_PENDING | `app/(product)/path/page.tsx` | `buildPathV4View` | assessments last-read + user_readiness_path.path | HONEST | main | `__tests__/v4/path-workspace.test.ts` | Hard-stop never On track / READY |
+| `/scenarios` | V4_PENDING | `app/(product)/scenarios/page.tsx` | `buildCompareV4View` | assessments last-read + tool_scenarios | HONEST | main | `__tests__/v4/compare-workspace.test.ts` | Compare rail; educational only; no second official score |
+| `/employee/dashboard` | V4_PENDING | `app/(product)/employee/dashboard/page.tsx` | `buildEmployeeV4View` | profiles role/employer + loadSystemV4LastRead | HONEST | main | `__tests__/v4/employee-workspace.test.ts` | Operate home under `/employee` prefix; empty / hard-stop / normal |
+| `/partner/dashboard` | V4_PENDING | `app/(product)/partner/dashboard/page.tsx` | `buildPartnerV4View` | profiles + partner_codes + assessments.referral_source + SITE_URL | HONEST | main | `__tests__/v4/partner-workspace.test.ts` | Empty / invite-error / normal; SITE_URL fail-loud |
+| `/admin` | V4_PENDING | `app/(product)/admin/page.tsx` | `buildAdminV4View` | profiles / organizations / assessments 7d / waitlist / campaign_sends failed counts | HONEST | main | `__tests__/v4/admin-workspace.test.ts` | Ops console; live SSOT counts; Companion off |
+| `/admin/activity` | V4_PENDING | `app/(product)/admin/activity/page.tsx` | none | audit_log | BLOCKED | main | `app/(product)/admin/activity/page.tsx` | BLOCKED: leftover PageFrame; Pixel Gate CLOSED — do not restyle this pass |
+| `/admin/ad-spend` | V4_PENDING | `app/(product)/admin/ad-spend/page.tsx` | none | ad_spend + profiles + payments | BLOCKED | main | `app/(product)/admin/ad-spend/page.tsx` | BLOCKED: leftover PageFrame; Pixel Gate CLOSED — do not restyle this pass |
+| `/admin/analytics` | V4_PENDING | `app/(product)/admin/analytics/page.tsx` | none | PostHog getAnalyticsBundle | BLOCKED | main | `app/(product)/admin/analytics/page.tsx` | BLOCKED: leftover PageFrame; Pixel Gate CLOSED — do not restyle this pass |
+| `/admin/assessments` | V4_PENDING | `app/(product)/admin/assessments/page.tsx` | `buildAdminAssessmentsV4View` | assessments id/created_at/verdict/is_shadow/hard_stops | HONEST | #416 | `__tests__/v4/admin-workspace.test.ts` | Empty-or-live; no VerdictBadge / overall_score / READY badge. Prefix of `/admin`. |
+| `/admin/attribution` | V4_PENDING | `app/(product)/admin/attribution/page.tsx` | none | profiles.attribution + assessments.attribution | BLOCKED | main | `app/(product)/admin/attribution/page.tsx` | BLOCKED: leftover PageFrame; Pixel Gate CLOSED — do not restyle this pass |
+| `/admin/email` | V4_PENDING | `app/(product)/admin/email/page.tsx` | none | campaigns + campaign_sends | BLOCKED | main | `app/(product)/admin/email/page.tsx` | BLOCKED: leftover PageFrame; Pixel Gate CLOSED — do not restyle this pass |
+| `/admin/marketing` | V4_PENDING | `app/(product)/admin/marketing/page.tsx` | `adminV4DraftsFromAssets` | marketing_assets | HONEST | main | `__tests__/v4/admin-workspace.test.ts` | X+TikTok only; Queue/Approve not Publish; no Instagram/Threads peers |
+| `/admin/organizations` | V4_PENDING | `app/(product)/admin/organizations/page.tsx` | none | organizations + organization_members + family_accounts | BLOCKED | main | `app/(product)/admin/organizations/page.tsx` | BLOCKED: leftover PageFrame; Pixel Gate CLOSED — do not restyle this pass |
+| `/admin/users` | V4_PENDING | `app/(product)/admin/users/page.tsx` | none | profiles | BLOCKED | main | `app/(product)/admin/users/page.tsx` | BLOCKED: leftover PageFrame + AdminRoomEmptyV4; Pixel Gate CLOSED — do not restyle this pass |
+| `/admin/waitlist` | V4_PENDING | `app/(product)/admin/waitlist/page.tsx` | none | waitlist | BLOCKED | main | `app/(product)/admin/waitlist/page.tsx` | BLOCKED: leftover PageFrame; Pixel Gate CLOSED — do not restyle this pass |
+| `/ask` | V4_PENDING | `app/(product)/ask/page.tsx` | `buildAskV4View` | assessments last completed | HONEST | main | `__tests__/v4/contextual-homi.test.ts` | Explain + deep-link; no Homie; no invented $ |
+| `/tools` | V4_PENDING | `app/(product)/tools/page.tsx` | `buildToolsV4View` | loadSystemV4LastRead + hubLenses registry | HONEST | main | `__tests__/v4/system-surfaces.test.ts` | Hub lenses; never a score tile |
+| `/learn` | V4_PENDING | `app/(product)/learn/page.tsx` | `buildLearnV4View` | loadSystemV4LastRead + LEARN_V4_LIVE_GUIDES | HONEST | main | `__tests__/v4/system-surfaces.test.ts` | Real `/guides` slugs only |
+| `/settings` | V4_PENDING | `app/(product)/settings/page.tsx` | `buildSettingsV4View` | loadSystemV4LastRead + SETTINGS_V4_ENTRIES | HONEST | main | `__tests__/v4/system-surfaces.test.ts` | Account / Privacy / Billing entry |
+| `/connections` | V4_PENDING | `app/(product)/connections/page.tsx` | `buildAccountsV4View` | loadSystemV4LastRead + plaid_items + plaid_accounts name/mask | HONEST | main | `__tests__/v4/system-surfaces.test.ts` | Live name/mask; no invented $ |
+| `/assessment` | V4_PENDING | `app/(product)/assessment/page.tsx` | `parseV4AssessVisualState` + FullAssessmentFlow | adaptive home_buying walk; write path `/home` | HONEST | main | `__tests__/v4/assessment-walk.test.ts` | Adaptive home_buying; guests do not mount the walk |
+| `/dashboard` | DARK | `app/(product)/dashboard/page.tsx` | none | pre-PR15 cockpit; not on V4 allow-list | DARK | none | `classifyChangeControlLane("/dashboard")` | DARK: pre-PR15 cockpit; do not resurrect |
+| `/team` | DARK | `app/(product)/team/page.tsx` | none | not in V4_PENDING_PATHS | OUT | #414 | related + OUT rows; draft PR #414 | OUT: PR #414 stays unmerged; do not add `/team` |
+
 ## CORE
 
-Recorded locally 2026-09-12 from `node scripts/ci-coverage-report.mjs`.
+Recorded 2026-09-12 from `node scripts/ci-coverage-report.mjs` plus PR #416
+Actions after push (`34699568254` verify success, `34699568287` e2e success).
 Mode is `TEST_COVERAGE_MODE=CORE` (not FULL). Result cells use only
-`PASS` / `FAIL` / `SKIPPED` / `NOT CONFIGURED` / `BLOCKED`. Script
-`NOT_CONFIGURED` maps to `NOT CONFIGURED`. Live E2E under #241 is
-`SKIPPED` or `NOT CONFIGURED`, never `FAIL`. Do not inject production
-`service_role` or `sk_live_*` to force FULL. GitHub Actions `verify` /
-`e2e` were not queried for this unpushed SHA.
+`PASS` / `FAIL` / `SKIPPED` / `NOT CONFIGURED` / `BLOCKED`. Live E2E under
+#241 is `SKIPPED` or `NOT CONFIGURED`, never `FAIL`. Do not inject
+production `service_role` or `sk_live_*` to force FULL.
 
 <!-- dashboard-matrix:core -->
 | Check | Result |
@@ -97,8 +132,8 @@ Mode is `TEST_COVERAGE_MODE=CORE` (not FULL). Result cells use only
 | INTEGRATION_E2E_STRIPE | NOT CONFIGURED |
 | INTEGRATION_E2E_SUPABASE | NOT CONFIGURED |
 | AUTHENTICATED_LIGHTHOUSE | NOT CONFIGURED |
-| GitHub Actions `verify` | NOT CONFIGURED |
-| GitHub Actions `e2e` | NOT CONFIGURED |
+| GitHub Actions `verify` | PASS |
+| GitHub Actions `e2e` | PASS |
 | Live E2E under #241 | SKIPPED |
 
 <!-- dashboard-matrix:core-raw -->
