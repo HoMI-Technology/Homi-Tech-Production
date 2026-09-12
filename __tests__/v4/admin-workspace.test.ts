@@ -37,6 +37,9 @@ import {
   ADMIN_V4_AD_SPEND_COLUMNS,
   ADMIN_V4_ATTRIBUTION_CONSOLE_EMPTY,
   ADMIN_V4_ATTRIBUTION_COLUMNS,
+  ADMIN_V4_ACTIVITY_CONSOLE_EMPTY,
+  ADMIN_V4_ACTIVITY_COLUMNS,
+  buildAdminActivityV4View,
   buildAdminAdSpendV4View,
   buildAdminAnalyticsV4View,
   buildAdminAssessmentsV4View,
@@ -1034,6 +1037,105 @@ describe("Admin v4 law", () => {
     expect(page).toContain('from("profiles")');
     expect(page).toContain('from("assessments")');
     expect(page).toContain('select("attribution")');
+    expect(page).not.toContain('select("*")');
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("score-numeral");
+    expect(page).not.toContain("Publish");
+    expect(page).not.toMatch(/>Score</);
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
+  });
+
+  it("activity room is empty-or-live from audit_log id/created_at/action_type/resource_type", () => {
+    expect(ADMIN_V4_ACTIVITY_CONSOLE_EMPTY).toBe(
+      "No live activity in this console.",
+    );
+    expect(ADMIN_V4_ACTIVITY_COLUMNS).toEqual([
+      "id",
+      "created_at",
+      "action_type",
+      "resource_type",
+    ]);
+    expect(ADMIN_V4_ACTIVITY_COLUMNS).not.toContain("score");
+
+    const empty = buildAdminActivityV4View({ rows: [], loadError: false });
+    expect(empty.kind).toBe("empty");
+    expect(empty.title).toBe(ADMIN_V4_ACTIVITY_CONSOLE_EMPTY);
+    expect(empty.rows).toEqual([]);
+    expect(empty.columns).toEqual([...ADMIN_V4_ACTIVITY_COLUMNS]);
+    expect(empty.shown).toBe(0);
+    expect(empty.actionCount).toBe(0);
+    expect(adminV4ForbidsHeroScore(empty)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(empty)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(empty)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(empty)).toBe(true);
+
+    const errored = buildAdminActivityV4View({
+      rows: [
+        {
+          id: "should-not-render",
+          created_at: "2026-09-11T12:00:00.000Z",
+          action_type: "login",
+          resource_type: "session",
+        },
+      ],
+      loadError: true,
+    });
+    expect(errored.kind).toBe("empty");
+    expect(errored.title).toBe(ADMIN_V4_ACTIVITY_CONSOLE_EMPTY);
+    expect(errored.rows).toEqual([]);
+    expect(errored.shown).toBe(0);
+
+    const view = buildAdminActivityV4View({
+      rows: [
+        {
+          id: "act-1",
+          created_at: "2026-09-11T12:00:00.000Z",
+          action_type: "login",
+          resource_type: "session",
+        },
+        {
+          id: "act-2",
+          created_at: null,
+          action_type: "update",
+          resource_type: null,
+        },
+      ],
+      loadError: false,
+    });
+    expect(view.kind).toBe("normal");
+    expect(view.columns).toEqual([
+      "id",
+      "created_at",
+      "action_type",
+      "resource_type",
+    ]);
+    expect(view.rows.map((row) => row.id)).toEqual(["act-1", "act-2"]);
+    expect(view.rows.map((row) => row.actionLabel)).toEqual(["login", "update"]);
+    expect(view.rows.map((row) => row.resourceLabel)).toEqual(["session", "—"]);
+    expect(view.rows[1]?.createdLabel).toBe("—");
+    expect(view.shown).toBe(2);
+    expect(view.actionCount).toBe(2);
+    expect(blob(view)).not.toContain("HeroScore");
+    expect(blob(view)).not.toContain("overall_score");
+    expect(blob(view)).not.toContain("score");
+    expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(blob(view)).not.toContain("Publish");
+    expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+
+    const page = readFileSync(
+      resolve(process.cwd(), "app/(product)/admin/activity/page.tsx"),
+      "utf8",
+    );
+    expect(page).toContain("buildAdminActivityV4View");
+    expect(page).toContain("loadError");
+    expect(page).toContain("id, created_at, action_type, resource_type");
+    expect(page).toContain('from("audit_log")');
     expect(page).not.toContain('select("*")');
     expect(page).not.toContain("HeroScore");
     expect(page).not.toContain("overall_score");

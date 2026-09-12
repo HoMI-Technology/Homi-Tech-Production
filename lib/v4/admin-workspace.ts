@@ -1129,3 +1129,79 @@ export function buildAdminAttributionV4View({
     ).length,
   };
 }
+
+/** Activity room — live audit_log rows. Never a score column or invented $. */
+export const ADMIN_V4_ACTIVITY_CONSOLE_EMPTY =
+  "No live activity in this console." as const;
+export const ADMIN_V4_ACTIVITY_TITLE = "Activity." as const;
+export const ADMIN_V4_ACTIVITY_COLUMNS = [
+  "id",
+  "created_at",
+  "action_type",
+  "resource_type",
+] as const;
+
+export type AdminActivityV4Column = (typeof ADMIN_V4_ACTIVITY_COLUMNS)[number];
+
+export type AdminActivityV4SourceRow = {
+  id: string;
+  created_at: string | null;
+  action_type: string | null;
+  resource_type: string | null;
+};
+
+export type AdminActivityV4Row = {
+  id: string;
+  createdLabel: string;
+  actionLabel: string;
+  resourceLabel: string;
+};
+
+export type AdminActivityV4View = {
+  kind: "empty" | "normal";
+  title: string;
+  columns: readonly AdminActivityV4Column[];
+  rows: readonly AdminActivityV4Row[];
+  shown: number;
+  actionCount: number;
+};
+
+export type AdminActivityV4Input = {
+  rows: readonly AdminActivityV4SourceRow[];
+  loadError?: boolean;
+};
+
+function adminActivityV4Label(value: string | null | undefined): string {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : "—";
+}
+
+export function buildAdminActivityV4View({
+  rows,
+  loadError,
+}: AdminActivityV4Input): AdminActivityV4View {
+  if (loadError || rows.length === 0) {
+    return {
+      kind: "empty",
+      title: ADMIN_V4_ACTIVITY_CONSOLE_EMPTY,
+      columns: ADMIN_V4_ACTIVITY_COLUMNS,
+      rows: [],
+      shown: 0,
+      actionCount: 0,
+    };
+  }
+  const mapped = rows.map((row) => ({
+    id: row.id,
+    createdLabel: adminUsersV4DateLabel(row.created_at),
+    actionLabel: adminActivityV4Label(row.action_type),
+    resourceLabel: adminActivityV4Label(row.resource_type),
+  }));
+  return {
+    kind: "normal",
+    title: ADMIN_V4_ACTIVITY_TITLE,
+    columns: ADMIN_V4_ACTIVITY_COLUMNS,
+    rows: mapped,
+    shown: mapped.length,
+    actionCount: new Set(mapped.map((row) => row.actionLabel)).size,
+  };
+}
