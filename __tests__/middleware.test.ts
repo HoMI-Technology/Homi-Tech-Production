@@ -264,8 +264,17 @@ describe("CCP v1 `/home` activation", () => {
     }
   });
 
-  it("flag on does not reopen team (K4)", async () => {
+  it("flag on lets team aggregate home pass the CCP gate via /team", async () => {
     vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
+    for (const path of ["/team", "/team/depth"]) {
+      const res = await middleware(req(path));
+      expect(res.status, path).toBe(200);
+      expect(res.headers.get("location"), path).toBeNull();
+    }
+  });
+
+  it("flag off folds team aggregate home onto `/`", async () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "false");
     const res = await middleware(req("/team"));
     expect(res.status).toBe(307);
     expect(pathname(res)).toBe("/");

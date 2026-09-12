@@ -87,6 +87,8 @@ export function CompanionHost() {
     pathname === "/advisor" ||
     pathname === "/admin" ||
     (pathname?.startsWith("/admin/") ?? false) ||
+    pathname === "/team" ||
+    (pathname?.startsWith("/team/") ?? false) ||
     pathname === "/dashboard" ||
     (pathname?.startsWith("/dashboard/") ?? false)
   ) {

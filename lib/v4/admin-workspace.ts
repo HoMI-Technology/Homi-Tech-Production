@@ -1,7 +1,7 @@
 /**
  * Admin v4 — Shell v4 ops console. Attention + live SSOT only.
  * Not personal Home. Not HeroScore. Not invent $ or new rooms.
- * Companion / Ask / Homie stay off `/admin*`. K4 Team stays closed.
+ * Companion / Ask / Homie stay off `/admin*`.
  */
 
 import { parseV4VisualState } from "@/lib/v4/system-surfaces";

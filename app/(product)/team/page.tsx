@@ -1,146 +1,124 @@
 import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { TeamWorkspaceV4 } from "@/components/v4/team/TeamWorkspaceV4";
+import { isV4HomeEnabled } from "@/lib/auth/keep-routes";
 import { signInRedirect } from "@/lib/auth/signInRedirect";
-import { AccessPanel } from "@/components/b2b/AccessPanel";
-import { PageFrame } from "@/components/operate/PageFrame";
-import { MetricRail } from "@/components/operate/MetricRail";
-import { OperateHeroMeta } from "@/components/operate/OperateHeroMeta";
-import type { AssessmentRow, Organization, Profile } from "@/types/database";
+import { getCachedClient, getCachedUser } from "@/lib/supabase/server";
+import {
+  buildTeamV4View,
+  parseV4TeamVisualState,
+  teamV4VisualView,
+  type TeamV4Source,
+} from "@/lib/v4/team-workspace";
+import { isV4VisualFixtureEnabled } from "@/lib/v4/visual-fixture";
+import type { AssessmentRow, Profile } from "@/types/database";
 
 export const metadata: Metadata = {
-  title: "Team Dashboard | HōMI",
-  description: "Organization-level readiness aggregates.",
+  title: "Team",
+  description:
+    "Organization-level readiness aggregates only. Live route is /team — not /team/dashboard.",
+  robots: { index: false, follow: false },
 };
 
-/**
- * /team — B2B team dashboard (marketing owns /b2b).
- * Aggregate only — no individual listing. Live route is /team, not /team/dashboard.
- */
-export default async function TeamDashboardPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
+/**
+ * Team v4 — V4_PENDING `/team` only.
+ * Team · aggregate only. Shell v4 org viewer. No individual score walls.
+ * Preview-only fixtures. Live SSOT — never invent $.
+ */
+export default async function TeamDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ visual?: string }>;
+}) {
+  if (!isV4HomeEnabled()) {
+    redirect("/");
+  }
+
+  const params = await searchParams;
+  const visual = isV4VisualFixtureEnabled()
+    ? parseV4TeamVisualState(params.visual)
+    : null;
+
+  if (visual) {
+    return <TeamWorkspaceV4 view={teamV4VisualView(visual)} />;
+  }
+
+  const user = await getCachedUser();
   if (!user) return signInRedirect("/team");
 
-  const { data: profileData } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .maybeSingle();
-  const profile = (profileData as Profile | null) ?? null;
+  const supabase = await getCachedClient();
 
-  if (!profile) {
-    return (
-      <div className="mx-auto max-w-3xl px-6 py-16">
-        <AccessPanel
-          title="Profile required"
-          body="We couldn't load your profile."
-          href="/auth/sign-in?next=/team"
-          linkLabel="Sign in"
-        />
-      </div>
-    );
+  let profile: Profile | null = null;
+  try {
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
+    profile = (profileData as Profile | null) ?? null;
+  } catch {
+    return <TeamWorkspaceV4 view={buildTeamV4View({ ...emptySource(), fetchFailed: true })} />;
   }
 
-  const orgId = profile.organization_id;
-  if (!orgId && profile.role !== "admin") {
-    return (
-      <div className="mx-auto max-w-3xl px-6 py-16">
-        <AccessPanel
-          title="Enterprise team access"
-          body="This dashboard is for organizations on a HōMI team plan."
-          href="/b2b"
-          linkLabel="Talk to enterprise sales"
-        />
-      </div>
-    );
+  const orgId = profile?.organization_id ?? null;
+  if (!orgId) {
+    return <TeamWorkspaceV4 view={buildTeamV4View(emptySource())} />;
   }
 
-  let org: Organization | null = null;
-  if (orgId) {
-    const { data } = await supabase.from("organizations").select("*").eq("id", orgId).maybeSingle();
-    org = (data as Organization | null) ?? null;
-  }
+  const source = await loadTeamV4Source(orgId);
+  return <TeamWorkspaceV4 view={buildTeamV4View(source)} />;
+}
 
-  let memberIds: string[] = [];
-  if (orgId) {
-    const { data: members } = await supabase
+function emptySource(): TeamV4Source {
+  return {
+    orgConnected: false,
+    memberCount: 0,
+    assessmentCount: 0,
+    fetchFailed: false,
+  };
+}
+
+async function loadTeamV4Source(orgId: string): Promise<TeamV4Source> {
+  const supabase = await getCachedClient();
+  try {
+    let memberIds: string[] = [];
+    const { data: members, error: memberError } = await supabase
       .from("organization_members")
       .select("profile_id")
       .eq("organization_id", orgId);
+    if (memberError) {
+      return { orgConnected: true, memberCount: 0, assessmentCount: 0, fetchFailed: true };
+    }
     memberIds = ((members as { profile_id: string }[] | null) ?? []).map((r) => r.profile_id);
     if (memberIds.length === 0) {
-      const { data: byOrg } = await supabase
+      const { data: byOrg, error: profileError } = await supabase
         .from("profiles")
         .select("id")
         .eq("organization_id", orgId);
+      if (profileError) {
+        return { orgConnected: true, memberCount: 0, assessmentCount: 0, fetchFailed: true };
+      }
       memberIds = ((byOrg as { id: string }[] | null) ?? []).map((r) => r.id);
     }
+
+    const { data, error: summaryError } = await supabase.rpc("get_org_assessment_summary", {
+      org_id: orgId,
+    });
+    if (summaryError) {
+      return { orgConnected: true, memberCount: 0, assessmentCount: 0, fetchFailed: true };
+    }
+    const assessments = (data as Pick<AssessmentRow, "verdict">[] | null) ?? [];
+
+    return {
+      orgConnected: true,
+      memberCount: memberIds.length,
+      assessmentCount: assessments.length,
+      fetchFailed: false,
+    };
+  } catch {
+    return { orgConnected: true, memberCount: 0, assessmentCount: 0, fetchFailed: true };
   }
-
-  // De-identified cohort read: the security-definer function in 20260802000002 returns
-  // only non-PII fields and enforces org membership server-side.
-  let assessments: Pick<AssessmentRow, "verdict">[] = [];
-  if (orgId) {
-    const { data } = await supabase.rpc("get_org_assessment_summary", { org_id: orgId });
-    assessments = (data as typeof assessments | null) ?? [];
-  }
-
-  const participation =
-    memberIds.length > 0
-      ? `${Math.min(100, Math.round((assessments.length / memberIds.length) * 100))}%`
-      : "—";
-  const pulse = assessments.length > 0 ? "Steady" : "—";
-
-  return (
-    <PageFrame role="team" density="compact">
-      <p className="text-2xs font-bold uppercase tracking-[0.14em] text-dim">
-        Team · aggregate only{org?.name ? ` · ${org.name}` : ""}
-      </p>
-      <OperateHeroMeta
-        title="How the team is doing"
-        description="Org pulse as a whole. No individual score walls. Live route is /team — not /team/dashboard."
-      />
-      <div className="mt-6">
-        <MetricRail
-          cells={[
-            {
-              label: "Members covered",
-              value: String(memberIds.length),
-              footer: "Headcount with access.",
-            },
-            {
-              label: "Participation",
-              value: participation,
-              footer: "Aggregate · not a roster.",
-            },
-            {
-              label: "Org pulse",
-              value: pulse,
-              footer: "No peer score listing.",
-            },
-          ]}
-        />
-      </div>
-
-      <div className="dash-panel mt-6" data-team-aggregates="">
-        <h2 className="text-base font-medium text-light">Privacy lock</h2>
-        <p className="mt-2 text-sm text-dim">
-          Team never paints individual readiness as a wall. Drill-downs that would expose peer
-          scores stay out of this home. Individuals are not listed.
-        </p>
-      </div>
-
-      <div className="mt-4 rounded-xl border border-dashed border-white/15 px-4 py-4 text-sm text-dim">
-        No employee score list here. Aggregate facts only. Personal Path stays on personal Home —
-        not team primary.
-      </div>
-
-      <p className="mt-10 text-center text-xs text-dim">
-        Aggregate metrics only. Not financial advice. HōMI Technologies LLC.
-      </p>
-    </PageFrame>
-  );
 }

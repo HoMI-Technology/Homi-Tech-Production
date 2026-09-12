@@ -17,7 +17,7 @@ stay-draft honesty pass. Do not treat this matrix as Pixel Gate approval.
 | STAY-DRAFT | Incomplete slice named to an open stay-draft PR |
 | BLOCKED | Cannot finish here (#241 spend hold, Pixel Gate, missing SSOT, founder) |
 | DARK | Unpublished / do-not-resurrect. Not on the V4 allow-list |
-| OUT | Forbidden this pass (spend, flag-true, V4_LIVE move, leftover PR C, site rebuild, `/team`) |
+| OUT | Forbidden this pass (spend, V4_LIVE move, leftover PR C, site rebuild, `/dashboard`) |
 
 **Terminal** (latest goal lock — exactly these five):
 
@@ -59,6 +59,7 @@ hand-copy a second list into product code.
 | `/employee` | HONEST | stay-draft | Operate home `/employee/dashboard`. `lib/v4/employee-workspace.ts` + `__tests__/v4/employee-workspace.test.ts`. Empty / hard-stop / normal. Terminal stay-draft: honesty SHA is not an ancestor of origin/main (PR #416). |
 | `/partner` | HONEST | stay-draft | Operate home `/partner/dashboard`. `lib/v4/partner-workspace.ts` + `__tests__/v4/partner-workspace.test.ts`. Empty / invite-error / normal. SITE_URL fail-loud. Terminal stay-draft: honesty SHA is not an ancestor of origin/main (PR #416). |
 | `/admin` | HONEST | stay-draft | Ops console `/admin`. `lib/v4/admin-workspace.ts` + `__tests__/v4/admin-workspace.test.ts`. Empty / normal; live SSOT counts; Companion off. Assessments room: `buildAdminAssessmentsV4View` — live rows, never READY badge / HeroScore / `overall_score`. PR #416. |
+| `/team` | HONEST | stay-draft | Aggregate org home. `lib/v4/team-workspace.ts` + `__tests__/v4/team-workspace.test.ts`. Empty / stale / live; no individual scores; no HeroScore; never invent `$`. PR #414. |
 
 ## Related non-pending dashboards
 
@@ -66,7 +67,6 @@ hand-copy a second list into product code.
 | Host | Status | Terminal | Note |
 | --- | --- | --- | --- |
 | `/dashboard` | DARK | blocked | Pre-PR15 cockpit. `classifyChangeControlLane("/dashboard")` is DARK. Do not resurrect. |
-| `/team` | DARK | blocked | Not in `V4_PENDING_PATHS`. Draft PR #414 (K4) stays unmerged this pass. Do not add `/team`. |
 
 ## OUT constraints
 
@@ -78,8 +78,6 @@ hand-copy a second list into product code.
 | `V4_LIVE` path moves | OUT | blocked | `V4_LIVE_PATHS` stays empty. Activation is not this pass. |
 | spend against #241 | OUT | blocked | No GitHub Pro, Vercel Pro, second Supabase, or production secrets in Actions. |
 | site rebuild | OUT | blocked | Dashboards already exist. Do not rebuild KEEP marketing or scoring. |
-| PR #414 `/team` | OUT | blocked | Stay-draft Team v4 must not land; `/team` stays DARK. |
-| first-session Home copy PR #415 | OUT | blocked | Stays on `feat/home-v4-first-session`. Do not restyle `/home` on #416. |
 
 ## CORE
 
@@ -145,4 +143,4 @@ honesty of the page, not a new CCP host.
 | `/admin/users` | V4_PENDING | `app/(product)/admin/users/page.tsx` | `buildAdminUsersV4View` | profiles id/created_at/role/subscription_tier | HONEST | #416 | `__tests__/v4/admin-workspace.test.ts` | Covered by `/admin` prefix. Empty on loadError or []. No score column. Terminal stay-draft. |
 | `/admin/waitlist` | V4_PENDING | `app/(product)/admin/waitlist/page.tsx` | `buildAdminWaitlistV4View` | waitlist id/created_at/status/source/interested_in | HONEST | #416 | `__tests__/v4/admin-workspace.test.ts` | Covered by `/admin` prefix. Empty on loadError or []. No score column. Terminal stay-draft. |
 | `/dashboard` | DARK | `app/(product)/dashboard/page.tsx` | none | pre-PR15 cockpit; not on V4 allow-list | DARK | none | `classifyChangeControlLane("/dashboard")` | DARK: pre-PR15 cockpit; do not resurrect |
-| `/team` | DARK | `app/(product)/team/page.tsx` | none | not in V4_PENDING_PATHS | OUT | #414 | related + OUT rows; draft PR #414 | OUT: PR #414 stays unmerged; do not add `/team` |
+| `/team` | V4_PENDING | `app/(product)/team/page.tsx` | `buildTeamV4View` | organization_members + profiles + get_org_assessment_summary | HONEST | #414 | `__tests__/v4/team-workspace.test.ts` | Aggregate only. Empty / stale / live. No individual scores. No HeroScore. Never invent `$`. |

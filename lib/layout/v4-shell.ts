@@ -81,6 +81,7 @@ export const V4_SHELL_SETTINGS_HREF = "/settings" as const;
 export const V4_SHELL_EMPLOYEE_HREF = "/employee/dashboard" as const;
 export const V4_SHELL_PARTNER_HREF = "/partner/dashboard" as const;
 export const V4_SHELL_ADMIN_HREF = "/admin" as const;
+export const V4_SHELL_TEAM_HREF = "/team" as const;
 
 /** Employee operate jobs — same Shell v4, not a personal Home clone. Live route only. */
 export const V4_EMPLOYEE_WORKSPACE_NAV: readonly V4NavItem[] = [
@@ -110,7 +111,7 @@ export const V4_PARTNER_MOBILE_TABS: readonly V4NavItem[] = [
   { href: V4_SHELL_PARTNER_HREF, label: "Home" },
 ] as const;
 
-/** Admin ops console — existing rooms only. Not personal Home. K4 Team stays closed. */
+/** Admin ops console — existing rooms only. Not personal Home. */
 export const V4_ADMIN_CONSOLE_NAV: readonly V4NavItem[] = [
   { href: V4_SHELL_ADMIN_HREF, label: "Home" },
   { href: "/admin/users", label: "Users" },
@@ -139,6 +140,15 @@ export const V4_ADMIN_MORE_NAV: readonly V4NavItem[] = [
   { href: "/admin/assessments", label: "Assessments" },
   { href: "/admin/activity", label: "Activity" },
   ...V4_ADMIN_ROOMS_NAV,
+] as const;
+
+/** Team aggregate home — `/team` only. No rooms. Not personal Home. */
+export const V4_TEAM_WORKSPACE_NAV: readonly V4NavItem[] = [
+  { href: V4_SHELL_TEAM_HREF, label: "Home" },
+] as const;
+
+export const V4_TEAM_MOBILE_TABS: readonly V4NavItem[] = [
+  { href: V4_SHELL_TEAM_HREF, label: "Home" },
 ] as const;
 
 export function isV4AskPath(pathname: string): boolean {
@@ -197,11 +207,21 @@ export function isV4AdminWorkspace(pathname: string): boolean {
   return p === V4_SHELL_ADMIN_HREF || p.startsWith(`${V4_SHELL_ADMIN_HREF}/`);
 }
 
+export function isV4TeamWorkspace(pathname: string): boolean {
+  const p = pathname || "/";
+  return p === V4_SHELL_TEAM_HREF || p.startsWith(`${V4_SHELL_TEAM_HREF}/`);
+}
+
 export function isV4NavActive(pathname: string, href: string): boolean {
   const p = pathname || "/";
   const hrefPath = href.split("#")[0] || href;
   if (hrefPath === "/home") {
-    if (isV4EmployeeWorkspace(p) || isV4PartnerWorkspace(p) || isV4AdminWorkspace(p)) {
+    if (
+      isV4EmployeeWorkspace(p) ||
+      isV4PartnerWorkspace(p) ||
+      isV4AdminWorkspace(p) ||
+      isV4TeamWorkspace(p)
+    ) {
       return false;
     }
     return p === "/home" || p.startsWith("/home/") || isV4AskPath(p);
@@ -221,6 +241,10 @@ export function isV4NavActive(pathname: string, href: string): boolean {
   if (hrefPath === V4_SHELL_ADMIN_HREF) {
     if (href.includes("#")) return false;
     return p === V4_SHELL_ADMIN_HREF;
+  }
+  if (hrefPath === V4_SHELL_TEAM_HREF) {
+    if (href.includes("#")) return false;
+    return isV4TeamWorkspace(p);
   }
   return p === hrefPath || p.startsWith(`${hrefPath}/`);
 }
@@ -262,7 +286,7 @@ export function isV4AskOnlyPath(pathname: string): boolean {
   );
 }
 
-/** Admin command is ops-only — no Ask field, no Assess, no Clarity. */
+/** Admin + Team command is quiet — no Ask field, no Assess, no Clarity. */
 export function isV4QuietCommandPath(pathname: string): boolean {
-  return isV4AdminWorkspace(pathname);
+  return isV4AdminWorkspace(pathname) || isV4TeamWorkspace(pathname);
 }

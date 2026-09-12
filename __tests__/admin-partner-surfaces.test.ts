@@ -141,10 +141,13 @@ describe("partner + employee surfaces doctrine", () => {
 
   it("Team stays aggregate-only with no named individuals copy", () => {
     const page = read("app/(product)/team/page.tsx");
+    const workspace = read("components/v4/team/TeamWorkspaceV4.tsx");
+    const ssot = read("lib/v4/team-workspace.ts");
     expect(page).toContain("Team · aggregate only");
     expect(page).not.toContain("Team · /team");
-    expect(page).toContain('data-team-aggregates=""');
-    expect(page).toMatch(/Individuals are not listed|No named individuals/);
+    expect(page).toContain("TeamWorkspaceV4");
+    expect(workspace).toContain('data-team-aggregates=""');
+    expect(ssot).toMatch(/Individuals are not listed|No named individuals/);
     expect(page).not.toContain("PathNextMove");
     expect(page).not.toContain("ActionDock");
     expect(page).not.toContain('href="/dashboard"');
