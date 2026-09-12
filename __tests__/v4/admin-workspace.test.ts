@@ -27,7 +27,10 @@ import {
   ADMIN_V4_USERS_COLUMNS,
   ADMIN_V4_ORGANIZATIONS_CONSOLE_EMPTY,
   ADMIN_V4_ORGANIZATIONS_COLUMNS,
+  ADMIN_V4_EMAIL_CONSOLE_EMPTY,
+  ADMIN_V4_EMAIL_COLUMNS,
   buildAdminAssessmentsV4View,
+  buildAdminEmailV4View,
   buildAdminOrganizationsV4View,
   buildAdminUsersV4View,
   buildAdminV4View,
@@ -441,6 +444,139 @@ describe("Admin v4 law", () => {
     expect(page).toContain("id, name, slug, kind, plan, created_at");
     expect(page).toContain('from("organization_members")');
     expect(page).toContain('from("family_accounts")');
+    expect(page).not.toContain('select("*")');
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("score-numeral");
+    expect(page).not.toContain("Publish");
+    expect(page).not.toMatch(/>Score</);
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
+  });
+
+  it("email room is empty-or-live from campaigns and campaign_sends", () => {
+    expect(ADMIN_V4_EMAIL_CONSOLE_EMPTY).toBe(
+      "No live email campaigns in this console.",
+    );
+    expect(ADMIN_V4_EMAIL_COLUMNS).toEqual([
+      "id",
+      "name",
+      "audience",
+      "status",
+      "sent_at",
+    ]);
+    expect(ADMIN_V4_EMAIL_COLUMNS).not.toContain("score");
+
+    const empty = buildAdminEmailV4View({
+      rows: [],
+      sends: [],
+      loadError: false,
+    });
+    expect(empty.kind).toBe("empty");
+    expect(empty.title).toBe(ADMIN_V4_EMAIL_CONSOLE_EMPTY);
+    expect(empty.rows).toEqual([]);
+    expect(empty.columns).toEqual([...ADMIN_V4_EMAIL_COLUMNS]);
+    expect(empty.shown).toBe(0);
+    expect(empty.draftCount).toBe(0);
+    expect(empty.sentCount).toBe(0);
+    expect(empty.failedCount).toBe(0);
+    expect(adminV4ForbidsHeroScore(empty)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(empty)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(empty)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(empty)).toBe(true);
+
+    const errored = buildAdminEmailV4View({
+      rows: [
+        {
+          id: "should-not-render",
+          name: "Hidden",
+          audience: "all",
+          status: "sent",
+          sent_at: "2026-09-11T12:00:00.000Z",
+        },
+      ],
+      sends: [{ campaign_id: "should-not-render", status: "sent" }],
+      loadError: true,
+    });
+    expect(errored.kind).toBe("empty");
+    expect(errored.title).toBe(ADMIN_V4_EMAIL_CONSOLE_EMPTY);
+    expect(errored.rows).toEqual([]);
+    expect(errored.shown).toBe(0);
+    expect(errored.sentCount).toBe(0);
+
+    const view = buildAdminEmailV4View({
+      rows: [
+        {
+          id: "camp-sent",
+          name: "Waitlist note",
+          audience: "waitlist",
+          status: "sent",
+          sent_at: "2026-09-11T12:00:00.000Z",
+        },
+        {
+          id: "camp-draft",
+          name: "Draft note",
+          audience: "free",
+          status: "draft",
+          sent_at: null,
+        },
+      ],
+      sends: [
+        { campaign_id: "camp-sent", status: "sent" },
+        { campaign_id: "camp-sent", status: "sent" },
+        { campaign_id: "camp-sent", status: "failed" },
+        { campaign_id: "camp-sent", status: "suppressed" },
+      ],
+      loadError: false,
+    });
+    expect(view.kind).toBe("normal");
+    expect(view.columns).toEqual([
+      "id",
+      "name",
+      "audience",
+      "status",
+      "sent_at",
+    ]);
+    expect(view.rows.map((row) => row.id)).toEqual(["camp-sent", "camp-draft"]);
+    expect(view.rows.map((row) => row.nameLabel)).toEqual([
+      "Waitlist note",
+      "Draft note",
+    ]);
+    expect(view.rows.map((row) => row.audienceLabel)).toEqual([
+      "waitlist",
+      "free",
+    ]);
+    expect(view.rows.map((row) => row.statusLabel)).toEqual(["sent", "draft"]);
+    expect(view.rows[0]?.sentCount).toBe(2);
+    expect(view.rows[0]?.failedCount).toBe(1);
+    expect(view.rows[0]?.suppressedCount).toBe(1);
+    expect(view.rows[1]?.sentLabel).toBe("—");
+    expect(view.shown).toBe(2);
+    expect(view.draftCount).toBe(1);
+    expect(view.sentCount).toBe(2);
+    expect(view.failedCount).toBe(1);
+    expect(blob(view)).not.toContain("HeroScore");
+    expect(blob(view)).not.toContain("overall_score");
+    expect(blob(view)).not.toContain("score");
+    expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(blob(view)).not.toContain("Publish");
+    expect(blob(view)).not.toContain("@");
+    expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+
+    const page = readFileSync(
+      resolve(process.cwd(), "app/(product)/admin/email/page.tsx"),
+      "utf8",
+    );
+    expect(page).toContain("buildAdminEmailV4View");
+    expect(page).toContain("loadError");
+    expect(page).toContain("id, name, audience, status, sent_at");
+    expect(page).toContain('from("campaigns")');
+    expect(page).toContain('from("campaign_sends")');
+    expect(page).toContain("campaign_id, status");
     expect(page).not.toContain('select("*")');
     expect(page).not.toContain("HeroScore");
     expect(page).not.toContain("overall_score");

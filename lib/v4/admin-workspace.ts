@@ -578,3 +578,135 @@ export function buildAdminOrganizationsV4View({
     partnerCount: rows.filter((row) => row.kind === "partner").length,
   };
 }
+
+/** Email room — live campaigns + send statuses. Never a score column or recipient PII. */
+export const ADMIN_V4_EMAIL_CONSOLE_EMPTY =
+  "No live email campaigns in this console." as const;
+export const ADMIN_V4_EMAIL_TITLE = "Email campaigns." as const;
+export const ADMIN_V4_EMAIL_COLUMNS = [
+  "id",
+  "name",
+  "audience",
+  "status",
+  "sent_at",
+] as const;
+
+export type AdminEmailV4Column = (typeof ADMIN_V4_EMAIL_COLUMNS)[number];
+
+export type AdminEmailV4SourceRow = {
+  id: string;
+  name: string | null;
+  audience: string | null;
+  status: string | null;
+  sent_at: string | null;
+};
+
+export type AdminEmailV4SendRow = {
+  campaign_id: string;
+  status: string | null;
+};
+
+export type AdminEmailV4Row = {
+  id: string;
+  nameLabel: string;
+  audienceLabel: string;
+  statusLabel: string;
+  sentLabel: string;
+  sentCount: number;
+  failedCount: number;
+  suppressedCount: number;
+};
+
+export type AdminEmailV4View = {
+  kind: "empty" | "normal";
+  title: string;
+  columns: readonly AdminEmailV4Column[];
+  rows: readonly AdminEmailV4Row[];
+  shown: number;
+  draftCount: number;
+  sentCount: number;
+  failedCount: number;
+};
+
+export type AdminEmailV4Input = {
+  rows: readonly AdminEmailV4SourceRow[];
+  sends: readonly AdminEmailV4SendRow[];
+  loadError?: boolean;
+};
+
+function adminEmailV4Label(value: string | null | undefined): string {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : "—";
+}
+
+type AdminEmailV4SendBucket = {
+  sent: number;
+  failed: number;
+  suppressed: number;
+};
+
+function adminEmailV4SendBuckets(
+  sends: readonly AdminEmailV4SendRow[],
+): Map<string, AdminEmailV4SendBucket> {
+  const buckets = new Map<string, AdminEmailV4SendBucket>();
+  for (const send of sends) {
+    const status = send.status;
+    if (status !== "sent" && status !== "failed" && status !== "suppressed") {
+      continue;
+    }
+    const current = buckets.get(send.campaign_id) ?? {
+      sent: 0,
+      failed: 0,
+      suppressed: 0,
+    };
+    current[status] += 1;
+    buckets.set(send.campaign_id, current);
+  }
+  return buckets;
+}
+
+export function buildAdminEmailV4View({
+  rows,
+  sends,
+  loadError,
+}: AdminEmailV4Input): AdminEmailV4View {
+  if (loadError || rows.length === 0) {
+    return {
+      kind: "empty",
+      title: ADMIN_V4_EMAIL_CONSOLE_EMPTY,
+      columns: ADMIN_V4_EMAIL_COLUMNS,
+      rows: [],
+      shown: 0,
+      draftCount: 0,
+      sentCount: 0,
+      failedCount: 0,
+    };
+  }
+  const buckets = adminEmailV4SendBuckets(sends);
+  return {
+    kind: "normal",
+    title: ADMIN_V4_EMAIL_TITLE,
+    columns: ADMIN_V4_EMAIL_COLUMNS,
+    rows: rows.map((row) => {
+      const bucket = buckets.get(row.id) ?? {
+        sent: 0,
+        failed: 0,
+        suppressed: 0,
+      };
+      return {
+        id: row.id,
+        nameLabel: adminEmailV4Label(row.name),
+        audienceLabel: adminEmailV4Label(row.audience),
+        statusLabel: adminEmailV4Label(row.status),
+        sentLabel: adminUsersV4DateLabel(row.sent_at),
+        sentCount: bucket.sent,
+        failedCount: bucket.failed,
+        suppressedCount: bucket.suppressed,
+      };
+    }),
+    shown: rows.length,
+    draftCount: rows.filter((row) => row.status === "draft").length,
+    sentCount: sends.filter((send) => send.status === "sent").length,
+    failedCount: sends.filter((send) => send.status === "failed").length,
+  };
+}
