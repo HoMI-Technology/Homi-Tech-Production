@@ -25,7 +25,10 @@ import {
   adminV4VisualView,
   ADMIN_V4_USERS_CONSOLE_EMPTY,
   ADMIN_V4_USERS_COLUMNS,
+  ADMIN_V4_ORGANIZATIONS_CONSOLE_EMPTY,
+  ADMIN_V4_ORGANIZATIONS_COLUMNS,
   buildAdminAssessmentsV4View,
+  buildAdminOrganizationsV4View,
   buildAdminUsersV4View,
   buildAdminV4View,
 } from "@/lib/v4/admin-workspace";
@@ -308,6 +311,140 @@ describe("Admin v4 law", () => {
     expect(page).not.toContain('select("*")');
     expect(page).not.toContain("HeroScore");
     expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("Publish");
+    expect(page).not.toMatch(/>Score</);
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
+  });
+
+  it("organizations room is empty-or-live from orgs, members, and family accounts", () => {
+    expect(ADMIN_V4_ORGANIZATIONS_CONSOLE_EMPTY).toBe(
+      "No live organizations in this console.",
+    );
+    expect(ADMIN_V4_ORGANIZATIONS_COLUMNS).toEqual([
+      "id",
+      "name",
+      "slug",
+      "kind",
+      "plan",
+      "created_at",
+    ]);
+    expect(ADMIN_V4_ORGANIZATIONS_COLUMNS).not.toContain("score");
+
+    const empty = buildAdminOrganizationsV4View({
+      rows: [],
+      members: [],
+      familyCount: 0,
+      loadError: false,
+    });
+    expect(empty.kind).toBe("empty");
+    expect(empty.title).toBe(ADMIN_V4_ORGANIZATIONS_CONSOLE_EMPTY);
+    expect(empty.rows).toEqual([]);
+    expect(empty.columns).toEqual([...ADMIN_V4_ORGANIZATIONS_COLUMNS]);
+    expect(empty.shown).toBe(0);
+    expect(empty.memberCount).toBe(0);
+    expect(empty.familyCount).toBe(0);
+    expect(adminV4ForbidsHeroScore(empty)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(empty)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(empty)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(empty)).toBe(true);
+
+    const errored = buildAdminOrganizationsV4View({
+      rows: [
+        {
+          id: "should-not-render",
+          name: "Hidden",
+          slug: "hidden",
+          kind: "employer",
+          plan: "plus",
+          created_at: "2026-09-11T12:00:00.000Z",
+        },
+      ],
+      members: [{ organization_id: "should-not-render" }],
+      familyCount: 9,
+      loadError: true,
+    });
+    expect(errored.kind).toBe("empty");
+    expect(errored.title).toBe(ADMIN_V4_ORGANIZATIONS_CONSOLE_EMPTY);
+    expect(errored.rows).toEqual([]);
+    expect(errored.shown).toBe(0);
+    expect(errored.memberCount).toBe(0);
+    expect(errored.familyCount).toBe(0);
+
+    const view = buildAdminOrganizationsV4View({
+      rows: [
+        {
+          id: "org-acme",
+          name: "Acme Benefits",
+          slug: "acme",
+          kind: "employer",
+          plan: "plus",
+          created_at: "2026-09-11T12:00:00.000Z",
+        },
+        {
+          id: "org-beta",
+          name: "Beta Partner",
+          slug: "beta",
+          kind: "partner",
+          plan: "free",
+          created_at: null,
+        },
+      ],
+      members: [
+        { organization_id: "org-acme" },
+        { organization_id: "org-acme" },
+        { organization_id: "org-beta" },
+      ],
+      familyCount: 4,
+      loadError: false,
+    });
+    expect(view.kind).toBe("normal");
+    expect(view.columns).toEqual([
+      "id",
+      "name",
+      "slug",
+      "kind",
+      "plan",
+      "created_at",
+    ]);
+    expect(view.rows.map((row) => row.id)).toEqual(["org-acme", "org-beta"]);
+    expect(view.rows.map((row) => row.nameLabel)).toEqual([
+      "Acme Benefits",
+      "Beta Partner",
+    ]);
+    expect(view.rows.map((row) => row.kindLabel)).toEqual(["employer", "partner"]);
+    expect(view.rows.map((row) => row.planLabel)).toEqual(["plus", "free"]);
+    expect(view.rows.map((row) => row.memberCount)).toEqual([2, 1]);
+    expect(view.rows[1]?.createdLabel).toBe("—");
+    expect(view.shown).toBe(2);
+    expect(view.memberCount).toBe(3);
+    expect(view.familyCount).toBe(4);
+    expect(view.employerCount).toBe(1);
+    expect(view.partnerCount).toBe(1);
+    expect(blob(view)).not.toContain("HeroScore");
+    expect(blob(view)).not.toContain("overall_score");
+    expect(blob(view)).not.toContain("score");
+    expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(blob(view)).not.toContain("Publish");
+    expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+
+    const page = readFileSync(
+      resolve(process.cwd(), "app/(product)/admin/organizations/page.tsx"),
+      "utf8",
+    );
+    expect(page).toContain("buildAdminOrganizationsV4View");
+    expect(page).toContain("loadError");
+    expect(page).toContain("id, name, slug, kind, plan, created_at");
+    expect(page).toContain('from("organization_members")');
+    expect(page).toContain('from("family_accounts")');
+    expect(page).not.toContain('select("*")');
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("score-numeral");
     expect(page).not.toContain("Publish");
     expect(page).not.toMatch(/>Score</);
     expect(page).not.toContain("ThresholdFold");

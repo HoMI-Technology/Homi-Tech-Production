@@ -463,3 +463,118 @@ export function buildAdminUsersV4View({
     partnerCount: rows.filter((row) => row.role === "partner").length,
   };
 }
+
+/** Organizations room — live orgs + members + family count. Never a score column. */
+export const ADMIN_V4_ORGANIZATIONS_CONSOLE_EMPTY =
+  "No live organizations in this console." as const;
+export const ADMIN_V4_ORGANIZATIONS_TITLE = "Organizations." as const;
+export const ADMIN_V4_ORGANIZATIONS_COLUMNS = [
+  "id",
+  "name",
+  "slug",
+  "kind",
+  "plan",
+  "created_at",
+] as const;
+
+export type AdminOrganizationsV4Column =
+  (typeof ADMIN_V4_ORGANIZATIONS_COLUMNS)[number];
+
+export type AdminOrganizationsV4SourceRow = {
+  id: string;
+  name: string | null;
+  slug: string | null;
+  kind: string | null;
+  plan: string | null;
+  created_at: string | null;
+};
+
+export type AdminOrganizationsV4MemberRow = {
+  organization_id: string;
+};
+
+export type AdminOrganizationsV4Row = {
+  id: string;
+  nameLabel: string;
+  slugLabel: string;
+  kindLabel: string;
+  planLabel: string;
+  createdLabel: string;
+  memberCount: number;
+};
+
+export type AdminOrganizationsV4View = {
+  kind: "empty" | "normal";
+  title: string;
+  columns: readonly AdminOrganizationsV4Column[];
+  rows: readonly AdminOrganizationsV4Row[];
+  shown: number;
+  memberCount: number;
+  familyCount: number;
+  employerCount: number;
+  partnerCount: number;
+};
+
+export type AdminOrganizationsV4Input = {
+  rows: readonly AdminOrganizationsV4SourceRow[];
+  members: readonly AdminOrganizationsV4MemberRow[];
+  familyCount: number;
+  loadError?: boolean;
+};
+
+function adminOrganizationsV4Label(value: string | null | undefined): string {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : "—";
+}
+
+function adminOrganizationsV4MemberCounts(
+  members: readonly AdminOrganizationsV4MemberRow[],
+): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const member of members) {
+    const id = member.organization_id;
+    counts.set(id, (counts.get(id) ?? 0) + 1);
+  }
+  return counts;
+}
+
+export function buildAdminOrganizationsV4View({
+  rows,
+  members,
+  familyCount,
+  loadError,
+}: AdminOrganizationsV4Input): AdminOrganizationsV4View {
+  if (loadError || rows.length === 0) {
+    return {
+      kind: "empty",
+      title: ADMIN_V4_ORGANIZATIONS_CONSOLE_EMPTY,
+      columns: ADMIN_V4_ORGANIZATIONS_COLUMNS,
+      rows: [],
+      shown: 0,
+      memberCount: 0,
+      familyCount: 0,
+      employerCount: 0,
+      partnerCount: 0,
+    };
+  }
+  const counts = adminOrganizationsV4MemberCounts(members);
+  return {
+    kind: "normal",
+    title: ADMIN_V4_ORGANIZATIONS_TITLE,
+    columns: ADMIN_V4_ORGANIZATIONS_COLUMNS,
+    rows: rows.map((row) => ({
+      id: row.id,
+      nameLabel: adminOrganizationsV4Label(row.name),
+      slugLabel: adminOrganizationsV4Label(row.slug),
+      kindLabel: adminOrganizationsV4Label(row.kind),
+      planLabel: adminOrganizationsV4Label(row.plan),
+      createdLabel: adminUsersV4DateLabel(row.created_at),
+      memberCount: counts.get(row.id) ?? 0,
+    })),
+    shown: rows.length,
+    memberCount: members.length,
+    familyCount,
+    employerCount: rows.filter((row) => row.kind === "employer").length,
+    partnerCount: rows.filter((row) => row.kind === "partner").length,
+  };
+}
