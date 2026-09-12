@@ -52,4 +52,19 @@ describe("Home v4 State A + Finance GATE", () => {
     expect(view.scorePct).toBe(61);
     expect(`${view.scorePct}`).not.toContain("%");
   });
+
+  it("empty and hard-stop never invent $ or paint HeroScore / On track / READY", () => {
+    const empty = buildHomeV4View(homeV4VisualReading("empty"));
+    const hold = buildHomeV4View(homeV4VisualReading("hard-stop"));
+    for (const view of [empty, hold]) {
+      const blob = JSON.stringify(view);
+      expect(blob).not.toContain("HeroScore");
+      expect(blob).not.toMatch(/\$\d/);
+      expect(blob).not.toMatch(/\bOn track\b/);
+    }
+    expect(hold.hardStopActive).toBe(true);
+    expect(hold.verdictLabel).not.toMatch(/\bREADY\b/);
+    expect(hold.verdictLabel).not.toMatch(/\bOn track\b/);
+    expect(homeV4KeyStatusesLegal(hold)).toBe(true);
+  });
 });

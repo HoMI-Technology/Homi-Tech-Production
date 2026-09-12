@@ -92,12 +92,27 @@ export function parseV4AdminVisualState(
 }
 
 export function adminV4ForbidsHeroScore(view: AdminV4View): boolean {
+  if ("score" in view || "overallScore" in view || "heroScore" in view) return false;
   const blob = JSON.stringify(view);
-  return !blob.includes("HeroScore") && !blob.includes("ThresholdFold");
+  return (
+    !blob.includes("HeroScore") &&
+    !blob.includes("ThresholdFold") &&
+    !/\b\d{1,3}\s*\/\s*100\b/.test(blob)
+  );
 }
 
 export function adminV4ForbidsInventedDollars(view: AdminV4View): boolean {
-  return !JSON.stringify(view).match(/\$\d/);
+  return !/\$\d/.test(JSON.stringify(view));
+}
+
+/** Ops console never paints On track — there is no personal hard-stop theater. */
+export function adminV4ForbidsOnTrackCopy(view: AdminV4View): boolean {
+  return !/\bOn track\b/.test(JSON.stringify(view));
+}
+
+/** Ops console never paints READY as a verdict badge. */
+export function adminV4ForbidsReadyCopy(view: AdminV4View): boolean {
+  return !/\bREADY\b/.test(JSON.stringify(view));
 }
 
 function attentionFromLive(source: AdminV4Source): AttentionItem[] {

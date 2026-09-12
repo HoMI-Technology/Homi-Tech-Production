@@ -14,6 +14,8 @@ import {
   adminV4DraftsFromAssets,
   adminV4ForbidsHeroScore,
   adminV4ForbidsInventedDollars,
+  adminV4ForbidsOnTrackCopy,
+  adminV4ForbidsReadyCopy,
   adminV4VisualDrafts,
   adminV4VisualView,
   buildAdminV4View,
@@ -49,6 +51,9 @@ describe("Admin v4 law", () => {
     expect(blob(view)).not.toContain("Attention above KPI");
     expect(adminV4ForbidsInventedDollars(view)).toBe(true);
     expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+    expect(blob(view).toLowerCase()).not.toContain("homie");
     expect(buildAdminV4View({
       userCount: 0,
       orgCount: 0,
@@ -75,7 +80,13 @@ describe("Admin v4 law", () => {
     expect(view.jobs[0]?.cta).toBe("Open waitlist");
     expect(view.jobs[0]?.cta).not.toMatch(/\?$/);
     expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bOn track\b/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(blob(view).toLowerCase()).not.toContain("homie");
     expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
   });
 
   it("marketing drafts are X+TikTok only — Instagram/Threads are not peers", () => {
