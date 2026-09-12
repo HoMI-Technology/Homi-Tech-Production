@@ -996,3 +996,136 @@ export function buildAdminAdSpendV4View({
     paymentCount: payments.filter((row) => row.status === "succeeded").length,
   };
 }
+
+/** Attribution room — first-touch snapshots only. Never a score column or invented $. */
+export const ADMIN_V4_ATTRIBUTION_CONSOLE_EMPTY =
+  "No live attribution in this console." as const;
+export const ADMIN_V4_ATTRIBUTION_TITLE = "Attribution." as const;
+export const ADMIN_V4_ATTRIBUTION_COLUMNS = [
+  "channel",
+  "signups",
+  "paid",
+  "attributed",
+] as const;
+
+export type AdminAttributionV4Column =
+  (typeof ADMIN_V4_ATTRIBUTION_COLUMNS)[number];
+
+export type AdminAttributionV4Snapshot = {
+  ref?: string;
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
+};
+
+export type AdminAttributionV4ProfileRow = {
+  attribution: AdminAttributionV4Snapshot | Record<string, unknown> | null;
+  subscription_tier: string | null;
+};
+
+export type AdminAttributionV4AssessmentRow = {
+  attribution: AdminAttributionV4Snapshot | Record<string, unknown> | null;
+};
+
+export type AdminAttributionV4Row = {
+  channelLabel: string;
+  signups: number;
+  paidCount: number;
+  attributed: boolean;
+};
+
+export type AdminAttributionV4View = {
+  kind: "empty" | "normal";
+  title: string;
+  columns: readonly AdminAttributionV4Column[];
+  rows: readonly AdminAttributionV4Row[];
+  shown: number;
+  attributedCount: number;
+  assessmentCount: number;
+};
+
+export type AdminAttributionV4Input = {
+  profiles: readonly AdminAttributionV4ProfileRow[];
+  assessments: readonly AdminAttributionV4AssessmentRow[];
+  loadError?: boolean;
+};
+
+function adminAttributionV4Field(
+  value: unknown,
+  key: "ref" | "utm_source" | "utm_medium" | "utm_campaign",
+): string {
+  if (!value || typeof value !== "object") return "";
+  const raw = (value as Record<string, unknown>)[key];
+  return typeof raw === "string" ? raw.trim() : "";
+}
+
+function adminAttributionV4Channel(value: unknown): string {
+  const source = adminAttributionV4Field(value, "utm_source").toLowerCase();
+  if (source) return source;
+  const ref = adminAttributionV4Field(value, "ref");
+  if (ref.startsWith("ptr_")) return "partner";
+  if (ref) return "referral";
+  return "direct";
+}
+
+function adminAttributionV4IsAttributed(value: unknown): boolean {
+  return Boolean(
+    adminAttributionV4Field(value, "utm_source") ||
+      adminAttributionV4Field(value, "utm_medium") ||
+      adminAttributionV4Field(value, "utm_campaign") ||
+      adminAttributionV4Field(value, "ref"),
+  );
+}
+
+export function buildAdminAttributionV4View({
+  profiles,
+  assessments,
+  loadError,
+}: AdminAttributionV4Input): AdminAttributionV4View {
+  if (loadError || profiles.length === 0) {
+    return {
+      kind: "empty",
+      title: ADMIN_V4_ATTRIBUTION_CONSOLE_EMPTY,
+      columns: ADMIN_V4_ATTRIBUTION_COLUMNS,
+      rows: [],
+      shown: 0,
+      attributedCount: 0,
+      assessmentCount: 0,
+    };
+  }
+  const buckets = new Map<string, AdminAttributionV4Row>();
+  for (const profile of profiles) {
+    const channelLabel = adminAttributionV4Channel(profile.attribution);
+    const current = buckets.get(channelLabel) ?? {
+      channelLabel,
+      signups: 0,
+      paidCount: 0,
+      attributed: channelLabel !== "direct",
+    };
+    current.signups += 1;
+    if (
+      Boolean(profile.subscription_tier) &&
+      profile.subscription_tier !== "free"
+    ) {
+      current.paidCount += 1;
+    }
+    buckets.set(channelLabel, current);
+  }
+  const rows = [...buckets.values()].sort((a, b) => {
+    if (b.signups !== a.signups) return b.signups - a.signups;
+    return a.channelLabel.localeCompare(b.channelLabel);
+  });
+  return {
+    kind: "normal",
+    title: ADMIN_V4_ATTRIBUTION_TITLE,
+    columns: ADMIN_V4_ATTRIBUTION_COLUMNS,
+    rows,
+    shown: profiles.length,
+    attributedCount: profiles.filter((row) =>
+      adminAttributionV4IsAttributed(row.attribution),
+    ).length,
+    assessmentCount: assessments.filter((row) =>
+      adminAttributionV4IsAttributed(row.attribution),
+    ).length,
+  };
+}

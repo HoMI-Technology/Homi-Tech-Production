@@ -35,9 +35,12 @@ import {
   ADMIN_V4_ANALYTICS_COLUMNS,
   ADMIN_V4_AD_SPEND_CONSOLE_EMPTY,
   ADMIN_V4_AD_SPEND_COLUMNS,
+  ADMIN_V4_ATTRIBUTION_CONSOLE_EMPTY,
+  ADMIN_V4_ATTRIBUTION_COLUMNS,
   buildAdminAdSpendV4View,
   buildAdminAnalyticsV4View,
   buildAdminAssessmentsV4View,
+  buildAdminAttributionV4View,
   buildAdminEmailV4View,
   buildAdminOrganizationsV4View,
   buildAdminUsersV4View,
@@ -933,6 +936,105 @@ describe("Admin v4 law", () => {
     expect(page).toContain('from("payments")');
     expect(page).not.toContain('select("*")');
     expect(page).not.toContain("formatUsdFromCents");
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("score-numeral");
+    expect(page).not.toContain("Publish");
+    expect(page).not.toMatch(/>Score</);
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
+  });
+
+  it("attribution room is empty-or-live from profiles.attribution and assessments.attribution", () => {
+    expect(ADMIN_V4_ATTRIBUTION_CONSOLE_EMPTY).toBe(
+      "No live attribution in this console.",
+    );
+    expect(ADMIN_V4_ATTRIBUTION_COLUMNS).toEqual([
+      "channel",
+      "signups",
+      "paid",
+      "attributed",
+    ]);
+    expect(ADMIN_V4_ATTRIBUTION_COLUMNS).not.toContain("score");
+
+    const empty = buildAdminAttributionV4View({
+      profiles: [],
+      assessments: [],
+      loadError: false,
+    });
+    expect(empty.kind).toBe("empty");
+    expect(empty.title).toBe(ADMIN_V4_ATTRIBUTION_CONSOLE_EMPTY);
+    expect(empty.rows).toEqual([]);
+    expect(empty.columns).toEqual([...ADMIN_V4_ATTRIBUTION_COLUMNS]);
+    expect(empty.shown).toBe(0);
+    expect(empty.attributedCount).toBe(0);
+    expect(empty.assessmentCount).toBe(0);
+    expect(adminV4ForbidsHeroScore(empty)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(empty)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(empty)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(empty)).toBe(true);
+
+    const errored = buildAdminAttributionV4View({
+      profiles: [
+        { attribution: { utm_source: "google" }, subscription_tier: "pro" },
+      ],
+      assessments: [{ attribution: { utm_source: "google" } }],
+      loadError: true,
+    });
+    expect(errored.kind).toBe("empty");
+    expect(errored.title).toBe(ADMIN_V4_ATTRIBUTION_CONSOLE_EMPTY);
+    expect(errored.rows).toEqual([]);
+    expect(errored.shown).toBe(0);
+
+    const view = buildAdminAttributionV4View({
+      profiles: [
+        { attribution: { utm_source: "Google" }, subscription_tier: "pro" },
+        { attribution: { utm_source: "google" }, subscription_tier: "free" },
+        { attribution: { ref: "a-friend" }, subscription_tier: "plus" },
+        { attribution: null, subscription_tier: "free" },
+      ],
+      assessments: [
+        { attribution: { utm_source: "google" } },
+        { attribution: { landing: "/" } },
+        { attribution: { ref: "x" } },
+      ],
+      loadError: false,
+    });
+    expect(view.kind).toBe("normal");
+    expect(view.columns).toEqual(["channel", "signups", "paid", "attributed"]);
+    expect(view.rows.map((row) => row.channelLabel)).toEqual([
+      "google",
+      "direct",
+      "referral",
+    ]);
+    expect(view.rows.map((row) => row.signups)).toEqual([2, 1, 1]);
+    expect(view.rows.map((row) => row.paidCount)).toEqual([1, 0, 1]);
+    expect(view.rows.map((row) => row.attributed)).toEqual([true, false, true]);
+    expect(view.shown).toBe(4);
+    expect(view.attributedCount).toBe(3);
+    expect(view.assessmentCount).toBe(2);
+    expect(blob(view)).not.toContain("HeroScore");
+    expect(blob(view)).not.toContain("overall_score");
+    expect(blob(view)).not.toContain("score");
+    expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(blob(view)).not.toContain("Publish");
+    expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+
+    const page = readFileSync(
+      resolve(process.cwd(), "app/(product)/admin/attribution/page.tsx"),
+      "utf8",
+    );
+    expect(page).toContain("buildAdminAttributionV4View");
+    expect(page).toContain("loadError");
+    expect(page).toContain("attribution, subscription_tier");
+    expect(page).toContain('from("profiles")');
+    expect(page).toContain('from("assessments")');
+    expect(page).toContain('select("attribution")');
+    expect(page).not.toContain('select("*")');
     expect(page).not.toContain("HeroScore");
     expect(page).not.toContain("overall_score");
     expect(page).not.toContain("score-numeral");
