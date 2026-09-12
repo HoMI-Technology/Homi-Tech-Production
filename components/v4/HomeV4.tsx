@@ -1,40 +1,41 @@
 import { DecisionEvidenceV4 } from "@/components/v4/home/DecisionEvidenceV4";
 import { HomiIntelligenceV4 } from "@/components/v4/home/HomiIntelligenceV4";
 import { MoneyEvidenceV4 } from "@/components/v4/home/MoneyEvidenceV4";
-import { NextPathV4 } from "@/components/v4/home/NextPathV4";
 import { ReadinessHeroV4 } from "@/components/v4/home/ReadinessHeroV4";
-import { RelevantToolsV4 } from "@/components/v4/home/RelevantToolsV4";
-import { WhatChangedV4 } from "@/components/v4/home/WhatChangedV4";
 import { ASK_V4_PROMPTS, V4_ASK_PLACEHOLDER_FIELD } from "@/lib/v4/contextual-homi";
 import type { HomeV4View } from "@/lib/v4/home-state";
 
 /**
- * HOME_CRAFT v4 — orchestration only.
- * Layer 1 truth stays in HomeV4View. Anatomy + craft live in the home family.
- * 1440 grid: hero | 320 HōMI, evidence | changed, then full-width support + tools.
+ * One fold. Empty = one job. After a read = verdict + one next move.
+ * Path CTA lives on the hero. Empty tools / “what changed = age” stay off.
  */
 export function HomeV4({ view }: { view: HomeV4View }) {
+  const empty = !view.hasAssessment;
+
   return (
-    <div className="v4-home" data-home-v4="" data-home-state={view.hasAssessment ? "read" : "empty"}>
+    <div className="v4-home" data-home-v4="" data-home-state={empty ? "empty" : "read"}>
       <div className="v4-home-grid" data-workspace-grid="">
-        <p className="v4-home-context" data-home-v4-context="">
-          {view.decisionContext ?? "No decision read yet"}
-        </p>
+        {empty ? null : (
+          <p className="v4-home-context" data-home-v4-context="">
+            {view.decisionContext ?? "This decision"}
+          </p>
+        )}
 
         <ReadinessHeroV4 view={view} />
-        <DecisionEvidenceV4 pillars={view.pillars} />
 
-        <div className="v4-support-pair">
-          <MoneyEvidenceV4 view={view} />
-          <NextPathV4 view={view} />
-        </div>
+        {empty ? null : <DecisionEvidenceV4 pillars={view.pillars} />}
 
-        <RelevantToolsV4 tools={view.tools} />
+        {empty ? null : (
+          <div className="v4-support-pair">
+            <MoneyEvidenceV4 view={view} />
+          </div>
+        )}
+
         <HomiIntelligenceV4
           decisionContext={view.decisionContext}
           commandLabel={view.decisionContext}
           prompts={
-            !view.hasAssessment
+            empty
               ? ASK_V4_PROMPTS.empty
               : view.hardStopActive
                 ? ASK_V4_PROMPTS["hard-stop"]
@@ -42,7 +43,6 @@ export function HomeV4({ view }: { view: HomeV4View }) {
           }
           askPlaceholder={V4_ASK_PLACEHOLDER_FIELD}
         />
-        <WhatChangedV4 line={view.whatChanged} hardStopActive={view.hardStopActive} />
       </div>
     </div>
   );

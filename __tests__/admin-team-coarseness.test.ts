@@ -55,11 +55,14 @@ describe("admin assessments — receipt bands, not integers", () => {
     expect(src).not.toMatch(/>Score</);
   });
 
-  it("maps through the SHIPPED receipt band helper", () => {
+  it("maps live rows through the shipped assessments builder — never READY or scoreBand theater", () => {
     const src = read(ADMIN_ASSESSMENTS);
-    expect(src).toMatch(/scoreBand\(/);
-    expect(src).toContain('from "@/lib/receipts"');
-    expect(src).toMatch(/>Band</);
+    expect(src).toContain("buildAdminAssessmentsV4View");
+    expect(src).not.toMatch(/scoreBand\(/);
+    expect(src).not.toContain("VerdictBadge");
+    expect(src).not.toContain("overall_score");
+    expect(src).not.toMatch(/>Band</);
+    expect(src).not.toMatch(/>Score</);
   });
 });
 

@@ -104,9 +104,6 @@ export function ReadinessGaugeV4({
         <span className="score-numeral v4-gauge-score" aria-label={scoreLabel} data-home-v4-score="">
           {numeral}
         </span>
-        <span className="v4-gauge-denom" aria-hidden>
-          /100
-        </span>
         {scoreAge ? (
           <span className="v4-gauge-age" data-home-v4-age="">
             {scoreAge}

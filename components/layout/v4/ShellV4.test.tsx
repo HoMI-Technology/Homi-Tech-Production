@@ -38,7 +38,7 @@ describe("ShellV4 + HomeV4 presentation", () => {
     expect(container.querySelector("[data-v4-mobile-nav]")).not.toBeNull();
     expect(container.querySelector("[data-home-v4-gauge] svg")).not.toBeNull();
     expect(container.querySelector(".v4-hero-primary")).not.toBeNull();
-    expect(container.querySelector(".v4-hero-secondary")).not.toBeNull();
+    expect(container.querySelector(".v4-hero-secondary")).toBeNull();
 
     expect(text).toContain("Home");
     expect(text).toContain("Money");

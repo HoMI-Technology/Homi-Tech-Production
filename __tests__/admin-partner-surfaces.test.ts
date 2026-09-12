@@ -45,12 +45,19 @@ describe("admin + marketing attention doctrine", () => {
     expect(surface).toContain("aria-disabled");
   });
 
-  it("Ad spend mounts attention before MetricRail and tables", () => {
+  it("Ad spend is empty-or-live via the shipped v4 builder — cents ledger, no AttentionStrip theater", () => {
     const page = read("app/(product)/admin/ad-spend/page.tsx");
-    expect(page).toContain('data-ad-spend-attention=""');
-    expect(page).toContain("AttentionStrip");
-    expect(page.indexOf("data-ad-spend-attention")).toBeLessThan(page.indexOf("<MetricRail"));
-    expect(page.indexOf("AttentionStrip")).toBeLessThan(page.indexOf("AdSpendForm"));
+    expect(page).toContain("buildAdminAdSpendV4View");
+    expect(page).toContain("ADMIN_V4_AD_SPEND_CONSOLE_EMPTY");
+    expect(page).toContain("AdminRoomEmptyV4");
+    expect(page).toContain("AdSpendForm");
+    expect(page).toContain("Spend cents");
+    expect(page).not.toContain("AttentionStrip");
+    expect(page).not.toContain("data-ad-spend-attention");
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
+    expect(page).not.toMatch(/\$\d/);
   });
 
   it("Companion stays off admin routes", () => {
