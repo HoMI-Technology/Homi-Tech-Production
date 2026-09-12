@@ -215,13 +215,14 @@ function parseCoreTable(md: string): CoreRow[] {
 }
 
 describe("dashboard surface matrix", () => {
-  it("keeps CCP lanes: DARK /dashboard, empty V4_LIVE, no /team, flag default-off", () => {
+  it("keeps CCP lanes: DARK /dashboard, empty V4_LIVE, /team pending, flag default-off", () => {
     expect(classifyChangeControlLane("/dashboard")).toBe("DARK");
-    expect(classifyChangeControlLane("/team")).toBe("DARK");
+    expect(classifyChangeControlLane("/team")).toBe("V4_PENDING");
     expect(V4_LIVE_PATHS).toEqual([]);
-    expect((V4_PENDING_PATHS as readonly string[]).includes("/team")).toBe(false);
+    expect((V4_PENDING_PATHS as readonly string[]).includes("/team")).toBe(true);
     expect(isV4HomeEnabled({})).toBe(false);
     expect(isV4RouteActivated("/home", { v4HomeEnabled: false })).toBe(false);
+    expect(isV4RouteActivated("/team", { v4HomeEnabled: false })).toBe(false);
   });
 
   it("lists every shipped V4_PENDING host with legal Status and Terminal", () => {
@@ -269,19 +270,18 @@ describe("dashboard surface matrix", () => {
     }
   });
 
-  it("marks /dashboard and /team DARK and keeps forbidden work OUT", () => {
+  it("marks /dashboard DARK and keeps forbidden work OUT", () => {
     const md = readMatrix();
     const related = parseMatrixTable(md, "related");
     const out = parseMatrixTable(md, "out");
     const relatedByHost = new Map(related.map((row) => [row.host, row]));
 
-    for (const host of ["/dashboard", "/team"] as const) {
-      const row = relatedByHost.get(host);
-      expect(row, `missing related row for ${host}`).toBeTruthy();
-      expect(row?.status).toBe("DARK");
-      expect(row?.terminal).toBe("blocked");
-      expect(classifyChangeControlLane(host)).toBe("DARK");
-    }
+    const dashboard = relatedByHost.get("/dashboard");
+    expect(dashboard, "missing related row for /dashboard").toBeTruthy();
+    expect(dashboard?.status).toBe("DARK");
+    expect(dashboard?.terminal).toBe("blocked");
+    expect(classifyChangeControlLane("/dashboard")).toBe("DARK");
+    expect(relatedByHost.has("/team")).toBe(false);
 
     const outBlob = out.map((row) => `${row.host} ${row.note}`).join("\n");
     expect(out.every((row) => row.status === "OUT")).toBe(true);
@@ -289,7 +289,6 @@ describe("dashboard surface matrix", () => {
     expect(outBlob).toMatch(/HOMI_V4_HOME_ENABLED/);
     expect(outBlob).toMatch(/V4_LIVE/);
     expect(outBlob).toMatch(/#241/);
-    expect(outBlob).toMatch(/#414/);
     expect(outBlob.toLowerCase()).toMatch(/rebuild/);
   });
 
@@ -322,13 +321,10 @@ describe("dashboard surface matrix", () => {
     expect(dashboard?.lane).toBe("DARK");
     expect(dashboard?.fiveStatus).toBe("DARK");
     const team = rows.find((row) => row.path === "/team");
-    expect(team?.lane).toBe("DARK");
-    expect(team?.fiveStatus).toBe("OUT");
+    expect(team?.lane).toBe("V4_PENDING");
+    expect(team?.fiveStatus).toBe("HONEST");
     expect(team?.pr).toMatch(/#414/);
-    expect(team?.notes).toMatch(/#414/);
-    expect(rows.some((row) => row.path === "/team" && row.lane === "V4_PENDING")).toBe(
-      false,
-    );
+    expect(team?.notes).toMatch(/buildTeamV4View|#414|aggregate/i);
   });
 
   it("keeps Pixel Gate CLOSED and records CORE without forcing FULL", () => {
