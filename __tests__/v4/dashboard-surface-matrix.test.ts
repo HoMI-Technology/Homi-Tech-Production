@@ -4,6 +4,7 @@
  */
 
 import { describe, expect, it } from "vitest";
+import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
@@ -166,6 +167,31 @@ function parseIndexTable(md: string): { header: string[]; rows: IndexRow[] } {
 
 type CoreRow = { check: string; result: string };
 
+const GIT_SHA_IN_NOTE = /\b[0-9a-f]{7,40}\b/i;
+
+function resolveMainRef(): string {
+  for (const ref of ["origin/main", "main"] as const) {
+    try {
+      execFileSync("git", ["rev-parse", "--verify", ref], { stdio: "ignore" });
+      return ref;
+    } catch {
+      /* try the next ref */
+    }
+  }
+  throw new Error("neither origin/main nor main exists");
+}
+
+function isAncestorOfMain(sha: string): boolean {
+  try {
+    execFileSync("git", ["merge-base", "--is-ancestor", sha, resolveMainRef()], {
+      stdio: "ignore",
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function parseCoreTable(md: string): CoreRow[] {
   const startTag = "<!-- dashboard-matrix:core -->";
   const start = md.indexOf(startTag);
@@ -219,6 +245,25 @@ describe("dashboard surface matrix", () => {
         expect(
           namedPr || blockedReason,
           `${host} non-HONEST row needs PR #<n> or BLOCKED: reason`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("never marks Terminal merged unless that SHA is an ancestor of origin/main", () => {
+    const md = readMatrix();
+    for (const marker of ["pending", "related", "out"] as const) {
+      for (const row of parseMatrixTable(md, marker)) {
+        if (row.terminal !== "merged") continue;
+        const sha = row.note.match(GIT_SHA_IN_NOTE)?.[0];
+        expect(
+          sha,
+          `${row.host} Terminal merged needs a git SHA in Note that is on origin/main`,
+        ).toBeTruthy();
+        if (!sha) continue;
+        expect(
+          isAncestorOfMain(sha),
+          `${row.host} Terminal merged SHA ${sha} is not an ancestor of origin/main`,
         ).toBe(true);
       }
     }

@@ -46,18 +46,18 @@ hand-copy a second list into product code.
 <!-- dashboard-matrix:pending -->
 | Host | Status | Terminal | Note |
 | --- | --- | --- | --- |
-| `/home` | HONEST | merged | `lib/v4/home-state.ts` + `__tests__/v4/home-state.test.ts`. Pixel Gate CLOSED — do not undraft. First-session copy stays on #415; out of #416. |
-| `/money` | HONEST | merged | `lib/v4/money-workspace.ts` + `__tests__/v4/money-workspace.test.ts`. `/money/bills` is the `/money` prefix. Empty-or-live; never invent `$`. |
-| `/path` | HONEST | merged | `lib/v4/path-workspace.ts` + `__tests__/v4/path-workspace.test.ts`. Hard-stop never On track / READY. |
-| `/scenarios` | HONEST | merged | Compare rail. `lib/v4/compare-workspace.ts` + `__tests__/v4/compare-workspace.test.ts`. Educational only; no second official score. |
-| `/ask` | HONEST | merged | `lib/v4/contextual-homi.ts` + `__tests__/v4/contextual-homi.test.ts`. Explain + deep-link; no Homie; no invented `$`. |
-| `/tools` | HONEST | merged | `lib/v4/tools-workspace.ts` via `__tests__/v4/system-surfaces.test.ts`. Hub lenses; never a score tile. |
-| `/learn` | HONEST | merged | `lib/v4/learn-workspace.ts` via `__tests__/v4/system-surfaces.test.ts`. Real `/guides` slugs only. |
-| `/settings` | HONEST | merged | `lib/v4/settings-workspace.ts` via `__tests__/v4/system-surfaces.test.ts`. Account / Privacy / Billing entry. |
-| `/connections` | HONEST | merged | `lib/v4/accounts-workspace.ts` via `__tests__/v4/system-surfaces.test.ts`. Live name/mask; no invented `$`. |
-| `/assessment` | HONEST | merged | `lib/v4/assessment-walk.ts` + `__tests__/v4/assessment-walk.test.ts`. Adaptive home_buying; write path `/home`. |
-| `/employee` | HONEST | merged | Operate home `/employee/dashboard`. `lib/v4/employee-workspace.ts` + `__tests__/v4/employee-workspace.test.ts`. Empty / hard-stop / normal. |
-| `/partner` | HONEST | merged | Operate home `/partner/dashboard`. `lib/v4/partner-workspace.ts` + `__tests__/v4/partner-workspace.test.ts`. Empty / invite-error / normal. SITE_URL fail-loud. |
+| `/home` | HONEST | stay-draft | `lib/v4/home-state.ts` + `__tests__/v4/home-state.test.ts`. Pixel Gate CLOSED — do not undraft. First-session copy stays on #415; out of #416. Terminal stay-draft: honesty SHA is not an ancestor of origin/main (PR #416). |
+| `/money` | HONEST | stay-draft | `lib/v4/money-workspace.ts` + `__tests__/v4/money-workspace.test.ts`. `/money/bills` is the `/money` prefix. Empty-or-live; never invent `$`. Terminal stay-draft: honesty SHA is not an ancestor of origin/main (PR #416). |
+| `/path` | HONEST | stay-draft | `lib/v4/path-workspace.ts` + `__tests__/v4/path-workspace.test.ts`. Hard-stop never On track / READY. Terminal stay-draft: honesty SHA is not an ancestor of origin/main (PR #416). |
+| `/scenarios` | HONEST | stay-draft | Compare rail. `lib/v4/compare-workspace.ts` + `__tests__/v4/compare-workspace.test.ts`. Educational only; no second official score. Terminal stay-draft: honesty SHA is not an ancestor of origin/main (PR #416). |
+| `/ask` | HONEST | stay-draft | `lib/v4/contextual-homi.ts` + `__tests__/v4/contextual-homi.test.ts`. Explain + deep-link; no Homie; no invented `$`. Terminal stay-draft: honesty SHA is not an ancestor of origin/main (PR #416). |
+| `/tools` | HONEST | stay-draft | `lib/v4/tools-workspace.ts` via `__tests__/v4/system-surfaces.test.ts`. Hub lenses; never a score tile. Terminal stay-draft: honesty SHA is not an ancestor of origin/main (PR #416). |
+| `/learn` | HONEST | stay-draft | `lib/v4/learn-workspace.ts` via `__tests__/v4/system-surfaces.test.ts`. Real `/guides` slugs only. Terminal stay-draft: honesty SHA is not an ancestor of origin/main (PR #416). |
+| `/settings` | HONEST | stay-draft | `lib/v4/settings-workspace.ts` via `__tests__/v4/system-surfaces.test.ts`. Account / Privacy / Billing entry. Terminal stay-draft: honesty SHA is not an ancestor of origin/main (PR #416). |
+| `/connections` | HONEST | stay-draft | `lib/v4/accounts-workspace.ts` via `__tests__/v4/system-surfaces.test.ts`. Live name/mask; no invented `$`. Terminal stay-draft: honesty SHA is not an ancestor of origin/main (PR #416). |
+| `/assessment` | HONEST | stay-draft | `lib/v4/assessment-walk.ts` + `__tests__/v4/assessment-walk.test.ts`. Adaptive home_buying; write path `/home`. Terminal stay-draft: honesty SHA is not an ancestor of origin/main (PR #416). |
+| `/employee` | HONEST | stay-draft | Operate home `/employee/dashboard`. `lib/v4/employee-workspace.ts` + `__tests__/v4/employee-workspace.test.ts`. Empty / hard-stop / normal. Terminal stay-draft: honesty SHA is not an ancestor of origin/main (PR #416). |
+| `/partner` | HONEST | stay-draft | Operate home `/partner/dashboard`. `lib/v4/partner-workspace.ts` + `__tests__/v4/partner-workspace.test.ts`. Empty / invite-error / normal. SITE_URL fail-loud. Terminal stay-draft: honesty SHA is not an ancestor of origin/main (PR #416). |
 | `/admin` | HONEST | stay-draft | Ops console `/admin`. `lib/v4/admin-workspace.ts` + `__tests__/v4/admin-workspace.test.ts`. Empty / normal; live SSOT counts; Companion off. Assessments room: `buildAdminAssessmentsV4View` — live rows, never READY badge / HeroScore / `overall_score`. PR #416. |
 
 ## Related non-pending dashboards

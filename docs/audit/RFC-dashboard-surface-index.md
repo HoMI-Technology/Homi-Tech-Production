@@ -19,7 +19,8 @@ Founder wants a **Surface index** table with columns:
 
 The locked pending table is the CCP host contract. It must stay 1:1 with `lib/auth/keep-routes.ts` (`V4_PENDING_PATHS` order). It cannot name prefix pages (`/employee/dashboard`, `/admin/marketing`, `/money/bills`) without either (a) adding extra allow-list hosts or (b) breaking `__tests__/v4/dashboard-surface-matrix.test.ts` (`pending.map(host) === [...V4_PENDING_PATHS]`).
 
-Shipped allow-list (13 hosts, all **HONEST | merged** on the pending table):
+Shipped allow-list (13 hosts, all **HONEST | stay-draft** on the pending
+table until the honesty SHA is an ancestor of origin/main):
 
 `/home` · `/money` · `/path` · `/scenarios` · `/ask` · `/tools` · `/learn` · `/settings` · `/connections` · `/assessment` · `/employee` · `/partner` · `/admin`
 
