@@ -68,7 +68,12 @@ describe("Contextual HōMI in Shell v4", () => {
     const text = container.textContent ?? "";
     expect(container.querySelector("[data-ask-v4-default]")).not.toBeNull();
     expect(container.querySelector("[data-ask-v4-age]")?.textContent).toMatch(/Assessed Aug 29/i);
-    expect(text).toContain("You're close — Path still leads.");
+    const ask = container.querySelector("[data-ask-v4-default]");
+    const askText = ask?.textContent ?? "";
+    expect(askText).toContain("Path still leads.");
+    expect(askText).not.toMatch(/you're ready/i);
+    expect(askText).not.toMatch(/you're close/i);
+    expect(askText).not.toContain("Tighten runway before offers");
     expect(text).toContain("never a second score");
     expect(container.querySelectorAll("[data-ask-v4-card]").length).toBeGreaterThan(0);
     expect(container.querySelectorAll("[data-ask-v4-card]").length).toBeLessThanOrEqual(2);

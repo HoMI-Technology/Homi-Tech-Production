@@ -183,15 +183,13 @@ function decisionContextLabel(raw: string | undefined): string | null {
 export function askV4DefaultTitle(verdict: VerdictKey | null): string {
   switch (verdict) {
     case "READY":
-      return "You're ready — Path still leads.";
     case "ALMOST_THERE":
-      return "You're close — Path still leads.";
+    case null:
+      return "Path still leads.";
     case "BUILD_FIRST":
       return "Build first. Path still leads.";
     case "NOT_YET":
       return "Hold first. Path still leads.";
-    case null:
-      return "You're close — Path still leads.";
     default: {
       const _exhaustive: never = verdict;
       return _exhaustive;
@@ -213,7 +211,7 @@ function defaultCards(): AskV4Card[] {
     {
       id: "next-path",
       title: "Next on Path",
-      follow: "Tighten runway before offers · open Path",
+      follow: "Open Path — live steps only",
       badge: ASK_V4_EDU_BADGE,
       href: V4_SHELL_PATH_HREF,
     },
@@ -292,16 +290,33 @@ export function buildAskV4View(reading: AskV4Reading | null): AskV4View {
   };
 }
 
+function askV4ClaimFields(view: AskV4View): string {
+  return [
+    view.title,
+    view.verdictLabel,
+    view.holdLead,
+    view.holdMeta,
+    view.cta?.label,
+    ...view.cards.map((card) => `${card.title} ${card.follow}`),
+  ].join(" ");
+}
+
 export function askV4ForbidsOnTrackCopy(view: AskV4View): boolean {
-  return view.hardStopActive;
+  return !/\bOn track\b/.test(askV4ClaimFields(view));
 }
 
 export function askV4ForbidsReadyCopy(view: AskV4View): boolean {
-  return view.hardStopActive;
+  const claims = askV4ClaimFields(view);
+  return !/\bREADY\b/.test(claims) && !/you're ready/i.test(claims);
 }
 
 export function askV4ForbidsSecondScore(view: AskV4View): boolean {
-  return view.verdictLabel !== "READY" && !/\b\d{1,3}\s*\/\s*100\b/.test(view.title);
+  const claims = askV4ClaimFields(view);
+  return (
+    view.verdictLabel !== "READY" &&
+    !/\b\d{1,3}\s*\/\s*100\b/.test(view.title) &&
+    !/you're ready/i.test(claims)
+  );
 }
 
 export function askV4ForbidsInventedDollars(view: AskV4View): boolean {

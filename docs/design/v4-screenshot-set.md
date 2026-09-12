@@ -1,8 +1,9 @@
-# Pixel Gate — Home v4 + Assessment v4 + Path v4 + Money v4 + Compare v4 + Contextual HōMI + System surfaces + Employee + Partner screenshot set
+# Pixel Gate — Home v4 + Assessment v4 + Path v4 + Money v4 + Compare v4 + Contextual HōMI + System surfaces + Employee + Partner + Admin screenshot set
 
-Stay-draft until founder **APPROVE VISUAL DIRECTION**. Do not undraft, do not
-merge, do not deploy Production. Production may already have
-`HOMI_V4_HOME_ENABLED=true`; that is not Pixel Gate for Compare v4.
+Stay-draft until founder **APPROVE VISUAL DIRECTION**. Do not undraft as a
+release. Do not set `HOMI_V4_HOME_ENABLED=true` on Production from this gate.
+If Production already has the flag on, that is **not** founder APPROVE VISUAL
+DIRECTION and is not Pixel Gate.
 
 Operator Preview / local stills: `HOMI_V4_HOME_ENABLED=true` **and**
 `HOMI_V4_VISUAL_FIXTURE=true`, then `/home?visual=hard-stop` (State A),
@@ -129,10 +130,20 @@ Mocks (`partner-empty-v4`, `partner-normal-v4`, `partner-invite-error-v4`) are
 orientation only — **≠ PIXEL**. Never invent $ or a client score.
 No craft-badge prose in the Production fold.
 
+## Admin states (PR K3)
+
+| Query | Intent |
+| --- | --- |
+| `/admin?visual=empty` | Nothing needs attention — Refresh only, never invent queues, scores, or $ |
+| `/admin?visual=normal` | Live SSOT KPI rails (Users / Orgs / Assessments 7d / Waitlist), no HeroScore |
+
+Mocks (`admin-empty-v4`, `admin-normal-v4`) are orientation only — **≠ PIXEL**.
+Never invent $ or a Decision Readiness Score. Companion / Ask / Homie stay off.
+
 ## Gate
 
 Architecture → real rendered Home + Assessment + Path + Money + Compare + Ask +
-system surfaces + Employee + Partner → this set → internal ≥92/100 →
+system surfaces + Employee + Partner + Admin → this set → internal ≥92/100 →
 founder APPROVE VISUAL DIRECTION → then undraft / merge.
 
 Stills land under `docs/design/baseline/` when captured. This PR does not
