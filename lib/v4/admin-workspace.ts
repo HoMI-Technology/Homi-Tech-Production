@@ -710,3 +710,93 @@ export function buildAdminEmailV4View({
     failedCount: sends.filter((send) => send.status === "failed").length,
   };
 }
+
+/** Waitlist room — live signups. Never a score column or email field. */
+export const ADMIN_V4_WAITLIST_CONSOLE_EMPTY =
+  "No live waitlist signups in this console." as const;
+export const ADMIN_V4_WAITLIST_TITLE = "Waitlist." as const;
+export const ADMIN_V4_WAITLIST_COLUMNS = [
+  "id",
+  "created_at",
+  "status",
+  "source",
+] as const;
+
+export type AdminWaitlistV4Column = (typeof ADMIN_V4_WAITLIST_COLUMNS)[number];
+
+export type AdminWaitlistV4SourceRow = {
+  id: string;
+  created_at: string | null;
+  status: string | null;
+  source: string | null;
+  interested_in: readonly string[] | null;
+};
+
+export type AdminWaitlistV4Row = {
+  id: string;
+  createdLabel: string;
+  statusLabel: string;
+  sourceLabel: string;
+  interestsLabel: string;
+};
+
+export type AdminWaitlistV4View = {
+  kind: "empty" | "normal";
+  title: string;
+  columns: readonly AdminWaitlistV4Column[];
+  rows: readonly AdminWaitlistV4Row[];
+  shown: number;
+  taggedCount: number;
+};
+
+export type AdminWaitlistV4Input = {
+  rows: readonly AdminWaitlistV4SourceRow[];
+  loadError?: boolean;
+};
+
+function adminWaitlistV4Label(value: string | null | undefined): string {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : "—";
+}
+
+function adminWaitlistV4InterestsLabel(
+  interestedIn: readonly string[] | null | undefined,
+): string {
+  if (!interestedIn || interestedIn.length === 0) return "—";
+  const labels = interestedIn.map((item) => item.trim()).filter(Boolean);
+  return labels.length > 0 ? labels.join(", ") : "—";
+}
+
+export function buildAdminWaitlistV4View({
+  rows,
+  loadError,
+}: AdminWaitlistV4Input): AdminWaitlistV4View {
+  if (loadError || rows.length === 0) {
+    return {
+      kind: "empty",
+      title: ADMIN_V4_WAITLIST_CONSOLE_EMPTY,
+      columns: ADMIN_V4_WAITLIST_COLUMNS,
+      rows: [],
+      shown: 0,
+      taggedCount: 0,
+    };
+  }
+  return {
+    kind: "normal",
+    title: ADMIN_V4_WAITLIST_TITLE,
+    columns: ADMIN_V4_WAITLIST_COLUMNS,
+    rows: rows.map((row) => ({
+      id: row.id,
+      createdLabel: adminUsersV4DateLabel(row.created_at),
+      statusLabel: adminWaitlistV4Label(row.status),
+      sourceLabel: adminWaitlistV4Label(row.source),
+      interestsLabel: adminWaitlistV4InterestsLabel(row.interested_in),
+    })),
+    shown: rows.length,
+    taggedCount: rows.filter(
+      (row) =>
+        Array.isArray(row.interested_in) &&
+        row.interested_in.some((item) => item.trim().length > 0),
+    ).length,
+  };
+}

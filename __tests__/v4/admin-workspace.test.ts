@@ -29,10 +29,13 @@ import {
   ADMIN_V4_ORGANIZATIONS_COLUMNS,
   ADMIN_V4_EMAIL_CONSOLE_EMPTY,
   ADMIN_V4_EMAIL_COLUMNS,
+  ADMIN_V4_WAITLIST_CONSOLE_EMPTY,
+  ADMIN_V4_WAITLIST_COLUMNS,
   buildAdminAssessmentsV4View,
   buildAdminEmailV4View,
   buildAdminOrganizationsV4View,
   buildAdminUsersV4View,
+  buildAdminWaitlistV4View,
   buildAdminV4View,
 } from "@/lib/v4/admin-workspace";
 import {
@@ -577,6 +580,110 @@ describe("Admin v4 law", () => {
     expect(page).toContain('from("campaigns")');
     expect(page).toContain('from("campaign_sends")');
     expect(page).toContain("campaign_id, status");
+    expect(page).not.toContain('select("*")');
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("score-numeral");
+    expect(page).not.toContain("Publish");
+    expect(page).not.toMatch(/>Score</);
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
+  });
+
+  it("waitlist room is empty-or-live from waitlist id/created_at/status/source", () => {
+    expect(ADMIN_V4_WAITLIST_CONSOLE_EMPTY).toBe(
+      "No live waitlist signups in this console.",
+    );
+    expect(ADMIN_V4_WAITLIST_COLUMNS).toEqual([
+      "id",
+      "created_at",
+      "status",
+      "source",
+    ]);
+    expect(ADMIN_V4_WAITLIST_COLUMNS).not.toContain("score");
+    expect(ADMIN_V4_WAITLIST_COLUMNS).not.toContain("email");
+
+    const empty = buildAdminWaitlistV4View({ rows: [], loadError: false });
+    expect(empty.kind).toBe("empty");
+    expect(empty.title).toBe(ADMIN_V4_WAITLIST_CONSOLE_EMPTY);
+    expect(empty.rows).toEqual([]);
+    expect(empty.columns).toEqual([...ADMIN_V4_WAITLIST_COLUMNS]);
+    expect(empty.shown).toBe(0);
+    expect(empty.taggedCount).toBe(0);
+    expect(adminV4ForbidsHeroScore(empty)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(empty)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(empty)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(empty)).toBe(true);
+
+    const errored = buildAdminWaitlistV4View({
+      rows: [
+        {
+          id: "should-not-render",
+          created_at: "2026-09-11T12:00:00.000Z",
+          status: "pending",
+          source: "landing",
+          interested_in: ["home"],
+        },
+      ],
+      loadError: true,
+    });
+    expect(errored.kind).toBe("empty");
+    expect(errored.title).toBe(ADMIN_V4_WAITLIST_CONSOLE_EMPTY);
+    expect(errored.rows).toEqual([]);
+    expect(errored.shown).toBe(0);
+
+    const view = buildAdminWaitlistV4View({
+      rows: [
+        {
+          id: "wl-1",
+          created_at: "2026-09-11T12:00:00.000Z",
+          status: "pending",
+          source: "landing",
+          interested_in: ["home", "car"],
+        },
+        {
+          id: "wl-2",
+          created_at: null,
+          status: "invited",
+          source: null,
+          interested_in: null,
+        },
+      ],
+      loadError: false,
+    });
+    expect(view.kind).toBe("normal");
+    expect(view.columns).toEqual(["id", "created_at", "status", "source"]);
+    expect(view.rows.map((row) => row.id)).toEqual(["wl-1", "wl-2"]);
+    expect(view.rows.map((row) => row.statusLabel)).toEqual([
+      "pending",
+      "invited",
+    ]);
+    expect(view.rows.map((row) => row.sourceLabel)).toEqual(["landing", "—"]);
+    expect(view.rows[0]?.interestsLabel).toBe("home, car");
+    expect(view.rows[1]?.interestsLabel).toBe("—");
+    expect(view.rows[1]?.createdLabel).toBe("—");
+    expect(view.shown).toBe(2);
+    expect(view.taggedCount).toBe(1);
+    expect(blob(view)).not.toContain("HeroScore");
+    expect(blob(view)).not.toContain("overall_score");
+    expect(blob(view)).not.toContain("score");
+    expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(blob(view)).not.toContain("Publish");
+    expect(blob(view)).not.toContain("@");
+    expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+
+    const page = readFileSync(
+      resolve(process.cwd(), "app/(product)/admin/waitlist/page.tsx"),
+      "utf8",
+    );
+    expect(page).toContain("buildAdminWaitlistV4View");
+    expect(page).toContain("loadError");
+    expect(page).toContain("id, created_at, status, source, interested_in");
+    expect(page).toContain('from("waitlist")');
     expect(page).not.toContain('select("*")');
     expect(page).not.toContain("HeroScore");
     expect(page).not.toContain("overall_score");
