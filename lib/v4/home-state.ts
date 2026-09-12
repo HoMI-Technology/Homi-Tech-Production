@@ -30,6 +30,16 @@ import { ASK_V4_PROMPTS } from "@/lib/v4/contextual-homi";
 export const HOME_V4_PATH_CTA = RUNWAY_HARD_STOP_FOLD_TITLE;
 export const HOME_V4_TOOLS_MAX = 4 as const;
 
+/** First-session empty Home — one job, then the page paints. */
+export const HOME_V4_EMPTY_HOLD = "Nothing to judge yet." as const;
+export const HOME_V4_EMPTY_FOLLOW =
+  "Take the assessment. This page becomes the verdict and the one next move." as const;
+export const HOME_V4_EMPTY_MONEY_FOLLOW =
+  "A readiness read comes first. Connect accounts after, if you want a fuller picture." as const;
+export const HOME_V4_MONEY_FOLLOW = "Connect accounts for a fuller picture." as const;
+export const HOME_V4_EMPTY_PATH_FOLLOW =
+  "Start with Assess. Path fills from that read." as const;
+
 export const HOME_V4_HOMI_PROMPTS = ASK_V4_PROMPTS.default;
 
 export type HomeV4MoneyStatus = "empty" | "disconnected";
@@ -140,7 +150,7 @@ export function buildHomeV4View(reading: HomeV4Reading | null): HomeV4View {
       pathPrimary: null,
       pillars: [],
       whatChanged: null,
-      tools: EMPTY_TOOLS,
+      tools: [],
       moneyStatus: "empty",
       moneyLine: MONEY_WAIT_LINE,
       connectHref: FOLD_CONNECTIONS_HREF,

@@ -1773,9 +1773,9 @@ html {
   overflow-x: clip;
 }
 
-/* Home v4 workspace — surfaces, not text stacks.
+/* Home v4 workspace — ruling, not a KPI wall.
    Source order stays mobile-first. Named areas place HōMI beside
-   context+hero and What changed beside evidence at ≥1280. */
+   context+hero+evidence at ≥1280. Path / tools / what-changed stay off this fold. */
 .v4-home {
   position: relative;
   padding: 1.25rem 1.25rem 1.75rem;
@@ -1801,7 +1801,8 @@ html {
 
 .v4-home-grid {
   display: grid;
-  gap: 1rem;
+  column-gap: 1.25rem;
+  row-gap: 0.85rem;
   align-items: stretch;
   grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
@@ -1809,9 +1810,12 @@ html {
     "hero"
     "evidence"
     "support"
-    "tools"
-    "homi"
-    "changed";
+    "homi";
+}
+.v4-home[data-home-state="empty"] .v4-home-grid {
+  grid-template-areas:
+    "hero"
+    "homi";
 }
 .v4-home-context {
   grid-area: context;
@@ -1850,11 +1854,12 @@ html {
     grid-template-areas:
       "context homi"
       "hero    homi"
-      "evidence changed"
-      "support support"
-      "tools   tools";
-    column-gap: 1.25rem;
-    row-gap: 0.7rem;
+      "evidence homi"
+      "support support";
+  }
+  .v4-home[data-home-state="empty"] .v4-home-grid {
+    grid-template-areas:
+      "hero homi";
   }
   .v4-section-kicker {
     margin-bottom: 0.5rem;
@@ -1865,11 +1870,13 @@ html {
   .v4-evidence-band {
     min-height: 4.5rem;
   }
-  .v4-support-card,
   .v4-changed,
   .v4-tools,
   .v4-homi {
     padding: 1rem 1.15rem 1.1rem;
+  }
+  .v4-support-card {
+    padding: 0.85rem 1.1rem;
   }
   .v4-support-follow,
   .v4-changed-follow {
@@ -1904,13 +1911,15 @@ html {
   min-height: 0;
   padding: 1.5rem;
   border-radius: 1.25rem;
-  border: 1px solid rgba(148, 163, 184, 0.14);
+  border: 0;
   background:
     radial-gradient(ellipse 55% 70% at 14% 18%, rgba(34, 211, 238, 0.11), transparent 60%),
     radial-gradient(ellipse 40% 50% at 88% 92%, rgba(52, 211, 153, 0.05), transparent 62%),
     linear-gradient(180deg, rgba(15, 23, 42, 0.2), transparent 72%),
     var(--color-navy-light);
-  box-shadow: inset 0 1px 0 rgba(34, 211, 238, 0.08);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    inset 0 1px 0 rgba(34, 211, 238, 0.08);
 }
 .v4-hero-narrative {
   min-width: 0;
@@ -1920,20 +1929,19 @@ html {
   gap: 0.15rem;
 }
 .v4-hero-verdict {
-  display: inline-flex;
-  align-items: center;
+  display: block;
   width: fit-content;
   margin: 0;
-  padding: 0.28rem 0.72rem;
-  border-radius: 9999px;
-  border: 1px solid;
-  background: color-mix(in srgb, currentColor 16%, transparent);
-  font-family: var(--font-sans);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  font-style: normal;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 4vw, 3.75rem);
+  font-weight: 500;
+  font-style: italic;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  text-transform: none;
 }
 .v4-hero-stop-eyebrow {
   margin: 0.5rem 0 0;
@@ -1950,17 +1958,22 @@ html {
   color: var(--color-amber);
 }
 .v4-hero-hold {
-  margin: 0.75rem 0 0;
-  font-family: var(--font-sans);
-  font-size: 1.75rem;
-  font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
+  margin: 0.7rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.4;
   color: var(--color-ink);
+}
+[data-home-v4-empty] .v4-hero-hold {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 2.6vw, 2.35rem);
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
 }
 .v4-hero-hold-close {
   margin: 0.5rem 0 0;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   line-height: 1.45;
   color: var(--color-light);
 }
@@ -1983,7 +1996,7 @@ html {
 .v4-hero-primary {
   min-height: 2.85rem;
   padding: 0.7rem 1.35rem;
-  box-shadow: 0 10px 28px rgba(34, 211, 238, 0.12);
+  box-shadow: none;
 }
 .v4-hero-secondary {
   min-height: 2.75rem;
@@ -2010,11 +2023,11 @@ html {
 }
 @media (min-width: 768px) {
   .v4-hero {
-    grid-template-columns: 184px minmax(0, 1fr);
+    grid-template-columns: 176px minmax(0, 1fr);
     align-items: center;
-    min-height: 20.6rem;
+    min-height: 0;
     padding: 1.5rem 1.75rem;
-    gap: 1.35rem;
+    gap: 1.5rem;
   }
 }
 
@@ -2040,16 +2053,9 @@ html {
 .v4-gauge-score {
   font-size: 2.75rem;
   font-weight: 500;
-  line-height: 1;
+  line-height: 0.96;
   letter-spacing: -0.04em;
   color: var(--color-ink);
-}
-.v4-gauge-denom {
-  margin-top: 0.2rem;
-  font-family: var(--font-score);
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
-  color: var(--color-dim);
 }
 .v4-gauge-age {
   margin-top: 0.35rem;
@@ -2060,19 +2066,21 @@ html {
 .v4-evidence {
   padding: 0.9rem 1.1rem 0.95rem;
   border-radius: 1.125rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 0;
   background: var(--color-navy-light);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 .v4-evidence-band {
   display: grid;
   gap: 0.75rem;
-  min-height: 5.5rem;
+  min-height: 0;
 }
 .v4-evidence-zone {
-  padding: 0.85rem 0.9rem 0.95rem;
-  border-radius: 0.75rem;
-  background: rgba(30, 41, 59, 0.45);
-  box-shadow: inset 0 2px 0 var(--v4-pillar-accent, var(--color-cyan));
+  padding: 0.35rem 0 0.35rem 1rem;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  border-left: 2px solid var(--v4-pillar-accent, var(--color-cyan));
 }
 .v4-evidence-name {
   margin: 0;
@@ -2106,11 +2114,7 @@ html {
 .v4-support-pair {
   display: grid;
   gap: 1rem;
-}
-@media (min-width: 640px) {
-  .v4-support-pair {
-    grid-template-columns: 1fr 1fr;
-  }
+  grid-template-columns: minmax(0, 1fr);
 }
 .v4-support-card,
 .v4-changed,
@@ -2118,14 +2122,26 @@ html {
 .v4-homi {
   padding: 1.05rem 1.15rem 1.15rem;
   border-radius: 1.125rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 0;
   background: var(--color-navy-light);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
-.v4-support-card,
+.v4-support-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 1rem;
+  min-height: 0;
+  padding: 0.85rem 1.1rem;
+}
+.v4-support-card .v4-section-kicker {
+  flex: 0 0 100%;
+  margin: 0;
+}
 .v4-changed {
   display: flex;
   height: 100%;
-  min-height: 10.5rem;
+  min-height: 0;
   flex-direction: column;
 }
 .v4-support-icon {
@@ -2142,8 +2158,9 @@ html {
 }
 .v4-support-line {
   margin: 0;
-  font-size: 1.05rem;
-  font-weight: 600;
+  flex: 1 1 auto;
+  font-size: 0.9375rem;
+  font-weight: 500;
   line-height: 1.35;
   color: var(--color-light);
 }
@@ -2157,8 +2174,8 @@ html {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  margin-top: auto;
-  padding-top: 0.55rem;
+  margin-top: 0;
+  padding-top: 0;
   min-height: 2rem;
   padding-bottom: 0;
   padding-left: 0;
@@ -2252,14 +2269,9 @@ html {
 .v4-homi {
   display: flex;
   width: 100%;
-  min-height: 18rem;
-  height: 100%;
+  min-height: 0;
+  align-self: stretch;
   flex-direction: column;
-}
-@media (min-width: 1280px) {
-  .v4-homi {
-    min-height: 0;
-  }
 }
 .v4-homi-head {
   flex-shrink: 0;
@@ -2350,14 +2362,13 @@ html {
       "context"
       "hero"
       "evidence"
-      "homi"
       "support"
-      "changed"
-      "tools";
+      "homi";
   }
-  .v4-support-pair {
-    display: flex;
-    flex-direction: column-reverse;
+  .v4-home[data-home-state="empty"] .v4-home-grid {
+    grid-template-areas:
+      "hero"
+      "homi";
   }
   .v4-hero {
     min-height: 0;
@@ -2365,8 +2376,11 @@ html {
 }
 
 @media (max-width: 390px) {
-  .v4-hero-hold {
+  [data-home-v4-empty] .v4-hero-hold {
     font-size: 1.4rem;
+  }
+  .v4-hero-verdict {
+    font-size: clamp(2.1rem, 9vw, 2.75rem);
   }
   .v4-tools-grid {
     grid-template-columns: 1fr;
@@ -3132,6 +3146,13 @@ body {
   .btn-primary:active:not(:disabled) {
     transform: translateY(1px) scale(0.985);
     box-shadow: 0 4px 14px -6px rgba(34, 211, 238, 0.45);
+  }
+  .btn.btn-primary.v4-hero-primary {
+    box-shadow: none;
+  }
+  .btn.btn-primary.v4-hero-primary:hover,
+  .btn.btn-primary.v4-hero-primary:active:not(:disabled) {
+    box-shadow: none;
   }
   .btn-ghost {
     background: rgba(30, 41, 59, 0.5);
