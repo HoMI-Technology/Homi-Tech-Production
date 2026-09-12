@@ -7,6 +7,11 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
+  ADMIN_V4_ASSESSMENTS_COMPLETE,
+  ADMIN_V4_ASSESSMENTS_EMPTY,
+  ADMIN_V4_ASSESSMENTS_HOLD,
+  ADMIN_V4_ASSESSMENTS_IN_PROGRESS,
+  ADMIN_V4_ASSESSMENTS_TITLE,
   ADMIN_V4_EMPTY_TITLE,
   ADMIN_V4_LIVE_TITLE,
   ADMIN_V4_REFRESH_CTA,
@@ -14,8 +19,35 @@ import {
   adminV4DraftsFromAssets,
   adminV4ForbidsHeroScore,
   adminV4ForbidsInventedDollars,
+  adminV4ForbidsOnTrackCopy,
+  adminV4ForbidsReadyCopy,
   adminV4VisualDrafts,
   adminV4VisualView,
+  ADMIN_V4_USERS_CONSOLE_EMPTY,
+  ADMIN_V4_USERS_COLUMNS,
+  ADMIN_V4_ORGANIZATIONS_CONSOLE_EMPTY,
+  ADMIN_V4_ORGANIZATIONS_COLUMNS,
+  ADMIN_V4_EMAIL_CONSOLE_EMPTY,
+  ADMIN_V4_EMAIL_COLUMNS,
+  ADMIN_V4_WAITLIST_CONSOLE_EMPTY,
+  ADMIN_V4_WAITLIST_COLUMNS,
+  ADMIN_V4_ANALYTICS_CONSOLE_EMPTY,
+  ADMIN_V4_ANALYTICS_COLUMNS,
+  ADMIN_V4_AD_SPEND_CONSOLE_EMPTY,
+  ADMIN_V4_AD_SPEND_COLUMNS,
+  ADMIN_V4_ATTRIBUTION_CONSOLE_EMPTY,
+  ADMIN_V4_ATTRIBUTION_COLUMNS,
+  ADMIN_V4_ACTIVITY_CONSOLE_EMPTY,
+  ADMIN_V4_ACTIVITY_COLUMNS,
+  buildAdminActivityV4View,
+  buildAdminAdSpendV4View,
+  buildAdminAnalyticsV4View,
+  buildAdminAssessmentsV4View,
+  buildAdminAttributionV4View,
+  buildAdminEmailV4View,
+  buildAdminOrganizationsV4View,
+  buildAdminUsersV4View,
+  buildAdminWaitlistV4View,
   buildAdminV4View,
 } from "@/lib/v4/admin-workspace";
 import {
@@ -49,6 +81,9 @@ describe("Admin v4 law", () => {
     expect(blob(view)).not.toContain("Attention above KPI");
     expect(adminV4ForbidsInventedDollars(view)).toBe(true);
     expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+    expect(blob(view).toLowerCase()).not.toContain("homie");
     expect(buildAdminV4View({
       userCount: 0,
       orgCount: 0,
@@ -75,7 +110,13 @@ describe("Admin v4 law", () => {
     expect(view.jobs[0]?.cta).toBe("Open waitlist");
     expect(view.jobs[0]?.cta).not.toMatch(/\?$/);
     expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bOn track\b/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(blob(view).toLowerCase()).not.toContain("homie");
     expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
   });
 
   it("marketing drafts are X+TikTok only — Instagram/Threads are not peers", () => {
@@ -119,5 +160,989 @@ describe("Admin v4 law", () => {
     );
     expect(command).toContain("isV4QuietCommandPath");
     expect(command).toContain("No Ask · Companion off");
+  });
+
+  it("assessments room is empty-or-live and never paints HeroScore, $, On track, or READY", () => {
+    const empty = buildAdminAssessmentsV4View([]);
+    expect(empty.kind).toBe("empty");
+    expect(empty.title).toBe(ADMIN_V4_ASSESSMENTS_EMPTY);
+    expect(empty.rows).toEqual([]);
+    expect(adminV4ForbidsHeroScore(empty)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(empty)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(empty)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(empty)).toBe(true);
+
+    const view = buildAdminAssessmentsV4View([
+      {
+        id: "ready-row",
+        created_at: "2026-09-11T12:00:00.000Z",
+        verdict: "READY",
+        is_shadow: false,
+        hard_stops: [],
+      },
+      {
+        id: "hold-row",
+        created_at: "2026-09-11T12:00:00.000Z",
+        verdict: "NOT_YET",
+        is_shadow: true,
+        hard_stops: [{ code: "RUNWAY_UNDER_1_MONTH" }],
+      },
+      {
+        id: "open-row",
+        created_at: null,
+        verdict: null,
+        is_shadow: false,
+        hard_stops: null,
+      },
+    ]);
+    expect(view.kind).toBe("normal");
+    expect(view.title).toBe(ADMIN_V4_ASSESSMENTS_TITLE);
+    expect(view.rows.map((row) => row.statusLabel)).toEqual([
+      ADMIN_V4_ASSESSMENTS_COMPLETE,
+      ADMIN_V4_ASSESSMENTS_HOLD,
+      ADMIN_V4_ASSESSMENTS_IN_PROGRESS,
+    ]);
+    expect(view.rows[1]?.kindLabel).toBe("Shadow");
+    expect(view.shown).toBe(3);
+    expect(view.completed).toBe(2);
+    expect(view.waitCount).toBe(1);
+    expect(view.shadowCount).toBe(1);
+    expect(blob(view)).not.toContain("HeroScore");
+    expect(blob(view)).not.toContain("overall_score");
+    expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bOn track\b/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+
+    const page = readFileSync(
+      resolve(process.cwd(), "app/(product)/admin/assessments/page.tsx"),
+      "utf8",
+    );
+    expect(page).toContain("buildAdminAssessmentsV4View");
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("VerdictBadge");
+    expect(page).not.toContain("scoreBand");
+    expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
+  });
+
+  it("users room is empty-or-live from profiles id/created_at/role/subscription_tier", () => {
+    expect(ADMIN_V4_USERS_CONSOLE_EMPTY).toBe("No live users in this console.");
+    expect(ADMIN_V4_USERS_COLUMNS).toEqual([
+      "id",
+      "created_at",
+      "role",
+      "subscription_tier",
+    ]);
+    expect(ADMIN_V4_USERS_COLUMNS).not.toContain("score");
+
+    const empty = buildAdminUsersV4View({ rows: [], loadError: false });
+    expect(empty.kind).toBe("empty");
+    expect(empty.title).toBe(ADMIN_V4_USERS_CONSOLE_EMPTY);
+    expect(empty.rows).toEqual([]);
+    expect(empty.columns).toEqual([...ADMIN_V4_USERS_COLUMNS]);
+    expect(empty.shown).toBe(0);
+    expect(adminV4ForbidsHeroScore(empty)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(empty)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(empty)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(empty)).toBe(true);
+
+    const errored = buildAdminUsersV4View({
+      rows: [
+        {
+          id: "should-not-render",
+          created_at: "2026-09-11T12:00:00.000Z",
+          role: "admin",
+          subscription_tier: "pro",
+        },
+      ],
+      loadError: true,
+    });
+    expect(errored.kind).toBe("empty");
+    expect(errored.title).toBe(ADMIN_V4_USERS_CONSOLE_EMPTY);
+    expect(errored.rows).toEqual([]);
+    expect(errored.shown).toBe(0);
+
+    const view = buildAdminUsersV4View({
+      rows: [
+        {
+          id: "user-admin",
+          created_at: "2026-09-11T12:00:00.000Z",
+          role: "admin",
+          subscription_tier: "pro",
+        },
+        {
+          id: "user-partner",
+          created_at: null,
+          role: "partner",
+          subscription_tier: "free",
+        },
+        {
+          id: "user-plus",
+          created_at: "2026-09-10T12:00:00.000Z",
+          role: "user",
+          subscription_tier: "plus",
+        },
+      ],
+      loadError: false,
+    });
+    expect(view.kind).toBe("normal");
+    expect(view.columns).toEqual(["id", "created_at", "role", "subscription_tier"]);
+    expect(view.rows.map((row) => row.id)).toEqual([
+      "user-admin",
+      "user-partner",
+      "user-plus",
+    ]);
+    expect(view.rows.map((row) => row.roleLabel)).toEqual([
+      "admin",
+      "partner",
+      "user",
+    ]);
+    expect(view.rows.map((row) => row.tierLabel)).toEqual(["pro", "free", "plus"]);
+    expect(view.rows[1]?.createdLabel).toBe("—");
+    expect(view.shown).toBe(3);
+    expect(view.paidCount).toBe(2);
+    expect(view.adminCount).toBe(1);
+    expect(view.partnerCount).toBe(1);
+    expect(blob(view)).not.toContain("HeroScore");
+    expect(blob(view)).not.toContain("overall_score");
+    expect(blob(view)).not.toContain("score");
+    expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(blob(view)).not.toContain("Publish");
+    expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+
+    const page = readFileSync(
+      resolve(process.cwd(), "app/(product)/admin/users/page.tsx"),
+      "utf8",
+    );
+    expect(page).toContain("buildAdminUsersV4View");
+    expect(page).toContain("loadError");
+    expect(page).toContain("id, created_at, role, subscription_tier");
+    expect(page).not.toContain('select("*")');
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("Publish");
+    expect(page).not.toMatch(/>Score</);
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
+  });
+
+  it("organizations room is empty-or-live from orgs, members, and family accounts", () => {
+    expect(ADMIN_V4_ORGANIZATIONS_CONSOLE_EMPTY).toBe(
+      "No live organizations in this console.",
+    );
+    expect(ADMIN_V4_ORGANIZATIONS_COLUMNS).toEqual([
+      "id",
+      "name",
+      "slug",
+      "kind",
+      "plan",
+      "created_at",
+    ]);
+    expect(ADMIN_V4_ORGANIZATIONS_COLUMNS).not.toContain("score");
+
+    const empty = buildAdminOrganizationsV4View({
+      rows: [],
+      members: [],
+      familyCount: 0,
+      loadError: false,
+    });
+    expect(empty.kind).toBe("empty");
+    expect(empty.title).toBe(ADMIN_V4_ORGANIZATIONS_CONSOLE_EMPTY);
+    expect(empty.rows).toEqual([]);
+    expect(empty.columns).toEqual([...ADMIN_V4_ORGANIZATIONS_COLUMNS]);
+    expect(empty.shown).toBe(0);
+    expect(empty.memberCount).toBe(0);
+    expect(empty.familyCount).toBe(0);
+    expect(adminV4ForbidsHeroScore(empty)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(empty)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(empty)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(empty)).toBe(true);
+
+    const errored = buildAdminOrganizationsV4View({
+      rows: [
+        {
+          id: "should-not-render",
+          name: "Hidden",
+          slug: "hidden",
+          kind: "employer",
+          plan: "plus",
+          created_at: "2026-09-11T12:00:00.000Z",
+        },
+      ],
+      members: [{ organization_id: "should-not-render" }],
+      familyCount: 9,
+      loadError: true,
+    });
+    expect(errored.kind).toBe("empty");
+    expect(errored.title).toBe(ADMIN_V4_ORGANIZATIONS_CONSOLE_EMPTY);
+    expect(errored.rows).toEqual([]);
+    expect(errored.shown).toBe(0);
+    expect(errored.memberCount).toBe(0);
+    expect(errored.familyCount).toBe(0);
+
+    const view = buildAdminOrganizationsV4View({
+      rows: [
+        {
+          id: "org-acme",
+          name: "Acme Benefits",
+          slug: "acme",
+          kind: "employer",
+          plan: "plus",
+          created_at: "2026-09-11T12:00:00.000Z",
+        },
+        {
+          id: "org-beta",
+          name: "Beta Partner",
+          slug: "beta",
+          kind: "partner",
+          plan: "free",
+          created_at: null,
+        },
+      ],
+      members: [
+        { organization_id: "org-acme" },
+        { organization_id: "org-acme" },
+        { organization_id: "org-beta" },
+      ],
+      familyCount: 4,
+      loadError: false,
+    });
+    expect(view.kind).toBe("normal");
+    expect(view.columns).toEqual([
+      "id",
+      "name",
+      "slug",
+      "kind",
+      "plan",
+      "created_at",
+    ]);
+    expect(view.rows.map((row) => row.id)).toEqual(["org-acme", "org-beta"]);
+    expect(view.rows.map((row) => row.nameLabel)).toEqual([
+      "Acme Benefits",
+      "Beta Partner",
+    ]);
+    expect(view.rows.map((row) => row.kindLabel)).toEqual(["employer", "partner"]);
+    expect(view.rows.map((row) => row.planLabel)).toEqual(["plus", "free"]);
+    expect(view.rows.map((row) => row.memberCount)).toEqual([2, 1]);
+    expect(view.rows[1]?.createdLabel).toBe("—");
+    expect(view.shown).toBe(2);
+    expect(view.memberCount).toBe(3);
+    expect(view.familyCount).toBe(4);
+    expect(view.employerCount).toBe(1);
+    expect(view.partnerCount).toBe(1);
+    expect(blob(view)).not.toContain("HeroScore");
+    expect(blob(view)).not.toContain("overall_score");
+    expect(blob(view)).not.toContain("score");
+    expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(blob(view)).not.toContain("Publish");
+    expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+
+    const page = readFileSync(
+      resolve(process.cwd(), "app/(product)/admin/organizations/page.tsx"),
+      "utf8",
+    );
+    expect(page).toContain("buildAdminOrganizationsV4View");
+    expect(page).toContain("loadError");
+    expect(page).toContain("id, name, slug, kind, plan, created_at");
+    expect(page).toContain('from("organization_members")');
+    expect(page).toContain('from("family_accounts")');
+    expect(page).not.toContain('select("*")');
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("score-numeral");
+    expect(page).not.toContain("Publish");
+    expect(page).not.toMatch(/>Score</);
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
+  });
+
+  it("email room is empty-or-live from campaigns and campaign_sends", () => {
+    expect(ADMIN_V4_EMAIL_CONSOLE_EMPTY).toBe(
+      "No live email campaigns in this console.",
+    );
+    expect(ADMIN_V4_EMAIL_COLUMNS).toEqual([
+      "id",
+      "name",
+      "audience",
+      "status",
+      "sent_at",
+    ]);
+    expect(ADMIN_V4_EMAIL_COLUMNS).not.toContain("score");
+
+    const empty = buildAdminEmailV4View({
+      rows: [],
+      sends: [],
+      loadError: false,
+    });
+    expect(empty.kind).toBe("empty");
+    expect(empty.title).toBe(ADMIN_V4_EMAIL_CONSOLE_EMPTY);
+    expect(empty.rows).toEqual([]);
+    expect(empty.columns).toEqual([...ADMIN_V4_EMAIL_COLUMNS]);
+    expect(empty.shown).toBe(0);
+    expect(empty.draftCount).toBe(0);
+    expect(empty.sentCount).toBe(0);
+    expect(empty.failedCount).toBe(0);
+    expect(adminV4ForbidsHeroScore(empty)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(empty)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(empty)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(empty)).toBe(true);
+
+    const errored = buildAdminEmailV4View({
+      rows: [
+        {
+          id: "should-not-render",
+          name: "Hidden",
+          audience: "all",
+          status: "sent",
+          sent_at: "2026-09-11T12:00:00.000Z",
+        },
+      ],
+      sends: [{ campaign_id: "should-not-render", status: "sent" }],
+      loadError: true,
+    });
+    expect(errored.kind).toBe("empty");
+    expect(errored.title).toBe(ADMIN_V4_EMAIL_CONSOLE_EMPTY);
+    expect(errored.rows).toEqual([]);
+    expect(errored.shown).toBe(0);
+    expect(errored.sentCount).toBe(0);
+
+    const view = buildAdminEmailV4View({
+      rows: [
+        {
+          id: "camp-sent",
+          name: "Waitlist note",
+          audience: "waitlist",
+          status: "sent",
+          sent_at: "2026-09-11T12:00:00.000Z",
+        },
+        {
+          id: "camp-draft",
+          name: "Draft note",
+          audience: "free",
+          status: "draft",
+          sent_at: null,
+        },
+      ],
+      sends: [
+        { campaign_id: "camp-sent", status: "sent" },
+        { campaign_id: "camp-sent", status: "sent" },
+        { campaign_id: "camp-sent", status: "failed" },
+        { campaign_id: "camp-sent", status: "suppressed" },
+      ],
+      loadError: false,
+    });
+    expect(view.kind).toBe("normal");
+    expect(view.columns).toEqual([
+      "id",
+      "name",
+      "audience",
+      "status",
+      "sent_at",
+    ]);
+    expect(view.rows.map((row) => row.id)).toEqual(["camp-sent", "camp-draft"]);
+    expect(view.rows.map((row) => row.nameLabel)).toEqual([
+      "Waitlist note",
+      "Draft note",
+    ]);
+    expect(view.rows.map((row) => row.audienceLabel)).toEqual([
+      "waitlist",
+      "free",
+    ]);
+    expect(view.rows.map((row) => row.statusLabel)).toEqual(["sent", "draft"]);
+    expect(view.rows[0]?.sentCount).toBe(2);
+    expect(view.rows[0]?.failedCount).toBe(1);
+    expect(view.rows[0]?.suppressedCount).toBe(1);
+    expect(view.rows[1]?.sentLabel).toBe("—");
+    expect(view.shown).toBe(2);
+    expect(view.draftCount).toBe(1);
+    expect(view.sentCount).toBe(2);
+    expect(view.failedCount).toBe(1);
+    expect(blob(view)).not.toContain("HeroScore");
+    expect(blob(view)).not.toContain("overall_score");
+    expect(blob(view)).not.toContain("score");
+    expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(blob(view)).not.toContain("Publish");
+    expect(blob(view)).not.toContain("@");
+    expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+
+    const page = readFileSync(
+      resolve(process.cwd(), "app/(product)/admin/email/page.tsx"),
+      "utf8",
+    );
+    expect(page).toContain("buildAdminEmailV4View");
+    expect(page).toContain("loadError");
+    expect(page).toContain("id, name, audience, status, sent_at");
+    expect(page).toContain('from("campaigns")');
+    expect(page).toContain('from("campaign_sends")');
+    expect(page).toContain("campaign_id, status");
+    expect(page).not.toContain('select("*")');
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("score-numeral");
+    expect(page).not.toContain("Publish");
+    expect(page).not.toMatch(/>Score</);
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
+  });
+
+  it("waitlist room is empty-or-live from waitlist id/created_at/status/source", () => {
+    expect(ADMIN_V4_WAITLIST_CONSOLE_EMPTY).toBe(
+      "No live waitlist signups in this console.",
+    );
+    expect(ADMIN_V4_WAITLIST_COLUMNS).toEqual([
+      "id",
+      "created_at",
+      "status",
+      "source",
+    ]);
+    expect(ADMIN_V4_WAITLIST_COLUMNS).not.toContain("score");
+    expect(ADMIN_V4_WAITLIST_COLUMNS).not.toContain("email");
+
+    const empty = buildAdminWaitlistV4View({ rows: [], loadError: false });
+    expect(empty.kind).toBe("empty");
+    expect(empty.title).toBe(ADMIN_V4_WAITLIST_CONSOLE_EMPTY);
+    expect(empty.rows).toEqual([]);
+    expect(empty.columns).toEqual([...ADMIN_V4_WAITLIST_COLUMNS]);
+    expect(empty.shown).toBe(0);
+    expect(empty.taggedCount).toBe(0);
+    expect(adminV4ForbidsHeroScore(empty)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(empty)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(empty)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(empty)).toBe(true);
+
+    const errored = buildAdminWaitlistV4View({
+      rows: [
+        {
+          id: "should-not-render",
+          created_at: "2026-09-11T12:00:00.000Z",
+          status: "pending",
+          source: "landing",
+          interested_in: ["home"],
+        },
+      ],
+      loadError: true,
+    });
+    expect(errored.kind).toBe("empty");
+    expect(errored.title).toBe(ADMIN_V4_WAITLIST_CONSOLE_EMPTY);
+    expect(errored.rows).toEqual([]);
+    expect(errored.shown).toBe(0);
+
+    const view = buildAdminWaitlistV4View({
+      rows: [
+        {
+          id: "wl-1",
+          created_at: "2026-09-11T12:00:00.000Z",
+          status: "pending",
+          source: "landing",
+          interested_in: ["home", "car"],
+        },
+        {
+          id: "wl-2",
+          created_at: null,
+          status: "invited",
+          source: null,
+          interested_in: null,
+        },
+      ],
+      loadError: false,
+    });
+    expect(view.kind).toBe("normal");
+    expect(view.columns).toEqual(["id", "created_at", "status", "source"]);
+    expect(view.rows.map((row) => row.id)).toEqual(["wl-1", "wl-2"]);
+    expect(view.rows.map((row) => row.statusLabel)).toEqual([
+      "pending",
+      "invited",
+    ]);
+    expect(view.rows.map((row) => row.sourceLabel)).toEqual(["landing", "—"]);
+    expect(view.rows[0]?.interestsLabel).toBe("home, car");
+    expect(view.rows[1]?.interestsLabel).toBe("—");
+    expect(view.rows[1]?.createdLabel).toBe("—");
+    expect(view.shown).toBe(2);
+    expect(view.taggedCount).toBe(1);
+    expect(blob(view)).not.toContain("HeroScore");
+    expect(blob(view)).not.toContain("overall_score");
+    expect(blob(view)).not.toContain("score");
+    expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(blob(view)).not.toContain("Publish");
+    expect(blob(view)).not.toContain("@");
+    expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+
+    const page = readFileSync(
+      resolve(process.cwd(), "app/(product)/admin/waitlist/page.tsx"),
+      "utf8",
+    );
+    expect(page).toContain("buildAdminWaitlistV4View");
+    expect(page).toContain("loadError");
+    expect(page).toContain("id, created_at, status, source, interested_in");
+    expect(page).toContain('from("waitlist")');
+    expect(page).not.toContain('select("*")');
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("score-numeral");
+    expect(page).not.toContain("Publish");
+    expect(page).not.toMatch(/>Score</);
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
+  });
+
+  it("analytics room is empty-or-live from PostHog getAnalyticsBundle", () => {
+    expect(ADMIN_V4_ANALYTICS_CONSOLE_EMPTY).toBe(
+      "No live analytics in this console.",
+    );
+    expect(ADMIN_V4_ANALYTICS_COLUMNS).toEqual(["visits", "uniques", "views"]);
+    expect(ADMIN_V4_ANALYTICS_COLUMNS).not.toContain("score");
+
+    const empty = buildAdminAnalyticsV4View({ bundle: null, loadError: false });
+    expect(empty.kind).toBe("empty");
+    expect(empty.title).toBe(ADMIN_V4_ANALYTICS_CONSOLE_EMPTY);
+    expect(empty.rows).toEqual([]);
+    expect(empty.columns).toEqual([...ADMIN_V4_ANALYTICS_COLUMNS]);
+    expect(empty.visits).toBe(0);
+    expect(empty.uniques).toBe(0);
+    expect(empty.views).toBe(0);
+    expect(adminV4ForbidsHeroScore(empty)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(empty)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(empty)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(empty)).toBe(true);
+
+    const errored = buildAdminAnalyticsV4View({
+      bundle: {
+        overview: {
+          visits: 99,
+          uniques: 80,
+          views: 120,
+          avgSessionSeconds: 40,
+          bounceRatePct: 10,
+        },
+        daily: [{ day: "2026-09-11", views: 12, uniques: 8 }],
+        funnel: [{ event: "assessment_started", users: 4, occurrences: 4 }],
+        pathHabitFunnel: [],
+      },
+      loadError: true,
+    });
+    expect(errored.kind).toBe("empty");
+    expect(errored.title).toBe(ADMIN_V4_ANALYTICS_CONSOLE_EMPTY);
+    expect(errored.rows).toEqual([]);
+    expect(errored.visits).toBe(0);
+
+    const view = buildAdminAnalyticsV4View({
+      bundle: {
+        overview: {
+          visits: 12,
+          uniques: 8,
+          views: 40,
+          avgSessionSeconds: 90,
+          bounceRatePct: 25,
+        },
+        daily: [{ day: "2026-09-11", views: 4, uniques: 2 }],
+        funnel: [
+          { event: "assessment_started", users: 5, occurrences: 6 },
+          { event: "assessment_completed", users: 3, occurrences: 3 },
+        ],
+        pathHabitFunnel: [
+          { event: "path_generated", users: 2, occurrences: 2 },
+        ],
+      },
+      loadError: false,
+    });
+    expect(view.kind).toBe("normal");
+    expect(view.columns).toEqual(["visits", "uniques", "views"]);
+    expect(view.visits).toBe(12);
+    expect(view.uniques).toBe(8);
+    expect(view.views).toBe(40);
+    expect(view.daily).toEqual([{ day: "2026-09-11", views: 4, uniques: 2 }]);
+    expect(view.rows.map((row) => row.event)).toEqual([
+      "assessment_started",
+      "assessment_completed",
+      "path_generated",
+    ]);
+    expect(view.rows.map((row) => row.users)).toEqual([5, 3, 2]);
+    expect(view.rows.map((row) => row.occurrences)).toEqual([6, 3, 2]);
+    expect(blob(view)).not.toContain("HeroScore");
+    expect(blob(view)).not.toContain("overall_score");
+    expect(blob(view)).not.toContain("score");
+    expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(blob(view)).not.toContain("Publish");
+    expect(blob(view)).not.toContain("MRR");
+    expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+
+    const page = readFileSync(
+      resolve(process.cwd(), "app/(product)/admin/analytics/page.tsx"),
+      "utf8",
+    );
+    expect(page).toContain("buildAdminAnalyticsV4View");
+    expect(page).toContain("getAnalyticsBundle");
+    expect(page).toContain("loadError");
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("score-numeral");
+    expect(page).not.toContain("Publish");
+    expect(page).not.toMatch(/>Score</);
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
+  });
+
+  it("ad-spend room is empty-or-live from ad_spend, profiles, and payments", () => {
+    expect(ADMIN_V4_AD_SPEND_CONSOLE_EMPTY).toBe(
+      "No live ad spend in this console.",
+    );
+    expect(ADMIN_V4_AD_SPEND_COLUMNS).toEqual([
+      "id",
+      "spend_date",
+      "channel",
+      "campaign",
+      "spend_cents",
+      "impressions",
+      "clicks",
+    ]);
+    expect(ADMIN_V4_AD_SPEND_COLUMNS).not.toContain("score");
+
+    const empty = buildAdminAdSpendV4View({
+      rows: [],
+      profiles: [],
+      payments: [],
+      loadError: false,
+    });
+    expect(empty.kind).toBe("empty");
+    expect(empty.title).toBe(ADMIN_V4_AD_SPEND_CONSOLE_EMPTY);
+    expect(empty.rows).toEqual([]);
+    expect(empty.columns).toEqual([...ADMIN_V4_AD_SPEND_COLUMNS]);
+    expect(empty.shown).toBe(0);
+    expect(empty.spendCents).toBe(0);
+    expect(empty.paidCount).toBe(0);
+    expect(empty.paymentCount).toBe(0);
+    expect(adminV4ForbidsHeroScore(empty)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(empty)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(empty)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(empty)).toBe(true);
+
+    const errored = buildAdminAdSpendV4View({
+      rows: [
+        {
+          id: "should-not-render",
+          spend_date: "2026-09-11",
+          channel: "google",
+          campaign: "hidden",
+          spend_cents: 5000,
+          impressions: 100,
+          clicks: 10,
+        },
+      ],
+      profiles: [{ id: "p1", subscription_tier: "pro" }],
+      payments: [{ user_id: "p1", amount: 999, status: "succeeded" }],
+      loadError: true,
+    });
+    expect(errored.kind).toBe("empty");
+    expect(errored.title).toBe(ADMIN_V4_AD_SPEND_CONSOLE_EMPTY);
+    expect(errored.rows).toEqual([]);
+    expect(errored.shown).toBe(0);
+    expect(errored.spendCents).toBe(0);
+
+    const view = buildAdminAdSpendV4View({
+      rows: [
+        {
+          id: "sp-1",
+          spend_date: "2026-09-11",
+          channel: "google",
+          campaign: "search",
+          spend_cents: 2500,
+          impressions: 80,
+          clicks: 12,
+        },
+        {
+          id: "sp-2",
+          spend_date: "2026-09-10",
+          channel: "meta",
+          campaign: null,
+          spend_cents: 1500,
+          impressions: 40,
+          clicks: 4,
+        },
+      ],
+      profiles: [
+        { id: "p1", subscription_tier: "pro" },
+        { id: "p2", subscription_tier: "free" },
+        { id: "p3", subscription_tier: "plus" },
+      ],
+      payments: [
+        { user_id: "p1", amount: 999, status: "succeeded" },
+        { user_id: "p3", amount: 499, status: "failed" },
+      ],
+      loadError: false,
+    });
+    expect(view.kind).toBe("normal");
+    expect(view.columns).toEqual([
+      "id",
+      "spend_date",
+      "channel",
+      "campaign",
+      "spend_cents",
+      "impressions",
+      "clicks",
+    ]);
+    expect(view.rows.map((row) => row.id)).toEqual(["sp-1", "sp-2"]);
+    expect(view.rows.map((row) => row.channelLabel)).toEqual(["google", "meta"]);
+    expect(view.rows.map((row) => row.campaignLabel)).toEqual(["search", "—"]);
+    expect(view.rows.map((row) => row.spendCents)).toEqual([2500, 1500]);
+    expect(view.shown).toBe(2);
+    expect(view.spendCents).toBe(4000);
+    expect(view.paidCount).toBe(2);
+    expect(view.paymentCount).toBe(1);
+    expect(blob(view)).not.toContain("HeroScore");
+    expect(blob(view)).not.toContain("overall_score");
+    expect(blob(view)).not.toContain("score");
+    expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(blob(view)).not.toContain("Publish");
+    expect(blob(view)).not.toContain("MRR");
+    expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+
+    const page = readFileSync(
+      resolve(process.cwd(), "app/(product)/admin/ad-spend/page.tsx"),
+      "utf8",
+    );
+    expect(page).toContain("buildAdminAdSpendV4View");
+    expect(page).toContain("loadError");
+    expect(page).toContain(
+      "id, spend_date, channel, campaign, spend_cents, impressions, clicks",
+    );
+    expect(page).toContain('from("ad_spend")');
+    expect(page).toContain('from("profiles")');
+    expect(page).toContain('from("payments")');
+    expect(page).not.toContain('select("*")');
+    expect(page).not.toContain("formatUsdFromCents");
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("score-numeral");
+    expect(page).not.toContain("Publish");
+    expect(page).not.toMatch(/>Score</);
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
+  });
+
+  it("attribution room is empty-or-live from profiles.attribution and assessments.attribution", () => {
+    expect(ADMIN_V4_ATTRIBUTION_CONSOLE_EMPTY).toBe(
+      "No live attribution in this console.",
+    );
+    expect(ADMIN_V4_ATTRIBUTION_COLUMNS).toEqual([
+      "channel",
+      "signups",
+      "paid",
+      "attributed",
+    ]);
+    expect(ADMIN_V4_ATTRIBUTION_COLUMNS).not.toContain("score");
+
+    const empty = buildAdminAttributionV4View({
+      profiles: [],
+      assessments: [],
+      loadError: false,
+    });
+    expect(empty.kind).toBe("empty");
+    expect(empty.title).toBe(ADMIN_V4_ATTRIBUTION_CONSOLE_EMPTY);
+    expect(empty.rows).toEqual([]);
+    expect(empty.columns).toEqual([...ADMIN_V4_ATTRIBUTION_COLUMNS]);
+    expect(empty.shown).toBe(0);
+    expect(empty.attributedCount).toBe(0);
+    expect(empty.assessmentCount).toBe(0);
+    expect(adminV4ForbidsHeroScore(empty)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(empty)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(empty)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(empty)).toBe(true);
+
+    const errored = buildAdminAttributionV4View({
+      profiles: [
+        { attribution: { utm_source: "google" }, subscription_tier: "pro" },
+      ],
+      assessments: [{ attribution: { utm_source: "google" } }],
+      loadError: true,
+    });
+    expect(errored.kind).toBe("empty");
+    expect(errored.title).toBe(ADMIN_V4_ATTRIBUTION_CONSOLE_EMPTY);
+    expect(errored.rows).toEqual([]);
+    expect(errored.shown).toBe(0);
+
+    const view = buildAdminAttributionV4View({
+      profiles: [
+        { attribution: { utm_source: "Google" }, subscription_tier: "pro" },
+        { attribution: { utm_source: "google" }, subscription_tier: "free" },
+        { attribution: { ref: "a-friend" }, subscription_tier: "plus" },
+        { attribution: null, subscription_tier: "free" },
+      ],
+      assessments: [
+        { attribution: { utm_source: "google" } },
+        { attribution: { landing: "/" } },
+        { attribution: { ref: "x" } },
+      ],
+      loadError: false,
+    });
+    expect(view.kind).toBe("normal");
+    expect(view.columns).toEqual(["channel", "signups", "paid", "attributed"]);
+    expect(view.rows.map((row) => row.channelLabel)).toEqual([
+      "google",
+      "direct",
+      "referral",
+    ]);
+    expect(view.rows.map((row) => row.signups)).toEqual([2, 1, 1]);
+    expect(view.rows.map((row) => row.paidCount)).toEqual([1, 0, 1]);
+    expect(view.rows.map((row) => row.attributed)).toEqual([true, false, true]);
+    expect(view.shown).toBe(4);
+    expect(view.attributedCount).toBe(3);
+    expect(view.assessmentCount).toBe(2);
+    expect(blob(view)).not.toContain("HeroScore");
+    expect(blob(view)).not.toContain("overall_score");
+    expect(blob(view)).not.toContain("score");
+    expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(blob(view)).not.toContain("Publish");
+    expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+
+    const page = readFileSync(
+      resolve(process.cwd(), "app/(product)/admin/attribution/page.tsx"),
+      "utf8",
+    );
+    expect(page).toContain("buildAdminAttributionV4View");
+    expect(page).toContain("loadError");
+    expect(page).toContain("attribution, subscription_tier");
+    expect(page).toContain('from("profiles")');
+    expect(page).toContain('from("assessments")');
+    expect(page).toContain('select("attribution")');
+    expect(page).not.toContain('select("*")');
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("score-numeral");
+    expect(page).not.toContain("Publish");
+    expect(page).not.toMatch(/>Score</);
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
+  });
+
+  it("activity room is empty-or-live from audit_log id/created_at/action_type/resource_type", () => {
+    expect(ADMIN_V4_ACTIVITY_CONSOLE_EMPTY).toBe(
+      "No live activity in this console.",
+    );
+    expect(ADMIN_V4_ACTIVITY_COLUMNS).toEqual([
+      "id",
+      "created_at",
+      "action_type",
+      "resource_type",
+    ]);
+    expect(ADMIN_V4_ACTIVITY_COLUMNS).not.toContain("score");
+
+    const empty = buildAdminActivityV4View({ rows: [], loadError: false });
+    expect(empty.kind).toBe("empty");
+    expect(empty.title).toBe(ADMIN_V4_ACTIVITY_CONSOLE_EMPTY);
+    expect(empty.rows).toEqual([]);
+    expect(empty.columns).toEqual([...ADMIN_V4_ACTIVITY_COLUMNS]);
+    expect(empty.shown).toBe(0);
+    expect(empty.actionCount).toBe(0);
+    expect(adminV4ForbidsHeroScore(empty)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(empty)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(empty)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(empty)).toBe(true);
+
+    const errored = buildAdminActivityV4View({
+      rows: [
+        {
+          id: "should-not-render",
+          created_at: "2026-09-11T12:00:00.000Z",
+          action_type: "login",
+          resource_type: "session",
+        },
+      ],
+      loadError: true,
+    });
+    expect(errored.kind).toBe("empty");
+    expect(errored.title).toBe(ADMIN_V4_ACTIVITY_CONSOLE_EMPTY);
+    expect(errored.rows).toEqual([]);
+    expect(errored.shown).toBe(0);
+
+    const view = buildAdminActivityV4View({
+      rows: [
+        {
+          id: "act-1",
+          created_at: "2026-09-11T12:00:00.000Z",
+          action_type: "login",
+          resource_type: "session",
+        },
+        {
+          id: "act-2",
+          created_at: null,
+          action_type: "update",
+          resource_type: null,
+        },
+      ],
+      loadError: false,
+    });
+    expect(view.kind).toBe("normal");
+    expect(view.columns).toEqual([
+      "id",
+      "created_at",
+      "action_type",
+      "resource_type",
+    ]);
+    expect(view.rows.map((row) => row.id)).toEqual(["act-1", "act-2"]);
+    expect(view.rows.map((row) => row.actionLabel)).toEqual(["login", "update"]);
+    expect(view.rows.map((row) => row.resourceLabel)).toEqual(["session", "—"]);
+    expect(view.rows[1]?.createdLabel).toBe("—");
+    expect(view.shown).toBe(2);
+    expect(view.actionCount).toBe(2);
+    expect(blob(view)).not.toContain("HeroScore");
+    expect(blob(view)).not.toContain("overall_score");
+    expect(blob(view)).not.toContain("score");
+    expect(blob(view)).not.toMatch(/\$\d/);
+    expect(blob(view)).not.toMatch(/\bREADY\b/);
+    expect(blob(view)).not.toContain("Publish");
+    expect(adminV4ForbidsHeroScore(view)).toBe(true);
+    expect(adminV4ForbidsInventedDollars(view)).toBe(true);
+    expect(adminV4ForbidsOnTrackCopy(view)).toBe(true);
+    expect(adminV4ForbidsReadyCopy(view)).toBe(true);
+
+    const page = readFileSync(
+      resolve(process.cwd(), "app/(product)/admin/activity/page.tsx"),
+      "utf8",
+    );
+    expect(page).toContain("buildAdminActivityV4View");
+    expect(page).toContain("loadError");
+    expect(page).toContain("id, created_at, action_type, resource_type");
+    expect(page).toContain('from("audit_log")');
+    expect(page).not.toContain('select("*")');
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("overall_score");
+    expect(page).not.toContain("score-numeral");
+    expect(page).not.toContain("Publish");
+    expect(page).not.toMatch(/>Score</);
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
   });
 });
