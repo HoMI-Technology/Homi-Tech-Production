@@ -26,6 +26,7 @@
 import { useEffect, useRef } from "react";
 import { reconcileBudgetLedger } from "@/lib/finance/ledger-sync";
 import { reconcileGoals } from "@/lib/finance/goal-sync";
+import { scrubPersistedDemoWorkspace } from "@/lib/planner/demo-ledger-scrub";
 import { syncPlannerWithLedger } from "@/lib/planner/ledger-bridge";
 
 export type LedgerSyncOutcome = "synced" | "skipped" | "failed";
@@ -42,6 +43,7 @@ export async function runLedgerServerSync(
 ): Promise<LedgerSyncOutcome> {
   if (typeof window === "undefined") return "skipped";
   try {
+    scrubPersistedDemoWorkspace();
     const next = await reconcileBudgetLedger(nowIso);
     if (!next) return "skipped";
     // Goals after transactions, and sequentially: both passes read and write
