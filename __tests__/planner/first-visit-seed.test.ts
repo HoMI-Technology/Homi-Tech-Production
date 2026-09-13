@@ -1,8 +1,7 @@
 // @vitest-environment jsdom
 /**
- * First-visit demo seed — PlannerPage seeds the demo workspace exactly
- * once per device (localStorage marker `homi-planner-visited-v1`) and
- * never reseeds after `Clear data`, because the clear keeps the marker.
+ * Production Budget is empty until live numbers (typed or Plaid).
+ * First visit must never call resetDemo / buildDemoSeed.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createElement } from "react";
@@ -113,12 +112,11 @@ afterEach(() => {
   cleanup();
 });
 
-describe("PlannerPage first-visit demo seed", () => {
-  it("marker absent + empty workspace seeds the demo and sets the marker", () => {
+describe("PlannerPage first visit stays empty", () => {
+  it("marker absent + empty workspace never seeds demo", () => {
     renderPage();
-    expect(resetDemo).toHaveBeenCalledOnce();
-    expect(setReadinessProfile).toHaveBeenCalledOnce();
-    expect(window.localStorage.getItem(VISITED_KEY)).not.toBeNull();
+    expect(resetDemo).not.toHaveBeenCalled();
+    expect(setReadinessProfile).not.toHaveBeenCalled();
   });
 
   it("marker present means no seeding, even with an empty workspace", () => {
@@ -136,21 +134,14 @@ describe("PlannerPage first-visit demo seed", () => {
     expect(window.localStorage.getItem(VISITED_KEY)).not.toBeNull();
   });
 
-  it("after clearWorkspace (marker kept) a cleared workspace stays empty", () => {
-    // First visit seeds the demo and stamps the marker.
+  it("after clearWorkspace a cleared workspace stays empty", () => {
     renderPage();
-    expect(resetDemo).toHaveBeenCalledOnce();
-
-    // The user clears the workspace; the marker survives by design.
+    expect(resetDemo).not.toHaveBeenCalled();
     clearWorkspace();
     resetDemo.mockReset();
-    setReadinessProfile.mockReset();
-
-    // Next mount — cleared workspace, marker present: never reseed.
     cleanup();
     renderPage();
     expect(resetDemo).not.toHaveBeenCalled();
     expect(setReadinessProfile).not.toHaveBeenCalled();
-    expect(window.localStorage.getItem(VISITED_KEY)).not.toBeNull();
   });
 });

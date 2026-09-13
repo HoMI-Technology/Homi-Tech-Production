@@ -298,6 +298,7 @@ export interface PlannerStore extends BudgetState {
 export const usePlannerStore = create<PlannerStore>()(
   persist(
     (set, get) => ({
+      demoWorkspace: false,
       transactions: [],
       savingsGoal: { ...DEFAULT_GOAL },
       accounts: [],
@@ -729,6 +730,7 @@ export const usePlannerStore = create<PlannerStore>()(
 
       clearWorkspace: () =>
         set({
+          demoWorkspace: false,
           transactions: [],
           savingsGoal: { ...DEFAULT_GOAL },
           accounts: [],
@@ -758,6 +760,7 @@ export const usePlannerStore = create<PlannerStore>()(
       version: PLANNER_SCHEMA_VERSION,
       storage: createJSONStorage(() => envelopeStorage),
       partialize: (s) => ({
+        demoWorkspace: s.demoWorkspace,
         transactions: s.transactions,
         savingsGoal: s.savingsGoal,
         accounts: s.accounts,
@@ -788,6 +791,7 @@ export const usePlannerStore = create<PlannerStore>()(
         return {
           ...current,
           ...p,
+          demoWorkspace: p.demoWorkspace === true,
           transactions: Array.isArray(p.transactions) ? p.transactions : current.transactions,
           accounts: Array.isArray(p.accounts) ? p.accounts : current.accounts,
           bills: Array.isArray(p.bills) ? p.bills : current.bills,

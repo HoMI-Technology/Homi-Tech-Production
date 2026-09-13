@@ -252,6 +252,8 @@ export interface ScoreImpactSnapshot {
 }
 
 export interface BudgetState {
+  /** True while the workspace is the first-visit / Reset demo sample. Not SoT. */
+  demoWorkspace: boolean;
   transactions: Transaction[];
   savingsGoal: SavingsGoal;
   accounts: BankAccount[];

@@ -343,6 +343,16 @@ function billStatusFor(dueDate: string, autopay: boolean, today: string): BillSt
   return autopay ? "scheduled" : "upcoming";
 }
 
+/** Demo checking id — also detects older persisted seeds without demoWorkspace. */
+export const DEMO_CHECKING_ACCOUNT_ID = "acct-demo-checking";
+
+export function plannerWorkspaceIsDemo(
+  state: Pick<BudgetState, "demoWorkspace" | "accounts">,
+): boolean {
+  if (state.demoWorkspace === true) return true;
+  return state.accounts.some((a) => a.id === DEMO_CHECKING_ACCOUNT_ID);
+}
+
 export function buildDemoSeed(now: Date = new Date()): BudgetState {
   const today = toISODate(now);
   const day = (offset: number) => addDaysISO(today, offset);
@@ -646,5 +656,6 @@ export function buildDemoSeed(now: Date = new Date()): BudgetState {
     },
     checkins: [],
     lastImpact: null,
+    demoWorkspace: true,
   };
 }

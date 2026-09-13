@@ -157,9 +157,8 @@ describe("EmptyState", () => {
   });
 });
 
-describe("PlannerPage Clear / Load sample", () => {
-  it("opens ConfirmDialog for Load sample instead of window.confirm", async () => {
-    const confirmSpy = vi.spyOn(window, "confirm");
+describe("PlannerPage Clear / no sample load", () => {
+  it("empty workspace has no Load sample control", async () => {
     const { PlannerPage } = await import("@/components/planner/PlannerPage");
     render(
       <PlannerPage
@@ -173,16 +172,8 @@ describe("PlannerPage Clear / Load sample", () => {
       />,
     );
 
-    const user = userEvent.setup();
-    await user.click(screen.getByRole("button", { name: /Load sample numbers/i }));
-    expect(confirmSpy).not.toHaveBeenCalled();
-    expect(screen.getByText("Load sample numbers?")).toBeTruthy();
-    expect(screen.getByText(/Education only/i)).toBeTruthy();
-
-    await user.click(screen.getByRole("button", { name: "Load sample" }));
-    expect(resetDemo).toHaveBeenCalledOnce();
-    expect(setReadinessProfile).toHaveBeenCalledOnce();
-    confirmSpy.mockRestore();
+    expect(screen.queryByRole("button", { name: /Load sample/i })).toBeNull();
+    expect(resetDemo).not.toHaveBeenCalled();
   });
 
   it("opens ConfirmDialog for Clear data when workspace has entries", async () => {
