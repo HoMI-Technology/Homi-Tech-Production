@@ -1058,6 +1058,11 @@ html {
   font-size: 0.8125rem;
   color: var(--color-dim);
 }
+.v4-money-source {
+  margin: 0.35rem 0 0;
+  font-size: 0.75rem;
+  color: var(--color-dim);
+}
 .v4-money-accounts {
   list-style: none;
   margin: 1.25rem 0 0;

@@ -33,6 +33,7 @@ describe("Money v4 workspace in Shell v4", () => {
     );
     expect(text).toContain("Accounts aren't connected yet.");
     expect(text).toContain("never invent balances");
+    expect(text).toMatch(/No live numbers yet/i);
     expect(container.querySelector("[data-money-v4-connect]")?.getAttribute("href")).toBe(
       "/connections",
     );

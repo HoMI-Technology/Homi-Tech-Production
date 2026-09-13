@@ -10,7 +10,6 @@ import {
   LineChart,
   ListOrdered,
   Target,
-  RotateCcw,
   Trash2,
 } from "lucide-react";
 import { Tabs, TabPanel } from "@/components/ui/Tabs";
@@ -89,13 +88,10 @@ function tabFromHash(): Exclude<PlannerTabKey, "plan"> {
 const PLANNER_VISITED_KEY = "homi-planner-visited-v1";
 
 /**
- * On the very first visit seed the demo workspace so the shell lands
- * with sample numbers. Later visits — including post-`Clear data` —
- * never reseed. The seeding path is the exact one the toolbar's
- * "Load sample numbers" confirm runs (`loadSampleNumbers`), called
- * as-is.
+ * Production Budget stays empty until live numbers (typed or Plaid).
+ * Stamp the visited marker so we never auto-seed sample dollars.
  */
-function useFirstVisitDemoSeed(loadSample: () => void) {
+function useFirstVisitStaysEmpty() {
   const hydrated = usePlannerStore((s) => s._hasHydrated);
   useEffect(() => {
     if (!hydrated || typeof window === "undefined") return;
@@ -103,17 +99,9 @@ function useFirstVisitDemoSeed(loadSample: () => void) {
       if (window.localStorage.getItem(PLANNER_VISITED_KEY) !== null) return;
       window.localStorage.setItem(PLANNER_VISITED_KEY, new Date().toISOString());
     } catch {
-      return;
+      /* private mode — empty is already the honest default */
     }
-    const s = usePlannerStore.getState();
-    if (
-      s.transactions.length === 0 &&
-      s.accounts.length === 0 &&
-      s.bills.length === 0
-    ) {
-      loadSample();
-    }
-  }, [hydrated, loadSample]);
+  }, [hydrated]);
 }
 
 export function PlannerPage({
@@ -137,9 +125,7 @@ export function PlannerPage({
   const router = useRouter();
   const [tab, setTab] = useState<Exclude<PlannerTabKey, "plan">>("overview");
   const [confirmClearOpen, setConfirmClearOpen] = useState(false);
-  const [confirmSampleOpen, setConfirmSampleOpen] = useState(false);
   const clearWorkspace = usePlannerStore((s) => s.clearWorkspace);
-  const resetDemo = usePlannerStore((s) => s.resetDemo);
   const transactions = usePlannerStore((s) => s.transactions);
   const accounts = usePlannerStore((s) => s.accounts);
   const bills = usePlannerStore((s) => s.bills);
@@ -237,44 +223,20 @@ export function PlannerPage({
   const hasData =
     transactions.length > 0 || accounts.length > 0 || bills.length > 0 || holdings.length > 0;
 
-  const loadSampleNumbers = useCallback(() => {
-    resetDemo();
-    // Demo parity (pinned by __tests__/planner/store-parity.test.ts and
-    // closed-loop.test.ts): buildDemoSeed already carries the
-    // screenshot-canonical readiness profile — credit 750, sliders 7/7/7,
-    // FOMO 4, 18-month horizon, $400k / $20k housing lens — which renders
-    // Decision Readiness Score 73 · ALMOST_THERE · pillars 74/66/80 through the scoring
-    // seam. Only unlock the live score here; never override score-moving
-    // fields, or the demo drifts off canon.
-    usePlannerStore.getState().setReadinessProfile({ profileComplete: true });
-  }, [resetDemo]);
+  useFirstVisitStaysEmpty();
 
-  // First mount on this device seeds the demo (marker-gated, see above).
-  useFirstVisitDemoSeed(loadSampleNumbers);
-
-  const toolbar = (
+  const toolbar = hasData ? (
     <div className="relative flex shrink-0 flex-wrap gap-2">
-      {hasData ? (
-        <button
-          type="button"
-          onClick={() => setConfirmClearOpen(true)}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/[0.1] bg-navy/40 px-3.5 py-2.5 text-sm font-medium text-dim transition-colors hover:border-white/20 hover:text-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
-        >
-          <Trash2 className="h-4 w-4" aria-hidden />
-          Clear data
-        </button>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setConfirmSampleOpen(true)}
-          className="inline-flex items-center gap-2 rounded-xl bg-cyan/15 px-4 py-2.5 text-sm font-semibold text-cyan transition-colors hover:bg-cyan/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
-        >
-          <RotateCcw className="h-4 w-4" aria-hidden />
-          Load sample numbers
-        </button>
-      )}
+      <button
+        type="button"
+        onClick={() => setConfirmClearOpen(true)}
+        className="inline-flex items-center gap-2 rounded-xl border border-white/[0.1] bg-navy/40 px-3.5 py-2.5 text-sm font-medium text-dim transition-colors hover:border-white/20 hover:text-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
+      >
+        <Trash2 className="h-4 w-4" aria-hidden />
+        Clear data
+      </button>
     </div>
-  );
+  ) : null;
 
   return (
     <div className="relative space-y-7">
@@ -361,15 +323,6 @@ export function PlannerPage({
         confirmLabel="Clear data"
         onConfirm={clearWorkspace}
         onClose={() => setConfirmClearOpen(false)}
-      />
-      <ConfirmDialog
-        open={confirmSampleOpen}
-        title="Load sample numbers?"
-        body="Education only — not your real money. Sample figures help you learn the workspace before you enter yours."
-        confirmLabel="Load sample"
-        tone="accent"
-        onConfirm={loadSampleNumbers}
-        onClose={() => setConfirmSampleOpen(false)}
       />
 
       {embedded ? (

@@ -8,8 +8,9 @@
  * Contract:
  * 1. On hydrate / re-sync: if ledger has active txs → planner.transactions
  *    is replaced by the ledger projection (ledger wins by id).
- * 2. If ledger is empty and planner has txs → seed ledger from planner, then
- *    re-import (one adoption pass).
+ * 2. If ledger is empty and planner has real (non-demo) txs → seed ledger
+ *    from planner, then re-import (one adoption pass). Demo workspace never
+ *    adopts — sample numbers must not become the cash-flow SoT.
  * 3. Dual-write on planner add/delete keeps ledger current.
  * 4. When ledger reports liquid (goal), inject a synthetic checking account so
  *    Track runway (cash / outflow) matches Stand runway intent.
@@ -29,6 +30,7 @@ import { dollarsToCents, centsToDollars } from "@/lib/finance/money";
 import type { FinanceTransaction, TransactionType } from "@/lib/finance/ledger";
 import { metricsFromLedger } from "@/lib/finance/metrics";
 import type { BankAccount, Transaction } from "@/lib/planner/types";
+import { plannerWorkspaceIsDemo } from "@/lib/planner/derived";
 import { usePlannerStore } from "@/lib/planner/store";
 
 const CATEGORY_TO_SLUG: Record<string, string> = {
@@ -192,8 +194,13 @@ export function syncPlannerWithLedger(): void {
 
   const ledgerActive = ledger ? activeLedgerTxs(ledger) : [];
 
-  // Adoption: planner has cash-flow history, ledger does not yet.
-  if (ledgerActive.length === 0 && state.transactions.length > 0) {
+  // Adoption: real planner cash-flow, empty ledger. Never copy demo seed
+  // into the ledger SoT — that launders sample numbers into "verified."
+  if (
+    ledgerActive.length === 0 &&
+    state.transactions.length > 0 &&
+    !plannerWorkspaceIsDemo(state)
+  ) {
     ledger = seedLedgerFromPlanner(state.transactions);
   }
 

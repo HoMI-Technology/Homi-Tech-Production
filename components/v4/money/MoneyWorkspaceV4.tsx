@@ -87,6 +87,9 @@ function PictureBody({ view }: { view: MoneyV4View }) {
           </p>
         )}
         <p className="v4-money-sub">{MONEY_V4_LIQUID_SUB}</p>
+        <p className="v4-money-source" data-money-v4-source={view.sourceKind}>
+          {view.sourceLabel}
+        </p>
         <ul className="v4-money-accounts" aria-label="Connected accounts">
           {view.accounts.map((account) => (
             <AccountRow key={account.id} account={account} />
@@ -109,6 +112,9 @@ function PictureBody({ view }: { view: MoneyV4View }) {
         <h1 className="v4-money-title">{view.emptyTitle}</h1>
       )}
       <p className="v4-money-body">{view.emptyBody}</p>
+      <p className="v4-money-source" data-money-v4-source={view.sourceKind}>
+        {view.sourceLabel}
+      </p>
       <ConnectCta view={view} />
     </section>
   );

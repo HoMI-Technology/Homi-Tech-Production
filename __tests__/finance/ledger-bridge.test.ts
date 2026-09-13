@@ -8,7 +8,12 @@ import {
   syncPlannerWithLedger,
   dualWriteAddTransaction,
 } from "@/lib/planner/ledger-bridge";
-import { emptyBudgetLedger, saveBudgetLedger, loadBudgetLedger } from "@/lib/finance/local-ledger";
+import {
+  emptyBudgetLedger,
+  saveBudgetLedger,
+  loadBudgetLedger,
+  hasSavedBudgetLedger,
+} from "@/lib/finance/local-ledger";
 import { usePlannerStore } from "@/lib/planner/store";
 import type { FinanceTransaction } from "@/lib/finance/ledger";
 
@@ -145,6 +150,75 @@ describe("ledger-bridge", () => {
     expect(txs.length).toBe(2);
     expect(txs.find((t) => t.type === "income")?.amount).toBe(5000);
     expect(txs.find((t) => t.type === "expense")?.amount).toBe(1200);
+  });
+
+  it("does not adopt a demo workspace into an empty ledger", () => {
+    usePlannerStore.setState({
+      demoWorkspace: true,
+      transactions: [
+        {
+          id: "tx-demo-01",
+          type: "expense",
+          amount: 42,
+          category: "food",
+          date: "2026-08-01",
+          source: "manual",
+        },
+      ],
+      accounts: [
+        {
+          id: "acct-demo-checking",
+          institution: "chase",
+          name: "Total Checking",
+          type: "checking",
+          mask: "4821",
+          balance: 4280.42,
+          available: 4120,
+          currency: "USD",
+          lastSyncedAt: null,
+          status: "linked",
+        },
+      ],
+    });
+
+    syncPlannerWithLedger();
+
+    expect(hasSavedBudgetLedger()).toBe(false);
+    expect(usePlannerStore.getState().transactions[0]?.id).toBe("tx-demo-01");
+  });
+
+  it("still treats persisted Chase demo accounts as demo without the flag", () => {
+    usePlannerStore.setState({
+      demoWorkspace: false,
+      transactions: [
+        {
+          id: "tx-demo-06",
+          type: "income",
+          amount: 6200,
+          category: "salary",
+          date: "2026-08-01",
+          source: "manual",
+        },
+      ],
+      accounts: [
+        {
+          id: "acct-demo-checking",
+          institution: "chase",
+          name: "Total Checking",
+          type: "checking",
+          mask: "4821",
+          balance: 4280.42,
+          available: 4120,
+          currency: "USD",
+          lastSyncedAt: null,
+          status: "linked",
+        },
+      ],
+    });
+
+    syncPlannerWithLedger();
+
+    expect(hasSavedBudgetLedger()).toBe(false);
   });
 
   it("seeds ledger from planner when ledger empty, then re-imports", () => {

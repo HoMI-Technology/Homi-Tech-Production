@@ -43,6 +43,8 @@ describe("Money v4 workspace law", () => {
     expect(JSON.stringify(view)).not.toMatch(/\$\d/);
     expect(JSON.stringify(view)).not.toContain("4280");
     expect(JSON.stringify(view)).not.toContain("Example Bank");
+    expect(view.sourceKind).toBe("empty");
+    expect(view.sourceLabel).toMatch(/no live numbers/i);
   });
 
   it("exposes shipped Money depth rooms including Budget on empty and live", () => {
@@ -87,6 +89,8 @@ describe("Money v4 workspace law", () => {
       ],
     });
     expect(live.rooms.map((room) => room.href)).toEqual(empty.rooms.map((room) => room.href));
+    expect(live.sourceKind).toBe("plaid");
+    expect(live.sourceLabel).toMatch(/connected accounts/i);
   });
 
   it("hard-stop ACTIVE is a hold, empty-or-live, never On track or READY as a badge", () => {

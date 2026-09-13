@@ -44,6 +44,9 @@ export const MONEY_V4_CRAFT_DISCLAIMER =
 export const MONEY_V4_CRAFT_EYEBROW =
   "Example craft figures — live Plaid SSOT wins at Pixel" as const;
 export const MONEY_V4_AGE_UNKNOWN = "Age unknown" as const;
+export const MONEY_V4_SOURCE_EMPTY =
+  "No live numbers yet — connect a bank or enter amounts on Budget." as const;
+export const MONEY_V4_SOURCE_PLAID = "From connected accounts." as const;
 export const MONEY_V4_SYNCING_TITLE = "Accounts are syncing." as const;
 export const MONEY_V4_SYNCING_BODY =
   "Balances appear when the live sync finishes. We never invent them." as const;
@@ -110,6 +113,8 @@ export type MoneyV4View = {
   liquidCents: MoneyCents | null;
   accounts: MoneyV4Account[];
   rooms: readonly MoneyV4Room[];
+  sourceKind: "empty" | "plaid";
+  sourceLabel: string;
   honestyLine: string | null;
   isCraftFixture: boolean;
   prompts: readonly MoneyV4HomiPrompt[];
@@ -335,6 +340,8 @@ function emptyView(decisionContext: string | null, hardStopActive: boolean): Mon
     liquidCents: null,
     accounts: [],
     rooms: MONEY_V4_ROOMS,
+    sourceKind: "empty",
+    sourceLabel: MONEY_V4_SOURCE_EMPTY,
     honestyLine: null,
     isCraftFixture: false,
     prompts: MONEY_V4_HOMI_PROMPTS,
@@ -417,6 +424,8 @@ export function buildMoneyV4View(reading: MoneyV4Reading | null): MoneyV4View {
     liquidCents: hasLiveRows ? liquidCents : null,
     accounts: hasLiveRows ? mapped : [],
     rooms: MONEY_V4_ROOMS,
+    sourceKind: hasLiveRows ? "plaid" : "empty",
+    sourceLabel: hasLiveRows ? MONEY_V4_SOURCE_PLAID : MONEY_V4_SOURCE_EMPTY,
     honestyLine,
     isCraftFixture: reading.isCraftFixture === true,
     prompts: MONEY_V4_HOMI_PROMPTS,
