@@ -48,9 +48,15 @@ describe("Shell v4 nav law", () => {
     ]);
   });
 
-  it("sets secondary Bills · Tools · Learn and system Accounts · Settings", () => {
-    expect(V4_SECONDARY_NAV.map((item) => item.label)).toEqual(["Bills", "Tools", "Learn"]);
+  it("sets secondary Budget · Bills · Tools · Learn and system Accounts · Settings", () => {
+    expect(V4_SECONDARY_NAV.map((item) => item.label)).toEqual([
+      "Budget",
+      "Bills",
+      "Tools",
+      "Learn",
+    ]);
     expect(V4_SECONDARY_NAV.map((item) => item.href)).toEqual([
+      "/money/budget",
       "/money/bills",
       "/tools",
       "/learn",
@@ -64,6 +70,7 @@ describe("Shell v4 nav law", () => {
     expect(V4_MORE_NAV.map((item) => item.label)).toEqual([
       "Compare",
       "Ask HōMI",
+      "Budget",
       "Bills",
       "Tools",
       "Learn",
@@ -94,6 +101,7 @@ describe("Shell v4 nav law", () => {
     expect(isV4PathWorkspace("/path")).toBe(true);
     expect(isV4MoneyWorkspace("/money")).toBe(true);
     expect(isV4MoneyWorkspace("/money/bills")).toBe(false);
+    expect(isV4MoneyWorkspace("/money/budget")).toBe(false);
     expect(isV4BillsWorkspace("/money/bills")).toBe(true);
     expect(isV4SystemSurfacePath("/money/bills")).toBe(true);
     expect(isV4SystemSurfacePath("/tools")).toBe(true);
@@ -155,6 +163,8 @@ describe("Shell v4 nav law", () => {
     expect(isV4NavActive("/money/accounts", "/money")).toBe(true);
     expect(isV4NavActive("/money/bills", "/money")).toBe(false);
     expect(isV4NavActive("/money/bills", "/money/bills")).toBe(true);
+    expect(isV4NavActive("/money/budget", "/money")).toBe(false);
+    expect(isV4NavActive("/money/budget", "/money/budget")).toBe(true);
   });
 
   it("keeps Ultra Premium geometry bands", () => {

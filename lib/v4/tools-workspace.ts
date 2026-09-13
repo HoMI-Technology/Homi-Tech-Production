@@ -104,8 +104,8 @@ export function buildToolsV4View(
 ): ToolsV4View {
   const hold = systemV4Hold(reading);
   const hardStopActive = hold.hardStopActive;
-  const catalogOpen = options?.catalogOpen === true;
   const lenses = mapHubLenses();
+  const catalogOpen = options?.catalogOpen ?? (!hardStopActive && lenses.length > 0);
   const kind: ToolsV4Kind = hardStopActive ? "hard-stop" : catalogOpen ? "catalog" : "empty";
   return {
     kind,

@@ -49,7 +49,9 @@ import {
   SYSTEM_V4_FIXTURE_SYNCED_12M,
 } from "@/lib/v4/system-surfaces";
 import {
+  TOOLS_V4_CATALOG_TITLE,
   TOOLS_V4_EMPTY_TITLE,
+  buildToolsV4View,
   toolsV4ForbidsInventedDollars,
   toolsV4ForbidsOnTrackCopy,
   toolsV4ForbidsSecondScore,
@@ -129,6 +131,17 @@ describe("System surfaces v4 law", () => {
     expect(toolsV4ForbidsOnTrackCopy(hold)).toBe(true);
     expect(hold.cta?.href).toBe("/path");
     expect(blob(hold)).toMatch(/never On track/i);
+  });
+
+  it("live Tools hub opens the ten-lens catalog instead of an empty fold", () => {
+    const view = buildToolsV4View(null);
+    expect(view.kind).toBe("catalog");
+    expect(view.title).toBe(TOOLS_V4_CATALOG_TITLE);
+    expect(view.lenses).toHaveLength(10);
+    expect(view.lenses.map((lens) => lens.href)).toEqual(hubLenses().map((lens) => lens.path));
+    expect(view.lenses.some((lens) => lens.href === "/tools/blind-budget")).toBe(true);
+    expect(view.lenses.some((lens) => lens.href === "/tools/debt-payoff")).toBe(true);
+    expect(toolsV4VisualView("empty").kind).toBe("empty");
   });
 
   it("Learn empty or live catalog uses real /guides slugs, never invented SKUs", () => {

@@ -155,6 +155,25 @@ export function MoneyWorkspaceV4({ view }: { view: MoneyV4View }) {
             </section>
           ) : null}
           <PictureBody view={view} />
+          {view.rooms.length > 0 ? (
+            <ul className="v4-system-rows" aria-label="Money tools" data-money-v4-rooms="">
+              {view.rooms.map((room) => (
+                <li key={room.href} className="v4-system-row">
+                  <Link
+                    href={room.href}
+                    className="v4-system-row-link"
+                    data-money-v4-room={room.label.toLowerCase()}
+                  >
+                    <span className="v4-system-row-copy">
+                      <span className="v4-system-row-title">{room.label}</span>
+                      <span className="v4-system-row-follow">{room.follow}</span>
+                    </span>
+                    <span className="v4-system-row-live">Open</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
         <HomiIntelligenceV4
           surface="money"
