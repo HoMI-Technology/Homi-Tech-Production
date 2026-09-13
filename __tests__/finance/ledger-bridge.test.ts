@@ -184,7 +184,7 @@ describe("ledger-bridge", () => {
     syncPlannerWithLedger();
 
     expect(hasSavedBudgetLedger()).toBe(false);
-    expect(usePlannerStore.getState().transactions[0]?.id).toBe("tx-demo-01");
+    expect(usePlannerStore.getState().transactions).toEqual([]);
   });
 
   it("still treats persisted Chase demo accounts as demo without the flag", () => {

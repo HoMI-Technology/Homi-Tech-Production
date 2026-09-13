@@ -31,6 +31,7 @@ import type { FinanceTransaction, TransactionType } from "@/lib/finance/ledger";
 import { metricsFromLedger } from "@/lib/finance/metrics";
 import type { BankAccount, Transaction } from "@/lib/planner/types";
 import { plannerWorkspaceIsDemo } from "@/lib/planner/derived";
+import { scrubPersistedDemoWorkspace } from "@/lib/planner/demo-ledger-scrub";
 import { usePlannerStore } from "@/lib/planner/store";
 
 const CATEGORY_TO_SLUG: Record<string, string> = {
@@ -183,6 +184,7 @@ function liquidAccountFromLedger(ledger: BudgetLedgerState): BankAccount | null 
  */
 export function syncPlannerWithLedger(): void {
   if (typeof window === "undefined") return;
+  scrubPersistedDemoWorkspace();
 
   const state = usePlannerStore.getState();
   const now = todayDateOnly();
