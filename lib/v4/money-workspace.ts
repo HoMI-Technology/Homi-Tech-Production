@@ -79,6 +79,21 @@ export type MoneyV4Account = {
   currency: string;
 };
 
+export type MoneyV4Room = {
+  href: string;
+  label: string;
+  follow: string;
+};
+
+/** Shipped Money prefix rooms. Never invent balances here. */
+export const MONEY_V4_ROOMS: readonly MoneyV4Room[] = [
+  { href: "/money/budget", label: "Budget", follow: "Ledger depth — assign what you already have." },
+  { href: "/money/plan", label: "Plan", follow: "Plan command on the same ledger." },
+  { href: "/money/decide", label: "Decide", follow: "One math question. Educational only." },
+  { href: "/money/bills", label: "Bills", follow: "Due dates from last-read. Never invent amounts." },
+  { href: "/money/goals", label: "Goals", follow: "Goals on the same ledger." },
+] as const;
+
 export type MoneyV4View = {
   kind: MoneyV4Kind;
   hasLiveRows: boolean;
@@ -94,6 +109,7 @@ export type MoneyV4View = {
   ageLabel: string;
   liquidCents: MoneyCents | null;
   accounts: MoneyV4Account[];
+  rooms: readonly MoneyV4Room[];
   honestyLine: string | null;
   isCraftFixture: boolean;
   prompts: readonly MoneyV4HomiPrompt[];
@@ -318,6 +334,7 @@ function emptyView(decisionContext: string | null, hardStopActive: boolean): Mon
     ageLabel: MONEY_V4_AGE_UNKNOWN,
     liquidCents: null,
     accounts: [],
+    rooms: MONEY_V4_ROOMS,
     honestyLine: null,
     isCraftFixture: false,
     prompts: MONEY_V4_HOMI_PROMPTS,
@@ -399,6 +416,7 @@ export function buildMoneyV4View(reading: MoneyV4Reading | null): MoneyV4View {
     ageLabel,
     liquidCents: hasLiveRows ? liquidCents : null,
     accounts: hasLiveRows ? mapped : [],
+    rooms: MONEY_V4_ROOMS,
     honestyLine,
     isCraftFixture: reading.isCraftFixture === true,
     prompts: MONEY_V4_HOMI_PROMPTS,

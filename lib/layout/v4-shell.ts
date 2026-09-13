@@ -2,7 +2,7 @@
  * Shell v4 navigation — Product law + SHELL_CRAFT v4 / Ultra Premium reconcile.
  *
  * Primary rail (locked): Home · Money · Path · Compare
- * Secondary: Bills · Tools · Learn
+ * Secondary: Budget · Bills · Tools · Learn
  * System: Accounts · Settings
  * Mobile bottom: Home · Money · Path · More. Compare lives under More.
  * Assess = top command only. No Support peer (no proven Support route).
@@ -40,6 +40,7 @@ export const V4_PRIMARY_NAV: readonly V4NavItem[] = [
 ] as const;
 
 export const V4_SECONDARY_NAV: readonly V4NavItem[] = [
+  { href: "/money/budget", label: "Budget" },
   { href: "/money/bills", label: "Bills" },
   { href: "/tools", label: "Tools" },
   { href: "/learn", label: "Learn" },
@@ -73,6 +74,7 @@ export const V4_COMMAND_ITEMS: readonly V4NavItem[] = [
 
 export const V4_KILLED_NAV_LABELS = ["Homie", "On track", "READY", "Support"] as const;
 
+export const V4_SHELL_BUDGET_HREF = "/money/budget" as const;
 export const V4_SHELL_BILLS_HREF = "/money/bills" as const;
 export const V4_SHELL_TOOLS_HREF = "/tools" as const;
 export const V4_SHELL_LEARN_HREF = "/learn" as const;
@@ -156,9 +158,28 @@ export function isV4AskPath(pathname: string): boolean {
   return p === V4_SHELL_ASK_HREF || p.startsWith(`${V4_SHELL_ASK_HREF}/`);
 }
 
+const MONEY_DEPTH_HREFS = [
+  "/money/bills",
+  "/money/budget",
+  "/money/plan",
+  "/money/decide",
+  "/money/goals",
+  "/money/investments",
+] as const;
+
+function isMoneyDepthPath(pathname: string): boolean {
+  const p = pathname || "/";
+  return MONEY_DEPTH_HREFS.some((href) => p === href || p.startsWith(`${href}/`));
+}
+
 export function isV4BillsWorkspace(pathname: string): boolean {
   const p = pathname || "/";
   return p === V4_SHELL_BILLS_HREF || p.startsWith(`${V4_SHELL_BILLS_HREF}/`);
+}
+
+export function isV4BudgetWorkspace(pathname: string): boolean {
+  const p = pathname || "/";
+  return p === V4_SHELL_BUDGET_HREF || p.startsWith(`${V4_SHELL_BUDGET_HREF}/`);
 }
 
 export function isV4ToolsHub(pathname: string): boolean {
@@ -227,7 +248,7 @@ export function isV4NavActive(pathname: string, href: string): boolean {
     return p === "/home" || p.startsWith("/home/") || isV4AskPath(p);
   }
   if (hrefPath === "/money") {
-    if (p === "/money/bills" || p.startsWith("/money/bills/")) return false;
+    if (isMoneyDepthPath(p)) return false;
     return p === "/money" || p.startsWith("/money/");
   }
   if (hrefPath === V4_SHELL_EMPLOYEE_HREF) {
@@ -261,7 +282,7 @@ export function isV4PathWorkspace(pathname: string): boolean {
 
 export function isV4MoneyWorkspace(pathname: string): boolean {
   const p = pathname || "/";
-  if (p === "/money/bills" || p.startsWith("/money/bills/")) return false;
+  if (isMoneyDepthPath(p)) return false;
   return p === V4_SHELL_MONEY_HREF || p.startsWith(`${V4_SHELL_MONEY_HREF}/`);
 }
 

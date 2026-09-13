@@ -9,6 +9,7 @@ import {
   MONEY_V4_HARD_STOP_EMPTY_BODY,
   MONEY_V4_HOLD_CLOSE,
   MONEY_V4_HOMI_PROMPTS,
+  MONEY_V4_ROOMS,
   V4_ASK_PLACEHOLDER_MONEY,
   V4_MONEY_CONNECT_HREF,
   buildMoneyV4View,
@@ -42,6 +43,50 @@ describe("Money v4 workspace law", () => {
     expect(JSON.stringify(view)).not.toMatch(/\$\d/);
     expect(JSON.stringify(view)).not.toContain("4280");
     expect(JSON.stringify(view)).not.toContain("Example Bank");
+  });
+
+  it("exposes shipped Money depth rooms including Budget on empty and live", () => {
+    const empty = buildMoneyV4View({
+      decisionType: "home_buying",
+      verdict: null,
+      stopCode: null,
+      items: [],
+      accounts: [],
+    });
+    expect(empty.rooms.map((room) => room.href)).toEqual(MONEY_V4_ROOMS.map((room) => room.href));
+    expect(empty.rooms.map((room) => room.href)).toEqual([
+      "/money/budget",
+      "/money/plan",
+      "/money/decide",
+      "/money/bills",
+      "/money/goals",
+    ]);
+    expect(JSON.stringify(empty.rooms)).not.toMatch(/\$\d/);
+    const live = buildMoneyV4View({
+      decisionType: "home_buying",
+      verdict: "ALMOST_THERE",
+      stopCode: null,
+      items: [
+        {
+          id: "item-1",
+          institution_name: "Live Credit Union",
+          status: "healthy",
+          last_successful_sync: "2026-09-10T11:00:00.000Z",
+        },
+      ],
+      accounts: [
+        {
+          id: "a",
+          item_id: "item-1",
+          name: "Checking",
+          type: "depository",
+          available_balance: 200,
+          current_balance: 180,
+          iso_currency: "USD",
+        },
+      ],
+    });
+    expect(live.rooms.map((room) => room.href)).toEqual(empty.rooms.map((room) => room.href));
   });
 
   it("hard-stop ACTIVE is a hold, empty-or-live, never On track or READY as a badge", () => {

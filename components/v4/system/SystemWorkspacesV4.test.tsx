@@ -156,12 +156,13 @@ describe("System surfaces v4 in Shell v4", () => {
     expect(ask?.placeholder).toBe("Ask HōMI about these settings...");
   });
 
-  it("More sheet still lists Bills, Tools, Learn, Accounts, Settings", () => {
+  it("More sheet still lists Budget, Bills, Tools, Learn, Accounts, Settings", () => {
     nav.pathname = "/money/bills";
     const { container } = render(shell(<BillsWorkspaceV4 view={billsV4VisualView("empty")} />));
     expect(V4_MORE_NAV.map((item) => item.label)).toEqual([
       "Compare",
       "Ask HōMI",
+      "Budget",
       "Bills",
       "Tools",
       "Learn",
@@ -170,6 +171,7 @@ describe("System surfaces v4 in Shell v4", () => {
     ]);
     fireEvent.click(container.querySelector("[data-v4-mobile-tab='more']") as HTMLButtonElement);
     const more = container.querySelector("[data-v4-more-list]")?.textContent ?? "";
+    expect(more).toContain("Budget");
     expect(more).toContain("Bills");
     expect(more).toContain("Tools");
     expect(more).toContain("Learn");
