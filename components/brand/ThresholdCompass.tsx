@@ -1,5 +1,9 @@
 import { COLORS } from "@/lib/brand";
 
+/** CANON compass alt — keep this string on every Threshold Compass `role="img"`. */
+export const COMPASS_ARIA_LABEL =
+  "HōMI Threshold Compass showing Financial Reality, Emotional Truth, and Perfect Timing around the user at the decision threshold.";
+
 const VERDICT_COLORS: Record<string, string> = {
   READY: COLORS.emerald,
   ALMOST_THERE: COLORS.yellow,
@@ -31,7 +35,7 @@ export function ThresholdCompass({
       height={size}
       className={`${glow ? "compass-glow" : ""} ${className}`}
       role="img"
-      aria-label="HōMI Threshold Compass showing Financial Reality, Emotional Truth, and Perfect Timing around the user at the decision threshold."
+      aria-label={COMPASS_ARIA_LABEL}
     >
       {glow ? (
         <defs>

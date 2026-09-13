@@ -45,7 +45,7 @@ export function ReadinessHeroV4({ view }: { view: HomeV4View }) {
   const holdClose = view.holdSentence ? foldHoldClose(view.holdSentence) : null;
   const humanLine = view.hardStopActive
     ? holdLead ?? "Hold this decision."
-    : "One read. One next move.";
+    : view.diagnosticSentence ?? "One read. One next move.";
   const primaryHref = view.pathPrimary ? V4_SHELL_PATH_HREF : V4_SHELL_ASSESS_HREF;
   const primaryLabel = primaryCtaLabel(view);
   const verdictColor = verdictTone(view.verdictKey, view.hardStopActive);
