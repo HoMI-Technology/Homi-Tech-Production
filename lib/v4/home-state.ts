@@ -75,6 +75,8 @@ export type HomeV4View = {
   moneyLine: string;
   connectHref: string;
   connectLabel: string;
+  /** One sentence from this read's months/ratios — never canned brand copy, never $. */
+  diagnosticSentence: string | null;
 };
 
 export type HomeV4Reading = {
@@ -113,6 +115,45 @@ function decisionContextLabel(raw: string | undefined): string | null {
     return DECISION_TYPE_LABELS[raw as DecisionType];
   }
   return raw;
+}
+
+function formatMonths(months: number): string {
+  const rounded = Math.round(months * 10) / 10;
+  return Number.isInteger(rounded) ? `${rounded}` : rounded.toFixed(1);
+}
+
+/**
+ * One diagnostic from last-read money / weakest pillar.
+ * Hard stops keep the hold sentence. Empty Home has none.
+ * Never interpolates dollar amounts.
+ */
+export function verdictDiagnostic(args: {
+  hardStopActive: boolean;
+  holdSentence: string | null;
+  lastMoney?: LastReadMoneyInputs | null;
+  financialScore?: number | null;
+  emotionalScore?: number | null;
+  timingScore?: number | null;
+}): string | null {
+  if (args.hardStopActive) return args.holdSentence;
+  const months = args.lastMoney?.emergencyFundMonths;
+  if (typeof months === "number" && Number.isFinite(months) && months < 6) {
+    return `Your last read shows about ${formatMonths(months)} months of runway — six is the protective floor.`;
+  }
+  const dti = args.lastMoney?.debtToIncomeRatio;
+  if (typeof dti === "number" && Number.isFinite(dti) && dti > 0.36) {
+    return "Debt-to-income on this read sits above the 36 percent caution band.";
+  }
+  const pillars: { name: string; score: number }[] = [
+    { name: "Financial Reality", score: args.financialScore ?? Number.POSITIVE_INFINITY },
+    { name: "Emotional Truth", score: args.emotionalScore ?? Number.POSITIVE_INFINITY },
+    { name: "Perfect Timing", score: args.timingScore ?? Number.POSITIVE_INFINITY },
+  ];
+  const weakest = pillars.reduce((a, b) => (a.score <= b.score ? a : b));
+  if (Number.isFinite(weakest.score)) {
+    return `${weakest.name} is the gap on this read. Path names the next move.`;
+  }
+  return null;
 }
 
 function pillarsFromReading(reading: HomeV4Reading, hardStopActive: boolean): HomeV4Pillar[] {
@@ -155,6 +196,7 @@ export function buildHomeV4View(reading: HomeV4Reading | null): HomeV4View {
       moneyLine: MONEY_WAIT_LINE,
       connectHref: FOLD_CONNECTIONS_HREF,
       connectLabel: FOLD_CONNECT_ACCOUNTS_LABEL,
+      diagnosticSentence: null,
     };
   }
 
@@ -180,6 +222,16 @@ export function buildHomeV4View(reading: HomeV4Reading | null): HomeV4View {
     holdSentence: hardStopActive
       ? foldHomeHoldSentence(reading.stopCode, reading.decisionType)
       : null,
+    diagnosticSentence: verdictDiagnostic({
+      hardStopActive,
+      holdSentence: hardStopActive
+        ? foldHomeHoldSentence(reading.stopCode, reading.decisionType)
+        : null,
+      lastMoney: reading.lastMoney,
+      financialScore: reading.financialScore,
+      emotionalScore: reading.emotionalScore,
+      timingScore: reading.timingScore,
+    }),
     runwayLabel: foldRunwayLabel(reading.lastMoney?.emergencyFundMonths),
     pathPrimary,
     pillars: pillarsFromReading(reading, hardStopActive),

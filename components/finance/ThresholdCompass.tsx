@@ -4,6 +4,7 @@ import { memo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { PulseDot } from "@/components/ui/PulseDot";
+import { COMPASS_ARIA_LABEL } from "@/components/brand/ThresholdCompass";
 import { COLORS, VERDICT_META } from "@/lib/brand";
 import { withAlpha } from "@/lib/brand";
 import type { AssessmentResult } from "@/lib/scoring/public";
@@ -176,7 +177,7 @@ export function ThresholdCompass({ result }: { result: AssessmentResult }) {
         viewBox="0 0 200 200"
         className="compass-glow mt-2 w-full max-w-[300px]"
         role="img"
-        aria-label="HōMI Threshold Compass showing Financial Reality, Emotional Truth, and Perfect Timing around the user at the decision threshold."
+        aria-label={COMPASS_ARIA_LABEL}
       >
         <defs>
           <radialGradient id="keyhole-halo">

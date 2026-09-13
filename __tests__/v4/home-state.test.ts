@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { KEY_AREA_STATUS } from "@/lib/dashboard/key-areas";
 import { PILLARS } from "@/lib/brand";
+import { COMPASS_ARIA_LABEL } from "@/components/brand/ThresholdCompass";
 import {
   HOME_V4_HOMI_PROMPTS,
   HOME_V4_PATH_CTA,
@@ -39,12 +40,38 @@ describe("Home v4 State A + Finance GATE", () => {
     expect(view.whatChanged).toBeTruthy();
   });
 
+  it("locks CANON compass aria-label on the brand Threshold Compass", () => {
+    expect(COMPASS_ARIA_LABEL).toBe(
+      "HōMI Threshold Compass showing Financial Reality, Emotional Truth, and Perfect Timing around the user at the decision threshold.",
+    );
+  });
+
   it("keeps HōMI prompts educational — no Homie cast, no second score", () => {
     const blob = JSON.stringify(HOME_V4_HOMI_PROMPTS).toLowerCase();
     expect(blob).not.toContain("homie");
     expect(blob).not.toMatch(/\bon track\b/);
     expect(HOME_V4_HOMI_PROMPTS.some((prompt) => /second score/i.test(prompt.label))).toBe(true);
     expect(assertAssessmentResultOnly("assessment_result")).toBe("assessment_result");
+  });
+
+  it("pairs a live verdict with a diagnostic from last-read months, never canned brand copy or $", () => {
+    const view = buildHomeV4View(homeV4VisualReading("normal"));
+    expect(view.diagnosticSentence).toMatch(/2\.1 months/i);
+    expect(view.diagnosticSentence).toMatch(/six is the protective floor/i);
+    expect(view.diagnosticSentence).not.toMatch(/\$\d/);
+    expect(view.diagnosticSentence).not.toMatch(/All three rings align/);
+    expect(view.diagnosticSentence).not.toMatch(/Build First is not failure/);
+  });
+
+  it("uses the hold sentence as the diagnostic when a hard stop is active", () => {
+    const view = buildHomeV4View(homeV4VisualReading("hard-stop"));
+    expect(view.diagnosticSentence).toBe(view.holdSentence);
+    expect(view.diagnosticSentence).toMatch(/runway/i);
+  });
+
+  it("empty Home has no diagnostic — nothing to judge yet", () => {
+    const view = buildHomeV4View(homeV4VisualReading("empty"));
+    expect(view.diagnosticSentence).toBeNull();
   });
 
   it("does not mint % ready on the score plate", () => {

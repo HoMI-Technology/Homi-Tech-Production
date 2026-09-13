@@ -26,6 +26,18 @@ function areaNames(block: string): string[] {
 }
 
 describe("HomeV4 Ultra Premium fold", () => {
+  it("shows a last-read diagnostic on a live verdict, not canned brand copy", () => {
+    const view = buildHomeV4View(homeV4VisualReading("normal"));
+    const { container } = render(<HomeV4 view={view} />);
+    const text = container.textContent ?? "";
+    expect(text).toMatch(/2\.1 months/i);
+    expect(text).toMatch(/six is the protective floor/i);
+    expect(text).not.toMatch(/All three rings align/);
+    expect(container.querySelector("[data-home-v4-homi] ul")?.getAttribute("aria-live")).toBe(
+      "polite",
+    );
+  });
+
   it("paints State A as one verdict, one next move, honest empty money", () => {
     const view = buildHomeV4View(homeV4VisualReading("hard-stop"));
     const { container } = render(<HomeV4 view={view} />);

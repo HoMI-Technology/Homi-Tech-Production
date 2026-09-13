@@ -227,7 +227,7 @@ export function HomiIntelligenceV4({
         {showContext ? <p className="v4-homi-context">{contextLine}</p> : null}
       </header>
 
-      <ul className="v4-homi-prompts">
+      <ul className="v4-homi-prompts" aria-live="polite" aria-label="HōMI prompts">
         {prompts.map((prompt) => (
           <li key={prompt.label}>
             <Link
