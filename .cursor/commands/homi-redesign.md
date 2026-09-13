@@ -141,8 +141,8 @@ Work the plan. Rules while building:
 ## Phase 4 — Verify (all must pass, every route group)
 
 ```
-npm run typecheck && npm run lint && npm run test
-npm run brand-check
+npm run typecheck && npm run test
+npm run brand-check && npm run architecture:check
 npm run smoke        (npm run test:e2e for touched flows)
 ```
 

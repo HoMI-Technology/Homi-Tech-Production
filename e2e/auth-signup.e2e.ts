@@ -10,13 +10,9 @@ import {
 import { signInViaUi } from "./helpers/auth";
 
 /**
- * Path 1 — signup → email confirm.
- *
- * The render smoke runs anywhere. The live round trip drives a real signup
- * and then "opens the email" by minting the exact confirmation link Supabase
- * would send (admin.generateLink) — no inbox required — and skips unless a
- * live Supabase test project with a service-role key is configured.
+ * Path 1 — signup → email confirm. PR15: destination is always `/`.
  */
+
 test.describe("signup → email confirm", () => {
   test("sign-up page renders the account form", async ({ page }) => {
     await page.goto("/auth/sign-up");
@@ -28,7 +24,7 @@ test.describe("signup → email confirm", () => {
     await expect(page.getByRole("button", { name: "Email me a magic link" })).toBeVisible();
   });
 
-  test("signup → confirm link → authenticated app access (live)", async ({ page }) => {
+  test("signup → confirm link → landing `/` (live)", async ({ page }) => {
     skipWithoutLiveSupabase();
     test.setTimeout(180_000);
 
@@ -43,21 +39,17 @@ test.describe("signup → email confirm", () => {
       await page.locator("#password").fill(password);
       await page.getByRole("button", { name: "Create account" }).click();
 
-      // A successful signup routes into Assess (first measurement).
-      await page.waitForURL("**/assessment**", { timeout: 45_000 });
+      await page.waitForURL((url) => url.pathname === "/", { timeout: 45_000 });
 
       userId = await findUserIdByEmail(email);
       expect(userId, "the signed-up user should exist in Supabase auth").not.toBeNull();
 
-      // Simulate opening the confirmation email. When the project instead
-      // auto-confirms signups, generateLink errors — fall back to proving the
-      // account signs in directly (the confirm path is then a no-op there).
       let confirmLink: string | null = null;
       try {
         confirmLink = await generateSignupConfirmLink(
           email,
           password,
-          `${BASE_URL}/auth/callback?next=${encodeURIComponent("/dashboard")}`,
+          `${BASE_URL}/auth/callback`,
         );
       } catch (err) {
         console.warn(
@@ -67,15 +59,15 @@ test.describe("signup → email confirm", () => {
 
       if (confirmLink) {
         await page.goto(confirmLink);
-        await page.waitForURL("**/dashboard**", { timeout: 60_000 });
+        await page.waitForURL((url) => url.pathname === "/", { timeout: 60_000 });
       } else {
         await signInViaUi(page, email, password);
       }
 
-      // Authenticated proof: a protected route renders without bouncing to sign-in.
       await page.goto("/settings");
-      await expect(page).toHaveURL(/\/settings/);
-      await expect(page.getByRole("heading", { name: /settings/i }).first()).toBeVisible();
+      expect(new URL(page.url()).pathname).toBe("/");
+      await page.goto("/dashboard");
+      expect(new URL(page.url()).pathname).toBe("/");
     } finally {
       if (userId) await deleteTestUser(userId);
     }

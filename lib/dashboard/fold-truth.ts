@@ -141,45 +141,131 @@ export const FOLD_LIQUID_CONNECTED_LABEL = "Connected · ledger" as const;
 export const FOLD_FLAGS_NONE_INVENTED = "None invented" as const;
 export const FOLD_MONEY_DEPTH_LABEL = "Money depth" as const;
 
-/** HOME_DENSITY_CRAFT — below-fold column, not the PR7 fold. */
-export const HOME_DENSITY_MAX_PATH_STEPS = 3 as const;
+/** HOME_SCRAPE_CRAFT — denser Home body under the left rail. */
+export const HOME_DENSITY_MAX_PATH_STEPS = 5 as const;
 export const HOME_DENSITY_OPEN_PATH_LABEL = "Open Path" as const;
 export const HOME_DENSITY_OPEN_PATH_HREF = "/path" as const;
-export const HOME_DENSITY_VIEW_ALL_TOOLS_LABEL = "View all tools" as const;
+export const HOME_DENSITY_VIEW_ALL_TOOLS_LABEL = "View all" as const;
 export const HOME_DENSITY_VIEW_ALL_TOOLS_HREF = "/tools" as const;
 export const HOME_DENSITY_WHATS_NEXT_HEADING = "What's next" as const;
 export const HOME_DENSITY_TOOLS_HEADING = "Tools" as const;
+export const HOME_READINESS_HEADING = "Your Readiness" as const;
+export const HOME_KEY_AREAS_HEADING = "Key Factors" as const;
+export const HOME_SEE_FULL_ASSESSMENT = "See full assessment" as const;
+export const HOME_SEE_FULL_BREAKDOWN = "See full breakdown" as const;
+export const HOME_COMPANION_HEADING = "Your Companion" as const;
+/** HOME_SCRAPE_CRAFT §F — companion identity, not a Homie launch cast. */
+export const HOME_COMPANION_TAGLINE = "Here to help you see clearly" as const;
+export const HOME_COMPANION_GUIDANCE = "Local guidance · not live AI" as const;
+export const HOME_ASK_HOMI_LABEL = "Ask HōMI" as const;
+export const HOME_RECENT_EMPTY =
+  "A fresh start. Your saved models and goals will appear here." as const;
+export const HOME_WORKSPACE_SUBLINE = "Here's where you stand and what's next." as const;
 
 /**
- * State A hub-lens cards. Live `/tools/*` hub routes only.
- * Dim lines are locked craft (≤8 words). Never invent simulation-count theater or dollar chrome.
+ * Home Tools row: live hub lenses plus invent-chrome empty shells.
+ * Chrome shells never invent $. Dim lines locked (≤8 words).
  */
 export const HOME_DENSITY_LENSES = [
+  {
+    id: "net-worth",
+    href: "/tools/net-worth",
+    title: "Net Worth",
+    line: "Empty until accounts connect",
+    kind: "chrome",
+  },
+  {
+    id: "emergency-fund",
+    href: "/tools/emergency-fund",
+    title: "Emergency Fund",
+    line: "Empty until accounts connect",
+    kind: "chrome",
+  },
   {
     id: "affordability",
     href: "/tools/affordability",
     title: "Affordability",
     line: "Housing tiers for your ledger",
+    kind: "hub",
   },
   {
     id: "debt-payoff",
     href: "/tools/debt-payoff",
     title: "Debt Payoff",
     line: "Avalanche vs snowball paths",
+    kind: "hub",
   },
   {
     id: "blind-budget",
     href: "/tools/blind-budget",
     title: "Blind Budget",
     line: "Empty-ledger spending lens",
+    kind: "hub",
   },
   {
     id: "monte-carlo",
     href: "/tools/monte-carlo",
     title: "Monte Carlo",
     line: "Simulated paths — educational",
+    kind: "hub",
   },
 ] as const;
+
+export const HOME_COMPANION_PROMPTS = [
+  { label: "How can I build my runway faster?", href: "/advisor" },
+  { label: "What is my next Path step?", href: "/path" },
+  { label: "Compare debt payoff approaches.", href: "/tools/debt-payoff" },
+] as const;
+
+export const HOME_QUICK_ACTIONS = [
+  { label: "Update assessment", href: "/assessment" },
+  { label: "Connect accounts", href: "/connections" },
+  { label: "Compare scenarios", href: "/scenarios" },
+  { label: "Explore tools", href: "/tools" },
+] as const;
+
+export const HOME_JOURNEY_HEADING = "Your Journey" as const;
+export const HOME_JOURNEY_HISTORY_HREF = "/timeline" as const;
+export const HOME_JOURNEY_HISTORY_LABEL = "See history" as const;
+
+export type HomeJourneyStageId = "assessment" | "build" | "prepare" | "buy";
+export type HomeJourneyTone = "done" | "current" | "next" | "future";
+
+export type HomeJourneyStage = {
+  id: HomeJourneyStageId;
+  label: string;
+  tone: HomeJourneyTone;
+  hint: string;
+};
+
+/**
+ * Craft journey chrome. Never invent a completed Prepare/Buy stage.
+ * Hard stop keeps Build current — does not paint On track / READY.
+ */
+export function homeJourneyStages(args: {
+  hasAssessment: boolean;
+  hardStopActive: boolean;
+}): readonly HomeJourneyStage[] {
+  if (!args.hasAssessment) {
+    return [
+      { id: "assessment", label: "Assess", tone: "next", hint: "Start" },
+      { id: "build", label: "Build", tone: "future", hint: "Future" },
+      { id: "prepare", label: "Prepare", tone: "future", hint: "Future" },
+      { id: "buy", label: "Buy", tone: "future", hint: "Future" },
+    ];
+  }
+  return [
+    { id: "assessment", label: "Assess", tone: "done", hint: "Read" },
+    {
+      id: "build",
+      label: "Build",
+      tone: "current",
+      hint: args.hardStopActive ? "Hold" : "In progress",
+    },
+    { id: "prepare", label: "Prepare", tone: "next", hint: "Next" },
+    { id: "buy", label: "Buy", tone: "future", hint: "Future" },
+  ];
+}
 
 /** HOME_CRAFT / HOME_FIRST_VIEWPORT month crop. Short English, UTC, no period. */
 const FOLD_AGE_SHORT_MONTHS = [
@@ -355,6 +441,21 @@ export function foldHardStopEyebrowParts(eyebrow: string): {
   };
 }
 
+/** First sentence of a hold line — craft-weight next to the HARD STOP pill. */
+export function foldHoldLead(sentence: string): string {
+  const idx = sentence.indexOf(". ");
+  if (idx === -1) return sentence;
+  return sentence.slice(0, idx + 1);
+}
+
+/** Remainder after the hold lead. Null when the hold is a single sentence. */
+export function foldHoldClose(sentence: string): string | null {
+  const idx = sentence.indexOf(". ");
+  if (idx === -1) return null;
+  const rest = sentence.slice(idx + 2).trim();
+  return rest.length > 0 ? rest : null;
+}
+
 /** Hold sentence for a known stop. Null when the code is unknown — omit the line. */
 export function foldHomeHoldSentence(
   code?: FoldHardStopCode | null,
@@ -418,8 +519,8 @@ export function resolveFoldPathPrimary(
 }
 
 /**
- * Quiet What’s next titles below the fold. Path SSOT titles only — no fold
- * companion remap, no $ invent, no +points. Cap at three pending steps.
+ * Quiet What’s next titles. Path SSOT titles only — no fold
+ * companion remap, no $ invent, no +points. Cap at five pending steps.
  */
 export function foldDensityPathTitles(
   steps: unknown,

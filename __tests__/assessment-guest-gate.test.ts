@@ -34,6 +34,9 @@ describe("guest /assessment is First Moment — page gate", () => {
   it("still renders FullAssessmentFlow for a signed-in user", () => {
     expect(page).toContain("return <FullAssessmentFlow />");
     expect(page).not.toContain('redirect("/auth/sign-in');
+    expect(page).toContain("isV4HomeEnabled");
+    expect(page).toContain("isV4VisualFixtureEnabled");
+    expect(page).not.toMatch(/["']\/assess["']/);
   });
 
   it("does not middleware-protect /assessment — that bounce would skip First Moment", () => {
@@ -86,7 +89,7 @@ describe("First Moment copy stays word-locked", () => {
 });
 
 describe("FullAssessmentFlow does not score a guest", () => {
-  it("handleSubmit redirects to First Moment before fetchServerScore / save / /dashboard", () => {
+  it("handleSubmit redirects to First Moment before fetchServerScore / save / /home", () => {
     const flow = src("components", "assessment", "FullAssessmentFlow.tsx");
     const start = flow.indexOf("async function handleSubmit");
     const end = flow.indexOf("const nextDisabled");
@@ -96,16 +99,17 @@ describe("FullAssessmentFlow does not score a guest", () => {
     expect(submit.indexOf("getUser")).toBeLessThan(submit.indexOf("fetchServerScore"));
     expect(submit.indexOf("PRIMARY_CLOSE_HREF")).toBeLessThan(submit.indexOf("fetchServerScore"));
     expect(submit.indexOf("PRIMARY_CLOSE_HREF")).toBeLessThan(submit.indexOf("saveLocalResult"));
-    expect(submit.indexOf("PRIMARY_CLOSE_HREF")).toBeLessThan(submit.indexOf('router.push("/dashboard")'));
+    expect(submit).toContain("POST_LOGIN_V4_HOME");
+    expect(submit).not.toContain('router.push("/dashboard")');
+    expect(submit).not.toContain('router.push("/results")');
   });
 });
 
 describe("guest /results is retired", () => {
-  it("middleware sends guests to First Moment; no results page or verdict view", () => {
+  it("middleware sends guests and signed-in users to `/`; no results page or verdict view", () => {
     const mw = src("middleware.ts");
-    expect(mw).toContain('path === "/results"');
-    expect(mw).toContain('"/first-moment"');
-    expect(mw).toContain('"/dashboard"');
+    expect(mw).toContain("redirectToHome");
+    expect(mw).not.toContain('user ? "/dashboard" : "/first-moment"');
     expect(() => src("app", "(product)", "results", "page.tsx")).toThrow();
     expect(() => src("components", "results", "ResultsVerdictView.tsx")).toThrow();
   });
@@ -167,9 +171,11 @@ describe("guest /tools Assess close is First Moment", () => {
 });
 
 describe("guest product chrome has no Companion FAB", () => {
-  it("mounts CompanionHost only for a signed-in user", () => {
+  it("mounts CompanionHost only for a signed-in user, and not on Shell v4", () => {
     const layout = src("app", "(product)", "layout.tsx");
-    expect(layout).toMatch(/\{user\s*&&\s*<CompanionHost\s*\/>\}/);
+    expect(layout).toMatch(
+      /\{user\s*&&\s*shell\s*!==\s*["']v4["']\s*\?\s*<CompanionHost\s*\/>\s*:\s*null\}/,
+    );
     expect(layout).not.toMatch(/^\s*<CompanionHost\s*\/>\s*$/m);
     expect(layout).toContain('from "@/components/companion/CompanionHost"');
   });

@@ -52,10 +52,10 @@ describe("retake CTAs land on the flow that can re-score", () => {
     expect(report).not.toContain("Your activation path");
   });
 
-  it("middleware retires /results — signed-in → Home, guest → First Moment", () => {
+  it("middleware retires /results onto `/` with the rest of KILL", () => {
     const mw = read("middleware.ts");
-    expect(mw).toContain('path === "/results"');
-    expect(mw).toContain('user ? "/dashboard" : "/first-moment"');
+    expect(mw).toContain("redirectToHome");
+    expect(mw).not.toContain('user ? "/dashboard" : "/first-moment"');
     expect(mw).not.toContain("ResultsVerdictView");
   });
 
@@ -74,11 +74,12 @@ describe("retake CTAs land on the flow that can re-score", () => {
   });
 });
 
-describe("sign-up default lands on Assess", () => {
-  it("bare sign-up uses POST_LOGIN_ASSESS, not /onboarding", () => {
+describe("sign-up default lands on `/home` (v4 client post-login)", () => {
+  it("bare sign-up uses POST_LOGIN_V4_HOME, not the client flag resolver", () => {
     const page = read("app", "auth", "sign-up", "page.tsx");
-    expect(page).toContain("POST_LOGIN_ASSESS");
-    expect(page).toContain("safeNext(searchParams.get(\"next\"), POST_LOGIN_ASSESS)");
+    expect(page).toContain("POST_LOGIN_V4_HOME");
+    expect(page).not.toContain("resolvePostLoginDestination");
+    expect(page).not.toContain("POST_LOGIN_ASSESS");
     expect(page).not.toContain('safeNext(searchParams.get("next"), "/onboarding")');
   });
 

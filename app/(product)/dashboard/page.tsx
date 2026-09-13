@@ -104,12 +104,16 @@ export default async function DashboardPage() {
                   id: latest.id,
                   overallScore: latest.overall_score,
                   scoredAt: latest.completed_at ?? latest.created_at,
+                  financialScore: latest.financial_score,
+                  emotionalScore: latest.emotional_score,
+                  timingScore: latest.timing_score,
                 }
               : null
           }
           verdict={verdict}
           stopMessages={stopMessages}
           stopCode={stopCode}
+          stopCodes={hardStopCodes(latest?.hard_stops)}
           decisionType={latest?.decision_type ?? "home_buying"}
           lastMoney={lastMoneyInputsFromRow(latest?.inputs ?? null)}
           pathPrimary={pathPrimary}

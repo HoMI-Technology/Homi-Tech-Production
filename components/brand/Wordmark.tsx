@@ -13,14 +13,23 @@ export function Wordmark({
 }) {
   return (
     <span
-      className={`tracking-tight select-none ${size} ${className}`}
+      className={`homi-wordmark tracking-tight select-none ${size} ${className}`}
+      data-wordmark=""
       style={{ fontWeight: 900, letterSpacing: "-0.02em" }}
       aria-label="HōMI"
     >
-      <span style={{ color: COLORS.cyan }}>H</span>
-      <span style={{ color: COLORS.emerald }}>ō</span>
-      <span style={{ color: COLORS.yellow }}>M</span>
-      <span style={{ color: COLORS.cyan }}>I</span>
+      <span data-letter="H" style={{ color: COLORS.cyan }}>
+        H
+      </span>
+      <span data-letter="o" style={{ color: COLORS.emerald }}>
+        ō
+      </span>
+      <span data-letter="M" style={{ color: COLORS.yellow }}>
+        M
+      </span>
+      <span data-letter="I" style={{ color: COLORS.cyan }}>
+        I
+      </span>
     </span>
   );
 }

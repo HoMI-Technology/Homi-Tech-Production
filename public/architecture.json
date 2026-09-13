@@ -1,7 +1,7 @@
 {
   "_meta": {
     "version": "v1",
-    "generated": "2026-08-31",
+    "generated": "2026-09-11",
     "product": "HōMI",
     "full_name": "Homi Technologies LLC — Decision Readiness Intelligence™",
     "domain": "homitechnology.com",
@@ -13,10 +13,10 @@
     "authority": "Executable TypeScript in this repo wins over this document. Prefer lib/scoring, lib/brand, lib/agents/registry on conflict."
   },
   "stats": {
-    "product_routes": 106,
+    "product_routes": 111,
     "api_routes": 28,
-    "component_directories": 35,
-    "lib_modules": 51,
+    "component_directories": 36,
+    "lib_modules": 52,
     "db_tables": 44,
     "migrations": 58,
     "calculators": 14,
@@ -369,6 +369,14 @@
       "file": "app/(marketing)/guides/hard-stops/page.tsx"
     },
     {
+      "path": "/home",
+      "name": "Home",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/home/page.tsx"
+    },
+    {
       "path": "/household",
       "name": "Household",
       "category": "Product",
@@ -391,6 +399,14 @@
       "status": "complete",
       "features": [],
       "file": "app/(product)/journal/page.tsx"
+    },
+    {
+      "path": "/learn",
+      "name": "Learn",
+      "category": "Product",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/learn/page.tsx"
     },
     {
       "path": "/learning",
@@ -479,6 +495,14 @@
       "status": "complete",
       "features": [],
       "file": "app/(product)/money/page.tsx"
+    },
+    {
+      "path": "/money/bills",
+      "name": "Bills",
+      "category": "Dashboard",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/money/bills/page.tsx"
     },
     {
       "path": "/money/budget",
@@ -753,6 +777,14 @@
       "file": "app/(product)/tools/down-payment/page.tsx"
     },
     {
+      "path": "/tools/emergency-fund",
+      "name": "Emergency Fund",
+      "category": "Tools",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/tools/emergency-fund/page.tsx"
+    },
+    {
       "path": "/tools/fire",
       "name": "Fire",
       "category": "Tools",
@@ -791,6 +823,14 @@
       "status": "complete",
       "features": [],
       "file": "app/(product)/tools/mortgage/page.tsx"
+    },
+    {
+      "path": "/tools/net-worth",
+      "name": "Net Worth",
+      "category": "Tools",
+      "status": "complete",
+      "features": [],
+      "file": "app/(product)/tools/net-worth/page.tsx"
     },
     {
       "path": "/tools/preflight",
@@ -1018,14 +1058,14 @@
   "component_directories": [
     {
       "name": "admin",
-      "count": 34,
+      "count": 35,
       "description": "admin UI module",
       "examples": [
         "ActivationInstrument",
-        "admin-nav",
+        "AdSpendForm",
         "AdminAccessWall",
-        "AdminSidebar",
-        "AdminStepUpForm"
+        "AdminOperateChrome",
+        "AdminSidebar"
       ]
     },
     {
@@ -1091,9 +1131,10 @@
     },
     {
       "name": "brand",
-      "count": 3,
+      "count": 4,
       "description": "brand UI module",
       "examples": [
+        "HomiHexes",
         "ThresholdCompass",
         "Wordmark.test",
         "Wordmark"
@@ -1135,20 +1176,20 @@
       "count": 2,
       "description": "consent UI module",
       "examples": [
-        "consent-shared",
-        "CookieConsent"
+        "CookieConsent",
+        "consent-shared"
       ]
     },
     {
       "name": "dashboard",
-      "count": 36,
+      "count": 42,
       "description": "dashboard UI module",
       "examples": [
         "BankConnectCard",
         "ConnectionsTile",
         "DailyPulseStrip",
-        "DashboardFoldBeacon",
-        "DashboardResumeRamp.test"
+        "DashSpectrum.test",
+        "DashSpectrum"
       ]
     },
     {
@@ -1176,9 +1217,9 @@
       "examples": [
         "HardStopBanner",
         "ObservedPrefillCard",
-        "readiness-types",
         "ThresholdCompass",
-        "WarningsBanner"
+        "WarningsBanner",
+        "readiness-types"
       ]
     },
     {
@@ -1205,14 +1246,14 @@
     },
     {
       "name": "layout",
-      "count": 26,
+      "count": 35,
       "description": "layout UI module",
       "examples": [
         "AppHeader",
         "AppSidebar",
+        "AppWorkspaceHeader",
         "ClientProviders.test",
-        "ClientProviders",
-        "CommandPalette"
+        "ClientProviders"
       ]
     },
     {
@@ -1229,10 +1270,10 @@
       "description": "marketing UI module",
       "examples": [
         "ArtifactPlayground",
-        "blog-data",
-        "first-moment-copy",
         "FirstMoment",
-        "guides-data"
+        "PricingCheckoutButton",
+        "UnsubscribeConfirm",
+        "WaitlistForm.test"
       ]
     },
     {
@@ -1264,11 +1305,11 @@
       "count": 44,
       "description": "planner UI module",
       "examples": [
-        "banking-derive",
-        "BankingCommand",
-        "AgendaList",
-        "DayForms",
-        "DayInspector"
+        "ImpactToast",
+        "NudgeRail",
+        "PlannerApp",
+        "PlannerPage",
+        "ReadinessHero"
       ]
     },
     {
@@ -1282,7 +1323,7 @@
     },
     {
       "name": "readiness",
-      "count": 7,
+      "count": 8,
       "description": "readiness UI module",
       "examples": [
         "FirstStepNudge",
@@ -1376,8 +1417,20 @@
         "AnimatedNumber",
         "Celebrate",
         "ChartTooltip",
-        "count-up",
-        "DashboardLoadingSkeleton"
+        "DashboardLoadingSkeleton",
+        "EmptyState"
+      ]
+    },
+    {
+      "name": "v4",
+      "count": 22,
+      "description": "v4 UI module",
+      "examples": [
+        "HomeV4.test",
+        "HomeV4",
+        "HomeV4HomiRail",
+        "AssessmentWalkChrome",
+        "AssessmentWalkFixtureV4"
       ]
     }
   ],
@@ -1577,6 +1630,10 @@
     {
       "name": "twin",
       "purpose": "twin domain module"
+    },
+    {
+      "name": "v4",
+      "purpose": "v4 domain module"
     },
     {
       "name": "validation",

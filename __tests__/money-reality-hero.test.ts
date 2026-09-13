@@ -1,6 +1,6 @@
 /**
- * Reality surface — Stand job on /money (JOBS_CRAFT v3).
- * Quiet picture under the Home verdict. No surplus hero, no score rail.
+ * Money v4 — live `/money` in Shell v4.
+ * Empty or live SSOT. No surplus hero, no second score.
  */
 
 import { readFileSync } from "node:fs";
@@ -11,48 +11,46 @@ function read(rel: string): string {
   return readFileSync(resolve(process.cwd(), rel), "utf8");
 }
 
-const stand = read("components/money/MoneyStand.tsx");
+const workspace = read("lib/v4/money-workspace.ts");
 const page = read("app/(product)/money/page.tsx");
+const ui = read("components/v4/money/MoneyWorkspaceV4.tsx");
+const stand = read("components/money/MoneyStand.tsx");
 
-describe("Money picture — quiet Stand depth", () => {
-  it("page mounts MoneyStand without a second score hero", () => {
-    expect(page).toContain("<MoneyStand");
+describe("Money picture — quiet v4 workspace", () => {
+  it("page mounts MoneyWorkspaceV4 without a second score write", () => {
+    expect(page).toContain("MoneyWorkspaceV4");
+    expect(page).toContain("assertAssessmentResultOnly");
     expect(page).not.toContain("ScoreRail");
-    expect(page).not.toContain("getCachedUser");
+    expect(page).not.toContain("MoneyStand");
+    expect(page).not.toMatch(/\.insert\(|\.upsert\(|\.update\(/);
+    expect(page).not.toContain("lib/scoring");
   });
 
-  it("empty honesty and data facts stay on the live /money route", () => {
-    expect(stand).toContain("Connect accounts to see money reality");
-    expect(stand).toContain("Your money picture");
-    expect(stand).toContain("Liquid cash");
-    expect(stand).toContain("Emergency runway");
-    expect(stand).toContain("Under 1 month · Path evidence");
+  it("empty honesty and live facts stay on the live /money route", () => {
+    expect(workspace).toContain("MONEY_WAIT_LINE");
+    expect(workspace).toContain("never invent balances");
+    expect(ui).toContain("data-money-v4-connect");
+    expect(workspace).toContain("Liquid cash");
   });
 
-  it("does not mount compass, Fraunces, or crimson surplus glow", () => {
-    expect(stand).not.toContain("ThresholdCompass");
-    expect(stand).not.toContain("font-display");
-    expect(stand).not.toContain("score-numeral");
-    expect(stand).not.toContain("text-6xl");
+  it("does not mount compass, Fraunces, or a score numeral class on live $", () => {
+    expect(ui).not.toContain("ThresholdCompass");
+    expect(ui).not.toContain("font-display");
+    expect(ui).not.toContain("score-numeral");
+    expect(ui).not.toContain("text-6xl");
+    expect(ui).toContain("v4-money-hero-amount");
   });
 });
 
 describe("Money picture — honesty contract", () => {
-  it("unknown runway stays Unknown, never an invented number", () => {
+  it("legacy Stand file stays on disk without becoming the v4 page", () => {
     expect(stand).toContain("Unknown · Path evidence");
-  });
-
-  it("flags stay ledger-only", () => {
     expect(stand).toContain("None invented · ledger only");
-  });
-
-  it("loading skeleton is preserved and busies the surface", () => {
-    expect(stand).toContain("animate-pulse");
-    expect(stand).toContain('aria-busy="true"');
+    expect(page).not.toContain("MoneyStand");
   });
 
   it("educational posture stays on the money surface", () => {
-    expect(stand).toMatch(/educational/i);
-    expect(stand).toMatch(/not provide financial, tax, mortgage, or investment/i);
+    expect(page).toMatch(/Educational/);
+    expect(workspace).toContain("never invent balances");
   });
 });

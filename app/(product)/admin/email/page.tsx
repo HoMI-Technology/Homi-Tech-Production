@@ -1,79 +1,82 @@
 import type { Metadata } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CampaignComposer } from "@/components/admin/CampaignComposer";
+import { AdminRoomEmptyV4 } from "@/components/v4/admin/AdminRoomEmptyV4";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { COLORS } from "@/lib/brand";
-import type { Campaign, CampaignSendStatus } from "@/types/database";
+import {
+  ADMIN_V4_EMAIL_CONSOLE_EMPTY,
+  buildAdminEmailV4View,
+  type AdminEmailV4SendRow,
+  type AdminEmailV4SourceRow,
+} from "@/lib/v4/admin-workspace";
 
 export const metadata: Metadata = {
   title: "Email | Admin | HōMI",
   description: "Broadcast email campaigns: compose, confirm, send.",
 };
 
-function formatDate(value: string | null) {
-  if (!value) return "—";
-  try {
-    return new Date(value).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  } catch {
-    return "—";
-  }
-}
-
-const STATUS_STYLE: Record<Campaign["status"], string> = {
-  draft: "text-dim",
-  sending: "text-yellow",
-  sent: "text-emerald",
-};
-
 export default async function AdminEmailPage() {
   const service = createAdminClient();
 
-  let campaigns: (Campaign & { send_counts: Record<CampaignSendStatus, number> })[] = [];
+  let rows: AdminEmailV4SourceRow[] = [];
+  let sends: AdminEmailV4SendRow[] = [];
+  let loadError = !service;
+
   if (service) {
     try {
-      const { data } = await service
+      const { data: campaignData, error: campaignError } = await service
         .from("campaigns")
-        .select("*")
+        .select("id, name, audience, status, sent_at")
         .order("created_at", { ascending: false })
         .limit(50);
-      const rows = (data as Campaign[] | null) ?? [];
-
-      const counts: Record<string, Record<CampaignSendStatus, number>> = {};
-      if (rows.length > 0) {
-        const { data: sends } = await service
-          .from("campaign_sends")
-          .select("campaign_id, status")
-          .in(
-            "campaign_id",
-            rows.map((c) => c.id),
-          );
-        for (const row of (sends as { campaign_id: string; status: CampaignSendStatus }[] | null) ??
-          []) {
-          const bucket = (counts[row.campaign_id] ??= { sent: 0, failed: 0, suppressed: 0 });
-          bucket[row.status] = (bucket[row.status] ?? 0) + 1;
-        }
+      if (campaignError) {
+        loadError = true;
+      } else {
+        rows = (campaignData as AdminEmailV4SourceRow[] | null) ?? [];
       }
 
-      campaigns = rows.map((c) => ({
-        ...c,
-        send_counts: counts[c.id] ?? { sent: 0, failed: 0, suppressed: 0 },
-      }));
+      const campaignIds = rows.map((row) => row.id);
+      if (campaignIds.length > 0) {
+        const { data: sendData, error: sendError } = await service
+          .from("campaign_sends")
+          .select("campaign_id, status")
+          .in("campaign_id", campaignIds);
+        if (sendError) {
+          loadError = true;
+          sends = [];
+        } else {
+          sends = (sendData as AdminEmailV4SendRow[] | null) ?? [];
+        }
+      }
     } catch {
-      campaigns = [];
+      loadError = true;
+      rows = [];
+      sends = [];
     }
   }
 
-  const totalSent = campaigns.reduce((acc, c) => acc + (c.send_counts.sent ?? 0), 0);
-  const totalFailed = campaigns.reduce((acc, c) => acc + (c.send_counts.failed ?? 0), 0);
-  const drafted = campaigns.filter((c) => c.status === "draft").length;
+  const view = buildAdminEmailV4View({ rows, sends, loadError });
 
   return (
-    <div>
+    <PageFrame role="admin" density="compact">
+      {view.kind === "empty" ? (
+        <>
+          <AdminRoomEmptyV4 title={ADMIN_V4_EMAIL_CONSOLE_EMPTY} />
+          {service ? (
+            <div className="glass mt-6 p-6">
+              <div className="dash-section-head">
+                <h2>New campaign</h2>
+                <p>Compose and confirm before send.</p>
+              </div>
+              <CampaignComposer />
+            </div>
+          ) : null}
+        </>
+      ) : (
+        <>
       <PageHeader
         eyebrow="Admin"
         title="Email campaigns"
@@ -84,26 +87,26 @@ export default async function AdminEmailPage() {
         <MetricRail
           cells={[
             {
-              label: "Campaigns",
-              value: String(campaigns.length),
-              footer: "Shown",
+              label: "Shown",
+              value: String(view.shown),
+              footer: "Latest 50",
               color: COLORS.cyan,
             },
             {
               label: "Drafts",
-              value: String(drafted),
+              value: String(view.draftCount),
               footer: "Not sent",
               color: COLORS.dim,
             },
             {
               label: "Sent",
-              value: totalSent.toLocaleString(),
-              footer: "Recipients delivered",
+              value: String(view.sentCount),
+              footer: "Delivered sends",
               color: COLORS.emerald,
             },
             {
               label: "Failed",
-              value: totalFailed.toLocaleString(),
+              value: String(view.failedCount),
               footer: "Delivery errors",
               color: COLORS.crimson,
             },
@@ -111,84 +114,42 @@ export default async function AdminEmailPage() {
         />
       </div>
 
-      {!service && (
-        <div className="glass mt-6 p-6">
-          <p className="text-sm text-dim">
-            Supabase service role is not configured, so campaigns can&apos;t be loaded or sent from
-            this environment.
-          </p>
+      <div className="glass mt-6 p-6">
+        <div className="dash-section-head">
+          <h2>New campaign</h2>
+          <p>Compose and confirm before send.</p>
         </div>
-      )}
+        <CampaignComposer />
+      </div>
 
-      {service && (
-        <>
-          <div className="glass mt-6 p-6">
-            <div className="dash-section-head">
-              <h2>New campaign</h2>
-              <p>Compose and confirm before send.</p>
-            </div>
-            <CampaignComposer />
-          </div>
-
-          <div className="glass mt-6 table-scroll">
-            {campaigns.length === 0 ? (
-              <p className="p-10 text-center text-sm text-dim">No campaigns yet.</p>
-            ) : (
-              <table className="table-premium min-w-[720px]">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Audience</th>
-                    <th>Status</th>
-                    <th>Recipients</th>
-                    <th>Results</th>
-                    <th>Sent</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {campaigns.map((c) => (
-                    <tr key={c.id}>
-                      <td>
-                        <div className="max-w-[240px]">
-                          <p className="truncate font-medium text-light">{c.name}</p>
-                          <p className="truncate text-xs text-dim">{c.subject}</p>
-                        </div>
-                      </td>
-                      <td>
-                        <span className="chip !text-xs capitalize">{c.audience}</span>
-                      </td>
-                      <td>
-                        <span
-                          className={`text-xs font-semibold uppercase tracking-wide ${STATUS_STYLE[c.status]}`}
-                        >
-                          {c.status}
-                        </span>
-                      </td>
-                      <td className="score-numeral">{c.recipient_count.toLocaleString()}</td>
-                      <td className="text-xs text-dim">
-                        {c.status === "sent" ? (
-                          <>
-                            {c.send_counts.sent.toLocaleString()} sent
-                            {c.send_counts.failed > 0
-                              ? ` · ${c.send_counts.failed.toLocaleString()} failed`
-                              : ""}
-                            {c.send_counts.suppressed > 0
-                              ? ` · ${c.send_counts.suppressed.toLocaleString()} suppressed`
-                              : ""}
-                          </>
-                        ) : (
-                          "—"
-                        )}
-                      </td>
-                      <td className="text-dim">{formatDate(c.sent_at)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+      <div className="glass mt-6 table-scroll">
+        <table className="table-premium min-w-[720px]">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Audience</th>
+              <th>Status</th>
+              <th>Sent</th>
+              <th>Failed</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {view.rows.map((row) => (
+              <tr key={row.id}>
+                <td className="font-medium">{row.nameLabel}</td>
+                <td className="text-dim capitalize">{row.audienceLabel}</td>
+                <td className="text-dim capitalize">{row.statusLabel}</td>
+                <td className="text-dim">{String(row.sentCount)}</td>
+                <td className="text-dim">{String(row.failedCount)}</td>
+                <td className="text-dim">{row.sentLabel}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
         </>
       )}
-    </div>
+    </PageFrame>
   );
 }

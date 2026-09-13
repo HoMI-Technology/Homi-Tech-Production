@@ -85,27 +85,102 @@ Legal entity in `lib/brand` today: `HOMI TECHNOLOGIES LLC`. Recase to `Homi Tech
 - Sample scores must match scoring canon (e.g. 76 → ALMOST THERE). Landing-canon tests guard this.
 - Dials for this surface: variance 6, motion 4, density 3. No GSAP pin/marquee on the front door (pin stages were removed).
 
-### OPERATE — dashboard, tools results, finance, journal, admin
+### OPERATE — signed-in Product v4 personal
 
-- **Direction A — Cockpit Linear** (locked 2026-07-26 via design-shotgun): one instrument fold, next-move dock, slim metric rail, workspace dropdown in chrome. Not multi-pill switchers. Not equal StatTile KPI walls as the hero.
-- One primary job: **where do I stand, what do I do next?**
-- **Signed-in Home (`/dashboard`) instrument is the build** — Path next move + hard stops lead the fold; Decision Readiness Score + verdict sit as a compact ScoreRail reading (`components/score/ScoreRail.tsx`, landed 2026-08-23). Partner/team/admin keep book/cohort pulse heroes.
-- Product tabs (landed 2026-08-23): Readiness · Reality · Decide · Plan · Goals. Invest and Track are not peers; routes stay live, folded under Reality.
-- Tabular / mono numbers for scores and money.
-- Shared primitives: `components/operate/*` (`PageFrame`, `PageHeader`, `OperateInstrument`, `MetricRail`, `ActionDock`).
-- No GSAP / scroll-jack / marquee on app chrome or dashboard.
-- Glass is atmosphere under controlled contrast — not the text substrate over busy gradients.
-- Equal 4-tile KPI walls must not outrank the fold instrument.
-- Never say “HōMI Score” on a surface. Say **Decision Readiness Score**.
+Cockpit Linear / MetricRail hero and `/dashboard` invent-chrome are
+**retired** as signed-in authority (ADR-006). Signed-in personal product is
+**Product v4 / Ultra Premium**:
 
-### CHROME — `HeaderShell`, `SiteHeader`, `AppHeader`, `SiteFooter`
+- Primary rail **Home · Money · Path · Compare** (Money before Path).
+- Assess in the top command — not a fifth primary peer. Reject five-peer
+  Tools-in-primary.
+- Score ≠ Compass. Hard stops outrank. No invent $.
+- `components/operate/*` leftovers are not authority.
+- Finance GATE: AssessmentResult only. Free===Pro on that read.
 
-- Dual shell is intentional: marketing vs signed-in product nav.
-- Header height token: `--nav-height` (60px product density) + safe-area.
-- Product bar stays **one line**: short PRIMARY (Home / Assess / Tools / More), workspace **dropdown** (never multi-pill role switcher), icon search + kbd, bell, avatar.
-- Prefer content/IA fixes over rewriting mobile menu behavior.
-- Preserve: vertical scroll lock only, Escape + focus return, close on nav/desktop breakpoint.
-- Never `overflow-x: hidden` on `body` (breaks homepage sticky pin stages).
+### CHROME — dual shell (Shell v4)
+
+Dual shell stays. KEEP marketing uses `SiteHeader` / `SiteFooter` (PERSUADE).
+Product chrome is **Shell v4**: left primary four + top command + optional
+right HōMI + mobile bottom four (Home · Money · Path · More).
+
+A11y KEEP: skip link `#main`, Escape + focus return, overlay scroll lock,
+`prefers-reduced-motion`, never `overflow-x: hidden` on `body`. Header height
+token `--nav-height` + safe-area. DARK role trees may still mount quiet
+`AppHeader` on disk; do not rebuild Home from them.
+
+PR C stays **DRAFT** until founder APPROVE VISUAL DIRECTION on real
+screenshots. `HOMI_V4_HOME_ENABLED` default false.
+
+### Product v4 / Ultra Premium — signed-in Home + Shell (ADR-006)
+
+- **Home is `/home`**, never `/dashboard`. `/dashboard` stays DARK.
+- Identity KEEP: repo `Wordmark` + `ThresholdCompass` only. Compass is the
+  shell mark, not a page hero. No Lucide brand. No Homie cast.
+- Primary rail (locked): **Home · Money · Path · Compare**. Assess in the
+  top command only (solid cyan). Secondary: **Bills · Tools · Learn**.
+  System: **Accounts · Settings**. Mobile bottom: Home · Money · Path · More.
+  No Support peer. Selected: lift + white + ~2px cyan edge.
+- Home State A (first unlock): hard-stop ACTIVE + empty money. Greeting in
+  the top command. Hierarchy: Decision context → Readiness hero (numeral →
+  verdict → hold → action) → Decision evidence (three pillars) → Current Path
+  step → Money evidence → What changed → Contextual tools (~3–4). Path CTA
+  **“Build runway to 1 month”** with no glow. Pillar statuses Needs work /
+  Strong / Not assessed only. Money honest empty + Connect accounts. Right
+  HōMI educational prompts only — no second score. Ask HōMI is a top-command
+  field.
+- **Assessment is `/assessment`**, Shell v4 `main#main`, same flag. Assess is
+  top-command only. Adaptive **home_buying** first. Progress is
+  `{Pillar} · {n} of ~{m} this path`. Write path lands on `/home`. No guest
+  official score. Fixture stills stay Preview-only
+  (`HOMI_V4_VISUAL_FIXTURE`). Craft: `docs/design/ASSESSMENT_CRAFT_v4_2026-09-10.md`.
+- **Path is `/path`**, Shell v4 `main#main`, same flag. Max 7 steps from
+  AssessmentResult + `lib/readiness/path.ts`. Empty / hard-stop ACTIVE / normal /
+  complete. Home NextPath and rail Path land here. Body deep-links Assess and
+  Money only — no ledger / invent $. Compass stays in the shell. Craft:
+  `docs/design/PATH_CRAFT_v4_2026-09-10.md`.
+- **Money is `/money`**, Shell v4 `main#main`, same flag. Plaid + ledger reuse
+  (no sync rewrite). Empty Connect / hard-stop hold (empty-or-live) / connected
+  live with always-on age / stale · syncing · error honesty. Never invent $ or
+  write AssessmentResult. Ask: *Ask HōMI about this financial picture...*.
+  JetBrains Mono for live $ only. Craft:
+  `docs/design/MONEY_CRAFT_v4_2026-09-10.md`.
+- **Compare is `/scenarios`** (rail label Compare), Shell v4 `main#main`, same
+  flag. Educational templates only — reuse `lib/readiness/scenario*.ts` and
+  `lib/tools/scenarios.ts`. Empty / hard-stop (educational-only, never On track)
+  / normal ≤3–4 approved cards / stale · error with quiet age. Never invent $
+  or a second official score. Ask: *Ask HōMI about this comparison...*.
+  JetBrains Mono for live SSOT numbers only. No verbose fixture meta in the fold.
+  Mobile: Compare under More. Optional `/compare` aliases here. Craft:
+  `docs/design/COMPARE_CRAFT_v4_2026-09-11.md`.
+- **Contextual HōMI** is the Shell v4 right column (~300–340) plus Ask in the
+  top command across Home / Money / Path / Compare / Assess. Explain + deep-link
+  only (Path / Money / Compare / Assess / Home). Never a second score, never invent
+  $, never On track under a hard stop. Optional `/ask` is a flag-gated V4_PENDING
+  deep entry that opens the same surface — not a peer dashboard. Mobile: Ask/HōMI
+  as a sheet or More depth, never a fifth bottom-nav peer. No Homie. No fake
+  live-AI typing. Compass stays shell-only. Craft:
+  `docs/design/CONTEXTUAL_HOMI_CRAFT_v4_2026-09-11.md`.
+- **Employee operate home is `/employee/dashboard`**, Shell v4 `main#main`, same
+  flag. One shell · different jobs (Workspace Home · Operate Attention · Privacy).
+  Empty or live operate SSOT only. Never invent teammate lists, scores, or $.
+  Hard stop ACTIVE ⇒ never On track / READY. Ask: *Ask HōMI about this workspace...*.
+  Craft: `docs/design/EMPLOYEE_CRAFT_v4_2026-09-11.md`.
+- **Partner operate home is `/partner/dashboard`**, Shell v4 `main#main`, same
+  flag. One shell · different jobs (Workspace Home · Operate Book · Invite).
+  Book pulse from live `referral_source` / SSOT only. Invite stays
+  `/first-moment?ref=`. SITE_URL fail-loud. Never invent a client list, scores,
+  or $. Empty CTA is Invite, not a Clarity question. Ask: *Ask HōMI about this
+  partner book...*. K3–K4 (`/admin` `/team`) stay closed. Craft:
+  `docs/design/PARTNER_CRAFT_v4_2026-09-11.md`.
+- Finance GATE: score / verdict / hard stops from **AssessmentResult only**.
+- Activation: `HOMI_V4_HOME_ENABLED` default **false** (CCP / ADR-005).
+  Pixel Gate: do not undraft or expose `/home` until founder APPROVE VISUAL
+  DIRECTION. Screenshot set: `docs/design/v4-screenshot-set.md`.
+- Tabular / mono numbers for scores. Never say “HōMI Score”. Say
+  **Decision Readiness Score**.
+- No GSAP / scroll-jack / marquee on app chrome. Glass is atmosphere under
+  controlled contrast. Never `overflow-x: hidden` on `body`.
 
 ## Category holes (research 2026-08-23 — refuse, do not copy)
 
@@ -126,7 +201,7 @@ Steal craft, not costume: put the constraint in chrome (not footer fog); two nee
 | Phase              | Allowed                                                                                 |
 | ------------------ | --------------------------------------------------------------------------------------- |
 | Chrome             | `redesign-existing-projects`, `web-design-guidelines`, design-review                    |
-| Dashboard          | redesign-existing + this contract’s OPERATE rules                                       |
+| Home v4            | SHELL_CRAFT v4 + HOME_CRAFT v4 + ADR-006 (not OPERATE cockpit)                           |
 | Hook               | `cro` / `copywriting`, then **one of** `frontend-design` **or** `design-taste-frontend` |
 | Always after paint | brand-check, typecheck, reduced-motion smoke                                            |
 
@@ -136,9 +211,9 @@ Enforced, not just documented: `.claude/settings.json` hides both skills (`skill
 ## Layout ownership
 
 ```
-(marketing)/layout → SiteHeader + SiteFooter
-(product)/layout   → AppHeader if session else SiteHeader + SiteFooter
-HeaderShell        → shared fixed glass bar + mobile panel behavior
+(marketing)/layout → SiteHeader + SiteFooter (PERSUADE KEEP)
+(product)/layout   → Shell v4 when HOMI_V4_HOME_ENABLED + V4 path;
+                     else invent-chrome / role quiet bar (DARK trees) or SiteHeader
 ```
 
 ## Definition of done (any design PR)
@@ -174,4 +249,5 @@ Secondary product pages should keep matching operate hierarchy when touched.
 | 2026-08-23 | Dual memorable = compass + HōMI companion | founder; not either/or |
 | 2026-08-23 | User-visible spelling always HōMI | founder; internals may keep `homie` keys |
 | 2026-08-23 | Reject generic navy consultation mock | does not match GitHub identity |
-| 2026-08-23 | ScoreRail + five product tabs | landed on main; OPERATE hierarchy |
+| 2026-08-23 | ScoreRail + five product tabs | landed on main; OPERATE hierarchy (retired as v4 floor) |
+| 2026-09-09 | Product v4 Home + Shell | ADR-006; `/home`; Pixel Gate; flag default false |

@@ -196,6 +196,7 @@ describe("admin layout wires the waiver onto /admin (and nested /admin/analytics
     expect(layout).toContain("parseAdminRequireMfa");
     expect(layout).toContain("requireMfa:");
     expect(layout).toContain("AdminAccessWall");
-    expect(layout).toContain("AdminOperateChrome");
+    expect(layout).toContain("isV4HomeEnabled");
+    expect(layout).not.toContain("AdminOperateChrome");
   });
 });

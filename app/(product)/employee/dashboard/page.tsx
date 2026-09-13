@@ -1,151 +1,69 @@
-import Link from "next/link";
 import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
-import { AccessPanel } from "@/components/b2b/AccessPanel";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { PageFrame } from "@/components/operate/PageFrame";
-import { MetricRail } from "@/components/operate/MetricRail";
-import { OperateHeroMeta } from "@/components/operate/OperateHeroMeta";
-import { canAccessEmployeeHub } from "@/lib/dashboard/employee-access";
+import { redirect } from "next/navigation";
+import { EmployeeWorkspaceV4 } from "@/components/v4/employee/EmployeeWorkspaceV4";
+import { isV4HomeEnabled } from "@/lib/auth/keep-routes";
 import { signInRedirect } from "@/lib/auth/signInRedirect";
-import type { AssessmentRow, Organization, Profile } from "@/types/database";
+import { canAccessEmployeeHub } from "@/lib/dashboard/employee-access";
+import { getCachedClient, getCachedUser } from "@/lib/supabase/server";
+import { assertAssessmentResultOnly } from "@/lib/v4/home-state";
+import { loadSystemV4LastRead } from "@/lib/v4/system-read";
+import {
+  buildEmployeeV4View,
+  parseV4EmployeeVisualState,
+  employeeV4VisualView,
+} from "@/lib/v4/employee-workspace";
+import { isV4VisualFixtureEnabled } from "@/lib/v4/visual-fixture";
+import type { Profile } from "@/types/database";
 
 export const metadata: Metadata = {
-  title: "Employee Benefits | HōMI",
-  description: "Private employer-sponsored readiness hub.",
+  title: "Employee",
+  description:
+    "Operate home — live workspace data only. Never invent teammate lists or scores.",
+  robots: { index: false, follow: false },
 };
 
-export default async function EmployeeDashboardPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+/**
+ * Employee v4 — V4_PENDING `/employee/dashboard` (covered by `/employee` prefix).
+ * Shell v4 operate home. Empty or live SSOT. Never writes AssessmentResult.
+ */
+export default async function EmployeeDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ visual?: string }>;
+}) {
+  if (!isV4HomeEnabled()) {
+    redirect("/");
+  }
 
+  const params = await searchParams;
+  const visual = isV4VisualFixtureEnabled()
+    ? parseV4EmployeeVisualState(params.visual)
+    : null;
+
+  assertAssessmentResultOnly("assessment_result");
+
+  if (visual) {
+    return <EmployeeWorkspaceV4 view={employeeV4VisualView(visual)} />;
+  }
+
+  const user = await getCachedUser();
   if (!user) return signInRedirect("/employee/dashboard");
 
+  const supabase = await getCachedClient();
   const { data: profileData } = await supabase
     .from("profiles")
-    .select("*")
+    .select("role, employer_id")
     .eq("id", user.id)
     .maybeSingle();
-  const profile = (profileData as Profile | null) ?? null;
+  const profile = (profileData as Pick<Profile, "role" | "employer_id"> | null) ?? null;
 
-  if (!profile) {
-    return (
-      <div className="mx-auto max-w-3xl px-6 py-16">
-        <AccessPanel
-          title="Profile required"
-          body="We couldn't load your profile."
-          href="/auth/sign-in?next=/employee/dashboard"
-          linkLabel="Sign in"
-        />
-      </div>
-    );
-  }
-
-  const hasEmployer = canAccessEmployeeHub(profile);
-
-  if (!hasEmployer) {
-    return (
-      <div className="mx-auto max-w-3xl px-6 py-16">
-        <AccessPanel
-          title="Connect your employer benefit"
-          body="This hub is for employees whose organization sponsors HōMI. Ask benefits for your access link, or use the personal dashboard."
-          href="/employee"
-          linkLabel="Learn about employee benefits"
-        />
-      </div>
-    );
-  }
-
-  let org: Organization | null = null;
-  if (profile.employer_id) {
-    const { data } = await supabase
-      .from("organizations")
-      .select("*")
-      .eq("id", profile.employer_id)
-      .maybeSingle();
-    org = (data as Organization | null) ?? null;
-  }
-
-  const { data: assessmentData } = await supabase
-    .from("assessments")
-    .select("id")
-    .eq("user_id", user.id)
-    .eq("status", "completed")
-    .order("created_at", { ascending: false })
-    .limit(1);
-  const latest = ((assessmentData as Pick<AssessmentRow, "id">[] | null) ?? [])[0] ?? null;
-
+  const reading = await loadSystemV4LastRead();
   return (
-    <PageFrame role="employee" density="compact">
-      <p className="text-2xs font-bold uppercase tracking-[0.14em] text-dim">
-        Employee
-      </p>
-      <OperateHeroMeta
-        title={
-          <>
-            Employee readiness for{" "}
-            <span className="text-aurora">{org?.name ?? "your employer"}</span>
-          </>
-        }
-        description="Your employer never sees a personal score. Privacy stays on. Operate chrome — not a second personal Home."
-      />
-
-      {latest ? (
-        <Link href="/path" className="btn btn-ghost">
-          Path to Ready
-        </Link>
-      ) : (
-        <EmptyState
-          tone="operate"
-          title="One private measurement and this hub comes alive"
-          body="Your employer sponsors the instrument. Only you see the reading — on personal Home, not here."
-          actionHref="/assessment"
-          actionLabel="Assess"
-        />
-      )}
-
-      <div className="mt-5 grid gap-3 sm:grid-cols-2" data-employee-privacy="">
-        <div className="dash-panel">
-          <h3>What your employer sees</h3>
-          <p className="mt-2 text-sm text-dim">
-            Participation and program fit only. No personal verdict. No peer score listing.
-          </p>
-        </div>
-        <div className="dash-panel">
-          <h3>What stays yours</h3>
-          <p className="mt-2 text-sm text-dim">
-            Assessment detail, Path, and money reality stay on your personal Home — not here.
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-5">
-        <MetricRail
-          cells={[
-            {
-              label: "Org coverage",
-              value: "—",
-              footer: "Aggregate only",
-            },
-            {
-              label: "Benefits open",
-              value: org ? "1" : "—",
-              footer: "Employer-sponsored",
-            },
-            {
-              label: "Your score here",
-              value: "—",
-              footer: "Personal Home only",
-            },
-          ]}
-        />
-      </div>
-
-      <p className="mt-10 text-center text-xs text-dim">
-        Decision-support benefit. Not medical or financial advice. HōMI Technologies LLC.
-      </p>
-    </PageFrame>
+    <EmployeeWorkspaceV4
+      view={buildEmployeeV4View({
+        reading,
+        hasLiveWorkspace: canAccessEmployeeHub(profile),
+      })}
+    />
   );
 }

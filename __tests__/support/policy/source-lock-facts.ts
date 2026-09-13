@@ -521,8 +521,6 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
       "$4,200",
       "$4200",
       "+points",
-      "Net Worth",
-      "Emergency Fund",
       "Rent vs Buy",
       "Homie",
       "Chat with HōMI",
@@ -547,7 +545,11 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
       "/tools/blind-budget",
       "/tools/monte-carlo",
       "Open Path",
-      "View all tools",
+      "View all",
+      "/tools/net-worth",
+      "/tools/emergency-fund",
+      "Here to help you see clearly",
+      "Local guidance · not live AI",
     ],
     stringsMustNot: [
       "10,000",
@@ -555,6 +557,19 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
       "CRAFT · PR8",
       "CRAFT · NOT SHIP",
     ],
+  },
+  {
+    id: "fold-wiring/home-companion-column-craft",
+    file: "components/dashboard/HomeCompanionColumn.tsx",
+    identifiersMust: ["HOME_COMPANION_TAGLINE", "HOME_COMPANION_GUIDANCE"],
+    stringsMust: [
+      "data-home-companion-trinity",
+      "data-home-companion-theater",
+      "data-home-companion-composer",
+      'href="/advisor"',
+      "btn-ghost",
+    ],
+    stringsMustNot: ["btn-primary", "Homie", "CRAFT · PR10", "CRAFT · NOT SHIP"],
   },
   {
     id: "fold-wiring/home-money-standing-strip",
@@ -611,8 +626,11 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
   {
     id: "fold-wiring/full-assessment-lands-home",
     file: "components/assessment/FullAssessmentFlow.tsx",
-    codeMust: ['router.push("/dashboard")'],
-    codeMustNotMatch: ["router\\.push\\([\"']/results[\"']\\)"],
+    codeMust: ["POST_LOGIN_V4_HOME"],
+    codeMustNotMatch: [
+      "router\\.push\\([\"']/results[\"']\\)",
+      "router\\.push\\([\"']/dashboard[\"']\\)",
+    ],
   },
   {
     id: "fold-wiring/fold-save-status-banner",
@@ -652,7 +670,7 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
   {
     id: "fold-wiring/employee-hub-empty-close",
     file: "app/(product)/employee/dashboard/page.tsx",
-    identifiersMustNot: ["ThresholdCompass", "HeroScore", "VerdictBadge", "ThresholdFold", "OperateInstrument"],
+    identifiersMustNot: ["ThresholdCompass", "HeroScore", "VerdictBadge", "ThresholdFold", "OperateInstrument", "MetricRail"],
     stringsMustNot: [
       "Get your Shadow Score",
       "Private Decision Readiness Score",
@@ -660,8 +678,10 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
       "data-employee-score-rail",
       "data-employee-primary",
       "dash-instrument",
+      "Your score here",
+      "Homie",
     ],
-    codeMust: ['actionHref="/assessment"', 'actionLabel="Assess"', 'href="/path"'],
+    codeMust: ['assertAssessmentResultOnly("assessment_result")', "EmployeeWorkspaceV4"],
     codeMustNot: ['actionHref="/shadow-score"', 'href: "/plan"', "tint={tint}", 'tint="transparent"'],
   },
   {
@@ -763,6 +783,30 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
       "inviteUrl\\s*=\\s*partnerCode[\\s\\S]*:\\s*`\\$\\{SITE_URL\\}/shadow-score`",
     ],
   },
+  {
+    id: "fold-wiring/partner-hub-empty-close",
+    file: "app/(product)/partner/dashboard/page.tsx",
+    identifiersMustNot: [
+      "ThresholdCompass",
+      "HeroScore",
+      "VerdictBadge",
+      "ThresholdFold",
+      "OperateInstrument",
+      "MetricRail",
+      "PageFrame",
+      "OperateHeroMeta",
+    ],
+    stringsMust: ["first-moment?ref=", "Could not mint an invite code", "PartnerWorkspaceV4"],
+    stringsMustNot: [
+      "shadow-score?ref=",
+      "Shadow Score",
+      "HeroScore",
+      "Homie",
+      "data-partner-resources",
+    ],
+    codeMust: ["resolvePartnerInviteOrigin", "PartnerSiteUrlError"],
+    codeMustNot: ['href: "/plan"', "scoreBand("],
+  },
 
   // ---------------------------------------------------------------------------
   // __tests__/layout/app-sidebar.test.tsx (source-grep it only)
@@ -847,8 +891,8 @@ export const SOURCE_LOCK_FACTS: SourceLockFact[] = [
   {
     id: "money-mode-nav/bottom-nav-on-product-router",
     file: "components/layout/ProductLayoutRouter.tsx",
-    identifiersMust: ["AppHeader"],
-    identifiersMustNot: ["ProductBottomNav", "AppSidebar"],
+    identifiersMust: ["AppHeader", "SignedInPersonalChrome"],
+    identifiersMustNot: ["ProductBottomNav"],
   },
   {
     id: "money-mode-nav/bottom-nav-off-product-layout",

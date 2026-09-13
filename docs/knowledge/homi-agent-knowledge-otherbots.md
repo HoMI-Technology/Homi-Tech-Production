@@ -95,7 +95,8 @@ ultra-premium 4-root) — verify against origin/main before trusting.
 
 ## Site/repo governance gotchas (2026-08-03 audit — dev workspace docs; reorg PRs #131–#135 merged since, re-verify)
 
-- `npm run lint` hangs and is NOT a gate — real gates are the CI `verify` job: brand-check →
+- ESLint/Prettier are deferred (no packages; `lint`/`format` scripts removed) and are
+  NOT a gate — real gates are the CI `verify` job: brand-check →
   architecture:check → tsc --noEmit → vitest run → next build; E2E separate. Never
   `supabase db push` (migration ledger diverged: 139 remote vs 42 local rows); reachable Supabase is
   production — no destructive Playwright. (C:\dev\kimi-workspace\docs\homi-site-reorg\findings.md)

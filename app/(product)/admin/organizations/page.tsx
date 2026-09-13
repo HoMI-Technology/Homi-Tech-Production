@@ -1,64 +1,82 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { AdminRoomEmptyV4 } from "@/components/v4/admin/AdminRoomEmptyV4";
+import { PageFrame } from "@/components/operate/PageFrame";
 import { PageHeader } from "@/components/operate/PageHeader";
 import { MetricRail } from "@/components/operate/MetricRail";
 import { COLORS } from "@/lib/brand";
-import type { Organization } from "@/types/database";
+import {
+  ADMIN_V4_ORGANIZATIONS_CONSOLE_EMPTY,
+  buildAdminOrganizationsV4View,
+  type AdminOrganizationsV4MemberRow,
+  type AdminOrganizationsV4SourceRow,
+} from "@/lib/v4/admin-workspace";
 
 export const metadata: Metadata = {
-  title: "Organizations | HōMI Admin",
+  title: "Organizations | Admin | HōMI",
   description: "Employer and partner organizations, membership, and family accounts.",
 };
-
-interface OrgWithCount extends Organization {
-  member_count: number;
-}
 
 export default async function AdminOrganizationsPage() {
   const supabase = await createClient();
 
-  let organizations: OrgWithCount[] = [];
-  let familyAccountsCount = 0;
-  let totalMembers = 0;
+  let rows: AdminOrganizationsV4SourceRow[] = [];
+  let members: AdminOrganizationsV4MemberRow[] = [];
+  let familyCount = 0;
+  let loadError = false;
 
   try {
-    const { data } = await supabase
+    const { data: orgData, error: orgError } = await supabase
       .from("organizations")
-      .select("*")
+      .select("id, name, slug, kind, plan, created_at")
       .order("created_at", { ascending: false })
       .limit(200);
-    const orgs = (data as Organization[] | null) ?? [];
-
-    let counts: Record<string, number> = {};
-    if (orgs.length > 0) {
-      const { data: memberRows } = await supabase
-        .from("organization_members")
-        .select("organization_id")
-        .limit(20000);
-      const rows = (memberRows as { organization_id: string }[] | null) ?? [];
-      counts = rows.reduce<Record<string, number>>((acc, r) => {
-        acc[r.organization_id] = (acc[r.organization_id] ?? 0) + 1;
-        return acc;
-      }, {});
-      totalMembers = rows.length;
+    if (orgError) {
+      loadError = true;
+    } else {
+      rows = (orgData as AdminOrganizationsV4SourceRow[] | null) ?? [];
     }
 
-    organizations = orgs.map((o) => ({ ...o, member_count: counts[o.id] ?? 0 }));
+    const { data: memberData, error: memberError } = await supabase
+      .from("organization_members")
+      .select("organization_id")
+      .limit(20000);
+    if (memberError) {
+      loadError = true;
+      members = [];
+    } else {
+      members = (memberData as AdminOrganizationsV4MemberRow[] | null) ?? [];
+    }
+
+    const { count, error: familyError } = await supabase
+      .from("family_accounts")
+      .select("id", { count: "exact", head: true });
+    if (familyError) {
+      loadError = true;
+      familyCount = 0;
+    } else {
+      familyCount = count ?? 0;
+    }
   } catch {
-    organizations = [];
+    loadError = true;
+    rows = [];
+    members = [];
+    familyCount = 0;
   }
 
-  try {
-    const { count } = await supabase
-      .from("family_accounts")
-      .select("*", { count: "exact", head: true });
-    familyAccountsCount = count ?? 0;
-  } catch {
-    familyAccountsCount = 0;
-  }
+  const view = buildAdminOrganizationsV4View({
+    rows,
+    members,
+    familyCount,
+    loadError,
+  });
 
   return (
-    <div>
+    <PageFrame role="admin" density="compact">
+      {view.kind === "empty" ? (
+        <AdminRoomEmptyV4 title={ADMIN_V4_ORGANIZATIONS_CONSOLE_EMPTY} />
+      ) : (
+        <>
       <PageHeader
         eyebrow="Admin"
         title="Organizations"
@@ -69,84 +87,61 @@ export default async function AdminOrganizationsPage() {
         <MetricRail
           cells={[
             {
-              label: "Organizations",
-              value: organizations.length.toLocaleString(),
-              footer: "Employer + partner",
+              label: "Shown",
+              value: String(view.shown),
+              footer: "Latest 200",
               color: COLORS.cyan,
             },
             {
               label: "Members",
-              value: totalMembers.toLocaleString(),
-              footer: "Across all orgs",
+              value: String(view.memberCount),
+              footer: "Across loaded orgs",
               color: COLORS.emerald,
             },
             {
               label: "Family",
-              value: familyAccountsCount.toLocaleString(),
+              value: String(view.familyCount),
               footer: "Households",
               color: COLORS.yellow,
+            },
+            {
+              label: "Employers",
+              value: String(view.employerCount),
+              footer: "Kind = employer",
+              color: COLORS.amber,
             },
           ]}
         />
       </div>
 
-      <div className="glass mt-6 p-6">
-        <div className="dash-section-head">
-          <h2>All organizations</h2>
-          <p>Employer and partner accounts.</p>
-        </div>
-        {organizations.length === 0 ? (
-          <p className="py-12 text-center text-sm text-dim">
-            No organizations yet. Employer and partner accounts will appear here once created.
-          </p>
-        ) : (
-          <div className="mt-3 table-scroll">
-            <table className="table-premium min-w-[720px]">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Slug</th>
-                  <th>Kind</th>
-                  <th>Plan</th>
-                  <th>Members</th>
-                  <th>Created</th>
-                </tr>
-              </thead>
-              <tbody>
-                {organizations.map((o) => (
-                  <tr key={o.id}>
-                    <td className="font-medium">{o.name}</td>
-                    <td className="text-dim">{o.slug}</td>
-                    <td>
-                      <span
-                        className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize"
-                        style={{
-                          color: o.kind === "employer" ? COLORS.cyan : COLORS.emerald,
-                          borderColor:
-                            o.kind === "employer" ? `${COLORS.cyan}59` : `${COLORS.emerald}59`,
-                          background:
-                            o.kind === "employer" ? `${COLORS.cyan}1a` : `${COLORS.emerald}1a`,
-                        }}
-                      >
-                        {o.kind}
-                      </span>
-                    </td>
-                    <td className="text-dim capitalize">{o.plan}</td>
-                    <td className="score-numeral">{o.member_count.toLocaleString()}</td>
-                    <td className="text-dim">
-                      {new Date(o.created_at).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+      <div className="glass mt-6 table-scroll">
+        <table className="table-premium min-w-[720px]">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Slug</th>
+              <th>Kind</th>
+              <th>Plan</th>
+              <th>Members</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            {view.rows.map((row) => (
+              <tr key={row.id}>
+                <td className="font-medium">{row.nameLabel}</td>
+                <td className="text-dim">{row.slugLabel}</td>
+                <td className="text-dim capitalize">{row.kindLabel}</td>
+                <td className="text-dim capitalize">{row.planLabel}</td>
+                <td className="text-dim">{String(row.memberCount)}</td>
+                <td className="text-dim">{row.createdLabel}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-    </div>
+        </>
+      )}
+    </PageFrame>
   );
 }

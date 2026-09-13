@@ -30,17 +30,30 @@ beforeAll(() => {
 
 afterEach(() => {
   cleanup();
+  vi.unstubAllEnvs();
 });
 
-describe("signed-in /assessment uses quiet top-bar shell v3", () => {
-  it("mounts AppHeader in main's product chrome — not AssessmentShell", () => {
+describe("signed-in /assessment uses PR10 left-rail chrome", () => {
+  it("mounts the left rail in product chrome — not AssessmentShell, no craft badge", () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "false");
     render(
-      <ProductLayoutRouter user email={null}>
+      <ProductLayoutRouter user shell="personal" email={null}>
         <p>walk</p>
       </ProductLayoutRouter>,
     );
 
-    expect(document.querySelector("[data-app-shell='v3']")).not.toBeNull();
+    expect(document.querySelector("[data-app-shell='pr10-rail']")).not.toBeNull();
+    expect(document.querySelector("[data-left-rail]")).not.toBeNull();
+    expect(document.querySelector('[data-product-shell="personal"]')).not.toBeNull();
+    expect(document.querySelector('[data-invent-chrome="pr13"]')).not.toBeNull();
+    expect(document.body.textContent).toContain("Assessment");
+    expect(document.body.textContent).toContain("Finances");
+    expect(document.body.textContent).toContain("Plans");
+    expect(document.body.textContent).toContain("Bills");
+    expect(document.body.textContent).toContain("Insights");
+    expect(document.body.textContent).toContain("Learn");
+    expect(document.body.textContent).toContain("Companion");
+    expect(document.body.textContent).toContain("Tools");
     expect(document.querySelector("main#main")).not.toBeNull();
     expect(document.querySelector(".assessment-focus-bar")).toBeNull();
     expect(document.querySelector(".assessment-focus-shell")).toBeNull();
@@ -49,8 +62,40 @@ describe("signed-in /assessment uses quiet top-bar shell v3", () => {
     expect(compasses).toHaveLength(1);
     expect(compasses[0]?.closest("main#main")).toBeNull();
     expect(document.querySelector("[data-shell-floor]")).toBeNull();
+    expect(document.body.textContent).not.toContain("CRAFT · PR10");
+    expect(document.body.textContent).not.toContain("NOT SHIP");
     expect(document.body.textContent).not.toContain("Craft v3");
     expect(document.body.textContent).not.toContain("PR2 floor");
-    expect(document.body.textContent).not.toContain("Craft v3 · PR2 floor · not ship");
+  });
+});
+
+describe("signed-in /assessment uses Shell v4 when the Home flag is on", () => {
+  it("mounts Shell v4 with Assess in the top command, not as a rail peer", () => {
+    vi.stubEnv("HOMI_V4_HOME_ENABLED", "true");
+    render(
+      <ProductLayoutRouter user shell="v4" email={null} greeting="Welcome back" firstName={null}>
+        <p>walk</p>
+      </ProductLayoutRouter>,
+    );
+
+    expect(document.querySelector("[data-product-shell='v4']")).not.toBeNull();
+    expect(document.querySelector("[data-v4-left-nav]")).not.toBeNull();
+    expect(document.querySelector("[data-v4-command-assess]")?.getAttribute("href")).toBe(
+      "/assessment",
+    );
+    expect(document.querySelector("[data-v4-command-assess]")?.getAttribute("aria-current")).toBe(
+      "page",
+    );
+    const rail = document.querySelector("[data-v4-rail-primary]")?.textContent ?? "";
+    expect(rail).toContain("Home");
+    expect(rail).toContain("Money");
+    expect(rail).toContain("Path");
+    expect(rail).toContain("Compare");
+    expect(rail).not.toContain("Assess");
+    expect(document.querySelector("main#main")).not.toBeNull();
+    expect(document.querySelector(".assessment-focus-shell")).toBeNull();
+    const compasses = document.querySelectorAll('[aria-label*="Threshold Compass"]');
+    expect(compasses).toHaveLength(1);
+    expect(compasses[0]?.closest("main#main")).toBeNull();
   });
 });

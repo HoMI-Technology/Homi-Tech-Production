@@ -46,5 +46,22 @@ describe("assessment progress chrome honesty", () => {
     expect(node?.textContent).toBe("Financial Reality · 4 of ~8 this path");
     expect(container.textContent).not.toMatch(/45/);
     expect(container.querySelector("[data-progress-chrome='path']")).not.toBeNull();
+    expect(container.querySelector("[role='progressbar']")).not.toBeNull();
+  });
+
+  it("quiet path chrome keeps the label and drops the bar", () => {
+    const { container } = render(
+      <PathProgressChrome
+        dimension="financial"
+        label="Financial Reality · 3 of ~8 this path"
+        current={3}
+        estimate={8}
+        quiet
+      />,
+    );
+    expect(container.querySelector("[data-path-progress]")?.textContent).toBe(
+      "Financial Reality · 3 of ~8 this path",
+    );
+    expect(container.querySelector("[role='progressbar']")).toBeNull();
   });
 });

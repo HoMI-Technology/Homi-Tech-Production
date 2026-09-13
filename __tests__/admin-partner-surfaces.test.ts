@@ -22,56 +22,42 @@ describe("admin + marketing attention doctrine", () => {
 
   it("Admin home mounts AttentionStrip before MetricRail", () => {
     const page = read("app/(product)/admin/page.tsx");
-    expect(page).toContain("AttentionStrip");
-    expect(page).toContain('data-admin-attention=""');
-    expect(page).toContain("<PageFrame");
-    expect(page).toContain('data-admin-depth=""');
-    expect(page).toContain("Marketing");
-    expect(page).not.toContain("Marketing · depth");
-    expect(page).toContain("Marketing is depth");
-    expect(page.indexOf("AttentionStrip")).toBeLessThan(page.indexOf("<MetricRail"));
-    expect(page.indexOf("data-admin-attention")).toBeLessThan(page.indexOf("<MetricRail"));
-    expect(page.indexOf("<MetricRail")).toBeLessThan(page.indexOf("data-admin-depth"));
+    const workspace = read("components/v4/admin/AdminWorkspaceV4.tsx");
+    expect(page).toContain("AdminWorkspaceV4");
+    expect(workspace).toContain("AttentionStrip");
+    expect(workspace).toContain('data-admin-attention=""');
+    expect(workspace).toContain("<PageFrame");
+    expect(workspace.indexOf("AttentionStrip")).toBeLessThan(workspace.indexOf("<MetricRail"));
     expect(page).not.toContain("ThresholdFold");
   });
 
-  it("Marketing follows the locked command-center v2 section order", () => {
+  it("Marketing follows Queue/Approve lock — Publish disabled, X+TikTok only", () => {
     const page = read("app/(product)/admin/marketing/page.tsx");
-    expect(page).toContain('data-marketing-attention=""');
-    expect(page).toContain("MarketingTodayStrip");
-    // Locked order (docs/design/marketing-command-center-v2.md rev 3):
-    // Today → ActivationInstrument → MetricRail (3-cell) → quick-action chips
-    // → Proof → Owned → Create (agency) → Claim → Library.
-    const order = [
-      "data-marketing-attention",
-      "<ActivationInstrument",
-      "<MetricRail",
-      'id="proof"',
-      'id="owned"',
-      'id="create"',
-      'id="claim"',
-      'id="library"',
-    ];
-    for (let i = 1; i < order.length; i++) {
-      expect(page.indexOf(order[i - 1])).toBeGreaterThanOrEqual(0);
-      expect(page.indexOf(order[i])).toBeGreaterThanOrEqual(0);
-      expect(page.indexOf(order[i - 1])).toBeLessThan(page.indexOf(order[i]));
-    }
-    // Agency suite after Proof, never between header and engine; tabbed
-    // AgencyDesks is the spec-rejected Alternative B.
+    const surface = read("components/v4/admin/AdminMarketingV4.tsx");
+    expect(page).toContain("AdminMarketingV4");
+    expect(surface).toContain("Queue");
+    expect(surface).toContain("Approve");
+    expect(surface).toContain("Publish");
+    expect(surface).toContain('aria-disabled="true"');
+    expect(page).toContain("adminV4DraftsFromAssets");
+    expect(page).not.toContain("<ActivationInstrument");
     expect(page).not.toContain("<AgencyDesks");
-    expect(page.indexOf('id="proof"')).toBeLessThan(page.indexOf('id="create"'));
-    // Locked PageHeader copy + primary Email action.
-    expect(page).toMatch(/What to do this week to create activations/);
-    expect(page).toContain('href: "/admin/email"');
+    expect(surface).toContain("aria-disabled");
   });
 
-  it("Ad spend mounts attention before MetricRail and tables", () => {
+  it("Ad spend is empty-or-live via the shipped v4 builder — cents ledger, no AttentionStrip theater", () => {
     const page = read("app/(product)/admin/ad-spend/page.tsx");
-    expect(page).toContain('data-ad-spend-attention=""');
-    expect(page).toContain("AttentionStrip");
-    expect(page.indexOf("data-ad-spend-attention")).toBeLessThan(page.indexOf("<MetricRail"));
-    expect(page.indexOf("AttentionStrip")).toBeLessThan(page.indexOf("AdSpendForm"));
+    expect(page).toContain("buildAdminAdSpendV4View");
+    expect(page).toContain("ADMIN_V4_AD_SPEND_CONSOLE_EMPTY");
+    expect(page).toContain("AdminRoomEmptyV4");
+    expect(page).toContain("AdSpendForm");
+    expect(page).toContain("Spend cents");
+    expect(page).not.toContain("AttentionStrip");
+    expect(page).not.toContain("data-ad-spend-attention");
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("ThresholdFold");
+    expect(page).not.toContain("/team");
+    expect(page).not.toMatch(/\$\d/);
   });
 
   it("Companion stays off admin routes", () => {
@@ -84,16 +70,13 @@ describe("admin + marketing attention doctrine", () => {
     expect(widget).toMatch(/pathname\.startsWith\("\/admin\/"\)/);
   });
 
-  it("Admin home uses PageFrame under shell v3 — no Wordmark left rail", () => {
+  it("Admin home uses Shell v4 — leftover PageFrame, no Wordmark in layout", () => {
     const layout = read("app/(product)/admin/layout.tsx");
-    expect(layout).toContain("AdminOperateChrome");
+    expect(layout).not.toContain("AdminOperateChrome");
     expect(layout).not.toContain("Wordmark");
-    expect(layout).not.toContain("AdminSidebar");
-    const chrome = read("components/admin/AdminOperateChrome.tsx");
-    expect(chrome).toContain('pathname === "/admin"');
-    expect(chrome).toContain("AdminSidebar");
-    expect(chrome).not.toContain("Wordmark");
-    expect(chrome).not.toContain("ThresholdCompass");
+    expect(layout).toContain("isV4HomeEnabled");
+    const workspace = read("components/v4/admin/AdminWorkspaceV4.tsx");
+    expect(workspace).toContain("<PageFrame");
   });
 });
 
@@ -108,34 +91,29 @@ describe("partner + employee surfaces doctrine", () => {
 
   it("Partner primary is invite — not personal Path hero", () => {
     const page = read("app/(product)/partner/dashboard/page.tsx");
-    expect(page).toMatch(/>\s*Partner\s*<\/p>/);
+    const workspace = read("components/v4/partner/PartnerWorkspaceV4.tsx");
     expect(page).not.toContain("Partner · /partner/dashboard");
-    expect(page).toContain('data-partner-invite=""');
-    expect(page).toContain("InviteShareRow");
+    expect(page).toContain("PartnerWorkspaceV4");
     expect(page).toContain("first-moment?ref=");
-    expect(page).toContain("Copy invite");
+    expect(workspace).toContain('data-partner-invite=""');
+    expect(workspace).toContain("InviteShareRow");
+    expect(workspace).toContain("Copy invite");
     expect(page).not.toContain("shadow-score?ref=");
     expect(page).not.toContain("Shadow Score");
     expect(page).not.toContain("VerdictBadge");
     expect(page).not.toContain("PathNextMove");
     expect(page).not.toContain("HomeFold");
     expect(page).not.toContain("NOT_YET");
-    expect(page).toContain('data-partner-resources=""');
-    // Resources demoted — no glass-hover marketing wall
-    expect(page).not.toMatch(/data-partner-resources[\s\S]*glass-hover/);
+    expect(page).not.toContain("HeroScore");
+    expect(page).not.toContain("scoreBand");
+    expect(page).not.toContain("data-partner-resources");
   });
 
-  it("Employee hub keeps privacy and Path ghost — score rail unmounted", () => {
+  it("Employee hub is Shell v4 operate home — score theater unmounted", () => {
     const page = read("app/(product)/employee/dashboard/page.tsx");
-    expect(page).toMatch(/>\s*Employee\s*<\/p>/);
     expect(page).not.toContain("Employee · /employee/dashboard");
-    expect(page).toContain('data-employee-privacy=""');
-    expect(page).toContain("OperateHeroMeta");
-    expect(page).toContain("MetricRail");
-    expect(page).toContain("EmptyState");
-    expect(page).toContain('tone="operate"');
-    expect(page).toContain("What your employer sees");
-    expect(page).toContain("Your score here");
+    expect(page).toContain("EmployeeWorkspaceV4");
+    expect(page).toContain("assertAssessmentResultOnly");
     expect(page).not.toContain("HeroScore");
     expect(page).not.toContain("VerdictBadge");
     expect(page).not.toContain("data-employee-score-rail");
@@ -153,19 +131,23 @@ describe("partner + employee surfaces doctrine", () => {
     expect(page).not.toContain("financial_score");
     expect(page).not.toContain("overall_score");
     expect(page).not.toContain("ThresholdCompass");
-    // Six-card product wall removed
+    expect(page).not.toContain("MetricRail");
+    expect(page).not.toContain("OperateHeroMeta");
+    expect(page).not.toContain("PageFrame");
+    expect(page).not.toContain("Your score here");
     expect(page).not.toMatch(/glass glass-hover block p-4[\s\S]*Path to Ready/);
     expect(page).not.toMatch(/title: "Companion"/);
-    const pathLink = page.match(/<Link[^>]*href="\/path"[^>]*>/);
-    expect(pathLink?.[0] ?? "").toMatch(/btn-ghost/);
   });
 
   it("Team stays aggregate-only with no named individuals copy", () => {
     const page = read("app/(product)/team/page.tsx");
+    const workspace = read("components/v4/team/TeamWorkspaceV4.tsx");
+    const ssot = read("lib/v4/team-workspace.ts");
     expect(page).toContain("Team · aggregate only");
     expect(page).not.toContain("Team · /team");
-    expect(page).toContain('data-team-aggregates=""');
-    expect(page).toMatch(/Individuals are not listed|No named individuals/);
+    expect(page).toContain("TeamWorkspaceV4");
+    expect(workspace).toContain('data-team-aggregates=""');
+    expect(ssot).toMatch(/Individuals are not listed|No named individuals/);
     expect(page).not.toContain("PathNextMove");
     expect(page).not.toContain("ActionDock");
     expect(page).not.toContain('href="/dashboard"');

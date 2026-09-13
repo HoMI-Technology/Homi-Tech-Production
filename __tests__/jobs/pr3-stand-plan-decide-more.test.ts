@@ -19,7 +19,10 @@ const moneyPage = read("app/(product)/money/page.tsx");
 const moneyShell = read("components/money/MoneyShell.tsx");
 const pathPage = read("app/(product)/path/page.tsx");
 const workbench = read("components/readiness/PathWorkbench.tsx");
-const toolsHub = read("app/(product)/tools/page.tsx");
+const toolsHub =
+  read("app/(product)/tools/page.tsx") +
+  read("lib/v4/tools-workspace.ts") +
+  read("components/v4/tools/ToolsWorkspaceV4.tsx");
 const decide = read("components/money/MoneyDecideHub.tsx");
 const header = read("components/layout/AppHeader.tsx");
 const fold = read("components/dashboard/ThresholdFold.tsx");
@@ -35,9 +38,10 @@ describe("CEO chrome defaults 1–7 (founder skipped picker)", () => {
     expect(existsSync(resolve(process.cwd(), "app/(product)/path/page.tsx"))).toBe(true);
     expect(existsSync(resolve(process.cwd(), "app/(product)/money/page.tsx"))).toBe(true);
     expect(existsSync(resolve(process.cwd(), "app/(product)/tools/page.tsx"))).toBe(true);
-    expect(pathPage).toContain('job="path"');
+    expect(pathPage).toContain("PathWorkspaceV4");
+    expect(moneyPage).toContain("MoneyWorkspaceV4");
     expect(stand).toContain("Stand job on live `/money`");
-    expect(toolsHub).toContain("Decide job primary surface");
+    expect(toolsHub).toContain("ToolsWorkspaceV4");
   });
 
   it("2 More is a ··· drawer — not a peer home or /more URL", () => {
@@ -49,8 +53,8 @@ describe("CEO chrome defaults 1–7 (founder skipped picker)", () => {
   });
 
   it("3 Path SSOT stays on /path, separate from Money plan/budget", () => {
-    expect(pathPage).toContain("PathWorkbench");
-    expect(pathPage).toContain("Budget and goals stay depth");
+    expect(pathPage).toContain("PathWorkspaceV4");
+    expect(pathPage).not.toContain("MoneyStand");
     expect(moneyPlan).toContain("Money plan · depth");
     expect(existsSync(resolve(process.cwd(), "app/(product)/money/budget/page.tsx"))).toBe(true);
     expect(existsSync(resolve(process.cwd(), "app/(product)/money/plan/page.tsx"))).toBe(true);
@@ -111,8 +115,8 @@ describe("PR3 topology — live routes only", () => {
   });
 
   it("keeps Path SSOT on /path separate from Money plan/budget", () => {
-    expect(pathPage).toContain('job="path"');
-    expect(pathPage).toContain("PathWorkbench");
+    expect(pathPage).toContain("PathWorkspaceV4");
+    expect(pathPage).toContain("/path");
     expect(moneyPlan).toContain("Money plan · depth");
     expect(moneyPlan).not.toMatch(/pulse the Decision Readiness Score/);
     expect(existsSync(resolve(process.cwd(), "app/(product)/money/budget/page.tsx"))).toBe(true);
@@ -146,7 +150,9 @@ describe("PR3 Stand — /money empty honesty, no theater", () => {
     expect(stand).not.toContain("text-6xl");
     expect(stand).not.toContain("text-7xl");
     expect(moneyPage).not.toContain("ScoreRail");
-    expect(moneyPage).not.toContain("from(\"assessments\")");
+    expect(moneyPage).not.toContain("MoneyStand");
+    expect(moneyPage).not.toMatch(/\.insert\(|\.upsert\(|\.update\(/);
+    expect(moneyPage).toContain("assertAssessmentResultOnly");
   });
 
   it("MoneyShell does not paint a Decide/Plan mode rail", () => {
@@ -157,8 +163,7 @@ describe("PR3 Stand — /money empty honesty, no theater", () => {
 
 describe("PR3 Plan — Path workbench max 7", () => {
   it("Path to Ready title, max 7, one next step, no body compass", () => {
-    expect(pathPage).toContain("Path to Ready");
-    expect(pathPage).toContain("MAX_PATH_STEPS");
+    expect(pathPage).toContain("PathWorkspaceV4");
     expect(MAX_PATH_STEPS).toBe(7);
     expect(pathPage).not.toContain("ThresholdCompass");
     expect(pathPage).not.toContain("PathProgressHero");

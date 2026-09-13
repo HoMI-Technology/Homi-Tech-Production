@@ -4,14 +4,15 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { resolvePostLoginDestination } from "@/lib/auth/postLoginDestination";
+import { POST_LOGIN_V4_HOME } from "@/lib/auth/postLoginDestination";
 import { OAuthButtons } from "@/components/auth/OAuthButtons";
 
 function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  // Raw `next` is resolved after auth with assessment state; deep links still
-  // pass through resolvePostLoginDestination → safeNext.
+  // Magic-link `next` is applied by the server callback. Do not resolve the
+  // landing on the client: HOMI_V4_HOME_ENABLED is server-only (not
+  // NEXT_PUBLIC), so the browser always saw undefined and sent `/`.
   const requestedNext = searchParams.get("next");
 
   const [email, setEmail] = useState("");
@@ -20,26 +21,6 @@ function SignInForm() {
   const [magicLoading, setMagicLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [magicSent, setMagicSent] = useState(false);
-
-  async function destinationAfterSignIn(): Promise<string> {
-    const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    let hasCompletedAssessment = false;
-    if (user) {
-      const { count } = await supabase
-        .from("assessments")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .eq("status", "completed");
-      hasCompletedAssessment = (count ?? 0) > 0;
-    }
-    return resolvePostLoginDestination({
-      requestedNext,
-      hasCompletedAssessment,
-    });
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -57,8 +38,8 @@ function SignInForm() {
       }
 
       // Password auth only — no TOTP step-up. MFA is disabled for product login.
-      const dest = await destinationAfterSignIn();
-      router.push(dest);
+      // /home's server page still redirects to `/` when the v4 flag is off.
+      router.push(POST_LOGIN_V4_HOME);
       router.refresh();
     } catch {
       setError("Something went wrong. Try again in a moment.");
@@ -175,7 +156,7 @@ function SignInForm() {
         </form>
       )}
 
-      <OAuthButtons next={requestedNext} />
+      <OAuthButtons next={POST_LOGIN_V4_HOME} />
 
       <div className="hairline my-6" />
 

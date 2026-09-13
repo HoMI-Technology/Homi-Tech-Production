@@ -30,11 +30,21 @@ const DOT: Record<AttentionItem["severity"], string> = {
 export function AttentionStrip({
   items,
   title = "Needs attention",
+  emptyCopy,
 }: {
   items: AttentionItem[];
   title?: string;
+  emptyCopy?: string;
 }) {
-  if (items.length === 0) return null;
+  if (items.length === 0) {
+    if (!emptyCopy) return null;
+    return (
+      <section className="v4-admin-attention" aria-label={title} data-admin-attention-empty="">
+        <p className="eyebrow">{title}</p>
+        <p className="mt-2 text-sm text-cyan">{emptyCopy}</p>
+      </section>
+    );
+  }
 
   const primary = items[0];
   const rest = items.slice(1, 5);

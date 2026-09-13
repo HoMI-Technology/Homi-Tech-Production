@@ -1,20 +1,17 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { safeNext } from "@/lib/auth/safeNext";
-import { POST_LOGIN_ASSESS } from "@/lib/auth/postLoginDestination";
+import { POST_LOGIN_V4_HOME } from "@/lib/auth/postLoginDestination";
 import { OAuthButtons } from "@/components/auth/OAuthButtons";
 
 function SignUpForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  // Same-origin only — defense-in-depth against ?next=//evil.com open redirects.
-  // Bare sign-up defaults to Assess (first measurement), matching post-login
-  // state routing for unscored accounts — not the optional /onboarding detour.
-  const next = safeNext(searchParams.get("next"), POST_LOGIN_ASSESS);
+  // Client bundles cannot read HOMI_V4_HOME_ENABLED. Land on the v4 Home
+  // contract; the /home server page still folds to `/` when the flag is off.
+  const next = POST_LOGIN_V4_HOME;
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -185,9 +182,5 @@ function SignUpForm() {
 }
 
 export default function SignUpPage() {
-  return (
-    <Suspense fallback={<div className="text-sm text-dim">…</div>}>
-      <SignUpForm />
-    </Suspense>
-  );
+  return <SignUpForm />;
 }

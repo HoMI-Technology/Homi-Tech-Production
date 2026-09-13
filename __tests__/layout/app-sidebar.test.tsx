@@ -21,6 +21,8 @@ import { AppHeader } from "@/components/layout/AppHeader";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { LATEST_VERDICT_KEY } from "@/components/layout/SidebarDecisionState";
 import { HEADER_PRIMARY_NAV } from "@/lib/layout/nav-catalog";
+import { COLORS } from "@/lib/brand";
+import { LEFT_RAIL_PRIMARY, LEFT_RAIL_SECONDARY } from "@/lib/layout/left-rail";
 
 beforeAll(() => {
   if (!window.matchMedia) {
@@ -53,6 +55,59 @@ beforeEach(() => {
       decisionType: "Personal",
     }),
   );
+});
+
+describe("AppSidebar — PR13 left rail", () => {
+  it("unlocks PRIMARY Product map including Learn / Bills / Insights invent chrome", () => {
+    render(<AppSidebar email="jamie@example.com" fullName="Jamie Diaz" />);
+
+    const rail = document.querySelector("[data-left-rail]");
+    expect(rail).not.toBeNull();
+    expect(rail).toHaveAttribute("data-invent-chrome", "pr13");
+    expect(document.querySelector("[data-rail-scroll]")).not.toBeNull();
+    expect(document.querySelector("[data-app-shell='pr10-rail']")).not.toBeNull();
+    expect(document.querySelector("[data-shell-compass] svg[aria-label*='Threshold Compass']")).not.toBeNull();
+    const railCompass = document.querySelector("[data-shell-compass] svg[aria-label*='Threshold Compass']");
+    expect(railCompass?.getAttribute("width")).toBe("40");
+    expect(railCompass?.getAttribute("class") ?? "").not.toMatch(/compass-glow/);
+    const wordmarkLetters = document.querySelector("[data-shell-logo] [data-wordmark]");
+    expect(wordmarkLetters?.querySelector('[data-letter="H"]')).toHaveStyle({ color: COLORS.cyan });
+    expect(wordmarkLetters?.querySelector('[data-letter="o"]')).toHaveStyle({ color: COLORS.emerald });
+    expect(wordmarkLetters?.querySelector('[data-letter="M"]')).toHaveStyle({ color: COLORS.yellow });
+    expect(wordmarkLetters?.querySelector('[data-letter="I"]')).toHaveStyle({ color: COLORS.cyan });
+    expect(document.querySelector("[data-homi-hexes]")).toBeNull();
+    expect(document.querySelectorAll("[data-shell-compass]")).toHaveLength(1);
+    expect(document.querySelectorAll('[aria-label*="Threshold Compass"]')).toHaveLength(1);
+    expect(document.querySelector("[data-shell-logo]")?.querySelector("[data-shell-compass]")).not.toBeNull();
+    expect(document.querySelector("[data-rail-tagline]")).toHaveClass("text-dim/70");
+
+    for (const item of LEFT_RAIL_PRIMARY) {
+      expect(screen.getByRole("link", { name: item.label })).toHaveAttribute("href", item.href);
+    }
+    for (const item of LEFT_RAIL_SECONDARY) {
+      expect(screen.getByRole("link", { name: item.label })).toHaveAttribute("href", item.href);
+    }
+
+    expect(screen.getByRole("link", { name: /^learn$/i })).toHaveAttribute("href", "/learn");
+    expect(screen.getByRole("link", { name: /^bills$/i })).toHaveAttribute("href", "/money/bills");
+    expect(screen.getByRole("link", { name: /^insights$/i })).toHaveAttribute("href", "/timeline");
+    expect(screen.getByRole("link", { name: /^finances$/i })).toHaveAttribute("href", "/money");
+    expect(screen.getByRole("link", { name: /^plans$/i })).toHaveAttribute("href", "/path");
+    expect(screen.queryByRole("link", { name: /^money$/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /^assess$/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /homie/i })).toBeNull();
+    expect(document.body.textContent).not.toContain("CRAFT · PR10");
+    expect(document.body.textContent).not.toContain("NOT SHIP");
+    expect(document.querySelector("[data-rail-person-name]")).toHaveTextContent("Jamie D.");
+  });
+
+  it("paints Home as the active rail item on /dashboard", () => {
+    mockPathname = "/dashboard";
+    render(<AppSidebar email={null} />);
+    const home = document.querySelector("[data-rail-item='home']");
+    expect(home).toHaveAttribute("aria-current", "page");
+    expect(home).toHaveClass("is-active");
+  });
 });
 
 describe("AppHeader — SHELL_CRAFT v3 quiet top bar", () => {
@@ -160,10 +215,11 @@ describe("AppHeader — SHELL_CRAFT v3 quiet top bar", () => {
     );
   });
 
-  it("AppSidebar alias still renders the v3 top bar", () => {
-    render(<AppSidebar email={null} />);
+  it("role-tree AppHeader stays the quiet bar — no left rail, no craft badge", () => {
+    render(<AppHeader email={null} />);
     expect(document.querySelector("[data-app-shell='v3']")).not.toBeNull();
-    expect(document.querySelector("aside")).toBeNull();
+    expect(document.querySelector("[data-left-rail]")).toBeNull();
+    expect(document.body.textContent).not.toContain("CRAFT · PR10");
   });
 
   it("does not ship the mock-only craft badge on /assessment", () => {

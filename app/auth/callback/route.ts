@@ -16,13 +16,14 @@ import { resolvePostLoginDestination } from "@/lib/auth/postLoginDestination";
  *     successful exchange for a user sends; later sign-ins no-op.
  *   • first-touch attribution stamp — persists the acquisition cookie
  *     (ref / utm_*) onto the profile if the profile has none yet.
+ *
+ * PR15: destination is always `/` (never `/dashboard` or role homes).
  */
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const requestedNext = url.searchParams.get("next");
 
-  let hasCompletedAssessment = false;
   let userId: string | null = null;
   let userEmail: string | null = null;
   let userName = "there";
@@ -34,15 +35,6 @@ export async function GET(request: Request) {
     userId = user?.id ?? null;
     userEmail = user?.email ?? null;
     userName = (user?.user_metadata?.full_name as string | undefined)?.split(" ")[0] || "there";
-
-    if (userId) {
-      const { count } = await supabase
-        .from("assessments")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", userId)
-        .eq("status", "completed");
-      hasCompletedAssessment = (count ?? 0) > 0;
-    }
 
     if (userEmail && userId) {
       const attribution = readAttributionCookie(request.headers.get("cookie"));
@@ -85,7 +77,7 @@ export async function GET(request: Request) {
 
   const next = resolvePostLoginDestination({
     requestedNext,
-    hasCompletedAssessment,
+    hasCompletedAssessment: false,
   });
 
   return NextResponse.redirect(new URL(next, url.origin));

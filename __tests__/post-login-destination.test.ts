@@ -2,64 +2,92 @@ import { describe, expect, it } from "vitest";
 import {
   POST_LOGIN_ASSESS,
   POST_LOGIN_HOME,
+  POST_LOGIN_V4_HOME,
   resolvePostLoginDestination,
 } from "@/lib/auth/postLoginDestination";
 
-describe("resolvePostLoginDestination", () => {
-  it("honors explicit deep links after sanitize", () => {
+describe("resolvePostLoginDestination (PR15 + CCP v1)", () => {
+  it("flag false (default) keeps `/`, ignoring next and assessment state", () => {
+    expect(POST_LOGIN_HOME).toBe("/");
+    expect(POST_LOGIN_ASSESS).toBe("/");
+    expect(POST_LOGIN_V4_HOME).toBe("/home");
     expect(
       resolvePostLoginDestination({
         requestedNext: "/settings",
         hasCompletedAssessment: false,
       }),
-    ).toBe("/settings");
+    ).toBe("/");
+    expect(
+      resolvePostLoginDestination({
+        requestedNext: "/dashboard",
+        hasCompletedAssessment: true,
+        v4HomeEnabled: false,
+      }),
+    ).toBe("/");
+    expect(
+      resolvePostLoginDestination({
+        requestedNext: "/home",
+        hasCompletedAssessment: true,
+        v4HomeEnabled: false,
+      }),
+    ).toBe("/");
     expect(
       resolvePostLoginDestination({
         requestedNext: "/path",
         hasCompletedAssessment: true,
       }),
-    ).toBe("/path");
-  });
-
-  it("honors explicit Home so protected-route bounces return to /dashboard", () => {
+    ).toBe("/");
     expect(
       resolvePostLoginDestination({
-        requestedNext: "/dashboard",
+        requestedNext: null,
         hasCompletedAssessment: false,
       }),
-    ).toBe(POST_LOGIN_HOME);
-  });
-
-  it("blocks open redirects even when treating them as explicit", () => {
+    ).toBe("/");
+    expect(
+      resolvePostLoginDestination({
+        requestedNext: "/auth/reset-password",
+        hasCompletedAssessment: false,
+      }),
+    ).toBe("/auth/reset-password");
     expect(
       resolvePostLoginDestination({
         requestedNext: "//evil.com",
         hasCompletedAssessment: true,
       }),
-    ).toBe(POST_LOGIN_HOME);
+    ).toBe("/");
   });
 
-  it("sends first-run accounts to Assess when next is omitted", () => {
+  it("flag true lands on `/home` only when the V4 allow-list includes Home", () => {
     expect(
       resolvePostLoginDestination({
-        requestedNext: null,
-        hasCompletedAssessment: false,
-      }),
-    ).toBe(POST_LOGIN_ASSESS);
-    expect(
-      resolvePostLoginDestination({
-        requestedNext: "",
-        hasCompletedAssessment: false,
-      }),
-    ).toBe(POST_LOGIN_ASSESS);
-  });
-
-  it("sends scored accounts to Home when next is omitted", () => {
-    expect(
-      resolvePostLoginDestination({
-        requestedNext: null,
+        requestedNext: "/dashboard",
         hasCompletedAssessment: true,
+        v4HomeEnabled: true,
       }),
-    ).toBe(POST_LOGIN_HOME);
+    ).toBe("/home");
+    expect(
+      resolvePostLoginDestination({
+        requestedNext: null,
+        hasCompletedAssessment: false,
+        v4HomeEnabled: true,
+        v4AllowList: ["/home"],
+      }),
+    ).toBe("/home");
+    expect(
+      resolvePostLoginDestination({
+        requestedNext: null,
+        hasCompletedAssessment: false,
+        v4HomeEnabled: true,
+        v4AllowList: [],
+      }),
+    ).toBe("/");
+    expect(
+      resolvePostLoginDestination({
+        requestedNext: null,
+        hasCompletedAssessment: false,
+        v4HomeEnabled: true,
+        v4AllowList: ["/shell"],
+      }),
+    ).toBe("/");
   });
 });

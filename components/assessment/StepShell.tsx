@@ -16,6 +16,7 @@ export function StepShell({
   showBack = true,
   skipLabel,
   onSkip,
+  surface = "glass",
 }: {
   children: ReactNode;
   stepKey: string | number;
@@ -26,6 +27,7 @@ export function StepShell({
   showBack?: boolean;
   skipLabel?: string;
   onSkip?: () => void;
+  surface?: "glass" | "plain";
 }) {
   return (
     <div key={stepKey} className="step-enter" data-assessment-step={String(stepKey)}>
@@ -42,7 +44,7 @@ export function StepShell({
         }
       `}</style>
 
-      <div className="glass p-6 sm:p-10">{children}</div>
+      <div className={surface === "plain" ? "v4-assess-step" : "glass p-6 sm:p-10"}>{children}</div>
 
       <div className="mt-6 flex flex-wrap items-center gap-4">
         <button
@@ -50,6 +52,7 @@ export function StepShell({
           onClick={onNext}
           disabled={nextDisabled}
           className="btn btn-primary disabled:cursor-not-allowed disabled:opacity-40"
+          data-assessment-continue=""
         >
           {nextLabel}
         </button>
@@ -58,6 +61,7 @@ export function StepShell({
             type="button"
             onClick={onBack}
             className="text-sm font-medium text-dim transition-colors hover:text-light"
+            data-assessment-back=""
           >
             Back
           </button>

@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { FullAssessmentFlow } from "@/components/assessment/FullAssessmentFlow";
+import { AssessmentWalkFixtureV4 } from "@/components/v4/assessment/AssessmentWalkFixtureV4";
 import { PRIMARY_CLOSE_HREF } from "@/components/marketing/first-moment-copy";
+import { isV4HomeEnabled } from "@/lib/auth/keep-routes";
 import { isNextRedirectError } from "@/lib/dashboard/fold-truth";
+import { parseV4AssessVisualState } from "@/lib/v4/assessment-walk";
+import { isV4VisualFixtureEnabled } from "@/lib/v4/visual-fixture";
 import { getCachedUser } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -13,12 +17,25 @@ export const metadata: Metadata = {
 };
 
 /**
- * Account before assessment. Guests do not mount the 45-q or paint /results.
- * First Moment is the guest path. Middleware leaves this route public on
- * purpose — a protected-route bounce would skip First Moment and land on
- * sign-in. Signed-in users still render the flow.
+ * Account before assessment. Guests do not mount the walk or paint an official
+ * score. First Moment is the guest path. Preview-only visual stills may skip
+ * the session when HOMI_V4_VISUAL_FIXTURE is on.
  */
-export default async function AssessmentPage() {
+export default async function AssessmentPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ visual?: string }>;
+}) {
+  if (!isV4HomeEnabled()) {
+    redirect("/");
+  }
+
+  const params = await searchParams;
+  const visual = isV4VisualFixtureEnabled() ? parseV4AssessVisualState(params.visual) : null;
+  if (visual) {
+    return <AssessmentWalkFixtureV4 state={visual} />;
+  }
+
   try {
     const user = await getCachedUser();
     if (!user) redirect(PRIMARY_CLOSE_HREF);

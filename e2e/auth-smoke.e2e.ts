@@ -5,13 +5,7 @@ import { dismissCookieConsent } from "./helpers/consent";
  * Easy signed-in smoke — only needs an existing account:
  *   SMOKE_EMAIL / SMOKE_PASSWORD  (or E2E_TEST_EMAIL / E2E_TEST_PASSWORD)
  *
- * No service-role. No user create/delete. Safe against production if you
- * use a throwaway account you own.
- *
- * Run: npm run smoke:auth
- *
- * Browser: playwright.config prefers system Chrome/Edge on local Windows so
- * SAC-blocked chrome-headless-shell never runs.
+ * PR15: post-login is `/`; product URLs are KILL.
  */
 
 const email = process.env.SMOKE_EMAIL ?? process.env.E2E_TEST_EMAIL ?? "";
@@ -23,13 +17,11 @@ async function signIn(page: import("@playwright/test").Page) {
   await page.getByLabel(/email/i).fill(email);
   await page.getByLabel(/password/i).fill(password);
   await page.getByRole("button", { name: /sign in/i }).click();
-  await expect(page).toHaveURL(/\/(dashboard|assessment|results|path|finance)/, {
-    timeout: 20_000,
-  });
+  await page.waitForURL((url) => url.pathname === "/", { timeout: 20_000 });
+  expect(new URL(page.url()).pathname).toBe("/");
   await dismissCookieConsent(page);
 }
 
-// Serial: one account signing in 4× in parallel trips rate limits / consent races.
 test.describe.configure({ mode: "serial" });
 
 test.describe("signed-in smoke (easy)", () => {
@@ -38,41 +30,27 @@ test.describe("signed-in smoke (easy)", () => {
     "Set SMOKE_EMAIL + SMOKE_PASSWORD (or E2E_TEST_*), then: npm run smoke:auth",
   );
 
-  test("1) sign in reaches a product surface", async ({ page }) => {
+  test("1) sign in reaches `/`", async ({ page }) => {
     await signIn(page);
     await expect(page.locator("body")).toBeVisible();
+    await expect(page.locator("[data-app-shell='pr10-rail']")).toHaveCount(0);
   });
 
-  test("2) assessment is available without Coming soon picker clutter", async ({ page }) => {
+  test("2) /assessment is KILL → `/`", async ({ page }) => {
     await signIn(page);
     await page.goto("/assessment");
-    await dismissCookieConsent(page);
-    // Launch honesty: single active vertical — no disabled Coming soon cards.
-    await expect(page.getByText(/Coming soon/i)).toHaveCount(0);
-    // Flow should show real assessment chrome (questions or intro).
-    await expect(page.locator("main, #main, body").first()).toBeVisible();
+    expect(new URL(page.url()).pathname).toBe("/");
   });
 
-  test("3) companion launcher is present on a product page", async ({ page }) => {
+  test("3) /tools is KILL → `/`", async ({ page }) => {
     await signIn(page);
     await page.goto("/tools/mortgage");
-    await dismissCookieConsent(page);
-    // Host shows idle launcher; wait past idle window (≤3s).
-    const launcher = page.getByRole("button", {
-      name: /Open HōMI Companion|Close HōMI Companion/i,
-    });
-    await expect(launcher).toBeVisible({ timeout: 10_000 });
-    // Banner can reappear after nav — force-click if needed.
-    await launcher.click({ force: true });
-    await expect(page.getByRole("dialog", { name: /HōMI Companion/i })).toBeVisible({
-      timeout: 15_000,
-    });
+    expect(new URL(page.url()).pathname).toBe("/");
   });
 
-  test("4) finance surface loads", async ({ page }) => {
+  test("4) /finance is KILL → `/`", async ({ page }) => {
     await signIn(page);
     await page.goto("/finance");
-    await dismissCookieConsent(page);
-    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 15_000 });
+    expect(new URL(page.url()).pathname).toBe("/");
   });
 });

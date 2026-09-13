@@ -16,6 +16,7 @@ const partner = read("app/(product)/partner/dashboard/page.tsx");
 const admin = read("app/(product)/admin/page.tsx");
 const adminLayout = read("app/(product)/admin/layout.tsx");
 const team = read("app/(product)/team/page.tsx");
+const teamUi = read("components/v4/team/TeamWorkspaceV4.tsx");
 const header = read("components/layout/AppHeader.tsx");
 const host = read("components/companion/CompanionHost.tsx");
 const css = read("app/globals.css");
@@ -25,10 +26,10 @@ describe("PR4 live routes only — no invented homes", () => {
     expect(existsSync(resolve(process.cwd(), "app/(product)/team/dashboard/page.tsx"))).toBe(false);
     expect(existsSync(resolve(process.cwd(), "app/(product)/employee/page.tsx"))).toBe(false);
     expect(existsSync(resolve(process.cwd(), "app/(product)/partner/page.tsx"))).toBe(false);
-    expect(employee).toContain('role="employee"');
-    expect(partner).toContain('role="partner"');
-    expect(admin).toContain('role="admin"');
-    expect(team).toContain('role="team"');
+    expect(employee).toContain("EmployeeWorkspaceV4");
+    expect(partner).toContain("PartnerWorkspaceV4");
+    expect(admin).toContain("AdminWorkspaceV4");
+    expect(teamUi).toContain('role="team"');
     expect(team).toContain("/team — not /team/dashboard");
   });
 
@@ -53,18 +54,19 @@ describe("PR4 employee leftover kills", () => {
     expect(employee).not.toContain("ThresholdFold");
     expect(employee).not.toContain("ThresholdCompass");
     expect(employee).not.toContain("financial_score");
-    expect(employee).toContain("Your score here");
-    expect(employee).toMatch(/label:\s*"Your score here"[\s\S]*value:\s*"—"/);
+    expect(employee).not.toContain("Your score here");
+    expect(employee).not.toContain("MetricRail");
+    expect(employee).not.toContain("OperateHeroMeta");
+    expect(employee).not.toContain("PageFrame");
   });
 
-  it("keeps privacy / OperateHeroMeta / PageFrame / MetricRail", () => {
-    expect(employee).toContain('data-employee-privacy=""');
-    expect(employee).toContain("OperateHeroMeta");
-    expect(employee).toContain('role="employee"');
-    expect(employee).toContain("MetricRail");
-    expect(employee).toContain("What your employer sees");
-    expect(employee).toContain("What stays yours");
-    expect(employee).toContain('tone="operate"');
+  it("keeps Shell v4 employee operate home — privacy chrome, live route only", () => {
+    expect(employee).toContain("EmployeeWorkspaceV4");
+    expect(employee).toContain("assertAssessmentResultOnly");
+    expect(employee).toContain("/employee/dashboard");
+    expect(employee).not.toContain("/partner/dashboard");
+    expect(employee).not.toContain("/admin");
+    expect(employee).not.toContain("/team");
   });
 });
 
@@ -85,27 +87,42 @@ describe("PR4 partner leftover kills", () => {
     expect(partner).toContain("referral_source");
     expect(partner).toContain("never writes score or ledger");
   });
+
+  it("keeps Shell v4 partner operate home — book pulse, live invite only", () => {
+    expect(partner).toContain("PartnerWorkspaceV4");
+    expect(partner).toContain("/partner/dashboard");
+    expect(partner).not.toContain("HeroScore");
+    expect(partner).not.toContain("MetricRail");
+    expect(partner).not.toContain("OperateHeroMeta");
+    expect(partner).not.toContain("PageFrame");
+    expect(partner).not.toContain("scoreBand");
+    expect(partner).not.toContain("/admin");
+    expect(partner).not.toContain("/team");
+  });
 });
 
 describe("PR4 admin leftover kills", () => {
   it("PageFrame wraps home and AttentionStrip stays above MetricRail", () => {
-    expect(admin).toContain("<PageFrame");
-    expect(admin.indexOf("AttentionStrip")).toBeLessThan(admin.indexOf("<MetricRail"));
-    expect(admin.indexOf("<MetricRail")).toBeLessThan(admin.indexOf("data-admin-depth"));
+    const workspace = read("components/v4/admin/AdminWorkspaceV4.tsx");
+    expect(workspace).toContain("<PageFrame");
+    expect(workspace.indexOf("AttentionStrip")).toBeLessThan(workspace.indexOf("<MetricRail"));
+    expect(admin).toContain("AdminWorkspaceV4");
     expect(admin).not.toContain("ThresholdFold");
-    expect(adminLayout).toContain("AdminOperateChrome");
+    expect(adminLayout).not.toContain("AdminOperateChrome");
     expect(adminLayout).not.toContain("Wordmark");
   });
 
-  it("CompanionHost stays off all /admin*", () => {
+  it("CompanionHost stays off all /admin* and /team*", () => {
     expect(host).toMatch(/pathname === "\/admin"/);
     expect(host).toMatch(/pathname\?\.startsWith\("\/admin\/"\)/);
+    expect(host).toMatch(/pathname === "\/team"/);
+    expect(host).toMatch(/pathname\?\.startsWith\("\/team\/"\)/);
   });
 });
 
 describe("PR4 team leftover kills", () => {
   it("aggregate-only operate — no personal Path primary, no peer score wall", () => {
-    expect(team).toContain('data-team-aggregates=""');
+    expect(teamUi).toContain('data-team-aggregates=""');
     expect(team).not.toContain("ActionDock");
     expect(team).not.toContain('href="/path"');
     expect(team).not.toContain("HeroScore");
@@ -116,17 +133,13 @@ describe("PR4 team leftover kills", () => {
 
 describe("PR5 craft-residue chrome — operate voice, no new URLs", () => {
   it("first-paint labels drop WORD crumbs and raw path crumbs", () => {
-    expect(employee).toMatch(/>\s*Employee\s*<\/p>/);
     expect(employee).not.toContain("Employee · /employee/dashboard");
-    expect(partner).toMatch(/>\s*Partner\s*<\/p>/);
     expect(partner).not.toContain("Partner · /partner/dashboard");
     expect(team).toContain("Team · aggregate only");
     expect(team).not.toContain("Team · /team");
-    expect(admin).toContain('eyebrow="Admin"');
+    expect(admin).toContain("AdminWorkspaceV4");
     expect(admin).not.toContain("Admin · /admin");
-    expect(admin).toMatch(/>\s*Marketing\s*<\/Link>/);
     expect(admin).not.toContain("Marketing · depth");
-    expect(admin).toContain("Marketing is depth");
   });
 
   it("hides Assess on role trees; keeps SIGNED_IN_ASSESS_HREF; no invented bar CTAs", () => {

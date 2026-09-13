@@ -15,6 +15,8 @@ import {
   FOLD_HARD_STOP_PRECEDENCE,
   foldHardStopEyebrow,
   foldHardStopOverrideLine,
+  foldHoldClose,
+  foldHoldLead,
   foldHomeHoldSentence,
   foldDensityPathTitles,
   foldPathPrimary,
@@ -25,9 +27,12 @@ import {
   ONBOARDING_SKIP_HREF,
   COMPANION_ESCALATION_HREF,
   COMPANION_FOLD_LINES,
+  HOME_COMPANION_GUIDANCE,
+  HOME_COMPANION_TAGLINE,
   HOME_DENSITY_LENSES,
   HOME_DENSITY_OPEN_PATH_HREF,
   HOME_DENSITY_VIEW_ALL_TOOLS_HREF,
+  homeJourneyStages,
   RUNWAY_HARD_STOP_FOLD_TITLE,
   RUNWAY_HARD_STOP_PATH_TITLE,
   buildProgressLabel,
@@ -191,7 +196,7 @@ describe("foldRunwayLabel", () => {
 });
 
 describe("foldDensityPathTitles", () => {
-  it("takes at most three pending Path SSOT titles and never invents money", () => {
+  it("takes at most five pending Path SSOT titles and never invents money", () => {
     expect(
       foldDensityPathTitles([
         {
@@ -203,11 +208,15 @@ describe("foldDensityPathTitles", () => {
         { title: "Lower monthly debt burden (target DTI ≤ 36%)", href: "/tools/debt-payoff", status: "pending" },
         { title: "Household alignment session (budget ceiling + deal-breakers)", href: "/household", status: "pending" },
         { title: "A fourth pending title", href: "/path", status: "pending" },
+        { title: "A fifth pending title", href: "/path", status: "pending" },
+        { title: "A sixth pending title", href: "/path", status: "pending" },
       ]),
     ).toEqual([
       "Stabilize emergency runway to at least 1 month",
       "Lower monthly debt burden (target DTI ≤ 36%)",
       "Household alignment session (budget ceiling + deal-breakers)",
+      "A fourth pending title",
+      "A fifth pending title",
     ]);
   });
 
@@ -311,8 +320,10 @@ describe("Baseline 001 fold-truth copy", () => {
       /1 month/,
     );
     expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).not.toMatch(/0\.5/);
-    expect(HOME_DENSITY_LENSES).toHaveLength(4);
+    expect(HOME_DENSITY_LENSES).toHaveLength(6);
     expect(HOME_DENSITY_LENSES.map((l) => l.href)).toEqual([
+      "/tools/net-worth",
+      "/tools/emergency-fund",
       "/tools/affordability",
       "/tools/debt-payoff",
       "/tools/blind-budget",
@@ -320,12 +331,29 @@ describe("Baseline 001 fold-truth copy", () => {
     ]);
     const hubPaths = new Set(hubLenses().map((lens) => lens.path));
     for (const lens of HOME_DENSITY_LENSES) {
-      expect(hubPaths.has(lens.href)).toBe(true);
+      if (lens.kind === "hub") {
+        expect(hubPaths.has(lens.href)).toBe(true);
+      } else {
+        expect(hubPaths.has(lens.href)).toBe(false);
+      }
       expect(lens.line.trim().split(/\s+/).length).toBeLessThanOrEqual(8);
       expect(lens.line).not.toMatch(/10,000|10000|\$|\+pts/i);
     }
     expect(HOME_DENSITY_OPEN_PATH_HREF).toBe("/path");
     expect(HOME_DENSITY_VIEW_ALL_TOOLS_HREF).toBe("/tools");
+    expect(HOME_COMPANION_TAGLINE).toBe("Here to help you see clearly");
+    expect(HOME_COMPANION_GUIDANCE).toBe("Local guidance · not live AI");
+    const heldJourney = homeJourneyStages({ hasAssessment: true, hardStopActive: true });
+    expect(heldJourney.map((s) => [s.id, s.label, s.tone])).toEqual([
+      ["assessment", "Assess", "done"],
+      ["build", "Build", "current"],
+      ["prepare", "Prepare", "next"],
+      ["buy", "Buy", "future"],
+    ]);
+    expect(heldJourney.map((s) => s.hint).join(" ")).not.toMatch(/On track|READY/i);
+    expect(homeJourneyStages({ hasAssessment: false, hardStopActive: false })[0].tone).toBe(
+      "next",
+    );
     expect(RUNWAY_HARD_STOP_PATH_TITLE).toBe("Stabilize emergency runway to at least 1 month");
     expect(RUNWAY_HARD_STOP_FOLD_TITLE).toBe("Build runway to 1 month");
   });
@@ -333,6 +361,11 @@ describe("Baseline 001 fold-truth copy", () => {
   it("keeps RUNWAY_UNDER_1_MONTH copy on the Baseline 001 constants", () => {
     expect(foldHardStopEyebrow("RUNWAY_UNDER_1_MONTH")).toBe(hardStopEyebrow);
     expect(foldHomeHoldSentence("RUNWAY_UNDER_1_MONTH")).toBe(homeHoldSentence);
+    expect(foldHoldLead(homeHoldSentence)).toBe("Runway is the hold.");
+    expect(foldHoldClose(homeHoldSentence)).toBe("Build the fund before anything else.");
+    expect(`${foldHoldLead(homeHoldSentence)} ${foldHoldClose(homeHoldSentence)}`).toBe(
+      homeHoldSentence,
+    );
     expect(foldHardStopOverrideLine(61, "RUNWAY_UNDER_1_MONTH")).toBe(
       "61 — runway is a hard stop.",
     );

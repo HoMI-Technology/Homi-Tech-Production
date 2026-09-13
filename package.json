@@ -7,7 +7,6 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -20,7 +19,6 @@
     "smoke:evidence": "node scripts/evidence-engine-smoke.mjs",
     "brand-check": "node scripts/brand-check.mjs",
     "analyze": "ANALYZE=true next build",
-    "brand:audit": "node scripts/brand-check.mjs",
     "architecture:gen": "vitest run --config vitest.architecture.config.ts",
     "architecture:check": "node scripts/check-architecture.mjs",
     "eval:companion": "npx tsx eval/companion-honesty/run.ts",
@@ -30,9 +28,7 @@
     "vercel-env": "node --env-file=.env.local scripts/push-vercel-env.mjs",
     "create-admin": "node scripts/create-admin.mjs",
     "verify-supabase": "node scripts/verify-supabase-connectivity.mjs",
-    "lighthouse": "lhci autorun",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "lighthouse": "lhci autorun"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.3.0",
