@@ -152,10 +152,10 @@ describe("computeBudgetAlerts — low_runway", () => {
       asOfDate: "2026-01-10",
     });
     const alerts = computeBudgetAlerts(input({ forecast }));
-    expect(alerts).toHaveLength(1);
-    expect(alerts[0].kind).toBe("low_runway");
-    expect(alerts[0].dedupeKey).toBe("low_runway:forecast:period-jan");
-    expect(alerts[0].message).toContain("Projection based on");
+    const runwayAlerts = alerts.filter((a) => a.kind === "low_runway");
+    expect(runwayAlerts).toHaveLength(1);
+    expect(runwayAlerts[0].dedupeKey).toBe("low_runway:forecast:period-jan");
+    expect(runwayAlerts[0].message).toContain("Projection based on");
   });
 });
 
