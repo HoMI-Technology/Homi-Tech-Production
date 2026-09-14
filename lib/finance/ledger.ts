@@ -175,8 +175,15 @@ export interface RecurringTransactionRule {
 
   isActive: boolean;
 
+  /** How the rule entered the ledger; manual rules carry no confidence. */
+  detectionSource: "manual" | "plaid_detected";
+  /** Detector confidence 0..1 for plaid-detected rules; null for manual. */
+  detectionConfidence: number | null;
+
   createdAt: string;
   updatedAt: string;
+  /** Soft delete — excluded from forecasts, preserved for audit. */
+  deletedAt: string | null;
 }
 
 /** Default expense categories seeded for every user (isSystem: true). */

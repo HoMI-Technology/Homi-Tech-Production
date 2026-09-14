@@ -9,13 +9,24 @@
 
 import type {
   FinanceCategoryRow,
+  FinanceRecurringRuleRow,
   FinanceSavingsGoalRow,
   FinanceTransactionRow,
 } from "@/types/database";
-import type { FinanceCategory, FinanceTransaction, SavingsGoal } from "@/lib/finance/ledger";
+import type {
+  FinanceCategory,
+  FinanceTransaction,
+  RecurringTransactionRule,
+  SavingsGoal,
+} from "@/lib/finance/ledger";
 import type { MoneyCents } from "@/lib/finance/money";
 
-export type { FinanceCategoryRow, FinanceSavingsGoalRow, FinanceTransactionRow };
+export type {
+  FinanceCategoryRow,
+  FinanceRecurringRuleRow,
+  FinanceSavingsGoalRow,
+  FinanceTransactionRow,
+};
 
 function cents(value: number | string): MoneyCents {
   return Number(value) as MoneyCents;
@@ -79,6 +90,30 @@ export function rowToSavingsGoal(row: FinanceSavingsGoalRow): SavingsGoal {
     status: row.status,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  };
+}
+
+export function rowToRecurringRule(row: FinanceRecurringRuleRow): RecurringTransactionRule {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    type: row.type,
+    amountCents: cents(row.amount_cents),
+    description: row.description,
+    categoryId: row.category_id,
+    cadence: row.cadence,
+    startDate: row.start_date,
+    nextOccurrenceDate: row.next_occurrence_date,
+    endDate: row.end_date,
+    generationMode: row.generation_mode,
+    isActive: row.is_active,
+    detectionSource: row.detection_source,
+    // numeric columns surface as strings via PostgREST.
+    detectionConfidence:
+      row.detection_confidence === null ? null : Number(row.detection_confidence),
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    deletedAt: row.deleted_at,
   };
 }
 
