@@ -3,10 +3,12 @@
  */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  hasLegacyMigrationMarker,
   loadLegacyFinanceState,
   migrateLegacyToLedger,
   seedLedgerFromLegacyIfEmpty,
   LEGACY_FINANCE_STATE_KEYS,
+  LEGACY_MIGRATION_MARKER_KEY,
 } from "@/lib/finance/migrate-from-legacy";
 import { loadBudgetLedger, BUDGET_LEDGER_STORAGE_KEY } from "@/lib/finance/local-ledger";
 import type { FinanceCategory, FinanceTransaction } from "@/lib/finance/ledger";
@@ -136,6 +138,35 @@ describe("migrateLegacyToLedger", () => {
     });
   });
 
+  it("keeps cents integral for fractional-dollar legacy amounts", () => {
+    const legacy: FinanceState = {
+      ...LEGACY_STATE,
+      monthlyIncome: 5321.37,
+      expenseCategories: [{ id: "x", name: "Coffee", amount: 12.49 }],
+    };
+    const state = migrateLegacyToLedger(legacy, NOW);
+    expect(state.periods[0].expectedIncomeCents).toBe(532_137);
+    const tx = state.transactions.find((t: FinanceTransaction) => t.type === "expense")!;
+    expect(tx.amountCents).toBe(1249);
+    for (const t of state.transactions) {
+      expect(Number.isSafeInteger(t.amountCents)).toBe(true);
+    }
+  });
+
+  it("skips zero/negative amounts instead of throwing (empty-ish legacy is an honest no-op)", () => {
+    const legacy: FinanceState = {
+      ...LEGACY_STATE,
+      monthlyIncome: 0,
+      expenseCategories: [
+        { id: "a", name: "Food", amount: 0 },
+        { id: "b", name: "Rent / mortgage", amount: 1800 },
+      ],
+    };
+    const state = migrateLegacyToLedger(legacy, NOW);
+    expect(state.transactions.filter((t) => t.type === "income")).toHaveLength(0);
+    expect(state.transactions.filter((t) => t.type === "expense")).toHaveLength(1);
+  });
+
   it("falls back to the 'other' category for unrecognized names", () => {
     const legacy: FinanceState = {
       ...LEGACY_STATE,
@@ -190,6 +221,88 @@ describe("seedLedgerFromLegacyIfEmpty / loadBudgetLedger integration", () => {
     expect(persisted).toBeDefined();
     const parsed = JSON.parse(persisted!);
     expect(parsed.transactions.length).toBe(loaded.transactions.length);
+  });
+
+  it("writes the migrated-at marker when it seeds", () => {
+    const backing = stubStorage();
+    backing.set("homi:finance", JSON.stringify(LEGACY_STATE));
+    expect(hasLegacyMigrationMarker()).toBe(false);
+
+    seedLedgerFromLegacyIfEmpty(NOW);
+    expect(hasLegacyMigrationMarker()).toBe(true);
+    expect(backing.get(LEGACY_MIGRATION_MARKER_KEY)).toBe(NOW);
+  });
+
+  it("never reseeds once the marker exists — an explicit clear stays clear", () => {
+    const backing = stubStorage();
+    backing.set("homi:finance", JSON.stringify(LEGACY_STATE));
+
+    // First contact: seed happens, marker written.
+    const first = loadBudgetLedger(NOW);
+    expect(first.transactions.length).toBeGreaterThan(0);
+
+    // Explicit user clear: ledger blob replaced with an empty book.
+    backing.set(
+      BUDGET_LEDGER_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: 2,
+        categories: first.categories,
+        transactions: [],
+        periods: [],
+        allocations: [],
+        goals: [],
+      }),
+    );
+
+    const loaded = loadBudgetLedger(NOW);
+    expect(loaded.transactions).toHaveLength(0);
+    expect(loaded.periods).toHaveLength(0);
+    expect(loaded.goals).toHaveLength(0);
+  });
+
+  it("marks the import moot when the ledger already has user data", () => {
+    const backing = stubStorage();
+    backing.set("homi:finance", JSON.stringify(LEGACY_STATE));
+    backing.set(
+      BUDGET_LEDGER_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: 2,
+        categories: [],
+        transactions: [
+          {
+            id: "tx-1",
+            userId: "local",
+            type: "income",
+            status: "posted",
+            amountCents: 100_000,
+            currency: "USD",
+            description: "Existing",
+            merchantName: null,
+            categoryId: null,
+            accountId: null,
+            transactionDate: "2026-08-01",
+            postedAt: NOW,
+            source: "manual",
+            externalTransactionId: null,
+            recurringRuleId: null,
+            transferGroupId: null,
+            parentTransactionId: null,
+            isExcludedFromBudget: false,
+            userNote: null,
+            createdAt: NOW,
+            updatedAt: NOW,
+            deletedAt: null,
+          },
+        ],
+        periods: [],
+        allocations: [],
+        goals: [],
+      }),
+    );
+
+    const loaded = loadBudgetLedger(NOW);
+    expect(loaded.transactions).toHaveLength(1);
+    expect(hasLegacyMigrationMarker()).toBe(true);
   });
 
   it("does not overwrite a ledger that already has transactions", () => {
