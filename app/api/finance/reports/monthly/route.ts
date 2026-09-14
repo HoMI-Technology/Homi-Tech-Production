@@ -16,13 +16,19 @@ import type { BudgetPeriod } from "@/lib/finance/ledger";
 export const runtime = "nodejs";
 
 const PERIOD_COLS =
-  "id, user_id, period_start, period_end, expected_income_cents, goal_reserve_cents, status, created_at, updated_at";
+  "id, user_id, period_start, period_end, expected_income_cents, goal_reserve_cents, status, household_id, created_at, updated_at";
 const TX_COLS =
   "id, user_id, type, status, amount_cents, currency, description, merchant_name, category_id, account_id, transaction_date, posted_at, source, external_transaction_id, recurring_rule_id, transfer_group_id, parent_transaction_id, is_excluded_from_budget, user_note, created_at, updated_at, deleted_at";
 
 const DEFAULT_MONTHS = 6;
 const MAX_MONTHS = 24;
 const MAX_TRANSACTIONS = 10_000;
+
+const DEFERRED_BODY = {
+  report: { hasData: false, periods: [], topCategories: [] },
+  trends: [],
+  deferred: true,
+};
 
 /**
  * GET /api/finance/reports/monthly?months=N (default 6, max 24)
@@ -69,7 +75,7 @@ export async function GET(request: Request) {
 
   if (periodError) {
     if (periodError.code && FINANCE_LEDGER_INFRA_MISSING.has(periodError.code)) {
-      return NextResponse.json({ report: { hasData: false, periods: [], topCategories: [] }, deferred: true });
+      return NextResponse.json(DEFERRED_BODY);
     }
     const correlationId = crypto.randomUUID();
     console.error(`[finance-reports:periods:${correlationId}]`, periodError.message);
@@ -131,7 +137,7 @@ export async function GET(request: Request) {
   ] as const) {
     if (error) {
       if (error.code && FINANCE_LEDGER_INFRA_MISSING.has(error.code)) {
-        return NextResponse.json({ report: { hasData: false, periods: [], topCategories: [] }, deferred: true });
+        return NextResponse.json(DEFERRED_BODY);
       }
       const correlationId = crypto.randomUUID();
       console.error(`[finance-reports:${scope}:${correlationId}]`, error.message);
