@@ -3,9 +3,8 @@
  *
  * Same local-first contract as the legacy snapshot (store.ts): localStorage
  * is the synchronous source of truth the UI reads and writes. Per-record
- * server sync is a later PR (behind FINANCE_LEDGER_ENABLED) and will adopt
- * these records by their stable ids; until then userId is a placeholder the
- * sync layer rewrites on adoption.
+ * server sync adopts these records by their stable ids; until adoption,
+ * userId is a placeholder the sync layer rewrites.
  *
  * Loading is defensive (the Actual-Budget lesson — a version/shape mismatch
  * must degrade, never crash): the persisted envelope carries a schemaVersion
@@ -22,6 +21,10 @@
  * SSR-safe: every storage read/write is guarded behind `typeof window`.
  * Mutation helpers are pure (state in → state out) so they test without a
  * DOM and so React state updates stay referentially honest.
+ *
+ * Migration status (docs/ops/MONEY-LEDGER-MIGRATION.md): this module backs
+ * the money SSOT. The Phase-1 dual-write hook was removed at the Phase-3
+ * kill — nothing projects ledger data back into the legacy snapshot anymore.
  */
 
 import {
@@ -59,12 +62,6 @@ export interface BudgetLedgerState {
   transactions: FinanceTransaction[];
   periods: BudgetPeriod[];
   allocations: BudgetCategoryAllocation[];
-  /**
-   * All goals the user has, active or not. A goal whose status is not "active"
-   * reads as archived in the UI but keeps its history. Order is creation order;
-   * callers that need "the" goal of a kind should ask goal-semantics.ts rather
-   * than picking an index, so the rule lives in one place.
-   */
   goals: SavingsGoal[];
 }
 
@@ -132,13 +129,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-/**
- * Row-level shape guards. Full Zod validation lives server-side
- * (lib/finance/validation.ts); these lighter checks exist because a single
- * corrupted amount would make sumCents throw at render time and blank the
- * tab. Rows that fail are dropped from the working set — the original blob
- * is what the corrupt-backup key preserves.
- */
 function isUsableTransaction(tx: unknown): tx is FinanceTransaction {
   return (
     isRecord(tx) &&
@@ -194,25 +184,10 @@ function isUsableGoal(g: unknown): g is SavingsGoal {
   );
 }
 
-/**
- * Forward-only migration chain keyed by the version being upgraded FROM
- * (the Zustand-persist pattern). A future v3 adds `2: (state) => ...`.
- */
 const MIGRATIONS: Record<number, (persisted: Record<string, unknown>) => Record<string, unknown>> =
   {
-    /**
-     * 1 → 2: single `goal` becomes a `goals` list.
-     *
-     * Lifts an existing goal into the list rather than dropping it — a saved
-     * ledger's goal is real money the user has set aside, and silently losing it
-     * would be the worst possible outcome of a schema bump. A null goal migrates
-     * to an empty list, not a list containing null.
-     */
     1: (persisted) => {
       const { goal, ...rest } = persisted as { goal?: unknown } & Record<string, unknown>;
-      // A v1-stamped blob that already carries `goals` keeps them. Never discard
-      // goals that are already in the list shape just because the stamp is old —
-      // the stamp is the least trustworthy thing in the envelope.
       const existing = Array.isArray(rest.goals) ? rest.goals : null;
       return {
         ...rest,
@@ -235,9 +210,7 @@ export function hasSavedBudgetLedger(): boolean {
 /**
  * Loads the ledger from localStorage; empty seeded state when absent.
  * Unreadable JSON is preserved under the corrupt-backup key before falling
- * back. A schemaVersion NEWER than this build (user came back on an old
- * deploy) is loaded best-effort through the same row guards rather than
- * discarded. SSR-safe.
+ * back. SSR-safe.
  */
 export function loadBudgetLedger(nowIso: string): BudgetLedgerState {
   if (typeof window === "undefined") return emptyBudgetLedger(nowIso);
@@ -254,7 +227,7 @@ export function loadBudgetLedger(nowIso: string): BudgetLedgerState {
     let version = typeof parsed.schemaVersion === "number" ? parsed.schemaVersion : 0;
     while (version < CURRENT_SCHEMA_VERSION) {
       const migrate = MIGRATIONS[version];
-      if (!migrate) break; // unknown ancient shape — row guards decide below
+      if (!migrate) break;
       parsed = migrate(parsed as Record<string, unknown>);
       version += 1;
       if (!isRecord(parsed)) throw new Error("migration produced non-object");
@@ -281,7 +254,7 @@ export function loadBudgetLedger(nowIso: string): BudgetLedgerState {
     try {
       if (raw !== null) window.localStorage.setItem(CORRUPT_BACKUP_KEY, raw);
     } catch {
-      // Backup is best-effort; the fallback below still applies.
+      // Backup is best-effort.
     }
     const empty = emptyBudgetLedger(nowIso);
     return seedLedgerFromLegacyIfEmpty(nowIso, empty);
@@ -290,8 +263,7 @@ export function loadBudgetLedger(nowIso: string): BudgetLedgerState {
 
 /**
  * Persists the ledger. Returns false when the write failed (Safari private
- * mode's zero quota, storage full) — callers must disclose that, not hide
- * it: a budget that silently stops saving is worse than no budget.
+ * mode's zero quota, storage full) — callers must disclose that, not hide it.
  */
 export function saveBudgetLedger(state: BudgetLedgerState): boolean {
   if (typeof window === "undefined") return false;
@@ -303,12 +275,6 @@ export function saveBudgetLedger(state: BudgetLedgerState): boolean {
     return false;
   }
 }
-
-/**
- * Phase-1 dual-write helper: call after saveBudgetLedger succeeds.
- * Implemented in migrate-from-legacy to avoid circular imports.
- */
-export type DualWriteLegacyFn = (state: BudgetLedgerState) => void;
 
 /**
  * ISO timestamp of the last local ledger write, or null when never saved.
@@ -344,8 +310,6 @@ export function monthBoundsFor(dateOnly: string): {
   periodEnd: string;
 } {
   const [y, m] = dateOnly.split("-").map(Number);
-  // Date(y, m, 0) is the last day of month m (1-based). Only the day-of-month
-  // is read, so the local-time construction cannot shift the result.
   const lastDay = new Date(y, m, 0).getDate();
   const mm = String(m).padStart(2, "0");
   return {
@@ -354,11 +318,6 @@ export function monthBoundsFor(dateOnly: string): {
   };
 }
 
-/**
- * Fraction of the period elapsed as of `dateOnly`, clamped to [0, 1] —
- * the honesty basis for pacing markers ("month in progress" is compared
- * against elapsed days, never the whole month).
- */
 export function elapsedFraction(
   period: Pick<BudgetPeriod, "periodStart" | "periodEnd">,
   dateOnly: string,
@@ -377,11 +336,6 @@ export function elapsedFraction(
 /* Pure mutations                                                      */
 /* ------------------------------------------------------------------ */
 
-/**
- * Returns the open period covering `dateOnly`, creating the calendar-month
- * period when none exists. Existing periods are never modified — history is
- * never rewritten.
- */
 export function ensurePeriodFor(
   state: BudgetLedgerState,
   dateOnly: string,
@@ -407,7 +361,6 @@ export function ensurePeriodFor(
 
 export interface ManualTransactionInput {
   type: TransactionType;
-  /** Positive magnitude; the type carries the direction. */
   amountCents: MoneyCents;
   description: string;
   categoryId: string | null;
@@ -415,11 +368,6 @@ export interface ManualTransactionInput {
   userNote?: string | null;
 }
 
-/**
- * Appends a manual posted transaction, enforcing the same invariants as
- * transactionCreateSchema: positive in-range cents, expenses categorized,
- * transfers never categorized.
- */
 export function addManualTransaction(
   state: BudgetLedgerState,
   input: ManualTransactionInput,
@@ -477,12 +425,6 @@ export function softDeleteTransaction(
   };
 }
 
-/**
- * Upserts a category's planned amount for a period. Zero or negative planned
- * removes the allocation — "planned nothing" and "no plan" read the same to
- * a v1 manual budget, and dropping the row keeps categoryActuals honest
- * about which categories were actually planned.
- */
 export function setPlannedAllocation(
   state: BudgetLedgerState,
   budgetPeriodId: string,
@@ -514,7 +456,6 @@ export function setPlannedAllocation(
   return { ...state, allocations: [...rest, allocation] };
 }
 
-/** Sets the cash intentionally reserved for goals this period. */
 export function setGoalReserve(
   state: BudgetLedgerState,
   budgetPeriodId: string,
@@ -541,28 +482,14 @@ export interface GoalInput {
   targetDate: string | null;
 }
 
-/** Every goal still counting toward the present picture. */
 export function listActiveGoals(state: BudgetLedgerState): SavingsGoal[] {
   return state.goals.filter((g) => g.status === "active");
 }
 
-/**
- * The single goal a not-yet-multi-goal surface should show.
- *
- * Kept so callers written against the one-goal model keep working, but it now
- * defers to goal-semantics.primaryGoal rather than "the" goal — with several
- * goals the emergency reserve wins, because it is the one that governs runway.
- * New code that can show more than one should use listActiveGoals.
- */
 export function activeGoal(state: BudgetLedgerState): SavingsGoal | null {
   return primaryGoal(state.goals);
 }
 
-/**
- * Creates or updates a goal. Passing an `id` updates that goal; omitting it
- * creates one. An archived goal is never resurrected — a fresh record is
- * created instead, so its history stays meaningful to the sync layer.
- */
 export function upsertGoal(
   state: BudgetLedgerState,
   input: GoalInput & { id?: string },
@@ -610,11 +537,6 @@ export function upsertGoal(
   return { ...state, goals: [...state.goals, goal] };
 }
 
-/**
- * Archives a goal — the reversible way to remove one. The record is kept
- * (status "archived"), never deleted, so its history survives. Omitting the id
- * archives the primary goal, preserving the old single-goal call shape.
- */
 export function archiveGoal(
   state: BudgetLedgerState,
   nowIso: string,
