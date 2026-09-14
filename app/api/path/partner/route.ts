@@ -132,7 +132,11 @@ export async function POST(request: Request) {
     .eq("id", input.plan_id)
     .eq("user_id", user.id)
     .maybeSingle();
-  if (planError && !(planError.code && PATH_INFRA_MISSING.has(planError.code))) {
+  if (planError) {
+    if (planError.code && PATH_INFRA_MISSING.has(planError.code)) {
+      // Deferred-fallback convention (same as finance routes).
+      return NextResponse.json({ deferred: true }, { status: 202 });
+    }
     const correlationId = crypto.randomUUID();
     console.error(`[path:partner:plan:${correlationId}]`, planError.message);
     return NextResponse.json({ error: "Could not load the path.", correlationId }, { status: 500 });
@@ -178,7 +182,8 @@ export async function POST(request: Request) {
 
   if (error) {
     if (error.code && PATH_INFRA_MISSING.has(error.code)) {
-      return NextResponse.json({ error: "Path storage is not available yet." }, { status: 503 });
+      // Deferred-fallback convention (same as finance routes).
+      return NextResponse.json({ deferred: true }, { status: 202 });
     }
     const correlationId = crypto.randomUUID();
     console.error(`[path:partner:upsert:${correlationId}]`, error.message);
