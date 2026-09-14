@@ -33,7 +33,7 @@ function rowToPeriod(row: FinanceBudgetPeriodRow): BudgetPeriod {
   };
 }
 
-export function rowToAllocation(row: FinanceBudgetAllocationRow): BudgetCategoryAllocation {
+function rowToAllocation(row: FinanceBudgetAllocationRow): BudgetCategoryAllocation {
   return {
     id: row.id,
     budgetPeriodId: row.budget_period_id,
