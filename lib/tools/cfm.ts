@@ -4,8 +4,9 @@
  * One shared, source-labeled view of the user's numbers that every lens
  * (calculator) reads from. The CFM is a VIEW, not a second database:
  *
- *   1. Budget ledger (cents) — preferred SoT when the user has real ledger data
- *   2. Legacy finance snapshot (dollars) — fallback during dual-path migration
+ *   1. Budget ledger (cents) — the only source once its key exists
+ *   2. Legacy finance snapshot (dollars) — read-only fallback for clients
+ *      that never touched the ledger (Phase 2, docs/ops/MONEY-LEDGER-MIGRATION.md)
  *   3. Decision overlay ("homi:tools-state") — price/rate/rent etc., write-back
  *      only on explicit user action ("update my numbers")
  *
@@ -367,15 +368,13 @@ export function toolsOverlaySavedAt(): string | null {
   }
 }
 
-/** Local write WITHOUT a sync push — the sync layer itself uses this. */
 function writeToolsOverlayLocal(stamped: Stamped<ToolsOverlay>): void {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(OVERLAY_KEY, JSON.stringify(stamped.value));
     window.localStorage.setItem(OVERLAY_STAMP_KEY, String(stamped.updatedAt));
   } catch {
-    // Storage unavailable (private browsing quota, etc.) — the lens still
-    // works for this session; nothing is persisted.
+    // Storage unavailable.
   }
 }
 
@@ -421,9 +420,18 @@ export async function pullToolsOverlay(): Promise<ToolsOverlay | null> {
 
 /**
  * Builds the CFM from local storage, or null when the user has never saved
- * money data. Prefers the budget ledger (Money Reality SoT); falls back to
- * the legacy finance snapshot. Null is the honesty gate: callers must fall
- * back to illustrative defaults and must not speak in the user's voice.
+ * money data.
+ *
+ * Phase 2 (docs/ops/MONEY-LEDGER-MIGRATION.md): once the budget-ledger key
+ * exists it is the ONLY money source — the legacy snapshot is never consulted,
+ * even when the ledger is empty after an explicit user clear. An empty ledger
+ * therefore reads as honest empty (null) and callers fall back to
+ * illustrative defaults; a cleared ledger must never resurrect stale legacy
+ * numbers. (loadBudgetLedger one-time-imports legacy data only when the
+ * import has never run — see migrate-from-legacy.ts — so legacy users get a
+ * real ledger picture on first contact, not an empty one.)
+ *
+ * The legacy snapshot is read only when the ledger key has never existed.
  */
 export function buildCfm(): CanonicalFinancialModel | null {
   const overlay = loadToolsOverlay();
@@ -431,10 +439,9 @@ export function buildCfm(): CanonicalFinancialModel | null {
 
   if (hasSavedBudgetLedger()) {
     const ledger = loadBudgetLedger(nowIso);
-    if (ledgerHasRealPicture(ledger)) {
-      // Freshness from last write stamp — never Date.now() at read.
-      return deriveCfmFromLedger(ledger, overlay, nowIso, budgetLedgerSavedAt());
-    }
+    if (!ledgerHasRealPicture(ledger)) return null;
+    // Freshness from last write stamp — never Date.now() at read.
+    return deriveCfmFromLedger(ledger, overlay, nowIso, budgetLedgerSavedAt());
   }
 
   if (!hasSavedFinanceState()) return null;
