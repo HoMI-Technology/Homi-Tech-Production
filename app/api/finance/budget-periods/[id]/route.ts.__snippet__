@@ -1,6 +1,0 @@
-      if (allocationError) {
-        if (allocationError.code && FINANCE_LEDGER_INFRA_MISSING.has(allocationError.code)) {
-          return NextResponse.json({ deferred: true }, { status: 202 });
-        }
-        return serverError("patch-allocations", allocationError.message);
-      }
