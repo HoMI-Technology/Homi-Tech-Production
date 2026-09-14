@@ -30,7 +30,8 @@ const MAX_TRANSACTIONS = 10_000;
  * Month-over-month report + category trends across the caller's most
  * recent N budget periods. Honest-empty when the caller has no periods:
  * `hasData: false`, never zero-filled months. Read-only; derived entirely
- * from the ledger.
+ * from the ledger. Personal scope only (own periods) — household-shared
+ * periods never feed a member's private report in v1.
  */
 export async function GET(request: Request) {
   const ip = getClientIp(request);
@@ -88,6 +89,7 @@ export async function GET(request: Request) {
         row.expected_income_cents === null ? null : Number(row.expected_income_cents),
       goalReserveCents: Number(row.goal_reserve_cents),
       status: row.status,
+      householdId: row.household_id ?? null,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     }),

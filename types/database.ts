@@ -420,6 +420,10 @@ export interface FinanceBudgetPeriodRow {
   expected_income_cents: number | string | null;
   goal_reserve_cents: number | string;
   status: "open" | "closed";
+  /** Household shared budgets — migration 20260914000005. Nullable; absent
+   *  (undefined) until the migration is applied. Set = household members
+   *  can read the period; transactions stay owner-private in v1. */
+  household_id?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -539,4 +543,45 @@ export interface Phase0StateRow {
   signal_ids: string[];
   ledger: unknown;
   updated_at: string;
+}
+
+/** Goal allocations — migration 20260914000004. One row per goal per period;
+ *  amount_cents is a positive magnitude (an allocation is cash assigned to a
+ *  goal, never spending). */
+export interface FinanceGoalAllocationRow {
+  id: string;
+  user_id: string;
+  goal_id: string;
+  period_start: string; // YYYY-MM-DD
+  amount_cents: number | string;
+  created_at: string;
+}
+
+/** Net-worth snapshots — migration 20260914000002. net_worth_cents is SIGNED
+ *  (debts can exceed assets — the sign lives here because net worth has no
+ *  type column); totals stay positive magnitudes. */
+export interface FinanceNetWorthSnapshotRow {
+  id: string;
+  user_id: string;
+  snapshot_date: string; // YYYY-MM-DD
+  total_assets_cents: number | string;
+  total_liabilities_cents: number | string;
+  net_worth_cents: number | string; // signed
+  source: "plaid" | "manual" | "mixed";
+  breakdown: Record<string, unknown>;
+  created_at: string;
+}
+
+/** Category rules — migration 20260914000003. Pattern stored normalized
+ *  (lowercase, collapsed whitespace); lower priority evaluates first. */
+export interface FinanceCategoryRuleRow {
+  id: string;
+  user_id: string;
+  match_type: "payee_exact" | "payee_contains";
+  pattern: string;
+  category_id: string;
+  priority: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
 }
