@@ -141,7 +141,7 @@ export interface Organization {
   name: string;
   slug: string;
   kind: "employer" | "partner";
-  plan: SubscriptionTier;
+  plan: string;
   stripe_customer_id: string | null;
   created_at: string;
 }
@@ -151,7 +151,7 @@ export interface WaitlistEntry {
   email: string;
   source: string | null;
   interested_in: string[] | null;
-  status: "pending" | "invited" | "registered";
+  status: string;
   created_at: string;
 }
 
