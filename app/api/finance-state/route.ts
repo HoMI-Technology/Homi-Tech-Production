@@ -76,8 +76,9 @@ export async function GET(request: Request) {
 /**
  * PUT /api/finance-state — retired at the Phase-3 kill. The ledger is the
  * only writable money store; legacy snapshots are historical read-only data.
+ * Accepts (and ignores) the request so stale clients fail harmlessly.
  */
-export async function PUT() {
+export async function PUT(_request: Request) {
   return NextResponse.json(
     {
       error: "The legacy finance snapshot is read-only. Money writes now go to the budget ledger.",
