@@ -162,6 +162,9 @@ export async function PATCH(request: Request, ctx: RouteCtx) {
       .single();
 
     if (updateError || !updated) {
+      if (updateError?.code && FINANCE_LEDGER_INFRA_MISSING.has(updateError.code)) {
+        return NextResponse.json({ deferred: true }, { status: 202 });
+      }
       return serverError("patch", updateError?.message);
     }
     period = rowToPeriod(updated as FinanceBudgetPeriodRow);
@@ -198,6 +201,9 @@ export async function PATCH(request: Request, ctx: RouteCtx) {
         .select(ALLOCATION_COLS);
 
       if (allocationError) {
+        if (allocationError.code && FINANCE_LEDGER_INFRA_MISSING.has(allocationError.code)) {
+          return NextResponse.json({ deferred: true }, { status: 202 });
+        }
         return serverError("patch-allocations", allocationError.message);
       }
       allocations = ((allocationRows ?? []) as FinanceBudgetAllocationRow[]).map(rowToAllocation);
