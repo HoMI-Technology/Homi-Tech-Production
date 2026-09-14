@@ -143,7 +143,7 @@ export async function persistGeneratedPlan(
     assessmentResultId: string | null;
     status: "draft" | "active";
   },
-): Promise<{ plan: PathPlan; milestones: PathMilestone[] } | { error: string }> {
+): Promise<{ plan: PathPlan; milestones: PathMilestone[] } | { error: string; code: string | null }> {
   const { generated, userId } = input;
 
   const { data: planRow, error: planError } = await supabase
@@ -160,7 +160,7 @@ export async function persistGeneratedPlan(
     .select("*")
     .single();
   if (planError || !planRow) {
-    return { error: planError?.message ?? "plan insert returned no row" };
+    return { error: planError?.message ?? "plan insert returned no row", code: planError?.code ?? null };
   }
   const plan = rowToPathPlan(planRow as PathPlanRow);
 
@@ -187,7 +187,7 @@ export async function persistGeneratedPlan(
       .select("*")
       .single();
     if (error || !row) {
-      return { error: error?.message ?? "milestone insert returned no row" };
+      return { error: error?.message ?? "milestone insert returned no row", code: error?.code ?? null };
     }
     const milestone = rowToPathMilestone(row as PathMilestoneRow);
     idByDraftId.set(m.id, milestone.id);
