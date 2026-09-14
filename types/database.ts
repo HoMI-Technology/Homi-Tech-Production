@@ -88,7 +88,7 @@ export interface OutcomeSurvey {
   decision_regret?: number | null;
   decision_confidence?: number | null;
   would_make_same_decision?: string | null;
-  priority_disruption?: string | null;
+  priority_disruption?: number | null;
   decision_state?: string | null;
 }
 
@@ -525,6 +525,7 @@ export interface PlaidTransactionRow {
   amount: number;
   txn_date: string | null;
   name: string | null;
+  category_id: string | null;
   merchant_name: string | null;
   category: string | null;
   pending: boolean;
@@ -584,4 +585,63 @@ export interface FinanceCategoryRuleRow {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
+}
+
+/** Path to Ready v1 — migration 20260914000006. The plan consumes the
+ *  recorded assessment diagnosis (verdict + hard-stops + pillar snapshot);
+ *  scoring math never lives here. */
+export type PathPlanStatus = "draft" | "active" | "completed" | "archived";
+export type PathMilestoneKind =
+  | "hard_stop"
+  | "savings"
+  | "debt"
+  | "credit"
+  | "timing"
+  | "evidence";
+export type PathMilestoneStatus = "pending" | "active" | "done" | "skipped";
+export type PathPartnerState = "aligned" | "diverged" | "pending";
+
+export interface PathPlanRow {
+  id: string;
+  user_id: string;
+  goal_id: string | null;
+  status: PathPlanStatus;
+  /** Recorded diagnosis jsonb: verdict, hardStops, pillars, timestamps. */
+  diagnosis: Record<string, unknown>;
+  binding_constraint: string | null;
+  assessment_result_id: string | null;
+  version: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PathMilestoneRow {
+  id: string;
+  plan_id: string;
+  user_id: string;
+  title: string;
+  description: string;
+  milestone_kind: PathMilestoneKind;
+  target_date: string | null; // YYYY-MM-DD
+  /** bigint; PostgREST often surfaces as string for safety. Null = withheld. */
+  target_amount_cents: number | string | null;
+  funding_source: Record<string, unknown> | null;
+  tool_slug: string | null;
+  depends_on: string | null;
+  sort_order: number;
+  status: PathMilestoneStatus;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PathPartnerStateRow {
+  id: string;
+  plan_id: string;
+  user_id: string;
+  partner_user_id: string;
+  state: PathPartnerState;
+  partner_snapshot: Record<string, unknown> | null;
+  noted_at: string;
+  created_at: string;
 }
