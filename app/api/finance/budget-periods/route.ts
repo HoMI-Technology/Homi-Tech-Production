@@ -12,7 +12,7 @@ import type { BudgetCategoryAllocation, BudgetPeriod } from "@/lib/finance/ledge
 export const runtime = "nodejs";
 
 const PERIOD_COLS =
-  "id, user_id, period_start, period_end, expected_income_cents, goal_reserve_cents, status, created_at, updated_at";
+  "id, user_id, period_start, period_end, expected_income_cents, goal_reserve_cents, status, household_id, created_at, updated_at";
 const ALLOCATION_COLS =
   "id, budget_period_id, category_id, planned_cents, rollover_mode, created_at, updated_at";
 
@@ -28,6 +28,7 @@ function rowToPeriod(row: FinanceBudgetPeriodRow): BudgetPeriod {
       row.expected_income_cents === null ? null : Number(row.expected_income_cents),
     goalReserveCents: Number(row.goal_reserve_cents),
     status: row.status,
+    householdId: row.household_id ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -56,7 +57,19 @@ function serverError(scope: string, message: string | undefined) {
 
 /**
  * GET /api/finance/budget-periods — the caller's periods, newest first, each
- * with its category allocations. Query: ?limit=50
+ * with its category allocations. Query: ?limit=50&scope=personal|household
+ *
+ * scope=personal (default, unchanged v1 behavior): the caller's own periods.
+ * scope=household (migration 20260914000005): periods the caller can see —
+ * their own plus any period tagged with a household_id the caller is a
+ * member of. Each entry is labeled `ownerContext: "self" | "household_member"`
+ * so the UI can render shared periods distinctly.
+ *
+ * SHARED VISIBILITY IS BUDGET PERIODS ONLY. Transactions remain private in
+ * v1 (finance_transactions RLS untouched), and allocations on another
+ * member's period are not readable (their RLS joins through owner-owned
+ * periods), so shared entries return `allocations: []` with
+ * `allocationsVisible: false`. Writes stay owner-only everywhere.
  *
  * POST /api/finance/budget-periods — create a period with its allocations,
  * idempotent by client key. userId always from the session.
@@ -89,23 +102,73 @@ export async function GET(request: Request) {
     ? Math.min(Math.max(Math.trunc(limitRaw), 1), MAX_PERIODS)
     : 50;
 
-  const { data: periodRows, error: periodError } = await supabase
-    .from("finance_budget_periods")
-    .select(PERIOD_COLS)
-    .eq("user_id", user.id)
-    .order("period_start", { ascending: false })
-    .limit(limit);
-
-  if (periodError) {
-    if (periodError.code && FINANCE_LEDGER_INFRA_MISSING.has(periodError.code)) {
-      return NextResponse.json({ periods: [], deferred: true });
-    }
-    return serverError("list", periodError.message);
+  const scope = url.searchParams.get("scope") ?? "personal";
+  if (scope !== "personal" && scope !== "household") {
+    return NextResponse.json(
+      { error: "scope must be personal or household." },
+      { status: 400 },
+    );
   }
 
-  const periods = ((periodRows ?? []) as FinanceBudgetPeriodRow[]).map(rowToPeriod);
+  let periodRows: FinanceBudgetPeriodRow[] | null = null;
+  let householdId: string | null = null;
+
+  if (scope === "personal") {
+    const { data, error } = await supabase
+      .from("finance_budget_periods")
+      .select(PERIOD_COLS)
+      .eq("user_id", user.id)
+      .order("period_start", { ascending: false })
+      .limit(limit);
+    if (error) {
+      if (error.code && FINANCE_LEDGER_INFRA_MISSING.has(error.code)) {
+        return NextResponse.json({ periods: [], deferred: true });
+      }
+      return serverError("list", error.message);
+    }
+    periodRows = (data ?? []) as FinanceBudgetPeriodRow[];
+  } else {
+    // The caller's household (one membership per user per
+    // household_members_one_per_user), if any.
+    const { data: membership, error: membershipError } = await supabase
+      .from("household_members")
+      .select("household_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (membershipError) {
+      if (membershipError.code && FINANCE_LEDGER_INFRA_MISSING.has(membershipError.code)) {
+        return NextResponse.json({ periods: [], deferred: true });
+      }
+      return serverError("list-membership", membershipError.message);
+    }
+
+    householdId = (membership as { household_id: string } | null)?.household_id ?? null;
+
+    // RLS allows: own periods + periods tagged with this household. Without a
+    // membership this reduces to the caller's own periods.
+    const query = supabase
+      .from("finance_budget_periods")
+      .select(PERIOD_COLS)
+      .order("period_start", { ascending: false })
+      .limit(limit);
+    const { data, error } = householdId
+      ? await query.or(`user_id.eq.${user.id},household_id.eq.${householdId}`)
+      : await query.eq("user_id", user.id);
+
+    if (error) {
+      // 42703 = household_id column missing (migration not applied yet).
+      if (error.code && FINANCE_LEDGER_INFRA_MISSING.has(error.code)) {
+        return NextResponse.json({ periods: [], deferred: true });
+      }
+      return serverError("list-household", error.message);
+    }
+    periodRows = (data ?? []) as FinanceBudgetPeriodRow[];
+  }
+
+  const periods = (periodRows ?? []).map(rowToPeriod);
   if (periods.length === 0) {
-    return NextResponse.json({ periods: [] });
+    return NextResponse.json({ periods: [], scope, householdId });
   }
 
   const { data: allocationRows, error: allocationError } = await supabase
@@ -132,10 +195,20 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json({
-    periods: periods.map((period) => ({
-      period,
-      allocations: allocationsByPeriod.get(period.id) ?? [],
-    })),
+    scope,
+    householdId,
+    periods: periods.map((period) => {
+      const isOwn = period.userId === user.id;
+      return {
+        period,
+        allocations: allocationsByPeriod.get(period.id) ?? [],
+        // Allocation RLS only exposes the caller's own periods' rows, so a
+        // shared period's plan lines are not visible in v1 — disclosed, not
+        // silently empty.
+        allocationsVisible: isOwn,
+        ownerContext: isOwn ? ("self" as const) : ("household_member" as const),
+      };
+    }),
   });
 }
 

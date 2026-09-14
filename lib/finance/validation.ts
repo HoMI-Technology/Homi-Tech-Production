@@ -202,3 +202,34 @@ export const recurringRuleUpdateSchema = z
   });
 
 export type RecurringRuleUpdateInput = z.infer<typeof recurringRuleUpdateSchema>;
+
+/* ------------------------------------------------------------------ */
+/* Category rules (Phase 2)                                            */
+/* ------------------------------------------------------------------ */
+
+export const categoryRuleCreateSchema = z.object({
+  matchType: z.enum(["payee_exact", "payee_contains"]),
+  /** Normalized server-side (normalizePayee) before storage. */
+  pattern: z.string().trim().min(1).max(160),
+  categoryId: z.uuid(),
+  /** Lower number = evaluated first. */
+  priority: z.number().int().min(0).max(10000).default(100),
+});
+
+export type CategoryRuleCreateInput = z.infer<typeof categoryRuleCreateSchema>;
+
+/** PATCH body — optimistic concurrency via expectedUpdatedAt (409 on stale). */
+export const categoryRuleUpdateSchema = z
+  .object({
+    expectedUpdatedAt: z.iso.datetime(),
+
+    matchType: z.enum(["payee_exact", "payee_contains"]).optional(),
+    pattern: z.string().trim().min(1).max(160).optional(),
+    categoryId: z.uuid().optional(),
+    priority: z.number().int().min(0).max(10000).optional(),
+  })
+  .refine((value) => Object.keys(value).length > 1, {
+    message: "Update must change at least one field.",
+  });
+
+export type CategoryRuleUpdateInput = z.infer<typeof categoryRuleUpdateSchema>;
