@@ -58,6 +58,29 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
+  // A goal_id must name one of the caller's own savings goals (same
+  // ownership pattern as app/api/finance/savings-goals: user_id always from
+  // the session, never the body). Unknown or not-owned → 400.
+  if (parsed.data.goal_id) {
+    const { data: goal, error: goalError } = await supabase
+      .from("finance_savings_goals")
+      .select("id")
+      .eq("id", parsed.data.goal_id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (goalError && !(goalError.code && PATH_INFRA_MISSING.has(goalError.code))) {
+      const correlationId = crypto.randomUUID();
+      console.error(`[path:generate:goal:${correlationId}]`, goalError.message);
+      return NextResponse.json(
+        { error: "Could not verify the goal.", correlationId },
+        { status: 500 },
+      );
+    }
+    if (!goal) {
+      return NextResponse.json({ error: "Goal not found." }, { status: 400 });
+    }
+  }
+
   const { data: assessmentRow, error: assessmentError } = await supabase
     .from("assessments")
     .select("*")
@@ -142,6 +165,11 @@ export async function POST(request: Request) {
   });
 
   if ("error" in persisted) {
+    if (persisted.code && PATH_INFRA_MISSING.has(persisted.code)) {
+      // Deferred-fallback convention (same as finance routes): the path is
+      // generated but storage is not migrated yet — defer, don't error.
+      return NextResponse.json({ deferred: true }, { status: 202 });
+    }
     const correlationId = crypto.randomUUID();
     console.error(`[path:generate:persist:${correlationId}]`, persisted.error);
     return NextResponse.json(
