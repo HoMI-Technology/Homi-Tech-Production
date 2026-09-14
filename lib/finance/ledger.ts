@@ -110,8 +110,10 @@ export interface BudgetPeriod {
   goalReserveCents: MoneyCents;
   status: "open" | "closed";
   /** Set = readable by members of that household (Phase 2, read-only
-   * sharing; transactions stay owner-private). Null = personal. */
-  householdId: string | null;
+   * sharing; transactions stay owner-private). Null/absent = personal.
+   * Optional because the column does not exist until migration
+   * 20260914000005 is applied. */
+  householdId?: string | null;
   createdAt: string;
   updatedAt: string;
 }
