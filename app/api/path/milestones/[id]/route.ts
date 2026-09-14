@@ -68,7 +68,9 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
   if (error) {
     if (error.code && PATH_INFRA_MISSING.has(error.code)) {
-      return NextResponse.json({ error: "Path storage is not available yet." }, { status: 503 });
+      // Deferred-fallback convention (same as finance routes): infra missing
+      // is not an error state for the client — the write is deferred.
+      return NextResponse.json({ deferred: true }, { status: 202 });
     }
     const correlationId = crypto.randomUUID();
     console.error(`[path:milestone:patch:${correlationId}]`, error.message);
