@@ -3,6 +3,8 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getClientIp, rateLimit } from "@/lib/ratelimit";
 import { FINANCE_LEDGER_INFRA_MISSING, rowToSavingsGoal } from "@/lib/finance/db-map";
+import { dollarsToCents } from "@/lib/finance/money";
+import { summarizeGoals, type GoalAllocation } from "@/lib/finance/goals";
 import type { FinanceSavingsGoalRow } from "@/types/database";
 
 export const runtime = "nodejs";
@@ -25,6 +27,12 @@ export const runtime = "nodejs";
  * Every write now addresses exactly one row: by `id` when the caller names one,
  * otherwise the oldest active goal of that goal_type. Scoping the fallback by
  * type is what stops a down-payment save from overwriting a reserve.
+ *
+ * V2 (Phase 2): goals may link a plaid account (linked_account_id — the
+ * account's live balance is the funded figure of record) and accept
+ * per-period allocation records (finance_goal_allocations). GET with
+ * `?progress=true` returns computeGoalProgress output per active goal plus
+ * the multi-goal summary. All v1 fields and the v1 body shape are unchanged.
  */
 
 /** Cap on goals returned — a sane upper bound, not a product limit. */
@@ -59,9 +67,12 @@ const upsertSchema = z.object({
     .nullish(),
   current_amount: z.number().finite().min(0).max(100_000_000).nullish(),
   planned_monthly_contribution: z.number().finite().min(0).max(100_000_000).nullish(),
+  /** V2: link a plaid account as the balance of record. Must be one of the
+   * caller's own accounts (checked below); null unlinks. Omitted = unchanged. */
+  linked_account_id: z.string().uuid().nullish(),
 });
 
-function dollarsToCents(dollars: number | null | undefined): number {
+function dollarsToCentsOrZero(dollars: number | null | undefined): number {
   if (dollars === null || dollars === undefined) return 0;
   return Math.round(dollars * 100);
 }
@@ -103,7 +114,12 @@ async function oldestActiveGoalId(
   return { id: rows[0]?.id ?? null, failed: false };
 }
 
-/** GET /api/finance/savings-goals — the caller's active savings goals. */
+/**
+ * GET /api/finance/savings-goals — the caller's active savings goals.
+ * With `?progress=true`, each goal carries a `progress` object from
+ * lib/finance/goals.ts (linked-account balance or allocation sums; null
+ * projections when there is no trailing rate — never invented dates).
+ */
 export async function GET(request: Request) {
   const ip = getClientIp(request);
   const { allowed } = await rateLimit(`finance-savings-goals-read:${ip}`, {
@@ -146,9 +162,86 @@ export async function GET(request: Request) {
   }
 
   const goals = ((data ?? []) as FinanceSavingsGoalRow[]).map(rowToSavingsGoal);
-  // `goal` is kept for clients written against the single-goal response and
-  // will be dropped once none remain; it is the first goal, not "the" goal.
-  return NextResponse.json({ goals, goal: goals[0] ?? null });
+
+  const url = new URL(request.url);
+  if (url.searchParams.get("progress") !== "true") {
+    // `goal` is kept for clients written against the single-goal response and
+    // will be dropped once none remain; it is the first goal, not "the" goal.
+    return NextResponse.json({ goals, goal: goals[0] ?? null });
+  }
+
+  const goalIds = goals.map((g) => g.id);
+  const linkedAccountIds = goals
+    .map((g) => g.linkedAccountId)
+    .filter((id): id is string => id !== null);
+
+  const [{ data: allocRows, error: allocError }, { data: accountRows, error: accountError }] =
+    await Promise.all([
+      goalIds.length > 0
+        ? supabase
+            .from("finance_goal_allocations")
+            .select("goal_id, period_start, amount_cents")
+            .eq("user_id", user.id)
+            .in("goal_id", goalIds)
+            .order("period_start", { ascending: true })
+        : Promise.resolve({ data: [], error: null }),
+      linkedAccountIds.length > 0
+        ? supabase
+            .from("plaid_accounts")
+            .select("id, current_balance")
+            .in("id", linkedAccountIds)
+        : Promise.resolve({ data: [], error: null }),
+    ]);
+
+  for (const [scope, err] of [
+    ["allocations", allocError],
+    ["accounts", accountError],
+  ] as const) {
+    if (err) {
+      if (isInfraMissing(err)) {
+        // Allocations table not migrated yet: goals still load, progress omitted.
+        return NextResponse.json({ goals, goal: goals[0] ?? null, progress: null, deferred: true });
+      }
+      const correlationId = crypto.randomUUID();
+      console.error(`[finance-savings-goals:get-${scope}:${correlationId}]`, err.message);
+      return NextResponse.json(
+        { error: "Could not load your goals.", correlationId },
+        { status: 500 },
+      );
+    }
+  }
+
+  const allocations: GoalAllocation[] = (
+    (allocRows ?? []) as { goal_id: string; period_start: string; amount_cents: number | string }[]
+  ).map((row) => ({
+    goalId: row.goal_id,
+    periodStart: row.period_start,
+    amountCents: Number(row.amount_cents),
+  }));
+
+  const linkedBalances = new Map<string, number | null>();
+  for (const row of (accountRows ?? []) as { id: string; current_balance: number | null }[]) {
+    // Floating plaid dollars → cents at the boundary; null stays null
+    // (unknown balance is unknown, never zero).
+    linkedBalances.set(
+      row.id,
+      row.current_balance === null ? null : dollarsToCents(row.current_balance),
+    );
+  }
+
+  const asOfDate = new Date().toISOString().slice(0, 10);
+  const summary = summarizeGoals(goals, allocations, linkedBalances, asOfDate);
+  const progressByGoal = new Map(summary.goals.map((p) => [p.goalId, p]));
+
+  return NextResponse.json({
+    goals: goals.map((goal) => ({ ...goal, progress: progressByGoal.get(goal.id) ?? null })),
+    goal: goals[0] ?? null,
+    summary: {
+      totalMonthlyAllocationCents: summary.totalMonthlyAllocationCents,
+      activeGoalCount: summary.activeGoalCount,
+      goalsWithProjection: summary.goalsWithProjection,
+    },
+  });
 }
 
 /**
@@ -201,6 +294,25 @@ export async function PUT(request: Request) {
   const input = parsed.data;
   const goalType = input.goal_type ?? DEFAULT_GOAL_TYPE;
 
+  // V2: a linked account must be one of the caller's own plaid accounts.
+  // RLS scopes the lookup; no row means not theirs (or not existing).
+  if (input.linked_account_id) {
+    const { data: account, error: accountError } = await supabase
+      .from("plaid_accounts")
+      .select("id")
+      .eq("id", input.linked_account_id)
+      .maybeSingle();
+    if (accountError) {
+      return serverError("put:linked-account", accountError.message);
+    }
+    if (!account) {
+      return NextResponse.json(
+        { error: "That account is not available to link." },
+        { status: 400 },
+      );
+    }
+  }
+
   let targetId: string | null = input.id ?? null;
   if (!targetId) {
     const found = await oldestActiveGoalId(supabase, user.id, goalType);
@@ -213,11 +325,16 @@ export async function PUT(request: Request) {
     user_id: user.id,
     name: input.name,
     goal_type: goalType,
-    target_amount_cents: dollarsToCents(input.target_amount),
-    current_amount_cents: dollarsToCents(input.current_amount),
+    target_amount_cents: dollarsToCentsOrZero(input.target_amount),
+    current_amount_cents: dollarsToCentsOrZero(input.current_amount),
     target_date: input.target_date ?? null,
-    planned_monthly_contribution_cents: dollarsToCents(input.planned_monthly_contribution),
+    planned_monthly_contribution_cents: dollarsToCentsOrZero(input.planned_monthly_contribution),
     status: "active" as const,
+    // linked_account_id only written when provided; omitted leaves the
+    // existing link untouched (backward compatible with v1 clients).
+    ...(input.linked_account_id !== undefined && input.linked_account_id !== null
+      ? { linked_account_id: input.linked_account_id }
+      : {}),
   };
 
   let result = null;
@@ -260,6 +377,13 @@ export async function PUT(request: Request) {
       // caller must pick another id rather than be told it succeeded.
       if (error?.code === "23505") {
         return NextResponse.json({ error: "That goal id is already taken." }, { status: 409 });
+      }
+      // A dangling linked account hits the V2 FK.
+      if (error?.code === "23503") {
+        return NextResponse.json(
+          { error: "That account is not available to link." },
+          { status: 400 },
+        );
       }
       return serverError("put", error?.message ?? "insert returned no row");
     }
