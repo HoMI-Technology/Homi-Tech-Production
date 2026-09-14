@@ -109,6 +109,9 @@ export interface BudgetPeriod {
   /** Cash the user has intentionally reserved for goals this period. */
   goalReserveCents: MoneyCents;
   status: "open" | "closed";
+  /** Set = readable by members of that household (Phase 2, read-only
+   * sharing; transactions stay owner-private). Null = personal. */
+  householdId: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -124,9 +127,12 @@ export interface BudgetCategoryAllocation {
 }
 
 /**
- * V1 goal model: manual current balance plus planned contribution. Linked
- * accounts (V2) and an allocation ledger (V3) come later — a goal
- * contribution is a cash allocation, never spending.
+ * Goal model (V2): a goal is funded by a linked plaid account
+ * (linkedAccountId — the account is the balance of record) and/or by
+ * per-period cash allocations (finance_goal_allocations, see
+ * lib/finance/goals.ts). Multiple active goals per user are supported
+ * (the v1 one-active-goal index was dropped by migration 20260810000001).
+ * A goal contribution is a cash allocation, never spending.
  */
 export interface SavingsGoal {
   id: string;

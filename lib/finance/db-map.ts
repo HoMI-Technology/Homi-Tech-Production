@@ -9,6 +9,7 @@
 
 import type {
   FinanceCategoryRow,
+  FinanceGoalAllocationRow,
   FinanceRecurringRuleRow,
   FinanceSavingsGoalRow,
   FinanceTransactionRow,
@@ -19,10 +20,12 @@ import type {
   RecurringTransactionRule,
   SavingsGoal,
 } from "@/lib/finance/ledger";
+import type { GoalAllocation } from "@/lib/finance/goals";
 import type { MoneyCents } from "@/lib/finance/money";
 
 export type {
   FinanceCategoryRow,
+  FinanceGoalAllocationRow,
   FinanceRecurringRuleRow,
   FinanceSavingsGoalRow,
   FinanceTransactionRow,
@@ -117,8 +120,19 @@ export function rowToRecurringRule(row: FinanceRecurringRuleRow): RecurringTrans
   };
 }
 
+/** Goal allocation row → the pure goals.ts input shape (id/userId dropped:
+ *  progress math never needs them). */
+export function rowToGoalAllocation(row: FinanceGoalAllocationRow): GoalAllocation {
+  return {
+    goalId: row.goal_id,
+    periodStart: row.period_start,
+    amountCents: cents(row.amount_cents),
+  };
+}
+
 /** Postgres/PostgREST codes meaning the PR-3 migration is not applied yet. */
 export const FINANCE_LEDGER_INFRA_MISSING = new Set([
   "42P01", // undefined_table
   "PGRST205", // table not in schema cache
+  "42703", // undefined_column (a later migration not applied yet)
 ]);
