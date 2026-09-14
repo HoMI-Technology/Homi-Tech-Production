@@ -8,19 +8,21 @@ export const COMPASS_ARIA_LABEL =
  * Threshold Compass — canonical orbit/keyhole system.
  *
  * Rebuilt 2026-09-14 against the canonical spec (compass-spec.md +
- * assets/compass-canonical.png):
+ * assets/compass-canonical.png) and the source-lock facts
+ * (app-sidebar/brand-compass-glow-filter-respects-prop):
  *  - Orbit/keyhole system. NEVER tick marks, a needle, or N/S/E/W letters.
- *  - Outer cyan orbit (Financial Reality) with four CARDINAL nodes
+ *  - Outer cyan orbit (Financial Reality), r=85, four CARDINAL nodes
  *    (top/right/bottom/left — not diagonals).
- *  - Middle emerald orbit (Emotional Truth) at ~67% of the outer radius,
- *    four smaller cardinal nodes.
- *  - Inner yellow orbit (Perfect Timing) at ~42%, no nodes, thicker stroke,
+ *  - Middle emerald orbit (Emotional Truth), r=60, four smaller cardinal nodes.
+ *  - Inner yellow orbit (Perfect Timing), r=35, no nodes, thicker stroke,
  *    brighter glow.
  *  - Keyhole center: small yellow ring + filled keyhole (circle over narrow
  *    rounded stem). The keyhole is the threshold symbol — strongest glow.
  *  - Verdicts are UI overlays, never recolors of compass elements:
  *    READY pulses the emerald orbit, ALMOST_THERE pulses the yellow orbit,
  *    BUILD_FIRST adds an amber halo, NOT_YET adds a crimson warning halo.
+ *  - Glow is prop-driven (glow ? "url(#hc-glow)" : undefined); the hc-glow
+ *    filter is only emitted when glow is on.
  *  - Motion is slow, ambient, and frozen under prefers-reduced-motion.
  *
  * All animation CSS is scoped and self-contained (tc-*) so this component
@@ -39,7 +41,7 @@ export function ThresholdCompass({
   glow?: boolean;
   className?: string;
 }) {
-  const glowFilter = glow ? "url(#tc-glow)" : undefined;
+  const glowFilter = glow ? "url(#hc-glow)" : undefined;
   const keyholeGlow = glow ? "url(#tc-keyhole-glow)" : undefined;
 
   // READY pulses the emerald (Emotional Truth) orbit; ALMOST_THERE pulses the
@@ -81,7 +83,7 @@ export function ThresholdCompass({
 
       {glow ? (
         <defs>
-          <filter id="tc-glow" x="-40%" y="-40%" width="180%" height="180%">
+          <filter id="hc-glow" x="-40%" y="-40%" width="180%" height="180%">
             <feGaussianBlur stdDeviation="2" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
@@ -131,7 +133,7 @@ export function ThresholdCompass({
         <circle cx="15" cy="100" r="3.2" fill={COLORS.cyan} />
       </g>
 
-      {/* Middle orbit — Emotional Truth (emerald), ~67% radius, smaller nodes */}
+      {/* Middle orbit — Emotional Truth (emerald), smaller cardinal nodes */}
       <g
         className={animated ? `tc-middle${middlePulse}` : undefined}
         filter={glowFilter}
@@ -139,19 +141,19 @@ export function ThresholdCompass({
         <circle
           cx="100"
           cy="100"
-          r="57"
+          r="60"
           stroke={COLORS.emerald}
           strokeWidth="1.8"
           fill="none"
           opacity="0.7"
         />
-        <circle cx="100" cy="43" r="2.6" fill={COLORS.emerald} />
-        <circle cx="157" cy="100" r="2.6" fill={COLORS.emerald} />
-        <circle cx="100" cy="157" r="2.6" fill={COLORS.emerald} />
-        <circle cx="43" cy="100" r="2.6" fill={COLORS.emerald} />
+        <circle cx="100" cy="40" r="2.6" fill={COLORS.emerald} />
+        <circle cx="160" cy="100" r="2.6" fill={COLORS.emerald} />
+        <circle cx="100" cy="160" r="2.6" fill={COLORS.emerald} />
+        <circle cx="40" cy="100" r="2.6" fill={COLORS.emerald} />
       </g>
 
-      {/* Inner orbit — Perfect Timing (yellow), ~42% radius, no nodes, brighter */}
+      {/* Inner orbit — Perfect Timing (yellow), no nodes, brighter */}
       <g
         className={animated ? `tc-inner${innerPulse}` : undefined}
         filter={glowFilter}
@@ -159,7 +161,7 @@ export function ThresholdCompass({
         <circle
           cx="100"
           cy="100"
-          r="36"
+          r="35"
           stroke={COLORS.yellow}
           strokeWidth="2.4"
           fill="none"
