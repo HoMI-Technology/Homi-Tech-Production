@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
 /**
- * Route tests for /api/finance-state — the server side of the T2.6 local-first
- * sync contract. Ownership is RLS-shaped (user_id always from the session) and
- * writes are last-write-wins: a PUT carrying an older client stamp than the
- * stored row is answered `stale` with the newer copy instead of clobbering it.
+ * Route tests for /api/finance-state — the LEGACY manual finance snapshot.
+ * Phase-3 kill (docs/ops/MONEY-LEDGER-MIGRATION.md): the route is read-only.
+ * GET keeps the old contract for the transition window (the one-time
+ * legacy → ledger import still reads it); PUT is retired and answers 410,
+ * so no client — first-party or stale — can write user_finance_state.
  */
 
 type Row = { state: unknown; client_updated_at: string | number } | null;
@@ -107,54 +108,19 @@ describe("GET /api/finance-state", () => {
   });
 });
 
-describe("PUT /api/finance-state", () => {
-  it("401s anonymous callers", async () => {
-    state.user = null;
-    const res = await PUT(putRequest({ state: VALID_STATE, client_updated_at: 100 }));
-    expect(res.status).toBe(401);
-  });
-
-  it("400s malformed state", async () => {
-    const res = await PUT(
-      putRequest({ state: { ...VALID_STATE, monthlyIncome: "lots" }, client_updated_at: 100 }),
-    );
-    expect(res.status).toBe(400);
-    expect(state.upsertCalls).toHaveLength(0);
-  });
-
-  it("accepts a newer stamp, upserting under the session's user_id", async () => {
-    state.row = { state: { old: true }, client_updated_at: "100" };
+describe("PUT /api/finance-state (retired at the Phase-3 kill)", () => {
+  it("answers 410 and never touches the table", async () => {
     const res = await PUT(putRequest({ state: VALID_STATE, client_updated_at: 200 }));
-    expect(await res.json()).toEqual({ ok: true });
-    expect(state.upsertCalls).toHaveLength(1);
-    expect(state.upsertCalls[0].payload.user_id).toBe("user-1");
-    expect(state.upsertCalls[0].payload.client_updated_at).toBe(200);
-    expect(state.upsertCalls[0].options).toEqual({ onConflict: "user_id" });
-  });
-
-  it("answers stale with the newer copy instead of clobbering it", async () => {
-    state.row = { state: VALID_STATE, client_updated_at: "900" };
-    const res = await PUT(
-      putRequest({ state: { ...VALID_STATE, monthlyIncome: 1 }, client_updated_at: 200 }),
-    );
+    expect(res.status).toBe(410);
     const body = await res.json();
-    expect(body.stale).toBe(true);
-    expect(body.state).toEqual(VALID_STATE);
-    expect(body.client_updated_at).toBe(900);
+    expect(body.replacedBy).toBe("/api/finance/transactions");
     expect(state.upsertCalls).toHaveLength(0);
   });
 
-  it("defers gracefully when the table is not migrated yet", async () => {
-    state.upsertError = { code: "PGRST205", message: "table not found" };
-    const res = await PUT(putRequest({ state: VALID_STATE, client_updated_at: 200 }));
-    expect(await res.json()).toEqual({ ok: true, deferred: true });
-  });
-
-  it("never trusts a user_id from the body", async () => {
-    const res = await PUT(
-      putRequest({ state: VALID_STATE, client_updated_at: 200, user_id: "victim-2" }),
-    );
-    expect(res.status).toBe(200);
-    expect(state.upsertCalls[0].payload.user_id).toBe("user-1");
+  it("answers 410 even for anonymous or malformed callers", async () => {
+    state.user = null;
+    const res = await PUT(putRequest({ state: { monthlyIncome: "lots" } }));
+    expect(res.status).toBe(410);
+    expect(state.upsertCalls).toHaveLength(0);
   });
 });

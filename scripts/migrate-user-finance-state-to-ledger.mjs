@@ -6,8 +6,15 @@
  * finance ledger tables (`finance_budget_periods`, `finance_categories`,
  * `finance_transactions`, `finance_savings_goals`).
  *
- * Idempotent: users who already have rows in any of the three write-target
- * tables are skipped entirely, so the script can be rerun safely.
+ * Idempotent — never double-seeds:
+ *   1. A per-user marker row in `finance_mutation_idempotency`
+ *      (idempotency_key = "legacy-migration-v1") is written after a successful
+ *      import. Users with a marker are skipped on every later run — including
+ *      users who soft-deleted their imported rows afterwards (deleted rows are
+ *      audit history, not an invitation to reseed).
+ *   2. Users with pre-existing ledger rows but NO marker (partial earlier run
+ *      or organically created data) are skipped and reported as CONFLICT for
+ *      manual review — never silently topped up, never double-written.
  *
  * Run:
  *   SUPABASE_SERVICE_ROLE_KEY=... node scripts/migrate-user-finance-state-to-ledger.mjs
@@ -22,6 +29,9 @@ import { resolve } from "node:path";
 const PROJECT_REF = "giyycykxkzfbowiapxpd";
 
 const DRY_RUN = process.argv.includes("--dry-run");
+
+/** Per-user marker key in finance_mutation_idempotency (16–200 chars per CHECK). */
+const MIGRATION_IDEMPOTENCY_KEY = "legacy-migration-v1";
 
 function loadEnvLocal() {
   const path = resolve(process.cwd(), ".env.local");
@@ -119,6 +129,34 @@ async function countUserRows(table, userId) {
   return count || 0;
 }
 
+/** True when this user's one-time import already completed (marker row). */
+async function hasMigrationMarker(userId) {
+  const { data, error } = await supabase
+    .from("finance_mutation_idempotency")
+    .select("idempotency_key")
+    .eq("user_id", userId)
+    .eq("idempotency_key", MIGRATION_IDEMPOTENCY_KEY)
+    .maybeSingle();
+  if (error) throw new Error(`marker check failed: ${error.message}`);
+  return data !== null;
+}
+
+/** Writes the migrated-at marker. Conflict-tolerant: a racing rerun is fine. */
+async function writeMigrationMarker(userId, budgetPeriodId, summary) {
+  const { error } = await supabase.from("finance_mutation_idempotency").upsert(
+    {
+      user_id: userId,
+      idempotency_key: MIGRATION_IDEMPOTENCY_KEY,
+      resource_type: "budget_period",
+      resource_id: budgetPeriodId,
+      response_status: 200,
+      response_body: { migratedFrom: "user_finance_state", ...summary },
+    },
+    { onConflict: "user_id,idempotency_key", ignoreDuplicates: true },
+  );
+  if (error) throw new Error(`marker write failed: ${error.message}`);
+}
+
 async function fetchSystemCategories() {
   const { data, error } = await supabase
     .from("finance_categories")
@@ -162,6 +200,13 @@ async function migrateUser(
       return { status: "skipped" };
     }
 
+    // Marker first: a completed import is never repeated, even if the user
+    // later soft-deleted the imported rows.
+    if (await hasMigrationMarker(userId)) {
+      console.log(`${prefix} SKIP already migrated (marker ${MIGRATION_IDEMPOTENCY_KEY})`);
+      return { status: "skipped" };
+    }
+
     const [txCount, bpCount, sgCount] = await Promise.all([
       countUserRows("finance_transactions", userId),
       countUserRows("finance_budget_periods", userId),
@@ -169,10 +214,13 @@ async function migrateUser(
     ]);
 
     if (txCount > 0 || bpCount > 0 || sgCount > 0) {
+      // Ledger rows without a marker = organic data or a partial earlier run.
+      // Loud skip for manual review — never silently top up or double-write.
       console.log(
-        `${prefix} SKIP already has ledger rows (transactions=${txCount}, budget_periods=${bpCount}, savings_goals=${sgCount})`,
+        `${prefix} CONFLICT ledger rows exist without migration marker ` +
+          `(transactions=${txCount}, budget_periods=${bpCount}, savings_goals=${sgCount}) — manual review`,
       );
-      return { status: "skipped" };
+      return { status: "conflict" };
     }
 
     const expectedIncomeCents = dollarsToCents(state.monthlyIncome);
@@ -364,6 +412,16 @@ async function migrateUser(
       return { status: "dry-run", budgetPeriod, transactions, savingsGoalResult };
     }
 
+    // Marker LAST: only a fully completed import earns it, so a failure
+    // mid-user leaves no marker and the rerun is the CONFLICT path (loud).
+    await writeMigrationMarker(userId, budgetPeriodId, {
+      periodStart,
+      periodEnd,
+      transactionCount: transactions.length,
+      newUserCategoryCount: newUserCategories.length,
+      savingsGoal: savingsGoalResult ? savingsGoalResult.goal_type : null,
+    });
+
     console.log(
       `${prefix} OK budget_period=${budgetPeriodId}, transactions=${transactions.length}, ` +
         `new_categories=${newUserCategories.length}, savings_goal=${savingsGoalResult ? "yes" : "no"}`,
@@ -413,6 +471,7 @@ async function main() {
   let skipped = 0;
   let succeeded = 0;
   let failed = 0;
+  let conflicts = 0;
 
   for (const row of legacyRows || []) {
     processed += 1;
@@ -423,16 +482,26 @@ async function main() {
       periodEnd,
     });
     if (result.status === "skipped") skipped += 1;
+    else if (result.status === "conflict") conflicts += 1;
     else if (result.status === "error") failed += 1;
     else succeeded += 1;
   }
 
   console.log(
-    `[migrate] done processed=${processed} skipped=${skipped} succeeded=${succeeded} failed=${failed}`,
+    `[migrate] done processed=${processed} skipped=${skipped} succeeded=${succeeded} ` +
+      `conflicts=${conflicts} failed=${failed}`,
   );
 
   if (failed > 0) {
     process.exit(1);
+  }
+  if (conflicts > 0) {
+    // Not fatal, but loud: these users need a human to reconcile rows that
+    // exist without a migration marker before their legacy row can import.
+    console.warn(
+      `[migrate] WARNING: ${conflicts} user(s) have ledger rows without a migration marker — ` +
+        `manual review required (never auto-topped-up).`,
+    );
   }
 }
 

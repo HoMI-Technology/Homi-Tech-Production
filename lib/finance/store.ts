@@ -1,27 +1,31 @@
 /**
- * Finance Command Dashboard — shared local-first state (audit T2.6).
+ * @deprecated LEGACY monthly-snapshot store — retired as the money source of
+ * truth (docs/ops/MONEY-LEDGER-MIGRATION.md, kill date 2026-09-15).
  *
- * localStorage stays the synchronous source the UI reads and writes (an edit
- * can never be lost to a network blip), and a background sync layer
- * (lib/persistence.ts) mirrors it to the database for signed-in users so the
- * numbers follow them across devices. Anonymous visitors get exactly the old
- * localStorage-only behavior.
+ * The budget ledger (lib/finance/local-ledger.ts + lib/finance/ledger.ts,
+ * `homi:budget-ledger` + server `finance_*` tables) is the SSOT. This module
+ * remains ONLY as:
+ *   - a read fallback for clients that never touched the ledger
+ *     (buildCfm / advisor / readiness check `hasSavedBudgetLedger()` first), and
+ *   - the input shape for the one-time legacy → ledger import
+ *     (lib/finance/migrate-from-legacy.ts).
  *
- * SSR-safe: all reads/writes are guarded behind `typeof window` checks,
- * so importing this module on the server (or during the SSR render pass
- * of a client component) never throws.
+ * No app code may write through saveFinanceState() anymore — the Phase-1
+ * dual-write helper was removed at the Phase-3 kill, and PUT
+ * /api/finance-state now answers 410. New money features read the ledger.
+ *
+ * localStorage stays the synchronous source the UI reads (an edit
+ * can never be lost to a network blip). SSR-safe: all reads/writes are
+ * guarded behind `typeof window` checks.
  */
 
 import { createSyncedResource, type Stamped } from "@/lib/persistence";
 
 const STORAGE_KEY = "homi:finance";
-/** ms-epoch stamp of the last local write — the LWW tiebreaker. Kept in a
- * separate key so the legacy `homi:finance` format (read directly by the
- * simulator and the Companion context) never changes shape. */
+/** ms-epoch stamp of the last local write — the LWW tiebreaker. */
 const STAMP_KEY = "homi:finance:updated-at";
 /** ISO timestamp of the same write — the freshness signal financeSavedAt()
- * exposes to the Companion. Always derived from the LWW stamp so the two
- * keys can never disagree about when the numbers were saved. */
+ * exposes to the Companion. */
 const SAVED_AT_KEY = "homi:finance:saved-at";
 
 export interface ExpenseCategory {
@@ -126,14 +130,11 @@ function writeLocal(stamped: Stamped<FinanceState>): void {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(stamped.value));
     window.localStorage.setItem(STAMP_KEY, String(stamped.updatedAt));
-    // Stamp 0 means "legacy data of unknown age" — writing it as 1970 would
-    // make the Companion claim the numbers are decades old.
     if (stamped.updatedAt > 0) {
       window.localStorage.setItem(SAVED_AT_KEY, new Date(stamped.updatedAt).toISOString());
     }
   } catch {
-    // Storage may be unavailable (private browsing quota, etc). Fail silently —
-    // the in-memory state still works for the current session.
+    // Storage may be unavailable (private browsing quota, etc). Fail silently.
   }
 }
 
@@ -157,8 +158,7 @@ function loadStampedFinanceState(): Stamped<FinanceState> | null {
 
 /**
  * When the user last saved finance data, as an ISO timestamp — the freshness
- * signal the Companion discloses ("your numbers are N days old"). Null when
- * nothing has been saved or the timestamp predates this feature.
+ * signal the Companion discloses ("your numbers are N days old").
  */
 export function financeSavedAt(): string | null {
   if (typeof window === "undefined") return null;
@@ -176,8 +176,11 @@ const financeSync = createSyncedResource<FinanceState>({
 });
 
 /**
- * Persists finance state locally (synchronous) and queues a background sync
- * to the database for signed-in users. SSR-safe no-op on the server.
+ * @deprecated Phase-3 kill (docs/ops/MONEY-LEDGER-MIGRATION.md): no app code
+ * may call this — the ledger is the only writable money store and PUT
+ * /api/finance-state is gone (410). Retained solely so existing tests can
+ * fixture a legacy snapshot for the read-fallback paths. The background sync
+ * push now fails harmlessly against the retired endpoint.
  */
 export function saveFinanceState(state: FinanceState): void {
   const stamped: Stamped<FinanceState> = { value: state, updatedAt: Date.now() };
@@ -186,13 +189,9 @@ export function saveFinanceState(state: FinanceState): void {
 }
 
 /**
- * Reconcile with the server copy (last-write-wins) and return the freshest
- * state, hydrating localStorage with the winner. Anonymous and offline
- * sessions reconcile to the local copy (null only when nothing is stored
- * anywhere) — callers fall back to loadFinanceState() / defaults either way.
- * Call BEFORE the first saveFinanceState of a session: hydrating defaults
- * first and pulling second would push defaults over a user's real
- * cross-device numbers.
+ * Read-side reconcile with the server copy (last-write-wins). Kept during
+ * the transition window so old cross-device snapshots can still hydrate the
+ * one-time legacy → ledger import; the server route is read-only now.
  */
 export async function pullFinanceState(): Promise<FinanceState | null> {
   const result = await financeSync.pull();
@@ -223,11 +222,6 @@ export function debtToIncome(state: FinanceState): number {
   return (state.monthlyDebtPayments / state.monthlyIncome) * 100;
 }
 
-/**
- * Temperature gauges now live in lib/finance/temperature.ts — they are pure
- * threshold functions and belong to neither store. Re-exported here so this
- * module's public surface is unchanged for existing importers.
- */
 export type { Temperature } from "./temperature";
 export {
   dtiTemperature,
