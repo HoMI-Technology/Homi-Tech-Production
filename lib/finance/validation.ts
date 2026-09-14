@@ -99,6 +99,32 @@ export const budgetPeriodUpsertSchema = z
 
 export type BudgetPeriodUpsertInput = z.infer<typeof budgetPeriodUpsertSchema>;
 
+/** POST body — client-chosen id + idempotency key, same as transactions. */
+export const budgetPeriodCreateSchema = budgetPeriodUpsertSchema.extend({
+  id: z.uuid(),
+  idempotencyKey: z.string().min(16).max(200),
+});
+
+export type BudgetPeriodCreateInput = z.infer<typeof budgetPeriodCreateSchema>;
+
+/** PATCH body — expectedUpdatedAt guards the period row; providing
+ *  `allocations` replaces the period's allocation set (move-money is just
+ *  two changed plannedCents in that set). */
+export const budgetPeriodPatchSchema = z
+  .object({
+    expectedUpdatedAt: z.iso.datetime(),
+
+    expectedIncomeCents: moneyCentsSchema.nullable().optional(),
+    goalReserveCents: z.number().int().min(0).max(MAX_MONEY_CENTS).optional(),
+    status: z.enum(["open", "closed"]).optional(),
+    allocations: z.array(budgetAllocationSchema).max(100).optional(),
+  })
+  .refine((value) => Object.keys(value).length > 1, {
+    message: "Update must change at least one field.",
+  });
+
+export type BudgetPeriodPatchInput = z.infer<typeof budgetPeriodPatchSchema>;
+
 export const savingsGoalUpsertSchema = z.object({
   name: z.string().trim().min(1).max(80),
   goalType: z.enum([
@@ -119,3 +145,60 @@ export const savingsGoalUpsertSchema = z.object({
 });
 
 export type SavingsGoalUpsertInput = z.infer<typeof savingsGoalUpsertSchema>;
+
+const recurringCadenceSchema = z.enum([
+  "weekly",
+  "biweekly",
+  "semimonthly",
+  "monthly",
+  "quarterly",
+  "annual",
+]);
+
+/** Clients author manual rules only; plaid_detected rows are server-owned. */
+export const recurringRuleCreateSchema = z
+  .object({
+    id: z.uuid(),
+    idempotencyKey: z.string().min(16).max(200),
+
+    type: z.enum(["income", "expense"]),
+    amountCents: moneyCentsSchema,
+    description: z.string().trim().min(1).max(160),
+    categoryId: z.uuid().nullable(),
+
+    cadence: recurringCadenceSchema,
+    startDate: dateOnlySchema,
+    nextOccurrenceDate: dateOnlySchema,
+    endDate: dateOnlySchema.nullable().optional(),
+
+    generationMode: z.enum(["forecast_only", "create_pending"]).default("forecast_only"),
+    isActive: z.boolean().default(true),
+
+    detectionSource: z.literal("manual").default("manual"),
+  })
+  .refine((value) => value.endDate == null || value.endDate >= value.startDate, {
+    path: ["endDate"],
+    message: "End date must not precede the start date.",
+  });
+
+export type RecurringRuleCreateInput = z.infer<typeof recurringRuleCreateSchema>;
+
+/** PATCH body — optimistic concurrency via expectedUpdatedAt (409 on stale). */
+export const recurringRuleUpdateSchema = z
+  .object({
+    expectedUpdatedAt: z.iso.datetime(),
+
+    amountCents: moneyCentsSchema.optional(),
+    description: z.string().trim().min(1).max(160).optional(),
+    categoryId: z.uuid().nullable().optional(),
+    cadence: recurringCadenceSchema.optional(),
+    nextOccurrenceDate: dateOnlySchema.optional(),
+    endDate: dateOnlySchema.nullable().optional(),
+    generationMode: z.enum(["forecast_only", "create_pending"]).optional(),
+    isActive: z.boolean().optional(),
+  })
+  .refine((value) => Object.keys(value).length > 1, {
+    message: "Update must change at least one field.",
+  });
+
+export type RecurringRuleUpdateInput = z.infer<typeof recurringRuleUpdateSchema>;

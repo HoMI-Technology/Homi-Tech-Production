@@ -45,7 +45,7 @@ export interface AssessmentRow {
   inputs: Record<string, unknown> | null;
   sub_scores: Record<string, unknown> | null;
   insights: Record<string, unknown> | null;
-  hard_stops: Record<string, unknown>[] | null;
+  hard_stops: Record<string, unknown> | null;
   is_shadow: boolean;
   completed_at: string | null;
   created_at: string;
@@ -83,11 +83,11 @@ export interface OutcomeSurvey {
   financial_stress?: number | null;
   emergency_reserve_band?: string | null;
   payment_difficulty?: string | null;
-  unexpected_expense_resilience?: string | null;
-  material_financial_disruption?: string | null;
+  unexpected_expense_resilience?: number | null;
+  material_financial_disruption?: number | null;
   decision_regret?: number | null;
   decision_confidence?: number | null;
-  would_make_same_decision_again?: string | null;
+  would_make_same_decision?: string | null;
   priority_disruption?: string | null;
   decision_state?: string | null;
 }
@@ -248,7 +248,7 @@ export interface Payment {
   stripe_payment_intent_id: string | null;
   amount: number;
   currency: string;
-  status: "succeeded" | "pending" | "failed" | "refunded";
+  status: "succeeded" | "pending" | "failed";
   description: string | null;
   created_at: string;
 }
@@ -353,7 +353,7 @@ export interface PlaidLiability {
   id: string;
   item_id: string;
   user_id: string;
-  account_id: string;
+  account_id: string | null;
   kind: "credit" | "student" | "mortgage" | string;
   payload: Record<string, unknown>;
   updated_at: string;
@@ -457,11 +457,36 @@ export interface FinanceSavingsGoalRow {
   updated_at: string;
 }
 
-/** Per-user mutation idempotency ledger for authenticated finance ops (20260803). */
+/** Recurring transaction rules — migration 20260914000001. A rule is a plan,
+ *  not a transaction: forecast-only rules never auto-post. Soft delete via
+ *  deleted_at; detection_confidence is a numeric column (string via PostgREST).
+ */
+export interface FinanceRecurringRuleRow {
+  id: string;
+  user_id: string;
+  type: "income" | "expense";
+  /** bigint; PostgREST often surfaces as string for safety. */
+  amount_cents: number | string;
+  description: string;
+  category_id: string | null;
+  cadence: "weekly" | "biweekly" | "semimonthly" | "monthly" | "quarterly" | "annual";
+  start_date: string; // YYYY-MM-DD
+  next_occurrence_date: string; // YYYY-MM-DD
+  end_date: string | null;
+  generation_mode: "forecast_only" | "create_pending";
+  is_active: boolean;
+  detection_source: "manual" | "plaid_detected";
+  detection_confidence: number | string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+/** Per-user mutation idempotency ledger for authenticated finance ops (20260803, 20260914). */
 export interface FinanceMutationIdempotencyRow {
   user_id: string;
   idempotency_key: string;
-  resource_type: "transaction" | "budget_period" | "savings_goal";
+  resource_type: "transaction" | "budget_period" | "savings_goal" | "recurring_rule";
   resource_id: string;
   response_status: number;
   response_body: Record<string, unknown>;
