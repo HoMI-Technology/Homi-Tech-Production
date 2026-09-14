@@ -1,18 +1,32 @@
 /**
- * Legacy-to-ledger migration stub (Phase 1).
+ * Legacy-to-ledger one-time import (the data bridge, Phase 0/2 of
+ * docs/ops/MONEY-LEDGER-MIGRATION.md).
  *
  * Seeds the budget ledger from the legacy monthly-aggregate FinanceState
- * stored in localStorage without deleting the legacy data. The ledger becomes
- * the new source of truth only after the user interacts with it; until then
- * the legacy snapshot remains intact.
+ * stored in localStorage without deleting the legacy data (the read fallback
+ * survives the transition window).
+ *
+ * Idempotency contract — never double-seeds:
+ *   1. A ledger with any user-created data (transactions, periods, goals) is
+ *      never reseeded.
+ *   2. A persistent marker (`LEGACY_MIGRATION_MARKER_KEY`, an ISO migrated-at
+ *      timestamp) is written the first time the seed runs OR the first time an
+ *      already-populated ledger is observed. Once the marker exists the import
+ *      never runs again — so an explicit user clear of the ledger stays clear
+ *      instead of resurrecting the stale legacy snapshot (Phase 2 semantics).
+ *
+ * Amounts cross the dollar → integer-cents boundary exactly once, via
+ * dollarsToCents (lib/finance/money.ts).
+ *
+ * Phase 3 note: the Phase-1 dual-write helpers (projectLedgerToLegacySnapshot
+ * / dualWriteLegacyFromLedger) were removed at the kill date — nothing writes
+ * the legacy snapshot from app code anymore.
  */
 
 import type { FinanceCategory } from "@/lib/finance/ledger";
-import { centsToDollars, dollarsToCents } from "@/lib/finance/money";
-import { DEFAULT_FINANCE_STATE, type FinanceState } from "@/lib/finance/store";
-import { metricsFromLedger } from "@/lib/finance/metrics";
+import { dollarsToCents } from "@/lib/finance/money";
+import type { FinanceState } from "@/lib/finance/store";
 import {
-  activeGoal,
   addManualTransaction,
   BUDGET_LEDGER_STORAGE_KEY,
   emptyBudgetLedger,
@@ -30,6 +44,13 @@ export const LEGACY_FINANCE_STATE_KEYS = [
   "user_finance_state",
   "homi:finance",
 ];
+
+/**
+ * ISO timestamp recording that the legacy → ledger import has run (or was
+ * made moot by an already-populated ledger). Its existence — not its value —
+ * is the "do not seed again" signal.
+ */
+export const LEGACY_MIGRATION_MARKER_KEY = "homi:budget-ledger:legacy-migrated-at";
 
 function isFinanceStateShape(value: unknown): value is Partial<FinanceState> {
   return (
@@ -58,6 +79,27 @@ export function loadLegacyFinanceState(): FinanceState | null {
     }
   }
   return null;
+}
+
+/** Whether the one-time import has already happened (or been made moot). */
+export function hasLegacyMigrationMarker(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(LEGACY_MIGRATION_MARKER_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
+/** Records the migrated-at stamp. Best-effort — a failed stamp write only
+ * means the seed data itself (already saved) is what prevents a reseed. */
+function markLegacyMigrated(nowIso: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(LEGACY_MIGRATION_MARKER_KEY, nowIso);
+  } catch {
+    // Storage may be unavailable; the seeded ledger rows are still the guard.
+  }
 }
 
 const LEGACY_CATEGORY_SLUGS: Record<string, string> = {
@@ -118,19 +160,22 @@ export function migrateLegacyToLedger(legacy: FinanceState, nowIso: string): Bud
     ),
   };
 
-  state = addManualTransaction(
-    state,
-    {
-      type: "income",
-      amountCents: dollarsToCents(legacy.monthlyIncome),
-      description: "Monthly income",
-      categoryId: "cat-payroll",
-      transactionDate: period.periodStart,
-    },
-    nowIso,
-  );
+  if (legacy.monthlyIncome > 0) {
+    state = addManualTransaction(
+      state,
+      {
+        type: "income",
+        amountCents: dollarsToCents(legacy.monthlyIncome),
+        description: "Monthly income",
+        categoryId: "cat-payroll",
+        transactionDate: period.periodStart,
+      },
+      nowIso,
+    );
+  }
 
   for (const category of legacy.expenseCategories) {
+    if (typeof category.amount !== "number" || category.amount <= 0) continue;
     const mapped = findSystemCategory(state.categories, category.name);
     state = addManualTransaction(
       state,
@@ -169,50 +214,14 @@ function hasUserCreatedData(state: BudgetLedgerState): boolean {
 }
 
 /**
- * Phase-1 dual-write: project ledger monthly aggregates back to legacy
- * FinanceState so old readers stay coherent until kill date (see
- * docs/ops/MONEY-LEDGER-MIGRATION.md). Never invents precision — uses period
- * metrics only.
- */
-export function projectLedgerToLegacySnapshot(
-  state: BudgetLedgerState,
-  nowIso: string,
-): FinanceState {
-  const m = metricsFromLedger(state, nowIso, null);
-  const goal = activeGoal(state);
-  return {
-    ...DEFAULT_FINANCE_STATE,
-    monthlyIncome: m.surplus.incomeDollars,
-    monthlyExpenses: m.surplus.expenseDollars,
-    liquidSavings: m.runway.liquidDollars ?? 0,
-    totalDebt: 0,
-    monthlyDebtPayments: m.surplus.debtPaymentDollars,
-    downPaymentTarget: goal?.goalType === "home" ? centsToDollars(goal.targetAmountCents) : 0,
-    assets: [],
-    liabilities: [],
-  };
-}
-
-/**
- * After a successful ledger save, mirror aggregates into legacy FinanceState.
- * Kill after 2026-09-15 (docs/ops/MONEY-LEDGER-MIGRATION.md).
- */
-export function dualWriteLegacyFromLedger(state: BudgetLedgerState): void {
-  if (typeof window === "undefined") return;
-  try {
-    // Dynamic import of store write avoids hard cycle at module init.
-    void import("@/lib/finance/store").then(({ saveFinanceState }) => {
-      saveFinanceState(projectLedgerToLegacySnapshot(state, new Date().toISOString()));
-    });
-  } catch {
-    // Best-effort dual-write.
-  }
-}
-
-/**
  * Loads the current ledger and, if it has no user-created transactions,
  * periods, or goal, attempts to seed it from the legacy FinanceState and saves
  * the result.
+ *
+ * Never double-seeds: the migrated-at marker short-circuits every later call,
+ * so an explicit user clear of the ledger cannot resurrect the legacy numbers.
+ * A ledger that already has user data marks the import moot for the same
+ * reason — the user has their own ledger life now.
  *
  * The optional `currentState` parameter lets `loadBudgetLedger` pass the
  * already-loaded empty state to avoid a recursive read.
@@ -222,13 +231,19 @@ export function seedLedgerFromLegacyIfEmpty(
   currentState?: BudgetLedgerState,
 ): BudgetLedgerState {
   const state = currentState ?? loadBudgetLedgerForMigration(nowIso);
-  if (hasUserCreatedData(state)) return state;
+  if (hasUserCreatedData(state)) {
+    markLegacyMigrated(nowIso);
+    return state;
+  }
+  if (hasLegacyMigrationMarker()) return state;
 
   const legacy = loadLegacyFinanceState();
   if (!legacy) return state;
 
   const seeded = migrateLegacyToLedger(legacy, nowIso);
-  saveBudgetLedger(seeded);
+  if (saveBudgetLedger(seeded)) {
+    markLegacyMigrated(nowIso);
+  }
   return seeded;
 }
 
