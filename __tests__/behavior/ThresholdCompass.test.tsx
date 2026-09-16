@@ -49,14 +49,19 @@ describe("ThresholdCompass (canon)", () => {
     expect(emerald).toEqual(["100,40", "160,100", "100,160", "40,100"]);
   });
 
-  it("renders the filled keyhole at the center (circle + stem, yellow)", () => {
+  it("renders the keyhole with a neck taper (narrow stem under round head)", () => {
     const { container } = render(<ThresholdCompass />);
-    const keyholeCircle = container.querySelector(
-      `circle[cx="100"][cy="97.6"][fill="${COLORS.yellow}"]`,
+    const head = container.querySelector(
+      `circle[cx="100"][cy="96.8"][fill="${COLORS.yellow}"]`,
     );
     const stem = container.querySelector(`rect[fill="${COLORS.yellow}"]`);
-    expect(keyholeCircle).not.toBeNull();
+    expect(head).not.toBeNull();
     expect(stem).not.toBeNull();
+
+    // The taper is the whole point: stem must be visibly narrower than the head.
+    const headDiameter = Number(head?.getAttribute("r")) * 2;
+    const stemWidth = Number(stem?.getAttribute("width"));
+    expect(stemWidth).toBeLessThan(headDiameter);
   });
 
   it("respects the glow prop: filters only exist when glow is on", () => {

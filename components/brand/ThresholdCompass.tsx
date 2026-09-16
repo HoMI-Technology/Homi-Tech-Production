@@ -16,8 +16,10 @@ export const COMPASS_ARIA_LABEL =
  *  - Middle emerald orbit (Emotional Truth), r=60, four smaller cardinal nodes.
  *  - Inner yellow orbit (Perfect Timing), r=35, no nodes, thicker stroke,
  *    brighter glow.
- *  - Keyhole center: small yellow ring + filled keyhole (circle over narrow
- *    rounded stem). The keyhole is the threshold symbol — strongest glow.
+ *  - Keyhole center: small yellow ring + filled keyhole (round head over a
+ *    NARROW rounded stem with a clear neck taper — never a bulb where the
+ *    stem is as wide as the head). The keyhole is the threshold symbol —
+ *    strongest glow.
  *  - Verdicts are UI overlays, never recolors of compass elements:
  *    READY pulses the emerald orbit, ALMOST_THERE pulses the yellow orbit,
  *    BUILD_FIRST adds an amber halo, NOT_YET adds a crimson warning halo.
@@ -169,7 +171,9 @@ export function ThresholdCompass({
         />
       </g>
 
-      {/* Keyhole center — the threshold symbol (strongest glow) */}
+      {/* Keyhole center — the threshold symbol (strongest glow). Round head
+          over a narrow stem: the neck taper is what makes it read as a
+          keyhole, not a bulb. */}
       <g filter={keyholeGlow}>
         <circle
           cx="100"
@@ -180,8 +184,8 @@ export function ThresholdCompass({
           strokeWidth="1.6"
           opacity="0.95"
         />
-        <circle cx="100" cy="97.6" r="3.4" fill={COLORS.yellow} />
-        <rect x="98.3" y="99.6" width="3.4" height="6.8" rx="1.4" fill={COLORS.yellow} />
+        <circle cx="100" cy="96.8" r="2.8" fill={COLORS.yellow} />
+        <rect x="98.9" y="98.8" width="2.2" height="7" rx="1.1" fill={COLORS.yellow} />
       </g>
     </svg>
   );
