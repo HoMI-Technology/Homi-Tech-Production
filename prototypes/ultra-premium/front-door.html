@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HōMI — Will you be okay? · Decision Readiness Intelligence</title>
+<meta name="description" content="A credit score tells institutions if you may repay. HōMI tells you if you are ready — across Financial Reality, Emotional Truth, and Perfect Timing.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cyan: #22d3ee; --cyan-deep: #0ea5c4; --emerald: #34d399; --yellow: #facc15;
+    --amber: #fab633; --crimson: #f24822; --navy: #0a1628; --navy-2: #0f172a;
+    --surface: #1e293b; --ink: #ffffff; --light: #e2e8f0; --dim: #94a3b8; --cta-ink: #04121c;
+    --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--navy); color: var(--light);
+    font-family: 'Inter', system-ui, sans-serif; font-weight: 300;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  ::selection { background: rgba(34,211,238,.28); color: #fff; }
+
+  /* film grain — fixed, pointer-events none */
+  body::after {
+    content: ""; position: fixed; inset: 0; z-index: 60; pointer-events: none; opacity: .035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .display { font-family: 'Fraunces', serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ---------- floating island nav ---------- */
+  nav {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 50;
+    display: flex; align-items: center; gap: 28px; padding: 10px 12px 10px 22px;
+    border-radius: 999px; background: rgba(15,23,42,.55);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,.08);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 20px 50px -20px rgba(0,0,0,.6);
+  }
+  .wordmark { font-weight: 900; font-size: 19px; letter-spacing: -0.02em; text-decoration: none; }
+  .wordmark .h { color: var(--cyan); } .wordmark .o { color: var(--emerald); }
+  .wordmark .m { color: var(--yellow); } .wordmark .i { color: var(--cyan); }
+  .nav-links { display: flex; gap: 24px; }
+  .nav-links a {
+    color: var(--dim); text-decoration: none; font-size: 13px; font-weight: 500;
+    letter-spacing: .01em; transition: color .5s var(--ease);
+  }
+  .nav-links a:hover { color: var(--ink); }
+
+  /* ---------- button-in-button CTA ---------- */
+  .cta {
+    display: inline-flex; align-items: center; gap: 12px; text-decoration: none;
+    background: linear-gradient(135deg, var(--cyan), var(--cyan-deep));
+    color: var(--cta-ink); font-weight: 700; font-size: 14px; letter-spacing: .01em;
+    padding: 8px 8px 8px 22px; border-radius: 999px;
+    transition: transform .6s var(--ease), box-shadow .6s var(--ease);
+    box-shadow: 0 0 0 0 rgba(34,211,238,0);
+  }
+  .cta:hover { transform: translateY(-1px); box-shadow: 0 12px 40px -8px rgba(34,211,238,.45); }
+  .cta:active { transform: scale(.98); }
+  .cta .orb {
+    width: 34px; height: 34px; border-radius: 999px; background: rgba(4,18,28,.18);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .6s var(--ease);
+  }
+  .cta:hover .orb { transform: translate(3px,-1px) scale(1.06); }
+  .cta.small { font-size: 13px; padding: 6px 6px 6px 18px; }
+  .cta.small .orb { width: 28px; height: 28px; }
+  .ghost {
+    display: inline-flex; align-items: center; padding: 13px 24px; border-radius: 999px;
+    color: var(--light); text-decoration: none; font-weight: 500; font-size: 14px;
+    border: 1px solid rgba(255,255,255,.12); transition: all .6s var(--ease);
+  }
+  .ghost:hover { border-color: rgba(34,211,238,.5); color: var(--ink); }
+
+  /* ---------- eyebrow ---------- */
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 999px; font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .22em; color: var(--dim);
+    border: 1px solid rgba(255,255,255,.09); background: rgba(255,255,255,.03);
+  }
+  .eyebrow .dot { width: 5px; height: 5px; border-radius: 99px; background: var(--emerald); box-shadow: 0 0 8px var(--emerald); }
+
+  section { padding: 140px 24px; position: relative; }
+  .wrap { max-width: 1200px; margin: 0 auto; position: relative; z-index: 2; }
+
+  /* ---------- hero ---------- */
+  .hero { min-height: 100dvh; display: flex; align-items: center; padding-top: 120px; }
+  .hero .wrap { display: grid; grid-template-columns: 1.05fr .95fr; gap: 60px; align-items: center; }
+  .hero h1 {
+    font-family: 'Fraunces', serif; font-weight: 400; color: var(--ink);
+    font-size: clamp(52px, 7.2vw, 96px); line-height: 1.02; letter-spacing: -0.02em;
+    margin: 28px 0 24px;
+  }
+  .hero h1 em { font-style: italic; font-weight: 600; background: linear-gradient(120deg, var(--cyan), var(--emerald) 55%, var(--yellow)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero p { font-size: 17px; line-height: 1.75; color: var(--dim); max-width: 480px; margin-bottom: 40px; }
+  .hero p strong { color: var(--light); font-weight: 500; }
+  .hero-ctas { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .micro { margin-top: 22px; font-size: 11.5px; color: var(--dim); letter-spacing: .02em; }
+
+  .compass-stage { position: relative; display: flex; justify-content: center; }
+  .compass-stage .halo {
+    position: absolute; inset: -18%; border-radius: 50%; pointer-events: none;
+    background:
+      radial-gradient(circle at 50% 42%, rgba(250,204,21,.10), transparent 42%),
+      radial-gradient(circle at 30% 65%, rgba(34,211,238,.10), transparent 46%),
+      radial-gradient(circle at 70% 62%, rgba(52,211,153,.09), transparent 44%);
+  }
+  .compass-stage svg { position: relative; }
+
+  /* compass motion — slow, ambient */
+  .tc-outer { transform-origin: 100px 100px; animation: tc-cw 24s linear infinite; }
+  .tc-middle { transform-origin: 100px 100px; animation: tc-ccw 18s linear infinite; }
+  .tc-inner { transform-origin: 100px 100px; animation: tc-cw 12s linear infinite; }
+  @keyframes tc-cw { to { transform: rotate(360deg); } }
+  @keyframes tc-ccw { to { transform: rotate(-360deg); } }
+
+  /* ---------- reveal on scroll ---------- */
+  .reveal { opacity: 0; transform: translateY(48px); filter: blur(6px); transition: opacity 1s var(--ease), transform 1s var(--ease), filter 1s var(--ease); }
+  .reveal.in { opacity: 1; transform: translateY(0); filter: blur(0); }
+  .d1 { transition-delay: .08s; } .d2 { transition-delay: .16s; } .d3 { transition-delay: .24s; } .d4 { transition-delay: .32s; }
+
+  /* ---------- inversion ---------- */
+  .inversion { text-align: center; }
+  .inversion h2 { font-family: 'Fraunces', serif; font-weight: 400; color: var(--ink); font-size: clamp(36px, 4.6vw, 64px); line-height: 1.12; letter-spacing: -.015em; max-width: 900px; margin: 26px auto 22px; }
+  .inversion h2 em { font-style: italic; color: var(--cyan); }
+  .inversion p { color: var(--dim); font-size: 16px; line-height: 1.8; max-width: 620px; margin: 0 auto; }
+  .inversion p strong { color: var(--light); font-weight: 500; }
+  .hairline { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.14), transparent); max-width: 1200px; margin: 0 auto; }
+
+  /* ---------- pillars: asymmetrical bento, double-bezel ---------- */
+  .section-head { max-width: 640px; margin-bottom: 72px; }
+  .section-head h2 { font-family: 'Fraunces', serif; font-weight: 400; color: var(--ink); font-size: clamp(34px, 4vw, 54px); line-height: 1.1; letter-spacing: -.015em; margin-top: 22px; }
+  .bento { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; }
+  .shell {
+    padding: 8px; border-radius: 2rem; background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.07);
+  }
+  .core {
+    height: 100%; border-radius: calc(2rem - 8px); background: var(--navy-2);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.08); padding: 40px;
+    display: flex; flex-direction: column; gap: 16px; position: relative; overflow: hidden;
+    transition: transform .7s var(--ease);
+  }
+  .shell:hover .core { transform: translateY(-3px); }
+  .core .ring-dot { width: 44px; height: 44px; border-radius: 50%; border: 2px solid; position: relative; }
+  .core .ring-dot::after { content: ""; position: absolute; inset: 9px; border-radius: 50%; border: 2px solid; opacity: .55; }
+  .core .num { position: absolute; top: 34px; right: 36px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--dim); letter-spacing: .15em; }
+  .core h3 { color: var(--ink); font-weight: 700; font-size: 22px; letter-spacing: -.01em; }
+  .core .q { font-family: 'Fraunces', serif; font-style: italic; font-size: 19px; line-height: 1.45; }
+  .core p { color: var(--dim); font-size: 14px; line-height: 1.75; }
+  .b-financial { grid-column: span 7; } .b-financial .q, .b-financial .ring-dot { color: var(--cyan); border-color: var(--cyan); }
+  .b-emotional { grid-column: span 5; } .b-emotional .q, .b-emotional .ring-dot { color: var(--emerald); border-color: var(--emerald); }
+  .b-timing { grid-column: span 5; } .b-timing .q, .b-timing .ring-dot { color: var(--yellow); border-color: var(--yellow); }
+  .b-note { grid-column: span 7; }
+  .b-note .core { background: linear-gradient(135deg, rgba(34,211,238,.07), rgba(52,211,153,.05)), var(--navy-2); justify-content: center; }
+  .b-note p { font-size: 15px; }
+
+  /* ---------- verdict spectrum ---------- */
+  .spectrum { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .verdict-card { padding: 6px; border-radius: 1.6rem; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); }
+  .verdict-inner { border-radius: calc(1.6rem - 6px); background: var(--navy-2); box-shadow: inset 0 1px 1px rgba(255,255,255,.07); padding: 28px 24px; height: 100%; }
+  .verdict-inner .v-dot { width: 10px; height: 10px; border-radius: 99px; margin-bottom: 18px; }
+  .verdict-inner h4 { font-size: 12px; font-weight: 800; letter-spacing: .18em; margin-bottom: 12px; }
+  .verdict-inner p { color: var(--dim); font-size: 13px; line-height: 1.7; }
+  .v-ready .v-dot { background: var(--emerald); box-shadow: 0 0 12px var(--emerald); } .v-ready h4 { color: var(--emerald); }
+  .v-almost .v-dot { background: var(--yellow); box-shadow: 0 0 12px var(--yellow); } .v-almost h4 { color: var(--yellow); }
+  .v-build .v-dot { background: var(--amber); box-shadow: 0 0 12px var(--amber); } .v-build h4 { color: var(--amber); }
+  .v-notyet .v-dot { background: var(--crimson); box-shadow: 0 0 12px var(--crimson); } .v-notyet h4 { color: var(--crimson); }
+
+  /* ---------- steps ---------- */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .step { padding: 36px 32px; border-radius: 1.6rem; border: 1px solid rgba(255,255,255,.07); background: rgba(255,255,255,.025); }
+  .step .n { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--cyan); letter-spacing: .2em; margin-bottom: 44px; display: block; }
+  .step h3 { color: var(--ink); font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .step p { color: var(--dim); font-size: 14px; line-height: 1.75; }
+
+  /* ---------- companion ---------- */
+  .companion .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+  .companion h2 { font-family: 'Fraunces', serif; font-weight: 400; color: var(--ink); font-size: clamp(32px, 3.8vw, 50px); line-height: 1.12; letter-spacing: -.015em; margin: 22px 0 20px; }
+  .companion h2 em { font-style: italic; color: var(--emerald); }
+  .companion p { color: var(--dim); font-size: 15px; line-height: 1.8; margin-bottom: 16px; }
+  .chat { padding: 8px; border-radius: 2rem; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); }
+  .chat-core { border-radius: calc(2rem - 8px); background: var(--navy-2); box-shadow: inset 0 1px 1px rgba(255,255,255,.08); padding: 30px; display: flex; flex-direction: column; gap: 16px; }
+  .msg { max-width: 88%; padding: 15px 19px; border-radius: 20px; font-size: 14px; line-height: 1.65; }
+  .msg.homie { background: rgba(52,211,153,.10); border: 1px solid rgba(52,211,153,.22); color: var(--light); border-bottom-left-radius: 6px; }
+  .msg.user { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09); color: var(--dim); align-self: flex-end; border-bottom-right-radius: 6px; }
+  .msg .who { display: block; font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; margin-bottom: 7px; color: var(--emerald); }
+
+  /* ---------- close ---------- */
+  .close { text-align: center; padding-bottom: 160px; }
+  .close h2 { font-family: 'Fraunces', serif; font-weight: 400; color: var(--ink); font-size: clamp(40px, 5.4vw, 76px); line-height: 1.06; letter-spacing: -.02em; margin: 26px auto 36px; max-width: 820px; }
+  .close h2 em { font-style: italic; background: linear-gradient(120deg, var(--cyan), var(--emerald)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  footer { border-top: 1px solid rgba(255,255,255,.07); padding: 48px 24px 56px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
+  footer .legal { color: var(--dim); font-size: 11px; line-height: 1.8; max-width: 640px; }
+  footer .links { display: flex; gap: 22px; }
+  footer .links a { color: var(--dim); font-size: 12px; text-decoration: none; transition: color .5s var(--ease); }
+  footer .links a:hover { color: var(--ink); }
+
+  @media (max-width: 900px) {
+    .hero .wrap, .companion .wrap { grid-template-columns: 1fr; }
+    .compass-stage { order: -1; }
+    .bento { grid-template-columns: 1fr; }
+    .b-financial, .b-emotional, .b-timing, .b-note { grid-column: span 1; }
+    .spectrum { grid-template-columns: 1fr 1fr; }
+    .steps { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    section { padding: 88px 20px; }
+  }
+  @media (max-width: 560px) { .spectrum { grid-template-columns: 1fr; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .tc-outer, .tc-middle, .tc-inner { animation: none; }
+    .reveal { opacity: 1; transform: none; filter: none; transition: none; }
+    * { transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="wordmark" href="#top" aria-label="HōMI home"><span class="h">H</span><span class="o">ō</span><span class="m">M</span><span class="i">I</span></a>
+  <div class="nav-links">
+    <a href="#pillars">The Three Truths</a>
+    <a href="#verdicts">Verdicts</a>
+    <a href="#how">How it works</a>
+    <a href="#companion">The Companion</a>
+  </div>
+  <a class="cta small" href="#how">Check readiness <span class="orb">→</span></a>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow reveal"><span class="dot"></span> Decision Readiness Intelligence</span>
+      <h1 class="reveal d1">Will you<br>be <em>okay?</em></h1>
+      <p class="reveal d2">Every player in a big decision profits when you say yes. <strong>HōMI is the one on your side of the table</strong> — a Decision Companion that scores your readiness across money, emotion, and timing, before you leap.</p>
+      <div class="hero-ctas reveal d3">
+        <a class="cta" href="#how">Get your Shadow Score <span class="orb">→</span></a>
+        <a class="ghost" href="#pillars">See the three truths</a>
+      </div>
+      <p class="micro reveal d4">Free to start · Educational guidance only · Not yet is not no.</p>
+    </div>
+    <div class="compass-stage reveal d2">
+      <div class="halo"></div>
+      <!-- Canonical Threshold Compass — orbit/keyhole system -->
+      <svg viewBox="0 0 200 200" width="420" height="420" role="img" aria-label="HōMI Threshold Compass showing Financial Reality, Emotional Truth, and Perfect Timing around the user at the decision threshold.">
+        <defs>
+          <radialGradient id="tcbg" cx="50%" cy="40%" r="72%">
+            <stop offset="0%" stop-color="#12263f"/>
+            <stop offset="62%" stop-color="#0c1a2d"/>
+            <stop offset="100%" stop-color="#071222"/>
+          </radialGradient>
+          <filter id="tcg" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="tcgg" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="tck" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <!-- backdrop disc + faint instrument hairlines (static) -->
+        <circle cx="100" cy="100" r="99" fill="url(#tcbg)" stroke="rgba(34,211,238,.10)" stroke-width="1"/>
+        <circle cx="100" cy="100" r="73" fill="none" stroke="#22d3ee" stroke-width=".5" opacity=".07"/>
+        <circle cx="100" cy="100" r="48" fill="none" stroke="#34d399" stroke-width=".5" opacity=".06"/>
+        <circle cx="100" cy="100" r="90" fill="none" stroke="#22d3ee" stroke-width=".6" opacity=".06" stroke-dasharray="1.5 4"/>
+        <g class="tc-outer" filter="url(#tcg)">
+          <circle cx="100" cy="100" r="85" stroke="#22d3ee" stroke-width="4.5" fill="none" opacity=".28" filter="url(#tcgg)"/>
+          <circle cx="100" cy="100" r="85" stroke="#22d3ee" stroke-width="2" fill="none" opacity="0.65"/>
+          <circle cx="100" cy="15" r="3" fill="#22d3ee"/><circle cx="185" cy="100" r="3" fill="#22d3ee"/>
+          <circle cx="100" cy="185" r="3" fill="#22d3ee"/><circle cx="15" cy="100" r="3" fill="#22d3ee"/>
+        </g>
+        <g class="tc-middle" filter="url(#tcg)">
+          <circle cx="100" cy="100" r="60" stroke="#34d399" stroke-width="4" fill="none" opacity=".25" filter="url(#tcgg)"/>
+          <circle cx="100" cy="100" r="60" stroke="#34d399" stroke-width="2" fill="none" opacity="0.75"/>
+          <circle cx="100" cy="40" r="2.5" fill="#34d399"/><circle cx="160" cy="100" r="2.5" fill="#34d399"/>
+          <circle cx="100" cy="160" r="2.5" fill="#34d399"/><circle cx="40" cy="100" r="2.5" fill="#34d399"/>
+        </g>
+        <g class="tc-inner" filter="url(#tcg)">
+          <circle cx="100" cy="100" r="35" stroke="#facc15" stroke-width="4" fill="none" opacity=".30" filter="url(#tcgg)"/>
+          <circle cx="100" cy="100" r="35" stroke="#facc15" stroke-width="2" fill="none" opacity="0.85"/>
+        </g>
+        <g filter="url(#tck)">
+          <circle cx="100" cy="96" r="5" fill="#facc15"/>
+          <rect x="97" y="96" width="6" height="12" rx="1" fill="#facc15"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<div class="hairline"></div>
+
+<!-- ============ INVERSION ============ -->
+<section class="inversion">
+  <div class="wrap">
+    <span class="eyebrow reveal"><span class="dot"></span> The inversion</span>
+    <h2 class="reveal d1">Everyone else tells you <em>how.</em><br>HōMI tells you <em>if.</em></h2>
+    <p class="reveal d2">A credit score tells institutions if you may repay. <strong>HōMI tells you if you are ready.</strong> It is the readiness layer credit scores were never designed to be — sitting with you before the application, never inside anyone's approval engine.</p>
+  </div>
+</section>
+
+<div class="hairline"></div>
+
+<!-- ============ PILLARS ============ -->
+<section id="pillars">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow reveal"><span class="dot"></span> The Threshold Compass</span>
+      <h2 class="reveal d1">Three rings.<br>Three truths.</h2>
+    </div>
+    <div class="bento">
+      <div class="shell b-financial reveal"><div class="core">
+        <span class="num">01</span><div class="ring-dot"></div>
+        <h3>Financial Reality</h3>
+        <p class="q">"Can you absorb this decision without destabilizing your foundation?"</p>
+        <p>Income, reserves, debt load, obligations — read plainly, without judgment. The outer cyan orbit of your compass.</p>
+      </div></div>
+      <div class="shell b-emotional reveal d1"><div class="core">
+        <span class="num">02</span><div class="ring-dot"></div>
+        <h3>Emotional Truth</h3>
+        <p class="q">"Are you choosing from clarity — or from pressure?"</p>
+        <p>Fear, urgency, FOMO, and other people's expectations leave fingerprints. The middle emerald orbit.</p>
+      </div></div>
+      <div class="shell b-timing reveal d1"><div class="core">
+        <span class="num">03</span><div class="ring-dot"></div>
+        <h3>Perfect Timing</h3>
+        <p class="q">"Does this moment in your life support the decision?"</p>
+        <p>Life stage, stability, and the road ahead. The inner yellow orbit — closest to the threshold.</p>
+      </div></div>
+      <div class="shell b-note reveal d2"><div class="core">
+        <h3>The keyhole is the threshold.</h3>
+        <p>When the three rings align, the compass becomes a key. When they don't, HōMI tells you the truth — and exactly what to build first. No score is ever a verdict on you. It is a signal about <em>now</em>.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<div class="hairline"></div>
+
+<!-- ============ VERDICTS ============ -->
+<section id="verdicts">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow reveal"><span class="dot"></span> Four honest outcomes</span>
+      <h2 class="reveal d1">Ready or not yet.<br>Nothing in between.</h2>
+    </div>
+    <div class="spectrum">
+      <div class="verdict-card v-ready reveal"><div class="verdict-inner"><div class="v-dot"></div><h4>READY</h4><p>All three rings align. Your compass becomes a key. Move with confidence — calmly, not hyped.</p></div></div>
+      <div class="verdict-card v-almost reveal d1"><div class="verdict-inner"><div class="v-dot"></div><h4>ALMOST THERE</h4><p>Close, with named gaps. You get a specific plan to close them — not generic advice.</p></div></div>
+      <div class="verdict-card v-build reveal d2"><div class="verdict-inner"><div class="v-dot"></div><h4>BUILD FIRST</h4><p>Build First is not failure. It is the map. Foundations before signatures.</p></div></div>
+      <div class="verdict-card v-notyet reveal d3"><div class="verdict-inner"><div class="v-dot"></div><h4>DO NOT PROCEED</h4><p>Not yet is not no. It is clarity. It is protection. It is the answer no one else will give you.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="hairline"></div>
+
+<!-- ============ HOW ============ -->
+<section id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow reveal"><span class="dot"></span> The journey</span>
+      <h2 class="reveal d1">Know before you leap.</h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><span class="n">STEP 01</span><h3>Shadow Score</h3><p>Six questions, two minutes, no account. A first read on your readiness — modeled, clearly labeled, never mistaken for the real thing.</p></div>
+      <div class="step reveal d1"><span class="n">STEP 02</span><h3>Full Assessment</h3><p>The complete picture across Financial Reality, Emotional Truth, and Perfect Timing — computed by deterministic code, explained in plain language.</p></div>
+      <div class="step reveal d2"><span class="n">STEP 03</span><h3>Compass + Plan</h3><p>Your verdict, your gaps, and a concrete path to ready. Retest as your life changes. Watch the rings align.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="hairline"></div>
+
+<!-- ============ COMPANION ============ -->
+<section id="companion" class="companion">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow reveal"><span class="dot"></span> Your HōMI, not your banker</span>
+      <h2 class="reveal d1">Clarity,<br>not <em>commission.</em></h2>
+      <p class="reveal d2">HōMI is not a lender, broker, or agent — and never earns from your yes. HōMI walks you through your results, explains what the numbers mean, and protects the value of waiting when waiting is the right move.</p>
+      <p class="reveal d3">AI explains your score. It never calculates it, never overrides it, and never pressures you toward anyone's product.</p>
+    </div>
+    <div class="chat reveal d2"><div class="chat-core">
+      <div class="msg user">Everyone says I should buy now before prices go up again.</div>
+      <div class="msg homie"><span class="who">HōMI</span>"Everyone" gets paid when you buy. Let's look at your rings instead — your Financial Reality is solid, but your Timing orbit says your next eight months are unstable. That's worth understanding before anyone's deadline.</div>
+      <div class="msg user">So... not yet?</div>
+      <div class="msg homie"><span class="who">HōMI</span>Not yet is not no. Here's what would change the answer — and two of the three things are already in motion.</div>
+    </div></div>
+  </div>
+</section>
+
+<div class="hairline"></div>
+
+<!-- ============ CLOSE ============ -->
+<section class="close">
+  <div class="wrap">
+    <span class="eyebrow reveal"><span class="dot"></span> The moment before everything changes</span>
+    <h2 class="reveal d1">Know when you're ready.<br><em>Move when it matters.</em></h2>
+    <div class="reveal d2"><a class="cta" href="#top">Get your Shadow Score <span class="orb">→</span></a></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="legal">HōMI is a product of Homi Technologies LLC. HōMI is not a lender, mortgage broker, registered investment advisor, credit bureau, real estate agent or brokerage, financial planner, bank or deposit institution, or product recommendation engine. HōMI provides educational guidance only and does not provide financial, legal, tax, mortgage, real estate, or investment advice. Consider consulting qualified professionals before making legal, tax, mortgage, investment, or real estate decisions.</p>
+    <div class="links">
+      <a href="#pillars">Method</a><a href="#verdicts">Verdicts</a><a href="#how">Start</a><a href="#top">HōMI</a>
+    </div>
+  </div>
+</footer>
+
+<noscript><style>.reveal { opacity: 1 !important; transform: none !important; filter: none !important; }</style></noscript>
+<script>
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+</script>
+</body>
+</html>

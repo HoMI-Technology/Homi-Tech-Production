@@ -1,8 +1,37 @@
 # HōMI Tech — agent instructions (SSOT)
 
+## Ultra-premium rebuild mode (2026-09-14 — read first)
+
+The repo is in **rebuild mode**: keep the hardened spine, rebuild every surface to
+the ultra-premium bar. The living plan is [`REBUILD.md`](REBUILD.md); the baseline
+evidence is [`docs/audit/2026-09-14-ultra-premium-rebuild-audit.md`](docs/audit/2026-09-14-ultra-premium-rebuild-audit.md).
+
+**Source-of-truth hierarchy (on any conflict, highest wins):**
+
+1. **Executable TypeScript in this repo** — `lib/scoring/*`, `lib/brand/*`,
+   `lib/agents/registry`.
+2. **Doctrine files** — `CANON.md`, `DESIGN.md`, this file, `REBUILD.md`.
+3. **Founder decision in writing** (issue or ADR).
+4. **Satellite builds and Drive docs** — Grok/Kimi/Claude builds, zips, desktop
+   dumps, Google Drive folders. **Advisory references only.** Port concepts;
+   rewrite code. Never paste Vite/TanStack/PGlite/better-auth artifacts into
+   this tree. Never restore a satellite snapshot over `main`.
+
+**Rebuild rules:**
+
+- One Section per PR (`docs/SECTIONS.md`); name the Section and boundary up top.
+- Never touch scoring values, weights, or thresholds in a surface PR.
+- Verified canon (executable, 2026-09-14): pillar weights **35/35/30**;
+  verdicts boundary-inclusive **READY ≥80 · ALMOST_THERE 65–79 ·
+  BUILD_FIRST 50–64 · NOT_YET 0–49**; 4 hard stops. Older numbers in Drive
+  docs (40/30/30, 85/70/55, 75/60/40) are superseded — see the founder TODO in
+  `lib/scoring/verdicts.ts`.
+- Every rebuild PR ends with: CI green → founder review → merge → REBUILD.md
+  phase table updated.
+
 ## Spend hold — read before launch, CI, or paid-plan talk
 
-**Issue [#241](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/241) is the SSOT.** Founder lock 2026-08-16: the site is accepted as built. **Do not buy, quote-pressure, or “helpfully” upgrade** GitHub Pro, Vercel Pro, or a second Supabase project until the founder **closes #241** and says go-live / marketing / traffic.
+**Issue [#241](https://github.com/HoMI-Technology/Homi-Tech-Production/issues/241) is the SSOT.** Founder lock 2026-08-16: the site is accepted as built. **Do not buy, quote-pressure, or "helpfully" upgrade** GitHub Pro, Vercel Pro, or a second Supabase project until the founder **closes #241** and says go-live / marketing / traffic.
 
 | Deferred (children of #241) | Do not start while #241 is open |
 | --- | --- |
@@ -12,7 +41,7 @@
 
 **Accepted today:** CORE E2E (live suites skip when Actions secrets are empty). A green `verify` is not a release. Never put production `service_role` or `sk_live_*` in Actions to fake FULL coverage. Never use production as an E2E sandbox.
 
-If a task looks like “fix skipped tests,” “enable branch protection,” or `buy_pro`: stop, link #241, and ask the founder.
+If a task looks like "fix skipped tests," "enable branch protection," or `buy_pro`: stop, link #241, and ask the founder.
 
 ## Operator manual (humans + agents)
 
@@ -38,7 +67,7 @@ Actions `verify` + `e2e` → `node scripts/ci-coverage-report.mjs` →
 - **GitHub:** https://github.com/HoMI-Technology/Homi-Tech-Production
 - **Local only (this PC):** `C:\Users\Quality Assurance\Desktop\HoMI_Tech_Github_Build` (GitHub worktrees under `Desktop\homi-worktrees\`). Never treat Branding-Marketing copies, ultra-premium 4-root snapshots, or zips as product truth.
 - **Default branch:** `main`
-- **Never** treat Desktop `HoMI Tech` dumps, zips, or other clones as product truth.
+- **Never** treat Desktop `HoMI Tech` dumps, zips, other clones, **or Google Drive build folders** as product truth. (See the hierarchy at the top.)
 
 ### Marketing assets & GTM (canonical)
 
@@ -121,7 +150,7 @@ pwsh -File C:\Users\cody\ai-server\scripts\homi-ssot.ps1 pipeline -Task "..."
 ./scripts/homi-ssot.sh push "wip: message" # commit everything + push current branch, set upstream
 ```
 
-## Product guardrails (extracted from BUILD-BRIEF §1, 2026-08-03)
+## Product guardrails (verified against executable TS 2026-09-14)
 
 The build brief now lives at `docs/archive/BUILD-BRIEF.md`; its §1 guardrails
 remain binding and are carried here. Violating any of these = stop and fix.
@@ -148,6 +177,12 @@ remain binding and are carried here. Violating any of these = stop and fix.
 5. **Add a test for every fix that has logic.** Especially: webhook
    signature/idempotency/tier-mapping, share ownership, entitlements, and the
    verdict-canon guard (`npm run test:acceptance`).
+6. **Honesty cord (carried from the Grok money planner, now binding repo-wide).**
+   Never invent balances, scores, or states. Surfaces are empty-or-live.
+   Unknown values render as `null`/empty, never `0`. Score states are exactly:
+   `unscored` / `standing_from_ledger` / `shadow_modelled` /
+   `official_assessment` — only the last is a HōMI verdict. AI explains; it
+   never calculates, invents, or overrides.
 
 ## Scoped work — one Section per task
 
@@ -167,6 +202,8 @@ directory-to-Section index.
 ## Product notes
 
 - Next.js app (`homi-production`): `app/`, `components/`, `lib/`, `supabase/`
+- Design targets for the rebuild live in `prototypes/` (single-file HTML,
+  canon-locked) — e.g. `prototypes/ultra-premium/front-door.html`
 - Keep secrets out of git; use `.env.local` (gitignored)
 
 ## Agent-scrapable architecture feed + Design Doc
