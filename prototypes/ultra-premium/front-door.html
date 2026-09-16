@@ -233,7 +233,7 @@
     <a href="#pillars">The Three Truths</a>
     <a href="#verdicts">Verdicts</a>
     <a href="#how">How it works</a>
-    <a href="#companion">Homie</a>
+    <a href="#companion">The Companion</a>
   </div>
   <a class="cta small" href="#how">Check readiness <span class="orb">→</span></a>
 </nav>
@@ -256,26 +256,39 @@
       <!-- Canonical Threshold Compass — orbit/keyhole system -->
       <svg viewBox="0 0 200 200" width="420" height="420" role="img" aria-label="HōMI Threshold Compass showing Financial Reality, Emotional Truth, and Perfect Timing around the user at the decision threshold.">
         <defs>
+          <radialGradient id="tcbg" cx="50%" cy="40%" r="72%">
+            <stop offset="0%" stop-color="#12263f"/>
+            <stop offset="62%" stop-color="#0c1a2d"/>
+            <stop offset="100%" stop-color="#071222"/>
+          </radialGradient>
           <filter id="tcg" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="tcgg" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
           <filter id="tck" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
         </defs>
+        <!-- backdrop disc + faint instrument hairlines (static) -->
+        <circle cx="100" cy="100" r="99" fill="url(#tcbg)" stroke="rgba(34,211,238,.10)" stroke-width="1"/>
+        <circle cx="100" cy="100" r="73" fill="none" stroke="#22d3ee" stroke-width=".5" opacity=".07"/>
+        <circle cx="100" cy="100" r="48" fill="none" stroke="#34d399" stroke-width=".5" opacity=".06"/>
+        <circle cx="100" cy="100" r="90" fill="none" stroke="#22d3ee" stroke-width=".6" opacity=".06" stroke-dasharray="1.5 4"/>
         <g class="tc-outer" filter="url(#tcg)">
-          <circle cx="100" cy="100" r="85" stroke="#22d3ee" stroke-width="1.8" fill="none" opacity="0.7"/>
-          <circle cx="100" cy="15" r="3.2" fill="#22d3ee"/><circle cx="185" cy="100" r="3.2" fill="#22d3ee"/>
-          <circle cx="100" cy="185" r="3.2" fill="#22d3ee"/><circle cx="15" cy="100" r="3.2" fill="#22d3ee"/>
+          <circle cx="100" cy="100" r="85" stroke="#22d3ee" stroke-width="4.5" fill="none" opacity=".28" filter="url(#tcgg)"/>
+          <circle cx="100" cy="100" r="85" stroke="#22d3ee" stroke-width="2" fill="none" opacity="0.65"/>
+          <circle cx="100" cy="15" r="3" fill="#22d3ee"/><circle cx="185" cy="100" r="3" fill="#22d3ee"/>
+          <circle cx="100" cy="185" r="3" fill="#22d3ee"/><circle cx="15" cy="100" r="3" fill="#22d3ee"/>
         </g>
         <g class="tc-middle" filter="url(#tcg)">
-          <circle cx="100" cy="100" r="57" stroke="#34d399" stroke-width="1.8" fill="none" opacity="0.7"/>
-          <circle cx="100" cy="43" r="2.6" fill="#34d399"/><circle cx="157" cy="100" r="2.6" fill="#34d399"/>
-          <circle cx="100" cy="157" r="2.6" fill="#34d399"/><circle cx="43" cy="100" r="2.6" fill="#34d399"/>
+          <circle cx="100" cy="100" r="60" stroke="#34d399" stroke-width="4" fill="none" opacity=".25" filter="url(#tcgg)"/>
+          <circle cx="100" cy="100" r="60" stroke="#34d399" stroke-width="2" fill="none" opacity="0.75"/>
+          <circle cx="100" cy="40" r="2.5" fill="#34d399"/><circle cx="160" cy="100" r="2.5" fill="#34d399"/>
+          <circle cx="100" cy="160" r="2.5" fill="#34d399"/><circle cx="40" cy="100" r="2.5" fill="#34d399"/>
         </g>
         <g class="tc-inner" filter="url(#tcg)">
-          <circle cx="100" cy="100" r="36" stroke="#facc15" stroke-width="2.4" fill="none" opacity="0.85"/>
+          <circle cx="100" cy="100" r="35" stroke="#facc15" stroke-width="4" fill="none" opacity=".30" filter="url(#tcgg)"/>
+          <circle cx="100" cy="100" r="35" stroke="#facc15" stroke-width="2" fill="none" opacity="0.85"/>
         </g>
         <g filter="url(#tck)">
-          <circle cx="100" cy="100" r="9" fill="none" stroke="#facc15" stroke-width="1.6" opacity="0.95"/>
-          <circle cx="100" cy="96.8" r="2.8" fill="#facc15"/>
-          <rect x="98.9" y="98.8" width="2.2" height="7" rx="1.1" fill="#facc15"/>
+          <circle cx="100" cy="96" r="5" fill="#facc15"/>
+          <rect x="97" y="96" width="6" height="12" rx="1" fill="#facc15"/>
         </g>
       </svg>
     </div>
@@ -370,16 +383,16 @@
 <section id="companion" class="companion">
   <div class="wrap">
     <div>
-      <span class="eyebrow reveal"><span class="dot"></span> Your homie, not your banker</span>
+      <span class="eyebrow reveal"><span class="dot"></span> Your HōMI, not your banker</span>
       <h2 class="reveal d1">Clarity,<br>not <em>commission.</em></h2>
-      <p class="reveal d2">HōMI is not a lender, broker, or agent — and never earns from your yes. Homie walks you through your results, explains what the numbers mean, and protects the value of waiting when waiting is the right move.</p>
+      <p class="reveal d2">HōMI is not a lender, broker, or agent — and never earns from your yes. HōMI walks you through your results, explains what the numbers mean, and protects the value of waiting when waiting is the right move.</p>
       <p class="reveal d3">AI explains your score. It never calculates it, never overrides it, and never pressures you toward anyone's product.</p>
     </div>
     <div class="chat reveal d2"><div class="chat-core">
       <div class="msg user">Everyone says I should buy now before prices go up again.</div>
-      <div class="msg homie"><span class="who">Homie</span>"Everyone" gets paid when you buy. Let's look at your rings instead — your Financial Reality is solid, but your Timing orbit says your next eight months are unstable. That's worth understanding before anyone's deadline.</div>
+      <div class="msg homie"><span class="who">HōMI</span>"Everyone" gets paid when you buy. Let's look at your rings instead — your Financial Reality is solid, but your Timing orbit says your next eight months are unstable. That's worth understanding before anyone's deadline.</div>
       <div class="msg user">So... not yet?</div>
-      <div class="msg homie"><span class="who">Homie</span>Not yet is not no. Here's what would change the answer — and two of the three things are already in motion.</div>
+      <div class="msg homie"><span class="who">HōMI</span>Not yet is not no. Here's what would change the answer — and two of the three things are already in motion.</div>
     </div></div>
   </div>
 </section>
